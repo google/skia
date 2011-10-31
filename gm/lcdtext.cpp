@@ -30,13 +30,8 @@ protected:
 
     SkISize onISize() { return make_isize(640, 480); }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+        
         y = textHeight;
         drawText(canvas, SkString("TEXT: SubpixelTrue LCDRenderTrue"),
                  true,  true);

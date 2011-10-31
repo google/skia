@@ -12,7 +12,9 @@ namespace skiagm {
 
 class BlursGM : public GM {
 public:
-    BlursGM() {}
+    BlursGM() {
+        this->setBGColor(0xFFDDDDDD);
+    }
 
 protected:
     virtual SkString onShortName() {
@@ -23,13 +25,7 @@ protected:
         return make_isize(700, 500);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
-        drawBG(canvas);
-
         SkBlurMaskFilter::BlurStyle NONE = SkBlurMaskFilter::BlurStyle(-999);
         static const struct {
             SkBlurMaskFilter::BlurStyle fStyle;

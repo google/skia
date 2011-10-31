@@ -46,8 +46,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
 

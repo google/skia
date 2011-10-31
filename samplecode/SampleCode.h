@@ -5,6 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+
 #ifndef SampleCode_DEFINED
 #define SampleCode_DEFINED
 
@@ -39,19 +41,59 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-typedef SkView* (*SkViewFactory)();
-
-class SkViewRegister : SkNoncopyable {
+// interface that constructs SkViews
+class SkViewFactory : public SkRefCnt {
 public:
-    explicit SkViewRegister(SkViewFactory);
+    virtual SkView* operator() () const = 0;
+};
+
+typedef SkView* (*SkViewCreateFunc)();
+
+// wraps SkViewCreateFunc in SkViewFactory interface
+class SkFuncViewFactory : public SkViewFactory {
+public:
+    SkFuncViewFactory(SkViewCreateFunc func);
+    virtual SkView* operator() () const SK_OVERRIDE;
+    
+private:
+    SkViewCreateFunc fCreateFunc;
+};
+
+namespace skiagm {
+class GM;
+}
+
+// factory function that creates a skiagm::GM
+typedef skiagm::GM* (*GMFactoryFunc)(void*);
+
+// Takes a GM factory function and implements the SkViewFactory interface 
+// by making the GM and wrapping it in a GMSampleView. GMSampleView bridges
+// the SampleView interface to skiagm::GM.
+class SkGMSampleViewFactory : public SkViewFactory {
+public:
+    SkGMSampleViewFactory(GMFactoryFunc func);
+    virtual SkView* operator() () const SK_OVERRIDE;
+private:
+    GMFactoryFunc fFunc;
+};
+
+class SkViewRegister : public SkRefCnt {
+public:
+    explicit SkViewRegister(SkViewFactory*);
+    explicit SkViewRegister(SkViewCreateFunc);
+    explicit SkViewRegister(GMFactoryFunc);
+
+    ~SkViewRegister() {
+        fFact->unref();
+    }
     
     static const SkViewRegister* Head() { return gHead; }
     
     SkViewRegister* next() const { return fChain; }
-    SkViewFactory   factory() const { return fFact; }
+    const SkViewFactory*   factory() const { return fFact; }
     
 private:
-    SkViewFactory   fFact;
+    SkViewFactory*  fFact;
     SkViewRegister* fChain;
     
     static SkViewRegister* gHead;

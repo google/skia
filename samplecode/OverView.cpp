@@ -20,7 +20,7 @@ bool is_overview(SkView* view) {
 }
 class OverView : public SkView {
 public:
-    OverView(int count, const SkViewFactory factories[]);
+    OverView(int count, const SkViewFactory* factories[]);
     virtual ~OverView();
     
 protected:
@@ -61,17 +61,16 @@ protected:
 
 private:
     int             fCount;
-    const SkViewFactory*  fFactories;
+    const SkViewFactory**  fFactories;
 
     typedef SkView INHERITED;
 };
 
-SkView* create_overview(int count, const SkViewFactory factories[]);
-SkView* create_overview(int count, const SkViewFactory factories[]) {
+SkView* create_overview(int count, const SkViewFactory* factories[]) {
     return SkNEW_ARGS(OverView, (count, factories));
 };
 
-OverView::OverView(int count, const SkViewFactory factories[]) {
+OverView::OverView(int count, const SkViewFactory* factories[]) {
     fCount = count;
     fFactories = factories;
 }
@@ -89,7 +88,7 @@ void OverView::onSizeChange() {
     SkScalar locX = 0;
     SkScalar locY = 0;
     for (int i = 0; i < fCount; i++) {
-        SkView* view = fFactories[i]();
+        SkView* view = (*fFactories[i])();
         view->setVisibleP(true);
         this->attachChildToBack(view)->unref();
         view->setLoc(locX, locY);

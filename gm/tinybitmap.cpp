@@ -35,6 +35,7 @@ class TinyBitmapGM : public GM {
     SkBitmap    fBM;
 public:
     TinyBitmapGM() {
+        this->setBGColor(0xFFDDDDDD);
         fBM = make_bitmap();
     }
     
@@ -46,7 +47,6 @@ protected:
     virtual SkISize onISize() { return make_isize(100, 100); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
         SkShader* s = 
             SkShader::CreateBitmapShader(fBM, SkShader::kRepeat_TileMode,
                                          SkShader::kMirror_TileMode);
