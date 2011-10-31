@@ -232,6 +232,20 @@ static void determine_gpu_context_size(SkTDict<const char*>& defineDict,
     }
 }
 
+static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
+    if (0 == array.count()) {
+        // no names, so don't skip anything
+        return false;
+    }
+    for (int i = 0; i < array.count(); ++i) {
+        if (strstr(name, array[i])) {
+            // found the name, so don't skip
+            return false;
+        }
+    }
+    return true;
+}
+
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
     
@@ -247,10 +261,10 @@ int main (int argc, char * const argv[]) {
     bool doScale = false;
     bool doRotate = false;
     bool doClip = false;
-    const char* matchStr = NULL;
     bool hasStrokeWidth = false;
     float strokeWidth;
     bool useNullGL = false;
+    SkTDArray<const char*> fMatches;
     
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
@@ -342,7 +356,7 @@ int main (int argc, char * const argv[]) {
         } else if (strcmp(*argv, "-match") == 0) {
             argv++;
             if (argv < stop) {
-                matchStr = *argv;
+                *fMatches.append() = *argv;
             } else {
                 log_error("missing arg for -match\n");
                 return -1;
@@ -485,7 +499,7 @@ int main (int argc, char * const argv[]) {
         }
         
         // only run benchmarks if their name contains matchStr
-        if (matchStr && strstr(bench->getName(), matchStr) == NULL) {
+        if (skip_name(fMatches, bench->getName())) {
             continue;
         }
         
