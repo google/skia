@@ -243,23 +243,6 @@ public:
     bool copyPixelsTo(void* const dst, size_t dstSize, int dstRowBytes = -1)
          const;
 
-    /** Copies the pixels at location src to the bitmap's pixel buffer.
-        Returns true if copy if possible (bitmap buffer is large enough),
-        false otherwise.
-
-        Like copyPixelsTo, this function may write values beyond the end of
-        each row, although never outside the defined buffer.
-
-        Always returns false for RLE formats.
-
-        @param src      Location of the source buffer.
-        @param srcSize  Height of source buffer in pixels.
-        @param srcRowBytes  Width of each line in the buffer. If -1, uses i
-                            bitmap's internal stride.
-    */
-    bool copyPixelsFrom(const void* const src, size_t srcSize,
-                        int srcRowBytes = -1);
-
     /** Use the standard HeapAllocator to create the pixelref that manages the
         pixel memory. It will be sized based on the current width/height/config.
         If this is called multiple times, a new pixelref object will be created
