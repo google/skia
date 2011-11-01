@@ -366,6 +366,24 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class AutoCFDataRelease {
+public:
+    AutoCFDataRelease(CFDataRef obj) : fObj(obj) {}
+    const uint16_t* getShortPtr() { 
+        return fObj ? (const uint16_t*) CFDataGetBytePtr(fObj) : NULL; 
+    }
+    ~AutoCFDataRelease() { CFRelease(fObj); }
+private:
+    CFDataRef fObj;
+};
+
+struct GlyphRect {
+    int16_t mMinX;
+    int16_t mMinY;
+    int16_t mMaxX;
+    int16_t mMaxY;
+};
+
 class SkScalerContext_Mac : public SkScalerContext {
 public:
                                         SkScalerContext_Mac(const SkDescriptor* desc);
@@ -384,6 +402,8 @@ protected:
 
 private:
     static void                         CTPathElement(void *info, const CGPathElement *element);
+    uint16_t                            getAdjustStart();
+    bool                                generateBBoxes();
 
 
 private:
@@ -391,13 +411,22 @@ private:
     CGColorSpaceRef                     mColorSpaceRGB;
     CGAffineTransform                   mTransform;
     SkMatrix                            mMatrix;
+    SkMatrix                            mAdjustBadMatrix;
 
     CTFontRef                           mFont;
+    CGFontRef                           mCGFont;
+    GlyphRect*                          mAdjustBad;
+    uint16_t                            mAdjustStart;
     uint16_t                            mGlyphCount;
+    bool                                mGeneratedBBoxes;
 };
 
 SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
         : SkScalerContext(desc)
+        , mAdjustBad(NULL)
+        , mAdjustStart(0)
+        , mCGFont(NULL)
+        , mGeneratedBBoxes(false)
 {   CFIndex             numGlyphs;
     CTFontRef           ctFont;
 
@@ -441,9 +470,122 @@ SkScalerContext_Mac::~SkScalerContext_Mac(void)
 {
 
     // Clean up
+    delete[] mAdjustBad;
     CFSafeRelease(mColorSpaceGray);
     CFSafeRelease(mColorSpaceRGB);
     CFSafeRelease(mFont);
+    if (mCGFont) {
+        CGFontRelease(mCGFont);
+    }
+}
+
+/* from http://developer.apple.com/fonts/TTRefMan/RM06/Chap6loca.html
+ * There are two versions of this table, the short and the long. The version
+ * used is specified in the Font Header ('head') table in the indexToLocFormat
+ * field. The choice of long or short offsets is dependent on the maximum
+ * possible offset distance.
+ *
+ * 'loca' short version: The actual local offset divided by 2 is stored. 
+ * 'loca' long version: The actual local offset is stored.
+ * 
+ * The result is a offset into a table of 2 byte (16 bit) entries.
+ */
+static uint32_t getLocaTableEntry(const uint16_t*& locaPtr, int locaFormat) {
+    uint32_t data = SkEndian_SwapBE16(*locaPtr++); // short
+    if (locaFormat) {
+        data = data << 15 | SkEndian_SwapBE16(*locaPtr++) >> 1; // long
+    }
+    return data;
+}
+
+// see http://developer.apple.com/fonts/TTRefMan/RM06/Chap6hhea.html
+static uint16_t getNumLongMetrics(const uint16_t* hheaData) {
+    const int kNumOfLongHorMetrics = 17;
+    return SkEndian_SwapBE16(hheaData[kNumOfLongHorMetrics]);
+}
+
+// see http://developer.apple.com/fonts/TTRefMan/RM06/Chap6head.html
+static int getLocaFormat(const uint16_t* headData) {
+    const int kIndexToLocFormat = 25;
+    return SkEndian_SwapBE16(headData[kIndexToLocFormat]);
+}
+
+// see http://developer.apple.com/fonts/TTRefMan/RM06/Chap6head.html
+SkScalar getFontScale(const uint16_t* headData) {
+    const int kUnitsPerEm = 9;
+    int unitsPerEm = SkEndian_SwapBE16(headData[kUnitsPerEm]);
+    return SkScalarInvert(SkIntToScalar(unitsPerEm));
+}
+
+uint16_t SkScalerContext_Mac::getAdjustStart() {
+    if (mAdjustStart) {
+        return mAdjustStart;
+    }
+    mAdjustStart = mGlyphCount; // fallback for all fonts
+    mCGFont = CTFontCopyGraphicsFont(mFont, NULL);
+    AutoCFDataRelease hheaRef(CGFontCopyTableForTag(mCGFont, 'hhea'));
+    const uint16_t* hheaData = hheaRef.getShortPtr();
+    if (hheaData) {
+        mAdjustStart = getNumLongMetrics(hheaData);
+    }
+    return mAdjustStart;
+}
+
+/*
+ * Lion has a bug in CTFontGetBoundingRectsForGlyphs which returns a bad value
+ * in theBounds.origin.x for fonts whose numOfLogHorMetrics is less than its
+ * glyph count. This workaround reads the glyph bounds from the font directly.
+ *
+ * The table is computed only if the font is a TrueType font, if the glyph
+ * value is >= mAdjustStart. (called only if mAdjustStart < mGlyphCount).
+ *
+ * TODO: A future optimization will compute mAdjustBad once per CGFont, and
+ * compute mAdjustBadMatrix once per font context.
+ */
+bool SkScalerContext_Mac::generateBBoxes() {
+    if (mGeneratedBBoxes) {
+        return NULL != mAdjustBad;
+    }
+    mGeneratedBBoxes = true;
+    AutoCFDataRelease headRef(CGFontCopyTableForTag(mCGFont, 'head'));
+    const uint16_t* headData = headRef.getShortPtr();
+    if (!headData) {
+        return false;
+    }
+    AutoCFDataRelease locaRef(CGFontCopyTableForTag(mCGFont, 'loca'));
+    const uint16_t* locaData = locaRef.getShortPtr();
+    if (!locaData) {
+        return false;
+    }
+    AutoCFDataRelease glyfRef(CGFontCopyTableForTag(mCGFont, 'glyf'));
+    const uint16_t* glyfData = glyfRef.getShortPtr();
+    if (!glyfData) {
+        return false;
+    }
+    CFIndex entries = mGlyphCount - mAdjustStart;
+    mAdjustBad = new GlyphRect[entries];
+    int locaFormat = getLocaFormat(headData);
+    const uint16_t* locaPtr = &locaData[mAdjustStart << locaFormat];
+    uint32_t last = getLocaTableEntry(locaPtr, locaFormat);
+    for (CFIndex index = 0; index < entries; ++index) {
+        uint32_t offset = getLocaTableEntry(locaPtr, locaFormat);
+        GlyphRect& rect = mAdjustBad[index];
+        if (offset != last) {
+            rect.mMinX = SkEndian_SwapBE16(glyfData[last + 1]);
+            rect.mMinY = SkEndian_SwapBE16(glyfData[last + 2]);
+            rect.mMaxX = SkEndian_SwapBE16(glyfData[last + 3]);
+            rect.mMaxY = SkEndian_SwapBE16(glyfData[last + 4]);
+        } else {
+            sk_bzero(&rect, sizeof(GlyphRect));
+        }
+        last = offset;
+    }
+    mAdjustBadMatrix = mMatrix;
+    mAdjustBadMatrix.setSkewX(-mMatrix.getSkewX());
+    mAdjustBadMatrix.setSkewY(-mMatrix.getSkewY());
+    SkScalar fontScale = getFontScale(headData);
+    mAdjustBadMatrix.preScale(fontScale, fontScale);
+    return true;
 }
 
 unsigned SkScalerContext_Mac::generateGlyphCount(void)
@@ -532,6 +674,15 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
 
     // Get the metrics
     if (isLion()) {
+        if (cgGlyph < mGlyphCount && cgGlyph >= getAdjustStart() 
+                    && generateBBoxes()) {
+            SkRect adjust;
+            const GlyphRect& gRect = mAdjustBad[cgGlyph - mAdjustStart];
+            adjust.set(gRect.mMinX, gRect.mMinY, gRect.mMaxX, gRect.mMaxY);
+            mAdjustBadMatrix.mapRect(&adjust);
+            theBounds.origin.x = SkScalarToFloat(adjust.fLeft) - 1;
+            theBounds.origin.y = SkScalarToFloat(adjust.fTop) - 1;
+        }
         // Lion returns fractions in the bounds
         glyph->fWidth = sk_float_ceil2int(theBounds.size.width);
         glyph->fHeight = sk_float_ceil2int(theBounds.size.height);
@@ -541,11 +692,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     }
     glyph->fTop      = -sk_float_round2int(CGRectGetMaxY(theBounds));
     glyph->fLeft     =  sk_float_round2int(CGRectGetMinX(theBounds));
-    if (isLion() && glyph->fLeft < 0) {
-        // Lion returns negative left bounds where Snow Leopard is positive.
-        // Increasing the width by the left side + 1 avoid clipping the bits.
-        glyph->fWidth -= glyph->fLeft - 1;
-    }
 }
 
 #include "SkColorPriv.h"
