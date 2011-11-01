@@ -61,6 +61,13 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     *  Return the width/height of the underlying device. The current drawable
+     *  area may be small (due to clipping or saveLayer). For a canvas with
+     *  no device, 0,0 will be returned.
+     */
+    SkISize getDeviceSize() const;
+
     /** Return the canvas' device object, which may be null. The device holds
         the bitmap of the pixels that the canvas draws into. The reference count
         of the returned device is not changed by this call.
