@@ -502,41 +502,6 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize, int dstRowBytes)
     }
 }
 
-bool SkBitmap::copyPixelsFrom(const void* const src, size_t srcSize,
-                              int srcRowBytes) {
-
-    if (srcRowBytes == -1)
-        srcRowBytes = fRowBytes;
-    SkASSERT(srcRowBytes >= 0);
-
-    size_t safeSize = getSafeSize();
-    uint32_t rowBytes = ComputeRowBytes(getConfig(), fWidth);
-    if (getConfig() == kRLE_Index8_Config || src == NULL ||
-        static_cast<uint32_t>(srcRowBytes) < rowBytes ||
-        safeSize == 0 ||
-        srcSize < ComputeSafeSize(getConfig(), fWidth, fHeight, srcRowBytes)) {
-        return false;
-    }
-
-    SkAutoLockPixels lock(*this);
-    if (static_cast<uint32_t>(srcRowBytes) == fRowBytes) {
-        // This implementation will write bytes beyond the end of each row,
-        // excluding the last row, if the bitmap's stride is greater than
-        // strictly required by the current config.
-        memcpy(getPixels(), src, safeSize);
-    } else {
-        // Just copy the bytes we need on each line.
-        const uint8_t* srcP = reinterpret_cast<const uint8_t*>(src);
-        uint8_t* dstP = reinterpret_cast<uint8_t*>(getPixels());
-        for (uint32_t row = 0; row < fHeight;
-             row++, srcP += srcRowBytes, dstP += fRowBytes) {
-            memcpy(dstP, srcP, rowBytes);
-        }
-    }
-
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::isOpaque() const {
