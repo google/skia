@@ -466,6 +466,11 @@ SkDrawFilter* SkCanvas::setDrawFilter(SkDrawFilter* filter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkISize SkCanvas::getDeviceSize() const {
+    SkDevice* d = this->getDevice();
+    return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);
+}
+
 SkDevice* SkCanvas::getDevice() const {
     // return root device
     SkDeque::F2BIter iter(fMCStack);
