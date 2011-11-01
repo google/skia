@@ -283,8 +283,12 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
         SkASSERT(start_y > fCurrIY);
         this->flush();
 
-        const int coverageL = coverage_to_alpha(xleft);
-        const int coverageR = coverage_to_alpha(xrite);
+        // to be compatible with the blitH() version, we just shift these
+        // values up. If we didn't care about that, we could be more precise
+        // and compute these exactly (e.g. 2->128 instead of 2->124)
+        //
+        const int coverageL = coverage_to_alpha(xleft) << SHIFT;
+        const int coverageR = coverage_to_alpha(xrite) << SHIFT;
         SkASSERT(n + (coverageR != 0) <= fWidth);
 
         for (int i = start_y; i < stop_y; ++i) {
