@@ -774,6 +774,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
         fontMetrics =
             SkFontHost::GetAdvancedTypefaceMetrics(fontID, info, NULL, 0);
 #if defined (SK_SFNTLY_SUBSETTER)
+        SkASSERT(fontMetrics);
         SkSafeUnref(fontMetrics.get());  // SkRefPtr and Get both took a ref.
         if (fontMetrics &&
             fontMetrics->fType != SkAdvancedTypefaceMetrics::kTrueType_Font) {
