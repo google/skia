@@ -171,13 +171,40 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
     return (SkTypeface::Style)style;
 }
 
+class AutoCFDataRelease {
+public:
+    AutoCFDataRelease(CFDataRef obj) : fObj(obj) {}
+    const uint16_t* getShortPtr() { 
+        return fObj ? (const uint16_t*) CFDataGetBytePtr(fObj) : NULL; 
+    }
+    ~AutoCFDataRelease() { CFRelease(fObj); }
+private:
+    CFDataRef fObj;
+};
+
 static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
     ATSFontRef ats = CTFontGetPlatformFont(fontRef, NULL);
+    SkFontID id = (SkFontID)ats;
+    if (id != 0) {
+        id &= 0x3FFFFFFF; // make top two bits 00
+        return id;
+    }
     // CTFontGetPlatformFont returns NULL if the font is local 
     // (e.g., was created by a CSS3 @font-face rule).
-    // FIXME: This may fail if fontRef is reused, or if the 64 bit pointer
-    // duplicates the lowest 32 bits.  
-    return ats ? (SkFontID)ats : (SkFontID)fontRef;
+    CGFontRef cgFont = CTFontCopyGraphicsFont(fontRef, NULL);
+    AutoCFDataRelease headRef(CGFontCopyTableForTag(cgFont, 'head'));
+    const uint16_t* headData = headRef.getShortPtr();
+    if (headData) {
+        id = (SkFontID) (headData[4] | headData[5] << 16); // checksum
+        id = id & 0x3FFFFFFF | 0x40000000; // make top two bits 01
+    }
+    // well-formed fonts have checksums, but as a last resort, use the pointer.
+    if (id == 0) {
+        id = (SkFontID) (uintptr_t) fontRef;
+        id = id & 0x3FFFFFFF | 0x80000000; // make top two bits 10
+    }
+    CGFontRelease(cgFont);
+    return id;
 }
 
 class SkTypeface_Mac : public SkTypeface {
@@ -365,17 +392,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-class AutoCFDataRelease {
-public:
-    AutoCFDataRelease(CFDataRef obj) : fObj(obj) {}
-    const uint16_t* getShortPtr() { 
-        return fObj ? (const uint16_t*) CFDataGetBytePtr(fObj) : NULL; 
-    }
-    ~AutoCFDataRelease() { CFRelease(fObj); }
-private:
-    CFDataRef fObj;
-};
 
 struct GlyphRect {
     int16_t mMinX;
