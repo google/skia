@@ -90,10 +90,8 @@ protected:
     virtual void onForceRenderTargetFlush();
 
     virtual bool onReadPixels(GrRenderTarget* target,
-                              int left, int top, 
-                              int width, int height,
-                              GrPixelConfig, 
-                              void* buffer, size_t rowBytes) SK_OVERRIDE;
+                              int left, int top, int width, int height,
+                              GrPixelConfig, void* buffer);
 
     virtual void onGpuDrawIndexed(GrPrimitiveType type,
                                   uint32_t startVertex,

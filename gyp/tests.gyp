@@ -47,7 +47,6 @@
         '../tests/PDFPrimitivesTest.cpp',
         '../tests/PointTest.cpp',
         '../tests/Reader32Test.cpp',
-        '../tests/ReadPixelsTest.cpp',
         '../tests/RefDictTest.cpp',
         '../tests/RegionTest.cpp',
         '../tests/Sk64Test.cpp',

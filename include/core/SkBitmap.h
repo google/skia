@@ -225,11 +225,12 @@ public:
     /** Copies the bitmap's pixels to the location pointed at by dst and returns
         true if possible, returns false otherwise.
 
-        In the case when the dstRowBytes matches the bitmap's rowBytes, the copy
-        may be made faster by copying over the dst's per-row padding (for all
-        rows but the last). By setting preserveDstPad to true the caller can
-        disable this optimization and ensure that pixels in the padding are not
-        overwritten.
+        In the event that the bitmap's stride is equal to dstRowBytes, and if
+        it is greater than strictly required by the bitmap's current config
+        (this may happen if the bitmap is an extracted subset of another), then
+        this function will copy bytes past the eand of each row, excluding the
+        last row. No copies are made outside of the declared size of dst,
+        however.
 
         Always returns false for RLE formats.
 
@@ -238,10 +239,8 @@ public:
                         pixels using indicated stride.
         @param dstRowBytes  Width of each line in the buffer. If -1, uses
                             bitmap's internal stride.
-        @param preserveDstPad Must we preserve padding in the dst
     */
-    bool copyPixelsTo(void* const dst, size_t dstSize, int dstRowBytes = -1,
-                      bool preserveDstPad = false)
+    bool copyPixelsTo(void* const dst, size_t dstSize, int dstRowBytes = -1)
          const;
 
     /** Use the standard HeapAllocator to create the pixelref that manages the

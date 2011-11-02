@@ -180,8 +180,6 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      the number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
      *
      * @return true if the read succeeded, false if not. The read can fail
      *              because of a unsupported pixel config or because no render
@@ -189,7 +187,7 @@ public:
      */
     bool readPixels(GrRenderTarget* renderTarget,
                     int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer, size_t rowBytes);
+                    GrPixelConfig config, void* buffer);
 
     const GrGpuStats& getStats() const;
     void resetStats();
@@ -323,7 +321,7 @@ protected:
     // overridden by API-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top, int width, int height,
-                              GrPixelConfig, void* buffer, size_t rowBytes) = 0;
+                              GrPixelConfig, void* buffer) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
     // indexed geometry. The subclass may adjust the startVertex and/or
