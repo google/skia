@@ -22,6 +22,7 @@
     '../bench/BlurBench.cpp',
     '../bench/ChromeBench.cpp',
     '../bench/DecodeBench.cpp',
+    '../bench/FontScalerBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
