@@ -135,20 +135,20 @@ bool SkDevice::readPixels(SkBitmap* bitmap, int x, int y) {
     SkBitmap bmpSubset;
     bmp->extractSubset(&bmpSubset, subrect);
 
-    bool result = this->onReadPixels(&bmpSubset, srcRect.fLeft, srcRect.fTop);
+    bool result = this->onReadPixels(bmpSubset, srcRect.fLeft, srcRect.fTop);
     if (result && bmp == &tmp) {
         tmp.swap(*bitmap);
     }
     return result;
 }
 
-bool SkDevice::onReadPixels(const SkBitmap* bitmap, int x, int y) {
-    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap->config());
-    SkASSERT(!bitmap->isNull());
-    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap->width(), bitmap->height())));
+bool SkDevice::onReadPixels(const SkBitmap& bitmap, int x, int y) {
+    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
+    SkASSERT(!bitmap.isNull());
+    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
 
-    SkIRect srcRect = SkIRect::MakeXYWH(x, y, bitmap->width(),
-                                              bitmap->height());
+    SkIRect srcRect = SkIRect::MakeXYWH(x, y, bitmap.width(),
+                                              bitmap.height());
     const SkBitmap& src = this->accessBitmap(false);
 
     SkBitmap subset;
@@ -161,10 +161,10 @@ bool SkDevice::onReadPixels(const SkBitmap* bitmap, int x, int y) {
         // or make copyTo lazily allocate.
         subset.copyTo(&subset, SkBitmap::kARGB_8888_Config); 
     }
-    SkAutoLockPixels alp(*bitmap);
-    return subset.copyPixelsTo(bitmap->getPixels(),
-                               bitmap->getSize(),
-                               bitmap->rowBytes(),
+    SkAutoLockPixels alp(bitmap);
+    return subset.copyPixelsTo(bitmap.getPixels(),
+                               bitmap.getSize(),
+                               bitmap.rowBytes(),
                                true);
 }
 

@@ -158,7 +158,7 @@ public:
     }
     
 protected:
-    virtual bool onReadPixels(const SkBitmap* bitmap,
+    virtual bool onReadPixels(const SkBitmap& bitmap,
                               int x, int y) SK_OVERRIDE {
         return false;
     }

@@ -275,9 +275,8 @@ protected:
      *  2. bitmap has pixels.
      *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
      *     contained in the device bounds.
-     *  4. the bitmap struct is safe to partially overwrite in case of failure
      */
-    virtual bool onReadPixels(const SkBitmap* bitmap, int x, int y);
+    virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y);
 
 
     /** Called when this device is installed into a Canvas. Balanaced by a call
