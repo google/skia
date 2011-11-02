@@ -550,24 +550,32 @@ SkDevice* SkCanvas::setBitmapDevice(const SkBitmap& bitmap) {
     return device;
 }
 
-bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
+bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
     SkDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
-    return device->readPixels(srcRect, bitmap);
+    return device->readPixels(bitmap, x, y);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-bool SkCanvas::readPixels(SkBitmap* bitmap) {
+bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
     SkDevice* device = this->getDevice();
-    if (!device) {
-        return false;
-    }
+    
     SkIRect bounds;
     bounds.set(0, 0, device->width(), device->height());
-    return this->readPixels(bounds, bitmap);
+    if (!bounds.intersect(srcRect)) {
+        return false;
+    }
+
+    SkBitmap tmp;
+    tmp.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(),
+                                               bounds.height());
+    if (this->readPixels(&tmp, bounds.fLeft, bounds.fTop)) {
+        bitmap->swap(tmp);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {

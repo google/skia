@@ -102,27 +102,70 @@ void SkDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& region,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkDevice::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
-    const SkBitmap& src = this->accessBitmap(false);
-
-    SkIRect bounds;
-    bounds.set(0, 0, src.width(), src.height());
-    if (!bounds.intersect(srcRect)) {
+bool SkDevice::readPixels(SkBitmap* bitmap, int x, int y) {
+    if (SkBitmap::kARGB_8888_Config != bitmap->config() ||
+        NULL != bitmap->getTexture()) {
         return false;
     }
 
-    SkBitmap subset;
-    if (!src.extractSubset(&subset, bounds)) {
+    const SkBitmap& src = this->accessBitmap(false);
+
+    SkIRect srcRect = SkIRect::MakeXYWH(x, y, bitmap->width(),
+                                              bitmap->height());
+    SkIRect devbounds = SkIRect::MakeWH(src.width(), src.height());
+    if (!srcRect.intersect(devbounds)) {
         return false;
     }
 
     SkBitmap tmp;
-    if (!subset.copyTo(&tmp, SkBitmap::kARGB_8888_Config)) {
-        return false;
+    SkBitmap* bmp;
+    if (bitmap->isNull()) {
+        tmp.setConfig(SkBitmap::kARGB_8888_Config, bitmap->width(),
+                                                   bitmap->height());
+        if (!tmp.allocPixels()) {
+            return false;
+        }
+        bmp = &tmp;
+    } else {
+        bmp = bitmap;
     }
 
-    tmp.swap(*bitmap);
-    return true;
+    SkIRect subrect = srcRect;
+    subrect.offset(-x, -y);
+    SkBitmap bmpSubset;
+    bmp->extractSubset(&bmpSubset, subrect);
+
+    bool result = this->onReadPixels(&bmpSubset, srcRect.fLeft, srcRect.fTop);
+    if (result && bmp == &tmp) {
+        tmp.swap(*bitmap);
+    }
+    return result;
+}
+
+bool SkDevice::onReadPixels(const SkBitmap* bitmap, int x, int y) {
+    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap->config());
+    SkASSERT(!bitmap->isNull());
+    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap->width(), bitmap->height())));
+
+    SkIRect srcRect = SkIRect::MakeXYWH(x, y, bitmap->width(),
+                                              bitmap->height());
+    const SkBitmap& src = this->accessBitmap(false);
+
+    SkBitmap subset;
+    if (!src.extractSubset(&subset, srcRect)) {
+        return false;
+    }
+    if (SkBitmap::kARGB_8888_Config != subset.config()) {
+        // It'd be preferable to do this directly to bitmap.
+        // We'd need a SkBitmap::copyPixelsTo that takes a config
+        // or make copyTo lazily allocate.
+        subset.copyTo(&subset, SkBitmap::kARGB_8888_Config); 
+    }
+    SkAutoLockPixels alp(*bitmap);
+    return subset.copyPixelsTo(bitmap->getPixels(),
+                               bitmap->getSize(),
+                               bitmap->rowBytes(),
+                               true);
 }
 
 void SkDevice::writePixels(const SkBitmap& bitmap, int x, int y) {

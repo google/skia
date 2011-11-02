@@ -221,10 +221,12 @@ void GrGpu::forceRenderTargetFlush() {
 
 bool GrGpu::readPixels(GrRenderTarget* target,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, void* buffer) {
+                       GrPixelConfig config, void* buffer,
+                       size_t rowBytes) {
 
     this->handleDirtyContext();
-    return this->onReadPixels(target, left, top, width, height, config, buffer);
+    return this->onReadPixels(target, left, top, width, height,
+                              config, buffer, rowBytes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
