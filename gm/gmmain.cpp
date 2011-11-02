@@ -251,9 +251,7 @@ static bool generate_image(GM* gm, const ConfigData& gRec,
         // the device is as large as the current rendertarget, so we explicitly
         // only readback the amount we expect (in size)
         // overwrite our previous allocation
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, size.fWidth,
-                                                       size.fHeight);
-        gc.readPixels(bitmap, 0, 0);
+        gc.readPixels(SkIRect::MakeSize(size), bitmap);
     }
     return true;
 }

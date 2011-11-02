@@ -1384,18 +1384,14 @@ void GrGpuGL::onForceRenderTargetFlush() {
 }
 
 bool GrGpuGL::onReadPixels(GrRenderTarget* target,
-                           int left, int top,
-                           int width, int height,
-                           GrPixelConfig config, 
-                           void* buffer, size_t rowBytes) {
+                           int left, int top, int width, int height,
+                           GrPixelConfig config, void* buffer) {
     GrGLenum internalFormat;  // we don't use this for glReadPixels
     GrGLenum format;
     GrGLenum type;
     if (!this->canBeTexture(config, &internalFormat, &format, &type)) {
         return false;
-    }
-    
-    // resolve the render target if necessary
+    }    
     GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(target);
     GrAutoTPtrValueRestore<GrRenderTarget*> autoTargetRestore;
     switch (tgt->getResolveType()) {
@@ -1421,62 +1417,26 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     // the read rect is viewport-relative
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height);
-    
-    size_t tightRowBytes = GrBytesPerPixel(config) * width;
-    if (0 == rowBytes) {
-        rowBytes = tightRowBytes;
-    }
-    size_t readDstRowBytes = tightRowBytes;
-    void* readDst = buffer;
-    
-    // determine if GL can read using the passed rowBytes or if we need
-    // a scratch buffer.
-    SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
-    if (rowBytes != tightRowBytes) {
-        if (kDesktop_GrGLBinding == this->glBinding()) {
-            GrAssert(!(rowBytes % sizeof(GrColor)));
-            GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, rowBytes / sizeof(GrColor)));
-            readDstRowBytes = rowBytes;
-        } else {
-            scratch.reset(tightRowBytes * height);
-            readDst = scratch.get();
-        }
-    }
     GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom,
                        readRect.fWidth, readRect.fHeight,
-                       format, type, readDst));
-    if (readDstRowBytes != tightRowBytes) {
-        GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
-    }
+                       format, type, buffer));
 
     // now reverse the order of the rows, since GL's are bottom-to-top, but our
-    // API presents top-to-bottom. We must preserve the padding contents. Note
-    // that the above readPixels did not overwrite the padding.
-    if (readDst == buffer) {
-        GrAssert(rowBytes == readDstRowBytes);
-        scratch.reset(tightRowBytes);
-        void* tmpRow = scratch.get();
-        // flip y in-place by rows
+    // API presents top-to-bottom
+    {
+        size_t stride = width * GrBytesPerPixel(config);
+        SkAutoMalloc rowStorage(stride);
+        void* tmp = rowStorage.get();
+
         const int halfY = height >> 1;
         char* top = reinterpret_cast<char*>(buffer);
-        char* bottom = top + (height - 1) * rowBytes;
+        char* bottom = top + (height - 1) * stride;
         for (int y = 0; y < halfY; y++) {
-            memcpy(tmpRow, top, tightRowBytes);
-            memcpy(top, bottom, tightRowBytes);
-            memcpy(bottom, tmpRow, tightRowBytes);
-            top += rowBytes;
-            bottom -= rowBytes;
-        }
-    } else {
-        GrAssert(readDst != buffer);
-        // copy from readDst to buffer while flipping y
-        const int halfY = height >> 1;
-        const char* src = reinterpret_cast<const char*>(readDst);
-        char* dst = reinterpret_cast<char*>(buffer) + (height-1) * rowBytes;
-        for (int y = 0; y < height; y++) {
-            memcpy(dst, src, tightRowBytes);
-            src += readDstRowBytes;
-            dst -= rowBytes;
+            memcpy(tmp, top, stride);
+            memcpy(top, bottom, stride);
+            memcpy(bottom, tmp, stride);
+            top += stride;
+            bottom -= stride;
         }
     }
     return true;

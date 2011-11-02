@@ -1637,16 +1637,15 @@ bool GrContext::readTexturePixels(GrTexture* texture,
     if (NULL != target) {
         return fGpu->readPixels(target,
                                 left, top, width, height, 
-                                config, buffer, 0);
+                                config, buffer);
     } else {
         return false;
     }
 }
 
 bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
-                                       int left, int top, int width, int height,
-                                       GrPixelConfig config, void* buffer,
-                                       size_t rowBytes) {
+                                      int left, int top, int width, int height,
+                                      GrPixelConfig config, void* buffer) {
     SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
     uint32_t flushFlags = 0;
     if (NULL == target) { 
@@ -1656,7 +1655,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     this->flush(flushFlags);
     return fGpu->readPixels(target,
                             left, top, width, height, 
-                            config, buffer, rowBytes);
+                            config, buffer);
 }
 
 void GrContext::writePixels(int left, int top, int width, int height,

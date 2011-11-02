@@ -106,44 +106,13 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     *  On success (returns true), copy the canvas pixels into the bitmap.
-     *  On failure, the bitmap parameter is left unchanged and false is
-     *  returned.
-     *
-     *  If the canvas is backed by a non-raster device (e.g. PDF) then
-     *  readPixels will fail.
-     *
-     *  If the bitmap has pixels already allocated, the canvas pixels will be
-     *  written there. If not, bitmap->allocPixels() will be called 
-     *  automatically. If the bitmap is backed by a texture readPixels will
-     *  fail.
-     *
-     *  The canvas' pixels are converted to the bitmap's config. The only
-     *  supported config is kARGB_8888_Config, though this may be relaxed in
-     *  future.
-     *
-     *  The actual pixels written is the intersection of the canvas' bounds, and
-     *  the rectangle formed by the bitmap's width,height and the specified x,y.
-     *  If bitmap pixels extend outside of that intersection, they will not be
-     *  modified.
-     *
-     *  Example that reads the entire canvas into a bitmap:
-     *  SkISize size = canvas->getDeviceSize();
-     *  bitmap->setConfig(SkBitmap::kARGB_8888_Config, size.fWidth,
-     *                                                 size.fHeight);
-     *  if (canvas->readPixels(bitmap, 0, 0)) {
-     *     // use the pixels
-     *  }
-     */
-    bool readPixels(SkBitmap* bitmap, int x, int y);
-
-    /**
-     * DEPRECATED: This will be removed as soon as webkit is no longer relying
-     * on it. The bitmap is resized to the intersection of srcRect and the
-     * canvas bounds. New pixels are always allocated on success. Bitmap is
-     * unmodified on failure.
+     *  Copy the pixels from the device into bitmap. Returns true on success.
+     *  If false is returned, then the bitmap parameter is left unchanged.
+     *  The bitmap parameter is treated as output-only, and will be completely
+     *  overwritten (if the method returns true).
      */
     bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
+    bool readPixels(SkBitmap* bitmap);
 
     /**
      *  Similar to draw sprite, this method will copy the pixels in bitmap onto

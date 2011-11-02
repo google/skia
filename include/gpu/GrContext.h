@@ -432,8 +432,6 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecueive rows. Zero
-     *                      means rows are tightly packed.
      *
      * @return true if the read succeeded, false if not. The read can fail
      *              because of a unsupported pixel config or because no render
@@ -441,8 +439,7 @@ public:
      */
     bool readRenderTargetPixels(GrRenderTarget* target,
                                 int left, int top, int width, int height,
-                                GrPixelConfig config, void* buffer, 
-                                size_t rowBytes = 0);
+                                GrPixelConfig config, void* buffer);
 
     /**
      * Reads a rectangle of pixels from a texture.

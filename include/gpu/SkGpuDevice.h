@@ -68,6 +68,7 @@ public:
     // overrides from SkDevice
 
     virtual void clear(SkColor color);
+    virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
     virtual void writePixels(const SkBitmap& bitmap, int x, int y);
 
     virtual void setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
@@ -139,11 +140,6 @@ protected:
         TexCache        fTex;
     };
     friend class SkAutoTexCache;
-    
-    // overrides from SkDevice
-    virtual bool onReadPixels(const SkBitmap* bitmap,
-                              int x, int y) SK_OVERRIDE;
-
 
 private:
     GrContext*      fContext;

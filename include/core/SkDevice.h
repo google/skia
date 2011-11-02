@@ -108,23 +108,11 @@ public:
 
     /**
      *  Copy the pixels from the device into bitmap. Returns true on success.
-     *  If false is returned, then the bitmap parameter is left unchanged. The
-     *  rectangle read is defined by x, y and the bitmap's width and height.
-     *
-     *  If the bitmap has pixels allocated the canvas will write directly to
-     *  into that memory (if the call succeeds).
-     *
-     *  The read is clipped to the device bounds. If bitmap pixels were
-     *  preallocated then pixels outside the clip are left unmodified. If the
-     *  call allocates bitmap pixels then pixels outside the clip will be
-     *  uninitialized.
-     *
-     *  Currently bitmap must have kARGB_8888_Config or readPixels will fail.
-     *  This will likely be relaxed in the future.
-     *
-     *  The bitmap parameter is not modified if the call fails.
+     *  If false is returned, then the bitmap parameter is left unchanged.
+     *  The bitmap parameter is treated as output-only, and will be completely
+     *  overwritten (if the method returns true).
      */
-    bool readPixels(SkBitmap* bitmap, int x, int y);
+    virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
 
     /**
      *  Similar to draw sprite, this method will copy the pixels in bitmap onto
@@ -268,17 +256,6 @@ protected:
         fBitmap.setPixelRef(pr, offset);
         return pr;
     }
-    
-    /**
-     * Implements readPixels API. The caller will ensure that:
-     *  1. bitmap has pixel config kARGB_8888_Config.
-     *  2. bitmap has pixels.
-     *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
-     *     contained in the device bounds.
-     *  4. the bitmap struct is safe to partially overwrite in case of failure
-     */
-    virtual bool onReadPixels(const SkBitmap* bitmap, int x, int y);
-
 
     /** Called when this device is installed into a Canvas. Balanaced by a call
         to unlockPixels() when the device is removed from a Canvas.
