@@ -256,19 +256,19 @@ void SkGpuDevice::makeRenderTargetCurrent() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkGpuDevice::onReadPixels(const SkBitmap* bitmap, int x, int y) {
-    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap->config());
-    SkASSERT(!bitmap->isNull());
-    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap->width(), bitmap->height())));
+bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap, int x, int y) {
+    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
+    SkASSERT(!bitmap.isNull());
+    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
 
-    SkAutoLockPixels alp(*bitmap);
+    SkAutoLockPixels alp(bitmap);
     return fContext->readRenderTargetPixels(fRenderTarget,
                                             x, y,
-                                            bitmap->width(),
-                                            bitmap->height(),
+                                            bitmap.width(),
+                                            bitmap.height(),
                                             kRGBA_8888_GrPixelConfig,
-                                            bitmap->getPixels(),
-                                            bitmap->rowBytes());
+                                            bitmap.getPixels(),
+                                            bitmap.rowBytes());
 }
 
 void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y) {

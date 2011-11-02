@@ -141,7 +141,7 @@ protected:
         int x, int y,
         const SkPaint& paint) SK_OVERRIDE;
 
-    virtual bool onReadPixels(const SkBitmap* bitmap,
+    virtual bool onReadPixels(const SkBitmap& bitmap,
                               int x,
                               int y) SK_OVERRIDE {
         return false;
