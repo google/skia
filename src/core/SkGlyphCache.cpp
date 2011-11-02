@@ -16,6 +16,8 @@
 //#define USE_CACHE_HASH
 //#define RECORD_HASH_EFFICIENCY
 
+bool gSkSuppressFontCachePurgeSpew;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef RECORD_HASH_EFFICIENCY
@@ -645,7 +647,7 @@ size_t SkGlyphCache::InternalFreeCache(SkGlyphCache_Globals* globals,
     globals->validate();
 
 #ifdef SPEW_PURGE_STATUS
-    if (count) {
+    if (count && !gSkSuppressFontCachePurgeSpew) {
         SkDebugf("purging %dK from font cache [%d entries]\n",
                  (int)(bytesFreed >> 10), count);
     }
