@@ -66,10 +66,6 @@ public:
 
     virtual void clear(SkColor color);
 
-    virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
-        return false;
-    }
-
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
@@ -160,6 +156,13 @@ public:
     const SkPDFGlyphSetMap& getFontGlyphUsage() const {
         return *(fFontGlyphUsage.get());
     }
+    
+protected:
+    virtual bool onReadPixels(const SkBitmap* bitmap,
+                              int x, int y) SK_OVERRIDE {
+        return false;
+    }
+
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in

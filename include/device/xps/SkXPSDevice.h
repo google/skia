@@ -71,11 +71,6 @@ public:
         return kVector_Capability;
     }
 
-    virtual bool readPixels(const SkIRect& srcRect,
-                            SkBitmap* bitmap) SK_OVERRIDE {
-        return false;
-    }
-
 protected:
     virtual void clear(SkColor color) SK_OVERRIDE;
 
@@ -145,6 +140,12 @@ protected:
         SkDevice* device,
         int x, int y,
         const SkPaint& paint) SK_OVERRIDE;
+
+    virtual bool onReadPixels(const SkBitmap* bitmap,
+                              int x,
+                              int y) SK_OVERRIDE {
+        return false;
+    }
 
 private:
     class TypefaceUse : ::SkNoncopyable {

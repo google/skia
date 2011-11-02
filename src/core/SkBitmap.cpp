@@ -456,8 +456,8 @@ Sk64 SkBitmap::getSafeSize64() const {
     return ComputeSafeSize64(getConfig(), fWidth, fHeight, fRowBytes);
 }
 
-bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize, int dstRowBytes)
-     const {
+bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize, 
+                            int dstRowBytes, bool preserveDstPad) const {
 
     if (dstRowBytes == -1)
         dstRowBytes = fRowBytes;
@@ -468,7 +468,7 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize, int dstRowBytes)
         dst == NULL || (getPixels() == NULL && pixelRef() == NULL))
         return false;
 
-    if (static_cast<uint32_t>(dstRowBytes) == fRowBytes) {
+    if (!preserveDstPad && static_cast<uint32_t>(dstRowBytes) == fRowBytes) {
         size_t safeSize = getSafeSize();
         if (safeSize > dstSize || safeSize == 0)
             return false;
