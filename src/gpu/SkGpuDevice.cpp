@@ -256,36 +256,19 @@ void SkGpuDevice::makeRenderTargetCurrent() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkGpuDevice::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
-    SkIRect bounds;
-    bounds.set(0, 0, this->width(), this->height());
-    if (!bounds.intersect(srcRect)) {
-        return false;
-    }
+bool SkGpuDevice::onReadPixels(const SkBitmap* bitmap, int x, int y) {
+    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap->config());
+    SkASSERT(!bitmap->isNull());
+    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap->width(), bitmap->height())));
 
-    const int w = bounds.width();
-    const int h = bounds.height();
-    SkBitmap tmp;
-    // note we explicitly specify our rowBytes to be snug (no gap between rows)
-    tmp.setConfig(SkBitmap::kARGB_8888_Config, w, h, w * 4);
-    if (!tmp.allocPixels()) {
-        return false;
-    }
-
-    tmp.lockPixels();
-
-    bool read = fContext->readRenderTargetPixels(fRenderTarget,
-                                                 bounds.fLeft, bounds.fTop,
-                                                 bounds.width(), bounds.height(),
-                                                 kRGBA_8888_GrPixelConfig,
-                                                 tmp.getPixels());
-    tmp.unlockPixels();
-    if (!read) {
-        return false;
-    }
-
-    tmp.swap(*bitmap);
-    return true;
+    SkAutoLockPixels alp(*bitmap);
+    return fContext->readRenderTargetPixels(fRenderTarget,
+                                            x, y,
+                                            bitmap->width(),
+                                            bitmap->height(),
+                                            kRGBA_8888_GrPixelConfig,
+                                            bitmap->getPixels(),
+                                            bitmap->rowBytes());
 }
 
 void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y) {
