@@ -1603,7 +1603,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     if (SkMask::kLCD16_Format == rec->fMaskFormat
             || SkMask::kLCD32_Format == rec->fMaskFormat) {
         if (supports_LCD()) {
-            rec->fMaskFormat = SkMask::kLCD16_Format;
+            rec->fMaskFormat = SkMask::kLCD32_Format;
         } else {
             rec->fMaskFormat = SkMask::kA8_Format;
         }
