@@ -550,12 +550,14 @@ SkDevice* SkCanvas::setBitmapDevice(const SkBitmap& bitmap) {
     return device;
 }
 
-bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
+bool SkCanvas::readPixels(SkBitmap* bitmap,
+                          int x, int y,
+                          Config8888 config8888) {
     SkDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
-    return device->readPixels(bitmap, x, y);
+    return device->readPixels(bitmap, x, y, config8888);
 }
 
 bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
