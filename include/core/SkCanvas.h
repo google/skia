@@ -106,36 +106,75 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /**
+     * This enum can be used with readPixels to perform a readback into an 8888
+     * format other than Skia's native format (SkPMColor). There are three byte
+     * orders supported: native, BGRA, and RGBA. Each has a premultiplied and
+     * unpremultiplied variant. Unlike the other 8888 configs, the native 8888
+     * config is defined by shift values rather than byte order. The conversion
+     * from the native config to a byte order must consider endianness.
+     */
+    enum Config8888 {
+        /**
+         * Skia's native order specified by:
+         *      SK_A32_SHIFT, SK_R32_SHIFT, SK_G32_SHIFT, and SK_B32_SHIFT
+         *
+         * kNative_Premul_Config8888 is equivalent to SkPMColor
+         * kNative_Unpremul_Config8888 has the same component order as SkPMColor
+         * but is not premultiplied.
+         */
+        kNative_Premul_Config8888,
+        kNative_Unpremul_Config8888,
+        /**
+         * low byte to high byte: B, G, R, A.
+         */
+        kBGRA_Premul_Config8888,
+        kBGRA_Unpremul_Config8888,
+        /**
+         * low byte to high byte: R, G, B, A.
+         */
+        kRGBA_Premul_Config8888,
+        kRGBA_Unpremul_Config8888,
+    };
+
+    /**
      *  On success (returns true), copy the canvas pixels into the bitmap.
      *  On failure, the bitmap parameter is left unchanged and false is
      *  returned.
      *
-     *  If the canvas is backed by a non-raster device (e.g. PDF) then
-     *  readPixels will fail.
+     *  The canvas' pixels are converted to the bitmap's config. The only
+     *  supported config is kARGB_8888_Config, though this is likely to be
+     *  relaxed in  the future. The meaning of config kARGB_8888_Config is
+     *  modified by the enum param config8888. The default value interprets
+     *  kARGB_8888_Config as SkPMColor
      *
      *  If the bitmap has pixels already allocated, the canvas pixels will be
      *  written there. If not, bitmap->allocPixels() will be called 
      *  automatically. If the bitmap is backed by a texture readPixels will
      *  fail.
      *
-     *  The canvas' pixels are converted to the bitmap's config. The only
-     *  supported config is kARGB_8888_Config, though this may be relaxed in
-     *  future.
-     *
      *  The actual pixels written is the intersection of the canvas' bounds, and
      *  the rectangle formed by the bitmap's width,height and the specified x,y.
      *  If bitmap pixels extend outside of that intersection, they will not be
      *  modified.
      *
-     *  Example that reads the entire canvas into a bitmap:
-     *  SkISize size = canvas->getDeviceSize();
-     *  bitmap->setConfig(SkBitmap::kARGB_8888_Config, size.fWidth,
-     *                                                 size.fHeight);
-     *  if (canvas->readPixels(bitmap, 0, 0)) {
-     *     // use the pixels
-     *  }
+     *  Other failure conditions:
+     *    * If the canvas is backed by a non-raster device (e.g. PDF) then
+     *       readPixels will fail.
+     *    * If bitmap is texture-backed then readPixels will fail. (This may be
+     *       relaxed in the future.)
+     *
+     *  Example that reads the entire canvas into a bitmap using the native
+     *  SkPMColor:
+     *    SkISize size = canvas->getDeviceSize();
+     *    bitmap->setConfig(SkBitmap::kARGB_8888_Config, size.fWidth,
+     *                                                   size.fHeight);
+     *    if (canvas->readPixels(bitmap, 0, 0)) {
+     *       // use the pixels
+     *    }
      */
-    bool readPixels(SkBitmap* bitmap, int x, int y);
+    bool readPixels(SkBitmap* bitmap,
+                    int x, int y,
+                    Config8888 config8888 = kNative_Premul_Config8888);
 
     /**
      * DEPRECATED: This will be removed as soon as webkit is no longer relying

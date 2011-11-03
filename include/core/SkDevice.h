@@ -107,26 +107,8 @@ public:
     const SkBitmap& accessBitmap(bool changePixels);
 
     /**
-     *  Copy the pixels from the device into bitmap. Returns true on success.
-     *  If false is returned, then the bitmap parameter is left unchanged. The
-     *  rectangle read is defined by x, y and the bitmap's width and height.
-     *
-     *  If the bitmap has pixels allocated the canvas will write directly to
-     *  into that memory (if the call succeeds).
-     *
-     *  The read is clipped to the device bounds. If bitmap pixels were
-     *  preallocated then pixels outside the clip are left unmodified. If the
-     *  call allocates bitmap pixels then pixels outside the clip will be
-     *  uninitialized.
-     *
-     *  Currently bitmap must have kARGB_8888_Config or readPixels will fail.
-     *  This will likely be relaxed in the future.
-     *
-     *  The bitmap parameter is not modified if the call fails.
-     */
-    bool readPixels(SkBitmap* bitmap, int x, int y);
-
-    /**
+     *  DEPRECATED: This will be made protected once WebKit stops using it.
+     *              Instead use Canvas' writePixels method.
      *  Similar to draw sprite, this method will copy the pixels in bitmap onto
      *  the device, with the top/left corner specified by (x, y). The pixel
      *  values in the device are completely replaced: there is no blending.
@@ -254,6 +236,37 @@ protected:
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&);
 
+    /**
+     *  On success (returns true), copy the device pixels into the bitmap.
+     *  On failure, the bitmap parameter is left unchanged and false is
+     *  returned.
+     *
+     *  The device's pixels are converted to the bitmap's config. The only
+     *  supported config is kARGB_8888_Config, though this is likely to be
+     *  relaxed in  the future. The meaning of config kARGB_8888_Config is
+     *  modified by the enum param config8888. The default value interprets
+     *  kARGB_8888_Config as SkPMColor
+     *
+     *  If the bitmap has pixels already allocated, the device pixels will be
+     *  written there. If not, bitmap->allocPixels() will be called 
+     *  automatically. If the bitmap is backed by a texture readPixels will
+     *  fail.
+     *
+     *  The actual pixels written is the intersection of the device's bounds,
+     *  and the rectangle formed by the bitmap's width,height and the specified
+     *  x,y. If bitmap pixels extend outside of that intersection, they will not
+     *  be modified.
+     *
+     *  Other failure conditions:
+     *    * If the device is not a raster device (e.g. PDF) then readPixels will
+     *      fail.
+     *    * If bitmap is texture-backed then readPixels will fail. (This may be
+     *      relaxed in the future.)
+     */
+    bool readPixels(SkBitmap* bitmap,
+                    int x, int y,
+                    SkCanvas::Config8888 config8888);
+
     ///////////////////////////////////////////////////////////////////////////
 
     /** Update as needed the pixel value in the bitmap, so that the caller can access
@@ -276,14 +289,19 @@ protected:
      *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
      *     contained in the device bounds.
      */
-    virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y);
-
+    virtual bool onReadPixels(const SkBitmap& bitmap,
+                              int x, int y,
+                              SkCanvas::Config8888 config8888);
 
     /** Called when this device is installed into a Canvas. Balanaced by a call
         to unlockPixels() when the device is removed from a Canvas.
     */
     virtual void lockPixels();
     virtual void unlockPixels();
+
+    // This is equal kBGRA_Premul_Config8888 or kRGBA_Premul_Config8888 if 
+    // either is identical to kNative_Premul_Config8888. Otherwise, -1.
+    static const SkCanvas::Config8888 kPMColorAlias;
 
 private:
     friend class SkCanvas;

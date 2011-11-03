@@ -159,7 +159,8 @@ public:
     
 protected:
     virtual bool onReadPixels(const SkBitmap& bitmap,
-                              int x, int y) SK_OVERRIDE {
+                              int x, int y,
+                              SkCanvas::Config8888) SK_OVERRIDE {
         return false;
     }
 

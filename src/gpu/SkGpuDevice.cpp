@@ -256,7 +256,13 @@ void SkGpuDevice::makeRenderTargetCurrent() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap, int x, int y) {
+bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
+                               int x, int y,
+                               SkCanvas::Config8888 config8888) {
+    // support for non-native configs coming soon
+    if (config8888 != SkCanvas::kNative_Premul_Config8888) {
+        return false;
+    }
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
     SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
