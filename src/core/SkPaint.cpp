@@ -11,6 +11,7 @@
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
 #include "SkFontHost.h"
+#include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
@@ -55,6 +56,7 @@ SkPaint::SkPaint() {
     fColorFilter = NULL;
     fRasterizer  = NULL;
     fLooper      = NULL;
+    fImageFilter = NULL;
     fWidth      = 0;
 #endif
 
@@ -85,6 +87,7 @@ SkPaint::SkPaint(const SkPaint& src) {
     SkSafeRef(fColorFilter);
     SkSafeRef(fRasterizer);
     SkSafeRef(fLooper);
+    SkSafeRef(fImageFilter);
 }
 
 SkPaint::~SkPaint() {
@@ -96,6 +99,7 @@ SkPaint::~SkPaint() {
     SkSafeUnref(fColorFilter);
     SkSafeUnref(fRasterizer);
     SkSafeUnref(fLooper);
+    SkSafeUnref(fImageFilter);
 }
 
 SkPaint& SkPaint::operator=(const SkPaint& src) {
@@ -109,6 +113,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     SkSafeRef(src.fColorFilter);
     SkSafeRef(src.fRasterizer);
     SkSafeRef(src.fLooper);
+    SkSafeRef(src.fImageFilter);
 
     SkSafeUnref(fTypeface);
     SkSafeUnref(fPathEffect);
@@ -118,6 +123,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     SkSafeUnref(fColorFilter);
     SkSafeUnref(fRasterizer);
     SkSafeUnref(fLooper);
+    SkSafeUnref(fImageFilter);
 
 #ifdef ANDROID
     uint32_t oldGenerationID = fGenerationID;
@@ -354,6 +360,12 @@ SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
     SkRefCnt_SafeAssign(fLooper, looper);
     GEN_ID_INC;
     return looper;
+}
+
+SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
+    SkRefCnt_SafeAssign(fImageFilter, imageFilter);
+    GEN_ID_INC;
+    return imageFilter;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1858,4 +1870,22 @@ bool SkPaint::nothingToDraw() const {
     return false;
 }
 
+
+//////////// Move these to their own file soon.
+
+bool SkImageFilter::filterImage(const SkBitmap& src, const SkMatrix& matrix,
+                                SkBitmap* result, SkIPoint* offset) {
+    SkASSERT(result);
+    SkASSERT(offset);
+    return this->onFilterImage(src, matrix, result, offset);
+}
+
+bool SkImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix&,
+                                  SkBitmap* result, SkIPoint* offset) {
+    return false;
+}
+
+bool SkImageFilter::asABlur(SkSize* sigma) const {
+    return false;
+}
 
