@@ -157,6 +157,11 @@
 
         ],
         'conditions': [
+          [ 'skia_target_arch == "arm" and arm_thumb == 1', {
+            'cflags': [
+              '-mthumb',
+            ],
+          }],
           [ 'skia_target_arch == "arm" and armv7 == 1', {
             'defines': [
               '__ARM_ARCH__=7',
