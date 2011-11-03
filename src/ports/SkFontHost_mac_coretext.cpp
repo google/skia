@@ -29,6 +29,45 @@
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
 
+// inline versions of these rect helpers
+
+static bool CGRectIsEmpty_inline(const CGRect& rect) {
+    return rect.size.width <= 0 || rect.size.height <= 0;
+}
+
+static void CGRectInset_inline(CGRect* rect, CGFloat dx, CGFloat dy) {
+    rect->origin.x += dx;
+    rect->origin.y += dy;
+    rect->size.width -= dx * 2;
+    rect->size.height -= dy * 2;
+}
+
+static CGFloat CGRectGetMinX_inline(const CGRect& rect) {
+    return rect.origin.x;
+}
+
+static CGFloat CGRectGetMaxX_inline(const CGRect& rect) {
+    return rect.origin.x + rect.size.width;
+}
+
+static CGFloat CGRectGetMinY_inline(const CGRect& rect) {
+    return rect.origin.y;
+}
+
+static CGFloat CGRectGetMaxY_inline(const CGRect& rect) {
+    return rect.origin.y + rect.size.height;
+}
+
+static CGFloat CGRectGetWidth_inline(const CGRect& rect) {
+    return rect.size.width;
+}
+
+static CGFloat CGRectGetHeight(const CGRect& rect) {
+    return rect.size.height;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static void sk_memset_rect32(uint32_t* ptr, uint32_t value, size_t width,
                              size_t height, size_t rowBytes) {
     SkASSERT(width);
@@ -828,13 +867,12 @@ uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni)
     return(cgGlyph);
 }
 
-void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph)
-{
+void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
     this->generateMetrics(glyph);
 }
 
-void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
-{   CGSize      theAdvance;
+void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
+    CGSize      theAdvance;
     CGRect      theBounds;
     CGGlyph     cgGlyph;
 
@@ -863,7 +901,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     glyph->fAdvanceX =  SkFloatToFixed(theAdvance.width);
     glyph->fAdvanceY = -SkFloatToFixed(theAdvance.height);
 
-    if (CGRectIsEmpty(theBounds)) {
+    if (CGRectIsEmpty_inline(theBounds)) {
         return;
     }
     
@@ -886,7 +924,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     // to transform the bounding box ourselves.
     //
     // The bounds are also expanded by 1 pixel, to give CG room for anti-aliasing.
-    theBounds = CGRectInset(theBounds, -1, -1);
+    CGRectInset_inline(&theBounds, -1, -1);
 
     // Get the metrics
     if (isLion()) {
@@ -906,8 +944,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
         glyph->fWidth = sk_float_round2int(theBounds.size.width);
         glyph->fHeight = sk_float_round2int(theBounds.size.height);
     }
-    glyph->fTop      = -sk_float_round2int(CGRectGetMaxY(theBounds));
-    glyph->fLeft     =  sk_float_round2int(CGRectGetMinX(theBounds));
+    glyph->fTop      = -sk_float_round2int(CGRectGetMaxY_inline(theBounds));
+    glyph->fLeft     =  sk_float_round2int(CGRectGetMinX_inline(theBounds));
 }
 
 #include "SkColorPriv.h"
@@ -1154,14 +1192,14 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
     CGRect theBounds = CTFontGetBoundingBox(mFont);
 
     SkPaint::FontMetrics        theMetrics;
-    theMetrics.fTop          = -CGRectGetMaxY(theBounds);
+    theMetrics.fTop          = -CGRectGetMaxY_inline(theBounds);
     theMetrics.fAscent       = -CTFontGetAscent(mFont);
     theMetrics.fDescent      =  CTFontGetDescent(mFont);
-    theMetrics.fBottom       = -CGRectGetMinY(theBounds);
+    theMetrics.fBottom       = -CGRectGetMinY_inline(theBounds);
     theMetrics.fLeading      =  CTFontGetLeading(mFont);
-    theMetrics.fAvgCharWidth =  CGRectGetWidth(theBounds);
-    theMetrics.fXMin         =  CGRectGetMinX(theBounds);
-    theMetrics.fXMax         =  CGRectGetMaxX(theBounds);
+    theMetrics.fAvgCharWidth =  CGRectGetWidth_inline(theBounds);
+    theMetrics.fXMin         =  CGRectGetMinX_inline(theBounds);
+    theMetrics.fXMax         =  CGRectGetMaxX_inline(theBounds);
     theMetrics.fXHeight      =  CTFontGetXHeight(mFont);
 
 #if 0
@@ -1565,7 +1603,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     if (SkMask::kLCD16_Format == rec->fMaskFormat
             || SkMask::kLCD32_Format == rec->fMaskFormat) {
         if (supports_LCD()) {
-            rec->fMaskFormat = SkMask::kLCD32_Format;
+            rec->fMaskFormat = SkMask::kLCD16_Format;
         } else {
             rec->fMaskFormat = SkMask::kA8_Format;
         }
