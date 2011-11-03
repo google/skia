@@ -322,7 +322,8 @@ static FT_Error getAdvances(FT_Face face, FT_UInt start, FT_UInt count,
 }
 
 static bool canEmbed(FT_Face face) {
-#ifdef FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING
+// The android port of FreeType does not build
+#if defined(FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING)
     FT_UShort fsType = FT_Get_FSType_Flags(face);
     return (fsType & (FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING |
                       FT_FSTYPE_BITMAP_EMBEDDING_ONLY)) == 0;

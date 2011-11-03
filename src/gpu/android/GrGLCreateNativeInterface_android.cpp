@@ -13,10 +13,10 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-const GrGLInterface* GrGLDefaultInterface() {
+const GrGLInterface* GrGLCreateNativeInterface() {
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
-        GrGLInteface* interface = new GrGLInterface;
+        GrGLInterface* interface = new GrGLInterface;
         glInterface.reset(interface);
         interface->fBindingsExported = kES2_GrGLBinding;
         interface->fActiveTexture = glActiveTexture;

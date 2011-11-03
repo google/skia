@@ -35,11 +35,35 @@
             '-msse2',
           ],
         }],
-      ],
-      'sources': [
-        '../src/opts/SkBitmapProcState_opts_SSE2.cpp',
-        '../src/opts/SkBlitRow_opts_SSE2.cpp',
-        '../src/opts/SkUtils_opts_SSE2.cpp',
+        [ 'skia_target_arch != "arm"', {
+          'sources': [
+            '../src/opts/SkBitmapProcState_opts_SSE2.cpp',
+            '../src/opts/SkBlitRow_opts_SSE2.cpp',
+            '../src/opts/SkUtils_opts_SSE2.cpp',
+          ],
+        }],
+        [ 'skia_target_arch == "arm" and armv7 == 1', {
+          # The assembly uses the frame pointer register (r7 in Thumb/r11 in
+          # ARM), the compiler doesn't like that.
+          'cflags!': [
+            '-fno-omit-frame-pointer',
+          ],
+          'cflags': [
+            '-fomit-frame-pointer',
+          ],
+          'sources': [
+            '../src/opts/SkBitmapProcState_opts_arm.cpp',
+            '../src/opts/SkBlitRow_opts_arm.cpp',
+            '../src/opts/SkUtils_opts_none.cpp',
+          ],
+        }],
+        [ 'skia_target_arch == "arm" and armv7 != 1', {
+          'sources': [
+            '../src/opts/SkBitmapProcState_opts_none.cpp',
+            '../src/opts/SkBlitRow_opts_none.cpp',
+            '../src/opts/SkUtils_opts_none.cpp',
+          ],
+        }],
       ],
     },
   ],
