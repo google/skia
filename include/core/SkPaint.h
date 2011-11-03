@@ -21,6 +21,7 @@ class SkFlattenableWriteBuffer;
 struct SkGlyph;
 struct SkRect;
 class SkGlyphCache;
+class SkImageFilter;
 class SkMaskFilter;
 class SkMatrix;
 class SkPath;
@@ -595,6 +596,9 @@ public:
     */
     SkRasterizer* setRasterizer(SkRasterizer* rasterizer);
 
+    SkImageFilter* getImageFilter() const { return fImageFilter; }
+    SkImageFilter* setImageFilter(SkImageFilter*);
+
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
      *  reference count.
@@ -838,6 +842,7 @@ private:
     SkColorFilter*  fColorFilter;
     SkRasterizer*   fRasterizer;
     SkDrawLooper*   fLooper;
+    SkImageFilter*  fImageFilter;
 
     SkColor         fColor;
     SkScalar        fWidth;

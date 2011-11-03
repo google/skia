@@ -10,7 +10,22 @@
 
 #include "SkFlattenable.h"
 
-class SkImageFilter : public SkFlattenable {
+class SkBitmap;
+class SkMatrix;
+struct SkPoint;
+
+/**
+ *  Experimental.
+ *
+ *  Base class for image filters. If one is installed in the paint, then
+ *  all drawing occurs as usual, but it is as if the drawing happened into an
+ *  offscreen (before the xfermode is applied). This offscreen bitmap will
+ *  then be handed to the imagefilter, who in turn creates a new bitmap which
+ *  is what will finally be drawn to the device (using the original xfermode).
+ *
+ *  If the imagefilter returns false, nothing is drawn.
+ */
+class SK_API SkImageFilter : public SkRefCnt /*SkFlattenable*/ {
 public:
 
     /**
@@ -27,14 +42,22 @@ public:
      *  the result and offset parameters will be ignored by the caller.
      */
     bool filterImage(const SkBitmap& src, const SkMatrix&,
-                     SkBitmap* result, SkPoint* offset);
+                     SkBitmap* result, SkIPoint* offset);
+
+    /**
+     *  Experimental.
+     *
+     *  If the filter can be expressed as a gaussian-blur, return true and
+     *  set the sigma to the values for horizontal and vertical.
+     */
+    virtual bool asABlur(SkSize* sigma) const;
 
 protected:
-    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&
-                               SkBitmap* result, SkPoint* offset) = 0;
+    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+                               SkBitmap* result, SkIPoint* offset);
 
 private:
-    typedef SkFlattenable INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
