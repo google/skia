@@ -29,6 +29,50 @@
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
 
+static void sk_memset_rect32(uint32_t* ptr, uint32_t value, size_t width,
+                             size_t height, size_t rowBytes) {
+    SkASSERT(width);
+    SkASSERT(width * sizeof(uint32_t) <= rowBytes);
+
+    if (width >= 32) {
+        while (height) {
+            sk_memset32(ptr, value, width);
+            ptr = (uint32_t*)((char*)ptr + rowBytes);
+            height -= 1;
+        }
+        return;
+    }
+
+    rowBytes -= width * sizeof(uint32_t);
+
+    if (width >= 8) {
+        while (height) {
+            int w = width;
+            do {
+                *ptr++ = value; *ptr++ = value;
+                *ptr++ = value; *ptr++ = value;
+                *ptr++ = value; *ptr++ = value;
+                *ptr++ = value; *ptr++ = value;
+                w -= 8;
+            } while (w >= 8);
+            while (--w >= 0) {
+                *ptr++ = value;
+            }
+            ptr = (uint32_t*)((char*)ptr + rowBytes);
+            height -= 1;
+        }
+    } else {
+        while (height) {
+            int w = width;
+            do {
+                *ptr++ = value;
+            } while (--w > 0);
+            ptr = (uint32_t*)((char*)ptr + rowBytes);
+            height -= 1;
+        }
+    }
+}
+
 // Potentially this should be made (1) public (2) optimized when width is small.
 // Also might want 16 and 32 bit version
 //
@@ -299,9 +343,13 @@ CGRGBPixel* Offscreen::getCG(const SkGlyph& glyph, bool fgColorIsWhite,
     image += (fSize.fHeight - glyph.fHeight) * fSize.fWidth;
 
     // erase with the "opposite" of the fgColor
-    uint8_t erase = fgColorIsWhite ? 0 : 0xFF;
+    uint32_t erase = fgColorIsWhite ? 0 : ~0;
+#if 0
     sk_memset_rect(image, erase, glyph.fWidth * sizeof(CGRGBPixel),
                    glyph.fHeight, rowBytes);
+#else
+    sk_memset_rect32(image, erase, glyph.fWidth, glyph.fHeight, rowBytes);
+#endif
 
     float subX = 0;
     float subY = 0;

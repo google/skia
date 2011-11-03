@@ -17,10 +17,12 @@ extern bool gSkSuppressFontCachePurgeSpew;
 class FontScalerBench : public SkBenchmark {
     SkString fName;
     SkString fText;
+    bool     fDoLCD;
 public:
-    FontScalerBench(void* param) : INHERITED(param) {
-        fName.set("fontscaler");
+    FontScalerBench(void* param, bool doLCD) : INHERITED(param) {
+        fName.printf("fontscaler_%s", doLCD ? "lcd" : "aa");
         fText.set("abcdefghijklmnopqrstuvwxyz01234567890");
+        fDoLCD = doLCD;
     }
 
 protected:
@@ -28,6 +30,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
+        paint.setLCDRenderText(fDoLCD);
 
         bool prev = gSkSuppressFontCachePurgeSpew;
         gSkSuppressFontCachePurgeSpew = true;
@@ -49,6 +52,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact(void* p) { return SkNEW_ARGS(FontScalerBench, (p)); }
+static SkBenchmark* Fact0(void* p) { return SkNEW_ARGS(FontScalerBench, (p, false)); }
+static SkBenchmark* Fact1(void* p) { return SkNEW_ARGS(FontScalerBench, (p, true)); }
 
-static BenchRegistry gReg(Fact);
+static BenchRegistry gReg0(Fact0);
+static BenchRegistry gReg1(Fact1);
