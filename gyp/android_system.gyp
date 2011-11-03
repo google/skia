@@ -16,7 +16,7 @@
   # toolchain and they are not expected to be present on the host OS.
   #
   'variables': {
-    'android_repo%': '../../android_tools',
+    'android_repo%': '../../android',
   },
   'android_repo%': '<(android_repo)',
 
@@ -29,29 +29,29 @@
       'target_name': 'ft2',
       'type': 'static_library',
       'sources': [
-        '<(android_repo)/external/freetype/src/base/ftbbox.c',
-        '<(android_repo)/external/freetype/src/base/ftbitmap.c',
-        '<(android_repo)/external/freetype/src/base/ftglyph.c',
-        '<(android_repo)/external/freetype/src/base/ftlcdfil.c',
-        '<(android_repo)/external/freetype/src/base/ftstroke.c',
-        '<(android_repo)/external/freetype/src/base/ftxf86.c',
-        '<(android_repo)/external/freetype/src/base/ftbase.c',
-        '<(android_repo)/external/freetype/src/base/ftsystem.c',
-        '<(android_repo)/external/freetype/src/base/ftinit.c',
-        '<(android_repo)/external/freetype/src/base/ftgasp.c',
-        '<(android_repo)/external/freetype/src/base/ftfstype.c',
-        '<(android_repo)/external/freetype/src/raster/raster.c',
-        '<(android_repo)/external/freetype/src/sfnt/sfnt.c',
-        '<(android_repo)/external/freetype/src/smooth/smooth.c',
-        '<(android_repo)/external/freetype/src/autofit/autofit.c',
-        '<(android_repo)/external/freetype/src/truetype/truetype.c',
-        '<(android_repo)/external/freetype/src/cff/cff.c',
-        '<(android_repo)/external/freetype/src/psnames/psnames.c',
-        '<(android_repo)/external/freetype/src/pshinter/pshinter.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftbbox.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftbitmap.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftglyph.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftlcdfil.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftstroke.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftxf86.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftbase.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftsystem.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftinit.c',
+        '<(android_repo)/third_party/externals/freetype/src/base/ftgasp.c',
+#        '<(android_repo)/third_party/externals/freetype/src/base/ftfstype.c',
+        '<(android_repo)/third_party/externals/freetype/src/raster/raster.c',
+        '<(android_repo)/third_party/externals/freetype/src/sfnt/sfnt.c',
+        '<(android_repo)/third_party/externals/freetype/src/smooth/smooth.c',
+        '<(android_repo)/third_party/externals/freetype/src/autofit/autofit.c',
+        '<(android_repo)/third_party/externals/freetype/src/truetype/truetype.c',
+        '<(android_repo)/third_party/externals/freetype/src/cff/cff.c',
+        '<(android_repo)/third_party/externals/freetype/src/psnames/psnames.c',
+        '<(android_repo)/third_party/externals/freetype/src/pshinter/pshinter.c',
       ],
       'include_dirs': [
-        '<(android_repo)/external/freetype/builds',
-        '<(android_repo)/external/freetype/include',
+        '<(android_repo)/third_party/externals/freetype/builds',
+        '<(android_repo)/third_party/externals/freetype/include',
       ],
       'cflags': [
         '-W',
@@ -64,7 +64,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '<(android_repo)/external/freetype/include',  # For ft2build.h
+          '<(android_repo)/third_party/externals/freetype/include',  # For ft2build.h
         ],
       }
     },
@@ -72,13 +72,13 @@
       'target_name': 'expat',
       'type': 'static_library',
       'sources': [
-        '<(android_repo)/external/expat/lib/xmlparse.c',
-        '<(android_repo)/external/expat/lib/xmlrole.c',
-        '<(android_repo)/external/expat/lib/xmltok.c',
+        '<(android_repo)/third_party/externals/expat/lib/xmlparse.c',
+        '<(android_repo)/third_party/externals/expat/lib/xmlrole.c',
+        '<(android_repo)/third_party/externals/expat/lib/xmltok.c',
       ],
       'include_dirs': [
-        '<(android_repo)/external/expat',
-        '<(android_repo)/external/expat/lib',
+        '<(android_repo)/third_party/externals/expat',
+        '<(android_repo)/third_party/externals/expat/lib',
       ],
       'cflags': [
         '-Wall',
@@ -89,7 +89,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '<(android_repo)/external/expat/lib',  # For expat.h
+          '<(android_repo)/third_party/externals/expat/lib',  # For expat.h
         ],
       }
     },
@@ -97,12 +97,12 @@
       'target_name': 'gif',
       'type': 'static_library',
       'sources': [
-        '<(android_repo)/external/gif/dgif_lib.c',
-        '<(android_repo)/external/gif/gifalloc.c',
-        '<(android_repo)/external/gif/gif_err.c',
+        '<(android_repo)/third_party/externals/gif/dgif_lib.c',
+        '<(android_repo)/third_party/externals/gif/gifalloc.c',
+        '<(android_repo)/third_party/externals/gif/gif_err.c',
       ],
       'include_dirs': [
-        '<(android_repo)/external/gif',
+        '<(android_repo)/third_party/externals/gif',
       ],
       'cflags': [
         '-Wno-format',
@@ -110,7 +110,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '<(android_repo)/external/gif',
+          '<(android_repo)/third_party/externals/gif',
         ],
       }
     },
@@ -118,33 +118,33 @@
       'target_name': 'png',
       'type': 'static_library',
       'sources': [
-        '<(android_repo)/external/png/png.c',
-        '<(android_repo)/external/png/pngerror.c',
-        '<(android_repo)/external/png/pnggccrd.c',
-        '<(android_repo)/external/png/pngget.c',
-        '<(android_repo)/external/png/pngmem.c',
-        '<(android_repo)/external/png/pngpread.c',
-        '<(android_repo)/external/png/pngread.c',
-        '<(android_repo)/external/png/pngrio.c',
-        '<(android_repo)/external/png/pngrtran.c',
-        '<(android_repo)/external/png/pngrutil.c',
-        '<(android_repo)/external/png/pngset.c',
-        '<(android_repo)/external/png/pngtrans.c',
-        '<(android_repo)/external/png/pngvcrd.c',
-        '<(android_repo)/external/png/pngwio.c',
-        '<(android_repo)/external/png/pngwrite.c',
-        '<(android_repo)/external/png/pngwtran.c',
-        '<(android_repo)/external/png/pngwutil.c',
+        '<(android_repo)/third_party/externals/png/png.c',
+        '<(android_repo)/third_party/externals/png/pngerror.c',
+        '<(android_repo)/third_party/externals/png/pnggccrd.c',
+        '<(android_repo)/third_party/externals/png/pngget.c',
+        '<(android_repo)/third_party/externals/png/pngmem.c',
+        '<(android_repo)/third_party/externals/png/pngpread.c',
+        '<(android_repo)/third_party/externals/png/pngread.c',
+        '<(android_repo)/third_party/externals/png/pngrio.c',
+        '<(android_repo)/third_party/externals/png/pngrtran.c',
+        '<(android_repo)/third_party/externals/png/pngrutil.c',
+        '<(android_repo)/third_party/externals/png/pngset.c',
+        '<(android_repo)/third_party/externals/png/pngtrans.c',
+        '<(android_repo)/third_party/externals/png/pngvcrd.c',
+        '<(android_repo)/third_party/externals/png/pngwio.c',
+        '<(android_repo)/third_party/externals/png/pngwrite.c',
+        '<(android_repo)/third_party/externals/png/pngwtran.c',
+        '<(android_repo)/third_party/externals/png/pngwutil.c',
       ],
       'include_dirs': [
-        '<(android_repo)/external/png',
+        '<(android_repo)/third_party/externals/png',
       ],
       'cflags': [
         '-fvisibility=hidden',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '<(android_repo)/external/png',
+          '<(android_repo)/third_party/externals/png',
         ],
       }
     },
