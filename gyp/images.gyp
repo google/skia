@@ -116,7 +116,16 @@
           },
           # end libpng stuff
         }],
-
+        [ 'skia_os == "android"', {
+          'sources!': [
+            '../src/images/SkImageDecoder_libjpeg.cpp',
+            '../src/images/SkJpegUtility.cpp',
+          ],
+          'dependencies': [
+             'android_system.gyp:gif',
+             'android_system.gyp:png',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [

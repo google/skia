@@ -135,6 +135,50 @@
         },
       },
     ],
+    
+    ['skia_os == "android"', 
+      {
+        'defines': [
+          'ANDROID', # TODO: change these defines to SK_BUILD_FOR_ANDROID
+          'SK_BUILD_FOR_ANDROID',
+          'SK_BUILD_FOR_ANDROID_NDK',
+        ],
+        'configurations': {
+          'Debug': {
+            'cflags': ['-g']
+          },
+          'Release': {
+            'cflags': ['-O2']
+          },
+        },
+        'libraries': [
+          '-lstdc++',
+          '-lm',
+
+        ],
+        'conditions': [
+          [ 'skia_target_arch == "arm" and armv7 == 1', {
+            'defines': [
+              '__ARM_ARCH__=7',
+            ],
+            'cflags': [
+              '-march=armv7-a',
+            ],
+            'conditions': [
+              [ 'arm_neon == 1', {
+                'defines': [
+                  '__ARM_HAVE_NEON',
+                ],
+                'cflags': [
+                  '-mfloat-abi=softfp',
+                  '-mfpu=neon',
+                ],
+             }],
+            ],
+         }],
+        ], 
+      },
+    ],
 
   ], # end 'conditions'
 }

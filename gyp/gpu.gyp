@@ -114,6 +114,8 @@
         '../src/gpu/SkGrTexturePixelRef.cpp',
         '../src/gpu/SkNullGLContext.cpp',
 
+        '../src/gpu/android/SkNativeGLContext_android.cpp',
+
         '../src/gpu/mac/SkNativeGLContext_mac.cpp',
 
         '../src/gpu/win/SkNativeGLContext_win.cpp',
@@ -270,6 +272,8 @@
 
         '../src/gpu/unix/GrGLCreateNativeInterface_unix.cpp',
 
+        '../src/gpu/android/GrGLCreateNativeInterface_android.cpp',
+
         '../src/gpu/mesa/GrGLCreateMesaInterface.cpp',
       ],
       'defines': [
@@ -326,6 +330,19 @@
             '../src/gpu/GrGLDefaultInterface_none.cpp',
             '../src/gpu/GrGLCreateNativeInterface_none.cpp',
           ],
+        }],
+        [ 'skia_os == "android"', {
+          'sources!': [
+            '../src/gpu/GrGLDefaultInterface_none.cpp',
+            '../src/gpu/GrGLCreateNativeInterface_none.cpp',
+          ],
+          'link_settings': {
+            'libraries': [
+              '-lGLESv2',
+              '-lEGL',
+              '-shared',
+            ],
+          },
         }],
       ],
     },

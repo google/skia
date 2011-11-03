@@ -247,7 +247,22 @@
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
           ],
         }],
-
+        [ 'skia_os == "android"', {
+          # TODO: This doesn't build properly yet, but it's getting there.
+          'type': 'shared_library',
+          'sources!': [
+            '../samplecode/SampleAnimator.cpp',
+            '../samplecode/SampleUnitMapper.cpp',
+          ],
+          'dependencies!': [
+            'animator.gyp:animator',
+            'experimental.gyp:experimental',
+          ],
+          'sources': [
+            # TODO add support for the android sample app
+#            '../samplecode/SampleApp_android.cpp',
+          ],
+        }],
       ],
       'msvs_settings': {
         'VCLinkerTool': {

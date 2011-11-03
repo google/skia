@@ -1,11 +1,19 @@
-
 /*
- * Copyright 2006 The Android Open Source Project
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
 
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
@@ -15,6 +23,7 @@
 #include "SkStream.h"
 #include "SkThread.h"
 #include "SkTSearch.h"
+#include "FontHostConfiguration_android.h"
 #include <stdio.h>
 
 #define FONT_CACHE_MEMORY_BUDGET    (768 * 1024)
@@ -138,13 +147,17 @@ static SkTypeface* find_from_uniqueID(uint32_t uniqueID) {
 */
 static FamilyRec* remove_from_family(const SkTypeface* face) {
     FamilyRec* family = find_family(face);
-    SkASSERT(family->fFaces[face->style()] == face);
-    family->fFaces[face->style()] = NULL;
+    if (family) {
+        SkASSERT(family->fFaces[face->style()] == face);
+        family->fFaces[face->style()] = NULL;
 
-    for (int i = 0; i < 4; i++) {
-        if (family->fFaces[i] != NULL) {    // family is non-empty
-            return NULL;
+        for (int i = 0; i < 4; i++) {
+            if (family->fFaces[i] != NULL) {    // family is non-empty
+                return NULL;
+            }
         }
+    } else {
+//        SkDebugf("remove_from_family(%p) face not found", face);
     }
     return family;  // return the empty family
 }
@@ -383,61 +396,80 @@ struct FontInitRec {
     const char* const*  fNames;     // null-terminated list
 };
 
-static const char* gSansNames[] = {
-    "sans-serif", "arial", "helvetica", "tahoma", "verdana", NULL
-};
-
-static const char* gSerifNames[] = {
-    "serif", "times", "times new roman", "palatino", "georgia", "baskerville",
-    "goudy", "fantasy", "cursive", "ITC Stone Serif", NULL
-};
-
-static const char* gMonoNames[] = {
-    "monospace", "courier", "courier new", "monaco", NULL
-};
-
 // deliberately empty, but we use the address to identify fallback fonts
 static const char* gFBNames[] = { NULL };
 
-/*  Fonts must be grouped by family, with the first font in a family having the
-    list of names (even if that list is empty), and the following members having
-    null for the list. The names list must be NULL-terminated
-*/
-static const FontInitRec gSystemFonts[] = {
-    { "DroidSans.ttf",              gSansNames  },
-    { "DroidSans-Bold.ttf",         NULL        },
-    { "DroidSerif-Regular.ttf",     gSerifNames },
-    { "DroidSerif-Bold.ttf",        NULL        },
-    { "DroidSerif-Italic.ttf",      NULL        },
-    { "DroidSerif-BoldItalic.ttf",  NULL        },
-    { "DroidSansMono.ttf",          gMonoNames  },
-    /*  These are optional, and can be ignored if not found in the file system.
-        These are appended to gFallbackFonts[] as they are seen, so we list
-        them in the order we want them to be accessed by NextLogicalFont().
-     */
-    { "DroidSansArabic.ttf",        gFBNames    },
-    { "DroidSansHebrew.ttf",        gFBNames    },
-    { "DroidSansThai.ttf",          gFBNames    },
-    { "MTLmr3m.ttf",                gFBNames    }, // Motoya Japanese Font
-    { "MTLc3m.ttf",                 gFBNames    }, // Motoya Japanese Font
-    { "DroidSansJapanese.ttf",      gFBNames    },
-    { "DroidSansFallback.ttf",      gFBNames    }
-};
 
-#define DEFAULT_NAMES   gSansNames
+/*  Fonts are grouped by family, with the first font in a family having the
+    list of names (even if that list is empty), and the following members having
+    null for the list. The names list must be NULL-terminated.
+*/
+static FontInitRec *gSystemFonts;
+static size_t gNumSystemFonts = 0;
+
+#define SYSTEM_FONTS_FILE "/system/etc/system_fonts.cfg"
 
 // these globals are assigned (once) by load_system_fonts()
 static FamilyRec* gDefaultFamily;
 static SkTypeface* gDefaultNormal;
+static char** gDefaultNames = NULL;
+static uint32_t *gFallbackFonts;
 
-/*  This is sized conservatively, assuming that it will never be a size issue.
-    It will be initialized in load_system_fonts(), and will be filled with the
-    fontIDs that can be used for fallback consideration, in sorted order (sorted
-    meaning element[0] should be used first, then element[1], etc. When we hit
-    a fontID==0 in the array, the list is done, hence our allocation size is
-    +1 the total number of possible system fonts. Also see NextLogicalFont().
- */
-static uint32_t gFallbackFonts[SK_ARRAY_COUNT(gSystemFonts)+1];
+/*  Load info from a configuration file that populates the system/fallback font structures
+*/
+static void load_font_info() {
+//    load_font_info_xml("/system/etc/system_fonts.xml");
+    SkTDArray<FontFamily*> fontFamilies;
+    getFontFamilies(fontFamilies);
+
+    SkTDArray<FontInitRec> fontInfo;
+    bool firstInFamily = false;
+    for (int i = 0; i < fontFamilies.count(); ++i) {
+        FontFamily *family = fontFamilies[i];
+        firstInFamily = true;
+        for (int j = 0; j < family->fFileNames.count(); ++j) {
+            FontInitRec fontInfoRecord;
+            fontInfoRecord.fFileName = family->fFileNames[j];
+            if (j == 0) {
+                if (family->fNames.count() == 0) {
+                    // Fallback font
+                    fontInfoRecord.fNames = (char **)gFBNames;
+                } else {
+                    SkTDArray<const char*> names = family->fNames;
+                    const char **nameList = (const char**)
+                            malloc((names.count() + 1) * sizeof(char*));
+                    if (nameList == NULL) {
+                        // shouldn't get here
+                        break;
+                    }
+                    if (gDefaultNames == NULL) {
+                        gDefaultNames = (char**) nameList;
+                    }
+                    for (int i = 0; i < names.count(); ++i) {
+                        nameList[i] = names[i];
+                    }
+                    nameList[names.count()] = NULL;
+                    fontInfoRecord.fNames = nameList;
+                }
+            } else {
+                fontInfoRecord.fNames = NULL;
+            }
+            *fontInfo.append() = fontInfoRecord;
+        }
+    }
+    gNumSystemFonts = fontInfo.count();
+    gSystemFonts = (FontInitRec*) malloc(gNumSystemFonts * sizeof(FontInitRec));
+    gFallbackFonts = (uint32_t*) malloc((gNumSystemFonts + 1) * sizeof(uint32_t));
+    if (gSystemFonts == NULL) {
+        // shouldn't get here
+        gNumSystemFonts = 0;
+    }
+    for (size_t i = 0; i < gNumSystemFonts; ++i) {
+        gSystemFonts[i].fFileName = fontInfo[i].fFileName;
+        gSystemFonts[i].fNames = fontInfo[i].fNames;
+    }
+    fontFamilies.deleteAll();
+}
 
 /*  Called once (ensured by the sentinel check at the beginning of our body).
     Initializes all the globals, and register the system fonts.
@@ -448,11 +480,13 @@ static void load_system_fonts() {
         return;
     }
 
+    load_font_info();
+
     const FontInitRec* rec = gSystemFonts;
     SkTypeface* firstInFamily = NULL;
     int fallbackCount = 0;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gSystemFonts); i++) {
+    for (size_t i = 0; i < gNumSystemFonts; i++) {
         // if we're the first in a new family, clear firstInFamily
         if (rec[i].fNames != NULL) {
             firstInFamily = NULL;
@@ -490,7 +524,7 @@ static void load_system_fonts() {
             const char* const* names = rec[i].fNames;
 
             // record the default family if this is it
-            if (names == DEFAULT_NAMES) {
+            if (names == gDefaultNames) {
                 gDefaultFamily = family;
             }
             // add the names to map to this family
@@ -511,40 +545,85 @@ static void load_system_fonts() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    const char* name = ((FamilyTypeface*)face)->getUniqueString();
+    // lookup and record if the font is custom (i.e. not a system font)
+    bool isCustomFont = !((FamilyTypeface*)face)->isSysFont();
+    stream->writeBool(isCustomFont);
 
-    stream->write8((uint8_t)face->style());
+    if (isCustomFont) {
+        SkStream* fontStream = ((FamilyTypeface*)face)->openStream();
 
-    if (NULL == name || 0 == *name) {
-        stream->writePackedUInt(0);
-//        SkDebugf("--- fonthost serialize null\n");
+        // store the length of the custom font
+        uint32_t len = fontStream->getLength();
+        stream->write32(len);
+
+        // store the entire font in the serialized stream
+        void* fontData = malloc(len);
+
+        fontStream->read(fontData, len);
+        stream->write(fontData, len);
+
+        fontStream->unref();
+        free(fontData);
+//      SkDebugf("--- fonthost custom serialize %d %d\n", face->style(), len);
+
     } else {
-        uint32_t len = strlen(name);
-        stream->writePackedUInt(len);
-        stream->write(name, len);
-//      SkDebugf("--- fonthost serialize <%s> %d\n", name, face->style());
+        const char* name = ((FamilyTypeface*)face)->getUniqueString();
+
+        stream->write8((uint8_t)face->style());
+
+        if (NULL == name || 0 == *name) {
+            stream->writePackedUInt(0);
+//          SkDebugf("--- fonthost serialize null\n");
+        } else {
+            uint32_t len = strlen(name);
+            stream->writePackedUInt(len);
+            stream->write(name, len);
+//          SkDebugf("--- fonthost serialize <%s> %d\n", name, face->style());
+        }
     }
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     load_system_fonts();
 
-    int style = stream->readU8();
+    // check if the font is a custom or system font
+    bool isCustomFont = stream->readBool();
 
-    int len = stream->readPackedUInt();
-    if (len > 0) {
-        SkString str;
-        str.resize(len);
-        stream->read(str.writable_str(), len);
+    if (isCustomFont) {
 
-        const FontInitRec* rec = gSystemFonts;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gSystemFonts); i++) {
-            if (strcmp(rec[i].fFileName, str.c_str()) == 0) {
-                // backup until we hit the fNames
-                for (int j = i; j >= 0; --j) {
-                    if (rec[j].fNames != NULL) {
-                        return SkFontHost::CreateTypeface(NULL,
-                                    rec[j].fNames[0], NULL, 0, (SkTypeface::Style)style);
+        // read the length of the custom font from the stream
+        uint32_t len = stream->readU32();
+
+        // generate a new stream to store the custom typeface
+        SkMemoryStream* fontStream = new SkMemoryStream(len);
+        stream->read((void*)fontStream->getMemoryBase(), len);
+
+        SkTypeface* face = CreateTypefaceFromStream(fontStream);
+
+        fontStream->unref();
+
+//      SkDebugf("--- fonthost custom deserialize %d %d\n", face->style(), len);
+        return face;
+
+    } else {
+        int style = stream->readU8();
+
+        int len = stream->readPackedUInt();
+        if (len > 0) {
+            SkString str;
+            str.resize(len);
+            stream->read(str.writable_str(), len);
+
+            const FontInitRec* rec = gSystemFonts;
+            for (size_t i = 0; i < gNumSystemFonts; i++) {
+                if (strcmp(rec[i].fFileName, str.c_str()) == 0) {
+                    // backup until we hit the fNames
+                    for (int j = i; j >= 0; --j) {
+                        if (rec[j].fNames != NULL) {
+                            return SkFontHost::CreateTypeface(NULL,
+                                        rec[j].fNames[0], NULL, 0,
+                                        (SkTypeface::Style)style);
+                        }
                     }
                 }
             }
@@ -627,6 +706,16 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     load_system_fonts();
 
+    const SkTypeface* origTypeface = find_from_uniqueID(origFontID);
+    const SkTypeface* currTypeface = find_from_uniqueID(currFontID);
+
+    SkASSERT(origTypeface != 0);
+    SkASSERT(currTypeface != 0);
+
+    // Our fallback list always stores the id of the plain in each fallback
+    // family, so we transform currFontID to its plain equivalent.
+    currFontID = find_typeface(currTypeface, SkTypeface::kNormal)->uniqueID();
+
     /*  First see if fontID is already one of our fallbacks. If so, return
         its successor. If fontID is not in our list, then return the first one
         in our list. Note: list is zero-terminated, and returning zero means
@@ -635,10 +724,17 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     const uint32_t* list = gFallbackFonts;
     for (int i = 0; list[i] != 0; i++) {
         if (list[i] == currFontID) {
-            return list[i+1];
+            if (list[i+1] == 0)
+                return 0;
+            const SkTypeface* nextTypeface = find_from_uniqueID(list[i+1]);
+            return find_typeface(nextTypeface, origTypeface->style())->uniqueID();
         }
     }
-    return list[0];
+
+    // If we get here, currFontID was not a fallback, so we start at the
+    // beginning of our list.
+    const SkTypeface* firstTypeface = find_from_uniqueID(list[0]);
+    return find_typeface(firstTypeface, origTypeface->style())->uniqueID();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

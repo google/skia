@@ -10,7 +10,7 @@
     #include "BenchSysTimer_windows.h"
 #elif defined(SK_BUILD_FOR_MAC)
     #include "BenchSysTimer_mach.h"
-#elif defined(SK_BUILD_FOR_UNIX)
+#elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
     #include "BenchSysTimer_posix.h"
 #else
     #include "BenchSysTimer_c.h"

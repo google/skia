@@ -340,6 +340,24 @@
             '../src/ports/SkTime_win.cpp',
           ],
         }],
+        [ 'skia_os == "android"', {
+          'sources!': [
+            '../src/opts/opts_check_SSE2.cpp',
+          ],
+          'sources': [
+            '../include/core/SkMMapStream.h',
+            '../src/core/SkMMapStream.cpp',
+            '../src/ports/SkThread_pthread.cpp',
+            '../src/ports/SkFontHost_android.cpp',
+            '../src/ports/SkFontHost_gamma.cpp',
+            '../src/ports/SkFontHost_FreeType.cpp',
+            '../src/ports/FontHostConfiguration_android.cpp',
+          ],
+          'dependencies': [
+             'android_system.gyp:ft2',
+             'android_system.gyp:expat',
+          ],
+        }],        
       ],
       'direct_dependent_settings': {
         'include_dirs': [
