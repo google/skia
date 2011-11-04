@@ -10,7 +10,7 @@
     '../gm/emptypath.cpp',
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',
-    '../gm/fontscaler.cpp',
+#    '../gm/fontscaler.cpp',
     '../gm/gradients.cpp',
     '../gm/hairmodes.cpp',
     '../gm/lcdtext.cpp',
