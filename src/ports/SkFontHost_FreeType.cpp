@@ -951,6 +951,14 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
       case FT_GLYPH_FORMAT_OUTLINE: {
         FT_BBox bbox;
 
+        if (0 == fFace->glyph->outline.n_contours) {
+            glyph->fWidth = 0;
+            glyph->fHeight = 0;
+            glyph->fTop = 0;
+            glyph->fLeft = 0;
+            break;
+        }
+
         if (fRec.fFlags & kEmbolden_Flag) {
             emboldenOutline(&fFace->glyph->outline);
         }
