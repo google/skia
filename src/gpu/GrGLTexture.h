@@ -101,7 +101,6 @@ public:
     GrGLuint textureID() const { return fTexIDObj->id(); }
 
     GrGLenum uploadFormat() const { return fUploadFormat; }
-    GrGLenum uploadByteCount() const { return fUploadByteCount; }
     GrGLenum uploadType() const { return fUploadType; }
 
     /**
@@ -136,7 +135,6 @@ private:
     TexParams           fTexParams;
     GrGLTexID*          fTexIDObj;
     GrGLenum            fUploadFormat;
-    GrGLenum            fUploadByteCount;
     GrGLenum            fUploadType;
     // precomputed content / alloc ratios
     GrScalar            fScaleX;
