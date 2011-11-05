@@ -675,7 +675,7 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
     }
     if (disable_coverage_aa_for_blend(target)) {
 #if GR_DEBUG
-        GrPrintf("Turning off AA to correctly apply blend.\n");
+        //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
         return false;
     }
@@ -1177,7 +1177,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         if (target->getCaps().fSupportPerVertexCoverage) {
             if (disable_coverage_aa_for_blend(target)) {
 #if GR_DEBUG
-                GrPrintf("Turning off AA to correctly apply blend.\n");
+                //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
                 return false;
             } else {
@@ -1497,7 +1497,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     // thing WRT to the blend then we'll need some query on the PR.
     if (disable_coverage_aa_for_blend(target)) {
 #if GR_DEBUG
-        GrPrintf("Turning off AA to correctly apply blend.\n");
+        //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
         prAA = false;
     }

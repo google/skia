@@ -390,7 +390,7 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
     SkXfermode* mode = skPaint.getXfermode();
     if (mode) {
         if (!mode->asCoeff(&sm, &dm)) {
-            SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
+            //SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
 #if 0
             return false;
 #endif

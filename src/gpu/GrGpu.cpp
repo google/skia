@@ -32,7 +32,7 @@ extern void gr_run_unittests();
 
 GrGpu::GrGpu()
     : fContext(NULL)
-    , fResetTimestamp(0)
+    , fResetTimestamp(kExpiredTimestamp+1)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
     , fVertexPoolUseCnt(0)
