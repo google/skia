@@ -681,9 +681,6 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
                          &texDesc.fUploadType)) {
             return NULL;
         }
-
-        GrGLTexture::TexParams params;
-
         texDesc.fAllocWidth  = texDesc.fContentWidth  = desc.fWidth;
         texDesc.fAllocHeight = texDesc.fContentHeight = desc.fHeight;
 
@@ -691,14 +688,13 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         texDesc.fOrientation        = GrGLTexture::kBottomUp_Orientation;
         texDesc.fTextureID          = desc.fPlatformTexture;
         texDesc.fOwnsID             = false;
-
-        params.invalidate(); // rather than do glGets.
+        
         if (isRenderTarget) {
-            GrTexture* tex = new GrGLTexture(this, texDesc, rtDesc, params);
+            GrTexture* tex = new GrGLTexture(this, texDesc, rtDesc);
             tex->asRenderTarget()->setStencilBuffer(sb.get());
             return tex;
         } else {
-            return new GrGLTexture(this, texDesc, params);
+            return new GrGLTexture(this, texDesc);
         }
     } else {
         GrGLIRect viewport;
@@ -1057,10 +1053,11 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             GL_CALL(DeleteTextures(1, &glTexDesc.fTextureID));
             return return_null_texture();
         }
-        tex = new GrGLTexture(this, glTexDesc, glRTDesc, DEFAULT_PARAMS);
+        tex = new GrGLTexture(this, glTexDesc, glRTDesc);
     } else {
-        tex = new GrGLTexture(this, glTexDesc, DEFAULT_PARAMS);
+        tex = new GrGLTexture(this, glTexDesc);
     }
+    tex->setCachedTexParams(DEFAULT_PARAMS, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
     GrPrintf("--- new texture [%d] size=(%d %d) config=%d\n",
              glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
@@ -1952,8 +1949,10 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             }
 
             const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
+            ResetTimestamp timestamp;
             const GrGLTexture::TexParams& oldTexParams =
-                                                nextTexture->getTexParams();
+                                    nextTexture->getCachedTexParams(&timestamp);
+            bool setAll = timestamp < this->getResetTimestamp();
             GrGLTexture::TexParams newTexParams;
 
             newTexParams.fFilter = grToGLFilter(sampler.getFilter());
@@ -1962,8 +1961,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                                 GrGLTexture::WrapMode2GLWrap(this->glBinding());
             newTexParams.fWrapS = wraps[sampler.getWrapX()];
             newTexParams.fWrapT = wraps[sampler.getWrapY()];
-
-            if (newTexParams.fFilter != oldTexParams.fFilter) {
+            if (setAll) {
                 setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                       GR_GL_TEXTURE_MAG_FILTER,
@@ -1971,20 +1969,37 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                       GR_GL_TEXTURE_MIN_FILTER,
                                       newTexParams.fFilter));
-            }
-            if (newTexParams.fWrapS != oldTexParams.fWrapS) {
-                setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                       GR_GL_TEXTURE_WRAP_S,
                                       newTexParams.fWrapS));
-            }
-            if (newTexParams.fWrapT != oldTexParams.fWrapT) {
-                setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                       GR_GL_TEXTURE_WRAP_T,
                                       newTexParams.fWrapT));
+            } else {
+                if (newTexParams.fFilter != oldTexParams.fFilter) {
+                    setTextureUnit(s);
+                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                                          GR_GL_TEXTURE_MAG_FILTER,
+                                          newTexParams.fFilter));
+                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                                          GR_GL_TEXTURE_MIN_FILTER,
+                                          newTexParams.fFilter));
+                }
+                if (newTexParams.fWrapS != oldTexParams.fWrapS) {
+                    setTextureUnit(s);
+                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                                          GR_GL_TEXTURE_WRAP_S,
+                                          newTexParams.fWrapS));
+                }
+                if (newTexParams.fWrapT != oldTexParams.fWrapT) {
+                    setTextureUnit(s);
+                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                                          GR_GL_TEXTURE_WRAP_T,
+                                          newTexParams.fWrapT));
+                }
             }
-            nextTexture->setTexParams(newTexParams);
+            nextTexture->setCachedTexParams(newTexParams,
+                                            this->getResetTimestamp());
         }
     }
 

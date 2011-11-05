@@ -37,12 +37,12 @@ const GrGLenum* GrGLTexture::WrapMode2GLWrap(GrGLBinding binding) {
 
 void GrGLTexture::init(GrGpuGL* gpu,
                        const Desc& textureDesc,
-                       const GrGLRenderTarget::Desc* rtDesc,
-                       const TexParams& initialTexParams) {
+                       const GrGLRenderTarget::Desc* rtDesc) {
 
     GrAssert(0 != textureDesc.fTextureID);
 
-    fTexParams          = initialTexParams;
+    fTexParams.invalidate();
+    fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fTexIDObj           = new GrGLTexID(GPUGL->glInterface(),
                                         textureDesc.fTextureID,
                                         textureDesc.fOwnsID);
@@ -67,28 +67,26 @@ void GrGLTexture::init(GrGpuGL* gpu,
 }
 
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
-                         const Desc& textureDesc,
-                         const TexParams& initialTexParams) 
+                         const Desc& textureDesc) 
     : INHERITED(gpu,
                 textureDesc.fContentWidth,
                 textureDesc.fContentHeight,
                 textureDesc.fAllocWidth,
                 textureDesc.fAllocHeight,
                 textureDesc.fConfig) {
-    this->init(gpu, textureDesc, NULL, initialTexParams);
+    this->init(gpu, textureDesc, NULL);
 }
 
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                          const Desc& textureDesc,
-                         const GrGLRenderTarget::Desc& rtDesc,
-                         const TexParams& initialTexParams)
+                         const GrGLRenderTarget::Desc& rtDesc)
     : INHERITED(gpu,
                 textureDesc.fContentWidth,
                 textureDesc.fContentHeight,
                 textureDesc.fAllocWidth,
                 textureDesc.fAllocHeight,
                 textureDesc.fConfig) {
-    this->init(gpu, textureDesc, &rtDesc, initialTexParams);
+    this->init(gpu, textureDesc, &rtDesc);
 }
 
 void GrGLTexture::onRelease() {
