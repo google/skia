@@ -111,7 +111,7 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
         }
     }
 
-    desc.fFormat = SkGr::Bitmap2PixelConfig(*bitmap);
+    desc.fConfig = SkGr::Bitmap2PixelConfig(*bitmap);
     if (gUNCACHED_KEY != key) {
         return ctx->createAndLockTexture(key, sampler, desc,
                                          bitmap->getPixels(),

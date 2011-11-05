@@ -374,7 +374,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
             // no longer need to clamp at min RT size.
             rtDesc.fWidth  = GrNextPow2(desc.fWidth);
             rtDesc.fHeight = GrNextPow2(desc.fHeight);
-            int bpp = GrBytesPerPixel(desc.fFormat);
+            int bpp = GrBytesPerPixel(desc.fConfig);
             SkAutoSMalloc<128*128*4> stretchedPixels(bpp *
                                                      rtDesc.fWidth *
                                                      rtDesc.fHeight);
@@ -408,7 +408,7 @@ inline void gen_scratch_tex_key_values(const GrGpu* gpu,
     // we create a key of from the descriptor.
     GrContext::TextureKey descKey = desc.fAALevel |
                                     (desc.fFlags << 8) |
-                                    ((uint64_t) desc.fFormat << 32);
+                                    ((uint64_t) desc.fConfig << 32);
     // this code path isn't friendly to tiling with NPOT restricitons
     // We just pass ClampNoFilter()
     gen_texture_key_values(gpu, GrSamplerState::ClampNoFilter(), descKey,
@@ -428,7 +428,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
         desc.fHeight = GrMax(MIN_SIZE, GrNextPow2(desc.fHeight));
     }
 
-    uint32_t p0 = desc.fFormat;
+    uint32_t p0 = desc.fConfig;
     uint32_t p1 = (desc.fAALevel << 16) | desc.fFlags;
     
     GrResourceEntry* entry;
@@ -710,7 +710,7 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
                       kNoStencil_GrTextureFlagBit;
     }
 
-    desc.fFormat = kRGBA_8888_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     if (PREFER_MSAA_OFFSCREEN_AA && fGpu->getCaps().fFSAASupport) {
         record->fDownsample = OffscreenRecord::kFSAA_Downsample;

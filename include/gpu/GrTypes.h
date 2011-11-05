@@ -376,7 +376,12 @@ struct GrTextureDesc {
      * Format of source data of the texture. Not guaraunteed to be the same as
      * internal format used by 3D API.
      */
-    GrPixelConfig          fFormat; 
+    // This union exists because WebKit uses the deprecated name fFormat. Once
+    // WebKit has been changed fFormat will be dropped.
+    union {
+        GrPixelConfig          fFormat;
+        GrPixelConfig          fConfig;
+    };
 };
 
 /**
