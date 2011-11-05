@@ -74,7 +74,7 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                 textureDesc.fContentHeight,
                 textureDesc.fAllocWidth,
                 textureDesc.fAllocHeight,
-                textureDesc.fFormat) {
+                textureDesc.fConfig) {
     this->init(gpu, textureDesc, NULL, initialTexParams);
 }
 
@@ -87,7 +87,7 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                 textureDesc.fContentHeight,
                 textureDesc.fAllocWidth,
                 textureDesc.fAllocHeight,
-                textureDesc.fFormat) {
+                textureDesc.fConfig) {
     this->init(gpu, textureDesc, &rtDesc, initialTexParams);
 }
 

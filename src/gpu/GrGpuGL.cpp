@@ -687,7 +687,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         texDesc.fAllocWidth  = texDesc.fContentWidth  = desc.fWidth;
         texDesc.fAllocHeight = texDesc.fContentHeight = desc.fHeight;
 
-        texDesc.fFormat             = desc.fConfig;
+        texDesc.fConfig             = desc.fConfig;
         texDesc.fOrientation        = GrGLTexture::kBottomUp_Orientation;
         texDesc.fTextureID          = desc.fPlatformTexture;
         texDesc.fOwnsID             = false;
@@ -722,8 +722,8 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
                                        size_t rowBytes) {
     // we assume the texture is bound
 
-    size_t bpp = GrBytesPerPixel(desc.fFormat);
-    size_t trimRowBytes = desc.fContentWidth * desc.fUploadByteCount;
+    size_t bpp = GrBytesPerPixel(desc.fConfig);
+    size_t trimRowBytes = desc.fContentWidth * bpp;
 
     if (!rowBytes) {
         rowBytes = trimRowBytes;
@@ -769,7 +769,7 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
     }
 
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
-    if (kIndex_8_GrPixelConfig == desc.fFormat &&
+    if (kIndex_8_GrPixelConfig == desc.fConfig &&
         this->getCaps().f8BitPaletteSupport) {
         // ES only supports CompressedTexImage2D, not CompressedTexSubimage2D
         GrAssert(desc.fContentWidth == desc.fAllocWidth);
@@ -833,7 +833,7 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
                                        desc.fContentHeight * rowBytes - bpp;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
                 for (int i = 0; i < extraW*extraH; ++i) {
-                    memcpy(extraTexel, cornerTexel, desc.fUploadByteCount);
+                    memcpy(extraTexel, cornerTexel, bpp);
                     extraTexel += bpp;
                 }
                 GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, desc.fContentWidth,
@@ -967,17 +967,17 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glTexDesc.fContentHeight = desc.fHeight;
     glTexDesc.fAllocWidth    = desc.fWidth;
     glTexDesc.fAllocHeight   = desc.fHeight;
-    glTexDesc.fFormat        = desc.fFormat;
+    glTexDesc.fConfig        = desc.fConfig;
     glTexDesc.fOwnsID        = true;
 
     glRTDesc.fMSColorRenderbufferID = 0;
     glRTDesc.fRTFBOID = 0;
     glRTDesc.fTexFBOID = 0;
     glRTDesc.fOwnIDs = true;
-    glRTDesc.fConfig = glTexDesc.fFormat;
+    glRTDesc.fConfig = glTexDesc.fConfig;
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
-    if (!canBeTexture(desc.fFormat,
+    if (!canBeTexture(desc.fConfig,
                       &internalFormat,
                       &glTexDesc.fUploadFormat,
                       &glTexDesc.fUploadType)) {
@@ -998,8 +998,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         desc.fAALevel != kNone_GrAALevel) {
         GrPrintf("AA RT requested but not supported on this platform.");
     }
-
-    glTexDesc.fUploadByteCount = GrBytesPerPixel(desc.fFormat);
 
     if (renderTarget) {
         if (!caps.fNPOTRenderTargetSupport) {
@@ -1064,8 +1062,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         tex = new GrGLTexture(this, glTexDesc, DEFAULT_PARAMS);
     }
 #ifdef TRACE_TEXTURE_CREATION
-    GrPrintf("--- new texture [%d] size=(%d %d) bpp=%d\n",
-             tex->fTextureID, width, height, tex->fUploadByteCount);
+    GrPrintf("--- new texture [%d] size=(%d %d) config=%d\n",
+             glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
     return tex;
 }

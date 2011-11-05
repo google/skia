@@ -64,11 +64,10 @@ public:
         int             fContentHeight;
         int             fAllocWidth;
         int             fAllocHeight;
-        GrPixelConfig   fFormat;
+        GrPixelConfig   fConfig;
         GrGLuint        fTextureID;
         bool            fOwnsID;
         GrGLenum        fUploadFormat;
-        GrGLenum        fUploadByteCount;
         GrGLenum        fUploadType;
         Orientation     fOrientation;
     };
