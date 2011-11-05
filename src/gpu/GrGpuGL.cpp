@@ -559,7 +559,7 @@ void GrGpuGL::initStencilFormats() {
     }
 }
 
-void GrGpuGL::resetContext() {
+void GrGpuGL::onResetContext() {
     if (gPrintStartupSpew && !fPrintedCaps) {
         fPrintedCaps = true;
         this->getCaps().print();

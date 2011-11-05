@@ -22,14 +22,13 @@ public:
              GrGpuGLShaders(const GrGLInterface* glInterface);
     virtual ~GrGpuGLShaders();
 
-    virtual void resetContext();
-
     virtual void abandonResources();
 
     bool programUnitTest();
 
 protected:
     // overrides from GrGpu
+    virtual void onResetContext() SK_OVERRIDE;
     virtual bool flushGraphicsState(GrPrimitiveType type);
     virtual void setupGeometry(int* startVertex,
                                int* startIndex,

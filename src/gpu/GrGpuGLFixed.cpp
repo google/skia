@@ -67,8 +67,8 @@ GrGpuGLFixed::GrGpuGLFixed(const GrGLInterface* gl)
 GrGpuGLFixed::~GrGpuGLFixed() {
 }
 
-void GrGpuGLFixed::resetContext() {
-    INHERITED::resetContext();
+void GrGpuGLFixed::onResetContext() {
+    INHERITED::onResetContext();
 
     GL_CALL(Disable(GR_GL_TEXTURE_2D));
 

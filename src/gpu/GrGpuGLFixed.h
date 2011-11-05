@@ -29,7 +29,7 @@ protected:
                                int indexCount);
 
 private:
-    virtual void resetContext();
+    virtual void onResetContext() SK_OVERRIDE;
 
     // Helpers to make code more readable
     const GrMatrix& getHWSamplerMatrix(int stage) const {
