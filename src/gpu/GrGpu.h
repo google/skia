@@ -223,6 +223,23 @@ public:
     // GrDrawTarget overrides
     virtual void clear(const GrIRect* rect, GrColor color);
 
+    // After the client interacts directly with the 3D context state the GrGpu
+    // must resync its internal state and assumptions about 3D context state.
+    // Each time this occurs the GrGpu bumps a timestamp.
+    // state of the 3D context
+    // At 10 resets / frame and 60fps a 64bit timestamp will overflow in about
+    // a billion years.
+    typedef uint64_t ResetTimestamp;
+
+    // This timestamp is always older than the current timestamp
+    static const ResetTimestamp kExpiredTimestamp = 0;
+    // Returns a timestamp based on the number of times the context was reset.
+    // This timestamp can be used to lazily detect when cached 3D context state
+    // is dirty.
+    ResetTimestamp getResetTimestamp() const {
+        return fResetTimestamp;
+    }
+
 protected:
     enum PrivateStateBits {
         kFirstBit = (kLastPublicStateBit << 1),
@@ -288,19 +305,10 @@ protected:
     void finalizeReservedVertices();
     void finalizeReservedIndices();
 
-    // at 10 resets / frame and 60fps a 64bit timestamp will overflow in about
-    // a billion years.
-    typedef uint64_t ResetContextTimestamp;
-    
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache
     virtual void onResetContext() = 0;
 
-    // returns the number of times the context was reset. This timestamp can be
-    // used to lazily detect when cached 3D context state is dirty.
-    ResetContextTimestamp resetContextTimestamp() const {
-        return fResetTimestamp;
-    }
     
     // overridden by API-specific derived class to create objects.
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
@@ -374,7 +382,7 @@ protected:
 private:
     GrContext*                  fContext; // not reffed (context refs gpu)
     
-    ResetContextTimestamp       fResetTimestamp;
+    ResetTimestamp              fResetTimestamp;
 
     GrVertexBufferAllocPool*    fVertexPool;
 
