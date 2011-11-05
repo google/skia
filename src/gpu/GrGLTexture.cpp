@@ -47,7 +47,6 @@ void GrGLTexture::init(GrGpuGL* gpu,
                                         textureDesc.fTextureID,
                                         textureDesc.fOwnsID);
     fUploadFormat       = textureDesc.fUploadFormat;
-    fUploadByteCount    = textureDesc.fUploadByteCount;
     fUploadType         = textureDesc.fUploadType;
     fOrientation        = textureDesc.fOrientation;
     fScaleX             = GrIntToScalar(textureDesc.fContentWidth) /
@@ -114,7 +113,11 @@ void GrGLTexture::uploadTextureData(int x,
                                     int height,
                                     const void* srcData,
                                     size_t rowBytes) {
-
+    GrIRect bounds = GrIRect::MakeWH(this->width(), this->height());
+    GrIRect subrect = GrIRect::MakeXYWH(x,y,width, height);
+    if (!bounds.contains(subrect)) {
+        return;
+    }
     GPUGL->setSpareTextureUnit();
 
     // ES2 glCompressedTexSubImage2D doesn't support any formats
@@ -124,8 +127,10 @@ void GrGLTexture::uploadTextureData(int x,
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
+    size_t bpp = GrBytesPerPixel(this->config());
+    size_t trimRowBytes = width * bpp;
     if (!rowBytes) {
-        rowBytes = fUploadByteCount * width;
+        rowBytes = trimRowBytes;
     }
     /*
      *  check whether to allocate a temporary buffer for flipping y or
@@ -137,14 +142,13 @@ void GrGLTexture::uploadTextureData(int x,
     bool flipY = kBottomUp_Orientation == fOrientation;
     if (kDesktop_GrGLBinding == GPUGL->glBinding() && !flipY) {
         // can't use this for flipping, only non-neg values allowed. :(
-        if (srcData && rowBytes) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
-                              rowBytes / fUploadByteCount));
+        if (srcData && rowBytes != trimRowBytes) {
+            GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
+            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
             restoreGLRowLength = true;
         }
     } else {
-        size_t trimRowBytes = width * fUploadByteCount;
-        if (srcData && (trimRowBytes < rowBytes || flipY)) {
+        if (srcData && (trimRowBytes != rowBytes || flipY)) {
             // copy the data into our new storage, skipping the trailing bytes
             size_t trimSize = height * trimRowBytes;
             const char* src = (const char*)srcData;
@@ -170,7 +174,7 @@ void GrGLTexture::uploadTextureData(int x,
         y = this->height() - (y + height);
     }
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, fTexIDObj->id()));
-    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, fUploadByteCount));
+    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
     GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height,
                           fUploadFormat, fUploadType, srcData));
 

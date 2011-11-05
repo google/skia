@@ -690,7 +690,6 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         texDesc.fFormat             = desc.fConfig;
         texDesc.fOrientation        = GrGLTexture::kBottomUp_Orientation;
         texDesc.fTextureID          = desc.fPlatformTexture;
-        texDesc.fUploadByteCount    = GrBytesPerPixel(desc.fConfig);
         texDesc.fOwnsID             = false;
 
         params.invalidate(); // rather than do glGets.
@@ -721,9 +720,13 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
                                        GrGLenum internalFormat,
                                        const void* data,
                                        size_t rowBytes) {
-    // we assume the texture is bound;
+    // we assume the texture is bound
+
+    size_t bpp = GrBytesPerPixel(desc.fFormat);
+    size_t trimRowBytes = desc.fContentWidth * desc.fUploadByteCount;
+
     if (!rowBytes) {
-        rowBytes = desc.fUploadByteCount * desc.fContentWidth;
+        rowBytes = trimRowBytes;
     }
 
     // in case we need a temporary, trimmed copy of the src pixels
@@ -737,13 +740,12 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
      */
     bool flipY = GrGLTexture::kBottomUp_Orientation == desc.fOrientation;
     if (kDesktop_GrGLBinding == this->glBinding() && !flipY) {
-        if (data && rowBytes != desc.fContentWidth * desc.fUploadByteCount) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
-                                rowBytes / desc.fUploadByteCount));
+        if (data && rowBytes != trimRowBytes) {
+            GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
+            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
         }
     } else {
-        size_t trimRowBytes = desc.fContentWidth * desc.fUploadByteCount;
-        if (data && (trimRowBytes < rowBytes || flipY)) {
+        if (data && (trimRowBytes != rowBytes || flipY)) {
             // copy the data into our new storage, skipping the trailing bytes
             size_t trimSize = desc.fContentHeight * trimRowBytes;
             const char* src = (const char*)data;
@@ -766,7 +768,7 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
         }
     }
 
-    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, desc.fUploadByteCount));
+    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
     if (kIndex_8_GrPixelConfig == desc.fFormat &&
         this->getCaps().f8BitPaletteSupport) {
         // ES only supports CompressedTexImage2D, not CompressedTexSubimage2D
@@ -795,20 +797,16 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
             maxTexels = GrMax(extraW * desc.fContentHeight, maxTexels);
             maxTexels = GrMax(desc.fContentWidth * extraH, maxTexels);
 
-            SkAutoSMalloc<128*128> texels(desc.fUploadByteCount * maxTexels);
+            SkAutoSMalloc<128*128> texels(bpp * maxTexels);
 
-            // rowBytes is actual stride between rows in data
-            // rowDataBytes is the actual amount of non-pad data in a row
-            // and the stride used for uploading extraH rows.
-            uint32_t rowDataBytes = desc.fContentWidth * desc.fUploadByteCount;
             if (extraH) {
                 uint8_t* lastRowStart = (uint8_t*) data +
                                         (desc.fContentHeight - 1) * rowBytes;
                 uint8_t* extraRowStart = (uint8_t*)texels.get();
 
                 for (int i = 0; i < extraH; ++i) {
-                    memcpy(extraRowStart, lastRowStart, rowDataBytes);
-                    extraRowStart += rowDataBytes;
+                    memcpy(extraRowStart, lastRowStart, trimRowBytes);
+                    extraRowStart += trimRowBytes;
                 }
                 GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0,
                                       desc.fContentHeight, desc.fContentWidth,
@@ -816,13 +814,12 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
                                       desc.fUploadType, texels.get()));
             }
             if (extraW) {
-                uint8_t* edgeTexel = (uint8_t*)data +
-                                     rowDataBytes - desc.fUploadByteCount;
+                uint8_t* edgeTexel = (uint8_t*)data + trimRowBytes - bpp;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
                 for (int j = 0; j < desc.fContentHeight; ++j) {
                     for (int i = 0; i < extraW; ++i) {
-                        memcpy(extraTexel, edgeTexel, desc.fUploadByteCount);
-                        extraTexel += desc.fUploadByteCount;
+                        memcpy(extraTexel, edgeTexel, bpp);
+                        extraTexel += bpp;
                     }
                     edgeTexel += rowBytes;
                 }
@@ -833,12 +830,11 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
             }
             if (extraW && extraH) {
                 uint8_t* cornerTexel = (uint8_t*)data + 
-                                       desc.fContentHeight * rowBytes -
-                                       desc.fUploadByteCount;
+                                       desc.fContentHeight * rowBytes - bpp;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
                 for (int i = 0; i < extraW*extraH; ++i) {
                     memcpy(extraTexel, cornerTexel, desc.fUploadByteCount);
-                    extraTexel += desc.fUploadByteCount;
+                    extraTexel += bpp;
                 }
                 GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, desc.fContentWidth,
                                       desc.fContentHeight, extraW, extraH, 
