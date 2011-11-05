@@ -288,9 +288,14 @@ protected:
     void finalizeReservedVertices();
     void finalizeReservedIndices();
 
-    // overridden by API-specific derived class to handle re-emitting 3D API
-    // preample and dirtying state cache.
-    virtual void resetContext() = 0;
+    // called to handle re-emitting 3D API preample and dirtying state cache.
+    void resetContext();
+    // returns the number of times resetContext has been called. This value
+    // can be used a timestamp to detect when state cache is dirty.
+    int resetCount() const { return fResetCnt; }
+    
+    // subclass implementation of resetContext
+    virtual void onResetContext() = 0;
 
     // overridden by API-specific derived class to create objects.
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
@@ -363,6 +368,8 @@ protected:
 
 private:
     GrContext*                  fContext; // not reffed (context refs gpu)
+    
+    int                         fResetCnt;
 
     GrVertexBufferAllocPool*    fVertexPool;
 

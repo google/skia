@@ -32,6 +32,7 @@ extern void gr_run_unittests();
 
 GrGpu::GrGpu()
     : fContext(NULL)
+    , fResetCnt(0)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
     , fVertexPoolUseCnt(0)
@@ -59,6 +60,11 @@ GrGpu::GrGpu()
 
 GrGpu::~GrGpu() {
     this->releaseResources();
+}
+
+void GrGpu::resetContext() {
+    this->onResetContext();
+    ++fResetCnt;
 }
 
 void GrGpu::abandonResources() {

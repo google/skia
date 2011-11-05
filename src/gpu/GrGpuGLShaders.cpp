@@ -360,8 +360,8 @@ void GrGpuGLShaders::recordHWSamplerMatrix(int stage, const GrMatrix& matrix) {
     }
 }
 
-void GrGpuGLShaders::resetContext() {
-    INHERITED::resetContext();
+void GrGpuGLShaders::onResetContext() {
+    INHERITED::onResetContext();
 
     fHWGeometryState.fVertexOffset = ~0;
 

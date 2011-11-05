@@ -70,7 +70,7 @@ protected:
     } fHWBounds;
 
     // GrGpu overrides
-    virtual void resetContext();
+    virtual void onResetContext() SK_OVERRIDE;
 
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
