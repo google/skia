@@ -288,15 +288,20 @@ protected:
     void finalizeReservedVertices();
     void finalizeReservedIndices();
 
-    // called to handle re-emitting 3D API preample and dirtying state cache.
-    void resetContext();
-    // returns the number of times resetContext has been called. This value
-    // can be used a timestamp to detect when state cache is dirty.
-    int resetCount() const { return fResetCnt; }
+    // at 10 resets / frame and 60fps a 64bit timestamp will overflow in about
+    // a billion years.
+    typedef uint64_t ResetContextTimestamp;
     
-    // subclass implementation of resetContext
+    // called when the 3D context state is unknown. Subclass should emit any
+    // assumed 3D context state and dirty any state cache
     virtual void onResetContext() = 0;
 
+    // returns the number of times the context was reset. This timestamp can be
+    // used to lazily detect when cached 3D context state is dirty.
+    ResetContextTimestamp resetContextTimestamp() const {
+        return fResetTimestamp;
+    }
+    
     // overridden by API-specific derived class to create objects.
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
@@ -369,7 +374,7 @@ protected:
 private:
     GrContext*                  fContext; // not reffed (context refs gpu)
     
-    int                         fResetCnt;
+    ResetContextTimestamp       fResetTimestamp;
 
     GrVertexBufferAllocPool*    fVertexPool;
 
@@ -418,6 +423,11 @@ private:
 
     // determines the path renderer used to draw a clip path element.
     GrPathRenderer* getClipPathRenderer(const SkPath& path, GrPathFill fill);
+
+    void resetContext() {
+        this->onResetContext();
+        ++fResetTimestamp;
+    }
 
     void handleDirtyContext() {
         if (fContextIsDirty) {
