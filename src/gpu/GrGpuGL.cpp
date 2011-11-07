@@ -395,6 +395,13 @@ void GrGpuGL::initCaps() {
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
+        fGLCaps.fTextureSwizzle = this->glVersion() >= GR_GL_VER(3,3) ||
+                                  this->hasExtension("GL_ARB_texture_swizzle");
+    } else {
+        fGLCaps.fTextureSwizzle = false;
+    }
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
         fCaps.fBufferLockSupport = true; // we require VBO support and the desktop VBO
                                          // extension includes glMapBuffer.
     } else {
@@ -1019,6 +1026,40 @@ static size_t as_size_t(int x) {
 }
 #endif
 
+namespace {
+void set_tex_swizzle(GrPixelConfig config, const GrGLInterface* gl) {
+    // Today we always use GL_ALPHA for kAlpha_8_GrPixelConfig. However,
+    // this format is deprecated sometimes isn't a renderable format. If we
+    // were to spoof it in the future with GL_RED we'd want to notice that
+    // here.
+    // This isn't recorded in our tex params struct becauase we infer it
+    // from the pixel config.
+    const GrGLint* swiz;
+    if (GrPixelConfigIsAlphaOnly(config)) {
+        static const GrGLint gAlphaSwiz[] = {GR_GL_ALPHA, GR_GL_ALPHA,
+                                             GR_GL_ALPHA, GR_GL_ALPHA};
+        swiz = gAlphaSwiz;
+    } else {
+        static const GrGLint gColorSwiz[] = {GR_GL_RED,  GR_GL_GREEN,
+                                             GR_GL_BLUE, GR_GL_ALPHA};
+        swiz = gColorSwiz;
+    }
+    // should add texparameteri to interface to make 1 instead of 4 calls here
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_R,
+                                 swiz[0]));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_G,
+                                 swiz[1]));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_B,
+                                 swiz[2]));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_A,
+                                 swiz[3]));
+}
+}
+
 GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                     const void* srcData,
                                     size_t rowBytes) {
@@ -1118,7 +1159,9 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_WRAP_T,
                           DEFAULT_TEX_PARAMS.fWrapT));
-
+    if (fGLCaps.fTextureSwizzle) {
+        set_tex_swizzle(desc.fConfig, this->glInterface());
+    }
     this->allocateAndUploadTexData(glTexDesc, internalFormat,srcData, rowBytes);
 
     GrGLTexture* tex;
@@ -2055,6 +2098,9 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                       GR_GL_TEXTURE_WRAP_T,
                                       newTexParams.fWrapT));
+                if (this->glCaps().fTextureSwizzle) {
+                    set_tex_swizzle(nextTexture->config(), this->glInterface());
+                }
             } else {
                 if (newTexParams.fFilter != oldTexParams.fFilter) {
                     setTextureUnit(s);
@@ -2389,4 +2435,6 @@ void GrGpuGL::GLCaps::print() const {
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     GrPrintf("Support RGBA8 Render Buffer: %s\n",
              (fRGBA8Renderbuffer ? "YES": "NO"));
+    GrPrintf("Support texture swizzle: %s\n",
+             (fTextureSwizzle ? "YES": "NO"));
 }

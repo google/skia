@@ -204,8 +204,8 @@ bool GrGpuGLShaders::programUnitTest() {
 
         pdesc.fVertexLayout = 0;
         pdesc.fEmitsPointSize = random.nextF() > .5f;
-        pdesc.fColorType = static_cast<int>(random.nextF() *
-                                            ProgramDesc::kColorTypeCnt);
+        pdesc.fColorInput = static_cast<int>(random.nextF() *
+                                             ProgramDesc::kColorInputCnt);
 
         int idx = (int)(random.nextF() * (SkXfermode::kCoeffModesCnt));
         pdesc.fColorFilterXfermode = (SkXfermode::Mode)idx;
@@ -270,7 +270,7 @@ bool GrGpuGLShaders::programUnitTest() {
             idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
             StageDesc& stage = pdesc.fStages[s];
             stage.fOptFlags = STAGE_OPTS[idx];
-            stage.fModulation = random_val(&random, StageDesc::kModulationCnt);
+            stage.fInputConfig = random_val(&random, StageDesc::kInputConfigCnt);
             stage.fCoordMapping =  random_val(&random, StageDesc::kCoordMappingCnt);
             stage.fFetchMode = random_val(&random, StageDesc::kFetchModeCnt);
             // convolution shaders don't work with persp tex matrix
@@ -605,8 +605,8 @@ void GrGpuGLShaders::flushColor(GrColor color) {
         // invalidate the const vertex attrib color
         fHWDrawState.fColor = GrColor_ILLEGAL;
     } else {
-        switch (desc.fColorType) {
-            case ProgramDesc::kAttribute_ColorType:
+        switch (desc.fColorInput) {
+            case ProgramDesc::kAttribute_ColorInput:
                 if (fHWDrawState.fColor != color) {
                     // OpenGL ES only supports the float varities of glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(color);
@@ -615,7 +615,7 @@ void GrGpuGLShaders::flushColor(GrColor color) {
                     fHWDrawState.fColor = color;
                 }
                 break;
-            case ProgramDesc::kUniform_ColorType:
+            case ProgramDesc::kUniform_ColorInput:
                 if (fProgramData->fColor != color) {
                     // OpenGL ES only supports the float varities of glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(color);
@@ -626,8 +626,8 @@ void GrGpuGLShaders::flushColor(GrColor color) {
                     fProgramData->fColor = color;
                 }
                 break;
-            case ProgramDesc::kSolidWhite_ColorType:
-            case ProgramDesc::kTransBlack_ColorType:
+            case ProgramDesc::kSolidWhite_ColorInput:
+            case ProgramDesc::kTransBlack_ColorInput:
                 break;
             default:
                 GrCrash("Unknown color type.");
@@ -882,7 +882,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
 
     bool requiresAttributeColors = 
         !skipColor && SkToBool(desc.fVertexLayout & kColor_VertexLayoutBit);
-    // fColorType records how colors are specified for the program. Strip
+    // fColorInput records how colors are specified for the program. Strip
     // the bit from the layout to avoid false negatives when searching for an
     // existing program in the cache.
     desc.fVertexLayout &= ~(kColor_VertexLayoutBit);
@@ -903,13 +903,13 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                              (!requiresAttributeColors &&
                               0xffffffff == fCurrDrawState.fColor);
     if (GR_AGGRESSIVE_SHADER_OPTS && colorIsTransBlack) {
-        desc.fColorType = ProgramDesc::kTransBlack_ColorType;
+        desc.fColorInput = ProgramDesc::kTransBlack_ColorInput;
     } else if (GR_AGGRESSIVE_SHADER_OPTS && colorIsSolidWhite) {
-        desc.fColorType = ProgramDesc::kSolidWhite_ColorType;
+        desc.fColorInput = ProgramDesc::kSolidWhite_ColorInput;
     } else if (GR_GL_NO_CONSTANT_ATTRIBUTES && !requiresAttributeColors) {
-        desc.fColorType = ProgramDesc::kUniform_ColorType;
+        desc.fColorInput = ProgramDesc::kUniform_ColorInput;
     } else {
-        desc.fColorType = ProgramDesc::kAttribute_ColorType;
+        desc.fColorInput = ProgramDesc::kAttribute_ColorInput;
     }
 
     desc.fEdgeAANumEdges = skipCoverage ? 0 : fCurrDrawState.fEdgeAANumEdges;
@@ -999,10 +999,14 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 stage.fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
             }
 
-            if (GrPixelConfigIsAlphaOnly(texture->config())) {
-                stage.fModulation = StageDesc::kAlpha_Modulation;
+            if (!this->glCaps().fTextureSwizzle &&
+                GrPixelConfigIsAlphaOnly(texture->config())) {
+                // if we don't have texture swizzle support then
+                // the shader must do an alpha smear after reading
+                // the texture
+                stage.fInputConfig = StageDesc::kAlphaOnly_InputConfig;
             } else {
-                stage.fModulation = StageDesc::kColor_Modulation;
+                stage.fInputConfig = StageDesc::kColor_InputConfig;
             }
             if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
                 stage.fKernelWidth = sampler.getKernelWidth();
@@ -1012,9 +1016,9 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
         } else {
             stage.fOptFlags     = 0;
             stage.fCoordMapping = (StageDesc::CoordMapping)0;
-            stage.fModulation   = (StageDesc::Modulation)0;
-            stage.fFetchMode = (StageDesc::FetchMode) 0;
-            stage.fKernelWidth = 0;
+            stage.fInputConfig  = (StageDesc::InputConfig)0;
+            stage.fFetchMode    = (StageDesc::FetchMode) 0;
+            stage.fKernelWidth  = 0;
         }
     }
 

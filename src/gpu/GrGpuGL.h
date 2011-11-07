@@ -22,6 +22,7 @@
 #include "SkString.h"
 
 class GrGpuGL : public GrGpu {
+
 public:
     virtual ~GrGpuGL();
 
@@ -32,6 +33,56 @@ public:
 protected:
     GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
 
+    struct GLCaps {
+        GLCaps()
+            // make defaults be the most restrictive
+            : fMSFBOType(kNone_MSFBO)
+            , fMaxFragmentUniformVectors(0)
+            , fRGBA8Renderbuffer(false)
+            , fBGRAFormat(false)
+            , fStencilFormats(8) // prealloc space for    stencil formats
+            , fTextureSwizzle(false) {
+            memset(fAASamples, 0, sizeof(fAASamples));
+        }
+        SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
+    
+        enum {
+            /**
+             * no support for MSAA FBOs
+             */
+            kNone_MSFBO = 0,  
+            /**
+             * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
+             */
+            kDesktopARB_MSFBO,
+            /**
+             * earlier GL_EXT_framebuffer* extensions
+             */
+            kDesktopEXT_MSFBO,
+            /**
+             * GL_APPLE_framebuffer_multisample ES extension
+             */
+            kAppleES_MSFBO,
+        } fMSFBOType;
+    
+        // TODO: get rid of GrAALevel and use sample cnt directly
+        GrGLuint fAASamples[4];
+    
+        // The maximum number of fragment uniform vectors (GLES has min. 16).
+        int fMaxFragmentUniformVectors;
+    
+        // ES requires an extension to support RGBA8 in RenderBufferStorage
+        bool fRGBA8Renderbuffer;
+    
+        // Is GL_BGRA supported
+        bool fBGRAFormat;
+    
+        // GL_ARB_texture_swizzle support
+        bool fTextureSwizzle;
+    
+        void print() const;
+    } fGLCaps;
+ 
     struct {
         size_t                  fVertexOffset;
         GrVertexLayout          fVertexLayout;
@@ -68,6 +119,8 @@ protected:
         GrGLIRect   fScissorRect;
         GrGLIRect   fViewportRect;
     } fHWBounds;
+
+    const GLCaps& glCaps() const { return fGLCaps; }
 
     // GrGpu overrides
     virtual void onResetContext() SK_OVERRIDE;
@@ -206,43 +259,6 @@ private:
     // read these once at begining and then never again
     SkString fExtensionString;
     GrGLVersion fGLVersion;
-
-    struct GLCaps {
-        // prealloc space for 8 stencil formats
-        GLCaps() : fStencilFormats(8) {}
-        SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
-
-        enum {
-            /**
-             * no support for MSAA FBOs
-             */
-            kNone_MSFBO = 0,  
-            /**
-             * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
-             */
-            kDesktopARB_MSFBO,
-            /**
-             * earlier GL_EXT_framebuffer* extensions
-             */
-            kDesktopEXT_MSFBO,
-            /**
-             * GL_APPLE_framebuffer_multisample ES extension
-             */
-            kAppleES_MSFBO,
-        } fMSFBOType;
-
-        // TODO: get rid of GrAALevel and use sample cnt directly
-        GrGLuint fAASamples[4];
-
-        // The maximum number of fragment uniform vectors (GLES has min. 16).
-        int fMaxFragmentUniformVectors;
-
-        // ES requires an extension to support RGBA8 in RenderBufferStorage
-        bool fRGBA8Renderbuffer;
-
-        void print() const;
-    } fGLCaps;
-
 
     // we want to clear stencil buffers when they are created. We want to clear
     // the entire buffer even if it is larger than the color attachment. We
