@@ -150,16 +150,6 @@
     #error "unknown GR_TEXT_SCALAR type"
 #endif
 
-// Pick a pixel config for 32bit bitmaps. Our default is GL_RGBA (except on
-// Windows where we match GDI's order).
-#ifndef GR_GL_32BPP_COLOR_FORMAT
-    #if GR_WIN32_BUILD || GR_LINUX_BUILD
-        #define GR_GL_32BPP_COLOR_FORMAT    GR_GL_BGRA
-    #else
-        #define GR_GL_32BPP_COLOR_FORMAT    GR_GL_RGBA
-    #endif
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 
 struct GrGLInterface;

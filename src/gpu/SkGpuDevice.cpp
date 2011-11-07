@@ -116,9 +116,10 @@ static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) 
         case kRGBA_4444_GrPixelConfig:
             *isOpaque = false;
             return SkBitmap::kARGB_4444_Config;
-        case kRGBA_8888_GrPixelConfig:
-        case kRGBX_8888_GrPixelConfig:
-            *isOpaque = (kRGBX_8888_GrPixelConfig == config);
+        case kSkia8888_PM_GrPixelConfig:
+            // we don't currently have a way of knowing whether
+            // a 8888 is opaque based on the config.
+            *isOpaque = false;
             return SkBitmap::kARGB_8888_Config;
         default:
             *isOpaque = false;
@@ -256,23 +257,43 @@ void SkGpuDevice::makeRenderTargetCurrent() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+GrPixelConfig config8888_to_gr_config(SkCanvas::Config8888 config8888) {
+    switch (config8888) {
+        case SkCanvas::kNative_Premul_Config8888:
+            return kSkia8888_PM_GrPixelConfig;
+        case SkCanvas::kNative_Unpremul_Config8888:
+            return kSkia8888_UPM_GrPixelConfig;
+        case SkCanvas::kBGRA_Premul_Config8888:
+            return kBGRA_8888_PM_GrPixelConfig;
+        case SkCanvas::kBGRA_Unpremul_Config8888:
+            return kBGRA_8888_UPM_GrPixelConfig;
+        case SkCanvas::kRGBA_Premul_Config8888:
+            return kRGBA_8888_PM_GrPixelConfig;
+        case SkCanvas::kRGBA_Unpremul_Config8888:
+            return kRGBA_8888_UPM_GrPixelConfig;
+        default:
+            GrCrash("Unexpected Config8888.");
+            return kSkia8888_PM_GrPixelConfig;
+    }
+}
+}
+
 bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
                                int x, int y,
                                SkCanvas::Config8888 config8888) {
-    // support for non-native configs coming soon
-    if (config8888 != SkCanvas::kNative_Premul_Config8888) {
-        return false;
-    }
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
     SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
 
     SkAutoLockPixels alp(bitmap);
+    GrPixelConfig config;
+    config = config8888_to_gr_config(config8888);
     return fContext->readRenderTargetPixels(fRenderTarget,
                                             x, y,
                                             bitmap.width(),
                                             bitmap.height(),
-                                            kRGBA_8888_GrPixelConfig,
+                                            config,
                                             bitmap.getPixels(),
                                             bitmap.rowBytes());
 }
@@ -739,7 +760,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         srcRect.height(),
         // We actually only need A8, but it often isn't supported as a
         // render target
-        kRGBA_8888_GrPixelConfig
+        kRGBA_8888_PM_GrPixelConfig
     };
 
     GrAutoScratchTexture srcEntry(context, desc);

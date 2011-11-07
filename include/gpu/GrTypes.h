@@ -268,16 +268,56 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 
 /**
  * Pixel configurations.
+ * Unpremultiplied configs are intended for conversion out from skia. They are
+ * not supported as input (e.g. drawBitmap or a bitmap shader).
  */
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,
     kAlpha_8_GrPixelConfig,
     kIndex_8_GrPixelConfig,
     kRGB_565_GrPixelConfig,
-    kRGBA_4444_GrPixelConfig, //!< premultiplied
-    kRGBA_8888_GrPixelConfig, //!< premultiplied
-    kRGBX_8888_GrPixelConfig, //!< treat the alpha channel as opaque
+    /**
+     * Premultiplied
+     */
+    kRGBA_4444_GrPixelConfig,
+    /**
+     * Premultiplied. Byte order is r,g,b,a
+     */
+    kRGBA_8888_PM_GrPixelConfig,
+    /**
+     * Unpremultiplied. Byte order is r,g,b,a
+     */
+    kRGBA_8888_UPM_GrPixelConfig,
+    /**
+     * Premultiplied. Byte order is b,g,r,a
+     */
+    kBGRA_8888_PM_GrPixelConfig,
+    /**
+     * Unpremultiplied. Byte order is b,g,r,a
+     */
+    kBGRA_8888_UPM_GrPixelConfig,
 };
+
+// Aliases for pixel configs that match skia's byte order
+#ifndef SK_CPU_LENDIAN
+    #error "Skia gpu currently assumes little endian"
+#endif
+#if 24 == SK_A32_SHIFT && 16 == SK_R32_SHIFT && \
+     8 == SK_G32_SHIFT &&  0 == SK_B32_SHIFT
+    static const GrPixelConfig kSkia8888_PM_GrPixelConfig = kBGRA_8888_PM_GrPixelConfig;
+    static const GrPixelConfig kSkia8888_UPM_GrPixelConfig = kBGRA_8888_UPM_GrPixelConfig;
+#elif 24 == SK_A32_SHIFT && 16 == SK_B32_SHIFT && \
+       8 == SK_G32_SHIFT &&  0 == SK_R32_SHIFT
+    static const GrPixelConfig kSkia8888_PM_GrPixelConfig = kRGBA_8888_PM_GrPixelConfig;
+    static const GrPixelConfig kSkia8888_UPM_GrPixelConfig = kRGBA_8888_UPM_GrPixelConfig;
+#else
+    #error "SK_*32_SHIFT values must correspond to GL_BGRA or GL_RGBA format."
+#endif
+
+// WebKit is relying on this old name for the native skia PM config. This will
+// be deleted ASAP because it is so similar to kRGBA_PM_8888_GrPixelConfig but
+// has a different interpretation when skia is compiled BGRA.
+static const GrPixelConfig kRGBA_8888_GrPixelConfig = kSkia8888_PM_GrPixelConfig;
 
 static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     switch (config) {
@@ -287,8 +327,10 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
             return 2;
-        case kRGBA_8888_GrPixelConfig:
-        case kRGBX_8888_GrPixelConfig:
+        case kRGBA_8888_PM_GrPixelConfig:
+        case kRGBA_8888_UPM_GrPixelConfig:
+        case kBGRA_8888_PM_GrPixelConfig:
+        case kBGRA_8888_UPM_GrPixelConfig:
             return 4;
         default:
             return 0;
@@ -298,7 +340,20 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
 static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kRGB_565_GrPixelConfig:
-        case kRGBX_8888_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Premultiplied alpha is the usual for skia. Therefore, configs that are
+ * ambiguous (alpha-only or color-only) are considered premultiplied.
+ */
+static inline bool GrPixelConfigIsUnpremultiplied(GrPixelConfig config) {
+    switch (config) {
+        case kRGBA_8888_UPM_GrPixelConfig:
+        case kBGRA_8888_UPM_GrPixelConfig:
             return true;
         default:
             return false;
@@ -710,7 +765,7 @@ struct GrPlatformSurfaceDesc {
  * renderTargetTextureDesc.fRenderTargetFlags = kGrCanResolve_GrPlatformRenderTargetFlagBit;
  * renderTargetTextureDesc.fWidth = W;
  * renderTargetTextureDesc.fHeight = H;
- * renderTargetTextureDesc.fConfig = kRGBA_8888_GrPixelConfig
+ * renderTargetTextureDesc.fConfig = kSkia8888_PM_GrPixelConfig
  * renderTargetTextureDesc.fStencilBits = 8;
  * renderTargetTextureDesc.fSampleCnt = S;
  * renderTargetTextureDesc.fPlatformTexture = textureID;

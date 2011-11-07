@@ -90,7 +90,7 @@ public:
             desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
-            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            desc.fConfig = kSkia8888_PM_GrPixelConfig;
             const GrGLInterface* gl = GrGLGetDefaultGLInterface();
             GrAssert(NULL != gl);
             GR_GL_GetIntegerv(gl, GR_GL_STENCIL_BITS, &desc.fStencilBits);
