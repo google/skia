@@ -121,6 +121,19 @@ public:
     GrTexture* createTexture(const GrTextureDesc& desc,
                              const void* srcData, size_t rowBytes);
 
+    /**
+     * Implements GrContext::createPlatformTexture
+     */
+    GrTexture* createPlatformTexture(const GrPlatformTextureDesc& desc);
+
+    /**
+     * Implements GrContext::createPlatformTexture
+     */
+    GrRenderTarget* createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc);
+
+    /**
+     * DEPRECATED. This will be removed.
+     */
     GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
 
     /**
@@ -314,6 +327,8 @@ protected:
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
                                        size_t rowBytes) = 0;
+    virtual GrTexture* onCreatePlatformTexture(const GrPlatformTextureDesc& desc) = 0;
+    virtual GrRenderTarget* onCreatePlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) = 0;
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
                                                  bool dynamic) = 0;

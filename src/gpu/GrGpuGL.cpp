@@ -634,6 +634,81 @@ void GrGpuGL::onResetContext() {
     fHWDrawState.fRenderTarget = NULL;
 }
 
+GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
+    GrGLenum internalFormat; // we don't need this value
+    GrGLTexture::Desc glTexDesc;
+    if (!this->canBeTexture(desc.fConfig, &internalFormat, 
+                            &glTexDesc.fUploadFormat, &glTexDesc.fUploadType)) {
+        return NULL;
+    }
+    
+    glTexDesc.fContentWidth = glTexDesc.fAllocWidth = desc.fWidth;
+    glTexDesc.fContentHeight = glTexDesc.fAllocHeight = desc.fHeight;
+    glTexDesc.fConfig = desc.fConfig;
+    glTexDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
+    glTexDesc.fOwnsID = false;
+    glTexDesc.fOrientation = GrGLTexture::kBottomUp_Orientation;
+
+    GrGLTexture* texture = NULL;
+    if (desc.fFlags & kRenderTarget_GrPlatformTextureFlag) {
+        GrGLRenderTarget::Desc glRTDesc;
+        glRTDesc.fRTFBOID = 0;
+        glRTDesc.fTexFBOID = 0;
+        glRTDesc.fMSColorRenderbufferID = 0;
+        glRTDesc.fOwnIDs = true;
+        glRTDesc.fConfig = desc.fConfig;
+        glRTDesc.fSampleCnt = desc.fSampleCnt;
+        if (!this->createRenderTargetObjects(glTexDesc.fAllocWidth,
+                                             glTexDesc.fAllocHeight,
+                                             glTexDesc.fTextureID,
+                                             &glRTDesc)) {
+            return NULL;
+        }
+        texture = new GrGLTexture(this, glTexDesc, glRTDesc);
+    } else {
+        texture = new GrGLTexture(this, glTexDesc);
+    }
+    if (NULL == texture) {
+        return NULL;
+    }
+    
+    this->setSpareTextureUnit();
+    return texture;
+}
+
+GrRenderTarget* GrGpuGL::onCreatePlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
+    GrGLRenderTarget::Desc glDesc;
+    glDesc.fConfig = desc.fConfig;
+    glDesc.fRTFBOID = static_cast<GrGLuint>(desc.fRenderTargetHandle);
+    glDesc.fMSColorRenderbufferID = 0;
+    glDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    glDesc.fSampleCnt = desc.fSampleCnt;
+    glDesc.fOwnIDs = false;
+    GrGLIRect viewport;
+    viewport.fLeft   = 0;
+    viewport.fBottom = 0;
+    viewport.fWidth  = desc.fWidth;
+    viewport.fHeight = desc.fHeight;
+    
+    GrRenderTarget* tgt = new GrGLRenderTarget(this, glDesc, viewport);
+    if (desc.fStencilBits) {
+        GrGLStencilBuffer::Format format;
+        format.fInternalFormat = GrGLStencilBuffer::kUnknownInternalFormat;
+        format.fPacked = false;
+        format.fStencilBits = desc.fStencilBits;
+        format.fTotalBits = desc.fStencilBits;
+        GrGLStencilBuffer* sb = new GrGLStencilBuffer(this,
+                                                      0,
+                                                      desc.fWidth,
+                                                      desc.fHeight,
+                                                      desc.fSampleCnt,
+                                                      format);
+        tgt->setStencilBuffer(sb);
+        sb->unref();
+    }
+    return tgt;
+}
+
 GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) {
 
     bool isTexture = kTexture_GrPlatformSurfaceType == desc.fSurfaceType ||
@@ -868,7 +943,10 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
 
     // If we are using multisampling we will create two FBOS. We render
     // to one and then resolve to the texture bound to the other.
-    if (desc->fSampleCnt > 1 && GLCaps::kNone_MSFBO != fGLCaps.fMSFBOType) {
+    if (desc->fSampleCnt > 0) {
+        if (GLCaps::kNone_MSFBO == fGLCaps.fMSFBOType) {
+            goto FAILED;
+        }
         GL_CALL(GenFramebuffers(1, &desc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &desc->fMSColorRenderbufferID));
         if (!desc->fRTFBOID ||
@@ -949,12 +1027,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     ++fStats.fTextureCreateCnt;
 #endif
 
-    static const GrGLTexture::TexParams DEFAULT_PARAMS = {
-        GR_GL_NEAREST,
-        GR_GL_CLAMP_TO_EDGE,
-        GR_GL_CLAMP_TO_EDGE
-    };
-
     GrGLTexture::Desc glTexDesc;
     GrGLRenderTarget::Desc  glRTDesc;
     GrGLenum internalFormat;
@@ -1025,24 +1097,32 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     this->setSpareTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTexDesc.fTextureID));
+
+    // Some drivers like to know these before seeing glTexImage2D. Some drivers
+    // have a bug where an FBO won't be complete if it includes a texture that
+    // is not complete (i.e. has mip levels or non-mip min filter).
+    static const GrGLTexture::TexParams DEFAULT_TEX_PARAMS = {
+        GR_GL_NEAREST,
+        GR_GL_CLAMP_TO_EDGE,
+        GR_GL_CLAMP_TO_EDGE
+    };
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_MAG_FILTER,
-                          DEFAULT_PARAMS.fFilter));
+                          DEFAULT_TEX_PARAMS.fFilter));
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_MIN_FILTER,
-                          DEFAULT_PARAMS.fFilter));
+                          DEFAULT_TEX_PARAMS.fFilter));
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_WRAP_S,
-                          DEFAULT_PARAMS.fWrapS));
+                          DEFAULT_TEX_PARAMS.fWrapS));
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_WRAP_T,
-                          DEFAULT_PARAMS.fWrapT));
+                          DEFAULT_TEX_PARAMS.fWrapT));
 
     this->allocateAndUploadTexData(glTexDesc, internalFormat,srcData, rowBytes);
 
     GrGLTexture* tex;
     if (renderTarget) {
-        GrGLenum msColorRenderbufferFormat = -1;
 #if GR_COLLECT_STATS
         ++fStats.fRenderTargetCreateCnt;
 #endif
@@ -1057,7 +1137,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     } else {
         tex = new GrGLTexture(this, glTexDesc);
     }
-    tex->setCachedTexParams(DEFAULT_PARAMS, this->getResetTimestamp());
+    tex->setCachedTexParams(DEFAULT_TEX_PARAMS, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
     GrPrintf("--- new texture [%d] size=(%d %d) config=%d\n",
              glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
