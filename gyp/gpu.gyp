@@ -157,6 +157,7 @@
         '../include/gpu/GrFontScaler.h',
         '../include/gpu/GrGLConfig.h',
         '../include/gpu/GrGLConfig_chrome.h',
+        '../include/gpu/GrGLDefines.h',
         '../include/gpu/GrGLInterface.h',
         '../include/gpu/GrGlyph.h',
         '../include/gpu/GrInstanceCounter.h',

@@ -79,6 +79,7 @@ struct ShaderCodeSegments {
     bool            fUsesGS;
 };
 
+typedef GrGLProgram::ProgramDesc::StageDesc StageDesc;
 
 #if GR_GL_ATTRIBUTE_MATRICES
     #define VIEW_MATRIX_NAME "aViewM"
@@ -548,12 +549,12 @@ bool decl_and_get_fs_color_output(GrGLProgram::GLSLVersion v,
     }
 }
 
-void genInputColor(GrGLProgram::ProgramDesc::ColorType colorType,
+void genInputColor(GrGLProgram::ProgramDesc::ColorInput colorInput,
                    GrGLProgram::CachedData* programData,
                    ShaderCodeSegments* segments,
                    GrStringBuilder* inColor) {
-    switch (colorType) {
-        case GrGLProgram::ProgramDesc::kAttribute_ColorType: {
+    switch (colorInput) {
+        case GrGLProgram::ProgramDesc::kAttribute_ColorInput: {
             segments->fVSAttrs.push_back().set(GrGLShaderVar::kVec4f_Type,
                                                COL_ATTR_NAME);
             const char *vsName, *fsName;
@@ -561,16 +562,16 @@ void genInputColor(GrGLProgram::ProgramDesc::ColorType colorType,
             segments->fVSCode.appendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
             *inColor = fsName;
             } break;
-        case GrGLProgram::ProgramDesc::kUniform_ColorType:
+        case GrGLProgram::ProgramDesc::kUniform_ColorInput:
             segments->fFSUnis.push_back().set(GrGLShaderVar::kVec4f_Type,
                                               COL_UNI_NAME);
             programData->fUniLocations.fColorUni = kUseUniform;
             *inColor = COL_UNI_NAME;
             break;
-        case GrGLProgram::ProgramDesc::kTransBlack_ColorType:
+        case GrGLProgram::ProgramDesc::kTransBlack_ColorInput:
             GrAssert(!"needComputedColor should be false.");
             break;
-        case GrGLProgram::ProgramDesc::kSolidWhite_ColorType:
+        case GrGLProgram::ProgramDesc::kSolidWhite_ColorInput:
             break;
         default:
             GrCrash("Unknown color type.");
@@ -655,7 +656,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     // If we know the final color is going to be all zeros then we can
     // simplify the color filter coeffecients. needComputedColor will then
     // come out false below.
-    if (ProgramDesc::kTransBlack_ColorType == fProgramDesc.fColorType) {
+    if (ProgramDesc::kTransBlack_ColorInput == fProgramDesc.fColorInput) {
         colorCoeff = SkXfermode::kZero_Coeff;
         if (SkXfermode::kDC_Coeff == uniformCoeff ||
             SkXfermode::kDA_Coeff == uniformCoeff) {
@@ -698,7 +699,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     GrStringBuilder inColor;
 
     if (needComputedColor) {
-        genInputColor((ProgramDesc::ColorType) fProgramDesc.fColorType,
+        genInputColor((ProgramDesc::ColorInput) fProgramDesc.fColorInput,
                       programData, &segments, &inColor);
     }
 
@@ -762,7 +763,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     // if have all ones or zeros for the "dst" input to the color filter then we
     // may be able to make additional optimizations.
     if (needColorFilterUniform && needComputedColor && !inColor.size()) {
-        GrAssert(ProgramDesc::kSolidWhite_ColorType == fProgramDesc.fColorType);
+        GrAssert(ProgramDesc::kSolidWhite_ColorInput == fProgramDesc.fColorInput);
         bool uniformCoeffIsZero = SkXfermode::kIDC_Coeff == uniformCoeff ||
                                   SkXfermode::kIDA_Coeff == uniformCoeff;
         if (uniformCoeffIsZero) {
@@ -791,7 +792,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         if (inColor.size()) {
             color = inColor.c_str();
         } else {
-            if (ProgramDesc::kSolidWhite_ColorType == fProgramDesc.fColorType) {
+            if (ProgramDesc::kSolidWhite_ColorInput == fProgramDesc.fColorInput) {
                 color = all_ones_vec(4);
             } else {
                 color = all_zeros_vec(4);
@@ -1480,7 +1481,7 @@ void gen2x2FS(int stageNum,
 }
 
 void genConvolutionVS(int stageNum,
-                      const GrGLProgram::ProgramDesc::StageDesc& desc,
+                      const StageDesc& desc,
                       ShaderCodeSegments* segments,
                       GrGLProgram::StageUniLocations* locations,
                       const char** kernelName,
@@ -1510,7 +1511,7 @@ void genConvolutionVS(int stageNum,
 }
 
 void genConvolutionFS(int stageNum,
-                      const GrGLProgram::ProgramDesc::StageDesc& desc,
+                      const StageDesc& desc,
                       ShaderCodeSegments* segments,
                       const char* samplerName,
                       const char* kernelName,
@@ -1634,7 +1635,7 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
 
     const char* kernelName = NULL;
     const char* imageIncrementName = NULL;
-    if (ProgramDesc::StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
+    if (StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
         genConvolutionVS(stageNum, desc, segments, locations,
                          &kernelName, &imageIncrementName, varyingVSName);
     }
@@ -1701,7 +1702,7 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
     };
 
     const char* smear;
-    if (desc.fModulation == StageDesc::kAlpha_Modulation) {
+    if (desc.fInputConfig == StageDesc::kAlphaOnly_InputConfig) {
         smear = ".aaaa";
     } else {
         smear = "";
@@ -1733,7 +1734,7 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
             samplerName, texelSizeName, smear, fsOutColor,
             texFunc, modulate, complexCoord, coordDims);
         break;
-    case ProgramDesc::StageDesc::kConvolution_FetchMode:
+    case StageDesc::kConvolution_FetchMode:
         genConvolutionFS(stageNum, desc, segments,
             samplerName, kernelName, smear, imageIncrementName, fsOutColor,
             sampleCoords, texFunc, modulate);

@@ -282,6 +282,9 @@
 
 /* PixelFormat */
 #define GR_GL_DEPTH_COMPONENT                0x1902
+#define GR_GL_RED                            0x1903
+#define GR_GL_GREEN                          0x1904
+#define GR_GL_BLUE                           0x1905
 #define GR_GL_ALPHA                          0x1906
 #define GR_GL_RGB                            0x1907
 #define GR_GL_RGBA                           0x1908
@@ -424,10 +427,17 @@
 #define GR_GL_CLAMP_TO_EDGE                  0x812F
 #define GR_GL_MIRRORED_REPEAT                0x8370
 
+/* Texture Swizzle */
+#define GR_GL_TEXTURE_SWIZZLE_R              0x8E42
+#define GR_GL_TEXTURE_SWIZZLE_G              0x8E43
+#define GR_GL_TEXTURE_SWIZZLE_B              0x8E44
+#define GR_GL_TEXTURE_SWIZZLE_A              0x8E45
+#define GR_GL_TEXTURE_SWIZZLE_RGBA           0x8E46
+
 /* Texture mapping */
-#define GR_GL_TEXTURE_ENV                   0x2300
-#define GR_GL_TEXTURE_ENV_MODE              0x2200
-#define GR_GL_TEXTURE_1D                    0x0DE0
+#define GR_GL_TEXTURE_ENV                    0x2300
+#define GR_GL_TEXTURE_ENV_MODE               0x2200
+#define GR_GL_TEXTURE_1D                     0x0DE0
 /* GL_TEXTURE_2D */
 /* GL_TEXTURE_WRAP_S */
 /* GL_TEXTURE_WRAP_T */
