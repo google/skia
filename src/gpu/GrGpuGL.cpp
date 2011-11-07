@@ -1517,8 +1517,8 @@ bool GrGpuGL::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
     } else {
         // On ES we'll have to do memcpys to handle rowByte padding. So, we
         // might as well flipY while we're at it.
-        return 0 != rowBytes &&
-               GrBytesPerPixel(config) * width != rowBytes; 
+        return 0 == rowBytes ||
+               GrBytesPerPixel(config) * width == rowBytes; 
     }
 }
 
