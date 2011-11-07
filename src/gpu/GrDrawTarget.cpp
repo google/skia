@@ -759,16 +759,16 @@ void GrDrawTarget::popGeometrySource() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
-                               int startIndex, int vertexCount,
-                               int indexCount) {
+bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
+                             int startIndex, int vertexCount,
+                             int indexCount) const {
 #if GR_DEBUG
-    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    const GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     int maxVertex = startVertex + vertexCount;
     int maxValidVertex;
     switch (geoSrc.fVertexSrc) {
         case kNone_GeometrySrcType:
-            GrCrash("Attempting to draw indexed geom without vertex src.");
+            GrCrash("Attempting to draw without vertex src.");
         case kReserved_GeometrySrcType: // fallthrough
         case kArray_GeometrySrcType:
             maxValidVertex = geoSrc.fVertexCount;
@@ -779,26 +779,36 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
             break;
     }
     if (maxVertex > maxValidVertex) {
-        GrCrash("Indexed drawing outside valid vertex range.");
+        GrCrash("Drawing outside valid vertex range.");
     }
-    int maxIndex = startIndex + indexCount;
-    int maxValidIndex;
-    switch (geoSrc.fIndexSrc) {
-        case kNone_GeometrySrcType:
-            GrCrash("Attempting to draw indexed geom without index src.");
-        case kReserved_GeometrySrcType: // fallthrough
-        case kArray_GeometrySrcType:
-            maxValidIndex = geoSrc.fIndexCount;
-            break;
-        case kBuffer_GeometrySrcType:
-            maxValidIndex = geoSrc.fIndexBuffer->sizeInBytes() / sizeof(uint16_t);
-            break;
-    }
-    if (maxIndex > maxValidIndex) {
-        GrCrash("Indexed drawing outside valid index range.");
+    if (indexCount > 0) {
+        int maxIndex = startIndex + indexCount;
+        int maxValidIndex;
+        switch (geoSrc.fIndexSrc) {
+            case kNone_GeometrySrcType:
+                GrCrash("Attempting to draw indexed geom without index src.");
+            case kReserved_GeometrySrcType: // fallthrough
+            case kArray_GeometrySrcType:
+                maxValidIndex = geoSrc.fIndexCount;
+                break;
+            case kBuffer_GeometrySrcType:
+                maxValidIndex = geoSrc.fIndexBuffer->sizeInBytes() / sizeof(uint16_t);
+                break;
+        }
+        if (maxIndex > maxValidIndex) {
+            GrCrash("Index reads outside valid index range.");
+        }
     }
 #endif
-    if (indexCount > 0) {
+    return true;
+}
+
+void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
+                               int startIndex, int vertexCount,
+                               int indexCount) {
+    if (indexCount > 0 &&
+        this->checkDraw(type, startVertex, startIndex,
+                        vertexCount, indexCount)) {
         this->onDrawIndexed(type, startVertex, startIndex,
                             vertexCount, indexCount);
     }
@@ -808,27 +818,8 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
 void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) {
-#if GR_DEBUG
-    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
-    int maxVertex = startVertex + vertexCount;
-    int maxValidVertex;
-    switch (geoSrc.fVertexSrc) {
-        case kNone_GeometrySrcType:
-            GrCrash("Attempting to draw non-indexed geom without vertex src.");
-        case kReserved_GeometrySrcType: // fallthrough
-        case kArray_GeometrySrcType:
-            maxValidVertex = geoSrc.fVertexCount;
-            break;
-        case kBuffer_GeometrySrcType:
-            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() /
-            VertexSize(geoSrc.fVertexLayout);
-            break;
-    }
-    if (maxVertex > maxValidVertex) {
-        GrCrash("Non-indexed drawing outside valid vertex range.");
-    }
-#endif
-    if (vertexCount > 0) {
+    if (vertexCount > 0 &&
+        this->checkDraw(type, startVertex, -1, vertexCount, -1)) {
         this->onDrawNonIndexed(type, startVertex, vertexCount);
     }
 }
