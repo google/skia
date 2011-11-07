@@ -1569,7 +1569,13 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
     ptr = write_scalar(ptr, this->getStrokeWidth());
     ptr = write_scalar(ptr, this->getStrokeMiter());
     *ptr++ = this->getColor();
-    *ptr++ = (this->getFlags() << 16) | (this->getTextAlign() << 8) | flatFlags;
+    // previously flags:16, textAlign:8, flatFlags:8
+    // now flags:16, hinting:4, textAlign:4, flatFlags:8
+    *ptr++ = (this->getFlags() << 16) |
+             // hinting added later. 0 in this nibble means use the default.
+             ((this->getHinting()+1) << 12) |
+             (this->getTextAlign() << 8) |
+             flatFlags;
     *ptr++ = pack_4(this->getStrokeCap(), this->getStrokeJoin(),
                     this->getStyle(), this->getTextEncoding());
 
@@ -1602,9 +1608,17 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
     this->setStrokeMiter(read_scalar(pod));
     this->setColor(*pod++);
 
+    // previously flags:16, textAlign:8, flatFlags:8
+    // now flags:16, hinting:4, textAlign:4, flatFlags:8
     uint32_t tmp = *pod++;
     this->setFlags(tmp >> 16);
-    this->setTextAlign(static_cast<Align>((tmp >> 8) & 0xFF));
+
+    // hinting added later. 0 in this nibble means use the default.
+    uint32_t hinting = (tmp >> 12) & 0xF;
+    this->setHinting(0 == hinting ? kNormal_Hinting : static_cast<Hinting>(hinting-1));
+
+    this->setTextAlign(static_cast<Align>((tmp >> 8) & 0xF));
+
     uint8_t flatFlags = tmp & 0xFF;
 
     tmp = *pod++;

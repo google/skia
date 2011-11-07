@@ -47,7 +47,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(1500, 750);
+        return make_isize(1450, 750);
     }
 
     static void rotate_about(SkCanvas* canvas, SkScalar degrees, SkScalar px, SkScalar py) {
