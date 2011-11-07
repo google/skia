@@ -184,7 +184,34 @@ public:
     void forceRenderTargetFlush();
 
     /**
-     * Reads a rectangle of pixels from a render target.
+     * OpenGL's readPixels returns the result bottom-to-top while the skia
+     * API is top-to-bottom. Thus we have to do a y-axis flip. The obvious
+     * solution is to have the subclass do the flip using either the CPU or GPU.
+     * However, the caller (GrContext) may have transformations to apply and can
+     * simply fold in the y-flip for free. On the other hand, the subclass may
+     * be able to do it for free itself. For example, the subclass may have to
+     * do memcpys to handle rowBytes that aren't tight. It could do the y-flip 
+     * concurrently.
+     *
+     * This function returns true if a y-flip is required to put the pixels in
+     * top-to-bottom order and the subclass cannot do it for free.
+     *
+     * See read pixels for the params
+     * @return true if calling readPixels with the same set of params will
+     *              produce bottom-to-top data
+     */
+     virtual bool readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
+                                            int left, int top,
+                                            int width, int height,
+                                            GrPixelConfig config,
+                                            size_t rowBytes) = 0;
+
+    /**
+     * Reads a rectangle of pixels from a render target. Fails if read requires
+     * conversion between premultiplied and unpremultiplied configs. The caller
+     * should do the conversion by rendering to a target with the desire config
+     * first.
+     *
      * @param renderTarget  the render target to read from. NULL means the
      *                      current render target.
      * @param left          left edge of the rectangle to read (inclusive)
@@ -195,6 +222,8 @@ public:
      * @param buffer        memory to read the rectangle into.
      * @param rowBytes      the number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
+     * @param invertY       buffer should be populated bottom-to-top as opposed
+     *                      to top-to-bottom (skia's usual order)
      *
      * @return true if the read succeeded, false if not. The read can fail
      *              because of a unsupported pixel config or because no render
@@ -202,7 +231,8 @@ public:
      */
     bool readPixels(GrRenderTarget* renderTarget,
                     int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer, size_t rowBytes);
+                    GrPixelConfig config, void* buffer, size_t rowBytes,
+                    bool invertY);
 
     const GrGpuStats& getStats() const;
     void resetStats();
@@ -356,7 +386,10 @@ protected:
     // overridden by API-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top, int width, int height,
-                              GrPixelConfig, void* buffer, size_t rowBytes) = 0;
+                              GrPixelConfig,
+                              void* buffer,
+                              size_t rowBytes,
+                              bool invertY) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
     // indexed geometry. The subclass may adjust the startVertex and/or

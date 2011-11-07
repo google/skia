@@ -221,6 +221,8 @@ bool GrGpuGLShaders::programUnitTest() {
         pdesc.fExperimentalGS = this->getCaps().fGeometryShaderSupport &&
                                 random.nextF() > .5f;
 #endif
+        pdesc.fOutputPM =  static_cast<int>(random.nextF() *
+                                            ProgramDesc::kOutputPMCnt);
 
         bool edgeAA = random.nextF() > .5f;
         if (edgeAA) {
@@ -1008,6 +1010,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
             } else {
                 stage.fInputConfig = StageDesc::kColor_InputConfig;
             }
+
             if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
                 stage.fKernelWidth = sampler.getKernelWidth();
             } else {
@@ -1020,6 +1023,12 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
             stage.fFetchMode    = (StageDesc::FetchMode) 0;
             stage.fKernelWidth  = 0;
         }
+    }
+
+    if (GrPixelConfigIsUnpremultiplied(fCurrDrawState.fRenderTarget->config())) {
+        desc.fOutputPM = ProgramDesc::kNo_OutputPM;
+    } else {
+        desc.fOutputPM = ProgramDesc::kYes_OutputPM;
     }
 
     desc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;

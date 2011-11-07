@@ -141,7 +141,7 @@ static GrPixelConfig maskformat2pixelconfig(GrMaskFormat format) {
         case kA565_GrMaskFormat:
             return kRGB_565_GrPixelConfig;
         case kA888_GrMaskFormat:
-            return kRGBA_8888_GrPixelConfig;
+            return kSkia8888_PM_GrPixelConfig;
         default:
             GrAssert(!"unknown maskformat");
     }

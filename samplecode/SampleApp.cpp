@@ -171,7 +171,8 @@ public:
                 fGrContext->setRenderTarget(fGrRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
                 fGrContext->writePixels(0, 0, bm.width(), bm.height(),
-                                        kRGBA_8888_GrPixelConfig, bm.getPixels(),
+                                        kSkia8888_PM_GrPixelConfig,
+                                        bm.getPixels(),
                                         bm.rowBytes());
             }
         }
@@ -185,7 +186,7 @@ public:
             GrPlatformRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
-            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            desc.fConfig = kSkia8888_PM_GrPixelConfig;
             GR_GL_GetIntegerv(fGL, GR_GL_SAMPLES, &desc.fSampleCnt);
             GR_GL_GetIntegerv(fGL, GR_GL_STENCIL_BITS, &desc.fStencilBits);
             GrGLint buffer;
@@ -199,7 +200,7 @@ public:
             GrPlatformRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
-            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            desc.fConfig = kSkia8888_PM_GrPixelConfig;
             desc.fStencilBits = 8;
             desc.fSampleCnt = 0;
             desc.fRenderTargetHandle = 0;

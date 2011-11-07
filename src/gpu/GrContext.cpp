@@ -718,7 +718,7 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
                       kNoStencil_GrTextureFlagBit;
     }
 
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
 
     if (PREFER_MSAA_OFFSCREEN_AA && fGpu->getCaps().fFSAASupport) {
         record->fDownsample = OffscreenRecord::kFSAA_Downsample;
@@ -1610,9 +1610,8 @@ void GrContext::flush(int flagsBitfield) {
     if (kDiscard_FlushBit & flagsBitfield) {
         fDrawBuffer->reset();
     } else {
-        flushDrawBuffer();
+        this->flushDrawBuffer();
     }
-
     if (kForceCurrentRenderTarget_FlushBit & flagsBitfield) {
         fGpu->forceRenderTargetFlush();
     }
@@ -1643,9 +1642,9 @@ bool GrContext::readTexturePixels(GrTexture* texture,
     this->flush();
     GrRenderTarget* target = texture->asRenderTarget();
     if (NULL != target) {
-        return fGpu->readPixels(target,
-                                left, top, width, height, 
-                                config, buffer, 0);
+        return this->readRenderTargetPixels(target,
+                                            left, top, width, height, 
+                                            config, buffer, 0);
     } else {
         return false;
     }
@@ -1656,15 +1655,87 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                                        GrPixelConfig config, void* buffer,
                                        size_t rowBytes) {
     SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
-    uint32_t flushFlags = 0;
     if (NULL == target) { 
-        flushFlags |= GrContext::kForceCurrentRenderTarget_FlushBit;
+        target = fGpu->getRenderTarget();
+        if (NULL == target) {
+            return false;
+        }
+    }
+    
+    // PM <-> UPM conversion requires a draw. Currently we only support drawing
+    // into a UPM target, not reading from a UPM texture. Thus, UPM->PM is not
+    // not supported at this time.
+    if (GrPixelConfigIsUnpremultiplied(target->config()) && 
+        !GrPixelConfigIsUnpremultiplied(config)) {
+        return false;
     }
 
-    this->flush(flushFlags);
+    this->flush();
+
+    GrTexture* src = target->asTexture();
+
+    bool flipY = NULL != src &&
+                 fGpu->readPixelsWillPayForYFlip(target, left, top,
+                                                 width, height, config,
+                                                 rowBytes);
+
+    if (flipY || (!GrPixelConfigIsUnpremultiplied(target->config()) &&
+                  GrPixelConfigIsUnpremultiplied(config))) {
+        if (!src) {
+            // we should fallback to cpu conversion here. This could happen when
+            // we were given an external render target by the client that is not
+            // also a texture (e.g. FBO 0 in GL)
+            return false;
+        }
+        // Make the scratch a render target because we don't have a robust
+        // readTexturePixels as of yet (it calls this function).
+        const GrTextureDesc desc = {
+            kRenderTarget_GrTextureFlagBit,
+            kNone_GrAALevel,
+            width, height,
+            config
+        };
+        GrAutoScratchTexture ast(this, desc);
+        GrTexture* texture = ast.texture();
+        if (!texture) {
+            return false;
+        }
+        target = texture->asRenderTarget();
+        fGpu->setRenderTarget(target);
+        GrAssert(NULL != target);
+
+        GrDrawTarget::AutoStateRestore asr(fGpu);
+
+        fGpu->setViewMatrix(GrMatrix::I());
+        fGpu->setColorFilter(0, SkXfermode::kDst_Mode);
+        fGpu->disableState(GrDrawTarget::kClip_StateBit);
+        fGpu->setAlpha(0xFF);
+        fGpu->setBlendFunc(kOne_BlendCoeff,
+                           kZero_BlendCoeff);
+
+        GrSamplerState sampler;
+        sampler.setClampNoFilter();
+        GrMatrix matrix;
+        if (flipY) {
+            matrix.setTranslate(SK_Scalar1 * left,
+                                SK_Scalar1 * (top + height));
+            matrix.set(GrMatrix::kMScaleY, -GR_Scalar1);
+        } else {
+            matrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
+        }
+        matrix.postIDiv(src->width(), src->height());
+        sampler.setMatrix(matrix);
+        fGpu->setSamplerState(0, sampler);
+        fGpu->setTexture(0, src);
+        GrRect rect;
+        rect.setXYWH(0, 0, SK_Scalar1 * width, SK_Scalar1 * height);
+        fGpu->drawSimpleRect(rect, NULL, 0x1);
+        left = 0;
+        top = 0;
+    }
     return fGpu->readPixels(target,
-                            left, top, width, height, 
-                            config, buffer, rowBytes);
+                            left, top, width, height,
+                            config, buffer, rowBytes, flipY);
 }
 
 void GrContext::writePixels(int left, int top, int width, int height,
@@ -1675,7 +1746,7 @@ void GrContext::writePixels(int left, int top, int width, int height,
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).
 
-    this->flush(true);
+    this->flush(kForceCurrentRenderTarget_FlushBit);
 
     const GrTextureDesc desc = {
         kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
@@ -1949,3 +2020,5 @@ void GrContext::convolve(GrTexture* texture,
     fGpu->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
+
+///////////////////////////////////////////////////////////////////////////////

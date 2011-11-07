@@ -892,6 +892,13 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
                         inColor.c_str(),
                         inCoverage.c_str(),
                         &segments.fFSCode);
+        if (ProgramDesc::kNo_OutputPM == fProgramDesc.fOutputPM) {
+            segments.fFSCode.appendf("\t%s = vec4(%s.rgb / %s.a, %s.a);\n",
+                                     fsColorOutput,
+                                     fsColorOutput,
+                                     fsColorOutput,
+                                     fsColorOutput);
+        }
     }
 
     segments.fVSCode.append("}\n");

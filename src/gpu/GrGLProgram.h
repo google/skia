@@ -102,6 +102,15 @@ public:
             memset(this, 0, sizeof(ProgramDesc));
         }
 
+        enum OutputPM {
+            // PM-color OR color with no alpha channel
+            kYes_OutputPM,
+            // nonPM-color with alpha channel
+            kNo_OutputPM,
+
+            kOutputPMCnt
+        };
+
         struct StageDesc {
             enum OptFlagBits {
                 kNoPerspective_OptFlagBit       = 1 << 0,
@@ -195,6 +204,7 @@ public:
 #endif
 
         uint8_t fColorInput;        // casts to enum ColorInput
+        uint8_t fOutputPM;          // cases to enum OutputPM
         uint8_t fDualSrcOutput;     // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
         SkBool8 fEmitsPointSize;
@@ -202,8 +212,6 @@ public:
 
         int8_t fEdgeAANumEdges;
         uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
-
-        uint8_t fPadTo32bLengthMultiple [1];
 
     } fProgramDesc;
     GR_STATIC_ASSERT(!(sizeof(ProgramDesc) % 4));

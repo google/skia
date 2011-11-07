@@ -242,11 +242,12 @@ void GrGpu::forceRenderTargetFlush() {
 bool GrGpu::readPixels(GrRenderTarget* target,
                        int left, int top, int width, int height,
                        GrPixelConfig config, void* buffer,
-                       size_t rowBytes) {
-
+                       size_t rowBytes, bool invertY) {
+    GrAssert(GrPixelConfigIsUnpremultiplied(config) ==
+             GrPixelConfigIsUnpremultiplied(target->config()));
     this->handleDirtyContext();
     return this->onReadPixels(target, left, top, width, height,
-                              config, buffer, rowBytes);
+                              config, buffer, rowBytes, invertY);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

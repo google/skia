@@ -465,7 +465,7 @@ int main (int argc, char * const argv[]) {
         context = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
         if (NULL != context) {
             GrPlatformRenderTargetDesc desc;
-            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            desc.fConfig = kSkia8888_PM_GrPixelConfig;
             desc.fWidth = contextWidth;
             desc.fHeight = contextHeight;
             desc.fStencilBits = 8;

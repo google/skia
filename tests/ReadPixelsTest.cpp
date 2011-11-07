@@ -27,7 +27,7 @@ SkPMColor getCanvasColor(int x, int y) {
     U8CPU b = 0xc;
 
     U8CPU a = 0xff;
-    switch (x % 5) {
+    switch ((x+y) % 5) {
         case 0:
             a = 0xff;
             break;
@@ -57,22 +57,23 @@ SkPMColor getBitmapColor(int x, int y, int w, int h) {
 }
 
 SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
-                                     uint32_t color) {
+                                     uint32_t color,
+                                     bool* premul) {
     const uint8_t* c = reinterpret_cast<uint8_t*>(&color);
     U8CPU a,r,g,b;
-    bool mul = false;
+    *premul = false;
     switch (config8888) {
         case SkCanvas::kNative_Premul_Config8888:
             return color;
         case SkCanvas::kNative_Unpremul_Config8888:
-            mul = true;
+            *premul = true;
             a = SkGetPackedA32(color);
             r = SkGetPackedR32(color);
             g = SkGetPackedG32(color);
             b = SkGetPackedB32(color);
             break;
         case SkCanvas::kBGRA_Unpremul_Config8888:
-            mul = true; // fallthru
+            *premul = true; // fallthru
         case SkCanvas::kBGRA_Premul_Config8888:
             a = static_cast<U8CPU>(c[3]);
             r = static_cast<U8CPU>(c[2]);
@@ -80,7 +81,7 @@ SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
             b = static_cast<U8CPU>(c[0]);
             break;
         case SkCanvas::kRGBA_Unpremul_Config8888:
-            mul = true; // fallthru
+            *premul = true; // fallthru
         case SkCanvas::kRGBA_Premul_Config8888:
             a = static_cast<U8CPU>(c[3]);
             r = static_cast<U8CPU>(c[0]);
@@ -88,7 +89,7 @@ SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
             b = static_cast<U8CPU>(c[2]);
             break;
     }
-    if (mul) {
+    if (*premul) {
         r = SkMulDiv255Ceiling(r, a);
         g = SkMulDiv255Ceiling(g, a);
         b = SkMulDiv255Ceiling(b, a);
@@ -134,6 +135,26 @@ void fillBitmap(SkBitmap* bitmap) {
     }
 }
 
+bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
+    if (!didPremulConversion) {
+        return a == b;
+    }
+    int32_t aA = static_cast<int32_t>(SkGetPackedA32(a));
+    int32_t aR = static_cast<int32_t>(SkGetPackedR32(a));
+    int32_t aG = static_cast<int32_t>(SkGetPackedG32(a));
+    int32_t aB = SkGetPackedB32(a);
+
+    int32_t bA = static_cast<int32_t>(SkGetPackedA32(b));
+    int32_t bR = static_cast<int32_t>(SkGetPackedR32(b));
+    int32_t bG = static_cast<int32_t>(SkGetPackedG32(b));
+    int32_t bB = static_cast<int32_t>(SkGetPackedB32(b));
+
+    return aA == bA &&
+           SkAbs32(aR - bR) <= 1 &&
+           SkAbs32(aG - bG) <= 1 &&
+           SkAbs32(aB - bB) <= 1;
+}
+
 // checks the bitmap contains correct pixels after the readPixels
 // if the bitmap was prefilled with pixels it checks that these weren't
 // overwritten in the area outside the readPixels.
@@ -155,7 +176,7 @@ bool checkRead(skiatest::Reporter* reporter,
     if (!clippedSrcRect.intersect(srcRect)) {
         clippedSrcRect.setEmpty();
     }
-
+    bool failed = false;
     SkAutoLockPixels alp(bitmap);
     intptr_t pixels = reinterpret_cast<intptr_t>(bitmap.getPixels());
     for (int by = 0; by < bh; ++by) {
@@ -163,26 +184,28 @@ bool checkRead(skiatest::Reporter* reporter,
             int devx = bx + srcRect.fLeft;
             int devy = by + srcRect.fTop;
             
-            SkPMColor pixel = *reinterpret_cast<SkPMColor*>(pixels + by * bitmap.rowBytes() + bx * bitmap.bytesPerPixel());
+            uint32_t pixel = *reinterpret_cast<SkPMColor*>(pixels + by * bitmap.rowBytes() + bx * bitmap.bytesPerPixel());
 
             if (clippedSrcRect.contains(devx, devy)) {
                 if (checkCanvasPixels) {
                     SkPMColor canvasPixel = getCanvasColor(devx, devy);
-                    pixel = convertConfig8888ToPMColor(config8888, pixel);
-                    REPORTER_ASSERT(reporter, canvasPixel == pixel);
-                    if (getCanvasColor(devx, devy) != pixel) {
-                        return false;
+                    bool didPremul;
+                    SkPMColor pmPixel = convertConfig8888ToPMColor(config8888, pixel, &didPremul);
+                    bool check;
+                    REPORTER_ASSERT(reporter, check = checkPixel(pmPixel, canvasPixel, didPremul));
+                    if (!check) {
+                        failed = true;
                     }
                 }
             } else if (checkBitmapPixels) {
                 REPORTER_ASSERT(reporter, getBitmapColor(bx, by, bw, bh) == pixel);
                 if (getBitmapColor(bx, by, bw, bh) != pixel) {
-                    return false;
+                    failed = true;
                 }
             }
         }
     }
-    return true;
+    return failed;
 }
 
 enum BitmapInit {
@@ -274,7 +297,7 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
         SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
     };
 
-    for (int dtype = 0; dtype < 2; ++dtype) {
+    for (int dtype = 1; dtype < 2; ++dtype) {
 
         if (0 == dtype) {
             canvas.setDevice(new SkDevice(SkBitmap::kARGB_8888_Config,
@@ -322,12 +345,9 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
                         canvas.readPixels(&bmp, srcRect.fLeft,
                                           srcRect.fTop, config8888);
 
-                    // non-native not implemented on GPU yet
-                    bool expectSuccess =
-                        SkIRect::Intersects(srcRect, DEV_RECT) &&
-                        !(1 == dtype &&
-                          config8888 != SkCanvas::kNative_Premul_Config8888);
-
+                    // we expect to succeed when the read isn't fully clipped
+                    // out.
+                    bool expectSuccess = SkIRect::Intersects(srcRect, DEV_RECT);
                     // determine whether we expected the read to succeed.
                     REPORTER_ASSERT(reporter, success == expectSuccess);
 

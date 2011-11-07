@@ -22,7 +22,6 @@
 #include "SkString.h"
 
 class GrGpuGL : public GrGpu {
-
 public:
     virtual ~GrGpuGL();
 
@@ -30,22 +29,30 @@ public:
     GrGLBinding glBinding() const { return fGLBinding; }
     GrGLVersion glVersion() const { return fGLVersion; }
 
+    virtual bool readPixelsWillPayForYFlip(
+                                    GrRenderTarget* renderTarget,
+                                    int left, int top,
+                                    int width, int height,
+                                    GrPixelConfig config,
+                                    size_t rowBytes) SK_OVERRIDE;
+
 protected:
     GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
 
     struct GLCaps {
         GLCaps()
             // make defaults be the most restrictive
-            : fMSFBOType(kNone_MSFBO)
+            : fStencilFormats(8) // prealloc space for    stencil formats
+            , fMSFBOType(kNone_MSFBO)
             , fMaxFragmentUniformVectors(0)
             , fRGBA8Renderbuffer(false)
             , fBGRAFormat(false)
-            , fStencilFormats(8) // prealloc space for    stencil formats
+            , fBGRAInternalFormat(false)
             , fTextureSwizzle(false) {
             memset(fAASamples, 0, sizeof(fAASamples));
         }
         SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
-    
+
         enum {
             /**
              * no support for MSAA FBOs
@@ -64,19 +71,24 @@ protected:
              */
             kAppleES_MSFBO,
         } fMSFBOType;
-    
+
         // TODO: get rid of GrAALevel and use sample cnt directly
         GrGLuint fAASamples[4];
-    
+
         // The maximum number of fragment uniform vectors (GLES has min. 16).
         int fMaxFragmentUniformVectors;
-    
+
         // ES requires an extension to support RGBA8 in RenderBufferStorage
         bool fRGBA8Renderbuffer;
-    
+
         // Is GL_BGRA supported
         bool fBGRAFormat;
-    
+
+        // Depending on the ES extensions present the BGRA external format may
+        // correspond either a BGRA or RGBA internalFormat. On desktop GL it is
+        // RGBA
+        bool fBGRAInternalFormat;
+
         // GL_ARB_texture_swizzle support
         bool fTextureSwizzle;
     
@@ -148,7 +160,9 @@ protected:
                               int left, int top, 
                               int width, int height,
                               GrPixelConfig, 
-                              void* buffer, size_t rowBytes) SK_OVERRIDE;
+                              void* buffer,
+                              size_t rowBytes,
+                              bool invertY) SK_OVERRIDE;
 
     virtual void onGpuDrawIndexed(GrPrimitiveType type,
                                   uint32_t startVertex,

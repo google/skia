@@ -384,14 +384,24 @@ void GrGpuGL::initCaps() {
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fGLCaps.fRGBA8Renderbuffer = true;
     } else {
-        fGLCaps.fRGBA8Renderbuffer = this->hasExtension("GL_OES_rgb8_rgba8");
+        fGLCaps.fRGBA8Renderbuffer = this->hasExtension("GL_OES_rgb8_rgba8") ||
+                                     this->hasExtension("GL_ARM_rgba8");
     }
 
 
-    if (kDesktop_GrGLBinding != this->glBinding()) {
-        if (GR_GL_32BPP_COLOR_FORMAT == GR_GL_BGRA) {
-            GrAssert(this->hasExtension("GL_EXT_texture_format_BGRA8888"));
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        fGLCaps.fBGRAFormat = this->glVersion() >= GR_GL_VER(1,2) ||
+                              this->hasExtension("GL_EXT_bgra");
+    } else {
+        bool hasBGRAExt = false;
+        if (this->hasExtension("GL_APPLE_texture_format_BGRA8888")) {
+            fGLCaps.fBGRAFormat = true;
+        } else if (this->hasExtension("GL_EXT_texture_format_BGRA8888")) {
+            fGLCaps.fBGRAFormat = true;
+            fGLCaps.fBGRAInternalFormat = true;
         }
+        GrAssert(fGLCaps.fBGRAFormat ||
+                 kSkia8888_PM_GrPixelConfig != kBGRA_8888_PM_GrPixelConfig);
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -1497,18 +1507,35 @@ void GrGpuGL::onForceRenderTargetFlush() {
     this->flushRenderTarget(&GrIRect::EmptyIRect());
 }
 
+bool GrGpuGL::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
+                                        int left, int top,
+                                        int width, int height,
+                                        GrPixelConfig config,
+                                        size_t rowBytes) {
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        return false;
+    } else {
+        // On ES we'll have to do memcpys to handle rowByte padding. So, we
+        // might as well flipY while we're at it.
+        return 0 != rowBytes &&
+               GrBytesPerPixel(config) * width != rowBytes; 
+    }
+}
+
 bool GrGpuGL::onReadPixels(GrRenderTarget* target,
                            int left, int top,
                            int width, int height,
-                           GrPixelConfig config, 
-                           void* buffer, size_t rowBytes) {
+                           GrPixelConfig config,
+                           void* buffer,
+                           size_t rowBytes,
+                           bool invertY) {
     GrGLenum internalFormat;  // we don't use this for glReadPixels
     GrGLenum format;
     GrGLenum type;
     if (!this->canBeTexture(config, &internalFormat, &format, &type)) {
         return false;
     }
-    
+
     // resolve the render target if necessary
     GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(target);
     GrAutoTPtrValueRestore<GrRenderTarget*> autoTargetRestore;
@@ -1568,29 +1595,38 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     // that the above readPixels did not overwrite the padding.
     if (readDst == buffer) {
         GrAssert(rowBytes == readDstRowBytes);
-        scratch.reset(tightRowBytes);
-        void* tmpRow = scratch.get();
-        // flip y in-place by rows
-        const int halfY = height >> 1;
-        char* top = reinterpret_cast<char*>(buffer);
-        char* bottom = top + (height - 1) * rowBytes;
-        for (int y = 0; y < halfY; y++) {
-            memcpy(tmpRow, top, tightRowBytes);
-            memcpy(top, bottom, tightRowBytes);
-            memcpy(bottom, tmpRow, tightRowBytes);
-            top += rowBytes;
-            bottom -= rowBytes;
+        if (!invertY) {
+            scratch.reset(tightRowBytes);
+            void* tmpRow = scratch.get();
+            // flip y in-place by rows
+            const int halfY = height >> 1;
+            char* top = reinterpret_cast<char*>(buffer);
+            char* bottom = top + (height - 1) * rowBytes;
+            for (int y = 0; y < halfY; y++) {
+                memcpy(tmpRow, top, tightRowBytes);
+                memcpy(top, bottom, tightRowBytes);
+                memcpy(bottom, tmpRow, tightRowBytes);
+                top += rowBytes;
+                bottom -= rowBytes;
+            }
         }
     } else {
-        GrAssert(readDst != buffer);
+        GrAssert(readDst != buffer);        GrAssert(rowBytes != tightRowBytes);
         // copy from readDst to buffer while flipping y
         const int halfY = height >> 1;
         const char* src = reinterpret_cast<const char*>(readDst);
-        char* dst = reinterpret_cast<char*>(buffer) + (height-1) * rowBytes;
+        char* dst = reinterpret_cast<char*>(buffer);
+        if (!invertY) {
+            dst += (height-1) * rowBytes;
+        }
         for (int y = 0; y < height; y++) {
             memcpy(dst, src, tightRowBytes);
             src += readDstRowBytes;
-            dst -= rowBytes;
+            if (invertY) {
+                dst += rowBytes;
+            } else {
+                dst -= rowBytes;
+            }
         }
     }
     return true;
@@ -2249,13 +2285,20 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
                            GrGLenum* format,
                            GrGLenum* type) {
     switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-        case kRGBX_8888_GrPixelConfig: // todo: can we tell it our X?
-            *format = GR_GL_32BPP_COLOR_FORMAT;
-            if (kDesktop_GrGLBinding != this->glBinding()) {
-                // according to GL_EXT_texture_format_BGRA8888 the *internal*
-                // format for a BGRA is BGRA not RGBA (as on desktop)
-                *internalFormat = GR_GL_32BPP_COLOR_FORMAT;
+        case kRGBA_8888_PM_GrPixelConfig:
+        case kRGBA_8888_UPM_GrPixelConfig:
+            *format = GR_GL_RGBA;
+            *internalFormat = GR_GL_RGBA;
+            *type = GR_GL_UNSIGNED_BYTE;
+            break;
+        case kBGRA_8888_PM_GrPixelConfig:
+        case kBGRA_8888_UPM_GrPixelConfig:
+            if (!fGLCaps.fBGRAFormat) {
+                return false;
+            }
+            *format = GR_GL_BGRA;
+            if (fGLCaps.fBGRAInternalFormat) {
+                *internalFormat = GR_GL_BGRA;
             } else {
                 *internalFormat = GR_GL_RGBA;
             }
@@ -2314,9 +2357,22 @@ void GrGpuGL::setSpareTextureUnit() {
  */
 bool GrGpuGL::fboInternalFormat(GrPixelConfig config, GrGLenum* format) {
     switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-        case kRGBX_8888_GrPixelConfig:
+        // The ES story for BGRA and RenderbufferStorage appears murky. It
+        // takes an internal format as a parameter. The OES FBO extension and
+        // 2.0 spec don't refer to BGRA as it's not part of the core. One ES
+        // BGRA extensions adds BGRA as both an internal and external format
+        // and the other only as an external format (like desktop GL). OES
+        // restricts RenderbufferStorage's format to a *sized* internal format.
+        // There is no sized BGRA internal format.
+        // So if the texture has internal format BGRA we just hope that the
+        // resolve blit can do RGBA->BGRA internal format conversion.
+        case kRGBA_8888_PM_GrPixelConfig:
+        case kRGBA_8888_UPM_GrPixelConfig:
+        case kBGRA_8888_PM_GrPixelConfig:
+        case kBGRA_8888_UPM_GrPixelConfig:
             if (fGLCaps.fRGBA8Renderbuffer) {
+                // The GL_OES_rgba8_rgb8 extension defines GL_RGBA8 as a sized
+                // internal format.
                 *format = GR_GL_RGBA8;
                 return true;
             } else {
@@ -2326,9 +2382,12 @@ bool GrGpuGL::fboInternalFormat(GrPixelConfig config, GrGLenum* format) {
             // ES2 supports 565. ES1 supports it
             // with FBO extension desktop GL has
             // no such internal format
-            GrAssert(kDesktop_GrGLBinding != this->glBinding());  
-            *format = GR_GL_RGB565;
-            return true;
+            if (kDesktop_GrGLBinding != this->glBinding()) {
+                *format = GR_GL_RGB565;
+                return true;
+            } else {
+                return false;
+            }
         case kRGBA_4444_GrPixelConfig:
             *format = GR_GL_RGBA4;
             return true;
@@ -2435,6 +2494,8 @@ void GrGpuGL::GLCaps::print() const {
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     GrPrintf("Support RGBA8 Render Buffer: %s\n",
              (fRGBA8Renderbuffer ? "YES": "NO"));
+    GrPrintf("BGRA is an internal format: %s\n",
+             (fBGRAInternalFormat ? "YES": "NO"));
     GrPrintf("Support texture swizzle: %s\n",
              (fTextureSwizzle ? "YES": "NO"));
 }

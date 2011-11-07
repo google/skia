@@ -800,6 +800,12 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
 #endif
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (this->isStageEnabled(s) &&
+            GrPixelConfigIsUnpremultiplied(fCurrDrawState.fTextures[s]->config())) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -813,7 +819,6 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
                             vertexCount, indexCount);
     }
 }
-
 
 void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
                                   int startVertex,

@@ -207,11 +207,7 @@ GrPixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config,
         case SkBitmap::kARGB_4444_Config:
             return kRGBA_4444_GrPixelConfig;
         case SkBitmap::kARGB_8888_Config:
-            if (isOpaque) {
-                return kRGBX_8888_GrPixelConfig;
-            } else {
-                return kRGBA_8888_GrPixelConfig;
-            }
+            return kSkia8888_PM_GrPixelConfig;
         default:
             return kUnknown_GrPixelConfig;
     }

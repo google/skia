@@ -19,15 +19,12 @@
  */
 typedef uint32_t GrColor;
 
-// indices for address a GrColor as an array of bytes
 
-#define GrColor_INDEX_R     0
-#define GrColor_INDEX_G     1
-#define GrColor_INDEX_B     2
-#define GrColor_INDEX_A     3
-
-// shfit amount to assign a component to a GrColor int
-
+// shift amount to assign a component to a GrColor int
+// These shift values are chosen for compatibility with GL attrib arrays
+// ES doesn't allow BGRA vertex attrib order so if they were not in this order
+// we'd have to swizzle in shaders. Note the assumption that the cpu is little
+// endian.
 #define GrColor_SHIFT_R     0
 #define GrColor_SHIFT_G     8
 #define GrColor_SHIFT_B     16
