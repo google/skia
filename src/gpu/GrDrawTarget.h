@@ -1371,6 +1371,11 @@ protected:
     // pushGeometrySource())
     void releaseGeometry();
 private:
+    // called by drawIndexed and drawNonIndexed. Use a negative indexCount to
+    // indicate non-indexed drawing.
+    bool checkDraw(GrPrimitiveType type, int startVertex,
+                   int startIndex, int vertexCount,
+                   int indexCount) const;
     // called when setting a new vert/idx source to unref prev vb/ib
     void releasePreviousVertexSource();
     void releasePreviousIndexSource();
