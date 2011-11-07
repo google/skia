@@ -464,13 +464,15 @@ int main (int argc, char * const argv[]) {
             reinterpret_cast<GrPlatform3DContext>(glctx.get()->gl());
         context = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
         if (NULL != context) {
-            GrPlatformRenderTargetDesc desc;
+            GrPlatformSurfaceDesc desc;
+            desc.reset();
             desc.fConfig = kRGBA_8888_GrPixelConfig;
             desc.fWidth = contextWidth;
             desc.fHeight = contextHeight;
             desc.fStencilBits = 8;
-            desc.fRenderTargetHandle = glctx.get()->getFBOID();
-            rt = context->createPlatformRenderTarget(desc);
+            desc.fPlatformRenderTarget = glctx.get()->getFBOID();
+            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+            rt = static_cast<GrRenderTarget*>(context->createPlatformSurface(desc));
             if (NULL == rt) {
                 context->unref();
                 context = NULL;

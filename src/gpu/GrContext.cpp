@@ -525,14 +525,6 @@ int GrContext::getMaxRenderTargetSize() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrContext::createPlatformTexture(const GrPlatformTextureDesc& desc) {
-    return fGpu->createPlatformTexture(desc);
-}
-
-GrRenderTarget* GrContext::createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
-    return fGpu->createPlatformRenderTarget(desc);
-}
-
 GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
     // validate flags here so that GrGpu subclasses don't have to check
     if (kTexture_GrPlatformSurfaceType == desc.fSurfaceType &&

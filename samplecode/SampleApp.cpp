@@ -182,28 +182,34 @@ public:
         if (fGrContext) {
             win->attachGL();
 
-            GrPlatformRenderTargetDesc desc;
+            GrPlatformSurfaceDesc desc;
+            desc.reset();
+            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kRGBA_8888_GrPixelConfig;
-            GR_GL_GetIntegerv(fGL, GR_GL_SAMPLES, &desc.fSampleCnt);
             GR_GL_GetIntegerv(fGL, GR_GL_STENCIL_BITS, &desc.fStencilBits);
+            GR_GL_GetIntegerv(fGL, GR_GL_SAMPLES, &desc.fSampleCnt);
             GrGLint buffer;
             GR_GL_GetIntegerv(fGL, GR_GL_FRAMEBUFFER_BINDING, &buffer);
-            desc.fRenderTargetHandle = buffer;
+            desc.fPlatformRenderTarget = buffer;
 
             SkSafeUnref(fGrRenderTarget);
-            fGrRenderTarget = fGrContext->createPlatformRenderTarget(desc);
+            fGrRenderTarget = static_cast<GrRenderTarget*>(
+                                            fGrContext->createPlatformSurface(desc));
         }
         if (NULL != fNullGrContext) {
-            GrPlatformRenderTargetDesc desc;
+            GrPlatformSurfaceDesc desc;
+            desc.reset();
+            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kRGBA_8888_GrPixelConfig;
             desc.fStencilBits = 8;
             desc.fSampleCnt = 0;
-            desc.fRenderTargetHandle = 0;
-            fGrRenderTarget = fNullGrContext->createPlatformRenderTarget(desc);
+            desc.fPlatformRenderTarget = 0;
+            fNullGrRenderTarget = static_cast<GrRenderTarget*>(
+                                            fNullGrContext->createPlatformSurface(desc));
         }
     }
 
