@@ -238,35 +238,6 @@ public:
     // Platform Surfaces
 
     /**
-     * Wraps an existing texture with a GrTexture object.
-     *
-     * OpenGL: if the object is a texture Gr may change its GL texture params
-     *         when it is drawn.
-     *
-     * @param  desc     description of the object to create.
-     *
-     * @return GrTexture object or NULL on failure.
-     */
-    GrTexture* createPlatformTexture(const GrPlatformTextureDesc& desc);
-
-    /**
-     * Wraps an existing render target with a GrRenderTarget object. It is
-     * similar to createPlatformTexture but can be used to draw into surfaces
-     * that are not also textures (e.g. FBO 0 in OpenGL, or an MSAA buffer that
-     * the client will resolve to a texture).
-     *
-     * @param  desc     description of the object to create.
-     *
-     * @return GrTexture object or NULL on failure.
-     */
-     GrRenderTarget* createPlatformRenderTarget(
-                                    const GrPlatformRenderTargetDesc& desc);
-
-    /**
-     * This interface is depracted and will be removed in a future revision.
-     * Callers should use createPlatformTexture or createPlatformRenderTarget
-     * instead.
-     *
      * Wraps an existing 3D API surface in a GrObject. desc.fFlags determines
      * the type of object returned. If kIsTexture is set the returned object
      * will be a GrTexture*. Otherwise, it will be a GrRenderTarget*. If both 

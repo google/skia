@@ -504,99 +504,6 @@ enum GrConvexHint {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// opaque type for 3D API object handles
-typedef intptr_t GrPlatform3DObject;
-
-/**
- * Gr can wrap an existing texture created by the client with a GrTexture
- * object. The client is responsible for ensuring that the texture lives at
- * least as long as the GrTexture object wrapping it. We require the client to 
- * explicitly provide information about the texture, such as width, height, 
- * and pixel config, rather than querying the 3D APIfor these values. We expect
- * these to be immutable even if the 3D API doesn't require this (OpenGL).
- *
- * Textures that are also render targets are supported as well. Gr will manage
- * any ancillary 3D API (stencil buffer, FBO id, etc) objects necessary for
- * Gr to draw into the render target. To access the render target object
- * call GrTexture::asRenderTarget().
- *
- * If in addition to the render target flag, the caller also specifies a sample
- * count Gr will create an MSAA buffer that resolves into the texture. Gr auto-
- * resolves when it reads from the texture. The client can explictly resolve
- * using the GrRenderTarget interface.
- */
-
-enum GrPlatformTextureFlags {
-    /**
-     * No flags enabled
-     */
-    kNone_GrPlatformTextureFlag              = 0x0,
-    /**
-     * Indicates that the texture is also a render target, and thus should have
-     * a GrRenderTarget object.
-     *
-     * D3D (future): client must have created the texture with flags that allow
-     * it to be used as a render target.
-     */
-    kRenderTarget_GrPlatformTextureFlag      = 0x1,
-};
-GR_MAKE_BITFIELD_OPS(GrPlatformTextureFlags)
-
-struct GrPlatformTextureDesc {
-    GrPlatformTextureDesc() { memset(this, 0, sizeof(*this)); }
-    GrPlatformTextureFlags          fFlags;
-    int                             fWidth;         //<! width in pixels
-    int                             fHeight;        //<! height in pixels
-    GrPixelConfig                   fConfig;        //<! color format
-    /**
-     * If the render target flag is set and sample count is greater than 0
-     * then Gr will create an MSAA buffer that resolves to the texture.
-     */
-    int                             fSampleCnt;
-    /**
-     * Handle to the 3D API object.
-     * OpenGL: Texture ID.
-     */
-    GrPlatform3DObject              fTextureHandle;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- * Gr can wrap an existing render target created by the client in the 3D API
- * with a GrRenderTarget object. The client is responsible for ensuring that the
- * underlying 3D API object lives at least as long as the GrRenderTarget object
- * wrapping it. We require the client to explicitly provide information about 
- * the target, such as width, height, and pixel config rather than querying the
- * 3D API for these values. We expect these properties to be immutable even if
- * the 3D API doesn't require this (OpenGL).
- */
-
-struct GrPlatformRenderTargetDesc {
-    GrPlatformRenderTargetDesc() { memset(this, 0, sizeof(this)); }
-    int                             fWidth;         //<! width in pixels
-    int                             fHeight;        //<! height in pixels
-    GrPixelConfig                   fConfig;        //<! color format
-    /**
-     * The number of samples per pixel. Gr uses this to influence decisions
-     * about applying other forms of antialiasing.
-     */
-    int                             fSampleCnt;
-    /**
-     * Number of bits of stencil per-pixel.
-     */
-    int                             fStencilBits;
-    /**
-     * Handle to the 3D API object.
-     * OpenGL: FBO ID
-     */
-    GrPlatform3DObject              fRenderTargetHandle;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// DEPRECATED. createPlatformSurface is replaced by createPlatformTexture
-// and createPlatformRenderTarget. These enums and structs will be removed.
-
 enum GrPlatformSurfaceType {
     /**
      * Specifies that the object being created is a render target.
@@ -630,6 +537,12 @@ enum GrPlatformRenderTargetFlags {
 
 GR_MAKE_BITFIELD_OPS(GrPlatformRenderTargetFlags)
 
+// opaque type for 3D API object handles
+typedef intptr_t GrPlatform3DObject;
+
+/**
+ * Description of platform surface to create. See below for GL example.
+ */
 struct GrPlatformSurfaceDesc {
     GrPlatformSurfaceType           fSurfaceType;   // type of surface to create
     /**
