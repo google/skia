@@ -86,6 +86,21 @@
             '../unix_test_app/main.cpp',
           ],
         }],
+        [ 'skia_os == "android"', {
+          # Android does not support animator so we need to remove all files
+          # that have references to it.
+          'include_dirs!': [
+            '../include/animator',
+          ],
+          'sources!': [
+            '../src/views/SkBorderView.cpp',
+            '../src/views/SkImageView.cpp',
+            '../src/views/SkProgressBarView.cpp',
+            '../src/views/SkScrollBarView.cpp',
+            '../src/views/SkStaticTextView.cpp',
+            '../src/views/SkWidgetViews.cpp',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
