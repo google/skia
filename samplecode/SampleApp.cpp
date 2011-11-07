@@ -1423,9 +1423,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             return true;
         case 'f':
             // only 
-            fMeasureFPS = !fMeasureFPS;
-            this->updateTitle();
-            this->inval(NULL);
+            toggleFPS();
             break;
         case 'g':
             fRequestGrabImage = true;
@@ -1490,6 +1488,12 @@ void SampleWindow::toggleRendering() {
         fDeviceType = cycle_devicetype(fDeviceType);
     } while (origDevType != fDeviceType &&
              !fDevManager->supportsDeviceType(fDeviceType));
+    this->updateTitle();
+    this->inval(NULL);
+}
+
+void SampleWindow::toggleFPS() {
+    fMeasureFPS = !fMeasureFPS;
     this->updateTitle();
     this->inval(NULL);
 }
