@@ -61,7 +61,7 @@
         #undef GR_IOS_BUILD
         #define GR_IOS_BUILD        1
 //      #error "IOS"
-    #elif (defined(ANDROID_NDK) && ANDROID_NDK) || defined(ANDROID)
+    #elif defined(SK_BUILD_FOR_ANDROID)
         #undef GR_ANDROID_BUILD
         #define GR_ANDROID_BUILD    1
 //      #error "ANDROID"

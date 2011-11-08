@@ -220,7 +220,7 @@ protected:
     virtual void drawTextOnPath(const SkDraw&, const void* text, size_t len,
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint);
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     virtual void drawPosTextOnPath(const SkDraw& draw, const void* text, size_t len,
                                    const SkPoint pos[], const SkPaint& paint,
                                    const SkPath& path, const SkMatrix* matrix);

@@ -19,7 +19,7 @@
 #include "SkRegion.h"
 #include "SkPictureFlat.h"
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 #include "SkThread.h"
 #endif
 
@@ -174,7 +174,7 @@ private:
     SkRefCntPlayback fRCPlayback;
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback*   fFactoryPlayback;
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     SkMutex fDrawMutex;
 #endif
 };

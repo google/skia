@@ -159,7 +159,7 @@ const char* SkPixelRef::FactoryToName(Factory fact) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 void SkPixelRef::globalRef(void* data) {
     this->ref();
 }

@@ -818,7 +818,7 @@ public:
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     const SkGlyph& getUnicharMetrics(SkUnichar);
     const void* findImage(const SkGlyph&);
 
@@ -854,7 +854,7 @@ private:
     unsigned        fStyle : 2;
     unsigned        fTextEncoding : 2;  // 3 values
     unsigned        fHinting : 2;
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     uint32_t        fGenerationID;
 #endif
 

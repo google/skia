@@ -159,18 +159,12 @@ void ValidateHeap() {}
 
 void sk_throw()
 {
-#ifdef ANDROID
-    fprintf(stderr, "throwing...\n");
-#endif
     SkASSERT(!"sk_throw");
     abort();
 }
 
 void sk_out_of_memory(void)
 {
-#ifdef ANDROID
-    fprintf(stderr,"- out of memory in SGL -\n");
-#endif
     SkASSERT(!"sk_out_of_memory");
     abort();
 }

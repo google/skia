@@ -39,7 +39,7 @@ static const struct Pair {
     MAKE_PAIR(Multiply),
     MAKE_PAIR(Screen),
     { SkPorterDuff::kAdd_Mode, SkXfermode::kPlus_Mode },
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     MAKE_PAIR(Overlay),
 #endif
 };

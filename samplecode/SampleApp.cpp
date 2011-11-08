@@ -1041,7 +1041,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         SkPDFDocument doc;
         SkPDFDevice* device = static_cast<SkPDFDevice*>(fPdfCanvas->getDevice());
         doc.appendPage(device);
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
         name.prepend("/sdcard/");
 #endif
         
@@ -1787,7 +1787,7 @@ void SampleWindow::onSizeChange() {
     fZoomCenterX = SkScalarHalf(this->width());
     fZoomCenterY = SkScalarHalf(this->height());
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     // FIXME: The first draw after a size change does not work on Android, so
     // we post an invalidate.
     this->postInvalDelay();

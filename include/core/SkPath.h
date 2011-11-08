@@ -13,7 +13,7 @@
 #include "SkMatrix.h"
 #include "SkTDArray.h"
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 #define GEN_ID_INC              fGenerationID++
 #define GEN_ID_PTR_INC(ptr)     ptr->fGenerationID++
 #else
@@ -646,7 +646,7 @@ public:
     void flatten(SkWriter32&) const;
     void unflatten(SkReader32&);
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     uint32_t getGenerationID() const;
 #endif
 
@@ -660,7 +660,7 @@ private:
     uint8_t             fSegmentMask;
     mutable uint8_t     fBoundsIsDirty;
     mutable uint8_t     fConvexity;
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     uint32_t            fGenerationID;
 #endif
 

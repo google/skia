@@ -410,7 +410,7 @@ void SkDevice::drawTextOnPath(const SkDraw& draw, const void* text,
     draw.drawTextOnPath((const char*)text, len, path, matrix, paint);
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 void SkDevice::drawPosTextOnPath(const SkDraw& draw, const void* text, size_t len,
                                      const SkPoint pos[], const SkPaint& paint,
                                      const SkPath& path, const SkMatrix* matrix) {

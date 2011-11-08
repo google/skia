@@ -24,7 +24,7 @@
 #include "SkPicture.h"
 #include "SkString.h"
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 static void log_error(const char msg[]) { SkDebugf("%s", msg); }
 static void log_progress(const char msg[]) { SkDebugf("%s", msg); }
 #else

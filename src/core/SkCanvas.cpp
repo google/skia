@@ -1617,7 +1617,7 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength,
     LOOPER_END
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 void SkCanvas::drawPosTextOnPath(const void* text, size_t byteLength,
                                  const SkPoint pos[], const SkPaint& paint,
                                  const SkPath& path, const SkMatrix* matrix) {
