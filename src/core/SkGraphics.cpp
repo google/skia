@@ -137,7 +137,7 @@ bool SkGraphics::SetFontCacheUsed(size_t usageInBytes) {
 }
 
 #ifndef SK_DEFAULT_FONT_CACHE_LIMIT
-    #define SK_DEFAULT_FONT_CACHE_LIMIT (1024 * 1024)
+    #define SK_DEFAULT_FONT_CACHE_LIMIT (2 * 1024 * 1024)
 #endif
 
 #define SK_MIN_FONT_CACHE_LIMIT    (256 * 1024)
