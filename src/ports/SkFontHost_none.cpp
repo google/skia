@@ -81,10 +81,6 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
-    return 0;   // nothing to do (change me if you want to limit the font cache)
-}
-
 int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
     return 0;
 }

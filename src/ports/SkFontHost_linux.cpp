@@ -18,8 +18,6 @@
 #include "SkTSearch.h"
 #include <stdio.h>
 
-#define FONT_CACHE_MEMORY_BUDGET    (1 * 1024 * 1024)
-
 #ifndef SK_FONT_FILE_PREFIX
     #define SK_FONT_FILE_PREFIX      "/usr/share/fonts/truetype/msttcorefonts/"
 #endif
@@ -598,14 +596,5 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     }
     stream->unref();
     return face;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
-    if (sizeAllocatedSoFar > FONT_CACHE_MEMORY_BUDGET)
-        return sizeAllocatedSoFar - FONT_CACHE_MEMORY_BUDGET;
-    else
-        return 0;   // nothing to do
 }
 

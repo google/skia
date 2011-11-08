@@ -232,14 +232,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Return the number of bytes (approx) that should be purged from the font
-        cache. The input parameter is the cache's estimate of how much as been
-        allocated by the cache so far.
-        To purge (basically) everything, return the input parameter.
-        To purge nothing, return 0
-    */
-    static size_t ShouldPurgeFontCache(size_t sizeAllocatedSoFar);
-
     /** Return SkScalerContext gamma flag, or 0, based on the paint that will be
         used to draw something with antialiasing.
     */

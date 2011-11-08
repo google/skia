@@ -15,9 +15,6 @@
 #include "SkPaint.h"
 #include "SkPoint.h"
 
-// Give 1MB font cache budget
-#define FONT_CACHE_MEMORY_BUDGET    (1024 * 1024)
-
 const char* gDefaultfont = "Arial"; // hard code for now
 static SkMutex      gFTMutex;
 
@@ -506,13 +503,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     } else {
         return CreateTypeface_(familyName, style);
     }
-}
-
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
-    if (sizeAllocatedSoFar > FONT_CACHE_MEMORY_BUDGET)
-        return sizeAllocatedSoFar - FONT_CACHE_MEMORY_BUDGET;
-    else
-        return 0;   // nothing to do
 }
 
 int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {

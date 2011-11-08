@@ -160,7 +160,6 @@ static unsigned CGRGBPixel_getAlpha(CGRGBPixel pixel) {
 
 using namespace skia_advanced_typeface_metrics_utils;
 
-static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
 static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
 
 // see Source/WebKit/chromium/base/mac/mac_util.mm DarwinMajorVersionInternal 
@@ -1611,13 +1610,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 }
 
 ///////////////////////////////////////////////////////////////////////////
-
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
-    if (sizeAllocatedSoFar > FONT_CACHE_MEMORY_BUDGET) {
-        return sizeAllocatedSoFar - FONT_CACHE_MEMORY_BUDGET;
-    }
-    return 0;
-}
 
 #include "SkColorFilter.h"
 

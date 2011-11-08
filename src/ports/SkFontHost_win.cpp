@@ -75,9 +75,6 @@ using namespace skia_advanced_typeface_metrics_utils;
 static const uint16_t BUFFERSIZE = (16384 - 32);
 static uint8_t glyphbuf[BUFFERSIZE];
 
-// Give 1MB font cache budget
-#define FONT_CACHE_MEMORY_BUDGET    (1024 * 1024)
-
 /**
  *  Since LOGFONT wants its textsize as an int, and we support fractional sizes,
  *  and since we have a cache of LOGFONTs for our tyepfaces, we always set the
@@ -1244,13 +1241,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     }
     setStyle(&lf, style);
     return SkCreateTypefaceFromLOGFONT(lf);
-}
-
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
-    if (sizeAllocatedSoFar > FONT_CACHE_MEMORY_BUDGET)
-        return sizeAllocatedSoFar - FONT_CACHE_MEMORY_BUDGET;
-    else
-        return 0;   // nothing to do
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {

@@ -44,9 +44,6 @@ static std::map<unsigned, std::string> global_fc_map_inverted;
 static std::map<uint32_t, SkTypeface *> global_fc_typefaces;
 static unsigned global_fc_map_next_id = 0;
 
-// This is the maximum size of the font cache.
-static const unsigned kFontCacheMemoryBudget = 2 * 1024 * 1024;  // 2MB
-
 static unsigned UniqueIdToFileId(unsigned uniqueid)
 {
     return uniqueid >> 8;
@@ -361,12 +358,3 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     return 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar)
-{
-    if (sizeAllocatedSoFar > kFontCacheMemoryBudget)
-        return sizeAllocatedSoFar - kFontCacheMemoryBudget;
-    else
-        return 0;   // nothing to do
-}

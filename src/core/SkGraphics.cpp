@@ -29,6 +29,18 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
+void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
+    if (major) {
+        *major = SKIA_VERSION_MAJOR;
+    }
+    if (minor) {
+        *minor = SKIA_VERSION_MINOR;
+    }
+    if (patch) {
+        *patch = SKIA_VERSION_PATCH;
+    }
+}
+
 #define typesizeline(type)  { #type , sizeof(type) }
 
 #ifdef BUILD_EMBOSS_TABLE
@@ -124,15 +136,27 @@ bool SkGraphics::SetFontCacheUsed(size_t usageInBytes) {
     return SkGlyphCache::SetCacheUsed(usageInBytes);
 }
 
-void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
-    if (major) {
-        *major = SKIA_VERSION_MAJOR;
+#ifndef SK_DEFAULT_FONT_CACHE_LIMIT
+    #define SK_DEFAULT_FONT_CACHE_LIMIT (1024 * 1024)
+#endif
+
+#define SK_MIN_FONT_CACHE_LIMIT    (256 * 1024)
+
+static size_t gFontCacheLimit = SK_DEFAULT_FONT_CACHE_LIMIT;
+
+size_t SkGraphics::GetFontCacheLimit() {
+    return gFontCacheLimit;
+}
+
+size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
+    if (bytes < SK_MIN_FONT_CACHE_LIMIT) {
+        bytes = SK_MIN_FONT_CACHE_LIMIT;
     }
-    if (minor) {
-        *minor = SKIA_VERSION_MINOR;
-    }
-    if (patch) {
-        *patch = SKIA_VERSION_PATCH;
+    gFontCacheLimit = bytes;
+    
+    // trigger a purge if the new size is smaller that our currently used amount
+    if (bytes < GetFontCacheUsed()) {
+        SetFontCacheUsed(bytes);
     }
 }
 
