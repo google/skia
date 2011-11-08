@@ -23,6 +23,8 @@
 #include "SkStream.h"
 #include "SkRefCnt.h"
 
+extern bool gSkSuppressFontCachePurgeSpew;
+
 #ifdef SK_SUPPORT_PDF
     #include "SkPDFDevice.h"
     #include "SkPDFDocument.h"
@@ -565,6 +567,8 @@ GrContext* GetGr() {
 
 int main(int argc, char * const argv[]) {
     SkAutoGraphics ag;
+    // we don't need to see this during a run
+    gSkSuppressFontCachePurgeSpew = true;
 
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* readPath = NULL;    // if non-null, were we read from to compare
