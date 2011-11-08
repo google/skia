@@ -37,7 +37,8 @@ protected:
 
         // this is critical - we want to time the creation process, so we
         // explicitly flush our cache before each run
-        SkGraphics::SetFontCacheUsed(0);
+        SkGraphics::PurgeFontCache();
+
         for (int ps = 9; ps <= 24; ps += 2) {
             paint.setTextSize(SkIntToScalar(ps));
             canvas->drawText(fText.c_str(), fText.size(),
