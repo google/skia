@@ -149,6 +149,8 @@ size_t SkGraphics::GetFontCacheLimit() {
 }
 
 size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
+    size_t prev = gFontCacheLimit;
+
     if (bytes < SK_MIN_FONT_CACHE_LIMIT) {
         bytes = SK_MIN_FONT_CACHE_LIMIT;
     }
@@ -158,5 +160,6 @@ size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
     if (bytes < GetFontCacheUsed()) {
         SetFontCacheUsed(bytes);
     }
+    return prev;
 }
 
