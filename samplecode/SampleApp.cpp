@@ -1434,9 +1434,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     switch (uni) {
-        case 'd':
-            SkGraphics::SetFontCacheUsed(0);
-            return true;
         case 'f':
             // only 
             toggleFPS();

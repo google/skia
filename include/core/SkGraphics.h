@@ -23,20 +23,6 @@ public:
      */
     static void GetVersion(int32_t* major, int32_t* minor, int32_t* patch);
 
-    // Font Cache routines
-
-    /**
-     *  Return the (approximate) number of bytes used by the font cache.
-     */
-    static size_t GetFontCacheUsed();
-    
-    /**
-     *  Attempt to purge the font cache until <= the specified amount remains
-     *  in the cache. Specifying 0 will attempt to purge the entire cache.
-     *  Returns true if some amount was purged from the font cache.
-     */
-    static bool SetFontCacheUsed(size_t usageInBytes);
-
     /**
      *  Return the max number of bytes that should be used by the font cache.
      *  If the cache needs to allocate more, it will purge previous entries.
@@ -52,6 +38,13 @@ public:
      *  had be called before the new limit was set.
      */
     static size_t SetFontCacheLimit(size_t bytes);
+
+    /**
+     *  For debugging purposes, this will attempt to purge the font cache. It
+     *  does not change the limit, but will cause subsequent font measures and
+     *  draws to be recreated, since they will no longer be in the cache.
+     */
+    static void PurgeFontCache();
 
 private:
     /** This is automatically called by SkGraphics::Init(), and must be

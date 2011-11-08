@@ -113,6 +113,8 @@ void SkGraphics::Init() {
         SkDebugf("SkGraphics: sizeof(%s) = %d\n",
                  gTypeSize[i].fTypeName, gTypeSize[i].fSizeOf);
     }
+    SkDebugf("SkGraphics: font cache limit %dK\n",
+             GetFontCacheLimit() >> 10);
 
 #endif
 }
@@ -123,17 +125,9 @@ void SkGraphics::Init() {
 #include "SkTypefaceCache.h"
 
 void SkGraphics::Term() {
-    SkGraphics::SetFontCacheUsed(0);
+    SkGlyphCache::SetCacheUsed(0);
     SkTypefaceCache::PurgeAll();
     SkGlobals::Term();
-}
-
-size_t SkGraphics::GetFontCacheUsed() {
-    return SkGlyphCache::GetCacheUsed();
-}
-
-bool SkGraphics::SetFontCacheUsed(size_t usageInBytes) {
-    return SkGlyphCache::SetCacheUsed(usageInBytes);
 }
 
 #ifndef SK_DEFAULT_FONT_CACHE_LIMIT
@@ -157,9 +151,13 @@ size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
     gFontCacheLimit = bytes;
     
     // trigger a purge if the new size is smaller that our currently used amount
-    if (bytes < GetFontCacheUsed()) {
-        SetFontCacheUsed(bytes);
+    if (bytes < SkGlyphCache::GetCacheUsed()) {
+        SkGlyphCache::SetCacheUsed(bytes);
     }
     return prev;
+}
+
+void SkGraphics::PurgeFontCache() {
+    SkGlyphCache::SetCacheUsed(0);
 }
 
