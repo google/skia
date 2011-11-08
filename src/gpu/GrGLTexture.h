@@ -55,6 +55,7 @@ public:
         GrGLenum fFilter;
         GrGLenum fWrapS;
         GrGLenum fWrapT;
+        GrGLenum fSwizzleRGBA[4];
         void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 

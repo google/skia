@@ -576,6 +576,14 @@ void GrGpuGL::initStencilFormats() {
     }
 }
 
+GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) {
+    if (GR_GL_RGBA_8888_READBACK_SLOW && GrPixelConfigIsRGBA8888(config)) {
+        return GrPixelConfigSwapRAndB(config);
+    } else {
+        return config;
+    }
+}
+
 void GrGpuGL::onResetContext() {
     if (gPrintStartupSpew && !fPrintedCaps) {
         fPrintedCaps = true;
@@ -1036,40 +1044,6 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-namespace {
-void set_tex_swizzle(GrPixelConfig config, const GrGLInterface* gl) {
-    // Today we always use GL_ALPHA for kAlpha_8_GrPixelConfig. However,
-    // this format is deprecated sometimes isn't a renderable format. If we
-    // were to spoof it in the future with GL_RED we'd want to notice that
-    // here.
-    // This isn't recorded in our tex params struct becauase we infer it
-    // from the pixel config.
-    const GrGLint* swiz;
-    if (GrPixelConfigIsAlphaOnly(config)) {
-        static const GrGLint gAlphaSwiz[] = {GR_GL_ALPHA, GR_GL_ALPHA,
-                                             GR_GL_ALPHA, GR_GL_ALPHA};
-        swiz = gAlphaSwiz;
-    } else {
-        static const GrGLint gColorSwiz[] = {GR_GL_RED,  GR_GL_GREEN,
-                                             GR_GL_BLUE, GR_GL_ALPHA};
-        swiz = gColorSwiz;
-    }
-    // should add texparameteri to interface to make 1 instead of 4 calls here
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_R,
-                                 swiz[0]));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_G,
-                                 swiz[1]));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_B,
-                                 swiz[2]));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_A,
-                                 swiz[3]));
-}
-}
-
 GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                     const void* srcData,
                                     size_t rowBytes) {
@@ -1149,29 +1123,27 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     this->setSpareTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTexDesc.fTextureID));
 
-    // Some drivers like to know these before seeing glTexImage2D. Some drivers
-    // have a bug where an FBO won't be complete if it includes a texture that
-    // is not complete (i.e. has mip levels or non-mip min filter).
-    static const GrGLTexture::TexParams DEFAULT_TEX_PARAMS = {
-        GR_GL_NEAREST,
-        GR_GL_CLAMP_TO_EDGE,
-        GR_GL_CLAMP_TO_EDGE
-    };
+    // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
+    // drivers have a bug where an FBO won't be complete if it includes a
+    // texture that is not mipmap complete (considering the filter in use).
+    GrGLTexture::TexParams initialTexParams;
+    // we only set a subset here so invalidate first
+    initialTexParams.invalidate();
+    initialTexParams.fFilter = GR_GL_NEAREST;
+    initialTexParams.fWrapS = GR_GL_CLAMP_TO_EDGE;
+    initialTexParams.fWrapT = GR_GL_CLAMP_TO_EDGE;
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_MAG_FILTER,
-                          DEFAULT_TEX_PARAMS.fFilter));
+                          initialTexParams.fFilter));
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_MIN_FILTER,
-                          DEFAULT_TEX_PARAMS.fFilter));
+                          initialTexParams.fFilter));
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_WRAP_S,
-                          DEFAULT_TEX_PARAMS.fWrapS));
+                          initialTexParams.fWrapS));
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_WRAP_T,
-                          DEFAULT_TEX_PARAMS.fWrapT));
-    if (fGLCaps.fTextureSwizzle) {
-        set_tex_swizzle(desc.fConfig, this->glInterface());
-    }
+                          initialTexParams.fWrapT));
     this->allocateAndUploadTexData(glTexDesc, internalFormat,srcData, rowBytes);
 
     GrGLTexture* tex;
@@ -1190,7 +1162,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     } else {
         tex = new GrGLTexture(this, glTexDesc);
     }
-    tex->setCachedTexParams(DEFAULT_TEX_PARAMS, this->getResetTimestamp());
+    tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
     GrPrintf("--- new texture [%d] size=(%d %d) config=%d\n",
              glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
@@ -2057,7 +2029,9 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
     }
 }
 
-static unsigned grToGLFilter(GrSamplerState::Filter filter) {
+namespace {
+
+unsigned gr_to_gl_filter(GrSamplerState::Filter filter) {
     switch (filter) {
         case GrSamplerState::kBilinear_Filter:
         case GrSamplerState::k4x4Downsample_Filter:
@@ -2069,6 +2043,40 @@ static unsigned grToGLFilter(GrSamplerState::Filter filter) {
             GrAssert(!"Unknown filter type");
             return GR_GL_LINEAR;
     }
+}
+
+const GrGLenum* get_swizzle(GrPixelConfig config,
+                            const GrSamplerState& sampler) {
+    if (GrPixelConfigIsAlphaOnly(config)) {
+        static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
+                                                GR_GL_ALPHA, GR_GL_ALPHA };
+        return gAlphaSmear;
+    } else if (sampler.swapsRAndB()) {
+        static const GrGLenum gRedBlueSwap[] = { GR_GL_BLUE, GR_GL_GREEN,
+                                                 GR_GL_RED,  GR_GL_ALPHA };
+        return gRedBlueSwap;
+    } else {
+        static const GrGLenum gStraight[] = { GR_GL_RED, GR_GL_GREEN,
+                                              GR_GL_BLUE,  GR_GL_ALPHA };
+        return gStraight;
+    }
+}
+
+void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
+    // should add texparameteri to interface to make 1 instead of 4 calls here
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_R,
+                                 swizzle[0]));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_G,
+                                 swizzle[1]));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_B,
+                                 swizzle[2]));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
+                                 GR_GL_TEXTURE_SWIZZLE_A,
+                                 swizzle[3]));
+}
 }
 
 bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
@@ -2114,51 +2122,44 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             bool setAll = timestamp < this->getResetTimestamp();
             GrGLTexture::TexParams newTexParams;
 
-            newTexParams.fFilter = grToGLFilter(sampler.getFilter());
+            newTexParams.fFilter = gr_to_gl_filter(sampler.getFilter());
 
             const GrGLenum* wraps = 
                                 GrGLTexture::WrapMode2GLWrap(this->glBinding());
             newTexParams.fWrapS = wraps[sampler.getWrapX()];
             newTexParams.fWrapT = wraps[sampler.getWrapY()];
-            if (setAll) {
+            memcpy(newTexParams.fSwizzleRGBA,
+                   get_swizzle(nextTexture->config(), sampler),
+                   sizeof(newTexParams.fSwizzleRGBA));
+            if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
                 setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                      GR_GL_TEXTURE_MAG_FILTER,
-                                      newTexParams.fFilter));
+                                        GR_GL_TEXTURE_MAG_FILTER,
+                                        newTexParams.fFilter));
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                      GR_GL_TEXTURE_MIN_FILTER,
-                                      newTexParams.fFilter));
+                                        GR_GL_TEXTURE_MIN_FILTER,
+                                        newTexParams.fFilter));
+            }
+            if (setAll || newTexParams.fWrapS != oldTexParams.fWrapS) {
+                setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                      GR_GL_TEXTURE_WRAP_S,
-                                      newTexParams.fWrapS));
+                                        GR_GL_TEXTURE_WRAP_S,
+                                        newTexParams.fWrapS));
+            }
+            if (setAll || newTexParams.fWrapT != oldTexParams.fWrapT) {
+                setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                      GR_GL_TEXTURE_WRAP_T,
-                                      newTexParams.fWrapT));
-                if (this->glCaps().fTextureSwizzle) {
-                    set_tex_swizzle(nextTexture->config(), this->glInterface());
-                }
-            } else {
-                if (newTexParams.fFilter != oldTexParams.fFilter) {
-                    setTextureUnit(s);
-                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                          GR_GL_TEXTURE_MAG_FILTER,
-                                          newTexParams.fFilter));
-                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                          GR_GL_TEXTURE_MIN_FILTER,
-                                          newTexParams.fFilter));
-                }
-                if (newTexParams.fWrapS != oldTexParams.fWrapS) {
-                    setTextureUnit(s);
-                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                          GR_GL_TEXTURE_WRAP_S,
-                                          newTexParams.fWrapS));
-                }
-                if (newTexParams.fWrapT != oldTexParams.fWrapT) {
-                    setTextureUnit(s);
-                    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                          GR_GL_TEXTURE_WRAP_T,
-                                          newTexParams.fWrapT));
-                }
+                                        GR_GL_TEXTURE_WRAP_T,
+                                        newTexParams.fWrapT));
+            }
+            if (this->glCaps().fTextureSwizzle &&
+                (setAll ||
+                 memcmp(newTexParams.fSwizzleRGBA,
+                        oldTexParams.fSwizzleRGBA,
+                        sizeof(newTexParams.fSwizzleRGBA)))) {
+                setTextureUnit(s);
+                set_tex_swizzle(newTexParams.fSwizzleRGBA,
+                                this->glInterface());
             }
             nextTexture->setCachedTexParams(newTexParams,
                                             this->getResetTimestamp());

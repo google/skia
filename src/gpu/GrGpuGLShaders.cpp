@@ -272,7 +272,7 @@ bool GrGpuGLShaders::programUnitTest() {
             idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
             StageDesc& stage = pdesc.fStages[s];
             stage.fOptFlags = STAGE_OPTS[idx];
-            stage.fInputConfig = random_val(&random, StageDesc::kInputConfigCnt);
+            stage.fSwizzle = random_val(&random, StageDesc::kSwizzleCnt);
             stage.fCoordMapping =  random_val(&random, StageDesc::kCoordMappingCnt);
             stage.fFetchMode = random_val(&random, StageDesc::kFetchModeCnt);
             // convolution shaders don't work with persp tex matrix
@@ -1001,14 +1001,19 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 stage.fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
             }
 
-            if (!this->glCaps().fTextureSwizzle &&
-                GrPixelConfigIsAlphaOnly(texture->config())) {
-                // if we don't have texture swizzle support then
-                // the shader must do an alpha smear after reading
-                // the texture
-                stage.fInputConfig = StageDesc::kAlphaOnly_InputConfig;
+            if (!this->glCaps().fTextureSwizzle) {
+                if (GrPixelConfigIsAlphaOnly(texture->config())) {
+                    // if we don't have texture swizzle support then
+                    // the shader must do an alpha smear after reading
+                    // the texture
+                    stage.fSwizzle = StageDesc::kAlphaSmear_Swizzle;
+                } else if (sampler.swapsRAndB()) {
+                    stage.fSwizzle = StageDesc::kSwapRAndB_Swizzle;
+                } else {
+                    stage.fSwizzle = StageDesc::kNone_Swizzle;
+                }
             } else {
-                stage.fInputConfig = StageDesc::kColor_InputConfig;
+                stage.fSwizzle = StageDesc::kNone_Swizzle;
             }
 
             if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
@@ -1018,8 +1023,8 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
             }
         } else {
             stage.fOptFlags     = 0;
-            stage.fCoordMapping = (StageDesc::CoordMapping)0;
-            stage.fInputConfig  = (StageDesc::InputConfig)0;
+            stage.fCoordMapping = (StageDesc::CoordMapping) 0;
+            stage.fSwizzle      = (StageDesc::Swizzle) 0;
             stage.fFetchMode    = (StageDesc::FetchMode) 0;
             stage.fKernelWidth  = 0;
         }

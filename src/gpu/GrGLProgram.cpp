@@ -1460,7 +1460,7 @@ void gen2x2FS(int stageNum,
               GrStringBuilder* sampleCoords,
               const char* samplerName,
               const char* texelSizeName,
-              const char* smear,
+              const char* swizzle,
               const char* fsOutColor,
               GrStringBuilder& texFunc,
               GrStringBuilder& modulate,
@@ -1479,10 +1479,10 @@ void gen2x2FS(int stageNum,
     GrAssert(2 == coordDims);
     GrStringBuilder accumVar("accum");
     accumVar.appendS32(stageNum);
-    segments->fFSCode.appendf("\tvec4 %s  = %s(%s, %s + vec2(-%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
-    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
-    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
-    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
+    segments->fFSCode.appendf("\tvec4 %s  = %s(%s, %s + vec2(-%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, swizzle);
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, swizzle);
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, swizzle);
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, swizzle);
     segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), modulate.c_str());
 
 }
@@ -1522,7 +1522,7 @@ void genConvolutionFS(int stageNum,
                       ShaderCodeSegments* segments,
                       const char* samplerName,
                       const char* kernelName,
-                      const char* smear,
+                      const char* swizzle,
                       const char* imageIncrementName,
                       const char* fsOutColor,
                       GrStringBuilder& sampleCoords,
@@ -1542,7 +1542,7 @@ void genConvolutionFS(int stageNum,
                               desc.fKernelWidth);
     segments->fFSCode.appendf("\t\t%s += %s(%s, %s)%s * %s[i];\n",
                               sumVar.c_str(), texFunc.c_str(),
-                              samplerName, coordVar.c_str(), smear,
+                              samplerName, coordVar.c_str(), swizzle,
                               kernelName);
     segments->fFSCode.appendf("\t\t%s += %s;\n",
                               coordVar.c_str(),
@@ -1708,12 +1708,19 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
 
     };
 
-    const char* smear;
-    if (desc.fInputConfig == StageDesc::kAlphaOnly_InputConfig) {
-        smear = ".aaaa";
-    } else {
-        smear = "";
+    const char* swizzle;
+    switch (desc.fSwizzle) {
+        case StageDesc::kAlphaSmear_Swizzle:
+            swizzle = ".aaaa";
+            break;
+        case StageDesc::kSwapRAndB_Swizzle:
+            swizzle = ".bgra";
+            break;
+        case StageDesc::kNone_Swizzle:
+            swizzle = "";
+            break;
     }
+
     GrStringBuilder modulate;
     if (NULL != fsInColor) {
         modulate.printf(" * %s", fsInColor);
@@ -1738,19 +1745,19 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
     switch (desc.fFetchMode) {
     case StageDesc::k2x2_FetchMode:
         gen2x2FS(stageNum, segments, locations, &sampleCoords,
-            samplerName, texelSizeName, smear, fsOutColor,
+            samplerName, texelSizeName, swizzle, fsOutColor,
             texFunc, modulate, complexCoord, coordDims);
         break;
     case StageDesc::kConvolution_FetchMode:
         genConvolutionFS(stageNum, desc, segments,
-            samplerName, kernelName, smear, imageIncrementName, fsOutColor,
+            samplerName, kernelName, swizzle, imageIncrementName, fsOutColor,
             sampleCoords, texFunc, modulate);
         break;
     default:
         segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
                                   fsOutColor, texFunc.c_str(), 
                                   samplerName, sampleCoords.c_str(),
-                                  smear, modulate.c_str());
+                                  swizzle, modulate.c_str());
     }
 }
 

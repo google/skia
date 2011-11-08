@@ -125,19 +125,26 @@ public:
 
                 kFetchModeCnt,
             };
-            enum InputConfig {
+            /**
+              Describes how to swizzle the texture's components. If swizzling
+              can be applied outside of the shader (GL_ARB_texture_swizzle) that
+              is preferrable to using this enum. Changing the enum value used
+              causes another program to be generated.
+             */
+            enum Swizzle {
                 /**
-                  The texture has r,g,b, and optionally a.
+                  No swizzling applied to the inputs
                  */
-                kColor_InputConfig,
+                kNone_Swizzle,
                 /**
-                  The texture is alpha only. This should only be used if the
-                  caller is unable to map the r,g,b sample values to the
-                  texture's alpha channel (GL_ARB_texture_swizzle).
+                  Swap the R and B channels
+                 */
+                kSwapRAndB_Swizzle,
+                /**
+                 Smear alpha across all four channels.
                 */
-                kAlphaOnly_InputConfig,
-
-                kInputConfigCnt
+                kAlphaSmear_Swizzle,
+                kSwizzleCnt
             };
             enum CoordMapping {
                 kIdentity_CoordMapping,
@@ -151,7 +158,7 @@ public:
             };
 
             uint8_t fOptFlags;
-            uint8_t fInputConfig;   // casts to enum InputConfig
+            uint8_t fSwizzle;       // casts to enum Swizzle
             uint8_t fFetchMode;     // casts to enum FetchMode
             uint8_t fCoordMapping;  // casts to enum CoordMapping
             uint8_t fKernelWidth;

@@ -184,6 +184,17 @@ public:
     void forceRenderTargetFlush();
 
     /**
+     * readPixels with some configs may be slow. Given a desired config this
+     * function returns a fast-path config. The returned config must have the
+     * same components, component sizes, and not require conversion between
+     * pre- and unpremultiplied alpha. The caller is free to ignore the result
+     * and call readPixels with the original config.
+     */
+    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config) {
+        return config;
+    }
+
+    /**
      * OpenGL's readPixels returns the result bottom-to-top while the skia
      * API is top-to-bottom. Thus we have to do a y-axis flip. The obvious
      * solution is to have the subclass do the flip using either the CPU or GPU.

@@ -1673,19 +1673,30 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     this->flush();
 
     GrTexture* src = target->asTexture();
+    bool swapRAndB = NULL != src &&
+                     fGpu->preferredReadPixelsConfig(config) ==
+                     GrPixelConfigSwapRAndB(config);
 
     bool flipY = NULL != src &&
                  fGpu->readPixelsWillPayForYFlip(target, left, top,
                                                  width, height, config,
                                                  rowBytes);
+    bool alphaConversion = (!GrPixelConfigIsUnpremultiplied(target->config()) &&
+                             GrPixelConfigIsUnpremultiplied(config));
 
-    if (flipY || (!GrPixelConfigIsUnpremultiplied(target->config()) &&
-                  GrPixelConfigIsUnpremultiplied(config))) {
-        if (!src) {
-            // we should fallback to cpu conversion here. This could happen when
-            // we were given an external render target by the client that is not
-            // also a texture (e.g. FBO 0 in GL)
-            return false;
+    if (NULL == src && alphaConversion) {
+        // we should fallback to cpu conversion here. This could happen when
+        // we were given an external render target by the client that is not
+        // also a texture (e.g. FBO 0 in GL)
+        return false;
+    }
+
+    // we draw to a scratch texture if any of these conversion are applied
+    if (flipY || swapRAndB || alphaConversion) {
+        GrAssert(NULL != src);
+        if (swapRAndB) {
+            config = GrPixelConfigSwapRAndB(config);
+            GrAssert(kUnknown_GrPixelConfig != config);
         }
         // Make the scratch a render target because we don't have a robust
         // readTexturePixels as of yet (it calls this function).
@@ -1715,6 +1726,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 
         GrSamplerState sampler;
         sampler.setClampNoFilter();
+        sampler.setRAndBSwap(swapRAndB);
         GrMatrix matrix;
         if (flipY) {
             matrix.setTranslate(SK_Scalar1 * left,
