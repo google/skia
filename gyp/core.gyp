@@ -343,10 +343,12 @@
         [ 'skia_os == "android"', {
           'sources!': [
             '../src/opts/opts_check_SSE2.cpp',
+            '../src/ports/SkDebug_stdio.cpp',
           ],
           'sources': [
             '../include/core/SkMMapStream.h',
             '../src/core/SkMMapStream.cpp',
+            '../src/ports/SkDebug_android.cpp',
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontHost_android.cpp',
             '../src/ports/SkFontHost_gamma.cpp',
