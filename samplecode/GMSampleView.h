@@ -28,7 +28,9 @@ public:
 protected:
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, fGM->shortName());
+            SkString name("GM ");
+            name.append(fGM->shortName());
+            SampleCode::TitleR(evt, name.c_str());
             return true;
         }
         return this->INHERITED::onQuery(evt);
