@@ -22,25 +22,10 @@
 #endif
 
 /*
- *  The default 32bit pixel config for texture upload is GL_RGBA on all
- *  platforms except on Windows where it is GL_BGRA. If your bitmaps map to a
- *  different GL enum, specify that with this define. For portability use
- *  GR_BGRA rather than GL_BGRA for platforms where this format is an
- *  extension.
- */
-//#define GR_GL_32BPP_COLOR_FORMAT  GL_RGBA
-
-/*
  *  To diagnose texture cache performance, define this to 1 if you want to see
  *  a log statement everytime we upload an image to create a texture.
  */
 //#define GR_DUMP_TEXTURE_UPLOAD    1
-
-/*
- * To log all GL calls define this. Can be turned on and off at runtime by
- * gPrintGL global variable.
- */
-//#define GR_GL_LOG_CALLS 1
 
 /*
  * When drawing rects this causes Ganesh to use a vertex buffer containing
@@ -62,11 +47,6 @@
  * may always be implemented using a lock)
  */
 //#define GR_GEOM_BUFFER_LOCK_THRESHOLD (1<<15)
-
-///////////////////////////////////////////////////////////////////////////////
-/*
- *  temporary flags (may go away soon)
- */
 
 ///////////////////////////////////////////////////////////////////////////////
 // Decide Ganesh types
