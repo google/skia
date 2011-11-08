@@ -154,7 +154,7 @@
         'libraries': [
           '-lstdc++',
           '-lm',
-
+          '-llog',
         ],
         'conditions': [
           [ 'skia_target_arch == "arm" and arm_thumb == 1', {
