@@ -283,7 +283,7 @@ public:
      */
     bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op);
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     /** Returns a new char* containing the list of rectangles in this region
      */
     char* toString();

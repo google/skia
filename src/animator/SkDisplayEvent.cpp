@@ -255,7 +255,7 @@ bool SkDisplayEvent::setProperty(int index, SkScriptValue& value) {
     return true;
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 
 #include "SkMetaData.h"
 #include "SkParse.h"

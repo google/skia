@@ -124,7 +124,7 @@ public:
     virtual Factory getFactory() const { return NULL; }
     virtual void flatten(SkFlattenableWriteBuffer&) const;
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     /**
      *  Acquire a "global" ref on this object.
      *  The default implementation just calls ref(), but subclasses can override

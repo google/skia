@@ -32,7 +32,7 @@ void sk_memset32_portable(uint32_t dst[], uint32_t value, int count);
 typedef void (*SkMemset32Proc)(uint32_t dst[], uint32_t value, int count);
 SkMemset32Proc SkMemset32GetPlatformProc();
 
-#if defined(ANDROID) && !defined(SK_BUILD_FOR_ANDROID_NDK)
+#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_NDK)
     #include "cutils/memory.h"
     
     #define sk_memset16(dst, value, count)    android_memset16(dst, value, (count) << 1)

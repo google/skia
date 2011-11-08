@@ -278,7 +278,7 @@ public:
     static void SetSubpixelOrder(LCDOrder order);
     static LCDOrder GetSubpixelOrder();
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     ///////////////////////////////////////////////////////////////////////////
 
     /**

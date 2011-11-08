@@ -723,7 +723,7 @@ public:
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint);
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     /** Draw the text on path, with each character/glyph origin specified by the pos[]
         array. The origin is interpreted by the Align setting in the paint.
         @param text The text to be drawn

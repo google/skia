@@ -32,7 +32,7 @@
 
 #define SK_DefaultFlags         0   //(kNativeHintsText_Flag)
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 #define GEN_ID_INC                  fGenerationID++
 #define GEN_ID_INC_EVAL(expression) if (expression) { fGenerationID++; }
 #else
@@ -71,7 +71,7 @@ SkPaint::SkPaint() {
     fStyle      = kFill_Style;
     fTextEncoding = kUTF8_TextEncoding;
     fHinting    = kNormal_Hinting;
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
 #endif
 }
@@ -125,11 +125,11 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     SkSafeUnref(fLooper);
     SkSafeUnref(fImageFilter);
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     uint32_t oldGenerationID = fGenerationID;
 #endif
     memcpy(this, &src, sizeof(src));
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = oldGenerationID + 1;
 #endif
 
@@ -143,16 +143,16 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
 void SkPaint::reset() {
     SkPaint init;
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     uint32_t oldGenerationID = fGenerationID;
 #endif
     *this = init;
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = oldGenerationID + 1;
 #endif
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 uint32_t SkPaint::getGenerationID() const {
     return fGenerationID;
 }
@@ -377,7 +377,7 @@ static void DetachDescProc(const SkDescriptor* desc, void* context) {
     *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(desc);
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 const SkGlyph& SkPaint::getUnicharMetrics(SkUnichar text) {
     SkGlyphCache* cache;
     descriptorProc(NULL, DetachDescProc, &cache, true);

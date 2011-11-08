@@ -1973,7 +1973,7 @@ void SkDraw::drawTextOnPath(const char text[], size_t byteLength,
     }
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 void SkDraw::drawPosTextOnPath(const char text[], size_t byteLength,
                                const SkPoint pos[], const SkPaint& paint,
                                const SkPath& path, const SkMatrix* matrix) const {

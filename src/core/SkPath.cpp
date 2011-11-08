@@ -93,7 +93,7 @@ SkPath::SkPath()
     , fBoundsIsDirty(true) {
     fConvexity = kUnknown_Convexity;
     fSegmentMask = 0;
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
 #endif
 }
@@ -101,7 +101,7 @@ SkPath::SkPath()
 SkPath::SkPath(const SkPath& src) {
     SkDEBUGCODE(src.validate();)
     *this = src;
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     // the assignment operator above increments the ID so correct for that here
     fGenerationID--;
 #endif
@@ -156,7 +156,7 @@ void SkPath::swap(SkPath& other) {
     }
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 uint32_t SkPath::getGenerationID() const {
     return fGenerationID;
 }

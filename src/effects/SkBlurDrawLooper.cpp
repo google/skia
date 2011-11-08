@@ -82,7 +82,7 @@ bool SkBlurDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
                 fState = kDone;
                 return false;
             }
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
             SkColor blurColor;
             blurColor = fBlurColor;
             if (SkColorGetA(blurColor) == 255) {

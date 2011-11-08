@@ -498,7 +498,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     SkipClipRec skipRect, skipRegion, skipPath;
 #endif
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     SkAutoMutexAcquire autoMutex(fDrawMutex);
 #endif
 

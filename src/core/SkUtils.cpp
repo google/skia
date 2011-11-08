@@ -108,7 +108,7 @@ void sk_memset32_portable(uint32_t dst[], uint32_t value, int count) {
     }
 }
 
-#if !defined(ANDROID) || defined(SK_BUILD_FOR_ANDROID_NDK)
+#if !defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_ANDROID_NDK)
 static void sk_memset16_stub(uint16_t dst[], uint16_t value, int count) {
     SkMemset16Proc proc = SkMemset16GetPlatformProc();
     sk_memset16 = proc ? proc : sk_memset16_portable;

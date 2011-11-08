@@ -150,7 +150,7 @@ public:
     void rotateY(SkScalar deg);
     void rotateZ(SkScalar deg);
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     void setCameraLocation(SkScalar x, SkScalar y, SkScalar z);
 #endif
 
