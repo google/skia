@@ -29,6 +29,9 @@ public:
     GrGLBinding glBinding() const { return fGLBinding; }
     GrGLVersion glVersion() const { return fGLVersion; }
 
+    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
+                                                                    SK_OVERRIDE;
+
     virtual bool readPixelsWillPayForYFlip(
                                     GrRenderTarget* renderTarget,
                                     int left, int top,

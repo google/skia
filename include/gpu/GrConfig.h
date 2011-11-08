@@ -380,6 +380,7 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_MAX_OFFSCREEN_AA_SIZE    256
 #endif
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // tail section:
 //

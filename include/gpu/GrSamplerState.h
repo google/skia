@@ -112,6 +112,7 @@ public:
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
         fMatrix.setIdentity();
+        fSwapRAndB = false;
         fTextureDomain.setEmpty();
     }
 
@@ -125,6 +126,7 @@ public:
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
         fMatrix = matrix;
+        fSwapRAndB = false;
         fTextureDomain.setEmpty();
     }
 
@@ -138,6 +140,7 @@ public:
         fSampleMode = sample;
         fMatrix = matrix;
         fFilter = filter;
+        fSwapRAndB = false;
         fTextureDomain.setEmpty();
     }
 
@@ -151,6 +154,7 @@ public:
     int getKernelWidth() const { return fKernelWidth; }
     const float* getKernel() const { return fKernel; }
     const float* getImageIncrement() const { return fImageIncrement; }
+    bool swapsRAndB() const { return fSwapRAndB; }
 
     bool isGradient() const {
         return  kRadial_SampleMode == fSampleMode ||
@@ -177,6 +181,12 @@ public:
     void setTextureDomain(const GrRect& textureDomain) { fTextureDomain = textureDomain; }
 
     /**
+     * Swaps the R and B components when reading from the texture. Has no effect
+     * if the texture is alpha only.
+     */
+    void setRAndBSwap(bool swap) { fSwapRAndB = swap; }
+
+    /**
      *  Multiplies the current sampler matrix  a matrix
      *
      *  After this call M' = M*m where M is the old matrix, m is the parameter
@@ -201,6 +211,7 @@ public:
         fFilter = kNearest_Filter;
         fMatrix.setIdentity();
         fTextureDomain.setEmpty();
+        fSwapRAndB = false;
     }
 
     GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
@@ -246,6 +257,7 @@ private:
     SampleMode  fSampleMode;
     Filter      fFilter;
     GrMatrix    fMatrix;
+    bool        fSwapRAndB;
     GrRect      fTextureDomain;
 
     // these are undefined unless fSampleMode == kRadial2_SampleMode

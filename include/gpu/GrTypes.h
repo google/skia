@@ -319,6 +319,60 @@ enum GrPixelConfig {
 // has a different interpretation when skia is compiled BGRA.
 static const GrPixelConfig kRGBA_8888_GrPixelConfig = kSkia8888_PM_GrPixelConfig;
 
+// Returns true if the pixel config has 8bit r,g,b,a components in that byte
+// order
+static inline bool GrPixelConfigIsRGBA8888(GrPixelConfig config) {
+    switch (config) {
+        case kRGBA_8888_PM_GrPixelConfig:
+        case kRGBA_8888_UPM_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Returns true if the pixel config has 8bit b,g,r,a components in that byte
+// order
+static inline bool GrPixelConfigIsBGRA8888(GrPixelConfig config) {
+    switch (config) {
+        case kBGRA_8888_PM_GrPixelConfig:
+        case kBGRA_8888_UPM_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Returns true if the pixel config is 32 bits per pixel
+static inline bool GrPixelConfigIs32Bit(GrPixelConfig config) {
+    switch (config) {
+        case kRGBA_8888_PM_GrPixelConfig:
+        case kRGBA_8888_UPM_GrPixelConfig:
+        case kBGRA_8888_PM_GrPixelConfig:
+        case kBGRA_8888_UPM_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Takes a config and returns the equivalent config with the R and B order
+// swapped if such a config exists. Otherwise, kUnknown_GrPixelConfig
+static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
+    switch (config) {
+        case kBGRA_8888_PM_GrPixelConfig:
+            return kRGBA_8888_PM_GrPixelConfig;
+        case kBGRA_8888_UPM_GrPixelConfig:
+            return kRGBA_8888_UPM_GrPixelConfig;
+        case kRGBA_8888_PM_GrPixelConfig:
+            return kBGRA_8888_PM_GrPixelConfig;
+        case kRGBA_8888_UPM_GrPixelConfig:
+            return kBGRA_8888_UPM_GrPixelConfig;
+        default:
+            return kUnknown_GrPixelConfig;
+    }
+}
+
 static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
