@@ -62,6 +62,12 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     quad[3].set(fLeft, fBottom);
 }
 
+#ifdef SK_SCALAR_IS_FLOAT
+    #define SkFLOATCODE(code)   code
+#else
+    #define SkFLOATCODE(code)
+#endif
+
 void SkRect::set(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
 
@@ -87,17 +93,26 @@ void SkRect::set(const SkPoint pts[], int count) {
                   Sk2sComplimentAsScalar(b));
 #else
         SkScalar    l, t, r, b;
+        SkFLOATCODE(int isNaN;)
 
         l = r = pts[0].fX;
         t = b = pts[0].fY;
+        SkFLOATCODE(isNaN = (l != l) | (t != t);)
 
         for (int i = 1; i < count; i++) {
             SkScalar x = pts[i].fX;
             SkScalar y = pts[i].fY;
+            SkFLOATCODE(isNaN |= (x != x) | (y != y);)
 
             if (x < l) l = x; else if (x > r) r = x;
             if (y < t) t = y; else if (y > b) b = y;
         }
+
+#ifdef SK_SCALAR_IS_FLOAT
+        if (isNaN) {
+            l = t = r = b = 0;
+        }
+#endif
         this->set(l, t, r, b);
 #endif
     }

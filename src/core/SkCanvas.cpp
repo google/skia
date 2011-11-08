@@ -983,6 +983,16 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     SkPath devPath;
     path.transform(*fMCRec->fMatrix, &devPath);
 
+    // Check if the transfomation, or the original path itself
+    // made us empty. Note this can also happen if we contained NaN
+    // values. computing the bounds detects this, and will set our
+    // bounds to empty if that is the case. (see SkRect::set(pts, count))
+    if (devPath.getBounds().isEmpty()) {
+        // resetting the path will remove any NaN or other wanky values
+        // that might upset our scan converter.
+        devPath.reset();
+    }
+
     // if we called path.swap() we could avoid a deep copy of this path
     fClipStack.clipDevPath(devPath, op, doAA);
 
