@@ -105,6 +105,12 @@
  */
 //#define SkDebugf(...)  MyFunction(__VA_ARGS__)
 
+/*
+ *  To specify a different default font cache limit, define this. If this is
+ *  undefined, skia will use a built-in value.
+ */
+//#define SK_DEFAULT_FONT_CACHE_LIMIT   (1024 * 1024)
+
 /* If defined, use CoreText instead of ATSUI on OS X.
 */
 //#define SK_USE_MAC_CORE_TEXT

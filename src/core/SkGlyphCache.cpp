@@ -8,7 +8,7 @@
 
 
 #include "SkGlyphCache.h"
-#include "SkFontHost.h"
+#include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkTemplates.h"
 
@@ -545,9 +545,10 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     // if we have a fixed budget for our cache, do a purge here
     {
         size_t allocated = globals.fTotalMemoryUsed + cache->fMemoryUsed;
-        size_t amountToFree = SkFontHost::ShouldPurgeFontCache(allocated);
-        if (amountToFree)
-            (void)InternalFreeCache(&globals, amountToFree);
+        size_t budgeted = SkGraphics::GetFontCacheLimit();
+        if (allocated > budgeted) {
+            (void)InternalFreeCache(&globals, allocated - budgeted);
+        }
     }
 
     cache->attachToHead(&globals.fHead);
