@@ -74,6 +74,10 @@ extern bool is_transition(SkView* view);
 
 static SampleWindow* gSampleWindow;
 
+static void postEventToSink(SkEvent* evt, SkEventSink* sink) {
+    evt->setTargetID(sink->getSinkID())->post();
+}
+
 ///////////////
 class SampleWindow::DefaultDeviceManager : public SampleWindow::DeviceManager {
 public:
@@ -386,6 +390,7 @@ static const char gKeyEvtName[] = "SampleCode_Key_Event";
 static const char gTitleEvtName[] = "SampleCode_Title_Event";
 static const char gPrefSizeEvtName[] = "SampleCode_PrefSize_Event";
 static const char gFastTextEvtName[] = "SampleCode_FastText_Event";
+static const char gUpdateWindowTitleEvtName[] = "SampleCode_UpdateWindowTitle";
 
 bool SampleCode::CharQ(const SkEvent& evt, SkUnichar* outUni) {
     if (evt.isType(gCharEvtName, sizeof(gCharEvtName) - 1)) {
@@ -666,6 +671,12 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     if (this->height() && this->width()) {
         this->onSizeChange();
     }
+
+    // can't call this synchronously, since it may require a subclass to
+    // to implement, or the caller may need us to have returned from the
+    // constructor first. Hence we post an event to ourselves.
+//    this->updateTitle();
+    postEventToSink(new SkEvent(gUpdateWindowTitleEvtName), this);
 }
 
 SampleWindow::~SampleWindow() {
@@ -1258,6 +1269,10 @@ void SampleWindow::postAnimatingEvent() {
     }
 }
 bool SampleWindow::onEvent(const SkEvent& evt) {
+    if (evt.isType(gUpdateWindowTitleEvtName)) {
+        this->updateTitle();
+        return true;
+    }
     if (evt.isType(ANIMATING_EVENTTYPE)) {
         if (fAnimating) {
             this->nextSample();
