@@ -893,7 +893,8 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
                         inCoverage.c_str(),
                         &segments.fFSCode);
         if (ProgramDesc::kNo_OutputPM == fProgramDesc.fOutputPM) {
-            segments.fFSCode.appendf("\t%s = vec4(%s.rgb / %s.a, %s.a);\n",
+            segments.fFSCode.appendf("\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(%s.rgb / %s.a, %s.a);\n",
+                                     fsColorOutput,
                                      fsColorOutput,
                                      fsColorOutput,
                                      fsColorOutput,
