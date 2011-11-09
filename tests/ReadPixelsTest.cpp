@@ -324,12 +324,12 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
             SkCanvas::kRGBA_Premul_Config8888,
             SkCanvas::kRGBA_Unpremul_Config8888,
         };
-        for (int rect = 0; rect < SK_ARRAY_COUNT(testRects); ++rect) {
+        for (size_t rect = 0; rect < SK_ARRAY_COUNT(testRects); ++rect) {
             const SkIRect& srcRect = testRects[rect];
             for (BitmapInit bmi = kFirstBitmapInit;
                  bmi < kBitmapInitCnt;
                  bmi = nextBMI(bmi)) {
-                for (int c = 0; c < SK_ARRAY_COUNT(gReadConfigs); ++c) {
+                for (size_t c = 0; c < SK_ARRAY_COUNT(gReadConfigs); ++c) {
                     SkCanvas::Config8888 config8888 = gReadConfigs[c];
                     SkBitmap bmp;
                     init_bitmap(&bmp, srcRect, bmi);
