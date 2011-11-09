@@ -13,7 +13,9 @@
     '../gm/fontscaler.cpp',
     '../gm/gradients.cpp',
     '../gm/hairmodes.cpp',
-    '../gm/imageblur.cpp',
+#    commented out until SkPicture support for SkImageFilter is complete
+#    See http://code.google.com/p/skia/issues/detail?id=391
+#    '../gm/imageblur.cpp',
     '../gm/lcdtext.cpp',
     '../gm/ninepatchstretch.cpp',
     '../gm/nocolorbleed.cpp',
