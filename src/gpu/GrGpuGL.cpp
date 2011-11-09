@@ -622,8 +622,9 @@ void GrGpuGL::onResetContext() {
     fActiveTextureUnitIdx = -1;
 
     // illegal values
-    fHWDrawState.fSrcBlend = (GrBlendCoeff)-1;
-    fHWDrawState.fDstBlend = (GrBlendCoeff)-1;
+    //fHWDrawState.fSrcBlend = (GrBlendCoeff)(uint8_t)-1;
+    fHWDrawState.fSrcBlend = (GrBlendCoeff)0xFF;
+    fHWDrawState.fDstBlend = (GrBlendCoeff)(uint8_t)-1;
 
     fHWDrawState.fBlendConstant = 0x00000000;
     GL_CALL(BlendColor(0,0,0,0));
@@ -1872,7 +1873,8 @@ void GrGpuGL::flushStencil() {
                 GrAssert(settings->fFrontFunc < kBasicStencilFuncCount);
                 frontFunc = grToGLStencilFunc[settings->fFrontFunc];
             } else {
-                frontFunc = grToGLStencilFunc[ConvertStencilFunc(stencilClip, settings->fFrontFunc)];
+                frontFunc = grToGLStencilFunc[ConvertStencilFunc(
+                        stencilClip, settings->fFrontFunc)];
 
                 ConvertStencilFuncAndMask(settings->fFrontFunc,
                                           stencilClip,
@@ -1882,14 +1884,14 @@ void GrGpuGL::flushStencil() {
                                           &frontMask);
                 frontWriteMask &= userStencilMask;
             }
-            GrAssert(settings->fFrontFailOp >= 0 &&
-                     (unsigned) settings->fFrontFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
-            GrAssert(settings->fFrontPassOp >= 0 &&
-                     (unsigned) settings->fFrontPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
-            GrAssert(settings->fBackFailOp >= 0 &&
-                     (unsigned) settings->fBackFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
-            GrAssert(settings->fBackPassOp >= 0 &&
-                     (unsigned) settings->fBackPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrAssert((size_t)
+                settings->fFrontFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrAssert((size_t)
+                settings->fFrontPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrAssert((size_t)
+                settings->fBackFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrAssert((size_t)
+                settings->fBackPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
             if (this->getCaps().fTwoSidedStencilSupport) {
                 GrGLenum backFunc;
 
@@ -1902,7 +1904,8 @@ void GrGpuGL::flushStencil() {
                     GrAssert(settings->fBackFunc < kBasicStencilFuncCount);
                     backFunc = grToGLStencilFunc[settings->fBackFunc];
                 } else {
-                    backFunc = grToGLStencilFunc[ConvertStencilFunc(stencilClip, settings->fBackFunc)];
+                    backFunc = grToGLStencilFunc[ConvertStencilFunc(
+                        stencilClip, settings->fBackFunc)];
                     ConvertStencilFuncAndMask(settings->fBackFunc,
                                               stencilClip,
                                               clipStencilMask,

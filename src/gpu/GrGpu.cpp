@@ -331,9 +331,9 @@ const GrStencilSettings GrGpu::gClipStencilSettings = {
     kKeep_StencilOp,             kKeep_StencilOp,
     kKeep_StencilOp,             kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc, kAlwaysIfInClip_StencilFunc,
-    0,                           0,
-    0,                           0,
-    0,                           0
+    0x0000,                      0x0000,
+    0x0000,                      0x0000,
+    0x0000,                      0x0000
 };
 
 // mapping of clip-respecting stencil funcs to normal stencil funcs
@@ -580,6 +580,8 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
 #endif
             int count = clip.getElementCount();
             int clipBit = stencilBuffer->bits();
+            SkASSERT((clipBit <= 16) &&
+                     "Ganesh only handles 16b or smaller stencil buffers");
             clipBit = (1 << (clipBit-1));
             
             bool clearToInside;
@@ -647,9 +649,9 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                         kIncClamp_StencilOp, kIncClamp_StencilOp,
                         kIncClamp_StencilOp, kIncClamp_StencilOp,
                         kAlways_StencilFunc, kAlways_StencilFunc,
-                        0xffffffff,          0xffffffff,
-                        0x00000000,          0x00000000,
-                        0xffffffff,          0xffffffff,
+                        0xffff,              0xffff,
+                        0x0000,              0x0000,
+                        0xffff,              0xffff,
                     };
                     SET_RANDOM_COLOR
                     if (kRect_ClipType == clip.getElementType(c)) {

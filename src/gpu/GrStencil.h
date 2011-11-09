@@ -88,27 +88,25 @@ enum GrStencilOp {
  * Struct representing stencil state.
  */
 struct GrStencilSettings {
-    GrStencilOp   fFrontPassOp;     // op to perform when front faces pass
-    GrStencilOp   fBackPassOp;      // op to perform when back faces pass
-    GrStencilOp   fFrontFailOp;     // op to perform when front faces fail
-    GrStencilOp   fBackFailOp;      // op to perform when back faces fail
-    GrStencilFunc fFrontFunc;       // test function for front faces
-    GrStencilFunc fBackFunc;        // test function for back faces
-    unsigned int fFrontFuncMask;    // mask for front face test
-    unsigned int fBackFuncMask;     // mask for back face test
-    unsigned int fFrontFuncRef;     // reference value for front face test
-    unsigned int fBackFuncRef;      // reference value for back face test
-    unsigned int fFrontWriteMask;   // stencil write mask for front faces
-    unsigned int fBackWriteMask;    // stencil write mask for back faces
+    GrStencilOp fFrontPassOp : 8;    // op to perform when front faces pass
+    GrStencilOp fBackPassOp : 8;     // op to perform when back faces pass
+    GrStencilOp fFrontFailOp : 8;    // op to perform when front faces fail
+    GrStencilOp fBackFailOp : 8;     // op to perform when back faces fail
+    GrStencilFunc fFrontFunc : 8;    // test function for front faces
+    GrStencilFunc fBackFunc : 8;     // test function for back faces
+    unsigned short fFrontFuncMask;   // mask for front face test
+    unsigned short fBackFuncMask;    // mask for back face test
+    unsigned short fFrontFuncRef;    // reference value for front face test
+    unsigned short fBackFuncRef;     // reference value for back face test
+    unsigned short fFrontWriteMask;  // stencil write mask for front faces
+    unsigned short fBackWriteMask;   // stencil write mask for back faces
 
     bool operator == (const GrStencilSettings& s) const {
-        // make sure this is tightly packed.
-        GR_STATIC_ASSERT(0 == sizeof(GrStencilOp)%4);
-        GR_STATIC_ASSERT(0 == sizeof(GrStencilFunc)%4);
-        GR_STATIC_ASSERT(sizeof(GrStencilSettings) ==
-                        4*sizeof(GrStencilOp) +
-                        2*sizeof(GrStencilFunc) +
-                        6*sizeof(unsigned int));
+        // make sure this is tightly packed (< 4B padding).
+        GR_STATIC_ASSERT(sizeof(GrStencilSettings) / 4 ==
+                        (4*sizeof(uint8_t) +
+                         2*sizeof(uint8_t) +
+                         6*sizeof(unsigned short) + 3) / 4);
         return 0 == memcmp(this, &s, sizeof(GrStencilSettings));
     }
 
@@ -124,9 +122,9 @@ struct GrStencilSettings {
     void setSame(GrStencilOp passOp,
                  GrStencilOp failOp,
                  GrStencilFunc func,
-                 unsigned int funcMask,
-                 unsigned int funcRef,
-                 unsigned int writeMask) {
+                 unsigned short funcMask,
+                 unsigned short funcRef,
+                 unsigned short writeMask) {
         fFrontPassOp        = passOp;
         fBackPassOp         = passOp;
         fFrontFailOp        = failOp;
@@ -166,7 +164,7 @@ struct GrStencilSettings {
     }
     void invalidate()  {
         // just write an illegal value to the first member
-        fFrontPassOp = (GrStencilOp)-1;
+        fFrontPassOp = (GrStencilOp)(uint8_t)-1;
     }
 
 private:
