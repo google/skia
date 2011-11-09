@@ -16,6 +16,59 @@ static float float_blend(int src, int dst, float unit) {
     return dst + (src - dst) * unit;
 }
 
+static int blend31(int src, int dst, int a31) {
+    return dst + ((src - dst) * a31 * 2114 >> 16);
+    //    return dst + ((src - dst) * a31 * 33 >> 10);
+}
+
+static int blend31_slow(int src, int dst, int a31) {
+    int prod = src * a31 + (31 - a31) * dst + 16;
+    prod = (prod + (prod >> 5)) >> 5;
+    return prod;
+}
+
+static int blend31_round(int src, int dst, int a31) {
+    int prod = (src - dst) * a31 + 16;
+    prod = (prod + (prod >> 5)) >> 5;
+    return dst + prod;
+}
+
+static int blend31_old(int src, int dst, int a31) {
+    a31 += a31 >> 4;
+    return dst + ((src - dst) * a31 >> 5);
+}
+
+static void test_blend31() {
+    int failed = 0;
+    int death = 0;
+    for (int src = 0; src <= 255; src++) {
+        for (int dst = 0; dst <= 255; dst++) {
+            for (int a = 0; a <= 31; a++) {
+//                int r0 = blend31(src, dst, a);
+//                int r0 = blend31_round(src, dst, a);
+//                int r0 = blend31_old(src, dst, a);
+                int r0 = blend31_slow(src, dst, a);
+
+                float f = float_blend(src, dst, a / 31.f);
+                int r1 = (int)f;
+                int r2 = SkScalarRoundToInt(SkFloatToScalar(f));
+
+                if (r0 != r1 && r0 != r2) {
+                    printf("src:%d dst:%d a:%d result:%d float:%g\n",
+                                 src, dst, a, r0, f);
+                    failed += 1;
+                }
+                if (r0 > 255) {
+                    death += 1;
+                    printf("death src:%d dst:%d a:%d result:%d float:%g\n",
+                           src, dst, a, r0, f);
+                }
+            }
+        }
+    }
+    SkDebugf("---- failed %d death %d\n", failed, death);
+}
+
 static void test_blend(skiatest::Reporter* reporter) {
     for (int src = 0; src <= 255; src++) {
         for (int dst = 0; dst <= 255; dst++) {
@@ -499,6 +552,9 @@ static void TestMath(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     test_blend(reporter);
 #endif
+
+    // disable for now
+//    test_blend31();
 }
 
 #include "TestClassDef.h"
