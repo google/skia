@@ -214,6 +214,27 @@ void gen_stencil_key_values(const GrStencilBuffer* sb,
     gen_stencil_key_values(sb->width(), sb->height(),
                            sb->numSamples(), v);
 }
+
+// This should be subsumed by a future version of GrDrawState
+// It does not reset stage textures/samplers or per-vertex-edge-aa state since
+// they aren't used unless the vertex layout references them.
+// It also doesn't set the render target.
+void reset_target_state(GrDrawTarget* target){
+        target->setViewMatrix(GrMatrix::I());
+        target->setColorFilter(0, SkXfermode::kDst_Mode);
+        target->disableState(GrDrawTarget::kDither_StateBit |
+                             GrDrawTarget::kHWAntialias_StateBit |
+                             GrDrawTarget::kClip_StateBit |
+                             GrDrawTarget::kNoColorWrites_StateBit |
+                             GrDrawTarget::kEdgeAAConcave_StateBit);
+        target->setEdgeAAData(NULL, 0);
+        target->disableStencil();
+        target->setAlpha(0xFF);
+        target->setBlendFunc(kOne_BlendCoeff,
+                           kZero_BlendCoeff);
+        target->setFirstCoverageStage(GrDrawState::kNumStages);
+        target->setDrawFace(GrDrawState::kBoth_DrawFace);
+}
 }
 
 GrContext::TextureCacheEntry GrContext::findAndLockTexture(TextureKey key,
@@ -325,15 +346,11 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
 
         if (NULL != texture) {
             GrDrawTarget::AutoStateRestore asr(fGpu);
+            reset_target_state(fGpu);
+
             fGpu->setRenderTarget(texture->asRenderTarget());
             fGpu->setTexture(0, clampEntry.texture());
-            fGpu->disableStencil();
-            fGpu->setViewMatrix(GrMatrix::I());
-            fGpu->setAlpha(0xff);
-            fGpu->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
-            fGpu->disableState(GrDrawTarget::kDither_StateBit |
-                               GrDrawTarget::kClip_StateBit   |
-                               GrDrawTarget::kHWAntialias_StateBit);
+
             GrSamplerState::Filter filter;
             // if filtering is not desired then we want to ensure all
             // texels in the resampled image are copies of texels from
@@ -1712,17 +1729,12 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             return false;
         }
         target = texture->asRenderTarget();
-        fGpu->setRenderTarget(target);
         GrAssert(NULL != target);
 
         GrDrawTarget::AutoStateRestore asr(fGpu);
+        reset_target_state(fGpu);
 
-        fGpu->setViewMatrix(GrMatrix::I());
-        fGpu->setColorFilter(0, SkXfermode::kDst_Mode);
-        fGpu->disableState(GrDrawTarget::kClip_StateBit);
-        fGpu->setAlpha(0xFF);
-        fGpu->setBlendFunc(kOne_BlendCoeff,
-                           kZero_BlendCoeff);
+        fGpu->setRenderTarget(target);
 
         GrSamplerState sampler;
         sampler.setClampNoFilter();
@@ -1771,16 +1783,12 @@ void GrContext::writePixels(int left, int top, int width, int height,
     texture->uploadTextureData(0, 0, width, height, buffer, stride);
 
     GrDrawTarget::AutoStateRestore  asr(fGpu);
+    reset_target_state(fGpu);
 
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
     fGpu->setViewMatrix(matrix);
 
-    fGpu->setColorFilter(0, SkXfermode::kDst_Mode);
-    fGpu->disableState(GrDrawTarget::kClip_StateBit);
-    fGpu->setAlpha(0xFF);
-    fGpu->setBlendFunc(kOne_BlendCoeff,
-                       kZero_BlendCoeff);
     fGpu->setTexture(0, texture);
 
     GrSamplerState sampler;
