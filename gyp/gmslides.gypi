@@ -13,6 +13,7 @@
     '../gm/fontscaler.cpp',
     '../gm/gradients.cpp',
     '../gm/hairmodes.cpp',
+    '../gm/imageblur.cpp',
     '../gm/lcdtext.cpp',
     '../gm/ninepatchstretch.cpp',
     '../gm/nocolorbleed.cpp',

@@ -2008,7 +2008,7 @@ void GrContext::convolveInX(GrTexture* texture,
                             const SkRect& rect,
                             const float* kernel,
                             int kernelWidth) {
-    float imageIncrement[2] = {1.0f / texture->width(), 0.0f};
+    float imageIncrement[2] = {1.0f / texture->allocatedWidth(), 0.0f};
     convolve(texture, rect, imageIncrement, kernel, kernelWidth);
 }
 
@@ -2016,7 +2016,7 @@ void GrContext::convolveInY(GrTexture* texture,
                             const SkRect& rect,
                             const float* kernel,
                             int kernelWidth) {
-    float imageIncrement[2] = {0.0f, 1.0f / texture->height()};
+    float imageIncrement[2] = {0.0f, 1.0f / texture->allocatedHeight()};
     convolve(texture, rect, imageIncrement, kernel, kernelWidth);
 }
 
@@ -2031,12 +2031,12 @@ void GrContext::convolve(GrTexture* texture,
                            GrSamplerState::kClamp_WrapMode,
                            GrSamplerState::kConvolution_Filter);
     sampler.setConvolutionParams(kernelWidth, kernel, imageIncrement);
-    sampleM.setScale(GR_Scalar1 / texture->width(),
-                     GR_Scalar1 / texture->height());
+    sampleM.setIDiv(texture->width(), texture->height());
     sampler.setMatrix(sampleM);
     fGpu->setSamplerState(0, sampler);
     fGpu->setViewMatrix(GrMatrix::I());
     fGpu->setTexture(0, texture);
+    fGpu->setColor(0xFFFFFFFF);
     fGpu->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
