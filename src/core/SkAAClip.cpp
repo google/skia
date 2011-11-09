@@ -209,7 +209,7 @@ void SkAAClip::validate() const {
         prevOffset = yoff->fOffset;
         const uint8_t* row = head->data() + yoff->fOffset;
         size_t rowLength = compute_row_length(row, fBounds.width());
-        SkASSERT(yoff->fOffset + rowLength <= head->fDataSize);
+        SkASSERT(yoff->fOffset + rowLength <= (size_t) head->fDataSize);
         yoff += 1;
     }
     // check the last entry;
@@ -898,7 +898,7 @@ public:
             size_t n = row->fData->count();
             memcpy(data, row->fData->begin(), n);
 #ifdef SK_DEBUG
-            int bytesNeeded = compute_row_length(data, fBounds.width());
+            size_t bytesNeeded = compute_row_length(data, fBounds.width());
             SkASSERT(bytesNeeded == n);
 #endif
             data += n;

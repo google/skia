@@ -1721,7 +1721,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             kRenderTarget_GrTextureFlagBit,
             kNone_GrAALevel,
             width, height,
-            config
+            { config }
         };
         GrAutoScratchTexture ast(this, desc);
         GrTexture* texture = ast.texture();
@@ -1773,7 +1773,7 @@ void GrContext::writePixels(int left, int top, int width, int height,
     this->flush(kForceCurrentRenderTarget_FlushBit);
 
     const GrTextureDesc desc = {
-        kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
+        kNone_GrTextureFlags, kNone_GrAALevel, width, height, { config }
     };
     GrAutoScratchTexture ast(this, desc);
     GrTexture* texture = ast.texture();

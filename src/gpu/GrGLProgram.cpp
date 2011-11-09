@@ -1709,7 +1709,7 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
 
     };
 
-    const char* swizzle;
+    const char* swizzle = "";
     switch (desc.fSwizzle) {
         case StageDesc::kAlphaSmear_Swizzle:
             swizzle = ".aaaa";
@@ -1720,6 +1720,8 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
         case StageDesc::kNone_Swizzle:
             swizzle = "";
             break;
+        default:
+            GrCrash("Swizzle descriptor didn't match any expected value");
     }
 
     GrStringBuilder modulate;

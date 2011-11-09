@@ -156,6 +156,9 @@ public:
                     return false;
                 }
                 break;
+            case kRaster_DeviceType:
+            case kPicture_DeviceType:
+                break;
         }
         return true;
     }
@@ -1008,6 +1011,8 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
             case kPicture_DeviceType:
                 fPicture = new SkPicture;
                 canvas = fPicture->beginRecording(9999, 9999);
+                break;
+            case kNullGPU_DeviceType:
                 break;
         }
     }
