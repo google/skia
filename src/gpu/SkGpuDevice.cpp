@@ -17,6 +17,7 @@
 #include "SkColorFilter.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
+#include "SkImageFilter.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
@@ -689,11 +690,149 @@ static void buildKernel(float sigma, float* kernel, int kernelWidth) {
         kernel[i] *= scale;
 }
 
-static void scaleRect(SkRect* rect, float scale) {
-    rect->fLeft *= scale;
-    rect->fTop *= scale;
-    rect->fRight *= scale;
-    rect->fBottom *= scale;
+static void scaleRect(SkRect* rect, float xScale, float yScale) {
+    rect->fLeft *= xScale;
+    rect->fTop *= yScale;
+    rect->fRight *= xScale;
+    rect->fBottom *= yScale;
+}
+
+static float adjustSigma(float sigma, int *scaleFactor, int *halfWidth,
+                         int *kernelWidth) {
+    *scaleFactor = 1;
+    while (sigma > MAX_BLUR_SIGMA) {
+        *scaleFactor *= 2;
+        sigma *= 0.5f;
+    }
+    *halfWidth = static_cast<int>(ceilf(sigma * 3.0f));
+    *kernelWidth = *halfWidth * 2 + 1;
+    return sigma;
+}
+
+// Apply a Gaussian blur to srcTexture by sigmaX and sigmaY, within the given
+// rect.
+// temp1 and temp2 are used for allocation of intermediate textures.
+// If temp2 is non-NULL, srcTexture will be untouched, and the return 
+// value will be either temp1 or temp2.
+// If temp2 is NULL, srcTexture will be overwritten with intermediate
+// results, and the return value will either be temp1 or srcTexture.
+static GrTexture* gaussianBlur(GrContext* context, GrTexture* srcTexture,
+                               GrAutoScratchTexture* temp1,
+                               GrAutoScratchTexture* temp2,
+                               const SkRect& rect,
+                               float sigmaX, float sigmaY) {
+
+    GrRenderTarget* oldRenderTarget = context->getRenderTarget();
+    GrClip oldClip = context->getClip();
+    GrTexture* origTexture = srcTexture;
+    GrAutoMatrix avm(context, GrMatrix::I());
+    SkIRect clearRect;
+    int scaleFactorX, halfWidthX, kernelWidthX;
+    int scaleFactorY, halfWidthY, kernelWidthY;
+    sigmaX = adjustSigma(sigmaX, &scaleFactorX, &halfWidthX, &kernelWidthX);
+    sigmaY = adjustSigma(sigmaY, &scaleFactorY, &halfWidthY, &kernelWidthY);
+
+    SkRect srcRect(rect);
+    scaleRect(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
+    srcRect.roundOut();
+    scaleRect(&srcRect, scaleFactorX, scaleFactorY);
+    context->setClip(srcRect);
+
+    const GrTextureDesc desc = {
+        kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit,
+        kNone_GrAALevel,
+        srcRect.width(),
+        srcRect.height(),
+        kRGBA_8888_GrPixelConfig
+    };
+
+    temp1->set(context, desc);
+    if (temp2) temp2->set(context, desc);
+
+    GrTexture* dstTexture = temp1->texture();
+    GrPaint paint;
+    paint.reset();
+    paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+
+    for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
+        GrMatrix sampleM;
+        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
+        paint.getTextureSampler(0)->setMatrix(sampleM);
+        context->setRenderTarget(dstTexture->asRenderTarget());
+        SkRect dstRect(srcRect);
+        scaleRect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f, 
+                            i < scaleFactorY ? 0.5f : 1.0f);
+        paint.setTexture(0, srcTexture);
+        context->drawRectToRect(paint, dstRect, srcRect);
+        srcRect = dstRect;
+        SkTSwap(srcTexture, dstTexture);
+        // If temp2 is non-NULL, don't render back to origTexture
+        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+    }
+
+    if (sigmaX > 0.0f) {
+        SkAutoTMalloc<float> kernelStorageX(kernelWidthX);
+        float* kernelX = kernelStorageX.get();
+        buildKernel(sigmaX, kernelX, kernelWidthX);
+
+        if (scaleFactorX > 1) {
+            // Clear out a halfWidth to the right of the srcRect to prevent the
+            // X convolution from reading garbage.
+            clearRect = SkIRect::MakeXYWH(
+                srcRect.fRight, srcRect.fTop, halfWidthX, srcRect.height());
+            context->clear(&clearRect, 0x0);
+        }
+
+        context->setRenderTarget(dstTexture->asRenderTarget());
+        context->convolveInX(srcTexture, srcRect, kernelX, kernelWidthX);
+        SkTSwap(srcTexture, dstTexture);
+        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+    }
+
+    if (sigmaY > 0.0f) {
+        SkAutoTMalloc<float> kernelStorageY(kernelWidthY);
+        float* kernelY = kernelStorageY.get();
+        buildKernel(sigmaY, kernelY, kernelWidthY);
+
+        if (scaleFactorY > 1 || sigmaX > 0.0f) {
+            // Clear out a halfWidth below the srcRect to prevent the Y
+            // convolution from reading garbage.
+            clearRect = SkIRect::MakeXYWH(
+                srcRect.fLeft, srcRect.fBottom, srcRect.width(), halfWidthY);
+            context->clear(&clearRect, 0x0);
+        }
+
+        context->setRenderTarget(dstTexture->asRenderTarget());
+        context->convolveInY(srcTexture, srcRect, kernelY, kernelWidthY);
+        SkTSwap(srcTexture, dstTexture);
+        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+    }
+
+    if (scaleFactorX > 1 || scaleFactorY > 1) {
+        // Clear one pixel to the right and below, to accommodate bilinear
+        // upsampling.
+        clearRect = SkIRect::MakeXYWH(
+            srcRect.fLeft, srcRect.fBottom, srcRect.width() + 1, 1);
+        context->clear(&clearRect, 0x0);
+        clearRect = SkIRect::MakeXYWH(
+            srcRect.fRight, srcRect.fTop, 1, srcRect.height());
+        context->clear(&clearRect, 0x0);
+        // FIXME:  This should be mitchell, not bilinear.
+        paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+        GrMatrix sampleM;
+        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
+        paint.getTextureSampler(0)->setMatrix(sampleM);
+        context->setRenderTarget(dstTexture->asRenderTarget());
+        paint.setTexture(0, srcTexture);
+        SkRect dstRect(srcRect);
+        scaleRect(&dstRect, scaleFactorX, scaleFactorY);
+        context->drawRectToRect(paint, dstRect, srcRect);
+        srcRect = dstRect;
+        SkTSwap(srcTexture, dstTexture);
+    }
+    context->setRenderTarget(oldRenderTarget);
+    context->setClip(oldClip);
+    return srcTexture;
 }
 
 static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
@@ -716,33 +855,17 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         return false;
     }
     float sigma = SkScalarToFloat(radius) * BLUR_SIGMA_SCALE;
+    float sigma3 = sigma * 3.0f;
+
     SkRect srcRect = path.getBounds();
+    SkRect clipRect;
+    clipRect.set(clip.getBounds());
 
-    int scaleFactor = 1;
-
-    while (sigma > MAX_BLUR_SIGMA) {
-        scaleFactor *= 2;
-        sigma *= 0.5f;
-    }
-    int halfWidth = static_cast<int>(ceilf(sigma * 3.0f));
-    int kernelWidth = halfWidth * 2 + 1;
-
-    float invScale = 1.0f / scaleFactor;
-    scaleRect(&srcRect, invScale);
-    srcRect.roundOut();
-    srcRect.inset(-halfWidth, -halfWidth);
-
-    SkRect clipBounds;
-    clipBounds.set(clip.getBounds());
-    scaleRect(&clipBounds, invScale);
-    clipBounds.roundOut();
-    clipBounds.inset(-halfWidth, -halfWidth);
-
-    srcRect.intersect(clipBounds);
-
-    scaleRect(&srcRect, scaleFactor);
+    // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
+    srcRect.inset(-sigma3, -sigma3);
+    clipRect.inset(-sigma3, -sigma3);
+    srcRect.intersect(clipRect);
     SkRect finalRect = srcRect;
-
     SkIRect finalIRect;
     finalRect.roundOut(&finalIRect);
     if (clip.quickReject(finalIRect)) {
@@ -752,7 +875,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         return true;
     }
     GrPoint offset = GrPoint::Make(-srcRect.fLeft, -srcRect.fTop);
-    srcRect.offset(-srcRect.fLeft, -srcRect.fTop);
+    srcRect.offset(offset);
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit,
         kNone_GrAALevel,
@@ -763,21 +886,16 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         kRGBA_8888_PM_GrPixelConfig
     };
 
-    GrAutoScratchTexture srcEntry(context, desc);
-    GrAutoScratchTexture dstEntry(context, desc);
-    if (NULL == srcEntry.texture() || NULL == dstEntry.texture()) {
-        return false;
-    }
-    GrTexture* srcTexture = srcEntry.texture();
-    GrTexture* dstTexture = dstEntry.texture();
-    if (NULL == srcTexture || NULL == dstTexture) {
+    GrAutoScratchTexture pathEntry(context, desc);
+    GrTexture* pathTexture = pathEntry.texture();
+    if (NULL == pathTexture) {
         return false;
     }
     GrRenderTarget* oldRenderTarget = context->getRenderTarget();
     // Once this code moves into GrContext, this should be changed to use
     // an AutoClipRestore.
     GrClip oldClip = context->getClip();
-    context->setRenderTarget(dstTexture->asRenderTarget());
+    context->setRenderTarget(pathTexture->asRenderTarget());
     context->setClip(srcRect);
     context->clear(NULL, 0);
     GrPaint tempPaint;
@@ -795,95 +913,27 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         tempPaint.fSrcBlendCoeff = kOne_BlendCoeff;
         tempPaint.fDstBlendCoeff = kISC_BlendCoeff;
     }
-    // Draw hard shadow to dstTexture with path topleft at origin 0,0.
+    // Draw hard shadow to pathTexture with path topleft at origin 0,0.
     context->drawPath(tempPaint, path, skToGrFillType(path.getFillType()), &offset);
-    SkTSwap(srcTexture, dstTexture);
 
-    GrMatrix sampleM;
-    sampleM.setIDiv(srcTexture->width(), srcTexture->height());
-    GrPaint paint;
-    paint.reset();
-    paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
-    paint.getTextureSampler(0)->setMatrix(sampleM);
-    GrAutoScratchTexture origEntry;
+    GrAutoScratchTexture temp1, temp2;
+    // If we're doing a normal blur, we can clobber the pathTexture in the
+    // gaussianBlur.  Otherwise, we need to save it for later compositing.
+    bool isNormalBlur = blurType == SkMaskFilter::kNormal_BlurType;
+    GrTexture* blurTexture = gaussianBlur(context, pathTexture,
+                                          &temp1, isNormalBlur ? NULL : &temp2,
+                                          srcRect, sigma, sigma);
 
-    if (blurType != SkMaskFilter::kNormal_BlurType) {
-        // Stash away a copy of the unblurred image.
-        origEntry.set(context, desc);
-        if (NULL == origEntry.texture()) {
-            return false;
-        }
-        context->setRenderTarget(origEntry.texture()->asRenderTarget());
-        paint.setTexture(0, srcTexture);
-        context->drawRect(paint, srcRect);
-    }
-    for (int i = 1; i < scaleFactor; i *= 2) {
-        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
-        paint.getTextureSampler(0)->setMatrix(sampleM);
-        context->setRenderTarget(dstTexture->asRenderTarget());
-        SkRect dstRect(srcRect);
-        scaleRect(&dstRect, 0.5f);
-        paint.setTexture(0, srcTexture);
-        context->drawRectToRect(paint, dstRect, srcRect);
-        srcRect = dstRect;
-        SkTSwap(srcTexture, dstTexture);
-    }
-
-    SkAutoTMalloc<float> kernelStorage(kernelWidth);
-    float* kernel = kernelStorage.get();
-    buildKernel(sigma, kernel, kernelWidth);
-
-    // Clear out a halfWidth to the right of the srcRect to prevent the
-    // X convolution from reading garbage.
-    SkIRect clearRect = SkIRect::MakeXYWH(
-        srcRect.fRight, srcRect.fTop, halfWidth, srcRect.height());
-    context->clear(&clearRect, 0x0);
-
-    context->setRenderTarget(dstTexture->asRenderTarget());
-    context->convolveInX(srcTexture, srcRect, kernel, kernelWidth);
-    SkTSwap(srcTexture, dstTexture);
-
-    // Clear out a halfWidth below the srcRect to prevent the Y
-    // convolution from reading garbage.
-    clearRect = SkIRect::MakeXYWH(
-        srcRect.fLeft, srcRect.fBottom, srcRect.width(), halfWidth);
-    context->clear(&clearRect, 0x0);
-
-    context->setRenderTarget(dstTexture->asRenderTarget());
-    context->convolveInY(srcTexture, srcRect, kernel, kernelWidth);
-    SkTSwap(srcTexture, dstTexture);
-
-    // Clear one pixel to the right and below, to accommodate bilinear
-    // upsampling.
-    clearRect = SkIRect::MakeXYWH(
-        srcRect.fLeft, srcRect.fBottom, srcRect.width() + 1, 1);
-    context->clear(&clearRect, 0x0);
-    clearRect = SkIRect::MakeXYWH(
-        srcRect.fRight, srcRect.fTop, 1, srcRect.height());
-    context->clear(&clearRect, 0x0);
-
-    if (scaleFactor > 1) {
-        // FIXME:  This should be mitchell, not bilinear.
-        paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
-        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
-        paint.getTextureSampler(0)->setMatrix(sampleM);
-        context->setRenderTarget(dstTexture->asRenderTarget());
-        paint.setTexture(0, srcTexture);
-        SkRect dstRect(srcRect);
-        scaleRect(&dstRect, scaleFactor);
-        context->drawRectToRect(paint, dstRect, srcRect);
-        srcRect = dstRect;
-        SkTSwap(srcTexture, dstTexture);
-    }
-
-    if (blurType != SkMaskFilter::kNormal_BlurType) {
-        GrTexture* origTexture = origEntry.texture();
+    if (!isNormalBlur) {
+        GrPaint paint;
+        paint.reset();
         paint.getTextureSampler(0)->setFilter(GrSamplerState::kNearest_Filter);
-        sampleM.setIDiv(origTexture->width(), origTexture->height());
+        GrMatrix sampleM;
+        sampleM.setIDiv(pathTexture->width(), pathTexture->height());
         paint.getTextureSampler(0)->setMatrix(sampleM);
-        // Blend origTexture over srcTexture.
-        context->setRenderTarget(srcTexture->asRenderTarget());
-        paint.setTexture(0, origTexture);
+        // Blend pathTexture over blurTexture.
+        context->setRenderTarget(blurTexture->asRenderTarget());
+        paint.setTexture(0, pathTexture);
         if (SkMaskFilter::kInner_BlurType == blurType) {
             // inner:  dst = dst * src
             paint.fSrcBlendCoeff = kDC_BlendCoeff;
@@ -915,12 +965,12 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     static const int MASK_IDX = GrPaint::kMaxMasks - 1;
     // we assume the last mask index is available for use
     GrAssert(NULL == grp->getMask(MASK_IDX));
-    grp->setMask(MASK_IDX, srcTexture);
+    grp->setMask(MASK_IDX, blurTexture);
     grp->getMaskSampler(MASK_IDX)->setClampNoFilter();
 
     GrMatrix m;
     m.setTranslate(-finalRect.fLeft, -finalRect.fTop);
-    m.postIDiv(srcTexture->width(), srcTexture->height());
+    m.postIDiv(blurTexture->width(), blurTexture->height());
     grp->getMaskSampler(MASK_IDX)->setMatrix(m);
     context->drawRect(*grp, finalRect);
     return true;
@@ -1352,6 +1402,18 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
                                       GrIntToScalar(y),
                                       GrIntToScalar(w),
                                       GrIntToScalar(h));
+    SkImageFilter* imageFilter = paint.getImageFilter();
+    SkSize size;
+    if (NULL != imageFilter && imageFilter->asABlur(&size)) {
+        GrAutoScratchTexture temp1, temp2;
+        GrTexture* blurTexture = gaussianBlur(fContext,
+                                              devTex, &temp1, &temp2,
+                                              GrRect::MakeWH(w, h),
+                                              size.width(),
+                                              size.height());
+        grPaint.setTexture(kBitmapTextureIdx, blurTexture);
+        devTex = blurTexture;
+    }
     // The device being drawn may not fill up its texture (saveLayer uses
     // the approximate ).
     GrRect srcRect = GrRect::MakeWH(GR_Scalar1 * w / devTex->width(),

@@ -351,7 +351,7 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
  *  program.
  */
 #if !defined(GR_AGGRESSIVE_SHADER_OPTS)
-    #define GR_AGGRESSIVE_SHADER_OPTS 0
+    #define GR_AGGRESSIVE_SHADER_OPTS 1
 #endif
 
 /**
