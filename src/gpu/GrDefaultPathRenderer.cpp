@@ -45,9 +45,9 @@ static const GrStencilSettings gEOStencilPass = {
     kInvert_StencilOp,           kInvert_StencilOp,
     kKeep_StencilOp,             kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc, kAlwaysIfInClip_StencilFunc,
-    0xffffffff,                  0xffffffff,
-    0xffffffff,                  0xffffffff,
-    0xffffffff,                  0xffffffff
+    0xffff,                      0xffff,
+    0xffff,                      0xffff,
+    0xffff,                      0xffff
 };
 
 // ok not to check clip b/c stencil pass only wrote inside clip
@@ -55,9 +55,9 @@ static const GrStencilSettings gEOColorPass = {
     kZero_StencilOp,          kZero_StencilOp,
     kZero_StencilOp,          kZero_StencilOp,
     kNotEqual_StencilFunc,    kNotEqual_StencilFunc,
-    0xffffffff,               0xffffffff,
-    0x0,                      0x0,
-    0xffffffff,               0xffffffff
+    0xffff,                   0xffff,
+    0x0000,                   0x0000,
+    0xffff,                   0xffff
 };
 
 // have to check clip b/c outside clip will always be zero.
@@ -65,9 +65,9 @@ static const GrStencilSettings gInvEOColorPass = {
     kZero_StencilOp,            kZero_StencilOp,
     kZero_StencilOp,            kZero_StencilOp,
     kEqualIfInClip_StencilFunc, kEqualIfInClip_StencilFunc,
-    0xffffffff,                 0xffffffff,
-    0x0,                        0x0,
-    0xffffffff,                 0xffffffff
+    0xffff,                     0xffff,
+    0x0000,                     0x0000,
+    0xffff,                     0xffff
 };
 
 ////// Winding
@@ -80,9 +80,9 @@ static const GrStencilSettings gWindStencilSeparateWithWrap = {
     kIncWrap_StencilOp,             kDecWrap_StencilOp,
     kKeep_StencilOp,                kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0xffff,                         0xffff,
+    0xffff,                         0xffff
 };
 
 // if inc'ing the max value, invert to make 0
@@ -93,9 +93,9 @@ static const GrStencilSettings gWindStencilSeparateNoWrap = {
     kInvert_StencilOp,              kInvert_StencilOp,
     kIncClamp_StencilOp,            kDecClamp_StencilOp,
     kEqual_StencilFunc,             kEqual_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0x0,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0xffff,                         0x0000,
+    0xffff,                         0xffff
 };
 
 // When there are no separate faces we do two passes to setup the winding rule
@@ -106,51 +106,51 @@ static const GrStencilSettings gWindSingleStencilWithWrapInc = {
     kIncWrap_StencilOp,             kIncWrap_StencilOp,
     kKeep_StencilOp,                kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0xffff,                         0xffff,
+    0xffff,                         0xffff
 };
 static const GrStencilSettings gWindSingleStencilWithWrapDec = {
     kDecWrap_StencilOp,             kDecWrap_StencilOp,
     kKeep_StencilOp,                kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0xffff,                         0xffff,
+    0xffff,                         0xffff
 };
 static const GrStencilSettings gWindSingleStencilNoWrapInc = {
     kInvert_StencilOp,              kInvert_StencilOp,
     kIncClamp_StencilOp,            kIncClamp_StencilOp,
     kEqual_StencilFunc,             kEqual_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0xffff,                         0xffff,
+    0xffff,                         0xffff
 };
 static const GrStencilSettings gWindSingleStencilNoWrapDec = {
     kInvert_StencilOp,              kInvert_StencilOp,
     kDecClamp_StencilOp,            kDecClamp_StencilOp,
     kEqual_StencilFunc,             kEqual_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0x0,                            0x0,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0x0000,                         0x0000,
+    0xffff,                         0xffff
 };
 
 static const GrStencilSettings gWindColorPass = {
     kZero_StencilOp,                kZero_StencilOp,
     kZero_StencilOp,                kZero_StencilOp,
     kNonZeroIfInClip_StencilFunc,   kNonZeroIfInClip_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0x0,                            0x0,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0x0000,                         0x0000,
+    0xffff,                         0xffff
 };
 
 static const GrStencilSettings gInvWindColorPass = {
     kZero_StencilOp,                kZero_StencilOp,
     kZero_StencilOp,                kZero_StencilOp,
     kEqualIfInClip_StencilFunc,     kEqualIfInClip_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0x0,                            0x0,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0x0000,                         0x0000,
+    0xffff,                         0xffff
 };
 
 ////// Normal render to stencil
@@ -161,9 +161,9 @@ static const GrStencilSettings gDirectToStencil = {
     kZero_StencilOp,                kZero_StencilOp,
     kIncClamp_StencilOp,            kIncClamp_StencilOp,
     kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffffffff,                     0xffffffff,
-    0x0,                            0x0,
-    0xffffffff,                     0xffffffff
+    0xffff,                         0xffff,
+    0x0000,                         0x0000,
+    0xffff,                         0xffff
 };
 
 ////////////////////////////////////////////////////////////////////////////////

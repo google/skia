@@ -66,7 +66,9 @@ struct GrDrawState {
      * (below) should clamp to this value.
      */
     enum {
-        kMaxEdges = 32
+        // TODO: this should be 32 when GrTesselatedPathRenderer is used
+        // Visual Studio 2010 does not permit a member array of size 0.
+        kMaxEdges = 1
     };
 
     class Edge {
@@ -102,28 +104,78 @@ struct GrDrawState {
         fFirstCoverageStage = kNumStages;
     }
 
-    uint32_t                fFlagBits;
-    GrBlendCoeff            fSrcBlend;
-    GrBlendCoeff            fDstBlend;
+    uint8_t                 fFlagBits;
+    GrBlendCoeff            fSrcBlend : 8;
+    GrBlendCoeff            fDstBlend : 8;
+    DrawFace                fDrawFace : 8;
+    uint8_t                 fFirstCoverageStage;
+    SkXfermode::Mode        fColorFilterXfermode : 8;
     GrColor                 fBlendConstant;
     GrTexture*              fTextures[kNumStages];
-    GrSamplerState          fSamplerStates[kNumStages];
-    int                     fFirstCoverageStage;
     GrRenderTarget*         fRenderTarget;
     GrColor                 fColor;
-    DrawFace                fDrawFace;
     GrColor                 fColorFilterColor;
-    SkXfermode::Mode        fColorFilterXfermode;
 
     GrStencilSettings       fStencilSettings;
     GrMatrix                fViewMatrix;
+
+    // @{ Data for GrTesselatedPathRenderer
+    // TODO: currently ignored in copying & comparison for performance.
+    // Must be considered if GrTesselatedPathRenderer is being used.
+
+    int                     fEdgeAANumEdges;
     VertexEdgeType          fVertexEdgeType;
     Edge                    fEdgeAAEdges[kMaxEdges];
-    int                     fEdgeAANumEdges;
+
+    // @}
+
+    // This field must be last; it will not be copied or compared
+    // if the corresponding fTexture[] is NULL.
+    GrSamplerState          fSamplerStates[kNumStages];
+
+    // Most stages are usually not used, so conditionals here
+    // reduce the expected number of bytes touched by 50%.
     bool operator ==(const GrDrawState& s) const {
-        return 0 == memcmp(this, &s, sizeof(GrDrawState));
+        if (memcmp(this, &s, this->leadingBytes())) return false;
+
+        for (int i = 0; i < kNumStages; i++) {
+            if (fTextures[i] &&
+                memcmp(&this->fSamplerStates[i], &s.fSamplerStates[i],
+                       sizeof(GrSamplerState))) {
+                return false;
+            }
+        }
+
+        return true;
     }
     bool operator !=(const GrDrawState& s) const { return !(*this == s); }
+
+    // Most stages are usually not used, so conditionals here 
+    // reduce the expected number of bytes touched by 50%.
+    GrDrawState& operator =(const GrDrawState& s) {
+        memcpy(this, &s, this->leadingBytes());
+
+        for (int i = 0; i < kNumStages; i++) {
+            if (s.fTextures[i]) {
+                memcpy(&this->fSamplerStates[i], &s.fSamplerStates[i],
+                       sizeof(GrSamplerState));
+            }
+        }
+
+        return *this;
+    }
+
+private:
+    size_t leadingBytes() const {
+        // Can't use offsetof() with non-POD types, so stuck with pointer math.
+        // TODO: ignores GrTesselatedPathRenderer data structures. We don't
+        // have a compile-time flag that lets us know if it's being used, and
+        // checking at runtime seems to cost 5% performance.
+        return (size_t) ((unsigned char*)&fEdgeAANumEdges -
+                         (unsigned char*)&fFlagBits);
+    }
+
 };
 
 #endif
+

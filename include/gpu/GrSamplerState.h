@@ -252,10 +252,10 @@ public:
     }
 
 private:
-    WrapMode    fWrapX;
-    WrapMode    fWrapY;
-    SampleMode  fSampleMode;
-    Filter      fFilter;
+    WrapMode    fWrapX : 8;
+    WrapMode    fWrapY : 8;
+    SampleMode  fSampleMode : 8;
+    Filter      fFilter : 8;
     GrMatrix    fMatrix;
     bool        fSwapRAndB;
     GrRect      fTextureDomain;
@@ -263,12 +263,12 @@ private:
     // these are undefined unless fSampleMode == kRadial2_SampleMode
     GrScalar    fRadial2CenterX1;
     GrScalar    fRadial2Radius0;
-    bool        fRadial2PosRoot;
+    SkBool8     fRadial2PosRoot;
 
     // These are undefined unless fFilter == kConvolution_Filter
-    int         fKernelWidth;
-    float       fKernel[MAX_KERNEL_WIDTH];
+    uint8_t     fKernelWidth;
     float       fImageIncrement[2];
+    float       fKernel[MAX_KERNEL_WIDTH];
 
     static const GrSamplerState gClampNoFilter;
 };
