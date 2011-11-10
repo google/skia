@@ -1416,9 +1416,9 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
 }
 
 void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
-    if (NULL == fCurrDrawState.fRenderTarget) {
-        return;
-    }
+    // parent class should never let us get here with no RT
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
+
     GrIRect r;
     if (NULL != rect) {
         // flushScissor expects rect to be clipped to the target.

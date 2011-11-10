@@ -269,7 +269,9 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 /**
  * Pixel configurations.
  * Unpremultiplied configs are intended for conversion out from skia. They are
- * not supported as input (e.g. drawBitmap or a bitmap shader).
+ * not supported as input (e.g. drawBitmap or a bitmap shader). When used a
+ * render target config only draws that use blend coeffs 1,0 (AKA src-mode)
+ * will succeed.
  */
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,

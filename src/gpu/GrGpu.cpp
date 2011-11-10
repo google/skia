@@ -230,6 +230,9 @@ GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
 }
 
 void GrGpu::clear(const GrIRect* rect, GrColor color) {
+    if (NULL == this->getRenderTarget()) {
+        return;
+    }
     this->handleDirtyContext();
     this->onClear(rect, color);
 }
@@ -516,13 +519,8 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
     const GrIRect* r = NULL;
     GrIRect clipRect;
 
-    // we check this early because we need a valid
-    // render target to setup stencil clipping
-    // before even going into flushGraphicsState
-    if (NULL == fCurrDrawState.fRenderTarget) {
-        GrAssert(!"No render target bound.");
-        return false;
-    }
+    // GrDrawTarget should have filtered this for us
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
     if (fCurrDrawState.fFlagBits & kClip_StateBit) {
         GrRenderTarget& rt = *fCurrDrawState.fRenderTarget;

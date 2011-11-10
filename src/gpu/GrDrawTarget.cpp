@@ -800,6 +800,15 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
 #endif
+    if (NULL == this->getRenderTarget()) {
+        return false;
+    }
+    if (GrPixelConfigIsUnpremultiplied(this->getRenderTarget()->config())) {
+        if (kOne_BlendCoeff != fCurrDrawState.fSrcBlend ||
+            kZero_BlendCoeff != fCurrDrawState.fDstBlend) {
+            return false;
+        }
+    }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (this->isStageEnabled(s) &&
             GrPixelConfigIsUnpremultiplied(fCurrDrawState.fTextures[s]->config())) {
