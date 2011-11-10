@@ -288,7 +288,9 @@ struct CanvasConfig {
 static const CanvasConfig gCanvasConfigs[] = {
     {kRaster_DevType, true},
     {kRaster_DevType, false},
+#ifdef SK_SCALAR_IS_FLOAT
     {kGpu_DevType, true}, // row bytes has no meaning on gpu devices
+#endif
 };
 
 bool setupCanvas(SkCanvas* canvas, const CanvasConfig& c, GrContext* grCtx) {
