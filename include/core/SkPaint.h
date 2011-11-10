@@ -762,23 +762,29 @@ public:
         return this->textToGlyphs(text, byteLength, NULL);
     }
 
-    /** Return the width of the text.
-        @param text         The text to be measured
-        @param length       Number of bytes of text to measure
-        @param bounds       If not NULL, returns the bounds of the text,
-                            relative to (0, 0).
-        @param scale        If not 0, return width as if the canvas were scaled
-                            by this value
-        @return             The advance width of the text
-    */
+    /** Return the width of the text. This will return the vertical measure
+     *  if isVerticalText() is true, in which case the returned value should
+     *  be treated has a height instead of a width.
+     *
+     *  @param text         The text to be measured
+     *  @param length       Number of bytes of text to measure
+     *  @param bounds       If not NULL, returns the bounds of the text,
+     *                      relative to (0, 0).
+     *  @param scale        If not 0, return width as if the canvas were scaled
+     *                      by this value
+     *  @return             The advance width of the text
+     */
     SkScalar measureText(const void* text, size_t length,
                          SkRect* bounds, SkScalar scale = 0) const;
 
-    /** Return the width of the text.
-        @param text         Address of the text
-        @param length       Number of bytes of text to measure
-        @return The width of the text
-    */
+    /** Return the width of the text. This will return the vertical measure
+     *  if isVerticalText() is true, in which case the returned value should
+     *  be treated has a height instead of a width.
+     *
+     *  @param text     Address of the text
+     *  @param length   Number of bytes of text to measure
+     *  @return         The width of the text
+     */
     SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, NULL, 0);
     }
@@ -796,33 +802,38 @@ public:
         kBackward_TextBufferDirection
     };
 
-    /** Return the width of the text.
-        @param text     The text to be measured
-        @param length   Number of bytes of text to measure
-        @param maxWidth Maximum width. Only the subset of text whose accumulated
-                        widths are <= maxWidth are measured.
-        @param measuredWidth Optional. If non-null, this returns the actual
-                        width of the measured text.
-        @param tbd      Optional. The direction the text buffer should be
-                        traversed during measuring.
-        @return         The number of bytes of text that were measured. Will be
-                        <= length.
-    */
+    /** Return the number of bytes of text that were measured. If
+     *  isVerticalText() is true, then the vertical advances are used for
+     *  the measurement.
+     *  
+     *  @param text     The text to be measured
+     *  @param length   Number of bytes of text to measure
+     *  @param maxWidth Maximum width. Only the subset of text whose accumulated
+     *                  widths are <= maxWidth are measured.
+     *  @param measuredWidth Optional. If non-null, this returns the actual
+     *                  width of the measured text.
+     *  @param tbd      Optional. The direction the text buffer should be
+     *                  traversed during measuring.
+     *  @return         The number of bytes of text that were measured. Will be
+     *                  <= length.
+     */
     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
                       SkScalar* measuredWidth = NULL,
                       TextBufferDirection tbd = kForward_TextBufferDirection)
                       const;
 
-    /** Return the advance widths for the characters in the string.
-        @param text         the text
-        @param byteLength   number of bytes to of text
-        @param widths       If not null, returns the array of advance widths of
-                            the glyphs. If not NULL, must be at least a large
-                            as the number of unichars in the specified text.
-        @param bounds       If not null, returns the bounds for each of
-                            character, relative to (0, 0)
-        @return the number of unichars in the specified text.
-    */
+    /** Return the advances for the text. These will be vertical advances if
+     *  isVerticalText() returns true.
+     *
+     *  @param text         the text
+     *  @param byteLength   number of bytes to of text
+     *  @param widths       If not null, returns the array of advances for
+     *                      the glyphs. If not NULL, must be at least a large
+     *                      as the number of unichars in the specified text.
+     *  @param bounds       If not null, returns the bounds for each of
+     *                      character, relative to (0, 0)
+     *  @return the number of unichars in the specified text.
+     */
     int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
                       SkRect bounds[] = NULL) const;
 
