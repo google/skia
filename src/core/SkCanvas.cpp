@@ -580,10 +580,11 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
     }
 }
 
-void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
+void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y,
+                           Config8888 config8888) {
     SkDevice* device = this->getDevice();
     if (device) {
-        device->writePixels(bitmap, x, y);
+        device->writePixels(bitmap, x, y, config8888);
     }
 }
 
