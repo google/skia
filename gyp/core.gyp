@@ -283,6 +283,7 @@
         [ 'skia_os == "mac"', {
           'include_dirs': [
             '../include/utils/mac',
+            '../third_party/freetype/include/**',
           ],
           'sources': [
             '../include/core/SkMMapStream.h',
@@ -290,7 +291,9 @@
 
             '../src/core/SkMMapStream.cpp',
             '../src/ports/SkFontHost_mac_coretext.cpp',
-
+#            '../src/ports/SkFontHost_FreeType.cpp',
+#            '../src/ports/SkFontHost_freetype_mac.cpp',
+#            '../src/ports/SkFontHost_gamma_none.cpp',
             '../src/ports/SkThread_pthread.cpp',
           ],
           'link_settings': {
