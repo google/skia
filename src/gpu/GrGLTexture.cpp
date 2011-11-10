@@ -133,12 +133,12 @@ void GrGLTexture::uploadTextureData(int x,
     /*
      *  check whether to allocate a temporary buffer for flipping y or
      *  because our srcData has extra bytes past each row. If so, we need
-     *  to trim those off here, since GL ES doesn't let us specify
+     *  to trim those off here, since GL ES may not let us specify
      *  GL_UNPACK_ROW_LENGTH.
      */
     bool restoreGLRowLength = false;
     bool flipY = kBottomUp_Orientation == fOrientation;
-    if (kDesktop_GrGLBinding == GPUGL->glBinding() && !flipY) {
+    if (GPUGL->glCaps().fUnpackRowLengthSupport && !flipY) {
         // can't use this for flipping, only non-neg values allowed. :(
         if (srcData && rowBytes != trimRowBytes) {
             GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
@@ -176,10 +176,9 @@ void GrGLTexture::uploadTextureData(int x,
     GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height,
                           fUploadFormat, fUploadType, srcData));
 
-    if (kDesktop_GrGLBinding == GPUGL->glBinding()) {
-        if (restoreGLRowLength) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-        }
+    if (restoreGLRowLength) {
+        GrAssert(GPUGL->glCaps().fUnpackRowLengthSupport);
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
 }
 
