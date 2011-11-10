@@ -122,7 +122,7 @@ public:
      *  not kARGB_8888_Config then this parameter is ignored.
      */
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
-                             SkCanvas::Config8888 config8888);
+                             SkCanvas::Config8888 config8888 = SkCanvas::kNative_Premul_Config8888);
 
     /**
      * Return the device's associated gpu render target, or NULL.
