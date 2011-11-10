@@ -205,7 +205,7 @@ bool checkRead(skiatest::Reporter* reporter,
             }
         }
     }
-    return failed;
+    return !failed;
 }
 
 enum BitmapInit {
