@@ -216,7 +216,7 @@ public:
 
     GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
     GrScalar getRadial2Radius0() const { return fRadial2Radius0; }
-    bool     isRadial2PosRoot() const { return fRadial2PosRoot; }
+    bool     isRadial2PosRoot() const { return SkToBool(fRadial2PosRoot); }
     // do the radial gradient params lead to a linear (rather than quadratic)
     // equation.
     bool radial2IsDegenerate() const { return GR_Scalar1 == fRadial2CenterX1; }
