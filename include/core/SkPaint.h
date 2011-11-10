@@ -99,14 +99,15 @@ public:
         kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
         kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
+        kVerticalText_Flag    = 0x1000,
 
         // experimental/private
-        kForceAAText_Flag     = 0x1000,
+        kForceAAText_Flag     = 0x2000,
 
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0x1FFF
+        kAllFlags = 0x2FFF
     };
 
     /** Return the paint's flags. Use the Flag enum to test flag values.
@@ -202,6 +203,20 @@ public:
                              false to clear it.
     */
     void setAutohinted(bool useAutohinter);
+
+    bool isVerticalText() const {
+        return SkToBool(this->getFlags() & kVerticalText_Flag);
+    }
+    
+    /**
+     *  Helper for setting or clearing the kVerticalText_Flag bit in
+     *  setFlags(...).
+     *
+     *  If this bit is set, then advances are treated as Y values rather than
+     *  X values, and drawText will places its glyphs vertically rather than
+     *  horizontally.
+     */
+    void setVerticalText(bool);
 
     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
         @return true if the underlineText bit is set in the paint's flags.
@@ -847,7 +862,7 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    unsigned        fFlags : 13;
+    unsigned        fFlags : 14;
     unsigned        fTextAlign : 2;
     unsigned        fCapType : 2;
     unsigned        fJoinType : 2;

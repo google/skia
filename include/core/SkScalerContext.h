@@ -171,13 +171,14 @@ public:
         kEmbolden_Flag      = 0x80,
         kSubpixelPositioning_Flag = 0x100,
         kAutohinting_Flag   = 0x200,
+        kVertical_Flag      = 0x400,
 
         // these should only ever be set if fMaskFormat is LCD16 or LCD32
-        kLCD_Vertical_Flag  = 0x400,    // else Horizontal
-        kLCD_BGROrder_Flag  = 0x800,    // else RGB order
+        kLCD_Vertical_Flag  = 0x0800,    // else Horizontal
+        kLCD_BGROrder_Flag  = 0x1000,    // else RGB order
 
         // experimental
-        kForceAA_Flag       = 0x1000
+        kForceAA_Flag       = 0x2000
     };
 private:
     enum {

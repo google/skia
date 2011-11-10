@@ -203,6 +203,11 @@ void SkPaint::setLinearText(bool doLinearText) {
     this->setFlags(SkSetClearMask(fFlags, doLinearText, kLinearText_Flag));
 }
 
+void SkPaint::setVerticalText(bool doVertical) {
+    GEN_ID_INC_EVAL(doVertical != isVerticalText());
+    this->setFlags(SkSetClearMask(fFlags, doVertical, kVerticalText_Flag));
+}
+
 void SkPaint::setUnderlineText(bool doUnderline) {
     GEN_ID_INC_EVAL(doUnderline != isUnderlineText());
     this->setFlags(SkSetClearMask(fFlags, doUnderline, kUnderlineText_Flag));
@@ -1351,6 +1356,9 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     }
     if (paint.isAutohinted()) {
         flags |= SkScalerContext::kAutohinting_Flag;
+    }
+    if (paint.isVerticalText()) {
+        flags |= SkScalerContext::kVertical_Flag;
     }
 #ifdef SK_BUILD_FOR_WIN
     if (paint.getFlags() & SkPaint::kForceAAText_Flag) {
