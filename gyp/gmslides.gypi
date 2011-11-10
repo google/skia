@@ -30,6 +30,7 @@
     '../gm/texdata.cpp',
     '../gm/tilemodes.cpp',
     '../gm/tinybitmap.cpp',
+    '../gm/verttext.cpp',
     '../gm/xfermodes.cpp',
   ],
 }
