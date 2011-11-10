@@ -29,6 +29,8 @@
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
 
+class SkScalerContext_Mac;
+
 // inline versions of these rect helpers
 
 static bool CGRectIsEmpty_inline(const CGRect& rect) {
@@ -265,14 +267,8 @@ public:
     Offscreen();
     ~Offscreen();
 
-    void init(CGAffineTransform xform, CGFontRef font, bool doSubPosition) {
-        fTransform = xform;
-        fCGFont = font;
-        fDoSubPosition = doSubPosition;
-    }
-
-    CGRGBPixel* getCG(const SkGlyph& glyph, bool fgColorIsWhite, CGGlyph glyphID,
-                      size_t* rowBytesPtr);
+    CGRGBPixel* getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
+                      bool fgColorIsWhite, CGGlyph glyphID, size_t* rowBytesPtr);
     
 private:
     enum {
@@ -280,9 +276,6 @@ private:
     };
     SkAutoSMalloc<kSize> fImageStorage;
     CGColorSpaceRef fRGBSpace;
-    CGAffineTransform fTransform;
-    CGFontRef       fCGFont;
-    bool            fDoSubPosition;
 
     // cached state
     CGContextRef    fCG;
@@ -303,105 +296,6 @@ Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL) {
 Offscreen::~Offscreen() {
     CFSafeRelease(fCG);
     CFSafeRelease(fRGBSpace);
-}
-
-CGRGBPixel* Offscreen::getCG(const SkGlyph& glyph, bool fgColorIsWhite,
-                             CGGlyph glyphID, size_t* rowBytesPtr) {
-    if (!fRGBSpace) {
-        fRGBSpace = CGColorSpaceCreateDeviceRGB();
-    }
-
-    // default to kBW_Format
-    bool doAA = false;
-    bool doLCD = false;
-
-    switch (glyph.fMaskFormat) {
-        case SkMask::kLCD16_Format:
-        case SkMask::kLCD32_Format:
-            doLCD = true;
-            doAA = true;
-            break;
-        case SkMask::kA8_Format:
-            doLCD = false;
-            doAA = true;
-            break;
-        default:
-            break;
-    }
-
-    size_t rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
-    if (!fCG || fSize.fWidth < glyph.fWidth || fSize.fHeight < glyph.fHeight) {
-        CFSafeRelease(fCG);
-        if (fSize.fWidth < glyph.fWidth) {
-            fSize.fWidth = RoundSize(glyph.fWidth);
-        }
-        if (fSize.fHeight < glyph.fHeight) {
-            fSize.fHeight = RoundSize(glyph.fHeight);
-        }
-
-        rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
-        void* image = fImageStorage.reset(rowBytes * fSize.fHeight);
-        fCG = CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
-                                    rowBytes, fRGBSpace, BITMAP_INFO_RGB);
-
-        // skia handles quantization itself, so we disable this for cg to get
-        // full fractional data from them.
-        CGContextSetAllowsFontSubpixelQuantization(fCG, false);
-        CGContextSetShouldSubpixelQuantizeFonts(fCG, false);
-
-        CGContextSetTextDrawingMode(fCG, kCGTextFill);
-        CGContextSetFont(fCG, fCGFont);
-        CGContextSetFontSize(fCG, 1);
-        CGContextSetTextMatrix(fCG, fTransform);
-
-        CGContextSetAllowsFontSubpixelPositioning(fCG, fDoSubPosition);
-        CGContextSetShouldSubpixelPositionFonts(fCG, fDoSubPosition);
-        
-        // force our checks below to happen
-        fDoAA = !doAA;
-        fDoLCD = !doLCD;
-        fFgColorIsWhite = !fgColorIsWhite;
-    }
-
-    if (fDoAA != doAA) {
-        CGContextSetShouldAntialias(fCG, doAA);
-        fDoAA = doAA;
-    }
-    if (fDoLCD != doLCD) {
-        CGContextSetShouldSmoothFonts(fCG, doLCD);
-        fDoLCD = doLCD;
-    }
-    if (fFgColorIsWhite != fgColorIsWhite) {
-        CGContextSetGrayFillColor(fCG, fgColorIsWhite ? 1.0 : 0, 1.0);
-        fFgColorIsWhite = fgColorIsWhite;
-    }
-
-    CGRGBPixel* image = (CGRGBPixel*)fImageStorage.get();
-    // skip rows based on the glyph's height
-    image += (fSize.fHeight - glyph.fHeight) * fSize.fWidth;
-
-    // erase with the "opposite" of the fgColor
-    uint32_t erase = fgColorIsWhite ? 0 : ~0;
-#if 0
-    sk_memset_rect(image, erase, glyph.fWidth * sizeof(CGRGBPixel),
-                   glyph.fHeight, rowBytes);
-#else
-    sk_memset_rect32(image, erase, glyph.fWidth, glyph.fHeight, rowBytes);
-#endif
-
-    float subX = 0;
-    float subY = 0;
-    if (fDoSubPosition) {
-        subX = SkFixedToFloat(glyph.getSubXFixed());
-        subY = SkFixedToFloat(glyph.getSubYFixed());
-    }
-    CGContextShowGlyphsAtPoint(fCG, -glyph.fLeft + subX,
-                               glyph.fTop + glyph.fHeight - subY,
-                               &glyphID, 1);
-
-    SkASSERT(rowBytesPtr);
-    *rowBytesPtr = rowBytes;
-    return image;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -684,6 +578,9 @@ private:
     uint16_t                            fAdjustStart;
     uint16_t                            fGlyphCount;
     bool                                fGeneratedBBoxes;
+    bool                                fDoSubPosition;
+
+    friend class                        Offscreen;
 };
 
 SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
@@ -722,8 +619,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     fGlyphCount = SkToU16(numGlyphs);
     fCGFont = CTFontCopyGraphicsFont(fCTFont, NULL);
 
-    fOffscreen.init(fTransform, fCGFont,
-                    SkToBool(fRec.fFlags & kSubpixelPositioning_Flag));
+    fDoSubPosition = SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
 }
 
 SkScalerContext_Mac::~SkScalerContext_Mac() {
@@ -732,6 +628,105 @@ SkScalerContext_Mac::~SkScalerContext_Mac() {
     if (fCGFont) {
         CGFontRelease(fCGFont);
     }
+}
+
+CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
+                             bool fgColorIsWhite, CGGlyph glyphID, size_t* rowBytesPtr) {
+    if (!fRGBSpace) {
+        fRGBSpace = CGColorSpaceCreateDeviceRGB();
+    }
+
+    // default to kBW_Format
+    bool doAA = false;
+    bool doLCD = false;
+
+    switch (glyph.fMaskFormat) {
+        case SkMask::kLCD16_Format:
+        case SkMask::kLCD32_Format:
+            doLCD = true;
+            doAA = true;
+            break;
+        case SkMask::kA8_Format:
+            doLCD = false;
+            doAA = true;
+            break;
+        default:
+            break;
+    }
+
+    size_t rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
+    if (!fCG || fSize.fWidth < glyph.fWidth || fSize.fHeight < glyph.fHeight) {
+        CFSafeRelease(fCG);
+        if (fSize.fWidth < glyph.fWidth) {
+            fSize.fWidth = RoundSize(glyph.fWidth);
+        }
+        if (fSize.fHeight < glyph.fHeight) {
+            fSize.fHeight = RoundSize(glyph.fHeight);
+        }
+
+        rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
+        void* image = fImageStorage.reset(rowBytes * fSize.fHeight);
+        fCG = CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
+                                    rowBytes, fRGBSpace, BITMAP_INFO_RGB);
+
+        // skia handles quantization itself, so we disable this for cg to get
+        // full fractional data from them.
+        CGContextSetAllowsFontSubpixelQuantization(fCG, false);
+        CGContextSetShouldSubpixelQuantizeFonts(fCG, false);
+
+        CGContextSetTextDrawingMode(fCG, kCGTextFill);
+        CGContextSetFont(fCG, context.fCGFont);
+        CGContextSetFontSize(fCG, 1);
+        CGContextSetTextMatrix(fCG, context.fTransform);
+
+        CGContextSetAllowsFontSubpixelPositioning(fCG, context.fDoSubPosition);
+        CGContextSetShouldSubpixelPositionFonts(fCG, context.fDoSubPosition);
+        
+        // force our checks below to happen
+        fDoAA = !doAA;
+        fDoLCD = !doLCD;
+        fFgColorIsWhite = !fgColorIsWhite;
+    }
+
+    if (fDoAA != doAA) {
+        CGContextSetShouldAntialias(fCG, doAA);
+        fDoAA = doAA;
+    }
+    if (fDoLCD != doLCD) {
+        CGContextSetShouldSmoothFonts(fCG, doLCD);
+        fDoLCD = doLCD;
+    }
+    if (fFgColorIsWhite != fgColorIsWhite) {
+        CGContextSetGrayFillColor(fCG, fgColorIsWhite ? 1.0 : 0, 1.0);
+        fFgColorIsWhite = fgColorIsWhite;
+    }
+
+    CGRGBPixel* image = (CGRGBPixel*)fImageStorage.get();
+    // skip rows based on the glyph's height
+    image += (fSize.fHeight - glyph.fHeight) * fSize.fWidth;
+
+    // erase with the "opposite" of the fgColor
+    uint32_t erase = fgColorIsWhite ? 0 : ~0;
+#if 0
+    sk_memset_rect(image, erase, glyph.fWidth * sizeof(CGRGBPixel),
+                   glyph.fHeight, rowBytes);
+#else
+    sk_memset_rect32(image, erase, glyph.fWidth, glyph.fHeight, rowBytes);
+#endif
+
+    float subX = 0;
+    float subY = 0;
+    if (context.fDoSubPosition) {
+        subX = SkFixedToFloat(glyph.getSubXFixed());
+        subY = SkFixedToFloat(glyph.getSubYFixed());
+    }
+    CGContextShowGlyphsAtPoint(fCG, -glyph.fLeft + subX,
+                               glyph.fTop + glyph.fHeight - subY,
+                               &glyphID, 1);
+
+    SkASSERT(rowBytesPtr);
+    *rowBytesPtr = rowBytes;
+    return image;
 }
 
 /* from http://developer.apple.com/fonts/TTRefMan/RM06/Chap6loca.html
@@ -1061,7 +1056,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     }
 
     size_t cgRowBytes;
-    CGRGBPixel* cgPixels = fOffscreen.getCG(glyph, fgColorIsWhite, cgGlyph,
+    CGRGBPixel* cgPixels = fOffscreen.getCG(*this, glyph, fgColorIsWhite, cgGlyph,
                                             &cgRowBytes);
 
     // Draw the glyph
