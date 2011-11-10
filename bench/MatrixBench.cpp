@@ -267,9 +267,9 @@ private:
 class ScaleTransMixedMatrixBench : public MatrixBench {
  public:
     ScaleTransMixedMatrixBench(void* p) : INHERITED(p, "scaletrans_mixed"), fCount (16) {
-        fMatrix.setAll(fRandom.nextS(), fRandom.nextS(), fRandom.nextS(),
-                       fRandom.nextS(), fRandom.nextS(), fRandom.nextS(),
-                       fRandom.nextS(), fRandom.nextS(), fRandom.nextS());
+        fMatrix.setAll(fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
+                       fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
+                       fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1());
         int i;
         for (i = 0; i < SkBENCHLOOP(fCount); i++) {
             fSrc[i].fX = fRandom.nextSScalar1();
