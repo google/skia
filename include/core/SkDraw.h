@@ -149,6 +149,7 @@ private:
     const SkPath*   fPath;      // returned in next
     SkScalar        fXPos;      // accumulated xpos, returned in next
     SkAutoKern      fAutoKern;
+    int             fXYIndex;   // cache for horizontal -vs- vertical text
 };
 
 #endif
