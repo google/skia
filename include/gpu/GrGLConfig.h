@@ -223,14 +223,6 @@ extern void GrGLClearErr(const GrGLInterface* gl);
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *  GrGLResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
- *  this wrapper, since GL_UNPACK_ROW_LENGTH is not available on all GL versions
- */
-extern void GrGLResetRowLength(const GrGLInterface*);
-
-////////////////////////////////////////////////////////////////////////////////
-
-/**
  *  Some drivers want the var-int arg to be zero-initialized on input.
  */
 #define GR_GL_INIT_ZERO     0

@@ -30,12 +30,6 @@ void GrGLCheckErr(const GrGLInterface* gl,
     }
 }
 
-void GrGLResetRowLength(const GrGLInterface* gl) {
-    if (gl->supportsDesktop()) {
-        GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_GL_LOG_CALLS

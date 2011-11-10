@@ -48,10 +48,12 @@ protected:
             : fStencilFormats(8) // prealloc space for    stencil formats
             , fMSFBOType(kNone_MSFBO)
             , fMaxFragmentUniformVectors(0)
-            , fRGBA8Renderbuffer(false)
-            , fBGRAFormat(false)
-            , fBGRAInternalFormat(false)
-            , fTextureSwizzle(false) {
+            , fRGBA8RenderbufferSupport(false)
+            , fBGRAFormatSupport(false)
+            , fBGRAIsInternalFormat(false)
+            , fTextureSwizzleSupport(false)
+            , fUnpackRowLengthSupport(false)
+            , fPackRowLengthSupport(false) {
             memset(fAASamples, 0, sizeof(fAASamples));
         }
         SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
@@ -82,19 +84,25 @@ protected:
         int fMaxFragmentUniformVectors;
 
         // ES requires an extension to support RGBA8 in RenderBufferStorage
-        bool fRGBA8Renderbuffer;
+        bool fRGBA8RenderbufferSupport;
 
         // Is GL_BGRA supported
-        bool fBGRAFormat;
+        bool fBGRAFormatSupport;
 
         // Depending on the ES extensions present the BGRA external format may
         // correspond either a BGRA or RGBA internalFormat. On desktop GL it is
         // RGBA
-        bool fBGRAInternalFormat;
+        bool fBGRAIsInternalFormat;
 
         // GL_ARB_texture_swizzle support
-        bool fTextureSwizzle;
+        bool fTextureSwizzleSupport;
     
+        // Is there support for GL_UNPACK_ROW_LENGTH
+        bool fUnpackRowLengthSupport;
+
+        // Is there support for GL_PACK_ROW_LENGTH
+        bool fPackRowLengthSupport;
+        
         void print() const;
     } fGLCaps;
  

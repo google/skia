@@ -382,33 +382,43 @@ void GrGpuGL::initCaps() {
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        fGLCaps.fRGBA8Renderbuffer = true;
+        fGLCaps.fRGBA8RenderbufferSupport = true;
     } else {
-        fGLCaps.fRGBA8Renderbuffer = this->hasExtension("GL_OES_rgb8_rgba8") ||
-                                     this->hasExtension("GL_ARM_rgba8");
+        fGLCaps.fRGBA8RenderbufferSupport =
+                                    this->hasExtension("GL_OES_rgb8_rgba8") ||
+                                    this->hasExtension("GL_ARM_rgba8");
     }
 
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        fGLCaps.fBGRAFormat = this->glVersion() >= GR_GL_VER(1,2) ||
-                              this->hasExtension("GL_EXT_bgra");
+        fGLCaps.fBGRAFormatSupport = this->glVersion() >= GR_GL_VER(1,2) ||
+                                     this->hasExtension("GL_EXT_bgra");
     } else {
         bool hasBGRAExt = false;
         if (this->hasExtension("GL_APPLE_texture_format_BGRA8888")) {
-            fGLCaps.fBGRAFormat = true;
+            fGLCaps.fBGRAFormatSupport = true;
         } else if (this->hasExtension("GL_EXT_texture_format_BGRA8888")) {
-            fGLCaps.fBGRAFormat = true;
-            fGLCaps.fBGRAInternalFormat = true;
+            fGLCaps.fBGRAFormatSupport = true;
+            fGLCaps.fBGRAIsInternalFormat = true;
         }
-        GrAssert(fGLCaps.fBGRAFormat ||
+        GrAssert(fGLCaps.fBGRAFormatSupport ||
                  kSkia8888_PM_GrPixelConfig != kBGRA_8888_PM_GrPixelConfig);
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        fGLCaps.fTextureSwizzle = this->glVersion() >= GR_GL_VER(3,3) ||
+        fGLCaps.fTextureSwizzleSupport = this->glVersion() >= GR_GL_VER(3,3) ||
                                   this->hasExtension("GL_ARB_texture_swizzle");
     } else {
-        fGLCaps.fTextureSwizzle = false;
+        fGLCaps.fTextureSwizzleSupport = false;
+    }
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        fGLCaps.fUnpackRowLengthSupport = true;
+        fGLCaps.fPackRowLengthSupport = true;
+    } else {
+        fGLCaps.fUnpackRowLengthSupport = this->hasExtension("GL_EXT_unpack_subimage");
+        // no extension for pack row length
+        fGLCaps.fPackRowLengthSupport = false;
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -836,7 +846,7 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
      * GL_UNPACK_ROW_LENGTH.
      */
     bool flipY = GrGLTexture::kBottomUp_Orientation == desc.fOrientation;
-    if (kDesktop_GrGLBinding == this->glBinding() && !flipY) {
+    if (this->glCaps().fUnpackRowLengthSupport && !flipY) {
         if (data && rowBytes != trimRowBytes) {
             GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
             GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
@@ -876,7 +886,9 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
         GL_CALL(CompressedTexImage2D(GR_GL_TEXTURE_2D, 0, desc.fUploadFormat,
                                      desc.fAllocWidth, desc.fAllocHeight,
                                      0, imageSize, data));
-        GrGLResetRowLength(this->glInterface());
+        if (this->glCaps().fUnpackRowLengthSupport) {
+            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+        }
     } else {
         if (NULL != data && (desc.fAllocWidth != desc.fContentWidth ||
                                 desc.fAllocHeight != desc.fContentHeight)) {
@@ -886,7 +898,9 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
             GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0, 0, desc.fContentWidth,
                                   desc.fContentHeight, desc.fUploadFormat,
                                   desc.fUploadType, data));
-            GrGLResetRowLength(this->glInterface());
+            if (this->glCaps().fUnpackRowLengthSupport) {
+                GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+            }
 
             int extraW = desc.fAllocWidth  - desc.fContentWidth;
             int extraH = desc.fAllocHeight - desc.fContentHeight;
@@ -943,7 +957,9 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
             GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat,
                                desc.fAllocWidth, desc.fAllocHeight, 0,
                                desc.fUploadFormat, desc.fUploadType, data));
-            GrGLResetRowLength(this->glInterface());
+            if (this->glCaps().fUnpackRowLengthSupport) {
+                GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+            }
         }
     }
 }
@@ -1485,14 +1501,11 @@ bool GrGpuGL::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
                                         int width, int height,
                                         GrPixelConfig config,
                                         size_t rowBytes) {
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        return false;
-    } else {
-        // On ES we'll have to do memcpys to handle rowByte padding. So, we
-        // might as well flipY while we're at it.
-        return 0 == rowBytes ||
-               GrBytesPerPixel(config) * width == rowBytes; 
-    }
+    // if we have to do memcpy to handle non-trim rowBytes then we
+    // get the flip for free. Otherwise it costs.
+    return this->glCaps().fPackRowLengthSupport ||
+           0 == rowBytes ||
+           GrBytesPerPixel(config) * width == rowBytes;
 }
 
 bool GrGpuGL::onReadPixels(GrRenderTarget* target,
@@ -1547,7 +1560,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     // a scratch buffer.
     SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
     if (rowBytes != tightRowBytes) {
-        if (kDesktop_GrGLBinding == this->glBinding()) {
+        if (this->glCaps().fPackRowLengthSupport) {
             GrAssert(!(rowBytes % sizeof(GrColor)));
             GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, rowBytes / sizeof(GrColor)));
             readDstRowBytes = rowBytes;
@@ -1560,6 +1573,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
                        readRect.fWidth, readRect.fHeight,
                        format, type, readDst));
     if (readDstRowBytes != tightRowBytes) {
+        GrAssert(this->glCaps().fPackRowLengthSupport);
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
     }
 
@@ -2155,7 +2169,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                                         GR_GL_TEXTURE_WRAP_T,
                                         newTexParams.fWrapT));
             }
-            if (this->glCaps().fTextureSwizzle &&
+            if (this->glCaps().fTextureSwizzleSupport &&
                 (setAll ||
                  memcmp(newTexParams.fSwizzleRGBA,
                         oldTexParams.fSwizzleRGBA,
@@ -2297,11 +2311,11 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
             break;
         case kBGRA_8888_PM_GrPixelConfig:
         case kBGRA_8888_UPM_GrPixelConfig:
-            if (!fGLCaps.fBGRAFormat) {
+            if (!fGLCaps.fBGRAFormatSupport) {
                 return false;
             }
             *format = GR_GL_BGRA;
-            if (fGLCaps.fBGRAInternalFormat) {
+            if (fGLCaps.fBGRAIsInternalFormat) {
                 *internalFormat = GR_GL_BGRA;
             } else {
                 *internalFormat = GR_GL_RGBA;
@@ -2374,7 +2388,7 @@ bool GrGpuGL::fboInternalFormat(GrPixelConfig config, GrGLenum* format) {
         case kRGBA_8888_UPM_GrPixelConfig:
         case kBGRA_8888_PM_GrPixelConfig:
         case kBGRA_8888_UPM_GrPixelConfig:
-            if (fGLCaps.fRGBA8Renderbuffer) {
+            if (fGLCaps.fRGBA8RenderbufferSupport) {
                 // The GL_OES_rgba8_rgb8 extension defines GL_RGBA8 as a sized
                 // internal format.
                 *format = GR_GL_RGBA8;
@@ -2497,9 +2511,13 @@ void GrGpuGL::GLCaps::print() const {
     }
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     GrPrintf("Support RGBA8 Render Buffer: %s\n",
-             (fRGBA8Renderbuffer ? "YES": "NO"));
+             (fRGBA8RenderbufferSupport ? "YES": "NO"));
     GrPrintf("BGRA is an internal format: %s\n",
-             (fBGRAInternalFormat ? "YES": "NO"));
+             (fBGRAIsInternalFormat ? "YES": "NO"));
     GrPrintf("Support texture swizzle: %s\n",
-             (fTextureSwizzle ? "YES": "NO"));
+             (fTextureSwizzleSupport ? "YES": "NO"));
+    GrPrintf("Unpack Row length support: %s\n",
+             (fUnpackRowLengthSupport ? "YES": "NO"));
+    GrPrintf("Pack Row length support: %s\n",
+             (fPackRowLengthSupport ? "YES": "NO"));
 }
