@@ -68,7 +68,8 @@ public:
     // overrides from SkDevice
 
     virtual void clear(SkColor color);
-    virtual void writePixels(const SkBitmap& bitmap, int x, int y);
+    virtual void writePixels(const SkBitmap& bitmap, int x, int y,
+                             SkCanvas::Config8888 config8888) SK_OVERRIDE;
 
     virtual void setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
                                const SkClipStack&);

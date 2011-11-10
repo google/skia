@@ -106,12 +106,16 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * This enum can be used with readPixels to perform a readback into an 8888
-     * format other than Skia's native format (SkPMColor). There are three byte
-     * orders supported: native, BGRA, and RGBA. Each has a premultiplied and
-     * unpremultiplied variant. Unlike the other 8888 configs, the native 8888
-     * config is defined by shift values rather than byte order. The conversion
-     * from the native config to a byte order must consider endianness.
+     * This enum can be used with read/writePixels to perform a pixel ops to or
+     * from an 8888 config other than Skia's native config (SkPMColor). There
+     * are three byte orders supported: native, BGRA, and RGBA. Each has a
+     * premultiplied and unpremultiplied variant.
+     *
+     * Components of a 8888 pixel can be packed/unpacked from a 32bit word using
+     * either byte offsets or shift values. Byte offsets are endian-invariant
+     * while shifts are not. BGRA and RGBA configs are defined by byte
+     * orderings. The native config is defined by shift values (SK_A32_SHIFT,
+     * ..., SK_B32_SHIFT).
      */
     enum Config8888 {
         /**
@@ -186,13 +190,22 @@ public:
 
     /**
      *  Similar to draw sprite, this method will copy the pixels in bitmap onto
-     *  the device, with the top/left corner specified by (x, y). The pixel
-     *  values in the device are completely replaced: there is no blending.
+     *  the canvas, with the top/left corner specified by (x, y). The canvas'
+     *  pixel values are completely replaced: there is no blending.
+     *
+     *  Currently if bitmap is backed by a texture this is a no-op. This may be
+     *  relaxed in the future.
+     *
+     *  If the bitmap has config kARGB_8888_Config then the config8888 param
+     *  will determines how the pixel valuess are intepreted. If the bitmap is
+     *  not kARGB_8888_Config then this parameter is ignored.
      *
      *  Note: If you are recording drawing commands on this canvas to
      *  SkPicture, writePixels() is ignored!
      */
-    void writePixels(const SkBitmap& bitmap, int x, int y);
+    void writePixels(const SkBitmap& bitmap,
+                     int x, int y,
+                     Config8888 config8888 = kNative_Premul_Config8888);
 
     ///////////////////////////////////////////////////////////////////////////
 

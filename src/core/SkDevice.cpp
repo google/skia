@@ -159,10 +159,6 @@ bool SkDevice::readPixels(SkBitmap* bitmap, int x, int y,
         const SkCanvas::Config8888 SkDevice::kPMColorAlias =
             (SkCanvas::Config8888) -1;
     #endif
-    static const int NATIVE_A_IDX = SK_A32_SHIFT / 8;
-    static const int NATIVE_R_IDX = SK_R32_SHIFT / 8;
-    static const int NATIVE_G_IDX = SK_G32_SHIFT / 8;
-    static const int NATIVE_B_IDX = SK_B32_SHIFT / 8;
 #else
     #if    0 == SK_A32_SHIFT &&   8 == SK_R32_SHIFT && \
           16 == SK_G32_SHIFT &&  24 == SK_B32_SHIFT
@@ -176,105 +172,9 @@ bool SkDevice::readPixels(SkBitmap* bitmap, int x, int y,
         const SkCanvas::Config8888 SkDevice::kPMColorAlias =
             (SkCanvas::Config8888) -1;
     #endif
-    static const int NATIVE_A_IDX = 3 - (SK_A32_SHIFT / 8);
-    static const int NATIVE_R_IDX = 3 - (SK_R32_SHIFT / 8);
-    static const int NATIVE_G_IDX = 3 - (SK_G32_SHIFT / 8);
-    static const int NATIVE_B_IDX = 3 - (SK_B32_SHIFT / 8);
 #endif
 
-#include <SkColorPriv.h>
-
-namespace {
-
-template <int A_IDX, int R_IDX, int G_IDX, int B_IDX>
-inline uint32_t pack_config8888(uint32_t a, uint32_t r,
-                                uint32_t g, uint32_t b) {
-#ifdef SK_CPU_LENDIAN
-    return (a << (A_IDX * 8)) | (r << (R_IDX * 8)) |
-           (g << (G_IDX * 8)) | (b << (B_IDX * 8));
-#else
-    return (a << ((3-A_IDX) * 8)) | (r << ((3-R_IDX) * 8)) |
-           (g << ((3-G_IDX) * 8)) | (b << ((3-B_IDX) * 8));
-#endif
-}
-
-template <bool UNPM, int A_IDX, int R_IDX, int G_IDX, int B_IDX>
-inline void bitmap_copy_to_config8888(const SkBitmap& srcBmp,
-                                        uint32_t* dstPixels,
-                                        size_t dstRowBytes) {
-    SkASSERT(SkBitmap::kARGB_8888_Config == srcBmp.config());
-    SkAutoLockPixels alp(srcBmp);
-    int w = srcBmp.width();
-    int h = srcBmp.height();
-    size_t srcRowBytes = srcBmp.rowBytes();
-
-    intptr_t src = reinterpret_cast<intptr_t>(srcBmp.getPixels());
-    intptr_t dst = reinterpret_cast<intptr_t>(dstPixels);
-
-    for (int y = 0; y < h; ++y) {
-        const SkPMColor* srcRow = reinterpret_cast<SkPMColor*>(src);
-        uint32_t* dstRow  = reinterpret_cast<uint32_t*>(dst);
-        for (int x = 0; x < w; ++x) {
-            SkPMColor pmcolor = srcRow[x];
-            if (UNPM) {
-                U8CPU a, r, g, b;
-                a = SkGetPackedA32(pmcolor);
-                if (a) {
-                    // We're doing the explicit divide to match WebKit layout
-                    // test expectations. We can modify and rebaseline if there
-                    // it can be shown that there is a more performant way to
-                    // unpremul.
-                    r = SkGetPackedR32(pmcolor) * 0xff / a;
-                    g = SkGetPackedG32(pmcolor) * 0xff / a;
-                    b = SkGetPackedB32(pmcolor) * 0xff / a;
-                    dstRow[x] = pack_config8888<A_IDX, R_IDX,
-                                                G_IDX, B_IDX>(a, r, g, b);
-                } else {
-                    dstRow[x] = 0;
-                }
-            } else {
-                dstRow[x] = pack_config8888<A_IDX, R_IDX,
-                                            G_IDX, B_IDX>(
-                                                   SkGetPackedA32(pmcolor),
-                                                   SkGetPackedR32(pmcolor),
-                                                   SkGetPackedG32(pmcolor),
-                                                   SkGetPackedB32(pmcolor));
-            }
-        }
-        dst += dstRowBytes;
-        src += srcRowBytes;
-    }
-}
-
-inline void bitmap_copy_to_native(const SkBitmap& srcBmp,
-                                  uint32_t* dstPixels,
-                                  size_t dstRowBytes) {
-    SkASSERT(SkBitmap::kARGB_8888_Config == srcBmp.config());
-
-    SkAutoLockPixels alp(srcBmp);
-
-    int w = srcBmp.width();
-    int h = srcBmp.height();
-    size_t srcRowBytes = srcBmp.rowBytes();
-
-    size_t tightRowBytes = w * 4;
-
-    char* src = reinterpret_cast<char*>(srcBmp.getPixels());
-    char* dst = reinterpret_cast<char*>(dstPixels);
-
-    if (tightRowBytes == srcRowBytes &&
-        tightRowBytes == dstRowBytes) {
-        memcpy(dst, src, tightRowBytes * h);
-    } else {
-        for (int y = 0; y < h; ++y) {
-            memcpy(dst, src, tightRowBytes);
-            dst += dstRowBytes;
-            src += srcRowBytes;
-        }
-    }
-}
-
-}
+#include <SkConfig8888.h>
 
 bool SkDevice::onReadPixels(const SkBitmap& bitmap,
                             int x, int y,
@@ -299,55 +199,78 @@ bool SkDevice::onReadPixels(const SkBitmap& bitmap,
     uint32_t* bmpPixels = reinterpret_cast<uint32_t*>(bitmap.getPixels());
     if ((SkCanvas::kNative_Premul_Config8888 == config8888 ||
          kPMColorAlias == config8888)) {
-        bitmap_copy_to_native(subset, bmpPixels, bitmap.rowBytes());
+        SkCopyARGB8888BitmapTo(bmpPixels, bitmap.rowBytes(), subset);
     } else {
-        switch (config8888) {
-            case SkCanvas::kNative_Premul_Config8888:
-                bitmap_copy_to_config8888<false,
-                                          NATIVE_A_IDX, NATIVE_R_IDX,
-                                          NATIVE_G_IDX, NATIVE_B_IDX>(
-                                                subset,
-                                                bmpPixels,
-                                                bitmap.rowBytes());
-                break;
-            case SkCanvas::kNative_Unpremul_Config8888:
-                bitmap_copy_to_config8888<true,
-                                          NATIVE_A_IDX, NATIVE_R_IDX,
-                                          NATIVE_G_IDX, NATIVE_B_IDX>(
-                                                subset,
-                                                bmpPixels,
-                                                bitmap.rowBytes());
-                break;
-            case SkCanvas::kBGRA_Premul_Config8888:
-                bitmap_copy_to_config8888<false, 3, 2, 1, 0> (
-                                        subset, bmpPixels, bitmap.rowBytes());
-                break;
-            case SkCanvas::kBGRA_Unpremul_Config8888:
-                bitmap_copy_to_config8888<true, 3, 2, 1, 0> (
-                                        subset, bmpPixels, bitmap.rowBytes());
-                break;
-            case SkCanvas::kRGBA_Premul_Config8888:
-                bitmap_copy_to_config8888<false, 3, 0, 1, 2> (
-                                        subset, bmpPixels, bitmap.rowBytes());
-                break;
-            case SkCanvas::kRGBA_Unpremul_Config8888:
-                bitmap_copy_to_config8888<true, 3, 0, 1, 2> (
-                                        subset, bmpPixels, bitmap.rowBytes());
-                break;
-            default:
-                SkASSERT(false && "unexpected Config8888");
-                break;
-        }
+        SkCopyBitmapToConfig8888(bmpPixels,
+                                 bitmap.rowBytes(),
+                                 config8888,
+                                 subset);
     }
     return true;
 }
 
-void SkDevice::writePixels(const SkBitmap& bitmap, int x, int y) {
+void SkDevice::writePixels(const SkBitmap& bitmap,
+                           int x, int y,
+                           SkCanvas::Config8888 config8888) {
+    if (bitmap.isNull() || bitmap.getTexture()) {
+        return;
+    }
+    const SkBitmap* sprite = &bitmap;
+    // check whether we have to handle a config8888 that doesn't match SkPMColor
+    if (SkBitmap::kARGB_8888_Config == bitmap.config() &&
+        SkCanvas::kNative_Premul_Config8888 != config8888 &&
+        kPMColorAlias != config8888) {
+
+        // We're going to have to convert from a config8888 to the native config
+        // First we clip to the device bounds.
+        SkBitmap dstBmp = this->accessBitmap(true);
+        SkIRect spriteRect = SkIRect::MakeXYWH(x, y,
+                                               bitmap.width(), bitmap.height());
+        SkIRect devRect = SkIRect::MakeWH(dstBmp.width(), dstBmp.height());
+        if (!spriteRect.intersect(devRect)) {
+            return;
+        }
+
+        // write directly to the device if it has pixels and is SkPMColor
+        bool drawSprite;
+        if (SkBitmap::kARGB_8888_Config == dstBmp.config() && !dstBmp.isNull()) {
+            // we can write directly to the dst when doing the conversion
+            dstBmp.extractSubset(&dstBmp, spriteRect);
+            drawSprite = false;
+        } else {
+            // we convert to a temporary bitmap and draw that as a sprite
+            dstBmp.setConfig(SkBitmap::kARGB_8888_Config,
+                             spriteRect.width(),
+                             spriteRect.height());
+            if (!dstBmp.allocPixels()) {
+                return;
+            }
+            drawSprite = true;
+        }
+
+        // copy pixels to dstBmp and convert from config8888 to native config.
+        SkAutoLockPixels alp(bitmap);
+        uint32_t* srcPixels = bitmap.getAddr32(spriteRect.fLeft - x,
+                                               spriteRect.fTop - y);
+        SkCopyConfig8888ToBitmap(dstBmp,
+                                 srcPixels,
+                                 bitmap.rowBytes(),
+                                 config8888);
+
+        if (drawSprite) {
+            // we've clipped the sprite when we made a copy
+            x = spriteRect.fLeft;
+            y = spriteRect.fTop;
+            sprite = &dstBmp;
+        } else {
+            return;
+        }
+    }
+
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-
     SkCanvas canvas(this);
-    canvas.drawSprite(bitmap, x, y, &paint);
+    canvas.drawSprite(*sprite, x, y, &paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
