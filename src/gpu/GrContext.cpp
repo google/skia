@@ -1707,8 +1707,8 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         // also a texture (e.g. FBO 0 in GL)
         return false;
     }
-
     // we draw to a scratch texture if any of these conversion are applied
+    GrAutoScratchTexture ast;
     if (flipY || swapRAndB || alphaConversion) {
         GrAssert(NULL != src);
         if (swapRAndB) {
@@ -1723,7 +1723,8 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             width, height,
             { config }
         };
-        GrAutoScratchTexture ast(this, desc);
+
+        ast.set(this, desc);
         GrTexture* texture = ast.texture();
         if (!texture) {
             return false;
