@@ -126,25 +126,37 @@ public:
                 kFetchModeCnt,
             };
             /**
-              Describes how to swizzle the texture's components. If swizzling
-              can be applied outside of the shader (GL_ARB_texture_swizzle) that
-              is preferrable to using this enum. Changing the enum value used
-              causes another program to be generated.
+              Flags set based on a src texture's pixel config. The operations
+              described are performed after reading a texel.
              */
-            enum Swizzle {
+            enum InConfigFlags {
+                kNone_InConfigFlag              = 0x0,
+
                 /**
-                  No swizzling applied to the inputs
+                  Swap the R and B channels. This is incompatible with
+                  kSmearAlpha. It is prefereable to perform the swizzle outside
+                  the shader using GL_ARB_texture_swizzle if possible rather
+                  than setting this flag.
                  */
-                kNone_Swizzle,
+                kSwapRAndB_InConfigFlag         = 0x1,
+
                 /**
-                  Swap the R and B channels
-                 */
-                kSwapRAndB_Swizzle,
-                /**
-                 Smear alpha across all four channels.
+                 Smear alpha across all four channels. This is incompatible with
+                 kSwapRAndB and kPremul.  It is prefereable to perform the
+                 smear outside the shader using GL_ARB_texture_swizzle if
+                 possible rather than setting this flag.
                 */
-                kAlphaSmear_Swizzle,
-                kSwizzleCnt
+                kSmearAlpha_InConfigFlag        = 0x2,
+
+                /**
+                 Multiply r,g,b by a after texture reads. This flag incompatible
+                 with kSmearAlpha and may only be used with FetchMode kSingle.
+                 */
+                kMulRGBByAlpha_InConfigFlag     =  0x4,
+
+                kDummyInConfigFlag,
+                kInConfigBitMask = (kDummyInConfigFlag-1) |
+                                   (kDummyInConfigFlag-2)
             };
             enum CoordMapping {
                 kIdentity_CoordMapping,
@@ -158,10 +170,13 @@ public:
             };
 
             uint8_t fOptFlags;
-            uint8_t fSwizzle;       // casts to enum Swizzle
+            uint8_t fInConfigFlags; // bitfield of InConfigFlags values
             uint8_t fFetchMode;     // casts to enum FetchMode
             uint8_t fCoordMapping;  // casts to enum CoordMapping
             uint8_t fKernelWidth;
+
+            GR_STATIC_ASSERT((InConfigFlags)(uint8_t)kInConfigBitMask ==
+                             kInConfigBitMask);
 
             inline bool isEnabled() const {
                 return SkToBool(fOptFlags & kIsEnabled_OptFlagBit);

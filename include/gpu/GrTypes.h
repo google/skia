@@ -268,10 +268,13 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 
 /**
  * Pixel configurations.
- * Unpremultiplied configs are intended for conversion out from skia. They are
- * not supported as input (e.g. drawBitmap or a bitmap shader). When used a
- * render target config only draws that use blend coeffs 1,0 (AKA src-mode)
- * will succeed.
+ *
+ * Unpremultiplied configs are intended for converting pixel data in and out
+ * from skia. Surfaces with these configs have limited support. As an input
+ * (GrPaint texture) the corresponding GrSamplerState must have its filter set
+ * to kNearest_Filter. Otherwise, the draw will fail. When the render target
+ * has an unpremultiplied config draws must use blend coeffs 1,0 (AKA src-mode).
+ * Other coeffs will cause the draw to fail.
  */
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,

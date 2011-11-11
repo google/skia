@@ -1419,26 +1419,35 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     // parent class should never let us get here with no RT
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
-    GrIRect r;
+    GrIRect clippedRect;
     if (NULL != rect) {
         // flushScissor expects rect to be clipped to the target.
-        r = *rect;
+        clippedRect = *rect;
         GrIRect rtRect = SkIRect::MakeWH(fCurrDrawState.fRenderTarget->width(),
                                          fCurrDrawState.fRenderTarget->height());
-        if (r.intersect(rtRect)) {
-            rect = &r;
+        if (clippedRect.intersect(rtRect)) {
+            rect = &clippedRect;
         } else {
             return;
         }
     }
     this->flushRenderTarget(rect);
     this->flushScissor(rect);
-    GL_CALL(ColorMask(GR_GL_TRUE,GR_GL_TRUE,GR_GL_TRUE,GR_GL_TRUE));
+
+    GrGLfloat r, g, b, a;
+    static const GrGLfloat scale255 = 1.f / 255.f;
+    a = GrColorUnpackA(color) * scale255;
+    GrGLfloat scaleRGB = scale255;
+    if (GrPixelConfigIsUnpremultiplied(fCurrDrawState.fRenderTarget->config())) {
+        scaleRGB *= a;
+    }
+    r = GrColorUnpackR(color) * scaleRGB;
+    g = GrColorUnpackG(color) * scaleRGB;
+    b = GrColorUnpackB(color) * scaleRGB;
+
+    GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
     fHWDrawState.fFlagBits &= ~kNoColorWrites_StateBit;
-    GL_CALL(ClearColor(GrColorUnpackR(color)/255.f,
-                       GrColorUnpackG(color)/255.f,
-                       GrColorUnpackB(color)/255.f,
-                       GrColorUnpackA(color)/255.f));
+    GL_CALL(ClearColor(r, g, b, a));
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
