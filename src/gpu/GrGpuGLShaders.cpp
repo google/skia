@@ -168,9 +168,19 @@ GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding,
     }
 }
 
-template <typename T>
-T random_val(GrRandom* r, T count) {
-    return (T)(int)(r->nextF() * count);
+// GrRandoms nextU() values have patterns in the low bits
+// So using nextU() % array_count might never take some values.
+int random_int(GrRandom* r, int count) {
+    return (int)(r->nextF() * count);
+}
+
+// min is inclusive, max is exclusive
+int random_int(GrRandom* r, int min, int max) {
+    return (int)(r->nextF() * (max-min)) + min;
+}
+
+bool random_bool(GrRandom* r) {
+    return r->nextF() > .5f;
 }
 
 }
@@ -184,13 +194,18 @@ bool GrGpuGLShaders::programUnitTest() {
         StageDesc::kNoPerspective_OptFlagBit,
         StageDesc::kIdentity_CoordMapping
     };
+    static const int IN_CONFIG_FLAGS[] = {
+        StageDesc::kNone_InConfigFlag,
+        StageDesc::kSwapRAndB_InConfigFlag,
+        StageDesc::kSwapRAndB_InConfigFlag | StageDesc::kMulRGBByAlpha_InConfigFlag,
+        StageDesc::kMulRGBByAlpha_InConfigFlag,
+        StageDesc::kSmearAlpha_InConfigFlag,
+    };
     GrGLProgram program;
     ProgramDesc& pdesc = program.fProgramDesc;
 
     static const int NUM_TESTS = 512;
 
-    // GrRandoms nextU() values have patterns in the low bits
-    // So using nextU() % array_count might never take some values.
     GrRandom random;
     for (int t = 0; t < NUM_TESTS; ++t) {
 
@@ -204,33 +219,29 @@ bool GrGpuGLShaders::programUnitTest() {
 
         pdesc.fVertexLayout = 0;
         pdesc.fEmitsPointSize = random.nextF() > .5f;
-        pdesc.fColorInput = static_cast<int>(random.nextF() *
-                                             ProgramDesc::kColorInputCnt);
+        pdesc.fColorInput = random_int(&random, ProgramDesc::kColorInputCnt);
 
-        int idx = (int)(random.nextF() * (SkXfermode::kCoeffModesCnt));
-        pdesc.fColorFilterXfermode = (SkXfermode::Mode)idx;
+        pdesc.fColorFilterXfermode = random_int(&random, SkXfermode::kCoeffModesCnt);
 
-        idx = (int)(random.nextF() * (GrDrawState::kNumStages + 1));
-        pdesc.fFirstCoverageStage = idx;
+        pdesc.fFirstCoverageStage = random_int(&random, GrDrawState::kNumStages);
 
-        pdesc.fVertexLayout |= (random.nextF() > .5f) ?
+        pdesc.fVertexLayout |= random_bool(&random) ?
                                     GrDrawTarget::kCoverage_VertexLayoutBit :
                                     0;
 
 #if GR_GL_EXPERIMENTAL_GS
         pdesc.fExperimentalGS = this->getCaps().fGeometryShaderSupport &&
-                                random.nextF() > .5f;
+                                random_bool(&random);
 #endif
-        pdesc.fOutputPM =  static_cast<int>(random.nextF() *
-                                            ProgramDesc::kOutputPMCnt);
+        pdesc.fOutputPM =  random_int(&random, ProgramDesc::kOutputPMCnt);
 
-        bool edgeAA = random.nextF() > .5f;
+        bool edgeAA = random_bool(&random);
         if (edgeAA) {
-            bool vertexEdgeAA = random.nextF() > .5f;
+            bool vertexEdgeAA = random_bool(&random);
             if (vertexEdgeAA) {
                 pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
                 if (this->getCaps().fShaderDerivativeSupport) {
-                    pdesc.fVertexEdgeType = random.nextF() > 0.5f ?
+                    pdesc.fVertexEdgeType = random_bool(&random) ?
                         GrDrawState::kHairQuad_EdgeType :
                         GrDrawState::kHairLine_EdgeType;
                 } else {
@@ -238,49 +249,57 @@ bool GrGpuGLShaders::programUnitTest() {
                 }
                 pdesc.fEdgeAANumEdges = 0;
             } else {
-                pdesc.fEdgeAANumEdges =  static_cast<int>(1 + random.nextF() *
-                                                          this->getMaxEdges());
-                pdesc.fEdgeAAConcave = random.nextF() > .5f;
+                pdesc.fEdgeAANumEdges = random_int(&random, 1, this->getMaxEdges());
+                pdesc.fEdgeAAConcave = random_bool(&random);
             }
         } else {
             pdesc.fEdgeAANumEdges = 0;
         }
 
         if (this->getCaps().fDualSourceBlendingSupport) {
-            pdesc.fDualSrcOutput =
-               (ProgramDesc::DualSrcOutput)
-               (int)(random.nextF() * ProgramDesc::kDualSrcOutputCnt);
+            pdesc.fDualSrcOutput = random_int(&random, ProgramDesc::kDualSrcOutputCnt);
         } else {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             // enable the stage?
-            if (random.nextF() > .5f) {
+            if (random_bool(&random)) {
                 // use separate tex coords?
-                if (random.nextF() > .5f) {
-                    int t = (int)(random.nextF() * GrDrawState::kMaxTexCoords);
+                if (random_bool(&random)) {
+                    int t = random_int(&random, GrDrawState::kMaxTexCoords);
                     pdesc.fVertexLayout |= StageTexCoordVertexLayoutBit(s, t);
                 } else {
                     pdesc.fVertexLayout |= StagePosAsTexCoordVertexLayoutBit(s);
                 }
             }
             // use text-formatted verts?
-            if (random.nextF() > .5f) {
+            if (random_bool(&random)) {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
-            idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
             StageDesc& stage = pdesc.fStages[s];
-            stage.fOptFlags = STAGE_OPTS[idx];
-            stage.fSwizzle = random_val(&random, StageDesc::kSwizzleCnt);
-            stage.fCoordMapping =  random_val(&random, StageDesc::kCoordMappingCnt);
-            stage.fFetchMode = random_val(&random, StageDesc::kFetchModeCnt);
+            stage.fOptFlags = STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
+            stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
+            stage.fCoordMapping =  random_int(&random, StageDesc::kCoordMappingCnt);
+            stage.fFetchMode = random_int(&random, StageDesc::kFetchModeCnt);
             // convolution shaders don't work with persp tex matrix
             if (stage.fFetchMode == StageDesc::kConvolution_FetchMode) {
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
-            stage.fKernelWidth = static_cast<int8_t>(4 * random.nextF() + 2);
+            switch (stage.fFetchMode) {
+                case StageDesc::kSingle_FetchMode:
+                    stage.fKernelWidth = 0;
+                    break;
+                case StageDesc::kConvolution_FetchMode:
+                    stage.fKernelWidth = random_int(&random, 2, 8);
+                    stage.fInConfigFlags &= ~StageDesc::kMulRGBByAlpha_InConfigFlag;
+                    break;
+                case StageDesc::k2x2_FetchMode:
+                    stage.fKernelWidth = 0;
+                    stage.fInConfigFlags &= ~StageDesc::kMulRGBByAlpha_InConfigFlag;
+                    break;
+            }
         }
         CachedData cachedData;
         if (!program.genProgram(this->glInterface(),
@@ -1001,19 +1020,19 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 stage.fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
             }
 
+            stage.fInConfigFlags = 0;
             if (!this->glCaps().fTextureSwizzleSupport) {
                 if (GrPixelConfigIsAlphaOnly(texture->config())) {
                     // if we don't have texture swizzle support then
                     // the shader must do an alpha smear after reading
                     // the texture
-                    stage.fSwizzle = StageDesc::kAlphaSmear_Swizzle;
+                    stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
                 } else if (sampler.swapsRAndB()) {
-                    stage.fSwizzle = StageDesc::kSwapRAndB_Swizzle;
-                } else {
-                    stage.fSwizzle = StageDesc::kNone_Swizzle;
+                    stage.fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
                 }
-            } else {
-                stage.fSwizzle = StageDesc::kNone_Swizzle;
+            }
+            if (GrPixelConfigIsUnpremultiplied(texture->config())) {
+                stage.fInConfigFlags = StageDesc::kMulRGBByAlpha_InConfigFlag;
             }
 
             if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
@@ -1022,11 +1041,11 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 stage.fKernelWidth = 0;
             }
         } else {
-            stage.fOptFlags     = 0;
-            stage.fCoordMapping = (StageDesc::CoordMapping) 0;
-            stage.fSwizzle      = (StageDesc::Swizzle) 0;
-            stage.fFetchMode    = (StageDesc::FetchMode) 0;
-            stage.fKernelWidth  = 0;
+            stage.fOptFlags         = 0;
+            stage.fCoordMapping     = (StageDesc::CoordMapping) 0;
+            stage.fInConfigFlags    = 0;
+            stage.fFetchMode        = (StageDesc::FetchMode) 0;
+            stage.fKernelWidth      = 0;
         }
     }
 

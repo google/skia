@@ -299,9 +299,6 @@ bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
                                             bitmap.rowBytes());
 }
 
-// This can be removed when temporary code in writePixels is removed
-#include "SkConfig8888.h"
-
 void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
                               SkCanvas::Config8888 config8888) {
     SkAutoLockPixels alp(bitmap);
@@ -317,30 +314,13 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
                                                bitmap.isOpaque());
     }
 
-    // Temporary until we add support for drawing from an unpremul config in
-    // GrContext
-    const SkBitmap* src = &bitmap;
-    SkBitmap tmp;
-    if (GrPixelConfigIsUnpremultiplied(config)) {
-        config = kSkia8888_PM_GrPixelConfig;
-        tmp.setConfig(SkBitmap::kARGB_8888_Config,
-                      bitmap.width(), bitmap.height());
-        if (!tmp.allocPixels()) {
-            return;
-        }
-        SkAutoLockPixels alp(bitmap);
-        uint32_t* pixels = reinterpret_cast<uint32_t*>(bitmap.getPixels()); 
-        SkCopyConfig8888ToBitmap(tmp, pixels, bitmap.rowBytes(), config8888);
-        src = &tmp;
-    }
-
     fContext->setRenderTarget(fRenderTarget);
     // we aren't setting the clip or matrix, so mark as dirty
     // we don't need to set them for this call and don't have them anyway
     fNeedPrepareRenderTarget = true;
 
-    fContext->writePixels(x, y, src->width(), src->height(),
-                          config, src->getPixels(), src->rowBytes());
+    fContext->writePixels(x, y, bitmap.width(), bitmap.height(),
+                          config, bitmap.getPixels(), bitmap.rowBytes());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

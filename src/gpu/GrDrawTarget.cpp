@@ -810,8 +810,15 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        // We don't support using unpremultiplied textures with filters (other
+        // than nearest). Alpha-premulling is not distributive WRT to filtering.
+        // We'd have to filter each texel before filtering. We could do this for
+        // our custom filters but we would also have to disable bilerp and do
+        // a custom bilerp in the shader. Until Skia itself supports unpremul
+        // configs there is no pressure to implement this.
         if (this->isStageEnabled(s) &&
-            GrPixelConfigIsUnpremultiplied(fCurrDrawState.fTextures[s]->config())) {
+            GrPixelConfigIsUnpremultiplied(fCurrDrawState.fTextures[s]->config()) &&
+            GrSamplerState::kNearest_Filter != fCurrDrawState.fSamplerStates[s].getFilter()) {
             return false;
         }
     }

@@ -245,7 +245,6 @@ bool checkWrite(skiatest::Reporter* reporter,
                 bool mul;
                 SkPMColor bmpPMColor = convertConfig8888ToPMColor(config8888, bmpColor8888, &mul);
                 bool check;
-                // do we need fuzzy test?
                 REPORTER_ASSERT(reporter, check = checkPixel(bmpPMColor, canvasPixel, mul));
                 if (!check) {
                     success = false;

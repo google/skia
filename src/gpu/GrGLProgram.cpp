@@ -1564,7 +1564,9 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
                                ShaderCodeSegments* segments,
                                StageUniLocations* locations) const {
 
-    GrAssert(stageNum >= 0 && stageNum <= 9);
+    GrAssert(stageNum >= 0 && stageNum <= GrDrawState::kNumStages);
+    GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) ==
+             desc.fInConfigFlags);
 
     // First decide how many coords are needed to access the texture
     // Right now it's always 2 but we could start using 1D textures for
@@ -1710,19 +1712,14 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
     };
 
     const char* swizzle = "";
-    switch (desc.fSwizzle) {
-        case StageDesc::kAlphaSmear_Swizzle:
-            swizzle = ".aaaa";
-            break;
-        case StageDesc::kSwapRAndB_Swizzle:
-            swizzle = ".bgra";
-            break;
-        case StageDesc::kNone_Swizzle:
-            swizzle = "";
-            break;
-        default:
-            GrCrash("Swizzle descriptor didn't match any expected value");
-    }
+    if (desc.fInConfigFlags & StageDesc::kSwapRAndB_InConfigFlag) {
+        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag));
+        swizzle = ".bgra";
+    } else if (desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag) {
+        GrAssert(!(desc.fInConfigFlags &
+                   StageDesc::kMulRGBByAlpha_InConfigFlag));
+        swizzle = ".aaaa";
+    } 
 
     GrStringBuilder modulate;
     if (NULL != fsInColor) {
@@ -1747,20 +1744,36 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
 
     switch (desc.fFetchMode) {
     case StageDesc::k2x2_FetchMode:
+        GrAssert(!(desc.fInConfigFlags &
+                   StageDesc::kMulRGBByAlpha_InConfigFlag));
         gen2x2FS(stageNum, segments, locations, &sampleCoords,
             samplerName, texelSizeName, swizzle, fsOutColor,
             texFunc, modulate, complexCoord, coordDims);
         break;
     case StageDesc::kConvolution_FetchMode:
+        GrAssert(!(desc.fInConfigFlags &
+                   StageDesc::kMulRGBByAlpha_InConfigFlag));
         genConvolutionFS(stageNum, desc, segments,
             samplerName, kernelName, swizzle, imageIncrementName, fsOutColor,
             sampleCoords, texFunc, modulate);
         break;
     default:
-        segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
-                                  fsOutColor, texFunc.c_str(), 
-                                  samplerName, sampleCoords.c_str(),
-                                  swizzle, modulate.c_str());
+        if (desc.fInConfigFlags & StageDesc::kMulRGBByAlpha_InConfigFlag) {
+            GrAssert(!(desc.fInConfigFlags & 
+                       StageDesc::kSmearAlpha_InConfigFlag));
+            segments->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
+                                      fsOutColor, texFunc.c_str(), 
+                                      samplerName, sampleCoords.c_str(),
+                                      swizzle);
+            segments->fFSCode.appendf("\t%s = vec4(%s.rgb*%s.a,%s.a)%s;\n",
+                                      fsOutColor, fsOutColor, fsOutColor,
+                                      fsOutColor, modulate.c_str());
+        } else {
+            segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
+                                      fsOutColor, texFunc.c_str(), 
+                                      samplerName, sampleCoords.c_str(),
+                                      swizzle, modulate.c_str());
+        }
     }
 }
 
