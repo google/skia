@@ -15,7 +15,7 @@ SkView::SkView(uint32_t flags) : fFlags(SkToU8(flags))
 	fWidth = fHeight = 0;
 	fLoc.set(0, 0);
 	fParent = fFirstChild = fNextSibling = fPrevSibling = NULL;
-	
+    fMatrix.setIdentity();
 	fContainsFocus = 0;
 }
 
@@ -82,7 +82,7 @@ void SkView::setLoc(SkScalar x, SkScalar y)
 	{
 		this->inval(NULL);
 		fLoc.set(x, y);
-		this->inval(NULL);
+        this->inval(NULL);
 	}
 }
 
@@ -90,6 +90,13 @@ void SkView::offset(SkScalar dx, SkScalar dy)
 {
 	if (dx || dy)
 		this->setLoc(fLoc.fX + dx, fLoc.fY + dy);
+}
+
+void SkView::setLocalMatrix(const SkMatrix& matrix) 
+{
+    this->inval(NULL);
+    fMatrix = matrix;
+    this->inval(NULL);
 }
 
 void SkView::draw(SkCanvas* canvas)
@@ -108,8 +115,10 @@ void SkView::draw(SkCanvas* canvas)
         if (this->isClipToBounds()) {
             canvas->clipRect(r);
         }
-		canvas->translate(fLoc.fX, fLoc.fY);
-
+        
+        canvas->translate(fLoc.fX, fLoc.fY);		
+        canvas->concat(fMatrix);
+        
         if (fParent) {
             fParent->beforeChild(this, canvas);
         }
@@ -369,11 +378,14 @@ SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y)
     if (this->onSendClickToChildren(x, y)) {
         F2BIter	iter(this);
         SkView*	child;
-
+        
         while ((child = iter.next()) != NULL)
         {
-            Click* click = child->findClickHandler(x - child->fLoc.fX,
-                                                   y - child->fLoc.fY);
+            SkPoint p;
+            child->globalToLocal(x, y, &p);
+            
+            Click* click = child->findClickHandler(p.fX, p.fY);
+            
             if (click) {
                 return click;
             }
@@ -594,20 +606,30 @@ void SkView::detachAllChildren()
 		fFirstChild->detachFromParent_NoLayout();
 }
 
+void SkView::localToGlobal(SkMatrix* matrix) const
+{
+    if (matrix) {
+        matrix->reset();
+        const SkView* view = this;
+        while (view)
+        {
+            matrix->preConcat(view->getLocalMatrix());
+            matrix->preTranslate(-view->fLoc.fX, -view->fLoc.fY);
+            view = view->fParent;
+        }
+    }
+}
 void SkView::globalToLocal(SkScalar x, SkScalar y, SkPoint* local) const
 {
 	SkASSERT(this);
-
 	if (local)
 	{
-		const SkView* view = this;
-		while (view)
-		{
-			x -= view->fLoc.fX;
-			y -= view->fLoc.fY;
-			view = view->fParent;
-		}
-		local->set(x, y);
+        SkMatrix m;
+        this->localToGlobal(&m);
+        SkPoint p;
+        m.invert(&m);
+        m.mapXY(x, y, &p);
+		local->set(p.fX, p.fY);
 	}
 }
 

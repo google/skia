@@ -751,50 +751,13 @@ void SampleWindow::draw(SkCanvas* canvas) {
         gAnimTimePrev = gAnimTime;
         gAnimTime = SkTime::GetMSecs();
     }
-
-    SkScalar cx = fZoomCenterX;
-    SkScalar cy = fZoomCenterY;
-
-    if (fZoomLevel) {
-        SkMatrix m;
-        SkPoint center;
-        m = canvas->getTotalMatrix();//.invert(&m);
-        m.mapXY(cx, cy, &center);
-        cx = center.fX;
-        cy = center.fY;
-
-        m.setTranslate(-cx, -cy);
-        m.postScale(fZoomScale, fZoomScale);
-        m.postTranslate(cx, cy);
-
-        canvas->concat(m);
-    }
-
-    if (fFlipAxis) {
-        SkMatrix m;
-        m.setTranslate(cx, cy);
-        if (fFlipAxis & kFlipAxis_X) {
-            m.preScale(-SK_Scalar1, SK_Scalar1);
-        }
-        if (fFlipAxis & kFlipAxis_Y) {
-            m.preScale(SK_Scalar1, -SK_Scalar1);
-        }
-        m.preTranslate(-cx, -cy);
-        canvas->concat(m);
-    }
     
-    // Apply any gesture matrix
-    if (true) {
-        const SkMatrix& localM = fGesture.localM();
-        if (localM.getType() & SkMatrix::kScale_Mask) {
-            canvas->setExternalMatrix(&localM);
-        }
-        canvas->concat(localM);
-        canvas->concat(fGesture.globalM());
-
-        if (fGesture.isActive()) {
-            this->inval(NULL);
-        }
+    const SkMatrix& localM = fGesture.localM();
+    if (localM.getType() & SkMatrix::kScale_Mask) {
+        canvas->setExternalMatrix(&localM);
+    }
+    if (fGesture.isActive()) {
+        this->updateMatrix();
     }
     
     if (fNClip) {
@@ -1224,12 +1187,44 @@ void SampleWindow::changeZoomLevel(float delta) {
     } else {
         fZoomScale = SK_Scalar1;
     }
-
-    this->updateTitle();
-
-    this->inval(NULL);
+    this->updateMatrix();
 }
 
+void SampleWindow::updateMatrix(){
+    SkMatrix m;
+    m.reset();
+    if (fZoomLevel) {
+        SkPoint center;
+        //m = this->getLocalMatrix();//.invert(&m);
+        m.mapXY(fZoomCenterX, fZoomCenterY, &center);
+        SkScalar cx = center.fX;
+        SkScalar cy = center.fY;
+        
+        m.setTranslate(-cx, -cy);
+        m.postScale(fZoomScale, fZoomScale);
+        m.postTranslate(cx, cy);
+    }
+    
+    if (fFlipAxis) {
+        m.preTranslate(fZoomCenterX, fZoomCenterY);
+        if (fFlipAxis & kFlipAxis_X) {
+            m.preScale(-SK_Scalar1, SK_Scalar1);
+        }
+        if (fFlipAxis & kFlipAxis_Y) {
+            m.preScale(SK_Scalar1, -SK_Scalar1);
+        }
+        m.preTranslate(-fZoomCenterX, -fZoomCenterY);
+        //canvas->concat(m);
+    }
+    // Apply any gesture matrix
+    m.preConcat(fGesture.localM());
+    m.preConcat(fGesture.globalM());
+    
+    this->setLocalMatrix(m);
+    
+    this->updateTitle();
+    this->inval(NULL);
+}
 bool SampleWindow::previousSample() {
     fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
     this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(), 
@@ -1331,14 +1326,12 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     }
     if (SkOSMenu::FindSwitchState(evt, "Flip X", NULL)) {
         fFlipAxis ^= kFlipAxis_X;
-        this->updateTitle();
-        this->inval(NULL);
+        this->updateMatrix();
         return true;
     }
     if (SkOSMenu::FindSwitchState(evt, "Flip Y", NULL)) {
         fFlipAxis ^= kFlipAxis_Y;
-        this->updateTitle();
-        this->inval(NULL);
+        this->updateMatrix();
         return true;
     }
     if (SkOSMenu::FindAction(evt,"Save to PDF")) {
@@ -1619,8 +1612,8 @@ SkView::Click* SampleWindow::onFindClickHandler(SkScalar x, SkScalar y) {
 
 bool SampleWindow::onClick(Click* click) {
     if (GestureClick::IsGesture(click)) {
-        float x = SkScalarToFloat(click->fCurr.fX);
-        float y = SkScalarToFloat(click->fCurr.fY);
+        float x = click->fICurr.fX;
+        float y = click->fICurr.fY;
         
         switch (click->fState) {
             case SkView::Click::kDown_State:
@@ -1628,11 +1621,11 @@ bool SampleWindow::onClick(Click* click) {
                 break;
             case SkView::Click::kMoved_State:
                 fGesture.touchMoved(click->fOwner, x, y);
-                this->inval(NULL);
+                this->updateMatrix();
                 break;
             case SkView::Click::kUp_State:
                 fGesture.touchEnd(click->fOwner);
-                this->inval(NULL);
+                this->updateMatrix();
                 break;
         }
         return true;
