@@ -61,6 +61,7 @@
         '../tests/TestSize.cpp',
         '../tests/ToUnicode.cpp',
         '../tests/UtilsTest.cpp',
+        '../tests/WArrayTest.cpp',
         '../tests/WritePixelsTest.cpp',
         '../tests/Writer32Test.cpp',
         '../tests/XfermodeTest.cpp',
