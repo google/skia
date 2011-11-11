@@ -509,9 +509,11 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
         switch (fReader.readInt()) {
             case CLIP_PATH: {
                 const SkPath& path = getPath();
-                SkRegion::Op op = (SkRegion::Op) getInt();
+                uint32_t packed = getInt();
+                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
+                bool doAA = ClipParams_unpackDoAA(packed);
                 size_t offsetToRestore = getInt();
-                if (!canvas.clipPath(path, op) && offsetToRestore) {
+                if (!canvas.clipPath(path, op, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipPath.recordSkip(offsetToRestore - fReader.offset());
 #endif
@@ -520,7 +522,8 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             } break;
             case CLIP_REGION: {
                 const SkRegion& region = getRegion();
-                SkRegion::Op op = (SkRegion::Op) getInt();
+                uint32_t packed = getInt();
+                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
                 size_t offsetToRestore = getInt();
                 if (!canvas.clipRegion(region, op) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
@@ -531,9 +534,11 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             } break;
             case CLIP_RECT: {
                 const SkRect& rect = fReader.skipT<SkRect>();
-                SkRegion::Op op = (SkRegion::Op) getInt();
+                uint32_t packed = getInt();
+                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
+                bool doAA = ClipParams_unpackDoAA(packed);
                 size_t offsetToRestore = getInt();
-                if (!canvas.clipRect(rect, op) && offsetToRestore) {
+                if (!canvas.clipRect(rect, op, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRect.recordSkip(offsetToRestore - fReader.offset());
 #endif

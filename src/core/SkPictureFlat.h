@@ -57,6 +57,25 @@ enum DrawVertexFlags {
     DRAW_VERTICES_HAS_INDICES = 0x04
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// clipparams are packed in 5 bits
+//  doAA:1 | regionOp:4
+
+static inline uint32_t ClipParams_pack(SkRegion::Op op, bool doAA) {
+    unsigned doAABit = doAA ? 1 : 0;
+    return (doAABit << 4) | op;
+}
+
+static inline SkRegion::Op ClipParams_unpackRegionOp(uint32_t packed) {
+    return (SkRegion::Op)(packed & 0xF);
+}
+
+static inline bool ClipParams_unpackDoAA(uint32_t packed) {
+    return SkToBool((packed >> 4) & 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class SkRefCntPlayback {
 public:
     SkRefCntPlayback();

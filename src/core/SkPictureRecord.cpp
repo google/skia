@@ -166,7 +166,7 @@ void SkPictureRecord::recordOffsetForRestore(SkRegion::Op op) {
 bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     addDraw(CLIP_RECT);
     addRect(rect);
-    addInt(op);
+    addInt(ClipParams_pack(op, doAA));
 
     this->recordOffsetForRestore(op);
 
@@ -177,7 +177,7 @@ bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     addDraw(CLIP_PATH);
     addPath(path);
-    addInt(op);
+    addInt(ClipParams_pack(op, doAA));
 
     this->recordOffsetForRestore(op);
 
@@ -193,7 +193,7 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
     addDraw(CLIP_REGION);
     addRegion(region);
-    addInt(op);
+    addInt(ClipParams_pack(op, false));
 
     this->recordOffsetForRestore(op);
 
