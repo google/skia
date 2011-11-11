@@ -187,7 +187,7 @@ private:
     void updatePointer(int x, int y);
     void magnify(SkCanvas* canvas);
     void showZoomer(SkCanvas* canvas);
-
+    void updateMatrix();
     void postAnimatingEvent();
 
     typedef SkOSWindow INHERITED;

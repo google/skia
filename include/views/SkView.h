@@ -14,6 +14,7 @@
 #include "SkRect.h"
 #include "SkDOM.h"
 #include "SkTDict.h"
+#include "SkMatrix.h"
 
 class SkCanvas;
 class SkLayerView;
@@ -80,6 +81,12 @@ public:
     /** Return a rectangle set to [0, 0, width, height] */
     void        getLocalBounds(SkRect* bounds) const;
 
+    /** Loc - the view's offset with respect to its parent in its view hiearchy.
+        NOTE: For more complex transforms, use Local Matrix. The tranformations 
+        are applied in the following order:
+             canvas->translate(fLoc.fX, fLoc.fY);		
+             canvas->concat(fMatrix);
+    */
     /** Return the view's left edge */
     SkScalar    locX() const { return fLoc.fX; }
     /** Return the view's top edge */
@@ -89,6 +96,18 @@ public:
     void        setLoc(const SkPoint& loc) { this->setLoc(loc.fX, loc.fY); }
     void        setLocX(SkScalar x) { this->setLoc(x, fLoc.fY); }
     void        setLocY(SkScalar y) { this->setLoc(fLoc.fX, y); }
+    
+    /** Local Matrix - matrix used to tranform the view with respect to its 
+        parent in its view hiearchy. Use setLocalMatrix to apply matrix 
+        transformations to the current view and in turn affect its children.
+        NOTE: For simple offsets, use Loc. The transformations are applied in
+        the following order:
+             canvas->translate(fLoc.fX, fLoc.fY);		
+             canvas->concat(fMatrix);
+    */
+    const SkMatrix& getLocalMatrix() const { return fMatrix; }
+    void            setLocalMatrix(const SkMatrix& matrix);
+
     /** Offset (move) the view by the specified dx and dy. This does not affect the view's size */
     void        offset(SkScalar dx, SkScalar dy);
 
@@ -338,6 +357,7 @@ protected:
 
 private:
     SkScalar    fWidth, fHeight;
+    SkMatrix    fMatrix;
     SkPoint     fLoc;
     SkView*     fParent;
     SkView*     fFirstChild;
@@ -354,6 +374,8 @@ private:
     bool    setFocusView(SkView* fvOrNull);
     SkView* acceptFocus(FocusDirection);
     void    detachFromParent_NoLayout();
+    /** Compute the matrix to transform view-local coordinates into global ones */
+    void    localToGlobal(SkMatrix* matrix) const;
 };
 
 #endif
