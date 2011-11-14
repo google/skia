@@ -22,23 +22,18 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferSubData(GrGLenum target, GrGLintptr off
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLClear(GrGLbitfield mask) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLClearColor(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLClearStencil(GrGLint s) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLClientActiveTexture(GrGLenum texture) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLColor4ub(GrGLubyte red, GrGLubyte green, GrGLubyte blue, GrGLubyte alpha) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLColorMask(GrGLboolean red, GrGLboolean green, GrGLboolean blue, GrGLboolean alpha) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLColorPointer(GrGLint size, GrGLenum type, GrGLsizei stride, const GrGLvoid* pointer) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLCompileShader(GrGLuint shader) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLCompressedTexImage2D(GrGLenum target, GrGLint level, GrGLenum internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLsizei imageSize, const GrGLvoid* data) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLCullFace(GrGLenum mode) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDepthMask(GrGLboolean flag) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDisable(GrGLenum cap) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLDisableClientState(GrGLenum array) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDisableVertexAttribArray(GrGLuint index) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDrawArrays(GrGLenum mode, GrGLint first, GrGLsizei count) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDrawBuffer(GrGLenum mode) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDrawBuffers(GrGLsizei n, const GrGLenum* bufs) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDrawElements(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLEnable(GrGLenum cap) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLEnableClientState(GrGLenum cap) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLEnableVertexAttribArray(GrGLuint index) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLEndQuery(GrGLenum target) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLFinish() {}
@@ -46,15 +41,11 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLFlush() {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLFrontFace(GrGLenum mode) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLLineWidth(GrGLfloat width) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLLinkProgram(GrGLuint program) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLLoadMatrixf(const GrGLfloat* m) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLMatrixMode(GrGLenum mode) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLPixelStorei(GrGLenum pname, GrGLint param) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLPointSize(GrGLfloat size) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLQueryCounter(GrGLuint id, GrGLenum target) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLReadBuffer(GrGLenum src) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLReadPixels(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLScissor(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLShadeModel(GrGLenum mode) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLShaderSource(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilFunc(GrGLenum func, GrGLint ref, GrGLuint mask) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilFuncSeparate(GrGLenum face, GrGLenum func, GrGLint ref, GrGLuint mask) {}
@@ -62,8 +53,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilMask(GrGLuint mask) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilMaskSeparate(GrGLenum face, GrGLuint mask) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilOp(GrGLenum fail, GrGLenum zfail, GrGLenum zpass) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilOpSeparate(GrGLenum face, GrGLenum fail, GrGLenum zfail, GrGLenum zpass) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexCoordPointer(GrGLint size, GrGLenum type, GrGLsizei stride, const GrGLvoid* pointer) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexEnvi(GrGLenum target, GrGLenum pname, GrGLint param) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexImage2D(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexParameteri(GrGLenum target, GrGLenum pname, GrGLint param) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexSubImage2D(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid* pixels) {}
@@ -89,7 +78,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLUniformMatrix4fv(GrGLint location, GrGLsizei 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLUseProgram(GrGLuint program) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLVertexAttrib4fv(GrGLuint indx, const GrGLfloat* values) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLVertexAttribPointer(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLVertexPointer(GrGLint size, GrGLenum type, GrGLsizei stride, const GrGLvoid* pointer) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLViewport(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindFramebuffer(GrGLenum target, GrGLuint framebuffer) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindRenderbuffer(GrGLenum target, GrGLuint renderbuffer) {}
@@ -410,10 +398,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fClear = nullGLClear;
         interface->fClearColor = nullGLClearColor;
         interface->fClearStencil = nullGLClearStencil;
-        interface->fClientActiveTexture = nullGLClientActiveTexture;
-        interface->fColor4ub = nullGLColor4ub;
         interface->fColorMask = nullGLColorMask;
-        interface->fColorPointer = nullGLColorPointer;
         interface->fCompileShader = nullGLCompileShader;
         interface->fCompressedTexImage2D = nullGLCompressedTexImage2D;
         interface->fCreateProgram = nullGLCreateProgram;
@@ -426,14 +411,12 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fDeleteTextures = nullGLDeleteIds;
         interface->fDepthMask = nullGLDepthMask;
         interface->fDisable = nullGLDisable;
-        interface->fDisableClientState = nullGLDisableClientState;
         interface->fDisableVertexAttribArray = nullGLDisableVertexAttribArray;
         interface->fDrawArrays = nullGLDrawArrays;
         interface->fDrawBuffer = nullGLDrawBuffer;
         interface->fDrawBuffers = nullGLDrawBuffers;
         interface->fDrawElements = nullGLDrawElements;
         interface->fEnable = nullGLEnable;
-        interface->fEnableClientState = nullGLEnableClientState;
         interface->fEnableVertexAttribArray = nullGLEnableVertexAttribArray;
         interface->fEndQuery = nullGLEndQuery;
         interface->fFinish = nullGLFinish;
@@ -459,15 +442,11 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fGetUniformLocation = nullGLGetUniformLocation;
         interface->fLineWidth = nullGLLineWidth;
         interface->fLinkProgram = nullGLLinkProgram;
-        interface->fLoadMatrixf = nullGLLoadMatrixf;
-        interface->fMatrixMode = nullGLMatrixMode;
         interface->fPixelStorei = nullGLPixelStorei;
-        interface->fPointSize = nullGLPointSize;
         interface->fQueryCounter = nullGLQueryCounter;
         interface->fReadBuffer = nullGLReadBuffer;
         interface->fReadPixels = nullGLReadPixels;
         interface->fScissor = nullGLScissor;
-        interface->fShadeModel = nullGLShadeModel;
         interface->fShaderSource = nullGLShaderSource;
         interface->fStencilFunc = nullGLStencilFunc;
         interface->fStencilFuncSeparate = nullGLStencilFuncSeparate;
@@ -475,8 +454,6 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fStencilMaskSeparate = nullGLStencilMaskSeparate;
         interface->fStencilOp = nullGLStencilOp;
         interface->fStencilOpSeparate = nullGLStencilOpSeparate;
-        interface->fTexCoordPointer = nullGLTexCoordPointer;
-        interface->fTexEnvi = nullGLTexEnvi;
         interface->fTexImage2D = nullGLTexImage2D;
         interface->fTexParameteri = nullGLTexParameteri;
         interface->fTexSubImage2D = nullGLTexSubImage2D;
@@ -502,7 +479,6 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fUseProgram = nullGLUseProgram;
         interface->fVertexAttrib4fv = nullGLVertexAttrib4fv;
         interface->fVertexAttribPointer = nullGLVertexAttribPointer;
-        interface->fVertexPointer = nullGLVertexPointer;
         interface->fViewport = nullGLViewport;
         interface->fBindFramebuffer = nullGLBindFramebuffer;
         interface->fBindRenderbuffer = nullGLBindRenderbuffer;

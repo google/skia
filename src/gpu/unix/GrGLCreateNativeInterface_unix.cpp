@@ -50,10 +50,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fClear = glClear;
         interface->fClearColor = glClearColor;
         interface->fClearStencil = glClearStencil;
-        interface->fClientActiveTexture = glClientActiveTexture;
         interface->fColorMask = glColorMask;
         interface->fColorPointer = glColorPointer;
-        interface->fColor4ub = glColor4ub;
         GR_GL_GET_PROC(CompileShader);
         interface->fCompressedTexImage2D = glCompressedTexImage2D;
         GR_GL_GET_PROC(CreateProgram);
@@ -66,14 +64,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDeleteTextures = glDeleteTextures;
         interface->fDepthMask = glDepthMask;
         interface->fDisable = glDisable;
-        interface->fDisableClientState = glDisableClientState;
         GR_GL_GET_PROC(DisableVertexAttribArray);
         interface->fDrawArrays = glDrawArrays;
         interface->fDrawBuffer = glDrawBuffer;
         GR_GL_GET_PROC(DrawBuffers);
         interface->fDrawElements = glDrawElements;
         interface->fEnable = glEnable;
-        interface->fEnableClientState = glEnableClientState;
         GR_GL_GET_PROC(EnableVertexAttribArray);
         GR_GL_GET_PROC(EndQuery);
         interface->fFinish = glFinish;
@@ -106,15 +102,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(GetUniformLocation);
         interface->fLineWidth = glLineWidth;
         GR_GL_GET_PROC(LinkProgram);
-        interface->fLoadMatrixf = glLoadMatrixf;
         GR_GL_GET_PROC(MapBuffer);
-        interface->fMatrixMode = glMatrixMode;
-        interface->fPointSize = glPointSize;
         interface->fPixelStorei = glPixelStorei;
         interface->fReadBuffer = glReadBuffer;
         interface->fReadPixels = glReadPixels;
         interface->fScissor = glScissor;
-        interface->fShadeModel = glShadeModel;
         GR_GL_GET_PROC(ShaderSource);
         interface->fStencilFunc = glStencilFunc;
         GR_GL_GET_PROC(StencilFuncSeparate);
@@ -122,8 +114,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(StencilMaskSeparate);
         interface->fStencilOp = glStencilOp;
         GR_GL_GET_PROC(StencilOpSeparate);
-        interface->fTexCoordPointer = glTexCoordPointer;
-        interface->fTexEnvi = glTexEnvi;
         interface->fTexImage2D = glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
         interface->fTexSubImage2D = glTexSubImage2D;
@@ -150,7 +140,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(UseProgram);
         GR_GL_GET_PROC(VertexAttrib4fv);
         GR_GL_GET_PROC(VertexAttribPointer);
-        interface->fVertexPointer = glVertexPointer;
         interface->fViewport = glViewport;
         GR_GL_GET_PROC(BindFragDataLocationIndexed);
 

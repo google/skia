@@ -33,10 +33,8 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fClear = glClear;
         interface->fClearColor = glClearColor;
         interface->fClearStencil = glClearStencil;
-        interface->fClientActiveTexture = glClientActiveTexture;
         interface->fColorMask = glColorMask;
         interface->fColorPointer = glColorPointer;
-        interface->fColor4ub = glColor4ub;
         interface->fCompileShader = glCompileShader;
         interface->fCompressedTexImage2D = glCompressedTexImage2D;
         interface->fCreateProgram = glCreateProgram;
@@ -48,14 +46,12 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fDeleteTextures = glDeleteTextures;
         interface->fDepthMask = glDepthMask;
         interface->fDisable = glDisable;
-        interface->fDisableClientState = glDisableClientState;
         interface->fDisableVertexAttribArray = glDisableVertexAttribArray;
         interface->fDrawArrays = glDrawArrays;
         interface->fDrawBuffer = NULL;
         interface->fDrawBuffers = NULL;
         interface->fDrawElements = glDrawElements;
         interface->fEnable = glEnable;
-        interface->fEnableClientState = glEnableClientState;
         interface->fEnableVertexAttribArray = glEnableVertexAttribArray;
         interface->fFrontFace = glFrontFace;
         interface->fGenBuffers = glGenBuffers;
@@ -71,14 +67,10 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fGetUniformLocation = glGetUniformLocation;
         interface->fLineWidth = glLineWidth;
         interface->fLinkProgram = glLinkProgram;
-        interface->fLoadMatrixf = glLoadMatrixf;
-        interface->fMatrixMode = glMatrixMode;
-        interface->fPointSize = glPointSize;
         interface->fPixelStorei = glPixelStorei;
         interface->fReadBuffer = NULL;
         interface->fReadPixels = glReadPixels;
         interface->fScissor = glScissor;
-        interface->fShadeModel = glShadeModel;
         interface->fShaderSource = glShaderSource;
         interface->fStencilFunc = glStencilFunc;
         interface->fStencilFuncSeparate = glStencilFuncSeparate;
@@ -86,8 +78,6 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fStencilMaskSeparate = glStencilMaskSeparate;
         interface->fStencilOp = glStencilOp;
         interface->fStencilOpSeparate = glStencilOpSeparate;
-        interface->fTexCoordPointer = glTexCoordPointer;
-        interface->fTexEnvi = glTexEnvi;
         // mac uses GLenum for internalFormat param (non-standard)
         // amounts to int vs. uint.
         interface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
@@ -116,7 +106,6 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fUseProgram = glUseProgram;
         interface->fVertexAttrib4fv = glVertexAttrib4fv;
         interface->fVertexAttribPointer = glVertexAttribPointer;
-        interface->fVertexPointer = glVertexPointer;
         interface->fViewport = glViewport;
         interface->fGenFramebuffers = glGenFramebuffers;
         interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;

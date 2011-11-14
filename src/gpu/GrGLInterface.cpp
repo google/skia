@@ -122,8 +122,6 @@ GrGLInterface::GrGLInterface() {
     fClear = NULL;
     fClearColor = NULL;
     fClearStencil = NULL;
-    fClientActiveTexture = NULL;
-    fColor4ub = NULL;
     fColorMask = NULL;
     fColorPointer = NULL;
     fCompileShader = NULL;
@@ -138,7 +136,6 @@ GrGLInterface::GrGLInterface() {
     fDeleteTextures = NULL;
     fDepthMask = NULL;
     fDisable = NULL;
-    fDisableClientState = NULL;
     fDisableVertexAttribArray = NULL;
     fDrawArrays = NULL;
     fDrawBuffer = NULL;
@@ -148,7 +145,6 @@ GrGLInterface::GrGLInterface() {
     fFinish = NULL;
     fFlush = NULL;
     fEnable = NULL;
-    fEnableClientState = NULL;
     fEnableVertexAttribArray = NULL;
     fFrontFace = NULL;
     fGenBuffers = NULL;
@@ -171,15 +167,11 @@ GrGLInterface::GrGLInterface() {
     fGetUniformLocation = NULL;
     fLineWidth = NULL;
     fLinkProgram = NULL;
-    fLoadMatrixf = NULL;
-    fMatrixMode = NULL;
     fPixelStorei = NULL;
-    fPointSize = NULL;
     fQueryCounter = NULL;
     fReadBuffer = NULL;
     fReadPixels = NULL;
     fScissor = NULL;
-    fShadeModel = NULL;
     fShaderSource = NULL;
     fStencilFunc = NULL;
     fStencilFuncSeparate = NULL;
@@ -187,8 +179,6 @@ GrGLInterface::GrGLInterface() {
     fStencilMaskSeparate = NULL;
     fStencilOp = NULL;
     fStencilOpSeparate = NULL;
-    fTexCoordPointer = NULL;
-    fTexEnvi = NULL;
     fTexImage2D = NULL;
     fTexParameteri = NULL;
     fTexSubImage2D = NULL;
@@ -214,7 +204,6 @@ GrGLInterface::GrGLInterface() {
     fUseProgram = NULL;
     fVertexAttrib4fv = NULL;
     fVertexAttribPointer = NULL;
-    fVertexPointer = NULL;
     fViewport = NULL;
     fBindFramebuffer = NULL;
     fBindRenderbuffer = NULL;
