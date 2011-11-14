@@ -125,18 +125,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * The following macros are used to staticlly configure the default
- * GrGLInterface, but should not be used outside of the GrGLInterface
- * scaffolding.  Undefine here to prevent accidental use.
- */
-#undef GR_SUPPORT_GLDESKTOP
-#undef GR_SUPPORT_GLES1
-#undef GR_SUPPORT_GLES2
-#undef GR_SUPPORT_GLES
-
-////////////////////////////////////////////////////////////////////////////////
-
 #if GR_SCALAR_IS_FIXED
     #define GrGLType   GL_FIXED
 #elif GR_SCALAR_IS_FLOAT

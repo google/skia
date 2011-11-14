@@ -55,10 +55,6 @@ GrContext* GrContext::Create(GrEngine engine,
     return ctx;
 }
 
-GrContext* GrContext::CreateGLShaderContext() {
-    return GrContext::Create(kOpenGL_Shaders_GrEngine, 0);
-}
-
 GrContext::~GrContext() {
     this->flush();
     delete fTextureCache;

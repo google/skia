@@ -162,8 +162,7 @@ GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding,
             GrAssert(ver >= GR_GL_VER(1,00));
             return GrGLProgram::k110_GLSLVersion;
         default:
-            GrCrash("Attempting to get GLSL version in unknown or fixed-"
-                     "function GL binding.");
+            GrCrash("Unknown GL Binding");
             return GrGLProgram::k110_GLSLVersion; // suppress warning
     }
 }

@@ -15,24 +15,13 @@
 
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-const GrGLenum* GrGLTexture::WrapMode2GLWrap(GrGLBinding binding) {
-    static const GrGLenum mirrorRepeatModes[] = {
+const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
+    static const GrGLenum repeatModes[] = {
         GR_GL_CLAMP_TO_EDGE,
         GR_GL_REPEAT,
         GR_GL_MIRRORED_REPEAT
     };
-
-    static const GrGLenum repeatModes[] = {
-        GR_GL_CLAMP_TO_EDGE,
-        GR_GL_REPEAT,
-        GR_GL_REPEAT
-    };
-
-    if (kES1_GrGLBinding == binding) {
-        return repeatModes;  // GL_MIRRORED_REPEAT not supported.
-    } else {
-        return mirrorRepeatModes;
-    }
+    return repeatModes;
 };
 
 void GrGLTexture::init(GrGpuGL* gpu,

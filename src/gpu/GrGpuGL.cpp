@@ -268,9 +268,6 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding) {
         case kDesktop_GrGLBinding:
             GrAssert(gl->supportsDesktop());
             break;
-        case kES1_GrGLBinding:
-            GrAssert(gl->supportsES1());
-            break;
         case kES2_GrGLBinding:
             GrAssert(gl->supportsES2());
             break;
@@ -326,10 +323,8 @@ void GrGpuGL::initCaps() {
     // check FS and fixed-function texture unit limits
     // we only use textures in the fragment stage currently.
     // checks are > to make sure we have a spare unit.
-    if (kES1_GrGLBinding != this->glBinding()) {
-        GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-        GrAssert(maxTextureUnits > GrDrawState::kNumStages);
-    }
+    GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+    GrAssert(maxTextureUnits > GrDrawState::kNumStages);
     if (kES2_GrGLBinding != this->glBinding()) {
         GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
         GrAssert(maxTextureUnits > GrDrawState::kNumStages);
@@ -357,14 +352,6 @@ void GrGpuGL::initCaps() {
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(1,4)) ||
-                                    this->hasExtension("GL_EXT_stencil_wrap");
-    } else {
-        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(2,0)) ||
-                                this->hasExtension("GL_OES_stencil_wrap");
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
         // we could also look for GL_ATI_separate_stencil extension or
         // GL_EXT_stencil_two_side but they use different function signatures
         // than GL2.0+ (and than each other).
@@ -373,12 +360,9 @@ void GrGpuGL::initCaps() {
         fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(1,4)) ||
                                        this->hasExtension("GL_EXT_stencil_wrap");
     } else {
-        // ES 2 has two sided stencil but 1.1 doesn't. There doesn't seem to be
-        // an ES1 extension.
-        fCaps.fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
-        // stencil wrap support is in ES2, ES1 requires extension.
-        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(2,0)) ||
-                                       this->hasExtension("GL_OES_stencil_wrap");
+        // ES 2 has two sided stencil and stencil wrap
+        fCaps.fTwoSidedStencilSupport = true;
+        fCaps.fStencilWrapOpsSupport = true;
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -438,14 +422,9 @@ void GrGpuGL::initCaps() {
             fCaps.fNPOTTextureSupport = false;
         }
     } else {
-        if (fGLVersion >= GR_GL_VER(2,0)) {
-            fCaps.fNPOTTextureSupport = true;
-            fCaps.fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
-        } else {
-            fCaps.fNPOTTextureSupport =
-                        this->hasExtension("GL_APPLE_texture_2D_limited_npot");
-            fCaps.fNPOTTextureTileSupport = false;
-        }
+        // Unextended ES2 supports NPOT textures with clamp_to_edge and non-mip filters only
+        fCaps.fNPOTTextureSupport = true;
+        fCaps.fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
     }
 
     fCaps.fHWAALineSupport = (kDesktop_GrGLBinding == this->glBinding());
@@ -563,17 +542,11 @@ void GrGpuGL::initStencilFormats() {
             fGLCaps.fStencilFormats.push_back() = gDS;
         }
     } else {
-        // ES2 has STENCIL_INDEX8 without extensions.
-        // ES1 with GL_OES_framebuffer_object (which we require for ES1)
-        // introduces tokens for S1 thu S8 but there are separate extensions
-        // that make them legal (GL_OES_stencil1, ...).
-        // GL_OES_packed_depth_stencil adds DEPTH24_STENCIL8
-        // ES doesn't support using the unsized formats.
+        // ES2 has STENCIL_INDEX8 without extensions but requires extensions
+        // for other formats.
+        // ES doesn't support using the unsized format.
 
-        if (fGLVersion >= GR_GL_VER(2,0) ||
-            this->hasExtension("GL_OES_stencil8")) {
-            fGLCaps.fStencilFormats.push_back() = gS8;
-        }
+        fGLCaps.fStencilFormats.push_back() = gS8;
         //fStencilFormats.push_back() = gS16;
         if (this->hasExtension("GL_OES_packed_depth_stencil")) {
             fGLCaps.fStencilFormats.push_back() = gD24S8;
@@ -581,8 +554,6 @@ void GrGpuGL::initStencilFormats() {
         if (this->hasExtension("GL_OES_stencil4")) {
             fGLCaps.fStencilFormats.push_back() = gS4;
         }
-        // we require some stencil format.
-        GrAssert(fGLCaps.fStencilFormats.count() > 0);
     }
 }
 
@@ -2150,8 +2121,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
             newTexParams.fFilter = gr_to_gl_filter(sampler.getFilter());
 
-            const GrGLenum* wraps = 
-                                GrGLTexture::WrapMode2GLWrap(this->glBinding());
+            const GrGLenum* wraps =  GrGLTexture::WrapMode2GLWrap();
             newTexParams.fWrapS = wraps[sampler.getWrapX()];
             newTexParams.fWrapT = wraps[sampler.getWrapY()];
             memcpy(newTexParams.fSwizzleRGBA,
@@ -2406,9 +2376,7 @@ bool GrGpuGL::fboInternalFormat(GrPixelConfig config, GrGLenum* format) {
                 return false;
             }
         case kRGB_565_GrPixelConfig:
-            // ES2 supports 565. ES1 supports it
-            // with FBO extension desktop GL has
-            // no such internal format
+            // ES2 supports 565, but desktop GL does not.
             if (kDesktop_GrGLBinding != this->glBinding()) {
                 *format = GR_GL_RGB565;
                 return true;
