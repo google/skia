@@ -380,10 +380,10 @@ const char* glsl_version_string(const GrGLInterface* gl,
                 return "#version 110\n";
             }
         case GrGLProgram::k130_GLSLVersion:
-            GrAssert(!gl->supportsES());
+            GrAssert(!gl->supportsES2());
             return "#version 130\n";
         case GrGLProgram::k150_GLSLVersion:
-            GrAssert(!gl->supportsES());
+            GrAssert(!gl->supportsES2());
             return "#version 150\n";
         default:
             GrCrash("Unknown GL version.");
