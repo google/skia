@@ -1434,7 +1434,11 @@ void SkPath::validate() const {
             SkASSERT(bounds.isEmpty());
             SkASSERT(fBounds.isEmpty());
         } else {
-            fBounds.contains(bounds);
+            if (bounds.isEmpty()) {
+                SkASSERT(fBounds.isEmpty());
+            } else {
+                SkASSERT(fBounds.contains(bounds));
+            }
         }
     }
 
