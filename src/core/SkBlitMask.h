@@ -9,6 +9,7 @@
 #define SkBlitMask_DEFINED
 
 #include "SkBitmap.h"
+#include "SkColor.h"
 #include "SkMask.h"
 
 class SkBlitMask {
@@ -25,21 +26,41 @@ public:
      *  by color. The number of pixels to blit is specified by width and height,
      *  but each scanline is offset by dstRB (rowbytes) and srcRB respectively.
      */
-    typedef void (*Proc)(void* dst, size_t dstRB,
-                         const void* mask, size_t maskRB,
-                         SkColor color, int width, int height);
+    typedef void (*ColorProc)(void* dst, size_t dstRB,
+                              const void* mask, size_t maskRB,
+                              SkColor color, int width, int height);
 
     /**
-     *  Public entry-point to return a blitmask function ptr.
+     *  Function pointer that blits a row of src colors through a row of a mask
+     *  onto a row of dst colors. The RowFactory that returns this function ptr
+     *  will have been told the formats for the mask and the dst.
+     */
+    typedef void (*RowProc)(void* dst, const void* mask,
+                            const SkPMColor* src, int width);
+    
+    /**
+     *  Public entry-point to return a blitmask ColorProc.
      *  May return NULL if config or format are not supported.
      */
-    static Proc Factory(SkBitmap::Config dstConfig, SkMask::Format, SkColor);
-
+    static ColorProc ColorFactory(SkBitmap::Config, SkMask::Format, SkColor);
+    
     /**
-     *  Return either platform specific optimized blitmask function-ptr,
+     *  Public entry-point to return a blitmask RowProc.
+     *  May return NULL if config or format are not supported.
+     */
+    static RowProc RowFactory(SkBitmap::Config, SkMask::Format);
+    
+    /**
+     *  Return either platform specific optimized blitmask ColorProc,
      *  or NULL if no optimized routine is available.
      */
-    static Proc PlatformProcs(SkBitmap::Config dstConfig, SkMask::Format, SkColor);
+    static ColorProc PlatformColorProcs(SkBitmap::Config, SkMask::Format, SkColor);
+    
+    /**
+     *  Return either platform specific optimized blitmask RowProc,
+     *  or NULL if no optimized routine is available.
+     */
+    static RowProc PlatformRowProcs(SkBitmap::Config, SkMask::Format);
 };
 
 #endif

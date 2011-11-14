@@ -305,7 +305,7 @@ static void D32_LCD32_Opaque(void* SK_RESTRICT dst, size_t dstRB,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBlitMask::Proc D32_A8_Factory(SkColor color) {
+static SkBlitMask::ColorProc D32_A8_Factory(SkColor color) {
     if (SK_ColorBLACK == color) {
         return D32_A8_Black;
     } else if (0xFF == SkColorGetA(color)) {
@@ -315,13 +315,14 @@ static SkBlitMask::Proc D32_A8_Factory(SkColor color) {
     }
 }
 
-static SkBlitMask::Proc D32_LCD32_Factory(SkColor color) {
+static SkBlitMask::ColorProc D32_LCD32_Factory(SkColor color) {
     return (0xFF == SkColorGetA(color)) ? D32_LCD32_Opaque : D32_LCD32_Blend;
 }
 
-SkBlitMask::Proc SkBlitMask::Factory(SkBitmap::Config config,
-                                     SkMask::Format format, SkColor color) {
-    SkBlitMask::Proc proc = PlatformProcs(config, format, color);
+SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkBitmap::Config config,
+                                               SkMask::Format format,
+                                               SkColor color) {
+    ColorProc proc = PlatformColorProcs(config, format, color);
     if (proc) {
         return proc;
     }
@@ -347,7 +348,7 @@ SkBlitMask::Proc SkBlitMask::Factory(SkBitmap::Config config,
 
 bool SkBlitMask::BlitColor(const SkBitmap& device, const SkMask& mask,
                            const SkIRect& clip, SkColor color) {
-    Proc proc = Factory(device.config(), mask.fFormat, color);
+    ColorProc proc = ColorFactory(device.config(), mask.fFormat, color);
     if (proc) {
         int x = clip.fLeft;
         int y = clip.fTop;
