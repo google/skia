@@ -160,8 +160,6 @@ static unsigned CGRGBPixel_getAlpha(CGRGBPixel pixel) {
         bool shouldSubpixelQuantizeFonts);
 #endif
 
-using namespace skia_advanced_typeface_metrics_utils;
-
 static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
 
 // see Source/WebKit/chromium/base/mac/mac_util.mm DarwinMajorVersionInternal 
@@ -350,12 +348,12 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
     const uint16_t* headData = headRef.getShortPtr();
     if (headData) {
         id = (SkFontID) (headData[4] | headData[5] << 16); // checksum
-        id = id & 0x3FFFFFFF | 0x40000000; // make top two bits 01
+        id = (id & 0x3FFFFFFF) | 0x40000000; // make top two bits 01
     }
     // well-formed fonts have checksums, but as a last resort, use the pointer.
     if (id == 0) {
         id = (SkFontID) (uintptr_t) fontRef;
-        id = id & 0x3FFFFFFF | 0x80000000; // make top two bits 10
+        id = (id & 0x3FFFFFFF) | 0x80000000; // make top two bits 10
     }
     CGFontRelease(cgFont);
     return id;
@@ -1478,13 +1476,13 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     } else if (perGlyphInfo &
                SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
         if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
-            appendRange(&info->fGlyphWidths, 0);
+            skia_advanced_typeface_metrics_utils::appendRange(&info->fGlyphWidths, 0);
             info->fGlyphWidths->fAdvance.append(1, &min_width);
-            finishRange(info->fGlyphWidths.get(), 0,
+            skia_advanced_typeface_metrics_utils::finishRange(info->fGlyphWidths.get(), 0,
                         SkAdvancedTypefaceMetrics::WidthRange::kDefault);
         } else {
             info->fGlyphWidths.reset(
-                getAdvanceData(ctFont,
+                skia_advanced_typeface_metrics_utils::getAdvanceData(ctFont,
                                glyphCount,
                                glyphIDs,
                                glyphIDsCount,
