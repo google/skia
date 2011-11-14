@@ -31,6 +31,32 @@ const int16_t kInvalidAdvance = SK_MinS16;
 const int16_t kDontCareAdvance = SK_MinS16 + 1;
 
 template <typename Data>
+void stripUninterestingTrailingAdvancesFromRange(
+                                                 SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range) {
+    SkASSERT(false);
+}
+
+template <>
+void stripUninterestingTrailingAdvancesFromRange<int16_t>(
+                                                          SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* range) {
+    SkASSERT(range);
+    
+    int expectedAdvanceCount = range->fEndId - range->fStartId + 1;
+    if (range->fAdvance.count() < expectedAdvanceCount) {
+        return;
+    }
+    
+    for (int i = expectedAdvanceCount - 1; i >= 0; --i) {
+        if (range->fAdvance[i] != kDontCareAdvance &&
+            range->fAdvance[i] != kInvalidAdvance &&
+            range->fAdvance[i] != 0) {
+            range->fEndId = range->fStartId + i;
+            break;
+        }
+    }
+}
+
+template <typename Data>
 void resetRange(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
                 int startId) {
     range->fStartId = startId;
@@ -46,6 +72,29 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* appendRange(
     return nextSlot->get();
 }
 
+template <typename Data>
+void zeroWildcardsInRange(
+                          SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range) {
+    SkASSERT(false);
+}
+
+template <>
+void zeroWildcardsInRange<int16_t>(
+                                   SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* range) {
+    SkASSERT(range);
+    if (range->fType != SkAdvancedTypefaceMetrics::WidthRange::kRange) {
+        return;
+    }
+    SkASSERT(range->fAdvance.count() == range->fEndId - range->fStartId + 1);
+    
+    // Zero out wildcards.
+    for (int i = 0; i < range->fAdvance.count(); ++i) {
+        if (range->fAdvance[i] == kDontCareAdvance) {
+            range->fAdvance[i] = 0;
+        }
+    }
+}
+    
 template <typename Data>
 void finishRange(
         SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
@@ -68,55 +117,6 @@ void finishRange(
     SkASSERT(range->fAdvance.count() >= newLength);
     range->fAdvance.setCount(newLength);
     zeroWildcardsInRange(range);
-}
-
-template <typename Data>
-void stripUninterestingTrailingAdvancesFromRange(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range) {
-    SkASSERT(false);
-}
-
-template <>
-void stripUninterestingTrailingAdvancesFromRange<int16_t>(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* range) {
-    SkASSERT(range);
-
-    int expectedAdvanceCount = range->fEndId - range->fStartId + 1;
-    if (range->fAdvance.count() < expectedAdvanceCount) {
-        return;
-    }
-
-    for (int i = expectedAdvanceCount - 1; i >= 0; --i) {
-        if (range->fAdvance[i] != kDontCareAdvance &&
-                range->fAdvance[i] != kInvalidAdvance &&
-                range->fAdvance[i] != 0) {
-            range->fEndId = range->fStartId + i;
-            break;
-        }
-    }
-}
-
-template <typename Data>
-void zeroWildcardsInRange(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range) {
-    SkASSERT(false);
-}
-
-template <>
-void zeroWildcardsInRange<int16_t>(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* range) {
-    SkASSERT(range);
-    if (range->fType != SkAdvancedTypefaceMetrics::WidthRange::kRange) {
-        return;
-    }
-    SkASSERT(range->fAdvance.count() == range->fEndId - range->fStartId + 1);
-
-    // Zero out wildcards.
-    for (int i = 0; i < range->fAdvance.count(); ++i) {
-        if (range->fAdvance[i] == kDontCareAdvance) {
-            range->fAdvance[i] = 0;
-        }
-    }
 }
 
 template <typename Data, typename FontHandle>
