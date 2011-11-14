@@ -13,6 +13,31 @@
 #include "SkSize.h"
 #include "SkWriter32.h"
 
+static void add_rect(SkPath* path, const SkRect& r) {
+    path->moveTo(r.fLeft, r.fTop);
+    path->lineTo(r.fRight, r.fTop);
+    path->lineTo(r.fRight, r.fBottom);
+    path->lineTo(r.fLeft, r.fBottom);
+    path->close();
+}
+
+static void test_bounds(skiatest::Reporter* reporter) {
+    static const SkRect rects[] = {
+        { 10, 160, 610, 160 },
+        { 610, 160, 610, 199 },
+        { 10, 198, 610, 199 },
+        { 10, 160, 10, 199 },
+    };
+
+    SkPath path0, path1;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(rects); ++i) {
+        path0.addRect(rects[i]);
+        add_rect(&path1, rects[i]);
+    }
+
+    REPORTER_ASSERT(reporter, path0.getBounds() == path1.getBounds());
+}
+
 static void stroke_cubic(const SkPoint pts[4]) {
     SkPath path;
     path.moveTo(pts[0]);
@@ -592,6 +617,7 @@ void TestPath(skiatest::Reporter* reporter) {
 
     test_flattening(reporter);
     test_transform(reporter);
+//    test_bounds(reporter);
 }
 
 #include "TestClassDef.h"
