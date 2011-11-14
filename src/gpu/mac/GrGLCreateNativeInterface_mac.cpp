@@ -59,10 +59,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fClear = glClear;
         interface->fClearColor = glClearColor;
         interface->fClearStencil = glClearStencil;
-        interface->fClientActiveTexture = glClientActiveTexture;
         interface->fColorMask = glColorMask;
         interface->fColorPointer = glColorPointer;
-        interface->fColor4ub = glColor4ub;
         interface->fCompileShader = glCompileShader;
         interface->fCompressedTexImage2D = glCompressedTexImage2D;
         interface->fCreateProgram = glCreateProgram;
@@ -75,7 +73,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDeleteTextures = glDeleteTextures;
         interface->fDepthMask = glDepthMask;
         interface->fDisable = glDisable;
-        interface->fDisableClientState = glDisableClientState;
         interface->fDisableVertexAttribArray =
                                             glDisableVertexAttribArray;
         interface->fDrawArrays = glDrawArrays;
@@ -83,7 +80,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDrawBuffers = glDrawBuffers;
         interface->fDrawElements = glDrawElements;
         interface->fEnable = glEnable;
-        interface->fEnableClientState = glEnableClientState;
         interface->fEnableVertexAttribArray = glEnableVertexAttribArray;
         interface->fEndQuery = glEndQuery;
         interface->fFinish = glFinish;
@@ -107,15 +103,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fGetUniformLocation = glGetUniformLocation;
         interface->fLineWidth = glLineWidth;
         interface->fLinkProgram = glLinkProgram;
-        interface->fLoadMatrixf = glLoadMatrixf;
         interface->fMapBuffer = glMapBuffer;
-        interface->fMatrixMode = glMatrixMode;
-        interface->fPointSize = glPointSize;
         interface->fPixelStorei = glPixelStorei;
         interface->fReadBuffer = glReadBuffer;
         interface->fReadPixels = glReadPixels;
         interface->fScissor = glScissor;
-        interface->fShadeModel = glShadeModel;
         interface->fShaderSource = glShaderSource;
         interface->fStencilFunc = glStencilFunc;
         interface->fStencilFuncSeparate = glStencilFuncSeparate;
@@ -123,8 +115,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fStencilMaskSeparate = glStencilMaskSeparate;
         interface->fStencilOp = glStencilOp;
         interface->fStencilOpSeparate = glStencilOpSeparate;
-        interface->fTexCoordPointer = glTexCoordPointer;
-        interface->fTexEnvi = glTexEnvi;
         // mac uses GLenum for internalFormat param (non-standard)
         // amounts to int vs. uint.
         interface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
@@ -154,7 +144,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fUseProgram = glUseProgram;
         interface->fVertexAttrib4fv = glVertexAttrib4fv;
         interface->fVertexAttribPointer = glVertexAttribPointer;
-        interface->fVertexPointer = glVertexPointer;
         interface->fViewport = glViewport;
 
         if (ver >= GR_GL_VER(3,3) || GrGLHasExtensionFromString("GL_ARB_timer_query", extStr)) {

@@ -50,10 +50,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(Clear);
         GR_GL_GET_PROC(ClearColor);
         GR_GL_GET_PROC(ClearStencil);
-        GR_GL_GET_PROC(ClientActiveTexture);
         GR_GL_GET_PROC(ColorMask);
-        GR_GL_GET_PROC(ColorPointer);
-        GR_GL_GET_PROC(Color4ub);
         GR_GL_GET_PROC(CompileShader);
         GR_GL_GET_PROC(CompressedTexImage2D);
         GR_GL_GET_PROC(CreateProgram);
@@ -66,14 +63,12 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(DeleteTextures);
         GR_GL_GET_PROC(DepthMask);
         GR_GL_GET_PROC(Disable);
-        GR_GL_GET_PROC(DisableClientState);
         GR_GL_GET_PROC(DisableVertexAttribArray);
         GR_GL_GET_PROC(DrawArrays);
         GR_GL_GET_PROC(DrawBuffer);
         GR_GL_GET_PROC(DrawBuffers);
         GR_GL_GET_PROC(DrawElements);
         GR_GL_GET_PROC(Enable);
-        GR_GL_GET_PROC(EnableClientState);
         GR_GL_GET_PROC(EnableVertexAttribArray);
         GR_GL_GET_PROC(EndQuery);
         GR_GL_GET_PROC(Finish);
@@ -106,15 +101,11 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(GetUniformLocation);
         GR_GL_GET_PROC(LineWidth);
         GR_GL_GET_PROC(LinkProgram);
-        GR_GL_GET_PROC(LoadMatrixf);
         GR_GL_GET_PROC(MapBuffer);
-        GR_GL_GET_PROC(MatrixMode);
-        GR_GL_GET_PROC(PointSize);
         GR_GL_GET_PROC(PixelStorei);
         GR_GL_GET_PROC(ReadBuffer);
         GR_GL_GET_PROC(ReadPixels);
         GR_GL_GET_PROC(Scissor);
-        GR_GL_GET_PROC(ShadeModel);
         GR_GL_GET_PROC(ShaderSource);
         GR_GL_GET_PROC(StencilFunc);
         GR_GL_GET_PROC(StencilFuncSeparate);
@@ -122,8 +113,6 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(StencilMaskSeparate);
         GR_GL_GET_PROC(StencilOp);
         GR_GL_GET_PROC(StencilOpSeparate);
-        GR_GL_GET_PROC(TexCoordPointer);
-        GR_GL_GET_PROC(TexEnvi);
         GR_GL_GET_PROC(TexImage2D)
         GR_GL_GET_PROC(TexParameteri);
         GR_GL_GET_PROC(TexSubImage2D);
@@ -150,7 +139,6 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(UseProgram);
         GR_GL_GET_PROC(VertexAttrib4fv);
         GR_GL_GET_PROC(VertexAttribPointer);
-        GR_GL_GET_PROC(VertexPointer);
         GR_GL_GET_PROC(Viewport);
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
