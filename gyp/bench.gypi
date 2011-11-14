@@ -26,6 +26,7 @@
     '../bench/GradientBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
+    '../bench/MutexBench.cpp',
     '../bench/PathBench.cpp',
     '../bench/RectBench.cpp',
     '../bench/RepeatTileBench.cpp',
