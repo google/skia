@@ -14,6 +14,18 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ *  Path.bounds is defined to be the bounds of all the control points.
+ *  If we called bounds.join(r) we would skip r if r was empty, which breaks
+ *  our promise. Hence we have a custom joiner that doesn't look at emptiness
+ */
+static void joinNoEmptyChecks(SkRect* dst, const SkRect& src) {
+    dst->fLeft = SkMinScalar(dst->fLeft, src.fLeft);
+    dst->fTop = SkMinScalar(dst->fTop, src.fTop);
+    dst->fRight = SkMaxScalar(dst->fRight, src.fRight);
+    dst->fBottom = SkMaxScalar(dst->fBottom, src.fBottom);
+}
+
 /*  This guy's constructor/destructor bracket a path editing operation. It is
     used when we know the bounds of the amount we are going to add to the path
     (usually a new contour, but not required).
@@ -43,7 +55,7 @@ public:
             fPath->fBounds = fRect;
             fPath->fBoundsIsDirty = false;
         } else if (!fDirty) {
-            fPath->fBounds.join(fRect);
+            joinNoEmptyChecks(&fPath->fBounds, fRect);
             fPath->fBoundsIsDirty = false;
         }
     }
@@ -1437,7 +1449,9 @@ void SkPath::validate() const {
             if (bounds.isEmpty()) {
                 SkASSERT(fBounds.isEmpty());
             } else {
-                SkASSERT(fBounds.contains(bounds));
+                if (!fBounds.isEmpty()) {
+                    SkASSERT(fBounds.contains(bounds));
+                }
             }
         }
     }

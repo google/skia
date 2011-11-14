@@ -23,10 +23,10 @@ static void add_rect(SkPath* path, const SkRect& r) {
 
 static void test_bounds(skiatest::Reporter* reporter) {
     static const SkRect rects[] = {
-        { 10, 160, 610, 160 },
-        { 610, 160, 610, 199 },
-        { 10, 198, 610, 199 },
-        { 10, 160, 10, 199 },
+        { SkIntToScalar(10), SkIntToScalar(160), SkIntToScalar(610), SkIntToScalar(160) },
+        { SkIntToScalar(610), SkIntToScalar(160), SkIntToScalar(610), SkIntToScalar(199) },
+        { SkIntToScalar(10), SkIntToScalar(198), SkIntToScalar(610), SkIntToScalar(199) },
+        { SkIntToScalar(10), SkIntToScalar(160), SkIntToScalar(10), SkIntToScalar(199) },
     };
 
     SkPath path0, path1;
@@ -617,7 +617,7 @@ void TestPath(skiatest::Reporter* reporter) {
 
     test_flattening(reporter);
     test_transform(reporter);
-//    test_bounds(reporter);
+    test_bounds(reporter);
 }
 
 #include "TestClassDef.h"
