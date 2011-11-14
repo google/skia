@@ -9,9 +9,6 @@
 
 #include "GrGLInterface.h"
 
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
@@ -145,7 +142,7 @@ const GrGLInterface* GrGLDefaultInterface() {
     #endif
         interface->fBindFragDataLocationIndexed = NULL;
         
-        interface->fBindingsExported = (GrGLBinding)(kES2_GrGLBinding | kES1_GrGLBinding);
+        interface->fBindingsExported = kES2_GrGLBinding;
     }
     glInterface.get()->ref();
     return glInterface.get();

@@ -222,8 +222,6 @@
         '../src/gpu/GrGpuFactory.cpp',
         '../src/gpu/GrGpuGL.cpp',
         '../src/gpu/GrGpuGL.h',
-        '../src/gpu/GrGpuGLFixed.cpp',
-        '../src/gpu/GrGpuGLFixed.h',
         '../src/gpu/GrGpuGLShaders.cpp',
         '../src/gpu/GrGpuGLShaders.h',
         '../src/gpu/GrGpuVertex.h',

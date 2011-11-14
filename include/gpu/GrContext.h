@@ -39,11 +39,6 @@ public:
     static GrContext* Create(GrEngine engine,
                              GrPlatform3DContext context3D);
 
-    /**
-     *  Helper to create a opengl-shader based context
-     */
-    static GrContext* CreateGLShaderContext();
-
     virtual ~GrContext();
 
     /**

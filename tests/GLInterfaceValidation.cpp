@@ -51,7 +51,7 @@ static void GLInterfaceValidationTest(skiatest::Reporter* reporter) {
         iface.reset(interfaceFactories[i].fFactory());
         REPORTER_ASSERT(reporter, NULL != iface.get());
         if (iface.get()) {
-            REPORTER_ASSERT(reporter, iface.get()->validate(kOpenGL_Shaders_GrEngine));
+            REPORTER_ASSERT(reporter, iface.get()->validate());
         }
     }
 }

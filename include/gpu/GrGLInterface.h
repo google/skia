@@ -111,8 +111,7 @@ typedef long GrGLsizeiptr;
 
 enum GrGLBinding {
     kDesktop_GrGLBinding = 0x01,
-    kES1_GrGLBinding = 0x02,
-    kES2_GrGLBinding = 0x04
+    kES2_GrGLBinding = 0x02
 };
 
 extern "C" {
@@ -278,19 +277,12 @@ struct GR_API GrGLInterface : public GrRefCnt {
 
     GrGLInterface();
 
-    bool validate(GrEngine engine) const;
+    bool validate() const;
     bool supportsDesktop() const {
         return 0 != (kDesktop_GrGLBinding & fBindingsExported);
     }
-    bool supportsES1() const {
-        return 0 != (kES1_GrGLBinding & fBindingsExported);
-    }
     bool supportsES2() const {
         return 0 !=  (kES2_GrGLBinding & fBindingsExported);
-    }
-    bool supportsES() const {
-        return 0 != ((kES1_GrGLBinding | kES2_GrGLBinding) &
-                        fBindingsExported);
     }
 
     // Indicator variable specifying the type of GL implementation
@@ -451,9 +443,6 @@ struct GR_API GrGLInterface : public GrRefCnt {
     GrGLInterfaceCallbackData fCallbackData;
 #endif
 
-private:
-    bool validateShaderFunctions() const;
-    bool validateFixedFunctions() const;
 };
 
 #endif

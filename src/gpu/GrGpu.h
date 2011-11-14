@@ -31,7 +31,7 @@ struct GrGpuStats {
     uint32_t fIndexCnt;   //<! Number of indices drawn
     uint32_t fDrawCnt;    //<! Number of draws
 
-    uint32_t fProgChngCnt;//<! Number of program changes (N/A for fixed)
+    uint32_t fProgChngCnt;//<! Number of program changes
 
     /**
      *  Number of times the texture is set in 3D API

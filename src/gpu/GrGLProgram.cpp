@@ -24,7 +24,7 @@ enum {
 
 
 const char* GrPrecision(const GrGLInterface* gl) {
-    if (gl->supportsES()) {
+    if (gl->supportsES2()) {
         return "mediump";
     } else {
         return " ";
@@ -32,7 +32,7 @@ const char* GrPrecision(const GrGLInterface* gl) {
 }
 
 const char* GrShaderPrecision(const GrGLInterface* gl) {
-    if (gl->supportsES()) {
+    if (gl->supportsES2()) {
         return "precision mediump float;\n";
     } else {
         return "";
@@ -372,7 +372,7 @@ const char* glsl_version_string(const GrGLInterface* gl,
                                 GrGLProgram::GLSLVersion v) {
     switch (v) {
         case GrGLProgram::k110_GLSLVersion:
-            if (gl->supportsES()) {
+            if (gl->supportsES2()) {
                 // ES2s shader language is based on version 1.20 but is version
                 // 1.00 of the ES language.
                 return "#version 100\n";
@@ -514,7 +514,7 @@ void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
             segments->fFSCode.appendf("\tfloat dfdy = 2.0*%s.x*duvdy.x - duvdy.y;\n", fsName);
             segments->fFSCode.appendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
             segments->fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / (dfdx*dfdx + dfdy*dfdy));\n");
-            if (gl->supportsES()) {
+            if (gl->supportsES2()) {
                 segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
         }

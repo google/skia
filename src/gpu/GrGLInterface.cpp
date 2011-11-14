@@ -241,25 +241,68 @@ GrGLInterface::GrGLInterface() {
 #endif
 }
 
+bool GrGLInterface::validate() const {
 
-bool GrGLInterface::validateShaderFunctions() const {
-    // required for GrGpuGLShaders
-    if (NULL == fAttachShader ||
+    bool isDesktop = this->supportsDesktop();
+
+    bool isES2 = this->supportsES2();
+    
+    if (isDesktop == isES2) {
+        // must have one, don't support both in same interface
+        return false;
+    }
+
+    // functions that are always required
+    if (NULL == fActiveTexture ||
+        NULL == fAttachShader ||
         NULL == fBindAttribLocation ||
+        NULL == fBindBuffer ||
+        NULL == fBindTexture ||
+        NULL == fBlendFunc ||
+        NULL == fBufferData ||
+        NULL == fBufferSubData ||
+        NULL == fClear ||
+        NULL == fClearColor ||
+        NULL == fClearStencil ||
+        NULL == fColorMask ||
         NULL == fCompileShader ||
         NULL == fCreateProgram ||
         NULL == fCreateShader ||
+        NULL == fCullFace ||
+        NULL == fDeleteBuffers ||
         NULL == fDeleteProgram ||
         NULL == fDeleteShader ||
+        NULL == fDeleteTextures ||
+        NULL == fDepthMask ||
+        NULL == fDisable ||
         NULL == fDisableVertexAttribArray ||
+        NULL == fDrawArrays ||
+        NULL == fDrawElements ||
+        NULL == fEnable ||
         NULL == fEnableVertexAttribArray ||
+        NULL == fFrontFace ||
+        NULL == fGenBuffers ||
+        NULL == fGenTextures ||
+        NULL == fGetBufferParameteriv ||
+        NULL == fGetError ||
+        NULL == fGetIntegerv ||
         NULL == fGetProgramInfoLog ||
         NULL == fGetProgramiv ||
         NULL == fGetShaderInfoLog ||
         NULL == fGetShaderiv ||
+        NULL == fGetString ||
         NULL == fGetUniformLocation ||
         NULL == fLinkProgram ||
+        NULL == fPixelStorei ||
+        NULL == fReadPixels ||
+        NULL == fScissor ||
         NULL == fShaderSource ||
+        NULL == fStencilFunc ||
+        NULL == fStencilMask ||
+        NULL == fStencilOp ||
+        NULL == fTexImage2D ||
+        NULL == fTexParameteri ||
+        NULL == fTexSubImage2D ||
         NULL == fUniform1f ||
         NULL == fUniform1i ||
         NULL == fUniform1fv ||
@@ -281,76 +324,7 @@ bool GrGLInterface::validateShaderFunctions() const {
         NULL == fUniformMatrix4fv ||
         NULL == fUseProgram ||
         NULL == fVertexAttrib4fv ||
-        NULL == fVertexAttribPointer) {
-        return false;
-    }
-    return true;
-}
-
-bool GrGLInterface::validateFixedFunctions() const {
-    if (NULL == fClientActiveTexture ||
-        NULL == fColor4ub ||
-        NULL == fColorPointer ||
-        NULL == fDisableClientState ||
-        NULL == fEnableClientState ||
-        NULL == fLoadMatrixf ||
-        NULL == fMatrixMode ||
-        NULL == fPointSize ||
-        NULL == fShadeModel ||
-        NULL == fTexCoordPointer ||
-        NULL == fTexEnvi ||
-        NULL == fVertexPointer) {
-        return false;
-    }
-    return true;
-}
-
-bool GrGLInterface::validate(GrEngine engine) const {
-
-    bool isDesktop = this->supportsDesktop();
-
-    bool isES = this->supportsES();
-    
-    if (isDesktop == isES) {
-        // must have one, don't support both in same interface
-        return false;
-    }
-
-    // functions that are always required
-    if (NULL == fActiveTexture ||
-        NULL == fBindBuffer ||
-        NULL == fBindTexture ||
-        NULL == fBlendFunc ||
-        NULL == fBufferData ||
-        NULL == fBufferSubData ||
-        NULL == fClear ||
-        NULL == fClearColor ||
-        NULL == fClearStencil ||
-        NULL == fColorMask ||
-        NULL == fCullFace ||
-        NULL == fDeleteBuffers ||
-        NULL == fDeleteTextures ||
-        NULL == fDepthMask ||
-        NULL == fDisable ||
-        NULL == fDrawArrays ||
-        NULL == fDrawElements ||
-        NULL == fEnable ||
-        NULL == fFrontFace ||
-        NULL == fGenBuffers ||
-        NULL == fGenTextures ||
-        NULL == fGetBufferParameteriv ||
-        NULL == fGetError ||
-        NULL == fGetIntegerv ||
-        NULL == fGetString ||
-        NULL == fPixelStorei ||
-        NULL == fReadPixels ||
-        NULL == fScissor ||
-        NULL == fStencilFunc ||
-        NULL == fStencilMask ||
-        NULL == fStencilOp ||
-        NULL == fTexImage2D ||
-        NULL == fTexParameteri ||
-        NULL == fTexSubImage2D ||
+        NULL == fVertexAttribPointer ||
         NULL == fViewport ||
         NULL == fBindFramebuffer ||
         NULL == fBindRenderbuffer ||
@@ -367,27 +341,6 @@ bool GrGLInterface::validate(GrEngine engine) const {
         NULL == fGenRenderbuffers ||
         NULL == fRenderbufferStorage) {
         return false;
-    }
-
-    switch (engine) {
-        case kOpenGL_Shaders_GrEngine:
-            if (kES1_GrGLBinding == fBindingsExported) {
-                return false;
-            }
-            if (!this->validateShaderFunctions()) {
-                return false;
-            }
-            break;
-        case kOpenGL_Fixed_GrEngine:
-            if (kES1_GrGLBinding == fBindingsExported) {
-                return false;
-            }
-            if (!this->validateFixedFunctions()) {
-                return false;
-            }
-            break;
-        default:
-            return false;
     }
 
     const char* ext;
