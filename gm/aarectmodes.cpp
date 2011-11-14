@@ -10,6 +10,50 @@
 #include "SkColorPriv.h"
 #include "SkShader.h"
 
+static void test4(SkCanvas* canvas) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPoint pts[] = {
+        {10, 160}, {610, 160},
+        {610, 160}, {10, 160},
+        
+        {610, 160}, {610, 160},
+        {610, 199}, {610, 199},
+        
+        {10, 198}, {610, 198},
+        {610, 199}, {10, 199},
+        
+        {10, 160}, {10, 160},
+        {10, 199}, {10, 199}
+    };
+    char verbs[] = {
+        0, 1, 1, 1, 4, 
+        0, 1, 1, 1, 4,
+        0, 1, 1, 1, 4,
+        0, 1, 1, 1, 4
+    };
+    SkPath path;
+    SkPoint* ptPtr = pts;
+    for (int i = 0; i < sizeof(verbs); ++i) {
+        switch ((SkPath::Verb) verbs[i]) {
+            case SkPath::kMove_Verb:
+                path.moveTo(ptPtr->fX, ptPtr->fY);
+                ++ptPtr;
+                break;
+            case SkPath::kLine_Verb:
+                path.lineTo(ptPtr->fX, ptPtr->fY);
+                ++ptPtr;
+                break;
+            case SkPath::kClose_Verb:
+                path.close();
+                break;
+        }
+    }
+    SkRect clip = {0, 130, 772, 531};
+    canvas->clipRect(clip);
+    canvas->drawPath(path, paint);
+}
+
 static SkCanvas* create_canvas(int w, int h) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, w, h);
@@ -107,7 +151,7 @@ namespace skiagm {
         virtual SkISize onISize() { return make_isize(640, 480); }
 
         virtual void onDraw(SkCanvas* canvas) {
-
+//            test4(canvas);
             const SkRect bounds = SkRect::MakeWH(W, H);
             static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 
