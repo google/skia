@@ -331,7 +331,7 @@ public:
     const uint16_t* getShortPtr() { 
         return fObj ? (const uint16_t*) CFDataGetBytePtr(fObj) : NULL; 
     }
-    ~AutoCFDataRelease() { CFRelease(fObj); }
+    ~AutoCFDataRelease() { CFSafeRelease(fObj); }
 private:
     CFDataRef fObj;
 };
