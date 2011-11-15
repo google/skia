@@ -633,6 +633,8 @@ static void LCD32_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
 SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
                                            SkMask::Format format,
                                            RowFlags flags) {
+// make this opt-in until chrome can rebaseline
+#ifdef SK_ENABLE_FAST_SHADERMASK
     RowProc proc = PlatformRowProcs(config, format, flags);
     if (proc) {
         return proc;
@@ -665,6 +667,7 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
         default:
             break;
     }
+#endif
     return NULL;
 }
 
