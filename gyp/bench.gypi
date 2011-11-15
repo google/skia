@@ -31,6 +31,7 @@
     '../bench/RectBench.cpp',
     '../bench/RepeatTileBench.cpp',
     '../bench/ScalarBench.cpp',
+    '../bench/ShaderMaskBench.cpp',
     '../bench/TextBench.cpp',
     '../bench/VertBench.cpp',
   ],
