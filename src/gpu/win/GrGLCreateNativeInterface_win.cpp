@@ -37,10 +37,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         }
         GrGLInterface* interface = new GrGLInterface();
 
-        interface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-        interface->fMinRenderTargetHeight = kProbe_GrGLCapability;
-        interface->fMinRenderTargetWidth = kProbe_GrGLCapability;
-
         // Functions that are part of GL 1.1 will return NULL in
         // wglGetProcAddress
         interface->fBindTexture = glBindTexture;

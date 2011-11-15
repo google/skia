@@ -18,9 +18,6 @@ const GrGLInterface* GrGLDefaultInterface() {
         GrGLInteface* interface = new GrGLInterface;
         glInterface.reset(interface);
 
-        interface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-        interface->fMinRenderTargetHeight = kProbe_GrGLCapability;
-        interface->fMinRenderTargetWidth = kProbe_GrGLCapability;
         interface->fActiveTexture = glActiveTexture;
         interface->fAttachShader = glAttachShader;
         interface->fBindAttribLocation = glBindAttribLocation;

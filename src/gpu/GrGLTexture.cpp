@@ -38,18 +38,14 @@ void GrGLTexture::init(GrGpuGL* gpu,
     fUploadFormat       = textureDesc.fUploadFormat;
     fUploadType         = textureDesc.fUploadType;
     fOrientation        = textureDesc.fOrientation;
-    fScaleX             = GrIntToScalar(textureDesc.fContentWidth) /
-                            textureDesc.fAllocWidth;
-    fScaleY             = GrIntToScalar(textureDesc.fContentHeight) /
-                            textureDesc.fAllocHeight;
 
     if (NULL != rtDesc) {
         // we render to the top left
         GrGLIRect vp;
         vp.fLeft   = 0;
-        vp.fWidth  = textureDesc.fContentWidth;
-        vp.fHeight = textureDesc.fContentHeight;
-        vp.fBottom = textureDesc.fAllocHeight - textureDesc.fContentHeight;
+        vp.fWidth  = textureDesc.fWidth;
+        vp.fBottom = 0;
+        vp.fHeight = textureDesc.fHeight;
 
         fRenderTarget = new GrGLRenderTarget(gpu, *rtDesc, vp, fTexIDObj, this);
     }
@@ -58,10 +54,8 @@ void GrGLTexture::init(GrGpuGL* gpu,
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                          const Desc& textureDesc) 
     : INHERITED(gpu,
-                textureDesc.fContentWidth,
-                textureDesc.fContentHeight,
-                textureDesc.fAllocWidth,
-                textureDesc.fAllocHeight,
+                textureDesc.fWidth,
+                textureDesc.fHeight,
                 textureDesc.fConfig) {
     this->init(gpu, textureDesc, NULL);
 }
@@ -70,10 +64,8 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                          const Desc& textureDesc,
                          const GrGLRenderTarget::Desc& rtDesc)
     : INHERITED(gpu,
-                textureDesc.fContentWidth,
-                textureDesc.fContentHeight,
-                textureDesc.fAllocWidth,
-                textureDesc.fAllocHeight,
+                textureDesc.fWidth,
+                textureDesc.fHeight,
                 textureDesc.fConfig) {
     this->init(gpu, textureDesc, &rtDesc);
 }

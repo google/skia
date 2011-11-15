@@ -104,20 +104,6 @@ void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
                                   GrMatrix* matrix) {
     GrAssert(NULL != texture);
     GrAssert(NULL != matrix);
-    if (GR_Scalar1 != texture->contentScaleX() ||
-        GR_Scalar1 != texture->contentScaleY()) {
-        if (GrSamplerState::kRadial_SampleMode == mode) {
-            GrMatrix scale;
-            scale.setScale(texture->contentScaleX(), texture->contentScaleX());
-            matrix->postConcat(scale);
-        } else if (GrSamplerState::kNormal_SampleMode == mode) {
-            GrMatrix scale;
-            scale.setScale(texture->contentScaleX(), texture->contentScaleY());
-            matrix->postConcat(scale);
-        } else {
-            GrPrintf("We haven't handled NPOT adjustment for other sample modes!");
-        }
-    }
     GrGLTexture::Orientation orientation = texture->orientation();
     if (GrGLTexture::kBottomUp_Orientation == orientation) {
         GrMatrix invY;
@@ -134,10 +120,6 @@ bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
                                       const GrSamplerState& sampler) {
     GrAssert(NULL != texture);
     if (!sampler.getMatrix().isIdentity()) {
-        return false;
-    }
-    if (GR_Scalar1 != texture->contentScaleX() ||
-        GR_Scalar1 != texture->contentScaleY()) {
         return false;
     }
     GrGLTexture::Orientation orientation = texture->orientation();
@@ -180,81 +162,6 @@ static bool fbo_test(const GrGLInterface* gl, int w, int h) {
     GR_GL_CALL(gl, DeleteTextures(1, &testRTTex));
 
     return status == GR_GL_FRAMEBUFFER_COMPLETE;
-}
-
-static bool probe_for_npot_render_target_support(const GrGLInterface* gl,
-                                                 bool hasNPOTTextureSupport) {
-
-    /* Experimentation has found that some GLs that support NPOT textures
-       do not support FBOs with a NPOT texture. They report "unsupported" FBO
-       status. I don't know how to explicitly query for this. Do an
-       experiment. Note they may support NPOT with a renderbuffer but not a
-       texture. Presumably, the implementation bloats the renderbuffer
-       internally to the next POT.
-     */
-    if (hasNPOTTextureSupport) {
-        return fbo_test(gl, 200, 200);
-    }
-    return false;
-}
-
-static int probe_for_min_render_target_height(const GrGLInterface* gl,
-                                              bool hasNPOTRenderTargetSupport,
-                                              int maxRenderTargetSize) {
-    /* The iPhone 4 has a restriction that for an FBO with texture color
-       attachment with height <= 8 then the width must be <= height. Here
-       we look for such a limitation.
-     */
-    if (gPrintStartupSpew) {
-        GrPrintf("Small height FBO texture experiments\n");
-    }
-    int minRenderTargetHeight = GR_INVAL_GLINT;
-    for (GrGLuint i = 1; i <= 256; hasNPOTRenderTargetSupport ? ++i : i *= 2) {
-        GrGLuint w = maxRenderTargetSize;
-        GrGLuint h = i;
-        if (fbo_test(gl, w, h)) {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
-            }
-            minRenderTargetHeight = i;
-            break;
-        } else {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
-            }
-        }
-    }
-    GrAssert(GR_INVAL_GLINT != minRenderTargetHeight);
-
-    return minRenderTargetHeight;
-}
-
-static int probe_for_min_render_target_width(const GrGLInterface* gl,
-                                             bool hasNPOTRenderTargetSupport,
-                                             int maxRenderTargetSize) {
-
-    if (gPrintStartupSpew) {
-        GrPrintf("Small width FBO texture experiments\n");
-    }
-    int minRenderTargetWidth = GR_INVAL_GLINT;
-    for (GrGLuint i = 1; i <= 256; hasNPOTRenderTargetSupport ? i *= 2 : ++i) {
-        GrGLuint w = i;
-        GrGLuint h = maxRenderTargetSize;
-        if (fbo_test(gl, w, h)) {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
-            }
-            minRenderTargetWidth = i;
-            break;
-        } else {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
-            }
-        }
-    }
-    GrAssert(GR_INVAL_GLINT != minRenderTargetWidth);
-
-    return minRenderTargetWidth;
 }
 
 GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding) {
@@ -416,14 +323,11 @@ void GrGpuGL::initCaps() {
         if (fGLVersion >= GR_GL_VER(2,0) || 
             this->hasExtension("GL_ARB_texture_non_power_of_two")) {
             fCaps.fNPOTTextureTileSupport = true;
-            fCaps.fNPOTTextureSupport = true;
         } else {
             fCaps.fNPOTTextureTileSupport = false;
-            fCaps.fNPOTTextureSupport = false;
         }
     } else {
         // Unextended ES2 supports NPOT textures with clamp_to_edge and non-mip filters only
-        fCaps.fNPOTTextureSupport = true;
         fCaps.fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
     }
 
@@ -434,34 +338,11 @@ void GrGpuGL::initCaps() {
     // TODO: Make these a preprocess that generate some compile time constants.
     // TODO: probe once at startup, rather than once per context creation.
 
-    int expectNPOTTargets = fGL->fNPOTRenderTargetSupport;
-    if (expectNPOTTargets == kProbe_GrGLCapability) {
-        fCaps.fNPOTRenderTargetSupport =
-            probe_for_npot_render_target_support(fGL, fCaps.fNPOTTextureSupport);
-    } else {
-        GrAssert(expectNPOTTargets == 0 || expectNPOTTargets == 1);
-        fCaps.fNPOTRenderTargetSupport = (0 != expectNPOTTargets);
-    }
-
     GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_SIZE, &fCaps.fMaxTextureSize);
     GR_GL_GetIntegerv(fGL, GR_GL_MAX_RENDERBUFFER_SIZE, &fCaps.fMaxRenderTargetSize);
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
     fCaps.fMaxRenderTargetSize = GrMin(fCaps.fMaxTextureSize, fCaps.fMaxRenderTargetSize);
-
-    fCaps.fMinRenderTargetHeight = fGL->fMinRenderTargetHeight;
-    if (fCaps.fMinRenderTargetHeight == kProbe_GrGLCapability) {
-        fCaps.fMinRenderTargetHeight =
-            probe_for_min_render_target_height(fGL, fCaps.fNPOTRenderTargetSupport,
-                                               fCaps.fMaxRenderTargetSize);
-    }
-
-    fCaps.fMinRenderTargetWidth = fGL->fMinRenderTargetWidth;
-    if (fCaps.fMinRenderTargetWidth == kProbe_GrGLCapability) {
-        fCaps.fMinRenderTargetWidth =
-            probe_for_min_render_target_width(fGL, fCaps.fNPOTRenderTargetSupport,
-                                              fCaps.fMaxRenderTargetSize);
-    }
 
     this->initFSAASupport();
     this->initStencilFormats();
@@ -649,8 +530,8 @@ GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
         return NULL;
     }
     
-    glTexDesc.fContentWidth = glTexDesc.fAllocWidth = desc.fWidth;
-    glTexDesc.fContentHeight = glTexDesc.fAllocHeight = desc.fHeight;
+    glTexDesc.fWidth = desc.fWidth;
+    glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
     glTexDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
     glTexDesc.fOwnsID = false;
@@ -665,8 +546,8 @@ GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
         glRTDesc.fOwnIDs = true;
         glRTDesc.fConfig = desc.fConfig;
         glRTDesc.fSampleCnt = desc.fSampleCnt;
-        if (!this->createRenderTargetObjects(glTexDesc.fAllocWidth,
-                                             glTexDesc.fAllocHeight,
+        if (!this->createRenderTargetObjects(glTexDesc.fWidth,
+                                             glTexDesc.fHeight,
                                              glTexDesc.fTextureID,
                                              &glRTDesc)) {
             return NULL;
@@ -763,8 +644,8 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
                          &texDesc.fUploadType)) {
             return NULL;
         }
-        texDesc.fAllocWidth  = texDesc.fContentWidth  = desc.fWidth;
-        texDesc.fAllocHeight = texDesc.fContentHeight = desc.fHeight;
+        texDesc.fWidth  = desc.fWidth;
+        texDesc.fHeight = desc.fHeight;
 
         texDesc.fConfig             = desc.fConfig;
         texDesc.fOrientation        = GrGLTexture::kBottomUp_Orientation;
@@ -801,7 +682,7 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
     // we assume the texture is bound
 
     size_t bpp = GrBytesPerPixel(desc.fConfig);
-    size_t trimRowBytes = desc.fContentWidth * bpp;
+    size_t trimRowBytes = desc.fWidth * bpp;
 
     if (!rowBytes) {
         rowBytes = trimRowBytes;
@@ -825,13 +706,13 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
     } else {
         if (data && (trimRowBytes != rowBytes || flipY)) {
             // copy the data into our new storage, skipping the trailing bytes
-            size_t trimSize = desc.fContentHeight * trimRowBytes;
+            size_t trimSize = desc.fHeight * trimRowBytes;
             const char* src = (const char*)data;
             if (flipY) {
-                src += (desc.fContentHeight - 1) * rowBytes;
+                src += (desc.fHeight - 1) * rowBytes;
             }
             char* dst = (char*)tempStorage.reset(trimSize);
-            for (int y = 0; y < desc.fContentHeight; y++) {
+            for (int y = 0; y < desc.fHeight; y++) {
                 memcpy(dst, src, trimRowBytes);
                 if (flipY) {
                     src -= rowBytes;
@@ -850,87 +731,20 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
     if (kIndex_8_GrPixelConfig == desc.fConfig &&
         this->getCaps().f8BitPaletteSupport) {
         // ES only supports CompressedTexImage2D, not CompressedTexSubimage2D
-        GrAssert(desc.fContentWidth == desc.fAllocWidth);
-        GrAssert(desc.fContentHeight == desc.fAllocHeight);
-        GrGLsizei imageSize = desc.fAllocWidth * desc.fAllocHeight +
+        GrGLsizei imageSize = desc.fWidth * desc.fHeight +
                               kGrColorTableSize;
         GL_CALL(CompressedTexImage2D(GR_GL_TEXTURE_2D, 0, desc.fUploadFormat,
-                                     desc.fAllocWidth, desc.fAllocHeight,
+                                     desc.fWidth, desc.fHeight,
                                      0, imageSize, data));
         if (this->glCaps().fUnpackRowLengthSupport) {
             GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
         }
     } else {
-        if (NULL != data && (desc.fAllocWidth != desc.fContentWidth ||
-                                desc.fAllocHeight != desc.fContentHeight)) {
-            GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat,
-                               desc.fAllocWidth, desc.fAllocHeight,
-                               0, desc.fUploadFormat, desc.fUploadType, NULL));
-            GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0, 0, desc.fContentWidth,
-                                  desc.fContentHeight, desc.fUploadFormat,
-                                  desc.fUploadType, data));
-            if (this->glCaps().fUnpackRowLengthSupport) {
-                GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-            }
-
-            int extraW = desc.fAllocWidth  - desc.fContentWidth;
-            int extraH = desc.fAllocHeight - desc.fContentHeight;
-            int maxTexels = extraW * extraH;
-            maxTexels = GrMax(extraW * desc.fContentHeight, maxTexels);
-            maxTexels = GrMax(desc.fContentWidth * extraH, maxTexels);
-
-            SkAutoSMalloc<128*128> texels(bpp * maxTexels);
-
-            if (extraH) {
-                uint8_t* lastRowStart = (uint8_t*) data +
-                                        (desc.fContentHeight - 1) * rowBytes;
-                uint8_t* extraRowStart = (uint8_t*)texels.get();
-
-                for (int i = 0; i < extraH; ++i) {
-                    memcpy(extraRowStart, lastRowStart, trimRowBytes);
-                    extraRowStart += trimRowBytes;
-                }
-                GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0,
-                                      desc.fContentHeight, desc.fContentWidth,
-                                      extraH, desc.fUploadFormat,
-                                      desc.fUploadType, texels.get()));
-            }
-            if (extraW) {
-                uint8_t* edgeTexel = (uint8_t*)data + trimRowBytes - bpp;
-                uint8_t* extraTexel = (uint8_t*)texels.get();
-                for (int j = 0; j < desc.fContentHeight; ++j) {
-                    for (int i = 0; i < extraW; ++i) {
-                        memcpy(extraTexel, edgeTexel, bpp);
-                        extraTexel += bpp;
-                    }
-                    edgeTexel += rowBytes;
-                }
-                GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, desc.fContentWidth,
-                                      0, extraW, desc.fContentHeight,
-                                      desc.fUploadFormat, desc.fUploadType,
-                                      texels.get()));
-            }
-            if (extraW && extraH) {
-                uint8_t* cornerTexel = (uint8_t*)data + 
-                                       desc.fContentHeight * rowBytes - bpp;
-                uint8_t* extraTexel = (uint8_t*)texels.get();
-                for (int i = 0; i < extraW*extraH; ++i) {
-                    memcpy(extraTexel, cornerTexel, bpp);
-                    extraTexel += bpp;
-                }
-                GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, desc.fContentWidth,
-                                      desc.fContentHeight, extraW, extraH, 
-                                      desc.fUploadFormat, desc.fUploadType,
-                                      texels.get()));
-            }
-
-        } else {
-            GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat,
-                               desc.fAllocWidth, desc.fAllocHeight, 0,
-                               desc.fUploadFormat, desc.fUploadType, data));
-            if (this->glCaps().fUnpackRowLengthSupport) {
-                GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-            }
+        GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat,
+                            desc.fWidth, desc.fHeight, 0,
+                            desc.fUploadFormat, desc.fUploadType, data));
+        if (this->glCaps().fUnpackRowLengthSupport) {
+            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
         }
     }
 }
@@ -1044,10 +858,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     GrGLRenderTarget::Desc  glRTDesc;
     GrGLenum internalFormat;
 
-    glTexDesc.fContentWidth  = desc.fWidth;
-    glTexDesc.fContentHeight = desc.fHeight;
-    glTexDesc.fAllocWidth    = desc.fWidth;
-    glTexDesc.fAllocHeight   = desc.fHeight;
+    glTexDesc.fWidth  = desc.fWidth;
+    glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig        = desc.fConfig;
     glTexDesc.fOwnsID        = true;
 
@@ -1081,24 +893,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     }
 
     if (renderTarget) {
-        if (!caps.fNPOTRenderTargetSupport) {
-            glTexDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
-            glTexDesc.fAllocHeight = GrNextPow2(desc.fHeight);
-        }
-
-        glTexDesc.fAllocWidth = GrMax(caps.fMinRenderTargetWidth,
-                                      glTexDesc.fAllocWidth);
-        glTexDesc.fAllocHeight = GrMax(caps.fMinRenderTargetHeight,
-                                       glTexDesc.fAllocHeight);
-        if (glTexDesc.fAllocWidth > caps.fMaxRenderTargetSize ||
-            glTexDesc.fAllocHeight > caps.fMaxRenderTargetSize) {
-            return return_null_texture();
-        }
-    } else if (!caps.fNPOTTextureSupport) {
-        glTexDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
-        glTexDesc.fAllocHeight = GrNextPow2(desc.fHeight);
-        if (glTexDesc.fAllocWidth > caps.fMaxTextureSize ||
-            glTexDesc.fAllocHeight > caps.fMaxTextureSize) {
+        if (glTexDesc.fWidth > caps.fMaxRenderTargetSize ||
+            glTexDesc.fHeight > caps.fMaxRenderTargetSize) {
             return return_null_texture();
         }
     }
@@ -1139,8 +935,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 #if GR_COLLECT_STATS
         ++fStats.fRenderTargetCreateCnt;
 #endif
-        if (!this->createRenderTargetObjects(glTexDesc.fAllocWidth,
-                                             glTexDesc.fAllocHeight,
+        if (!this->createRenderTargetObjects(glTexDesc.fWidth,
+                                             glTexDesc.fHeight,
                                              glTexDesc.fTextureID,
                                              &glRTDesc)) {
             GL_CALL(DeleteTextures(1, &glTexDesc.fTextureID));
@@ -1187,8 +983,8 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is RT that isnt also a texture).
     GrAssert(rt->asTexture());
-    GrAssert(width >= rt->allocatedWidth());
-    GrAssert(height >= rt->allocatedHeight());
+    GrAssert(width >= rt->width());
+    GrAssert(height >= rt->height());
 
     int samples = rt->numSamples();
     GrGLuint sbID;

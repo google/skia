@@ -218,7 +218,7 @@ protected:
         return GrGLHasExtensionFromString(ext, fExtensionString.c_str());
     }
 
-    // adjusts texture matrix to account for orientation, size, and npotness
+    // adjusts texture matrix to account for orientation
     static void AdjustTextureMatrix(const GrGLTexture* texture,
                                     GrSamplerState::SampleMode mode,
                                     GrMatrix* matrix);

@@ -31,8 +31,8 @@ size_t GrRenderTarget::sizeInBytes() const {
     } else {
         colorBits = GrBytesPerPixel(fConfig);
     }
-    uint64_t size = fAllocatedWidth;
-    size *= fAllocatedHeight;
+    uint64_t size = fWidth;
+    size *= fHeight;
     size *= colorBits;
     size *= GrMax(1,fSampleCnt);
     return (size_t)(size / 8);

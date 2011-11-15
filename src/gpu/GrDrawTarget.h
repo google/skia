@@ -42,9 +42,7 @@ public:
         }
         void print() const;
         bool f8BitPaletteSupport        : 1;
-        bool fNPOTTextureSupport        : 1;
         bool fNPOTTextureTileSupport    : 1;
-        bool fNPOTRenderTargetSupport   : 1;
         bool fTwoSidedStencilSupport    : 1;
         bool fStencilWrapOpsSupport     : 1;
         bool fHWAALineSupport           : 1;
@@ -55,8 +53,6 @@ public:
         bool fDualSourceBlendingSupport : 1;
         bool fBufferLockSupport         : 1;
         bool fSupportPerVertexCoverage  : 1;
-        int fMinRenderTargetWidth;
-        int fMinRenderTargetHeight;
         int fMaxRenderTargetSize;
         int fMaxTextureSize;
     };
