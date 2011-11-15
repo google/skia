@@ -127,7 +127,8 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
 }
 
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkBitmap::Config dstConfig,
-                                                 SkMask::Format maskFormat) {
+                                                 SkMask::Format maskFormat,
+                                                 RowFlags flags) {
     return NULL;
 }
 

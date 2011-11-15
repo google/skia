@@ -45,22 +45,26 @@ public:
     static ColorProc ColorFactory(SkBitmap::Config, SkMask::Format, SkColor);
     
     /**
-     *  Public entry-point to return a blitmask RowProc.
-     *  May return NULL if config or format are not supported.
-     */
-    static RowProc RowFactory(SkBitmap::Config, SkMask::Format);
-    
-    /**
      *  Return either platform specific optimized blitmask ColorProc,
      *  or NULL if no optimized routine is available.
      */
     static ColorProc PlatformColorProcs(SkBitmap::Config, SkMask::Format, SkColor);
+
+    enum RowFlags {
+        kSrcIsOpaque_RowFlag    = 1 << 0
+    };
+
+    /**
+     *  Public entry-point to return a blitmask RowProc.
+     *  May return NULL if config or format are not supported.
+     */
+    static RowProc RowFactory(SkBitmap::Config, SkMask::Format, RowFlags);
     
     /**
      *  Return either platform specific optimized blitmask RowProc,
      *  or NULL if no optimized routine is available.
      */
-    static RowProc PlatformRowProcs(SkBitmap::Config, SkMask::Format);
+    static RowProc PlatformRowProcs(SkBitmap::Config, SkMask::Format, RowFlags);
 };
 
 #endif

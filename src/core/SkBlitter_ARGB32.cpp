@@ -256,7 +256,7 @@ void SkARGB32_Black_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkBitmap& device,
                             const SkPaint& paint) : INHERITED(device, paint) {
@@ -297,8 +297,6 @@ void SkARGB32_Shader_Blitter::blitH(int x, int y, int width) {
         }
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkARGB32_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                                         const int16_t runs[]) {
@@ -373,3 +371,61 @@ void SkARGB32_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
         }
     }
 }
+
+void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
+    // we only handle kA8 with an xfermode
+    if (fXfermode && (SkMask::kA8_Format != mask.fFormat)) {
+        this->INHERITED::blitMask(mask, clip);
+        return;
+    }
+
+    SkASSERT(mask.fBounds.contains(clip));
+
+    SkBlitMask::RowProc proc = NULL;
+    if (!fXfermode) {
+        unsigned flags = 0;
+        if (fShader->getFlags() & SkShader::kOpaqueAlpha_Flag) {
+            flags |= SkBlitMask::kSrcIsOpaque_RowFlag;
+        }
+        proc = SkBlitMask::RowFactory(SkBitmap::kARGB_8888_Config, mask.fFormat,
+                                      (SkBlitMask::RowFlags)flags);
+        if (NULL == proc) {
+            this->INHERITED::blitMask(mask, clip);
+            return;
+        }
+    }
+
+    const int x = clip.fLeft;
+    const int width = clip.width();
+    int y = clip.fTop;
+    int height = clip.height();
+
+    char* dstRow = (char*)fDevice.getAddr32(x, y);
+    const size_t dstRB = fDevice.rowBytes();
+    const uint8_t* maskRow = (const uint8_t*)mask.getAddr(x, y);
+    const size_t maskRB = mask.fRowBytes;
+
+    SkShader* shader = fShader;
+    SkPMColor* span = fBuffer;
+
+    if (fXfermode) {
+        SkASSERT(SkMask::kA8_Format == mask.fFormat);
+        SkXfermode* xfer = fXfermode;
+        do {
+            shader->shadeSpan(x, y, span, width);
+            xfer->xfer32((SkPMColor*)dstRow, span, width, maskRow);
+            dstRow += dstRB;
+            maskRow += maskRB;
+            y += 1;
+        } while (--height > 0);
+    } else {
+        do {
+            shader->shadeSpan(x, y, span, width);
+            proc(dstRow, maskRow, span, width);
+            dstRow += dstRB;
+            maskRow += maskRB;
+            y += 1;
+        } while (--height > 0);
+    }
+}
+
