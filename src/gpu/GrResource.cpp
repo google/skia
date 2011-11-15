@@ -32,3 +32,20 @@ void GrResource::abandon() {
         fGpu = NULL;
     }
 }
+
+const GrContext* GrResource::getContext() const {
+    if (NULL != fGpu) {
+        return fGpu->getContext();
+    } else {
+        return NULL;
+    }
+}
+
+GrContext* GrResource::getContext() {
+    if (NULL != fGpu) {
+        return fGpu->getContext();
+    } else {
+        return NULL;
+    }
+}
+
