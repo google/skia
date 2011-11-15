@@ -203,6 +203,11 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
   return 0;
 }
 
+static void ensure_typeface_accessible(SkFontID fontID) {
+    LogFontTypeface* face = (LogFontTypeface*)SkTypefaceCache::FindByID(fontID);
+    SkFontHost::EnsureTypefaceAccessible(*face);
+}
+
 static void GetLogFontByID(SkFontID fontID, LOGFONT* lf) {
     LogFontTypeface* face = (LogFontTypeface*)SkTypefaceCache::FindByID(fontID);
     if (face) {
@@ -393,9 +398,11 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     SetWorldTransform(fDC, &xform);
 
     uint16_t glyphID = glyph.getGlyphID();
-    ExtTextOutW(fDC, 0, 0, ETO_GLYPH_INDEX, NULL, reinterpret_cast<LPCWSTR>(&glyphID), 1, NULL);
+    BOOL ret = ExtTextOutW(fDC, 0, 0, ETO_GLYPH_INDEX, NULL, reinterpret_cast<LPCWSTR>(&glyphID), 1, NULL);
     GdiFlush();
-
+    if (0 == ret) {
+        return NULL;
+    }
     *srcRBPtr = srcRB;
     // offset to the start of the image
     return (const char*)fBits + (fHeight - glyph.fHeight) * srcRB;
@@ -592,6 +599,10 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     // Note: need to use GGO_GRAY8_BITMAP instead of GGO_METRICS because GGO_METRICS returns a smaller
     // BlackBlox; we need the bigger one in case we need the image.  fAdvance is the same.
     uint32_t ret = GetGlyphOutlineW(fDDC, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
+    if (GDI_ERROR == ret) {
+        ensure_typeface_accessible(fRec.fFontID);
+        ret = GetGlyphOutlineW(fDDC, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
+    }
 
     if (GDI_ERROR != ret) {
         if (ret == 0) {
@@ -650,6 +661,10 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
     OUTLINETEXTMETRIC otm;
 
     uint32_t ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
+    if (GDI_ERROR == ret) {
+        ensure_typeface_accessible(fRec.fFontID);
+        ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
+    }
     if (sizeof(otm) != ret) {
       return;
     }
@@ -876,9 +891,13 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     size_t srcRB;
     const void* bits = fOffscreen.draw(glyph, isBW, fgColor, &srcRB);
-    if (!bits) {
-        sk_bzero(glyph.fImage, glyph.computeImageSize());
-        return;
+    if (NULL == bits) {
+        ensure_typeface_accessible(fRec.fFontID);
+        bits = fOffscreen.draw(glyph, isBW, fgColor, &srcRB);
+        if (NULL == bits) {
+            sk_bzero(glyph.fImage, glyph.computeImageSize());
+            return;
+        }
     }
 
     if (table) {
@@ -942,6 +961,10 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
 
     GLYPHMETRICS gm;
     uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &fMat22);
+    if (GDI_ERROR == total_size) {
+        ensure_typeface_accessible(fRec.fFontID);
+        total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &fMat22);
+    }
 
     if (GDI_ERROR != total_size) {
 
@@ -1033,8 +1056,12 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     // To request design units, create a logical font whose height is specified
     // as unitsPerEm.
     OUTLINETEXTMETRIC otm;
-    if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm) ||
-        !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
+    unsigned int otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
+    if (0 == otmRet) {
+        ensure_typeface_accessible(fontID);
+        otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
+    }
+    if (!otmRet || !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
         goto Error;
     }
     lf.lfHeight = -SkToS32(otm.otmEMSquare);
@@ -1178,6 +1205,10 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     DWORD tables[2] = {kTTCTag, 0};
     for (int i = 0; i < SK_ARRAY_COUNT(tables); i++) {
         size_t bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
+        if (bufferSize == GDI_ERROR) {
+            ensure_typeface_accessible(uniqueID);
+            bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
+        }
         if (bufferSize != GDI_ERROR) {
             stream = new SkMemoryStream(bufferSize);
             if (GetFontData(hdc, tables[i], 0, (void*)stream->getMemoryBase(),

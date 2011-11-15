@@ -289,6 +289,14 @@ public:
      */
     static uint32_t GetUnitsPerEm(SkFontID fontID);
 #endif
+
+    /** If Skia is running in a constrained environment and the typeface
+        implementation is handle based, the typeface data may become
+        unavailable asynchronously. If a font host or scaler context method is
+        unable to access font data, it may call this function as a request to
+        make the handle contained in the typeface useable.
+    */
+    static void EnsureTypefaceAccessible(const SkTypeface& typeface);
 };
 
 #endif

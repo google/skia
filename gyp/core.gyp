@@ -152,6 +152,7 @@
 
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
+        '../src/ports/SkFontHost_sandbox_none.cpp',
         '../src/ports/SkFontHost_win.cpp',
         '../src/ports/SkThread_win.cpp',
 
