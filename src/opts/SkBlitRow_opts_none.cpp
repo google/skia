@@ -26,10 +26,17 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
     return NULL;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
-SkBlitMask::Proc SkBlitMask::PlatformProcs(SkBitmap::Config dstConfig,
-                                           SkMask::Format maskFormat,
-                                           SkColor color)
-{
+SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
+                                                     SkMask::Format maskFormat,
+                                                     SkColor color) {
    return NULL;
 }
+
+SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkBitmap::Config dstConfig,
+                                                 SkMask::Format maskFormat,
+                                                 RowFlags flags) {
+    return NULL;
+}
+
