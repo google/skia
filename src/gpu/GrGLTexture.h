@@ -60,10 +60,8 @@ public:
     };
 
     struct Desc {
-        int             fContentWidth;
-        int             fContentHeight;
-        int             fAllocWidth;
-        int             fAllocHeight;
+        int             fWidth;
+        int             fHeight;
         GrPixelConfig   fConfig;
         GrGLuint        fTextureID;
         bool            fOwnsID;
@@ -108,16 +106,6 @@ public:
     GrGLenum uploadFormat() const { return fUploadFormat; }
     GrGLenum uploadType() const { return fUploadType; }
 
-    /**
-     * @return width() / allocWidth()
-     */
-    GrScalar contentScaleX() const { return fScaleX; }
-
-    /**
-     * @return height() / allocHeight()
-     */
-    GrScalar contentScaleY() const { return fScaleY; }
-
     // Ganesh assumes texture coordinates have their origin
     // in the top-left corner of the image. OpenGL, however,
     // has the origin in the lower-left corner. For content that
@@ -142,9 +130,6 @@ private:
     GrGLTexID*                      fTexIDObj;
     GrGLenum                        fUploadFormat;
     GrGLenum                        fUploadType;
-    // precomputed content / alloc ratios
-    GrScalar                        fScaleX;
-    GrScalar                        fScaleY;
     Orientation                     fOrientation;
 
     void init(GrGpuGL* gpu,

@@ -278,16 +278,6 @@ struct GR_API GrGLInterface : public GrRefCnt {
     // exported:  GLES{1|2} or Desktop.
     GrGLBinding fBindingsExported;
 
-    /// Does this GL support NPOT textures on FBOs?
-    /// boolean value, or kProbe_GrGLCapability to probe (slowly) at context creation.
-    int fNPOTRenderTargetSupport;
-
-    /// Some GL implementations (PowerVR SGX devices like the iPhone 4)
-    /// have restrictions on the size of small render targets.
-    /// kProbe_GrGLCapability to probe (slowly) at context creation.
-    int fMinRenderTargetHeight;
-    int fMinRenderTargetWidth;
-
     GrGLActiveTextureProc fActiveTexture;
     GrGLAttachShaderProc fAttachShader;
     GrGLBeginQueryProc fBeginQuery;

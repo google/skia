@@ -32,10 +32,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
         GrGLInterface* interface = new GrGLInterface();
 
-        interface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-        interface->fMinRenderTargetHeight = kProbe_GrGLCapability;
-        interface->fMinRenderTargetWidth = kProbe_GrGLCapability;
-
         interface->fActiveTexture = glActiveTexture;
         GR_GL_GET_PROC(AttachShader);
         GR_GL_GET_PROC(BindAttribLocation);

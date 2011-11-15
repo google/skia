@@ -331,12 +331,8 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
         rtDesc.fFlags =  rtDesc.fFlags |
                          kRenderTarget_GrTextureFlagBit |
                          kNoStencil_GrTextureFlagBit;
-        rtDesc.fWidth  =
-            GrNextPow2(GrMax<int>(desc.fWidth,
-                                  fGpu->getCaps().fMinRenderTargetWidth));
-        rtDesc.fHeight =
-            GrNextPow2(GrMax<int>(desc.fHeight,
-                                  fGpu->getCaps().fMinRenderTargetHeight));
+        rtDesc.fWidth  = GrNextPow2(GrMax(desc.fWidth, 64));
+        rtDesc.fHeight = GrNextPow2(GrMax(desc.fHeight, 64));
 
         GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
 
@@ -576,10 +572,6 @@ bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
     bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
     if (!isPow2) {
-        if (!caps.fNPOTTextureSupport) {
-            return false;
-        }
-
         bool tiled = sampler.getWrapX() != GrSamplerState::kClamp_WrapMode ||
                      sampler.getWrapY() != GrSamplerState::kClamp_WrapMode;
         if (tiled && !caps.fNPOTTextureTileSupport) {
@@ -2005,7 +1997,7 @@ void GrContext::convolveInX(GrTexture* texture,
                             const SkRect& rect,
                             const float* kernel,
                             int kernelWidth) {
-    float imageIncrement[2] = {1.0f / texture->allocatedWidth(), 0.0f};
+    float imageIncrement[2] = {1.0f / texture->width(), 0.0f};
     convolve(texture, rect, imageIncrement, kernel, kernelWidth);
 }
 
@@ -2013,7 +2005,7 @@ void GrContext::convolveInY(GrTexture* texture,
                             const SkRect& rect,
                             const float* kernel,
                             int kernelWidth) {
-    float imageIncrement[2] = {0.0f, 1.0f / texture->allocatedHeight()};
+    float imageIncrement[2] = {0.0f, 1.0f / texture->height()};
     convolve(texture, rect, imageIncrement, kernel, kernelWidth);
 }
 

@@ -475,11 +475,6 @@ void GrGpuGLShaders::flushTextureDomain(int s) {
                 SkTSwap(values[1], values[3]);
             }
 
-            values[0] *= SkScalarToFloat(texture->contentScaleX());
-            values[2] *= SkScalarToFloat(texture->contentScaleX());
-            values[1] *= SkScalarToFloat(texture->contentScaleY());
-            values[3] *= SkScalarToFloat(texture->contentScaleY());
-
             GL_CALL(Uniform4fv(uni, 1, values));
         }
     }
@@ -581,12 +576,14 @@ void GrGpuGLShaders::flushTexelSize(int s) {
     const int& uni = fProgramData->fUniLocations.fStages[s].fNormalizedTexelSizeUni;
     if (GrGLProgram::kUnusedUniform != uni) {
         GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
-        if (texture->allocatedWidth() != fProgramData->fTextureWidth[s] ||
-            texture->allocatedHeight() != fProgramData->fTextureWidth[s]) {
+        if (texture->width() != fProgramData->fTextureWidth[s] ||
+            texture->height() != fProgramData->fTextureHeight[s]) {
 
-            float texelSize[] = {1.f / texture->allocatedWidth(),
-                                 1.f / texture->allocatedHeight()};
+            float texelSize[] = {1.f / texture->width(),
+                                 1.f / texture->height()};
             GL_CALL(Uniform2fv(uni, 1, texelSize));
+            fProgramData->fTextureWidth[s] = texture->width();
+            fProgramData->fTextureHeight[s] = texture->height();
         }
     }
 }

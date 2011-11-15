@@ -32,9 +32,6 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             return NULL;
         }
         GrGLInterface* interface = new GrGLInterface();
-        interface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-        interface->fMinRenderTargetHeight = kProbe_GrGLCapability;
-        interface->fMinRenderTargetWidth = kProbe_GrGLCapability;
 
         GR_GL_GET_PROC(ActiveTexture);
         GR_GL_GET_PROC(BeginQuery);

@@ -161,8 +161,8 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     GrAssert(NULL == rt->getStencilBuffer());
     GrStencilBuffer* sb = 
-        this->getContext()->findStencilBuffer(rt->allocatedWidth(),
-                                              rt->allocatedHeight(),
+        this->getContext()->findStencilBuffer(rt->width(),
+                                              rt->height(),
                                               rt->numSamples());
     if (NULL != sb) {
         rt->setStencilBuffer(sb);
@@ -172,8 +172,8 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         }
         return attached;
     }
-    if (this->createStencilBufferForRenderTarget(rt, rt->allocatedWidth(),
-                                                 rt->allocatedHeight())) {
+    if (this->createStencilBufferForRenderTarget(rt,
+                                                 rt->width(), rt->height())) {
         rt->getStencilBuffer()->ref();
         rt->getStencilBuffer()->transferToCacheAndLock();
 

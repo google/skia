@@ -104,9 +104,6 @@ GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface* gl) {
 
 GrGLInterface::GrGLInterface() {
     fBindingsExported = (GrGLBinding)0;
-    fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-    fMinRenderTargetHeight = kProbe_GrGLCapability;
-    fMinRenderTargetWidth = kProbe_GrGLCapability;
 
     fActiveTexture = NULL;
     fAttachShader = NULL;
