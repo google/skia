@@ -7,7 +7,6 @@
 
 #include "SkFontHost.h"
 #include "SkTypeface.h"
-#include "SkTypeface_win.h"
 
 //static
 void SkFontHost::EnsureTypefaceAccessible(const SkTypeface& typeface) {
