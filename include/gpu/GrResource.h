@@ -13,6 +13,7 @@
 #include "GrRefCnt.h"
 
 class GrGpu;
+class GrContext;
 
 class GrResource : public GrRefCnt {
 public:
@@ -54,6 +55,15 @@ public:
      * @return the size of the buffer in bytes
      */
      virtual size_t sizeInBytes() const = 0;
+
+     /**
+      * Retrieves the context that owns the resource. Note that it is possible
+      * for this to return NULL. When resources have been release()ed or
+      * abandon()ed they no longer have an unknowning context. Destroying a
+      * GrContext automatically releases all its resources.
+      */
+     const GrContext* getContext() const;
+     GrContext* getContext();
 
 protected:
 
