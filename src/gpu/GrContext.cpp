@@ -1637,28 +1637,59 @@ void GrContext::flushDrawBuffer() {
 #endif
 }
 
-bool GrContext::readTexturePixels(GrTexture* texture,
-                                  int left, int top, int width, int height,
-                                  GrPixelConfig config, void* buffer) {
+void GrContext::internalWriteTexturePixels(GrTexture* texture,
+                                           int left, int top,
+                                           int width, int height,
+                                           GrPixelConfig config,
+                                           const void* buffer,
+                                           size_t rowBytes,
+                                           uint32_t flags) {
+    SK_TRACE_EVENT0("GrContext::writeTexturePixels");
+    if (!(kDontFlush_PixelOpsFlag & flags)) {
+        this->flush();
+    }
+    // TODO: use scratch texture to perform conversion
+    if (GrPixelConfigIsUnpremultiplied(texture->config()) !=
+        GrPixelConfigIsUnpremultiplied(config)) {
+        return;
+    }
+
+    fGpu->writeTexturePixels(texture, left, top, width, height, 
+                             config, buffer, rowBytes);
+}
+
+bool GrContext::internalReadTexturePixels(GrTexture* texture,
+                                          int left, int top,
+                                          int width, int height,
+                                          GrPixelConfig config,
+                                          void* buffer,
+                                          size_t rowBytes,
+                                          uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::readTexturePixels");
 
     // TODO: code read pixels for textures that aren't rendertargets
 
-    this->flush();
+    if (!(kDontFlush_PixelOpsFlag & flags)) {
+        this->flush();
+    }
     GrRenderTarget* target = texture->asRenderTarget();
     if (NULL != target) {
-        return this->readRenderTargetPixels(target,
-                                            left, top, width, height, 
-                                            config, buffer, 0);
+        return this->internalReadRenderTargetPixels(target,
+                                                    left, top, width, height,
+                                                    config, buffer, rowBytes,
+                                                    flags);
     } else {
         return false;
     }
 }
 
-bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
-                                       int left, int top, int width, int height,
-                                       GrPixelConfig config, void* buffer,
-                                       size_t rowBytes) {
+bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
+                                               int left, int top,
+                                               int width, int height,
+                                               GrPixelConfig config,
+                                               void* buffer,
+                                               size_t rowBytes,
+                                               uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
     if (NULL == target) { 
         target = fGpu->getRenderTarget();
@@ -1675,7 +1706,9 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         return false;
     }
 
-    this->flush();
+    if (!(kDontFlush_PixelOpsFlag & flags)) {
+        this->flush();
+    }
 
     GrTexture* src = target->asTexture();
     bool swapRAndB = NULL != src &&
@@ -1751,15 +1784,24 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                             config, buffer, rowBytes, flipY);
 }
 
-void GrContext::writePixels(int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer,
-                            size_t stride) {
-    SK_TRACE_EVENT0("GrContext::writePixels");
+void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target, 
+                                                int left, int top,
+                                                int width, int height,
+                                                GrPixelConfig config,
+                                                const void* buffer,
+                                                size_t rowBytes,
+                                                uint32_t flags) {
+    SK_TRACE_EVENT0("GrContext::writeRenderTargetPixels");
+
+    if (NULL == target) { 
+        target = fGpu->getRenderTarget();
+        if (NULL == target) {
+            return;
+        }
+    }
 
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).
-
-    this->flush(kForceCurrentRenderTarget_FlushBit);
 
     const GrTextureDesc desc = {
         kNone_GrTextureFlags, kNone_GrAALevel, width, height, { config }
@@ -1769,7 +1811,8 @@ void GrContext::writePixels(int left, int top, int width, int height,
     if (NULL == texture) {
         return;
     }
-    texture->uploadTextureData(0, 0, width, height, buffer, stride);
+    this->internalWriteTexturePixels(texture, 0, 0, width, height,
+                                     config, buffer, rowBytes, flags);
 
     GrDrawTarget::AutoStateRestore  asr(fGpu);
     reset_target_state(fGpu);
@@ -1777,7 +1820,7 @@ void GrContext::writePixels(int left, int top, int width, int height,
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
     fGpu->setViewMatrix(matrix);
-
+    fGpu->setRenderTarget(target);
     fGpu->setTexture(0, texture);
 
     GrSamplerState sampler;

@@ -123,12 +123,29 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
      *
      * @return true if the read succeeded, false if not. The read can fail
-     *              because of a unsupported pixel config.
+     *              because of an unsupported pixel config.
      */
     bool readPixels(int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer);
+                    GrPixelConfig config, void* buffer, size_t rowBytes);
+
+    /**
+     * Copy the src pixels [buffer, rowbytes, pixelconfig] into the render
+     * target at the specified rectangle.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        memory to read the rectangle from.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
+     */
+    void writePixels(int left, int top, int width, int height,
+                     GrPixelConfig config, const void* buffer, size_t rowBytes);
 
     // a MSAA RT may require explicit resolving , it may auto-resolve (e.g. FBO
     // 0 in GL), or be unresolvable because the client didn't give us the 

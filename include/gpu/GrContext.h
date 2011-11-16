@@ -445,10 +445,10 @@ public:
      *                          FlushBits.
      */
     void flush(int flagsBitfield = 0);
-    
+
     /**
      * Reads a rectangle of pixels from a render target.
-     * @param renderTarget  the render target to read from. NULL means the
+     * @param target        the render target to read from. NULL means the
      *                      current render target.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
@@ -456,42 +456,88 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecueive rows. Zero
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
      *                      means rows are tightly packed.
      *
      * @return true if the read succeeded, false if not. The read can fail
-     *              because of a unsupported pixel config or because no render
+     *              because of an unsupported pixel config or because no render
      *              target is currently set.
      */
     bool readRenderTargetPixels(GrRenderTarget* target,
                                 int left, int top, int width, int height,
                                 GrPixelConfig config, void* buffer, 
-                                size_t rowBytes = 0);
+                                size_t rowBytes) {
+        return this->internalReadRenderTargetPixels(target, left, top,
+                                                    width, height,
+                                                    config, buffer,
+                                                    rowBytes, 0);
+    }
+
+    /**
+     * Copy the src pixels [buffer, rowbytes, pixelconfig] into a render target
+     * at the specified rectangle.
+     * @param target        the render target to write into. NULL means the
+     *                      current render target.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        memory to read the rectangle from.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
+     */
+    void writeRenderTargetPixels(GrRenderTarget* target,
+                                 int left, int top, int width, int height,
+                                 GrPixelConfig config, const void* buffer,
+                                 size_t rowBytes) {
+        this->internalWriteRenderTargetPixels(target, left, top, width, height,
+                                              config, buffer, rowBytes, 0);
+    }
 
     /**
      * Reads a rectangle of pixels from a texture.
-     * @param texture       the render target to read from.
+     * @param texture       the texture to read from.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
      *
      * @return true if the read succeeded, false if not. The read can fail
-     *              because of a unsupported pixel config.
+     *              because of an unsupported pixel config.
      */
-    bool readTexturePixels(GrTexture* target,
+    bool readTexturePixels(GrTexture* texture,
                            int left, int top, int width, int height,
-                           GrPixelConfig config, void* buffer);
+                           GrPixelConfig config, void* buffer,
+                           size_t rowBytes) {
+        return this->internalReadTexturePixels(texture, left, top,
+                                               width, height,
+                                               config, buffer, rowBytes, 0);
+    }
 
     /**
-     *  Copy the src pixels [buffer, stride, pixelconfig] into the current
-     *  render-target at the specified rectangle.
+     * Writes a rectangle of pixels to a texture.
+     * @param texture       the render target to read from.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        memory to read pixels from
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
      */
-    void writePixels(int left, int top, int width, int height,
-                     GrPixelConfig, const void* buffer, size_t stride);
-
+    void writeTexturePixels(GrTexture* texture,
+                            int left, int top, int width, int height,
+                            GrPixelConfig config, const void* buffer,
+                            size_t rowBytes) {
+        this->internalWriteTexturePixels(texture, left, top, width, height, 
+                                         config, buffer, rowBytes, 0);
+    }
     /**
      * Applies a 1D convolution kernel in the X direction to a rectangle of
      * pixels from a given texture.
@@ -654,7 +700,43 @@ private:
                   float imageIncrement[2],
                   const float* kernel,
                   int kernelWidth);
-    
+
+    /**
+     * Flags to the internal read/write pixels funcs
+     */
+    enum PixelOpsFlags {
+        kDontFlush_PixelOpsFlag = 0x1,
+    };
+
+    bool internalReadRenderTargetPixels(GrRenderTarget* target,
+                                        int left, int top,
+                                        int width, int height,
+                                        GrPixelConfig config, void* buffer, 
+                                        size_t rowBytes, uint32_t flags);
+
+    void internalWriteRenderTargetPixels(GrRenderTarget* target,
+                                        int left, int top,
+                                        int width, int height,
+                                        GrPixelConfig, const void* buffer,
+                                        size_t rowBytes, uint32_t flags);
+
+    bool internalReadTexturePixels(GrTexture* texture,
+                                   int left, int top,
+                                   int width, int height,
+                                   GrPixelConfig config, void* buffer,
+                                   size_t rowBytes, uint32_t flags);
+
+    void internalWriteTexturePixels(GrTexture* texture,
+                                    int left, int top,
+                                    int width, int height,
+                                    GrPixelConfig config, const void* buffer,
+                                    size_t rowBytes, uint32_t flags);
+    // needed for access to internalWriteTexturePixels. TODO: make GrContext
+    // be a facade for an internal class. Then functions that are public on the 
+    // internal class would have only be callable in src/gpu. The facade would
+    // only have to functions necessary for clients.
+    friend class GrAtlas;
+
     // computes vertex layout bits based on the paint. If paint expresses
     // a texture for a stage, the stage coords will be bound to postitions
     // unless hasTexCoords[s]==true in which case stage s's input coords

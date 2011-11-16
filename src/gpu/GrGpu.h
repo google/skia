@@ -245,6 +245,22 @@ public:
                     GrPixelConfig config, void* buffer, size_t rowBytes,
                     bool invertY);
 
+    /**
+     * Updates the pixels in a rectangle of a texture.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        memory to read pixels from
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
+     */
+    void writeTexturePixels(GrTexture* texture,
+                            int left, int top, int width, int height,
+                            GrPixelConfig config, const void* buffer,
+                            size_t rowBytes);
+
     const GrGpuStats& getStats() const;
     void resetStats();
     void printStats() const;
@@ -401,6 +417,12 @@ protected:
                               void* buffer,
                               size_t rowBytes,
                               bool invertY) = 0;
+
+    // overridden by API-specific derived class to perform the texture update
+    virtual void onWriteTexturePixels(GrTexture* texture,
+                                      int left, int top, int width, int height,
+                                      GrPixelConfig config, const void* buffer,
+                                      size_t rowBytes) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
     // indexed geometry. The subclass may adjust the startVertex and/or

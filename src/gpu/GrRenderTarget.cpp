@@ -14,14 +14,31 @@
 #include "GrStencilBuffer.h"
 
 bool GrRenderTarget::readPixels(int left, int top, int width, int height,
-                                GrPixelConfig config, void* buffer) {
+                                GrPixelConfig config, void* buffer,
+                                size_t rowBytes) {
     // go through context so that all necessary flushing occurs
-    GrContext* context = this->getGpu()->getContext();
-    GrAssert(NULL != context);
+    GrContext* context = this->getContext();
+    if (NULL == context) {
+        return false;
+    }
     return context->readRenderTargetPixels(this,
-                                           left, top, 
+                                           left, top,
                                            width, height,
-                                           config, buffer);
+                                           config, buffer, rowBytes);
+}
+
+void GrRenderTarget::writePixels(int left, int top, int width, int height,
+                                 GrPixelConfig config, const void* buffer,
+                                 size_t rowBytes) {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (NULL == context) {
+        return;
+    }
+    context->writeRenderTargetPixels(this,
+                                     left, top,
+                                     width, height,
+                                     config, buffer, rowBytes);
 }
 
 size_t GrRenderTarget::sizeInBytes() const {

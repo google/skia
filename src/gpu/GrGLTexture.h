@@ -64,9 +64,8 @@ public:
         int             fHeight;
         GrPixelConfig   fConfig;
         GrGLuint        fTextureID;
+        GrGLenum        fInternalFormat;
         bool            fOwnsID;
-        GrGLenum        fUploadFormat;
-        GrGLenum        fUploadType;
         Orientation     fOrientation;
     };
 
@@ -82,13 +81,6 @@ public:
 
     virtual ~GrGLTexture() { this->release(); }
 
-    // overrides of GrTexture
-    virtual void uploadTextureData(int x,
-                                   int y,
-                                   int width,
-                                   int height,
-                                   const void* srcData,
-                                   size_t rowBytes);
     virtual intptr_t getTextureHandle() const;
 
     // these functions 
@@ -103,8 +95,7 @@ public:
     }
     GrGLuint textureID() const { return fTexIDObj->id(); }
 
-    GrGLenum uploadFormat() const { return fUploadFormat; }
-    GrGLenum uploadType() const { return fUploadType; }
+    GrGLenum internalFormat() const { return fInternalFormat; }
 
     // Ganesh assumes texture coordinates have their origin
     // in the top-left corner of the image. OpenGL, however,
@@ -128,8 +119,7 @@ private:
     TexParams                       fTexParams;
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
     GrGLTexID*                      fTexIDObj;
-    GrGLenum                        fUploadFormat;
-    GrGLenum                        fUploadType;
+    GrGLenum                        fInternalFormat;
     Orientation                     fOrientation;
 
     void init(GrGpuGL* gpu,
