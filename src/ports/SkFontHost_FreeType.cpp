@@ -414,7 +414,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) {
-#if defined(SK_BUILD_FOR_MAC) || defined(ANDROID)
+#if defined(SK_BUILD_FOR_MAC)
     return NULL;
 #else
     SkAutoMutexAcquire ac(gFTMutex);
@@ -641,7 +641,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     rec->setHinting(h);
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 uint32_t SkFontHost::GetUnitsPerEm(SkFontID fontID) {
     SkAutoMutexAcquire ac(gFTMutex);
     SkFaceRec *rec = ref_ft_face(fontID);
