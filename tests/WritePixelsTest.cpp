@@ -398,10 +398,10 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
             SkCanvas::kRGBA_Premul_Config8888,
             SkCanvas::kRGBA_Unpremul_Config8888,
         };
-        for (int r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
+        for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
             const SkIRect& rect = testRects[r];
             for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
-                for (int c = 0; c < SK_ARRAY_COUNT(gReadConfigs); ++c) {
+                for (size_t c = 0; c < SK_ARRAY_COUNT(gReadConfigs); ++c) {
                     fillCanvas(&canvas);
                     SkCanvas::Config8888 config8888 = gReadConfigs[c];
                     SkBitmap bmp;
