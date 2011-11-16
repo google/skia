@@ -57,7 +57,7 @@ void skia_set_text_gamma(float blackGamma, float whiteGamma) {
     gBlackGammaCoeff = blackGamma;
     gWhiteGammaCoeff = whiteGamma;
     gGammaIsBuilt = false;
-    SkGraphics::SetFontCacheUsed(0);
+    SkGraphics::PurgeFontCache();
     build_power_table(gBlackGamma, gBlackGammaCoeff);
     build_power_table(gWhiteGamma, gWhiteGammaCoeff);
 }
