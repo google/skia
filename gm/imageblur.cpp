@@ -8,6 +8,9 @@
 #include "gm.h"
 #include "SkBlurImageFilter.h"
 
+#define WIDTH 500
+#define HEIGHT 500
+
 namespace skiagm {
 
 class ImageBlurGM : public GM {
@@ -22,22 +25,19 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(500, 500);
+        return make_isize(WIDTH, HEIGHT);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setImageFilter(new SkBlurImageFilter(24.0f, 0.0f))->unref();
         canvas->saveLayer(NULL, &paint);
-        paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(100);
         paint.setAntiAlias(true);
         const char* str = "The quick brown fox jumped over the lazy dog.";
         srand(1234);
-        SkISize size = canvas->getDeviceSize();
         for (int i = 0; i < 25; ++i) {
-            int x = rand() % size.fWidth;
-            int y = rand() % size.fHeight;
+            int x = rand() % WIDTH;
+            int y = rand() % HEIGHT;
             paint.setColor(rand() % 0x1000000 | 0xFF000000);
             paint.setTextSize(rand() % 300);
             canvas->drawText(str, strlen(str), x, y, paint);

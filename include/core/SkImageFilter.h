@@ -25,7 +25,7 @@ struct SkPoint;
  *
  *  If the imagefilter returns false, nothing is drawn.
  */
-class SK_API SkImageFilter : public SkRefCnt /*SkFlattenable*/ {
+class SK_API SkImageFilter : public SkFlattenable {
 public:
 
     /**
@@ -53,11 +53,13 @@ public:
     virtual bool asABlur(SkSize* sigma) const;
 
 protected:
+    SkImageFilter() {}
+    explicit SkImageFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}
     virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset);
 
 private:
-    typedef SkRefCnt INHERITED;
+    typedef SkFlattenable INHERITED;
 };
 
 #endif
