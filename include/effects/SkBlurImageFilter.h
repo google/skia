@@ -15,8 +15,16 @@ class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
     SkBlurImageFilter(SkScalar sigmaX, SkScalar sigmaY);
     virtual bool asABlur(SkSize* sigma) const;
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkBlurImageFilter, (buffer));
+    }
+protected:
+    explicit SkBlurImageFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer& buffer);
+    virtual Factory getFactory() { return CreateProc; }
 private:
     SkSize   fSigma;
+    typedef SkImageFilter INHERITED;
 };
 
 #endif

@@ -1592,7 +1592,8 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         asint(this->getMaskFilter()) |
         asint(this->getColorFilter()) |
         asint(this->getRasterizer()) |
-        asint(this->getLooper())) {
+        asint(this->getLooper()) |
+        asint(this->getImageFilter())) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
@@ -1628,6 +1629,7 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeFlattenable(this->getColorFilter());
         buffer.writeFlattenable(this->getRasterizer());
         buffer.writeFlattenable(this->getLooper());
+        buffer.writeFlattenable(this->getImageFilter());
     }
 }
 
@@ -1677,6 +1679,7 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         SkSafeUnref(this->setColorFilter((SkColorFilter*) buffer.readFlattenable()));
         SkSafeUnref(this->setRasterizer((SkRasterizer*) buffer.readFlattenable()));
         SkSafeUnref(this->setLooper((SkDrawLooper*) buffer.readFlattenable()));
+        SkSafeUnref(this->setImageFilter((SkImageFilter*) buffer.readFlattenable()));
     } else {
         this->setPathEffect(NULL);
         this->setShader(NULL);
@@ -1685,6 +1688,7 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         this->setColorFilter(NULL);
         this->setRasterizer(NULL);
         this->setLooper(NULL);
+        this->setImageFilter(NULL);
     }
 }
 
