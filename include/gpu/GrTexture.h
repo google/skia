@@ -54,38 +54,37 @@ public:
     }
 
     /**
-     * Updates a subrectangle of texels in the texture.
-     *
-     * @param x         left edge of rectangle to update
-     * @param y         top edge of rectangle to update
-     * @param width     width of rectangle to update
-     * @param height    height of rectangle to update
-     * @param srcData   width*height texels of data in same format that was
-     *                  used at texture creation.
-     * @param rowBytes  number of bytes per row in srcData, 0 means rows are 
-     *                  packed
-     */
-    virtual void uploadTextureData(int x,
-                                   int y,
-                                   int width,
-                                   int height,
-                                   const void* srcData,
-                                   size_t rowBytes) = 0;
-
-    /**
-     * Reads a rectangle of pixels from the texture.
+     * Read a rectangle of pixels from the texture.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
      *
      * @return true if the read succeeded, false if not. The read can fail
      *              because of a unsupported pixel config.
      */
     bool readPixels(int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer);
+                    GrPixelConfig config, void* buffer,
+                    size_t rowBytes);
+
+    /**
+     * Writes a rectangle of pixels to the texture.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        memory to read pixels from
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
+     */
+    void writePixels(int left, int top, int width, int height,
+                     GrPixelConfig config, const void* buffer,
+                     size_t rowBytes);
 
     /**
      * Retrieves the render target underlying this texture that can be passed to

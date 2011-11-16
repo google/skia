@@ -99,8 +99,9 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
             } else {
                 entry = ctx->lockScratchTexture(desc,
                                         GrContext::kExact_ScratchTexMatch);
-                entry.texture()->uploadTextureData(0, 0, bitmap->width(), 
-                    bitmap->height(), storage.get(), 0);
+                entry.texture()->writePixels(0, 0, bitmap->width(), 
+                                             bitmap->height(), desc.fConfig,
+                                             storage.get(), 0);
                 return entry;
             }
 
@@ -119,8 +120,11 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
     } else {
         entry = ctx->lockScratchTexture(desc,
                                         GrContext::kExact_ScratchTexMatch);
-        entry.texture()->uploadTextureData(0, 0, bitmap->width(), 
-            bitmap->height(), bitmap->getPixels(), bitmap->rowBytes());
+        entry.texture()->writePixels(0, 0,
+                                     bitmap->width(), bitmap->height(),
+                                     desc.fConfig,
+                                     bitmap->getPixels(),
+                                     bitmap->rowBytes());
         return entry;
     }
 }

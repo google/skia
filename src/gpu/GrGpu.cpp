@@ -253,6 +253,17 @@ bool GrGpu::readPixels(GrRenderTarget* target,
                               config, buffer, rowBytes, invertY);
 }
 
+void GrGpu::writeTexturePixels(GrTexture* texture,
+                               int left, int top, int width, int height,
+                               GrPixelConfig config, const void* buffer,
+                               size_t rowBytes) {
+    GrAssert(GrPixelConfigIsUnpremultiplied(config) ==
+             GrPixelConfigIsUnpremultiplied(texture->config()));
+    this->handleDirtyContext();
+    this->onWriteTexturePixels(texture, left, top, width, height,
+                               config, buffer, rowBytes);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 static const int MAX_QUADS = 1 << 12; // max possible: (1 << 14) - 1;

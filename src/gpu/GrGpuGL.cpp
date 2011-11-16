@@ -523,10 +523,10 @@ void GrGpuGL::onResetContext() {
 }
 
 GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
-    GrGLenum internalFormat; // we don't need this value
+    GrGLenum dontCare;
     GrGLTexture::Desc glTexDesc;
-    if (!this->canBeTexture(desc.fConfig, &internalFormat, 
-                            &glTexDesc.fUploadFormat, &glTexDesc.fUploadType)) {
+    if (!this->canBeTexture(desc.fConfig, &glTexDesc.fInternalFormat,
+                            &dontCare, &dontCare)) {
         return NULL;
     }
     
@@ -639,9 +639,8 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
     if (isTexture) {
         GrGLTexture::Desc texDesc;
         GrGLenum dontCare;
-        if (!canBeTexture(desc.fConfig, &dontCare,
-                         &texDesc.fUploadFormat,
-                         &texDesc.fUploadType)) {
+        if (!canBeTexture(desc.fConfig, &texDesc.fInternalFormat,
+                         &dontCare, &dontCare)) {
             return NULL;
         }
         texDesc.fWidth  = desc.fWidth;
@@ -675,44 +674,82 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
-                                       GrGLenum internalFormat,
-                                       const void* data,
-                                       size_t rowBytes) {
-    // we assume the texture is bound
+void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
+                                   int left, int top, int width, int height,
+                                   GrPixelConfig config, const void* buffer,
+                                   size_t rowBytes) {
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
-    size_t bpp = GrBytesPerPixel(desc.fConfig);
-    size_t trimRowBytes = desc.fWidth * bpp;
+    this->setSpareTextureUnit();
+    GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTex->textureID()));
+    GrGLTexture::Desc desc;
+    desc.fConfig = glTex->config();
+    desc.fWidth = glTex->width();
+    desc.fHeight = glTex->height();
+    desc.fOrientation = glTex->orientation();
+    desc.fTextureID = glTex->textureID();
+    desc.fInternalFormat = glTex->internalFormat();
 
-    if (!rowBytes) {
-        rowBytes = trimRowBytes;
+    this->uploadTexData(desc, left, top, width, height, config, buffer, rowBytes);
+}
+
+void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
+                            int left, int top, int width, int height,
+                            GrPixelConfig dataConfig,
+                            const void* data,
+                            size_t rowBytes) {
+    GrIRect bounds = GrIRect::MakeWH(desc.fWidth, desc.fHeight);
+    GrIRect subrect = GrIRect::MakeXYWH(left, top, width, height);
+    if (!bounds.contains(subrect)) {
+        return;
     }
+
+    // ES2 glCompressedTexSubImage2D doesn't support any formats
+    // (at least without extensions)
+    GrAssert(desc.fInternalFormat != GR_GL_PALETTE8_RGBA8 ||
+             bounds == subrect);
 
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
+    GrGLenum dontCare;
+    GrGLenum externalFormat;
+    GrGLenum externalType;
+    if (!this->canBeTexture(dataConfig, &dontCare,
+                            &externalFormat, &externalType)) {
+        return;
+    }
+
+    size_t bpp = GrBytesPerPixel(dataConfig);
+    size_t trimRowBytes = width * bpp;
+    if (!rowBytes) {
+        rowBytes = trimRowBytes;
+    }
     /*
-     * check whether to allocate a temporary buffer for flipping y or
-     * because our data has extra bytes past each row. If so, we need
-     * to trim those off here, since GL ES doesn't let us specify
-     * GL_UNPACK_ROW_LENGTH.
+     *  check whether to allocate a temporary buffer for flipping y or
+     *  because our srcData has extra bytes past each row. If so, we need
+     *  to trim those off here, since GL ES may not let us specify
+     *  GL_UNPACK_ROW_LENGTH.
      */
+    bool restoreGLRowLength = false;
     bool flipY = GrGLTexture::kBottomUp_Orientation == desc.fOrientation;
     if (this->glCaps().fUnpackRowLengthSupport && !flipY) {
-        if (data && rowBytes != trimRowBytes) {
+        // can't use this for flipping, only non-neg values allowed. :(
+        if (rowBytes != trimRowBytes) {
             GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
             GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
+            restoreGLRowLength = true;
         }
     } else {
-        if (data && (trimRowBytes != rowBytes || flipY)) {
+        if (trimRowBytes != rowBytes || flipY) {
             // copy the data into our new storage, skipping the trailing bytes
-            size_t trimSize = desc.fHeight * trimRowBytes;
+            size_t trimSize = height * trimRowBytes;
             const char* src = (const char*)data;
             if (flipY) {
-                src += (desc.fHeight - 1) * rowBytes;
+                src += (height - 1) * rowBytes;
             }
             char* dst = (char*)tempStorage.reset(trimSize);
-            for (int y = 0; y < desc.fHeight; y++) {
+            for (int y = 0; y < height; y++) {
                 memcpy(dst, src, trimRowBytes);
                 if (flipY) {
                     src -= rowBytes;
@@ -721,31 +758,27 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
                 }
                 dst += trimRowBytes;
             }
-            // now point data to our trimmed version
+            // now point dat to our copied version
             data = tempStorage.get();
-            rowBytes = trimRowBytes;
         }
     }
 
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
-    if (kIndex_8_GrPixelConfig == desc.fConfig &&
-        this->getCaps().f8BitPaletteSupport) {
-        // ES only supports CompressedTexImage2D, not CompressedTexSubimage2D
-        GrGLsizei imageSize = desc.fWidth * desc.fHeight +
-                              kGrColorTableSize;
-        GL_CALL(CompressedTexImage2D(GR_GL_TEXTURE_2D, 0, desc.fUploadFormat,
-                                     desc.fWidth, desc.fHeight,
-                                     0, imageSize, data));
-        if (this->glCaps().fUnpackRowLengthSupport) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-        }
+    if (bounds == subrect) {
+        GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, desc.fInternalFormat,
+                           desc.fWidth, desc.fHeight, 0,
+                           externalFormat, externalType, data));
     } else {
-        GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat,
-                            desc.fWidth, desc.fHeight, 0,
-                            desc.fUploadFormat, desc.fUploadType, data));
-        if (this->glCaps().fUnpackRowLengthSupport) {
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+        if (flipY) {
+            top = desc.fHeight - (top + height);
         }
+        GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, left, top, width, height,
+                              externalFormat, externalType, data));
+    }
+
+    if (restoreGLRowLength) {
+        GrAssert(this->glCaps().fUnpackRowLengthSupport);
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
 }
 
@@ -856,7 +889,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     GrGLTexture::Desc glTexDesc;
     GrGLRenderTarget::Desc  glRTDesc;
-    GrGLenum internalFormat;
+    GrGLenum externalFormat;
+    GrGLenum externalType;
 
     glTexDesc.fWidth  = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
@@ -871,9 +905,9 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
     if (!canBeTexture(desc.fConfig,
-                      &internalFormat,
-                      &glTexDesc.fUploadFormat,
-                      &glTexDesc.fUploadType)) {
+                      &glTexDesc.fInternalFormat,
+                      &externalFormat,
+                      &externalType)) {
         return return_null_texture();
     }
 
@@ -928,7 +962,14 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_WRAP_T,
                           initialTexParams.fWrapT));
-    this->allocateAndUploadTexData(glTexDesc, internalFormat,srcData, rowBytes);
+    if (NULL == srcData) {
+        GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, glTexDesc.fInternalFormat,
+                           glTexDesc.fWidth, glTexDesc.fHeight, 0,
+                           externalFormat, externalType, NULL));
+    } else {
+        this->uploadTexData(glTexDesc, 0, 0, glTexDesc.fWidth, glTexDesc.fHeight,
+                            desc.fConfig, srcData, rowBytes);
+    }
 
     GrGLTexture* tex;
     if (renderTarget) {
@@ -2075,51 +2116,51 @@ void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
 
 bool GrGpuGL::canBeTexture(GrPixelConfig config,
                            GrGLenum* internalFormat,
-                           GrGLenum* format,
-                           GrGLenum* type) {
+                           GrGLenum* externalFormat,
+                           GrGLenum* externalType) {
     switch (config) {
         case kRGBA_8888_PM_GrPixelConfig:
         case kRGBA_8888_UPM_GrPixelConfig:
-            *format = GR_GL_RGBA;
+            *externalFormat = GR_GL_RGBA;
             *internalFormat = GR_GL_RGBA;
-            *type = GR_GL_UNSIGNED_BYTE;
+            *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kBGRA_8888_PM_GrPixelConfig:
         case kBGRA_8888_UPM_GrPixelConfig:
             if (!fGLCaps.fBGRAFormatSupport) {
                 return false;
             }
-            *format = GR_GL_BGRA;
+            *externalFormat = GR_GL_BGRA;
             if (fGLCaps.fBGRAIsInternalFormat) {
                 *internalFormat = GR_GL_BGRA;
             } else {
                 *internalFormat = GR_GL_RGBA;
             }
-            *type = GR_GL_UNSIGNED_BYTE;
+            *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kRGB_565_GrPixelConfig:
-            *format = GR_GL_RGB;
+            *externalFormat = GR_GL_RGB;
             *internalFormat = GR_GL_RGB;
-            *type = GR_GL_UNSIGNED_SHORT_5_6_5;
+            *externalType = GR_GL_UNSIGNED_SHORT_5_6_5;
             break;
         case kRGBA_4444_GrPixelConfig:
-            *format = GR_GL_RGBA;
+            *externalFormat = GR_GL_RGBA;
             *internalFormat = GR_GL_RGBA;
-            *type = GR_GL_UNSIGNED_SHORT_4_4_4_4;
+            *externalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case kIndex_8_GrPixelConfig:
             if (this->getCaps().f8BitPaletteSupport) {
-                *format = GR_GL_PALETTE8_RGBA8;
+                *externalFormat = GR_GL_PALETTE8_RGBA8;
                 *internalFormat = GR_GL_PALETTE8_RGBA8;
-                *type = GR_GL_UNSIGNED_BYTE;   // unused I think
+                *externalType = GR_GL_UNSIGNED_BYTE;   // unused I think
             } else {
                 return false;
             }
             break;
         case kAlpha_8_GrPixelConfig:
-            *format = GR_GL_ALPHA;
+            *externalFormat = GR_GL_ALPHA;
             *internalFormat = GR_GL_ALPHA;
-            *type = GR_GL_UNSIGNED_BYTE;
+            *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         default:
             return false;

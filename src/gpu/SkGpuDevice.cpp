@@ -314,13 +314,8 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
                                                bitmap.isOpaque());
     }
 
-    fContext->setRenderTarget(fRenderTarget);
-    // we aren't setting the clip or matrix, so mark as dirty
-    // we don't need to set them for this call and don't have them anyway
-    fNeedPrepareRenderTarget = true;
-
-    fContext->writePixels(x, y, bitmap.width(), bitmap.height(),
-                          config, bitmap.getPixels(), bitmap.rowBytes());
+    fRenderTarget->writePixels(x, y, bitmap.width(), bitmap.height(),
+                               config, bitmap.getPixels(), bitmap.rowBytes());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1031,7 +1026,7 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     if (NULL == texture) {
         return false;
     }
-    texture->uploadTextureData(0, 0, desc.fWidth, desc.fHeight, 
+    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                dstM.fImage, dstM.fRowBytes);
 
     if (grp->hasTextureOrMask() && ivm.invert(&ivm)) {

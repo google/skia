@@ -79,7 +79,7 @@ bool SkGrTexturePixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
         void* buffer = dst->getPixels();
         return fTexture->readPixels(left, top, width, height,
                                     kSkia8888_PM_GrPixelConfig,
-                                    buffer);
+                                    buffer, dst->rowBytes());
     } else {
         return false;
     }
@@ -123,7 +123,7 @@ bool SkGrRenderTargetPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset
         void* buffer = dst->getPixels();
         return fRenderTarget->readPixels(left, top, width, height,
                                          kSkia8888_PM_GrPixelConfig,
-                                         buffer);
+                                         buffer, dst->rowBytes());
     } else {
         return false;
     }

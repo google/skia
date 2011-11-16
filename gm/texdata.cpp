@@ -124,9 +124,9 @@ protected:
                             ((x + y) % 2) ? (i ? green : red) : blue;
                     }
                 }
-                // BUG: uploadTextureData doesn't force a flush
-                ctx->flush();
-                texture->uploadTextureData(S, i ? 0 : S, S, S, gTextureData, 4 * stride);
+                texture->writePixels(S, (i ? 0 : S), S, S,
+                                     texture->config(), gTextureData,
+                                     4 * stride);
                 ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));
             }
         }

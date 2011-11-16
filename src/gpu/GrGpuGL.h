@@ -175,6 +175,11 @@ protected:
                               size_t rowBytes,
                               bool invertY) SK_OVERRIDE;
 
+    virtual void onWriteTexturePixels(GrTexture* texture,
+                                      int left, int top, int width, int height,
+                                      GrPixelConfig config, const void* buffer,
+                                      size_t rowBytes) SK_OVERRIDE;
+
     virtual void onGpuDrawIndexed(GrPrimitiveType type,
                                   uint32_t startVertex,
                                   uint32_t startIndex,
@@ -262,13 +267,14 @@ private:
 
     bool canBeTexture(GrPixelConfig config,
                       GrGLenum* internalFormat,
-                      GrGLenum* format,
-                      GrGLenum* type);
-    // helpers for onCreateTexture
-    void allocateAndUploadTexData(const GrGLTexture::Desc& desc,
-                                  GrGLenum internalFormat,
-                                  const void* data,
-                                  size_t rowBytes);
+                      GrGLenum* externalFormat,
+                      GrGLenum* externalType);
+    // helper for onCreateTexture and writeTexturePixels
+    void uploadTexData(const GrGLTexture::Desc& desc,
+                       int left, int top, int width, int height,
+                       GrPixelConfig dataConfig,
+                       const void* data,
+                       size_t rowBytes);
 
     bool createRenderTargetObjects(int width, int height,
                                    GrGLuint texID,

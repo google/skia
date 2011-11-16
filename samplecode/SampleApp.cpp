@@ -177,10 +177,10 @@ public:
                 // need to send the raster bits to the (gpu) window
                 fGrContext->setRenderTarget(fGrRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
-                fGrContext->writePixels(0, 0, bm.width(), bm.height(),
-                                        kSkia8888_PM_GrPixelConfig,
-                                        bm.getPixels(),
-                                        bm.rowBytes());
+                fGrRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
+                                             kSkia8888_PM_GrPixelConfig,
+                                             bm.getPixels(),
+                                             bm.rowBytes());
             }
         }
         win->presentGL();
@@ -211,7 +211,7 @@ public:
             desc.fStencilBits = 8;
             desc.fSampleCnt = 0;
             desc.fRenderTargetHandle = 0;
-            fGrRenderTarget = fNullGrContext->createPlatformRenderTarget(desc);
+            fNullGrRenderTarget = fNullGrContext->createPlatformRenderTarget(desc);
         }
     }
 
