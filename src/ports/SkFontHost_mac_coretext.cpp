@@ -625,9 +625,9 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     CGFloat unitFontSize;
     if (isLeopard()) {
         // passing 1 for pointSize to Leopard sets the font size to 1 pt.
-        // pass 0 to use the CoreText size
+        // pass the CoreText size explicitly
         transform = MatrixToCGAffineTransform(fUnitMatrix);
-        unitFontSize = 0;
+        unitFontSize = SkScalarToFloat(fRec.fTextSize);
     } else {
         // since our matrix includes everything, we pass 1 for pointSize
         transform = fTransform;
