@@ -387,11 +387,6 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGlobals.h"
-#include "SkThread.h"
-
-#define SkGlyphCache_GlobalsTag     SkSetFourByteTag('g', 'l', 'f', 'c')
-
 #ifdef USE_CACHE_HASH
     #define HASH_BITCOUNT   6
     #define HASH_COUNT      (1 << HASH_BITCOUNT)
@@ -411,7 +406,9 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
     }
 #endif
 
-class SkGlyphCache_Globals : public SkGlobals::Rec {
+#include "SkThread.h"
+
+class SkGlyphCache_Globals {
 public:
     SkMutex         fMutex;
     SkGlyphCache*   fHead;
@@ -427,13 +424,15 @@ public:
 #endif
 };
 
-static SkGlyphCache_Globals gGCGlobals;
-#define FIND_GC_GLOBALS()   gGCGlobals
-#define GET_GC_GLOBALS()    gGCGlobals
+static SkGlyphCache_Globals& getGlobals() {
+    // we leak this, so we don't incur any shutdown cost of the destructor
+    static SkGlyphCache_Globals* gGlobals = new SkGlyphCache_Globals;
+    return *gGlobals;
+}
 
 void SkGlyphCache::VisitAllCaches(bool (*proc)(SkGlyphCache*, void*),
                                   void* context) {
-    SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
+    SkGlyphCache_Globals& globals = getGlobals();
     SkAutoMutexAcquire    ac(globals.fMutex);
     SkGlyphCache*         cache;
 
@@ -459,7 +458,7 @@ SkGlyphCache* SkGlyphCache::VisitCache(const SkDescriptor* desc,
                               void* context) {
     SkASSERT(desc);
 
-    SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
+    SkGlyphCache_Globals& globals = getGlobals();
     SkAutoMutexAcquire    ac(globals.fMutex);
     SkGlyphCache*         cache;
     bool                  insideMutex = true;
@@ -521,7 +520,7 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     SkASSERT(cache);
     SkASSERT(cache->fNext == NULL);
 
-    SkGlyphCache_Globals& globals = GET_GC_GLOBALS();
+    SkGlyphCache_Globals& globals = getGlobals();
     SkAutoMutexAcquire    ac(globals.fMutex);
 
     globals.validate();
@@ -549,7 +548,7 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
 }
 
 size_t SkGlyphCache::GetCacheUsed() {
-    SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
+    SkGlyphCache_Globals& globals = getGlobals();
     SkAutoMutexAcquire  ac(globals.fMutex);
 
     return SkGlyphCache::ComputeMemoryUsed(globals.fHead);
@@ -559,7 +558,7 @@ bool SkGlyphCache::SetCacheUsed(size_t bytesUsed) {
     size_t curr = SkGlyphCache::GetCacheUsed();
 
     if (curr > bytesUsed) {
-        SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
+        SkGlyphCache_Globals& globals = getGlobals();
         SkAutoMutexAcquire  ac(globals.fMutex);
 
         return InternalFreeCache(&globals, curr - bytesUsed) > 0;
