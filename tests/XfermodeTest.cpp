@@ -46,5 +46,27 @@ static void test_asMode(skiatest::Reporter* reporter) {
     bogusXfer->unref();
 }
 
+static void test_IsMode(skiatest::Reporter* reporter) {
+    REPORTER_ASSERT(reporter, SkXfermode::IsMode(NULL,
+                                                 SkXfermode::kSrcOver_Mode));
+
+    for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
+        SkXfermode::Mode mode = (SkXfermode::Mode)i;
+        
+        SkXfermode* xfer = SkXfermode::Create(mode);
+        REPORTER_ASSERT(reporter, SkXfermode::IsMode(xfer, mode));
+        SkSafeUnref(xfer);
+
+        if (SkXfermode::kSrcOver_Mode != mode) {
+            REPORTER_ASSERT(reporter, !SkXfermode::IsMode(NULL, mode));
+        }
+    }
+}
+
+static void test_xfermodes(skiatest::Reporter* reporter) {
+    test_asMode(reporter);
+    test_IsMode(reporter);
+}
+
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("Xfermode", XfermodeTestClass, test_asMode)
+DEFINE_TESTCLASS("Xfermode", XfermodeTestClass, test_xfermodes)
