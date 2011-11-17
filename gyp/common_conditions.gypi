@@ -114,6 +114,8 @@
         'xcode_settings': {
           'SYMROOT': '<(DEPTH)/xcodebuild',
           'SDKROOT': 'macosx10.6',
+# trying to get this to work, but it needs clang I think...
+#          'WARNING_CFLAGS': '-Wexit-time-destructors',
         },
       },
     ],
