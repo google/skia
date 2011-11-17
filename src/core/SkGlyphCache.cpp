@@ -427,24 +427,9 @@ public:
 #endif
 };
 
-#ifdef SK_USE_RUNTIME_GLOBALS
-    static SkGlobals::Rec* create_globals() {
-        SkGlyphCache_Globals* rec = SkNEW(SkGlyphCache_Globals);
-        rec->fHead = NULL;
-        rec->fTotalMemoryUsed = 0;
-#ifdef USE_CACHE_HASH
-        memset(rec->fHash, 0, sizeof(rec->fHash));
-#endif
-        return rec;
-    }
-
-    #define FIND_GC_GLOBALS()   *(SkGlyphCache_Globals*)SkGlobals::Find(SkGlyphCache_GlobalsTag, create_globals)
-    #define GET_GC_GLOBALS()    *(SkGlyphCache_Globals*)SkGlobals::Get(SkGlyphCache_GlobalsTag)
-#else
-    static SkGlyphCache_Globals gGCGlobals;
-    #define FIND_GC_GLOBALS()   gGCGlobals
-    #define GET_GC_GLOBALS()    gGCGlobals
-#endif
+static SkGlyphCache_Globals gGCGlobals;
+#define FIND_GC_GLOBALS()   gGCGlobals
+#define GET_GC_GLOBALS()    gGCGlobals
 
 void SkGlyphCache::VisitAllCaches(bool (*proc)(SkGlyphCache*, void*),
                                   void* context) {
