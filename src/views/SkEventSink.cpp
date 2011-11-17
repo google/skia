@@ -11,30 +11,29 @@
 #include "SkTagList.h"
 #include "SkThread.h"
 
-#include "SkGlobals.h"
 #include "SkThread.h"
 #include "SkTime.h"
 
-#define SK_EventSink_GlobalsTag     SkSetFourByteTag('e', 'v', 's', 'k')
-
-class SkEventSink_Globals : public SkGlobals::Rec {
+class SkEventSink_Globals {
 public:
+    SkEventSink_Globals() {
+        fNextSinkID = 0;
+        fSinkHead = NULL;
+    }
+
     SkMutex         fSinkMutex;
     SkEventSinkID   fNextSinkID;
     SkEventSink*    fSinkHead;
 };
 
-static SkGlobals::Rec* create_globals()
-{
-    SkEventSink_Globals* rec = new SkEventSink_Globals;
-    rec->fNextSinkID = 0;
-    rec->fSinkHead = NULL;
-    return rec;
+static SkEventSink_Globals& getGlobals() {
+    // leak this, so we don't incur any shutdown perf hit
+    static SkEventSink_Globals* gGlobals = new SkEventSink_Globals;
+    return *gGlobals;
 }
 
-SkEventSink::SkEventSink() : fTagHead(NULL)
-{
-    SkEventSink_Globals& globals = *(SkEventSink_Globals*)SkGlobals::Find(SK_EventSink_GlobalsTag, create_globals);
+SkEventSink::SkEventSink() : fTagHead(NULL) {
+    SkEventSink_Globals& globals = getGlobals();
 
     globals.fSinkMutex.acquire();
 
@@ -45,9 +44,8 @@ SkEventSink::SkEventSink() : fTagHead(NULL)
     globals.fSinkMutex.release();
 }
 
-SkEventSink::~SkEventSink()
-{
-    SkEventSink_Globals& globals = *(SkEventSink_Globals*)SkGlobals::Find(SK_EventSink_GlobalsTag, create_globals);
+SkEventSink::~SkEventSink() {
+    SkEventSink_Globals& globals = getGlobals();
 
     if (fTagHead)
         SkTagList::DeleteAll(fTagHead);
@@ -57,15 +55,14 @@ SkEventSink::~SkEventSink()
     SkEventSink* sink = globals.fSinkHead;
     SkEventSink* prev = NULL;
 
-    for (;;)
-    {
+    for (;;) {
         SkEventSink* next = sink->fNextSink;
-        if (sink == this)
-        {
-            if (prev)
+        if (sink == this) {
+            if (prev) {
                 prev->fNextSink = next;
-            else
+            } else {
                 globals.fSinkHead = next;
+            }
             break;
         }
         prev = sink;
@@ -74,36 +71,30 @@ SkEventSink::~SkEventSink()
     globals.fSinkMutex.release();
 }
 
-bool SkEventSink::doEvent(const SkEvent& evt)
-{
+bool SkEventSink::doEvent(const SkEvent& evt) {
     return this->onEvent(evt);
 }
 
-bool SkEventSink::doQuery(SkEvent* evt)
-{
+bool SkEventSink::doQuery(SkEvent* evt) {
     SkASSERT(evt);
     return this->onQuery(evt);
 }
 
-bool SkEventSink::onEvent(const SkEvent&)
-{
+bool SkEventSink::onEvent(const SkEvent&) {
     return false;
 }
 
-bool SkEventSink::onQuery(SkEvent*)
-{
+bool SkEventSink::onQuery(SkEvent*) {
     return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTagList* SkEventSink::findTagList(U8CPU tag) const
-{
+SkTagList* SkEventSink::findTagList(U8CPU tag) const {
     return fTagHead ? SkTagList::Find(fTagHead, tag) : NULL;
 }
 
-void SkEventSink::addTagList(SkTagList* rec)
-{
+void SkEventSink::addTagList(SkTagList* rec) {
     SkASSERT(rec);
     SkASSERT(fTagHead == NULL || SkTagList::Find(fTagHead, rec->fTag) == NULL);
 
@@ -111,10 +102,10 @@ void SkEventSink::addTagList(SkTagList* rec)
     fTagHead = rec;
 }
 
-void SkEventSink::removeTagList(U8CPU tag)
-{
-    if (fTagHead)
+void SkEventSink::removeTagList(U8CPU tag) {
+    if (fTagHead) {
         SkTagList::DeleteTag(&fTagHead, tag);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -247,7 +238,7 @@ SkEventSink* SkEventSink::FindSink(SkEventSinkID sinkID)
     if (sinkID == 0)
         return 0;
 
-    SkEventSink_Globals&    globals = *(SkEventSink_Globals*)SkGlobals::Find(SK_EventSink_GlobalsTag, create_globals);
+    SkEventSink_Globals&    globals = getGlobals();
     SkAutoMutexAcquire      ac(globals.fSinkMutex);
     SkEventSink*            sink = globals.fSinkHead;
 

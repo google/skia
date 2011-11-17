@@ -265,28 +265,28 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
     #define EVENT_LOGN(s, n)
 #endif
 
-#include "SkGlobals.h"
 #include "SkThread.h"
 #include "SkTime.h"
 
-#define SK_Event_GlobalsTag     SkSetFourByteTag('e', 'v', 'n', 't')
-
-class SkEvent_Globals : public SkGlobals::Rec {
+class SkEvent_Globals {
 public:
+    SkEvent_Globals() {
+        fEventQHead = NULL;
+        fEventQTail = NULL;
+        fDelayQHead = NULL;
+        SkDEBUGCODE(fEventCounter = 0;)
+    }
+
     SkMutex     fEventMutex;
     SkEvent*    fEventQHead, *fEventQTail;
     SkEvent*    fDelayQHead;
     SkDEBUGCODE(int fEventCounter;)
 };
 
-static SkGlobals::Rec* create_globals()
-{
-    SkEvent_Globals* rec = new SkEvent_Globals;
-    rec->fEventQHead = NULL;
-    rec->fEventQTail = NULL;
-    rec->fDelayQHead = NULL;
-    SkDEBUGCODE(rec->fEventCounter = 0;)
-    return rec;
+static SkEvent_Globals& getGlobals() {
+    // leak this, so we don't incure any shutdown perf hit
+    static SkEvent_Globals* gGlobals = new SkEvent_Globals;
+    return *gGlobals;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -302,7 +302,7 @@ void SkEvent::postDelay(SkMSec delay) {
         return;
     }
 
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
 
     globals.fEventMutex.acquire();
     bool wasEmpty = SkEvent::Enqueue(this);
@@ -320,7 +320,7 @@ void SkEvent::postTime(SkMSec time) {
         return;
     }
 
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
     
     globals.fEventMutex.acquire();
     SkMSec queueDelay = SkEvent::EnqueueTime(this, time);
@@ -333,7 +333,7 @@ void SkEvent::postTime(SkMSec time) {
 }
 
 bool SkEvent::Enqueue(SkEvent* evt) {
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
     //  gEventMutex acquired by caller
 
     SkASSERT(evt);
@@ -353,7 +353,7 @@ bool SkEvent::Enqueue(SkEvent* evt) {
 }
 
 SkEvent* SkEvent::Dequeue() {
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
     globals.fEventMutex.acquire();
 
     SkEvent* evt = globals.fEventQHead;
@@ -371,7 +371,7 @@ SkEvent* SkEvent::Dequeue() {
 }
 
 bool SkEvent::QHasEvents() {
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
 
     // this is not thread accurate, need a semaphore for that
     return globals.fEventQHead != NULL;
@@ -382,7 +382,7 @@ bool SkEvent::QHasEvents() {
 #endif
 
 SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
     //  gEventMutex acquired by caller
 
     SkEvent* curr = globals.fDelayQHead;
@@ -431,7 +431,7 @@ bool SkEvent::ProcessEvent() {
 
 void SkEvent::ServiceQueueTimer()
 {
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
 
     globals.fEventMutex.acquire();
 
@@ -471,7 +471,7 @@ void SkEvent::ServiceQueueTimer()
 }
 
 int SkEvent::CountEventsOnQueue() {
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    SkEvent_Globals& globals = getGlobals();
     globals.fEventMutex.acquire();
     
     int count = 0;
@@ -485,27 +485,22 @@ int SkEvent::CountEventsOnQueue() {
     return count;
 }
 
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-void SkEvent::Init()
-{
-}
+void SkEvent::Init() {}
 
-void SkEvent::Term()
-{
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+void SkEvent::Term() {
+    SkEvent_Globals& globals = getGlobals();
 
     SkEvent* evt = globals.fEventQHead;
-    while (evt)
-    {
+    while (evt) {
         SkEvent* next = evt->fNextEvent;
         delete evt;
         evt = next;
     }
 
     evt = globals.fDelayQHead;
-    while (evt)
-    {
+    while (evt) {
         SkEvent* next = evt->fNextEvent;
         delete evt;
         evt = next;

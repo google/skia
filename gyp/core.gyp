@@ -78,7 +78,6 @@
         '../src/core/SkFloatBits.cpp',
         '../src/core/SkFontHost.cpp',
         '../src/core/SkGeometry.cpp',
-        '../src/core/SkGlobals.cpp',
         '../src/core/SkGlyphCache.cpp',
         '../src/core/SkGlyphCache.h',
         '../src/core/SkGraphics.cpp',
@@ -157,7 +156,6 @@
         '../src/ports/SkThread_win.cpp',
 
         '../src/ports/SkFontHost_tables.cpp',
-        '../src/ports/SkGlobals_global.cpp',
         '../src/ports/SkMemory_malloc.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkTime_Unix.cpp',
@@ -198,7 +196,6 @@
         '../include/core/SkFloatingPoint.h',
         '../include/core/SkFontHost.h',
         '../include/core/SkGeometry.h',
-        '../include/core/SkGlobals.h',
         '../include/core/SkGraphics.h',
         '../include/core/SkMallocPixelRef.h',
         '../include/core/SkMask.h',

@@ -14,7 +14,6 @@
 #include "SkCanvas.h"
 #include "SkFloat.h"
 #include "SkGeometry.h"
-#include "SkGlobals.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -52,8 +51,6 @@ void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
 #endif
 
 void SkGraphics::Init() {
-    SkGlobals::Init();
-
 #ifdef BUILD_EMBOSS_TABLE
     SkEmbossMask_BuildTable();
 #endif
@@ -127,7 +124,6 @@ void SkGraphics::Init() {
 void SkGraphics::Term() {
     SkGlyphCache::SetCacheUsed(0);
     SkTypefaceCache::PurgeAll();
-    SkGlobals::Term();
 }
 
 #ifndef SK_DEFAULT_FONT_CACHE_LIMIT

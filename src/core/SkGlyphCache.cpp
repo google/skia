@@ -410,6 +410,14 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
 
 class SkGlyphCache_Globals {
 public:
+    SkGlyphCache_Globals() {
+        fHead = NULL;
+        fTotalMemoryUsed = 0;
+#ifdef USE_CACHE_HASH
+        sk_bzero(fHash, sizeof(fHash));
+#endif
+    }
+
     SkMutex         fMutex;
     SkGlyphCache*   fHead;
     size_t          fTotalMemoryUsed;
