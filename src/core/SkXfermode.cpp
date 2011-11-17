@@ -1033,6 +1033,15 @@ bool SkXfermode::AsCoeff(SkXfermode* xfer, Coeff* src, Coeff* dst) {
     return xfer->asCoeff(src, dst);
 }
 
+bool SkXfermode::IsMode(SkXfermode* xfer, Mode mode) {
+    // if xfer==null then the mode is srcover
+    Mode m = kSrcOver_Mode;
+    if (xfer && !xfer->asMode(&m)) {
+        return false;
+    }
+    return mode == m;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //////////// 16bit xfermode procs
 
