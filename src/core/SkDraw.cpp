@@ -152,7 +152,7 @@ static BitmapXferProc ChooseBitmapXferProc(const SkBitmap& bitmap,
     }
 
     SkXfermode::Mode mode;
-    if (!SkXfermode::IsMode(paint.getXfermode(), &mode)) {
+    if (!SkXfermode::AsMode(paint.getXfermode(), &mode)) {
         return NULL;
     }
 

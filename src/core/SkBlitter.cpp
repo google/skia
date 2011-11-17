@@ -716,7 +716,7 @@ static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
                                      SkBitmap::Config deviceConfig) {
     SkXfermode::Mode  mode;
 
-    if (SkXfermode::IsMode(xfer, &mode)) {
+    if (SkXfermode::AsMode(xfer, &mode)) {
         switch (mode) {
             case SkXfermode::kSrc_Mode:
                 if (just_solid_color(paint)) {

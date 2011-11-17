@@ -1462,9 +1462,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     }
 
     if (NULL != xmode && NULL != texs && NULL != colors) {
-        SkXfermode::Mode mode;
-        if (!SkXfermode::IsMode(xmode, &mode) ||
-            SkXfermode::kMultiply_Mode != mode) {
+        if (!SkXfermode::IsMode(xmode, SkXfermode::kMultiply_Mode)) {
             SkDebugf("Unsupported vertex-color/texture xfer mode.\n");
 #if 0
             return
