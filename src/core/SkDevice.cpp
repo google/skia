@@ -358,14 +358,6 @@ void SkDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool isSrcOver(SkXfermode* xfer) {
-    if (NULL == xfer) {
-        return true;
-    }
-    SkXfermode::Mode mode;
-    return xfer->asMode(&mode) && (SkXfermode::kSrcOver_Mode == mode);
-}
-
 bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
         // we're cool with the paint as is
@@ -378,11 +370,11 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
         paint.getMaskFilter() ||
         paint.getColorFilter() ||
 #endif
-        !isSrcOver(paint.getXfermode()) ||
         paint.getRasterizer() ||
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||
-        paint.getStyle() != SkPaint::kFill_Style) {
+        paint.getStyle() != SkPaint::kFill_Style ||
+        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode)) {
         // turn off lcd
         flags->fFlags = paint.getFlags() & ~SkPaint::kLCDRenderText_Flag;
         flags->fHinting = paint.getHinting();
