@@ -31,6 +31,8 @@ public:
 
     virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
                                                                     SK_OVERRIDE;
+    virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig config)
+                                                                    SK_OVERRIDE;
 
     virtual bool readPixelsWillPayForYFlip(
                                     GrRenderTarget* renderTarget,
