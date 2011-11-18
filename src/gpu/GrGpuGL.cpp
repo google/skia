@@ -439,15 +439,7 @@ void GrGpuGL::initStencilFormats() {
 }
 
 GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
-        return GrPixelConfigSwapRAndB(config);
-    } else {
-        return config;
-    }
-}
-
-GrPixelConfig GrGpuGL::preferredWritePixelsConfig(GrPixelConfig config) {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
+    if (GR_GL_RGBA_8888_READBACK_SLOW && GrPixelConfigIsRGBA8888(config)) {
         return GrPixelConfigSwapRAndB(config);
     } else {
         return config;

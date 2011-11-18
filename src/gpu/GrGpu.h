@@ -195,13 +195,6 @@ public:
     }
 
     /**
-     * Same as above but applies to writeTexturePixels
-     */
-    virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig config) {
-        return config;
-    }
-
-    /**
      * OpenGL's readPixels returns the result bottom-to-top while the skia
      * API is top-to-bottom. Thus we have to do a y-axis flip. The obvious
      * solution is to have the subclass do the flip using either the CPU or GPU.
