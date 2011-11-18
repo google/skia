@@ -447,7 +447,10 @@ static void A8_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
         int m = mask[i];
         if (m) {
             m += (m >> 7);
-#if 0
+#if 1
+            // this is slightly slower than the expand/combine version, but it
+            // is much closer to the old results, so we use it for now to reduce
+            // rebaselining.
             dst[i] = SkAlphaMulQ(src[i], m) + SkAlphaMulQ(dst[i], 256 - m);
 #else
             uint32_t v = src[i];
