@@ -439,15 +439,7 @@ void GrGpuGL::initStencilFormats() {
 }
 
 GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
-        return GrPixelConfigSwapRAndB(config);
-    } else {
-        return config;
-    }
-}
-
-GrPixelConfig GrGpuGL::preferredWritePixelsConfig(GrPixelConfig config) {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
+    if (GR_GL_RGBA_8888_READBACK_SLOW && GrPixelConfigIsRGBA8888(config)) {
         return GrPixelConfigSwapRAndB(config);
     } else {
         return config;
@@ -701,46 +693,21 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     this->uploadTexData(desc, left, top, width, height, config, buffer, rowBytes);
 }
 
-namespace {
-bool adjust_pixel_ops_params(int surfaceWidth,
-                             int surfaceHeight,
-                             size_t bpp,
-                             int* left, int* top, int* width, int* height,
-                             const void** data,
-                             size_t* rowBytes) {
-    if (!*rowBytes) {
-        *rowBytes = *width * bpp;
-    }
-
-    GrIRect subRect = GrIRect::MakeXYWH(*left, *top, *width, *height);
-    GrIRect bounds = GrIRect::MakeWH(surfaceWidth, surfaceHeight);
-
-    if (!subRect.intersect(bounds)) {
-        return false;
-    }
-    *data = reinterpret_cast<const void*>(reinterpret_cast<intptr_t>(*data) +
-          (subRect.fTop - *top) * *rowBytes + (subRect.fLeft - *left) * bpp);
-
-    *left = subRect.fLeft;
-    *top = subRect.fTop;
-    *width = subRect.width();
-    *height = subRect.height();
-    return true;
-}
-}
-
 void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                             int left, int top, int width, int height,
                             GrPixelConfig dataConfig,
                             const void* data,
                             size_t rowBytes) {
-
-    size_t bpp = GrBytesPerPixel(dataConfig);
-    if (!adjust_pixel_ops_params(desc.fWidth, desc.fHeight, bpp, &left, &top,
-                                 &width, &height, &data, &rowBytes)) {
+    GrIRect bounds = GrIRect::MakeWH(desc.fWidth, desc.fHeight);
+    GrIRect subrect = GrIRect::MakeXYWH(left, top, width, height);
+    if (!bounds.contains(subrect)) {
         return;
     }
-    size_t trimRowBytes = width * bpp;
+
+    // ES2 glCompressedTexSubImage2D doesn't support any formats
+    // (at least without extensions)
+    GrAssert(desc.fInternalFormat != GR_GL_PALETTE8_RGBA8 ||
+             bounds == subrect);
 
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
@@ -753,6 +720,11 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         return;
     }
 
+    size_t bpp = GrBytesPerPixel(dataConfig);
+    size_t trimRowBytes = width * bpp;
+    if (!rowBytes) {
+        rowBytes = trimRowBytes;
+    }
     /*
      *  check whether to allocate a temporary buffer for flipping y or
      *  because our srcData has extra bytes past each row. If so, we need
@@ -786,14 +758,13 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                 }
                 dst += trimRowBytes;
             }
-            // now point data to our copied version
+            // now point dat to our copied version
             data = tempStorage.get();
         }
     }
 
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
-    if (0 == left && 0 == top &&
-        desc.fWidth == width && desc.fHeight == height) {
+    if (bounds == subrect) {
         GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, desc.fInternalFormat,
                            desc.fWidth, desc.fHeight, 0,
                            externalFormat, externalType, data));
@@ -1349,18 +1320,9 @@ bool GrGpuGL::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
                                         size_t rowBytes) {
     // if we have to do memcpy to handle non-trim rowBytes then we
     // get the flip for free. Otherwise it costs.
-    if (this->glCaps().fPackRowLengthSupport) {
-        return true;
-    }
-    // If we have to do memcpys to handle rowBytes then y-flip is free
-    // Note the rowBytes might be tight to the passed in data, but if data
-    // gets clipped in x to the target the rowBytes will no longer be tight.
-    if (left >= 0 && (left + width) < renderTarget->width()) {
-           return 0 == rowBytes ||
-                  GrBytesPerPixel(config) * width == rowBytes;
-    } else {
-        return false;
-    }
+    return this->glCaps().fPackRowLengthSupport ||
+           0 == rowBytes ||
+           GrBytesPerPixel(config) * width == rowBytes;
 }
 
 bool GrGpuGL::onReadPixels(GrRenderTarget* target,
@@ -1374,13 +1336,6 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     GrGLenum format;
     GrGLenum type;
     if (!this->canBeTexture(config, &internalFormat, &format, &type)) {
-        return false;
-    }
-    size_t bpp = GrBytesPerPixel(config);
-    if (!adjust_pixel_ops_params(target->width(), target->height(), bpp,
-                                 &left, &top, &width, &height,
-                                 const_cast<const void**>(&buffer),
-                                 &rowBytes)) {
         return false;
     }
 
@@ -1411,7 +1366,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height);
     
-    size_t tightRowBytes = bpp * width;
+    size_t tightRowBytes = GrBytesPerPixel(config) * width;
     if (0 == rowBytes) {
         rowBytes = tightRowBytes;
     }
