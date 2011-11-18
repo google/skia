@@ -78,9 +78,9 @@
  * The GrGLInterface field fCallback specifies the function ptr and there is an
  * additional field fCallbackData of type intptr_t for client data.
  *
- * GR_GL_RGBA_8888_PIXEL_OPS_SLOW: Set this to 1 if it is known that performing
- * glReadPixels / glTex(Sub)Image with format=GL_RGBA, type=GL_UNISIGNED_BYTE is
- * significantly slower than format=GL_BGRA, type=GL_UNISIGNED_BYTE.
+ * GR_GL_RGBA_8888_READBACK_SLOW: Set this to 1 if it is known that performing
+ * glReadPixels with format=GL_RGBA, type=GL_UNISIGNED_BYTE is significantly 
+ * slower than format=GL_BGRA, type=GL_UNISIGNED_BYTE.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -115,8 +115,8 @@
     #define GR_GL_PER_GL_FUNC_CALLBACK          0
 #endif
 
-#if !defined(GR_GL_RGBA_8888_PIXEL_OPS_SLOW)
-    #define GR_GL_RGBA_8888_PIXEL_OPS_SLOW      0
+#if !defined(GR_GL_RGBA_8888_READBACK_SLOW)
+    #define GR_GL_RGBA_8888_READBACK_SLOW       0
 #endif
 
 #if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)
