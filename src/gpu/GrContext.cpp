@@ -1803,6 +1803,25 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).
 
+    // If the RT is also a texture and we don't have to do PM/UPM conversion
+    // then take the texture path, which we expect to be at least as fast or
+    // faster since it doesn't use an intermediate texture as we do below.
+    if (NULL != target->asTexture() &&
+        GrPixelConfigIsUnpremultiplied(target->config()) ==
+        GrPixelConfigIsUnpremultiplied(config)) {
+
+        this->internalWriteTexturePixels(target->asTexture(),
+                                            left, top, width, height,
+                                            config, buffer, rowBytes, flags);
+        return;
+    }
+
+    bool swapRAndB = fGpu->preferredReadPixelsConfig(config) ==
+                     GrPixelConfigSwapRAndB(config);
+    if (swapRAndB) {
+        config = GrPixelConfigSwapRAndB(config);
+    }
+
     const GrTextureDesc desc = {
         kNone_GrTextureFlags, kNone_GrAALevel, width, height, { config }
     };
@@ -1827,6 +1846,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     sampler.setClampNoFilter();
     matrix.setIDiv(texture->width(), texture->height());
     sampler.setMatrix(matrix);
+    sampler.setRAndBSwap(swapRAndB);
     fGpu->setSamplerState(0, sampler);
 
     GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
