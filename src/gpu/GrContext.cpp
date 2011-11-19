@@ -1667,11 +1667,7 @@ bool GrContext::internalReadTexturePixels(GrTexture* texture,
                                           uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::readTexturePixels");
 
-    // TODO: code read pixels for textures that aren't rendertargets
-
-    if (!(kDontFlush_PixelOpsFlag & flags)) {
-        this->flush();
-    }
+    // TODO: code read pixels for textures that aren't also rendertargets
     GrRenderTarget* target = texture->asRenderTarget();
     if (NULL != target) {
         return this->internalReadRenderTargetPixels(target,
@@ -1803,6 +1799,31 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).
 
+    // If the RT is also a texture and we don't have to do PM/UPM conversion
+    // then take the texture path, which we expect to be at least as fast or
+    // faster since it doesn't use an intermediate texture as we do below.
+    
+#if !GR_MAC_BUILD
+    // At least some drivers on the Mac get confused when glTexImage2D is called
+    // on a texture attached to an FBO. The FBO still sees the old image. TODO:
+    // determine what OS versions and/or HW is affected.
+    if (NULL != target->asTexture() &&
+        GrPixelConfigIsUnpremultiplied(target->config()) ==
+        GrPixelConfigIsUnpremultiplied(config)) {
+
+        this->internalWriteTexturePixels(target->asTexture(),
+                                         left, top, width, height,
+                                         config, buffer, rowBytes, flags);
+        return;
+    }
+#endif
+
+    bool swapRAndB = fGpu->preferredReadPixelsConfig(config) ==
+                     GrPixelConfigSwapRAndB(config);
+    if (swapRAndB) {
+        config = GrPixelConfigSwapRAndB(config);
+    }
+
     const GrTextureDesc desc = {
         kNone_GrTextureFlags, kNone_GrAALevel, width, height, { config }
     };
@@ -1827,6 +1848,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     sampler.setClampNoFilter();
     matrix.setIDiv(texture->width(), texture->height());
     sampler.setMatrix(matrix);
+    sampler.setRAndBSwap(swapRAndB);
     fGpu->setSamplerState(0, sampler);
 
     GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
