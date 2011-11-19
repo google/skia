@@ -44,6 +44,8 @@ static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
 static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 0;
 static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 0;
 
+#define ASSERT_OWNED_RESOURCE(R) GrAssert(!(R) || (R)->getContext() == this)
+
 GrContext* GrContext::Create(GrEngine engine,
                              GrPlatform3DContext context3D) {
     GrContext* ctx = NULL;
@@ -245,6 +247,7 @@ GrContext::TextureCacheEntry GrContext::findAndLockTexture(TextureKey key,
 }
 
 GrResourceEntry* GrContext::addAndLockStencilBuffer(GrStencilBuffer* sb) {
+    ASSERT_OWNED_RESOURCE(sb);
     uint32_t v[4];
     gen_stencil_key_values(sb, v);
     GrResourceKey resourceKey(v);
@@ -267,6 +270,7 @@ GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
 }
 
 void GrContext::unlockStencilBuffer(GrResourceEntry* sbEntry) {
+    ASSERT_OWNED_RESOURCE(sbEntry->resource());
     fTextureCache->unlock(sbEntry);
 }
 
@@ -499,6 +503,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
 }
 
 void GrContext::unlockTexture(TextureCacheEntry entry) {
+    ASSERT_OWNED_RESOURCE(entry.texture());
     // If this is a scratch texture we detached it from the cache
     // while it was locked (to avoid two callers simultaneously getting
     // the same texture).
@@ -786,7 +791,7 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
 
     GrPaint tempPaint;
     tempPaint.reset();
-    SetPaint(tempPaint, target);
+    this->setPaint(tempPaint, target);
     target->setRenderTarget(offRT0);
 #if PREFER_MSAA_OFFSCREEN_AA
     target->enableState(GrDrawTarget::kHWAntialias_StateBit);
@@ -1645,6 +1650,8 @@ void GrContext::internalWriteTexturePixels(GrTexture* texture,
                                            size_t rowBytes,
                                            uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::writeTexturePixels");
+    ASSERT_OWNED_RESOURCE(texture);
+
     if (!(kDontFlush_PixelOpsFlag & flags)) {
         this->flush();
     }
@@ -1666,6 +1673,7 @@ bool GrContext::internalReadTexturePixels(GrTexture* texture,
                                           size_t rowBytes,
                                           uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::readTexturePixels");
+    ASSERT_OWNED_RESOURCE(texture);
 
     // TODO: code read pixels for textures that aren't also rendertargets
     GrRenderTarget* target = texture->asRenderTarget();
@@ -1687,6 +1695,8 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
                                                size_t rowBytes,
                                                uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
+    ASSERT_OWNED_RESOURCE(target);
+
     if (NULL == target) { 
         target = fGpu->getRenderTarget();
         if (NULL == target) {
@@ -1788,6 +1798,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
                                                 size_t rowBytes,
                                                 uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::writeRenderTargetPixels");
+    ASSERT_OWNED_RESOURCE(target);
 
     if (NULL == target) { 
         target = fGpu->getRenderTarget();
@@ -1864,11 +1875,12 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
+void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
 
     for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
         int s = i + GrPaint::kFirstTextureStage;
         target->setTexture(s, paint.getTexture(i));
+        ASSERT_OWNED_RESOURCE(paint.getTexture(i));
         target->setSamplerState(s, *paint.getTextureSampler(i));
     }
 
@@ -1877,6 +1889,7 @@ void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
     for (int i = 0; i < GrPaint::kMaxMasks; ++i) {
         int s = i + GrPaint::kFirstMaskStage;
         target->setTexture(s, paint.getMask(i));
+        ASSERT_OWNED_RESOURCE(paint.getMask(i));
         target->setSamplerState(s, *paint.getMaskSampler(i));
     }
 
@@ -1906,7 +1919,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
         flushDrawBuffer();
         fLastDrawCategory = category;
     }
-    SetPaint(paint, fGpu);
+    this->setPaint(paint, fGpu);
     GrDrawTarget* target = fGpu;
     switch (category) {
     case kText_DrawCategory:
@@ -1942,6 +1955,7 @@ GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
+    ASSERT_OWNED_RESOURCE(target);
     this->flush(false);
     fGpu->setRenderTarget(target);
 }
@@ -2050,7 +2064,7 @@ GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
 #else
     target = prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
-    SetPaint(paint, target);
+    this->setPaint(paint, target);
     return target;
 }
 
@@ -2062,6 +2076,8 @@ void GrContext::convolveInX(GrTexture* texture,
                             const SkRect& rect,
                             const float* kernel,
                             int kernelWidth) {
+    ASSERT_OWNED_RESOURCE(texture);
+
     float imageIncrement[2] = {1.0f / texture->width(), 0.0f};
     convolve(texture, rect, imageIncrement, kernel, kernelWidth);
 }
@@ -2070,6 +2086,8 @@ void GrContext::convolveInY(GrTexture* texture,
                             const SkRect& rect,
                             const float* kernel,
                             int kernelWidth) {
+    ASSERT_OWNED_RESOURCE(texture);
+
     float imageIncrement[2] = {0.0f, 1.0f / texture->height()};
     convolve(texture, rect, imageIncrement, kernel, kernelWidth);
 }
@@ -2079,6 +2097,8 @@ void GrContext::convolve(GrTexture* texture,
                          float imageIncrement[2],
                          const float* kernel,
                          int kernelWidth) {
+    ASSERT_OWNED_RESOURCE(texture);
+
     GrDrawTarget::AutoStateRestore asr(fGpu);
     GrMatrix sampleM;
     GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
