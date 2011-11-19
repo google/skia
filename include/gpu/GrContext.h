@@ -654,7 +654,7 @@ private:
 
     void flushDrawBuffer();
 
-    static void SetPaint(const GrPaint& paint, GrDrawTarget* target);
+    void setPaint(const GrPaint& paint, GrDrawTarget* target);
 
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
