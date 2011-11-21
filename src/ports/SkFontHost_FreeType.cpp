@@ -150,6 +150,7 @@ private:
     SkFixed     fScaleX, fScaleY;
     FT_Matrix   fMatrix22;
     uint32_t    fLoadGlyphFlags;
+    bool        fDoLinearMetrics;
 
     FT_Error setupSize();
     void emboldenOutline(FT_Outline* outline);
@@ -720,20 +721,24 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
     // compute the flags we send to Load_Glyph
     {
         FT_Int32 loadFlags = FT_LOAD_DEFAULT;
+        bool linearMetrics = false;
 
         if (SkMask::kBW_Format == fRec.fMaskFormat) {
             // See http://code.google.com/p/chromium/issues/detail?id=43252#c24
             loadFlags = FT_LOAD_TARGET_MONO;
             if (fRec.getHinting() == SkPaint::kNo_Hinting) {
                 loadFlags = FT_LOAD_NO_HINTING;
+                linearMetrics = true;
             }
         } else {
             switch (fRec.getHinting()) {
             case SkPaint::kNo_Hinting:
                 loadFlags = FT_LOAD_NO_HINTING;
+                linearMetrics = true;
                 break;
             case SkPaint::kSlight_Hinting:
                 loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
+                linearMetrics = true;
                 break;
             case SkPaint::kNormal_Hinting:
                 if (fRec.fFlags & SkScalerContext::kAutohinting_Flag)
@@ -771,6 +776,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         loadFlags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
 
         fLoadGlyphFlags = loadFlags;
+        fDoLinearMetrics = linearMetrics;
     }
 
     // now create the FT_Size
@@ -898,7 +904,7 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
    /* unhinted and light hinted text have linearly scaled advances
     * which are very cheap to compute with some font formats...
     */
-    {
+    if (fDoLinearMetrics) {
         SkAutoMutexAcquire  ac(gFTMutex);
 
         if (this->setupSize()) {
