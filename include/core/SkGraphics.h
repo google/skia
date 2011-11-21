@@ -45,6 +45,16 @@ public:
      *  draws to be recreated, since they will no longer be in the cache.
      */
     static void PurgeFontCache();
+    
+    /**
+     *  Applications with command line options may pass optional state, such
+     *  as cache sizes, here, for instance:
+     *  font-cache-limit=12345678
+     *
+     *  The flags format is name=value[;name=value...] with no spaces.
+     *  This format is subject to change.
+     */
+    static void SetFlags(const char* flags);
 
 private:
     /** This is automatically called by SkGraphics::Init(), and must be
