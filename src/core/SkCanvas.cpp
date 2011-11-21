@@ -1313,7 +1313,7 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                           const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
 
-    if (NULL == paint || (paint->getMaskFilter() == NULL)) {
+    if (NULL == paint || paint->canComputeFastBounds()) {
         SkRect fastBounds;
         fastBounds.set(x, y,
                        x + SkIntToScalar(bitmap.width()),
@@ -1336,10 +1336,12 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src
     }
     
     // do this now, to avoid the cost of calling extract for RLE bitmaps
-    if (this->quickReject(dst, paint2EdgeType(paint))) {
-        return;
+    if (NULL == paint || paint->canComputeFastBounds()) {
+        if (this->quickReject(dst, paint2EdgeType(paint))) {
+            return;
+        }
     }
-    
+
     const SkBitmap* bitmapPtr = &bitmap;
     
     SkMatrix matrix;
@@ -1403,6 +1405,12 @@ void SkCanvas::commonDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect,
 void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
                                       const SkIRect& center, const SkRect& dst,
                                       const SkPaint* paint) {
+    if (NULL == paint || paint->canComputeFastBounds()) {
+        if (this->quickReject(dst, paint2EdgeType(paint))) {
+            return;
+        }
+    }
+
     const int32_t w = bitmap.width();
     const int32_t h = bitmap.height();
 
