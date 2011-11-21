@@ -157,28 +157,23 @@ struct SkGlyph {
 class SkScalerContext {
 public:
     enum Flags {
-        kFrameAndFill_Flag  = 0x01,
-        kDevKernText_Flag   = 0x02,
-        kGammaForBlack_Flag = 0x04, // illegal to set both Gamma flags
-        kGammaForWhite_Flag = 0x08, // illegal to set both Gamma flags
-
+        kFrameAndFill_Flag        = 0x0001,
+        kDevKernText_Flag         = 0x0002,
+        kEmbeddedBitmapText_Flag  = 0x0004,
+        kEmbolden_Flag            = 0x0008,
+        kSubpixelPositioning_Flag = 0x0010,
+        kAutohinting_Flag         = 0x0020,
+        kVertical_Flag            = 0x0040,
         // together, these two flags resulting in a two bit value which matches
         // up with the SkPaint::Hinting enum.
-        kHintingBit1_Flag   = 0x10,
-        kHintingBit2_Flag   = 0x20,
-
-        kEmbeddedBitmapText_Flag = 0x40,
-        kEmbolden_Flag      = 0x80,
-        kSubpixelPositioning_Flag = 0x100,
-        kAutohinting_Flag   = 0x200,
-        kVertical_Flag      = 0x400,
-
+        kHintingBit1_Flag         = 0x0080,
+        kHintingBit2_Flag         = 0x0100,
         // these should only ever be set if fMaskFormat is LCD16 or LCD32
-        kLCD_Vertical_Flag  = 0x0800,    // else Horizontal
-        kLCD_BGROrder_Flag  = 0x1000,    // else RGB order
-
-        // experimental
-        kForceAA_Flag       = 0x2000
+        kLCD_Vertical_Flag        = 0x0200,    // else Horizontal
+        kLCD_BGROrder_Flag        = 0x0400,    // else RGB order
+        // gamma flags
+        kGammaForBlack_Flag       = 0x0800,
+        kGammaForWhite_Flag       = 0x1000,
     };
 private:
     enum {
