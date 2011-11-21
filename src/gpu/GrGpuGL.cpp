@@ -305,9 +305,11 @@ void GrGpuGL::initCaps() {
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fGLCaps.fUnpackRowLengthSupport = true;
+        fGLCaps.fUnpackFlipYSupport = false;
         fGLCaps.fPackRowLengthSupport = true;
     } else {
         fGLCaps.fUnpackRowLengthSupport = this->hasExtension("GL_EXT_unpack_subimage");
+        fGLCaps.fUnpackFlipYSupport = this->hasExtension("GL_CHROMIUM_flipy");
         // no extension for pack row length
         fGLCaps.fPackRowLengthSupport = false;
     }
@@ -528,6 +530,17 @@ void GrGpuGL::onResetContext() {
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
     fHWDrawState.fRenderTarget = NULL;
+
+    // we assume these values
+    if (this->glCaps().fUnpackRowLengthSupport) {
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+    }
+    if (this->glCaps().fPackRowLengthSupport) {
+        GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
+    }
+    if (this->glCaps().fUnpackFlipYSupport) {
+        GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
+    }
 }
 
 GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
@@ -760,8 +773,17 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
      *  GL_UNPACK_ROW_LENGTH.
      */
     bool restoreGLRowLength = false;
-    bool flipY = GrGLTexture::kBottomUp_Orientation == desc.fOrientation;
-    if (this->glCaps().fUnpackRowLengthSupport && !flipY) {
+    bool swFlipY = false;
+    bool glFlipY = false;
+
+    if (GrGLTexture::kBottomUp_Orientation == desc.fOrientation) {
+        if (this->glCaps().fUnpackFlipYSupport) {
+            glFlipY = true;
+        } else {
+            swFlipY = true;
+        }
+    }
+    if (this->glCaps().fUnpackRowLengthSupport && !swFlipY) {
         // can't use this for flipping, only non-neg values allowed. :(
         if (rowBytes != trimRowBytes) {
             GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
@@ -769,17 +791,17 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
             restoreGLRowLength = true;
         }
     } else {
-        if (trimRowBytes != rowBytes || flipY) {
+        if (trimRowBytes != rowBytes || swFlipY) {
             // copy the data into our new storage, skipping the trailing bytes
             size_t trimSize = height * trimRowBytes;
             const char* src = (const char*)data;
-            if (flipY) {
+            if (swFlipY) {
                 src += (height - 1) * rowBytes;
             }
             char* dst = (char*)tempStorage.reset(trimSize);
             for (int y = 0; y < height; y++) {
                 memcpy(dst, src, trimRowBytes);
-                if (flipY) {
+                if (swFlipY) {
                     src -= rowBytes;
                 } else {
                     src += rowBytes;
@@ -790,7 +812,9 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
             data = tempStorage.get();
         }
     }
-
+    if (glFlipY) {
+        GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
+    }
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
     if (0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
@@ -798,7 +822,7 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                            desc.fWidth, desc.fHeight, 0,
                            externalFormat, externalType, data));
     } else {
-        if (flipY) {
+        if (swFlipY || glFlipY) {
             top = desc.fHeight - (top + height);
         }
         GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, left, top, width, height,
@@ -808,6 +832,9 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     if (restoreGLRowLength) {
         GrAssert(this->glCaps().fUnpackRowLengthSupport);
         GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+    }
+    if (glFlipY) {
+        GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
     }
 }
 
@@ -2377,6 +2404,8 @@ void GrGpuGL::GLCaps::print() const {
              (fTextureSwizzleSupport ? "YES": "NO"));
     GrPrintf("Unpack Row length support: %s\n",
              (fUnpackRowLengthSupport ? "YES": "NO"));
+    GrPrintf("Unpack Flip Y support: %s\n",
+             (fUnpackFlipYSupport ? "YES": "NO"));
     GrPrintf("Pack Row length support: %s\n",
              (fPackRowLengthSupport ? "YES": "NO"));
 }
