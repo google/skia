@@ -177,7 +177,8 @@ public:
     };
 private:
     enum {
-        kHintingMask = kHintingBit1_Flag | kHintingBit2_Flag
+        kHintingMask = kHintingBit1_Flag | kHintingBit2_Flag,
+        kHintingShift = 7
     };
 public:
     struct Rec {
@@ -199,11 +200,12 @@ public:
         void    getSingleMatrix(SkMatrix*) const;
 
         SkPaint::Hinting getHinting() const {
-            return static_cast<SkPaint::Hinting>((fFlags & kHintingMask) >> 4);
+            unsigned hint = (fFlags & kHintingMask) >> kHintingShift;
+            return static_cast<SkPaint::Hinting>(hint);
         }
 
         void setHinting(SkPaint::Hinting hinting) {
-            fFlags = (fFlags & ~kHintingMask) | (hinting << 4);
+            fFlags = (fFlags & ~kHintingMask) | (hinting << kHintingShift);
         }
 
         SkMask::Format getFormat() const {
