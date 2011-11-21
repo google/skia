@@ -55,6 +55,7 @@ protected:
             , fBGRAIsInternalFormat(false)
             , fTextureSwizzleSupport(false)
             , fUnpackRowLengthSupport(false)
+            , fUnpackFlipYSupport(false)
             , fPackRowLengthSupport(false) {
             memset(fAASamples, 0, sizeof(fAASamples));
         }
@@ -101,6 +102,9 @@ protected:
     
         // Is there support for GL_UNPACK_ROW_LENGTH
         bool fUnpackRowLengthSupport;
+
+        // Is there support for GL_UNPACK_FLIP_Y
+        bool fUnpackFlipYSupport;
 
         // Is there support for GL_PACK_ROW_LENGTH
         bool fPackRowLengthSupport;
