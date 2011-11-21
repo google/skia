@@ -69,6 +69,11 @@
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
+          'link_settings': {
+            'libraries': [
+              'windowscodecs.lib',
+            ],
+          },
         },{ #else if skia_os != win
           'sources!': [
             '../src/ports/SkImageDecoder_WIC.cpp',
