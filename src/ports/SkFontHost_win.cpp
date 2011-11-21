@@ -468,15 +468,7 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
         case SkMask::kLCD32_Format:
             return CLEARTYPE_QUALITY;
         default:
-            // here we just want AA, but we may have to force the issue
-            // since sometimes GDI will instead really give us BW
-            // (for some fonts and some sizes)
-            if (rec.fFlags & SkScalerContext::kForceAA_Flag) {
-                return CLEARTYPE_QUALITY;
-            } else {
-                return ANTIALIASED_QUALITY;
-            }
-            break;
+            return ANTIALIASED_QUALITY;
     }
 }
 

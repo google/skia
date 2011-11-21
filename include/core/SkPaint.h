@@ -101,13 +101,10 @@ public:
         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
         kVerticalText_Flag    = 0x1000,
 
-        // experimental/private
-        kForceAAText_Flag     = 0x2000,
-
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0x2FFF
+        kAllFlags = 0x1FFF
     };
 
     /** Return the paint's flags. Use the Flag enum to test flag values.
