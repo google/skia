@@ -22,7 +22,8 @@ public:
      *  Bits specifies which aspects of the layer's paint should replace the
      *  corresponding aspects on the draw's paint.
      *  kEntirePaint_Bits means use the layer's paint completely.
-     *  0 means ignore the layer's paint.
+     *  0 means ignore the layer's paint... except that LayerInfo's fFlagsMask
+     *  and fColorMode are always applied.
      */
     enum Bits {
         kStyle_Bit      = 1 << 0,   //!< use this layer's Style/stroke settings
@@ -33,7 +34,15 @@ public:
         kColorFilter_Bit = 1 << 5,  //!< use this layer's colorfilter
         kXfermode_Bit   = 1 << 6,   //!< use this layer's xfermode
         
-        kEntirePaint_Bits = -1,      //!< use this layer's paint entirely
+        /**
+         *  Use the layer's paint entirely, with these exceptions:
+         *  - We never override the draw's paint's text_encoding, since that is
+         *    used to interpret the text/len parameters in draw[Pos]Text.
+         *  - Flags and Color are always computed using the LayerInfo's
+         *    fFlagsMask and fColorMode.
+         */
+        kEntirePaint_Bits = -1,
+        
     };
     typedef int32_t BitFlags;
 

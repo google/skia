@@ -72,15 +72,18 @@ static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
     }
 }
 
+// Even with kEntirePaint_Bits, we always ensure that the master paint's
+// text-encoding is respected, since that controls how we interpret the
+// text/length parameters of a draw[Pos]Text call.
 void SkLayerDrawLooper::ApplyInfo(SkPaint* dst, const SkPaint& src,
                                   const LayerInfo& info) {
 
     uint32_t mask = info.fFlagsMask;
     dst->setFlags((dst->getFlags() & ~mask) | (src.getFlags() & mask));
-
     dst->setColor(xferColor(src.getColor(), dst->getColor(), info.fColorMode));
 
     BitFlags bits = info.fPaintBits;
+    SkPaint::TextEncoding encoding = dst->getTextEncoding();
 
     if (0 == bits) {
         return;
@@ -92,6 +95,7 @@ void SkLayerDrawLooper::ApplyInfo(SkPaint* dst, const SkPaint& src,
         *dst = src;
         dst->setFlags(f);
         dst->setColor(c);
+        dst->setTextEncoding(encoding);
         return;
     }
 
@@ -123,13 +127,11 @@ void SkLayerDrawLooper::ApplyInfo(SkPaint* dst, const SkPaint& src,
         dst->setXfermode(src.getXfermode());
     }
 
-    // we never copy these
+    // we don't override these
 #if 0
-    dst->setFlags(src.getFlags());
     dst->setTypeface(src.getTypeface());
     dst->setTextSize(src.getTextSize());
     dst->setTextScaleX(src.getTextScaleX());
-    dst->setTextSkewX(src.getTextSkewX());
     dst->setRasterizer(src.getRasterizer());
     dst->setLooper(src.getLooper());
     dst->setTextEncoding(src.getTextEncoding());
