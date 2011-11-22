@@ -865,8 +865,6 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     const bool isAA = !isLCD(fRec);
     bool isWhite = fRec.getLuminanceByte() >= WHITE_LUMINANCE_LIMIT;
     bool isBlack = fRec.getLuminanceByte() <= BLACK_LUMINANCE_LIMIT;
-    SkASSERT(!(isWhite && isBlack));
-    SkASSERT(!isBW || (!isWhite && !isBlack));
 
     SkGdiRGB fgColor;
     uint32_t rgbXOR;
