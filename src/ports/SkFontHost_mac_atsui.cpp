@@ -505,15 +505,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     }
 }
 
-int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
-    return 0;
-}
-
-void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
-    tables[0] = NULL;   // black gamma (e.g. exp=1.4)
-    tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SkSFNTHeader {

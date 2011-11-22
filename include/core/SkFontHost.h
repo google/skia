@@ -232,12 +232,9 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Return SkScalerContext gamma flag, or 0, based on the paint that will be
-        used to draw something with antialiasing.
-    */
-    static int ComputeGammaFlag(const SkPaint& paint);
+    /** DEPRECATED -- only called by SkFontHost_FreeType internally
 
-    /** Return NULL or a pointer to 256 bytes for the black (table[0]) and
+        Return NULL or a pointer to 256 bytes for the black (table[0]) and
         white (table[1]) gamma tables.
     */
     static void GetGammaTables(const uint8_t* tables[2]);
