@@ -1028,7 +1028,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 }
             }
             if (GrPixelConfigIsUnpremultiplied(texture->config())) {
-                stage.fInConfigFlags = StageDesc::kMulRGBByAlpha_InConfigFlag;
+                stage.fInConfigFlags |= StageDesc::kMulRGBByAlpha_InConfigFlag;
             }
 
             if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
