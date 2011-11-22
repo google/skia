@@ -1289,10 +1289,16 @@ static unsigned computeLuminance(const SkPaint& paint) {
         int r = SkColorGetR(c);
         int g = SkColorGetG(c);
         int b = SkColorGetB(c);
-        // compute luminance to 11 bits (0..0x3F)
-        int luminance = r * 2 + g * 5 + b;
-        SkASSERT(luminance <= 0x7FF);
+        // compute luminance
+        // R=0.2126 G=0.7152 B=0.0722
+        // scaling by 127 yields 27, 92, 9
+#if 1
+        int luminance = r * 27 + g * 92 + b * 9;
+        luminance >>= 15 - SkScalerContext::kLuminance_Bits;
+#else
+        int luminance = r * 2 + g * 5 + b * 1;
         luminance >>= 11 - SkScalerContext::kLuminance_Bits;
+#endif
         SkASSERT(luminance <= SkScalerContext::kLuminance_Max);
         return luminance;
     }
