@@ -61,13 +61,13 @@ static void build_sum_buffer(uint32_t sum[], int srcW, int srcH,
 }
 
 /**
- *  sw and sh are the width and height of the src. Since the sum buffer
- *  matches that, but has an extra row and col at the beginning (with zeros),
- *  we can just use sw and sh as our "max" values for pinning coordinates
- *  when sampling into sum[][]
+ * This is the path for apply_kernel() to be taken when the kernel
+ * is wider than the source image.
  */
-static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
-                         int sw, int sh) {
+static void kernel_clamped(uint8_t dst[], int rx, int ry, const uint32_t sum[],
+                           int sw, int sh) {
+    SkASSERT(2*rx > sw);
+
     uint32_t scale = (1 << 24) / ((2*rx + 1)*(2*ry + 1));
 
     int sumStride = sw + 1;
@@ -86,6 +86,8 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
         int next_x = 1;
 
         for (int x = 0; x < dw; x++) {
+            //int px = SkClampPos(prev_x);
+            //int nx = SkFastMin32(next_x, sw);
             int px = SkClampPos(prev_x);
             int nx = SkFastMin32(next_x, sw);
 
@@ -95,21 +97,111 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
             prev_x += 1;
             next_x += 1;
         }
+
+        prev_y += 1;
+        next_y += 1;
+    }
+}
+/**
+ *  sw and sh are the width and height of the src. Since the sum buffer
+ *  matches that, but has an extra row and col at the beginning (with zeros),
+ *  we can just use sw and sh as our "max" values for pinning coordinates
+ *  when sampling into sum[][]
+ *
+ *  The inner loop is conceptually simple; we break it into several sections
+ *  to improve performance. Here's the original version:
+        for (int x = 0; x < dw; x++) {
+            int px = SkClampPos(prev_x);
+            int nx = SkFastMin32(next_x, sw);
+
+            uint32_t tmp = sum[px+py] + sum[nx+ny] - sum[nx+py] - sum[px+ny];
+            *dst++ = SkToU8(tmp * scale >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+*/
+static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
+                         int sw, int sh) {
+    if (2*rx > sw) {
+        kernel_clamped(dst, rx, ry, sum, sw, sh);
+        return;
+    }
+
+    uint32_t scale = (1 << 24) / ((2*rx + 1)*(2*ry + 1));
+
+    int sumStride = sw + 1;
+
+    int dw = sw + 2*rx;
+    int dh = sh + 2*ry;
+
+    int prev_y = -2*ry;
+    int next_y = 1;
+
+    SkASSERT(2*rx <= dw - 2*rx);
+
+    for (int y = 0; y < dh; y++) {
+        int py = SkClampPos(prev_y) * sumStride;
+        int ny = SkFastMin32(next_y, sh) * sumStride;
+
+        int prev_x = -2*rx;
+        int next_x = 1;
+        int x = 0;
+
+        for (; x < 2*rx; x++) {
+            SkASSERT(prev_x <= 0);
+            SkASSERT(next_x <= sw);
+
+            int px = 0;
+            int nx = next_x;
+
+            uint32_t tmp = sum[px+py] + sum[nx+ny] - sum[nx+py] - sum[px+ny];
+            *dst++ = SkToU8(tmp * scale >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+
+        for (; x < dw - 2*rx; x++) {
+            SkASSERT(prev_x >= 0);
+            SkASSERT(next_x <= sw);
+
+            int px = prev_x;
+            int nx = next_x;
+
+            uint32_t tmp = sum[px+py] + sum[nx+ny] - sum[nx+py] - sum[px+ny];
+            *dst++ = SkToU8(tmp * scale >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+
+        for (; x < dw; x++) {
+            SkASSERT(prev_x >= 0);
+            SkASSERT(next_x > sw);
+
+            int px = prev_x;
+            int nx = sw;
+
+            uint32_t tmp = sum[px+py] + sum[nx+ny] - sum[nx+py] - sum[px+ny];
+            *dst++ = SkToU8(tmp * scale >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+
         prev_y += 1;
         next_y += 1;
     }
 }
 
 /**
- *  sw and sh are the width and height of the src. Since the sum buffer
- *  matches that, but has an extra row and col at the beginning (with zeros),
- *  we can just use sw and sh as our "max" values for pinning coordinates
- *  when sampling into sum[][]
+ * This is the path for apply_kernel_interp() to be taken when the kernel
+ * is wider than the source image.
  */
-static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
+static void kernel_interp_clamped(uint8_t dst[], int rx, int ry,
                 const uint32_t sum[], int sw, int sh, U8CPU outer_weight) {
-    SkASSERT(rx > 0 && ry > 0);
-    SkASSERT(outer_weight <= 255);
+    SkASSERT(2*rx > sw);
 
     int inner_weight = 255 - outer_weight;
 
@@ -145,13 +237,150 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
             int ipx = SkClampPos(prev_x + 1);
             int inx = SkClampMax(next_x - 1, sw);
 
-            uint32_t outer_sum = sum[px+py] + sum[nx+ny] - sum[nx+py] - sum[px+ny];
-            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny] - sum[inx+ipy] - sum[ipx+iny];
-            *dst++ = SkToU8((outer_sum * outer_scale + inner_sum * inner_scale) >> 24);
+            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+                               - sum[nx+py] - sum[px+ny];
+            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+                               - sum[inx+ipy] - sum[ipx+iny];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
 
             prev_x += 1;
             next_x += 1;
         }
+        prev_y += 1;
+        next_y += 1;
+    }
+}
+
+/**
+ *  sw and sh are the width and height of the src. Since the sum buffer
+ *  matches that, but has an extra row and col at the beginning (with zeros),
+ *  we can just use sw and sh as our "max" values for pinning coordinates
+ *  when sampling into sum[][]
+ *
+ *  The inner loop is conceptually simple; we break it into several variants
+ *  to improve performance. Here's the original version:
+        for (int x = 0; x < dw; x++) {
+            int px = SkClampPos(prev_x);
+            int nx = SkFastMin32(next_x, sw);
+
+            int ipx = SkClampPos(prev_x + 1);
+            int inx = SkClampMax(next_x - 1, sw);
+
+            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+                               - sum[nx+py] - sum[px+ny];
+            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+                               - sum[inx+ipy] - sum[ipx+iny];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+*/
+static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
+                const uint32_t sum[], int sw, int sh, U8CPU outer_weight) {
+    SkASSERT(rx > 0 && ry > 0);
+    SkASSERT(outer_weight <= 255);
+
+    if (2*rx > sw) {
+        kernel_interp_clamped(dst, rx, ry, sum, sw, sh, outer_weight);
+        return;
+    }
+
+    int inner_weight = 255 - outer_weight;
+
+    // round these guys up if they're bigger than 127
+    outer_weight += outer_weight >> 7;
+    inner_weight += inner_weight >> 7;
+
+    uint32_t outer_scale = (outer_weight << 16) / ((2*rx + 1)*(2*ry + 1));
+    uint32_t inner_scale = (inner_weight << 16) / ((2*rx - 1)*(2*ry - 1));
+
+    int sumStride = sw + 1;
+
+    int dw = sw + 2*rx;
+    int dh = sh + 2*ry;
+
+    int prev_y = -2*ry;
+    int next_y = 1;
+
+    SkASSERT(2*rx <= dw - 2*rx);
+
+    for (int y = 0; y < dh; y++) {
+        int py = SkClampPos(prev_y) * sumStride;
+        int ny = SkFastMin32(next_y, sh) * sumStride;
+
+        int ipy = SkClampPos(prev_y + 1) * sumStride;
+        int iny = SkClampMax(next_y - 1, sh) * sumStride;
+
+        int prev_x = -2*rx;
+        int next_x = 1;
+        int x = 0;
+
+        for (; x < 2*rx; x++) {
+            SkASSERT(prev_x < 0);
+            SkASSERT(next_x <= sw);
+
+            int px = 0;
+            int nx = next_x;
+
+            int ipx = 0;
+            int inx = next_x - 1;
+
+            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+                               - sum[nx+py] - sum[px+ny];
+            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+                               - sum[inx+ipy] - sum[ipx+iny];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+
+        for (; x < dw - 2*rx; x++) {
+            SkASSERT(prev_x >= 0);
+            SkASSERT(next_x <= sw);
+
+            int px = prev_x;
+            int nx = next_x;
+
+            int ipx = prev_x + 1;
+            int inx = next_x - 1;
+
+            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+                               - sum[nx+py] - sum[px+ny];
+            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+                               - sum[inx+ipy] - sum[ipx+iny];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+
+        for (; x < dw; x++) {
+            SkASSERT(prev_x >= 0);
+            SkASSERT(next_x > sw);
+
+            int px = prev_x;
+            int nx = sw;
+
+            int ipx = prev_x + 1;
+            int inx = sw;
+
+            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+                               - sum[nx+py] - sum[px+ny];
+            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+                               - sum[inx+ipy] - sum[ipx+iny];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+
+            prev_x += 1;
+            next_x += 1;
+        }
+
         prev_y += 1;
         next_y += 1;
     }

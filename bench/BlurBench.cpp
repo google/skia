@@ -14,6 +14,7 @@
 #include "SkBlurMaskFilter.h"
 
 #define SMALL   SkIntToScalar(2)
+#define REAL    SkFloatToScalar(1.5f)
 #define BIG     SkIntToScalar(10)
 
 static const char* gStyleName[] = {
@@ -33,7 +34,11 @@ public:
         fRadius = rad;
         fStyle = bs;
         const char* name = rad > 0 ? gStyleName[bs] : "none";
-        fName.printf("blur_%d_%s", SkScalarRound(rad), name);
+        if (SkScalarFraction(rad) != 0) {
+            fName.printf("blur_%.2f_%s", SkScalarToFloat(rad), name);
+        } else {
+            fName.printf("blur_%d_%s", SkScalarRound(rad), name);
+        }
     }
     
 protected:
@@ -75,6 +80,11 @@ static SkBenchmark* Fact11(void* p) { return new BlurBench(p, BIG, SkBlurMaskFil
 static SkBenchmark* Fact12(void* p) { return new BlurBench(p, BIG, SkBlurMaskFilter::kOuter_BlurStyle); }
 static SkBenchmark* Fact13(void* p) { return new BlurBench(p, BIG, SkBlurMaskFilter::kInner_BlurStyle); }
 
+static SkBenchmark* Fact20(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kNormal_BlurStyle); }
+static SkBenchmark* Fact21(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kSolid_BlurStyle); }
+static SkBenchmark* Fact22(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kOuter_BlurStyle); }
+static SkBenchmark* Fact23(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kInner_BlurStyle); }
+
 static SkBenchmark* FactNone(void* p) { return new BlurBench(p, 0, SkBlurMaskFilter::kNormal_BlurStyle); }
 
 static BenchRegistry gReg00(Fact00);
@@ -86,6 +96,11 @@ static BenchRegistry gReg10(Fact10);
 static BenchRegistry gReg11(Fact11);
 static BenchRegistry gReg12(Fact12);
 static BenchRegistry gReg13(Fact13);
+
+static BenchRegistry gReg20(Fact20);
+static BenchRegistry gReg21(Fact21);
+static BenchRegistry gReg22(Fact22);
+static BenchRegistry gReg23(Fact23);
 
 static BenchRegistry gRegNone(FactNone);
 
