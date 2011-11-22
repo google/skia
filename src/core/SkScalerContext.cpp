@@ -21,9 +21,6 @@
 
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 
-static const uint8_t* gBlackGammaTable;
-static const uint8_t* gWhiteGammaTable;
-
 void SkGlyph::toMask(SkMask* mask) const {
     SkASSERT(mask);
 
@@ -77,15 +74,6 @@ static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag) {
 SkScalerContext::SkScalerContext(const SkDescriptor* desc)
     : fPathEffect(NULL), fMaskFilter(NULL)
 {
-    static bool gHaveGammaTables;
-    if (!gHaveGammaTables) {
-        const uint8_t* tables[2];
-        SkFontHost::GetGammaTables(tables);
-        gBlackGammaTable = tables[0];
-        gWhiteGammaTable = tables[1];
-        gHaveGammaTables = true;
-    }
-
     fBaseGlyphCount = 0;
     fNextContext = NULL;
 
@@ -561,28 +549,6 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
                 dst += dstRB;
             }
             SkMask::FreeImage(dstM.fImage);
-        }
-    }
-
-    // check to see if we should filter the alpha channel
-
-    if (NULL == fMaskFilter &&
-        fRec.fMaskFormat != SkMask::kBW_Format &&
-        fRec.fMaskFormat != SkMask::kLCD16_Format &&
-        fRec.fMaskFormat != SkMask::kLCD32_Format &&
-        (fRec.fFlags & (kGammaForBlack_Flag | kGammaForWhite_Flag)) != 0)
-    {
-        const uint8_t* table = (fRec.fFlags & kGammaForBlack_Flag) ? gBlackGammaTable : gWhiteGammaTable;
-        if (NULL != table) {
-            uint8_t* dst = (uint8_t*)origGlyph.fImage;
-            unsigned rowBytes = origGlyph.rowBytes();
-
-            for (int y = origGlyph.fHeight - 1; y >= 0; --y) {
-                for (int x = origGlyph.fWidth - 1; x >= 0; --x) {
-                    dst[x] = table[dst[x]];
-                }
-                dst += rowBytes;
-            }
         }
     }
 }

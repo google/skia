@@ -1229,6 +1229,25 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         SkASSERT(!"unknown glyph format");
         goto ERROR;
     }
+
+    if ((fRec.fFlags & (kGammaForBlack_Flag | kGammaForBlack_Flag)) &&
+         SkMask::kA8_Format == glyph.fMaskFormat) {
+        const uint8_t* tables[2];
+        SkFontHost::GetGammaTables(tables);
+        int index = (fRec.fFlags & kGammaForBlack_Flag) ? 0 : 1;
+        if (tables[index]) {
+            const uint8_t* SK_RESTRICT table = tables[index];
+            uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
+            unsigned rowBytes = glyph.rowBytes();
+            
+            for (int y = glyph.fHeight - 1; y >= 0; --y) {
+                for (int x = glyph.fWidth - 1; x >= 0; --x) {
+                    dst[x] = table[dst[x]];
+                }
+                dst += rowBytes;
+            }
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1674,50 +1674,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-#include "SkColorFilter.h"
-
-static bool justAColor(const SkPaint& paint, SkColor* color) {
-    if (paint.getShader()) {
-        return false;
-    }
-    SkColor c = paint.getColor();
-    if (paint.getColorFilter()) {
-        c = paint.getColorFilter()->filterColor(c);
-    }
-    if (color) {
-        *color = c;
-    }
-    return true;
-}
-
-#define BLACK_GAMMA_THRESHOLD   0x40
-#define WHITE_GAMMA_THRESHOLD   0xA0
-
-int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
-    SkColor c;
-    if (justAColor(paint, &c)) {
-        int r = SkColorGetR(c);
-        int g = SkColorGetG(c);
-        int b = SkColorGetB(c);
-        int luminance = (r * 2 + g * 5 + b) >> 3;
-
-        if (luminance <= BLACK_GAMMA_THRESHOLD) {
-            return SkScalerContext::kGammaForBlack_Flag;
-        }
-        if (luminance >= WHITE_GAMMA_THRESHOLD) {
-            return SkScalerContext::kGammaForWhite_Flag;
-        }
-    }
-    return 0;
-}
-
-void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
-    tables[0] = NULL;   // black gamma (e.g. exp=1.4)
-    tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
-}
-
-///////////////////////////////////////////////////////////////////////////
-
 int SkFontHost::CountTables(SkFontID fontID) {
     int             numTables;
     CFArrayRef      cfArray;

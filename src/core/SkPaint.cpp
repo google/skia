@@ -1266,6 +1266,43 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
     return h;
 }
 
+// return true if the paint is just a single color (i.e. not a shader). If its
+// a shader, then we can't compute a const luminance for it :(
+static bool justAColor(const SkPaint& paint, SkColor* color) {
+    if (paint.getShader()) {
+        return false;
+    }
+    SkColor c = paint.getColor();
+    if (paint.getColorFilter()) {
+        c = paint.getColorFilter()->filterColor(c);
+    }
+    if (color) {
+        *color = c;
+    }
+    return true;
+}
+
+// returns 0..kLuminance_Max
+static unsigned computeGammaFlag(const SkPaint& paint) {
+    SkColor c;
+    if (justAColor(paint, &c)) {
+        int r = SkColorGetR(c);
+        int g = SkColorGetG(c);
+        int b = SkColorGetB(c);
+        // compute luminance to 11 bits (0..0x3F)
+        int luminance = r * 2 + g * 5 + b >> 3;
+
+        if (luminance <= 0x40) {
+            return SkScalerContext::kGammaForBlack_Flag;
+        }
+        if (luminance >= 0xA0) {
+            return SkScalerContext::kGammaForWhite_Flag;
+        }
+    }
+    // if we're not a single color, return the middle of the luminance range
+    return 0;
+}
+
 // Beyond this size, LCD doesn't appreciably improve quality, but it always
 // cost more RAM and draws slower, so we set a cap.
 #ifndef SK_MAX_SIZE_FOR_LCDTEXT
@@ -1317,7 +1354,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     SkPaint::Style  style = paint.getStyle();
     SkScalar        strokeWidth = paint.getStrokeWidth();
 
-    unsigned flags = SkFontHost::ComputeGammaFlag(paint);
+    unsigned flags = computeGammaFlag(paint);
 
     if (paint.isFakeBoldText()) {
 #ifdef SK_USE_FREETYPE_EMBOLDEN
