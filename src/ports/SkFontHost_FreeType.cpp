@@ -95,6 +95,8 @@ static SkFaceRec*   gFaceRecHead;
 static bool         gLCDSupportValid;  // true iff |gLCDSupport| has been set.
 static bool         gLCDSupport;  // true iff LCD is supported by the runtime.
 
+static const uint8_t* gGammaTables[2];
+
 /////////////////////////////////////////////////////////////////////////
 
 // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
@@ -601,6 +603,9 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 
 ///////////////////////////////////////////////////////////////////////////
 
+#define BLACK_LUMINANCE_LIMIT   0x40
+#define WHITE_LUMINANCE_LIMIT   0xA0
+
 static bool bothZero(SkScalar a, SkScalar b) {
     return 0 == a && 0 == b;
 }
@@ -640,6 +645,26 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
 #endif
     rec->setHinting(h);
+
+    // for compatibility at the moment, discretize luminance to 3 settings
+    // black, white, gray. This helps with fontcache utilization, since we
+    // won't create multiple entries that in the end map to the same results.
+    {
+        unsigned lum = rec->getLuminanceByte();
+        if (gGammaTables[0] || gGammaTables[1]) {
+            if (lum <= BLACK_LUMINANCE_LIMIT) {
+                lum = 0;
+            } else if (lum >= WHITE_LUMINANCE_LIMIT) {
+                lum = SkScalerContext::kLuminance_Max;
+            } else {
+                lum = SkScalerContext::kLuminance_Max >> 1;
+            }
+        } else {
+            lum = 0;    // no gamma correct, so use 0 since SkPaint uses that
+                        // when measuring text w/o regard for luminance
+        }
+        rec->setLuminanceBits(lum);
+    }
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -665,6 +690,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         if (!InitFreetype()) {
             sk_throw();
         }
+        SkFontHost::GetGammaTables(gGammaTables);
     }
     ++gFTCount;
 
@@ -1230,21 +1256,22 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         goto ERROR;
     }
 
-    if ((fRec.fFlags & (kGammaForBlack_Flag | kGammaForBlack_Flag)) &&
-         SkMask::kA8_Format == glyph.fMaskFormat) {
-        const uint8_t* tables[2];
-        SkFontHost::GetGammaTables(tables);
-        int index = (fRec.fFlags & kGammaForBlack_Flag) ? 0 : 1;
-        if (tables[index]) {
-            const uint8_t* SK_RESTRICT table = tables[index];
-            uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
-            unsigned rowBytes = glyph.rowBytes();
-            
-            for (int y = glyph.fHeight - 1; y >= 0; --y) {
-                for (int x = glyph.fWidth - 1; x >= 0; --x) {
-                    dst[x] = table[dst[x]];
+    if (gGammaTables[0] || gGammaTables[1]) {
+        bool isWhite = fRec.getLuminanceByte() >= WHITE_LUMINANCE_LIMIT;
+        bool isBlack = fRec.getLuminanceByte() <= BLACK_LUMINANCE_LIMIT;
+        if ((isWhite | isBlack) && SkMask::kA8_Format == glyph.fMaskFormat) {
+            int index = isBlack ? 0 : 1;
+            if (gGammaTables[index]) {
+                const uint8_t* SK_RESTRICT table = gGammaTables[index];
+                uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
+                unsigned rowBytes = glyph.rowBytes();
+                
+                for (int y = glyph.fHeight - 1; y >= 0; --y) {
+                    for (int x = glyph.fWidth - 1; x >= 0; --x) {
+                        dst[x] = table[dst[x]];
+                    }
+                    dst += rowBytes;
                 }
-                dst += rowBytes;
             }
         }
     }

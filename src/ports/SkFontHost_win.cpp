@@ -853,6 +853,9 @@ static inline unsigned clamp255(unsigned x) {
     return x - (x >> 8);
 }
 
+#define WHITE_LUMINANCE_LIMIT   0xA0
+#define BLACK_LUMINANCE_LIMIT   0x40
+
 void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
@@ -860,9 +863,8 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     const bool isAA = !isLCD(fRec);
-
-    bool isWhite = SkToBool(fRec.fFlags & SkScalerContext::kGammaForWhite_Flag);
-    bool isBlack = SkToBool(fRec.fFlags & SkScalerContext::kGammaForBlack_Flag);
+    bool isWhite = fRec.getLuminanceByte() >= WHITE_LUMINANCE_LIMIT;
+    bool isBlack = fRec.getLuminanceByte() <= BLACK_LUMINANCE_LIMIT;
     SkASSERT(!(isWhite && isBlack));
     SkASSERT(!isBW || (!isWhite && !isBlack));
 
@@ -1302,6 +1304,21 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 #endif
     rec->setHinting(h);
 
+    // for compatibility at the moment, discretize luminance to 3 settings
+    // black, white, gray. This helps with fontcache utilization, since we
+    // won't create multiple entries that in the end map to the same results.
+    {
+        unsigned lum = rec->getLuminanceByte();
+        if (lum <= BLACK_LUMINANCE_LIMIT) {
+            lum = 0;
+        } else if (lum >= WHITE_LUMINANCE_LIMIT) {
+            lum = SkScalerContext::kLuminance_Max;
+        } else {
+            lum = SkScalerContext::kLuminance_Max >> 1;
+        }
+        rec->setLuminanceBits(lum);
+    }
+
 // turn this off since GDI might turn A8 into BW! Need a bigger fix.
 #if 0
     // Disable LCD when rotated, since GDI's output is ugly
@@ -1315,11 +1332,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         rec->fMaskFormat = SkMask::kLCD32_Format;
     }
 #endif
-    // don't specify gamma if we BW (perhaps caller should do this check)
-    if (SkMask::kBW_Format == rec->fMaskFormat) {
-        rec->fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
-                         SkScalerContext::kGammaForWhite_Flag);
-    }
 }
 
 #endif // WIN32

@@ -1076,7 +1076,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         metrics = &storage;
     }
 
-    this->descriptorProc(zoomPtr, FontMetricsDescProc, metrics);
+    this->descriptorProc(zoomPtr, FontMetricsDescProc, metrics, true);
 
     if (scale) {
         metrics->fTop = SkScalarMul(metrics->fTop, scale);
@@ -1283,24 +1283,21 @@ static bool justAColor(const SkPaint& paint, SkColor* color) {
 }
 
 // returns 0..kLuminance_Max
-static unsigned computeGammaFlag(const SkPaint& paint) {
+static unsigned computeLuminance(const SkPaint& paint) {
     SkColor c;
     if (justAColor(paint, &c)) {
         int r = SkColorGetR(c);
         int g = SkColorGetG(c);
         int b = SkColorGetB(c);
         // compute luminance to 11 bits (0..0x3F)
-        int luminance = r * 2 + g * 5 + b >> 3;
-
-        if (luminance <= 0x40) {
-            return SkScalerContext::kGammaForBlack_Flag;
-        }
-        if (luminance >= 0xA0) {
-            return SkScalerContext::kGammaForWhite_Flag;
-        }
+        int luminance = r * 2 + g * 5 + b;
+        SkASSERT(luminance <= 0x7FF);
+        luminance >>= 11 - SkScalerContext::kLuminance_Bits;
+        SkASSERT(luminance <= SkScalerContext::kLuminance_Max);
+        return luminance;
     }
     // if we're not a single color, return the middle of the luminance range
-    return 0;
+    return SkScalerContext::kLuminance_Max >> 1;
 }
 
 // Beyond this size, LCD doesn't appreciably improve quality, but it always
@@ -1354,7 +1351,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     SkPaint::Style  style = paint.getStyle();
     SkScalar        strokeWidth = paint.getStrokeWidth();
 
-    unsigned flags = computeGammaFlag(paint);
+    unsigned flags = 0;
 
     if (paint.isFakeBoldText()) {
 #ifdef SK_USE_FREETYPE_EMBOLDEN
@@ -1427,8 +1424,9 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     }
     rec->fFlags = SkToU16(flags);
 
-    // setHinting modifies fFlags, so do this last
+    // these modify fFlags, so do them after assigning fFlags
     rec->setHinting(computeHinting(paint));
+    rec->setLuminanceBits(computeLuminance(paint));
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
@@ -1439,8 +1437,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     // No need to differentiate gamma if we're BW
     if (SkMask::kBW_Format == rec->fMaskFormat) {
-        rec->fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
-                         SkScalerContext::kGammaForWhite_Flag);
+        rec->setLuminanceBits(0);
     }
 }
 
@@ -1450,6 +1447,13 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     #define TEST_DESC
 #endif
 
+/*
+ *  ignoreGamma tells us that the caller just wants metrics that are unaffected
+ *  by gamma correction, so we jam the luminance field to 0 (most common value
+ *  for black text) in hopes that we get a cache hit easier. A better solution
+ *  would be for the fontcache lookup to know to ignore the luminance field
+ *  entirely, but not sure how to do that and keep it fast.
+ */
 void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
                              void (*proc)(const SkDescriptor*, void*),
                              void* context, bool ignoreGamma) const {
@@ -1457,8 +1461,7 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
 
     SkScalerContext::MakeRec(*this, deviceMatrix, &rec);
     if (ignoreGamma) {
-        rec.fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
-                SkScalerContext::kGammaForWhite_Flag);
+        rec.setLuminanceBits(0);
     }
 
     size_t          descSize = sizeof(rec);
