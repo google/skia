@@ -1099,12 +1099,15 @@ static inline uint32_t rgb_to_lcd32(CGRGBPixel rgb) {
     return SkPackARGB32(0xFF, r, g, b);
 }
 
+#define BLACK_LUMINANCE_LIMIT   0x40
+#define WHITE_LUMINANCE_LIMIT   0xA0
+
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
 
     bool fgColorIsWhite = true;
-    bool isBlack = SkToBool(fRec.fFlags & SkScalerContext::kGammaForBlack_Flag);
-    bool isWhite = SkToBool(fRec.fFlags & SkScalerContext::kGammaForWhite_Flag);
+    bool isWhite = fRec.getLuminanceByte() >= WHITE_LUMINANCE_LIMIT;
+    bool isBlack = fRec.getLuminanceByte() <= BLACK_LUMINANCE_LIMIT;
     uint32_t xorMask;
     bool invertGamma = false;
 
@@ -1662,6 +1665,21 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
     rec->setHinting(h);
 
+    // for compatibility at the moment, discretize luminance to 3 settings
+    // black, white, gray. This helps with fontcache utilization, since we
+    // won't create multiple entries that in the end map to the same results.
+    {
+        unsigned lum = rec->getLuminanceByte();
+        if (lum <= BLACK_LUMINANCE_LIMIT) {
+            lum = 0;
+        } else if (lum >= WHITE_LUMINANCE_LIMIT) {
+            lum = SkScalerContext::kLuminance_Max;
+        } else {
+            lum = SkScalerContext::kLuminance_Max >> 1;
+        }
+        rec->setLuminanceBits(lum);
+    }
+    
     if (SkMask::kLCD16_Format == rec->fMaskFormat
             || SkMask::kLCD32_Format == rec->fMaskFormat) {
         if (supports_LCD()) {
