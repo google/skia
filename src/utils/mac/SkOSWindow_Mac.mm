@@ -64,7 +64,7 @@ void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
 }
 
 bool SkOSWindow::attachGL() {
-    [(SkNSView*)fHWND attachGL];
+    return [(SkNSView*)fHWND attachGL];
 }
 
 void SkOSWindow::detachGL() {
