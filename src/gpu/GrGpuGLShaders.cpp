@@ -546,7 +546,7 @@ void GrGpuGLShaders::flushRadial2(int s) {
         // down).
         float values[6] = {
             GrScalarToFloat(a),
-            1 / (2.f * values[0]),
+            1 / (2.f * GrScalarToFloat(a)),
             GrScalarToFloat(centerX1),
             GrScalarToFloat(radius0),
             GrScalarToFloat(GrMul(radius0, radius0)),

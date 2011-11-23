@@ -1763,8 +1763,13 @@ void GrGpuGL::flushStencil() {
             GrAssert(stencilBits ||
                      (GrStencilSettings::gDisabled ==
                       fCurrDrawState.fStencilSettings));
-            GrGLuint clipStencilMask = 1 << (stencilBits - 1);
-            GrGLuint userStencilMask = clipStencilMask - 1;
+
+            GrGLuint clipStencilMask = 0;
+            GrGLuint userStencilMask = ~0;
+            if (stencilBits > 0) {
+                clipStencilMask =  1 << (stencilBits - 1);
+                userStencilMask = clipStencilMask - 1;
+            }
 
             unsigned int frontRef  = settings->fFrontFuncRef;
             unsigned int frontMask = settings->fFrontFuncMask;
