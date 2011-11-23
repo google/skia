@@ -26,7 +26,7 @@ SkPMColor getCanvasColor(int x, int y) {
     U8CPU g = y;
     U8CPU b = 0xc;
 
-    U8CPU a = 0xff;
+    U8CPU a = 0x0;
     switch ((x+y) % 5) {
         case 0:
             a = 0xff;
@@ -37,11 +37,11 @@ SkPMColor getCanvasColor(int x, int y) {
         case 2:
             a = 0xCC;
             break;
-        case 4:
-            a = 0x01;
-            break;
         case 3:
             a = 0x00;
+            break;
+        case 4:
+            a = 0x01;
             break;
     }
     return SkPremultiplyARGBInline(a, r, g, b);
@@ -99,7 +99,7 @@ uint32_t getBitmapColor(int x, int y, int w, int h, SkCanvas::Config8888 config8
     U8CPU b = n & 0xff;
     U8CPU g = (n >> 8) & 0xff;
     U8CPU r = (n >> 16) & 0xff;
-    U8CPU a;
+    U8CPU a = 0;
     switch ((x+y) % 5) {
         case 4:
             a = 0xff;

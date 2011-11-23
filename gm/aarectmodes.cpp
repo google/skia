@@ -34,7 +34,7 @@ static void test4(SkCanvas* canvas) {
     };
     SkPath path;
     SkPoint* ptPtr = pts;
-    for (int i = 0; i < sizeof(verbs); ++i) {
+    for (size_t i = 0; i < sizeof(verbs); ++i) {
         switch ((SkPath::Verb) verbs[i]) {
             case SkPath::kMove_Verb:
                 path.moveTo(ptPtr->fX, ptPtr->fY);
@@ -46,6 +46,9 @@ static void test4(SkCanvas* canvas) {
                 break;
             case SkPath::kClose_Verb:
                 path.close();
+                break;
+            default:
+                SkASSERT(false);
                 break;
         }
     }
