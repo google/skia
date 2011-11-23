@@ -87,7 +87,14 @@
             'cflags': ['-O2']
           },
         },
-        'cflags': [ '-Wall', '-Wextra', '-Wno-unused' ],
+        'cflags': [ 
+          '-Wall',
+          '-Wextra',
+          '-Wno-unused',
+          # suppressions below here were added for clang
+          '-Wno-unused-parameter',
+          '-Wno-c++11-extensions'
+        ],
         'include_dirs' : [
           '/usr/include/freetype2',
         ],

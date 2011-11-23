@@ -20,7 +20,7 @@ SkMesaGLContext::AutoContextRestore::AutoContextRestore() {
 }
 
 SkMesaGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (NULL != fOldContext) {
+    if (NULL != (OSMesaContext)fOldContext) {
         OSMesaMakeCurrent((OSMesaContext)fOldContext, fOldImage, 
                           fOldFormat, fOldWidth, fOldHeight);
     }
