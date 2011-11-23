@@ -14,7 +14,7 @@
 #include <stddef.h>
 
 // Gr headers
-#include "GrConfig.h"
+#include "GrTypes.h"
 #include "GrContext.h"
 #include "GrFontScaler.h"
 #include "GrClipIterator.h"
