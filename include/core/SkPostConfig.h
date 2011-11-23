@@ -94,9 +94,9 @@
 
 #ifndef SK_CRASH
 #if 1   // set to 0 for infinite loop, which can help connecting gdb
-    #define SK_CRASH() SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0
+    #define SK_CRASH() do { SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0; } while (false)
 #else
-    #define SK_CRASH() SkNO_RETURN_HINT(); do {} while (true)
+    #define SK_CRASH() do { SkNO_RETURN_HINT(); } while (true)
 #endif
 #endif
 
