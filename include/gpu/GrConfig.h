@@ -220,12 +220,12 @@ extern GR_API void GrPrintf(const char format[], ...);
  */
 #if !defined(GR_ALWAYSBREAK)
     #if     GR_WIN32_BUILD
-        #define GR_ALWAYSBREAK __debugbreak()
+        #define GR_ALWAYSBREAK SkNO_RETURN_HINT(); __debugbreak()
     #else
         // TODO: do other platforms really not have continuable breakpoints?
         // sign extend for 64bit architectures to be sure this is
         // in the high address range
-        #define GR_ALWAYSBREAK *((int*)(int64_t)(int32_t)0xbeefcafe) = 0;
+        #define GR_ALWAYSBREAK SkNO_RETURN_HINT(); *((int*)(int64_t)(int32_t)0xbeefcafe) = 0;
     #endif
 #endif
 
