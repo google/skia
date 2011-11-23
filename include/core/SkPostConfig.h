@@ -56,6 +56,32 @@
     #endif
 #endif
 
+#if !defined(SK_HAS_COMPILER_FEATURE)
+    #if defined(__has_feature)
+        #define SK_HAS_COMPILER_FEATURE(x) __has_feature(x)
+    #else
+        #define SK_HAS_COMPILER_FEATURE(x) 0
+    #endif
+#endif
+
+/**
+ * The clang static analyzer likes to know that when the program is not
+ * expected to continue (crash, assertion failure, etc). It will notice that
+ * some combination of parameters lead to a function call that does not return.
+ * It can then make appropriate assumptions about the parameters in code
+ * executed only if the non-returning function was *not* called.
+ */
+#if !defined(SkNO_RETURN_HINT)
+    #if SK_HAS_COMPILER_FEATURE(attribute_analyzer_noreturn)
+        namespace {
+            inline void SkNO_RETURN_HINT() __attribute__((analyzer_noreturn));
+            void SkNO_RETURN_HINT() {}
+        }
+    #else
+        #define SkNO_RETURN_HINT() do {} while (false)
+    #endif
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef SkNEW
@@ -68,9 +94,9 @@
 
 #ifndef SK_CRASH
 #if 1   // set to 0 for infinite loop, which can help connecting gdb
-    #define SK_CRASH() *(int *)(uintptr_t)0xbbadbeef = 0
+    #define SK_CRASH() SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0
 #else
-    #define SK_CRASH()  do {} while (true)
+    #define SK_CRASH() SkNO_RETURN_HINT(); do {} while (true)
 #endif
 #endif
 
@@ -100,7 +126,7 @@
     #endif
 
     #ifndef SK_DEBUGBREAK
-        #define SK_DEBUGBREAK(cond)     do { if (!(cond)) __debugbreak(); } while (false)
+        #define SK_DEBUGBREAK(cond)     do { if (!(cond)) { SkNO_RETURN_HINT(); __debugbreak(); }} while (false)
     #endif
 
     #ifndef SK_A32_SHIFT
