@@ -57,16 +57,17 @@ static bool operator==(const SkMask& a, const SkMask& b) {
 }
 
 static void copyToMask(const SkRegion& rgn, SkMask* mask) {
+    mask->fFormat = SkMask::kA8_Format;
+
     if (rgn.isEmpty()) {
-        mask->fImage = NULL;
         mask->fBounds.setEmpty();
         mask->fRowBytes = 0;
+        mask->fImage = NULL;
         return;
     }
 
     mask->fBounds = rgn.getBounds();
     mask->fRowBytes = mask->fBounds.width();
-    mask->fFormat = SkMask::kA8_Format;
     mask->fImage = SkMask::AllocImage(mask->computeImageSize());
     sk_bzero(mask->fImage, mask->computeImageSize());
 
@@ -101,23 +102,53 @@ static void make_rand_rgn(SkRegion* rgn, SkRandom& rand) {
     }
 }
 
+static bool operator==(const SkRegion& rgn, const SkAAClip& aaclip) {
+    SkMask mask0, mask1;
+
+    copyToMask(rgn, &mask0);
+    aaclip.copyToMask(&mask1);
+    bool eq = (mask0 == mask1);
+
+    SkMask::FreeImage(mask0.fImage);
+    SkMask::FreeImage(mask1.fImage);
+    return eq;
+}
+
+static bool equalsAAClip(const SkRegion& rgn) {
+    SkAAClip aaclip;
+    aaclip.setRegion(rgn);
+    return rgn == aaclip;
+}
+
+static void setRgnToPath(SkRegion* rgn, const SkPath& path) {
+    SkIRect ir;
+    path.getBounds().round(&ir);
+    rgn->setPath(path, SkRegion(ir));
+}
+
 // aaclip.setRegion should create idential masks to the region
 static void test_rgn(skiatest::Reporter* reporter) {
     SkRandom rand;
     for (int i = 0; i < 1000; i++) {
         SkRegion rgn;
         make_rand_rgn(&rgn, rand);
-        SkMask mask0;
-        copyToMask(rgn, &mask0);
-        SkAAClip aaclip;
-        aaclip.setRegion(rgn);
-        SkMask mask1;
-        aaclip.copyToMask(&mask1);
-        
-        REPORTER_ASSERT(reporter, mask0 == mask1);
-        
-        SkMask::FreeImage(mask0.fImage);
-        SkMask::FreeImage(mask1.fImage);
+        REPORTER_ASSERT(reporter, equalsAAClip(rgn));
+    }
+
+    {
+        SkRegion rgn;
+        SkPath path;
+        path.addCircle(0, 0, SkIntToScalar(30));
+        setRgnToPath(&rgn, path);
+        REPORTER_ASSERT(reporter, equalsAAClip(rgn));
+
+        path.reset();
+        path.moveTo(0, 0);
+        path.lineTo(SkIntToScalar(100), 0);
+        path.lineTo(SkIntToScalar(100 - 20), SkIntToScalar(20));
+        path.lineTo(SkIntToScalar(20), SkIntToScalar(20));
+        setRgnToPath(&rgn, path);
+        REPORTER_ASSERT(reporter, equalsAAClip(rgn));
     }
 }
 
