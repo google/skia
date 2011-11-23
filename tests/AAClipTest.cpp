@@ -7,8 +7,119 @@
 
 #include "Test.h"
 #include "SkAAClip.h"
+#include "SkCanvas.h"
+#include "SkMask.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+
+static bool operator==(const SkMask& a, const SkMask& b) {
+    if (a.fFormat != b.fFormat || a.fBounds != b.fBounds) {
+        return false;
+    }
+    if (!a.fImage && !b.fImage) {
+        return true;
+    }
+    if (!a.fImage || !b.fImage) {
+        return false;
+    }
+
+    size_t wbytes = a.fBounds.width();
+    switch (a.fFormat) {
+        case SkMask::kBW_Format:
+            wbytes = (wbytes + 7) >> 3;
+            break;
+        case SkMask::kA8_Format:
+        case SkMask::k3D_Format:
+            break;
+        case SkMask::kLCD16_Format:
+            wbytes <<= 1;
+            break;
+        case SkMask::kLCD32_Format:
+        case SkMask::kARGB32_Format:
+            wbytes <<= 2;
+            break;
+        default:
+            SkASSERT(!"unknown mask format");
+            return false;
+    }
+
+    const int h = a.fBounds.height();
+    const char* aptr = (const char*)a.fImage;
+    const char* bptr = (const char*)b.fImage;
+    for (int y = 0; y < h; ++y) {
+        if (memcmp(aptr, bptr, wbytes)) {
+            return false;
+        }
+        aptr += wbytes;
+        bptr += wbytes;
+    }
+    return true;
+}
+
+static void copyToMask(const SkRegion& rgn, SkMask* mask) {
+    if (rgn.isEmpty()) {
+        mask->fImage = NULL;
+        mask->fBounds.setEmpty();
+        mask->fRowBytes = 0;
+        return;
+    }
+
+    mask->fBounds = rgn.getBounds();
+    mask->fRowBytes = mask->fBounds.width();
+    mask->fFormat = SkMask::kA8_Format;
+    mask->fImage = SkMask::AllocImage(mask->computeImageSize());
+    sk_bzero(mask->fImage, mask->computeImageSize());
+
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kA8_Config, mask->fBounds.width(),
+                     mask->fBounds.height(), mask->fRowBytes);
+    bitmap.setPixels(mask->fImage);
+
+    // canvas expects its coordinate system to always be 0,0 in the top/left
+    // so we translate the rgn to match that before drawing into the mask.
+    //
+    SkRegion tmpRgn(rgn);
+    tmpRgn.translate(-rgn.getBounds().fLeft, -rgn.getBounds().fTop);
+
+    SkCanvas canvas(bitmap);
+    canvas.clipRegion(tmpRgn);
+    canvas.drawColor(SK_ColorBLACK);
+}
+
+static SkIRect rand_rect(SkRandom& rand, int n) {
+    int x = rand.nextS() % n;
+    int y = rand.nextS() % n;
+    int w = rand.nextU() % n;
+    int h = rand.nextU() % n;
+    return SkIRect::MakeXYWH(x, y, w, h);
+}
+
+static void make_rand_rgn(SkRegion* rgn, SkRandom& rand) {
+    int count = rand.nextU() % 20;
+    for (int i = 0; i < count; ++i) {
+        rgn->op(rand_rect(rand, 100), SkRegion::kXOR_Op);
+    }
+}
+
+// aaclip.setRegion should create idential masks to the region
+static void test_rgn(skiatest::Reporter* reporter) {
+    SkRandom rand;
+    for (int i = 0; i < 1000; i++) {
+        SkRegion rgn;
+        make_rand_rgn(&rgn, rand);
+        SkMask mask0;
+        copyToMask(rgn, &mask0);
+        SkAAClip aaclip;
+        aaclip.setRegion(rgn);
+        SkMask mask1;
+        aaclip.copyToMask(&mask1);
+        
+        REPORTER_ASSERT(reporter, mask0 == mask1);
+        
+        SkMask::FreeImage(mask0.fImage);
+        SkMask::FreeImage(mask1.fImage);
+    }
+}
 
 static const SkRegion::Op gRgnOps[] = {
     SkRegion::kDifference_Op,
@@ -138,6 +249,7 @@ static void TestAAClip(skiatest::Reporter* reporter) {
     test_empty(reporter);
     test_path_bounds(reporter);
     test_irect(reporter);
+    test_rgn(reporter);
 }
 
 #include "TestClassDef.h"
