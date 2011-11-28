@@ -846,6 +846,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     if (glFlipY) {
         GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
     }
+    return true;
 }
 
 bool GrGpuGL::createRenderTargetObjects(int width, int height,
