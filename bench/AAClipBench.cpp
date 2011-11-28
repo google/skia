@@ -56,6 +56,38 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+class AAClipRegionBench : public SkBenchmark {
+public:
+    AAClipRegionBench(void* param) : INHERITED(param) {
+        SkPath path;
+        // test conversion of a complex clip to a aaclip
+        path.addCircle(0, 0, SkIntToScalar(200));
+        path.addCircle(0, 0, SkIntToScalar(180));
+        // evenodd means we've constructed basically a stroked circle
+        path.setFillType(SkPath::kEvenOdd_FillType);
+
+        SkIRect bounds;
+        path.getBounds().roundOut(&bounds);
+        fRegion.setPath(path, SkRegion(bounds));
+    }
+
+protected:
+    virtual const char* onGetName() { return "aaclip_setregion"; }
+    virtual void onDraw(SkCanvas* canvas) {
+        for (int i = 0; i < N; ++i) {
+            SkAAClip clip;
+            clip.setRegion(fRegion);
+        }
+    }
+
+private:
+    enum {
+        N = SkBENCHLOOP(400),
+    };
+    SkRegion fRegion;
+    typedef SkBenchmark INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkBenchmark* Fact0(void* p) { return SkNEW_ARGS(AAClipBuilderBench, (p, false, false)); }
@@ -67,3 +99,6 @@ static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
 static BenchRegistry gReg3(Fact3);
+
+static SkBenchmark* Fact01(void* p) { return SkNEW_ARGS(AAClipRegionBench, (p)); }
+static BenchRegistry gReg01(Fact01);
