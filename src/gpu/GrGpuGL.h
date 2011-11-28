@@ -276,7 +276,8 @@ private:
                       GrGLenum* externalFormat,
                       GrGLenum* externalType);
     // helper for onCreateTexture and writeTexturePixels
-    void uploadTexData(const GrGLTexture::Desc& desc,
+    bool uploadTexData(const GrGLTexture::Desc& desc,
+                       bool newTexture,
                        int left, int top, int width, int height,
                        GrPixelConfig dataConfig,
                        const void* data,
