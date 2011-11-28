@@ -711,7 +711,9 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     desc.fTextureID = glTex->textureID();
     desc.fInternalFormat = glTex->internalFormat();
 
-    this->uploadTexData(desc, left, top, width, height, config, buffer, rowBytes);
+    this->uploadTexData(desc, false,
+                        left, top, width, height, 
+                        config, buffer, rowBytes);
 }
 
 namespace {
@@ -742,7 +744,8 @@ bool adjust_pixel_ops_params(int surfaceWidth,
 }
 }
 
-void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
+bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
+                            bool isNewTexture,
                             int left, int top, int width, int height,
                             GrPixelConfig dataConfig,
                             const void* data,
@@ -751,7 +754,7 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     size_t bpp = GrBytesPerPixel(dataConfig);
     if (!adjust_pixel_ops_params(desc.fWidth, desc.fHeight, bpp, &left, &top,
                                  &width, &height, &data, &rowBytes)) {
-        return;
+        return false;
     }
     size_t trimRowBytes = width * bpp;
 
@@ -763,7 +766,7 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     GrGLenum externalType;
     if (!this->canBeTexture(dataConfig, &dontCare,
                             &externalFormat, &externalType)) {
-        return;
+        return false;
     }
 
     /*
@@ -816,11 +819,18 @@ void GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
     }
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
-    if (0 == left && 0 == top &&
+    if (isNewTexture && 
+        0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
-        GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, desc.fInternalFormat,
-                           desc.fWidth, desc.fHeight, 0,
-                           externalFormat, externalType, data));
+        GrGLClearErr(this->glInterface());
+        GR_GL_CALL_NOERRCHECK(this->glInterface(),
+                              TexImage2D(GR_GL_TEXTURE_2D, 0,
+                                         desc.fInternalFormat,
+                                         desc.fWidth, desc.fHeight, 0,
+                                         externalFormat, externalType, data));
+        if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
+            return false;
+        }
     } else {
         if (swFlipY || glFlipY) {
             top = desc.fHeight - (top + height);
@@ -878,6 +888,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         GrAssert(desc->fSampleCnt > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER,
                                desc->fMSColorRenderbufferID));
+        GrGLClearErr(this->glInterface());
         GR_GL_CALL_NOERRCHECK(this->glInterface(),
                               RenderbufferStorageMultisample(GR_GL_RENDERBUFFER, 
                                                              desc->fSampleCnt,
@@ -1023,8 +1034,12 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                            glTexDesc.fWidth, glTexDesc.fHeight, 0,
                            externalFormat, externalType, NULL));
     } else {
-        this->uploadTexData(glTexDesc, 0, 0, glTexDesc.fWidth, glTexDesc.fHeight,
-                            desc.fConfig, srcData, rowBytes);
+        if (!this->uploadTexData(glTexDesc, true, 0, 0,
+                                 glTexDesc.fWidth, glTexDesc.fHeight,
+                                 desc.fConfig, srcData, rowBytes)) {
+            GL_CALL(DeleteTextures(1, &glTexDesc.fTextureID));
+            return return_null_texture();
+        }
     }
 
     GrGLTexture* tex;
@@ -1100,6 +1115,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         // first (painful) stencil creation.
         int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
         const GrGLStencilBuffer::Format& sFmt = fGLCaps.fStencilFormats[sIdx];
+        GrGLClearErr(this->glInterface());
         // we do this "if" so that we don't call the multisample
         // version on a GL that doesn't have an MSAA extension.
         if (samples > 1) {
@@ -1210,7 +1226,7 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
         GR_GL_CALL_NOERRCHECK(this->glInterface(),
                               BufferData(GR_GL_ARRAY_BUFFER, size, NULL, 
                               dynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
-        if (this->glInterface()->fGetError() != GR_GL_NO_ERROR) {
+        if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
             GL_CALL(DeleteBuffers(1, &id));
             // deleting bound buffer does implicit bind to 0
             fHWGeometryState.fVertexBuffer = NULL;
@@ -1234,7 +1250,7 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
         GR_GL_CALL_NOERRCHECK(this->glInterface(),
                               BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, size, NULL,
                               dynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
-        if (this->glInterface()->fGetError() != GR_GL_NO_ERROR) {
+        if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
             GL_CALL(DeleteBuffers(1, &id));
             // deleting bound buffer does implicit bind to 0
             fHWGeometryState.fIndexBuffer = NULL;
