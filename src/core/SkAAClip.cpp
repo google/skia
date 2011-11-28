@@ -682,6 +682,20 @@ bool SkAAClip::setRect(const SkRect& r, bool doAA) {
     return this->setPath(path, NULL, doAA);
 }
 
+static void append_run(SkTDArray<uint8_t>& array, uint8_t value, int count) {
+    SkASSERT(count >= 0);
+    while (count > 0) {
+        int n = count;
+        if (n > 255) {
+            n = 255;
+        }
+        uint8_t* data = array.append(2);
+        data[0] = n;
+        data[1] = value;
+        count -= n;
+    }
+}
+
 bool SkAAClip::setRegion(const SkRegion& rgn) {
     if (rgn.isEmpty()) {
         return this->setEmpty();
@@ -689,7 +703,8 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
     if (rgn.isRect()) {
         return this->setRect(rgn.getBounds());
     }
-    
+
+#if 0
     SkAAClip clip;
     SkRegion::Iterator iter(rgn);
     for (; !iter.done(); iter.next()) {
@@ -697,6 +712,71 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
     }
     this->swap(clip);
     return !this->isEmpty();
+#else    
+    const SkIRect& bounds = rgn.getBounds();
+    const int offsetX = bounds.fLeft;
+    const int offsetY = bounds.fTop;
+
+    SkTDArray<YOffset> yArray;
+    SkTDArray<uint8_t> xArray;
+
+    yArray.setReserve(SkMin32(bounds.height(), 1024));
+    xArray.setReserve(SkMin32(bounds.width() * 128, 64 * 1024));
+
+    SkRegion::Iterator iter(rgn);
+    int prevRight = 0;
+    int prevBot = 0;
+    YOffset* currY = NULL;
+
+    for (; !iter.done(); iter.next()) {
+        const SkIRect& r = iter.rect();
+        SkASSERT(bounds.contains(r));
+
+        int bot = r.fBottom - offsetY;
+        SkASSERT(bot >= prevBot);
+        if (bot > prevBot) {
+            if (currY) {
+                // flush current row
+                append_run(xArray, 0, bounds.width() - prevRight);
+            }
+            // did we introduce an empty-gap from the prev row?
+            int top = r.fTop - offsetY;
+            if (top > prevBot) {
+                currY = yArray.append();
+                currY->fY = top - 1;
+                currY->fOffset = xArray.count();
+                append_run(xArray, 0, bounds.width());
+            }
+            // create a new record for this Y value
+            currY = yArray.append();
+            currY->fY = bot - 1;
+            currY->fOffset = xArray.count();
+            prevRight = 0;
+            prevBot = bot;
+        }
+
+        int x = r.fLeft - offsetX;
+        append_run(xArray, 0, x - prevRight);
+
+        int w = r.fRight - r.fLeft;
+        append_run(xArray, 0xFF, w);
+        prevRight = x + w;
+        SkASSERT(prevRight <= bounds.width());
+    }
+    // flush last row
+    append_run(xArray, 0, bounds.width() - prevRight);
+
+    // now pack everything into a RunHead
+    RunHead* head = RunHead::Alloc(yArray.count(), xArray.bytes());
+    memcpy(head->yoffsets(), yArray.begin(), yArray.bytes());
+    memcpy(head->data(), xArray.begin(), xArray.bytes());
+
+    this->setEmpty();
+    fBounds = bounds;
+    fRunHead = head;
+    this->validate();
+    return true;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1587,6 +1667,7 @@ static void expand_row_to_mask(uint8_t* SK_RESTRICT mask,
         row += 2;
         width -= n;
     }
+    SkASSERT(0 == width);
 }
 
 void SkAAClip::copyToMask(SkMask* mask) const {
