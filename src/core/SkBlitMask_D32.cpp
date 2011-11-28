@@ -466,7 +466,7 @@ static void A8_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
 }
 
 static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
-                                const SkPMColor* SK_RESTRICT mask,
+                                const uint16_t* SK_RESTRICT mask,
                                 const SkPMColor* SK_RESTRICT src, int count) {
     for (int i = 0; i < count; ++i) {
         uint16_t m = mask[i];
@@ -512,7 +512,7 @@ static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
 }
 
 static void LCD16_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
-                                 const SkPMColor* SK_RESTRICT mask,
+                                 const uint16_t* SK_RESTRICT mask,
                                  const SkPMColor* SK_RESTRICT src, int count) {
     for (int i = 0; i < count; ++i) {
         uint16_t m = mask[i];
