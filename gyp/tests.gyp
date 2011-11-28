@@ -19,6 +19,7 @@
         '../tests/BitSetTest.cpp',
         '../tests/BlitRowTest.cpp',
         '../tests/BlurTest.cpp',
+        '../tests/CanvasTest.cpp',
         '../tests/ClampRangeTest.cpp',
         '../tests/ClipCubicTest.cpp',
         '../tests/ClipStackTest.cpp',
