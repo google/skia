@@ -813,7 +813,9 @@ void SkCanvas::restoreToCount(int count) {
     if (count < 1) {
         count = 1;
     }
-    while (fMCStack.count() > count) {
+    
+    int n = this->getSaveCount() - count;
+    for (int i = 0; i < n; ++i) {
         this->restore();
     }
 }
