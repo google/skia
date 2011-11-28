@@ -12,6 +12,7 @@
     '../gm/filltypespersp.cpp',
     '../gm/fontscaler.cpp',
     '../gm/gradients.cpp',
+    '../gm/gradtext.cpp',
     '../gm/hairmodes.cpp',
 #    commented out until SkPicture support for SkImageFilter is complete
 #    See http://code.google.com/p/skia/issues/detail?id=391
