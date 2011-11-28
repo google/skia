@@ -10,6 +10,15 @@
 #include "SkBlurMask.h"
 #include "SkMath.h"
 #include "SkTemplates.h"
+#include "SkEndian.h"
+
+// Unrolling the integer blur kernel seems to give us a ~15% speedup on Windows,
+// breakeven on Mac, and ~15% slowdown on Linux.
+// Reading a word at a time when bulding the sum buffer seems to give
+// us no appreciable speedup on Windows or Mac, and 2% slowdown on Linux.
+#if defined(BUILD_FOR_WIN_32)
+#define UNROLL_KERNEL_LOOP 1
+#endif
 
 /** The sum buffer is an array of u32 to hold the accumulated sum of all of the
     src values at their position, plus all values above and to the left.
@@ -49,7 +58,39 @@ static void build_sum_buffer(uint32_t sum[], int srcW, int srcH,
         uint32_t L = 0;
         uint32_t C = 0;
         *sum++ = 0; // initialze the first column to 0
-        for (x = srcW - 1; x >= 0; --x) {
+
+        for (x = srcW - 1; !SkIsAlign4((intptr_t) src) && x >= 0; x--) {
+            uint32_t T = sum[-sumW];
+            X = *src++ + L + T - C;
+            *sum++ = X;
+            L = X;
+            C = T;
+        }
+
+        for (; x >= 4; x-=4) {
+            uint32_t T = sum[-sumW];
+            X = *src++ + L + T - C;
+            *sum++ = X;
+            L = X;
+            C = T;
+            T = sum[-sumW];
+            X = *src++ + L + T - C;
+            *sum++ = X;
+            L = X;
+            C = T;
+            T = sum[-sumW];
+            X = *src++ + L + T - C;
+            *sum++ = X;
+            L = X;
+            C = T;
+            T = sum[-sumW];
+            X = *src++ + L + T - C;
+            *sum++ = X;
+            L = X;
+            C = T;
+        }
+
+        for (; x >= 0; --x) {
             uint32_t T = sum[-sumW];
             X = *src++ + L + T - C;
             *sum++ = X;
@@ -86,8 +127,6 @@ static void kernel_clamped(uint8_t dst[], int rx, int ry, const uint32_t sum[],
         int next_x = 1;
 
         for (int x = 0; x < dw; x++) {
-            //int px = SkClampPos(prev_x);
-            //int nx = SkFastMin32(next_x, sw);
             int px = SkClampPos(prev_x);
             int nx = SkFastMin32(next_x, sw);
 
@@ -120,6 +159,12 @@ static void kernel_clamped(uint8_t dst[], int rx, int ry, const uint32_t sum[],
             prev_x += 1;
             next_x += 1;
         }
+ *  The sections are:
+ *     left-hand section, where prev_x is clamped to 0
+ *     center section, where neither prev_x nor next_x is clamped
+ *     right-hand section, where next_x is clamped to sw
+ *  On some operating systems, the center section is unrolled for additional
+ *  speedup.
 */
 static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
                          int sw, int sh) {
@@ -162,14 +207,35 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
             next_x += 1;
         }
 
+        int i0 = prev_x + py;
+        int i1 = next_x + ny;
+        int i2 = next_x + py;
+        int i3 = prev_x + ny;
+
+#if UNROLL_KERNEL_LOOP
+        for (; x < dw - 2*rx - 4; x += 4) {
+            SkASSERT(prev_x >= 0);
+            SkASSERT(next_x <= sw);
+
+            uint32_t tmp = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            *dst++ = SkToU8(tmp * scale >> 24);
+            tmp = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            *dst++ = SkToU8(tmp * scale >> 24);
+            tmp = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            *dst++ = SkToU8(tmp * scale >> 24);
+            tmp = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            *dst++ = SkToU8(tmp * scale >> 24);
+
+            prev_x += 4;
+            next_x += 4;
+        }
+#endif
+
         for (; x < dw - 2*rx; x++) {
             SkASSERT(prev_x >= 0);
             SkASSERT(next_x <= sw);
 
-            int px = prev_x;
-            int nx = next_x;
-
-            uint32_t tmp = sum[px+py] + sum[nx+ny] - sum[nx+py] - sum[px+ny];
+            uint32_t tmp = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
             *dst++ = SkToU8(tmp * scale >> 24);
 
             prev_x += 1;
@@ -277,6 +343,12 @@ static void kernel_interp_clamped(uint8_t dst[], int rx, int ry,
             prev_x += 1;
             next_x += 1;
         }
+ *  The sections are:
+ *     left-hand section, where prev_x is clamped to 0
+ *     center section, where neither prev_x nor next_x is clamped
+ *     right-hand section, where next_x is clamped to sw
+ *  On some operating systems, the center section is unrolled for additional
+ *  speedup.
 */
 static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
                 const uint32_t sum[], int sw, int sh, U8CPU outer_weight) {
@@ -339,20 +411,48 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
             next_x += 1;
         }
 
+        int i0 = prev_x + py;
+        int i1 = next_x + ny;
+        int i2 = next_x + py;
+        int i3 = prev_x + ny;
+        int i4 = prev_x + 1 + ipy;
+        int i5 = next_x - 1 + iny;
+        int i6 = next_x - 1 + ipy;
+        int i7 = prev_x + 1 + iny;
+
+#if UNROLL_KERNEL_LOOP
+        for (; x < dw - 2*rx - 4; x += 4) {
+            SkASSERT(prev_x >= 0);
+            SkASSERT(next_x <= sw);
+
+            uint32_t outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            uint32_t inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+            outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+            outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+            outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outer_sum * outer_scale
+                           + inner_sum * inner_scale) >> 24);
+
+            prev_x += 4;
+            next_x += 4;
+        }
+#endif
+
         for (; x < dw - 2*rx; x++) {
             SkASSERT(prev_x >= 0);
             SkASSERT(next_x <= sw);
 
-            int px = prev_x;
-            int nx = next_x;
-
-            int ipx = prev_x + 1;
-            int inx = next_x - 1;
-
-            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
-                               - sum[nx+py] - sum[px+ny];
-            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
-                               - sum[inx+ipy] - sum[ipx+iny];
+            uint32_t outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            uint32_t inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
             *dst++ = SkToU8((outer_sum * outer_scale
                            + inner_sum * inner_scale) >> 24);
 

@@ -55,7 +55,7 @@
  *  n is already a multiple of 4
  */
 #define GrALIGN4(n)     SkAlign4(n)
-#define GrIsALIGN4(n)   (((n) & 3) == 0)
+#define GrIsALIGN4(n)   SkIsAlign4(n)
 
 template <typename T> const T& GrMin(const T& a, const T& b) {
 	return (a < b) ? a : b;
