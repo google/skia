@@ -80,6 +80,19 @@ static inline void SkEndianSwap32s(uint32_t array[], int count) {
     #define SkEndian_SwapLE32(n)    SkEndianSwap32(n)
 #endif
 
+// When a bytestream is embedded in a 32-bit word, how far we need to
+// shift the word to extract each byte from the low 8 bits by anding with 0xff.
+#ifdef SK_CPU_LENDIAN
+    #define SkEndian_Byte0Shift 0
+    #define SkEndian_Byte1Shift 8
+    #define SkEndian_Byte2Shift 16
+    #define SkEndian_Byte3Shift 24
+#else   // SK_CPU_BENDIAN
+    #define SkEndian_Byte0Shift 24
+    #define SkEndian_Byte1Shift 16
+    #define SkEndian_Byte2Shift 8
+    #define SkEndian_Byte3Shift 0
+#endif
 
 #endif
 

@@ -216,6 +216,8 @@ static inline bool SkIsU16(long x) {
 */
 #define SkAlign4(x)     (((x) + 3) >> 2 << 2)
 
+#define SkIsAlign4(x) (((x) & 3) == 0)
+
 typedef uint32_t SkFourByteTag;
 #define SkSetFourByteTag(a, b, c, d)    (((a) << 24) | ((b) << 16) | ((c) << 8) | (d))
 
