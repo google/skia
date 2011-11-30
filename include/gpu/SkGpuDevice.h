@@ -122,6 +122,8 @@ protected:
     TexCache lockCachedTexture(const SkBitmap& bitmap,
                                const GrSamplerState& sampler,
                                TexType type = kBitmap_TexType);
+    bool isBitmapInTextureCache(const SkBitmap& bitmap,
+                                const GrSamplerState& sampler) const;
     void unlockCachedTexture(TexCache);
 
     class SkAutoCachedTexture {
@@ -196,6 +198,10 @@ private:
     bool bindDeviceAsTexture(GrPaint* paint);
 
     void prepareRenderTarget(const SkDraw&);
+    bool shouldTileBitmap(const SkBitmap& bitmap,
+                          const GrSamplerState& sampler,
+                          const SkIRect* srcRectPtr,
+                          int* tileSize) const;
     void internalDrawBitmap(const SkDraw&, const SkBitmap&,
                             const SkIRect&, const SkMatrix&, GrPaint* grPaint);
 

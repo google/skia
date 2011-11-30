@@ -246,6 +246,16 @@ GrContext::TextureCacheEntry GrContext::findAndLockTexture(TextureKey key,
                                             GrResourceCache::kNested_LockType));
 }
 
+bool GrContext::isTextureInCache(TextureKey key,
+                                 int width,
+                                 int height,
+                                 const GrSamplerState& sampler) const {
+    uint32_t v[4];
+    gen_texture_key_values(fGpu, sampler, key, width, height, false, v);
+    GrResourceKey resourceKey(v);
+    return fTextureCache->hasKey(resourceKey);
+}
+
 GrResourceEntry* GrContext::addAndLockStencilBuffer(GrStencilBuffer* sb) {
     ASSERT_OWNED_RESOURCE(sb);
     uint32_t v[4];
