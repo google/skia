@@ -30,7 +30,7 @@
         #define SK_BUILD_FOR_WIN32
     #elif defined(__SYMBIAN32__)
         #define SK_BUILD_FOR_WIN32
-    #elif defined(linux) || defined(__FreeBSD__) || defined(__OpenBSD_) || \
+    #elif defined(linux) || defined(__FreeBSD__) || defined(__OpenBSD__) || \
           defined(__sun) || defined(__NetBSD__) || defined(__DragonFly__)
         #define SK_BUILD_FOR_UNIX
     #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
