@@ -29,18 +29,18 @@ public:
     GrGLBinding glBinding() const { return fGLBinding; }
     GrGLVersion glVersion() const { return fGLVersion; }
 
+    // GrGpu overrides
     virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
-                                                                    SK_OVERRIDE;
+                                                            const SK_OVERRIDE;
     virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig config)
-                                                                    SK_OVERRIDE;
-
+                                                            const SK_OVERRIDE;
     virtual bool readPixelsWillPayForYFlip(
                                     GrRenderTarget* renderTarget,
                                     int left, int top,
                                     int width, int height,
                                     GrPixelConfig config,
-                                    size_t rowBytes) SK_OVERRIDE;
-
+                                    size_t rowBytes) const SK_OVERRIDE;
+    virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 protected:
     GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
 
@@ -56,7 +56,8 @@ protected:
             , fTextureSwizzleSupport(false)
             , fUnpackRowLengthSupport(false)
             , fUnpackFlipYSupport(false)
-            , fPackRowLengthSupport(false) {
+            , fPackRowLengthSupport(false)
+            , fPackFlipYSupport(false) {
             memset(fAASamples, 0, sizeof(fAASamples));
         }
         SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
@@ -108,7 +109,10 @@ protected:
 
         // Is there support for GL_PACK_ROW_LENGTH
         bool fPackRowLengthSupport;
-        
+
+        // Is there support for GL_PACK_REVERSE_ROW_ORDER
+        bool fPackFlipYSupport;
+
         void print() const;
     } fGLCaps;
  

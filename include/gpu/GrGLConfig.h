@@ -81,6 +81,11 @@
  * GR_GL_RGBA_8888_PIXEL_OPS_SLOW: Set this to 1 if it is known that performing
  * glReadPixels / glTex(Sub)Image with format=GL_RGBA, type=GL_UNISIGNED_BYTE is
  * significantly slower than format=GL_BGRA, type=GL_UNISIGNED_BYTE.
+ *
+ * GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL: Set this to 1 if calling
+ * glReadPixels to read the entire framebuffer is faster than calling it with
+ * the same sized rectangle but with a framebuffer bound that is larger than
+ * the rectangle read.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -117,6 +122,10 @@
 
 #if !defined(GR_GL_RGBA_8888_PIXEL_OPS_SLOW)
     #define GR_GL_RGBA_8888_PIXEL_OPS_SLOW      0
+#endif
+
+#if !defined(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL)
+    #define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL 0
 #endif
 
 #if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)

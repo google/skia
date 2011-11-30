@@ -307,11 +307,14 @@ void GrGpuGL::initCaps() {
         fGLCaps.fUnpackRowLengthSupport = true;
         fGLCaps.fUnpackFlipYSupport = false;
         fGLCaps.fPackRowLengthSupport = true;
+        fGLCaps.fPackFlipYSupport = false;
     } else {
-        fGLCaps.fUnpackRowLengthSupport = this->hasExtension("GL_EXT_unpack_subimage");
+        fGLCaps.fUnpackRowLengthSupport =this->hasExtension("GL_EXT_unpack_subimage");
         fGLCaps.fUnpackFlipYSupport = this->hasExtension("GL_CHROMIUM_flipy");
         // no extension for pack row length
         fGLCaps.fPackRowLengthSupport = false;
+        fGLCaps.fPackFlipYSupport =
+            this->hasExtension("GL_ANGLE_pack_reverse_row_order");
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -440,7 +443,7 @@ void GrGpuGL::initStencilFormats() {
     }
 }
 
-GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) {
+GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) const {
     if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
         return GrPixelConfigSwapRAndB(config);
     } else {
@@ -448,12 +451,16 @@ GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) {
     }
 }
 
-GrPixelConfig GrGpuGL::preferredWritePixelsConfig(GrPixelConfig config) {
+GrPixelConfig GrGpuGL::preferredWritePixelsConfig(GrPixelConfig config) const {
     if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
         return GrPixelConfigSwapRAndB(config);
     } else {
         return config;
     }
+}
+
+bool GrGpuGL::fullReadPixelsIsFasterThanPartial() const {
+    return SkToBool(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL);
 }
 
 void GrGpuGL::onResetContext() {
@@ -540,6 +547,9 @@ void GrGpuGL::onResetContext() {
     }
     if (this->glCaps().fUnpackFlipYSupport) {
         GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
+    }
+    if (this->glCaps().fPackFlipYSupport) {
+        GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
     }
 }
 
@@ -1390,8 +1400,13 @@ bool GrGpuGL::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
                                         int left, int top,
                                         int width, int height,
                                         GrPixelConfig config,
-                                        size_t rowBytes) {
-    // if we have to do memcpy to handle non-trim rowBytes then we
+                                        size_t rowBytes) const {
+    // if GL can do the flip then we'll never pay for it.
+    if (this->glCaps().fPackFlipYSupport) {
+        return false;
+    }
+
+    // If we have to do memcpy to handle non-trim rowBytes then we
     // get the flip for free. Otherwise it costs.
     if (this->glCaps().fPackRowLengthSupport) {
         return true;
@@ -1475,12 +1490,19 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
             readDst = scratch.get();
         }
     }
+    if (!invertY && this->glCaps().fPackFlipYSupport) {
+        GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, 1));
+    }
     GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom,
                        readRect.fWidth, readRect.fHeight,
                        format, type, readDst));
     if (readDstRowBytes != tightRowBytes) {
         GrAssert(this->glCaps().fPackRowLengthSupport);
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
+    }
+    if (!invertY && this->glCaps().fPackFlipYSupport) {
+        GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, 0));
+        invertY = true;
     }
 
     // now reverse the order of the rows, since GL's are bottom-to-top, but our
@@ -2430,4 +2452,6 @@ void GrGpuGL::GLCaps::print() const {
              (fUnpackFlipYSupport ? "YES": "NO"));
     GrPrintf("Pack Row length support: %s\n",
              (fPackRowLengthSupport ? "YES": "NO"));
+    GrPrintf("Pack Flip Y support: %s\n",
+             (fPackFlipYSupport ? "YES": "NO"));
 }

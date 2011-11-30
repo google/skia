@@ -1761,7 +1761,20 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
             { config }
         };
 
-        ast.set(this, desc);
+        // When a full readback is faster than a partial we could always make
+        // the scratch exactly match the passed rect. However, if we see many
+        // different size rectangles we will trash our texture cache and pay the
+        // cost of creating and destroying many textures. So, we only request
+        // an exact match when the caller is reading an entire RT.
+        ScratchTexMatch match = kApprox_ScratchTexMatch;
+        if (0 == left &&
+            0 == top &&
+            target->width() == width &&
+            target->height() == height &&
+            fGpu->fullReadPixelsIsFasterThanPartial()) {
+            match = kExact_ScratchTexMatch;
+        }
+        ast.set(this, desc, match);
         GrTexture* texture = ast.texture();
         if (!texture) {
             return false;
