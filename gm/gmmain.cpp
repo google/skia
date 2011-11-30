@@ -645,23 +645,15 @@ int main(int argc, char * const argv[]) {
         glContext.reset(new SkNativeGLContext());
     }
 
-    GrRenderTarget* rt = NULL;
+    GrPlatformRenderTargetDesc rtDesc;
     if (glContext.get()->init(maxW, maxH)) {
         GrPlatform3DContext ctx =
             reinterpret_cast<GrPlatform3DContext>(glContext.get()->gl());
         gGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
         if (NULL != gGrContext) {
-            GrPlatformRenderTargetDesc desc;
-            desc.fConfig = kSkia8888_PM_GrPixelConfig;
-            desc.fWidth = maxW;
-            desc.fHeight = maxH;
-            desc.fStencilBits = 8;
-            desc.fRenderTargetHandle = glContext.get()->getFBOID();
-            rt = gGrContext->createPlatformRenderTarget(desc);
-            if (NULL == rt) {
-                gGrContext->unref();
-                gGrContext = NULL;
-            }
+            rtDesc.fConfig = kSkia8888_PM_GrPixelConfig;
+            rtDesc.fStencilBits = 8;
+            rtDesc.fRenderTargetHandle = glContext.get()->getFBOID();
         }
     } else {
         fprintf(stderr, "could not create GL context.\n");
@@ -689,9 +681,28 @@ int main(int argc, char * const argv[]) {
                  size.width(), size.height());
         SkBitmap forwardRenderedBitmap;
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
-            uint32_t gmFlags = gm->getFlags();
+        // Above we created an fbo for the context at maxW x maxH size.
+        // Here we lie about the size of the rt. We claim it is the size
+        // desired by the test. The reason is that rasterization may change
+        // slightly when the viewport dimensions change. Previously, whenever
+        // a new test was checked in that bumped maxW or maxH several images
+        // would slightly change.
+        rtDesc.fWidth = size.width();
+        rtDesc.fHeight = size.height();
+        SkAutoTUnref<GrRenderTarget> rt;
+        if (gGrContext) {
+            rt.reset(gGrContext->createPlatformRenderTarget(rtDesc));
+        }
 
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+            if (kGPU_Backend == gRec[i].fBackend &&
+                NULL == rt.get()) {
+                fprintf(stderr, "Could not create render target for gpu.\n");
+                overallSuccess = false;
+                continue;
+            }
+
+            uint32_t gmFlags = gm->getFlags();
             if ((kPDF_Backend == gRec[i].fBackend) && 
                 (!doPDF || (gmFlags & GM::kSkipPDF_Flag)))
             {
@@ -700,7 +711,7 @@ int main(int argc, char * const argv[]) {
 
             bool testSuccess = test_drawing(gm, gRec[i],
                          writePath, readPath, diffPath, gGrContext,
-                         rt, &forwardRenderedBitmap);
+                         rt.get(), &forwardRenderedBitmap);
             overallSuccess &= testSuccess;
 
             if (doReplay && testSuccess && !(gmFlags & GM::kSkipPicture_Flag)) {
