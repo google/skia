@@ -116,6 +116,15 @@ public:
                                          int width,
                                          int height,
                                          const GrSamplerState&);
+    /**
+     * Determines whether a texture is in the cache. If the texture is found it
+     * will not be locked or returned. This call does not affect the priority of
+     * the texture for deletion.
+     */
+    bool isTextureInCache(TextureKey key,
+                          int width,
+                          int height,
+                          const GrSamplerState&) const;
 
     /**
      *  Create a new entry, based on the specified key and texture, and return

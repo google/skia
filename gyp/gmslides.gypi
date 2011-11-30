@@ -7,6 +7,7 @@
     '../gm/blurs.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',
+    '../gm/drawbitmaprect.cpp',
     '../gm/emptypath.cpp',
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',

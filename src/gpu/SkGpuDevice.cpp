@@ -1160,6 +1160,105 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     fContext->drawPath(grPaint, *pathPtr, fill);
 }
 
+namespace {
+
+inline int get_tile_count(int l, int t, int r, int b, int tileSize)  {
+    int tilesX = (r / tileSize) - (l / tileSize) + 1;
+    int tilesY = (b / tileSize) - (t / tileSize) + 1;
+    return tilesX * tilesY;
+}
+
+inline int determine_tile_size(const SkBitmap& bitmap, 
+                               const SkIRect* srcRectPtr,
+                               int maxTextureSize) {
+    static const int kSmallTileSize = 1 << 10;
+    if (maxTextureSize <= kSmallTileSize) {
+        return maxTextureSize;
+    }
+
+    size_t maxTexTotalTileSize;
+    size_t smallTotalTileSize;
+
+    if (NULL == srcRectPtr) {
+        int w = bitmap.width();
+        int h = bitmap.height();
+        maxTexTotalTileSize = get_tile_count(0, 0, w, h, maxTextureSize);
+        smallTotalTileSize = get_tile_count(0, 0, w, h, kSmallTileSize);
+    } else {
+        maxTexTotalTileSize = get_tile_count(srcRectPtr->fLeft,
+                                             srcRectPtr->fTop,
+                                             srcRectPtr->fRight,
+                                             srcRectPtr->fBottom,
+                                             maxTextureSize);
+        smallTotalTileSize = get_tile_count(srcRectPtr->fLeft,
+                                            srcRectPtr->fTop,
+                                            srcRectPtr->fRight,
+                                            srcRectPtr->fBottom,
+                                            kSmallTileSize);
+    }
+    maxTexTotalTileSize *= maxTextureSize * maxTextureSize;
+    smallTotalTileSize *= kSmallTileSize * kSmallTileSize;
+
+    if (maxTexTotalTileSize > 2 * smallTotalTileSize) {
+        return kSmallTileSize;
+    } else {
+        return maxTextureSize;
+    }
+}
+}
+
+bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
+                                   const GrSamplerState& sampler,
+                                   const SkIRect* srcRectPtr,
+                                   int* tileSize) const {
+    SkASSERT(NULL != tileSize);
+
+    // if bitmap is explictly texture backed then just use the texture
+    if (NULL != bitmap.getTexture()) {
+        return false;
+    }
+    // if it's larger than the max texture size, then we have no choice but
+    // tiling
+    const int maxTextureSize = fContext->getMaxTextureSize();
+    if (bitmap.width() > maxTextureSize ||
+        bitmap.height() > maxTextureSize) {
+        *tileSize = determine_tile_size(bitmap, srcRectPtr, maxTextureSize);
+        return true;
+    }
+    // if we are going to have to draw the whole thing, then don't tile
+    if (NULL == srcRectPtr) {
+        return false;
+    }
+    // if the entire texture is already in our cache then no reason to tile it
+    if (this->isBitmapInTextureCache(bitmap, sampler)) {
+        return false;
+    }
+
+    // At this point we know we could do the draw by uploading the entire bitmap
+    // as a texture. However, if the texture would be large compared to the
+    // cache size and we don't require most of it for this draw then tile to
+    // reduce the amount of upload and cache spill.
+
+    // assumption here is that sw bitmap size is a good proxy for its size as
+    // a texture
+    size_t bmpSize = bitmap.getSize();
+    size_t cacheSize;
+    fContext->getTextureCacheLimits(NULL, &cacheSize);
+    if (bmpSize < cacheSize / 2) {
+        return false;
+    }
+
+    SkFixed fracUsed =
+        SkFixedMul((srcRectPtr->width() << 16) / bitmap.width(),
+                   (srcRectPtr->height() << 16) / bitmap.height());
+    if (fracUsed <= SK_FixedHalf) {
+        *tileSize = determine_tile_size(bitmap, srcRectPtr, maxTextureSize);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void SkGpuDevice::drawBitmap(const SkDraw& draw,
                              const SkBitmap& bitmap,
                              const SkIRect* srcRectPtr,
@@ -1216,10 +1315,9 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
         sampler->setFilter(GrSamplerState::kNearest_Filter);
     }
 
-    const int maxTextureSize = fContext->getMaxTextureSize();
-    if (bitmap.getTexture() || (bitmap.width() <= maxTextureSize &&
-                                bitmap.height() <= maxTextureSize)) {
-        // take the fast case
+    int tileSize;
+    if (!this->shouldTileBitmap(bitmap, *sampler, srcRectPtr, &tileSize)) {
+        // take the simple case
         this->internalDrawBitmap(draw, bitmap, srcRect, m, &grPaint);
         return;
     }
@@ -1243,13 +1341,13 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
         clipRect.offset(DX, DY);
     }
 
-    int nx = bitmap.width() / maxTextureSize;
-    int ny = bitmap.height() / maxTextureSize;
+    int nx = bitmap.width() / tileSize;
+    int ny = bitmap.height() / tileSize;
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
             SkIRect tileR;
-            tileR.set(x * maxTextureSize, y * maxTextureSize,
-                      (x + 1) * maxTextureSize, (y + 1) * maxTextureSize);
+            tileR.set(x * tileSize, y * tileSize,
+                      (x + 1) * tileSize, (y + 1) * tileSize);
             if (!SkIRect::Intersects(tileR, clipRect)) {
                 continue;
             }
@@ -1698,6 +1796,16 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
 void SkGpuDevice::unlockCachedTexture(TexCache cache) {
     this->context()->unlockTexture(cache);
 }
+
+bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
+                                         const GrSamplerState& sampler) const {
+    GrContext::TextureKey key = bitmap.getGenerationID();
+    key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
+    return this->context()->isTextureInCache(key, bitmap.width(),
+                                             bitmap.height(), sampler);
+
+}
+
 
 SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config, 
                                                 int width, int height, 

@@ -232,6 +232,12 @@ public:
     GrResourceEntry* createAndLock(const GrResourceKey&, GrResource*);
 
     /**
+     * Determines if the cache contains an entry matching a key. If a matching
+     * entry exists but was detached then it will not be found.
+     */
+    bool hasKey(const GrResourceKey& key) const;
+
+    /**
      * Detach removes an entry from the cache. This prevents the entry from
      * being found by a subsequent findAndLock() until it is reattached. The
      * entry still counts against the cache's budget and should be reattached
