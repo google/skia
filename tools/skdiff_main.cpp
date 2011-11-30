@@ -59,7 +59,8 @@ struct DiffRecord {
         , fAverageMismatchB (0)
         , fMaxMismatchR (0)
         , fMaxMismatchG (0)
-        , fMaxMismatchB (0) {
+        , fMaxMismatchB (0)
+        , fDoImageSizesMismatch (false) {
         // These asserts are valid for GM, but not for --chromium
         //SkASSERT(basePath.endsWith(filename.c_str()));
         //SkASSERT(comparisonPath.endsWith(filename.c_str()));
@@ -89,6 +90,10 @@ struct DiffRecord {
     uint32_t fMaxMismatchR;
     uint32_t fMaxMismatchG;
     uint32_t fMaxMismatchB;
+
+    /// By the time we need to report image size mismatch, we've already
+    /// released the bitmaps, so we need to remember it when we detect it.
+    bool fDoImageSizesMismatch;
 };
 
 #define MAX2(a,b) (((b) < (a)) ? (a) : (b))
@@ -199,6 +204,16 @@ static int compare_diff_max_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
 /// Parameterized routine to compute the color of a pixel in a difference image.
 typedef SkPMColor (*DiffMetricProc)(SkPMColor, SkPMColor);
 
+static void expand_and_copy (int width, int height, SkBitmap** dest) {
+    SkBitmap* temp = new SkBitmap ();
+    temp->reset();
+    temp->setConfig((*dest)->config(), width, height);
+    temp->allocPixels();
+    (*dest)->copyPixelsTo(temp->getPixels(), temp->getSize(),
+                          temp->rowBytes());
+    *dest = temp;
+}
+
 static bool get_bitmaps (DiffRecord* diffRecord) {
     SkFILEStream compareStream(diffRecord->fComparisonPath.c_str());
     if (!compareStream.isValid()) {
@@ -221,6 +236,8 @@ static bool get_bitmaps (DiffRecord* diffRecord) {
         return false;
     }
 
+    // In debug, the DLL will automatically be unloaded when this is deleted,
+    // but that shouldn't be a problem in release mode.
     SkAutoTDelete<SkImageDecoder> ad(codec);
 
     baseStream.rewind();
@@ -306,6 +323,12 @@ static void compute_diff(DiffRecord* dr,
     int totalMismatchR = 0;
     int totalMismatchG = 0;
     int totalMismatchB = 0;
+
+    if (w != dr->fBaseWidth || h != dr->fBaseHeight) {
+        dr->fDoImageSizesMismatch = true;
+        dr->fFractionDifference = 1;
+        return;
+    }
     // Accumulate fractionally different pixels, then divide out
     // # of pixels at the end.
     dr->fWeightedFraction = 0;
@@ -566,6 +589,11 @@ static void print_label_cell (SkFILEWStream* stream,
     stream->writeText("<td>");
     stream->writeText(diff.fFilename.c_str());
     stream->writeText("<br>");
+    if (diff.fDoImageSizesMismatch) {
+        stream->writeText("Image sizes differ");
+        stream->writeText("</td>");
+        return;
+    }
     char metricBuf [20];
     sprintf(metricBuf, "%12.4f%%", 100 * diff.fFractionDifference);
     stream->writeText(metricBuf);
