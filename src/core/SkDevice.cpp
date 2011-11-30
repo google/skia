@@ -365,11 +365,6 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     }
 
     if (SkBitmap::kARGB_8888_Config != fBitmap.config() ||
-#ifndef SK_ENABLE_FAST_SHADERMASK
-        paint.getShader() ||
-        paint.getMaskFilter() ||
-        paint.getColorFilter() ||
-#endif
         paint.getRasterizer() ||
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||

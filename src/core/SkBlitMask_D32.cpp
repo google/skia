@@ -552,6 +552,14 @@ static void LCD16_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
     }
 }
 
+static int mul(int a, int b) {
+    return a * b >> 8;
+}
+
+static int src_alpha_blend(int src, int dst, int srcA, int mask) {
+    return dst + mul(src - mul(srcA, dst), mask);
+}
+
 static void LCD32_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
                                 const SkPMColor* SK_RESTRICT mask,
                                 const SkPMColor* SK_RESTRICT src, int count) {
@@ -564,7 +572,7 @@ static void LCD32_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
         SkPMColor s = src[i];
         int srcA = SkGetPackedA32(s);
         int srcR = SkGetPackedR32(s);
-        int srcG = SkGetPackedB32(s);
+        int srcG = SkGetPackedG32(s);
         int srcB = SkGetPackedB32(s);
         
         srcA = SkAlpha255To256(srcA);
@@ -575,15 +583,11 @@ static void LCD32_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
         int maskG = SkGetPackedG32(m);
         int maskB = SkGetPackedB32(m);
 
-        // Now upscale them to 0..256, so we can use SkAlphaBlend
+        // Now upscale them to 0..256
         maskR = SkAlpha255To256(maskR);
         maskG = SkAlpha255To256(maskG);
         maskB = SkAlpha255To256(maskB);
-        
-        maskR = maskR * srcA >> 8;
-        maskG = maskG * srcA >> 8;
-        maskB = maskB * srcA >> 8;
-        
+
         int dstR = SkGetPackedR32(d);
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
@@ -591,9 +595,9 @@ static void LCD32_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
         // LCD blitting is only supported if the dst is known/required
         // to be opaque
         dst[i] = SkPackARGB32(0xFF,
-                              SkAlphaBlend(srcR, dstR, maskR),
-                              SkAlphaBlend(srcG, dstG, maskG),
-                              SkAlphaBlend(srcB, dstB, maskB));
+                              src_alpha_blend(srcR, dstR, srcA, maskR),
+                              src_alpha_blend(srcG, dstG, srcA, maskG),
+                              src_alpha_blend(srcB, dstB, srcA, maskB));
     }
 }
 
@@ -612,9 +616,11 @@ static void LCD32_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
         int maskR = SkGetPackedR32(m);
         int maskG = SkGetPackedG32(m);
         int maskB = SkGetPackedB32(m);
+
         int srcR = SkGetPackedR32(s);
-        int srcG = SkGetPackedB32(s);
-        int srcB = SkGetPackedB32(s);        
+        int srcG = SkGetPackedG32(s);
+        int srcB = SkGetPackedB32(s);
+
         int dstR = SkGetPackedR32(d);
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
@@ -637,7 +643,6 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
                                            SkMask::Format format,
                                            RowFlags flags) {
 // make this opt-in until chrome can rebaseline
-#ifdef SK_ENABLE_FAST_SHADERMASK
     RowProc proc = PlatformRowProcs(config, format, flags);
     if (proc) {
         return proc;
@@ -670,7 +675,6 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
         default:
             break;
     }
-#endif
     return NULL;
 }
 

@@ -9,15 +9,16 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 
+// test shader w/ transparency
 static SkShader* make_grad(SkScalar width) {
-    SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, 0 };
-    SkScalar pos[] = { 0, SK_Scalar1 * 5 / 10, SK_Scalar1 };
+    SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    return SkGradientShader::CreateLinear(pts, colors, pos,
+    return SkGradientShader::CreateLinear(pts, colors, NULL,
                                           SK_ARRAY_COUNT(colors),
                                           SkShader::kMirror_TileMode);
 }
 
+// test opaque shader
 static SkShader* make_grad2(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
@@ -38,7 +39,7 @@ protected:
         return SkString("gradtext");
     }
 
-    virtual SkISize onISize() { return make_isize(640, 480); }
+    virtual SkISize onISize() { return make_isize(500, 480); }
 
     static void draw_text(SkCanvas* canvas, const SkPaint& paint) {
         const char* text = "When in the course of human events";
@@ -52,26 +53,35 @@ protected:
         p.setAntiAlias(false);
         draw_text(canvas, p);
         p.setAntiAlias(true);
-        canvas->translate(0, SkIntToScalar(20));
+        canvas->translate(0, paint.getTextSize() * 4/3);
         draw_text(canvas, p);
         p.setLCDRenderText(true);
-        canvas->translate(0, SkIntToScalar(20));
+        canvas->translate(0, paint.getTextSize() * 4/3);
         draw_text(canvas, p);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-
-        //  The blits special-case opaque and non-paque shaders, so test both
-
         SkPaint paint;
-        paint.setTextSize(SkIntToScalar(16));
-        paint.setShader(make_grad(SkIntToScalar(80)))->unref();
+        paint.setTextSize(SkIntToScalar(26));
 
-        draw_text3(canvas, paint);
-        canvas->translate(0, SkIntToScalar(40));
-        paint.setShader(make_grad2(SkIntToScalar(80)))->unref();
-        draw_text3(canvas, paint);
+        const SkISize& size = this->getISize();
+        SkRect r = SkRect::MakeWH(SkIntToScalar(size.width()),
+                                  SkIntToScalar(size.height()) / 2);
+        canvas->drawRect(r, paint);
+
+        canvas->translate(SkIntToScalar(20), paint.getTextSize());
+
+        for (int i = 0; i < 2; ++i) {
+            paint.setShader(make_grad(SkIntToScalar(80)))->unref();
+            draw_text3(canvas, paint);
+
+            canvas->translate(0, paint.getTextSize() * 2);
+
+            paint.setShader(make_grad2(SkIntToScalar(80)))->unref();
+            draw_text3(canvas, paint);
+            
+            canvas->translate(0, paint.getTextSize() * 2);
+        }
     }
 
 private:
