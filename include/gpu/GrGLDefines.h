@@ -176,6 +176,7 @@
 #define GR_GL_UNPACK_ALIGNMENT               0x0CF5
 #define GR_GL_UNPACK_FLIP_Y                  0x9240
 #define GR_GL_PACK_ALIGNMENT                 0x0D05
+#define GR_GL_PACK_REVERSE_ROW_ORDER         0x93A4
 #define GR_GL_MAX_TEXTURE_SIZE               0x0D33
 #define GR_GL_MAX_VIEWPORT_DIMS              0x0D3A
 #define GR_GL_SUBPIXEL_BITS                  0x0D50

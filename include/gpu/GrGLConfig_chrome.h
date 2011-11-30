@@ -17,6 +17,9 @@
 // For RGBA teximage/readpixels ANGLE will sw-convert to/from BGRA.
 #define GR_GL_RGBA_8888_PIXEL_OPS_SLOW  GR_WIN32_BUILD
 
+// ANGLE can go faster if the entire fbo is read rather than a subrect
+#define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL GR_WIN32_BUILD
+
 // cmd buffer allocates memory and memsets it to zero when it sees glBufferData
 // with NULL.
 #define GR_GL_USE_BUFFER_DATA_NULL_HINT 0

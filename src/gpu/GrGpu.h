@@ -190,14 +190,16 @@ public:
      * pre- and unpremultiplied alpha. The caller is free to ignore the result
      * and call readPixels with the original config.
      */
-    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config) {
+    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
+                                                                        const {
         return config;
     }
 
     /**
      * Same as above but applies to writeTexturePixels
      */
-    virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig config) {
+    virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig config)
+                                                                        const {
         return config;
     }
 
@@ -222,7 +224,13 @@ public:
                                             int left, int top,
                                             int width, int height,
                                             GrPixelConfig config,
-                                            size_t rowBytes) = 0;
+                                            size_t rowBytes) const = 0;
+     /**
+      * This should return true if reading a NxM rectangle of pixels from a
+      * render target is faster if the target has dimensons N and M and the read
+      * rectangle has its top-left at 0,0.
+      */
+     virtual bool fullReadPixelsIsFasterThanPartial() const { return false; };
 
     /**
      * Reads a rectangle of pixels from a render target. Fails if read requires
