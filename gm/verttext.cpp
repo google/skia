@@ -22,7 +22,7 @@ public:
 protected:
 
     SkString onShortName() {
-        return SkString(" verttext");
+        return SkString("verttext");
     }
 
     SkISize onISize() { return make_isize(640, 480); }
