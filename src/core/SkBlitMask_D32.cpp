@@ -465,6 +465,20 @@ static void A8_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
     }
 }
 
+static int upscale31To255(int value) {
+    value = (value << 3) | (value >> 2);
+    return value;
+}
+
+static int mul(int a, int b) {
+    return a * b >> 8;
+}
+
+static int src_alpha_blend(int src, int dst, int srcA, int mask) {
+    
+    return dst + mul(src - mul(srcA, dst), mask);
+}
+
 static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
                                 const uint16_t* SK_RESTRICT mask,
                                 const SkPMColor* SK_RESTRICT src, int count) {
@@ -479,9 +493,11 @@ static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
 
         int srcA = SkGetPackedA32(s);
         int srcR = SkGetPackedR32(s);
-        int srcG = SkGetPackedB32(s);
+        int srcG = SkGetPackedG32(s);
         int srcB = SkGetPackedB32(s);
-        
+
+        srcA += srcA >> 7;
+
         /*  We want all of these in 5bits, hence the shifts in case one of them
          *  (green) is 6bits.
          */
@@ -489,14 +505,9 @@ static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
         int maskG = SkGetPackedG16(m) >> (SK_G16_BITS - 5);
         int maskB = SkGetPackedB16(m) >> (SK_B16_BITS - 5);
         
-        // Now upscale them to 0..32, so we can use blend32
-        maskR = upscale31To32(maskR);
-        maskG = upscale31To32(maskG);
-        maskB = upscale31To32(maskB);
-        
-        maskR = maskR * srcA >> 8;
-        maskG = maskG * srcA >> 8;
-        maskB = maskB * srcA >> 8;
+        maskR = upscale31To255(maskR);
+        maskG = upscale31To255(maskG);
+        maskB = upscale31To255(maskB);
         
         int dstR = SkGetPackedR32(d);
         int dstG = SkGetPackedG32(d);
@@ -505,9 +516,9 @@ static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
         // LCD blitting is only supported if the dst is known/required
         // to be opaque
         dst[i] = SkPackARGB32(0xFF,
-                              blend32(srcR, dstR, maskR),
-                              blend32(srcG, dstG, maskG),
-                              blend32(srcB, dstB, maskB));
+                              src_alpha_blend(srcR, dstR, srcA, maskR),
+                              src_alpha_blend(srcG, dstG, srcA, maskG),
+                              src_alpha_blend(srcB, dstB, srcA, maskB));
     }
 }
 
@@ -524,9 +535,9 @@ static void LCD16_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
         SkPMColor d = dst[i];
         
         int srcR = SkGetPackedR32(s);
-        int srcG = SkGetPackedB32(s);
+        int srcG = SkGetPackedG32(s);
         int srcB = SkGetPackedB32(s);
-        
+
         /*  We want all of these in 5bits, hence the shifts in case one of them
          *  (green) is 6bits.
          */
@@ -550,14 +561,6 @@ static void LCD16_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
                               blend32(srcG, dstG, maskG),
                               blend32(srcB, dstB, maskB));
     }
-}
-
-static int mul(int a, int b) {
-    return a * b >> 8;
-}
-
-static int src_alpha_blend(int src, int dst, int srcA, int mask) {
-    return dst + mul(src - mul(srcA, dst), mask);
 }
 
 static void LCD32_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
