@@ -23,7 +23,6 @@
         '../include/utils/SkCubicInterval.h',
         '../include/utils/SkCullPoints.h',
         '../include/utils/SkDumpCanvas.h',
-        '../include/utils/SkGLCanvas.h',
         '../include/utils/SkInterpolator.h',
         '../include/utils/SkLayer.h',
         '../include/utils/SkMatrix44.h',
