@@ -33,35 +33,35 @@
     #undef SK_LOCAL_LEAN_AND_MEAN
 #endif
 
-#define SK_WGL_DRAW_TO_WINDOW_ARB                                   0x2001
-#define SK_WGL_ACCELERATION_ARB                                     0x2003
-#define SK_WGL_SUPPORT_OPENGL_ARB                                   0x2010
-#define SK_WGL_DOUBLE_BUFFER_ARB                                    0x2011
-#define SK_WGL_COLOR_BITS_ARB                                       0x2014
-#define SK_WGL_ALPHA_BITS_ARB                                       0x201B
-#define SK_WGL_STENCIL_BITS_ARB                                     0x2023
-#define SK_WGL_FULL_ACCELERATION_ARB                                0x2027
-#define SK_WGL_SAMPLE_BUFFERS_ARB                                   0x2041
-#define SK_WGL_SAMPLES_ARB                                          0x2042
-#define SK_WGL_CONTEXT_MAJOR_VERSION_ARB                            0x2091
-#define SK_WGL_CONTEXT_MINOR_VERSION_ARB                            0x2092
-#define SK_WGL_CONTEXT_LAYER_PLANE_ARB                              0x2093
-#define SK_WGL_CONTEXT_FLAGS_ARB                                    0x2094
-#define SK_WGL_CONTEXT_PROFILE_MASK_ARB                             0x9126
-#define SK_WGL_CONTEXT_DEBUG_BIT_ARB                                0x0001
-#define SK_WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB                   0x0002
-#define SK_WGL_CONTEXT_CORE_PROFILE_BIT_ARB                         0x00000001
-#define SK_WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB                0x00000002
-#define SK_WGL_CONTEXT_ES2_PROFILE_BIT_EXT                          0x00000004
-#define SK_ERROR_INVALID_VERSION_ARB                                0x2095
-#define SK_ERROR_INVALID_PROFILE_ARB                                0x2096
+#define SK_WGL_DRAW_TO_WINDOW                                       0x2001
+#define SK_WGL_ACCELERATION                                         0x2003
+#define SK_WGL_SUPPORT_OPENGL                                       0x2010
+#define SK_WGL_DOUBLE_BUFFER                                        0x2011
+#define SK_WGL_COLOR_BITS                                           0x2014
+#define SK_WGL_ALPHA_BITS                                           0x201B
+#define SK_WGL_STENCIL_BITS                                         0x2023
+#define SK_WGL_FULL_ACCELERATION                                    0x2027
+#define SK_WGL_SAMPLE_BUFFERS                                       0x2041
+#define SK_WGL_SAMPLES                                              0x2042
+#define SK_WGL_CONTEXT_MAJOR_VERSION                                0x2091
+#define SK_WGL_CONTEXT_MINOR_VERSION                                0x2092
+#define SK_WGL_CONTEXT_LAYER_PLANE                                  0x2093
+#define SK_WGL_CONTEXT_FLAGS                                        0x2094
+#define SK_WGL_CONTEXT_PROFILE_MASK                                 0x9126
+#define SK_WGL_CONTEXT_DEBUG_BIT                                    0x0001
+#define SK_WGL_CONTEXT_FORWARD_COMPATIBLE_BIT                       0x0002
+#define SK_WGL_CONTEXT_CORE_PROFILE_BIT                             0x00000001
+#define SK_WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT                    0x00000002
+#define SK_WGL_CONTEXT_ES2_PROFILE_BIT                              0x00000004
+#define SK_ERROR_INVALID_VERSION                                    0x2095
+#define SK_ERROR_INVALID_PROFILE                                    0x2096
 
 class SkWGLExtensions {
 public:
     SkWGLExtensions();
     /**
      * Determines if an extensions is available for a given DC.
-     * WGL_ARB_extensions_string is considered a prerequisite for all other
+     * WGL_extensions_string is considered a prerequisite for all other
      * extensions. It is necessary to check this before calling other class
      * functions.
      */
