@@ -18,12 +18,17 @@
 #define SCALE   (1 << SHIFT)
 #define MASK    (SCALE - 1)
 
-/*
+/** @file
     We have two techniques for capturing the output of the supersampler:
     - SUPERMASK, which records a large mask-bitmap
         this is often faster for small, complex objects
     - RLE, which records a rle-encoded scanline
         this is often faster for large objects with big spans
+
+    These blitters use two coordinate systems:
+    - destination coordinates, scale equal to the output - often
+        abbreviated with 'i' or 'I' in variable names
+    - supersampled coordinates, scale equal to the output * SCALE
 
     NEW_AA is a set of code-changes to try to make both paths produce identical
     results. Its not quite there yet, though the remaining differences may be
@@ -35,26 +40,37 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/// Base class for a single-pass supersampled blitter.
 class BaseSuperBlitter : public SkBlitter {
 public:
     BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
                      const SkRegion& clip);
 
+    /// Must be explicitly defined on subclasses.
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
                            const int16_t runs[]) SK_OVERRIDE {
         SkASSERT(!"How did I get here?");
     }
+    /// May not be called on BaseSuperBlitter because it blits out of order.
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         SkASSERT(!"How did I get here?");
     }
 
 protected:
     SkBlitter*  fRealBlitter;
+    /// Current y coordinate, in destination coordinates.
     int         fCurrIY;
-    int         fWidth, fLeft, fSuperLeft;
+    /// Widest row of region to be blitted, in destination coordinates.
+    int         fWidth;
+    /// Leftmost x coordinate in any row, in destination coordinates.
+    int         fLeft;
+    /// Leftmost x coordinate in any row, in supersampled coordinates.
+    int         fSuperLeft;
 
     SkDEBUGCODE(int fCurrX;)
+    /// Current y coordinate in supersampled coordinates.
     int fCurrY;
+    /// Initial y coordinate (top of bounds).
     int fTop;
 };
 
@@ -81,6 +97,7 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     SkDEBUGCODE(fCurrX = -1;)
 }
 
+/// Run-length-encoded supersampling antialiased blitter.
 class SuperBlitter : public BaseSuperBlitter {
 public:
     SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
@@ -91,9 +108,15 @@ public:
         sk_free(fRuns.fRuns);
     }
 
+    /// Once fRuns contains a complete supersampled row, flush() blits
+    /// it out through the wrapped blitter.
     void flush();
 
+    /// Blits a row of pixels, with location and width specified
+    /// in supersampled coordinates.
     virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    /// Blits a rectangle of pixels, with location and size specified
+    /// in supersampled coordinates.
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
 
 private:
@@ -133,8 +156,6 @@ static inline int coverage_to_alpha(int aa) {
     return aa;
 }
 
-#define SUPER_Mask      ((1 << SHIFT) - 1)
-
 void SuperBlitter::blitH(int x, int y, int width) {
     SkASSERT(width > 0);
 
@@ -170,8 +191,9 @@ void SuperBlitter::blitH(int x, int y, int width) {
     int stop = x + width;
 
     SkASSERT(start >= 0 && stop > start);
-    int fb = start & SUPER_Mask;
-    int fe = stop & SUPER_Mask;
+    // integer-pixel-aligned ends of blit, rounded out
+    int fb = start & MASK;
+    int fe = stop & MASK;
     int n = (stop >> SHIFT) - (start >> SHIFT) - 1;
 
     if (n < 0) {
@@ -186,7 +208,8 @@ void SuperBlitter::blitH(int x, int y, int width) {
         }
     }
 
-    fOffsetX = fRuns.add(x >> SHIFT, coverage_to_alpha(fb), n, coverage_to_alpha(fe),
+    fOffsetX = fRuns.add(x >> SHIFT, coverage_to_alpha(fb),
+                         n, coverage_to_alpha(fe),
                          (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT),
                          fOffsetX);
 
@@ -236,7 +259,8 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(width > 0);
     SkASSERT(height > 0);
 
-    while ((y & SUPER_Mask)) {
+    // blit leading rows
+    while ((y & MASK)) {
         this->blitH(x, y++, width);
         if (--height <= 0) {
             return;
@@ -244,6 +268,9 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
     }
     SkASSERT(height > 0);
 
+    // Since this is a rect, instead of blitting supersampled rows one at a
+    // time and then resolving to the destination canvas, we can blit
+    // directly to the destintion canvas one row per SCALE supersampled rows.
     int start_y = y >> SHIFT;
     int stop_y = (y + height) >> SHIFT;
     int count = stop_y - start_y;
@@ -262,9 +289,9 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
         }
 
         int ileft = x >> SHIFT;
-        int xleft = x & SUPER_Mask;
+        int xleft = x & MASK;
         int irite = (x + width) >> SHIFT;
-        int xrite = (x + width) & SUPER_Mask;
+        int xrite = (x + width) & MASK;
         int n = irite - ileft - 1;
         if (n < 0) {
             // only one pixel, call blitV()?
@@ -314,7 +341,7 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
     }
 
     // catch any remaining few
-    SkASSERT(height <= SUPER_Mask);
+    SkASSERT(height <= MASK);
     while (--height >= 0) {
         this->blitH(x, y++, width);
     }
@@ -322,6 +349,7 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/// Masked supersampling antialiased blitter.
 class MaskSuperBlitter : public BaseSuperBlitter {
 public:
     MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
@@ -489,8 +517,8 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
     int stop = x + width;
 
     SkASSERT(start >= 0 && stop > start);
-    int fb = start & SUPER_Mask;
-    int fe = stop & SUPER_Mask;
+    int fb = start & MASK;
+    int fe = stop & MASK;
     int n = (stop >> SHIFT) - (start >> SHIFT) - 1;
 
 

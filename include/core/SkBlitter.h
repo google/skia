@@ -17,29 +17,42 @@
 #include "SkRegion.h"
 #include "SkMask.h"
 
+/** SkBlitter and its subclasses are responsible for actually writing pixels
+    into memory. Besides efficiency, they handle clipping and antialiasing.
+*/
 class SkBlitter {
 public:
     virtual ~SkBlitter();
 
+    /// Blit a horizontal run of pixels.
     virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
-                           const int16_t* runs);
+    /// Blit a horizontal run of antialiased pixels; runs[] is a *sparse*
+    /// zero-terminated run-length encoding of spans of constant alpha values.
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
+                           const int16_t runs[]);
+    /// Blit a vertical run of pixels with a constant alpha value.
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
+    /// Blit a solid rectangle.
     virtual void blitRect(int x, int y, int width, int height);
+    /// Blit a pattern of pixels defined by a rectangle-clipped mask;
+    /// typically used for text.
     virtual void blitMask(const SkMask&, const SkIRect& clip);
 
-    /*  If the blitter just sets a single value for each pixel, return the
+    /** If the blitter just sets a single value for each pixel, return the
         bitmap it draws into, and assign value. If not, return NULL and ignore
         the value parameter.
     */
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value);
 
-    // not virtual, just helpers
+    ///@name non-virtual helpers
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);
     void blitRegion(const SkRegion& clip);
+    ///@}
 
-    // factories
+    /** @name Factories
+        Return the correct blitter to use given the specified context.
+     */
     static SkBlitter* Choose(const SkBitmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& paint) {
@@ -56,6 +69,7 @@ public:
                                    const SkBitmap& src,
                                    int left, int top,
                                    void* storage, size_t storageSize);
+    ///@}
 
 private:
 };
@@ -85,7 +99,6 @@ public:
         fClipRect = clipRect;
     }
 
-    // overrides
     virtual void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha[],
                            const int16_t runs[]) SK_OVERRIDE;
@@ -100,8 +113,8 @@ private:
 };
 
 /** Wraps another (real) blitter, and ensures that the real blitter is only
-called with coordinates that have been clipped by the specified clipRgn.
-This means the caller need not perform the clipping ahead of time.
+    called with coordinates that have been clipped by the specified clipRgn.
+    This means the caller need not perform the clipping ahead of time.
 */
 class SkRgnClipBlitter : public SkBlitter {
 public:
@@ -111,7 +124,6 @@ public:
         fRgn = clipRgn;
     }
 
-    // overrides
     virtual void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha[],
                            const int16_t runs[]) SK_OVERRIDE;
@@ -125,6 +137,10 @@ private:
     const SkRegion* fRgn;
 };
 
+/** Factory to set up the appropriate most-efficient wrapper blitter
+    to apply a clip. Returns a pointer to a member, so lifetime must
+    be managed carefully.
+*/
 class SkBlitterClipper {
 public:
     SkBlitter*  apply(SkBlitter* blitter, const SkRegion* clip,
