@@ -52,16 +52,6 @@ void SkBlitter::blitRect(int x, int y, int width, int height) {
     }
 }
 
-/// Default implementation doesn't check for any easy optimizations
-/// such as alpha == 0 or 255; also uses blitV(), which some subclasses
-/// may not support.
-void SkBlitter::blitAntiRect(int x, int y, int width, int height,
-                             SkAlpha leftAlpha, SkAlpha rightAlpha) {
-    this->blitV(x, y, height, leftAlpha);
-    this->blitRect(x + 1, y, width, height);
-    this->blitV(x + width - 1, y, height, rightAlpha);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 static inline void bits_to_runs(SkBlitter* blitter, int x, int y,
@@ -128,8 +118,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
             int rite_mask = 0xFF << (8 - (rite_edge & 7));
             int full_runs = (rite_edge >> 3) - ((left_edge + 7) >> 3);
 
-            // check for empty right mask, so we don't read off the end
-            // (or go slower than we need to)
+            // check for empty right mask, so we don't read off the end (or go slower than we need to)
             if (rite_mask == 0) {
                 SkASSERT(full_runs >= 0);
                 full_runs -= 1;
@@ -139,8 +128,8 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
                 full_runs -= 1;
             }
 
-            // Back up manually so we can keep in sync with our byte-aligned
-            // src; have cx reflect our actual starting x-coord.
+            // back up manually so we can keep in sync with our byte-aligned src
+            // have cx reflect our actual starting x-coord
             cx -= left_edge & 7;
 
             if (full_runs < 0) {
@@ -152,8 +141,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
                 }
             } else {
                 while (--height >= 0) {
-                    bits_to_runs(this, cx, cy, bits, left_mask, full_runs + 2,
-                                 rite_mask);
+                    bits_to_runs(this, cx, cy, bits, left_mask, full_runs + 2, rite_mask);
                     bits += mask_rowBytes;
                     cy += 1;
                 }
