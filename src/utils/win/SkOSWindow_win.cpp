@@ -300,17 +300,17 @@ HGLRC create_gl(HWND hwnd) {
     int format = 0;
 
     GLint iattrs[] = {
-        SK_WGL_DRAW_TO_WINDOW_ARB, TRUE,
-        SK_WGL_DOUBLE_BUFFER_ARB, TRUE,
-        SK_WGL_ACCELERATION_ARB, SK_WGL_FULL_ACCELERATION_ARB,
-        SK_WGL_SUPPORT_OPENGL_ARB, TRUE,
-        SK_WGL_COLOR_BITS_ARB, 24,
-        SK_WGL_ALPHA_BITS_ARB, 8,
-        SK_WGL_STENCIL_BITS_ARB, 8,
+        SK_WGL_DRAW_TO_WINDOW, TRUE,
+        SK_WGL_DOUBLE_BUFFER, TRUE,
+        SK_WGL_ACCELERATION, SK_WGL_FULL_ACCELERATION,
+        SK_WGL_SUPPORT_OPENGL, TRUE,
+        SK_WGL_COLOR_BITS, 24,
+        SK_WGL_ALPHA_BITS, 8,
+        SK_WGL_STENCIL_BITS, 8,
 
         // these must be kept last
-        SK_WGL_SAMPLE_BUFFERS_ARB, TRUE,
-        SK_WGL_SAMPLES_ARB, 0,
+        SK_WGL_SAMPLE_BUFFERS, TRUE,
+        SK_WGL_SAMPLES, 0,
         0,0
     };
     static const int kSampleBuffersValueIdx = SK_ARRAY_COUNT(iattrs) - 5;
