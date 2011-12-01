@@ -8,6 +8,60 @@
 #include "Test.h"
 #include "SkPath.h"
 #include "SkPaint.h"
+#include "SkLayerDrawLooper.h"
+#include "SkBlurMaskFilter.h"
+
+static void test_copy(skiatest::Reporter* reporter) {
+    SkPaint paint;
+    // set a few member variables
+    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setTextAlign(SkPaint::kLeft_Align);
+    paint.setStrokeWidth(SkIntToScalar(2));
+    // set a few pointers
+    SkLayerDrawLooper* looper = new SkLayerDrawLooper();
+    paint.setLooper(looper)->unref();
+    SkMaskFilter* mask = SkBlurMaskFilter::Create(1, SkBlurMaskFilter::kNormal_BlurStyle);
+    paint.setMaskFilter(mask)->unref();
+
+    // copy the paint using the copy constructor and check they are the same
+    SkPaint copiedPaint = paint;
+    REPORTER_ASSERT(reporter, paint == copiedPaint);
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // the copy constructor should preserve the Generation ID
+    int32_t paintGenID = paint.getGenerationID();
+    int32_t copiedPaintGenID = copiedPaint.getGenerationID();
+    REPORTER_ASSERT(reporter, paintGenID == copiedPaintGenID);
+    REPORTER_ASSERT(reporter, !memcmp(&paint, &copiedPaint, sizeof(paint)));
+#endif
+
+    // copy the paint using the equal operator and check they are the same
+    copiedPaint = paint;
+    REPORTER_ASSERT(reporter, paint == copiedPaint);
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // the equals operator should increment the Generation ID
+    REPORTER_ASSERT(reporter, paint.getGenerationID() == paintGenID);
+    REPORTER_ASSERT(reporter, copiedPaint.getGenerationID() != copiedPaintGenID);
+    copiedPaintGenID = copiedPaint.getGenerationID(); // reset to the new value
+    REPORTER_ASSERT(reporter, memcmp(&paint, &copiedPaint, sizeof(paint)));
+#endif
+
+    // clean the paint and check they are back to their initial states
+    SkPaint cleanPaint;
+    paint.reset();
+    copiedPaint.reset();
+    REPORTER_ASSERT(reporter, cleanPaint == paint);
+    REPORTER_ASSERT(reporter, cleanPaint == copiedPaint);
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // the reset function should increment the Generation ID
+    REPORTER_ASSERT(reporter, paint.getGenerationID() != paintGenID);
+    REPORTER_ASSERT(reporter, copiedPaint.getGenerationID() != copiedPaintGenID);
+    REPORTER_ASSERT(reporter, memcmp(&cleanPaint, &paint, sizeof(cleanPaint)));
+    REPORTER_ASSERT(reporter, memcmp(&cleanPaint, &copiedPaint, sizeof(cleanPaint)));
+#endif
+}
 
 // found and fixed for webkit: mishandling when we hit recursion limit on
 // mostly degenerate cubic flatness test
@@ -45,6 +99,7 @@ static void regression_cubic(skiatest::Reporter* reporter) {
 
 static void TestPaint(skiatest::Reporter* reporter) {
     // TODO add general paint tests
+    test_copy(reporter);
 
     // regression tests
     regression_cubic(reporter);

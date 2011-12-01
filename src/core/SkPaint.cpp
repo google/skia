@@ -137,7 +137,12 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
 }
 
 bool operator==(const SkPaint& a, const SkPaint& b) {
+#ifdef SK_BUILD_FOR_ANDROID
+    //assumes that fGenerationID is the last field in the struct
+    return !memcmp(&a, &b, SK_OFFSETOF(SkPaint, fGenerationID));
+#else
     return !memcmp(&a, &b, sizeof(a));
+#endif
 }
 
 void SkPaint::reset() {

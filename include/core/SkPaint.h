@@ -877,9 +877,6 @@ private:
     unsigned        fStyle : 2;
     unsigned        fTextEncoding : 2;  // 3 values
     unsigned        fHinting : 2;
-#ifdef SK_BUILD_FOR_ANDROID
-    uint32_t        fGenerationID;
-#endif
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,
@@ -905,6 +902,12 @@ private:
     friend class SkDraw;
     friend class SkPDFDevice;
     friend class SkTextToPathIter;
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // In order for the == operator to work properly this must be the last field
+    // in the struct so that we can do a memcmp to this field's offset.
+    uint32_t        fGenerationID;
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
