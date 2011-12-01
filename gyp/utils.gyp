@@ -36,6 +36,7 @@
         '../include/utils/SkSfntUtils.h',
         '../include/utils/SkTextBox.h',
         '../include/utils/SkUnitMappers.h',
+        '../include/utils/SkWGL.h',
 
         '../src/utils/SkBoundaryPatch.cpp',
         '../src/utils/SkCamera.cpp',
@@ -77,7 +78,8 @@
         '../src/utils/win/skia_win.cpp',
         '../src/utils/win/SkHRESULT.cpp',
         '../src/utils/win/SkIStream.cpp',
-        '../src/utils/win/SkOSWindow_Win.cpp',
+        '../src/utils/win/SkOSWindow_win.cpp',
+        '../src/utils/win/SkWGL_win.cpp',
       ],
       'sources!': [
           '../src/utils/SDL/SkOSWindow_SDL.cpp',
@@ -131,16 +133,15 @@
           'include_dirs!': [
             '../include/utils/win',
           ],
+          'sources/': [ ['exclude', '_win.(h|cpp)$'],],
           'sources!': [
             '../include/utils/win/SkAutoCoInitialize.h',
             '../include/utils/win/SkHRESULT.h',
             '../include/utils/win/SkIStream.h',
             '../include/utils/win/SkTScopedComPtr.h',
             '../src/utils/win/SkAutoCoInitialize.cpp',
-            '../src/utils/win/skia_win.cpp',
             '../src/utils/win/SkHRESULT.cpp',
             '../src/utils/win/SkIStream.cpp',
-            '../src/utils/win/SkOSWindow_Win.cpp',
           ],
         }],
       ],
