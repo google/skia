@@ -930,7 +930,36 @@ public:
         SkASSERT(fBounds.contains(x + width - 1, y + height - 1));
         this->addRun(x, y, 0xFF, width);
 
-        // we assum the rect must be all we'll see for these scanlines
+        // we assume the rect must be all we'll see for these scanlines
+        // so we ensure our row goes all the way to our right
+        this->flushRowH(fCurrRow);
+
+        y -= fBounds.fTop;
+        SkASSERT(y == fCurrRow->fY);
+        fCurrRow->fY = y + height - 1;
+    }
+
+    void addAntiRectRun(int x, int y, int width, int height,
+                        SkAlpha leftAlpha, SkAlpha rightAlpha) {
+        SkASSERT(fBounds.contains(x + width - 1, y + height - 1));
+        SkASSERT(width >= 0);
+
+        // Conceptually we're always adding 3 runs, but we should
+        // merge or omit them if possible.
+        if (leftAlpha == 0xFF) {
+            width++;
+        } else if (leftAlpha > 0) {
+          this->addRun(x++, y, leftAlpha, 1);
+        }
+        if (rightAlpha == 0xFF) {
+            width++;
+        }
+        this->addRun(x, y, 0xFF, width);
+        if (rightAlpha > 0 && rightAlpha < 255) {
+            this->addRun(x + width, y, rightAlpha, 1);
+        }
+
+        // we assume the rect must be all we'll see for these scanlines
         // so we ensure our row goes all the way to our right
         this->flushRowH(fCurrRow);
 
@@ -1113,12 +1142,19 @@ public:
         }
     }
 
+    // Must evaluate clips in scan-line order, so can't allow blitV()
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE
         { unexpected(); }
 
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         this->recordMinY(y);
         fBuilder->addRectRun(x, y, width, height);
+    }
+
+    virtual void blitAntiRect(int x, int y, int width, int height,
+                     SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE {
+        this->recordMinY(y);
+        fBuilder->addAntiRectRun(x, y, width, height, leftAlpha, rightAlpha);
     }
 
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE

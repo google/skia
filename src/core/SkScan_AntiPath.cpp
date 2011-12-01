@@ -219,42 +219,7 @@ void SuperBlitter::blitH(int x, int y, int width) {
 #endif
 }
 
-static void set_left_rite_runs(SkAlphaRuns& runs, int ileft, U8CPU leftA,
-                               int n, U8CPU riteA) {
-    SkASSERT(leftA <= 0xFF);
-    SkASSERT(riteA <= 0xFF);
-
-    int16_t* run = runs.fRuns;
-    uint8_t* aa = runs.fAlpha;
-
-    if (ileft > 0) {
-        run[0] = ileft;
-        aa[0] = 0;
-        run += ileft;
-        aa += ileft;
-    }
-
-    SkASSERT(leftA < 0xFF);
-    if (leftA > 0) {
-        *run++ = 1;
-        *aa++ = leftA;
-    }
-
-    if (n > 0) {
-        run[0] = n;
-        aa[0] = 0xFF;
-        run += n;
-        aa += n;
-    }
-
-    SkASSERT(riteA < 0xFF);
-    if (riteA > 0) {
-        *run++ = 1;
-        *aa++ = riteA;
-    }
-    run[0] = 0;
-}
-
+// All parameters are in supersampled space.
 void SuperBlitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(width > 0);
     SkASSERT(height > 0);
@@ -275,6 +240,7 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
     int stop_y = (y + height) >> SHIFT;
     int count = stop_y - start_y;
     if (count > 0) {
+
         y += count << SHIFT;
         height -= count << SHIFT;
 
@@ -318,19 +284,9 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
         const int coverageR = coverage_to_alpha(xrite) << SHIFT;
         SkASSERT(n + (coverageR != 0) <= fWidth);
 
-        for (int i = start_y; i < stop_y; ++i) {
-            // note: we should only need to call set_left_rite once, but
-            // our clipping blitters sometimes modify runs/alpha in-place,
-            // so for now we reset fRuns each time :(
-            //
-            //  TODO:
-            //  - don't modify in-place, or at least tell us when you're going to
-            //  - pass height down to blitAntiH (blitAntiHV) so that aaclip and
-            //    other can take advantage of the vertical-repeat explicitly
-            //
-            set_left_rite_runs(fRuns, ileft, coverageL, n, coverageR);
-            fRealBlitter->blitAntiH(fLeft, i, fRuns.fAlpha, fRuns.fRuns);
-        }
+        fRealBlitter->blitAntiRect(ileft + fLeft, start_y, n, count,
+                                   coverageL > 0 ? coverageL : 255,
+                                   coverageR > 0 ? coverageR : 255);
 
         // preamble for our next call to blitH()
         fCurrIY = stop_y - 1;
@@ -359,6 +315,10 @@ public:
     }
 
     virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+
+    // TODO: blitAntiRect() if we ever have performance problems -
+    // but the gains aren't expected to be nearly as large as for
+    // SuperBlitter.
 
     static bool CanHandleRect(const SkIRect& bounds) {
 #ifdef FORCE_RLE
