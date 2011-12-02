@@ -1813,6 +1813,27 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
                             config, buffer, rowBytes, flipY);
 }
 
+void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
+    if (NULL == src || NULL == dst) {
+        return;
+    }
+    ASSERT_OWNED_RESOURCE(src);
+
+    GrDrawTarget::AutoStateRestore asr(fGpu);
+    reset_target_state(fGpu);
+    fGpu->setRenderTarget(dst);
+    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
+                           GrSamplerState::kClamp_WrapMode,
+                           GrSamplerState::kNearest_Filter);
+    GrMatrix sampleM;
+    sampleM.setIDiv(src->width(), src->height());
+    sampler.setMatrix(sampleM);
+    fGpu->setTexture(0, src);
+    fGpu->setSamplerState(0, sampler);
+    SkRect rect = SkRect::MakeXYWH(0, 0, src->width(), src->height());
+    fGpu->drawSimpleRect(rect, NULL, 1 << 0);
+}
+
 void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target, 
                                                 int left, int top,
                                                 int width, int height,

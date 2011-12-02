@@ -548,6 +548,12 @@ public:
                                          config, buffer, rowBytes, 0);
     }
     /**
+     * Copies all texels from one texture to another.
+     * @param src           the texture to copy from.
+     * @param dst           the render target to copy to.
+     */
+    void copyTexture(GrTexture* src, GrRenderTarget* dst);
+    /**
      * Applies a 1D convolution kernel in the X direction to a rectangle of
      * pixels from a given texture.
      * @param texture         the texture to read from

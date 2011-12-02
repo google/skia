@@ -10,10 +10,10 @@
 #ifndef SkPixelRef_DEFINED
 #define SkPixelRef_DEFINED
 
+#include "SkBitmap.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
-class SkBitmap;
 class SkColorTable;
 struct SkIRect;
 class SkMutex;
@@ -116,6 +116,12 @@ public:
     virtual SkGpuTexture* getTexture() { return NULL; }
 
     bool readPixels(SkBitmap* dst, const SkIRect* subset = NULL);
+
+    /** Makes a deep copy of this PixelRef, respecting the requested config.
+        Returns NULL if either there is an error (e.g. the destination could
+        not be created with the given config), or this PixelRef does not 
+        support deep copies.  */
+    virtual SkPixelRef* deepCopy(SkBitmap::Config config) { return NULL; }
 
     // serialization
 

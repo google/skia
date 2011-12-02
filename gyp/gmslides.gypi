@@ -2,6 +2,7 @@
 {
   'sources': [
     '../gm/aarectmodes.cpp',
+    '../gm/bitmapcopy.cpp',
     '../gm/bitmapfilters.cpp',
     '../gm/bitmapscroll.cpp',
     '../gm/blurs.cpp',

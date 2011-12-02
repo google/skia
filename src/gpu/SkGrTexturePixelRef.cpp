@@ -9,7 +9,9 @@
 
 
 #include "SkGrTexturePixelRef.h"
+#include "GrContext.h"
 #include "GrTexture.h"
+#include "SkGr.h"
 #include "SkRect.h"
 
 // since we call lockPixels recursively on fBitmap, we need a distinct mutex,
@@ -46,6 +48,36 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkGrTexturePixelRef* copyToTexturePixelRef(GrTexture* texture,
+                                                  SkBitmap::Config dstConfig) {
+    if (NULL == texture) {
+        return NULL;
+    }
+    GrContext* context = texture->getContext();
+    if (NULL == context) {
+        return NULL;
+    }
+    GrTextureDesc desc;
+
+    desc.fWidth  = texture->width();
+    desc.fHeight = texture->height();
+    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc.fConfig = SkGr::BitmapConfig2PixelConfig(dstConfig, false);
+    desc.fAALevel = kNone_GrAALevel;
+
+    GrTexture* dst = context->createUncachedTexture(desc, NULL, 0);
+    if (NULL == dst) {
+        return NULL;
+    }
+
+    context->copyTexture(texture, dst->asRenderTarget());
+    SkGrTexturePixelRef* pixelRef = new SkGrTexturePixelRef(dst);
+    GrSafeUnref(dst);
+    return pixelRef;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkGrTexturePixelRef::SkGrTexturePixelRef(GrTexture* tex) {
     fTexture = tex;
     GrSafeRef(tex);
@@ -57,6 +89,10 @@ SkGrTexturePixelRef::~SkGrTexturePixelRef() {
 
 SkGpuTexture* SkGrTexturePixelRef::getTexture() {
     return (SkGpuTexture*)fTexture;
+}
+
+SkPixelRef* SkGrTexturePixelRef::deepCopy(SkBitmap::Config dstConfig) {
+    return copyToTexturePixelRef(fTexture, dstConfig);
 }
 
 bool SkGrTexturePixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
@@ -101,6 +137,19 @@ SkGpuTexture* SkGrRenderTargetPixelRef::getTexture() {
         return (SkGpuTexture*) fRenderTarget->asTexture();
     }
     return NULL;
+}
+
+SkPixelRef* SkGrRenderTargetPixelRef::deepCopy(SkBitmap::Config dstConfig) {
+    if (NULL == fRenderTarget) {
+        return NULL;
+    }
+    // Note that when copying an SkGrRenderTargetPixelRef, we actually 
+    // return an SkGrTexturePixelRef instead.  This is because
+    // SkGrRenderTargetPixelRef is usually created in conjunction with
+    // GrTexture owned elsewhere (e.g., SkGpuDevice), and cannot live
+    // independently of that texture.  SkGrTexturePixelRef, on the other
+    // hand, owns its own GrTexture, and is thus self-contained.
+    return copyToTexturePixelRef(fRenderTarget->asTexture(), dstConfig);
 }
 
 bool SkGrRenderTargetPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {

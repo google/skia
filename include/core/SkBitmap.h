@@ -462,18 +462,28 @@ public:
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
-    /** Makes a deep copy of this bitmap, respecting the requested config.
-        Returns false if either there is an error (i.e. the src does not have
-        pixels) or the request cannot be satisfied (e.g. the src has per-pixel
-        alpha, and the requested config does not support alpha).
-        @param dst The bitmap to be sized and allocated
-        @param c The desired config for dst
-        @param allocator Allocator used to allocate the pixelref for the dst
-                         bitmap. If this is null, the standard HeapAllocator
-                         will be used.
-        @return true if the copy could be made.
-    */
+    /** Makes a deep copy of this bitmap, respecting the requested config,
+     *  and allocating the dst pixels on the cpu.
+     *  Returns false if either there is an error (i.e. the src does not have
+     *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
+     *  alpha, and the requested config does not support alpha).
+     *  @param dst The bitmap to be sized and allocated
+     *  @param c The desired config for dst
+     *  @param allocator Allocator used to allocate the pixelref for the dst
+     *                   bitmap. If this is null, the standard HeapAllocator
+     *                   will be used.
+     *  @return true if the copy could be made.
+     */
     bool copyTo(SkBitmap* dst, Config c, Allocator* allocator = NULL) const;
+
+    /** Makes a deep copy of this bitmap, respecting the requested config, and
+     *  with custom allocation logic that will keep the copied pixels
+     *  in the same domain as the source: If the src pixels are allocated for
+     *  the cpu, then so will the dst. If the src pixels are allocated on the
+     *  gpu (typically as a texture), the it will do the same for the dst.
+     *  If the request cannot be fulfilled, returns false and dst is unmodified.
+     */
+    bool deepCopyTo(SkBitmap* dst, Config c) const;
 
     /** Returns true if this bitmap can be deep copied into the requested config
         by calling copyTo().
