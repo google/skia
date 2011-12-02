@@ -938,6 +938,29 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     return true;
 }
 
+bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
+    if (!this->canCopyTo(dstConfig)) {
+        return false;
+    }
+
+    // If we have a PixelRef, and it supports deep copy, use it.
+    // Currently supported only by texture-backed bitmaps.
+    if (fPixelRef) {
+        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstConfig);
+        if (pixelRef) {
+            dst->setConfig(dstConfig, fWidth, fHeight);
+            dst->setPixelRef(pixelRef)->unref();
+            return true;
+        }
+    }
+
+    if (this->getTexture()) {
+        return false;
+    } else {
+        return this->copyTo(dst, dstConfig, NULL);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
