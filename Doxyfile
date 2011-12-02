@@ -1,6 +1,30 @@
+# How to run doxygen and store its results in the Skia repo, so that they can be
+# browsed at http://skia.googlecode.com/svn/docs/html/index.html :
+#
+# cd
+# TEMPDIR=/tmp/skia-doxygen
+# rm -rf $TEMPDIR
+# mkdir -p $TEMPDIR
+# cd $TEMPDIR
+# svn checkout https://skia.googlecode.com/svn/trunk
+# svn checkout https://skia.googlecode.com/svn/docs
+# cd trunk
+# doxygen Doxyfile
+# cd ../docs
+# NEWFILES=$(svn status | grep ^\? | awk '{print $2}')
+# svn add $NEWFILES
+# find . -name *.html -exec svn propset svn:mime-type text/html '{}' \;
+# find . -name *.css  -exec svn propset svn:mime-type text/css '{}' \;
+# find . -name *.js   -exec svn propset svn:mime-type text/javascript '{}' \;
+# find . -name *.gif  -exec svn propset svn:mime-type image/gif '{}' \;
+# find . -name *.png  -exec svn propset svn:mime-type image/png '{}' \;
+# svn commit --message 'commit doxygen-generated documentation'
+# cd
+# rm -rf $TEMPDIR
+
 PROJECT_NAME = skia
 PROJECT_BRIEF = 2D Graphics Library
-OUTPUT_DIRECTORY = doc
+OUTPUT_DIRECTORY = ../docs
 
 EXTRACT_ALL = NO
 INHERIT_DOCS = YES
