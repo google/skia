@@ -151,14 +151,132 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool isFinite_int(float x) {
+    uint32_t bits = SkFloat2Bits(x);    // need unsigned for our shifts
+    int exponent = bits << 1 >> 24;
+    return exponent != 0xFF;
+}
+
+static bool isFinite_float(float x) {
+    return sk_float_isfinite(x);
+}
+
+static bool isFinite_mulzero(float x) {
+    float y = x * 0;
+    return y == y;
+}
+
+static bool isfinite_and_int(const float data[4]) {
+    return  isFinite_int(data[0]) && isFinite_int(data[1]) && isFinite_int(data[2]) && isFinite_int(data[3]);
+}
+
+static bool isfinite_and_float(const float data[4]) {
+    return  isFinite_float(data[0]) && isFinite_float(data[1]) && isFinite_float(data[2]) && isFinite_float(data[3]);
+}
+
+static bool isfinite_and_mulzero(const float data[4]) {
+    return  isFinite_mulzero(data[0]) && isFinite_mulzero(data[1]) && isFinite_mulzero(data[2]) && isFinite_mulzero(data[3]);
+}
+
+#define mulzeroadd(data)    (data[0]*0 + data[1]*0 + data[2]*0 + data[3]*0)
+
+static bool isfinite_plus_int(const float data[4]) {
+    return  isFinite_int(mulzeroadd(data));
+}
+
+static bool isfinite_plus_float(const float data[4]) {
+    return  !sk_float_isNaN(mulzeroadd(data));
+}
+
+static bool isfinite_plus_mulzero(const float data[4]) {
+    float x = mulzeroadd(data);
+    return x == x;
+}
+
+typedef bool (*IsFiniteProc)(const float[]);
+
+#define MAKEREC(name)   { name, #name }
+
+static const struct {
+    IsFiniteProc    fProc;
+    const char*     fName;
+} gRec[] = {
+    MAKEREC(isfinite_and_int),
+    MAKEREC(isfinite_and_float),
+    MAKEREC(isfinite_and_mulzero),
+    MAKEREC(isfinite_plus_int),
+    MAKEREC(isfinite_plus_float),
+    MAKEREC(isfinite_plus_mulzero),
+};
+
+#undef MAKEREC
+
+class IsFiniteBench : public SkBenchmark {
+    enum {
+        N = SkBENCHLOOP(1000),
+        NN = SkBENCHLOOP(1000),
+    };
+    float fData[N];
+public:
+
+    IsFiniteBench(void* param, int index) : INHERITED(param) {
+        SkRandom rand;
+
+        for (int i = 0; i < N; ++i) {
+            fData[i] = rand.nextSScalar1();
+        }
+        
+        fProc = gRec[index].fProc;
+        fName = gRec[index].fName;
+    }
+
+protected:
+    virtual void onDraw(SkCanvas* canvas) {
+        IsFiniteProc proc = fProc;
+        const float* data = fData;
+
+        for (int j = 0; j < NN; ++j) {
+            for (int i = 0; i < N - 4; ++i) {
+                proc(&data[i]);
+            }
+        }
+    }
+
+    virtual const char* onGetName() {
+        return fName;
+    }
+        
+private:
+    IsFiniteProc    fProc;
+    const char*     fName;
+
+    typedef SkBenchmark INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 static SkBenchmark* M0(void* p) { return new NoOpMathBench(p); }
 static SkBenchmark* M1(void* p) { return new SlowISqrtMathBench(p); }
 static SkBenchmark* M2(void* p) { return new FastISqrtMathBench(p); }
 static SkBenchmark* M3(void* p) { return new QMul64Bench(p); }
 static SkBenchmark* M4(void* p) { return new QMul32Bench(p); }
 
+static SkBenchmark* M50(void* p) { return new IsFiniteBench(p, 0); }
+static SkBenchmark* M51(void* p) { return new IsFiniteBench(p, 1); }
+static SkBenchmark* M52(void* p) { return new IsFiniteBench(p, 2); }
+static SkBenchmark* M53(void* p) { return new IsFiniteBench(p, 3); }
+static SkBenchmark* M54(void* p) { return new IsFiniteBench(p, 4); }
+static SkBenchmark* M55(void* p) { return new IsFiniteBench(p, 5); }
+
 static BenchRegistry gReg0(M0);
 static BenchRegistry gReg1(M1);
 static BenchRegistry gReg2(M2);
 static BenchRegistry gReg3(M3);
 static BenchRegistry gReg4(M4);
+
+static BenchRegistry gReg50(M50);
+static BenchRegistry gReg51(M51);
+static BenchRegistry gReg52(M52);
+static BenchRegistry gReg53(M53);
+static BenchRegistry gReg54(M54);
+static BenchRegistry gReg55(M55);
