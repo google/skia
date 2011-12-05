@@ -63,13 +63,14 @@ static inline float sk_float_copysign(float x, float y) {
     #define sk_float_mod(x,y)       fmodf(x,y)
     #define sk_float_exp(x)         expf(x)
     #define sk_float_log(x)         logf(x)
-    #define sk_float_isNaN(x)       _isnan(x)
 #endif
 
 #ifdef SK_BUILD_FOR_WIN
     #define sk_float_isfinite(x)    _finite(x)
+    #define sk_float_isNaN(x)       _isnan(x)
 #else
     #define sk_float_isfinite(x)    isfinite(x)
+    #define sk_float_isNaN(x)       isnan(x)
 #endif
 
 #ifdef SK_USE_FLOATBITS
