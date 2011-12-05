@@ -165,6 +165,10 @@
           '-lm',
           '-llog',
         ],
+        'cflags': [
+          '-fno-exceptions',
+          '-fno-rtti',
+        ],
         'conditions': [
           [ 'skia_target_arch == "arm" and arm_thumb == 1', {
             'cflags': [

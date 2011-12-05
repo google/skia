@@ -339,7 +339,6 @@
             'libraries': [
               '-lGLESv2',
               '-lEGL',
-              '-shared',
             ],
           },
         }],

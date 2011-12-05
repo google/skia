@@ -41,6 +41,13 @@
           '../third_party/glu',
         ],
       },
+      'conditions': [
+        [ 'skia_os == "android"', {
+          'cflags!': [
+            '-fno-rtti', # supresses warnings about invalid option of non-C++ code
+          ],
+        }],
+      ],
     },
   ],
 }
