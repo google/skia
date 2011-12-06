@@ -88,60 +88,15 @@ public:
     : fRadial2CenterX1()
     , fRadial2Radius0()
     , fRadial2PosRoot() {
-        this->setClampNoFilter();
+        this->reset();
     }
 
-    explicit GrSamplerState(Filter filter)
+    GrSamplerState(WrapMode wrapXAndY,
+                   Filter filter)
     : fRadial2CenterX1()
     , fRadial2Radius0()
     , fRadial2PosRoot() {
-        fWrapX = kClamp_WrapMode;
-        fWrapY = kClamp_WrapMode;
-        fSampleMode = kNormal_SampleMode;
-        fFilter = filter;
-        fMatrix.setIdentity();
-        fTextureDomain.setEmpty();
-    }
-
-    GrSamplerState(WrapMode wx, WrapMode wy, Filter filter)
-    : fRadial2CenterX1()
-    , fRadial2Radius0()
-    , fRadial2PosRoot() {
-        fWrapX = wx;
-        fWrapY = wy;
-        fSampleMode = kNormal_SampleMode;
-        fFilter = filter;
-        fMatrix.setIdentity();
-        fSwapRAndB = false;
-        fTextureDomain.setEmpty();
-    }
-
-    GrSamplerState(WrapMode wx, WrapMode wy, 
-                   const GrMatrix& matrix, Filter filter)
-    : fRadial2CenterX1()
-    , fRadial2Radius0()
-    , fRadial2PosRoot() {
-        fWrapX = wx;
-        fWrapY = wy;
-        fSampleMode = kNormal_SampleMode;
-        fFilter = filter;
-        fMatrix = matrix;
-        fSwapRAndB = false;
-        fTextureDomain.setEmpty();
-    }
-
-    GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, 
-                   const GrMatrix& matrix, Filter filter)
-    : fRadial2CenterX1()
-    , fRadial2Radius0()
-    , fRadial2PosRoot() {
-        fWrapX = wx;
-        fWrapY = wy;
-        fSampleMode = sample;
-        fMatrix = matrix;
-        fFilter = filter;
-        fSwapRAndB = false;
-        fTextureDomain.setEmpty();
+        this->reset(wrapXAndY, filter);
     }
 
     WrapMode getWrapX() const { return fWrapX; }
@@ -204,12 +159,34 @@ public:
      */
     void setFilter(Filter filter) { fFilter = filter; }
 
-    void setClampNoFilter() {
+    void reset() {
         fWrapX = kClamp_WrapMode;
         fWrapY = kClamp_WrapMode;
         fSampleMode = kNormal_SampleMode;
         fFilter = kNearest_Filter;
         fMatrix.setIdentity();
+        fTextureDomain.setEmpty();
+        fSwapRAndB = false;
+    }
+
+    void reset(WrapMode wrapXAndY,
+               Filter filter) {
+        fWrapX = wrapXAndY;
+        fWrapY = wrapXAndY;
+        fSampleMode = kNormal_SampleMode;
+        fFilter = filter;
+        fMatrix.setIdentity();
+        fTextureDomain.setEmpty();
+        fSwapRAndB = false;
+    }
+    void reset(WrapMode wrapXAndY,
+               Filter filter,
+               const GrMatrix& matrix) {
+        fWrapX = wrapXAndY;
+        fWrapY = wrapXAndY;
+        fSampleMode = kNormal_SampleMode;
+        fFilter = filter;
+        fMatrix = matrix;
         fTextureDomain.setEmpty();
         fSwapRAndB = false;
     }
@@ -247,9 +224,7 @@ public:
         }
     }
 
-    static const GrSamplerState& ClampNoFilter() {
-        return gClampNoFilter;
-    }
+    static const GrSamplerState& ClampNearest() { return gClampNearest; }
 
 private:
     WrapMode    fWrapX : 8;
@@ -270,7 +245,7 @@ private:
     float       fImageIncrement[2];
     float       fKernel[MAX_KERNEL_WIDTH];
 
-    static const GrSamplerState gClampNoFilter;
+    static const GrSamplerState gClampNearest;
 };
 
 #endif

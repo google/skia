@@ -34,7 +34,6 @@ void GrTextContext::flushGlyphs() {
             filter = GrSamplerState::kBilinear_Filter;
         }
         GrSamplerState sampler(GrSamplerState::kRepeat_WrapMode,
-                               GrSamplerState::kRepeat_WrapMode,
                                filter);
         fDrawTarget->setSamplerState(kGlyphMaskStage, sampler);
 

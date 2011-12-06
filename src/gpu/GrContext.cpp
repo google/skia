@@ -330,11 +330,11 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
     if (special) {
         TextureCacheEntry clampEntry = 
                             findAndLockTexture(key, desc.fWidth, desc.fHeight,
-                                               GrSamplerState::ClampNoFilter());
+                                               GrSamplerState::ClampNearest());
 
         if (NULL == clampEntry.texture()) {
             clampEntry = createAndLockTexture(key,
-                                              GrSamplerState::ClampNoFilter(),
+                                              GrSamplerState::ClampNearest(),
                                               desc, srcData, rowBytes);
             GrAssert(NULL != clampEntry.texture());
             if (NULL == clampEntry.texture()) {
@@ -367,7 +367,6 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
                 filter = GrSamplerState::kBilinear_Filter;
             }
             GrSamplerState stretchSampler(GrSamplerState::kClamp_WrapMode,
-                                          GrSamplerState::kClamp_WrapMode,
                                           filter);
             fGpu->setSamplerState(0, stretchSampler);
 
@@ -434,7 +433,7 @@ inline void gen_scratch_tex_key_values(const GrGpu* gpu,
                                     ((uint64_t) desc.fConfig << 32);
     // this code path isn't friendly to tiling with NPOT restricitons
     // We just pass ClampNoFilter()
-    gen_texture_key_values(gpu, GrSamplerState::ClampNoFilter(), descKey,
+    gen_texture_key_values(gpu, GrSamplerState::ClampNearest(), descKey,
                             desc.fWidth, desc.fHeight, true, v);
 }
 }
@@ -864,8 +863,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     }
 
     GrMatrix sampleM;
-    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
-                           GrSamplerState::kClamp_WrapMode, filter);
+    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, filter);
 
     GrTexture* src = record->fOffscreen0.texture();
     int scale;
@@ -1787,9 +1785,6 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
 
         fGpu->setRenderTarget(target);
 
-        GrSamplerState sampler;
-        sampler.setClampNoFilter();
-        sampler.setRAndBSwap(swapRAndB);
         GrMatrix matrix;
         if (flipY) {
             matrix.setTranslate(SK_Scalar1 * left,
@@ -1799,7 +1794,11 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
             matrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
         }
         matrix.postIDiv(src->width(), src->height());
-        sampler.setMatrix(matrix);
+        GrSamplerState sampler;
+        sampler.reset(GrSamplerState::kClamp_WrapMode,
+                      GrSamplerState::kNearest_Filter,
+                      matrix);
+        sampler.setRAndBSwap(swapRAndB);
         fGpu->setSamplerState(0, sampler);
         fGpu->setTexture(0, src);
         GrRect rect;
@@ -1822,8 +1821,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     GrDrawTarget::AutoStateRestore asr(fGpu);
     reset_target_state(fGpu);
     fGpu->setRenderTarget(dst);
-    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
-                           GrSamplerState::kClamp_WrapMode,
+    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode,
                            GrSamplerState::kNearest_Filter);
     GrMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
@@ -1899,10 +1897,11 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     fGpu->setRenderTarget(target);
     fGpu->setTexture(0, texture);
 
-    GrSamplerState sampler;
-    sampler.setClampNoFilter();
     matrix.setIDiv(texture->width(), texture->height());
-    sampler.setMatrix(matrix);
+    GrSamplerState sampler;
+    sampler.reset(GrSamplerState::kClamp_WrapMode,
+                  GrSamplerState::kNearest_Filter,
+                  matrix);
     sampler.setRAndBSwap(swapRAndB);
     fGpu->setSamplerState(0, sampler);
 
@@ -2145,8 +2144,7 @@ void GrContext::convolve(GrTexture* texture,
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
     GrMatrix sampleM;
-    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
-                           GrSamplerState::kClamp_WrapMode,
+    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode,
                            GrSamplerState::kConvolution_Filter);
     sampler.setConvolutionParams(kernelWidth, kernel, imageIncrement);
     sampleM.setIDiv(texture->width(), texture->height());
