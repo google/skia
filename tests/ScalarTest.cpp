@@ -44,6 +44,20 @@ typedef bool (*IsFiniteProc2)(float, float, IsFiniteProc1);
 
 #endif
 
+enum FloatClass {
+    kFinite,
+    kInfinite,
+    kNaN
+};
+
+static void test_floatclass(skiatest::Reporter* reporter, float value, FloatClass fc) {
+    // our sk_float_is... function may return int instead of bool,
+    // hence the double ! to turn it into a bool
+    REPORTER_ASSERT(reporter, !!sk_float_isfinite(value) == (fc == kFinite));
+    REPORTER_ASSERT(reporter, !!sk_float_isinf(value) == (fc == kInfinite));
+    REPORTER_ASSERT(reporter, !!sk_float_isnan(value) == (fc == kNaN));
+}
+
 static void test_isfinite(skiatest::Reporter* reporter) {
 #ifdef SK_CAN_USE_FLOAT
     struct Rec {
@@ -53,7 +67,15 @@ static void test_isfinite(skiatest::Reporter* reporter) {
     
     float max = 3.402823466e+38f;
     float inf = max * max;
-    float nan = 1 / sk_float_sin(0);
+    float nan = inf * 0;
+
+    test_floatclass(reporter,    0, kFinite);
+    test_floatclass(reporter,  max, kFinite);
+    test_floatclass(reporter, -max, kFinite);
+    test_floatclass(reporter,  inf, kInfinite);
+    test_floatclass(reporter, -inf, kInfinite);
+    test_floatclass(reporter,  nan, kNaN);
+    test_floatclass(reporter, -nan, kNaN);
 
     const Rec data[] = {
         {   0,          true    },

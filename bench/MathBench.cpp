@@ -186,7 +186,7 @@ static bool isfinite_plus_int(const float data[4]) {
 }
 
 static bool isfinite_plus_float(const float data[4]) {
-    return  !sk_float_isNaN(mulzeroadd(data));
+    return  !sk_float_isnan(mulzeroadd(data));
 }
 
 static bool isfinite_plus_mulzero(const float data[4]) {
@@ -211,11 +211,6 @@ static const struct {
 };
 
 #undef MAKEREC
-
-static bool SkScalarIsNaN_new(SkScalar x) {
-    float y = x * 0;
-    return y == y;
-}
 
 static bool isFinite(const SkRect& r) {
     // x * 0 will be NaN iff x is infinity or NaN.
