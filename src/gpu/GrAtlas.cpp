@@ -182,7 +182,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
             kNone_GrAALevel,
             GR_ATLAS_TEXTURE_WIDTH,
             GR_ATLAS_TEXTURE_HEIGHT,
-            { maskformat2pixelconfig(format) }
+            maskformat2pixelconfig(format)
         };
         fTexture[format] = fGpu->createTexture(desc, NULL, 0);
         if (NULL == fTexture[format]) {
