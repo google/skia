@@ -18,10 +18,10 @@ static void check_invalid(skiatest::Reporter* reporter,
                           SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
     SkRect rect;
     rect.set(l, t, r, b);
-    REPORTER_ASSERT(reporter, !rect.hasValidCoordinates());
+    REPORTER_ASSERT(reporter, !rect.isFinite());
 }
 
-// Tests that hasValidCoordinates() will reject any rect with +/-inf values
+// Tests that isFinite() will reject any rect with +/-inf values
 // as one of its coordinates.
 static void TestInfRect(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
@@ -33,7 +33,7 @@ static void TestInfRect(skiatest::Reporter* reporter) {
     SkScalar big = SkIntToScalar(100);
 
     SkRect rect = SkRect::MakeXYWH(small, small, big, big);
-    REPORTER_ASSERT(reporter, rect.hasValidCoordinates());
+    REPORTER_ASSERT(reporter, rect.isFinite());
 
     check_invalid(reporter, small, small, big, invalid);
     check_invalid(reporter, small, small, invalid, big);

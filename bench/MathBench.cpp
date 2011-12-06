@@ -3,6 +3,7 @@
 #include "SkMatrix.h"
 #include "SkRandom.h"
 #include "SkString.h"
+#include "SkPaint.h"
 
 class MathBench : public SkBenchmark {
     enum {
@@ -211,6 +212,21 @@ static const struct {
 
 #undef MAKEREC
 
+static bool SkScalarIsNaN_new(SkScalar x) {
+    float y = x * 0;
+    return y == y;
+}
+
+static bool isFinite(const SkRect& r) {
+    // x * 0 will be NaN iff x is infinity or NaN.
+    // a + b will be NaN iff either a or b is NaN.
+    float value = r.fLeft * 0 + r.fTop * 0 + r.fRight * 0 + r.fBottom * 0;
+    
+    // value is either NaN or it is finite (zero).
+    // value==value will be true iff value is not NaN
+    return value == value;
+}
+
 class IsFiniteBench : public SkBenchmark {
     enum {
         N = SkBENCHLOOP(1000),
@@ -225,20 +241,41 @@ public:
         for (int i = 0; i < N; ++i) {
             fData[i] = rand.nextSScalar1();
         }
-        
-        fProc = gRec[index].fProc;
-        fName = gRec[index].fName;
+
+        if (index < 0) {
+            fProc = NULL;
+            fName = "isfinite_rect";
+        } else {
+            fProc = gRec[index].fProc;
+            fName = gRec[index].fName;
+        }
     }
 
 protected:
     virtual void onDraw(SkCanvas* canvas) {
         IsFiniteProc proc = fProc;
         const float* data = fData;
+        // do this so the compiler won't throw away the function call
+        int counter = 0;
 
-        for (int j = 0; j < NN; ++j) {
-            for (int i = 0; i < N - 4; ++i) {
-                proc(&data[i]);
+        if (proc) {
+            for (int j = 0; j < NN; ++j) {
+                for (int i = 0; i < N - 4; ++i) {
+                    counter += proc(&data[i]);
+                }
             }
+        } else {
+            for (int j = 0; j < NN; ++j) {
+                for (int i = 0; i < N - 4; ++i) {
+                    const SkRect* r = reinterpret_cast<const SkRect*>(&data[i]);
+                    counter += r->isFinite();
+                }
+            }
+        }
+        
+        SkPaint paint;
+        if (paint.getAlpha() == 0) {
+            SkDebugf("%d\n", counter);
         }
     }
 
@@ -261,6 +298,7 @@ static SkBenchmark* M2(void* p) { return new FastISqrtMathBench(p); }
 static SkBenchmark* M3(void* p) { return new QMul64Bench(p); }
 static SkBenchmark* M4(void* p) { return new QMul32Bench(p); }
 
+static SkBenchmark* M5neg1(void* p) { return new IsFiniteBench(p, -1); }
 static SkBenchmark* M50(void* p) { return new IsFiniteBench(p, 0); }
 static SkBenchmark* M51(void* p) { return new IsFiniteBench(p, 1); }
 static SkBenchmark* M52(void* p) { return new IsFiniteBench(p, 2); }
@@ -274,6 +312,7 @@ static BenchRegistry gReg2(M2);
 static BenchRegistry gReg3(M3);
 static BenchRegistry gReg4(M4);
 
+static BenchRegistry gReg5neg1(M5neg1);
 static BenchRegistry gReg50(M50);
 static BenchRegistry gReg51(M51);
 static BenchRegistry gReg52(M52);

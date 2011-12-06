@@ -335,10 +335,34 @@ struct SK_API SkRect {
         return r;
     }
 
-    /** Return true if the rectangle's width or height are <= 0
-    */
-    bool        isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-    bool        hasValidCoordinates() const;
+    /**
+     *  Return true if the rectangle's width or height are <= 0
+     */
+    bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
+    
+    /**
+     *  Returns true iff all values in the rect are finite. If any are
+     *  infinite or NaN (or SK_FixedNaN when SkScalar is fixed) then this
+     *  returns false.
+     */
+    bool isFinite() const {
+#ifdef SK_SCALAR_IS_FLOAT
+        // x * 0 will be NaN iff x is infinity or NaN.
+        // a + b will be NaN iff either a or b is NaN.
+        float value = fLeft * 0 + fTop * 0 + fRight * 0 + fBottom * 0;
+        
+        // value is either NaN or it is finite (zero).
+        // value==value will be true iff value is not NaN
+        return value == value;
+#else
+        // use bit-or for speed, since we don't care about short-circuting the
+        // tests, and we expect the common case will be that we need to check all.
+        int isNaN = (SK_FixedNaN == fLeft)  | (SK_FixedNaN == fTop) |
+                    (SK_FixedNaN == fRight) | (SK_FixedNaN == fBottom);
+        return !isNaN;
+#endif
+    }
+
     SkScalar    left() const { return fLeft; }
     SkScalar    top() const { return fTop; }
     SkScalar    right() const { return fRight; }
