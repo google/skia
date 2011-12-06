@@ -37,13 +37,6 @@ void SkIRect::sort() {
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool SkRect::hasValidCoordinates() const {
-    return  SkScalarIsFinite(fLeft) &&
-            SkScalarIsFinite(fTop) &&
-            SkScalarIsFinite(fRight) &&
-            SkScalarIsFinite(fBottom);
-}
-
 void SkRect::sort() {
     if (fLeft > fRight) {
         SkTSwap<SkScalar>(fLeft, fRight);

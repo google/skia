@@ -1068,7 +1068,7 @@ void SkCanvas::computeLocalClipBoundsCompareType(EdgeType et) const {
  */
 bool SkCanvas::quickReject(const SkRect& rect, EdgeType et) const {
 
-    if (!rect.hasValidCoordinates())
+    if (!rect.isFinite())
         return true;
 
     if (fMCRec->fRasterClip->isEmpty()) {
