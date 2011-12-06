@@ -79,7 +79,7 @@ protected:
                 // use RT flag bit because in GL it makes the texture be bottom-up
                 desc.fFlags     = i ? kRenderTarget_GrTextureFlagBit :
                                       kNone_GrTextureFlags;
-                desc.fFormat    = kSkia8888_PM_GrPixelConfig;
+                desc.fConfig    = kSkia8888_PM_GrPixelConfig;
                 desc.fWidth     = 2 * S;
                 desc.fHeight    = 2 * S;
                 GrTexture* texture = 

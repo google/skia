@@ -1758,7 +1758,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
             kRenderTarget_GrTextureFlagBit,
             kNone_GrAALevel,
             width, height,
-            { config }
+            config
         };
 
         // When a full readback is faster than a partial we could always make
@@ -1880,7 +1880,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     }
 
     const GrTextureDesc desc = {
-        kNone_GrTextureFlags, kNone_GrAALevel, width, height, { config }
+        kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
     };
     GrAutoScratchTexture ast(this, desc);
     GrTexture* texture = ast.texture();

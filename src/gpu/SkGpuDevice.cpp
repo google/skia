@@ -746,7 +746,7 @@ static GrTexture* gaussianBlur(GrContext* context, GrTexture* srcTexture,
         kNone_GrAALevel,
         srcRect.width(),
         srcRect.height(),
-        { kRGBA_8888_GrPixelConfig }
+        kRGBA_8888_GrPixelConfig
     };
 
     temp1->set(context, desc);
@@ -886,7 +886,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         srcRect.height(),
         // We actually only need A8, but it often isn't supported as a
         // render target
-        { kRGBA_8888_PM_GrPixelConfig }
+        kRGBA_8888_PM_GrPixelConfig
     };
 
     GrAutoScratchTexture pathEntry(context, desc);
@@ -1017,7 +1017,7 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
         kNone_GrAALevel,
         dstM.fBounds.width(),
         dstM.fBounds.height(),
-        { kAlpha_8_GrPixelConfig }
+        kAlpha_8_GrPixelConfig
     };
 
     GrAutoScratchTexture ast(context, desc);
@@ -1758,7 +1758,7 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             kNone_GrAALevel,
             bitmap.width(),
             bitmap.height(),
-            { SkGr::Bitmap2PixelConfig(bitmap) }
+            SkGr::Bitmap2PixelConfig(bitmap)
         };
         GrContext::ScratchTexMatch match;
         if (kSaveLayerDeviceRenderTarget_TexType == type) {
