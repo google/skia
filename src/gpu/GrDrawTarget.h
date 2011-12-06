@@ -57,11 +57,7 @@ public:
         int fMaxTextureSize;
     };
 
-    /**
-     *  Bitfield used to indicate which stages are in use.
-     */
-    typedef int StageBitfield;
-    GR_STATIC_ASSERT(sizeof(StageBitfield)*8 >= GrDrawState::kNumStages);
+    typedef GrDrawState::StageMask StageMask;
 
     /**
      *  Flags that affect rendering. Controlled using enable/disableState(). All
@@ -205,7 +201,7 @@ public:
      * Shortcut for preConcatSamplerMatrix on all stages in mask with same
      * matrix
      */
-    void preConcatSamplerMatrices(int stageMask, const GrMatrix& matrix) {
+    void preConcatSamplerMatrices(StageMask stageMask, const GrMatrix& matrix) {
         for (int i = 0; i < GrDrawState::kNumStages; ++i) {
             if ((1 << i) & stageMask) {
                 this->preConcatSamplerMatrix(i, matrix);
@@ -221,7 +217,7 @@ public:
      * @param matrix  the matrix to concat
      */
     void preConcatEnabledSamplerMatrices(const GrMatrix& matrix) {
-        StageBitfield stageMask = this->enabledStages();
+        StageMask stageMask = this->enabledStages();
         this->preConcatSamplerMatrices(stageMask, matrix);
     }
 
@@ -825,8 +821,8 @@ public:
      * drawNonIndexed.
      * @param rect      the rect to draw
      * @param matrix    optional matrix applied to rect (before viewMatrix)
-     * @param stageEnableBitfield bitmask indicating which stages are enabled.
-     *                            Bit i indicates whether stage i is enabled.
+     * @param stageMask bitmask indicating which stages are enabled.
+     *                  Bit i indicates whether stage i is enabled.
      * @param srcRects  specifies rects for stages enabled by stageEnableMask.
      *                  if stageEnableMask bit i is 1, srcRects is not NULL,
      *                  and srcRects[i] is not NULL, then srcRects[i] will be
@@ -840,7 +836,7 @@ public:
      */
     virtual void drawRect(const GrRect& rect,
                           const GrMatrix* matrix,
-                          StageBitfield stageEnableBitfield,
+                          StageMask stageMask,
                           const GrRect* srcRects[],
                           const GrMatrix* srcMatrices[]);
 
@@ -850,7 +846,7 @@ public:
      */
     void drawSimpleRect(const GrRect& rect,
                         const GrMatrix* matrix,
-                        StageBitfield stageEnableBitfield) {
+                        StageMask stageEnableBitfield) {
          drawRect(rect, matrix, stageEnableBitfield, NULL, NULL);
     }
 
@@ -931,7 +927,7 @@ public:
      */
     class AutoDeviceCoordDraw : ::GrNoncopyable {
     public:
-        AutoDeviceCoordDraw(GrDrawTarget* target, int stageMask);
+        AutoDeviceCoordDraw(GrDrawTarget* target, StageMask stageMask);
         ~AutoDeviceCoordDraw();
     private:
         GrDrawTarget*       fDrawTarget;
@@ -1291,8 +1287,8 @@ protected:
                                fCurrDrawState);
     }
 
-    StageBitfield enabledStages() const {
-        StageBitfield mask = 0;
+    StageMask enabledStages() const {
+        StageMask mask = 0;
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             mask |= this->isStageEnabled(s) ? 1 : 0;
         }
@@ -1341,7 +1337,7 @@ protected:
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.
-    static GrVertexLayout GetRectVertexLayout(StageBitfield stageEnableBitfield,
+    static GrVertexLayout GetRectVertexLayout(StageMask stageEnableBitfield,
                                               const GrRect* srcRects[]);
 
     static void SetRectVertices(const GrRect& rect,

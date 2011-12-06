@@ -227,8 +227,8 @@ static inline void append_countour_edge_indices(GrPathFill fillType,
     *((*indices)++) = edgeV0Idx + 1;
 }
 
-bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol, 
-                                       GrDrawTarget::StageBitfield stages) {
+bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
+                                       GrDrawState::StageMask stageMask) {
     {
     SK_TRACE_EVENT0("GrDefaultPathRenderer::createGeom");
 
@@ -246,7 +246,7 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
 
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if ((1 << s) & stages) {
+        if ((1 << s) & stageMask) {
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
         }
     }
@@ -377,11 +377,11 @@ FINISHED:
     // setPath/clearPath block we won't assume geom was created on a subsequent
     // drawPath in the same block.
     fPreviousSrcTol = srcSpaceTol;
-    fPreviousStages = stages;
+    fPreviousStages = stageMask;
     return true;
 }
 
-void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
+void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
                                        bool stencilOnly) {
 
     GrMatrix viewM = fTarget->getViewMatrix();
@@ -397,8 +397,8 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
     // won't change the stages in use inside a setPath / removePath pair. But
     // it is a silly limitation of the GrDrawTarget design that should be fixed.
     if (tol != fPreviousSrcTol ||
-        stages != fPreviousStages) {
-        if (!this->createGeom(tol, stages)) {
+        stageMask != fPreviousStages) {
+        if (!this->createGeom(tol, stageMask)) {
             return;
         }
     }
@@ -525,12 +525,12 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                     fTarget->getViewInverse(&vmi)) {
                     vmi.mapRect(&bounds);
                 } else {
-                    if (stages) {
+                    if (stageMask) {
                         if (!fTarget->getViewInverse(&vmi)) {
                             GrPrintf("Could not invert matrix.");
                             return;
                         }
-                        fTarget->preConcatSamplerMatrices(stages, vmi);
+                        fTarget->preConcatSamplerMatrices(stageMask, vmi);
                     }
                     fTarget->setViewMatrix(GrMatrix::I());
                 }
@@ -539,7 +539,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                 bounds.offset(fTranslate);
             }
             GrDrawTarget::AutoGeometryPush agp(fTarget);
-            fTarget->drawSimpleRect(bounds, NULL, stages);
+            fTarget->drawSimpleRect(bounds, NULL, stageMask);
         } else {
             if (passCount > 1) {
                 fTarget->enableState(GrDrawTarget::kNoColorWrites_StateBit);
@@ -560,8 +560,8 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
     }
 }
 
-void GrDefaultPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
-    this->onDrawPath(stages, false);
+void GrDefaultPathRenderer::drawPath(GrDrawState::StageMask stageMask) {
+    this->onDrawPath(stageMask, false);
 }
 
 void GrDefaultPathRenderer::drawPathToStencil() {

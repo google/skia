@@ -70,7 +70,7 @@ void GrInOrderDrawBuffer::setQuadIndexBuffer(const GrIndexBuffer* indexBuffer) {
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const GrMatrix* matrix,
-                                   StageBitfield stageEnableBitfield,
+                                   StageMask stageMask,
                                    const GrRect* srcRects[],
                                    const GrMatrix* srcMatrices[]) {
 
@@ -83,7 +83,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     if (fMaxQuads) {
 
         bool appendToPreviousDraw = false;
-        GrVertexLayout layout = GetRectVertexLayout(stageEnableBitfield, srcRects);
+        GrVertexLayout layout = GetRectVertexLayout(stageMask, srcRects);
         AutoReleaseGeometry geo(this, layout, 4, 0);
         if (!geo.succeeded()) {
             GrPrintf("Failed to get space for vertices!\n");
@@ -179,7 +179,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             this->enableState(kClip_StateBit);
         }
     } else {
-        INHERITED::drawRect(rect, matrix, stageEnableBitfield, srcRects, srcMatrices);
+        INHERITED::drawRect(rect, matrix, stageMask, srcRects, srcMatrices);
     }
 }
 

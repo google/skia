@@ -1551,7 +1551,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     }
 
     GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, prAA, translate);
-    GrDrawTarget::StageBitfield stageMask = paint.getActiveStageMask();
+    GrDrawState::StageMask stageMask = paint.getActiveStageMask();
 
     if (doOSAA) {
         bool needsStencil = pr->requiresStencilPass(target, path, fill);
@@ -1925,7 +1925,7 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
         int s = i + GrPaint::kFirstTextureStage;
         target->setTexture(s, paint.getTexture(i));
         ASSERT_OWNED_RESOURCE(paint.getTexture(i));
-        target->setSamplerState(s, *paint.getTextureSampler(i));
+        target->setSamplerState(s, paint.getTextureSampler(i));
     }
 
     target->setFirstCoverageStage(GrPaint::kFirstMaskStage);
@@ -1934,7 +1934,7 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
         int s = i + GrPaint::kFirstMaskStage;
         target->setTexture(s, paint.getMask(i));
         ASSERT_OWNED_RESOURCE(paint.getMask(i));
-        target->setSamplerState(s, *paint.getMaskSampler(i));
+        target->setSamplerState(s, paint.getMaskSampler(i));
     }
 
     target->setColor(paint.fColor);

@@ -29,7 +29,7 @@ public:
                                      const SkPath& path,
                                      GrPathFill fill) const SK_OVERRIDE;
 
-    virtual void drawPath(GrDrawTarget::StageBitfield stages) SK_OVERRIDE;
+    virtual void drawPath(GrDrawState::StageMask stageMask) SK_OVERRIDE;
     virtual void drawPathToStencil() SK_OVERRIDE;
 
 protected:
@@ -37,10 +37,10 @@ protected:
 
 private:
 
-    void onDrawPath(GrDrawTarget::StageBitfield stages, bool stencilOnly);
+    void onDrawPath(GrDrawState::StageMask stages, bool stencilOnly);
 
     bool createGeom(GrScalar srcSpaceTol,
-                    GrDrawTarget::StageBitfield stages);
+                   GrDrawState::StageMask stages);
 
     bool    fSeparateStencil;
     bool    fStencilWrapOps;
@@ -50,7 +50,7 @@ private:
     int                         fIndexCnt;
     int                         fVertexCnt;
     GrScalar                    fPreviousSrcTol;
-    GrDrawTarget::StageBitfield fPreviousStages;
+    GrDrawState::StageMask      fPreviousStages;
     GrPrimitiveType             fPrimitiveType;
     bool                        fUseIndexedDraw;
 
