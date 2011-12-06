@@ -46,6 +46,7 @@ namespace skiagm {
             return this->onGetFlags();
         }
         
+        SkColor getBGColor() const { return fBGColor; }
         void setBGColor(SkColor);
 
 	protected:
