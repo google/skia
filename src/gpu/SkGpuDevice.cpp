@@ -195,7 +195,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
     TexType type = (kSaveLayer_Usage == usage) ? 
                             kSaveLayerDeviceRenderTarget_TexType :
                             kDeviceRenderTarget_TexType;
-    fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNoFilter(), type);
+    fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNearest(), type);
     fTexture = fCache.texture();
     if (fTexture) {
         SkASSERT(NULL != fTexture->asRenderTarget());
@@ -969,7 +969,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     // we assume the last mask index is available for use
     GrAssert(NULL == grp->getMask(MASK_IDX));
     grp->setMask(MASK_IDX, blurTexture);
-    grp->maskSampler(MASK_IDX)->setClampNoFilter();
+    grp->maskSampler(MASK_IDX)->reset();
 
     GrMatrix m;
     m.setTranslate(-finalRect.fLeft, -finalRect.fTop);
@@ -1037,7 +1037,7 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     // we assume the last mask index is available for use
     GrAssert(NULL == grp->getMask(MASK_IDX));
     grp->setMask(MASK_IDX, texture);
-    grp->maskSampler(MASK_IDX)->setClampNoFilter();
+    grp->maskSampler(MASK_IDX)->reset();
 
     GrRect d;
     d.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
@@ -1465,7 +1465,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     GrSamplerState* sampler = grPaint.textureSampler(kBitmapTextureIdx);
 
     GrTexture* texture;
-    sampler->setClampNoFilter();
+    sampler->reset();
     SkAutoCachedTexture act(this, bitmap, *sampler, &texture);
 
     grPaint.setTexture(kBitmapTextureIdx, texture);
@@ -1497,7 +1497,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
 
     GrAutoMatrix avm(fContext, GrMatrix::I());
 
-    grPaint.textureSampler(kBitmapTextureIdx)->setClampNoFilter();
+    grPaint.textureSampler(kBitmapTextureIdx)->reset();
 
     GrRect dstRect = GrRect::MakeXYWH(GrIntToScalar(x),
                                       GrIntToScalar(y),

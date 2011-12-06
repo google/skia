@@ -960,13 +960,5 @@ void GrGpu::printStats() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-const GrSamplerState GrSamplerState::gClampNoFilter(
-    GrSamplerState::kClamp_WrapMode,
-    GrSamplerState::kClamp_WrapMode,
-    GrSamplerState::kNormal_SampleMode,
-    GrMatrix::I(),
-    GrSamplerState::kNearest_Filter);
 
-
-
-
+const GrSamplerState GrSamplerState::gClampNearest;

@@ -239,14 +239,14 @@ private:
     void resetTextures() {
         for (int i = 0; i < kMaxTextures; ++i) {
             this->setTexture(i, NULL);
-            fTextureSamplers[i].setClampNoFilter();
+            fTextureSamplers[i].reset();
         }
     }
 
     void resetMasks() {
         for (int i = 0; i < kMaxMasks; ++i) {
             this->setMask(i, NULL);
-            fMaskSamplers[i].setClampNoFilter();
+            fMaskSamplers[i].reset();
         }
     }
 };
