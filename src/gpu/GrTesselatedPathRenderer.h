@@ -16,7 +16,7 @@ class GrTesselatedPathRenderer : public GrPathRenderer {
 public:
     GrTesselatedPathRenderer();
 
-    virtual void drawPath(GrDrawTarget::StageBitfield stages);
+    virtual void drawPath(GrDrawState::StageMask stageMask);
     virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
                              const GrPath& path,
                              GrPathFill fill,

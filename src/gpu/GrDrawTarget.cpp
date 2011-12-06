@@ -1057,10 +1057,10 @@ void GrDrawTarget::setEdgeAAData(const GrDrawState::Edge* edges, int numEdges) {
 
 void GrDrawTarget::drawRect(const GrRect& rect, 
                             const GrMatrix* matrix,
-                            StageBitfield stageEnableBitfield,
+                            StageMask stageMask,
                             const GrRect* srcRects[],
                             const GrMatrix* srcMatrices[]) {
-    GrVertexLayout layout = GetRectVertexLayout(stageEnableBitfield, srcRects);
+    GrVertexLayout layout = GetRectVertexLayout(stageMask, srcRects);
 
     AutoReleaseGeometry geo(this, layout, 4, 0);
     if (!geo.succeeded()) {
@@ -1074,13 +1074,13 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
 }
 
-GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageBitfield stageEnableBitfield, 
+GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageMask stageMask, 
                                                  const GrRect* srcRects[]) {
     GrVertexLayout layout = 0;
 
     for (int i = 0; i < GrDrawState::kNumStages; ++i) {
         int numTC = 0;
-        if (stageEnableBitfield & (1 << i)) {
+        if (stageMask & (1 << i)) {
             if (NULL != srcRects && NULL != srcRects[i]) {
                 layout |= StageTexCoordVertexLayoutBit(i, numTC);
                 ++numTC;
@@ -1170,8 +1170,9 @@ void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawTarget* target, 
-                                                       int stageMask) {
+GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(
+                                            GrDrawTarget* target,
+                                            GrDrawState::StageMask stageMask) {
     GrAssert(NULL != target);
 
     fDrawTarget = target;

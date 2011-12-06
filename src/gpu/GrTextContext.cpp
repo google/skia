@@ -123,7 +123,7 @@ GrTextContext::GrTextContext(GrContext* context,
         if (NULL != fPaint.getTexture(t)) {
             if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
                 invVMComputed = true;
-                fPaint.getTextureSampler(t)->preConcatMatrix(invVM);
+                fPaint.textureSampler(t)->preConcatMatrix(invVM);
             }
         }
     }
@@ -131,7 +131,7 @@ GrTextContext::GrTextContext(GrContext* context,
         if (NULL != fPaint.getMask(m)) {
             if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
                 invVMComputed = true;
-                fPaint.getMaskSampler(m)->preConcatMatrix(invVM);
+                fPaint.maskSampler(m)->preConcatMatrix(invVM);
             }
         }
     }

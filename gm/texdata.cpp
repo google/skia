@@ -110,7 +110,7 @@ protected:
                 GrMatrix tm;
                 tm = vm;
                 tm.postIDiv(2*S, 2*S);
-                paint.getTextureSampler(0)->setMatrix(tm);
+                paint.textureSampler(0)->setMatrix(tm);
                 paint.setTexture(0, texture);
 
                 ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));

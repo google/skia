@@ -39,6 +39,12 @@ struct GrDrawState {
         kMaxTexCoords = kNumStages
     };
 
+    /**
+     *  Bitfield used to indicate a set of stages.
+     */
+    typedef uint32_t StageMask;
+    GR_STATIC_ASSERT(sizeof(StageMask)*8 >= GrDrawState::kNumStages);
+
     enum DrawFace {
         kBoth_DrawFace,
         kCCW_DrawFace,

@@ -51,14 +51,14 @@ public:
         return fTextures[i]; 
     }
 
-    GrSamplerState* getTextureSampler(int i) {
+    GrSamplerState* textureSampler(int i) {
         GrAssert((unsigned)i < kMaxTextures);
         return fTextureSamplers + i;
     }
 
-    const GrSamplerState* getTextureSampler(int i) const {
+    const GrSamplerState& getTextureSampler(int i) const {
         GrAssert((unsigned)i < kMaxTextures);
-        return fTextureSamplers + i;
+        return fTextureSamplers[i];
     }
 
     // The mask can be alpha-only or per channel. It is applied
@@ -77,14 +77,14 @@ public:
 
     // mask's sampler matrix is always applied to the positions
     // (i.e. no explicit texture coordinates)
-    GrSamplerState* getMaskSampler(int i) {
+    GrSamplerState* maskSampler(int i) {
         GrAssert((unsigned)i < kMaxMasks);
         return fMaskSamplers + i;
     }
 
-    const GrSamplerState* getMaskSampler(int i) const {
+    const GrSamplerState& getMaskSampler(int i) const {
         GrAssert((unsigned)i < kMaxMasks);
-        return fMaskSamplers + i;
+        return fMaskSamplers[i];
     }
 
     // pre-concats sampler matrices for non-NULL textures and masks

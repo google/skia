@@ -137,7 +137,7 @@ public:
      *                              use the remaining stages for its path
      *                              filling algorithm.
      */
-    virtual void drawPath(GrDrawTarget::StageBitfield stages) = 0;
+    virtual void drawPath(GrDrawState::StageMask stageMask) = 0;
 
     /**
      * Draws the path to the stencil buffer. Assume the writable stencil bits

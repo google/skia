@@ -346,7 +346,7 @@ static size_t computeEdgesAndIntersect(const GrMatrix& matrix,
     return edges->count();
 }
 
-void GrTesselatedPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
+void GrTesselatedPathRenderer::drawPath(GrDrawState::StageMask stageMask) {
     GrDrawTarget::AutoStateRestore asr(fTarget);
     // face culling doesn't make sense here
     GrAssert(GrDrawState::kBoth_DrawFace == fTarget->getDrawFace());
@@ -362,7 +362,7 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
 
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if ((1 << s) & stages) {
+        if ((1 << s) & stageMask) {
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
         }
     }

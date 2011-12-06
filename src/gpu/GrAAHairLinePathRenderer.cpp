@@ -601,7 +601,7 @@ void add_line(const SkPoint p[2],
 
 }
 
-bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
+bool GrAAHairLinePathRenderer::createGeom(GrDrawState::StageMask stageMask) {
 
     int rtHeight = fTarget->getRenderTarget()->height();
 
@@ -616,7 +616,7 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
     // If none of the inputs that affect generation of path geometry have
     // have changed since last previous path draw then we can reuse the
     // previous geoemtry.
-    if (stages == fPreviousStages &&
+    if (stageMask == fPreviousStages &&
         fPreviousViewMatrix == fTarget->getViewMatrix() &&
         fPreviousTranslate == fTranslate &&
         rtHeight == fPreviousRTHeight &&
@@ -626,7 +626,7 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
 
     GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if ((1 << s) & stages) {
+        if ((1 << s) & stageMask) {
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
         }
     }
@@ -671,7 +671,7 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
         add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts);
     }
 
-    fPreviousStages = stages;
+    fPreviousStages = stageMask;
     fPreviousViewMatrix = fTarget->getViewMatrix();
     fPreviousRTHeight = rtHeight;
     fClipRect = clip;
@@ -679,9 +679,9 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
     return true;
 }
 
-void GrAAHairLinePathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
+void GrAAHairLinePathRenderer::drawPath(GrDrawState::StageMask stageMask) {
 
-    if (!this->createGeom(stages)) {
+    if (!this->createGeom(stageMask)) {
         return;
     }
 
@@ -690,7 +690,7 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
         asr.set(fTarget);
         GrMatrix ivm;
         if (fTarget->getViewInverse(&ivm)) {
-            fTarget->preConcatSamplerMatrices(stages, ivm);
+            fTarget->preConcatSamplerMatrices(stageMask, ivm);
         }
         fTarget->setViewMatrix(GrMatrix::I());
     }
