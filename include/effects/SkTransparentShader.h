@@ -15,19 +15,18 @@
 class SkTransparentShader : public SkShader {
 public:
     SkTransparentShader() {}
-    virtual uint32_t getFlags();
+
+    virtual uint32_t getFlags() SK_OVERRIDE;
     virtual bool    setContext( const SkBitmap& device,
                                 const SkPaint& paint,
-                                const SkMatrix& matrix);
-    virtual void    shadeSpan(int x, int y, SkPMColor[], int count);
-    virtual void    shadeSpan16(int x, int y, uint16_t span[], int count);
+                                const SkMatrix& matrix) SK_OVERRIDE;
+    virtual void    shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
+    virtual void    shadeSpan16(int x, int y, uint16_t span[], int count) SK_OVERRIDE;
 
     // overrides for SkFlattenable
-    virtual Factory getFactory() { return Create; }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
-        this->INHERITED::flatten(buffer);
-    }
-        
+    virtual Factory getFactory() SK_OVERRIDE;
+    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
+
 private:
     // these are a cache from the call to setContext()
     const SkBitmap* fDevice;
