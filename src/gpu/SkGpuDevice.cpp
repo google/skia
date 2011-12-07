@@ -375,6 +375,10 @@ void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
     }
 }
 
+SkGpuRenderTarget* SkGpuDevice::accessRenderTarget() { 
+    return (SkGpuRenderTarget*)fRenderTarget; 
+}
+
 bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
     if (NULL != fTexture) {
         paint->setTexture(kBitmapTextureIdx, fTexture);
@@ -1742,6 +1746,10 @@ bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     }
     // we're cool with the paint as is
     return false;
+}
+
+void SkGpuDevice::flush() {
+    fContext->flush(false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
