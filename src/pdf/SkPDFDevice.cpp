@@ -562,6 +562,10 @@ void SkPDFDevice::cleanUp(bool clearFontUsage) {
     }
 }
 
+uint32_t SkPDFDevice::getDeviceCapabilities() {
+    return kVector_Capability;
+}
+
 void SkPDFDevice::clear(SkColor color) {
     this->cleanUp(true);
     this->init();
@@ -1521,4 +1525,9 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
     fXObjectResources.push(image);  // Transfer reference.
     SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
                                 &content.entry()->fContent);
+}
+
+bool SkPDFDevice::onReadPixels(const SkBitmap& bitmap, int x, int y,
+                               SkCanvas::Config8888) {
+    return false;
 }

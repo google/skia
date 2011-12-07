@@ -62,43 +62,43 @@ public:
                        const SkMatrix& initialTransform);
     SK_API virtual ~SkPDFDevice();
 
-    virtual uint32_t getDeviceCapabilities() { return kVector_Capability; }
+    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
 
-    virtual void clear(SkColor color);
+    virtual void clear(SkColor color) SK_OVERRIDE;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
      DrawFilter.
      */
-    virtual void drawPaint(const SkDraw&, const SkPaint& paint);
+    virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
                             size_t count, const SkPoint[],
-                            const SkPaint& paint);
+                            const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint);
     virtual void drawPath(const SkDraw&, const SkPath& origpath,
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
-                          bool pathIsMutable);
+                          bool pathIsMutable) SK_OVERRIDE;
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                             const SkIRect* srcRectOrNull,
-                            const SkMatrix& matrix, const SkPaint& paint);
+                            const SkMatrix& matrix, const SkPaint&) SK_OVERRIDE;
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
-                            const SkPaint& paint);
+                            const SkPaint& paint) SK_OVERRIDE;
     virtual void drawText(const SkDraw&, const void* text, size_t len,
-                          SkScalar x, SkScalar y, const SkPaint& paint);
+                          SkScalar x, SkScalar y, const SkPaint&) SK_OVERRIDE;
     virtual void drawPosText(const SkDraw&, const void* text, size_t len,
                              const SkScalar pos[], SkScalar constY,
-                             int scalarsPerPos, const SkPaint& paint);
+                             int scalarsPerPos, const SkPaint&) SK_OVERRIDE;
     virtual void drawTextOnPath(const SkDraw&, const void* text, size_t len,
                                 const SkPath& path, const SkMatrix* matrix,
-                                const SkPaint& paint);
+                                const SkPaint& paint) SK_OVERRIDE;
     virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                               int vertexCount, const SkPoint verts[],
                               const SkPoint texs[], const SkColor colors[],
                               SkXfermode* xmode, const uint16_t indices[],
-                              int indexCount, const SkPaint& paint);
+                              int indexCount, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
-                            const SkPaint&);
+                            const SkPaint&) SK_OVERRIDE;
 
     enum DrawingArea {
         kContent_DrawingArea,  // Drawing area for the page content.
@@ -158,12 +158,8 @@ public:
     }
     
 protected:
-    virtual bool onReadPixels(const SkBitmap& bitmap,
-                              int x, int y,
-                              SkCanvas::Config8888) SK_OVERRIDE {
-        return false;
-    }
-
+    virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y,
+                              SkCanvas::Config8888) SK_OVERRIDE;
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
@@ -203,7 +199,7 @@ private:
     virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
                                                int width, int height,
                                                bool isOpaque,
-                                               Usage usage);
+                                               Usage usage) SK_OVERRIDE;
 
     void init();
     void cleanUp(bool clearFontUsage);
