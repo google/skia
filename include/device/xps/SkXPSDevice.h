@@ -67,9 +67,7 @@ public:
     virtual bool endSheet();
     virtual bool endPortfolio();
 
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE {
-        return kVector_Capability;
-    }
+    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
 
 protected:
     virtual void clear(SkColor color) SK_OVERRIDE;
@@ -144,9 +142,7 @@ protected:
     virtual bool onReadPixels(const SkBitmap& bitmap,
                               int x,
                               int y,
-                              SkCanvas::Config8888) SK_OVERRIDE {
-        return false;
-    }
+                              SkCanvas::Config8888) SK_OVERRIDE;
 
 private:
     class TypefaceUse : ::SkNoncopyable {

@@ -1119,6 +1119,10 @@ HRESULT SkXPSDevice::createXpsQuad(const SkPoint (&points)[4],
     return S_OK;
 }
 
+uint32_t SkXPSDevice::getDeviceCapabilities() {
+    return kVector_Capability;
+}
+
 void SkXPSDevice::clear(SkColor color) {
     //TODO: override this for XPS
     SkDEBUGF(("XPS clear not yet implemented."));
@@ -2360,6 +2364,11 @@ void SkXPSDevice::drawDevice(const SkDraw& d, SkDevice* dev,
          "Could not get current visuals for layer.");
     HRVM(currentVisuals->Append(that->fCurrentXpsCanvas.get()),
          "Could not add layer to current visuals.");
+}
+
+bool SkXPSDevice::onReadPixels(const SkBitmap& bitmap, int x, int y,
+                               SkCanvas::Config8888) {
+    return false;
 }
 
 SkDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
