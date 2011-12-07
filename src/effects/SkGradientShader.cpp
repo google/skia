@@ -1151,7 +1151,7 @@ public:
         rad_to_unit_matrix(center, radius, &fPtsToUnit);
     }
 
-    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) SK_OVERRIDE;
+    virtual void shadeSpan(int x, int y, SkPMColor* dstC, int count) SK_OVERRIDE;
     virtual void shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int count) SK_OVERRIDE {
         SkASSERT(count > 0);
 
@@ -1279,7 +1279,7 @@ public:
         return kRadial_GradientType;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) SK_OVERRIDE {
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Radial_Gradient, (buffer));
     }
 
@@ -1618,7 +1618,7 @@ public:
         return kTwoPointRadial_BitmapType;
     }
 
-    virtual GradientType asAGradient(GradientInfo* info) const {
+    virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE {
         if (info) {
             commonAsAGradient(info);
             info->fPoint[0] = fCenter1;
@@ -1629,7 +1629,7 @@ public:
         return kRadial2_GradientType;
     }
 
-    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
+    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) SK_OVERRIDE {
         SkASSERT(count > 0);
 
         // Zero difference between radii:  fill with transparent black.
@@ -1717,8 +1717,8 @@ public:
 
     virtual bool setContext(const SkBitmap& device,
                             const SkPaint& paint,
-                            const SkMatrix& matrix) {
-        if (!this->INHERITED::setContext(device, paint, matrix)) SK_OVERRIDE {
+                            const SkMatrix& matrix) SK_OVERRIDE {
+        if (!this->INHERITED::setContext(device, paint, matrix)) {
             return false;
         }
 
@@ -1727,7 +1727,7 @@ public:
         return true;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) SK_OVERRIDE {
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Two_Point_Radial_Gradient, (buffer));
     }
 
@@ -1816,7 +1816,7 @@ public:
         return kSweep_GradientType;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) SK_OVERRIDE {
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Sweep_Gradient, (buffer));
     }
 
