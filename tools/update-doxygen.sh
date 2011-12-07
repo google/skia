@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Runs doxygen and stores its results in the Skia repo, so that they can be
-# browsed at http://skia.googlecode.com/svn/docs/html/index.html
+# Runs doxygen and stores its results in the skia-autogen repo, so that they
+# can be browsed at http://skia-autogen.googlecode.com/svn/docs/html/index.html
 
 # Prepare a temporary dir and check out Skia trunk and docs.
 cd
@@ -10,7 +10,7 @@ rm -rf $TEMPDIR
 mkdir -p $TEMPDIR
 cd $TEMPDIR
 svn checkout http://skia.googlecode.com/svn/trunk  # read-only
-svn checkout https://skia.googlecode.com/svn/docs  # writeable
+svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
 
 # Run Doxygen.
 cd trunk
@@ -43,11 +43,11 @@ $(doxygen --version) </small></address>
 EOF
 
 # Make sure that all files have the correct mimetype.
-find . -name *.html -exec svn propset svn:mime-type text/html '{}' \;
-find . -name *.css  -exec svn propset svn:mime-type text/css '{}' \;
-find . -name *.js   -exec svn propset svn:mime-type text/javascript '{}' \;
-find . -name *.gif  -exec svn propset svn:mime-type image/gif '{}' \;
-find . -name *.png  -exec svn propset svn:mime-type image/png '{}' \;
+find . -name '*.html' -exec svn propset svn:mime-type text/html '{}' \;
+find . -name '*.css'  -exec svn propset svn:mime-type text/css '{}' \;
+find . -name '*.js'   -exec svn propset svn:mime-type text/javascript '{}' \;
+find . -name '*.gif'  -exec svn propset svn:mime-type image/gif '{}' \;
+find . -name '*.png'  -exec svn propset svn:mime-type image/png '{}' \;
 
 # Commit the updated docs to the subversion repo.
 svn commit --message 'commit doxygen-generated documentation'
