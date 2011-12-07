@@ -58,9 +58,9 @@ public:
     
     int getNestLevel() const { return fNestLevel; }
     
-    virtual int save(SaveFlags flags = kMatrixClip_SaveFlag) SK_OVERRIDE;
+    virtual int save(SaveFlags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags flags = kARGB_ClipLayer_SaveFlag) SK_OVERRIDE;
+                          SaveFlags) SK_OVERRIDE;
     virtual void restore() SK_OVERRIDE;
 
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
@@ -73,7 +73,7 @@ public:
     virtual bool clipRect(const SkRect&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipPath(const SkPath&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipRegion(const SkRegion& deviceRgn,
-                            SkRegion::Op op = SkRegion::kIntersect_Op) SK_OVERRIDE;
+                            SkRegion::Op) SK_OVERRIDE;
 
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
@@ -81,13 +81,13 @@ public:
     virtual void drawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                            const SkPaint* paint = NULL) SK_OVERRIDE;
+                            const SkPaint* paint) SK_OVERRIDE;
     virtual void drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
-                                const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE;
+                                const SkRect& dst, const SkPaint* paint) SK_OVERRIDE;
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                  const SkPaint* paint = NULL) SK_OVERRIDE;
+                                  const SkPaint* paint) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap& bitmap, int left, int top,
-                            const SkPaint* paint = NULL) SK_OVERRIDE;
+                            const SkPaint* paint) SK_OVERRIDE;
     virtual void drawText(const void* text, size_t byteLength, SkScalar x,
                           SkScalar y, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPosText(const void* text, size_t byteLength,
