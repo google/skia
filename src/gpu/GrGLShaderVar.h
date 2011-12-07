@@ -12,6 +12,8 @@
 #include "GrGLInterface.h"
 #include "GrStringBuilder.h"
 
+#define USE_UNIFORM_FLOAT_ARRAYS true
+
 /**
  * Represents a variable in a shader
  */
@@ -34,13 +36,15 @@ public:
         fType = kFloat_Type;
         fCount = kNonArray;
         fEmitPrecision = false;
+        fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
     }
 
     GrGLShaderVar(const GrGLShaderVar& var)
         : fType(var.fType)
         , fName(var.fName)
         , fCount(var.fCount)
-        , fEmitPrecision(var.fEmitPrecision) {}
+        , fEmitPrecision(var.fEmitPrecision)
+        , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {}
 
     /**
      * Values for array count that have special meaning. We allow 1-sized arrays.
@@ -55,11 +59,13 @@ public:
      */
     void set(Type type,
              const GrStringBuilder& name,
-             bool emitPrecision = false) {
+             bool emitPrecision = false,
+             bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fName = name;
         fCount = kNonArray;
         fEmitPrecision = emitPrecision;
+        fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
     /**
@@ -67,11 +73,13 @@ public:
      */
     void set(Type type,
              const char* name,
-             bool specifyPrecision = false) {
+             bool specifyPrecision = false,
+             bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fName = name;
         fCount = kNonArray;
         fEmitPrecision = specifyPrecision;
+        fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
     /**
@@ -80,11 +88,13 @@ public:
     void set(Type type,
              const GrStringBuilder& name,
              int count,
-             bool specifyPrecision = false) {
+             bool specifyPrecision = false,
+             bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fName = name;
         fCount = count;
         fEmitPrecision = specifyPrecision;
+        fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
     /**
@@ -93,11 +103,13 @@ public:
     void set(Type type,
              const char* name,
              int count,
-             bool specifyPrecision = false) {
+             bool specifyPrecision = false,
+             bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fName = name;
         fCount = count;
         fEmitPrecision = specifyPrecision;
+        fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
     /**
@@ -165,21 +177,22 @@ public:
             out->append(PrecisionString(gl));
             out->append(" ");
         }
+        Type effectiveType = this->getType();
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
                 out->appendf("%s %s[]", 
-                             TypeString(this->getType()), 
+                             TypeString(effectiveType), 
                              this->getName().c_str());
             } else {
                 GrAssert(this->getArrayCount() > 0);
                 out->appendf("%s %s[%d]", 
-                             TypeString(this->getType()),
+                             TypeString(effectiveType),
                              this->getName().c_str(),
                              this->getArrayCount());
             }
         } else {
             out->appendf("%s %s",
-                         TypeString(this->getType()),
+                         TypeString(effectiveType),
                          this->getName().c_str());
         }
     }
@@ -204,6 +217,20 @@ public:
         }
     }
 
+    void appendArrayAccess(int index, GrStringBuilder* out) {
+        out->appendf("%s[%d]%s",
+                     this->getName().c_str(),
+                     index,
+                     fUseUniformFloatArrays ? "" : ".x");
+    }
+
+    void appendArrayAccess(const char* indexName, GrStringBuilder* out) {
+        out->appendf("%s[%s]%s",
+                     this->getName().c_str(),
+                     indexName,
+                     fUseUniformFloatArrays ? "" : ".x");
+    }
+
 private:
     static const char* PrecisionString(const GrGLInterface* gl) {
         return gl->supportsDesktop() ? "" : "mediump";
@@ -213,6 +240,9 @@ private:
     GrStringBuilder fName;
     int             fCount;
     bool            fEmitPrecision;
+    /// Work around driver bugs on some hardware that don't correctly
+    /// support uniform float []
+    bool            fUseUniformFloatArrays;
 };
 
 #endif
