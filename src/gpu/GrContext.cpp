@@ -217,21 +217,17 @@ void gen_stencil_key_values(const GrStencilBuffer* sb,
 // It does not reset stage textures/samplers or per-vertex-edge-aa state since
 // they aren't used unless the vertex layout references them.
 // It also doesn't set the render target.
-void reset_target_state(GrDrawTarget* target){
-        target->setViewMatrix(GrMatrix::I());
-        target->setColorFilter(0, SkXfermode::kDst_Mode);
-        target->disableState(GrDrawTarget::kDither_StateBit |
-                             GrDrawTarget::kHWAntialias_StateBit |
-                             GrDrawTarget::kClip_StateBit |
-                             GrDrawTarget::kNoColorWrites_StateBit |
-                             GrDrawTarget::kEdgeAAConcave_StateBit);
-        target->setEdgeAAData(NULL, 0);
-        target->disableStencil();
-        target->setAlpha(0xFF);
-        target->setBlendFunc(kOne_BlendCoeff,
-                           kZero_BlendCoeff);
-        target->setFirstCoverageStage(GrDrawState::kNumStages);
-        target->setDrawFace(GrDrawState::kBoth_DrawFace);
+void reset_target_state(GrDrawState* drawState) {
+        drawState->setViewMatrix(GrMatrix::I());
+        drawState->setColorFilter(0, SkXfermode::kDst_Mode);
+        drawState->resetStateFlags();
+        drawState->setEdgeAAData(NULL, 0);
+        drawState->disableStencil();
+        drawState->setAlpha(0xFF);
+        drawState->setBlendFunc(kOne_BlendCoeff,
+                                kZero_BlendCoeff);
+        drawState->setFirstCoverageStage(GrDrawState::kNumStages);
+        drawState->setDrawFace(GrDrawState::kBoth_DrawFace);
 }
 }
 
@@ -352,7 +348,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
 
         if (NULL != texture) {
             GrDrawTarget::AutoStateRestore asr(fGpu);
-            reset_target_state(fGpu);
+            reset_target_state(fGpu->drawState());
 
             fGpu->setRenderTarget(texture->asRenderTarget());
             fGpu->setTexture(0, clampEntry.texture());
@@ -601,7 +597,7 @@ const GrClip& GrContext::getClip() const { return fGpu->getClip(); }
 
 void GrContext::setClip(const GrClip& clip) {
     fGpu->setClip(clip);
-    fGpu->enableState(GrDrawTarget::kClip_StateBit);
+    fGpu->drawState()->enableState(GrDrawState::kClip_StateBit);
 }
 
 void GrContext::setClip(const GrIRect& rect) {
@@ -806,14 +802,13 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     target->enableState(GrDrawTarget::kHWAntialias_StateBit);
 #endif
 
-    GrMatrix transM;
     int left = boundRect.fLeft + tileX * record->fTileSizeX;
     int top =  boundRect.fTop  + tileY * record->fTileSizeY;
-    transM.setTranslate(-left * GR_Scalar1, -top * GR_Scalar1);
-    target->postConcatViewMatrix(transM);
-    GrMatrix scaleM;
-    scaleM.setScale(record->fScale * GR_Scalar1, record->fScale * GR_Scalar1);
-    target->postConcatViewMatrix(scaleM);
+    GrDrawState* drawState = target->drawState();
+    drawState->viewMatrix()->postTranslate(-left * GR_Scalar1,
+                                           -top * GR_Scalar1);
+    drawState->viewMatrix()->postScale(record->fScale * GR_Scalar1,
+                                       record->fScale * GR_Scalar1);
 
     int w = (tileX == record->fTileCountX-1) ? boundRect.fRight - left :
                                                record->fTileSizeX;
@@ -1327,7 +1322,7 @@ void GrContext::drawRect(const GrPaint& paint,
         GrDrawTarget::AutoViewMatrixRestore avmr;
         if (NULL != matrix) {
             avmr.set(target);
-            target->preConcatViewMatrix(*matrix);
+            target->viewMatrix()->preConcat(*matrix);
             target->preConcatSamplerMatrices(stageMask, *matrix);
         }
 
@@ -1351,7 +1346,7 @@ void GrContext::drawRect(const GrPaint& paint,
                 m.postConcat(*matrix);
             }
 
-            target->preConcatViewMatrix(m);
+            target->viewMatrix()->preConcat(m);
             target->preConcatSamplerMatrices(stageMask, m);
  
             target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
@@ -1378,7 +1373,8 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 
 #if GR_STATIC_RECT_VB
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
-    
+    GrDrawState* drawState = target->drawState();
+
     GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL);
     GrDrawTarget::AutoViewMatrixRestore avmr(target);
 
@@ -1390,13 +1386,13 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     if (NULL != dstMatrix) {
         m.postConcat(*dstMatrix);
     }
-    target->preConcatViewMatrix(m);
+    drawState->viewMatrix()->preConcat(m);
 
     // srcRect refers to first stage
     int otherStageMask = paint.getActiveStageMask() & 
                          (~(1 << GrPaint::kFirstTextureStage));
     if (otherStageMask) {
-        target->preConcatSamplerMatrices(otherStageMask, m);
+        drawState->preConcatSamplerMatrices(otherStageMask, m);
     }
 
     m.setAll(srcRect.width(), 0,                srcRect.fLeft,
@@ -1405,7 +1401,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     if (NULL != srcMatrix) {
         m.postConcat(*srcMatrix);
     }
-    target->preConcatSamplerMatrix(GrPaint::kFirstTextureStage, m);
+    drawState->sampler(GrPaint::kFirstTextureStage)->preConcatMatrix(m);
 
     const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
     if (NULL == sqVB) {
@@ -1781,7 +1777,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         GrAssert(NULL != target);
 
         GrDrawTarget::AutoStateRestore asr(fGpu);
-        reset_target_state(fGpu);
+        reset_target_state(fGpu->drawState());
 
         fGpu->setRenderTarget(target);
 
@@ -1819,7 +1815,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     ASSERT_OWNED_RESOURCE(src);
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
-    reset_target_state(fGpu);
+    reset_target_state(fGpu->drawState());
     fGpu->setRenderTarget(dst);
     GrSamplerState sampler(GrSamplerState::kClamp_WrapMode,
                            GrSamplerState::kNearest_Filter);
@@ -1889,7 +1885,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
                                      config, buffer, rowBytes, flags);
 
     GrDrawTarget::AutoStateRestore  asr(fGpu);
-    reset_target_state(fGpu);
+    reset_target_state(fGpu->drawState());
 
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
@@ -1920,6 +1916,8 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
 
 void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
 
+    GrDrawState* drawState = target->drawState();
+
     for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
         int s = i + GrPaint::kFirstTextureStage;
         target->setTexture(s, paint.getTexture(i));
@@ -1936,20 +1934,20 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
         target->setSamplerState(s, paint.getMaskSampler(i));
     }
 
-    target->setColor(paint.fColor);
+    drawState->setColor(paint.fColor);
 
     if (paint.fDither) {
-        target->enableState(GrDrawTarget::kDither_StateBit);
+        drawState->enableState(GrDrawState::kDither_StateBit);
     } else {
-        target->disableState(GrDrawTarget::kDither_StateBit);
+        drawState->disableState(GrDrawState::kDither_StateBit);
     }
     if (paint.fAntiAlias) {
-        target->enableState(GrDrawTarget::kHWAntialias_StateBit);
+        drawState->enableState(GrDrawState::kHWAntialias_StateBit);
     } else {
-        target->disableState(GrDrawTarget::kHWAntialias_StateBit);
+        drawState->disableState(GrDrawState::kHWAntialias_StateBit);
     }
-    target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
-    target->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
+    drawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
+    drawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
 
     if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
@@ -2020,7 +2018,7 @@ void GrContext::setMatrix(const GrMatrix& m) {
 }
 
 void GrContext::concatMatrix(const GrMatrix& m) const {
-    fGpu->preConcatViewMatrix(m);
+    fGpu->viewMatrix()->preConcat(m);
 }
 
 static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {

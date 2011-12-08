@@ -471,7 +471,7 @@ FINISHED:
             if (count <= maxEdges) {
                 // All edges fit; upload all edges and draw all verts as a fan
                 fTarget->setVertexSourceToArray(layout, base, count);
-                fTarget->setEdgeAAData(&edges[0], count);
+                fTarget->drawState()->setEdgeAAData(&edges[0], count);
                 fTarget->drawNonIndexed(kTriangleFan_PrimitiveType, 0, count);
             } else {
                 // Upload "maxEdges" edges and verts at a time, and draw as
@@ -481,11 +481,11 @@ FINISHED:
                     base[i] = base[0];
                     int size = GR_CT_MIN(count - i, maxEdges);
                     fTarget->setVertexSourceToArray(layout, &base[i], size);
-                    fTarget->setEdgeAAData(&edges[i], size);
+                    fTarget->drawState()->setEdgeAAData(&edges[i], size);
                     fTarget->drawNonIndexed(kTriangleFan_PrimitiveType, 0, size);
                 }
             }
-            fTarget->setEdgeAAData(NULL, 0);
+            fTarget->drawState()->setEdgeAAData(NULL, 0);
         } else {
             fTarget->setVertexSourceToArray(layout, base, count);
             fTarget->drawNonIndexed(kTriangleFan_PrimitiveType, 0, count);
@@ -534,7 +534,7 @@ FINISHED:
         }
 
         // Draw the resulting polys and upload their edge data.
-        fTarget->enableState(GrDrawTarget::kEdgeAAConcave_StateBit);
+        fTarget->drawState()->enableState(GrDrawState::kEdgeAAConcave_StateBit);
         const GrPointArray& vertices = ptess.vertices();
         const GrIndexArray& indices = ptess.indices();
         const GrDrawState::Edge* edges = ptess.edges();
@@ -567,12 +567,13 @@ FINISHED:
                 tri_edges[t++] = edge4;
                 tri_edges[t++] = edge5;
             }
-            fTarget->setEdgeAAData(&tri_edges[0], t);
+            fTarget->drawState()->setEdgeAAData(&tri_edges[0], t);
             fTarget->setVertexSourceToArray(layout, &tri_verts[0], 3);
             fTarget->drawNonIndexed(kTriangles_PrimitiveType, 0, 3);
         }
-        fTarget->setEdgeAAData(NULL, 0);
-        fTarget->disableState(GrDrawTarget::kEdgeAAConcave_StateBit);
+        fTarget->drawState()->setEdgeAAData(NULL, 0);
+        fTarget->drawState()->disableState(
+            GrDrawState::kEdgeAAConcave_StateBit);
         return;
     }
 
