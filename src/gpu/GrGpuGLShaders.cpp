@@ -9,6 +9,7 @@
 
 #include "GrBinHashKey.h"
 #include "GrGLProgram.h"
+#include "GrGLSL.h"
 #include "GrGpuGLShaders.h"
 #include "GrGpuVertex.h"
 #include "GrNoncopyable.h"
@@ -55,15 +56,15 @@ private:
     int                         fCount;
     unsigned int                fCurrLRUStamp;
     const GrGLInterface*        fGL;
-    GrGLProgram::GLSLVersion    fGLSLVersion;
+    GrGLSLGeneration            fGLSLGeneration;
 
 public:
     ProgramCache(const GrGLInterface* gl,
-                 GrGLProgram::GLSLVersion glslVersion) 
+                 GrGLSLGeneration glslGeneration) 
         : fCount(0)
         , fCurrLRUStamp(0)
         , fGL(gl)
-        , fGLSLVersion(glslVersion) {
+        , fGLSLGeneration(glslGeneration) {
     }
 
     ~ProgramCache() {
@@ -89,7 +90,8 @@ public:
         
         Entry* entry = fHashCache.find(newEntry.fKey);
         if (NULL == entry) {
-            if (!desc.genProgram(fGL, fGLSLVersion, &newEntry.fProgramData)) {
+            if (!desc.genProgram(fGL, fGLSLGeneration,
+                                 &newEntry.fProgramData)) {
                 return NULL;
             }
             if (fCount < kMaxEntries) {
@@ -144,29 +146,6 @@ void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
 
 namespace {
 
-GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding,
-                                          const GrGLInterface* gl) {
-    GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
-    switch (binding) {
-        case kDesktop_GrGLBinding:
-            GrAssert(ver >= GR_GLSL_VER(1,10));
-            if (ver >= GR_GLSL_VER(1,50)) {
-                return GrGLProgram::k150_GLSLVersion;
-            } else if (ver >= GR_GLSL_VER(1,30)) {
-                return GrGLProgram::k130_GLSLVersion;
-            } else {
-                return GrGLProgram::k110_GLSLVersion;
-            }
-        case kES2_GrGLBinding:
-            // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
-            GrAssert(ver >= GR_GL_VER(1,00));
-            return GrGLProgram::k110_GLSLVersion;
-        default:
-            GrCrash("Unknown GL Binding");
-            return GrGLProgram::k110_GLSLVersion; // suppress warning
-    }
-}
-
 // GrRandoms nextU() values have patterns in the low bits
 // So using nextU() % array_count might never take some values.
 int random_int(GrRandom* r, int count) {
@@ -186,8 +165,8 @@ bool random_bool(GrRandom* r) {
 
 bool GrGpuGLShaders::programUnitTest() {
 
-    GrGLProgram::GLSLVersion glslVersion = 
-            get_glsl_version(this->glBinding(), this->glInterface());
+    GrGLSLGeneration glslGeneration = 
+            GetGLSLGeneration(this->glBinding(), this->glInterface());
     static const int STAGE_OPTS[] = {
         0,
         StageDesc::kNoPerspective_OptFlagBit,
@@ -302,7 +281,7 @@ bool GrGpuGLShaders::programUnitTest() {
         }
         CachedData cachedData;
         if (!program.genProgram(this->glInterface(),
-                                glslVersion,
+                                glslGeneration,
                                 &cachedData)) {
             return false;
         }
@@ -325,8 +304,8 @@ GrGLBinding get_binding_in_use(const GrGLInterface* gl) {
 GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     : GrGpuGL(gl, get_binding_in_use(gl)) {
 
-    GrGLProgram::GLSLVersion glslVersion =
-        get_glsl_version(this->glBinding(), gl);
+    GrGLSLGeneration glslGeneration =
+        GetGLSLGeneration(this->glBinding(), gl);
 
     // Enable supported shader-releated caps
     fCaps.fShaderSupport = true;
@@ -339,7 +318,7 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
         fCaps.fGeometryShaderSupport = 
                                 this->glVersion() >= GR_GL_VER(3,2) &&
-                                glslVersion >= GrGLProgram::k150_GLSLVersion;
+                                glslGeneration >= k150_GLSLGeneration;
     } else {
         fCaps.fShaderDerivativeSupport =
                             this->hasExtension("GL_OES_standard_derivatives");
@@ -348,7 +327,7 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     GR_GL_GetIntegerv(gl, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttribs);
 
     fProgramData = NULL;
-    fProgramCache = new ProgramCache(gl, glslVersion);
+    fProgramCache = new ProgramCache(gl, glslGeneration);
 
 #if 0
     this->programUnitTest();

@@ -12,6 +12,7 @@
 
 #include "GrDrawState.h"
 #include "GrGLInterface.h"
+#include "GrGLSL.h"
 #include "GrStringBuilder.h"
 #include "GrGpu.h"
 
@@ -36,22 +37,6 @@ struct ShaderCodeSegments;
  */
 class GrGLProgram {
 public:
-    // Limited set of GLSL versions we build shaders for. Caller should round
-    // down the GLSL version to one of these enums.
-    enum GLSLVersion {
-        /**
-         * Desktop GLSL 1.10 and ES2 shading lang (based on desktop GLSL 1.20)
-         */
-        k110_GLSLVersion,
-        /**
-         * Desktop GLSL 1.30
-         */
-        k130_GLSLVersion,
-        /**
-         * Dekstop GLSL 1.50
-         */
-        k150_GLSLVersion,
-    };
 
     class CachedData;
 
@@ -64,7 +49,7 @@ public:
      *  but in a separate cacheable container.
      */
     bool genProgram(const GrGLInterface* gl,
-                    GLSLVersion glslVersion,
+                    GrGLSLGeneration glslVersion,
                     CachedData* programData) const;
 
      /**
@@ -353,7 +338,7 @@ private:
                       StageUniLocations* locations) const;
 
     void genGeometryShader(const GrGLInterface* gl,
-                           GLSLVersion glslVersion,
+                           GrGLSLGeneration glslVersion,
                            ShaderCodeSegments* segments) const;
 
     // generates code to compute coverage based on edge AA.
@@ -364,7 +349,7 @@ private:
                          ShaderCodeSegments* segments) const;
 
     static bool CompileShaders(const GrGLInterface* gl,
-                               GLSLVersion glslVersion,
+                               GrGLSLGeneration glslVersion,
                                const ShaderCodeSegments& segments, 
                                CachedData* programData);
 
