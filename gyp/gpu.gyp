@@ -210,6 +210,8 @@
         '../src/gpu/GrGLRenderTarget.cpp',
         '../src/gpu/GrGLRenderTarget.h',
         '../src/gpu/GrGLShaderVar.h',
+        '../src/gpu/GrGLSL.cpp',
+        '../src/gpu/GrGLSL.h',
         '../src/gpu/GrGLStencilBuffer.cpp',
         '../src/gpu/GrGLStencilBuffer.h',
         '../src/gpu/GrGLTexture.cpp',
