@@ -480,7 +480,7 @@ void GrGpuGL::onResetContext() {
 
     GL_CALL(Disable(GR_GL_CULL_FACE));
     GL_CALL(FrontFace(GR_GL_CCW));
-    fHWDrawState.setDrawFace(GrDrawState::kBoth_DrawFace);
+    fHWDrawState.fDrawFace = GrDrawState::kBoth_DrawFace;
 
     GL_CALL(Disable(GR_GL_DITHER));
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -492,7 +492,7 @@ void GrGpuGL::onResetContext() {
     }
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
-    fHWDrawState.resetStateFlags();
+    fHWDrawState.fFlagBits = 0;
 
     // we only ever use lines in hairline mode
     GL_CALL(LineWidth(1));
@@ -502,22 +502,23 @@ void GrGpuGL::onResetContext() {
 
     // illegal values
     //fHWDrawState.fSrcBlend = (GrBlendCoeff)(uint8_t)-1;
-    fHWDrawState.setBlendFunc((GrBlendCoeff)-1, (GrBlendCoeff)-1);
-    fHWDrawState.setBlendConstant(0x00000000);
+    fHWDrawState.fSrcBlend = (GrBlendCoeff)0xFF;
+    fHWDrawState.fDstBlend = (GrBlendCoeff)(uint8_t)-1;
+
+    fHWDrawState.fBlendConstant = 0x00000000;
     GL_CALL(BlendColor(0,0,0,0));
 
-    fHWDrawState.setColor(GrColor_ILLEGAL);
+    fHWDrawState.fColor = GrColor_ILLEGAL;
 
-    fHWDrawState.setViewMatrix(GrMatrix::InvalidMatrix());
+    fHWDrawState.fViewMatrix = GrMatrix::InvalidMatrix();
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        fHWDrawState.setTexture(s, NULL);
-        GrSamplerState* sampler = fHWDrawState.sampler(s);
-        sampler->setRadial2Params(-GR_ScalarMax,
-                                  -GR_ScalarMax,
-                                  true);
-        sampler->setMatrix(GrMatrix::InvalidMatrix());
-        sampler->setConvolutionParams(0, NULL, NULL);
+        fHWDrawState.fTextures[s] = NULL;
+        fHWDrawState.fSamplerStates[s].setRadial2Params(-GR_ScalarMax,
+                                                        -GR_ScalarMax,
+                                                        true);
+        fHWDrawState.fSamplerStates[s].setMatrix(GrMatrix::InvalidMatrix());
+        fHWDrawState.fSamplerStates[s].setConvolutionParams(0, NULL, NULL);
     }
 
     fHWBounds.fScissorRect.invalidate();
@@ -525,7 +526,7 @@ void GrGpuGL::onResetContext() {
     GL_CALL(Disable(GR_GL_SCISSOR_TEST));
     fHWBounds.fViewportRect.invalidate();
 
-    fHWDrawState.stencil()->invalidate();
+    fHWDrawState.fStencilSettings.invalidate();
     fHWStencilClip = false;
     fClipInStencil = false;
 
@@ -535,7 +536,7 @@ void GrGpuGL::onResetContext() {
     fHWGeometryState.fArrayPtrsDirty = true;
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
-    fHWDrawState.setRenderTarget(NULL);
+    fHWDrawState.fRenderTarget = NULL;
 
     // we assume these values
     if (this->glCaps().fUnpackRowLengthSupport) {
@@ -1190,7 +1191,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
         GrGLStencilBuffer* glsb = (GrGLStencilBuffer*) sb;
         GrGLuint rb = glsb->renderbufferID();
 
-        fHWDrawState.setRenderTarget(NULL);
+        fHWDrawState.fRenderTarget = NULL;
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fbo));
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                       GR_GL_STENCIL_ATTACHMENT,
@@ -1275,9 +1276,9 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
 }
 
 void GrGpuGL::flushScissor(const GrIRect* rect) {
-    GrAssert(this->getRenderTarget() != NULL);
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
     const GrGLIRect& vp =
-            ((GrGLRenderTarget*)this->getRenderTarget())->getViewport();
+            ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getViewport();
 
     GrGLIRect scissor;
     if (NULL != rect) {
@@ -1306,17 +1307,15 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
 }
 
 void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
-    const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
     // parent class should never let us get here with no RT
-    GrAssert(rt != NULL);
-
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
     GrIRect clippedRect;
     if (NULL != rect) {
         // flushScissor expects rect to be clipped to the target.
         clippedRect = *rect;
-        GrIRect rtRect = SkIRect::MakeWH(rt->width(),
-                                         rt->height());
+        GrIRect rtRect = SkIRect::MakeWH(fCurrDrawState.fRenderTarget->width(),
+                                         fCurrDrawState.fRenderTarget->height());
         if (clippedRect.intersect(rtRect)) {
             rect = &clippedRect;
         } else {
@@ -1330,7 +1329,7 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     static const GrGLfloat scale255 = 1.f / 255.f;
     a = GrColorUnpackA(color) * scale255;
     GrGLfloat scaleRGB = scale255;
-    if (GrPixelConfigIsUnpremultiplied(rt->config())) {
+    if (GrPixelConfigIsUnpremultiplied(fCurrDrawState.fRenderTarget->config())) {
         scaleRGB *= a;
     }
     r = GrColorUnpackR(color) * scaleRGB;
@@ -1338,13 +1337,13 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     b = GrColorUnpackB(color) * scaleRGB;
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
-    fHWDrawState.disableState(GrDrawState::kNoColorWrites_StateBit);
+    fHWDrawState.fFlagBits &= ~kNoColorWrites_StateBit;
     GL_CALL(ClearColor(r, g, b, a));
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
 void GrGpuGL::clearStencil() {
-    if (NULL == this->getRenderTarget()) {
+    if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
     
@@ -1357,17 +1356,17 @@ void GrGpuGL::clearStencil() {
     GL_CALL(StencilMask(0xffffffff));
     GL_CALL(ClearStencil(0));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-    fHWDrawState.stencil()->invalidate();
+    fHWDrawState.fStencilSettings.invalidate();
 }
 
 void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
-    GrRenderTarget* rt = this->getRenderTarget();
-    GrAssert(NULL != rt);
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
     // this should only be called internally when we know we have a
     // stencil buffer.
-    GrAssert(NULL != rt->getStencilBuffer());
-    GrGLint stencilBitCount = rt->getStencilBuffer()->bits();
+    GrAssert(NULL != fCurrDrawState.fRenderTarget->getStencilBuffer());
+    GrGLint stencilBitCount = 
+        fCurrDrawState.fRenderTarget->getStencilBuffer()->bits();
 #if 0
     GrAssert(stencilBitCount > 0);
     GrGLint clipStencilMask  = (1 << (stencilBitCount - 1));
@@ -1390,7 +1389,7 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
     GL_CALL(StencilMask(clipStencilMask));
     GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-    fHWDrawState.stencil()->invalidate();
+    fHWDrawState.fStencilSettings.invalidate();
 }
 
 void GrGpuGL::onForceRenderTargetFlush() {
@@ -1446,12 +1445,13 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
 
     // resolve the render target if necessary
     GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(target);
-    GrDrawState::AutoRenderTargetRestore arr;
+    GrAutoTPtrValueRestore<GrRenderTarget*> autoTargetRestore;
     switch (tgt->getResolveType()) {
         case GrGLRenderTarget::kCantResolve_ResolveType:
             return false;
         case GrGLRenderTarget::kAutoResolves_ResolveType:
-            arr.set(this->drawState(), target);
+            autoTargetRestore.save(&fCurrDrawState.fRenderTarget);
+            fCurrDrawState.fRenderTarget = target;
             this->flushRenderTarget(&GrIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
@@ -1549,11 +1549,10 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
 
 void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
 
-    GrAssert(this->getRenderTarget() != NULL);
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
-    GrGLRenderTarget* rt =
-        static_cast<GrGLRenderTarget*>(this->getRenderTarget());
-    if (fHWDrawState.getRenderTarget() != rt) {
+    GrGLRenderTarget* rt = (GrGLRenderTarget*)fCurrDrawState.fRenderTarget;
+    if (fHWDrawState.fRenderTarget != fCurrDrawState.fRenderTarget) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
     #if GR_COLLECT_STATS
         ++fStats.fRenderTargetChngCnt;
@@ -1566,7 +1565,7 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
         }
     #endif
         fDirtyFlags.fRenderTargetChanged = true;
-        fHWDrawState.setRenderTarget(rt);
+        fHWDrawState.fRenderTarget = fCurrDrawState.fRenderTarget;
         const GrGLIRect& vp = rt->getViewport();
         if (fHWBounds.fViewportRect != vp) {
             vp.pushToGLViewport(this->glInterface());
@@ -1683,7 +1682,7 @@ void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
     #endif
         // make sure we go through flushRenderTarget() since we've modified
         // the bound DRAW FBO ID.
-        fHWDrawState.setRenderTarget(NULL);
+        fHWDrawState.fRenderTarget = NULL;
         const GrGLIRect& vp = rt->getViewport();
         const GrIRect dirtyRect = rt->getResolveRect();
         GrGLIRect r;
@@ -1755,24 +1754,21 @@ GR_STATIC_ASSERT(6 == kZero_StencilOp);
 GR_STATIC_ASSERT(7 == kInvert_StencilOp);
 
 void GrGpuGL::flushStencil() {
-    const GrDrawState& drawState = this->getDrawState();
-    const GrStencilSettings* settings = &drawState.getStencil();
+    const GrStencilSettings* settings = &fCurrDrawState.fStencilSettings;
 
     // use stencil for clipping if clipping is enabled and the clip
     // has been written into the stencil.
-    bool stencilClip = fClipInStencil && drawState.isClipState();
-
-    bool modifyingStencilClip = drawState.isStateFlagEnabled(
-        kModifyStencilClip_StateBit);
+    bool stencilClip = fClipInStencil &&
+                       (kClip_StateBit & fCurrDrawState.fFlagBits);
     bool stencilChange = fHWStencilClip != stencilClip  ||
-                         fHWDrawState.getStencil() != *settings ||
-                         (fHWDrawState.isStateFlagEnabled(kModifyStencilClip_StateBit) !=
-                          modifyingStencilClip);
+                         fHWDrawState.fStencilSettings != *settings ||
+                         ((fHWDrawState.fFlagBits & kModifyStencilClip_StateBit) !=
+                          (fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit));
 
     if (stencilChange) {
 
         // we can't simultaneously perform stencil-clipping and modify the stencil clip
-        GrAssert(!stencilClip || !drawState.isStateFlagEnabled(kModifyStencilClip_StateBit));
+        GrAssert(!stencilClip || !(fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit));
 
         if (settings->isDisabled()) {
             if (stencilClip) {
@@ -1797,14 +1793,15 @@ void GrGpuGL::flushStencil() {
             }
     #endif
             int stencilBits = 0;
-            GrStencilBuffer* stencilBuffer =
-                drawState.getRenderTarget()->getStencilBuffer();
+            GrStencilBuffer* stencilBuffer = 
+                            fCurrDrawState.fRenderTarget->getStencilBuffer();
             if (NULL != stencilBuffer) {
                 stencilBits = stencilBuffer->bits();
             }
             // TODO: dynamically attach a stencil buffer
             GrAssert(stencilBits ||
-                     (GrStencilSettings::gDisabled == *settings));
+                     (GrStencilSettings::gDisabled ==
+                      fCurrDrawState.fStencilSettings));
 
             GrGLuint clipStencilMask = 0;
             GrGLuint userStencilMask = ~0;
@@ -1818,7 +1815,7 @@ void GrGpuGL::flushStencil() {
             unsigned int frontWriteMask = settings->fFrontWriteMask;
             GrGLenum frontFunc;
 
-            if (modifyingStencilClip) {
+            if (fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit) {
 
                 GrAssert(settings->fFrontFunc < kBasicStencilFuncCount);
                 frontFunc = grToGLStencilFunc[settings->fFrontFunc];
@@ -1850,7 +1847,7 @@ void GrGpuGL::flushStencil() {
                 unsigned int backWriteMask = settings->fBackWriteMask;
 
 
-                if (modifyingStencilClip) {
+                if (fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit) {
                     GrAssert(settings->fBackFunc < kBasicStencilFuncCount);
                     backFunc = grToGLStencilFunc[settings->fBackFunc];
                 } else {
@@ -1888,7 +1885,7 @@ void GrGpuGL::flushStencil() {
                                 grToGLStencilOp[settings->fFrontPassOp]));
             }
         }
-        *fHWDrawState.stencil() = *settings;
+        fHWDrawState.fStencilSettings = fCurrDrawState.fStencilSettings;
         fHWStencilClip = stencilClip;
     }
 }
@@ -1900,8 +1897,6 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
 
         // we prefer smooth lines over multisampled lines
         // msaa should be disabled if drawing smooth lines.
-
-        GrRenderTarget* rt = this->getRenderTarget();
         if (GrIsPrimTypeLines(type)) {
             bool smooth = this->willUseHWAALines();
             if (!fHWAAState.fSmoothLineEnabled && smooth) {
@@ -1911,13 +1906,13 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
                 GL_CALL(Disable(GR_GL_LINE_SMOOTH));
                 fHWAAState.fSmoothLineEnabled = false;
             }
-            if (rt->isMultisampled() && 
+            if (fCurrDrawState.fRenderTarget->isMultisampled() && 
                 fHWAAState.fMSAAEnabled) {
                 GL_CALL(Disable(GR_GL_MULTISAMPLE));
                 fHWAAState.fMSAAEnabled = false;
             }
-        } else if (rt->isMultisampled() &&
-                   this->getDrawState().isHWAntialiasState() !=
+        } else if (fCurrDrawState.fRenderTarget->isMultisampled() &&
+                   SkToBool(kHWAntialias_StateBit & fCurrDrawState.fFlagBits) !=
                    fHWAAState.fMSAAEnabled) {
             if (fHWAAState.fMSAAEnabled) {
                 GL_CALL(Disable(GR_GL_MULTISAMPLE));
@@ -1938,11 +1933,12 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
             GL_CALL(Enable(GR_GL_BLEND));
             fHWBlendDisabled = false;
         }
-        if (kSA_BlendCoeff != fHWDrawState.getSrcBlendCoeff() ||
-            kISA_BlendCoeff != fHWDrawState.getDstBlendCoeff()) {
+        if (kSA_BlendCoeff != fHWDrawState.fSrcBlend ||
+            kISA_BlendCoeff != fHWDrawState.fDstBlend) {
             GL_CALL(BlendFunc(gXfermodeCoeff2Blend[kSA_BlendCoeff],
                               gXfermodeCoeff2Blend[kISA_BlendCoeff]));
-            fHWDrawState.setBlendFunc(kSA_BlendCoeff, kISA_BlendCoeff);
+            fHWDrawState.fSrcBlend = kSA_BlendCoeff;
+            fHWDrawState.fDstBlend = kISA_BlendCoeff;
         }
     } else {
         // any optimization to disable blending should
@@ -1959,25 +1955,25 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
             fHWBlendDisabled = blendOff;
         }
         if (!blendOff) {
-            if (fHWDrawState.getSrcBlendCoeff() != srcCoeff ||
-                fHWDrawState.getDstBlendCoeff() != dstCoeff) {
+            if (fHWDrawState.fSrcBlend != srcCoeff ||
+                fHWDrawState.fDstBlend != dstCoeff) {
                 GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
                                   gXfermodeCoeff2Blend[dstCoeff]));
-                fHWDrawState.setBlendFunc(srcCoeff, dstCoeff);
+                fHWDrawState.fSrcBlend = srcCoeff;
+                fHWDrawState.fDstBlend = dstCoeff;
             }
-            GrColor blendConstant = this->getDrawState().getBlendConstant();
             if ((BlendCoeffReferencesConstant(srcCoeff) ||
                  BlendCoeffReferencesConstant(dstCoeff)) &&
-                fHWDrawState.getBlendConstant() != blendConstant) {
+                fHWDrawState.fBlendConstant != fCurrDrawState.fBlendConstant) {
 
                 float c[] = {
-                    GrColorUnpackR(blendConstant) / 255.f,
-                    GrColorUnpackG(blendConstant) / 255.f,
-                    GrColorUnpackB(blendConstant) / 255.f,
-                    GrColorUnpackA(blendConstant) / 255.f
+                    GrColorUnpackR(fCurrDrawState.fBlendConstant) / 255.f,
+                    GrColorUnpackG(fCurrDrawState.fBlendConstant) / 255.f,
+                    GrColorUnpackB(fCurrDrawState.fBlendConstant) / 255.f,
+                    GrColorUnpackA(fCurrDrawState.fBlendConstant) / 255.f
                 };
                 GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
-                fHWDrawState.setBlendConstant(blendConstant);
+                fHWDrawState.fBlendConstant = fCurrDrawState.fBlendConstant;
             }
         }
     }
@@ -2037,13 +2033,12 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     // GrGpu::setupClipAndFlushState should have already checked this
     // and bailed if not true.
-    GrAssert(this->getRenderTarget() != NULL);
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         // bind texture and set sampler state
         if (this->isStageEnabled(s)) {
-            GrGLTexture* nextTexture =
-                static_cast<GrGLTexture*>(this->drawState()->getTexture(s));
+            GrGLTexture* nextTexture = (GrGLTexture*)fCurrDrawState.fTextures[s];
 
             // true for now, but maybe not with GrEffect.
             GrAssert(NULL != nextTexture);
@@ -2057,20 +2052,20 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                 resolveRenderTarget(texRT);
             }
 
-            if (fHWDrawState.getTexture(s) != nextTexture) {
+            if (fHWDrawState.fTextures[s] != nextTexture) {
                 setTextureUnit(s);
                 GL_CALL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
             #if GR_COLLECT_STATS
                 ++fStats.fTextureChngCnt;
             #endif
                 //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
-                fHWDrawState.setTexture(s, nextTexture);
+                fHWDrawState.fTextures[s] = nextTexture;
                 // The texture matrix has to compensate for texture width/height
                 // and NPOT-embedded-in-POT
                 fDirtyFlags.fTextureChangedMask |= (1 << s);
             }
 
-            const GrSamplerState& sampler = this->getSampler(s);
+            const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
             ResetTimestamp timestamp;
             const GrGLTexture::TexParams& oldTexParams =
                                     nextTexture->getCachedTexParams(&timestamp);
@@ -2122,7 +2117,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     GrIRect* rect = NULL;
     GrIRect clipBounds;
-    if (this->getDrawState().isClipState() &&
+    if ((fCurrDrawState.fFlagBits & kClip_StateBit) &&
         fClip.hasConservativeBounds()) {
         fClip.getConservativeBounds().roundOut(&clipBounds);
         rect = &clipBounds;
@@ -2130,19 +2125,19 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     this->flushRenderTarget(rect);
     this->flushAAState(type);
     
-    if (this->getDrawState().isDitherState() !=
-        fHWDrawState.isDitherState()) {
-        if (this->getDrawState().isDitherState()) {
+    if ((fCurrDrawState.fFlagBits & kDither_StateBit) !=
+        (fHWDrawState.fFlagBits & kDither_StateBit)) {
+        if (fCurrDrawState.fFlagBits & kDither_StateBit) {
             GL_CALL(Enable(GR_GL_DITHER));
         } else {
             GL_CALL(Disable(GR_GL_DITHER));
         }
     }
 
-    if (this->getDrawState().isColorWriteDisabled() !=
-        fHWDrawState.isColorWriteDisabled()) {
+    if ((fCurrDrawState.fFlagBits & kNoColorWrites_StateBit) !=
+        (fHWDrawState.fFlagBits & kNoColorWrites_StateBit)) {
         GrGLenum mask;
-        if (this->getDrawState().isColorWriteDisabled()) {
+        if (fCurrDrawState.fFlagBits & kNoColorWrites_StateBit) {
             mask = GR_GL_FALSE;
         } else {
             mask = GR_GL_TRUE;
@@ -2150,8 +2145,8 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
         GL_CALL(ColorMask(mask, mask, mask, mask));
     }
 
-    if (fHWDrawState.getDrawFace() != this->getDrawFace()) {
-        switch (this->getDrawFace()) {
+    if (fHWDrawState.fDrawFace != fCurrDrawState.fDrawFace) {
+        switch (fCurrDrawState.fDrawFace) {
             case GrDrawState::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_BACK));
@@ -2166,27 +2161,24 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             default:
                 GrCrash("Unknown draw face.");
         }
-        fHWDrawState.setDrawFace(this->getDrawFace());
+        fHWDrawState.fDrawFace = fCurrDrawState.fDrawFace;
     }
 
 #if GR_DEBUG
     // check for circular rendering
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         GrAssert(!this->isStageEnabled(s) ||
-                 NULL == this->getRenderTarget() ||
-                 NULL == this->getTexture(s) ||
-                 this->getTexture(s)->asRenderTarget() !=
-                 this->getRenderTarget());
+                 NULL == fCurrDrawState.fRenderTarget ||
+                 NULL == fCurrDrawState.fTextures[s] ||
+                 fCurrDrawState.fTextures[s]->asRenderTarget() !=
+                    fCurrDrawState.fRenderTarget);
     }
 #endif
 
-    this->flushStencil();
+    flushStencil();
 
-    // the flushStencil() function called above detecs a change in the
-    // kModifyStencilClip_StateBit flag. Therefore this copy must happen after
-    // flushStencil()
-    fHWDrawState.copyStateFlags(this->getDrawState());
-
+    // flushStencil may look at the private state bits, so keep it before this.
+    fHWDrawState.fFlagBits = fCurrDrawState.fFlagBits;
     return true;
 }
 
@@ -2218,22 +2210,22 @@ void GrGpuGL::notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
 
 void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     GrAssert(NULL != renderTarget);
-    if (this->getRenderTarget() == renderTarget) {
-        this->setRenderTarget(NULL);
+    if (fCurrDrawState.fRenderTarget == renderTarget) {
+        fCurrDrawState.fRenderTarget = NULL;
     }
-    if (this->getRenderTarget() == renderTarget) {
-        fHWDrawState.setRenderTarget(NULL);
+    if (fHWDrawState.fRenderTarget == renderTarget) {
+        fHWDrawState.fRenderTarget = NULL;
     }
 }
 
 void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (this->getTexture(s) == texture) {
-            this->setTexture(s, NULL);
+        if (fCurrDrawState.fTextures[s] == texture) {
+            fCurrDrawState.fTextures[s] = NULL;
         }
-        if (fHWDrawState.getTexture(s) == texture) {
+        if (fHWDrawState.fTextures[s] == texture) {
             // deleting bound texture does implied bind to 0
-            this->setTexture(s, NULL);
+            fHWDrawState.fTextures[s] = NULL;
        }
     }
 }

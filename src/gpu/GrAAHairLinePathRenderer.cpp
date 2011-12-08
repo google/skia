@@ -702,8 +702,7 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawState::StageMask stageMask) {
     int nBufLines = fLinesIndexBuffer->maxQuads();
     while (lines < fLineSegmentCnt) {
         int n = GrMin(fLineSegmentCnt-lines, nBufLines);
-        fTarget->drawState()->setVertexEdgeType(
-            GrDrawState::kHairLine_EdgeType);
+        fTarget->setVertexEdgeType(GrDrawState::kHairLine_EdgeType);
         fTarget->drawIndexed(kTriangles_PrimitiveType,
                              kVertsPerLineSeg*lines,    // startV
                              0,                         // startI
@@ -716,8 +715,7 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawState::StageMask stageMask) {
     int quads = 0;
     while (quads < fQuadCnt) {
         int n = GrMin(fQuadCnt-quads, kNumQuadsInIdxBuffer);
-        fTarget->drawState()->setVertexEdgeType(
-            GrDrawState::kHairQuad_EdgeType);
+        fTarget->setVertexEdgeType(GrDrawState::kHairQuad_EdgeType);
         fTarget->drawIndexed(kTriangles_PrimitiveType,
                              4*fLineSegmentCnt + kVertsPerQuad*quads, // startV
                              0,                                       // startI
