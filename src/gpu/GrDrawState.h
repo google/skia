@@ -184,7 +184,7 @@ struct GrDrawState {
      * are color-computing).
      */
     void setFirstCoverageStage(int firstCoverageStage) {
-        GrAssert((unsigned)firstCoverageStage < kNumStages);
+        GrAssert((unsigned)firstCoverageStage <= kNumStages);
         fFirstCoverageStage = firstCoverageStage; 
     }
 
