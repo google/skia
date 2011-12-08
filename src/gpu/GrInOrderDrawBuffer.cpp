@@ -102,7 +102,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // simply because the clip has changed if the clip doesn't affect
         // the rect.
         bool disabledClip = false;
-        if (this->isClipState() && fClip.isRect()) {
+        if (this->getDrawState().isClipState() && fClip.isRect()) {
 
             GrRect clipRect = fClip.getRect(0);
             // If the clip rect touches the edge of the viewport, extended it
@@ -132,7 +132,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                 }
             }
             if (insideClip) {
-                this->disableState(kClip_StateBit);
+                this->drawState()->disableState(GrDrawState::kClip_StateBit);
                 disabledClip = true;
             }
         }
@@ -176,7 +176,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             fLastRectVertexLayout = layout;
         }
         if (disabledClip) {
-            this->enableState(kClip_StateBit);
+            this->drawState()->disableState(GrDrawState::kClip_StateBit);
         }
     } else {
         INHERITED::drawRect(rect, matrix, stageMask, srcRects, srcMatrices);
@@ -328,9 +328,9 @@ void GrInOrderDrawBuffer::reset() {
     for (uint32_t i = 0; i < numStates; ++i) {
         const GrDrawState& dstate = this->accessSavedDrawState(fStates[i]);
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            GrSafeUnref(dstate.fTextures[s]);
+            GrSafeUnref(dstate.getTexture(s));
         }
-        GrSafeUnref(dstate.fRenderTarget);
+        GrSafeUnref(dstate.getRenderTarget());
     }
     int numDraws = fDraws.count();
     for (int d = 0; d < numDraws; ++d) {
@@ -594,14 +594,14 @@ bool GrInOrderDrawBuffer::needsNewState() const {
 
 void GrInOrderDrawBuffer::pushState() {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        GrSafeRef(fCurrDrawState.fTextures[s]);
+        GrSafeRef(fCurrDrawState.getTexture(s));
     }
-    GrSafeRef(fCurrDrawState.fRenderTarget);
+    GrSafeRef(fCurrDrawState.getRenderTarget());
     this->saveCurrentDrawState(&fStates.push_back());
  }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
-   if (fCurrDrawState.fFlagBits & kClip_StateBit) {
+   if (this->getDrawState().isClipState()) {
        if (fClips.empty() || (fClipSet && fClips.back() != fClip)) {
            return true;
        }
