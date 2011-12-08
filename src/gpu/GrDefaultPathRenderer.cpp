@@ -190,8 +190,7 @@ static inline bool single_pass_path(const GrDrawTarget& target,
         return hint == kConvex_ConvexHint ||
                hint == kNonOverlappingConvexPieces_ConvexHint ||
                (hint == kSameWindingConvexPieces_ConvexHint &&
-                !target.drawWillReadDst() &&
-                !target.getDrawState().isDitherState());
+                !target.drawWillReadDst() && !target.isDitherState());
 
     }
     return false;
@@ -389,8 +388,6 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
     GrScalar tol = GR_Scalar1;
     tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, fPath->getBounds());
 
-    GrDrawState* drawState = fTarget->drawState();
-
     // FIXME: It's really dumb that we recreate the verts for a new vertex
     // layout. We only do that because the GrDrawTarget API doesn't allow
     // us to change the vertex layout after reserveVertexSpace(). We won't
@@ -408,9 +405,9 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
 
     GrAssert(NULL != fTarget);
     GrDrawTarget::AutoStateRestore asr(fTarget);
-    bool colorWritesWereDisabled = drawState->isColorWriteDisabled();
+    bool colorWritesWereDisabled = fTarget->isColorWriteDisabled();
     // face culling doesn't make sense here
-    GrAssert(GrDrawState::kBoth_DrawFace == drawState->getDrawFace());
+    GrAssert(GrDrawState::kBoth_DrawFace == fTarget->getDrawFace());
 
     int                         passCount = 0;
     const GrStencilSettings*    passes[3];
@@ -506,37 +503,36 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
 
     {
     for (int p = 0; p < passCount; ++p) {
-        drawState->setDrawFace(drawFace[p]);
+        fTarget->setDrawFace(drawFace[p]);
         if (NULL != passes[p]) {
-            drawState->setStencil(*passes[p]);
+            fTarget->setStencil(*passes[p]);
         }
 
         if (lastPassIsBounds && (p == passCount-1)) {
             if (!colorWritesWereDisabled) {
-                drawState->disableState(
-                    GrDrawState::kNoColorWrites_StateBit);
+                fTarget->disableState(GrDrawTarget::kNoColorWrites_StateBit);
             }
             GrRect bounds;
             if (reverse) {
-                GrAssert(NULL != drawState->getRenderTarget());
+                GrAssert(NULL != fTarget->getRenderTarget());
                 // draw over the whole world.
                 bounds.setLTRB(0, 0,
-                               GrIntToScalar(drawState->getRenderTarget()->width()),
-                               GrIntToScalar(drawState->getRenderTarget()->height()));
+                               GrIntToScalar(fTarget->getRenderTarget()->width()),
+                               GrIntToScalar(fTarget->getRenderTarget()->height()));
                 GrMatrix vmi;
                 // mapRect through persp matrix may not be correct
-                if (!drawState->getViewMatrix().hasPerspective() &&
-                    drawState->getViewInverse(&vmi)) {
+                if (!fTarget->getViewMatrix().hasPerspective() &&
+                    fTarget->getViewInverse(&vmi)) {
                     vmi.mapRect(&bounds);
                 } else {
                     if (stageMask) {
-                        if (!drawState->getViewInverse(&vmi)) {
+                        if (!fTarget->getViewInverse(&vmi)) {
                             GrPrintf("Could not invert matrix.");
                             return;
                         }
-                        drawState->preConcatSamplerMatrices(stageMask, vmi);
+                        fTarget->preConcatSamplerMatrices(stageMask, vmi);
                     }
-                    drawState->setViewMatrix(GrMatrix::I());
+                    fTarget->setViewMatrix(GrMatrix::I());
                 }
             } else {
                 bounds = fPath->getBounds();
@@ -546,7 +542,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
             fTarget->drawSimpleRect(bounds, NULL, stageMask);
         } else {
             if (passCount > 1) {
-                drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
+                fTarget->enableState(GrDrawTarget::kNoColorWrites_StateBit);
             }
             if (fUseIndexedDraw) {
                 fTarget->drawIndexed(fPrimitiveType, 0, 0, 

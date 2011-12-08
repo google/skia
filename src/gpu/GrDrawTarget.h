@@ -57,9 +57,62 @@ public:
         int fMaxTextureSize;
     };
 
-    // for convenience
     typedef GrDrawState::StageMask StageMask;
 
+    /**
+     *  Flags that affect rendering. Controlled using enable/disableState(). All
+     *  default to disabled.
+     */
+    enum StateBits {
+        /**
+         * Perform dithering. TODO: Re-evaluate whether we need this bit
+         */
+        kDither_StateBit        = 0x01,
+        /**
+         * Perform HW anti-aliasing. This means either HW FSAA, if supported
+         * by the render target, or smooth-line rendering if a line primitive
+         * is drawn and line smoothing is supported by the 3D API.
+         */
+        kHWAntialias_StateBit   = 0x02,
+        /**
+         * Draws will respect the clip, otherwise the clip is ignored.
+         */
+        kClip_StateBit          = 0x04,
+        /**
+         * Disables writing to the color buffer. Useful when performing stencil
+         * operations.
+         */
+        kNoColorWrites_StateBit = 0x08,
+        /**
+         * Modifies the behavior of edge AA specified by setEdgeAA. If set, 
+         * will test edge pairs for convexity when rasterizing. Set this if the 
+         * source polygon is non-convex.
+         */
+        kEdgeAAConcave_StateBit =  0x10,
+        // subclass may use additional bits internally
+        kDummyStateBit,
+        kLastPublicStateBit = kDummyStateBit-1
+    };
+
+    /**
+     * Sets the stencil settings to use for the next draw.
+     * Changing the clip has the side-effect of possibly zeroing
+     * out the client settable stencil bits. So multipass algorithms
+     * using stencil should not change the clip between passes.
+     * @param settings  the stencil settings to use.
+     */
+    void setStencil(const GrStencilSettings& settings) {
+        fCurrDrawState.fStencilSettings = settings;
+    }
+
+    /**
+     * Shortcut to disable stencil testing and ops.
+     */
+    void disableStencil() {
+        fCurrDrawState.fStencilSettings.setDisabled();
+    }
+
+public:
     ///////////////////////////////////////////////////////////////////////////
 
     GrDrawTarget();
@@ -86,6 +139,285 @@ public:
      * @return the clip.
      */
     const GrClip& getClip() const;
+
+    /**
+     * Sets the texture used at the next drawing call
+     *
+     * @param stage The texture stage for which the texture will be set
+     *
+     * @param texture The texture to set. Can be NULL though there is no advantage
+     * to settings a NULL texture if doing non-textured drawing
+     */
+    void setTexture(int stage, GrTexture* texture);
+
+    /**
+     * Retrieves the currently set texture.
+     *
+     * @return    The currently set texture. The return value will be NULL if no
+     *            texture has been set, NULL was most recently passed to
+     *            setTexture, or the last setTexture was destroyed.
+     */
+    const GrTexture* getTexture(int stage) const;
+    GrTexture* getTexture(int stage);
+
+    /**
+     * Sets the rendertarget used at the next drawing call
+     *
+     * @param target  The render target to set.
+     */
+    void setRenderTarget(GrRenderTarget* target);
+
+    /**
+     * Retrieves the currently set rendertarget.
+     *
+     * @return    The currently set render target.
+     */
+    const GrRenderTarget* getRenderTarget() const;
+    GrRenderTarget* getRenderTarget();
+
+    /**
+     * Sets the sampler state for a stage used in subsequent draws.
+     *
+     * The sampler state determines how texture coordinates are
+     * intepretted and used to sample the texture.
+     *
+     * @param stage           the stage of the sampler to set
+     * @param samplerState    Specifies the sampler state.
+     */
+    void setSamplerState(int stage, const GrSamplerState& samplerState);
+
+    /**
+     * Concats the matrix of a stage's sampler.
+     *
+     * @param stage   the stage of the sampler to set
+     * @param matrix  the matrix to concat
+     */
+    void preConcatSamplerMatrix(int stage, const GrMatrix& matrix)  {
+        GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
+        fCurrDrawState.fSamplerStates[stage].preConcatMatrix(matrix);
+    }
+
+    /**
+     * Shortcut for preConcatSamplerMatrix on all stages in mask with same
+     * matrix
+     */
+    void preConcatSamplerMatrices(StageMask stageMask, const GrMatrix& matrix) {
+        for (int i = 0; i < GrDrawState::kNumStages; ++i) {
+            if ((1 << i) & stageMask) {
+                this->preConcatSamplerMatrix(i, matrix);
+            }
+        }
+    }
+
+    /**
+     * Shortcut for preConcatSamplerMatrix on all enabled stages in mask with
+     * same matrix
+     *
+     * @param stage   the stage of the sampler to set
+     * @param matrix  the matrix to concat
+     */
+    void preConcatEnabledSamplerMatrices(const GrMatrix& matrix) {
+        StageMask stageMask = this->enabledStages();
+        this->preConcatSamplerMatrices(stageMask, matrix);
+    }
+
+    /**
+     * Gets the matrix of a stage's sampler
+     *
+     * @param stage     the stage to of sampler to get
+     * @return the sampler state's matrix
+     */
+    const GrMatrix& getSamplerMatrix(int stage) const {
+        return fCurrDrawState.fSamplerStates[stage].getMatrix();
+    }
+
+    /**
+     * Sets the matrix of a stage's sampler
+     *
+     * @param stage     the stage of sampler set
+     * @param matrix    the matrix to set
+     */
+    void setSamplerMatrix(int stage, const GrMatrix& matrix) {
+        fCurrDrawState.fSamplerStates[stage].setMatrix(matrix);
+    }
+
+    /**
+     * Sets the matrix applied to veretx positions.
+     *
+     * In the post-view-matrix space the rectangle [0,w]x[0,h]
+     * fully covers the render target. (w and h are the width and height of the
+     * the rendertarget.)
+     *
+     * @param m the matrix used to transform the vertex positions.
+     */
+    void setViewMatrix(const GrMatrix& m);
+
+    /**
+     *  Multiplies the current view matrix by a matrix
+     *
+     *  After this call V' = V*m where V is the old view matrix,
+     *  m is the parameter to this function, and V' is the new view matrix.
+     *  (We consider positions to be column vectors so position vector p is
+     *  transformed by matrix X as p' = X*p.)
+     *
+     *  @param m the matrix used to modify the view matrix.
+     */
+    void preConcatViewMatrix(const GrMatrix& m);
+
+    /**
+     *  Multiplies the current view matrix by a matrix
+     *
+     *  After this call V' = m*V where V is the old view matrix,
+     *  m is the parameter to this function, and V' is the new view matrix.
+     *  (We consider positions to be column vectors so position vector p is
+     *  transformed by matrix X as p' = X*p.)
+     *
+     *  @param m the matrix used to modify the view matrix.
+     */
+    void postConcatViewMatrix(const GrMatrix& m);
+
+    /**
+     * Retrieves the current view matrix
+     * @return the current view matrix.
+     */
+    const GrMatrix& getViewMatrix() const;
+
+    /**
+     *  Retrieves the inverse of the current view matrix.
+     *
+     *  If the current view matrix is invertible, return true, and if matrix
+     *  is non-null, copy the inverse into it. If the current view matrix is
+     *  non-invertible, return false and ignore the matrix parameter.
+     *
+     * @param matrix if not null, will receive a copy of the current inverse.
+     */
+    bool getViewInverse(GrMatrix* matrix) const;
+
+    /**
+     *  Sets color for next draw to a premultiplied-alpha color.
+     *
+     *  @param the color to set.
+     */
+    void setColor(GrColor);
+
+    /**
+     * Gets the currently set color.
+     * @return the current color.
+     */
+    GrColor getColor() const { return fCurrDrawState.fColor; }
+
+    /**
+     * Add a color filter that can be represented by a color and a mode.
+     */
+    void setColorFilter(GrColor, SkXfermode::Mode);
+
+    /**
+     *  Sets the color to be used for the next draw to be
+     *  (r,g,b,a) = (alpha, alpha, alpha, alpha).
+     *
+     *  @param alpha The alpha value to set as the color.
+     */
+    void setAlpha(uint8_t alpha);
+
+    /**
+     * Controls whether clockwise, counterclockwise, or both faces are drawn.
+     * @param face  the face(s) to draw.
+     */
+    void setDrawFace(GrDrawState::DrawFace face) {
+        fCurrDrawState.fDrawFace = face;
+    }
+
+    /**
+     * A common pattern is to compute a color with the initial stages and then
+     * modulate that color by a coverage value in later stage(s) (AA, mask-
+     * filters, glyph mask, etc). Color-filters, xfermodes, etc should be 
+     * computed based on the pre-coverage-modulated color. The division of 
+     * stages between color-computing and coverage-computing is specified by 
+     * this method. Initially this is GrDrawState::kNumStages (all stages
+     * are color-computing).
+     */
+    void setFirstCoverageStage(int firstCoverageStage) { 
+        fCurrDrawState.fFirstCoverageStage = firstCoverageStage; 
+    }
+
+    /**
+     * Gets the index of the first coverage-computing stage.
+     */
+    int getFirstCoverageStage() const { 
+        return fCurrDrawState.fFirstCoverageStage; 
+    }
+
+    /**
+     * Gets whether the target is drawing clockwise, counterclockwise,
+     * or both faces.
+     * @return the current draw face(s).
+     */
+    GrDrawState::DrawFace getDrawFace() const {
+        return fCurrDrawState.fDrawFace;
+    }
+
+    /**
+     * Enable render state settings.
+     *
+     * @param flags   bitfield of StateBits specifing the states to enable
+     */
+    void enableState(uint32_t stateBits);
+
+    /**
+     * Disable render state settings.
+     *
+     * @param flags   bitfield of StateBits specifing the states to disable
+     */
+    void disableState(uint32_t stateBits);
+
+    bool isDitherState() const {
+        return 0 != (fCurrDrawState.fFlagBits & kDither_StateBit);
+    }
+
+    bool isHWAntialiasState() const {
+        return 0 != (fCurrDrawState.fFlagBits & kHWAntialias_StateBit);
+    }
+
+    bool isClipState() const {
+        return 0 != (fCurrDrawState.fFlagBits & kClip_StateBit);
+    }
+
+    bool isColorWriteDisabled() const {
+        return 0 != (fCurrDrawState.fFlagBits & kNoColorWrites_StateBit);
+    }
+
+    /**
+     * Sets the blending function coeffecients.
+     *
+     * The blend function will be:
+     *    D' = sat(S*srcCoef + D*dstCoef)
+     *
+     *   where D is the existing destination color, S is the incoming source
+     *   color, and D' is the new destination color that will be written. sat()
+     *   is the saturation function.
+     *
+     * @param srcCoef coeffecient applied to the src color.
+     * @param dstCoef coeffecient applied to the dst color.
+     */
+    void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
+
+    /**
+     * Sets the blending function constant referenced by the following blending
+     * coeffecients:
+     *      kConstC_BlendCoeff
+     *      kIConstC_BlendCoeff
+     *      kConstA_BlendCoeff
+     *      kIConstA_BlendCoeff
+     *
+     * @param constant the constant to set
+     */
+    void setBlendConstant(GrColor constant) { fCurrDrawState.fBlendConstant = constant; }
+
+    /**
+     * Retrieves the last value set by setBlendConstant()
+     * @return the blending constant value
+     */
+    GrColor getBlendConstant() const { return fCurrDrawState.fBlendConstant; }
 
     /**
      * Determines if blending will require a read of a dst given the current
@@ -116,6 +448,15 @@ public:
      */
     bool canTweakAlphaForCoverage() const;
 
+     /**
+      * Determines the interpretation per-vertex edge data when the
+      * kEdge_VertexLayoutBit is set (see below). When per-vertex edges are not
+      * specified the value of this setting has no effect.
+      */
+    void setVertexEdgeType(GrDrawState::VertexEdgeType type) {
+        fCurrDrawState.fVertexEdgeType = type;
+    }
+
     /**
      * Given the current draw state, vertex layout, and hw support, will HW AA
      * lines be used (if line primitive type is drawn)? (Note that lines are
@@ -123,70 +464,13 @@ public:
      */
     bool willUseHWAALines() const;
 
-    const GrDrawState& getDrawState() const { return fCurrDrawState; }
-    GrDrawState* drawState() { return &fCurrDrawState; }
-
-    // Convenience Pass-thrus to GrDrawState. These are likely candidates for
-    // removal.
-    void setViewMatrix(const GrMatrix& m) {
-        this->drawState()->setViewMatrix(m);
-    }
-    GrMatrix* viewMatrix() {
-        return this->drawState()->viewMatrix();
-    }
-    const GrMatrix& getViewMatrix() const {
-        return this->getDrawState().getViewMatrix();
-    }
-    bool getViewInverse(GrMatrix* inv) const {
-        return this->getDrawState().getViewInverse(inv);
-    }
-    void setRenderTarget(GrRenderTarget* renderTarget) {
-        this->drawState()->setRenderTarget(renderTarget);
-    }
-    const GrRenderTarget* getRenderTarget() const {
-        return this->getDrawState().getRenderTarget();
-    }
-    GrRenderTarget* getRenderTarget() {
-        return this->drawState()->getRenderTarget();
-    }
-    void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
-        this->drawState()->setBlendFunc(srcCoeff, dstCoeff);
-    }
-    void setTexture(int stage, GrTexture* texture) {
-        this->drawState()->setTexture(stage, texture);
-    }
-    const GrTexture* getTexture(int stage) const {
-        return this->getDrawState().getTexture(stage);
-    }
-    GrTexture* getTexture(int stage) {
-        return this->drawState()->getTexture(stage);
-    }
-    // THIS WILL BE REMOVED AND REPLACED WITH DIRECT ACCESS TO SAMPLER
-    // IN A COMING REVISION.
-    void setSamplerState(int stage, const GrSamplerState& sampler) {
-        *(this->drawState()->sampler(stage)) = sampler;
-    }
-    const GrSamplerState& getSampler(int stage) const {
-        return this->getDrawState().getSampler(stage);
-    }
-    void preConcatSamplerMatrices(StageMask stageMask,
-                                  const GrMatrix& m) {
-        this->drawState()->preConcatSamplerMatrices(stageMask, m);
-    }
-    GrColor getColor() const { return this->getDrawState().getColor(); }
-    void setColor(GrColor color) { this->drawState()->setColor(color); }
-    void setFirstCoverageStage(int firstCoverageStage) {
-        this->drawState()->setFirstCoverageStage(firstCoverageStage);
-    }
-    int getFirstCoverageStage() const {
-        return this->getDrawState().getFirstCoverageStage();
-    }
-    void setDrawFace(const GrDrawState::DrawFace face) {
-        this->drawState()->setDrawFace(face);
-    }
-    GrDrawState::DrawFace getDrawFace() const {
-        return this->getDrawState().getDrawFace();
-    }
+    /**
+     * Sets the edge data required for edge antialiasing.
+     *
+     * @param edges       3 * 6 float values, representing the edge
+     *                    equations in Ax + By + C form
+     */
+    void setEdgeAAData(const GrDrawState::Edge* edges, int numEdges);
 
     /**
      * Used to save and restore the GrGpu's drawing state
@@ -611,7 +895,7 @@ public:
         }
 
         AutoViewMatrixRestore(GrDrawTarget* target)
-            : fDrawTarget(target), fMatrix(target->getViewMatrix()) {
+            : fDrawTarget(target), fMatrix(fDrawTarget->getViewMatrix()) {
             GrAssert(NULL != target);
         }
 
@@ -643,14 +927,13 @@ public:
      */
     class AutoDeviceCoordDraw : ::GrNoncopyable {
     public:
-        AutoDeviceCoordDraw(GrDrawTarget* target,
-                            GrDrawState::StageMask stageMask);
+        AutoDeviceCoordDraw(GrDrawTarget* target, StageMask stageMask);
         ~AutoDeviceCoordDraw();
     private:
-        GrDrawTarget*           fDrawTarget;
-        GrMatrix                fViewMatrix;
-        GrMatrix                fSamplerMatrices[GrDrawState::kNumStages];
-        GrDrawState::StageMask  fStageMask;
+        GrDrawTarget*       fDrawTarget;
+        GrMatrix            fViewMatrix;
+        GrMatrix            fSamplerMatrices[GrDrawState::kNumStages];
+        int                 fStageMask;
     };
 
     ////////////////////////////////////////////////////////////////////////////
@@ -996,8 +1279,7 @@ protected:
     // given a vertex layout and a draw state, will a stage be used?
     static bool StageWillBeUsed(int stage, GrVertexLayout layout, 
                                 const GrDrawState& state) {
-        return NULL != state.getTexture(stage) &&
-               VertexUsesStage(stage, layout);
+        return NULL != state.fTextures[stage] && VertexUsesStage(stage, layout);
     }
 
     bool isStageEnabled(int stage) const {
@@ -1055,7 +1337,7 @@ protected:
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.
-    static GrVertexLayout GetRectVertexLayout(StageMask stageMask,
+    static GrVertexLayout GetRectVertexLayout(StageMask stageEnableBitfield,
                                               const GrRect* srcRects[]);
 
     static void SetRectVertices(const GrRect& rect,

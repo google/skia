@@ -455,6 +455,119 @@ const GrClip& GrDrawTarget::getClip() const {
     return fClip;
 }
 
+void GrDrawTarget::setTexture(int stage, GrTexture* tex) {
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
+    fCurrDrawState.fTextures[stage] = tex;
+}
+
+const GrTexture* GrDrawTarget::getTexture(int stage) const {
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
+    return fCurrDrawState.fTextures[stage];
+}
+
+GrTexture* GrDrawTarget::getTexture(int stage) {
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
+    return fCurrDrawState.fTextures[stage];
+}
+
+void GrDrawTarget::setRenderTarget(GrRenderTarget* target) {
+    fCurrDrawState.fRenderTarget = target;
+}
+
+const GrRenderTarget* GrDrawTarget::getRenderTarget() const {
+    return fCurrDrawState.fRenderTarget;
+}
+
+GrRenderTarget* GrDrawTarget::getRenderTarget() {
+    return fCurrDrawState.fRenderTarget;
+}
+
+void GrDrawTarget::setViewMatrix(const GrMatrix& m) {
+    fCurrDrawState.fViewMatrix = m;
+}
+
+void GrDrawTarget::preConcatViewMatrix(const GrMatrix& matrix) {
+    fCurrDrawState.fViewMatrix.preConcat(matrix);
+}
+
+void GrDrawTarget::postConcatViewMatrix(const GrMatrix& matrix) {
+    fCurrDrawState.fViewMatrix.postConcat(matrix);
+}
+
+const GrMatrix& GrDrawTarget::getViewMatrix() const {
+    return fCurrDrawState.fViewMatrix;
+}
+
+bool GrDrawTarget::getViewInverse(GrMatrix* matrix) const {
+    // Mike:  Can we cache this somewhere?
+    // Brian: Sure, do we use it often?
+
+    GrMatrix inverse;
+    if (fCurrDrawState.fViewMatrix.invert(&inverse)) {
+        if (matrix) {
+            *matrix = inverse;
+        }
+        return true;
+    }
+    return false;
+}
+
+void GrDrawTarget::setSamplerState(int stage, const GrSamplerState& state) {
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
+    fCurrDrawState.fSamplerStates[stage] = state;
+}
+
+void GrDrawTarget::enableState(uint32_t bits) {
+    fCurrDrawState.fFlagBits |= bits;
+}
+
+void GrDrawTarget::disableState(uint32_t bits) {
+    fCurrDrawState.fFlagBits &= ~(bits);
+}
+
+void GrDrawTarget::setBlendFunc(GrBlendCoeff srcCoeff,
+                                GrBlendCoeff dstCoeff) {
+    fCurrDrawState.fSrcBlend = srcCoeff;
+    fCurrDrawState.fDstBlend = dstCoeff;
+#if GR_DEBUG
+    switch (dstCoeff) {
+    case kDC_BlendCoeff:
+    case kIDC_BlendCoeff:
+    case kDA_BlendCoeff:
+    case kIDA_BlendCoeff:
+        GrPrintf("Unexpected dst blend coeff. Won't work correctly with"
+                 "coverage stages.\n");
+        break;
+    default:
+        break;
+    }
+    switch (srcCoeff) {
+    case kSC_BlendCoeff:
+    case kISC_BlendCoeff:
+    case kSA_BlendCoeff:
+    case kISA_BlendCoeff:
+        GrPrintf("Unexpected src blend coeff. Won't work correctly with"
+                 "coverage stages.\n");
+        break;
+    default:
+        break;
+    }
+#endif
+}
+
+void GrDrawTarget::setColor(GrColor c) {
+    fCurrDrawState.fColor = c;
+}
+
+void GrDrawTarget::setColorFilter(GrColor c, SkXfermode::Mode mode) {
+    fCurrDrawState.fColorFilterColor = c;
+    fCurrDrawState.fColorFilterXfermode = mode;
+}
+
+void GrDrawTarget::setAlpha(uint8_t a) {
+    this->setColor((a << 24) | (a << 16) | (a << 8) | a);
+}
+
 void GrDrawTarget::saveCurrentDrawState(SavedDrawState* state) const {
     state->fState = fCurrDrawState;
 }
@@ -691,8 +804,8 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         return false;
     }
     if (GrPixelConfigIsUnpremultiplied(this->getRenderTarget()->config())) {
-        if (kOne_BlendCoeff != getDrawState().getSrcBlendCoeff() ||
-            kZero_BlendCoeff != getDrawState().getDstBlendCoeff()) {
+        if (kOne_BlendCoeff != fCurrDrawState.fSrcBlend ||
+            kZero_BlendCoeff != fCurrDrawState.fDstBlend) {
             return false;
         }
     }
@@ -704,8 +817,8 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         // a custom bilerp in the shader. Until Skia itself supports unpremul
         // configs there is no pressure to implement this.
         if (this->isStageEnabled(s) &&
-            GrPixelConfigIsUnpremultiplied(this->getTexture(s)->config()) &&
-            GrSamplerState::kNearest_Filter != this->getSampler(s).getFilter()) {
+            GrPixelConfigIsUnpremultiplied(fCurrDrawState.fTextures[s]->config()) &&
+            GrSamplerState::kNearest_Filter != fCurrDrawState.fSamplerStates[s].getFilter()) {
             return false;
         }
     }
@@ -748,10 +861,9 @@ bool GrDrawTarget::canTweakAlphaForCoverage() const {
      * for Cd we find that only 1, ISA, and ISC produce the correct depth
      * coeffecient in terms of S' and D.
      */
-    GrBlendCoeff dstCoeff = this->getDrawState().getDstBlendCoeff();
-    return kOne_BlendCoeff == dstCoeff ||
-           kISA_BlendCoeff == dstCoeff ||
-           kISC_BlendCoeff == dstCoeff;
+    return kOne_BlendCoeff == fCurrDrawState.fDstBlend||
+           kISA_BlendCoeff == fCurrDrawState.fDstBlend ||
+           kISC_BlendCoeff == fCurrDrawState.fDstBlend;
 }
 
 
@@ -760,21 +872,20 @@ bool GrDrawTarget::srcAlphaWillBeOne() const {
 
     // Check if per-vertex or constant color may have partial alpha
     if ((layout & kColor_VertexLayoutBit) ||
-        0xff != GrColorUnpackA(this->getColor())) {
+        0xff != GrColorUnpackA(fCurrDrawState.fColor)) {
         return false;
     }
     // Check if color filter could introduce an alpha
     // (TODO: Consider being more aggressive with regards to detecting 0xff
     // final alpha from color filter).
-    if (SkXfermode::kDst_Mode != this->getDrawState().getColorFilterMode()) {
+    if (SkXfermode::kDst_Mode != fCurrDrawState.fColorFilterXfermode) {
         return false;
     }
     // Check if a color stage could create a partial alpha
-    int firstCoverageStage = this->getFirstCoverageStage();
-    for (int s = 0; s < firstCoverageStage; ++s) {
+    for (int s = 0; s < fCurrDrawState.fFirstCoverageStage; ++s) {
         if (StageWillBeUsed(s, layout, fCurrDrawState)) {
-            GrAssert(NULL != this->getTexture(s));
-            GrPixelConfig config = this->getTexture(s)->config();
+            GrAssert(NULL != fCurrDrawState.fTextures[s]);
+            GrPixelConfig config = fCurrDrawState.fTextures[s]->config();
             if (!GrPixelConfigIsOpaque(config)) {
                 return false;
             }
@@ -794,12 +905,12 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     if (NULL == srcCoeff) {
         srcCoeff = &bogusSrcCoeff;
     }
-    *srcCoeff = this->getDrawState().getSrcBlendCoeff();
+    *srcCoeff = fCurrDrawState.fSrcBlend;
 
     if (NULL == dstCoeff) {
         dstCoeff = &bogusDstCoeff;
     }
-    *dstCoeff = this->getDrawState().getDstBlendCoeff();
+    *dstCoeff = fCurrDrawState.fDstBlend;
 
     // We don't ever expect source coeffecients to reference the source
     GrAssert(kSA_BlendCoeff != *srcCoeff &&
@@ -812,7 +923,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
              kDC_BlendCoeff != *dstCoeff &&
              kIDC_BlendCoeff != *dstCoeff);
 
-    if (this->getDrawState().isColorWriteDisabled()) {
+    if (SkToBool(kNoColorWrites_StateBit & fCurrDrawState.fFlagBits)) {
         *srcCoeff = kZero_BlendCoeff;
         *dstCoeff = kOne_BlendCoeff;
     }
@@ -828,7 +939,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     // stenciling is enabled. Having color writes disabled is effectively
     // (0,1).
     if ((kZero_BlendCoeff == *srcCoeff && dstCoeffIsOne)) {
-        if (this->getDrawState().getStencil().doesWrite()) {
+        if (fCurrDrawState.fStencilSettings.doesWrite()) {
             if (fCaps.fShaderSupport) {
                 return kDisableBlend_BlendOptFlag |
                        kEmitTransBlack_BlendOptFlag;
@@ -842,10 +953,10 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
 
     // check for coverage due to edge aa or coverage texture stage
     bool hasCoverage = forceCoverage ||
-                       this->getDrawState().getNumAAEdges() > 0 ||
+                       fCurrDrawState.fEdgeAANumEdges > 0 ||
                        (layout & kCoverage_VertexLayoutBit) ||
                        (layout & kEdge_VertexLayoutBit);
-    for (int s = this->getFirstCoverageStage();
+    for (int s = fCurrDrawState.fFirstCoverageStage;
          !hasCoverage && s < GrDrawState::kNumStages;
          ++s) {
         if (StageWillBeUsed(s, layout, fCurrDrawState)) {
@@ -912,7 +1023,7 @@ bool GrDrawTarget::willUseHWAALines() const {
     // but not in a premul-alpha way. So we only use them when our alpha
     // is 0xff and tweaking the color for partial coverage is OK
     if (!fCaps.fHWAALineSupport ||
-        !(this->getDrawState().isHWAntialiasState())) {
+        !(kHWAntialias_StateBit & fCurrDrawState.fFlagBits)) {
         return false;
     }
     BlendOptFlags opts = this->getBlendOpts();
@@ -932,6 +1043,16 @@ bool GrDrawTarget::drawWillReadDst() const {
                     this->getBlendOpts());
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+void GrDrawTarget::setEdgeAAData(const GrDrawState::Edge* edges, int numEdges) {
+    GrAssert(numEdges <= GrDrawState::kMaxEdges);
+    memcpy(fCurrDrawState.fEdgeAAEdges, edges,
+           numEdges * sizeof(GrDrawState::Edge));
+    fCurrDrawState.fEdgeAANumEdges = numEdges;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawTarget::drawRect(const GrRect& rect, 
@@ -947,13 +1068,13 @@ void GrDrawTarget::drawRect(const GrRect& rect,
         return;
     }
 
-    SetRectVertices(rect, matrix, srcRects,
+    SetRectVertices(rect, matrix, srcRects, 
                     srcMatrices, layout, geo.vertices());
 
     drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
 }
 
-GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageMask stageMask,
+GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageMask stageMask, 
                                                  const GrRect* srcRects[]) {
     GrVertexLayout layout = 0;
 
@@ -1062,7 +1183,7 @@ GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(
         if (fViewMatrix.invert(&invVM)) {
             for (int s = 0; s < GrDrawState::kNumStages; ++s) {
                 if (fStageMask & (1 << s)) {
-                    fSamplerMatrices[s] = target->getSampler(s).getMatrix();
+                    fSamplerMatrices[s] = target->getSamplerMatrix(s);
                 }
             }
             target->preConcatSamplerMatrices(fStageMask, invVM);
@@ -1078,8 +1199,7 @@ GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
     fDrawTarget->setViewMatrix(fViewMatrix);
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (fStageMask & (1 << s)) {
-            GrSamplerState* sampler = fDrawTarget->drawState()->sampler(s);
-            sampler->setMatrix(fSamplerMatrices[s]);
+            fDrawTarget->setSamplerMatrix(s, fSamplerMatrices[s]);
         }
     }
 }
