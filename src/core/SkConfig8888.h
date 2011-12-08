@@ -150,7 +150,8 @@ inline void config8888_copy_to_bitmap(const SkBitmap& dstBmp,
                 g = SkMulDiv255Ceiling(g, a);
                 b = SkMulDiv255Ceiling(b, a);
             }
-            dstRow[x] = SkPackARGB32(a, r, g, b);
+            // NoCheck: https://bugs.webkit.org/show_bug.cgi?id=74025
+            dstRow[x] = SkPackARGB32NoCheck(a, r, g, b);
         }
         src += srcRowBytes;
         dst += dstRowBytes;
