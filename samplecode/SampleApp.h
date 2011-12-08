@@ -189,6 +189,7 @@ private:
     void showZoomer(SkCanvas* canvas);
     void updateMatrix();
     void postAnimatingEvent();
+    void installDrawFilter(SkCanvas*);
 
     typedef SkOSWindow INHERITED;
 };
