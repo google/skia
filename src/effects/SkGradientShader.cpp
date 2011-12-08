@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -16,6 +17,10 @@
 
 #if defined(SK_SCALAR_IS_FLOAT) && !defined(SK_DONT_USE_FLOAT_SQRT)
     #define SK_USE_FLOAT_SQRT
+#endif
+
+#ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
+    #define USE_DITHER_32BIT_GRADIENT
 #endif
 
 static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
@@ -842,8 +847,13 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int c
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
     const SkPMColor* SK_RESTRICT cache = this->getCache32();
+#ifdef USE_DITHER_32BIT_GRADIENT
     int                 toggle = ((x ^ y) & 1) << kCache32Bits;
     const int           TOGGLE_MASK = (1 << kCache32Bits);
+#else
+    int toggle = 0;
+    const int TOGGLE_MASK = 0;
+#endif
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
