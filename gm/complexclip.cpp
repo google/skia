@@ -13,19 +13,27 @@
 
 namespace skiagm {
 
+static const SkColor gPathColor = SK_ColorBLACK;
+static const SkColor gClipAColor = SK_ColorBLUE;
+static const SkColor gClipBColor = SK_ColorRED;
+
 class ComplexClipGM : public GM {
+    bool fDoAAClip;
 public:
-	ComplexClipGM() {
-        this->setBGColor(SkColorSetRGB(0xA0,0xDD,0xA0));
+	ComplexClipGM(bool aaclip) : fDoAAClip(aaclip) {
+        this->setBGColor(0xFFDDDDDD);
+//        this->setBGColor(SkColorSetRGB(0xB0,0xDD,0xB0));
     }
 
 protected:
 
     SkString onShortName() {
-        return SkString("complexclip");
+        SkString str;
+        str.printf("complexclip_%s", fDoAAClip ? "aa" : "bw");
+        return str;
     }
 
-    SkISize onISize() { return make_isize(550, 1000); }
+    SkISize onISize() { return make_isize(970, 780); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;
@@ -44,10 +52,9 @@ protected:
         path.lineTo(SkIntToScalar(50),  SkIntToScalar(150));
         path.close();
         path.setFillType(SkPath::kEvenOdd_FillType);
-        SkColor pathColor = SK_ColorBLACK;
         SkPaint pathPaint;
         pathPaint.setAntiAlias(true);
-        pathPaint.setColor(pathColor);
+        pathPaint.setColor(gPathColor);
 
         SkPath clipA;
         clipA.moveTo(SkIntToScalar(10),  SkIntToScalar(20));
@@ -56,7 +63,6 @@ protected:
         clipA.lineTo(SkIntToScalar(165), SkIntToScalar(177));
         clipA.lineTo(SkIntToScalar(-5),  SkIntToScalar(180));
         clipA.close();
-        SkColor colorA = SK_ColorCYAN;
 
         SkPath clipB;
         clipB.moveTo(SkIntToScalar(40),  SkIntToScalar(10));
@@ -65,20 +71,10 @@ protected:
         clipB.lineTo(SkIntToScalar(40),  SkIntToScalar(185));
         clipB.lineTo(SkIntToScalar(155), SkIntToScalar(100));
         clipB.close();
-        SkColor colorB = SK_ColorRED;
 
         SkPaint paint;
         paint.setAntiAlias(true);
-
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(0);
-
-        canvas->translate(SkIntToScalar(10),SkIntToScalar(10));
-        canvas->drawPath(path, pathPaint);
-        paint.setColor(colorA);
-        canvas->drawPath(clipA, paint);
-        paint.setColor(colorB);
-        canvas->drawPath(clipB, paint);
+        paint.setTextSize(SkIntToScalar(20));
 
         static const struct {
             SkRegion::Op fOp;
@@ -91,65 +87,77 @@ protected:
             {SkRegion::kReverseDifference_Op, "RDiff "}
         };
 
-        canvas->translate(0, SkIntToScalar(40));
+        canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->scale(3 * SK_Scalar1 / 4, 3 * SK_Scalar1 / 4);
-        canvas->save();
 
-        for (int invA = 0; invA < 2; ++invA) {
+        for (int invBits = 0; invBits < 4; ++invBits) {
+            canvas->save();
             for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
-                int idx = invA * SK_ARRAY_COUNT(gOps) + op;
-                if (!(idx % 3)) {
-                    canvas->restore();
-                    canvas->translate(0, SkIntToScalar(250));
-                    canvas->save();
-                }
+                this->drawHairlines(canvas, path, clipA, clipB);
+
+                bool doInvA = SkToBool(invBits & 1);
+                bool doInvB = SkToBool(invBits & 2);
                 canvas->save();
                     // set clip
-                    clipA.setFillType(invA ? SkPath::kInverseEvenOdd_FillType :
-                                             SkPath::kEvenOdd_FillType);
-                    canvas->clipPath(clipA);
-                    canvas->clipPath(clipB, gOps[op].fOp);
+                    clipA.setFillType(doInvA ? SkPath::kInverseEvenOdd_FillType :
+                                      SkPath::kEvenOdd_FillType);
+                    clipB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
+                                      SkPath::kEvenOdd_FillType);
+                    canvas->clipPath(clipA, SkRegion::kIntersect_Op, fDoAAClip);
+                    canvas->clipPath(clipB, gOps[op].fOp, fDoAAClip);
 
                     // draw path clipped
                     canvas->drawPath(path, pathPaint);
                 canvas->restore();
 
-                // draw path in hairline
-                paint.setColor(pathColor);
-                canvas->drawPath(path, paint);
 
-                // draw clips in hair line
-                paint.setColor(colorA);
-                canvas->drawPath(clipA, paint);
-                paint.setColor(colorB);
-                canvas->drawPath(clipB, paint);
-
-                paint.setTextSize(SkIntToScalar(20));
-
-                SkScalar txtX = SkIntToScalar(55);
-                paint.setColor(colorA);
-                const char* aTxt = invA ? "InverseA " : "A ";
+                SkScalar txtX = SkIntToScalar(45);
+                paint.setColor(gClipAColor);
+                const char* aTxt = doInvA ? "InvA " : "A ";
                 canvas->drawText(aTxt, strlen(aTxt), txtX, SkIntToScalar(220), paint);
                 txtX += paint.measureText(aTxt, strlen(aTxt));
                 paint.setColor(SK_ColorBLACK);
                 canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
                                     txtX, SkIntToScalar(220), paint);
                 txtX += paint.measureText(gOps[op].fName, strlen(gOps[op].fName));
-                paint.setColor(colorB);
-                canvas->drawText("B", 1, txtX, SkIntToScalar(220), paint);
+                paint.setColor(gClipBColor);
+                const char* bTxt = doInvB ? "InvB " : "B ";
+                canvas->drawText(bTxt, strlen(bTxt), txtX, SkIntToScalar(220), paint);
 
                 canvas->translate(SkIntToScalar(250),0);
             }
+            canvas->restore();
+            canvas->translate(0, SkIntToScalar(250));
         }
-        canvas->restore();
     }
 private:
+    void drawHairlines(SkCanvas* canvas, const SkPath& path,
+                       const SkPath& clipA, const SkPath& clipB) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        const SkAlpha fade = 0x33;
+
+        // draw path in hairline
+        paint.setColor(gPathColor); paint.setAlpha(fade);
+        canvas->drawPath(path, paint);
+        
+        // draw clips in hair line
+        paint.setColor(gClipAColor); paint.setAlpha(fade);
+        canvas->drawPath(clipA, paint);
+        paint.setColor(gClipBColor); paint.setAlpha(fade);
+        canvas->drawPath(clipB, paint);
+    }
+
     typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ComplexClipGM; }
-static GMRegistry reg(MyFactory);
+static GM* gFact0(void*) { return new ComplexClipGM(false); }
+static GM* gFact1(void*) { return new ComplexClipGM(true); }
+
+static GMRegistry gReg0(gFact0);
+static GMRegistry gReg1(gFact1);
 
 }
