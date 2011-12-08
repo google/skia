@@ -1052,6 +1052,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         if (true) {
             SkPicture* pict = new SkPicture(*fPicture);
             fPicture->unref();
+            this->installDrawFilter(orig);
             orig->drawPicture(*pict);
             pict->unref();
         } else if (true) {
@@ -1141,8 +1142,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->concat(m);
     }
 
-    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState,
-                                       fFilterState, fHintingState))->unref();
+    this->installDrawFilter(canvas);
 
     if (fMeasureFPS) {
         fMeasureFPS_Time = 0;   // 0 means the child is not aware of repeat-draw
@@ -1263,11 +1263,17 @@ void SampleWindow::showOverview() {
                                      4));
 }
 
+void SampleWindow::installDrawFilter(SkCanvas* canvas) {
+    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState,
+                                              fFilterState, fHintingState))->unref();
+}
+
 void SampleWindow::postAnimatingEvent() {
     if (fAnimating) {
         (new SkEvent(ANIMATING_EVENTTYPE, this->getSinkID()))->postDelay(ANIMATING_DELAY);
     }
 }
+
 bool SampleWindow::onEvent(const SkEvent& evt) {
     if (evt.isType(gUpdateWindowTitleEvtName)) {
         this->updateTitle();
