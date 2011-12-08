@@ -48,6 +48,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDrawElements = glDrawElements;
         interface->fEnable = glEnable;
         interface->fEnableVertexAttribArray = glEnableVertexAttribArray;
+        interface->fFinish = glFinish;
+        interface->fFlush = glFlush;
         interface->fFrontFace = glFrontFace;
         interface->fGenBuffers = glGenBuffers;
         interface->fGenTextures = glGenTextures;
