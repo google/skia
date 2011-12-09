@@ -53,6 +53,7 @@
         '../tests/RefDictTest.cpp',
         '../tests/RegionTest.cpp',
         '../tests/ScalarTest.cpp',
+        '../tests/ShaderOpacityTest.cpp',
         '../tests/Sk64Test.cpp',
         '../tests/skia_test.cpp',
         '../tests/SortTest.cpp',

@@ -34,6 +34,7 @@ public:
 
     virtual uint32_t getFlags() SK_OVERRIDE;
     virtual uint8_t getSpan16Alpha() const SK_OVERRIDE;
+    virtual bool isOpaque() const SK_OVERRIDE;
     virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
                             const SkMatrix& matrix) SK_OVERRIDE;
     virtual void shadeSpan(int x, int y, SkPMColor span[], int count) SK_OVERRIDE;
