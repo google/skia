@@ -14,7 +14,7 @@
 
 SkMMAPStream::SkMMAPStream(const char filename[])
 {
-    fFildes = -1;   // initialize to failure case
+    fAddr = NULL;   // initialize to failure case
 
     int fildes = open(filename, O_RDONLY);
     if (fildes < 0)
@@ -36,16 +36,21 @@ SkMMAPStream::SkMMAPStream(const char filename[])
     size_t size = static_cast<size_t>(offset);
 
     void* addr = mmap(NULL, size, PROT_READ, MAP_SHARED, fildes, 0);
+
+    // According to the POSIX documentation of mmap it adds an extra reference
+    // to the file associated with the fildes which is not removed by a
+    // subsequent close() on that fildes. This reference is removed when there
+    // are no more mappings to the file.
+    close(fildes);
+
     if (MAP_FAILED == addr)
     {
         SkDEBUGF(("---- failed to mmap(%s) for mmap stream error=%d\n", filename, errno));
-        close(fildes);
         return;
     }
 
     this->INHERITED::setMemory(addr, size);
 
-    fFildes = fildes;
     fAddr = addr;
     fSize = size;
 }
@@ -63,11 +68,10 @@ void SkMMAPStream::setMemory(const void* data, size_t length, bool copyData)
 
 void SkMMAPStream::closeMMap()
 {
-    if (fFildes >= 0)
+    if (fAddr)
     {
         munmap(fAddr, fSize);
-        close(fFildes);
-        fFildes = -1;
+        fAddr = NULL;
     }
 }
 

@@ -19,7 +19,6 @@ public:
 
     virtual void setMemory(const void* data, size_t length, bool);
 private:
-    int     fFildes;
     void*   fAddr;
     size_t  fSize;
     
