@@ -336,6 +336,9 @@ void GrGpuGL::initCaps() {
         fCaps.fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
     }
 
+    fGLCaps.fTextureUsageSupport = (kES2_GrGLBinding == this->glBinding()) &&
+                                   this->hasExtension("GL_ANGLE_texture_usage");
+
     fCaps.fHWAALineSupport = (kDesktop_GrGLBinding == this->glBinding());
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1044,6 +1047,12 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     }
 
     GL_CALL(GenTextures(1, &glTexDesc.fTextureID));
+    if (renderTarget && this->glCaps().fTextureUsageSupport) {
+        // provides a hint about how this texture will be used
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_USAGE,
+                              GR_GL_FRAMEBUFFER_ATTACHMENT));
+    }
     if (!glTexDesc.fTextureID) {
         return return_null_texture();
     }

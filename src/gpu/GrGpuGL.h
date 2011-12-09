@@ -57,7 +57,8 @@ protected:
             , fUnpackRowLengthSupport(false)
             , fUnpackFlipYSupport(false)
             , fPackRowLengthSupport(false)
-            , fPackFlipYSupport(false) {
+            , fPackFlipYSupport(false)
+            , fTextureUsageSupport(false) {
             memset(fAASamples, 0, sizeof(fAASamples));
         }
         SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
@@ -112,6 +113,9 @@ protected:
 
         // Is there support for GL_PACK_REVERSE_ROW_ORDER
         bool fPackFlipYSupport;
+
+        // Is there support for texture parameter GL_TEXTURE_USAGE
+        bool fTextureUsageSupport;
 
         void print() const;
     } fGLCaps;
