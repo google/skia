@@ -110,26 +110,25 @@ static const GrStencilSettings gUserToClipUnionPass1 = {
     0xffff,              0xffff
 };
 
-// for inverse first pass finds non-zerp user with clip bit set
-// and converts it to just clip bit set
+// first pass finds zeros in the user bits and if found sets
+// the clip bit to 1
 static const GrStencilSettings gInvUserToClipUnionPass0 = {
     kReplace_StencilOp,  kReplace_StencilOp,
     kKeep_StencilOp,     kKeep_StencilOp,
-    kLess_StencilFunc,   kLess_StencilFunc,
-    0xffff,              0xffff,
-    0x0000,              0x0000,           // set clip bit
-    0xffff,              0xffff
-};
-
-// second pass lets anything through with a nonzero user portion
-// and writes a ref value with just the clip bit set to it.
-static const GrStencilSettings gInvUserToClipUnionPass1 = {
-    kReplace_StencilOp,  kReplace_StencilOp,
-    kZero_StencilOp,     kZero_StencilOp,
-    kLess_StencilFunc,   kLess_StencilFunc,
+    kEqual_StencilFunc,  kEqual_StencilFunc,
     0xffff,              0xffff,           // unset clip bit
     0x0000,              0x0000,           // set clip bit
-    0xffff,              0xffff
+    0x0000,              0x0000            // set clip bit
+};
+
+// second pass zeros the user bits
+static const GrStencilSettings gInvUserToClipUnionPass1 = {
+    kZero_StencilOp,     kZero_StencilOp,
+    kZero_StencilOp,     kZero_StencilOp,
+    kLess_StencilFunc,   kLess_StencilFunc,
+    0xffff,              0xffff,
+    0x0000,              0x0000,
+    0xffff,              0xffff            // unset clip bit
 };
 
 ///////
@@ -301,14 +300,16 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
             *numPasses = 2;
             if (invertedFill) {
                 settings[0] = gInvUserToClipUnionPass0;
+                settings[0].fFrontFuncMask &= ~stencilClipMask;
+                settings[0].fBackFuncMask = settings[0].fFrontFuncMask;
                 settings[0].fFrontFuncRef |= stencilClipMask;
-                settings[0].fBackFuncRef = settings[0].fFrontFuncMask;
+                settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
+                settings[0].fFrontWriteMask |= stencilClipMask;
+                settings[0].fBackWriteMask = settings[0].fFrontWriteMask;
 
                 settings[1] = gInvUserToClipUnionPass1;
-                settings[1].fFrontFuncMask &= ~stencilClipMask;
-                settings[1].fFrontFuncRef |= stencilClipMask;
-                settings[1].fBackFuncMask = settings[1].fFrontFuncMask;
-                settings[1].fBackFuncRef = settings[1].fFrontFuncRef;
+                settings[1].fFrontWriteMask &= ~stencilClipMask;
+                settings[1].fBackWriteMask &= settings[1].fFrontWriteMask;
 
             } else {
                 settings[0] = gUserToClipUnionPass0;
