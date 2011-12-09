@@ -446,6 +446,7 @@ namespace {
 // whether the initial clear should be to the inside- or outside-the-clip value,
 // and what op should be used to draw the first element that isn't skipped.
 int process_initial_clip_elements(const GrClip& clip,
+                                  const GrRect& bounds,
                                   bool* clearToInside,
                                   GrSetOp* startOp) {
 
@@ -468,6 +469,12 @@ int process_initial_clip_elements(const GrClip& clip,
                 done = true;
                 break;
             case kIntersect_SetOp:
+                // if this element contains the entire bounds then we
+                // can skip it.
+                if (kRect_ClipType == clip.getElementType(curr)
+                    && clip.getRect(curr).contains(bounds)) {
+                    break;
+                }
                 // if everything is initially clearToInside then intersect is
                 // same as clear to 0 and treat as a replace. Otherwise,
                 // set stays empty.
@@ -595,7 +602,9 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             
             bool clearToInside;
             GrSetOp startOp = kReplace_SetOp; // suppress warning
-            int start = process_initial_clip_elements(clip, &clearToInside,
+            int start = process_initial_clip_elements(clip,
+                                                      rtRect,
+                                                      &clearToInside,
                                                       &startOp);
 
             this->clearStencilClip(clipRect, clearToInside);
@@ -621,6 +630,12 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     canRenderDirectToStencil = true;
                     fill = kEvenOdd_PathFill;
                     fillInverted = false;
+                    // there is no point in intersecting a screen filling
+                    // rectangle.
+                    if (kIntersect_SetOp == clip.getOp(c) &&
+                        clip.getRect(c).contains(rtRect)) {
+                        continue;
+                    }
                 } else {
                     fill = clip.getPathFill(c);
                     fillInverted = GrIsFillInverted(fill);
