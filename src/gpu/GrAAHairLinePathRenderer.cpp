@@ -602,8 +602,8 @@ void add_line(const SkPoint p[2],
 }
 
 bool GrAAHairLinePathRenderer::createGeom(GrDrawState::StageMask stageMask) {
-
-    int rtHeight = fTarget->getRenderTarget()->height();
+    const GrDrawState& drawState = fTarget->getDrawState();
+    int rtHeight = drawState.getRenderTarget()->height();
 
     GrIRect clip;
     if (fTarget->getClip().hasConservativeBounds()) {
@@ -617,7 +617,7 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawState::StageMask stageMask) {
     // have changed since last previous path draw then we can reuse the
     // previous geoemtry.
     if (stageMask == fPreviousStages &&
-        fPreviousViewMatrix == fTarget->getViewMatrix() &&
+        fPreviousViewMatrix == drawState.getViewMatrix() &&
         fPreviousTranslate == fTranslate &&
         rtHeight == fPreviousRTHeight &&
         fClipRect == clip) {
@@ -631,7 +631,7 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawState::StageMask stageMask) {
         }
     }
 
-    GrMatrix viewM = fTarget->getViewMatrix();
+    GrMatrix viewM = drawState.getViewMatrix();
 
     PREALLOC_PTARRAY(128) lines;
     PREALLOC_PTARRAY(128) quads;
@@ -672,7 +672,7 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawState::StageMask stageMask) {
     }
 
     fPreviousStages = stageMask;
-    fPreviousViewMatrix = fTarget->getViewMatrix();
+    fPreviousViewMatrix = drawState.getViewMatrix();
     fPreviousRTHeight = rtHeight;
     fClipRect = clip;
     fPreviousTranslate = fTranslate;
@@ -685,14 +685,16 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawState::StageMask stageMask) {
         return;
     }
 
+    GrDrawState* drawState = fTarget->drawState();
+
     GrDrawTarget::AutoStateRestore asr;
-    if (!fTarget->getViewMatrix().hasPerspective()) {
+    if (!drawState->getViewMatrix().hasPerspective()) {
         asr.set(fTarget);
         GrMatrix ivm;
-        if (fTarget->getViewInverse(&ivm)) {
-            fTarget->preConcatSamplerMatrices(stageMask, ivm);
+        if (drawState->getViewInverse(&ivm)) {
+            drawState->preConcatSamplerMatrices(stageMask, ivm);
         }
-        fTarget->setViewMatrix(GrMatrix::I());
+        drawState->setViewMatrix(GrMatrix::I());
     }
 
     // TODO: See whether rendering lines as degenerate quads improves perf
@@ -702,7 +704,7 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawState::StageMask stageMask) {
     int nBufLines = fLinesIndexBuffer->maxQuads();
     while (lines < fLineSegmentCnt) {
         int n = GrMin(fLineSegmentCnt-lines, nBufLines);
-        fTarget->setVertexEdgeType(GrDrawState::kHairLine_EdgeType);
+        drawState->setVertexEdgeType(GrDrawState::kHairLine_EdgeType);
         fTarget->drawIndexed(kTriangles_PrimitiveType,
                              kVertsPerLineSeg*lines,    // startV
                              0,                         // startI
@@ -715,7 +717,7 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawState::StageMask stageMask) {
     int quads = 0;
     while (quads < fQuadCnt) {
         int n = GrMin(fQuadCnt-quads, kNumQuadsInIdxBuffer);
-        fTarget->setVertexEdgeType(GrDrawState::kHairQuad_EdgeType);
+        drawState->setVertexEdgeType(GrDrawState::kHairQuad_EdgeType);
         fTarget->drawIndexed(kTriangles_PrimitiveType,
                              4*fLineSegmentCnt + kVertsPerQuad*quads, // startV
                              0,                                       // startI

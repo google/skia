@@ -327,8 +327,8 @@ public:
     }
 
 protected:
-    enum PrivateStateBits {
-        kFirstBit = (kLastPublicStateBit << 1),
+    enum PrivateDrawStateStateBits {
+        kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
 
         kModifyStencilClip_StateBit = kFirstBit, // allows draws to modify
                                                  // stencil bits used for
