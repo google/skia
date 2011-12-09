@@ -221,6 +221,13 @@ SkColorShader::SkColorShader(SkColor c) {
 
 SkColorShader::~SkColorShader() {}
 
+bool SkColorShader::isOpaque() const {
+    if (fInheritColor) {
+        return true; // using paint's alpha
+    }
+    return SkColorGetA(fColor) == 255;
+}
+
 SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
     fFlags = 0; // computed in setContext
 

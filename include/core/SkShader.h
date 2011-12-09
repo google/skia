@@ -97,6 +97,15 @@ public:
     virtual uint32_t getFlags() { return 0; }
 
     /**
+     *  Returns true if the shader is guaranteed to produce only opaque
+     *  colors, subject to the SkPaint using the shader to apply an opaque
+     *  alpha value. Subclasses should override this to allow some
+     *  optimizations.  isOpaque() can be called at any time, unlike getFlags,
+     *  which only works properly when the context is set.
+     */
+    virtual bool isOpaque() const { return false; }
+
+    /**
      *  Return the alpha associated with the data returned by shadeSpan16(). If
      *  kHasSpan16_Flag is not set, this value is meaningless.
      */

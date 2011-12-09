@@ -119,6 +119,7 @@ public:
     // overrides
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
     virtual uint32_t getFlags() SK_OVERRIDE { return fFlags; }
+    virtual bool isOpaque() const SK_OVERRIDE;
 
 protected:
     Gradient_Shader(SkFlattenableReadBuffer& );
@@ -161,7 +162,8 @@ private:
         kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(Rec))
     };
     SkColor     fStorage[(kStorageSize + 3) >> 2];
-    SkColor*    fOrigColors;
+    SkColor*    fOrigColors; // original colors, before modulation by paint in setContext
+    bool        fColorsAreOpaque;
 
     mutable uint16_t*   fCache16;   // working ptr. If this is NULL, we need to recompute the cache values
     mutable SkPMColor*  fCache32;   // working ptr. If this is NULL, we need to recompute the cache values
@@ -174,6 +176,7 @@ private:
     static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
                                 U8CPU alpha);
     void setCacheAlpha(U8CPU alpha) const;
+    void initCommon();
 
     typedef SkShader INHERITED;
 };
@@ -302,7 +305,7 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[],
             }
         }
     }
-    fFlags = 0;
+    this->initCommon();
 }
 
 Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
@@ -336,7 +339,7 @@ Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
         }
     }
     SkReadMatrix(&buffer, &fPtsToUnit);
-    fFlags = 0;
+    this->initCommon();
 }
 
 Gradient_Shader::~Gradient_Shader() {
@@ -348,6 +351,15 @@ Gradient_Shader::~Gradient_Shader() {
         sk_free(fOrigColors);
     }
     SkSafeUnref(fMapper);
+}
+
+void Gradient_Shader::initCommon() {
+    fFlags = 0;
+    unsigned colorAlpha = 0xFF;
+    for (int i = 0; i < fColorCount; i++) {
+        colorAlpha &= SkColorGetA(fOrigColors[i]);
+    }
+    fColorsAreOpaque = colorAlpha == 0xFF;
 }
 
 void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer) {
@@ -364,6 +376,10 @@ void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer) {
         }
     }
     SkWriteMatrix(&buffer, fPtsToUnit);
+}
+
+bool Gradient_Shader::isOpaque() const {
+    return fColorsAreOpaque;
 }
 
 bool Gradient_Shader::setContext(const SkBitmap& device,
@@ -384,23 +400,14 @@ bool Gradient_Shader::setContext(const SkBitmap& device,
 
     // now convert our colors in to PMColors
     unsigned paintAlpha = this->getPaintAlpha();
-    unsigned colorAlpha = 0xFF;
-
-    // FIXME: record colorAlpha in constructor, since this is not affected
-    // by setContext()
-    for (int i = 0; i < fColorCount; i++) {
-        SkColor src = fOrigColors[i];
-        unsigned sa = SkColorGetA(src);
-        colorAlpha &= sa;
-    }
 
     fFlags = this->INHERITED::getFlags();
-    if ((colorAlpha & paintAlpha) == 0xFF) {
+    if (fColorsAreOpaque && paintAlpha == 0xFF) {
         fFlags |= kOpaqueAlpha_Flag;
     }
     // we can do span16 as long as our individual colors are opaque,
     // regardless of the paint's alpha
-    if (0xFF == colorAlpha) {
+    if (fColorsAreOpaque) {
         fFlags |= kHasSpan16_Flag;
     }
 
