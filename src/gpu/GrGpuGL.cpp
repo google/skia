@@ -147,7 +147,7 @@ static bool fbo_test(const GrGLInterface* gl, int w, int h) {
     GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, testRTTex));
     // some implementations require texture to be mip-map complete before
     // FBO with level 0 bound as color attachment will be framebuffer complete.
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, 
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
                                  GR_GL_TEXTURE_MIN_FILTER,
                                  GR_GL_NEAREST));
     GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, w, h,
@@ -777,6 +777,11 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         return false;
     }
 
+    if (!isNewTexture && GR_GL_PALETTE8_RGBA8 == desc.fInternalFormat) {
+        // paletted textures cannot be updated
+        return false;
+    }
+
     /*
      *  check whether to allocate a temporary buffer for flipping y or
      *  because our srcData has extra bytes past each row. If so, we need
@@ -831,11 +836,30 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
         GrGLClearErr(this->glInterface());
-        GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                              TexImage2D(GR_GL_TEXTURE_2D, 0,
-                                         desc.fInternalFormat,
-                                         desc.fWidth, desc.fHeight, 0,
-                                         externalFormat, externalType, data));
+        if (GR_GL_PALETTE8_RGBA8 == desc.fInternalFormat) {
+            GrGLsizei imageSize = desc.fWidth * desc.fHeight +
+                                  kGrColorTableSize;
+            GR_GL_CALL_NOERRCHECK(this->glInterface(),
+                                  CompressedTexImage2D(GR_GL_TEXTURE_2D,
+                                                       0, // level
+                                                       desc.fInternalFormat,
+                                                       desc.fWidth,
+                                                       desc.fHeight,
+                                                       0, // border
+                                                       imageSize,
+                                                       data));
+        } else {
+             GR_GL_CALL_NOERRCHECK(this->glInterface(),
+                                   TexImage2D(GR_GL_TEXTURE_2D,
+                                              0, // level
+                                              desc.fInternalFormat,
+                                              desc.fWidth,
+                                              desc.fHeight,
+                                              0, // border
+                                              externalFormat,
+                                              externalType,
+                                              data));
+        }
         if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
             return false;
         }
@@ -2247,8 +2271,8 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
     switch (config) {
         case kRGBA_8888_PM_GrPixelConfig:
         case kRGBA_8888_UPM_GrPixelConfig:
-            *externalFormat = GR_GL_RGBA;
             *internalFormat = GR_GL_RGBA;
+            *externalFormat = GR_GL_RGBA;
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kBGRA_8888_PM_GrPixelConfig:
@@ -2256,36 +2280,37 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
             if (!fGLCaps.fBGRAFormatSupport) {
                 return false;
             }
-            *externalFormat = GR_GL_BGRA;
             if (fGLCaps.fBGRAIsInternalFormat) {
                 *internalFormat = GR_GL_BGRA;
             } else {
                 *internalFormat = GR_GL_RGBA;
             }
+            *externalFormat = GR_GL_BGRA;
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kRGB_565_GrPixelConfig:
-            *externalFormat = GR_GL_RGB;
             *internalFormat = GR_GL_RGB;
+            *externalFormat = GR_GL_RGB;
             *externalType = GR_GL_UNSIGNED_SHORT_5_6_5;
             break;
         case kRGBA_4444_GrPixelConfig:
-            *externalFormat = GR_GL_RGBA;
             *internalFormat = GR_GL_RGBA;
+            *externalFormat = GR_GL_RGBA;
             *externalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case kIndex_8_GrPixelConfig:
             if (this->getCaps().f8BitPaletteSupport) {
-                *externalFormat = GR_GL_PALETTE8_RGBA8;
                 *internalFormat = GR_GL_PALETTE8_RGBA8;
-                *externalType = GR_GL_UNSIGNED_BYTE;   // unused I think
+                // glCompressedTexImage doesn't take external params
+                *externalFormat = GR_GL_PALETTE8_RGBA8;
+                *externalType = GR_GL_UNSIGNED_BYTE;
             } else {
                 return false;
             }
             break;
         case kAlpha_8_GrPixelConfig:
-            *externalFormat = GR_GL_ALPHA;
             *internalFormat = GR_GL_ALPHA;
+            *externalFormat = GR_GL_ALPHA;
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         default:
