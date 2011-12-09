@@ -89,10 +89,6 @@ public:
     const GrDrawState& getDrawState() const { return fCurrDrawState; }
     GrDrawState* drawState() { return &fCurrDrawState; }
 
-    void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
-        this->drawState()->setBlendFunc(srcCoeff, dstCoeff);
-    }
-
     /**
      * Shortcut for drawState()->preConcatSamplerMatrices() on all enabled
      * stages

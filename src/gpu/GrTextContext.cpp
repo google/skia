@@ -50,13 +50,13 @@ void GrTextContext::flushGlyphs() {
             }
             // setup blend so that we get mask * paintColor + (1-mask)*dstColor
             drawState->setBlendConstant(fPaint.fColor);
-            fDrawTarget->setBlendFunc(kConstC_BlendCoeff, kISC_BlendCoeff);
+            drawState->setBlendFunc(kConstC_BlendCoeff, kISC_BlendCoeff);
             // don't modulate by the paint's color in the frag since we're
             // already doing it via the blend const.
             drawState->setColor(0xffffffff);
         } else {
             // set back to normal in case we took LCD path previously.
-            fDrawTarget->setBlendFunc(fPaint.fSrcBlendCoeff, fPaint.fDstBlendCoeff);
+            drawState->setBlendFunc(fPaint.fSrcBlendCoeff, fPaint.fDstBlendCoeff);
             drawState->setColor(fPaint.fColor);
         }
 
