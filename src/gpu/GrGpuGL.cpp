@@ -709,6 +709,9 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
                                    size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
+    if (NULL == buffer) {
+        return;
+    }
     this->setSpareTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTex->textureID()));
     GrGLTexture::Desc desc;
@@ -758,6 +761,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                             GrPixelConfig dataConfig,
                             const void* data,
                             size_t rowBytes) {
+    GrAssert(NULL != data || isNewTexture);
 
     size_t bpp = GrBytesPerPixel(dataConfig);
     if (!adjust_pixel_ops_params(desc.fWidth, desc.fHeight, bpp, &left, &top,
@@ -792,46 +796,49 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     bool swFlipY = false;
     bool glFlipY = false;
 
-    if (GrGLTexture::kBottomUp_Orientation == desc.fOrientation) {
-        if (this->glCaps().fUnpackFlipYSupport) {
-            glFlipY = true;
+    if (NULL != data) {
+        if (GrGLTexture::kBottomUp_Orientation == desc.fOrientation) {
+            if (this->glCaps().fUnpackFlipYSupport) {
+                glFlipY = true;
+            } else {
+                swFlipY = true;
+            }
+        }
+        if (this->glCaps().fUnpackRowLengthSupport && !swFlipY) {
+            // can't use this for flipping, only non-neg values allowed. :(
+            if (rowBytes != trimRowBytes) {
+                GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
+                GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
+                restoreGLRowLength = true;
+            }
         } else {
-            swFlipY = true;
-        }
-    }
-    if (this->glCaps().fUnpackRowLengthSupport && !swFlipY) {
-        // can't use this for flipping, only non-neg values allowed. :(
-        if (rowBytes != trimRowBytes) {
-            GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
-            restoreGLRowLength = true;
-        }
-    } else {
-        if (trimRowBytes != rowBytes || swFlipY) {
-            // copy the data into our new storage, skipping the trailing bytes
-            size_t trimSize = height * trimRowBytes;
-            const char* src = (const char*)data;
-            if (swFlipY) {
-                src += (height - 1) * rowBytes;
-            }
-            char* dst = (char*)tempStorage.reset(trimSize);
-            for (int y = 0; y < height; y++) {
-                memcpy(dst, src, trimRowBytes);
+            if (trimRowBytes != rowBytes || swFlipY) {
+                // copy data into our new storage, skipping the trailing bytes
+                size_t trimSize = height * trimRowBytes;
+                const char* src = (const char*)data;
                 if (swFlipY) {
-                    src -= rowBytes;
-                } else {
-                    src += rowBytes;
+                    src += (height - 1) * rowBytes;
                 }
-                dst += trimRowBytes;
+                char* dst = (char*)tempStorage.reset(trimSize);
+                for (int y = 0; y < height; y++) {
+                    memcpy(dst, src, trimRowBytes);
+                    if (swFlipY) {
+                        src -= rowBytes;
+                    } else {
+                        src += rowBytes;
+                    }
+                    dst += trimRowBytes;
+                }
+                // now point data to our copied version
+                data = tempStorage.get();
             }
-            // now point data to our copied version
-            data = tempStorage.get();
         }
+        if (glFlipY) {
+            GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
+        }
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
     }
-    if (glFlipY) {
-        GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
-    }
-    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
+    bool succeeded = true;
     if (isNewTexture && 
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
@@ -861,13 +868,16 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                                               data));
         }
         if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
-            return false;
+             succeeded = false;
         }
     } else {
         if (swFlipY || glFlipY) {
             top = desc.fHeight - (top + height);
         }
-        GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, left, top, width, height,
+        GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D,
+                              0, // level
+                              left, top,
+                              width, height,
                               externalFormat, externalType, data));
     }
 
@@ -878,7 +888,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     if (glFlipY) {
         GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
     }
-    return true;
+    return succeeded;
 }
 
 bool GrGpuGL::createRenderTargetObjects(int width, int height,
@@ -1062,17 +1072,11 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                           GR_GL_TEXTURE_WRAP_T,
                           initialTexParams.fWrapT));
-    if (NULL == srcData) {
-        GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, glTexDesc.fInternalFormat,
-                           glTexDesc.fWidth, glTexDesc.fHeight, 0,
-                           externalFormat, externalType, NULL));
-    } else {
-        if (!this->uploadTexData(glTexDesc, true, 0, 0,
-                                 glTexDesc.fWidth, glTexDesc.fHeight,
-                                 desc.fConfig, srcData, rowBytes)) {
-            GL_CALL(DeleteTextures(1, &glTexDesc.fTextureID));
-            return return_null_texture();
-        }
+    if (!this->uploadTexData(glTexDesc, true, 0, 0,
+                             glTexDesc.fWidth, glTexDesc.fHeight,
+                             desc.fConfig, srcData, rowBytes)) {
+        GL_CALL(DeleteTextures(1, &glTexDesc.fTextureID));
+        return return_null_texture();
     }
 
     GrGLTexture* tex;
