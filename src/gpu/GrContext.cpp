@@ -217,20 +217,15 @@ void gen_stencil_key_values(const GrStencilBuffer* sb,
 // It does not reset stage textures/samplers or per-vertex-edge-aa state since
 // they aren't used unless the vertex layout references them.
 // It also doesn't set the render target.
-void reset_target_state(GrDrawTarget* target){
-        GrDrawState* drawState = target->drawState();
+void reset_draw_state(GrDrawState* drawState){
 
         drawState->setViewMatrix(GrMatrix::I());
         drawState->setColorFilter(0, SkXfermode::kDst_Mode);
-        drawState->disableState(GrDrawState::kDither_StateBit |
-                                GrDrawState::kHWAntialias_StateBit |
-                                GrDrawState::kClip_StateBit |
-                                GrDrawState::kNoColorWrites_StateBit |
-                                GrDrawState::kEdgeAAConcave_StateBit);
+        drawState->resetStateFlags();
         drawState->setEdgeAAData(NULL, 0);
         drawState->disableStencil();
         drawState->setAlpha(0xFF);
-        target->setBlendFunc(kOne_BlendCoeff,
+        drawState->setBlendFunc(kOne_BlendCoeff,
                            kZero_BlendCoeff);
         drawState->setFirstCoverageStage(GrDrawState::kNumStages);
         drawState->setDrawFace(GrDrawState::kBoth_DrawFace);
@@ -354,8 +349,8 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
 
         if (NULL != texture) {
             GrDrawTarget::AutoStateRestore asr(fGpu);
-            reset_target_state(fGpu);
             GrDrawState* drawState = fGpu->drawState();
+            reset_draw_state(drawState);
             drawState->setRenderTarget(texture->asRenderTarget());
             drawState->setTexture(0, clampEntry.texture());
 
@@ -1779,8 +1774,8 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         GrAssert(NULL != target);
 
         GrDrawTarget::AutoStateRestore asr(fGpu);
-        reset_target_state(fGpu);
         GrDrawState* drawState = fGpu->drawState();
+        reset_draw_state(drawState);
         drawState->setRenderTarget(target);
 
         GrMatrix matrix;
@@ -1817,8 +1812,8 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     ASSERT_OWNED_RESOURCE(src);
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
-    reset_target_state(fGpu);
     GrDrawState* drawState = fGpu->drawState();
+    reset_draw_state(drawState);
     drawState->setRenderTarget(dst);
     GrSamplerState sampler(GrSamplerState::kClamp_WrapMode,
                            GrSamplerState::kNearest_Filter);
@@ -1888,8 +1883,8 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
                                      config, buffer, rowBytes, flags);
 
     GrDrawTarget::AutoStateRestore  asr(fGpu);
-    reset_target_state(fGpu);
     GrDrawState* drawState = fGpu->drawState();
+    reset_draw_state(drawState);
 
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
@@ -1949,7 +1944,7 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
     } else {
         drawState->disableState(GrDrawState::kHWAntialias_StateBit);
     }
-    target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
+    drawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     drawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
 
     if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {
@@ -2155,7 +2150,7 @@ void GrContext::convolve(GrTexture* texture,
     drawState->setViewMatrix(GrMatrix::I());
     drawState->setTexture(0, texture);
     drawState->setAlpha(0xFF);
-    fGpu->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
+    drawState->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
 
