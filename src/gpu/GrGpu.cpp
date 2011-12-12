@@ -974,6 +974,3 @@ void GrGpu::printStats() const {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-const GrSamplerState GrSamplerState::gClampNearest;

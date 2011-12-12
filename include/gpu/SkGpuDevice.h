@@ -118,7 +118,7 @@ protected:
         kSaveLayerDeviceRenderTarget_TexType
     };
     TexCache lockCachedTexture(const SkBitmap& bitmap,
-                               const GrSamplerState& sampler,
+                               const GrSamplerState* sampler,
                                TexType type = kBitmap_TexType);
     bool isBitmapInTextureCache(const SkBitmap& bitmap,
                                 const GrSamplerState& sampler) const;
@@ -129,11 +129,11 @@ protected:
         SkAutoCachedTexture();
         SkAutoCachedTexture(SkGpuDevice* device,
                             const SkBitmap& bitmap,
-                            const GrSamplerState& sampler,
+                            const GrSamplerState* sampler,
                             GrTexture** texture);
         ~SkAutoCachedTexture();
 
-        GrTexture* set(SkGpuDevice*, const SkBitmap&, const GrSamplerState&);
+        GrTexture* set(SkGpuDevice*, const SkBitmap&, const GrSamplerState*);
 
     private:
         SkGpuDevice*    fDevice;
