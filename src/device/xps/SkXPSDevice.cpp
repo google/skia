@@ -2264,7 +2264,12 @@ void SkXPSDevice::drawText(const SkDraw& d,
     text_draw_init(paint, text, byteLen, *typeface->glyphsUsed, myDraw, procs);
     
     myDraw.drawText(static_cast<const char*>(text), byteLen, x, y, paint);
-    
+
+    // SkDraw may have clipped out the glyphs, so we need to check
+    if (procs.xpsGlyphs.count() == 0) {
+        return;
+    }
+
     XPS_POINT origin = {
         procs.xpsGlyphs[0].horizontalOffset / procs.centemPerUnit,
         procs.xpsGlyphs[0].verticalOffset / -procs.centemPerUnit,
@@ -2312,6 +2317,11 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
                        pos, constY, scalarsPerPos,
                        paint);
     
+    // SkDraw may have clipped out the glyphs, so we need to check
+    if (procs.xpsGlyphs.count() == 0) {
+        return;
+    }
+
     XPS_POINT origin = {
         procs.xpsGlyphs[0].horizontalOffset / procs.centemPerUnit,
         procs.xpsGlyphs[0].verticalOffset / -procs.centemPerUnit,
