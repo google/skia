@@ -114,7 +114,7 @@ protected:
         const SkScalar* stop = k + SK_ARRAY_COUNT(K);
         SkScalar y = 0;
         SkScalar x = 0;
-        SkScalar gap = src.width() + SkIntToScalar(20);
+        SkScalar gap = SkIntToScalar(src.width() + 20);
         while (k < stop) {
             SkScalar x = 0;
             SkBitmap res = make_arith(src, dst, k);
@@ -126,7 +126,7 @@ protected:
             x += gap;
             show_k_text(canvas, x, y, k);
             k += 4;
-            y += src.height() + SkIntToScalar(12);
+            y += SkIntToScalar(src.height() + 12);
         }
     }
 
