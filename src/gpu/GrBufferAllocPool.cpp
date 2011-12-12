@@ -320,14 +320,13 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
     GrAssert(fCpuData.get() == fBufferPtr);
     GrAssert(flushSize <= buffer->sizeInBytes());
 
-    bool updated = false;
     if (fGpu->getCaps().fBufferLockSupport &&
         flushSize > GR_GEOM_BUFFER_LOCK_THRESHOLD) {
         void* data = buffer->lock();
         if (NULL != data) {
             memcpy(data, fBufferPtr, flushSize);
             buffer->unlock();
-            updated = true;
+            return;
         }
     }
     buffer->updateData(fBufferPtr, flushSize);
