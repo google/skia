@@ -1913,7 +1913,9 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
         int s = i + GrPaint::kFirstTextureStage;
         drawState->setTexture(s, paint.getTexture(i));
         ASSERT_OWNED_RESOURCE(paint.getTexture(i));
-        *drawState->sampler(s) = paint.getTextureSampler(i);
+        if (paint.getTexture(i)) {
+            *drawState->sampler(s) = paint.getTextureSampler(i);
+        }
     }
 
     drawState->setFirstCoverageStage(GrPaint::kFirstMaskStage);
@@ -1922,7 +1924,9 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
         int s = i + GrPaint::kFirstMaskStage;
         drawState->setTexture(s, paint.getMask(i));
         ASSERT_OWNED_RESOURCE(paint.getMask(i));
-        *drawState->sampler(s) = paint.getMaskSampler(i);
+        if (paint.getMask(i)) {
+            *drawState->sampler(s) = paint.getMaskSampler(i);
+        }
     }
 
     drawState->setColor(paint.fColor);
