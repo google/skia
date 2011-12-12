@@ -1085,7 +1085,7 @@ GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
     drawState->setViewMatrix(fViewMatrix);
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (fStageMask & (1 << s)) {
-            drawState->sampler(s)->setMatrix(fSamplerMatrices[s]);
+            *drawState->sampler(s)->matrix() = fSamplerMatrices[s];
         }
     }
 }

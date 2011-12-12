@@ -868,8 +868,6 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
         filter = GrSamplerState::kBilinear_Filter;
     }
 
-    GrMatrix sampleM;
-
     GrTexture* src = record->fOffscreen0.texture();
     int scale;
 
@@ -888,11 +886,10 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
         drawState->setTexture(kOffscreenStage, src);
         drawState->setRenderTarget(dst);
         drawState->setViewMatrix(GrMatrix::I());
-        sampleM.setScale(scale * GR_Scalar1 / src->width(),
-                         scale * GR_Scalar1 / src->height());
         GrSamplerState* sampler = drawState->sampler(kOffscreenStage);
         sampler->reset(GrSamplerState::kClamp_WrapMode, filter);
-        sampler->setMatrix(sampleM);
+        sampler->matrix()->setScale(scale * GR_Scalar1 / src->width(),
+                                    scale * GR_Scalar1 / src->height());
         GrRect rect = SkRect::MakeWH(SkIntToScalar(scale * tileRect.width()),
                                      SkIntToScalar(scale * tileRect.height()));
         target->drawSimpleRect(rect, NULL, 1 << kOffscreenStage);
@@ -930,13 +927,10 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     drawState->setTexture(kOffscreenStage, src);
     GrSamplerState* sampler = drawState->sampler(kOffscreenStage);
     sampler->reset(GrSamplerState::kClamp_WrapMode, filter);
-    sampleM.setScale(scale * GR_Scalar1 / src->width(),
-                     scale * GR_Scalar1 / src->height());
-    
-    sampler->setMatrix(sampleM);
-    sampleM.setTranslate(SkIntToScalar(-tileRect.fLeft),
-                         SkIntToScalar(-tileRect.fTop));
-    sampler->preConcatMatrix(sampleM);
+    sampler->matrix()->setScale(scale * GR_Scalar1 / src->width(),
+                                scale * GR_Scalar1 / src->height());
+    sampler->matrix()->preTranslate(SkIntToScalar(-tileRect.fLeft),
+                                    SkIntToScalar(-tileRect.fTop));
 
     GrRect dstRect;
     int stages = (1 << kOffscreenStage) | stageMask;

@@ -374,7 +374,7 @@ void GrGpuGLShaders::recordHWSamplerMatrix(int stage, const GrMatrix& matrix) {
     GrAssert(fProgramData);
     if (GrGLProgram::kSetAsAttribute == 
         fProgramData->fUniLocations.fStages[stage].fTextureMatrixUni) {
-        fHWDrawState.sampler(stage)->setMatrix(matrix);
+        *fHWDrawState.sampler(stage)->matrix() = matrix;
     } else {
         fProgramData->fTextureMatrices[stage] = matrix;
     }

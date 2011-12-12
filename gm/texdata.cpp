@@ -109,8 +109,9 @@ protected:
                 ctx->setMatrix(vm);
                 GrMatrix tm;
                 tm = vm;
-                tm.postIDiv(2*S, 2*S);
-                paint.textureSampler(0)->setMatrix(tm);
+                GrMatrix* sampleMat = paint.textureSampler(0)->matrix();
+                *sampleMat = vm;
+                sampleMat->postIDiv(2*S, 2*S);
                 paint.setTexture(0, texture);
 
                 ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));
