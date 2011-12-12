@@ -58,7 +58,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
 GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
                                                 GrContext::TextureKey key,
-                                                const GrSamplerState& sampler,
+                                                const GrSamplerState* sampler,
                                                 const SkBitmap& origBitmap) {
     SkAutoLockPixels alp(origBitmap);
     GrContext::TextureCacheEntry entry;

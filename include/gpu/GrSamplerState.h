@@ -224,8 +224,6 @@ public:
         }
     }
 
-    static const GrSamplerState& ClampNearest() { return gClampNearest; }
-
 private:
     WrapMode    fWrapX : 8;
     WrapMode    fWrapY : 8;
@@ -244,8 +242,6 @@ private:
     uint8_t     fKernelWidth;
     float       fImageIncrement[2];
     float       fKernel[MAX_KERNEL_WIDTH];
-
-    static const GrSamplerState gClampNearest;
 };
 
 #endif

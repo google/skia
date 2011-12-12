@@ -7,9 +7,10 @@
  */
 
 
+#include "GrContext.h"
+
 #include "GrBufferAllocPool.h"
 #include "GrClipIterator.h"
-#include "GrContext.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
@@ -158,7 +159,7 @@ GrTexture* GrContext::TextureCacheEntry::texture() const {
 namespace {
 // returns true if this is a "special" texture because of gpu NPOT limitations
 bool gen_texture_key_values(const GrGpu* gpu,
-                            const GrSamplerState& sampler,
+                            const GrSamplerState* sampler,
                             GrContext::TextureKey clientKey,
                             int width,
                             int height,
@@ -177,12 +178,13 @@ bool gen_texture_key_values(const GrGpu* gpu,
     if (!gpu->getCaps().fNPOTTextureTileSupport) {
         bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
-        bool tiled = (sampler.getWrapX() != GrSamplerState::kClamp_WrapMode) ||
-                     (sampler.getWrapY() != GrSamplerState::kClamp_WrapMode);
+        bool tiled = NULL != sampler &&
+                     ((sampler->getWrapX() != GrSamplerState::kClamp_WrapMode) ||
+                      (sampler->getWrapY() != GrSamplerState::kClamp_WrapMode));
 
         if (tiled && !isPow2) {
             v[3] |= kNPOTBit;
-            if (GrSamplerState::kNearest_Filter != sampler.getFilter()) {
+            if (GrSamplerState::kNearest_Filter != sampler->getFilter()) {
                 v[3] |= kFilterBit;
             }
         }
@@ -232,10 +234,11 @@ void reset_draw_state(GrDrawState* drawState){
 }
 }
 
-GrContext::TextureCacheEntry GrContext::findAndLockTexture(TextureKey key,
-                                                           int width,
-                                                           int height,
-                                                const GrSamplerState& sampler) {
+GrContext::TextureCacheEntry GrContext::findAndLockTexture(
+        TextureKey key,
+        int width,
+        int height,
+        const GrSamplerState* sampler) {
     uint32_t v[4];
     gen_texture_key_values(fGpu, sampler, key, width, height, false, v);
     GrResourceKey resourceKey(v);
@@ -246,7 +249,7 @@ GrContext::TextureCacheEntry GrContext::findAndLockTexture(TextureKey key,
 bool GrContext::isTextureInCache(TextureKey key,
                                  int width,
                                  int height,
-                                 const GrSamplerState& sampler) const {
+                                 const GrSamplerState* sampler) const {
     uint32_t v[4];
     gen_texture_key_values(fGpu, sampler, key, width, height, false, v);
     GrResourceKey resourceKey(v);
@@ -308,10 +311,12 @@ static void stretchImage(void* dst,
     }
 }
 
-GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
-                                                const GrSamplerState& sampler,
-                                                const GrTextureDesc& desc,
-                                                void* srcData, size_t rowBytes) {
+GrContext::TextureCacheEntry GrContext::createAndLockTexture(
+        TextureKey key,
+        const GrSamplerState* sampler,
+        const GrTextureDesc& desc,
+        void* srcData,
+        size_t rowBytes) {
     SK_TRACE_EVENT0("GrContext::createAndLockTexture");
 
 #if GR_DUMP_TEXTURE_UPLOAD
@@ -325,14 +330,15 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
     GrResourceKey resourceKey(v);
 
     if (special) {
-        TextureCacheEntry clampEntry = 
-                            findAndLockTexture(key, desc.fWidth, desc.fHeight,
-                                               GrSamplerState::ClampNearest());
+        GrAssert(NULL != sampler);
+        TextureCacheEntry clampEntry = this->findAndLockTexture(key,
+                                                                desc.fWidth,
+                                                                desc.fHeight,
+                                                                NULL);
 
         if (NULL == clampEntry.texture()) {
-            clampEntry = createAndLockTexture(key,
-                                              GrSamplerState::ClampNearest(),
-                                              desc, srcData, rowBytes);
+            clampEntry = this->createAndLockTexture(key, NULL, desc,
+                                                    srcData, rowBytes);
             GrAssert(NULL != clampEntry.texture());
             if (NULL == clampEntry.texture()) {
                 return entry;
@@ -358,7 +364,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
             // if filtering is not desired then we want to ensure all
             // texels in the resampled image are copies of texels from
             // the original.
-            if (GrSamplerState::kNearest_Filter == sampler.getFilter()) {
+            if (GrSamplerState::kNearest_Filter == sampler->getFilter()) {
                 filter = GrSamplerState::kNearest_Filter;
             } else {
                 filter = GrSamplerState::kBilinear_Filter;
@@ -430,8 +436,8 @@ inline void gen_scratch_tex_key_values(const GrGpu* gpu,
                                     ((uint64_t) desc.fConfig << 32);
     // this code path isn't friendly to tiling with NPOT restricitons
     // We just pass ClampNoFilter()
-    gen_texture_key_values(gpu, GrSamplerState::ClampNearest(), descKey,
-                            desc.fWidth, desc.fHeight, true, v);
+    gen_texture_key_values(gpu, NULL, descKey, desc.fWidth,
+                           desc.fHeight, true, v);
 }
 }
 
@@ -573,7 +579,7 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
+bool GrContext::supportsIndex8PixelConfig(const GrSamplerState* sampler,
                                           int width, int height) const {
     const GrDrawTarget::Caps& caps = fGpu->getCaps();
     if (!caps.f8BitPaletteSupport) {
@@ -583,8 +589,9 @@ bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
     bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
     if (!isPow2) {
-        bool tiled = sampler.getWrapX() != GrSamplerState::kClamp_WrapMode ||
-                     sampler.getWrapY() != GrSamplerState::kClamp_WrapMode;
+        bool tiled = NULL != sampler &&
+                     (sampler->getWrapX() != GrSamplerState::kClamp_WrapMode ||
+                      sampler->getWrapY() != GrSamplerState::kClamp_WrapMode);
         if (tiled && !caps.fNPOTTextureTileSupport) {
             return false;
         }

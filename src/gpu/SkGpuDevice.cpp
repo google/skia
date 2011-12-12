@@ -59,7 +59,7 @@ enum {
 SkGpuDevice::SkAutoCachedTexture::
              SkAutoCachedTexture(SkGpuDevice* device,
                                  const SkBitmap& bitmap,
-                                 const GrSamplerState& sampler,
+                                 const GrSamplerState* sampler,
                                  GrTexture** texture) {
     GrAssert(texture);
     *texture = this->set(device, bitmap, sampler);
@@ -70,7 +70,7 @@ SkGpuDevice::SkAutoCachedTexture::SkAutoCachedTexture() {
 
 GrTexture* SkGpuDevice::SkAutoCachedTexture::set(SkGpuDevice* device,
                                                  const SkBitmap& bitmap,
-                                                 const GrSamplerState& sampler) {
+                                                 const GrSamplerState* sampler) {
     if (fTex.texture()) {
         fDevice->unlockCachedTexture(fTex);
     }
@@ -195,7 +195,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
     TexType type = (kSaveLayer_Usage == usage) ? 
                             kSaveLayerDeviceRenderTarget_TexType :
                             kDeviceRenderTarget_TexType;
-    fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNearest(), type);
+    fCache = this->lockCachedTexture(bm, NULL, type);
     fTexture = fCache.texture();
     if (fTexture) {
         SkASSERT(NULL != fTexture->asRenderTarget());
@@ -515,7 +515,7 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
                                   twoPointParams[2] < 0);
     }
 
-    GrTexture* texture = act->set(this, bitmap, *sampler);
+    GrTexture* texture = act->set(this, bitmap, sampler);
     if (NULL == texture) {
         SkDebugf("Couldn't convert bitmap to texture.\n");
         return false;
@@ -1407,7 +1407,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     sampler->setMatrix(GrMatrix::I());
 
     GrTexture* texture;
-    SkAutoCachedTexture act(this, bitmap, *sampler, &texture);
+    SkAutoCachedTexture act(this, bitmap, sampler, &texture);
     if (NULL == texture) {
         return;
     }
@@ -1470,7 +1470,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrTexture* texture;
     sampler->reset();
-    SkAutoCachedTexture act(this, bitmap, *sampler, &texture);
+    SkAutoCachedTexture act(this, bitmap, sampler, &texture);
 
     grPaint.setTexture(kBitmapTextureIdx, texture);
 
@@ -1755,7 +1755,7 @@ void SkGpuDevice::flush() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
-                                            const GrSamplerState& sampler,
+                                            const GrSamplerState* sampler,
                                             TexType type) {
     GrContext::TextureCacheEntry entry;
     GrContext* ctx = this->context();
@@ -1787,11 +1787,12 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             entry = ctx->findAndLockTexture(key, bitmap.width(),
                                             bitmap.height(), sampler);
             if (NULL == entry.texture()) {
-                entry = sk_gr_create_bitmap_texture(ctx, key, sampler, 
+                entry = sk_gr_create_bitmap_texture(ctx, key, sampler,
                                                     bitmap);
             }
         } else {
-            entry = sk_gr_create_bitmap_texture(ctx, gUNCACHED_KEY, sampler, bitmap);
+            entry = sk_gr_create_bitmap_texture(ctx, gUNCACHED_KEY,
+                                                sampler, bitmap);
         }
         if (NULL == entry.texture()) {
             GrPrintf("---- failed to create texture for cache [%d %d]\n",
@@ -1810,7 +1811,7 @@ bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
     GrContext::TextureKey key = bitmap.getGenerationID();
     key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
     return this->context()->isTextureInCache(key, bitmap.width(),
-                                             bitmap.height(), sampler);
+                                             bitmap.height(), &sampler);
 
 }
 
