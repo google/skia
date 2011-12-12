@@ -1618,8 +1618,8 @@ SkView::Click* SampleWindow::onFindClickHandler(SkScalar x, SkScalar y) {
 
 bool SampleWindow::onClick(Click* click) {
     if (GestureClick::IsGesture(click)) {
-        float x = click->fICurr.fX;
-        float y = click->fICurr.fY;
+        float x = static_cast<float>(click->fICurr.fX);
+        float y = static_cast<float>(click->fICurr.fY);
         
         switch (click->fState) {
             case SkView::Click::kDown_State:
