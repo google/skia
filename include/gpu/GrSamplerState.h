@@ -91,14 +91,6 @@ public:
         this->reset();
     }
 
-    GrSamplerState(WrapMode wrapXAndY,
-                   Filter filter)
-    : fRadial2CenterX1()
-    , fRadial2Radius0()
-    , fRadial2PosRoot() {
-        this->reset(wrapXAndY, filter);
-    }
-
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
     SampleMode getSampleMode() const { return fSampleMode; }
@@ -186,6 +178,15 @@ public:
         fWrapY = wrapXAndY;
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
+        fMatrix = matrix;
+        fTextureDomain.setEmpty();
+        fSwapRAndB = false;
+    }
+    void reset(const GrMatrix& matrix) {
+        fWrapX = kClamp_WrapMode;
+        fWrapY = kClamp_WrapMode;
+        fSampleMode = kNormal_SampleMode;
+        fFilter = kNearest_Filter;
         fMatrix = matrix;
         fTextureDomain.setEmpty();
         fSwapRAndB = false;

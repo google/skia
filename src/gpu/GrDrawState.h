@@ -149,14 +149,6 @@ struct GrDrawState {
     }
 
     /**
-     * Sets the sampler. This will be removed soon in favor of direct access.
-     */
-    void setSampler(int stage, const GrSamplerState& sampler) {
-        GrAssert((unsigned)stage < kNumStages);
-        fSamplerStates[stage] = sampler;
-    }
-
-    /**
      * Writable pointer to a stage's sampler.
      */
     GrSamplerState* sampler(int stage) {

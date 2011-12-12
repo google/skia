@@ -33,9 +33,8 @@ void GrTextContext::flushGlyphs() {
         } else {
             filter = GrSamplerState::kBilinear_Filter;
         }
-        GrSamplerState sampler(GrSamplerState::kRepeat_WrapMode,
-                               filter);
-        drawState->setSampler(kGlyphMaskStage, sampler);
+        drawState->sampler(kGlyphMaskStage)->reset(
+            GrSamplerState::kRepeat_WrapMode,filter);
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         int nIndices = fCurrVertex + (fCurrVertex >> 1);
