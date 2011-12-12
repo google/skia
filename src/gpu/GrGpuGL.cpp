@@ -518,7 +518,7 @@ void GrGpuGL::onResetContext() {
         fHWDrawState.sampler(s)->setRadial2Params(-GR_ScalarMax,
                                                   -GR_ScalarMax,
                                                   true);
-        fHWDrawState.sampler(s)->setMatrix(GrMatrix::InvalidMatrix());
+        *fHWDrawState.sampler(s)->matrix() = GrMatrix::InvalidMatrix();
         fHWDrawState.sampler(s)->setConvolutionParams(0, NULL, NULL);
     }
 

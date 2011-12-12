@@ -473,10 +473,10 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
     }
 
     SkBitmap bitmap;
-    SkMatrix matrix;
+    SkMatrix* matrix = grPaint->textureSampler(kShaderTextureIdx)->matrix();
     SkShader::TileMode tileModes[2];
     SkScalar twoPointParams[3];
-    SkShader::BitmapType bmptype = shader->asABitmap(&bitmap, &matrix,
+    SkShader::BitmapType bmptype = shader->asABitmap(&bitmap, matrix,
                                                      tileModes, twoPointParams);
 
     GrSamplerState::SampleMode sampleMode = sk_bmp_type_to_sample_mode[bmptype];
@@ -528,18 +528,17 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
     if (shader->getLocalMatrix(&localM)) {
         SkMatrix inverse;
         if (localM.invert(&inverse)) {
-            matrix.preConcat(inverse);
+            matrix->preConcat(inverse);
         }
     }
     if (SkShader::kDefault_BitmapType == bmptype) {
         GrScalar sx = GrFixedToScalar(GR_Fixed1 / bitmap.width());
         GrScalar sy = GrFixedToScalar(GR_Fixed1 / bitmap.height());
-        matrix.postScale(sx, sy);
+        matrix->postScale(sx, sy);
     } else if (SkShader::kRadial_BitmapType == bmptype) {
         GrScalar s = GrFixedToScalar(GR_Fixed1 / bitmap.width());
-        matrix.postScale(s, s);
+        matrix->postScale(s, s);
     }
-    sampler->setMatrix(matrix);
 
     return true;
 }
@@ -762,9 +761,8 @@ static GrTexture* gaussianBlur(GrContext* context, GrTexture* srcTexture,
     paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
-        GrMatrix sampleM;
-        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
-        paint.textureSampler(0)->setMatrix(sampleM);
+        paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
+                                                   srcTexture->height());
         context->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
         scaleRect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f, 
@@ -826,9 +824,8 @@ static GrTexture* gaussianBlur(GrContext* context, GrTexture* srcTexture,
         context->clear(&clearRect, 0x0);
         // FIXME:  This should be mitchell, not bilinear.
         paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
-        GrMatrix sampleM;
-        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
-        paint.textureSampler(0)->setMatrix(sampleM);
+        paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
+                                                   srcTexture->height());
         context->setRenderTarget(dstTexture->asRenderTarget());
         paint.setTexture(0, srcTexture);
         SkRect dstRect(srcRect);
@@ -935,9 +932,8 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         GrPaint paint;
         paint.reset();
         paint.textureSampler(0)->setFilter(GrSamplerState::kNearest_Filter);
-        GrMatrix sampleM;
-        sampleM.setIDiv(pathTexture->width(), pathTexture->height());
-        paint.textureSampler(0)->setMatrix(sampleM);
+        paint.textureSampler(0)->matrix()->setIDiv(pathTexture->width(),
+                                                   pathTexture->height());
         // Blend pathTexture over blurTexture.
         context->setRenderTarget(blurTexture->asRenderTarget());
         paint.setTexture(0, pathTexture);
@@ -975,10 +971,10 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     grp->setMask(MASK_IDX, blurTexture);
     grp->maskSampler(MASK_IDX)->reset();
 
-    GrMatrix m;
-    m.setTranslate(-finalRect.fLeft, -finalRect.fTop);
-    m.postIDiv(blurTexture->width(), blurTexture->height());
-    grp->maskSampler(MASK_IDX)->setMatrix(m);
+    grp->maskSampler(MASK_IDX)->matrix()->setTranslate(-finalRect.fLeft,
+                                                       -finalRect.fTop);
+    grp->maskSampler(MASK_IDX)->matrix()->postIDiv(blurTexture->width(),
+                                                   blurTexture->height());
     context->drawRect(*grp, finalRect);
     return true;
 }
@@ -1049,12 +1045,10 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
               GrIntToScalar(dstM.fBounds.fRight),
               GrIntToScalar(dstM.fBounds.fBottom));
 
-    GrMatrix m;
-    m.setTranslate(-dstM.fBounds.fLeft*SK_Scalar1,
-                   -dstM.fBounds.fTop*SK_Scalar1);
-    m.postIDiv(texture->width(), texture->height());
-    grp->maskSampler(MASK_IDX)->setMatrix(m);
-    
+    GrMatrix* m = grp->maskSampler(MASK_IDX)->matrix();
+    m->setTranslate(-dstM.fBounds.fLeft*SK_Scalar1,
+                         -dstM.fBounds.fTop*SK_Scalar1);
+    m->postIDiv(texture->width(), texture->height());
     context->drawRect(*grp, d);
     return true;
 }
@@ -1404,7 +1398,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     sampler->setWrapX(GrSamplerState::kClamp_WrapMode);
     sampler->setWrapY(GrSamplerState::kClamp_WrapMode);
     sampler->setSampleMode(GrSamplerState::kNormal_SampleMode);
-    sampler->setMatrix(GrMatrix::I());
+    sampler->matrix()->reset();
 
     GrTexture* texture;
     SkAutoCachedTexture act(this, bitmap, sampler, &texture);

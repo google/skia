@@ -38,7 +38,9 @@ public:
         /**
          * Apply a separable convolution kernel.
          */
-        kConvolution_Filter
+        kConvolution_Filter,
+
+        kDefault_Filter = kNearest_Filter
     };
 
     /**
@@ -68,6 +70,8 @@ public:
         kRadial_SampleMode,     //!< treat as radial gradient
         kRadial2_SampleMode,    //!< treat as 2-point radial gradient
         kSweep_SampleMode,      //!< treat as sweep gradient
+
+        kDefault_SampleMode = kNormal_SampleMode
     };
 
     /**
@@ -77,7 +81,9 @@ public:
     enum WrapMode {
         kClamp_WrapMode,
         kRepeat_WrapMode,
-        kMirror_WrapMode
+        kMirror_WrapMode,
+
+        kDefault_WrapMode = kClamp_WrapMode
     };
 
     /**
@@ -114,12 +120,11 @@ public:
     void setSampleMode(SampleMode mode) { fSampleMode = mode; }
     
     /**
-     * Sets the sampler's matrix. See SampleMode for explanation of
+     * Access the sampler's matrix. See SampleMode for explanation of
      * relationship between the matrix and sample mode.
-     * @param matrix the matrix to set
      */
-    void setMatrix(const GrMatrix& matrix) { fMatrix = matrix; }
-    
+    GrMatrix* matrix() { return &fMatrix; }
+
     /**
      * Sets the sampler's texture coordinate domain to a 
      * custom rectangle, rather than the default (0,1).
@@ -151,45 +156,26 @@ public:
      */
     void setFilter(Filter filter) { fFilter = filter; }
 
-    void reset() {
-        fWrapX = kClamp_WrapMode;
-        fWrapY = kClamp_WrapMode;
-        fSampleMode = kNormal_SampleMode;
-        fFilter = kNearest_Filter;
-        fMatrix.setIdentity();
-        fTextureDomain.setEmpty();
-        fSwapRAndB = false;
-    }
-
-    void reset(WrapMode wrapXAndY,
-               Filter filter) {
-        fWrapX = wrapXAndY;
-        fWrapY = wrapXAndY;
-        fSampleMode = kNormal_SampleMode;
-        fFilter = filter;
-        fMatrix.setIdentity();
-        fTextureDomain.setEmpty();
-        fSwapRAndB = false;
-    }
     void reset(WrapMode wrapXAndY,
                Filter filter,
                const GrMatrix& matrix) {
         fWrapX = wrapXAndY;
         fWrapY = wrapXAndY;
-        fSampleMode = kNormal_SampleMode;
+        fSampleMode = kDefault_SampleMode;
         fFilter = filter;
         fMatrix = matrix;
         fTextureDomain.setEmpty();
         fSwapRAndB = false;
     }
+    void reset(WrapMode wrapXAndY,
+               Filter filter) {
+        this->reset(wrapXAndY, filter, GrMatrix::I());
+    }
     void reset(const GrMatrix& matrix) {
-        fWrapX = kClamp_WrapMode;
-        fWrapY = kClamp_WrapMode;
-        fSampleMode = kNormal_SampleMode;
-        fFilter = kNearest_Filter;
-        fMatrix = matrix;
-        fTextureDomain.setEmpty();
-        fSwapRAndB = false;
+        this->reset(kDefault_WrapMode, kDefault_Filter, matrix);
+    }
+    void reset() {
+        this->reset(kDefault_WrapMode, kDefault_Filter, GrMatrix::I());
     }
 
     GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
