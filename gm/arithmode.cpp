@@ -27,7 +27,7 @@ static SkBitmap make_src() {
     SkBitmap bm = make_bm();
     SkCanvas canvas(bm);
     SkPaint paint;
-    SkPoint pts[] = { 0, 0, WW, HH };
+    SkPoint pts[] = { 0, 0, SkIntToScalar(WW), SkIntToScalar(HH) };
     SkColor colors[] = {
         SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE
@@ -43,7 +43,7 @@ static SkBitmap make_dst() {
     SkBitmap bm = make_bm();
     SkCanvas canvas(bm);
     SkPaint paint;
-    SkPoint pts[] = { 0, HH, WW, 0 };
+    SkPoint pts[] = { 0, SkIntToScalar(HH), SkIntToScalar(WW), 0 };
     SkColor colors[] = {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN, SK_ColorGRAY
     };
@@ -68,14 +68,14 @@ static SkBitmap make_arith(const SkBitmap& src, const SkBitmap& dst,
 
 static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar k[]) {
     SkPaint paint;
-    paint.setTextSize(24);
+    paint.setTextSize(SkIntToScalar(24));
     paint.setAntiAlias(true);
     for (int i = 0; i < 4; ++i) {
         SkString str;
         str.appendScalar(k[i]);
         SkScalar width = paint.measureText(str.c_str(), str.size());
-        canvas->drawText(str.c_str(), str.size(), x, y + 24, paint);
-        x += width + 10;
+        canvas->drawText(str.c_str(), str.size(), x, y + paint.getTextSize(), paint);
+        x += width + SkIntToScalar(10);
     }
 }
 
@@ -95,25 +95,26 @@ protected:
         SkBitmap src = make_src();
         SkBitmap dst = make_dst();
         
+        const SkScalar one = SK_Scalar1;
         static const SkScalar K[] = {
             0, 0, 0, 0,
-            0, 0, 0, 1,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 1, 1, 0,
-            0, 1, -1, 0,
-            0, 0.5f, 0.5f, 0,
-            0, 0.5f, 0.5f, 0.25f,
-            0, 0.5f, 0.5f, -0.25f,
-            0.25f, 0.5f, 0.5f, 0,
-            -0.25f, 0.5f, 0.5f, 0,
+            0, 0, 0, one,
+            0, one, 0, 0,
+            0, 0, one, 0,
+            0, one, one, 0,
+            0, one, -one, 0,
+            0, one/2, one/2, 0,
+            0, one/2, one/2, one/4,
+            0, one/2, one/2, -one/4,
+            one/4, one/2, one/2, 0,
+            -one/4, one/2, one/2, 0,
         };
         
         const SkScalar* k = K;
         const SkScalar* stop = k + SK_ARRAY_COUNT(K);
         SkScalar y = 0;
         SkScalar x = 0;
-        SkScalar gap = src.width() + 20;
+        SkScalar gap = src.width() + SkIntToScalar(20);
         while (k < stop) {
             SkScalar x = 0;
             SkBitmap res = make_arith(src, dst, k);
@@ -125,7 +126,7 @@ protected:
             x += gap;
             show_k_text(canvas, x, y, k);
             k += 4;
-            y += src.height() + 12;
+            y += src.height() + SkIntToScalar(12);
         }
     }
 
