@@ -369,9 +369,8 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
             } else {
                 filter = GrSamplerState::kBilinear_Filter;
             }
-            GrSamplerState stretchSampler(GrSamplerState::kClamp_WrapMode,
-                                          filter);
-            drawState->setSampler(0, stretchSampler);
+            drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
+                                         filter);
 
             static const GrVertexLayout layout =
                                 GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
@@ -870,7 +869,6 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     }
 
     GrMatrix sampleM;
-    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, filter);
 
     GrTexture* src = record->fOffscreen0.texture();
     int scale;
@@ -892,8 +890,9 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
         drawState->setViewMatrix(GrMatrix::I());
         sampleM.setScale(scale * GR_Scalar1 / src->width(),
                          scale * GR_Scalar1 / src->height());
-        sampler.setMatrix(sampleM);
-        drawState->setSampler(kOffscreenStage, sampler);
+        GrSamplerState* sampler = drawState->sampler(kOffscreenStage);
+        sampler->reset(GrSamplerState::kClamp_WrapMode, filter);
+        sampler->setMatrix(sampleM);
         GrRect rect = SkRect::MakeWH(SkIntToScalar(scale * tileRect.width()),
                                      SkIntToScalar(scale * tileRect.height()));
         target->drawSimpleRect(rect, NULL, 1 << kOffscreenStage);
@@ -929,13 +928,15 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     GrDrawState::AutoViewMatrixRestore avmr(drawState, GrMatrix::I());
 
     drawState->setTexture(kOffscreenStage, src);
+    GrSamplerState* sampler = drawState->sampler(kOffscreenStage);
+    sampler->reset(GrSamplerState::kClamp_WrapMode, filter);
     sampleM.setScale(scale * GR_Scalar1 / src->width(),
                      scale * GR_Scalar1 / src->height());
-    sampler.setMatrix(sampleM);
+    
+    sampler->setMatrix(sampleM);
     sampleM.setTranslate(SkIntToScalar(-tileRect.fLeft),
                          SkIntToScalar(-tileRect.fTop));
-    sampler.preConcatMatrix(sampleM);
-    drawState->setSampler(kOffscreenStage, sampler);
+    sampler->preConcatMatrix(sampleM);
 
     GrRect dstRect;
     int stages = (1 << kOffscreenStage) | stageMask;
@@ -1794,12 +1795,8 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
             matrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
         }
         matrix.postIDiv(src->width(), src->height());
-        GrSamplerState sampler;
-        sampler.reset(GrSamplerState::kClamp_WrapMode,
-                      GrSamplerState::kNearest_Filter,
-                      matrix);
-        sampler.setRAndBSwap(swapRAndB);
-        drawState->setSampler(0, sampler);
+        drawState->sampler(0)->reset(matrix);
+        drawState->sampler(0)->setRAndBSwap(swapRAndB);
         drawState->setTexture(0, src);
         GrRect rect;
         rect.setXYWH(0, 0, SK_Scalar1 * width, SK_Scalar1 * height);
@@ -1822,13 +1819,10 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     GrDrawState* drawState = fGpu->drawState();
     reset_draw_state(drawState);
     drawState->setRenderTarget(dst);
-    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode,
-                           GrSamplerState::kNearest_Filter);
     GrMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
-    sampler.setMatrix(sampleM);
     drawState->setTexture(0, src);
-    drawState->setSampler(0, sampler);
+    drawState->sampler(0)->reset(sampleM);
     SkRect rect = SkRect::MakeXYWH(0, 0, src->width(), src->height());
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
@@ -1900,12 +1894,10 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     drawState->setTexture(0, texture);
 
     matrix.setIDiv(texture->width(), texture->height());
-    GrSamplerState sampler;
-    sampler.reset(GrSamplerState::kClamp_WrapMode,
-                  GrSamplerState::kNearest_Filter,
-                  matrix);
-    sampler.setRAndBSwap(swapRAndB);
-    drawState->setSampler(0, sampler);
+    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
+                                 GrSamplerState::kNearest_Filter,
+                                 matrix);
+    drawState->sampler(0)->setRAndBSwap(swapRAndB);
 
     GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
     static const int VCOUNT = 4;
@@ -1927,7 +1919,7 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
         int s = i + GrPaint::kFirstTextureStage;
         drawState->setTexture(s, paint.getTexture(i));
         ASSERT_OWNED_RESOURCE(paint.getTexture(i));
-        drawState->setSampler(s, paint.getTextureSampler(i));
+        *drawState->sampler(s) = paint.getTextureSampler(i);
     }
 
     drawState->setFirstCoverageStage(GrPaint::kFirstMaskStage);
@@ -1936,7 +1928,7 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
         int s = i + GrPaint::kFirstMaskStage;
         drawState->setTexture(s, paint.getMask(i));
         ASSERT_OWNED_RESOURCE(paint.getMask(i));
-        drawState->setSampler(s, paint.getMaskSampler(i));
+        *drawState->sampler(s) = paint.getMaskSampler(i);
     }
 
     drawState->setColor(paint.fColor);
@@ -2146,14 +2138,16 @@ void GrContext::convolve(GrTexture* texture,
     ASSERT_OWNED_RESOURCE(texture);
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
-    GrMatrix sampleM;
-    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode,
-                           GrSamplerState::kConvolution_Filter);
-    sampler.setConvolutionParams(kernelWidth, kernel, imageIncrement);
-    sampleM.setIDiv(texture->width(), texture->height());
-    sampler.setMatrix(sampleM);
     GrDrawState* drawState = fGpu->drawState();
-    drawState->setSampler(0, sampler);
+    GrMatrix sampleM;
+    sampleM.setIDiv(texture->width(), texture->height());
+    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
+                                 GrSamplerState::kConvolution_Filter,
+                                 sampleM);
+    drawState->sampler(0)->setConvolutionParams(kernelWidth,
+                                                kernel,
+                                                imageIncrement);
+
     drawState->setViewMatrix(GrMatrix::I());
     drawState->setTexture(0, texture);
     drawState->setAlpha(0xFF);
