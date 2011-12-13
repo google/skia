@@ -718,15 +718,17 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     this->flushViewMatrix();
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        this->flushTextureMatrix(s);
+        if (this->isStageEnabled(s)) {
+            this->flushTextureMatrix(s);
 
-        this->flushRadial2(s);
+            this->flushRadial2(s);
 
-        this->flushConvolution(s);
+            this->flushConvolution(s);
 
-        this->flushTexelSize(s);
+            this->flushTexelSize(s);
 
-        this->flushTextureDomain(s);
+            this->flushTextureDomain(s);
+        }
     }
     this->flushEdgeAAData();
     resetDirtyFlags();
