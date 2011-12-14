@@ -413,21 +413,21 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
     grPaint->fDither    = skPaint.isDither();
     grPaint->fAntiAlias = skPaint.isAntiAlias();
 
-    SkXfermode::Coeff sm = SkXfermode::kOne_Coeff;
-    SkXfermode::Coeff dm = SkXfermode::kISA_Coeff;
+    grPaint->fSrcBlendCoeff = kOne_BlendCoeff;
+    grPaint->fDstBlendCoeff = kISA_BlendCoeff;
 
     SkXfermode* mode = skPaint.getXfermode();
     if (mode) {
+        SkXfermode::Coeff sm, dm;
         if (!mode->asCoeff(&sm, &dm)) {
             //SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
 #if 0
             return false;
 #endif
+            grPaint->fSrcBlendCoeff = sk_blend_to_grblend(sm);
+            grPaint->fDstBlendCoeff = sk_blend_to_grblend(dm);
         }
     }
-    grPaint->fSrcBlendCoeff = sk_blend_to_grblend(sm);
-    grPaint->fDstBlendCoeff = sk_blend_to_grblend(dm);
-
     if (justAlpha) {
         uint8_t alpha = skPaint.getAlpha();
         grPaint->fColor = GrColorPackRGBA(alpha, alpha, alpha, alpha);
