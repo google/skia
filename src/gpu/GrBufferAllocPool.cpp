@@ -91,7 +91,9 @@ void GrBufferAllocPool::reset() {
         fFirstPreallocBuffer = (fFirstPreallocBuffer + fPreallocBuffersInUse) %
                                fPreallocBuffers.count();
     }
-    fCpuData.reset(fGpu->getCaps().fBufferLockSupport ? 0 : fMinBlockSize);
+    // we may have created a large cpu mirror of a large VB. Reset the size
+    // to match our pre-allocated VBs.
+    fCpuData.reset(fMinBlockSize);
     GrAssert(0 == fPreallocBuffersInUse);
     VALIDATE();
 }
