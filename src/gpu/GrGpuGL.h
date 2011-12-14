@@ -41,8 +41,6 @@ public:
                                     GrPixelConfig config,
                                     size_t rowBytes) const SK_OVERRIDE;
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
-protected:
-    GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
 
     struct GLCaps {
         GLCaps()
@@ -118,8 +116,19 @@ protected:
         bool fTextureUsageSupport;
 
         void print() const;
-    } fGLCaps;
- 
+    };
+
+    const GLCaps& glCaps() const { return fGLCaps; }
+
+    // subclass may try to take advantage of identity tex matrices.
+    // This helper determines if matrix will be identity after all
+    // adjustments are applied.
+    static bool TextureMatrixIsIdentity(const GrGLTexture* texture,
+                                        const GrSamplerState& sampler);
+
+protected:
+    GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
+
     struct {
         size_t                  fVertexOffset;
         GrVertexLayout          fVertexLayout;
@@ -156,8 +165,6 @@ protected:
         GrGLIRect   fScissorRect;
         GrGLIRect   fViewportRect;
     } fHWBounds;
-
-    const GLCaps& glCaps() const { return fGLCaps; }
 
     // GrGpu overrides
     virtual void onResetContext() SK_OVERRIDE;
@@ -241,13 +248,6 @@ protected:
     static void AdjustTextureMatrix(const GrGLTexture* texture,
                                     GrSamplerState::SampleMode mode,
                                     GrMatrix* matrix);
-
-    // subclass may try to take advantage of identity tex matrices.
-    // This helper determines if matrix will be identity after all
-    // adjustments are applied.
-    static bool TextureMatrixIsIdentity(const GrGLTexture* texture,
-                                        const GrSamplerState& sampler);
-
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
 private:
@@ -321,6 +321,7 @@ private:
 
     const GrGLInterface* fGL;
     GrGLBinding fGLBinding;
+    GLCaps fGLCaps;
 
     bool fPrintedCaps;
 
