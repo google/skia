@@ -24,6 +24,7 @@
         'core.gyp:core',
         'effects.gyp:effects',
         'opts.gyp:opts',
+        'ports.gyp:ports',
         'utils.gyp:utils',
         'views.gyp:views',
         'xml.gyp:xml',

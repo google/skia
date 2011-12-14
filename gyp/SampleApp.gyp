@@ -148,6 +148,7 @@
         'core.gyp:core',
         'effects.gyp:effects',
         'images.gyp:images',
+        'ports.gyp:ports',
         'views.gyp:views',
         'utils.gyp:utils',
         'animator.gyp:animator',

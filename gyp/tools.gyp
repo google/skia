@@ -30,6 +30,7 @@
       'dependencies': [
         'core.gyp:core',
         'images.gyp:images',
+        'ports.gyp:ports',
         'utils.gyp:utils',
       ],
     },
@@ -42,6 +43,7 @@
       'dependencies': [
         'core.gyp:core',
         'images.gyp:images',
+        'ports.gyp:ports',
         'utils.gyp:utils',
       ],
     },
@@ -54,6 +56,7 @@
       'dependencies': [
         'core.gyp:core',
         'images.gyp:images',
+        'ports.gyp:ports',
         'utils.gyp:utils',
       ],
     },

@@ -22,6 +22,7 @@
         'gpu.gyp:gr',
         'gpu.gyp:skgr',
         'images.gyp:images',
+        'ports.gyp:ports',
         'utils.gyp:utils',
       ],
     },

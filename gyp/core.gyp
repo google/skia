@@ -149,20 +149,6 @@
 
         '../src/opts/opts_check_SSE2.cpp',
 
-        '../src/ports/SkDebug_stdio.cpp',
-        '../src/ports/SkDebug_win.cpp',
-        '../src/ports/SkFontHost_sandbox_none.cpp',
-        '../src/ports/SkFontHost_win.cpp',
-        '../src/ports/SkThread_win.cpp',
-
-        '../src/ports/SkFontHost_tables.cpp',
-        '../src/ports/SkMemory_malloc.cpp',
-        '../src/ports/SkOSFile_stdio.cpp',
-        '../src/ports/SkTime_Unix.cpp',
-        '../src/ports/SkTime_win.cpp',
-        '../src/ports/SkXMLParser_empty.cpp',
-        '../src/ports/sk_predefined_gamma.h',
-
         '../include/core/Sk64.h',
         '../include/core/SkAdvancedTypefaceMetrics.h',
         '../include/core/SkAutoKern.h',
@@ -267,10 +253,6 @@
           'sources': [
             '../include/core/SkMMapStream.h',
             '../src/core/SkMMapStream.cpp',
-            '../src/ports/SkThread_pthread.cpp',
-            '../src/ports/SkFontHost_FreeType.cpp',
-            '../src/ports/SkFontHost_gamma_none.cpp',
-            '../src/ports/SkFontHost_linux.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -289,11 +271,6 @@
             '../include/utils/mac/SkCGUtils.h',
 
             '../src/core/SkMMapStream.cpp',
-            '../src/ports/SkFontHost_mac_coretext.cpp',
-#            '../src/ports/SkFontHost_FreeType.cpp',
-#            '../src/ports/SkFontHost_freetype_mac.cpp',
-#            '../src/ports/SkFontHost_gamma_none.cpp',
-            '../src/ports/SkThread_pthread.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -310,9 +287,6 @@
             '../include/utils/mac/SkCGUtils.h',
 
             '../src/core/SkMMapStream.cpp',
-            '../src/ports/SkFontHost_mac_coretext.cpp',
-
-            '../src/ports/SkThread_pthread.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -330,32 +304,14 @@
           'include_dirs': [
             'config/win',
           ],
-          'sources!': [ # these are used everywhere but windows
-            '../src/ports/SkDebug_stdio.cpp',
-            '../src/ports/SkTime_Unix.cpp',
-          ],
-        }, { # else !win
-          'sources!': [
-            '../src/ports/SkDebug_win.cpp',
-            '../src/ports/SkFontHost_win.cpp',
-            '../src/ports/SkThread_win.cpp',
-            '../src/ports/SkTime_win.cpp',
-          ],
         }],
         [ 'skia_os == "android"', {
           'sources!': [
             '../src/opts/opts_check_SSE2.cpp',
-            '../src/ports/SkDebug_stdio.cpp',
           ],
           'sources': [
             '../include/core/SkMMapStream.h',
             '../src/core/SkMMapStream.cpp',
-            '../src/ports/SkDebug_android.cpp',
-            '../src/ports/SkThread_pthread.cpp',
-            '../src/ports/SkFontHost_android.cpp',
-            '../src/ports/SkFontHost_gamma.cpp',
-            '../src/ports/SkFontHost_FreeType.cpp',
-            '../src/ports/FontHostConfiguration_android.cpp',
           ],
           'dependencies': [
              'android_system.gyp:ft2',
