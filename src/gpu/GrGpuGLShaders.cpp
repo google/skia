@@ -875,97 +875,6 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     fHWGeometryState.fArrayPtrsDirty = false;
 }
 
-namespace {
-void copy_stage_to_desc(GrGLProgram::StageDesc* stage,
-                        const GrGLTexture* texture,
-                        const GrSamplerState& sampler,
-                        const GrGpuGL::GLCaps& caps) {
-    typedef GrGLProgram::StageDesc StageDesc;
-    GrAssert(NULL != texture);
-    stage->fOptFlags = 0;
-    stage->setEnabled(true);
-
-    // we matrix to invert when orientation is TopDown, so make sure
-    // we aren't in that case before flagging as identity.
-    if (GrGpuGL::TextureMatrixIsIdentity(texture, sampler)) {
-        stage->fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
-    } else if (!sampler.getMatrix().hasPerspective()) {
-        stage->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-    }
-    switch (sampler.getSampleMode()) {
-        case GrSamplerState::kNormal_SampleMode:
-            stage->fCoordMapping = StageDesc::kIdentity_CoordMapping;
-            break;
-        case GrSamplerState::kRadial_SampleMode:
-            stage->fCoordMapping = StageDesc::kRadialGradient_CoordMapping;
-            break;
-        case GrSamplerState::kRadial2_SampleMode:
-            if (sampler.radial2IsDegenerate()) {
-                stage->fCoordMapping =
-                    StageDesc::kRadial2GradientDegenerate_CoordMapping;
-            } else {
-                stage->fCoordMapping =
-                    StageDesc::kRadial2Gradient_CoordMapping;
-            }
-            break;
-        case GrSamplerState::kSweep_SampleMode:
-            stage->fCoordMapping = StageDesc::kSweepGradient_CoordMapping;
-            break;
-        default:
-            GrCrash("Unexpected sample mode!");
-            break;
-    }
-
-    switch (sampler.getFilter()) {
-        // these both can use a regular texture2D()
-        case GrSamplerState::kNearest_Filter:
-        case GrSamplerState::kBilinear_Filter:
-            stage->fFetchMode = StageDesc::kSingle_FetchMode;
-            break;
-        // performs 4 texture2D()s
-        case GrSamplerState::k4x4Downsample_Filter:
-            stage->fFetchMode = StageDesc::k2x2_FetchMode;
-            break;
-        // performs fKernelWidth texture2D()s
-        case GrSamplerState::kConvolution_Filter:
-            stage->fFetchMode = StageDesc::kConvolution_FetchMode;
-            break;
-        default:
-            GrCrash("Unexpected filter!");
-            break;
-    }
-
-    if (sampler.hasTextureDomain()) {
-        GrAssert(GrSamplerState::kClamp_WrapMode ==
-                    sampler.getWrapX() &&
-                    GrSamplerState::kClamp_WrapMode ==
-                    sampler.getWrapY());
-        stage->fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
-    }
-
-    stage->fInConfigFlags = 0;
-    if (!caps.fTextureSwizzleSupport) {
-        if (GrPixelConfigIsAlphaOnly(texture->config())) {
-            // if we don't have texture swizzle support then
-            // the shader must do an alpha smear after reading
-            // the texture
-            stage->fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
-        } else if (sampler.swapsRAndB()) {
-            stage->fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
-        }
-    }
-    if (GrPixelConfigIsUnpremultiplied(texture->config())) {
-        stage->fInConfigFlags |= StageDesc::kMulRGBByAlpha_InConfigFlag;
-    }
-
-    if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
-        stage->fKernelWidth = sampler.getKernelWidth();
-    } else {
-        stage->fKernelWidth = 0;
-    }
-}
-}
-
 void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                                   BlendOptFlags blendOpts,
                                   GrBlendCoeff dstCoeff) {
@@ -1035,37 +944,106 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
         // use canonical value when not set to avoid cache misses
         desc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
     }
-    int firstCoverageStage = drawState.getFirstCoverageStage();
 
-    for (int s = 0; s < firstCoverageStage; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         StageDesc& stage = desc.fStages[s];
-        bool enabled = !skipColor && this->isStageEnabled(s);
-        if (enabled) {
+
+        stage.fOptFlags = 0;
+        stage.setEnabled(this->isStageEnabled(s));
+
+        bool skip = s < drawState.getFirstCoverageStage() ? skipColor :
+                                                             skipCoverage;
+
+        if (!skip && stage.isEnabled()) {
+            lastEnabledStage = s;
             const GrGLTexture* texture =
                 static_cast<const GrGLTexture*>(drawState.getTexture(s));
-            copy_stage_to_desc(&stage,
-                               texture,
-                               drawState.getSampler(s),
-                               this->glCaps());
-            lastEnabledStage = s;
+            GrAssert(NULL != texture);
+            const GrSamplerState& sampler = drawState.getSampler(s);
+            // we matrix to invert when orientation is TopDown, so make sure
+            // we aren't in that case before flagging as identity.
+            if (TextureMatrixIsIdentity(texture, sampler)) {
+                stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
+            } else if (!sampler.getMatrix().hasPerspective()) {
+                stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
+            }
+            switch (sampler.getSampleMode()) {
+                case GrSamplerState::kNormal_SampleMode:
+                    stage.fCoordMapping = StageDesc::kIdentity_CoordMapping;
+                    break;
+                case GrSamplerState::kRadial_SampleMode:
+                    stage.fCoordMapping = StageDesc::kRadialGradient_CoordMapping;
+                    break;
+                case GrSamplerState::kRadial2_SampleMode:
+                    if (sampler.radial2IsDegenerate()) {
+                        stage.fCoordMapping =
+                            StageDesc::kRadial2GradientDegenerate_CoordMapping;
+                    } else {
+                        stage.fCoordMapping =
+                            StageDesc::kRadial2Gradient_CoordMapping;
+                    }
+                    break;
+                case GrSamplerState::kSweep_SampleMode:
+                    stage.fCoordMapping = StageDesc::kSweepGradient_CoordMapping;
+                    break;
+                default:
+                    GrCrash("Unexpected sample mode!");
+                    break;
+            }
+
+            switch (sampler.getFilter()) {
+                // these both can use a regular texture2D()
+                case GrSamplerState::kNearest_Filter:
+                case GrSamplerState::kBilinear_Filter:
+                    stage.fFetchMode = StageDesc::kSingle_FetchMode;
+                    break;
+                // performs 4 texture2D()s
+                case GrSamplerState::k4x4Downsample_Filter:
+                    stage.fFetchMode = StageDesc::k2x2_FetchMode;
+                    break;
+                // performs fKernelWidth texture2D()s
+                case GrSamplerState::kConvolution_Filter:
+                    stage.fFetchMode = StageDesc::kConvolution_FetchMode;
+                    break;
+                default:
+                    GrCrash("Unexpected filter!");
+                    break;
+            }
+
+            if (sampler.hasTextureDomain()) {
+                GrAssert(GrSamplerState::kClamp_WrapMode ==
+                            sampler.getWrapX() &&
+                         GrSamplerState::kClamp_WrapMode ==
+                            sampler.getWrapY());
+                stage.fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
+            }
+
+            stage.fInConfigFlags = 0;
+            if (!this->glCaps().fTextureSwizzleSupport) {
+                if (GrPixelConfigIsAlphaOnly(texture->config())) {
+                    // if we don't have texture swizzle support then
+                    // the shader must do an alpha smear after reading
+                    // the texture
+                    stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
+                } else if (sampler.swapsRAndB()) {
+                    stage.fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
+                }
+            }
+            if (GrPixelConfigIsUnpremultiplied(texture->config())) {
+                stage.fInConfigFlags |= StageDesc::kMulRGBByAlpha_InConfigFlag;
+            }
+
+            if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
+                stage.fKernelWidth = sampler.getKernelWidth();
+            } else {
+                stage.fKernelWidth = 0;
+            }
         } else {
-            stage.reset();
-        }
-    }
-    for (int s = firstCoverageStage; s < GrDrawState::kNumStages; ++s) {
-        StageDesc& stage = desc.fStages[s];
-        bool enabled = !skipCoverage && this->isStageEnabled(s);
-        if (enabled) {
-            stage.setEnabled(enabled);
-            const GrGLTexture* texture =
-                static_cast<const GrGLTexture*>(drawState.getTexture(s));
-            copy_stage_to_desc(&stage,
-                               texture,
-                               drawState.getSampler(s),
-                               this->glCaps());
-            lastEnabledStage = s;
-        } else {
-            stage.reset();
+            stage.fOptFlags         = 0;
+            stage.fCoordMapping     = (StageDesc::CoordMapping) 0;
+            stage.fInConfigFlags    = 0;
+            stage.fFetchMode        = (StageDesc::FetchMode) 0;
+            stage.fKernelWidth      = 0;
         }
     }
 
@@ -1089,7 +1067,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
     // We set field in the desc to kNumStages when either there are no 
     // coverage stages or the distinction between coverage and color is
     // immaterial.
-    firstCoverageStage = GrDrawState::kNumStages;
+    int firstCoverageStage = GrDrawState::kNumStages;
     desc.fFirstCoverageStage = GrDrawState::kNumStages;
     bool hasCoverage = drawState.getFirstCoverageStage() <= lastEnabledStage;
     if (hasCoverage) {

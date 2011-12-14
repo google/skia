@@ -173,9 +173,6 @@ public:
                     fOptFlags &= ~kIsEnabled_OptFlagBit;
                 }
             }
-            void reset() {
-                memset(this, 0, sizeof(*this));
-            }
         };
 
         // Specifies where the intitial color comes from before the stages are
