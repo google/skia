@@ -287,6 +287,11 @@ public:
     */
     void restoreToCount(int saveCount);
 
+    /** Returns true if drawing is currently going to a layer (from saveLayer)
+     *  rather than to the root device.
+     */
+    bool isDrawingToLayer() const;
+
     /** Preconcat the current matrix with the specified translation
         @param dx   The distance to translate in X
         @param dy   The distance to translate in Y
@@ -932,6 +937,7 @@ private:
 
     SkBounder*  fBounder;
     SkDevice*   fLastDeviceToGainFocus;
+    int         fLayerCount;    // number of successful saveLayer calls
 
     void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&,
                               const SkClipStack& clipStack);
