@@ -158,6 +158,19 @@ public:
     */
     Sk64 getSafeSize64() const ;
 
+    /** Returns true if this bitmap is marked as immutable, meaning that the
+        contents of its pixels will not change for the lifetime of the bitmap.
+    */
+    bool isImmutable() const;
+
+    /** Marks this bitmap as immutable, meaning that the contents of its
+        pixels will not change for the lifetime of the bitmap and of the
+        underlying pixelref. This state can be set, but it cannot be 
+        cleared once it is set. This state propagates to all other bitmaps
+        that share the same pixelref.
+    */
+    void setImmutable();
+
     /** Returns true if the bitmap is opaque (has no translucent/transparent pixels).
     */
     bool isOpaque() const;
@@ -589,8 +602,9 @@ private:
     mutable int         fRawPixelGenerationID;
 
     enum Flags {
-        kImageIsOpaque_Flag = 0x01,
-        kImageIsVolatile_Flag     = 0x02
+        kImageIsOpaque_Flag     = 0x01,
+        kImageIsVolatile_Flag   = 0x02,
+        kImageIsImmutable_Flag  = 0x04
     };
 
     uint32_t    fRowBytes;
