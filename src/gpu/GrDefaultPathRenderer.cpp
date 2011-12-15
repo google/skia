@@ -41,34 +41,31 @@ bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget::Caps& targetCaps,
 
 ////// Even/Odd
 
-static const GrStencilSettings gEOStencilPass = {
-    kInvert_StencilOp,           kInvert_StencilOp,
-    kKeep_StencilOp,             kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc, kAlwaysIfInClip_StencilFunc,
-    0xffff,                      0xffff,
-    0xffff,                      0xffff,
-    0xffff,                      0xffff
-};
+GR_STATIC_CONST_SAME_STENCIL(gEOStencilPass,
+    kInvert_StencilOp,
+    kKeep_StencilOp,
+    kAlwaysIfInClip_StencilFunc,
+    0xffff,
+    0xffff,
+    0xffff);
 
 // ok not to check clip b/c stencil pass only wrote inside clip
-static const GrStencilSettings gEOColorPass = {
-    kZero_StencilOp,          kZero_StencilOp,
-    kZero_StencilOp,          kZero_StencilOp,
-    kNotEqual_StencilFunc,    kNotEqual_StencilFunc,
-    0xffff,                   0xffff,
-    0x0000,                   0x0000,
-    0xffff,                   0xffff
-};
+GR_STATIC_CONST_SAME_STENCIL(gEOColorPass,
+    kZero_StencilOp,
+    kZero_StencilOp,
+    kNotEqual_StencilFunc,
+    0xffff,
+    0x0000,
+    0xffff);
 
 // have to check clip b/c outside clip will always be zero.
-static const GrStencilSettings gInvEOColorPass = {
-    kZero_StencilOp,            kZero_StencilOp,
-    kZero_StencilOp,            kZero_StencilOp,
-    kEqualIfInClip_StencilFunc, kEqualIfInClip_StencilFunc,
-    0xffff,                     0xffff,
-    0x0000,                     0x0000,
-    0xffff,                     0xffff
-};
+GR_STATIC_CONST_SAME_STENCIL(gInvEOColorPass,
+    kZero_StencilOp,
+    kZero_StencilOp,
+    kEqualIfInClip_StencilFunc,
+    0xffff,
+    0x0000,
+    0xffff);
 
 ////// Winding
 
@@ -76,95 +73,91 @@ static const GrStencilSettings gInvEOColorPass = {
 // when we don't have wrap incr and decr we use the stencil test to simulate
 // them.
 
-static const GrStencilSettings gWindStencilSeparateWithWrap = {
+GR_STATIC_CONST_STENCIL(gWindStencilSeparateWithWrap,
     kIncWrap_StencilOp,             kDecWrap_StencilOp,
     kKeep_StencilOp,                kKeep_StencilOp,
     kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
     0xffff,                         0xffff,
     0xffff,                         0xffff,
-    0xffff,                         0xffff
-};
+    0xffff,                         0xffff);
 
 // if inc'ing the max value, invert to make 0
 // if dec'ing zero invert to make all ones.
 // we can't avoid touching the stencil on both passing and
 // failing, so we can't resctrict ourselves to the clip.
-static const GrStencilSettings gWindStencilSeparateNoWrap = {
+GR_STATIC_CONST_STENCIL(gWindStencilSeparateNoWrap,
     kInvert_StencilOp,              kInvert_StencilOp,
     kIncClamp_StencilOp,            kDecClamp_StencilOp,
     kEqual_StencilFunc,             kEqual_StencilFunc,
     0xffff,                         0xffff,
     0xffff,                         0x0000,
-    0xffff,                         0xffff
-};
+    0xffff,                         0xffff);
 
 // When there are no separate faces we do two passes to setup the winding rule
 // stencil. First we draw the front faces and inc, then we draw the back faces
 // and dec. These are same as the above two split into the incrementing and
 // decrementing passes.
-static const GrStencilSettings gWindSingleStencilWithWrapInc = {
-    kIncWrap_StencilOp,             kIncWrap_StencilOp,
-    kKeep_StencilOp,                kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff
-};
-static const GrStencilSettings gWindSingleStencilWithWrapDec = {
-    kDecWrap_StencilOp,             kDecWrap_StencilOp,
-    kKeep_StencilOp,                kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff
-};
-static const GrStencilSettings gWindSingleStencilNoWrapInc = {
-    kInvert_StencilOp,              kInvert_StencilOp,
-    kIncClamp_StencilOp,            kIncClamp_StencilOp,
-    kEqual_StencilFunc,             kEqual_StencilFunc,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff,
-    0xffff,                         0xffff
-};
-static const GrStencilSettings gWindSingleStencilNoWrapDec = {
-    kInvert_StencilOp,              kInvert_StencilOp,
-    kDecClamp_StencilOp,            kDecClamp_StencilOp,
-    kEqual_StencilFunc,             kEqual_StencilFunc,
-    0xffff,                         0xffff,
-    0x0000,                         0x0000,
-    0xffff,                         0xffff
-};
+GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapInc,
+    kIncWrap_StencilOp,
+    kKeep_StencilOp,
+    kAlwaysIfInClip_StencilFunc,
+    0xffff,
+    0xffff,
+    0xffff);
 
-static const GrStencilSettings gWindColorPass = {
-    kZero_StencilOp,                kZero_StencilOp,
-    kZero_StencilOp,                kZero_StencilOp,
-    kNonZeroIfInClip_StencilFunc,   kNonZeroIfInClip_StencilFunc,
-    0xffff,                         0xffff,
-    0x0000,                         0x0000,
-    0xffff,                         0xffff
-};
+GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilWithWrapDec,
+    kDecWrap_StencilOp,
+    kKeep_StencilOp,
+    kAlwaysIfInClip_StencilFunc,
+    0xffff,
+    0xffff,
+    0xffff);
 
-static const GrStencilSettings gInvWindColorPass = {
-    kZero_StencilOp,                kZero_StencilOp,
-    kZero_StencilOp,                kZero_StencilOp,
-    kEqualIfInClip_StencilFunc,     kEqualIfInClip_StencilFunc,
-    0xffff,                         0xffff,
-    0x0000,                         0x0000,
-    0xffff,                         0xffff
-};
+GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapInc,
+    kInvert_StencilOp,
+    kIncClamp_StencilOp,
+    kEqual_StencilFunc,
+    0xffff,
+    0xffff,
+    0xffff);
+
+GR_STATIC_CONST_SAME_STENCIL(gWindSingleStencilNoWrapDec,
+    kInvert_StencilOp,
+    kDecClamp_StencilOp,
+    kEqual_StencilFunc,
+    0xffff,
+    0x0000,
+    0xffff);
+
+// Color passes are the same whether we use the two-sided stencil or two passes
+
+GR_STATIC_CONST_SAME_STENCIL(gWindColorPass,
+    kZero_StencilOp,
+    kZero_StencilOp,
+    kNonZeroIfInClip_StencilFunc,
+    0xffff,
+    0x0000,
+    0xffff);
+
+GR_STATIC_CONST_SAME_STENCIL(gInvWindColorPass,
+    kZero_StencilOp,
+    kZero_StencilOp,
+    kEqualIfInClip_StencilFunc,
+    0xffff,
+    0x0000,
+    0xffff);
 
 ////// Normal render to stencil
 
 // Sometimes the default path renderer can draw a path directly to the stencil
 // buffer without having to first resolve the interior / exterior.
-static const GrStencilSettings gDirectToStencil = {
-    kZero_StencilOp,                kZero_StencilOp,
-    kIncClamp_StencilOp,            kIncClamp_StencilOp,
-    kAlwaysIfInClip_StencilFunc,    kAlwaysIfInClip_StencilFunc,
-    0xffff,                         0xffff,
-    0x0000,                         0x0000,
-    0xffff,                         0xffff
-};
+GR_STATIC_CONST_SAME_STENCIL(gDirectToStencil,
+    kZero_StencilOp,
+    kIncClamp_StencilOp,
+    kAlwaysIfInClip_StencilFunc,
+    0xffff,
+    0x0000,
+    0xffff);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
