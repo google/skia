@@ -91,6 +91,10 @@
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/FontHostConfiguration_android.cpp',
           ],
+          'dependencies': [
+             'android_system.gyp:ft2',
+             'android_system.gyp:expat',
+          ],
         }],        
       ],
       'direct_dependent_settings': {

@@ -88,6 +88,7 @@
         '../src/core/SkMath.cpp',
         '../src/core/SkMatrix.cpp',
         '../src/core/SkMetaData.cpp',
+        '../src/core/SkMMapStream.cpp',
         '../src/core/SkPackBits.cpp',
         '../src/core/SkPaint.cpp',
         '../src/core/SkPath.cpp',
@@ -189,6 +190,7 @@
         '../include/core/SkMath.h',
         '../include/core/SkMatrix.h',
         '../include/core/SkMetaData.h',
+        '../include/core/SkMMapStream.h',
         '../include/core/SkOSFile.h',
         '../include/core/SkPackBits.h',
         '../include/core/SkPaint.h',
@@ -250,10 +252,6 @@
             '-Wno-unused',
             '-Wno-unused-function',
           ],
-          'sources': [
-            '../include/core/SkMMapStream.h',
-            '../src/core/SkMMapStream.cpp',
-          ],
           'link_settings': {
             'libraries': [
               '-lfreetype',
@@ -267,10 +265,7 @@
             '../third_party/freetype/include/**',
           ],
           'sources': [
-            '../include/core/SkMMapStream.h',
             '../include/utils/mac/SkCGUtils.h',
-
-            '../src/core/SkMMapStream.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -283,10 +278,7 @@
             '../include/utils/ios',
           ],
           'sources': [
-            '../include/core/SkMMapStream.h',
             '../include/utils/mac/SkCGUtils.h',
-
-            '../src/core/SkMMapStream.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -304,18 +296,17 @@
           'include_dirs': [
             'config/win',
           ],
+          'sources!': [
+            '../include/core/SkMMapStream.h',
+            '../src/core/SkMMapStream.cpp',
+          ],
         }],
         [ 'skia_os == "android"', {
           'sources!': [
             '../src/opts/opts_check_SSE2.cpp',
           ],
-          'sources': [
-            '../include/core/SkMMapStream.h',
-            '../src/core/SkMMapStream.cpp',
-          ],
           'dependencies': [
              'android_system.gyp:ft2',
-             'android_system.gyp:expat',
           ],
         }],        
       ],
