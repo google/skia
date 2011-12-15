@@ -18,6 +18,9 @@ public:
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(SkBlurImageFilter, (buffer));
     }
+
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
+
 protected:
     explicit SkBlurImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer& buffer);

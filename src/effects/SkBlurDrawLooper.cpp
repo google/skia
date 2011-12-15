@@ -116,6 +116,5 @@ bool SkBlurDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkFlattenable::Registrar gReg("SkBlurDrawLooper",
-                                     SkBlurDrawLooper::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkBlurDrawLooper)
 

@@ -224,6 +224,5 @@ SkFlattenable::Factory SkLayerRasterizer::getFactory() {
     return CreateProc;
 }
 
-static SkFlattenable::Registrar gReg("SkLayerRasterizer",
-                                     SkLayerRasterizer::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkLayerRasterizer)
 

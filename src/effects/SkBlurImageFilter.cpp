@@ -29,5 +29,4 @@ void SkBlurImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
     buffer.writeScalar(fSigma.fHeight);
 }
 
-static SkFlattenable::Registrar
-    gSrcColorFilterReg("SkBlurImageFilter", SkBlurImageFilter::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkBlurImageFilter)

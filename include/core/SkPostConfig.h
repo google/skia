@@ -291,3 +291,8 @@
 #endif
 #endif
 
+//////////////////////////////////////////////////////////////////////
+
+#ifndef SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+#define SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 1
+#endif

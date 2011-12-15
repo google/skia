@@ -106,6 +106,8 @@ public:
         return SkNEW_ARGS(SkLayerDrawLooper, (buffer));
     }
     
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
+
 protected:
     SkLayerDrawLooper(SkFlattenableReadBuffer&);
 

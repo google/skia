@@ -289,8 +289,7 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
     return shader;
 }
 
-static SkFlattenable::Registrar gBitmapProcShaderReg("SkBitmapProcShader",
-                                               SkBitmapProcShader::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkBitmapProcShader)
 
 ///////////////////////////////////////////////////////////////////////////////
 

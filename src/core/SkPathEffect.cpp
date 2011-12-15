@@ -134,12 +134,9 @@ SkStrokePathEffect::SkStrokePathEffect(SkFlattenableReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkFlattenable::Registrar gComposePathEffectReg("SkComposePathEffect",
-                                     SkComposePathEffect::CreateProc);
-
-static SkFlattenable::Registrar gSumPathEffectReg("SkSumPathEffect",
-                                     SkSumPathEffect::CreateProc);
-
-static SkFlattenable::Registrar gStrokePathEffectReg("SkStrokePathEffect",
-                                     SkStrokePathEffect::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkPathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposePathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkStrokePathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 

@@ -337,6 +337,4 @@ SkFlattenable* SkColorMatrixFilter::CreateProc(SkFlattenableReadBuffer& buf) {
     return SkNEW_ARGS(SkColorMatrixFilter, (buf));
 }
 
-static SkFlattenable::Registrar
-  gSkColorMatrixFilterReg("SkColorMatrixFilter",
-                          SkColorMatrixFilter::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorMatrixFilter)

@@ -14,7 +14,13 @@
 
 class SkGraphics {
 public:
+    /**
+     *  Call this at process initialization time if your environment does not
+     *  permit static global initializers that execute code. Note that 
+     *  Init() is not thread-safe.
+     */
     static void Init();
+
     static void Term();
 
     /**
@@ -55,7 +61,7 @@ public:
      *  This format is subject to change.
      */
     static void SetFlags(const char* flags);
-
+    
 private:
     /** This is automatically called by SkGraphics::Init(), and must be
         implemented by the host OS. This allows the host OS to register a callback

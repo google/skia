@@ -1220,18 +1220,10 @@ SkXfermodeProc16 SkXfermode::GetProc16(Mode mode, SkColor srcColor) {
     return proc16;
 }
 
-static SkFlattenable::Registrar
-    gSkProcCoeffXfermodeReg("SkProcCoeffXfermode",
-                            SkProcCoeffXfermode::CreateProc);
-
-static SkFlattenable::Registrar
-    gSkClearXfermodeReg("SkClearXfermode", SkClearXfermode::CreateProc);
-
-static SkFlattenable::Registrar
-    gSkSrcXfermodeReg("SkSrcXfermode", SkSrcXfermode::CreateProc);
-
-static SkFlattenable::Registrar
-    gSkDstInXfermodeReg("SkDstInXfermode", SkDstInXfermode::CreateProc);
-
-static SkFlattenable::Registrar
-    gSkDstOutXfermodeReg("SkDstOutXfermode", SkDstOutXfermode::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkClearXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSrcXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDstInXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDstOutXfermode)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

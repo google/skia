@@ -34,6 +34,7 @@ public:
     */
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width) = 0;
 
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
 private:
     // illegal
     SkPathEffect(const SkPathEffect&);

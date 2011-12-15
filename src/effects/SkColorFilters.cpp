@@ -323,6 +323,10 @@ public:
         }
     }
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkLightingColorFilter, (buffer));
+    }
+
 protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
@@ -342,10 +346,6 @@ protected:
     SkColor fMul, fAdd;
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter, (buffer));
-    }
-
     typedef SkColorFilter INHERITED;
 };
 
@@ -374,6 +374,10 @@ public:
         }
     }
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)  {
+        return SkNEW_ARGS(SkLightingColorFilter_JustAdd, (buffer));
+    }
+
 protected:
     virtual Factory getFactory() { return CreateProc; }
 
@@ -381,10 +385,6 @@ protected:
         : INHERITED(buffer) {}
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)  {
-        return SkNEW_ARGS(SkLightingColorFilter_JustAdd, (buffer));
-    }
-
     typedef SkLightingColorFilter INHERITED;
 };
 
@@ -412,6 +412,10 @@ public:
         }
     }
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkLightingColorFilter_JustMul, (buffer));
+    }
+
 protected:
     virtual Factory getFactory() { return CreateProc; }
 
@@ -419,10 +423,6 @@ protected:
         : INHERITED(buffer) {}
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter_JustMul, (buffer));
-    }
-
     typedef SkLightingColorFilter INHERITED;
 };
 
@@ -453,6 +453,10 @@ public:
         }
     }
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkLightingColorFilter_SingleMul, (buffer));
+    }
+
 protected:
     virtual Factory getFactory() { return CreateProc; }
 
@@ -460,10 +464,6 @@ protected:
         : INHERITED(buffer) {}
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter_SingleMul, (buffer));
-    }
-
     typedef SkLightingColorFilter INHERITED;
 };
 
@@ -496,6 +496,10 @@ public:
         }
     }
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkLightingColorFilter_NoPin, (buffer));
+    }
+
 protected:
     virtual Factory getFactory() { return CreateProc; }
 
@@ -503,16 +507,17 @@ protected:
         : INHERITED(buffer) {}
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter_NoPin, (buffer));
-    }
-
     typedef SkLightingColorFilter INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkSimpleColorFilter : public SkColorFilter {
+public:
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW(SkSimpleColorFilter);
+    }
+
 protected:
     void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) {
         if (result != src) {
@@ -526,9 +531,6 @@ protected:
         return CreateProc;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW(SkSimpleColorFilter);
-    }
 };
 
 SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
@@ -561,14 +563,15 @@ SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
     return SkNEW_ARGS(SkLightingColorFilter, (mul, add));
 }
 
-static SkFlattenable::Registrar
-    gSrcColorFilterReg("Src_SkModeColorFilterReg",
-                       Src_SkModeColorFilter::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Src_SkModeColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SrcOver_SkModeColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Proc_SkModeColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_JustAdd)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_JustMul)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_SingleMul)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_NoPin)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSimpleColorFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
-static SkFlattenable::Registrar
-    gSrcOverColorFilterReg("SrcOver_SkModeColorFilterReg",
-                       SrcOver_SkModeColorFilter::CreateProc);
-
-static SkFlattenable::Registrar
-    gProcColorFilterReg("Proc_SkModeColorFilterReg",
-                       Proc_SkModeColorFilter::CreateProc);

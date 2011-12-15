@@ -245,5 +245,4 @@ SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkFlattenable::Registrar gReg("SkLayerDrawLooper",
-                                     SkLayerDrawLooper::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkLayerDrawLooper)

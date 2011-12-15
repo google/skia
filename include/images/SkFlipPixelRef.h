@@ -56,7 +56,9 @@ public:
     virtual Factory getFactory() const { return Create; }
     virtual void flatten(SkFlattenableWriteBuffer&) const;
     static SkPixelRef* Create(SkFlattenableReadBuffer& buffer);
-    
+
+    SK_DECLARE_PIXEL_REF_REGISTRAR()
+
 protected:
     virtual void* onLockPixels(SkColorTable**);
     virtual void onUnlockPixels();
