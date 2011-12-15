@@ -47,6 +47,8 @@ protected:
     // protected so that subclasses can call this during unflattening
     Sk2DPathEffect(SkFlattenableReadBuffer&);
 
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
+
 private:
     SkMatrix    fMatrix, fInverse;
     // illegal
@@ -68,6 +70,8 @@ public:
     SkPath2DPathEffect(const SkMatrix&, const SkPath&);
     
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
 
 protected:
     SkPath2DPathEffect(SkFlattenableReadBuffer& buffer);

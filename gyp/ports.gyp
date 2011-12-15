@@ -10,6 +10,8 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
+        '../include/images',
+        '../include/effects',
         '../include/ports',
         '../include/xml',
         '../src/core',
@@ -19,6 +21,7 @@
         '../src/ports/SkDebug_win.cpp',
         '../src/ports/SkFontHost_sandbox_none.cpp',
         '../src/ports/SkFontHost_win.cpp',
+        '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkThread_win.cpp',
 
         '../src/ports/SkFontHost_tables.cpp',

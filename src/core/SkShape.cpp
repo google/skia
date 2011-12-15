@@ -74,4 +74,4 @@ void SkShape::flatten(SkFlattenableWriteBuffer& buffer) {
 
 void SkShape::onDraw(SkCanvas*) {}
 
-static SkFlattenable::Registrar gReg("SkShape", SkShape::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkShape)

@@ -47,6 +47,8 @@ public:
     // public for Registrar
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
+
 protected:
     SkRectShape(SkFlattenableReadBuffer&);
 

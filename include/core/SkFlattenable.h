@@ -20,6 +20,40 @@ class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
 class SkString;
 
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+
+#define SK_DECLARE_FLATTENABLE_REGISTRAR() 
+
+#define SK_DEFINE_FLATTENABLE_REGISTRAR(flattenable) \
+    static SkFlattenable::Registrar g##flattenable##Reg(#flattenable, \
+                                                      flattenable::CreateProc);
+                                                      
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(flattenable)
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(flattenable) \
+    static SkFlattenable::Registrar g##flattenable##Reg(#flattenable, \
+                                                      flattenable::CreateProc);
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+
+#else
+
+#define SK_DECLARE_FLATTENABLE_REGISTRAR() static void Init();
+
+#define SK_DEFINE_FLATTENABLE_REGISTRAR(flattenable) \
+    void flattenable::Init() { \
+        SkFlattenable::Registrar(#flattenable, CreateProc); \
+    }
+
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(flattenable) \
+    void flattenable::Init() {
+    
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(flattenable) \
+        SkFlattenable::Registrar(#flattenable, flattenable::CreateProc);
+    
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END \
+    }
+
+#endif
+
 /** \class SkFlattenable
  
  SkFlattenable is the base class for objects that need to be flattened
@@ -61,6 +95,11 @@ public:
     
 protected:
     SkFlattenable(SkFlattenableReadBuffer&) {}
+
+private:
+#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+    static void InitializeFlattenables();
+#endif
 };
 
 // helpers for matrix and region

@@ -348,7 +348,20 @@ void SkFlattenable::Register(const char name[], Factory factory) {
     gCount += 1;
 }
 
+#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
+static void report_no_entries(const char* functionName) {
+    if (!gCount) {
+        SkDebugf("%s has no registered name/factory pairs."
+            " Call SkGraphics::InitializeGlobals() at process initialization"
+            " time.", functionName);   
+    }
+}
+#endif
+
 SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
+#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
+    report_no_entries(__FUNCTION__);
+#endif
     const Pair* pairs = gPairs;
     for (int i = gCount - 1; i >= 0; --i) {
         if (strcmp(pairs[i].fName, name) == 0) {
@@ -359,6 +372,9 @@ SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
 }
 
 const char* SkFlattenable::FactoryToName(Factory fact) {
+#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
+    report_no_entries(__FUNCTION__);
+#endif
     const Pair* pairs = gPairs;
     for (int i = gCount - 1; i >= 0; --i) {
         if (pairs[i].fFactory == fact) {
@@ -371,4 +387,3 @@ const char* SkFlattenable::FactoryToName(Factory fact) {
 bool SkFlattenable::toDumpString(SkString* str) const {
     return false;
 }
-

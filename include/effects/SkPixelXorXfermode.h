@@ -29,6 +29,8 @@ public:
         return SkNEW_ARGS(SkPixelXorXfermode, (buffer));
     }
 
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
+
 protected:
     // override from SkXfermode
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst);

@@ -172,6 +172,7 @@ public:
         return AsMode(xfer, mode);
     }
 
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
 protected:
     SkXfermode(SkFlattenableReadBuffer& rb) : SkFlattenable(rb) {}
 

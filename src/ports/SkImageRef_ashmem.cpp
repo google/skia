@@ -240,5 +240,4 @@ SkPixelRef* SkImageRef_ashmem::Create(SkFlattenableReadBuffer& buffer) {
     return SkNEW_ARGS(SkImageRef_ashmem, (buffer));
 }
 
-static SkPixelRef::Registrar reg("SkImageRef_ashmem",
-                                 SkImageRef_ashmem::Create);
+SK_DEFINE_PIXEL_REF_REGISTRAR(SkImageRef_ashmem)

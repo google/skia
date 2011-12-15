@@ -250,5 +250,4 @@ void SkAvoidXfermode::xferA8(SkAlpha dst[], const SkPMColor src[], int count, co
     // override in subclass
 }
 
-static SkFlattenable::Registrar
-    gSkAvoidXfermodeReg("SkAvoidXfermode", SkAvoidXfermode::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkAvoidXfermode)

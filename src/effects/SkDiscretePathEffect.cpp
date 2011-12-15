@@ -87,6 +87,5 @@ SkDiscretePathEffect::SkDiscretePathEffect(SkFlattenableReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkFlattenable::Registrar gReg("SkDiscretePathEffect",
-                                     SkDiscretePathEffect::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkDiscretePathEffect)
 

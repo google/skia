@@ -796,6 +796,8 @@ public:
         buffer.writeScalar(fEnd.fY);
     }
 
+    SK_DECLARE_FLATTENABLE_REGISTRAR()
+
 protected:
     Linear_Gradient(SkFlattenableReadBuffer& buffer)
         : Gradient_Shader(buffer),
@@ -2241,15 +2243,11 @@ SkShader* SkGradientShader::CreateSweep(SkScalar cx, SkScalar cy,
     return SkNEW_ARGS(Sweep_Gradient, (cx, cy, colors, pos, count, mapper));
 }
 
-static SkFlattenable::Registrar gLinearGradientReg("Linear_Gradient",
-                                                   Linear_Gradient::CreateProc);
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkGradientShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Linear_Gradient)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Radial_Gradient)
 
-static SkFlattenable::Registrar gRadialGradientReg("Radial_Gradient",
-                                                   Radial_Gradient::CreateProc);
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Sweep_Gradient)
 
-static SkFlattenable::Registrar gSweepGradientReg("Sweep_Gradient",
-                                                   Sweep_Gradient::CreateProc);
-
-static SkFlattenable::Registrar
-    gTwoPointRadialGradientReg("Two_Point_Radial_Gradient",
-                               Two_Point_Radial_Gradient::CreateProc);
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Two_Point_Radial_Gradient)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

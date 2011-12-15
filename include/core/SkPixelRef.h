@@ -23,6 +23,25 @@ class SkFlattenableWriteBuffer;
 // this is an opaque class, not interpreted by skia
 class SkGpuTexture;
 
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+
+#define SK_DECLARE_PIXEL_REF_REGISTRAR() 
+
+#define SK_DEFINE_PIXEL_REF_REGISTRAR(pixelRef) \
+    static SkPixelRef::Registrar g##pixelRef##Reg(#pixelRef, \
+                                                  pixelRef::Create);
+                                                      
+#else
+
+#define SK_DECLARE_PIXEL_REF_REGISTRAR() static void Init();
+
+#define SK_DEFINE_PIXEL_REF_REGISTRAR(pixelRef) \
+    void pixelRef::Init() { \
+        SkPixelRef::Registrar(#pixelRef, Create); \
+    }
+
+#endif
+
 /** \class SkPixelRef
 
     This class is the smart container for pixel memory, and is used with
@@ -187,6 +206,10 @@ protected:
     SkPixelRef(SkFlattenableReadBuffer&, SkMutex*);
 
 private:
+#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+    static void InitializeFlattenables();
+#endif
+
     SkMutex*        fMutex; // must remain in scope for the life of this object
     void*           fPixels;
     SkColorTable*   fColorTable;    // we do not track ownership, subclass does
