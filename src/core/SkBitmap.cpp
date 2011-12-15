@@ -409,6 +409,7 @@ uint32_t SkBitmap::getGenerationID() const {
 }
 
 void SkBitmap::notifyPixelsChanged() const {
+    SkASSERT(!this->isImmutable());
     if (fPixelRef) {
         fPixelRef->notifyPixelsChanged();
     } else {
@@ -503,6 +504,19 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkBitmap::isImmutable() const { 
+    return fPixelRef ? fPixelRef->isImmutable() :
+        fFlags & kImageIsImmutable_Flag; 
+}
+
+void SkBitmap::setImmutable() {
+    if (fPixelRef) {
+        fPixelRef->setImmutable();
+    } else {
+        fFlags |= kImageIsImmutable_Flag;
+    }
+}
 
 bool SkBitmap::isOpaque() const {
     switch (fConfig) {
