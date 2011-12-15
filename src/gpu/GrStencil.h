@@ -263,7 +263,7 @@ GR_STATIC_ASSERT(sizeof(GrStencilSettingsStruct) == sizeof(GrStencilSettings));
         (FRONT_WRITE_MASK), (BACK_WRITE_MASK)                                \
     };                                                                       \
     static const GrStencilSettings& NAME =                                   \
-        *static_cast<const GrStencilSettings*>(&(NAME ## _STRUCT))
+        *reinterpret_cast<const GrStencilSettings*>(&(NAME ## _STRUCT))
 #endif
 
 #define GR_STATIC_CONST_SAME_STENCIL(NAME,                                   \
