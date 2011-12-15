@@ -339,14 +339,14 @@ const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 // stencil settings to use when clip is in stencil
-const GrStencilSettings GrGpu::gClipStencilSettings = {
-    kKeep_StencilOp,             kKeep_StencilOp,
-    kKeep_StencilOp,             kKeep_StencilOp,
-    kAlwaysIfInClip_StencilFunc, kAlwaysIfInClip_StencilFunc,
-    0x0000,                      0x0000,
-    0x0000,                      0x0000,
-    0x0000,                      0x0000
-};
+GR_STATIC_CONST_SAME_STENCIL(gClipStencilSettings,
+    kKeep_StencilOp,
+    kKeep_StencilOp,
+    kAlwaysIfInClip_StencilFunc,
+    0x0000,
+    0x0000,
+    0x0000);
+const GrStencilSettings& GrGpu::gClipStencilSettings = ::gClipStencilSettings;
 
 // mapping of clip-respecting stencil funcs to normal stencil funcs
 // mapping depends on whether stencil-clipping is in effect.
@@ -669,14 +669,13 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
 
                 // draw the element to the client stencil bits if necessary
                 if (!canDrawDirectToClip) {
-                    static const GrStencilSettings gDrawToStencil = {
-                        kIncClamp_StencilOp, kIncClamp_StencilOp,
-                        kIncClamp_StencilOp, kIncClamp_StencilOp,
-                        kAlways_StencilFunc, kAlways_StencilFunc,
-                        0xffff,              0xffff,
-                        0x0000,              0x0000,
-                        0xffff,              0xffff,
-                    };
+                    GR_STATIC_CONST_SAME_STENCIL(gDrawToStencil,
+                        kIncClamp_StencilOp,
+                        kIncClamp_StencilOp,
+                        kAlways_StencilFunc,
+                        0xffff,
+                        0x0000,
+                        0xffff);
                     SET_RANDOM_COLOR
                     if (kRect_ClipType == clip.getElementType(c)) {
                         *drawState->stencil() = gDrawToStencil;

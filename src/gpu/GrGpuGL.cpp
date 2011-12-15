@@ -1826,14 +1826,14 @@ void GrGpuGL::flushStencil() {
             GL_CALL(Enable(GR_GL_STENCIL_TEST));
     #if GR_DEBUG
             if (!this->getCaps().fStencilWrapOpsSupport) {
-                GrAssert(settings->fFrontPassOp != kIncWrap_StencilOp);
-                GrAssert(settings->fFrontPassOp != kDecWrap_StencilOp);
-                GrAssert(settings->fFrontFailOp != kIncWrap_StencilOp);
-                GrAssert(settings->fBackFailOp != kDecWrap_StencilOp);
-                GrAssert(settings->fBackPassOp != kIncWrap_StencilOp);
-                GrAssert(settings->fBackPassOp != kDecWrap_StencilOp);
-                GrAssert(settings->fBackFailOp != kIncWrap_StencilOp);
-                GrAssert(settings->fFrontFailOp != kDecWrap_StencilOp);
+                GrAssert(settings->frontPassOp() != kIncWrap_StencilOp);
+                GrAssert(settings->frontPassOp() != kDecWrap_StencilOp);
+                GrAssert(settings->frontFailOp() != kIncWrap_StencilOp);
+                GrAssert(settings->backFailOp() != kDecWrap_StencilOp);
+                GrAssert(settings->backPassOp() != kIncWrap_StencilOp);
+                GrAssert(settings->backPassOp() != kDecWrap_StencilOp);
+                GrAssert(settings->backFailOp() != kIncWrap_StencilOp);
+                GrAssert(settings->frontFailOp() != kDecWrap_StencilOp);
             }
     #endif
             int stencilBits = 0;
@@ -1843,8 +1843,7 @@ void GrGpuGL::flushStencil() {
                 stencilBits = stencilBuffer->bits();
             }
             // TODO: dynamically attach a stencil buffer
-            GrAssert(stencilBits ||
-                     (GrStencilSettings::gDisabled == *settings));
+            GrAssert(stencilBits || settings->isDisabled());
 
             GrGLuint clipStencilMask = 0;
             GrGLuint userStencilMask = ~0;
@@ -1853,19 +1852,19 @@ void GrGpuGL::flushStencil() {
                 userStencilMask = clipStencilMask - 1;
             }
 
-            unsigned int frontRef  = settings->fFrontFuncRef;
-            unsigned int frontMask = settings->fFrontFuncMask;
-            unsigned int frontWriteMask = settings->fFrontWriteMask;
+            unsigned int frontRef  = settings->frontFuncRef();
+            unsigned int frontMask = settings->frontFuncMask();
+            unsigned int frontWriteMask = settings->frontWriteMask();
             GrGLenum frontFunc;
 
             if (drawClipToStencil) {
-                GrAssert(settings->fFrontFunc < kBasicStencilFuncCount);
-                frontFunc = grToGLStencilFunc[settings->fFrontFunc];
+                GrAssert(settings->frontFunc() < kBasicStencilFuncCount);
+                frontFunc = grToGLStencilFunc[settings->frontFunc()];
             } else {
                 frontFunc = grToGLStencilFunc[ConvertStencilFunc(
-                        stencilClip, settings->fFrontFunc)];
+                        stencilClip, settings->frontFunc())];
 
-                ConvertStencilFuncAndMask(settings->fFrontFunc,
+                ConvertStencilFuncAndMask(settings->frontFunc(),
                                           stencilClip,
                                           clipStencilMask,
                                           userStencilMask,
@@ -1874,28 +1873,28 @@ void GrGpuGL::flushStencil() {
                 frontWriteMask &= userStencilMask;
             }
             GrAssert((size_t)
-                settings->fFrontFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                settings->frontFailOp() < GR_ARRAY_COUNT(grToGLStencilOp));
             GrAssert((size_t)
-                settings->fFrontPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                settings->frontPassOp() < GR_ARRAY_COUNT(grToGLStencilOp));
             GrAssert((size_t)
-                settings->fBackFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                settings->backFailOp() < GR_ARRAY_COUNT(grToGLStencilOp));
             GrAssert((size_t)
-                settings->fBackPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                settings->backPassOp() < GR_ARRAY_COUNT(grToGLStencilOp));
             if (this->getCaps().fTwoSidedStencilSupport) {
                 GrGLenum backFunc;
 
-                unsigned int backRef  = settings->fBackFuncRef;
-                unsigned int backMask = settings->fBackFuncMask;
-                unsigned int backWriteMask = settings->fBackWriteMask;
+                unsigned int backRef  = settings->backFuncRef();
+                unsigned int backMask = settings->backFuncMask();
+                unsigned int backWriteMask = settings->backWriteMask();
 
 
                 if (drawClipToStencil) {
-                    GrAssert(settings->fBackFunc < kBasicStencilFuncCount);
-                    backFunc = grToGLStencilFunc[settings->fBackFunc];
+                    GrAssert(settings->backFunc() < kBasicStencilFuncCount);
+                    backFunc = grToGLStencilFunc[settings->backFunc()];
                 } else {
                     backFunc = grToGLStencilFunc[ConvertStencilFunc(
-                        stencilClip, settings->fBackFunc)];
-                    ConvertStencilFuncAndMask(settings->fBackFunc,
+                        stencilClip, settings->backFunc())];
+                    ConvertStencilFuncAndMask(settings->backFunc(),
                                               stencilClip,
                                               clipStencilMask,
                                               userStencilMask,
@@ -1911,20 +1910,20 @@ void GrGpuGL::flushStencil() {
                                             backRef, backMask));
                 GL_CALL(StencilMaskSeparate(GR_GL_BACK, backWriteMask));
                 GL_CALL(StencilOpSeparate(GR_GL_FRONT,
-                                    grToGLStencilOp[settings->fFrontFailOp],
-                                    grToGLStencilOp[settings->fFrontPassOp],
-                                    grToGLStencilOp[settings->fFrontPassOp]));
+                                    grToGLStencilOp[settings->frontFailOp()],
+                                    grToGLStencilOp[settings->frontPassOp()],
+                                    grToGLStencilOp[settings->frontPassOp()]));
 
                 GL_CALL(StencilOpSeparate(GR_GL_BACK,
-                                    grToGLStencilOp[settings->fBackFailOp],
-                                    grToGLStencilOp[settings->fBackPassOp],
-                                    grToGLStencilOp[settings->fBackPassOp]));
+                                    grToGLStencilOp[settings->backFailOp()],
+                                    grToGLStencilOp[settings->backPassOp()],
+                                    grToGLStencilOp[settings->backPassOp()]));
             } else {
                 GL_CALL(StencilFunc(frontFunc, frontRef, frontMask));
                 GL_CALL(StencilMask(frontWriteMask));
-                GL_CALL(StencilOp(grToGLStencilOp[settings->fFrontFailOp],
-                                grToGLStencilOp[settings->fFrontPassOp],
-                                grToGLStencilOp[settings->fFrontPassOp]));
+                GL_CALL(StencilOp(grToGLStencilOp[settings->frontFailOp()],
+                                grToGLStencilOp[settings->frontPassOp()],
+                                grToGLStencilOp[settings->frontPassOp()]));
             }
         }
         *fHWDrawState.stencil() = *settings;
