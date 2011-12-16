@@ -352,8 +352,8 @@ void SkFlattenable::Register(const char name[], Factory factory) {
 static void report_no_entries(const char* functionName) {
     if (!gCount) {
         SkDebugf("%s has no registered name/factory pairs."
-            " Call SkGraphics::InitializeGlobals() at process initialization"
-            " time.", functionName);   
+                 " Call SkGraphics::Init() at process initialization time.",
+                 functionName);
     }
 }
 #endif
