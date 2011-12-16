@@ -126,8 +126,7 @@ void SkGraphics::Init() {
 #include "SkTypefaceCache.h"
 
 void SkGraphics::Term() {
-    SkGlyphCache::SetCacheUsed(0);
-    SkTypefaceCache::PurgeAll();
+    PurgeFontCache();
 }
 
 #ifndef SK_DEFAULT_FONT_CACHE_LIMIT
@@ -159,6 +158,7 @@ size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
 
 void SkGraphics::PurgeFontCache() {
     SkGlyphCache::SetCacheUsed(0);
+    SkTypefaceCache::PurgeAll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
