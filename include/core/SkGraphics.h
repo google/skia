@@ -21,6 +21,9 @@ public:
      */
     static void Init();
 
+    /**
+     *  Call this to release any memory held privately, such as the font cache.
+     */
     static void Term();
 
     /**
