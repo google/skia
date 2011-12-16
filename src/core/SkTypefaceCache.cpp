@@ -68,7 +68,6 @@ void SkTypefaceCache::purge(int numToPurge) {
 
 void SkTypefaceCache::purgeAll() {
     this->purge(fArray.count());
-    fArray.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

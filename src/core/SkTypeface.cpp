@@ -34,25 +34,25 @@ SkTypeface::~SkTypeface() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkTypeface* get_default_typeface() {
+    // we keep a reference to this guy for all time, since if we return its
+    // fontID, the font cache may later on ask to resolve that back into a
+    // typeface object.
+    static SkTypeface* gDefaultTypeface;
+
+    if (NULL == gDefaultTypeface) {
+        gDefaultTypeface =
+        SkFontHost::CreateTypeface(NULL, NULL, NULL, 0,
+                                   SkTypeface::kNormal);
+    }
+    return gDefaultTypeface;
+}
+
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
-    if (face) {
-        return face->uniqueID();
+    if (NULL == face) {
+        face = get_default_typeface();
     }
-
-    // We cache the default fontID, assuming it will not change during a boot
-    // The initial value of 0 is fine, since a typeface's uniqueID should not
-    // be zero.
-    static uint32_t gDefaultFontID;
-
-    if (0 == gDefaultFontID) {
-        SkTypeface* defaultFace =
-                SkFontHost::CreateTypeface(NULL, NULL, NULL, 0,
-                                           SkTypeface::kNormal);
-        SkASSERT(defaultFace);
-        gDefaultFontID = defaultFace->uniqueID();
-        defaultFace->unref();
-    }
-    return gDefaultFontID;
+    return face->uniqueID();
 }
 
 bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
