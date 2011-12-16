@@ -1500,9 +1500,6 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                          GrPathFill fill, const GrPoint* translate) {
 
     if (path.isEmpty()) {
-#if GR_DEBUG
-       GrPrintf("Empty path should have been caught by canvas.\n");
-#endif
        if (GrIsFillInverted(fill)) {
            this->drawPaint(paint);
        }
