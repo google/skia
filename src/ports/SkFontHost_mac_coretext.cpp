@@ -931,11 +931,26 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     // Get the state we need
     cgGlyph = (CGGlyph) glyph->getGlyphID(fBaseGlyphCount);
 
-    CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontDefaultOrientation, &cgGlyph, &theBounds,  1);
     if (fVertical) {
-        CTFontGetAdvancesForGlyphs(fCTVerticalFont, kCTFontVerticalOrientation, &cgGlyph, &theAdvance, 1);
+        if (isLion()) {
+        // Lion correctly supports returning the bounding box for vertical text.
+            CTFontGetBoundingRectsForGlyphs(fCTVerticalFont,
+                                            kCTFontVerticalOrientation, 
+                                            &cgGlyph, &theBounds,  1);
+        } else {
+        /* Snow Leopard and earlier respect the vertical font metrics for
+           advances, but not bounds, so use the default box and adjust it below.
+         */
+            CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontDefaultOrientation,
+                                            &cgGlyph, &theBounds,  1);
+        }
+        CTFontGetAdvancesForGlyphs(fCTVerticalFont, kCTFontVerticalOrientation,
+                                   &cgGlyph, &theAdvance, 1);
     } else {
-        CTFontGetAdvancesForGlyphs(fCTFont, kCTFontDefaultOrientation, &cgGlyph, &theAdvance, 1);
+        CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontDefaultOrientation,
+                                        &cgGlyph, &theBounds, 1);
+        CTFontGetAdvancesForGlyphs(fCTFont, kCTFontDefaultOrientation,
+                                   &cgGlyph, &theAdvance, 1);
     }
 
     // BUG?
@@ -983,9 +998,11 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     CGRectInset_inline(&theBounds, -1, -1);
 
     // Get the metrics
+    bool lionAdjustedMetrics = false;
     if (isLion()) {
         if (cgGlyph < fGlyphCount && cgGlyph >= getAdjustStart() 
                     && generateBBoxes()) {
+            lionAdjustedMetrics = true;
             SkRect adjust;
             const GlyphRect& gRect = fAdjustBad[cgGlyph - fAdjustStart];
             adjust.set(gRect.fMinX, gRect.fMinY, gRect.fMaxX, gRect.fMaxY);
@@ -1003,7 +1020,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fTop      = -sk_float_round2int(CGRectGetMaxY_inline(theBounds));
     glyph->fLeft     =  sk_float_round2int(CGRectGetMinX_inline(theBounds));
     SkIPoint offset;
-    if (fVertical) {
+    if (fVertical && (!isLion() || lionAdjustedMetrics)) {
         getVerticalOffset(cgGlyph, &offset);
         glyph->fLeft += offset.fX;
         glyph->fTop += offset.fY;
