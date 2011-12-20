@@ -221,6 +221,8 @@ private:
 
     // can go from false to true, but never from true to false
     bool    fIsImmutable;
+
+    friend class SkGraphics;
 };
 
 #endif
