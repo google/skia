@@ -120,7 +120,8 @@ static void boxBlurY(const SkBitmap& src, SkBitmap* dst, int kernelSize,
 
 static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lowOffset, int *highOffset)
 {
-    int d = static_cast<int>(floorf(SkScalarToFloat(s) * 3.0f * sqrtf(2.0f * M_PI) / 4.0f + 0.5f));
+    float pi = SkScalarToFloat(SK_ScalarPI);
+    int d = static_cast<int>(floorf(SkScalarToFloat(s) * 3.0f * sqrtf(2.0f * pi) / 4.0f + 0.5f));
     *kernelSize = d;
     if (d % 2 == 1) {
         *lowOffset = *highOffset = (d - 1) / 2;
