@@ -11,24 +11,166 @@
 
 namespace skiagm {
 
-class LinePathsGM : public GM {
+class ZeroLinePathGM : public GM {
 public:
-    LinePathsGM() {}
+    ZeroLinePathGM() {}
 
 protected:
     SkString onShortName() {
-        return SkString("linepaths");
+        return SkString("zerolinepath");
     }
         
-    SkISize onISize() { return make_isize(1800, 1110); }
+    SkISize onISize() { return make_isize(1240, 390); }
     
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
-                  const SkRect& clip,SkPaint::Cap cap,
+                  const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
                   SkPaint::Style style, SkPath::FillType fill,
                   SkScalar strokeWidth) {
         path.setFillType(fill);
         SkPaint paint;
         paint.setStrokeCap(cap);
+        paint.setStrokeWidth(strokeWidth);
+        paint.setStrokeJoin(join);
+        paint.setColor(color);
+        paint.setStyle(style);
+        canvas->save();
+        canvas->clipRect(clip);
+        canvas->drawPath(path, paint);
+        canvas->restore();
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) {
+        struct FillAndName {
+            SkPath::FillType fFill;
+            const char*      fName;
+        };
+        static const FillAndName gFills[] = {
+            {SkPath::kWinding_FillType, "Winding"},
+            {SkPath::kEvenOdd_FillType, "Even / Odd"},
+            {SkPath::kInverseWinding_FillType, "Inverse Winding"},
+            {SkPath::kInverseEvenOdd_FillType, "Inverse Even / Odd"},
+        };
+        struct StyleAndName {
+            SkPaint::Style fStyle;
+            const char*    fName;
+        };
+        static const StyleAndName gStyles[] = {
+            {SkPaint::kFill_Style, "Fill"},
+            {SkPaint::kStroke_Style, "Stroke"},
+            {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
+        };
+        struct CapAndName {
+            SkPaint::Cap  fCap;
+            SkPaint::Join fJoin;
+            const char*   fName;
+        };
+        static const CapAndName gCaps[] = {
+            {SkPaint::kButt_Cap, SkPaint::kBevel_Join, "Butt"},
+            {SkPaint::kRound_Cap, SkPaint::kRound_Join, "Round"},
+            {SkPaint::kSquare_Cap, SkPaint::kBevel_Join, "Square"}
+        };
+        struct PathAndName {
+            SkPath      fPath;
+            const char* fName;
+        };
+        PathAndName path;
+        path.fPath.moveTo(50*SK_Scalar1, 15*SK_Scalar1);
+        path.fPath.lineTo(50*SK_Scalar1, 15*SK_Scalar1);
+        path.fName = "moveTo-zeroline";
+
+        SkPaint titlePaint;
+        titlePaint.setColor(SK_ColorBLACK);
+        titlePaint.setAntiAlias(true);
+        titlePaint.setLCDRenderText(true);
+        titlePaint.setTextSize(15 * SK_Scalar1);
+        const char title[] = "Zero-Length Line Drawn Into Rectangle Clips With "
+                             "Indicated Style, Fill and Linecaps, with stroke width 10";
+        canvas->drawText(title, strlen(title),
+                            20 * SK_Scalar1,
+                            20 * SK_Scalar1,
+                            titlePaint);
+
+        SkRandom rand;
+        SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
+        canvas->save();
+        canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);
+        canvas->save();
+        for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
+            if (0 < cap) {
+                canvas->translate((rect.width() + 40 * SK_Scalar1) * SK_ARRAY_COUNT(gStyles), 0);
+            }
+            canvas->save();
+            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+                if (0 < fill) {
+                    canvas->translate(0, rect.height() + 40 * SK_Scalar1);
+                }
+                canvas->save();
+                for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+                    if (0 < style) {
+                        canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
+                    }
+        
+                    SkColor color = 0xff007000;
+                    this->drawPath(path.fPath, canvas, color, rect,
+                                    gCaps[cap].fCap, gCaps[cap].fJoin, gStyles[style].fStyle,
+                                    gFills[fill].fFill, SK_Scalar1*10);
+        
+                    SkPaint rectPaint;
+                    rectPaint.setColor(SK_ColorBLACK);
+                    rectPaint.setStyle(SkPaint::kStroke_Style);
+                    rectPaint.setStrokeWidth(-1);
+                    rectPaint.setAntiAlias(true);
+                    canvas->drawRect(rect, rectPaint);
+        
+                    SkPaint labelPaint;
+                    labelPaint.setColor(color);
+                    labelPaint.setAntiAlias(true);
+                    labelPaint.setLCDRenderText(true);
+                    labelPaint.setTextSize(10 * SK_Scalar1);
+                    canvas->drawText(gStyles[style].fName,
+                                        strlen(gStyles[style].fName),
+                                        0, rect.height() + 12 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gFills[fill].fName,
+                                        strlen(gFills[fill].fName),
+                                        0, rect.height() + 24 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gCaps[cap].fName,
+                                        strlen(gCaps[cap].fName),
+                                        0, rect.height() + 36 * SK_Scalar1,
+                                        labelPaint);
+                }
+                canvas->restore();
+            }
+            canvas->restore();
+        }
+        canvas->restore();
+        canvas->restore();
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+
+class ZeroLineClosePathGM : public GM {
+public:
+    ZeroLineClosePathGM() {}
+
+protected:
+    SkString onShortName() {
+        return SkString("zerolineclosepath");
+    }
+        
+    SkISize onISize() { return make_isize(1240, 390); }
+    
+    void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
+                  const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
+                  SkPaint::Style style, SkPath::FillType fill,
+                  SkScalar strokeWidth) {
+        path.setFillType(fill);
+        SkPaint paint;
+        paint.setStrokeCap(cap);
+        paint.setStrokeJoin(join);
         paint.setStrokeWidth(strokeWidth);
         paint.setColor(color);
         paint.setStyle(style);
@@ -59,42 +201,32 @@ protected:
             {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
         };
         struct CapAndName {
-            SkPaint::Cap fCap;
-            const char*  fName;
+            SkPaint::Cap  fCap;
+            SkPaint::Join fJoin;
+            const char*   fName;
         };
         static const CapAndName gCaps[] = {
-            {SkPaint::kButt_Cap, "Butt"},
-            {SkPaint::kRound_Cap, "Round"},
-            {SkPaint::kSquare_Cap, "Square"},
+            {SkPaint::kButt_Cap, SkPaint::kBevel_Join, "Butt"},
+            {SkPaint::kRound_Cap, SkPaint::kRound_Join, "Round"},
+            {SkPaint::kSquare_Cap, SkPaint::kBevel_Join, "Square"}
         };
         struct PathAndName {
             SkPath      fPath;
             const char* fName;
         };
-        PathAndName gPaths[4];
-        gPaths[0].fPath.moveTo(50*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[0].fPath.lineTo(50*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[0].fName = "moveTo-zeroline";
-        gPaths[1].fPath.moveTo(50*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[1].fPath.lineTo(50*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[1].fPath.close();
-        gPaths[1].fName = "moveTo-zeroline-close";
-        gPaths[2].fPath.moveTo(30*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[2].fPath.lineTo(70*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[2].fName = "moveTo-line";
-        gPaths[3].fPath.moveTo(30*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[3].fPath.lineTo(70*SK_Scalar1, 15*SK_Scalar1);
-        gPaths[3].fPath.close();
-        gPaths[3].fName = "moveTo-line-close";
+        PathAndName path;
+        path.fPath.moveTo(50*SK_Scalar1, 15*SK_Scalar1);
+        path.fPath.lineTo(50*SK_Scalar1, 15*SK_Scalar1);
+        path.fPath.close();
+        path.fName = "moveTo-zeroline-close";
 
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
         titlePaint.setLCDRenderText(true);
         titlePaint.setTextSize(15 * SK_Scalar1);
-        const char title[] = "Line Paths Drawn Into Rectangle Clips With "
-                             "Indicated Style, Fill and Linecaps, "
-                             "with random stroke widths";
+        const char title[] = "Zero-Length Line Closed Drawn Into Rectangle Clips With "
+                             "Indicated Style, Fill and Linecaps, with stroke width 10";
         canvas->drawText(title, strlen(title),
                             20 * SK_Scalar1,
                             20 * SK_Scalar1,
@@ -105,61 +237,333 @@ protected:
         canvas->save();
         canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);
         canvas->save();
-        for (size_t path = 0; path < SK_ARRAY_COUNT(gPaths); ++path) {
-            if (0 < path) {
-                canvas->translate(0, (rect.height() + 60 * SK_Scalar1) * 3);
+        for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
+            if (0 < cap) {
+                canvas->translate((rect.width() + 40 * SK_Scalar1) * SK_ARRAY_COUNT(gStyles), 0);
             }
             canvas->save();
-            for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
-                if (0 < cap) {
-                    canvas->translate((rect.width() + 40 * SK_Scalar1) * 4, 0);
+            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+                if (0 < fill) {
+                    canvas->translate(0, rect.height() + 40 * SK_Scalar1);
                 }
                 canvas->save();
                 for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
                     if (0 < style) {
-                        canvas->translate(0, rect.height() + 60 * SK_Scalar1);
+                        canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
                     }
-                    canvas->save();
-                    for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
-                        if (0 < fill) {
-                            canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
-                        }
         
-                        SkColor color = 0xff007000;
-                        this->drawPath(gPaths[path].fPath, canvas, color, rect,
-                                       gCaps[cap].fCap, gStyles[style].fStyle,
-                                       gFills[fill].fFill, SK_Scalar1*10);
+                    SkColor color = 0xff007000;
+                    this->drawPath(path.fPath, canvas, color, rect,
+                                    gCaps[cap].fCap, gCaps[cap].fJoin, gStyles[style].fStyle,
+                                    gFills[fill].fFill, SK_Scalar1*10);
         
-                        SkPaint rectPaint;
-                        rectPaint.setColor(SK_ColorBLACK);
-                        rectPaint.setStyle(SkPaint::kStroke_Style);
-                        rectPaint.setStrokeWidth(-1);
-                        rectPaint.setAntiAlias(true);
-                        canvas->drawRect(rect, rectPaint);
+                    SkPaint rectPaint;
+                    rectPaint.setColor(SK_ColorBLACK);
+                    rectPaint.setStyle(SkPaint::kStroke_Style);
+                    rectPaint.setStrokeWidth(-1);
+                    rectPaint.setAntiAlias(true);
+                    canvas->drawRect(rect, rectPaint);
         
-                        SkPaint labelPaint;
-                        labelPaint.setColor(color);
-                        labelPaint.setAntiAlias(true);
-                        labelPaint.setLCDRenderText(true);
-                        labelPaint.setTextSize(10 * SK_Scalar1);
-                        canvas->drawText(gStyles[style].fName,
-                                         strlen(gStyles[style].fName),
-                                         0, rect.height() + 12 * SK_Scalar1,
-                                         labelPaint);
-                        canvas->drawText(gFills[fill].fName,
-                                         strlen(gFills[fill].fName),
-                                         0, rect.height() + 24 * SK_Scalar1,
-                                         labelPaint);
-                        canvas->drawText(gCaps[cap].fName,
-                                         strlen(gCaps[cap].fName),
-                                         0, rect.height() + 36 * SK_Scalar1,
-                                         labelPaint);
-                        canvas->drawText(gPaths[path].fName,
-                                         strlen(gPaths[path].fName),
-                                         0, rect.height() + 48 * SK_Scalar1,
-                                         labelPaint);
+                    SkPaint labelPaint;
+                    labelPaint.setColor(color);
+                    labelPaint.setAntiAlias(true);
+                    labelPaint.setLCDRenderText(true);
+                    labelPaint.setTextSize(10 * SK_Scalar1);
+                    canvas->drawText(gStyles[style].fName,
+                                        strlen(gStyles[style].fName),
+                                        0, rect.height() + 12 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gFills[fill].fName,
+                                        strlen(gFills[fill].fName),
+                                        0, rect.height() + 24 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gCaps[cap].fName,
+                                        strlen(gCaps[cap].fName),
+                                        0, rect.height() + 36 * SK_Scalar1,
+                                        labelPaint);
+                }
+                canvas->restore();
+            }
+            canvas->restore();
+        }
+        canvas->restore();
+        canvas->restore();
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+
+class LinePathGM : public GM {
+public:
+    LinePathGM() {}
+
+protected:
+    SkString onShortName() {
+        return SkString("linepath");
+    }
+        
+    SkISize onISize() { return make_isize(1240, 390); }
+    
+    void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
+                  const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
+                  SkPaint::Style style, SkPath::FillType fill,
+                  SkScalar strokeWidth) {
+        path.setFillType(fill);
+        SkPaint paint;
+        paint.setStrokeCap(cap);
+        paint.setStrokeWidth(strokeWidth);
+        paint.setStrokeJoin(join);
+        paint.setColor(color);
+        paint.setStyle(style);
+        canvas->save();
+        canvas->clipRect(clip);
+        canvas->drawPath(path, paint);
+        canvas->restore();
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) {
+        struct FillAndName {
+            SkPath::FillType fFill;
+            const char*      fName;
+        };
+        static const FillAndName gFills[] = {
+            {SkPath::kWinding_FillType, "Winding"},
+            {SkPath::kEvenOdd_FillType, "Even / Odd"},
+            {SkPath::kInverseWinding_FillType, "Inverse Winding"},
+            {SkPath::kInverseEvenOdd_FillType, "Inverse Even / Odd"},
+        };
+        struct StyleAndName {
+            SkPaint::Style fStyle;
+            const char*    fName;
+        };
+        static const StyleAndName gStyles[] = {
+            {SkPaint::kFill_Style, "Fill"},
+            {SkPaint::kStroke_Style, "Stroke"},
+            {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
+        };
+        struct CapAndName {
+            SkPaint::Cap  fCap;
+            SkPaint::Join fJoin;
+            const char*   fName;
+        };
+        static const CapAndName gCaps[] = {
+            {SkPaint::kButt_Cap, SkPaint::kBevel_Join, "Butt"},
+            {SkPaint::kRound_Cap, SkPaint::kRound_Join, "Round"},
+            {SkPaint::kSquare_Cap, SkPaint::kBevel_Join, "Square"}
+        };
+        struct PathAndName {
+            SkPath      fPath;
+            const char* fName;
+        };
+        PathAndName path;
+        path.fPath.moveTo(25*SK_Scalar1, 15*SK_Scalar1);
+        path.fPath.lineTo(75*SK_Scalar1, 15*SK_Scalar1);
+        path.fName = "moveTo-line";
+
+        SkPaint titlePaint;
+        titlePaint.setColor(SK_ColorBLACK);
+        titlePaint.setAntiAlias(true);
+        titlePaint.setLCDRenderText(true);
+        titlePaint.setTextSize(15 * SK_Scalar1);
+        const char title[] = "Line Drawn Into Rectangle Clips With "
+                             "Indicated Style, Fill and Linecaps, with stroke width 10";
+        canvas->drawText(title, strlen(title),
+                            20 * SK_Scalar1,
+                            20 * SK_Scalar1,
+                            titlePaint);
+
+        SkRandom rand;
+        SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
+        canvas->save();
+        canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);
+        canvas->save();
+        for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
+            if (0 < cap) {
+                canvas->translate((rect.width() + 40 * SK_Scalar1) * SK_ARRAY_COUNT(gStyles), 0);
+            }
+            canvas->save();
+            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+                if (0 < fill) {
+                    canvas->translate(0, rect.height() + 40 * SK_Scalar1);
+                }
+                canvas->save();
+                for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+                    if (0 < style) {
+                        canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
                     }
-                    canvas->restore();
+        
+                    SkColor color = 0xff007000;
+                    this->drawPath(path.fPath, canvas, color, rect,
+                                    gCaps[cap].fCap, gCaps[cap].fJoin, gStyles[style].fStyle,
+                                    gFills[fill].fFill, SK_Scalar1*10);
+        
+                    SkPaint rectPaint;
+                    rectPaint.setColor(SK_ColorBLACK);
+                    rectPaint.setStyle(SkPaint::kStroke_Style);
+                    rectPaint.setStrokeWidth(-1);
+                    rectPaint.setAntiAlias(true);
+                    canvas->drawRect(rect, rectPaint);
+        
+                    SkPaint labelPaint;
+                    labelPaint.setColor(color);
+                    labelPaint.setAntiAlias(true);
+                    labelPaint.setLCDRenderText(true);
+                    labelPaint.setTextSize(10 * SK_Scalar1);
+                    canvas->drawText(gStyles[style].fName,
+                                        strlen(gStyles[style].fName),
+                                        0, rect.height() + 12 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gFills[fill].fName,
+                                        strlen(gFills[fill].fName),
+                                        0, rect.height() + 24 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gCaps[cap].fName,
+                                        strlen(gCaps[cap].fName),
+                                        0, rect.height() + 36 * SK_Scalar1,
+                                        labelPaint);
+                }
+                canvas->restore();
+            }
+            canvas->restore();
+        }
+        canvas->restore();
+        canvas->restore();
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+
+class LineClosePathGM : public GM {
+public:
+    LineClosePathGM() {}
+
+protected:
+    SkString onShortName() {
+        return SkString("lineclosepath");
+    }
+        
+    SkISize onISize() { return make_isize(1240, 390); }
+    
+    void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
+                  const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
+                  SkPaint::Style style, SkPath::FillType fill,
+                  SkScalar strokeWidth) {
+        path.setFillType(fill);
+        SkPaint paint;
+        paint.setStrokeCap(cap);
+        paint.setStrokeWidth(strokeWidth);
+        paint.setStrokeJoin(join);
+        paint.setColor(color);
+        paint.setStyle(style);
+        canvas->save();
+        canvas->clipRect(clip);
+        canvas->drawPath(path, paint);
+        canvas->restore();
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) {
+        struct FillAndName {
+            SkPath::FillType fFill;
+            const char*      fName;
+        };
+        static const FillAndName gFills[] = {
+            {SkPath::kWinding_FillType, "Winding"},
+            {SkPath::kEvenOdd_FillType, "Even / Odd"},
+            {SkPath::kInverseWinding_FillType, "Inverse Winding"},
+            {SkPath::kInverseEvenOdd_FillType, "Inverse Even / Odd"},
+        };
+        struct StyleAndName {
+            SkPaint::Style fStyle;
+            const char*    fName;
+        };
+        static const StyleAndName gStyles[] = {
+            {SkPaint::kFill_Style, "Fill"},
+            {SkPaint::kStroke_Style, "Stroke"},
+            {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
+        };
+        struct CapAndName {
+            SkPaint::Cap  fCap;
+            SkPaint::Join fJoin;
+            const char*   fName;
+        };
+        static const CapAndName gCaps[] = {
+            {SkPaint::kButt_Cap, SkPaint::kBevel_Join, "Butt"},
+            {SkPaint::kRound_Cap, SkPaint::kRound_Join, "Round"},
+            {SkPaint::kSquare_Cap, SkPaint::kBevel_Join, "Square"}
+        };
+        struct PathAndName {
+            SkPath      fPath;
+            const char* fName;
+        };
+        PathAndName path;
+        path.fPath.moveTo(25*SK_Scalar1, 15*SK_Scalar1);
+        path.fPath.lineTo(75*SK_Scalar1, 15*SK_Scalar1);
+        path.fPath.close();
+        path.fName = "moveTo-line-close";
+
+        SkPaint titlePaint;
+        titlePaint.setColor(SK_ColorBLACK);
+        titlePaint.setAntiAlias(true);
+        titlePaint.setLCDRenderText(true);
+        titlePaint.setTextSize(15 * SK_Scalar1);
+        const char title[] = "Line Closed Drawn Into Rectangle Clips With "
+                             "Indicated Style, Fill and Linecaps, with stroke width 10";
+        canvas->drawText(title, strlen(title),
+                            20 * SK_Scalar1,
+                            20 * SK_Scalar1,
+                            titlePaint);
+
+        SkRandom rand;
+        SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
+        canvas->save();
+        canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);
+        canvas->save();
+        for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
+            if (0 < cap) {
+                canvas->translate((rect.width() + 40 * SK_Scalar1) * SK_ARRAY_COUNT(gStyles), 0);
+            }
+            canvas->save();
+            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+                if (0 < fill) {
+                    canvas->translate(0, rect.height() + 40 * SK_Scalar1);
+                }
+                canvas->save();
+                for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+                    if (0 < style) {
+                        canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
+                    }
+        
+                    SkColor color = 0xff007000;
+                    this->drawPath(path.fPath, canvas, color, rect,
+                                    gCaps[cap].fCap, gCaps[cap].fJoin, gStyles[style].fStyle,
+                                    gFills[fill].fFill, SK_Scalar1*10);
+        
+                    SkPaint rectPaint;
+                    rectPaint.setColor(SK_ColorBLACK);
+                    rectPaint.setStyle(SkPaint::kStroke_Style);
+                    rectPaint.setStrokeWidth(-1);
+                    rectPaint.setAntiAlias(true);
+                    canvas->drawRect(rect, rectPaint);
+        
+                    SkPaint labelPaint;
+                    labelPaint.setColor(color);
+                    labelPaint.setAntiAlias(true);
+                    labelPaint.setLCDRenderText(true);
+                    labelPaint.setTextSize(10 * SK_Scalar1);
+                    canvas->drawText(gStyles[style].fName,
+                                        strlen(gStyles[style].fName),
+                                        0, rect.height() + 12 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gFills[fill].fName,
+                                        strlen(gFills[fill].fName),
+                                        0, rect.height() + 24 * SK_Scalar1,
+                                        labelPaint);
+                    canvas->drawText(gCaps[cap].fName,
+                                        strlen(gCaps[cap].fName),
+                                        0, rect.height() + 36 * SK_Scalar1,
+                                        labelPaint);
                 }
                 canvas->restore();
             }
@@ -175,7 +579,16 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new LinePathsGM; }
-static GMRegistry reg(MyFactory);
+static GM* ZeroLinePathFactory(void*) { return new ZeroLinePathGM; }
+static GMRegistry regZeroLinePath(ZeroLinePathFactory);
+
+static GM* ZeroLineClosePathFactory(void*) { return new ZeroLineClosePathGM; }
+static GMRegistry regZeroLineClosePath(ZeroLineClosePathFactory);
+
+static GM* LinePathFactory(void*) { return new LinePathGM; }
+static GMRegistry regLinePath(LinePathFactory);
+
+static GM* LineClosePathFactory(void*) { return new LineClosePathGM; }
+static GMRegistry regLineClosePath(LineClosePathFactory);
 
 }

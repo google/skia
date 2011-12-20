@@ -26,7 +26,7 @@ protected:
         return SkString("degeneratesegments");
     }
         
-    SkISize onISize() { return make_isize(1368, 1230); }
+    SkISize onISize() { return make_isize(896, 930); }
 
     typedef SkPoint (*AddSegmentFunc)(SkPath&, SkPoint&);
     
@@ -190,13 +190,14 @@ protected:
     }
 
     void drawPath(SkPath& path, SkCanvas* canvas, SkColor color,
-                  const SkRect& clip, SkPaint::Cap cap,
+                  const SkRect& clip, SkPaint::Cap cap, SkPaint::Join join,
                   SkPaint::Style style, SkPath::FillType fill,
                   SkScalar strokeWidth) {
         path.setFillType(fill);
         SkPaint paint;
         paint.setStrokeCap(cap);
         paint.setStrokeWidth(strokeWidth);
+        paint.setStrokeJoin(join);
         paint.setColor(color);
         paint.setStyle(style);
         canvas->save();
@@ -273,13 +274,14 @@ protected:
             {SkPaint::kStrokeAndFill_Style, "Stroke 10 And Fill"}
         };
         struct CapAndName {
-            SkPaint::Cap fCap;
-            const char*  fName;
+            SkPaint::Cap  fCap;
+            SkPaint::Join fJoin;
+            const char*   fName;
         };
         static const CapAndName gCaps[] = {
-            {SkPaint::kButt_Cap, "Butt"},
-            {SkPaint::kRound_Cap, "Round"},
-            {SkPaint::kSquare_Cap, "Square"}
+            {SkPaint::kButt_Cap, SkPaint::kBevel_Join, "Butt"},
+            {SkPaint::kRound_Cap, SkPaint::kRound_Join, "Round"},
+            {SkPaint::kSquare_Cap, SkPaint::kBevel_Join, "Square"}
         };
 
         SkPaint titlePaint;
@@ -304,12 +306,12 @@ protected:
         unsigned numCaps = SK_ARRAY_COUNT(gCaps);
         unsigned numStyles = SK_ARRAY_COUNT(gStyles);
         unsigned numFills = SK_ARRAY_COUNT(gFills);
-        for (size_t row = 0; row < 8; ++row) {
+        for (size_t row = 0; row < 6; ++row) {
             if (0 < row) {
                 canvas->translate(0, rect.height() + 100*SK_Scalar1);
             }
             canvas->save();
-            for (size_t column = 0; column < 6; ++column) {
+            for (size_t column = 0; column < 4; ++column) {
                 if (0 < column) {
                     canvas->translate(rect.width() + 4*SK_Scalar1, 0);
                 }
@@ -332,7 +334,7 @@ protected:
                 pt = gSegmentFunctions[s5](path, pt);
 
                 this->drawPath(path, canvas, color, rect,
-                               cap.fCap, style.fStyle,
+                               cap.fCap, cap.fJoin, style.fStyle,
                                fill.fFill, SK_Scalar1*6);
 
                 SkPaint rectPaint;
