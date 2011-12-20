@@ -7,6 +7,7 @@
  */
 #include "SkDevice.h"
 #include "SkDraw.h"
+#include "SkImageFilter.h"
 #include "SkMetaData.h"
 #include "SkRect.h"
 
@@ -353,7 +354,20 @@ void SkDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
 void SkDevice::drawDevice(const SkDraw& draw, SkDevice* device,
                               int x, int y, const SkPaint& paint) {
-    draw.drawSprite(device->accessBitmap(false), x, y, paint);
+    SkBitmap output;
+    const SkBitmap* src = &device->accessBitmap(false);
+    SkImageFilter* filter = paint.getImageFilter();
+
+    if (filter) {
+        SkIPoint loc;
+        loc.set(x, y);
+        if (filter->filterImage(*src, *draw.fMatrix, &output, &loc)) {
+            src = &output;
+            x = loc.fX;
+            y = loc.fY;
+        }
+    }
+    draw.drawSprite(*src, x, y, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

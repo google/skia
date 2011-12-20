@@ -69,6 +69,7 @@
         '../src/effects/SkPorterDuff.cpp',
         '../src/effects/SkRadialGradient_Table.h',
         '../src/effects/SkRectShape.cpp',
+        '../src/effects/SkTestImageFilters.cpp',
         '../src/effects/SkTransparentShader.cpp',
       ],
       'direct_dependent_settings': {
