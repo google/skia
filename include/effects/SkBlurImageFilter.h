@@ -19,6 +19,9 @@ public:
         return SkNEW_ARGS(SkBlurImageFilter, (buffer));
     }
 
+    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+                               SkBitmap* result, SkIPoint* offset);
+
     SK_DECLARE_FLATTENABLE_REGISTRAR()
 
 protected:
