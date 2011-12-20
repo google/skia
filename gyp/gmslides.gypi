@@ -7,7 +7,9 @@
     '../gm/bitmapfilters.cpp',
     '../gm/bitmapscroll.cpp',
     '../gm/blurs.cpp',
-    '../gm/colormatrix.cpp',
+    #Disabling this test until premult issues can be worked out.
+    #See http://code.google.com/p/skia/issues/detail?id=423
+    #'../gm/colormatrix.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',
     '../gm/cubicpaths.cpp',
