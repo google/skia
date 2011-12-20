@@ -89,13 +89,14 @@ static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 
 /*
     Stores the verbs and points as they are given to us, with exceptions:
-    - we only record "Close" if it was immediately preceeded by Line | Quad | Cubic
+    - we only record "Close" if it was immediately preceeded by Move | Line | Quad | Cubic
     - we insert a Move(0,0) if Line | Quad | Cubic is our first command
 
     The iterator does more cleanup, especially if forceClose == true
-    1. if we encounter Close, return a cons'd up Line() first (if the curr-pt != start-pt)
-    2. if we encounter Move without a preceeding Close, and forceClose is true, goto #1
-    3. if we encounter Line | Quad | Cubic after Close, cons up a Move
+    1. If we encounter degenerate segments, remove them
+    2. if we encounter Close, return a cons'd up Line() first (if the curr-pt != start-pt)
+    3. if we encounter Move without a preceeding Close, and forceClose is true, goto #2
+    4. if we encounter Line | Quad | Cubic after Close, cons up a Move
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -191,16 +192,15 @@ void SkPath::rewind() {
     fPts.rewind();
     fVerbs.rewind();
     GEN_ID_INC;
-    fBoundsIsDirty = true;
     fConvexity = kUnknown_Convexity;
+    fBoundsIsDirty = true;
     fSegmentMask = 0;
 }
 
 bool SkPath::isEmpty() const {
     SkDEBUGCODE(this->validate();)
 
-    int count = fVerbs.count();
-    return count == 0 || (count == 1 && fVerbs[0] == kMove_Verb);
+    return 0 == fVerbs.count();
 }
 
 /*
@@ -385,10 +385,10 @@ void SkPath::setConvexity(Convexity c) {
 //////////////////////////////////////////////////////////////////////////////
 //  Construction methods
 
-#define DIRTY_AFTER_EDIT                \
-    do {                                \
-        fBoundsIsDirty = true;          \
-        fConvexity = kUnknown_Convexity;\
+#define DIRTY_AFTER_EDIT                 \
+    do {                                 \
+        fBoundsIsDirty = true;           \
+        fConvexity = kUnknown_Convexity; \
     } while (0)
 
 void SkPath::incReserve(U16CPU inc) {
@@ -406,12 +406,8 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     int      vc = fVerbs.count();
     SkPoint* pt;
 
-    if (vc > 0 && fVerbs[vc - 1] == kMove_Verb) {
-        pt = &fPts[fPts.count() - 1];
-    } else {
-        pt = fPts.append();
-        *fVerbs.append() = kMove_Verb;
-    }
+    pt = fPts.append();
+    *fVerbs.append() = kMove_Verb;
     pt->set(x, y);
 
     GEN_ID_INC;
@@ -505,11 +501,12 @@ void SkPath::close() {
             case kLine_Verb:
             case kQuad_Verb:
             case kCubic_Verb:
+            case kMove_Verb:
                 *fVerbs.append() = kClose_Verb;
                 GEN_ID_INC;
                 break;
             default:
-                // don't add a close if the prev wasn't a primitive
+                // don't add a close if it's the first verb or a repeat
                 break;
         }
     }
@@ -1143,17 +1140,20 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-enum NeedMoveToState {
-    kAfterClose_NeedMoveToState,
-    kAfterCons_NeedMoveToState,
-    kAfterPrefix_NeedMoveToState
+enum SegmentState {
+    kAfterClose_SegmentState,     // We will need a move next, but we have a
+                                  // previous close pt to use for the new move.
+    kAfterMove_SegmentState,      // We have seen a move, but nothing else.
+    kAfterPrimitive_SegmentState  // We have seen a primitive but not yet
+                                  // closed the path. Also the initial state.
 };
 
 SkPath::Iter::Iter() {
 #ifdef SK_DEBUG
     fPts = NULL;
     fMoveTo.fX = fMoveTo.fY = fLastPt.fX = fLastPt.fY = 0;
-    fForceClose = fNeedMoveTo = fCloseLine = false;
+    fForceClose = fCloseLine = false;
+    fSegmentState = kAfterPrimitive_SegmentState;
 #endif
     // need to init enough to make next() harmlessly return kDone_Verb
     fVerbs = NULL;
@@ -1169,9 +1169,10 @@ void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
     fPts = path.fPts.begin();
     fVerbs = path.fVerbs.begin();
     fVerbStop = path.fVerbs.end();
+    fLastPt.fX = fLastPt.fY = 0;
     fForceClose = SkToU8(forceClose);
     fNeedClose = false;
-    fNeedMoveTo = kAfterPrefix_NeedMoveToState;
+    fSegmentState = kAfterPrimitive_SegmentState;
 }
 
 bool SkPath::Iter::isClosedContour() const {
@@ -1225,23 +1226,27 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
 }
 
 bool SkPath::Iter::cons_moveTo(SkPoint pts[1]) {
-    if (fNeedMoveTo == kAfterClose_NeedMoveToState) {
+    if (fSegmentState == kAfterClose_SegmentState) {
+        // We have closed a curve and have a primitive, so we need a move.
+        // Set the first return pt to the most recent move pt
         if (pts) {
             *pts = fMoveTo;
         }
         fNeedClose = fForceClose;
-        fNeedMoveTo = kAfterCons_NeedMoveToState;
-        fVerbs -= 1;
+        fSegmentState = kAfterMove_SegmentState;
+        fVerbs -= 1; // Step back to see the primitive again
         return true;
     }
 
-    if (fNeedMoveTo == kAfterCons_NeedMoveToState) {
+    if (fSegmentState == kAfterMove_SegmentState) {
+        // Set the first return pt to the move pt
         if (pts) {
             *pts = fMoveTo;
         }
-        fNeedMoveTo = kAfterPrefix_NeedMoveToState;
+        fSegmentState = kAfterPrimitive_SegmentState;
     } else {
-        SkASSERT(fNeedMoveTo == kAfterPrefix_NeedMoveToState);
+        SkASSERT(fSegmentState == kAfterPrimitive_SegmentState);
+         // Set the first return pt to the last pt of the previous primitive.
         if (pts) {
             *pts = fPts[-1];
         }
@@ -1249,9 +1254,91 @@ bool SkPath::Iter::cons_moveTo(SkPoint pts[1]) {
     return false;
 }
 
+void SkPath::Iter::consumeDegenerateSegments() {
+    // We need to step over anything that will not move the current draw point
+    // forward before the next move is seen
+    const uint8_t* lastMoveVerb = 0;
+    const SkPoint* lastMovePt = 0;
+    SkPoint lastPt = fLastPt;
+    while (fVerbs != fVerbStop) {
+        unsigned verb = *fVerbs;
+        switch (verb) {
+            case kMove_Verb:
+                // Set state for the next method.
+                fSegmentState = kAfterMove_SegmentState;
+                fMoveTo = fPts[0];
+
+                // Keep a record of this most recent move
+                lastMoveVerb = fVerbs;
+                lastMovePt = fPts;
+		lastPt = fPts[0];
+                fVerbs++;
+                fPts++;
+                break;
+
+            case kClose_Verb:
+                // A close when we are in a segment is always valid
+                if (fSegmentState == kAfterPrimitive_SegmentState) {
+                    return;
+                }
+                // A close at any other time must be ignored
+                fVerbs++;
+                break;
+
+            case kLine_Verb:
+                if (!IsLineDegenerate(lastPt, fPts[0])) {
+                    if (lastMoveVerb) {
+                        fVerbs = lastMoveVerb;
+                        fPts = lastMovePt;
+                        return;
+                    }
+                    return;
+                }
+                // Ignore this line and continue
+                fVerbs++;
+                fPts++;
+                break;
+
+            case kQuad_Verb:
+                if (!IsQuadDegenerate(lastPt, fPts[0], fPts[1])) {
+                    if (lastMoveVerb) {
+                        fVerbs = lastMoveVerb;
+                        fPts = lastMovePt;
+                        return;
+                    }
+                    return;
+                }
+                // Ignore this line and continue
+                fVerbs++;
+                fPts += 2;
+                break;
+
+            case kCubic_Verb:
+                if (!IsCubicDegenerate(lastPt, fPts[0], fPts[1], fPts[2])) {
+                    if (lastMoveVerb) {
+                        fVerbs = lastMoveVerb;
+                        fPts = lastMovePt;
+                        return;
+                    }
+                    return;
+                }
+                // Ignore this line and continue
+                fVerbs++;
+                fPts += 3;
+                break;
+            
+            default:
+                SkASSERT(false && "Should never see kDone_Verb");
+        }
+    }
+}
+
 SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
+    this->consumeDegenerateSegments();
+
     if (fVerbs == fVerbStop) {
-        if (fNeedClose) {
+        // Close the curve if requested and if there is some curve to close
+        if (fNeedClose && fSegmentState == kAfterPrimitive_SegmentState) {
             if (kLine_Verb == this->autoClose(pts)) {
                 return kLine_Verb;
             }
@@ -1277,12 +1364,11 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
             if (fVerbs == fVerbStop) {    // might be a trailing moveto
                 return kDone_Verb;
             }
-            fMoveTo = *srcPts;
             if (pts) {
                 pts[0] = *srcPts;
             }
             srcPts += 1;
-            fNeedMoveTo = kAfterCons_NeedMoveToState;
+            fLastPt = fMoveTo;
             fNeedClose = fForceClose;
             break;
         case kLine_Verb:
@@ -1322,8 +1408,9 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
                 fVerbs -= 1;
             } else {
                 fNeedClose = false;
+                fSegmentState = kAfterClose_SegmentState;
             }
-            fNeedMoveTo = kAfterClose_NeedMoveToState;
+            fLastPt = fMoveTo;
             break;
     }
     fPts = srcPts;

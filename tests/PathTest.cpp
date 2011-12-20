@@ -522,6 +522,141 @@ static void test_transform(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_zero_length_paths(skiatest::Reporter* reporter) {
+    SkPath p;
+    SkRect bounds;
+
+    // Lone moveTo case
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    bounds.set(0, 0, 0, 0);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 1 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // MoveTo-MoveTo case
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    bounds.set(1, 1, 2, 1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 2 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds()); 
+
+    // moveTo-close case
+    p.reset();
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    p.close();
+    bounds.set(0, 0, 0, 0);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 1 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-close-moveTo-close case
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    p.close();
+    bounds.set(1, 1, 2, 1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 2 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-line case
+    p.reset();
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    p.lineTo(SK_Scalar1, SK_Scalar1);
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 2 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-lineTo-moveTo-lineTo case
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    p.lineTo(SK_Scalar1*2, SK_Scalar1);
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 4 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-line-close case
+    p.reset();
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    p.lineTo(SK_Scalar1, SK_Scalar1);
+    p.close();
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 2 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-line-close-moveTo-line-close case
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    p.lineTo(SK_Scalar1*2, SK_Scalar1);
+    p.close();
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 4 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-quadTo case
+    p.reset();
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    p.quadTo(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 3 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-quadTo-close case
+    p.close();
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 3 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-quadTo-moveTo-quadTo case
+    p.reset();
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    p.quadTo(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    p.quadTo(SK_Scalar1*2, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 6 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-cubicTo case
+    p.reset();
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    p.cubicTo(SK_Scalar1, SK_Scalar1,
+              SK_Scalar1, SK_Scalar1,
+              SK_Scalar1, SK_Scalar1);
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 4 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-quadTo-close case
+    p.close();
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 4 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+
+    // moveTo-quadTo-moveTo-quadTo case
+    p.reset();
+    p.moveTo(SK_Scalar1, SK_Scalar1);
+    p.cubicTo(SK_Scalar1, SK_Scalar1,
+              SK_Scalar1, SK_Scalar1,
+              SK_Scalar1, SK_Scalar1);
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    p.cubicTo(SK_Scalar1*2, SK_Scalar1,
+              SK_Scalar1*2, SK_Scalar1,
+              SK_Scalar1*2, SK_Scalar1);
+    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    REPORTER_ASSERT(reporter, 8 == p.countPoints());
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+}
+
+struct SegmentInfo {
+    SkPath fPath;
+    int    fPointCount;
+};
+
 #define kCurveSegmentMask   (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)
 
 void TestPath(skiatest::Reporter* reporter);
@@ -540,6 +675,7 @@ void TestPath(skiatest::Reporter* reporter) {
     SkRect  bounds, bounds2;
 
     REPORTER_ASSERT(reporter, p.isEmpty());
+    REPORTER_ASSERT(reporter, 0 == p.countPoints());
     REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, p.isConvex());
     REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
@@ -555,18 +691,22 @@ void TestPath(skiatest::Reporter* reporter) {
     check_convex_bounds(reporter, p, bounds);
     // we have quads or cubics
     REPORTER_ASSERT(reporter, p.getSegmentMasks() & kCurveSegmentMask);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
 
     p.reset();
     REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, p.isEmpty());
 
     p.addOval(bounds);
     check_convex_bounds(reporter, p, bounds);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
 
     p.reset();
     p.addRect(bounds);
     check_convex_bounds(reporter, p, bounds);
     // we have only lines
     REPORTER_ASSERT(reporter, SkPath::kLine_SegmentMask == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
 
     REPORTER_ASSERT(reporter, p != p2);
     REPORTER_ASSERT(reporter, !(p == p2));
@@ -599,7 +739,9 @@ void TestPath(skiatest::Reporter* reporter) {
     p.moveTo(SK_Scalar1, 0);
     p.getLastPt(&pt);
     REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1);
+    REPORTER_ASSERT(reporter, !p.isEmpty());
 
+    test_zero_length_paths(reporter);
     test_convexity(reporter);
     test_convexity2(reporter);
     test_close(reporter);
@@ -608,12 +750,15 @@ void TestPath(skiatest::Reporter* reporter) {
     p.moveTo(0, 0);
     p.quadTo(100, 100, 200, 200);
     REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
     p.cubicTo(100, 100, 200, 200, 300, 300);
     REPORTER_ASSERT(reporter, kCurveSegmentMask == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
     p.reset();
     p.moveTo(0, 0);
     p.cubicTo(100, 100, 200, 200, 300, 300);
     REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
 
     test_flattening(reporter);
     test_transform(reporter);

@@ -18,12 +18,6 @@ static inline bool degenerate_vector(const SkVector& v) {
     return !SkPoint::CanNormalize(v.fX, v.fY);
 }
 
-static inline bool degenerate_line(const SkPoint& a, const SkPoint& b,
-                                   SkScalar tolerance = SK_ScalarNearlyZero) {
-    return SkScalarNearlyZero(a.fX - b.fX, tolerance) &&
-            SkScalarNearlyZero(a.fY - b.fY, tolerance);
-}
-
 static inline bool normals_too_curvy(const SkVector& norm0, SkVector& norm1) {
     /*  root2/2 is a 45-degree angle
         make this constant bigger for more subdivisions (but not >= 1)
@@ -219,7 +213,7 @@ void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
 }
 
 void SkPathStroker::lineTo(const SkPoint& currPt) {
-    if (degenerate_line(fPrevPt, currPt)) {
+    if (SkPath::IsLineDegenerate(fPrevPt, currPt)) {
         return;
     }
     SkVector    normal, unitNormal;
@@ -350,8 +344,8 @@ DRAW_LINE:
 }
 
 void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
-    bool    degenerateAB = degenerate_line(fPrevPt, pt1);
-    bool    degenerateBC = degenerate_line(pt1, pt2);
+    bool    degenerateAB = SkPath::IsLineDegenerate(fPrevPt, pt1);
+    bool    degenerateBC = SkPath::IsLineDegenerate(pt1, pt2);
 
     if (degenerateAB | degenerateBC) {
         if (degenerateAB ^ degenerateBC) {
@@ -406,9 +400,9 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
 
 void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
                             const SkPoint& pt3) {
-    bool    degenerateAB = degenerate_line(fPrevPt, pt1);
-    bool    degenerateBC = degenerate_line(pt1, pt2);
-    bool    degenerateCD = degenerate_line(pt2, pt3);
+    bool    degenerateAB = SkPath::IsLineDegenerate(fPrevPt, pt1);
+    bool    degenerateBC = SkPath::IsLineDegenerate(pt1, pt2);
+    bool    degenerateCD = SkPath::IsLineDegenerate(pt2, pt3);
 
     if (degenerateAB + degenerateBC + degenerateCD >= 2) {
         this->lineTo(pt3);

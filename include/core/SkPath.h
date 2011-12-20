@@ -180,6 +180,35 @@ public:
     */
     bool isEmpty() const;
 
+    /** Test a line for zero length
+
+        @return true if the line is of zero length; otherwise false.
+    */
+    static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2) {
+        return p1.equalsWithinTolerance(p2, SK_ScalarNearlyZero);
+    }
+
+    /** Test a quad for zero length
+
+        @return true if the quad is of zero length; otherwise false.
+    */
+    static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                 const SkPoint& p3) {
+        return p1.equalsWithinTolerance(p2, SK_ScalarNearlyZero) &&
+               p2.equalsWithinTolerance(p3, SK_ScalarNearlyZero);
+    }
+
+    /** Test a cubic curve for zero length
+
+        @return true if the cubic is of zero length; otherwise false.
+    */
+    static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                  const SkPoint& p3, const SkPoint& p4) {
+        return p1.equalsWithinTolerance(p2, SK_ScalarNearlyZero) &&
+               p2.equalsWithinTolerance(p3, SK_ScalarNearlyZero) &&
+               p3.equalsWithinTolerance(p4, SK_ScalarNearlyZero);
+    }
+
     /** Returns true if the path specifies a rectangle. If so, and if rect is
         not null, set rect to the bounds of the path. If the path does not
         specify a rectangle, return false and ignore rect.
@@ -633,11 +662,12 @@ public:
         SkPoint         fLastPt;
         SkBool8         fForceClose;
         SkBool8         fNeedClose;
-        SkBool8         fNeedMoveTo;
         SkBool8         fCloseLine;
+        uint8_t         fSegmentState;
 
         bool cons_moveTo(SkPoint pts[1]);
         Verb autoClose(SkPoint pts[2]);
+        void consumeDegenerateSegments();
     };
 
     void dump(bool forceClose, const char title[] = NULL) const;
