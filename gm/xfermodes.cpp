@@ -38,11 +38,12 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
     c.drawRect(r, p);
 }
 
-static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
+static const uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
 
 class XfermodesGM : public GM {
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
+    bool        fOnce;
 
     void draw_mode(SkCanvas* canvas, SkXfermode* mode, int alpha,
                    SkScalar x, SkScalar y) {
@@ -54,20 +55,25 @@ class XfermodesGM : public GM {
         canvas->drawBitmap(fDstB, x, y, &p);
     }
 
+    void init() {
+        if (!fOnce) {
+            // Do all this work in a temporary so we get a deep copy,
+            // especially of gBG.
+            SkBitmap scratchBitmap;
+            scratchBitmap.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
+            scratchBitmap.setPixels(gBG);
+            scratchBitmap.setIsOpaque(true);
+            scratchBitmap.copyTo(&fBG, SkBitmap::kARGB_4444_Config);
+            
+            make_bitmaps(W, H, &fSrcB, &fDstB);
+            fOnce = true;
+        }
+    }
+
 public:
     const static int W = 64;
     const static int H = 64;
-    XfermodesGM() {
-        // Do all this work in a temporary so we get a deep copy,
-        // especially of gBG.
-        SkBitmap scratchBitmap;
-        scratchBitmap.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
-        scratchBitmap.setPixels(gBG);
-        scratchBitmap.setIsOpaque(true);
-        scratchBitmap.copyTo(&fBG, SkBitmap::kARGB_4444_Config);
-
-        make_bitmaps(W, H, &fSrcB, &fDstB);
-    }
+    XfermodesGM() : fOnce(false) {}
 
 protected:
     virtual SkString onShortName() {
@@ -79,6 +85,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        this->init();
+
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const struct {
