@@ -1976,15 +1976,28 @@ bool SkPaint::nothingToDraw() const {
 //////////// Move these to their own file soon.
 
 bool SkImageFilter::filterImage(const SkBitmap& src, const SkMatrix& matrix,
-                                SkBitmap* result, SkIPoint* offset) {
+                                SkBitmap* result, SkIPoint* loc) {
     SkASSERT(result);
-    SkASSERT(offset);
-    return this->onFilterImage(src, matrix, result, offset);
+    SkASSERT(loc);
+    return this->onFilterImage(src, matrix, result, loc);
+}
+
+bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                 SkIRect* dst) {
+    SkASSERT(&src);
+    SkASSERT(dst);
+    return this->onFilterBounds(src, ctm, dst);
 }
 
 bool SkImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix&,
-                                  SkBitmap* result, SkIPoint* offset) {
+                                  SkBitmap*, SkIPoint*) {
     return false;
+}
+
+bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                   SkIRect* dst) {
+    *dst = src;
+    return true;
 }
 
 bool SkImageFilter::asABlur(SkSize* sigma) const {

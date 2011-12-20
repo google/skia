@@ -36,6 +36,7 @@
     '../gm/shapes.cpp',
     '../gm/strokerects.cpp',
     '../gm/strokes.cpp',
+    '../gm/testimagefilters.cpp',
     '../gm/texdata.cpp',
     '../gm/tilemodes.cpp',
     '../gm/tinybitmap.cpp',
