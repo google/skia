@@ -18,6 +18,7 @@
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
+#include "SkPixelRef.h"
 #include "SkRandom.h"
 #include "SkRefCnt.h"
 #include "SkScalerContext.h"

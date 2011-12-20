@@ -100,6 +100,8 @@ private:
 #if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     static void InitializeFlattenables();
 #endif
+
+    friend class SkGraphics;
 };
 
 // helpers for matrix and region
