@@ -535,7 +535,7 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
 
     // MoveTo-MoveTo case
     p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    bounds.set(1, 1, 2, 1);
+    bounds.set(SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1);
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 2 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds()); 
@@ -552,7 +552,7 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     // moveTo-close-moveTo-close case
     p.moveTo(SK_Scalar1*2, SK_Scalar1);
     p.close();
-    bounds.set(1, 1, 2, 1);
+    bounds.set(SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1);
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 2 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
