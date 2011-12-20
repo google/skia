@@ -333,8 +333,32 @@ SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
     fFlags = buffer.readU32();
 }
 
+bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
+    int32_t* SK_RESTRICT array = fState.fArray;
+    for (int i = 0; i < 20; i++) {
+        matrix[i] = SkFixedToScalar(array[i]);
+    }
+    if (NULL != fProc) {
+        // Undo the offset applied to the constant column in setup().
+        SkScalar offset = SkFixedToScalar(1 << (fState.fShift - 1));
+        matrix[4] -= offset;
+        matrix[9] -= offset;
+        matrix[14] -= offset;
+        matrix[19] -= offset;
+    }
+    return true;
+}
+
 SkFlattenable* SkColorMatrixFilter::CreateProc(SkFlattenableReadBuffer& buf) {
     return SkNEW_ARGS(SkColorMatrixFilter, (buf));
+}
+
+void SkColorMatrixFilter::setMatrix(const SkColorMatrix& matrix) {
+    setup(matrix.fMat);
+}
+
+void SkColorMatrixFilter::setArray(const SkScalar array[20]) {
+    setup(array);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorMatrixFilter)

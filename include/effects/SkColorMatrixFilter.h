@@ -26,6 +26,7 @@ public:
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor[]);
     virtual void filterSpan16(const uint16_t src[], int count, uint16_t[]);
     virtual uint32_t getFlags();
+    virtual bool asColorMatrix(SkScalar matrix[20]) SK_OVERRIDE;
 
     // overrides for SkFlattenable
     virtual void flatten(SkFlattenableWriteBuffer& buffer);

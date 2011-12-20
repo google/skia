@@ -23,6 +23,13 @@ public:
      */
     virtual bool asColorMode(SkColor* color, SkXfermode::Mode* mode);
 
+    /**
+     *  If the filter can be represented by a 5x4 matrix, this
+     *  returns true, and sets the matrix appropriately.
+     *  If not, this returns false and ignores the parameter.
+     */
+    virtual bool asColorMatrix(SkScalar matrix[20]);
+
     /** Called with a scanline of colors, as if there was a shader installed.
         The implementation writes out its filtered version into result[].
         Note: shader and result may be the same buffer.
