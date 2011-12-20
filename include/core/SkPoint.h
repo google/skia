@@ -315,6 +315,13 @@ struct SK_API SkPoint {
         return a.fX != b.fX || a.fY != b.fY;
     }
 
+    /** Return true if this and the given point are componentwise within tol.
+    */
+    bool equalsWithinTolerance(const SkPoint& v, SkScalar tol) const {
+        return SkScalarNearlyZero(fX - v.fX, tol)
+               && SkScalarNearlyZero(fY - v.fY, tol);
+    }
+
     /** Returns a new point whose coordinates are the difference between
         a's and b's (a - b)
     */
