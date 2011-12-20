@@ -667,6 +667,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
         } else {
             fVerticalMatrix.preRotate(SkIntToScalar(90));
         }
+        fVerticalMatrix.postScale(SK_Scalar1, -SK_Scalar1);
     }
     fGlyphCount = SkToU16(numGlyphs);
     fDoSubPosition = SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
@@ -791,8 +792,13 @@ void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkIPoint* offset) c
                            SkFloatToScalar(vertOffset.height)};
     SkPoint floatOffset;
     fVerticalMatrix.mapPoints(&floatOffset, &trans, 1);
+    if (isLion()) {
+    // Lion changed functionality from Snow Leopard, though it's not clear why
+    // this is required here; it was found through trial and error.
+        fUnitMatrix.mapPoints(&floatOffset, 1);
+    }
     offset->fX = SkScalarRound(floatOffset.fX);
-    offset->fY = -SkScalarRound(floatOffset.fY);
+    offset->fY = SkScalarRound(floatOffset.fY);
 }
 
 /* from http://developer.apple.com/fonts/TTRefMan/RM06/Chap6loca.html
