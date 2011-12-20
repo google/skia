@@ -183,30 +183,30 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     check_convexity(reporter, pt, SkPath::kConvex_Convexity);
     
     SkPath line;
-    line.moveTo(12, 20);
-    line.lineTo(-12, -20);
+    line.moveTo(12*SK_Scalar1, 20*SK_Scalar1);
+    line.lineTo(-12*SK_Scalar1, -20*SK_Scalar1);
     line.close();
     check_convexity(reporter, pt, SkPath::kConvex_Convexity);
     
     SkPath triLeft;
     triLeft.moveTo(0, 0);
-    triLeft.lineTo(1, 0);
-    triLeft.lineTo(1, 1);
+    triLeft.lineTo(SK_Scalar1, 0);
+    triLeft.lineTo(SK_Scalar1, SK_Scalar1);
     triLeft.close();
     check_convexity(reporter, triLeft, SkPath::kConvex_Convexity);
     
     SkPath triRight;
     triRight.moveTo(0, 0);
-    triRight.lineTo(-1, 0);
-    triRight.lineTo(1, 1);
+    triRight.lineTo(-SK_Scalar1, 0);
+    triRight.lineTo(SK_Scalar1, SK_Scalar1);
     triRight.close();
     check_convexity(reporter, triRight, SkPath::kConvex_Convexity);
     
     SkPath square;
     square.moveTo(0, 0);
-    square.lineTo(1, 0);
-    square.lineTo(1, 1);
-    square.lineTo(0, 1);
+    square.lineTo(SK_Scalar1, 0);
+    square.lineTo(SK_Scalar1, SK_Scalar1);
+    square.lineTo(0, SK_Scalar1);
     square.close();
     check_convexity(reporter, square, SkPath::kConvex_Convexity);
     
@@ -214,15 +214,15 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     redundantSquare.moveTo(0, 0);
     redundantSquare.lineTo(0, 0);
     redundantSquare.lineTo(0, 0);
-    redundantSquare.lineTo(1, 0);
-    redundantSquare.lineTo(1, 0);
-    redundantSquare.lineTo(1, 0);
-    redundantSquare.lineTo(1, 1);
-    redundantSquare.lineTo(1, 1);
-    redundantSquare.lineTo(1, 1);
-    redundantSquare.lineTo(0, 1);
-    redundantSquare.lineTo(0, 1);
-    redundantSquare.lineTo(0, 1);
+    redundantSquare.lineTo(SK_Scalar1, 0);
+    redundantSquare.lineTo(SK_Scalar1, 0);
+    redundantSquare.lineTo(SK_Scalar1, 0);
+    redundantSquare.lineTo(SK_Scalar1, SK_Scalar1);
+    redundantSquare.lineTo(SK_Scalar1, SK_Scalar1);
+    redundantSquare.lineTo(SK_Scalar1, SK_Scalar1);
+    redundantSquare.lineTo(0, SK_Scalar1);
+    redundantSquare.lineTo(0, SK_Scalar1);
+    redundantSquare.lineTo(0, SK_Scalar1);
     redundantSquare.close();
     check_convexity(reporter, redundantSquare, SkPath::kConvex_Convexity);
     
@@ -230,35 +230,35 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     bowTie.moveTo(0, 0);
     bowTie.lineTo(0, 0);
     bowTie.lineTo(0, 0);
-    bowTie.lineTo(1, 1);
-    bowTie.lineTo(1, 1);
-    bowTie.lineTo(1, 1);
-    bowTie.lineTo(1, 0);
-    bowTie.lineTo(1, 0);
-    bowTie.lineTo(1, 0);
-    bowTie.lineTo(0, 1);
-    bowTie.lineTo(0, 1);
-    bowTie.lineTo(0, 1);
+    bowTie.lineTo(SK_Scalar1, SK_Scalar1);
+    bowTie.lineTo(SK_Scalar1, SK_Scalar1);
+    bowTie.lineTo(SK_Scalar1, SK_Scalar1);
+    bowTie.lineTo(SK_Scalar1, 0);
+    bowTie.lineTo(SK_Scalar1, 0);
+    bowTie.lineTo(SK_Scalar1, 0);
+    bowTie.lineTo(0, SK_Scalar1);
+    bowTie.lineTo(0, SK_Scalar1);
+    bowTie.lineTo(0, SK_Scalar1);
     bowTie.close();
     check_convexity(reporter, bowTie, SkPath::kConcave_Convexity);
     
     SkPath spiral;
     spiral.moveTo(0, 0);
-    spiral.lineTo(100, 0);
-    spiral.lineTo(100, 100);
-    spiral.lineTo(0, 100);
-    spiral.lineTo(0, 50);
-    spiral.lineTo(50, 50);
-    spiral.lineTo(50, 75);
+    spiral.lineTo(100*SK_Scalar1, 0);
+    spiral.lineTo(100*SK_Scalar1, 100*SK_Scalar1);
+    spiral.lineTo(0, 100*SK_Scalar1);
+    spiral.lineTo(0, 50*SK_Scalar1);
+    spiral.lineTo(50*SK_Scalar1, 50*SK_Scalar1);
+    spiral.lineTo(50*SK_Scalar1, 75*SK_Scalar1);
     spiral.close();
     check_convexity(reporter, spiral, SkPath::kConcave_Convexity);
     
     SkPath dent;
-    dent.moveTo(SkIntToScalar(0), SkIntToScalar(0));
-    dent.lineTo(SkIntToScalar(100), SkIntToScalar(100));
-    dent.lineTo(SkIntToScalar(0), SkIntToScalar(100));
-    dent.lineTo(SkIntToScalar(-50), SkIntToScalar(200));
-    dent.lineTo(SkIntToScalar(-200), SkIntToScalar(100));
+    dent.moveTo(0, 0);
+    dent.lineTo(100*SK_Scalar1, 100*SK_Scalar1);
+    dent.lineTo(0, 100*SK_Scalar1);
+    dent.lineTo(-50*SK_Scalar1, 200*SK_Scalar1);
+    dent.lineTo(-200*SK_Scalar1, 100*SK_Scalar1);
     dent.close();
     check_convexity(reporter, dent, SkPath::kConcave_Convexity);
 }
