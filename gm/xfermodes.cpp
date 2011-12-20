@@ -38,8 +38,6 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
     c.drawRect(r, p);
 }
 
-static const uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
-
 class XfermodesGM : public GM {
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
@@ -57,11 +55,11 @@ class XfermodesGM : public GM {
 
     void init() {
         if (!fOnce) {
-            // Do all this work in a temporary so we get a deep copy,
-            // especially of gBG.
+            // Do all this work in a temporary so we get a deep copy
+            uint16_t localData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
             SkBitmap scratchBitmap;
             scratchBitmap.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
-            scratchBitmap.setPixels(gBG);
+            scratchBitmap.setPixels(localData);
             scratchBitmap.setIsOpaque(true);
             scratchBitmap.copyTo(&fBG, SkBitmap::kARGB_4444_Config);
             
