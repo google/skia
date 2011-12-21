@@ -423,7 +423,15 @@ static SkTypeface* NewFromName(const char familyName[],
 
         ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
         if (ctFontDesc != NULL) {
-            ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL);
+            if (isLeopard()) {
+                // CTFontCreateWithFontDescriptor on Leopard ignores the name
+                CTFontRef ctNamed = CTFontCreateWithName(cfFontName, 1, NULL);
+                ctFont = CTFontCreateCopyWithAttributes(ctNamed, 1, NULL,
+                                                        ctFontDesc);
+                CFSafeRelease(ctNamed);
+            } else {
+                ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL);
+            }
         }
     }
 
@@ -792,9 +800,11 @@ void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkIPoint* offset) c
                            SkFloatToScalar(vertOffset.height)};
     SkPoint floatOffset;
     fVerticalMatrix.mapPoints(&floatOffset, &trans, 1);
-    if (isLion()) {
-    // Lion changed functionality from Snow Leopard, though it's not clear why
-    // this is required here; it was found through trial and error.
+    if (!isSnowLeopard()) {
+    // SnowLeopard fails to apply the font's matrix to the vertical metrics,
+    // but Lion and Leopard do. The unit matrix describes the font's matrix at
+    // point size 1. There may be some way to avoid mapping here by setting up
+    // fVerticalMatrix differently, but this works for now.
         fUnitMatrix.mapPoints(&floatOffset, 1);
     }
     offset->fX = SkScalarRound(floatOffset.fX);
@@ -938,15 +948,14 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     cgGlyph = (CGGlyph) glyph->getGlyphID(fBaseGlyphCount);
 
     if (fVertical) {
-        if (isLion()) {
-        // Lion correctly supports returning the bounding box for vertical text.
+        if (!isSnowLeopard()) {
+        // Lion and Leopard respect the vertical font metrics.
             CTFontGetBoundingRectsForGlyphs(fCTVerticalFont,
                                             kCTFontVerticalOrientation, 
                                             &cgGlyph, &theBounds,  1);
         } else {
-        /* Snow Leopard and earlier respect the vertical font metrics for
-           advances, but not bounds, so use the default box and adjust it below.
-         */
+        // Snow Leopard and earlier respect the vertical font metrics for
+        // advances, but not bounds, so use the default box and adjust it below.
             CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontDefaultOrientation,
                                             &cgGlyph, &theBounds,  1);
         }
@@ -982,10 +991,12 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         return;
     }
     
-    if (isLeopard()) {
+    if (isLeopard() && !fVertical) {
         // Leopard does not consider the matrix skew in its bounds.
         // Run the bounding rectangle through the skew matrix to determine
-        // the true bounds.
+        // the true bounds. However, this doesn't work if the font is vertical.
+        // FIXME (Leopard): If the font has synthetic italic (e.g., matrix skew)
+        // and the font is vertical, the bounds need to be recomputed.
         SkRect glyphBounds = SkRect::MakeXYWH(
                 theBounds.origin.x, theBounds.origin.y,
                 theBounds.size.width, theBounds.size.height);
@@ -1026,7 +1037,9 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fTop      = -sk_float_round2int(CGRectGetMaxY_inline(theBounds));
     glyph->fLeft     =  sk_float_round2int(CGRectGetMinX_inline(theBounds));
     SkIPoint offset;
-    if (fVertical && (!isLion() || lionAdjustedMetrics)) {
+    if (fVertical && (isSnowLeopard() || lionAdjustedMetrics)) {
+    // SnowLeopard doesn't respect vertical metrics, so compute them manually.
+    // Also compute them for Lion when the metrics were computed by hand.
         getVerticalOffset(cgGlyph, &offset);
         glyph->fLeft += offset.fX;
         glyph->fTop += offset.fY;

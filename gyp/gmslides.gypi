@@ -43,6 +43,7 @@
     '../gm/tilemodes.cpp',
     '../gm/tinybitmap.cpp',
     '../gm/verttext.cpp',
+    '../gm/verttext2.cpp',
     '../gm/xfermodes.cpp',
   ],
 }
