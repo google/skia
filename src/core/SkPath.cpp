@@ -199,8 +199,12 @@ void SkPath::rewind() {
 
 bool SkPath::isEmpty() const {
     SkDEBUGCODE(this->validate();)
-
+#if SK_OLD_EMPTY_PATH_BEHAVIOR
+    int count = fVerbs.count();
+    return count == 0 || (count == 1 && fVerbs[0] == kMove_Verb);
+#else
     return 0 == fVerbs.count();
+#endif
 }
 
 /*
