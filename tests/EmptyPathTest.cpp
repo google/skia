@@ -105,10 +105,12 @@ static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool sh
 #define CY  (SkIntToScalar(DIMENSION) / 2)
 
 static void make_empty(SkPath* path) {}
-static void make_move(SkPath* path) { path->moveTo(CX, CY); }
-static void make_line(SkPath* path) { path->moveTo(CX, CY); path->lineTo(CX, CY); }
-static void make_quad(SkPath* path) { path->moveTo(CX, CY); path->quadTo(CX, CY, CX, CY); }
-static void make_cubic(SkPath* path) { path->moveTo(CX, CY); path->cubicTo(CX, CY, CX, CY, CX, CY); }
+static void make_M(SkPath* path) { path->moveTo(CX, CY); }
+static void make_MM(SkPath* path) { path->moveTo(CX, CY); path->moveTo(CX, CY); }
+static void make_MZM(SkPath* path) { path->moveTo(CX, CY); path->close(); path->moveTo(CX, CY); }
+static void make_L(SkPath* path) { path->moveTo(CX, CY); path->lineTo(CX, CY); }
+static void make_Q(SkPath* path) { path->moveTo(CX, CY); path->quadTo(CX, CY, CX, CY); }
+static void make_C(SkPath* path) { path->moveTo(CX, CY); path->cubicTo(CX, CY, CX, CY, CX, CY); }
 
 /*  Two invariants are tested: How does an empty/degenerate path draw?
  *  - if the path is drawn inverse, it should draw everywhere
@@ -122,7 +124,7 @@ static void make_cubic(SkPath* path) { path->moveTo(CX, CY); path->cubicTo(CX, C
  */
 static void test_emptydrawing(skiatest::Reporter* reporter) {
     static void (*gMakeProc[])(SkPath*) = {
-        make_empty, make_move, make_line, make_quad, make_cubic
+        make_empty, make_M, make_MM, make_MZM, make_L, make_Q, make_C
     };
     static SkPath::FillType gFills[] = {
         SkPath::kWinding_FillType,
