@@ -455,6 +455,7 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
             break;
         case SkShader::kColor_GradientType:
         case SkShader::kNone_GradientType:
+        default:
             return;
     }
 
@@ -809,7 +810,8 @@ SkPDFShader::State::State(const SkShader& shader,
         fColorData.set(sk_malloc_throw(
                     fInfo.fColorCount * (sizeof(SkColor) + sizeof(SkScalar))));
         fInfo.fColors = reinterpret_cast<SkColor*>(fColorData.get());
-        fInfo.fColorOffsets = reinterpret_cast<SkScalar*>(fInfo.fColors + fInfo.fColorCount);
+        fInfo.fColorOffsets =
+            reinterpret_cast<SkScalar*>(fInfo.fColors + fInfo.fColorCount);
         shader.asAGradient(&fInfo);
     }
 }
