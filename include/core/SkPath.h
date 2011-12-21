@@ -38,7 +38,7 @@ public:
     ~SkPath();
 
     SkPath& operator=(const SkPath&);
-    
+
     friend bool operator==(const SkPath&, const SkPath&);
     friend bool operator!=(const SkPath& a, const SkPath& b) {
         return !(a == b);
@@ -70,7 +70,7 @@ public:
 
     /** Set the path's fill type. This is used to define how "inside" is
         computed. The default value is kWinding_FillType.
-     
+
         @param ft The new fill type for this path
     */
     void setFillType(FillType ft) {
@@ -633,7 +633,7 @@ public:
 
         /** Return the next verb in this iteration of the path. When all
             segments have been visited, return kDone_Verb.
-         
+
             @param  pts The points representing the current verb and/or segment
             @return The verb for the current segment
         */
@@ -643,12 +643,12 @@ public:
             line was the result of a close() command (i.e. the end point is the
             initial moveto for this contour). If next() returned a different
             verb, this returns an undefined value.
-         
+
             @return If the last call to next() returned kLine_Verb, return true
                     if it was the result of an explicit close command.
         */
         bool isCloseLine() const { return SkToBool(fCloseLine); }
-        
+
         /** Returns true if the current contour is closed (has a kClose_Verb)
             @return true if the current contour is closed (has a kClose_Verb)
         */
@@ -663,7 +663,7 @@ public:
         SkBool8         fForceClose;
         SkBool8         fNeedClose;
         SkBool8         fCloseLine;
-        uint8_t         fSegmentState;
+        SkBool8         fSegmentState;
 
         bool cons_moveTo(SkPoint pts[1]);
         Verb autoClose(SkPoint pts[2]);
@@ -718,4 +718,3 @@ private:
 };
 
 #endif
-
