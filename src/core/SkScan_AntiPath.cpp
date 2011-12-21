@@ -567,6 +567,9 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
     SkIRect ir;
     path.getBounds().roundOut(&ir);
     if (ir.isEmpty()) {
+        if (path.isInverseFillType()) {
+            blitter->blitRegion(clip);
+        }
         return;
     }
 
