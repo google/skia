@@ -641,6 +641,12 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
         }
 #endif
     }
+
+    // our answer should preserve the inverseness of the src
+    if (src.isInverseFillType()) {
+        SkASSERT(!dst->isInverseFillType());
+        dst->toggleInverseFillType();
+    }
 }
 
 void SkStroke::strokeLine(const SkPoint& p0, const SkPoint& p1,
