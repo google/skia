@@ -1,6 +1,7 @@
 # include this gypi to include all the golden master slides.
 {
   'sources': [
+    '../gm/aaclip.cpp',
     '../gm/aarectmodes.cpp',
     '../gm/arithmode.cpp',
     '../gm/bitmapcopy.cpp',
