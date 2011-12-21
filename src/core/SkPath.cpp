@@ -410,8 +410,17 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     int      vc = fVerbs.count();
     SkPoint* pt;
 
+#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
+    if (vc > 0 && fVerbs[vc - 1] == kMove_Verb) {
+        pt = &fPts[fPts.count() - 1];
+    } else {
+        pt = fPts.append();
+        *fVerbs.append() = kMove_Verb;
+    }
+#else
     pt = fPts.append();
     *fVerbs.append() = kMove_Verb;
+#endif
     pt->set(x, y);
 
     GEN_ID_INC;
@@ -505,7 +514,9 @@ void SkPath::close() {
             case kLine_Verb:
             case kQuad_Verb:
             case kCubic_Verb:
+#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
             case kMove_Verb:
+#endif
                 *fVerbs.append() = kClose_Verb;
                 GEN_ID_INC;
                 break;
@@ -1275,7 +1286,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                 // Keep a record of this most recent move
                 lastMoveVerb = fVerbs;
                 lastMovePt = fPts;
-		lastPt = fPts[0];
+                lastPt = fPts[0];
                 fVerbs++;
                 fPts++;
                 break;
@@ -1330,7 +1341,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                 fVerbs++;
                 fPts += 3;
                 break;
-            
+
             default:
                 SkASSERT(false && "Should never see kDone_Verb");
         }
@@ -1338,11 +1349,17 @@ void SkPath::Iter::consumeDegenerateSegments() {
 }
 
 SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
+#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
     this->consumeDegenerateSegments();
+#endif
 
     if (fVerbs == fVerbStop) {
         // Close the curve if requested and if there is some curve to close
+#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
+        if (fNeedClose) {
+#else
         if (fNeedClose && fSegmentState == kAfterPrimitive_SegmentState) {
+#endif
             if (kLine_Verb == this->autoClose(pts)) {
                 return kLine_Verb;
             }
@@ -1368,11 +1385,18 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
             if (fVerbs == fVerbStop) {    // might be a trailing moveto
                 return kDone_Verb;
             }
+#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
+            fMoveTo = *srcPts;
+#endif
             if (pts) {
                 pts[0] = *srcPts;
             }
             srcPts += 1;
+#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
+            fSegmentState = kAfterMove_SegmentState;
+#else
             fLastPt = fMoveTo;
+#endif
             fNeedClose = fForceClose;
             break;
         case kLine_Verb:
@@ -1412,9 +1436,15 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
                 fVerbs -= 1;
             } else {
                 fNeedClose = false;
+#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
                 fSegmentState = kAfterClose_SegmentState;
+#endif
             }
+#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
+            fSegmentState = kAfterClose_SegmentState;
+#else
             fLastPt = fMoveTo;
+#endif
             break;
     }
     fPts = srcPts;
