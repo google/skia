@@ -91,7 +91,7 @@ size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = NULL);
 size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
                            char utf8[] = NULL);
 
-static bool SkUnichar_IsVariationSelector(SkUnichar uni) {
+inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
 /*  The 'true' ranges are:
  *      0x180B  <= uni <=  0x180D
  *      0xFE00  <= uni <=  0xFE0F
