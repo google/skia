@@ -64,6 +64,7 @@
         '../tests/Test.h',
         '../tests/TestSize.cpp',
         '../tests/ToUnicode.cpp',
+        '../tests/UnicodeTest.cpp',
         '../tests/UtilsTest.cpp',
         '../tests/WArrayTest.cpp',
         '../tests/WritePixelsTest.cpp',
