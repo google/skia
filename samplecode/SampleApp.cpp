@@ -78,7 +78,56 @@ static void postEventToSink(SkEvent* evt, SkEventSink* sink) {
     evt->setTargetID(sink->getSinkID())->post();
 }
 
-///////////////
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* skip_until(const char* str, const char* skip) {
+    if (!str) {
+        return NULL;
+    }
+    return strstr(str, skip);
+}
+
+static const char* skip_past(const char* str, const char* skip) {
+    const char* found = skip_until(str, skip);
+    if (!found) {
+        return NULL;
+    }
+    return found + strlen(skip);
+}
+
+static const char* gPrefFileName = "sampleapp_prefs.txt";
+
+static bool readTiTleFromPrefs(SkString* title) {
+    SkFILEStream stream(gPrefFileName);
+    if (!stream.isValid()) {
+        return false;
+    }
+
+    int len = stream.getLength();
+    SkString data(len);
+    stream.read(data.writable_str(), len);
+    const char* s = data.c_str();
+
+    s = skip_past(s, "curr-slide-title");
+    s = skip_past(s, "=");
+    s = skip_past(s, "\"");
+    const char* stop = skip_until(s, "\"");
+    if (stop > s) {
+        title->set(s, stop - s);
+        return true;
+    }
+    return false;
+}
+
+static bool writeTitleToPrefs(const char* title) {
+    SkFILEWStream stream(gPrefFileName);
+    SkString data;
+    data.printf("curr-slide-title = \"%s\"\n", title);
+    stream.write(data.c_str(), data.size());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class SampleWindow::DefaultDeviceManager : public SampleWindow::DeviceManager {
 public:
 
@@ -488,6 +537,18 @@ static SkView* curr_view(SkWindow* wind) {
     return iter.next();
 }
 
+static bool curr_title(SkWindow* wind, SkString* title) {
+    SkView* view = curr_view(wind);
+    if (view) {
+        SkEvent evt(gTitleEvtName);
+        if (view->doQuery(&evt)) {
+            title->set(evt.findString(gTitleEvtName));
+            return true;
+        }
+    }
+    return false;
+}
+
 void SampleWindow::setZoomCenter(float x, float y)
 {
     fZoomCenterX = SkFloatToScalar(x);
@@ -548,7 +609,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #endif
     fUseClip = false;
     fNClip = false;
-    fRepeatDrawing = false;
     fAnimating = false;
     fRotate = false;
     fPerspAnim = false;
@@ -645,17 +705,19 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     }
     fCurrIndex = 0;
     if (argc > 1) {
-        int i, count = fSamples.count();
-        for (i = 0; i < count; i++) {
-            SkString title = getSampleTitle(i);
-            if (title.equals(argv[1])) {
-                fCurrIndex = i;
-                break;
-            }
-        }
-        if (i == count) {
+        fCurrIndex = findByTitle(argv[1]);
+        if (fCurrIndex < 0) {
             fprintf(stderr, "Unknown sample \"%s\"\n", argv[1]);
         }
+    } else {
+        SkString title;
+        if (readTiTleFromPrefs(&title)) {
+            fCurrIndex = findByTitle(title.c_str());
+        }
+    }
+
+    if (fCurrIndex < 0) {
+        fCurrIndex = 0;
     }
     this->loadView((*fSamples[fCurrIndex])());
     
@@ -688,6 +750,15 @@ SampleWindow::~SampleWindow() {
     fTypeface->unref();
 
     SkSafeUnref(fDevManager);
+}
+
+int SampleWindow::findByTitle(const char title[]) {
+    int i, count = fSamples.count();
+    for (i = 0; i < count; i++) {
+        if (getSampleTitle(i).equals(title)) {
+            return i;
+        }
+    }
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
@@ -927,9 +998,6 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
 }
 
 void SampleWindow::onDraw(SkCanvas* canvas) {
-    if (fRepeatDrawing) {
-        this->inval(NULL);
-    }
 }
 
 #include "SkColorPriv.h"
@@ -1554,18 +1622,13 @@ bool SampleWindow::onHandleKey(SkKey key) {
                 this->updateTitle();
             }
             return true;
-        case kOK_SkKey:
-            if (false) {
-                SkDebugfDumper dumper;
-                SkDumpCanvas dc(&dumper);
-                this->draw(&dc);
-            } else {
-                fRepeatDrawing = !fRepeatDrawing;
-                if (fRepeatDrawing) {
-                    this->inval(NULL);
-                }
+        case kOK_SkKey: {
+            SkString title;
+            if (curr_title(this, &title)) {
+                writeTitleToPrefs(title.c_str());
             }
             return true;
+        }
         case kBack_SkKey:
             this->showOverview();
             return true;
@@ -1700,15 +1763,10 @@ static const char* trystate_str(SkOSMenu::TriState state,
 }
 
 void SampleWindow::updateTitle() {
-    SkString title;
+    SkView* view = curr_view(this);
 
-    SkView::F2BIter iter(this);
-    SkView* view = iter.next();
-    SkEvent evt(gTitleEvtName);
-    if (view->doQuery(&evt)) {
-        title.set(evt.findString(gTitleEvtName));
-    }
-    if (title.size() == 0) {
+    SkString title;
+    if (!curr_title(this, &title)) {
         title.set("<unknown>");
     }
 

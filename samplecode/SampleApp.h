@@ -139,7 +139,6 @@ private:
 
     bool fUseClip;
     bool fNClip;
-    bool fRepeatDrawing;
     bool fAnimating;
     bool fRotate;
     bool fPerspAnim;
@@ -190,6 +189,7 @@ private:
     void updateMatrix();
     void postAnimatingEvent();
     void installDrawFilter(SkCanvas*);
+    int findByTitle(const char*);
 
     typedef SkOSWindow INHERITED;
 };
