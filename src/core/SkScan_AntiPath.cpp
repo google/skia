@@ -156,6 +156,12 @@ static inline int coverage_to_alpha(int aa) {
     return aa;
 }
 
+static inline int coverage_to_exact_alpha(int aa) {
+    static int map [] = { 0, 64, 128, 192, 255 };
+    SkASSERT(SHIFT == 2);
+    return map[aa];
+}
+
 void SuperBlitter::blitH(int x, int y, int width) {
     SkASSERT(width > 0);
 
@@ -183,10 +189,6 @@ void SuperBlitter::blitH(int x, int y, int width) {
         fCurrIY = iy;
     }
 
-    // we sub 1 from maxValue 1 time for each block, so that we don't
-    // hit 256 as a summed max, but 255.
-//  int maxValue = (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT);
-
     int start = x;
     int stop = x + width;
 
@@ -204,10 +206,11 @@ void SuperBlitter::blitH(int x, int y, int width) {
         if (fb == 0) {
             n += 1;
         } else {
-            fb = (1 << SHIFT) - fb;
+            fb = SCALE - fb;
         }
     }
 
+    // TODO - should this be using coverage_to_exact_alpha?
     fOffsetX = fRuns.add(x >> SHIFT, coverage_to_alpha(fb),
                          n, coverage_to_alpha(fe),
                          (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT),
@@ -288,23 +291,34 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
             x = 0;
         }
 
+        // There is always a left column, a middle, and a right column.
+        // ileft is the destination x of the first pixel of the entire rect.
+        // xleft is (SCALE - # of covered supersampled pixels) in that
+        // destination pixel.
         int ileft = x >> SHIFT;
         int xleft = x & MASK;
+        // irite is the destination x of the last pixel of the OPAQUE section.
+        // xrite is the number of supersampled pixels extending beyond irite;
+        // xrite/SCALE should give us alpha.
         int irite = (x + width) >> SHIFT;
         int xrite = (x + width) & MASK;
+        if (!xrite) {
+            xrite = SCALE;
+            irite--;
+        }
+
         int n = irite - ileft - 1;
         if (n < 0) {
-            // only one pixel, call blitV()?
             xleft = xrite - xleft;
-            n = 0;
+            SkASSERT(xleft <= SCALE);
+            SkASSERT(xleft > 0);
             xrite = 0;
+            fRealBlitter->blitV(ileft + fLeft, start_y, count,
+                coverage_to_exact_alpha(xleft));
         } else {
-            if (0 == xleft) {
-                n += 1;
-            } else {
-                xleft = (1 << SHIFT) - xleft;
-            }
+            xleft = SCALE - xleft;
         }
+
 
         // here we go
         SkASSERT(start_y > fCurrIY);
@@ -314,23 +328,13 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
         // values up. If we didn't care about that, we could be more precise
         // and compute these exactly (e.g. 2->128 instead of 2->124)
         //
-        const int coverageL = coverage_to_alpha(xleft) << SHIFT;
-        const int coverageR = coverage_to_alpha(xrite) << SHIFT;
+        const int coverageL = coverage_to_exact_alpha(xleft);
+        const int coverageR = coverage_to_exact_alpha(xrite);
         SkASSERT(n + (coverageR != 0) <= fWidth);
 
-        for (int i = start_y; i < stop_y; ++i) {
-            // note: we should only need to call set_left_rite once, but
-            // our clipping blitters sometimes modify runs/alpha in-place,
-            // so for now we reset fRuns each time :(
-            //
-            //  TODO:
-            //  - don't modify in-place, or at least tell us when you're going to
-            //  - pass height down to blitAntiH (blitAntiHV) so that aaclip and
-            //    other can take advantage of the vertical-repeat explicitly
-            //
-            set_left_rite_runs(fRuns, ileft, coverageL, n, coverageR);
-            fRealBlitter->blitAntiH(fLeft, i, fRuns.fAlpha, fRuns.fRuns);
-        }
+        SkASSERT(coverageL > 0 || n > 0 || coverageR > 0);
+        fRealBlitter->blitAntiRect(ileft + fLeft, start_y, n, count,
+                                   coverageL, coverageR);
 
         // preamble for our next call to blitH()
         fCurrIY = stop_y - 1;
@@ -340,7 +344,7 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
         x = origX;
     }
 
-    // catch any remaining few
+    // catch any remaining few rows
     SkASSERT(height <= MASK);
     while (--height >= 0) {
         this->blitH(x, y++, width);
@@ -507,10 +511,6 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
         x = 0;
     }
 
-    // we sub 1 from maxValue 1 time for each block, so that we don't
-    // hit 256 as a summed max, but 255.
-//  int maxValue = (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT);
-
     uint8_t* row = fMask.fImage + iy * fMask.fRowBytes + (x >> SHIFT);
 
     int start = x;
@@ -531,10 +531,10 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
         if (0 == fb) {
             n += 1;
         } else {
-            fb = (1 << SHIFT) - fb;
+            fb = SCALE - fb;
         }
 #else
-        fb = (1 << SHIFT) - fb;
+        fb = SCALE - fb;
 #endif
         SkASSERT(row >= fMask.fImage);
         SkASSERT(row + n + 1 < fMask.fImage + kMAX_STORAGE + 1);

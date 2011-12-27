@@ -34,6 +34,12 @@ public:
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
     /// Blit a solid rectangle.
     virtual void blitRect(int x, int y, int width, int height);
+    /** Blit a rectangle with one alpha-blended column on the left,
+        width opaque pixels, and one alpha-blended column on the right.
+        Note that the result will always be at least two pixels wide.
+    */
+    virtual void blitAntiRect(int x, int y, int width, int height,
+                              SkAlpha leftAlpha, SkAlpha rightAlpha);
     /// Blit a pattern of pixels defined by a rectangle-clipped mask;
     /// typically used for text.
     virtual void blitMask(const SkMask&, const SkIRect& clip);
@@ -104,6 +110,8 @@ public:
                            const int16_t runs[]) SK_OVERRIDE;
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    virtual void blitAntiRect(int x, int y, int width, int height,
+                     SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE;
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
 
@@ -129,6 +137,8 @@ public:
                            const int16_t runs[]) SK_OVERRIDE;
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    virtual void blitAntiRect(int x, int y, int width, int height,
+                     SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE;
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
 
