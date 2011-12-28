@@ -36,6 +36,7 @@
         '../include/effects/SkPixelXorXfermode.h',
         '../include/effects/SkPorterDuff.h',
         '../include/effects/SkRectShape.h',
+        '../include/effects/SkTableColorFilter.h',
         '../include/effects/SkTransparentShader.h',
 
         '../src/effects/Sk1DPathEffect.cpp',
@@ -69,6 +70,7 @@
         '../src/effects/SkPorterDuff.cpp',
         '../src/effects/SkRadialGradient_Table.h',
         '../src/effects/SkRectShape.cpp',
+        '../src/effects/SkTableColorFilter.cpp',
         '../src/effects/SkTestImageFilters.cpp',
         '../src/effects/SkTransparentShader.cpp',
       ],
