@@ -432,7 +432,7 @@ static void generateMask(const SkMask& mask, const SkPath& path) {
                 dstRB = 0;  // signals we need a copy
                 break;
             default:
-                SkASSERT(!"unexpected mask format");
+                SkDEBUGFAIL("unexpected mask format");
         }
     }
 
@@ -467,7 +467,7 @@ static void generateMask(const SkMask& mask, const SkPath& path) {
                 pack3xHToLCD32(bm, mask);
                 break;
             default:
-                SkASSERT(!"bad format for copyback");
+                SkDEBUGFAIL("bad format for copyback");
         }
     }
 }

@@ -454,11 +454,11 @@ OSStatus SkScalerContext_Mac::Close(void *cb)
 #pragma mark -
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    SkASSERT(!"SkFontHost::Serialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkASSERT(!"SkFontHost::Deserialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Deserialize unimplemented");
     return NULL;
 }
 
@@ -476,7 +476,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) {
-    SkASSERT(!"SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
+    SkDEBUGFAIL("SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
     return NULL;
 }
 

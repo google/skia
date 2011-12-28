@@ -19,7 +19,7 @@ static SkTileModeProc get_tilemode_proc(SkShader::TileMode mode)
     case SkShader::kMirror_TileMode:
         return do_mirror_mod;
     default:
-        SkASSERT(!"unknown mode");
+        SkDEBUGFAIL("unknown mode");
         return NULL;
     }
 }
@@ -338,7 +338,7 @@ SkBitmapSampler* SkBitmapSampler::Create(const SkBitmap& bm, bool doFilter,
                 else
                     return SkNEW_ARGS(ARGB32_Point_Mirror_Mod_Sampler, (bm));
             default:
-                SkASSERT(!"unknown mode");
+                SkDEBUGFAIL("unknown mode");
             }
         }
         else {  // tmx != tmy
@@ -365,7 +365,7 @@ SkBitmapSampler* SkBitmapSampler::Create(const SkBitmap& bm, bool doFilter,
                 else
                     return SkNEW_ARGS(RGB16_Point_Mirror_Mod_Sampler, (bm));
             default:
-                SkASSERT(!"unknown mode");
+                SkDEBUGFAIL("unknown mode");
             }
         }
         else {  // tmx != tmy
@@ -392,7 +392,7 @@ SkBitmapSampler* SkBitmapSampler::Create(const SkBitmap& bm, bool doFilter,
                 else
                     return SkNEW_ARGS(Index8_Point_Mirror_Mod_Sampler, (bm));
             default:
-                SkASSERT(!"unknown mode");
+                SkDEBUGFAIL("unknown mode");
             }
         }
         else {  // tmx != tmy
@@ -408,7 +408,7 @@ SkBitmapSampler* SkBitmapSampler::Create(const SkBitmap& bm, bool doFilter,
         break;
 
     default:
-        SkASSERT(!"unknown device");
+        SkDEBUGFAIL("unknown device");
     }
     return SkNEW_ARGS(SkNullBitmapSampler, (bm, doFilter, tmx, tmy));
 }

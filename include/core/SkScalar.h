@@ -92,7 +92,7 @@
          *
          * Either way, it's not good.
          */
-        SkASSERT(!"looks like you passed an SkScalar into SkIntToScalar");
+        SkDEBUGFAIL("looks like you passed an SkScalar into SkIntToScalar");
         return (float)0;
     }
 #else  // not SK_DEBUG

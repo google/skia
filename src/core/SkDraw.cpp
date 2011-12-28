@@ -231,7 +231,7 @@ static void CallBitmapXferProc(const SkBitmap& bitmap, const SkIRect& rect,
             shiftPerPixel = 0;
             break;
         default:
-            SkASSERT(!"Can't use xferproc on this config");
+            SkDEBUGFAIL("Can't use xferproc on this config");
             return;
     }
 
@@ -793,7 +793,7 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
             }
             break;
         default:
-            SkASSERT(!"bad rtype");
+            SkDEBUGFAIL("bad rtype");
     }
 }
 
@@ -1920,7 +1920,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
                 dst->close();
                 break;
             default:
-                SkASSERT(!"unknown verb");
+                SkDEBUGFAIL("unknown verb");
                 break;
         }
     }

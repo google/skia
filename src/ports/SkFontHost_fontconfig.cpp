@@ -111,7 +111,7 @@ static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
                 fcvalue.u.i = (int)(intptr_t)value;
                 break;
             default:
-                SkASSERT(!"FontMatch unhandled type");
+                SkDEBUGFAIL("FontMatch unhandled type");
         }
         FcPatternAdd(pattern, type, fcvalue, 0);
 
@@ -292,14 +292,14 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 // static
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
 {
-    SkASSERT(!"SkFontHost::CreateTypefaceFromStream unimplemented");
+    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromStream unimplemented");
     return NULL;
 }
 
 // static
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
 {
-    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
+    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromFile unimplemented");
     return NULL;
 }
 
@@ -345,11 +345,11 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 }
 
 void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
-    SkASSERT(!"SkFontHost::Serialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkASSERT(!"SkFontHost::Deserialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Deserialize unimplemented");
     return NULL;
 }
 

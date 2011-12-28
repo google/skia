@@ -658,7 +658,7 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
             break;
         case 180: r.offset(rect.fLeft - r.fLeft,   rect.fTop - r.fTop); break;
         case 270: r.offset(rect.fRight - r.fRight, rect.fTop - r.fTop); break;
-        default: SkASSERT(!"unexpected startAngle in add_corner_arc");
+        default: SkDEBUGFAIL("unexpected startAngle in add_corner_arc");
     }
 
     SkScalar start = SkIntToScalar(startAngle);
@@ -963,7 +963,7 @@ void SkPath::addPath(const SkPath& path, const SkMatrix& matrix) {
                 this->close();
                 break;
             default:
-                SkASSERT(!"unknown verb");
+                SkDEBUGFAIL("unknown verb");
         }
     }
 }
@@ -1045,7 +1045,7 @@ void SkPath::reversePathTo(const SkPath& path) {
                               pts[-3].fX, pts[-3].fY);
                 break;
             default:
-                SkASSERT(!"bad verb");
+                SkDEBUGFAIL("bad verb");
                 break;
         }
         pts -= gPtsInVerb[verbs[i]];
@@ -1121,7 +1121,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
                     tmp.close();
                     break;
                 default:
-                    SkASSERT(!"unknown verb");
+                    SkDEBUGFAIL("unknown verb");
                     break;
             }
         }
@@ -1343,7 +1343,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                 break;
 
             default:
-                SkASSERT(false && "Should never see kDone_Verb");
+                SkDEBUGFAIL("Should never see kDone_Verb");
         }
     }
 }
@@ -1707,7 +1707,7 @@ SkPath::Convexity SkPath::ComputeConvexity(const SkPath& path) {
                 count = 0;
                 break;
             default:
-                SkASSERT(!"bad verb");
+                SkDEBUGFAIL("bad verb");
                 return kConcave_Convexity;
         }
 

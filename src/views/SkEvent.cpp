@@ -238,7 +238,7 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
                 }
                 break;
             default:
-                SkASSERT(!"unknown metadata type returned from iterator");
+                SkDEBUGFAIL("unknown metadata type returned from iterator");
                 break;
             }
         }

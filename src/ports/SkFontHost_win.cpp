@@ -1008,11 +1008,11 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
 }
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    SkASSERT(!"SkFontHost::Serialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkASSERT(!"SkFontHost::Deserialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Deserialize unimplemented");
     return NULL;
 }
 
@@ -1298,7 +1298,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
             h = SkPaint::kNormal_Hinting;
             break;
         default:
-            SkASSERT(!"unknown hinting");
+            SkDEBUGFAIL("unknown hinting");
     }
 #else
     h = SkPaint::kNormal_Hinting;

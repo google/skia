@@ -24,12 +24,12 @@ const SkBitmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
 }
 
 void SkBlitter::blitH(int x, int y, int width) {
-    SkASSERT(!"unimplemented");
+    SkDEBUGFAIL("unimplemented");
 }
 
 void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                           const int16_t runs[]) {
-    SkASSERT(!"unimplemented");
+    SkDEBUGFAIL("unimplemented");
 }
 
 void SkBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
@@ -942,7 +942,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
             break;
 
         default:
-            SkASSERT(!"unsupported device config");
+            SkDEBUGFAIL("unsupported device config");
             SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
             break;
     }

@@ -343,19 +343,19 @@ public:
 
     // we do not expect to get called with these entrypoints
     virtual void blitAntiH(int, int, const SkAlpha[], const int16_t runs[]) {
-        SkASSERT(!"blitAntiH unexpected");
+        SkDEBUGFAIL("blitAntiH unexpected");
     }
     virtual void blitV(int x, int y, int height, SkAlpha alpha) {
-        SkASSERT(!"blitV unexpected");
+        SkDEBUGFAIL("blitV unexpected");
     }
     virtual void blitRect(int x, int y, int width, int height) {
-        SkASSERT(!"blitRect unexpected");
+        SkDEBUGFAIL("blitRect unexpected");
     }
     virtual void blitMask(const SkMask&, const SkIRect& clip) {
-        SkASSERT(!"blitMask unexpected");
+        SkDEBUGFAIL("blitMask unexpected");
     }
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) {
-        SkASSERT(!"justAnOpaqueColor unexpected");
+        SkDEBUGFAIL("justAnOpaqueColor unexpected");
         return NULL;
     }
 

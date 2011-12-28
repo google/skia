@@ -173,7 +173,7 @@ int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
             bpp = 4;
             break;
         default:
-            SkASSERT(!"unknown config");
+            SkDEBUGFAIL("unknown config");
             bpp = 0;   // error
             break;
     }
@@ -211,7 +211,7 @@ int SkBitmap::ComputeRowBytes(Config c, int width) {
             rowBytes.shiftLeft(2);
             break;
         default:
-            SkASSERT(!"unknown config");
+            SkDEBUGFAIL("unknown config");
             break;
     }
     return isPos32Bits(rowBytes) ? rowBytes.get32() : 0;
@@ -547,7 +547,7 @@ bool SkBitmap::isOpaque() const {
             return true;
 
         default:
-            SkASSERT(!"unknown bitmap config pased to isOpaque");
+            SkDEBUGFAIL("unknown bitmap config pased to isOpaque");
             return false;
     }
 }
@@ -598,11 +598,11 @@ void* SkBitmap::getAddr(int x, int y) const {
                 base += x >> 3;
                 break;
             case kRLE_Index8_Config:
-                SkASSERT(!"Can't return addr for kRLE_Index8_Config");
+                SkDEBUGFAIL("Can't return addr for kRLE_Index8_Config");
                 base = NULL;
                 break;
             default:
-                SkASSERT(!"Can't return addr for config");
+                SkDEBUGFAIL("Can't return addr for config");
                 base = NULL;
                 break;
         }
@@ -1501,7 +1501,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
         case SERIALIZE_PIXELTYPE_NONE:
             break;
         default:
-            SkASSERT(!"unrecognized pixeltype in serialized data");
+            SkDEBUGFAIL("unrecognized pixeltype in serialized data");
             sk_throw();
     }
 }

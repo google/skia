@@ -2068,7 +2068,7 @@ static unsigned SkATan2_255(SkFixed y, SkFixed x) {
     else if (192 == add)
         SkASSERT(x > 0 && y < 0);
     else
-        SkASSERT(!"bad value for add");
+        SkDEBUGFAIL("bad value for add");
 #endif
 
     /*  This ^ trick makes x, y positive, and the swap<> handles quadrants

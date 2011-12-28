@@ -270,7 +270,7 @@ static void compute_pos_tan(const SkPath& path, int firstPtIndex, int ptIndex,
             }
             break;
         default:
-            SkASSERT(!"unknown segType");
+            SkDEBUGFAIL("unknown segType");
     }
 }
 
@@ -341,7 +341,7 @@ static void seg_to(const SkPath& src, int firstPtIndex, int ptIndex,
             }
             break;
         default:
-            SkASSERT(!"unknown segType");
+            SkDEBUGFAIL("unknown segType");
             sk_throw();
     }
 }

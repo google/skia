@@ -112,7 +112,7 @@ static void rattr(unsigned verb, SkStream& s, BMLW& rec, SkXMLWriter& writer)
         valueIndex = rbyte(s);
         break;
     default:
-        SkASSERT(!"bad verb");
+        SkDEBUGFAIL("bad verb");
         return;
     }
     writer.addAttribute(rec.fNames[nameIndex], rec.fValues[valueIndex]);
@@ -156,7 +156,7 @@ static void relem(unsigned verb, SkStream& s, BMLW& rec, SkXMLWriter& writer)
             writer.endElement();
             return;
         default:
-            SkASSERT(!"bad verb");
+            SkDEBUGFAIL("bad verb");
         }
     }
 }

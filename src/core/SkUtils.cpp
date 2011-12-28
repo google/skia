@@ -243,7 +243,7 @@ SkUnichar SkUTF8_PrevUnichar(const char** ptr) {
 
 size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[]) {
     if ((uint32_t)uni > 0x10FFFF) {
-        SkASSERT(!"bad unichar");
+        SkDEBUGFAIL("bad unichar");
         return 0;
     }
 
