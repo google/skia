@@ -47,6 +47,7 @@ void SkBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
 }
 
 void SkBlitter::blitRect(int x, int y, int width, int height) {
+    SkASSERT(width >= 0);
     while (--height >= 0) {
         this->blitH(x, y++, width);
     }
@@ -57,9 +58,12 @@ void SkBlitter::blitRect(int x, int y, int width, int height) {
 /// may not support.
 void SkBlitter::blitAntiRect(int x, int y, int width, int height,
                              SkAlpha leftAlpha, SkAlpha rightAlpha) {
-    this->blitV(x, y, height, leftAlpha);
-    this->blitRect(x + 1, y, width, height);
-    this->blitV(x + width + 1, y, height, rightAlpha);
+    this->blitV(x++, y, height, leftAlpha);
+    if (width >= 0) {
+        this->blitRect(x, y, width, height);
+        x += width;
+    }
+    this->blitV(x, y, height, rightAlpha);
 }
 
 //////////////////////////////////////////////////////////////////////////////

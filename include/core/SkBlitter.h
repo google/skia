@@ -24,7 +24,7 @@ class SkBlitter {
 public:
     virtual ~SkBlitter();
 
-    /// Blit a horizontal run of pixels.
+    /// Blit a horizontal run of zero or more pixels.
     virtual void blitH(int x, int y, int width);
     /// Blit a horizontal run of antialiased pixels; runs[] is a *sparse*
     /// zero-terminated run-length encoding of spans of constant alpha values.
@@ -32,11 +32,12 @@ public:
                            const int16_t runs[]);
     /// Blit a vertical run of pixels with a constant alpha value.
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
-    /// Blit a solid rectangle.
+    /// Blit a solid rectangle zero or more pixels wide.
     virtual void blitRect(int x, int y, int width, int height);
     /** Blit a rectangle with one alpha-blended column on the left,
-        width opaque pixels, and one alpha-blended column on the right.
-        Note that the result will always be at least two pixels wide.
+        width (zero or more) opaque pixels, and one alpha-blended column
+        on the right.
+        The result will always be at least two pixels wide.
     */
     virtual void blitAntiRect(int x, int y, int width, int height,
                               SkAlpha leftAlpha, SkAlpha rightAlpha);
