@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -97,7 +96,7 @@ static const char* skip_past(const char* str, const char* skip) {
 
 static const char* gPrefFileName = "sampleapp_prefs.txt";
 
-static bool readTiTleFromPrefs(SkString* title) {
+static bool readTitleFromPrefs(SkString* title) {
     SkFILEStream stream(gPrefFileName);
     if (!stream.isValid()) {
         return false;
@@ -119,7 +118,7 @@ static bool readTiTleFromPrefs(SkString* title) {
     return false;
 }
 
-static bool writeTitleToPrefs(const char* title) {
+static void writeTitleToPrefs(const char* title) {
     SkFILEWStream stream(gPrefFileName);
     SkString data;
     data.printf("curr-slide-title = \"%s\"\n", title);
@@ -711,7 +710,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         }
     } else {
         SkString title;
-        if (readTiTleFromPrefs(&title)) {
+        if (readTitleFromPrefs(&title)) {
             fCurrIndex = findByTitle(title.c_str());
         }
     }
@@ -759,6 +758,8 @@ int SampleWindow::findByTitle(const char title[]) {
             return i;
         }
     }
+    // TODO(reed): what should this return if the title is not found?
+    return 0;
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
