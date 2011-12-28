@@ -307,8 +307,15 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
             irite--;
         }
 
+        // Need to call flush() to clean up pending draws before we
+        // even consider blitV(), since otherwise it can look nonmonotonic.
+        SkASSERT(start_y > fCurrIY);
+        this->flush();
+
         int n = irite - ileft - 1;
         if (n < 0) {
+            // If n < 0, we'll only have a single partially-transparent column
+            // of pixels to render.
             xleft = xrite - xleft;
             SkASSERT(xleft <= SCALE);
             SkASSERT(xleft > 0);
@@ -316,25 +323,21 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
             fRealBlitter->blitV(ileft + fLeft, start_y, count,
                 coverage_to_exact_alpha(xleft));
         } else {
+            // With n = 0, we have two possibly-transparent columns of pixels
+            // to render; with n > 0, we have opaque columns between them.
+
             xleft = SCALE - xleft;
+
+            // Using coverage_to_exact_alpha is not consistent with blitH()
+            const int coverageL = coverage_to_exact_alpha(xleft);
+            const int coverageR = coverage_to_exact_alpha(xrite);
+
+            SkASSERT(coverageL > 0 || n > 0 || coverageR > 0);
+            SkASSERT((coverageL != 0) + n + (coverageR != 0) <= fWidth);
+
+            fRealBlitter->blitAntiRect(ileft + fLeft, start_y, n, count,
+                                       coverageL, coverageR);
         }
-
-
-        // here we go
-        SkASSERT(start_y > fCurrIY);
-        this->flush();
-
-        // to be compatible with the blitH() version, we just shift these
-        // values up. If we didn't care about that, we could be more precise
-        // and compute these exactly (e.g. 2->128 instead of 2->124)
-        //
-        const int coverageL = coverage_to_exact_alpha(xleft);
-        const int coverageR = coverage_to_exact_alpha(xrite);
-        SkASSERT(n + (coverageR != 0) <= fWidth);
-
-        SkASSERT(coverageL > 0 || n > 0 || coverageR > 0);
-        fRealBlitter->blitAntiRect(ileft + fLeft, start_y, n, count,
-                                   coverageL, coverageR);
 
         // preamble for our next call to blitH()
         fCurrIY = stop_y - 1;
