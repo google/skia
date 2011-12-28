@@ -758,8 +758,7 @@ int SampleWindow::findByTitle(const char title[]) {
             return i;
         }
     }
-    // TODO(reed): what should this return if the title is not found?
-    return 0;
+    return -1;
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
