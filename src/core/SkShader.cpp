@@ -108,7 +108,7 @@ void SkShader::shadeSpan16(int x, int y, uint16_t span16[], int count) {
     SkASSERT(this->canCallShadeSpan16());
 
     // basically, if we get here, the subclass screwed up
-    SkASSERT(!"kHasSpan16 flag is set, but shadeSpan16() not implemented");
+    SkDEBUGFAIL("kHasSpan16 flag is set, but shadeSpan16() not implemented");
 }
 
 #define kTempColorQuadCount 6   // balance between speed (larger) and saving stack-space
@@ -346,15 +346,15 @@ bool SkEmptyShader::setContext(const SkBitmap&, const SkPaint&,
                                const SkMatrix&) { return false; }
 
 void SkEmptyShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
-    SkASSERT(!"should never get called, since setContext() returned false");
+    SkDEBUGFAIL("should never get called, since setContext() returned false");
 }
 
 void SkEmptyShader::shadeSpan16(int x, int y, uint16_t span[], int count) {
-    SkASSERT(!"should never get called, since setContext() returned false");
+    SkDEBUGFAIL("should never get called, since setContext() returned false");
 }
 
 void SkEmptyShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
-    SkASSERT(!"should never get called, since setContext() returned false");
+    SkDEBUGFAIL("should never get called, since setContext() returned false");
 }
 
 SkFlattenable::Factory SkEmptyShader::getFactory() { return NULL; }

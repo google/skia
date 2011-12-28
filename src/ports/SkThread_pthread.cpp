@@ -85,7 +85,7 @@ SkMutex::SkMutex(bool isGlobal) : fIsGlobal(isGlobal)
     if (sizeof(pthread_mutex_t) > sizeof(fStorage))
     {
         SkDEBUGF(("pthread mutex size = %d\n", sizeof(pthread_mutex_t)));
-        SkASSERT(!"mutex storage is too small");
+        SkDEBUGFAIL("mutex storage is too small");
     }
 
     int status;

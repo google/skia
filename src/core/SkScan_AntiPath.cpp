@@ -49,11 +49,11 @@ public:
     /// Must be explicitly defined on subclasses.
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
                            const int16_t runs[]) SK_OVERRIDE {
-        SkASSERT(!"How did I get here?");
+        SkDEBUGFAIL("How did I get here?");
     }
     /// May not be called on BaseSuperBlitter because it blits out of order.
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
-        SkASSERT(!"How did I get here?");
+        SkDEBUGFAIL("How did I get here?");
     }
 
 protected:

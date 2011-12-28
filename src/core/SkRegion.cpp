@@ -966,7 +966,7 @@ bool SkRegion::op(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op)
             return this->setRegion(*rgna);
         break;
     default:
-        SkASSERT(!"unknown region op");
+        SkDEBUGFAIL("unknown region op");
         return !this->isEmpty();
     }
 

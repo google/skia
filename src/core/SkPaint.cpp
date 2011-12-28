@@ -428,7 +428,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
         case kGlyphID_TextEncoding:
             return byteLength >> 1;
         default:
-            SkASSERT(!"unknown text encoding");
+            SkDEBUGFAIL("unknown text encoding");
         }
         return 0;
     }
@@ -464,7 +464,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
             break;
         }
         default:
-            SkASSERT(!"unknown text encoding");
+            SkDEBUGFAIL("unknown text encoding");
     }
     return gptr - glyphs;
 }
@@ -513,7 +513,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
             break;
         }
         default:
-            SkASSERT(!"unknown text encoding");
+            SkDEBUGFAIL("unknown text encoding");
             return false;
     }
     return true;
@@ -1797,7 +1797,7 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const {
         case SkPaint::kStroke_Style:
             break;
         default:
-            SkASSERT(!"unknown paint style");
+            SkDEBUGFAIL("unknown paint style");
     }
 
     if (this->getPathEffect()) {

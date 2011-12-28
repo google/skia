@@ -28,20 +28,20 @@ void SkSpriteBlitter::setup(const SkBitmap& device, int left, int top,
 
 #ifdef SK_DEBUG
 void SkSpriteBlitter::blitH(int x, int y, int width) {
-    SkASSERT(!"how did we get here?");
+    SkDEBUGFAIL("how did we get here?");
 }
 
 void SkSpriteBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                                 const int16_t runs[]) {
-    SkASSERT(!"how did we get here?");
+    SkDEBUGFAIL("how did we get here?");
 }
 
 void SkSpriteBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
-    SkASSERT(!"how did we get here?");
+    SkDEBUGFAIL("how did we get here?");
 }
 
 void SkSpriteBlitter::blitMask(const SkMask&, const SkIRect& clip) {
-    SkASSERT(!"how did we get here?");
+    SkDEBUGFAIL("how did we get here?");
 }
 #endif
 

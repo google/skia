@@ -26,7 +26,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
     SkAutoLockPixels apl(bitmap);
     if (!bitmap.readyToDraw()) {
-        SkASSERT(!"bitmap not ready to draw!");
+        SkDEBUGFAIL("bitmap not ready to draw!");
         return;
     }
 

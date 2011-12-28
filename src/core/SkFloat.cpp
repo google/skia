@@ -216,7 +216,7 @@ int32_t SkFloat::Sqrt(int32_t packed)
 {
     if (packed < 0)
     {
-        SkASSERT(!"can't sqrt a negative number");
+        SkDEBUGFAIL("can't sqrt a negative number");
         return 0;
     }
 

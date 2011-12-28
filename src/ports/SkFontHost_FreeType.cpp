@@ -295,7 +295,7 @@ static void unref_ft_face(FT_Face face) {
         prev = rec;
         rec = next;
     }
-    SkASSERT("shouldn't get here, face not in list");
+    SkDEBUGFAIL("shouldn't get here, face not in list");
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1030,7 +1030,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         break;
 
       default:
-        SkASSERT(!"unknown glyph format");
+        SkDEBUGFAIL("unknown glyph format");
         goto ERROR;
     }
 
@@ -1247,12 +1247,12 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                 copyFT2LCD16(glyph, fFace->glyph->bitmap,
                              fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
             } else {
-                SkASSERT(!"unknown glyph bitmap transform needed");
+                SkDEBUGFAIL("unknown glyph bitmap transform needed");
             }
         } break;
 
     default:
-        SkASSERT(!"unknown glyph format");
+        SkDEBUGFAIL("unknown glyph format");
         goto ERROR;
     }
 

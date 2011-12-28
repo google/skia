@@ -1220,7 +1220,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 }
             } break;
             default:
-                SkASSERT(!"unexpected mask format");
+                SkDEBUGFAIL("unexpected mask format");
                 break;
         }
     }
@@ -1353,7 +1353,7 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
             break;
 
         default:
-            SkASSERT("Unknown path element!");
+            SkDEBUGFAIL("Unknown path element!");
             break;
         }
 }
@@ -1363,13 +1363,13 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
 {
-//    SkASSERT(!"SkFontHost::CreateTypefaceFromStream unimplemented");
+//    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromStream unimplemented");
     return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
 {
-//    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
+//    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromFile unimplemented");
     return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
 }
 
@@ -1625,7 +1625,7 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
                                int32_t* index) {
-    SkASSERT(!"SkFontHost::GetFileName unimplemented");
+    SkDEBUGFAIL("SkFontHost::GetFileName unimplemented");
     return(0);
 }
 

@@ -208,7 +208,7 @@ inline void SkCopyBitmapToConfig8888(uint32_t* dstPixels,
                                     dstPixels, dstRowBytes, srcBmp);
             break;
         default:
-            SkASSERT(false && "unexpected Config8888");
+            SkDEBUGFAIL("unexpected Config8888");
             break;
     }
 }
@@ -251,7 +251,7 @@ inline void SkCopyConfig8888ToBitmap(const SkBitmap& dstBmp,
                                     dstBmp, srcPixels, srcRowBytes);
             break;
         default:
-            SkASSERT(false && "unexpected Config8888");
+            SkDEBUGFAIL("unexpected Config8888");
             break;
     }
 }

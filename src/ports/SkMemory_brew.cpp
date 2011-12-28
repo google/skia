@@ -14,12 +14,12 @@
 #include <AEEStdLib.h>
 
 void sk_throw() {
-    SkASSERT(!"sk_throw");
+    SkDEBUGFAIL("sk_throw");
     abort();
 }
 
 void sk_out_of_memory(void) {
-    SkASSERT(!"sk_out_of_memory");
+    SkDEBUGFAIL("sk_out_of_memory");
     abort();
 }
 

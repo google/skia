@@ -1335,7 +1335,7 @@ static AlphaProc find_alpha_proc(SkRegion::Op op) {
         case SkRegion::kXOR_Op:
             return xorAlphaProc;
         default:
-            SkASSERT(!"unexpected region op");
+            SkDEBUGFAIL("unexpected region op");
             return sectAlphaProc;
     }
 }
@@ -1608,7 +1608,7 @@ bool SkAAClip::op(const SkAAClip& clipAOrig, const SkAAClip& clipBOrig,
             break;
 
         default:
-            SkASSERT(!"unknown region op");
+            SkDEBUGFAIL("unknown region op");
             return !this->isEmpty();
     }
 
@@ -1996,7 +1996,7 @@ template <typename T> void mergeT(const T* SK_RESTRICT src, int srcN,
 static MergeAAProc find_merge_aa_proc(SkMask::Format format) {
     switch (format) {
         case SkMask::kBW_Format:
-            SkASSERT(!"unsupported");
+            SkDEBUGFAIL("unsupported");
             return NULL;
         case SkMask::kA8_Format:
         case SkMask::k3D_Format: {
@@ -2012,7 +2012,7 @@ static MergeAAProc find_merge_aa_proc(SkMask::Format format) {
             return (MergeAAProc)proc32;
         }
         default:
-            SkASSERT(!"unsupported");
+            SkDEBUGFAIL("unsupported");
             return NULL;
     }
 }

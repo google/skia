@@ -534,7 +534,7 @@ static void clamp_with_orig(uint8_t dst[], int dstRowBytes,
             }
             break;
         default:
-            SkASSERT(!"Unexpected blur style here");
+            SkDEBUGFAIL("Unexpected blur style here");
             break;
         }
         dst += dstRowBytes - sw;

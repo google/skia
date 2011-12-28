@@ -94,7 +94,7 @@ void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
             break;
         }
         case SkBitmap::kIndex8_Config:
-            SkASSERT(!"index8 not supported as a destination device");
+            SkDEBUGFAIL("index8 not supported as a destination device");
             break;
         case SkBitmap::kA8_Config: {
             const uint8_t* src = fDevice->getAddr8(x, y);
@@ -110,7 +110,7 @@ void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
             break;
         }
         case SkBitmap::kA1_Config:
-            SkASSERT(!"kA1_Config umimplemented at this time");
+            SkDEBUGFAIL("kA1_Config umimplemented at this time");
             break;
         default:    // to avoid warnings
             break;

@@ -139,7 +139,7 @@ static bool regionOpExpands(SkRegion::Op op) {
         case SkRegion::kDifference_Op:
             return false;
         default:
-            SkASSERT(!"unknown region op");
+            SkDEBUGFAIL("unknown region op");
             return false;
     }
 }

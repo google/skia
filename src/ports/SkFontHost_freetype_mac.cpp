@@ -57,7 +57,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    SkASSERT(!"SkFontHost::CreateTypefaceFromStream unimplemented");
+    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromStream unimplemented");
     return NULL;
 }
 
@@ -90,11 +90,11 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 }
 
 void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
-    SkASSERT(!"SkFontHost::Serialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkASSERT(!"SkFontHost::Deserialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Deserialize unimplemented");
     return NULL;
 }
 
@@ -105,7 +105,7 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
 #include "SkTypeface_mac.h"
 
 SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
-    SkASSERT(!"Not supported");
+    SkDEBUGFAIL("Not supported");
     return NULL;
 }
 

@@ -476,7 +476,7 @@ SkPath::Verb SkEdgeClipper::next(SkPoint pts[]) {
         case SkPath::kDone_Verb:
             break;
         default:
-            SkASSERT(!"unexpected verb in quadclippper2 iter");
+            SkDEBUGFAIL("unexpected verb in quadclippper2 iter");
             break;
     }
     return verb;

@@ -130,7 +130,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
                 dst->close();
                 break;
             default:
-                SkASSERT(!"unknown verb");
+                SkDEBUGFAIL("unknown verb");
                 break;
         }
     }
@@ -175,7 +175,7 @@ SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
             morphpath(dst, fPath, meas, distance);
             break;
         default:
-            SkASSERT(!"unknown Style enum");
+            SkDEBUGFAIL("unknown Style enum");
             break;
     }
     return fAdvance;
