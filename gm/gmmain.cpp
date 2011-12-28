@@ -41,6 +41,14 @@ extern bool gSkSuppressFontCachePurgeSpew;
     #define CAN_IMAGE_PDF   0
 #endif
 
+typedef int ErrorBitfield;
+const static ErrorBitfield ERROR_NONE                    = 0x00;
+const static ErrorBitfield ERROR_NO_GPU_CONTEXT          = 0x01;
+const static ErrorBitfield ERROR_PIXEL_MISMATCH          = 0x02;
+const static ErrorBitfield ERROR_DIMENSION_MISMATCH      = 0x04;
+const static ErrorBitfield ERROR_READING_REFERENCE_IMAGE = 0x08;
+const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
+
 using namespace skiagm;
 
 class Iter {
@@ -143,9 +151,10 @@ static void compute_diff(const SkBitmap& target, const SkBitmap& base,
     }
 }
 
-static bool compare(const SkBitmap& target, const SkBitmap& base,
-                    const SkString& name, const char* renderModeDescriptor,
-                    SkBitmap* diff) {
+static ErrorBitfield compare(const SkBitmap& target, const SkBitmap& base,
+                             const SkString& name,
+                             const char* renderModeDescriptor,
+                             SkBitmap* diff) {
     SkBitmap copy;
     const SkBitmap* bm = &target;
     if (target.config() != SkBitmap::kARGB_8888_Config) {
@@ -169,7 +178,7 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
 "---- %s dimensions mismatch for %s base [%d %d] current [%d %d]\n",
                  renderModeDescriptor, name.c_str(),
                  bp->width(), bp->height(), w, h);
-        return false;
+        return ERROR_DIMENSION_MISMATCH;
     }
 
     SkAutoLockPixels bmLock(*bm);
@@ -189,13 +198,13 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
                     diff->allocPixels();
                     compute_diff(*bm, *bp, diff);
                 }
-                return false;
+                return ERROR_PIXEL_MISMATCH;
             }
         }
     }
 
     // they're equal
-    return true;
+    return ERROR_NONE;
 }
 
 static bool write_document(const SkString& path,
@@ -231,12 +240,10 @@ static void setup_bitmap(const ConfigData& gRec, SkISize& size,
     bitmap->eraseColor(0);
 }
 
-// Returns true if the test should continue, false if the test should
-// halt.
-static bool generate_image(GM* gm, const ConfigData& gRec,
-                           GrContext* context,
-                           GrRenderTarget* rt,
-                           SkBitmap* bitmap) {
+static ErrorBitfield generate_image(GM* gm, const ConfigData& gRec,
+                                    GrContext* context,
+                                    GrRenderTarget* rt,
+                                    SkBitmap* bitmap) {
     SkISize size (gm->getISize());
     setup_bitmap(gRec, size, bitmap);
     SkCanvas canvas(*bitmap);
@@ -245,7 +252,7 @@ static bool generate_image(GM* gm, const ConfigData& gRec,
         gm->draw(&canvas);
     } else {  // GPU
         if (NULL == context) {
-            return false;
+            return ERROR_NO_GPU_CONTEXT;
         }
         SkGpuCanvas gc(context, rt);
         gc.setDevice(new SkGpuDevice(context, rt))->unref();
@@ -257,7 +264,7 @@ static bool generate_image(GM* gm, const ConfigData& gRec,
                                                        size.fHeight);
         gc.readPixels(bitmap, 0, 0);
     }
-    return true;
+    return ERROR_NONE;
 }
 
 static void generate_image_from_picture(GM* gm, const ConfigData& gRec,
@@ -312,12 +319,12 @@ static void generate_xps(GM* gm, SkDynamicMemoryWStream& xps) {
 #endif
 }
 
-static bool write_reference_image(const ConfigData& gRec,
-                                  const char writePath [],
-                                  const char renderModeDescriptor [],
-                                  const SkString& name,
-                                  SkBitmap& bitmap,
-                                  SkDynamicMemoryWStream* document) {
+static ErrorBitfield write_reference_image(const ConfigData& gRec,
+                                           const char writePath [],
+                                           const char renderModeDescriptor [],
+                                           const SkString& name,
+                                           SkBitmap& bitmap,
+                                           SkDynamicMemoryWStream* document) {
     SkString path;
     bool success = false;
     if (gRec.fBackend == kRaster_Backend ||
@@ -335,67 +342,65 @@ static bool write_reference_image(const ConfigData& gRec,
         path = make_filename(writePath, renderModeDescriptor, name, "xps");
         success = write_document(path, *document);
     }
-    if (!success) {
+    if (success) {
+        return ERROR_NONE;
+    } else {
         fprintf(stderr, "FAILED to write %s\n", path.c_str());
+        return ERROR_WRITING_REFERENCE_IMAGE;
     }
-    return success;
 }
 
-static bool compare_to_reference_image(const SkString& name,
-                                       SkBitmap &bitmap,
-                                       const SkBitmap& comparisonBitmap,
-                                       const char diffPath [],
-                                       const char renderModeDescriptor []) {
-    bool success;
+static ErrorBitfield compare_to_reference_image(const SkString& name,
+                                                SkBitmap &bitmap,
+                                                const SkBitmap& comparisonBitmap,
+                                                const char diffPath [],
+                                                const char renderModeDescriptor []) {
+    ErrorBitfield errors;
     SkBitmap diffBitmap;
-    success = compare(bitmap, comparisonBitmap, name, renderModeDescriptor,
-                      diffPath ? &diffBitmap : NULL);
-    if (!success && diffPath) {
+    errors = compare(bitmap, comparisonBitmap, name, renderModeDescriptor,
+                     diffPath ? &diffBitmap : NULL);
+    if ((ERROR_NONE == errors) && diffPath) {
         SkString diffName = make_filename(diffPath, "", name, ".diff.png");
-        write_bitmap(diffName, diffBitmap);
+        if (!write_bitmap(diffName, diffBitmap)) {
+            errors |= ERROR_WRITING_REFERENCE_IMAGE;
+        }
     }
-    return success;
+    return errors;
 }
 
-static bool compare_to_reference_image(const char readPath [],
-                                       const SkString& name,
-                                       SkBitmap &bitmap,
-                                       const char diffPath [],
-                                       const char renderModeDescriptor []) {
+static ErrorBitfield compare_to_reference_image(const char readPath [],
+                                                const SkString& name,
+                                                SkBitmap &bitmap,
+                                                const char diffPath [],
+                                                const char renderModeDescriptor []) {
     SkString path = make_filename(readPath, "", name, "png");
     SkBitmap orig;
-    bool success = SkImageDecoder::DecodeFile(path.c_str(), &orig,
-                        SkBitmap::kARGB_8888_Config,
-                        SkImageDecoder::kDecodePixels_Mode, NULL);
-    if (success) {
-        success = compare_to_reference_image(name, bitmap,
-                                             orig, diffPath,
-                                             renderModeDescriptor);
+    if (SkImageDecoder::DecodeFile(path.c_str(), &orig,
+                                   SkBitmap::kARGB_8888_Config,
+                                   SkImageDecoder::kDecodePixels_Mode, NULL)) {
+        return compare_to_reference_image(name, bitmap,
+                                          orig, diffPath,
+                                          renderModeDescriptor);
     } else {
         fprintf(stderr, "FAILED to read %s\n", path.c_str());
-        // we lie here, and report succes, since we're just missing a master
-        // image. This way we can check in new tests, and not report failure.
-        // A real failure is to draw *differently* from the master image, but
-        // that's not the case here.
-        success = true;
+        return ERROR_READING_REFERENCE_IMAGE;
     }
-    return success;
 }
 
-static bool handle_test_results(GM* gm,
-                                const ConfigData& gRec,
-                                const char writePath [],
-                                const char readPath [],
-                                const char diffPath [],
-                                const char renderModeDescriptor [],
-                                SkBitmap& bitmap,
-                                SkDynamicMemoryWStream* pdf,
-                                const SkBitmap* comparisonBitmap) {
+static ErrorBitfield handle_test_results(GM* gm,
+                                         const ConfigData& gRec,
+                                         const char writePath [],
+                                         const char readPath [],
+                                         const char diffPath [],
+                                         const char renderModeDescriptor [],
+                                         SkBitmap& bitmap,
+                                         SkDynamicMemoryWStream* pdf,
+                                         const SkBitmap* comparisonBitmap) {
     SkString name = make_name(gm->shortName(), gRec.fName);
 
     if (writePath) {
-        write_reference_image(gRec, writePath, renderModeDescriptor,
-                              name, bitmap, pdf);
+        return write_reference_image(gRec, writePath, renderModeDescriptor,
+                                     name, bitmap, pdf);
     } else if (readPath && (
                    gRec.fBackend == kRaster_Backend ||
                    gRec.fBackend == kGPU_Backend ||
@@ -406,8 +411,9 @@ static bool handle_test_results(GM* gm,
         return compare_to_reference_image(name, bitmap,
                                    *comparisonBitmap, diffPath,
                                    renderModeDescriptor);
+    } else {
+        return ERROR_NONE;
     }
-    return true;
 }
 
 static SkPicture* generate_new_picture(GM* gm) {
@@ -445,22 +451,22 @@ static SkPicture* stream_to_new_picture(const SkPicture& src) {
 // Test: draw into a bitmap or pdf.
 // Depending on flags, possibly compare to an expected image
 // and possibly output a diff image if it fails to match.
-static bool test_drawing(GM* gm,
-                         const ConfigData& gRec,
-                         const char writePath [],
-                         const char readPath [],
-                         const char diffPath [],
-                         GrContext* context,
-                         GrRenderTarget* rt,
-                         SkBitmap* bitmap) {
+static ErrorBitfield test_drawing(GM* gm,
+                                  const ConfigData& gRec,
+                                  const char writePath [],
+                                  const char readPath [],
+                                  const char diffPath [],
+                                  GrContext* context,
+                                  GrRenderTarget* rt,
+                                  SkBitmap* bitmap) {
     SkDynamicMemoryWStream document;
 
     if (gRec.fBackend == kRaster_Backend ||
         gRec.fBackend == kGPU_Backend) {
-        // Early exit if we can't generate the image, but this is
-        // expected in some cases, so don't report a test failure.
-        if (!generate_image(gm, gRec, context, rt, bitmap)) {
-            return true;
+        // Early exit if we can't generate the image.
+        ErrorBitfield errors = generate_image(gm, gRec, context, rt, bitmap);
+        if (ERROR_NONE != errors) {
+            return errors;
         }
     } else if (gRec.fBackend == kPDF_Backend) {
         generate_pdf(gm, document);
@@ -476,11 +482,11 @@ static bool test_drawing(GM* gm,
                                "", *bitmap, &document, NULL);
 }
 
-static bool test_picture_playback(GM* gm,
-                                  const ConfigData& gRec,
-                                  const SkBitmap& comparisonBitmap,
-                                  const char readPath [],
-                                  const char diffPath []) {
+static ErrorBitfield test_picture_playback(GM* gm,
+                                           const ConfigData& gRec,
+                                           const SkBitmap& comparisonBitmap,
+                                           const char readPath [],
+                                           const char diffPath []) {
     SkPicture* pict = generate_new_picture(gm);
     SkAutoUnref aur(pict);
 
@@ -489,15 +495,16 @@ static bool test_picture_playback(GM* gm,
         generate_image_from_picture(gm, gRec, pict, &bitmap);
         return handle_test_results(gm, gRec, NULL, NULL, diffPath,
                             "-replay", bitmap, NULL, &comparisonBitmap);
+    } else {
+        return ERROR_NONE;
     }
-    return true;
 }
 
-static bool test_picture_serialization(GM* gm,
-                                       const ConfigData& gRec,
-                                       const SkBitmap& comparisonBitmap,
-                                       const char readPath [],
-                                       const char diffPath []) {
+static ErrorBitfield test_picture_serialization(GM* gm,
+                                                const ConfigData& gRec,
+                                                const SkBitmap& comparisonBitmap,
+                                                const char readPath [],
+                                                const char diffPath []) {
     SkPicture* pict = generate_new_picture(gm);
     SkAutoUnref aurp(pict);
     SkPicture* repict = stream_to_new_picture(*pict);
@@ -508,8 +515,9 @@ static bool test_picture_serialization(GM* gm,
         generate_image_from_picture(gm, gRec, repict, &bitmap);
         return handle_test_results(gm, gRec, NULL, NULL, diffPath,
                             "-serialize", bitmap, NULL, &comparisonBitmap);
+    } else {
+        return ERROR_NONE;
     }
-    return true;
 }
 
 static void usage(const char * argv0) {
@@ -665,10 +673,13 @@ int main(int argc, char * const argv[]) {
         fprintf(stderr, "writing to %s\n", writePath);
     }
 
-    // Accumulate success of all tests so we can flag error in any
-    // one with the return value.
+    // Accumulate success of all tests.
+    int testsRun = 0;
+    int testsPassed = 0;
+    int testsFailed = 0;
+    int testsMissingReferenceImages = 0;
+
     iter.reset();
-    bool overallSuccess = true;
     while ((gm = iter.next()) != NULL) {
         const char* shortName = gm->shortName();
         if (skip_name(fMatches, shortName)) {
@@ -695,13 +706,7 @@ int main(int argc, char * const argv[]) {
         }
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
-            if (kGPU_Backend == gRec[i].fBackend &&
-                NULL == rt.get()) {
-                fprintf(stderr, "Could not create render target for gpu.\n");
-                overallSuccess = false;
-                continue;
-            }
-
+            // Skip any tests that we don't even need to try.
             uint32_t gmFlags = gm->getFlags();
             if ((kPDF_Backend == gRec[i].fBackend) && 
                 (!doPDF || (gmFlags & GM::kSkipPDF_Flag)))
@@ -709,29 +714,54 @@ int main(int argc, char * const argv[]) {
                 continue;
             }
 
-            bool testSuccess = test_drawing(gm, gRec[i],
-                         writePath, readPath, diffPath, gGrContext,
-                         rt.get(), &forwardRenderedBitmap);
-            overallSuccess &= testSuccess;
+            // Now we know that we want to run this test and record its
+            // success or failure.
+            ErrorBitfield testErrors = ERROR_NONE;
 
-            if (doReplay && testSuccess && !(gmFlags & GM::kSkipPicture_Flag)) {
-                testSuccess = test_picture_playback(gm, gRec[i],
-                                      forwardRenderedBitmap,
-                                      readPath, diffPath);
-                overallSuccess &= testSuccess;
+            if ((ERROR_NONE == testErrors) &&
+                (kGPU_Backend == gRec[i].fBackend) &&
+                (NULL == rt.get())) {
+                fprintf(stderr, "Could not create render target for gpu.\n");
+                testErrors |= ERROR_NO_GPU_CONTEXT;
             }
 
-            if (doSerialize && testSuccess) {
-                testSuccess &= test_picture_serialization(gm, gRec[i],
-                                      forwardRenderedBitmap,
-                                      readPath, diffPath);
-                overallSuccess &= testSuccess;
+            if (ERROR_NONE == testErrors) {
+                testErrors |= test_drawing(gm, gRec[i],
+                                           writePath, readPath, diffPath,
+                                           gGrContext,
+                                           rt.get(), &forwardRenderedBitmap);
+            }
+
+            if ((ERROR_NONE == testErrors) && doReplay &&
+                !(gmFlags & GM::kSkipPicture_Flag)) {
+                testErrors |= test_picture_playback(gm, gRec[i],
+                                                    forwardRenderedBitmap,
+                                                    readPath, diffPath);
+            }
+
+            if ((ERROR_NONE == testErrors) && doSerialize) {
+                testErrors |= test_picture_serialization(gm, gRec[i],
+                                                         forwardRenderedBitmap,
+                                                         readPath, diffPath);
+            }
+
+            // Update overall results.
+            // We only tabulate the particular error types that we currently
+            // care about (e.g., missing reference images). Later on, if we
+            // want to also tabulate pixel mismatches vs dimension mistmatches
+            // (or whatever else), we can do so.
+            testsRun++;
+            if (ERROR_NONE == testErrors) {
+                testsPassed++;
+            } else if (ERROR_READING_REFERENCE_IMAGE & testErrors) {
+                testsMissingReferenceImages++;
+            } else {
+                testsFailed++;
             }
         }
         SkDELETE(gm);
     }
-    if (false == overallSuccess) {
-        return -1;
-    }
-    return 0;
+    printf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
+           testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
+    return (0 == testsFailed) ? 0 : -1;
 }
