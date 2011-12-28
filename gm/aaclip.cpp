@@ -27,13 +27,13 @@ void draw (SkCanvas* canvas, SkRect& target, int x, int y) {
     foregroundPaint.setAntiAlias(true);
 
     canvas->save();
-    canvas->translate(x, y);
-    target.inset(-2, -2);
+    canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+    target.inset(SkIntToScalar(-2), SkIntToScalar(-2));
     canvas->drawRect(target, borderPaint);
-    target.inset(2, 2);
+    target.inset(SkIntToScalar(2), SkIntToScalar(2));
     canvas->drawRect(target, backgroundPaint);
     canvas->clipRect(target, SkRegion::kIntersect_Op, true);
-    target.inset(-4, -4);
+    target.inset(SkIntToScalar(-4), SkIntToScalar(-4));
     canvas->drawRect(target, foregroundPaint);
     canvas->restore();
 }
@@ -87,19 +87,19 @@ protected:
 
         // Repeat 4x with .2, .4, .6, .8 px offsets
         canvas->translate(SK_Scalar1 / 5, SK_Scalar1 / 5);
-        canvas->translate(50, 0);
+        canvas->translate(SkIntToScalar(50), 0);
         draw_rect_tests(canvas);
 
         canvas->translate(SK_Scalar1 / 5, SK_Scalar1 / 5);
-        canvas->translate(50, 0);
+        canvas->translate(SkIntToScalar(50), 0);
         draw_rect_tests(canvas);
 
         canvas->translate(SK_Scalar1 / 5, SK_Scalar1 / 5);
-        canvas->translate(50, 0);
+        canvas->translate(SkIntToScalar(50), 0);
         draw_rect_tests(canvas);
 
         canvas->translate(SK_Scalar1 / 5, SK_Scalar1 / 5);
-        canvas->translate(50, 0);
+        canvas->translate(SkIntToScalar(50), 0);
         draw_rect_tests(canvas);
     }
 
