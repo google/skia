@@ -623,11 +623,17 @@ public:
 
     /** Iterate through all of the segments (lines, quadratics, cubics) of
         each contours in a path.
+
+        The iterator cleans up the segments along the way, removing degenerate
+        segments and adding close verbs where necessary. When the forceClose
+        argument is provided, each contour (as defined by a new starting
+        move command) will be completed with a close verb regardless of the
+        contour's contents.
     */
     class SK_API Iter {
     public:
-                Iter();
-                Iter(const SkPath&, bool forceClose);
+        Iter();
+        Iter(const SkPath&, bool forceClose);
 
         void setPath(const SkPath&, bool forceClose);
 
