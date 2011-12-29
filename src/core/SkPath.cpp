@@ -1185,9 +1185,10 @@ void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
     fVerbs = path.fVerbs.begin();
     fVerbStop = path.fVerbs.end();
     fLastPt.fX = fLastPt.fY = 0;
+    fMoveTo.fX = fMoveTo.fY = 0;
     fForceClose = SkToU8(forceClose);
     fNeedClose = false;
-    fSegmentState = kAfterPrimitive_SegmentState;
+    fSegmentState = kAfterClose_SegmentState;
 }
 
 bool SkPath::Iter::isClosedContour() const {
@@ -1279,10 +1280,6 @@ void SkPath::Iter::consumeDegenerateSegments() {
         unsigned verb = *fVerbs;
         switch (verb) {
             case kMove_Verb:
-                // Set state for the next method.
-                fSegmentState = kAfterMove_SegmentState;
-                fMoveTo = fPts[0];
-
                 // Keep a record of this most recent move
                 lastMoveVerb = fVerbs;
                 lastMovePt = fPts;
@@ -1385,16 +1382,13 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
             if (fVerbs == fVerbStop) {    // might be a trailing moveto
                 return kDone_Verb;
             }
-#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
             fMoveTo = *srcPts;
-#endif
             if (pts) {
                 pts[0] = *srcPts;
             }
             srcPts += 1;
-#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
             fSegmentState = kAfterMove_SegmentState;
-#else
+#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
             fLastPt = fMoveTo;
 #endif
             fNeedClose = fForceClose;
