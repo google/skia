@@ -23,6 +23,8 @@
 #include "SkStream.h"
 #include "SkRefCnt.h"
 
+static bool gForceBWtext;
+
 extern bool gSkSuppressFontCachePurgeSpew;
 
 #ifdef SK_SUPPORT_PDF
@@ -240,6 +242,29 @@ static void setup_bitmap(const ConfigData& gRec, SkISize& size,
     bitmap->eraseColor(0);
 }
 
+#include "SkDrawFilter.h"
+class BWTextDrawFilter : public SkDrawFilter {
+public:
+    virtual void filter(SkPaint*, Type) SK_OVERRIDE;
+};
+void BWTextDrawFilter::filter(SkPaint* p, Type t) {
+    if (kText_Type == t) {
+        p->setAntiAlias(false);
+    }
+}
+
+static void installFilter(SkCanvas* canvas) {
+    if (gForceBWtext) {
+        canvas->setDrawFilter(new BWTextDrawFilter)->unref();
+    }
+}
+
+static void invokeGM(GM* gm, SkCanvas* canvas) {
+    installFilter(canvas);
+    gm->draw(canvas);
+    canvas->setDrawFilter(NULL);
+}
+
 static ErrorBitfield generate_image(GM* gm, const ConfigData& gRec,
                                     GrContext* context,
                                     GrRenderTarget* rt,
@@ -249,14 +274,14 @@ static ErrorBitfield generate_image(GM* gm, const ConfigData& gRec,
     SkCanvas canvas(*bitmap);
 
     if (gRec.fBackend == kRaster_Backend) {
-        gm->draw(&canvas);
+        invokeGM(gm, &canvas);
     } else {  // GPU
         if (NULL == context) {
             return ERROR_NO_GPU_CONTEXT;
         }
         SkGpuCanvas gc(context, rt);
         gc.setDevice(new SkGpuDevice(context, rt))->unref();
-        gm->draw(&gc);
+        invokeGM(gm, &gc);
         // the device is as large as the current rendertarget, so we explicitly
         // only readback the amount we expect (in size)
         // overwrite our previous allocation
@@ -272,6 +297,7 @@ static void generate_image_from_picture(GM* gm, const ConfigData& gRec,
     SkISize size = gm->getISize();
     setup_bitmap(gRec, size, bitmap);
     SkCanvas canvas(*bitmap);
+    installFilter(&canvas);
     canvas.drawPicture(*pict);
 }
 
@@ -284,7 +310,7 @@ static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
     SkAutoUnref aur(dev);
 
     SkCanvas c(dev);
-    gm->draw(&c);
+    invokeGM(gm, &c);
 
     SkPDFDocument doc;
     doc.appendPage(dev);
@@ -312,7 +338,7 @@ static void generate_xps(GM* gm, SkDynamicMemoryWStream& xps) {
     SkCanvas c(dev);
     dev->beginPortfolio(&xps);
     dev->beginSheet(unitsPerMeter, pixelsPerMeter, trimSize);
-    gm->draw(&c);
+    invokeGM(gm, &c);
     dev->endSheet();
     dev->endPortfolio();
 
@@ -420,7 +446,7 @@ static SkPicture* generate_new_picture(GM* gm) {
     // Pictures are refcounted so must be on heap
     SkPicture* pict = new SkPicture;
     SkCanvas* cv = pict->beginRecording(1000, 1000);
-    gm->draw(cv);
+    invokeGM(gm, cv);
     pict->endRecording();
 
     return pict;
@@ -607,6 +633,8 @@ int main(int argc, char * const argv[]) {
             if (argv < stop && **argv) {
                 diffPath = *argv;
             }
+        } else if (strcmp(*argv, "--forceBWtext") == 0) {
+            gForceBWtext = true;
         } else if (strcmp(*argv, "--noreplay") == 0) {
             doReplay = false;
         } else if (strcmp(*argv, "--nopdf") == 0) {
