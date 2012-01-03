@@ -100,13 +100,26 @@ struct GrStencilSettingsStruct {
     GrStencilOp fBackFailOp : 8;     // op to perform when back faces fail
     GrStencilFunc fFrontFunc : 8;    // test function for front faces
     GrStencilFunc fBackFunc : 8;     // test function for back faces
+    int fPad0 : 8;
+    int fPad1 : 8;
     unsigned short fFrontFuncMask;   // mask for front face test
     unsigned short fBackFuncMask;    // mask for back face test
     unsigned short fFrontFuncRef;    // reference value for front face test
     unsigned short fBackFuncRef;     // reference value for back face test
     unsigned short fFrontWriteMask;  // stencil write mask for front faces
     unsigned short fBackWriteMask;   // stencil write mask for back faces
+    mutable uint32_t fFlags;
 };
+// We rely on this being packed and aligned (memcmp'ed and memcpy'ed)
+GR_STATIC_ASSERT(sizeof(GrStencilSettingsStruct) % 4 == 0);
+GR_STATIC_ASSERT(sizeof(GrStencilSettingsStruct) ==
+                 4*sizeof(uint8_t) + // ops
+                 2*sizeof(uint8_t) + // funcs
+                 2*sizeof(uint8_t) + // pads
+                 2*sizeof(unsigned short) + // func masks
+                 2*sizeof(unsigned short) + // ref values
+                 2*sizeof(unsigned short) + // write masks
+                 sizeof(uint32_t)); // flags
 
 /**
  * Class representing stencil state.
@@ -114,24 +127,11 @@ struct GrStencilSettingsStruct {
 class GrStencilSettings : private GrStencilSettingsStruct {
 
 public:
-    bool operator == (const GrStencilSettings& s) const {
-        // make sure this is tightly packed (< 4B padding).
-        GR_STATIC_ASSERT(sizeof(GrStencilSettings) / 4 ==
-                        (4*sizeof(uint8_t) +
-                         2*sizeof(uint8_t) +
-                         6*sizeof(unsigned short) + 3) / 4);
-        return 0 == memcmp(this, &s, sizeof(GrStencilSettings));
+    GrStencilSettings() {
+        fPad0 = fPad1 = 0;
+        this->setDisabled();
     }
-
-    bool operator != (const GrStencilSettings& s) const {
-        return !(*this == s);
-    }
-
-    GrStencilSettings& operator =(const GrStencilSettings& s) {
-        memcpy(this, &s, sizeof(GrStencilSettings));
-        return *this;
-    }
-
+    
     GrStencilOp frontPassOp() const { return fFrontPassOp; }
     GrStencilOp backPassOp() const { return fBackPassOp; }
     GrStencilOp frontFailOp() const { return fFrontFailOp; }
@@ -145,12 +145,12 @@ public:
     unsigned short frontWriteMask() const {return fFrontWriteMask; }
     unsigned short backWriteMask() const { return fBackWriteMask; }
 
-    void setFrontPassOp(GrStencilOp op) { fFrontPassOp = op; }
-    void setBackPassOp(GrStencilOp op) { fBackPassOp = op; }
-    void setFrontFailOp(GrStencilOp op) {fFrontFailOp = op; }
-    void setBackFailOp(GrStencilOp op) { fBackFailOp = op; }
-    void setFrontFunc(GrStencilFunc func) { fFrontFunc = func; }
-    void setBackFunc(GrStencilFunc func) { fBackFunc = func; }
+    void setFrontPassOp(GrStencilOp op) { fFrontPassOp = op; fFlags = 0;}
+    void setBackPassOp(GrStencilOp op) { fBackPassOp = op; fFlags = 0;}
+    void setFrontFailOp(GrStencilOp op) {fFrontFailOp = op; fFlags = 0;}
+    void setBackFailOp(GrStencilOp op) { fBackFailOp = op; fFlags = 0;}
+    void setFrontFunc(GrStencilFunc func) { fFrontFunc = func; fFlags = 0;}
+    void setBackFunc(GrStencilFunc func) { fBackFunc = func; fFlags = 0;}
     void setFrontFuncMask(unsigned short mask) { fFrontFuncMask = mask; }
     void setBackFuncMask(unsigned short mask) { fBackFuncMask = mask; }
     void setFrontFuncRef(unsigned short ref) { fFrontFuncRef = ref; }
@@ -176,38 +176,86 @@ public:
         fBackFuncRef        = funcRef;
         fFrontWriteMask     = writeMask;
         fBackWriteMask      = writeMask;
+        fFlags = 0;
     }
 
     void setDisabled() {
         memset(this, 0, sizeof(*this));
         GR_STATIC_ASSERT(0 == kKeep_StencilOp);
         GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
+        fFlags = kIsDisabled_Flag | kDoesNotWrite_Flag;
     }
+
     bool isDisabled() const {
-        return kKeep_StencilOp == fFrontPassOp   &&
-               kKeep_StencilOp == fBackPassOp    &&
-               kKeep_StencilOp == fFrontFailOp   &&
-               kKeep_StencilOp == fBackFailOp   &&
-               kAlways_StencilFunc == fFrontFunc &&
-               kAlways_StencilFunc == fBackFunc;
+        if (fFlags & kIsDisabled_Flag) {
+            return true;
+        }
+        if (fFlags & kNotDisabled_Flag) {
+            return false;
+        }
+        bool disabled = kKeep_StencilOp == fFrontPassOp   &&
+                        kKeep_StencilOp == fBackPassOp    &&
+                        kKeep_StencilOp == fFrontFailOp   &&
+                        kKeep_StencilOp == fBackFailOp   &&
+                        kAlways_StencilFunc == fFrontFunc &&
+                        kAlways_StencilFunc == fBackFunc;
+        fFlags |= disabled ? kIsDisabled_Flag : kNotDisabled_Flag;
+        return disabled;
     }
+
     bool doesWrite() const {
-        return !((kNever_StencilFunc == fFrontFunc ||
-                  kKeep_StencilOp == fFrontPassOp)  &&
-                 (kNever_StencilFunc == fBackFunc ||
-                  kKeep_StencilOp == fBackPassOp)    &&
-                 (kAlways_StencilFunc == fFrontFunc ||
-                  kKeep_StencilOp == fFrontFailOp)  &&
-                 (kAlways_StencilFunc == fBackFunc ||
-                  kKeep_StencilOp == fBackFailOp));
+        if (fFlags & kDoesWrite_Flag) {
+            return true;
+        }
+        if (fFlags & kDoesNotWrite_Flag) {
+            return false;
+        }
+        bool writes = !((kNever_StencilFunc == fFrontFunc ||
+                         kKeep_StencilOp == fFrontPassOp)  &&
+                        (kNever_StencilFunc == fBackFunc ||
+                         kKeep_StencilOp == fBackPassOp)    &&
+                        (kAlways_StencilFunc == fFrontFunc ||
+                         kKeep_StencilOp == fFrontFailOp)  &&
+                        (kAlways_StencilFunc == fBackFunc ||
+                         kKeep_StencilOp == fBackFailOp));
+        fFlags |= writes ? kDoesWrite_Flag : kDoesNotWrite_Flag;
+        return writes;
     }
+    
     void invalidate()  {
-        // just write an illegal value to the first member
+        // write an illegal value to the first member
         fFrontPassOp = (GrStencilOp)(uint8_t)-1;
+        fFlags = 0;
+    }
+
+    bool operator == (const GrStencilSettings& s) const {
+        static const size_t gCompareSize = sizeof(GrStencilSettings) -
+                                           sizeof(fFlags);
+        GrAssert((const char*)&fFlags + sizeof(fFlags) == 
+                 (const char*)this + sizeof(GrStencilSettings));
+        if (this->isDisabled() & s.isDisabled()) { // using & not &&
+            return true;
+        }
+        return 0 == memcmp(this, &s, gCompareSize);
+    }
+    
+    bool operator != (const GrStencilSettings& s) const {
+        return !(*this == s);
+    }
+    
+    GrStencilSettings& operator =(const GrStencilSettings& s) {
+        memcpy(this, &s, sizeof(GrStencilSettings));
+        return *this;
     }
 
 private:
     friend class GrGpu;
+    enum {
+        kIsDisabled_Flag      = 0x1,
+        kNotDisabled_Flag     = 0x2,
+        kDoesWrite_Flag       = 0x4,
+        kDoesNotWrite_Flag    = 0x8,
+    };
 
     enum {
         kMaxStencilClipPasses = 2  // maximum number of passes to add a clip 
@@ -258,9 +306,11 @@ GR_STATIC_ASSERT(sizeof(GrStencilSettingsStruct) == sizeof(GrStencilSettings));
         (FRONT_PASS_OP),    (BACK_PASS_OP),                                  \
         (FRONT_FAIL_OP),    (BACK_FAIL_OP),                                  \
         (FRONT_FUNC),       (BACK_FUNC),                                     \
+        (0),                (0),                                             \
         (FRONT_MASK),       (BACK_MASK),                                     \
         (FRONT_REF),        (BACK_REF),                                      \
-        (FRONT_WRITE_MASK), (BACK_WRITE_MASK)                                \
+        (FRONT_WRITE_MASK), (BACK_WRITE_MASK),                               \
+        0                                                                    \
     };                                                                       \
     static const GrStencilSettings& NAME =                                   \
         *reinterpret_cast<const GrStencilSettings*>(&(NAME ## _STRUCT))

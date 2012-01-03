@@ -1803,8 +1803,8 @@ void GrGpuGL::flushStencil() {
     bool stencilClip = fClipInStencil && drawState.isClipState();
     bool drawClipToStencil =
         drawState.isStateFlagEnabled(kModifyStencilClip_StateBit);
-    bool stencilChange = fHWStencilClip != stencilClip  ||
-                         fHWDrawState.getStencil() != *settings ||
+    bool stencilChange = (fHWDrawState.getStencil() != *settings) ||
+                         (fHWStencilClip != stencilClip) ||
                          (fHWDrawState.isStateFlagEnabled(kModifyStencilClip_StateBit) !=
                           drawClipToStencil);
 
