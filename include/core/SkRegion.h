@@ -86,9 +86,9 @@ public:
     const SkIRect& getBounds() const { return fBounds; }
 
     /**
-     *  Returns true if the region is non-empty, and if so, sets the specified
-     *  path to the boundary(s) of the region. If the region is empty, then
-     *  this returns false, and path is left unmodified.
+     *  Returns true if the region is non-empty, and if so, appends the
+     *  boundary(s) of the region to the specified path.
+     *  If the region is empty, returns false, and path is left unmodified.
      */
     bool getBoundaryPath(SkPath* path) const;
 

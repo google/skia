@@ -422,6 +422,10 @@ static int EdgeProc(const Edge* a, const Edge* b) {
 }
 
 bool SkRegion::getBoundaryPath(SkPath* path) const {
+    // path could safely be NULL if we're empty, but the caller shouldn't
+    // *know* that
+    SkASSERT(path);
+
     if (this->isEmpty()) {
         return false;
     }
@@ -443,7 +447,8 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
         edge[0].set(r.fLeft, r.fBottom, r.fTop);
         edge[1].set(r.fRight, r.fTop, r.fBottom);
     }
-    SkQSort(edges.begin(), edges.count(), sizeof(Edge), (SkQSortCompareProc)EdgeProc);
+    SkQSort(edges.begin(), edges.count(), sizeof(Edge),
+            (SkQSortCompareProc)EdgeProc);
     
     int count = edges.count();
     Edge* start = edges.begin();
