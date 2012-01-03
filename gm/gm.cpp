@@ -41,5 +41,14 @@ void GM::onDrawBackground(SkCanvas* canvas) {
     canvas->drawColor(fBGColor);
 }
 
+void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
+    SkISize size = this->getISize();
+    SkRect r = SkRect::MakeWH(SkIntToScalar(size.width()),
+                              SkIntToScalar(size.height()));
+    SkPaint paint;
+    paint.setColor(color);
+    canvas->drawRect(r, paint);
+}
+
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* SkTRegistry<GM*, void*>::gHead;
