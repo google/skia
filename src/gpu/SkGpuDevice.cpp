@@ -450,6 +450,7 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
         } else {
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->fColor = SkGr::SkColor2GrColor(filtered);
+            grPaint->resetColorFilter();
         }
     } else if (colorFilter != NULL && colorFilter->asColorMatrix(matrix)) {
         grPaint->fColorMatrixEnabled = true;
