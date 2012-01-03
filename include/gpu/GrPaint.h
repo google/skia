@@ -33,11 +33,13 @@ public:
     GrBlendCoeff                fDstBlendCoeff;
     bool                        fAntiAlias;
     bool                        fDither;
+    bool                        fColorMatrixEnabled;
 
     GrColor                     fColor;
 
     GrColor                     fColorFilterColor;
     SkXfermode::Mode            fColorFilterXfermode;
+    float                       fColorMatrix[20];
 
     void setTexture(int i, GrTexture* texture) {
         GrAssert((unsigned)i < kMaxTextures);
@@ -127,6 +129,8 @@ public:
 
         fColorFilterColor = paint.fColorFilterColor;
         fColorFilterXfermode = paint.fColorFilterXfermode;
+        memcpy(fColorMatrix, paint.fColorMatrix, sizeof(fColorMatrix));
+        fColorMatrixEnabled = paint.fColorMatrixEnabled;
 
         for (int i = 0; i < kMaxTextures; ++i) {
             GrSafeUnref(fTextures[i]);
@@ -165,6 +169,8 @@ public:
     void resetColorFilter() {
         fColorFilterXfermode = SkXfermode::kDst_Mode;
         fColorFilterColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
+        memset(fColorMatrix, 0, sizeof(fColorMatrix));
+        fColorMatrixEnabled = false;
     }
 
     bool hasTexture() const {

@@ -1938,8 +1938,14 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
     } else {
         drawState->disableState(GrDrawState::kHWAntialias_StateBit);
     }
+    if (paint.fColorMatrixEnabled) {
+        drawState->enableState(GrDrawState::kColorMatrix_StateBit);
+    } else {
+        drawState->disableState(GrDrawState::kColorMatrix_StateBit);
+    }
     drawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     drawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
+    drawState->setColorMatrix(paint.fColorMatrix);
 
     if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");

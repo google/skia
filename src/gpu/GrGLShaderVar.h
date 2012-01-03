@@ -27,6 +27,7 @@ public:
         kVec3f_Type,
         kVec4f_Type,
         kMat33f_Type,
+        kMat44f_Type,
         kSampler2D_Type,
     };
 
@@ -242,6 +243,8 @@ public:
                 return "vec4";
             case kMat33f_Type:
                 return "mat3";
+            case kMat44f_Type:
+                return "mat4";
             case kSampler2D_Type:
                 return "sampler2D";
             default:

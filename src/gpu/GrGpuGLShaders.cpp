@@ -234,6 +234,8 @@ bool GrGpuGLShaders::programUnitTest() {
             pdesc.fEdgeAANumEdges = 0;
         }
 
+        pdesc.fColorMatrixEnabled = random_bool(&random);
+
         if (this->getCaps().fDualSourceBlendingSupport) {
             pdesc.fDualSrcOutput = random_int(&random, ProgramDesc::kDualSrcOutputCnt);
         } else {
@@ -612,6 +614,28 @@ void GrGpuGLShaders::flushEdgeAAData() {
     }
 }
 
+void GrGpuGLShaders::flushColorMatrix() {
+    const ProgramDesc& desc = fCurrentProgram.getDesc();
+    int matrixUni = fProgramData->fUniLocations.fColorMatrixUni;
+    int vecUni = fProgramData->fUniLocations.fColorMatrixVecUni;
+    if (GrGLProgram::kUnusedUniform != matrixUni
+     && GrGLProgram::kUnusedUniform != vecUni) {
+        const float* m = this->getDrawState().getColorMatrix();
+        GrGLfloat mt[]  = {
+            m[0], m[5], m[10], m[15],
+            m[1], m[6], m[11], m[16],
+            m[2], m[7], m[12], m[17],
+            m[3], m[8], m[13], m[18],
+        };
+        static float scale = 1.0f / 255.0f;
+        GrGLfloat vec[] = {
+            m[4] * scale, m[9] * scale, m[14] * scale, m[19] * scale,
+        };
+        GL_CALL(UniformMatrix4fv(matrixUni, 1, false, mt));
+        GL_CALL(Uniform4fv(vecUni, 1, vec));
+    }
+}
+
 static const float ONE_OVER_255 = 1.f / 255.f;
 
 #define GR_COLOR_TO_VEC4(color) {\
@@ -731,6 +755,7 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         }
     }
     this->flushEdgeAAData();
+    this->flushColorMatrix();
     resetDirtyFlags();
     return true;
 }
@@ -909,6 +934,8 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
     desc.fColorFilterXfermode = skipColor ?
                                 SkXfermode::kDst_Mode :
                                 drawState.getColorFilterMode();
+
+    desc.fColorMatrixEnabled = drawState.isStateFlagEnabled(GrDrawState::kColorMatrix_StateBit);
 
     // no reason to do edge aa or look at per-vertex coverage if coverage is
     // ignored

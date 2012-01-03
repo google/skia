@@ -75,6 +75,9 @@ private:
     // flushes the edges for edge AA
     void flushEdgeAAData();
 
+    // flushes the color matrix
+    void flushColorMatrix();
+
     static void DeleteProgram(const GrGLInterface* gl,
                               CachedData* programData);
 

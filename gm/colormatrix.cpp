@@ -34,6 +34,7 @@ protected:
         bm.setConfig(SkBitmap::kARGB_8888_Config, width, height);
         bm.allocPixels();
         SkCanvas canvas(bm);
+        canvas.clear(0x0);
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
                 SkPaint paint;

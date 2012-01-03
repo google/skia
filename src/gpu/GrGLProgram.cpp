@@ -94,6 +94,8 @@ typedef GrGLProgram::ProgramDesc::StageDesc StageDesc;
 #define COL_UNI_NAME "uColor"
 #define EDGES_UNI_NAME "uEdges"
 #define COL_FILTER_UNI_NAME "uColorFilter"
+#define COL_MATRIX_UNI_NAME "uColorMatrix"
+#define COL_MATRIX_VEC_UNI_NAME "uColorMatrixVec"
 
 namespace {
 inline void tex_attr_name(int coordIdx, GrStringBuilder* s) {
@@ -364,6 +366,14 @@ static void addColorFilter(GrStringBuilder* fsCode, const char * outputVar,
                     inColor, COL_FILTER_UNI_NAME);
 
     add_helper(outputVar, colorStr.c_str(), constStr.c_str(), fsCode);
+}
+/**
+ * Adds code to the fragment shader code which modifies the color by
+ * the specified color matrix.
+ */
+static void addColorMatrix(GrStringBuilder* fsCode, const char * outputVar,
+                           const char* inColor) {
+    fsCode->appendf("%s = %s * %s + %s;\n", outputVar, COL_MATRIX_UNI_NAME, inColor, COL_MATRIX_VEC_UNI_NAME);
 }
 
 namespace {
@@ -798,10 +808,10 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
                                          COL_FILTER_UNI_NAME);
         programData->fUniLocations.fColorFilterUni = kUseUniform;
     }
-
     bool wroteFragColorZero = false;
     if (SkXfermode::kZero_Coeff == uniformCoeff &&
-        SkXfermode::kZero_Coeff == colorCoeff) {
+        SkXfermode::kZero_Coeff == colorCoeff &&
+        !fProgramDesc.fColorMatrixEnabled) {
         segments.fFSCode.appendf("\t%s = %s;\n",
                                  fsColorOutput,
                                  all_zeros_vec(4));
@@ -821,6 +831,19 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         addColorFilter(&segments.fFSCode, "filteredColor", uniformCoeff,
                        colorCoeff, color);
         inColor = "filteredColor";
+    }
+    if (fProgramDesc.fColorMatrixEnabled) {
+        segments.fFSUnis.push_back().set(GrGLShaderVar::kMat44f_Type,
+                                         GrGLShaderVar::kUniform_TypeModifier,
+                                         COL_MATRIX_UNI_NAME);
+        segments.fFSUnis.push_back().set(GrGLShaderVar::kVec4f_Type,
+                                         GrGLShaderVar::kUniform_TypeModifier,
+                                         COL_MATRIX_VEC_UNI_NAME);
+        programData->fUniLocations.fColorMatrixUni = kUseUniform;
+        programData->fUniLocations.fColorMatrixVecUni = kUseUniform;
+        segments.fFSCode.appendf("\tvec4 matrixedColor;\n");
+        addColorMatrix(&segments.fFSCode, "matrixedColor", inColor.c_str());
+        inColor = "matrixedColor";
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1241,6 +1264,16 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
         GR_GL_CALL_RET(gl, programData->fUniLocations.fColorFilterUni, 
                        GetUniformLocation(progID, COL_FILTER_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fColorFilterUni);
+    }
+
+    if (kUseUniform == programData->fUniLocations.fColorMatrixUni) {
+        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorMatrixUni,
+                       GetUniformLocation(progID, COL_MATRIX_UNI_NAME));
+    }
+
+    if (kUseUniform == programData->fUniLocations.fColorMatrixVecUni) {
+        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorMatrixVecUni,
+                       GetUniformLocation(progID, COL_MATRIX_VEC_UNI_NAME));
     }
 
     if (kUseUniform == programData->fUniLocations.fEdgesUni) {

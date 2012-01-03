@@ -441,16 +441,23 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     SkColor color;
     SkXfermode::Mode filterMode;
+    SkScalar matrix[20];
     if (colorFilter != NULL && colorFilter->asColorMode(&color, &filterMode)) {
+        grPaint->fColorMatrixEnabled = false;
         if (!constantColor) {
             grPaint->fColorFilterColor = SkGr::SkColor2GrColor(color);
             grPaint->fColorFilterXfermode = filterMode;
-            return true;
+        } else {
+            SkColor filtered = colorFilter->filterColor(skPaint.getColor());
+            grPaint->fColor = SkGr::SkColor2GrColor(filtered);
         }
-        SkColor filtered = colorFilter->filterColor(skPaint.getColor());
-        grPaint->fColor = SkGr::SkColor2GrColor(filtered);
+    } else if (colorFilter != NULL && colorFilter->asColorMatrix(matrix)) {
+        grPaint->fColorMatrixEnabled = true;
+        memcpy(grPaint->fColorMatrix, matrix, sizeof(matrix));
+        grPaint->fColorFilterXfermode = SkXfermode::kDst_Mode;
+    } else {
+        grPaint->resetColorFilter();
     }
-    grPaint->resetColorFilter();
     return true;
 }
 
