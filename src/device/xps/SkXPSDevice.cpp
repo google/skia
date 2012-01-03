@@ -2030,9 +2030,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
     
     SkTScopedComPtr<IStream> fontStream;
     SkStream* fontData = SkFontHost::OpenStream(typefaceID);
-    HRM(SkIStream::CreateFromSkStream(fontData,
-                                      true,
-                                      &fontStream),
+    HRM(SkIStream::CreateFromSkStream(fontData, true, &fontStream),
         "Could not create font stream.");
     
     const size_t size =
