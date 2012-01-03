@@ -474,48 +474,38 @@ void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
     SkTDArray<BFRange> bfrangeEntries;
 
     BFRange currentRangeEntry;
-    bool haveBase = false;
-    int continuousEntries = 0;
+    bool rangeEmpty = true;
+    const int count = glyphToUnicode.count();
 
-    for (int i = 0; i < glyphToUnicode.count(); ++i) {
-        if (glyphToUnicode[i] && (subset == NULL || subset->has(i))) {
+    for (int i = 0; i < count + 1; ++i) {
+        bool inSubset = i < count && (subset == NULL || subset->has(i));
+        if (!rangeEmpty) {
             // PDF spec requires bfrange not changing the higher byte,
             // e.g. <1035> <10FF> <2222> is ok, but
             //      <1035> <1100> <2222> is no good
-            if (haveBase) {
-                ++continuousEntries;
-                if (i == currentRangeEntry.fStart + continuousEntries &&
-                            (i >> 8) == (currentRangeEntry.fStart >> 8) &&
-                            glyphToUnicode[i] == (currentRangeEntry.fUnicode +
-                                                  continuousEntries)) {
-                    currentRangeEntry.fEnd = i;
-                    if (i == glyphToUnicode.count() - 1) {
-                        // Last entry is in a range.
-                        bfrangeEntries.push(currentRangeEntry);
-                    }
-                    continue;
-                }
-
-                // Need to have at least 2 entries to form a bfrange.
-                if (continuousEntries >= 2) {
+            bool inRange =
+                i == currentRangeEntry.fEnd + 1 &&
+                i >> 8 == currentRangeEntry.fStart >> 8 &&
+                i < count &&
+                glyphToUnicode[i] == currentRangeEntry.fUnicode + i -
+                                         currentRangeEntry.fStart;
+            if (!inSubset || !inRange) {
+                if (currentRangeEntry.fEnd > currentRangeEntry.fStart) {
                     bfrangeEntries.push(currentRangeEntry);
                 } else {
                     BFChar* entry = bfcharEntries.append();
                     entry->fGlyphId = currentRangeEntry.fStart;
                     entry->fUnicode = currentRangeEntry.fUnicode;
                 }
-                continuousEntries = 0;
+                rangeEmpty = true;
             }
-
-            if (i != glyphToUnicode.count() - 1) {
-                currentRangeEntry.fStart = i;
-                currentRangeEntry.fEnd = i;
-                currentRangeEntry.fUnicode = glyphToUnicode[i];
-                haveBase = true;
-            } else {
-                BFChar* entry = bfcharEntries.append();
-                entry->fGlyphId = i;
-                entry->fUnicode = glyphToUnicode[i];
+        }
+        if (inSubset) {
+            currentRangeEntry.fEnd = i;
+            if (rangeEmpty) {
+              currentRangeEntry.fStart = i;
+              currentRangeEntry.fUnicode = glyphToUnicode[i];
+              rangeEmpty = false;
             }
         }
     }

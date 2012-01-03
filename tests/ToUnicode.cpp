@@ -16,9 +16,12 @@
 #include "SkStream.h"
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
-                          const void* buffer, size_t len) {
+                          const char* buffer, size_t len) {
     SkAutoDataUnref data(stream.copyToData());
     if (offset + len > data.size()) {
+        return false;
+    }
+    if (len != strlen(buffer)) {
         return false;
     }
     return memcmp(data.bytes() + offset, buffer, len) == 0;
@@ -27,6 +30,7 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           const SkPDFGlyphSet* subset,
                           SkDynamicMemoryWStream* cmap);
+
 static void TestToUnicode(skiatest::Reporter* reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     SkTDArray<uint16_t> glyphsInSubset;
@@ -86,6 +90,43 @@ endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
                                             buffer.getOffset()));
+
+    glyphToUnicode.reset();
+    glyphsInSubset.reset();
+    SkPDFGlyphSet subset2;
+
+    // Test mapping:
+    //           I  n  s  t  a  l
+    // Glyph id 2c 51 56 57 44 4f
+    // Unicode  49 6e 73 74 61 6c
+    for (size_t i = 0; i < 100; ++i) {
+      glyphToUnicode.push(i + 29);
+    }
+
+    glyphsInSubset.push(0x2C);
+    glyphsInSubset.push(0x44);
+    glyphsInSubset.push(0x4F);
+    glyphsInSubset.push(0x51);
+    glyphsInSubset.push(0x56);
+    glyphsInSubset.push(0x57);
+
+    SkDynamicMemoryWStream buffer2;
+    subset2.set(glyphsInSubset.begin(), glyphsInSubset.count());
+    append_cmap_sections(glyphToUnicode, &subset2, &buffer2);
+
+    char expectedResult2[] =
+"4 beginbfchar\n\
+<002C> <0049>\n\
+<0044> <0061>\n\
+<004F> <006C>\n\
+<0051> <006E>\n\
+endbfchar\n\
+1 beginbfrange\n\
+<0056> <0057> <0073>\n\
+endbfrange\n";
+
+    REPORTER_ASSERT(reporter, stream_equals(buffer2, 0, expectedResult2,
+                                            buffer2.getOffset()));
 }
 
 #include "TestClassDef.h"
