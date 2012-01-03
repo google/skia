@@ -270,13 +270,7 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
         b = pin(result[2], SK_B32_MASK);
         a = pin(result[3], SK_A32_MASK);
         // re-prepremultiply if needed
-        if (255 != a) {
-            int scale = SkAlpha255To256(a);
-            r = SkAlphaMul(r, scale);
-            g = SkAlphaMul(g, scale);
-            b = SkAlphaMul(b, scale);
-        }
-        dst[i] = SkPackARGB32(a, r, g, b);
+        dst[i] = SkPremultiplyARGBInline(a, r, g, b);
     }
 }
 
