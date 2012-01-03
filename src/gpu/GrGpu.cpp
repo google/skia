@@ -196,6 +196,9 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
 GrTexture* GrGpu::createPlatformTexture(const GrPlatformTextureDesc& desc) {
     this->handleDirtyContext();
     GrTexture* tex = this->onCreatePlatformTexture(desc);
+    if (NULL == tex) {
+        return NULL;
+    }
     // TODO: defer this and attach dynamically
     GrRenderTarget* tgt = tex->asRenderTarget();
     if (NULL != tgt &&
