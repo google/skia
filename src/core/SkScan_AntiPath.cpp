@@ -157,9 +157,9 @@ static inline int coverage_to_alpha(int aa) {
 }
 
 static inline int coverage_to_exact_alpha(int aa) {
-    static int map [] = { 0, 64, 128, 192, 255 };
-    SkASSERT(SHIFT == 2);
-    return map[aa];
+    int alpha = (256 >> SHIFT) * aa;
+    // clamp 256->255
+    return alpha - (alpha >> 8);
 }
 
 void SuperBlitter::blitH(int x, int y, int width) {

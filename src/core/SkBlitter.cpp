@@ -487,7 +487,7 @@ void SkRgnClipBlitter::blitAntiRect(int x, int y, int width, int height,
         const SkIRect& r = iter.rect();
         SkASSERT(bounds.contains(r));
         SkASSERT(r.fLeft >= x);
-        SkASSERT(r.fRight < x + width + 2);
+        SkASSERT(r.fRight <= x + width + 2);
 
         SkAlpha effectiveLeftAlpha = (r.fLeft == x) ? leftAlpha : 255;
         SkAlpha effectiveRightAlpha = (r.fRight == x + width + 2) ?
