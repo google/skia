@@ -49,6 +49,10 @@ namespace skiagm {
         SkColor getBGColor() const { return fBGColor; }
         void setBGColor(SkColor);
 
+        // helper: fill a rect in the specified color based on the
+        // GM's getISize bounds.
+        void drawSizeBounds(SkCanvas*, SkColor);
+
 	protected:
 		virtual void onDraw(SkCanvas*) = 0;
 		virtual void onDrawBackground(SkCanvas*);
