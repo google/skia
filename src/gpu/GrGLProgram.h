@@ -216,9 +216,11 @@ public:
         int8_t fFirstCoverageStage;
         SkBool8 fEmitsPointSize;
         SkBool8 fEdgeAAConcave;
+        SkBool8 fColorMatrixEnabled;
 
         int8_t fEdgeAANumEdges;
         uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
+        int8_t fPadding[3];
 
     } fProgramDesc;
     GR_STATIC_ASSERT(!(sizeof(ProgramDesc) % 4));
@@ -260,12 +262,16 @@ public:
         GrGLint fColorUni;
         GrGLint fEdgesUni;
         GrGLint fColorFilterUni;
+        GrGLint fColorMatrixUni;
+        GrGLint fColorMatrixVecUni;
         StageUniLocations fStages[GrDrawState::kNumStages];
         void reset() {
             fViewMatrixUni = kUnusedUniform;
             fColorUni = kUnusedUniform;
             fEdgesUni = kUnusedUniform;
             fColorFilterUni = kUnusedUniform;
+            fColorMatrixUni = kUnusedUniform;
+            fColorMatrixVecUni = kUnusedUniform;
             for (int s = 0; s < GrDrawState::kNumStages; ++s) {
                 fStages[s].reset();
             }

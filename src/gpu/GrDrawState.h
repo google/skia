@@ -455,6 +455,22 @@ struct GrDrawState {
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
+    /// @name Color Matrix
+    ////
+
+    /**
+     * Sets the color matrix to use for the next draw.
+     * @param matrix  the 5x4 matrix to apply to the incoming color
+     */
+    void setColorMatrix(const float matrix[20]) {
+        memcpy(fColorMatrix, matrix, sizeof(fColorMatrix));
+    }
+
+    const float* getColorMatrix() const { return fColorMatrix; }
+
+    /// @}
+
+    ///////////////////////////////////////////////////////////////////////////
     // @name Edge AA
     // There are two ways to perform antialiasing using edge equations. One
     // is to specify an (linear or quadratic) edge eq per-vertex. This requires
@@ -569,6 +585,11 @@ struct GrDrawState {
          * source polygon is non-convex.
          */
         kEdgeAAConcave_StateBit = 0x10,
+        /**
+         * Draws will apply the color matrix, otherwise the color matrix is
+         * ignored.
+         */
+        kColorMatrix_StateBit   = 0x20,
 
         // Users of the class may add additional bits to the vector
         kDummyStateBit,
@@ -703,6 +724,7 @@ private:
     GrRenderTarget*         fRenderTarget;
     GrColor                 fColor;
     GrColor                 fColorFilterColor;
+    float                   fColorMatrix[20];
     GrStencilSettings       fStencilSettings;
     GrMatrix                fViewMatrix;
     // @{ Data for GrTesselatedPathRenderer

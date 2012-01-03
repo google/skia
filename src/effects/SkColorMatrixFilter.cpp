@@ -335,16 +335,17 @@ SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
 
 bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
     int32_t* SK_RESTRICT array = fState.fArray;
+    int unshift = 16 - fState.fShift;
     for (int i = 0; i < 20; i++) {
-        matrix[i] = SkFixedToScalar(array[i]);
+        matrix[i] = SkFixedToScalar(array[i] << unshift);
     }
     if (NULL != fProc) {
         // Undo the offset applied to the constant column in setup().
-        SkScalar offset = SkFixedToScalar(1 << (fState.fShift - 1));
-        matrix[4] -= offset;
-        matrix[9] -= offset;
-        matrix[14] -= offset;
-        matrix[19] -= offset;
+        SkFixed offset = 1 << (fState.fShift - 1);
+        matrix[4] = SkFixedToScalar((array[4] - offset) << unshift);
+        matrix[9] = SkFixedToScalar((array[9] - offset) << unshift);
+        matrix[14] = SkFixedToScalar((array[14] - offset) << unshift);
+        matrix[19] = SkFixedToScalar((array[19] - offset) << unshift);
     }
     return true;
 }
