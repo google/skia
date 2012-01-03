@@ -24,7 +24,6 @@
     '../gm/imageblur.cpp',
     '../gm/lcdtext.cpp',
     '../gm/linepaths.cpp',
-    '../gm/movepaths.cpp',
     '../gm/ninepatchstretch.cpp',
     '../gm/nocolorbleed.cpp',
     '../gm/pathfill.cpp',
