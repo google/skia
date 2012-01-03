@@ -153,8 +153,8 @@ bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm,
     if (stream.isValid()) {
         if (SkImageDecoder::DecodeStream(&stream, bm, pref, mode, format)) {
             bm->pixelRef()->setURI(file);
+            return true;
         }
-        return true;
     }
     return false;
 }
