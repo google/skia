@@ -243,6 +243,10 @@ public:
         return (SkMask::Format)fRec.fMaskFormat;
     }
 
+    bool isSubpixel() const {
+        return SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
+    }
+    
     // remember our glyph offset/base
     void setBaseGlyphCount(unsigned baseGlyphCount) {
         fBaseGlyphCount = baseGlyphCount;
