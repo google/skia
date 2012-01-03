@@ -94,6 +94,10 @@ public:
         return fScalerContext->getMaskFormat();
     }
 
+    bool isSubpixel() const {
+        return fScalerContext->isSubpixel();
+    }
+
     /*  AuxProc/Data allow a client to associate data with this cache entry.
         Multiple clients can use this, as their data is keyed with a function
         pointer. In addition to serving as a key, the function pointer is called
