@@ -31,8 +31,8 @@ protected:
     typedef SkPoint (*AddSegmentFunc)(SkPath&, SkPoint&);
     
     // We need to use explicit commands here, instead of addPath, because we
-    // do not want the SkPath::Iter used in addPath to remove the degenerate
-    // segments before we send th epath off for drawing.
+    // do not want the moveTo that is added at the beginning of a path to
+    // appear in the appended path.
     static SkPoint AddMove(SkPath& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
@@ -207,52 +207,52 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
-	static const AddSegmentFunc gSegmentFunctions[] = {
-	    AddMove,
-	    AddMoveClose,
-	    AddDegenLine,
-	    AddMoveDegenLine,
-	    AddMoveDegenLineClose,
-	    AddDegenQuad,
-	    AddMoveDegenQuad,
-	    AddMoveDegenQuadClose,
-	    AddDegenCubic,
-	    AddMoveDegenCubic,
-	    AddMoveDegenCubicClose,
-	    AddClose,
-	    AddLine,
-	    AddMoveLine,
-	    AddMoveLineClose,
-	    AddQuad,
-	    AddMoveQuad,
-	    AddMoveQuadClose,
-	    AddCubic,
-	    AddMoveCubic,
-	    AddMoveCubicClose
-	};
-	static const char* gSegmentNames[] = {
-	    "Move",
-	    "MoveClose",
-	    "DegenLine",
-	    "MoveDegenLine",
-	    "MoveDegenLineClose",
-	    "DegenQuad",
-	    "MoveDegenQuad",
-	    "MoveDegenQuadClose",
-	    "DegenCubic",
-	    "MoveDegenCubic",
-	    "MoveDegenCubicClose",
-	    "Close",
-	    "Line",
-	    "MoveLine",
-	    "MoveLineClose",
-	    "Quad",
-	    "MoveQuad",
-	    "MoveQuadClose",
-	    "Cubic",
-	    "MoveCubic",
-	    "MoveCubicClose"
-	};
+    static const AddSegmentFunc gSegmentFunctions[] = {
+        AddMove,
+        AddMoveClose,
+        AddDegenLine,
+        AddMoveDegenLine,
+        AddMoveDegenLineClose,
+        AddDegenQuad,
+        AddMoveDegenQuad,
+        AddMoveDegenQuadClose,
+        AddDegenCubic,
+        AddMoveDegenCubic,
+        AddMoveDegenCubicClose,
+        AddClose,
+        AddLine,
+        AddMoveLine,
+        AddMoveLineClose,
+        AddQuad,
+        AddMoveQuad,
+        AddMoveQuadClose,
+        AddCubic,
+        AddMoveCubic,
+        AddMoveCubicClose
+    };
+    static const char* gSegmentNames[] = {
+        "Move",
+        "MoveClose",
+        "DegenLine",
+        "MoveDegenLine",
+        "MoveDegenLineClose",
+        "DegenQuad",
+        "MoveDegenQuad",
+        "MoveDegenQuadClose",
+        "DegenCubic",
+        "MoveDegenCubic",
+        "MoveDegenCubicClose",
+        "Close",
+        "Line",
+        "MoveLine",
+        "MoveLineClose",
+        "Quad",
+        "MoveQuad",
+        "MoveQuadClose",
+        "Cubic",
+        "MoveCubic",
+        "MoveCubicClose"
+    };
 
         struct FillAndName {
             SkPath::FillType fFill;

@@ -676,6 +676,31 @@ public:
         void consumeDegenerateSegments();
     };
 
+    /** Iterate through the verbs in the path, providing the associated points.
+    */
+    class SK_API RawIter {
+    public:
+        RawIter();
+        RawIter(const SkPath&);
+
+        void setPath(const SkPath&);
+
+        /** Return the next verb in this iteration of the path. When all
+            segments have been visited, return kDone_Verb.
+         
+            @param  pts The points representing the current verb and/or segment
+            @return The verb for the current segment
+        */
+        Verb next(SkPoint pts[4]);
+
+    private:
+        const SkPoint*  fPts;
+        const uint8_t*  fVerbs;
+        const uint8_t*  fVerbStop;
+        SkPoint         fMoveTo;
+        SkPoint         fLastPt;
+    };
+
     void dump(bool forceClose, const char title[] = NULL) const;
     void dump() const;
 
