@@ -8,57 +8,193 @@
 #include "SkJSON.h"
 #include "SkString.h"
 
+#ifdef SK_DEBUG
+//    #define TRACE_SKJSON_LEAKS
+#endif
+
+#ifdef TRACE_SKJSON_LEAKS
+    static int gStringCount;
+    static int gSlotCount;
+    static int gObjectCount;
+    static int gArrayCount;
+    #define LEAK_CODE(code) code
+#else
+    #define LEAK_CODE(code)
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+static char* alloc_string(size_t len) {
+    LEAK_CODE(SkDebugf(" string[%d]\n", gStringCount++);)
+    char* str = (char*)sk_malloc_throw(len + 1);
+    str[len] = 0;
+    return str;
+}
+
+static char* dup_string(const char src[]) {
+    if (NULL == src) {
+        return NULL;
+    }
+    size_t len = strlen(src);
+    char* dst = alloc_string(len);
+    memcpy(dst, src, len);
+    return dst;
+}
+
+static void free_string(char* str) {
+    if (str) {
+        sk_free(str);
+        LEAK_CODE(SkASSERT(gStringCount > 0); SkDebugf("~string[%d]\n", --gStringCount);)
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 struct SkJSON::Object::Slot {
     Slot(const char name[], Type type) {
+        LEAK_CODE(SkDebugf(" slot[%d]\n", gSlotCount++);)
+        SkASSERT(name);
+
         fNext = NULL;
         
         size_t len = strlen(name);
-        char* str = new char[len + 2];
+        // extra 1 for str[0] which stores the type
+        char* str = alloc_string(1 + len);
         str[0] = (char)type;
-        memcpy(str + 1, name, len + 1);
+        // str[1] skips the type, len+1 includes the terminating 0 byte.
+        memcpy(&str[1], name, len + 1);
         fName = str;
         
         // fValue is uninitialized
     }
     ~Slot();
     
-    const char* name() const {
-        return fName ? &fName[1] : "";
-    }
-    
-    Type type() const {
-        return (Type)fName[0];
-    }
+    Type type() const { return (Type)fName[0]; }
+    const char* name() const { return &fName[1]; }
     
     Slot*   fNext;
-    char*   fName;    // fName[0] is the type
+    char*   fName;    // fName[0] is the type, &fName[1] is the "name"
     union {
-        SkJSON::Object* fObject;
-        SkJSON::Array*  fArray;
-        char*           fString;
-        int32_t         fInt;
-        float           fFloat;
-        bool            fBool;
-        intptr_t        fIntPtr;    // for generic getter
+        Object* fObject;
+        Array*  fArray;
+        char*   fString;
+        int32_t fInt;
+        float   fFloat;
+        bool    fBool;
     } fValue;
 };
 
 SkJSON::Object::Slot::~Slot() {
+    free_string(fName);
     switch (this->type()) {
         case kObject:
             delete fValue.fObject;
             break;
         case kArray:
+            delete fValue.fArray;
+            break;
         case kString:
-            delete[] fValue.fString;
+            free_string(fValue.fString);
             break;
         default:
             break;
     }
-    delete[] fName;
+    LEAK_CODE(SkASSERT(gSlotCount > 0); SkDebugf("~slot[%d]\n", --gSlotCount);)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkJSON::Object::Iter::Iter(const Object& obj) : fSlot(obj.fHead) {}
+
+bool SkJSON::Object::Iter::done() const {
+    return NULL == fSlot;
+}
+
+void SkJSON::Object::Iter::next() {
+    SkASSERT(fSlot);
+    fSlot = fSlot->fNext;
+}
+
+SkJSON::Type SkJSON::Object::Iter::type() const {
+    SkASSERT(fSlot);
+    return fSlot->type();
+}
+
+const char* SkJSON::Object::Iter::name() const {
+    SkASSERT(fSlot);
+    return fSlot->name();
+}
+
+SkJSON::Object* SkJSON::Object::Iter::objectValue() const {
+    SkASSERT(fSlot);
+    SkASSERT(kObject == fSlot->type());
+    return fSlot->fValue.fObject;
+}
+
+SkJSON::Array* SkJSON::Object::Iter::arrayValue() const {
+    SkASSERT(fSlot);
+    SkASSERT(kArray == fSlot->type());
+    return fSlot->fValue.fArray;
+}
+
+const char* SkJSON::Object::Iter::stringValue() const {
+    SkASSERT(fSlot);
+    SkASSERT(kString == fSlot->type());
+    return fSlot->fValue.fString;
+}
+
+int32_t SkJSON::Object::Iter::intValue() const {
+    SkASSERT(fSlot);
+    SkASSERT(kInt == fSlot->type());
+    return fSlot->fValue.fInt;
+}
+
+float SkJSON::Object::Iter::floatValue() const {
+    SkASSERT(fSlot);
+    SkASSERT(kFloat == fSlot->type());
+    return fSlot->fValue.fFloat;
+}
+
+bool SkJSON::Object::Iter::boolValue() const {
+    SkASSERT(fSlot);
+    SkASSERT(kBool == fSlot->type());
+    return fSlot->fValue.fBool;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkJSON::Object::Object() : fHead(NULL), fTail(NULL) {
+    LEAK_CODE(SkDebugf(" object[%d]\n", gObjectCount++);)
+}
+
+SkJSON::Object::Object(const Object& other) : fHead(NULL), fTail(NULL) {
+    LEAK_CODE(SkDebugf(" object[%d]\n", gObjectCount++);)
+
+    Iter iter(other);
+    while (!iter.done()) {
+        switch (iter.type()) {
+            case kObject:
+                this->addObject(iter.name(), new Object(*iter.objectValue()));
+                break;
+            case kArray:
+                this->addArray(iter.name(), new Array(*iter.arrayValue()));
+                break;
+            case kString:
+                this->addString(iter.name(), dup_string(iter.stringValue()));
+                break;
+            case kInt:
+                this->addInt(iter.name(), iter.intValue());
+                break;
+            case kFloat:
+                this->addFloat(iter.name(), iter.floatValue());
+                break;
+            case kBool:
+                this->addBool(iter.name(), iter.boolValue());
+                break;
+        }
+        iter.next();
+    }
+}
 
 SkJSON::Object::~Object() {
     Slot* slot = fHead;
@@ -67,6 +203,7 @@ SkJSON::Object::~Object() {
         delete slot;
         slot = next;
     }
+    LEAK_CODE(SkASSERT(gObjectCount > 0); SkDebugf("~object[%d]\n", --gObjectCount);)
 }
 
 SkJSON::Object::Slot* SkJSON::Object::addSlot(Slot* slot) {
@@ -80,63 +217,73 @@ SkJSON::Object::Slot* SkJSON::Object::addSlot(Slot* slot) {
         fTail->fNext = slot;
         fTail = slot;
     }
+    return slot;
 }
 
 void SkJSON::Object::addObject(const char name[], SkJSON::Object* value) {
-    Slot* slot = addSlot(new Slot(name, kObject));
-    fTail->fValue.fObject = value;
+    this->addSlot(new Slot(name, kObject))->fValue.fObject = value;
 }
 
 void SkJSON::Object::addArray(const char name[], SkJSON::Array* value) {
-    Slot* slot = addSlot(new Slot(name, kArray));
-    fTail->fValue.fArray = value;
+    this->addSlot(new Slot(name, kArray))->fValue.fArray = value;
 }
 
 void SkJSON::Object::addString(const char name[], const char value[]) {
-    Slot* slot = addSlot(new Slot(name, kString));
-    size_t len = strlen(value);
-    char* str = new char[len + 1];
-    memcpy(str, value, len + 1);
-    slot->fValue.fString = str;
+    this->addSlot(new Slot(name, kString))->fValue.fString = dup_string(value);
 }
 
 void SkJSON::Object::addInt(const char name[], int32_t value) {
-    Slot* slot = addSlot(new Slot(name, kInt));
-    fTail->fValue.fInt = value;
+    this->addSlot(new Slot(name, kInt))->fValue.fInt = value;
 }
 
 void SkJSON::Object::addFloat(const char name[], float value) {
-    Slot* slot = addSlot(new Slot(name, kFloat));
-    fTail->fValue.fFloat = value;
+    this->addSlot(new Slot(name, kFloat))->fValue.fFloat = value;
 }
 
 void SkJSON::Object::addBool(const char name[], bool value) {
-    Slot* slot = addSlot(new Slot(name, kBool));
-    fTail->fValue.fBool = value;
+    this->addSlot(new Slot(name, kBool))->fValue.fBool = value;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const SkJSON::Object::Slot* SkJSON::Object::findSlot(const char name[]) const {
+const SkJSON::Object::Slot* SkJSON::Object::findSlot(const char name[],
+                                                     Type t) const {
     for (const Slot* slot = fHead; slot; slot = slot->fNext) {
-        if (!strcmp(slot->name(), name)) {
+        if (t == slot->type() && !strcmp(slot->name(), name)) {
             return slot;
         }
     }
     return NULL;
 }
 
-const SkJSON::Object::Slot* SkJSON::Object::findSlotAndType(const char name[],
-                                                        Type t) const {
-    const Slot* slot = this->findSlot(name);
-    if (slot && (slot->type() != t)) {
-        slot = NULL;
+bool SkJSON::Object::find(const char name[], Type t) const {
+    return this->findSlot(name, t) != NULL;
+}
+
+bool SkJSON::Object::findObject(const char name[], SkJSON::Object** value) const {
+    const Slot* slot = this->findSlot(name, kObject);
+    if (slot) {
+        if (value) {
+            *value = slot->fValue.fObject;
+        }
+        return true;
     }
-    return slot;
+    return false;
+}
+
+bool SkJSON::Object::findArray(const char name[], SkJSON::Array** value) const {
+    const Slot* slot = this->findSlot(name, kArray);
+    if (slot) {
+        if (value) {
+            *value = slot->fValue.fArray;
+        }
+        return true;
+    }
+    return false;
 }
 
 bool SkJSON::Object::findString(const char name[], SkString* value) const {
-    const Slot* slot = this->findSlotAndType(name, kString);
+    const Slot* slot = this->findSlot(name, kString);
     if (slot) {
         if (value) {
             value->set(slot->fValue.fString);
@@ -147,7 +294,7 @@ bool SkJSON::Object::findString(const char name[], SkString* value) const {
 }
 
 bool SkJSON::Object::findInt(const char name[], int32_t* value) const {
-    const Slot* slot = this->findSlotAndType(name, kInt);
+    const Slot* slot = this->findSlot(name, kInt);
     if (slot) {
         if (value) {
             *value = slot->fValue.fInt;
@@ -158,7 +305,7 @@ bool SkJSON::Object::findInt(const char name[], int32_t* value) const {
 }
 
 bool SkJSON::Object::findFloat(const char name[], float* value) const {
-    const Slot* slot = this->findSlotAndType(name, kFloat);
+    const Slot* slot = this->findSlot(name, kFloat);
     if (slot) {
         if (value) {
             *value = slot->fValue.fFloat;
@@ -169,7 +316,7 @@ bool SkJSON::Object::findFloat(const char name[], float* value) const {
 }
 
 bool SkJSON::Object::findBool(const char name[], bool* value) const {
-    const Slot* slot = this->findSlotAndType(name, kBool);
+    const Slot* slot = this->findSlot(name, kBool);
     if (slot) {
         if (value) {
             *value = slot->fValue.fBool;
@@ -179,13 +326,23 @@ bool SkJSON::Object::findBool(const char name[], bool* value) const {
     return false;
 }
 
-bool SkJSON::Object::findObject(const char name[], SkJSON::Object** value) const {
-    const Slot* slot = this->findSlotAndType(name, kObject);
-    if (slot) {
-        if (value) {
-            *value = slot->fValue.fObject;
+bool SkJSON::Object::remove(const char name[], Type t) {
+    Slot* prev = NULL;
+    Slot* slot = fHead;
+    while (slot) {
+        Slot* next = slot->fNext;
+        if (t == slot->type() && !strcmp(slot->name(), name)) {
+            if (fHead == slot) {
+                fHead = next;
+            }
+            if (fTail == slot) {
+                fTail = next;
+            }
+            delete slot;
+            return true;
         }
-        return true;
+        prev = slot;
+        slot = next;
     }
     return false;
 }
@@ -198,7 +355,7 @@ static void tabForLevel(int level) {
     }
 }
 
-void SkJSON::Object::dump() const {
+void SkJSON::Object::toDebugf() const {
     SkDebugf("{\n");
     this->dumpLevel(0);
     SkDebugf("}\n");
@@ -259,6 +416,46 @@ void SkJSON::Array::dumpLevel(int level) const {
     int last = fCount - 1;
 
     switch (this->type()) {
+        case kObject: {
+            SkDebugf("\n");
+            for (int i = 0; i <= last; ++i) {
+                Object* obj = fArray.fObjects[i];
+                tabForLevel(level + 1);
+                if (obj) {
+                    SkDebugf("{\n");
+                    obj->dumpLevel(level + 1);
+                    tabForLevel(level + 1);
+                    SkDebugf(i < last ? "}," : "}");
+                } else {
+                    SkDebugf(i < last ? "null," : "null");
+                }
+                SkDebugf("\n");
+            }
+        } break;
+        case kArray: {
+            SkDebugf("\n");
+            for (int i = 0; i <= last; ++i) {
+                Array* array = fArray.fArrays[i];
+                tabForLevel(level + 1);
+                if (array) {
+                    SkDebugf("[");
+                    array->dumpLevel(level + 1);
+                    tabForLevel(level + 1);
+                    SkDebugf(i < last ? "]," : "]");
+                } else {
+                    SkDebugf(i < last ? "null," : "null");
+                }
+                SkDebugf("\n");
+            }
+        } break;
+        case kString: {
+            for (int i = 0; i < last; ++i) {
+                const char* str = fArray.fStrings[i];
+                SkDebugf(str ? " \"%s\"," : " null,", str);
+            }
+            const char* str = fArray.fStrings[last];
+            SkDebugf(str ? " \"%s\" " : " null ", str);
+        } break;
         case kInt: {
             for (int i = 0; i < last; ++i) {
                 SkDebugf(" %d,", fArray.fInts[i]);
@@ -294,7 +491,30 @@ static const uint8_t gBytesPerType[] = {
     sizeof(bool)
 };
 
+typedef void* (*DupProc)(const void*);
+             
+static void* dup_object(const void* src) {
+    return SkNEW_ARGS(SkJSON::Object, (*(SkJSON::Object*)src));
+}
+                      
+static void* dup_array(const void* src) {
+    return SkNEW_ARGS(SkJSON::Array, (*(SkJSON::Array*)src));
+}
+
+static const DupProc gDupProcs[] = {
+    dup_object,             // Object
+    dup_array,              // Array
+    (DupProc)dup_string,    // String
+    NULL,                   // int
+    NULL,                   // float
+    NULL,                   // bool
+};
+
 void SkJSON::Array::init(Type type, int count, const void* src) {
+    LEAK_CODE(SkDebugf(" array[%d]\n", gArrayCount++);)
+
+    SkASSERT((unsigned)type < SK_ARRAY_COUNT(gBytesPerType));
+
     if (count < 0) {
         count = 0;
     }
@@ -304,7 +524,18 @@ void SkJSON::Array::init(Type type, int count, const void* src) {
     fType = type;
     fArray.fVoids = sk_malloc_throw(size);
     if (src) {
-        memcpy(fArray.fVoids, src, size);
+        DupProc proc = gDupProcs[fType];
+        if (!proc) {
+            memcpy(fArray.fVoids, src, size);
+        } else {
+            void** srcPtr = (void**)src;
+            void** dstPtr = (void**)fArray.fVoids;
+            for (int i = 0; i < fCount; ++i) {
+                dstPtr[i] = proc(srcPtr[i]);
+            }
+        }
+    } else {
+        sk_bzero(fArray.fVoids, size);
     }
 }
 
@@ -324,11 +555,68 @@ SkJSON::Array::Array(const bool values[], int count) {
     this->init(kBool, count, values);
 }
 
-SkJSON::Array::Array(const Array& src) {
-    this->init(src.type(), src.count(), src.fArray.fVoids);
+SkJSON::Array::Array(const Array& other) {
+    this->init(other.type(), other.count(), other.fArray.fVoids);
 }
 
-SkJSON::Array::~Array() {
-    sk_free(fArray.fVoids);
+typedef void (*FreeProc)(void*);
+
+static void free_object(void* obj) {
+    delete (SkJSON::Object*)obj;
 }
+
+static void free_array(void* array) {
+    delete (SkJSON::Array*)array;
+}
+
+static const FreeProc gFreeProcs[] = {
+    free_object,            // Object
+    free_array,             // Array
+    (FreeProc)free_string,  // String
+    NULL,                   // int
+    NULL,                   // float
+    NULL,                   // bool
+};
+
+SkJSON::Array::~Array() {
+    FreeProc proc = gFreeProcs[fType];
+    if (proc) {
+        void** ptr = (void**)fArray.fVoids;
+        for (int i = 0; i < fCount; ++i) {
+            proc(ptr[i]);
+        }
+    }
+    sk_free(fArray.fVoids);
+
+    LEAK_CODE(SkASSERT(gArrayCount > 0); SkDebugf("~array[%d]\n", --gArrayCount);)
+}
+
+void SkJSON::Array::setObject(int index, Object* object) {
+    SkASSERT((unsigned)index < (unsigned)fCount);
+    Object*& prev = fArray.fObjects[index];
+    if (prev != object) {
+        delete prev;
+        prev = object;
+    }
+}
+
+void SkJSON::Array::setArray(int index, Array* array) {
+    SkASSERT((unsigned)index < (unsigned)fCount);
+    Array*& prev = fArray.fArrays[index];
+    if (prev != array) {
+        delete prev;
+        prev = array;
+    }
+}
+
+void SkJSON::Array::setString(int index, const char str[]) {
+    SkASSERT((unsigned)index < (unsigned)fCount);
+    char*& prev = fArray.fStrings[index];
+    if (prev != str) {
+        free_string(prev);
+        prev = dup_string(str);
+    }
+}
+
+
 
