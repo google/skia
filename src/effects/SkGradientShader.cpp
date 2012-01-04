@@ -880,10 +880,9 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int c
 
         if (SkFixedNearlyZero(dx)) {
             // we're a vertical gradient, so no change in a span
-            unsigned fi = proc(fx);
-            SkASSERT(fi <= 0xFFFF);
-            // TODO: dither version
-            sk_memset32(dstC, cache[fi >> (16 - kCache32Bits)], count);
+            unsigned fi = proc(fx) >> (16 - kCache32Bits);
+            sk_memset32_dither(dstC, cache[toggle + fi],
+                                     cache[(toggle ^ TOGGLE_MASK) + fi], count);
         } else if (proc == clamp_tileproc) {
             SkClampRange range;
             range.init(fx, dx, count, 0, 0xFF);
