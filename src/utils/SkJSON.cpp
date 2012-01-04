@@ -206,6 +206,14 @@ SkJSON::Object::~Object() {
     LEAK_CODE(SkASSERT(gObjectCount > 0); SkDebugf("~object[%d]\n", --gObjectCount);)
 }
 
+int SkJSON::Object::count() const {
+    int n = 0;
+    for (const Slot* slot = fHead; slot; slot = slot->fNext) {
+        n += 1;
+    }
+    return n;
+}
+
 SkJSON::Object::Slot* SkJSON::Object::addSlot(Slot* slot) {
     SkASSERT(NULL == slot->fNext);
     if (NULL == fHead) {
@@ -327,23 +335,30 @@ bool SkJSON::Object::findBool(const char name[], bool* value) const {
 }
 
 bool SkJSON::Object::remove(const char name[], Type t) {
+    SkDEBUGCODE(int count = this->count();)
     Slot* prev = NULL;
     Slot* slot = fHead;
     while (slot) {
         Slot* next = slot->fNext;
         if (t == slot->type() && !strcmp(slot->name(), name)) {
-            if (fHead == slot) {
+            if (prev) {
+                SkASSERT(fHead != slot);
+                prev->fNext = next;
+            } else {
+                SkASSERT(fHead == slot);
                 fHead = next;
             }
             if (fTail == slot) {
-                fTail = next;
+                fTail = prev;
             }
             delete slot;
+            SkASSERT(count - 1 == this->count());
             return true;
         }
         prev = slot;
         slot = next;
     }
+    SkASSERT(count == this->count());
     return false;
 }
 
