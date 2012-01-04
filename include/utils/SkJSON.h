@@ -77,6 +77,12 @@ public:
         void addBool(const char name[], bool value);
 
         /**
+         *  Return the number of slots/fields in this object. These can be
+         *  iterated using Iter.
+         */
+        int count() const;
+
+        /**
          *  Returns true if a slot matching the name and Type is found.
          */
         bool find(const char name[], Type) const;
