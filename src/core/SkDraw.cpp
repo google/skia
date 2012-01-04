@@ -1792,6 +1792,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
             }
         } else {
             while (text < stop) {
+                const char* currentText = text;
                 const SkGlyph* glyph = &glyphCacheProc(cache, &text, 0, 0);
 
                 if (glyph->fWidth) {
@@ -1817,7 +1818,8 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                     }
 
                     // have to call again, now that we've been "aligned"
-                    glyph = &glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
+                    glyph = &glyphCacheProc(cache, &currentText,
+                                            fx & fxMask, fy & fyMask);
                     // the assumption is that the advance hasn't changed
                     SkASSERT(prevAdvX == glyph->fAdvanceX);
                     SkASSERT(prevAdvY == glyph->fAdvanceY);
