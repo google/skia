@@ -930,6 +930,8 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         desc->fRTFBOID = desc->fTexFBOID;
     }
 
+    // below here we may bind the FBO
+    fHWDrawState.setRenderTarget(NULL);
     if (desc->fRTFBOID != desc->fTexFBOID) {
         GrAssert(desc->fSampleCnt > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER,
