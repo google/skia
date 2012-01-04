@@ -321,7 +321,7 @@ void SkPaint::setTextAlign(Align align) {
 }
 
 void SkPaint::setTextSize(SkScalar ts) {
-    if (ts > 0) {
+    if (ts >= 0) {
         GEN_ID_INC_EVAL(ts != fTextSize);
         fTextSize = ts;
     } else {
@@ -978,6 +978,13 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
             *measuredWidth = 0;
         }
         return 0;
+    }
+
+    if (0 == fTextSize) {
+        if (measuredWidth) {
+            *measuredWidth = 0;
+        }
+        return length;
     }
 
     SkASSERT(textD != NULL);
