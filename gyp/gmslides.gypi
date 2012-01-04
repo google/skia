@@ -8,9 +8,7 @@
     '../gm/bitmapfilters.cpp',
     '../gm/bitmapscroll.cpp',
     '../gm/blurs.cpp',
-    #Still giving problems on Win32_Float_NoDebug, so disabling until
-    #that is sorted out.
-    #'../gm/colormatrix.cpp',
+    '../gm/colormatrix.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',
     '../gm/cubicpaths.cpp',

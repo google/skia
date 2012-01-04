@@ -127,7 +127,7 @@ void SkColorMatrixFilter::setup(const SkScalar* SK_RESTRICT src) {
         return;
     }
 
-    int32_t* SK_RESTRICT array = fState.fArray;
+    int32_t* array = fState.fArray;
 
     int i;
     SkFixed max = 0;
@@ -232,7 +232,7 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
                                      SkPMColor dst[]) {
     Proc proc = fProc;
     State* state = &fState;
-    int32_t* SK_RESTRICT result = state->fResult;
+    int32_t* result = state->fResult;
 
     if (NULL == proc) {
         if (src != dst) {
@@ -280,7 +280,7 @@ void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
 
     Proc   proc = fProc;
     State* state = &fState;
-    int32_t* SK_RESTRICT result = state->fResult;
+    int32_t* result = state->fResult;
 
     if (NULL == proc) {
         if (src != dst) {
@@ -328,7 +328,7 @@ SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
 }
 
 bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
-    int32_t* SK_RESTRICT array = fState.fArray;
+    int32_t* array = fState.fArray;
     int unshift = 16 - fState.fShift;
     for (int i = 0; i < 20; i++) {
         matrix[i] = SkFixedToScalar(array[i] << unshift);
