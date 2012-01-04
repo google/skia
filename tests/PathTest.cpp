@@ -9,6 +9,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkParse.h"
+#include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkSize.h"
 #include "SkWriter32.h"
@@ -523,21 +524,28 @@ static void test_transform(skiatest::Reporter* reporter) {
 }
 
 static void test_zero_length_paths(skiatest::Reporter* reporter) {
-    SkPath p;
-    SkRect bounds;
+    SkPath  p;
+    SkPoint pt;
+    SkRect  bounds;
 
     // Lone moveTo case
     p.moveTo(SK_Scalar1, SK_Scalar1);
-    bounds.set(0, 0, 0, 0);
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 1 == p.countPoints());
+    p.getLastPt(&pt);
+    REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1);
+    REPORTER_ASSERT(reporter, pt.fY == SK_Scalar1);
+    bounds.set(0, 0, 0, 0);
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
 
     // MoveTo-MoveTo case
     p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1);
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 2 == p.countPoints());
+    p.getLastPt(&pt);
+    REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1*2);
+    REPORTER_ASSERT(reporter, pt.fY == SK_Scalar1);
+    bounds.set(SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1);
     REPORTER_ASSERT(reporter, bounds == p.getBounds()); 
 
     // moveTo-close case
@@ -659,6 +667,302 @@ struct SegmentInfo {
 
 #define kCurveSegmentMask   (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)
 
+static void test_segment_masks(skiatest::Reporter* reporter) {
+    SkPath p;
+    p.moveTo(0, 0);
+    p.quadTo(100, 100, 200, 200);
+    REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    p.cubicTo(100, 100, 200, 200, 300, 300);
+    REPORTER_ASSERT(reporter, kCurveSegmentMask == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    p.reset();
+    p.moveTo(0, 0);
+    p.cubicTo(100, 100, 200, 200, 300, 300);
+    REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+}
+
+static void test_iter(skiatest::Reporter* reporter) {
+    SkPath p;
+    SkPoint pts[4];
+
+    // Test an iterator with no path
+    SkPath::Iter noPathIter;
+    REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
+    // Test that setting an empty path works
+    noPathIter.setPath(p, false);
+    REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
+    // Test that close path makes no difference for an empty path
+    noPathIter.setPath(p, true);
+    REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
+    
+    // Test an iterator with an initial empty path
+    SkPath::Iter iter(p, false);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // Test that close path makes no difference
+    SkPath::Iter forceCloseIter(p, true);
+    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
+
+    // Test that a move-only path produces nothing when iterated.
+    p.moveTo(SK_Scalar1, 0);
+    iter.setPath(p, false);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // No matter how many moves we add, we should still get nothing back.
+    p.moveTo(SK_Scalar1*2, 0);
+    p.moveTo(SK_Scalar1*3, 0);
+    p.moveTo(SK_Scalar1*4, 0);
+    p.moveTo(SK_Scalar1*5, 0);
+    iter.setPath(p, false);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // Nor should force closing
+    forceCloseIter.setPath(p, true);
+    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
+
+    // Initial closes should be ignored
+    p.reset();
+    p.close();
+    iter.setPath(p, false);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+    // Even if force closed
+    forceCloseIter.setPath(p, true);
+    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
+
+    // Move/close sequences should also be ignored
+    p.reset();
+    p.close();
+    p.moveTo(SK_Scalar1, 0);
+    p.close();
+    p.close();
+    p.moveTo(SK_Scalar1*2, 0);
+    p.close();
+    p.moveTo(SK_Scalar1*3, 0);
+    p.moveTo(SK_Scalar1*4, 0);
+    p.close();
+    iter.setPath(p, false);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+    // Even if force closed
+    forceCloseIter.setPath(p, true);
+    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
+
+    // The GM degeneratesegments.cpp test is more extensive
+}
+
+static void test_raw_iter(skiatest::Reporter* reporter) {
+    SkPath p;
+    SkPoint pts[4];
+
+    // Test an iterator with no path
+    SkPath::RawIter noPathIter;
+    REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
+    // Test that setting an empty path works
+    noPathIter.setPath(p);
+    REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
+    
+    // Test an iterator with an initial empty path
+    SkPath::RawIter iter(p);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // Test that a move-only path returns the move.
+    p.moveTo(SK_Scalar1, 0);
+    iter.setPath(p);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1);
+    REPORTER_ASSERT(reporter, pts[0].fY == 0);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // No matter how many moves we add, we should get them all back
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    p.moveTo(SK_Scalar1*3, SK_Scalar1*2);
+    iter.setPath(p);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1);
+    REPORTER_ASSERT(reporter, pts[0].fY == 0);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*2);
+    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*3);
+    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1*2);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // Initial close is never ever stored
+    p.reset();
+    p.close();
+    iter.setPath(p);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // Move/close sequences
+    p.reset();
+    p.close(); // Not stored, no purpose
+    p.moveTo(SK_Scalar1, 0);
+    p.close();
+    p.close(); // Not stored, no purpose
+    p.moveTo(SK_Scalar1*2, SK_Scalar1);
+    p.close();
+    p.moveTo(SK_Scalar1*3, SK_Scalar1*2);
+    p.moveTo(SK_Scalar1*4, SK_Scalar1*3);
+    p.close();
+    iter.setPath(p);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1);
+    REPORTER_ASSERT(reporter, pts[0].fY == 0);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kClose_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1);
+    REPORTER_ASSERT(reporter, pts[0].fY == 0);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*2);
+    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kClose_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*2);
+    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*3);
+    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1*2);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*4);
+    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1*3);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kClose_Verb);
+    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*4);
+    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1*3);
+    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+
+    // Generate random paths and verify
+    SkPoint randomPts[25];
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            randomPts[i*5+j].set(SK_Scalar1*i, SK_Scalar1*j);
+        }
+    }
+
+    // Max of 10 segments, max 3 points per segment
+    SkRandom rand(9876543);
+    SkPoint          expectedPts[31]; // May have leading moveTo
+    SkPath::Verb     expectedVerbs[11]; // May have leading moveTo
+    SkPath::Verb     nextVerb;
+    for (int i = 0; i < 500; ++i) {
+        p.reset();
+        bool lastWasClose = true;
+        bool haveMoveTo = false;
+        int numPoints = 0;
+        int numVerbs = (rand.nextU() >> 16) % 10;
+        int numIterVerbs = 0;
+        for (int j = 0; j < numVerbs; ++j) {
+            do {
+                nextVerb = static_cast<SkPath::Verb>((rand.nextU() >> 16) % SkPath::kDone_Verb);
+            } while (lastWasClose && nextVerb == SkPath::kClose_Verb);
+            int numRequiredPts;
+            switch (nextVerb) {
+                case SkPath::kMove_Verb:
+                    expectedPts[numPoints] = randomPts[(rand.nextU() >> 16) % 25];
+                    p.moveTo(expectedPts[numPoints]);
+                    numPoints += 1;
+                    lastWasClose = false;
+                    haveMoveTo = true;
+                    break;
+                case SkPath::kLine_Verb:
+                    if (!haveMoveTo) {
+                        expectedPts[numPoints++].set(0, 0);
+                        expectedVerbs[numIterVerbs++] = SkPath::kMove_Verb;
+                        haveMoveTo = true;
+                    }
+                    expectedPts[numPoints] = randomPts[(rand.nextU() >> 16) % 25];
+                    p.lineTo(expectedPts[numPoints]);
+                    numPoints += 1;
+                    lastWasClose = false;
+                    break;
+                case SkPath::kQuad_Verb:
+                    if (!haveMoveTo) {
+                        expectedPts[numPoints++].set(0, 0);
+                        expectedVerbs[numIterVerbs++] = SkPath::kMove_Verb;
+                        haveMoveTo = true;
+                    }
+                    expectedPts[numPoints] = randomPts[(rand.nextU() >> 16) % 25];
+                    expectedPts[numPoints + 1] = randomPts[(rand.nextU() >> 16) % 25];
+                    p.quadTo(expectedPts[numPoints], expectedPts[numPoints + 1]);
+                    numPoints += 2;
+                    lastWasClose = false;
+                    break;
+                case SkPath::kCubic_Verb:
+                    if (!haveMoveTo) {
+                        expectedPts[numPoints++].set(0, 0);
+                        expectedVerbs[numIterVerbs++] = SkPath::kMove_Verb;
+                        haveMoveTo = true;
+                    }
+                    expectedPts[numPoints] = randomPts[(rand.nextU() >> 16) % 25];
+                    expectedPts[numPoints + 1] = randomPts[(rand.nextU() >> 16) % 25];
+                    expectedPts[numPoints + 2] = randomPts[(rand.nextU() >> 16) % 25];
+                    p.cubicTo(expectedPts[numPoints], expectedPts[numPoints + 1],
+                              expectedPts[numPoints + 2]);
+                    numPoints += 3;
+                    lastWasClose = false;
+                    break;
+                case SkPath::kClose_Verb:
+                    p.close();
+                    lastWasClose = true;
+                    break;
+                default:;
+            }
+            expectedVerbs[numIterVerbs++] = nextVerb;
+        }
+        
+        iter.setPath(p);
+        numVerbs = numIterVerbs;
+        numIterVerbs = 0;
+        int numIterPts = 0;
+        SkPoint lastMoveTo;
+        SkPoint lastPt;
+        lastMoveTo.set(0, 0);
+        lastPt.set(0, 0);
+        while ((nextVerb = iter.next(pts)) != SkPath::kDone_Verb) {
+            REPORTER_ASSERT(reporter, nextVerb == expectedVerbs[numIterVerbs]);
+            numIterVerbs++;
+            switch (nextVerb) {
+                case SkPath::kMove_Verb:
+                    REPORTER_ASSERT(reporter, numIterPts < numPoints);
+                    REPORTER_ASSERT(reporter, pts[0] == expectedPts[numIterPts]);
+                    lastPt = lastMoveTo = pts[0];
+                    numIterPts += 1;
+                    break;
+                case SkPath::kLine_Verb:
+                    REPORTER_ASSERT(reporter, numIterPts < numPoints + 1);
+                    REPORTER_ASSERT(reporter, pts[0] == lastPt);
+                    REPORTER_ASSERT(reporter, pts[1] == expectedPts[numIterPts]);
+                    lastPt = pts[1];
+                    numIterPts += 1;
+                    break;
+                case SkPath::kQuad_Verb:
+                    REPORTER_ASSERT(reporter, numIterPts < numPoints + 2);
+                    REPORTER_ASSERT(reporter, pts[0] == lastPt);
+                    REPORTER_ASSERT(reporter, pts[1] == expectedPts[numIterPts]);
+                    REPORTER_ASSERT(reporter, pts[2] == expectedPts[numIterPts + 1]);
+                    lastPt = pts[2];
+                    numIterPts += 2;
+                    break;
+                case SkPath::kCubic_Verb:
+                    REPORTER_ASSERT(reporter, numIterPts < numPoints + 3);
+                    REPORTER_ASSERT(reporter, pts[0] == lastPt);
+                    REPORTER_ASSERT(reporter, pts[1] == expectedPts[numIterPts]);
+                    REPORTER_ASSERT(reporter, pts[2] == expectedPts[numIterPts + 1]);
+                    REPORTER_ASSERT(reporter, pts[3] == expectedPts[numIterPts + 2]);
+                    lastPt = pts[3];
+                    numIterPts += 3;
+                    break;
+                case SkPath::kClose_Verb:
+                    REPORTER_ASSERT(reporter, pts[0] == lastMoveTo);
+                    lastPt = lastMoveTo;
+                    break;
+                default:;
+            }
+        }
+        REPORTER_ASSERT(reporter, numIterPts == numPoints);
+        REPORTER_ASSERT(reporter, numIterVerbs == numVerbs);
+    }
+}
+
 void TestPath(skiatest::Reporter* reporter);
 void TestPath(skiatest::Reporter* reporter) {
     {
@@ -734,35 +1038,16 @@ void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isRect(NULL));
     test_isRect(reporter);
 
-    SkPoint pt;
-
-    p.moveTo(SK_Scalar1, 0);
-    p.getLastPt(&pt);
-    REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-
     test_zero_length_paths(reporter);
     test_convexity(reporter);
     test_convexity2(reporter);
     test_close(reporter);
-
-    p.reset();
-    p.moveTo(0, 0);
-    p.quadTo(100, 100, 200, 200);
-    REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == p.getSegmentMasks());
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    p.cubicTo(100, 100, 200, 200, 300, 300);
-    REPORTER_ASSERT(reporter, kCurveSegmentMask == p.getSegmentMasks());
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    p.reset();
-    p.moveTo(0, 0);
-    p.cubicTo(100, 100, 200, 200, 300, 300);
-    REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-
+    test_segment_masks(reporter);
     test_flattening(reporter);
     test_transform(reporter);
     test_bounds(reporter);
+    test_iter(reporter);
+    test_raw_iter(reporter);
 }
 
 #include "TestClassDef.h"

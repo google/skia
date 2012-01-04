@@ -935,7 +935,7 @@ void SkPath::addPath(const SkPath& path, SkScalar dx, SkScalar dy) {
 void SkPath::addPath(const SkPath& path, const SkMatrix& matrix) {
     this->incReserve(path.fPts.count());
 
-    Iter    iter(path, false);
+    RawIter iter(path);
     SkPoint pts[4];
     Verb    verb;
 
@@ -1447,6 +1447,82 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkPath::RawIter::RawIter() {
+#ifdef SK_DEBUG
+    fPts = NULL;
+    fMoveTo.fX = fMoveTo.fY = fLastPt.fX = fLastPt.fY = 0;
+#endif
+    // need to init enough to make next() harmlessly return kDone_Verb
+    fVerbs = NULL;
+    fVerbStop = NULL;
+}
+
+SkPath::RawIter::RawIter(const SkPath& path) {
+    this->setPath(path);
+}
+
+void SkPath::RawIter::setPath(const SkPath& path) {
+    fPts = path.fPts.begin();
+    fVerbs = path.fVerbs.begin();
+    fVerbStop = path.fVerbs.end();
+    fMoveTo.fX = fMoveTo.fY = 0;
+    fLastPt.fX = fLastPt.fY = 0;
+}
+
+SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
+    if (fVerbs == fVerbStop) {
+        return kDone_Verb;
+    }
+
+    unsigned        verb = *fVerbs++;
+    const SkPoint*  srcPts = fPts;
+
+    switch (verb) {
+        case kMove_Verb:
+            if (pts) {
+                pts[0] = *srcPts;
+            }
+            fMoveTo = srcPts[0];
+            fLastPt = fMoveTo;
+            srcPts += 1;
+            break;
+        case kLine_Verb:
+            if (pts) {
+                pts[0] = fLastPt;
+                pts[1] = srcPts[0];
+            }
+            fLastPt = srcPts[0];
+            srcPts += 1;
+            break;
+        case kQuad_Verb:
+            if (pts) {
+                pts[0] = fLastPt;
+                memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
+            }
+            fLastPt = srcPts[1];
+            srcPts += 2;
+            break;
+        case kCubic_Verb:
+            if (pts) {
+                pts[0] = fLastPt;
+                memcpy(&pts[1], srcPts, 3 * sizeof(SkPoint));
+            }
+            fLastPt = srcPts[2];
+            srcPts += 3;
+            break;
+        case kClose_Verb:
+            fLastPt = fMoveTo;
+            if (pts) {
+                pts[0] = fMoveTo;
+            }
+            break;
+    }
+    fPts = srcPts;
+    return (Verb)verb;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 /*
     Format in flattened buffer: [ptCount, verbCount, pts[], verbs[]]
 */
@@ -1476,7 +1552,6 @@ void SkPath::unflatten(SkReader32& buffer) {
     SkDEBUGCODE(this->validate();)
 }
 
-///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkPath::dump(bool forceClose, const char title[]) const {
