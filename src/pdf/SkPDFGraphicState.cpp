@@ -200,7 +200,7 @@ void SkPDFGraphicState::populateDict() {
         insertName("Type", "ExtGState");
 
         SkRefPtr<SkPDFScalar> alpha =
-            new SkPDFScalar(fPaint.getAlpha() * SkScalarInvert(0xFF));
+            new SkPDFScalar(SkScalarDiv(fPaint.getAlpha(), 0xFF));
         alpha->unref();  // SkRefPtr and new both took a reference.
         insert("CA", alpha.get());
         insert("ca", alpha.get());
