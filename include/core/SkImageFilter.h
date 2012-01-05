@@ -11,6 +11,7 @@
 #include "SkFlattenable.h"
 
 class SkBitmap;
+class SkDevice;
 class SkMatrix;
 struct SkPoint;
 
@@ -37,6 +38,16 @@ struct SkPoint;
  */
 class SK_API SkImageFilter : public SkFlattenable {
 public:
+    class Proxy {
+    public:
+        virtual SkDevice* createDevice(int width, int height) = 0;
+        
+        // returns true if the proxy handled the filter itself. if this returns
+        // false then the filter's code will be called.
+        virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
+                                 const SkMatrix& ctm,
+                                 SkBitmap* result, SkIPoint* offset) = 0;
+    };
 
     /**
      *  Request a new (result) image to be created from the src image.
@@ -51,7 +62,7 @@ public:
      *  If the result image cannot be created, return false, in which case both
      *  the result and offset parameters will be ignored by the caller.
      */
-    bool filterImage(const SkBitmap& src, const SkMatrix& ctm,
+    bool filterImage(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
                      SkBitmap* result, SkIPoint* offset);
 
     /**
@@ -73,7 +84,7 @@ protected:
     explicit SkImageFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}
 
     // Default impl returns false
-    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset);
     // Default impl copies src into dst and returns true
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*);

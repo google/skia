@@ -1982,11 +1982,18 @@ bool SkPaint::nothingToDraw() const {
 
 //////////// Move these to their own file soon.
 
-bool SkImageFilter::filterImage(const SkBitmap& src, const SkMatrix& matrix,
+bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
+                                const SkMatrix& ctm,
                                 SkBitmap* result, SkIPoint* loc) {
+    SkASSERT(proxy);
     SkASSERT(result);
     SkASSERT(loc);
-    return this->onFilterImage(src, matrix, result, loc);
+    /*
+     *  Give the proxy first shot at the filter. If it returns false, ask
+     *  the filter to do it.
+     */
+    return proxy->filterImage(this, src, ctm, result, loc) ||
+           this->onFilterImage(proxy, src, ctm, result, loc);
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -1996,7 +2003,7 @@ bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     return this->onFilterBounds(src, ctm, dst);
 }
 
-bool SkImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix&,
+bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
                                   SkBitmap*, SkIPoint*) {
     return false;
 }

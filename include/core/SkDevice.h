@@ -309,6 +309,15 @@ protected:
     virtual void lockPixels();
     virtual void unlockPixels();
 
+    /**
+     *  Override and return true for filters that the device handles
+     *  intrinsically. Returning false means call the filter.
+     *  Default impl returns false.
+     */
+    virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
+                             const SkMatrix& ctm,
+                             SkBitmap* result, SkIPoint* offset);
+
     // This is equal kBGRA_Premul_Config8888 or kRGBA_Premul_Config8888 if 
     // either is identical to kNative_Premul_Config8888. Otherwise, -1.
     static const SkCanvas::Config8888 kPMColorAlias;
@@ -319,6 +328,7 @@ private:
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
+    friend class DeviceImageFilterProxy;
 
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }

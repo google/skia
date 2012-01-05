@@ -101,6 +101,12 @@ void SkDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& region,
                              const SkClipStack& clipStack) {
 }
 
+bool SkDevice::filterImage(SkImageFilter*, const SkBitmap& src,
+                           const SkMatrix& ctm,
+                           SkBitmap* result, SkIPoint* offset) {
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkDevice::readPixels(SkBitmap* bitmap, int x, int y,
@@ -354,20 +360,8 @@ void SkDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
 void SkDevice::drawDevice(const SkDraw& draw, SkDevice* device,
                               int x, int y, const SkPaint& paint) {
-    SkBitmap output;
-    const SkBitmap* src = &device->accessBitmap(false);
-    SkImageFilter* filter = paint.getImageFilter();
-
-    if (filter) {
-        SkIPoint loc;
-        loc.set(x, y);
-        if (filter->filterImage(*src, *draw.fMatrix, &output, &loc)) {
-            src = &output;
-            x = loc.fX;
-            y = loc.fY;
-        }
-    }
-    draw.drawSprite(*src, x, y, paint);
+    const SkBitmap& src = device->accessBitmap(false);
+    draw.drawSprite(src, x, y, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
