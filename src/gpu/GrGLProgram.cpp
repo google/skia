@@ -373,7 +373,8 @@ static void addColorFilter(GrStringBuilder* fsCode, const char * outputVar,
  */
 static void addColorMatrix(GrStringBuilder* fsCode, const char * outputVar,
                            const char* inColor) {
-    fsCode->appendf("%s = %s * %s + %s;\n", outputVar, COL_MATRIX_UNI_NAME, inColor, COL_MATRIX_VEC_UNI_NAME);
+    fsCode->appendf("\t%s = %s * vec4(%s.rgb / %s.a, %s.a) + %s;\n", outputVar, COL_MATRIX_UNI_NAME, inColor, inColor, inColor, COL_MATRIX_VEC_UNI_NAME);
+    fsCode->appendf("\t%s.rgb *= %s.a;\n", outputVar, outputVar);
 }
 
 namespace {
@@ -652,6 +653,19 @@ void GrGLProgram::genGeometryShader(const GrGLInterface* gl,
 #endif
 }
 
+const char* GrGLProgram::adjustInColor(const GrStringBuilder& inColor) const {
+    const char* color;
+    if (inColor.size()) {
+          return inColor.c_str();
+    } else {
+        if (ProgramDesc::kSolidWhite_ColorInput == fProgramDesc.fColorInput) {
+            return all_ones_vec(4);
+        } else {
+            return all_zeros_vec(4);
+        }
+    }
+}
+
 bool GrGLProgram::genProgram(const GrGLInterface* gl,
                              GrGLSLGeneration glslGeneration,
                              GrGLProgram::CachedData* programData) const {
@@ -818,16 +832,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         wroteFragColorZero = true;
     } else if (SkXfermode::kDst_Mode != fProgramDesc.fColorFilterXfermode) {
         segments.fFSCode.appendf("\tvec4 filteredColor;\n");
-        const char* color;
-        if (inColor.size()) {
-            color = inColor.c_str();
-        } else {
-            if (ProgramDesc::kSolidWhite_ColorInput == fProgramDesc.fColorInput) {
-                color = all_ones_vec(4);
-            } else {
-                color = all_zeros_vec(4);
-            }
-        }
+        const char* color = adjustInColor(inColor);
         addColorFilter(&segments.fFSCode, "filteredColor", uniformCoeff,
                        colorCoeff, color);
         inColor = "filteredColor";
@@ -842,7 +847,8 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         programData->fUniLocations.fColorMatrixUni = kUseUniform;
         programData->fUniLocations.fColorMatrixVecUni = kUseUniform;
         segments.fFSCode.appendf("\tvec4 matrixedColor;\n");
-        addColorMatrix(&segments.fFSCode, "matrixedColor", inColor.c_str());
+        const char* color = adjustInColor(inColor);
+        addColorMatrix(&segments.fFSCode, "matrixedColor", color);
         inColor = "matrixedColor";
     }
 
