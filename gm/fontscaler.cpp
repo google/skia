@@ -9,36 +9,13 @@
 
 namespace skiagm {
 
-static const struct {
-    const char* fName;
-    SkTypeface::Style fStyle;
-} gFaces[] = {
-    { NULL, SkTypeface::kNormal },
-    { NULL, SkTypeface::kBold },
-    { "serif", SkTypeface::kNormal },
-    { "serif", SkTypeface::kBold },
-    { "serif", SkTypeface::kItalic },
-    { "serif", SkTypeface::kBoldItalic },
-    { "monospace", SkTypeface::kNormal }
-};
-
-static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
-
 class FontScalerGM : public GM {
 public:
     FontScalerGM() {
         this->setBGColor(0xFFFFFFFF);
-
-        for (int i = 0; i < gFaceCount; i++) {
-            fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,
-                                                   gFaces[i].fStyle);
-        }
     }
 
     virtual ~FontScalerGM() {
-        for (int i = 0; i < gFaceCount; i++) {
-            SkSafeUnref(fFaces[i]);
-        }
     }
 
 protected:
@@ -50,7 +27,9 @@ protected:
         return make_isize(1450, 750);
     }
 
-    static void rotate_about(SkCanvas* canvas, SkScalar degrees, SkScalar px, SkScalar py) {
+    static void rotate_about(SkCanvas* canvas,
+                             SkScalar degrees,
+                             SkScalar px, SkScalar py) {
         canvas->translate(px, py);
         canvas->rotate(degrees);
         canvas->translate(-px, -py);
@@ -59,20 +38,6 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
 
-        // test handling of obscene cubic values (currently broken)
-        if (false) {
-            SkPoint pts[4];
-            pts[0].set(1.61061274e+09f, 6291456);
-            pts[1].set(-7.18397061e+15f, -1.53091184e+13f);
-            pts[2].set(-1.30077315e+16f, -2.77196141e+13f);
-            pts[3].set(-1.30077315e+16f, -2.77196162e+13f);
-
-            SkPath path;
-            path.moveTo(pts[0]);
-            path.cubicTo(pts[1], pts[2], pts[3]);
-            canvas->drawPath(path, paint);
-        }
-
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
         //With freetype the default (normal hinting) can be really ugly.
@@ -80,7 +45,6 @@ protected:
         paint.setHinting(SkPaint::kSlight_Hinting);
         SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal)));
 
-//        const char* text = "abcdefghijklmnopqrstuvwxyz";
         const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);
 
@@ -98,7 +62,8 @@ protected:
                     SkPaint p;
                     p.setAntiAlias(true);
                     SkRect r;
-                    r.set(x-3, 15, x-1, 280);
+                    r.set(x - SkIntToScalar(3), SkIntToScalar(15),
+                          x - SkIntToScalar(1), SkIntToScalar(280));
                     canvas->drawRect(r, p);
                 }
 
@@ -110,13 +75,12 @@ protected:
                     index += 1;
                 }
             }
-            canvas->translate(0, 360);
+            canvas->translate(0, SkIntToScalar(360));
             paint.setSubpixelText(true);
         }
     }
 
 private:
-    SkTypeface* fFaces[gFaceCount];
     typedef GM INHERITED;
 };
 
