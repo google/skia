@@ -1292,28 +1292,16 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
                                               SkPaint::FontMetrics* my) {
     CGRect theBounds = CTFontGetBoundingBox(fCTFont);
 
-    SkPaint::FontMetrics        theMetrics;
-    theMetrics.fTop          = -CGRectGetMaxY_inline(theBounds);
-    theMetrics.fAscent       = -CTFontGetAscent(fCTFont);
-    theMetrics.fDescent      =  CTFontGetDescent(fCTFont);
-    theMetrics.fBottom       = -CGRectGetMinY_inline(theBounds);
-    theMetrics.fLeading      =  CTFontGetLeading(fCTFont);
-    theMetrics.fAvgCharWidth =  CGRectGetWidth_inline(theBounds);
-    theMetrics.fXMin         =  CGRectGetMinX_inline(theBounds);
-    theMetrics.fXMax         =  CGRectGetMaxX_inline(theBounds);
-    theMetrics.fXHeight      =  CTFontGetXHeight(fCTFont);
-
-#if 0
-    SkASSERT(theMetrics.fTop          <= 0.0);
-    SkASSERT(theMetrics.fAscent       <= 0.0);
-    SkASSERT(theMetrics.fDescent      >= 0.0);
-    SkASSERT(theMetrics.fBottom       >= 0.0);
-    SkASSERT(theMetrics.fLeading      >= 0.0);
-    SkASSERT(theMetrics.fAvgCharWidth >= 0.0);
-    SkASSERT(theMetrics.fXMin         <= 0.0);
-    SkASSERT(theMetrics.fXMax         >  0.0);
-    SkASSERT(theMetrics.fXHeight      >= 0.0);
-#endif
+    SkPaint::FontMetrics theMetrics;
+    theMetrics.fTop          = CGToScalar(-CGRectGetMaxY_inline(theBounds));
+    theMetrics.fAscent       = CGToScalar(-CTFontGetAscent(fCTFont));
+    theMetrics.fDescent      = CGToScalar( CTFontGetDescent(fCTFont));
+    theMetrics.fBottom       = CGToScalar(-CGRectGetMinY_inline(theBounds));
+    theMetrics.fLeading      = CGToScalar( CTFontGetLeading(fCTFont));
+    theMetrics.fAvgCharWidth = CGToScalar( CGRectGetWidth_inline(theBounds));
+    theMetrics.fXMin         = CGToScalar( CGRectGetMinX_inline(theBounds));
+    theMetrics.fXMax         = CGToScalar( CGRectGetMaxX_inline(theBounds));
+    theMetrics.fXHeight      = CGToScalar( CTFontGetXHeight(fCTFont));
 
     if (mx != NULL) {
         *mx = theMetrics;
