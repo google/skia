@@ -81,7 +81,7 @@ protected:
                    SkBitmap::kARGB_8888_Config,
                    kBmpSize, kBmpSize);
         }
-        SkRect dstRect = { 0, 0, 64, 64};
+        SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
         static const int kMaxSrcRectSize = 1 << (SkNextLog2(kBmpSize) + 2);
 
         static const int kPadX = 30;
