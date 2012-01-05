@@ -1,7 +1,15 @@
 #include "SkTestImageFilters.h"
 #include "SkCanvas.h"
+#include "SkDevice.h"
 
-bool SkOffsetImageFilter::onFilterImage(const SkBitmap& src,
+class OwnDeviceCanvas : public SkCanvas {
+public:
+    OwnDeviceCanvas(SkDevice* device) : SkCanvas(device) {
+        SkSafeUnref(device);
+    }
+};
+
+bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                         const SkMatrix& matrix,
                                         SkBitmap* result,
                                         SkIPoint* loc) {
@@ -46,7 +54,8 @@ SkComposeImageFilter::~SkComposeImageFilter() {
     SkSafeUnref(fOuter);
 }
 
-bool SkComposeImageFilter::onFilterImage(const SkBitmap& src,
+bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
+                                         const SkBitmap& src,
                                          const SkMatrix& ctm,
                                          SkBitmap* result,
                                          SkIPoint* loc) {
@@ -55,12 +64,12 @@ bool SkComposeImageFilter::onFilterImage(const SkBitmap& src,
     }
     
     if (!fOuter || !fInner) {
-        return (fOuter ? fOuter : fInner)->filterImage(src, ctm, result, loc);
+        return (fOuter ? fOuter : fInner)->filterImage(proxy, src, ctm, result, loc);
     }
     
     SkBitmap tmp;
-    return fInner->filterImage(src, ctm, &tmp, loc) &&
-    fOuter->filterImage(tmp, ctm, result, loc);
+    return fInner->filterImage(proxy, src, ctm, &tmp, loc) &&
+           fOuter->filterImage(proxy, tmp, ctm, result, loc);
 }
 
 bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
@@ -186,7 +195,8 @@ bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-bool SkMergeImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix& ctm,
+bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
+                                       const SkMatrix& ctm,
                                        SkBitmap* result, SkIPoint* loc) {
     if (fCount < 1) {
         return false;
@@ -202,12 +212,11 @@ bool SkMergeImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix& ctm,
     const int x0 = bounds.left();
     const int y0 = bounds.top();
 
-    SkBitmap dst;
-    dst.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
-    dst.allocPixels();
-    dst.eraseColor(0);
-
-    SkCanvas canvas(dst);
+    SkDevice* dst = proxy->createDevice(bounds.width(), bounds.height());
+    if (NULL == dst) {
+        return false;
+    }
+    OwnDeviceCanvas canvas(dst);
     SkPaint paint;
 
     for (int i = 0; i < fCount; ++i) {
@@ -216,7 +225,7 @@ bool SkMergeImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix& ctm,
         SkIPoint pos = *loc;
         SkImageFilter* filter = fFilters[i];
         if (filter) {
-            if (!filter->filterImage(src, ctm, &tmp, &pos)) {
+            if (!filter->filterImage(proxy, src, ctm, &tmp, &pos)) {
                 return false;
             }
             srcPtr = &tmp;
@@ -233,7 +242,7 @@ bool SkMergeImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix& ctm,
     }
 
     loc->set(bounds.left(), bounds.top());
-    result->swap(dst);
+    *result = dst->accessBitmap(false);
     return true;
 }
 
@@ -285,36 +294,28 @@ SkColorFilterImageFilter::~SkColorFilterImageFilter() {
     SkSafeUnref(fColorFilter);
 }
 
-bool SkColorFilterImageFilter::onFilterImage(const SkBitmap& src,
+bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                              const SkMatrix& matrix,
                                              SkBitmap* result,
                                              SkIPoint* loc) {
-    if (SkBitmap::kARGB_8888_Config != src.config()) {
-        return false;
-    }
-
     SkColorFilter* cf = fColorFilter;
     if (NULL == cf) {
         *result = src;
         return true;
     }
 
-    SkAutoLockPixels alpsrc(src);
-    if (!src.readyToDraw()) {
+    SkDevice* dev = proxy->createDevice(src.width(), src.height());
+    if (NULL == dev) {
         return false;
     }
+    OwnDeviceCanvas canvas(dev);
+    SkPaint paint;
 
-    SkBitmap dst(src);
-    dst.allocPixels();
-    if (!dst.readyToDraw()) {
-        return false;
-    }
-    
-    for (int y = 0; y < src.height(); ++y) {
-        cf->filterSpan(src.getAddr32(0, y), src.width(), dst.getAddr32(0, y));
-    }
-    
-    result->swap(dst);
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setColorFilter(fColorFilter);
+    canvas.drawSprite(src, 0, 0, &paint);
+
+    *result = dev->accessBitmap(false);
     return true;
 }
 
@@ -334,7 +335,7 @@ SkFlattenable::Factory SkColorFilterImageFilter::getFactory() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkDownSampleImageFilter::onFilterImage(const SkBitmap& src,
+bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                             const SkMatrix& matrix,
                                             SkBitmap* result, SkIPoint*) {
     SkScalar scale = fScale;
@@ -350,32 +351,36 @@ bool SkDownSampleImageFilter::onFilterImage(const SkBitmap& src,
     if (dstH < 1) {
         dstH = 1;
     }
-    
-    SkBitmap dst;
-    dst.setConfig(SkBitmap::kARGB_8888_Config, dstW, dstH);
-    dst.allocPixels();
-    dst.eraseColor(0);
-    
+
+    SkBitmap tmp;
+
     // downsample
     {
+        SkDevice* dev = proxy->createDevice(dstW, dstH);
+        if (NULL == dev) {
+            return false;
+        }
+        OwnDeviceCanvas canvas(dev);
         SkPaint paint;
+
         paint.setFilterBitmap(true);
-        
-        SkCanvas canvas(dst);
         canvas.scale(scale, scale);
         canvas.drawBitmap(src, 0, 0, &paint);
+        tmp = dev->accessBitmap(false);
     }
-    
-    result->setConfig(SkBitmap::kARGB_8888_Config, src.width(), src.height());
-    result->allocPixels();
-    result->eraseColor(0);
-    
+
     // upscale
     {
-        SkRect r = SkRect::MakeWH(SkIntToScalar(result->width()),
-                                  SkIntToScalar(result->height()));
-        SkCanvas canvas(*result);
-        canvas.drawBitmapRect(dst, NULL, r, NULL);
+        SkDevice* dev = proxy->createDevice(src.width(), src.height());
+        if (NULL == dev) {
+            return false;
+        }
+        OwnDeviceCanvas canvas(dev);
+
+        SkRect r = SkRect::MakeWH(SkIntToScalar(src.width()),
+                                  SkIntToScalar(src.height()));
+        canvas.drawBitmapRect(tmp, NULL, r, NULL);
+        *result = dev->accessBitmap(false);
     }
     return true;
 }

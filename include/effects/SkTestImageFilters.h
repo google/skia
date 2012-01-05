@@ -17,7 +17,7 @@ public:
 protected:
     SkOffsetImageFilter(SkFlattenableReadBuffer& buffer);
 
-    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
     // overrides from SkFlattenable
@@ -47,7 +47,7 @@ public:
 protected:
     SkComposeImageFilter(SkFlattenableReadBuffer& buffer);
     
-    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
     // overrides from SkFlattenable
@@ -78,7 +78,7 @@ public:
 protected:
     SkMergeImageFilter(SkFlattenableReadBuffer& buffer);
     
-    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
     // overrides from SkFlattenable
@@ -116,7 +116,7 @@ public:
 protected:
     SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer);
     
-    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     // overrides from SkFlattenable
     virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
@@ -142,7 +142,7 @@ public:
 protected:
     SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer);
     
-    virtual bool onFilterImage(const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     // overrides from SkFlattenable
     virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;

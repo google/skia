@@ -110,6 +110,10 @@ public:
      */
     virtual void makeRenderTargetCurrent();
 
+    virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
+                             const SkMatrix& ctm,
+                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+    
 protected:
     typedef GrContext::TextureCacheEntry TexCache;
     enum TexType {

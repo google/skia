@@ -1461,6 +1461,9 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
+    int w = bitmap.width();
+    int h = bitmap.height();
+
     GrPaint grPaint;
     if(!this->skPaint2GrPaintNoShader(paint, true, &grPaint, false)) {
         return;
@@ -1474,14 +1477,29 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     sampler->reset();
     SkAutoCachedTexture act(this, bitmap, sampler, &texture);
 
-    grPaint.setTexture(kBitmapTextureIdx, texture);
+    SkImageFilter* imageFilter = paint.getImageFilter();
+    SkSize blurSize;
+    if (NULL != imageFilter && imageFilter->asABlur(&blurSize)) {
+        GrAutoScratchTexture temp1, temp2;
+        GrTexture* blurTexture = gaussianBlur(fContext,
+                                              texture, &temp1, &temp2,
+                                              GrRect::MakeWH(w, h),
+                                              blurSize.width(),
+                                              blurSize.height());
+        texture = blurTexture;
+        grPaint.setTexture(kBitmapTextureIdx, texture);
+        GrPrintf("%d %d | %d %d\n", w, h, texture->width(), texture->height());
+    } else {
+        grPaint.setTexture(kBitmapTextureIdx, texture);
+    }
 
     fContext->drawRectToRect(grPaint,
-                             GrRect::MakeXYWH(GrIntToScalar(left),
-                                              GrIntToScalar(top),
-                                              GrIntToScalar(bitmap.width()),
-                                              GrIntToScalar(bitmap.height())),
-                             GrRect::MakeWH(GR_Scalar1, GR_Scalar1));
+                            GrRect::MakeXYWH(GrIntToScalar(left),
+                                            GrIntToScalar(top),
+                                            GrIntToScalar(w),
+                                            GrIntToScalar(h)),
+                            GrRect::MakeWH(GR_Scalar1 * w / texture->width(),
+                                        GR_Scalar1 * h / texture->height()));
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
@@ -1509,24 +1527,36 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
                                       GrIntToScalar(y),
                                       GrIntToScalar(w),
                                       GrIntToScalar(h));
-    SkImageFilter* imageFilter = paint.getImageFilter();
-    SkSize size;
-    if (NULL != imageFilter && imageFilter->asABlur(&size)) {
-        GrAutoScratchTexture temp1, temp2;
-        GrTexture* blurTexture = gaussianBlur(fContext,
-                                              devTex, &temp1, &temp2,
-                                              GrRect::MakeWH(w, h),
-                                              size.width(),
-                                              size.height());
-        grPaint.setTexture(kBitmapTextureIdx, blurTexture);
-        devTex = blurTexture;
-    }
+
     // The device being drawn may not fill up its texture (saveLayer uses
     // the approximate ).
     GrRect srcRect = GrRect::MakeWH(GR_Scalar1 * w / devTex->width(),
                                     GR_Scalar1 * h / devTex->height());
 
     fContext->drawRectToRect(grPaint, dstRect, srcRect);
+}
+
+bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
+                              const SkMatrix& ctm,
+                              SkBitmap* result, SkIPoint* offset) {
+    SkSize size;
+    if (!filter->asABlur(&size)) {
+        return false;
+    }
+    SkDevice* dev = this->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
+                                                 src.width(),
+                                                 src.height(),
+                                                 false);
+    if (NULL == dev) {
+        return false;
+    }
+    SkAutoUnref aur(dev);
+    SkCanvas canvas(dev);
+    SkPaint paint;
+    paint.setImageFilter(filter);
+    canvas.drawSprite(src, 0, 0, &paint);
+    *result = dev->accessBitmap(false);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

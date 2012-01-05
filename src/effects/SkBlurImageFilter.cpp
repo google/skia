@@ -133,9 +133,15 @@ static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lo
     }
 }
 
-bool SkBlurImageFilter::onFilterImage(const SkBitmap& src, const SkMatrix&,
+bool SkBlurImageFilter::onFilterImage(Proxy*,
+                                      const SkBitmap& src, const SkMatrix&,
                                       SkBitmap* dst, SkIPoint*) {
     if (src.config() != SkBitmap::kARGB_8888_Config) {
+        return false;
+    }
+
+    SkAutoLockPixels alp(src);
+    if (!src.getPixels()) {
         return false;
     }
 

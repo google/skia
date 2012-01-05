@@ -735,8 +735,14 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     bool isOpaque;
     SkBitmap::Config config = resolve_config(this, ir, flags, &isOpaque);
 
-    SkDevice* device = this->createLayerDevice(config, ir.width(), ir.height(),
-                                               isOpaque);
+    SkDevice* device;
+    if (paint && paint->getImageFilter()) {
+        device = this->createCompatibleDevice(config, ir.width(), ir.height(),
+                                              isOpaque);
+    } else {
+        device = this->createLayerDevice(config, ir.width(), ir.height(),
+                                         isOpaque);
+    }
     if (NULL == device) {
         SkDebugf("Unable to create device for layer.");
         return count;
@@ -855,6 +861,34 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect
     this->commonDrawBitmap(bitmap, srcRect, matrix, *paint);
 }
 
+#include "SkImageFilter.h"
+
+class DeviceImageFilterProxy : public SkImageFilter::Proxy {
+public:
+    DeviceImageFilterProxy(SkDevice* device) : fDevice(device) {}
+    
+    virtual SkDevice* createDevice(int w, int h) SK_OVERRIDE;
+    virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
+                             const SkMatrix& ctm,
+                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+
+private:
+    SkDevice* fDevice;
+};
+
+SkDevice* DeviceImageFilterProxy::createDevice(int w, int h) {
+    return fDevice->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
+                                           w, h, false);
+}
+
+bool DeviceImageFilterProxy::filterImage(SkImageFilter* filter,
+                                         const SkBitmap& src,
+                                         const SkMatrix& ctm,
+                                         SkBitmap* result,
+                                         SkIPoint* offset) {
+    return fDevice->filterImage(filter, src, ctm, result, offset);
+}
+
 void SkCanvas::drawDevice(SkDevice* device, int x, int y,
                           const SkPaint* paint) {
     SkPaint tmp;
@@ -865,8 +899,21 @@ void SkCanvas::drawDevice(SkDevice* device, int x, int y,
 
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
     while (iter.next()) {
-        iter.fDevice->drawDevice(iter, device, x - iter.getX(), y - iter.getY(),
-                                 looper.paint());
+        paint = &looper.paint();
+        SkImageFilter* filter = paint->getImageFilter();
+        SkIPoint pos = { x - iter.getX(), y - iter.getY() };
+        if (filter) {
+            DeviceImageFilterProxy proxy(device);
+            SkBitmap dst;
+            const SkBitmap& src = device->accessBitmap(false);
+            if (filter->filterImage(&proxy, src, *iter.fMatrix, &dst, &pos)) {
+                SkPaint tmp(*paint);
+                tmp.setImageFilter(NULL);
+                iter.fDevice->drawSprite(iter, dst, pos.x(), pos.y(), tmp);
+            }
+        } else {
+            iter.fDevice->drawDevice(iter, device, pos.x(), pos.y(), *paint);
+        }
     }
     LOOPER_END
 }
