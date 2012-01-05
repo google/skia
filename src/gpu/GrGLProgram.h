@@ -231,6 +231,7 @@ public:
 private:
 
     const ProgramDesc& getDesc() { return fProgramDesc; }
+    const char* adjustInColor(const GrStringBuilder& inColor) const;
 
 public:
     enum {
