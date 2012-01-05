@@ -324,13 +324,11 @@ static void generate_xps(GM* gm, SkDynamicMemoryWStream& xps) {
     
     SkSize trimSize = SkSize::Make(SkIntToScalar(size.width()),
                                    SkIntToScalar(size.height()));
-    static const double inchesPerMeter = 10000.0 / 254.0;
-    static const double upm = 72 * inchesPerMeter;
-    SkVector unitsPerMeter = SkPoint::Make(SkDoubleToScalar(upm),
-                                           SkDoubleToScalar(upm));
-    static const double ppm = 200 * inchesPerMeter;
-    SkVector pixelsPerMeter = SkPoint::Make(SkDoubleToScalar(ppm),
-                                            SkDoubleToScalar(ppm));
+    static const SkScalar inchesPerMeter = SkScalarDiv(10000, 254);
+    static const SkScalar upm = 72 * inchesPerMeter;
+    SkVector unitsPerMeter = SkPoint::Make(upm, upm);
+    static const SkScalar ppm = 200 * inchesPerMeter;
+    SkVector pixelsPerMeter = SkPoint::Make(ppm, ppm);
 
     SkXPSDevice* dev = new SkXPSDevice();
     SkAutoUnref aur(dev);
