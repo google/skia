@@ -90,6 +90,19 @@ protected:
         matrix.setYUV2RGB();
         filter->setMatrix(matrix);
         canvas->drawBitmap(fBitmap, 80, 160, &paint);
+
+        SkScalar s1 = SK_Scalar1;
+        SkScalar s255 = SkIntToScalar(255);
+        // Move red into alpha, set color to white
+        SkScalar data[20] = {
+            0,  0, 0, 0, s255,
+            0,  0, 0, 0, s255,
+            0,  0, 0, 0, s255,
+            s1, 0, 0, 0, 0,
+        };
+
+        filter->setArray(data);
+        canvas->drawBitmap(fBitmap, 160, 160, &paint);
     }
     
 private:

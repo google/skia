@@ -373,7 +373,8 @@ static void addColorFilter(GrStringBuilder* fsCode, const char * outputVar,
  */
 static void addColorMatrix(GrStringBuilder* fsCode, const char * outputVar,
                            const char* inColor) {
-    fsCode->appendf("%s = %s * %s + %s;\n", outputVar, COL_MATRIX_UNI_NAME, inColor, COL_MATRIX_VEC_UNI_NAME);
+    fsCode->appendf("\t%s = %s * vec4(%s.rgb / %s.a, %s.a) + %s;\n", outputVar, COL_MATRIX_UNI_NAME, inColor, inColor, inColor, COL_MATRIX_VEC_UNI_NAME);
+    fsCode->appendf("\t%s.rgb *= %s.a;\n", outputVar, outputVar);
 }
 
 namespace {
