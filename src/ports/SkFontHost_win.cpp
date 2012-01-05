@@ -505,7 +505,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
 
     // if we're rotated, or want fractional widths, create a hires font
     fHiResFont = 0;
-    if (needHiResMetrics(fRec.fPost2x2) || (fRec.fFlags & kSubpixelPositioning_Flag)) {
+    if (needHiResMetrics(fRec.fPost2x2)) {
         lf.lfHeight = -HIRES_TEXTSIZE;
         fHiResFont = CreateFontIndirect(&lf);
 
@@ -1279,6 +1279,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |
                                   SkScalerContext::kEmbolden_Flag |
+                                  SkScalerContext::kSubpixelPositioning_Flag |
                                   SkScalerContext::kLCD_BGROrder_Flag |
                                   SkScalerContext::kLCD_Vertical_Flag;
     rec->fFlags &= ~flagsWeDontSupport;
