@@ -58,7 +58,8 @@ protected:
             , fUnpackFlipYSupport(false)
             , fPackRowLengthSupport(false)
             , fPackFlipYSupport(false)
-            , fTextureUsageSupport(false) {
+            , fTextureUsageSupport(false)
+            , fTexStorageSupport(false) {
             memset(fAASamples, 0, sizeof(fAASamples));
         }
         SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
@@ -116,6 +117,9 @@ protected:
 
         // Is there support for texture parameter GL_TEXTURE_USAGE
         bool fTextureUsageSupport;
+
+        // Is there support for glTexStorage
+        bool fTexStorageSupport;
 
         void print() const;
     } fGLCaps;
@@ -279,10 +283,11 @@ private:
 
     void resolveRenderTarget(GrGLRenderTarget* texture);
 
-    bool canBeTexture(GrPixelConfig config,
-                      GrGLenum* internalFormat,
-                      GrGLenum* externalFormat,
-                      GrGLenum* externalType);
+    bool configToGLFormats(GrPixelConfig config,
+                           bool getSizedInternal,
+                           GrGLenum* internalFormat,
+                           GrGLenum* externalFormat,
+                           GrGLenum* externalType);
     // helper for onCreateTexture and writeTexturePixels
     bool uploadTexData(const GrGLTexture::Desc& desc,
                        bool isNewTexture,
@@ -294,8 +299,6 @@ private:
     bool createRenderTargetObjects(int width, int height,
                                    GrGLuint texID,
                                    GrGLRenderTarget::Desc* desc);
-
-    bool fboInternalFormat(GrPixelConfig config, GrGLenum* format);
 
     friend class GrGLVertexBuffer;
     friend class GrGLIndexBuffer;

@@ -78,6 +78,11 @@ const GrGLInterface* GrGLDefaultInterface() {
         // mac uses GLenum for internalFormat param (non-standard)
         // amounts to int vs. uint.
         interface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
+    #if GL_ARB_texture_storage
+        interface->fTexStorage2D = glTexStorage2D;
+    #elif GL_EXT_texture_storage
+        interface->fTexStorage2D = glTexStorage2DEXT;
+    #endif
         interface->fTexParameteri = glTexParameteri;
         interface->fTexSubImage2D = glTexSubImage2D;
         interface->fUniform1f = glUniform1f;

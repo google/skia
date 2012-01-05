@@ -339,6 +339,12 @@ void GrGpuGL::initCaps() {
     fGLCaps.fTextureUsageSupport = (kES2_GrGLBinding == this->glBinding()) &&
                                    this->hasExtension("GL_ANGLE_texture_usage");
 
+    // Tex storage is in desktop 4.2 and can be an extension to desktop or ES.
+    fGLCaps.fTexStorageSupport = (kDesktop_GrGLBinding == this->glBinding() &&
+                                  fGLVersion >= GR_GL_VER(4,2)) ||
+                                 this->hasExtension("GL_ARB_texture_storage") ||
+                                 this->hasExtension("GL_EXT_texture_storage");
+
     fCaps.fHWAALineSupport = (kDesktop_GrGLBinding == this->glBinding());
 
     ////////////////////////////////////////////////////////////////////////////
@@ -555,13 +561,11 @@ void GrGpuGL::onResetContext() {
 }
 
 GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
-    GrGLenum dontCare;
     GrGLTexture::Desc glTexDesc;
-    if (!this->canBeTexture(desc.fConfig, &glTexDesc.fInternalFormat,
-                            &dontCare, &dontCare)) {
+    if (!configToGLFormats(desc.fConfig, false, NULL, NULL, NULL)) {
         return NULL;
     }
-    
+
     glTexDesc.fWidth = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
@@ -670,9 +674,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
 
     if (isTexture) {
         GrGLTexture::Desc texDesc;
-        GrGLenum dontCare;
-        if (!canBeTexture(desc.fConfig, &texDesc.fInternalFormat,
-                         &dontCare, &dontCare)) {
+        if (!this->configToGLFormats(desc.fConfig, false, NULL, NULL, NULL)) {
             return NULL;
         }
         texDesc.fWidth  = desc.fWidth;
@@ -710,11 +712,11 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
                                    int left, int top, int width, int height,
                                    GrPixelConfig config, const void* buffer,
                                    size_t rowBytes) {
-    GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
-
     if (NULL == buffer) {
         return;
     }
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
+
     this->setSpareTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTex->textureID()));
     GrGLTexture::Desc desc;
@@ -723,7 +725,6 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     desc.fHeight = glTex->height();
     desc.fOrientation = glTex->orientation();
     desc.fTextureID = glTex->textureID();
-    desc.fInternalFormat = glTex->internalFormat();
 
     this->uploadTexData(desc, false,
                         left, top, width, height, 
@@ -776,15 +777,33 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
-    GrGLenum dontCare;
+    bool useTexStorage = isNewTexture &&
+                         this->glCaps().fTexStorageSupport;
+    if (useTexStorage) {
+        if (kDesktop_GrGLBinding == this->glBinding()) {
+            // 565 is not a sized internal format on desktop GL. So on desktop
+            // with 565 we always use an unsized internal format to let the
+            // system pick the best sized format to convert the 565 data to.
+            // Since glTexStorage only allows sized internal formats we will
+            // instead fallback to glTexImage2D.
+            useTexStorage = desc.fConfig != kRGB_565_GrPixelConfig;
+        } else {
+            // ES doesn't allow paletted textures to be used with tex storage
+            useTexStorage = desc.fConfig != kIndex_8_GrPixelConfig;
+        }
+    }
+
+    GrGLenum internalFormat;
     GrGLenum externalFormat;
     GrGLenum externalType;
-    if (!this->canBeTexture(dataConfig, &dontCare,
-                            &externalFormat, &externalType)) {
+    // glTexStorage requires sized internal formats on both desktop and ES. ES
+    // glTexImage requires an unsized format.
+    if (!this->configToGLFormats(dataConfig, useTexStorage, &internalFormat,
+                                 &externalFormat, &externalType)) {
         return false;
     }
 
-    if (!isNewTexture && GR_GL_PALETTE8_RGBA8 == desc.fInternalFormat) {
+    if (!isNewTexture && GR_GL_PALETTE8_RGBA8 == internalFormat) {
         // paletted textures cannot be updated
         return false;
     }
@@ -798,7 +817,6 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     bool restoreGLRowLength = false;
     bool swFlipY = false;
     bool glFlipY = false;
-
     if (NULL != data) {
         if (GrGLTexture::kBottomUp_Orientation == desc.fOrientation) {
             if (this->glCaps().fUnpackFlipYSupport) {
@@ -846,32 +864,52 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
         GrGLClearErr(this->glInterface());
-        if (GR_GL_PALETTE8_RGBA8 == desc.fInternalFormat) {
-            GrGLsizei imageSize = desc.fWidth * desc.fHeight +
-                                  kGrColorTableSize;
+        if (useTexStorage) {
+            // We never resize  or change formats of textures. We don't use
+            // mipmaps currently.
             GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                                  CompressedTexImage2D(GR_GL_TEXTURE_2D,
-                                                       0, // level
-                                                       desc.fInternalFormat,
-                                                       desc.fWidth,
-                                                       desc.fHeight,
-                                                       0, // border
-                                                       imageSize,
-                                                       data));
+                                  TexStorage2D(GR_GL_TEXTURE_2D,
+                                               1, // levels
+                                               internalFormat,
+                                               desc.fWidth, desc.fHeight));
         } else {
-             GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                                   TexImage2D(GR_GL_TEXTURE_2D,
-                                              0, // level
-                                              desc.fInternalFormat,
-                                              desc.fWidth,
-                                              desc.fHeight,
-                                              0, // border
-                                              externalFormat,
-                                              externalType,
-                                              data));
+            if (GR_GL_PALETTE8_RGBA8 == internalFormat) {
+                GrGLsizei imageSize = desc.fWidth * desc.fHeight +
+                                      kGrColorTableSize;
+                GR_GL_CALL_NOERRCHECK(this->glInterface(),
+                                      CompressedTexImage2D(GR_GL_TEXTURE_2D,
+                                                           0, // level
+                                                           internalFormat,
+                                                           desc.fWidth,
+                                                           desc.fHeight,
+                                                           0, // border
+                                                           imageSize,
+                                                           data));
+            } else {
+                GR_GL_CALL_NOERRCHECK(this->glInterface(),
+                                      TexImage2D(GR_GL_TEXTURE_2D,
+                                                 0, // level
+                                                 internalFormat,
+                                                 desc.fWidth, desc.fHeight,
+                                                 0, // border
+                                                 externalFormat, externalType,
+                                                 data));
+            }
         }
-        if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
-             succeeded = false;
+        GrGLenum error = GR_GL_GET_ERROR(this->glInterface());
+        if (error != GR_GL_NO_ERROR) {
+            succeeded = false;
+        } else {
+            // if we have data and we used TexStorage to create the texture, we
+            // now upload with TexSubImage.
+            if (NULL != data && useTexStorage) {
+                GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D,
+                                      0, // level
+                                      left, top,
+                                      width, height,
+                                      externalFormat, externalType,
+                                      data));
+            }
         }
     } else {
         if (swFlipY || glFlipY) {
@@ -923,7 +961,10 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         GL_CALL(GenRenderbuffers(1, &desc->fMSColorRenderbufferID));
         if (!desc->fRTFBOID ||
             !desc->fMSColorRenderbufferID || 
-            !this->fboInternalFormat(desc->fConfig, &msColorFormat)) {
+            !this->configToGLFormats(desc->fConfig,
+                                     // GLES requires sized internal formats
+                                     kES2_GrGLBinding == this->glBinding(),
+                                     &msColorFormat, NULL, NULL)) {
             goto FAILED;
         }
     } else {
@@ -1004,8 +1045,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     GrGLTexture::Desc glTexDesc;
     GrGLRenderTarget::Desc  glRTDesc;
-    GrGLenum externalFormat;
-    GrGLenum externalType;
 
     glTexDesc.fWidth  = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
@@ -1019,12 +1058,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glRTDesc.fConfig = glTexDesc.fConfig;
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
-    if (!canBeTexture(desc.fConfig,
-                      &glTexDesc.fInternalFormat,
-                      &externalFormat,
-                      &externalType)) {
-        return return_null_texture();
-    }
 
     const Caps& caps = this->getCaps();
 
@@ -1471,10 +1504,9 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
                            void* buffer,
                            size_t rowBytes,
                            bool invertY) {
-    GrGLenum internalFormat;  // we don't use this for glReadPixels
     GrGLenum format;
     GrGLenum type;
-    if (!this->canBeTexture(config, &internalFormat, &format, &type)) {
+    if (!this->configToGLFormats(config, false, NULL, &format, &type)) {
         return false;
     }
     size_t bpp = GrBytesPerPixel(config);
@@ -2278,15 +2310,32 @@ void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
     }
 }
 
-bool GrGpuGL::canBeTexture(GrPixelConfig config,
-                           GrGLenum* internalFormat,
-                           GrGLenum* externalFormat,
-                           GrGLenum* externalType) {
+bool GrGpuGL::configToGLFormats(GrPixelConfig config,
+                                bool getSizedInternalFormat,
+                                GrGLenum* internalFormat,
+                                GrGLenum* externalFormat,
+                                GrGLenum* externalType) {
+    GrGLenum dontCare;
+    if (NULL == internalFormat) {
+        internalFormat = &dontCare;
+    }
+    if (NULL == externalFormat) {
+        externalFormat = &dontCare;
+    }
+    if (NULL == externalType) {
+        externalType = &dontCare;
+    }
+
     switch (config) {
         case kRGBA_8888_PM_GrPixelConfig:
         case kRGBA_8888_UPM_GrPixelConfig:
             *internalFormat = GR_GL_RGBA;
             *externalFormat = GR_GL_RGBA;
+            if (getSizedInternalFormat) {
+                *internalFormat = GR_GL_RGBA8;
+            } else {
+                *internalFormat = GR_GL_RGBA;
+            }
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kBGRA_8888_PM_GrPixelConfig:
@@ -2295,9 +2344,17 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
                 return false;
             }
             if (fGLCaps.fBGRAIsInternalFormat) {
-                *internalFormat = GR_GL_BGRA;
+                if (getSizedInternalFormat) {
+                    *internalFormat = GR_GL_BGRA8;
+                } else {
+                    *internalFormat = GR_GL_BGRA;
+                }
             } else {
-                *internalFormat = GR_GL_RGBA;
+                if (getSizedInternalFormat) {
+                    *internalFormat = GR_GL_RGBA8;
+                } else {
+                    *internalFormat = GR_GL_RGBA;
+                }
             }
             *externalFormat = GR_GL_BGRA;
             *externalType = GR_GL_UNSIGNED_BYTE;
@@ -2305,11 +2362,25 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
         case kRGB_565_GrPixelConfig:
             *internalFormat = GR_GL_RGB;
             *externalFormat = GR_GL_RGB;
+            if (getSizedInternalFormat) {
+                if (this->glBinding() == kDesktop_GrGLBinding) {
+                    return false;
+                } else {
+                    *internalFormat = GR_GL_RGB565;
+                }
+            } else {
+                *internalFormat = GR_GL_RGB;
+            }
             *externalType = GR_GL_UNSIGNED_SHORT_5_6_5;
             break;
         case kRGBA_4444_GrPixelConfig:
             *internalFormat = GR_GL_RGBA;
             *externalFormat = GR_GL_RGBA;
+            if (getSizedInternalFormat) {
+                *internalFormat = GR_GL_RGBA4;
+            } else {
+                *internalFormat = GR_GL_RGBA;
+            }
             *externalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case kIndex_8_GrPixelConfig:
@@ -2317,6 +2388,9 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
                 *internalFormat = GR_GL_PALETTE8_RGBA8;
                 // glCompressedTexImage doesn't take external params
                 *externalFormat = GR_GL_PALETTE8_RGBA8;
+                // no sized/unsized internal format distinction here
+                *internalFormat = GR_GL_PALETTE8_RGBA8;
+                // unused with CompressedTexImage
                 *externalType = GR_GL_UNSIGNED_BYTE;
             } else {
                 return false;
@@ -2325,6 +2399,11 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
         case kAlpha_8_GrPixelConfig:
             *internalFormat = GR_GL_ALPHA;
             *externalFormat = GR_GL_ALPHA;
+            if (getSizedInternalFormat) {
+                *internalFormat = GR_GL_ALPHA8;
+            } else {
+                *internalFormat = GR_GL_ALPHA;
+            }
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         default:
@@ -2345,51 +2424,6 @@ void GrGpuGL::setSpareTextureUnit() {
     if (fActiveTextureUnitIdx != (GR_GL_TEXTURE0 + SPARE_TEX_UNIT)) {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + SPARE_TEX_UNIT));
         fActiveTextureUnitIdx = SPARE_TEX_UNIT;
-    }
-}
-
-/* On ES the internalFormat and format must match for TexImage and we use
-   GL_RGB, GL_RGBA for color formats. We also generally like having the driver
-   decide the internalFormat. However, on ES internalFormat for
-   RenderBufferStorage* has to be a specific format (not a base format like
-   GL_RGBA).
- */
-bool GrGpuGL::fboInternalFormat(GrPixelConfig config, GrGLenum* format) {
-    switch (config) {
-        // The ES story for BGRA and RenderbufferStorage appears murky. It
-        // takes an internal format as a parameter. The OES FBO extension and
-        // 2.0 spec don't refer to BGRA as it's not part of the core. One ES
-        // BGRA extensions adds BGRA as both an internal and external format
-        // and the other only as an external format (like desktop GL). OES
-        // restricts RenderbufferStorage's format to a *sized* internal format.
-        // There is no sized BGRA internal format.
-        // So if the texture has internal format BGRA we just hope that the
-        // resolve blit can do RGBA->BGRA internal format conversion.
-        case kRGBA_8888_PM_GrPixelConfig:
-        case kRGBA_8888_UPM_GrPixelConfig:
-        case kBGRA_8888_PM_GrPixelConfig:
-        case kBGRA_8888_UPM_GrPixelConfig:
-            if (fGLCaps.fRGBA8RenderbufferSupport) {
-                // The GL_OES_rgba8_rgb8 extension defines GL_RGBA8 as a sized
-                // internal format.
-                *format = GR_GL_RGBA8;
-                return true;
-            } else {
-                return false;
-            }
-        case kRGB_565_GrPixelConfig:
-            // ES2 supports 565, but desktop GL does not.
-            if (kDesktop_GrGLBinding != this->glBinding()) {
-                *format = GR_GL_RGB565;
-                return true;
-            } else {
-                return false;
-            }
-        case kRGBA_4444_GrPixelConfig:
-            *format = GR_GL_RGBA4;
-            return true;
-        default:
-            return false;
     }
 }
 

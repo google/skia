@@ -55,6 +55,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilOp(GrGLenum fail, GrGLenum zfail, GrGL
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilOpSeparate(GrGLenum face, GrGLenum fail, GrGLenum zfail, GrGLenum zpass) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexImage2D(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexParameteri(GrGLenum target, GrGLenum pname, GrGLint param) {}
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexStorage2D(GrGLenum target, GrGLsizei levels, GrGLenum internalformat, GrGLsizei width, GrGLsizei height) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLTexSubImage2D(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLUniform1f(GrGLint location, GrGLfloat v0) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLUniform1i(GrGLint location, GrGLint v0) {}
@@ -457,6 +458,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fTexImage2D = nullGLTexImage2D;
         interface->fTexParameteri = nullGLTexParameteri;
         interface->fTexSubImage2D = nullGLTexSubImage2D;
+        interface->fTexStorage2D = nullGLTexStorage2D;
         interface->fUniform1f = nullGLUniform1f;
         interface->fUniform1i = nullGLUniform1i;
         interface->fUniform1fv = nullGLUniform1fv;

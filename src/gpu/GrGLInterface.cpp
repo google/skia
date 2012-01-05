@@ -178,6 +178,7 @@ GrGLInterface::GrGLInterface() {
     fStencilOpSeparate = NULL;
     fTexImage2D = NULL;
     fTexParameteri = NULL;
+    fTexStorage2D = NULL;
     fTexSubImage2D = NULL;
     fUniform1f = NULL;
     fUniform1i = NULL;
@@ -414,6 +415,14 @@ bool GrGLInterface::validate() const {
          NULL == fDrawBuffer ||
          NULL == fReadBuffer)) {
         return false;
+    }
+
+    // GL_EXT_texture_storage is part of desktop 4.2
+    // There is a desktop ARB extension and an ES+desktop EXT extension
+    if ((kDesktop_GrGLBinding == fBindingsExported &&
+         (glVer >= GR_GL_VER(4,2)) ||
+          GrGLHasExtensionFromString("GL_ARB_texture_storage", ext)) ||
+        GrGLHasExtensionFromString("GL_EXT_texture_storage", ext)) {
     }
 
     // FBO MSAA

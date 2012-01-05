@@ -119,6 +119,18 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         // amounts to int vs. uint.
         interface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
+    #if GL_ARB_texture_storage || GL_VERSION_4_2
+        interface->fTexStorage2D = glTexStorage2D
+    #elif GL_EXT_texture_storage
+        interface->fTexStorage2D = glTexStorage2DEXT;
+    #else
+        if (glVer >= GR_GL_VER(4,2) ||
+            GrGLHasExtensionFromString("GL_ARB_texture_storage", extString)) {
+            GR_GL_GET_PROC(TexStorage2D);
+        } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", extString)) {
+            GR_GL_GET_PROC_SUFFIX(TexStorage2D, EXT);
+        }
+    #endif
         interface->fTexSubImage2D = glTexSubImage2D;
         interface->fUniform1f = glUniform1f;
         interface->fUniform1i = glUniform1i;

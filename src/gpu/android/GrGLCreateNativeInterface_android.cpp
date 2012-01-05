@@ -77,6 +77,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fTexImage2D = glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
         interface->fTexSubImage2D = glTexSubImage2D;
+#if GL_ARB_texture_storage
+        interface->fTexStorage2D = glTexStorage2D;
+#elif GL_EXT_texture_storage
+        interface->fTexStorage2D = glTexStorage2DEXT;
+#endif
         interface->fUniform1f = glUniform1f;
         interface->fUniform1i = glUniform1i;
         interface->fUniform1fv = glUniform1fv;

@@ -64,7 +64,6 @@ public:
         int             fHeight;
         GrPixelConfig   fConfig;
         GrGLuint        fTextureID;
-        GrGLenum        fInternalFormat;
         bool            fOwnsID;
         Orientation     fOrientation;
     };
@@ -95,8 +94,6 @@ public:
     }
     GrGLuint textureID() const { return fTexIDObj->id(); }
 
-    GrGLenum internalFormat() const { return fInternalFormat; }
-
     // Ganesh assumes texture coordinates have their origin
     // in the top-left corner of the image. OpenGL, however,
     // has the origin in the lower-left corner. For content that
@@ -119,7 +116,6 @@ private:
     TexParams                       fTexParams;
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
     GrGLTexID*                      fTexIDObj;
-    GrGLenum                        fInternalFormat;
     Orientation                     fOrientation;
 
     void init(GrGpuGL* gpu,
