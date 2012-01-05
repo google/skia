@@ -129,17 +129,18 @@ public:
      */
     virtual SkGpuRenderTarget* accessRenderTarget() { return NULL; }
 
-protected:
-    enum Usage {
-       kGeneral_Usage,
-       kSaveLayer_Usage, // <! internal use only
-    };
 
     /**
      *  Return the device's origin: its offset in device coordinates from
      *  the default origin in its canvas' matrix/clip
      */
     const SkIPoint& getOrigin() const { return fOrigin; }
+
+protected:
+    enum Usage {
+       kGeneral_Usage,
+       kSaveLayer_Usage, // <! internal use only
+    };
 
     struct TextFlags {
         uint32_t            fFlags;     // SkPaint::getFlags()
