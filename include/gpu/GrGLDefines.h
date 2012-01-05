@@ -294,6 +294,7 @@
 #define GR_GL_LUMINANCE                      0x1909
 #define GR_GL_LUMINANCE_ALPHA                0x190A
 #define GR_GL_PALETTE8_RGBA8                 0x8B96
+#define GR_GL_ALPHA8                         0x803C
 
 /* PixelType */
 /*      GL_UNSIGNED_BYTE */
@@ -632,6 +633,7 @@
 #define GR_GL_RGB565                         0x8D62
 #define GR_GL_RGBA8                          0x8058
 #define GR_GL_RGB8                           0x8051
+#define GR_GL_BGRA8                          0x93A1
 #define GR_GL_SRGB                           0x8C40
 #define GR_GL_SRGB8                          0x8C41
 #define GR_GL_SRGB_ALPHA                     0x8C42

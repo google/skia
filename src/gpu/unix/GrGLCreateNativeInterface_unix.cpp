@@ -112,6 +112,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(StencilOpSeparate);
         interface->fTexImage2D = glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
+        if (glVer >= GR_GL_VER(4,2) ||
+            GrGLHasExtensionFromString("GL_ARB_texture_storage", extString)) {
+            GR_GL_GET_PROC(TexStorage2D);
+        } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", extString)) {
+            GR_GL_GET_PROC_SUFFIX(TexStorage2D, EXT);
+        }
         interface->fTexSubImage2D = glTexSubImage2D;
         GR_GL_GET_PROC(Uniform1f);
         GR_GL_GET_PROC(Uniform1i);

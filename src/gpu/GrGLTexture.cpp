@@ -35,7 +35,6 @@ void GrGLTexture::init(GrGpuGL* gpu,
     fTexIDObj           = new GrGLTexID(GPUGL->glInterface(),
                                         textureDesc.fTextureID,
                                         textureDesc.fOwnsID);
-    fInternalFormat     = textureDesc.fInternalFormat;
     fOrientation        = textureDesc.fOrientation;
 
     if (NULL != rtDesc) {
