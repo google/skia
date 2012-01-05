@@ -124,11 +124,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     #elif GL_EXT_texture_storage
         interface->fTexStorage2D = glTexStorage2DEXT;
     #else
-        if (glVer >= GR_GL_VER(4,2) ||
-            GrGLHasExtensionFromString("GL_ARB_texture_storage", extString)) {
-            GR_GL_GET_PROC(TexStorage2D);
-        } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", extString)) {
-            GR_GL_GET_PROC_SUFFIX(TexStorage2D, EXT);
+        if (ver >= GR_GL_VER(4,2) ||
+            GrGLHasExtensionFromString("GL_ARB_texture_storage", extStr)) {
+            GET_PROC(TexStorage2D);
+        } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", extStr)) {
+            GET_PROC_SUFFIX(TexStorage2D, EXT);
         }
     #endif
         interface->fTexSubImage2D = glTexSubImage2D;
