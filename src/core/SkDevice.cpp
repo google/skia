@@ -107,6 +107,10 @@ bool SkDevice::filterImage(SkImageFilter*, const SkBitmap& src,
     return false;
 }
 
+bool SkDevice::allowImageFilter(SkImageFilter*) {
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkDevice::readPixels(SkBitmap* bitmap, int x, int y,

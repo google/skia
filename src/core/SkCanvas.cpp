@@ -732,6 +732,16 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
         return count;
     }
 
+    // Kill the imagefilter if our device doesn't allow it
+    SkLazyPaint lazyP;
+    if (paint && paint->getImageFilter()) {
+        if (!this->getTopDevice()->allowImageFilter(paint->getImageFilter())) {
+            SkPaint* p = lazyP.set(*paint);
+            p->setImageFilter(NULL);
+            paint = p;
+        }
+    }
+
     bool isOpaque;
     SkBitmap::Config config = resolve_config(this, ir, flags, &isOpaque);
 
@@ -889,7 +899,7 @@ bool DeviceImageFilterProxy::filterImage(SkImageFilter* filter,
     return fDevice->filterImage(filter, src, ctm, result, offset);
 }
 
-void SkCanvas::drawDevice(SkDevice* device, int x, int y,
+void SkCanvas::drawDevice(SkDevice* srcDev, int x, int y,
                           const SkPaint* paint) {
     SkPaint tmp;
     if (NULL == paint) {
@@ -899,20 +909,21 @@ void SkCanvas::drawDevice(SkDevice* device, int x, int y,
 
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
     while (iter.next()) {
+        SkDevice* dstDev = iter.fDevice;
         paint = &looper.paint();
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter) {
-            DeviceImageFilterProxy proxy(device);
+            DeviceImageFilterProxy proxy(dstDev);
             SkBitmap dst;
-            const SkBitmap& src = device->accessBitmap(false);
+            const SkBitmap& src = srcDev->accessBitmap(false);
             if (filter->filterImage(&proxy, src, *iter.fMatrix, &dst, &pos)) {
                 SkPaint tmp(*paint);
                 tmp.setImageFilter(NULL);
-                iter.fDevice->drawSprite(iter, dst, pos.x(), pos.y(), tmp);
+                dstDev->drawSprite(iter, dst, pos.x(), pos.y(), tmp);
             }
         } else {
-            iter.fDevice->drawDevice(iter, device, pos.x(), pos.y(), *paint);
+            dstDev->drawDevice(iter, srcDev, pos.x(), pos.y(), *paint);
         }
     }
     LOOPER_END

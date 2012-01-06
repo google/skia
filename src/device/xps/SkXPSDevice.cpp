@@ -2384,6 +2384,7 @@ SkDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
                                                 bool isOpaque,
                                                 Usage usage) {
     if (SkDevice::kGeneral_Usage == usage) {
+        return NULL;
         SK_CRASH();
         //To what stream do we write?
         //SkXPSDevice* dev = new SkXPSDevice(this);
@@ -2409,3 +2410,8 @@ SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
     HRVM(this->fXpsFactory->CreateCanvas(&this->fCurrentXpsCanvas),
          "Could not create canvas for layer.");
 }
+
+bool SkXPSDevice::allowImageFilter(SkImageFilter*) {
+    return false;
+}
+
