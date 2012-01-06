@@ -142,9 +142,12 @@ void SkActive::calcDurations(int index)
     SkAnimateBase* animate = fAnimators[index];
     SkMSec duration = animate->dur;
     SkState& state = fState[index];
-    if (state.fMode == SkApply::kMode_immediate || state.fMode == SkApply::kMode_create)
+    switch (state.fMode) {
+      case SkApply::kMode_immediate:
+      case SkApply::kMode_create:
         duration = state.fSteps ? state.fSteps * SK_MSec1 : 1;
-//  else if (state.fMode == SkApply::kMode_hold) {
+        break;
+//    case SkApply::kMode_hold: {
 //      int entries = animate->entries();
 //      SkScriptValue value;
 //      value.fOperand = animate->getValues()[entries - 1];
@@ -152,7 +155,9 @@ void SkActive::calcDurations(int index)
 //      bool result = SkScriptEngine::ConvertTo(NULL, SkType_Int, &value);
 //      SkASSERT(result);
 //      duration = value.fOperand.fS32 * SK_MSec1;
-//  }
+//      break;
+//    }
+    }
     state.fDuration = duration;
     SkMSec maxTime = state.fBegin + duration;
     if (fMaxTime < maxTime)

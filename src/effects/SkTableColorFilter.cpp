@@ -171,7 +171,7 @@ SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHE
     size_t raw = SkPackBits::Unpack8(storage, size, fStorage);
 
     SkASSERT(raw <= sizeof(fStorage));
-    int count = gCountNibBits[fFlags & 0xF];
+    size_t count = gCountNibBits[fFlags & 0xF];
     SkASSERT(raw == count * 256);
 }
 

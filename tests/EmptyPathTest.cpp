@@ -48,7 +48,7 @@ static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
     }
 
     // success means we drew everywhere or nowhere (depending on shouldDraw)
-    bool success = shouldDraw ? (~0 == andValue) : (0 == orValue);
+    bool success = shouldDraw ? (~0U == andValue) : (0 == orValue);
 
     if (!success) {
         SkString str;
