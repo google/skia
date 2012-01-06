@@ -100,10 +100,10 @@ static void test_isfinite(skiatest::Reporter* reporter) {
         isFinite2_mulzeroadd
     };
 
-    int i, n = SK_ARRAY_COUNT(data);
+    size_t i, n = SK_ARRAY_COUNT(data);
 
     for (i = 0; i < n; ++i) {
-        for (int k = 0; k < SK_ARRAY_COUNT(gProc1); ++k) {
+        for (size_t k = 0; k < SK_ARRAY_COUNT(gProc1); ++k) {
             const Rec& rec = data[i];
             bool finite = gProc1[k](rec.fValue);
             REPORTER_ASSERT(reporter, rec.fIsFinite == finite);
@@ -112,12 +112,12 @@ static void test_isfinite(skiatest::Reporter* reporter) {
 
     for (i = 0; i < n; ++i) {
         const Rec& rec0 = data[i];
-        for (int j = 0; j < n; ++j) {
+        for (size_t j = 0; j < n; ++j) {
             const Rec& rec1 = data[j];
-            for (int k = 0; k < SK_ARRAY_COUNT(gProc1); ++k) {
+            for (size_t k = 0; k < SK_ARRAY_COUNT(gProc1); ++k) {
                 IsFiniteProc1 proc1 = gProc1[k];
                 
-                for (int m = 0; m < SK_ARRAY_COUNT(gProc2); ++m) {
+                for (size_t m = 0; m < SK_ARRAY_COUNT(gProc2); ++m) {
                     bool finite = gProc2[m](rec0.fValue, rec1.fValue, proc1);
                     bool finite2 = rec0.fIsFinite && rec1.fIsFinite;
                     REPORTER_ASSERT(reporter, finite2 == finite);

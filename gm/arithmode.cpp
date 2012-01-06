@@ -27,7 +27,7 @@ static SkBitmap make_src() {
     SkBitmap bm = make_bm();
     SkCanvas canvas(bm);
     SkPaint paint;
-    SkPoint pts[] = { 0, 0, SkIntToScalar(WW), SkIntToScalar(HH) };
+    SkPoint pts[] = { {0, 0}, {SkIntToScalar(WW), SkIntToScalar(HH)} };
     SkColor colors[] = {
         SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE
@@ -43,7 +43,7 @@ static SkBitmap make_dst() {
     SkBitmap bm = make_bm();
     SkCanvas canvas(bm);
     SkPaint paint;
-    SkPoint pts[] = { 0, SkIntToScalar(HH), SkIntToScalar(WW), 0 };
+    SkPoint pts[] = { {0, SkIntToScalar(HH)}, {SkIntToScalar(WW), 0} };
     SkColor colors[] = {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN, SK_ColorGRAY
     };

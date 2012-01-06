@@ -19,7 +19,7 @@ static void make_bm0(SkBitmap* bm) {
     
     SkCanvas canvas(*bm);
     SkPaint paint;
-    SkPoint pts[] = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
+    SkPoint pts[] = { {0, 0}, {SkIntToScalar(W), SkIntToScalar(H)} };
     SkColor colors[] = {
         SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE

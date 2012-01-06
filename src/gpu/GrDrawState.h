@@ -403,7 +403,7 @@ struct GrDrawState {
 
     class AutoRenderTargetRestore : public ::GrNoncopyable {
     public:
-        AutoRenderTargetRestore() : fDrawState(NULL) {}
+        AutoRenderTargetRestore() : fDrawState(NULL), fSavedTarget(NULL) {}
         AutoRenderTargetRestore(GrDrawState* ds, GrRenderTarget* newTarget) {
             fDrawState = NULL;
             this->set(ds, newTarget);

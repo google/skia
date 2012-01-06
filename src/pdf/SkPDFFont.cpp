@@ -473,7 +473,7 @@ void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
     SkTDArray<BFChar> bfcharEntries;
     SkTDArray<BFRange> bfrangeEntries;
 
-    BFRange currentRangeEntry;
+    BFRange currentRangeEntry = {0, 0, 0};
     bool rangeEmpty = true;
     const int count = glyphToUnicode.count();
 

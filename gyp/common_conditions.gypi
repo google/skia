@@ -87,7 +87,10 @@
             'cflags': ['-O2']
           },
         },
-        'cflags': [ 
+        'cflags': [
+          # TODO(tony): Enable -Werror once all the strict-aliasing problems
+          # are fixed.
+          #'-Werror',
           '-Wall',
           '-Wextra',
           '-Wno-unused',

@@ -327,7 +327,7 @@ int main (int argc, char * const argv[]) {
     
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
-    GLHelper* glHelper;
+    GLHelper* glHelper = NULL;
     const char* configName = "";
     Backend backend = kRaster_Backend;  // for warning
     int configCount = SK_ARRAY_COUNT(gConfigs);
