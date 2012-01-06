@@ -419,10 +419,18 @@ bool GrGLInterface::validate() const {
 
     // GL_EXT_texture_storage is part of desktop 4.2
     // There is a desktop ARB extension and an ES+desktop EXT extension
-    if ((kDesktop_GrGLBinding == fBindingsExported &&
-         (glVer >= GR_GL_VER(4,2)) ||
-          GrGLHasExtensionFromString("GL_ARB_texture_storage", ext)) ||
-        GrGLHasExtensionFromString("GL_EXT_texture_storage", ext)) {
+    if (kDesktop_GrGLBinding == fBindingsExported) {
+        if (glVer >= GR_GL_VER(4,2) ||
+            GrGLHasExtensionFromString("GL_ARB_texture_storage", ext) ||
+            GrGLHasExtensionFromString("GL_EXT_texture_storage", ext)) {
+            if (NULL == fTexStorage2D) {
+                return false;
+            }
+        }
+    } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", ext)) {
+        if (NULL == fTexStorage2D) {
+            return false;
+        }
     }
 
     // FBO MSAA
