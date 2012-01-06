@@ -144,6 +144,8 @@ protected:
                               int y,
                               SkCanvas::Config8888) SK_OVERRIDE;
 
+    virtual bool allowImageFilter(SkImageFilter*) SK_OVERRIDE;
+
 private:
     class TypefaceUse : ::SkNoncopyable {
     public:

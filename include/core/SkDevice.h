@@ -310,9 +310,18 @@ protected:
     virtual void unlockPixels();
 
     /**
+     *  Returns true if the device allows processing of this imagefilter. If
+     *  false is returned, then the filter is ignored. This may happen for
+     *  some subclasses that do not support pixel manipulations after drawing
+     *  has occurred (e.g. printing). The default implementation returns true.
+     */
+    virtual bool allowImageFilter(SkImageFilter*);
+
+    /**
      *  Override and return true for filters that the device handles
      *  intrinsically. Returning false means call the filter.
-     *  Default impl returns false.
+     *  Default impl returns false. This will only be called if allowImageFilter()
+     *  returned true.
      */
     virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
                              const SkMatrix& ctm,

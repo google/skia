@@ -1535,3 +1535,8 @@ bool SkPDFDevice::onReadPixels(const SkBitmap& bitmap, int x, int y,
                                SkCanvas::Config8888) {
     return false;
 }
+
+bool SkPDFDevice::allowImageFilter(SkImageFilter*) {
+    return false;
+}
+
