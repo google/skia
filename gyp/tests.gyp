@@ -39,6 +39,7 @@
         '../tests/MathTest.cpp',
         '../tests/MatrixTest.cpp',
         '../tests/Matrix44Test.cpp',
+        '../tests/MemsetTest.cpp',
         '../tests/MetaDataTest.cpp',
         '../tests/PackBitsTest.cpp',
         '../tests/PaintTest.cpp',
