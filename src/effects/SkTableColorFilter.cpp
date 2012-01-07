@@ -6,7 +6,9 @@ class SkTable_ColorFilter : public SkColorFilter {
 public:
     SkTable_ColorFilter(const uint8_t tableA[], const uint8_t tableR[],
                         const uint8_t tableG[], const uint8_t tableB[]) {
+        fBitmap = NULL;
         fFlags = 0;
+
         uint8_t* dst = fStorage;
         if (tableA) {
             memcpy(dst, tableA, 256);
@@ -29,6 +31,8 @@ public:
         }
     }
 
+    virtual bool asComponentTable(SkBitmap* table) SK_OVERRIDE;
+
     virtual void filterSpan(const SkPMColor src[], int count,
                             SkPMColor dst[]) SK_OVERRIDE;
     virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
@@ -37,11 +41,13 @@ public:
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(SkTable_ColorFilter, (buffer));
     }
-    
+
 protected:
     SkTable_ColorFilter(SkFlattenableReadBuffer& buffer);
 
 private:
+    SkBitmap* fBitmap;
+
     enum {
         kA_Flag = 1 << 0,
         kR_Flag = 1 << 1,
@@ -162,6 +168,8 @@ void SkTable_ColorFilter::flatten(SkFlattenableWriteBuffer& buffer) {
 }
 
 SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    fBitmap = NULL;
+
     uint8_t storage[5*256];
 
     fFlags = buffer.readInt();
@@ -173,6 +181,19 @@ SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHE
     SkASSERT(raw <= sizeof(fStorage));
     size_t count = gCountNibBits[fFlags & 0xF];
     SkASSERT(raw == count * 256);
+}
+
+bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) {
+    if (table) {
+        if (NULL == fBitmap) {
+            fBitmap = new SkBitmap;
+            fBitmap->setConfig(SkBitmap::kA8_Config, 256, 4, 256);
+            fBitmap->allocPixels();
+            memcpy(fBitmap->getAddr8(0, 0), fStorage, 256 * 4);
+        }
+        *table = *fBitmap;
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
