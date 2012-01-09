@@ -23,7 +23,7 @@ extern "C" {
     #include "jerror.h"
 }
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 #include <cutils/properties.h>
 
 // Key to lookup the size of memory buffer set in system property
@@ -87,7 +87,7 @@ private:
     jpeg_decompress_struct* cinfo_ptr;
 };
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 /* Check if the memory cap property is set.
    If so, use the memory size for jpeg decode.
 */
@@ -170,7 +170,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     jpeg_create_decompress(&cinfo);
     autoClean.set(&cinfo);
 
-#ifdef ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     overwrite_mem_buffer_size(&cinfo);
 #endif
 

@@ -152,7 +152,6 @@
     ['skia_os == "android"', 
       {
         'defines': [
-          'ANDROID', # TODO: change these defines to SK_BUILD_FOR_ANDROID
           'SK_BUILD_FOR_ANDROID',
           'SK_BUILD_FOR_ANDROID_NDK',
         ],
