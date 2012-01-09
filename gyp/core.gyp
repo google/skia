@@ -148,8 +148,6 @@
         '../src/core/SkWriter32.cpp',
         '../src/core/SkXfermode.cpp',
 
-        '../src/opts/opts_check_SSE2.cpp',
-
         '../include/core/Sk64.h',
         '../include/core/SkAdvancedTypefaceMetrics.h',
         '../include/core/SkAutoKern.h',
@@ -302,9 +300,6 @@
           ],
         }],
         [ 'skia_os == "android"', {
-          'sources!': [
-            '../src/opts/opts_check_SSE2.cpp',
-          ],
           'dependencies': [
              'android_system.gyp:ft2',
           ],
