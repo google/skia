@@ -28,6 +28,7 @@
         '../include/config',
         '../include/core',
         '../src/core',
+        '../src/opts',
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
@@ -37,6 +38,7 @@
         }],
         [ 'skia_target_arch != "arm"', {
           'sources': [
+            '../src/opts/opts_check_SSE2.cpp',
             '../src/opts/SkBitmapProcState_opts_SSE2.cpp',
             '../src/opts/SkBlitRow_opts_SSE2.cpp',
             '../src/opts/SkUtils_opts_SSE2.cpp',
@@ -52,9 +54,12 @@
             '-fomit-frame-pointer',
           ],
           'sources': [
+            '../src/opts/opts_check_arm.cpp',
+            '../src/opts/memset.arm.S',
+            '../src/opts/memset16_neon.S',
+            '../src/opts/memset32_neon.S',
             '../src/opts/SkBitmapProcState_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.cpp',
-            '../src/opts/SkUtils_opts_none.cpp',
           ],
         }],
         [ 'skia_target_arch == "arm" and armv7 != 1', {
