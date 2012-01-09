@@ -319,8 +319,15 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
         static const SkCanvas::Config8888 gReadConfigs[] = {
             SkCanvas::kNative_Premul_Config8888,
             SkCanvas::kNative_Unpremul_Config8888,
+/**
+ * There is a bug in Ganesh (http://code.google.com/p/skia/issues/detail?id=438)
+ * that causes the readback of pixels from BGRA canvas to an RGBA bitmap to
+ * fail. This should be removed as soon as the issue above is resolved.
+ */
+#if !defined(SK_BUILD_FOR_ANDROID)
             SkCanvas::kBGRA_Premul_Config8888,
             SkCanvas::kBGRA_Unpremul_Config8888,
+#endif
             SkCanvas::kRGBA_Premul_Config8888,
             SkCanvas::kRGBA_Unpremul_Config8888,
         };
