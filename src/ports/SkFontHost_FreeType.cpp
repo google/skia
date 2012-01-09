@@ -325,10 +325,7 @@ static FT_Error getAdvances(FT_Face face, FT_UInt start, FT_UInt count,
 }
 
 static bool canEmbed(FT_Face face) {
-// The Android freetype library does not compile the FT_Get_FSType_Flags
-// function, so we are required to add the !defined(SK_BUILD_FOR_ANDROID) until
-// support is added to Androids port of freetype.
-#if defined(FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING) && !defined(SK_BUILD_FOR_ANDROID)
+#ifdef FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING
     FT_UShort fsType = FT_Get_FSType_Flags(face);
     return (fsType & (FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING |
                       FT_FSTYPE_BITMAP_EMBEDDING_ONLY)) == 0;
