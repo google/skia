@@ -9,10 +9,56 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkParse.h"
+#include "SkParsePath.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkSize.h"
 #include "SkWriter32.h"
+
+static void test_direction(skiatest::Reporter* reporter) {
+    size_t i;
+    SkPath path;
+    REPORTER_ASSERT(reporter, !path.cheapComputeDirection(NULL));
+    REPORTER_ASSERT(reporter, !path.cheapIsDirection(SkPath::kCW_Direction));
+    REPORTER_ASSERT(reporter, !path.cheapIsDirection(SkPath::kCCW_Direction));
+
+    static const char* gDegen[] = {
+        "M 10 10",
+        "M 10 10 M 20 20",
+        "M 10 10 L 20 20",
+        "M 10 10 L 10 10 L 10 10",
+        "M 10 10 Q 10 10 10 10",
+        "M 10 10 C 10 10 10 10 10 10",
+    };
+    for (i = 0; i < SK_ARRAY_COUNT(gDegen); ++i) {
+        path.reset();
+        bool valid = SkParsePath::FromSVGString(gDegen[i], &path);
+        REPORTER_ASSERT(reporter, valid);
+        REPORTER_ASSERT(reporter, !path.cheapComputeDirection(NULL));
+    }
+    
+    static const char* gCW[] = {
+        "M 10 10 L 10 10 L 20 10 Q 20 20 30 30",
+        "M 10 10 C 20 10 20 20 20 20",
+    };
+    for (i = 0; i < SK_ARRAY_COUNT(gCW); ++i) {
+        path.reset();
+        bool valid = SkParsePath::FromSVGString(gCW[i], &path);
+        REPORTER_ASSERT(reporter, valid);
+        REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCW_Direction));
+    }
+    
+    static const char* gCCW[] = {
+        "M 10 10 L 10 10 L 20 10 Q 20 -20 30 -30",
+        "M 10 10 C 20 10 20 -20 20 -20",
+    };
+    for (i = 0; i < SK_ARRAY_COUNT(gCCW); ++i) {
+        path.reset();
+        bool valid = SkParsePath::FromSVGString(gCCW[i], &path);
+        REPORTER_ASSERT(reporter, valid);
+        REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCCW_Direction));
+    }
+}
 
 static void add_rect(SkPath* path, const SkRect& r) {
     path->moveTo(r.fLeft, r.fTop);
@@ -312,9 +358,11 @@ static void test_convexity(skiatest::Reporter* reporter) {
     path.reset();
     path.addRect(0, 0, 10, 10, SkPath::kCCW_Direction);
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
+    REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCCW_Direction));
     path.reset();
     path.addRect(0, 0, 10, 10, SkPath::kCW_Direction);
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
+    REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCW_Direction));
     
     static const struct {
         const char*         fPathStr;
@@ -1039,6 +1087,7 @@ void TestPath(skiatest::Reporter* reporter) {
     test_isRect(reporter);
 
     test_zero_length_paths(reporter);
+    test_direction(reporter);
     test_convexity(reporter);
     test_convexity2(reporter);
     test_close(reporter);
