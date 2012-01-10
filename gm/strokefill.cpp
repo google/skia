@@ -26,7 +26,7 @@ static void test_rev(SkCanvas* canvas, const SkPath& path) {
     SkPath rev;
     rev.reverseAddPath(path);
     canvas->save();
-    canvas->translate(150, 0);
+    canvas->translate(SkIntToScalar(150), 0);
     test_path(canvas, rev);
     canvas->restore();
 }
@@ -86,35 +86,35 @@ protected:
         SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro",
                                                       SkTypeface::kNormal);
         paint.setTypeface(hira);
-        SkScalar x = 180;
-        SkScalar y = 88;
+        SkScalar x = SkIntToScalar(180);
+        SkScalar y = SkIntToScalar(88);
         
         canvas->drawText(text, len, x, y, paint);
         paint.setFakeBoldText(true);
-        canvas->drawText(text, len, x, y + 100, paint);
+        canvas->drawText(text, len, x, y + SkIntToScalar(100), paint);
         paint.setStyle(SkPaint::kStrokeAndFill_Style);
-        paint.setStrokeWidth(5);
+        paint.setStrokeWidth(SkIntToScalar(5));
         
         SkPath path;
         path.setFillType(SkPath::kWinding_FillType);
-        path.addCircle(x, y + 200, 50, SkPath::kCW_Direction);
-        path.addCircle(x, y + 200, 40, SkPath::kCCW_Direction);
+        path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCW_Direction);
+        path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(40), SkPath::kCCW_Direction);
         canvas->drawPath(path, paint);
         
         SkPath path2;
         path2.setFillType(SkPath::kWinding_FillType);
-        path2.addCircle(x + 120, y + 200, 50, SkPath::kCCW_Direction);
-        path2.addCircle(x + 120, y + 200, 40, SkPath::kCW_Direction);
+        path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCCW_Direction);
+        path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(40), SkPath::kCW_Direction);
         canvas->drawPath(path2, paint);
         
         path2.reset();
-        path2.addCircle(x + 240, y + 200, 50, SkPath::kCCW_Direction);
+        path2.addCircle(x + SkIntToScalar(240), y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCCW_Direction);
         canvas->drawPath(path2, paint);
         SkASSERT(path2.cheapIsDirection(SkPath::kCCW_Direction));
         
         path2.reset();
         SkASSERT(!path2.cheapComputeDirection(NULL));
-        path2.addCircle(x + 360, y + 200, 50, SkPath::kCW_Direction);
+        path2.addCircle(x + SkIntToScalar(360), y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCW_Direction);
         SkASSERT(path2.cheapIsDirection(SkPath::kCW_Direction));
         canvas->drawPath(path2, paint);
     }
