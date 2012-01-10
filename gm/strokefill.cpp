@@ -120,7 +120,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        test10(canvas);
+    //    test10(canvas);
     //    test_rev(canvas);
     }
 
