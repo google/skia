@@ -84,10 +84,14 @@ void SkMatrix44::asRowMajord(double dst[]) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const SkMatrix44 gIdentity44;
-
 bool SkMatrix44::isIdentity() const {
-    return *this == gIdentity44;
+    static const SkMScalar  sIdentityMat[4][4] = {
+        { 1, 0, 0, 0 },
+        { 0, 1, 0, 0 },
+        { 0, 0, 1, 0 },
+        { 0, 0, 0, 1 },
+    };
+    return !memcmp(fMat, sIdentityMat, sizeof(fMat));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
