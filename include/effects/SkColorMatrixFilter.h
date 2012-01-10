@@ -13,7 +13,7 @@
 #include "SkColorFilter.h"
 #include "SkColorMatrix.h"
 
-class SkColorMatrixFilter : public SkColorFilter {
+class SK_API SkColorMatrixFilter : public SkColorFilter {
 public:
     SkColorMatrixFilter();
     explicit SkColorMatrixFilter(const SkColorMatrix&);
