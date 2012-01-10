@@ -1856,6 +1856,7 @@ private:
     const uint8_t* fCurrVerb;
     const uint8_t* fStopVerbs;
     bool fDone;
+    SkDEBUGCODE(int fContourCounter;)
 };
 
 ContourIter::ContourIter(const SkTDArray<uint8_t>& verbs,
@@ -1866,6 +1867,7 @@ ContourIter::ContourIter(const SkTDArray<uint8_t>& verbs,
     fCurrPt = pts.begin();
     fCurrVerb = verbs.begin();
     fCurrPtCount = 0;
+    SkDEBUGCODE(fContourCounter = 0;)
     this->next();
 }
 
@@ -1887,11 +1889,6 @@ void ContourIter::next() {
     for (++verbs; verbs < fStopVerbs; ++verbs) {
         switch (*verbs) {
             case SkPath::kMove_Verb:
-                if (ptCount > 1) {
-                    // back up to revisit this Move next time arround, unless
-                    // the prev verb was also Move, which we know if ptCount==1
-                    verbs -= 1;
-                }
                 goto CONTOUR_END;
             case SkPath::kLine_Verb:
                 ptCount += 1;
@@ -1909,6 +1906,7 @@ void ContourIter::next() {
 CONTOUR_END:
     fCurrPtCount = ptCount;
     fCurrVerb = verbs;
+    SkDEBUGCODE(++fContourCounter;)
 }
 
 static SkScalar cross_prod(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
