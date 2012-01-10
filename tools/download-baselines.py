@@ -8,10 +8,12 @@ steps:
 cd .../trunk
 svn update
 # make sure there are no files awaiting svn commit
-tools/download-baselines.py gm/base-macmini-lion-fixed  # or other gm/ subdir
+python tools/download-baselines.py gm/base-macmini-lion-fixed  # or other gm/ subdir
 # upload CL for review
 # validate that the new images look right
 # commit CL
+
+Launch with --help to see more options.
 
 
 Copyright 2011 Google Inc.
@@ -21,6 +23,8 @@ found in the LICENSE file.
 '''
 
 # common Python modules
+import optparse
+import os
 import re
 import sys
 import urllib2
@@ -45,6 +49,10 @@ ACTUALS_BY_BASELINE_SUBDIR = {
     'gm/base-macmini-lion-float':
         'http://172.29.92.179/b/build/slave/Skia_MacMiniLion_Float_NoDebug/gm/actual',
 }
+
+USAGE_STRING = 'usage: %s [options] <baseline_subdir>'
+OPTION_IGNORE_LOCAL_MODS = '--ignore-local-mods'
+OPTION_ADD_NEW_FILES = '--add-new-files'
 
 IMAGE_REGEX = '.+\.png'
 IMAGE_MIMETYPE = 'image/png'
@@ -83,13 +91,16 @@ def GetLatestResultsUrl(baseline_subdir):
     print 'most_recent_result_url is %s' % most_recent_result_url
     return most_recent_result_url
 
-def DownloadMatchingFiles(source_url, filename_regex, dest_dir):
+def DownloadMatchingFiles(source_url, filename_regex, dest_dir,
+                          only_download_updates=False):
     """Download all files from source_url that match filename_regex, and save
     them (with their original filenames) in dest_dir.
 
     @param source_url
-    @param filename_regex
-    @param dest_dir
+    @param filename_regex only download files that match this regex
+    @param dest_dir where to save the downloaded files
+    @param only_download_updates if True, only download files that are already
+           present in dest_dir (download updated versions of those files)
     """
     while source_url.endswith('/'):
         source_url = source_url[:-1]
@@ -98,8 +109,10 @@ def DownloadMatchingFiles(source_url, filename_regex, dest_dir):
     link_regex = re.compile('<a href="(%s)">' % filename_regex)
     links = link_regex.findall(html)
     for link in links:
-        DownloadBinaryFile('%s/%s' % (source_url, link),
-                           '%s/%s' % (dest_dir, link))
+        dest_path = os.path.join(dest_dir, link)
+        if only_download_updates and not os.path.isfile(dest_path):
+            continue
+        DownloadBinaryFile('%s/%s' % (source_url, link), dest_path)
 
 def DownloadBinaryFile(source_url, dest_path):
     """Download a single file from its source_url and save it to local disk
@@ -114,28 +127,58 @@ def DownloadBinaryFile(source_url, dest_path):
     local_fh.write(url_fh.read())
     local_fh.close()
 
-def Main(arglist):
+def Main(options, args):
     """Download most recently generated baseline images for a given platform,
     and add any new ones to SVN control.
 
-    @param arglist sys.argv or equivalent
+    @param options
+    @param args
     """
-    num_args = len(arglist)
-    if num_args != 2:
-        raise Exception('usage: %s <baseline_subdir>' % __file__)
+    num_args = len(args)
+    if num_args != 1:
+        RaiseUsageException()
 
-    baseline_subdir = arglist[1]
+    baseline_subdir = args[0]
     while baseline_subdir.endswith('/'):
         baseline_subdir = baseline_subdir[:-1]
-
-    results_url = GetLatestResultsUrl(baseline_subdir)
-    DownloadMatchingFiles(results_url, IMAGE_REGEX, baseline_subdir)
     svn_handler = svn.Svn(baseline_subdir)
+
+    # If there are any locally modified files in that directory, exit
+    # (so that we don't risk overwriting the user's previous work).
+    new_and_modified_files = svn_handler.GetNewAndModifiedFiles()
+    if not options.ignore_local_mods:
+        if new_and_modified_files:
+            raise Exception('Exiting because there are already new and/or '
+                            'modified files in %s.  To continue in spite of '
+                            'that, run with %s option.' % (
+                                baseline_subdir, OPTION_IGNORE_LOCAL_MODS))
+
+    # Download the actual results from the appropriate buildbot.
+    results_url = GetLatestResultsUrl(baseline_subdir)
+    DownloadMatchingFiles(source_url=results_url, filename_regex=IMAGE_REGEX,
+                          dest_dir=baseline_subdir,
+                          only_download_updates=(not options.add_new_files))
+
+    # Add any new files to SVN control (if we are running with add_new_files).
     new_files = svn_handler.GetNewFiles()
-    if new_files:
+    if new_files and options.add_new_files:
         svn_handler.AddFiles(new_files)
         svn_handler.SetProperty(new_files, svn.PROPERTY_MIMETYPE,
                                 IMAGE_MIMETYPE)
 
+def RaiseUsageException():
+    raise Exception(USAGE_STRING %  __file__)
+
 if __name__ == '__main__':
-    Main(sys.argv)
+    parser = optparse.OptionParser(USAGE_STRING % '%prog')
+    parser.add_option(OPTION_IGNORE_LOCAL_MODS,
+                      action='store_true', default=False,
+                      help='allow tool to run even if there are already '
+                      'local modifications in the baseline_subdir')
+    parser.add_option(OPTION_ADD_NEW_FILES,
+                      action='store_true', default=False,
+                      help='in addition to downloading new versions of '
+                      'existing baselines, also download baselines that are '
+                      'not under SVN control yet')
+    (options, args) = parser.parse_args()
+    Main(options, args)

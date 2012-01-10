@@ -39,7 +39,16 @@ class Svn:
         SVN control.
         """
         stdout = self._RunCommand(['svn', 'status'])
-        new_regex = re.compile('\? +(.+)')
+        new_regex = re.compile('^\?.....\s+(.+)$', re.MULTILINE)
+        files = new_regex.findall(stdout)
+        return files
+
+    def GetNewAndModifiedFiles(self):
+        """Return a list of files in this dir which are newly added or modified,
+        including those that are not (yet) under SVN control.
+        """
+        stdout = self._RunCommand(['svn', 'status'])
+        new_regex = re.compile('^[AM\?].....\s+(.+)$', re.MULTILINE)
         files = new_regex.findall(stdout)
         return files
 
