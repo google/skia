@@ -619,7 +619,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 #endif
 
     if (fDoFill) {
-        if (src.cheapIsDirection(SkPath::kCW_Direction)) {
+        if (src.cheapIsDirection(SkPath::kCCW_Direction)) {
             dst->reverseAddPath(src);
         } else {
             dst->addPath(src);
