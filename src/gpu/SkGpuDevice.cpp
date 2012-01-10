@@ -1488,7 +1488,6 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                                               blurSize.height());
         texture = blurTexture;
         grPaint.setTexture(kBitmapTextureIdx, texture);
-        GrPrintf("%d %d | %d %d\n", w, h, texture->width(), texture->height());
     } else {
         grPaint.setTexture(kBitmapTextureIdx, texture);
     }
