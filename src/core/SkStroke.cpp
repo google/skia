@@ -619,15 +619,11 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 #endif
 
     if (fDoFill) {
-#if 0 // while I debug this
         if (src.cheapIsDirection(SkPath::kCW_Direction)) {
             dst->reverseAddPath(src);
         } else {
             dst->addPath(src);
         }
-#else
-        dst->addPath(src);
-#endif
     } else {
         //  Seems like we can assume that a 2-point src would always result in
         //  a convex stroke, but testing has proved otherwise.
