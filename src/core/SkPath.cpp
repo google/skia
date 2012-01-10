@@ -1837,3 +1837,141 @@ SkPath::Convexity SkPath::ComputeConvexity(const SkPath& path) {
     }
     return state.getConvexity();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+class ContourIter {
+public:
+    ContourIter(const SkTDArray<uint8_t>& verbs, const SkTDArray<SkPoint>& pts);
+
+    bool done() const { return fDone; }
+    // if !done() then these may be called
+    int count() const { return fCurrPtCount; }
+    const SkPoint* pts() const { return fCurrPt; }
+    void next();
+
+private:
+    int fCurrPtCount;
+    const SkPoint* fCurrPt;
+    const uint8_t* fCurrVerb;
+    const uint8_t* fStopVerbs;
+    bool fDone;
+};
+
+ContourIter::ContourIter(const SkTDArray<uint8_t>& verbs,
+                         const SkTDArray<SkPoint>& pts) {
+    fStopVerbs = verbs.begin() + verbs.count();
+    
+    fDone = false;
+    fCurrPt = pts.begin();
+    fCurrVerb = verbs.begin();
+    fCurrPtCount = 0;
+    this->next();
+}
+
+void ContourIter::next() {
+    if (fCurrVerb >= fStopVerbs) {
+        fDone = true;
+    }
+    if (fDone) {
+        return;
+    }
+
+    // skip pts of prev contour
+    fCurrPt += fCurrPtCount;
+
+    SkASSERT(SkPath::kMove_Verb == fCurrVerb[0]);
+    int ptCount = 1;    // moveTo
+    const uint8_t* verbs = fCurrVerb;
+
+    for (++verbs; verbs < fStopVerbs; ++verbs) {
+        switch (*verbs) {
+            case SkPath::kMove_Verb:
+                if (ptCount > 1) {
+                    // back up to revisit this Move next time arround, unless
+                    // the prev verb was also Move, which we know if ptCount==1
+                    verbs -= 1;
+                }
+                goto CONTOUR_END;
+            case SkPath::kLine_Verb:
+                ptCount += 1;
+                break;
+            case SkPath::kQuad_Verb:
+                ptCount += 2;
+                break;
+            case SkPath::kCubic_Verb:
+                ptCount += 3;
+                break;
+            default:    // kClose_Verb, just keep going
+                break;
+        }
+    }
+CONTOUR_END:
+    fCurrPtCount = ptCount;
+    fCurrVerb = verbs;
+}
+
+static SkScalar cross_prod(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    return SkPoint::CrossProduct(p1 - p0, p2 - p0);
+}
+
+static int find_max_y(const SkPoint pts[], int count) {
+    SkASSERT(count > 0);
+    SkScalar max = pts[0].fY;
+    int maxIndex = 0;
+    for (int i = 1; i < count; ++i) {
+        if (pts[i].fY > max) {
+            max = pts[i].fY;
+            maxIndex = i;
+        }
+    }
+    return maxIndex;
+}
+
+bool SkPath::cheapComputeDirection(Direction* dir) const {
+    // don't want to pay the cost for computing this if it
+    // is unknown, so we don't call isConvex()
+    const Convexity conv = this->getConvexityOrUnknown();
+
+    ContourIter iter(fVerbs, fPts);
+
+    for (; !iter.done(); iter.next()) {
+        int n = iter.count();
+        const SkPoint* pts = iter.pts();
+
+        SkScalar cross = 0;
+        if (kConvex_Convexity == conv) {
+            for (int i = 0; i < n - 2; ++i) {
+                cross = cross_prod(pts[i], pts[i + 1], pts[i + 2]);
+                if (cross) {
+                    break;
+                }
+            }
+        } else {
+            int i = find_max_y(pts, n);
+            // loop around until we get a non-zero cross
+            for (int j = 0; j < n; ++j) {
+                if (i < n - 2) {
+                    cross = cross_prod(pts[i], pts[i + 1], pts[i + 2]);
+                } else {
+                    cross = cross_prod(pts[i], pts[(i + 1) % n], pts[(i + 2) % n]);
+                }
+                if (cross) {
+                    break;
+                }
+                SkASSERT(i < n);
+                if (++i == n) {
+                    i = 0;
+                }
+            }
+        }
+        if (cross) {
+            if (dir) {
+                *dir = cross > 0 ? kCW_Direction : kCCW_Direction;
+            }
+            return true;
+        }
+    }
+    return false;   // unknown
+}
+

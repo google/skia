@@ -453,6 +453,24 @@ public:
         kCCW_Direction
     };
 
+    /**
+     *  Tries to quickly compute the direction of the first non-degenerate
+     *  contour. If it can be computed, return true and set dir to that
+     *  direction. If it cannot be (quickly) determined, return false and ignore
+     *  the dir parameter.
+     */
+    bool cheapComputeDirection(Direction* dir) const;
+
+    /**
+     *  Returns true if the path's direction can be computed via
+     *  cheapComputDirection() and if that computed direction matches the
+     *  specified direction.
+     */
+    bool cheapIsDirection(Direction dir) const {
+        Direction computedDir;
+        return this->cheapComputeDirection(&computedDir) && computedDir == dir;
+    }
+
     /** Add a closed rectangle contour to the path
         @param rect The rectangle to add as a closed contour to the path
         @param dir  The direction to wind the rectangle's contour
