@@ -1052,6 +1052,53 @@ void SkPath::reversePathTo(const SkPath& path) {
     }
 }
 
+void SkPath::reverseAddPath(const SkPath& src) {
+    this->incReserve(src.fPts.count());
+
+    const SkPoint* startPts = src.fPts.begin();
+    const SkPoint* pts = src.fPts.end();
+    const uint8_t* startVerbs = src.fVerbs.begin();
+    const uint8_t* verbs = src.fVerbs.end();
+
+    bool needMove = true;
+    bool needClose = false;
+    while (verbs > startVerbs) {
+        uint8_t v = *--verbs;
+        int n = gPtsInVerb[v];
+
+        if (needMove) {
+            --pts;
+            this->moveTo(pts->fX, pts->fY);
+            needMove = false;
+        }
+        pts -= n;
+        switch (v) {
+            case kMove_Verb:
+                if (needClose) {
+                    this->close();
+                    needClose = false;
+                }
+                needMove = true;
+                pts += 1;   // so we see the point in "if (needMove)" above
+                break;
+            case kLine_Verb:
+                this->lineTo(pts[0]);
+                break;
+            case kQuad_Verb:
+                this->quadTo(pts[1], pts[0]);
+                break;
+            case kCubic_Verb:
+                this->cubicTo(pts[2], pts[1], pts[0]);
+                break;
+            case kClose_Verb:
+                needClose = true;
+                break;
+            default:
+                SkASSERT(!"unexpected verb");
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkPath::offset(SkScalar dx, SkScalar dy, SkPath* dst) const {
