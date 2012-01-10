@@ -526,7 +526,7 @@ public:
         @param dx   The amount to translate the path in X as it is added
         @param dx   The amount to translate the path in Y as it is added
     */
-    void    addPath(const SkPath& src, SkScalar dx, SkScalar dy);
+    void addPath(const SkPath& src, SkScalar dx, SkScalar dy);
 
     /** Add a copy of src to the path
     */
@@ -540,6 +540,11 @@ public:
         @param src  The path to add as a new contour
     */
     void addPath(const SkPath& src, const SkMatrix& matrix);
+
+    /**
+     *  Same as addPath(), but reverses the src input
+     */
+    void reverseAddPath(const SkPath& src);
 
     /** Offset the path by (dx,dy), returning true on success
      

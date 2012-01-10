@@ -33,6 +33,7 @@
     '../gm/shadertext.cpp',
     '../gm/shadows.cpp',
     '../gm/shapes.cpp',
+    '../gm/strokefill.cpp',
     '../gm/strokerects.cpp',
     '../gm/strokes.cpp',
     '../gm/tablecolorfilter.cpp',

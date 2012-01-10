@@ -619,6 +619,14 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 #endif
 
     if (fDoFill) {
+        const SkPath* srcPtr = &src;
+#if 0
+        SkPath tmp;
+        if (fast_is_ccw(src)) {
+            reverse(src, &tmp);
+            srcPtr = tmp;
+        }
+#endif
         dst->addPath(src);
     } else {
         //  Seems like we can assume that a 2-point src would always result in
