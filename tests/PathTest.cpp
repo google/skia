@@ -351,16 +351,16 @@ static void test_convexity(skiatest::Reporter* reporter) {
     SkPath path;
 
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
-    path.addCircle(0, 0, 10);
+    path.addCircle(0, 0, SkIntToScalar(10));
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
-    path.addCircle(0, 0, 10);   // 2nd circle
+    path.addCircle(0, 0, SkIntToScalar(10));   // 2nd circle
     REPORTER_ASSERT(reporter, C == SkPath::ComputeConvexity(path));
     path.reset();
-    path.addRect(0, 0, 10, 10, SkPath::kCCW_Direction);
+    path.addRect(0, 0, SkIntToScalar(10), SkIntToScalar(10), SkPath::kCCW_Direction);
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
     REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCCW_Direction));
     path.reset();
-    path.addRect(0, 0, 10, 10, SkPath::kCW_Direction);
+    path.addRect(0, 0, SkIntToScalar(10), SkIntToScalar(10), SkPath::kCW_Direction);
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
     REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCW_Direction));
     
