@@ -43,9 +43,12 @@ static void test10(SkCanvas* canvas) {
     path2.reset();
     path2.addCircle(x + 240, y + 200, 50, SkPath::kCCW_Direction);
     canvas->drawPath(path2, paint);
+    SkASSERT(path2.cheapIsDirection(SkPath::kCCW_Direction));
     
     path2.reset();
+    SkASSERT(!path2.cheapComputeDirection(NULL));
     path2.addCircle(x + 360, y + 200, 50, SkPath::kCW_Direction);
+    SkASSERT(path2.cheapIsDirection(SkPath::kCW_Direction));
     canvas->drawPath(path2, paint);
 }
 
@@ -117,8 +120,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-    //    test10(canvas);
-        test_rev(canvas);
+        test10(canvas);
+    //    test_rev(canvas);
     }
 
 private:
