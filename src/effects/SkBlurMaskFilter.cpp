@@ -42,7 +42,8 @@ private:
 SkMaskFilter* SkBlurMaskFilter::Create(SkScalar radius,
                                        SkBlurMaskFilter::BlurStyle style,
                                        uint32_t flags) {
-    if (radius <= 0 || (unsigned)style >= SkBlurMaskFilter::kBlurStyleCount 
+    // use !(radius > 0) instead of radius <= 0 to reject NaN values
+    if (!(radius > 0) || (unsigned)style >= SkBlurMaskFilter::kBlurStyleCount 
         || flags > SkBlurMaskFilter::kAll_BlurFlag) {
         return NULL;
     }
