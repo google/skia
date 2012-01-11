@@ -888,12 +888,8 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     // (0,1).
     if ((kZero_BlendCoeff == *srcCoeff && dstCoeffIsOne)) {
         if (drawState.getStencil().doesWrite()) {
-            if (fCaps.fShaderSupport) {
-                return kDisableBlend_BlendOptFlag |
-                       kEmitTransBlack_BlendOptFlag;
-            } else {
-                return kDisableBlend_BlendOptFlag;
-            }
+            return kDisableBlend_BlendOptFlag |
+                   kEmitTransBlack_BlendOptFlag;
         } else {
             return kSkipDraw_BlendOptFlag;
         }
@@ -920,8 +916,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
                 // if there is no coverage and coeffs are (1,0) then we
                 // won't need to read the dst at all, it gets replaced by src
                 return kDisableBlend_BlendOptFlag;
-            } else if (kZero_BlendCoeff == *srcCoeff &&
-                       fCaps.fShaderSupport) {
+            } else if (kZero_BlendCoeff == *srcCoeff) {
                 // if the op is "clear" then we don't need to emit a color
                 // or blend, just write transparent black into the dst.
                 *srcCoeff = kOne_BlendCoeff;
@@ -936,30 +931,26 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
         if (this->canTweakAlphaForCoverage()) {
             return kCoverageAsAlpha_BlendOptFlag;
         }
-        // We haven't implemented support for these optimizations in the
-        // fixed pipe (which is on its deathbed)
-        if (fCaps.fShaderSupport) {
-            if (dstCoeffIsZero) {
-                if (kZero_BlendCoeff == *srcCoeff) {
-                    // the source color is not included in the blend
-                    // the dst coeff is effectively zero so blend works out to:
-                    // (c)(0)D + (1-c)D = (1-c)D.
-                    *dstCoeff = kISA_BlendCoeff;
-                    return  kEmitCoverage_BlendOptFlag;
-                } else if (srcAIsOne) {
-                    // the dst coeff is effectively zero so blend works out to:
-                    // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
-                    // If Sa is 1 then we can replace Sa with c 
-                    // and set dst coeff to 1-Sa.
-                    *dstCoeff = kISA_BlendCoeff;
-                    return  kCoverageAsAlpha_BlendOptFlag;
-                }
-            } else if (dstCoeffIsOne) {
-                // the dst coeff is effectively one so blend works out to:
-                // cS + (c)(1)D + (1-c)D = cS + D.
-                *dstCoeff = kOne_BlendCoeff;
+        if (dstCoeffIsZero) {
+            if (kZero_BlendCoeff == *srcCoeff) {
+                // the source color is not included in the blend
+                // the dst coeff is effectively zero so blend works out to:
+                // (c)(0)D + (1-c)D = (1-c)D.
+                *dstCoeff = kISA_BlendCoeff;
+                return  kEmitCoverage_BlendOptFlag;
+            } else if (srcAIsOne) {
+                // the dst coeff is effectively zero so blend works out to:
+                // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
+                // If Sa is 1 then we can replace Sa with c 
+                // and set dst coeff to 1-Sa.
+                *dstCoeff = kISA_BlendCoeff;
                 return  kCoverageAsAlpha_BlendOptFlag;
             }
+        } else if (dstCoeffIsOne) {
+            // the dst coeff is effectively one so blend works out to:
+            // cS + (c)(1)D + (1-c)D = cS + D.
+            *dstCoeff = kOne_BlendCoeff;
+            return  kCoverageAsAlpha_BlendOptFlag;
         }
     }
     return kNone_BlendOpt;
@@ -1213,7 +1204,6 @@ void GrDrawTarget::Caps::print() const {
     GrPrintf("Two Sided Stencil Support   : %s\n", gNY[fTwoSidedStencilSupport]);
     GrPrintf("Stencil Wrap Ops  Support   : %s\n", gNY[fStencilWrapOpsSupport]);
     GrPrintf("HW AA Lines Support         : %s\n", gNY[fHWAALineSupport]);
-    GrPrintf("Shader Support              : %s\n", gNY[fShaderSupport]);
     GrPrintf("Shader Derivative Support   : %s\n", gNY[fShaderDerivativeSupport]);
     GrPrintf("Geometry Shader Support     : %s\n", gNY[fGeometryShaderSupport]);
     GrPrintf("FSAA Support                : %s\n", gNY[fFSAASupport]);

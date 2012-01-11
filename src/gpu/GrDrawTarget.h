@@ -45,7 +45,6 @@ public:
         bool fTwoSidedStencilSupport    : 1;
         bool fStencilWrapOpsSupport     : 1;
         bool fHWAALineSupport           : 1;
-        bool fShaderSupport             : 1;
         bool fShaderDerivativeSupport   : 1;
         bool fGeometryShaderSupport     : 1;
         bool fFSAASupport               : 1;
