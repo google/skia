@@ -10,56 +10,6 @@
 #include "SkPath.h"
 #include "SkTypeface.h"
 
-static void test_path(SkCanvas* canvas, const SkPath& path) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    canvas->drawPath(path, paint);
-    
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setColor(SK_ColorRED);
-    canvas->drawPath(path, paint);
-}
-
-static void test_rev(SkCanvas* canvas, const SkPath& path) {
-    test_path(canvas, path);
-
-    SkPath rev;
-    rev.reverseAddPath(path);
-    canvas->save();
-    canvas->translate(SkIntToScalar(150), 0);
-    test_path(canvas, rev);
-    canvas->restore();
-}
-
-static void test_rev(SkCanvas* canvas) {
-    SkRect r = { 10, 10, 100, 60 };
-
-    SkPath path;
-
-    path.addRect(r); test_rev(canvas, path);
-
-    canvas->translate(0, 100);
-    path.offset(20, 20);
-    path.addRect(r); test_rev(canvas, path);
-
-    canvas->translate(0, 100);
-    path.reset();
-    path.moveTo(10, 10); path.lineTo(30, 30);
-    path.addOval(r);
-    r.offset(50, 20);
-    path.addOval(r);
-    test_rev(canvas, path);
-
-    SkPaint paint;
-    paint.setTextSize(SkIntToScalar(100));
-    SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
-    SkSafeUnref(paint.setTypeface(hira));
-    path.reset();
-    paint.getTextPath("e", 1, 50, 50, &path);
-    canvas->translate(0, 100);
-    test_rev(canvas, path);
-}
-
 namespace skiagm {
 
 class StrokeFillGM : public GM {
@@ -83,8 +33,8 @@ protected:
         const size_t len = sizeof(text) - 1;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(100));
-        SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro",
-                                                      SkTypeface::kNormal);
+//        SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
+        SkTypeface* hira = SkTypeface::CreateFromName("Papyrus", SkTypeface::kNormal);
         paint.setTypeface(hira);
         SkScalar x = SkIntToScalar(180);
         SkScalar y = SkIntToScalar(88);
