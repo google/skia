@@ -266,20 +266,21 @@ static bool chopMonoCubicAtX(SkPoint pts[4], SkScalar x, SkScalar* t) {
 
 // Modify pts[] in place so that it is clipped in Y to the clip rect
 static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
-    SkScalar t;
-    SkPoint tmp[7]; // for SkChopCubicAt
     
     // are we partially above
     if (pts[0].fY < clip.fTop) {
+        SkScalar t;
         if (chopMonoCubicAtY(pts, clip.fTop, &t)) {
+            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
-            // given the imprecision of computing t, we just slam our Y coord
-            // to the top of the clip. This also saves us in the bad case where
-            // the t was soooo bad that the entire segment could have been
-            // below fBottom
+
+            // tmp[3, 4, 5].fY should all be to the below clip.fTop, and
+            // still be monotonic in Y. Since we can't trust the numerics of
+            // the chopper, we force those conditions now
             tmp[3].fY = clip.fTop;
-            clamp_ge(tmp[4].fY, clip.fTop);
-            clamp_ge(tmp[5].fY, clip.fTop);
+            tmp[4].fY = SkMaxScalar(tmp[4].fY, clip.fTop);
+            tmp[5].fY = SkMaxScalar(tmp[5].fY, tmp[4].fY);
+
             pts[0] = tmp[3];
             pts[1] = tmp[4];
             pts[2] = tmp[5];
@@ -294,7 +295,9 @@ static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
     
     // are we partially below
     if (pts[3].fY > clip.fBottom) {
+        SkScalar t;
         if (chopMonoCubicAtY(pts, clip.fBottom, &t)) {
+            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
             clamp_le(tmp[1].fY, clip.fBottom);
             clamp_le(tmp[2].fY, clip.fBottom);
@@ -341,18 +344,22 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
         this->appendVLine(clip.fRight, pts[0].fY, pts[3].fY, reverse);
         return;
     }
-    
-    SkScalar t;
-    SkPoint tmp[7];
-    
+
     // are we partially to the left
     if (pts[0].fX < clip.fLeft) {
+        SkScalar t;
         if (chopMonoCubicAtX(pts, clip.fLeft, &t)) {
+            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
             this->appendVLine(clip.fLeft, tmp[0].fY, tmp[3].fY, reverse);
-            clamp_ge(tmp[3].fX, clip.fLeft);
-            clamp_ge(tmp[4].fX, clip.fLeft);
-            clamp_ge(tmp[5].fX, clip.fLeft);
+
+            // tmp[3, 4, 5].fX should all be to the right of clip.fLeft, and
+            // still be monotonic in X. Since we can't trust the numerics of
+            // the chopper, we force those conditions now
+            tmp[3].fX = clip.fLeft;
+            tmp[4].fX = SkMaxScalar(tmp[4].fX, clip.fLeft);
+            tmp[5].fX = SkMaxScalar(tmp[5].fX, tmp[4].fX);
+
             pts[0] = tmp[3];
             pts[1] = tmp[4];
             pts[2] = tmp[5];
@@ -366,7 +373,9 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
     
     // are we partially to the right
     if (pts[3].fX > clip.fRight) {
+        SkScalar t;
         if (chopMonoCubicAtX(pts, clip.fRight, &t)) {
+            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
             clamp_le(tmp[1].fX, clip.fRight);
             clamp_le(tmp[2].fX, clip.fRight);
