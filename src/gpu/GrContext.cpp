@@ -721,8 +721,7 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
 
     GrAssert(GR_USE_OFFSCREEN_AA);
 
-    GrAssert(NULL == record->fOffscreen0.texture());
-    GrAssert(NULL == record->fOffscreen1.texture());
+    GrAssert(NULL == record->fOffscreen.texture());
     GrAssert(!boundRect.isEmpty());
 
     int boundW = boundRect.width();
@@ -833,7 +832,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
                                  int tileX, int tileY,
                                  OffscreenRecord* record) {
     SK_TRACE_EVENT0("GrContext::doOffscreenAAPass2");
-    GrAssert(NULL != record->fOffscreen0.texture());
+    GrAssert(NULL != record->fOffscreen.texture());
     GrDrawTarget::AutoGeometryPush agp(target);
     GrIRect tileRect;
     tileRect.fLeft = boundRect.fLeft + tileX * record->fTileSizeX;
