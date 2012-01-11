@@ -10,6 +10,24 @@
 #include "SkLineClipper.h"
 #include "SkEdgeClipper.h"
 
+static void test_edgeclipper(skiatest::Reporter* reporter) {
+    SkEdgeClipper clipper;
+    
+    const SkPoint pts[] = {
+        { 3.0995476e+010, 42.929779 },
+        { -3.0995163e+010, 51.050385 },
+        { -3.0995157e+010, 51.050392 },
+        { -3.0995134e+010, 51.050400 },
+    };
+
+    const SkRect clip = { 0, 0, 300, 200 };
+
+    // this should not assert, even though our choppers do a poor numerical
+    // job when computing their t values.
+    // http://code.google.com/p/skia/issues/detail?id=444
+    clipper.clipCubic(pts, clip);
+}
+
 static void test_intersectline(skiatest::Reporter* reporter) {
     static const SkScalar L = 0;
     static const SkScalar T = 0;
@@ -90,6 +108,7 @@ static void test_intersectline(skiatest::Reporter* reporter) {
 
 void TestClipper(skiatest::Reporter* reporter) {
     test_intersectline(reporter);
+    test_edgeclipper(reporter);
 }
 
 #include "TestClassDef.h"
