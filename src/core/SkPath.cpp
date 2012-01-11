@@ -1926,6 +1926,20 @@ static int find_max_y(const SkPoint pts[], int count) {
     return maxIndex;
 }
 
+static int find_diff_pt(const SkPoint pts[], int index, int n, int inc) {
+    int i = index;
+    for (;;) {
+        i = (i + inc) % n;
+        if (i == index) {   // we wrapped around, so abort
+            break;
+        }
+        if (pts[index] != pts[i]) { // found a different point, success!
+            break;
+        }
+    }
+    return i;
+}
+
 bool SkPath::cheapComputeDirection(Direction* dir) const {
     // don't want to pay the cost for computing this if it
     // is unknown, so we don't call isConvex()
@@ -1935,10 +1949,15 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
 
     for (; !iter.done(); iter.next()) {
         int n = iter.count();
-        const SkPoint* pts = iter.pts();
+        if (n < 3) {
+            continue;
+        }
 
+        const SkPoint* pts = iter.pts();
         SkScalar cross = 0;
         if (kConvex_Convexity == conv) {
+            // we loop, skipping over degenerate or flat segments that will
+            // return 0 for the cross-product
             for (int i = 0; i < n - 2; ++i) {
                 cross = cross_prod(pts[i], pts[i + 1], pts[i + 2]);
                 if (cross) {
@@ -1946,10 +1965,24 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
                 }
             }
         } else {
-            int i = find_max_y(pts, n);
-            // can't always say (i-1) % n, in case i-1 goes negative, so we
-            // use (i+n-1) % n instead
-            cross = cross_prod(pts[(i + n - 1) % n], pts[i], pts[(i + 1) % n]);
+            int index = find_max_y(pts, n);
+            // Find a next and prev index to use for the cross-product test,
+            // but we try to find pts that form non-zero vectors from pts[index]
+            //
+            // Its possible that we can't find two non-degenerate vectors, so
+            // we have to guard our search (e.g. all the pts could be in the
+            // same place).
+            
+            // we pass n - 1 instead of -1 so we don't foul up % operator by
+            // passing it a negative LH argument.
+            int prev = find_diff_pt(pts, index, n, n - 1);
+            if (prev == index) {
+                // completely degenerate, skip to next contour
+                continue;
+            }
+            int next = find_diff_pt(pts, index, n, 1);
+            SkASSERT(next != index);
+            cross = cross_prod(pts[prev], pts[index], pts[next]);
         }
         if (cross) {
             if (dir) {

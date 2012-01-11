@@ -38,7 +38,7 @@ static void test_direction(skiatest::Reporter* reporter) {
     }
     
     static const char* gCW[] = {
-        "M 10 10 L 10 10 L 20 10 Q 20 20 30 30",
+        "M 10 10 L 10 10 Q 20 10 20 20",
         "M 10 10 C 20 10 20 20 20 20",
     };
     for (i = 0; i < SK_ARRAY_COUNT(gCW); ++i) {
@@ -49,7 +49,7 @@ static void test_direction(skiatest::Reporter* reporter) {
     }
     
     static const char* gCCW[] = {
-        "M 10 10 L 10 10 L 20 10 Q 20 -20 30 -30",
+        "M 10 10 L 10 10 Q 20 10 20 -20",
         "M 10 10 C 20 10 20 -20 20 -20",
     };
     for (i = 0; i < SK_ARRAY_COUNT(gCCW); ++i) {
@@ -1087,7 +1087,7 @@ void TestPath(skiatest::Reporter* reporter) {
     test_isRect(reporter);
 
     test_zero_length_paths(reporter);
-// for now    test_direction(reporter);
+    test_direction(reporter);
     test_convexity(reporter);
     test_convexity2(reporter);
     test_close(reporter);
