@@ -809,7 +809,7 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     GrDrawState* drawState = target->drawState();
     drawState->setRenderTarget(offRT0);
 #if PREFER_MSAA_OFFSCREEN_AA
-    target->enableState(GrDrawState::kHWAntialias_StateBit);
+    drawState->enableState(GrDrawState::kHWAntialias_StateBit);
 #endif
 
     GrMatrix transM;
