@@ -14,13 +14,13 @@ static void test_edgeclipper(skiatest::Reporter* reporter) {
     SkEdgeClipper clipper;
     
     const SkPoint pts[] = {
-        { 3.0995476e+010, 42.929779 },
-        { -3.0995163e+010, 51.050385 },
-        { -3.0995157e+010, 51.050392 },
-        { -3.0995134e+010, 51.050400 },
+        { SkFloatToScalar(3.0995476e+010),  SkFloatToScalar(42.929779) },
+        { SkFloatToScalar(-3.0995163e+010), SkFloatToScalar(51.050385) },
+        { SkFloatToScalar(-3.0995157e+010), SkFloatToScalar(51.050392) },
+        { SkFloatToScalar(-3.0995134e+010), SkFloatToScalar(51.050400) },
     };
 
-    const SkRect clip = { 0, 0, 300, 200 };
+    const SkRect clip = { 0, 0, SkIntToScalar(300), SkIntToScalar(200) };
 
     // this should not assert, even though our choppers do a poor numerical
     // job when computing their t values.
