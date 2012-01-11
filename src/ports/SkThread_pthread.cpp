@@ -10,6 +10,8 @@
 #include <pthread.h>
 #include <errno.h>
 
+#ifndef SK_BUILD_FOR_ANDROID
+
 /**
  We prefer the GCC intrinsic implementation of the atomic operations over the
  SkMutex-based implementation. The SkMutex version suffers from static 
@@ -60,6 +62,8 @@ int32_t sk_atomic_dec(int32_t* addr)
 }
 
 #endif
+
+#endif // SK_BUILD_FOR_ANDROID
 
 //////////////////////////////////////////////////////////////////////////////
 
