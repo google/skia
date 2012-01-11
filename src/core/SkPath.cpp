@@ -1947,21 +1947,9 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
             }
         } else {
             int i = find_max_y(pts, n);
-            // loop around until we get a non-zero cross
-            for (int j = 0; j < n; ++j) {
-                if (i < n - 2) {
-                    cross = cross_prod(pts[i], pts[i + 1], pts[i + 2]);
-                } else {
-                    cross = cross_prod(pts[i], pts[(i + 1) % n], pts[(i + 2) % n]);
-                }
-                if (cross) {
-                    break;
-                }
-                SkASSERT(i < n);
-                if (++i == n) {
-                    i = 0;
-                }
-            }
+            // can't always say (i-1) % n, in case i-1 goes negative, so we
+            // use (i+n-1) % n instead
+            cross = cross_prod(pts[(i + n - 1) % n], pts[i], pts[(i + 1) % n]);
         }
         if (cross) {
             if (dir) {
