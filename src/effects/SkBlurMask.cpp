@@ -16,7 +16,7 @@
 // breakeven on Mac, and ~15% slowdown on Linux.
 // Reading a word at a time when bulding the sum buffer seems to give
 // us no appreciable speedup on Windows or Mac, and 2% slowdown on Linux.
-#if defined(BUILD_FOR_WIN_32)
+#if defined(SK_BUILD_FOR_WIN32)
 #define UNROLL_KERNEL_LOOP 1
 #endif
 
