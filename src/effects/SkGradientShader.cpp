@@ -16,10 +16,6 @@
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
 
-#if defined(SK_SCALAR_IS_FLOAT) && !defined(SK_DONT_USE_FLOAT_SQRT)
-    #define SK_USE_FLOAT_SQRT
-#endif
-
 #ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
     #define USE_DITHER_32BIT_GRADIENT
 #endif
@@ -1517,7 +1513,7 @@ void shadeSpan_radial_clamp(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
 void shadeSpan_radial_mirror(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
         SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
         int count, SkPoint& srcPt, float fdx, float fdy) {
-#ifdef SK_USE_FLOAT_SQRT
+#ifdef SK_SCALAR_IS_FLOAT
     float ffx = srcPt.fX;
     float ffy = srcPt.fY;
     do {
@@ -1584,7 +1580,7 @@ void Radial_Gradient::shadeSpan(int x, int y,
             (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &storage[0], &storage[1]);
             dx = storage[0];
             dy = storage[1];
-#ifdef SK_USE_FLOAT_SQRT
+#ifdef SK_SCALAR_IS_FLOAT
             fdx = SkFixedToFloat(storage[0]);
             fdy = SkFixedToFloat(storage[1]);
 #endif
@@ -1592,7 +1588,7 @@ void Radial_Gradient::shadeSpan(int x, int y,
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
             dx = SkScalarToFixed(fDstToIndex.getScaleX());
             dy = SkScalarToFixed(fDstToIndex.getSkewY());
-#ifdef SK_USE_FLOAT_SQRT
+#ifdef SK_SCALAR_IS_FLOAT
             fdx = fDstToIndex.getScaleX();
             fdy = fDstToIndex.getSkewY();
 #endif
