@@ -676,7 +676,6 @@ inline bool disable_coverage_aa_for_blend(GrDrawTarget* target) {
 
 struct GrContext::OffscreenRecord {
     enum Downsample {
-        k4x4TwoPass_Downsample,
         k4x4SinglePass_Downsample,
         kFSAA_Downsample
     }                              fDownsample;
@@ -685,8 +684,7 @@ struct GrContext::OffscreenRecord {
     int                            fTileCountX;
     int                            fTileCountY;
     int                            fScale;
-    GrAutoScratchTexture           fOffscreen0;
-    GrAutoScratchTexture           fOffscreen1;
+    GrAutoScratchTexture           fOffscreen;
     GrDrawTarget::SavedDrawState   fSavedState;
     GrClip                         fClip;
 };
@@ -749,9 +747,7 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
         record->fScale = 1;
         desc.fAALevel = kMed_GrAALevel;
     } else {
-        record->fDownsample = fGpu->getCaps().fShaderSupport ?
-                                OffscreenRecord::k4x4SinglePass_Downsample :
-                                OffscreenRecord::k4x4TwoPass_Downsample;
+        record->fDownsample = OffscreenRecord::k4x4SinglePass_Downsample;
         record->fScale = OFFSCREEN_SSAA_SCALE;
         // both downsample paths assume this
         GR_STATIC_ASSERT(4 == OFFSCREEN_SSAA_SCALE);
@@ -760,29 +756,17 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
     
     desc.fWidth *= record->fScale;
     desc.fHeight *= record->fScale;
-    record->fOffscreen0.set(this, desc);
-    if (NULL == record->fOffscreen0.texture()) {
+    record->fOffscreen.set(this, desc);
+    if (NULL == record->fOffscreen.texture()) {
         return false;
     }
     // the approximate lookup might have given us some slop space, might as well
     // use it when computing the tiles size.
     // these are scale values, will adjust after considering
     // the possible second offscreen.
-    record->fTileSizeX = record->fOffscreen0.texture()->width();
-    record->fTileSizeY = record->fOffscreen0.texture()->height();
+    record->fTileSizeX = record->fOffscreen.texture()->width();
+    record->fTileSizeY = record->fOffscreen.texture()->height();
 
-    if (OffscreenRecord::k4x4TwoPass_Downsample == record->fDownsample) {
-        desc.fWidth /= 2;
-        desc.fHeight /= 2;
-        record->fOffscreen1.set(this, desc);
-        if (NULL == record->fOffscreen1.texture()) {
-            return false;
-        }
-        record->fTileSizeX = GrMin(record->fTileSizeX, 
-                                   2 * record->fOffscreen0.texture()->width());
-        record->fTileSizeY = GrMin(record->fTileSizeY, 
-                                   2 * record->fOffscreen0.texture()->height());
-    }
     record->fTileSizeX /= record->fScale;
     record->fTileSizeY /= record->fScale;
 
@@ -800,14 +784,14 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
                                       int tileX, int tileY,
                                       OffscreenRecord* record) {
 
-    GrRenderTarget* offRT0 = record->fOffscreen0.texture()->asRenderTarget();
-    GrAssert(NULL != offRT0);
+    GrRenderTarget* offRT = record->fOffscreen.texture()->asRenderTarget();
+    GrAssert(NULL != offRT);
 
     GrPaint tempPaint;
     tempPaint.reset();
     this->setPaint(tempPaint, target);
     GrDrawState* drawState = target->drawState();
-    drawState->setRenderTarget(offRT0);
+    drawState->setRenderTarget(offRT);
 #if PREFER_MSAA_OFFSCREEN_AA
     drawState->enableState(GrDrawState::kHWAntialias_StateBit);
 #endif
@@ -868,7 +852,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
         filter = GrSamplerState::kBilinear_Filter;
     }
 
-    GrTexture* src = record->fOffscreen0.texture();
+    GrTexture* src = record->fOffscreen.texture();
     int scale;
 
     enum {
@@ -877,25 +861,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
 
     GrDrawState* drawState = target->drawState();
 
-    if (OffscreenRecord::k4x4TwoPass_Downsample == record->fDownsample) {
-        GrAssert(NULL != record->fOffscreen1.texture());
-        scale = 2;
-        GrRenderTarget* dst = record->fOffscreen1.texture()->asRenderTarget();
-
-        // Do 2x2 downsample from first to second
-        drawState->setTexture(kOffscreenStage, src);
-        drawState->setRenderTarget(dst);
-        drawState->setViewMatrix(GrMatrix::I());
-        GrSamplerState* sampler = drawState->sampler(kOffscreenStage);
-        sampler->reset(GrSamplerState::kClamp_WrapMode, filter);
-        sampler->matrix()->setScale(scale * GR_Scalar1 / src->width(),
-                                    scale * GR_Scalar1 / src->height());
-        GrRect rect = SkRect::MakeWH(SkIntToScalar(scale * tileRect.width()),
-                                     SkIntToScalar(scale * tileRect.height()));
-        target->drawSimpleRect(rect, NULL, 1 << kOffscreenStage);
-        
-        src = record->fOffscreen1.texture();
-    } else if (OffscreenRecord::kFSAA_Downsample == record->fDownsample) {
+    if (OffscreenRecord::kFSAA_Downsample == record->fDownsample) {
         scale = 1;
         GrIRect rect = SkIRect::MakeWH(tileRect.width(), tileRect.height());
         src->asRenderTarget()->overrideResolveRect(rect);
@@ -1611,10 +1577,6 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-bool GrContext::supportsShaders() const {
-    return fGpu->getCaps().fShaderSupport;
-}
 
 void GrContext::flush(int flagsBitfield) {
     if (kDiscard_FlushBit & flagsBitfield) {

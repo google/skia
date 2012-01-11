@@ -451,11 +451,6 @@ public:
     // Misc.
 
     /**
-     * Currently needed by SkGpuDevice. Ideally this shouldn't be exposed.
-     */
-    bool supportsShaders() const;
-
-    /**
      * Flags that affect flush() behavior.
      */
     enum FlushBits {

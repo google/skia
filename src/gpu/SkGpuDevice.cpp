@@ -856,8 +856,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
 #endif
     SkMaskFilter::BlurInfo info;
     SkMaskFilter::BlurType blurType = filter->asABlur(&info);
-    if (SkMaskFilter::kNone_BlurType == blurType ||
-        !context->supportsShaders()) {
+    if (SkMaskFilter::kNone_BlurType == blurType) {
         return false;
     }
     SkScalar radius = info.fIgnoreTransform ? info.fRadius
