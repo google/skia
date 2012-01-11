@@ -1646,30 +1646,17 @@ static void SkGPU_Draw1Glyph(const SkDraw1Glyph& state,
                              const SkGlyph& glyph) {
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
 
-    GrSkDrawProcs* procs = (GrSkDrawProcs*)state.fDraw->fProcs;
+    GrSkDrawProcs* procs = static_cast<GrSkDrawProcs*>(state.fDraw->fProcs);
 
     if (NULL == procs->fFontScaler) {
         procs->fFontScaler = get_gr_font_scaler(state.fCache);
     }
 
-    /*
-     *  What should we do with fy? (assuming horizontal/latin text)
-     *
-     *  The raster code calls SkFixedFloorToFixed on it, as it does with fx.
-     *  It calls that rather than round, because our caller has already added
-     *  SK_FixedHalf, so that calling floor gives us the rounded integer.
-     *
-     *  Test code between raster and gpu (they should draw the same)
-     *
-     *      canvas->drawText("Hamburgefons", 12, 0, 16.5f, paint);
-     *
-     *  Perhaps we should only perform this integralization if there is no
-     *  fExtMatrix...
-     */
-    fy = SkFixedFloorToFixed(fy);
-
-    procs->fTextContext->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(), fx, 0),
-                                         SkFixedFloorToFixed(fx), fy,
+    procs->fTextContext->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
+                                                       glyph.getSubXFixed(),
+                                                       glyph.getSubYFixed()),
+                                         SkFixedFloorToFixed(fx),
+                                         SkFixedFloorToFixed(fy),
                                          procs->fFontScaler);
 }
 
