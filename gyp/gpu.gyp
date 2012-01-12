@@ -144,6 +144,7 @@
         '../include/core',
         '../include/config',
         '../include/gpu',
+        '../src/core', # SkRasterClip.h
       ],
       'dependencies': [
         'libtess.gyp:libtess',
