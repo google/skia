@@ -1683,10 +1683,11 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                 const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
                 srcRects[kPathMaskStage] = &maskRect;
                 stageMask |= 1 << kPathMaskStage;
-                GrRect dstRect = GrRect::MakeLTRB(pathBounds.fLeft,
-                                                  pathBounds.fTop,
-                                                  pathBounds.fRight,
-                                                  pathBounds.fBottom);
+                GrRect dstRect = GrRect::MakeLTRB(
+                    SK_Scalar1* pathBounds.fLeft,
+                    SK_Scalar1* pathBounds.fTop,
+                    SK_Scalar1* pathBounds.fRight,
+                    SK_Scalar1* pathBounds.fBottom);
                 target->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
                 target->drawState()->setTexture(kPathMaskStage, NULL);
                 if (GrIsFillInverted(fill)) {
@@ -1939,7 +1940,9 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     sampleM.setIDiv(src->width(), src->height());
     drawState->setTexture(0, src);
     drawState->sampler(0)->reset(sampleM);
-    SkRect rect = SkRect::MakeXYWH(0, 0, src->width(), src->height());
+    SkRect rect = SkRect::MakeXYWH(0, 0,
+                                   SK_Scalar1 * src->width(),
+                                   SK_Scalar1 * src->height());
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
 
