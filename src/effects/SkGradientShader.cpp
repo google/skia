@@ -130,6 +130,11 @@ public:
         kCache32Mask    = kCache32Count - 1,
         kCache32Shift   = 16 - kCache32Bits,
         kSqrt32Shift    = 8 - kCache32Bits,
+
+        /** ToggleMasks are used in dithering to switch between the two
+          halves of the gradient cache; they should be equal to the size
+          of a half-cache.
+        */
 #ifdef USE_DITHER_32BIT_GRADIENT
         kToggleMask32 = kCache32Count,
 #else
@@ -852,8 +857,7 @@ bool Linear_Gradient::setContext(const SkBitmap& device, const SkPaint& paint,
 namespace {
 
 typedef void (*LinearShadeProc)(TileProc proc, SkFixed dx, SkFixed fx,
-                                SkPMColor* SK_RESTRICT dstC,
-                                const SkPMColor* SK_RESTRICT cache,
+                                SkPMColor* dstC, const SkPMColor* cache,
                                 int toggle, int count);
 
 void shadeSpan_linear_vertical(TileProc proc, SkFixed dx, SkFixed fx,
@@ -1040,8 +1044,7 @@ static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
 namespace {
 
 typedef void (*LinearShade16Proc)(TileProc proc, SkFixed dx, SkFixed fx,
-                                  uint16_t* SK_RESTRICT dstC,
-                                  const uint16_t* SK_RESTRICT cache,
+                                  uint16_t* dstC, const uint16_t* cache,
                                   int toggle, int count);
 
 void shadeSpan16_linear_vertical(TileProc proc, SkFixed dx, SkFixed fx,
@@ -1226,14 +1229,14 @@ static void rad_to_unit_matrix(const SkPoint& center, SkScalar radius,
 
 namespace {
 
-typedef void (* RadialShade16Proc)(SkFixed fx, SkFixed dx,
-        SkFixed fy, SkFixed dy,
-        uint16_t* dstC, const uint16_t* SK_RESTRICT cache,
+typedef void (* RadialShade16Proc)(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
+        uint16_t* dstC, const uint16_t* cache,
         int toggle, int count);
 
-void shadeSpan16_radial_clamp(SkFixed fx, SkFixed dx,
-        SkFixed fy, SkFixed dy,
-        uint16_t* dstC, const uint16_t* SK_RESTRICT cache,
+void shadeSpan16_radial_clamp(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
+        uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
         int toggle, int count) {
     const uint8_t* SK_RESTRICT sqrt_table = gSqrt8Table;
 
@@ -1244,10 +1247,10 @@ void shadeSpan16_radial_clamp(SkFixed fx, SkFixed dx,
        we could (it seems) put this scale-down into fDstToIndex,
        to avoid having to do these extra shifts each time.
     */
-    fx >>= 1;
-    dx >>= 1;
-    fy >>= 1;
-    dy >>= 1;
+    SkFixed fx = SkScalarToFixed(sfx) >> 1;
+    SkFixed dx = SkScalarToFixed(sdx) >> 1;
+    SkFixed fy = SkScalarToFixed(sfy) >> 1;
+    SkFixed dy = SkScalarToFixed(sdy) >> 1;
     // might perform this check for the other modes,
     // but the win will be a smaller % of the total
     if (dy == 0) {
@@ -1277,23 +1280,38 @@ void shadeSpan16_radial_clamp(SkFixed fx, SkFixed dx,
     }
 }
 
-void shadeSpan16_radial_mirror(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
-        uint16_t* dstC, const uint16_t* SK_RESTRICT cache,
+void shadeSpan16_radial_mirror(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
+        uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
         int toggle, int count) {
     do {
-        SkFixed dist = SkFixedSqrt(SkFixedSquare(fx) + SkFixedSquare(fy));
+#ifdef SK_SCALAR_IS_FLOAT
+        float fdist = sk_float_sqrt(sfx*sfx + sfy*sfy);
+        SkFixed dist = SkFloatToFixed(fdist);
+#else
+        SkFixed magnitudeSquared = SkFixedSquare(sfx) +
+            SkFixedSquare(sfy);
+        if (magnitudeSquared < 0) // Overflow.
+            magnitudeSquared = SK_FixedMax;
+        SkFixed dist = SkFixedSqrt(magnitudeSquared);
+#endif
         unsigned fi = mirror_tileproc(dist);
         SkASSERT(fi <= 0xFFFF);
-        fx += dx;
-        fy += dy;
         *dstC++ = cache[toggle + (fi >> Gradient_Shader::kCache16Shift)];
         toggle ^= Gradient_Shader::kToggleMask16;
+        sfx += sdx;
+        sfy += sdy;
     } while (--count != 0);
 }
 
-void shadeSpan16_radial_repeat(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
-        uint16_t* dstC, const uint16_t* SK_RESTRICT cache,
+void shadeSpan16_radial_repeat(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
+        uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
         int toggle, int count) {
+    SkFixed fx = SkScalarToFixed(sfx);
+    SkFixed dx = SkScalarToFixed(sdx);
+    SkFixed fy = SkScalarToFixed(sfy);
+    SkFixed dy = SkScalarToFixed(sdy);
     do {
         SkFixed dist = SkFixedSqrt(SkFixedSquare(fx) + SkFixedSquare(fy));
         unsigned fi = repeat_tileproc(dist);
@@ -1322,8 +1340,10 @@ public:
         rad_to_unit_matrix(center, radius, &fPtsToUnit);
     }
 
-    virtual void shadeSpan(int x, int y, SkPMColor* dstC, int count) SK_OVERRIDE;
-    virtual void shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int count) SK_OVERRIDE {
+    virtual void shadeSpan(int x, int y, SkPMColor* dstC, int count)
+        SK_OVERRIDE;
+    virtual void shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
+                             int count) SK_OVERRIDE {
         SkASSERT(count > 0);
 
         SkPoint             srcPt;
@@ -1335,18 +1355,18 @@ public:
         if (fDstToIndexClass != kPerspective_MatrixClass) {
             dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
                                  SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-            SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-            SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
+
+            SkScalar sdx = fDstToIndex.getScaleX();
+            SkScalar sdy = fDstToIndex.getSkewY();
 
             if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
                 SkFixed storage[2];
-                (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &storage[0], &storage[1]);
-                dx = storage[0];
-                dy = storage[1];
+                (void)fDstToIndex.fixedStepInX(SkIntToScalar(y),
+                                               &storage[0], &storage[1]);
+                sdx = SkFixedToScalar(storage[0]);
+                sdy = SkFixedToScalar(storage[1]);
             } else {
                 SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-                dx = SkScalarToFixed(fDstToIndex.getScaleX());
-                dy = SkScalarToFixed(fDstToIndex.getSkewY());
             }
 
             RadialShade16Proc shadeProc = shadeSpan16_radial_repeat;
@@ -1357,7 +1377,8 @@ public:
             } else {
                 SkASSERT(proc == repeat_tileproc);
             }
-            (*shadeProc)(fx, dx, fy, dy, dstC, cache, toggle, count);
+            (*shadeProc)(srcPt.fX, sdx, srcPt.fY, sdy, dstC,
+                         cache, toggle, count);
         } else {    // perspective case
             SkScalar dstX = SkIntToScalar(x);
             SkScalar dstY = SkIntToScalar(y);
@@ -1469,7 +1490,7 @@ inline bool no_need_for_radial_pin(int fx, int dx,
 
 typedef void (* RadialShadeProc)(SkScalar sfx, SkScalar sdx,
         SkScalar sfy, SkScalar sdy,
-        SkPMColor* dstC, const SkPMColor* SK_RESTRICT cache,
+        SkPMColor* dstC, const SkPMColor* cache,
         int count);
 
 // On Linux, this is faster with SkPMColor[] params than SkPMColor* SK_RESTRICT
@@ -1500,18 +1521,36 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
         }
     }
     else  {
-        do {
-            unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
-            unsigned fi = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
-            fi = (xx * xx + fi * fi) >> (14 + 16 - kSQRT_TABLE_BITS);
-            fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
-            *dstC++ = cache[sqrt_table[fi] >> Gradient_Shader::kSqrt32Shift];
-            fx += dx;
-            fy += dy;
-        } while (--count != 0);
+        // Specializing for dy == 0 gains us 25% on Skia benchmarks
+        if (dy == 0) {
+            unsigned yy = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
+            yy *= yy;
+            do {
+                unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
+                unsigned fi = (xx * xx + yy) >> (14 + 16 - kSQRT_TABLE_BITS);
+                fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
+                *dstC++ = cache[sqrt_table[fi] >>
+                    Gradient_Shader::kSqrt32Shift];
+                fx += dx;
+            } while (--count != 0);
+        } else {
+            do {
+                unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
+                unsigned fi = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
+                fi = (xx * xx + fi * fi) >> (14 + 16 - kSQRT_TABLE_BITS);
+                fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
+                *dstC++ = cache[sqrt_table[fi] >>
+                    Gradient_Shader::kSqrt32Shift];
+                fx += dx;
+                fy += dy;
+            } while (--count != 0);
+        }
     }
 }
 
+// Unrolling this loop doesn't seem to help (when float); we're stalling to
+// get the results of the sqrt (?), and don't have enough extra registers to
+// have many in flight.
 void shadeSpan_radial_mirror(SkScalar sfx, SkScalar sdx,
         SkScalar sfy, SkScalar sdy,
         SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
@@ -1705,14 +1744,14 @@ typedef void (* TwoPointRadialShadeProc)(SkScalar fx, SkScalar dx,
         SkScalar fy, SkScalar dy,
         SkScalar b, SkScalar db,
         SkScalar fSr2D2, SkScalar foura, SkScalar fOneOverTwoA, bool posRoot,
-        SkPMColor* dstC, const SkPMColor* SK_RESTRICT cache,
+        SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
         int count);
 
 void shadeSpan_twopoint_clamp(SkScalar fx, SkScalar dx,
         SkScalar fy, SkScalar dy,
         SkScalar b, SkScalar db,
         SkScalar fSr2D2, SkScalar foura, SkScalar fOneOverTwoA, bool posRoot,
-        SkPMColor* dstC, const SkPMColor* SK_RESTRICT cache,
+        SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
         int count) {
     for (; count > 0; --count) {
         SkFixed t = two_point_radial(b, fx, fy, fSr2D2, foura,
@@ -1729,7 +1768,7 @@ void shadeSpan_twopoint_mirror(SkScalar fx, SkScalar dx,
         SkScalar fy, SkScalar dy,
         SkScalar b, SkScalar db,
         SkScalar fSr2D2, SkScalar foura, SkScalar fOneOverTwoA, bool posRoot,
-        SkPMColor* dstC, const SkPMColor* SK_RESTRICT cache,
+        SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
         int count) {
     for (; count > 0; --count) {
         SkFixed t = two_point_radial(b, fx, fy, fSr2D2, foura,
@@ -1747,7 +1786,7 @@ void shadeSpan_twopoint_repeat(SkScalar fx, SkScalar dx,
         SkScalar fy, SkScalar dy,
         SkScalar b, SkScalar db,
         SkScalar fSr2D2, SkScalar foura, SkScalar fOneOverTwoA, bool posRoot,
-        SkPMColor* dstC, const SkPMColor* SK_RESTRICT cache,
+        SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
         int count) {
     for (; count > 0; --count) {
         SkFixed t = two_point_radial(b, fx, fy, fSr2D2, foura,
@@ -2255,7 +2294,8 @@ static unsigned SkATan2_255(SkFixed y, SkFixed x) {
 }
 #endif
 
-void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
+void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
+                               int count) {
     SkMatrix::MapXYProc proc = fDstToIndexProc;
     const SkMatrix&     matrix = fDstToIndex;
     const SkPMColor* SK_RESTRICT cache = this->getCache32();
@@ -2293,7 +2333,8 @@ void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int co
     }
 }
 
-void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int count) {
+void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
+                                 int count) {
     SkMatrix::MapXYProc proc = fDstToIndexProc;
     const SkMatrix&     matrix = fDstToIndex;
     const uint16_t* SK_RESTRICT cache = this->getCache16();
