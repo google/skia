@@ -59,9 +59,7 @@ SK_API int32_t sk_atomic_dec(int32_t* addr);
 
 class SkMutex : android::Mutex {
 public:
-    // if isGlobal is true, then ignore any errors in the platform-specific
-    // destructor
-    SkMutex(bool isGlobal = true) {}
+    SkMutex() {}
     ~SkMutex() {}
 
     void    acquire() { this->lock(); }
@@ -82,9 +80,7 @@ SK_API int32_t sk_atomic_dec(int32_t* addr);
 
 class SkMutex {
 public:
-    // if isGlobal is true, then ignore any errors in the platform-specific
-    // destructor
-    SkMutex(bool isGlobal = true);
+    SkMutex();
     ~SkMutex();
 
     void    acquire();
