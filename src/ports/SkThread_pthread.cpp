@@ -67,27 +67,24 @@ int32_t sk_atomic_dec(int32_t* addr)
 
 //////////////////////////////////////////////////////////////////////////////
 
-static void print_pthread_error(int status)
-{
+static void print_pthread_error(int status) {
     switch (status) {
     case 0: // success
         break;
     case EINVAL:
-        printf("pthread error [%d] EINVAL\n", status);
+        SkDebugf("pthread error [%d] EINVAL\n", status);
         break;
     case EBUSY:
-        printf("pthread error [%d] EBUSY\n", status);
+        SkDebugf("pthread error [%d] EBUSY\n", status);
         break;
     default:
-        printf("pthread error [%d] unknown\n", status);
+        SkDebugf("pthread error [%d] unknown\n", status);
         break;
     }
 }
 
-SkMutex::SkMutex(bool isGlobal) : fIsGlobal(isGlobal)
-{
-    if (sizeof(pthread_mutex_t) > sizeof(fStorage))
-    {
+SkMutex::SkMutex() {
+    if (sizeof(pthread_mutex_t) > sizeof(fStorage)) {
         SkDEBUGF(("pthread mutex size = %d\n", sizeof(pthread_mutex_t)));
         SkDEBUGFAIL("mutex storage is too small");
     }
@@ -104,27 +101,24 @@ SkMutex::SkMutex(bool isGlobal) : fIsGlobal(isGlobal)
     SkASSERT(0 == status);
 }
 
-SkMutex::~SkMutex()
-{
+SkMutex::~SkMutex() {
     int status = pthread_mutex_destroy((pthread_mutex_t*)fStorage);
-    
+#if 0
     // only report errors on non-global mutexes
-    if (!fIsGlobal)
-    {
+    if (!fIsGlobal) {
         print_pthread_error(status);
         SkASSERT(0 == status);
     }
+#endif
 }
 
-void SkMutex::acquire()
-{
+void SkMutex::acquire() {
     int status = pthread_mutex_lock((pthread_mutex_t*)fStorage);
     print_pthread_error(status);
     SkASSERT(0 == status);
 }
 
-void SkMutex::release()
-{
+void SkMutex::release() {
     int status = pthread_mutex_unlock((pthread_mutex_t*)fStorage);
     print_pthread_error(status);
     SkASSERT(0 == status);
