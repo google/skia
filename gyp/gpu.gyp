@@ -1,4 +1,9 @@
 {
+  'variables': {
+    'skia_gpu_disable_osaa%': 0,
+  },
+  'skia_gpu_disable_osaa': '<(skia_gpu_disable_osaa)',
+
   'includes': [
     'common.gypi',
   ],
@@ -282,6 +287,11 @@
         'GR_IMPLEMENTATION=1',
       ],
       'conditions': [
+        [ 'skia_gpu_disable_osaa', {
+          'defines': [
+            'GR_USE_OFFSCREEN_AA=0',
+          ],
+        }],
         [ 'skia_os == "linux"', {
           'sources!': [
             '../src/gpu/GrGLDefaultInterface_none.cpp',
