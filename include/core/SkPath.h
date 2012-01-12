@@ -740,6 +740,7 @@ private:
     SkTDArray<SkPoint>  fPts;
     SkTDArray<uint8_t>  fVerbs;
     mutable SkRect      fBounds;
+    int                 fLastMoveToIndex;
     uint8_t             fFillType;
     uint8_t             fSegmentMask;
     mutable uint8_t     fBoundsIsDirty;
@@ -766,6 +767,14 @@ private:
         first point is automatically set to (0,0).
     */
     void reversePathTo(const SkPath&);
+
+    // called before we add points for lineTo, quadTo, cubicTo, checking to see
+    // if we need to inject a leading moveTo first
+    //
+    //  SkPath path; path.lineTo(...);   <--- need a leading moveTo(0, 0)
+    // SkPath path; ... path.close(); path.lineTo(...) <-- need a moveTo(previous moveTo)
+    //
+    inline void injectMoveToIfNeeded();
 
     friend const SkPoint* sk_get_path_points(const SkPath&, int index);
     friend class SkAutoPathBoundsUpdate;
