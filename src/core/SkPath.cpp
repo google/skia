@@ -101,11 +101,15 @@ static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 
 ////////////////////////////////////////////////////////////////////////////
 
+// flag to require a moveTo if we begin with something else, like lineTo etc.
+#define INITIAL_LASTMOVETOINDEX_VALUE   ~0
+
 SkPath::SkPath() 
     : fFillType(kWinding_FillType)
     , fBoundsIsDirty(true) {
     fConvexity = kUnknown_Convexity;
     fSegmentMask = 0;
+    fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
 #ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
 #endif
@@ -135,6 +139,7 @@ SkPath& SkPath::operator=(const SkPath& src) {
         fBoundsIsDirty  = src.fBoundsIsDirty;
         fConvexity      = src.fConvexity;
         fSegmentMask    = src.fSegmentMask;
+        fLastMoveToIndex = src.fLastMoveToIndex;
         GEN_ID_INC;
     }
     SkDEBUGCODE(this->validate();)
@@ -165,6 +170,7 @@ void SkPath::swap(SkPath& other) {
         SkTSwap<uint8_t>(fBoundsIsDirty, other.fBoundsIsDirty);
         SkTSwap<uint8_t>(fConvexity, other.fConvexity);
         SkTSwap<uint8_t>(fSegmentMask, other.fSegmentMask);
+        SkTSwap<int>(fLastMoveToIndex, other.fLastMoveToIndex);
         GEN_ID_INC;
     }
 }
@@ -184,6 +190,7 @@ void SkPath::reset() {
     fBoundsIsDirty = true;
     fConvexity = kUnknown_Convexity;
     fSegmentMask = 0;
+    fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
 }
 
 void SkPath::rewind() {
@@ -195,6 +202,7 @@ void SkPath::rewind() {
     fConvexity = kUnknown_Convexity;
     fBoundsIsDirty = true;
     fSegmentMask = 0;
+    fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
 }
 
 bool SkPath::isEmpty() const {
@@ -410,6 +418,9 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     int      vc = fVerbs.count();
     SkPoint* pt;
 
+    // remember our index
+    fLastMoveToIndex = fPts.count();
+
 #ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
     if (vc > 0 && fVerbs[vc - 1] == kMove_Verb) {
         pt = &fPts[fPts.count() - 1];
@@ -433,13 +444,25 @@ void SkPath::rMoveTo(SkScalar x, SkScalar y) {
     this->moveTo(pt.fX + x, pt.fY + y);
 }
 
+void SkPath::injectMoveToIfNeeded() {
+    if (fLastMoveToIndex < 0) {
+        SkScalar x, y;
+        if (fVerbs.count() == 0) {
+            x = y = 0;
+        } else {
+            const SkPoint& pt = fPts[~fLastMoveToIndex];
+            x = pt.fX;
+            y = pt.fY;
+        }
+        this->moveTo(x, y);
+    }
+}
+
 void SkPath::lineTo(SkScalar x, SkScalar y) {
     SkDEBUGCODE(this->validate();)
 
-    if (fVerbs.count() == 0) {
-        fPts.append()->set(0, 0);
-        *fVerbs.append() = kMove_Verb;
-    }
+    this->injectMoveToIfNeeded();
+
     fPts.append()->set(x, y);
     *fVerbs.append() = kLine_Verb;
     fSegmentMask |= kLine_SegmentMask;
@@ -457,10 +480,7 @@ void SkPath::rLineTo(SkScalar x, SkScalar y) {
 void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     SkDEBUGCODE(this->validate();)
 
-    if (fVerbs.count() == 0) {
-        fPts.append()->set(0, 0);
-        *fVerbs.append() = kMove_Verb;
-    }
+    this->injectMoveToIfNeeded();
 
     SkPoint* pts = fPts.append(2);
     pts[0].set(x1, y1);
@@ -482,10 +502,8 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                      SkScalar x3, SkScalar y3) {
     SkDEBUGCODE(this->validate();)
 
-    if (fVerbs.count() == 0) {
-        fPts.append()->set(0, 0);
-        *fVerbs.append() = kMove_Verb;
-    }
+    this->injectMoveToIfNeeded();
+
     SkPoint* pts = fPts.append(3);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
@@ -525,6 +543,15 @@ void SkPath::close() {
                 break;
         }
     }
+
+    // signal that we need a moveTo to follow us (unless we're done)
+#if 0
+    if (fLastMoveToIndex >= 0) {
+        fLastMoveToIndex = ~fLastMoveToIndex;
+    }
+#else
+    fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

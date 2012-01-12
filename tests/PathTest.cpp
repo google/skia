@@ -889,12 +889,14 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
     // Max of 10 segments, max 3 points per segment
     SkRandom rand(9876543);
     SkPoint          expectedPts[31]; // May have leading moveTo
-    SkPath::Verb     expectedVerbs[11]; // May have leading moveTo
+    SkPath::Verb     expectedVerbs[22]; // May have leading moveTo
     SkPath::Verb     nextVerb;
+
     for (int i = 0; i < 500; ++i) {
         p.reset();
         bool lastWasClose = true;
         bool haveMoveTo = false;
+        SkPoint lastMoveToPt = { 0, 0 };
         int numPoints = 0;
         int numVerbs = (rand.nextU() >> 16) % 10;
         int numIterVerbs = 0;
@@ -907,13 +909,14 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                 case SkPath::kMove_Verb:
                     expectedPts[numPoints] = randomPts[(rand.nextU() >> 16) % 25];
                     p.moveTo(expectedPts[numPoints]);
+                    lastMoveToPt = expectedPts[numPoints];
                     numPoints += 1;
                     lastWasClose = false;
                     haveMoveTo = true;
                     break;
                 case SkPath::kLine_Verb:
                     if (!haveMoveTo) {
-                        expectedPts[numPoints++].set(0, 0);
+                        expectedPts[numPoints++] = lastMoveToPt;
                         expectedVerbs[numIterVerbs++] = SkPath::kMove_Verb;
                         haveMoveTo = true;
                     }
@@ -924,7 +927,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     break;
                 case SkPath::kQuad_Verb:
                     if (!haveMoveTo) {
-                        expectedPts[numPoints++].set(0, 0);
+                        expectedPts[numPoints++] = lastMoveToPt;
                         expectedVerbs[numIterVerbs++] = SkPath::kMove_Verb;
                         haveMoveTo = true;
                     }
@@ -936,7 +939,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     break;
                 case SkPath::kCubic_Verb:
                     if (!haveMoveTo) {
-                        expectedPts[numPoints++].set(0, 0);
+                        expectedPts[numPoints++] = lastMoveToPt;
                         expectedVerbs[numIterVerbs++] = SkPath::kMove_Verb;
                         haveMoveTo = true;
                     }
@@ -950,6 +953,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     break;
                 case SkPath::kClose_Verb:
                     p.close();
+                    haveMoveTo = false;
                     lastWasClose = true;
                     break;
                 default:;
