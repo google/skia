@@ -1467,21 +1467,23 @@ inline bool no_need_for_radial_pin(int fx, int dx,
     fx += dx; \
     fy += dy;
 
-typedef void (* RadialShadeProc)(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
+typedef void (* RadialShadeProc)(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
         SkPMColor* dstC, const SkPMColor* SK_RESTRICT cache,
-        int count, SkPoint& srcPt, float fdx, float fdy);
+        int count);
 
 // On Linux, this is faster with SkPMColor[] params than SkPMColor* SK_RESTRICT
-void shadeSpan_radial_clamp(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
+void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
         SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-        int count, SkPoint& srcPt, float fdx, float fdy) {
+        int count) {
     // Floating point seems to be slower than fixed point,
     // even when we have float hardware.
     const uint8_t* SK_RESTRICT sqrt_table = gSqrt8Table;
-    fx >>= 1;
-    dx >>= 1;
-    fy >>= 1;
-    dy >>= 1;
+    SkFixed fx = SkScalarToFixed(sfx) >> 1;
+    SkFixed dx = SkScalarToFixed(sdx) >> 1;
+    SkFixed fy = SkScalarToFixed(sfy) >> 1;
+    SkFixed dy = SkScalarToFixed(sdy) >> 1;
     if ((count > 4) && radial_completely_pinned(fx, dx, fy, dy)) {
         sk_memset32(dstC, cache[Gradient_Shader::kCache32Count - 1], count);
     } else if ((count > 4) &&
@@ -1510,39 +1512,37 @@ void shadeSpan_radial_clamp(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
     }
 }
 
-void shadeSpan_radial_mirror(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
+void shadeSpan_radial_mirror(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
         SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-        int count, SkPoint& srcPt, float fdx, float fdy) {
+        int count) {
+    do {
 #ifdef SK_SCALAR_IS_FLOAT
-    float ffx = srcPt.fX;
-    float ffy = srcPt.fY;
-    do {
-        float fdist = sk_float_sqrt(ffx*ffx + ffy*ffy);
-        unsigned fi = mirror_tileproc(SkFloatToFixed(fdist));
-        SkASSERT(fi <= 0xFFFF);
-        *dstC++ = cache[fi >> Gradient_Shader::kCache32Shift];
-        ffx += fdx;
-        ffy += fdy;
-    } while (--count != 0);
+        float fdist = sk_float_sqrt(sfx*sfx + sfy*sfy);
+        SkFixed dist = SkFloatToFixed(fdist);
 #else
-    do {
-        SkFixed magnitudeSquared = SkFixedSquare(fx) +
-            SkFixedSquare(fy);
+        SkFixed magnitudeSquared = SkFixedSquare(sfx) +
+            SkFixedSquare(sfy);
         if (magnitudeSquared < 0) // Overflow.
             magnitudeSquared = SK_FixedMax;
         SkFixed dist = SkFixedSqrt(magnitudeSquared);
+#endif
         unsigned fi = mirror_tileproc(dist);
         SkASSERT(fi <= 0xFFFF);
         *dstC++ = cache[fi >> Gradient_Shader::kCache32Shift];
-        fx += dx;
-        fy += dy;
+        sfx += sdx;
+        sfy += sdy;
     } while (--count != 0);
-#endif
 }
 
-void shadeSpan_radial_repeat(SkFixed fx, SkFixed dx, SkFixed fy, SkFixed dy,
+void shadeSpan_radial_repeat(SkScalar sfx, SkScalar sdx,
+        SkScalar sfy, SkScalar sdy,
         SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-        int count, SkPoint& srcPt, float fdx, float fdy) {
+        int count) {
+    SkFixed fx = SkScalarToFixed(sfx);
+    SkFixed dx = SkScalarToFixed(sdx);
+    SkFixed fy = SkScalarToFixed(sfy);
+    SkFixed dy = SkScalarToFixed(sdy);
     do {
         SkFixed magnitudeSquared = SkFixedSquare(fx) +
             SkFixedSquare(fy);
@@ -1570,28 +1570,17 @@ void Radial_Gradient::shadeSpan(int x, int y,
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
                              SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-        SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
-        float fdx = 0;
-        float fdy = 0;
+        SkScalar sdx = fDstToIndex.getScaleX();
+        SkScalar sdy = fDstToIndex.getSkewY();
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed storage[2];
-            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &storage[0], &storage[1]);
-            dx = storage[0];
-            dy = storage[1];
-#ifdef SK_SCALAR_IS_FLOAT
-            fdx = SkFixedToFloat(storage[0]);
-            fdy = SkFixedToFloat(storage[1]);
-#endif
+            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y),
+                                           &storage[0], &storage[1]);
+            sdx = SkFixedToScalar(storage[0]);
+            sdy = SkFixedToScalar(storage[1]);
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = SkScalarToFixed(fDstToIndex.getScaleX());
-            dy = SkScalarToFixed(fDstToIndex.getSkewY());
-#ifdef SK_SCALAR_IS_FLOAT
-            fdx = fDstToIndex.getScaleX();
-            fdy = fDstToIndex.getSkewY();
-#endif
         }
 
         RadialShadeProc shadeProc = shadeSpan_radial_repeat;
@@ -1602,7 +1591,7 @@ void Radial_Gradient::shadeSpan(int x, int y,
         } else {
             SkASSERT(proc == repeat_tileproc);
         }
-        (*shadeProc)(fx, dx, fy, dy, dstC, cache, count, srcPt, fdx, fdy);
+        (*shadeProc)(srcPt.fX, sdx, srcPt.fY, sdy, dstC, cache, count);
     } else {    // perspective case
         SkScalar dstX = SkIntToScalar(x);
         SkScalar dstY = SkIntToScalar(y);
