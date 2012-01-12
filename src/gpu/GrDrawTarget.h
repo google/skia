@@ -50,7 +50,6 @@ public:
         bool fFSAASupport               : 1;
         bool fDualSourceBlendingSupport : 1;
         bool fBufferLockSupport         : 1;
-        bool fSupportPerVertexCoverage  : 1;
         int fMaxRenderTargetSize;
         int fMaxTextureSize;
     };

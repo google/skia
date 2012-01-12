@@ -310,7 +310,6 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
         GetGLSLGeneration(this->glBinding(), gl);
 
     // Enable supported shader-related caps
-    fCaps.fSupportPerVertexCoverage = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fCaps.fDualSourceBlendingSupport =
                             this->glVersion() >= GR_GL_VER(3,3) ||
