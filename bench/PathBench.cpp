@@ -182,6 +182,26 @@ private:
     typedef PathBench INHERITED;
 };
 
+class LongLinePathBench : public PathBench {
+public:
+    LongLinePathBench(void * param, Flags flags)
+        : INHERITED(param, flags) {
+    }
+
+    virtual void appendName(SkString* name) {
+        name->append("long_line");
+    }
+    virtual void makePath(SkPath* path) {
+        SkRandom rand;
+        path->moveTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
+        for (size_t i = 1; i < 100; i++) {
+            path->lineTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
+        }
+    }
+    virtual int complexity() { return 2; }
+private:
+    typedef PathBench INHERITED;
+};
 
 
 static SkBenchmark* FactT00(void* p) { return new TrianglePathBench(p, FLAGS00); }
@@ -209,6 +229,14 @@ static SkBenchmark* FactLC01(void* p) {
     return new LongCurvedPathBench(p, FLAGS01);
 }
 
+static SkBenchmark* FactLL00(void* p) {
+    return new LongLinePathBench(p, FLAGS00);
+}
+
+static SkBenchmark* FactLL01(void* p) {
+    return new LongLinePathBench(p, FLAGS01);
+}
+
 static BenchRegistry gRegT00(FactT00);
 static BenchRegistry gRegT01(FactT01);
 static BenchRegistry gRegT10(FactT10);
@@ -229,4 +257,7 @@ static BenchRegistry gRegS01(FactS01);
 
 static BenchRegistry gRegLC00(FactLC00);
 static BenchRegistry gRegLC01(FactLC01);
+
+static BenchRegistry gRegLL00(FactLL00);
+static BenchRegistry gRegLL01(FactLL01);
 
