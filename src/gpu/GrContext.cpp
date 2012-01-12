@@ -1157,9 +1157,9 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
                              GrMatrix* combinedMatrix,
                              GrRect* devRect,
                              bool* useVertexCoverage) {
-    // we use a simple alpha ramp to do aa on axis-aligned rects
-    // do AA with alpha ramp if the caller requested AA, the rect 
-    // will be axis-aligned, and the rect won't land on integer coords.
+    // we use a simple coverage ramp to do aa on axis-aligned rects
+    // we check if the rect will be axis-aligned, and the rect won't land on 
+    // integer coords.
 
     // we are keeping around the "tweak the alpha" trick because
     // it is our only hope for the fixed-pipe implementation.
@@ -1167,18 +1167,13 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     // TODO: remove this ugliness when we drop the fixed-pipe impl
     *useVertexCoverage = false;
     if (!target->canTweakAlphaForCoverage()) {
-        if (target->getCaps().fSupportPerVertexCoverage) {
-            if (disable_coverage_aa_for_blend(target)) {
+        if (disable_coverage_aa_for_blend(target)) {
 #if GR_DEBUG
-                //GrPrintf("Turning off AA to correctly apply blend.\n");
+            //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
-                return false;
-            } else {
-                *useVertexCoverage = true;
-            }
-        } else {
-            GrPrintf("Rect AA dropped because no support for coverage.\n");
             return false;
+        } else {
+            *useVertexCoverage = true;
         }
     }
     const GrDrawState& drawState = target->getDrawState();
