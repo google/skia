@@ -1455,6 +1455,173 @@ void GrContext::drawVertices(const GrPaint& paint,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#include "SkDraw.h"
+#include "SkRasterClip.h"
+
+namespace {
+
+SkPath::FillType gr_fill_to_sk_fill(GrPathFill fill) {
+    switch (fill) {
+        case kWinding_PathFill:
+            return SkPath::kWinding_FillType;
+        case kEvenOdd_PathFill:
+            return SkPath::kEvenOdd_FillType;
+        case kInverseWinding_PathFill:
+            return SkPath::kInverseWinding_FillType;
+        case kInverseEvenOdd_PathFill:
+            return SkPath::kInverseEvenOdd_FillType;
+        default:
+            GrCrash("Unexpected fill.");
+            return SkPath::kWinding_FillType;
+    }
+}
+
+// gets device coord bounds of path (not considering the fill) and clip. The
+// path bounds will be a subset of the clip bounds. returns false if path bounds
+// would be empty.
+bool get_path_and_clip_bounds(const GrDrawTarget* target,
+                              const GrPath& path,
+                              const GrVec* translate,
+                              GrIRect* pathBounds,
+                              GrIRect* clipBounds) {
+    // compute bounds as intersection of rt size, clip, and path
+    const GrRenderTarget* rt = target->getDrawState().getRenderTarget();
+    if (NULL == rt) {
+        return false;
+    }
+    *pathBounds = GrIRect::MakeWH(rt->width(), rt->height());
+    const GrClip& clip = target->getClip();
+    if (clip.hasConservativeBounds()) {
+        clip.getConservativeBounds().roundOut(clipBounds);
+        if (!pathBounds->intersect(*clipBounds)) {
+            return false;
+        }
+    } else {
+        // pathBounds is currently the rt extent, set clip bounds to that rect.
+        *clipBounds = *pathBounds;
+    }
+    GrRect pathSBounds = path.getBounds();
+    if (!pathSBounds.isEmpty()) {
+        if (NULL != translate) {
+            pathSBounds.offset(*translate);
+        }
+        target->getDrawState().getViewMatrix().mapRect(&pathSBounds,
+                                                        pathSBounds);
+        GrIRect pathIBounds;
+        pathSBounds.roundOut(&pathIBounds);
+        if (!pathBounds->intersect(pathIBounds)) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * sw rasterizes path to A8 mask using the context's matrix and uploads to a 
+ * scratch texture.
+ */
+
+bool sw_draw_path_to_mask_texture(const GrPath& clientPath,
+                                  const GrIRect& pathDevBounds,
+                                  GrPathFill fill,
+                                  GrContext* context,
+                                  const GrPoint* translate,
+                                  GrAutoScratchTexture* tex) {
+    SkPaint paint;
+    SkPath tmpPath;
+    const SkPath* pathToDraw = &clientPath;
+    if (kHairLine_PathFill == fill) {
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(SK_Scalar1);
+    } else {
+        paint.setStyle(SkPaint::kFill_Style);
+        SkPath::FillType skfill = gr_fill_to_sk_fill(fill);
+        if (skfill != pathToDraw->getFillType()) {
+            tmpPath = *pathToDraw;
+            tmpPath.setFillType(skfill);
+            pathToDraw = &tmpPath;
+        }
+    }
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorWHITE);
+
+    GrMatrix matrix = context->getMatrix();
+    if (NULL != translate) {
+        matrix.postTranslate(translate->fX, translate->fY);
+    }
+
+    matrix.postTranslate(-pathDevBounds.fLeft * SK_Scalar1,
+                         -pathDevBounds.fTop * SK_Scalar1);
+    GrIRect bounds = GrIRect::MakeWH(pathDevBounds.width(),
+                                     pathDevBounds.height());
+
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kA8_Config, bounds.fRight, bounds.fBottom);
+    if (!bm.allocPixels()) {
+        return false;
+    }
+    sk_bzero(bm.getPixels(), bm.getSafeSize());
+
+    SkDraw  draw;
+    sk_bzero(&draw, sizeof(draw));
+    SkRasterClip rc(bounds);
+    draw.fRC    = &rc;
+    draw.fClip  = &rc.bwRgn();
+    draw.fMatrix = &matrix;
+    draw.fBitmap = &bm;
+    draw.drawPath(*pathToDraw, paint);
+
+    const GrTextureDesc desc = {
+        kNone_GrTextureFlags,
+        kNone_GrAALevel,
+        bounds.fRight,
+        bounds.fBottom,
+        kAlpha_8_GrPixelConfig
+    };
+
+    tex->set(context, desc);
+    GrTexture* texture = tex->texture();
+
+    if (NULL == texture) {
+        return false;
+    }
+    SkAutoLockPixels alp(bm);
+    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                         bm.getPixels(), bm.rowBytes());
+    return true;
+}
+
+void draw_around_inv_path(GrDrawTarget* target,
+                          GrDrawState::StageMask stageMask,
+                          const GrIRect& clipBounds,
+                          const GrIRect& pathBounds) {
+    GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
+    GrRect rect;
+    if (clipBounds.fTop < pathBounds.fTop) {
+        rect.iset(clipBounds.fLeft, clipBounds.fTop, 
+                    clipBounds.fRight, pathBounds.fTop);
+        target->drawSimpleRect(rect, NULL, stageMask);
+    }
+    if (clipBounds.fLeft < pathBounds.fLeft) {
+        rect.iset(clipBounds.fLeft, pathBounds.fTop, 
+                    pathBounds.fLeft, pathBounds.fBottom);
+        target->drawSimpleRect(rect, NULL, stageMask);
+    }
+    if (clipBounds.fRight > pathBounds.fRight) {
+        rect.iset(pathBounds.fRight, pathBounds.fTop, 
+                    clipBounds.fRight, pathBounds.fBottom);
+        target->drawSimpleRect(rect, NULL, stageMask);
+    }
+    if (clipBounds.fBottom > pathBounds.fBottom) {
+        rect.iset(clipBounds.fLeft, pathBounds.fBottom, 
+                    clipBounds.fRight, clipBounds.fBottom);
+        target->drawSimpleRect(rect, NULL, stageMask);
+    }
+}
+
+}
 
 void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                          GrPathFill fill, const GrPoint* translate) {
@@ -1467,6 +1634,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     }
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    GrDrawState::StageMask stageMask = paint.getActiveStageMask();
 
     bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
 
@@ -1486,9 +1654,47 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     if (prAA) {
         pr = this->getPathRenderer(path, fill, true);
         if (NULL == pr) {
+            GrAutoScratchTexture ast;
+            GrIRect pathBounds, clipBounds;
+            if (!get_path_and_clip_bounds(target, path, translate,
+                                          &pathBounds, &clipBounds)) {
+                return;
+            }
             prAA = false;
-            doOSAA = this->doOffscreenAA(target, kHairLine_PathFill == fill);
-            pr = this->getPathRenderer(path, fill, false);
+            if (this->doOffscreenAA(target, kHairLine_PathFill == fill)) {
+                pr = this->getPathRenderer(path, fill, false);
+                doOSAA = true;
+            }
+            if (NULL == pr && sw_draw_path_to_mask_texture(path, pathBounds,
+                                                           fill, this,
+                                                           translate, &ast)) {
+                GrTexture* texture = ast.texture();
+                GrAssert(NULL != texture);
+                GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
+                enum {
+                    kPathMaskStage = GrPaint::kTotalStages,
+                };
+                target->drawState()->setTexture(kPathMaskStage, texture);
+                target->drawState()->sampler(kPathMaskStage)->reset();
+                GrScalar w = GrIntToScalar(pathBounds.width());
+                GrScalar h = GrIntToScalar(pathBounds.height());
+                GrRect maskRect = GrRect::MakeWH(w / texture->width(),
+                                                 h / texture->height());
+                const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
+                srcRects[kPathMaskStage] = &maskRect;
+                stageMask |= 1 << kPathMaskStage;
+                GrRect dstRect = GrRect::MakeLTRB(pathBounds.fLeft,
+                                                  pathBounds.fTop,
+                                                  pathBounds.fRight,
+                                                  pathBounds.fBottom);
+                target->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
+                target->drawState()->setTexture(kPathMaskStage, NULL);
+                if (GrIsFillInverted(fill)) {
+                    draw_around_inv_path(target, stageMask,
+                                         clipBounds, pathBounds);
+                }
+                return;
+            }
         }
     } else {
         pr = this->getPathRenderer(path, fill, false);
@@ -1502,67 +1708,30 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     }
 
     GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, prAA, translate);
-    GrDrawState::StageMask stageMask = paint.getActiveStageMask();
 
     if (doOSAA) {
         bool needsStencil = pr->requiresStencilPass(target, path, fill);
-        const GrRenderTarget* rt = target->getDrawState().getRenderTarget();
-        // compute bounds as intersection of rt size, clip, and path
-        GrIRect bound = SkIRect::MakeWH(rt->width(), rt->height());
-        GrIRect clipIBounds;
-        if (target->getClip().hasConservativeBounds()) {
-            target->getClip().getConservativeBounds().roundOut(&clipIBounds);
-            if (!bound.intersect(clipIBounds)) {
-                return;
-            }
-        }
-        GrRect pathBounds = path.getBounds();
-        if (!pathBounds.isEmpty()) {
-            if (NULL != translate) {
-                pathBounds.offset(*translate);
-            }
-            target->getDrawState().getViewMatrix().mapRect(&pathBounds,
-                                                           pathBounds);
-            GrIRect pathIBounds;
-            pathBounds.roundOut(&pathIBounds);
-            if (!bound.intersect(pathIBounds)) {
-                return;
-            }
+        GrIRect pathBounds;
+        GrIRect clipBounds;
+        if (!get_path_and_clip_bounds(target, path, translate,
+                                      &pathBounds, &clipBounds)) {
+            return;
         }
         OffscreenRecord record;
-        if (this->prepareForOffscreenAA(target, needsStencil, bound,
+        if (this->prepareForOffscreenAA(target, needsStencil, pathBounds,
                                         pr, &record)) {
             for (int tx = 0; tx < record.fTileCountX; ++tx) {
                 for (int ty = 0; ty < record.fTileCountY; ++ty) {
-                    this->setupOffscreenAAPass1(target, bound, tx, ty, &record);
+                    this->setupOffscreenAAPass1(target, pathBounds,
+                                                tx, ty, &record);
                     pr->drawPath(0);
-                    this->doOffscreenAAPass2(target, paint, bound, tx, ty, &record);
+                    this->doOffscreenAAPass2(target, paint, pathBounds,
+                                             tx, ty, &record);
                 }
             }
             this->cleanupOffscreenAA(target, pr, &record);
-            if (GrIsFillInverted(fill) && bound != clipIBounds) {
-                GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
-                GrRect rect;
-                if (clipIBounds.fTop < bound.fTop) {
-                    rect.iset(clipIBounds.fLeft, clipIBounds.fTop, 
-                              clipIBounds.fRight, bound.fTop);
-                    target->drawSimpleRect(rect, NULL, stageMask);
-                }
-                if (clipIBounds.fLeft < bound.fLeft) {
-                    rect.iset(clipIBounds.fLeft, bound.fTop, 
-                              bound.fLeft, bound.fBottom);
-                    target->drawSimpleRect(rect, NULL, stageMask);
-                }
-                if (clipIBounds.fRight > bound.fRight) {
-                    rect.iset(bound.fRight, bound.fTop, 
-                              clipIBounds.fRight, bound.fBottom);
-                    target->drawSimpleRect(rect, NULL, stageMask);
-                }
-                if (clipIBounds.fBottom > bound.fBottom) {
-                    rect.iset(clipIBounds.fLeft, bound.fBottom, 
-                              clipIBounds.fRight, clipIBounds.fBottom);
-                    target->drawSimpleRect(rect, NULL, stageMask);
-                }
+            if (GrIsFillInverted(fill)) {
+                draw_around_inv_path(target, stageMask, clipBounds, pathBounds);
             }
             return;
         }
