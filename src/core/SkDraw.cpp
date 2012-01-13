@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkDevice.h"
+#include "SkFixed.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
@@ -1477,9 +1478,9 @@ static bool needsRasterTextBlit(const SkDraw& draw) {
 SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter,
                                       SkGlyphCache* cache) {
     fDraw = draw;
-	fBounder = draw->fBounder;
-	fBlitter = blitter;
-	fCache = cache;
+    fBounder = draw->fBounder;
+    fBlitter = blitter;
+    fCache = cache;
 
     if (hasCustomD1GProc(*draw)) {
         // todo: fix this assumption about clips w/ custom
@@ -1577,17 +1578,21 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
     SkFixed fxMask = ~0;
     SkFixed fyMask = ~0;
-    if (paint.isSubpixelText()) {
+    if (cache->isSubpixel()) {
         SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(*matrix);
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
         } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
         }
+    
+    // apply bias here to avoid adding 1/2 the sampling frequency in the loop
+        fx += SK_FixedHalf >> SkGlyph::kSubBits;
+        fy += SK_FixedHalf >> SkGlyph::kSubBits;
+    } else {
+        fx += SK_FixedHalf;
+        fy += SK_FixedHalf;
     }
-    // apply the bias here, so we don't have to add 1/2 in the loop
-    fx += SK_FixedHalf;
-    fy += SK_FixedHalf;
 
     SkAAClipBlitter     aaBlitter;
     SkAutoBlitterChoose blitterChooser;
@@ -1606,7 +1611,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkDraw1Glyph::Proc  proc = d1g.init(this, blitter, cache);
 
     while (text < stop) {
-        const SkGlyph& glyph  = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
+        const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
 
         fx += autokern.adjust(glyph);
 
@@ -1757,12 +1762,12 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     
     const char*        stop = text + byteLength;
     AlignProc          alignProc = pick_align_proc(paint.getTextAlign());
-	SkDraw1Glyph	   d1g;
-	SkDraw1Glyph::Proc  proc = d1g.init(this, blitter, cache);
+    SkDraw1Glyph       d1g;
+    SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache);
     TextMapState       tms(*matrix, constY);
     TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
 
-    if (paint.isSubpixelText()) {
+    if (cache->isSubpixel()) {
         // maybe we should skip the rounding if linearText is set
         SkAxisAlignment roundBaseline = SkComputeAxisAlignmentForHText(*matrix);
 
@@ -1771,8 +1776,13 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
 
                 tmsProc(tms, pos);
 
+#ifdef SK_DRAW_POS_TEXT_IGNORE_SUBPIXEL_LEFT_ALIGN_FIX
                 SkFixed fx = SkScalarToFixed(tms.fLoc.fX);
                 SkFixed fy = SkScalarToFixed(tms.fLoc.fY);
+#else
+                SkFixed fx = SkScalarToFixed(tms.fLoc.fX) + (SK_FixedHalf >> SkGlyph::kSubBits);
+                SkFixed fy = SkScalarToFixed(tms.fLoc.fY) + (SK_FixedHalf >> SkGlyph::kSubBits);
+#endif
                 SkFixed fxMask = ~0;
                 SkFixed fyMask = ~0;
 
@@ -1807,8 +1817,8 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                     {
                         SkIPoint fixedLoc;
                         alignProc(tms.fLoc, *glyph, &fixedLoc);
-                        fx = fixedLoc.fX;
-                        fy = fixedLoc.fY;
+                        fx = fixedLoc.fX + (SK_FixedHalf >> SkGlyph::kSubBits);
+                        fy = fixedLoc.fY + (SK_FixedHalf >> SkGlyph::kSubBits);
 
                         if (kX_SkAxisAlignment == roundBaseline) {
                             fyMask = 0;
@@ -1840,8 +1850,10 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                 SkIPoint fixedLoc;
                 alignProc(tms.fLoc, glyph, &fixedLoc);
 
-                proc(d1g, fixedLoc.fX + SK_FixedHalf,
-                     fixedLoc.fY + SK_FixedHalf, glyph);
+                proc(d1g,
+                     fixedLoc.fX + SK_FixedHalf,
+                     fixedLoc.fY + SK_FixedHalf,
+                     glyph);
             }
             pos += scalarsPerPosition;
         }

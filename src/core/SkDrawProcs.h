@@ -14,19 +14,20 @@ class SkAAClip;
 class SkBlitter;
 
 struct SkDraw1Glyph {
-    const SkDraw*   fDraw;
-	SkBounder*		fBounder;
-	const SkRegion*	fClip;
-	const SkAAClip*	fAAClip;
-	SkBlitter*		fBlitter;
-	SkGlyphCache*	fCache;
-	SkIRect			fClipBounds;
-	
-    // The fixed x,y have been pre-rounded (i.e. 1/2 has already been added),
-    // so the impls need just trunc down to an int
-	typedef void (*Proc)(const SkDraw1Glyph&, SkFixed x, SkFixed y, const SkGlyph&);
-	
-	Proc init(const SkDraw* draw, SkBlitter* blitter, SkGlyphCache* cache);
+    const SkDraw* fDraw;
+    SkBounder* fBounder;
+    const SkRegion* fClip;
+    const SkAAClip* fAAClip;
+    SkBlitter* fBlitter;
+    SkGlyphCache* fCache;
+    SkIRect fClipBounds;
+
+    // The fixed x,y are pre-rounded, so impls just trunc them down to ints.
+    // i.e. half the sampling frequency has been added.
+    // e.g. 1/2 or 1/(2^(SkGlyph::kSubBits+1)) has already been added.
+    typedef void (*Proc)(const SkDraw1Glyph&, SkFixed x, SkFixed y, const SkGlyph&);
+    
+    Proc init(const SkDraw* draw, SkBlitter* blitter, SkGlyphCache* cache);
 };
 
 struct SkDrawProcs {

@@ -29,6 +29,7 @@
         '../tests/DataRefTest.cpp',
         '../tests/DequeTest.cpp',
         '../tests/DrawBitmapRectTest.cpp',
+        '../tests/DrawTextTest.cpp',
         '../tests/EmptyPathTest.cpp',
         '../tests/FillPathTest.cpp',
         '../tests/FlateTest.cpp',
