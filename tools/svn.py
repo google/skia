@@ -5,6 +5,8 @@ Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
 '''
 
+import fnmatch
+import os
 import re
 import subprocess
 
@@ -25,14 +27,24 @@ class Svn:
 
         @param args a list of arguments
         """
+        print 'RunCommand: %s' % args
         proc = subprocess.Popen(args, cwd=self._directory,
-                                stdout=subprocess.PIPE)
-        stdout = proc.communicate()[0]
-        returncode = proc.returncode
-        if returncode is not 0:
-            raise Exception('command "%s" failed in dir "%s": returncode=%s' %
-                            (args, self._directory, returncode))
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = proc.communicate()
+        if proc.returncode is not 0:
+            raise Exception('command "%s" failed in dir "%s": %s' %
+                            (args, self._directory, stderr))
         return stdout
+
+    def Checkout(self, url, path):
+        """Check out a working copy from a repository.
+        Returns stdout as a single string.
+
+        @param url URL from which to check out the working copy
+        @param path path (within self._directory) where the local copy will be
+        written
+        """
+        return self._RunCommand(['svn', 'checkout', url, path])
 
     def GetNewFiles(self):
         """Return a list of files which are in this directory but NOT under
@@ -57,10 +69,7 @@ class Svn:
 
         @param filenames files to add to SVN control
         """
-        args = ['svn', 'add']
-        args.extend(filenames)
-        print '\n\nAddFiles: %s' % args
-        print self._RunCommand(args)
+        self._RunCommand(['svn', 'add'] + filenames)
 
     def SetProperty(self, filenames, property_name, property_value):
         """Sets a svn property for these files.
@@ -69,7 +78,19 @@ class Svn:
         @param property_name property_name to set for each file
         @param property_value what to set the property_name to
         """
-        args = ['svn', 'propset', property_name, property_value]
-        args.extend(filenames)
-        print '\n\nSetProperty: %s' % args
-        print self._RunCommand(args)
+        if filenames:
+            self._RunCommand(
+                ['svn', 'propset', property_name, property_value] + filenames)
+
+    def SetPropertyByFilenamePattern(self, filename_pattern,
+                                     property_name, property_value):
+        """Sets a svn property for all files matching filename_pattern.
+
+        @param filename_pattern set the property for all files whose names match
+               this Unix-style filename pattern (e.g., '*.jpg')
+        @param property_name property_name to set for each file
+        @param property_value what to set the property_name to
+        """
+        all_files = os.listdir(self._directory)
+        matching_files = fnmatch.filter(all_files, filename_pattern)
+        self.SetProperty(matching_files, property_name, property_value)
