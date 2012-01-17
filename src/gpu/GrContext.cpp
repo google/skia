@@ -215,23 +215,6 @@ void gen_stencil_key_values(const GrStencilBuffer* sb,
                            sb->numSamples(), v);
 }
 
-// This should be subsumed by a future version of GrDrawState
-// It does not reset stage textures/samplers or per-vertex-edge-aa state since
-// they aren't used unless the vertex layout references them.
-// It also doesn't set the render target.
-void reset_draw_state(GrDrawState* drawState){
-
-        drawState->setViewMatrix(GrMatrix::I());
-        drawState->setColorFilter(0, SkXfermode::kDst_Mode);
-        drawState->resetStateFlags();
-        drawState->setEdgeAAData(NULL, 0);
-        drawState->disableStencil();
-        drawState->setAlpha(0xFF);
-        drawState->setBlendFunc(kOne_BlendCoeff,
-                           kZero_BlendCoeff);
-        drawState->setFirstCoverageStage(GrDrawState::kNumStages);
-        drawState->setDrawFace(GrDrawState::kBoth_DrawFace);
-}
 }
 
 GrContext::TextureCacheEntry GrContext::findAndLockTexture(
@@ -356,7 +339,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
         if (NULL != texture) {
             GrDrawTarget::AutoStateRestore asr(fGpu);
             GrDrawState* drawState = fGpu->drawState();
-            reset_draw_state(drawState);
+            drawState->reset();
             drawState->setRenderTarget(texture->asRenderTarget());
             drawState->setTexture(0, clampEntry.texture());
 
@@ -786,11 +769,13 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     GrRenderTarget* offRT = record->fOffscreen.texture()->asRenderTarget();
     GrAssert(NULL != offRT);
 
-    GrPaint tempPaint;
-    tempPaint.reset();
-    this->setPaint(tempPaint, target);
+    
     GrDrawState* drawState = target->drawState();
+    GrMatrix vm = drawState->getViewMatrix();
+    drawState->reset();
+    *drawState->viewMatrix() = vm;
     drawState->setRenderTarget(offRT);
+    
 #if PREFER_MSAA_OFFSCREEN_AA
     drawState->enableState(GrDrawState::kHWAntialias_StateBit);
 #endif
@@ -1900,7 +1885,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
 
         GrDrawTarget::AutoStateRestore asr(fGpu);
         GrDrawState* drawState = fGpu->drawState();
-        reset_draw_state(drawState);
+        drawState->reset();
         drawState->setRenderTarget(target);
 
         GrMatrix matrix;
@@ -1934,7 +1919,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
     GrDrawState* drawState = fGpu->drawState();
-    reset_draw_state(drawState);
+    drawState->reset();
     drawState->setRenderTarget(dst);
     GrMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
@@ -2004,7 +1989,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
 
     GrDrawTarget::AutoStateRestore  asr(fGpu);
     GrDrawState* drawState = fGpu->drawState();
-    reset_draw_state(drawState);
+    drawState->reset();
 
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));

@@ -47,21 +47,45 @@ struct GrDrawState {
     GR_STATIC_ASSERT(sizeof(StageMask)*8 >= GrDrawState::kNumStages);
 
     GrDrawState() {
+        this->reset();
+    }
+    
+    /**
+     * Resets to the default state. Sampler states will not be modified.
+     */ 
+    void reset() {
         // make sure any pad is zero for memcmp
-        // all GrDrawState members should default to something
-        // valid by the memset
-        memset(this, 0, sizeof(GrDrawState));
-            
-        // memset exceptions
-        fColorFilterMode = SkXfermode::kDstIn_Mode;
-        fFirstCoverageStage = kNumStages;
-
+        // all GrDrawState members should default to something valid by the
+        // the memset except those initialized individually below. There should
+        // be no padding between the individually initialized members.
+        static const size_t kMemsetSize =
+            reinterpret_cast<intptr_t>(&fColor) -
+            reinterpret_cast<intptr_t>(this);
+        memset(this, 0, kMemsetSize);
         // pedantic assertion that our ptrs will
         // be NULL (0 ptr is mem addr 0)
         GrAssert((intptr_t)(void*)NULL == 0LL);
-
+        GR_STATIC_ASSERT(0 == kBoth_DrawFace);
         GrAssert(fStencilSettings.isDisabled());
+
+        // memset exceptions
+        fColor = 0xffffffff;
         fFirstCoverageStage = kNumStages;
+        fColorFilterMode = SkXfermode::kDst_Mode;
+        fSrcBlend = kOne_BlendCoeff;
+        fDstBlend = kZero_BlendCoeff;
+        fViewMatrix.reset();
+
+        // ensure values that will be memcmp'ed in == but not memset in reset()
+        // are tightly packed
+        GrAssert(kMemsetSize + + sizeof(fColorMatrix) + sizeof(fRenderTarget) +
+                 sizeof(fColor) + sizeof(fFirstCoverageStage) +
+                 sizeof(fColorFilterMode) + sizeof(fSrcBlend) +
+                 sizeof(fDstBlend) + sizeof(GrMatrix) ==
+                 reinterpret_cast<intptr_t>(&fEdgeAANumEdges) -
+                 reinterpret_cast<intptr_t>(this));
+
+        fEdgeAANumEdges = 0;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -510,9 +534,7 @@ struct GrDrawState {
         fVertexEdgeType = type;
     }
 
-    VertexEdgeType getVertexEdgeType() const {
-        return fVertexEdgeType;
-    }
+    VertexEdgeType getVertexEdgeType() const { return fVertexEdgeType; }
 
     /**
      * The absolute maximum number of edges that may be specified for
@@ -678,9 +700,7 @@ struct GrDrawState {
      * or both faces.
      * @return the current draw face(s).
      */
-    DrawFace getDrawFace() const {
-        return fDrawFace;
-    }
+    DrawFace getDrawFace() const { return fDrawFace; }
     
     /// @}
 
@@ -720,32 +740,37 @@ struct GrDrawState {
 
 private:
     static const StageMask kIllegalStageMaskBits = ~((1 << kNumStages)-1);
-    uint8_t                 fFlagBits;
-    GrBlendCoeff            fSrcBlend : 8;
-    GrBlendCoeff            fDstBlend : 8;
-    DrawFace                fDrawFace : 8;
-    uint8_t                 fFirstCoverageStage;
-    SkXfermode::Mode        fColorFilterMode : 8;
-    GrColor                 fBlendConstant;
-    GrTexture*              fTextures[kNumStages];
-    GrRenderTarget*         fRenderTarget;
-    GrColor                 fColor;
-    GrColor                 fColorFilterColor;
-    float                   fColorMatrix[20];
-    GrStencilSettings       fStencilSettings;
-    GrMatrix                fViewMatrix;
+    // @{ these fields can be initialized with memset to 0
+    GrColor             fBlendConstant;
+    GrTexture*          fTextures[kNumStages];
+    GrColor             fColorFilterColor;
+    uint32_t            fFlagBits;
+    DrawFace            fDrawFace; 
+    VertexEdgeType      fVertexEdgeType;
+    GrStencilSettings   fStencilSettings;
+    float               fColorMatrix[20];       // 5 x 4 matrix
+    GrRenderTarget*     fRenderTarget;
+    // @}
+
+    // @{ Initialized to values other than zero
+    GrColor             fColor;
+    int                 fFirstCoverageStage;
+    SkXfermode::Mode    fColorFilterMode;
+    GrBlendCoeff        fSrcBlend;
+    GrBlendCoeff        fDstBlend;
+    GrMatrix            fViewMatrix;
+    // @}
+
     // @{ Data for GrTesselatedPathRenderer
     // TODO: currently ignored in copying & comparison for performance.
     // Must be considered if GrTesselatedPathRenderer is being used.
-
-    VertexEdgeType          fVertexEdgeType;
-    int                     fEdgeAANumEdges;
-    Edge                    fEdgeAAEdges[kMaxEdges];
-
+    int                 fEdgeAANumEdges;
+    Edge                fEdgeAAEdges[kMaxEdges];
     // @}
+
     // This field must be last; it will not be copied or compared
     // if the corresponding fTexture[] is NULL.
-    GrSamplerState          fSamplerStates[kNumStages];
+    GrSamplerState      fSamplerStates[kNumStages];
 
     size_t leadingBytes() const {
         // Can't use offsetof() with non-POD types, so stuck with pointer math.
@@ -753,7 +778,7 @@ private:
         // have a compile-time flag that lets us know if it's being used, and
         // checking at runtime seems to cost 5% performance.
         return (size_t) ((unsigned char*)&fEdgeAANumEdges -
-                         (unsigned char*)&fFlagBits);
+                         (unsigned char*)&fBlendConstant);
     }
 
 };
