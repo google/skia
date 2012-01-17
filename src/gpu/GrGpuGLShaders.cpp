@@ -198,6 +198,7 @@ bool GrGpuGLShaders::programUnitTest() {
         pdesc.fVertexLayout = 0;
         pdesc.fEmitsPointSize = random.nextF() > .5f;
         pdesc.fColorInput = random_int(&random, ProgramDesc::kColorInputCnt);
+        pdesc.fCoverageInput = random_int(&random, ProgramDesc::kColorInputCnt);
 
         pdesc.fColorFilterXfermode = random_int(&random, SkXfermode::kCoeffModesCnt);
 
@@ -653,7 +654,8 @@ void GrGpuGLShaders::flushColor(GrColor color) {
         switch (desc.fColorInput) {
             case ProgramDesc::kAttribute_ColorInput:
                 if (fHWDrawState.getColor() != color) {
-                    // OpenGL ES only supports the float varities of glVertexAttrib
+                    // OpenGL ES only supports the float varieties of
+                    // glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(color);
                     GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(), 
                                             c));
@@ -662,7 +664,8 @@ void GrGpuGLShaders::flushColor(GrColor color) {
                 break;
             case ProgramDesc::kUniform_ColorInput:
                 if (fProgramData->fColor != color) {
-                    // OpenGL ES only supports the float varities of glVertexAttrib
+                    // OpenGL ES doesn't support unsigned byte varieties of
+                    // glUniform
                     float c[] = GR_COLOR_TO_VEC4(color);
                     GrAssert(GrGLProgram::kUnusedUniform != 
                              fProgramData->fUniLocations.fColorUni);
@@ -688,6 +691,47 @@ void GrGpuGLShaders::flushColor(GrColor color) {
     }
 }
 
+void GrGpuGLShaders::flushCoverage(GrColor coverage) {
+    const ProgramDesc& desc = fCurrentProgram.getDesc();
+    const GrDrawState& drawState = this->getDrawState();
+
+
+    if (this->getGeomSrc().fVertexLayout & kCoverage_VertexLayoutBit) {
+        // coverage will be specified per-vertex as an attribute
+        // invalidate the const vertex attrib coverage
+        fHWDrawState.setCoverage4(GrColor_ILLEGAL);
+    } else {
+        switch (desc.fCoverageInput) {
+            case ProgramDesc::kAttribute_ColorInput:
+                if (fHWDrawState.getCoverage() != coverage) {
+                    // OpenGL ES only supports the float varieties of
+                    // glVertexAttrib
+                    float c[] = GR_COLOR_TO_VEC4(coverage);
+                    GL_CALL(VertexAttrib4fv(GrGLProgram::CoverageAttributeIdx(), 
+                                            c));
+                    fHWDrawState.setCoverage(coverage);
+                }
+                break;
+            case ProgramDesc::kUniform_ColorInput:
+                if (fProgramData->fCoverage != coverage) {
+                    // OpenGL ES doesn't support unsigned byte varieties of
+                    // glUniform
+                    float c[] = GR_COLOR_TO_VEC4(coverage);
+                    GrAssert(GrGLProgram::kUnusedUniform != 
+                             fProgramData->fUniLocations.fCoverageUni);
+                    GL_CALL(Uniform4fv(fProgramData->fUniLocations.fCoverageUni,
+                                        1, c));
+                    fProgramData->fCoverage = coverage;
+                }
+                break;
+            case ProgramDesc::kSolidWhite_ColorInput:
+            case ProgramDesc::kTransBlack_ColorInput:
+                break;
+            default:
+                GrCrash("Unknown coverage type.");
+        }
+    }
+}
 
 bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     if (!flushGLStateCommon(type)) {
@@ -726,14 +770,19 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     this->flushBlend(type, srcCoeff, dstCoeff);
 
     GrColor color;
+    GrColor coverage;
     if (blendOpts & kEmitTransBlack_BlendOptFlag) {
         color = 0;
+        coverage = 0;
     } else if (blendOpts & kEmitCoverage_BlendOptFlag) {
         color = 0xffffffff;
+        coverage = drawState.getCoverage();
     } else {
         color = drawState.getColor();
+        coverage = drawState.getCoverage();
     }
     this->flushColor(color);
+    this->flushCoverage(coverage);
 
     this->flushViewMatrix();
 
@@ -862,15 +911,14 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     }
 
     if (newCoverageOffset > 0) {
-        // bind a single channel, they should all have the same value.
         GrGLvoid* coverageOffset = (int8_t*)(vertexOffset + newCoverageOffset);
         int idx = GrGLProgram::CoverageAttributeIdx();
         if (oldCoverageOffset <= 0) {
             GL_CALL(EnableVertexAttribArray(idx));
-            GL_CALL(VertexAttribPointer(idx, 1, GR_GL_UNSIGNED_BYTE,
+            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE,
                                         true, newStride, coverageOffset));
         } else if (allOffsetsChange || newCoverageOffset != oldCoverageOffset) {
-            GL_CALL(VertexAttribPointer(idx, 1, GR_GL_UNSIGNED_BYTE,
+            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE,
                                         true, newStride, coverageOffset));
         }
     } else if (oldCoverageOffset > 0) {
@@ -922,10 +970,14 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
 
     bool requiresAttributeColors = 
         !skipColor && SkToBool(desc.fVertexLayout & kColor_VertexLayoutBit);
-    // fColorInput records how colors are specified for the program. Strip
-    // the bit from the layout to avoid false negatives when searching for an
-    // existing program in the cache.
-    desc.fVertexLayout &= ~(kColor_VertexLayoutBit);
+    bool requiresAttributeCoverage = 
+        !skipCoverage && SkToBool(desc.fVertexLayout &
+                                  kCoverage_VertexLayoutBit);
+
+    // fColorInput/fCoverageInput records how colors are specified for the.
+    // program. So we strip the bits from the layout to avoid false negatives
+    // when searching for an existing program in the cache.
+    desc.fVertexLayout &= ~(kColor_VertexLayoutBit | kCoverage_VertexLayoutBit);
 
     desc.fColorFilterXfermode = skipColor ?
                                 SkXfermode::kDst_Mode :
@@ -952,6 +1004,19 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
         desc.fColorInput = ProgramDesc::kUniform_ColorInput;
     } else {
         desc.fColorInput = ProgramDesc::kAttribute_ColorInput;
+    }
+    
+    bool covIsSolidWhite = !requiresAttributeCoverage &&
+                           0xffffffff == drawState.getCoverage();
+    
+    if (skipCoverage) {
+        desc.fCoverageInput = ProgramDesc::kTransBlack_ColorInput;
+    } else if (covIsSolidWhite) {
+        desc.fCoverageInput = ProgramDesc::kSolidWhite_ColorInput;
+    } else if (GR_GL_NO_CONSTANT_ATTRIBUTES && !requiresAttributeCoverage) {
+        desc.fCoverageInput = ProgramDesc::kUniform_ColorInput;
+    } else {
+        desc.fCoverageInput = ProgramDesc::kAttribute_ColorInput;
     }
 
     desc.fEdgeAANumEdges = skipCoverage ? 0 : drawState.getNumAAEdges();
@@ -1101,7 +1166,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
     if (!hasCoverage) {
         hasCoverage =
                desc.fEdgeAANumEdges ||
-               (desc.fVertexLayout & GrDrawTarget::kCoverage_VertexLayoutBit) ||
+               requiresAttributeCoverage ||
                (desc.fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit);
     }
 

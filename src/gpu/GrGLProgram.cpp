@@ -92,6 +92,7 @@ typedef GrGLProgram::ProgramDesc::StageDesc StageDesc;
 #define COV_ATTR_NAME "aCoverage"
 #define EDGE_ATTR_NAME "aEdge"
 #define COL_UNI_NAME "uColor"
+#define COV_UNI_NAME "uCoverage"
 #define EDGES_UNI_NAME "uEdges"
 #define COL_FILTER_UNI_NAME "uColorFilter"
 #define COL_MATRIX_UNI_NAME "uColorMatrix"
@@ -611,21 +612,37 @@ void genInputColor(GrGLProgram::ProgramDesc::ColorInput colorInput,
     }
 }
 
-void genPerVertexCoverage(ShaderCodeSegments* segments,
-                          GrStringBuilder* inCoverage) {
-    segments->fVSAttrs.push_back().set(GrGLShaderVar::kFloat_Type,
+void genAttributeCoverage(ShaderCodeSegments* segments,
+                          GrStringBuilder* inOutCoverage) {
+    segments->fVSAttrs.push_back().set(GrGLShaderVar::kVec4f_Type,
                                        GrGLShaderVar::kAttribute_TypeModifier,
                                        COV_ATTR_NAME);
     const char *vsName, *fsName;
-    append_varying(GrGLShaderVar::kFloat_Type, "Coverage", 
+    append_varying(GrGLShaderVar::kVec4f_Type, "Coverage", 
                    segments, &vsName, &fsName);
     segments->fVSCode.appendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
-    if (inCoverage->size()) {
-        segments->fFSCode.appendf("\tfloat edgeAndAttrCov = %s * %s;\n",
-                                  fsName, inCoverage->c_str());
-        *inCoverage = "edgeAndAttrCov";
+    if (inOutCoverage->size()) {
+        segments->fFSCode.appendf("\tvec4 attrCoverage = %s * %s;\n",
+                                  fsName, inOutCoverage->c_str());
+        *inOutCoverage = "attrCoverage";
     } else {
-        *inCoverage = fsName;
+        *inOutCoverage = fsName;
+    }
+}
+    
+void genUniformCoverage(ShaderCodeSegments* segments,
+                        GrGLProgram::CachedData* programData,
+                        GrStringBuilder* inOutCoverage) {
+    segments->fFSUnis.push_back().set(GrGLShaderVar::kVec4f_Type,
+                                      GrGLShaderVar::kUniform_TypeModifier,
+                                      COV_UNI_NAME);
+    programData->fUniLocations.fCoverageUni = kUseUniform;
+    if (inOutCoverage->size()) {
+        segments->fFSCode.appendf("\tvec4 uniCoverage = %s * %s;\n",
+                                  COV_UNI_NAME, inOutCoverage->c_str());
+        *inOutCoverage = "uniCoverage";
+    } else {
+        *inOutCoverage = COV_UNI_NAME;
     }
 }
 
@@ -687,6 +704,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
 #endif
 
     SkXfermode::Coeff colorCoeff, uniformCoeff;
+    bool applyColorMatrix = SkToBool(fProgramDesc.fColorMatrixEnabled);
     // The rest of transfer mode color filters have not been implemented
     if (fProgramDesc.fColorFilterXfermode < SkXfermode::kCoeffModesCnt) {
         GR_DEBUGCODE(bool success =)
@@ -697,6 +715,13 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     } else {
         colorCoeff = SkXfermode::kOne_Coeff;
         uniformCoeff = SkXfermode::kZero_Coeff;
+    }
+
+    // no need to do the color filter / matrix at all if coverage is 0
+    if (ProgramDesc::kTransBlack_ColorInput == fProgramDesc.fCoverageInput) {
+        colorCoeff = SkXfermode::kZero_Coeff;
+        uniformCoeff = SkXfermode::kZero_Coeff;
+        applyColorMatrix = false;
     }
 
     // If we know the final color is going to be all zeros then we can
@@ -832,7 +857,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     bool wroteFragColorZero = false;
     if (SkXfermode::kZero_Coeff == uniformCoeff &&
         SkXfermode::kZero_Coeff == colorCoeff &&
-        !fProgramDesc.fColorMatrixEnabled) {
+        !applyColorMatrix) {
         segments.fFSCode.appendf("\t%s = %s;\n",
                                  fsColorOutput,
                                  all_zeros_vec(4));
@@ -844,7 +869,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
                        colorCoeff, color);
         inColor = "filteredColor";
     }
-    if (fProgramDesc.fColorMatrixEnabled) {
+    if (applyColorMatrix) {
         segments.fFSUnis.push_back().set(GrGLShaderVar::kMat44f_Type,
                                          GrGLShaderVar::kUniform_TypeModifier,
                                          COL_MATRIX_UNI_NAME);
@@ -872,9 +897,20 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         // get edge AA coverage and use it as inCoverage to first coverage stage
         this->genEdgeCoverage(gl, layout, programData, &inCoverage, &segments);
 
-        // include explicit per-vertex coverage if we have it
-        if (GrDrawTarget::kCoverage_VertexLayoutBit & layout) {
-            genPerVertexCoverage(&segments, &inCoverage);
+        switch (fProgramDesc.fCoverageInput) {
+            case ProgramDesc::kSolidWhite_ColorInput:
+                // empty string implies solid white
+                break;
+            case ProgramDesc::kTransBlack_ColorInput:
+                GrCrash("We should have already written 0 as the frag output.");
+            case ProgramDesc::kAttribute_ColorInput:
+                genAttributeCoverage(&segments, &inCoverage);
+                break;
+            case ProgramDesc::kUniform_ColorInput:
+                genUniformCoverage(&segments, programData, &inCoverage);
+                break;
+            default:
+                GrCrash("Unexpected input coverage.");
         }
 
         GrStringBuilder outCoverage;
@@ -1287,6 +1323,11 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
     if (kUseUniform == programData->fUniLocations.fColorMatrixVecUni) {
         GR_GL_CALL_RET(gl, programData->fUniLocations.fColorMatrixVecUni,
                        GetUniformLocation(progID, COL_MATRIX_VEC_UNI_NAME));
+    }
+    if (kUseUniform == programData->fUniLocations.fCoverageUni) {
+        GR_GL_CALL_RET(gl, programData->fUniLocations.fCoverageUni,
+                       GetUniformLocation(progID, COV_UNI_NAME));
+        GrAssert(kUnusedUniform != programData->fUniLocations.fCoverageUni);
     }
 
     if (kUseUniform == programData->fUniLocations.fEdgesUni) {
