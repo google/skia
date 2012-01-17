@@ -79,6 +79,8 @@ protected:
                                         20 * SK_Scalar1, 40 * SK_Scalar1,
                                         SkPath::kCCW_Direction);
         /*
+        It turns out arcTos are not automatically marked as convex and they
+        may in fact be ever so slightly concave.
         fPaths.push_back().arcTo(SkRect::MakeXYWH(0, 0,
                                                   50 * SK_Scalar1,
                                                   100 * SK_Scalar1),
@@ -86,9 +88,16 @@ protected:
         */
 
         // point degenerate
-        fPaths.push_back().lineTo(0,0);
-        fPaths.push_back().quadTo(0,0,0,0);
-        fPaths.push_back().cubicTo(0,0,0,0,0,0);
+        fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
+        fPaths.back().lineTo(50 * SK_Scalar1, 50 * SK_Scalar1);
+        
+        fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
+        fPaths.back().quadTo(50 * SK_Scalar1, 50 * SK_Scalar1,
+                             50 * SK_Scalar1, 50 * SK_Scalar1);
+        fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
+        fPaths.back().cubicTo(50 * SK_Scalar1, 50 * SK_Scalar1,
+                              50 * SK_Scalar1, 50 * SK_Scalar1,
+                              50 * SK_Scalar1, 50 * SK_Scalar1);
 
         // line degenerate
         fPaths.push_back().lineTo(100 * SK_Scalar1, 100 * SK_Scalar1);

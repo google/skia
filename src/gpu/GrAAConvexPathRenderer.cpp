@@ -87,10 +87,13 @@ bool get_segments(const GrPath& path,
     *quadCnt = 0;
     *lineCnt = 0;
     SkPath::Iter iter(path, true);
-    // This renderer overemphasis very thin paths (every pixel intersected by
-    // the path will be at least 1/2 on). When the path degenerates to a line
-    // this makes the path draw as a hairline. This is a pretty glaring error
-    // so we detect this case and will not draw.
+    // This renderer overemphasises very thin path regions. We use the distance
+    // to the path from the sample to compute coverage. Every pixel intersected
+    // by the path will be hit and the maximum distance is sqrt(2)/2. We don't
+    // notice that the sample may be close to a very thin area of the path and 
+    // thus should be very light. This is particularly egregious for degenerate
+    // line paths. We detect paths that are very close to a line (zero area) and
+    // draw nothing.
     if (is_path_degenerate(path)) {
         return false;
     }
@@ -147,8 +150,11 @@ void get_counts(int quadCount, int lineCount, int* vCount, int* iCount) {
     *iCount = 15  * lineCount + 24 * quadCount;
 }
 
-// for visual debugging, exagerate the AA smear at the edges
-// requires modifying the distance calc in the shader actually shade differently
+// This macro can be defined for visual debugging purposes. It exagerates the AA
+// smear at the edges by increasing the size of the extruded geometry used for
+// AA. However, the coverage value computed in the shader will still go to zero
+// at distance > .5 outside the curves. So, the shader code has be modified as
+// well to stretch out the AA smear.
 //#define STRETCH_AA
 #define STRETCH_FACTOR (20 * SK_Scalar1)
 
