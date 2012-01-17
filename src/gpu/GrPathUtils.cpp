@@ -193,8 +193,10 @@ namespace {
 //  However, the first two entries of the perspective row may be really close to
 // 0 and the third may not be 1 due to a scale on the entire matrix.
 inline void fixup_matrix(GrMatrix* mat) {
-    GrAssert(SK_SCALAR_IS_FLOAT);
-    static const GrScalar gTOL = 1.f / 100.f;
+#ifndef SK_SCALAR_IS_FLOAT
+    GrCrash("Expected scalar is float.");
+#endif
+     static const GrScalar gTOL = 1.f / 100.f;
     GrAssert(GrScalarAbs(mat->get(SkMatrix::kMPersp0)) < gTOL);
     GrAssert(GrScalarAbs(mat->get(SkMatrix::kMPersp1)) < gTOL);
     float m33 = mat->get(SkMatrix::kMPersp2);
@@ -220,7 +222,10 @@ void GrPathUtils::quadDesignSpaceToUVCoordsMatrix(const SkPoint qPts[3],
                                                   GrMatrix* matrix) {
     // can't make this static, no cons :(
     SkMatrix UVpts;
-    GrAssert(SK_SCALAR_IS_FLOAT);
+#ifndef SK_SCALAR_IS_FLOAT
+    GrCrash("Expected scalar is float.");
+#endif
+    
     UVpts.setAll(0,   0.5f,  1.f,
                  0,   0,     1.f,
                  1.f, 1.f,   1.f);
