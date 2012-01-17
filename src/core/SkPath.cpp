@@ -2010,6 +2010,12 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
             int next = find_diff_pt(pts, index, n, 1);
             SkASSERT(next != index);
             cross = cross_prod(pts[prev], pts[index], pts[next]);
+            // if we get a zero, but the pts aren't on top of each other, then
+            // we can just look at the direction
+            if (0 == cross) {
+                // construct the subtract so we get the correct Direction below
+                cross = pts[index].fX - pts[next].fX;
+            }
         }
         if (cross) {
             if (dir) {
