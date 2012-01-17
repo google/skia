@@ -219,9 +219,7 @@ bool GrGpuGLShaders::programUnitTest() {
             if (vertexEdgeAA) {
                 pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
                 if (this->getCaps().fShaderDerivativeSupport) {
-                    pdesc.fVertexEdgeType = random_bool(&random) ?
-                        GrDrawState::kHairQuad_EdgeType :
-                        GrDrawState::kHairLine_EdgeType;
+                    pdesc.fVertexEdgeType = (GrDrawState::VertexEdgeType) random_int(&random, GrDrawState::kVertexEdgeTypeCnt);
                 } else {
                     pdesc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
                 }

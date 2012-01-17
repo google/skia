@@ -489,9 +489,15 @@ struct GrDrawState {
         /* 1-pixel wide line
            2D implicit line eq (a*x + b*y +c = 0). 4th component unused */
         kHairLine_EdgeType,
-        /* 1-pixel wide quadratic
-           u^2-v canonical coords (only 2 components used) */
-        kHairQuad_EdgeType
+        /* Quadratic specified by u^2-v canonical coords (only 2 
+           components used). Coverage based on signed distance with negative
+           being inside, positive outside.*/
+        kQuad_EdgeType,
+        /* Same as above but for hairline quadratics. Uses unsigned distance.
+           Coverage is min(0, 1-distance). */
+        kHairQuad_EdgeType,
+
+        kVertexEdgeTypeCnt
     };
 
     /**
@@ -500,6 +506,7 @@ struct GrDrawState {
      * are not specified the value of this setting has no effect.
      */
     void setVertexEdgeType(VertexEdgeType type) {
+        GrAssert(type >=0 && type < kVertexEdgeTypeCnt);
         fVertexEdgeType = type;
     }
 
