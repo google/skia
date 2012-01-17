@@ -27,24 +27,35 @@ protected:
         return make_isize(640, 480);
     }
 
+    static void show_bold(SkCanvas* canvas, const char text[], SkScalar x,
+                          SkScalar y, const SkPaint& paint) {
+        size_t len = strlen(text);
+        SkPaint p(paint);
+        canvas->drawText(text, len, x, y, p);
+        p.setFakeBoldText(true);
+        canvas->drawText(text, len, x, y + SkIntToScalar(120), p);
+    }
+
     virtual void onDraw(SkCanvas* canvas) {
+        SkScalar x = SkIntToScalar(100);
+        SkScalar y = SkIntToScalar(88);
+
         SkPaint paint;
-        const char text[] = "Hello"; // "Hello";
-        const size_t len = sizeof(text) - 1;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(100));
-//        SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
-        SkTypeface* hira = SkTypeface::CreateFromName("Papyrus", SkTypeface::kNormal);
-        paint.setTypeface(hira);
-        SkScalar x = SkIntToScalar(180);
-        SkScalar y = SkIntToScalar(88);
-        
-        canvas->drawText(text, len, x, y, paint);
-        paint.setFakeBoldText(true);
-        canvas->drawText(text, len, x, y + SkIntToScalar(100), paint);
-        paint.setStyle(SkPaint::kStrokeAndFill_Style);
         paint.setStrokeWidth(SkIntToScalar(5));
         
+        SkTypeface* face = SkTypeface::CreateFromName("Papyrus", SkTypeface::kNormal);
+        SkSafeUnref(paint.setTypeface(face));
+        show_bold(canvas, "Hello", x, y, paint);
+
+        face = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
+        SkSafeUnref(paint.setTypeface(face));
+        const char hyphen[] = { 0xE3, 0x83, 0xBC, 0 };
+        show_bold(canvas, hyphen, x + SkIntToScalar(300), y, paint);
+
+        paint.setStyle(SkPaint::kStrokeAndFill_Style);
+
         SkPath path;
         path.setFillType(SkPath::kWinding_FillType);
         path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCW_Direction);
