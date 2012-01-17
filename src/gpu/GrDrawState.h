@@ -78,8 +78,7 @@ struct GrDrawState {
 
         // ensure values that will be memcmp'ed in == but not memset in reset()
         // are tightly packed
-        GrAssert(kMemsetSize + + sizeof(fColorMatrix) + sizeof(fRenderTarget) +
-                 sizeof(fColor) + sizeof(fFirstCoverageStage) +
+        GrAssert(kMemsetSize +  sizeof(fColor) + sizeof(fFirstCoverageStage) +
                  sizeof(fColorFilterMode) + sizeof(fSrcBlend) +
                  sizeof(fDstBlend) + sizeof(GrMatrix) ==
                  reinterpret_cast<intptr_t>(&fEdgeAANumEdges) -
