@@ -57,11 +57,8 @@ private:
     // sets the texture domain uniform for currently bound program
     void flushTextureDomain(int stage);
 
-    // sets the color specified by GrDrawState::setColor()
+    // sets the color specified by GrDrawTarget::setColor()
     void flushColor(GrColor color);
-
-    // sets the color specified by GrDrawState::setCoverage()
-    void flushCoverage(GrColor color);
 
     // sets the MVP matrix uniform for currently bound program
     void flushViewMatrix();

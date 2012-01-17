@@ -211,7 +211,6 @@ public:
 #endif
 
         uint8_t fColorInput;        // casts to enum ColorInput
-        uint8_t fCoverageInput;     // casts to enum CoverageInput
         uint8_t fOutputPM;          // cases to enum OutputPM
         uint8_t fDualSrcOutput;     // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
@@ -262,7 +261,6 @@ public:
     struct UniLocations {
         GrGLint fViewMatrixUni;
         GrGLint fColorUni;
-        GrGLint fCoverageUni;
         GrGLint fEdgesUni;
         GrGLint fColorFilterUni;
         GrGLint fColorMatrixUni;
@@ -271,7 +269,6 @@ public:
         void reset() {
             fViewMatrixUni = kUnusedUniform;
             fColorUni = kUnusedUniform;
-            fCoverageUni = kUnusedUniform;
             fEdgesUni = kUnusedUniform;
             fColorFilterUni = kUnusedUniform;
             fColorMatrixUni = kUnusedUniform;
@@ -309,7 +306,6 @@ public:
         // these reflect the current values of uniforms
         // (GL uniform values travel with program)
         GrColor                     fColor;
-        GrColor                     fCoverage;
         GrColor                     fColorFilterColor;
         GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
         // width and height used for normalized texel size

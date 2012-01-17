@@ -885,10 +885,8 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
 
     // When coeffs are (0,1) there is no reason to draw at all, unless
     // stenciling is enabled. Having color writes disabled is effectively
-    // (0,1). The same applies when coverage is known to be 0.
-    if ((kZero_BlendCoeff == *srcCoeff && dstCoeffIsOne) ||
-        (!(layout & kCoverage_VertexLayoutBit) && 
-         0 == drawState.getCoverage())) {
+    // (0,1).
+    if ((kZero_BlendCoeff == *srcCoeff && dstCoeffIsOne)) {
         if (drawState.getStencil().doesWrite()) {
             return kDisableBlend_BlendOptFlag |
                    kEmitTransBlack_BlendOptFlag;
@@ -897,10 +895,8 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
         }
     }
 
-    // check for coverage due to constant coverage, per-vertex coverage,
-    // edge aa or coverage texture stage
+    // check for coverage due to edge aa or coverage texture stage
     bool hasCoverage = forceCoverage ||
-                       0xffffffff != drawState.getCoverage() || 
                        drawState.getNumAAEdges() > 0 ||
                        (layout & kCoverage_VertexLayoutBit) ||
                        (layout & kEdge_VertexLayoutBit);
