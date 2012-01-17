@@ -23,109 +23,57 @@ found in the LICENSE file.
 '''
 
 # common Python modules
+import fnmatch
 import optparse
 import os
 import re
+import shutil
 import sys
-import urllib2
+import tempfile
 
 # modules declared within this same directory
 import svn
 
-# Where to download recently generated baseline images for each baseline type.
-#
-# For now this only works for our Mac buildbots; our other buildbots aren't
-# uploading their results to a web server yet.
-#
-# Note also that these will currently work only within the Google corporate
-# network; that will also change soon.
-ACTUALS_BY_BASELINE_SUBDIR = {
-    'gm/base-macmini':
-        'http://172.29.92.185/b/build/slave/Skia_Mac_Float_NoDebug/gm/actual',
-    'gm/base-macmini-fixed':
-        'http://172.29.92.185/b/build/slave/Skia_Mac_Fixed_NoDebug/gm/actual',
-    'gm/base-macmini-lion-fixed':
-        'http://172.29.92.179/b/build/slave/Skia_MacMiniLion_Fixed_NoDebug/gm/actual',
-    'gm/base-macmini-lion-float':
-        'http://172.29.92.179/b/build/slave/Skia_MacMiniLion_Float_NoDebug/gm/actual',
-}
+# Base URL of SVN repository where buildbots store actual gm image results.
+SVN_BASE_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 
 USAGE_STRING = 'usage: %s [options] <baseline_subdir>'
 OPTION_IGNORE_LOCAL_MODS = '--ignore-local-mods'
 OPTION_ADD_NEW_FILES = '--add-new-files'
 
-IMAGE_REGEX = '.+\.png'
-IMAGE_MIMETYPE = 'image/png'
-
-def GetPlatformUrl(baseline_subdir):
-    """Return URL within which the buildbots store generated baseline images,
-    as of multiple svn revisions.
-
-    Raises KeyError if we don't have a URL matching this baseline_subdir.
-
-    @param baseline_subdir indicates which platform we want images for
-    """
-    try:
-        return ACTUALS_BY_BASELINE_SUBDIR[baseline_subdir]
-    except KeyError:
-        raise KeyError(
-            'unknown baseline_subdir "%s", try one of these instead: %s' % (
-                baseline_subdir, ACTUALS_BY_BASELINE_SUBDIR.keys()))
-
-def GetLatestResultsUrl(baseline_subdir):
-    """Return URL from which we can download the MOST RECENTLY generated
+def GetLatestResultsSvnUrl(baseline_subdir):
+    """Return SVN URL from which we can check out the MOST RECENTLY generated
     images for this baseline type.
 
     @param baseline_subdir indicates which platform we want images for
     """
-    base_platform_url = GetPlatformUrl(baseline_subdir)
-    print 'base_platform_url is %s' % base_platform_url
+    # trim off 'gm/' prefix
+    gm_prefix = 'gm%s' % os.sep
+    if not baseline_subdir.startswith(gm_prefix):
+        raise Exception('baseline_subdir "%s" should start with "%s"' % (
+            baseline_subdir, gm_prefix))
+    return '%s/%s' % (SVN_BASE_URL, baseline_subdir[len(gm_prefix):])
 
-    # Find the most recently generated baseline images within base_platform_url
-    response = urllib2.urlopen(base_platform_url)
-    html = response.read()
-    link_regex = re.compile('<a href="(.*)">')
-    links = link_regex.findall(html)
-    last_link = links[-1]
-    most_recent_result_url = '%s/%s' % (base_platform_url, last_link)
-    print 'most_recent_result_url is %s' % most_recent_result_url
-    return most_recent_result_url
+def CopyMatchingFiles(source_dir, dest_dir, filename_pattern,
+                      only_copy_updates=False):
+    """Copy all files from source_dir that match filename_pattern, and
+    save them (with their original filenames) in dest_dir.
 
-def DownloadMatchingFiles(source_url, filename_regex, dest_dir,
-                          only_download_updates=False):
-    """Download all files from source_url that match filename_regex, and save
-    them (with their original filenames) in dest_dir.
-
-    @param source_url
-    @param filename_regex only download files that match this regex
-    @param dest_dir where to save the downloaded files
-    @param only_download_updates if True, only download files that are already
-           present in dest_dir (download updated versions of those files)
+    @param source_dir
+    @param dest_dir where to save the copied files
+    @param filename_pattern only copy files that match this Unix-style filename
+           pattern (e.g., '*.jpg')
+    @param only_copy_updates if True, only copy files that are already
+           present in dest_dir
     """
-    while source_url.endswith('/'):
-        source_url = source_url[:-1]
-    response = urllib2.urlopen(source_url)
-    html = response.read()
-    link_regex = re.compile('<a href="(%s)">' % filename_regex)
-    links = link_regex.findall(html)
-    for link in links:
-        dest_path = os.path.join(dest_dir, link)
-        if only_download_updates and not os.path.isfile(dest_path):
+    all_filenames = os.listdir(source_dir)
+    matching_filenames = fnmatch.filter(all_filenames, filename_pattern)
+    for filename in matching_filenames:
+        source_path = os.path.join(source_dir, filename)
+        dest_path = os.path.join(dest_dir, filename)
+        if only_copy_updates and not os.path.isfile(dest_path):
             continue
-        DownloadBinaryFile('%s/%s' % (source_url, link), dest_path)
-
-def DownloadBinaryFile(source_url, dest_path):
-    """Download a single file from its source_url and save it to local disk
-    at dest_path.
-
-    @param source_url
-    @param dest_path
-    """
-    print 'DownloadBinaryFile: %s -> %s' % (source_url, dest_path)
-    url_fh = urllib2.urlopen(source_url)
-    local_fh = open(dest_path, 'wb')
-    local_fh.write(url_fh.read())
-    local_fh.close()
+        shutil.copyfile(source_path, dest_path)
 
 def Main(options, args):
     """Download most recently generated baseline images for a given platform,
@@ -138,14 +86,15 @@ def Main(options, args):
     if num_args != 1:
         RaiseUsageException()
 
-    baseline_subdir = args[0]
-    while baseline_subdir.endswith('/'):
-        baseline_subdir = baseline_subdir[:-1]
-    svn_handler = svn.Svn(baseline_subdir)
+    # Create repo_to_modify to handle the SVN repository we will add files to.
+    baseline_subdir = args[0].rstrip(os.sep);
+    if not os.path.isdir(baseline_subdir):
+        raise Exception('could not find baseline_subdir "%s"' % baseline_subdir)
+    repo_to_modify = svn.Svn(baseline_subdir)
 
     # If there are any locally modified files in that directory, exit
     # (so that we don't risk overwriting the user's previous work).
-    new_and_modified_files = svn_handler.GetNewAndModifiedFiles()
+    new_and_modified_files = repo_to_modify.GetNewAndModifiedFiles()
     if not options.ignore_local_mods:
         if new_and_modified_files:
             raise Exception('Exiting because there are already new and/or '
@@ -153,18 +102,31 @@ def Main(options, args):
                             'that, run with %s option.' % (
                                 baseline_subdir, OPTION_IGNORE_LOCAL_MODS))
 
-    # Download the actual results from the appropriate buildbot.
-    results_url = GetLatestResultsUrl(baseline_subdir)
-    DownloadMatchingFiles(source_url=results_url, filename_regex=IMAGE_REGEX,
-                          dest_dir=baseline_subdir,
-                          only_download_updates=(not options.add_new_files))
+    # Download actual gm images into a separate repo in a temporary directory.
+    tempdir = tempfile.mkdtemp()
+    download_repo = svn.Svn(tempdir)
+    download_repo.Checkout(GetLatestResultsSvnUrl(baseline_subdir), '.')
+
+    # Copy any of those files we are interested in into repo_to_modify,
+    # and then delete the temporary directory.
+    CopyMatchingFiles(source_dir=tempdir, dest_dir=baseline_subdir,
+                      filename_pattern='*.png',
+                      only_copy_updates=(not options.add_new_files))
+    shutil.rmtree(tempdir)
+    download_repo = None
 
     # Add any new files to SVN control (if we are running with add_new_files).
-    new_files = svn_handler.GetNewFiles()
+    new_files = repo_to_modify.GetNewFiles()
     if new_files and options.add_new_files:
-        svn_handler.AddFiles(new_files)
-        svn_handler.SetProperty(new_files, svn.PROPERTY_MIMETYPE,
-                                IMAGE_MIMETYPE)
+        repo_to_modify.AddFiles(new_files)
+
+    # Set the mimetype property on *all* image files in baseline_subdir, even
+    # the ones that were already there (in case that property wasn't properly
+    # set already).
+    repo_to_modify.SetPropertyByFilenamePattern(
+        '*.png', svn.PROPERTY_MIMETYPE, 'image/png')
+    repo_to_modify.SetPropertyByFilenamePattern(
+        '*.pdf', svn.PROPERTY_MIMETYPE, 'application/pdf')
 
 def RaiseUsageException():
     raise Exception(USAGE_STRING %  __file__)
