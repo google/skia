@@ -140,65 +140,6 @@ typedef SkTArray<SkPoint, true> PtArray;
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
 typedef SkTArray<int, true> IntArray;
 
-/**
- * We convert cubics to quadratics (for now).
- */
-void convert_noninflect_cubic_to_quads(const SkPoint p[4],
-                                       SkScalar tolScale,
-                                       PtArray* quads,
-                                       int sublevel = 0) {
-    SkVector ab = p[1];
-    ab -= p[0];
-    SkVector dc = p[2];
-    dc -= p[3];
-
-    static const SkScalar gLengthScale = 3 * SK_Scalar1 / 2;
-    // base tolerance is 2 pixels in dev coords.
-    const SkScalar distanceSqdTol = SkScalarMul(tolScale, 2 * SK_Scalar1);
-    static const int kMaxSubdivs = 10;
-
-    ab.scale(gLengthScale);
-    dc.scale(gLengthScale);
-
-    SkVector c0 = p[0];
-    c0 += ab;
-    SkVector c1 = p[3];
-    c1 += dc;
-
-    SkScalar dSqd = c0.distanceToSqd(c1);
-    if (sublevel > kMaxSubdivs || dSqd <= distanceSqdTol) {
-        SkPoint cAvg = c0;
-        cAvg += c1;
-        cAvg.scale(SK_ScalarHalf);
-
-        SkPoint* pts = quads->push_back_n(3);
-        pts[0] = p[0];
-        pts[1] = cAvg;
-        pts[2] = p[3];
-
-        return;
-    } else {
-        SkPoint choppedPts[7];
-        SkChopCubicAtHalf(p, choppedPts);
-        convert_noninflect_cubic_to_quads(choppedPts + 0, tolScale, 
-                                          quads, sublevel + 1);
-        convert_noninflect_cubic_to_quads(choppedPts + 3, tolScale,
-                                          quads, sublevel + 1);
-    }
-}
-
-void convert_cubic_to_quads(const SkPoint p[4],
-                            SkScalar tolScale,
-                            PtArray* quads) {
-    SkPoint chopped[13];
-    int count = SkChopCubicAtInflections(p, chopped);
-
-    for (int i = 0; i < count; ++i) {
-        SkPoint* cubic = chopped + 3*i;
-        convert_noninflect_cubic_to_quads(cubic, tolScale, quads);
-    }
-}
-
 // Takes 178th time of logf on Z600 / VC2010
 int get_float_exp(float x) {
     GR_STATIC_ASSERT(sizeof(int) == sizeof(float));
@@ -350,14 +291,15 @@ int generate_lines_and_quads(const SkPath& path,
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(clip, ibounds)) {
                     PREALLOC_PTARRAY(32) q;
-                    // in perspective have to do conversion in src space
+                    // We convert cubics to quadratics (for now).
+                    // In perspective have to do conversion in src space.
                     if (persp) {
                         SkScalar tolScale = 
                             GrPathUtils::scaleToleranceToSrc(SK_Scalar1, m,
                                                              path.getBounds());
-                        convert_cubic_to_quads(pts, tolScale, &q);
+                        GrPathUtils::convertCubicToQuads(pts, tolScale, &q);
                     } else {
-                        convert_cubic_to_quads(devPts, SK_Scalar1, &q);
+                        GrPathUtils::convertCubicToQuads(devPts, SK_Scalar1, &q);
                     }
                     for (int i = 0; i < q.count(); i += 3) {
                         SkPoint* qInDevSpace;
@@ -447,24 +389,9 @@ void bloat_quad(const SkPoint qpts[3], const GrMatrix* toDevice,
     SkPoint b = qpts[1];
     SkPoint c = qpts[2];
 
-    // compute a matrix that goes from device coords to U,V quad params
     // this should be in the src space, not dev coords, when we have perspective
     SkMatrix DevToUV;
-    DevToUV.setAll(a.fX,           b.fX,          c.fX,
-                   a.fY,           b.fY,          c.fY,
-                   SK_Scalar1,     SK_Scalar1,    SK_Scalar1);
-    DevToUV.invert(&DevToUV);
-    // can't make this static, no cons :(
-    SkMatrix UVpts;
-    UVpts.setAll(0,                 SK_ScalarHalf,  SK_Scalar1,
-                 0,                 0,              SK_Scalar1,
-                 SK_Scalar1,        SK_Scalar1,     SK_Scalar1);
-    DevToUV.postConcat(UVpts);
-
-    // We really want to avoid perspective matrix muls.
-    // These may wind up really close to zero
-    DevToUV.setPerspX(0);
-    DevToUV.setPerspY(0);
+    GrPathUtils::quadDesignSpaceToUVCoordsMatrix(qpts, &DevToUV);
 
     if (toDevice) {
         toDevice->mapPoints(&a, 1);

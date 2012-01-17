@@ -186,7 +186,9 @@
 
         '../src/gpu/GrAAHairLinePathRenderer.cpp',
         '../src/gpu/GrAAHairLinePathRenderer.h',
-        '../src/gpu/GrAddPathRenderers_aahairline.cpp',
+        '../src/gpu/GrAAConvexPathRenderer.cpp',
+        '../src/gpu/GrAAConvexPathRenderer.h',
+        '../src/gpu/GrAddPathRenderers_default.cpp',
         '../src/gpu/GrAllocator.h',
         '../src/gpu/GrAllocPool.h',
         '../src/gpu/GrAllocPool.cpp',

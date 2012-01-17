@@ -11,6 +11,7 @@
     '../gm/colormatrix.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',
+    '../gm/convexpaths.cpp',
     '../gm/cubicpaths.cpp',
     '../gm/degeneratesegments.cpp',
     '../gm/drawbitmaprect.cpp',

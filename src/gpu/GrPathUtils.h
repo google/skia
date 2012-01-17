@@ -12,6 +12,7 @@
 
 #include "GrMatrix.h"
 #include "GrPath.h"
+#include "SkTArray.h"
 
 /**
  *  Utilities for evaluating paths.
@@ -45,6 +46,16 @@ namespace GrPathUtils {
                                  GrScalar tolSqd,
                                  GrPoint** points,
                                  uint32_t pointsLeft);
-
+    // Compute a matrix that goes from the 2d space coordinates to UV space
+    // where u^2-v = 0 specifies the quad.
+    void quadDesignSpaceToUVCoordsMatrix(const GrPoint qPts[3],
+                                         GrMatrix* matrix);
+    // Converts a cubic into a sequence of quads. If working in device space
+    // use tolScale = 1, otherwise set based on stretchiness of the matrix. The
+    // result is sets of 3 points in quads (TODO: share endpoints in returned
+    // array)
+    void convertCubicToQuads(const GrPoint p[4],
+                             SkScalar tolScale,
+                             SkTArray<SkPoint, true>* quads);
 };
 #endif

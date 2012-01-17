@@ -8,8 +8,8 @@
 
 
 #include "GrPathUtils.h"
-
 #include "GrPoint.h"
+#include "SkGeometry.h"
 
 GrScalar GrPathUtils::scaleToleranceToSrc(GrScalar devTol,
                                           const GrMatrix& viewM,
@@ -185,4 +185,108 @@ int GrPathUtils::worstCasePointCount(const GrPath& path, int* subpaths,
         first = false;
     }
     return pointCount;
+}
+
+namespace {
+// The matrix computed for quadDesignSpaceToUVCoordsMatrix should never really
+// have perspective and we really want to avoid perspective matrix muls.
+//  However, the first two entries of the perspective row may be really close to
+// 0 and the third may not be 1 due to a scale on the entire matrix.
+inline void fixup_matrix(GrMatrix* mat) {
+    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
+    static const GrScalar gTOL = 1.f / 100.f;
+    GrAssert(GrScalarAbs(mat->get(SkMatrix::kMPersp0)) < gTOL);
+    GrAssert(GrScalarAbs(mat->get(SkMatrix::kMPersp1)) < gTOL);
+    float m33 = mat->get(SkMatrix::kMPersp2);
+    if (1.f != m33) {
+        m33 = 1.f / m33;
+        mat->setAll(m33 * mat->get(SkMatrix::kMScaleX),
+                    m33 * mat->get(SkMatrix::kMSkewX),
+                    m33 * mat->get(SkMatrix::kMTransX),
+                    m33 * mat->get(SkMatrix::kMSkewY),
+                    m33 * mat->get(SkMatrix::kMScaleY),
+                    m33 * mat->get(SkMatrix::kMTransY),
+                    0.f, 0.f, 1.f);
+    } else {
+        mat->setPerspX(0);
+        mat->setPerspY(0);
+    }
+}
+}
+
+// Compute a matrix that goes from the 2d space coordinates to UV space where
+// u^2-v = 0 specifies the quad.
+void GrPathUtils::quadDesignSpaceToUVCoordsMatrix(const SkPoint qPts[3],
+                                                  GrMatrix* matrix) {
+    // can't make this static, no cons :(
+    SkMatrix UVpts;
+    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
+    UVpts.setAll(0,   0.5f,  1.f,
+                 0,   0,     1.f,
+                 1.f, 1.f,   1.f);
+    matrix->setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
+                   qPts[0].fY, qPts[1].fY, qPts[2].fY,
+                   1.f,        1.f,        1.f);
+    matrix->invert(matrix);
+    matrix->postConcat(UVpts);
+    fixup_matrix(matrix);
+}
+
+namespace {
+void convert_noninflect_cubic_to_quads(const SkPoint p[4],
+                                       SkScalar tolScale,
+                                       SkTArray<SkPoint, true>* quads,
+                                       int sublevel = 0) {
+    SkVector ab = p[1];
+    ab -= p[0];
+    SkVector dc = p[2];
+    dc -= p[3];
+
+    static const SkScalar gLengthScale = 3 * SK_Scalar1 / 2;
+    // base tolerance is 2 pixels in dev coords.
+    const SkScalar distanceSqdTol = SkScalarMul(tolScale, 1 * SK_Scalar1);
+    static const int kMaxSubdivs = 10;
+
+    ab.scale(gLengthScale);
+    dc.scale(gLengthScale);
+
+    SkVector c0 = p[0];
+    c0 += ab;
+    SkVector c1 = p[3];
+    c1 += dc;
+
+    SkScalar dSqd = c0.distanceToSqd(c1);
+    if (sublevel > kMaxSubdivs || dSqd <= distanceSqdTol) {
+        SkPoint cAvg = c0;
+        cAvg += c1;
+        cAvg.scale(SK_ScalarHalf);
+
+        SkPoint* pts = quads->push_back_n(3);
+        pts[0] = p[0];
+        pts[1] = cAvg;
+        pts[2] = p[3];
+
+        return;
+    } else {
+        SkPoint choppedPts[7];
+        SkChopCubicAtHalf(p, choppedPts);
+        convert_noninflect_cubic_to_quads(choppedPts + 0, tolScale, 
+                                          quads, sublevel + 1);
+        convert_noninflect_cubic_to_quads(choppedPts + 3, tolScale,
+                                          quads, sublevel + 1);
+    }
+}
+}
+
+void GrPathUtils::convertCubicToQuads(const GrPoint p[4],
+                                      SkScalar tolScale,
+                                      SkTArray<SkPoint, true>* quads) {
+    SkPoint chopped[10];
+    int count = SkChopCubicAtInflections(p, chopped);
+
+    for (int i = 0; i < count; ++i) {
+        SkPoint* cubic = chopped + 3*i;
+        convert_noninflect_cubic_to_quads(cubic, tolScale, quads);
+    }
+
 }

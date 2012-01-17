@@ -526,21 +526,28 @@ void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
         segments->fVSCode.appendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
         if (GrDrawState::kHairLine_EdgeType == fProgramDesc.fVertexEdgeType) {
             segments->fFSCode.appendf("\tfloat edgeAlpha = abs(dot(vec3(gl_FragCoord.xy,1), %s.xyz));\n", fsName);
+            segments->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
         } else {
-            GrAssert(GrDrawState::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType);
+            GrAssert(GrDrawState::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType ||
+                     GrDrawState::kQuad_EdgeType == fProgramDesc.fVertexEdgeType);
             // for now we know we're not in perspective, so we could compute this
             // per-quadratic rather than per pixel
             segments->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
             segments->fFSCode.appendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
-            segments->fFSCode.appendf("\tfloat dfdx = 2.0*%s.x*duvdx.x - duvdx.y;\n", fsName);
-            segments->fFSCode.appendf("\tfloat dfdy = 2.0*%s.x*duvdy.x - duvdy.y;\n", fsName);
+            segments->fFSCode.appendf("\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
+                                      "\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
+                                      fsName, fsName);
             segments->fFSCode.appendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
-            segments->fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / (dfdx*dfdx + dfdy*dfdy));\n");
+            if (GrDrawState::kQuad_EdgeType == fProgramDesc.fVertexEdgeType) {
+                segments->fFSCode.append("\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n");
+            } else {
+                segments->fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
+                segments->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+            }
             if (gl->supportsES2()) {
                 segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
         }
-        segments->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
         *coverageVar = "edgeAlpha";
     } else {
         coverageVar->reset();
