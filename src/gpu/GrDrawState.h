@@ -70,6 +70,7 @@ struct GrDrawState {
 
         // memset exceptions
         fColor = 0xffffffff;
+        fCoverage = 0xffffffff;
         fFirstCoverageStage = kNumStages;
         fColorFilterMode = SkXfermode::kDst_Mode;
         fSrcBlend = kOne_BlendCoeff;
@@ -78,9 +79,9 @@ struct GrDrawState {
 
         // ensure values that will be memcmp'ed in == but not memset in reset()
         // are tightly packed
-        GrAssert(kMemsetSize +  sizeof(fColor) + sizeof(fFirstCoverageStage) +
-                 sizeof(fColorFilterMode) + sizeof(fSrcBlend) +
-                 sizeof(fDstBlend) + sizeof(GrMatrix) ==
+        GrAssert(kMemsetSize +  sizeof(fColor) + sizeof(fCoverage) +
+                 sizeof(fFirstCoverageStage) + sizeof(fColorFilterMode) +
+                 sizeof(fSrcBlend) + sizeof(fDstBlend) + sizeof(GrMatrix) ==
                  reinterpret_cast<intptr_t>(&fEdgeAANumEdges) -
                  reinterpret_cast<intptr_t>(this));
 
@@ -121,6 +122,33 @@ struct GrDrawState {
 
     GrColor getColorFilterColor() const { return fColorFilterColor; }
     SkXfermode::Mode getColorFilterMode() const { return fColorFilterMode; }
+
+    /// @}
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Coverage
+    ////
+
+    /**
+     * Sets a constant fractional coverage to be applied to the draw. The 
+     * initial value (after construction or reset()) is 0xff. The constant
+     * coverage is ignored when per-vertex coverage is provided.
+     */
+    void setCoverage(uint8_t coverage) {
+        fCoverage = GrColorPackRGBA(coverage, coverage, coverage, coverage);
+    }
+
+    /**
+     * Version of above that specifies 4 channel per-vertex color. The value
+     * should be premultiplied.
+     */
+    void setCoverage4(GrColor coverage) {
+        fCoverage = coverage;
+    }
+
+    GrColor getCoverage() const {
+        return fCoverage;
+    }
 
     /// @}
 
@@ -753,6 +781,7 @@ private:
 
     // @{ Initialized to values other than zero
     GrColor             fColor;
+    GrColor             fCoverage;
     int                 fFirstCoverageStage;
     SkXfermode::Mode    fColorFilterMode;
     GrBlendCoeff        fSrcBlend;
