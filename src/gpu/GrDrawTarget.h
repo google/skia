@@ -239,7 +239,8 @@ public:
     enum VertexLayoutBits {
         /* vertices have colors (GrColor) */
         kColor_VertexLayoutBit              = 1 << (STAGE_BIT_CNT + 0),
-        /* vertices have coverage (GrColor)
+        /* vertices have coverage (GrColor where all channels should have the 
+         * same value)
          */
         kCoverage_VertexLayoutBit           = 1 << (STAGE_BIT_CNT + 1),
         /* Use text vertices. (Pos and tex coords may be a different type for
