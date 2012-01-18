@@ -216,6 +216,57 @@ static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
 }
 
 /**
+ * Abstract 4-byte interpolation, implemented on top of SkPMColor
+ * utility functions. Third parameter controls blending of the first two:
+ *   (src, dst, 0) returns dst
+ *   (src, dst, 0xFF) returns src
+ */
+static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst,
+                                         U8CPU srcWeight) {
+    unsigned scale = SkAlpha255To256(srcWeight);
+
+    unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
+    unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
+    unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
+    unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
+
+    return SkPackARGB32(a, r, g, b);
+}
+
+/**
+ * 32b optimized version; currently appears to be 10% faster even on 64b
+ * architectures than an equivalent 64b version and 30% faster than
+ * SkFourByteInterp(). Third parameter controls blending of the first two:
+ *   (src, dst, 0) returns dst
+ *   (src, dst, 0xFF) returns src
+ * ** Does not match the results of SkFourByteInterp() because we use
+ * a more accurate scale computation!
+ * TODO: migrate Skia function to using an accurate 255->266 alpha
+ * conversion.
+ */
+static inline SkPMColor SkFastFourByteInterp(SkPMColor src,
+                                             SkPMColor dst,
+                                             U8CPU srcWeight) {
+    SkASSERT(srcWeight < 256);
+
+    // Reorders ARGB to AG-RB in order to reduce the number of operations.
+    const uint32_t mask = 0xFF00FF;
+    uint32_t src_rb = src & mask;
+    uint32_t src_ag = (src >> 8) & mask;
+    uint32_t dst_rb = dst & mask;
+    uint32_t dst_ag = (dst >> 8) & mask;
+
+    // scale = srcWeight + (srcWeight >> 7) is more accurate than
+    // scale = srcWeight + 1, but 7% slower
+    int scale = srcWeight + (srcWeight >> 7);
+
+    uint32_t ret_rb = src_rb * scale + (256 - scale) * dst_rb;
+    uint32_t ret_ag = src_ag * scale + (256 - scale) * dst_ag;
+
+    return (ret_ag & ~mask) | ((ret_rb & ~mask) >> 8);
+}
+
+/**
  *  Same as SkPackARGB32, but this version guarantees to not check that the
  *  values are premultiplied in the debug version.
  */

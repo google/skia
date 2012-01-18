@@ -7,7 +7,9 @@
  */
 #include "Test.h"
 #include "SkColor.h"
+#include "SkColorPriv.h"
 #include "SkMath.h"
+#include "SkRandom.h"
 #include "SkUnPreMultiply.h"
 
 static void test_premul(skiatest::Reporter* reporter) {
@@ -31,9 +33,49 @@ static void test_premul(skiatest::Reporter* reporter) {
     }
 }
 
+/**
+  This test fails: SkFourByteInterp does *not* preserve opaque destinations.
+  SkAlpha255To256 implemented as (alpha + 1) is faster than
+  (alpha + (alpha >> 7)), but inaccurate, and Skia intends to phase it out.
+*/
+/*
+static void test_interp(skiatest::Reporter* reporter) {
+    SkRandom r;
+
+    U8CPU a0 = 0;
+    U8CPU a255 = 255;
+    for (int i = 0; i < 200; i++) {
+        SkColor colorSrc = r.nextU();
+        SkColor colorDst = r.nextU();
+        SkPMColor src = SkPreMultiplyColor(colorSrc);
+        SkPMColor dst = SkPreMultiplyColor(colorDst);
+
+        REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a0) == dst);
+        REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a255) == src);
+    }
+}
+*/
+
+static void test_fast_interp(skiatest::Reporter* reporter) {
+    SkRandom r;
+
+    U8CPU a0 = 0;
+    U8CPU a255 = 255;
+    for (int i = 0; i < 200; i++) {
+        SkColor colorSrc = r.nextU();
+        SkColor colorDst = r.nextU();
+        SkPMColor src = SkPreMultiplyColor(colorSrc);
+        SkPMColor dst = SkPreMultiplyColor(colorDst);
+
+        REPORTER_ASSERT(reporter, SkFastFourByteInterp(src, dst, a0) == dst);
+        REPORTER_ASSERT(reporter, SkFastFourByteInterp(src, dst, a255) == src);
+    }
+}
 
 static void TestColor(skiatest::Reporter* reporter) {
     test_premul(reporter);
+    //test_interp(reporter);
+    test_fast_interp(reporter);
 }
 
 #include "TestClassDef.h"

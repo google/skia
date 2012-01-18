@@ -12,17 +12,6 @@
 
 #define SkAlphaMulAlpha(a, b)   SkMulDiv255Round(a, b)
 
-static SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst, U8CPU alpha) {
-    unsigned scale = SkAlpha255To256(alpha);
-
-    unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
-    unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
-    unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
-    unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
-
-    return SkPackARGB32(a, r, g, b);
-}
-
 #if 0
 // idea for higher precision blends in xfer procs (and slightly faster)
 // see DstATop as a probable caller
