@@ -2060,6 +2060,7 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
     drawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     drawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
     drawState->setColorMatrix(paint.fColorMatrix);
+    drawState->setCoverage(paint.fCoverage);
 
     if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
@@ -2254,6 +2255,9 @@ void GrContext::convolve(GrTexture* texture,
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
     GrDrawState* drawState = fGpu->drawState();
+    GrRenderTarget* target = drawState->getRenderTarget();
+    drawState->reset();
+    drawState->setRenderTarget(target);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
@@ -2263,10 +2267,7 @@ void GrContext::convolve(GrTexture* texture,
                                                 kernel,
                                                 imageIncrement);
 
-    drawState->setViewMatrix(GrMatrix::I());
     drawState->setTexture(0, texture);
-    drawState->setAlpha(0xFF);
-    drawState->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
 
