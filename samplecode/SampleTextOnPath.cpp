@@ -117,7 +117,7 @@ static void test_textBounds(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setDevKernText(gDevKern);
     
-    (void)paint.measureText(gText, strlen(gText), &bounds, NULL);
+    (void)paint.measureText(gText, strlen(gText), &bounds);
     paint.setColor(SK_ColorGREEN);
     bounds.offset(x, y);
     canvas->drawRect(bounds, paint);
@@ -288,4 +288,3 @@ static SkView* MyFactory() {
 }
 
 static SkViewRegister reg(MyFactory);
-
