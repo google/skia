@@ -468,7 +468,11 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
         case SkMask::kLCD32_Format:
             return CLEARTYPE_QUALITY;
         default:
-            return ANTIALIASED_QUALITY;
+            if (rec.fFlags & SkScalerContext::kGenA8FromLCD_Flag) {
+                return CLEARTYPE_QUALITY;
+            } else {
+                return ANTIALIASED_QUALITY;
+            }
     }
 }
 
@@ -713,12 +717,16 @@ static const uint8_t* getInverseGammaTable() {
 // gdi's bitmap is upside-down, so we reverse dst walking in Y
 // whenever we copy it into skia's buffer
 
+static int compute_luminance(int r, int g, int b) {
+//    return (r * 2 + g * 5 + b) >> 3;
+    return (r * 27 + g * 92 + b * 9) >> 7;
+}
+
 static inline uint8_t rgb_to_a8(SkGdiRGB rgb) {
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
-
-    return (r * 2 + g * 5 + b) >> 3;  // luminance
+    return compute_luminance(r, g, b);
 }
 
 static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb) {

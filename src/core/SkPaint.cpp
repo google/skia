@@ -1440,6 +1440,9 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     if (paint.isVerticalText()) {
         flags |= SkScalerContext::kVertical_Flag;
     }
+    if (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) {
+        flags |= SkScalerContext::kGenA8FromLCD_Flag;
+    }
     rec->fFlags = SkToU16(flags);
 
     // these modify fFlags, so do them after assigning fFlags
