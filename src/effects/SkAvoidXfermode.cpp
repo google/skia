@@ -98,16 +98,6 @@ static int scale_dist_14(int dist, uint32_t mul, uint32_t sub)
     return result;
 }
 
-static SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst, unsigned scale)
-{
-    unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
-    unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
-    unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
-    unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
-
-    return SkPackARGB32(a, r, g, b);
-}
-
 static inline unsigned Accurate255To256(unsigned x) {
     return x + (x >> 7);
 }
