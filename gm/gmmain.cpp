@@ -11,6 +11,7 @@
 
 #include "SkColorPriv.h"
 #include "SkData.h"
+#include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
@@ -268,26 +269,43 @@ static void invokeGM(GM* gm, SkCanvas* canvas) {
 static ErrorBitfield generate_image(GM* gm, const ConfigData& gRec,
                                     GrContext* context,
                                     GrRenderTarget* rt,
-                                    SkBitmap* bitmap) {
+                                    SkBitmap* bitmap,
+                                    bool deferred) {
     SkISize size (gm->getISize());
     setup_bitmap(gRec, size, bitmap);
-    SkCanvas canvas(*bitmap);
 
     if (gRec.fBackend == kRaster_Backend) {
-        invokeGM(gm, &canvas);
+        SkCanvas* canvas;
+        if (deferred) {
+            canvas = new SkDeferredCanvas;
+            canvas->setDevice(new SkDevice(*bitmap))->unref();
+        } else {
+            canvas = new SkCanvas(*bitmap);
+        }
+        SkAutoUnref canvasUnref(canvas);
+        invokeGM(gm, canvas);
+        if (deferred) {
+            canvas->getDevice()->accessBitmap(false); // trigger a flush
+        }
     } else {  // GPU
         if (NULL == context) {
             return ERROR_NO_GPU_CONTEXT;
         }
-        SkGpuCanvas gc(context, rt);
-        gc.setDevice(new SkGpuDevice(context, rt))->unref();
-        invokeGM(gm, &gc);
+        SkCanvas* gc;
+        if (deferred) {
+            gc = new SkDeferredCanvas;
+        } else {
+            gc = new SkGpuCanvas(context, rt);
+        }
+        SkAutoUnref gcUnref(gc);
+        gc->setDevice(new SkGpuDevice(context, rt))->unref();
+        invokeGM(gm, gc);
         // the device is as large as the current rendertarget, so we explicitly
         // only readback the amount we expect (in size)
         // overwrite our previous allocation
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, size.fWidth,
                                                        size.fHeight);
-        gc.readPixels(bitmap, 0, 0);
+        gc->readPixels(bitmap, 0, 0);
     }
     return ERROR_NONE;
 }
@@ -488,7 +506,8 @@ static ErrorBitfield test_drawing(GM* gm,
     if (gRec.fBackend == kRaster_Backend ||
         gRec.fBackend == kGPU_Backend) {
         // Early exit if we can't generate the image.
-        ErrorBitfield errors = generate_image(gm, gRec, context, rt, bitmap);
+        ErrorBitfield errors = generate_image(gm, gRec, context, rt, bitmap,
+            false);
         if (ERROR_NONE != errors) {
             return errors;
         }
@@ -504,6 +523,28 @@ static ErrorBitfield test_drawing(GM* gm,
     }
     return handle_test_results(gm, gRec, writePath, readPath, diffPath,
                                "", *bitmap, &document, NULL);
+}
+
+static ErrorBitfield test_deferred_drawing(GM* gm,
+                         const ConfigData& gRec,
+                         const SkBitmap& comparisonBitmap,
+                         const char diffPath [],
+                         GrContext* context,
+                         GrRenderTarget* rt) {
+    SkDynamicMemoryWStream document;
+
+    if (gRec.fBackend == kRaster_Backend ||
+        gRec.fBackend == kGPU_Backend) {
+        SkBitmap bitmap;
+        // Early exit if we can't generate the image, but this is
+        // expected in some cases, so don't report a test failure.
+        if (!generate_image(gm, gRec, context, rt, &bitmap, true)) {
+            return ERROR_NONE;
+        }
+        return handle_test_results(gm, gRec, NULL, NULL, diffPath,
+                                   "-deferred", bitmap, NULL, &comparisonBitmap);
+    }
+    return ERROR_NONE;
 }
 
 static ErrorBitfield test_picture_playback(GM* gm,
@@ -612,6 +653,7 @@ int main(int argc, char * const argv[]) {
     bool doReplay = true;
     bool doSerialize = false;
     bool useMesa = false;
+    bool doDeferred = true;
     
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
@@ -637,6 +679,8 @@ int main(int argc, char * const argv[]) {
             doReplay = false;
         } else if (strcmp(*argv, "--nopdf") == 0) {
             doPDF = false;
+        } else if (strcmp(*argv, "--nodeferred") == 0) {
+            doDeferred = false;
         } else if (strcmp(*argv, "--serialize") == 0) {
             doSerialize = true;
         } else if (strcmp(*argv, "--match") == 0) {
@@ -756,6 +800,14 @@ int main(int argc, char * const argv[]) {
                                            writePath, readPath, diffPath,
                                            gGrContext,
                                            rt.get(), &forwardRenderedBitmap);
+            }
+
+            if (doDeferred && !testErrors &&
+                (kGPU_Backend == gRec[i].fBackend || 
+                kRaster_Backend == gRec[i].fBackend)) {
+                testErrors |= test_deferred_drawing(gm, gRec[i],
+                                    forwardRenderedBitmap,
+                                    diffPath, gGrContext, rt.get());
             }
 
             if ((ERROR_NONE == testErrors) && doReplay &&
