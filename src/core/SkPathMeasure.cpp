@@ -15,7 +15,6 @@
 // these must be 0,1,2 since they are in our 2-bit field
 enum {
     kLine_SegType,
-    kCloseLine_SegType,
     kQuad_SegType,
     kCubic_SegType
 };
@@ -154,40 +153,43 @@ void SkPathMeasure::buildSegments() {
     Segment*        seg;
 
     fSegments.reset();
-    for (;;) {
+    bool done = false;
+    do {
         switch (fIter.next(pts)) {
             case SkPath::kMove_Verb:
+                ptIndex += 1;
+                fPts.append(1, pts);
                 if (!firstMoveTo) {
-                    goto DONE;
+                    done = true;
+                    break;
                 }
-            ptIndex += 1;
-            firstMoveTo = false;
-            break;
+                firstMoveTo = false;
+                break;
 
             case SkPath::kLine_Verb:
                 d = SkPoint::Distance(pts[0], pts[1]);
                 SkASSERT(d >= 0);
-                if (!SkScalarNearlyZero(d)) {
-                    distance += d;
-                    seg = fSegments.append();
-                    seg->fDistance = distance;
-                    seg->fPtIndex = ptIndex;
-                    seg->fType = fIter.isCloseLine() ?
-                                    kCloseLine_SegType : kLine_SegType;
-                    seg->fTValue = kMaxTValue;
-                }
-                ptIndex += !fIter.isCloseLine();
+                distance += d;
+                seg = fSegments.append();
+                seg->fDistance = distance;
+                seg->fPtIndex = ptIndex;
+                seg->fType = kLine_SegType;
+                seg->fTValue = kMaxTValue;
+                fPts.append(1, pts + 1);
+                ptIndex++;
                 break;
 
             case SkPath::kQuad_Verb:
                 distance = this->compute_quad_segs(pts, distance, 0,
                                                    kMaxTValue, ptIndex);
+                fPts.append(2, pts + 1);
                 ptIndex += 2;
                 break;
 
             case SkPath::kCubic_Verb:
                 distance = this->compute_cubic_segs(pts, distance, 0,
                                                     kMaxTValue, ptIndex);
+                fPts.append(3, pts + 1);
                 ptIndex += 3;
                 break;
 
@@ -196,13 +198,14 @@ void SkPathMeasure::buildSegments() {
                 break;
                 
             case SkPath::kDone_Verb:
-                goto DONE;
+                done = true;
+                break;
         }
-    }
-DONE:
+    } while (!done);
+
     fLength = distance;
     fIsClosed = isClosed;
-    fFirstPtIndex = ptIndex + 1;
+    fFirstPtIndex = ptIndex;
 
 #ifdef SK_DEBUG
     {
@@ -232,31 +235,20 @@ DONE:
 #endif
 }
 
-// marked as a friend in SkPath.h
-const SkPoint* sk_get_path_points(const SkPath& path, int index) {
-    return &path.fPts[index];
-}
-
-static void compute_pos_tan(const SkPath& path, int firstPtIndex, int ptIndex,
+static void compute_pos_tan(const SkTDArray<SkPoint>& segmentPts, int ptIndex,
                     int segType, SkScalar t, SkPoint* pos, SkVector* tangent) {
-    const SkPoint*  pts = sk_get_path_points(path, ptIndex);
+    const SkPoint*  pts = &segmentPts[ptIndex];
 
     switch (segType) {
         case kLine_SegType:
-        case kCloseLine_SegType: {
-            const SkPoint* endp = (segType == kLine_SegType) ?
-                                    &pts[1] :
-                                    sk_get_path_points(path, firstPtIndex);
-
             if (pos) {
-                pos->set(SkScalarInterp(pts[0].fX, endp->fX, t),
-                        SkScalarInterp(pts[0].fY, endp->fY, t));
+                pos->set(SkScalarInterp(pts[0].fX, pts[1].fX, t),
+                        SkScalarInterp(pts[0].fY, pts[1].fY, t));
             }
             if (tangent) {
-                tangent->setNormalize(endp->fX - pts[0].fX, endp->fY - pts[0].fY);
+                tangent->setNormalize(pts[1].fX - pts[0].fX, pts[1].fY - pts[0].fY);
             }
             break;
-        }
         case kQuad_SegType:
             SkEvalQuadAt(pts, t, pos, tangent);
             if (tangent) {
@@ -274,7 +266,7 @@ static void compute_pos_tan(const SkPath& path, int firstPtIndex, int ptIndex,
     }
 }
 
-static void seg_to(const SkPath& src, int firstPtIndex, int ptIndex,
+static void seg_to(const SkTDArray<SkPoint>& segmentPts, int ptIndex,
                    int segType, SkScalar startT, SkScalar stopT, SkPath* dst) {
     SkASSERT(startT >= 0 && startT <= SK_Scalar1);
     SkASSERT(stopT >= 0 && stopT <= SK_Scalar1);
@@ -284,24 +276,18 @@ static void seg_to(const SkPath& src, int firstPtIndex, int ptIndex,
         return;
     }
 
-    const SkPoint*  pts = sk_get_path_points(src, ptIndex);
+    const SkPoint*  pts = &segmentPts[ptIndex];
     SkPoint         tmp0[7], tmp1[7];
 
     switch (segType) {
         case kLine_SegType:
-        case kCloseLine_SegType: {
-            const SkPoint* endp = (segType == kLine_SegType) ?
-                                    &pts[1] :
-                                    sk_get_path_points(src, firstPtIndex);
-
             if (stopT == kMaxTValue) {
-                dst->lineTo(*endp);
+                dst->lineTo(pts[1]);
             } else {
-                dst->lineTo(SkScalarInterp(pts[0].fX, endp->fX, stopT),
-                            SkScalarInterp(pts[0].fY, endp->fY, stopT));
+                dst->lineTo(SkScalarInterp(pts[0].fX, pts[1].fX, stopT),
+                            SkScalarInterp(pts[0].fY, pts[1].fY, stopT));
             }
             break;
-        }
         case kQuad_SegType:
             if (startT == 0) {
                 if (stopT == SK_Scalar1) {
@@ -379,6 +365,7 @@ void SkPathMeasure::setPath(const SkPath* path, bool forceClosed) {
         fIter.setPath(*path, forceClosed);
     }
     fSegments.reset();
+    fPts.reset();
 }
 
 SkScalar SkPathMeasure::getLength() {
@@ -431,7 +418,6 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
                               SkVector* tangent) {
     SkASSERT(fPath);
     if (fPath == NULL) {
-    EMPTY:
         return false;
     }
 
@@ -439,7 +425,7 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
     int         count = fSegments.count();
 
     if (count == 0 || length == 0) {
-        goto EMPTY;
+        return false;
     }
 
     // pin the distance to a legal range
@@ -452,8 +438,7 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
     SkScalar        t;
     const Segment*  seg = this->distanceToSegment(distance, &t);
 
-    compute_pos_tan(*fPath, fSegments[0].fPtIndex, seg->fPtIndex, seg->fType,
-                    t, pos, tangent);
+    compute_pos_tan(fPts, seg->fPtIndex, seg->fType, t, pos, tangent);
     return true;
 }
 
@@ -501,23 +486,19 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     SkASSERT(seg <= stopSeg);
 
     if (startWithMoveTo) {
-        compute_pos_tan(*fPath, fSegments[0].fPtIndex, seg->fPtIndex,
-                        seg->fType, startT, &p, NULL);
+        compute_pos_tan(fPts, seg->fPtIndex, seg->fType, startT, &p, NULL);
         dst->moveTo(p);
     }
 
     if (seg->fPtIndex == stopSeg->fPtIndex) {
-        seg_to(*fPath, fSegments[0].fPtIndex, seg->fPtIndex, seg->fType,
-               startT, stopT, dst);
+        seg_to(fPts, seg->fPtIndex, seg->fType, startT, stopT, dst);
     } else {
         do {
-            seg_to(*fPath, fSegments[0].fPtIndex, seg->fPtIndex, seg->fType,
-                   startT, SK_Scalar1, dst);
+            seg_to(fPts, seg->fPtIndex, seg->fType, startT, SK_Scalar1, dst);
             seg = SkPathMeasure::NextSegment(seg);
             startT = 0;
         } while (seg->fPtIndex < stopSeg->fPtIndex);
-        seg_to(*fPath, fSegments[0].fPtIndex, seg->fPtIndex, seg->fType,
-               0, stopT, dst);
+        seg_to(fPts, seg->fPtIndex, seg->fType, 0, stopT, dst);
     }
     return true;
 }

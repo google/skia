@@ -753,7 +753,6 @@ private:
     void computeBounds() const;
 
     friend class Iter;
-    void cons_moveto();
 
     friend class SkPathStroker;
     /*  Append the first contour of path, ignoring path's initial point. If no
@@ -776,7 +775,6 @@ private:
     //
     inline void injectMoveToIfNeeded();
 
-    friend const SkPoint* sk_get_path_points(const SkPath&, int index);
     friend class SkAutoPathBoundsUpdate;
 };
 
