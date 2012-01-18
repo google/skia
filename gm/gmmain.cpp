@@ -586,16 +586,25 @@ static ErrorBitfield test_picture_serialization(GM* gm,
 }
 
 static void usage(const char * argv0) {
-    SkDebugf("%s [-w writePath] [-r readPath] [-d diffPath]\n", argv0);
-    SkDebugf("    [--replay] [--serialize]\n");
+    SkDebugf(
+        "%s [-w writePath] [-r readPath] [-d diffPath] [--noreplay]\n"
+        "    [--serialize] [--forceBWtext] [--nopdf] [--nodeferred]\n"
+        "    [--match substring]"
+#if SK_MESA
+        " [--mesagl]"
+#endif
+        "\n\n", argv0);
     SkDebugf("    writePath: directory to write rendered images in.\n");
     SkDebugf(
 "    readPath: directory to read reference images from;\n"
 "        reports if any pixels mismatch between reference and new images\n");
     SkDebugf("    diffPath: directory to write difference images in.\n");
-    SkDebugf("    --replay: exercise SkPicture replay.\n");
+    SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
     SkDebugf(
 "    --serialize: exercise SkPicture serialization & deserialization.\n");
+    SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
+    SkDebugf("    --nopdf: skip the pdf rendering test pass.\n");
+    SkDebugf("    --nodeferred: skip the deferred rendering test pass.\n");
     SkDebugf("    --match foo will only run tests that substring match foo.\n");
 #if SK_MESA
     SkDebugf("    --mesagl will run using the osmesa sw gl rasterizer.\n");
