@@ -44,7 +44,6 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
 #endif
     }
 
-#if 0
     // Test the behavior following a close not followed by a move.
     path.reset();
     path.lineTo(SK_Scalar1, 0);
@@ -129,7 +128,6 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
         SkScalarNearlyEqual(position.fY, SK_Scalar1 * 2.0f, SK_Scalar1 * 0.0001));
     REPORTER_ASSERT(reporter, tangent.fX == -SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
-#endif
 }
 
 #include "TestClassDef.h"
