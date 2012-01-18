@@ -1422,7 +1422,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
                 emboldenOutline(&fFace->glyph->outline);
             }
             FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
-            x_height = SkIntToScalar(bbox.yMax) / 64;
+            x_height = SkFixedToScalar(SkFDot6ToFixed(bbox.yMax));
         } else {
             x_height = 0;
         }
