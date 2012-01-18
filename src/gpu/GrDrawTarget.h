@@ -21,6 +21,7 @@
 #include "GrTexture.h"
 
 #include "SkXfermode.h"
+#include "SkTLazy.h"
 
 class GrTexture;
 class GrClipIterator;
@@ -139,7 +140,7 @@ public:
      */
     struct SavedDrawState {
     private:
-        GrDrawState fState;
+        SkTLazy<GrDrawState> fState;
         friend class GrDrawTarget;
     };
 
@@ -926,10 +927,12 @@ protected:
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
     // SavedDrawState but need to peek at the state values.
-    static GrDrawState& accessSavedDrawState(SavedDrawState& sds)
-                                                        { return sds.fState; }
-    static const GrDrawState& accessSavedDrawState(const SavedDrawState& sds)
-                                                        { return sds.fState; }
+    static GrDrawState& accessSavedDrawState(SavedDrawState& sds) {
+        return *sds.fState.get();
+    }
+    static const GrDrawState& accessSavedDrawState(const SavedDrawState& sds){
+        return *sds.fState.get();
+    }
 
     // implemented by subclass to allocate space for reserved geom
     virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,

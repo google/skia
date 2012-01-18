@@ -769,13 +769,12 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     GrRenderTarget* offRT = record->fOffscreen.texture()->asRenderTarget();
     GrAssert(NULL != offRT);
 
-    
     GrDrawState* drawState = target->drawState();
     GrMatrix vm = drawState->getViewMatrix();
     drawState->reset();
     *drawState->viewMatrix() = vm;
     drawState->setRenderTarget(offRT);
-    
+
 #if PREFER_MSAA_OFFSCREEN_AA
     drawState->enableState(GrDrawState::kHWAntialias_StateBit);
 #endif
@@ -796,6 +795,8 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     GrIRect clear = SkIRect::MakeWH(record->fScale * w, 
                                     record->fScale * h);
     target->setClip(GrClip(clear));
+    drawState->enableState(GrDrawState::kClip_StateBit);
+
 #if 0
     // visualize tile boundaries by setting edges of offscreen to white
     // and interior to tranparent. black.

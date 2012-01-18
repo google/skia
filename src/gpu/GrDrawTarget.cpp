@@ -512,11 +512,11 @@ const GrClip& GrDrawTarget::getClip() const {
 }
 
 void GrDrawTarget::saveCurrentDrawState(SavedDrawState* state) const {
-    state->fState = fCurrDrawState;
+    state->fState.set(fCurrDrawState);
 }
 
 void GrDrawTarget::restoreDrawState(const SavedDrawState& state) {
-    fCurrDrawState = state.fState;
+    fCurrDrawState = *state.fState.get();
 }
 
 void GrDrawTarget::copyDrawState(const GrDrawTarget& srcTarget) {
