@@ -85,13 +85,14 @@ private:
 
     struct Segment {
         SkScalar    fDistance;  // total distance up to this point
-        unsigned    fPtIndex : 15;
+        unsigned    fPtIndex : 15; // index into the fPts array
         unsigned    fTValue : 15;
         unsigned    fType : 2;
 
         SkScalar getScalarT() const;
     };
     SkTDArray<Segment>  fSegments;
+    SkTDArray<SkPoint>  fPts; // Points used to define the segments
 
     static const Segment* NextSegment(const Segment*);
 
@@ -104,4 +105,3 @@ private:
 };
 
 #endif
-
