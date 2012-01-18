@@ -33,6 +33,9 @@ extern bool gSkSuppressFontCachePurgeSpew;
     #include "SkPDFDocument.h"
 #endif
 
+// Until we resolve http://code.google.com/p/skia/issues/detail?id=455 ,
+// stop writing out XPS-format image baselines in gm.
+#undef SK_SUPPORT_XPS
 #ifdef SK_SUPPORT_XPS
     #include "SkXPSDevice.h"
 #endif
