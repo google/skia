@@ -78,7 +78,7 @@ public:
         reference count is incremented. If the canvas was already holding a
         device, its reference count is decremented. The new device is returned.
     */
-    SkDevice* setDevice(SkDevice* device);
+    virtual SkDevice* setDevice(SkDevice* device);
 
     /**
      *  saveLayer() can create another device (which is later drawn onto
@@ -278,7 +278,7 @@ public:
     /** Returns the number of matrix/clip states on the SkCanvas' private stack.
         This will equal # save() calls - # restore() calls.
     */
-    int getSaveCount() const;
+    virtual int getSaveCount() const;
 
     /** Efficient way to pop any calls to save() that happened after the save
         count reached saveCount. It is an error for saveCount to be less than
@@ -845,7 +845,7 @@ public:
         This does not account for the translate in any of the devices.
         @return The current matrix on the canvas.
     */
-    const SkMatrix& getTotalMatrix() const;
+    virtual const SkMatrix& getTotalMatrix() const;
 
     enum ClipType {
         kEmpty_ClipType = 0,
@@ -921,6 +921,12 @@ public:
     };
 
 protected:
+    // Returns the canvas to be used by DrawIter. Default implementation 
+    // returns this. Subclasses that encapsulate an indirect canvas may
+    // need to overload this method. The impl must keep track of this, as it
+    // is not released or deleted by the caller.
+    virtual SkCanvas* canvasForDrawIter();
+
     // all of the drawBitmap variants call this guy
     virtual void commonDrawBitmap(const SkBitmap&, const SkIRect*,
                                   const SkMatrix&, const SkPaint& paint);

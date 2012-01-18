@@ -214,6 +214,7 @@ private:
 class SkDrawIter : public SkDraw {
 public:
     SkDrawIter(SkCanvas* canvas, bool skipEmptyClips = true) {
+        canvas = canvas->canvasForDrawIter();
         fCanvas = canvas;
         canvas->updateDeviceCMCache();
 
@@ -589,6 +590,10 @@ void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y,
     if (device) {
         device->writePixels(bitmap, x, y, config8888);
     }
+}
+
+SkCanvas* SkCanvas::canvasForDrawIter() {
+    return this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
