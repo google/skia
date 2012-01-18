@@ -860,14 +860,14 @@ static bool xfermodeSupportsCoverageAsAlpha(SkXfermode* xfer) {
 }
 
 bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
-                           SkAlpha* newAlpha) {
-    SkASSERT(newAlpha);
+                           SkScalar* coverage) {
+    SkASSERT(coverage);
     if (SkPaint::kStroke_Style != paint.getStyle()) {
         return false;
     }
     SkScalar strokeWidth = paint.getStrokeWidth();
     if (0 == strokeWidth) {
-        *newAlpha = paint.getAlpha();
+        *coverage = SK_Scalar1;
         return true;
     }
 
@@ -875,9 +875,6 @@ bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
     // hairline
 
     if (!paint.isAntiAlias()) {
-        return false;
-    }
-    if (!xfermodeSupportsCoverageAsAlpha(paint.getXfermode())) {
         return false;
     }
     if (matrix.hasPerspective()) {
@@ -891,16 +888,7 @@ bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
     SkScalar len0 = fast_len(dst[0]);
     SkScalar len1 = fast_len(dst[1]);
     if (len0 <= SK_Scalar1 && len1 <= SK_Scalar1) {
-        SkScalar modulate = SkScalarAve(len0, len1);
-#if 0
-        *newAlpha = SkToU8(SkScalarRoundToInt(modulate * paint.getAlpha()));
-#else
-        // this is the old technique, which we preserve for now so we don't
-        // change previous results (testing)
-        // the new way seems fine, its just (a tiny bit) different
-        int scale = (int)SkScalarMul(modulate, 256);
-        *newAlpha = paint.getAlpha() * scale >> 8;
-#endif
+        *coverage = SkScalarAve(len0, len1);
         return true;
     }
     return false;
@@ -947,12 +935,29 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     SkTLazy<SkPaint> lazyPaint;
 
     {
-        SkAlpha newAlpha;
-        if (SkDrawTreatAsHairline(origPaint, *matrix, &newAlpha)) {
-            lazyPaint.set(origPaint);
-            lazyPaint.get()->setAlpha(newAlpha);
-            lazyPaint.get()->setStrokeWidth(0);
-            paint = lazyPaint.get();
+        SkScalar coverage;
+        if (SkDrawTreatAsHairline(origPaint, *matrix, &coverage)) {
+            if (SK_Scalar1 == coverage) {
+                lazyPaint.set(origPaint);
+                lazyPaint.get()->setStrokeWidth(0);
+                paint = lazyPaint.get();
+            } else if (xfermodeSupportsCoverageAsAlpha(origPaint.getXfermode())) {
+                U8CPU newAlpha;
+#if 0
+                newAlpha = SkToU8(SkScalarRoundToInt(coverage *
+                                                     origPaint.getAlpha()));
+#else
+                // this is the old technique, which we preserve for now so
+                // we don't change previous results (testing)
+                // the new way seems fine, its just (a tiny bit) different
+                int scale = (int)SkScalarMul(coverage, 256);
+                newAlpha = origPaint.getAlpha() * scale >> 8;
+#endif
+                lazyPaint.set(origPaint);
+                lazyPaint.get()->setStrokeWidth(0);
+                lazyPaint.get()->setAlpha(newAlpha);
+                paint = lazyPaint.get();
+            }
         }
     }
 

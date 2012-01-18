@@ -412,6 +412,7 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
 
     grPaint->fDither    = skPaint.isDither();
     grPaint->fAntiAlias = skPaint.isAntiAlias();
+    grPaint->fCoverage = 0xFF;
 
     SkXfermode::Coeff sm = SkXfermode::kOne_Coeff;
     SkXfermode::Coeff dm = SkXfermode::kISA_Coeff;
@@ -1061,38 +1062,30 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 }
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
-                           const SkPaint& origPaint, const SkMatrix* prePathMatrix,
+                           const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
     CHECK_SHOULD_DRAW(draw);
 
     bool             doFill = true;
-    SkTLazy<SkPaint> lazyPaint;
-    const SkPaint* paint = &origPaint;
-    
-    // can we cheat, and threat a thin stroke as a hairline (w/ modulated alpha)
+
+    SkScalar coverage = SK_Scalar1;
+    // can we cheat, and threat a thin stroke as a hairline w/ coverage
     // if we can, we draw lots faster (raster device does this same test)
-    {
-        SkAlpha newAlpha;
-        if (SkDrawTreatAsHairline(*paint, *draw.fMatrix, &newAlpha)) {
-            lazyPaint.set(*paint);
-            lazyPaint.get()->setAlpha(newAlpha);
-            lazyPaint.get()->setStrokeWidth(0);
-            paint = lazyPaint.get();
-            doFill = false;
-        }
+    if (SkDrawTreatAsHairline(paint, *draw.fMatrix, &coverage)) {
+        doFill = false;
     }
-    // must reference paint from here down, and not origPaint
-    // since we may have change the paint (using lazyPaint for storage)
     
     GrPaint grPaint;
     SkAutoCachedTexture act;
-    if (!this->skPaint2GrPaintShader(*paint,
+    if (!this->skPaint2GrPaintShader(paint,
                                      &act,
                                      *draw.fMatrix,
                                      &grPaint,
                                      true)) {
         return;
     }
+
+    grPaint.fCoverage = SkScalarRoundToInt(coverage * grPaint.fCoverage);
 
     // If we have a prematrix, apply it to the path, optimizing for the case
     // where the original path can in fact be modified in place (even though
@@ -1115,25 +1108,25 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-    if (doFill && (paint->getPathEffect() || 
-                   paint->getStyle() != SkPaint::kFill_Style)) {
+    if (doFill && (paint.getPathEffect() || 
+                   paint.getStyle() != SkPaint::kFill_Style)) {
         // it is safe to use tmpPath here, even if we already used it for the
         // prepathmatrix, since getFillPath can take the same object for its
         // input and output safely.
-        doFill = paint->getFillPath(*pathPtr, &tmpPath);
+        doFill = paint.getFillPath(*pathPtr, &tmpPath);
         pathPtr = &tmpPath;
     }
 
-    if (paint->getMaskFilter()) {
+    if (paint.getMaskFilter()) {
         // avoid possibly allocating a new path in transform if we can
         SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
 
         // transform the path into device space
         pathPtr->transform(*draw.fMatrix, devPathPtr);
-        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint->getMaskFilter(),
+        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                    *draw.fMatrix, *draw.fClip, draw.fBounder,
                                    &grPaint)) {
-            drawWithMaskFilter(fContext, *devPathPtr, paint->getMaskFilter(),
+            drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                *draw.fMatrix, *draw.fClip, draw.fBounder,
                                &grPaint);
         }

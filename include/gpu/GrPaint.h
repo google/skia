@@ -36,6 +36,7 @@ public:
     bool                        fColorMatrixEnabled;
 
     GrColor                     fColor;
+    uint8_t                     fCoverage;
 
     GrColor                     fColorFilterColor;
     SkXfermode::Mode            fColorFilterXfermode;
@@ -126,6 +127,7 @@ public:
         fDither = paint.fDither;
 
         fColor = paint.fColor;
+        fCoverage = paint.fCoverage;
 
         fColorFilterColor = paint.fColorFilterColor;
         fColorFilterXfermode = paint.fColorFilterXfermode;
@@ -161,6 +163,7 @@ public:
         this->resetBlend();
         this->resetOptions();
         this->resetColor();
+        this->resetCoverage();
         this->resetTextures();
         this->resetColorFilter();
         this->resetMasks();
@@ -240,6 +243,10 @@ private:
 
     void resetColor() {
         fColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
+    }
+
+    void resetCoverage() {
+        fCoverage = 0xff;
     }
 
     void resetTextures() {
