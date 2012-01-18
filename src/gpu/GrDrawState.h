@@ -49,7 +49,11 @@ struct GrDrawState {
     GrDrawState() {
         this->reset();
     }
-    
+
+    GrDrawState(const GrDrawState& state) {
+        *this = state;
+    }
+
     /**
      * Resets to the default state. Sampler states will not be modified.
      */ 
