@@ -175,8 +175,12 @@ public:
         kLCD_Vertical_Flag        = 0x0200,    // else Horizontal
         kLCD_BGROrder_Flag        = 0x0400,    // else RGB order
 
+        // Generate A8 from LCD source (for GDI), only meaningful if fMaskFormat is kA8
+        // Perhaps we can store this (instead) in fMaskFormat, in hight bit?
+        kGenA8FromLCD_Flag        = 0x0800,
+
         // luminance : 0 for black text, kLuminance_Max for white text
-        kLuminance_Shift          = 11, // to shift into the other flags above
+        kLuminance_Shift          = 13, // shift to land in the high 3-bits of Flags
         kLuminance_Bits           = 3,  // ensure Flags doesn't exceed 16bits
     };
     

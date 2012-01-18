@@ -100,11 +100,12 @@ public:
         kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
         kVerticalText_Flag    = 0x1000,
+        kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
 
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0x1FFF
+        kAllFlags = 0x3FFF
     };
 
     /** Return the paint's flags. Use the Flag enum to test flag values.
@@ -870,7 +871,7 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    unsigned        fFlags : 14;
+    unsigned        fFlags : 15;
     unsigned        fTextAlign : 2;
     unsigned        fCapType : 2;
     unsigned        fJoinType : 2;
