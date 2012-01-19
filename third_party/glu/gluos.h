@@ -71,7 +71,9 @@ typedef void GLvoid;
 #define __gl_edgeSign Sk__gl_edgeSign
 #define __gl_memInit Sk__gl_memInit
 #define __gl_meshAddEdgeVertex Sk__gl_meshAddEdgeVertex
+#ifndef NDEBUG
 #define __gl_meshCheckMesh Sk__gl_meshCheckMesh
+#endif
 #define __gl_meshConnect Sk__gl_meshConnect
 #define __gl_meshDelete Sk__gl_meshDelete
 #define __gl_meshDeleteMesh Sk__gl_meshDeleteMesh
