@@ -24,6 +24,16 @@ static const int SPARE_TEX_UNIT = GrDrawState::kNumStages;
 
 #define SKIP_CACHE_CHECK    true
 
+#if GR_GL_CHECK_ALLOC_WITH_GET_ERROR
+    #define CLEAR_ERROR_BEFORE_ALLOC(iface)   GrGLClearErr(iface)
+    #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL_NOERRCHECK(iface, call)
+    #define CHECK_ALLOC_ERROR(iface)          GR_GL_GET_ERROR(iface)
+#else 
+    #define CLEAR_ERROR_BEFORE_ALLOC(iface)
+    #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL(iface, call)
+    #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
+#endif
+
 static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
     GR_GL_ONE,
@@ -863,40 +873,39 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     if (isNewTexture && 
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
-        GrGLClearErr(this->glInterface());
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         if (useTexStorage) {
             // We never resize  or change formats of textures. We don't use
             // mipmaps currently.
-            GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                                  TexStorage2D(GR_GL_TEXTURE_2D,
-                                               1, // levels
-                                               internalFormat,
-                                               desc.fWidth, desc.fHeight));
+            GL_ALLOC_CALL(this->glInterface(),
+                          TexStorage2D(GR_GL_TEXTURE_2D,
+                                       1, // levels
+                                       internalFormat,
+                                       desc.fWidth, desc.fHeight));
         } else {
             if (GR_GL_PALETTE8_RGBA8 == internalFormat) {
                 GrGLsizei imageSize = desc.fWidth * desc.fHeight +
                                       kGrColorTableSize;
-                GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                                      CompressedTexImage2D(GR_GL_TEXTURE_2D,
-                                                           0, // level
-                                                           internalFormat,
-                                                           desc.fWidth,
-                                                           desc.fHeight,
-                                                           0, // border
-                                                           imageSize,
-                                                           data));
+                GL_ALLOC_CALL(this->glInterface(),
+                              CompressedTexImage2D(GR_GL_TEXTURE_2D,
+                                                   0, // level
+                                                   internalFormat,
+                                                   desc.fWidth, desc.fHeight,
+                                                   0, // border
+                                                   imageSize,
+                                                   data));
             } else {
-                GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                                      TexImage2D(GR_GL_TEXTURE_2D,
-                                                 0, // level
-                                                 internalFormat,
-                                                 desc.fWidth, desc.fHeight,
-                                                 0, // border
-                                                 externalFormat, externalType,
-                                                 data));
+                GL_ALLOC_CALL(this->glInterface(),
+                              TexImage2D(GR_GL_TEXTURE_2D,
+                                         0, // level
+                                         internalFormat,
+                                         desc.fWidth, desc.fHeight,
+                                         0, // border
+                                         externalFormat, externalType,
+                                         data));
             }
         }
-        GrGLenum error = GR_GL_GET_ERROR(this->glInterface());
+        GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
         if (error != GR_GL_NO_ERROR) {
             succeeded = false;
         } else {
@@ -977,13 +986,13 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         GrAssert(desc->fSampleCnt > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER,
                                desc->fMSColorRenderbufferID));
-        GrGLClearErr(this->glInterface());
-        GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                              RenderbufferStorageMultisample(GR_GL_RENDERBUFFER, 
-                                                             desc->fSampleCnt,
-                                                             msColorFormat,
-                                                             width, height));
-        err = GR_GL_GET_ERROR(this->glInterface());
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
+        GL_ALLOC_CALL(this->glInterface(),
+                      RenderbufferStorageMultisample(GR_GL_RENDERBUFFER, 
+                                                     desc->fSampleCnt,
+                                                     msColorFormat,
+                                                     width, height));
+        err = CHECK_ALLOC_ERROR(this->glInterface());
         if (err != GR_GL_NO_ERROR) {
             goto FAILED;
         }
@@ -1196,25 +1205,23 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         // first (painful) stencil creation.
         int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
         const GrGLStencilBuffer::Format& sFmt = fGLCaps.fStencilFormats[sIdx];
-        GrGLClearErr(this->glInterface());
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // we do this "if" so that we don't call the multisample
         // version on a GL that doesn't have an MSAA extension.
         if (samples > 1) {
-            GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                                  RenderbufferStorageMultisample(
-                                        GR_GL_RENDERBUFFER,
-                                        samples,
-                                        sFmt.fInternalFormat,
-                                        width,
-                                        height));
+            GL_ALLOC_CALL(this->glInterface(),
+                          RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
+                                                         samples,
+                                                         sFmt.fInternalFormat,
+                                                         width, height));
         } else {
-            GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                                  RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                                      sFmt.fInternalFormat,
-                                                      width, height));
+            GL_ALLOC_CALL(this->glInterface(),
+                          RenderbufferStorage(GR_GL_RENDERBUFFER,
+                                              sFmt.fInternalFormat,
+                                              width, height));
         }
 
-        GrGLenum err = GR_GL_GET_ERROR(this->glInterface());
+        GrGLenum err = CHECK_ALLOC_ERROR(this->glInterface());
         if (err == GR_GL_NO_ERROR) {
             // After sized formats we attempt an unsized format and take whatever
             // sizes GL gives us. In that case we query for the size.
@@ -1302,12 +1309,15 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
     if (id) {
         GL_CALL(BindBuffer(GR_GL_ARRAY_BUFFER, id));
         fHWGeometryState.fArrayPtrsDirty = true;
-        GrGLClearErr(this->glInterface());
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // make sure driver can allocate memory for this buffer
-        GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                              BufferData(GR_GL_ARRAY_BUFFER, size, NULL, 
-                              dynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
-        if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
+        GL_ALLOC_CALL(this->glInterface(),
+                      BufferData(GR_GL_ARRAY_BUFFER,
+                                 size,
+                                 NULL,   // data ptr
+                                 dynamic ? GR_GL_DYNAMIC_DRAW :
+                                           GR_GL_STATIC_DRAW));
+        if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
             GL_CALL(DeleteBuffers(1, &id));
             // deleting bound buffer does implicit bind to 0
             fHWGeometryState.fVertexBuffer = NULL;
@@ -1326,12 +1336,15 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
     GL_CALL(GenBuffers(1, &id));
     if (id) {
         GL_CALL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, id));
-        GrGLClearErr(this->glInterface());
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // make sure driver can allocate memory for this buffer
-        GR_GL_CALL_NOERRCHECK(this->glInterface(),
-                              BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, size, NULL,
-                              dynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
-        if (GR_GL_GET_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
+        GL_ALLOC_CALL(this->glInterface(),
+                      BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
+                                 size,
+                                 NULL,  // data ptr
+                                 dynamic ? GR_GL_DYNAMIC_DRAW :
+                                           GR_GL_STATIC_DRAW));
+        if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
             GL_CALL(DeleteBuffers(1, &id));
             // deleting bound buffer does implicit bind to 0
             fHWGeometryState.fIndexBuffer = NULL;
