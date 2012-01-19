@@ -84,7 +84,8 @@
             'cflags': ['-g']
           },
           'Release': {
-            'cflags': ['-O2']
+            'cflags': ['-O2'],
+            'defines': [ 'NDEBUG' ],
           },
         },
         'cflags': [
@@ -119,6 +120,7 @@
             'xcode_settings': {
               'GCC_OPTIMIZATION_LEVEL': '3',
             },
+            'defines': [ 'NDEBUG' ],
           },
         },
         'xcode_settings': {
@@ -161,7 +163,8 @@
             'cflags': ['-g']
           },
           'Release': {
-            'cflags': ['-O2']
+            'cflags': ['-O2'],
+            'defines': [ 'NDEBUG' ],
           },
         },
         'libraries': [
