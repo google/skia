@@ -207,12 +207,7 @@ void SkPath::rewind() {
 
 bool SkPath::isEmpty() const {
     SkDEBUGCODE(this->validate();)
-#if SK_OLD_EMPTY_PATH_BEHAVIOR
-    int count = fVerbs.count();
-    return count == 0 || (count == 1 && fVerbs[0] == kMove_Verb);
-#else
     return 0 == fVerbs.count();
-#endif
 }
 
 /*
@@ -421,17 +416,8 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     // remember our index
     fLastMoveToIndex = fPts.count();
 
-#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
-    if (vc > 0 && fVerbs[vc - 1] == kMove_Verb) {
-        pt = &fPts[fPts.count() - 1];
-    } else {
-        pt = fPts.append();
-        *fVerbs.append() = kMove_Verb;
-    }
-#else
     pt = fPts.append();
     *fVerbs.append() = kMove_Verb;
-#endif
     pt->set(x, y);
 
     GEN_ID_INC;
@@ -532,9 +518,7 @@ void SkPath::close() {
             case kLine_Verb:
             case kQuad_Verb:
             case kCubic_Verb:
-#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
             case kMove_Verb:
-#endif
                 *fVerbs.append() = kClose_Verb;
                 GEN_ID_INC;
                 break;
@@ -1230,8 +1214,9 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 enum SegmentState {
-    kAfterClose_SegmentState,     // We will need a move next, but we have a
-                                  // previous close pt to use for the new move.
+    kEmptyContour_SegmentState,   // The current contour is empty. We may be
+                                  // starting processing or we may have just
+                                  // closed a contour.
     kAfterMove_SegmentState,      // We have seen a move, but nothing else.
     kAfterPrimitive_SegmentState  // We have seen a primitive but not yet
                                   // closed the path. Also the initial state.
@@ -1242,7 +1227,7 @@ SkPath::Iter::Iter() {
     fPts = NULL;
     fMoveTo.fX = fMoveTo.fY = fLastPt.fX = fLastPt.fY = 0;
     fForceClose = fCloseLine = false;
-    fSegmentState = kAfterPrimitive_SegmentState;
+    fSegmentState = kEmptyContour_SegmentState;
 #endif
     // need to init enough to make next() harmlessly return kDone_Verb
     fVerbs = NULL;
@@ -1262,7 +1247,7 @@ void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
     fMoveTo.fX = fMoveTo.fY = 0;
     fForceClose = SkToU8(forceClose);
     fNeedClose = false;
-    fSegmentState = kAfterClose_SegmentState;
+    fSegmentState = kEmptyContour_SegmentState;
 }
 
 bool SkPath::Iter::isClosedContour() const {
@@ -1316,18 +1301,6 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
 }
 
 bool SkPath::Iter::cons_moveTo(SkPoint pts[1]) {
-    if (fSegmentState == kAfterClose_SegmentState) {
-        // We have closed a curve and have a primitive, so we need a move.
-        // Set the first return pt to the most recent move pt
-        if (pts) {
-            *pts = fMoveTo;
-        }
-        fNeedClose = fForceClose;
-        fSegmentState = kAfterMove_SegmentState;
-        fVerbs -= 1; // Step back to see the primitive again
-        return true;
-    }
-
     if (fSegmentState == kAfterMove_SegmentState) {
         // Set the first return pt to the move pt
         if (pts) {
@@ -1420,17 +1393,11 @@ void SkPath::Iter::consumeDegenerateSegments() {
 }
 
 SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
-#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
     this->consumeDegenerateSegments();
-#endif
 
     if (fVerbs == fVerbStop) {
         // Close the curve if requested and if there is some curve to close
-#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
-        if (fNeedClose) {
-#else
         if (fNeedClose && fSegmentState == kAfterPrimitive_SegmentState) {
-#endif
             if (kLine_Verb == this->autoClose(pts)) {
                 return kLine_Verb;
             }
@@ -1462,9 +1429,7 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
             }
             srcPts += 1;
             fSegmentState = kAfterMove_SegmentState;
-#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
             fLastPt = fMoveTo;
-#endif
             fNeedClose = fForceClose;
             break;
         case kLine_Verb:
@@ -1504,15 +1469,9 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
                 fVerbs -= 1;
             } else {
                 fNeedClose = false;
-#ifndef SK_OLD_EMPTY_PATH_BEHAVIOR
-                fSegmentState = kAfterClose_SegmentState;
-#endif
+                fSegmentState = kEmptyContour_SegmentState;
             }
-#ifdef SK_OLD_EMPTY_PATH_BEHAVIOR
-            fSegmentState = kAfterClose_SegmentState;
-#else
             fLastPt = fMoveTo;
-#endif
             break;
     }
     fPts = srcPts;
