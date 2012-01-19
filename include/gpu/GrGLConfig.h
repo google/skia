@@ -86,6 +86,12 @@
  * glReadPixels to read the entire framebuffer is faster than calling it with
  * the same sized rectangle but with a framebuffer bound that is larger than
  * the rectangle read.
+ *
+ * GR_GL_CHECK_ALLOC_WITH_GET_ERROR: If set to 1 this will then glTexImage,
+ * glBufferData, glRenderbufferStorage, etc will be checked for errors. This
+ * amounts to ensuring the error is GL_NO_ERROR, calling the allocating
+ * function, and then checking that the error is still GL_NO_ERROR. When the
+ * value is 0 we will assume no error was generated without checking.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -126,6 +132,10 @@
 
 #if !defined(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL)
     #define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL 0
+#endif
+
+#if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)
+    #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR    1
 #endif
 
 #if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)
