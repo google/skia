@@ -14,7 +14,7 @@ namespace skiagm {
 class ConvexPathsGM : public GM {
 public:
     ConvexPathsGM() {
-        this->setBGColor(0xFFFFFFFF);
+        this->setBGColor(0xFFDDDDDD);
         this->makePaths();
     }
 
@@ -63,6 +63,10 @@ protected:
                                                     100 * SK_Scalar1),
                                    SkPath::kCCW_Direction);
 
+        fPaths.push_back().addRect(0, 0,
+                                   100 * SK_Scalar1, 100 * SK_Scalar1,
+                                   SkPath::kCCW_Direction);
+
         fPaths.push_back().addRoundRect(SkRect::MakeXYWH(0, 0,
                                                          SK_Scalar1 * 100,
                                                          SK_Scalar1 * 100),
@@ -74,12 +78,6 @@ protected:
                                                          SK_Scalar1 * 100),
                                         20 * SK_Scalar1, 40 * SK_Scalar1,
                                         SkPath::kCCW_Direction);
-
-        // shallow diagonals
-        fPaths.push_back().lineTo(100 * SK_Scalar1, SK_Scalar1);
-        fPaths.back().lineTo(98 * SK_Scalar1, 100 * SK_Scalar1);
-        fPaths.back().lineTo(3 * SK_Scalar1, 96 * SK_Scalar1);
-        
         /*
         It turns out arcTos are not automatically marked as convex and they
         may in fact be ever so slightly concave.
@@ -88,14 +86,6 @@ protected:
                                                   100 * SK_Scalar1),
                                  25 * SK_Scalar1,  130 * SK_Scalar1, false);
         */
-
-        // cubics
-        fPaths.push_back().cubicTo( 1 * SK_Scalar1,  1 * SK_Scalar1,
-                                   10 * SK_Scalar1,  90 * SK_Scalar1,
-                                    0 * SK_Scalar1, 100 * SK_Scalar1);
-        fPaths.push_back().cubicTo(100 * SK_Scalar1,  50 * SK_Scalar1,
-                                    20 * SK_Scalar1, 100 * SK_Scalar1,
-                                     0 * SK_Scalar1,   0 * SK_Scalar1);
 
         // point degenerate
         fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
@@ -127,7 +117,7 @@ protected:
     paint.setAntiAlias(true);
     SkRandom rand;
     canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
-    for (int i = 0; i < fPaths.count(); ++i) {
+    for (int i = 0 ; i < fPaths.count(); ++i) {
         canvas->save();
         // position the path, and make it at off-integer coords.
         canvas->translate(SK_Scalar1 * 200 * (i % 5) + SK_Scalar1 / 4,
