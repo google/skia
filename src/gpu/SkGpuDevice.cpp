@@ -167,8 +167,18 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     // if this RT is also a texture, hold a ref on it
     fTexture = fRenderTarget->asTexture();
     SkSafeRef(fTexture);
-
-    SkGrRenderTargetPixelRef* pr = new SkGrRenderTargetPixelRef(fRenderTarget);
+    
+    // Create a pixel ref for the underlying SkBitmap. We prefer a texture pixel
+    // ref to a render target pixel reft. The pixel ref may get ref'ed outside
+    // the device via accessBitmap. This external ref may outlive the device.
+    // Since textures own their render targets (but not vice-versa) we
+    // are ensuring that both objects will live as long as the pixel ref.
+    SkPixelRef* pr;
+    if (fTexture) {
+        pr = new SkGrTexturePixelRef(fTexture);
+    } else {
+        pr = new SkGrRenderTargetPixelRef(fRenderTarget);
+    }
     this->setPixelRef(pr, 0)->unref();
 }
 
