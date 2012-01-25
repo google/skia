@@ -45,13 +45,13 @@ public:
      *  Return true if the two regions are equal. i.e. The enclose exactly
      *  the same area.
      */
-    friend bool operator==(const SkRegion& a, const SkRegion& b);
+    bool operator==(const SkRegion& other) const;
 
     /**
      *  Return true if the two regions are not equal.
      */
-    friend bool operator!=(const SkRegion& a, const SkRegion& b) {
-        return !(a == b);
+    bool operator!=(const SkRegion& other) const {
+        return !(*this == other);
     }
     
     /**

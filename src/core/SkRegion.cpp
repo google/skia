@@ -455,18 +455,18 @@ bool SkRegion::intersects(const SkRegion& rgn) const {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-bool operator==(const SkRegion& a, const SkRegion& b) {
-    SkDEBUGCODE(a.validate();)
+bool SkRegion::operator==(const SkRegion& b) const {
+    SkDEBUGCODE(validate();)
     SkDEBUGCODE(b.validate();)
 
-    if (&a == &b) {
+    if (this == &b) {
         return true;
     }
-    if (a.fBounds != b.fBounds) {
+    if (fBounds != b.fBounds) {
         return false;
     }
     
-    const SkRegion::RunHead* ah = a.fRunHead;
+    const SkRegion::RunHead* ah = fRunHead;
     const SkRegion::RunHead* bh = b.fRunHead;
 
     // this catches empties and rects being equal
