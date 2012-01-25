@@ -1,5 +1,5 @@
 #include "CubicIntersection.h"
-#include "CubicIntersection_Tests.h"
+#include "Intersection_Tests.h"
 #include "IntersectionUtilities.h"
 
 static void assert_that(int x, int y, const char* s) {

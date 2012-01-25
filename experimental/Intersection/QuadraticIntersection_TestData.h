@@ -1,9 +1,9 @@
-/*
- *  QuadraticIntersection_TestData.h
- *  edge
- *
- *  Created by Cary Clark on 1/10/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
+#include "DataTypes.h"
 
+extern const Quadratic quadraticLines[];
+extern const Quadratic quadraticModEpsilonLines[];
+extern const Quadratic quadraticTests[][2];
+
+extern const size_t quadraticLines_count;
+extern const size_t quadraticModEpsilonLines_count;
+extern const size_t quadraticTests_count;

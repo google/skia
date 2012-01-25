@@ -20,8 +20,7 @@
 #include "SkTouchGesture.h"
 #include "SkTypeface.h"
 
-#include "CubicIntersection_Tests.h"
-#include "CubicIntersection_TestData.h"
+#include "Intersection_Tests.h"
 
 extern void CreateSweep(SkBitmap* , float width);
 extern void CreateHorz(SkBitmap* );
@@ -162,16 +161,11 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     return new EdgeWindow(hwnd);
 }
 
-void cubecode_test();
-
 void application_init() {
-    unsigned foo = 4;
     SkGraphics::Init();
     SkEvent::Init();
-    cubecode_test();
 
-    convert_testx();
-    CubicIntersection_Tests();
+    Intersection_Tests();
     SkAntiEdge_Test();
 }
 

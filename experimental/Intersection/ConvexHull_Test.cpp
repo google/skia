@@ -1,5 +1,5 @@
 #include "CubicIntersection.h"
-#include "CubicIntersection_Tests.h"
+#include "Intersection_Tests.h"
 #include "IntersectionUtilities.h"
 
 const Cubic convex[] = {

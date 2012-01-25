@@ -1,8 +1,8 @@
 #include "CubicIntersection.h"
 #include "CubicIntersection_TestData.h"
-#include "CubicIntersection_Tests.h"
+#include "Intersection_Tests.h"
 
-void BezierClip_Test() {
+void CubicBezierClip_Test() {
     for (size_t index = 0; index < tests_count; ++index) {
         const Cubic& cubic1 = tests[index][0];
         const Cubic& cubic2 = tests[index][1];

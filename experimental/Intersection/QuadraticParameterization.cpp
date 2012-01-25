@@ -130,3 +130,5 @@ void tangent(const Quadratic& quadratic, double t, _Point& result) {
     result.y = tangent(&quadratic[0].y, t);
 }
 
+// unit test to return and validate parametric coefficients
+#include "QuadraticParameterization_TestUtility.cpp"

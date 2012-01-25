@@ -2,7 +2,7 @@
 //
 
 #include <math.h>
-#include "CubicIntersection.h"
+#include "CubicUtilities.h"
 
 #define TEST_ALTERNATIVES 0
 #if TEST_ALTERNATIVES
