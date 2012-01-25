@@ -12,7 +12,7 @@
 #include "SkPaint.h"
 #include "SkTemplates.h"
 
-#define SPEW_PURGE_STATUS
+//#define SPEW_PURGE_STATUS
 //#define USE_CACHE_HASH
 //#define RECORD_HASH_EFFICIENCY
 
