@@ -1286,6 +1286,11 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         // balance the call to CTFontCreateCopyWithAttributes
         CFRelease(font);
     }
+    if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
+        SkIPoint offset;
+        getVerticalOffset(cgGlyph, &offset);
+        path->offset(SkIntToScalar(offset.fX), SkIntToScalar(offset.fY));
+    }
 }
 
 void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
