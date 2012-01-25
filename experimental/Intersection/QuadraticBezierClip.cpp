@@ -48,10 +48,14 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
         maxT = 1;
     }
     // Find the intersection of distance convex hull and fat line.
-    x_at(distance2y[0], distance2y[1], top, bottom, flags, minT, maxT);
-    x_at(distance2y[1], distance2y[2], top, bottom, flags, minT, maxT);
-    x_at(distance2y[2], distance2y[0], top, bottom, flags, minT, maxT);
-    
+    int idx = 0;
+    do {
+        int next = idx + 1;
+        if (next == 3) {
+            next = 0;
+        }
+        x_at(distance2y[idx], distance2y[next], top, bottom, flags, minT, maxT);
+        idx = next;
+    } while (idx);    
     return minT < maxT; // returns false if distance shows no intersection
 }
-

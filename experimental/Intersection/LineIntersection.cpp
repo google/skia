@@ -65,6 +65,8 @@ bool lineIntersect(const _Line& a, const _Line& b, _Point* result) {
         return no_intersection(result);
     }
     /* Are the line coincident? See if they overlap */
+    // FIXME: allow returning range of coincidence, instead of or in
+    // addition to midpoint
     paramsA.lineEndPoints(a);
     double b0dist = paramsA.pointDistance(b[0]);
     bool b0on = approximately_zero_squared(b0dist);

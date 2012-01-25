@@ -226,7 +226,7 @@ static double (*calc_proc[])(double a, double b, double c, double d,
 
 /* Control points to parametric coefficients
     s = 1 - t
-    Attt + 3Btt2 + 3Ctss + Dsss ==
+    Attt + 3Btts + 3Ctss + Dsss ==
     Attt + 3B(1 - t)tt + 3C(1 - t)(t - tt) + D(1 - t)(1 - 2t + tt) ==
     Attt + 3B(tt - ttt) + 3C(t - tt - tt + ttt) + D(1-2t+tt-t+2tt-ttt) ==
     Attt + 3Btt - 3Bttt + 3Ct - 6Ctt + 3Cttt + D - 3Dt + 3Dtt - Dttt ==
@@ -236,6 +236,23 @@ static double (*calc_proc[])(double a, double b, double c, double d,
     c =           3*C - 3*D
     d =                   D
  */
+ 
+ /* http://www.algorithmist.net/bezier3.html
+    p = 3 * A
+    q = 3 * B
+    r = 3 * C
+    a = A
+    b = q - p
+    c = p - 2 * q + r
+    d = D - A + q - r
+
+ B(t) = a + t * (b + t * (c + t * d))
+ 
+ so
+ 
+ B(t) = a + t*b + t*t*(c + t*d)
+      = a + t*b + t*t*c + t*t*t*d
+  */
 static void set_abcd(const double* cubic, double& a, double& b, double& c,
                      double& d) {
     a = cubic[0];     // a = A
@@ -251,22 +268,47 @@ static void calc_bc(const double d, double& b, double& c) {
     b -= c;     // b = 3*B - 6*C + 3*D
 }
 
+static void alt_set_abcd(const double* cubic, double& a, double& b, double& c,
+                     double& d) {
+    a = cubic[0];
+    double p = 3 * a;
+    double q = 3 * cubic[2];
+    double r = 3 * cubic[4];
+    b = q - p;
+    c = p - 2 * q + r;
+    d = cubic[6] - a + q - r;
+}
+
+const bool try_alt = true;
+
 bool implicit_matches(const Cubic& one, const Cubic& two) {
     double p1[coeff_count]; // a'xxx , b'xxy , c'xyy , d'xx , e'xy , f'yy, etc.
     double p2[coeff_count];
     double a1, b1, c1, d1;
-    set_abcd(&one[0].x, a1, b1, c1, d1);
+    if (try_alt)
+        alt_set_abcd(&one[0].x, a1, b1, c1, d1);
+    else
+        set_abcd(&one[0].x, a1, b1, c1, d1);
     double e1, f1, g1, h1;
-    set_abcd(&one[0].y, e1, f1, g1, h1);
+    if (try_alt)
+        alt_set_abcd(&one[0].y, e1, f1, g1, h1);
+    else
+        set_abcd(&one[0].y, e1, f1, g1, h1);
     calc_ABCD(a1, e1, p1);
     double a2, b2, c2, d2;
-    set_abcd(&two[0].x, a2, b2, c2, d2);
+    if (try_alt)
+        alt_set_abcd(&two[0].x, a2, b2, c2, d2);
+    else
+        set_abcd(&two[0].x, a2, b2, c2, d2);
     double e2, f2, g2, h2;
-    set_abcd(&two[0].y, e2, f2, g2, h2);
+    if (try_alt)
+        alt_set_abcd(&two[0].y, e2, f2, g2, h2);
+    else
+        set_abcd(&two[0].y, e2, f2, g2, h2);
     calc_ABCD(a2, e2, p2);
     int first = 0;
     for (int index = 0; index < coeff_count; ++index) {
-        if (index == xx_coeff) {
+        if (!try_alt && index == xx_coeff) {
             calc_bc(d1, b1, c1);
             calc_bc(h1, f1, g1);
             calc_bc(d2, b2, c2);
@@ -303,4 +345,8 @@ void tangent(const Cubic& cubic, double t, _Point& result) {
     result.x = tangent(&cubic[0].x, t);
     result.y = tangent(&cubic[0].y, t);
 }
+
+// unit test to return and validate parametric coefficients
+#include "CubicParameterization_TestUtility.cpp"
+
 

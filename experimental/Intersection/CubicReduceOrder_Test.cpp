@@ -1,10 +1,10 @@
 #include "CubicIntersection.h"
 #include "CubicIntersection_TestData.h"
-#include "CubicIntersection_Tests.h"
+#include "Intersection_Tests.h"
 #include "QuadraticIntersection_TestData.h"
 #include "TestUtilities.h"
 
-void ReduceOrder_Test() {
+void CubicReduceOrder_Test() {
     size_t index;
     Cubic reduce;
     int order;

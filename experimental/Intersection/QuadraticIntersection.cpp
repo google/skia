@@ -185,4 +185,3 @@ principal value is always non-negative.
 The other square root is simply –1 times the principal square root; in other 
 words, the two square roots of a number sum to 0.
  */
- 
