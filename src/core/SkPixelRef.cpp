@@ -9,7 +9,7 @@
 #include "SkFlattenable.h"
 #include "SkThread.h"
 
-static SkMutex  gPixelRefMutex;
+SK_DECLARE_STATIC_MUTEX(gPixelRefMutex);
 
 extern int32_t SkNextPixelRefGenerationID();
 int32_t SkNextPixelRefGenerationID() {
@@ -24,7 +24,7 @@ int32_t SkNextPixelRefGenerationID() {
 }
 
 
-SkPixelRef::SkPixelRef(SkMutex* mutex) {
+SkPixelRef::SkPixelRef(SkBaseMutex* mutex) {
     if (NULL == mutex) {
         mutex = &gPixelRefMutex;
     }
@@ -36,7 +36,7 @@ SkPixelRef::SkPixelRef(SkMutex* mutex) {
     fIsImmutable = false;
 }
 
-SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkMutex* mutex) {
+SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex) {
     if (NULL == mutex) {
         mutex = &gPixelRefMutex;
     }

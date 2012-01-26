@@ -29,7 +29,7 @@ static const char kBlockTrailerTag[] = { 'a', 'i', 'k', 's' };
 #define kByteFill 0xCD
 #define kDeleteFill 0xEF
 
-static SkMutex& get_block_mutex() {
+static SkBaseMutex& get_block_mutex() {
     static SkMutex* gBlockMutex;
     if (NULL == gBlockMutex) {
         gBlockMutex = new SkMutex;

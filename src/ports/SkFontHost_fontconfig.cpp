@@ -38,7 +38,7 @@ SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name);
 // Although truetype fonts can support multiple faces in a single file, at the
 // moment Skia doesn't.
 // -----------------------------------------------------------------------------
-static SkMutex global_fc_map_lock;
+SK_DECLARE_STATIC_MUTEX(global_fc_map_lock);
 static std::map<std::string, unsigned> global_fc_map;
 static std::map<unsigned, std::string> global_fc_map_inverted;
 static std::map<uint32_t, SkTypeface *> global_fc_typefaces;

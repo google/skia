@@ -23,7 +23,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         for (int i = 0; i < N; i++) {
-            SkMutex mu;
+            SK_DECLARE_STATIC_MUTEX(mu);
             for (int j = 0; j < M; j++) {
                 mu.acquire();
                 mu.release();

@@ -260,7 +260,7 @@ SkEventSink* SkEventSink::FindSink(SkEventSinkID sinkID)
 #include "SkTDict.h"
 
 #define kMinStringBufferSize    128
-static SkMutex                  gNamedSinkMutex;
+SK_DECLARE_STATIC_MUTEX(gNamedSinkMutex);
 static SkTDict<SkEventSinkID>   gNamedSinkIDs(kMinStringBufferSize);
 
 /** Register a name/id pair with the system. If the name already exists,

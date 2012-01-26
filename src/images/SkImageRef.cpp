@@ -16,7 +16,7 @@
 //#define DUMP_IMAGEREF_LIFECYCLE
 
 // can't be static, as SkImageRef_Pool needs to see it
-SkMutex gImageRefMutex;
+SK_DECLARE_GLOBAL_MUTEX(gImageRefMutex);
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -16,7 +16,7 @@
 
 // since we call lockPixels recursively on fBitmap, we need a distinct mutex,
 // to avoid deadlock with the default one provided by SkPixelRef.
-static SkMutex  gROLockPixelsPixelRefMutex;
+SK_DECLARE_STATIC_MUTEX(gROLockPixelsPixelRefMutex);
 
 SkROLockPixelsPixelRef::SkROLockPixelsPixelRef() : INHERITED(&gROLockPixelsPixelRefMutex) {
 }
