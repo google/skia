@@ -3,6 +3,7 @@
 #define _SkTestImageFilters_h
 
 #include "SkImageFilter.h"
+#include "SkColorFilter.h"
 
 class SkOffsetImageFilter : public SkImageFilter {
 public:
@@ -99,8 +100,6 @@ private:
     
     typedef SkImageFilter INHERITED;
 };
-
-class SkColorFilter;
 
 class SkColorFilterImageFilter : public SkImageFilter {
 public:
