@@ -78,7 +78,44 @@ SK_API int32_t sk_atomic_inc(int32_t* addr);
 */
 SK_API int32_t sk_atomic_dec(int32_t* addr);
 
-class SkMutex {
+#endif
+
+#ifdef SK_USE_POSIX_THREADS
+
+#include <pthread.h>
+
+// A SkBaseMutex is a POD structure that can be directly initialized
+// at declaration time with SK_DECLARE_STATIC/GLOBAL_MUTEX. This avoids the
+// generation of a static initializer in the final machine code (and
+// a corresponding static finalizer).
+//
+struct SkBaseMutex {
+    void    acquire() { pthread_mutex_lock(&fMutex); }
+    void    release() { pthread_mutex_unlock(&fMutex); }
+    pthread_mutex_t  fMutex;
+};
+
+// Using POD-style initialization prevents the generation of a static initializer
+// and keeps the acquire() implementation small and fast.
+#define SK_DECLARE_STATIC_MUTEX(name)   static SkBaseMutex  name = { PTHREAD_MUTEX_INITIALIZER }
+
+// Special case used when the static mutex must be available globally.
+#define SK_DECLARE_GLOBAL_MUTEX(name)   SkBaseMutex  name = { PTHREAD_MUTEX_INITIALIZER }
+
+// A normal mutex that requires to be initialized through normal C++ construction,
+// i.e. when it's a member of another class, or allocated on the heap.
+class SkMutex : public SkBaseMutex, SkNoncopyable {
+public:
+    SkMutex();
+    ~SkMutex();
+};
+
+#else // !SK_USE_POSIX_THREADS
+
+// In the generic case, SkBaseMutex and SkMutex are the same thing, and we
+// can't easily get rid of static initializers.
+//
+class SkMutex : SkNoncopyable {
 public:
     SkMutex();
     ~SkMutex();
@@ -94,6 +131,12 @@ private:
     uint32_t    fStorage[kStorageIntCount];
 };
 
-#endif
+typedef SkMutex SkBaseMutex;
+
+#define SK_DECLARE_STATIC_MUTEX(name)  static SkBaseMutex  name
+#define SK_DECLARE_GLOBAL_MUTEX(name)  SkBaseMutex  name
+
+#endif // !SK_USE_POSIX_THREADS
+
 
 #endif

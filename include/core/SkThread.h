@@ -31,7 +31,7 @@ public:
 
 class SkAutoMutexAcquire : SkNoncopyable {
 public:
-    explicit SkAutoMutexAcquire(SkMutex& mutex) : fMutex(&mutex)
+    explicit SkAutoMutexAcquire(SkBaseMutex& mutex) : fMutex(&mutex)
     {
         SkASSERT(fMutex != NULL);
         mutex.acquire();
@@ -55,7 +55,7 @@ public:
     }
         
 private:
-    SkMutex* fMutex;
+    SkBaseMutex* fMutex;
 };
 
 #endif

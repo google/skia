@@ -56,7 +56,7 @@ protected:
     };
     // This should be made a hash table if performance is a problem.
     static SkTDArray<ShaderCanonicalEntry>& CanonicalShaders();
-    static SkMutex& CanonicalShadersMutex();
+    static SkBaseMutex& CanonicalShadersMutex();
     static void RemoveShader(SkPDFObject* shader);
 
     SkPDFShader();

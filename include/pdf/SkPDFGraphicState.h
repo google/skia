@@ -86,7 +86,7 @@ private:
 
     // This should be made a hash table if performance is a problem.
     static SkTDArray<GSCanonicalEntry>& CanonicalPaints();
-    static SkMutex& CanonicalPaintsMutex();
+    static SkBaseMutex& CanonicalPaintsMutex();
 
     SkPDFGraphicState();
     explicit SkPDFGraphicState(const SkPaint& paint);

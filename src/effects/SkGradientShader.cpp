@@ -755,7 +755,7 @@ void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) const {
 
     ///////////////////////////////////
 
-    static SkMutex gMutex;
+    SK_DECLARE_STATIC_MUTEX(gMutex);
     static SkBitmapCache* gCache;
     // each cache cost 1K of RAM, since each bitmap will be 1x256 at 32bpp
     static const int MAX_NUM_CACHED_GRADIENT_BITMAPS = 32;

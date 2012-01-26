@@ -448,7 +448,7 @@ static FIXED float2FIXED(float x) {
     return SkFixedToFIXED(SkFloatToFixed(x));
 }
 
-static SkMutex gFTMutex;
+SK_DECLARE_STATIC_MUTEX(gFTMutex);
 
 #define HIRES_TEXTSIZE  2048
 #define HIRES_SHIFT     11

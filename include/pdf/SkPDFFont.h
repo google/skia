@@ -196,7 +196,7 @@ private:
 
     // This should be made a hash table if performance is a problem.
     static SkTDArray<FontRec>& CanonicalFonts();
-    static SkMutex& CanonicalFontsMutex();
+    static SkBaseMutex& CanonicalFontsMutex();
 };
 
 #endif

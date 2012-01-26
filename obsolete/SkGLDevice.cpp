@@ -867,7 +867,7 @@ void SkGLDevice::drawTextOnPath(const SkDraw& draw, const void* text,
 #include "SkTextureCache.h"
 #include "SkThread.h"
 
-static SkMutex gTextureCacheMutex;
+SK_DECLARE_STATIC_MUTEX(gTextureCacheMutex);
 static SkTextureCache gTextureCache(kTexCountMax_Default, kTexSizeMax_Default);
 
 SkGLDevice::TexCache* SkGLDevice::LockTexCache(const SkBitmap& bitmap,

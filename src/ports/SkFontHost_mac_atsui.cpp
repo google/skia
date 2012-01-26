@@ -16,7 +16,7 @@
 #include "SkPoint.h"
 
 const char* gDefaultfont = "Arial"; // hard code for now
-static SkMutex      gFTMutex;
+SK_DECLARE_STATIC_MUTEX(gFTMutex);
 
 static inline SkPoint F32PtToSkPoint(const Float32Point p) {
     SkPoint sp = { SkFloatToScalar(p.x), SkFloatToScalar(p.y) };

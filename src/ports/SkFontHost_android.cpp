@@ -67,7 +67,7 @@ struct NameFamilyPair {
 static int32_t gUniqueFontID;
 
 // this is the mutex that protects these globals
-static SkMutex gFamilyMutex;
+SK_DECLARE_STATIC_MUTEX(gFamilyMutex);
 static FamilyRec* gFamilyHead;
 static SkTDArray<NameFamilyPair> gNameList;
 

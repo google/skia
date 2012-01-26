@@ -205,6 +205,14 @@
       },
     ],
 
+    # We can POD-style initialization of static mutexes to avoid generating
+    # static initializers if we're using a pthread-compatible thread interface.
+    [ 'skia_os != "win"', {
+      'defines': [
+        'SK_USE_POSIX_THREADS'
+      ],
+    }],
+
   ], # end 'conditions'
 }
 

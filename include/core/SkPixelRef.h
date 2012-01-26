@@ -52,7 +52,7 @@ class SkGpuTexture;
 */
 class SkPixelRef : public SkRefCnt {
 public:
-    explicit SkPixelRef(SkMutex* mutex = NULL);
+    explicit SkPixelRef(SkBaseMutex* mutex = NULL);
 
     /** Return the pixel memory returned from lockPixels, or null if the
         lockCount is 0.
@@ -201,16 +201,16 @@ protected:
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.
     */
-    SkMutex* mutex() const { return fMutex; }
+    SkBaseMutex* mutex() const { return fMutex; }
 
-    SkPixelRef(SkFlattenableReadBuffer&, SkMutex*);
+    SkPixelRef(SkFlattenableReadBuffer&, SkBaseMutex*);
 
 private:
 #if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     static void InitializeFlattenables();
 #endif
 
-    SkMutex*        fMutex; // must remain in scope for the life of this object
+    SkBaseMutex*    fMutex; // must remain in scope for the life of this object
     void*           fPixels;
     SkColorTable*   fColorTable;    // we do not track ownership, subclass does
     int             fLockCount;

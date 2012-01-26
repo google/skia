@@ -450,7 +450,7 @@ static CTFontRef GetFontRefFromFontID(SkFontID fontID) {
 }
 
 static SkTypeface* GetDefaultFace() {
-    static SkMutex gMutex;
+    SK_DECLARE_STATIC_MUTEX(gMutex);
     SkAutoMutexAcquire ma(gMutex);
 
     static SkTypeface* gDefaultFace;

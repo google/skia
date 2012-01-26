@@ -9,7 +9,7 @@
 #include "SkImageRefPool.h"
 #include "SkThread.h"
 
-extern SkMutex gImageRefMutex;
+extern SkBaseMutex gImageRefMutex;
 
 static SkImageRefPool gGlobalImageRefPool;
 

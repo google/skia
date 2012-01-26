@@ -55,7 +55,7 @@ int32_t sk_atomic_inc(int32_t* addr)
 int32_t sk_atomic_dec(int32_t* addr)
 {
     SkAutoMutexAcquire ac(gAtomicMutex);
-    
+
     int32_t value = *addr;
     *addr = value - 1;
     return value;
@@ -82,6 +82,30 @@ static void print_pthread_error(int status) {
         break;
     }
 }
+
+#ifdef SK_USE_POSIX_THREADS
+
+SkMutex::SkMutex() {
+    int status;
+
+    status = pthread_mutex_init(&fMutex, NULL);
+    if (status != 0) {
+        print_pthread_error(status);
+        SkASSERT(0 == status);
+    }
+}
+
+SkMutex::~SkMutex() {
+    int status = pthread_mutex_destroy(&fMutex);
+
+    // only report errors on non-global mutexes
+    if (status != 0) {
+        print_pthread_error(status);
+        SkASSERT(0 == status);
+    }
+}
+
+#else // !SK_USE_POSIX_THREADS
 
 SkMutex::SkMutex() {
     if (sizeof(pthread_mutex_t) > sizeof(fStorage)) {
@@ -124,3 +148,4 @@ void SkMutex::release() {
     SkASSERT(0 == status);
 }
 
+#endif // !SK_USE_POSIX_THREADS

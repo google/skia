@@ -797,9 +797,10 @@ SkTDArray<SkPDFFont::FontRec>& SkPDFFont::CanonicalFonts() {
 }
 
 // static
-SkMutex& SkPDFFont::CanonicalFontsMutex() {
-    // This initialization is only thread safe with gcc.
-    static SkMutex gCanonicalFontsMutex;
+SkBaseMutex& SkPDFFont::CanonicalFontsMutex() {
+    // This initialization is only thread safe with gcc, or when
+    // POD-style mutex initialization is used.
+    SK_DECLARE_STATIC_MUTEX(gCanonicalFontsMutex);
     return gCanonicalFontsMutex;
 }
 

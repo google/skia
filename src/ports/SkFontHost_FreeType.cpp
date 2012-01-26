@@ -88,7 +88,7 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
 
 struct SkFaceRec;
 
-static SkMutex      gFTMutex;
+SK_DECLARE_STATIC_MUTEX(gFTMutex);
 static int          gFTCount;
 static FT_Library   gFTLibrary;
 static SkFaceRec*   gFaceRecHead;
