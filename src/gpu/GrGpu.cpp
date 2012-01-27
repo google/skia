@@ -215,11 +215,6 @@ GrRenderTarget* GrGpu::createPlatformRenderTarget(const GrPlatformRenderTargetDe
     return this->onCreatePlatformRenderTarget(desc);
 }
 
-GrResource* GrGpu::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
-    this->handleDirtyContext();
-    return this->onCreatePlatformSurface(desc);
-}
-
 GrVertexBuffer* GrGpu::createVertexBuffer(uint32_t size, bool dynamic) {
     this->handleDirtyContext();
     return this->onCreateVertexBuffer(size, dynamic);

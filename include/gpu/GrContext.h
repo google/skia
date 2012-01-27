@@ -295,26 +295,6 @@ public:
      GrRenderTarget* createPlatformRenderTarget(
                                     const GrPlatformRenderTargetDesc& desc);
 
-    /**
-     * This interface is depracted and will be removed in a future revision.
-     * Callers should use createPlatformTexture or createPlatformRenderTarget
-     * instead.
-     *
-     * Wraps an existing 3D API surface in a GrObject. desc.fFlags determines
-     * the type of object returned. If kIsTexture is set the returned object
-     * will be a GrTexture*. Otherwise, it will be a GrRenderTarget*. If both 
-     * are set the render target object is accessible by
-     * GrTexture::asRenderTarget().
-     *
-     * GL: if the object is a texture Gr may change its GL texture parameters
-     *     when it is drawn.
-     *
-     * @param   desc    description of the object to create.
-     * @return either a GrTexture* or GrRenderTarget* depending on desc. NULL
-     *         on failure.
-     */
-    GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
-
     ///////////////////////////////////////////////////////////////////////////
     // Matrix state
 
