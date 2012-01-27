@@ -173,7 +173,6 @@ protected:
                                                  bool dynamic);
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic);
-    virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc);
     virtual GrTexture* onCreatePlatformTexture(const GrPlatformTextureDesc& desc) SK_OVERRIDE;
     virtual GrRenderTarget* onCreatePlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) SK_OVERRIDE;
     virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,

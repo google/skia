@@ -541,24 +541,6 @@ GrRenderTarget* GrContext::createPlatformRenderTarget(const GrPlatformRenderTarg
     return fGpu->createPlatformRenderTarget(desc);
 }
 
-GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
-    // validate flags here so that GrGpu subclasses don't have to check
-    if (kTexture_GrPlatformSurfaceType == desc.fSurfaceType &&
-        0 != desc.fRenderTargetFlags) {
-        return NULL;
-    }
-    if (desc.fSampleCnt &&
-        (kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
-        return NULL;
-    }
-    if (kTextureRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType &&
-        desc.fSampleCnt &&
-        !(kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
-        return NULL;
-    }
-    return fGpu->createPlatformSurface(desc);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::supportsIndex8PixelConfig(const GrSamplerState* sampler,

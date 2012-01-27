@@ -132,11 +132,6 @@ public:
     GrRenderTarget* createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc);
 
     /**
-     * DEPRECATED. This will be removed.
-     */
-    GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
-
-    /**
      * Creates a vertex buffer.
      *
      * @param size    size in bytes of the vertex buffer
@@ -401,7 +396,6 @@ protected:
                                        size_t rowBytes) = 0;
     virtual GrTexture* onCreatePlatformTexture(const GrPlatformTextureDesc& desc) = 0;
     virtual GrRenderTarget* onCreatePlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) = 0;
-    virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
                                                  bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
