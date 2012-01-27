@@ -1537,6 +1537,17 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
                 this->updateTitle();
             }
             return true;
+        case 'p':
+            {
+                GrContext* grContext = this->getGrContext();
+                if (grContext) {
+                    size_t cacheBytes = grContext->getGpuTextureCacheBytes();
+                    grContext->freeGpuResources();
+                    SkDebugf("Purged %d bytes from the GPU resource cache.\n",
+                             cacheBytes);
+                }
+            }
+            return true;
         case 's':
             fScale = !fScale;
             this->inval(NULL);

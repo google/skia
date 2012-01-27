@@ -75,6 +75,11 @@ public:
      */
     void freeGpuResources();
 
+    /**
+     * Returns the number of bytes of GPU memory hosted by the texture cache.
+     */
+    size_t getGpuTextureCacheBytes() const;
+
     ///////////////////////////////////////////////////////////////////////////
     // Textures
 
@@ -858,4 +863,3 @@ private:
 };
 
 #endif
-
