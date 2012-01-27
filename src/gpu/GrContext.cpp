@@ -115,6 +115,10 @@ void GrContext::freeGpuResources() {
     GrSafeSetNull(fPathRendererChain);
 }
 
+size_t GrContext::getGpuTextureCacheBytes() const {
+  return fTextureCache->getCachedResourceBytes();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 int GrContext::PaintStageVertexLayoutBits(
