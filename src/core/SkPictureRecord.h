@@ -49,14 +49,14 @@ public:
                                 const SkRect& dst, const SkPaint*) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap&, int left, int top,
                             const SkPaint*) SK_OVERRIDE;
-    virtual void drawText(const void* text, size_t byteLength, SkScalar x, 
+    virtual void drawText(const void* text, size_t byteLength, SkScalar x,
                           SkScalar y, const SkPaint&) SK_OVERRIDE;
-    virtual void drawPosText(const void* text, size_t byteLength, 
+    virtual void drawPosText(const void* text, size_t byteLength,
                              const SkPoint pos[], const SkPaint&) SK_OVERRIDE;
     virtual void drawPosTextH(const void* text, size_t byteLength,
                       const SkScalar xpos[], SkScalar constY, const SkPaint&) SK_OVERRIDE;
-    virtual void drawTextOnPath(const void* text, size_t byteLength, 
-                            const SkPath& path, const SkMatrix* matrix, 
+    virtual void drawTextOnPath(const void* text, size_t byteLength,
+                            const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint&) SK_OVERRIDE;
     virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
     virtual void drawVertices(VertexMode, int vertexCount,
@@ -67,7 +67,7 @@ public:
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
     void addFontMetricsTopBottom(const SkPaint& paint, SkScalar baselineY);
-    
+
     const SkTDArray<const SkFlatBitmap* >& getBitmaps() const {
         return fBitmaps;
     }
@@ -83,7 +83,7 @@ public:
     const SkTDArray<const SkFlatRegion* >& getRegions() const {
         return fRegions;
     }
-    
+
     void reset();
 
     const SkWriter32& writeStream() const {
@@ -98,14 +98,14 @@ private:
         SkDebugf("add %s\n", DrawTypeToString(drawType));
 #endif
         fWriter.writeInt(drawType);
-    }    
+    }
     void addInt(int value) {
         fWriter.writeInt(value);
     }
     void addScalar(SkScalar scalar) {
         fWriter.writeScalar(scalar);
     }
-    
+
     void addBitmap(const SkBitmap& bitmap);
     void addMatrix(const SkMatrix& matrix);
     void addMatrixPtr(const SkMatrix* matrix);
@@ -137,14 +137,14 @@ public:
 
 #ifdef SK_DEBUG_SIZE
 public:
-    size_t size() const;    
+    size_t size() const;
     int bitmaps(size_t* size) const;
     int matrices(size_t* size) const;
     int paints(size_t* size) const;
     int paths(size_t* size) const;
     int regions(size_t* size) const;
     size_t streamlen() const;
-    
+
     size_t fPointBytes, fRectBytes, fTextBytes;
     int fPointWrites, fRectWrites, fTextWrites;
 #endif
@@ -181,7 +181,7 @@ private:
 
     SkRefCntSet fRCSet;
     SkRefCntSet fTFSet;
-    
+
     uint32_t fRecordFlags;
 
     // helper function to handle save/restore culling offsets

@@ -112,14 +112,14 @@ public:
                                   const SkPaint*);
     virtual void drawSprite(const SkBitmap&, int left, int top,
                             const SkPaint*);
-    virtual void drawText(const void* text, size_t byteLength, SkScalar x, 
+    virtual void drawText(const void* text, size_t byteLength, SkScalar x,
                           SkScalar y, const SkPaint&);
-    virtual void drawPosText(const void* text, size_t byteLength, 
+    virtual void drawPosText(const void* text, size_t byteLength,
                              const SkPoint pos[], const SkPaint&);
     virtual void drawPosTextH(const void* text, size_t byteLength,
                       const SkScalar xpos[], SkScalar constY, const SkPaint&);
-    virtual void drawTextOnPath(const void* text, size_t byteLength, 
-                            const SkPath& path, const SkMatrix* matrix, 
+    virtual void drawTextOnPath(const void* text, size_t byteLength,
+                            const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint&);
     virtual void drawPicture(SkPicture& picture);
     virtual void drawVertices(VertexMode, int vertexCount,
@@ -144,7 +144,7 @@ private:
     inline void writeOp(DrawOps op, unsigned flags, unsigned data) {
         fWriter.write32(DrawOp_packOpFlagData(op, flags, data));
     }
-    
+
     inline void writeOp(DrawOps op) {
         fWriter.write32(DrawOp_packOpFlagData(op, 0, 0));
     }
@@ -164,7 +164,7 @@ private:
         uint32_t    fSize;
 
         void*       data() { return (char*)this + sizeof(*this); }
-        
+
         static int Compare(const FlatData* a, const FlatData* b) {
             return memcmp(&a->fSize, &b->fSize, a->fSize + sizeof(a->fSize));
         }
@@ -307,7 +307,7 @@ int SkGPipeCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     NOTIFY_SETUP(this);
     size_t size = 0;
     unsigned opFlags = 0;
-    
+
     if (bounds) {
         opFlags |= kSaveLayer_HasBounds_DrawOpFlag;
         size += sizeof(SkRect);
@@ -323,7 +323,7 @@ int SkGPipeCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
             fWriter.writeRect(*bounds);
         }
     }
-    
+
     // we just pass on the save, so we don't create a layer
     return this->INHERITED::save(saveFlags);
 }
@@ -506,7 +506,7 @@ void SkGPipeCanvas::drawSprite(const SkBitmap&, int left, int top,
     UNIMPLEMENTED
 }
 
-void SkGPipeCanvas::drawText(const void* text, size_t byteLength, SkScalar x, 
+void SkGPipeCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
                                  SkScalar y, const SkPaint& paint) {
     if (byteLength) {
         NOTIFY_SETUP(this);
@@ -521,7 +521,7 @@ void SkGPipeCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
     }
 }
 
-void SkGPipeCanvas::drawPosText(const void* text, size_t byteLength, 
+void SkGPipeCanvas::drawPosText(const void* text, size_t byteLength,
                                 const SkPoint pos[], const SkPaint& paint) {
     if (byteLength) {
         NOTIFY_SETUP(this);
@@ -555,8 +555,8 @@ void SkGPipeCanvas::drawPosTextH(const void* text, size_t byteLength,
     }
 }
 
-void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength, 
-                                   const SkPath& path, const SkMatrix* matrix, 
+void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength,
+                                   const SkPath& path, const SkMatrix* matrix,
                                    const SkPaint& paint) {
     if (byteLength) {
         NOTIFY_SETUP(this);
@@ -611,7 +611,7 @@ void SkGPipeCanvas::drawVertices(VertexMode mode, int vertexCount,
         flags |= kDrawVertices_HasIndices_DrawOpFlag;
         size += 4 + SkAlign4(indexCount * sizeof(uint16_t));
     }
-    
+
     if (this->needOpBytes(size)) {
         this->writeOp(kDrawVertices_DrawOp, flags, 0);
         fWriter.write32(mode);

@@ -156,7 +156,7 @@ public:
     const SkPDFGlyphSetMap& getFontGlyphUsage() const {
         return *(fFontGlyphUsage.get());
     }
-    
+
 protected:
     virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y,
                               SkCanvas::Config8888) SK_OVERRIDE;

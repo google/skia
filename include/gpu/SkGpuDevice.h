@@ -35,7 +35,7 @@ public:
      *  internally.
      */
     SkGpuDevice(GrContext*, SkBitmap::Config,
-                int width, int height, 
+                int width, int height,
                 SkDevice::Usage usage = SkDevice::kGeneral_Usage);
 
     /**
@@ -102,7 +102,7 @@ public:
                             const SkPaint&) SK_OVERRIDE;
     virtual bool filterTextFlags(const SkPaint&, TextFlags*) SK_OVERRIDE;
 
-    virtual void flush(); 
+    virtual void flush();
 
     /**
      * Make's this device's rendertarget current in the underlying 3D API.
@@ -113,7 +113,7 @@ public:
     virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
                              const SkMatrix& ctm,
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
-    
+
 protected:
     typedef GrContext::TextureCacheEntry TexCache;
     enum TexType {
@@ -144,7 +144,7 @@ protected:
         TexCache        fTex;
     };
     friend class SkAutoTexCache;
-    
+
     // overrides from SkDevice
     virtual bool onReadPixels(const SkBitmap& bitmap,
                               int x, int y,
@@ -170,8 +170,8 @@ private:
     // caller needs to null out GrPaint's texture if
     // non-textured drawing is desired.
     // Set constantColor to true if a constant color
-    // will be used.  This is an optimization, and can 
-    // always be set to false. constantColor should 
+    // will be used.  This is an optimization, and can
+    // always be set to false. constantColor should
     // never be true if justAlpha is true.
     bool skPaint2GrPaintNoShader(const SkPaint& skPaint,
                                  bool justAlpha,
@@ -191,8 +191,8 @@ private:
                                bool constantColor);
 
     // override from SkDevice
-    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
-                                               int width, int height, 
+    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
+                                               int width, int height,
                                                bool isOpaque,
                                                Usage usage);
 

@@ -15,7 +15,7 @@ class SkNWayCanvas : public SkCanvas {
 public:
     SkNWayCanvas();
     virtual ~SkNWayCanvas();
-    
+
     void addCanvas(SkCanvas*);
     void removeCanvas(SkCanvas*);
     void removeAll();
@@ -70,10 +70,10 @@ public:
 
     virtual SkBounder* setBounder(SkBounder*) SK_OVERRIDE;
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter*) SK_OVERRIDE;
-    
+
 private:
     SkTDArray<SkCanvas*> fList;
-    
+
     class Iter;
 
     typedef SkCanvas INHERITED;

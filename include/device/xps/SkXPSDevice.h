@@ -153,7 +153,7 @@ private:
         SkStream* fontData;
         IXpsOMFontResource* xpsFont;
         SkBitSet* glyphsUsed;
-        
+
         explicit TypefaceUse();
         ~TypefaceUse();
     };
