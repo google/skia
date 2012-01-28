@@ -99,7 +99,7 @@ public:
      *  Shortcut for getDevice()->createCompatibleDevice(...).
      *  If getDevice() == NULL, this method does nothing, and returns NULL.
      */
-    SkDevice* createCompatibleDevice(SkBitmap::Config config, 
+    SkDevice* createCompatibleDevice(SkBitmap::Config config,
                                     int width, int height,
                                     bool isOpaque);
 
@@ -152,7 +152,7 @@ public:
      *  kARGB_8888_Config as SkPMColor
      *
      *  If the bitmap has pixels already allocated, the canvas pixels will be
-     *  written there. If not, bitmap->allocPixels() will be called 
+     *  written there. If not, bitmap->allocPixels() will be called
      *  automatically. If the bitmap is backed by a texture readPixels will
      *  fail.
      *
@@ -438,7 +438,7 @@ public:
         then taking its bounds.
     */
     bool getClipDeviceBounds(SkIRect* bounds) const;
-       
+
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified ARGB color, using the specified mode.
@@ -921,7 +921,7 @@ public:
     };
 
 protected:
-    // Returns the canvas to be used by DrawIter. Default implementation 
+    // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may
     // need to overload this method. The impl must keep track of this, as it
     // is not released or deleted by the caller.
@@ -953,7 +953,7 @@ private:
 
     friend class SkDrawIter;    // needs setupDrawForLayerDevice()
 
-    SkDevice* createLayerDevice(SkBitmap::Config, int width, int height, 
+    SkDevice* createLayerDevice(SkBitmap::Config, int width, int height,
                                 bool isOpaque);
 
     SkDevice* init(SkDevice*);
@@ -968,7 +968,7 @@ private:
                                 const SkRect& dst, const SkPaint* paint);
     void internalDrawPaint(const SkPaint& paint);
 
-        
+
     void drawDevice(SkDevice*, int x, int y, const SkPaint*);
     // shared by save() and saveLayer()
     int internalSave(SaveFlags flags);

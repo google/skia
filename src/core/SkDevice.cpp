@@ -34,7 +34,7 @@ SkDevice::~SkDevice() {
     delete fMetaData;
 }
 
-SkDevice* SkDevice::createCompatibleDevice(SkBitmap::Config config, 
+SkDevice* SkDevice::createCompatibleDevice(SkBitmap::Config config,
                                            int width, int height,
                                            bool isOpaque) {
     return this->onCreateCompatibleDevice(config, width, height,
@@ -48,8 +48,8 @@ SkDevice* SkDevice::createCompatibleDeviceForSaveLayer(SkBitmap::Config config,
                                           isOpaque, kSaveLayer_Usage);
 }
 
-SkDevice* SkDevice::onCreateCompatibleDevice(SkBitmap::Config config, 
-                                             int width, int height, 
+SkDevice* SkDevice::onCreateCompatibleDevice(SkBitmap::Config config,
+                                             int width, int height,
                                              bool isOpaque,
                                              Usage usage) {
     return SkNEW_ARGS(SkDevice,(config, width, height, isOpaque));
@@ -204,7 +204,7 @@ bool SkDevice::onReadPixels(const SkBitmap& bitmap,
     }
     if (SkBitmap::kARGB_8888_Config != subset.config()) {
         // It'd be preferable to do this directly to bitmap.
-        subset.copyTo(&subset, SkBitmap::kARGB_8888_Config); 
+        subset.copyTo(&subset, SkBitmap::kARGB_8888_Config);
     }
     SkAutoLockPixels alp(bitmap);
     uint32_t* bmpPixels = reinterpret_cast<uint32_t*>(bitmap.getPixels());

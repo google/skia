@@ -49,7 +49,7 @@ public:
         return false;
     }
     SkCanvas* operator->() { return fCanvas; }
-    
+
 private:
     const SkTDArray<SkCanvas*>& fList;
     int fIndex;

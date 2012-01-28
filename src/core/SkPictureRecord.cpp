@@ -157,7 +157,7 @@ void SkPictureRecord::recordOffsetForRestore(SkRegion::Op op) {
             *peek = 0;
         }
     }
-    
+
     size_t offset = fWriter.size();
     addInt(fRestoreOffsetStack.top());
     fRestoreOffsetStack.top() = offset;

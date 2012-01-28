@@ -19,7 +19,7 @@
     provided by SkPicture) is that this is a full drop-in replacement for
     SkCanvas, while SkPictureRecord only supports draw operations.
     SkDeferredCanvas will transparently trigger the flushing of deferred
-    draw operations when an attempt is made to access the pixel data.  
+    draw operations when an attempt is made to access the pixel data.
 */
 class SK_API SkDeferredCanvas : public SkCanvas {
 public:
@@ -53,12 +53,12 @@ public:
     virtual SkDevice* setDevice(SkDevice* device);
 
     /**
-     *  Specify a deviceContext to be used by this canvas. Calling 
+     *  Specify a deviceContext to be used by this canvas. Calling
      *  setDeviceContext will release the previously set deviceContext, if any.
      *  A deviceContext must be specified if the device uses a graphics context
-     *  that requires some form of state initialization prior to drawing 
+     *  that requires some form of state initialization prior to drawing
      *  and/or explicit flushing to synchronize the execution of rendering
-     *  operations. 
+     *  operations.
      *  Note: Must be called after the device is set with setDevice.
      *
      *  @deviceContext interface for the device's the graphics context
@@ -102,7 +102,7 @@ public:
                           SK_OVERRIDE;
     virtual void drawPath(const SkPath& path, const SkPaint& paint)
                           SK_OVERRIDE;
-    virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, 
+    virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left,
                             SkScalar top, const SkPaint* paint)
                             SK_OVERRIDE;
     virtual void drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
@@ -119,7 +119,7 @@ public:
     virtual void drawText(const void* text, size_t byteLength, SkScalar x,
                           SkScalar y, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPosText(const void* text, size_t byteLength,
-                             const SkPoint pos[], const SkPaint& paint) 
+                             const SkPoint pos[], const SkPaint& paint)
                              SK_OVERRIDE;
     virtual void drawPosTextH(const void* text, size_t byteLength,
                               const SkScalar xpos[], SkScalar constY,
@@ -192,8 +192,8 @@ public:
         virtual int height() const SK_OVERRIDE;
         virtual SkGpuRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
-        virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
-                                                   int width, int height, 
+        virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
+                                                   int width, int height,
                                                    bool isOpaque,
                                                    Usage usage) SK_OVERRIDE;
 
@@ -207,7 +207,7 @@ public:
                                   SkCanvas::Config8888 config8888) SK_OVERRIDE;
 
         // The following methods are no-ops on a deferred device
-        virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) 
+        virtual bool filterTextFlags(const SkPaint& paint, TextFlags*)
             SK_OVERRIDE
             {return false;}
         virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
@@ -257,10 +257,10 @@ public:
         virtual void drawPosTextOnPath(const SkDraw& draw, const void* text,
                                        size_t len, const SkPoint pos[],
                                        const SkPaint& paint,
-                                       const SkPath& path, 
+                                       const SkPath& path,
                                        const SkMatrix* matrix)
             {SkASSERT(0);}
-        virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode, 
+        virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                                   int vertexCount, const SkPoint verts[],
                                   const SkPoint texs[], const SkColor colors[],
                                   SkXfermode* xmode, const uint16_t indices[],
