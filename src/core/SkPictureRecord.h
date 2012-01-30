@@ -66,7 +66,7 @@ public:
                               const SkPaint&) SK_OVERRIDE;
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
-    void addFontMetricsTopBottom(const SkPaint& paint, SkScalar baselineY);
+    void addFontMetricsTopBottom(const SkPaint& paint, SkScalar minY, SkScalar maxY);
 
     const SkTDArray<const SkFlatBitmap* >& getBitmaps() const {
         return fBitmaps;

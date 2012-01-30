@@ -9,7 +9,6 @@
 
 #include "SkPaint.h"
 #include "SkColorFilter.h"
-#include "SkDrawLooper.h"
 #include "SkFontHost.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
@@ -1847,23 +1846,38 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const {
     return width != 0;  // return true if we're filled, or false if we're hairline (width == 0)
 }
 
-const SkRect& SkPaint::computeStrokeFastBounds(const SkRect& src,
-                                               SkRect* storage) const {
+const SkRect& SkPaint::doComputeFastBounds(const SkRect& src,
+                                                 SkRect* storage) const {
     SkASSERT(storage);
-    SkASSERT(this->getStyle() != SkPaint::kFill_Style);
 
-    // since we're stroked, outset the rect by the radius (and join type)
-    SkScalar radius = SkScalarHalf(this->getStrokeWidth());
-    if (0 == radius) {  // hairline
-        radius = SK_Scalar1;
-    } else if (this->getStrokeJoin() == SkPaint::kMiter_Join) {
-        SkScalar scale = this->getStrokeMiter();
-        if (scale > SK_Scalar1) {
-            radius = SkScalarMul(radius, scale);
-        }
+    if (this->getLooper()) {
+        SkASSERT(this->getLooper()->canComputeFastBounds(*this));
+        this->getLooper()->computeFastBounds(*this, src, storage);
+        return *storage;
     }
-    storage->set(src.fLeft - radius, src.fTop - radius,
-                 src.fRight + radius, src.fBottom + radius);
+
+    if (this->getStyle() != SkPaint::kFill_Style) {
+        // since we're stroked, outset the rect by the radius (and join type)
+        SkScalar radius = SkScalarHalf(this->getStrokeWidth());
+        if (0 == radius) {  // hairline
+            radius = SK_Scalar1;
+        } else if (this->getStrokeJoin() == SkPaint::kMiter_Join) {
+            SkScalar scale = this->getStrokeMiter();
+            if (scale > SK_Scalar1) {
+                radius = SkScalarMul(radius, scale);
+            }
+        }
+        storage->set(src.fLeft - radius, src.fTop - radius,
+                     src.fRight + radius, src.fBottom + radius);
+    } else {
+        *storage = src;
+    }
+
+    // check the mask filter
+    if (this->getMaskFilter()) {
+        this->getMaskFilter()->computeFastBounds(*storage, storage);
+    }
+
     return *storage;
 }
 
@@ -2019,5 +2033,50 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
 
 bool SkImageFilter::asABlur(SkSize* sigma) const {
     return false;
+}
+
+//////
+
+bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) {
+    SkCanvas canvas;
+
+    this->init(&canvas);
+    for (;;) {
+        SkPaint p(paint);
+        if (this->next(&canvas, &p)) {
+            p.setLooper(NULL);
+            if (!p.canComputeFastBounds()) {
+                return false;
+            }
+        } else {
+            break;
+        }
+    }
+    return true;
+}
+
+void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& src,
+                                     SkRect* dst) {
+    SkCanvas canvas;
+    
+    this->init(&canvas);
+    for (bool firstTime = true;; firstTime = false) {
+        SkPaint p(paint);
+        if (this->next(&canvas, &p)) {
+            SkRect r(src);
+
+            p.setLooper(NULL);
+            p.computeFastBounds(r, &r);
+            canvas.getTotalMatrix().mapRect(&r);
+
+            if (firstTime) {
+                *dst = r;
+            } else {
+                dst->join(r);
+            }
+        } else {
+            break;
+        }
+    }
 }
 

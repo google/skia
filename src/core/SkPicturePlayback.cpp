@@ -606,6 +606,17 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPoint* pos = (const SkPoint*)fReader.skip(points * sizeof(SkPoint));
                 canvas.drawPosText(text.text(), text.length(), pos, paint);
             } break;
+            case DRAW_POS_TEXT_TOP_BOTTOM: {
+                const SkPaint& paint = *getPaint();
+                getText(&text);
+                size_t points = getInt();
+                const SkPoint* pos = (const SkPoint*)fReader.skip(points * sizeof(SkPoint));
+                const SkScalar top = fReader.readScalar();
+                const SkScalar bottom = fReader.readScalar();
+                if (!canvas.quickRejectY(top, bottom, SkCanvas::kAA_EdgeType)) {
+                    canvas.drawPosText(text.text(), text.length(), pos, paint);
+                }
+            } break;
             case DRAW_POS_TEXT_H: {
                 const SkPaint& paint = *getPaint();
                 getText(&text);
