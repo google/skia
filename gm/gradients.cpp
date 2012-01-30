@@ -235,7 +235,9 @@ protected:
         center.set(SkIntToScalar(640), SkIntToScalar(512));
         SkScalar radius = SkIntToScalar(640);
         SkColor colors [3] = { 0x7f7f7f7f, 0x7f7f7f7f, 0xb2000000 };
-        SkScalar pos [3] = { 0.0, 0.35, 1.0 };
+        SkScalar pos [3] = { SkFloatToScalar(0.0),
+                             SkFloatToScalar(0.35),
+                             SkFloatToScalar(1.0) };
         SkShader* shader =
             SkGradientShader::CreateRadial(center, radius, colors,
                                            pos, 3, SkShader::kClamp_TileMode);
