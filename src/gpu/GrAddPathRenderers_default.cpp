@@ -18,9 +18,7 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx,
         if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create(ctx)) {
             chain->addPathRenderer(pr)->unref();
         }
-        // Disabled for now. Need to fix issue where some hairlines don't
-        // wind up going to the hairline renderer and get rendered by this
-        // PR looking speckly.
+        // Disabled for now.
         //chain->addPathRenderer(new GrAAConvexPathRenderer())->unref();
     }
 }
