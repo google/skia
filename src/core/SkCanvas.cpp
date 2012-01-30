@@ -470,6 +470,13 @@ SkDrawFilter* SkCanvas::setDrawFilter(SkDrawFilter* filter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkCanvas::flush() {
+    SkDevice* device = this->getDevice();
+    if (device) {
+        device->flush();
+    }
+}
+
 SkISize SkCanvas::getDeviceSize() const {
     SkDevice* d = this->getDevice();
     return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);

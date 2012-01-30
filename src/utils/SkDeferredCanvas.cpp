@@ -535,6 +535,7 @@ void SkDeferredCanvas::DeferredDevice::flushPending()
 void SkDeferredCanvas::DeferredDevice::flush()
 {
     flushPending();
+    fImmediateCanvas->flush();
 }
 
 void SkDeferredCanvas::DeferredDevice::flushContext()
