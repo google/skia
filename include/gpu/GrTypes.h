@@ -593,24 +593,6 @@ static inline bool GrIsFillInverted(GrPathFill fill) {
     return gIsFillInverted[fill];
 }
 
-/**
- * Hints provided about a path's convexity (or lack thereof).
- */
-enum GrConvexHint {
-    kNone_ConvexHint,                         //<! No hint about convexity
-                                              //   of the path
-    kConvex_ConvexHint,                       //<! Path is one convex piece
-    kNonOverlappingConvexPieces_ConvexHint,   //<! Multiple convex pieces,
-                                              //   pieces are known to be
-                                              //   disjoint
-    kSameWindingConvexPieces_ConvexHint,      //<! Multiple convex pieces,
-                                              //   may or may not intersect,
-                                              //   either all wind cw or all
-                                              //   wind ccw.
-    kConcave_ConvexHint                       //<! Path is known to be
-                                              //   concave
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // opaque type for 3D API object handles

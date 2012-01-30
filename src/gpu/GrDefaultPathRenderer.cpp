@@ -162,30 +162,14 @@ GR_STATIC_CONST_SAME_STENCIL(gDirectToStencil,
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
 
-static GrConvexHint getConvexHint(const SkPath& path) {
-    return path.isConvex() ? kConvex_ConvexHint : kConcave_ConvexHint;
-}
-
 #define STENCIL_OFF     0   // Always disable stencil (even when needed)
 
-static inline bool single_pass_path(const GrDrawTarget& target,
-                                    const GrPath& path,
-                                    GrPathFill fill) {
+static inline bool single_pass_path(const GrPath& path, GrPathFill fill) {
 #if STENCIL_OFF
     return true;
 #else
-    if (kEvenOdd_PathFill == fill) {
-        GrConvexHint hint = getConvexHint(path);
-        return hint == kConvex_ConvexHint ||
-               hint == kNonOverlappingConvexPieces_ConvexHint;
-    } else if (kWinding_PathFill == fill) {
-        GrConvexHint hint = getConvexHint(path);
-        return hint == kConvex_ConvexHint ||
-               hint == kNonOverlappingConvexPieces_ConvexHint ||
-               (hint == kSameWindingConvexPieces_ConvexHint &&
-                !target.drawWillReadDst() &&
-                !target.getDrawState().isDitherState());
-
+    if (kEvenOdd_PathFill == fill || kWinding_PathFill == fill) {
+        return path.isConvex();
     }
     return false;
 #endif
@@ -194,7 +178,7 @@ static inline bool single_pass_path(const GrDrawTarget& target,
 bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
                                                 const GrPath& path,
                                                 GrPathFill fill) const {
-    return !single_pass_path(*target, path, fill);
+    return !single_pass_path(path, fill);
 }
 
 void GrDefaultPathRenderer::pathWillClear() {
@@ -420,7 +404,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
         lastPassIsBounds = false;
         drawFace[0] = GrDrawState::kBoth_DrawFace;
     } else {
-        if (single_pass_path(*fTarget, *fPath, fFill)) {
+        if (single_pass_path(*fPath, fFill)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
