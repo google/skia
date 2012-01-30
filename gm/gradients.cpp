@@ -213,6 +213,41 @@ private:
     typedef GM INHERITED;
 };
 
+/// Checks quality of large radial gradients, which may display
+/// some banding.
+
+class RadialGradientGM : public GM {
+public:
+    RadialGradientGM() {}
+
+protected:
+    SkString onShortName() { return SkString("radial_gradient"); }
+    virtual SkISize onISize() { return make_isize(1280, 1024); }
+    void drawBG(SkCanvas* canvas) {
+        canvas->drawColor(0xFF000000);
+    }
+    virtual void onDraw(SkCanvas* canvas) {
+        this->drawBG(canvas);
+ 
+        SkPaint paint;
+        paint.setDither(true);
+        SkPoint center;
+        center.set(SkIntToScalar(640), SkIntToScalar(512));
+        SkScalar radius = SkIntToScalar(640);
+        SkColor colors [3] = { 0x7f7f7f7f, 0x7f7f7f7f, 0xb2000000 };
+        SkScalar pos [3] = { 0.0, 0.35, 1.0 };
+        SkShader* shader =
+            SkGradientShader::CreateRadial(center, radius, colors,
+                                           pos, 3, SkShader::kClamp_TileMode);
+        paint.setShader(shader)->unref();
+        SkRect r = { 0, 0, SkIntToScalar(1280), SkIntToScalar(1024) };
+        canvas->drawRect(r, paint);
+    }
+private:
+    typedef GM INHERITED;
+};
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -225,5 +260,7 @@ static GMRegistry reg2(MyFactory2);
 static GM* MyFactory3(void*) { return new ClampedGradientsGM; }
 static GMRegistry reg3(MyFactory3);
 
+static GM* MyFactory4(void*) { return new RadialGradientGM; }
+static GMRegistry reg4(MyFactory4);
 }
 
