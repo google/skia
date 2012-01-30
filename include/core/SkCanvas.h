@@ -62,6 +62,11 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /**
+     *  Trigger the immediate execution of all pending draw operations.
+     */
+    void flush();
+
+    /**
      *  Return the width/height of the underlying device. The current drawable
      *  area may be small (due to clipping or saveLayer). For a canvas with
      *  no device, 0,0 will be returned.

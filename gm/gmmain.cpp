@@ -287,9 +287,7 @@ static ErrorBitfield generate_image(GM* gm, const ConfigData& gRec,
         }
         SkAutoUnref canvasUnref(canvas);
         invokeGM(gm, canvas);
-        if (deferred) {
-            canvas->getDevice()->accessBitmap(false); // trigger a flush
-        }
+        canvas->flush();
     } else {  // GPU
         if (NULL == context) {
             return ERROR_NO_GPU_CONTEXT;
