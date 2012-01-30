@@ -33,6 +33,7 @@ enum DrawType {
     DRAW_PICTURE,
     DRAW_POINTS,
     DRAW_POS_TEXT,
+    DRAW_POS_TEXT_TOP_BOTTOM, // fast variant of DRAW_POS_TEXT
     DRAW_POS_TEXT_H,
     DRAW_POS_TEXT_H_TOP_BOTTOM, // fast variant of DRAW_POS_TEXT_H
     DRAW_RECT,

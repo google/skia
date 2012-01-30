@@ -45,6 +45,20 @@ public:
      */
     virtual bool next(SkCanvas*, SkPaint* paint) = 0;
     
+    /**
+     * The fast bounds functions are used to enable the paint to be culled early
+     * in the drawing pipeline. If a subclass can support this feature it must
+     * return true for the canComputeFastBounds() function.  If that function
+     * returns false then computeFastBounds behavior is undefined otherwise it
+     * is expected to have the following behavior. Given the parent paint and
+     * the parent's bounding rect the subclass must fill in and return the
+     * storage rect, where the storage rect is with the union of the src rect
+     * and the looper's bounding rect.
+     */
+    virtual bool canComputeFastBounds(const SkPaint& paint);
+    virtual void computeFastBounds(const SkPaint& paint,
+                                   const SkRect& src, SkRect* dst);
+
 protected:
     SkDrawLooper() {}
     SkDrawLooper(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}

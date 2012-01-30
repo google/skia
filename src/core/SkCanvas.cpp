@@ -1397,11 +1397,15 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
     SkDEBUGCODE(bitmap.validate();)
 
     if (NULL == paint || paint->canComputeFastBounds()) {
-        SkRect fastBounds;
-        fastBounds.set(x, y,
-                       x + SkIntToScalar(bitmap.width()),
-                       y + SkIntToScalar(bitmap.height()));
-        if (this->quickReject(fastBounds, paint2EdgeType(paint))) {
+        SkRect bounds = {
+            x, y,
+            x + SkIntToScalar(bitmap.width()),
+            y + SkIntToScalar(bitmap.height())
+        };
+        if (paint) {
+            (void)paint->computeFastBounds(bounds, &bounds);
+        }
+        if (this->quickReject(bounds, paint2EdgeType(paint))) {
             return;
         }
     }
@@ -1420,7 +1424,12 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src
 
     // do this now, to avoid the cost of calling extract for RLE bitmaps
     if (NULL == paint || paint->canComputeFastBounds()) {
-        if (this->quickReject(dst, paint2EdgeType(paint))) {
+        SkRect storage;
+        const SkRect* bounds = &dst;
+        if (paint) {
+            bounds = &paint->computeFastBounds(dst, &storage);
+        }
+        if (this->quickReject(*bounds, paint2EdgeType(paint))) {
             return;
         }
     }

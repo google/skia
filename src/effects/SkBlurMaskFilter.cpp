@@ -22,6 +22,7 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) SK_OVERRIDE;
     virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
+    virtual void computeFastBounds(const SkRect& src, SkRect* dest) SK_OVERRIDE;
 
     // overrides from SkFlattenable
     virtual Factory getFactory() SK_OVERRIDE;
@@ -96,6 +97,11 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
 
     return SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
                             blurQuality, margin);
+}
+
+void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src, SkRect* dst) {
+    dst->set(src.fLeft - fRadius, src.fTop - fRadius,
+             src.fRight + fRadius, src.fBottom + fRadius);
 }
 
 SkFlattenable* SkBlurMaskFilterImpl::CreateProc(SkFlattenableReadBuffer& buffer) {

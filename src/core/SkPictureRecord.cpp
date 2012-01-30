@@ -287,14 +287,14 @@ void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
 }
 
 void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint,
-                                              SkScalar baselineY) {
+                                              SkScalar minY, SkScalar maxY) {
     SkPaint::FontMetrics metrics;
     paint.getFontMetrics(&metrics);
     SkRect bounds;
     // construct a rect so we can see any adjustments from the paint.
     // we use 0,1 for left,right, just so the rect isn't empty
-    bounds.set(0, metrics.fTop + baselineY,
-               SK_Scalar1, metrics.fBottom + baselineY);
+    bounds.set(0, metrics.fTop + minY,
+               SK_Scalar1, metrics.fBottom + maxY);
     (void)paint.computeFastBounds(bounds, &bounds);
     // now record the top and bottom
     addScalar(bounds.fTop);
@@ -311,7 +311,7 @@ void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
     addScalar(x);
     addScalar(y);
     if (fast) {
-        addFontMetricsTopBottom(paint, y);
+        addFontMetricsTopBottom(paint, y, y);
     }
     validate();
 }
@@ -323,23 +323,34 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
         return;
 
     bool canUseDrawH = true;
+    SkScalar minY = pos[0].fY;
+    SkScalar maxY = pos[0].fY;
     // check if the caller really should have used drawPosTextH()
     {
         const SkScalar firstY = pos[0].fY;
         for (size_t index = 1; index < points; index++) {
             if (pos[index].fY != firstY) {
                 canUseDrawH = false;
-                break;
+                if (pos[index].fY < minY) {
+                    minY = pos[index].fY;
+                } else if (pos[index].fY > maxY) {
+                    maxY = pos[index].fY;
+                }
             }
         }
     }
 
-    bool fast = canUseDrawH && paint.canComputeFastBounds();
+    bool fastBounds = paint.canComputeFastBounds();
+    bool fast = canUseDrawH && fastBounds;
 
     if (fast) {
         addDraw(DRAW_POS_TEXT_H_TOP_BOTTOM);
+    } else if (canUseDrawH) {
+        addDraw(DRAW_POS_TEXT_H);
+    } else if (fastBounds) {
+        addDraw(DRAW_POS_TEXT_TOP_BOTTOM);
     } else {
-        addDraw(canUseDrawH ? DRAW_POS_TEXT_H : DRAW_POS_TEXT);
+        addDraw(DRAW_POS_TEXT);
     }
     addPaint(paint);
     addText(text, byteLength);
@@ -350,7 +361,7 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
 #endif
     if (canUseDrawH) {
         if (fast) {
-            addFontMetricsTopBottom(paint, pos[0].fY);
+            addFontMetricsTopBottom(paint, pos[0].fY, pos[0].fY);
         }
         addScalar(pos[0].fY);
         SkScalar* xptr = (SkScalar*)fWriter.reserve(points * sizeof(SkScalar));
@@ -359,6 +370,9 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
     }
     else {
         fWriter.writeMul4(pos, points * sizeof(SkPoint));
+        if (fastBounds) {
+            addFontMetricsTopBottom(paint, minY, maxY);
+        }
     }
 #ifdef SK_DEBUG_SIZE
     fPointBytes += fWriter.size() - start;
@@ -385,7 +399,7 @@ void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
     size_t start = fWriter.size();
 #endif
     if (fast) {
-        addFontMetricsTopBottom(paint, constY);
+        addFontMetricsTopBottom(paint, constY, constY);
     }
     addScalar(constY);
     fWriter.writeMul4(xpos, points * sizeof(SkScalar));

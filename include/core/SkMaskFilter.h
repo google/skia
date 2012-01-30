@@ -79,6 +79,19 @@ public:
      */
     virtual BlurType asABlur(BlurInfo*) const;
 
+    /**
+     * The fast bounds function is used to enable the paint to be culled early
+     * in the drawing pipeline. This function accepts the current bounds of the
+     * paint as its src param and the filter adjust those bounds using its
+     * current mask and returns the result using the dest param. Callers are
+     * allowed to provide the same struct for both src and dest so each
+     * implementation must accomodate that behavior.
+     *
+     *  The default impl calls filterMask with the src mask having no image,
+     *  but subclasses may override this if they can compute the rect faster.
+     */
+    virtual void computeFastBounds(const SkRect& src, SkRect* dest);
+
 protected:
     // empty for now, but lets get our subclass to remember to init us for the future
     SkMaskFilter(SkFlattenableReadBuffer&) {}
