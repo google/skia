@@ -1208,6 +1208,17 @@ bool SkCanvas::quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const {
     return userT >= clipR.fBottom || userB <= clipR.fTop;
 }
 
+static inline int pinIntForScalar(int x) {
+#ifdef SK_SCALAR_IS_FIXED
+    if (x < SK_MinS16) {
+        x = SK_MinS16;
+    } else if (x > SK_MaxS16) {
+        x = SK_MaxS16;
+    }
+#endif
+    return x;
+}
+
 bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
     SkIRect ibounds;
     if (!getClipDeviceBounds(&ibounds)) {
@@ -1227,8 +1238,16 @@ bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
         SkRect r;
         // adjust it outwards if we are antialiasing
         int inset = (kAA_EdgeType == et);
-        r.iset(ibounds.fLeft - inset,  ibounds.fTop - inset,
-               ibounds.fRight + inset, ibounds.fBottom + inset);
+
+        // SkRect::iset() will correctly assert if we pass a value out of range
+        // (when SkScalar==fixed), so we pin to legal values. This does not
+        // really returnt the correct answer, but its the best we can do given
+        // that we've promised to return SkRect (even though we support devices
+        // that can be larger than 32K in width or height).
+        r.iset(pinIntForScalar(ibounds.fLeft - inset),
+               pinIntForScalar(ibounds.fTop - inset),
+               pinIntForScalar(ibounds.fRight + inset), 
+               pinIntForScalar(ibounds.fBottom + inset));
         inverse.mapRect(bounds, r);
     }
     return true;
