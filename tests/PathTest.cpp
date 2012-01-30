@@ -58,6 +58,18 @@ static void test_direction(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, valid);
         REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCCW_Direction));
     }
+
+    // Test two donuts, each wound a different direction. Only the outer contour
+    // determines the cheap direction
+    path.reset();
+    path.addCircle(0, 0, SkIntToScalar(2), SkPath::kCW_Direction);
+    path.addCircle(0, 0, SkIntToScalar(1), SkPath::kCCW_Direction);
+    REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCW_Direction));
+    
+    path.reset();
+    path.addCircle(0, 0, SkIntToScalar(1), SkPath::kCW_Direction);
+    path.addCircle(0, 0, SkIntToScalar(2), SkPath::kCCW_Direction);
+    REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCCW_Direction));
 }
 
 static void add_rect(SkPath* path, const SkRect& r) {

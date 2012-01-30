@@ -1926,6 +1926,21 @@ static int find_diff_pt(const SkPoint pts[], int index, int n, int inc) {
     return i;
 }
 
+static bool crossToDir(SkScalar cross, SkPath::Direction* dir) {
+    if (dir) {
+        *dir = cross > 0 ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+    }
+    return true;
+}
+
+/*
+ *  We loop through all contours, and keep the computed cross-product of the
+ *  contour that contained the global y-max. If we just look at the first
+ *  contour, we may find one that is wound the opposite way (correctly) since
+ *  it is the interior of a hole (e.g. 'o'). Thus we must find the contour
+ *  that is outer most (or at least has the global y-max) before we can consider
+ *  its cross product.
+ */
 bool SkPath::cheapComputeDirection(Direction* dir) const {
     // don't want to pay the cost for computing this if it
     // is unknown, so we don't call isConvex()
@@ -1933,12 +1948,16 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
 
     ContourIter iter(fVerbs, fPts);
 
+    // initialize with our logical y-min
+    SkScalar ymax = this->getBounds().fTop;
+    SkScalar ymaxCross = 0;
+
     for (; !iter.done(); iter.next()) {
         int n = iter.count();
         if (n < 3) {
             continue;
         }
-
+        
         const SkPoint* pts = iter.pts();
         SkScalar cross = 0;
         if (kConvex_Convexity == conv) {
@@ -1947,11 +1966,17 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
             for (int i = 0; i < n - 2; ++i) {
                 cross = cross_prod(pts[i], pts[i + 1], pts[i + 2]);
                 if (cross) {
-                    break;
+                    // early-exit, as kConvex is assumed to have only 1
+                    // non-degenerate contour
+                    return crossToDir(cross, dir);
                 }
             }
         } else {
             int index = find_max_y(pts, n);
+            if (pts[index].fY < ymax) {
+                continue;
+            }
+
             // Find a next and prev index to use for the cross-product test,
             // but we try to find pts that form non-zero vectors from pts[index]
             //
@@ -1975,14 +2000,14 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
                 // construct the subtract so we get the correct Direction below
                 cross = pts[index].fX - pts[next].fX;
             }
-        }
-        if (cross) {
-            if (dir) {
-                *dir = cross > 0 ? kCW_Direction : kCCW_Direction;
+            
+            if (cross) {
+                // record our best guess so far
+                ymax = pts[index].fY;
+                ymaxCross = cross;
             }
-            return true;
         }
     }
-    return false;   // unknown
-}
 
+    return ymaxCross ? crossToDir(ymaxCross, dir) : false;
+}
