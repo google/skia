@@ -561,9 +561,9 @@ static int overflows_short_shift(int value, int shift) {
     return (value << s >> s) - value;
 }
 
-void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
+void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
                           SkBlitter* blitter, bool forceRLE) {
-    if (clip.isEmpty()) {
+    if (origClip.isEmpty()) {
         return;
     }
 
@@ -571,7 +571,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
     path.getBounds().roundOut(&ir);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
-            blitter->blitRegion(clip);
+            blitter->blitRegion(origClip);
         }
         return;
     }
@@ -583,16 +583,35 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
             overflows_short_shift(ir.fTop, SHIFT) |
             overflows_short_shift(ir.fBottom, SHIFT)) {
         // can't supersample, so draw w/o antialiasing
-        SkScan::FillPath(path, clip, blitter);
+        SkScan::FillPath(path, origClip, blitter);
         return;
     }
 
-    SkScanClipper   clipper(blitter, &clip, ir);
+    // Our antialiasing can't handle a clip larger than 32767, so we restrict
+    // the clip to that limit here. (the runs[] uses int16_t for its index).
+    //
+    // A more general solution (one that could also eliminate the need to disable
+    // aa based on ir bounds (see overflows_short_shift) would be to tile the
+    // clip/target...
+    SkRegion tmpClipStorage;
+    const SkRegion* clipRgn = &origClip;
+    {
+        static const int32_t kMaxClipCoord = 32767;
+        const SkIRect& bounds = origClip.getBounds();
+        if (bounds.fRight > kMaxClipCoord || bounds.fBottom > kMaxClipCoord) {
+            SkIRect limit = { 0, 0, kMaxClipCoord, kMaxClipCoord };
+            tmpClipStorage.op(origClip, limit, SkRegion::kIntersect_Op);
+            clipRgn = &tmpClipStorage;
+        }
+    }
+    // for here down, use clipRgn, not origClip
+
+    SkScanClipper   clipper(blitter, clipRgn, ir);
     const SkIRect*  clipRect = clipper.getClipRect();
 
     if (clipper.getBlitter() == NULL) { // clipped out
         if (path.isInverseFillType()) {
-            blitter->blitRegion(clip);
+            blitter->blitRegion(*clipRgn);
         }
         return;
     }
@@ -601,7 +620,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
     blitter = clipper.getBlitter();
 
     if (path.isInverseFillType()) {
-        sk_blit_above(blitter, ir, clip);
+        sk_blit_above(blitter, ir, *clipRgn);
     }
 
     SkIRect superRect, *superClipRect = NULL;
@@ -617,16 +636,16 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
     // if we're an inverse filltype
     if (!path.isInverseFillType() && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
-        MaskSuperBlitter    superBlit(blitter, ir, clip);
+        MaskSuperBlitter    superBlit(blitter, ir, *clipRgn);
         SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
-        sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, clip);
+        sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, *clipRgn);
     } else {
-        SuperBlitter    superBlit(blitter, ir, clip);
-        sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, clip);
+        SuperBlitter    superBlit(blitter, ir, *clipRgn);
+        sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, *clipRgn);
     }
 
     if (path.isInverseFillType()) {
-        sk_blit_below(blitter, ir, clip);
+        sk_blit_below(blitter, ir, *clipRgn);
     }
 }
 

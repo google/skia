@@ -7,9 +7,27 @@
  */
 #include "Test.h"
 
+#include "SkCanvas.h"
+#include "SkPaint.h"
 #include "SkCubicClipper.h"
 #include "SkGeometry.h"
 
+// Currently the supersampler blitter uses int16_t for its index into an array
+// the width of the clip. Test that we don't crash/assert if we try to draw
+// with a device/clip that is larger.
+static void test_giantClip() {
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 64919, 1);
+    bm.allocPixels();
+    SkCanvas canvas(bm);
+    canvas.clear(0);
+    
+    SkPath path;
+    path.moveTo(0, 0); path.lineTo(1, 0); path.lineTo(33, 1);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas.drawPath(path, paint);
+}
 
 static void PrintCurve(const char *name, const SkPoint crv[4]) {
     printf("%s: %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g\n",
@@ -142,6 +160,8 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
         1.297736168, 7.059780121,
         2.505550385, 10,
         shouldbe), tol));
+
+    test_giantClip();
 }
 
 
