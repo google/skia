@@ -434,7 +434,7 @@ void GrGpu::ConvertStencilFuncAndMask(GrStencilFunc func,
 #if VISUALIZE_COMPLEX_CLIP
     #include "GrRandom.h"
     GrRandom gRandom;
-    #define SET_RANDOM_COLOR this->setColor(0xff000000 | gRandom.nextU());
+    #define SET_RANDOM_COLOR drawState->setColor(0xff000000 | gRandom.nextU());
 #else
     #define SET_RANDOM_COLOR
 #endif
