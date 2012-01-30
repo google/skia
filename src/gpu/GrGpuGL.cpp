@@ -373,12 +373,6 @@ void GrGpuGL::initCaps() {
 }
 
 void GrGpuGL::initFSAASupport() {
-    // TODO: Get rid of GrAALevel and use # samples directly.
-    GR_STATIC_ASSERT(0 == kNone_GrAALevel);
-    GR_STATIC_ASSERT(1 == kLow_GrAALevel);
-    GR_STATIC_ASSERT(2 == kMed_GrAALevel);
-    GR_STATIC_ASSERT(3 == kHigh_GrAALevel);
-    memset(fGLCaps.fAASamples, 0, sizeof(fGLCaps.fAASamples));
 
     fGLCaps.fMSFBOType = GLCaps::kNone_MSFBO;
     if (kDesktop_GrGLBinding != this->glBinding()) {
@@ -398,19 +392,7 @@ void GrGpuGL::initFSAASupport() {
         }
     }
 
-    if (GLCaps::kNone_MSFBO != fGLCaps.fMSFBOType) {
-        GrGLint maxSamples;
-        GR_GL_GetIntegerv(fGL, GR_GL_MAX_SAMPLES, &maxSamples);
-        if (maxSamples > 1 ) {
-            fGLCaps.fAASamples[kNone_GrAALevel] = 0;
-            fGLCaps.fAASamples[kLow_GrAALevel] =
-                GrMax(2, GrFixedFloorToInt((GR_FixedHalf) * maxSamples));
-            fGLCaps.fAASamples[kMed_GrAALevel] =
-                GrMax(2, GrFixedFloorToInt(((GR_Fixed1*3)/4) * maxSamples));
-            fGLCaps.fAASamples[kHigh_GrAALevel] = maxSamples;
-        }
-    }
-    fCaps.fFSAASupport = fGLCaps.fAASamples[kHigh_GrAALevel] > 0;
+    fCaps.fFSAASupport = GLCaps::kNone_MSFBO != fGLCaps.fMSFBOType;
 }
 
 void GrGpuGL::initStencilFormats() {
@@ -982,10 +964,13 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     GrGLTexture::Desc glTexDesc;
     GrGLRenderTarget::Desc  glRTDesc;
 
+    // Attempt to catch un- or wrongly initialized sample counts;
+    GrAssert(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
+
     glTexDesc.fWidth  = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
-    glTexDesc.fConfig        = desc.fConfig;
-    glTexDesc.fOwnsID        = true;
+    glTexDesc.fConfig = desc.fConfig;
+    glTexDesc.fOwnsID = true;
 
     glRTDesc.fMSColorRenderbufferID = 0;
     glRTDesc.fRTFBOID = 0;
@@ -1003,11 +988,10 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glTexDesc.fOrientation = renderTarget ? GrGLTexture::kBottomUp_Orientation :
                                             GrGLTexture::kTopDown_Orientation;
 
-    GrAssert(as_size_t(desc.fAALevel) < GR_ARRAY_COUNT(fGLCaps.fAASamples));
-    glRTDesc.fSampleCnt = fGLCaps.fAASamples[desc.fAALevel];
+    glRTDesc.fSampleCnt = desc.fSampleCnt;
     if (GLCaps::kNone_MSFBO == fGLCaps.fMSFBOType &&
-        desc.fAALevel != kNone_GrAALevel) {
-        GrPrintf("AA RT requested but not supported on this platform.");
+        desc.fSampleCnt) {
+        GrPrintf("MSAA RT requested but not supported on this platform.");
     }
 
     if (renderTarget) {
@@ -2459,9 +2443,6 @@ void GrGpuGL::GLCaps::print() const {
         "Apple",
     };
     GrPrintf("MSAA Type: %s\n", gMSFBOExtStr[fMSFBOType]);
-    for (int i = 0; i < (int)GR_ARRAY_COUNT(fAASamples); ++i) {
-        GrPrintf("AA Level %d has %d samples\n", i, fAASamples[i]);
-    }
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     GrPrintf("Support RGBA8 Render Buffer: %s\n",
              (fRGBA8RenderbufferSupport ? "YES": "NO"));

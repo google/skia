@@ -216,10 +216,10 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
 #else
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit,
-        kNone_GrAALevel,
         width,
         height,
-        SkGr::Bitmap2PixelConfig(bm)
+        SkGr::Bitmap2PixelConfig(bm),
+        {0} // samples
     };
 
     fTexture = fContext->createUncachedTexture(desc, NULL, 0);
@@ -765,10 +765,10 @@ static GrTexture* gaussianBlur(GrContext* context, GrTexture* srcTexture,
 
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit,
-        kNone_GrAALevel,
         srcRect.width(),
         srcRect.height(),
-        kRGBA_8888_GrPixelConfig
+        kRGBA_8888_GrPixelConfig,
+        {0} // samples 
     };
 
     temp1->set(context, desc);
@@ -900,12 +900,12 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     srcRect.offset(offset);
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit,
-        kNone_GrAALevel,
         srcRect.width(),
         srcRect.height(),
         // We actually only need A8, but it often isn't supported as a
         // render target
-        kRGBA_8888_PM_GrPixelConfig
+        kRGBA_8888_PM_GrPixelConfig,
+        {0} // samples
     };
 
     GrAutoScratchTexture pathEntry(context, desc);
@@ -1032,10 +1032,10 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 
     const GrTextureDesc desc = {
         kNone_GrTextureFlags,
-        kNone_GrAALevel,
         dstM.fBounds.width(),
         dstM.fBounds.height(),
-        kAlpha_8_GrPixelConfig
+        kAlpha_8_GrPixelConfig,
+        {0}, // samples
     };
 
     GrAutoScratchTexture ast(context, desc);
@@ -1783,10 +1783,10 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
     if (kBitmap_TexType != type) {
         const GrTextureDesc desc = {
             kRenderTarget_GrTextureFlagBit,
-            kNone_GrAALevel,
             bitmap.width(),
             bitmap.height(),
-            SkGr::Bitmap2PixelConfig(bitmap)
+            SkGr::Bitmap2PixelConfig(bitmap),
+            {0} // samples
         };
         GrContext::ScratchTexMatch match;
         if (kSaveLayerDeviceRenderTarget_TexType == type) {

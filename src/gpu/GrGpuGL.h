@@ -60,7 +60,6 @@ protected:
             , fPackFlipYSupport(false)
             , fTextureUsageSupport(false)
             , fTexStorageSupport(false) {
-            memset(fAASamples, 0, sizeof(fAASamples));
         }
         SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
 
@@ -82,9 +81,6 @@ protected:
              */
             kAppleES_MSFBO,
         } fMSFBOType;
-
-        // TODO: get rid of GrAALevel and use sample cnt directly
-        GrGLuint fAASamples[4];
 
         // The maximum number of fragment uniform vectors (GLES has min. 16).
         int fMaxFragmentUniformVectors;
