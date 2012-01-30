@@ -75,13 +75,13 @@ protected:
                 }
 
                 GrTextureDesc desc;
-                desc.fAALevel   = kNone_GrAALevel;
                 // use RT flag bit because in GL it makes the texture be bottom-up
                 desc.fFlags     = i ? kRenderTarget_GrTextureFlagBit :
                                       kNone_GrTextureFlags;
                 desc.fConfig    = kSkia8888_PM_GrPixelConfig;
                 desc.fWidth     = 2 * S;
                 desc.fHeight    = 2 * S;
+                desc.fSampleCnt = 0;
                 GrTexture* texture = 
                     ctx->createUncachedTexture(desc, gTextureData, 0);
 

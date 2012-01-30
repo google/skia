@@ -167,6 +167,7 @@ bool gen_texture_key_values(const GrGpu* gpu,
                             GrContext::TextureKey clientKey,
                             int width,
                             int height,
+                            int sampleCnt,
                             bool scratch,
                             uint32_t v[4]) {
     GR_STATIC_ASSERT(sizeof(GrContext::TextureKey) == sizeof(uint64_t));
@@ -178,7 +179,9 @@ bool gen_texture_key_values(const GrGpu* gpu,
     v[1] = (clientKey >> 32) & 0xffffffffUL;
     v[2] = width | (height << 16);
 
-    v[3] = 0;
+    v[3] = (sampleCnt << 24);
+    GrAssert(sampleCnt >= 0 && sampleCnt < 256);
+
     if (!gpu->getCaps().fNPOTTextureTileSupport) {
         bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
@@ -227,7 +230,7 @@ GrContext::TextureCacheEntry GrContext::findAndLockTexture(
         int height,
         const GrSamplerState* sampler) {
     uint32_t v[4];
-    gen_texture_key_values(fGpu, sampler, key, width, height, false, v);
+    gen_texture_key_values(fGpu, sampler, key, width, height, 0, false, v);
     GrResourceKey resourceKey(v);
     return TextureCacheEntry(fTextureCache->findAndLock(resourceKey,
                                             GrResourceCache::kNested_LockType));
@@ -238,7 +241,7 @@ bool GrContext::isTextureInCache(TextureKey key,
                                  int height,
                                  const GrSamplerState* sampler) const {
     uint32_t v[4];
-    gen_texture_key_values(fGpu, sampler, key, width, height, false, v);
+    gen_texture_key_values(fGpu, sampler, key, width, height, 0, false, v);
     GrResourceKey resourceKey(v);
     return fTextureCache->hasKey(resourceKey);
 }
@@ -313,7 +316,8 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
     TextureCacheEntry entry;
     uint32_t v[4];
     bool special = gen_texture_key_values(fGpu, sampler, key,
-                                          desc.fWidth, desc.fHeight, false, v);
+                                          desc.fWidth, desc.fHeight,
+                                          desc.fSampleCnt, false, v);
     GrResourceKey resourceKey(v);
 
     if (special) {
@@ -417,13 +421,12 @@ inline void gen_scratch_tex_key_values(const GrGpu* gpu,
                                        uint32_t v[4]) {
     // Instead of a client-provided key of the texture contents
     // we create a key of from the descriptor.
-    GrContext::TextureKey descKey = desc.fAALevel |
-                                    (desc.fFlags << 8) |
+    GrContext::TextureKey descKey = (desc.fFlags << 8) |
                                     ((uint64_t) desc.fConfig << 32);
     // this code path isn't friendly to tiling with NPOT restricitons
     // We just pass ClampNoFilter()
     gen_texture_key_values(gpu, NULL, descKey, desc.fWidth,
-                           desc.fHeight, true, v);
+                           desc.fHeight, desc.fSampleCnt, true, v);
 }
 }
 
@@ -439,9 +442,6 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
         desc.fHeight = GrMax(MIN_SIZE, GrNextPow2(desc.fHeight));
     }
 
-    uint32_t p0 = desc.fConfig;
-    uint32_t p1 = (desc.fAALevel << 16) | desc.fFlags;
-    
     GrResourceEntry* entry;
     int origWidth = desc.fWidth;
     int origHeight = desc.fHeight;
@@ -713,13 +713,15 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
     if (PREFER_MSAA_OFFSCREEN_AA && fGpu->getCaps().fFSAASupport) {
         record->fDownsample = OffscreenRecord::kFSAA_Downsample;
         record->fScale = 1;
-        desc.fAALevel = kMed_GrAALevel;
+        // 16 samples matches what the skia sw rasterizer uses. (There is no
+        // accessible constant to reference from sw code).
+        desc.fSampleCnt = 16;
     } else {
         record->fDownsample = OffscreenRecord::k4x4SinglePass_Downsample;
         record->fScale = OFFSCREEN_SSAA_SCALE;
         // both downsample paths assume this
         GR_STATIC_ASSERT(4 == OFFSCREEN_SSAA_SCALE);
-        desc.fAALevel = kNone_GrAALevel;
+        desc.fSampleCnt = 0;
     }
     
     desc.fWidth *= record->fScale;
@@ -1547,10 +1549,10 @@ bool sw_draw_path_to_mask_texture(const GrPath& clientPath,
 
     const GrTextureDesc desc = {
         kNone_GrTextureFlags,
-        kNone_GrAALevel,
         bounds.fRight,
         bounds.fBottom,
-        kAlpha_8_GrPixelConfig
+        kAlpha_8_GrPixelConfig,
+        {0} // samples
     };
 
     tex->set(context, desc);
@@ -1844,9 +1846,9 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         // readTexturePixels as of yet (it calls this function).
         const GrTextureDesc desc = {
             kRenderTarget_GrTextureFlagBit,
-            kNone_GrAALevel,
             width, height,
-            config
+            config,
+            {0}, // samples
         };
 
         // When a full readback is faster than a partial we could always make
@@ -1964,7 +1966,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     }
 
     const GrTextureDesc desc = {
-        kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
+        kNone_GrTextureFlags, width, height, config, {0}
     };
     GrAutoScratchTexture ast(this, desc);
     GrTexture* texture = ast.texture();

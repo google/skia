@@ -179,10 +179,10 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
     if (NULL == fTexture[format]) {
         GrTextureDesc desc = {
             kDynamicUpdate_GrTextureFlagBit,
-            kNone_GrAALevel,
             GR_ATLAS_TEXTURE_WIDTH,
             GR_ATLAS_TEXTURE_HEIGHT,
-            maskformat2pixelconfig(format)
+            maskformat2pixelconfig(format),
+            {0} // samples
         };
         fTexture[format] = fGpu->createTexture(desc, NULL, 0);
         if (NULL == fTexture[format]) {

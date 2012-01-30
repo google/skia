@@ -73,10 +73,10 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
 
     GrTextureDesc desc = {
         kNone_GrTextureFlags,
-        kNone_GrAALevel,
         bitmap->width(),
         bitmap->height(),
-        SkGr::Bitmap2PixelConfig(*bitmap)
+        SkGr::Bitmap2PixelConfig(*bitmap),
+        {0} // samples
     };
 
     if (SkBitmap::kIndex8_Config == bitmap->config()) {

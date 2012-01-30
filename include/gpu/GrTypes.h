@@ -429,18 +429,10 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
 }
 
 /**
-    * Used to control the level of antialiasing available for a rendertarget.
-    * Anti-alias quality levels depend on the underlying API/GPU capabilities.
-    */
-enum GrAALevels {
-    kNone_GrAALevel, //<! No antialiasing available.
-    kLow_GrAALevel,  //<! Low quality antialiased rendering. Actual
-                     //   interpretation is platform-dependent.
-    kMed_GrAALevel,  //<! Medium quality antialiased rendering. Actual
-                     //   interpretation is platform-dependent.
-    kHigh_GrAALevel, //<! High quality antialiased rendering. Actual
-                     //   interpretation is platform-dependent.
-};
+ * DEPRECATED: This will be removed as soon as WebKit no longer references
+ * this (former) enum value.
+ */
+static const int kNone_GrAALevel = 0;
 
 /**
  * Optional bitfield flags that can be passed to createTexture.
@@ -479,18 +471,31 @@ enum {
  */
 struct GrTextureDesc {
     GrTextureFlags         fFlags;  //!< bitfield of TextureFlags
-    /**
-     * The level of antialiasing available for a rendertarget texture. Only used
-     * fFlags contains kRenderTarget_GrTextureFlag.
-     */
-    GrAALevels             fAALevel;
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
+
     /**
      * Format of source data of the texture. Not guaraunteed to be the same as
      * internal format used by 3D API.
      */
     GrPixelConfig          fConfig;
+    
+    /**
+     * The number of samples per pixel or 0 to disable full scene AA. This only
+     * applies if the kRenderTarget_GrTextureFlagBit is set. The actual number
+     * of samples may not exactly match the request. The request will be rounded
+     * up to the next supported sample count, or down if it is larger than the
+     * max supportex count.
+     */
+    union {
+        /**
+         * This field has two names for legacy reasons. Use the fSampleCnt name.
+         * fAALevel is deprecated and will be removed as soon as WebKit no
+         * longer uses it.
+         */
+        int fSampleCnt;
+        int fAALevel;
+    };
 };
 
 /**
