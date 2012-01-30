@@ -18,7 +18,6 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx,
         if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create(ctx)) {
             chain->addPathRenderer(pr)->unref();
         }
-        // Disabled for now.
-        //chain->addPathRenderer(new GrAAConvexPathRenderer())->unref();
+        chain->addPathRenderer(new GrAAConvexPathRenderer())->unref();
     }
 }
