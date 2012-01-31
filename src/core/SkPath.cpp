@@ -1899,17 +1899,19 @@ static SkScalar cross_prod(const SkPoint& p0, const SkPoint& p1, const SkPoint& 
     return SkPoint::CrossProduct(p1 - p0, p2 - p0);
 }
 
+// Returns the first pt with the maximum Y coordinate
 static int find_max_y(const SkPoint pts[], int count) {
     SkASSERT(count > 0);
     SkScalar max = pts[0].fY;
-    int maxIndex = 0;
+    int firstIndex = 0;
     for (int i = 1; i < count; ++i) {
-        if (pts[i].fY > max) {
-            max = pts[i].fY;
-            maxIndex = i;
+        SkScalar y = pts[i].fY;
+        if (y > max) {
+            max = y;
+            firstIndex = i;
         }
     }
-    return maxIndex;
+    return firstIndex;
 }
 
 static int find_diff_pt(const SkPoint pts[], int index, int n, int inc) {
@@ -1926,12 +1928,50 @@ static int find_diff_pt(const SkPoint pts[], int index, int n, int inc) {
     return i;
 }
 
+/**
+ *  Starting at index, and moving forward (incrementing), find the xmin and
+ *  xmax of the contiguous points that have the same Y.
+ */
+static int find_min_max_x_at_y(const SkPoint pts[], int index, int n,
+                               int* maxIndexPtr) {
+    const SkScalar y = pts[index].fY;
+    SkScalar min = pts[index].fX;
+    SkScalar max = min;
+    int minIndex = index;
+    int maxIndex = index;
+    for (int i = index + 1; i < n; ++i) {
+        if (pts[i].fY != y) {
+            break;
+        }
+        SkScalar x = pts[i].fX;
+        if (x < min) {
+            min = x;
+            minIndex = i;
+        } else if (x > max) {
+            max = x;
+            maxIndex = i;
+        }
+    }
+    *maxIndexPtr = maxIndex;
+    return minIndex;
+}
+
 static bool crossToDir(SkScalar cross, SkPath::Direction* dir) {
     if (dir) {
         *dir = cross > 0 ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
     }
     return true;
 }
+
+#if 0
+#include "SkString.h"
+#include "../utils/SkParsePath.h"
+static void dumpPath(const SkPath& path) {
+    SkString str;
+    SkParsePath::ToSVGString(path, &str);
+    SkDebugf("%s\n", str.c_str());
+}
+#endif
 
 /*
  *  We loop through all contours, and keep the computed cross-product of the
@@ -1942,6 +1982,7 @@ static bool crossToDir(SkScalar cross, SkPath::Direction* dir) {
  *  its cross product.
  */
 bool SkPath::cheapComputeDirection(Direction* dir) const {
+//    dumpPath(*this);
     // don't want to pay the cost for computing this if it
     // is unknown, so we don't call isConvex()
     const Convexity conv = this->getConvexityOrUnknown();
@@ -1977,28 +2018,42 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
                 continue;
             }
 
-            // Find a next and prev index to use for the cross-product test,
-            // but we try to find pts that form non-zero vectors from pts[index]
-            //
-            // Its possible that we can't find two non-degenerate vectors, so
-            // we have to guard our search (e.g. all the pts could be in the
-            // same place).
-            
-            // we pass n - 1 instead of -1 so we don't foul up % operator by
-            // passing it a negative LH argument.
-            int prev = find_diff_pt(pts, index, n, n - 1);
-            if (prev == index) {
-                // completely degenerate, skip to next contour
-                continue;
-            }
-            int next = find_diff_pt(pts, index, n, 1);
-            SkASSERT(next != index);
-            cross = cross_prod(pts[prev], pts[index], pts[next]);
-            // if we get a zero, but the pts aren't on top of each other, then
-            // we can just look at the direction
-            if (0 == cross) {
-                // construct the subtract so we get the correct Direction below
-                cross = pts[index].fX - pts[next].fX;
+            // If there is more than 1 distinct point at the y-max, we take the
+            // x-min and x-max of them and just subtract to compute the dir.
+            if (pts[(index + 1) % n].fY == pts[index].fY) {
+                int maxIndex;
+                int minIndex = find_min_max_x_at_y(pts, index, n, &maxIndex);
+                // minIndex might == maxIndex, but that should be fine.
+                SkASSERT(pts[minIndex].fY == pts[index].fY);
+                SkASSERT(pts[maxIndex].fY == pts[index].fY);
+                SkASSERT(pts[minIndex].fX <= pts[maxIndex].fX);
+                // we just subtract the indices, and let that auto-convert to
+                // SkScalar, since we just want - or + to signal the direction.
+                cross = minIndex - maxIndex;
+            } else {
+                // Find a next and prev index to use for the cross-product test,
+                // but we try to find pts that form non-zero vectors from pts[index]
+                //
+                // Its possible that we can't find two non-degenerate vectors, so
+                // we have to guard our search (e.g. all the pts could be in the
+                // same place).
+                
+                // we pass n - 1 instead of -1 so we don't foul up % operator by
+                // passing it a negative LH argument.
+                int prev = find_diff_pt(pts, index, n, n - 1);
+                if (prev == index) {
+                    // completely degenerate, skip to next contour
+                    continue;
+                }
+                int next = find_diff_pt(pts, index, n, 1);
+                SkASSERT(next != index);
+                cross = cross_prod(pts[prev], pts[index], pts[next]);
+                // if we get a zero, but the pts aren't on top of each other, then
+                // we can just look at the direction
+                if (0 == cross) {
+                    // construct the subtract so we get the correct Direction below
+                    cross = pts[index].fX - pts[next].fX;
+                }
             }
             
             if (cross) {
