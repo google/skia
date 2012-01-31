@@ -40,6 +40,7 @@ static void test_direction(skiatest::Reporter* reporter) {
     static const char* gCW[] = {
         "M 10 10 L 10 10 Q 20 10 20 20",
         "M 10 10 C 20 10 20 20 20 20",
+        "M 20 10 Q 20 20 30 20 L 10 20", // test double-back at y-max
     };
     for (i = 0; i < SK_ARRAY_COUNT(gCW); ++i) {
         path.reset();
@@ -51,6 +52,7 @@ static void test_direction(skiatest::Reporter* reporter) {
     static const char* gCCW[] = {
         "M 10 10 L 10 10 Q 20 10 20 -20",
         "M 10 10 C 20 10 20 -20 20 -20",
+        "M 20 10 Q 20 20 10 20 L 30 20", // test double-back at y-max
     };
     for (i = 0; i < SK_ARRAY_COUNT(gCCW); ++i) {
         path.reset();
