@@ -172,6 +172,11 @@ public:
     const GrVertexBuffer* getUnitSquareVertexBuffer() const;
 
     /**
+     * Resolves MSAA.
+     */
+    void resolveRenderTarget(GrRenderTarget* target);
+
+    /**
      * Ensures that the current render target is actually set in the
      * underlying 3D API. Used when client wants to use 3D API to directly
      * render to the RT.
@@ -432,6 +437,9 @@ protected:
                                       int left, int top, int width, int height,
                                       GrPixelConfig config, const void* buffer,
                                       size_t rowBytes) = 0;
+
+    // overridden by API-specific derived class to perform the resolve
+    virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
     // indexed geometry. The subclass may adjust the startVertex and/or

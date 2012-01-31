@@ -1900,6 +1900,16 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
                             config, buffer, rowBytes, flipY);
 }
 
+void GrContext::resolveRenderTarget(GrRenderTarget* target) {
+    GrAssert(target);
+    ASSERT_OWNED_RESOURCE(target);
+    // In the future we may track whether there are any pending draws to this
+    // target. We don't today so we always perform a flush. We don't promise
+    // this to our clients, though.
+    this->flush();
+    fGpu->resolveRenderTarget(target);
+}
+
 void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     if (NULL == src || NULL == dst) {
         return;

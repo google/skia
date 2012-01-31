@@ -1452,7 +1452,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
             this->flushRenderTarget(&GrIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
-            this->resolveRenderTarget(tgt);
+            this->onResolveRenderTarget(tgt);
             // we don't track the state of the READ FBO ID.
             GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER,
                                     tgt->textureFBOID()));
@@ -1666,7 +1666,9 @@ void GrGpuGL::onGpuDrawNonIndexed(GrPrimitiveType type,
 #endif
 }
 
-void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
+void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
+
+    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
 
     if (rt->needsResolve()) {
         GrAssert(GLCaps::kNone_MSFBO != fGLCaps.fMSFBOType);
@@ -2050,7 +2052,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             GrGLRenderTarget* texRT = 
                 static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
             if (NULL != texRT) {
-                resolveRenderTarget(texRT);
+                this->onResolveRenderTarget(texRT);
             }
 
             if (fHWDrawState.getTexture(s) != nextTexture) {

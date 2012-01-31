@@ -41,6 +41,15 @@ void GrRenderTarget::writePixels(int left, int top, int width, int height,
                                      config, buffer, rowBytes);
 }
 
+void GrRenderTarget::resolve() {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (NULL == context) {
+        return;
+    }
+    context->resolveRenderTarget(this);
+}
+
 size_t GrRenderTarget::sizeInBytes() const {
     int colorBits;
     if (kUnknown_GrPixelConfig == fConfig) {
