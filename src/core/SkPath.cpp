@@ -26,6 +26,12 @@ static void joinNoEmptyChecks(SkRect* dst, const SkRect& src) {
     dst->fBottom = SkMaxScalar(dst->fBottom, src.fBottom);
 }
 
+static bool is_degenerate(const SkPath& path) {
+    SkPath::Iter iter(path, false);
+    SkPoint pts[4];
+    return SkPath::kDone_Verb == iter.next(pts);
+}
+
 /*  This guy's constructor/destructor bracket a path editing operation. It is
     used when we know the bounds of the amount we are going to add to the path
     (usually a new contour, but not required).
@@ -34,8 +40,9 @@ static void joinNoEmptyChecks(SkRect* dst, const SkRect& src) {
     cached bounds), and the if it can, it updates the cache bounds explicitly,
     avoiding the need to revisit all of the points in getBounds().
 
-    It also notes if the path was originally empty, and if so, sets isConvex
-    to true. Thus it can only be used if the contour being added is convex.
+    It also notes if the path was originally degenerate, and if so, sets
+    isConvex to true. Thus it can only be used if the contour being added is
+    convex.
  */
 class SkAutoPathBoundsUpdate {
 public:
@@ -50,7 +57,7 @@ public:
     }
 
     ~SkAutoPathBoundsUpdate() {
-        fPath->setIsConvex(fEmpty);
+        fPath->setIsConvex(fDegenerate);
         if (fEmpty) {
             fPath->fBounds = fRect;
             fPath->fBoundsIsDirty = false;
@@ -64,12 +71,14 @@ private:
     SkPath* fPath;
     SkRect  fRect;
     bool    fDirty;
+    bool    fDegenerate;
     bool    fEmpty;
 
     // returns true if we should proceed
     void init(SkPath* path) {
         fPath = path;
         fDirty = SkToBool(path->fBoundsIsDirty);
+        fDegenerate = is_degenerate(*path);
         fEmpty = path->isEmpty();
         // Cannot use fRect for our bounds unless we know it is sorted
         fRect.sort();
