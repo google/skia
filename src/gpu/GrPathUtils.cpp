@@ -225,16 +225,52 @@ void GrPathUtils::quadDesignSpaceToUVCoordsMatrix(const SkPoint qPts[3],
 #ifndef SK_SCALAR_IS_FLOAT
     GrCrash("Expected scalar is float.");
 #endif
-    
+    // We want M such that M * xy_pt = uv_pt
+    // We know M * control_pts = [0  1/2 1]
+    //                           [0  0   1]
+    //                           [1  1   1]
+    // We invert the control pt matrix and post concat to both sides to get M.
     UVpts.setAll(0,   0.5f,  1.f,
                  0,   0,     1.f,
                  1.f, 1.f,   1.f);
     matrix->setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
                    qPts[0].fY, qPts[1].fY, qPts[2].fY,
                    1.f,        1.f,        1.f);
-    matrix->invert(matrix);
-    matrix->postConcat(UVpts);
-    fixup_matrix(matrix);
+    if (!matrix->invert(matrix)) {
+        // The quad is degenerate. Hopefully this is rare. Find the pts that are
+        // farthest apart to compute a line (unless it is really a pt).
+        SkScalar maxD = qPts[0].distanceToSqd(qPts[1]);
+        int maxEdge = 0;
+        SkScalar d = qPts[1].distanceToSqd(qPts[2]);
+        if (d > maxD) {
+            maxD = d;
+            maxEdge = 1;
+        }
+        d = qPts[2].distanceToSqd(qPts[0]);
+        if (d > maxD) {
+            maxD = d;
+            maxEdge = 2;
+        }
+        // We could have a tolerance here, not sure if it would improve anything
+        if (maxD > 0) {
+            // Set the matrix to give (u = 0, v = distance_to_line)
+            GrVec lineVec = qPts[maxEdge] - qPts[(maxEdge + 1)%3];
+            lineVec.setOrthog(lineVec);
+            lineVec.dot(qPts[0]);
+            matrix->setAll(0, 0, 0,
+                           lineVec.fX, lineVec.fY, -lineVec.dot(qPts[maxEdge]),
+                           0, 0, 1.f);
+        } else {
+            // It's a point. It should cover zero area. Just set the matrix such
+            // that (u, v) will always be far away from the quad.
+            matrix->setAll(0, 0, 100 * SK_Scalar1,
+                           0, 0, 100 * SK_Scalar1,
+                           0, 0, 1.f);
+        }
+    } else {
+        matrix->postConcat(UVpts);
+        fixup_matrix(matrix);
+    }
 }
 
 namespace {

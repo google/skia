@@ -97,6 +97,13 @@ protected:
                                     20 * SK_Scalar1, 100 * SK_Scalar1,
                                      0 * SK_Scalar1,   0 * SK_Scalar1);
 
+        // triangle where one edge is a degenerate quad
+        fPaths.push_back().moveTo(SkFloatToScalar(8.59375f), 45 * SK_Scalar1);
+        fPaths.back().quadTo(SkFloatToScalar(16.9921875f),   45 * SK_Scalar1,
+                             SkFloatToScalar(31.25f),        45 * SK_Scalar1);
+        fPaths.back().lineTo(100 * SK_Scalar1,              100 * SK_Scalar1);
+        fPaths.back().lineTo(SkFloatToScalar(8.59375f),      45 * SK_Scalar1);
+
         // point degenerate
         fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
         fPaths.back().lineTo(50 * SK_Scalar1, 50 * SK_Scalar1);
@@ -108,6 +115,7 @@ protected:
         fPaths.back().cubicTo(50 * SK_Scalar1, 50 * SK_Scalar1,
                               50 * SK_Scalar1, 50 * SK_Scalar1,
                               50 * SK_Scalar1, 50 * SK_Scalar1);
+
         // moveTo only paths
         fPaths.push_back().moveTo(0, 0);
         fPaths.back().moveTo(0, 0);
