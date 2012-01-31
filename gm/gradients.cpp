@@ -222,27 +222,32 @@ public:
 
 protected:
     SkString onShortName() { return SkString("radial_gradient"); }
-    virtual SkISize onISize() { return make_isize(1280, 1024); }
+    virtual SkISize onISize() { return make_isize(1280, 1280); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
     virtual void onDraw(SkCanvas* canvas) {
+        const SkISize dim = this->getISize();
+
         this->drawBG(canvas);
  
         SkPaint paint;
         paint.setDither(true);
         SkPoint center;
-        center.set(SkIntToScalar(640), SkIntToScalar(512));
-        SkScalar radius = SkIntToScalar(640);
-        SkColor colors [3] = { 0x7f7f7f7f, 0x7f7f7f7f, 0xb2000000 };
-        SkScalar pos [3] = { SkFloatToScalar(0.0),
+        center.set(SkIntToScalar(dim.width())/2, SkIntToScalar(dim.height())/2);
+        SkScalar radius = SkIntToScalar(dim.width())/2;
+        const SkColor colors[] = { 0x7f7f7f7f, 0x7f7f7f7f, 0xb2000000 };
+        const SkScalar pos[] = { SkFloatToScalar(0.0),
                              SkFloatToScalar(0.35),
                              SkFloatToScalar(1.0) };
         SkShader* shader =
             SkGradientShader::CreateRadial(center, radius, colors,
-                                           pos, 3, SkShader::kClamp_TileMode);
+                                           pos, SK_ARRAY_COUNT(pos),
+                                           SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();
-        SkRect r = { 0, 0, SkIntToScalar(1280), SkIntToScalar(1024) };
+        SkRect r = {
+            0, 0, SkIntToScalar(dim.width()), SkIntToScalar(dim.height())
+        };
         canvas->drawRect(r, paint);
     }
 private:
