@@ -171,10 +171,9 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
         return false;
     }
     SkAutoTCallVProc<CGImage, CGImageRelease> agimage(image);
-    
-	CGImageDestinationAddImage(dst, image, NULL);
-	CGImageDestinationFinalize(dst);
-    return true;
+
+    CGImageDestinationAddImage(dst, image, NULL);
+    return CGImageDestinationFinalize(dst);
 }
 
 SkImageEncoder* SkImageEncoder::Create(Type t) {
