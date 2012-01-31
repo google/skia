@@ -260,6 +260,13 @@ void GrGpu::writeTexturePixels(GrTexture* texture,
                                config, buffer, rowBytes);
 }
 
+void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
+    GrAssert(target);
+    this->handleDirtyContext();
+    this->onResolveRenderTarget(target);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 static const int MAX_QUADS = 1 << 12; // max possible: (1 << 14) - 1;

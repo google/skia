@@ -562,6 +562,20 @@ public:
      * @param dst           the render target to copy to.
      */
     void copyTexture(GrTexture* src, GrRenderTarget* dst);
+
+    /**
+     * Resolves a render target that has MSAA. The intermediate MSAA buffer is
+     * downsampled to the associated GrTexture (accessible via
+     * GrRenderTarget::asTexture()). Any pending draws to the render target will
+     * be executed before the resolve.
+     *
+     * This is only necessary when a client wants to access the object directly
+     * using the underlying graphics API. GrContext will detect when it must
+     * perform a resolve to a GrTexture used as the source of a draw or before
+     * reading pixels back from a GrTexture or GrRenderTarget.
+     */
+    void resolveRenderTarget(GrRenderTarget* target);
+
     /**
      * Applies a 1D convolution kernel in the X direction to a rectangle of
      * pixels from a given texture.

@@ -41,6 +41,7 @@ public:
                                     GrPixelConfig config,
                                     size_t rowBytes) const SK_OVERRIDE;
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
+
 protected:
     GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
 
@@ -193,6 +194,9 @@ protected:
                                       GrPixelConfig config, const void* buffer,
                                       size_t rowBytes) SK_OVERRIDE;
 
+    virtual void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
+
+
     virtual void onGpuDrawIndexed(GrPrimitiveType type,
                                   uint32_t startVertex,
                                   uint32_t startIndex,
@@ -275,8 +279,6 @@ private:
     void flushRenderTarget(const GrIRect* bound);
     void flushStencil();
     void flushAAState(GrPrimitiveType type);
-
-    void resolveRenderTarget(GrGLRenderTarget* texture);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,
