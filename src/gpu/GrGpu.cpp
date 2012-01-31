@@ -343,20 +343,15 @@ const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const GrStencilSettings* GrGpu::GetClipStencilSettings(void) {
-    // stencil settings to use when clip is in stencil
-    // NOTE: This is thread-safe on Windows because the implementation of
-    // GR_STATIC_CONST_SAME_STENCIL simply updates a pointer to an already
-    // constructed constant structure.
-    GR_STATIC_CONST_SAME_STENCIL(sClipStencilSettings,
-        kKeep_StencilOp,
-        kKeep_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0x0000,
-        0x0000,
-        0x0000);
-    return &sClipStencilSettings;
-}
+// stencil settings to use when clip is in stencil
+GR_STATIC_CONST_SAME_STENCIL(gClipStencilSettings,
+    kKeep_StencilOp,
+    kKeep_StencilOp,
+    kAlwaysIfInClip_StencilFunc,
+    0x0000,
+    0x0000,
+    0x0000);
+const GrStencilSettings& GrGpu::gClipStencilSettings = ::gClipStencilSettings;
 
 // mapping of clip-respecting stencil funcs to normal stencil funcs
 // mapping depends on whether stencil-clipping is in effect.

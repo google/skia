@@ -355,7 +355,7 @@ protected:
 
     // stencil settings to clip drawing when stencil clipping is in effect
     // and the client isn't using the stencil test.
-    static const GrStencilSettings* GetClipStencilSettings(void);
+    static const GrStencilSettings& gClipStencilSettings;
 
     GrGpuStats fStats;
 
