@@ -590,7 +590,7 @@ static void usage(const char * argv0) {
     SkDebugf(
         "%s [-w writePath] [-r readPath] [-d diffPath] [--noreplay]\n"
         "    [--serialize] [--forceBWtext] [--nopdf] [--nodeferred]\n"
-        "    [--match substring]"
+        "    [--match substring] [--notexturecache]"
 #if SK_MESA
         " [--mesagl]"
 #endif
@@ -610,6 +610,7 @@ static void usage(const char * argv0) {
 #if SK_MESA
     SkDebugf("    --mesagl will run using the osmesa sw gl rasterizer.\n");
 #endif
+    SkDebugf("    --notexturecache: disable the gpu texture cache.\n");
 }
 
 static const ConfigData gRec[] = {
@@ -658,13 +659,14 @@ int main(int argc, char * const argv[]) {
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
 
     SkTDArray<const char*> fMatches;
-    
+
     bool doPDF = true;
     bool doReplay = true;
     bool doSerialize = false;
     bool useMesa = false;
     bool doDeferred = true;
-    
+    bool disableTextureCache = false;
+
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -703,6 +705,8 @@ int main(int argc, char * const argv[]) {
         } else if (strcmp(*argv, "--mesagl") == 0) {
             useMesa = true;
 #endif
+        } else if (strcmp(*argv, "--notexturecache") == 0) {
+          disableTextureCache = true;
         } else {
           usage(commandName);
           return -1;
@@ -759,6 +763,10 @@ int main(int argc, char * const argv[]) {
     int testsFailed = 0;
     int testsMissingReferenceImages = 0;
 
+    if (disableTextureCache) {
+        skiagm::GetGr()->setTextureCacheLimits(0, 0);
+    }
+
     iter.reset();
     while ((gm = iter.next()) != NULL) {
         const char* shortName = gm->shortName();
@@ -788,7 +796,7 @@ int main(int argc, char * const argv[]) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
             // Skip any tests that we don't even need to try.
             uint32_t gmFlags = gm->getFlags();
-            if ((kPDF_Backend == gRec[i].fBackend) && 
+            if ((kPDF_Backend == gRec[i].fBackend) &&
                 (!doPDF || (gmFlags & GM::kSkipPDF_Flag)))
             {
                 continue;
@@ -813,7 +821,7 @@ int main(int argc, char * const argv[]) {
             }
 
             if (doDeferred && !testErrors &&
-                (kGPU_Backend == gRec[i].fBackend || 
+                (kGPU_Backend == gRec[i].fBackend ||
                 kRaster_Backend == gRec[i].fBackend)) {
                 testErrors |= test_deferred_drawing(gm, gRec[i],
                                     forwardRenderedBitmap,
