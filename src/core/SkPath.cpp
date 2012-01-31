@@ -2023,7 +2023,9 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
             if (pts[(index + 1) % n].fY == pts[index].fY) {
                 int maxIndex;
                 int minIndex = find_min_max_x_at_y(pts, index, n, &maxIndex);
-                // minIndex might == maxIndex, but that should be fine.
+                if (minIndex == maxIndex) {
+                    goto TRY_CROSSPROD;
+                }
                 SkASSERT(pts[minIndex].fY == pts[index].fY);
                 SkASSERT(pts[maxIndex].fY == pts[index].fY);
                 SkASSERT(pts[minIndex].fX <= pts[maxIndex].fX);
@@ -2031,6 +2033,7 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
                 // SkScalar, since we just want - or + to signal the direction.
                 cross = minIndex - maxIndex;
             } else {
+                TRY_CROSSPROD:
                 // Find a next and prev index to use for the cross-product test,
                 // but we try to find pts that form non-zero vectors from pts[index]
                 //
