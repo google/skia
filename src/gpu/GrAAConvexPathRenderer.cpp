@@ -55,40 +55,6 @@ struct Segment {
 
 typedef SkTArray<Segment, true> SegmentArray;
 
-bool is_path_degenerate(const GrPath& path) {
-    int n = path.countPoints();
-    if (n < 3) {
-        return true;
-    }
-    // compute a line from the first two points that are not equal, look for
-    // a third pt that is off the line.
-    static const SkScalar TOL = (SK_Scalar1 / 16);
-    bool foundLine = false;
-    GrPoint firstPoint = path.getPoint(0);
-    GrVec lineV;
-    SkScalar lineC;
-    int i = 1;
-
-    do {
-        GrPoint pt = path.getPoint(i);
-        if (!foundLine) {
-            if (pt != firstPoint) {
-                lineV = pt - firstPoint;
-                lineV.normalize();
-                lineV.setOrthog(lineV);
-                lineC = lineV.dot(firstPoint);
-                foundLine = true;
-            }
-        } else {
-            if (SkScalarAbs(lineV.dot(pt) - lineC) > TOL) {
-                return false;
-            }
-        }
-        ++i;
-    } while (i < n);
-    return true;
-}
-
 void center_of_mass(const SegmentArray& segments, SkPoint* c) {
     GrScalar area = 0;
     SkPoint center;
@@ -162,6 +128,49 @@ void compute_vectors(SegmentArray* segments,
     }
 }
 
+struct DegenerateTestData {
+    DegenerateTestData() { fStage = kInitial; }
+    bool isDegenerate() const { return kNonDegenerate != fStage; }
+    enum {
+        kInitial,
+        kPoint,
+        kLine,
+        kNonDegenerate
+    }           fStage;
+    GrPoint     fFirstPoint;
+    GrVec       fLineNormal;
+    GrScalar    fLineC;
+};
+
+void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
+    static const SkScalar TOL = (SK_Scalar1 / 16);
+    static const SkScalar TOL_SQD = SkScalarMul(TOL, TOL);
+
+    switch (data->fStage) {
+        case DegenerateTestData::kInitial:
+            data->fFirstPoint = pt;
+            data->fStage = DegenerateTestData::kPoint;
+            break;
+        case DegenerateTestData::kPoint:
+            if (pt.distanceToSqd(data->fFirstPoint) > TOL_SQD) {
+                data->fLineNormal = pt - data->fFirstPoint;
+                data->fLineNormal.normalize();
+                data->fLineNormal.setOrthog(data->fLineNormal);
+                data->fLineC = -data->fLineNormal.dot(data->fFirstPoint);
+                data->fStage = DegenerateTestData::kLine;
+            }
+            break;
+        case DegenerateTestData::kLine:
+            if (SkScalarAbs(data->fLineNormal.dot(pt) + data->fLineC) > TOL) {
+                data->fStage = DegenerateTestData::kNonDegenerate;
+            }
+        case DegenerateTestData::kNonDegenerate:
+            break;
+        default:
+            GrCrash("Unexpected degenerate test stage.");
+    }
+}
+
 bool get_segments(const GrPath& path,
                  SegmentArray* segments,
                  SkPoint* fanPt,
@@ -175,26 +184,34 @@ bool get_segments(const GrPath& path,
     // thus should be very light. This is particularly egregious for degenerate
     // line paths. We detect paths that are very close to a line (zero area) and
     // draw nothing.
-    if (is_path_degenerate(path)) {
-        return false;
-    }
+    DegenerateTestData degenerateData;
+
     for (;;) {
         GrPoint pts[4];
         GrPathCmd cmd = (GrPathCmd)iter.next(pts);
         switch (cmd) {
+            case kMove_PathCmd:
+                update_degenerate_test(&degenerateData, pts[0]);
+                break;
             case kLine_PathCmd: {
+                update_degenerate_test(&degenerateData, pts[1]);
                 segments->push_back();
                 segments->back().fType = Segment::kLine;
                 segments->back().fPts[0] = pts[1];
                 break;
             }
             case kQuadratic_PathCmd:
+                update_degenerate_test(&degenerateData, pts[1]);
+                update_degenerate_test(&degenerateData, pts[2]);
                 segments->push_back();
                 segments->back().fType = Segment::kQuad;
                 segments->back().fPts[0] = pts[1];
                 segments->back().fPts[1] = pts[2];
                 break;
             case kCubic_PathCmd: {
+                update_degenerate_test(&degenerateData, pts[1]);
+                update_degenerate_test(&degenerateData, pts[2]);
+                update_degenerate_test(&degenerateData, pts[3]);
                 SkSTArray<15, SkPoint, true> quads;
                 GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, &quads);
                 int count = quads.count();
@@ -207,8 +224,12 @@ bool get_segments(const GrPath& path,
                 break;
             };
             case kEnd_PathCmd:
-                compute_vectors(segments, fanPt, vCount, iCount);
-                return true;
+                if (degenerateData.isDegenerate()) {
+                    return false;
+                } else {
+                    compute_vectors(segments, fanPt, vCount, iCount);
+                    return true;
+                }
             default:
                 break;
         }
