@@ -79,7 +79,7 @@ protected:
         fPaths.push_back().lineTo(100 * SK_Scalar1, SK_Scalar1);
         fPaths.back().lineTo(98 * SK_Scalar1, 100 * SK_Scalar1);
         fPaths.back().lineTo(3 * SK_Scalar1, 96 * SK_Scalar1);
-        
+
         /*
         It turns out arcTos are not automatically marked as convex and they
         may in fact be ever so slightly concave.
@@ -108,6 +108,15 @@ protected:
         fPaths.back().cubicTo(50 * SK_Scalar1, 50 * SK_Scalar1,
                               50 * SK_Scalar1, 50 * SK_Scalar1,
                               50 * SK_Scalar1, 50 * SK_Scalar1);
+        // moveTo only paths
+        fPaths.push_back().moveTo(0, 0);
+        fPaths.back().moveTo(0, 0);
+        fPaths.back().moveTo(SK_Scalar1, SK_Scalar1);
+        fPaths.back().moveTo(SK_Scalar1, SK_Scalar1);
+        fPaths.back().moveTo(10 * SK_Scalar1, 10 * SK_Scalar1);
+
+        fPaths.push_back().moveTo(0, 0);
+        fPaths.back().moveTo(0, 0);
 
         // line degenerate
         fPaths.push_back().lineTo(100 * SK_Scalar1, 100 * SK_Scalar1);
