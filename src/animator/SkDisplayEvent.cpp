@@ -262,36 +262,35 @@ bool SkDisplayEvent::setProperty(int index, SkScriptValue& value) {
 #include "SkTextBox.h"
 #include "SkXMLWriter.h"
 
-void SkMetaData::setPtr(char const*, void* ) {}
+void SkMetaData::setPtr(char const*, void*, PtrProc ) {}
 void SkMetaData::setS32(char const*, int ) {}
 bool SkEventSink::doEvent(SkEvent const& ) { return false; }
 bool SkXMLParser::parse(SkStream& ) { return false; }
 SkXMLParserError::SkXMLParserError( ) {}
-void SkEvent::setType(char const*, unsigned long ) {}
-bool SkEvent::PostTime(SkEvent*, unsigned int, unsigned int ) { return false; }
-SkEvent::SkEvent(char const* ) {}
-SkEvent::SkEvent(SkEvent const& ) {}
+void SkEvent::setType(char const*, size_t ) {}
+void SkEvent::postTime(SkMSec) {}
+SkEvent::SkEvent(char const*, SkEventSinkID) {}
+SkEvent::SkEvent(SkEvent const&) {}
 SkEvent::SkEvent( ) {}
 SkEvent::~SkEvent( ) {}
 bool SkEventSink::onQuery(SkEvent* ) { return false; }
 SkEventSink::SkEventSink( ) {}
 SkEventSink::~SkEventSink( ) {}
-bool SkXMLParser::parse(char const*, unsigned long ) { return false; }
+bool SkXMLParser::parse(char const*, size_t ) { return false; }
 bool SkXMLParser::parse(SkDOM const&, SkDOMNode const* ) { return false; }
-bool SkEvent::Post(SkEvent*, unsigned int, unsigned int ) { return false; }
-void SkParse::UnitTest( ) {}
-const char* SkMetaData::findString(char const*) const {return 0;}
-bool SkMetaData::findPtr(char const*, void**) const {return false;}
-bool SkMetaData::findS32(char const*, int*) const {return false;}
-bool SkEvent::isType(char const*, unsigned long) const { return false; }
+//void SkParse::UnitTest( ) {}
+const char* SkMetaData::findString(char const* ) const {return 0;}
+bool SkMetaData::findPtr(char const*, void**, PtrProc* ) const {return false;}
+bool SkMetaData::findS32(char const*, int* ) const {return false;}
+bool SkEvent::isType(char const*, size_t ) const { return false; }
 void SkMetaData::setString(char const*, char const* ) {}
-const char* SkParse::FindNamedColor(char const*, unsigned long, unsigned int* ) {return false; }
+const char* SkParse::FindNamedColor(char const*, size_t, SkColor* ) {return false; }
 const char* SkMetaData::Iter::next(SkMetaData::Type*, int* ) { return false; }
 SkMetaData::Iter::Iter(SkMetaData const& ) {}
-bool SkMetaData::findScalar(char const*, int*) const {return false;}
+bool SkMetaData::findScalar(char const*, SkScalar* ) const {return false;}
 void SkMetaData::reset( ) {}
 void SkEvent::setType(SkString const& ) {}
-bool SkMetaData::findBool(char const*, bool*) const {return false;}
+bool SkMetaData::findBool(char const*, bool* ) const {return false;}
 void SkEvent::getType(SkString*) const {}
 bool SkXMLParser::endElement(char const* ) { return false; }
 bool SkXMLParser::addAttribute(char const*, char const* ) { return false;}
@@ -302,22 +301,22 @@ SkXMLParser::SkXMLParser(SkXMLParserError* ) {}
 SkXMLParser::~SkXMLParser( ) {}
 SkXMLParserError::~SkXMLParserError( ) {}
 void SkXMLParserError::getErrorString(SkString*) const {}
-void SkTextBox::setSpacing(int, int ) {}
+void SkTextBox::setSpacing(SkScalar, SkScalar ) {}
 void SkTextBox::setSpacingAlign(SkTextBox::SpacingAlign ) {}
-void SkTextBox::draw(SkCanvas*, char const*, unsigned long, SkPaint const& ) {}
+void SkTextBox::draw(SkCanvas*, char const*, size_t, SkPaint const& ) {}
 void SkTextBox::setBox(SkRect const& ) {}
 void SkTextBox::setMode(SkTextBox::Mode ) {}
 SkTextBox::SkTextBox( ) {}
-void SkMetaData::setScalar(char const*, int ) {}
-const char* SkParse::FindScalar(char const*, int* ) {return 0; }
-const char* SkParse::FindScalars(char const*, int*, int ) {return 0; }
+void SkMetaData::setScalar(char const*, SkScalar ) {}
+const char* SkParse::FindScalar(char const*, SkScalar* ) {return 0; }
+const char* SkParse::FindScalars(char const*, SkScalar*, int ) {return 0; }
 const char* SkParse::FindHex(char const*, unsigned int* ) {return 0; }
 const char* SkParse::FindS32(char const*, int* ) {return 0; }
 void SkXMLWriter::addAttribute(char const*, char const* ) {}
 void SkXMLWriter::startElement(char const* ) {}
 void SkXMLWriter::doEnd(SkXMLWriter::Elem* ) {}
 SkXMLWriter::Elem* SkXMLWriter::getEnd( ) { return 0; }
-bool SkXMLWriter::doStart(char const*, unsigned long ) { return false; }
+bool SkXMLWriter::doStart(char const*, size_t ) { return false; }
 SkXMLWriter::SkXMLWriter(bool ) {}
 SkXMLWriter::~SkXMLWriter( ) {}
 SkMetaData::SkMetaData() {}
