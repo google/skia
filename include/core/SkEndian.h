@@ -31,8 +31,11 @@
 */
 static inline uint16_t SkEndianSwap16(U16CPU value) {
     SkASSERT(value == (uint16_t)value);
-    return (uint16_t)((value >> 8) | (value << 8));
+    return static_cast<uint16_t>((value >> 8) | (value << 8));
 }
+template<uint16_t N> struct SkTEndianSwap16 {
+    static const uint16_t value = static_cast<uint16_t>((N >> 8) | ((N & 0xFF) << 8));
+};
 
 /** Vector version of SkEndianSwap16(), which swaps the
     low two bytes of each value in the array.
@@ -55,6 +58,12 @@ static inline uint32_t SkEndianSwap32(uint32_t value) {
             ((value & 0xFF0000) >> 8) |
             (value >> 24);
 }
+template<uint32_t N> struct SkTEndianSwap32 {
+    static const uint32_t value = ((N & 0xFF) << 24) |
+                                  ((N & 0xFF00) << 8) |
+                                  ((N & 0xFF0000) >> 8) |
+                                  (N >> 24);
+};
 
 /** Vector version of SkEndianSwap16(), which swaps the
     bytes of each value in the array.
@@ -73,11 +82,21 @@ static inline void SkEndianSwap32s(uint32_t array[], int count) {
     #define SkEndian_SwapBE32(n)    SkEndianSwap32(n)
     #define SkEndian_SwapLE16(n)    (n)
     #define SkEndian_SwapLE32(n)    (n)
+
+    #define SkTEndian_SwapBE16(n)    SkTEndianSwap16<n>::value
+    #define SkTEndian_SwapBE32(n)    SkTEndianSwap32<n>::value
+    #define SkTEndian_SwapLE16(n)    (n)
+    #define SkTEndian_SwapLE32(n)    (n)
 #else   // SK_CPU_BENDIAN
     #define SkEndian_SwapBE16(n)    (n)
     #define SkEndian_SwapBE32(n)    (n)
     #define SkEndian_SwapLE16(n)    SkEndianSwap16(n)
     #define SkEndian_SwapLE32(n)    SkEndianSwap32(n)
+
+    #define SkTEndian_SwapBE16(n)    (n)
+    #define SkTEndian_SwapBE32(n)    (n)
+    #define SkTEndian_SwapLE16(n)    SkTEndianSwap16<n>::value
+    #define SkTEndian_SwapLE32(n)    SkTEndianSwap32<n>::value
 #endif
 
 // When a bytestream is embedded in a 32-bit word, how far we need to
@@ -92,6 +111,41 @@ static inline void SkEndianSwap32s(uint32_t array[], int count) {
     #define SkEndian_Byte1Shift 16
     #define SkEndian_Byte2Shift 8
     #define SkEndian_Byte3Shift 0
+#endif
+
+
+#if defined(SK_UINT8_BITFIELD_LENDIAN) && defined(SK_UINT8_BITFIELD_BENDIAN)
+    #error "can't have both bitfield LENDIAN and BENDIAN defined"
+#endif
+
+#if !defined(SK_UINT8_BITFIELD_LENDIAN) && !defined(SK_UINT8_BITFIELD_BENDIAN)
+    #ifdef SK_CPU_LENDIAN
+        #define SK_UINT8_BITFIELD_LENDIAN
+    #else
+        #define SK_UINT8_BITFIELD_BENDIAN
+    #endif
+#endif
+
+#ifdef SK_UINT8_BITFIELD_LENDIAN
+    #define SK_UINT8_BITFIELD(f0, f1, f2, f3, f4, f5, f6, f7) \
+        SK_OT_BYTE f0 : 1; \
+        SK_OT_BYTE f1 : 1; \
+        SK_OT_BYTE f2 : 1; \
+        SK_OT_BYTE f3 : 1; \
+        SK_OT_BYTE f4 : 1; \
+        SK_OT_BYTE f5 : 1; \
+        SK_OT_BYTE f6 : 1; \
+        SK_OT_BYTE f7 : 1;
+#else
+    #define SK_UINT8_BITFIELD(f0, f1, f2, f3, f4, f5, f6, f7) \
+        SK_OT_BYTE f7 : 1; \
+        SK_OT_BYTE f6 : 1; \
+        SK_OT_BYTE f5 : 1; \
+        SK_OT_BYTE f4 : 1; \
+        SK_OT_BYTE f3 : 1; \
+        SK_OT_BYTE f2 : 1; \
+        SK_OT_BYTE f1 : 1; \
+        SK_OT_BYTE f0 : 1;
 #endif
 
 #endif
