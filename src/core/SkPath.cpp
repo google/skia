@@ -407,6 +407,11 @@ void SkPath::setConvexity(Convexity c) {
         fConvexity = kUnknown_Convexity; \
     } while (0)
 
+#define DIRTY_AFTER_EDIT_NO_CONVEXITY_CHANGE    \
+    do {                                        \
+        fBoundsIsDirty = true;                  \
+    } while (0)
+
 void SkPath::incReserve(U16CPU inc) {
     SkDEBUGCODE(this->validate();)
 
@@ -430,7 +435,7 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     pt->set(x, y);
 
     GEN_ID_INC;
-    DIRTY_AFTER_EDIT;
+    DIRTY_AFTER_EDIT_NO_CONVEXITY_CHANGE;
 }
 
 void SkPath::rMoveTo(SkScalar x, SkScalar y) {
