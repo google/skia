@@ -50,6 +50,7 @@ struct DiffRecord {
         , fBaseBitmap (new SkBitmap ())
         , fComparisonBitmap (new SkBitmap ())
         , fDifferenceBitmap (new SkBitmap ())
+        , fWhiteBitmap (new SkBitmap ())
         , fBaseHeight (0)
         , fBaseWidth (0)
         , fFractionDifference (0)
@@ -73,6 +74,7 @@ struct DiffRecord {
     SkBitmap* fBaseBitmap;
     SkBitmap* fComparisonBitmap;
     SkBitmap* fDifferenceBitmap;
+    SkBitmap* fWhiteBitmap;
 
     int fBaseHeight;
     int fBaseWidth;
@@ -98,6 +100,9 @@ struct DiffRecord {
 
 #define MAX2(a,b) (((b) < (a)) ? (a) : (b))
 #define MAX3(a,b,c) (((b) < (a)) ? MAX2((a), (c)) : MAX2((b), (c)))
+
+const SkPMColor PMCOLOR_WHITE = SkPreMultiplyColor(SK_ColorWHITE);
+const SkPMColor PMCOLOR_BLACK = SkPreMultiplyColor(SK_ColorBLACK);
 
 struct DiffSummary {
     DiffSummary ()
@@ -291,13 +296,6 @@ static inline SkPMColor compute_diff_pmcolor(SkPMColor c0, SkPMColor c1) {
     return SkPackARGB32(0xFF, SkAbs32(dr), SkAbs32(dg), SkAbs32(db));
 }
 
-/// Returns white on every pixel so that differences jump out at you;
-/// makes it easy to spot areas of difference that are in the least-significant
-/// bits.
-static inline SkPMColor compute_diff_white(SkPMColor c0, SkPMColor c1) {
-    return SkPackARGB32(0xFF, 0xFF, 0xFF, 0xFF);
-}
-
 static inline bool colors_match_thresholded(SkPMColor c0, SkPMColor c1,
                                             const int threshold) {
     int da = SkGetPackedA32(c0) - SkGetPackedA32(c1);
@@ -315,7 +313,8 @@ static inline bool colors_match_thresholded(SkPMColor c0, SkPMColor c1,
 static void compute_diff(DiffRecord* dr,
                          DiffMetricProc diffFunction,
                          const int colorThreshold) {
-    SkAutoLockPixels alp(*dr->fDifferenceBitmap);
+    SkAutoLockPixels alpDiff(*dr->fDifferenceBitmap);
+    SkAutoLockPixels alpWhite(*dr->fWhiteBitmap);
 
     const int w = dr->fComparisonBitmap->width();
     const int h = dr->fComparisonBitmap->height();
@@ -359,8 +358,10 @@ static void compute_diff(DiffRecord* dr,
             if (!colors_match_thresholded(c0, c1, colorThreshold)) {
                 mismatchedPixels++;
                 *dr->fDifferenceBitmap->getAddr32(x, y) = outputDifference;
+                *dr->fWhiteBitmap->getAddr32(x, y) = PMCOLOR_WHITE;
             } else {
                 *dr->fDifferenceBitmap->getAddr32(x, y) = 0;
+                *dr->fWhiteBitmap->getAddr32(x, y) = PMCOLOR_BLACK;
             }
         }
     }
@@ -372,15 +373,26 @@ static void compute_diff(DiffRecord* dr,
     dr->fAverageMismatchB = ((float) totalMismatchB) / pixelCount;
 }
 
-/// Given a image filename, returns the name of the file containing the
-/// associated difference image.
-static SkString filename_to_diff_filename (const SkString& filename) {
+static SkString filename_to_derived_filename (const SkString& filename,
+                                              const char *suffix) {
     SkString diffName (filename);
     const char* cstring = diffName.c_str();
     int dotOffset = strrchr(cstring, '.') - cstring;
     diffName.remove(dotOffset, diffName.size() - dotOffset);
-    diffName.append("-diff.png");
+    diffName.append(suffix);
     return diffName;
+}
+
+/// Given a image filename, returns the name of the file containing the
+/// associated difference image.
+static SkString filename_to_diff_filename (const SkString& filename) {
+    return filename_to_derived_filename(filename, "-diff.png");
+}
+
+/// Given a image filename, returns the name of the file containing the
+/// "white" difference image.
+static SkString filename_to_white_filename (const SkString& filename) {
+    return filename_to_derived_filename(filename, "-white.png");
 }
 
 /// Convert a chromium/WebKit LayoutTest "foo-expected.png" to "foo-actual.png"
@@ -406,6 +418,8 @@ static void release_bitmaps(DiffRecord* drp) {
     drp->fComparisonBitmap = NULL;
     delete drp->fDifferenceBitmap;
     drp->fDifferenceBitmap = NULL;
+    delete drp->fWhiteBitmap;
+    drp->fWhiteBitmap = NULL;
 }
 
 
@@ -418,11 +432,16 @@ static void create_and_write_diff_image(DiffRecord* drp,
     const int h = drp->fBaseHeight;
     drp->fDifferenceBitmap->setConfig(SkBitmap::kARGB_8888_Config, w, h);
     drp->fDifferenceBitmap->allocPixels();
+    drp->fWhiteBitmap->setConfig(SkBitmap::kARGB_8888_Config, w, h);
+    drp->fWhiteBitmap->allocPixels();
     compute_diff(drp, dmp, colorThreshold);
 
-    SkString outPath (outputDir);
-    outPath.append(filename_to_diff_filename(filename));
-    write_bitmap(outPath, drp->fDifferenceBitmap);
+    SkString differencePath (outputDir);
+    differencePath.append(filename_to_diff_filename(filename));
+    write_bitmap(differencePath, drp->fDifferenceBitmap);
+    SkString whitePath (outputDir);
+    whitePath.append(filename_to_white_filename(filename));
+    write_bitmap(whitePath, drp->fWhiteBitmap);
     release_bitmaps(drp);
 }
 
@@ -535,12 +554,16 @@ static int compute_image_height (int height, int width) {
     return retval;
 }
 
-static void print_page_header (SkFILEWStream* stream,
-                               const int matchCount,
-                               const int colorThreshold,
-                               const RecordArray& differences) {
+static void print_table_header (SkFILEWStream* stream,
+                                const int matchCount,
+                                const int colorThreshold,
+                                const RecordArray& differences,
+                                const SkString &baseDir,
+                                const SkString &comparisonDir) {
     SkTime::DateTime dt;
     SkTime::GetDateTime(&dt);
+    stream->writeText("<table>\n");
+    stream->writeText("<tr><th>");
     stream->writeText("SkDiff run at ");
     stream->writeDecAsText(dt.fHour);
     stream->writeText(":");
@@ -566,7 +589,16 @@ static void print_page_header (SkFILEWStream* stream,
         stream->writeText(" color units per component");
     }
     stream->writeText(".<br>");
-
+    stream->writeText("</th>\n<th>");
+    stream->writeText("every different pixel shown in white");
+    stream->writeText("</th>\n<th>");
+    stream->writeText("color difference at each pixel");
+    stream->writeText("</th>\n<th>");
+    stream->writeText(baseDir.c_str());
+    stream->writeText("</th>\n<th>");
+    stream->writeText(comparisonDir.c_str());
+    stream->writeText("</th>\n");
+    stream->writeText("</tr>\n");
 }
 
 static void print_pixel_count (SkFILEWStream* stream,
@@ -652,9 +684,8 @@ static void print_diff_page (const int matchCount,
     }
 
     outputStream.writeText("<html>\n<body>\n");
-    print_page_header(&outputStream, matchCount, colorThreshold, differences);
-
-    outputStream.writeText("<table>\n");
+    print_table_header(&outputStream, matchCount, colorThreshold, differences,
+                       baseDir, comparisonDir);
     int i;
     for (i = 0; i < differences.count(); i++) {
         DiffRecord* diff = differences[i];
@@ -670,9 +701,11 @@ static void print_diff_page (const int matchCount,
         int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
         outputStream.writeText("<tr>\n");
         print_label_cell(&outputStream, *diff);
-        print_image_cell(&outputStream, diff->fBasePath, height);
+        print_image_cell(&outputStream,
+                         filename_to_white_filename(diff->fFilename), height);
         print_image_cell(&outputStream,
                          filename_to_diff_filename(diff->fFilename), height);
+        print_image_cell(&outputStream, diff->fBasePath, height);
         print_image_cell(&outputStream, diff->fComparisonPath, height);
         outputStream.writeText("</tr>\n");
         outputStream.flush();
@@ -688,7 +721,6 @@ static void usage (char * argv0) {
     SkDebugf(
 "       %s --chromium --release|--debug baseDir outputDir\n", argv0);
     SkDebugf(
-"    --white: force all difference pixels to white\n"
 "    --threshold n: only report differences > n (in one channel) [default 0]\n"
 "    --sortbymismatch: sort by average color channel mismatch\n");
     SkDebugf(
@@ -733,10 +765,6 @@ int main (int argc, char ** argv) {
         if (!strcmp(argv[i], "--help")) {
             usage(argv[0]);
             return 0;
-        }
-        if (!strcmp(argv[i], "--white")) {
-            diffProc = compute_diff_white;
-            continue;
         }
         if (!strcmp(argv[i], "--sortbymismatch")) {
             sortProc = (SkQSortCompareProc) compare_diff_mean_mismatches;
