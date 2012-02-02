@@ -9,8 +9,9 @@ cd .../trunk
 svn update
 # make sure there are no files awaiting svn commit
 python tools/download-baselines.py gm/base-macmini-lion-fixed  # or other gm/ subdir
+# validate that the new images look right (maybe using compare-baselines.py)
 # upload CL for review
-# validate that the new images look right
+# validate that the new images look right in the review tool
 # commit CL
 
 Launch with --help to see more options.
