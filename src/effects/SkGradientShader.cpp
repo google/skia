@@ -49,33 +49,31 @@ static SkPoint unflatten_point(SkReader32& buffer) {
     return retval;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-typedef SkFixed (*TileProc)(SkFixed);
+//  Clamp
 
 static SkFixed clamp_tileproc(SkFixed x) {
     return SkClampMax(x, 0xFFFF);
 }
 
+// Repeat
+
 static SkFixed repeat_tileproc(SkFixed x) {
     return x & 0xFFFF;
 }
 
+static inline int repeat_bits(int x, const int bits) {
+    return x & ((1 << bits) - 1);
+}
+
+static inline int repeat_8bits(int x) {
+    return x & 0xFF;
+}
+
+// Mirror
+
 static inline SkFixed mirror_tileproc(SkFixed x) {
     int s = x << 15 >> 31;
     return (x ^ s) & 0xFFFF;
-}
-
-static const TileProc gTileProcs[] = {
-    clamp_tileproc,
-    repeat_tileproc,
-    mirror_tileproc
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-static inline int repeat_bits(int x, const int bits) {
-    return x & ((1 << bits) - 1);
 }
 
 static inline int mirror_bits(int x, const int bits) {
@@ -87,10 +85,6 @@ static inline int mirror_bits(int x, const int bits) {
     int s = x << (31 - bits) >> 31;
     return (x ^ s) & ((1 << bits) - 1);
 #endif
-}
-
-static inline int repeat_8bits(int x) {
-    return x & 0xFF;
 }
 
 static inline int mirror_8bits(int x) {
@@ -105,6 +99,17 @@ static inline int mirror_8bits(int x) {
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+typedef SkFixed (*TileProc)(SkFixed);
+
+static const TileProc gTileProcs[] = {
+    clamp_tileproc,
+    repeat_tileproc,
+    mirror_tileproc
+};
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 class Gradient_Shader : public SkShader {
