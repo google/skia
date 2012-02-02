@@ -86,6 +86,15 @@
 //#define SK_CPU_BENDIAN
 //#define SK_CPU_LENDIAN
 
+/*  Most compilers use the same bit endianness for bit flags in a byte as the
+    system byte endianness, and this is the default. If for some reason this
+    needs to be overridden, specify which of the mutually exclusive flags to
+    use. For example, some atom processors in certain configurations have big
+    endian byte order but little endian bit orders.
+*/
+//#define SK_UINT8_BITFIELD_BENDIAN
+//#define SK_UINT8_BITFIELD_LENDIAN
+
 
 /*  Some compilers don't support long long for 64bit integers. If yours does
     not, define this to the appropriate type.
