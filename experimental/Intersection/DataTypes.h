@@ -80,11 +80,20 @@ struct _Rect {
         }
     }
     
+    void set(const _Point& pt) {
+        left = right = pt.x;
+        top = bottom = pt.y;
+    }
+    
     void setBounds(const _Line& line) {
-        left = right = line[0].x;
-        top = bottom = line[0].y;
+        set(line[0]);
         add(line[1]);
     }
+    
+    void setBounds(const Cubic& );
+    void setBounds(const Quadratic& );
+    void setRawBounds(const Cubic& );
+    void setRawBounds(const Quadratic& );
 };
 
 struct CubicPair {
@@ -110,5 +119,8 @@ bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath);
 double t_at(const _Line&, const _Point& );
 void x_at(const _Point& p1, const _Point& p2, double minY, double maxY,
         int flags, double& tMin, double& tMax);
+void xy_at_t(const Cubic& , double t, double& x, double& y);
+void xy_at_t(const _Line& , double t, double& x, double& y);
+void xy_at_t(const Quadratic& , double t, double& x, double& y);
 
 #endif // __DataTypes_h__

@@ -1,7 +1,10 @@
 // included by CubicParameterization.cpp
 // accesses internal functions to validate parameterized coefficients
 
+#include "Parameterization_Test.h"
+
 static void parameter_coeffs(const Cubic& cubic, double coeffs[coeff_count]) {
+#if USE_SYVESTER
     double ax, bx, cx, dx;
     if (try_alt)
         alt_set_abcd(&cubic[0].x, ax, bx, cx, dx);
@@ -15,6 +18,17 @@ static void parameter_coeffs(const Cubic& cubic, double coeffs[coeff_count]) {
     calc_ABCD(ax, ay, coeffs);
     if (!try_alt) calc_bc(dx, bx, cx);
     if (!try_alt) calc_bc(dy, by, cy);
+#else
+    double ax = cubic[0].x;
+    double bx = cubic[1].x;
+    double cx = cubic[2].x;
+    double dx = cubic[3].x;
+    double ay = cubic[0].y;
+    double by = cubic[1].y;
+    double cy = cubic[2].y;
+    double dy = cubic[3].y;
+    calc_ABCD(ax, bx, cx, dx, ay, by, cy, dy, coeffs);
+#endif
     for (int index = xx_coeff; index < coeff_count; ++index) {
         int procIndex = index - xx_coeff;
         coeffs[index] = (*calc_proc[procIndex])(ax, bx, cx, dx, ay, by, cy, dy);

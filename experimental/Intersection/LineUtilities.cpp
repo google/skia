@@ -1,14 +1,15 @@
+#include "CurveIntersection.h"
 #include "LineUtilities.h"
 
 bool implicitLine(const _Line& line, double& slope, double& axisIntercept) {
-    double lineDx = line[1].x - line[0].x;
-    double lineDy = line[1].y - line[0].y;
-    bool moreHorizontal = fabs(lineDx) > fabs(lineDy);
+    _Point delta;
+    tangent(line, delta);
+    bool moreHorizontal = fabs(delta.x) > fabs(delta.y);
     if (moreHorizontal) {
-        slope = lineDy / lineDx;
+        slope = delta.y / delta.x;
         axisIntercept = line[0].y - slope * line[0].x;
     } else {
-        slope = lineDx / lineDy;
+        slope = delta.x / delta.y;
         axisIntercept = line[0].x - slope * line[0].y;
     }
     return moreHorizontal;

@@ -1,4 +1,5 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
+#include "CubicUtilities.h"
 
 /* from http://tom.cs.byu.edu/~tom/papers/cvgip84.pdf 4.1
  *
@@ -55,10 +56,10 @@
  */
 
 enum {
-    xxx_coeff,
-    xxy_coeff,
-    xyy_coeff,
-    yyy_coeff,
+    xxx_coeff, // A
+    xxy_coeff, // B
+    xyy_coeff, // C
+    yyy_coeff, // D
     xx_coeff,
     xy_coeff,
     yy_coeff,
@@ -67,6 +68,9 @@ enum {
     c_coeff,
     coeff_count
 };
+
+#define USE_SYVESTER 0 // if 0, use control-point base parametric form
+#if USE_SYVESTER
 
 // FIXME: factoring version unwritten
 // static bool straight_forward = true;
@@ -90,7 +94,7 @@ static void calc_ABCD(double a, double e, double p[coeff_count]) {
  * Rather than edit the lines below, please edit the code there instead.
  */
 // start of generated code
-static double calc_E(double a, double b, double c, double d,
+static double calc_xx(double a, double b, double c, double d,
                      double e, double f, double g, double h) {
     return 
          -3 * d * e * e * e
@@ -102,7 +106,7 @@ static double calc_E(double a, double b, double c, double d,
         + 3 * a * e * e * h;
 }
 
-static double calc_F(double a, double b, double c, double d,
+static double calc_xy(double a, double b, double c, double d,
                      double e, double f, double g, double h) {
     return 
          -3 * b * c * e * e
@@ -115,7 +119,7 @@ static double calc_F(double a, double b, double c, double d,
         - 6 * a * a * e * h;
 }
 
-static double calc_G(double a, double b, double c, double d,
+static double calc_yy(double a, double b, double c, double d,
                      double e, double f, double g, double h) {
     return 
              -b * b * b * e
@@ -127,7 +131,7 @@ static double calc_G(double a, double b, double c, double d,
         + 3 * a * a * a * h;
 }
 
-static double calc_H(double a, double b, double c, double d,
+static double calc_x(double a, double b, double c, double d,
                      double e, double f, double g, double h) {
     return 
           3 * d * d * e * e * e
@@ -153,7 +157,7 @@ static double calc_H(double a, double b, double c, double d,
         + 3 * a * a * e * h * h;
 }
 
-static double calc_I(double a, double b, double c, double d,
+static double calc_y(double a, double b, double c, double d,
                      double e, double f, double g, double h) {
     return 
              -c * c * c * e * e
@@ -179,7 +183,7 @@ static double calc_I(double a, double b, double c, double d,
         - 3 * a * a * a * h * h;
 }
 
-static double calc_J(double a, double b, double c, double d,
+static double calc_c(double a, double b, double c, double d,
                      double e, double f, double g, double h) {
     return 
              -d * d * d * e * e * e
@@ -219,11 +223,129 @@ static double calc_J(double a, double b, double c, double d,
 }
 // end of generated code
 
+#else
+
+/* more Mathematica generated code. This takes a different tack, starting with
+   the control-point based parametric formulas.  The C code is unoptimized --
+   in this form, this is a proof of concept (since the other code didn't work)
+*/
+static double calc_c(double a, double b, double c, double d,
+                     double e, double f, double g, double h) {
+    return 
+d*d*d*e*e*e - 3*d*d*(3*c*e*e*f + 3*b*e*(-3*f*f + 2*e*g) + a*(9*f*f*f - 9*e*f*g + e*e*h)) - 
+   h*(27*c*c*c*e*e - 27*c*c*(3*b*e*f - 3*a*f*f + 2*a*e*g) + 
+      h*(-27*b*b*b*e + 27*a*b*b*f - 9*a*a*b*g + a*a*a*h) + 
+      9*c*(9*b*b*e*g + a*b*(-9*f*g + 3*e*h) + a*a*(3*g*g - 2*f*h))) + 
+   3*d*(9*c*c*e*e*g + 9*b*b*e*(3*g*g - 2*f*h) + 3*a*b*(-9*f*g*g + 6*f*f*h + e*g*h) + 
+      a*a*(9*g*g*g - 9*f*g*h + e*h*h) + 3*c*(3*b*e*(-3*f*g + e*h) + a*(9*f*f*g - 6*e*g*g - e*f*h)))
+    ;
+}
+
+// - Power(e - 3*f + 3*g - h,3)*Power(x,3) 
+static double calc_xxx(double e3f3gh) {
+    return -e3f3gh * e3f3gh * e3f3gh;
+}
+
+static double calc_y(double a, double b, double c, double d,
+                     double e, double f, double g, double h) {
+    return 
++ 3*(6*b*d*d*e*e - d*d*d*e*e + 18*b*b*d*e*f - 18*b*d*d*e*f - 
+      9*b*d*d*f*f - 54*b*b*d*e*g + 12*b*d*d*e*g - 27*b*b*d*g*g - 18*b*b*b*e*h + 18*b*b*d*e*h + 
+      18*b*b*d*f*h + a*a*a*h*h - 9*b*b*b*h*h + 9*c*c*c*e*(e + 2*h) + 
+      a*a*(-3*b*h*(2*g + h) + d*(-27*g*g + 9*g*h - h*(2*e + h) + 9*f*(g + h))) + 
+      a*(9*b*b*h*(2*f + h) - 3*b*d*(6*f*f - 6*f*(3*g - 2*h) + g*(-9*g + h) + e*(g + h)) + 
+         d*d*(e*e + 9*f*(3*f - g) + e*(-9*f - 9*g + 2*h))) - 
+      9*c*c*(d*e*(e + 2*g) + 3*b*(f*h + e*(f + h)) + a*(-3*f*f - 6*f*h + 2*(g*h + e*(g + h)))) + 
+      3*c*(d*d*e*(e + 2*f) + a*a*(3*g*g + 6*g*h - 2*h*(2*f + h)) + 9*b*b*(g*h + e*(g + h)) + 
+         a*d*(-9*f*f - 18*f*g + 6*g*g + f*h + e*(f + 12*g + h)) + 
+         b*(d*(-3*e*e + 9*f*g + e*(9*f + 9*g - 6*h)) + 3*a*(h*(2*e - 3*g + h) - 3*f*(g + h))))) // *y 
+    ;
+}
+
+static double calc_yy(double a, double b, double c, double d,
+                     double e, double f, double g, double h) {
+    return 
+- 3*(18*c*c*c*e - 18*c*c*d*e + 6*c*d*d*e - d*d*d*e + 3*c*d*d*f - 9*c*c*d*g + a*a*a*h + 9*c*c*c*h - 
+      9*b*b*b*(e + 2*h) - a*a*(d*(e - 9*f + 18*g - 7*h) + 3*c*(2*f - 6*g + h)) + 
+      a*(-9*c*c*(2*e - 6*f + 2*g - h) + d*d*(-7*e + 18*f - 9*g + h) + 3*c*d*(7*e - 17*f + 3*g + h)) + 
+      9*b*b*(3*c*(e + g + h) + a*(f + 2*h) - d*(e - 2*(f - 3*g + h))) - 
+      3*b*(-(d*d*(e - 6*f + 2*g)) - 3*c*d*(e + 3*f + 3*g - h) + 9*c*c*(e + f + h) + a*a*(g + 2*h) + 
+         a*(c*(-3*e + 9*f + 9*g + 3*h) + d*(e + 3*f - 17*g + 7*h)))) // *Power(y,2) 
+    ;
+}
+
+// + Power(a - 3*b + 3*c - d,3)*Power(y,3) 
+static double calc_yyy(double a3b3cd) {
+    return a3b3cd * a3b3cd * a3b3cd;
+}
+
+static double calc_xx(double a, double b, double c, double d,
+                     double e, double f, double g, double h) {
+    return 
+// + Power(x,2)*
+(-3*(-9*b*e*f*f + 9*a*f*f*f + 6*b*e*e*g - 9*a*e*f*g + 27*b*e*f*g - 27*a*f*f*g + 18*a*e*g*g - 54*b*e*g*g + 
+         27*a*f*g*g + 27*b*f*g*g - 18*a*g*g*g + a*e*e*h - 9*b*e*e*h + 3*a*e*f*h + 9*b*e*f*h + 9*a*f*f*h - 
+         18*b*f*f*h - 21*a*e*g*h + 51*b*e*g*h - 9*a*f*g*h - 27*b*f*g*h + 18*a*g*g*h + 7*a*e*h*h - 18*b*e*h*h - 3*a*f*h*h + 
+         18*b*f*h*h - 6*a*g*h*h - 3*b*g*h*h + a*h*h*h + 
+         3*c*(-9*f*f*(g - 2*h) + 3*g*g*h - f*h*(9*g + 2*h) + e*e*(f - 6*g + 6*h) + 
+            e*(9*f*g + 6*g*g - 17*f*h - 3*g*h + 3*h*h)) - 
+         d*(e*e*e + e*e*(-6*f - 3*g + 7*h) - 9*(2*f - g)*(f*f + g*g - f*(g + h)) + 
+            e*(18*f*f + 9*g*g + 3*g*h + h*h - 3*f*(3*g + 7*h)))) )
+    ;
+}
+
+// + Power(x,2)*(3*(a - 3*b + 3*c - d)*Power(e - 3*f + 3*g - h,2)*y)
+static double calc_xxy(double a3b3cd, double e3f3gh) {
+    return 3 * a3b3cd * e3f3gh * e3f3gh;
+}
+
+static double calc_x(double a, double b, double c, double d,
+                     double e, double f, double g, double h) {
+    return 
+// + x*
+(-3*(27*b*b*e*g*g - 27*a*b*f*g*g + 9*a*a*g*g*g - 18*b*b*e*f*h + 18*a*b*f*f*h + 3*a*b*e*g*h - 
+         27*b*b*e*g*h - 9*a*a*f*g*h + 27*a*b*f*g*h - 9*a*a*g*g*h + a*a*e*h*h - 9*a*b*e*h*h + 
+         27*b*b*e*h*h + 6*a*a*f*h*h - 18*a*b*f*h*h - 9*b*b*f*h*h + 3*a*a*g*h*h + 
+         6*a*b*g*h*h - a*a*h*h*h + 9*c*c*(e*e*(g - 3*h) - 3*f*f*h + e*(3*f + 2*g)*h) + 
+         d*d*(e*e*e - 9*f*f*f + 9*e*f*(f + g) - e*e*(3*f + 6*g + h)) + 
+         d*(-3*c*(-9*f*f*g + e*e*(2*f - 6*g - 3*h) + e*(9*f*g + 6*g*g + f*h)) + 
+            a*(-18*f*f*f - 18*e*g*g + 18*g*g*g - 2*e*e*h + 3*e*g*h + 2*e*h*h + 9*f*f*(3*g + 2*h) + 
+               3*f*(6*e*g - 9*g*g - e*h - 6*g*h)) - 3*b*(9*f*g*g + e*e*(4*g - 3*h) - 6*f*f*h - 
+               e*(6*f*f + g*(18*g + h) - 3*f*(3*g + 4*h)))) + 
+         3*c*(3*b*(e*e*h + 3*f*g*h - e*(3*f*g - 6*f*h + 6*g*h + h*h)) + 
+            a*(9*f*f*(g - 2*h) + f*h*(-e + 9*g + 4*h) - 3*(2*g*g*h + e*(2*g*g - 4*g*h + h*h))))) )
+    ;
+}
+            
+static double calc_xy(double a, double b, double c, double d,
+                     double e, double f, double g, double h) {
+    return 
+// + x*3*
+(-2*a*d*e*e - 7*d*d*e*e + 15*a*d*e*f + 21*d*d*e*f - 9*a*d*f*f - 18*d*d*f*f - 15*a*d*e*g - 
+         3*d*d*e*g - 9*a*a*f*g + 9*d*d*f*g + 18*a*a*g*g + 9*a*d*g*g + 2*a*a*e*h - 2*d*d*e*h + 
+         3*a*a*f*h + 15*a*d*f*h - 21*a*a*g*h - 15*a*d*g*h + 7*a*a*h*h + 2*a*d*h*h - 
+         9*c*c*(2*e*e + 3*f*f + 3*f*h - 2*g*h + e*(-3*f - 4*g + h)) + 
+         9*b*b*(3*g*g - 3*g*h + 2*h*(-2*f + h) + e*(-2*f + 3*g + h)) + 
+         3*b*(3*c*(e*e + 3*e*(f - 3*g) + (9*f - 3*g - h)*h) + a*(6*f*f + e*g - 9*f*g - 9*g*g - 5*e*h + 9*f*h + 14*g*h - 7*h*h) + 
+            d*(-e*e + 12*f*f - 27*f*g + e*(-9*f + 20*g - 5*h) + g*(9*g + h))) + 
+         3*c*(a*(-(e*f) - 9*f*f + 27*f*g - 12*g*g + 5*e*h - 20*f*h + 9*g*h + h*h) + 
+            d*(7*e*e + 9*f*f + 9*f*g - 6*g*g - f*h + e*(-14*f - 9*g + 5*h)))) // *y 
+    ;
+}
+
+// - x*3*Power(a - 3*b + 3*c - d,2)*(e - 3*f + 3*g - h)*Power(y,2)
+static double calc_xyy(double a3b3cd, double e3f3gh) {
+    return -3 * a3b3cd * a3b3cd * e3f3gh;
+}
+
+#endif
+
 static double (*calc_proc[])(double a, double b, double c, double d,
                              double e, double f, double g, double h) = {
-    calc_E, calc_F, calc_G, calc_H, calc_I, calc_J
+    calc_xx, calc_xy, calc_yy, calc_x, calc_y, calc_c
 };
 
+#if USE_SYVESTER
 /* Control points to parametric coefficients
     s = 1 - t
     Attt + 3Btts + 3Ctss + Dsss ==
@@ -281,9 +403,24 @@ static void alt_set_abcd(const double* cubic, double& a, double& b, double& c,
 
 const bool try_alt = true;
 
+#else
+
+static void calc_ABCD(double a, double b, double c, double d,
+                      double e, double f, double g, double h,
+                      double p[coeff_count]) {
+    double a3b3cd = a - 3 * (b - c) - d;
+    double e3f3gh = e - 3 * (f - g) - h;
+    p[xxx_coeff] = calc_xxx(e3f3gh);
+    p[xxy_coeff] = calc_xxy(a3b3cd, e3f3gh);
+    p[xyy_coeff] = calc_xyy(a3b3cd, e3f3gh);
+    p[yyy_coeff] = calc_yyy(a3b3cd);
+}
+#endif
+
 bool implicit_matches(const Cubic& one, const Cubic& two) {
     double p1[coeff_count]; // a'xxx , b'xxy , c'xyy , d'xx , e'xy , f'yy, etc.
     double p2[coeff_count];
+#if USE_SYVESTER
     double a1, b1, c1, d1;
     if (try_alt)
         alt_set_abcd(&one[0].x, a1, b1, c1, d1);
@@ -306,14 +443,36 @@ bool implicit_matches(const Cubic& one, const Cubic& two) {
     else
         set_abcd(&two[0].y, e2, f2, g2, h2);
     calc_ABCD(a2, e2, p2);
+#else
+    double a1 = one[0].x;
+    double b1 = one[1].x;
+    double c1 = one[2].x;
+    double d1 = one[3].x;
+    double e1 = one[0].y;
+    double f1 = one[1].y;
+    double g1 = one[2].y;
+    double h1 = one[3].y;
+    calc_ABCD(a1, b1, c1, d1, e1, f1, g1, h1, p1);
+    double a2 = two[0].x;
+    double b2 = two[1].x;
+    double c2 = two[2].x;
+    double d2 = two[3].x;
+    double e2 = two[0].y;
+    double f2 = two[1].y;
+    double g2 = two[2].y;
+    double h2 = two[3].y;
+    calc_ABCD(a2, b2, c2, d2, e2, f2, g2, h2, p2);
+#endif
     int first = 0;
     for (int index = 0; index < coeff_count; ++index) {
+#if USE_SYVESTER
         if (!try_alt && index == xx_coeff) {
             calc_bc(d1, b1, c1);
             calc_bc(h1, f1, g1);
             calc_bc(d2, b2, c2);
             calc_bc(h2, f2, g2);
         }
+#endif
         if (index >= xx_coeff) {
             int procIndex = index - xx_coeff;
             p1[index] = (*calc_proc[procIndex])(a1, b1, c1, d1, e1, f1, g1, h1);
@@ -336,8 +495,12 @@ bool implicit_matches(const Cubic& one, const Cubic& two) {
 
 static double tangent(const double* cubic, double t) {
     double a, b, c, d;
+#if USE_SYVESTER
     set_abcd(cubic, a, b, c, d);
     calc_bc(d, b, c);
+#else
+    coefficients(cubic, a, b, c, d);
+#endif
     return 3 * a * t * t + 2 * b * t + c;
 }
 

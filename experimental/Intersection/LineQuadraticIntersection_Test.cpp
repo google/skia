@@ -1,4 +1,4 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "Intersection_Tests.h"
 #include "Intersections.h"
 #include "LineUtilities.h"
@@ -31,7 +31,7 @@ void LineQuadraticIntersection_Test() {
         }
         if (order1 == 3 && order2 == 2) {
             Intersections intersections;
-            intersectStart(reduce1, reduce2, intersections);
+            intersect(reduce1, reduce2, intersections);
             if (intersections.intersected()) {
                 for (int pt = 0; pt < intersections.used(); ++pt) {
                     double tt1 = intersections.fT[0][pt];

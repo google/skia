@@ -15,10 +15,13 @@
 		FE7131C414CF5A960008E392 /* LineQuadraticIntersection_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7131C314CF5A960008E392 /* LineQuadraticIntersection_Test.cpp */; };
 		FE7131EE14D03AED0008E392 /* LineCubicIntersection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7131ED14D03AED0008E392 /* LineCubicIntersection.cpp */; };
 		FE71324214D047670008E392 /* QuadraticUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE71324114D047670008E392 /* QuadraticUtilities.cpp */; };
-		FE71324F14D04D460008E392 /* CubicRoots.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FECAA54114BC838600B35E2C /* CubicRoots.cpp */; };
+		FE71324F14D04D460008E392 /* CubicUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FECAA54114BC838600B35E2C /* CubicUtilities.cpp */; };
 		FE71325014D04D480008E392 /* CubeRoot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FECAA53014BB934700B35E2C /* CubeRoot.cpp */; };
 		FE71325F14D050D80008E392 /* LineUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE71325E14D050D80008E392 /* LineUtilities.cpp */; };
 		FE71334214D06B0F0008E392 /* LineCubicIntersection_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE71334114D06B0F0008E392 /* LineCubicIntersection_Test.cpp */; };
+		FE7134F514D1E7C70008E392 /* LineParameterization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7134F414D1E7C70008E392 /* LineParameterization.cpp */; };
+		FE71351314D2E9F50008E392 /* RectUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE71351214D2E9F50008E392 /* RectUtilities.cpp */; };
+		FE71358614D309E90008E392 /* EdgeWalker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE71358514D309E90008E392 /* EdgeWalker.cpp */; };
 		FEA5F4E21498000C005052F9 /* libports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA5F4E11497FFF6005052F9 /* libports.a */; };
 		FEA671D013C4A21600FE6FC1 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA671CF13C4A21600FE6FC1 /* AGL.framework */; };
 		FEA671D813C4A21600FE6FC1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA671D713C4A21600FE6FC1 /* Foundation.framework */; };
@@ -31,8 +34,7 @@
 		FEC1191B148683330086BF1F /* Extrema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEC1191A148683330086BF1F /* Extrema.cpp */; };
 		FEC1195514869DCA0086BF1F /* LineIntersection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEC1195414869DC90086BF1F /* LineIntersection.cpp */; };
 		FEC11E3E148D65780086BF1F /* CubicSubDivide.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEC11E3D148D65780086BF1F /* CubicSubDivide.cpp */; };
-		FEC11F84148E7C9C0086BF1F /* junk.htm in Resources */ = {isa = PBXBuildFile; fileRef = FEC11F83148E7C9C0086BF1F /* junk.htm */; };
-		FEC12116148EB4EC0086BF1F /* CubicIntersectionT.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEC12115148EB4EC0086BF1F /* CubicIntersectionT.cpp */; };
+		FEC12116148EB4EC0086BF1F /* CubicIntersection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEC12115148EB4EC0086BF1F /* CubicIntersection.cpp */; };
 		FEC1211B148EB5200086BF1F /* CubicBezierClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEC1211A148EB5200086BF1F /* CubicBezierClip.cpp */; };
 		FEC1238F149000100086BF1F /* LineParameteters_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEC1238E149000100086BF1F /* LineParameteters_Test.cpp */; };
 		FEC123A6149001A00086BF1F /* SkAntiEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEA670F013C49E2200FE6FC1 /* SkAntiEdge.cpp */; };
@@ -222,10 +224,8 @@
 		256AC3F00F4B6AF500CF3369 /* edge_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = edge_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* edge-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "edge-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* edge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = edge.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		FE3201C6144DCC68006DDA67 /* skia_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = skia_mac.mm; path = ../../skia/trunk/src/utils/mac/skia_mac.mm; sourceTree = SOURCE_ROOT; };
-		FE3201C7144DCC68006DDA67 /* SkOSWindow_Mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOSWindow_Mac.mm; path = ../../skia/trunk/src/utils/mac/SkOSWindow_Mac.mm; sourceTree = SOURCE_ROOT; };
-		FE3EBE41149A337700D76FDE /* x.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = x.svg; path = ../../../../tera/x.svg; sourceTree = SOURCE_ROOT; };
-		FE3EBE6E149A7F4D00D76FDE /* valgrind.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = valgrind.txt; path = ../../../../tera/valgrind.txt; sourceTree = SOURCE_ROOT; };
+		FE3201C6144DCC68006DDA67 /* skia_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = skia_mac.mm; path = ../../src/utils/mac/skia_mac.mm; sourceTree = SOURCE_ROOT; };
+		FE3201C7144DCC68006DDA67 /* SkOSWindow_Mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOSWindow_Mac.mm; path = ../../src/utils/mac/SkOSWindow_Mac.mm; sourceTree = SOURCE_ROOT; };
 		FE4FE7411492417500A12A34 /* IntersectionUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntersectionUtilities.cpp; sourceTree = "<group>"; };
 		FE7130A014CE0EEB0008E392 /* LineQuadraticIntersection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineQuadraticIntersection.cpp; sourceTree = "<group>"; };
 		FE7131C314CF5A960008E392 /* LineQuadraticIntersection_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineQuadraticIntersection_Test.cpp; sourceTree = "<group>"; };
@@ -235,10 +235,15 @@
 		FE71325D14D050D80008E392 /* LineUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineUtilities.h; sourceTree = "<group>"; };
 		FE71325E14D050D80008E392 /* LineUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineUtilities.cpp; sourceTree = "<group>"; };
 		FE71334114D06B0F0008E392 /* LineCubicIntersection_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineCubicIntersection_Test.cpp; sourceTree = "<group>"; };
-		FEA5F4D91497FFF6005052F9 /* ports.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ports.xcodeproj; path = ../../skia/trunk/out/gyp/ports.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FE7134DF14D1E5680008E392 /* Parameterization_Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parameterization_Test.h; sourceTree = "<group>"; };
+		FE7134F414D1E7C70008E392 /* LineParameterization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineParameterization.cpp; sourceTree = "<group>"; };
+		FE71351214D2E9F50008E392 /* RectUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RectUtilities.cpp; sourceTree = "<group>"; };
+		FE71358514D309E90008E392 /* EdgeWalker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalker.cpp; sourceTree = "<group>"; };
+		FE713C6114D9879B0008E392 /* TSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSearch.h; sourceTree = "<group>"; };
+		FEA5F4D91497FFF6005052F9 /* ports.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ports.xcodeproj; path = ../../out/gyp/ports.xcodeproj; sourceTree = SOURCE_ROOT; };
 		FEA670F013C49E2200FE6FC1 /* SkAntiEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkAntiEdge.cpp; sourceTree = "<group>"; };
 		FEA670F113C49E2200FE6FC1 /* SkAntiEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkAntiEdge.h; sourceTree = "<group>"; };
-		FEA6710713C4A13900FE6FC1 /* gyp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gyp; path = ../../skia/trunk/out/gyp; sourceTree = SOURCE_ROOT; };
+		FEA6710713C4A13900FE6FC1 /* gyp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gyp; path = ../../out/gyp; sourceTree = SOURCE_ROOT; };
 		FEA671CF13C4A21600FE6FC1 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = System/Library/Frameworks/AGL.framework; sourceTree = SDKROOT; };
 		FEA671D113C4A21600FE6FC1 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		FEA671D713C4A21600FE6FC1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -256,8 +261,7 @@
 		FEC11A851487D2650086BF1F /* LineParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineParameters.h; sourceTree = "<group>"; };
 		FEC11A881487D2F50086BF1F /* IntersectionUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntersectionUtilities.h; sourceTree = "<group>"; };
 		FEC11E3D148D65780086BF1F /* CubicSubDivide.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicSubDivide.cpp; sourceTree = "<group>"; };
-		FEC11F83148E7C9C0086BF1F /* junk.htm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = junk.htm; path = ../../../../tera/htm_backups/junk.htm; sourceTree = SOURCE_ROOT; };
-		FEC12115148EB4EC0086BF1F /* CubicIntersectionT.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicIntersectionT.cpp; sourceTree = "<group>"; };
+		FEC12115148EB4EC0086BF1F /* CubicIntersection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicIntersection.cpp; sourceTree = "<group>"; };
 		FEC1211A148EB5200086BF1F /* CubicBezierClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicBezierClip.cpp; sourceTree = "<group>"; };
 		FEC1238E149000100086BF1F /* LineParameteters_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineParameteters_Test.cpp; sourceTree = "<group>"; };
 		FEC12CDF14913E650086BF1F /* LineIntersection_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineIntersection_Test.cpp; sourceTree = "<group>"; };
@@ -270,7 +274,7 @@
 		FECAA52114BB527000B35E2C /* QuadraticIntersection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadraticIntersection.cpp; sourceTree = "<group>"; };
 		FECAA52B14BB6B0900B35E2C /* QuadraticUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadraticUtilities.h; sourceTree = "<group>"; };
 		FECAA53014BB934700B35E2C /* CubeRoot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubeRoot.cpp; sourceTree = "<group>"; };
-		FECAA54114BC838600B35E2C /* CubicRoots.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicRoots.cpp; sourceTree = "<group>"; };
+		FECAA54114BC838600B35E2C /* CubicUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicUtilities.cpp; sourceTree = "<group>"; };
 		FECAA56C14BCA23200B35E2C /* QuadraticReduceOrder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadraticReduceOrder.cpp; sourceTree = "<group>"; };
 		FECAA58314BCBD4E00B35E2C /* QuadraticBezierClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadraticBezierClip.cpp; sourceTree = "<group>"; };
 		FECAA67814BCDBD600B35E2C /* QuadraticBezierClip_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadraticBezierClip_Test.cpp; sourceTree = "<group>"; };
@@ -281,29 +285,28 @@
 		FECAAB7F14BDFAFD00B35E2C /* CubicParameterization_TestUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicParameterization_TestUtility.cpp; sourceTree = "<group>"; };
 		FECAACA614BE1C6100B35E2C /* QuadraticParameterization_TestUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadraticParameterization_TestUtility.cpp; sourceTree = "<group>"; };
 		FED53C381483CB9400F6359E /* Inline_Tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inline_Tests.cpp; sourceTree = "<group>"; };
-		FEE103331416542A006952D6 /* CubicIntersection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicIntersection.cpp; sourceTree = "<group>"; };
-		FEED723C144DD2250059E97B /* SampleApp.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SampleApp.xib; path = ../../skia/trunk/src/utils/mac/SampleApp.xib; sourceTree = SOURCE_ROOT; };
-		FEED723D144DD2250059E97B /* SampleAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SampleAppDelegate.mm; path = ../../skia/trunk/src/utils/mac/SampleAppDelegate.mm; sourceTree = SOURCE_ROOT; };
-		FEED723E144DD2250059E97B /* SkEventNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkEventNotifier.mm; path = ../../skia/trunk/src/utils/mac/SkEventNotifier.mm; sourceTree = SOURCE_ROOT; };
-		FEED723F144DD2250059E97B /* SkNSView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkNSView.mm; path = ../../skia/trunk/src/utils/mac/SkNSView.mm; sourceTree = SOURCE_ROOT; };
-		FEED7240144DD2250059E97B /* SkOptionsTableView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOptionsTableView.mm; path = ../../skia/trunk/src/utils/mac/SkOptionsTableView.mm; sourceTree = SOURCE_ROOT; };
-		FEED7241144DD2250059E97B /* SkSampleNSView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkSampleNSView.mm; path = ../../skia/trunk/src/utils/mac/SkSampleNSView.mm; sourceTree = SOURCE_ROOT; };
-		FEED7242144DD2250059E97B /* SkTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SkTextFieldCell.m; path = ../../skia/trunk/src/utils/mac/SkTextFieldCell.m; sourceTree = SOURCE_ROOT; };
-		FEED725D144DD38D0059E97B /* views.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = views.xcodeproj; path = ../../skia/trunk/out/gyp/views.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED7263144DD3EA0059E97B /* animator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = animator.xcodeproj; path = ../../skia/trunk/out/gyp/animator.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED7269144DD4050059E97B /* experimental.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = experimental.xcodeproj; path = ../../skia/trunk/out/gyp/experimental.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED726F144DD4140059E97B /* gpu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gpu.xcodeproj; path = ../../skia/trunk/out/gyp/gpu.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED7279144DD4200059E97B /* images.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = images.xcodeproj; path = ../../skia/trunk/out/gyp/images.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED727F144DD4300059E97B /* libtess.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libtess.xcodeproj; path = ../../skia/trunk/out/gyp/libtess.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED7285144DD4440059E97B /* pdf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = pdf.xcodeproj; path = ../../skia/trunk/out/gyp/pdf.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED728B144DD44D0059E97B /* svg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = svg.xcodeproj; path = ../../skia/trunk/out/gyp/svg.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEED729C144DD4A80059E97B /* xml.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = xml.xcodeproj; path = ../../skia/trunk/out/gyp/xml.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED723C144DD2250059E97B /* SampleApp.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SampleApp.xib; path = ../../src/utils/mac/SampleApp.xib; sourceTree = SOURCE_ROOT; };
+		FEED723D144DD2250059E97B /* SampleAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SampleAppDelegate.mm; path = ../../src/utils/mac/SampleAppDelegate.mm; sourceTree = SOURCE_ROOT; };
+		FEED723E144DD2250059E97B /* SkEventNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkEventNotifier.mm; path = ../../src/utils/mac/SkEventNotifier.mm; sourceTree = SOURCE_ROOT; };
+		FEED723F144DD2250059E97B /* SkNSView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkNSView.mm; path = ../../src/utils/mac/SkNSView.mm; sourceTree = SOURCE_ROOT; };
+		FEED7240144DD2250059E97B /* SkOptionsTableView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOptionsTableView.mm; path = ../../src/utils/mac/SkOptionsTableView.mm; sourceTree = SOURCE_ROOT; };
+		FEED7241144DD2250059E97B /* SkSampleNSView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkSampleNSView.mm; path = ../../src/utils/mac/SkSampleNSView.mm; sourceTree = SOURCE_ROOT; };
+		FEED7242144DD2250059E97B /* SkTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SkTextFieldCell.m; path = ../../src/utils/mac/SkTextFieldCell.m; sourceTree = SOURCE_ROOT; };
+		FEED725D144DD38D0059E97B /* views.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = views.xcodeproj; path = ../../out/gyp/views.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED7263144DD3EA0059E97B /* animator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = animator.xcodeproj; path = ../../out/gyp/animator.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED7269144DD4050059E97B /* experimental.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = experimental.xcodeproj; path = ../../out/gyp/experimental.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED726F144DD4140059E97B /* gpu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gpu.xcodeproj; path = ../../out/gyp/gpu.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED7279144DD4200059E97B /* images.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = images.xcodeproj; path = ../../out/gyp/images.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED727F144DD4300059E97B /* libtess.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libtess.xcodeproj; path = ../../out/gyp/libtess.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED7285144DD4440059E97B /* pdf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = pdf.xcodeproj; path = ../../out/gyp/pdf.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED728B144DD44D0059E97B /* svg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = svg.xcodeproj; path = ../../out/gyp/svg.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEED729C144DD4A80059E97B /* xml.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = xml.xcodeproj; path = ../../out/gyp/xml.xcodeproj; sourceTree = SOURCE_ROOT; };
 		FEED7583144DD6360059E97B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		FEED75DC144DD6590059E97B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		FEED75DE144DD6840059E97B /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 		FEED7625144F22E20059E97B /* CubicReduceOrder_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicReduceOrder_Test.cpp; sourceTree = "<group>"; };
 		FEED762B144F236C0059E97B /* CubicIntersection_TestData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicIntersection_TestData.cpp; sourceTree = "<group>"; };
-		FEED762F144F23CA0059E97B /* CubicIntersection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubicIntersection.h; sourceTree = "<group>"; };
+		FEED762F144F23CA0059E97B /* CurveIntersection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurveIntersection.h; sourceTree = "<group>"; };
 		FEED7632144F25150059E97B /* CubicIntersection_TestData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubicIntersection_TestData.h; sourceTree = "<group>"; };
 		FEED764B144F29BD0059E97B /* TestUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestUtilities.cpp; sourceTree = "<group>"; };
 		FEED764F144F2A160059E97B /* DataTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataTypes.h; sourceTree = "<group>"; };
@@ -312,10 +315,10 @@
 		FEED7689144F2E7D0059E97B /* CubicIntersection_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicIntersection_Test.cpp; sourceTree = "<group>"; };
 		FEED76C0144F3E7F0059E97B /* ConvexHull_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConvexHull_Test.cpp; sourceTree = "<group>"; };
 		FEED76ED144F66E90059E97B /* Intersection_Tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Intersection_Tests.cpp; sourceTree = "<group>"; };
-		FEF87C1213E040E000335C58 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../../skia/trunk/out/gyp/core.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEF87C1B13E040F100335C58 /* effects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = effects.xcodeproj; path = ../../skia/trunk/out/gyp/effects.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEF87C2413E0410900335C58 /* opts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = opts.xcodeproj; path = ../../skia/trunk/out/gyp/opts.xcodeproj; sourceTree = SOURCE_ROOT; };
-		FEF87C3313E0412600335C58 /* utils.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = utils.xcodeproj; path = ../../skia/trunk/out/gyp/utils.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEF87C1213E040E000335C58 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../../out/gyp/core.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEF87C1B13E040F100335C58 /* effects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = effects.xcodeproj; path = ../../out/gyp/effects.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEF87C2413E0410900335C58 /* opts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = opts.xcodeproj; path = ../../out/gyp/opts.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEF87C3313E0412600335C58 /* utils.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = utils.xcodeproj; path = ../../out/gyp/utils.xcodeproj; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -362,12 +365,10 @@
 		29B97314FDCFA39411CA2CEA /* edge */ = {
 			isa = PBXGroup;
 			children = (
-				FE3EBE6E149A7F4D00D76FDE /* valgrind.txt */,
-				FE3EBE41149A337700D76FDE /* x.svg */,
-				FEC11F83148E7C9C0086BF1F /* junk.htm */,
 				FEA670EF13C49D7600FE6FC1 /* views */,
 				FEC123A7149001B20086BF1F /* AntiEdge */,
-				29B97315FDCFA39411CA2CEA /* CubicIntersection */,
+				29B97315FDCFA39411CA2CEA /* Intersection */,
+				FE71354F14D305FD0008E392 /* ShapeOps */,
 				FEC123A5149001540086BF1F /* Tests */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
@@ -391,21 +392,20 @@
 			name = edge;
 			sourceTree = "<group>";
 		};
-		29B97315FDCFA39411CA2CEA /* CubicIntersection */ = {
+		29B97315FDCFA39411CA2CEA /* Intersection */ = {
 			isa = PBXGroup;
 			children = (
 				FEC118B7148666670086BF1F /* ConvexHull.cpp */,
 				FECAA53014BB934700B35E2C /* CubeRoot.cpp */,
 				FEC1211A148EB5200086BF1F /* CubicBezierClip.cpp */,
-				FEED762F144F23CA0059E97B /* CubicIntersection.h */,
-				FEE103331416542A006952D6 /* CubicIntersection.cpp */,
-				FEC12115148EB4EC0086BF1F /* CubicIntersectionT.cpp */,
+				FEC12115148EB4EC0086BF1F /* CubicIntersection.cpp */,
 				FECA983F14AA044100B35E2C /* CubicParameterization.cpp */,
 				FECA997B14AB966900B35E2C /* CubicParameterizationCode.cpp */,
 				FEC11910148682200086BF1F /* CubicReduceOrder.cpp */,
-				FECAA54114BC838600B35E2C /* CubicRoots.cpp */,
+				FECAA54114BC838600B35E2C /* CubicUtilities.cpp */,
 				FEC11E3D148D65780086BF1F /* CubicSubDivide.cpp */,
 				FE71325114D04D7A0008E392 /* CubicUtilities.h */,
+				FEED762F144F23CA0059E97B /* CurveIntersection.h */,
 				FEED764F144F2A160059E97B /* DataTypes.h */,
 				FEC118C1148668F30086BF1F /* DataTypes.cpp */,
 				FEC1191E148683850086BF1F /* Extrema.h */,
@@ -415,7 +415,10 @@
 				FE4FE7411492417500A12A34 /* IntersectionUtilities.cpp */,
 				FEC1195314869DC90086BF1F /* LineIntersection.h */,
 				FEC1195414869DC90086BF1F /* LineIntersection.cpp */,
+				FE7134F414D1E7C70008E392 /* LineParameterization.cpp */,
 				FEC11A851487D2650086BF1F /* LineParameters.h */,
+				FE71325D14D050D80008E392 /* LineUtilities.h */,
+				FE71325E14D050D80008E392 /* LineUtilities.cpp */,
 				FE7131ED14D03AED0008E392 /* LineCubicIntersection.cpp */,
 				FE7130A014CE0EEB0008E392 /* LineQuadraticIntersection.cpp */,
 				FECAA58314BCBD4E00B35E2C /* QuadraticBezierClip.cpp */,
@@ -425,10 +428,9 @@
 				FECA987714AA319300B35E2C /* QuadraticSubDivide.cpp */,
 				FECAA52B14BB6B0900B35E2C /* QuadraticUtilities.h */,
 				FE71324114D047670008E392 /* QuadraticUtilities.cpp */,
-				FE71325D14D050D80008E392 /* LineUtilities.h */,
-				FE71325E14D050D80008E392 /* LineUtilities.cpp */,
+				FE71351214D2E9F50008E392 /* RectUtilities.cpp */,
 			);
-			name = CubicIntersection;
+			name = Intersection;
 			sourceTree = "<group>";
 		};
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
@@ -453,6 +455,15 @@
 				FEED75DE144DD6840059E97B /* libz.dylib */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FE71354F14D305FD0008E392 /* ShapeOps */ = {
+			isa = PBXGroup;
+			children = (
+				FE71358514D309E90008E392 /* EdgeWalker.cpp */,
+				FE713C6114D9879B0008E392 /* TSearch.h */,
+			);
+			name = ShapeOps;
 			sourceTree = "<group>";
 		};
 		FEA5F4DA1497FFF6005052F9 /* Products */ = {
@@ -497,6 +508,7 @@
 				FEC12CDF14913E650086BF1F /* LineIntersection_Test.cpp */,
 				FEC1238E149000100086BF1F /* LineParameteters_Test.cpp */,
 				FE7131C314CF5A960008E392 /* LineQuadraticIntersection_Test.cpp */,
+				FE7134DF14D1E5680008E392 /* Parameterization_Test.h */,
 				FECAA67814BCDBD600B35E2C /* QuadraticBezierClip_Test.cpp */,
 				FECAA6C614BDCE9B00B35E2C /* QuadraticIntersection_Test.cpp */,
 				FECAA68314BCDE2600B35E2C /* QuadraticIntersection_TestData.h */,
@@ -849,7 +861,6 @@
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
 				FEED72B0144DD5710059E97B /* SampleApp.xib in Resources */,
-				FEC11F84148E7C9C0086BF1F /* junk.htm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -879,7 +890,7 @@
 				FEC1191B148683330086BF1F /* Extrema.cpp in Sources */,
 				FEC1195514869DCA0086BF1F /* LineIntersection.cpp in Sources */,
 				FEC11E3E148D65780086BF1F /* CubicSubDivide.cpp in Sources */,
-				FEC12116148EB4EC0086BF1F /* CubicIntersectionT.cpp in Sources */,
+				FEC12116148EB4EC0086BF1F /* CubicIntersection.cpp in Sources */,
 				FEC1211B148EB5200086BF1F /* CubicBezierClip.cpp in Sources */,
 				FEC1238F149000100086BF1F /* LineParameteters_Test.cpp in Sources */,
 				FEC123A6149001A00086BF1F /* SkAntiEdge.cpp in Sources */,
@@ -901,10 +912,13 @@
 				FE7131C414CF5A960008E392 /* LineQuadraticIntersection_Test.cpp in Sources */,
 				FE7131EE14D03AED0008E392 /* LineCubicIntersection.cpp in Sources */,
 				FE71324214D047670008E392 /* QuadraticUtilities.cpp in Sources */,
-				FE71324F14D04D460008E392 /* CubicRoots.cpp in Sources */,
+				FE71324F14D04D460008E392 /* CubicUtilities.cpp in Sources */,
 				FE71325014D04D480008E392 /* CubeRoot.cpp in Sources */,
 				FE71325F14D050D80008E392 /* LineUtilities.cpp in Sources */,
 				FE71334214D06B0F0008E392 /* LineCubicIntersection_Test.cpp in Sources */,
+				FE7134F514D1E7C70008E392 /* LineParameterization.cpp in Sources */,
+				FE71351314D2E9F50008E392 /* RectUtilities.cpp in Sources */,
+				FE71358614D309E90008E392 /* EdgeWalker.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -969,8 +983,8 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../skia/xcode/core/build/Debug\"",
-					"\"$(SRCROOT)/../../skia/xcode/maccore/build/Debug\"",
+					"\"$(SRCROOT)/../../../xcode/core/build/Debug\"",
+					"\"$(SRCROOT)/../../../xcode/maccore/build/Debug\"",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = edge;
@@ -992,8 +1006,8 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../skia/xcode/core/build/Debug\"",
-					"\"$(SRCROOT)/../../skia/xcode/maccore/build/Debug\"",
+					"\"$(SRCROOT)/../../../xcode/core/build/Debug\"",
+					"\"$(SRCROOT)/../../../xcode/maccore/build/Debug\"",
 				);
 				PRODUCT_NAME = edge;
 			};
@@ -1038,7 +1052,7 @@
 				PREBINDING = YES;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				SDKROOT = "";
-				USER_HEADER_SEARCH_PATHS = "../../skia/trunk/gpu/include ../../skia/trunk/src/core ../../skia/trunk/include/** ../../skia/trunk/gm";
+				USER_HEADER_SEARCH_PATHS = "../../gpu/include ../../src/core ../../include/** ../../gm";
 			};
 			name = Debug;
 		};

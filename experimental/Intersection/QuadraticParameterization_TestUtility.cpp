@@ -1,6 +1,8 @@
 // included by QuadraticParameterization.cpp
 // accesses internal functions to validate parameterized coefficients
 
+#include "Parameterization_Test.h"
+
 bool point_on_parameterized_curve(const Quadratic& quad, const _Point& point) {
     double coeffs[coeff_count];
     implicit_coefficients(quad, coeffs);

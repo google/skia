@@ -1,4 +1,4 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "CubicUtilities.h"
 #include "Intersections.h"
 #include "LineUtilities.h"
@@ -20,7 +20,7 @@ line:
 
   (in) Resultant[
         a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - x, 
-        e*(1 - t)^3 + 3*f*(1 - t)^2*t  + 3*g*(1 - t)*t^2 + h*t^3 - i*x - j, x]
+        e*(1 - t)^3 + 3*f*(1 - t)^2*t + 3*g*(1 - t)*t^2 + h*t^3 - i*x - j, x]
   (out) -e     +   j     +
        3 e t   - 3 f t   -
        3 e t^2 + 6 f t^2 - 3 g t^2 +
@@ -34,7 +34,7 @@ if i goes to infinity, we can rewrite the line in terms of x. Mathematica:
 
   (in) Resultant[
         a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - i*y - j, 
-        e*(1 - t)^3 + 3*f*(1 - t)^2*t + 3*g*(1 - t)*t^2 + h*t^3 - y, y]
+        e*(1 - t)^3 + 3*f*(1 - t)^2*t + 3*g*(1 - t)*t^2 + h*t^3 - y,       y]
   (out)  a     -   j     - 
        3 a t   + 3 b t   + 
        3 a t^2 - 6 b t^2 + 3 c t^2 -
@@ -58,35 +58,36 @@ The near-vertical case, in terms of:  Ax^3 + Bx^2 + Cx + D == 0
     B = 3*( ( a - 2*b +   c    ) - i*( e - 2*f +   g    )     )
     C = 3*( (-a +   b          ) - i*(-e +   f          )     )
     D =   ( ( a                ) - i*( e                ) - j )
+    
+For horizontal lines:
+(in) Resultant[
+      a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - j, 
+      e*(1 - t)^3 + 3*f*(1 - t)^2*t + 3*g*(1 - t)*t^2 + h*t^3 - y, y]
+(out)  e     -   j     -
+     3 e t   + 3 f t   + 
+     3 e t^2 - 6 f t^2 + 3 g t^2 -
+       e t^3 + 3 f t^3 - 3 g t^3 + h t^3
+So the cubic coefficients are:
+
  */
 
 class LineCubicIntersections : public Intersections {
 public:
 
-LineCubicIntersections(const Cubic& c, const _Line& l, Intersections& i)
+LineCubicIntersections(const Cubic& c, const _Line& l, double r[3])
     : cubic(c)
     , line(l)
-    , intersections(i) {
+    , range(r) {
 }
 
-bool intersect() {
+int intersect() {
     double slope;
     double axisIntercept;
     moreHorizontal = implicitLine(line, slope, axisIntercept);
-    double A = cubic[3].x; // d
-    double B = cubic[2].x * 3; // 3*c
-    double C = cubic[1].x * 3; // 3*b
-    double D = cubic[0].x; // a
-    A -= D - C + B;     // A =   -a + 3*b - 3*c + d
-    B += 3 * D - 2 * C; // B =  3*a - 6*b + 3*c
-    C -= 3 * D;         // C = -3*a + 3*b
-    double E = cubic[3].y; // h
-    double F = cubic[2].y * 3; // 3*g
-    double G = cubic[1].y * 3; // 3*f
-    double H = cubic[0].y; // e
-    E -= H - G + F;     // E =   -e + 3*f - 3*g + h
-    F += 3 * H - 2 * G; // F =  3*e - 6*f + 3*g
-    G -= 3 * H;         // G = -3*e + 3*f
+    double A, B, C, D;
+    coefficients(&cubic[0].x, A, B, C, D);
+    double E, F, G, H;
+    coefficients(&cubic[0].y, E, F, G, H);
     if (moreHorizontal) {
         A = A * slope - E;
         B = B * slope - F;
@@ -98,16 +99,16 @@ bool intersect() {
         C = C - G * slope;
         D = D - H * slope - axisIntercept;
     }
-    double t[3];
-    int roots = cubicRoots(A, B, C, D, t);
-    for (int x = 0; x < roots; ++x) {
-        intersections.add(t[x], findLineT(t[x]));
-    }
-    return roots > 0;
+    return cubicRoots(A, B, C, D, range);
 }
 
-protected:
-    
+int horizontalIntersect(double axisIntercept) {
+    double A, B, C, D;
+    coefficients(&cubic[0].y, A, B, C, D);
+    D -= axisIntercept;
+    return cubicRoots(A, B, C, D, range);
+}
+
 double findLineT(double t) {
     const double* cPtr;
     const double* lPtr;
@@ -118,6 +119,7 @@ double findLineT(double t) {
         cPtr = &cubic[0].y;
         lPtr = &line[0].y;
     }
+    // FIXME: should fold the following in with TestUtilities.cpp xy_at_t()
     double s = 1 - t;
     double cubicVal = cPtr[0] * s * s * s + 3 * cPtr[2] * s * s * t
                 + 3 * cPtr[4] * s * t * t + cPtr[6] * t * t * t;
@@ -128,12 +130,26 @@ private:
 
 const Cubic& cubic;
 const _Line& line;
-Intersections& intersections;
+double* range;
 bool moreHorizontal;
 
 };
+
+int horizontalIntersect(const Cubic& cubic, double y, double tRange[3]) {
+    LineCubicIntersections c(cubic, *((_Line*) 0), tRange);
+    return c.horizontalIntersect(y);
+}
  
-bool intersectStart(const Cubic& cubic, const _Line& line, Intersections& i) {
-    LineCubicIntersections c(cubic, line, i);
-    return c.intersect();
+int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]) {
+    LineCubicIntersections c(cubic, line, cRange);
+    int roots;
+    if (approximately_equal(line[0].y, line[1].y)) {
+        roots = c.horizontalIntersect(line[0].y);
+    } else {
+        roots = c.intersect();
+    }
+    for (int index = 0; index < roots; ++index) {
+        lRange[index] = c.findLineT(cRange[index]);
+    }
+    return roots;
 }
