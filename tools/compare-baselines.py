@@ -1,17 +1,8 @@
 '''
 Compares the gm results within the local checkout against those already
-committed to the Skia repository. Relies on skdiff to do the low-level
-comparison.
+committed to the Skia repository.
 
-Sample usage to compare locally generated gm results against the
-checked-in ones:
-
-cd .../trunk
-make tools      # or otherwise get a runnable skdiff
-python tools/compare-baselines.py gm
-# validate that the new images look right
-
-Launch with --help to see more options.
+Launch with --help to see more information.
 
 
 Copyright 2012 Google Inc.
@@ -30,11 +21,29 @@ import tempfile
 # modules declared within this same directory
 import svn
 
-# Base URL of SVN repository where we store the checked-in gm results.
-SVN_GM_URL = 'http://skia.googlecode.com/svn/trunk/gm'
+USAGE_STRING = '''usage: %s [options]
 
-USAGE_STRING = 'usage: %s [options] <gm basedir>'
+Compares the gm results within the local checkout against those already
+committed to the Skia repository. Relies on skdiff to do the low-level
+comparison.
+
+for example:
+
+cd .../trunk
+# modify local gm images, maybe by running download-baselines.py
+make tools
+python tools/compare-baselines.py
+# validate that the image diffs look right
+'''
+
+TRUNK_PATH = os.path.join(os.path.dirname(__file__), os.pardir)
+
+OPTION_GM_BASEDIR = '--gm-basedir'
+DEFAULT_GM_BASEDIR = os.path.join(TRUNK_PATH, 'gm')
 OPTION_PATH_TO_SKDIFF = '--path-to-skdiff'
+# default PATH_TO_SKDIFF is determined at runtime
+OPTION_SVN_GM_URL = '--svn-gm-url'
+DEFAULT_SVN_GM_URL = 'http://skia.googlecode.com/svn/trunk/gm'
 
 def CopyAllFilesAddingPrefix(source_dir, dest_dir, prefix):
     """Copy all files from source_dir into dest_dir, adding prefix to the name
@@ -85,24 +94,50 @@ def RunCommand(command):
     if retval is not 0:
         raise Exception('command [%s] failed' % command)
 
-def Main(options, args):
-    """Compare the gm results within the local checkout against those already
+def FindPathToSkDiff(user_set_path=None):
+    """Return path to an existing skdiff binary, or raise an exception if we
+    cannot find one.
+
+    @param user_set_path if None, the user did not specify a path, so look in
+           some likely places; otherwise, only check at this path
+    """
+    if user_set_path is not None:
+        if os.path.isfile(user_set_path):
+            return user_set_path
+        raise Exception('unable to find skdiff at user-set path %s' %
+                        user_set_path)
+    trunk_path = os.path.join(os.path.dirname(__file__), os.pardir)
+    possible_paths = [os.path.join(trunk_path, 'out', 'Release', 'skdiff'),
+                      os.path.join(trunk_path, 'out', 'Debug', 'skdiff')]
+    for try_path in possible_paths:
+        if os.path.isfile(try_path):
+            return try_path
+    raise Exception('cannot find skdiff in paths %s; maybe you need to '
+                    'specify the %s option or build skdiff?' % (
+                        possible_paths, OPTION_PATH_TO_SKDIFF))
+
+def CompareBaselines(gm_basedir, path_to_skdiff, svn_gm_url):
+    """Compare the gm results within gm_basedir against those already
     committed to the Skia repository.
 
-    @param options
-    @param args
+    @param gm_basedir
+    @param path_to_skdiff
+    @param svn_gm_url base URL of Subversion repository where we store the
+           expected GM results
     """
-    num_args = len(args)
-    if num_args != 1:
-        RaiseUsageException()
-    gm_basedir = args[0].rstrip(os.sep)
+    # Validate parameters, filling in default values if necessary and possible.
+    if not os.path.isdir(gm_basedir):
+        raise Exception('cannot find gm_basedir at %s; maybe you need to '
+                        'specify the %s option?' % (
+                            gm_basedir, OPTION_GM_BASEDIR))
+    path_to_skdiff = FindPathToSkDiff(path_to_skdiff)
 
     tempdir_base = tempfile.mkdtemp()
 
     # Download all checked-in baseline images to a temp directory
     checkedin_dir = os.path.join(tempdir_base, 'checkedin')
     os.mkdir(checkedin_dir)
-    svn.Svn(checkedin_dir).Checkout(SVN_GM_URL, '.')
+    svn.Svn(checkedin_dir).Checkout(svn_gm_url, '.')
 
     # Flatten those checked-in baseline images into checkedin_flattened_dir
     checkedin_flattened_dir = os.path.join(tempdir_base, 'checkedin_flattened')
@@ -119,18 +154,43 @@ def Main(options, args):
     # Run skdiff to compare checkedin_flattened_dir against local_flattened_dir
     diff_dir = os.path.join(tempdir_base, 'diffs')
     os.mkdir(diff_dir)
-    RunCommand('%s %s %s %s' % (options.path_to_skdiff, checkedin_flattened_dir,
+    RunCommand('%s %s %s %s' % (path_to_skdiff, checkedin_flattened_dir,
                                 local_flattened_dir, diff_dir))
     print '\nskdiff results are ready in file://%s/index.html' % diff_dir
+    # TODO(epoger): delete tempdir_base tree to clean up after ourselves (but
+    # not before the user gets a chance to examine the results), and/or
+    # allow user to specify a different directory to write into?
 
 def RaiseUsageException():
-    raise Exception(USAGE_STRING %  __file__)
+    raise Exception('%s\n\nRun with --help for more detail.' % (
+        USAGE_STRING % __file__))
+
+def Main(options, args):
+    """Allow other scripts to call this script with fake command-line args.
+    """
+    num_args = len(args)
+    if num_args != 0:
+        RaiseUsageException()
+    CompareBaselines(gm_basedir=options.gm_basedir,
+                     path_to_skdiff=options.path_to_skdiff,
+                     svn_gm_url=options.svn_gm_url)
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(USAGE_STRING % '%prog')
+    parser.add_option(OPTION_GM_BASEDIR,
+                      action='store', type='string', default=DEFAULT_GM_BASEDIR,
+                      help='path to root of locally stored baseline images '
+                      'to compare against those checked into the svn repo; '
+                      'defaults to "%s"' % DEFAULT_GM_BASEDIR)
     parser.add_option(OPTION_PATH_TO_SKDIFF,
-                      action='store', type='string',
-                      default=os.path.join('out', 'Debug', 'skdiff'),
-                      help='path to already-built skdiff tool')
+                      action='store', type='string', default=None,
+                      help='path to already-built skdiff tool; if not set, '
+                      'will search for it in typical directories near this '
+                      'script')
+    parser.add_option(OPTION_SVN_GM_URL,
+                      action='store', type='string', default=DEFAULT_SVN_GM_URL,
+                      help='URL of SVN repository within which we store the '
+                      'expected GM baseline images; defaults to "%s"' %
+                      DEFAULT_SVN_GM_URL)
     (options, args) = parser.parse_args()
     Main(options, args)
