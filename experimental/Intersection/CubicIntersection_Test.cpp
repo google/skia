@@ -1,4 +1,4 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "CubicIntersection_TestData.h"
 #include "Intersection_Tests.h"
 #include "Intersections.h"
@@ -26,7 +26,7 @@ void CubicIntersection_Test() {
             continue;
         }
         Intersections tIntersections;
-        intersectStartT(reduce1, reduce2, tIntersections);
+        intersect(reduce1, reduce2, tIntersections);
         if (!tIntersections.intersected()) {
             printf("%s [%d] no intersection\n", __FUNCTION__, (int) index);
             continue;

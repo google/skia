@@ -2,6 +2,7 @@
 #include "Intersection_Tests.h"
 
 void cubecode_test(int test);
+void testSimplify();
 
 void Intersection_Tests() {
     cubecode_test(1);
@@ -16,6 +17,8 @@ void Intersection_Tests() {
     LineQuadraticIntersection_Test();
     LineCubicIntersection_Test();
 
+    testSimplify();
+
     QuadraticCoincidence_Test();
     QuadraticReduceOrder_Test();
     QuadraticBezierClip_Test();
@@ -26,4 +29,5 @@ void Intersection_Tests() {
     CubicReduceOrder_Test();
     CubicBezierClip_Test();
     CubicIntersection_Test();
+
 }

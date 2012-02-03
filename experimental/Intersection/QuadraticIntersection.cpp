@@ -1,4 +1,4 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "Intersections.h"
 #include "IntersectionUtilities.h"
 #include "LineIntersection.h"
@@ -47,22 +47,21 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
     if (reduceOrder(smaller, smallResult) <= 2) {
         Quadratic largeResult;
         if (reduceOrder(larger, largeResult) <= 2) {
-            _Point pt;
+            double smallT[2], largeT[2];
             const _Line& smallLine = (const _Line&) smallResult;
             const _Line& largeLine = (const _Line&) largeResult;
-            if (!lineIntersect(smallLine, largeLine, &pt)) {
+            // FIXME: this doesn't detect or deal with coincident lines
+            if (!::intersect(smallLine, largeLine, smallT, largeT)) {
                 return false;
             }
-            double smallT = t_at(smallLine, pt);
-            double largeT = t_at(largeLine, pt);
             if (intersections.swapped()) {
-                smallT = interp(minT2, maxT2, smallT); 
-                largeT = interp(minT1, maxT1, largeT); 
+                smallT[0] = interp(minT2, maxT2, smallT[0]); 
+                largeT[0] = interp(minT1, maxT1, largeT[0]); 
             } else {
-                smallT = interp(minT1, maxT1, smallT); 
-                largeT = interp(minT2, maxT2, largeT); 
+                smallT[0] = interp(minT1, maxT1, smallT[0]); 
+                largeT[0] = interp(minT2, maxT2, largeT[0]); 
             }
-            intersections.add(smallT, largeT);
+            intersections.add(smallT[0], largeT[0]);
             return true;
         }
     }
@@ -138,7 +137,7 @@ int depth;
 int splits;
 };
 
-bool intersectStart(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
+bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     QuadraticIntersections q(q1, q2, i);
     return q.intersect();
 }

@@ -1,4 +1,4 @@
-#include "CubicIntersection_Tests.h"
+#include "Intersection_Tests.h"
 #include "LineParameters.h"
 
 

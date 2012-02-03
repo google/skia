@@ -1,4 +1,4 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "Intersections.h"
 #include "LineUtilities.h"
 #include "QuadraticUtilities.h"
@@ -157,7 +157,7 @@ bool moreHorizontal;
 
 };
  
-bool intersectStart(const Quadratic& quad, const _Line& line, Intersections& i) {
+bool intersect(const Quadratic& quad, const _Line& line, Intersections& i) {
     LineQuadraticIntersections q(quad, line, i);
     return q.intersect();
 }

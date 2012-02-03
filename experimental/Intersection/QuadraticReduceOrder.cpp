@@ -1,4 +1,4 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "Extrema.h"
 #include "IntersectionUtilities.h"
 #include "LineParameters.h"

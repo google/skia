@@ -1,4 +1,4 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "CubicIntersection_TestData.h"
 #include "Intersection_Tests.h"
 #include "QuadraticIntersection_TestData.h"

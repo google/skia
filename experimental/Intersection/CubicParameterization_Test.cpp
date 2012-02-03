@@ -1,5 +1,6 @@
-#include "CubicIntersection.h"
+#include "CurveIntersection.h"
 #include "Intersection_Tests.h"
+#include "Parameterization_Test.h"
 #include "TestUtilities.h"
 
 const Quadratic quadratics[] = {
@@ -47,16 +48,16 @@ void CubicCoincidence_Test() {
 // The on curve points of each cubic should be on both parameterized cubics.
 const Cubic cubics[] = {
   {
-    {1, -1},
-    {.333, 1},
-    {-.333, -1},
-    {-1, 1}
+    { 1,     -1},
+    { 1.0/3,  1},
+    {-1.0/3, -1},
+    {-1,      1}
   },
   {
-    {-1, 1},
-    {-.333, -1},
-    {.333, 1},
-    {1, -1}
+    {-1,     1},
+    {-1.0/3, -1},
+    { 1.0/3,  1},
+    { 1,     -1}
   },
   {
     {0, 2},
@@ -97,6 +98,9 @@ void CubicParameterization_Test() {
                     printf("%s [%zu,%zu] 2 parameterization failed\n",
                         __FUNCTION__, index, inner);
             }
+        }
+        if (!implicit_matches(cubics[index], cubics[index ^ 1])) {
+            printf("%s %d\n", __FUNCTION__, (int)index);
         }
     }
 }
