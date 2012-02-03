@@ -538,13 +538,6 @@ void SkDeferredCanvas::DeferredDevice::flush()
     fImmediateCanvas->flush();
 }
 
-void SkDeferredCanvas::DeferredDevice::flushContext()
-{
-    if (fDeviceContext) {
-        fDeviceContext->flush();
-    }
-}
-
 void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap)
 {
     if (bitmap.isImmutable()) {
