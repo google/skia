@@ -143,7 +143,6 @@ public:
     class DeviceContext : public SkRefCnt {
     public:
         virtual void prepareForDraw() {}
-        virtual void flush() {}
     };
 
 public:
@@ -183,7 +182,6 @@ public:
         SkDevice* immediateDevice() const {return fImmediateDevice;}
 
         void flushPending();
-        void flushContext();
         void purgePending();
         void flushIfNeeded(const SkBitmap& bitmap);
 
