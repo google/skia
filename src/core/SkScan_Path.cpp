@@ -131,7 +131,7 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
         while (currE->fFirstY <= curr_y) {
             SkASSERT(currE->fLastY >= curr_y);
 
-            int x = (currE->fX + SK_Fixed1/2) >> 16;
+            int x = SkFixedRoundToInt(currE->fX);
             w += currE->fWinding;
             if ((w & windingMask) == 0) { // we finished an interval
                 SkASSERT(in_interval);
@@ -256,8 +256,8 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
         int count = local_bot - local_top;
         SkASSERT(count >= 0);
         if (0 == (dLeft | dRite)) {
-            int L = (left + SK_Fixed1/2) >> 16;
-            int R = (rite + SK_Fixed1/2) >> 16;
+            int L = SkFixedRoundToInt(left);
+            int R = SkFixedRoundToInt(rite);
             if (L < R) {
                 count += 1;
                 blitter->blitRect(L, local_top, R - L, count);
@@ -267,8 +267,8 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
             local_top = local_bot + 1;
         } else {
             do {
-                int L = (left + SK_Fixed1/2) >> 16;
-                int R = (rite + SK_Fixed1/2) >> 16;
+                int L = SkFixedRoundToInt(left);
+                int R = SkFixedRoundToInt(rite);
                 if (L < R) {
                     blitter->blitH(L, local_top, R - L);
                 }
