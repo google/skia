@@ -34,6 +34,78 @@ static const int SPARE_TEX_UNIT = GrDrawState::kNumStages;
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+
+void GrGpuGL::GLCaps::markConfigAsValidColorAttachment(GrPixelConfig config) {
+#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
+    return;
+#endif
+    GrAssert(config < kGrPixelConfigCount);
+    int u32Idx = config / 32;
+    int bitIdx = config % 32;
+    fVerifiedColorAttachmentConfigs[u32Idx] |= (1 << bitIdx);
+}
+
+bool GrGpuGL::GLCaps::isConfigVerifiedColorAttachment(
+                                                GrPixelConfig config) const {
+#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
+    return false;
+#endif
+    GrAssert((unsigned)config < kGrPixelConfigCount);
+    int u32Idx = config / 32;
+    int bitIdx = config % 32;
+    return SkToBool(fVerifiedColorAttachmentConfigs[u32Idx] & (1 << bitIdx));
+}
+
+void GrGpuGL::GLCaps::markColorConfigAndStencilFormatAsVerified(
+                                    GrPixelConfig config,
+                                    const GrGLStencilBuffer::Format& format) {
+#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
+    return;
+#endif
+    GrAssert((unsigned)config < kGrPixelConfigCount);
+    int count = fStencilFormats.count();
+    // we expect a really small number of possible formats so linear search
+    // should be OK
+    GrAssert(count < 16);
+    for (int i = 0; i < count; ++i) {
+        if (format.fInternalFormat ==
+            fStencilFormats[i].fFormat.fInternalFormat) {
+            int u32Idx = config / 32;
+            int bitIdx = config % 32;
+            fStencilFormats[i].fVerifiedColorConfigs[u32Idx] |= (1 << bitIdx);
+            return;
+        }
+    }
+    SkDEBUGFAIL("Why are we seeing a stencil format that GLCaps doesn't know about.");
+}
+
+bool GrGpuGL::GLCaps::isColorConfigAndStencilFormatVerified(
+                                GrPixelConfig config,
+                                const GrGLStencilBuffer::Format& format) const {
+#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
+    return false;
+#endif
+    GrAssert((unsigned)config < kGrPixelConfigCount);
+    int count = fStencilFormats.count();
+    // we expect a really small number of possible formats so linear search
+    // should be OK
+    GrAssert(count < 16);
+    for (int i = 0; i < count; ++i) {
+        if (format.fInternalFormat ==
+            fStencilFormats[i].fFormat.fInternalFormat) {
+            int u32Idx = config / 32;
+            int bitIdx = config % 32;
+            return SkToBool(fStencilFormats[i].fVerifiedColorConfigs[u32Idx] &
+                            (1 << bitIdx));
+        }
+    }
+    SkDEBUGFAIL("Why are we seeing a stencil format that GLCaps doesn't know about.");
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
     GR_GL_ONE,
@@ -402,14 +474,16 @@ void GrGpuGL::initStencilFormats() {
 
     // these consts are in order of most preferred to least preferred
     // we don't bother with GL_STENCIL_INDEX1 or GL_DEPTH32F_STENCIL8
-    static const GrGLStencilBuffer::Format
+
+    // Omitting fVerifiedColorConfigs from initializer list should init to 0.
+    static const GLCaps::StencilFormat
                   // internal Format      stencil bits      total bits        packed?
-        gS8    = {GR_GL_STENCIL_INDEX8,   8,                8,                false},
-        gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
-        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true },
-        gS4    = {GR_GL_STENCIL_INDEX4,   4,                4,                false},
-        gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
-        gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
+        gS8    = {{GR_GL_STENCIL_INDEX8,   8,                8,                false}},
+        gS16   = {{GR_GL_STENCIL_INDEX16,  16,               16,               false}},
+        gD24S8 = {{GR_GL_DEPTH24_STENCIL8, 8,                32,               true }},
+        gS4    = {{GR_GL_STENCIL_INDEX4,   4,                4,                false}},
+        gS     = {{GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false}},
+        gDS    = {{GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true }};
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
         bool supportsPackedDS = fGLVersion >= GR_GL_VER(3,0) || 
@@ -442,6 +516,17 @@ void GrGpuGL::initStencilFormats() {
             fGLCaps.fStencilFormats.push_back() = gS4;
         }
     }
+#if GR_DEBUG
+    // ensure that initially all color / stencil format combos have unverified
+    // fbo status.
+    for (int i = 0; i < fGLCaps.fStencilFormats.count(); ++i) {
+        int numU32 =
+            GR_ARRAY_COUNT(fGLCaps.fStencilFormats[i].fVerifiedColorConfigs);
+        for (int j = 0; j < numU32; ++j) {
+            GrAssert(0 == fGLCaps.fStencilFormats[i].fVerifiedColorConfigs);
+        }
+    }
+#endif
 }
 
 GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) const {
@@ -910,9 +995,12 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
                                       GR_GL_COLOR_ATTACHMENT0,
                                       GR_GL_RENDERBUFFER,
                                       desc->fMSColorRenderbufferID));
-        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-            goto FAILED;
+        if (!fGLCaps.isConfigVerifiedColorAttachment(desc->fConfig)) {
+            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+            if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+                goto FAILED;
+            }
+            fGLCaps.markConfigAsValidColorAttachment(desc->fConfig);
         }
     }
     GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, desc->fTexFBOID));
@@ -921,9 +1009,12 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
                                  GR_GL_COLOR_ATTACHMENT0,
                                  GR_GL_TEXTURE_2D,
                                  texID, 0));
-    GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-    if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-        goto FAILED;
+    if (!fGLCaps.isConfigVerifiedColorAttachment(desc->fConfig)) {
+        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+            goto FAILED;
+        }
+        fGLCaps.markConfigAsValidColorAttachment(desc->fConfig);
     }
 
     return true;
@@ -1115,7 +1206,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         // that we won't go through this loop more than once after the
         // first (painful) stencil creation.
         int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
-        const GrGLStencilBuffer::Format& sFmt = fGLCaps.fStencilFormats[sIdx];
+        const GLCaps::StencilFormat& sFmt = fGLCaps.fStencilFormats[sIdx];
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // we do this "if" so that we don't call the multisample
         // version on a GL that doesn't have an MSAA extension.
@@ -1123,12 +1214,12 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             GL_ALLOC_CALL(this->glInterface(),
                           RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                          samples,
-                                                         sFmt.fInternalFormat,
+                                                         sFmt.fFormat.fInternalFormat,
                                                          width, height));
         } else {
             GL_ALLOC_CALL(this->glInterface(),
                           RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                              sFmt.fInternalFormat,
+                                              sFmt.fFormat.fInternalFormat,
                                               width, height));
         }
 
@@ -1136,7 +1227,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         if (err == GR_GL_NO_ERROR) {
             // After sized formats we attempt an unsized format and take whatever
             // sizes GL gives us. In that case we query for the size.
-            GrGLStencilBuffer::Format format = sFmt;
+            GrGLStencilBuffer::Format format = sFmt.fFormat;
             get_stencil_rb_sizes(this->glInterface(), sbID, &format);
             sb = new GrGLStencilBuffer(this, sbID, width, height, 
                                        samples, format);
@@ -1195,20 +1286,26 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
         }
 
         GrGLenum status;
-        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                          GR_GL_STENCIL_ATTACHMENT,
-                                          GR_GL_RENDERBUFFER, 0));
-            if (glsb->format().fPacked) {
+        if (!fGLCaps.isColorConfigAndStencilFormatVerified(rt->config(),
+                                                           glsb->format())) {
+            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+            if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                              GR_GL_DEPTH_ATTACHMENT,
+                                              GR_GL_STENCIL_ATTACHMENT,
                                               GR_GL_RENDERBUFFER, 0));
+                if (glsb->format().fPacked) {
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                  GR_GL_DEPTH_ATTACHMENT,
+                                                  GR_GL_RENDERBUFFER, 0));
+                }
+                return false;
+            } else {
+                fGLCaps.markColorConfigAndStencilFormatAsVerified(
+                    rt->config(),
+                    glsb->format());
             }
-            return false;
-        } else {
-            return true;
         }
+        return true;
     }
 }
 
@@ -2430,8 +2527,8 @@ void GrGpuGL::GLCaps::print() const {
     for (int i = 0; i < fStencilFormats.count(); ++i) {
         GrPrintf("Stencil Format %d, stencil bits: %02d, total bits: %02d\n",
                  i,
-                 fStencilFormats[i].fStencilBits,
-                 fStencilFormats[i].fTotalBits);
+                 fStencilFormats[i].fFormat.fStencilBits,
+                 fStencilFormats[i].fFormat.fTotalBits);
     }
 
     GR_STATIC_ASSERT(0 == kNone_MSFBO);
