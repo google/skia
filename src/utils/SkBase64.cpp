@@ -12,7 +12,7 @@
 #define DecodePad -2
 #define EncodePad 64
 
-static const char encode[] = 
+static const char default_encode[] = 
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/=";
@@ -109,7 +109,13 @@ goHome:
 #pragma warning ( pop )
 #endif
 
-size_t SkBase64::Encode(const void* srcPtr, size_t length, void* dstPtr) {
+size_t SkBase64::Encode(const void* srcPtr, size_t length, void* dstPtr, const char* encodeMap) {
+    const char* encode;
+    if (NULL == encodeMap) {
+        encode = default_encode;
+    } else {
+        encode = encodeMap;
+    }
     const unsigned char* src = (const unsigned char*) srcPtr;
     unsigned char* dst = (unsigned char*) dstPtr;
     if (dst) {

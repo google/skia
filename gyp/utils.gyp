@@ -39,6 +39,8 @@
         '../include/utils/SkUnitMappers.h',
         '../include/utils/SkWGL.h',
 
+        '../src/utils/SkBase64.cpp',
+        '../src/utils/SkBase64.h',
         '../src/utils/SkBoundaryPatch.cpp',
         '../src/utils/SkCamera.cpp',
         '../src/utils/SkColorMatrix.cpp',

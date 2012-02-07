@@ -15,6 +15,7 @@
         '../include/xml',
         '../include/utils',
         '../include/images',
+        '../src/utils',
       ],
       'sources': [
         '../include/animator/SkAnimator.h',
@@ -36,8 +37,6 @@
         '../src/animator/SkAnimatorScript.h',
         #'../src/animator/SkAnimatorScript2.cpp', fails on windows
         #'../src/animator/SkAnimatorScript2.h',
-        '../src/animator/SkBase64.cpp',
-        '../src/animator/SkBase64.h',
         '../src/animator/SkBoundable.cpp',
         '../src/animator/SkBoundable.h',
         '../src/animator/SkBuildCondensedInfo.cpp',
