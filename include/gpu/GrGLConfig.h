@@ -92,50 +92,61 @@
  * amounts to ensuring the error is GL_NO_ERROR, calling the allocating
  * function, and then checking that the error is still GL_NO_ERROR. When the
  * value is 0 we will assume no error was generated without checking.
+ *
+ * GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT: We will normally check the FBO status
+ * every time we bind a texture or renderbuffer to an FBO. However, in some
+ * environments CheckFrameBufferStatus is very expensive. If this is set we will
+ * check the first time we use a color format or a combination of color /
+ * stencil formats as attachments. If the FBO is complete we will assume
+ * subsequent attachments with the same formats are complete as well.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
-    #define GR_GL_LOG_CALLS                     GR_DEBUG
+    #define GR_GL_LOG_CALLS                             GR_DEBUG
 #endif
 
 #if !defined(GR_GL_LOG_CALLS_START)
-    #define GR_GL_LOG_CALLS_START               0
+    #define GR_GL_LOG_CALLS_START                       0
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR)
-    #define GR_GL_CHECK_ERROR                   GR_DEBUG
+    #define GR_GL_CHECK_ERROR                           GR_DEBUG
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR_START)
-    #define GR_GL_CHECK_ERROR_START             1
+    #define GR_GL_CHECK_ERROR_START                     1
 #endif
 
 #if !defined(GR_GL_NO_CONSTANT_ATTRIBUTES)
-    #define GR_GL_NO_CONSTANT_ATTRIBUTES        0
+    #define GR_GL_NO_CONSTANT_ATTRIBUTES                0
 #endif
 
 #if !defined(GR_GL_ATTRIBUTE_MATRICES)
-    #define GR_GL_ATTRIBUTE_MATRICES            0
+    #define GR_GL_ATTRIBUTE_MATRICES                    0
 #endif
 
 #if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)
-    #define GR_GL_USE_BUFFER_DATA_NULL_HINT     1
+    #define GR_GL_USE_BUFFER_DATA_NULL_HINT             1
 #endif
 
 #if !defined(GR_GL_PER_GL_FUNC_CALLBACK)
-    #define GR_GL_PER_GL_FUNC_CALLBACK          0
+    #define GR_GL_PER_GL_FUNC_CALLBACK                  0
 #endif
 
 #if !defined(GR_GL_RGBA_8888_PIXEL_OPS_SLOW)
-    #define GR_GL_RGBA_8888_PIXEL_OPS_SLOW      0
+    #define GR_GL_RGBA_8888_PIXEL_OPS_SLOW              0
 #endif
 
 #if !defined(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL)
-    #define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL 0
+    #define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL   0
 #endif
 
 #if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)
-    #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR    1
+    #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR            1
+#endif
+
+#if !defined(GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT)
+    #define GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT      0
 #endif
 
 #if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)
