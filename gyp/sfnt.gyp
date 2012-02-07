@@ -17,6 +17,7 @@
         '../src/sfnt/SkOTTableTypes.h',
         '../src/sfnt/SkOTTable_head.h',
         '../src/sfnt/SkOTTable_hhea.h',
+        '../src/sfnt/SkOTTable_name.h',
         '../src/sfnt/SkOTTable_OS_2.h',
         '../src/sfnt/SkOTTable_OS_2_V0.h',
         '../src/sfnt/SkOTTable_OS_2_V1.h',
@@ -26,8 +27,12 @@
         '../src/sfnt/SkOTTable_OS_2_VA.h',
         '../src/sfnt/SkOTTable_post.h',
         '../src/sfnt/SkPanose.h',
+        '../src/sfnt/SkOTUtils.h',
         '../src/sfnt/SkPreprocessorSeq.h',
+        '../src/sfnt/SkSFNTHeader.h',
         '../src/sfnt/SkTypedEnum.h',
+
+        '../src/sfnt/SkOTUtils.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

@@ -59,6 +59,7 @@
         enumType elem;
 
     #define SK_TYPED_ENUM(enumName, enumType, enumSeq, idSeq) \
+        typedef enumType enumName; \
         SK_SEQ_FOREACH(SK_TYPED_ENUM_VALUES, enumType, enumSeq) \
         SK_SEQ_FOREACH(SK_TYPED_ENUM_IDS, enumType, idSeq)
 
