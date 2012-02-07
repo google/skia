@@ -21,3 +21,12 @@ int reduceOrder(const _Line& line, _Line& reduced) {
     reduced[1] = line[different];
     return 1 + different;
 }
+
+void sub_divide(const _Line& line, double t1, double t2, _Line& dst) {
+    _Point delta;
+    tangent(line, delta);
+    dst[0].x = line[0].x - t1 * delta.x;
+    dst[0].y = line[0].y - t1 * delta.y;
+    dst[1].x = line[0].x - t2 * delta.x;
+    dst[1].y = line[0].y - t2 * delta.y;
+}

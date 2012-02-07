@@ -13,7 +13,7 @@ bool implicit_matches(const Cubic& cubic1, const Cubic& cubic2);
 bool implicit_matches(const _Line& line1, const _Line& line2);
 bool implicit_matches(const Quadratic& quad1, const Quadratic& quad2);
 void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst);
-void sub_divide(const _Line& src, double t1, double t2, Cubic& dst);
+void sub_divide(const _Line& src, double t1, double t2, _Line& dst);
 void sub_divide(const Quadratic& src, double t1, double t2, Quadratic& dst);
 void tangent(const Cubic& cubic, double t, _Point& result);
 void tangent(const _Line& line, _Point& result);
