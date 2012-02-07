@@ -279,11 +279,14 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Update as needed the pixel value in the bitmap, so that the caller can access
-        the pixels directly. Note: only the pixels field should be altered. The config/width/height/rowbytes
-        must remain unchanged.
+    /** Update as needed the pixel value in the bitmap, so that the caller can
+        access the pixels directly. Note: only the pixels field should be
+        altered. The config/width/height/rowbytes must remain unchanged.
+        @param bitmap The device's bitmap
+        @return Echo the bitmap parameter, or an alternate (shadow) bitmap 
+            maintained by the subclass.
     */
-    virtual void onAccessBitmap(SkBitmap*);
+    virtual const SkBitmap& onAccessBitmap(SkBitmap*);
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref

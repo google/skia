@@ -27,6 +27,7 @@
         '../tests/ColorFilterTest.cpp',
         '../tests/ColorTest.cpp',
         '../tests/DataRefTest.cpp',
+        '../tests/DeferredCanvasTest.cpp',
         '../tests/DequeTest.cpp',
         '../tests/DrawBitmapRectTest.cpp',
         '../tests/DrawTextTest.cpp',

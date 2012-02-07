@@ -471,10 +471,10 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     SkSafeRef(fDeviceContext);
     fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
-    SkSafeRef(fImmediateCanvas); 
     fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
         fImmediateDevice->height(),
         SkPicture::kUsePathBoundsForClip_RecordingFlag);
+    fBitmapInitialized = false;
 }
 
 SkDeferredCanvas::DeferredDevice::~DeferredDevice()
@@ -593,10 +593,10 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
     flushIfNeeded(bitmap);
 }
 
-void SkDeferredCanvas::DeferredDevice::onAccessBitmap(SkBitmap* bitmap)
+const SkBitmap& SkDeferredCanvas::DeferredDevice::onAccessBitmap(SkBitmap*)
 {
-    SkASSERT(bitmap);
     flushPending();
+    return fImmediateDevice->accessBitmap(false);
 }
 
 SkDevice* SkDeferredCanvas::DeferredDevice::onCreateCompatibleDevice(
