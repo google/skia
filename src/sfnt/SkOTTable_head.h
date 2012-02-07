@@ -18,7 +18,8 @@ struct SkOTTableHead {
     SK_OT_Fixed version;
     static const SK_OT_Fixed version1 = SkTEndian_SwapBE32(0x00010000);
     SK_OT_Fixed fontRevision;
-    SK_OT_ULONG checkSumAdjustment;
+    static const uint32_t fontChecksum = 0xB1B0AFBA; //checksum of all TT fonts
+    SK_OT_ULONG checksumAdjustment;
     SK_OT_ULONG magicNumber;
     static const SK_OT_ULONG magicNumberConst = SkTEndian_SwapBE32(0x5F0F3CF5);
     union Flags {
