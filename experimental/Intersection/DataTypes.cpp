@@ -81,14 +81,22 @@ void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
     double t2 = t * t;
     double c = 3 * one_t * t2;
     double d = t2 * t;
-    x = a * cubic[0].x + b * cubic[1].x + c * cubic[2].x + d * cubic[3].x;
-    y = a * cubic[0].y + b * cubic[1].y + c * cubic[2].y + d * cubic[3].y;
+    if (&x) {
+        x = a * cubic[0].x + b * cubic[1].x + c * cubic[2].x + d * cubic[3].x;
+    }
+    if (&y) {
+        y = a * cubic[0].y + b * cubic[1].y + c * cubic[2].y + d * cubic[3].y;
+    }
 }
 
 void xy_at_t(const _Line& line, double t, double& x, double& y) {
     double one_t = 1 - t;
-    x = one_t * line[0].x + t * line[1].x;
-    y = one_t * line[0].y + t * line[1].y;
+    if (&x) {
+        x = one_t * line[0].x + t * line[1].x;
+    }
+    if (&y) {
+        y = one_t * line[0].y + t * line[1].y;
+    }
 }
 
 void xy_at_t(const Quadratic& quad, double t, double& x, double& y) {
@@ -96,6 +104,10 @@ void xy_at_t(const Quadratic& quad, double t, double& x, double& y) {
     double a = one_t * one_t;
     double b = 2 * one_t * t;
     double c = t * t;
-    x = a * quad[0].x + b * quad[1].x + c * quad[2].x;
-    y = a * quad[0].y + b * quad[1].y + c * quad[2].y;
+    if (&x) {
+        x = a * quad[0].x + b * quad[1].x + c * quad[2].x;
+    }
+    if (&y) {
+        y = a * quad[0].y + b * quad[1].y + c * quad[2].y;
+    }
 }
