@@ -77,11 +77,11 @@ void SkDevice::unlockPixels() {
 }
 
 const SkBitmap& SkDevice::accessBitmap(bool changePixels) {
-    this->onAccessBitmap(&fBitmap);
+    const SkBitmap& bitmap = this->onAccessBitmap(&fBitmap);
     if (changePixels) {
-        fBitmap.notifyPixelsChanged();
+        bitmap.notifyPixelsChanged();
     }
-    return fBitmap;
+    return bitmap;
 }
 
 void SkDevice::getGlobalBounds(SkIRect* bounds) const {
@@ -95,7 +95,7 @@ void SkDevice::clear(SkColor color) {
     fBitmap.eraseColor(color);
 }
 
-void SkDevice::onAccessBitmap(SkBitmap* bitmap) {}
+const SkBitmap& SkDevice::onAccessBitmap(SkBitmap* bitmap) {return *bitmap;}
 
 void SkDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& region,
                              const SkClipStack& clipStack) {

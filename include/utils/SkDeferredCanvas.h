@@ -199,7 +199,7 @@ public:
                                  SkCanvas::Config8888 config8888) SK_OVERRIDE;
 
     protected:
-        virtual void onAccessBitmap(SkBitmap*) SK_OVERRIDE;
+        virtual const SkBitmap& onAccessBitmap(SkBitmap*) SK_OVERRIDE;
         virtual bool onReadPixels(const SkBitmap& bitmap,
                                   int x, int y,
                                   SkCanvas::Config8888 config8888) SK_OVERRIDE;
@@ -275,6 +275,7 @@ public:
         SkCanvas* fImmediateCanvas;
         SkCanvas* fRecordingCanvas;
         DeviceContext* fDeviceContext;
+        bool fBitmapInitialized;
     };
 
     DeferredDevice* getDeferredDevice() const;
