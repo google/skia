@@ -154,6 +154,8 @@ struct SkGlyph {
     void toMask(SkMask* mask) const;
 };
 
+//#define USE_NEW_LUMINANCE
+
 class SkScalerContext {
 public:
     enum Flags {
@@ -179,16 +181,22 @@ public:
         // Perhaps we can store this (instead) in fMaskFormat, in hight bit?
         kGenA8FromLCD_Flag        = 0x0800,
 
+#ifdef USE_NEW_LUMINANCE
+        kLuminance_Bits           = 3,
+#else
         // luminance : 0 for black text, kLuminance_Max for white text
         kLuminance_Shift          = 13, // shift to land in the high 3-bits of Flags
         kLuminance_Bits           = 3,  // ensure Flags doesn't exceed 16bits
+#endif
     };
     
     // computed values
     enum {
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
         kLuminance_Max  = (1 << kLuminance_Bits) - 1,
+#ifndef USE_NEW_LUMINANCE
         kLuminance_Mask = kLuminance_Max << kLuminance_Shift,
+#endif
     };
 
     struct Rec {
@@ -197,6 +205,9 @@ public:
         SkScalar    fTextSize, fPreScaleX, fPreSkewX;
         SkScalar    fPost2x2[2][2];
         SkScalar    fFrameWidth, fMiterLimit;
+#ifdef USE_NEW_LUMINANCE
+        uint32_t    fLumBits;
+#endif
         uint8_t     fMaskFormat;
         uint8_t     fStrokeJoin;
         uint16_t    fFlags;
@@ -217,7 +228,21 @@ public:
         void setHinting(SkPaint::Hinting hinting) {
             fFlags = (fFlags & ~kHinting_Mask) | (hinting << kHinting_Shift);
         }
-
+        
+        SkMask::Format getFormat() const {
+            return static_cast<SkMask::Format>(fMaskFormat);
+        }
+        
+#ifdef USE_NEW_LUMINANCE
+        unsigned getLuminanceBits() const {
+            return fLumBits;
+        }
+        
+        void setLuminanceBits(unsigned lum) {
+            SkASSERT(lum <= kLuminance_Max);
+            fLumBits = lum;
+        }
+#else
         unsigned getLuminanceBits() const {
             return (fFlags & kLuminance_Mask) >> kLuminance_Shift;
         }
@@ -226,6 +251,7 @@ public:
             SkASSERT(lum <= kLuminance_Max);
             fFlags = (fFlags & ~kLuminance_Mask) | (lum << kLuminance_Shift);
         }
+#endif
 
         U8CPU getLuminanceByte() const {
             SkASSERT(3 == kLuminance_Bits);
@@ -233,10 +259,6 @@ public:
             lum |= (lum << kLuminance_Bits);
             lum |= (lum << kLuminance_Bits*2);
             return lum >> (4*kLuminance_Bits - 8);
-        }
-
-        SkMask::Format getFormat() const {
-            return static_cast<SkMask::Format>(fMaskFormat);
         }
     };
 
