@@ -61,41 +61,8 @@ protected:
             , fPackFlipYSupport(false)
             , fTextureUsageSupport(false)
             , fTexStorageSupport(false) {
-            memset(&fVerifiedColorAttachmentConfigs, 0,
-                   sizeof(fVerifiedColorAttachmentConfigs));
         }
-
-        // Call to note that a color config has been verified as a valid
-        // color attachment. This may save future calls to
-        // CheckFramebufferStatus
-        void markConfigAsValidColorAttachment(GrPixelConfig config);
-
-        // Call to check whether a config has been verified as a valid color
-        // attachment.
-        bool isConfigVerifiedColorAttachment(GrPixelConfig config) const;
-
-        // Call to note that a color config / stencil format pair passed
-        // FBO status check. We may skip calling CheckFramebufferStatus for
-        // this combination in the future.
-        void markColorConfigAndStencilFormatAsVerified(
-                        GrPixelConfig config,
-                        const GrGLStencilBuffer::Format& format);
-
-        // Call to check whether color config / stencil format pair has already
-        // passed FBO status check.
-        bool isColorConfigAndStencilFormatVerified(
-                        GrPixelConfig config,
-                        const GrGLStencilBuffer::Format& format) const;
-
-        void print() const;
-
-        struct StencilFormat {
-            GrGLStencilBuffer::Format fFormat;
-            uint32_t fVerifiedColorConfigs[(kGrPixelConfigCount  + 31) / 32];
-        };
-
-        SkTArray<StencilFormat, true> fStencilFormats;
-
+        SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
 
         enum {
             /**
@@ -151,10 +118,9 @@ protected:
         // Is there support for glTexStorage
         bool fTexStorageSupport;
 
-    private:
-        uint32_t fVerifiedColorAttachmentConfigs[(kGrPixelConfigCount  + 31) / 32];
+        void print() const;
     } fGLCaps;
-
+ 
     struct {
         size_t                  fVertexOffset;
         GrVertexLayout          fVertexLayout;

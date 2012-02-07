@@ -301,8 +301,6 @@ enum GrPixelConfig {
      * Unpremultiplied. Byte order is b,g,r,a
      */
     kBGRA_8888_UPM_GrPixelConfig,
-
-    kGrPixelConfigCount
 };
 
 // Aliases for pixel configs that match skia's byte order
