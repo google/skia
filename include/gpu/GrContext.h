@@ -87,7 +87,7 @@ public:
      * Token that refers to an entry in the texture cache. Returned by
      * functions that lock textures. Passed to unlockTexture.
      */
-    class TextureCacheEntry {
+    class SK_API TextureCacheEntry {
     public:
         TextureCacheEntry() : fEntry(NULL) {}
         TextureCacheEntry(const TextureCacheEntry& e) : fEntry(e.fEntry) {}
