@@ -104,27 +104,208 @@ void contourBounds(const SkPath& path, SkTDArray<SkRect>& boundsArray) {
     }
 }
 
-struct OutEdge {
+static bool extendLine(const SkPoint line[2], const SkPoint& add) {
+    // FIXME: allow this to extend lines that have slopes that are nearly equal
+    SkScalar dx1 = line[1].fX - line[0].fX;
+    SkScalar dy1 = line[1].fY - line[0].fY;
+    SkScalar dx2 = add.fX - line[0].fX;
+    SkScalar dy2 = add.fY - line[0].fY;
+    return dx1 * dy2 == dx2 * dy1;
+}
 
+struct OutEdge {
+    bool operator<(const OutEdge& rh) const {
+        const SkPoint& first = fPts.begin()[0];
+        const SkPoint& rhFirst = rh.fPts.begin()[0];
+        return first.fY == rhFirst.fY
+                ? first.fX < rhFirst.fX
+                : first.fY < rhFirst.fY;
+    }
+    
     SkTDArray<SkPoint> fPts;
     SkTDArray<uint8_t> fVerbs;
 };
 
+// for sorting only
+class OutBottomEdge : public OutEdge { 
+public:    
+    bool operator<(const OutBottomEdge& rh) const {
+        const SkPoint& last = fPts.end()[-1];
+        const SkPoint& rhLast = rh.fPts.end()[-1];
+        return last.fY == rhLast.fY
+                ? last.fX < rhLast.fX
+                : last.fY < rhLast.fY;
+    }
+    
+};
+
 class OutEdgeBuilder {
 public:
-    void addLine(SkPoint pts[2]) {
-        ;
-        OutEdge* edge;
-        
-        edge = fEdges.append();
-        
-        if (empty) {
-            *edge->fPts.append() = pts[0];
+    OutEdgeBuilder(bool fill)
+        : fFill(fill) {
         }
-        *edge->fPts.append() = pts[1];
+
+    void addLine(const SkPoint line[2]) {
+        size_t count = fEdges.count();
+        for (size_t index = 0; index < count; ++index) {
+            SkTDArray<SkPoint>& pts = fEdges[index].fPts;
+            SkPoint* last = pts.end() - 1;
+            if (last[0] == line[0]) {
+                if (extendLine(&last[-1], line[1])) {
+                    last[0] = line[1];
+                } else {
+                    *pts.append() = line[1];
+                }
+                return;
+            }
+        }
+        OutEdge& edge = fEdges.push_back();
+        *edge.fPts.append() = line[0];
+        *edge.fPts.append() = line[1];
+    }
+
+    void assemble(SkPath& simple) {
+        size_t index = 0;
+        do {
+            SkTDArray<SkPoint>& downArray = fEdges[index].fPts;
+            SkPoint* pts = downArray.begin();
+            SkPoints* end = downArray.end();
+            SkPoint firstPt = pts[0];
+            simple.moveTo(pts[0].fX, pts[0].fY);
+            while (++pts < end) {
+                simple.lineTo(pts->fX, pts->fY);
+            }
+            index = fBottoms[index];
+            SkTDArray<SkPoint>& upArray = fEdges[index].fPts;
+            pts = upArray.end();
+            SkPoints* begin = upArray.begin();
+            while (--pts > begin) {
+                simple.lineTo(pts->fX, pts->fY);
+            }
+            if (pts[0] == firstPt) {
+                simple.close();
+                closed = true;
+                
+            } else {
+                simple.lineTo(pts->fX, pts->fY);
+            }
+            index = advance > 0 ? fBottoms[index] : fTops[index];
+            advance = -advance;
+        } while (true);
+        
+            } else {
+                if (firstAdded.fY == pts[0].fY) {
+                    advance = -1;
+                    pts = ptArray.end();
+                }
+            }
+            size_t count2 = ptArray.count();
+            for (size_t inner = 1; inner < count2; ++inner) {
+                pts += advance;
+                simple.lineTo(pts->fX, pts->fY);
+            }
+            if (*pts == *ptArray.begin()) {
+//                lastAdded = *pts;
+                simple.close();
+                newContour = true;
+            }
+        }
+    }
+    
+    static bool lessThan(const SkTArray<OutEdge>& edges, const int* onePtr,
+            const int* twoPtr) {
+        int one = *onePtr;
+        const OutEdge& oneEdge = edges[(one < 0 ? -one : one) - 1];
+        const SkPoint* onePt = one < 0 ? oneEdge.fPts.begin()
+                : oneEdge.fPts.end() - 1;
+        int two = *twoPtr;
+        const OutEdge& twoEdge = edges[(two < 0 ? -two : two) - 1];
+        const SkPoint* twoPt = two < 0 ? twoEdge.fPts.begin()
+                : twoEdge.fPts.end() - 1;
+        return onePt.fY == twoPt.fY ? onePt.fX < twoPt.fX : onePt.fY < twoPt.fY;
+    }
+
+    void bridge() {
+        size_t index;
+        size_t count = fEdges.count();
+        if (!count) {
+            return;
+        }
+        SkASSERT(!fFill || (count & 1) == 0);
+        fTops.setCount(count);
+        sk_bzero(fTops.begin(), sizeof(fTops[0]) * count);
+        fBottoms.setCount(count);
+        sk_bzero(fBottoms.begin(), sizeof(fBottoms[0]) * count);
+        for (index = 0; index < count; ++index) {
+            *fList.append() = index + 1;
+            *fList.append() = -index - 1;
+        }
+        Context context;
+        QSort<SkTArray<OutEdge>&, int>(fEdges, fList.begin(), count, lessThan);
+        connectTops();
+        // sort bottoms
+        SkTDArray<OutBottomEdge*> bottomList;
+        for (index = 0; index < count; ++index) {
+            *bottomList.append() = static_cast<OutBottomEdge*>(&fEdges[index]);
+            fBottoms[index] = -1;
+        }
+        QSort<OutBottomEdge>(bottomList.begin(), count);
+        connectBottoms(bottomList);
+    }
+
+protected:
+    void connectTops() {
+        int* lastPtr = fList.end() - 1;
+        int* leftPtr = fList.begin();
+        for (; leftPtr < lastPtr; ++leftPtr) {
+            OutEdge* left = edges[(*leftPtr < 0 ? -*leftPtr : *leftPtr) - 1];
+            int* rightPtr = leftPtr + 1;
+            OutEdge* right = edges[(*rightPtr < 0 ? -*rightPtr : *rightPtr) - 1];
+            start here;
+            // i'm a bit confused right now -- but i'm trying to sort indices
+            // of paired points and then create more indices so assemble() can
+            // look up the next edge and whether to connect the top or bottom
+            int leftIndex = leftPtr - bottomList.begin();
+            int rightIndex = rightPtr - bottomList.begin();
+            SkASSERT(!fFill || left->fPts[0].fY == right->fPts[0].fY);
+            if (fFill || left->fPts[0] == right->fPts[0]) {
+                int leftIndex = leftPtr - topList.begin();
+                int rightIndex = rightPtr - topList.begin();
+                fTops[leftIndex] = rightIndex;
+                fTops[rightIndex] = leftIndex;
+                ++rightPtr;
+            }
+            leftPtr = rightPtr;
+        }
+    }
+
+    void connectBottoms(SkTDArray<OutBottomEdge*>& bottomList) {
+        OutBottomEdge** lastPtr = bottomList.end() - 1;
+        OutBottomEdge** leftPtr = bottomList.begin();
+        size_t leftCount = (*leftPtr)->fPts.count();
+        for (; leftPtr < lastPtr; ++leftPtr) {
+            OutBottomEdge** rightPtr = leftPtr + 1;
+            size_t rightCount = (*rightPtr)->fPts.count();
+            SkASSERT(!fFill || (*leftPtr)->fPts[leftCount].fY
+                    == (*rightPtr)->fPts[rightCount].fY);
+            if (fFill || (*leftPtr)->fPts[leftCount]
+                    == (*rightPtr)->fPts[rightCount]) {
+                int leftIndex = leftPtr - bottomList.begin();
+                int rightIndex = rightPtr - bottomList.begin();
+                fBottoms[leftIndex] = rightIndex;
+                fBottoms[rightIndex] = leftIndex;
+                if (++rightPtr < lastPtr) {
+                    rightCount = (*rightPtr)->fPts.count();
+                }
+            }
+            leftPtr = rightPtr;
+            leftCount = rightCount;
+        }
     }
 
     SkTArray<OutEdge> fEdges;
+    SkTDArray<int> fList;
+    bool fFill;
 };
 
 // Bounds, unlike Rect, does not consider a vertical line to be empty.
@@ -239,6 +420,7 @@ InEdgeBuilder(const SkPath& path, bool ignoreHorizontal, SkTArray<InEdge>& edges
 protected:
 
 void addEdge() {
+    SkASSERT(fCurrentEdge);
     fCurrentEdge->fPts.append(fPtCount - fPtOffset, &fPts[fPtOffset]);
     fPtOffset = 1;
     *fCurrentEdge->fVerbs.append() = fVerb;
@@ -291,8 +473,10 @@ void walk() {
                 winding = direction(4);
                 break;
             case SkPath::kClose_Verb:
+                SkASSERT(fCurrentEdge);
                 if (fCurrentEdge->fVerbs.count()) {
                     fCurrentEdge->complete(fWinding);
+                    fCurrentEdge = NULL;
                 }
                 continue;
             default:
@@ -305,13 +489,16 @@ void walk() {
         if (fWinding + winding == 0) {
             // FIXME: if prior verb or this verb is a horizontal line, reverse
             // it instead of starting a new edge
+            SkASSERT(fCurrentEdge);
             fCurrentEdge->complete(fWinding);
             startEdge();
         }
         fWinding = winding;
         addEdge();
     }
-    fCurrentEdge->complete(fWinding);
+    if (fCurrentEdge) {
+        fCurrentEdge->complete(fWinding);
+    }
 }
 
 private:
@@ -405,7 +592,7 @@ static void addToActive(SkTDArray<ActiveEdge>& activeEdges, const InEdge* edge) 
     // FIXME: in the pathological case where there is a ton of intercepts, binary search?
     size_t count = activeEdges.count();
     for (size_t index = 0; index < count; ++index) {
-        if (edge < activeEdges[index].fWorkEdge.fEdge) {
+        if (*edge < *activeEdges[index].fWorkEdge.fEdge) {
             ActiveEdge* active = activeEdges.insert(index);
             active->init(edge);
             return;
@@ -418,192 +605,233 @@ static void addToActive(SkTDArray<ActiveEdge>& activeEdges, const InEdge* edge) 
     active->init(edge);
 }
 
+    // find any intersections in the range of active edges
+static void addBottomT(InEdge** currentPtr, InEdge** lastPtr, SkScalar bottom) {
+    InEdge** testPtr = currentPtr;
+    InEdge* test = *testPtr;
+    while (testPtr != lastPtr) {
+        if (test->fBounds.fBottom > bottom) {
+            WorkEdge wt;
+            wt.init(test);
+            do {
+                // FIXME: add all curve types
+                // OPTIMIZATION: if bottom intersection does not change
+                // the winding on either side of the split, don't intersect
+                if (wt.verb() == SkPath::kLine_Verb) {
+                    double wtTs[2];
+                    int pts = LineIntersect(wt.fPts, bottom, wtTs);
+                    if (pts) {
+                        test->add(wtTs, pts, wt.verbIndex());
+                    }
+                }
+            } while (wt.next());
+        }
+        test = *++testPtr;
+    }
+}
+
+static void addIntersectingTs(InEdge** currentPtr, InEdge** lastPtr) {
+    InEdge** testPtr = currentPtr;
+    InEdge* test = *testPtr;
+    while (testPtr != lastPtr - 1) {
+        InEdge* next = *++testPtr;
+        if (!test->cached(next)
+                && Bounds::Intersects(test->fBounds, next->fBounds)) {
+            WorkEdge wt, wn;
+            wt.init(test);
+            wn.init(next);
+            do {
+                // FIXME: add all combinations of curve types
+                if (wt.verb() == SkPath::kLine_Verb
+                        && wn.verb() == SkPath::kLine_Verb) {
+                    double wtTs[2], wnTs[2];
+                    int pts = LineIntersect(wt.fPts, wn.fPts, wtTs, wnTs);
+                    if (pts) {
+                        test->add(wtTs, pts, wt.verbIndex());
+                        test->fContainsIntercepts = true;
+                        next->add(wnTs, pts, wn.verbIndex());
+                        next->fContainsIntercepts = true;
+                    }
+                }
+            } while (wt.bottom() <= wn.bottom() ? wt.next() : wn.next());
+        }
+        test = next;
+    }
+}
+
+// compute bottom taking into account any intersected edges
+static void computeInterceptBottom(SkTDArray<ActiveEdge>& activeEdges,
+        SkScalar& bottom) {
+    ActiveEdge* activePtr = activeEdges.begin() - 1;
+    ActiveEdge* lastActive = activeEdges.end();
+    while (++activePtr != lastActive) {
+        const InEdge* test = activePtr->fWorkEdge.fEdge;
+        if (!test->fContainsIntercepts) {
+            continue;
+        }
+        WorkEdge wt;
+        wt.init(test);
+        do {
+            // FIXME: add all curve types
+            const Intercepts& intercepts = test->fIntercepts[wt.verbIndex()];
+            const SkTDArray<double>& fTs = intercepts.fTs;
+            size_t count = fTs.count();
+            for (size_t index = 0; index < count; ++index) {
+                if (wt.verb() == SkPath::kLine_Verb) {
+                    SkScalar yIntercept = LineYAtT(wt.fPts, fTs[index]);
+                    if (bottom > yIntercept) {
+                        bottom = yIntercept;
+                    }
+                }
+            }
+        } while (wt.next());
+    }
+}
+
+static SkScalar findBottom(InEdge** currentPtr, 
+        InEdge** edgeListEnd, SkTDArray<ActiveEdge>& activeEdges, SkScalar y,
+        bool asFill, InEdge**& lastPtr) {
+    InEdge* current = *currentPtr;
+    SkScalar bottom = current->fBounds.fBottom;
+    
+    // find the list of edges that cross y
+    InEdge* last = *lastPtr;
+    while (lastPtr != edgeListEnd) {
+        if (bottom <= last->fBounds.fTop) {
+            break;
+        }
+        SkScalar lastTop = last->fBounds.fTop;
+        // OPTIMIZATION: Shortening the bottom is only interesting when filling
+        // and when the edge is to the left of a longer edge. If it's a framing
+        // edge, or part of the right, it won't effect the longer edges.
+        if (lastTop > y) {
+            if (bottom > lastTop) {
+                bottom = lastTop;
+                break;
+            }
+        } else if (bottom > last->fBounds.fBottom) {
+            bottom = last->fBounds.fBottom;
+        }
+        addToActive(activeEdges, last);
+        last = *++lastPtr;
+    }
+    if (asFill && lastPtr - currentPtr <= 1) {
+        SkDebugf("expect 2 or more edges\n");
+        SkASSERT(0);
+    }
+    return bottom;
+}
+
+static void makeEdgeList(SkTArray<InEdge>& edges, InEdge& edgeSentinel,
+        SkTDArray<InEdge*>& edgeList) {
+    size_t edgeCount = edges.count();
+    if (edgeCount == 0) {
+        return;
+    }
+    for (size_t index = 0; index < edgeCount; ++index) {
+        *edgeList.append() = &edges[index];
+    }
+    edgeSentinel.fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
+    *edgeList.append() = &edgeSentinel;
+    ++edgeCount;
+    QSort<InEdge>(edgeList.begin(), edgeCount);
+}
+
+static void removeEdge(SkTDArray<ActiveEdge>& activeEdges, InEdge** currentPtr) {
+    InEdge* current = *currentPtr;
+    ActiveEdge* activePtr = activeEdges.begin() - 1;
+    ActiveEdge* lastActive = activeEdges.end();
+    while (++activePtr != lastActive) {
+        if (activePtr->fWorkEdge.fEdge == current) {
+            activeEdges.remove(activePtr - activeEdges.begin());
+            return;
+        }
+    }
+}
+
+// stitch edge and t range that satisfies operation
+static void stitchEdge(SkTDArray<ActiveEdge>& activeEdges, SkScalar y,
+        SkScalar bottom, int windingMask, OutEdgeBuilder& outBuilder) {
+    int winding = 0;
+    ActiveEdge* activePtr = activeEdges.begin() - 1;
+    ActiveEdge* lastActive = activeEdges.end();
+    SkDebugf("%s y=%g bottom=%g\n", __FUNCTION__, y, bottom);
+    while (++activePtr != lastActive) {
+        const WorkEdge& wt = activePtr->fWorkEdge;
+        int lastWinding = winding;
+        winding += wt.winding();
+        if (!(lastWinding & windingMask) && !(winding & windingMask)) {
+            continue;
+        }
+        do {
+            double currentT = activePtr->t();
+            const SkPoint* points = wt.fPts;
+            bool last;
+            do {
+                last = activePtr->nextT();
+                double nextT = activePtr->t();
+                // FIXME: add all combinations of curve types
+                if (wt.verb() == SkPath::kLine_Verb) {
+                    SkPoint clippedPts[2];
+                    const SkPoint* clipped;
+                    if (currentT * nextT != 0 || currentT + nextT != 1) {
+                        LineSubDivide(points, currentT, nextT, clippedPts);
+                        clipped = clippedPts;
+                    } else {
+                        clipped = points;
+                    }
+                    SkDebugf("%s line %g,%g %g,%g\n", __FUNCTION__,
+                            clipped[0].fX, clipped[0].fY,
+                            clipped[1].fX, clipped[1].fY);
+                    outBuilder.addLine(clipped);
+                    if (clipped[1].fY >= bottom) {
+                        goto nextEdge;
+                    }
+                }
+                currentT = nextT;
+            } while (!last);
+        } while (activePtr->next());
+nextEdge:
+        ;
+    }
+}
+
 void simplify(const SkPath& path, bool asFill, SkPath& simple) {
+    // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
+    int windingMask = (path.getFillType() & 1) ? 1 : -1;
+    simple.reset();
+    simple.setFillType(SkPath::kEvenOdd_FillType);
     // turn path into list of edges increasing in y
     // if an edge is a quad or a cubic with a y extrema, note it, but leave it unbroken
     // once we have a list, sort it, then walk the list (walk edges twice that have y extrema's on top)
     //  and detect crossings -- look for raw bounds that cross over, then tight bounds that cross
     SkTArray<InEdge> edges;
     InEdgeBuilder builder(path, asFill, edges);
-    size_t edgeCount = edges.count();
-    simple.reset();
-    if (edgeCount == 0) {
-        return;
-    }
-    // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
-    int windingMask = (path.getFillType() & 1) ? 1 : -1;
     SkTDArray<InEdge*> edgeList;
-    for (size_t index = 0; index < edgeCount; ++index) {
-        *edgeList.append() = &edges[index];
-    }
     InEdge edgeSentinel;
-    edgeSentinel.fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
-    *edgeList.append() = &edgeSentinel;
-    ++edgeCount;
-    QSort<InEdge>(edgeList.begin(), edgeCount);
+    makeEdgeList(edges, edgeSentinel, edgeList);
     InEdge** currentPtr = edgeList.begin();
-    InEdge* current = *currentPtr;
-    SkScalar y = current->fBounds.fTop;
-    SkScalar bottom = current->fBounds.fBottom;
     // walk the sorted edges from top to bottom, computing accumulated winding
     SkTDArray<ActiveEdge> activeEdges;
-    OutEdgeBuilder outBuilder;
+    OutEdgeBuilder outBuilder(asFill);
+    SkScalar y = (*currentPtr)->fBounds.fTop;
     do {
-        // find the list of edges that cross y
         InEdge** lastPtr = currentPtr; // find the edge below the bottom of the first set
-        InEdge* last = *lastPtr;
-        while (lastPtr != edgeList.end()) {
-            if (bottom <= last->fBounds.fTop) {
-                break;
-            }
-            SkScalar lastTop = last->fBounds.fTop;
-            // OPTIMIZATION: Shortening the bottom is only interesting when filling
-            // and when the edge is to the left of a longer edge. If it's a framing
-            // edge, or part of the right, it won't effect the longer edges.
-            if (lastTop > y) {
-                if (bottom > lastTop) {
-                    bottom = lastTop;
-                    break;
-                }
-            } else if (bottom > last->fBounds.fBottom) {
-                bottom = last->fBounds.fBottom;
-            }
-            addToActive(activeEdges, last);
-            last = *++lastPtr;
-        }
-        if (asFill && lastPtr - currentPtr <= 1) {
-            SkDebugf("expect 2 or more edges\n");
-            SkASSERT(0);
-            return;
-        }
-
-        // find any intersections in the range of active edges
-        InEdge** testPtr = currentPtr;
-        InEdge* test = *testPtr;
-        while (testPtr != lastPtr) {
-            if (test->fBounds.fBottom > bottom) {
-                WorkEdge wt;
-                wt.init(test);
-                do {
-                    // FIXME: add all curve types
-                    // OPTIMIZATION: if bottom intersection does not change
-                    // the winding on either side of the split, don't intersect
-                    if (wt.verb() == SkPath::kLine_Verb) {
-                        double wtTs[2];
-                        int pts = LineIntersect(wt.fPts, bottom, wtTs);
-                        if (pts) {
-                            test->add(wtTs, pts, wt.verbIndex());
-                        }
-                    }
-                } while (wt.next());
-            }
-            test = *++testPtr;
-        }
-        testPtr = currentPtr;
-        test = *testPtr;
-        while (testPtr != lastPtr - 1) {
-            InEdge* next = *++testPtr;
-            if (!test->cached(next)
-                    && Bounds::Intersects(test->fBounds, next->fBounds)) {
-                WorkEdge wt, wn;
-                wt.init(test);
-                wn.init(next);
-                do {
-                    // FIXME: add all combinations of curve types
-                    if (wt.verb() == SkPath::kLine_Verb
-                            && wn.verb() == SkPath::kLine_Verb) {
-                        double wtTs[2], wnTs[2];
-                        int pts = LineIntersect(wt.fPts, wn.fPts, wtTs, wnTs);
-                        if (pts) {
-                            test->add(wtTs, pts, wt.verbIndex());
-                            test->fContainsIntercepts = true;
-                            next->add(wnTs, pts, wn.verbIndex());
-                            next->fContainsIntercepts = true;
-                        }
-                    }
-                } while (wt.bottom() <= wn.bottom() ? wt.next() : wn.next());
-            }
-            test = next;
-        }
-
-        // compute bottom taking into account any intersected edges
-        ActiveEdge* activePtr = activeEdges.begin() - 1;
-        ActiveEdge* lastActive = activeEdges.end();
-        while (++activePtr != lastActive) {
-            const InEdge* test = activePtr->fWorkEdge.fEdge;
-            if (!test->fContainsIntercepts) {
-                continue;
-            }
-            WorkEdge wt;
-            wt.init(test);
-            do {
-                // FIXME: add all curve types
-                const Intercepts& intercepts = test->fIntercepts[wt.verbIndex()];
-                const SkTDArray<double>& fTs = intercepts.fTs;
-                size_t count = fTs.count();
-                for (size_t index = 0; index < count; ++index) {
-                    if (wt.verb() == SkPath::kLine_Verb) {
-                        SkScalar yIntercept = LineYAtT(wt.fPts, fTs[index]);
-                        if (bottom > yIntercept) {
-                            bottom = yIntercept;
-                        }
-                    }
-                }
-            } while (wt.next());
-        }
-
-        // stitch edge and t range that satisfies operation
-        int winding = 0;
-        activePtr = activeEdges.begin() - 1;
-        lastActive = activeEdges.end();
-        SkDebugf("%s y=%g bottom=%g\n", __FUNCTION__, y, bottom);
-        while (++activePtr != lastActive) {
-            const WorkEdge& wt = activePtr->fWorkEdge;
-            int lastWinding = winding;
-            winding += wt.winding();
-            if (!(lastWinding & windingMask) && !(winding & windingMask)) {
-                continue;
-            }
-            do {
-                double currentT = activePtr->t();
-                const SkPoint* points = wt.fPts;
-                bool last;
-                do {
-                    last = activePtr->nextT();
-                    double nextT = activePtr->t();
-                    // FIXME: add all combinations of curve types
-                    if (wt.verb() == SkPath::kLine_Verb) {
-                        SkPoint clippedPts[2];
-                        const SkPoint* clipped;
-                        if (currentT * nextT != 0 || currentT + nextT != 1) {
-                            LineSubDivide(points, currentT, nextT, clippedPts);
-                            clipped = clippedPts;
-                        } else {
-                            clipped = points;
-                        }
-                        SkDebugf("%s line %g,%g %g,%g\n", __FUNCTION__,
-                                clipped[0].fX, clipped[0].fY,
-                                clipped[1].fX, clipped[1].fY);
-                        outBuilder->addLine(clipped);
-                        if (clipped[1].fY >= bottom) {
-                            goto nextEdge;
-                        }
-                    }
-                    currentT = nextT;
-                } while (!last);
-            } while (activePtr->next());
-    nextEdge:
-            ;
-        }
-
+        SkScalar bottom = findBottom(currentPtr, edgeList.end(),
+            activeEdges, y, asFill, lastPtr);
+        addBottomT(currentPtr, lastPtr, bottom);
+        addIntersectingTs(currentPtr, lastPtr);
+        computeInterceptBottom(activeEdges, bottom);
+        stitchEdge(activeEdges, y, bottom, windingMask, outBuilder);
         y = bottom;
         while ((*currentPtr)->fBounds.fBottom <= y) {
+            removeEdge(activeEdges, currentPtr);
             ++currentPtr;
         }
     } while (*currentPtr != &edgeSentinel);
-
     // assemble output path from string of pts, verbs
-    ;
+    outBuilder.bridge();
+    outBuilder.assemble(simple);
 }
 
 void testSimplify();
