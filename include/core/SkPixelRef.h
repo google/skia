@@ -50,7 +50,7 @@ class SkGpuTexture;
 
     This class can be shared/accessed between multiple threads.
 */
-class SkPixelRef : public SkRefCnt {
+class SK_API SkPixelRef : public SkRefCnt {
 public:
     explicit SkPixelRef(SkBaseMutex* mutex = NULL);
 
