@@ -16,6 +16,10 @@ SkGLContext::~SkGLContext() {
     SkSafeUnref(fGL);
 }
 
+bool SkGLContext::hasExtension(const char* extensionName) const {
+    return GrGLHasExtensionFromString(extensionName, fExtensionString.c_str());
+}
+
 bool SkGLContext::init(int width, int height) {
     if (fGL) {
         fGL->unref();
@@ -24,13 +28,23 @@ bool SkGLContext::init(int width, int height) {
 
     fGL = this->createGLContext();
     if (fGL) {
+        fExtensionString =
+            reinterpret_cast<const char*>(SK_GL(*this,
+                                                 GetString(GR_GL_EXTENSIONS)));
+        const char* versionStr =
+            reinterpret_cast<const char*>(SK_GL(*this,
+                                                GetString(GR_GL_VERSION)));
+        GrGLVersion version = GrGLGetVersionFromString(versionStr);
+
         // clear any existing GL erorrs
         GrGLenum error;
         do {
             error = SK_GL(*this, GetError());
         } while (GR_GL_NO_ERROR != error);
+
         GrGLuint cbID;
         GrGLuint dsID;
+
         SK_GL(*this, GenFramebuffers(1, &fFBO));
         SK_GL(*this, BindFramebuffer(GR_GL_FRAMEBUFFER, fFBO));
         SK_GL(*this, GenRenderbuffers(1, &cbID));
@@ -50,18 +64,40 @@ bool SkGLContext::init(int width, int height) {
                                              cbID));
         SK_GL(*this, GenRenderbuffers(1, &dsID));
         SK_GL(*this, BindRenderbuffer(GR_GL_RENDERBUFFER, dsID));
+
+        // Some drivers that support packed depth stencil will only succeed
+        // in binding a packed format an FBO. However, we can't rely on packed
+        // depth stencil being available.
+        bool supportsPackedDepthStencil;
         if (fGL->supportsES2()) {
-            SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                             GR_GL_STENCIL_INDEX8,
-                                             width, height));
+            supportsPackedDepthStencil = 
+                    this->hasExtension("GL_OES_packed_depth_stencil");
         } else {
+            supportsPackedDepthStencil = version >= GR_GL_VER(3,0) ||
+                    this->hasExtension("GL_EXT_packed_depth_stencil") ||
+                    this->hasExtension("GL_ARB_framebuffer_object");
+        }
+
+        if (supportsPackedDepthStencil) {
+            // ES2 requires sized internal formats for RenderbufferStorage
+            // On Desktop we let the driver decide.
+            GrGLenum format = fGL->supportsES2() ? 
+                                    GR_GL_DEPTH24_STENCIL8 :
+                                    GR_GL_DEPTH_STENCIL;
             SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                             GR_GL_DEPTH_STENCIL,
+                                             format,
                                              width, height));
             SK_GL(*this, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                  GR_GL_DEPTH_ATTACHMENT,
                                                  GR_GL_RENDERBUFFER,
                                                  dsID));
+        } else {
+            GrGLenum format = fGL->supportsES2() ? 
+                                    GR_GL_STENCIL_INDEX8 :
+                                    GR_GL_STENCIL_INDEX;
+            SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
+                                             format,
+                                             width, height));
         }
         SK_GL(*this, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                              GR_GL_STENCIL_ATTACHMENT,

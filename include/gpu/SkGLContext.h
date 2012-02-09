@@ -9,6 +9,7 @@
 #define SkGLContext_DEFINED
 
 #include "GrGLInterface.h"
+#include "SkString.h"
 
 /**
  * Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
@@ -31,6 +32,8 @@ public:
 
     virtual void makeCurrent() const = 0;
 
+    bool hasExtension(const char* extensionName) const;
+
 protected:
     /**
      * Subclass implements this to make a GL context. The returned GrGLInterface 
@@ -46,6 +49,7 @@ protected:
     virtual void destroyGLContext() = 0;
 
 private:
+    SkString fExtensionString;
     GrGLuint fFBO;
     const GrGLInterface* fGL;
 };
