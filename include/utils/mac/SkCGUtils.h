@@ -25,8 +25,8 @@ class SkStream;
  *  Create an imageref from the specified bitmap using the specified colorspace.
  *  If space is NULL, then CGColorSpaceCreateDeviceRGB() is used.
  */
-CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
-                                            CGColorSpaceRef space);
+SK_API CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
+                                                   CGColorSpaceRef space);
 
 /**
  *  Create an imageref from the specified bitmap using the colorspace returned
