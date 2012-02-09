@@ -297,7 +297,7 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
         SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
     };
 
-    for (int dtype = 1; dtype < 2; ++dtype) {
+    for (int dtype = 0; dtype < 2; ++dtype) {
 
         if (0 == dtype) {
             canvas.setDevice(new SkDevice(SkBitmap::kARGB_8888_Config,
