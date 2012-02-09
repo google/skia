@@ -25,10 +25,10 @@ public:
      *  treated as identity, with the component left unchanged. If a table
      *  is not null, then its contents are copied into the filter.
      */
-    static SkColorFilter* CreateARGB(const uint8_t tableA[256],
-                                     const uint8_t tableR[256],
-                                     const uint8_t tableG[256],
-                                     const uint8_t tableB[256]);
+    SK_API static SkColorFilter* CreateARGB(const uint8_t tableA[256],
+                                            const uint8_t tableR[256],
+                                            const uint8_t tableG[256],
+                                            const uint8_t tableB[256]);
 };
 
 #endif
