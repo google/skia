@@ -278,13 +278,13 @@ private:
             case kNone_TypeModifier:
                 return "";
             case kOut_TypeModifier:
-                return k110_GLSLGeneration == gen ? "varying" : "out";
+                return k110_GrGLSLGeneration == gen ? "varying" : "out";
             case kIn_TypeModifier:
-                return k110_GLSLGeneration == gen ? "varying" : "in";
+                return k110_GrGLSLGeneration == gen ? "varying" : "in";
             case kUniform_TypeModifier:
                 return "uniform";
             case kAttribute_TypeModifier:
-                return k110_GLSLGeneration == gen ? "attribute" : "in";
+                return k110_GrGLSLGeneration == gen ? "attribute" : "in";
             default:
                 GrCrash("Unknown shader variable type modifier.");
                 return ""; // suppress warning

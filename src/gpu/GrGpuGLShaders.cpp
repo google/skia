@@ -166,7 +166,7 @@ bool random_bool(GrRandom* r) {
 bool GrGpuGLShaders::programUnitTest() {
 
     GrGLSLGeneration glslGeneration = 
-            GetGLSLGeneration(this->glBinding(), this->glInterface());
+            GrGetGLSLGeneration(this->glBinding(), this->glInterface());
     static const int STAGE_OPTS[] = {
         0,
         StageDesc::kNoPerspective_OptFlagBit,
@@ -306,7 +306,7 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     : GrGpuGL(gl, get_binding_in_use(gl)) {
 
     GrGLSLGeneration glslGeneration =
-        GetGLSLGeneration(this->glBinding(), gl);
+        GrGetGLSLGeneration(this->glBinding(), gl);
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -317,7 +317,7 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
         fCaps.fGeometryShaderSupport = 
                                 this->glVersion() >= GR_GL_VER(3,2) &&
-                                glslGeneration >= k150_GLSLGeneration;
+                                glslGeneration >= k150_GrGLSLGeneration;
     } else {
         fCaps.fShaderDerivativeSupport =
                             this->hasExtension("GL_OES_standard_derivatives");

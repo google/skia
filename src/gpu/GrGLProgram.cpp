@@ -22,23 +22,6 @@ enum {
     kUseUniform = 2000
 };
 
-
-const char* GrPrecision(const GrGLInterface* gl) {
-    if (gl->supportsES2()) {
-        return "mediump";
-    } else {
-        return " ";
-    }
-}
-
-const char* GrShaderPrecision(const GrGLInterface* gl) {
-    if (gl->supportsES2()) {
-        return "precision mediump float;\n";
-    } else {
-        return "";
-    }
-}
-
 }  // namespace
 
 #define PRINT_SHADERS 0
@@ -380,29 +363,6 @@ static void addColorMatrix(GrStringBuilder* fsCode, const char * outputVar,
 
 namespace {
 
-const char* glsl_version_string(const GrGLInterface* gl,
-                                GrGLSLGeneration v) {
-    switch (v) {
-        case k110_GLSLGeneration:
-            if (gl->supportsES2()) {
-                // ES2s shader language is based on version 1.20 but is version
-                // 1.00 of the ES language.
-                return "#version 100\n";
-            } else {
-                return "#version 110\n";
-            }
-        case k130_GLSLGeneration:
-            GrAssert(!gl->supportsES2());
-            return "#version 130\n";
-        case k150_GLSLGeneration:
-            GrAssert(!gl->supportsES2());
-            return "#version 150\n";
-        default:
-            GrCrash("Unknown GL version.");
-            return ""; // suppress warning
-    }
-}
-
 // Adds a var that is computed in the VS and read in FS.
 // If there is a GS it will just pass it through.
 void append_varying(GrGLShaderVar::Type type,
@@ -568,29 +528,6 @@ void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
 
 namespace {
 
-// returns true if the color output was explicitly declared or not.
-bool decl_and_get_fs_color_output(GrGLSLGeneration v,
-                                  VarArray* fsOutputs,
-                                  const char** name) {
-    switch (v) {
-        case k110_GLSLGeneration:
-            *name = "gl_FragColor";
-            return false;
-            break;
-        case k130_GLSLGeneration: // fallthru
-        case k150_GLSLGeneration:
-            *name = declared_color_output_name();
-            fsOutputs->push_back().set(GrGLShaderVar::kVec4f_Type,
-                                       GrGLShaderVar::kOut_TypeModifier,
-                                       declared_color_output_name());
-            return true;
-            break;
-        default:
-            GrCrash("Unknown GLSL version.");
-            return false; // suppress warning
-    }
-}
-
 void genInputColor(GrGLProgram::ProgramDesc::ColorInput colorInput,
                    GrGLProgram::CachedData* programData,
                    ShaderCodeSegments* segments,
@@ -664,7 +601,7 @@ void GrGLProgram::genGeometryShader(const GrGLInterface* gl,
                                     ShaderCodeSegments* segments) const {
 #if GR_GL_EXPERIMENTAL_GS
     if (fProgramDesc.fExperimentalGS) {
-        GrAssert(glslGeneration >= k150_GLSLGeneration);
+        GrAssert(glslGeneration >= k150_GrGLSLGeneration);
         segments->fGSHeader.append("layout(triangles) in;\n"
                                    "layout(triangle_strip, max_vertices = 6) out;\n");
         segments->fGSCode.append("void main() {\n"
@@ -758,12 +695,17 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
 
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
-    const char* fsColorOutput = NULL;
     bool dualSourceOutputWritten = false;
-    segments.fHeader.printf(glsl_version_string(gl, glslGeneration));
-    bool isColorDeclared = decl_and_get_fs_color_output(glslGeneration,
-                                                        &segments.fFSOutputs,
-                                                        &fsColorOutput);
+    segments.fHeader.printf(GrGetGLSLVersionDecl(gl->fBindingsExported,
+                                                 glslGeneration));
+
+    GrGLShaderVar colorOutput;
+    bool isColorDeclared = GrGLSLSetupFSColorOuput(glslGeneration,
+                                                   declared_color_output_name(),
+                                                   &colorOutput);
+    if (isColorDeclared) {
+        segments.fFSOutputs.push_back(colorOutput);
+    }
 
 #if GR_GL_ATTRIBUTE_MATRICES
     segments.fVSAttrs.push_back().set(GrGLShaderVar::kMat33f_Type,
@@ -872,7 +814,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         SkXfermode::kZero_Coeff == colorCoeff &&
         !applyColorMatrix) {
         segments.fFSCode.appendf("\t%s = %s;\n",
-                                 fsColorOutput,
+                                 colorOutput.getName().c_str(),
                                  all_zeros_vec(4));
         wroteFragColorZero = true;
     } else if (SkXfermode::kDst_Mode != fProgramDesc.fColorFilterXfermode) {
@@ -1005,21 +947,21 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     if (!wroteFragColorZero) {
         if (coverageIsZero) {
             segments.fFSCode.appendf("\t%s = %s;\n",
-                                     fsColorOutput,
+                                     colorOutput.getName().c_str(),
                                      all_zeros_vec(4));
         } else {
-            modulate_helper(fsColorOutput,
+            modulate_helper(colorOutput.getName().c_str(),
                             inColor.c_str(),
                             inCoverage.c_str(),
                             &segments.fFSCode);
         }
         if (ProgramDesc::kNo_OutputPM == fProgramDesc.fOutputPM) {
             segments.fFSCode.appendf("\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(%s.rgb / %s.a, %s.a);\n",
-                                     fsColorOutput,
-                                     fsColorOutput,
-                                     fsColorOutput,
-                                     fsColorOutput,
-                                     fsColorOutput);
+                                     colorOutput.getName().c_str(),
+                                     colorOutput.getName().c_str(),
+                                     colorOutput.getName().c_str(),
+                                     colorOutput.getName().c_str(),
+                                     colorOutput.getName().c_str());
         }
     }
 
@@ -1169,13 +1111,13 @@ bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
     temps.reset();
 
     append_string(segments.fHeader, &strs, &lengths);
-    GrStringBuilder precisionStr(GrShaderPrecision(gl));
+    GrStringBuilder precisionStr(GrGetGLSLShaderPrecisionDecl(gl->fBindingsExported));
     append_string(precisionStr, &strs, &lengths);
     append_decls(segments.fFSUnis, gl, &strs, &lengths, &temps, glslGeneration);
     append_decls(segments.fFSInputs, gl, &strs, &lengths,
                  &temps, glslGeneration);
     // We shouldn't have declared outputs on 1.10
-    GrAssert(k110_GLSLGeneration != glslGeneration ||
+    GrAssert(k110_GrGLSLGeneration != glslGeneration ||
              segments.fFSOutputs.empty());
     append_decls(segments.fFSOutputs, gl, &strs, &lengths,
                  &temps, glslGeneration);
