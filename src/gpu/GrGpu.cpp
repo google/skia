@@ -14,7 +14,7 @@
 #include "GrContext.h"
 #include "GrIndexBuffer.h"
 #include "GrPathRenderer.h"
-#include "GrGLStencilBuffer.h"
+#include "GrStencilBuffer.h"
 #include "GrVertexBuffer.h"
 
 // probably makes no sense for this to be less than a page

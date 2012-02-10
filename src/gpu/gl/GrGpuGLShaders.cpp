@@ -7,19 +7,19 @@
  */
 
 
-#include "GrBinHashKey.h"
+#include "../GrBinHashKey.h"
 #include "GrGLProgram.h"
 #include "GrGLSL.h"
 #include "GrGpuGLShaders.h"
-#include "GrGpuVertex.h"
+#include "../GrGpuVertex.h"
 #include "GrNoncopyable.h"
-#include "GrStringBuilder.h"
-#include "GrRandom.h"
+#include "../GrStringBuilder.h"
+#include "../GrRandom.h"
 
 #define SKIP_CACHE_CHECK    true
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
 
-#include "GrTHashCache.h"
+#include "../GrTHashCache.h"
 
 class GrGpuGLShaders::ProgramCache : public ::GrNoncopyable {
 private:

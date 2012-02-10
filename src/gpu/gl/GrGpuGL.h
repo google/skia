@@ -11,8 +11,8 @@
 #ifndef GrGpuGL_DEFINED
 #define GrGpuGL_DEFINED
 
-#include "GrDrawState.h"
-#include "GrGpu.h"
+#include "../GrDrawState.h"
+#include "../GrGpu.h"
 #include "GrGLContextInfo.h"
 #include "GrGLIndexBuffer.h"
 #include "GrGLIRect.h"
@@ -27,9 +27,9 @@ public:
     const GrGLInterface* glInterface() const { 
         return fGLContextInfo.interface();
     }
-    const GrGLBinding glBinding() const { return fGLContextInfo.binding(); }
-    const GrGLVersion glVersion() const { return fGLContextInfo.version(); }
-    const GrGLSLGeneration glslGeneration() const {
+    GrGLBinding glBinding() const { return fGLContextInfo.binding(); }
+    GrGLVersion glVersion() const { return fGLContextInfo.version(); }
+    GrGLSLGeneration glslGeneration() const {
         return fGLContextInfo.glslGeneration();
     }
 

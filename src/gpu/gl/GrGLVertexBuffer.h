@@ -8,34 +8,31 @@
 
 
 
-#ifndef GrGLIndexBuffer_DEFINED
-#define GrGLIndexBuffer_DEFINED
+#ifndef GrGLVertexBuffer_DEFINED
+#define GrGLVertexBuffer_DEFINED
 
-#include "GrIndexBuffer.h"
+#include "../GrVertexBuffer.h"
 #include "GrGLInterface.h"
 
 class GrGpuGL;
 
-class GrGLIndexBuffer : public GrIndexBuffer {
+class GrGLVertexBuffer : public GrVertexBuffer {
 
 public:
-
-    virtual ~GrGLIndexBuffer() { this->release(); }
-
-    GrGLuint bufferID() const;
-
-    // overrides of GrIndexBuffer
+    virtual ~GrGLVertexBuffer() { this->release(); }
+    // overrides of GrVertexBuffer
     virtual void* lock();
     virtual void* lockPtr() const;
     virtual void unlock();
     virtual bool isLocked() const;
     virtual bool updateData(const void* src, size_t srcSizeInBytes);
+    GrGLuint bufferID() const;
 
 protected:
-    GrGLIndexBuffer(GrGpuGL* gpu,
-                    GrGLuint id,
-                    size_t sizeInBytes,
-                    bool dynamic);
+    GrGLVertexBuffer(GrGpuGL* gpu,
+                     GrGLuint id,
+                     size_t sizeInBytes,
+                     bool dynamic);
 
     // overrides of GrResource
     virtual void onAbandon();
@@ -49,7 +46,7 @@ private:
 
     friend class GrGpuGL;
 
-    typedef GrIndexBuffer INHERITED;
+    typedef GrVertexBuffer INHERITED;
 };
 
 #endif
