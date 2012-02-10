@@ -8,7 +8,7 @@
 
 #include "Test.h"
 #include "GrContext.h"
-#include "GrGpuGLShaders.h"
+#include "gl/GrGpuGLShaders.h"
 
 static void GLProgramsTest(skiatest::Reporter* reporter, GrContext* context) {
     GrGpuGLShaders* shadersGpu = (GrGpuGLShaders*) context->getGpu();
