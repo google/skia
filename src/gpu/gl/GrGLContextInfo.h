@@ -1,3 +1,15 @@
+
+/*
+ * Copyright 2012 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+
+#ifndef GrGLContextInfo_DEFINED
+#define GrGLContextInfo_DEFINED
+
 #include "GrGLInterface.h"
 #include "GrGLSL.h"
 
@@ -66,3 +78,5 @@ private:
     GrGLSLGeneration     fGLSLGeneration;
     SkString             fExtensionString;
 };
+
+#endif
