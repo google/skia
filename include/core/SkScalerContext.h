@@ -16,6 +16,9 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 
+//#define SK_USE_COLOR_LUMINANCE
+//#define USE_FULL_LUMI
+
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
@@ -154,8 +157,6 @@ struct SkGlyph {
     void toMask(SkMask* mask) const;
 };
 
-//#define USE_NEW_LUMINANCE
-
 class SkScalerContext {
 public:
     enum Flags {
@@ -181,7 +182,7 @@ public:
         // Perhaps we can store this (instead) in fMaskFormat, in hight bit?
         kGenA8FromLCD_Flag        = 0x0800,
 
-#ifdef USE_NEW_LUMINANCE
+#ifdef SK_USE_COLOR_LUMINANCE
         kLuminance_Bits           = 3,
 #else
         // luminance : 0 for black text, kLuminance_Max for white text
@@ -193,8 +194,9 @@ public:
     // computed values
     enum {
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
+#ifdef SK_USE_COLOR_LUMINANCE
+#else
         kLuminance_Max  = (1 << kLuminance_Bits) - 1,
-#ifndef USE_NEW_LUMINANCE
         kLuminance_Mask = kLuminance_Max << kLuminance_Shift,
 #endif
     };
@@ -205,7 +207,7 @@ public:
         SkScalar    fTextSize, fPreScaleX, fPreSkewX;
         SkScalar    fPost2x2[2][2];
         SkScalar    fFrameWidth, fMiterLimit;
-#ifdef USE_NEW_LUMINANCE
+#ifdef SK_USE_COLOR_LUMINANCE
         uint32_t    fLumBits;
 #endif
         uint8_t     fMaskFormat;
@@ -233,14 +235,35 @@ public:
             return static_cast<SkMask::Format>(fMaskFormat);
         }
         
-#ifdef USE_NEW_LUMINANCE
-        unsigned getLuminanceBits() const {
+#ifdef SK_USE_COLOR_LUMINANCE
+        static unsigned ColorToLumBits(U8CPU x) {
+            SkASSERT(x <= 0xFF);
+            return x >> 7;
+        }
+        static U8CPU LumBitsToColor(unsigned x) {
+            SkASSERT(x <= 1);
+            return x * 0xFF;
+        }
+
+        SkColor getLuminanceColor() const {
+#ifdef USE_FULL_LUMI
             return fLumBits;
+#else
+            unsigned bits = fLumBits;
+            return SkColorSetRGB(LumBitsToColor((bits >> 2) & 1),
+                                 LumBitsToColor((bits >> 1) & 1),
+                                 LumBitsToColor((bits >> 0) & 1));
+#endif
         }
         
-        void setLuminanceBits(unsigned lum) {
-            SkASSERT(lum <= kLuminance_Max);
-            fLumBits = lum;
+        void setLuminanceColor(SkColor c) {
+#ifdef USE_FULL_LUMI
+            fLumBits = c;
+#else
+            fLumBits =  (ColorToLumBits(SkColorGetR(c)) << 2) |
+                        (ColorToLumBits(SkColorGetG(c)) << 1) |
+                        (ColorToLumBits(SkColorGetB(c)) << 0);
+#endif
         }
 #else
         unsigned getLuminanceBits() const {
@@ -251,7 +274,6 @@ public:
             SkASSERT(lum <= kLuminance_Max);
             fFlags = (fFlags & ~kLuminance_Mask) | (lum << kLuminance_Shift);
         }
-#endif
 
         U8CPU getLuminanceByte() const {
             SkASSERT(3 == kLuminance_Bits);
@@ -260,6 +282,7 @@ public:
             lum |= (lum << kLuminance_Bits*2);
             return lum >> (4*kLuminance_Bits - 8);
         }
+#endif
     };
 
     SkScalerContext(const SkDescriptor* desc);
