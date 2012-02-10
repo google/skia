@@ -11,7 +11,7 @@
 #define GrGLStencilBuffer_DEFINED
 
 #include "GrGLInterface.h"
-#include "GrStencilBuffer.h"
+#include "../GrStencilBuffer.h"
 
 class GrGLStencilBuffer : public GrStencilBuffer {
 public:

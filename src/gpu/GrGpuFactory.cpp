@@ -17,7 +17,7 @@
 #include "GrGLConfig.h"
 
 #include "GrGpu.h"
-#include "GrGpuGLShaders.h"
+#include "gl/GrGpuGLShaders.h"
 
 GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 

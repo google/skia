@@ -10,11 +10,11 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
-#include "GrDrawState.h"
+#include "../GrDrawState.h"
 #include "GrGLInterface.h"
 #include "GrGLSL.h"
-#include "GrStringBuilder.h"
-#include "GrGpu.h"
+#include "../GrStringBuilder.h"
+#include "../GrGpu.h"
 
 #include "SkXfermode.h"
 

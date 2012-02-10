@@ -8,6 +8,7 @@
 
 
 #include "GrGLInterface.h"
+#include "../GrTDArray.h"
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shader) {}
@@ -124,7 +125,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteIds(GrGLsizei n, const GrGLuint* ids) {
 
 // In debug builds we do asserts that ensure we agree with GL about when a buffer
 // is mapped.
-#include "GrTDArray.h"
 static GrTDArray<GrGLuint> gMappedBuffers;
 static GrGLuint gCurrArrayBuffer;
 static GrGLuint gCurrElementArrayBuffer;

@@ -9,7 +9,7 @@
 
 #include "GrGLProgram.h"
 
-#include "GrAllocator.h"
+#include "../GrAllocator.h"
 #include "GrGLShaderVar.h"
 #include "SkTrace.h"
 #include "SkXfermode.h"
