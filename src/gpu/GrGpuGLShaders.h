@@ -19,7 +19,7 @@ class GrGpuGLProgram;
 // Programmable OpenGL or OpenGL ES 2.0
 class GrGpuGLShaders : public GrGpuGL {
 public:
-             GrGpuGLShaders(const GrGLInterface* glInterface);
+             GrGpuGLShaders(const GrGLContextInfo& ctxInfo);
     virtual ~GrGpuGLShaders();
 
     virtual void abandonResources();

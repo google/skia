@@ -45,11 +45,13 @@ bool SkGLContext::init(int width, int height) {
         GrGLuint cbID;
         GrGLuint dsID;
 
+        GrGLBinding bindingInUse = GrGLGetBindingInUse(this->gl());
+
         SK_GL(*this, GenFramebuffers(1, &fFBO));
         SK_GL(*this, BindFramebuffer(GR_GL_FRAMEBUFFER, fFBO));
         SK_GL(*this, GenRenderbuffers(1, &cbID));
         SK_GL(*this, BindRenderbuffer(GR_GL_RENDERBUFFER, cbID));
-        if (fGL->supportsES2()) {
+        if (kES2_GrGLBinding == bindingInUse) {
             SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
                                              GR_GL_RGBA8,
                                              width, height));
@@ -69,7 +71,7 @@ bool SkGLContext::init(int width, int height) {
         // in binding a packed format an FBO. However, we can't rely on packed
         // depth stencil being available.
         bool supportsPackedDepthStencil;
-        if (fGL->supportsES2()) {
+        if (kES2_GrGLBinding == bindingInUse) {
             supportsPackedDepthStencil = 
                     this->hasExtension("GL_OES_packed_depth_stencil");
         } else {
@@ -81,7 +83,7 @@ bool SkGLContext::init(int width, int height) {
         if (supportsPackedDepthStencil) {
             // ES2 requires sized internal formats for RenderbufferStorage
             // On Desktop we let the driver decide.
-            GrGLenum format = fGL->supportsES2() ? 
+            GrGLenum format = kES2_GrGLBinding == bindingInUse ? 
                                     GR_GL_DEPTH24_STENCIL8 :
                                     GR_GL_DEPTH_STENCIL;
             SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
@@ -92,7 +94,7 @@ bool SkGLContext::init(int width, int height) {
                                                  GR_GL_RENDERBUFFER,
                                                  dsID));
         } else {
-            GrGLenum format = fGL->supportsES2() ? 
+            GrGLenum format = kES2_GrGLBinding == bindingInUse ? 
                                     GR_GL_STENCIL_INDEX8 :
                                     GR_GL_STENCIL_INDEX;
             SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,

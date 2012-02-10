@@ -291,22 +291,8 @@ bool GrGpuGLShaders::programUnitTest() {
     return true;
 }
 
-namespace {
-GrGLBinding get_binding_in_use(const GrGLInterface* gl) {
-    if (gl->supportsDesktop()) {
-        return kDesktop_GrGLBinding;
-    } else {
-        GrAssert(gl->supportsES2());
-        return kES2_GrGLBinding;
-    }
-}
-}
-
-GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
-    : GrGpuGL(gl, get_binding_in_use(gl)) {
-
-    GrGLSLGeneration glslGeneration =
-        GrGetGLSLGeneration(this->glBinding(), gl);
+GrGpuGLShaders::GrGpuGLShaders(const GrGLContextInfo& ctxInfo)
+    : GrGpuGL(ctxInfo) {
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -317,16 +303,19 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
         fCaps.fGeometryShaderSupport = 
                                 this->glVersion() >= GR_GL_VER(3,2) &&
-                                glslGeneration >= k150_GrGLSLGeneration;
+                                this->glslGeneration() >= k150_GrGLSLGeneration;
     } else {
         fCaps.fShaderDerivativeSupport =
                             this->hasExtension("GL_OES_standard_derivatives");
     }
 
-    GR_GL_GetIntegerv(gl, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttribs);
+    GR_GL_GetIntegerv(this->glInterface(),
+                      GR_GL_MAX_VERTEX_ATTRIBS,
+                      &fMaxVertexAttribs);
 
     fProgramData = NULL;
-    fProgramCache = new ProgramCache(gl, glslGeneration);
+    fProgramCache = new ProgramCache(this->glInterface(),
+                                     this->glslGeneration());
 
 #if 0
     this->programUnitTest();

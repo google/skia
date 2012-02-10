@@ -51,7 +51,13 @@ static void GLInterfaceValidationTest(skiatest::Reporter* reporter) {
         iface.reset(interfaceFactories[i].fFactory());
         REPORTER_ASSERT(reporter, NULL != iface.get());
         if (iface.get()) {
-            REPORTER_ASSERT(reporter, iface.get()->validate());
+            for (GrGLBinding binding = kNone_GrGLBinding; 
+                 binding <= kLastGrGLBinding;
+                 binding = static_cast<GrGLBinding>(binding << 1)) {
+                if (iface.get()->fBindingsExported & binding) {
+                    REPORTER_ASSERT(reporter, iface.get()->validate(binding));
+                }
+            }
         }
     }
 }

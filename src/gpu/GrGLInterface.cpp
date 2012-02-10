@@ -19,6 +19,37 @@ void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
 }
 #endif
 
+GrGLBinding GrGLGetBindingInUseFromString(const char* versionString) {
+    if (NULL == versionString) {
+        GrAssert(!"NULL GL version string.");
+        return kNone_GrGLBinding;
+    }
+
+    int major, minor;
+
+    // check for desktop
+    int n = sscanf(versionString, "%d.%d", &major, &minor);
+    if (2 == n) {
+        return kDesktop_GrGLBinding;
+    }
+
+    // check for ES 1
+    char profile[2];
+    n = sscanf(versionString, "OpenGL ES-%c%c %d.%d", profile, profile+1,
+               &major, &minor);
+    if (4 == n) {
+        // we no longer support ES1.
+        return kNone_GrGLBinding;
+    }
+
+    // check for ES2
+    n = sscanf(versionString, "OpenGL ES %d.%d", &major, &minor);
+    if (2 == n) {
+        return kES2_GrGLBinding;
+    }
+    return kNone_GrGLBinding;
+}
+
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
     if (NULL == versionString) {
         GrAssert(!"NULL GL version string.");
@@ -90,6 +121,12 @@ bool GrGLHasExtension(const GrGLInterface* gl, const char* ext) {
     return GrGLHasExtensionFromString(ext, (const char*) glstr);
 }
 
+GrGLBinding GrGLGetBindingInUse(const GrGLInterface* gl) {
+    const GrGLubyte* v;
+    GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
+    return GrGLGetBindingInUseFromString((const char*) v);
+}
+
 GrGLVersion GrGLGetVersion(const GrGLInterface* gl) {
     const GrGLubyte* v;
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
@@ -103,7 +140,7 @@ GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface* gl) {
 }
 
 GrGLInterface::GrGLInterface() {
-    fBindingsExported = (GrGLBinding)0;
+    fBindingsExported = kNone_GrGLBinding;
 
     fActiveTexture = NULL;
     fAttachShader = NULL;
@@ -228,14 +265,13 @@ GrGLInterface::GrGLInterface() {
 #endif
 }
 
-bool GrGLInterface::validate() const {
+bool GrGLInterface::validate(GrGLBinding binding) const {
 
-    bool isDesktop = this->supportsDesktop();
+    // kNone must be 0 so that the check we're about to do can never succeed if
+    // binding == kNone.
+    GR_STATIC_ASSERT(kNone_GrGLBinding == 0);
 
-    bool isES2 = this->supportsES2();
-    
-    if (isDesktop == isES2) {
-        // must have one, don't support both in same interface
+    if (0 == (binding & fBindingsExported)) {
         return false;
     }
 
@@ -341,14 +377,14 @@ bool GrGLInterface::validate() const {
     // these functions are part of ES2, we assume they are available
     // On the desktop we assume they are available if the extension
     // is present or GL version is high enough.
-    if ((kES2_GrGLBinding & fBindingsExported)) {
+    if (kES2_GrGLBinding == binding) {
         if (NULL == fBlendColor ||
             NULL == fStencilFuncSeparate ||
             NULL == fStencilMaskSeparate ||
             NULL == fStencilOpSeparate) {
             return false;
         }
-    } else if (kDesktop_GrGLBinding == fBindingsExported) {
+    } else if (kDesktop_GrGLBinding == binding) {
         if (glVer >= GR_GL_VER(2,0)) {
             if (NULL == fStencilFuncSeparate ||
                 NULL == fStencilMaskSeparate ||
@@ -400,7 +436,7 @@ bool GrGLInterface::validate() const {
     }
 
     // optional function on desktop before 1.3
-    if (kDesktop_GrGLBinding != fBindingsExported ||
+    if (kDesktop_GrGLBinding != binding ||
         (glVer >= GR_GL_VER(1,3) ||
         GrGLHasExtensionFromString("GL_ARB_texture_compression", ext))) {
         if (NULL == fCompressedTexImage2D) {
@@ -409,7 +445,7 @@ bool GrGLInterface::validate() const {
     }
 
     // part of desktop GL, but not ES
-    if (kDesktop_GrGLBinding == fBindingsExported &&
+    if (kDesktop_GrGLBinding == binding &&
         (NULL == fLineWidth ||
          NULL == fGetTexLevelParameteriv ||
          NULL == fDrawBuffer ||
@@ -419,7 +455,7 @@ bool GrGLInterface::validate() const {
 
     // GL_EXT_texture_storage is part of desktop 4.2
     // There is a desktop ARB extension and an ES+desktop EXT extension
-    if (kDesktop_GrGLBinding == fBindingsExported) {
+    if (kDesktop_GrGLBinding == binding) {
         if (glVer >= GR_GL_VER(4,2) ||
             GrGLHasExtensionFromString("GL_ARB_texture_storage", ext) ||
             GrGLHasExtensionFromString("GL_EXT_texture_storage", ext)) {
@@ -434,7 +470,7 @@ bool GrGLInterface::validate() const {
     }
 
     // FBO MSAA
-    if (kDesktop_GrGLBinding == fBindingsExported) {
+    if (kDesktop_GrGLBinding == binding) {
         // GL 3.0 and the ARB extension have multisample + blit
         if (glVer >= GR_GL_VER(3,0) || GrGLHasExtensionFromString("GL_ARB_framebuffer_object", ext)) {
             if (NULL == fRenderbufferStorageMultisample ||
@@ -469,7 +505,7 @@ bool GrGLInterface::validate() const {
     // On ES buffer mapping is an extension. On Desktop
     // buffer mapping was part of original VBO extension
     // which we require.
-    if (kDesktop_GrGLBinding == fBindingsExported  || 
+    if (kDesktop_GrGLBinding == binding || 
         GrGLHasExtensionFromString("GL_OES_mapbuffer", ext)) {
         if (NULL == fMapBuffer ||
             NULL == fUnmapBuffer) {
@@ -478,7 +514,7 @@ bool GrGLInterface::validate() const {
     }
 
     // Dual source blending
-    if (kDesktop_GrGLBinding == fBindingsExported  &&
+    if (kDesktop_GrGLBinding == binding &&
         (glVer >= GR_GL_VER(3,3) || 
          GrGLHasExtensionFromString("GL_ARB_blend_func_extended", ext))) {
         if (NULL == fBindFragDataLocationIndexed) {

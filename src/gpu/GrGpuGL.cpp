@@ -246,29 +246,17 @@ static bool fbo_test(const GrGLInterface* gl, int w, int h) {
     return status == GR_GL_FRAMEBUFFER_COMPLETE;
 }
 
-GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding) {
+GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
+
+    GrAssert(ctxInfo.isInitialized());
 
     fPrintedCaps = false;
 
-    gl->ref();
-    fGL = gl;
-    fGLBinding = glBinding;
-    switch (glBinding) {
-        case kDesktop_GrGLBinding:
-            GrAssert(gl->supportsDesktop());
-            break;
-        case kES2_GrGLBinding:
-            GrAssert(gl->supportsES2());
-            break;
-        default:
-            GrCrash("Expect exactly one valid GL binding bit to be in use.");
-    }
+    GrGLClearErr(fGLContextInfo.interface());
 
-    GrGLClearErr(fGL);
-
-    const GrGLubyte* ext;
-    GL_CALL_RET(ext, GetString(GR_GL_EXTENSIONS));
     if (gPrintStartupSpew) {
+        const GrGLubyte* ext;
+        GL_CALL_RET(ext, GetString(GR_GL_EXTENSIONS));
         const GrGLubyte* vendor;
         const GrGLubyte* renderer;
         const GrGLubyte* version;
@@ -283,10 +271,6 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding) {
         GrPrintf("------ EXTENSIONS\n %s \n", ext);
     }
 
-    fGLVersion = GrGLGetVersion(gl);
-    GrAssert(0 != fGLVersion);
-    fExtensionString = (const char*) ext;
-
     this->resetDirtyFlags();
 
     this->initCaps();
@@ -300,7 +284,6 @@ GrGpuGL::~GrGpuGL() {
     // This subclass must do this before the base class destructor runs
     // since we will unref the GrGLInterface.
     this->releaseResources();
-    fGL->unref();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,27 +295,28 @@ void GrGpuGL::initCaps() {
     // check FS and fixed-function texture unit limits
     // we only use textures in the fragment stage currently.
     // checks are > to make sure we have a spare unit.
-    GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+    const GrGLInterface* gl = this->glInterface();
+    GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
     GrAssert(maxTextureUnits > GrDrawState::kNumStages);
     if (kES2_GrGLBinding != this->glBinding()) {
-        GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
+        GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
         GrAssert(maxTextureUnits > GrDrawState::kNumStages);
     }
     if (kES2_GrGLBinding == this->glBinding()) {
-        GR_GL_GetIntegerv(fGL, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
+        GR_GL_GetIntegerv(gl, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
                           &fGLCaps.fMaxFragmentUniformVectors);
     } else if (kDesktop_GrGLBinding != this->glBinding()) {
         GrGLint max;
-        GR_GL_GetIntegerv(fGL, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
+        GR_GL_GetIntegerv(gl, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
         fGLCaps.fMaxFragmentUniformVectors = max / 4;
     } else {
         fGLCaps.fMaxFragmentUniformVectors = 16;
     }
 
     GrGLint numFormats;
-    GR_GL_GetIntegerv(fGL, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+    GR_GL_GetIntegerv(gl, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
     SkAutoSTMalloc<10, GrGLint> formats(numFormats);
-    GR_GL_GetIntegerv(fGL, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
+    GR_GL_GetIntegerv(gl, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
     for (int i = 0; i < numFormats; ++i) {
         if (formats[i] == GR_GL_PALETTE8_RGBA8) {
             fCaps.f8BitPaletteSupport = true;
@@ -344,9 +328,9 @@ void GrGpuGL::initCaps() {
         // we could also look for GL_ATI_separate_stencil extension or
         // GL_EXT_stencil_two_side but they use different function signatures
         // than GL2.0+ (and than each other).
-        fCaps.fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
+        fCaps.fTwoSidedStencilSupport = (this->glVersion() >= GR_GL_VER(2,0));
         // supported on GL 1.4 and higher or by extension
-        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(1,4)) ||
+        fCaps.fStencilWrapOpsSupport = (this->glVersion() >= GR_GL_VER(1,4)) ||
                                        this->hasExtension("GL_EXT_stencil_wrap");
     } else {
         // ES 2 has two sided stencil and stencil wrap
@@ -407,7 +391,7 @@ void GrGpuGL::initCaps() {
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        if (fGLVersion >= GR_GL_VER(2,0) || 
+        if (this->glVersion() >= GR_GL_VER(2,0) || 
             this->hasExtension("GL_ARB_texture_non_power_of_two")) {
             fCaps.fNPOTTextureTileSupport = true;
         } else {
@@ -423,7 +407,7 @@ void GrGpuGL::initCaps() {
 
     // Tex storage is in desktop 4.2 and can be an extension to desktop or ES.
     fGLCaps.fTexStorageSupport = (kDesktop_GrGLBinding == this->glBinding() &&
-                                  fGLVersion >= GR_GL_VER(4,2)) ||
+                                  this->glVersion() >= GR_GL_VER(4,2)) ||
                                  this->hasExtension("GL_ARB_texture_storage") ||
                                  this->hasExtension("GL_EXT_texture_storage");
 
@@ -434,8 +418,8 @@ void GrGpuGL::initCaps() {
     // TODO: Make these a preprocess that generate some compile time constants.
     // TODO: probe once at startup, rather than once per context creation.
 
-    GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_SIZE, &fCaps.fMaxTextureSize);
-    GR_GL_GetIntegerv(fGL, GR_GL_MAX_RENDERBUFFER_SIZE, &fCaps.fMaxRenderTargetSize);
+    GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_SIZE, &fCaps.fMaxTextureSize);
+    GR_GL_GetIntegerv(gl, GR_GL_MAX_RENDERBUFFER_SIZE, &fCaps.fMaxRenderTargetSize);
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
     fCaps.fMaxRenderTargetSize = GrMin(fCaps.fMaxTextureSize, fCaps.fMaxRenderTargetSize);
@@ -456,7 +440,7 @@ void GrGpuGL::initFSAASupport() {
             fGLCaps.fMSFBOType = GLCaps::kAppleES_MSFBO;
         }
     } else {
-        if ((fGLVersion >= GR_GL_VER(3,0)) || this->hasExtension("GL_ARB_framebuffer_object")) {
+        if ((this->glVersion() >= GR_GL_VER(3,0)) || this->hasExtension("GL_ARB_framebuffer_object")) {
             fGLCaps.fMSFBOType = GLCaps::kDesktopARB_MSFBO;
         } else if (this->hasExtension("GL_EXT_framebuffer_multisample") &&
                    this->hasExtension("GL_EXT_framebuffer_blit")) {
@@ -486,7 +470,7 @@ void GrGpuGL::initStencilFormats() {
         gDS    = {{GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true }, {0U}};
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        bool supportsPackedDS = fGLVersion >= GR_GL_VER(3,0) || 
+        bool supportsPackedDS = this->glVersion() >= GR_GL_VER(3,0) || 
                                 this->hasExtension("GL_EXT_packed_depth_stencil") ||
                                 this->hasExtension("GL_ARB_framebuffer_object");
 
