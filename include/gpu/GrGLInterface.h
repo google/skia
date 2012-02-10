@@ -21,6 +21,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Classifies GL contexts (currently as Desktop vs. ES2). This is a bitfield.
+ * A GrGLInterface (defined below) may support multiple bindings.
+ */
+enum GrGLBinding {
+    kNone_GrGLBinding = 0x0,
+
+    kDesktop_GrGLBinding = 0x01,
+    kES2_GrGLBinding = 0x02,
+
+    // for iteration of GrGLBindings
+    kLastGrGLBinding = kES2_GrGLBinding
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
  * Helpers for glGetString()
  */
 
@@ -34,11 +50,13 @@ typedef uint32_t GrGLSLVersion;
 
 // these variants assume caller already has a string from glGetString()
 GrGLVersion GrGLGetVersionFromString(const char* versionString);
+GrGLBinding GrGLGetBindingInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 bool GrGLHasExtensionFromString(const char* ext, const char* extensionString);
 
 // these variants call glGetString()
 bool GrGLHasExtension(const GrGLInterface*, const char* ext);
+GrGLBinding GrGLGetBindingInUse(const GrGLInterface*);
 GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 
@@ -108,11 +126,6 @@ typedef double GrGLclampd;
 typedef void GrGLvoid;
 typedef long GrGLintptr;
 typedef long GrGLsizeiptr;
-
-enum GrGLBinding {
-    kDesktop_GrGLBinding = 0x01,
-    kES2_GrGLBinding = 0x02
-};
 
 extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLActiveTextureProc)(GrGLenum texture);
@@ -267,7 +280,11 @@ struct GR_API GrGLInterface : public GrRefCnt {
 
     GrGLInterface();
 
-    bool validate() const;
+    // Validates that the GrGLInterface supports a binding. This means that
+    // the GrGLinterface advertises the binding in fBindingsExported and all
+    // the necessary function pointers have been initialized.
+    bool validate(GrGLBinding binding) const;
+
     bool supportsDesktop() const {
         return 0 != (kDesktop_GrGLBinding & fBindingsExported);
     }

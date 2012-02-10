@@ -13,21 +13,25 @@
 
 #include "GrDrawState.h"
 #include "GrGpu.h"
+#include "GrGLContextInfo.h"
 #include "GrGLIndexBuffer.h"
 #include "GrGLIRect.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTexture.h"
 #include "GrGLVertexBuffer.h"
 
-#include "SkString.h"
-
 class GrGpuGL : public GrGpu {
 public:
     virtual ~GrGpuGL();
 
-    const GrGLInterface* glInterface() const { return fGL; }
-    GrGLBinding glBinding() const { return fGLBinding; }
-    GrGLVersion glVersion() const { return fGLVersion; }
+    const GrGLInterface* glInterface() const { 
+        return fGLContextInfo.interface();
+    }
+    const GrGLBinding glBinding() const { return fGLContextInfo.binding(); }
+    const GrGLVersion glVersion() const { return fGLContextInfo.version(); }
+    const GrGLSLGeneration glslGeneration() const {
+        return fGLContextInfo.glslGeneration();
+    }
 
     // GrGpu overrides
     virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
@@ -43,7 +47,7 @@ public:
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
 protected:
-    GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
+    GrGpuGL(const GrGLContextInfo& ctxInfo);
 
     struct GLCaps {
         GLCaps()
@@ -270,9 +274,9 @@ protected:
                     GrBlendCoeff srcCoeff,
                     GrBlendCoeff dstCoeff);
 
-    bool hasExtension(const char* ext) {
-        return GrGLHasExtensionFromString(ext, fExtensionString.c_str());
-    }
+    bool hasExtension(const char* ext) const {
+        return fGLContextInfo.hasExtension(ext);
+}
 
     // adjusts texture matrix to account for orientation
     static void AdjustTextureMatrix(const GrGLTexture* texture,
@@ -336,9 +340,7 @@ private:
     friend class GrGLTexture;
     friend class GrGLRenderTarget;
 
-    // read these once at begining and then never again
-    SkString fExtensionString;
-    GrGLVersion fGLVersion;
+    GrGLContextInfo fGLContextInfo;
 
     // we want to clear stencil buffers when they are created. We want to clear
     // the entire buffer even if it is larger than the color attachment. We
@@ -353,8 +355,6 @@ private:
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
 
-    const GrGLInterface* fGL;
-    GrGLBinding fGLBinding;
 
     bool fPrintedCaps;
 

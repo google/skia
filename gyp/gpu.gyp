@@ -205,6 +205,8 @@
         '../src/gpu/GrDrawTarget.cpp',
         '../src/gpu/GrDrawTarget.h',
         '../src/gpu/GrGeometryBuffer.h',
+        '../src/gpu/GrGLContextInfo.cpp',
+        '../src/gpu/GrGLContextInfo.h',
         '../src/gpu/GrGLCreateNativeInterface_none.cpp',
         '../src/gpu/GrGLCreateNullInterface.cpp',
         '../src/gpu/GrGLDefaultInterface_none.cpp',

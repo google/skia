@@ -39,15 +39,10 @@ GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 #endif
             return NULL;
         }
-        if (!glInterface->validate()) {
-#if GR_DEBUG
-            GrPrintf("Failed GL interface validation!\n");
-#endif
-            return NULL;
+        GrGLContextInfo ctxInfo(glInterface);
+        if (ctxInfo.isInitialized()) {
+            return new GrGpuGLShaders(ctxInfo);
         }
-
-        return new GrGpuGLShaders(glInterface);
-    } else {
-        return NULL;
     }
+    return NULL;
 }
