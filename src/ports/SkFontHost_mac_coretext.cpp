@@ -132,7 +132,7 @@ static void sk_memset_rect(void* ptr, U8CPU byte, size_t width, size_t height,
 typedef uint32_t CGRGBPixel;
 
 static unsigned CGRGBPixel_getAlpha(CGRGBPixel pixel) {
-    return pixel >> 24;
+    return pixel & 0xFF;
 }
 
 // The calls to support subpixel are present in 10.5, but are not included in
@@ -593,7 +593,12 @@ private:
     SkMatrix                            fVerticalMatrix; // unit rotated
     SkMatrix                            fMatrix; // with font size
     SkMatrix                            fAdjustBadMatrix; // lion-specific fix
+#ifdef SK_USE_COLOR_LUMINANCE
+    Offscreen                           fBlackScreen;
+    Offscreen                           fWhiteScreen;
+#else
     Offscreen                           fOffscreen;
+#endif
     CTFontRef                           fCTFont;
     CTFontRef                           fCTVerticalFont; // for vertical advance
     CGFontRef                           fCGFont;
@@ -1052,7 +1057,7 @@ static void build_power_table(uint8_t table[], float ee) {
     for (int i = 0; i < 256; i++) {
         float x = i / 255.f;
         x = powf(x, ee);
-        int xx = SkScalarRound(SkFloatToScalar(x * 255));
+        int xx = SkScalarRoundToInt(SkFloatToScalar(x * 255));
         table[i] = SkToU8(xx);
     }
 }
@@ -1068,6 +1073,7 @@ static const uint8_t* getInverseTable(bool isWhite) {
     }
     return isWhite ? gWhiteTable : gTable;
 }
+
 
 static void invertGammaMask(bool isWhite, CGRGBPixel rgb[], int width,
                             int height, size_t rb) {
@@ -1094,6 +1100,49 @@ static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
             }
         }
         *dst++ = mask;
+    }
+}
+
+static int lerpScale(int dst, int src, int scale) {
+    return dst + (scale * (src - dst) >> 23);
+}
+
+static CGRGBPixel lerpPixel(CGRGBPixel dst, CGRGBPixel src,
+                            int scaleR, int scaleG, int scaleB) {
+    int sr = (src >> 16) & 0xFF;
+    int sg = (src >>  8) & 0xFF;
+    int sb = (src >>  0) & 0xFF;
+    int dr = (dst >> 16) & 0xFF;
+    int dg = (dst >>  8) & 0xFF;
+    int db = (dst >>  0) & 0xFF;
+
+    int rr = lerpScale(dr, sr, scaleR);
+    int rg = lerpScale(dg, sg, scaleG);
+    int rb = lerpScale(db, sb, scaleB);
+    return (rr << 16) | (rg << 8) | rb;
+}
+
+static void lerpPixels(CGRGBPixel dst[], const CGRGBPixel src[], int width,
+                       int height, int rowBytes, int lumBits) {
+#ifdef SK_USE_COLOR_LUMINANCE
+    int scaleR = (1 << 23) * SkColorGetR(lumBits) / 0xFF;
+    int scaleG = (1 << 23) * SkColorGetG(lumBits) / 0xFF;
+    int scaleB = (1 << 23) * SkColorGetB(lumBits) / 0xFF;
+#else
+    int scale = (1 << 23) * lumBits / SkScalerContext::kLuminance_Max;
+    int scaleR = scale;
+    int scaleG = scale;
+    int scaleB = scale;
+#endif
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            // bit-not the src, since it was drawn from black, so we need the
+            // compliment of those bits
+            dst[x] = lerpPixel(dst[x], ~src[x], scaleR, scaleG, scaleB);
+        }
+        src = (CGRGBPixel*)((char*)src + rowBytes);
+        dst = (CGRGBPixel*)((char*)dst + rowBytes);
     }
 }
 
@@ -1141,6 +1190,10 @@ static inline uint32_t rgb_to_lcd32(CGRGBPixel rgb) {
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
 
+#ifdef SK_USE_COLOR_LUMINANCE
+    unsigned lumBits = fRec.getLuminanceColor();
+    uint32_t xorMask = 0;
+#else
     bool fgColorIsWhite = true;
     bool isWhite = fRec.getLuminanceByte() >= WHITE_LUMINANCE_LIMIT;
     bool isBlack = fRec.getLuminanceByte() <= BLACK_LUMINANCE_LIMIT;
@@ -1161,18 +1214,64 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
             invertGamma = true;
         }
     }
+#endif
 
     size_t cgRowBytes;
+#ifdef SK_USE_COLOR_LUMINANCE
+    CGRGBPixel* cgPixels;
+    
+    //  If we're gray or lum==max, we just want WHITE
+    //  If lum is 0 we just want BLACK
+    //  Else lerp
+
+    {
+        bool isLCD = isLCDFormat(glyph.fMaskFormat);
+        CGRGBPixel* wtPixels = NULL;
+        CGRGBPixel* bkPixels = NULL;
+        bool needBlack = true;
+        bool needWhite = true;
+        
+        if (!isLCD || (SK_ColorWHITE == lumBits)) {
+            needBlack = false;
+        } else if (SK_ColorBLACK == lumBits) {
+            needWhite = false;
+        }
+
+        if (needBlack) {
+            bkPixels = fBlackScreen.getCG(*this, glyph, false, cgGlyph, &cgRowBytes);
+            cgPixels = bkPixels;
+            xorMask = ~0;
+        }
+        if (needWhite) {
+            wtPixels = fWhiteScreen.getCG(*this, glyph, true, cgGlyph, &cgRowBytes);
+            cgPixels = wtPixels;
+            xorMask = 0;
+        }
+
+        if (wtPixels && bkPixels) {
+            lerpPixels(wtPixels, bkPixels, glyph.fWidth, glyph.fHeight, cgRowBytes,
+#ifdef SK_USE_COLOR_LUMINANCE
+                       ~lumBits);
+#else
+                       SkScalerContext::kLuminance_Max - lumBits);
+#endif
+        }
+    }
+#else
     CGRGBPixel* cgPixels = fOffscreen.getCG(*this, glyph, fgColorIsWhite, cgGlyph,
                                             &cgRowBytes);
+#endif
 
     // Draw the glyph
     if (cgPixels != NULL) {
 
+#ifdef SK_USE_COLOR_LUMINANCE
+#else
         if (invertGamma) {
             invertGammaMask(isWhite, (uint32_t*)cgPixels,
                             glyph.fWidth, glyph.fHeight, cgRowBytes);
         }
+#endif
 
         int width = glyph.fWidth;
         switch (glyph.fMaskFormat) {
@@ -1697,6 +1796,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     // for compatibility at the moment, discretize luminance to 3 settings
     // black, white, gray. This helps with fontcache utilization, since we
     // won't create multiple entries that in the end map to the same results.
+#ifndef SK_USE_COLOR_LUMINANCE
     {
         unsigned lum = rec->getLuminanceByte();
         if (lum <= BLACK_LUMINANCE_LIMIT) {
@@ -1708,7 +1808,8 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         }
         rec->setLuminanceBits(lum);
     }
-    
+#endif
+
     if (SkMask::kLCD16_Format == rec->fMaskFormat
             || SkMask::kLCD32_Format == rec->fMaskFormat) {
         if (supports_LCD()) {

@@ -1293,6 +1293,15 @@ static bool justAColor(const SkPaint& paint, SkColor* color) {
     return true;
 }
 
+#ifdef SK_USE_COLOR_LUMINANCE
+static SkColor computeLuminanceColor(const SkPaint& paint) {
+    SkColor c;
+    if (!justAColor(paint, &c)) {
+        c = SkColorSetRGB(0x7F, 0x80, 0x7F);
+    }
+    return c;
+}
+#else
 // returns 0..kLuminance_Max
 static unsigned computeLuminance(const SkPaint& paint) {
     SkColor c;
@@ -1316,6 +1325,7 @@ static unsigned computeLuminance(const SkPaint& paint) {
     // if we're not a single color, return the middle of the luminance range
     return SkScalerContext::kLuminance_Max >> 1;
 }
+#endif
 
 // Beyond this size, LCD doesn't appreciably improve quality, but it always
 // cost more RAM and draws slower, so we set a cap.
@@ -1446,7 +1456,11 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     // these modify fFlags, so do them after assigning fFlags
     rec->setHinting(computeHinting(paint));
+#ifdef SK_USE_COLOR_LUMINANCE
+    rec->setLuminanceColor(computeLuminanceColor(paint));
+#else
     rec->setLuminanceBits(computeLuminance(paint));
+#endif
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
@@ -1457,7 +1471,11 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     // No need to differentiate gamma if we're BW
     if (SkMask::kBW_Format == rec->fMaskFormat) {
+#ifdef SK_USE_COLOR_LUMINANCE
+        rec->setLuminanceColor(0);
+#else
         rec->setLuminanceBits(0);
+#endif
     }
 }
 
@@ -1481,7 +1499,11 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
 
     SkScalerContext::MakeRec(*this, deviceMatrix, &rec);
     if (ignoreGamma) {
+#ifdef SK_USE_COLOR_LUMINANCE
+        rec.setLuminanceColor(0);
+#else
         rec.setLuminanceBits(0);
+#endif
     }
 
     size_t          descSize = sizeof(rec);
