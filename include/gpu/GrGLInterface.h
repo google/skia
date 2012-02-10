@@ -31,6 +31,7 @@ enum GrGLBinding {
     kES2_GrGLBinding = 0x02,
 
     // for iteration of GrGLBindings
+    kFirstGrGLBinding = kDesktop_GrGLBinding,
     kLastGrGLBinding = kES2_GrGLBinding
 };
 
