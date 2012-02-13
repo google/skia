@@ -423,7 +423,7 @@ void append_varying(GrGLShaderVar::Type type,
 }
 }
 
-void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
+void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
                                   GrVertexLayout layout,
                                   CachedData* programData,
                                   GrStringBuilder* coverageVar,
@@ -503,7 +503,7 @@ void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
             segments->fFSCode.appendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
             segments->fFSCode.appendf("\t\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n"
                                       "\t}\n");
-            if (gl->supportsES2()) {
+            if (kES2_GrGLBinding == gl.binding()) {
                 segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
         } else {
@@ -516,7 +516,7 @@ void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
             segments->fFSCode.appendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
             segments->fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
             segments->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
-            if (gl->supportsES2()) {
+            if (kES2_GrGLBinding == gl.binding()) {
                 segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
         }
@@ -596,12 +596,11 @@ void genUniformCoverage(ShaderCodeSegments* segments,
 
 }
 
-void GrGLProgram::genGeometryShader(const GrGLInterface* gl,
-                                    GrGLSLGeneration glslGeneration,
+void GrGLProgram::genGeometryShader(const GrGLContextInfo& gl,
                                     ShaderCodeSegments* segments) const {
 #if GR_GL_EXPERIMENTAL_GS
     if (fProgramDesc.fExperimentalGS) {
-        GrAssert(glslGeneration >= k150_GrGLSLGeneration);
+        GrAssert(gl.glslGeneration() >= k150_GrGLSLGeneration);
         segments->fGSHeader.append("layout(triangles) in;\n"
                                    "layout(triangle_strip, max_vertices = 6) out;\n");
         segments->fGSCode.append("void main() {\n"
@@ -638,8 +637,7 @@ const char* GrGLProgram::adjustInColor(const GrStringBuilder& inColor) const {
 }
 
 
-bool GrGLProgram::genProgram(const GrGLInterface* gl,
-                             GrGLSLGeneration glslGeneration,
+bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                              GrGLProgram::CachedData* programData) const {
 
     ShaderCodeSegments segments;
@@ -696,11 +694,11 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
     bool dualSourceOutputWritten = false;
-    segments.fHeader.printf(GrGetGLSLVersionDecl(gl->fBindingsExported,
-                                                 glslGeneration));
+    segments.fHeader.printf(GrGetGLSLVersionDecl(gl.binding(),
+                                                 gl.glslGeneration()));
 
     GrGLShaderVar colorOutput;
-    bool isColorDeclared = GrGLSLSetupFSColorOuput(glslGeneration,
+    bool isColorDeclared = GrGLSLSetupFSColorOuput(gl.glslGeneration(),
                                                    declared_color_output_name(),
                                                    &colorOutput);
     if (isColorDeclared) {
@@ -971,13 +969,13 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     ///////////////////////////////////////////////////////////////////////////
     // insert GS
 #if GR_DEBUG
-    this->genGeometryShader(gl, glslGeneration, &segments);
+    this->genGeometryShader(gl, &segments);
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
     // compile and setup attribs and unis
 
-    if (!CompileShaders(gl, glslGeneration, segments, programData)) {
+    if (!CompileShaders(gl, segments, programData)) {
         return false;
     }
 
@@ -996,12 +994,11 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
 namespace {
 
 inline void expand_decls(const VarArray& vars,
-                         const GrGLInterface* gl,
-                         GrStringBuilder* string,
-                         GrGLSLGeneration gen) {
+                         const GrGLContextInfo& gl,
+                         GrStringBuilder* string) {
     const int count = vars.count();
     for (int i = 0; i < count; ++i) {
-        vars[i].appendDecl(gl, string, gen);
+        vars[i].appendDecl(gl, string);
     }
 }
 
@@ -1039,19 +1036,17 @@ inline void append_string(const GrStringBuilder& str,
 }
 
 inline void append_decls(const VarArray& vars,
-                         const GrGLInterface* gl,
+                         const GrGLContextInfo& gl,
                          StrArray* strings,
                          LengthArray* lengths,
-                         TempArray* temp,
-                         GrGLSLGeneration gen) {
-    expand_decls(vars, gl, &temp->push_back(), gen);
+                         TempArray* temp) {
+    expand_decls(vars, gl, &temp->push_back());
     append_string(temp->back(), strings, lengths);
 }
 
 }
 
-bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
-                                 GrGLSLGeneration glslGeneration,
+bool GrGLProgram::CompileShaders(const GrGLContextInfo& gl,
                                  const ShaderCodeSegments& segments,
                                  CachedData* programData) {
     enum { kPreAllocStringCnt = 8 };
@@ -1065,11 +1060,9 @@ bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
     GrStringBuilder outputs;
 
     append_string(segments.fHeader, &strs, &lengths);
-    append_decls(segments.fVSUnis, gl, &strs, &lengths, &temps, glslGeneration);
-    append_decls(segments.fVSAttrs, gl, &strs, &lengths,
-                 &temps, glslGeneration);
-    append_decls(segments.fVSOutputs, gl, &strs, &lengths,
-                 &temps, glslGeneration);
+    append_decls(segments.fVSUnis, gl, &strs, &lengths, &temps);
+    append_decls(segments.fVSAttrs, gl, &strs, &lengths, &temps);
+    append_decls(segments.fVSOutputs, gl, &strs, &lengths, &temps);
     append_string(segments.fVSCode, &strs, &lengths);
 
 #if PRINT_SHADERS
@@ -1090,10 +1083,8 @@ bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
         temps.reset();
         append_string(segments.fHeader, &strs, &lengths);
         append_string(segments.fGSHeader, &strs, &lengths);
-        append_decls(segments.fGSInputs, gl, &strs, &lengths,
-                     &temps, glslGeneration);
-        append_decls(segments.fGSOutputs, gl, &strs, &lengths,
-                     &temps, glslGeneration);
+        append_decls(segments.fGSInputs, gl, &strs, &lengths, &temps);
+        append_decls(segments.fGSOutputs, gl, &strs, &lengths, &temps);
         append_string(segments.fGSCode, &strs, &lengths);
 #if PRINT_SHADERS
         print_shader(strs.count(), &strs[0], &lengths[0]);
@@ -1111,16 +1102,14 @@ bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
     temps.reset();
 
     append_string(segments.fHeader, &strs, &lengths);
-    GrStringBuilder precisionStr(GrGetGLSLShaderPrecisionDecl(gl->fBindingsExported));
+    GrStringBuilder precisionStr(GrGetGLSLShaderPrecisionDecl(gl.binding()));
     append_string(precisionStr, &strs, &lengths);
-    append_decls(segments.fFSUnis, gl, &strs, &lengths, &temps, glslGeneration);
-    append_decls(segments.fFSInputs, gl, &strs, &lengths,
-                 &temps, glslGeneration);
+    append_decls(segments.fFSUnis, gl, &strs, &lengths, &temps);
+    append_decls(segments.fFSInputs, gl, &strs, &lengths, &temps);
     // We shouldn't have declared outputs on 1.10
-    GrAssert(k110_GrGLSLGeneration != glslGeneration ||
+    GrAssert(k110_GrGLSLGeneration != gl.glslGeneration() ||
              segments.fFSOutputs.empty());
-    append_decls(segments.fFSOutputs, gl, &strs, &lengths,
-                 &temps, glslGeneration);
+    append_decls(segments.fFSOutputs, gl, &strs, &lengths, &temps);
     append_string(segments.fFSFunctions, &strs, &lengths);
     append_string(segments.fFSCode, &strs, &lengths);
 
@@ -1140,7 +1129,10 @@ bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
     return true;
 }
 
-GrGLuint GrGLProgram::CompileShader(const GrGLInterface* gl,
+#define GL_CALL(X) GR_GL_CALL(gl.interface(), X)
+#define GL_CALL_RET(R, X) GR_GL_CALL_RET(gl.interface(), R, X)
+
+GrGLuint GrGLProgram::CompileShader(const GrGLContextInfo& gl,
                                     GrGLenum type,
                                     int stringCnt,
                                     const char** strings,
@@ -1149,78 +1141,77 @@ GrGLuint GrGLProgram::CompileShader(const GrGLInterface* gl,
                     "stringCount", SkStringPrintf("%i", stringCnt).c_str());
 
     GrGLuint shader;
-    GR_GL_CALL_RET(gl, shader, CreateShader(type));
+    GL_CALL_RET(shader, CreateShader(type));
     if (0 == shader) {
         return 0;
     }
 
     GrGLint compiled = GR_GL_INIT_ZERO;
-    GR_GL_CALL(gl, ShaderSource(shader, stringCnt, strings, stringLengths));
-    GR_GL_CALL(gl, CompileShader(shader));
-    GR_GL_CALL(gl, GetShaderiv(shader, GR_GL_COMPILE_STATUS, &compiled));
+    GL_CALL(ShaderSource(shader, stringCnt, strings, stringLengths));
+    GL_CALL(CompileShader(shader));
+    GL_CALL(GetShaderiv(shader, GR_GL_COMPILE_STATUS, &compiled));
 
     if (!compiled) {
         GrGLint infoLen = GR_GL_INIT_ZERO;
-        GR_GL_CALL(gl, GetShaderiv(shader, GR_GL_INFO_LOG_LENGTH, &infoLen));
+        GL_CALL(GetShaderiv(shader, GR_GL_INFO_LOG_LENGTH, &infoLen));
         SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
         if (infoLen > 0) {
             // retrieve length even though we don't need it to workaround
             // bug in chrome cmd buffer param validation.
             GrGLsizei length = GR_GL_INIT_ZERO;
-            GR_GL_CALL(gl, GetShaderInfoLog(shader, infoLen+1, 
-                                            &length, (char*)log.get()));
+            GL_CALL(GetShaderInfoLog(shader, infoLen+1, 
+                                         &length, (char*)log.get()));
             print_shader(stringCnt, strings, stringLengths);
             GrPrintf("\n%s", log.get());
         }
         GrAssert(!"Shader compilation failed!");
-        GR_GL_CALL(gl, DeleteShader(shader));
+        GL_CALL(DeleteShader(shader));
         return 0;
     }
     return shader;
 }
 
 bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
-                                        const GrGLInterface* gl,
+                                        const GrGLContextInfo& gl,
                                         GrStringBuilder texCoordAttrNames[],
                                         bool bindColorOut,
                                         bool bindDualSrcOut,
                                         CachedData* programData) const {
-    GR_GL_CALL_RET(gl, programData->fProgramID, CreateProgram());
+    GL_CALL_RET(programData->fProgramID, CreateProgram());
     if (!programData->fProgramID) {
         return false;
     }
     const GrGLint& progID = programData->fProgramID;
 
-    GR_GL_CALL(gl, AttachShader(progID, programData->fVShaderID));
+    GL_CALL(AttachShader(progID, programData->fVShaderID));
     if (programData->fGShaderID) {
-        GR_GL_CALL(gl, AttachShader(progID, programData->fGShaderID));
+        GL_CALL(AttachShader(progID, programData->fGShaderID));
     }
-    GR_GL_CALL(gl, AttachShader(progID, programData->fFShaderID));
+    GL_CALL(AttachShader(progID, programData->fFShaderID));
 
     if (bindColorOut) {
-        GR_GL_CALL(gl, BindFragDataLocation(programData->fProgramID,
-                                          0, declared_color_output_name()));
+        GL_CALL(BindFragDataLocation(programData->fProgramID,
+                                     0, declared_color_output_name()));
     }
     if (bindDualSrcOut) {
-        GR_GL_CALL(gl, BindFragDataLocationIndexed(programData->fProgramID,
-                                          0, 1, dual_source_output_name()));
+        GL_CALL(BindFragDataLocationIndexed(programData->fProgramID,
+                                            0, 1, dual_source_output_name()));
     }
 
     // Bind the attrib locations to same values for all shaders
-    GR_GL_CALL(gl, BindAttribLocation(progID, PositionAttributeIdx(),
-                                      POS_ATTR_NAME));
+    GL_CALL(BindAttribLocation(progID, PositionAttributeIdx(), POS_ATTR_NAME));
     for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         if (texCoordAttrNames[t].size()) {
-            GR_GL_CALL(gl, BindAttribLocation(progID,
-                                              TexCoordAttributeIdx(t),
-                                              texCoordAttrNames[t].c_str()));
+            GL_CALL(BindAttribLocation(progID,
+                                       TexCoordAttributeIdx(t),
+                                       texCoordAttrNames[t].c_str()));
         }
     }
 
     if (kSetAsAttribute == programData->fUniLocations.fViewMatrixUni) {
-        GR_GL_CALL(gl, BindAttribLocation(progID,
-                                          ViewMatrixAttributeIdx(),
-                                          VIEW_MATRIX_NAME));
+        GL_CALL(BindAttribLocation(progID,
+                                   ViewMatrixAttributeIdx(),
+                                   VIEW_MATRIX_NAME));
     }
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
@@ -1228,81 +1219,80 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
         if (kSetAsAttribute == unis.fTextureMatrixUni) {
             GrStringBuilder matName;
             tex_matrix_name(s, &matName);
-            GR_GL_CALL(gl, BindAttribLocation(progID,
-                                              TextureMatrixAttributeIdx(s),
-                                              matName.c_str()));
+            GL_CALL(BindAttribLocation(progID,
+                                       TextureMatrixAttributeIdx(s),
+                                       matName.c_str()));
         }
     }
 
-    GR_GL_CALL(gl, BindAttribLocation(progID, ColorAttributeIdx(),
-                                      COL_ATTR_NAME));
-    GR_GL_CALL(gl, BindAttribLocation(progID, CoverageAttributeIdx(),
-                                      COV_ATTR_NAME));
-    GR_GL_CALL(gl, BindAttribLocation(progID, EdgeAttributeIdx(),
-                                      EDGE_ATTR_NAME));
+    GL_CALL(BindAttribLocation(progID, ColorAttributeIdx(), COL_ATTR_NAME));
+    GL_CALL(BindAttribLocation(progID, CoverageAttributeIdx(), COV_ATTR_NAME));
+    GL_CALL(BindAttribLocation(progID, EdgeAttributeIdx(), EDGE_ATTR_NAME));
 
-    GR_GL_CALL(gl, LinkProgram(progID));
+    GL_CALL(LinkProgram(progID));
 
     GrGLint linked = GR_GL_INIT_ZERO;
-    GR_GL_CALL(gl, GetProgramiv(progID, GR_GL_LINK_STATUS, &linked));
+    GL_CALL(GetProgramiv(progID, GR_GL_LINK_STATUS, &linked));
     if (!linked) {
         GrGLint infoLen = GR_GL_INIT_ZERO;
-        GR_GL_CALL(gl, GetProgramiv(progID, GR_GL_INFO_LOG_LENGTH, &infoLen));
+        GL_CALL(GetProgramiv(progID, GR_GL_INFO_LOG_LENGTH, &infoLen));
         SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
         if (infoLen > 0) {
             // retrieve length even though we don't need it to workaround
             // bug in chrome cmd buffer param validation.
             GrGLsizei length = GR_GL_INIT_ZERO;
-            GR_GL_CALL(gl, GetProgramInfoLog(progID, infoLen+1,
-                                             &length, (char*)log.get()));
+            GL_CALL(GetProgramInfoLog(progID,
+                                      infoLen+1,
+                                      &length,
+                                      (char*)log.get()));
             GrPrintf((char*)log.get());
         }
         GrAssert(!"Error linking program");
-        GR_GL_CALL(gl, DeleteProgram(progID));
+        GL_CALL(DeleteProgram(progID));
         programData->fProgramID = 0;
         return false;
     }
     return true;
 }
 
-void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl, 
+void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
                                                   CachedData* programData) const {
     const GrGLint& progID = programData->fProgramID;
 
     if (kUseUniform == programData->fUniLocations.fViewMatrixUni) {
-        GR_GL_CALL_RET(gl, programData->fUniLocations.fViewMatrixUni,
-                       GetUniformLocation(progID, VIEW_MATRIX_NAME));
+        GL_CALL_RET(programData->fUniLocations.fViewMatrixUni,
+                    GetUniformLocation(progID, VIEW_MATRIX_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fViewMatrixUni);
     }
     if (kUseUniform == programData->fUniLocations.fColorUni) {
-        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorUni,
-                       GetUniformLocation(progID, COL_UNI_NAME));
+        GL_CALL_RET(programData->fUniLocations.fColorUni,
+                    GetUniformLocation(progID, COL_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fColorUni);
     }
     if (kUseUniform == programData->fUniLocations.fColorFilterUni) {
-        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorFilterUni, 
-                       GetUniformLocation(progID, COL_FILTER_UNI_NAME));
+        GL_CALL_RET(programData->fUniLocations.fColorFilterUni, 
+                    GetUniformLocation(progID, COL_FILTER_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fColorFilterUni);
     }
 
     if (kUseUniform == programData->fUniLocations.fColorMatrixUni) {
-        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorMatrixUni,
-                       GetUniformLocation(progID, COL_MATRIX_UNI_NAME));
+        GL_CALL_RET(programData->fUniLocations.fColorMatrixUni,
+                    GetUniformLocation(progID, COL_MATRIX_UNI_NAME));
     }
 
     if (kUseUniform == programData->fUniLocations.fColorMatrixVecUni) {
-        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorMatrixVecUni,
-                       GetUniformLocation(progID, COL_MATRIX_VEC_UNI_NAME));
+        GL_CALL_RET(programData->fUniLocations.fColorMatrixVecUni,
+                    GetUniformLocation(progID, COL_MATRIX_VEC_UNI_NAME));
     }
     if (kUseUniform == programData->fUniLocations.fCoverageUni) {
-        GR_GL_CALL_RET(gl, programData->fUniLocations.fCoverageUni,
-                       GetUniformLocation(progID, COV_UNI_NAME));
+        GL_CALL_RET(programData->fUniLocations.fCoverageUni,
+                    GetUniformLocation(progID, COV_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fCoverageUni);
     }
 
     if (kUseUniform == programData->fUniLocations.fEdgesUni) {
-        GR_GL_CALL_RET(gl, programData->fUniLocations.fEdgesUni,
-                       GetUniformLocation(progID, EDGES_UNI_NAME));
+        GL_CALL_RET(programData->fUniLocations.fEdgesUni,
+                    GetUniformLocation(progID, EDGES_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fEdgesUni);
     } else {
         programData->fUniLocations.fEdgesUni = kUnusedUniform;
@@ -1314,65 +1304,65 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
             if (kUseUniform == locations.fTextureMatrixUni) {
                 GrStringBuilder texMName;
                 tex_matrix_name(s, &texMName);
-                GR_GL_CALL_RET(gl, locations.fTextureMatrixUni,
-                               GetUniformLocation(progID, texMName.c_str()));
+                GL_CALL_RET(locations.fTextureMatrixUni,
+                            GetUniformLocation(progID, texMName.c_str()));
                 GrAssert(kUnusedUniform != locations.fTextureMatrixUni);
             }
 
             if (kUseUniform == locations.fSamplerUni) {
                 GrStringBuilder samplerName;
                 sampler_name(s, &samplerName);
-                GR_GL_CALL_RET(gl, locations.fSamplerUni,
-                               GetUniformLocation(progID,samplerName.c_str()));
+                GL_CALL_RET(locations.fSamplerUni,
+                            GetUniformLocation(progID,samplerName.c_str()));
                 GrAssert(kUnusedUniform != locations.fSamplerUni);
             }
 
             if (kUseUniform == locations.fNormalizedTexelSizeUni) {
                 GrStringBuilder texelSizeName;
                 normalized_texel_size_name(s, &texelSizeName);
-                GR_GL_CALL_RET(gl, locations.fNormalizedTexelSizeUni,
-                               GetUniformLocation(progID, texelSizeName.c_str()));
+                GL_CALL_RET(locations.fNormalizedTexelSizeUni,
+                            GetUniformLocation(progID, texelSizeName.c_str()));
                 GrAssert(kUnusedUniform != locations.fNormalizedTexelSizeUni);
             }
 
             if (kUseUniform == locations.fRadial2Uni) {
                 GrStringBuilder radial2ParamName;
                 radial2_param_name(s, &radial2ParamName);
-                GR_GL_CALL_RET(gl, locations.fRadial2Uni,
-                               GetUniformLocation(progID, radial2ParamName.c_str()));
+                GL_CALL_RET(locations.fRadial2Uni,
+                            GetUniformLocation(progID, radial2ParamName.c_str()));
                 GrAssert(kUnusedUniform != locations.fRadial2Uni);
             }
 
             if (kUseUniform == locations.fTexDomUni) {
                 GrStringBuilder texDomName;
                 tex_domain_name(s, &texDomName);
-                GR_GL_CALL_RET(gl, locations.fTexDomUni,
-                               GetUniformLocation(progID, texDomName.c_str()));
+                GL_CALL_RET(locations.fTexDomUni,
+                            GetUniformLocation(progID, texDomName.c_str()));
                 GrAssert(kUnusedUniform != locations.fTexDomUni);
             }
 
             GrStringBuilder kernelName, imageIncrementName;
             convolve_param_names(s, &kernelName, &imageIncrementName);
             if (kUseUniform == locations.fKernelUni) {
-                GR_GL_CALL_RET(gl, locations.fKernelUni, 
-                               GetUniformLocation(progID, kernelName.c_str()));
+                GL_CALL_RET(locations.fKernelUni,
+                            GetUniformLocation(progID, kernelName.c_str()));
                 GrAssert(kUnusedUniform != locations.fKernelUni);
             }
 
             if (kUseUniform == locations.fImageIncrementUni) {
-                GR_GL_CALL_RET(gl, locations.fImageIncrementUni, 
-                               GetUniformLocation(progID, 
-                                                  imageIncrementName.c_str()));
+                GL_CALL_RET(locations.fImageIncrementUni, 
+                            GetUniformLocation(progID, 
+                                               imageIncrementName.c_str()));
                 GrAssert(kUnusedUniform != locations.fImageIncrementUni);
             }
         }
     }
-    GR_GL_CALL(gl, UseProgram(progID));
+    GL_CALL(UseProgram(progID));
 
     // init sampler unis and set bogus values for state tracking
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (kUnusedUniform != programData->fUniLocations.fStages[s].fSamplerUni) {
-            GR_GL_CALL(gl, Uniform1i(programData->fUniLocations.fStages[s].fSamplerUni, s));
+            GL_CALL(Uniform1i(programData->fUniLocations.fStages[s].fSamplerUni, s));
         }
         programData->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
         programData->fRadial2CenterX1[s] = GR_ScalarMax;
@@ -1659,7 +1649,7 @@ void genConvolutionFS(int stageNum,
 
 }
 
-void GrGLProgram::genStageCode(const GrGLInterface* gl,
+void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                int stageNum,
                                const GrGLProgram::StageDesc& desc,
                                const char* fsInColor, // NULL means no incoming color

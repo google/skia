@@ -9,7 +9,7 @@
 #ifndef GrGLShaderVar_DEFINED
 #define GrGLShaderVar_DEFINED
 
-#include "GrGLInterface.h"
+#include "GrGLContextInfo.h"
 #include "GrGLSL.h"
 #include "../GrStringBuilder.h"
 
@@ -200,14 +200,14 @@ public:
     /**
      * Write a declaration of this variable to out.
      */
-    void appendDecl(const GrGLInterface* gl, GrStringBuilder* out,
-                    GrGLSLGeneration gen) const {
+    void appendDecl(const GrGLContextInfo& gl, GrStringBuilder* out) const {
         if (this->getTypeModifier() != kNone_TypeModifier) {
-           out->append(TypeModifierString(this->getTypeModifier(), gen));
+           out->append(TypeModifierString(this->getTypeModifier(),
+                                          gl.glslGeneration()));
            out->append(" ");
         }
         if (this->emitsPrecision()) {
-            out->append(PrecisionString(gl));
+            out->append(GrGetGLSLVarPrecisionDeclType(gl.binding()));
             out->append(" ");
         }
         Type effectiveType = this->getType();
@@ -268,10 +268,6 @@ public:
     }
 
 private:
-    static const char* PrecisionString(const GrGLInterface* gl) {
-        return gl->supportsDesktop() ? "" : "mediump";
-    }
-
     static const char* TypeModifierString(TypeModifier t,
                                           GrGLSLGeneration gen) {
         switch (t) {

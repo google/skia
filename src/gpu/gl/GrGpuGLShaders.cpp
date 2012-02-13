@@ -55,21 +55,19 @@ private:
     Entry                       fEntries[kMaxEntries];
     int                         fCount;
     unsigned int                fCurrLRUStamp;
-    const GrGLInterface*        fGL;
-    GrGLSLGeneration            fGLSLGeneration;
+    const GrGLContextInfo&      fGL;
 
 public:
-    ProgramCache(const GrGLInterface* gl,
-                 GrGLSLGeneration glslGeneration) 
+    ProgramCache(const GrGLContextInfo& gl)
         : fCount(0)
         , fCurrLRUStamp(0)
-        , fGL(gl)
-        , fGLSLGeneration(glslGeneration) {
+        , fGL(gl) {
     }
 
     ~ProgramCache() {
         for (int i = 0; i < fCount; ++i) {
-            GrGpuGLShaders::DeleteProgram(fGL, &fEntries[i].fProgramData);
+            GrGpuGLShaders::DeleteProgram(fGL.interface(),
+                                          &fEntries[i].fProgramData);
         }
     }
 
@@ -90,8 +88,7 @@ public:
         
         Entry* entry = fHashCache.find(newEntry.fKey);
         if (NULL == entry) {
-            if (!desc.genProgram(fGL, fGLSLGeneration,
-                                 &newEntry.fProgramData)) {
+            if (!desc.genProgram(fGL, &newEntry.fProgramData)) {
                 return NULL;
             }
             if (fCount < kMaxEntries) {
@@ -106,7 +103,8 @@ public:
                     }
                 }
                 fHashCache.remove(entry->fKey, entry);
-                GrGpuGLShaders::DeleteProgram(fGL, &entry->fProgramData);
+                GrGpuGLShaders::DeleteProgram(fGL.interface(),
+                                              &entry->fProgramData);
             }
             entry->copyAndTakeOwnership(newEntry);
             fHashCache.insert(entry->fKey, entry);
@@ -281,9 +279,7 @@ bool GrGpuGLShaders::programUnitTest() {
             }
         }
         CachedData cachedData;
-        if (!program.genProgram(this->glInterface(),
-                                glslGeneration,
-                                &cachedData)) {
+        if (!program.genProgram(this->glContextInfo(), &cachedData)) {
             return false;
         }
         DeleteProgram(this->glInterface(), &cachedData);
@@ -314,8 +310,7 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLContextInfo& ctxInfo)
                       &fMaxVertexAttribs);
 
     fProgramData = NULL;
-    fProgramCache = new ProgramCache(this->glInterface(),
-                                     this->glslGeneration());
+    fProgramCache = new ProgramCache(this->glContextInfo());
 
 #if 0
     this->programUnitTest();

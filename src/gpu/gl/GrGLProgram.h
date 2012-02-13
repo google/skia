@@ -11,7 +11,7 @@
 #define GrGLProgram_DEFINED
 
 #include "../GrDrawState.h"
-#include "GrGLInterface.h"
+#include "GrGLContextInfo.h"
 #include "GrGLSL.h"
 #include "../GrStringBuilder.h"
 #include "../GrGpu.h"
@@ -48,8 +48,7 @@ public:
      *  The result of heavy init is not stored in datamembers of GrGLProgam,
      *  but in a separate cacheable container.
      */
-    bool genProgram(const GrGLInterface* gl,
-                    GrGLSLGeneration glslVersion,
+    bool genProgram(const GrGLContextInfo& gl,
                     CachedData* programData) const;
 
      /**
@@ -339,7 +338,7 @@ public:
 private:
 
     // Determines which uniforms will need to be bound.
-    void genStageCode(const GrGLInterface* gl,
+    void genStageCode(const GrGLContextInfo& gl,
                       int stageNum,
                       const ProgramDesc::StageDesc& desc,
                       const char* fsInColor, // NULL means no incoming color
@@ -348,25 +347,23 @@ private:
                       ShaderCodeSegments* segments,
                       StageUniLocations* locations) const;
 
-    void genGeometryShader(const GrGLInterface* gl,
-                           GrGLSLGeneration glslVersion,
+    void genGeometryShader(const GrGLContextInfo& gl,
                            ShaderCodeSegments* segments) const;
 
     // generates code to compute coverage based on edge AA.
-    void genEdgeCoverage(const GrGLInterface* gl,
+    void genEdgeCoverage(const GrGLContextInfo& gl,
                          GrVertexLayout layout,
                          CachedData* programData,
                          GrStringBuilder* coverageVar,
                          ShaderCodeSegments* segments) const;
 
-    static bool CompileShaders(const GrGLInterface* gl,
-                               GrGLSLGeneration glslVersion,
+    static bool CompileShaders(const GrGLContextInfo& gl,
                                const ShaderCodeSegments& segments, 
                                CachedData* programData);
 
     // Compiles a GL shader, returns shader ID or 0 if failed
     // params have same meaning as glShaderSource
-    static GrGLuint CompileShader(const GrGLInterface* gl,
+    static GrGLuint CompileShader(const GrGLContextInfo& gl,
                                   GrGLenum type, int stringCnt,
                                   const char** strings,
                                   int* stringLengths);
@@ -374,14 +371,14 @@ private:
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and
     // links the program
     bool bindOutputsAttribsAndLinkProgram(
-                const GrGLInterface* gl,
+                const GrGLContextInfo& gl,
                 GrStringBuilder texCoordAttrNames[GrDrawState::kMaxTexCoords],
                 bool bindColorOut,
                 bool bindDualSrcOut,
                 CachedData* programData) const;
 
     // Binds uniforms; initializes cache to invalid values.
-    void getUniformLocationsAndInitCache(const GrGLInterface* gl,
+    void getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
                                          CachedData* programData) const;
 
     friend class GrGpuGLShaders;

@@ -276,7 +276,9 @@ protected:
 
     bool hasExtension(const char* ext) const {
         return fGLContextInfo.hasExtension(ext);
-}
+    }
+
+    const GrGLContextInfo& glContextInfo() const { return fGLContextInfo; }
 
     // adjusts texture matrix to account for orientation
     static void AdjustTextureMatrix(const GrGLTexture* texture,
