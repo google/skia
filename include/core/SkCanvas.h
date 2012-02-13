@@ -295,7 +295,7 @@ public:
     /** Returns true if drawing is currently going to a layer (from saveLayer)
      *  rather than to the root device.
      */
-    bool isDrawingToLayer() const;
+    virtual bool isDrawingToLayer() const;
 
     /** Preconcat the current matrix with the specified translation
         @param dx   The distance to translate in X

@@ -288,7 +288,7 @@ void SkDeferredCanvas::clear(SkColor color)
 {
     // purge pending commands
     if (fDeferredDrawing) {
-        getDeferredDevice()->purgePending();
+        getDeferredDevice()->contentsCleared();
     }
 
     drawingCanvas()->clear(color);
@@ -297,7 +297,7 @@ void SkDeferredCanvas::clear(SkColor color)
 void SkDeferredCanvas::drawPaint(const SkPaint& paint)
 {
     if (fDeferredDrawing && isFullFrame(NULL, &paint) && isPaintOpaque(paint)) {
-        getDeferredDevice()->purgePending();
+        getDeferredDevice()->contentsCleared();
     }
 
     drawingCanvas()->drawPaint(paint);
@@ -312,7 +312,7 @@ void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
 void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint)
 {
     if (fDeferredDrawing && isFullFrame(&rect, &paint) && isPaintOpaque(paint)) {
-        getDeferredDevice()->purgePending();
+        getDeferredDevice()->contentsCleared();
     }
 
     drawingCanvas()->drawRect(rect, paint);
@@ -326,12 +326,12 @@ void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint)
 void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
                                   SkScalar top, const SkPaint* paint)
 {
-    SkRect bitmapRect = SkRect::MakeXYWH(left, top, bitmap.width(),
-        bitmap.height());
+    SkRect bitmapRect = SkRect::MakeXYWH(left, top,
+        SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing && 
         isFullFrame(&bitmapRect, paint) &&
         isPaintOpaque(*paint, &bitmap)) {
-        getDeferredDevice()->purgePending();
+        getDeferredDevice()->contentsCleared();
     }
 
     drawingCanvas()->drawBitmap(bitmap, left, top, paint);
@@ -345,7 +345,7 @@ void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap,
     if (fDeferredDrawing && 
         isFullFrame(&dst, paint) &&
         isPaintOpaque(*paint, &bitmap)) {
-        getDeferredDevice()->purgePending();
+        getDeferredDevice()->contentsCleared();
     }
 
     drawingCanvas()->drawBitmapRect(bitmap, src,
@@ -378,12 +378,15 @@ void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
 void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
                                   const SkPaint* paint)
 {
-    SkRect bitmapRect = SkRect::MakeXYWH(left, top, bitmap.width(),
-        bitmap.height());
+    SkRect bitmapRect = SkRect::MakeXYWH(
+        SkIntToScalar(left),
+        SkIntToScalar(top), 
+        SkIntToScalar(bitmap.width()),
+        SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing && 
         isFullFrame(&bitmapRect, paint) &&
         isPaintOpaque(*paint, &bitmap)) {
-        getDeferredDevice()->purgePending();
+        getDeferredDevice()->contentsCleared();
     }
 
     drawingCanvas()->drawSprite(bitmap, left, top,
@@ -466,6 +469,7 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     SkDevice* immediateDevice, DeviceContext* deviceContext) :
     SkDevice(SkBitmap::kNo_Config, immediateDevice->width(),
              immediateDevice->height(), immediateDevice->isOpaque())
+    , fFreshFrame(true)
 {
     fDeviceContext = deviceContext;
     SkSafeRef(fDeviceContext);
@@ -474,7 +478,6 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
         fImmediateDevice->height(),
         SkPicture::kUsePathBoundsForClip_RecordingFlag);
-    fBitmapInitialized = false;
 }
 
 SkDeferredCanvas::DeferredDevice::~DeferredDevice()
@@ -489,36 +492,47 @@ void SkDeferredCanvas::DeferredDevice::setDeviceContext(
     SkRefCnt_SafeAssign(fDeviceContext, deviceContext);
 }
 
-void SkDeferredCanvas::DeferredDevice::purgePending()
+void SkDeferredCanvas::DeferredDevice::contentsCleared()
 {
-    // TODO: find a way to transfer the state stack and layers
-    // to the new recording canvas.  For now, purge only works
-    // with an empty stack.
-    if (fRecordingCanvas->getSaveCount() > 1)
-        return;
+    if (!fRecordingCanvas->isDrawingToLayer()) {
+        fFreshFrame = true;
 
-    // Save state that is trashed by the purge
-    SkDrawFilter* drawFilter = fRecordingCanvas->getDrawFilter();
-    SkSafeRef(drawFilter); // So that it survives the purge
-    SkMatrix matrix = fRecordingCanvas->getTotalMatrix();
-    SkRegion clipRegion = fRecordingCanvas->getTotalClip();
+        // TODO: find a way to transfer the state stack and layers
+        // to the new recording canvas.  For now, purging only works
+        // with an empty stack.
+        if (fRecordingCanvas->getSaveCount() == 0) {
 
-    // beginRecording creates a new recording canvas and discards the old one,
-    // hence purging deferred draw ops.
-    fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(), 
-        fImmediateDevice->height(),
-        SkPicture::kUsePathBoundsForClip_RecordingFlag);
+            // Save state that is trashed by the purge
+            SkDrawFilter* drawFilter = fRecordingCanvas->getDrawFilter();
+            SkSafeRef(drawFilter); // So that it survives the purge
+            SkMatrix matrix = fRecordingCanvas->getTotalMatrix();
+            SkRegion clipRegion = fRecordingCanvas->getTotalClip();
 
-    // Restore pre-purge state
-    if (!clipRegion.isEmpty()) {
-        fRecordingCanvas->clipRegion(clipRegion, SkRegion::kReplace_Op);
+            // beginRecording creates a new recording canvas and discards the
+            // old one, hence purging deferred draw ops.
+            fRecordingCanvas = fPicture.beginRecording(
+                fImmediateDevice->width(),
+                fImmediateDevice->height(),
+                SkPicture::kUsePathBoundsForClip_RecordingFlag);
+
+            // Restore pre-purge state
+            if (!clipRegion.isEmpty()) {
+                fRecordingCanvas->clipRegion(clipRegion, SkRegion::kReplace_Op);
+            }
+            if (!matrix.isIdentity()) {
+                fRecordingCanvas->setMatrix(matrix);
+            }
+            if (drawFilter) {
+                fRecordingCanvas->setDrawFilter(drawFilter)->unref();
+            }
+        }
     }
-    if (!matrix.isIdentity()) {
-        fRecordingCanvas->setMatrix(matrix);
-    }
-    if (drawFilter) {
-        fRecordingCanvas->setDrawFilter(drawFilter)->unref();
-    }
+}
+
+bool SkDeferredCanvas::DeferredDevice::isFreshFrame() {
+    bool ret = fFreshFrame;
+    fFreshFrame = false;
+    return ret;
 }
 
 void SkDeferredCanvas::DeferredDevice::flushPending()
@@ -576,7 +590,7 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
 {
     if (x <= 0 && y <= 0 && (x + bitmap.width()) >= width() &&
         (y + bitmap.height()) >= height()) {
-        purgePending();
+        contentsCleared();
     }
 
     if (SkBitmap::kARGB_8888_Config == bitmap.config() &&
