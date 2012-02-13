@@ -32,6 +32,10 @@ arm_memset16:
         .fnstart
         push        {lr}
 
+        /* if count is equal to zero then abort */
+        teq         r2, #0
+        ble         .Lfinish
+
         /* Multiply count by 2 - go from the number of 16-bit shorts
          * to the number of bytes desired. */
         mov         r2, r2, lsl #1
@@ -51,6 +55,10 @@ arm_memset16:
 arm_memset32:
         .fnstart
         push        {lr}
+
+        /* if count is equal to zero then abort */
+        teq         r2, #0
+        ble         .Lfinish
 
         /* Multiply count by 4 - go from the number of 32-bit words to
          * the number of bytes desired. */
@@ -97,5 +105,6 @@ arm_memset32:
         strcs       r1, [r0], #4
         strmih      lr, [r0], #2
 
+.Lfinish:
         pop         {pc}
         .fnend
