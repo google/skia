@@ -31,6 +31,7 @@
 
 class SkScalerContext_Mac;
 
+
 // inline versions of these rect helpers
 
 static bool CGRectIsEmpty_inline(const CGRect& rect) {
@@ -463,6 +464,12 @@ static SkTypeface* GetDefaultFace() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+extern CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face);
+CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
+    const SkTypeface_Mac* macface = (const SkTypeface_Mac*)face;
+    return macface ? macface->fFontRef : NULL;
+}
 
 /*  This function is visible on the outside. It first searches the cache, and if
  *  not found, returns a new entry (after adding it to the cache).
@@ -1230,13 +1237,13 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         CGRGBPixel* bkPixels = NULL;
         bool needBlack = true;
         bool needWhite = true;
-        
+
         if (!isLCD || (SK_ColorWHITE == lumBits)) {
             needBlack = false;
         } else if (SK_ColorBLACK == lumBits) {
             needWhite = false;
         }
-
+        
         if (needBlack) {
             bkPixels = fBlackScreen.getCG(*this, glyph, false, cgGlyph, &cgRowBytes);
             cgPixels = bkPixels;
@@ -1793,10 +1800,16 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
     rec->setHinting(h);
 
-    // for compatibility at the moment, discretize luminance to 3 settings
-    // black, white, gray. This helps with fontcache utilization, since we
-    // won't create multiple entries that in the end map to the same results.
-#ifndef SK_USE_COLOR_LUMINANCE
+#ifdef SK_USE_COLOR_LUMINANCE
+    {
+        SkColor c = rec->getLuminanceColor();
+        // apply our chosen scaling between Black and White cg output
+        int r = SkColorGetR(c)*2/3;
+        int g = SkColorGetG(c)*2/3;
+        int b = SkColorGetB(c)*2/3;
+        rec->setLuminanceColor(SkColorSetRGB(r, g, b));
+    }
+#else
     {
         unsigned lum = rec->getLuminanceByte();
         if (lum <= BLACK_LUMINANCE_LIMIT) {
