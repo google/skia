@@ -1301,6 +1301,14 @@ static SkColor computeLuminanceColor(const SkPaint& paint) {
     }
     return c;
 }
+
+static U8CPU reduce_lumbits(U8CPU x) {
+    static const uint8_t gReduceBits[] = {
+        0x0, 0x55, 0xAA, 0xFF
+    };
+    return gReduceBits[x >> 6];
+}
+
 #else
 // returns 0..kLuminance_Max
 static unsigned computeLuminance(const SkPaint& paint) {
@@ -1475,6 +1483,15 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->setLuminanceColor(0);
 #else
         rec->setLuminanceBits(0);
+#endif
+    } else {
+#ifdef SK_USE_COLOR_LUMINANCE
+        // filter down the luminance color to a finite number of bits
+        SkColor c = rec->getLuminanceColor();
+        c = SkColorSetRGB(reduce_lumbits(SkColorGetR(c)),
+                          reduce_lumbits(SkColorGetG(c)),
+                          reduce_lumbits(SkColorGetB(c)));
+        rec->setLuminanceColor(c);
 #endif
     }
 }

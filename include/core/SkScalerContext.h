@@ -17,7 +17,6 @@
 #include "SkPoint.h"
 
 //#define SK_USE_COLOR_LUMINANCE
-//#define USE_FULL_LUMI
 
 class SkDescriptor;
 class SkMaskFilter;
@@ -236,34 +235,12 @@ public:
         }
         
 #ifdef SK_USE_COLOR_LUMINANCE
-        static unsigned ColorToLumBits(U8CPU x) {
-            SkASSERT(x <= 0xFF);
-            return x >> 7;
-        }
-        static U8CPU LumBitsToColor(unsigned x) {
-            SkASSERT(x <= 1);
-            return x * 0xFF;
-        }
-
         SkColor getLuminanceColor() const {
-#ifdef USE_FULL_LUMI
             return fLumBits;
-#else
-            unsigned bits = fLumBits;
-            return SkColorSetRGB(LumBitsToColor((bits >> 2) & 1),
-                                 LumBitsToColor((bits >> 1) & 1),
-                                 LumBitsToColor((bits >> 0) & 1));
-#endif
         }
         
         void setLuminanceColor(SkColor c) {
-#ifdef USE_FULL_LUMI
             fLumBits = c;
-#else
-            fLumBits =  (ColorToLumBits(SkColorGetR(c)) << 2) |
-                        (ColorToLumBits(SkColorGetG(c)) << 1) |
-                        (ColorToLumBits(SkColorGetB(c)) << 0);
-#endif
         }
 #else
         unsigned getLuminanceBits() const {
