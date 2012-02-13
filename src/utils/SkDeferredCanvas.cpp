@@ -180,9 +180,10 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
 
         // The following test holds with AA enabled, and is conservative
         // by a 0.5 pixel margin with AA disabled
-        if (transformedRect.fLeft > 0 || transformedRect.fTop > 0 || 
-            transformedRect.fRight < canvasSize.fWidth || 
-            transformedRect.fBottom < canvasSize.fHeight) {
+        if (transformedRect.fLeft > SkIntToScalar(0) || 
+            transformedRect.fTop > SkIntToScalar(0) || 
+            transformedRect.fRight < SkIntToScalar(canvasSize.fWidth) ||
+            transformedRect.fBottom < SkIntToScalar(canvasSize.fHeight)) {
             return false;
         }
     }
