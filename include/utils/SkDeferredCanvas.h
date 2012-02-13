@@ -181,8 +181,14 @@ public:
          */
         SkDevice* immediateDevice() const {return fImmediateDevice;}
 
+        /**
+         *  Returns true if an opaque draw operation covering the entire canvas
+         *  was performed since the last call to isFreshFrame().
+         */
+        bool isFreshFrame();
+
         void flushPending();
-        void purgePending();
+        void contentsCleared();
         void flushIfNeeded(const SkBitmap& bitmap);
 
         virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
@@ -275,7 +281,7 @@ public:
         SkCanvas* fImmediateCanvas;
         SkCanvas* fRecordingCanvas;
         DeviceContext* fDeviceContext;
-        bool fBitmapInitialized;
+        bool fFreshFrame;
     };
 
     DeferredDevice* getDeferredDevice() const;

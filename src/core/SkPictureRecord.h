@@ -65,6 +65,7 @@ public:
                           const uint16_t indices[], int indexCount,
                               const SkPaint&) SK_OVERRIDE;
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
+    virtual bool isDrawingToLayer() const SK_OVERRIDE;
 
     void addFontMetricsTopBottom(const SkPaint& paint, SkScalar minY, SkScalar maxY);
 
@@ -92,6 +93,10 @@ public:
 
 private:
     SkTDArray<uint32_t> fRestoreOffsetStack;
+    int fFirstSavedLayerIndex;
+    enum {
+        kNoSavedLayerIndex = -1
+    };
 
     void addDraw(DrawType drawType) {
 #ifdef SK_DEBUG_TRACE
