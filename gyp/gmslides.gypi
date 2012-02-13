@@ -27,6 +27,7 @@
     '../gm/linepaths.cpp',
     '../gm/ninepatchstretch.cpp',
     '../gm/nocolorbleed.cpp',
+    '../gm/patheffects.cpp',
     '../gm/pathfill.cpp',
     '../gm/pathreverse.cpp',
     '../gm/points.cpp',
