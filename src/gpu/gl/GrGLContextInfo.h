@@ -32,7 +32,7 @@ public:
      * Creates a GrGLContextInfo from a GrGLInterface and the currently
      * bound OpenGL context accesible by the GrGLInterface.
      */
-    GrGLContextInfo(const GrGLInterface* interface);
+    explicit GrGLContextInfo(const GrGLInterface* interface);
 
     /**
      * Copies a GrGLContextInfo

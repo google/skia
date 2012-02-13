@@ -286,13 +286,6 @@ struct GR_API GrGLInterface : public GrRefCnt {
     // the necessary function pointers have been initialized.
     bool validate(GrGLBinding binding) const;
 
-    bool supportsDesktop() const {
-        return 0 != (kDesktop_GrGLBinding & fBindingsExported);
-    }
-    bool supportsES2() const {
-        return 0 !=  (kES2_GrGLBinding & fBindingsExported);
-    }
-
     // Indicator variable specifying the type of GL implementation
     // exported:  GLES{1|2} or Desktop.
     GrGLBinding fBindingsExported;
