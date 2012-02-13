@@ -1118,8 +1118,8 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-    if (doFill && (paint.getPathEffect() ||
-                   paint.getStyle() != SkPaint::kFill_Style)) {
+    if (paint.getPathEffect() ||
+        (doFill && paint.getStyle() != SkPaint::kFill_Style)) {
         // it is safe to use tmpPath here, even if we already used it for the
         // prepathmatrix, since getFillPath can take the same object for its
         // input and output safely.
