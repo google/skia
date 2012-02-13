@@ -57,7 +57,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     fullRect.setXYWH(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(gWidth),
         SkIntToScalar(gHeight));
     SkRect partialRect;
-    partialRect.setXYWH(0, 0, 1, 1);
+    partialRect.setXYWH(SkIntToScalar(0), SkIntToScalar(0),
+        SkIntToScalar(1), SkIntToScalar(1));
     create(&store, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
     SkDevice device(store);
     SkDeferredCanvas canvas(&device);
