@@ -7,7 +7,7 @@
  */
 
 
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>

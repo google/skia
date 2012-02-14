@@ -7,7 +7,7 @@
  */
 
 
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <GL/GL.h>
