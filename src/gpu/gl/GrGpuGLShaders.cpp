@@ -1091,7 +1091,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
             }
 
             stage.fInConfigFlags = 0;
-            if (!this->glCaps().fTextureSwizzleSupport) {
+            if (!this->glCaps().textureSwizzleSupport()) {
                 if (GrPixelConfigIsAlphaOnly(texture->config())) {
                     // if we don't have texture swizzle support then
                     // the shader must do an alpha smear after reading

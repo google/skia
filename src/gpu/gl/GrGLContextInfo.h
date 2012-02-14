@@ -10,6 +10,7 @@
 #ifndef GrGLContextInfo_DEFINED
 #define GrGLContextInfo_DEFINED
 
+#include "GrGLCaps.h"
 #include "GrGLInterface.h"
 #include "GrGLSL.h"
 
@@ -57,6 +58,8 @@ public:
     GrGLBinding binding() const { return fBindingInUse; }
     GrGLVersion version() const { return fGLVersion; }
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
+    const GrGLCaps& caps() const { return fGLCaps; }
+    GrGLCaps& caps() { return fGLCaps; }
 
     /**
      * Checks for extension support using a cached copy of the GL_EXTENSIONS
@@ -77,6 +80,7 @@ private:
     GrGLVersion          fGLVersion;
     GrGLSLGeneration     fGLSLGeneration;
     SkString             fExtensionString;
+    GrGLCaps             fGLCaps;
 };
 
 #endif

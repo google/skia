@@ -49,116 +49,6 @@ public:
 protected:
     GrGpuGL(const GrGLContextInfo& ctxInfo);
 
-    struct GLCaps {
-        GLCaps()
-            // make defaults be the most restrictive
-            : fStencilFormats(8) // prealloc space for    stencil formats
-            , fMSFBOType(kNone_MSFBO)
-            , fMaxFragmentUniformVectors(0)
-            , fRGBA8RenderbufferSupport(false)
-            , fBGRAFormatSupport(false)
-            , fBGRAIsInternalFormat(false)
-            , fTextureSwizzleSupport(false)
-            , fUnpackRowLengthSupport(false)
-            , fUnpackFlipYSupport(false)
-            , fPackRowLengthSupport(false)
-            , fPackFlipYSupport(false)
-            , fTextureUsageSupport(false)
-            , fTexStorageSupport(false) {
-            memset(&fVerifiedColorAttachmentConfigs, 0,
-                   sizeof(fVerifiedColorAttachmentConfigs));
-        }
-
-        // Call to note that a color config has been verified as a valid
-        // color attachment. This may save future calls to
-        // CheckFramebufferStatus
-        void markConfigAsValidColorAttachment(GrPixelConfig config);
-
-        // Call to check whether a config has been verified as a valid color
-        // attachment.
-        bool isConfigVerifiedColorAttachment(GrPixelConfig config) const;
-
-        // Call to note that a color config / stencil format pair passed
-        // FBO status check. We may skip calling CheckFramebufferStatus for
-        // this combination in the future.
-        void markColorConfigAndStencilFormatAsVerified(
-                        GrPixelConfig config,
-                        const GrGLStencilBuffer::Format& format);
-
-        // Call to check whether color config / stencil format pair has already
-        // passed FBO status check.
-        bool isColorConfigAndStencilFormatVerified(
-                        GrPixelConfig config,
-                        const GrGLStencilBuffer::Format& format) const;
-
-        void print() const;
-
-        struct StencilFormat {
-            GrGLStencilBuffer::Format fFormat;
-            uint32_t fVerifiedColorConfigs[(kGrPixelConfigCount  + 31) / 32];
-        };
-
-        SkTArray<StencilFormat, true> fStencilFormats;
-
-
-        enum {
-            /**
-             * no support for MSAA FBOs
-             */
-            kNone_MSFBO = 0,  
-            /**
-             * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
-             */
-            kDesktopARB_MSFBO,
-            /**
-             * earlier GL_EXT_framebuffer* extensions
-             */
-            kDesktopEXT_MSFBO,
-            /**
-             * GL_APPLE_framebuffer_multisample ES extension
-             */
-            kAppleES_MSFBO,
-        } fMSFBOType;
-
-        // The maximum number of fragment uniform vectors (GLES has min. 16).
-        int fMaxFragmentUniformVectors;
-
-        // ES requires an extension to support RGBA8 in RenderBufferStorage
-        bool fRGBA8RenderbufferSupport;
-
-        // Is GL_BGRA supported
-        bool fBGRAFormatSupport;
-
-        // Depending on the ES extensions present the BGRA external format may
-        // correspond either a BGRA or RGBA internalFormat. On desktop GL it is
-        // RGBA
-        bool fBGRAIsInternalFormat;
-
-        // GL_ARB_texture_swizzle support
-        bool fTextureSwizzleSupport;
-    
-        // Is there support for GL_UNPACK_ROW_LENGTH
-        bool fUnpackRowLengthSupport;
-
-        // Is there support for GL_UNPACK_FLIP_Y
-        bool fUnpackFlipYSupport;
-
-        // Is there support for GL_PACK_ROW_LENGTH
-        bool fPackRowLengthSupport;
-
-        // Is there support for GL_PACK_REVERSE_ROW_ORDER
-        bool fPackFlipYSupport;
-
-        // Is there support for texture parameter GL_TEXTURE_USAGE
-        bool fTextureUsageSupport;
-
-        // Is there support for glTexStorage
-        bool fTexStorageSupport;
-
-    private:
-        uint32_t fVerifiedColorAttachmentConfigs[(kGrPixelConfigCount  + 31) / 32];
-    } fGLCaps;
-
     struct {
         size_t                  fVertexOffset;
         GrVertexLayout          fVertexLayout;
@@ -196,7 +86,7 @@ protected:
         GrGLIRect   fViewportRect;
     } fHWBounds;
 
-    const GLCaps& glCaps() const { return fGLCaps; }
+    const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
 
     // GrGpu overrides
     virtual void onResetContext() SK_OVERRIDE;
@@ -294,8 +184,7 @@ protected:
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
 private:
-    // Inits GrDrawTarget::Caps and GLCaps, sublcass may enable
-    // additional caps.
+    // Inits GrDrawTarget::Caps, sublcass may enable additional caps.
     void initCaps();
 
     void initFSAASupport();
