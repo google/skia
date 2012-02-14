@@ -8,7 +8,7 @@
 
 #include <GL/osmesa.h>
 
-#include "SkMesaGLContext.h"
+#include "gl/SkMesaGLContext.h"
 
 SkMesaGLContext::AutoContextRestore::AutoContextRestore() {
     fOldContext = (Context)OSMesaGetCurrentContext();

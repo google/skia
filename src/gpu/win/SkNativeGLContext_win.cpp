@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkNativeGLContext.h"
+#include "gl/SkNativeGLContext.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
