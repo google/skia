@@ -12,7 +12,7 @@
 
 #include "SkCanvas.h"
 #include "GrContext.h"
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 #include "SkGpuDevice.h"
 #include "SkCGUtils.h"
 class SkiOSDeviceManager : public SampleWindow::DeviceManager {
