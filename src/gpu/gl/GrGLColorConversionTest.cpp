@@ -33,6 +33,10 @@ GrGLByteColorConversion
     GrGLuint progId = 0;
     GrGLShaderVar posIn, tOut, tIn, colorOut;
     GrStringBuilder vs, fs;
+    bool declColor;
+    const char* verStr;
+    bool foundHighBias = false;
+    bool foundLowBias = false;
 
     const GrGLInterface* gl = ctxInfo.interface();
     GrGLSLGeneration gen = ctxInfo.glslGeneration();
@@ -90,7 +94,7 @@ GrGLByteColorConversion
                                        0));    // offset
 
 
-    const char* verStr = GrGetGLSLVersionDecl(binding, gen);
+    verStr = GrGetGLSLVersionDecl(binding, gen);
 
     posIn.set(GrGLShaderVar::kVec2f_Type,
               GrGLShaderVar::kAttribute_TypeModifier,
@@ -101,7 +105,7 @@ GrGLByteColorConversion
     tIn.set(GrGLShaderVar::kVec2f_Type,
             GrGLShaderVar::kIn_TypeModifier,
             "t");
-    bool declColor = GrGLSLSetupFSColorOuput(gen, "color", &colorOut);
+    declColor = GrGLSLSetupFSColorOuput(gen, "color", &colorOut);
 
     vs.append(verStr);
     posIn.appendDecl(ctxInfo, &vs);
@@ -129,6 +133,7 @@ GrGLByteColorConversion
     fs.appendf("    %s = vec4(justAboveExpectedLowCutoff,justBelowExpectedHighCutoff,middleOfExpectedRange,0.0);\n", colorOut.getName().c_str());
     fs.append( "}\n");
 
+    {
     GrGLint vsCompiled = GR_GL_INIT_ZERO;
     const GrGLchar* vsStr = vs.c_str();
     const GrGLint vsLen = vs.size();
@@ -139,7 +144,9 @@ GrGLByteColorConversion
     if (!vsCompiled) {
         goto FINISHED;
     }
+    }
 
+    {
     GrGLint fsCompiled = GR_GL_INIT_ZERO;
     const GrGLchar* fsStr = fs.c_str();
     const GrGLint fsLen = fs.size();
@@ -150,7 +157,9 @@ GrGLByteColorConversion
     if (!fsCompiled) {
         goto FINISHED;
     }
+    }
 
+    {
     GrGLint progLinked = GR_GL_INIT_ZERO;
     GrAssert(0 != progId);
     GR_GL_CALL(gl, AttachShader(progId, vsId));
@@ -166,6 +175,7 @@ GrGLByteColorConversion
         goto FINISHED;
     }
     GR_GL_CALL(gl, UseProgram(progId));
+    }
 
     GR_GL_CALL(gl, DrawArrays(GR_GL_TRIANGLES, 0, 3));
     uint32_t readData[256];
@@ -176,8 +186,6 @@ GrGLByteColorConversion
     GR_GL_CALL(gl, ReadPixels(0, 0, 256, 1, GR_GL_RGBA,
                                 GR_GL_UNSIGNED_BYTE, readData));
 
-    bool foundHighBias = false;
-    bool foundLowBias = false;
     for (int i = 0; i < 256 && (!foundHighBias || !foundLowBias); ++i) {
         int nearLowCutoffVal = readData[i] & 0x000000ff;
         int nearHighCutoffVal = (readData[i] & 0x0000ff00) >> 8;
@@ -205,7 +213,6 @@ GrGLByteColorConversion
         }
     }
     fail = (foundHighBias && foundLowBias);
-
 FINISHED:
     if (dstFbo) {
         GR_GL_CALL(gl, DeleteFramebuffers(1, &dstFbo));
