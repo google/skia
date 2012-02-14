@@ -31,17 +31,22 @@
         '../src/opts',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'cflags': [
-            '-msse2',
-          ],
-        }],
         [ 'skia_target_arch != "arm"', {
+          'conditions': [
+            [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+              'cflags': [
+                '-msse2',
+              ],
+            }],
+          ],
           'sources': [
             '../src/opts/opts_check_SSE2.cpp',
             '../src/opts/SkBitmapProcState_opts_SSE2.cpp',
             '../src/opts/SkBlitRow_opts_SSE2.cpp',
             '../src/opts/SkUtils_opts_SSE2.cpp',
+          ],
+          'dependencies': [
+            'opts_ssse3',
           ],
         }],
         [ 'skia_target_arch == "arm" and armv7 == 1', {
@@ -67,6 +72,31 @@
             '../src/opts/SkBitmapProcState_opts_none.cpp',
             '../src/opts/SkBlitRow_opts_none.cpp',
             '../src/opts/SkUtils_opts_none.cpp',
+          ],
+        }],
+      ],
+    },
+    # For the same lame reasons as what is done for skia_opts, we have to
+    # create another target specifically for SSSE3 code as we would not want
+    # to compile the SSE2 code with -mssse3 which would potentially allow
+    # gcc to generate SSSE3 code.
+    {
+      'target_name': 'opts_ssse3',
+      'type': 'static_library',
+      'include_dirs': [
+        '../include/config',
+        '../include/core',
+        '../src/core',
+      ],
+      'conditions': [
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+          'cflags': [
+            '-mssse3',
+          ],
+        }],
+        [ 'skia_target_arch != "arm"', {
+          'sources': [
+            '../src/opts/SkBitmapProcState_opts_SSSE3.cpp',
           ],
         }],
       ],
