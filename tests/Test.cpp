@@ -8,7 +8,7 @@
 #include "Test.h"
 
 #include "GrContext.h"
-#include "SkNativeGLContext.h"
+#include "gl/SkNativeGLContext.h"
 #include "SkTLazy.h"
 
 using namespace skiatest;

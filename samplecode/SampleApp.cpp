@@ -22,7 +22,7 @@
 #include "GrContext.h"
 #include "SkTypeface.h"
 
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 #include "GrRenderTarget.h"
 
 #include "SkPDFDevice.h"

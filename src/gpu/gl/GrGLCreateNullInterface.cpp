@@ -7,7 +7,7 @@
  */
 
 
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 #include "../GrTDArray.h"
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}

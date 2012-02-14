@@ -14,7 +14,7 @@
 //    #include "GrGpuD3D9.h"
 #endif
 
-#include "GrGLConfig.h"
+#include "gl/GrGLConfig.h"
 
 #include "GrGpu.h"
 #include "gl/GrGpuGLShaders.h"

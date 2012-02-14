@@ -7,8 +7,8 @@
  */
 
 
-#include "GrGLConfig.h"
-#include "GrGLInterface.h"
+#include "gl/GrGLConfig.h"
+#include "gl/GrGLInterface.h"
 
 void GrGLClearErr(const GrGLInterface* gl) {
     while (GR_GL_NO_ERROR != gl->fGetError()) {}

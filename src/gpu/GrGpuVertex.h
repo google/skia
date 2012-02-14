@@ -11,7 +11,7 @@
 #ifndef GrGpuVertex_DEFINED
 #define GrGpuVertex_DEFINED
 
-#include "GrGLConfig.h"
+#include "gl/GrGLConfig.h"
 #include "GrPoint.h"
 
 #if GR_TEXT_SCALAR_IS_USHORT

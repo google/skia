@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkNullGLContext.h"
+#include "gl/SkNullGLContext.h"
 
 const GrGLInterface* SkNullGLContext::createGLContext() {
     return GrGLCreateNullInterface();

@@ -8,8 +8,8 @@
 
 
 #include "GrTypes.h"
-#include "GrGLInterface.h"
-#include "GrGLDefines.h"
+#include "gl/GrGLInterface.h"
+#include "gl/GrGLDefines.h"
 
 #include <stdio.h>
 
