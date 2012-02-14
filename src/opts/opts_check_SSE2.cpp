@@ -126,6 +126,18 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
     return proc;
 }
 
+SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
+    if (cachedHasSSE2()) {
+        if (isOpaque) {
+            return SkBlitLCD16OpaqueRow_SSE2;
+        } else {
+            return SkBlitLCD16Row_SSE2;
+        }
+    } else {
+        return NULL;
+    }
+
+}
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkBitmap::Config dstConfig,
                                                  SkMask::Format maskFormat,
                                                  RowFlags flags) {
