@@ -19,6 +19,7 @@
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',
     '../gm/fontscaler.cpp',
+    '../gm/gammatext.cpp',
     '../gm/gradients.cpp',
     '../gm/gradtext.cpp',
     '../gm/hairmodes.cpp',
