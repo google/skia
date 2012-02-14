@@ -106,10 +106,10 @@
         '../include/gpu/SkGr.h',
         '../include/gpu/SkGrTexturePixelRef.h',
 
-        '../include/gpu/SkGLContext.h',
-        '../include/gpu/SkMesaGLContext.h',
-        '../include/gpu/SkNativeGLContext.h',
-        '../include/gpu/SkNullGLContext.h',
+        '../include/gpu/gl/SkGLContext.h',
+        '../include/gpu/gl/SkMesaGLContext.h',
+        '../include/gpu/gl/SkNativeGLContext.h',
+        '../include/gpu/gl/SkNullGLContext.h',
 
         '../src/gpu/GrPrintf_skia.cpp',
         '../src/gpu/SkGpuCanvas.cpp',
@@ -182,10 +182,10 @@
         '../include/gpu/GrTypes.h',
         '../include/gpu/GrUserConfig.h',
 
-        '../include/gpu/GrGLConfig.h',
-        '../include/gpu/GrGLConfig_chrome.h',
-        '../include/gpu/GrGLDefines.h',
-        '../include/gpu/GrGLInterface.h',
+        '../include/gpu/gl/GrGLConfig.h',
+        '../include/gpu/gl/GrGLConfig_chrome.h',
+        '../include/gpu/gl/GrGLDefines.h',
+        '../include/gpu/gl/GrGLInterface.h',
 
         '../src/gpu/GrAAHairLinePathRenderer.cpp',
         '../src/gpu/GrAAHairLinePathRenderer.h',

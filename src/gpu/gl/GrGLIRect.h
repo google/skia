@@ -11,7 +11,7 @@
 #ifndef GrGLIRect_DEFINED
 #define GrGLIRect_DEFINED
 
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 
 /**
  * Helper struct for dealing with the fact that Ganesh and GL use different

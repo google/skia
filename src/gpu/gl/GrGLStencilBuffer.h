@@ -10,7 +10,7 @@
 #ifndef GrGLStencilBuffer_DEFINED
 #define GrGLStencilBuffer_DEFINED
 
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 #include "../GrStencilBuffer.h"
 
 class GrGLStencilBuffer : public GrStencilBuffer {

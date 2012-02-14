@@ -12,7 +12,7 @@
 #define GrGLIndexBuffer_DEFINED
 
 #include "../GrIndexBuffer.h"
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 
 class GrGpuGL;
 

@@ -12,7 +12,7 @@
 #define GrGLVertexBuffer_DEFINED
 
 #include "../GrVertexBuffer.h"
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 
 class GrGpuGL;
 

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -11,7 +10,7 @@
 #define GrGLContextInfo_DEFINED
 
 #include "GrGLCaps.h"
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 #include "GrGLSL.h"
 
 #include "SkString.h"

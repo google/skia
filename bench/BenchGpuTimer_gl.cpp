@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 #include "BenchGpuTimer_gl.h"
-#include "SkGLContext.h"
+#include "gl/SkGLContext.h"
 
 BenchGpuTimer::BenchGpuTimer(const SkGLContext* glctx) {
     fContext = glctx;

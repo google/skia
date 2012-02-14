@@ -7,8 +7,8 @@
  */
 
 #include "Test.h"
-#include "SkNativeGLContext.h"
-#include "SkMesaGLContext.h"
+#include "gl/SkNativeGLContext.h"
+#include "gl/SkMesaGLContext.h"
 
 static void GLInterfaceValidationTest(skiatest::Reporter* reporter) {
     typedef const GrGLInterface* (*interfaceFactory)();

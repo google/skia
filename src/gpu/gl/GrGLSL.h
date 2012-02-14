@@ -8,7 +8,7 @@
 #ifndef GrGLSL_DEFINED
 #define GrGLSL_DEFINED
 
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 
 class GrGLShaderVar;
 
