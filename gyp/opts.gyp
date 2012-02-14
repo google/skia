@@ -89,10 +89,18 @@
         '../src/core',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "mac", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'cflags': [
             '-mssse3',
           ],
+        }],
+        # TODO(epoger): the following will enable SSSE3 on Macs, but it will
+        # break once we set OTHER_CFLAGS anywhere else (the first setting will
+        # be replaced, not added to)
+        [ 'skia_os in ["mac"]', {
+          'xcode_settings': {
+            'OTHER_CFLAGS': ['-mssse3',],
+          },
         }],
         [ 'skia_target_arch != "arm"', {
           'sources': [
