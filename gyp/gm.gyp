@@ -14,6 +14,7 @@
       'sources': [
         '../gm/gm.cpp',
         '../gm/gmmain.cpp',
+        '../gm/system_preferences_default.cpp',
       ],
       'dependencies': [
         'core.gyp:core',
@@ -25,9 +26,22 @@
         'pdf.gyp:pdf',
         'utils.gyp:utils',        
       ],
-      #mac does not like empty dependency.
       'conditions': [
-        [ 'skia_os == "win"', {
+        ['skia_os == "mac"', {
+          'sources!': [
+            '../gm/system_preferences_default.cpp',
+          ],
+          'sources': [
+            '../gm/system_preferences_mac.mm',
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
+              '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+            ],
+          },
+        }],
+        ['skia_os == "win"', {
           'dependencies': [
             'xps.gyp:xps',
           ],
