@@ -714,5 +714,116 @@ static inline uint32_t SkExpand32_4444(SkPMColor c) {
 // used for cheap 2x2 dithering when the colors are opaque
 void sk_dither_memset16(uint16_t dst[], uint16_t value, uint16_t other, int n);
 
+///////////////////////////////////////////////////////////////////////////////
+
+static inline int SkUpscale31To32(int value) {
+    SkASSERT((unsigned)value <= 31);
+    return value + (value >> 4);
+}
+
+static inline int SkBlend32(int src, int dst, int scale) {
+    SkASSERT((unsigned)src <= 0xFF);
+    SkASSERT((unsigned)dst <= 0xFF);
+    SkASSERT((unsigned)scale <= 32);
+    return dst + ((src - dst) * scale >> 5);
+}
+
+static SkPMColor SkBlendLCD16(int srcA, int srcR, int srcG, int srcB,
+                              SkPMColor dst, uint16_t mask) { 
+    if (mask == 0) {
+        return dst;
+    }
+        
+    /*  We want all of these in 5bits, hence the shifts in case one of them
+     *  (green) is 6bits.
+     */
+    int maskR = SkGetPackedR16(mask) >> (SK_R16_BITS - 5);
+    int maskG = SkGetPackedG16(mask) >> (SK_G16_BITS - 5);
+    int maskB = SkGetPackedB16(mask) >> (SK_B16_BITS - 5);
+        
+    // Now upscale them to 0..32, so we can use blend32
+    maskR = SkUpscale31To32(maskR);
+    maskG = SkUpscale31To32(maskG);
+    maskB = SkUpscale31To32(maskB);
+     
+    // srcA has been upscaled to 256 before passed into this function
+    maskR = maskR * srcA >> 8;
+    maskG = maskG * srcA >> 8;
+    maskB = maskB * srcA >> 8;
+        
+    int dstR = SkGetPackedR32(dst);
+    int dstG = SkGetPackedG32(dst);
+    int dstB = SkGetPackedB32(dst);
+        
+    // LCD blitting is only supported if the dst is known/required
+    // to be opaque
+    return SkPackARGB32(0xFF,
+                        SkBlend32(srcR, dstR, maskR),
+                        SkBlend32(srcG, dstG, maskG),
+                        SkBlend32(srcB, dstB, maskB));
+}
+
+static SkPMColor SkBlendLCD16Opaque(int srcR, int srcG, int srcB,
+                                    SkPMColor dst, uint16_t mask,
+                                    SkPMColor opaqueDst) { 
+    if (mask == 0) {
+        return dst;
+    }
+
+    if (0xFFFF == mask) {
+        return opaqueDst;
+    }
+        
+    /*  We want all of these in 5bits, hence the shifts in case one of them
+     *  (green) is 6bits.
+     */
+    int maskR = SkGetPackedR16(mask) >> (SK_R16_BITS - 5);
+    int maskG = SkGetPackedG16(mask) >> (SK_G16_BITS - 5);
+    int maskB = SkGetPackedB16(mask) >> (SK_B16_BITS - 5);
+        
+    // Now upscale them to 0..32, so we can use blend32
+    maskR = SkUpscale31To32(maskR);
+    maskG = SkUpscale31To32(maskG);
+    maskB = SkUpscale31To32(maskB);
+        
+    int dstR = SkGetPackedR32(dst);
+    int dstG = SkGetPackedG32(dst);
+    int dstB = SkGetPackedB32(dst);
+        
+    // LCD blitting is only supported if the dst is known/required
+    // to be opaque
+    return SkPackARGB32(0xFF,
+                        SkBlend32(srcR, dstR, maskR),
+                        SkBlend32(srcG, dstG, maskG),
+                        SkBlend32(srcB, dstB, maskB));
+}
+
+static void SkBlitLCD16Row(SkPMColor dst[], const uint16_t src[],
+                           SkColor color, int width, SkPMColor) {
+    int srcA = SkColorGetA(color);
+    int srcR = SkColorGetR(color);
+    int srcG = SkColorGetG(color);
+    int srcB = SkColorGetB(color);
+    
+    srcA = SkAlpha255To256(srcA);
+    
+    for (int i = 0; i < width; i++) {
+        dst[i] = SkBlendLCD16(srcA, srcR, srcG, srcB, dst[i], src[i]);
+    }
+}
+
+static void SkBlitLCD16OpaqueRow(SkPMColor dst[], const uint16_t src[],
+                                 SkColor color, int width, 
+                                 SkPMColor opaqueDst) {
+    int srcR = SkColorGetR(color);
+    int srcG = SkColorGetG(color);
+    int srcB = SkColorGetB(color);
+    
+    for (int i = 0; i < width; i++) {
+        dst[i] = SkBlendLCD16Opaque(srcR, srcG, srcB, dst[i], src[i],
+                                    opaqueDst); 
+    }
+}
+
 #endif
 

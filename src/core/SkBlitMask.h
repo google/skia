@@ -29,6 +29,15 @@ public:
     typedef void (*ColorProc)(void* dst, size_t dstRB,
                               const void* mask, size_t maskRB,
                               SkColor color, int width, int height);
+    
+    /**
+     *  Function pointer that blits a row of mask(lcd16) into a row of dst 
+     *  colorized by a single color. The number of pixels to blit is specified
+     *  by width.
+     */
+    typedef void (*BlitLCD16RowProc)(SkPMColor dst[], const uint16_t src[],
+                                     SkColor color, int width, 
+                                     SkPMColor opaqueDst);
 
     /**
      *  Function pointer that blits a row of src colors through a row of a mask
@@ -49,6 +58,17 @@ public:
      *  or NULL if no optimized routine is available.
      */
     static ColorProc PlatformColorProcs(SkBitmap::Config, SkMask::Format, SkColor);
+    
+    /**
+     *  Public entry-point to return a blitcolor BlitLCD16RowProc.
+     */
+    static BlitLCD16RowProc BlitLCD16RowFactory(bool isOpaque);
+
+    /**
+     *  Return either platform specific optimized blitcolor BlitLCD16RowProc,
+     *  or NULL if no optimized routine is available.
+     */
+    static BlitLCD16RowProc PlatformBlitRowProcs16(bool isOpaque);
 
     enum RowFlags {
         kSrcIsOpaque_RowFlag    = 1 << 0

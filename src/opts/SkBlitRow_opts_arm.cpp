@@ -1313,6 +1313,10 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
     return NULL;
 }
 
+SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
+    return NULL;
+}
+
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkBitmap::Config dstConfig,
                                                  SkMask::Format maskFormat,
                                                  RowFlags flags) {
