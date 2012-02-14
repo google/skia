@@ -16,6 +16,7 @@
 class GrGLStencilBuffer : public GrStencilBuffer {
 public:
     static const GrGLenum kUnknownInternalFormat = ~0;
+    static const GrGLuint kUnknownBitCount = ~0;
     struct Format {
         GrGLenum  fInternalFormat;
         GrGLuint  fStencilBits;
