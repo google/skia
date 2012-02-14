@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "system_preferences.h"
 #include "GrContext.h"
 #include "GrRenderTarget.h"
 
@@ -653,6 +654,8 @@ int main(int argc, char * const argv[]) {
     SkAutoGraphics ag;
     // we don't need to see this during a run
     gSkSuppressFontCachePurgeSpew = true;
+
+    setSystemPreferences();
 
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* readPath = NULL;    // if non-null, were we read from to compare
