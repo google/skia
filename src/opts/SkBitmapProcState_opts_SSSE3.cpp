@@ -38,10 +38,10 @@ namespace {
 // @param sixteen_minus_x vector of 8 bit components, containing
 //              (4x(16 - x3), 4x(16 - x2), 4x(16 - x1), 4x(16 - x0))
 inline void PrepareConstantsTwoPixelPairs(const uint32_t* xy,
-                                          __m128i mask_3FFF,
-                                          __m128i mask_000F,
-                                          __m128i sixteen_8bit,
-                                          __m128i mask_dist_select,
+                                          const __m128i& mask_3FFF,
+                                          const __m128i& mask_000F,
+                                          const __m128i& sixteen_8bit,
+                                          const __m128i& mask_dist_select,
                                           __m128i* all_x_result,
                                           __m128i* sixteen_minus_x,
                                           int* x0,
@@ -78,7 +78,7 @@ inline __m128i ProcessPixelPairHelper(uint32_t pixel0,
                                       uint32_t pixel1,
                                       uint32_t pixel2,
                                       uint32_t pixel3,
-                                      __m128i scale_x) {
+                                      const __m128i& scale_x) {
     __m128i a0, a1, a2, a3;
     // Load 2 pairs of pixels
     a0 = _mm_cvtsi32_si128(pixel0);
@@ -114,19 +114,19 @@ inline __m128i ProcessPixelPairHelper(uint32_t pixel0,
 // by eight places (dividing by 256), since each multiplication is by a quantity
 // in the range [0:16].
 template<bool has_alpha, int scale>
-inline __m128i ScaleFourPixels(__m128i pixels,
-                               __m128i alpha) {
+inline __m128i ScaleFourPixels(__m128i* pixels,
+                               const __m128i& alpha) {
     // Divide each 16 bit component by 16 (or 256 depending on scale).
-    pixels = _mm_srli_epi16(pixels, scale);
+    *pixels = _mm_srli_epi16(*pixels, scale);
 
     if (has_alpha) {
         // Multiply by alpha.
-        pixels = _mm_mullo_epi16(pixels, alpha);
+        *pixels = _mm_mullo_epi16(*pixels, alpha);
 
         // Divide each 16 bit component by 256.
-        pixels = _mm_srli_epi16(pixels, 8);
+        *pixels = _mm_srli_epi16(*pixels, 8);
     }
-    return pixels;
+    return *pixels;
 }
 
 // Wrapper to calculate two output pixels from four input pixels. The
@@ -148,11 +148,11 @@ inline __m128i ProcessPixelPairZeroSubY(uint32_t pixel0,
                                         uint32_t pixel1,
                                         uint32_t pixel2,
                                         uint32_t pixel3,
-                                        __m128i scale_x,
-                                        __m128i alpha) {
+                                        const __m128i& scale_x,
+                                        const __m128i& alpha) {
     __m128i sum = ProcessPixelPairHelper(pixel0, pixel1, pixel2, pixel3,
                                          scale_x);
-    return ScaleFourPixels<has_alpha, 4>(sum, alpha);
+    return ScaleFourPixels<has_alpha, 4>(&sum, alpha);
 }
 
 // Same as ProcessPixelPairZeroSubY, expect processing one output pixel at a
@@ -174,7 +174,7 @@ inline __m128i ProcessOnePixelZeroSubY(uint32_t pixel0,
     // (a0 * (16-x) + a1 * x)
     __m128i sum = _mm_maddubs_epi16(a0, scale_x);
 
-    return ScaleFourPixels<has_alpha, 4>(sum, alpha);
+    return ScaleFourPixels<has_alpha, 4>(&sum, alpha);
 }
 
 // Methods when sub_y != 0
@@ -190,8 +190,8 @@ inline __m128i ProcessPixelPair(uint32_t pixel0,
                                 uint32_t pixel1,
                                 uint32_t pixel2,
                                 uint32_t pixel3,
-                                __m128i scale_x,
-                                __m128i y) {
+                                const __m128i& scale_x,
+                                const __m128i& y) {
     __m128i sum = ProcessPixelPairHelper(pixel0, pixel1, pixel2, pixel3,
                                          scale_x);
 
@@ -229,10 +229,10 @@ inline __m128i ProcessTwoPixelPairs(const uint32_t* row0,
                                     const uint32_t* row1,
                                     const int* x0,
                                     const int* x1,
-                                    __m128i scale_x,
-                                    __m128i all_y,
-                                    __m128i neg_y,
-                                    __m128i alpha) {
+                                    const __m128i& scale_x,
+                                    const __m128i& all_y,
+                                    const __m128i& neg_y,
+                                    const __m128i& alpha) {
     __m128i sum0 = ProcessPixelPair(
         row0[x0[0]], row0[x1[0]], row0[x0[1]], row0[x1[1]],
         scale_x, neg_y);
@@ -249,14 +249,14 @@ inline __m128i ProcessTwoPixelPairs(const uint32_t* row0,
     // Each component, again can be at most 256 * 255 = 65280, so no overflow.
     sum0 = _mm_add_epi16(sum0, sum1);
 
-    return ScaleFourPixels<has_alpha, 8>(sum0, alpha);
+    return ScaleFourPixels<has_alpha, 8>(&sum0, alpha);
 }
 
 
 // Same as ProcessPixelPair, except that performing the math one output pixel
 // at a time. This means that only the bottom four 16 bit components are set.
 inline __m128i ProcessOnePixel(uint32_t pixel0, uint32_t pixel1,
-                               __m128i scale_x, __m128i y) {
+                               const __m128i& scale_x, const __m128i& y) {
     __m128i a0 = _mm_cvtsi32_si128(pixel0);
     __m128i a1 = _mm_cvtsi32_si128(pixel1);
 
@@ -472,7 +472,7 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
             // Add both rows for full sample
             sum0 = _mm_add_epi16(sum0, sum1);
 
-            sum0 = ScaleFourPixels<has_alpha, 8>(sum0, alpha);
+            sum0 = ScaleFourPixels<has_alpha, 8>(&sum0, alpha);
 
             // Pack lower 4 16 bit values of sum into lower 4 bytes.
             sum0 = _mm_packus_epi16(sum0, zero);

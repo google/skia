@@ -89,7 +89,7 @@
         '../src/core',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "mac", "openbsd", "solaris"]', {
           'cflags': [
             '-mssse3',
           ],
