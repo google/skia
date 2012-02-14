@@ -19,6 +19,7 @@ void GrGLCaps::reset() {
     fStencilFormats.reset();
     fStencilVerifiedColorConfigs.reset();
     fMSFBOType = kNone_MSFBOType;
+    fByteColorConversion = kUnknown_GrGLByteColorConversion;
     fMaxFragmentUniformVectors = 0;
     fRGBA8RenderbufferSupport = false;
     fBGRAFormatSupport = false;
@@ -42,6 +43,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
     fMSFBOType = caps.fMSFBOType;
+    fByteColorConversion = caps.fByteColorConversion;
     fRGBA8RenderbufferSupport = caps.fRGBA8RenderbufferSupport;
     fBGRAFormatSupport = caps.fBGRAFormatSupport;
     fBGRAIsInternalFormat = caps.fBGRAIsInternalFormat;
@@ -128,6 +130,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
                           version >= GR_GL_VER(4,2)) ||
                          ctxInfo.hasExtension("GL_ARB_texture_storage") ||
                          ctxInfo.hasExtension("GL_EXT_texture_storage");
+
+    fByteColorConversion = GrGLFloatToByteColorConversion(ctxInfo);
 
     this->initFSAASupport(ctxInfo);
     this->initStencilFormats(ctxInfo);

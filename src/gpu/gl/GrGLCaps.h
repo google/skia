@@ -10,6 +10,7 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
+#include "GrGLColorConversionTest.h"
 #include "GrGLStencilBuffer.h"
 
 class GrGLContextInfo;
@@ -101,6 +102,10 @@ public:
     bool isColorConfigAndStencilFormatVerified(
                     GrPixelConfig config,
                     const GrGLStencilBuffer::Format& format) const;
+
+    GrGLByteColorConversion byteColorConversion() const {
+        return fByteColorConversion;
+    }
 
     /**
      * Reports the type of MSAA FBO support.
@@ -211,6 +216,7 @@ private:
 
     int fMaxFragmentUniformVectors;
     MSFBOType fMSFBOType;
+    GrGLByteColorConversion fByteColorConversion;
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAFormatSupport : 1;
