@@ -40,17 +40,17 @@ void QSort(T** base, size_t count)
 }
 
 template <typename S, typename T>
-static void QSort_Partition(const S& context, T* first, T* last,
-        bool (*lessThan)(const S&, const T*, const T*))
+static void QSort_Partition(S& context, T* first, T* last,
+        bool (*lessThan)(S&, const T*, const T*))
 {
     T*   left = first;
     T*   rite = last;
     T*   pivot = left;
 
     while (left <= rite) {
-        while (left < last && lessThan(context, left, pivot) < 0)
+        while (left < last && lessThan(context, left, pivot))
             left += 1;
-        while (first < rite && lessThan(context, rite, pivot) > 0)
+        while (first < rite && lessThan(context, pivot, rite))
             rite -= 1;
         if (left <= rite) {
             if (left < rite) {
@@ -67,8 +67,8 @@ static void QSort_Partition(const S& context, T* first, T* last,
 }
 
 template <typename S, typename T>
-void QSort(const S& context, T* base, size_t count,
-        bool (*lessThan)(const S& , const T*, const T*))
+void QSort(S& context, T* base, size_t count,
+        bool (*lessThan)(S& , const T*, const T*))
 {
     SkASSERT(base);
     SkASSERT(lessThan);

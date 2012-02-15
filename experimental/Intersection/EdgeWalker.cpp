@@ -123,7 +123,7 @@ struct OutEdge {
     }
     
     SkTDArray<SkPoint> fPts;
-    SkTDArray<uint8_t> fVerbs;
+    SkTDArray<uint8_t> fVerbs; // FIXME: unused for now
 };
 
 // for sorting only
@@ -165,54 +165,74 @@ public:
     }
 
     void assemble(SkPath& simple) {
-        size_t index = 0;
-        do {
-            SkTDArray<SkPoint>& downArray = fEdges[index].fPts;
-            SkPoint* pts = downArray.begin();
-            SkPoints* end = downArray.end();
-            SkPoint firstPt = pts[0];
-            simple.moveTo(pts[0].fX, pts[0].fY);
-            while (++pts < end) {
-                simple.lineTo(pts->fX, pts->fY);
-            }
-            index = fBottoms[index];
-            SkTDArray<SkPoint>& upArray = fEdges[index].fPts;
-            pts = upArray.end();
-            SkPoints* begin = upArray.begin();
-            while (--pts > begin) {
-                simple.lineTo(pts->fX, pts->fY);
-            }
-            if (pts[0] == firstPt) {
-                simple.close();
-                closed = true;
-                
-            } else {
-                simple.lineTo(pts->fX, pts->fY);
-            }
-            index = advance > 0 ? fBottoms[index] : fTops[index];
-            advance = -advance;
-        } while (true);
-        
-            } else {
-                if (firstAdded.fY == pts[0].fY) {
-                    advance = -1;
-                    pts = ptArray.end();
-                }
-            }
-            size_t count2 = ptArray.count();
-            for (size_t inner = 1; inner < count2; ++inner) {
-                pts += advance;
-                simple.lineTo(pts->fX, pts->fY);
-            }
-            if (*pts == *ptArray.begin()) {
-//                lastAdded = *pts;
-                simple.close();
-                newContour = true;
-            }
+        size_t listCount = fEdges.count();
+        if (listCount == 0) {
+            return;
         }
+        do {
+            size_t listIndex = 0;
+            int advance = 1;
+            while (listIndex < listCount && fTops[listIndex] == 0) {
+                ++listIndex;
+            }
+            if (listIndex >= listCount) {
+                break;
+            }
+            SkPoint firstPt;
+            bool doMove = true;
+            int edgeIndex;
+            do {
+                SkTDArray<SkPoint>& ptArray = fEdges[listIndex].fPts;
+                SkASSERT(ptArray.count() > 0);
+                SkPoint* pts, * end;
+                if (advance < 0) {
+                    pts = ptArray.end() - 1;
+                    end = ptArray.begin();
+                } else {
+                    pts = ptArray.begin();
+                    end = ptArray.end() - 1;
+                }
+                if (doMove) {
+                    firstPt = pts[0];
+                    simple.moveTo(pts[0].fX, pts[0].fY);
+                    SkDebugf("%s moveTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    doMove = false;
+                } else {
+                    simple.lineTo(pts[0].fX, pts[0].fY);
+                    SkDebugf("%s 1 lineTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    if (firstPt == pts[0]) {
+                        simple.close();
+                        SkDebugf("%s close\n", __FUNCTION__);
+                        break;
+                    }
+                }
+                while (pts != end) {
+                    pts += advance;
+                    simple.lineTo(pts->fX, pts->fY);
+                    SkDebugf("%s 2 lineTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                }
+                if (advance < 0) {
+                    edgeIndex = fTops[listIndex];
+                    fTops[listIndex] = 0;
+                 } else {
+                    edgeIndex = fBottoms[listIndex];
+                    fBottoms[listIndex] = 0;
+                }
+                listIndex = abs(edgeIndex) - 1;
+                if (edgeIndex < 0) {
+                    fTops[listIndex] = 0;
+                } else {
+                    fBottoms[listIndex] = 0;
+                }
+                // if this and next edge go different directions 
+                if (advance > 0 ^ edgeIndex < 0) {
+                    advance = -advance;
+                }
+            } while (edgeIndex);
+        } while (true);
     }
     
-    static bool lessThan(const SkTArray<OutEdge>& edges, const int* onePtr,
+    static bool lessThan(SkTArray<OutEdge>& edges, const int* onePtr,
             const int* twoPtr) {
         int one = *onePtr;
         const OutEdge& oneEdge = edges[(one < 0 ? -one : one) - 1];
@@ -222,9 +242,11 @@ public:
         const OutEdge& twoEdge = edges[(two < 0 ? -two : two) - 1];
         const SkPoint* twoPt = two < 0 ? twoEdge.fPts.begin()
                 : twoEdge.fPts.end() - 1;
-        return onePt.fY == twoPt.fY ? onePt.fX < twoPt.fX : onePt.fY < twoPt.fY;
+        return onePt->fY == twoPt->fY ? onePt->fX < twoPt->fX : onePt->fY < twoPt->fY;
     }
 
+    // Sort the indices of paired points and then create more indices so
+    // assemble() can find the next edge and connect the top or bottom
     void bridge() {
         size_t index;
         size_t count = fEdges.count();
@@ -236,75 +258,49 @@ public:
         sk_bzero(fTops.begin(), sizeof(fTops[0]) * count);
         fBottoms.setCount(count);
         sk_bzero(fBottoms.begin(), sizeof(fBottoms[0]) * count);
-        for (index = 0; index < count; ++index) {
-            *fList.append() = index + 1;
-            *fList.append() = -index - 1;
+        SkTDArray<int> order;
+        for (index = 1; index <= count; ++index) {
+            *order.append() = index;
+            *order.append() = -index;
         }
-        Context context;
-        QSort<SkTArray<OutEdge>&, int>(fEdges, fList.begin(), count, lessThan);
-        connectTops();
-        // sort bottoms
-        SkTDArray<OutBottomEdge*> bottomList;
-        for (index = 0; index < count; ++index) {
-            *bottomList.append() = static_cast<OutBottomEdge*>(&fEdges[index]);
-            fBottoms[index] = -1;
-        }
-        QSort<OutBottomEdge>(bottomList.begin(), count);
-        connectBottoms(bottomList);
-    }
-
-protected:
-    void connectTops() {
-        int* lastPtr = fList.end() - 1;
-        int* leftPtr = fList.begin();
-        for (; leftPtr < lastPtr; ++leftPtr) {
-            OutEdge* left = edges[(*leftPtr < 0 ? -*leftPtr : *leftPtr) - 1];
+        QSort<SkTArray<OutEdge>, int>(fEdges, order.begin(), count * 2, lessThan);
+        int* lastPtr = order.end() - 1;
+        int* leftPtr = order.begin();
+        while (leftPtr < lastPtr) {
+            int leftIndex = *leftPtr;
+            int leftOutIndex = abs(leftIndex) - 1;
+            const OutEdge& left = fEdges[leftOutIndex];
             int* rightPtr = leftPtr + 1;
-            OutEdge* right = edges[(*rightPtr < 0 ? -*rightPtr : *rightPtr) - 1];
-            start here;
-            // i'm a bit confused right now -- but i'm trying to sort indices
-            // of paired points and then create more indices so assemble() can
-            // look up the next edge and whether to connect the top or bottom
-            int leftIndex = leftPtr - bottomList.begin();
-            int rightIndex = rightPtr - bottomList.begin();
-            SkASSERT(!fFill || left->fPts[0].fY == right->fPts[0].fY);
-            if (fFill || left->fPts[0] == right->fPts[0]) {
-                int leftIndex = leftPtr - topList.begin();
-                int rightIndex = rightPtr - topList.begin();
-                fTops[leftIndex] = rightIndex;
-                fTops[rightIndex] = leftIndex;
+            int rightIndex = *rightPtr;
+            int rightOutIndex = abs(rightIndex) - 1;
+            const OutEdge& right = fEdges[rightOutIndex];
+        // OPTIMIZATION: if fFill is true, we don't need leftMatch, rightMatch
+            SkPoint& leftMatch = left.fPts[leftIndex < 0 ? 0
+                    : left.fPts.count() - 1];
+            SkPoint& rightMatch = right.fPts[rightIndex < 0 ? 0
+                    : right.fPts.count() - 1];
+            SkASSERT(!fFill || leftMatch.fY == rightMatch.fY);
+            if (fFill || leftMatch == rightMatch) {
+                if (leftIndex < 0) {
+                    fTops[leftOutIndex] = rightIndex;
+                } else {
+                    fBottoms[leftOutIndex] = rightIndex;
+                }
+                if (rightIndex < 0) {
+                    fTops[rightOutIndex] = leftIndex;
+                } else {
+                    fBottoms[rightOutIndex] = leftIndex;
+                }
                 ++rightPtr;
             }
             leftPtr = rightPtr;
         }
     }
 
-    void connectBottoms(SkTDArray<OutBottomEdge*>& bottomList) {
-        OutBottomEdge** lastPtr = bottomList.end() - 1;
-        OutBottomEdge** leftPtr = bottomList.begin();
-        size_t leftCount = (*leftPtr)->fPts.count();
-        for (; leftPtr < lastPtr; ++leftPtr) {
-            OutBottomEdge** rightPtr = leftPtr + 1;
-            size_t rightCount = (*rightPtr)->fPts.count();
-            SkASSERT(!fFill || (*leftPtr)->fPts[leftCount].fY
-                    == (*rightPtr)->fPts[rightCount].fY);
-            if (fFill || (*leftPtr)->fPts[leftCount]
-                    == (*rightPtr)->fPts[rightCount]) {
-                int leftIndex = leftPtr - bottomList.begin();
-                int rightIndex = rightPtr - bottomList.begin();
-                fBottoms[leftIndex] = rightIndex;
-                fBottoms[rightIndex] = leftIndex;
-                if (++rightPtr < lastPtr) {
-                    rightCount = (*rightPtr)->fPts.count();
-                }
-            }
-            leftPtr = rightPtr;
-            leftCount = rightCount;
-        }
-    }
-
+protected:
     SkTArray<OutEdge> fEdges;
-    SkTDArray<int> fList;
+    SkTDArray<int> fTops;
+    SkTDArray<int> fBottoms;
     bool fFill;
 };
 
@@ -313,6 +309,13 @@ struct Bounds : public SkRect {
     static bool Intersects(const Bounds& a, const Bounds& b) {
         return a.fLeft <= b.fRight && b.fLeft <= a.fRight &&
                 a.fTop <= b.fBottom && b.fTop <= a.fBottom;
+    }
+    
+    bool isEmpty() {
+        return fLeft > fRight || fTop > fBottom
+                || fLeft == fRight && fTop == fBottom
+                || isnan(fLeft) || isnan(fRight)
+                || isnan(fTop) || isnan(fBottom);
     }
 };
 
@@ -327,11 +330,16 @@ struct InEdge {
                 : fBounds.fTop < rh.fBounds.fTop;
     }
 
-    void add(double* ts, size_t count, int verbIndex) {
-        Intercepts& intercepts = fIntercepts[verbIndex];
+    bool add(double* ts, size_t count, ptrdiff_t verbIndex) {
         // FIXME: in the pathological case where there is a ton of intercepts, binary search?
+        bool foundIntercept = false;
+        Intercepts& intercepts = fIntercepts[verbIndex];
         for (size_t index = 0; index < count; ++index) {
             double t = ts[index];
+            if (t <= 0 || t >= 1) {
+                continue;
+            }
+            foundIntercept = true;
             size_t tCount = intercepts.fTs.count();
             for (size_t idx2 = 0; idx2 < tCount; ++idx2) {
                 if (t <= intercepts.fTs[idx2]) {
@@ -345,6 +353,7 @@ struct InEdge {
                 *intercepts.fTs.append() = t;
             }
         }
+        return foundIntercept;
     }
 
     bool cached(const InEdge* edge) {
@@ -378,7 +387,7 @@ struct InEdge {
             fBounds.growToInclude(ptPtr->fX, ptPtr->fY);
             ++ptPtr;
         }
-        fIntercepts.push_back_n(1);
+        fIntercepts.push_back_n(fVerbs.count());
         if ((fWinding = winding) < 0) { // reverse verbs, pts, if bottom to top
             size_t index;
             size_t last = fPts.count() - 1;
@@ -426,6 +435,15 @@ void addEdge() {
     *fCurrentEdge->fVerbs.append() = fVerb;
 }
 
+bool complete() {
+    if (fCurrentEdge && fCurrentEdge->fVerbs.count()) {
+        fCurrentEdge->complete(fWinding);
+        fCurrentEdge = NULL;
+        return true;
+    }
+    return false;
+}
+
 int direction(int count) {
     fPtCount = count;
     fIgnorableHorizontal = fIgnoreHorizontal && isHorizontal();
@@ -449,18 +467,19 @@ bool isHorizontal() {
 }
 
 void startEdge() {
-    fCurrentEdge = fEdges.push_back_n(1);
+    if (!fCurrentEdge) {
+        fCurrentEdge = fEdges.push_back_n(1);
+    }
     fWinding = 0;
     fPtOffset = 0;
 }
 
 void walk() {
     SkPath::Iter iter(fPath, true);
-    int winding = 0;
+    int winding;
     while ((fVerb = iter.next(fPts)) != SkPath::kDone_Verb) {
         switch (fVerb) {
             case SkPath::kMove_Verb:
-                winding = 0;
                 startEdge();
                 continue;
             case SkPath::kLine_Verb:
@@ -474,16 +493,16 @@ void walk() {
                 break;
             case SkPath::kClose_Verb:
                 SkASSERT(fCurrentEdge);
-                if (fCurrentEdge->fVerbs.count()) {
-                    fCurrentEdge->complete(fWinding);
-                    fCurrentEdge = NULL;
-                }
+                complete();
                 continue;
             default:
                 SkDEBUGFAIL("bad verb");
                 return;
         }
         if (fIgnorableHorizontal) {
+            if (complete()) {
+                startEdge();
+            }
             continue;
         }
         if (fWinding + winding == 0) {
@@ -496,9 +515,7 @@ void walk() {
         fWinding = winding;
         addEdge();
     }
-    if (fCurrentEdge) {
-        fCurrentEdge->complete(fWinding);
-    }
+    complete();
 }
 
 private:
@@ -535,7 +552,7 @@ struct WorkEdge {
         return (SkPath::Verb) *fVerb;
     }
 
-    int verbIndex() const {
+    ptrdiff_t verbIndex() const {
         return fVerb - fEdge->fVerbs.begin();
     }
     
@@ -552,13 +569,27 @@ struct WorkEdge {
 // this may be a inappropriate optimization, suggesting that a separate array of
 // ActiveEdge* may be faster to insert and search
 struct ActiveEdge {
+    bool operator<(const ActiveEdge& rh) const {
+        return fX < rh.fX;
+    }
+
+    void calcLeft() {
+        fX = fWorkEdge.fPts[fWorkEdge.verb()].fX;
+    }
+
     void init(const InEdge* edge) {
         fWorkEdge.init(edge);
         initT();
     }
     
     void initT() {
-        fTs = &fWorkEdge.fEdge->fIntercepts[fWorkEdge.verbIndex()].fTs;
+        const Intercepts& intercepts = fWorkEdge.fEdge->fIntercepts.front();
+        SkASSERT(fWorkEdge.verbIndex() <= fWorkEdge.fEdge->fIntercepts.count());
+        const Intercepts* interceptPtr = &intercepts + fWorkEdge.verbIndex();
+        fTs = &interceptPtr->fTs; 
+  //  the above is conceptually the same as
+  //    fTs = &fWorkEdge.fEdge->fIntercepts[fWorkEdge.verbIndex()].fTs;
+  //  but templated arrays don't allow returning a pointer to the end() element
         fTIndex = 0;
     }
 
@@ -585,18 +616,14 @@ struct ActiveEdge {
 
     WorkEdge fWorkEdge;
     const SkTDArray<double>* fTs;
+    SkScalar fX;
     int fTIndex;
+    bool fSkip;
 };
 
 static void addToActive(SkTDArray<ActiveEdge>& activeEdges, const InEdge* edge) {
-    // FIXME: in the pathological case where there is a ton of intercepts, binary search?
     size_t count = activeEdges.count();
     for (size_t index = 0; index < count; ++index) {
-        if (*edge < *activeEdges[index].fWorkEdge.fEdge) {
-            ActiveEdge* active = activeEdges.insert(index);
-            active->init(edge);
-            return;
-        }
         if (edge == activeEdges[index].fWorkEdge.fEdge) {
             return;
         }
@@ -621,7 +648,8 @@ static void addBottomT(InEdge** currentPtr, InEdge** lastPtr, SkScalar bottom) {
                     double wtTs[2];
                     int pts = LineIntersect(wt.fPts, bottom, wtTs);
                     if (pts) {
-                        test->add(wtTs, pts, wt.verbIndex());
+                        test->fContainsIntercepts |= test->add(wtTs, pts,
+                                wt.verbIndex());
                     }
                 }
             } while (wt.next());
@@ -647,10 +675,10 @@ static void addIntersectingTs(InEdge** currentPtr, InEdge** lastPtr) {
                     double wtTs[2], wnTs[2];
                     int pts = LineIntersect(wt.fPts, wn.fPts, wtTs, wnTs);
                     if (pts) {
-                        test->add(wtTs, pts, wt.verbIndex());
-                        test->fContainsIntercepts = true;
-                        next->add(wnTs, pts, wn.verbIndex());
-                        next->fContainsIntercepts = true;
+                        test->fContainsIntercepts |= test->add(wtTs, pts,
+                                wt.verbIndex());
+                        next->fContainsIntercepts |= next->add(wnTs, pts,
+                                wn.verbIndex());
                     }
                 }
             } while (wt.bottom() <= wn.bottom() ? wt.next() : wn.next());
@@ -659,9 +687,32 @@ static void addIntersectingTs(InEdge** currentPtr, InEdge** lastPtr) {
     }
 }
 
+static InEdge** advanceEdges(SkTDArray<ActiveEdge>& activeEdges,
+        InEdge** currentPtr, InEdge** lastPtr,  SkScalar y) {
+    InEdge** testPtr = currentPtr - 1;
+    while (++testPtr != lastPtr) {
+        if ((*testPtr)->fBounds.fBottom > y) {
+            continue;
+        }
+        InEdge* test = *testPtr;
+        ActiveEdge* activePtr = activeEdges.begin() - 1;
+        ActiveEdge* lastActive = activeEdges.end();
+        while (++activePtr != lastActive) {
+            if (activePtr->fWorkEdge.fEdge == test) {
+                activeEdges.remove(activePtr - activeEdges.begin());
+                break;
+            }
+        }
+        if (testPtr == currentPtr) {
+            ++currentPtr;
+        }
+    }
+    return currentPtr;
+}
+
 // compute bottom taking into account any intersected edges
 static void computeInterceptBottom(SkTDArray<ActiveEdge>& activeEdges,
-        SkScalar& bottom) {
+        SkScalar y, SkScalar& bottom) {
     ActiveEdge* activePtr = activeEdges.begin() - 1;
     ActiveEdge* lastActive = activeEdges.end();
     while (++activePtr != lastActive) {
@@ -679,7 +730,7 @@ static void computeInterceptBottom(SkTDArray<ActiveEdge>& activeEdges,
             for (size_t index = 0; index < count; ++index) {
                 if (wt.verb() == SkPath::kLine_Verb) {
                     SkScalar yIntercept = LineYAtT(wt.fPts, fTs[index]);
-                    if (bottom > yIntercept) {
+                    if (yIntercept > y && bottom > yIntercept) {
                         bottom = yIntercept;
                     }
                 }
@@ -690,32 +741,34 @@ static void computeInterceptBottom(SkTDArray<ActiveEdge>& activeEdges,
 
 static SkScalar findBottom(InEdge** currentPtr, 
         InEdge** edgeListEnd, SkTDArray<ActiveEdge>& activeEdges, SkScalar y,
-        bool asFill, InEdge**& lastPtr) {
+        bool asFill, InEdge**& testPtr) {
     InEdge* current = *currentPtr;
     SkScalar bottom = current->fBounds.fBottom;
     
     // find the list of edges that cross y
-    InEdge* last = *lastPtr;
-    while (lastPtr != edgeListEnd) {
-        if (bottom <= last->fBounds.fTop) {
+    InEdge* test = *testPtr;
+    while (testPtr != edgeListEnd) {
+        SkScalar testTop = test->fBounds.fTop;
+        if (bottom <= testTop) {
             break;
         }
-        SkScalar lastTop = last->fBounds.fTop;
+        SkScalar testBottom = test->fBounds.fBottom;
         // OPTIMIZATION: Shortening the bottom is only interesting when filling
         // and when the edge is to the left of a longer edge. If it's a framing
         // edge, or part of the right, it won't effect the longer edges.
-        if (lastTop > y) {
-            if (bottom > lastTop) {
-                bottom = lastTop;
-                break;
+        if (testTop > y) {
+            bottom = testTop;
+            break;
+        } 
+        if (y < testBottom) {
+            if (bottom > testBottom) {
+                bottom = testBottom;
             }
-        } else if (bottom > last->fBounds.fBottom) {
-            bottom = last->fBounds.fBottom;
+            addToActive(activeEdges, test);
         }
-        addToActive(activeEdges, last);
-        last = *++lastPtr;
+        test = *++testPtr;
     }
-    if (asFill && lastPtr - currentPtr <= 1) {
+    if (asFill && testPtr - currentPtr <= 1) {
         SkDebugf("expect 2 or more edges\n");
         SkASSERT(0);
     }
@@ -737,34 +790,52 @@ static void makeEdgeList(SkTArray<InEdge>& edges, InEdge& edgeSentinel,
     QSort<InEdge>(edgeList.begin(), edgeCount);
 }
 
-static void removeEdge(SkTDArray<ActiveEdge>& activeEdges, InEdge** currentPtr) {
-    InEdge* current = *currentPtr;
-    ActiveEdge* activePtr = activeEdges.begin() - 1;
-    ActiveEdge* lastActive = activeEdges.end();
-    while (++activePtr != lastActive) {
-        if (activePtr->fWorkEdge.fEdge == current) {
-            activeEdges.remove(activePtr - activeEdges.begin());
-            return;
+static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
+        SkTDArray<ActiveEdge*>& edgeList) {
+    size_t edgeCount = activeEdges.count();
+    if (edgeCount == 0) {
+        return;
+    }
+    size_t index;
+    for (index = 0; index < edgeCount; ++index) {
+        ActiveEdge& activeEdge = activeEdges[index];
+        activeEdge.calcLeft();
+        activeEdge.fSkip = false;
+        *edgeList.append() = &activeEdge;
+    }
+    QSort<ActiveEdge>(edgeList.begin(), edgeCount);
+    // remove coincident edges
+    ActiveEdge* activePtr = edgeList[0];
+    for (index = 1; index < edgeCount; ++index) {
+        ActiveEdge* nextPtr = edgeList[index];
+        if (activePtr->fX == nextPtr->fX && activePtr->fWorkEdge.winding()
+                + nextPtr->fWorkEdge.winding() == 0) {
+            SkDebugf("%s coincident\n", __FUNCTION__);
+            // OPTIMIZE: remove edges?
+            activePtr->fSkip = true;
+            nextPtr->fSkip = true;
         }
+        activePtr = nextPtr;
     }
 }
 
 // stitch edge and t range that satisfies operation
-static void stitchEdge(SkTDArray<ActiveEdge>& activeEdges, SkScalar y,
+static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
         SkScalar bottom, int windingMask, OutEdgeBuilder& outBuilder) {
     int winding = 0;
-    ActiveEdge* activePtr = activeEdges.begin() - 1;
-    ActiveEdge* lastActive = activeEdges.end();
+    ActiveEdge** activeHandle = edgeList.begin() - 1;
+    ActiveEdge** lastActive = edgeList.end();
     SkDebugf("%s y=%g bottom=%g\n", __FUNCTION__, y, bottom);
-    while (++activePtr != lastActive) {
+    while (++activeHandle != lastActive) {
+        ActiveEdge* activePtr = *activeHandle;
         const WorkEdge& wt = activePtr->fWorkEdge;
         int lastWinding = winding;
         winding += wt.winding();
-        if (!(lastWinding & windingMask) && !(winding & windingMask)) {
-            continue;
-        }
+        bool inWinding = (lastWinding & windingMask) == 0
+                || (winding & windingMask) == 0;
         do {
             double currentT = activePtr->t();
+            SkASSERT(currentT < 1);
             const SkPoint* points = wt.fPts;
             bool last;
             do {
@@ -775,16 +846,23 @@ static void stitchEdge(SkTDArray<ActiveEdge>& activeEdges, SkScalar y,
                     SkPoint clippedPts[2];
                     const SkPoint* clipped;
                     if (currentT * nextT != 0 || currentT + nextT != 1) {
+                        // OPTIMIZATION: if !inWinding, we only need 
+                        // clipped[1].fY
                         LineSubDivide(points, currentT, nextT, clippedPts);
                         clipped = clippedPts;
                     } else {
                         clipped = points;
                     }
-                    SkDebugf("%s line %g,%g %g,%g\n", __FUNCTION__,
-                            clipped[0].fX, clipped[0].fY,
-                            clipped[1].fX, clipped[1].fY);
-                    outBuilder.addLine(clipped);
+                    if (inWinding && !activePtr->fSkip) {
+                        SkDebugf("%s line %g,%g %g,%g\n", __FUNCTION__,
+                                clipped[0].fX, clipped[0].fY,
+                                clipped[1].fX, clipped[1].fY);
+                        outBuilder.addLine(clipped);
+                    }
                     if (clipped[1].fY >= bottom) {
+                        if (last) {
+                            activePtr->next();
+                        }
                         goto nextEdge;
                     }
                 }
@@ -821,22 +899,49 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
             activeEdges, y, asFill, lastPtr);
         addBottomT(currentPtr, lastPtr, bottom);
         addIntersectingTs(currentPtr, lastPtr);
-        computeInterceptBottom(activeEdges, bottom);
-        stitchEdge(activeEdges, y, bottom, windingMask, outBuilder);
+        computeInterceptBottom(activeEdges, y, bottom);
+        SkTDArray<ActiveEdge*> activeEdgeList;
+        sortHorizontal(activeEdges, activeEdgeList);
+        stitchEdge(activeEdgeList, y, bottom, windingMask, outBuilder);
         y = bottom;
-        while ((*currentPtr)->fBounds.fBottom <= y) {
-            removeEdge(activeEdges, currentPtr);
-            ++currentPtr;
-        }
+        currentPtr = advanceEdges(activeEdges, currentPtr, lastPtr, y);
     } while (*currentPtr != &edgeSentinel);
     // assemble output path from string of pts, verbs
     outBuilder.bridge();
     outBuilder.assemble(simple);
 }
 
-void testSimplify();
+static void testSimplifyCoincidentVertical() {
+    SkPath path, out;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(10, 10, 30, 30);
+    path.addRect(10, 30, 30, 40);
+    simplify(path, true, out);
+    SkRect rect;
+    if (!out.isRect(&rect)) {
+        SkDebugf("%s expected rect\n", __FUNCTION__);
+    }
+    if (rect != SkRect::MakeLTRB(10, 10, 30, 40)) {
+        SkDebugf("%s expected union\n", __FUNCTION__);
+    }
+}
 
-void testSimplify() {
+static void testSimplifyCoincidentHorizontal() {
+    SkPath path, out;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(10, 10, 30, 30);
+    path.addRect(30, 10, 40, 30);
+    simplify(path, true, out);
+    SkRect rect;
+    if (!out.isRect(&rect)) {
+        SkDebugf("%s expected rect\n", __FUNCTION__);
+    }
+    if (rect != SkRect::MakeLTRB(10, 10, 40, 30)) {
+        SkDebugf("%s expected union\n", __FUNCTION__);
+    }
+}
+
+static void testSimplifyMulti() {
     SkPath path, out;
     path.setFillType(SkPath::kWinding_FillType);
     path.addRect(10, 10, 30, 30);
@@ -850,6 +955,48 @@ void testSimplify() {
     path.addRect(10, 10, 40, 40, SkPath::kCCW_Direction);
     simplify(path, true, out);
     if (!out.isEmpty()) {
-        SkDebugf("expected empty\n");
+        SkDebugf("%s expected empty\n", __FUNCTION__);
     }
 }
+
+static void testSimplifyAddL() {
+    SkPath path, out;
+    path.moveTo(10,10); // 'L' shape
+    path.lineTo(10,40);
+    path.lineTo(40,40);
+    path.lineTo(40,20);
+    path.lineTo(30,20);
+    path.lineTo(30,10);
+    path.lineTo(10,10);
+    path.close();
+    path.addRect(30, 10, 40, 20); // missing notch of 'L'
+    simplify(path, true, out);
+    SkRect rect;
+    if (!out.isRect(&rect)) {
+        SkDebugf("%s expected rect\n", __FUNCTION__);
+    }
+    if (rect != SkRect::MakeLTRB(10, 10, 40, 40)) {
+        SkDebugf("%s expected union\n", __FUNCTION__);
+    }
+}
+
+void testSimplify();
+
+void (*simplifyTests[])() = {
+    testSimplifyCoincidentVertical,   // 0
+    testSimplifyCoincidentHorizontal, // 1
+    testSimplifyMulti,                // 2
+    testSimplifyAddL                  // 3
+};
+
+size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
+
+static int firstTest = 3;
+
+void testSimplify() {
+    for (size_t index = firstTest; index < simplifyTestsCount; ++index) {
+        (*simplifyTests[index])();
+    }
+}
+
+
