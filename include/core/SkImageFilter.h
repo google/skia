@@ -47,6 +47,7 @@ public:
         virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
                                  const SkMatrix& ctm,
                                  SkBitmap* result, SkIPoint* offset) = 0;
+        virtual ~Proxy() {};
     };
 
     /**

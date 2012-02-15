@@ -73,6 +73,14 @@ public:
     */
     unsigned getGlyphCount();
 
+#ifdef SK_BUILD_FOR_ANDROID
+    /** Returns the base glyph count for this strike.
+    */
+    unsigned getBaseGlyphCount(SkUnichar charCode) const {
+        return fScalerContext->getBaseGlyphCount(charCode);
+    }
+#endif
+
     /** Return the image associated with the glyph. If it has not been generated
         this will trigger that.
     */

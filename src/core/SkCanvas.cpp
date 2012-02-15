@@ -1517,7 +1517,12 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
                                       const SkIRect& center, const SkRect& dst,
                                       const SkPaint* paint) {
     if (NULL == paint || paint->canComputeFastBounds()) {
-        if (this->quickReject(dst, paint2EdgeType(paint))) {
+        SkRect storage;
+        const SkRect* bounds = &dst;
+        if (paint) {
+            bounds = &paint->computeFastBounds(dst, &storage);
+        }
+        if (this->quickReject(*bounds, paint2EdgeType(paint))) {
             return;
         }
     }

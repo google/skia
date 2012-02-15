@@ -30,15 +30,15 @@
         #define SK_BUILD_FOR_WIN32
     #elif defined(__SYMBIAN32__)
         #define SK_BUILD_FOR_WIN32
+    #elif defined(ANDROID_NDK)
+        #define SK_BUILD_FOR_ANDROID_NDK
+    #elif defined(ANDROID)
+        #define SK_BUILD_FOR_ANDROID
     #elif defined(linux) || defined(__FreeBSD__) || defined(__OpenBSD__) || \
           defined(__sun) || defined(__NetBSD__) || defined(__DragonFly__)
         #define SK_BUILD_FOR_UNIX
     #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
         #define SK_BUILD_FOR_IOS
-    #elif defined(ANDROID_NDK)
-        #define SK_BUILD_FOR_ANDROID_NDK
-    #elif defined(ANDROID)
-        #define SK_BUILD_FOR_ANDROID
     #else
         #define SK_BUILD_FOR_MAC
     #endif

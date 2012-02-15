@@ -91,15 +91,17 @@ public:
             
             int err = ashmem_set_prot_region(fd, PROT_READ | PROT_WRITE);
             if (err) {
-                SkDebugf("------ ashmem_set_prot_region(%d) failed %d %d\n",
-                         fd, err, errno);
+                SkDebugf("------ ashmem_set_prot_region(%d) failed %d\n",
+                         fd, err);
+                close(fd);
                 return false;
             }
             
             addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
             if (-1 == (long)addr) {
-                SkDebugf("---------- mmap failed for imageref_ashmem size=%d err=%d\n",
-                         size, errno);
+                SkDebugf("---------- mmap failed for imageref_ashmem size=%d\n",
+                         size);
+                close(fd);
                 return false;
             }
             
@@ -178,8 +180,7 @@ void* SkImageRef_ashmem::onLockPixels(SkColorTable** ct) {
             SkDebugf("===== ashmem purged %d\n", fBitmap.getSize());
 #endif
         } else {
-            SkDebugf("===== ashmem pin_region(%d) returned %d, treating as error %d\n",
-                     fRec.fFD, pin, errno);
+            SkDebugf("===== ashmem pin_region(%d) returned %d\n", fRec.fFD, pin);
             // return null result for failure
             if (ct) {
                 *ct = NULL;

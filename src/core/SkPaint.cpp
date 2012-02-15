@@ -22,6 +22,7 @@
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 #include "SkAutoKern.h"
+#include "SkGlyphCache.h"
 
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
@@ -159,6 +160,14 @@ void SkPaint::reset() {
 #ifdef SK_BUILD_FOR_ANDROID
 uint32_t SkPaint::getGenerationID() const {
     return fGenerationID;
+}
+#endif
+
+#ifdef SK_BUILD_FOR_ANDROID
+unsigned SkPaint::getBaseGlyphCount(SkUnichar text) const {
+    SkAutoGlyphCache autoCache(*this, NULL);
+    SkGlyphCache* cache = autoCache.getCache();
+    return cache->getBaseGlyphCount(text);
 }
 #endif
 
@@ -392,6 +401,16 @@ const SkGlyph& SkPaint::getUnicharMetrics(SkUnichar text) {
     descriptorProc(NULL, DetachDescProc, &cache, true);
 
     const SkGlyph& glyph = cache->getUnicharMetrics(text);
+
+    SkGlyphCache::AttachCache(cache);
+    return glyph;
+}
+
+const SkGlyph& SkPaint::getGlyphMetrics(uint16_t glyphId) {
+    SkGlyphCache* cache;
+    descriptorProc(NULL, DetachDescProc, &cache, true);
+
+    const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphId);
 
     SkGlyphCache::AttachCache(cache);
     return glyph;
