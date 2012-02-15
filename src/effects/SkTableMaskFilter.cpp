@@ -92,10 +92,13 @@ SkFlattenable::Factory SkTableMaskFilter::getFactory() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkTableMaskFilter::MakeGammaTable(uint8_t table[256], SkScalar gamma) {
-    float x = 0;
     const float dx = 1 / 255.0f;
+    const float g = SkScalarToFloat(gamma);
+
+    float x = 0;
     for (int i = 0; i < 256; i++) {
-        table[i] = SkPin32(SkScalarRound(powf(x, gamma) * 255), 0, 255);
+        float ee = powf(x, g) * 255;
+        table[i] = SkPin32(sk_float_round2int(powf(x, g) * 255), 0, 255);
         x += dx;
     }
 }
