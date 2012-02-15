@@ -69,25 +69,44 @@ void center_of_mass(const SegmentArray& segments, SkPoint* c) {
         center.fX += (pi.fX + pj.fX) * t;
         center.fY += (pi.fY + pj.fY) * t;
     }
-    area *= 3;
-    area = GrScalarDiv(GR_Scalar1, area);
-    center.fX = GrScalarMul(center.fX, area);
-    center.fY = GrScalarMul(center.fY, area);
-    *c = center;
+    // If the poly has no area then we instead return the average of
+    // its points.
+    if (SkScalarAbs(area) < SK_ScalarNearlyZero) {
+        SkPoint avg;
+        avg.set(0, 0);
+        for (int i = 0; i < count; ++i) {
+            const SkPoint& pt = segments[i].endPt();
+            avg.fX += pt.fX;
+            avg.fY += pt.fY;
+        }
+        SkScalar denom = SK_Scalar1 / count;
+        avg.scale(denom);
+        *c = avg;
+    } else {
+        area *= 3;
+        area = GrScalarDiv(GR_Scalar1, area);
+        center.fX = GrScalarMul(center.fX, area);
+        center.fY = GrScalarMul(center.fY, area);
+        *c = center;
+    }
+    GrAssert(!SkScalarIsNaN(c->fX) && !SkScalarIsNaN(c->fY));
 }
 
 void compute_vectors(SegmentArray* segments,
-                     SkPoint*  fanPt,
+                     SkPoint* fanPt,
+                     SkPath::Direction dir,
                      int* vCount,
                      int* iCount) {
     center_of_mass(*segments, fanPt);
     int count = segments->count();
 
-    // figure out which way the normals should point
+    // Make the normals point towards the outside
     GrPoint::Side normSide;
-    fanPt->distanceToLineBetweenSqd((*segments)[0].endPt(),
-                                    (*segments)[1].endPt(),
-                                    &normSide);
+    if (dir == SkPath::kCCW_Direction) {
+        normSide = GrPoint::kRight_Side;
+    } else {
+        normSide = GrPoint::kLeft_Side;
+    }
 
     *vCount = 0;
     *iCount = 0;
@@ -227,7 +246,11 @@ bool get_segments(const GrPath& path,
                 if (degenerateData.isDegenerate()) {
                     return false;
                 } else {
-                    compute_vectors(segments, fanPt, vCount, iCount);
+                    SkPath::Direction dir;
+                    GR_DEBUGCODE(bool succeeded = )
+                    path.cheapComputeDirection(&dir);
+                    GrAssert(succeeded);
+                    compute_vectors(segments, fanPt, dir, vCount, iCount);
                     return true;
                 }
             default:

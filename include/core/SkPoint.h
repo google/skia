@@ -442,11 +442,11 @@ struct SK_API SkPoint {
     void setOrthog(const SkPoint& vec, Side side = kLeft_Side) {
         // vec could be this
         SkScalar tmp = vec.fX;
-        if (kLeft_Side == side) {
+        if (kRight_Side == side) {
             fX = -vec.fY;
             fY = tmp;
         } else {
-            SkASSERT(kRight_Side == side);
+            SkASSERT(kLeft_Side == side);
             fX = vec.fY;
             fY = -tmp;
         }

@@ -29,6 +29,32 @@ protected:
     }
 
     void makePaths() {
+        // CW
+        fPaths.push_back().moveTo(0, 0);
+        fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
+                             0, 100 * SK_Scalar1);
+        fPaths.back().lineTo(0, 0);
+
+        // CCW
+        fPaths.push_back().moveTo(0, 0);
+        fPaths.back().lineTo(0, 100 * SK_Scalar1);
+        fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
+                             0, 0);
+
+        // CW
+        fPaths.push_back().moveTo(0, 50 * SK_Scalar1);
+        fPaths.back().quadTo(50 * SK_Scalar1, 0,
+                             100 * SK_Scalar1, 50 * SK_Scalar1);
+        fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
+                             0, 50 * SK_Scalar1);
+
+        // CCW
+        fPaths.push_back().moveTo(0, 50 * SK_Scalar1);
+        fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
+                             100 * SK_Scalar1, 50 * SK_Scalar1);
+        fPaths.back().quadTo(50 * SK_Scalar1, 0,
+                             0, 50 * SK_Scalar1);
+
         fPaths.push_back().addRect(0, 0,
                                    100 * SK_Scalar1, 100 * SK_Scalar1,
                                    SkPath::kCW_Direction);
