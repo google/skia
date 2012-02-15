@@ -1081,6 +1081,28 @@ static const uint8_t* getInverseTable(bool isWhite) {
     return isWhite ? gWhiteTable : gTable;
 }
 
+static const uint8_t* getGammaTable(U8CPU luminance) {
+    static uint8_t gGammaTables[4][256];
+    static bool gInited;
+    if (!gInited) {
+#if 1
+        float start = 1.1;
+        float stop = 2.1;
+        for (int i = 0; i < 4; ++i) {
+            float g = start + (stop - start) * i / 3;
+            build_power_table(gGammaTables[i], 1/g);
+        }
+#else
+        build_power_table(gGammaTables[0], 1);
+        build_power_table(gGammaTables[1], 1);
+        build_power_table(gGammaTables[2], 1);
+        build_power_table(gGammaTables[3], 1);
+#endif
+        gInited = true;
+    }
+    SkASSERT(0 == (luminance >> 8));
+    return gGammaTables[luminance >> 6];
+}
 
 static void invertGammaMask(bool isWhite, CGRGBPixel rgb[], int width,
                             int height, size_t rb) {
@@ -1197,9 +1219,18 @@ static inline uint32_t rgb_to_lcd32(CGRGBPixel rgb) {
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
 
+    const bool isLCD = isLCDFormat(glyph.fMaskFormat);
+    const bool isBW = SkMask::kBW_Format == glyph.fMaskFormat;
+    const bool isA8 = !isLCD && !isBW;
+    
 #ifdef SK_USE_COLOR_LUMINANCE
     unsigned lumBits = fRec.getLuminanceColor();
     uint32_t xorMask = 0;
+
+    if (isA8) {
+        // for A8, we just want a component (they're all the same)
+        lumBits = SkColorGetR(lumBits);
+    }
 #else
     bool fgColorIsWhite = true;
     bool isWhite = fRec.getLuminanceByte() >= WHITE_LUMINANCE_LIMIT;
@@ -1212,7 +1243,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
      *  extract the r,g,b values, invert-them, and now we have the original
      *  src mask components, which we pack into our 16bit mask.
      */
-    if (isLCDFormat(glyph.fMaskFormat)) {
+    if (isLCD) {
         if (isBlack) {
             xorMask = ~0;
             fgColorIsWhite = false;
@@ -1226,19 +1257,15 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     size_t cgRowBytes;
 #ifdef SK_USE_COLOR_LUMINANCE
     CGRGBPixel* cgPixels;
+    const uint8_t* gammaTable = NULL;
     
-    //  If we're gray or lum==max, we just want WHITE
-    //  If lum is 0 we just want BLACK
-    //  Else lerp
-
-    {
-        bool isLCD = isLCDFormat(glyph.fMaskFormat);
+    if (isLCD) {
         CGRGBPixel* wtPixels = NULL;
         CGRGBPixel* bkPixels = NULL;
         bool needBlack = true;
         bool needWhite = true;
 
-        if (!isLCD || (SK_ColorWHITE == lumBits)) {
+        if (SK_ColorWHITE == lumBits) {
             needBlack = false;
         } else if (SK_ColorBLACK == lumBits) {
             needWhite = false;
@@ -1257,11 +1284,12 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 
         if (wtPixels && bkPixels) {
             lerpPixels(wtPixels, bkPixels, glyph.fWidth, glyph.fHeight, cgRowBytes,
-#ifdef SK_USE_COLOR_LUMINANCE
                        ~lumBits);
-#else
-                       SkScalerContext::kLuminance_Max - lumBits);
-#endif
+        }
+    } else {    // isA8 or isBW
+        cgPixels = fWhiteScreen.getCG(*this, glyph, true, cgGlyph, &cgRowBytes);
+        if (isA8) {
+            gammaTable = getGammaTable(lumBits);
         }
     }
 #else
@@ -1310,7 +1338,11 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 size_t dstRB = glyph.rowBytes();
                 for (int y = 0; y < glyph.fHeight; y++) {
                     for (int i = 0; i < width; ++i) {
-                        dst[i] = CGRGBPixel_getAlpha(cgPixels[i]);
+                        unsigned alpha8 = CGRGBPixel_getAlpha(cgPixels[i]);
+#ifdef SK_USE_COLOR_LUMINANCE
+                        alpha8 = gammaTable[alpha8];
+#endif
+                        dst[i] = alpha8;
                     }
                     cgPixels = (CGRGBPixel*)((char*)cgPixels + cgRowBytes);
                     dst += dstRB;
@@ -1801,7 +1833,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     rec->setHinting(h);
 
 #ifdef SK_USE_COLOR_LUMINANCE
-    {
+    if (isLCDFormat(rec->fMaskFormat)) {
         SkColor c = rec->getLuminanceColor();
         // apply our chosen scaling between Black and White cg output
         int r = SkColorGetR(c)*2/3;
