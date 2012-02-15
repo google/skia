@@ -254,8 +254,11 @@ void GrPathUtils::quadDesignSpaceToUVCoordsMatrix(const SkPoint qPts[3],
         // We could have a tolerance here, not sure if it would improve anything
         if (maxD > 0) {
             // Set the matrix to give (u = 0, v = distance_to_line)
-            GrVec lineVec = qPts[maxEdge] - qPts[(maxEdge + 1)%3];
-            lineVec.setOrthog(lineVec);
+            GrVec lineVec = qPts[(maxEdge + 1)%3] - qPts[maxEdge];
+            // when looking from the point 0 down the line we want positive
+            // distances to be to the left. This matches the non-degenerate
+            // case.
+            lineVec.setOrthog(lineVec, GrPoint::kLeft_Side);
             lineVec.dot(qPts[0]);
             matrix->setAll(0, 0, 0,
                            lineVec.fX, lineVec.fY, -lineVec.dot(qPts[maxEdge]),
