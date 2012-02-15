@@ -1,4 +1,4 @@
-/*
+/* libs/graphics/ports/SkFontHost_android.cpp
 **
 ** Copyright 2006, The Android Open Source Project
 **
@@ -25,6 +25,8 @@
 #include "SkTSearch.h"
 #include "FontHostConfiguration_android.h"
 #include <stdio.h>
+
+#define FONT_CACHE_MEMORY_BUDGET    (768 * 1024)
 
 #ifndef SK_FONT_FILE_PREFIX
     #define SK_FONT_FILE_PREFIX          "/fonts/"
@@ -179,7 +181,7 @@ static void detach_and_delete_family(FamilyRec* family) {
         prev = curr;
         curr = next;
     }
-    SkDEBUGFAIL("Yikes, couldn't find family in our list to remove/delete");
+    SkASSERT(!"Yikes, couldn't find family in our list to remove/delete");
 }
 
 static SkTypeface* find_typeface(const char name[], SkTypeface::Style style) {
@@ -462,9 +464,11 @@ static void load_font_info() {
         // shouldn't get here
         gNumSystemFonts = 0;
     }
+//    SkDebugf("---- We have %d system fonts", gNumSystemFonts);
     for (size_t i = 0; i < gNumSystemFonts; ++i) {
         gSystemFonts[i].fFileName = fontInfo[i].fFileName;
         gSystemFonts[i].fNames = fontInfo[i].fNames;
+//        SkDebugf("---- gSystemFonts[%d] fileName=%s", i, fontInfo[i].fFileName);
     }
     fontFamilies.deleteAll();
 }
@@ -509,11 +513,13 @@ static void load_system_fonts() {
                                      isFixedWidth) // filename
                                     );
 
+//        SkDebugf("---- SkTypeface[%d] %s fontID %d\n", i, rec[i].fFileName, tf->uniqueID());
+
         if (rec[i].fNames != NULL) {
             // see if this is one of our fallback fonts
             if (rec[i].fNames == gFBNames) {
-            //    SkDebugf("---- adding %s as fallback[%d] fontID %d\n",
-            //             rec[i].fFileName, fallbackCount, tf->uniqueID());
+//                SkDebugf("---- adding %s as fallback[%d] fontID %d\n",
+//                         rec[i].fFileName, fallbackCount, tf->uniqueID());
                 gFallbackFonts[fallbackCount++] = tf->uniqueID();
             }
 
@@ -760,4 +766,3 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     stream->unref();
     return face;
 }
-

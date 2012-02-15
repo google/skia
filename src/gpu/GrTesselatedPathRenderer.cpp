@@ -61,7 +61,7 @@ public:
         Sk_gluTessCallback(fTess, GLU_TESS_COMBINE_DATA, (TESSCB) &combineCB);
         fInVertices = new double[count * 3];
     }
-    ~GrTess() {
+    virtual ~GrTess() {
         Sk_gluDeleteTess(fTess);
         delete[] fInVertices;
     }

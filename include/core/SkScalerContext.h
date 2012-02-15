@@ -298,6 +298,10 @@ public:
     void        getFontMetrics(SkPaint::FontMetrics* mX,
                                SkPaint::FontMetrics* mY);
 
+#ifdef SK_BUILD_FOR_ANDROID
+    unsigned getBaseGlyphCount(SkUnichar charCode);
+#endif
+
     static inline void MakeRec(const SkPaint&, const SkMatrix*, Rec* rec);
     static SkScalerContext* Create(const SkDescriptor*);
 

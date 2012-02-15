@@ -849,9 +849,14 @@ public:
 
 #ifdef SK_BUILD_FOR_ANDROID
     const SkGlyph& getUnicharMetrics(SkUnichar);
+    const SkGlyph& getGlyphMetrics(uint16_t);
     const void* findImage(const SkGlyph&);
 
     uint32_t getGenerationID() const;
+
+    /** Returns the base glyph count for the strike associated with this paint
+    */
+    unsigned getBaseGlyphCount(SkUnichar text) const;
 #endif
 
     // returns true if the paint's settings (e.g. xfermode + alpha) resolve to

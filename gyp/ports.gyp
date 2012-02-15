@@ -90,6 +90,7 @@
             '../src/ports/SkFontHost_gamma.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/FontHostConfiguration_android.cpp',
+            #TODO: include the ports/SkImageRef_ashmem.cpp for non-NDK builds
           ],
           'dependencies': [
              'android_system.gyp:ft2',

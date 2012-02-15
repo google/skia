@@ -46,6 +46,31 @@ static int fillIndices(uint16_t indices[], int xCount, int yCount) {
     return indices - startIndices;
 }
 
+// Computes the delta between vertices along a single axis
+static SkScalar computeVertexDelta(bool isStretchyVertex,
+                                   SkScalar currentVertex,
+                                   SkScalar prevVertex,
+                                   SkScalar stretchFactor) {
+    // the standard delta between vertices if no stretching is required
+    SkScalar delta = currentVertex - prevVertex;
+
+    // if the stretch factor is negative or zero we need to shrink the 9-patch
+    // to fit within the target bounds.  This means that we will eliminate all
+    // stretchy areas and scale the fixed areas to fit within the target bounds.
+    if (stretchFactor <= 0) {
+        if (isStretchyVertex)
+            delta = 0; // collapse stretchable areas
+        else
+            delta = SkScalarMul(delta, -stretchFactor); // scale fixed areas
+    // if the stretch factor is positive then we use the standard delta for
+    // fixed and scale the stretchable areas to fill the target bounds.
+    } else if (isStretchyVertex) {
+        delta = SkScalarMul(delta, stretchFactor);
+    }
+
+    return delta;
+}
+
 static void fillRow(SkPoint verts[], SkPoint texs[],
                     const SkScalar vy, const SkScalar ty,
                     const SkRect& bounds, const int32_t xDivs[], int numXDivs,
@@ -53,21 +78,14 @@ static void fillRow(SkPoint verts[], SkPoint texs[],
     SkScalar vx = bounds.fLeft;
     verts->set(vx, vy); verts++;
     texs->set(0, ty); texs++;
+
+    SkScalar prev = 0;
     for (int x = 0; x < numXDivs; x++) {
-        SkScalar tx = SkIntToScalar(xDivs[x]);
-        if (stretchX >= 0) {
-            if (x & 1) {
-                vx += stretchX;
-            } else {
-                vx += tx;
-            }
-        } else {
-            if (x & 1) {
-                ; // do nothing
-            } else {
-                vx += SkScalarMul(tx, -stretchX);
-            }
-        }
+
+        const SkScalar tx = SkIntToScalar(xDivs[x]);
+        vx += computeVertexDelta(x & 1, tx, prev, stretchX);
+        prev = tx;
+
         verts->set(vx, vy); verts++;
         texs->set(tx, ty); texs++;
     }
@@ -139,12 +157,11 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         for (int i = 1; i < numXDivs; i += 2) {
             stretchSize += xDivs[i] - xDivs[i-1];
         }
-        int fixed = bitmap.width() - stretchSize;
-        stretchX = (bounds.width() - SkIntToScalar(fixed)) / numXStretch;
-        if (stretchX < 0) {
-            // reuse stretchX, but keep it negative as a signal
-            stretchX = -SkIntToScalar(bitmap.width()) / fixed;
-        }
+        const SkScalar fixed = SkIntToScalar(bitmap.width() - stretchSize);
+        if (bounds.width() >= fixed)
+            stretchX = (bounds.width() - fixed) / stretchSize;
+        else // reuse stretchX, but keep it negative as a signal
+            stretchX = SkScalarDiv(-bounds.width(), fixed);
     }
     
     if (numYStretch > 0) {
@@ -152,12 +169,11 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         for (int i = 1; i < numYDivs; i += 2) {
             stretchSize += yDivs[i] - yDivs[i-1];
         }
-        int fixed = bitmap.height() - stretchSize;
-        stretchY = (bounds.height() - SkIntToScalar(fixed)) / numYStretch;
-        if (stretchY < 0) {
-            // reuse stretchY, but keep it negative as a signal
-            stretchY = -SkIntToScalar(bitmap.height()) / fixed;
-        }
+        const SkScalar fixed = SkIntToScalar(bitmap.height() - stretchSize);
+        if (bounds.height() >= fixed)
+            stretchY = (bounds.height() - fixed) / stretchSize;
+        else // reuse stretchX, but keep it negative as a signal
+            stretchY = SkScalarDiv(-bounds.height(), fixed);
     }
     
 #if 0
