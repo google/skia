@@ -1302,11 +1302,27 @@ static SkColor computeLuminanceColor(const SkPaint& paint) {
     return c;
 }
 
+#define assert_byte(x)  SkASSERT(0 == ((x) >> 8))
+
 static U8CPU reduce_lumbits(U8CPU x) {
     static const uint8_t gReduceBits[] = {
         0x0, 0x55, 0xAA, 0xFF
     };
+    assert_byte(x);
     return gReduceBits[x >> 6];
+}
+
+static unsigned computeLuminance(SkColor c) {
+    int r = SkColorGetR(c);
+    int g = SkColorGetG(c);
+    int b = SkColorGetB(c);
+    // compute luminance
+    // R=0.2126 G=0.7152 B=0.0722
+    // scaling by 127 yields 27, 92, 9
+    int luminance = r * 27 + g * 92 + b * 9;
+    luminance >>= 7;
+    assert_byte(luminance);
+    return luminance;
 }
 
 #else
@@ -1477,22 +1493,38 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
      */
     SkFontHost::FilterRec(rec);
 
-    // No need to differentiate gamma if we're BW
-    if (SkMask::kBW_Format == rec->fMaskFormat) {
+    switch (rec->fMaskFormat) {
+        case SkMask::kLCD16_Format:
+        case SkMask::kLCD32_Format: {
 #ifdef SK_USE_COLOR_LUMINANCE
-        rec->setLuminanceColor(0);
+            // filter down the luminance color to a finite number of bits
+            SkColor c = rec->getLuminanceColor();
+            c = SkColorSetRGB(reduce_lumbits(SkColorGetR(c)),
+                              reduce_lumbits(SkColorGetG(c)),
+                              reduce_lumbits(SkColorGetB(c)));
+            rec->setLuminanceColor(c);
+#endif
+            break;
+        }
+        case SkMask::kA8_Format: {
+#ifdef SK_USE_COLOR_LUMINANCE
+            // filter down the luminance to a single component, since A8 can't
+            // use per-component information
+            unsigned lum = computeLuminance(rec->getLuminanceColor());
+            // reduce to our finite number of bits
+            lum = reduce_lumbits(lum);
+            rec->setLuminanceColor(SkColorSetRGB(lum, lum, lum));
+#endif
+            break;
+        }
+        case SkMask::kBW_Format:
+            // No need to differentiate gamma if we're BW
+#ifdef SK_USE_COLOR_LUMINANCE
+            rec->setLuminanceColor(0);
 #else
-        rec->setLuminanceBits(0);
+            rec->setLuminanceBits(0);
 #endif
-    } else {
-#ifdef SK_USE_COLOR_LUMINANCE
-        // filter down the luminance color to a finite number of bits
-        SkColor c = rec->getLuminanceColor();
-        c = SkColorSetRGB(reduce_lumbits(SkColorGetR(c)),
-                          reduce_lumbits(SkColorGetG(c)),
-                          reduce_lumbits(SkColorGetB(c)));
-        rec->setLuminanceColor(c);
-#endif
+            break;
     }
 }
 
