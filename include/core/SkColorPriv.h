@@ -728,8 +728,8 @@ static inline int SkBlend32(int src, int dst, int scale) {
     return dst + ((src - dst) * scale >> 5);
 }
 
-static SkPMColor SkBlendLCD16(int srcA, int srcR, int srcG, int srcB,
-                              SkPMColor dst, uint16_t mask) { 
+static inline SkPMColor SkBlendLCD16(int srcA, int srcR, int srcG, int srcB,
+                                     SkPMColor dst, uint16_t mask) { 
     if (mask == 0) {
         return dst;
     }
@@ -763,9 +763,9 @@ static SkPMColor SkBlendLCD16(int srcA, int srcR, int srcG, int srcB,
                         SkBlend32(srcB, dstB, maskB));
 }
 
-static SkPMColor SkBlendLCD16Opaque(int srcR, int srcG, int srcB,
-                                    SkPMColor dst, uint16_t mask,
-                                    SkPMColor opaqueDst) { 
+static inline SkPMColor SkBlendLCD16Opaque(int srcR, int srcG, int srcB,
+                                           SkPMColor dst, uint16_t mask,
+                                           SkPMColor opaqueDst) { 
     if (mask == 0) {
         return dst;
     }
@@ -798,8 +798,8 @@ static SkPMColor SkBlendLCD16Opaque(int srcR, int srcG, int srcB,
                         SkBlend32(srcB, dstB, maskB));
 }
 
-static void SkBlitLCD16Row(SkPMColor dst[], const uint16_t src[],
-                           SkColor color, int width, SkPMColor) {
+static inline void SkBlitLCD16Row(SkPMColor dst[], const uint16_t src[],
+                                  SkColor color, int width, SkPMColor) {
     int srcA = SkColorGetA(color);
     int srcR = SkColorGetR(color);
     int srcG = SkColorGetG(color);
@@ -812,9 +812,9 @@ static void SkBlitLCD16Row(SkPMColor dst[], const uint16_t src[],
     }
 }
 
-static void SkBlitLCD16OpaqueRow(SkPMColor dst[], const uint16_t src[],
-                                 SkColor color, int width, 
-                                 SkPMColor opaqueDst) {
+static inline void SkBlitLCD16OpaqueRow(SkPMColor dst[], const uint16_t src[],
+                                        SkColor color, int width, 
+                                        SkPMColor opaqueDst) {
     int srcR = SkColorGetR(color);
     int srcG = SkColorGetG(color);
     int srcB = SkColorGetB(color);
