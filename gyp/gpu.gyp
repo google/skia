@@ -253,8 +253,6 @@
 
         '../src/gpu/gl/GrGLCaps.cpp',
         '../src/gpu/gl/GrGLCaps.h',
-        '../src/gpu/gl/GrGLColorConversionTest.cpp',
-        '../src/gpu/gl/GrGLColorConversionTest.h',
         '../src/gpu/gl/GrGLContextInfo.cpp',
         '../src/gpu/gl/GrGLContextInfo.h',
         '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
