@@ -35,13 +35,13 @@ void SkSVGEllipse::translate(SkSVGParser& parser, bool defState) {
     right = cx + rx;
     bottom = cy + ry;
     char scratch[16];
-    sprintf(scratch, "%g", left);
+    sprintf(scratch, "%g", SkScalarToDouble(left));
     parser._addAttribute("left", scratch);
-    sprintf(scratch, "%g", top);
+    sprintf(scratch, "%g", SkScalarToDouble(top));
     parser._addAttribute("top", scratch);
-    sprintf(scratch, "%g", right);
+    sprintf(scratch, "%g", SkScalarToDouble(right));
     parser._addAttribute("right", scratch);
-    sprintf(scratch, "%g", bottom);
+    sprintf(scratch, "%g", SkScalarToDouble(bottom));
     parser._addAttribute("bottom", scratch);
     parser._endElement();
 }

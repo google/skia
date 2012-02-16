@@ -67,7 +67,8 @@ static void test_cubic2() {
         SkIRect ir;
         r.round(&ir);
         printf("[%g %g %g %g] [%x %x %x %x]\n",
-               r.fLeft, r.fTop, r.fRight, r.fBottom,
+               SkScalarToDouble(r.fLeft), SkScalarToDouble(r.fTop),
+               SkScalarToDouble(r.fRight), SkScalarToDouble(r.fBottom),
                ir.fLeft, ir.fTop, ir.fRight, ir.fBottom);
     }
     
