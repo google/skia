@@ -94,12 +94,15 @@ SkTypeface* SkTypefaceCache::FindByID(SkFontID fontID) {
     return Get().findByID(fontID);
 }
 
-SkTypeface* SkTypefaceCache::FindByProc(FindProc proc, void* ctx) {
+SkTypeface* SkTypefaceCache::FindByProcAndRef(FindProc proc, void* ctx) {
     SkAutoMutexAcquire ama(gMutex);
-    return Get().findByProc(proc, ctx);
+    SkTypeface* typeface = Get().findByProc(proc, ctx);
+    SkSafeRef(typeface);
+    return typeface;
 }
 
 void SkTypefaceCache::PurgeAll() {
+    SkAutoMutexAcquire ama(gMutex);
     Get().purgeAll();
 }
 
