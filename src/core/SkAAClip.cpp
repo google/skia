@@ -1193,12 +1193,15 @@ public:
         this->recordMinY(y);
         this->checkForYGap(y);
         fBuilder->addRectRun(x, y, width, height);
+        fLastY = y + height - 1;
     }
 
     virtual void blitAntiRect(int x, int y, int width, int height,
                      SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE {
         this->recordMinY(y);
+        this->checkForYGap(y);
         fBuilder->addAntiRectRun(x, y, width, height, leftAlpha, rightAlpha);
+        fLastY = y + height - 1;
     }
 
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE
