@@ -542,11 +542,9 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     }
 
     NameStyleRec rec = { familyName, style };
-    SkTypeface* face = SkTypefaceCache::FindByProc(FindByNameStyle, &rec);
+    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByNameStyle, &rec);
 
-    if (face) {
-        face->ref();
-    } else {
+    if (NULL == face) {
         face = NewFromName(familyName, style);
         if (face) {
             SkTypefaceCache::Add(face, style);
