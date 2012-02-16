@@ -515,7 +515,11 @@ void walk() {
         fWinding = winding;
         addEdge();
     }
-    complete();
+    if (!complete()) {
+        if (fCurrentEdge) {
+            fEdges.pop_back();
+        }
+    }
 }
 
 private:
@@ -790,8 +794,21 @@ static void makeEdgeList(SkTArray<InEdge>& edges, InEdge& edgeSentinel,
     QSort<InEdge>(edgeList.begin(), edgeCount);
 }
 
+
+static void skipCoincidence(int lastWinding, int winding, int windingMask,
+            ActiveEdge* activePtr, ActiveEdge* firstCoincident) {
+    if (((lastWinding & windingMask) == 0) ^ (winding & windingMask) != 0) {
+        return;
+    } 
+    if (lastWinding) {
+        activePtr->fSkip = false;
+    } else {
+        firstCoincident->fSkip = false;
+    }
+}
+
 static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
-        SkTDArray<ActiveEdge*>& edgeList) {
+        SkTDArray<ActiveEdge*>& edgeList, int windingMask) {
     size_t edgeCount = activeEdges.count();
     if (edgeCount == 0) {
         return;
@@ -805,17 +822,39 @@ static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
     }
     QSort<ActiveEdge>(edgeList.begin(), edgeCount);
     // remove coincident edges
+    // OPTIMIZE: remove edges? This is tricky because the current logic expects
+    // the winding count to be maintained while skipping coincident edges. In
+    // addition to removing the coincident edges, the remaining edges would need
+    // to have a different winding value, possibly different per intercept span.
+    int lastWinding = 0;
+    bool lastSkipped = false;
     ActiveEdge* activePtr = edgeList[0];
+    ActiveEdge* firstCoincident = NULL;
+    int winding = 0;
     for (index = 1; index < edgeCount; ++index) {
+        winding += activePtr->fWorkEdge.winding();
         ActiveEdge* nextPtr = edgeList[index];
-        if (activePtr->fX == nextPtr->fX && activePtr->fWorkEdge.winding()
-                + nextPtr->fWorkEdge.winding() == 0) {
+        if (activePtr->fX == nextPtr->fX) {
             SkDebugf("%s coincident\n", __FUNCTION__);
-            // OPTIMIZE: remove edges?
-            activePtr->fSkip = true;
-            nextPtr->fSkip = true;
+            if (!firstCoincident) {
+                firstCoincident = activePtr;
+            }
+            activePtr->fSkip = nextPtr->fSkip = lastSkipped = true;
+        } else if (lastSkipped) {
+            skipCoincidence(lastWinding, winding, windingMask, activePtr,
+                    firstCoincident);
+            lastSkipped = false;
+            firstCoincident = NULL;
+        }
+        if (!lastSkipped) {
+            lastWinding = winding;
         }
         activePtr = nextPtr;
+    }
+    if (lastSkipped) {
+        winding += activePtr->fWorkEdge.winding();
+        skipCoincidence(lastWinding, winding, windingMask, activePtr,
+                firstCoincident);
     }
 }
 
@@ -901,7 +940,7 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
         addIntersectingTs(currentPtr, lastPtr);
         computeInterceptBottom(activeEdges, y, bottom);
         SkTDArray<ActiveEdge*> activeEdgeList;
-        sortHorizontal(activeEdges, activeEdgeList);
+        sortHorizontal(activeEdges, activeEdgeList, windingMask);
         stitchEdge(activeEdgeList, y, bottom, windingMask, outBuilder);
         y = bottom;
         currentPtr = advanceEdges(activeEdges, currentPtr, lastPtr, y);
@@ -947,10 +986,34 @@ static void testSimplifyMulti() {
     path.addRect(10, 10, 30, 30);
     path.addRect(20, 20, 40, 40);
     simplify(path, true, out);
+    SkPath expected;
+    expected.setFillType(SkPath::kEvenOdd_FillType);
+    expected.moveTo(10,10); // two cutout corners
+    expected.lineTo(10,30);
+    expected.lineTo(20,30);
+    expected.lineTo(20,40);
+    expected.lineTo(40,40);
+    expected.lineTo(40,20);
+    expected.lineTo(30,20);
+    expected.lineTo(30,10);
+    expected.lineTo(10,10);
+    expected.close();
+    if (out != expected) {
+        SkDebugf("%s expected equal\n", __FUNCTION__);
+    }
+    
     path = out;
     path.addRect(30, 10, 40, 20);
     path.addRect(10, 30, 20, 40);
     simplify(path, true, out);
+    SkRect rect;
+    if (!out.isRect(&rect)) {
+        SkDebugf("%s expected rect\n", __FUNCTION__);
+    }
+    if (rect != SkRect::MakeLTRB(10, 10, 40, 40)) {
+        SkDebugf("%s expected union\n", __FUNCTION__);
+    }
+    
     path = out;
     path.addRect(10, 10, 40, 40, SkPath::kCCW_Direction);
     simplify(path, true, out);
@@ -980,21 +1043,53 @@ static void testSimplifyAddL() {
     }
 }
 
+static void testSimplifyCoincidentCCW() {
+    SkPath path, out;
+    path.addRect(10, 10, 40, 40, SkPath::kCCW_Direction);
+    path.addRect(10, 10, 40, 40, SkPath::kCCW_Direction);
+    simplify(path, true, out);
+    SkRect rect;
+    if (!out.isRect(&rect)) {
+        SkDebugf("%s expected rect\n", __FUNCTION__);
+    }
+    if (rect != SkRect::MakeLTRB(10, 10, 40, 40)) {
+        SkDebugf("%s expected union\n", __FUNCTION__);
+    }
+}
+
+static void testSimplifyCoincidentCW() {
+    SkPath path, out;
+    path.addRect(10, 10, 40, 40, SkPath::kCCW_Direction);
+    path.addRect(10, 10, 40, 40, SkPath::kCW_Direction);
+    simplify(path, true, out);
+    if (!out.isEmpty()) {
+        SkDebugf("%s expected empty\n", __FUNCTION__);
+    }
+}
+
 void testSimplify();
 
 void (*simplifyTests[])() = {
-    testSimplifyCoincidentVertical,   // 0
-    testSimplifyCoincidentHorizontal, // 1
-    testSimplifyMulti,                // 2
-    testSimplifyAddL                  // 3
+    testSimplifyCoincidentCW,
+    testSimplifyCoincidentCCW,
+    testSimplifyCoincidentVertical, 
+    testSimplifyCoincidentHorizontal,
+    testSimplifyAddL,                
+    testSimplifyMulti,               
 };
 
 size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
 
-static int firstTest = 3;
+static void (*firstTest)()  = 0;
 
 void testSimplify() {
-    for (size_t index = firstTest; index < simplifyTestsCount; ++index) {
+    size_t index = 0;
+    if (firstTest) {
+        while (index < simplifyTestsCount && simplifyTests[index] != firstTest) {
+            ++index;
+        }
+    }
+    for ( ; index < simplifyTestsCount; ++index) {
         (*simplifyTests[index])();
     }
 }
