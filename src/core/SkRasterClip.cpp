@@ -70,6 +70,8 @@ bool SkRasterClip::setPath(const SkPath& path, const SkRegion& clip, bool doAA) 
     if (this->isBW() && !doAA) {
         return fBW.setPath(path, clip);
     } else {
+        // TODO: since we are going to over-write fAA completely (aren't we?)
+        // we should just clear our BW data (if any) and set fIsAA=true
         if (this->isBW()) {
             this->convertToAA();
         }
