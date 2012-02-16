@@ -25,8 +25,8 @@
 // At 36 points and above, it is increased by text size / 32.  In between,
 // it is interpolated between those values.
 static const SkScalar kStdFakeBoldInterpKeys[] = {
-    SkIntToScalar(9),
-    SkIntToScalar(36)
+    SK_Scalar1*9,
+    SK_Scalar1*36,
 };
 static const SkScalar kStdFakeBoldInterpValues[] = {
     SK_Scalar1/24,
