@@ -1642,7 +1642,7 @@ void GrGpuGL::flushStencil() {
 
         if (settings->isDisabled()) {
             if (stencilClip) {
-                settings = &gClipStencilSettings;
+                settings = GetClipStencilSettings();
             }
         }
 
