@@ -857,17 +857,6 @@ SkScalerContext_FreeType::~SkScalerContext_FreeType() {
     this face with other context (at different sizes).
 */
 FT_Error SkScalerContext_FreeType::setupSize() {
-    /*  In the off-chance that a font has been removed, we want to error out
-        right away, so call resolve just to be sure.
-
-        TODO: perhaps we can skip this, by walking the global font cache and
-        killing all of the contexts when we know that a given fontID is going
-        away...
-     */
-    if (!SkFontHost::ValidFontID(fRec.fFontID)) {
-        return (FT_Error)-1;
-    }
-
     FT_Error    err = FT_Activate_Size(fFTSize);
 
     if (err != 0) {
