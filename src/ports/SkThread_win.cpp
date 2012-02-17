@@ -8,15 +8,22 @@
 
 
 #include <windows.h>
+#include <intrin.h>
 #include "SkThread.h"
+
+//MSDN says in order to declare an interlocked function for use as an
+//intrinsic, include intrin.h and put the function in a #pragma intrinsic
+//directive.
+//The pragma appears to be unnecessary, but doesn't hurt.
+#pragma intrinsic(_InterlockedIncrement, _InterlockedDecrement)
 
 int32_t sk_atomic_inc(int32_t* addr) {
     // InterlockedIncrement returns the new value, we want to return the old.
-    return InterlockedIncrement(reinterpret_cast<LONG*>(addr)) - 1;
+    return _InterlockedIncrement(reinterpret_cast<LONG*>(addr)) - 1;
 }
 
 int32_t sk_atomic_dec(int32_t* addr) {
-    return InterlockedDecrement(reinterpret_cast<LONG*>(addr)) + 1;
+    return _InterlockedDecrement(reinterpret_cast<LONG*>(addr)) + 1;
 }
 
 SkMutex::SkMutex() {
