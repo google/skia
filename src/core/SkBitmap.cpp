@@ -821,7 +821,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
     SkBitmap dst;
     dst.setConfig(this->config(), r.width(), r.height(), this->rowBytes());
-    dst.setIsOpaque(this->isOpaque());
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
