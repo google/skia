@@ -312,13 +312,10 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                     SkBitmap subset;
                     SkIRect r;
                     r.set(1, 1, 2, 2);
-                    bitmap.setIsOpaque(true);
                     bitmap.setIsVolatile(true);
                     if (bitmap.extractSubset(&subset, r)) {
                         REPORTER_ASSERT(reporter, subset.width() == 1);
                         REPORTER_ASSERT(reporter, subset.height() == 1);
-                        REPORTER_ASSERT(reporter,
-                                        subset.isOpaque() == bitmap.isOpaque());
                         REPORTER_ASSERT(reporter,
                                         subset.isVolatile() == true);
 
@@ -336,11 +333,8 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                         REPORTER_ASSERT(reporter,
                                     (copy.getColorTable() != NULL) == hasCT);
                     }
-                    bitmap.setIsOpaque(false);
                     bitmap.setIsVolatile(false);
                     if (bitmap.extractSubset(&subset, r)) {
-                        REPORTER_ASSERT(reporter,
-                                        subset.isOpaque() == bitmap.isOpaque());
                         REPORTER_ASSERT(reporter,
                                         subset.isVolatile() == false);
                     }
