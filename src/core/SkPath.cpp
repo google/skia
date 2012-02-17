@@ -1909,8 +1909,26 @@ CONTOUR_END:
     SkDEBUGCODE(++fContourCounter;)
 }
 
+// returns cross product of (p1 - p0) and (p2 - p0)
 static SkScalar cross_prod(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
-    return SkPoint::CrossProduct(p1 - p0, p2 - p0);
+    SkScalar cross = SkPoint::CrossProduct(p1 - p0, p2 - p0);
+    // We may get 0 when the above subtracts underflow. We expect this to be
+    // very rare and lazily promote to double.
+    if (0 == cross) {
+        double p0x = SkScalarToDouble(p0.fX);
+        double p0y = SkScalarToDouble(p0.fY);
+
+        double p1x = SkScalarToDouble(p1.fX);
+        double p1y = SkScalarToDouble(p1.fY);
+
+        double p2x = SkScalarToDouble(p2.fX);
+        double p2y = SkScalarToDouble(p2.fY);
+
+        cross = SkDoubleToScalar((p1x - p0x) * (p2y - p0y) -
+                                 (p1y - p0y) * (p2x - p0x));
+
+    }
+    return cross;
 }
 
 // Returns the first pt with the maximum Y coordinate

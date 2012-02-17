@@ -15,6 +15,21 @@
 #include "SkSize.h"
 #include "SkWriter32.h"
 
+/**
+ * cheapIsDirection can take a shortcut when a path is marked convex.
+ * This function ensures that we always test cheapIsDirection when the path
+ * is flagged with unknown convexity status.
+ */
+static void check_direction(SkPath* path,
+                            SkPath::Direction expectedDir,
+                            skiatest::Reporter* reporter) {
+    if (SkPath::kConvex_Convexity == path->getConvexity()) {
+        REPORTER_ASSERT(reporter, path->cheapIsDirection(expectedDir));
+        path->setConvexity(SkPath::kUnknown_Convexity);
+    }
+    REPORTER_ASSERT(reporter, path->cheapIsDirection(expectedDir));
+}
+
 static void test_direction(skiatest::Reporter* reporter) {
     size_t i;
     SkPath path;
@@ -46,7 +61,7 @@ static void test_direction(skiatest::Reporter* reporter) {
         path.reset();
         bool valid = SkParsePath::FromSVGString(gCW[i], &path);
         REPORTER_ASSERT(reporter, valid);
-        REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCW_Direction));
+        check_direction(&path, SkPath::kCW_Direction, reporter);
     }
     
     static const char* gCCW[] = {
@@ -58,7 +73,7 @@ static void test_direction(skiatest::Reporter* reporter) {
         path.reset();
         bool valid = SkParsePath::FromSVGString(gCCW[i], &path);
         REPORTER_ASSERT(reporter, valid);
-        REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCCW_Direction));
+        check_direction(&path, SkPath::kCCW_Direction, reporter);
     }
 
     // Test two donuts, each wound a different direction. Only the outer contour
@@ -66,12 +81,20 @@ static void test_direction(skiatest::Reporter* reporter) {
     path.reset();
     path.addCircle(0, 0, SkIntToScalar(2), SkPath::kCW_Direction);
     path.addCircle(0, 0, SkIntToScalar(1), SkPath::kCCW_Direction);
-    REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCW_Direction));
-    
+    check_direction(&path, SkPath::kCW_Direction, reporter);
+
     path.reset();
     path.addCircle(0, 0, SkIntToScalar(1), SkPath::kCW_Direction);
     path.addCircle(0, 0, SkIntToScalar(2), SkPath::kCCW_Direction);
-    REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCCW_Direction));
+    check_direction(&path, SkPath::kCCW_Direction, reporter);
+
+    // triangle with one point really far from the origin.
+    path.reset();
+    // the first point is roughly 1.05e10, 1.05e10
+    path.moveTo(SkFloatToScalar(SkBits2Float(0x501c7652)), SkFloatToScalar(SkBits2Float(0x501c7652)));
+    path.lineTo(110 * SK_Scalar1, -10 * SK_Scalar1);
+    path.lineTo(-10 * SK_Scalar1, 60 * SK_Scalar1);
+    check_direction(&path, SkPath::kCCW_Direction, reporter);
 }
 
 static void add_rect(SkPath* path, const SkRect& r) {
