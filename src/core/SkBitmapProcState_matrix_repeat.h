@@ -1,4 +1,9 @@
-/* NEON optimized code (C) COPYRIGHT 2009 Motorola */
+/* NEON optimized code (C) COPYRIGHT 2009 Motorola
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+ 
 /*
  * Modifications done in-house at Motorola 
  *
