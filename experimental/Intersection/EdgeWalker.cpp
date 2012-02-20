@@ -14,6 +14,10 @@
 #include "SkTDArray.h"
 #include "TSearch.h"
 
+static bool fShowDebugf = true; // FIXME: remove once debugging is complete
+
+const int kOpenerVerbBitShift = 3; // leaves 3 bits for SkPath::Verb
+
 static int LineIntersect(const SkPoint a[2], const SkPoint b[2],
         double aRange[2], double bRange[2]) {
     _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
@@ -123,20 +127,9 @@ struct OutEdge {
     }
     
     SkTDArray<SkPoint> fPts;
-    SkTDArray<uint8_t> fVerbs; // FIXME: unused for now
-};
-
-// for sorting only
-class OutBottomEdge : public OutEdge { 
-public:    
-    bool operator<(const OutBottomEdge& rh) const {
-        const SkPoint& last = fPts.end()[-1];
-        const SkPoint& rhLast = rh.fPts.end()[-1];
-        return last.fY == rhLast.fY
-                ? last.fX < rhLast.fX
-                : last.fY < rhLast.fY;
-    }
-    
+    // contains the SkPath verb, plus 1<<kOpenerVerbBitShift if edge opens span
+    SkTDArray<uint8_t> fVerbs; // FIXME: not read from everywhere
+    bool fOpener;
 };
 
 class OutEdgeBuilder {
@@ -145,23 +138,34 @@ public:
         : fFill(fill) {
         }
 
-    void addLine(const SkPoint line[2]) {
+    void addLine(const SkPoint line[2], bool opener) {
         size_t count = fEdges.count();
         for (size_t index = 0; index < count; ++index) {
-            SkTDArray<SkPoint>& pts = fEdges[index].fPts;
-            SkPoint* last = pts.end() - 1;
-            if (last[0] == line[0]) {
-                if (extendLine(&last[-1], line[1])) {
-                    last[0] = line[1];
+            OutEdge& edge = fEdges[index];
+            if (opener != edge.fOpener) {
+                continue;
+            }
+            SkTDArray<SkPoint>& pts = edge.fPts;
+            SkPoint& last = pts.top();
+            if (last == line[0]) {
+                SkTDArray<uint8_t>& verbs = edge.fVerbs;
+                uint8_t lastVerb = verbs.top();
+                if (lastVerb == SkPath::kLine_Verb
+                        && extendLine(&last - 1, line[1])) {
+                    last = line[1];
                 } else {
                     *pts.append() = line[1];
+                    *verbs.append() = SkPath::kLine_Verb;
                 }
                 return;
             }
         }
-        OutEdge& edge = fEdges.push_back();
-        *edge.fPts.append() = line[0];
-        *edge.fPts.append() = line[1];
+        OutEdge& newEdge = fEdges.push_back();
+        *newEdge.fPts.append() = line[0];
+        *newEdge.fVerbs.append() = SkPath::kMove_Verb;
+        *newEdge.fPts.append() = line[1];
+        *newEdge.fVerbs.append() = SkPath::kLine_Verb;
+        newEdge.fOpener = opener;
     }
 
     void assemble(SkPath& simple) {
@@ -195,21 +199,29 @@ public:
                 if (doMove) {
                     firstPt = pts[0];
                     simple.moveTo(pts[0].fX, pts[0].fY);
-                    SkDebugf("%s moveTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    if (fShowDebugf) {
+                        SkDebugf("%s moveTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    }
                     doMove = false;
                 } else {
                     simple.lineTo(pts[0].fX, pts[0].fY);
-                    SkDebugf("%s 1 lineTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    if (fShowDebugf) {
+                        SkDebugf("%s 1 lineTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    }
                     if (firstPt == pts[0]) {
                         simple.close();
-                        SkDebugf("%s close\n", __FUNCTION__);
+                        if (fShowDebugf) {
+                            SkDebugf("%s close\n", __FUNCTION__);
+                        }
                         break;
                     }
                 }
                 while (pts != end) {
                     pts += advance;
                     simple.lineTo(pts->fX, pts->fY);
-                    SkDebugf("%s 2 lineTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    if (fShowDebugf) {
+                        SkDebugf("%s 2 lineTo (%g,%g)\n", __FUNCTION__, pts[0].fX, pts[0].fY);
+                    }
                 }
                 if (advance < 0) {
                     edgeIndex = fTops[listIndex];
@@ -772,10 +784,6 @@ static SkScalar findBottom(InEdge** currentPtr,
         }
         test = *++testPtr;
     }
-    if (asFill && testPtr - currentPtr <= 1) {
-        SkDebugf("expect 2 or more edges\n");
-        SkASSERT(0);
-    }
     return bottom;
 }
 
@@ -835,7 +843,6 @@ static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
         winding += activePtr->fWorkEdge.winding();
         ActiveEdge* nextPtr = edgeList[index];
         if (activePtr->fX == nextPtr->fX) {
-            SkDebugf("%s coincident\n", __FUNCTION__);
             if (!firstCoincident) {
                 firstCoincident = activePtr;
             }
@@ -864,14 +871,19 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
     int winding = 0;
     ActiveEdge** activeHandle = edgeList.begin() - 1;
     ActiveEdge** lastActive = edgeList.end();
-    SkDebugf("%s y=%g bottom=%g\n", __FUNCTION__, y, bottom);
+    if (fShowDebugf) {
+        SkDebugf("%s y=%g bottom=%g\n", __FUNCTION__, y, bottom);
+    }
     while (++activeHandle != lastActive) {
         ActiveEdge* activePtr = *activeHandle;
         const WorkEdge& wt = activePtr->fWorkEdge;
         int lastWinding = winding;
         winding += wt.winding();
-        bool inWinding = (lastWinding & windingMask) == 0
-                || (winding & windingMask) == 0;
+        int opener = (lastWinding & windingMask) == 0;
+        bool closer = (winding & windingMask) == 0;
+        SkASSERT(!opener | !closer);
+        bool inWinding = opener | closer;
+        opener <<= kOpenerVerbBitShift;
         do {
             double currentT = activePtr->t();
             SkASSERT(currentT < 1);
@@ -893,10 +905,12 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
                         clipped = points;
                     }
                     if (inWinding && !activePtr->fSkip) {
-                        SkDebugf("%s line %g,%g %g,%g\n", __FUNCTION__,
-                                clipped[0].fX, clipped[0].fY,
-                                clipped[1].fX, clipped[1].fY);
-                        outBuilder.addLine(clipped);
+                        if (fShowDebugf) {
+                            SkDebugf("%s line %g,%g %g,%g\n", __FUNCTION__,
+                                    clipped[0].fX, clipped[0].fY,
+                                    clipped[1].fX, clipped[1].fY);
+                        }
+                        outBuilder.addLine(clipped, opener);
                     }
                     if (clipped[1].fY >= bottom) {
                         if (last) {
@@ -936,12 +950,14 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
         InEdge** lastPtr = currentPtr; // find the edge below the bottom of the first set
         SkScalar bottom = findBottom(currentPtr, edgeList.end(),
             activeEdges, y, asFill, lastPtr);
-        addBottomT(currentPtr, lastPtr, bottom);
-        addIntersectingTs(currentPtr, lastPtr);
-        computeInterceptBottom(activeEdges, y, bottom);
-        SkTDArray<ActiveEdge*> activeEdgeList;
-        sortHorizontal(activeEdges, activeEdgeList, windingMask);
-        stitchEdge(activeEdgeList, y, bottom, windingMask, outBuilder);
+        if (lastPtr > currentPtr) {
+            addBottomT(currentPtr, lastPtr, bottom);
+            addIntersectingTs(currentPtr, lastPtr);
+            computeInterceptBottom(activeEdges, y, bottom);
+            SkTDArray<ActiveEdge*> activeEdgeList;
+            sortHorizontal(activeEdges, activeEdgeList, windingMask);
+            stitchEdge(activeEdgeList, y, bottom, windingMask, outBuilder);
+        }
         y = bottom;
         currentPtr = advanceEdges(activeEdges, currentPtr, lastPtr, y);
     } while (*currentPtr != &edgeSentinel);
@@ -1067,9 +1083,128 @@ static void testSimplifyCoincidentCW() {
     }
 }
 
+static void testSimplifyCorner() {
+    SkPath path, out;
+    path.addRect(10, 10, 20, 20, SkPath::kCCW_Direction);
+    path.addRect(20, 20, 40, 40, SkPath::kCW_Direction);
+    simplify(path, true, out);
+    SkTDArray<SkRect> boundsArray;
+    contourBounds(out, boundsArray);
+    if (boundsArray.count() != 2) {
+        SkDebugf("%s expected 2 contours\n", __FUNCTION__);
+        return;
+    }
+    SkRect one = SkRect::MakeLTRB(10, 10, 20, 20);
+    SkRect two = SkRect::MakeLTRB(20, 20, 40, 40);
+    if (boundsArray[0] != one && boundsArray[0] != two
+            || boundsArray[1] != one && boundsArray[1] != two) {
+        SkDebugf("%s expected match\n", __FUNCTION__);
+    }
+}
+
+// non-intersecting test points, two equal sized rectangles
+static void lookForFailingTests(const SkPoint* pts, size_t ptsSize, int width,
+        int height, const SkRect& center) {
+    size_t index = 0;
+    for ( ; index < ptsSize; ++index) {
+        SkPath path, out;
+        path.addRect(center);
+        SkRect test = SkRect::MakeXYWH(pts[index].fX,
+                pts[index].fY, width, height);
+        path.addRect(test);
+        simplify(path, true, out);
+        SkPath::Iter iter(out, false);
+        SkPoint pts[2];
+        SkRect bounds[2];
+        bounds[0].setEmpty();
+        bounds[1].setEmpty();
+        SkRect* boundsPtr = bounds;
+        int count = 0;
+        SkPath::Verb verb;
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kMove_Verb:
+                    if (!boundsPtr->isEmpty()) {
+                        SkASSERT(boundsPtr == bounds);
+                        ++boundsPtr;
+                    }
+                    boundsPtr->set(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
+                    count = 0;
+                    break;
+                case SkPath::kLine_Verb: 
+                    count = 1;
+                    break;
+                case SkPath::kClose_Verb:
+                    count = 0;
+                    break;
+                default:
+                    SkDEBUGFAIL("bad verb");
+                    return;
+            }
+            for (int i = 1; i <= count; ++i) {
+                boundsPtr->growToInclude(pts[i].fX, pts[i].fY);
+            }
+        }
+        SkASSERT(bounds[0] == center && bounds[1] == test
+            || bounds[1] == center && bounds[0] == test);
+    }
+}
+
+static void twoEqualRects() {
+    SkPoint pts[] = {
+        { 0,  0}, {10,  0}, {20,  0}, {30,  0}, {40,  0}, {50,  0}, {60,  0}, // above
+                  { 0, 10}, { 0, 20}, { 0, 30}, { 0, 40}, { 0, 50}, { 0, 60}, // left
+                  {10, 60}, {20, 60}, {30, 60}, {40, 60}, {50, 60},           // below
+                  {60, 10}, {60, 20}, {60, 30}, {60, 40}, {60, 50}, {60, 60}, // right
+    };
+    size_t ptsCount = sizeof(pts) / sizeof(pts[0]);
+    SkRect center = SkRect::MakeLTRB(30, 30, 50, 50);
+    lookForFailingTests(pts, ptsCount, 20, 20, center);
+}
+
+static void largerOuter() {
+    SkRect center = SkRect::MakeLTRB(50, 50, 70, 70);
+    const size_t count = 9;
+    SkPoint pts[count];
+    size_t index;
+    for (index = 0; index < count; ++index) { // above
+        pts[index].fX = index * 10;
+        pts[index].fY = 0;
+    }
+    lookForFailingTests(pts, count, 40, 20, center);
+    for (index = 0; index < count; ++index) { // left
+        pts[index].fX = 0;
+        pts[index].fY = index * 10;
+    }
+    lookForFailingTests(pts, count, 20, 40, center);
+    for (index = 0; index < count; ++index) { // below
+        pts[index].fX = index * 10;
+        pts[index].fY = 80;
+    }
+    lookForFailingTests(pts, count, 40, 20, center);
+    for (index = 0; index < count; ++index) { // right
+        pts[index].fX = 80;
+        pts[index].fY = index * 10;
+    }
+    lookForFailingTests(pts, count, 20, 40, center);
+}
+
+static void smallerOuter() {
+    SkPoint pts[] = {
+        { 0,  0}, {10,  0}, {20,  0}, {30,  0}, {40,  0}, {50,  0}, {60,  0}, // above
+                  { 0, 10}, { 0, 20}, { 0, 30}, { 0, 40}, { 0, 50}, { 0, 60}, // left
+                  {10, 60}, {20, 60}, {30, 60}, {40, 60}, {50, 60},           // below
+                  {60, 10}, {60, 20}, {60, 30}, {60, 40}, {60, 50}, {60, 60}, // right
+    };
+    size_t ptsCount = sizeof(pts) / sizeof(pts[0]);
+    SkRect center = SkRect::MakeLTRB(20, 20, 50, 50);
+    lookForFailingTests(pts, ptsCount, 10, 10, center);
+}
+
 void testSimplify();
 
 void (*simplifyTests[])() = {
+    testSimplifyCorner,
     testSimplifyCoincidentCW,
     testSimplifyCoincidentCCW,
     testSimplifyCoincidentVertical, 
@@ -1080,9 +1215,17 @@ void (*simplifyTests[])() = {
 
 size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
 
-static void (*firstTest)()  = 0;
+static void (*firstTest)() = 0;
+static bool lookForFailing = false;
 
 void testSimplify() {
+/* look for failing test cases */
+    if (lookForFailing) {
+// rects do not touch
+        twoEqualRects();
+        largerOuter();
+        smallerOuter();
+    }
     size_t index = 0;
     if (firstTest) {
         while (index < simplifyTestsCount && simplifyTests[index] != firstTest) {
