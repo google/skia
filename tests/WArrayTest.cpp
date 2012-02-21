@@ -108,7 +108,7 @@ static SkString stringify_advance_data(
     bool leadingSpace = false;
     while (data != NULL) {
       if (leadingSpace) {
-        result.appendf(" ");
+        result.append(" ");
       } else {
         leadingSpace = true;
       }
@@ -121,11 +121,11 @@ static SkString stringify_advance_data(
           result.appendf("%d[", data->fStartId);
           for (int i = 0; i < data->fAdvance.count(); ++i) {
             if (i > 0) {
-              result.appendf(" ");
+              result.append(" ");
             }
             result.appendf("%d", data->fAdvance[i]);
           }
-          result.appendf("]");
+          result.append("]");
           break;
         case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kDefault:
           result.appendf("<Default=%d>", data->fAdvance[0]);

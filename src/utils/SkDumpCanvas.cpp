@@ -49,7 +49,7 @@ static void dumpVerbs(const SkPath& path, SkString* str) {
                              pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
                 break;
             case SkPath::kClose_Verb:
-                str->appendf("X");
+                str->append("X");
                 break;
             case SkPath::kDone_Verb:
                 return;
