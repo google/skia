@@ -81,13 +81,13 @@ protected:
     virtual const char* onGetName() {
         fName.printf("text_%g", SkScalarToFloat(fPaint.getTextSize()));
         if (fDoPos) {
-            fName.appendf("_pos");
+            fName.append("_pos");
         }
         fName.appendf("_%s", fontQualityName(fPaint));
         if (SK_ColorBLACK != fPaint.getColor()) {
             fName.appendf("_%02X", fPaint.getAlpha());
         } else {
-            fName.appendf("_BK");
+            fName.append("_BK");
         }
         return fName.c_str();
     }

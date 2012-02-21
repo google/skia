@@ -47,7 +47,7 @@ static void appendFlattenable(SkString* str, const SkFlattenable* ptr,
 static SkString dumpMatrix(SkDumpCanvas* canvas) {
     SkString str;
     SkMatrix m = canvas->getTotalMatrix();
-    str.appendf("Matrix:");
+    str.append("Matrix:");
     str.appendf("Translate (%0.4g, %0.4g) ", 
                  SkScalarToFloat(m.get(SkMatrix::kMTransX)), 
                  SkScalarToFloat(m.get(SkMatrix::kMTransY)));
@@ -73,13 +73,13 @@ static SkString dumpClip(SkDumpCanvas* canvas) {
         SkPoint pts[maxPts];
         int numPts = p.getPoints(pts, maxPts);
         
-        str.appendf("Clip: [ ");
+        str.append("Clip: [ ");
         for (int i = 0; i < numPts; ++i) {
             str.appendf("(%0.4g, %0.4g)", pts[i].x(), pts[i].y());
             if (i < numPts-1)
-                str.appendf(" , ");
+                str.append(" , ");
         }
-        str.appendf(" ]");
+        str.append(" ]");
     }
     return str;
 }

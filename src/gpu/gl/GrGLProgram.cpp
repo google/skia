@@ -489,7 +489,7 @@ void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
             segments->fFSCode.appendf("\tfloat edgeAlpha = abs(dot(vec3(gl_FragCoord.xy,1), %s.xyz));\n", fsName);
             segments->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
         } else if (GrDrawState::kQuad_EdgeType == fProgramDesc.fVertexEdgeType) {
-            segments->fFSCode.appendf("\tfloat edgeAlpha;\n");
+            segments->fFSCode.append("\tfloat edgeAlpha;\n");
             // keep the derivative instructions outside the conditional 
             segments->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
             segments->fFSCode.appendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
@@ -501,7 +501,7 @@ void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
                                       "\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
                                       fsName, fsName);
             segments->fFSCode.appendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
-            segments->fFSCode.appendf("\t\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n"
+            segments->fFSCode.append("\t\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n"
                                       "\t}\n");
             if (kES2_GrGLBinding == gl.binding()) {
                 segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
@@ -816,7 +816,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                                  all_zeros_vec(4));
         wroteFragColorZero = true;
     } else if (SkXfermode::kDst_Mode != fProgramDesc.fColorFilterXfermode) {
-        segments.fFSCode.appendf("\tvec4 filteredColor;\n");
+        segments.fFSCode.append("\tvec4 filteredColor;\n");
         const char* color = adjustInColor(inColor);
         addColorFilter(&segments.fFSCode, "filteredColor", uniformCoeff,
                        colorCoeff, color);
@@ -831,7 +831,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                                          COL_MATRIX_VEC_UNI_NAME);
         programData->fUniLocations.fColorMatrixUni = kUseUniform;
         programData->fUniLocations.fColorMatrixVecUni = kUseUniform;
-        segments.fFSCode.appendf("\tvec4 matrixedColor;\n");
+        segments.fFSCode.append("\tvec4 matrixedColor;\n");
         const char* color = adjustInColor(inColor);
         addColorMatrix(&segments.fFSCode, "matrixedColor", color);
         inColor = "matrixedColor";
@@ -1642,7 +1642,7 @@ void genConvolutionFS(int stageNum,
     segments->fFSCode.appendf("\t\t%s += %s;\n",
                               coordVar.c_str(),
                               imageIncrementName);
-    segments->fFSCode.appendf("\t}\n");
+    segments->fFSCode.append("\t}\n");
     segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
                               sumVar.c_str(), modulate.c_str());
 }
