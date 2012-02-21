@@ -304,14 +304,18 @@ void GrResourceCache::removeAll() {
     fMaxCount = 0;
     this->purgeAsNeeded();
 
-    GrAssert(!fCache.count());
+#if GR_DEBUG
     GrAssert(!fUnlockedEntryCount);
-    // Items may have been detached from the cache (such as the backing texture
-    // for an SkGpuDevice). The above purge would not have removed them.
-    GrAssert(fEntryCount == fClientDetachedCount);
-    GrAssert(fEntryBytes == fClientDetachedBytes);
-    GrAssert(NULL == fHead);
-    GrAssert(NULL == fTail);
+    if (!fCache.count()) {
+        // Items may have been detached from the cache (such as the backing
+        // texture for an SkGpuDevice). The above purge would not have removed
+        // them.
+        GrAssert(fEntryCount == fClientDetachedCount);
+        GrAssert(fEntryBytes == fClientDetachedBytes);
+        GrAssert(NULL == fHead);
+        GrAssert(NULL == fTail);
+    }
+#endif
 
     fMaxBytes = savedMaxBytes;
     fMaxCount = savedMaxCount;
