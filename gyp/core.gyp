@@ -52,6 +52,7 @@
         '../src/core/SkComposeShader.cpp',
         '../src/core/SkConcaveToTriangles.cpp',
         '../src/core/SkConcaveToTriangles.h',
+        '../src/core/SkConfig8888.cpp',
         '../src/core/SkConfig8888.h',
         '../src/core/SkCordic.cpp',
         '../src/core/SkCordic.h',
