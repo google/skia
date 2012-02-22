@@ -85,17 +85,25 @@ static bool cachedHasSSSE3() {
 }
 
 void SkBitmapProcState::platformProcs() {
-  if (cachedHasSSSE3()) {
-      if (fSampleProc32 == S32_opaque_D32_filter_DX) {
-          fSampleProc32 = S32_opaque_D32_filter_DX_SSSE3;
-      } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
-          fSampleProc32 = S32_alpha_D32_filter_DX_SSSE3;
-      }
-  } else if (cachedHasSSE2()) {
+    if (cachedHasSSSE3()) {
+        if (fSampleProc32 == S32_opaque_D32_filter_DX) {
+            fSampleProc32 = S32_opaque_D32_filter_DX_SSSE3;
+        } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
+            fSampleProc32 = S32_alpha_D32_filter_DX_SSSE3;
+        }
+    } else if (cachedHasSSE2()) {
         if (fSampleProc32 == S32_opaque_D32_filter_DX) {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSE2;
         } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
             fSampleProc32 = S32_alpha_D32_filter_DX_SSE2;
+        }
+    }
+
+    if (cachedHasSSSE3() || cachedHasSSE2()) {
+        if (fMatrixProc == ClampX_ClampY_filter_scale) {
+            fMatrixProc = ClampX_ClampY_filter_scale_SSE2;
+        } else if (fMatrixProc == ClampX_ClampY_nofilter_scale) {
+            fMatrixProc = ClampX_ClampY_nofilter_scale_SSE2;
         }
     }
 }
