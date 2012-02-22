@@ -208,15 +208,7 @@ bool SkDevice::onReadPixels(const SkBitmap& bitmap,
     }
     SkAutoLockPixels alp(bitmap);
     uint32_t* bmpPixels = reinterpret_cast<uint32_t*>(bitmap.getPixels());
-    if ((SkCanvas::kNative_Premul_Config8888 == config8888 ||
-         kPMColorAlias == config8888)) {
-        SkCopyARGB8888BitmapTo(bmpPixels, bitmap.rowBytes(), subset);
-    } else {
-        SkCopyBitmapToConfig8888(bmpPixels,
-                                 bitmap.rowBytes(),
-                                 config8888,
-                                 subset);
-    }
+    SkCopyBitmapToConfig8888(bmpPixels, bitmap.rowBytes(), config8888, subset);
     return true;
 }
 
