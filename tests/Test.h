@@ -115,9 +115,18 @@ namespace skiatest {
     do {                                                                \
         if (!(cond)) {                                                  \
             SkString desc;                                              \
-            desc.printf("%s:%d: %s", __FILE__, __LINE__, #cond);      \
+            desc.printf("%s:%d: %s", __FILE__, __LINE__, #cond);        \
             r->reportFailed(desc);                                      \
         }                                                               \
+    } while(0)
+
+#define REPORTER_ASSERT_MESSAGE(r, cond, message)                            \
+    do {                                                                     \
+        if (!(cond)) {                                                       \
+            SkString desc;                                                   \
+            desc.printf("%s %s:%d: %s", message, __FILE__, __LINE__, #cond); \
+            r->reportFailed(desc);                                           \
+        }                                                                    \
     } while(0)
 
 

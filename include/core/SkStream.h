@@ -272,7 +272,8 @@ class SkMemoryWStream : public SkWStream {
 public:
     SkMemoryWStream(void* buffer, size_t size);
     virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
-    
+    size_t bytesWritten() const { return fBytesWritten; }
+
 private:
     char*   fBuffer;
     size_t  fMaxLength;
