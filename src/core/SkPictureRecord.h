@@ -193,6 +193,7 @@ private:
     void recordOffsetForRestore(SkRegion::Op op);
 
     friend class SkPicturePlayback;
+    friend class SkPictureTester; // for unit testing
 
     typedef SkCanvas INHERITED;
 };
