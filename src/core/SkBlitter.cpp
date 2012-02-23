@@ -247,8 +247,6 @@ static int compute_anti_width(const int16_t runs[]) {
         }
         width += count;
         runs += count;
-
-        SkASSERT(width < 20000);
     }
     return width;
 }
