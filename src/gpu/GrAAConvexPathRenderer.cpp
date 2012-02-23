@@ -60,18 +60,32 @@ void center_of_mass(const SegmentArray& segments, SkPoint* c) {
     SkPoint center;
     center.set(0, 0);
     int count = segments.count();
-    for (int i = 0; i < count; ++i) {
-        const SkPoint& pi = segments[i].endPt();
-        int j = (i + 1) % count;
-        const SkPoint& pj = segments[j].endPt();
-        GrScalar t = GrMul(pi.fX, pj.fY) - GrMul(pj.fX, pi.fY);
-        area += t;
-        center.fX += (pi.fX + pj.fX) * t;
-        center.fY += (pi.fY + pj.fY) * t;
+    SkPoint p0;
+    if (count > 2) {
+        // We translate the polygon so that the first point is at the origin.
+        // This avoids some precision issues with small area polygons far away
+        // from the origin.
+        p0 = segments[0].endPt();
+        SkPoint pi;
+        SkPoint pj;
+        // the first and last interation of the below loop would compute
+        // zeros since the starting / ending point is (0,0). So instead we start
+        // at i=1 and make the last iteration i=count-2.
+        pj = segments[1].endPt() - p0;
+        for (int i = 1; i < count - 1; ++i) {
+            pi = pj;
+            const SkPoint pj = segments[i + 1].endPt() - p0;
+
+            GrScalar t = GrMul(pi.fX, pj.fY) - GrMul(pj.fX, pi.fY);
+            area += t;
+            center.fX += (pi.fX + pj.fX) * t;
+            center.fY += (pi.fY + pj.fY) * t;
+
+        }
     }
     // If the poly has no area then we instead return the average of
     // its points.
-    if (SkScalarAbs(area) < SK_ScalarNearlyZero) {
+    if (SkScalarNearlyZero(area)) {
         SkPoint avg;
         avg.set(0, 0);
         for (int i = 0; i < count; ++i) {
@@ -87,7 +101,8 @@ void center_of_mass(const SegmentArray& segments, SkPoint* c) {
         area = GrScalarDiv(GR_Scalar1, area);
         center.fX = GrScalarMul(center.fX, area);
         center.fY = GrScalarMul(center.fY, area);
-        *c = center;
+        // undo the translate of p0 to the origin.
+        *c = center + p0;
     }
     GrAssert(!SkScalarIsNaN(c->fX) && !SkScalarIsNaN(c->fY));
 }

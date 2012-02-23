@@ -162,6 +162,10 @@ protected:
         fPaths.push_back().cubicTo(0, 0,
                                    0, 0,
                                    100 * SK_Scalar1, 100 * SK_Scalar1);
+
+        // small circle. This is listed last so that it has device coords far
+        // from the origin (small area relative to x,y values).
+        fPaths.push_back().addCircle(0, 0, SkFloatToScalar(0.8f));
     }
 
     virtual void onDraw(SkCanvas* canvas) {
