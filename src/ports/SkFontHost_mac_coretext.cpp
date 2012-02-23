@@ -1502,6 +1502,27 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
     return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
 }
 
+// Web fonts added to the the CTFont registry do not return their character set.
+// Iterate through the font in this case. The existing caller caches the result,
+// so the performance impact isn't too bad.
+static void populate_glyph_to_unicode_slow(CTFontRef ctFont,
+        unsigned glyphCount, SkTDArray<SkUnichar>* glyphToUnicode) {
+    glyphToUnicode->setCount(glyphCount);
+    SkUnichar* out = glyphToUnicode->begin();
+    sk_bzero(out, glyphCount * sizeof(SkUnichar));
+    UniChar unichar = 0;
+    while (glyphCount > 0) {
+        CGGlyph glyph;
+        if (CTFontGetGlyphsForCharacters(ctFont, &unichar, &glyph, 1)) {
+            out[glyph] = unichar;
+            --glyphCount;
+        }
+        if (++unichar == 0) {
+            break;
+        }
+    }
+}
+
 // Construct Glyph to Unicode table.
 // Unicode code points that require conjugate pairs in utf16 are not
 // supported.
@@ -1509,6 +1530,7 @@ static void populate_glyph_to_unicode(CTFontRef ctFont,
         const unsigned glyphCount, SkTDArray<SkUnichar>* glyphToUnicode) {
     CFCharacterSetRef charSet = CTFontCopyCharacterSet(ctFont);
     if (!charSet) {
+        populate_glyph_to_unicode_slow(ctFont, glyphCount, glyphToUnicode);
         return;
     }
     CFDataRef bitmap = CFCharacterSetCreateBitmapRepresentation(
@@ -1912,6 +1934,20 @@ int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[])
     return(numTables);
 }
 
+// If, as is the case with web fonts, the CTFont data isn't available,
+// the CGFont data may work. While the CGFont may always provide the
+// right result, leave the CTFont code path to minimize disruption.
+static CFDataRef copyTableFromFont(CTFontRef ctFont, SkFontTableTag tag) {
+    CFDataRef data = CTFontCopyTable(ctFont, (CTFontTableTag) tag,
+            kCTFontTableOptionNoOptions);
+    if (NULL == data) {
+        CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
+        data = CGFontCopyTableForTag(cgFont, tag);
+        CGFontRelease(cgFont);
+    }
+    return data;
+}
+
 size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag)
 {   size_t      theSize;
     CTFontRef   ctFont;
@@ -1920,7 +1956,7 @@ size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag)
 
     // Get the state we need
     ctFont  = GetFontRefFromFontID(fontID);
-    cfData  = CTFontCopyTable(ctFont, (CTFontTableTag) tag, kCTFontTableOptionNoOptions);
+    cfData  = copyTableFromFont(ctFont, tag);
     theSize = 0;
 
 
@@ -1943,7 +1979,7 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
 
     // Get the state we need
     ctFont  = GetFontRefFromFontID(fontID);
-    cfData  = CTFontCopyTable(ctFont, (CTFontTableTag) tag, kCTFontTableOptionNoOptions);
+    cfData  = copyTableFromFont(ctFont, tag);
     theSize = 0;
 
 
