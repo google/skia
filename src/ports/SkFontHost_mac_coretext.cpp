@@ -31,6 +31,20 @@
 
 class SkScalerContext_Mac;
 
+static void CFSafeRelease(CFTypeRef obj) {
+    if (obj) {
+        CFRelease(obj);
+    }
+}
+
+class AutoCFRelease : SkNoncopyable {
+public:
+    AutoCFRelease(CFTypeRef obj) : fObj(obj) {}
+    ~AutoCFRelease() { CFSafeRelease(fObj); }
+    
+private:
+    CFTypeRef fObj;
+};
 
 // inline versions of these rect helpers
 
@@ -247,23 +261,6 @@ static SkScalar getFontScale(CGFontRef cgFont) {
     int unitsPerEm = CGFontGetUnitsPerEm(cgFont);
     return SkScalarInvert(SkIntToScalar(unitsPerEm));
 }
-
-//============================================================================
-//      Macros
-//----------------------------------------------------------------------------
-// Release a CFTypeRef
-#ifndef CFSafeRelease
-#define CFSafeRelease(_object)                                      \
-    do                                                              \
-        {                                                           \
-        if ((_object) != NULL)                                      \
-            {                                                       \
-            CFRelease((CFTypeRef) (_object));                       \
-            (_object) = NULL;                                       \
-            }                                                       \
-        }                                                           \
-    while (false)
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1888,50 +1885,34 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 ///////////////////////////////////////////////////////////////////////////
 
 int SkFontHost::CountTables(SkFontID fontID) {
-    int             numTables;
-    CFArrayRef      cfArray;
-    CTFontRef       ctFont;
-
-
-    // Get the state we need
-    ctFont    = GetFontRefFromFontID(fontID);
-    cfArray   = CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions);
-    numTables = 0;
-
-
-    // Get the table count
-    if (cfArray != NULL)
-        {
-        numTables = CFArrayGetCount(cfArray);
-        CFSafeRelease(cfArray);
-        }
-
-    return(numTables);
+    CTFontRef ctFont = GetFontRefFromFontID(fontID);
+    CFArrayRef cfArray = CTFontCopyAvailableTables(ctFont,
+                                                   kCTFontTableOptionNoOptions);
+    if (NULL == cfArray) {
+        return 0;
+    }
+    
+    AutoCFRelease ar(cfArray);
+    return CFArrayGetCount(cfArray);
 }
 
-int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[])
-{   int             n, numTables;
-    CFArrayRef      cfArray;
-    CTFontRef       ctFont;
+int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
+    CTFontRef ctFont = GetFontRefFromFontID(fontID);
+    CFArrayRef cfArray = CTFontCopyAvailableTables(ctFont,
+                                                   kCTFontTableOptionNoOptions);
+    if (NULL == cfArray) {
+        return 0;
+    }
 
+    AutoCFRelease ar(cfArray);
 
-    // Get the state we need
-    ctFont    = GetFontRefFromFontID(fontID);
-    cfArray   = CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions);
-    numTables = 0;
-
-
-    // Get the table tags
-    if (cfArray != NULL)
-        {
-        numTables = CFArrayGetCount(cfArray);
-        for (n = 0; n < numTables; n++)
-            tags[n] = (SkFontTableTag) ((uintptr_t) CFArrayGetValueAtIndex(cfArray, n));
-
-        CFSafeRelease(cfArray);
+    int count = CFArrayGetCount(cfArray);
+    if (tags) {
+        for (int i = 0; i < count; ++i) {
+            tags[i] = (SkFontTableTag)CFArrayGetValueAtIndex(cfArray, i);
         }
-
-    return(numTables);
+    }
+    return count;
 }
 
 // If, as is the case with web fonts, the CTFont data isn't available,
@@ -1939,7 +1920,7 @@ int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[])
 // right result, leave the CTFont code path to minimize disruption.
 static CFDataRef copyTableFromFont(CTFontRef ctFont, SkFontTableTag tag) {
     CFDataRef data = CTFontCopyTable(ctFont, (CTFontTableTag) tag,
-            kCTFontTableOptionNoOptions);
+                                     kCTFontTableOptionNoOptions);
     if (NULL == data) {
         CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
         data = CGFontCopyTableForTag(cgFont, tag);
@@ -1948,51 +1929,38 @@ static CFDataRef copyTableFromFont(CTFontRef ctFont, SkFontTableTag tag) {
     return data;
 }
 
-size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag)
-{   size_t      theSize;
-    CTFontRef   ctFont;
-    CFDataRef   cfData;
+size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
+    CTFontRef ctFont = GetFontRefFromFontID(fontID);
+    CFDataRef srcData = copyTableFromFont(ctFont, tag);
+    if (NULL == srcData) {
+        return 0;
+    }
 
-
-    // Get the state we need
-    ctFont  = GetFontRefFromFontID(fontID);
-    cfData  = copyTableFromFont(ctFont, tag);
-    theSize = 0;
-
-
-    // Get the data size
-    if (cfData != NULL)
-        {
-        theSize = CFDataGetLength(cfData);
-        CFSafeRelease(cfData);
-        }
-
-    return(theSize);
+    AutoCFRelease ar(srcData);
+    return CFDataGetLength(srcData);
 }
 
 size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
-                                size_t offset, size_t length, void* data)
-{   size_t          theSize;
-    CTFontRef       ctFont;
-    CFDataRef       cfData;
-
-
-    // Get the state we need
-    ctFont  = GetFontRefFromFontID(fontID);
-    cfData  = copyTableFromFont(ctFont, tag);
-    theSize = 0;
-
-
-    // Get the data
-    if (cfData != NULL)
-        theSize = CFDataGetLength(cfData);
-
-    if (offset >= theSize)
+                                size_t offset, size_t length, void* dst) {
+    CTFontRef ctFont = GetFontRefFromFontID(fontID);
+    CFDataRef srcData = copyTableFromFont(ctFont, tag);
+    if (NULL == srcData) {
         return 0;
+    }
 
-    if ((offset + length) > theSize)
-        length = theSize - offset;
+    AutoCFRelease ar(srcData);
 
-    memcpy(data, CFDataGetBytePtr(cfData) + offset, length);
-    return(length);
+    size_t srcSize = CFDataGetLength(srcData);
+    if (offset >= srcSize) {
+        return 0;
+    }
+
+    if ((offset + length) > srcSize) {
+        length = srcSize - offset;
+    }
+
+    if (dst) {
+        memcpy(dst, CFDataGetBytePtr(srcData) + offset, length);
+    }
+    return length;
 }

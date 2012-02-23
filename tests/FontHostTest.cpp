@@ -31,7 +31,9 @@ static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
 
     SkAutoTMalloc<SkFontTableTag> storage(count);
     SkFontTableTag* tags = storage.get();
-    SkFontHost::GetTableTags(fontID, tags);
+
+    int count2 = SkFontHost::GetTableTags(fontID, tags);
+    REPORTER_ASSERT(reporter, count2 == count);
 
     for (int i = 0; i < count; ++i) {
         size_t size = SkFontHost::GetTableSize(fontID, tags[i]);
@@ -51,6 +53,14 @@ static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
             if (gKnownTableSizes[j].fTag == tags[i]) {
                 REPORTER_ASSERT(reporter, gKnownTableSizes[j].fSize == size);
             }
+        }
+        
+        // do we get the same size from GetTableData and GetTableSize
+        {
+            SkAutoMalloc data(size);
+            size_t size2 = SkFontHost::GetTableData(fontID, tags[i], 0, size,
+                                                    data.get());
+            REPORTER_ASSERT(reporter, size2 == size);
         }
     }
 }
