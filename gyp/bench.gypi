@@ -28,6 +28,7 @@
     '../bench/MatrixBench.cpp',
     '../bench/MutexBench.cpp',
     '../bench/PathBench.cpp',
+    '../bench/PicturePlaybackBench.cpp',
     '../bench/RectBench.cpp',
     '../bench/RepeatTileBench.cpp',
     '../bench/ScalarBench.cpp',
