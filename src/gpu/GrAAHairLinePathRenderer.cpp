@@ -575,7 +575,6 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawState::StageMask stageMask) {
     if (!fTarget->reserveVertexSpace(layout, vertCnt, (void**)&verts)) {
         return false;
     }
-    Vertex* base = verts;
 
     const GrMatrix* toDevice = NULL;
     const GrMatrix* toSrc = NULL;
