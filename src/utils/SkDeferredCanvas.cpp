@@ -15,47 +15,52 @@
 
 namespace {
 
-bool isPaintOpaque(const SkPaint& paint, const SkBitmap* bmpReplacesShader = NULL) {
+bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader = NULL) {
     // TODO: SkXfermode should have a virtual isOpaque method, which would
     // make it possible to test modes that do not have a Coeff representation.
+
+    if (!paint) {
+        return bmpReplacesShader ? bmpReplacesShader->isOpaque() : true;
+    }
+
     SkXfermode::Coeff srcCoeff, dstCoeff;
-    if (SkXfermode::AsCoeff(paint.getXfermode(), &srcCoeff, &dstCoeff)){
+    if (SkXfermode::AsCoeff(paint->getXfermode(), &srcCoeff, &dstCoeff)){
         switch (dstCoeff) {
         case SkXfermode::kZero_Coeff:
             return true;
         case SkXfermode::kISA_Coeff:
-            if (paint.getAlpha() != 255) {
+            if (paint->getAlpha() != 255) {
                 break;
             }
             if (bmpReplacesShader) {
                 if (!bmpReplacesShader->isOpaque()) {
                     break;
                 }
-            } else if (paint.getShader() && !paint.getShader()->isOpaque()) {
+            } else if (paint->getShader() && !paint->getShader()->isOpaque()) {
                 break;
             }
-            if (paint.getColorFilter() && ((paint.getColorFilter()->getFlags() &
+            if (paint->getColorFilter() && ((paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
             }
             return true;
         case SkXfermode::kSA_Coeff:
-            if (paint.getAlpha() != 0) {
+            if (paint->getAlpha() != 0) {
                 break;
             }
-            if (paint.getColorFilter() && ((paint.getColorFilter()->getFlags() &
+            if (paint->getColorFilter() && ((paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
             }
             return true;
         case SkXfermode::kSC_Coeff:
-            if (paint.getColor() != 0) { // all components must be 0
+            if (paint->getColor() != 0) { // all components must be 0
                 break;
             }
-            if (bmpReplacesShader || paint.getShader()) {
+            if (bmpReplacesShader || paint->getShader()) {
                 break;
             }
-            if (paint.getColorFilter() && ((paint.getColorFilter()->getFlags() &
+            if (paint->getColorFilter() && ((paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
             }
@@ -297,7 +302,7 @@ void SkDeferredCanvas::clear(SkColor color)
 
 void SkDeferredCanvas::drawPaint(const SkPaint& paint)
 {
-    if (fDeferredDrawing && isFullFrame(NULL, &paint) && isPaintOpaque(paint)) {
+    if (fDeferredDrawing && isFullFrame(NULL, &paint) && isPaintOpaque(&paint)) {
         getDeferredDevice()->contentsCleared();
     }
 
@@ -312,7 +317,7 @@ void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
 
 void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint)
 {
-    if (fDeferredDrawing && isFullFrame(&rect, &paint) && isPaintOpaque(paint)) {
+    if (fDeferredDrawing && isFullFrame(&rect, &paint) && isPaintOpaque(&paint)) {
         getDeferredDevice()->contentsCleared();
     }
 
@@ -331,7 +336,7 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
         SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing && 
         isFullFrame(&bitmapRect, paint) &&
-        isPaintOpaque(*paint, &bitmap)) {
+        isPaintOpaque(paint, &bitmap)) {
         getDeferredDevice()->contentsCleared();
     }
 
@@ -345,7 +350,7 @@ void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap,
 {
     if (fDeferredDrawing && 
         isFullFrame(&dst, paint) &&
-        isPaintOpaque(*paint, &bitmap)) {
+        isPaintOpaque(paint, &bitmap)) {
         getDeferredDevice()->contentsCleared();
     }
 
@@ -386,7 +391,7 @@ void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
         SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing && 
         isFullFrame(&bitmapRect, paint) &&
-        isPaintOpaque(*paint, &bitmap)) {
+        isPaintOpaque(paint, &bitmap)) {
         getDeferredDevice()->contentsCleared();
     }
 
