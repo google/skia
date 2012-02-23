@@ -1787,6 +1787,35 @@ bool GrContext::internalReadTexturePixels(GrTexture* texture,
     }
 }
 
+#include "SkConfig8888.h"
+
+namespace {
+/**
+ * Converts a GrPixelConfig to a SkCanvas::Config8888. Only byte-per-channel
+ * formats are representable as Config8888 and so the function returns false
+ * if the GrPixelConfig has no equivalent Config8888.
+ */
+bool grconfig_to_config8888(GrPixelConfig config,
+                            SkCanvas::Config8888* config8888) {
+    switch (config) {
+        case kRGBA_8888_PM_GrPixelConfig:
+            *config8888 = SkCanvas::kRGBA_Premul_Config8888;
+            return true;
+        case kRGBA_8888_UPM_GrPixelConfig:
+            *config8888 = SkCanvas::kRGBA_Unpremul_Config8888;
+            return true;
+        case kBGRA_8888_PM_GrPixelConfig:
+            *config8888 = SkCanvas::kBGRA_Premul_Config8888;
+            return true;
+        case kBGRA_8888_UPM_GrPixelConfig:
+            *config8888 = SkCanvas::kBGRA_Unpremul_Config8888;
+            return true;
+        default:
+            return false;
+    }
+}
+}
+
 bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
                                                int left, int top,
                                                int width, int height,
@@ -1803,17 +1832,32 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
             return false;
         }
     }
-    
-    // PM <-> UPM conversion requires a draw. Currently we only support drawing
-    // into a UPM target, not reading from a UPM texture. Thus, UPM->PM is not
-    // not supported at this time.
-    if (GrPixelConfigIsUnpremultiplied(target->config()) && 
-        !GrPixelConfigIsUnpremultiplied(config)) {
-        return false;
-    }
 
     if (!(kDontFlush_PixelOpsFlag & flags)) {
         this->flush();
+    }
+
+    if (!GrPixelConfigIsUnpremultiplied(target->config()) &&
+        GrPixelConfigIsUnpremultiplied(config) &&
+        !fGpu->canPreserveReadWriteUnpremulPixels()) {
+        SkCanvas::Config8888 srcConfig8888, dstConfig8888;
+        if (!grconfig_to_config8888(target->config(), &srcConfig8888) ||
+            !grconfig_to_config8888(config, &dstConfig8888)) {
+            return false;
+        }
+        // do read back using target's own config
+        this->internalReadRenderTargetPixels(target,
+                                             left, top,
+                                             width, height,
+                                             target->config(),
+                                             buffer, rowBytes,
+                                             kDontFlush_PixelOpsFlag);
+        // sw convert the pixels to unpremul config
+        uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer);
+        SkConvertConfig8888Pixels(pixels, rowBytes, dstConfig8888,
+                                  pixels, rowBytes, srcConfig8888,
+                                  width, height);
+        return true;
     }
 
     GrTexture* src = target->asTexture();
@@ -1968,6 +2012,28 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
         return;
     }
 #endif
+    if (!GrPixelConfigIsUnpremultiplied(target->config()) &&
+        GrPixelConfigIsUnpremultiplied(config) &&
+        !fGpu->canPreserveReadWriteUnpremulPixels()) {
+        SkCanvas::Config8888 srcConfig8888, dstConfig8888;
+        if (!grconfig_to_config8888(config, &srcConfig8888) ||
+            !grconfig_to_config8888(target->config(), &dstConfig8888)) {
+            return;
+        }
+        // allocate a tmp buffer and sw convert the pixels to premul
+        SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(width * height);
+        const uint32_t* src = reinterpret_cast<const uint32_t*>(buffer);
+        SkConvertConfig8888Pixels(tmpPixels.get(), 4 * width, dstConfig8888,
+                                  src, rowBytes, srcConfig8888,
+                                  width, height);
+        // upload the already premul pixels
+        this->internalWriteRenderTargetPixels(target,
+                                             left, top,
+                                             width, height,
+                                             target->config(),
+                                             tmpPixels, 4 * width, flags);
+        return;
+    }
 
     bool swapRAndB = fGpu->preferredReadPixelsConfig(config) ==
                      GrPixelConfigSwapRAndB(config);

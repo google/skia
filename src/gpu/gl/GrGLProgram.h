@@ -86,13 +86,17 @@ public:
             memset(this, 0, sizeof(ProgramDesc));
         }
 
-        enum OutputPM {
+        enum OutputConfig {
             // PM-color OR color with no alpha channel
-            kYes_OutputPM,
-            // nonPM-color with alpha channel
-            kNo_OutputPM,
+            kPremultiplied_OutputConfig,
+            // nonPM-color with alpha channel. Round components up after
+            // dividing by alpha. Assumes output is 8 bits for r, g, and b
+            kUnpremultiplied_RoundUp_OutputConfig,
+            // nonPM-color with alpha channel. Round components down after
+            // dividing by alpha. Assumes output is 8 bits for r, g, and b
+            kUnpremultiplied_RoundDown_OutputConfig,
 
-            kOutputPMCnt
+            kOutputConfigCnt
         };
 
         struct StageDesc {
@@ -114,7 +118,7 @@ public:
               described are performed after reading a texel.
              */
             enum InConfigFlags {
-                kNone_InConfigFlag              = 0x0,
+                kNone_InConfigFlag                      = 0x0,
 
                 /**
                   Swap the R and B channels. This is incompatible with
@@ -122,21 +126,27 @@ public:
                   the shader using GL_ARB_texture_swizzle if possible rather
                   than setting this flag.
                  */
-                kSwapRAndB_InConfigFlag         = 0x1,
+                kSwapRAndB_InConfigFlag                 = 0x1,
 
                 /**
                  Smear alpha across all four channels. This is incompatible with
-                 kSwapRAndB and kPremul.  It is prefereable to perform the
-                 smear outside the shader using GL_ARB_texture_swizzle if
+                 kSwapRAndB and kMulRGBByAlpha*. It is prefereable to perform
+                 the smear outside the shader using GL_ARB_texture_swizzle if
                  possible rather than setting this flag.
                 */
-                kSmearAlpha_InConfigFlag        = 0x2,
+                kSmearAlpha_InConfigFlag                = 0x2,
 
                 /**
                  Multiply r,g,b by a after texture reads. This flag incompatible
                  with kSmearAlpha and may only be used with FetchMode kSingle.
+
+                 It is assumed the src texture has 8bit color components. After
+                 reading the texture one version rounds up to the next multiple
+                 of 1/255.0 and the other rounds down. At most one of these
+                 flags may be set.
                  */
-                kMulRGBByAlpha_InConfigFlag     =  0x4,
+                kMulRGBByAlpha_RoundUp_InConfigFlag     =  0x4,
+                kMulRGBByAlpha_RoundDown_InConfigFlag   =  0x8,
 
                 kDummyInConfigFlag,
                 kInConfigBitMask = (kDummyInConfigFlag-1) |
@@ -211,7 +221,7 @@ public:
 
         uint8_t fColorInput;        // casts to enum ColorInput
         uint8_t fCoverageInput;     // casts to enum CoverageInput
-        uint8_t fOutputPM;          // cases to enum OutputPM
+        uint8_t fOutputConfig;      // casts to enum OutputConfig
         uint8_t fDualSrcOutput;     // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
         SkBool8 fEmitsPointSize;

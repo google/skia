@@ -46,6 +46,8 @@ public:
                                     size_t rowBytes) const SK_OVERRIDE;
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
+    virtual bool canPreserveReadWriteUnpremulPixels() SK_OVERRIDE;
+
 protected:
     GrGpuGL(const GrGLContextInfo& ctxInfo);
 
@@ -61,6 +63,11 @@ protected:
         bool fMSAAEnabled;
         bool fSmoothLineEnabled;
     } fHWAAState;
+
+    enum UnpremulConversion {
+        kUpOnWrite_DownOnRead_UnpremulConversion,
+        kDownOnWrite_UpOnRead_UnpremulConversion
+    } fUnpremulConversion;
 
     GrDrawState fHWDrawState;
     bool        fHWStencilClip;
@@ -246,6 +253,11 @@ private:
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
 
+    enum CanPreserveUnpremulRoundtrip {
+        kUnknown_CanPreserveUnpremulRoundtrip,
+        kNo_CanPreserveUnpremulRoundtrip,
+        kYes_CanPreserveUnpremulRoundtrip,
+    } fCanPreserveUnpremulRoundtrip;
 
     bool fPrintedCaps;
 

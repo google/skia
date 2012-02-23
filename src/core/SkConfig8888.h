@@ -22,6 +22,15 @@ void SkConvertConfig8888Pixels(uint32_t* dstPixels,
                                int width,
                                int height);
 
+/**
+ * Packs a, r, g, b, values into byte order specified by config.
+ */
+uint32_t SkPackConfig8888(SkCanvas::Config8888 config,
+                          uint32_t a,
+                          uint32_t r,
+                          uint32_t g,
+                          uint32_t b);
+
 namespace {
 
 /**
