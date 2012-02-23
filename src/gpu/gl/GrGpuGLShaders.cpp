@@ -173,8 +173,9 @@ bool GrGpuGLShaders::programUnitTest() {
     static const int IN_CONFIG_FLAGS[] = {
         StageDesc::kNone_InConfigFlag,
         StageDesc::kSwapRAndB_InConfigFlag,
-        StageDesc::kSwapRAndB_InConfigFlag | StageDesc::kMulRGBByAlpha_InConfigFlag,
-        StageDesc::kMulRGBByAlpha_InConfigFlag,
+        StageDesc::kSwapRAndB_InConfigFlag |
+        StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag,
+        StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag,
         StageDesc::kSmearAlpha_InConfigFlag,
     };
     GrGLProgram program;
@@ -210,7 +211,7 @@ bool GrGpuGLShaders::programUnitTest() {
         pdesc.fExperimentalGS = this->getCaps().fGeometryShaderSupport &&
                                 random_bool(&random);
 #endif
-        pdesc.fOutputPM =  random_int(&random, ProgramDesc::kOutputPMCnt);
+        pdesc.fOutputConfig =  random_int(&random, ProgramDesc::kOutputConfigCnt);
 
         bool edgeAA = random_bool(&random);
         if (edgeAA) {
@@ -264,17 +265,20 @@ bool GrGpuGLShaders::programUnitTest() {
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
+            static const uint32_t kMulByAlphaMask =
+                StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
+                StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
             switch (stage.fFetchMode) {
                 case StageDesc::kSingle_FetchMode:
                     stage.fKernelWidth = 0;
                     break;
                 case StageDesc::kConvolution_FetchMode:
                     stage.fKernelWidth = random_int(&random, 2, 8);
-                    stage.fInConfigFlags &= ~StageDesc::kMulRGBByAlpha_InConfigFlag;
+                    stage.fInConfigFlags &= ~kMulByAlphaMask;
                     break;
                 case StageDesc::k2x2_FetchMode:
                     stage.fKernelWidth = 0;
-                    stage.fInConfigFlags &= ~StageDesc::kMulRGBByAlpha_InConfigFlag;
+                    stage.fInConfigFlags &= ~kMulByAlphaMask;
                     break;
             }
         }
@@ -1102,7 +1106,17 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 }
             }
             if (GrPixelConfigIsUnpremultiplied(texture->config())) {
-                stage.fInConfigFlags |= StageDesc::kMulRGBByAlpha_InConfigFlag;
+                // The shader generator assumes that color channels are bytes
+                // when rounding.
+                GrAssert(4 == GrBytesPerPixel(texture->config()));
+                if (kUpOnWrite_DownOnRead_UnpremulConversion ==
+                    fUnpremulConversion) {
+                    stage.fInConfigFlags |=
+                        StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
+                } else {
+                    stage.fInConfigFlags |=
+                        StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag;
+                }
             }
 
             if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
@@ -1120,9 +1134,18 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
     }
 
     if (GrPixelConfigIsUnpremultiplied(drawState.getRenderTarget()->config())) {
-        desc.fOutputPM = ProgramDesc::kNo_OutputPM;
+        // The shader generator assumes that color channels are bytes
+        // when rounding.
+        GrAssert(4 == GrBytesPerPixel(drawState.getRenderTarget()->config()));
+        if (kUpOnWrite_DownOnRead_UnpremulConversion == fUnpremulConversion) {
+            desc.fOutputConfig =
+                ProgramDesc::kUnpremultiplied_RoundUp_OutputConfig;
+        } else {
+            desc.fOutputConfig =
+                ProgramDesc::kUnpremultiplied_RoundDown_OutputConfig;
+        }
     } else {
-        desc.fOutputPM = ProgramDesc::kYes_OutputPM;
+        desc.fOutputConfig = ProgramDesc::kPremultiplied_OutputConfig;
     }
 
     desc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;

@@ -52,6 +52,7 @@
         '../tests/PathTest.cpp',
         '../tests/PDFPrimitivesTest.cpp',
         '../tests/PointTest.cpp',
+        '../tests/PremulAlphaRoundTripTest.cpp',
         '../tests/QuickRejectTest.cpp',
         '../tests/Reader32Test.cpp',
         '../tests/ReadPixelsTest.cpp',

@@ -953,13 +953,22 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                             inCoverage.c_str(),
                             &segments.fFSCode);
         }
-        if (ProgramDesc::kNo_OutputPM == fProgramDesc.fOutputPM) {
-            segments.fFSCode.appendf("\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(%s.rgb / %s.a, %s.a);\n",
-                                     colorOutput.getName().c_str(),
-                                     colorOutput.getName().c_str(),
-                                     colorOutput.getName().c_str(),
-                                     colorOutput.getName().c_str(),
-                                     colorOutput.getName().c_str());
+        if (ProgramDesc::kUnpremultiplied_RoundDown_OutputConfig ==
+            fProgramDesc.fOutputConfig) {
+            segments.fFSCode.appendf("\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.rgb / %s.a * 255.0)/255.0, %s.a);\n",
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str());
+        } else if (ProgramDesc::kUnpremultiplied_RoundUp_OutputConfig ==
+                   fProgramDesc.fOutputConfig) {
+            segments.fFSCode.appendf("\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.rgb / %s.a * 255.0)/255.0, %s.a);\n",
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str(),
+                                        colorOutput.getName().c_str());
         }
     }
 
@@ -1809,13 +1818,16 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     };
 
+    static const uint32_t kMulByAlphaMask =
+        (StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
+         StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag);
+
     const char* swizzle = "";
     if (desc.fInConfigFlags & StageDesc::kSwapRAndB_InConfigFlag) {
         GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag));
         swizzle = ".bgra";
     } else if (desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag) {
-        GrAssert(!(desc.fInConfigFlags &
-                   StageDesc::kMulRGBByAlpha_InConfigFlag));
+        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
         swizzle = ".aaaa";
     } 
 
@@ -1843,30 +1855,37 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     switch (desc.fFetchMode) {
     case StageDesc::k2x2_FetchMode:
-        GrAssert(!(desc.fInConfigFlags &
-                   StageDesc::kMulRGBByAlpha_InConfigFlag));
+        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
         gen2x2FS(stageNum, segments, locations, &sampleCoords,
             samplerName, texelSizeName, swizzle, fsOutColor,
             texFunc, modulate, complexCoord, coordDims);
         break;
     case StageDesc::kConvolution_FetchMode:
-        GrAssert(!(desc.fInConfigFlags &
-                   StageDesc::kMulRGBByAlpha_InConfigFlag));
+        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
         genConvolutionFS(stageNum, desc, segments,
             samplerName, kernel, swizzle, imageIncrementName, fsOutColor,
             sampleCoords, texFunc, modulate);
         break;
     default:
-        if (desc.fInConfigFlags & StageDesc::kMulRGBByAlpha_InConfigFlag) {
+        if (desc.fInConfigFlags & kMulByAlphaMask) {
+            // only one of the mul by alpha flags should be set
+            GrAssert(GrIsPow2(kMulByAlphaMask & desc.fInConfigFlags));
             GrAssert(!(desc.fInConfigFlags & 
                        StageDesc::kSmearAlpha_InConfigFlag));
             segments->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
                                       fsOutColor, texFunc.c_str(), 
                                       samplerName, sampleCoords.c_str(),
                                       swizzle);
-            segments->fFSCode.appendf("\t%s = vec4(%s.rgb*%s.a,%s.a)%s;\n",
-                                      fsOutColor, fsOutColor, fsOutColor,
-                                      fsOutColor, modulate.c_str());
+            if (desc.fInConfigFlags &
+                StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag) {
+                segments->fFSCode.appendf("\t%s = vec4(ceil(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
+                                          fsOutColor, fsOutColor, fsOutColor,
+                                          fsOutColor, modulate.c_str());
+            } else {
+                segments->fFSCode.appendf("\t%s = vec4(floor(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
+                                          fsOutColor, fsOutColor, fsOutColor,
+                                          fsOutColor, modulate.c_str());
+            }
         } else {
             segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
                                       fsOutColor, texFunc.c_str(), 

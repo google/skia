@@ -207,6 +207,7 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
     this->initCaps();
 
     fLastSuccessfulStencilFmtIdx = 0;
+    fCanPreserveUnpremulRoundtrip = kUnknown_CanPreserveUnpremulRoundtrip;
 }
 
 GrGpuGL::~GrGpuGL() {
@@ -290,6 +291,85 @@ void GrGpuGL::initCaps() {
     fCaps.fMaxRenderTargetSize = GrMin(fCaps.fMaxTextureSize, fCaps.fMaxRenderTargetSize);
 
     fCaps.fFSAASupport = GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType();
+}
+
+bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {
+    if (kUnknown_CanPreserveUnpremulRoundtrip ==
+        fCanPreserveUnpremulRoundtrip) {
+
+        SkAutoTMalloc<uint32_t> data(256 * 256 * 3);
+        uint32_t* srcData = data.get();
+        uint32_t* firstRead = data.get() + 256 * 256;
+        uint32_t* secondRead = data.get() + 2 * 256 * 256;
+
+        for (int y = 0; y < 256; ++y) {
+            for (int x = 0; x < 256; ++x) {
+                uint8_t* color = reinterpret_cast<uint8_t*>(&srcData[256*y + x]);
+                color[3] = y;
+                color[2] = x;
+                color[1] = x;
+                color[0] = x;
+            }
+        }
+
+        // We have broader support for read/write pixels on render targets
+        // than on textures.
+        GrTextureDesc dstDesc;
+        dstDesc.fFlags = kRenderTarget_GrTextureFlagBit |
+                         kNoStencil_GrTextureFlagBit;
+        dstDesc.fWidth = 256;
+        dstDesc.fHeight = 256;
+        dstDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        dstDesc.fSampleCnt = 0;
+
+        SkAutoTUnref<GrTexture> dstTex(this->createTexture(dstDesc, NULL, 0));
+        if (!dstTex.get()) {
+            return false;
+        }
+        GrRenderTarget* rt = dstTex.get()->asRenderTarget();
+        GrAssert(NULL != rt);
+
+        bool failed = true;
+        static const UnpremulConversion gMethods[] = {
+            kUpOnWrite_DownOnRead_UnpremulConversion,
+            kDownOnWrite_UpOnRead_UnpremulConversion,
+        };
+
+        // pretend that we can do the roundtrip to avoid recursive calls to
+        // this function
+        fCanPreserveUnpremulRoundtrip = kYes_CanPreserveUnpremulRoundtrip;
+        for (size_t i = 0; i < GR_ARRAY_COUNT(gMethods) && failed; ++i) {
+            fUnpremulConversion = gMethods[i];
+            rt->writePixels(0, 0,
+                            256, 256,
+                            kRGBA_8888_UPM_GrPixelConfig, srcData, 0);
+            rt->readPixels(0, 0,
+                           256, 256,
+                           kRGBA_8888_UPM_GrPixelConfig, firstRead, 0);
+            rt->writePixels(0, 0,
+                            256, 256,
+                            kRGBA_8888_UPM_GrPixelConfig, firstRead, 0);
+            rt->readPixels(0, 0,
+                           256, 256,
+                           kRGBA_8888_UPM_GrPixelConfig, secondRead, 0);
+            failed = false;
+            for (int j = 0; j < 256 * 256; ++j) {
+                if (firstRead[j] != secondRead[j]) {
+                    failed = true;
+                    break;
+                }
+            }
+        }
+        fCanPreserveUnpremulRoundtrip = failed ? 
+                        kNo_CanPreserveUnpremulRoundtrip :
+                        kYes_CanPreserveUnpremulRoundtrip;
+    }
+
+    if (kYes_CanPreserveUnpremulRoundtrip == fCanPreserveUnpremulRoundtrip) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) const {

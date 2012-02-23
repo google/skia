@@ -255,3 +255,27 @@ void SkConvertConfig8888Pixels(uint32_t* dstPixels,
             break;
     }
 }
+
+uint32_t SkPackConfig8888(SkCanvas::Config8888 config,
+                          uint32_t a,
+                          uint32_t r,
+                          uint32_t g,
+                          uint32_t b) {
+    switch (config) {
+        case SkCanvas::kNative_Premul_Config8888:
+        case SkCanvas::kNative_Unpremul_Config8888:
+            return pack_config8888<SK_NATIVE_A_IDX,
+                                   SK_NATIVE_R_IDX,
+                                   SK_NATIVE_G_IDX,
+                                   SK_NATIVE_B_IDX>(a, r, g, b);
+        case SkCanvas::kBGRA_Premul_Config8888:
+        case SkCanvas::kBGRA_Unpremul_Config8888:
+            return pack_config8888<3, 2, 1, 0>(a, r, g, b);
+        case SkCanvas::kRGBA_Premul_Config8888:
+        case SkCanvas::kRGBA_Unpremul_Config8888:
+            return pack_config8888<3, 0, 1, 2>(a, r, g, b);
+        default:
+            SkDEBUGFAIL("Unexpected config8888");
+            return 0;
+    }
+}
