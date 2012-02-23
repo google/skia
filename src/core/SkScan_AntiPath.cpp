@@ -78,11 +78,13 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
                                    const SkRegion& clip) {
     fRealBlitter = realBlitter;
 
-    // take the union of the ir bounds and clip, since we may be called with an
-    // inverse filltype
-    const int left = SkMin32(ir.fLeft, clip.getBounds().fLeft);
-    const int right = SkMax32(ir.fRight, clip.getBounds().fRight);
-
+    /*
+     *  We use the clip bounds instead of the ir, since we may be asked to
+     *  draw outside of the rect if we're a inverse filltype
+     */
+    const int left = clip.getBounds().fLeft;
+    const int right = clip.getBounds().fRight;
+    
     fLeft = left;
     fSuperLeft = left << SHIFT;
     fWidth = right - left;
