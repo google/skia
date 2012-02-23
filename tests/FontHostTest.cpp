@@ -28,7 +28,6 @@ static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
     SkFontID fontID = face->uniqueID();
 
     int count = SkFontHost::CountTables(fontID);
-    REPORTER_ASSERT(reporter, count > 0);
 
     SkAutoTMalloc<SkFontTableTag> storage(count);
     SkFontTableTag* tags = storage.get();
