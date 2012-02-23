@@ -255,9 +255,7 @@ SIMPLE_TEST_STEP(DrawPointsPolygon, drawPoints(SkCanvas::kPolygon_PointMode,
     kTestPointCount, kTestPoints, kTestPaint));
 SIMPLE_TEST_STEP(DrawRect, drawRect(kTestRect, kTestPaint));
 SIMPLE_TEST_STEP(DrawPath, drawPath(kTestPath, kTestPaint));
-// The following test step is commented-out because it crashes SkDeferredCanvas
-// Issue: http://code.google.com/p/skia/issues/detail?id=505
-//SIMPLE_TEST_STEP(DrawBitmap, drawBitmap(kTestBitmap, 0, 0));
+SIMPLE_TEST_STEP(DrawBitmap, drawBitmap(kTestBitmap, 0, 0));
 SIMPLE_TEST_STEP(DrawBitmapPaint, drawBitmap(kTestBitmap, 0, 0, &kTestPaint));
 SIMPLE_TEST_STEP(DrawBitmapRect, drawBitmapRect(kTestBitmap, NULL, kTestRect,
     NULL));
@@ -273,9 +271,7 @@ SIMPLE_TEST_STEP(DrawBitmapNine, drawBitmapNine(kTestBitmap, kTestIRect,
     kTestRect, NULL));
 SIMPLE_TEST_STEP(DrawBitmapNinePaint, drawBitmapNine(kTestBitmap, kTestIRect,
     kTestRect, &kTestPaint));
-// The following test step is commented-out because it crashes SkDeferredCanvas
-// Issue: http://code.google.com/p/skia/issues/detail?id=505
-//SIMPLE_TEST_STEP(DrawSprite, drawSprite(kTestBitmap, 0, 0, NULL));
+SIMPLE_TEST_STEP(DrawSprite, drawSprite(kTestBitmap, 0, 0, NULL));
 SIMPLE_TEST_STEP(DrawSpritePaint, drawSprite(kTestBitmap, 0, 0, &kTestPaint));
 SIMPLE_TEST_STEP(DrawText, drawText(kTestText.c_str(), kTestText.size(),
     0, 1, kTestPaint));
