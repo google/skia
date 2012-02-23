@@ -13,7 +13,6 @@
 
 #define kFontTableTag_head          SkSetFourByteTag('h', 'e', 'a', 'd')
 #define kFontTableTag_hhea          SkSetFourByteTag('h', 'h', 'e', 'a')
-#define kFontTableTag_os_slash_2    SkSetFourByteTag('O', 'S', '/', '2')
 #define kFontTableTag_maxp          SkSetFourByteTag('m', 'a', 'x', 'p')
 
 static const struct TagSize {
@@ -22,7 +21,6 @@ static const struct TagSize {
 } gKnownTableSizes[] = {
     {   kFontTableTag_head,         54 },
     {   kFontTableTag_hhea,         36 },
-    {   kFontTableTag_os_slash_2,   96 },
     {   kFontTableTag_maxp,         32 },
 };
 
