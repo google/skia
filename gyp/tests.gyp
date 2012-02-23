@@ -34,6 +34,7 @@
         '../tests/EmptyPathTest.cpp',
         '../tests/FillPathTest.cpp',
         '../tests/FlateTest.cpp',
+        '../tests/FontHostTest.cpp',
         '../tests/GeometryTest.cpp',
         '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',

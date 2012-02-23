@@ -53,6 +53,9 @@
 #            '../src/ports/SkFontHost_gamma_none.cpp',
             '../src/ports/SkThread_pthread.cpp',
           ],
+          'sources!': [
+            '../src/ports/SkFontHost_tables.cpp',
+          ],
         }],
         [ 'skia_os == "ios"', {
           'include_dirs': [
