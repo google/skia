@@ -33,10 +33,16 @@
     NEW_AA is a set of code-changes to try to make both paths produce identical
     results. Its not quite there yet, though the remaining differences may be
     in the subsequent blits, and not in the different masks/runs...
+
+    SK_USE_EXACT_COVERAGE makes coverage_to_partial_alpha() behave similarly to
+    coverage_to_exact_alpha(). Enabling it will requrie rebaselining about 1/3
+    of GMs for changes in the 3 least significant bits along the edges of
+    antialiased spans.
  */
 //#define FORCE_SUPERMASK
 //#define FORCE_RLE
 //#define SK_SUPPORT_NEW_AA
+//#define SK_USE_EXACT_COVERAGE
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -152,12 +158,25 @@ void SuperBlitter::flush() {
     }
 }
 
-static inline int coverage_to_alpha(int aa) {
+/** coverage_to_partial_alpha() is being used by SkAlphaRuns, which
+    *accumulates* SCALE pixels worth of "alpha" in [0,(256/SCALE)]
+    to produce a final value in [0, 255] and handles clamping 256->255
+    itself, with the same (alpha - (alpha >> 8)) correction as
+    coverage_to_exact_alpha().
+*/
+static inline int coverage_to_partial_alpha(int aa) {
+#ifdef SK_USE_EXACT_COVERAGE
+    return aa << (8 - 2 * SHIFT);
+#else
     aa <<= 8 - 2*SHIFT;
     aa -= aa >> (8 - SHIFT - 1);
     return aa;
+#endif
 }
 
+/** coverage_to_exact_alpha() is being used by our blitter, which wants
+    a final value in [0, 255].
+*/
 static inline int coverage_to_exact_alpha(int aa) {
     int alpha = (256 >> SHIFT) * aa;
     // clamp 256->255
@@ -212,9 +231,8 @@ void SuperBlitter::blitH(int x, int y, int width) {
         }
     }
 
-    // TODO - should this be using coverage_to_exact_alpha?
-    fOffsetX = fRuns.add(x >> SHIFT, coverage_to_alpha(fb),
-                         n, coverage_to_alpha(fe),
+    fOffsetX = fRuns.add(x >> SHIFT, coverage_to_partial_alpha(fb),
+                         n, coverage_to_partial_alpha(fe),
                          (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT),
                          fOffsetX);
 
@@ -530,7 +548,7 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
     if (n < 0) {
         SkASSERT(row >= fMask.fImage);
         SkASSERT(row < fMask.fImage + kMAX_STORAGE + 1);
-        add_aa_span(row, coverage_to_alpha(fe - fb));
+        add_aa_span(row, coverage_to_partial_alpha(fe - fb));
     } else {
 #ifdef SK_SUPPORT_NEW_AA
         if (0 == fb) {
@@ -543,7 +561,8 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
 #endif
         SkASSERT(row >= fMask.fImage);
         SkASSERT(row + n + 1 < fMask.fImage + kMAX_STORAGE + 1);
-        add_aa_span(row,  coverage_to_alpha(fb), n, coverage_to_alpha(fe),
+        add_aa_span(row,  coverage_to_partial_alpha(fb),
+                    n, coverage_to_partial_alpha(fe),
                     (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT));
     }
 
