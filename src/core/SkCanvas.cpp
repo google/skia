@@ -232,8 +232,8 @@ public:
             }
         }
 
-        if (NULL != fCurrLayer) {
-            const DeviceCM* rec = fCurrLayer;
+        const DeviceCM* rec = fCurrLayer;
+        if (rec && rec->fDevice) {
 
             fMatrix = rec->fMatrix;
             fClip   = &((SkRasterClip*)&rec->fClip)->forceGetBW();
