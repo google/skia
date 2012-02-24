@@ -1184,30 +1184,6 @@ bool SkCanvas::quickReject(const SkPath& path, EdgeType et) const {
     return path.isEmpty() || this->quickReject(path.getBounds(), et);
 }
 
-bool SkCanvas::quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const {
-    /*  current impl ignores edgetype, and relies on
-        getLocalClipBoundsCompareType(), which always returns a value assuming
-        antialiasing (worst case)
-     */
-
-    if (fMCRec->fRasterClip->isEmpty()) {
-        return true;
-    }
-
-    SkScalarCompareType userT = SkScalarToCompareType(top);
-    SkScalarCompareType userB = SkScalarToCompareType(bottom);
-
-    // check for invalid user Y coordinates (i.e. empty)
-    // reed: why do we need to do this check, since it slows us down?
-    if (userT >= userB) {
-        return true;
-    }
-
-    // check if we are above or below the local clip bounds
-    const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
-    return userT >= clipR.fBottom || userB <= clipR.fTop;
-}
-
 static inline int pinIntForScalar(int x) {
 #ifdef SK_SCALAR_IS_FIXED
     if (x < SK_MinS16) {
