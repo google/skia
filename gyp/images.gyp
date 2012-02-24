@@ -130,6 +130,9 @@
              'android_system.gyp:gif',
              'android_system.gyp:png',
           ],
+          'defines': [
+            'SK_ENABLE_LIBPNG',
+          ],
         }],
       ],
       'direct_dependent_settings': {
