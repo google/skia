@@ -246,7 +246,7 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
         poolState.fUsedPoolIndexBytes = 
                             GrMax(poolState.fUsedPoolIndexBytes, indexBytes);
         draw.fIndexBuffer = poolState.fPoolIndexBuffer;
-        draw.fStartIndex += poolState.fPoolStartVertex;
+        draw.fStartIndex += poolState.fPoolStartIndex;
         break;
     }
     default:
