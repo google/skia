@@ -18,6 +18,7 @@
 #endif
 
 #include "SkFontHost.h"
+#include "SkCGUtils.h"
 #include "SkDescriptor.h"
 #include "SkEndian.h"
 #include "SkFloatingPoint.h"
@@ -1487,16 +1488,43 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
-{
-//    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromStream unimplemented");
-    return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
+// Returns NULL on failure
+// Call must still manage its ownership of provider
+static SkTypeface* create_from_dataProvider(CGDataProviderRef provider) {
+    CGFontRef cg = CGFontCreateWithDataProvider(provider);
+    if (NULL == cg) {
+        return NULL;
+    }
+    CTFontRef ct = CTFontCreateWithGraphicsFont(cg, 0, NULL, NULL);
+    CGFontRelease(cg);
+    return cg ? SkCreateTypefaceFromCTFont(ct) : NULL;
 }
 
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
-{
-//    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromFile unimplemented");
-    return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
+class AutoCGDataProviderRelease : SkNoncopyable {
+public:
+    AutoCGDataProviderRelease(CGDataProviderRef provider) : fProvider(provider) {}
+    ~AutoCGDataProviderRelease() { CGDataProviderRelease(fProvider); }
+    
+private:
+    CGDataProviderRef fProvider;
+};
+
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
+    CGDataProviderRef provider = SkCreateDataProviderFromStream(stream);
+    if (NULL == provider) {
+        return NULL;
+    }
+    AutoCGDataProviderRelease ar(provider);
+    return create_from_dataProvider(provider);
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
+    CGDataProviderRef provider = CGDataProviderCreateWithFilename(path);
+    if (NULL == provider) {
+        return NULL;
+    }
+    AutoCGDataProviderRelease ar(provider);
+    return create_from_dataProvider(provider);
 }
 
 // Web fonts added to the the CTFont registry do not return their character set.
