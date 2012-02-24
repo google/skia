@@ -283,7 +283,7 @@ public:
     /** Returns the number of matrix/clip states on the SkCanvas' private stack.
         This will equal # save() calls - # restore() calls.
     */
-    virtual int getSaveCount() const;
+    int getSaveCount() const;
 
     /** Efficient way to pop any calls to save() that happened after the save
         count reached saveCount. It is an error for saveCount to be less than
@@ -850,7 +850,7 @@ public:
         This does not account for the translate in any of the devices.
         @return The current matrix on the canvas.
     */
-    virtual const SkMatrix& getTotalMatrix() const;
+    const SkMatrix& getTotalMatrix() const;
 
     enum ClipType {
         kEmpty_ClipType = 0,
@@ -935,6 +935,11 @@ protected:
     // all of the drawBitmap variants call this guy
     virtual void commonDrawBitmap(const SkBitmap&, const SkIRect*,
                                   const SkMatrix&, const SkPaint& paint);
+
+    // Clip rectangle bounds. Called internally by saveLayer.
+    // returns false if the entire rectangle is entirely clipped out
+    bool clipRectBounds(const SkRect* bounds, SaveFlags flags,
+                         SkIRect* intersection);
 
 private:
     class MCRec;
