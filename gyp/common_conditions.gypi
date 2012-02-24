@@ -177,7 +177,7 @@
           '-fno-rtti',
         ],
         'conditions': [
-          [ 'skia_target_arch == "arm", {
+          [ 'skia_target_arch == "arm"', {
             'ldflags': [
               '-Wl',
               '--fix-cortex-a8',
