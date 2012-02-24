@@ -151,8 +151,6 @@ private:
         kGeoPoolStatePreAllocCnt = 4,
     };
 
-    const GrGpu*                    fGpu;
-
     GrSTAllocator<kDrawPreallocCnt, Draw>               fDraws;
     GrSTAllocator<kStatePreallocCnt, SavedDrawState>    fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
