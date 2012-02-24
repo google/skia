@@ -177,6 +177,12 @@
           '-fno-rtti',
         ],
         'conditions': [
+          [ 'skia_target_arch == "arm", {
+            'ldflags': [
+              '-Wl',
+              '--fix-cortex-a8',
+            ],
+          }],
           [ 'skia_target_arch == "arm" and arm_thumb == 1', {
             'cflags': [
               '-mthumb',
@@ -188,6 +194,7 @@
             ],
             'cflags': [
               '-march=armv7-a',
+              '-mfloat-abi=softfp',
             ],
             'conditions': [
               [ 'arm_neon == 1', {
@@ -195,7 +202,6 @@
                   '__ARM_HAVE_NEON',
                 ],
                 'cflags': [
-                  '-mfloat-abi=softfp',
                   '-mfpu=neon',
                 ],
              }],
