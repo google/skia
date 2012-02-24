@@ -65,10 +65,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return create_from_path(path);
 }
 
-bool SkFontHost::ValidFontID(SkFontID fontID) {
-    return SkTypefaceCache::FindByID(fontID) != NULL;
-}
-
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     FTMacTypeface* tf = (FTMacTypeface*)SkTypefaceCache::FindByID(fontID);
     if (tf) {

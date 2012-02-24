@@ -559,12 +559,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-bool SkFontHost::ValidFontID(uint32_t fontID) {
-    SkAutoMutexAcquire  ac(gFamilyMutex);
-
-    return find_from_uniqueID(fontID) != NULL;
-}
-
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
 

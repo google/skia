@@ -40,11 +40,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkFontHost::ValidFontID(uint32_t uniqueID) {
-    SkDEBUGFAIL("SkFontHost::ResolveTypeface unimplemented");
-    return false;
-}
-
 SkStream* SkFontHost::OpenStream(uint32_t uniqueID) {
     SkDEBUGFAIL("SkFontHost::OpenStream unimplemented");
     return NULL;

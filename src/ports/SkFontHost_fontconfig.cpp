@@ -304,12 +304,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
 }
 
 // static
-bool SkFontHost::ValidFontID(SkFontID uniqueID) {
-    SkAutoMutexAcquire ac(global_fc_map_lock);
-    return global_fc_typefaces.find(uniqueID) != global_fc_typefaces.end();
-}
-
-// static
 SkStream* SkFontHost::OpenStream(uint32_t id)
 {
     SkAutoMutexAcquire ac(global_fc_map_lock);
