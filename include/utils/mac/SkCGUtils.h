@@ -46,4 +46,19 @@ void SkCGDrawBitmap(CGContextRef, const SkBitmap&, float x, float y);
 
 bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output);
 
+/**
+ *  Return a provider that wraps the specified stream. It will become an
+ *  owner of the stream, so the caller must still manage its ownership.
+ *
+ *  To hand-off ownership of the stream to the provider, the caller must do
+ *  something like the following:
+ *
+ *  SkStream* stream = new ...;
+ *  CGDataProviderRef provider = SkStreamToDataProvider(stream);
+ *  stream->unref();
+ *
+ *  Now when the provider is finally deleted, it will delete the stream.
+ */
+CGDataProviderRef SkCreateDataProviderFromStream(SkStream*);
+
 #endif
