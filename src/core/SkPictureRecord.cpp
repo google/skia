@@ -62,7 +62,9 @@ int SkPictureRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
         clip starts out the size of the picture, which is often much larger
         than the size of the actual device we'll use during playback).
      */
-    return this->INHERITED::save(flags);
+    int count = this->INHERITED::save(flags);
+    this->clipRectBounds(bounds, flags, NULL);
+    return count;
 }
 
 bool SkPictureRecord::isDrawingToLayer() const {

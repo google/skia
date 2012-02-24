@@ -707,19 +707,12 @@ static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
     return (flags & SkCanvas::kClipToLayer_SaveFlag) != 0;
 }
 
-int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                        SaveFlags flags) {
-    // do this before we create the layer. We don't call the public save() since
-    // that would invoke a possibly overridden virtual
-    int count = this->internalSave(flags);
-
-    fDeviceCMDirty = true;
-
+bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
+                               SkIRect* intersection) {
     SkIRect clipBounds;
     if (!this->getClipDeviceBounds(&clipBounds)) {
-        return count;
+        return false;
     }
-
     SkIRect ir;
     if (NULL != bounds) {
         SkRect r;
@@ -731,16 +724,36 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
             if (bounds_affects_clip(flags)) {
                 fMCRec->fRasterClip->setEmpty();
             }
-            return count;
+            return false;
         }
     } else {    // no user bounds, so just use the clip
         ir = clipBounds;
     }
 
     fClipStack.clipDevRect(ir, SkRegion::kIntersect_Op);
+
     // early exit if the clip is now empty
     if (bounds_affects_clip(flags) &&
         !fMCRec->fRasterClip->op(ir, SkRegion::kIntersect_Op)) {
+        return false;
+    }
+
+    if (intersection) {
+        *intersection = ir;
+    }
+    return true;
+}
+
+int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
+                        SaveFlags flags) {
+    // do this before we create the layer. We don't call the public save() since
+    // that would invoke a possibly overridden virtual
+    int count = this->internalSave(flags);
+
+    fDeviceCMDirty = true;
+
+    SkIRect ir;
+    if (!this->clipRectBounds(bounds, flags, &ir)) {
         return count;
     }
 
@@ -1044,8 +1057,8 @@ static bool clipPathHelper(const SkCanvas* canvas, SkRasterClip* currClip,
             return currClip->op(clip, op);
         }
     } else {
-        const SkBitmap& bm = canvas->getDevice()->accessBitmap(false);
-        base.setRect(0, 0, bm.width(), bm.height());
+        const SkDevice* device = canvas->getDevice();
+        base.setRect(0, 0, device->width(), device->height());
 
         if (SkRegion::kReplace_Op == op) {
             return currClip->setPath(devPath, base, doAA);
