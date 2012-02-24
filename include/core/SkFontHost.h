@@ -84,12 +84,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Returns true if the specified unique ID matches an existing font.
-        Returning false is similar to calling OpenStream with an invalid ID,
-        which will return NULL in that case.
-    */
-    static bool ValidFontID(SkFontID uniqueID);
-
     /** Return a new stream to read the font data, or null if the uniqueID does
         not match an existing typeface. .The caller must call stream->unref()
         when it is finished reading the data.

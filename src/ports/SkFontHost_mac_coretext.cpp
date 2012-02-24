@@ -1711,10 +1711,6 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkFontHost::ValidFontID(SkFontID fontID) {
-    return SkTypefaceCache::FindByID(fontID) != NULL;
-}
-
 struct FontHeader {
     SkFixed fVersion;
     uint16_t fNumTables;

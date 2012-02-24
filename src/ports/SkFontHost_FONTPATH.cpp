@@ -279,10 +279,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return NULL;
 }
 
-bool SkFontHost::ValidFontID(uint32_t fontID) {
-    return get_id(*get_default_face()) == fontID;
-}
-
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     sk_throw();  // not implemented
     return NULL;
