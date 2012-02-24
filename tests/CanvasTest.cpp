@@ -224,27 +224,25 @@ TEST_STEP(NAME, NAME##TestStep )
 // Basic test steps for most virtual methods in SkCanvas that draw or affect 
 // the state of the canvas.
 
-// The following test steps are commented-out because they currently fail
-// Issue: http://code.google.com/p/skia/issues/detail?id=506
-//SIMPLE_TEST_STEP(SaveMatrix, save(SkCanvas::kMatrix_SaveFlag));
-//SIMPLE_TEST_STEP(SaveClip, save(SkCanvas::kClip_SaveFlag));
-//SIMPLE_TEST_STEP(SaveMatrixClip, save(SkCanvas::kMatrixClip_SaveFlag));
-//SIMPLE_TEST_STEP(SaveLayer, saveLayer(NULL, NULL));
-//SIMPLE_TEST_STEP(BoundedSaveLayer, saveLayer(&kTestRect, NULL));
-//SIMPLE_TEST_STEP(PaintSaveLayer, saveLayer(NULL, &kTestPaint));
-//SIMPLE_TEST_STEP_WITH_ASSERT(Translate,
-//    translate(SkIntToScalar(1), SkIntToScalar(2)));
-//SIMPLE_TEST_STEP_WITH_ASSERT(Scale,
-//    scale(SkIntToScalar(1), SkIntToScalar(2)));
-//SIMPLE_TEST_STEP_WITH_ASSERT(Rotate, rotate(SkIntToScalar(1)));
-//SIMPLE_TEST_STEP_WITH_ASSERT(Skew,
-//    skew(SkIntToScalar(1), SkIntToScalar(2)));
-//SIMPLE_TEST_STEP_WITH_ASSERT(Concat, concat(kTestMatrix));
-//SIMPLE_TEST_STEP(SetMatrix, setMatrix(kTestMatrix));
-//SIMPLE_TEST_STEP_WITH_ASSERT(ClipRect, clipRect(kTestRect));
-//SIMPLE_TEST_STEP_WITH_ASSERT(ClipPath, clipPath(kTestPath));
-//SIMPLE_TEST_STEP_WITH_ASSERT(ClipRegion,
-//    clipRegion(kTestRegion, SkRegion::kReplace_Op));
+SIMPLE_TEST_STEP(SaveMatrix, save(SkCanvas::kMatrix_SaveFlag));
+SIMPLE_TEST_STEP(SaveClip, save(SkCanvas::kClip_SaveFlag));
+SIMPLE_TEST_STEP(SaveMatrixClip, save(SkCanvas::kMatrixClip_SaveFlag));
+SIMPLE_TEST_STEP(SaveLayer, saveLayer(NULL, NULL));
+SIMPLE_TEST_STEP(BoundedSaveLayer, saveLayer(&kTestRect, NULL));
+SIMPLE_TEST_STEP(PaintSaveLayer, saveLayer(NULL, &kTestPaint));
+SIMPLE_TEST_STEP_WITH_ASSERT(Translate,
+    translate(SkIntToScalar(1), SkIntToScalar(2)));
+SIMPLE_TEST_STEP_WITH_ASSERT(Scale,
+    scale(SkIntToScalar(1), SkIntToScalar(2)));
+SIMPLE_TEST_STEP_WITH_ASSERT(Rotate, rotate(SkIntToScalar(1)));
+SIMPLE_TEST_STEP_WITH_ASSERT(Skew,
+    skew(SkIntToScalar(1), SkIntToScalar(2)));
+SIMPLE_TEST_STEP_WITH_ASSERT(Concat, concat(kTestMatrix));
+SIMPLE_TEST_STEP(SetMatrix, setMatrix(kTestMatrix));
+SIMPLE_TEST_STEP_WITH_ASSERT(ClipRect, clipRect(kTestRect));
+SIMPLE_TEST_STEP_WITH_ASSERT(ClipPath, clipPath(kTestPath));
+SIMPLE_TEST_STEP_WITH_ASSERT(ClipRegion,
+    clipRegion(kTestRegion, SkRegion::kReplace_Op));
 SIMPLE_TEST_STEP(Clear, clear(kTestColor));
 SIMPLE_TEST_STEP(DrawPaint, drawPaint(kTestPaint));
 SIMPLE_TEST_STEP(DrawPointsPoints, drawPoints(SkCanvas::kPoints_PointMode,
@@ -341,9 +339,6 @@ static void SaveRestoreTestStep(SkCanvas* canvas,
 }
 TEST_STEP(SaveRestore, SaveRestoreTestStep);
 
-// The following test step is commented-out because it currently fails
-// Issue: http://code.google.com/p/skia/issues/detail?id=506
-/*
 static void DrawLayerTestStep(SkCanvas* canvas, 
                               skiatest::Reporter* reporter,
                               CanvasTestStep* testStep) {
@@ -376,7 +371,6 @@ static void DrawLayerTestStep(SkCanvas* canvas,
         testStep->assertMessage());
 }
 TEST_STEP(DrawLayer, DrawLayerTestStep);
-*/
 
 static void AssertCanvasStatesEqual(skiatest::Reporter* reporter,
                                     const SkCanvas* canvas1, 
