@@ -15,7 +15,8 @@
 
 namespace {
 
-bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader = NULL) {
+bool isPaintOpaque(const SkPaint* paint, 
+                   const SkBitmap* bmpReplacesShader = NULL) {
     // TODO: SkXfermode should have a virtual isOpaque method, which would
     // make it possible to test modes that do not have a Coeff representation.
 
@@ -39,7 +40,8 @@ bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader = NUL
             } else if (paint->getShader() && !paint->getShader()->isOpaque()) {
                 break;
             }
-            if (paint->getColorFilter() && ((paint->getColorFilter()->getFlags() &
+            if (paint->getColorFilter() && 
+                ((paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
             }
@@ -48,7 +50,8 @@ bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader = NUL
             if (paint->getAlpha() != 0) {
                 break;
             }
-            if (paint->getColorFilter() && ((paint->getColorFilter()->getFlags() &
+            if (paint->getColorFilter() && 
+                ((paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
             }
@@ -60,7 +63,8 @@ bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader = NUL
             if (bmpReplacesShader || paint->getShader()) {
                 break;
             }
-            if (paint->getColorFilter() && ((paint->getColorFilter()->getFlags() &
+            if (paint->getColorFilter() && (
+                (paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
             }
@@ -74,57 +78,48 @@ bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader = NUL
 
 } // unnamed namespace
 
-SkDeferredCanvas::SkDeferredCanvas()
-{
+SkDeferredCanvas::SkDeferredCanvas() {
     init();
 }
 
-SkDeferredCanvas::SkDeferredCanvas(SkDevice* device)
-{
+SkDeferredCanvas::SkDeferredCanvas(SkDevice* device) {
     init();
     setDevice(device);
 }
 
 SkDeferredCanvas::SkDeferredCanvas(SkDevice* device, 
-                                   DeviceContext* deviceContext)
-{
+                                   DeviceContext* deviceContext) {
     init();
     setDevice(device);
     setDeviceContext(deviceContext);
 }
 
-void SkDeferredCanvas::init()
-{
+void SkDeferredCanvas::init() {
     fDeferredDrawing = true; // On by default
 }
 
-void SkDeferredCanvas::validate() const
-{
+void SkDeferredCanvas::validate() const {
     SkASSERT(getDevice());
 }
 
-SkCanvas* SkDeferredCanvas::drawingCanvas() const
-{
+SkCanvas* SkDeferredCanvas::drawingCanvas() const {
     validate();
     return fDeferredDrawing ? getDeferredDevice()->recordingCanvas() :
         getDeferredDevice()->immediateCanvas();
 }
 
-void SkDeferredCanvas::flushIfNeeded(const SkBitmap& bitmap)
-{
+void SkDeferredCanvas::flushIfNeeded(const SkBitmap& bitmap) {
     validate();
     if (fDeferredDrawing) {
         getDeferredDevice()->flushIfNeeded(bitmap);
     }
 }
 
-SkDeferredCanvas::DeferredDevice* SkDeferredCanvas::getDeferredDevice() const
-{
+SkDeferredCanvas::DeferredDevice* SkDeferredCanvas::getDeferredDevice() const {
     return static_cast<SkDeferredCanvas::DeferredDevice*>(getDevice());
 }
 
-void SkDeferredCanvas::setDeferredDrawing(bool val)
-{
+void SkDeferredCanvas::setDeferredDrawing(bool val) {
     validate(); // Must set device before calling this method
     SkASSERT(drawingCanvas()->getSaveCount() == 1);
     if (val != fDeferredDrawing) {
@@ -136,19 +131,17 @@ void SkDeferredCanvas::setDeferredDrawing(bool val)
     }
 }
 
-SkDeferredCanvas::~SkDeferredCanvas()
-{
+SkDeferredCanvas::~SkDeferredCanvas() {
 }
 
-SkDevice* SkDeferredCanvas::setDevice(SkDevice* device)
-{
+SkDevice* SkDeferredCanvas::setDevice(SkDevice* device) {
     INHERITED::setDevice(SkNEW_ARGS(DeferredDevice, (device)))->unref();
     return device;
 }
 
 SkDeferredCanvas::DeviceContext* SkDeferredCanvas::setDeviceContext(
-    DeviceContext* deviceContext) 
-{
+    DeviceContext* deviceContext) {
+
     DeferredDevice* deferredDevice = getDeferredDevice();
     SkASSERT(deferredDevice);
     if (deferredDevice) {
@@ -158,8 +151,7 @@ SkDeferredCanvas::DeviceContext* SkDeferredCanvas::setDeviceContext(
 }
 
 bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
-                                   const SkPaint* paint) const
-{
+                                   const SkPaint* paint) const {
     SkCanvas* canvas = drawingCanvas();
     SkISize canvasSize = getDeviceSize();
     if (rect) {
@@ -213,93 +205,79 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
     return true;
 }
 
-int SkDeferredCanvas::save(SaveFlags flags)
-{
+int SkDeferredCanvas::save(SaveFlags flags) {
     drawingCanvas()->save(flags);
     return this->INHERITED::save(flags);
 }
 
 int SkDeferredCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags flags)
-{
+                                SaveFlags flags) {
     drawingCanvas()->saveLayer(bounds, paint, flags);
     int count = this->INHERITED::save(flags);
     this->clipRectBounds(bounds, flags, NULL);
     return count;
 }
 
-void SkDeferredCanvas::restore()
-{
+void SkDeferredCanvas::restore() {
     drawingCanvas()->restore();
     this->INHERITED::restore();
 }
 
-bool SkDeferredCanvas::isDrawingToLayer() const
-{
+bool SkDeferredCanvas::isDrawingToLayer() const {
     return drawingCanvas()->isDrawingToLayer();
 }
 
-bool SkDeferredCanvas::translate(SkScalar dx, SkScalar dy)
-{
+bool SkDeferredCanvas::translate(SkScalar dx, SkScalar dy) {
     drawingCanvas()->translate(dx, dy);
     return this->INHERITED::translate(dx, dy);
 }
 
-bool SkDeferredCanvas::scale(SkScalar sx, SkScalar sy)
-{
+bool SkDeferredCanvas::scale(SkScalar sx, SkScalar sy) {
     drawingCanvas()->scale(sx, sy);
     return this->INHERITED::scale(sx, sy);
 }
 
-bool SkDeferredCanvas::rotate(SkScalar degrees)
-{
+bool SkDeferredCanvas::rotate(SkScalar degrees) {
     drawingCanvas()->rotate(degrees);
     return this->INHERITED::rotate(degrees);
 }
 
-bool SkDeferredCanvas::skew(SkScalar sx, SkScalar sy)
-{
+bool SkDeferredCanvas::skew(SkScalar sx, SkScalar sy) {
     drawingCanvas()->skew(sx, sy);
     return this->INHERITED::skew(sx, sy);
 }
 
-bool SkDeferredCanvas::concat(const SkMatrix& matrix)
-{
+bool SkDeferredCanvas::concat(const SkMatrix& matrix) {
     drawingCanvas()->concat(matrix);
     return this->INHERITED::concat(matrix);
 }
 
-void SkDeferredCanvas::setMatrix(const SkMatrix& matrix)
-{
+void SkDeferredCanvas::setMatrix(const SkMatrix& matrix) {
     drawingCanvas()->setMatrix(matrix);
     this->INHERITED::setMatrix(matrix);
 }
 
 bool SkDeferredCanvas::clipRect(const SkRect& rect,
                                 SkRegion::Op op,
-                                bool doAntiAlias)
-{
+                                bool doAntiAlias) {
     drawingCanvas()->clipRect(rect, op, doAntiAlias);
     return this->INHERITED::clipRect(rect, op, doAntiAlias);
 }
 
 bool SkDeferredCanvas::clipPath(const SkPath& path,
                                 SkRegion::Op op,
-                                bool doAntiAlias)
-{
+                                bool doAntiAlias) {
     drawingCanvas()->clipPath(path, op, doAntiAlias);
     return this->INHERITED::clipPath(path, op, doAntiAlias);
 }
 
 bool SkDeferredCanvas::clipRegion(const SkRegion& deviceRgn,
-                                  SkRegion::Op op)
-{
+                                  SkRegion::Op op) {
     drawingCanvas()->clipRegion(deviceRgn, op);
     return this->INHERITED::clipRegion(deviceRgn, op);
 }
 
-void SkDeferredCanvas::clear(SkColor color)
-{
+void SkDeferredCanvas::clear(SkColor color) {
     // purge pending commands
     if (fDeferredDrawing) {
         getDeferredDevice()->contentsCleared();
@@ -308,9 +286,9 @@ void SkDeferredCanvas::clear(SkColor color)
     drawingCanvas()->clear(color);
 }
 
-void SkDeferredCanvas::drawPaint(const SkPaint& paint)
-{
-    if (fDeferredDrawing && isFullFrame(NULL, &paint) && isPaintOpaque(&paint)) {
+void SkDeferredCanvas::drawPaint(const SkPaint& paint) {
+    if (fDeferredDrawing && isFullFrame(NULL, &paint) && 
+        isPaintOpaque(&paint)) {
         getDeferredDevice()->contentsCleared();
     }
 
@@ -318,28 +296,25 @@ void SkDeferredCanvas::drawPaint(const SkPaint& paint)
 }
 
 void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
-                                  const SkPoint pts[], const SkPaint& paint)
-{
+                                  const SkPoint pts[], const SkPaint& paint) {
     drawingCanvas()->drawPoints(mode, count, pts, paint);
 }
 
-void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint)
-{
-    if (fDeferredDrawing && isFullFrame(&rect, &paint) && isPaintOpaque(&paint)) {
+void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
+    if (fDeferredDrawing && isFullFrame(&rect, &paint) && 
+        isPaintOpaque(&paint)) {
         getDeferredDevice()->contentsCleared();
     }
 
     drawingCanvas()->drawRect(rect, paint);
 }
 
-void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint)
-{
+void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     drawingCanvas()->drawPath(path, paint);
 }
 
 void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
-                                  SkScalar top, const SkPaint* paint)
-{
+                                  SkScalar top, const SkPaint* paint) {
     SkRect bitmapRect = SkRect::MakeXYWH(left, top,
         SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing && 
@@ -354,8 +329,8 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
 
 void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap, 
                                       const SkIRect* src,
-                                      const SkRect& dst, const SkPaint* paint)
-{
+                                      const SkRect& dst,
+                                      const SkPaint* paint) {
     if (fDeferredDrawing && 
         isFullFrame(&dst, paint) &&
         isPaintOpaque(paint, &bitmap)) {
@@ -370,8 +345,7 @@ void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap,
 
 void SkDeferredCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
                                         const SkMatrix& m,
-                                        const SkPaint* paint)
-{
+                                        const SkPaint* paint) {
     // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
     // covers canvas entirely and transformed bitmap covers canvas entirely
     drawingCanvas()->drawBitmapMatrix(bitmap, m, paint);
@@ -380,8 +354,7 @@ void SkDeferredCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
 
 void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
                                       const SkIRect& center, const SkRect& dst,
-                                      const SkPaint* paint)
-{
+                                      const SkPaint* paint) {
     // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
     // covers canvas entirely and dst covers canvas entirely
     drawingCanvas()->drawBitmapNine(bitmap, center,
@@ -390,8 +363,7 @@ void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
 }
 
 void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
-                                  const SkPaint* paint)
-{
+                                  const SkPaint* paint) {
     SkRect bitmapRect = SkRect::MakeXYWH(
         SkIntToScalar(left),
         SkIntToScalar(top), 
@@ -409,40 +381,31 @@ void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
 }
 
 void SkDeferredCanvas::drawText(const void* text, size_t byteLength,
-                                SkScalar x, SkScalar y, const SkPaint& paint)
-{
-    drawingCanvas()->drawText(text, byteLength, x,
-                              y, paint);
+                                SkScalar x, SkScalar y, const SkPaint& paint) {
+    drawingCanvas()->drawText(text, byteLength, x, y, paint);
 }
 
 void SkDeferredCanvas::drawPosText(const void* text, size_t byteLength,
-                                   const SkPoint pos[], const SkPaint& paint)
-{
-    drawingCanvas()->drawPosText(text, byteLength,
-                                 pos, paint);
+                                   const SkPoint pos[], const SkPaint& paint) {
+    drawingCanvas()->drawPosText(text, byteLength, pos, paint);
 }
 
 void SkDeferredCanvas::drawPosTextH(const void* text, size_t byteLength,
                                     const SkScalar xpos[], SkScalar constY,
-                                    const SkPaint& paint)
-{
-    drawingCanvas()->drawPosTextH(text, byteLength,
-                                  xpos, constY,
-                                  paint);
+                                    const SkPaint& paint) {
+    drawingCanvas()->drawPosTextH(text, byteLength, xpos, constY, paint);
 }
 
 void SkDeferredCanvas::drawTextOnPath(const void* text, size_t byteLength,
                                       const SkPath& path,
                                       const SkMatrix* matrix,
-                                      const SkPaint& paint)
-{
+                                      const SkPaint& paint) {
     drawingCanvas()->drawTextOnPath(text, byteLength,
                                     path, matrix,
                                     paint);
 }
 
-void SkDeferredCanvas::drawPicture(SkPicture& picture)
-{
+void SkDeferredCanvas::drawPicture(SkPicture& picture) {
     drawingCanvas()->drawPicture(picture);
 }
 
@@ -451,8 +414,7 @@ void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
                                     const SkPoint texs[],
                                     const SkColor colors[], SkXfermode* xmode,
                                     const uint16_t indices[], int indexCount,
-                                    const SkPaint& paint)
-{
+                                    const SkPaint& paint) {
     drawingCanvas()->drawVertices(vmode, vertexCount,
                                   vertices, texs,
                                   colors, xmode,
@@ -460,16 +422,14 @@ void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
                                   paint);
 }
 
-SkBounder* SkDeferredCanvas::setBounder(SkBounder* bounder)
-{
+SkBounder* SkDeferredCanvas::setBounder(SkBounder* bounder) {
     drawingCanvas()->setBounder(bounder);
     return INHERITED::setBounder(bounder);
 }
 
-SkDrawFilter* SkDeferredCanvas::setDrawFilter(SkDrawFilter* filter)
-{
+SkDrawFilter* SkDeferredCanvas::setDrawFilter(SkDrawFilter* filter) {
     drawingCanvas()->setDrawFilter(filter); 
-    return INHERITED::setDrawFilter(filter); // So non-virtual getDrawFilter works
+    return INHERITED::setDrawFilter(filter);
 }
 
 SkCanvas* SkDeferredCanvas::canvasForDrawIter() {
@@ -483,8 +443,8 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     SkDevice* immediateDevice, DeviceContext* deviceContext) :
     SkDevice(SkBitmap::kNo_Config, immediateDevice->width(),
              immediateDevice->height(), immediateDevice->isOpaque())
-    , fFreshFrame(true)
-{
+    , fFreshFrame(true) {
+
     fDeviceContext = deviceContext;
     SkSafeRef(fDeviceContext);
     fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
@@ -493,20 +453,17 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
         fImmediateDevice->height(), 0);
 }
 
-SkDeferredCanvas::DeferredDevice::~DeferredDevice()
-{
+SkDeferredCanvas::DeferredDevice::~DeferredDevice() {
     SkSafeUnref(fImmediateCanvas);
     SkSafeUnref(fDeviceContext);
 }
     
 void SkDeferredCanvas::DeferredDevice::setDeviceContext(
-    DeviceContext* deviceContext)
-{
+    DeviceContext* deviceContext) {
     SkRefCnt_SafeAssign(fDeviceContext, deviceContext);
 }
 
-void SkDeferredCanvas::DeferredDevice::contentsCleared()
-{
+void SkDeferredCanvas::DeferredDevice::contentsCleared() {
     if (!fRecordingCanvas->isDrawingToLayer()) {
         fFreshFrame = true;
 
@@ -529,7 +486,8 @@ void SkDeferredCanvas::DeferredDevice::contentsCleared()
 
             // Restore pre-purge state
             if (!clipRegion.isEmpty()) {
-                fRecordingCanvas->clipRegion(clipRegion, SkRegion::kReplace_Op);
+                fRecordingCanvas->clipRegion(clipRegion, 
+                    SkRegion::kReplace_Op);
             }
             if (!matrix.isIdentity()) {
                 fRecordingCanvas->setMatrix(matrix);
@@ -547,8 +505,7 @@ bool SkDeferredCanvas::DeferredDevice::isFreshFrame() {
     return ret;
 }
 
-void SkDeferredCanvas::DeferredDevice::flushPending()
-{
+void SkDeferredCanvas::DeferredDevice::flushPending() {
     if (fDeviceContext) {
         fDeviceContext->prepareForDraw();
     }
@@ -557,14 +514,12 @@ void SkDeferredCanvas::DeferredDevice::flushPending()
         fImmediateDevice->height(), 0);
 }
 
-void SkDeferredCanvas::DeferredDevice::flush()
-{
+void SkDeferredCanvas::DeferredDevice::flush() {
     flushPending();
     fImmediateCanvas->flush();
 }
 
-void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap)
-{
+void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap) {
     if (bitmap.isImmutable()) {
         return; // safe to deffer without registering a dependency
     }
@@ -575,30 +530,26 @@ void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap)
     flushPending();
 }
 
-uint32_t SkDeferredCanvas::DeferredDevice::getDeviceCapabilities() 
-{ 
+uint32_t SkDeferredCanvas::DeferredDevice::getDeviceCapabilities() { 
     return fImmediateDevice->getDeviceCapabilities();
 }
 
-int SkDeferredCanvas::DeferredDevice::width() const
-{ 
+int SkDeferredCanvas::DeferredDevice::width() const { 
     return fImmediateDevice->width();
 }
 
-int SkDeferredCanvas::DeferredDevice::height() const
-{
+int SkDeferredCanvas::DeferredDevice::height() const {
     return fImmediateDevice->height(); 
 }
 
-SkGpuRenderTarget* SkDeferredCanvas::DeferredDevice::accessRenderTarget()
-{
+SkGpuRenderTarget* SkDeferredCanvas::DeferredDevice::accessRenderTarget() {
     flushPending();
     return fImmediateDevice->accessRenderTarget();
 }
 
 void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
-    int x, int y, SkCanvas::Config8888 config8888)
-{
+    int x, int y, SkCanvas::Config8888 config8888) {
+
     if (x <= 0 && y <= 0 && (x + bitmap.width()) >= width() &&
         (y + bitmap.height()) >= height()) {
         contentsCleared();
@@ -618,26 +569,26 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
     flushIfNeeded(bitmap);
 }
 
-const SkBitmap& SkDeferredCanvas::DeferredDevice::onAccessBitmap(SkBitmap*)
-{
+const SkBitmap& SkDeferredCanvas::DeferredDevice::onAccessBitmap(SkBitmap*) {
     flushPending();
     return fImmediateDevice->accessBitmap(false);
 }
 
 SkDevice* SkDeferredCanvas::DeferredDevice::onCreateCompatibleDevice(
-    SkBitmap::Config config, int width, int height, bool isOpaque, Usage usage)
-{
+    SkBitmap::Config config, int width, int height, bool isOpaque,
+    Usage usage) {
+
     // Save layer usage not supported, and not required by SkDeferredCanvas.
     SkASSERT(usage != kSaveLayer_Usage);
     // Create a compatible non-deferred device.
-    SkDevice* compatibleDevice = fImmediateDevice->createCompatibleDevice(config, width,
-        height, isOpaque);
+    SkDevice* compatibleDevice = 
+        fImmediateDevice->createCompatibleDevice(config, width, height, 
+            isOpaque);
     return SkNEW_ARGS(DeferredDevice, (compatibleDevice, fDeviceContext));
 }
 
 bool SkDeferredCanvas::DeferredDevice::onReadPixels(
-    const SkBitmap& bitmap, int x, int y, SkCanvas::Config8888 config8888)
-{
+    const SkBitmap& bitmap, int x, int y, SkCanvas::Config8888 config8888) {
     flushPending();
     return fImmediateCanvas->readPixels(const_cast<SkBitmap*>(&bitmap),
                                                    x, y, config8888);
