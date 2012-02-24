@@ -80,13 +80,14 @@ public:
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags flags) SK_OVERRIDE;
     virtual void restore() SK_OVERRIDE;
-    virtual bool isDrawingToLayer() const SK_OVERRIDE;
+    virtual int getSaveCount() const SK_OVERRIDE;
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
     virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
+    virtual const SkMatrix& getTotalMatrix() const SK_OVERRIDE;
     virtual bool clipRect(const SkRect& rect, SkRegion::Op op,
                           bool doAntiAlias) SK_OVERRIDE;
     virtual bool clipPath(const SkPath& path, SkRegion::Op op,

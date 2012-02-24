@@ -101,6 +101,7 @@ void SkDeferredCanvas::init()
 void SkDeferredCanvas::validate() const
 {
     SkASSERT(getDevice());
+    SkASSERT(INHERITED::getTotalMatrix().isIdentity());
 }
 
 SkCanvas* SkDeferredCanvas::drawingCanvas() const
@@ -215,87 +216,78 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
 
 int SkDeferredCanvas::save(SaveFlags flags)
 {
-    drawingCanvas()->save(flags);
-    return this->INHERITED::save(flags);
+    return drawingCanvas()->save(flags);
 }
 
 int SkDeferredCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags flags)
 {
-    drawingCanvas()->saveLayer(bounds, paint, flags);
-    int count = this->INHERITED::save(flags);
-    this->clipRectBounds(bounds, flags, NULL);
-    return count;
+    return drawingCanvas()->saveLayer(bounds, paint, flags);
 }
 
 void SkDeferredCanvas::restore()
 {
     drawingCanvas()->restore();
-    this->INHERITED::restore();
 }
 
-bool SkDeferredCanvas::isDrawingToLayer() const
+int SkDeferredCanvas::getSaveCount() const
 {
-    return drawingCanvas()->isDrawingToLayer();
+    return drawingCanvas()->getSaveCount();
 }
 
 bool SkDeferredCanvas::translate(SkScalar dx, SkScalar dy)
 {
-    drawingCanvas()->translate(dx, dy);
-    return this->INHERITED::translate(dx, dy);
+    return drawingCanvas()->translate(dx, dy);
 }
 
 bool SkDeferredCanvas::scale(SkScalar sx, SkScalar sy)
 {
-    drawingCanvas()->scale(sx, sy);
-    return this->INHERITED::scale(sx, sy);
+    return drawingCanvas()->scale(sx, sy);
 }
 
 bool SkDeferredCanvas::rotate(SkScalar degrees)
 {
-    drawingCanvas()->rotate(degrees);
-    return this->INHERITED::rotate(degrees);
+    return drawingCanvas()->rotate(degrees);
 }
 
 bool SkDeferredCanvas::skew(SkScalar sx, SkScalar sy)
 {
-    drawingCanvas()->skew(sx, sy);
-    return this->INHERITED::skew(sx, sy);
+    return drawingCanvas()->skew(sx, sy);
 }
 
 bool SkDeferredCanvas::concat(const SkMatrix& matrix)
 {
-    drawingCanvas()->concat(matrix);
-    return this->INHERITED::concat(matrix);
+    return drawingCanvas()->concat(matrix);
 }
 
 void SkDeferredCanvas::setMatrix(const SkMatrix& matrix)
 {
     drawingCanvas()->setMatrix(matrix);
-    this->INHERITED::setMatrix(matrix);
+}
+
+const SkMatrix& SkDeferredCanvas::getTotalMatrix() const 
+{
+    return drawingCanvas()->getTotalMatrix();
 }
 
 bool SkDeferredCanvas::clipRect(const SkRect& rect,
                                 SkRegion::Op op,
                                 bool doAntiAlias)
 {
-    drawingCanvas()->clipRect(rect, op, doAntiAlias);
-    return this->INHERITED::clipRect(rect, op, doAntiAlias);
+    return drawingCanvas()->clipRect(rect, op, doAntiAlias);
 }
 
 bool SkDeferredCanvas::clipPath(const SkPath& path,
                                 SkRegion::Op op,
                                 bool doAntiAlias)
 {
-    drawingCanvas()->clipPath(path, op, doAntiAlias);
-    return this->INHERITED::clipPath(path, op, doAntiAlias);
+    return drawingCanvas()->clipPath(path, op, doAntiAlias);
 }
 
 bool SkDeferredCanvas::clipRegion(const SkRegion& deviceRgn,
                                   SkRegion::Op op)
 {
-    drawingCanvas()->clipRegion(deviceRgn, op);
-    return this->INHERITED::clipRegion(deviceRgn, op);
+    return drawingCanvas()->clipRegion(deviceRgn, op);
 }
 
 void SkDeferredCanvas::clear(SkColor color)
@@ -462,14 +454,14 @@ void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
 
 SkBounder* SkDeferredCanvas::setBounder(SkBounder* bounder)
 {
-    drawingCanvas()->setBounder(bounder);
-    return INHERITED::setBounder(bounder);
+    INHERITED::setBounder(bounder); // So non-virtual getBounder works
+    return drawingCanvas()->setBounder(bounder);
 }
 
 SkDrawFilter* SkDeferredCanvas::setDrawFilter(SkDrawFilter* filter)
 {
-    drawingCanvas()->setDrawFilter(filter); 
-    return INHERITED::setDrawFilter(filter); // So non-virtual getDrawFilter works
+    INHERITED::setDrawFilter(filter); // So non-virtual getDrawFilter works
+    return drawingCanvas()->setDrawFilter(filter); 
 }
 
 SkCanvas* SkDeferredCanvas::canvasForDrawIter() {
@@ -490,7 +482,8 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
     fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
-        fImmediateDevice->height(), 0);
+        fImmediateDevice->height(),
+        SkPicture::kUsePathBoundsForClip_RecordingFlag);
 }
 
 SkDeferredCanvas::DeferredDevice::~DeferredDevice()
@@ -525,7 +518,8 @@ void SkDeferredCanvas::DeferredDevice::contentsCleared()
             // old one, hence purging deferred draw ops.
             fRecordingCanvas = fPicture.beginRecording(
                 fImmediateDevice->width(),
-                fImmediateDevice->height(), 0);
+                fImmediateDevice->height(),
+                SkPicture::kUsePathBoundsForClip_RecordingFlag);
 
             // Restore pre-purge state
             if (!clipRegion.isEmpty()) {
@@ -554,7 +548,8 @@ void SkDeferredCanvas::DeferredDevice::flushPending()
     }
     fPicture.draw(fImmediateCanvas);
     fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(), 
-        fImmediateDevice->height(), 0);
+        fImmediateDevice->height(),
+        SkPicture::kUsePathBoundsForClip_RecordingFlag);
 }
 
 void SkDeferredCanvas::DeferredDevice::flush()
