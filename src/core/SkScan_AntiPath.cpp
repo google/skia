@@ -597,6 +597,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
+#if 0
     // use bit-or since we expect all to pass, so no need to go slower with
     // a short-circuiting logical-or
     if (overflows_short_shift(ir.fLeft, SHIFT) |
@@ -607,6 +608,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         SkScan::FillPath(path, origClip, blitter);
         return;
     }
+#endif
 
     // Our antialiasing can't handle a clip larger than 32767, so we restrict
     // the clip to that limit here. (the runs[] uses int16_t for its index).
