@@ -94,8 +94,8 @@ private:
 class PosTextPlaybackBench : public PicturePlaybackBench {
 public:
     PosTextPlaybackBench(void* param, bool drawPosH)
-        : fDrawPosH(drawPosH)
-        , INHERITED(param, drawPosH ? "drawPosTextH" : "drawPosText") { }
+        : INHERITED(param, drawPosH ? "drawPosTextH" : "drawPosText")
+        , fDrawPosH(drawPosH) { }
 protected:
     virtual void recordCanvas(SkCanvas* canvas) {
         SkPaint paint;
