@@ -429,7 +429,16 @@ public:
         @return true if the horizontal band is completely clipped out (i.e. does
                      not intersect the current clip)
     */
-    bool quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const;
+    bool quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const {
+        SkASSERT(SkScalarToCompareType(top) <= SkScalarToCompareType(bottom));
+        const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType(et);
+        // In the case where the clip is empty and we are provided with a
+        // negative top and positive bottom parameter then this test will return
+        // false even though it will be clipped. We have chosen to exclude that
+        // check as it is rare and would result double the comparisons.
+        return SkScalarToCompareType(top) >= clipR.fBottom
+            || SkScalarToCompareType(bottom) <= clipR.fTop;
+    }
 
     /** Return the bounds of the current clip (in local coordinates) in the
         bounds parameter, and return true if it is non-empty. This can be useful
