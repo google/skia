@@ -580,7 +580,13 @@ static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
 }
 
 static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
+#ifdef SK_SCALAR_IS_FIXED
+    // the max-int (shifted) is exactly what we want to compare against, to know
+    // if we can survive shifting our fixed-point coordinates
+    const SkFixed maxScalar = maxInt;
+#else
     const SkScalar maxScalar = SkIntToScalar(maxInt);
+#endif
     if (fitsInsideLimit(src, maxScalar)) {
         src.roundOut(dst);
         return true;
