@@ -126,7 +126,6 @@ void SkDeferredCanvas::setDeferredDrawing(bool val) {
         fDrawingCanvas = val ?
             getDeferredDevice()->recordingCanvas() :
             getDeferredDevice()->immediateCanvas();
-        }
     }
 }
 
