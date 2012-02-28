@@ -22,7 +22,12 @@
 		FE7134F514D1E7C70008E392 /* LineParameterization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7134F414D1E7C70008E392 /* LineParameterization.cpp */; };
 		FE71351314D2E9F50008E392 /* RectUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE71351214D2E9F50008E392 /* RectUtilities.cpp */; };
 		FE71358614D309E90008E392 /* EdgeWalker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE71358514D309E90008E392 /* EdgeWalker.cpp */; };
+		FE7413AE14F689E700056D7B /* libopts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF87C2C13E0410900335C58 /* libopts.a */; };
+		FE7413D414F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7413D314F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp */; };
+		FE7413D814F691C200056D7B /* EdgeWalker_TestUtility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7413D714F691C200056D7B /* EdgeWalker_TestUtility.cpp */; };
 		FEA5F4E21498000C005052F9 /* libports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA5F4E11497FFF6005052F9 /* libports.a */; };
+		FEA61B0014EF589900B736CB /* libanimator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7268144DD3EA0059E97B /* libanimator.a */; };
+		FEA61B2C14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */; };
 		FEA671D013C4A21600FE6FC1 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA671CF13C4A21600FE6FC1 /* AGL.framework */; };
 		FEA671D813C4A21600FE6FC1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA671D713C4A21600FE6FC1 /* Foundation.framework */; };
 		FEA671DA13C4A21600FE6FC1 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA671D913C4A21600FE6FC1 /* OpenGL.framework */; };
@@ -54,7 +59,6 @@
 		FECAA6E114BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FECAA6E014BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp */; };
 		FED53C391483CB9400F6359E /* Inline_Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FED53C381483CB9400F6359E /* Inline_Tests.cpp */; };
 		FEED7245144DD2250059E97B /* SkEventNotifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = FEED723E144DD2250059E97B /* SkEventNotifier.mm */; };
-		FEED7291144DD45E0059E97B /* libanimator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7268144DD3EA0059E97B /* libanimator.a */; };
 		FEED7292144DD4610059E97B /* libexperimental.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED726E144DD4050059E97B /* libexperimental.a */; };
 		FEED7293144DD4620059E97B /* libskgr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7276144DD4140059E97B /* libskgr.a */; };
 		FEED7294144DD4630059E97B /* libgr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7278144DD4140059E97B /* libgr.a */; };
@@ -78,11 +82,17 @@
 		FEED76EE144F66E90059E97B /* Intersection_Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEED76ED144F66E90059E97B /* Intersection_Tests.cpp */; };
 		FEF87C3C13E0413500335C58 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF87C1A13E040E000335C58 /* libcore.a */; };
 		FEF87C3D13E0413A00335C58 /* libeffects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF87C2313E040F100335C58 /* libeffects.a */; };
-		FEF87C3E13E0413F00335C58 /* libopts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF87C2C13E0410900335C58 /* libopts.a */; };
 		FEF87C3F13E0414400335C58 /* libutils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF87C3B13E0412600335C58 /* libutils.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		FE74136014F6866000056D7B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FEF87C2413E0410900335C58 /* opts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = ECDC7853EF9A45553165AE98;
+			remoteInfo = opts_ssse3;
+		};
 		FEA5F4E01497FFF6005052F9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FEA5F4D91497FFF6005052F9 /* ports.xcodeproj */;
@@ -240,7 +250,11 @@
 		FE71351214D2E9F50008E392 /* RectUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RectUtilities.cpp; sourceTree = "<group>"; };
 		FE71358514D309E90008E392 /* EdgeWalker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalker.cpp; sourceTree = "<group>"; };
 		FE713C6114D9879B0008E392 /* TSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSearch.h; sourceTree = "<group>"; };
+		FE7413D314F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerPolygons_Test.cpp; sourceTree = "<group>"; };
+		FE7413D714F691C200056D7B /* EdgeWalker_TestUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalker_TestUtility.cpp; sourceTree = "<group>"; };
+		FE7413DB14F6926D00056D7B /* EdgeWalker_Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeWalker_Test.h; sourceTree = "<group>"; };
 		FEA5F4D91497FFF6005052F9 /* ports.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ports.xcodeproj; path = ../../out/gyp/ports.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerRectangles_Test.cpp; sourceTree = "<group>"; };
 		FEA670F013C49E2200FE6FC1 /* SkAntiEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkAntiEdge.cpp; sourceTree = "<group>"; };
 		FEA670F113C49E2200FE6FC1 /* SkAntiEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkAntiEdge.h; sourceTree = "<group>"; };
 		FEA6710713C4A13900FE6FC1 /* gyp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gyp; path = ../../out/gyp; sourceTree = SOURCE_ROOT; };
@@ -328,12 +342,10 @@
 			files = (
 				FEF87C3C13E0413500335C58 /* libcore.a in Frameworks */,
 				FEF87C3D13E0413A00335C58 /* libeffects.a in Frameworks */,
-				FEF87C3E13E0413F00335C58 /* libopts.a in Frameworks */,
 				FEF87C3F13E0414400335C58 /* libutils.a in Frameworks */,
 				FEA671D813C4A21600FE6FC1 /* Foundation.framework in Frameworks */,
 				FEA671D013C4A21600FE6FC1 /* AGL.framework in Frameworks */,
 				FEA671DA13C4A21600FE6FC1 /* OpenGL.framework in Frameworks */,
-				FEED7291144DD45E0059E97B /* libanimator.a in Frameworks */,
 				FEED7292144DD4610059E97B /* libexperimental.a in Frameworks */,
 				FEED7293144DD4620059E97B /* libskgr.a in Frameworks */,
 				FEED7294144DD4630059E97B /* libgr.a in Frameworks */,
@@ -348,6 +360,8 @@
 				FEED75DD144DD6590059E97B /* QuartzCore.framework in Frameworks */,
 				FEED75DF144DD6840059E97B /* libz.dylib in Frameworks */,
 				FEA5F4E21498000C005052F9 /* libports.a in Frameworks */,
+				FEA61B0014EF589900B736CB /* libanimator.a in Frameworks */,
+				FE7413AE14F689E700056D7B /* libopts.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,6 +515,9 @@
 				FECA9A5914B3B09100B35E2C /* CubicParameterization_Test.cpp */,
 				FECAAB7F14BDFAFD00B35E2C /* CubicParameterization_TestUtility.cpp */,
 				FEED7625144F22E20059E97B /* CubicReduceOrder_Test.cpp */,
+				FE7413D714F691C200056D7B /* EdgeWalker_TestUtility.cpp */,
+				FE7413D314F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp */,
+				FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */,
 				FED53C381483CB9400F6359E /* Inline_Tests.cpp */,
 				FEED7680144F2E480059E97B /* Intersection_Tests.h */,
 				FEED76ED144F66E90059E97B /* Intersection_Tests.cpp */,
@@ -518,6 +535,7 @@
 				FECAA6E014BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp */,
 				FEED7673144F2D770059E97B /* TestUtilities.h */,
 				FEED764B144F29BD0059E97B /* TestUtilities.cpp */,
+				FE7413DB14F6926D00056D7B /* EdgeWalker_Test.h */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -626,6 +644,7 @@
 			isa = PBXGroup;
 			children = (
 				FEF87C2C13E0410900335C58 /* libopts.a */,
+				FE74136114F6866000056D7B /* libopts_ssse3.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -746,6 +765,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		FE74136114F6866000056D7B /* libopts_ssse3.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libopts_ssse3.a;
+			remoteRef = FE74136014F6866000056D7B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		FEA5F4E11497FFF6005052F9 /* libports.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -919,6 +945,9 @@
 				FE7134F514D1E7C70008E392 /* LineParameterization.cpp in Sources */,
 				FE71351314D2E9F50008E392 /* RectUtilities.cpp in Sources */,
 				FE71358614D309E90008E392 /* EdgeWalker.cpp in Sources */,
+				FEA61B2C14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp in Sources */,
+				FE7413D414F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp in Sources */,
+				FE7413D814F691C200056D7B /* EdgeWalker_TestUtility.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -981,11 +1010,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "edge-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../../xcode/core/build/Debug\"",
-					"\"$(SRCROOT)/../../../xcode/maccore/build/Debug\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PREBINDING = NO;
 				PRODUCT_NAME = edge;
 				SKIP_INSTALL = YES;
@@ -1004,11 +1029,7 @@
 				GCC_PREFIX_HEADER = edge_Prefix.pch;
 				INFOPLIST_FILE = "edge-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../../xcode/core/build/Debug\"",
-					"\"$(SRCROOT)/../../../xcode/maccore/build/Debug\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = edge;
 			};
 			name = Release;
