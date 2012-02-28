@@ -289,11 +289,12 @@ protected:
     virtual SkCanvas* canvasForDrawIter();
 
 private:
-    SkCanvas* drawingCanvas() const;
     bool isFullFrame(const SkRect*, const SkPaint*) const;
     void validate() const;
     void init();
-    bool            fDeferredDrawing;
+    SkCanvas* fDrawingCanvas; // This points to the recording or immediate
+                              // canvas, based on fDeferredDrawing
+    bool fDeferredDrawing;
 
     typedef SkCanvas INHERITED;
 };
