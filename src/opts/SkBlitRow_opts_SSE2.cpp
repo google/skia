@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2009 The Android Open Source Project
+ * Copyright 2012 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -39,34 +38,54 @@ void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
         const __m128i *s = reinterpret_cast<const __m128i*>(src);
         __m128i *d = reinterpret_cast<__m128i*>(dst);
         __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
-        __m128i src_scale_wide = _mm_set1_epi16(src_scale);
-        __m128i dst_scale_wide = _mm_set1_epi16(dst_scale);
+        __m128i ag_mask = _mm_set1_epi32(0xFF00FF00);
+
+        // Move scale factors to upper byte of word
+        __m128i src_scale_wide = _mm_set1_epi16(src_scale << 8);
+        __m128i dst_scale_wide = _mm_set1_epi16(dst_scale << 8);
         while (count >= 4) {
             // Load 4 pixels each of src and dest.
             __m128i src_pixel = _mm_loadu_si128(s);
             __m128i dst_pixel = _mm_load_si128(d);
 
+            // Interleave Atom port 0/1 operations based on the execution port
+            // constraints that multiply can only be executed on port 0 (while
+            // boolean operations can be executed on either port 0 or port 1)
+            // because GCC currently doesn't do a good job scheduling
+            // instructions based on these constraints.
+
             // Get red and blue pixels into lower byte of each word.
-            __m128i dst_rb = _mm_and_si128(rb_mask, dst_pixel);
+            // (0, r, 0, b, 0, r, 0, b, 0, r, 0, b, 0, r, 0, b)
             __m128i src_rb = _mm_and_si128(rb_mask, src_pixel);
 
-            // Get alpha and green into lower byte of each word.
-            __m128i dst_ag = _mm_srli_epi16(dst_pixel, 8);
-            __m128i src_ag = _mm_srli_epi16(src_pixel, 8);
+            // Multiply by scale.
+            // (4 x (0, rs.h, 0, bs.h))
+            // where rs.h stands for the higher byte of r * scale, and
+            // bs.h the higher byte of b * scale.
+            src_rb = _mm_mulhi_epu16(src_rb, src_scale_wide);
+
+            // Get alpha and green pixels into higher byte of each word.
+            // (a, 0, g, 0, a, 0, g, 0, a, 0, g, 0, a, 0, g, 0)
+            __m128i src_ag = _mm_and_si128(ag_mask, src_pixel);
 
             // Multiply by scale.
-            src_rb = _mm_mullo_epi16(src_rb, src_scale_wide);
-            src_ag = _mm_mullo_epi16(src_ag, src_scale_wide);
-            dst_rb = _mm_mullo_epi16(dst_rb, dst_scale_wide);
-            dst_ag = _mm_mullo_epi16(dst_ag, dst_scale_wide);
+            // (4 x (as.h, as.l, gs.h, gs.l))
+            src_ag = _mm_mulhi_epu16(src_ag, src_scale_wide);
 
-            // Divide by 256.
-            src_rb = _mm_srli_epi16(src_rb, 8);
-            dst_rb = _mm_srli_epi16(dst_rb, 8);
-            src_ag = _mm_andnot_si128(rb_mask, src_ag);
-            dst_ag = _mm_andnot_si128(rb_mask, dst_ag);
+            // Clear the lower byte of the a*scale and g*scale results
+            // (4 x (as.h, 0, gs.h, 0))
+            src_ag = _mm_and_si128(src_ag, ag_mask);
+
+            // Operations the destination pixels are the same as on the
+            // source pixels. See the comments above.
+            __m128i dst_rb = _mm_and_si128(rb_mask, dst_pixel);
+            dst_rb = _mm_mulhi_epu16(dst_rb, dst_scale_wide);
+            __m128i dst_ag = _mm_and_si128(ag_mask, dst_pixel);
+            dst_ag = _mm_mulhi_epu16(dst_ag, dst_scale_wide);
+            dst_ag = _mm_and_si128(dst_ag, ag_mask);
 
             // Combine back into RGBA.
+            // (4 x (as.h, rs.h, gs.h, bs.h))
             src_pixel = _mm_or_si128(src_rb, src_ag);
             dst_pixel = _mm_or_si128(dst_rb, dst_ag);
 
@@ -234,7 +253,7 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 
         const __m128i *s = reinterpret_cast<const __m128i*>(src);
         __m128i *d = reinterpret_cast<__m128i*>(dst);
-        __m128i src_scale_wide = _mm_set1_epi16(src_scale);
+        __m128i src_scale_wide = _mm_set1_epi16(src_scale << 8);
         __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
         __m128i c_256 = _mm_set1_epi16(256);  // 8 copies of 256 (16-bit)
         while (count >= 4) {
@@ -251,14 +270,17 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
             __m128i src_ag = _mm_srli_epi16(src_pixel, 8);
 
             // Put per-pixel alpha in low byte of each word.
+            // After the following two statements, the dst_alpha looks like
+            // (0, a0, 0, a0, 0, a1, 0, a1, 0, a2, 0, a2, 0, a3, 0, a3)
             __m128i dst_alpha = _mm_shufflehi_epi16(src_ag, 0xF5);
             dst_alpha = _mm_shufflelo_epi16(dst_alpha, 0xF5);
 
             // dst_alpha = dst_alpha * src_scale
-            dst_alpha = _mm_mullo_epi16(dst_alpha, src_scale_wide);
-
-            // Divide by 256.
-            dst_alpha = _mm_srli_epi16(dst_alpha, 8);
+            // Because src_scales are in the higher byte of each word and
+            // we use mulhi here, the resulting alpha values are already
+            // in the right place and don't need to be divided by 256.
+            // (0, sa0, 0, sa0, 0, sa1, 0, sa1, 0, sa2, 0, sa2, 0, sa3, 0, sa3)
+            dst_alpha = _mm_mulhi_epu16(dst_alpha, src_scale_wide);
 
             // Subtract alphas from 256, to get 1..256
             dst_alpha = _mm_sub_epi16(c_256, dst_alpha);
@@ -269,17 +291,25 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
             dst_ag = _mm_mullo_epi16(dst_ag, dst_alpha);
 
             // Multiply red and blue by global alpha.
-            src_rb = _mm_mullo_epi16(src_rb, src_scale_wide);
+            // (4 x (0, rs.h, 0, bs.h))
+            // where rs.h stands for the higher byte of r * src_scale,
+            // and bs.h the higher byte of b * src_scale.
+            // Again, because we use mulhi, the resuling red and blue
+            // values are already in the right place and don't need to
+            // be divided by 256.
+            src_rb = _mm_mulhi_epu16(src_rb, src_scale_wide);
             // Multiply alpha and green by global alpha.
-            src_ag = _mm_mullo_epi16(src_ag, src_scale_wide);
+            // (4 x (0, as.h, 0, gs.h))
+            src_ag = _mm_mulhi_epu16(src_ag, src_scale_wide);
 
             // Divide by 256.
             dst_rb = _mm_srli_epi16(dst_rb, 8);
-            src_rb = _mm_srli_epi16(src_rb, 8);
 
             // Mask out low bits (goodies already in the right place; no need to divide)
             dst_ag = _mm_andnot_si128(rb_mask, dst_ag);
-            src_ag = _mm_andnot_si128(rb_mask, src_ag);
+            // Shift alpha and green to higher byte of each word.
+            // (4 x (as.h, 0, gs.h, 0))
+            src_ag = _mm_slli_epi16(src_ag, 8);
 
             // Combine back into RGBA.
             dst_pixel = _mm_or_si128(dst_rb, dst_ag);
