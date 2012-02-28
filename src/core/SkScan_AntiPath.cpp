@@ -573,13 +573,19 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*  Returns non-zero if (value << shift) overflows a short, which would mean
-    we could not shift it up and then convert to SkFixed.
-    i.e. is x expressible as signed (16-shift) bits?
- */
-static int overflows_short_shift(int value, int shift) {
-    const int s = 16 + shift;
-    return (value << s >> s) - value;
+static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
+    const SkScalar min = -max;
+    return  r.fLeft > min && r.fTop > min &&
+            r.fRight < max && r.fBottom < max;
+}
+
+static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
+    const SkScalar maxScalar = SkIntToScalar(maxInt);
+    if (fitsInsideLimit(src, maxScalar)) {
+        src.roundOut(dst);
+        return true;
+    }
+    return false;
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
@@ -589,26 +595,20 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     }
 
     SkIRect ir;
-    path.getBounds().roundOut(&ir);
+
+    if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> SHIFT)) {
+#if 0
+        const SkRect& r = path.getBounds();
+        SkDebugf("--- bounds can't fit in SkIRect\n", r.fLeft, r.fTop, r.fRight, r.fBottom);
+#endif
+        return;
+    }
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(origClip);
         }
         return;
     }
-
-#if 0
-    // use bit-or since we expect all to pass, so no need to go slower with
-    // a short-circuiting logical-or
-    if (overflows_short_shift(ir.fLeft, SHIFT) |
-            overflows_short_shift(ir.fRight, SHIFT) |
-            overflows_short_shift(ir.fTop, SHIFT) |
-            overflows_short_shift(ir.fBottom, SHIFT)) {
-        // can't supersample, so draw w/o antialiasing
-        SkScan::FillPath(path, origClip, blitter);
-        return;
-    }
-#endif
 
     // Our antialiasing can't handle a clip larger than 32767, so we restrict
     // the clip to that limit here. (the runs[] uses int16_t for its index).
