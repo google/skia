@@ -140,5 +140,9 @@ void ClampX_ClampY_filter_scale(const SkBitmapProcState& s, uint32_t xy[],
                                 int count, int x, int y);
 void ClampX_ClampY_nofilter_scale(const SkBitmapProcState& s, uint32_t xy[],
                                   int count, int x, int y);
+void ClampX_ClampY_filter_affine(const SkBitmapProcState& s,
+                                 uint32_t xy[], int count, int x, int y);
+void ClampX_ClampY_nofilter_affine(const SkBitmapProcState& s,
+                                   uint32_t xy[], int count, int x, int y);
 
 #endif
