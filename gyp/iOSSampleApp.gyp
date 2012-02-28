@@ -154,7 +154,6 @@
         'utils.gyp:utils',
         'animator.gyp:animator',
         'xml.gyp:xml',
-        'svg.gyp:svg',
         'experimental.gyp:experimental',
         'gpu.gyp:gr',
         'gpu.gyp:skgr',
