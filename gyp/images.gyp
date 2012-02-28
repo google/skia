@@ -64,7 +64,6 @@
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
-            '../src/images/SkImageDecoder_libpvjpeg.c',
             '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
@@ -87,7 +86,6 @@
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libjpeg.cpp',
-            '../src/images/SkImageDecoder_libpvjpeg.c',
             '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
@@ -103,7 +101,6 @@
 
             '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
-            '../src/images/SkImageDecoder_libpvjpeg.c',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
