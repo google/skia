@@ -105,6 +105,12 @@ void SkBitmapProcState::platformProcs() {
         } else if (fMatrixProc == ClampX_ClampY_nofilter_scale) {
             fMatrixProc = ClampX_ClampY_nofilter_scale_SSE2;
         }
+
+        if (fMatrixProc == ClampX_ClampY_filter_affine) {
+            fMatrixProc = ClampX_ClampY_filter_affine_SSE2;
+        } else if (fMatrixProc == ClampX_ClampY_nofilter_affine) {
+            fMatrixProc = ClampX_ClampY_nofilter_affine_SSE2;
+        }
     }
 }
 
