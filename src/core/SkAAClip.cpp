@@ -1187,6 +1187,7 @@ public:
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         this->recordMinY(y);
         fBuilder->addColumn(x, y, alpha, height);
+        fLastY = y + height - 1;
     }
 
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {

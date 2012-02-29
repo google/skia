@@ -313,12 +313,27 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_regressions(skiatest::Reporter* reporter) {
+    // these should not assert in the debug build
+    // bug was introduced in rev. 3209
+    {
+        SkAAClip clip;
+        SkRect r;
+        r.fLeft = SkFloatToScalar(129.892181);
+        r.fTop = SkFloatToScalar(10.3999996);
+        r.fRight = SkFloatToScalar(130.892181); 
+        r.fBottom = SkFloatToScalar(20.3999996);
+        clip.setRect(r, true);
+    }
+}
+
 static void TestAAClip(skiatest::Reporter* reporter) {
     test_empty(reporter);
     test_path_bounds(reporter);
     test_irect(reporter);
     test_rgn(reporter);
     test_path_with_hole(reporter);
+    test_regressions(reporter);
 }
 
 #include "TestClassDef.h"
