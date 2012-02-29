@@ -16,10 +16,6 @@
 struct SkRect;
 class SkPath;
 
-#define SK_DefaultStrokeWidth       SK_Scalar1
-#define SK_DefaultMiterLimit        SkIntToScalar(4)
-
-
 /** \class SkStroke
     SkStroke is the utility class that constructs paths by stroking
     geometries (lines, rects, ovals, roundrects, paths). This is

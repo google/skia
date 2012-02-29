@@ -472,11 +472,11 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPaint.h"
+#include "SkPaintDefaults.h"
 
 SkStroke::SkStroke() {
-    fWidth      = SK_DefaultStrokeWidth;
-    fMiterLimit = SK_DefaultMiterLimit;
+    fWidth      = SK_Scalar1;
+    fMiterLimit = SkPaintDefaults_MiterLimit;
     fCap        = SkPaint::kDefault_Cap;
     fJoin       = SkPaint::kDefault_Join;
     fDoFill     = false;

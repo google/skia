@@ -81,7 +81,7 @@ SkStrokePathEffect::SkStrokePathEffect(SkScalar width, SkPaint::Style style,
         : fWidth(width), fMiter(miter), fStyle(SkToU8(style)),
           fJoin(SkToU8(join)), fCap(SkToU8(cap)) {
     if (miter < 0) {  // signal they want the default
-        fMiter = SK_DefaultMiterLimit;
+        fMiter = SkIntToScalar(4);
     }
 }
 
