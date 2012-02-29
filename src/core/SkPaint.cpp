@@ -23,14 +23,11 @@
 #include "SkXfermode.h"
 #include "SkAutoKern.h"
 #include "SkGlyphCache.h"
+#include "SkPaintDefaults.h"
 
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
 //#define SK_REPORT_API_RANGE_CHECK
-
-#define SK_DefaultTextSize      SkIntToScalar(12)
-
-#define SK_DefaultFlags         0   //(kNativeHintsText_Flag)
 
 #ifdef SK_BUILD_FOR_ANDROID
 #define GEN_ID_INC                  fGenerationID++
@@ -60,17 +57,17 @@ SkPaint::SkPaint() {
     fWidth      = 0;
 #endif
 
-    fTextSize   = SK_DefaultTextSize;
+    fTextSize   = SkPaintDefaults_TextSize;
     fTextScaleX = SK_Scalar1;
     fColor      = SK_ColorBLACK;
-    fMiterLimit = SK_DefaultMiterLimit;
-    fFlags      = SK_DefaultFlags;
+    fMiterLimit = SkPaintDefaults_MiterLimit;
+    fFlags      = SkPaintDefaults_Flags;
     fCapType    = kDefault_Cap;
     fJoinType   = kDefault_Join;
     fTextAlign  = kLeft_Align;
     fStyle      = kFill_Style;
     fTextEncoding = kUTF8_TextEncoding;
-    fHinting    = kNormal_Hinting;
+    fHinting    = SkPaintDefaults_Hinting;
 #ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
 #endif
