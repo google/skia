@@ -26,9 +26,8 @@ static void testChopCubic(skiatest::Reporter* reporter) {
     };
     SkPoint dst[13];
     SkScalar tValues[3];
+    // make sure we don't assert internally
     int count = SkChopCubicAtMaxCurvature(src, dst, tValues);
-    // if we successfully collaps duplicate t-values, we should only get 2 segments
-    REPORTER_ASSERT(reporter, 2 == count);
 }
 
 
