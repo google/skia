@@ -55,8 +55,8 @@
 //#define DUMP_STRIKE_CREATION
 
 //#define SK_GAMMA_APPLY_TO_A8
-#define SK_GAMMA_CONTRAST   0x33
-#define SK_GAMMA_EXPONENT   1.8
+#define SK_GAMMA_CONTRAST   0x80
+#define SK_GAMMA_EXPONENT   2.2
 
 #ifdef SK_DEBUG
     #define SkASSERT_CONTINUE(pred)                                                         \
@@ -1063,11 +1063,15 @@ static void build_gamma_table(uint8_t table[256], int src, int dst) {
         build_power_table(invPowTable, 1/g);
         gInit = true;
     }
-    int linSrc = powTable[src];
-    int linDst = powTable[dst];
 
+    const int linSrc = powTable[src];
+    const int linDst = powTable[dst];
+    // have our contrast value taper off to 0 as the src luminance becomes white
+    const int contrast = SK_GAMMA_CONTRAST * (255 - linSrc) / 255;
+    
     for (int i = 0; i < 256; ++i) {
-        int srca = i;
+        int srca = apply_contrast(i, contrast);
+        SkASSERT((unsigned)srca <= 255);
         int dsta = 255 - srca;
 
         //Calculate the output we want.
@@ -1079,10 +1083,7 @@ static void build_gamma_table(uint8_t table[256], int src, int dst) {
         int result = ((255 * out) - (255 * dst)) / (src - dst);
         SkASSERT((unsigned)result <= 255);
 
-        result = apply_contrast(result, SK_GAMMA_CONTRAST);
-        SkASSERT((unsigned)result <= 255);
-
-        table[srca] = result;
+        table[i] = result;
     }
 }
 
