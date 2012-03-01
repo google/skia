@@ -16,7 +16,7 @@
 
 static bool gShowDebugf = true; // FIXME: remove once debugging is complete
 static bool gShowPath = false;
-static bool gDebugLessThan = false;
+static bool gDebugLessThan = true;
 
 static int LineIntersect(const SkPoint a[2], const SkPoint b[2],
         double aRange[2], double bRange[2]) {
@@ -30,11 +30,12 @@ static int LineIntersect(const SkPoint a[2], SkScalar y, double aRange[2]) {
     return horizontalIntersect(aLine, y, aRange);
 }
 
-static SkScalar LineXAtT(const SkPoint a[2], double t) {
+static void LineXYAtT(const SkPoint a[2], double t, SkPoint* out) {
     _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
-    double x;
-    xy_at_t(aLine, t, x, *(double*) 0);
-    return SkDoubleToScalar(x);
+    double x, y;
+    xy_at_t(aLine, t, x, y);
+    out->fX = SkDoubleToScalar(x);
+    out->fY = SkDoubleToScalar(y);
 }
 
 static SkScalar LineYAtT(const SkPoint a[2], double t) {
@@ -419,10 +420,11 @@ struct InEdge {
             size_t tCount = intercepts.fTs.count();
             for (size_t idx2 = 0; idx2 < tCount; ++idx2) {
                 if (t <= intercepts.fTs[idx2]) {
-                    if (t < intercepts.fTs[idx2]) {
+                    double delta = intercepts.fTs[idx2] - t;
+                    if (delta > 0) {
                         *intercepts.fTs.insert(idx2) = t;
-                        break;
                     }
+                    return foundIntercept;
                 }
             }
             if (tCount == 0 || t > intercepts.fTs[tCount - 1]) {
@@ -649,6 +651,12 @@ struct WorkEdge {
         fPts += *fVerb++;
         return fVerb != fEdge->fVerbs.end();
     }
+    
+    SkPath::Verb lastVerb() const {
+        SkASSERT(fVerb > fEdge->fVerbs.begin());
+        return (SkPath::Verb) fVerb[-1];
+    }
+
 
     SkPath::Verb verb() const {
         return (SkPath::Verb) *fVerb;
@@ -670,16 +678,73 @@ struct WorkEdge {
 // always constructed with SkTDArray because new edges are inserted
 // this may be a inappropriate optimization, suggesting that a separate array of
 // ActiveEdge* may be faster to insert and search
+
+// OPTIMIZATION: Brian suggests that global sorting should be unnecessary, since
+// as active edges are introduced, only local sorting should be required
 struct ActiveEdge {
+    // OPTIMIZATION: fold return statements into one
     bool operator<(const ActiveEdge& rh) const {
-        return fXAbove != rh.fXAbove ? fXAbove < rh.fXAbove
-                : fXBelow < rh.fXBelow;
+        if (rh.fAbove.fY - fAbove.fY > fBelow.fY - rh.fAbove.fY
+                && fBelow.fY < rh.fBelow.fY
+                || fAbove.fY - rh.fAbove.fY < rh.fBelow.fY - fAbove.fY
+                && rh.fBelow.fY < fBelow.fY) {
+            // FIXME: need to compute distance, not check for points equal
+            const SkPoint& check = rh.fBelow.fY <= fBelow.fY
+                    && fBelow != rh.fBelow ? rh.fBelow :
+                    rh.fAbove;
+            if (gDebugLessThan) {
+                SkDebugf("%s < %c %cthis (%d){%1.2g,%1.2g %1.2g,%1.2g}"
+                        " < rh (%d){%1.2g,%1.2g %1.2g,%1.2g}\n", __FUNCTION__,
+                        rh.fBelow.fY <= fBelow.fY && fBelow != rh.fBelow ? 'B' : 'A',
+                        (check.fY - fAbove.fY) * (fBelow.fX - fAbove.fX)
+                        < (fBelow.fY - fAbove.fY) * (check.fX - fAbove.fX) 
+                        ? ' ' : '!',
+                        fIndex, fAbove.fX, fAbove.fY, fBelow.fX, fBelow.fY,
+                        rh.fIndex, rh.fAbove.fX, rh.fAbove.fY,
+                        rh.fBelow.fX, rh.fBelow.fY);
+            }
+            return (check.fY - fAbove.fY) * (fBelow.fX - fAbove.fX)
+                    < (fBelow.fY - fAbove.fY) * (check.fX - fAbove.fX);
+        }
+        // FIXME: need to compute distance, not check for points equal
+        const SkPoint& check = fBelow.fY <= rh.fBelow.fY 
+                && fBelow != rh.fBelow ? fBelow : fAbove;
+        if (gDebugLessThan) {
+            SkDebugf("%s > %c  %cthis (%d){%1.2g,%1.2g %1.2g,%1.2g}"
+                    " < rh (%d){%1.2g,%1.2g %1.2g,%1.2g}\n", __FUNCTION__,
+                    fBelow.fY <= rh.fBelow.fY & fBelow != rh.fBelow ? 'B' : 'A',
+                    (rh.fBelow.fY - rh.fAbove.fY) * (check.fX - rh.fAbove.fX)
+                    < (check.fY - rh.fAbove.fY) * (rh.fBelow.fX - rh.fAbove.fX) 
+                    ? ' ' : '!',
+                    fIndex, fAbove.fX, fAbove.fY, fBelow.fX, fBelow.fY,
+                    rh.fIndex, rh.fAbove.fX, rh.fAbove.fY,
+                    rh.fBelow.fX, rh.fBelow.fY);
+        }
+        return (rh.fBelow.fY - rh.fAbove.fY) * (check.fX - rh.fAbove.fX)
+                < (check.fY - rh.fAbove.fY) * (rh.fBelow.fX - rh.fAbove.fX);
     }
 
-    void calcLeft() {
+    bool advanceT() {
+        SkASSERT(fTIndex <= fTs->count());
+        return ++fTIndex <= fTs->count();
+    }
+    
+    bool advance() {
+    // FIXME: flip sense of next
+        bool result = fWorkEdge.advance();
+        fDone = !result;
+        initT();
+        return result;
+    }
+    
+    void calcLeft(SkScalar y) {
         // OPTIMIZE: put a kDone_Verb at the end of the verb list?
-        if (fDone)
+        if (done(y))
             return; // nothing to do; use last
+        calcLeft();
+    }
+    
+    void calcLeft() {
         switch (fWorkEdge.verb()) {
             case SkPath::kLine_Verb: {
                 // OPTIMIZATION: if fXAbove, fXBelow have already been computed
@@ -688,9 +753,10 @@ struct ActiveEdge {
                 // If both edges have T values < 1, check x at next T (fXBelow).
                 int add = (fTIndex <= fTs->count()) - 1;
                 double tAbove = t(fTIndex + add);
-                fXAbove = LineXAtT(fWorkEdge.fPts, tAbove);
+                // OPTIMIZATION: may not need Y
+                LineXYAtT(fWorkEdge.fPts, tAbove, &fAbove);
                 double tBelow = t(fTIndex - ~add);
-                fXBelow = LineXAtT(fWorkEdge.fPts, tBelow);
+                LineXYAtT(fWorkEdge.fPts, tBelow, &fBelow);
                 break;
             }
             default:
@@ -699,6 +765,10 @@ struct ActiveEdge {
         }
     }
 
+    bool done(SkScalar y) {
+        return fDone || fYBottom > y;
+    }
+    
     void init(const InEdge* edge) {
         fWorkEdge.init(edge);
         initT();
@@ -717,16 +787,30 @@ struct ActiveEdge {
         fTIndex = 0;
     }
     
-    bool isCoincidentWith(const ActiveEdge* edge) const {
-        if (fXAbove != edge->fXAbove || fXBelow != edge->fXBelow) {
+    // OPTIMIZATION: record if two edges are coincident when the are intersected
+    // It's unclear how to do this -- seems more complicated than recording the
+    // t values, since the same t values could exist intersecting non-coincident
+    // edges.
+    bool isCoincidentWith(const ActiveEdge* edge, SkScalar y) const {
+        if (fAbove.fX != edge->fAbove.fX || fBelow.fX != edge->fBelow.fX) {
             return false;
         }
-        switch (fWorkEdge.verb()) {
+        uint8_t verb = fDone ? fWorkEdge.lastVerb() : fWorkEdge.verb();
+        uint8_t edgeVerb = edge->fDone ? edge->fWorkEdge.lastVerb() 
+                : edge->fWorkEdge.verb();
+        if (verb != edgeVerb) {
+            return false;
+        }
+        switch (verb) {
             case SkPath::kLine_Verb: {
-                return (fWorkEdge.fPts[0].fX - fWorkEdge.fPts[1].fX) *
-                        (edge->fWorkEdge.fPts[0].fY - edge->fWorkEdge.fPts[1].fY) ==
-                        (fWorkEdge.fPts[0].fY - fWorkEdge.fPts[1].fY) *
-                        (edge->fWorkEdge.fPts[0].fX - edge->fWorkEdge.fPts[1].fX);
+                int offset = fDone ? -1 : 1;
+                int edgeOffset = edge->fDone ? -1 : 1;
+                const SkPoint* pts = fWorkEdge.fPts;
+                const SkPoint* edgePts = edge->fWorkEdge.fPts;
+                return (pts->fX - pts[offset].fX)
+                        * (edgePts->fY - edgePts[edgeOffset].fY)
+                        == (pts->fY - pts[offset].fY)
+                        * (edgePts->fX - edgePts[edgeOffset].fX);
             }
             default:
                 // FIXME: add support for all curve types
@@ -734,24 +818,27 @@ struct ActiveEdge {
         }
         return false;
     }
+    
+    bool swapCoincident(const ActiveEdge* edge, SkScalar bottom) const {
+        if (fBelow.fY >= bottom || fDone || edge->fDone) {
+            return false;
+        }
+        ActiveEdge thisWork = *this;
+        ActiveEdge edgeWork = *edge;
+        while ((thisWork.advanceT() || thisWork.advance())
+                && (edgeWork.advanceT() || edgeWork.advance())) {
+            thisWork.calcLeft();
+            edgeWork.calcLeft();
+            if (thisWork < edgeWork) {
+                return false;
+            }
+            if (edgeWork < thisWork) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    bool advanceT() {
-        SkASSERT(fTIndex <= fTs->count());
-        return ++fTIndex <= fTs->count();
-    }
-    
-    bool advance() {
-    // FIXME: flip sense of next
-        bool result = fWorkEdge.advance();
-        fDone = !result;
-        initT();
-        return result;
-    }
-    
-    bool done(SkScalar y) {
-        return fDone || fYBottom > y;
-    }
-    
     double nextT() {
         SkASSERT(fTIndex <= fTs->count());
         return t(fTIndex + 1);
@@ -779,12 +866,13 @@ struct ActiveEdge {
 
     WorkEdge fWorkEdge;
     const SkTDArray<double>* fTs;
-    SkScalar fXAbove;
-    SkScalar fXBelow;
+    SkPoint fAbove;
+    SkPoint fBelow;
     SkScalar fYBottom;
     int fTIndex;
     bool fSkip;
     bool fDone;
+    int fIndex; // REMOVE: debugging only
 };
 
 static void addToActive(SkTDArray<ActiveEdge>& activeEdges, const InEdge* edge) {
@@ -959,8 +1047,7 @@ static void makeEdgeList(SkTArray<InEdge>& edges, InEdge& edgeSentinel,
     }
     edgeSentinel.fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
     *edgeList.append() = &edgeSentinel;
-    ++edgeCount;
-    QSort<InEdge>(edgeList.begin(), edgeCount);
+    QSort<InEdge>(edgeList.begin(), edgeList.end() - 1);
 }
 
 
@@ -977,7 +1064,8 @@ static void skipCoincidence(int lastWinding, int winding, int windingMask,
 }
 
 static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
-        SkTDArray<ActiveEdge*>& edgeList, int windingMask) {
+        SkTDArray<ActiveEdge*>& edgeList, int windingMask, SkScalar y,
+        SkScalar bottom) {
     size_t edgeCount = activeEdges.count();
     if (edgeCount == 0) {
         return;
@@ -985,11 +1073,12 @@ static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
     size_t index;
     for (index = 0; index < edgeCount; ++index) {
         ActiveEdge& activeEdge = activeEdges[index];
-        activeEdge.calcLeft();
+        activeEdge.calcLeft(y);
         activeEdge.fSkip = false;
+        activeEdge.fIndex = index; // REMOVE: debugging only
         *edgeList.append() = &activeEdge;
     }
-    QSort<ActiveEdge>(edgeList.begin(), edgeCount);
+    QSort<ActiveEdge>(edgeList.begin(), edgeList.end() - 1);
     // remove coincident edges
     // OPTIMIZE: remove edges? This is tricky because the current logic expects
     // the winding count to be maintained while skipping coincident edges. In
@@ -1003,7 +1092,16 @@ static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
     for (index = 1; index < edgeCount; ++index) {
         winding += activePtr->fWorkEdge.winding();
         ActiveEdge* nextPtr = edgeList[index];
-        if (activePtr->isCoincidentWith(nextPtr)) {
+        if (activePtr->isCoincidentWith(nextPtr, y)) {
+            // the coincident edges may not have been sorted above -- advance
+            // the edges and resort if needed
+            // OPTIMIZE: if sorting is done incrementally as new edges are added
+            // and not all at once as is done here, fold this test into the
+            // current less than test.
+            if (activePtr->swapCoincident(nextPtr, bottom)) {
+                SkTSwap<ActiveEdge*>(edgeList[index - 1], edgeList[index]);
+                SkTSwap<ActiveEdge*>(activePtr, nextPtr);
+            }
             if (!firstCoincident) {
                 firstCoincident = activePtr;
             }
@@ -1041,7 +1139,16 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
         int lastWinding = winding;
         winding += wt.winding();
         if (activePtr->done(y)) {
-            continue;
+            // FIXME: if this is successful, rewrite done to take bottom as well
+            if (activePtr->fDone) {
+                continue;
+            }
+            if (activePtr->fYBottom >= bottom) {
+                continue;
+            }
+            if (0) {
+                SkDebugf("%s bot %g,%g\n", __FUNCTION__, activePtr->fYBottom, bottom);
+            }
         }
         int opener = (lastWinding & windingMask) == 0;
         bool closer = (winding & windingMask) == 0;
@@ -1077,6 +1184,7 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
                         }
                         outBuilder.addLine(clipped);
                     }
+                    activePtr->fSkip = false;
                 } else {
                     // FIXME: add all curve types
                     SkASSERT(0);
@@ -1119,7 +1227,7 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
             addIntersectingTs(currentPtr, lastPtr);
             computeInterceptBottom(activeEdges, y, bottom);
             SkTDArray<ActiveEdge*> activeEdgeList;
-            sortHorizontal(activeEdges, activeEdgeList, windingMask);
+            sortHorizontal(activeEdges, activeEdgeList, windingMask, y, bottom);
             stitchEdge(activeEdgeList, y, bottom, windingMask, outBuilder);
         }
         y = bottom;

@@ -3,40 +3,32 @@
 // FIXME: Move this templated version into SKTSearch.h
 
 template <typename T>
-static void QSort_Partition(T** first, T** last)
+static T** QSort_Partition(T** left, T** right, T** pivot)
 {
-    T**   left = first;
-    T**   rite = last;
-    T**   pivot = left;
-
-    while (left <= rite) {
-        while (left < last && **left < **pivot)
-            left += 1;
-        while (first < rite && **pivot < **rite)
-            rite -= 1;
-        if (left <= rite) {
-            if (left < rite) {
-                SkTSwap(*left, *rite);
-            }
-            left += 1;
-            rite -= 1;
+    T* pivotValue = *pivot;
+    SkTSwap(*pivot, *right);
+    T** newPivot = left;
+    while (left < right) {
+        if (**left < *pivotValue) {
+            SkTSwap(*left, *newPivot);
+            newPivot += 1;
         }
+        left += 1;
     }
-    if (first < rite)
-        QSort_Partition(first, rite);
-    if (left < last)
-        QSort_Partition(left, last);
+    SkTSwap(*newPivot, *right);
+    return newPivot;
 }
 
 template <typename T>
-void QSort(T** base, size_t count)
+void QSort(T** left, T** right)
 {
-    SkASSERT(base);
-
-    if (count <= 1) {
+    if (left >= right) {
         return;
     }
-    QSort_Partition(base, base + (count - 1));
+    T** pivot = left + (right - left >> 1);
+    pivot = QSort_Partition(left, right, pivot);
+    QSort(left, pivot - 1);
+    QSort(pivot + 1, right);
 }
 
 template <typename S, typename T>
