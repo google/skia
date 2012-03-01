@@ -55,7 +55,7 @@
 //#define DUMP_STRIKE_CREATION
 
 //#define SK_GAMMA_APPLY_TO_A8
-#define SK_GAMMA_CONTRAST   0x80
+#define SK_GAMMA_CONTRAST   0x66
 #define SK_GAMMA_EXPONENT   2.2
 
 #ifdef SK_DEBUG
@@ -90,6 +90,7 @@ static FT_Library   gFTLibrary;
 static SkFaceRec*   gFaceRecHead;
 static bool         gLCDSupportValid;  // true iff |gLCDSupport| has been set.
 static bool         gLCDSupport;  // true iff LCD is supported by the runtime.
+static int          gLCDExtra;  // number of extra pixels for filtering.
 
 static const uint8_t* gGammaTables[2];
 
@@ -112,6 +113,9 @@ InitFreetype() {
 //    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
     err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_LIGHT);
     gLCDSupport = err == 0;
+    if (gLCDSupport) {
+        gLCDExtra = 2; //DEFAULT and LIGHT add one pixel to each side.
+    }
 #else
     gLCDSupport = false;
 #endif
@@ -1002,6 +1006,11 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         glyph->fHeight  = SkToU16((bbox.yMax - bbox.yMin) >> 6);
         glyph->fTop     = -SkToS16(bbox.yMax >> 6);
         glyph->fLeft    = SkToS16(bbox.xMin >> 6);
+
+        if (isLCD(fRec)) {
+            glyph->fWidth += gLCDExtra;
+            glyph->fLeft -= gLCDExtra >> 1;
+        }
         break;
       }
 
@@ -1092,8 +1101,8 @@ static const uint8_t* getGammaTable(U8CPU luminance) {
     static bool gInited;
     if (!gInited) {
         build_gamma_table(gGammaTables[0], 0x00, 0xFF);
-        build_gamma_table(gGammaTables[1], 0x55, 0xAA);
-        build_gamma_table(gGammaTables[2], 0xAA, 0x55);
+        build_gamma_table(gGammaTables[1], 0x66, 0x99);
+        build_gamma_table(gGammaTables[2], 0x99, 0x66);
         build_gamma_table(gGammaTables[3], 0xFF, 0x00);
 
         gInited = true;
@@ -1148,8 +1157,7 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
             }
         } break;
         default: {
-            SkASSERT(glyph.fWidth * 3 == bitmap.width - 6);
-            src += 3;
+            SkASSERT(glyph.fWidth * 3 == bitmap.width);
             for (int y = 0; y < glyph.fHeight; y++) {
                 const uint8_t* triple = src;
                 if (lcdIsBGR) {
