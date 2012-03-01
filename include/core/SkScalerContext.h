@@ -303,6 +303,8 @@ public:
 #endif
 
     static inline void MakeRec(const SkPaint&, const SkMatrix*, Rec* rec);
+    static inline void PostMakeRec(Rec*);
+
     static SkScalerContext* Create(const SkDescriptor*);
 
 protected:

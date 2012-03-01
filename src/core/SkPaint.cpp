@@ -1509,6 +1509,19 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
      */
     SkFontHost::FilterRec(rec);
 
+    // be sure to call PostMakeRec(rec) before you actually use it!
+}
+
+/**
+ *  We ensure that the rec is self-consistent and efficient (where possible)
+ */
+void SkScalerContext::PostMakeRec(SkScalerContext::Rec* rec) {
+
+    /**
+     *  If we're asking for A8, we force the colorlum to be gray, since that
+     *  that limits the number of unique entries, and the scaler will only
+     *  look at the lum of one of them.
+     */
     switch (rec->fMaskFormat) {
         case SkMask::kLCD16_Format:
         case SkMask::kLCD32_Format: {
@@ -1600,6 +1613,11 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
         entryCount += 1;
         rec.fMaskFormat = SkMask::kA8_Format;   // force antialiasing when we do the scan conversion
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Now that we're done tweaking the rec, call the PostMakeRec cleanup
+    SkScalerContext::PostMakeRec(&rec);
+    
     descSize += SkDescriptor::ComputeOverhead(entryCount);
 
     SkAutoDescriptor    ad(descSize);
