@@ -47,7 +47,6 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
         GrGeometryBuffer* buffer = this->createBuffer(fMinBlockSize);
         if (NULL != buffer) {
             *fPreallocBuffers.append() = buffer;
-            buffer->ref();
         }
     }
 }
