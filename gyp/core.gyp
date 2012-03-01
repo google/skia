@@ -63,6 +63,7 @@
         '../src/core/SkDebug.cpp',
         '../src/core/SkDeque.cpp',
         '../src/core/SkDevice.cpp',
+        '../src/core/SkDeviceProfile.cpp',
         '../src/core/SkDither.cpp',
         '../src/core/SkDraw.cpp',
         '../src/core/SkDrawProcs.h',
