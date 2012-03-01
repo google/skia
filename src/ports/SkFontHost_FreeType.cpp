@@ -55,8 +55,13 @@
 //#define DUMP_STRIKE_CREATION
 
 //#define SK_GAMMA_APPLY_TO_A8
-#define SK_GAMMA_CONTRAST   0x66
-#define SK_GAMMA_EXPONENT   2.2
+
+#ifndef SK_GAMMA_CONTRAST
+    #define SK_GAMMA_CONTRAST   0x66
+#endif
+#ifndef SK_GAMMA_EXPONENT
+    #define SK_GAMMA_EXPONENT   2.2
+#endif
 
 #ifdef SK_DEBUG
     #define SkASSERT_CONTINUE(pred)                                                         \
