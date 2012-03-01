@@ -149,6 +149,39 @@
     #define GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT      0
 #endif
 
+/**
+ * There is a strange bug that occurs on Macs with NVIDIA GPUs. We don't
+ * fully understand it. When (element) array buffers are continually
+ * respecified using glBufferData at the same (or perhaps just a small) size
+ * performance can fall off of a cliff. The driver winds up performing many
+ * DMA mapping / unmappings and chews up ~50% of the core. However, it has been
+ * observed that respecifiying the buffer with a larger size and then writing
+ * the small amount of actual data using glBufferSubData prevents the bad
+ * behavior.
+ *
+ * There is a lot of uncertainty around this issue. In Chrome backgrounding
+ * the tab somehow initiates this behavior and we don't know what the connection
+ * is. Another observation is that Chrome's cmd buffer server will actually
+ * create a buffer full of zeros when it sees a NULL data param (for security
+ * reasons). If this is disabled and NULL is actually passed all the way to the
+ * driver then the workaround doesn't help.
+ *
+ * The issue is tracked at:
+ * http://code.google.com/p/chromium/issues/detail?id=114865
+ *
+ * When GR_GL_USE_BUFFER_DATA_NULL_HINT is not set we encounter the bug
+ * if we keep uploading small vetex / index sizes. So, every 1K uploads we
+ * act as though GR_GL_USE_BUFFER_DATA_NULL_HINT was set: we specify the buffer
+ * at full size with a NULL data ptr and then do a partial update with
+ * glBufferSubData.
+ *
+ * Hopefully we will understand this better and have a cleaner fix or get a
+ * OS/driver level fix.
+ */
+#define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND   \
+    (GR_MAC_BUILD &&                                    \
+     !GR_GL_USE_BUFFER_DATA_NULL_HINT)
+
 #if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)
     #error "Cannot combine GR_GL_NO_CONSTANT_ATTRIBUTES and GR_GL_ATTRIBUTE_MATRICES"
 #endif
