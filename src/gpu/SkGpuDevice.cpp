@@ -698,6 +698,36 @@ static GrPathFill skToGrFillType(SkPath::FillType fillType) {
     }
 }
 
+static GrTexture* applyMorphology(GrContext* context, GrTexture* texture,
+                                  const GrRect& srcRect,
+                                  GrTexture* temp1, GrTexture* temp2,
+                                  GrSamplerState::Filter filter,
+                                  SkISize radius) {
+    GrRenderTarget* oldRenderTarget = context->getRenderTarget();
+    GrAutoMatrix avm(context, GrMatrix::I());
+    GrClip oldClip = context->getClip();
+    context->setClip(GrRect::MakeWH(texture->width(), texture->height()));
+    if (radius.fWidth > 0) {
+        context->setRenderTarget(temp1->asRenderTarget());
+        context->applyMorphology(texture, srcRect, radius.fWidth, filter,
+                                 GrSamplerState::kX_FilterDirection);
+        SkIRect clearRect = SkIRect::MakeXYWH(
+            srcRect.fLeft, srcRect.fBottom,
+            srcRect.width(), radius.fHeight);
+        context->clear(&clearRect, 0x0);
+        texture = temp1;
+    }
+    if (radius.fHeight > 0) {
+        context->setRenderTarget(temp2->asRenderTarget());
+        context->applyMorphology(texture, srcRect, radius.fHeight, filter,
+                                 GrSamplerState::kY_FilterDirection);
+        texture = temp2;
+    }
+    context->setRenderTarget(oldRenderTarget);
+    context->setClip(oldClip);
+    return texture;
+}
+
 static void buildKernel(float sigma, float* kernel, int kernelWidth) {
     int halfWidth = (kernelWidth - 1) / 2;
     float sum = 0.0f;
@@ -808,7 +838,8 @@ static GrTexture* gaussianBlur(GrContext* context, GrTexture* srcTexture,
         }
 
         context->setRenderTarget(dstTexture->asRenderTarget());
-        context->convolveInX(srcTexture, srcRect, kernelX, kernelWidthX);
+        context->convolve(srcTexture, srcRect, kernelX, kernelWidthX,
+                          GrSamplerState::kX_FilterDirection);
         SkTSwap(srcTexture, dstTexture);
         if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
     }
@@ -827,7 +858,8 @@ static GrTexture* gaussianBlur(GrContext* context, GrTexture* srcTexture,
         }
 
         context->setRenderTarget(dstTexture->asRenderTarget());
-        context->convolveInY(srcTexture, srcRect, kernelY, kernelWidthY);
+        context->convolve(srcTexture, srcRect, kernelY, kernelWidthY,
+                          GrSamplerState::kY_FilterDirection);
         SkTSwap(srcTexture, dstTexture);
         if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
     }
@@ -1481,6 +1513,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     SkImageFilter* imageFilter = paint.getImageFilter();
     SkSize blurSize;
+    SkISize radius;
     if (NULL != imageFilter && imageFilter->asABlur(&blurSize)) {
         GrAutoScratchTexture temp1, temp2;
         GrTexture* blurTexture = gaussianBlur(fContext,
@@ -1489,6 +1522,32 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                                               blurSize.width(),
                                               blurSize.height());
         texture = blurTexture;
+        grPaint.setTexture(kBitmapTextureIdx, texture);
+    } else if (NULL != imageFilter && imageFilter->asADilate(&radius)) {
+        const GrTextureDesc desc = {
+            kRenderTarget_GrTextureFlagBit,
+            w,
+            h,
+            kRGBA_8888_PM_GrPixelConfig,
+            {0} // samples
+        };
+        GrAutoScratchTexture temp1(fContext, desc), temp2(fContext, desc);
+        texture = applyMorphology(fContext, texture, GrRect::MakeWH(w, h),
+                                  temp1.texture(), temp2.texture(),
+                                  GrSamplerState::kDilate_Filter, radius);
+        grPaint.setTexture(kBitmapTextureIdx, texture);
+    } else if (NULL != imageFilter && imageFilter->asAnErode(&radius)) {
+        const GrTextureDesc desc = {
+            kRenderTarget_GrTextureFlagBit,
+            w,
+            h,
+            kRGBA_8888_PM_GrPixelConfig,
+            {0} // samples
+        };
+        GrAutoScratchTexture temp1(fContext, desc), temp2(fContext, desc);
+        texture = applyMorphology(fContext, texture, GrRect::MakeWH(w, h),
+                                  temp1.texture(), temp2.texture(),
+                                  GrSamplerState::kErode_Filter, radius);
         grPaint.setTexture(kBitmapTextureIdx, texture);
     } else {
         grPaint.setTexture(kBitmapTextureIdx, texture);
@@ -1541,7 +1600,8 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
                               const SkMatrix& ctm,
                               SkBitmap* result, SkIPoint* offset) {
     SkSize size;
-    if (!filter->asABlur(&size)) {
+    SkISize radius;
+    if (!filter->asABlur(&size) && !filter->asADilate(&radius) && !filter->asAnErode(&radius)) {
         return false;
     }
     SkDevice* dev = this->createCompatibleDevice(SkBitmap::kARGB_8888_Config,

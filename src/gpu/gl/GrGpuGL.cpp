@@ -445,7 +445,7 @@ void GrGpuGL::onResetContext() {
                                                   -GR_ScalarMax,
                                                   true);
         *fHWDrawState.sampler(s)->matrix() = GrMatrix::InvalidMatrix();
-        fHWDrawState.sampler(s)->setConvolutionParams(0, NULL, NULL);
+        fHWDrawState.sampler(s)->setConvolutionParams(0, NULL);
     }
 
     fHWBounds.fScissorRect.invalidate();
@@ -1935,6 +1935,8 @@ unsigned gr_to_gl_filter(GrSamplerState::Filter filter) {
             return GR_GL_LINEAR;
         case GrSamplerState::kNearest_Filter:
         case GrSamplerState::kConvolution_Filter:
+        case GrSamplerState::kErode_Filter:
+        case GrSamplerState::kDilate_Filter:
             return GR_GL_NEAREST;
         default:
             GrAssert(!"Unknown filter type");

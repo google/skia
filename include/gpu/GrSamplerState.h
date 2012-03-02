@@ -39,6 +39,14 @@ public:
          * Apply a separable convolution kernel.
          */
         kConvolution_Filter,
+        /**
+         * Apply a dilate filter (max over a 1D radius).
+         */
+        kDilate_Filter,
+        /**
+         * Apply an erode filter (min over a 1D radius).
+         */
+        kErode_Filter,
 
         kDefault_Filter = kNearest_Filter
     };
@@ -87,6 +95,17 @@ public:
     };
 
     /**
+     * For the filters which perform more than one texture sample (convolution,
+     * erode, dilate), this determines the direction in which the texture
+     * coordinates will be incremented.
+     */
+    enum FilterDirection {
+        kX_FilterDirection,
+        kY_FilterDirection,
+
+        kDefault_FilterDirection = kX_FilterDirection,
+    };
+    /**
      * Default sampler state is set to clamp, use normal sampling mode, be
      * unfiltered, and use identity matrix.
      */
@@ -99,6 +118,7 @@ public:
 
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
+    FilterDirection getFilterDirection() const { return fFilterDirection; }
     SampleMode getSampleMode() const { return fSampleMode; }
     const GrMatrix& getMatrix() const { return fMatrix; }
     const GrRect& getTextureDomain() const { return fTextureDomain; }
@@ -106,7 +126,6 @@ public:
     Filter getFilter() const { return fFilter; }
     int getKernelWidth() const { return fKernelWidth; }
     const float* getKernel() const { return fKernel; }
-    const float* getImageIncrement() const { return fImageIncrement; }
     bool swapsRAndB() const { return fSwapRAndB; }
 
     bool isGradient() const {
@@ -118,6 +137,7 @@ public:
     void setWrapX(WrapMode mode) { fWrapX = mode; }
     void setWrapY(WrapMode mode) { fWrapY = mode; }
     void setSampleMode(SampleMode mode) { fSampleMode = mode; }
+    void setFilterDirection(FilterDirection mode) { fFilterDirection = mode; }
     
     /**
      * Access the sampler's matrix. See SampleMode for explanation of
@@ -158,24 +178,29 @@ public:
 
     void reset(WrapMode wrapXAndY,
                Filter filter,
+               FilterDirection direction,
                const GrMatrix& matrix) {
         fWrapX = wrapXAndY;
         fWrapY = wrapXAndY;
         fSampleMode = kDefault_SampleMode;
         fFilter = filter;
+        fFilterDirection = direction;
         fMatrix = matrix;
         fTextureDomain.setEmpty();
         fSwapRAndB = false;
     }
+    void reset(WrapMode wrapXAndY, Filter filter, const GrMatrix& matrix) {
+        this->reset(wrapXAndY, filter, kDefault_FilterDirection, matrix);
+    }
     void reset(WrapMode wrapXAndY,
                Filter filter) {
-        this->reset(wrapXAndY, filter, GrMatrix::I());
+        this->reset(wrapXAndY, filter, kDefault_FilterDirection, GrMatrix::I());
     }
     void reset(const GrMatrix& matrix) {
-        this->reset(kDefault_WrapMode, kDefault_Filter, matrix);
+        this->reset(kDefault_WrapMode, kDefault_Filter, kDefault_FilterDirection, matrix);
     }
     void reset() {
-        this->reset(kDefault_WrapMode, kDefault_Filter, GrMatrix::I());
+        this->reset(kDefault_WrapMode, kDefault_Filter, kDefault_FilterDirection, GrMatrix::I());
     }
 
     GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
@@ -198,37 +223,37 @@ public:
         fRadial2PosRoot = posRoot;
     }
 
-    void setConvolutionParams(int kernelWidth, const float* kernel, float imageIncrement[2]) {
+    void setConvolutionParams(int kernelWidth, const float* kernel) {
         GrAssert(kernelWidth >= 0 && kernelWidth <= MAX_KERNEL_WIDTH);
         fKernelWidth = kernelWidth;
         if (NULL != kernel) {
             memcpy(fKernel, kernel, kernelWidth * sizeof(float));
         }
-        if (NULL != imageIncrement) {
-            memcpy(fImageIncrement, imageIncrement, sizeof(fImageIncrement));
-        } else {
-            memset(fImageIncrement, 0, sizeof(fImageIncrement));
-        }
+    }
+
+    void setMorphologyRadius(int radius) {
+        GrAssert(radius >= 0 && radius <= MAX_KERNEL_WIDTH);
+        fKernelWidth = radius;
     }
 
 private:
-    WrapMode    fWrapX : 8;
-    WrapMode    fWrapY : 8;
-    SampleMode  fSampleMode : 8;
-    Filter      fFilter : 8;
-    GrMatrix    fMatrix;
-    bool        fSwapRAndB;
-    GrRect      fTextureDomain;
+    WrapMode            fWrapX : 8;
+    WrapMode            fWrapY : 8;
+    FilterDirection     fFilterDirection : 8;
+    SampleMode          fSampleMode : 8;
+    Filter              fFilter : 8;
+    GrMatrix            fMatrix;
+    bool                fSwapRAndB;
+    GrRect              fTextureDomain;
 
     // these are undefined unless fSampleMode == kRadial2_SampleMode
-    GrScalar    fRadial2CenterX1;
-    GrScalar    fRadial2Radius0;
-    SkBool8     fRadial2PosRoot;
+    GrScalar            fRadial2CenterX1;
+    GrScalar            fRadial2Radius0;
+    SkBool8             fRadial2PosRoot;
 
     // These are undefined unless fFilter == kConvolution_Filter
-    uint8_t     fKernelWidth;
-    float       fImageIncrement[2];
-    float       fKernel[MAX_KERNEL_WIDTH];
+    uint8_t             fKernelWidth;
+    float               fKernel[MAX_KERNEL_WIDTH];
 };
 
 #endif

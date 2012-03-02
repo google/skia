@@ -166,6 +166,11 @@ inline void convolve_param_names(int stage, GrStringBuilder* k, GrStringBuilder*
     i->appendS32(stage);
 }
 
+inline void image_increment_param_name(int stage, GrStringBuilder* i) {
+    *i = "uImageIncrement";
+    i->appendS32(stage);
+}
+
 inline void tex_domain_name(int stage, GrStringBuilder* s) {
     *s = "uTexDom";
     s->appendS32(stage);
@@ -1655,6 +1660,68 @@ void genConvolutionFS(int stageNum,
     segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
                               sumVar.c_str(), modulate.c_str());
 }
+ 
+void genMorphologyVS(int stageNum,
+                     const StageDesc& desc,
+                     ShaderCodeSegments* segments,
+                     GrGLProgram::StageUniLocations* locations,
+                     const char** imageIncrementName,
+                     const char* varyingVSName) {
+    GrGLShaderVar* imgInc = &segments->fFSUnis.push_back();
+    imgInc->setType(GrGLShaderVar::kVec2f_Type);
+    imgInc->setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
+
+    image_increment_param_name(stageNum, imgInc->accessName());
+    *imageIncrementName = imgInc->getName().c_str();
+
+    // need image increment in both VS and FS
+    segments->fVSUnis.push_back(*imgInc).setEmitPrecision(true);
+
+    locations->fImageIncrementUni = kUseUniform;
+    segments->fVSCode.appendf("\t%s -= vec2(%d, %d) * %s;\n",
+                                  varyingVSName, desc.fKernelWidth,
+                                  desc.fKernelWidth, *imageIncrementName);
+}
+ 
+void genMorphologyFS(int stageNum,
+                     const StageDesc& desc,
+                     ShaderCodeSegments* segments,
+                     const char* samplerName,
+                     const char* swizzle,
+                     const char* imageIncrementName,
+                     const char* fsOutColor,
+                     GrStringBuilder& sampleCoords,
+                     GrStringBuilder& texFunc,
+                     GrStringBuilder& modulate) {
+    GrStringBuilder valueVar("value");
+    valueVar.appendS32(stageNum);
+    GrStringBuilder coordVar("coord");
+    coordVar.appendS32(stageNum);
+    bool isDilate = StageDesc::kDilate_FetchMode == desc.fFetchMode;
+
+   if (isDilate) {
+        segments->fFSCode.appendf("\tvec4 %s = vec4(0, 0, 0, 0);\n",
+                                  valueVar.c_str());
+    } else {
+        segments->fFSCode.appendf("\tvec4 %s = vec4(1, 1, 1, 1);\n",
+                                  valueVar.c_str());
+    }
+    segments->fFSCode.appendf("\tvec2 %s = %s;\n", 
+                              coordVar.c_str(),
+                              sampleCoords.c_str());
+    segments->fFSCode.appendf("\tfor (int i = 0; i < %d; i++) {\n",
+                              desc.fKernelWidth * 2 + 1);
+    segments->fFSCode.appendf("\t\t%s = %s(%s, %s(%s, %s)%s);\n",
+                              valueVar.c_str(), isDilate ? "max" : "min",
+                              valueVar.c_str(), texFunc.c_str(),
+                              samplerName, coordVar.c_str(), swizzle);
+    segments->fFSCode.appendf("\t\t%s += %s;\n",
+                              coordVar.c_str(),
+                              imageIncrementName);
+    segments->fFSCode.appendf("\t}\n");
+    segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
+                              valueVar.c_str(), modulate.c_str());
+}
 
 }
 
@@ -1755,6 +1822,10 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     if (StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
         genConvolutionVS(stageNum, desc, segments, locations,
                          &kernel, &imageIncrementName, varyingVSName);
+    } else if (StageDesc::kDilate_FetchMode == desc.fFetchMode ||
+               StageDesc::kErode_FetchMode == desc.fFetchMode) {
+        genMorphologyVS(stageNum, desc, segments, locations,
+                        &imageIncrementName, varyingVSName);
     }
 
     /// Fragment Shader Stuff
@@ -1864,6 +1935,13 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
         genConvolutionFS(stageNum, desc, segments,
             samplerName, kernel, swizzle, imageIncrementName, fsOutColor,
+            sampleCoords, texFunc, modulate);
+        break;
+    case StageDesc::kDilate_FetchMode:
+    case StageDesc::kErode_FetchMode:
+        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
+        genMorphologyFS(stageNum, desc, segments,
+            samplerName, swizzle, imageIncrementName, fsOutColor,
             sampleCoords, texFunc, modulate);
         break;
     default:
