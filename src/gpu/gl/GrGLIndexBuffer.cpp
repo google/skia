@@ -105,37 +105,29 @@ bool GrGLIndexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     this->bind();
     GrGLenum usage = dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW;
 
-    bool doNullHint = GR_GL_USE_BUFFER_DATA_NULL_HINT;
-#if GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND
-    GrAssert(!doNullHint);
-    static int N = 0;
-    doNullHint = (0 == N % 1024);
-    ++N;
-#endif
-
-    if (doNullHint) {
-        if (this->sizeInBytes() == srcSizeInBytes) {
-            GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
-                                srcSizeInBytes, src, usage));
-        } else {
-            // Before we call glBufferSubData we give the driver a hint using
-            // glBufferData with NULL. This makes the old buffer contents
-            // inaccessible to future draws. The GPU may still be processing
-            // draws that reference the old contents. With this hint it can
-            // assign a different allocation for the new contents to avoid
-            // flushing the gpu past draws consuming the old contents.
-            GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
-                               this->sizeInBytes(), NULL, usage));
-            GL_CALL(BufferSubData(GR_GL_ELEMENT_ARRAY_BUFFER,
-                                  0, srcSizeInBytes, src));
-        }
+#if GR_GL_USE_BUFFER_DATA_NULL_HINT
+    if (this->sizeInBytes() == srcSizeInBytes) {
+        GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
+                            srcSizeInBytes, src, usage));
     } else {
-        // Note that we're cheating on the size here. Currently no methods
-        // allow a partial update that preserves contents of non-updated
-        // portions of the buffer (lock() does a glBufferData(..size, NULL..))
-        GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, 
-                           srcSizeInBytes, src, usage));
+        // Before we call glBufferSubData we give the driver a hint using
+        // glBufferData with NULL. This makes the old buffer contents
+        // inaccessible to future draws. The GPU may still be processing
+        // draws that reference the old contents. With this hint it can
+        // assign a different allocation for the new contents to avoid
+        // flushing the gpu past draws consuming the old contents.
+        GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
+                           this->sizeInBytes(), NULL, usage));
+        GL_CALL(BufferSubData(GR_GL_ELEMENT_ARRAY_BUFFER,
+                              0, srcSizeInBytes, src));
     }
+#else
+    // Note that we're cheating on the size here. Currently no methods
+    // allow a partial update that preserves contents of non-updated
+    // portions of the buffer (lock() does a glBufferData(..size, NULL..))
+    GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, 
+                       srcSizeInBytes, src, usage));
+#endif
     return true;
 }
 
