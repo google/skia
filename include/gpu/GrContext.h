@@ -669,7 +669,6 @@ private:
 
     GrIndexBuffer*              fAAFillRectIndexBuffer;
     GrIndexBuffer*              fAAStrokeRectIndexBuffer;
-    int                         fMaxOffscreenAASize;
 
     GrContext(GrGpu* gpu);
 
@@ -699,39 +698,6 @@ private:
     GrPathRenderer* getPathRenderer(const GrPath& path,
                                     GrPathFill fill,
                                     bool antiAlias);
-
-    struct OffscreenRecord;
-
-    // determines whether offscreen AA should be applied
-    bool doOffscreenAA(GrDrawTarget* target,
-                       bool isHairLines) const;
-
-    // attempts to setup offscreen AA. All paint state must be transferred to
-    // target by the time this is called.
-    bool prepareForOffscreenAA(GrDrawTarget* target,
-                               bool requireStencil,
-                               const GrIRect& boundRect,
-                               GrPathRenderer* pr,
-                               OffscreenRecord* record);
-
-    // sets up target to draw coverage to the supersampled render target
-    void setupOffscreenAAPass1(GrDrawTarget* target,
-                               const GrIRect& boundRect,
-                               int tileX, int tileY,
-                               OffscreenRecord* record);
-
-    // sets up target to sample coverage of supersampled render target back
-    // to the main render target using stage kOffscreenStage.
-    void doOffscreenAAPass2(GrDrawTarget* target,
-                            const GrPaint& paint,
-                            const GrIRect& boundRect,
-                            int tileX, int tileY,
-                            OffscreenRecord* record);
-
-    // restored the draw target state and releases offscreen target to cache
-    void cleanupOffscreenAA(GrDrawTarget* target,
-                            GrPathRenderer* pr,
-                            OffscreenRecord* record);
 
     void convolve(GrTexture* texture,
                   const SkRect& rect,

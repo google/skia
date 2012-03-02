@@ -22,10 +22,6 @@
 #include "SkTLazy.h"
 #include "SkTrace.h"
 
-// Using MSAA seems to be slower for some yet unknown reason.
-#define PREFER_MSAA_OFFSCREEN_AA 0
-#define OFFSCREEN_SSAA_SCALE 4 // super sample at 4x4
-
 #define DEFER_TEXT_RENDERING 1
 
 #define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
@@ -641,246 +637,6 @@ namespace {
 inline bool disable_coverage_aa_for_blend(GrDrawTarget* target) {
     return DISABLE_COVERAGE_AA_FOR_BLEND && !target->canApplyCoverage();
 }
-}
-
-struct GrContext::OffscreenRecord {
-    enum Downsample {
-        k4x4SinglePass_Downsample,
-        kFSAA_Downsample
-    }                              fDownsample;
-    int                            fTileSizeX;
-    int                            fTileSizeY;
-    int                            fTileCountX;
-    int                            fTileCountY;
-    int                            fScale;
-    GrAutoScratchTexture           fOffscreen;
-    GrDrawTarget::SavedDrawState   fSavedState;
-    GrClip                         fClip;
-};
-
-bool GrContext::doOffscreenAA(GrDrawTarget* target,
-                              bool isHairLines) const {
-#if !GR_USE_OFFSCREEN_AA
-    return false;
-#else
-    // Line primitves are always rasterized as 1 pixel wide.
-    // Super-sampling would make them too thin but MSAA would be OK.
-    if (isHairLines &&
-        (!PREFER_MSAA_OFFSCREEN_AA || !fGpu->getCaps().fFSAASupport)) {
-        return false;
-    }
-    if (target->getDrawState().getRenderTarget()->isMultisampled()) {
-        return false;
-    }
-    if (disable_coverage_aa_for_blend(target)) {
-#if GR_DEBUG
-        //GrPrintf("Turning off AA to correctly apply blend.\n");
-#endif
-        return false;
-    }
-    return true;
-#endif
-}
-
-bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
-                                      bool requireStencil,
-                                      const GrIRect& boundRect,
-                                      GrPathRenderer* pr,
-                                      OffscreenRecord* record) {
-
-    GrAssert(GR_USE_OFFSCREEN_AA);
-
-    GrAssert(NULL == record->fOffscreen.texture());
-    GrAssert(!boundRect.isEmpty());
-
-    int boundW = boundRect.width();
-    int boundH = boundRect.height();
-
-    GrTextureDesc desc;
-
-    desc.fWidth  = GrMin(fMaxOffscreenAASize, boundW);
-    desc.fHeight = GrMin(fMaxOffscreenAASize, boundH);
-
-    if (requireStencil) {
-        desc.fFlags = kRenderTarget_GrTextureFlagBit;
-    } else {
-        desc.fFlags = kRenderTarget_GrTextureFlagBit | 
-                      kNoStencil_GrTextureFlagBit;
-    }
-
-    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
-
-    if (PREFER_MSAA_OFFSCREEN_AA && fGpu->getCaps().fFSAASupport) {
-        record->fDownsample = OffscreenRecord::kFSAA_Downsample;
-        record->fScale = 1;
-        // 16 samples matches what the skia sw rasterizer uses. (There is no
-        // accessible constant to reference from sw code).
-        desc.fSampleCnt = 16;
-    } else {
-        record->fDownsample = OffscreenRecord::k4x4SinglePass_Downsample;
-        record->fScale = OFFSCREEN_SSAA_SCALE;
-        // both downsample paths assume this
-        GR_STATIC_ASSERT(4 == OFFSCREEN_SSAA_SCALE);
-        desc.fSampleCnt = 0;
-    }
-    
-    desc.fWidth *= record->fScale;
-    desc.fHeight *= record->fScale;
-    record->fOffscreen.set(this, desc);
-    if (NULL == record->fOffscreen.texture()) {
-        return false;
-    }
-    // the approximate lookup might have given us some slop space, might as well
-    // use it when computing the tiles size.
-    // these are scale values, will adjust after considering
-    // the possible second offscreen.
-    record->fTileSizeX = record->fOffscreen.texture()->width();
-    record->fTileSizeY = record->fOffscreen.texture()->height();
-
-    record->fTileSizeX /= record->fScale;
-    record->fTileSizeY /= record->fScale;
-
-    record->fTileCountX = GrIDivRoundUp(boundW, record->fTileSizeX);
-    record->fTileCountY = GrIDivRoundUp(boundH, record->fTileSizeY);
-
-    record->fClip = target->getClip();
-
-    target->saveCurrentDrawState(&record->fSavedState);
-    return true;
-}
-
-void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
-                                      const GrIRect& boundRect,
-                                      int tileX, int tileY,
-                                      OffscreenRecord* record) {
-
-    GrRenderTarget* offRT = record->fOffscreen.texture()->asRenderTarget();
-    GrAssert(NULL != offRT);
-
-    GrDrawState* drawState = target->drawState();
-    GrMatrix vm = drawState->getViewMatrix();
-    drawState->reset();
-    *drawState->viewMatrix() = vm;
-    drawState->setRenderTarget(offRT);
-
-#if PREFER_MSAA_OFFSCREEN_AA
-    drawState->enableState(GrDrawState::kHWAntialias_StateBit);
-#endif
-
-    GrMatrix transM;
-    int left = boundRect.fLeft + tileX * record->fTileSizeX;
-    int top =  boundRect.fTop  + tileY * record->fTileSizeY;
-    transM.setTranslate(-left * GR_Scalar1, -top * GR_Scalar1);
-    drawState->viewMatrix()->postConcat(transM);
-    GrMatrix scaleM;
-    scaleM.setScale(record->fScale * GR_Scalar1, record->fScale * GR_Scalar1);
-    drawState->viewMatrix()->postConcat(scaleM);
-
-    int w = (tileX == record->fTileCountX-1) ? boundRect.fRight - left :
-                                               record->fTileSizeX;
-    int h = (tileY == record->fTileCountY-1) ? boundRect.fBottom - top :
-                                               record->fTileSizeY;
-    GrIRect clear = SkIRect::MakeWH(record->fScale * w, 
-                                    record->fScale * h);
-    target->setClip(GrClip(clear));
-    drawState->enableState(GrDrawState::kClip_StateBit);
-
-#if 0
-    // visualize tile boundaries by setting edges of offscreen to white
-    // and interior to tranparent. black.
-    target->clear(&clear, 0xffffffff);
-
-    static const int gOffset = 2;
-    GrIRect clear2 = SkIRect::MakeLTRB(gOffset, gOffset,
-                                       record->fScale * w - gOffset,
-                                       record->fScale * h - gOffset);
-    target->clear(&clear2, 0x0);
-#else
-    target->clear(&clear, 0x0);
-#endif
-}
-
-void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
-                                 const GrPaint& paint,
-                                 const GrIRect& boundRect,
-                                 int tileX, int tileY,
-                                 OffscreenRecord* record) {
-    SK_TRACE_EVENT0("GrContext::doOffscreenAAPass2");
-    GrAssert(NULL != record->fOffscreen.texture());
-    GrDrawTarget::AutoGeometryPush agp(target);
-    GrIRect tileRect;
-    tileRect.fLeft = boundRect.fLeft + tileX * record->fTileSizeX;
-    tileRect.fTop  = boundRect.fTop  + tileY * record->fTileSizeY,
-    tileRect.fRight = (tileX == record->fTileCountX-1) ? 
-                        boundRect.fRight :
-                        tileRect.fLeft + record->fTileSizeX;
-    tileRect.fBottom = (tileY == record->fTileCountY-1) ? 
-                        boundRect.fBottom :
-                        tileRect.fTop + record->fTileSizeY;
-
-    GrSamplerState::Filter filter;
-    if (OffscreenRecord::k4x4SinglePass_Downsample == record->fDownsample) {
-        filter = GrSamplerState::k4x4Downsample_Filter;
-    } else {
-        filter = GrSamplerState::kBilinear_Filter;
-    }
-
-    GrTexture* src = record->fOffscreen.texture();
-    int scale;
-
-    enum {
-        kOffscreenStage = GrPaint::kTotalStages,
-    };
-
-    GrDrawState* drawState = target->drawState();
-
-    if (OffscreenRecord::kFSAA_Downsample == record->fDownsample) {
-        scale = 1;
-        GrIRect rect = SkIRect::MakeWH(tileRect.width(), tileRect.height());
-        src->asRenderTarget()->overrideResolveRect(rect);
-    } else {
-        GrAssert(OffscreenRecord::k4x4SinglePass_Downsample == 
-                 record->fDownsample);
-        scale = 4;
-    }
-
-    // setup for draw back to main RT, we use the original
-    // draw state setup by the caller plus an additional coverage
-    // stage to handle the AA resolve. Also, we use an identity
-    // view matrix and so pre-concat sampler matrices with view inv.
-    int stageMask = paint.getActiveStageMask();
-
-    target->restoreDrawState(record->fSavedState);
-    target->setClip(record->fClip);
-
-    if (stageMask) {
-        GrMatrix invVM;
-        if (drawState->getViewInverse(&invVM)) {
-            drawState->preConcatSamplerMatrices(stageMask, invVM);
-        }
-    }
-    // This is important when tiling, otherwise second tile's 
-    // pass 1 view matrix will be incorrect.
-    GrDrawState::AutoViewMatrixRestore avmr(drawState, GrMatrix::I());
-
-    drawState->setTexture(kOffscreenStage, src);
-    GrSamplerState* sampler = drawState->sampler(kOffscreenStage);
-    sampler->reset(GrSamplerState::kClamp_WrapMode, filter);
-    sampler->matrix()->setScale(scale * GR_Scalar1 / src->width(),
-                                scale * GR_Scalar1 / src->height());
-    sampler->matrix()->preTranslate(SkIntToScalar(-tileRect.fLeft),
-                                    SkIntToScalar(-tileRect.fTop));
-
-    GrRect dstRect;
-    int stages = (1 << kOffscreenStage) | stageMask;
-    dstRect.set(tileRect);
-    target->drawSimpleRect(dstRect, NULL, stages);
-}
-
-void GrContext::cleanupOffscreenAA(GrDrawTarget* target,
-                                   GrPathRenderer* pr,
-                                   OffscreenRecord* record) {
-    target->restoreDrawState(record->fSavedState);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1623,7 +1379,6 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
         prAA = false;
     }
 
-    bool doOSAA = false;
     GrPathRenderer* pr = NULL;
     if (prAA) {
         pr = this->getPathRenderer(path, fill, true);
@@ -1633,11 +1388,6 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
             if (!get_path_and_clip_bounds(target, path, translate,
                                           &pathBounds, &clipBounds)) {
                 return;
-            }
-            prAA = false;
-            if (this->doOffscreenAA(target, kHairLine_PathFill == fill)) {
-                pr = this->getPathRenderer(path, fill, false);
-                doOSAA = true;
             }
             if (NULL == pr && sw_draw_path_to_mask_texture(path, pathBounds,
                                                            fill, this,
@@ -1684,33 +1434,6 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
 
     GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, prAA, translate);
 
-    if (doOSAA) {
-        bool needsStencil = pr->requiresStencilPass(target, path, fill);
-        GrIRect pathBounds;
-        GrIRect clipBounds;
-        if (!get_path_and_clip_bounds(target, path, translate,
-                                      &pathBounds, &clipBounds)) {
-            return;
-        }
-        OffscreenRecord record;
-        if (this->prepareForOffscreenAA(target, needsStencil, pathBounds,
-                                        pr, &record)) {
-            for (int tx = 0; tx < record.fTileCountX; ++tx) {
-                for (int ty = 0; ty < record.fTileCountY; ++ty) {
-                    this->setupOffscreenAAPass1(target, pathBounds,
-                                                tx, ty, &record);
-                    pr->drawPath(0);
-                    this->doOffscreenAAPass2(target, paint, pathBounds,
-                                             tx, ty, &record);
-                }
-            }
-            this->cleanupOffscreenAA(target, pr, &record);
-            if (GrIsFillInverted(fill)) {
-                draw_around_inv_path(target, stageMask, clipBounds, pathBounds);
-            }
-            return;
-        }
-    } 
     pr->drawPath(stageMask);
 }
 
@@ -2240,12 +1963,6 @@ GrContext::GrContext(GrGpu* gpu) {
     fAAFillRectIndexBuffer = NULL;
     fAAStrokeRectIndexBuffer = NULL;
     
-    int gpuMaxOffscreen = gpu->getCaps().fMaxRenderTargetSize;
-    if (!PREFER_MSAA_OFFSCREEN_AA || !gpu->getCaps().fFSAASupport) {
-        gpuMaxOffscreen /= OFFSCREEN_SSAA_SCALE;
-    }
-    fMaxOffscreenAASize = GrMin(GR_MAX_OFFSCREEN_AA_SIZE, gpuMaxOffscreen);
-
     this->setupDrawBuffer();
 }
 
