@@ -35,7 +35,6 @@
         '../src/images/SkImageDecoder_libbmp.cpp',
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',
-        '../src/images/SkImageDecoder_libjpeg.cpp',
         '../src/images/SkImageDecoder_libpng.cpp',
         '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageEncoder.cpp',
@@ -62,7 +61,6 @@
             '../src/images/SkFDStream.cpp',
             '../src/images/SkImageDecoder_Factory.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
-            '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkJpegUtility.cpp',
@@ -85,7 +83,6 @@
             '../src/images/SkImageDecoder_Factory.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
-            '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
@@ -99,7 +96,6 @@
           'sources!': [
             '../include/images/SkJpegUtility.h',
 
-            '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
@@ -120,7 +116,6 @@
         }],
         [ 'skia_os == "android"', {
           'sources!': [
-            '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkJpegUtility.cpp',
           ],
           'dependencies': [
