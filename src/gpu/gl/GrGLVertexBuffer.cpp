@@ -103,32 +103,44 @@ bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     GrGLenum usage = dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW;
 
     bool doNullHint = GR_GL_USE_BUFFER_DATA_NULL_HINT;
+#if GR_GL_USE_BUFFER_DATA_NULL_HINT
+    if (this->sizeInBytes() == srcSizeInBytes) {
+        GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, srcSizeInBytes, src, usage));
+    } else {
+        // Before we call glBufferSubData we give the driver a hint using
+        // glBufferData with NULL. This makes the old buffer contents
+        // inaccessible to future draws. The GPU may still be processing
+        // draws that reference the old contents. With this hint it can
+        // assign a different allocation for the new contents to avoid
+        // flushing the gpu past draws consuming the old contents.
+        GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, 
+                           this->sizeInBytes(), NULL, usage));
+        GL_CALL(BufferSubData(GR_GL_ARRAY_BUFFER, 0, srcSizeInBytes, src));
+    }
+#else
+    // Note that we're cheating on the size here. Currently no methods
+    // allow a partial update that preserves contents of non-updated
+    // portions of the buffer (lock() does a glBufferData(..size, NULL..))
+    bool doSubData = false;
 #if GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND
-    GrAssert(!doNullHint);
     static int N = 0;
-    doNullHint = (0 == N % 1024);
+    // 128 was chosen experimentally. At 256 a slight hitchiness was noticed
+    // when dragging a Chromium window around with a canvas tab backgrounded.
+    doSubData = 0 == (N % 128);
     ++N;
 #endif
-    if (doNullHint) {
-        if (this->sizeInBytes() == srcSizeInBytes) {
-            GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, srcSizeInBytes, src, usage));
-        } else {
-            // Before we call glBufferSubData we give the driver a hint using
-            // glBufferData with NULL. This makes the old buffer contents
-            // inaccessible to future draws. The GPU may still be processing
-            // draws that reference the old contents. With this hint it can
-            // assign a different allocation for the new contents to avoid
-            // flushing the gpu past draws consuming the old contents.
-            GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, 
-                               this->sizeInBytes(), NULL, usage));
-            GL_CALL(BufferSubData(GR_GL_ARRAY_BUFFER, 0, srcSizeInBytes, src));
-        }
+    if (doSubData) {
+        // The workaround is to do a glBufferData followed by glBufferSubData.
+        // Chromium's command buffer may turn a glBufferSubData where the size
+        // exactly matches the buffer size into a glBufferData. So we tack 1
+        // extra byte onto the glBufferData.
+        GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, srcSizeInBytes + 1,
+                           NULL, usage));
+        GL_CALL(BufferSubData(GR_GL_ARRAY_BUFFER, 0, srcSizeInBytes, src));
     } else {
-        // Note that we're cheating on the size here. Currently no methods
-        // allow a partial update that preserves contents of non-updated
-        // portions of the buffer (lock() does a glBufferData(..size, NULL..))
         GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, srcSizeInBytes, src, usage));
     }
+#endif
     return true;
 }
 
