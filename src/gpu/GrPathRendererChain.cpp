@@ -17,9 +17,8 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, UsageFlags flags)
     : fInit(false)
     , fOwner(context)
     , fFlags(flags) {
-    fInit = false;
 }
-    
+
 GrPathRendererChain::~GrPathRendererChain() {
     for (int i = 0; i < fChain.count(); ++i) {
         fChain[i]->unref();
