@@ -1116,7 +1116,19 @@ static const uint8_t* getGammaTable(U8CPU luminance) {
     return gGammaTables[luminance >> 6];
 }
 
-
+#ifndef SK_USE_COLOR_LUMINANCE
+static const uint8_t* getIdentityTable() {
+    static bool gOnce;
+    static uint8_t gIdentityTable[256];
+    if (!gOnce) {
+        for (int i = 0; i < 256; ++i) {
+            gIdentityTable[i] = i;
+        }
+        gOnce = true;
+    }
+    return gIdentityTable;
+}
+#endif
 
 static uint16_t packTriple(unsigned r, unsigned g, unsigned b) {
     return SkPackRGB16(r >> 3, g >> 2, b >> 3);
@@ -1212,9 +1224,17 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     const uint8_t* tableB = getGammaTable(SkColorGetB(lumColor));
 #else
     unsigned lum = fRec.getLuminanceByte();
-    const uint8_t* tableR = getGammaTable(lum);
-    const uint8_t* tableG = getGammaTable(lum);
-    const uint8_t* tableB = getGammaTable(lum);
+    const uint8_t* tableR;
+    const uint8_t* tableG;
+    const uint8_t* tableB;
+
+    bool isWhite = lum >= WHITE_LUMINANCE_LIMIT;
+    bool isBlack = lum <= BLACK_LUMINANCE_LIMIT;
+    if ((gGammaTables[0] || gGammaTables[1]) && (isBlack || isWhite)) {
+        tableR = tableG = tableB = gGammaTables[isBlack ? 0 : 1];
+    } else {
+        tableR = tableG = tableB = getIdentityTable();
+    }
 #endif
 
     switch ( fFace->glyph->format ) {
@@ -1328,7 +1348,9 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         goto ERROR;
     }
 
-#ifdef SK_GAMMA_APPLY_TO_A8
+// We used to always do this pre-USE_COLOR_LUMINANCE, but with colorlum,
+// it is optional
+#if defined(SK_GAMMA_APPLY_TO_A8) || !defined(SK_USE_COLOR_LUMINANCE)
     if (SkMask::kA8_Format == glyph.fMaskFormat) {
         SkASSERT(tableR == tableG && tableR == tableB);
         const uint8_t* table = tableR;
