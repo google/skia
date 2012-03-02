@@ -12,9 +12,16 @@
 class GrAAConvexPathRenderer : public GrPathRenderer {
 public:
     GrAAConvexPathRenderer();
-    bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
-                                       const SkPath& path,
-                                       GrPathFill fill,
-                                       bool antiAlias) const;
-    void drawPath(GrDrawState::StageMask stageMask);
+
+    virtual bool canDrawPath(const SkPath& path,
+                             GrPathFill fill,
+                             const GrDrawTarget* target,
+                             bool antiAlias) const SK_OVERRIDE;
+protected:
+    virtual bool onDrawPath(const SkPath& path,
+                            GrPathFill fill,
+                            const GrVec* translate,
+                            GrDrawTarget* target,
+                            GrDrawState::StageMask stageMask,
+                            bool antiAlias) SK_OVERRIDE;
 };

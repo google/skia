@@ -1381,7 +1381,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
 
     GrPathRenderer* pr = NULL;
     if (prAA) {
-        pr = this->getPathRenderer(path, fill, true);
+        pr = this->getPathRenderer(path, fill, target, true);
         if (NULL == pr) {
             GrAutoScratchTexture ast;
             GrIRect pathBounds, clipBounds;
@@ -1422,7 +1422,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
             }
         }
     } else {
-        pr = this->getPathRenderer(path, fill, false);
+        pr = this->getPathRenderer(path, fill, target, false);
     }
 
     if (NULL == pr) {
@@ -1432,9 +1432,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
         return;
     }
 
-    GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, prAA, translate);
-
-    pr->drawPath(stageMask);
+    pr->drawPath(path, fill, translate, target, stageMask, prAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1884,13 +1882,13 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
 
 GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
                                            GrPathFill fill,
+                                           const GrDrawTarget* target,
                                            bool antiAlias) {
     if (NULL == fPathRendererChain) {
         fPathRendererChain = 
             new GrPathRendererChain(this, GrPathRendererChain::kNone_UsageFlag);
     }
-    return fPathRendererChain->getPathRenderer(fGpu->getCaps(), path,
-                                               fill, antiAlias);
+    return fPathRendererChain->getPathRenderer(path, fill, target, antiAlias);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,15 +18,6 @@
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
 
-bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget::Caps& targetCaps,
-                                         const SkPath& path,
-                                         GrPathFill fill,
-                                         bool antiAlias) const {
-    return targetCaps.fShaderDerivativeSupport && antiAlias &&
-           kHairLine_PathFill != fill && !GrIsFillInverted(fill) &&
-           path.isConvex();
-}
-
 namespace {
 
 struct Segment {
@@ -415,17 +406,38 @@ void create_vertices(const SegmentArray&  segments,
 
 }
 
-void GrAAConvexPathRenderer::drawPath(GrDrawState::StageMask stageMask) {
-    GrAssert(fPath->isConvex());
-    if (fPath->isEmpty()) {
-        return;
+bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
+                                         GrPathFill fill,
+                                         const GrDrawTarget* target,
+                                         bool antiAlias) const {
+    if (!target->getCaps().fShaderDerivativeSupport || !antiAlias ||
+        kHairLine_PathFill == fill || GrIsFillInverted(fill) ||
+        !path.isConvex()) {
+        return false;
+    }  else {
+        return true;
     }
-    GrDrawState* drawState = fTarget->drawState();
+}
+
+bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
+                                        GrPathFill fill,
+                                        const GrVec* translate,
+                                        GrDrawTarget* target,
+                                        GrDrawState::StageMask stageMask,
+                                        bool antiAlias) {
+
+
+    if (origPath.isEmpty()) {
+        return true;
+    }
+    GrDrawState* drawState = target->drawState();
 
     GrDrawTarget::AutoStateRestore asr;
     GrMatrix vm = drawState->getViewMatrix();
-    vm.postTranslate(fTranslate.fX, fTranslate.fY);
-    asr.set(fTarget);
+    if (NULL != translate) {
+        vm.postTranslate(translate->fX, translate->fY);
+    }
+    asr.set(target);
     GrMatrix ivm;
     if (vm.invert(&ivm)) {
         drawState->preConcatSamplerMatrices(stageMask, ivm);
@@ -433,7 +445,7 @@ void GrAAConvexPathRenderer::drawPath(GrDrawState::StageMask stageMask) {
     drawState->setViewMatrix(GrMatrix::I());
 
     SkPath path;
-    fPath->transform(vm, &path);
+    origPath.transform(vm, &path);
 
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
@@ -451,26 +463,27 @@ void GrAAConvexPathRenderer::drawPath(GrDrawState::StageMask stageMask) {
     SegmentArray segments;
     SkPoint fanPt;
     if (!get_segments(path, &segments, &fanPt, &vCount, &iCount)) {
-        return;
+        return false;
     }
 
-    if (!fTarget->reserveVertexSpace(layout,
-                                     vCount,
-                                     reinterpret_cast<void**>(&verts))) {
-        return;
+    if (!target->reserveVertexSpace(layout,
+                                    vCount,
+                                    reinterpret_cast<void**>(&verts))) {
+        return false;
     }
-    if (!fTarget->reserveIndexSpace(iCount, reinterpret_cast<void**>(&idxs))) {
-        fTarget->resetVertexSource();
-        return;
+    if (!target->reserveIndexSpace(iCount, reinterpret_cast<void**>(&idxs))) {
+        target->resetVertexSource();
+        return false;
     }
 
     create_vertices(segments, fanPt, verts, idxs);
 
     drawState->setVertexEdgeType(GrDrawState::kQuad_EdgeType);
-    fTarget->drawIndexed(kTriangles_PrimitiveType,
-                         0,        // start vertex
-                         0,        // start index
-                         vCount,
-                         iCount);
+    target->drawIndexed(kTriangles_PrimitiveType,
+                        0,        // start vertex
+                        0,        // start index
+                        vCount,
+                        iCount);
+    return true;
 }
 
