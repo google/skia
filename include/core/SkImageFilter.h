@@ -80,6 +80,22 @@ public:
      */
     virtual bool asABlur(SkSize* sigma) const;
 
+    /**
+     *  Experimental.
+     *
+     *  If the filter can be expressed as an erode, return true and
+     *  set the radius in X and Y.
+     */
+    virtual bool asAnErode(SkISize* radius) const;
+
+    /**
+     *  Experimental.
+     *
+     *  If the filter can be expressed as a dilation, return true and
+     *  set the radius in X and Y.
+     */
+    virtual bool asADilate(SkISize* radius) const;
+
 protected:
     SkImageFilter() {}
     explicit SkImageFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}

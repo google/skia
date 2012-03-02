@@ -577,30 +577,33 @@ public:
     void resolveRenderTarget(GrRenderTarget* target);
 
     /**
-     * Applies a 1D convolution kernel in the X direction to a rectangle of
+     * Applies a 1D convolution kernel in the given direction to a rectangle of
      * pixels from a given texture.
      * @param texture         the texture to read from
      * @param rect            the destination rectangle
      * @param kernel          the convolution kernel (kernelWidth elements)
      * @param kernelWidth     the width of the convolution kernel
+     * @param direction       the direction in which to apply the kernel
      */
-    void convolveInX(GrTexture* texture,
-                     const SkRect& rect,
-                     const float* kernel,
-                     int kernelWidth);
+    void convolve(GrTexture* texture,
+                  const SkRect& rect,
+                  const float* kernel,
+                  int kernelWidth,
+                  GrSamplerState::FilterDirection direction);
     /**
-     * Applies a 1D convolution kernel in the Y direction to a rectangle of
+     * Applies a 1D morphology in the given direction to a rectangle of
      * pixels from a given texture.
-     * direction.
      * @param texture         the texture to read from
      * @param rect            the destination rectangle
-     * @param kernel          the convolution kernel (kernelWidth elements)
-     * @param kernelWidth     the width of the convolution kernel
+     * @param radius          the radius of the morphological operator
+     * @param filter          the filter kernel (must be kDilate or kErode)
+     * @param direction       the direction in which to apply the morphology
      */
-    void convolveInY(GrTexture* texture,
-                     const SkRect& rect,
-                     const float* kernel,
-                     int kernelWidth);
+    void applyMorphology(GrTexture* texture,
+                         const SkRect& rect,
+                         int radius,
+                         GrSamplerState::Filter filter,
+                         GrSamplerState::FilterDirection direction);
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 
@@ -698,12 +701,6 @@ private:
     GrPathRenderer* getPathRenderer(const GrPath& path,
                                     GrPathFill fill,
                                     bool antiAlias);
-
-    void convolve(GrTexture* texture,
-                  const SkRect& rect,
-                  float imageIncrement[2],
-                  const float* kernel,
-                  int kernelWidth);
 
     /**
      * Flags to the internal read/write pixels funcs

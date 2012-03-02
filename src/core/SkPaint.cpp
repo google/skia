@@ -2140,6 +2140,14 @@ bool SkImageFilter::asABlur(SkSize* sigma) const {
     return false;
 }
 
+bool SkImageFilter::asAnErode(SkISize* radius) const {
+    return false;
+}
+
+bool SkImageFilter::asADilate(SkISize* radius) const {
+    return false;
+}
+
 //////
 
 bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) {

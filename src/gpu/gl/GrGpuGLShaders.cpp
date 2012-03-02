@@ -261,7 +261,9 @@ bool GrGpuGLShaders::programUnitTest() {
             stage.fCoordMapping =  random_int(&random, StageDesc::kCoordMappingCnt);
             stage.fFetchMode = random_int(&random, StageDesc::kFetchModeCnt);
             // convolution shaders don't work with persp tex matrix
-            if (stage.fFetchMode == StageDesc::kConvolution_FetchMode) {
+            if (stage.fFetchMode == StageDesc::kConvolution_FetchMode ||
+                stage.fFetchMode == StageDesc::kDilate_FetchMode ||
+                stage.fFetchMode == StageDesc::kErode_FetchMode) {
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
@@ -273,6 +275,8 @@ bool GrGpuGLShaders::programUnitTest() {
                     stage.fKernelWidth = 0;
                     break;
                 case StageDesc::kConvolution_FetchMode:
+                case StageDesc::kDilate_FetchMode:
+                case StageDesc::kErode_FetchMode:
                     stage.fKernelWidth = random_int(&random, 2, 8);
                     stage.fInConfigFlags &= ~kMulByAlphaMask;
                     break;
@@ -560,7 +564,20 @@ void GrGpuGLShaders::flushConvolution(int s) {
     }
     int imageIncrementUni = fProgramData->fUniLocations.fStages[s].fImageIncrementUni;
     if (GrGLProgram::kUnusedUniform != imageIncrementUni) {
-        GL_CALL(Uniform2fv(imageIncrementUni, 1, sampler.getImageIncrement()));
+        const GrGLTexture* texture =
+            static_cast<const GrGLTexture*>(this->getDrawState().getTexture(s));
+        float imageIncrement[2] = { 0 };
+        switch (sampler.getFilterDirection()) {
+            case GrSamplerState::kX_FilterDirection:
+                imageIncrement[0] = 1.0f / texture->width();
+                break;
+            case GrSamplerState::kY_FilterDirection:
+                imageIncrement[1] = 1.0f / texture->height();
+                break;
+            default:
+                GrCrash("Unknown filter direction.");
+        }
+        GL_CALL(Uniform2fv(imageIncrementUni, 1, imageIncrement));
     }
 }
 
@@ -1081,6 +1098,12 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 case GrSamplerState::kConvolution_Filter:
                     stage.fFetchMode = StageDesc::kConvolution_FetchMode;
                     break;
+                case GrSamplerState::kDilate_Filter:
+                    stage.fFetchMode = StageDesc::kDilate_FetchMode;
+                    break;
+                case GrSamplerState::kErode_Filter:
+                    stage.fFetchMode = StageDesc::kErode_FetchMode;
+                    break;
                 default:
                     GrCrash("Unexpected filter!");
                     break;
@@ -1119,7 +1142,9 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 }
             }
 
-            if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
+            if (sampler.getFilter() == GrSamplerState::kConvolution_Filter ||
+                sampler.getFilter() == GrSamplerState::kDilate_Filter ||
+                sampler.getFilter() == GrSamplerState::kErode_Filter) {
                 stage.fKernelWidth = sampler.getKernelWidth();
             } else {
                 stage.fKernelWidth = 0;

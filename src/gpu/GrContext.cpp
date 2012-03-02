@@ -2007,31 +2007,11 @@ const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
     return fGpu->getQuadIndexBuffer();
 }
 
-void GrContext::convolveInX(GrTexture* texture,
-                            const SkRect& rect,
-                            const float* kernel,
-                            int kernelWidth) {
-    ASSERT_OWNED_RESOURCE(texture);
-
-    float imageIncrement[2] = {1.0f / texture->width(), 0.0f};
-    convolve(texture, rect, imageIncrement, kernel, kernelWidth);
-}
-
-void GrContext::convolveInY(GrTexture* texture,
-                            const SkRect& rect,
-                            const float* kernel,
-                            int kernelWidth) {
-    ASSERT_OWNED_RESOURCE(texture);
-
-    float imageIncrement[2] = {0.0f, 1.0f / texture->height()};
-    convolve(texture, rect, imageIncrement, kernel, kernelWidth);
-}
-
 void GrContext::convolve(GrTexture* texture,
                          const SkRect& rect,
-                         float imageIncrement[2],
                          const float* kernel,
-                         int kernelWidth) {
+                         int kernelWidth,
+                         GrSamplerState::FilterDirection direction) {
     ASSERT_OWNED_RESOURCE(texture);
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
@@ -2044,10 +2024,33 @@ void GrContext::convolve(GrTexture* texture,
     drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
                                  GrSamplerState::kConvolution_Filter,
                                  sampleM);
-    drawState->sampler(0)->setConvolutionParams(kernelWidth,
-                                                kernel,
-                                                imageIncrement);
+    drawState->sampler(0)->setConvolutionParams(kernelWidth, kernel);
+    drawState->sampler(0)->setFilterDirection(direction);
+    drawState->setTexture(0, texture);
+    fGpu->drawSimpleRect(rect, NULL, 1 << 0);
+}
 
+void GrContext::applyMorphology(GrTexture* texture,
+                                const SkRect& rect,
+                                int radius,
+                                GrSamplerState::Filter filter,
+                                GrSamplerState::FilterDirection direction) {
+    ASSERT_OWNED_RESOURCE(texture);
+    GrAssert(filter == GrSamplerState::kErode_Filter ||
+             filter == GrSamplerState::kDilate_Filter);
+
+    GrDrawTarget::AutoStateRestore asr(fGpu);
+    GrDrawState* drawState = fGpu->drawState();
+    GrRenderTarget* target = drawState->getRenderTarget();
+    drawState->reset();
+    drawState->setRenderTarget(target);
+    GrMatrix sampleM;
+    sampleM.setIDiv(texture->width(), texture->height());
+    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
+                                 filter,
+                                 sampleM);
+    drawState->sampler(0)->setMorphologyRadius(radius);
+    drawState->sampler(0)->setFilterDirection(direction);
     drawState->setTexture(0, texture);
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }

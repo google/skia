@@ -110,6 +110,8 @@ public:
                 kSingle_FetchMode,
                 k2x2_FetchMode,
                 kConvolution_FetchMode,
+                kErode_FetchMode,
+                kDilate_FetchMode,
 
                 kFetchModeCnt,
             };
