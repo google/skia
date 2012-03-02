@@ -1638,9 +1638,10 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     info->fStyle = 0;
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType
-    // fonts always have glyf tables. CTFontCopyAttribute() does not always
+    // fonts always have both glyf and loca tables. At the least, this is what
+    // sfntly needs to subset the font. CTFontCopyAttribute() does not always
     // succeed in determining this directly. 
-    if (!GetTableSize(fontID, 'glyf')) {
+    if (!GetTableSize(fontID, 'glyf') || !GetTableSize(fontID, 'loca')) {
         info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
         info->fItalicAngle = 0;
         info->fAscent = 0;
