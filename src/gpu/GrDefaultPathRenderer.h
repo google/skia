@@ -20,39 +20,48 @@ public:
     GrDefaultPathRenderer(bool separateStencilSupport,
                           bool stencilWrapOpsSupport);
 
-    virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
-                             const SkPath& path,
-                             GrPathFill fill,
-                             bool antiAlias) const SK_OVERRIDE;
 
-    virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     const SkPath& path,
-                                     GrPathFill fill) const SK_OVERRIDE;
+    virtual bool requiresStencilPass(const SkPath& path,
+                                     GrPathFill fill,
+                                     const GrDrawTarget* target) const SK_OVERRIDE;
 
-    virtual void drawPath(GrDrawState::StageMask stageMask) SK_OVERRIDE;
-    virtual void drawPathToStencil() SK_OVERRIDE;
+    virtual bool canDrawPath(const SkPath& path,
+                            GrPathFill fill,
+                            const GrDrawTarget* target,
+                            bool antiAlias) const SK_OVERRIDE;
 
-protected:
-    virtual void pathWillClear();
+    virtual void drawPathToStencil(const SkPath& path,
+                                   GrPathFill fill,
+                                   GrDrawTarget* target) SK_OVERRIDE;
 
 private:
 
-    void onDrawPath(GrDrawState::StageMask stages, bool stencilOnly);
+    virtual bool onDrawPath(const SkPath& path,
+                            GrPathFill fill,
+                            const GrVec* translate,
+                            GrDrawTarget* target,
+                            GrDrawState::StageMask stageMask,
+                            bool antiAlias) SK_OVERRIDE;
 
-    bool createGeom(GrScalar srcSpaceTol,
-                   GrDrawState::StageMask stages);
+    bool internalDrawPath(const SkPath& path,
+                          GrPathFill fill,
+                          const GrVec* translate,
+                          GrDrawTarget* target,
+                          GrDrawState::StageMask stageMask,
+                          bool stencilOnly);
+
+    bool createGeom(const SkPath& path,
+                    GrPathFill fill,
+                    const GrVec* translate,
+                    GrScalar srcSpaceTol,
+                    GrDrawTarget* target,
+                    GrDrawState::StageMask stages,
+                    GrPrimitiveType* primType,
+                    int* vertexCnt,
+                    int* indexCnt);
 
     bool    fSeparateStencil;
     bool    fStencilWrapOps;
-
-    int                         fSubpathCount;
-    SkAutoSTMalloc<8, uint16_t> fSubpathVertCount;
-    int                         fIndexCnt;
-    int                         fVertexCnt;
-    GrScalar                    fPreviousSrcTol;
-    GrDrawState::StageMask      fPreviousStages;
-    GrPrimitiveType             fPrimitiveType;
-    bool                        fUseIndexedDraw;
 
     typedef GrPathRenderer INHERITED;
 };

@@ -40,9 +40,9 @@ public:
     // takes a ref and unrefs in destructor
     GrPathRenderer* addPathRenderer(GrPathRenderer* pr);
 
-    GrPathRenderer* getPathRenderer(const GrDrawTarget::Caps& targetCaps,
-                                    const SkPath& path,
+    GrPathRenderer* getPathRenderer(const SkPath& path,
                                     GrPathFill fill,
+                                    const GrDrawTarget* target,
                                     bool antiAlias);
 
 private:

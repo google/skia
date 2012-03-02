@@ -16,12 +16,17 @@ class GrTesselatedPathRenderer : public GrPathRenderer {
 public:
     GrTesselatedPathRenderer();
 
-    virtual void drawPath(GrDrawState::StageMask stageMask);
-    virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
-                             const GrPath& path,
+    virtual bool canDrawPath(const SkPath& path,
                              GrPathFill fill,
+                             const GrDrawTarget* target,
                              bool antiAlias) const SK_OVERRIDE;
-    virtual void drawPathToStencil() SK_OVERRIDE;
+
+    virtual bool onDrawPath(const SkPath& path,
+                            GrPathFill fill,
+                            const GrVec* translate,
+                            GrDrawTarget* target,
+                            GrDrawState::StageMask stageMask,
+                            bool antiAlias) SK_OVERRIDE;
 };
 
 #endif

@@ -632,7 +632,6 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
 
                 GrPathRenderer* pr = NULL;
                 const GrPath* clipPath = NULL;
-                GrPathRenderer::AutoClearPath arp;
                 if (kRect_ClipType == clip.getElementType(c)) {
                     canRenderDirectToStencil = true;
                     fill = kEvenOdd_PathFill;
@@ -655,8 +654,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                         return false;
                     }
                     canRenderDirectToStencil =
-                        !pr->requiresStencilPass(this, *clipPath, fill);
-                    arp.set(pr, this, clipPath, fill, false, NULL);
+                        !pr->requiresStencilPass(*clipPath, fill, this);
                 }
 
                 GrSetOp op = (c == start) ? startOp : clip.getOp(c);
@@ -690,9 +688,9 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     } else {
                         if (canRenderDirectToStencil) {
                             *drawState->stencil() = gDrawToStencil;
-                            pr->drawPath(0);
+                            pr->drawPath(*clipPath, fill, NULL, this, 0, false);
                         } else {
-                            pr->drawPathToStencil();
+                            pr->drawPathToStencil(*clipPath, fill, this);
                         }
                     }
                 }
@@ -708,7 +706,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                             this->drawSimpleRect(clip.getRect(c), NULL, 0);
                         } else {
                             SET_RANDOM_COLOR
-                            pr->drawPath(0);
+                            pr->drawPath(*clipPath, fill, NULL, this, 0, false);
                         }
                     } else {
                         SET_RANDOM_COLOR
@@ -739,8 +737,7 @@ GrPathRenderer* GrGpu::getClipPathRenderer(const GrPath& path,
             new GrPathRendererChain(this->getContext(),
                                     GrPathRendererChain::kNonAAOnly_UsageFlag);
     }
-    return fPathRendererChain->getPathRenderer(this->getCaps(),
-                                               path, fill, false);
+    return fPathRendererChain->getPathRenderer(path, fill, this, false);
 }
 
 

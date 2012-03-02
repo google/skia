@@ -16,40 +16,34 @@ public:
     virtual ~GrAAHairLinePathRenderer();
 
     static GrPathRenderer* Create(GrContext* context);
-    // GrPathRenderer overrides
-    virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
-                             const SkPath& path,
-                             GrPathFill fill,
-                             bool antiAlias) const  SK_OVERRIDE;
-    virtual void drawPath(GrDrawState::StageMask stages) SK_OVERRIDE;
 
+    virtual bool canDrawPath(const SkPath& path,
+                            GrPathFill fill,
+                            const GrDrawTarget* target,
+                            bool antiAlias) const SK_OVERRIDE;
 protected:
-
-    // GrPathRenderer overrides
-    virtual void pathWillClear()  SK_OVERRIDE;
-
+    virtual bool onDrawPath(const SkPath& path,
+                            GrPathFill fill,
+                            const GrVec* translate,
+                            GrDrawTarget* target,
+                            GrDrawState::StageMask stageMask,
+                            bool antiAlias) SK_OVERRIDE;
+ 
 private:
-    void resetGeom();
 
     GrAAHairLinePathRenderer(const GrContext* context,
                              const GrIndexBuffer* fLinesIndexBuffer,
                              const GrIndexBuffer* fQuadsIndexBuffer);
 
-    bool createGeom(GrDrawState::StageMask stages);
+    bool createGeom(const SkPath& path,
+                    const GrVec* translate,
+                    GrDrawTarget* target,
+                    GrDrawState::StageMask stageMask,
+                    int* lineCnt,
+                    int* quadCnt);
 
     const GrIndexBuffer*        fLinesIndexBuffer;
     const GrIndexBuffer*        fQuadsIndexBuffer;
-
-    // have to recreate geometry if stages in use changes :(
-    GrDrawState::StageMask      fPreviousStages;
-    int                         fPreviousRTHeight;
-    SkVector                    fPreviousTranslate;
-    GrIRect                     fClipRect;
-
-    // this path renderer draws everything in device coordinates
-    GrMatrix                    fPreviousViewMatrix;
-    int                         fLineSegmentCnt;
-    int                         fQuadCnt;
 
     typedef GrPathRenderer INHERITED;
 };

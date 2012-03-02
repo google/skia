@@ -102,7 +102,6 @@ bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     this->bind();
     GrGLenum usage = dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW;
 
-    bool doNullHint = GR_GL_USE_BUFFER_DATA_NULL_HINT;
 #if GR_GL_USE_BUFFER_DATA_NULL_HINT
     if (this->sizeInBytes() == srcSizeInBytes) {
         GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, srcSizeInBytes, src, usage));

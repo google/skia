@@ -18,21 +18,7 @@
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)
     : fSeparateStencil(separateStencilSupport)
-    , fStencilWrapOps(stencilWrapOpsSupport)
-    , fSubpathCount(0)
-    , fSubpathVertCount(0)
-    , fPreviousSrcTol(-GR_Scalar1)
-    , fPreviousStages(-1) {
-    fTarget = NULL;
-}
-
-bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget::Caps& targetCaps,
-                                        const SkPath& path,
-                                        GrPathFill fill,
-                                        bool antiAlias) const {
-    // this class can draw any path with any fill but doesn't do any 
-    // anti-aliasing.
-    return !antiAlias; 
+    , fStencilWrapOps(stencilWrapOpsSupport) {
 }
 
 
@@ -175,20 +161,10 @@ static inline bool single_pass_path(const GrPath& path, GrPathFill fill) {
 #endif
 }
 
-bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
-                                                const GrPath& path,
-                                                GrPathFill fill) const {
+bool GrDefaultPathRenderer::requiresStencilPass(const SkPath& path,
+                                                GrPathFill fill,
+                                                const GrDrawTarget* target) const {
     return !single_pass_path(path, fill);
-}
-
-void GrDefaultPathRenderer::pathWillClear() {
-    fSubpathVertCount.reset(0);
-    fTarget->resetVertexSource();
-    if (fUseIndexedDraw) {
-        fTarget->resetIndexSource();
-    }
-    fPreviousSrcTol = -GR_Scalar1;
-    fPreviousStages = -1;
 }
 
 static inline void append_countour_edge_indices(GrPathFill fillType,
@@ -205,13 +181,21 @@ static inline void append_countour_edge_indices(GrPathFill fillType,
     *((*indices)++) = edgeV0Idx + 1;
 }
 
-bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
-                                       GrDrawState::StageMask stageMask) {
+bool GrDefaultPathRenderer::createGeom(const SkPath& path,
+                                       GrPathFill fill,
+                                       const GrVec* translate,
+                                       GrScalar srcSpaceTol,
+                                       GrDrawTarget* target,
+                                       GrDrawState::StageMask stageMask,
+                                       GrPrimitiveType* primType,
+                                       int* vertexCnt,
+                                       int* indexCnt) {
     {
     SK_TRACE_EVENT0("GrDefaultPathRenderer::createGeom");
 
     GrScalar srcSpaceTolSqd = GrMul(srcSpaceTol, srcSpaceTol);
-    int maxPts = GrPathUtils::worstCasePointCount(*fPath, &fSubpathCount,
+    int contourCnt;
+    int maxPts = GrPathUtils::worstCasePointCount(path, &contourCnt,
                                                   srcSpaceTol);
 
     if (maxPts <= 0) {
@@ -229,27 +213,27 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
         }
     }
 
-    fUseIndexedDraw = fSubpathCount > 1;
+    bool indexed = contourCnt > 1;
 
     int maxIdxs = 0;
-    if (kHairLine_PathFill == fFill) {
-        if (fUseIndexedDraw) {
+    if (kHairLine_PathFill == fill) {
+        if (indexed) {
             maxIdxs = 2 * maxPts;
-            fPrimitiveType = kLines_PrimitiveType;
+            *primType = kLines_PrimitiveType;
         } else {
-            fPrimitiveType = kLineStrip_PrimitiveType;
+            *primType = kLineStrip_PrimitiveType;
         }
     } else {
-        if (fUseIndexedDraw) {
+        if (indexed) {
             maxIdxs = 3 * maxPts;
-            fPrimitiveType = kTriangles_PrimitiveType;
+            *primType = kTriangles_PrimitiveType;
         } else {
-            fPrimitiveType = kTriangleFan_PrimitiveType;
+            *primType = kTriangleFan_PrimitiveType;
         }
     }
 
     GrPoint* base;
-    if (!fTarget->reserveVertexSpace(layout, maxPts, (void**)&base)) {
+    if (!target->reserveVertexSpace(layout, maxPts, (void**)&base)) {
         return false;
     }
     GrAssert(NULL != base);
@@ -258,23 +242,21 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
     uint16_t* idxBase = NULL;
     uint16_t* idx = NULL;
     uint16_t subpathIdxStart = 0;
-    if (fUseIndexedDraw) {
-        if (!fTarget->reserveIndexSpace(maxIdxs, (void**)&idxBase)) {
-            fTarget->resetVertexSource();
+    if (indexed) {
+        if (!target->reserveIndexSpace(maxIdxs, (void**)&idxBase)) {
+            target->resetVertexSource();
             return false;
         }
         GrAssert(NULL != idxBase);
         idx = idxBase;
     }
 
-    fSubpathVertCount.reset(fSubpathCount);
-
     GrPoint pts[4];
 
     bool first = true;
     int subpath = 0;
 
-    SkPath::Iter iter(*fPath, false);
+    SkPath::Iter iter(path, false);
 
     for (;;) {
         GrPathCmd cmd = (GrPathCmd)iter.next(pts);
@@ -282,7 +264,6 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
             case kMove_PathCmd:
                 if (!first) {
                     uint16_t currIdx = (uint16_t) (vert - base);
-                    fSubpathVertCount[subpath] = currIdx - subpathIdxStart;
                     subpathIdxStart = currIdx;
                     ++subpath;
                 }
@@ -290,9 +271,9 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
                 vert++;
                 break;
             case kLine_PathCmd:
-                if (fUseIndexedDraw) {
+                if (indexed) {
                     uint16_t prevIdx = (uint16_t)(vert - base) - 1;
-                    append_countour_edge_indices(fFill, subpathIdxStart,
+                    append_countour_edge_indices(fill, subpathIdxStart,
                                                  prevIdx, &idx);
                 }
                 *(vert++) = pts[1];
@@ -305,9 +286,9 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
                             pts[0], pts[1], pts[2],
                             srcSpaceTolSqd, &vert,
                             GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
-                if (fUseIndexedDraw) {
+                if (indexed) {
                     for (uint16_t i = 0; i < numPts; ++i) {
-                        append_countour_edge_indices(fFill, subpathIdxStart,
+                        append_countour_edge_indices(fill, subpathIdxStart,
                                                      firstQPtIdx + i, &idx);
                     }
                 }
@@ -320,9 +301,9 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
                                 pts[0], pts[1], pts[2], pts[3],
                                 srcSpaceTolSqd, &vert,
                                 GrPathUtils::cubicPointCount(pts, srcSpaceTol));
-                if (fUseIndexedDraw) {
+                if (indexed) {
                     for (uint16_t i = 0; i < numPts; ++i) {
-                        append_countour_edge_indices(fFill, subpathIdxStart,
+                        append_countour_edge_indices(fill, subpathIdxStart,
                                                      firstCPtIdx + i, &idx);
                     }
                 }
@@ -332,7 +313,6 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
                 break;
             case kEnd_PathCmd:
                 uint16_t currIdx = (uint16_t) (vert - base);
-                fSubpathVertCount[subpath] = currIdx - subpathIdxStart;
                 goto FINISHED;
         }
         first = false;
@@ -341,49 +321,49 @@ FINISHED:
     GrAssert((vert - base) <= maxPts);
     GrAssert((idx - idxBase) <= maxIdxs);
 
-    fVertexCnt = vert - base;
-    fIndexCnt = idx - idxBase;
+    *vertexCnt = vert - base;
+    *indexCnt = idx - idxBase;
 
-    if (fTranslate.fX || fTranslate.fY) {
+    if (NULL != translate && 
+        (translate->fX || translate->fY)) {
         int count = vert - base;
         for (int i = 0; i < count; i++) {
-            base[i].offset(fTranslate.fX, fTranslate.fY);
+            base[i].offset(translate->fX, translate->fY);
         }
     }
     }
-    // set these at the end so if we failed on first drawPath inside a
-    // setPath/clearPath block we won't assume geom was created on a subsequent
-    // drawPath in the same block.
-    fPreviousSrcTol = srcSpaceTol;
-    fPreviousStages = stageMask;
     return true;
 }
 
-void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
-                                       bool stencilOnly) {
+bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
+                                             GrPathFill fill,
+                                             const GrVec* translate,
+                                             GrDrawTarget* target,
+                                             GrDrawState::StageMask stageMask,
+                                             bool stencilOnly) {
 
-    GrMatrix viewM = fTarget->getDrawState().getViewMatrix();
+    GrMatrix viewM = target->getDrawState().getViewMatrix();
     GrScalar tol = GR_Scalar1;
-    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, fPath->getBounds());
-    GrDrawState* drawState = fTarget->drawState();
+    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, path.getBounds());
+    GrDrawState* drawState = target->drawState();
 
-    // FIXME: It's really dumb that we recreate the verts for a new vertex
-    // layout. We only do that because the GrDrawTarget API doesn't allow
-    // us to change the vertex layout after reserveVertexSpace(). We won't
-    // actually change the vertex data when the layout changes since all the
-    // stages reference the positions (rather than having separate tex coords)
-    // and we don't ever have per-vert colors. In practice our call sites
-    // won't change the stages in use inside a setPath / removePath pair. But
-    // it is a silly limitation of the GrDrawTarget design that should be fixed.
-    if (tol != fPreviousSrcTol ||
-        stageMask != fPreviousStages) {
-        if (!this->createGeom(tol, stageMask)) {
-            return;
-        }
+    int vertexCnt;
+    int indexCnt;
+    GrPrimitiveType primType;
+    if (!this->createGeom(path,
+                          fill,
+                          translate,
+                          tol,
+                          target,
+                          stageMask,
+                          &primType,
+                          &vertexCnt,
+                          &indexCnt)) {
+        return false;
     }
 
-    GrAssert(NULL != fTarget);
-    GrDrawTarget::AutoStateRestore asr(fTarget);
+    GrAssert(NULL != target);
+    GrDrawTarget::AutoStateRestore asr(target);
     bool colorWritesWereDisabled = drawState->isColorWriteDisabled();
     // face culling doesn't make sense here
     GrAssert(GrDrawState::kBoth_DrawFace == drawState->getDrawFace());
@@ -394,7 +374,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
     bool                        reverse = false;
     bool                        lastPassIsBounds;
 
-    if (kHairLine_PathFill == fFill) {
+    if (kHairLine_PathFill == fill) {
         passCount = 1;
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
@@ -404,7 +384,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
         lastPassIsBounds = false;
         drawFace[0] = GrDrawState::kBoth_DrawFace;
     } else {
-        if (single_pass_path(*fPath, fFill)) {
+        if (single_pass_path(path, fill)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -414,7 +394,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
             drawFace[0] = GrDrawState::kBoth_DrawFace;
             lastPassIsBounds = false;
         } else {
-            switch (fFill) {
+            switch (fill) {
                 case kInverseEvenOdd_PathFill:
                     reverse = true;
                     // fallthrough
@@ -475,7 +455,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
                     break;
                 default:
                     GrAssert(!"Unknown path fFill!");
-                    return;
+                    return false;
             }
         }
     }
@@ -507,44 +487,63 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawState::StageMask stageMask,
                     if (stageMask) {
                         if (!drawState->getViewInverse(&vmi)) {
                             GrPrintf("Could not invert matrix.");
-                            return;
+                            return false;
                         }
                         drawState->preConcatSamplerMatrices(stageMask, vmi);
                     }
                     drawState->setViewMatrix(GrMatrix::I());
                 }
             } else {
-                bounds = fPath->getBounds();
-                bounds.offset(fTranslate);
+                bounds = path.getBounds();
+                if (NULL != translate) {
+                    bounds.offset(*translate);
+                }
             }
-            GrDrawTarget::AutoGeometryPush agp(fTarget);
-            fTarget->drawSimpleRect(bounds, NULL, stageMask);
+            GrDrawTarget::AutoGeometryPush agp(target);
+            target->drawSimpleRect(bounds, NULL, stageMask);
         } else {
             if (passCount > 1) {
                 drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
             }
-            if (fUseIndexedDraw) {
-                fTarget->drawIndexed(fPrimitiveType, 0, 0, 
-                                     fVertexCnt, fIndexCnt);
+            if (indexCnt) {
+                target->drawIndexed(primType, 0, 0, 
+                                    vertexCnt, indexCnt);
             } else {
-                int baseVertex = 0;
-                for (int sp = 0; sp < fSubpathCount; ++sp) {
-                    fTarget->drawNonIndexed(fPrimitiveType, baseVertex,
-                                            fSubpathVertCount[sp]);
-                    baseVertex += fSubpathVertCount[sp];
-                }
+                target->drawNonIndexed(primType, 0, vertexCnt);
             }
         }
     }
     }
+    return true;
 }
 
-void GrDefaultPathRenderer::drawPath(GrDrawState::StageMask stageMask) {
-    this->onDrawPath(stageMask, false);
+bool GrDefaultPathRenderer::canDrawPath(const SkPath& path,
+                                        GrPathFill fill,
+                                        const GrDrawTarget* target,
+                                        bool antiAlias) const {
+    // this class can draw any path with any fill but doesn't do any 
+    // anti-aliasing.
+    return !antiAlias;
 }
 
-void GrDefaultPathRenderer::drawPathToStencil() {
-    GrAssert(kInverseEvenOdd_PathFill != fFill);
-    GrAssert(kInverseWinding_PathFill != fFill);
-    this->onDrawPath(0, true);
+bool GrDefaultPathRenderer::onDrawPath(const SkPath& path,
+                                       GrPathFill fill,
+                                       const GrVec* translate,
+                                       GrDrawTarget* target,
+                                       GrDrawState::StageMask stageMask,
+                                       bool antiAlias) {
+    return this->internalDrawPath(path,
+                                  fill,
+                                  translate,
+                                  target,
+                                  stageMask,
+                                  false);
+}
+
+void GrDefaultPathRenderer::drawPathToStencil(const SkPath& path,
+                                              GrPathFill fill,
+                                              GrDrawTarget* target) {
+    GrAssert(kInverseEvenOdd_PathFill != fill);
+    GrAssert(kInverseWinding_PathFill != fill);
+    this->internalDrawPath(path, fill, NULL, target, 0, true);
 }

@@ -700,6 +700,7 @@ private:
 
     GrPathRenderer* getPathRenderer(const GrPath& path,
                                     GrPathFill fill,
+                                    const GrDrawTarget* target,
                                     bool antiAlias);
 
     /**
