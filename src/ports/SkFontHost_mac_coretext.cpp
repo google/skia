@@ -1635,10 +1635,24 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         populate_glyph_to_unicode(ctFont, glyphCount, &info->fGlyphToUnicode);
     }
 
-    // TODO: get font type, ala:
-    //  CFTypeRef attr = CTFontCopyAttribute(ctFont, kCTFontFormatAttribute);
-    info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     info->fStyle = 0;
+
+    // If it's not a truetype font, mark it as 'other'. Assume that TrueType
+    // fonts always have glyf tables. CTFontCopyAttribute() does not always
+    // succeed in determining this directly. 
+    if (!GetTableSize(fontID, 'glyf')) {
+        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
+        info->fItalicAngle = 0;
+        info->fAscent = 0;
+        info->fDescent = 0;
+        info->fStemV = 0;
+        info->fCapHeight = 0;
+        info->fBBox = SkIRect::MakeEmpty();
+        CFSafeRelease(ctFont);
+        return info;
+    }
+
+    info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     CTFontSymbolicTraits symbolicTraits = CTFontGetSymbolicTraits(ctFont);
     if (symbolicTraits & kCTFontMonoSpaceTrait) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
