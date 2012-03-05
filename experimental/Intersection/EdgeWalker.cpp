@@ -14,9 +14,9 @@
 #include "SkTDArray.h"
 #include "TSearch.h"
 
-static bool gShowDebugf = true; // FIXME: remove once debugging is complete
+static bool gShowDebugf = false; // FIXME: remove once debugging is complete
 static bool gShowPath = false;
-static bool gDebugLessThan = true;
+static bool gDebugLessThan = false;
 
 static int LineIntersect(const SkPoint a[2], const SkPoint b[2],
         double aRange[2], double bRange[2]) {
@@ -165,9 +165,9 @@ public:
             if (listIndex >= listCount) {
                 break;
             }
+            int closeEdgeIndex = -listIndex - 1;
             SkPoint firstPt, lastLine[2];
             bool doMove = true;
-            bool closed = false;
             int edgeIndex;
             do {
                 SkPoint* ptArray = fEdges[listIndex].fPts;
@@ -193,7 +193,6 @@ public:
                             lastLine[0] = *start;
                             lastLine[1] = *end;
                             doMove = false;
-                            closed = false;
                             break;
                         }
                         gap = lastLine[1] != *start;
@@ -216,15 +215,6 @@ public:
                             lastLine[0] = *start;
                         }
                         lastLine[1] = *end;
-                        if (firstPt == *end) {
-                            simple.lineTo(end->fX, end->fY);
-                            simple.close();
-                            if (gShowDebugf) {
-                                SkDebugf("%s close 1 (%g, %g)\n", __FUNCTION__,
-                                        end->fX, end->fY);
-                            }
-                            closed = true;
-                        }
                         break;
                     default:
                         // FIXME: add other curve types
@@ -237,26 +227,31 @@ public:
                     edgeIndex = fBottoms[listIndex];
                     fBottoms[listIndex] = 0;
                 }
-                if (!edgeIndex) {
+                if (edgeIndex) {
+                    listIndex = abs(edgeIndex) - 1;
+                    if (edgeIndex < 0) {
+                        fTops[listIndex] = 0;
+                    } else {
+                        fBottoms[listIndex] = 0;
+                    }
+                }
+                if (edgeIndex == closeEdgeIndex || edgeIndex == 0) {
+                    if (lastLine[1] != firstPt) {
+                        simple.lineTo(lastLine[1].fX, lastLine[1].fY);
+                    }
                     simple.lineTo(firstPt.fX, firstPt.fY);
                     simple.close();
                     if (gShowDebugf) {
-                        SkDebugf("%s close 2 (%g,%g)\n", __FUNCTION__,
-                            firstPt.fX, firstPt.fY);
+                        SkDebugf("%s close (%g, %g)\n", __FUNCTION__,
+                                firstPt.fX, firstPt.fY);
                     }
                     break;
-                }
-                listIndex = abs(edgeIndex) - 1;
-                if (edgeIndex < 0) {
-                    fTops[listIndex] = 0;
-                } else {
-                    fBottoms[listIndex] = 0;
                 }
                 // if this and next edge go different directions 
                 if (advance > 0 ^ edgeIndex < 0) {
                     advance = -advance;
                 }
-            } while (edgeIndex && !closed);
+            } while (edgeIndex);
         } while (true);
     }
     
@@ -396,8 +391,15 @@ struct Bounds : public SkRect {
     }
 };
 
-struct Intercepts {
+class Intercepts {
+public:
+    Intercepts()
+        : fTopIntercepts(0)
+        , fBottomIntercepts(0) {
+    }
     SkTDArray<double> fTs;
+    int fTopIntercepts;
+    int fBottomIntercepts;
 };
 
 struct InEdge {
@@ -407,13 +409,18 @@ struct InEdge {
                 : fBounds.fTop < rh.fBounds.fTop;
     }
 
-    bool add(double* ts, size_t count, ptrdiff_t verbIndex) {
+    void add(double* ts, size_t count, ptrdiff_t verbIndex) {
         // FIXME: in the pathological case where there is a ton of intercepts, binary search?
         bool foundIntercept = false;
         Intercepts& intercepts = fIntercepts[verbIndex];
         for (size_t index = 0; index < count; ++index) {
             double t = ts[index];
-            if (t <= 0 || t >= 1) {
+            if (t <= 0) {
+                fContainsIntercepts |= ++intercepts.fTopIntercepts > 1;
+                continue;
+            }
+            if (t >= 1) {
+                fContainsIntercepts |= ++intercepts.fBottomIntercepts > 1;
                 continue;
             }
             foundIntercept = true;
@@ -424,14 +431,15 @@ struct InEdge {
                     if (delta > 0) {
                         *intercepts.fTs.insert(idx2) = t;
                     }
-                    return foundIntercept;
+                    fContainsIntercepts = true;
+                    return;
                 }
             }
             if (tCount == 0 || t > intercepts.fTs[tCount - 1]) {
                 *intercepts.fTs.append() = t;
             }
         }
-        return foundIntercept;
+        fContainsIntercepts |= foundIntercept;
     }
 
     bool cached(const InEdge* edge) {
@@ -483,7 +491,7 @@ struct InEdge {
     // temporary data : move this to a separate struct?
     SkTDArray<const InEdge*> fCached; // list of edges already intercepted
     SkTArray<Intercepts> fIntercepts; // one per verb
-    
+
     // persistent data
     SkTDArray<SkPoint> fPts;
     SkTDArray<uint8_t> fVerbs;
@@ -739,8 +747,9 @@ struct ActiveEdge {
     
     void calcLeft(SkScalar y) {
         // OPTIMIZE: put a kDone_Verb at the end of the verb list?
-        if (done(y))
+        if (fDone || fBelow.fY > y) {
             return; // nothing to do; use last
+        }
         calcLeft();
     }
     
@@ -772,6 +781,7 @@ struct ActiveEdge {
     void init(const InEdge* edge) {
         fWorkEdge.init(edge);
         initT();
+        fBelow.fY = SK_ScalarMin;
         fDone = false;
         fYBottom = SK_ScalarMin;
     }
@@ -792,7 +802,7 @@ struct ActiveEdge {
     // t values, since the same t values could exist intersecting non-coincident
     // edges.
     bool isCoincidentWith(const ActiveEdge* edge, SkScalar y) const {
-        if (fAbove.fX != edge->fAbove.fX || fBelow.fX != edge->fBelow.fX) {
+        if (fAbove != edge->fAbove || fBelow != edge->fBelow) {
             return false;
         }
         uint8_t verb = fDone ? fWorkEdge.lastVerb() : fWorkEdge.verb();
@@ -803,14 +813,7 @@ struct ActiveEdge {
         }
         switch (verb) {
             case SkPath::kLine_Verb: {
-                int offset = fDone ? -1 : 1;
-                int edgeOffset = edge->fDone ? -1 : 1;
-                const SkPoint* pts = fWorkEdge.fPts;
-                const SkPoint* edgePts = edge->fWorkEdge.fPts;
-                return (pts->fX - pts[offset].fX)
-                        * (edgePts->fY - edgePts[edgeOffset].fY)
-                        == (pts->fY - pts[offset].fY)
-                        * (edgePts->fX - edgePts[edgeOffset].fX);
+                return true;
             }
             default:
                 // FIXME: add support for all curve types
@@ -886,7 +889,12 @@ static void addToActive(SkTDArray<ActiveEdge>& activeEdges, const InEdge* edge) 
     active->init(edge);
 }
 
-    // find any intersections in the range of active edges
+// Find any intersections in the range of active edges. A pair of edges, on
+// either side of another edge, may change the winding contribution for part of
+// the edge. 
+// OPTIMIZATION: Another approach would be to keep horizontal edges just for
+// the purpose of computing when edges change their winding contribution, since
+// this is essentially computing the horizontal intersection. 
 static void addBottomT(InEdge** currentPtr, InEdge** lastPtr, SkScalar bottom) {
     InEdge** testPtr = currentPtr;
     InEdge* test = *testPtr;
@@ -901,8 +909,7 @@ static void addBottomT(InEdge** currentPtr, InEdge** lastPtr, SkScalar bottom) {
                     double wtTs[2];
                     int pts = LineIntersect(wt.fPts, bottom, wtTs);
                     if (pts) {
-                        test->fContainsIntercepts |= test->add(wtTs, pts,
-                                wt.verbIndex());
+                        test->add(wtTs, pts, wt.verbIndex());
                     }
                 } else {
                     // FIXME: add all curve types
@@ -936,10 +943,8 @@ static void addIntersectingTs(InEdge** currentPtr, InEdge** lastPtr) {
                     double wtTs[2], wnTs[2];
                     int pts = LineIntersect(wt.fPts, wn.fPts, wtTs, wnTs);
                     if (pts) {
-                        test->fContainsIntercepts |= test->add(wtTs, pts,
-                                wt.verbIndex());
-                        next->fContainsIntercepts |= next->add(wnTs, pts,
-                                wn.verbIndex());
+                        test->add(wtTs, pts, wt.verbIndex());
+                        next->add(wnTs, pts, wn.verbIndex());
                     }
                 } else {
                     // FIXME: add all combinations of curve types
@@ -987,6 +992,18 @@ static void computeInterceptBottom(SkTDArray<ActiveEdge>& activeEdges,
         wt.init(test);
         do {
             const Intercepts& intercepts = test->fIntercepts[wt.verbIndex()];
+            if (intercepts.fTopIntercepts > 1) {
+                SkScalar yTop = wt.fPts[0].fY;
+                if (yTop > y && bottom > yTop) {
+                    bottom = yTop;
+                }
+            }
+            if (intercepts.fBottomIntercepts > 1) {
+                SkScalar yBottom = wt.fPts[wt.verb()].fY;
+                if (yBottom > y && bottom > yBottom) {
+                    bottom = yBottom;
+                }
+            }
             const SkTDArray<double>& fTs = intercepts.fTs;
             size_t count = fTs.count();
             for (size_t index = 0; index < count; ++index) {
@@ -1099,8 +1116,10 @@ static void sortHorizontal(SkTDArray<ActiveEdge>& activeEdges,
             // and not all at once as is done here, fold this test into the
             // current less than test.
             if (activePtr->swapCoincident(nextPtr, bottom)) {
+                winding -= activePtr->fWorkEdge.winding();
                 SkTSwap<ActiveEdge*>(edgeList[index - 1], edgeList[index]);
                 SkTSwap<ActiveEdge*>(activePtr, nextPtr);
+                winding += activePtr->fWorkEdge.winding();
             }
             if (!firstCoincident) {
                 firstCoincident = activePtr;
@@ -1154,7 +1173,8 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
         bool closer = (winding & windingMask) == 0;
         SkASSERT(!opener | !closer);
         bool inWinding = opener | closer;
-        const SkPoint* clipped;
+        SkPoint clippedPts[2];
+        const SkPoint* clipped = NULL;
         uint8_t verb = wt.verb();
         bool moreToDo, aboveBottom;
         do {
@@ -1165,7 +1185,6 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
             do {
                 nextT = activePtr->nextT();
                 if (verb == SkPath::kLine_Verb) {
-                    SkPoint clippedPts[2];
                     // FIXME: obtuse: want efficient way to say 
                     // !currentT && currentT != 1 || !nextT && nextT != 1
                     if (currentT * nextT != 0 || currentT + nextT != 1) {
@@ -1183,6 +1202,11 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
                                     clipped[1].fX, clipped[1].fY);
                         }
                         outBuilder.addLine(clipped);
+                    }
+                    if (clipped[1].fY > activePtr->fBelow.fY
+                            && bottom >= activePtr->fBelow.fY ) {
+                        activePtr->fAbove = activePtr->fBelow;
+                        activePtr->fBelow = clipped[1];
                     }
                     activePtr->fSkip = false;
                 } else {
@@ -1214,6 +1238,9 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
     InEdge edgeSentinel;
     makeEdgeList(edges, edgeSentinel, edgeList);
     InEdge** currentPtr = edgeList.begin();
+    if (!currentPtr) {
+        return;
+    }
     // walk the sorted edges from top to bottom, computing accumulated winding
     SkTDArray<ActiveEdge> activeEdges;
     OutEdgeBuilder outBuilder(asFill);

@@ -245,6 +245,91 @@ static void testSimplifyTriangle17() {
     comparePaths(path, out);
 }
     
+static void testSimplifyTriangle18() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.lineTo(0, 3);
+    path.close();
+    simplify(path, true, out);
+    comparePaths(path, out);
+}
+
+static void testSimplifyTriangle19() {
+    SkPath path, out;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.lineTo(2, 1);
+    path.close();
+    simplify(path, true, out);
+    comparePaths(path, out);
+}
+
+static void testSimplifyTriangle20() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(2, 1);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(3, 2);
+    path.lineTo(0, 3);
+    path.close();
+    simplify(path, true, out);
+    comparePaths(path, out);
+}
+
+static void testSimplifyTriangle21() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(2, 1);
+    path.lineTo(0, 3);
+    path.close();
+    simplify(path, true, out);
+    comparePaths(path, out);
+}
+
+static void testSimplifyDegenerateTriangle1() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.close();
+    simplify(path, true, out);
+    comparePaths(path, out);
+}
+
+static void testSimplifyDegenerateTriangle2() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 2);
+    path.lineTo(3, 3);
+    path.close();
+    simplify(path, true, out);
+    comparePaths(path, out);
+}
+
 static void testSimplifyWindingParallelogram() {
     SkPath path, out;
     path.setFillType(SkPath::kWinding_FillType);
@@ -361,6 +446,67 @@ static void testSimplifyNondegenerate4x4Triangles() {
     }
 }
 
+static void testSimplifyDegenerate4x4Triangles() {
+    char pathStr[1024];
+    bzero(pathStr, sizeof(pathStr));
+    for (int a = 0; a < 16; ++a) {
+        int ax = a & 0x03;
+        int ay = a >> 2;
+        for (int b = a ; b < 16; ++b) {
+            int bx = b & 0x03;
+            int by = b >> 2;
+            for (int c = a ; c < 16; ++c) {
+                int cx = c & 0x03;
+                int cy = c >> 2;
+                bool abcIsATriangle = (bx - ax) * (cy - ay)
+                        != (by - ay) * (cx - ax);
+                for (int d = 0; d < 16; ++d) {
+                    int dx = d & 0x03;
+                    int dy = d >> 2;
+                    for (int e = d ; e < 16; ++e) {
+                        int ex = e & 0x03;
+                        int ey = e >> 2;
+                        for (int f = d ; f < 16; ++f) {
+                            int fx = f & 0x03;
+                            int fy = f >> 2;
+                            if (abcIsATriangle && (ex - dx) * (fy - dy)
+                                    != (ey - dy) * (fx - dx)) {
+                                continue;
+                            }
+                            SkPath path, out;
+                            path.setFillType(SkPath::kWinding_FillType);
+                            path.moveTo(ax, ay);
+                            path.lineTo(bx, by);
+                            path.lineTo(cx, cy);
+                            path.close();
+                            path.moveTo(dx, dy);
+                            path.lineTo(ex, ey);
+                            path.lineTo(fx, fy);
+                            path.close();
+                            if (1) {
+                                char* str = pathStr;
+                                str += sprintf(str, "    path.moveTo(%d, %d);\n", ax, ay);
+                                str += sprintf(str, "    path.lineTo(%d, %d);\n", bx, by);
+                                str += sprintf(str, "    path.lineTo(%d, %d);\n", cx, cy);
+                                str += sprintf(str, "    path.close();\n");
+                                str += sprintf(str, "    path.moveTo(%d, %d);\n", dx, dy);
+                                str += sprintf(str, "    path.lineTo(%d, %d);\n", ex, ey);
+                                str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
+                                str += sprintf(str, "    path.close();");
+                            }
+                            simplify(path, true, out);
+                            comparePaths(path, out);
+                            path.setFillType(SkPath::kEvenOdd_FillType);
+                            simplify(path, true, out);
+                            comparePaths(path, out);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 static void testPathTriangleRendering() {
     SkPath one, two;
     one.moveTo(0, 0);
@@ -382,6 +528,12 @@ static void testPathTriangleRendering() {
 }
 
 static void (*simplifyTests[])() = {
+    testSimplifyDegenerateTriangle2,
+    testSimplifyDegenerateTriangle1,
+    testSimplifyTriangle21,
+    testSimplifyTriangle20,
+    testSimplifyTriangle19,
+    testSimplifyTriangle18,
     testSimplifyTriangle17,
     testSimplifyTriangle16,
     testSimplifyTriangle15,
@@ -401,6 +553,7 @@ static void (*simplifyTests[])() = {
     testSimplifyTriangle2,
     testSimplifyWindingParallelogram,
     testSimplifyXorParallelogram,
+    testSimplifyDegenerate4x4Triangles,
     testSimplifyNondegenerate4x4Triangles,
     testPathTriangleRendering,
 };
