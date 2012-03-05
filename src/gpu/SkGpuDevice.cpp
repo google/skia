@@ -1110,13 +1110,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
     bool             doFill = true;
 
-    SkScalar coverage = SK_Scalar1;
-    // can we cheat, and threat a thin stroke as a hairline w/ coverage
-    // if we can, we draw lots faster (raster device does this same test)
-    if (SkDrawTreatAsHairline(paint, *draw.fMatrix, &coverage)) {
-        doFill = false;
-    }
-
     GrPaint grPaint;
     SkAutoCachedTexture act;
     if (!this->skPaint2GrPaintShader(paint,
@@ -1127,7 +1120,14 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         return;
     }
 
-    grPaint.fCoverage = SkScalarRoundToInt(coverage * grPaint.fCoverage);
+    // can we cheat, and threat a thin stroke as a hairline w/ coverage
+    // if we can, we draw lots faster (raster device does this same test)
+    SkScalar hairlineCoverage;
+    if (SkDrawTreatAsHairline(paint, *draw.fMatrix, &hairlineCoverage)) {
+        doFill = false;
+        grPaint.fCoverage = SkScalarRoundToInt(hairlineCoverage *
+                                               grPaint.fCoverage);
+    }
 
     // If we have a prematrix, apply it to the path, optimizing for the case
     // where the original path can in fact be modified in place (even though
