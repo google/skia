@@ -465,7 +465,10 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     int vCount;
     int iCount;
-    SegmentArray segments;
+    enum {
+        kPreallocSegmentCnt = 512 / sizeof(Segment),
+    };
+    SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
     SkPoint fanPt;
     if (!get_segments(path, &segments, &fanPt, &vCount, &iCount)) {
         return false;
