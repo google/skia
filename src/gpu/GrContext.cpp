@@ -262,7 +262,6 @@ void apply_morphology(GrGpu* gpu,
                       int radius,
                       GrSamplerState::Filter filter,
                       GrSamplerState::FilterDirection direction) {
-    ASSERT_OWNED_RESOURCE(texture);
     GrAssert(filter == GrSamplerState::kErode_Filter ||
              filter == GrSamplerState::kDilate_Filter);
 
@@ -287,8 +286,6 @@ void convolve(GrGpu* gpu,
               const float* kernel,
               int kernelWidth,
               GrSamplerState::FilterDirection direction) {
-    ASSERT_OWNED_RESOURCE(texture);
-
     GrDrawTarget::AutoStateRestore asr(gpu);
     GrDrawState* drawState = gpu->drawState();
     GrRenderTarget* target = drawState->getRenderTarget();
@@ -2097,6 +2094,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                    GrAutoScratchTexture* temp2,
                                    const SkRect& rect,
                                    float sigmaX, float sigmaY) {
+    ASSERT_OWNED_RESOURCE(srcTexture);
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
     GrClip oldClip = this->getClip();
     GrTexture* origTexture = srcTexture;
@@ -2215,6 +2213,7 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
                                       GrTexture* temp1, GrTexture* temp2,
                                       GrSamplerState::Filter filter,
                                       SkISize radius) {
+    ASSERT_OWNED_RESOURCE(srcTexture);
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
     GrAutoMatrix avm(this, GrMatrix::I());
     GrClip oldClip = this->getClip();
