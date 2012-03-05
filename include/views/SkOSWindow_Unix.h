@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkOSWindow_Unix_DEFINED
 #define SkOSWindow_Unix_DEFINED
 
-#include "SkWindow.h"
-#include <X11/Xlib.h>
 #include <GL/glx.h>
+#include <X11/Xlib.h>
 
-class SkBitmap;
+#include "SkWindow.h"
+
 class SkEvent;
 
 struct SkUnixWindow {
@@ -45,26 +43,25 @@ public:
     //static bool WndProc(SkUnixWindow* w,  XEvent &e);
 
 protected:
-    // overrides from SkWindow
-    virtual bool onEvent(const SkEvent&);
-    virtual void onHandleInval(const SkIRect&);
-    virtual bool onHandleChar(SkUnichar);
-    virtual bool onHandleKey(SkKey);
-    virtual bool onHandleKeyUp(SkKey);
-    virtual void onSetTitle(const char title[]);
+    // Overridden from from SkWindow:
+    virtual bool onEvent(const SkEvent&) SK_OVERRIDE;
+    virtual void onHandleInval(const SkIRect&) SK_OVERRIDE;
+    virtual bool onHandleChar(SkUnichar) SK_OVERRIDE;
+    virtual bool onHandleKey(SkKey) SK_OVERRIDE;
+    virtual bool onHandleKeyUp(SkKey) SK_OVERRIDE;
+    virtual void onSetTitle(const char title[]) SK_OVERRIDE;
 
 private:
-    SkUnixWindow  fUnixWindow;
+    void doPaint();
+    void mapWindowAndWait();
+
+    SkUnixWindow fUnixWindow;
     bool fGLAttached;
 
     // Needed for GL
     XVisualInfo* fVi;
 
-    void    doPaint();
-    void    mapWindowAndWait();
-
     typedef SkWindow INHERITED;
 };
 
 #endif
-
