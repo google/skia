@@ -16,6 +16,7 @@
 // remove.
 #include "GrRenderTarget.h" 
 
+class GrAutoScratchTexture;
 class GrDrawTarget;
 class GrFontCache;
 class GrGpu;
@@ -577,33 +578,42 @@ public:
     void resolveRenderTarget(GrRenderTarget* target);
 
     /**
-     * Applies a 1D convolution kernel in the given direction to a rectangle of
-     * pixels from a given texture.
-     * @param texture         the texture to read from
-     * @param rect            the destination rectangle
-     * @param kernel          the convolution kernel (kernelWidth elements)
-     * @param kernelWidth     the width of the convolution kernel
-     * @param direction       the direction in which to apply the kernel
+     * Applies a 2D Gaussian blur to a given texture.
+     * @param srcTexture      The source texture to be blurred.
+     * @param temp1           A scratch texture.  Must not be NULL.
+     * @param temp2           A scratch texture.  May be NULL, in which case
+     *                        srcTexture is overwritten with intermediate
+     *                        results.
+     * @param rect            The destination rectangle.
+     * @param sigmaX          The blur's standard deviation in X.
+     * @param sigmaY          The blur's standard deviation in Y.
+     * @return the blurred texture, which may be temp1, temp2 or srcTexture.
      */
-    void convolve(GrTexture* texture,
-                  const SkRect& rect,
-                  const float* kernel,
-                  int kernelWidth,
-                  GrSamplerState::FilterDirection direction);
+     GrTexture* gaussianBlur(GrTexture* srcTexture,
+                             GrAutoScratchTexture* temp1,
+                             GrAutoScratchTexture* temp2,
+                             const SkRect& rect,
+                             float sigmaX, float sigmaY);
+
     /**
-     * Applies a 1D morphology in the given direction to a rectangle of
-     * pixels from a given texture.
-     * @param texture         the texture to read from
-     * @param rect            the destination rectangle
-     * @param radius          the radius of the morphological operator
-     * @param filter          the filter kernel (must be kDilate or kErode)
-     * @param direction       the direction in which to apply the morphology
+     * Applies a 2D morphology to a given texture.
+     * @param srcTexture      The source texture to be blurred.
+     * @param rect            The destination rectangle.
+     * @param temp1           A scratch texture.  Must not be NULL.
+     * @param temp2           A scratch texture.  Must not be NULL.
+     * @param filter          The morphology filter.  Must be kDilate_Filter or
+     *                        kErode_Filter.
+     * @param radius          The morphology radius in X and Y.  The filter is
+     *                        applied to a fWidth by fHeight rectangle of
+     *                        pixels.
+     * @return the morphed texture, which may be temp1, temp2 or srcTexture.
      */
-    void applyMorphology(GrTexture* texture,
-                         const SkRect& rect,
-                         int radius,
-                         GrSamplerState::Filter filter,
-                         GrSamplerState::FilterDirection direction);
+    GrTexture* applyMorphology(GrTexture* srcTexture,
+                               const GrRect& rect,
+                               GrTexture* temp1, GrTexture* temp2,
+                               GrSamplerState::Filter filter,
+                               SkISize radius);
+    
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 

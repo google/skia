@@ -26,6 +26,8 @@
 
 #define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
 
+#define MAX_BLUR_SIGMA 4.0f
+
 // When we're using coverage AA but the blend is incompatible (given gpu
 // limitations) should we disable AA or draw wrong?
 #define DISABLE_COVERAGE_AA_FOR_BLEND 1
@@ -216,6 +218,91 @@ void gen_stencil_key_values(const GrStencilBuffer* sb,
                             uint32_t v[4]) {
     gen_stencil_key_values(sb->width(), sb->height(),
                            sb->numSamples(), v);
+}
+
+void build_kernel(float sigma, float* kernel, int kernelWidth) {
+    int halfWidth = (kernelWidth - 1) / 2;
+    float sum = 0.0f;
+    float denom = 1.0f / (2.0f * sigma * sigma);
+    for (int i = 0; i < kernelWidth; ++i) {
+        float x = static_cast<float>(i - halfWidth);
+        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+        // is dropped here, since we renormalize the kernel below.
+        kernel[i] = sk_float_exp(- x * x * denom);
+        sum += kernel[i];
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < kernelWidth; ++i)
+        kernel[i] *= scale;
+}
+
+void scale_rect(SkRect* rect, float xScale, float yScale) {
+    rect->fLeft *= xScale;
+    rect->fTop *= yScale;
+    rect->fRight *= xScale;
+    rect->fBottom *= yScale;
+}
+
+float adjust_sigma(float sigma, int *scaleFactor, int *halfWidth,
+                          int *kernelWidth) {
+    *scaleFactor = 1;
+    while (sigma > MAX_BLUR_SIGMA) {
+        *scaleFactor *= 2;
+        sigma *= 0.5f;
+    }
+    *halfWidth = static_cast<int>(ceilf(sigma * 3.0f));
+    *kernelWidth = *halfWidth * 2 + 1;
+    return sigma;
+}
+
+void apply_morphology(GrGpu* gpu,
+                      GrTexture* texture,
+                      const SkRect& rect,
+                      int radius,
+                      GrSamplerState::Filter filter,
+                      GrSamplerState::FilterDirection direction) {
+    ASSERT_OWNED_RESOURCE(texture);
+    GrAssert(filter == GrSamplerState::kErode_Filter ||
+             filter == GrSamplerState::kDilate_Filter);
+
+    GrDrawTarget::AutoStateRestore asr(gpu);
+    GrDrawState* drawState = gpu->drawState();
+    GrRenderTarget* target = drawState->getRenderTarget();
+    drawState->reset();
+    drawState->setRenderTarget(target);
+    GrMatrix sampleM;
+    sampleM.setIDiv(texture->width(), texture->height());
+    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode, filter,
+                                 sampleM);
+    drawState->sampler(0)->setMorphologyRadius(radius);
+    drawState->sampler(0)->setFilterDirection(direction);
+    drawState->setTexture(0, texture);
+    gpu->drawSimpleRect(rect, NULL, 1 << 0);
+}
+
+void convolve(GrGpu* gpu,
+              GrTexture* texture,
+              const SkRect& rect,
+              const float* kernel,
+              int kernelWidth,
+              GrSamplerState::FilterDirection direction) {
+    ASSERT_OWNED_RESOURCE(texture);
+
+    GrDrawTarget::AutoStateRestore asr(gpu);
+    GrDrawState* drawState = gpu->drawState();
+    GrRenderTarget* target = drawState->getRenderTarget();
+    drawState->reset();
+    drawState->setRenderTarget(target);
+    GrMatrix sampleM;
+    sampleM.setIDiv(texture->width(), texture->height());
+    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
+                                 GrSamplerState::kConvolution_Filter,
+                                 sampleM);
+    drawState->sampler(0)->setConvolutionParams(kernelWidth, kernel);
+    drawState->sampler(0)->setFilterDirection(direction);
+    drawState->setTexture(0, texture);
+    gpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
 
 }
@@ -2005,52 +2092,151 @@ const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
     return fGpu->getQuadIndexBuffer();
 }
 
-void GrContext::convolve(GrTexture* texture,
-                         const SkRect& rect,
-                         const float* kernel,
-                         int kernelWidth,
-                         GrSamplerState::FilterDirection direction) {
-    ASSERT_OWNED_RESOURCE(texture);
+GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
+                                   GrAutoScratchTexture* temp1,
+                                   GrAutoScratchTexture* temp2,
+                                   const SkRect& rect,
+                                   float sigmaX, float sigmaY) {
+    GrRenderTarget* oldRenderTarget = this->getRenderTarget();
+    GrClip oldClip = this->getClip();
+    GrTexture* origTexture = srcTexture;
+    GrAutoMatrix avm(this, GrMatrix::I());
+    SkIRect clearRect;
+    int scaleFactorX, halfWidthX, kernelWidthX;
+    int scaleFactorY, halfWidthY, kernelWidthY;
+    sigmaX = adjust_sigma(sigmaX, &scaleFactorX, &halfWidthX, &kernelWidthX);
+    sigmaY = adjust_sigma(sigmaY, &scaleFactorY, &halfWidthY, &kernelWidthY);
 
-    GrDrawTarget::AutoStateRestore asr(fGpu);
-    GrDrawState* drawState = fGpu->drawState();
-    GrRenderTarget* target = drawState->getRenderTarget();
-    drawState->reset();
-    drawState->setRenderTarget(target);
-    GrMatrix sampleM;
-    sampleM.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
-                                 GrSamplerState::kConvolution_Filter,
-                                 sampleM);
-    drawState->sampler(0)->setConvolutionParams(kernelWidth, kernel);
-    drawState->sampler(0)->setFilterDirection(direction);
-    drawState->setTexture(0, texture);
-    fGpu->drawSimpleRect(rect, NULL, 1 << 0);
+    SkRect srcRect(rect);
+    scale_rect(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
+    srcRect.roundOut();
+    scale_rect(&srcRect, scaleFactorX, scaleFactorY);
+    this->setClip(srcRect);
+
+    const GrTextureDesc desc = {
+        kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit,
+        srcRect.width(),
+        srcRect.height(),
+        kRGBA_8888_GrPixelConfig,
+        {0} // samples 
+    };
+
+    temp1->set(this, desc);
+    if (temp2) temp2->set(this, desc);
+
+    GrTexture* dstTexture = temp1->texture();
+    GrPaint paint;
+    paint.reset();
+    paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+
+    for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
+        paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
+                                                   srcTexture->height());
+        this->setRenderTarget(dstTexture->asRenderTarget());
+        SkRect dstRect(srcRect);
+        scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
+                            i < scaleFactorY ? 0.5f : 1.0f);
+        paint.setTexture(0, srcTexture);
+        this->drawRectToRect(paint, dstRect, srcRect);
+        srcRect = dstRect;
+        SkTSwap(srcTexture, dstTexture);
+        // If temp2 is non-NULL, don't render back to origTexture
+        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+    }
+
+    if (sigmaX > 0.0f) {
+        SkAutoTMalloc<float> kernelStorageX(kernelWidthX);
+        float* kernelX = kernelStorageX.get();
+        build_kernel(sigmaX, kernelX, kernelWidthX);
+
+        if (scaleFactorX > 1) {
+            // Clear out a halfWidth to the right of the srcRect to prevent the
+            // X convolution from reading garbage.
+            clearRect = SkIRect::MakeXYWH(
+                srcRect.fRight, srcRect.fTop, halfWidthX, srcRect.height());
+            this->clear(&clearRect, 0x0);
+        }
+
+        this->setRenderTarget(dstTexture->asRenderTarget());
+        convolve(fGpu, srcTexture, srcRect, kernelX, kernelWidthX,
+                 GrSamplerState::kX_FilterDirection);
+        SkTSwap(srcTexture, dstTexture);
+        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+    }
+
+    if (sigmaY > 0.0f) {
+        SkAutoTMalloc<float> kernelStorageY(kernelWidthY);
+        float* kernelY = kernelStorageY.get();
+        build_kernel(sigmaY, kernelY, kernelWidthY);
+
+        if (scaleFactorY > 1 || sigmaX > 0.0f) {
+            // Clear out a halfWidth below the srcRect to prevent the Y
+            // convolution from reading garbage.
+            clearRect = SkIRect::MakeXYWH(
+                srcRect.fLeft, srcRect.fBottom, srcRect.width(), halfWidthY);
+            this->clear(&clearRect, 0x0);
+        }
+
+        this->setRenderTarget(dstTexture->asRenderTarget());
+        convolve(fGpu, srcTexture, srcRect, kernelY, kernelWidthY,
+                 GrSamplerState::kY_FilterDirection);
+        SkTSwap(srcTexture, dstTexture);
+        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+    }
+
+    if (scaleFactorX > 1 || scaleFactorY > 1) {
+        // Clear one pixel to the right and below, to accommodate bilinear
+        // upsampling.
+        clearRect = SkIRect::MakeXYWH(
+            srcRect.fLeft, srcRect.fBottom, srcRect.width() + 1, 1);
+        this->clear(&clearRect, 0x0);
+        clearRect = SkIRect::MakeXYWH(
+            srcRect.fRight, srcRect.fTop, 1, srcRect.height());
+        this->clear(&clearRect, 0x0);
+        // FIXME:  This should be mitchell, not bilinear.
+        paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+        paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
+                                                   srcTexture->height());
+        this->setRenderTarget(dstTexture->asRenderTarget());
+        paint.setTexture(0, srcTexture);
+        SkRect dstRect(srcRect);
+        scale_rect(&dstRect, scaleFactorX, scaleFactorY);
+        this->drawRectToRect(paint, dstRect, srcRect);
+        srcRect = dstRect;
+        SkTSwap(srcTexture, dstTexture);
+    }
+    this->setRenderTarget(oldRenderTarget);
+    this->setClip(oldClip);
+    return srcTexture;
 }
 
-void GrContext::applyMorphology(GrTexture* texture,
-                                const SkRect& rect,
-                                int radius,
-                                GrSamplerState::Filter filter,
-                                GrSamplerState::FilterDirection direction) {
-    ASSERT_OWNED_RESOURCE(texture);
-    GrAssert(filter == GrSamplerState::kErode_Filter ||
-             filter == GrSamplerState::kDilate_Filter);
-
-    GrDrawTarget::AutoStateRestore asr(fGpu);
-    GrDrawState* drawState = fGpu->drawState();
-    GrRenderTarget* target = drawState->getRenderTarget();
-    drawState->reset();
-    drawState->setRenderTarget(target);
-    GrMatrix sampleM;
-    sampleM.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
-                                 filter,
-                                 sampleM);
-    drawState->sampler(0)->setMorphologyRadius(radius);
-    drawState->sampler(0)->setFilterDirection(direction);
-    drawState->setTexture(0, texture);
-    fGpu->drawSimpleRect(rect, NULL, 1 << 0);
+GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
+                                      const GrRect& rect,
+                                      GrTexture* temp1, GrTexture* temp2,
+                                      GrSamplerState::Filter filter,
+                                      SkISize radius) {
+    GrRenderTarget* oldRenderTarget = this->getRenderTarget();
+    GrAutoMatrix avm(this, GrMatrix::I());
+    GrClip oldClip = this->getClip();
+    this->setClip(GrRect::MakeWH(srcTexture->width(), srcTexture->height()));
+    if (radius.fWidth > 0) {
+        this->setRenderTarget(temp1->asRenderTarget());
+        apply_morphology(fGpu, srcTexture, rect, radius.fWidth, filter,
+                         GrSamplerState::kX_FilterDirection);
+        SkIRect clearRect = SkIRect::MakeXYWH(rect.fLeft, rect.fBottom,
+                                              rect.width(), radius.fHeight);
+        this->clear(&clearRect, 0x0);
+        srcTexture = temp1;
+    }
+    if (radius.fHeight > 0) {
+        this->setRenderTarget(temp2->asRenderTarget());
+        apply_morphology(fGpu, srcTexture, rect, radius.fHeight, filter,
+                         GrSamplerState::kY_FilterDirection);
+        srcTexture = temp2;
+    }
+    this->setRenderTarget(oldRenderTarget);
+    this->setClip(oldClip);
+    return srcTexture;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
