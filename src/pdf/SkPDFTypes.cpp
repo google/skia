@@ -297,7 +297,8 @@ SkString SkPDFName::FormatName(const SkString& input) {
     for (size_t i = 0; i < input.size(); i++) {
         if (input[i] & 0x80 || input[i] < '!' || input[i] == '#') {
             result.append("#");
-            result.appendHex(input[i], 2);
+            // Mask with 0xFF to avoid sign extension. i.e. #FFFFFF81
+            result.appendHex(input[i] & 0xFF, 2);
         } else {
             result.append(input.c_str() + i, 1);
         }

@@ -275,6 +275,14 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     CheckObjectOutput(reporter, name.get(), expectedResult,
                       strlen(expectedResult), false, false);
 
+    // Test that we correctly handle characters with the high-bit set.
+    char highBitCString[] = {0xDE, 0xAD, 'b', 'e', 0xEF, 0};
+    SkRefPtr<SkPDFName> highBitName = new SkPDFName(highBitCString);
+    name->unref();  // SkRefPtr and new both took a reference.
+    const char highBitExpectedResult[] = "/#DE#ADbe#EF";
+    CheckObjectOutput(reporter, highBitName.get(), highBitExpectedResult,
+                      strlen(highBitExpectedResult), false, false);
+
     SkRefPtr<SkPDFArray> array = new SkPDFArray;
     array->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, array.get(), "[]");
