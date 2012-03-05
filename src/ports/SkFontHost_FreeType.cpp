@@ -1068,7 +1068,7 @@ static void build_power_table(uint8_t table[], float ee) {
     }
 }
 
-static void build_gamma_table(uint8_t table[256], int src, int dst) {
+static void build_gamma_table(uint8_t table[256], int src) {
     static bool gInit;
     static uint8_t powTable[256], invPowTable[256];
     if (!gInit) {
@@ -1079,7 +1079,9 @@ static void build_gamma_table(uint8_t table[256], int src, int dst) {
     }
 
     const int linSrc = powTable[src];
-    const int linDst = powTable[dst];
+    const int linDst = 255 - linSrc;
+    const int dst = invPowTable[linDst];
+
     // have our contrast value taper off to 0 as the src luminance becomes white
     const int contrast = SK_GAMMA_CONTRAST * (255 - linSrc) / 255;
     
@@ -1105,10 +1107,10 @@ static const uint8_t* getGammaTable(U8CPU luminance) {
     static uint8_t gGammaTables[4][256];
     static bool gInited;
     if (!gInited) {
-        build_gamma_table(gGammaTables[0], 0x00, 0xFF);
-        build_gamma_table(gGammaTables[1], 0x66, 0x99);
-        build_gamma_table(gGammaTables[2], 0x99, 0x66);
-        build_gamma_table(gGammaTables[3], 0xFF, 0x00);
+        build_gamma_table(gGammaTables[0], 0x00);
+        build_gamma_table(gGammaTables[1], 0x55);
+        build_gamma_table(gGammaTables[2], 0xAA);
+        build_gamma_table(gGammaTables[3], 0xFF);
 
         gInited = true;
     }
