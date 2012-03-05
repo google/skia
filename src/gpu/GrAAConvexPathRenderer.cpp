@@ -22,9 +22,11 @@ namespace {
 
 struct Segment {
     enum {
-        kLine,
-        kQuad
+        // These enum values are assumed in member functions below.
+        kLine = 0,
+        kQuad = 1,
     } fType;
+
     // line uses one pt, quad uses 2 pts
     GrPoint fPts[2];
     // normal to edge ending at each pt
@@ -34,13 +36,16 @@ struct Segment {
     GrVec fMid;
 
     int countPoints() {
-        return (kLine == fType) ? 1 : 2;
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
+        return fType + 1;
     }
     const SkPoint& endPt() const {
-        return (kLine == fType) ? fPts[0] : fPts[1];
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
+        return fPts[fType];
     };
     const SkPoint& endNorm() const {
-        return (kLine == fType) ? fNorms[0] : fNorms[1];
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
+        return fNorms[fType];
     };
 };
 

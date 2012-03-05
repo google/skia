@@ -1839,12 +1839,12 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
     }
     if (paint.fColorMatrixEnabled) {
         drawState->enableState(GrDrawState::kColorMatrix_StateBit);
+        drawState->setColorMatrix(paint.fColorMatrix);
     } else {
         drawState->disableState(GrDrawState::kColorMatrix_StateBit);
     }
     drawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     drawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
-    drawState->setColorMatrix(paint.fColorMatrix);
     drawState->setCoverage(paint.fCoverage);
 
     if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {

@@ -172,7 +172,6 @@ public:
     void resetColorFilter() {
         fColorFilterXfermode = SkXfermode::kDst_Mode;
         fColorFilterColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
-        memset(fColorMatrix, 0, sizeof(fColorMatrix));
         fColorMatrixEnabled = false;
     }
 
