@@ -56,42 +56,46 @@ enum {
 #define BLUR_SIGMA_SCALE 0.6f
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice::SkAutoCachedTexture::
-             SkAutoCachedTexture(SkGpuDevice* device,
-                                 const SkBitmap& bitmap,
-                                 const GrSamplerState* sampler,
-                                 GrTexture** texture) {
-    GrAssert(texture);
-    *texture = this->set(device, bitmap, sampler);
-}
-
-SkGpuDevice::SkAutoCachedTexture::SkAutoCachedTexture() {
-}
-
-GrTexture* SkGpuDevice::SkAutoCachedTexture::set(SkGpuDevice* device,
-                                                 const SkBitmap& bitmap,
-                                                 const GrSamplerState* sampler) {
-    if (fTex.texture()) {
-        fDevice->unlockCachedTexture(fTex);
+class SkGpuDevice::SkAutoCachedTexture : public ::SkNoncopyable {
+public:
+    SkAutoCachedTexture() { }    
+    SkAutoCachedTexture(SkGpuDevice* device,
+                        const SkBitmap& bitmap,
+                        const GrSamplerState* sampler,
+                        GrTexture** texture) {
+        GrAssert(texture);
+        *texture = this->set(device, bitmap, sampler);
     }
-    fDevice = device;
-    GrTexture* texture = (GrTexture*)bitmap.getTexture();
-    if (texture) {
-        // return the native texture
-        fTex.reset();
-    } else {
-        // look it up in our cache
-        fTex = device->lockCachedTexture(bitmap, sampler);
-        texture = fTex.texture();
-    }
-    return texture;
-}
 
-SkGpuDevice::SkAutoCachedTexture::~SkAutoCachedTexture() {
-    if (fTex.texture()) {
-        fDevice->unlockCachedTexture(fTex);
+    ~SkAutoCachedTexture() {
+        if (fTex.texture()) {
+            fDevice->unlockCachedTexture(fTex);
+        }
     }
-}
+
+    GrTexture* set(SkGpuDevice* device,
+                   const SkBitmap& bitmap,
+                   const GrSamplerState* sampler) {
+        if (fTex.texture()) {
+            fDevice->unlockCachedTexture(fTex);
+        }
+        fDevice = device;
+        GrTexture* texture = (GrTexture*)bitmap.getTexture();
+        if (texture) {
+            // return the native texture
+            fTex.reset();
+        } else {
+            // look it up in our cache
+            fTex = device->lockCachedTexture(bitmap, sampler);
+            texture = fTex.texture();
+        }
+        return texture;
+    }
+    
+private:
+    SkGpuDevice* fDevice;
+    GrContext::TextureCacheEntry fTex;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -415,10 +419,18 @@ static const GrSamplerState::SampleMode sk_bmp_type_to_sample_mode[] = {
     GrSamplerState::kRadial2_SampleMode,                // kTwoPointRadial_BitmapType
 };
 
-bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
-                                          bool justAlpha,
-                                          GrPaint* grPaint,
-                                          bool constantColor) {
+namespace {
+
+// converts a SkPaint to a GrPaint, ignoring the skPaint's shader
+// justAlpha indicates that skPaint's alpha should be used rather than the color
+// Callers may subsequently modify the GrPaint. Setting constantColor indicates
+// that the final paint will draw the same color at every pixel. This allows
+// an optimization where the the color filter can be applied to the skPaint's
+// color once while converting to GrPain and then ignored.
+inline bool skPaint2GrPaintNoShader(const SkPaint& skPaint,
+                                    bool justAlpha,
+                                    bool constantColor,
+                                    GrPaint* grPaint) {
 
     grPaint->fDither    = skPaint.isDither();
     grPaint->fAntiAlias = skPaint.isAntiAlias();
@@ -473,21 +485,26 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
     return true;
 }
 
-bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
-                                        SkAutoCachedTexture* act,
-                                        const SkMatrix& ctm,
-                                        GrPaint* grPaint,
-                                        bool constantColor) {
+// This function is similar to skPaint2GrPaintNoShader but also converts
+// skPaint's shader to a GrTexture/GrSamplerState if possible. The texture to
+// be used is set on grPaint and returned in param act. constantColor has the
+// same meaning as in skPaint2GrPaintNoShader.
+inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
+                                  const SkPaint& skPaint,
+                                  const SkMatrix& ctm,
+                                  bool constantColor,
+                                  SkGpuDevice::SkAutoCachedTexture* act,
+                                  GrPaint* grPaint) {
 
     SkASSERT(NULL != act);
 
     SkShader* shader = skPaint.getShader();
     if (NULL == shader) {
-        return this->skPaint2GrPaintNoShader(skPaint,
-                                             false,
-                                             grPaint,
-                                             constantColor);
-    } else if (!this->skPaint2GrPaintNoShader(skPaint, true, grPaint, false)) {
+        return skPaint2GrPaintNoShader(skPaint,
+                                       false,
+                                       constantColor,
+                                       grPaint);
+    } else if (!skPaint2GrPaintNoShader(skPaint, true, false, grPaint)) {
         return false;
     }
 
@@ -512,10 +529,10 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
             // modulate the paint alpha by the shader's solid color alpha
             U8CPU newA = SkMulDiv255Round(SkColorGetA(color), copy.getAlpha());
             copy.setColor(SkColorSetA(color, newA));
-            return this->skPaint2GrPaintNoShader(copy,
-                                                 false,
-                                                 grPaint,
-                                                 constantColor);
+            return skPaint2GrPaintNoShader(copy,
+                                           false,
+                                           constantColor,
+                                           grPaint);
         }
         return false;
     }
@@ -534,7 +551,7 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
                                   twoPointParams[2] < 0);
     }
 
-    GrTexture* texture = act->set(this, bitmap, sampler);
+    GrTexture* texture = act->set(dev, bitmap, sampler);
     if (NULL == texture) {
         SkDebugf("Couldn't convert bitmap to texture.\n");
         return false;
@@ -561,6 +578,7 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
 
     return true;
 }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -573,11 +591,12 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 
     GrPaint grPaint;
     SkAutoCachedTexture act;
-    if (!this->skPaint2GrPaintShader(paint,
-                                     &act,
-                                     *draw.fMatrix,
-                                     &grPaint,
-                                     true)) {
+    if (!skPaint2GrPaintShader(this,
+                               paint,
+                               *draw.fMatrix,
+                               true,
+                               &act,
+                               &grPaint)) {
         return;
     }
 
@@ -608,11 +627,12 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
     GrPaint grPaint;
     SkAutoCachedTexture act;
-    if (!this->skPaint2GrPaintShader(paint,
-                                     &act,
-                                     *draw.fMatrix,
-                                     &grPaint,
-                                     true)) {
+    if (!skPaint2GrPaintShader(this,
+                               paint,
+                               *draw.fMatrix,
+                               true,
+                               &act,
+                               &grPaint)) {
         return;
     }
 
@@ -669,11 +689,12 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 
     GrPaint grPaint;
     SkAutoCachedTexture act;
-    if (!this->skPaint2GrPaintShader(paint,
-                                     &act,
-                                     *draw.fMatrix,
-                                     &grPaint,
-                                     true)) {
+    if (!skPaint2GrPaintShader(this,
+                               paint,
+                               *draw.fMatrix,
+                               true,
+                               &act,
+                               &grPaint)) {
         return;
     }
     fContext->drawRect(grPaint, rect, doStroke ? width : -1);
@@ -1112,11 +1133,12 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
     GrPaint grPaint;
     SkAutoCachedTexture act;
-    if (!this->skPaint2GrPaintShader(paint,
-                                     &act,
-                                     *draw.fMatrix,
-                                     &grPaint,
-                                     true)) {
+    if (!skPaint2GrPaintShader(this,
+                               paint,
+                               *draw.fMatrix,
+                               true,
+                               &act,
+                               &grPaint)) {
         return;
     }
 
@@ -1345,7 +1367,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     }
 
     GrPaint grPaint;
-    if (!this->skPaint2GrPaintNoShader(paint, true, &grPaint, false)) {
+    if (!skPaint2GrPaintNoShader(paint, true, false, &grPaint)) {
         return;
     }
     GrSamplerState* sampler = grPaint.textureSampler(kBitmapTextureIdx);
@@ -1499,7 +1521,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     int h = bitmap.height();
 
     GrPaint grPaint;
-    if(!this->skPaint2GrPaintNoShader(paint, true, &grPaint, false)) {
+    if(!skPaint2GrPaintNoShader(paint, true, false, &grPaint)) {
         return;
     }
 
@@ -1568,7 +1590,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
 
     GrPaint grPaint;
     if (!((SkGpuDevice*)dev)->bindDeviceAsTexture(&grPaint) ||
-        !this->skPaint2GrPaintNoShader(paint, true, &grPaint, false)) {
+        !skPaint2GrPaintNoShader(paint, true, false, &grPaint)) {
         return;
     }
 
@@ -1641,17 +1663,19 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     SkAutoCachedTexture act;
     // we ignore the shader if texs is null.
     if (NULL == texs) {
-        if (!this->skPaint2GrPaintNoShader(paint,
-                                           false,
-                                           &grPaint,
-                                           NULL == colors)) {
+        if (!skPaint2GrPaintNoShader(paint,
+                                     false,
+                                     NULL == colors,
+                                     &grPaint)) {
             return;
         }
     } else {
-        if (!this->skPaint2GrPaintShader(paint, &act,
-                                         *draw.fMatrix,
-                                         &grPaint,
-                                         NULL == colors)) {
+        if (!skPaint2GrPaintShader(this,
+                                   paint,
+                                   *draw.fMatrix,
+                                   NULL == colors,
+                                   &act,
+                                   &grPaint)) {
             return;
         }
     }
@@ -1751,11 +1775,12 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
         GrPaint grPaint;
         SkAutoCachedTexture act;
 
-        if (!this->skPaint2GrPaintShader(paint,
-                                         &act,
-                                         *draw.fMatrix,
-                                         &grPaint,
-                                         true)) {
+        if (!skPaint2GrPaintShader(this,
+                                   paint,
+                                   *draw.fMatrix,
+                                   true,
+                                   &act,
+                                   &grPaint)) {
             return;
         }
         GrTextContext context(fContext, grPaint, draw.fExtMatrix);
@@ -1779,11 +1804,12 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
 
         GrPaint grPaint;
         SkAutoCachedTexture act;
-        if (!this->skPaint2GrPaintShader(paint,
-                                         &act,
-                                         *draw.fMatrix,
-                                         &grPaint,
-                                         true)) {
+        if (!skPaint2GrPaintShader(this,
+                                   paint,
+                                   *draw.fMatrix,
+                                   true,
+                                   &act,
+                                   &grPaint)) {
             return;
         }
 
