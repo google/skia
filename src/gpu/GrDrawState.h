@@ -749,6 +749,13 @@ struct GrDrawState {
                 return false;
             }
         }
+        if (kColorMatrix_StateBit & s.fFlagBits) {
+            if (memcmp(fColorMatrix,
+                        s.fColorMatrix,
+                        sizeof(fColorMatrix))) {
+                return false;
+            }
+        }
 
         return true;
     }
@@ -765,6 +772,9 @@ struct GrDrawState {
                        sizeof(GrSamplerState));
             }
         }
+        if (kColorMatrix_StateBit & s.fFlagBits) {
+            memcpy(this->fColorMatrix, s.fColorMatrix, sizeof(fColorMatrix));
+        }
 
         return *this;
     }
@@ -779,7 +789,6 @@ private:
     DrawFace            fDrawFace; 
     VertexEdgeType      fVertexEdgeType;
     GrStencilSettings   fStencilSettings;
-    float               fColorMatrix[20];       // 5 x 4 matrix
     GrRenderTarget*     fRenderTarget;
     // @}
 
@@ -803,6 +812,8 @@ private:
     // This field must be last; it will not be copied or compared
     // if the corresponding fTexture[] is NULL.
     GrSamplerState      fSamplerStates[kNumStages];
+    // only compared if the color matrix enable flag is set
+    float               fColorMatrix[20];       // 5 x 4 matrix
 
     size_t leadingBytes() const {
         // Can't use offsetof() with non-POD types, so stuck with pointer math.
