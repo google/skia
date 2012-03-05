@@ -12,6 +12,7 @@ void LineIntersection_Test();
 void LineParameter_Test();
 void LineQuadraticIntersection_Test();
 void SimplifyPolygonPaths_Test();
+void SimplifyQuadralateralPaths_Test();
 void SimplifyRectangularPaths_Test();
 void QuadraticBezierClip_Test();
 void QuadraticCoincidence_Test();

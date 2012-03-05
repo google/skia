@@ -59,7 +59,7 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
                 bRange[0] = aMin <= bMin ? 0 : (aMin - bMin) / (bMax - bMin);
                 bRange[1] = aMax >= bMax ? 1 : (aMax - bMin) / (bMax - bMin);
             }
-            return 2;
+            return 1 + ((aRange[0] != aRange[1]) || (bRange[0] != bRange[1]));
         }
     }
     double ab0y = a[0].y - b[0].y;

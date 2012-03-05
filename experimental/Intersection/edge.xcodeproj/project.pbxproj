@@ -58,6 +58,7 @@
 		FECAA6C714BDCE9B00B35E2C /* QuadraticIntersection_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FECAA6C614BDCE9B00B35E2C /* QuadraticIntersection_Test.cpp */; };
 		FECAA6E114BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FECAA6E014BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp */; };
 		FED53C391483CB9400F6359E /* Inline_Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FED53C381483CB9400F6359E /* Inline_Tests.cpp */; };
+		FED865F915056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */; };
 		FEED7245144DD2250059E97B /* SkEventNotifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = FEED723E144DD2250059E97B /* SkEventNotifier.mm */; };
 		FEED7292144DD4610059E97B /* libexperimental.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED726E144DD4050059E97B /* libexperimental.a */; };
 		FEED7293144DD4620059E97B /* libskgr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7276144DD4140059E97B /* libskgr.a */; };
@@ -299,6 +300,7 @@
 		FECAAB7F14BDFAFD00B35E2C /* CubicParameterization_TestUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicParameterization_TestUtility.cpp; sourceTree = "<group>"; };
 		FECAACA614BE1C6100B35E2C /* QuadraticParameterization_TestUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadraticParameterization_TestUtility.cpp; sourceTree = "<group>"; };
 		FED53C381483CB9400F6359E /* Inline_Tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inline_Tests.cpp; sourceTree = "<group>"; };
+		FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerQuadralaterals_Test.cpp; sourceTree = "<group>"; };
 		FEED723C144DD2250059E97B /* SampleApp.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SampleApp.xib; path = ../../src/utils/mac/SampleApp.xib; sourceTree = SOURCE_ROOT; };
 		FEED723D144DD2250059E97B /* SampleAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SampleAppDelegate.mm; path = ../../src/utils/mac/SampleAppDelegate.mm; sourceTree = SOURCE_ROOT; };
 		FEED723E144DD2250059E97B /* SkEventNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkEventNotifier.mm; path = ../../src/utils/mac/SkEventNotifier.mm; sourceTree = SOURCE_ROOT; };
@@ -536,6 +538,7 @@
 				FEED7673144F2D770059E97B /* TestUtilities.h */,
 				FEED764B144F29BD0059E97B /* TestUtilities.cpp */,
 				FE7413DB14F6926D00056D7B /* EdgeWalker_Test.h */,
+				FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -948,6 +951,7 @@
 				FEA61B2C14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp in Sources */,
 				FE7413D414F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp in Sources */,
 				FE7413D814F691C200056D7B /* EdgeWalker_TestUtility.cpp in Sources */,
+				FED865F915056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
