@@ -201,11 +201,32 @@ void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
     }
 }
 
+inline SkPath::Direction get_direction(const GrPath& path, const GrMatrix& m) {
+    SkPath::Direction dir;
+    GR_DEBUGCODE(bool succeeded = )
+    path.cheapComputeDirection(&dir);
+    GrAssert(succeeded);
+    // check whether m reverses the orientation
+    GrAssert(!m.hasPerspective());
+    GrScalar det2x2 =
+        GrMul(m.get(SkMatrix::kMScaleX), m.get(SkMatrix::kMScaleY)) -
+        GrMul(m.get(SkMatrix::kMSkewX), m.get(SkMatrix::kMSkewY));
+    if (det2x2 < 0) {
+        GR_STATIC_ASSERT(0 == SkPath::kCW_Direction ||
+                         1 == SkPath::kCW_Direction);
+        GR_STATIC_ASSERT(0 == SkPath::kCCW_Direction ||
+                         1 == SkPath::kCCW_Direction);
+        dir = static_cast<SkPath::Direction>(dir ^ 0x1);
+    }
+    return dir;
+}
+
 bool get_segments(const GrPath& path,
-                 SegmentArray* segments,
-                 SkPoint* fanPt,
-                 int* vCount,
-                 int* iCount) {
+                  const GrMatrix& m,
+                  SegmentArray* segments,
+                  SkPoint* fanPt,
+                  int* vCount,
+                  int* iCount) {
     SkPath::Iter iter(path, true);
     // This renderer overemphasises very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
@@ -225,6 +246,7 @@ bool get_segments(const GrPath& path,
                 break;
             case kLine_PathCmd: {
                 update_degenerate_test(&degenerateData, pts[1]);
+                m.mapPoints(pts + 1, 1);
                 segments->push_back();
                 segments->back().fType = Segment::kLine;
                 segments->back().fPts[0] = pts[1];
@@ -233,6 +255,7 @@ bool get_segments(const GrPath& path,
             case kQuadratic_PathCmd:
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
+                m.mapPoints(pts + 1, 2);
                 segments->push_back();
                 segments->back().fType = Segment::kQuad;
                 segments->back().fPts[0] = pts[1];
@@ -242,6 +265,9 @@ bool get_segments(const GrPath& path,
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
                 update_degenerate_test(&degenerateData, pts[3]);
+                // unlike quads and lines, the pts[0] will also be read (in
+                // convertCubicToQuads).
+                m.mapPoints(pts, 4);
                 SkSTArray<15, SkPoint, true> quads;
                 GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, &quads);
                 int count = quads.count();
@@ -257,10 +283,7 @@ bool get_segments(const GrPath& path,
                 if (degenerateData.isDegenerate()) {
                     return false;
                 } else {
-                    SkPath::Direction dir;
-                    GR_DEBUGCODE(bool succeeded = )
-                    path.cheapComputeDirection(&dir);
-                    GrAssert(succeeded);
+                    SkPath::Direction dir = get_direction(path, m);
                     compute_vectors(segments, fanPt, dir, vCount, iCount);
                     return true;
                 }
@@ -431,8 +454,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
                                         GrDrawState::StageMask stageMask,
                                         bool antiAlias) {
 
-
-    if (origPath.isEmpty()) {
+    const SkPath* path = &origPath;
+    if (path->isEmpty()) {
         return true;
     }
     GrDrawState* drawState = target->drawState();
@@ -449,9 +472,6 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     }
     drawState->setViewMatrix(GrMatrix::I());
 
-    SkPath path;
-    origPath.transform(vm, &path);
-
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if ((1 << s) & stageMask) {
@@ -459,6 +479,16 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         }
     }
     layout |= GrDrawTarget::kEdge_VertexLayoutBit;
+
+    // We use the fact that SkPath::transform path does subdivision based on
+    // perspective. Otherwise, we apply the view matrix when copying to the
+    // segment representation.
+    SkPath tmpPath;
+    if (vm.hasPerspective()) {
+        origPath.transform(vm, &tmpPath);
+        path = &tmpPath;
+        vm.reset();
+    }
 
     QuadVertex *verts;
     uint16_t* idxs;
@@ -470,7 +500,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     };
     SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
     SkPoint fanPt;
-    if (!get_segments(path, &segments, &fanPt, &vCount, &iCount)) {
+
+    if (!get_segments(*path, vm, &segments, &fanPt, &vCount, &iCount)) {
         return false;
     }
 
