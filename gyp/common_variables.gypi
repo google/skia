@@ -10,7 +10,7 @@
     'skia_scalar%': 'float',
     'skia_os%': '<(OS)',
     'skia_mesa%': 0,
-    'skia_target_arch%': '',
+    'skia_target_arch%': 'x86',
   },
   'skia_scalar%': '<(skia_scalar)',
   'skia_os': '<(skia_os)',

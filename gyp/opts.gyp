@@ -31,7 +31,7 @@
         '../src/opts',
       ],
       'conditions': [
-        [ 'skia_target_arch != "arm"', {
+        [ 'skia_target_arch == "x86"', {
           'conditions': [
             [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
               'cflags': [
@@ -102,7 +102,7 @@
             'OTHER_CFLAGS': ['-mssse3',],
           },
         }],
-        [ 'skia_target_arch != "arm"', {
+        [ 'skia_target_arch == "x86"', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_SSSE3.cpp',
           ],
