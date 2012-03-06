@@ -67,6 +67,57 @@ inline void PrepareConstantsTwoPixelPairs(const uint32_t* xy,
     *sixteen_minus_x = _mm_sub_epi8(sixteen_8bit, all_x);
 }
 
+// Prepare all necessary constants for a round of processing for two pixel
+// pairs.
+// @param xy is the location where the xy parameters for four pixels should be
+//           read from. It is identical in concept with argument two of
+//           S32_{opaque}_D32_filter_DXDY methods.
+// @param mask_3FFF vector of 32 bit constants containing 3FFF,
+//                  suitable to mask the bottom 14 bits of a XY value.
+// @param mask_000F vector of 32 bit constants containing 000F,
+//                  suitable to mask the bottom 4 bits of a XY value.
+// @param sixteen_8bit vector of 8 bit components containing the value 16.
+// @param mask_dist_select vector of 8 bit components containing the shuffling
+//                         parameters to reorder x[0-3] parameters.
+// @param all_xy_result vector of 8 bit components that will contain the
+//              (4x(y1), 4x(y0), 4x(x1), 4x(x0)) upon return.
+// @param sixteen_minus_x vector of 8 bit components, containing
+//              (4x(16-y1), 4x(16-y0), 4x(16-x1), 4x(16-x0)).
+inline void PrepareConstantsTwoPixelPairsDXDY(const uint32_t* xy,
+                                              const __m128i& mask_3FFF,
+                                              const __m128i& mask_000F,
+                                              const __m128i& sixteen_8bit,
+                                              const __m128i& mask_dist_select,
+                                              __m128i* all_xy_result,
+                                              __m128i* sixteen_minus_xy,
+                                              int* xy0, int* xy1) {
+    const __m128i xy_wide = 
+                        _mm_loadu_si128(reinterpret_cast<const __m128i *>(xy));
+
+    // (x10, y10, x00, y00)
+    __m128i xy0_wide = _mm_srli_epi32(xy_wide, 18);
+    // (y10, y00, x10, x00)
+    xy0_wide =  _mm_shuffle_epi32(xy0_wide, _MM_SHUFFLE(2, 0, 3, 1));
+    // (x11, y11, x01, y01)
+    __m128i xy1_wide = _mm_and_si128(xy_wide, mask_3FFF);
+    // (y11, y01, x11, x01)
+    xy1_wide = _mm_shuffle_epi32(xy1_wide, _MM_SHUFFLE(2, 0, 3, 1));
+
+    _mm_storeu_si128(reinterpret_cast<__m128i *>(xy0), xy0_wide);
+    _mm_storeu_si128(reinterpret_cast<__m128i *>(xy1), xy1_wide);
+
+    // (x1, y1, x0, y0)
+    __m128i all_xy = _mm_and_si128(_mm_srli_epi32(xy_wide, 14), mask_000F);
+    // (y1, y0, x1, x0)
+    all_xy = _mm_shuffle_epi32(all_xy, _MM_SHUFFLE(2, 0, 3, 1));
+    // (4x(y1), 4x(y0), 4x(x1), 4x(x0))
+    all_xy = _mm_shuffle_epi8(all_xy, mask_dist_select);
+
+    *all_xy_result = all_xy;
+    // (4x(16-y1), 4x(16-y0), 4x(16-x1), 4x(16-x0))
+    *sixteen_minus_xy = _mm_sub_epi8(sixteen_8bit, all_xy);
+}
+
 // Helper function used when processing one pixel pair.
 // @param pixel0..3 are the four input pixels
 // @param scale_x vector of 8 bit components to multiply the pixel[0:3]. This
@@ -246,6 +297,39 @@ inline __m128i ProcessTwoPixelPairs(const uint32_t* row0,
     // ...
     //  (16-y) * (Ra0 * (16 - x0) + Ra1 * x0)) +
     //  y * (Ra0' * (16-x0) + Ra1' * x0))
+    // Each component, again can be at most 256 * 255 = 65280, so no overflow.
+    sum0 = _mm_add_epi16(sum0, sum1);
+
+    return ScaleFourPixels<has_alpha, 8>(&sum0, alpha);
+}
+
+// Similar to ProcessTwoPixelPairs except the pixel indexes.
+template<bool has_alpha>
+inline __m128i ProcessTwoPixelPairsDXDY(const uint32_t* row00,
+                                        const uint32_t* row01,
+                                        const uint32_t* row10,
+                                        const uint32_t* row11,
+                                        const int* xy0,
+                                        const int* xy1,
+                                        const __m128i& scale_x,
+                                        const __m128i& all_y,
+                                        const __m128i& neg_y,
+                                        const __m128i& alpha) {
+    // first row
+    __m128i sum0 = ProcessPixelPair(
+        row00[xy0[0]], row00[xy1[0]], row10[xy0[1]], row10[xy1[1]],
+        scale_x, neg_y);
+    // second row
+    __m128i sum1 = ProcessPixelPair(
+        row01[xy0[0]], row01[xy1[0]], row11[xy0[1]], row11[xy1[1]],
+        scale_x, all_y);
+
+    // 2 samples fully summed.
+    // ((16-y1) * (Aa2 * (16-x1) + Aa3 * x1) +
+    //  y0 * (Aa2' * (16-x1) + Aa3' * x1),
+    // ...
+    //  (16-y0) * (Ra0 * (16 - x0) + Ra1 * x0)) +
+    //  y0 * (Ra0' * (16-x0) + Ra1' * x0))
     // Each component, again can be at most 256 * 255 = 65280, so no overflow.
     sum0 = _mm_add_epi16(sum0, sum1);
 
@@ -482,6 +566,136 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
         }
     }
 }
+
+/*
+ * Similar to S32_generic_D32_filter_DX_SSSE3, we do not need to handle the
+ * special case suby == 0 as suby is changing in every loop.
+ */
+template<bool has_alpha>
+void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
+                                       const uint32_t* xy,
+                                       int count, uint32_t* colors) {
+    SkASSERT(count > 0 && colors != NULL);
+    SkASSERT(s.fDoFilter);
+    SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
+    if (has_alpha) {
+        SkASSERT(s.fAlphaScale < 256);
+    } else {
+        SkASSERT(s.fAlphaScale == 256);
+    }
+
+    const uint8_t* src_addr = 
+                        static_cast<const uint8_t*>(s.fBitmap->getPixels());
+    const unsigned rb = s.fBitmap->rowBytes();
+
+    // vector constants
+    const __m128i mask_dist_select = _mm_set_epi8(12, 12, 12, 12,
+                                                  8,  8,  8,  8,
+                                                  4,  4,  4,  4,
+                                                  0,  0,  0,  0);
+    const __m128i mask_3FFF = _mm_set1_epi32(0x3FFF);
+    const __m128i mask_000F = _mm_set1_epi32(0x000F);
+    const __m128i sixteen_8bit = _mm_set1_epi8(16);
+
+    __m128i alpha;
+    if (has_alpha) {
+        // 8x(alpha)
+        alpha = _mm_set1_epi16(s.fAlphaScale);
+    }
+
+    // Unroll 2x, interleave bytes, use pmaddubsw (all_x is small)
+    while (count >= 2) {
+        int xy0[4];
+        int xy1[4];
+        __m128i all_xy, sixteen_minus_xy;
+        PrepareConstantsTwoPixelPairsDXDY(xy, mask_3FFF, mask_000F, 
+                                          sixteen_8bit, mask_dist_select,
+                                         &all_xy, &sixteen_minus_xy, xy0, xy1);
+
+        // (4x(x1, 16-x1), 4x(x0, 16-x0))
+        __m128i scale_x = _mm_unpacklo_epi8(sixteen_minus_xy, all_xy);
+        // (4x(0, y1), 4x(0, y0))
+        __m128i all_y = _mm_unpackhi_epi8(all_xy, _mm_setzero_si128());
+        __m128i neg_y = _mm_sub_epi16(_mm_set1_epi16(16), all_y);
+
+        const uint32_t* row00 = 
+                    reinterpret_cast<const uint32_t*>(src_addr + xy0[2] * rb);
+        const uint32_t* row01 = 
+                    reinterpret_cast<const uint32_t*>(src_addr + xy1[2] * rb); 
+        const uint32_t* row10 = 
+                    reinterpret_cast<const uint32_t*>(src_addr + xy0[3] * rb);
+        const uint32_t* row11 = 
+                    reinterpret_cast<const uint32_t*>(src_addr + xy1[3] * rb);
+
+        __m128i sum0 = ProcessTwoPixelPairsDXDY<has_alpha>(
+                                        row00, row01, row10, row11, xy0, xy1,
+                                        scale_x, all_y, neg_y, alpha);
+
+        // Pack lower 4 16 bit values of sum into lower 4 bytes.
+        sum0 = _mm_packus_epi16(sum0, _mm_setzero_si128());
+
+        // Extract low int and store.
+        _mm_storel_epi64(reinterpret_cast<__m128i *>(colors), sum0);
+
+        xy += 4;
+        colors += 2;
+        count -= 2;
+    } 
+
+    // Handle the remainder
+    while (count-- > 0) {
+        uint32_t data = *xy++;
+        unsigned y0 = data >> 14;
+        unsigned y1 = data & 0x3FFF;
+        unsigned subY = y0 & 0xF;
+        y0 >>= 4;
+        
+        data = *xy++;
+        unsigned x0 = data >> 14;
+        unsigned x1 = data & 0x3FFF;
+        unsigned subX = x0 & 0xF;
+        x0 >>= 4;
+        
+        const uint32_t* row0 = 
+                        reinterpret_cast<const uint32_t*>(src_addr + y0 * rb);
+        const uint32_t* row1 = 
+                        reinterpret_cast<const uint32_t*>(src_addr + y1 * rb); 
+
+        // 16x(x)
+        const __m128i all_x = _mm_set1_epi8(subX);
+
+        // 16x (16-x)
+        __m128i scale_x = _mm_sub_epi8(sixteen_8bit, all_x);
+
+        // (8x (x, 16-x))
+        scale_x = _mm_unpacklo_epi8(scale_x, all_x);
+
+        // 8x(16)
+        const __m128i sixteen_16bit = _mm_set1_epi16(16);
+
+        // 8x (y)
+        const __m128i all_y = _mm_set1_epi16(subY);
+
+        // 8x (16-y)
+        const __m128i neg_y = _mm_sub_epi16(sixteen_16bit, all_y);
+
+        // first row.
+        __m128i sum0 = ProcessOnePixel(row0[x0], row0[x1], scale_x, neg_y);
+        // second row.
+        __m128i sum1 = ProcessOnePixel(row1[x0], row1[x1], scale_x, all_y);
+
+        // Add both rows for full sample
+        sum0 = _mm_add_epi16(sum0, sum1);
+
+        sum0 = ScaleFourPixels<has_alpha, 8>(&sum0, alpha);
+
+        // Pack lower 4 16 bit values of sum into lower 4 bytes.
+        sum0 = _mm_packus_epi16(sum0, _mm_setzero_si128());
+
+        // Extract low int and store.
+        *colors++ = _mm_cvtsi128_si32(sum0);
+    }
+}
 }  // namepace
 
 void S32_opaque_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
@@ -494,4 +708,16 @@ void S32_alpha_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
                                    const uint32_t* xy,
                                    int count, uint32_t* colors) {
     S32_generic_D32_filter_DX_SSSE3<true>(s, xy, count, colors);
+}
+
+void S32_opaque_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
+                                    const uint32_t* xy,
+                                    int count, uint32_t* colors) {
+    S32_generic_D32_filter_DXDY_SSSE3<false>(s, xy, count, colors);
+}
+
+void S32_alpha_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
+                                   const uint32_t* xy,
+                                   int count, uint32_t* colors) {
+    S32_generic_D32_filter_DXDY_SSSE3<true>(s, xy, count, colors);
 }
