@@ -20,6 +20,7 @@
     '../gm/filltypespersp.cpp',
     '../gm/fontscaler.cpp',
     '../gm/gammatext.cpp',
+    '../gm/giantbitmap.cpp',
     '../gm/gradients.cpp',
     '../gm/gradtext.cpp',
     '../gm/hairmodes.cpp',

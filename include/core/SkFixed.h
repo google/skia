@@ -264,4 +264,20 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     #define SkFixedMulAdd(x, y, a)  (SkFixedMul(x, y) + (a))
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+
+typedef int64_t SkFixed48;
+
+#define SkIntToFixed48(x)       ((SkFixed48)(x) << 48)
+#define SkFixed48ToInt(x)       ((int)((x) >> 48))
+#define SkFixedToFixed48(x)     ((SkFixed48)(x) << 32)
+#define SkFixed48ToFixed(x)     ((SkFixed)((x) >> 32))
+#define SkFloatToFixed48(x)     ((SkFixed48)((x) * (65536.0f * 65536.0f * 65536.0f)))
+
+#ifdef SK_SCALAR_IS_FLOAT
+    #define SkScalarToFixed48(x)    SkFloatToFixed48(x)
+#else
+    #define SkScalarToFixed48(x)    SkFixedToFixed48(x)
+#endif
+
 #endif
