@@ -58,7 +58,8 @@ private:
                     GrDrawState::StageMask stages,
                     GrPrimitiveType* primType,
                     int* vertexCnt,
-                    int* indexCnt);
+                    int* indexCnt,
+                    GrDrawTarget::AutoReleaseGeometry* arg);
 
     bool    fSeparateStencil;
     bool    fStencilWrapOps;

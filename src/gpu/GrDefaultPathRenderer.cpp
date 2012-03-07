@@ -189,7 +189,8 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
                                        GrDrawState::StageMask stageMask,
                                        GrPrimitiveType* primType,
                                        int* vertexCnt,
-                                       int* indexCnt) {
+                                       int* indexCnt,
+                                       GrDrawTarget::AutoReleaseGeometry* arg) {
     {
     SK_TRACE_EVENT0("GrDefaultPathRenderer::createGeom");
 
@@ -232,24 +233,18 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
         }
     }
 
-    GrPoint* base;
-    if (!target->reserveVertexSpace(layout, maxPts, (void**)&base)) {
+
+    if (!arg->set(target, layout, maxPts, maxIdxs)) {
         return false;
     }
+
+    uint16_t* idxBase = reinterpret_cast<uint16_t*>(arg->indices());;
+    uint16_t* idx = idxBase;
+    uint16_t subpathIdxStart = 0;
+
+    GrPoint* base = reinterpret_cast<GrPoint*>(arg->vertices());
     GrAssert(NULL != base);
     GrPoint* vert = base;
-
-    uint16_t* idxBase = NULL;
-    uint16_t* idx = NULL;
-    uint16_t subpathIdxStart = 0;
-    if (indexed) {
-        if (!target->reserveIndexSpace(maxIdxs, (void**)&idxBase)) {
-            target->resetVertexSource();
-            return false;
-        }
-        GrAssert(NULL != idxBase);
-        idx = idxBase;
-    }
 
     GrPoint pts[4];
 
@@ -350,6 +345,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
     int vertexCnt;
     int indexCnt;
     GrPrimitiveType primType;
+    GrDrawTarget::AutoReleaseGeometry arg;
     if (!this->createGeom(path,
                           fill,
                           translate,
@@ -358,7 +354,8 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                           stageMask,
                           &primType,
                           &vertexCnt,
-                          &indexCnt)) {
+                          &indexCnt,
+                          &arg)) {
         return false;
     }
 
