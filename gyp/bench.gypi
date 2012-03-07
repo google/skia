@@ -24,6 +24,7 @@
     '../bench/DecodeBench.cpp',
     '../bench/FontScalerBench.cpp',
     '../bench/GradientBench.cpp',
+    '../bench/InterpBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
     '../bench/MutexBench.cpp',
