@@ -13,6 +13,20 @@
 #include "SkBitmap.h"
 #include "SkMatrix.h"
 
+#define FractionalInt_IS_64BIT
+
+#ifdef FractionalInt_IS_64BIT
+    typedef SkFixed48    SkFractionalInt;
+    #define SkScalarToFractionalInt(x)  SkScalarToFixed48(x)
+    #define SkFractionalIntToFixed(x)   SkFixed48ToFixed(x)
+    #define SkFractionalIntToInt(x)     SkFixed48ToInt(x)
+#else
+    typedef SkFixed    SkFractionalInt;
+    #define SkScalarToFractionalInt(x)  SkScalarToFixed(x)
+    #define SkFractionalIntToFixed(x)   (x)
+    #define SkFractionalIntToInt(x)     ((x) >> 16)
+#endif
+
 class SkPaint;
 
 struct SkBitmapProcState {
@@ -54,6 +68,8 @@ struct SkBitmapProcState {
     const SkMatrix*     fInvMatrix;         // chooseProcs
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
 
+    SkFractionalInt     fInvSxFractionalInt;
+    
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs
     IntTileProc         fIntTileProcY;      // chooseProcs

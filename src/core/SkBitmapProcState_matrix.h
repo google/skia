@@ -8,7 +8,6 @@
 
 #include "SkMath.h"
 
-
 #define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
 #define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
@@ -36,15 +35,15 @@ void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
     // we store y, x, x, x, x, x
 
     const unsigned maxX = s.fBitmap->width() - 1;
-    SkFixed fx;
+    SkFractionalInt fx;
     {
         SkPoint pt;
         s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        fx = SkScalarToFixed(pt.fY);
+        fx = SkScalarToFractionalInt(pt.fY);
         const unsigned maxY = s.fBitmap->height() - 1;
-        *xy++ = TILEY_PROCF(fx, maxY);
-        fx = SkScalarToFixed(pt.fX);
+        *xy++ = TILEY_PROCF(SkFractionalIntToFixed(fx), maxY);
+        fx = SkScalarToFractionalInt(pt.fX);
     }
     
     if (0 == maxX) {
@@ -53,28 +52,30 @@ void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
         return;
     }
 
-    const SkFixed dx = s.fInvSx;
+    const SkFractionalInt dx = s.fInvSxFractionalInt;
 
 #ifdef CHECK_FOR_DECAL
     // test if we don't need to apply the tile proc
-    if ((unsigned)(fx >> 16) <= maxX &&
-        (unsigned)((fx + dx * (count - 1)) >> 16) <= maxX) {
-        decal_nofilter_scale(xy, fx, dx, count);
+    SkFixed tmpFx = SkFractionalIntToFixed(fx);
+    SkFixed tmpDx = SkFractionalIntToFixed(dx);
+    if ((unsigned)(tmpFx >> 16) <= maxX &&
+        (unsigned)((tmpFx + tmpDx * (count - 1)) >> 16) <= maxX) {
+        decal_nofilter_scale(xy, tmpFx, tmpDx, count);
     } else
 #endif
     {
         int i;
         for (i = (count >> 2); i > 0; --i) {
             unsigned a, b;
-            a = TILEX_PROCF(fx, maxX); fx += dx;
-            b = TILEX_PROCF(fx, maxX); fx += dx;
+            a = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
+            b = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
 #ifdef SK_CPU_BENDIAN
             *xy++ = (a << 16) | b;
 #else
             *xy++ = (b << 16) | a;
 #endif
-            a = TILEX_PROCF(fx, maxX); fx += dx;
-            b = TILEX_PROCF(fx, maxX); fx += dx;
+            a = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
+            b = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
 #ifdef SK_CPU_BENDIAN
             *xy++ = (a << 16) | b;
 #else
@@ -83,7 +84,7 @@ void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
         }
         uint16_t* xx = (uint16_t*)xy;
         for (i = (count & 3); i > 0; --i) {
-            *xx++ = TILEX_PROCF(fx, maxX); fx += dx;
+            *xx++ = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
         }
     }
 }
@@ -104,16 +105,17 @@ void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
     s.fInvProc(*s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-    
-    SkFixed fx = SkScalarToFixed(srcPt.fX);
-    SkFixed fy = SkScalarToFixed(srcPt.fY);
-    SkFixed dx = s.fInvSx;
-    SkFixed dy = s.fInvKy;
+
+    SkFractionalInt fx = SkScalarToFractionalInt(srcPt.fX);
+    SkFractionalInt fy = SkScalarToFractionalInt(srcPt.fY);
+    SkFractionalInt dx = s.fInvSx;
+    SkFractionalInt dy = s.fInvKy;
     int maxX = s.fBitmap->width() - 1;
     int maxY = s.fBitmap->height() - 1;
     
     for (int i = count; i > 0; --i) {
-        *xy++ = (TILEY_PROCF(fy, maxY) << 16) | TILEX_PROCF(fx, maxX);
+        *xy++ = (TILEY_PROCF(SkFractionalIntToFixed(fx), maxY) << 16) |
+                 TILEX_PROCF(SkFractionalIntToFixed(fx), maxX);
         fx += dx; fy += dy;
     }
 }
