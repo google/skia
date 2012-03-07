@@ -40,7 +40,8 @@ private:
                     GrDrawTarget* target,
                     GrDrawState::StageMask stageMask,
                     int* lineCnt,
-                    int* quadCnt);
+                    int* quadCnt,
+                    GrDrawTarget::AutoReleaseGeometry* arg);
 
     const GrIndexBuffer*        fLinesIndexBuffer;
     const GrIndexBuffer*        fQuadsIndexBuffer;

@@ -505,15 +505,12 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         return false;
     }
 
-    if (!target->reserveVertexSpace(layout,
-                                    vCount,
-                                    reinterpret_cast<void**>(&verts))) {
+    GrDrawTarget::AutoReleaseGeometry arg(target, layout, vCount, iCount);
+    if (!arg.succeeded()) {
         return false;
     }
-    if (!target->reserveIndexSpace(iCount, reinterpret_cast<void**>(&idxs))) {
-        target->resetVertexSource();
-        return false;
-    }
+    verts = reinterpret_cast<QuadVertex*>(arg.vertices());
+    idxs = reinterpret_cast<uint16_t*>(arg.indices());
 
     create_vertices(segments, fanPt, verts, idxs);
 

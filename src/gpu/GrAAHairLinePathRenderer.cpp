@@ -500,12 +500,14 @@ void add_line(const SkPoint p[2],
 
 }
 
-bool GrAAHairLinePathRenderer::createGeom(const SkPath& path,
-                                          const GrVec* translate,
-                                          GrDrawTarget* target,
-                                          GrDrawState::StageMask stageMask,
-                                          int* lineCnt,
-                                          int* quadCnt) {
+bool GrAAHairLinePathRenderer::createGeom(
+            const SkPath& path,
+            const GrVec* translate,
+            GrDrawTarget* target,
+            GrDrawState::StageMask stageMask,
+            int* lineCnt,
+            int* quadCnt,
+            GrDrawTarget::AutoReleaseGeometry* arg) {
     const GrDrawState& drawState = target->getDrawState();
     int rtHeight = drawState.getRenderTarget()->height();
 
@@ -542,10 +544,11 @@ bool GrAAHairLinePathRenderer::createGeom(const SkPath& path,
 
     GrAssert(sizeof(Vertex) == GrDrawTarget::VertexSize(layout));
 
-    Vertex* verts;
-    if (!target->reserveVertexSpace(layout, vertCnt, (void**)&verts)) {
+    if (!arg->set(target, layout, vertCnt, 0)) {
         return false;
     }
+
+    Vertex* verts = reinterpret_cast<Vertex*>(arg->vertices());
 
     const GrMatrix* toDevice = NULL;
     const GrMatrix* toSrc = NULL;
@@ -597,13 +600,14 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
     int lineCnt;
     int quadCnt;
-
+    GrDrawTarget::AutoReleaseGeometry arg;
     if (!this->createGeom(path,
                           translate,
                           target,
                           stageMask,
                           &lineCnt,
-                          &quadCnt)) {
+                          &quadCnt,
+                          &arg)) {
         return false;
     }
 
