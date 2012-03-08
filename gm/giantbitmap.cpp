@@ -15,12 +15,14 @@
  *  precision when scaling very large images (where the dx might get very small.
  */
 
-#define W   2560
-#define H   1600
+#define W   256
+#define H   160
 
 class GiantBitmapGM : public skiagm::GM {
     SkBitmap* fBM;
     SkShader::TileMode fMode;
+    bool fDoFilter;
+    bool fDoRotate;
     
     const SkBitmap& getBitmap() {
         if (NULL == fBM) {
@@ -37,7 +39,7 @@ class GiantBitmapGM : public skiagm::GM {
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setStrokeWidth(SkIntToScalar(30));
-            for (int y = -H; y < H; y += 80) {
+            for (int y = -H*2; y < H; y += 80) {
                 SkScalar yy = SkIntToScalar(y);
                 paint.setColor(colors[y/80 & 0x3]);
                 canvas.drawLine(0, yy, SkIntToScalar(W), yy + SkIntToScalar(W),
@@ -48,7 +50,11 @@ class GiantBitmapGM : public skiagm::GM {
     }
 
 public:
-    GiantBitmapGM(SkShader::TileMode mode) : fBM(NULL), fMode(mode) {}
+    GiantBitmapGM(SkShader::TileMode mode, bool doFilter, bool doRotate) : fBM(NULL) {
+        fMode = mode;
+        fDoFilter = doFilter;
+        fDoRotate = doRotate;
+    }
 
     virtual ~GiantBitmapGM() {
         SkDELETE(fBM);
@@ -74,6 +80,8 @@ protected:
             default:
                 break;
         }
+        str.append(fDoFilter ? "_bilerp" : "_point");
+        str.append(fDoRotate ? "_rotate" : "_scale");
         return str;
     }
 
@@ -82,11 +90,21 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         SkShader* s = SkShader::CreateBitmapShader(getBitmap(), fMode, fMode);
-        SkMatrix m;
-        m.setScale(2*SK_Scalar1/3, 2*SK_Scalar1/3);
-        s->setLocalMatrix(m);
-        paint.setShader(s)->unref();
 
+        SkMatrix m;
+        if (fDoRotate) {
+//            m.setRotate(SkIntToScalar(30), 0, 0);
+            m.setSkew(SK_Scalar1, 0, 0, 0);
+            m.postScale(2*SK_Scalar1/3, 2*SK_Scalar1/3);
+        } else {
+            m.setScale(2*SK_Scalar1/3, 2*SK_Scalar1/3);
+        }
+        s->setLocalMatrix(m);
+        
+        paint.setShader(s)->unref();
+        paint.setFilterBitmap(fDoFilter);
+
+        canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
         canvas->drawPaint(paint);
     }
 
@@ -96,11 +114,31 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* G0(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode); }
-static skiagm::GM* G1(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode); }
-static skiagm::GM* G2(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode); }
+static skiagm::GM* G000(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, false, false); }
+static skiagm::GM* G100(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, false); }
+static skiagm::GM* G200(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, false, false); }
+static skiagm::GM* G010(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, true, false); }
+static skiagm::GM* G110(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, false); }
+static skiagm::GM* G210(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, true, false); }
 
-static skiagm::GMRegistry reg0(G0);
-static skiagm::GMRegistry reg1(G1);
-static skiagm::GMRegistry reg2(G2);
+static skiagm::GM* G001(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, false, true); }
+static skiagm::GM* G101(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, true); }
+static skiagm::GM* G201(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, false, true); }
+static skiagm::GM* G011(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, true, true); }
+static skiagm::GM* G111(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, true); }
+static skiagm::GM* G211(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, true, true); }
+
+static skiagm::GMRegistry reg000(G000);
+static skiagm::GMRegistry reg100(G100);
+static skiagm::GMRegistry reg200(G200);
+static skiagm::GMRegistry reg010(G010);
+static skiagm::GMRegistry reg110(G110);
+static skiagm::GMRegistry reg210(G210);
+
+static skiagm::GMRegistry reg001(G001);
+static skiagm::GMRegistry reg101(G101);
+static skiagm::GMRegistry reg201(G201);
+static skiagm::GMRegistry reg011(G011);
+static skiagm::GMRegistry reg111(G111);
+static skiagm::GMRegistry reg211(G211);
 
