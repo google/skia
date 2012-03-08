@@ -78,14 +78,21 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
 }
 
 class FilterGM : public GM {
-public:
-    SkBitmap    fBM8, fBM4444, fBM16, fBM32;
-
-	FilterGM() {
+    bool fOnce;
+    void init() {
+        if (fOnce) {
+            return;
+        }
+        fOnce = true;
         make_bm(&fBM8);
         fBM8.copyTo(&fBM4444, SkBitmap::kARGB_4444_Config);
         fBM8.copyTo(&fBM16, SkBitmap::kRGB_565_Config);
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
+    }
+public:
+    SkBitmap    fBM8, fBM4444, fBM16, fBM32;
+
+	FilterGM() : fOnce(false) {
         this->setBGColor(0xFFDDDDDD);
     }
 
@@ -99,6 +106,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        this->init();
 
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
