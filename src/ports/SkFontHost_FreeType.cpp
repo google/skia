@@ -637,7 +637,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         // collapse full->normal hinting if we're not doing LCD
         h = SkPaint::kNormal_Hinting;
     }
-    if ((rec->fFlags & SkScalerContext::kSubpixelPositioning_Flag) || isLCD(*rec)) {
+    if ((rec->fFlags & SkScalerContext::kSubpixelPositioning_Flag)) {
         if (SkPaint::kNo_Hinting != h) {
             h = SkPaint::kSlight_Hinting;
         }
