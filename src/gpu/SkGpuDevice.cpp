@@ -568,11 +568,11 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         }
     }
     if (SkShader::kDefault_BitmapType == bmptype) {
-        GrScalar sx = GrFixedToScalar(GR_Fixed1 / bitmap.width());
-        GrScalar sy = GrFixedToScalar(GR_Fixed1 / bitmap.height());
+        GrScalar sx = SkFloatToScalar(1.f / bitmap.width());
+        GrScalar sy = SkFloatToScalar(1.f / bitmap.height());
         matrix->postScale(sx, sy);
     } else if (SkShader::kRadial_BitmapType == bmptype) {
-        GrScalar s = GrFixedToScalar(GR_Fixed1 / bitmap.width());
+        GrScalar s = SkFloatToScalar(1.f / bitmap.width());
         matrix->postScale(s, s);
     }
 
@@ -1284,10 +1284,12 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     GrRect dstRect = SkRect::MakeWH(GrIntToScalar(srcRect.width()),
                                     GrIntToScalar(srcRect.height()));
     GrRect paintRect;
-    paintRect.setLTRB(GrFixedToScalar((srcRect.fLeft << 16) / bitmap.width()),
-                      GrFixedToScalar((srcRect.fTop << 16) / bitmap.height()),
-                      GrFixedToScalar((srcRect.fRight << 16) / bitmap.width()),
-                      GrFixedToScalar((srcRect.fBottom << 16) / bitmap.height()));
+    float wInv = 1.f / bitmap.width();
+    float hInv = 1.f / bitmap.height();
+    paintRect.setLTRB(SkFloatToScalar(srcRect.fLeft * wInv),
+                      SkFloatToScalar(srcRect.fTop * hInv),
+                      SkFloatToScalar(srcRect.fRight * wInv),
+                      SkFloatToScalar(srcRect.fBottom * hInv));
 
     if (GrSamplerState::kNearest_Filter != sampler->getFilter() &&
         (srcRect.width() < bitmap.width() ||
