@@ -19,11 +19,13 @@
     typedef SkFixed48    SkFractionalInt;
     #define SkScalarToFractionalInt(x)  SkScalarToFixed48(x)
     #define SkFractionalIntToFixed(x)   SkFixed48ToFixed(x)
+    #define SkFixedToFractionalInt(x)   SkFixedToFixed48(x)
     #define SkFractionalIntToInt(x)     SkFixed48ToInt(x)
 #else
     typedef SkFixed    SkFractionalInt;
     #define SkScalarToFractionalInt(x)  SkScalarToFixed(x)
     #define SkFractionalIntToFixed(x)   (x)
+    #define SkFixedToFractionalInt(x)   (x)
     #define SkFractionalIntToInt(x)     ((x) >> 16)
 #endif
 
@@ -69,6 +71,7 @@ struct SkBitmapProcState {
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
 
     SkFractionalInt     fInvSxFractionalInt;
+    SkFractionalInt     fInvKyFractionalInt;
     
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs

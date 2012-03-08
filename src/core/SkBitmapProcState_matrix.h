@@ -108,13 +108,13 @@ void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
 
     SkFractionalInt fx = SkScalarToFractionalInt(srcPt.fX);
     SkFractionalInt fy = SkScalarToFractionalInt(srcPt.fY);
-    SkFractionalInt dx = s.fInvSx;
-    SkFractionalInt dy = s.fInvKy;
+    SkFractionalInt dx = s.fInvSxFractionalInt;
+    SkFractionalInt dy = s.fInvKyFractionalInt;
     int maxX = s.fBitmap->width() - 1;
     int maxY = s.fBitmap->height() - 1;
     
     for (int i = count; i > 0; --i) {
-        *xy++ = (TILEY_PROCF(SkFractionalIntToFixed(fx), maxY) << 16) |
+        *xy++ = (TILEY_PROCF(SkFractionalIntToFixed(fy), maxY) << 16) |
                  TILEX_PROCF(SkFractionalIntToFixed(fx), maxX);
         fx += dx; fy += dy;
     }
@@ -169,8 +169,8 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     
     const unsigned maxX = s.fBitmap->width() - 1;
     const SkFixed one = s.fFilterOneX;
-    const SkFixed dx = s.fInvSx;
-    SkFixed fx;
+    const SkFractionalInt dx = s.fInvSxFractionalInt;
+    SkFractionalInt fx;
 
     {
         SkPoint pt;
@@ -181,7 +181,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
         // compute our two Y values up front
         *xy++ = PACK_FILTER_Y_NAME(fy, maxY, s.fFilterOneY PREAMBLE_ARG_Y);
         // now initialize fx
-        fx = SkScalarToFixed(pt.fX) - (one >> 1);
+        fx = SkScalarToFractionalInt(pt.fX) - (SkFixedToFractionalInt(one) >> 1);
     }
 
 #ifdef CHECK_FOR_DECAL
@@ -194,7 +194,8 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
 #endif
     {
         do {
-            *xy++ = PACK_FILTER_X_NAME(fx, maxX, one PREAMBLE_ARG_X);
+            SkFixed fixedFx = SkFractionalIntToFixed(fx);
+            *xy++ = PACK_FILTER_X_NAME(fixedFx, maxX, one PREAMBLE_ARG_X);
             fx += dx;
         } while (--count != 0);
     }
