@@ -81,7 +81,8 @@ void GrGLVertexBuffer::unlock() {
 
 bool GrGLVertexBuffer::isLocked() const {
     GrAssert(!this->isValid() || fBufferID);
-#if GR_DEBUG
+    // this check causes a lot of noise in the gl log
+#if 0
     if (this->isValid() && this->getGpu()->getCaps().fBufferLockSupport) {
         GrGLint mapped;
         this->bind();

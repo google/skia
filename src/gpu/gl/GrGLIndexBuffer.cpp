@@ -84,7 +84,8 @@ void GrGLIndexBuffer::unlock() {
 }
 
 bool GrGLIndexBuffer::isLocked() const {
-#if GR_DEBUG
+    // this check causes a lot of noise in the gl log
+#if 0
     if (this->isValid() && this->getGpu()->getCaps().fBufferLockSupport) {
         this->bind();
         GrGLint mapped;
