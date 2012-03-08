@@ -159,6 +159,7 @@ private:
     FT_Matrix   fMatrix22;
     uint32_t    fLoadGlyphFlags;
     bool        fDoLinearMetrics;
+    bool        fLCDIsVert;
 
     FT_Error setupSize();
     void emboldenOutline(FT_Outline* outline);
@@ -751,6 +752,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
     fScaleX = SkScalarToFixed(sx);
     fScaleY = SkScalarToFixed(sy);
 
+    fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
+
     // compute the flags we send to Load_Glyph
     {
         FT_Int32 loadFlags = FT_LOAD_DEFAULT;
@@ -786,7 +789,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
                 }
                 loadFlags = FT_LOAD_TARGET_NORMAL;
                 if (isLCD(fRec)) {
-                    if (fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag) {
+                    if (fLCDIsVert) {
                         loadFlags = FT_LOAD_TARGET_LCD_V;
                     } else {
                         loadFlags = FT_LOAD_TARGET_LCD;
@@ -1013,8 +1016,13 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         glyph->fLeft    = SkToS16(bbox.xMin >> 6);
 
         if (isLCD(fRec)) {
-            glyph->fWidth += gLCDExtra;
-            glyph->fLeft -= gLCDExtra >> 1;
+            if (fLCDIsVert) {
+                glyph->fHeight += gLCDExtra;
+                glyph->fTop -= gLCDExtra >> 1;
+            } else {
+                glyph->fWidth += gLCDExtra;
+                glyph->fLeft -= gLCDExtra >> 1;
+            }
         }
         break;
       }
@@ -1148,9 +1156,14 @@ static int bittst(const uint8_t data[], int bitOffset) {
 }
 
 static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
-                         int lcdIsBGR, const uint8_t* tableR,
+                         int lcdIsBGR, bool lcdIsVert, const uint8_t* tableR,
                          const uint8_t* tableG, const uint8_t* tableB) {
-    SkASSERT(glyph.fHeight == bitmap.rows);
+    if (lcdIsVert) {
+        SkASSERT(3 * glyph.fHeight == bitmap.rows);
+    } else {
+        SkASSERT(glyph.fHeight == bitmap.rows);
+    }
+
     uint16_t* dst = reinterpret_cast<uint16_t*>(glyph.fImage);
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.fWidth;
@@ -1176,25 +1189,40 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
             }
         } break;
         default: {
-            SkASSERT(glyph.fWidth * 3 == bitmap.width);
+            SkASSERT(lcdIsVert || (glyph.fWidth * 3 == bitmap.width));
             for (int y = 0; y < glyph.fHeight; y++) {
-                const uint8_t* triple = src;
-                if (lcdIsBGR) {
-                    for (int x = 0; x < width; x++) {
-                        dst[x] = packTriple(tableR[triple[2]], 
-                                            tableG[triple[1]],
-                                            tableB[triple[0]]);
-                        triple += 3;
+                if (lcdIsVert) {    // vertical stripes
+                    const uint8_t* srcR = src;
+                    const uint8_t* srcG = srcR + bitmap.pitch;
+                    const uint8_t* srcB = srcG + bitmap.pitch;
+                    if (lcdIsBGR) {
+                        SkTSwap(srcR, srcB);
                     }
-                } else {
                     for (int x = 0; x < width; x++) {
-                        dst[x] = packTriple(tableR[triple[0]], 
-                                            tableG[triple[1]],
-                                            tableB[triple[2]]);
-                        triple += 3;
+                        dst[x] = packTriple(tableR[*srcR++], 
+                                            tableG[*srcG++],
+                                            tableB[*srcB++]);
                     }
+                    src += 3 * bitmap.pitch;
+                } else {            // horizontal stripes
+                    const uint8_t* triple = src;
+                    if (lcdIsBGR) {
+                        for (int x = 0; x < width; x++) {
+                            dst[x] = packTriple(tableR[triple[2]], 
+                                                tableG[triple[1]],
+                                                tableB[triple[0]]);
+                            triple += 3;
+                        }
+                    } else {
+                        for (int x = 0; x < width; x++) {
+                            dst[x] = packTriple(tableR[triple[0]], 
+                                                tableG[triple[1]],
+                                                tableB[triple[2]]);
+                            triple += 3;
+                        }
+                    }
+                    src += bitmap.pitch;
                 }
-                src += bitmap.pitch;
                 dst = (uint16_t*)((char*)dst + dstRB);
             }
         } break;
@@ -1239,6 +1267,9 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     }
 #endif
 
+    const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
+    const bool doVert = fLCDIsVert;
+
     switch ( fFace->glyph->format ) {
         case FT_GLYPH_FORMAT_OUTLINE: {
             FT_Outline* outline = &fFace->glyph->outline;
@@ -1269,9 +1300,8 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                                           dy - ((bbox.yMin + dy) & ~63));
 
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                FT_Render_Glyph(fFace->glyph, FT_RENDER_MODE_LCD);
-                copyFT2LCD16(glyph, fFace->glyph->bitmap,
-                             fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag,
+                FT_Render_Glyph(fFace->glyph, doVert ? FT_RENDER_MODE_LCD_V : FT_RENDER_MODE_LCD);
+                copyFT2LCD16(glyph, fFace->glyph->bitmap, doBGR, doVert,
                              tableR, tableG, tableB);
             } else {
                 target.width = glyph.fWidth;
@@ -1337,8 +1367,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                     dst += glyph.rowBytes();
                 }
             } else if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                copyFT2LCD16(glyph, fFace->glyph->bitmap,
-                             fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag,
+                copyFT2LCD16(glyph, fFace->glyph->bitmap, doBGR, doVert,
                              tableR, tableG, tableB);
             } else {
                 SkDEBUGFAIL("unknown glyph bitmap transform needed");
