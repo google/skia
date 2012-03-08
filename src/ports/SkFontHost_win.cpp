@@ -1100,7 +1100,8 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
     }
 
-    if (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE) {
+    if (glyphCount > 0 &&
+        (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE)) {
         info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     } else {
         info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
