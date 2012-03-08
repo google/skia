@@ -168,7 +168,8 @@ void* GrBufferAllocPool::makeSpace(size_t size,
             *offset = usedBytes;
             *buffer = back.fBuffer;
             back.fBytesFree -= size + pad;
-            fBytesInUse += size;
+            fBytesInUse += size + pad;
+            VALIDATE();
             return (void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes);
         }
     }
@@ -335,6 +336,7 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
     GrAssert(!buffer->isLocked());
     GrAssert(fCpuData.get() == fBufferPtr);
     GrAssert(flushSize <= buffer->sizeInBytes());
+    VALIDATE(true);
 
     if (fGpu->getCaps().fBufferLockSupport &&
         flushSize > GR_GEOM_BUFFER_LOCK_THRESHOLD) {
@@ -346,6 +348,7 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
         }
     }
     buffer->updateData(fBufferPtr, flushSize);
+    VALIDATE(true);
 }
 
 GrGeometryBuffer* GrBufferAllocPool::createBuffer(size_t size) {
