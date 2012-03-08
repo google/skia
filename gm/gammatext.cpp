@@ -29,6 +29,7 @@ static bool setFont(SkPaint* paint, const char name[]) {
         paint->setTypeface(tf)->unref();
         return true;
     }
+    return false;
 }
 
 #ifdef SK_BUILD_FOR_MAC
