@@ -55,12 +55,17 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, s != copy);
 
     // Test that different state (clip type) triggers not equal.
+    // NO LONGER VALID: if a path contains only a rect, we turn
+    // it into a bare rect for performance reasons (working
+    // around Chromium/JavaScript bad pattern).
+/*
     s.restore();
     s.save();
     SkPath rp;
     rp.addRect(r);
     s.clipDevPath(rp, SkRegion::kUnion_Op, doAA);
     REPORTER_ASSERT(reporter, s != copy);
+*/
 
     // Test that different rects triggers not equal.
     s.restore();
