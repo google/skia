@@ -1037,7 +1037,8 @@ SkPDFDict* SkPDFDevice::getResourceDict() {
     return fResourceDict.get();
 }
 
-void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
+void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList,
+                               bool recursive) const {
     resourceList->setReserve(resourceList->count() +
                              fGraphicStateResources.count() +
                              fXObjectResources.count() +
@@ -1046,22 +1047,30 @@ void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
     for (int i = 0; i < fGraphicStateResources.count(); i++) {
         resourceList->push(fGraphicStateResources[i]);
         fGraphicStateResources[i]->ref();
-        fGraphicStateResources[i]->getResources(resourceList);
+        if (recursive) {
+            fGraphicStateResources[i]->getResources(resourceList);
+        }
     }
     for (int i = 0; i < fXObjectResources.count(); i++) {
         resourceList->push(fXObjectResources[i]);
         fXObjectResources[i]->ref();
-        fXObjectResources[i]->getResources(resourceList);
+        if (recursive) {
+            fXObjectResources[i]->getResources(resourceList);
+        }
     }
     for (int i = 0; i < fFontResources.count(); i++) {
         resourceList->push(fFontResources[i]);
         fFontResources[i]->ref();
-        fFontResources[i]->getResources(resourceList);
+        if (recursive) {
+            fFontResources[i]->getResources(resourceList);
+        }
     }
     for (int i = 0; i < fShaderResources.count(); i++) {
         resourceList->push(fShaderResources[i]);
         fShaderResources[i]->ref();
-        fShaderResources[i]->getResources(resourceList);
+        if (recursive) {
+            fShaderResources[i]->getResources(resourceList);
+        }
     }
 }
 

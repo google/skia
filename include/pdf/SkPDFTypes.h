@@ -40,11 +40,11 @@ public:
      */
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
-    /** If this object explicitly depends on other objects, add them to the
-     *  end of the list.  This only applies to higher level object, where
-     *  the depenency is explicit and introduced by the class.  i.e. an
-     *  SkPDFImage added to an SkPDFDevice, but not an SkPDFObjRef added to
-     *  an SkPDFArray.
+    /** For non-primitive objects (i.e. objects defined outside this file),
+     *  this method will add to resourceList any objects that this method
+     *  depends on.  This operates recursively so if this object depends on
+     *  another object and that object depends on two more, all three objects
+     *  will be added.
      *  @param resourceList  The list to append dependant resources to.
      */
     virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);

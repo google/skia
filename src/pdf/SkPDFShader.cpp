@@ -693,7 +693,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     // Put the canvas into the pattern stream (fContent).
     SkRefPtr<SkStream> content = pattern.content();
     content->unref();  // SkRefPtr and content() both took a reference.
-    pattern.getResources(&fResources);
+    pattern.getResources(&fResources, false);
 
     setData(content.get());
     insertName("Type", "Pattern");
