@@ -115,8 +115,8 @@ InitFreetype() {
     // Setup LCD filtering. This reduces colour fringes for LCD rendered
     // glyphs.
 #ifdef FT_LCD_FILTER_H
-//    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
-    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_LIGHT);
+    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
+//    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_LIGHT);
     gLCDSupport = err == 0;
     if (gLCDSupport) {
         gLCDExtra = 2; //DEFAULT and LIGHT add one pixel to each side.
