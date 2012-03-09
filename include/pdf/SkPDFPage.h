@@ -40,9 +40,10 @@ public:
      *  that the page is part of.
      *  @param catalog         The catalog to add page content objects to.
      *  @param firstPage       Indicate if this is the first page of a document.
-     *  @param resourceObjects The resource objects used on the page are added
-     *                         to this array.  This gives the caller a chance
-     *                         to deduplicate resources across pages.
+     *  @param resourceObjects All the resource objects (recursively) used on
+     *                         the page are added to this array.  This gives
+     *                         the caller a chance to deduplicate resources
+     *                         across pages.
      */
     void finalizePage(SkPDFCatalog* catalog, bool firstPage,
                       SkTDArray<SkPDFObject*>* resourceObjects);

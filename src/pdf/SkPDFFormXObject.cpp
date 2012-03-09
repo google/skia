@@ -20,7 +20,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // We don't want to keep around device because we'd have two copies
     // of content, so reference or copy everything we need (content and
     // resources).
-    device->getResources(&fResources);
+    device->getResources(&fResources, false);
 
     SkRefPtr<SkStream> content = device->content();
     content->unref();  // SkRefPtr and content() both took a reference.
