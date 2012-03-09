@@ -61,10 +61,6 @@ public:
     }
 
 protected:
-    // work-around for bug http://code.google.com/p/skia/issues/detail?id=520
-    //
-    virtual uint32_t onGetFlags() const { return kSkipPDF_Flag; }
-    
     virtual SkString onShortName() {
         SkString str("giantbitmap_");
         switch (fMode) {

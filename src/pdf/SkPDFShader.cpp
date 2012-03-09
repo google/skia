@@ -525,7 +525,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     transformBBox(finalMatrix, &surfaceBBox);
 
     SkMatrix unflip;
-    unflip.setTranslate(0, SkScalarRound(surfaceBBox.height()));
+    unflip.setTranslate(0, SkScalarRoundToScalar(surfaceBBox.height()));
     unflip.preScale(SK_Scalar1, -SK_Scalar1);
     SkISize size = SkISize::Make(SkScalarRound(surfaceBBox.width()),
                                  SkScalarRound(surfaceBBox.height()));
@@ -535,8 +535,8 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     finalMatrix.preTranslate(surfaceBBox.fLeft, surfaceBBox.fTop);
 
     const SkBitmap* image = &fState.get()->fImage;
-    int width = image->width();
-    int height = image->height();
+    SkScalar width = SkIntToScalar(image->width());
+    SkScalar height = SkIntToScalar(image->height());
     SkShader::TileMode tileModes[2];
     tileModes[0] = fState.get()->fImageTileModes[0];
     tileModes[1] = fState.get()->fImageTileModes[1];
@@ -585,28 +585,29 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
 
         rect = SkRect::MakeLTRB(width, surfaceBBox.fTop, surfaceBBox.fRight, 0);
         if (!rect.isEmpty()) {
-            paint.setColor(image->getColor(width - 1, 0));
+            paint.setColor(image->getColor(image->width() - 1, 0));
             canvas.drawRect(rect, paint);
         }
 
         rect = SkRect::MakeLTRB(width, height, surfaceBBox.fRight,
                                 surfaceBBox.fBottom);
         if (!rect.isEmpty()) {
-            paint.setColor(image->getColor(width - 1, height - 1));
+            paint.setColor(image->getColor(image->width() - 1,
+                                           image->height() - 1));
             canvas.drawRect(rect, paint);
         }
 
         rect = SkRect::MakeLTRB(surfaceBBox.fLeft, height, 0,
                                 surfaceBBox.fBottom);
         if (!rect.isEmpty()) {
-            paint.setColor(image->getColor(0, height - 1));
+            paint.setColor(image->getColor(0, image->height() - 1));
             canvas.drawRect(rect, paint);
         }
     }
 
     // Then expand the left, right, top, then bottom.
     if (tileModes[0] == SkShader::kClamp_TileMode) {
-        SkIRect subset = SkIRect::MakeXYWH(0, 0, 1, height);
+        SkIRect subset = SkIRect::MakeXYWH(0, 0, 1, image->height());
         if (surfaceBBox.fLeft < 0) {
             SkBitmap left;
             SkAssertResult(image->extractSubset(&left, subset));
@@ -626,7 +627,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
 
         if (surfaceBBox.fRight > width) {
             SkBitmap right;
-            subset.offset(width - 1, 0);
+            subset.offset(image->width() - 1, 0);
             SkAssertResult(image->extractSubset(&right, subset));
 
             SkMatrix rightMatrix;
@@ -644,7 +645,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     }
 
     if (tileModes[1] == SkShader::kClamp_TileMode) {
-        SkIRect subset = SkIRect::MakeXYWH(0, 0, width, 1);
+        SkIRect subset = SkIRect::MakeXYWH(0, 0, image->width(), 1);
         if (surfaceBBox.fTop < 0) {
             SkBitmap top;
             SkAssertResult(image->extractSubset(&top, subset));
@@ -664,7 +665,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
 
         if (surfaceBBox.fBottom > height) {
             SkBitmap bottom;
-            subset.offset(0, height - 1);
+            subset.offset(0, image->height() - 1);
             SkAssertResult(image->extractSubset(&bottom, subset));
 
             SkMatrix bottomMatrix;
