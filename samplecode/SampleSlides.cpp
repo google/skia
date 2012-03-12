@@ -724,8 +724,18 @@ static const SlideProc gProc[] = {
 
 class SlideView : public SampleView {
     int fIndex;
+    bool fOnce;
 public:
     SlideView() {
+        fOnce = false;
+    }
+    
+    void init() {
+        if (fOnce) {
+            return;
+        }
+        fOnce = true;
+
         fIndex = 0;
         
         SkBitmap bm;
@@ -757,10 +767,12 @@ protected:
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
+        this->init();
         gProc[fIndex](canvas);
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+        this->init();
         fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
         this->inval(NULL);
         return NULL;
