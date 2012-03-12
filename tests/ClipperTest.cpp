@@ -10,6 +10,43 @@
 #include "SkLineClipper.h"
 #include "SkEdgeClipper.h"
 
+#include "SkCanvas.h"
+static void test_hairclipping(skiatest::Reporter* reporter) {
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 4, 4);
+    bm.allocPixels();
+    bm.eraseColor(SK_ColorWHITE);
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    SkCanvas canvas(bm);
+    canvas.clipRect(SkRect::MakeWH(4, 2));
+    canvas.drawLine(1.5, 1.5, 3.5, 3.5, paint);
+    
+    /**
+     *  We had a bug where we misinterpreted the bottom of the clip, and
+     *  would draw another pixel (to the right in this case) on the same
+     *  last scanline. i.e. we would draw to [2,1], even though this hairline
+     *  should just draw to [1,1], [2,2], [3,3] modulo the clip.
+     *
+     *  The result of this entire draw should be that we only draw to [1,1]
+     *
+     *  Fixed in rev. 3366
+     */
+    for (int y = 0; y < 4; ++y) {
+        for (int x = 0; x < 4; ++x) {
+            bool nonWhite = (1 == y) && (1 == x);
+            SkPMColor c = *bm.getAddr32(x, y);
+            if (nonWhite) {
+                REPORTER_ASSERT(reporter, 0xFFFFFFFF != c);
+            } else {
+                REPORTER_ASSERT(reporter, 0xFFFFFFFF == c);
+            }
+        }
+    }
+}
+
 static void test_edgeclipper(skiatest::Reporter* reporter) {
     SkEdgeClipper clipper;
     
@@ -109,6 +146,7 @@ static void test_intersectline(skiatest::Reporter* reporter) {
 void TestClipper(skiatest::Reporter* reporter) {
     test_intersectline(reporter);
     test_edgeclipper(reporter);
+    test_hairclipping(reporter);
 }
 
 #include "TestClassDef.h"
