@@ -220,17 +220,28 @@ static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
  * utility functions. Third parameter controls blending of the first two:
  *   (src, dst, 0) returns dst
  *   (src, dst, 0xFF) returns src
+ *   srcWeight is [0..256], unlike SkFourByteInterp which takes [0..255]
  */
-static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst,
-                                         U8CPU srcWeight) {
-    unsigned scale = SkAlpha255To256(srcWeight);
-
+static inline SkPMColor SkFourByteInterp256(SkPMColor src, SkPMColor dst,
+                                         unsigned scale) {
     unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
     unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
     unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
     unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
-
+    
     return SkPackARGB32(a, r, g, b);
+}
+
+/**
+ * Abstract 4-byte interpolation, implemented on top of SkPMColor
+ * utility functions. Third parameter controls blending of the first two:
+ *   (src, dst, 0) returns dst
+ *   (src, dst, 0xFF) returns src
+ */
+static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst,
+                                         U8CPU srcWeight) {
+    unsigned scale = SkAlpha255To256(srcWeight);
+    return SkFourByteInterp256(src, dst, scale);
 }
 
 /**
