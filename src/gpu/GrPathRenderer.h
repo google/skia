@@ -21,14 +21,6 @@ struct GrPoint;
 
 /**
  *  Base class for drawing paths into a GrDrawTarget.
- *  Paths may be drawn multiple times as when tiling for supersampling. The 
- *  calls on GrPathRenderer to draw a path will look like this:
- *  
- *  pr->setPath(target, path, fill, aa, translate); // sets the path to draw
- *      pr->drawPath(...);  // draw the path
- *      pr->drawPath(...);
- *      ...
- *  pr->clearPath();  // finished with the path
  */
 class GR_API GrPathRenderer : public GrRefCnt {
 public:
@@ -59,8 +51,6 @@ public:
      * pass. If this returns false then drawPath() should not modify the
      * the target's stencil settings but use those already set on target. The
      * target is passed as a param in case the answer depends upon draw state.
-     * The view matrix and render target set on the draw target may change 
-     * before setPath/drawPath is called and so shouldn't be considered.
      *
      * @param target target that the path will be rendered to
      * @param path   the path that will be drawn
@@ -78,6 +68,19 @@ public:
         return false;
     }
 
+    /**
+     * Returns true if this path renderer is able to render the path.
+     * Returning false allows the caller to fallback to another path renderer 
+     * This function is called when searching for a path renderer capable of
+     * rendering a path.
+     *
+     * @param path       The path to draw
+     * @param fill       The fill rule to use
+     * @param target     The target that the path will be rendered to
+     * @param antiAlias  True if anti-aliasing is required.
+     *
+     * @return  true if the path can be drawn by this object, false otherwise.
+     */
     virtual bool canDrawPath(const SkPath& path,
                              GrPathFill fill,
                              const GrDrawTarget* target,
@@ -87,11 +90,17 @@ public:
      * false then the target may be setup for stencil rendering (since the 
      * path renderer didn't claim that it needs to use the stencil internally).
      *
-     * @param stages                bitfield that indicates which stages are
+     * @param path                  the path to draw.
+     * @param fill                  the path filling rule to use.
+     * @param translate             optional additional translation applied to
+     *                              the path (can be NULL)
+     * @param target                target that the path will be rendered to
+     * @param stageMask             bitfield that indicates which stages are
      *                              in use. All enabled stages expect positions
      *                              as texture coordinates. The path renderer
-     *                              use the remaining stages for its path
+     *                              can use the remaining stages for its path
      *                              filling algorithm.
+     * @param antiAlias             true if anti-aliasing is required.
      */
     virtual bool drawPath(const SkPath& path,
                           GrPathFill fill,
@@ -123,6 +132,21 @@ public:
     }
 
 protected:
+    /**
+     * Draws the path into the draw target.
+     *
+     * @param path                  the path to draw.
+     * @param fill                  the path filling rule to use.
+     * @param translate             optional additional translation applied to
+     *                              the path
+     * @param target                target that the path will be rendered to
+     * @param stageMask             bitfield that indicates which stages are
+     *                              in use. All enabled stages expect positions
+     *                              as texture coordinates. The path renderer
+     *                              use the remaining stages for its path
+     *                              filling algorithm.
+     * @param antiAlias             whether antialiasing is enabled or not.
+     */
     virtual bool onDrawPath(const SkPath& path,
                             GrPathFill fill,
                             const GrVec* translate,
