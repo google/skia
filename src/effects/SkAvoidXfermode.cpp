@@ -138,7 +138,7 @@ void SkAvoidXfermode::xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                     continue;
                 }
             }
-            dst[i] = SkFourByteInterp(src[i], dst[i], d);
+            dst[i] = SkFourByteInterp256(src[i], dst[i], d);
         }
     }
 }
