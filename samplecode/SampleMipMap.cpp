@@ -40,8 +40,18 @@ class MipMapView : public SampleView {
     enum {
         N = 64
     };
+    bool fOnce;
 public:
     MipMapView() {
+        fOnce = false;
+    }
+    
+    void init() {
+        if (fOnce) {
+            return;
+        }
+        fOnce = true;
+
         fBitmap = createBitmap(N);
         
         fWidth = N;
@@ -87,6 +97,7 @@ protected:
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
+        this->init();
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
         
         canvas->scale(1.00000001f, 0.9999999f);

@@ -134,7 +134,18 @@ class XfermodesView : public SampleView {
 public:
     const static int W = 64;
     const static int H = 64;
+    bool fOnce;
+
 	XfermodesView() {
+        fOnce = false;
+    }
+    
+    void init() {
+        if (fOnce) {
+            return;
+        }
+        fOnce = true;
+
         const int W = 64;
         const int H = 64;
 
@@ -156,6 +167,8 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
+        this->init();
+
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const struct {

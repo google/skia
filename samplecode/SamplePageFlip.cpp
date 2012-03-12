@@ -90,6 +90,7 @@ static const SkBitmap::Config gConfigs[] = {
 };
 
 class PageFlipView : public SampleView {
+    bool fOnce;
 public:
     
     enum { N = SK_ARRAY_COUNT(gConfigs) };
@@ -99,25 +100,37 @@ public:
 
 	PageFlipView() {
         gDone = false;
+        fOnce = false;
+        this->setBGColor(0xFFDDDDDD);
+    }
+    
+    void init() {
+        if (fOnce) {
+            return;
+        }
+        fOnce = true;
+
         for (int i = 0; i < N; i++) {
             int             status;
             pthread_attr_t  attr;
             
             status = pthread_attr_init(&attr);
             SkASSERT(0 == status);
-
+            
             fBitmaps[i].setConfig(gConfigs[i], WIDTH, HEIGHT);
             SkFlipPixelRef* pr = new SkFlipPixelRef(gConfigs[i], WIDTH, HEIGHT);
             fBitmaps[i].setPixelRef(pr)->unref();
             fBitmaps[i].eraseColor(0);
-
+            
             status = pthread_create(&fThreads[i], &attr,  draw_proc, &fBitmaps[i]);
             SkASSERT(0 == status);
         }
-        this->setBGColor(0xFFDDDDDD);
     }
     
     virtual ~PageFlipView() {
+        if (!fOnce) {
+            return;
+        }
         gDone = true;
         for (int i = 0; i < N; i++) {
             void* ret;
@@ -137,6 +150,7 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
+        this->init();
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
         for (int i = 0; i < N; i++) {
