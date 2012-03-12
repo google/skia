@@ -21,8 +21,9 @@ static void test_hairclipping(skiatest::Reporter* reporter) {
     paint.setAntiAlias(true);
 
     SkCanvas canvas(bm);
-    canvas.clipRect(SkRect::MakeWH(4, 2));
-    canvas.drawLine(1.5, 1.5, 3.5, 3.5, paint);
+    canvas.clipRect(SkRect::MakeWH(SkIntToScalar(4), SkIntToScalar(2)));
+    canvas.drawLine(SkFloatToScalar(1.5), SkFloatToScalar(1.5),
+                    SkFloatToScalar(3.5), SkFloatToScalar(3.5), paint);
     
     /**
      *  We had a bug where we misinterpreted the bottom of the clip, and
