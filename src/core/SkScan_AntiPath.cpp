@@ -392,10 +392,12 @@ public:
         return false;
 #endif
         int width = bounds.width();
-        int rb = SkAlign4(width);
+        int64_t rb = SkAlign4(width);
+        // use 64bits to detect overflow
+        int64_t storage = rb * bounds.height();
 
         return (width <= MaskSuperBlitter::kMAX_WIDTH) &&
-        (rb * bounds.height() <= MaskSuperBlitter::kMAX_STORAGE);
+               (storage <= MaskSuperBlitter::kMAX_STORAGE);
     }
 
 private:
@@ -425,7 +427,7 @@ MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     fMask.fBounds   = ir;
     fMask.fRowBytes = ir.width();
     fMask.fFormat   = SkMask::kA8_Format;
-
+            
     fClipRect = ir;
     fClipRect.intersect(clip.getBounds());
 
