@@ -87,8 +87,18 @@ public:
     int fDStroke, fStroke, fMinStroke, fMaxStroke;
     SkPath fPath[6];
     bool fShowHairline;
+    bool fOnce;
     
 	PathView() {
+        fOnce = false;
+    }
+    
+    void init() {
+        if (fOnce) {
+            return;
+        }
+        fOnce = true;
+
         test_cubic();
         test_cubic2();
 
@@ -167,7 +177,8 @@ protected:
         canvas->drawPath(path, paint);
     }
     
-    virtual void onDrawContent(SkCanvas* canvas) {        
+    virtual void onDrawContent(SkCanvas* canvas) {
+        this->init();
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
 
         static const SkPaint::Join gJoins[] = {
