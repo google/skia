@@ -425,7 +425,7 @@ public:
      * Query to find out if the vertex or index source is reserved.
      */
     bool hasReservedVerticesOrIndices() const {
-        kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc ||
+        return kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc ||
         kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
     }
 
