@@ -332,11 +332,11 @@ public:
      * @param indices      will point to reserved index space if indexCount is
      *                     non-zero. Illegal to pass NULL if indexCount > 0.
      */
-    virtual bool reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
-                                            int vertexCount,
-                                            int indexCount,
-                                            void** vertices,
-                                            void** indices);
+     bool reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
+                                     int vertexCount,
+                                     int indexCount,
+                                     void** vertices,
+                                     void** indices);
 
     /**
      * Provides hints to caller about the number of vertices and indices
@@ -419,7 +419,15 @@ public:
      * be able to free up temporary storage allocated by setIndexSourceToArray
      * or reserveIndexSpace.
      */
-    void resetIndexSource(); 
+    void resetIndexSource();
+    
+    /**
+     * Query to find out if the vertex or index source is reserved.
+     */
+    bool hasReservedVerticesOrIndices() const {
+        kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc ||
+        kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
+    }
 
     /**
      * Pushes and resets the vertex/index sources. Any reserved vertex / index
@@ -925,6 +933,13 @@ protected:
     static const GrDrawState& accessSavedDrawState(const SavedDrawState& sds){
         return *sds.fState.get();
     }
+
+    // A sublcass can optionally overload this function to be notified before
+    // vertex and index space is reserved.
+    virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
+                                                int vertexCount,
+                                                int indexCount) {}
+    
 
     // implemented by subclass to allocate space for reserved geom
     virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,

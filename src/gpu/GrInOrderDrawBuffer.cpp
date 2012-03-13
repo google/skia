@@ -19,7 +19,8 @@
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
                                          GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
-    : fClipSet(true)
+    : fAutoFlushTarget(NULL)
+    , fClipSet(true)
     , fLastRectVertexLayout(0)
     , fQuadIndexBuffer(NULL)
     , fMaxQuads(0)
@@ -48,6 +49,7 @@ GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
     // This must be called by before the GrDrawTarget destructor
     this->releaseGeometry();
     GrSafeUnref(fQuadIndexBuffer);
+    GrSafeUnref(fAutoFlushTarget);
 }
 
 void GrInOrderDrawBuffer::initializeDrawStateAndClip(const GrDrawTarget& target) {
@@ -422,6 +424,50 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
         GrAssert(fDraws.count() == fClears[currClear].fBeforeDrawIdx);
         target->clear(&fClears[currClear].fRect, fClears[currClear].fColor);
         ++currClear;
+    }
+}
+
+void GrInOrderDrawBuffer::setAutoFlushTarget(GrDrawTarget* target) {
+    GrSafeAssign(fAutoFlushTarget, target);
+}
+
+void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
+                                GrVertexLayout vertexLayout,
+                                int vertexCount,
+                                int indexCount) {
+    if (NULL != fAutoFlushTarget) {
+        // We use geometryHints() to know whether to flush the draw buffer. We
+        // can't flush if we are inside an unbalanced pushGeometrySource.
+        // Moreover, flushing blows away vertex and index data that was
+        // previously reserved. So if the vertex or index data is pulled from
+        // reserved space and won't be released by this request then we can't
+        // flush.
+        bool insideGeoPush = fGeoPoolStateStack.count() > 1;
+
+        bool unreleasedVertexSpace =
+            !vertexCount &&
+            kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc;
+
+        bool unreleasedIndexSpace =
+            !indexCount &&
+            kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
+
+        // we don't want to finalize any reserved geom on the target since
+        // we don't know that the client has finished writing to it.
+        bool targetHasReservedGeom =
+            fAutoFlushTarget->hasReservedVerticesOrIndices();
+        
+        int vcount = vertexCount;
+        int icount = indexCount;
+        
+        if (!insideGeoPush &&
+            !unreleasedVertexSpace &&
+            !unreleasedIndexSpace &&
+            !targetHasReservedGeom &&
+            this->geometryHints(vertexLayout, &vcount, &icount)) {
+
+            this->flushTo(fAutoFlushTarget);
+        }
     }
 }
 
