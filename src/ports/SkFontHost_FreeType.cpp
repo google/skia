@@ -12,6 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkFDot6.h"
+#include "SkFloatingPoint.h"
 #include "SkFontHost.h"
 #include "SkMask.h"
 #include "SkAdvancedTypefaceMetrics.h"
@@ -55,6 +56,7 @@
 //#define DUMP_STRIKE_CREATION
 
 //#define SK_GAMMA_APPLY_TO_A8
+//#define SK_GAMMA_SRGB
 
 #ifndef SK_GAMMA_CONTRAST
     #define SK_GAMMA_CONTRAST   0x66
@@ -1063,51 +1065,71 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static int apply_contrast(int srca, int contrast) {
-    return srca + (((255 - srca) * contrast * srca) / (255*255));
+#ifdef SK_USE_COLOR_LUMINANCE
+
+static float apply_contrast(float srca, float contrast) {
+    return srca + ((1.0f - srca) * contrast * srca);
 }
 
-static void build_power_table(uint8_t table[], float ee) {
-    for (int i = 0; i < 256; i++) {
-        float x = i / 255.f;
-        x = powf(x, ee);
-        int xx = SkScalarRoundToInt(SkFloatToScalar(x * 255));
-        table[i] = SkToU8(xx);
+#ifdef SK_GAMMA_SRGB
+static float lin(float per) {
+    if (per <= 0.04045f) {
+        return per / 12.92f;
     }
+    return powf((per + 0.055f) / 1.055, 2.4f);
 }
-
-static void build_gamma_table(uint8_t table[256], int src) {
-    static bool gInit;
-    static uint8_t powTable[256], invPowTable[256];
-    if (!gInit) {
-        const float g = SK_GAMMA_EXPONENT;
-        build_power_table(powTable, g);
-        build_power_table(invPowTable, 1/g);
-        gInit = true;
+static float per(float lin) {
+    if (lin <= 0.0031308f) {
+        return lin * 12.92f;
     }
+    return 1.055f * powf(lin, 1.0f / 2.4f) - 0.055f;
+}
+#else //SK_GAMMA_SRGB
+static float lin(float per) {
+    const float g = SK_GAMMA_EXPONENT;
+    return powf(per, g);
+}
+static float per(float lin) {
+    const float g = SK_GAMMA_EXPONENT;
+    return powf(lin, 1.0f / g);
+}
+#endif //SK_GAMMA_SRGB
 
-    const int linSrc = powTable[src];
-    const int linDst = 255 - linSrc;
-    const int dst = invPowTable[linDst];
+static void build_gamma_table(uint8_t table[256], int srcI) {
+    const float src = (float)srcI / 255.0f;
+    const float linSrc = lin(src);
+    const float linDst = 1.0f - linSrc;
+    const float dst = per(linDst);
 
     // have our contrast value taper off to 0 as the src luminance becomes white
-    const int contrast = SK_GAMMA_CONTRAST * (255 - linSrc) / 255;
-    
-    for (int i = 0; i < 256; ++i) {
-        int srca = apply_contrast(i, contrast);
-        SkASSERT((unsigned)srca <= 255);
-        int dsta = 255 - srca;
+    const float contrast = SK_GAMMA_CONTRAST / 255.0f * linDst;
+    const float step = 1.0f / 256.0f;
 
-        //Calculate the output we want.
-        int linOut = (linSrc * srca + dsta * linDst) / 255;
-        SkASSERT((unsigned)linOut <= 255);
-        int out = invPowTable[linOut];
+    //Remove discontinuity and instability when src is close to dst.
+    if (fabs(src - dst) < 0.01f) {
+        float rawSrca = 0.0f;
+        for (int i = 0; i < 256; ++i, rawSrca += step) {
+            float srca = apply_contrast(rawSrca, contrast);
+            table[i] = sk_float_round2int(255.0f * srca);
+        }
+    } else {
+        float rawSrca = 0.0f;
+        for (int i = 0; i < 256; ++i, rawSrca += step) {
+            float srca = apply_contrast(rawSrca, contrast);
+            SkASSERT(srca <= 1.0f);
+            float dsta = 1 - srca;
 
-        //Undo what the blit blend will do.
-        int result = ((255 * out) - (255 * dst)) / (src - dst);
-        SkASSERT((unsigned)result <= 255);
+            //Calculate the output we want.
+            float linOut = (linSrc * srca + dsta * linDst);
+            SkASSERT(linOut <= 1.0f);
+            float out = per(linOut);
 
-        table[i] = result;
+            //Undo what the blit blend will do.
+            float result = (out - dst) / (src - dst);
+            SkASSERT(sk_float_round2int(255.0f * result) <= 255);
+
+            table[i] = sk_float_round2int(255.0f * result);
+        }
     }
 }
 
@@ -1126,7 +1148,7 @@ static const uint8_t* getGammaTable(U8CPU luminance) {
     return gGammaTables[luminance >> 6];
 }
 
-#ifndef SK_USE_COLOR_LUMINANCE
+#else //SK_USE_COLOR_LUMINANCE
 static const uint8_t* getIdentityTable() {
     static bool gOnce;
     static uint8_t gIdentityTable[256];
@@ -1138,7 +1160,7 @@ static const uint8_t* getIdentityTable() {
     }
     return gIdentityTable;
 }
-#endif
+#endif //SK_USE_COLOR_LUMINANCE
 
 static uint16_t packTriple(unsigned r, unsigned g, unsigned b) {
     return SkPackRGB16(r >> 3, g >> 2, b >> 3);
