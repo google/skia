@@ -255,8 +255,8 @@ HAS_ATLAS:
         // a number of verts to reserve and whether to perform a flush.
         fMaxVertices = kMinRequestedVerts;
         bool flush = fDrawTarget->geometryHints(fVertexLayout,
-                                               &fMaxVertices,
-                                               NULL);
+                                                &fMaxVertices,
+                                                NULL);
         if (flush) {
             this->flushGlyphs();
             fContext->flushText();
@@ -275,9 +275,12 @@ HAS_ATLAS:
             // don't exceed the limit of the index buffer
             fMaxVertices = maxQuadVertices;
         }
-        bool success = fDrawTarget->reserveVertexSpace(fVertexLayout, 
+        bool success = fDrawTarget->reserveVertexAndIndexSpace(
+                                                   fVertexLayout, 
                                                    fMaxVertices,
-                                                   GrTCast<void**>(&fVertices));
+                                                   0,
+                                                   GrTCast<void**>(&fVertices),
+                                                   NULL);
         GrAlwaysAssert(success);
     }
 
