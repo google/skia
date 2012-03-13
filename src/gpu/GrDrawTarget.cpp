@@ -573,6 +573,7 @@ bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
                                               int indexCount,
                                               void** vertices,
                                               void** indices) {
+    this->willReserveVertexAndIndexSpace(vertexLayout, vertexCount, indexCount);
     if (vertexCount) {
         if (!this->reserveVertexSpace(vertexLayout, vertexCount, vertices)) {
             if (indexCount) {

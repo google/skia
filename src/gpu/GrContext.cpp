@@ -1541,8 +1541,7 @@ void GrContext::flushText() {
 void GrContext::flushDrawBuffer() {
 #if BATCH_RECT_TO_RECT || DEFER_TEXT_RENDERING
     if (fDrawBuffer) {
-        fDrawBuffer->playback(fGpu);
-        fDrawBuffer->reset();
+        fDrawBuffer->flushTo(fGpu);
     }
 #endif
 }
