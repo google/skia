@@ -568,6 +568,30 @@ bool GrDrawTarget::reserveIndexSpace(int indexCount,
     
 }
 
+bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
+                                              int vertexCount,
+                                              int indexCount,
+                                              void** vertices,
+                                              void** indices) {
+    if (vertexCount) {
+        if (!this->reserveVertexSpace(vertexLayout, vertexCount, vertices)) {
+            if (indexCount) {
+                this->resetIndexSource();
+            }
+            return false;
+        }
+    }
+    if (indexCount) {
+        if (!this->reserveIndexSpace(indexCount, indices)) {
+            if (vertexCount) {
+                this->resetVertexSource();
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 bool GrDrawTarget::geometryHints(GrVertexLayout vertexLayout,
                                  int32_t* vertexCount,
                                  int32_t* indexCount) const {
@@ -1168,19 +1192,14 @@ bool GrDrawTarget::AutoReleaseGeometry::set(GrDrawTarget*  target,
     bool success = true;
     if (NULL != fTarget) {
         fTarget = target;
-        if (vertexCount > 0) {
-            success = target->reserveVertexSpace(vertexLayout, 
-                                                 vertexCount,
-                                                 &fVertices);
-            if (!success) {
-                this->reset();
-            }
-        }
-        if (success && indexCount > 0) {
-            success = target->reserveIndexSpace(indexCount, &fIndices);
-            if (!success) {
-                this->reset();
-            }
+        success = target->reserveVertexAndIndexSpace(vertexLayout,
+                                                     vertexCount,
+                                                     indexCount,
+                                                     &fVertices,
+                                                     &fIndices);
+        if (!success) {
+            fTarget = NULL;
+            this->reset();
         }
     }
     GrAssert(success == (NULL != fTarget));

@@ -260,21 +260,30 @@ public:
     GR_STATIC_ASSERT(kHighVertexLayoutBit < ((uint64_t)1 << 8*sizeof(GrVertexLayout)));
 
     /**
-     * There are three methods for specifying geometry (vertices and optionally
-     * indices) to the draw target. When indexed drawing the indices and vertices
-     * can use a different method. Once geometry is specified it can be used for
-     * multiple drawIndexed and drawNonIndexed calls.
+     * There are three types of "sources" of geometry (vertices and indices) for
+     * draw calls made on the target. When performing an indexed draw, the
+     * indices and vertices can use different source types. Once a source is
+     * specified it can be used for multiple drawIndexed and drawNonIndexed
+     * calls. However, the time at which the geometry data is no longer editable
+     * depends on the source type.
      *
      * Sometimes it is necessary to perform a draw while upstack code has
-     * already specified geometry that it isn't finished with. There are push
-     * pop methods
+     * already specified geometry that it isn't finished with. So there are push
+     * and pop methods. This allows the client to push the sources, draw
+     * something using alternate sources, and then pop to restore the original
+     * sources.
      *
-     * 1. Provide a cpu array (set*SourceToArray). This is useful when the
-     *    caller's client has already provided vertex data in a format
-     *    the time compatible with a GrVertexLayout. The array must contain the
-     *    data at set*SourceToArray is called. The source stays in effect for
-     *    drawIndexed & drawNonIndexed calls until set*SourceToArray is called
-     *    again or one of the other two paths is chosen.
+     * Aside from pushes and pops, a source remains valid until another source
+     * is set or resetVertexSource / resetIndexSource is called. Drawing from
+     * a reset source is an error.
+     *
+     * The three types of sources are:
+     *
+     * 1. A cpu array (set*SourceToArray). This is useful when the caller
+     *    already provided vertex data in a format compatible with a
+     *    GrVertexLayout. The data in the array is consumed at the time that
+     *    set*SourceToArray is called and subsequent edits to the array will not
+     *    be reflected in draws.
      *
      * 2. Reserve. This is most useful when the caller has data it must
      *    transform before drawing and is not long-lived. The caller requests
@@ -282,70 +291,53 @@ public:
      *    data. The target provides ptrs to hold the vertex and/or index data.
      *
      *    The data is writable up until the next drawIndexed, drawNonIndexed, 
-     *    or pushGeometrySource At this point the data is frozen and the ptrs
+     *    or pushGeometrySource. At this point the data is frozen and the ptrs
      *    are no longer valid.
      *
+     *    Where the space is allocated and how it is uploaded to the GPU is
+     *    subclass-dependent.
+     *
      * 3. Vertex and Index Buffers. This is most useful for geometry that will
-     *    is long-lived. SetVertexSourceToBuffer and SetIndexSourceToBuffer are
-     *    used to set the buffer and subsequent drawIndexed and drawNonIndexed 
-     *    calls use this source until another source is set.
+     *    is long-lived. When the data in the buffer is consumed depends on the
+     *    GrDrawTarget subclass. For deferred subclasses the caller has to 
+     *    guarantee that the data is still available in the buffers at playback.
+     *    (TODO: Make this more automatic as we have done for read/write pixels)
      */
 
     /**
-     * Reserves space for vertices. Draw target will use reserved vertices at
-     * at the next draw.
+     * Reserves space for vertices and/or indices. Zero can be specifed as
+     * either the vertex or index count if the caller desires to only reserve
+     * space for only indices or only vertices. If zero is specifed for 
+     * vertexCount then the vertex source will be unmodified and likewise for
+     * indexCount.
      *
-     * If succeeds:
-     *          if vertexCount > 0, *vertices will be the array
-     *          of vertices to be filled by caller. The next draw will read
-     *          these vertices.
+     * If the function returns true then the reserve suceeded and the vertices
+     * and indices pointers will point to the space created.
      *
-     * If a client does not already have a vertex buffer then this is the
-     * preferred way to allocate vertex data. It allows the subclass of
-     * GrDrawTarget to decide whether to put data in buffers, to group vertex
-     * data that uses the same state (e.g. for deferred rendering), etc.
+     * If the target cannot make space for the request then this function will
+     * return false. If vertexCount was non-zero then upon failure the vertex
+     * source is reset and likewise for indexCount.
      *
-     * After the next draw or pushGeometrySource the vertices ptr is no longer
-     * valid and the geometry data cannot be further modified. The contents
-     * that were put in the reserved space can be drawn by multiple draws,
-     * however.
+     * The pointers to the space allocated for vertices and indices remain valid
+     * until a drawIndexed, drawNonIndexed, or push/popGeomtrySource is called.
+     * At that point logically a snapshot of the data is made and the pointers
+     * are invalid.
      *
      * @param vertexLayout the format of vertices (ignored if vertexCount == 0).
-     * @param vertexCount  the number of vertices to reserve space for. Can be 0.
-     * @param vertices     will point to reserved vertex space if vertexCount is
-     *                     non-zero. Illegal to pass NULL if vertexCount > 0.
-     *
-     * @return  true if succeeded in allocating space for the vertices and false
-     *               if not.
-     */
-    bool reserveVertexSpace(GrVertexLayout vertexLayout,
-                            int vertexCount,
-                            void** vertices);
-    /**
-     * Reserves space for indices. Draw target will use the reserved indices at
-     * the next indexed draw.
-     *
-     * If succeeds:
-     *          if indexCount > 0, *indices will be the array
-     *          of indices to be filled by caller. The next draw will read
-     *          these indices.
-     *
-     * If a client does not already have a index buffer then this is the
-     * preferred way to allocate index data. It allows the subclass of
-     * GrDrawTarget to decide whether to put data in buffers, to group index
-     * data that uses the same state (e.g. for deferred rendering), etc.
-     *
-     * After the next indexed draw or pushGeometrySource the indices ptr is no
-     * longer valid and the geometry data cannot be further modified. The
-     * contents that were put in the reserved space can be drawn by multiple
-     * draws, however.
-     *
+     * @param vertexCount  the number of vertices to reserve space for. Can be
+     *                     0.
      * @param indexCount   the number of indices to reserve space for. Can be 0.
+     * @param vertices     will point to reserved vertex space if vertexCount is
+     *                     non-zero. Illegal to pass NULL if vertexCount > 0.    
      * @param indices      will point to reserved index space if indexCount is
      *                     non-zero. Illegal to pass NULL if indexCount > 0.
      */
+    virtual bool reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
+                                            int vertexCount,
+                                            int indexCount,
+                                            void** vertices,
+                                            void** indices);
 
-    bool reserveIndexSpace(int indexCount, void** indices);
     /**
      * Provides hints to caller about the number of vertices and indices
      * that can be allocated cheaply. This can be useful if caller is reserving
@@ -994,7 +986,14 @@ protected:
     // and index sources have been released (including those held by 
     // pushGeometrySource())
     void releaseGeometry();
+
 private:
+    // helpers for reserving vertex and index space.
+    bool reserveVertexSpace(GrVertexLayout vertexLayout,
+                            int vertexCount,
+                            void** vertices);
+    bool reserveIndexSpace(int indexCount, void** indices);
+    
     // called by drawIndexed and drawNonIndexed. Use a negative indexCount to
     // indicate non-indexed drawing.
     bool checkDraw(GrPrimitiveType type, int startVertex,
