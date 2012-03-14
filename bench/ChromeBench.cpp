@@ -495,4 +495,7 @@ static SkBenchmark* ScrollGmailFactory(void* p) {
     return SkNEW_ARGS(ScrollGmailBench, (p));
 }
 
-static BenchRegistry gScrollGmailReg(ScrollGmailFactory);
+// Disabled this benchmark: it takes 15x longer than any other benchmark
+// and is probably not giving us important information.
+//static BenchRegistry gScrollGmailReg(ScrollGmailFactory);
+
