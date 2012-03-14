@@ -82,6 +82,10 @@ SkClipStack::SkClipStack(const SkClipStack& b) : fDeque(sizeof(Rec)) {
     *this = b;
 }
 
+SkClipStack::~SkClipStack() {
+    reset();
+}
+
 SkClipStack& SkClipStack::operator=(const SkClipStack& b) {
     if (this == &b) {
         return *this;
@@ -119,9 +123,13 @@ bool SkClipStack::operator==(const SkClipStack& b) const {
 }
 
 void SkClipStack::reset() {
-    // don't have a reset() on SkDeque, so fake it here
-    fDeque.~SkDeque();
-    new (&fDeque) SkDeque(sizeof(Rec));
+    // We used a placement new for each object in fDeque, so we're responsible
+    // for calling the destructor on each of them as well.
+    while (!fDeque.empty()) {
+        Rec* rec = (Rec*)fDeque.back();
+        rec->~Rec();
+        fDeque.pop_back();
+    }
 
     fSaveCount = 0;
 }
