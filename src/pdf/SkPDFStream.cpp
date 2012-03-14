@@ -94,7 +94,7 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
             SkAssertResult(SkFlate::Deflate(fData.get(), &compressedData));
             if (compressedData.getOffset() < fData->getLength()) {
                 SkMemoryStream* stream = new SkMemoryStream;
-                stream->setData(compressedData.copyToData());
+                stream->setData(compressedData.copyToData())->unref();
                 fData = stream;
                 fData->unref();  // SkRefPtr and new both took a reference.
                 insertName("Filter", "FlateDecode");

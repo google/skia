@@ -525,7 +525,7 @@ static SkPDFStream* generate_tounicode_cmap(
     append_cmap_footer(&cmap);
     SkRefPtr<SkMemoryStream> cmapStream = new SkMemoryStream();
     cmapStream->unref();  // SkRefPtr and new took a reference.
-    cmapStream->setData(cmap.copyToData());
+    cmapStream->setData(cmap.copyToData())->unref();
     return new SkPDFStream(cmapStream.get());
 }
 
@@ -763,9 +763,8 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
 #endif
         fontMetrics =
             SkFontHost::GetAdvancedTypefaceMetrics(fontID, info, NULL, 0);
-#if defined (SK_SFNTLY_SUBSETTER)
-        SkASSERT(fontMetrics);
         SkSafeUnref(fontMetrics.get());  // SkRefPtr and Get both took a ref.
+#if defined (SK_SFNTLY_SUBSETTER)
         if (fontMetrics &&
             fontMetrics->fType != SkAdvancedTypefaceMetrics::kTrueType_Font) {
             // Font does not support subsetting, get new info with advance.
