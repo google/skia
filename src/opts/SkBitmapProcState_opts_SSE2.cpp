@@ -438,8 +438,8 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
         // than max 16bit interger in the real world.
         if ((count >= 8) && (maxX <= 0xFFFF)) {
             while (((size_t)xy & 0x0F) != 0) {
-                *xy++ = SkClampMax((fx + dx) >> 16, maxX) | 
-                                   SkClampMax(fx >> 16, maxX);
+                *xy++ = pack_two_shorts(SkClampMax((fx + dx) >> 16, maxX),
+                                        SkClampMax(fx >> 16, maxX));
                 fx += 2 * dx;
                 count -= 2;
             }
