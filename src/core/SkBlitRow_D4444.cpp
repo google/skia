@@ -102,7 +102,6 @@ static void S32_D4444_Opaque_Dither(uint16_t* SK_RESTRICT dst,
         do {
             SkPMColor c = *src++;
             SkPMColorAssert(c);
-            SkASSERT(SkGetPackedA32(c) == 255);
 
             unsigned dither = DITHER_VALUE(x);
             *dst++ = SkDitherARGB32To4444(c, dither);
