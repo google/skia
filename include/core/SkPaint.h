@@ -696,6 +696,7 @@ public:
     enum TextEncoding {
         kUTF8_TextEncoding,     //!< the text parameters are UTF8
         kUTF16_TextEncoding,    //!< the text parameters are UTF16
+        kUTF32_TextEncoding,    //!< teh text parameters are UTF32
         kGlyphID_TextEncoding   //!< the text parameters are glyph indices
     };
 
