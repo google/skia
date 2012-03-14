@@ -9,6 +9,8 @@
 
 #include <GL/glu.h>
 
+#define GLX_1_3 1
+
 SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
     fOldGLXContext = glXGetCurrentContext();
     fOldDisplay = glXGetCurrentDisplay();
@@ -80,17 +82,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         None
     };
 
-    int glx_major, glx_minor;
-
-    // FBConfigs were added in GLX version 1.3.
-    if (!glXQueryVersion(fDisplay, &glx_major, &glx_minor) ||
-            ( (glx_major == 1) && (glx_minor < 3) ) || (glx_major < 1))
-    {
-        SkDebugf("Invalid GLX version.");
-        this->destroyGLContext();
-        return NULL;
-    }
-
+#ifdef GLX_1_3
     //SkDebugf("Getting matching framebuffer configs.\n");
     int fbcount;
     GLXFBConfig *fbc = glXChooseFBConfig(fDisplay, DefaultScreen(fDisplay),
@@ -104,7 +96,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
     // Pick the FB config/visual with the most samples per pixel
     //SkDebugf("Getting XVisualInfos.\n");
-    int best_fbc = -1, worst_fbc = -1, best_num_samp = -1, worst_num_samp = 999;
+    int best_fbc = -1, best_num_samp = -1;
 
     int i;
     for (i = 0; i < fbcount; ++i) {
@@ -120,9 +112,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
             if (best_fbc < 0 || (samp_buf && samples > best_num_samp))
                 best_fbc = i, best_num_samp = samples;
-            if (worst_fbc < 0 || !samp_buf || samples < worst_num_samp)
-                worst_fbc = i, worst_num_samp = samples;
-        }
+        } 
         XFree(vi);
     }
 
@@ -134,6 +124,36 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
     // Get a visual
     XVisualInfo *vi = glXGetVisualFromFBConfig(fDisplay, bestFbc);
     //SkDebugf("Chosen visual ID = 0x%x\n", (unsigned int)vi->visualid);
+#else
+    int numVisuals;
+    XVisualInfo visTemplate, *visReturn;
+
+    visReturn = XGetVisualInfo(fDisplay, VisualNoMask, &visTemplate, &numVisuals);
+    if (NULL == visReturn)
+    {
+        SkDebugf("Failed to get visual information.\n");
+        this->destroyGLContext();
+        return NULL;
+    }
+
+    int best = -1, best_num_samp = -1;
+
+    for (int i = 0; i < numVisuals; ++i)
+    {
+        int samp_buf, samples;
+
+        glXGetConfig(fDisplay, &visReturn[i], GLX_SAMPLE_BUFFERS, &samp_buf);
+        glXGetConfig(fDisplay, &visReturn[i], GLX_SAMPLES, &samples);
+
+        if (best < 0 || (samp_buf && samples > best_num_samp))
+            best = i, best_num_samp = samples;
+    }
+
+    XVisualInfo temp = visReturn[best];
+    XVisualInfo *vi = &temp;
+
+    XFree(visReturn);
+#endif
 
     fPixmap = XCreatePixmap(fDisplay, RootWindow(fDisplay, vi->screen), 10, 10, vi->depth);
 
@@ -145,8 +165,10 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
     fGlxPixmap = glXCreateGLXPixmap(fDisplay, vi, fPixmap);
 
+#ifdef GLX_1_3
     // Done with the visual info data
     XFree(vi);
+#endif
 
     // Create the context
 
@@ -173,9 +195,15 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
     {
         //SkDebugf("GLX_ARB_create_context not found."
         //       " Using old-style GLX context.\n");
+#ifdef GLX_1_3
         fContext = glXCreateNewContext(fDisplay, bestFbc, GLX_RGBA_TYPE, 0, True);
+#else
+        fContext = glXCreateContext(fDisplay, vi, 0, True);
+#endif
 
-    } else {
+    } 
+#ifdef GLX_1_3
+    else {
         //SkDebugf("Creating context.\n");
 
         PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = 
@@ -215,6 +243,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
             );
         }
     }
+#endif
 
     // Sync to ensure any errors generated are processed.
     XSync(fDisplay, False);
