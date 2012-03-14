@@ -24,9 +24,12 @@
 
 #define DEFER_TEXT_RENDERING 1
 
+#define DEFER_PATHS 1
+
 #define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
 
 #define MAX_BLUR_SIGMA 4.0f
+
 
 // When we're using coverage AA but the blend is incompatible (given gpu
 // limitations) should we disable AA or draw wrong?
@@ -35,13 +38,12 @@
 static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
 
-static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 18;
+static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 13;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
 
-// We are currently only batching Text and drawRectToRect, both
-// of which use the quad index buffer.
-static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 0;
-static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 0;
+// path rendering is the only thing we defer today that uses non-static indices
+static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = DEFER_PATHS ? 1 << 11 : 0;
+static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = DEFER_PATHS ? 4 : 0;
 
 #define ASSERT_OWNED_RESOURCE(R) GrAssert(!(R) || (R)->getContext() == this)
 
@@ -1447,7 +1449,14 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
        return;
     }
 
-    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    // Note that below we may sw-rasterize the path into a scratch texture.
+    // Scratch textures can be recycled after they are returned to the texture
+    // cache. This presents a potential hazard for buffered drawing. However,
+    // the writePixels that uploads to the scratch will perform a flush so we're
+    // OK.
+    DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
+                                            kUnbuffered_DrawCategory;
+    GrDrawTarget* target = this->prepareToDraw(paint, category);
     GrDrawState::StageMask stageMask = paint.getActiveStageMask();
 
     bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
@@ -1938,7 +1947,7 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
 GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
                                        DrawCategory category) {
     if (category != fLastDrawCategory) {
-        flushDrawBuffer();
+        this->flushDrawBuffer();
         fLastDrawCategory = category;
     }
     this->setPaint(paint, fGpu);
@@ -1978,8 +1987,10 @@ GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
     ASSERT_OWNED_RESOURCE(target);
-    this->flush(false);
-    fGpu->drawState()->setRenderTarget(target);
+    if (fGpu->drawState()->getRenderTarget() != target) {
+        this->flush(false);
+        fGpu->drawState()->setRenderTarget(target);
+    }
 }
 
 GrRenderTarget* GrContext::getRenderTarget() {
@@ -2071,6 +2082,7 @@ void GrContext::setupDrawBuffer() {
 #if BATCH_RECT_TO_RECT
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
 #endif
+    fDrawBuffer->setAutoFlushTarget(fGpu);
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
