@@ -440,6 +440,8 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
         case kUTF16_TextEncoding:
             return SkUTF16_CountUnichars((const uint16_t*)textData,
                                          byteLength >> 1);
+        case kUTF32_TextEncoding:
+            return byteLength >> 2;
         case kGlyphID_TextEncoding:
             return byteLength >> 1;
         default:
@@ -475,6 +477,14 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
             const uint16_t* stop16 = (const uint16_t*)stop;
             while (text16 < stop16) {
                 *gptr++ = cache->unicharToGlyph(SkUTF16_NextUnichar(&text16));
+            }
+            break;
+        }
+        case kUTF32_TextEncoding: {
+            const int32_t* text32 = (const int32_t*)text;
+            const int32_t* stop32 = (const int32_t*)stop;
+            while (text32 < stop32) {
+                *gptr++ = cache->unicharToGlyph(*text32++);
             }
             break;
         }
@@ -527,6 +537,16 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
             }
             break;
         }
+        case SkPaint::kUTF32_TextEncoding: {
+            const int32_t* text = static_cast<const int32_t*>(textData);
+            const int32_t* stop = text + (byteLength >> 2);
+            while (text < stop) {
+                if (0 == cache->unicharToGlyph(*text++)) {
+                    return false;
+                }
+            }
+            break;
+        }
         default:
             SkDEBUGFAIL("unknown text encoding");
             return false;
@@ -573,7 +593,7 @@ static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-
+    
     return cache->getUnicharMetrics(SkUTF16_NextUnichar((const uint16_t**)text));
 }
 
@@ -581,8 +601,30 @@ static const SkGlyph& sk_getMetrics_utf16_prev(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-
+    
     return cache->getUnicharMetrics(SkUTF16_PrevUnichar((const uint16_t**)text));
+}
+
+static const SkGlyph& sk_getMetrics_utf32_next(SkGlyphCache* cache,
+                                               const char** text) {
+    SkASSERT(cache != NULL);
+    SkASSERT(text != NULL);
+
+    const int32_t* ptr = *(const int32_t**)text;
+    SkUnichar uni = *ptr++;
+    *text = (const char*)ptr;
+    return cache->getUnicharMetrics(uni);
+}
+
+static const SkGlyph& sk_getMetrics_utf32_prev(SkGlyphCache* cache,
+                                               const char** text) {
+    SkASSERT(cache != NULL);
+    SkASSERT(text != NULL);
+    
+    const int32_t* ptr = *(const int32_t**)text;
+    SkUnichar uni = *--ptr;
+    *text = (const char*)ptr;
+    return cache->getUnicharMetrics(uni);
 }
 
 static const SkGlyph& sk_getMetrics_glyph_next(SkGlyphCache* cache,
@@ -641,6 +683,28 @@ static const SkGlyph& sk_getAdvance_utf16_prev(SkGlyphCache* cache,
     return cache->getUnicharAdvance(SkUTF16_PrevUnichar((const uint16_t**)text));
 }
 
+static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
+                                               const char** text) {
+    SkASSERT(cache != NULL);
+    SkASSERT(text != NULL);
+    
+    const int32_t* ptr = *(const int32_t**)text;
+    SkUnichar uni = *ptr++;
+    *text = (const char*)ptr;
+    return cache->getUnicharAdvance(uni);
+}
+
+static const SkGlyph& sk_getAdvance_utf32_prev(SkGlyphCache* cache,
+                                               const char** text) {
+    SkASSERT(cache != NULL);
+    SkASSERT(text != NULL);
+    
+    const int32_t* ptr = *(const int32_t**)text;
+    SkUnichar uni = *--ptr;
+    *text = (const char*)ptr;
+    return cache->getUnicharAdvance(uni);
+}
+
 static const SkGlyph& sk_getAdvance_glyph_next(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
@@ -670,28 +734,32 @@ SkMeasureCacheProc SkPaint::getMeasureCacheProc(TextBufferDirection tbd,
     static const SkMeasureCacheProc gMeasureCacheProcs[] = {
         sk_getMetrics_utf8_next,
         sk_getMetrics_utf16_next,
+        sk_getMetrics_utf32_next,
         sk_getMetrics_glyph_next,
 
         sk_getMetrics_utf8_prev,
         sk_getMetrics_utf16_prev,
+        sk_getMetrics_utf32_prev,
         sk_getMetrics_glyph_prev,
 
         sk_getAdvance_utf8_next,
         sk_getAdvance_utf16_next,
+        sk_getAdvance_utf32_next,
         sk_getAdvance_glyph_next,
 
         sk_getAdvance_utf8_prev,
         sk_getAdvance_utf16_prev,
+        sk_getAdvance_utf32_prev,
         sk_getAdvance_glyph_prev
     };
 
     unsigned index = this->getTextEncoding();
 
     if (kBackward_TextBufferDirection == tbd) {
-        index += 3;
+        index += 4;
     }
     if (!needFullMetrics && !this->isDevKernText()) {
-        index += 6;
+        index += 8;
     }
 
     SkASSERT(index < SK_ARRAY_COUNT(gMeasureCacheProcs));
@@ -733,6 +801,28 @@ static const SkGlyph& sk_getMetrics_utf16_xy(SkGlyphCache* cache,
                                     x, y);
 }
 
+static const SkGlyph& sk_getMetrics_utf32_00(SkGlyphCache* cache,
+                                    const char** text, SkFixed, SkFixed) {
+    SkASSERT(cache != NULL);
+    SkASSERT(text != NULL);
+    
+    const int32_t* ptr = *(const int32_t**)text;
+    SkUnichar uni = *ptr++;
+    *text = (const char*)ptr;
+    return cache->getUnicharMetrics(uni);
+}
+
+static const SkGlyph& sk_getMetrics_utf32_xy(SkGlyphCache* cache,
+                                    const char** text, SkFixed x, SkFixed y) {
+    SkASSERT(cache != NULL);
+    SkASSERT(text != NULL);
+    
+    const int32_t* ptr = *(const int32_t**)text;
+    SkUnichar uni = *--ptr;
+    *text = (const char*)ptr;
+    return cache->getUnicharMetrics(uni);
+}
+
 static const SkGlyph& sk_getMetrics_glyph_00(SkGlyphCache* cache,
                                          const char** text, SkFixed, SkFixed) {
     SkASSERT(cache != NULL);
@@ -761,16 +851,18 @@ SkDrawCacheProc SkPaint::getDrawCacheProc() const {
     static const SkDrawCacheProc gDrawCacheProcs[] = {
         sk_getMetrics_utf8_00,
         sk_getMetrics_utf16_00,
+        sk_getMetrics_utf32_00,
         sk_getMetrics_glyph_00,
 
         sk_getMetrics_utf8_xy,
         sk_getMetrics_utf16_xy,
+        sk_getMetrics_utf32_xy,
         sk_getMetrics_glyph_xy
     };
 
     unsigned index = this->getTextEncoding();
     if (fFlags & kSubpixelText_Flag) {
-        index += 3;
+        index += 4;
     }
 
     SkASSERT(index < SK_ARRAY_COUNT(gDrawCacheProcs));
