@@ -15,8 +15,8 @@
  *  precision when scaling very large images (where the dx might get very small.
  */
 
-#define W   256
-#define H   160
+#define W   257
+#define H   161
 
 class GiantBitmapGM : public skiagm::GM {
     SkBitmap* fBM;
@@ -38,13 +38,24 @@ class GiantBitmapGM : public skiagm::GM {
             SkCanvas canvas(*fBM);
             SkPaint paint;
             paint.setAntiAlias(true);
-            paint.setStrokeWidth(SkIntToScalar(30));
-            for (int y = -H*2; y < H; y += 80) {
+            paint.setStrokeWidth(SkIntToScalar(20));
+            
+#if 0
+            for (int y = -H*2; y < H; y += 50) {
                 SkScalar yy = SkIntToScalar(y);
-                paint.setColor(colors[y/80 & 0x3]);
+                paint.setColor(colors[y/50 & 0x3]);
                 canvas.drawLine(0, yy, SkIntToScalar(W), yy + SkIntToScalar(W),
                                 paint);
             }
+#else
+            for (int x = -W; x < W; x += 60) {
+                paint.setColor(colors[x/60 & 0x3]);
+
+                SkScalar xx = SkIntToScalar(x);
+                canvas.drawLine(xx, 0, xx, SkIntToScalar(H),
+                                paint);
+            }
+#endif
         }
         return *fBM;
     }
@@ -91,9 +102,10 @@ protected:
         if (fDoRotate) {
 //            m.setRotate(SkIntToScalar(30), 0, 0);
             m.setSkew(SK_Scalar1, 0, 0, 0);
-            m.postScale(2*SK_Scalar1/3, 2*SK_Scalar1/3);
+//            m.postScale(2*SK_Scalar1/3, 2*SK_Scalar1/3);
         } else {
-            m.setScale(2*SK_Scalar1/3, 2*SK_Scalar1/3);
+            SkScalar scale = 11*SK_Scalar1/12;
+            m.setScale(scale, scale);
         }
         s->setLocalMatrix(m);
         
@@ -101,6 +113,9 @@ protected:
         paint.setFilterBitmap(fDoFilter);
 
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
+        
+        SkRect r = SkRect::MakeXYWH(-50, -50, 32, 16);
+//        canvas->drawRect(r, paint); return;
         canvas->drawPaint(paint);
     }
 
