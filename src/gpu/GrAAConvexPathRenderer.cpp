@@ -404,12 +404,8 @@ void create_vertices(const SegmentArray&  segments,
             verts[v + 4].fD1 = -GR_ScalarMax/100;
             verts[v + 5].fD1 = -GR_ScalarMax/100;
 
-            GrMatrix toUV;
-            GrPathUtils::quadDesignSpaceToUVCoordsMatrix(qpts, &toUV);
-            toUV.mapPointsWithStride(&verts[v].fUV,
-                                     &verts[v].fPos,
-                                     sizeof(QuadVertex),
-                                     6);
+            GrPathUtils::QuadUVMatrix toUV(qpts);
+            toUV.apply<6, sizeof(QuadVertex), sizeof(GrPoint)>(verts + v);
 
             idxs[i + 0] = v + 3;
             idxs[i + 1] = v + 1;

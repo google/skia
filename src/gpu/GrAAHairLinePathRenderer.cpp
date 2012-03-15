@@ -362,8 +362,7 @@ void bloat_quad(const SkPoint qpts[3], const GrMatrix* toDevice,
     SkPoint c = qpts[2];
 
     // this should be in the src space, not dev coords, when we have perspective
-    SkMatrix DevToUV;
-    GrPathUtils::quadDesignSpaceToUVCoordsMatrix(qpts, &DevToUV);
+    GrPathUtils::QuadUVMatrix DevToUV(qpts);
 
     if (toDevice) {
         toDevice->mapPoints(&a, 1);
@@ -427,8 +426,7 @@ void bloat_quad(const SkPoint qpts[3], const GrMatrix* toDevice,
     if (toSrc) {
         toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(Vertex), kVertsPerQuad);
     }
-    DevToUV.mapPointsWithStride(&verts[0].fQuadCoord,
-                                &verts[0].fPos, sizeof(Vertex), kVertsPerQuad);
+    DevToUV.apply<kVertsPerQuad, sizeof(Vertex), sizeof(GrPoint)>(verts);
 }
 
 void add_quads(const SkPoint p[3],
