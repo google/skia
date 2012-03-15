@@ -276,6 +276,8 @@ static void test_irect(skiatest::Reporter* reporter) {
             SkMask maskBW, maskAA;
             copyToMask(rgn2, &maskBW);
             clip2.copyToMask(&maskAA);
+            SkAutoMaskFreeImage freeBW(maskBW.fImage);
+            SkAutoMaskFreeImage freeAA(maskAA.fImage);
             REPORTER_ASSERT(reporter, maskBW == maskAA);
         }
     }
@@ -308,7 +310,8 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
         
         SkMask mask;
         clip.copyToMask(&mask);
-        
+        SkAutoMaskFreeImage freeM(mask.fImage);
+
         REPORTER_ASSERT(reporter, expected == mask);
     }
 }
