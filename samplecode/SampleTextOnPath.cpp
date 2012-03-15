@@ -6,190 +6,67 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
-#include "SkView.h"
+#include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkImageDecoder.h"
-#include "SkPackBits.h"
 #include "SkPath.h"
 #include "SkPathMeasure.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkTypeface.h"
-#include "SkAvoidXfermode.h"
 
-#define REPEAT_COUNT    0
+#define REPEAT_COUNT    1
 
-static const char gText[] = "Hamburgefons";
-
-static bool gDevKern;
-
-static void rand_text(char text[], SkRandom& rand, size_t count) {
-    for (size_t i = 0; i < count; i++) {
-        text[i] = rand.nextU() & 0x7F;
-    }
-}
-
-static SkScalar sum_widths(const SkScalar widths[], int count) {
-    SkScalar w = 0;
-    for (int i = 0; i < count; i++) {
-        w += widths[i];
-    }
-    return w;
-}
-
-static void test_measure(const SkPaint& paint) {
-    char        text[256];
-    SkScalar    widths[256];
-    SkRect      rects[256];
-    SkRect      bounds;
-    int         count = 256;
-    
-    SkRandom rand;
-    
-    for (int i = 0; i < 100; i++) {
-        rand_text(text, rand, 256);
-        paint.getTextWidths(text, count, widths, NULL);
-        SkDEBUGCODE(SkScalar tw0 = sum_widths(widths, count);)
-        paint.getTextWidths(text, count, widths, rects);
-        SkDEBUGCODE(SkScalar tw1 = sum_widths(widths, count);)
-        SkASSERT(tw0 == tw1);
-
-        SkDEBUGCODE(SkScalar w0 = paint.measureText(text, count, NULL);)
-        SkDEBUGCODE(SkScalar w1 = paint.measureText(text, count, &bounds);)
-        SkASSERT(w0 == w1);
-        SkASSERT(w0 == tw0);
-        
-        SkRect r = rects[0];
-        SkScalar x = 0;
-        for (int j = 1; j < count; j++) {
-            x += widths[j-1];
-            rects[j].offset(x, 0);
-            r.join(rects[j]);
-        }
-        SkASSERT(r == bounds);
-        
-        if (r != bounds) {
-            printf("flags=%x i=%d [%g %g %g %g] [%g %g %g %g]\n",
-                   paint.getFlags(), i,
-                   SkScalarToFloat(r.fLeft),
-                   SkScalarToFloat(r.fTop),
-                   SkScalarToFloat(r.fRight),
-                   SkScalarToFloat(r.fBottom),
-                   SkScalarToFloat(bounds.fLeft),
-                   SkScalarToFloat(bounds.fTop),
-                   SkScalarToFloat(bounds.fRight),
-                   SkScalarToFloat(bounds.fBottom));
-        }
-    }
-}
-
-static void test_measure() {
+static void textStrokePath(SkCanvas* canvas) {
     SkPaint paint;
-    
-    for (int i = 0; i <= SkPaint::kAllFlags; i++) {
-        paint.setFlags(i);
-        test_measure(paint);
-    }
-}
+    SkPath  path;
+    SkRect  rect;
 
-//////////////////////////////////////////////////////////////////////////////
+    canvas->save();
+    canvas->scale(SkIntToScalar(250),SkIntToScalar(250));
 
-static void test_textBounds(SkCanvas* canvas) {
-//    canvas->scale(SK_Scalar1/2, SK_Scalar1/2);
-    
-//    canvas->rotate(SkIntToScalar(30));
+    rect.set(0.0f, 0.21f, 0.78f, 0.99f);
 
-    gDevKern = !gDevKern;
-
-    SkScalar x = SkIntToScalar(50);
-    SkScalar y = SkIntToScalar(150);
-    SkScalar w[100];
-    SkRect   r[100], bounds;
-    
-    SkPaint paint;
-    paint.setTextSize(SkIntToScalar(64));
-    paint.setAntiAlias(true);
-    paint.setDevKernText(gDevKern);
-    
-    (void)paint.measureText(gText, strlen(gText), &bounds);
-    paint.setColor(SK_ColorGREEN);
-    bounds.offset(x, y);
-    canvas->drawRect(bounds, paint);
-
-    int count = paint.getTextWidths(gText, strlen(gText), w, r);
-
-    paint.setColor(SK_ColorRED);
-    for (int i = 0; i < count; i++) {
-        r[i].offset(x, y);
-        canvas->drawRect(r[i], paint);
-        x += w[i];
-    }
-    x = SkIntToScalar(50);
-    paint.setColor(gDevKern ? SK_ColorDKGRAY : SK_ColorBLACK);
-    canvas->drawText(gText, strlen(gText), x, y, paint);
-}
-
-static void create_src(SkBitmap* bitmap, SkBitmap::Config config) {
-    bitmap->setConfig(config, 100, 100);
-    bitmap->allocPixels();
-    bitmap->eraseColor(0);
-    
-    SkCanvas    canvas(*bitmap);
-    SkPaint     paint;
+    path.addArc(rect, SkIntToScalar(280), SkIntToScalar(350));
 
     paint.setAntiAlias(true);
-    canvas.drawCircle(SkIntToScalar(50), SkIntToScalar(50),
-                      SkIntToScalar(50), paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setColor(0xFFFF0000);
+    paint.setTextSize(SkFloatToScalar(0.065f));
+    paint.setStrokeWidth(SkFloatToScalar(.01f));
+
+    canvas->drawPath(path, paint);
+
+    paint.setLooper(new SkBlurDrawLooper(SkFloatToScalar(0.002f),
+                                          SkFloatToScalar(0.0f),
+                                          SkFloatToScalar(0.0f),
+                                          (SkColor)0xFF000000))->unref();
+
+    const char* text = "DRAWING STROKED TEXT WITH A BLUR ON A PATH";
+    size_t      len = strlen(text);
+
+    canvas->drawTextOnPathHV(text, len, path, 0, -0.025f, paint);
+    canvas->restore();
 }
 
-static void blur(SkBitmap* dst, const SkBitmap& src, SkScalar radius) {
-    *dst = src;
-}
-
-static void test_bitmap_blur(SkCanvas* canvas) {
-    SkBitmap    src, dst;
-    
-    create_src(&src, SkBitmap::kARGB_8888_Config);
-    blur(&dst, src, SkIntToScalar(4));
-    
-    SkPaint paint;
-    
-    paint.setColor(SK_ColorRED);
-
-    canvas->drawBitmap(dst, SkIntToScalar(30), SkIntToScalar(60), &paint);
-}
-
-static SkScalar getpathlen(const SkPath& path) {
-    SkPathMeasure   meas(path, false);
-    return meas.getLength();
-}
-
-static void test_textpathmatrix(SkCanvas* canvas) {
+static void textPathMatrix(SkCanvas* canvas) {
     SkPaint paint;
     SkPath  path;
     SkMatrix matrix;
     
-    path.moveTo(SkIntToScalar(200), SkIntToScalar(300));
-    path.quadTo(SkIntToScalar(400), SkIntToScalar(100),
-                SkIntToScalar(600), SkIntToScalar(300));
+    path.moveTo(SkIntToScalar(050), SkIntToScalar(200));
+    path.quadTo(SkIntToScalar(250), SkIntToScalar(000),
+                SkIntToScalar(450), SkIntToScalar(200));
 
     paint.setAntiAlias(true);
     
     paint.setStyle(SkPaint::kStroke_Style);
- //   canvas->drawPath(path, paint);
+    canvas->drawPath(path, paint);
     paint.setStyle(SkPaint::kFill_Style);
     paint.setTextSize(SkIntToScalar(48));
     paint.setTextAlign(SkPaint::kRight_Align);
     
     const char* text = "Reflection";
     size_t      len = strlen(text);
-    SkScalar    pathLen = getpathlen(path);
+
+    SkPathMeasure   meas(path, false);
+    SkScalar pathLen = meas.getLength();
 
     canvas->drawTextOnPath(text, len, path, NULL, paint);
     
@@ -218,7 +95,7 @@ public:
         r.set(SkIntToScalar(100), SkIntToScalar(100),
               SkIntToScalar(300), SkIntToScalar(300));
         fPath.addOval(r);
-        fPath.offset(SkIntToScalar(200), 0);
+        fPath.offset(SkIntToScalar(-50), SkIntToScalar(-50));
 
         fHOffset = SkIntToScalar(50);
     }
@@ -235,32 +112,37 @@ protected:
     
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
-        
         paint.setAntiAlias(true);
-        paint.setTextSize(SkIntToScalar(50));
+        paint.setTextSize(SkIntToScalar(48));
+
+        const char* text = "Hamburgefons";
+        size_t      len = strlen(text);
 
         for (int j = 0; j < REPEAT_COUNT; j++) {
             SkScalar x = fHOffset;
 
             paint.setColor(SK_ColorBLACK);
-            canvas->drawTextOnPathHV(gText, sizeof(gText)-1, fPath,
+            canvas->drawTextOnPathHV(text, len, fPath,
                                      x, paint.getTextSize()/2, paint);
 
             paint.setColor(SK_ColorRED);
-            canvas->drawTextOnPathHV(gText, sizeof(gText)-1, fPath,
+            canvas->drawTextOnPathHV(text, len, fPath,
                                      x + SkIntToScalar(50), 0, paint);
 
             paint.setColor(SK_ColorBLUE);
-            canvas->drawTextOnPathHV(gText, sizeof(gText)-1, fPath,
+            canvas->drawTextOnPathHV(text, len, fPath,
                          x + SkIntToScalar(100), -paint.getTextSize()/2, paint);
         }
-        
+
         paint.setColor(SK_ColorGREEN);
         paint.setStyle(SkPaint::kStroke_Style);
-//        canvas->drawPath(fPath, paint);
+        canvas->drawPath(fPath, paint);
         
-        canvas->translate(0, SkIntToScalar(100));
-        test_textpathmatrix(canvas);
+        canvas->translate(SkIntToScalar(275), 0);
+        textStrokePath(canvas);
+
+        canvas->translate(SkIntToScalar(-275), SkIntToScalar(250));
+        textPathMatrix(canvas);
         
         if (REPEAT_COUNT > 1)
             this->inval(NULL);
