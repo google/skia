@@ -242,32 +242,33 @@ bool get_segments(const GrPath& path,
         GrPathCmd cmd = (GrPathCmd)iter.next(pts);
         switch (cmd) {
             case kMove_PathCmd:
+                m.mapPoints(pts, 1);
                 update_degenerate_test(&degenerateData, pts[0]);
                 break;
             case kLine_PathCmd: {
-                update_degenerate_test(&degenerateData, pts[1]);
                 m.mapPoints(pts + 1, 1);
+                update_degenerate_test(&degenerateData, pts[1]);
                 segments->push_back();
                 segments->back().fType = Segment::kLine;
                 segments->back().fPts[0] = pts[1];
                 break;
             }
             case kQuadratic_PathCmd:
+                m.mapPoints(pts + 1, 2);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
-                m.mapPoints(pts + 1, 2);
                 segments->push_back();
                 segments->back().fType = Segment::kQuad;
                 segments->back().fPts[0] = pts[1];
                 segments->back().fPts[1] = pts[2];
                 break;
             case kCubic_PathCmd: {
+                m.mapPoints(pts, 4);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
                 update_degenerate_test(&degenerateData, pts[3]);
                 // unlike quads and lines, the pts[0] will also be read (in
                 // convertCubicToQuads).
-                m.mapPoints(pts, 4);
                 SkSTArray<15, SkPoint, true> quads;
                 GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, &quads);
                 int count = quads.count();
