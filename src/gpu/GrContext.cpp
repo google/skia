@@ -38,7 +38,7 @@
 static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
 
-static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 13;
+static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
 
 // path rendering is the only thing we defer today that uses non-static indices
