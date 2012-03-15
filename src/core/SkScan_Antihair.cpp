@@ -281,7 +281,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 scaleStop = 64;
             }
 #else
-            if (istop >= clip->fRight) {
+            if (istop > clip->fRight) {
                 istop = clip->fRight;
                 scaleStop = 0;  // so we don't draw this last column
             }
@@ -357,7 +357,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 scaleStop = 64;  // so we don't draw this last row
             }
 #else
-            if (istop >= clip->fBottom) {
+            if (istop > clip->fBottom) {
                 istop = clip->fBottom;
                 scaleStop = 0;  // so we don't draw this last row
             }
