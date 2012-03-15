@@ -1,0 +1,16 @@
+# Pass this file to Valgrind with "--suppressions=gm/valgrind.supp"
+# to avoid reporting errors inside the driver.
+
+{
+    nVidiaDriverUninitializedJump001
+    Memcheck:Cond
+    obj:/usr/lib/nvidia-current/libnvidia-glcore.so.280.13
+}
+{
+   nVidiaDriverLeak001
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/nvidia-current/libGL.so.280.13
+}
+
+
