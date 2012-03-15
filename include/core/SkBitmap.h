@@ -218,6 +218,11 @@ public:
     static Sk64 ComputeSize64(Config, int width, int height);
     static size_t ComputeSize(Config, int width, int height);
 
+    /**
+     *  Return the bitmap's bounds [0, 0, width, height] as an SkRect
+     */
+    void getBounds(SkRect* bounds) const;
+
     /** Set the bitmap's config and dimensions. If rowBytes is 0, then
         ComputeRowBytes() is called to compute the optimal value. This resets
         any pixel/colortable ownership, just like reset().

@@ -252,6 +252,14 @@ size_t SkBitmap::ComputeSafeSize(Config config,
     return (safeSize.is32() ? safeSize.get32() : 0);
 }
 
+void SkBitmap::getBounds(SkRect* bounds) const {
+    SkASSERT(bounds);
+    bounds->set(0, 0,
+                SkIntToScalar(fWidth), SkIntToScalar(fHeight));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
     this->freePixels();
 
