@@ -552,7 +552,7 @@ static void load_system_fonts() {
 
 //        SkDebugf("---- SkTypeface[%d] %s fontID %d\n", i, rec[i].fFileName, tf->uniqueID());
 
-        FallbackScripts fallbackScript = SkGetScriptFromFileName(rec[i].fFileName);
+        FallbackScripts fallbackScript = SkGetFallbackScriptFromID(rec[i].fFileName);
         if (SkTypeface_ValidScript(fallbackScript)) {
             gFallbackScriptsMap[fallbackScript] = tf->uniqueID();
         }
