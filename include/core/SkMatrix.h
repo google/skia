@@ -566,8 +566,8 @@ private:
                     kRectStaysRect_Mask
     };
 
-    SkScalar        fMat[9];
-    mutable uint8_t fTypeMask;
+    SkScalar         fMat[9];
+    mutable uint32_t fTypeMask;
 
     uint8_t computeTypeMask() const;
     uint8_t computePerspectiveTypeMask() const;
