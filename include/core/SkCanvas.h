@@ -942,13 +942,13 @@ protected:
     virtual SkCanvas* canvasForDrawIter();
 
     // all of the drawBitmap variants call this guy
-    virtual void commonDrawBitmap(const SkBitmap&, const SkIRect*,
-                                  const SkMatrix&, const SkPaint& paint);
+    void commonDrawBitmap(const SkBitmap&, const SkIRect*, const SkMatrix&,
+                          const SkPaint& paint);
 
     // Clip rectangle bounds. Called internally by saveLayer.
     // returns false if the entire rectangle is entirely clipped out
     bool clipRectBounds(const SkRect* bounds, SaveFlags flags,
-                         SkIRect* intersection);
+                        SkIRect* intersection);
 
 private:
     class MCRec;
