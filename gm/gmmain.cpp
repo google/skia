@@ -728,6 +728,9 @@ int main(int argc, char * const argv[]) {
         SkISize size = gm->getISize();
         maxW = SkMax32(size.width(), maxW);
         maxH = SkMax32(size.height(), maxH);
+        // This fixes a memory leak, but we are churning gms; we could
+        // instead cache them if we have constructors with side-effects.
+        SkDELETE(gm);
     }
     // setup a GL context for drawing offscreen
     SkAutoTUnref<SkGLContext> glContext;
