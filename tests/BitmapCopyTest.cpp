@@ -474,7 +474,8 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                     // raw buffer pointer.
                     const uint32_t bufSize = subH *
                         SkBitmap::ComputeRowBytes(src.getConfig(), subW) * 2;
-                    uint8_t* buf = new uint8_t[bufSize];
+                    SkAutoMalloc autoBuf (bufSize);
+                    uint8_t* buf = static_cast<uint8_t*>(autoBuf.get());
 
                     SkBitmap bufBm; // Attach buf to this bitmap.
                     bool successExpected;
@@ -593,7 +594,6 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                         subset.copyPixelsFrom(buf, 1, subset.rowBytes()) ==
                             false);
 
-                    delete [] buf;
 #endif
                 }
             }
