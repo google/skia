@@ -23,6 +23,7 @@
 #include "SkStream.h"
 #include "SkThread.h"
 #include "SkTSearch.h"
+#include "SkTypeface_android.h"
 #include "FontHostConfiguration_android.h"
 #include <stdio.h>
 
@@ -415,6 +416,21 @@ struct FontInitRec {
 // deliberately empty, but we use the address to identify fallback fonts
 static const char* gFBNames[] = { NULL };
 
+static const struct {
+    const char* fFileName;
+    FallbackScripts fScript;
+} gFBFileNames[] = {
+    { "DroidNaskh-Regular.ttf", kArabic_FallbackScript },
+    { "DroidSansEthiopic-Regular.ttf", kEthiopic_FallbackScript },
+    { "DroidSansHebrew-Regular.ttf", kHebrewRegular_FallbackScript },
+    { "DroidSansHebrew-Bold.ttf", kHebrewBold_FallbackScript },
+    { "DroidSansThai.ttf", kThai_FallbackScript },
+    { "DroidSansArmenian.ttf", kArmenian_FallbackScript },
+    { "DroidSansGeorgian.ttf", kGeorgian_FallbackScript },
+    { "Lohit-Devanagari.ttf", kDevanagari_FallbackScript },
+    { "Lohit-Bengali.ttf", kBengali_FallbackScript },
+    { "Lohit-Tamil.ttf", kTamil_FallbackScript },
+};
 
 /*  Fonts are grouped by family, with the first font in a family having the
     list of names (even if that list is empty), and the following members having
@@ -430,6 +446,7 @@ static FamilyRec* gDefaultFamily;
 static SkTypeface* gDefaultNormal;
 static char** gDefaultNames = NULL;
 static uint32_t *gFallbackFonts;
+static uint32_t *gFallbackScriptsMap;
 
 /*  Load info from a configuration file that populates the system/fallback font structures
 */
@@ -476,6 +493,7 @@ static void load_font_info() {
     gNumSystemFonts = fontInfo.count();
     gSystemFonts = (FontInitRec*) malloc(gNumSystemFonts * sizeof(FontInitRec));
     gFallbackFonts = (uint32_t*) malloc((gNumSystemFonts + 1) * sizeof(uint32_t));
+    gFallbackScriptsMap = (uint32_t*) calloc(kFallbackScriptNumber, sizeof(uint32_t));
     if (gSystemFonts == NULL) {
         // shouldn't get here
         gNumSystemFonts = 0;
@@ -533,6 +551,11 @@ static void load_system_fonts() {
                                     );
 
 //        SkDebugf("---- SkTypeface[%d] %s fontID %d\n", i, rec[i].fFileName, tf->uniqueID());
+
+        FallbackScripts fallbackScript = SkGetScriptFromFileName(rec[i].fFileName);
+        if (SkTypeface_ValidScript(fallbackScript)) {
+            gFallbackScriptsMap[fallbackScript] = tf->uniqueID();
+        }
 
         if (rec[i].fNames != NULL) {
             // see if this is one of our fallback fonts
@@ -686,6 +709,43 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     // we ref(), since the symantic is to return a new instance
     tf->ref();
     return tf;
+}
+
+SkTypeface* SkCreateTypefaceForScript(FallbackScripts script) {
+    if (!SkTypeface_ValidScript(script)) {
+        return NULL;
+    }
+
+    SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
+
+    load_system_fonts();
+
+    if (gFallbackScriptsMap[script] == 0) {
+        return NULL;
+    }
+
+    SkTypeface* tf = find_from_uniqueID(gFallbackScriptsMap[script]);
+    // we ref(), since the symantic is to return a new instance
+    tf->ref();
+    return tf;
+}
+
+const char* SkGetFallbackScriptID(FallbackScripts script) {
+    for (int i = 0; i < sizeof(gFBFileNames) / sizeof(gFBFileNames[0]); i++) {
+        if (gFBFileNames[i].fScript == script) {
+            return gFBFileNames[i].fFileName;
+        }
+    }
+    return NULL;
+}
+
+FallbackScripts SkGetFallbackScriptFromID(const char* fileName) {
+    for (int i = 0; i < sizeof(gFBFileNames) / sizeof(gFBFileNames[0]); i++) {
+        if (strcmp(gFBFileNames[i].fFileName, fileName) == 0) {
+            return gFBFileNames[i].fScript;
+        }
+    }
+    return kFallbackScriptNumber; // Use SkTypeface_ValidScript as an invalid value.
 }
 
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
