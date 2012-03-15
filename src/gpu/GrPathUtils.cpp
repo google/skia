@@ -187,44 +187,13 @@ int GrPathUtils::worstCasePointCount(const GrPath& path, int* subpaths,
     return pointCount;
 }
 
-namespace {
-// The matrix computed for quadDesignSpaceToUVCoordsMatrix should never really
-// have perspective and we really want to avoid perspective matrix muls.
-//  However, the first two entries of the perspective row may be really close to
-// 0 and the third may not be 1 due to a scale on the entire matrix.
-inline void fixup_matrix(GrMatrix* mat) {
-#ifndef SK_SCALAR_IS_FLOAT
-    GrCrash("Expected scalar is float.");
-#endif
-     static const GrScalar gTOL = 1.f / 100.f;
-    GrAssert(GrScalarAbs(mat->get(SkMatrix::kMPersp0)) < gTOL);
-    GrAssert(GrScalarAbs(mat->get(SkMatrix::kMPersp1)) < gTOL);
-    float m33 = mat->get(SkMatrix::kMPersp2);
-    if (1.f != m33) {
-        m33 = 1.f / m33;
-        mat->setAll(m33 * mat->get(SkMatrix::kMScaleX),
-                    m33 * mat->get(SkMatrix::kMSkewX),
-                    m33 * mat->get(SkMatrix::kMTransX),
-                    m33 * mat->get(SkMatrix::kMSkewY),
-                    m33 * mat->get(SkMatrix::kMScaleY),
-                    m33 * mat->get(SkMatrix::kMTransY),
-                    0.f, 0.f, 1.f);
-    } else {
-        mat->setPerspX(0);
-        mat->setPerspY(0);
-    }
-}
-}
-
-// Compute a matrix that goes from the 2d space coordinates to UV space where
-// u^2-v = 0 specifies the quad.
-void GrPathUtils::quadDesignSpaceToUVCoordsMatrix(const SkPoint qPts[3],
-                                                  GrMatrix* matrix) {
+void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
     // can't make this static, no cons :(
     SkMatrix UVpts;
 #ifndef SK_SCALAR_IS_FLOAT
     GrCrash("Expected scalar is float.");
 #endif
+    SkMatrix m;
     // We want M such that M * xy_pt = uv_pt
     // We know M * control_pts = [0  1/2 1]
     //                           [0  0   1]
@@ -233,10 +202,10 @@ void GrPathUtils::quadDesignSpaceToUVCoordsMatrix(const SkPoint qPts[3],
     UVpts.setAll(0,   0.5f,  1.f,
                  0,   0,     1.f,
                  1.f, 1.f,   1.f);
-    matrix->setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
-                   qPts[0].fY, qPts[1].fY, qPts[2].fY,
-                   1.f,        1.f,        1.f);
-    if (!matrix->invert(matrix)) {
+    m.setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
+             qPts[0].fY, qPts[1].fY, qPts[2].fY,
+             1.f,        1.f,        1.f);
+    if (!m.invert(&m)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
         // farthest apart to compute a line (unless it is really a pt).
         SkScalar maxD = qPts[0].distanceToSqd(qPts[1]);
@@ -260,19 +229,46 @@ void GrPathUtils::quadDesignSpaceToUVCoordsMatrix(const SkPoint qPts[3],
             // case.
             lineVec.setOrthog(lineVec, GrPoint::kLeft_Side);
             lineVec.dot(qPts[0]);
-            matrix->setAll(0, 0, 0,
-                           lineVec.fX, lineVec.fY, -lineVec.dot(qPts[maxEdge]),
-                           0, 0, 1.f);
+            // first row
+            fM[0] = 0;
+            fM[1] = 0;
+            fM[2] = 0;
+            // second row
+            fM[3] = lineVec.fX;
+            fM[4] = lineVec.fY;
+            fM[5] = -lineVec.dot(qPts[maxEdge]);
         } else {
             // It's a point. It should cover zero area. Just set the matrix such
             // that (u, v) will always be far away from the quad.
-            matrix->setAll(0, 0, 100 * SK_Scalar1,
-                           0, 0, 100 * SK_Scalar1,
-                           0, 0, 1.f);
+            fM[0] = 0; fM[1] = 0; fM[2] = 100.f;
+            fM[3] = 0; fM[4] = 0; fM[5] = 100.f;
         }
     } else {
-        matrix->postConcat(UVpts);
-        fixup_matrix(matrix);
+        m.postConcat(UVpts);
+
+        // The matrix should not have perspective.
+        static const GrScalar gTOL = 1.f / 100.f;
+        GrAssert(GrScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
+        GrAssert(GrScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
+
+        // It may not be normalized to have 1.0 in the bottom right
+        float m33 = m.get(SkMatrix::kMPersp2);
+        if (1.f != m33) {
+            m33 = 1.f / m33;
+            fM[0] = m33 * m.get(SkMatrix::kMScaleX);
+            fM[1] = m33 * m.get(SkMatrix::kMSkewX);
+            fM[2] = m33 * m.get(SkMatrix::kMTransX);
+            fM[3] = m33 * m.get(SkMatrix::kMSkewY);
+            fM[4] = m33 * m.get(SkMatrix::kMScaleY);
+            fM[5] = m33 * m.get(SkMatrix::kMTransY);
+        } else {
+            fM[0] = m.get(SkMatrix::kMScaleX);
+            fM[1] = m.get(SkMatrix::kMSkewX);
+            fM[2] = m.get(SkMatrix::kMTransX);
+            fM[3] = m.get(SkMatrix::kMSkewY);
+            fM[4] = m.get(SkMatrix::kMScaleY);
+            fM[5] = m.get(SkMatrix::kMTransY);
+        }
     }
 }
 
