@@ -131,20 +131,26 @@ public:
 
         fColorFilterColor = paint.fColorFilterColor;
         fColorFilterXfermode = paint.fColorFilterXfermode;
-        memcpy(fColorMatrix, paint.fColorMatrix, sizeof(fColorMatrix));
         fColorMatrixEnabled = paint.fColorMatrixEnabled;
-
+        if (fColorMatrixEnabled) {
+            memcpy(fColorMatrix, paint.fColorMatrix, sizeof(fColorMatrix));
+        }
+        
         for (int i = 0; i < kMaxTextures; ++i) {
             GrSafeUnref(fTextures[i]);
-            fTextureSamplers[i] = paint.fTextureSamplers[i];
             fTextures[i] = paint.fTextures[i];
-            GrSafeRef(fTextures[i]);
+            if (NULL != fTextures[i]) {
+                fTextureSamplers[i] = paint.fTextureSamplers[i];
+                fTextures[i]->ref();
+            }
         }
         for (int i = 0; i < kMaxMasks; ++i) {
             GrSafeUnref(fMaskTextures[i]);
-            fMaskSamplers[i] = paint.fMaskSamplers[i];
             fMaskTextures[i] = paint.fMaskTextures[i];
-            GrSafeRef(fMaskTextures[i]);
+            if (NULL != fMaskTextures[i]) {
+                fMaskSamplers[i] = paint.fMaskSamplers[i];
+                fMaskTextures[i]->ref();
+            }
         }
         return *this;
     }
