@@ -1408,6 +1408,14 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         // PDF doesn't support kClamp_TileMode, so we simulate it by making
         // a pattern the size of the current clip.
         SkIRect bounds = clipRegion.getBounds();
+
+        // We need to apply the initial transform to bounds in order to get
+        // bounds in a consistent coordinate system.
+        SkRect boundsTemp;
+        boundsTemp.set(bounds);
+        fInitialTransform.mapRect(&boundsTemp);
+        boundsTemp.roundOut(&bounds);
+
         pdfShader = SkPDFShader::GetPDFShader(*shader, transform, bounds);
         SkSafeUnref(pdfShader.get());  // getShader and SkRefPtr both took a ref
 
