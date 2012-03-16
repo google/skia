@@ -258,6 +258,11 @@ void SkBitmap::getBounds(SkRect* bounds) const {
                 SkIntToScalar(fWidth), SkIntToScalar(fHeight));
 }
 
+void SkBitmap::getBounds(SkIRect* bounds) const {
+    SkASSERT(bounds);
+    bounds->set(0, 0, fWidth, fHeight);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
