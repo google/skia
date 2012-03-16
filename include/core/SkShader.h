@@ -49,9 +49,23 @@ public:
     void resetLocalMatrix();
 
     enum TileMode {
-        kClamp_TileMode,    //!< replicate the edge color if the shader draws outside of its original bounds
-        kRepeat_TileMode,   //!< repeat the shader's image horizontally and vertically
-        kMirror_TileMode,   //!< repeat the shader's image horizontally and vertically, alternating mirror images so that adjacent images always seam
+        /** replicate the edge color if the shader draws outside of its
+         *  original bounds
+         */
+        kClamp_TileMode,
+
+        /** repeat the shader's image horizontally and vertically */
+        kRepeat_TileMode,
+
+        /** repeat the shader's image horizontally and vertically, alternating
+         *  mirror images so that adjacent images always seam
+         */
+        kMirror_TileMode,
+
+#if 0
+        /** only draw within the original domain, return 0 everywhere else */
+        kDecal_TileMode,
+#endif
 
         kTileModeCount
     };
