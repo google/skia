@@ -81,7 +81,7 @@ void GrDefaultTextContext::init(GrContext* context,
     if (NULL != extMatrix) {
         fExtMatrix = *extMatrix;
     } else {
-        fExtMatrix = GrMatrix::I();
+        fExtMatrix.reset();
     }
     if (context->getClip().hasConservativeBounds()) {
         if (!fExtMatrix.isIdentity()) {
