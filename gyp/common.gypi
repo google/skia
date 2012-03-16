@@ -6,17 +6,9 @@
 # This file is automatically included by gyp_skia when building any target.
 
 {
-  # Define all variables, allowing for override in GYP_DEFINES.
-  #
-  # One such variable is 'skia_os', which we use instead of 'OS' throughout
-  # our gyp files.  We set it automatically based on 'OS', but allow the
-  # user to override it via GYP_DEFINES if they like.
-  'variables': {
-    'skia_scalar%': 'float',
-    'skia_os%': '<(OS)',
-    'skia_mesa%': 0,
-    'skia_target_arch%': 'x86',
-  },
+  'includes': [
+    'common_variables.gypi',
+  ],
 
   'target_defaults': {
 
@@ -32,7 +24,7 @@
       ],
     },
     'includes': [
-      'common_conditions.gypi'
+      'common_conditions.gypi',
     ],
     'conditions': [
       [ 'skia_scalar == "float"',
