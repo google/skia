@@ -223,6 +223,7 @@ public:
      *  Return the bitmap's bounds [0, 0, width, height] as an SkRect
      */
     void getBounds(SkRect* bounds) const;
+    void getBounds(SkIRect* bounds) const;
 
     /** Set the bitmap's config and dimensions. If rowBytes is 0, then
         ComputeRowBytes() is called to compute the optimal value. This resets
