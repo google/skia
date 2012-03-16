@@ -1,7 +1,4 @@
 {
-  'includes': [
-    'common.gypi',
-  ],
   'target_defaults': {
     'conditions': [
       ['skia_os != "win"', {

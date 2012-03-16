@@ -15,7 +15,6 @@
 # variable expansion step for gyp happens after the includes are processed. 
 {
   'includes': [
-    'common.gypi',
     '../../android/gyp/android.gypi',
   ],
 }

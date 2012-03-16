@@ -1,7 +1,4 @@
 {
-  'includes': [
-    'common.gypi',
-  ],
   'targets': [
     # Due to an unfortunate intersection of lameness between gcc and gyp,
     # we have to build the *_SSE2.cpp files in a separate target.  The
