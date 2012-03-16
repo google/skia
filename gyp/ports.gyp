@@ -1,8 +1,5 @@
 # Port-specific Skia library code.
 {
-  'includes': [
-    'common.gypi',
-  ],
   'targets': [
     {
       'target_name': 'ports',

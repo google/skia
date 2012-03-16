@@ -44,6 +44,12 @@ def additional_include_files(args=[]):
     if os.path.realpath(path) not in specified_includes:
       result.append(path)
 
+  # Always include common.gypi.
+  # We do this, rather than including common.gypi explicitly in all our gyp
+  # files, so that gyp files we use but do not maintain (e.g.,
+  # third_party/externals/libjpeg/libjpeg.gyp) will include common.gypi too.
+  AddInclude(os.path.join(gyp_config_dir, 'common.gypi'))
+
   return result
 
 if __name__ == '__main__':
