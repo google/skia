@@ -147,6 +147,8 @@ private:
     bool                fNeedClear;
     bool                fNeedPrepareRenderTarget;
 
+    GrTextContext*      fTextContext;
+
     // called from rt and tex cons
     void initFromRenderTarget(GrContext*, GrRenderTarget*);
 
@@ -166,6 +168,11 @@ private:
                           int* tileSize) const;
     void internalDrawBitmap(const SkDraw&, const SkBitmap&,
                             const SkIRect&, const SkMatrix&, GrPaint* grPaint);
+
+    /**
+     * Returns non-initialized instance.
+     */
+    GrTextContext* getTextContext();
 
     typedef SkDevice INHERITED;
 };

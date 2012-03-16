@@ -9,6 +9,7 @@
 
 
 #include "GrContext.h"
+#include "GrDefaultTextContext.h"
 #include "GrTextContext.h"
 
 #include "SkGpuDevice.h"
@@ -184,6 +185,8 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
         pr = new SkGrRenderTargetPixelRef(fRenderTarget);
     }
     this->setPixelRef(pr, 0)->unref();
+
+    fTextContext = NULL;
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
@@ -245,6 +248,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
                  width, height);
         GrAssert(false);
     }
+
+    fTextContext = NULL;
 }
 
 SkGpuDevice::~SkGpuDevice() {
@@ -260,6 +265,10 @@ SkGpuDevice::~SkGpuDevice() {
         fContext->unlockTexture(fCache);
     }
     fContext->unref();
+
+    if (NULL != fTextContext) {
+        fTextContext->unref();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1595,8 +1604,9 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                                    &grPaint)) {
             return;
         }
-        GrTextContext context(fContext, grPaint, draw.fExtMatrix);
-        myDraw.fProcs = this->initDrawForText(&context);
+        GrTextContext::AutoFinish txtCtxAF(this->getTextContext(), fContext,
+                                           grPaint, draw.fExtMatrix);
+        myDraw.fProcs = this->initDrawForText(txtCtxAF.getTextContext());
         this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
     }
 }
@@ -1624,9 +1634,9 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
                                    &grPaint)) {
             return;
         }
-
-        GrTextContext context(fContext, grPaint, draw.fExtMatrix);
-        myDraw.fProcs = this->initDrawForText(&context);
+        GrTextContext::AutoFinish txtCtxAF(this->getTextContext(), fContext,
+                                           grPaint, draw.fExtMatrix);
+        myDraw.fProcs = this->initDrawForText(txtCtxAF.getTextContext());
         this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
                                      scalarsPerPos, paint);
     }
@@ -1742,3 +1752,9 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
                                    width, height, usage));
 }
 
+GrTextContext* SkGpuDevice::getTextContext() {
+    if (NULL == fTextContext) {
+        fTextContext = new GrDefaultTextContext();
+    }
+    return fTextContext;
+}
