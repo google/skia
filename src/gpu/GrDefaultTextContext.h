@@ -35,7 +35,6 @@ private:
     GrGpuTextVertex* fVertices;
     GrIRect          fClipRect;
 
-    GrFontScaler*   fScaler;
     GrTextStrike*   fStrike;
 
     GrMatrix    fExtMatrix;

@@ -1916,6 +1916,11 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
             *drawState->sampler(s) = paint.getMaskSampler(i);
         }
     }
+    
+    // disable all stages not accessible via the paint
+    for (int s = GrPaint::kTotalStages; s < GrDrawState::kNumStages; ++s) {
+        drawState->setTexture(s, NULL);
+    }
 
     drawState->setColor(paint.fColor);
 
