@@ -107,6 +107,11 @@ static const uint8_t* gGammaTables[2];
 // This value was chosen by eyeballing the result in Firefox and trying to match it.
 static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
 
+// convert from Skia's fixed (16.16) to FreeType's fixed (26.6) representation
+static inline int FixedToDot6(SkFixed x) { return x >> 10; }
+// convert from FreeType's fixed (26.6) to Skia's fixed (16.16) representation
+static inline SkFixed Dot6ToFixed(int x) { return x << 10; }
+
 static bool
 InitFreetype() {
     FT_Error err = FT_Init_FreeType(&gFTLibrary);
@@ -165,6 +170,9 @@ private:
 
     FT_Error setupSize();
     void emboldenOutline(FT_Outline* outline);
+    void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
+                                bool snapToPixelBoundary = false);
+    void updateGlyphIfLCD(SkGlyph* glyph);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -959,6 +967,43 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
     return;
 }
 
+void SkScalerContext_FreeType::getBBoxForCurrentGlyph(SkGlyph* glyph,
+                                                      FT_BBox* bbox,
+                                                      bool snapToPixelBoundary) {
+
+    FT_Outline_Get_CBox(&fFace->glyph->outline, bbox);
+
+    if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
+        int dx = FixedToDot6(glyph->getSubXFixed());
+        int dy = FixedToDot6(glyph->getSubYFixed());
+        // negate dy since freetype-y-goes-up and skia-y-goes-down
+        bbox->xMin += dx;
+        bbox->yMin -= dy;
+        bbox->xMax += dx;
+        bbox->yMax -= dy;
+    }
+
+    // outset the box to integral boundaries
+    if (snapToPixelBoundary) {
+        bbox->xMin &= ~63;
+        bbox->yMin &= ~63;
+        bbox->xMax  = (bbox->xMax + 63) & ~63;
+        bbox->yMax  = (bbox->yMax + 63) & ~63;
+    }
+}
+
+void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
+    if (isLCD(fRec)) {
+        if (fLCDIsVert) {
+            glyph->fHeight += gLCDExtra;
+            glyph->fTop -= gLCDExtra >> 1;
+        } else {
+            glyph->fWidth += gLCDExtra;
+            glyph->fLeft -= gLCDExtra >> 1;
+        }
+    }
+}
+
 void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
@@ -980,6 +1025,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         return;
     }
 
+    SkFixed vLeft, vTop;
+
     switch ( fFace->glyph->format ) {
       case FT_GLYPH_FORMAT_OUTLINE: {
         FT_BBox bbox;
@@ -995,37 +1042,21 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         if (fRec.fFlags & kEmbolden_Flag) {
             emboldenOutline(&fFace->glyph->outline);
         }
-        FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
 
-        if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
-            int dx = glyph->getSubXFixed() >> 10;
-            int dy = glyph->getSubYFixed() >> 10;
-            // negate dy since freetype-y-goes-up and skia-y-goes-down
-            bbox.xMin += dx;
-            bbox.yMin -= dy;
-            bbox.xMax += dx;
-            bbox.yMax -= dy;
-        }
-
-        bbox.xMin &= ~63;
-        bbox.yMin &= ~63;
-        bbox.xMax  = (bbox.xMax + 63) & ~63;
-        bbox.yMax  = (bbox.yMax + 63) & ~63;
+        getBBoxForCurrentGlyph(glyph, &bbox, true);
 
         glyph->fWidth   = SkToU16((bbox.xMax - bbox.xMin) >> 6);
         glyph->fHeight  = SkToU16((bbox.yMax - bbox.yMin) >> 6);
         glyph->fTop     = -SkToS16(bbox.yMax >> 6);
         glyph->fLeft    = SkToS16(bbox.xMin >> 6);
 
-        if (isLCD(fRec)) {
-            if (fLCDIsVert) {
-                glyph->fHeight += gLCDExtra;
-                glyph->fTop -= gLCDExtra >> 1;
-            } else {
-                glyph->fWidth += gLCDExtra;
-                glyph->fLeft -= gLCDExtra >> 1;
-            }
+        if ((fRec.fFlags & SkScalerContext::kVertical_Flag)) {
+            vLeft = Dot6ToFixed(bbox.xMin);
+            vTop = Dot6ToFixed(bbox.yMax);
         }
+
+        updateGlyphIfLCD(glyph);
+
         break;
       }
 
@@ -1056,6 +1087,62 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         glyph->fAdvanceX = SkFixedMul(fMatrix22.xx, fFace->glyph->linearHoriAdvance);
         glyph->fAdvanceY = -SkFixedMul(fMatrix22.yx, fFace->glyph->linearHoriAdvance);
     }
+
+    if ((fRec.fFlags & SkScalerContext::kVertical_Flag)
+            && fFace->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
+
+        //TODO: do we need to specially handle SubpixelPositioning and Kerning?
+
+        FT_Matrix identityMatrix;
+        identityMatrix.xx = identityMatrix.yy = SK_Fixed1;
+        identityMatrix.xy = identityMatrix.yx = 0;
+
+        // if the matrix is not the identity matrix then we need to re-load the
+        // glyph with the identity matrix to get the necessary bounding box
+        if (memcmp(&fMatrix22, &identityMatrix, sizeof(FT_Matrix)) != 0) {
+
+            FT_Set_Transform(fFace, &identityMatrix, NULL);
+
+            err = FT_Load_Glyph( fFace, glyph->getGlyphID(fBaseGlyphCount), fLoadGlyphFlags );
+            if (err != 0) {
+                SkDEBUGF(("SkScalerContext_FreeType::generateMetrics(%x): FT_Load_Glyph(glyph:%d flags:%d) returned 0x%x\n",
+                            fFaceRec->fFontID, glyph->getGlyphID(fBaseGlyphCount), fLoadGlyphFlags, err));
+                goto ERROR;
+            }
+
+            if (fRec.fFlags & kEmbolden_Flag) {
+                emboldenOutline(&fFace->glyph->outline);
+            }
+        }
+
+        // bounding box of the unskewed and unscaled glyph
+        FT_BBox bbox;
+        getBBoxForCurrentGlyph(glyph, &bbox);
+
+        // compute the vertical gap above and below the glyph if the glyph were
+        // centered within the linearVertAdvance
+        SkFixed vGap = (fFace->glyph->linearVertAdvance - Dot6ToFixed(bbox.yMax - bbox.yMin)) / 2;
+
+        // the origin point of the glyph when rendered vertically
+        FT_Vector vOrigin;
+        vOrigin.x = fFace->glyph->linearHoriAdvance / 2;
+        vOrigin.y = vGap + Dot6ToFixed(bbox.yMax);
+
+        // transform the vertical origin based on the matrix of the actual glyph
+        FT_Vector_Transform(&vOrigin, &fMatrix22);
+
+        // compute a new offset vector for the glyph by subtracting the vertical
+        // origin from the original horizontal offset vector
+        glyph->fLeft = SkFixedRoundToInt(vLeft - vOrigin.x);
+        glyph->fTop =  -SkFixedRoundToInt(vTop - vOrigin.y);
+
+        updateGlyphIfLCD(glyph);
+
+        // use the vertical advance values computed by freetype
+        glyph->fAdvanceX = -SkFixedMul(fMatrix22.xy, fFace->glyph->linearVertAdvance);
+        glyph->fAdvanceY = SkFixedMul(fMatrix22.yy, fFace->glyph->linearVertAdvance);
+    }
+
 
 #ifdef ENABLE_GLYPH_SPEW
     SkDEBUGF(("FT_Set_Char_Size(this:%p sx:%x sy:%x ", this, fScaleX, fScaleY));
@@ -1304,8 +1391,8 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
             int dx = 0, dy = 0;
             if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
-                dx = glyph.getSubXFixed() >> 10;
-                dy = glyph.getSubYFixed() >> 10;
+                dx = FixedToDot6(glyph.getSubXFixed());
+                dy = FixedToDot6(glyph.getSubYFixed());
                 // negate dy since freetype-y-goes-up and skia-y-goes-down
                 dy = -dy;
             }
@@ -1422,7 +1509,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define ft2sk(x)    SkFixedToScalar((x) << 10)
+#define ft2sk(x)    SkFixedToScalar(Dot6ToFixed(x))
 
 #if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 2
     #define CONST_PARAM const
