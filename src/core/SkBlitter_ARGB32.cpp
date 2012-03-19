@@ -214,14 +214,14 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
     uint32_t    color = fPMColor;
     size_t      rowBytes = fDevice.rowBytes();
 
-    //if (255 == SkGetPackedA32(color)) {
+    if (255 == SkGetPackedA32(color)) {
         fColorRect32Proc(device, width, height, rowBytes, color);
-    //} else {
-        //while (--height >= 0) {
-            //fColor32Proc(device, device, width, color);
-            //device = (uint32_t*)((char*)device + rowBytes);
-        //}
-    //}
+    } else {
+        while (--height >= 0) {
+            fColor32Proc(device, device, width, color);
+            device = (uint32_t*)((char*)device + rowBytes);
+        }
+    }
 }
 
 #if defined _WIN32 && _MSC_VER >= 1300
