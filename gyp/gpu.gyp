@@ -102,6 +102,7 @@
         '../include/gpu/gl/SkMesaGLContext.h',
         '../include/gpu/gl/SkNativeGLContext.h',
         '../include/gpu/gl/SkNullGLContext.h',
+        '../include/gpu/gl/SkDebugGLContext.h',
 
         '../src/gpu/GrPrintf_skia.cpp',
         '../src/gpu/SkGpuCanvas.cpp',
@@ -112,6 +113,7 @@
 
         '../src/gpu/gl/SkGLContext.cpp',
         '../src/gpu/gl/SkNullGLContext.cpp',
+        '../src/gpu/gl/SkDebugGLContext.cpp',
 
         '../src/gpu/android/SkNativeGLContext_android.cpp',
 
@@ -252,6 +254,7 @@
         '../src/gpu/gl/GrGLContextInfo.h',
         '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
         '../src/gpu/gl/GrGLCreateNullInterface.cpp',
+        '../src/gpu/gl/GrGLCreateDebugInterface.cpp',
         '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
         '../src/gpu/gl/GrGLDefaultInterface_native.cpp',
         '../src/gpu/gl/GrGLIndexBuffer.cpp',

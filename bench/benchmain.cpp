@@ -20,6 +20,7 @@
 #include "SkImageEncoder.h"
 #include "gl/SkNativeGLContext.h"
 #include "gl/SkNullGLContext.h"
+#include "gl/SkDebugGLContext.h"
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkString.h"
@@ -208,6 +209,12 @@ public:
         return true;
     }
 
+    void cleanup() {
+        fGLContext.reset(NULL);
+        fGrContext.reset(NULL);
+        fRenderTarget.reset(NULL);
+    }
+
     bool isValid() {
         return NULL != fGLContext.get();
     }
@@ -231,6 +238,7 @@ private:
 
 static GLHelper gRealGLHelper;
 static GLHelper gNullGLHelper;
+static GLHelper gDebugGLHelper;
 
 static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
                              Backend backend, GLHelper* glHelper) {
@@ -512,8 +520,10 @@ int main (int argc, char * const argv[]) {
     determine_gpu_context_size(defineDict, &contextWidth, &contextHeight);
     SkAutoTUnref<SkGLContext> realGLCtx(new SkNativeGLContext);
     SkAutoTUnref<SkGLContext> nullGLCtx(new SkNullGLContext);
+    SkAutoTUnref<SkGLContext> debugGLCtx(new SkDebugGLContext);
     gRealGLHelper.init(realGLCtx.get(), contextWidth, contextHeight);
     gNullGLHelper.init(nullGLCtx.get(), contextWidth, contextHeight);
+    gDebugGLHelper.init(debugGLCtx.get(), contextWidth, contextHeight);
 #endif
     BenchTimer timer = BenchTimer(gRealGLHelper.glContext());
 
@@ -616,6 +626,9 @@ int main (int argc, char * const argv[]) {
         }
         log_progress("\n");
     }
+
+    // need to clean up here rather than post-main to allow leak detection to work
+    gDebugGLHelper.cleanup();
 
     return 0;
 }
