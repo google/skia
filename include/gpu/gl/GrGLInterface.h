@@ -71,8 +71,8 @@ GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
  * also NULL GrContext creation will fail.
  *
  * The default interface is returned by GrGLDefaultInterface. This function's
- * implementation is platform-specifc. Several have been provided, along with an
- * implementation that simply returns NULL. It is implementation-specific
+ * implementation is platform-specific. Several have been provided, along with
+ * an implementation that simply returns NULL. It is implementation-specific
  * whether the same GrGLInterface is returned or whether a new one is created
  * at each call. Some platforms may not be able to use a single GrGLInterface
  * because extension function ptrs vary across contexts. Note that GrGLInterface
@@ -106,6 +106,12 @@ const GrGLInterface* GrGLCreateMesaInterface();
  * CPU overhead.
  */
 const GrGLInterface* GrGLCreateNullInterface();
+
+/**
+ * Creates a debugging GrGLInterface that doesn't draw anything. Used for 
+ * finding memory leaks and invalid memory accesses.
+ */
+const GrGLInterface* GrGLCreateDebugInterface();
 
 typedef unsigned int GrGLenum;
 typedef unsigned char GrGLboolean;
