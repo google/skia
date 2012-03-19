@@ -170,9 +170,7 @@ public:
      *
      * @param srcTarget     draw target used as src of the draw state.
      */
-    void copyDrawState(const GrDrawTarget& srcTarget) {
-        fCurrDrawState = srcTarget.fCurrDrawState;
-    }    
+    void copyDrawState(const GrDrawTarget& srcTarget);
 
     /**
      * The format of vertices is represented as a bitfield of flags.

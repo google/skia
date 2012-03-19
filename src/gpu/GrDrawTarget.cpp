@@ -519,6 +519,10 @@ void GrDrawTarget::restoreDrawState(const SavedDrawState& state) {
     fCurrDrawState = *state.fState.get();
 }
 
+void GrDrawTarget::copyDrawState(const GrDrawTarget& srcTarget) {
+    fCurrDrawState = srcTarget.fCurrDrawState;
+}
+
 bool GrDrawTarget::reserveVertexSpace(GrVertexLayout vertexLayout,
                                       int vertexCount,
                                       void** vertices) {
