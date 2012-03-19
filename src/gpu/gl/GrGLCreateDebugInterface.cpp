@@ -100,17 +100,17 @@ public:
         GrAlwaysAssert(size >= 0);
 
         // delete pre-existing data
-        delete fDataPtr;
+        delete[] fDataPtr;
 
         fSize = size;
-        fDataPtr = new char[size];
+        fDataPtr = new GrGLchar[size];
         if (dataPtr) {
             memcpy(fDataPtr, dataPtr, fSize);
         }
         // TODO: w/ no dataPtr the data is unitialized - this could be tracked
     }
     GrGLint getSize() const { return fSize; }
-    GrGLvoid *getDataPtr()  { return fDataPtr; }
+    GrGLchar *getDataPtr()  { return fDataPtr; }
 
     GrGLint getUsage() const { return fUsage; }
     void setUsage(GrGLint usage) { fUsage = usage; }
@@ -126,7 +126,7 @@ public:
 protected:
 private:
 
-    GrGLvoid*   fDataPtr;
+    GrGLchar*   fDataPtr;
     bool        fMapped;       // is the buffer object mapped via "glMapBuffer"?
     bool        fBound;        // is the buffer object bound via "glBindBuffer"?
     GrGLint     fSize;         // size in bytes
@@ -342,10 +342,10 @@ int GrDebugGL::fNextID = 0;
 GrDebugGL GrDebugGL::Obj;
 
 ////////////////////////////////////////////////////////////////////////////////
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture) 
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture)
 {
-    
-    GrAlwaysAssert(0 <= texture);
+
+//    GrAlwaysAssert(0 <= texture);
 //    GrAlwaysAssert(texture < GrDebugGL::getInstance()->getMaxTextureUnits());
 
     GrDebugGL::getInstance()->setCurTextureUnit(texture);
