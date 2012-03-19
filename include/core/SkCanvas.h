@@ -91,8 +91,14 @@ public:
      *  installed. Note that this can change on other calls like save/restore,
      *  so do not access this device after subsequent canvas calls.
      *  The reference count of the device is not changed.
+     *
+     * @param updateMatrixClip If this is true, then before the device is
+     *        returned, we ensure that its has been notified about the current
+     *        matrix and clip. Note: this happens automatically when the device
+     *        is drawn to, but is optional here, as there is a small perf hit
+     *        sometimes.
      */
-    SkDevice* getTopDevice() const;
+    SkDevice* getTopDevice(bool updateMatrixClip = false) const;
 
     /**
      *  Create a new raster device and make it current. This also returns
