@@ -21,7 +21,6 @@
 void GrDefaultTextContext::flushGlyphs() {
     GrAssert(this->isValid());
     if (fCurrVertex > 0) {
-        GrDrawTarget::AutoStateRestore asr(fDrawTarget);
         GrDrawState* drawState = fDrawTarget->drawState();
         // setup our sampler state for our text texture/atlas
         GrSamplerState::Filter filter;
