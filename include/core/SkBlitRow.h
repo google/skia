@@ -36,13 +36,6 @@ public:
                          const SkPMColor* src,
                          int count, U8CPU alpha, int x, int y);
 
-   /** Function pointer that blends a single color with a row of 32-bit colors
-       onto a 32-bit destination
-   */
-   typedef void (*ColorProc)(SkPMColor* dst, const SkPMColor* src, int count,
-                             SkPMColor color);
-
-    //! Public entry-point to return a blit function ptr
     static Proc Factory(unsigned flags, SkBitmap::Config);
 
     ///////////// D32 version
@@ -64,6 +57,12 @@ public:
 
     static Proc32 Factory32(unsigned flags32);
 
+   /** Function pointer that blends a single color with a row of 32-bit colors
+       onto a 32-bit destination
+   */
+   typedef void (*ColorProc)(SkPMColor* dst, const SkPMColor* src, int count,
+                             SkPMColor color);
+
     /** Blend a single color onto a row of S32 pixels, writing the result
         into a row of D32 pixels. src and dst may be the same memory, but
         if they are not, they may not overlap.
@@ -71,7 +70,19 @@ public:
     static void Color32(SkPMColor dst[], const SkPMColor src[],
                         int count, SkPMColor color);
 
+    //! Public entry-point to return a blit function ptr
     static ColorProc ColorProcFactory();
+
+    /** Function pointer that blends a single color onto a 32-bit rectangle.  */
+    typedef void (*ColorRectProc)(SkPMColor* dst, int width, int height,
+                                  size_t rowBytes, SkPMColor color);
+
+    /** Blend a single color into a rectangle of D32 pixels. */
+    static void ColorRect32(SkPMColor* dst, int width, int height,
+                            size_t rowBytes, SkPMColor color);
+
+    //! Public entry-point to return a blit function ptr
+    static ColorRectProc ColorRectProcFactory();
 
     /** These static functions are called by the Factory and Factory32
         functions, and should return either NULL, or a

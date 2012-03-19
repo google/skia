@@ -8,6 +8,9 @@
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSSE3.h"
 #include "SkBlitMask.h"
+#include "SkBlitRect.h"
+#include "SkBlitRow.h"
+#include "SkBlitRect_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkUtils_opts_SSE2.h"
 #include "SkUtils.h"
@@ -209,3 +212,13 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
         return NULL;
     }
 }
+
+SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
+    if (cachedHasSSE2()) {
+        return ColorRect32_SSE2;
+    } else {
+        return NULL;
+    }
+}
+
+

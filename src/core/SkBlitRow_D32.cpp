@@ -12,6 +12,8 @@
 
 #define UNROLL
 
+SkBlitRow::ColorRectProc PlatformColorRectProcFactory();
+
 static void S32_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src,
                                  int count, U8CPU alpha) {
@@ -176,5 +178,23 @@ void SkBlitRow::Color32(SkPMColor* SK_RESTRICT dst,
             } while (--count);
         }
     }
+}
+
+void SkBlitRow::ColorRect32(SkPMColor* dst, int width, int height,
+                            size_t rowBytes, SkPMColor color) {
+    SkBlitRow::ColorProc proc = SkBlitRow::ColorProcFactory();
+    while (--height >= 0) {
+        (*proc)(dst, dst, width, color);
+        dst = (SkPMColor*) ((char*)dst + rowBytes);
+    }
+}
+
+SkBlitRow::ColorRectProc SkBlitRow::ColorRectProcFactory() {
+    SkBlitRow::ColorRectProc proc = PlatformColorRectProcFactory();
+    if (NULL == proc) {
+        proc = ColorRect32;
+    }
+    SkASSERT(proc);
+    return proc;
 }
 
