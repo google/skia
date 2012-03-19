@@ -2129,8 +2129,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
 
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit,
-        srcRect.width(),
-        srcRect.height(),
+        SkScalarFloorToInt(srcRect.width()),
+        SkScalarFloorToInt(srcRect.height()),
         kRGBA_8888_GrPixelConfig,
         {0} // samples 
     };

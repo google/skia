@@ -27,9 +27,8 @@ protected:
         return make_isize(640, 480);
     }
 
-    static void show_bold(SkCanvas* canvas, const char text[], SkScalar x,
-                          SkScalar y, const SkPaint& paint) {
-        size_t len = strlen(text);
+    static void show_bold(SkCanvas* canvas, const void* text, int len,
+                          SkScalar x, SkScalar y, const SkPaint& paint) {
         SkPaint p(paint);
         canvas->drawText(text, len, x, y, p);
         p.setFakeBoldText(true);
@@ -47,12 +46,12 @@ protected:
         
         SkTypeface* face = SkTypeface::CreateFromName("Papyrus", SkTypeface::kNormal);
         SkSafeUnref(paint.setTypeface(face));
-        show_bold(canvas, "Hello", x, y, paint);
+        show_bold(canvas, "Hello", 5, x, y, paint);
 
         face = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);
         SkSafeUnref(paint.setTypeface(face));
-        const char hyphen[] = { 0xE3, 0x83, 0xBC, 0 };
-        show_bold(canvas, hyphen, x + SkIntToScalar(300), y, paint);
+        const unsigned char hyphen[] = { 0xE3, 0x83, 0xBC };
+        show_bold(canvas, hyphen, SK_ARRAY_COUNT(hyphen), x + SkIntToScalar(300), y, paint);
 
         paint.setStyle(SkPaint::kStrokeAndFill_Style);
 

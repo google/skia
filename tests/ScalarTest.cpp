@@ -78,16 +78,16 @@ static void test_isfinite(skiatest::Reporter* reporter) {
     test_floatclass(reporter, -nan, kNaN);
 
     const Rec data[] = {
-        {   0,          true    },
-        {   1,          true    },
-        {  -1,          true    },
-        {  max * 0.75,  true    },
-        {  max,         true    },
-        {  -max * 0.75, true    },
-        {  -max,        true    },
-        {  inf,         false   },
-        { -inf,         false   },
-        {  nan,         false   },
+        {   0,           true    },
+        {   1,           true    },
+        {  -1,           true    },
+        {  max * 0.75f,  true    },
+        {  max,          true    },
+        {  -max * 0.75f, true    },
+        {  -max,         true    },
+        {  inf,          false   },
+        { -inf,          false   },
+        {  nan,          false   },
     };
 
     const IsFiniteProc1 gProc1[] = {

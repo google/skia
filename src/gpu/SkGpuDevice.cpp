@@ -774,8 +774,8 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     srcRect.offset(offset);
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit,
-        srcRect.width(),
-        srcRect.height(),
+        SkScalarCeilToInt(srcRect.width()),
+        SkScalarCeilToInt(srcRect.height()),
         // We actually only need A8, but it often isn't supported as a
         // render target
         kRGBA_8888_PM_GrPixelConfig,
