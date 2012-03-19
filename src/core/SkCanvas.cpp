@@ -490,7 +490,10 @@ SkDevice* SkCanvas::getDevice() const {
     return rec->fLayer->fDevice;
 }
 
-SkDevice* SkCanvas::getTopDevice() const {
+SkDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
+    if (updateMatrixClip) {
+        const_cast<SkCanvas*>(this)->updateDeviceCMCache();
+    }
     return fMCRec->fTopLayer->fDevice;
 }
 
