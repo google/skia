@@ -40,6 +40,7 @@
             '../src/opts/opts_check_SSE2.cpp',
             '../src/opts/SkBitmapProcState_opts_SSE2.cpp',
             '../src/opts/SkBlitRow_opts_SSE2.cpp',
+            '../src/opts/SkBlitRect_opts_SSE2.cpp',
             '../src/opts/SkUtils_opts_SSE2.cpp',
           ],
           'dependencies': [
