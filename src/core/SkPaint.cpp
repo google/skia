@@ -1337,7 +1337,7 @@ void SkPaint::getTextPath(const void* textData, size_t length,
         return;
     }
 
-    SkTextToPathIter    iter(text, length, *this, false, true);
+    SkTextToPathIter    iter(text, length, *this, false);
     SkMatrix            matrix;
     SkScalar            prevXPos = 0;
 
@@ -2087,24 +2087,25 @@ static bool has_thick_frame(const SkPaint& paint) {
 
 SkTextToPathIter::SkTextToPathIter( const char text[], size_t length,
                                     const SkPaint& paint,
-                                    bool applyStrokeAndPathEffects,
-                                    bool forceLinearTextOn) : fPaint(paint) {
+                                    bool applyStrokeAndPathEffects)
+                                    : fPaint(paint) {
     fGlyphCacheProc = paint.getMeasureCacheProc(SkPaint::kForward_TextBufferDirection,
                                                 true);
 
-    if (forceLinearTextOn) {
-        fPaint.setLinearText(true);
-    }
+    fPaint.setLinearText(true);
     fPaint.setMaskFilter(NULL);   // don't want this affecting our path-cache lookup
 
     if (fPaint.getPathEffect() == NULL && !has_thick_frame(fPaint)) {
         applyStrokeAndPathEffects = false;
     }
 
-    // can't use our canonical size if we need to apply patheffects/strokes
-    if (fPaint.isLinearText() && !applyStrokeAndPathEffects) {
+    // can't use our canonical size if we need to apply patheffects
+    if (fPaint.getPathEffect() == NULL) {
         fPaint.setTextSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
         fScale = paint.getTextSize() / SkPaint::kCanonicalTextSizeForPaths;
+        if (has_thick_frame(fPaint)) {
+            fPaint.setStrokeWidth(SkScalarDiv(fPaint.getStrokeWidth(), fScale));
+        }
     } else {
         fScale = SK_Scalar1;
     }

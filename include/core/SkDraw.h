@@ -128,8 +128,8 @@ class SkGlyphCache;
 
 class SkTextToPathIter {
 public:
-    SkTextToPathIter(const char text[], size_t length, const SkPaint&,
-                     bool applyStrokeAndPathEffects, bool forceLinearTextOn);
+    SkTextToPathIter(const char text[], size_t length, const SkPaint& paint,
+                     bool applyStrokeAndPathEffects);
     ~SkTextToPathIter();
 
     const SkPaint&  getPaint() const { return fPaint; }

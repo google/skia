@@ -1308,7 +1308,7 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
                               const SkPaint& paint) const {
     SkDEBUGCODE(this->validate();)
 
-    SkTextToPathIter iter(text, byteLength, paint, true, true);
+    SkTextToPathIter iter(text, byteLength, paint, true);
 
     SkMatrix    matrix;
     matrix.setScale(iter.getPathScale(), iter.getPathScale());
@@ -1955,7 +1955,7 @@ void SkDraw::drawTextOnPath(const char text[], size_t byteLength,
         return;
     }
 
-    SkTextToPathIter    iter(text, byteLength, paint, true, true);
+    SkTextToPathIter    iter(text, byteLength, paint, true);
     SkPathMeasure       meas(follow, false);
     SkScalar            hOffset = 0;
 
