@@ -618,7 +618,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         if (drawState->getViewInverse(&ivm)) {
             drawState->preConcatSamplerMatrices(stageMask, ivm);
         }
-        drawState->setViewMatrix(GrMatrix::I());
+        drawState->viewMatrix()->reset();
     }
 
     // TODO: See whether rendering lines as degenerate quads improves perf

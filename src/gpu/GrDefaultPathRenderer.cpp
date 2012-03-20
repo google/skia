@@ -488,7 +488,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                         }
                         drawState->preConcatSamplerMatrices(stageMask, vmi);
                     }
-                    drawState->setViewMatrix(GrMatrix::I());
+                    drawState->viewMatrix()->reset();
                 }
             } else {
                 bounds = path.getBounds();
