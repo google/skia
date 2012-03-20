@@ -1,6 +1,16 @@
 #ifndef __DataTypes_h__
 #define __DataTypes_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern double  fabs( double );
+
+#ifdef __cplusplus
+}
+#endif
+
 extern const double PointEpsilon;
 extern const double SquaredEpsilon;
 
@@ -122,5 +132,9 @@ void x_at(const _Point& p1, const _Point& p2, double minY, double maxY,
 void xy_at_t(const Cubic& , double t, double& x, double& y);
 void xy_at_t(const _Line& , double t, double& x, double& y);
 void xy_at_t(const Quadratic& , double t, double& x, double& y);
+
+bool AlmostEqualUlps(float A, float B, int maxUlpsDiff);
+int UlpsDiff(float A, float B);
+int FloatAsInt(float A);
 
 #endif // __DataTypes_h__

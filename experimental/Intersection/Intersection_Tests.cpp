@@ -17,8 +17,8 @@ void Intersection_Tests() {
     LineQuadraticIntersection_Test();
     LineCubicIntersection_Test();
 
-    SimplifyRectangularPaths_Test();
     SimplifyPolygonPaths_Test();
+    SimplifyRectangularPaths_Test();
     SimplifyQuadralateralPaths_Test();
 
     QuadraticCoincidence_Test();
