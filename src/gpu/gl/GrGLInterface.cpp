@@ -95,6 +95,15 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
     if (2 == n) {
         return GR_GLSL_VER(major, minor);
     }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // android hack until the gpu vender updates their drivers
+    n = sscanf(versionString, "OpenGL ES GLSL %d.%d", &major, &minor);
+    if (2 == n) {
+        return GR_GLSL_VER(major, minor);
+    }
+#endif
+
     return 0;
 }
 
