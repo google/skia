@@ -28,8 +28,8 @@ static void textStrokePath(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setColor(0xFFFF0000);
-    paint.setTextSize(SkFloatToScalar(0.065f));
-    paint.setStrokeWidth(SkFloatToScalar(.01f));
+    paint.setTextSize(SkFloatToScalar(0.085f));
+    paint.setStrokeWidth(SkFloatToScalar(.005f));
 
     canvas->drawPath(path, paint);
 
