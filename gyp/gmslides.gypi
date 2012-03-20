@@ -9,7 +9,6 @@
     '../gm/bitmapfilters.cpp',
     '../gm/bitmapscroll.cpp',
     '../gm/blurs.cpp',
-    '../gm/cmykjpeg.cpp',
     '../gm/colormatrix.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',

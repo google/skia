@@ -8,8 +8,6 @@
 #include "gm.h"
 using namespace skiagm;
 
-SkString GM::gResourcePath;
-
 GM::GM() {
     fBGColor = SK_ColorWHITE;
 }
