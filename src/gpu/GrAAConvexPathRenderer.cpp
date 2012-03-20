@@ -467,7 +467,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     if (vm.invert(&ivm)) {
         drawState->preConcatSamplerMatrices(stageMask, ivm);
     }
-    drawState->setViewMatrix(GrMatrix::I());
+    drawState->viewMatrix()->reset();
 
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {

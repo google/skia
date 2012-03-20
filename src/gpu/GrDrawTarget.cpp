@@ -1152,7 +1152,7 @@ GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(
             fStageMask = 0;
         }
     }
-    drawState->setViewMatrix(GrMatrix::I());
+    drawState->viewMatrix()->reset();
 }
 
 GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {

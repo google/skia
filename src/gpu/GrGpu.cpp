@@ -594,7 +594,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             AutoStateRestore asr(this);
             AutoGeometryPush agp(this);
 
-            drawState->setViewMatrix(GrMatrix::I());
+            drawState->viewMatrix()->reset();
             this->flushScissor(NULL);
 #if !VISUALIZE_COMPLEX_CLIP
             drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
