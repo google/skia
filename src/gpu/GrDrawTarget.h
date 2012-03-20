@@ -14,6 +14,7 @@
 #include "GrClip.h"
 #include "GrColor.h"
 #include "GrDrawState.h"
+#include "GrIndexBuffer.h"
 #include "GrMatrix.h"
 #include "GrRefCnt.h"
 #include "GrSamplerState.h"
@@ -263,9 +264,8 @@ public:
      * There are three types of "sources" of geometry (vertices and indices) for
      * draw calls made on the target. When performing an indexed draw, the
      * indices and vertices can use different source types. Once a source is
-     * specified it can be used for multiple drawIndexed and drawNonIndexed
-     * calls. However, the time at which the geometry data is no longer editable
-     * depends on the source type.
+     * specified it can be used for multiple draws. However, the time at which
+     * the geometry data is no longer editable depends on the source type.
      *
      * Sometimes it is necessary to perform a draw while upstack code has
      * already specified geometry that it isn't finished with. So there are push
@@ -291,8 +291,8 @@ public:
      *    data. The target provides ptrs to hold the vertex and/or index data.
      *
      *    The data is writable up until the next drawIndexed, drawNonIndexed, 
-     *    or pushGeometrySource. At this point the data is frozen and the ptrs
-     *    are no longer valid.
+     *    drawIndexedInstances, or pushGeometrySource. At this point the data is
+     *    frozen and the ptrs are no longer valid.
      *
      *    Where the space is allocated and how it is uploaded to the GPU is
      *    subclass-dependent.
@@ -319,9 +319,9 @@ public:
      * source is reset and likewise for indexCount.
      *
      * The pointers to the space allocated for vertices and indices remain valid
-     * until a drawIndexed, drawNonIndexed, or push/popGeomtrySource is called.
-     * At that point logically a snapshot of the data is made and the pointers
-     * are invalid.
+     * until a drawIndexed, drawNonIndexed, drawIndexedInstances, or push/
+     * popGeomtrySource is called. At that point logically a snapshot of the
+     * data is made and the pointers are invalid.
      *
      * @param vertexLayout the format of vertices (ignored if vertexCount == 0).
      * @param vertexCount  the number of vertices to reserve space for. Can be
@@ -387,7 +387,7 @@ public:
 
     /**
      * Sets source of vertex data for the next draw. Data does not have to be
-     * in the buffer until drawIndexed or drawNonIndexed.
+     * in the buffer until drawIndexed, drawNonIndexed, or drawIndexedInstances.
      *
      * @param buffer        vertex buffer containing vertex data. Must be
      *                      unlocked before draw call.
@@ -398,7 +398,7 @@ public:
 
     /**
      * Sets source of index data for the next indexed draw. Data does not have
-     * to be in the buffer until drawIndexed or drawNonIndexed.
+     * to be in the buffer until drawIndexed.
      *
      * @param buffer index buffer containing indices. Must be unlocked
      *               before indexed draw call.
@@ -501,6 +501,39 @@ public:
                           StageMask stageMask,
                           const GrRect* srcRects[],
                           const GrMatrix* srcMatrices[]);
+
+    /**
+     * This call is used to draw multiple instances of some geometry with a
+     * given number of vertices (V) and indices (I) per-instance. The indices in
+     * the index source must have the form i[k+I] == i[k] + V. Also, all indices
+     * i[kI] ... i[(k+1)I-1] must be elements of the range kV ... (k+1)V-1. As a
+     * concrete example, the following index buffer for drawing a series of
+     * quads each as two triangles each satisfies these conditions with V=4 and
+     * I=6:
+     *      (0,1,2,0,2,3, 4,5,6,4,6,7, 8,9,10,8,10,11, ...)
+     *
+     * The call assumes that the pattern of indices fills the entire index
+     * source. The size of the index buffer limits the number of instances that
+     * can be drawn by the GPU in a single draw. However, the caller may specify
+     * any (positive) number for instanceCount and if necessary multiple GPU
+     * draws will be issued. Morever, when drawIndexedInstances is called
+     * multiple times it may be possible for GrDrawTarget to group them into a
+     * single GPU draw.
+     *
+     * @param type          the type of primitives to draw
+     * @param instanceCount the number of instances to draw. Each instance
+     *                      consists of verticesPerInstance vertices indexed by
+     *                      indicesPerInstance indices drawn as the primitive
+     *                      type specified by type.
+     * @param verticesPerInstance   The number of vertices in each instance (V
+     *                              in the above description).
+     * @param indicesPerInstance    The number of indices in each instance (I
+     *                              in the above description).
+     */
+    virtual void drawIndexedInstances(GrPrimitiveType type,
+                                      int instanceCount,
+                                      int verticesPerInstance,
+                                      int indicesPerInstance);
 
     /**
      * Helper for drawRect when the caller doesn't need separate src rects or
@@ -904,7 +937,22 @@ protected:
         
         GrVertexLayout          fVertexLayout;
     };
-    
+
+    int indexCountInCurrentSource() const {
+        const GeometrySrcState& src = this->getGeomSrc();
+        switch (src.fIndexSrc) {
+            case kNone_GeometrySrcType:
+                return 0;
+            case kReserved_GeometrySrcType:
+            case kArray_GeometrySrcType:
+                return src.fIndexCount;
+            case kBuffer_GeometrySrcType:
+                return src.fIndexBuffer->sizeInBytes() / sizeof(uint16_t);
+            default:
+                GrCrash("Unexpected Index Source.");
+                return 0;
+        }
+    }
     // given a vertex layout and a draw state, will a stage be used?
     static bool StageWillBeUsed(int stage, GrVertexLayout layout, 
                                 const GrDrawState& state) {

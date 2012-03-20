@@ -1011,6 +1011,34 @@ bool GrDrawTarget::drawWillReadDst() const {
                     this->getBlendOpts());
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
+                                        int instanceCount,
+                                        int verticesPerInstance,
+                                        int indicesPerInstance) {
+    if (!verticesPerInstance || !indicesPerInstance) {
+        return;
+    }
+
+    int instancesPerDraw = this->indexCountInCurrentSource() /
+                           indicesPerInstance;
+    if (!instancesPerDraw) {
+        return;
+    }
+
+    instancesPerDraw = GrMin(instanceCount, instancesPerDraw);
+    int startVertex = 0;
+    while (instanceCount) {
+        this->drawIndexed(type,
+                          startVertex,
+                          0,
+                          verticesPerInstance * instancesPerDraw,
+                          indicesPerInstance * instancesPerDraw);
+        startVertex += verticesPerInstance;
+        instanceCount -= instancesPerDraw;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

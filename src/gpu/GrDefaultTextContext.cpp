@@ -33,7 +33,6 @@ void GrDefaultTextContext::flushGlyphs() {
             GrSamplerState::kRepeat_WrapMode,filter);
 
         GrAssert(GrIsALIGN4(fCurrVertex));
-        int nIndices = fCurrVertex + (fCurrVertex >> 1);
         GrAssert(fCurrTexture);
         drawState->setTexture(kGlyphMaskStage, fCurrTexture);
 
@@ -56,9 +55,10 @@ void GrDefaultTextContext::flushGlyphs() {
         }
 
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
-
-        fDrawTarget->drawIndexed(kTriangles_PrimitiveType,
-                                 0, 0, fCurrVertex, nIndices);
+        int nGlyphs = fCurrVertex / 4;
+        fDrawTarget->drawIndexedInstances(kTriangles_PrimitiveType,
+                                          nGlyphs,
+                                          4, 6);
         fVertices = NULL;
         this->INHERITED::reset();
     }

@@ -42,6 +42,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
     poolState.fPoolIndexBuffer = (GrIndexBuffer*)~0;
     poolState.fPoolStartIndex = ~0;
 #endif
+    fInstancedDrawTracker.reset();
 }
 
 GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
@@ -69,6 +70,13 @@ void GrInOrderDrawBuffer::setQuadIndexBuffer(const GrIndexBuffer* indexBuffer) {
         GrAssert((NULL == indexBuffer && 0 == fMaxQuads) ||
                  (indexBuffer->maxQuads() == fMaxQuads));
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrInOrderDrawBuffer::resetDrawTracking() {
+    fCurrQuad = 0;
+    fInstancedDrawTracker.reset();
 }
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
@@ -188,9 +196,133 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         if (disabledClip) {
             drawState->enableState(GrDrawState::kClip_StateBit);
         }
+        fInstancedDrawTracker.reset();
     } else {
         INHERITED::drawRect(rect, matrix, stageMask, srcRects, srcMatrices);
     }
+}
+
+void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
+                                               int instanceCount,
+                                               int verticesPerInstance,
+                                               int indicesPerInstance) {
+    if (!verticesPerInstance || !indicesPerInstance) {
+        return;
+    }
+
+    const GeometrySrcState& geomSrc = this->getGeomSrc();
+
+    // we only attempt to concat the case when reserved verts are used with
+    // an index buffer.
+    if (kReserved_GeometrySrcType == geomSrc.fVertexSrc &&
+        kBuffer_GeometrySrcType == geomSrc.fIndexSrc) {
+
+        Draw* draw = NULL;
+        // if the last draw used the same indices/vertices per shape then we
+        // may be able to append to it.
+        if (verticesPerInstance == fInstancedDrawTracker.fVerticesPerInstance &&
+            indicesPerInstance == fInstancedDrawTracker.fIndicesPerInstance) {
+            GrAssert(fDraws.count());
+            draw = &fDraws.back();
+        }
+
+        bool clipChanged = this->needsNewClip();
+        bool stateChanged = this->needsNewState();
+        if (clipChanged) {
+            this->pushClip();
+        }
+        if (stateChanged) {
+            this->pushState();
+        }
+
+        GeometryPoolState& poolState = fGeoPoolStateStack.back();
+        const GrVertexBuffer* vertexBuffer = poolState.fPoolVertexBuffer;
+
+        // Check whether the draw is compatible with this draw in order to
+        // append
+        if (NULL == draw ||
+            clipChanged ||
+            stateChanged ||
+            draw->fIndexBuffer != geomSrc.fIndexBuffer ||
+            draw->fPrimitiveType != type ||
+            draw->fVertexBuffer != vertexBuffer) {
+
+            draw = &fDraws.push_back();
+            draw->fClipChanged = clipChanged;
+            draw->fStateChanged = stateChanged;
+            draw->fIndexBuffer = geomSrc.fIndexBuffer;
+            geomSrc.fIndexBuffer->ref();
+            draw->fVertexBuffer = vertexBuffer;
+            vertexBuffer->ref();
+            draw->fPrimitiveType = type;
+            draw->fStartIndex = 0;
+            draw->fIndexCount = 0;
+            draw->fStartVertex = poolState.fPoolStartVertex;
+            draw->fVertexCount = 0;
+            draw->fVertexLayout = geomSrc.fVertexLayout;
+        } else {
+            GrAssert(!(draw->fIndexCount % indicesPerInstance));
+            GrAssert(!(draw->fVertexCount % verticesPerInstance));
+            GrAssert(poolState.fPoolStartVertex == draw->fStartVertex +
+                                                   draw->fVertexCount);
+        }
+
+        // how many instances can be in a single draw
+        int maxInstancesPerDraw = this->indexCountInCurrentSource() /
+                                  indicesPerInstance;
+        if (!maxInstancesPerDraw) {
+            return;
+        }
+        // how many instances should be concat'ed onto draw
+        int instancesToConcat = maxInstancesPerDraw - draw->fVertexCount /
+                                                      verticesPerInstance;
+        if (maxInstancesPerDraw > instanceCount) {
+            maxInstancesPerDraw = instanceCount;
+            if (instancesToConcat > instanceCount) {
+                instancesToConcat = instanceCount;
+            }
+        }
+
+        // update the amount of reserved data actually referenced in draws
+        size_t vertexBytes = instanceCount * verticesPerInstance *
+                             VertexSize(draw->fVertexLayout);
+        poolState.fUsedPoolVertexBytes =
+                            GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
+
+        while (instanceCount) {
+            if (!instancesToConcat) {
+                int startVertex = draw->fStartVertex + draw->fVertexCount;
+                draw = &fDraws.push_back();
+                draw->fClipChanged = false;
+                draw->fStateChanged = false;
+                draw->fIndexBuffer = geomSrc.fIndexBuffer;
+                geomSrc.fIndexBuffer->ref();
+                draw->fVertexBuffer = vertexBuffer;
+                vertexBuffer->ref();
+                draw->fPrimitiveType = type;
+                draw->fStartIndex = 0;
+                draw->fStartVertex = startVertex;
+                draw->fVertexCount = 0;
+                draw->fVertexLayout = geomSrc.fVertexLayout;
+                instancesToConcat = maxInstancesPerDraw;
+            }
+            draw->fVertexCount += instancesToConcat * verticesPerInstance;
+            draw->fIndexCount += instancesToConcat * indicesPerInstance;
+            instanceCount -= instancesToConcat;
+            instancesToConcat = 0;
+        }
+
+        // update draw tracking for next draw
+        fCurrQuad = 0;
+        fInstancedDrawTracker.fVerticesPerInstance = verticesPerInstance;
+        fInstancedDrawTracker.fIndicesPerInstance = indicesPerInstance;
+    } else {
+        this->INHERITED::drawIndexedInstances(type,
+                                              instanceCount,
+                                              verticesPerInstance,
+                                              indicesPerInstance);
+    }
+
 }
 
 void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
@@ -203,7 +335,7 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
         return;
     }
 
-    fCurrQuad = 0;
+    this->resetDrawTracking();
 
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
@@ -270,7 +402,7 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
         return;
     }
 
-    fCurrQuad = 0;
+    this->resetDrawTracking();
 
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
@@ -359,7 +491,7 @@ void GrInOrderDrawBuffer::reset() {
 
     fClips.reset();
 
-    fCurrQuad = 0;
+    this->resetDrawTracking();
 }
 
 void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
@@ -608,6 +740,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPush() {
     GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
     poolState.fUsedPoolVertexBytes = 0;
     poolState.fUsedPoolIndexBytes = 0;
+    this->resetDrawTracking();
 #if GR_DEBUG
     poolState.fPoolVertexBuffer = (GrVertexBuffer*)~0;
     poolState.fPoolStartVertex = ~0;
@@ -635,6 +768,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
         poolState.fUsedPoolIndexBytes = sizeof(uint16_t) * 
                                          restoredState.fIndexCount;
     }
+    this->resetDrawTracking();
 }
 
 bool GrInOrderDrawBuffer::needsNewState() const {
