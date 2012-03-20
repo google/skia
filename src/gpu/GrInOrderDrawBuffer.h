@@ -109,6 +109,12 @@ public:
                           const GrRect* srcRects[] = NULL,
                           const GrMatrix* srcMatrices[] = NULL) SK_OVERRIDE;
 
+    virtual void drawIndexedInstances(GrPrimitiveType type,
+                                      int instanceCount,
+                                      int verticesPerInstance,
+                                      int indicesPerInstance)
+                                      SK_OVERRIDE;
+
     virtual bool geometryHints(GrVertexLayout vertexLayout,
                                int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
@@ -116,13 +122,10 @@ public:
     virtual void clear(const GrIRect* rect, GrColor color) SK_OVERRIDE;
 
 protected:
-
     virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
                                                 int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
-    
 private:
-
     struct Draw {
         GrPrimitiveType         fPrimitiveType;
         int                     fStartVertex;
@@ -172,7 +175,11 @@ private:
 
     void pushState();
     void pushClip();
-    
+
+    // call this to invalidate the tracking data that is used to concatenate 
+    // multiple draws into a single draw.
+    void resetDrawTracking();
+
     enum {
         kDrawPreallocCnt         = 8,
         kStatePreallocCnt        = 8,
@@ -190,14 +197,25 @@ private:
 
     bool                            fClipSet;
 
+    GrVertexBufferAllocPool&        fVertexPool;
+
+    GrIndexBufferAllocPool&         fIndexPool;
+
+    // these are used to attempt to concatenate drawRect calls
     GrVertexLayout                  fLastRectVertexLayout;
     const GrIndexBuffer*            fQuadIndexBuffer;
     int                             fMaxQuads;
     int                             fCurrQuad;
 
-    GrVertexBufferAllocPool&        fVertexPool;
-
-    GrIndexBufferAllocPool&         fIndexPool;
+    // bookkeeping to attempt to concantenate drawIndexedInstances calls
+    struct {
+        int            fVerticesPerInstance;
+        int            fIndicesPerInstance;
+        void reset() {
+            fVerticesPerInstance = 0;
+            fIndicesPerInstance = 0;
+        }
+    } fInstancedDrawTracker;
 
     struct GeometryPoolState {
         const GrVertexBuffer*           fPoolVertexBuffer;
