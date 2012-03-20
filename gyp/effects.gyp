@@ -49,6 +49,8 @@
         '../src/effects/SkBlurMask.h',
         '../src/effects/SkBlurImageFilter.cpp',
         '../src/effects/SkBlurMaskFilter.cpp',
+        '../src/effects/SkClampRange.cpp',
+        '../src/effects/SkClampRange.h',
         '../src/effects/SkColorFilters.cpp',
         '../src/effects/SkColorMatrixFilter.cpp',
         '../src/effects/SkCornerPathEffect.cpp',

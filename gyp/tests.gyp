@@ -9,6 +9,7 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
+        '../src/effects',
         '../src/gpu',
       ],
       'sources': [
