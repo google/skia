@@ -13,8 +13,82 @@ static void testSimplifyQuad1() {
     path.lineTo(1, 3);
     path.lineTo(1, 3);
     path.close();
-    simplify(path, true, out);
-    comparePaths(path, out);
+    testSimplify(path, true, out);
+}
+
+static void testSimplifyQuad2() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 2);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(0, 1);
+    path.lineTo(1, 1);
+    path.lineTo(0, 2);
+    path.close();
+    testSimplify(path, true, out);
+}
+
+static void testSimplifyQuad3() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(1, 1);
+    path.lineTo(2, 1);
+    path.lineTo(0, 2);
+    path.close();
+    testSimplify(path, true, out);
+}
+
+static void testSimplifyQuad4() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 1);
+    path.lineTo(3, 1);
+    path.lineTo(3, 3);
+    path.close();
+    testSimplify(path, true, out);
+}
+
+static void testSimplifyQuad5() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(1, 1);
+    path.lineTo(2, 1);
+    path.lineTo(0, 2);
+    path.close();
+    testSimplify(path, true, out);
+}
+
+static void testSimplifyQuad6() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 1);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(1, 1);
+    path.lineTo(1, 1);
+    path.lineTo(1, 1);
+    path.lineTo(2, 2);
+    path.close();
+    testSimplify(path, true, out);
 }
 
 static void testSimplify4x4Quadralaterals() {
@@ -41,7 +115,7 @@ static void testSimplify4x4Quadralaterals() {
                             for (int g = f ; g < 16; ++g) {
                                 int gx = g & 0x03;
                                 int gy = g >> 2;
-                                for (int h = g ; g < 16; ++g) {
+                                for (int h = g ; h < 16; ++h) {
                                     int hx = h & 0x03;
                                     int hy = h >> 2;
         SkPath path, out;
@@ -56,7 +130,7 @@ static void testSimplify4x4Quadralaterals() {
         path.lineTo(gx, gy);
         path.lineTo(hx, hy);
         path.close();
-        if (1) {
+        if (1) {  // gdb: set print elements 400
             char* str = pathStr;
             str += sprintf(str, "    path.moveTo(%d, %d);\n", ax, ay);
             str += sprintf(str, "    path.lineTo(%d, %d);\n", bx, by);
@@ -69,11 +143,15 @@ static void testSimplify4x4Quadralaterals() {
             str += sprintf(str, "    path.lineTo(%d, %d);\n", hx, hy);
             str += sprintf(str, "    path.close();");
         }
-        simplify(path, true, out);
-        comparePaths(path, out);
+        if (!testSimplify(path, true, out)) {
+            SkDebugf("*/\n{ SkPath::kWinding_FillType, %d, %d, %d, %d, %d, %d, %d, %d },\n/*\n",
+                    a, b, c, d, e, f, g, h);
+        }
         path.setFillType(SkPath::kEvenOdd_FillType);
-        simplify(path, true, out);
-        comparePaths(path, out);
+        if (!testSimplify(path, true, out)) {
+            SkDebugf("*/\n{ SkPath::kEvenOdd_FillType, %d, %d, %d, %d, %d, %d, %d, %d },\n/*\n",
+                    a, b, c, d, e, f, g, h);
+        }
                                 }
                             }
                         }
@@ -87,6 +165,11 @@ static void testSimplify4x4Quadralaterals() {
 
 
 static void (*simplifyTests[])() = {
+    testSimplifyQuad6,
+    testSimplifyQuad5,
+    testSimplifyQuad4,
+    testSimplifyQuad3,
+    testSimplifyQuad2,
     testSimplifyQuad1,
     testSimplify4x4Quadralaterals,
 };

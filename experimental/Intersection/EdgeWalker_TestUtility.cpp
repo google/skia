@@ -4,32 +4,31 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
-static bool gDrawLastAsciiPaths = true;
+static bool gShowPath = false;
+static bool gDrawLastAsciiPaths = false;
 static bool gDrawAllAsciiPaths = false;
-static bool gShowPath = true;
+static bool gShowAsciiPaths = false;
+static bool gComparePathsAssert = false;
 
-static void showPath(const char* str, const SkPath& path) {
-    if (!gShowPath) {
-        return;
-    }
-    SkDebugf("%s\n", str);
+void showPath(const SkPath& path, const char* str) {
+    SkDebugf("%s\n", str ? "original:" : str);
     SkPath::Iter iter(path, true);
     uint8_t verb;
     SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                SkDebugf("path.moveTo(%g, %g);\n", pts[0].fX, pts[0].fY);
+                SkDebugf("path.moveTo(%3.6g, %3.6g);\n", pts[0].fX, pts[0].fY);
                 continue;
             case SkPath::kLine_Verb:
-                SkDebugf("path.lineTo(%g, %g);\n", pts[1].fX, pts[1].fY);
+                SkDebugf("path.lineTo(%3.6g, %3.6g);\n", pts[1].fX, pts[1].fY);
                 break;
             case SkPath::kQuad_Verb:
-                SkDebugf("path.quadTo(%g, %g, %g, %g);\n",
+                SkDebugf("path.quadTo(%3.6g, %3.6g, %3.6g, %3.6g);\n",
                     pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
             case SkPath::kCubic_Verb:
-                SkDebugf("path.cubicTo(%g, %g, %g, %g);\n",
+                SkDebugf("path.cubicTo(%3.6g, %3.6g, %3.6g, %3.6g);\n",
                     pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY,
                     pts[3].fX, pts[3].fY);
                 break;
@@ -77,14 +76,14 @@ static bool pathsDrawTheSame(const SkPath& one, const SkPath& two) {
     return true;
 }
 
-static void drawAsciiPaths(const SkPath& one, const SkPath& two,
+void drawAsciiPaths(const SkPath& one, const SkPath& two,
         bool drawPaths) {
     if (!drawPaths) {
         return;
     }
-    if (0) {
-        showPath("one:", one);
-        showPath("two:", two);
+    if (gShowAsciiPaths) {
+        showPath(one, "one:");
+        showPath(two, "two:");
     }
     const SkRect& bounds1 = one.getBounds();
     const SkRect& bounds2 = two.getBounds();
@@ -139,22 +138,25 @@ static bool scaledDrawTheSame(const SkPath& one, const SkPath& two,
     return false;
 }
 
-void comparePaths(const SkPath& one, const SkPath& two) {
+bool comparePaths(const SkPath& one, const SkPath& two) {
     if (pathsDrawTheSame(one, two)) {
-        return;
+        return true;
     }
     drawAsciiPaths(one, two, gDrawAllAsciiPaths);
     for (int x = 9; x <= 33; ++x) {
         if (scaledDrawTheSame(one, two, x, x - (x >> 2), gDrawAllAsciiPaths)) {
-            return;
+            return true;
         }
     }
     if (!gDrawAllAsciiPaths) {
         scaledDrawTheSame(one, two, 9, 7, gDrawLastAsciiPaths);
     }
-    showPath("original:", one);
-    showPath("simplified:", two);
-    SkASSERT(0);
+    if (gComparePathsAssert) {
+        showPath(one);
+        showPath(two, "simplified:");
+        SkASSERT(0);
+    }
+    return false;
 }
 
 // doesn't work yet
@@ -188,3 +190,10 @@ void comparePathsTiny(const SkPath& one, const SkPath& two) {
     }
 }
 
+bool testSimplify(const SkPath& path, bool fill, SkPath& out) {
+    if (gShowPath) {
+        showPath(path);
+    }
+    simplify(path, fill, out);
+    return comparePaths(path, out);
+}

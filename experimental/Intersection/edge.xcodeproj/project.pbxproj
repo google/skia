@@ -11,6 +11,7 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		FE3201C8144DCC68006DDA67 /* skia_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE3201C6144DCC68006DDA67 /* skia_mac.mm */; };
 		FE3201C9144DCC68006DDA67 /* SkOSWindow_Mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE3201C7144DCC68006DDA67 /* SkOSWindow_Mac.mm */; };
+		FE3DBAFE150E4A680006ADF4 /* junk.htm in Resources */ = {isa = PBXBuildFile; fileRef = FE3DBAFD150E4A680006ADF4 /* junk.htm */; };
 		FE7130A114CE0EEB0008E392 /* LineQuadraticIntersection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7130A014CE0EEB0008E392 /* LineQuadraticIntersection.cpp */; };
 		FE7131C414CF5A960008E392 /* LineQuadraticIntersection_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7131C314CF5A960008E392 /* LineQuadraticIntersection_Test.cpp */; };
 		FE7131EE14D03AED0008E392 /* LineCubicIntersection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7131ED14D03AED0008E392 /* LineCubicIntersection.cpp */; };
@@ -59,6 +60,7 @@
 		FECAA6E114BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FECAA6E014BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp */; };
 		FED53C391483CB9400F6359E /* Inline_Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FED53C381483CB9400F6359E /* Inline_Tests.cpp */; };
 		FED865F915056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */; };
+		FED866D715066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FED866D615066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp */; };
 		FEED7245144DD2250059E97B /* SkEventNotifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = FEED723E144DD2250059E97B /* SkEventNotifier.mm */; };
 		FEED7292144DD4610059E97B /* libexperimental.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED726E144DD4050059E97B /* libexperimental.a */; };
 		FEED7293144DD4620059E97B /* libskgr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7276144DD4140059E97B /* libskgr.a */; };
@@ -237,6 +239,8 @@
 		8D1107320486CEB800E47090 /* edge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = edge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE3201C6144DCC68006DDA67 /* skia_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = skia_mac.mm; path = ../../src/utils/mac/skia_mac.mm; sourceTree = SOURCE_ROOT; };
 		FE3201C7144DCC68006DDA67 /* SkOSWindow_Mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOSWindow_Mac.mm; path = ../../src/utils/mac/SkOSWindow_Mac.mm; sourceTree = SOURCE_ROOT; };
+		FE3DB8C9150A48320006ADF4 /* junk.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = junk.txt; sourceTree = "<group>"; };
+		FE3DBAFD150E4A680006ADF4 /* junk.htm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = junk.htm; path = ../../../../../junk.htm; sourceTree = SOURCE_ROOT; };
 		FE4FE7411492417500A12A34 /* IntersectionUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntersectionUtilities.cpp; sourceTree = "<group>"; };
 		FE7130A014CE0EEB0008E392 /* LineQuadraticIntersection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineQuadraticIntersection.cpp; sourceTree = "<group>"; };
 		FE7131C314CF5A960008E392 /* LineQuadraticIntersection_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineQuadraticIntersection_Test.cpp; sourceTree = "<group>"; };
@@ -301,6 +305,7 @@
 		FECAACA614BE1C6100B35E2C /* QuadraticParameterization_TestUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadraticParameterization_TestUtility.cpp; sourceTree = "<group>"; };
 		FED53C381483CB9400F6359E /* Inline_Tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inline_Tests.cpp; sourceTree = "<group>"; };
 		FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerQuadralaterals_Test.cpp; sourceTree = "<group>"; };
+		FED866D615066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerPolygons_Mismatches.cpp; sourceTree = "<group>"; };
 		FEED723C144DD2250059E97B /* SampleApp.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SampleApp.xib; path = ../../src/utils/mac/SampleApp.xib; sourceTree = SOURCE_ROOT; };
 		FEED723D144DD2250059E97B /* SampleAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SampleAppDelegate.mm; path = ../../src/utils/mac/SampleAppDelegate.mm; sourceTree = SOURCE_ROOT; };
 		FEED723E144DD2250059E97B /* SkEventNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkEventNotifier.mm; path = ../../src/utils/mac/SkEventNotifier.mm; sourceTree = SOURCE_ROOT; };
@@ -476,6 +481,8 @@
 		FE71354F14D305FD0008E392 /* ShapeOps */ = {
 			isa = PBXGroup;
 			children = (
+				FE3DBAFD150E4A680006ADF4 /* junk.htm */,
+				FE3DB8C9150A48320006ADF4 /* junk.txt */,
 				FE71358514D309E90008E392 /* EdgeWalker.cpp */,
 				FE713C6114D9879B0008E392 /* TSearch.h */,
 			);
@@ -539,6 +546,7 @@
 				FEED764B144F29BD0059E97B /* TestUtilities.cpp */,
 				FE7413DB14F6926D00056D7B /* EdgeWalker_Test.h */,
 				FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */,
+				FED866D615066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -890,6 +898,7 @@
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
 				FEED72B0144DD5710059E97B /* SampleApp.xib in Resources */,
+				FE3DBAFE150E4A680006ADF4 /* junk.htm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -952,6 +961,7 @@
 				FE7413D414F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp in Sources */,
 				FE7413D814F691C200056D7B /* EdgeWalker_TestUtility.cpp in Sources */,
 				FED865F915056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp in Sources */,
+				FED866D715066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

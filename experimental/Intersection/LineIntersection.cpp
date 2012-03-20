@@ -100,6 +100,28 @@ int horizontalIntersect(const _Line& line, double y, double tRange[2]) {
     return 1;
 }
 
+// OPTIMIZATION  Given: dy = line[1].y - line[0].y
+// and: xIntercept / (y - line[0].y) == (line[1].x - line[0].x) / dy
+// then: xIntercept * dy == (line[1].x - line[0].x) * (y - line[0].y)
+// Assuming that dy is always > 0, the line segment intercepts if:
+//   left * dy <= xIntercept * dy <= right * dy
+// thus: left * dy <= (line[1].x - line[0].x) * (y - line[0].y) <= right * dy
+// (clever as this is, it does not give us the t value, so may be useful only
+// as a quick reject -- and maybe not then; it takes 3 muls, 3 adds, 2 cmps)
+int horizontalLineIntersect(const _Line& line, double left, double right,
+        double y, double tRange[2]) {
+    int result = horizontalIntersect(line, y, tRange);
+    if (result != 1) {
+        return result;
+    }
+    // FIXME: this is incorrect if result == 2
+    double xIntercept = line[0].x + tRange[0] * (line[1].x - line[0].x);
+    if (xIntercept > right || xIntercept < left) {
+        return 0;
+    }
+    return result;
+}
+
 // from http://www.bryceboe.com/wordpress/wp-content/uploads/2006/10/intersect.py
 // 4 subs, 2 muls, 1 cmp
 static bool ccw(const _Point& A, const _Point& B, const _Point& C) {
