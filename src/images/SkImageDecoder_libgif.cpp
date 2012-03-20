@@ -330,7 +330,7 @@ DONE:
 
 #include "SkTRegistry.h"
 
-static SkImageDecoder* Factory(SkStream* stream) {
+static SkImageDecoder* sk_libgif_dfactory(SkStream* stream) {
     char buf[GIF_STAMP_LEN];
     if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
         if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
@@ -342,4 +342,4 @@ static SkImageDecoder* Factory(SkStream* stream) {
     return NULL;
 }
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gReg(Factory);
+static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libgif_dfactory);
