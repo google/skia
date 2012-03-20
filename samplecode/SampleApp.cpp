@@ -590,44 +590,7 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
     return gCT[ct];
 }
 
-static void usage(const char * argv0) {
-    SkDebugf("%s [sampleName] [-i resourcePath]\n", argv0);
-    SkDebugf("    sampleName: sample at which to start.\n");
-    SkDebugf("    resourcePath: directory that stores image resources.\n");
-}
-
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager) : INHERITED(hwnd) {
-
-    const char* resourcePath = NULL;
-    fCurrIndex = -1;
-
-    const char* const commandName = argv[0];
-    char* const* stop = argv + argc;
-    for (++argv; argv < stop; ++argv) {
-        if (strcmp(*argv, "-i") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                resourcePath = *argv;
-            }
-        } else {
-            fCurrIndex = findByTitle(*argv);
-            if (fCurrIndex < 0) {
-                fprintf(stderr, "Unknown sample \"%s\"\n", *argv);
-            }
-        }
-    }
-
-    if (fCurrIndex < 0) {
-        SkString title;
-        if (readTitleFromPrefs(&title)) {
-            fCurrIndex = findByTitle(title.c_str());
-        }
-    }
-
-    if (fCurrIndex < 0) {
-        fCurrIndex = 0;
-    }
-
     gSampleWindow = this;
 
 #ifdef  PIPE_FILE
@@ -731,8 +694,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
-    skiagm::GM::SetResourcePath(resourcePath);
-
     SkGMRegistyToSampleRegistry();
     {
         const SkViewRegister* reg = SkViewRegister::Head();
@@ -741,7 +702,22 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
             reg = reg->next();
         }
     }
+    fCurrIndex = 0;
+    if (argc > 1) {
+        fCurrIndex = findByTitle(argv[1]);
+        if (fCurrIndex < 0) {
+            fprintf(stderr, "Unknown sample \"%s\"\n", argv[1]);
+        }
+    } else {
+        SkString title;
+        if (readTitleFromPrefs(&title)) {
+            fCurrIndex = findByTitle(title.c_str());
+        }
+    }
 
+    if (fCurrIndex < 0) {
+        fCurrIndex = 0;
+    }
     this->loadView((*fSamples[fCurrIndex])());
     
     fPDFData = NULL;
