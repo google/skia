@@ -24,7 +24,6 @@ protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
-SkImageDecoder* SkCreateICOImageDecoder();
 SkImageDecoder* SkCreateICOImageDecoder() {
     return new SkICOImageDecoder;
 }
@@ -371,7 +370,7 @@ static void editPixelBit32(const int pixelNo, const unsigned char* buf,
 
 #include "SkTRegistry.h"
 
-static SkImageDecoder* Factory(SkStream* stream) {
+SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
     // Check to see if the first four bytes are 0,0,1,0
     // FIXME: Is that required and sufficient?
     SkAutoMalloc autoMal(4);
@@ -386,5 +385,5 @@ static SkImageDecoder* Factory(SkStream* stream) {
     return SkNEW(SkICOImageDecoder);
 }
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gReg(Factory);
+static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libico_dfactory);
 

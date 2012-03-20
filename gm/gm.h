@@ -18,18 +18,18 @@
 #include "SkTRegistry.h"
 
 namespace skiagm {
-	
-	static inline SkISize make_isize(int w, int h) {
-		SkISize sz;
-		sz.set(w, h);
-		return sz;
-	}
+        
+        static inline SkISize make_isize(int w, int h) {
+                SkISize sz;
+                sz.set(w, h);
+                return sz;
+        }
 
     class GM {
     public:
         GM();
         virtual ~GM();
-		
+                
         enum Flags {
             kSkipPDF_Flag       = 1 << 0,
             kSkipPicture_Flag   = 1 << 1
@@ -39,7 +39,7 @@ namespace skiagm {
         void drawBackground(SkCanvas*);
         void drawContent(SkCanvas*);
         
-		SkISize getISize() { return this->onISize(); }
+        SkISize getISize() { return this->onISize(); }
         const char* shortName();
 
         uint32_t getFlags() const {
@@ -53,10 +53,16 @@ namespace skiagm {
         // GM's getISize bounds.
         void drawSizeBounds(SkCanvas*, SkColor);
 
-	protected:
-		virtual void onDraw(SkCanvas*) = 0;
-		virtual void onDrawBackground(SkCanvas*);
-		virtual SkISize onISize() = 0;
+        static void SetResourcePath(const char* resourcePath) { 
+            gResourcePath = resourcePath; 
+        }
+
+    protected:
+        static SkString gResourcePath;
+
+        virtual void onDraw(SkCanvas*) = 0;
+        virtual void onDrawBackground(SkCanvas*);
+        virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
         virtual uint32_t onGetFlags() const { return 0; }
         

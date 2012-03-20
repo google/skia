@@ -589,9 +589,9 @@ static ErrorBitfield test_picture_serialization(GM* gm,
 
 static void usage(const char * argv0) {
     SkDebugf(
-        "%s [-w writePath] [-r readPath] [-d diffPath] [--noreplay]\n"
-        "    [--serialize] [--forceBWtext] [--nopdf] [--nodeferred]\n"
-        "    [--match substring] [--notexturecache]"
+        "%s [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n"
+        "    [--noreplay] [--serialize] [--forceBWtext] [--nopdf] \n"
+        "    [--nodeferred] [--match substring] [--notexturecache]"
 #if SK_MESA
         " [--mesagl]"
 #endif
@@ -601,6 +601,7 @@ static void usage(const char * argv0) {
 "    readPath: directory to read reference images from;\n"
 "        reports if any pixels mismatch between reference and new images\n");
     SkDebugf("    diffPath: directory to write difference images in.\n");
+    SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
     SkDebugf(
 "    --serialize: exercise SkPicture serialization & deserialization.\n");
@@ -660,6 +661,7 @@ int main(int argc, char * const argv[]) {
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* readPath = NULL;    // if non-null, were we read from to compare
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
+    const char* resourcePath = NULL;// if non-null, where we read from for image resources
 
     SkTDArray<const char*> fMatches;
 
@@ -688,6 +690,11 @@ int main(int argc, char * const argv[]) {
             if (argv < stop && **argv) {
                 diffPath = *argv;
             }
+        } else if (strcmp(*argv, "-i") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                resourcePath = *argv;
+            }
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
             gForceBWtext = true;
         } else if (strcmp(*argv, "--noreplay") == 0) {
@@ -709,16 +716,18 @@ int main(int argc, char * const argv[]) {
             useMesa = true;
 #endif
         } else if (strcmp(*argv, "--notexturecache") == 0) {
-          disableTextureCache = true;
+            disableTextureCache = true;
         } else {
-          usage(commandName);
-          return -1;
+            usage(commandName);
+            return -1;
         }
     }
     if (argv != stop) {
-      usage(commandName);
-      return -1;
+        usage(commandName);
+        return -1;
     }
+
+    GM::SetResourcePath(resourcePath);
 
     int maxW = -1;
     int maxH = -1;
@@ -761,6 +770,10 @@ int main(int argc, char * const argv[]) {
         fprintf(stderr, "reading from %s\n", readPath);
     } else if (writePath) {
         fprintf(stderr, "writing to %s\n", writePath);
+    }
+
+    if (resourcePath) {
+        fprintf(stderr, "reading resources from %s\n", resourcePath);
     }
 
     // Accumulate success of all tests.
@@ -828,10 +841,10 @@ int main(int argc, char * const argv[]) {
 
             if (doDeferred && !testErrors &&
                 (kGPU_Backend == gRec[i].fBackend ||
-                kRaster_Backend == gRec[i].fBackend)) {
+                 kRaster_Backend == gRec[i].fBackend)) {
                 testErrors |= test_deferred_drawing(gm, gRec[i],
-                                    forwardRenderedBitmap,
-                                    diffPath, gGrContext, rt.get());
+                                                    forwardRenderedBitmap,
+                                                    diffPath, gGrContext, rt.get());
             }
 
             if ((ERROR_NONE == testErrors) && doReplay &&

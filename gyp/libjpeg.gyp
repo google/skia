@@ -13,6 +13,19 @@
       'dependencies': [
         '../third_party/externals/libjpeg/libjpeg.gyp:libjpeg',
       ],
+
+    'conditions': [
+      [ 'os_posix != 1 or OS == "mac"', {
+        # need to set include path when using our own version
+        'direct_dependent_settings': {
+          'include_dirs': [
+            '../third_party/externals/libjpeg',
+          ],
+         },
+      },],
+    ],
+
+
     },
   ],
 }
