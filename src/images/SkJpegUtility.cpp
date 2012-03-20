@@ -14,24 +14,7 @@ static void sk_init_source(j_decompress_ptr cinfo) {
     skjpeg_source_mgr*  src = (skjpeg_source_mgr*)cinfo->src;
     src->next_input_byte = (const JOCTET*)src->fBuffer;
     src->bytes_in_buffer = 0;
-    src->current_offset = 0;
     src->fStream->rewind();
-}
-
-static boolean sk_seek_input_data(j_decompress_ptr cinfo, long byte_offset) {
-    skjpeg_source_mgr* src = (skjpeg_source_mgr*)cinfo->src;
-
-    if (byte_offset > src->current_offset) {
-        (void)src->fStream->skip(byte_offset - src->current_offset);
-    } else {
-        src->fStream->rewind();
-        (void)src->fStream->skip(byte_offset);
-    }
-
-    src->current_offset = byte_offset;
-    src->next_input_byte = (const JOCTET*)src->fBuffer;
-    src->bytes_in_buffer = 0;
-    return TRUE;
 }
 
 static boolean sk_fill_input_buffer(j_decompress_ptr cinfo) {
@@ -46,7 +29,6 @@ static boolean sk_fill_input_buffer(j_decompress_ptr cinfo) {
         return FALSE;
     }
 
-    src->current_offset += bytes;
     src->next_input_byte = (const JOCTET*)src->fBuffer;
     src->bytes_in_buffer = bytes;
     return TRUE;
@@ -64,7 +46,6 @@ static void sk_skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
                 cinfo->err->error_exit((j_common_ptr)cinfo);
                 return;
             }
-            src->current_offset += bytes;
             bytesToSkip -= bytes;
         }
         src->next_input_byte = (const JOCTET*)src->fBuffer;
@@ -96,9 +77,7 @@ static void sk_term_source(j_decompress_ptr /*cinfo*/) {}
 static void skmem_init_source(j_decompress_ptr cinfo) {
     skjpeg_source_mgr*  src = (skjpeg_source_mgr*)cinfo->src;
     src->next_input_byte = (const JOCTET*)src->fMemoryBase;
-    src->start_input_byte = (const JOCTET*)src->fMemoryBase;
     src->bytes_in_buffer = src->fMemoryBaseSize;
-    src->current_offset = src->fMemoryBaseSize;
 }
 
 static boolean skmem_fill_input_buffer(j_decompress_ptr cinfo) {
@@ -127,8 +106,6 @@ skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder,
                                      bool ownStream) : fStream(stream) {
     fDecoder = decoder;
     const void* baseAddr = stream->getMemoryBase();
-    size_t bufferSize = 4096;
-    size_t len;
     fMemoryBase = NULL;
     fUnrefStream = ownStream;
     fMemoryBaseSize = 0;
@@ -138,7 +115,6 @@ skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder,
     skip_input_data = sk_skip_input_data;
     resync_to_restart = sk_resync_to_restart;
     term_source = sk_term_source;
-    seek_input_data = sk_seek_input_data;
 //    SkDebugf("**************** use memorybase %p %d\n", fMemoryBase, fMemoryBaseSize);
 }
 

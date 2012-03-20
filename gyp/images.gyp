@@ -5,6 +5,7 @@
       'type': 'static_library',
       'dependencies': [
         'utils.gyp:utils',
+        'libjpeg.gyp:libjpeg',
       ],
       'include_dirs': [
         '../include/config',
@@ -33,6 +34,7 @@
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',
         '../src/images/SkImageDecoder_libpng.cpp',
+        '../src/images/SkImageDecoder_libjpeg.cpp',
         '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',
@@ -53,14 +55,11 @@
       'conditions': [
         [ 'skia_os == "win"', {
           'sources!': [
-            '../include/images/SkJpegUtility.h',
-
             '../src/images/SkFDStream.cpp',
             '../src/images/SkImageDecoder_Factory.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageEncoder_Factory.cpp',
-            '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
           'link_settings': {
@@ -75,13 +74,10 @@
         }],
         [ 'skia_os == "mac"', {
           'sources!': [
-            '../include/images/SkJpegUtility.h',
-
             '../src/images/SkImageDecoder_Factory.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageEncoder_Factory.cpp',
-            '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
         },{ #else if skia_os != mac
@@ -91,10 +87,7 @@
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources!': [
-            '../include/images/SkJpegUtility.h',
-
             '../src/images/SkImageDecoder_libgif.cpp',
-            '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
           # libpng stuff:
@@ -113,7 +106,6 @@
         }],
         [ 'skia_os == "android"', {
           'sources!': [
-            '../src/images/SkJpegUtility.cpp',
           ],
           'dependencies': [
              'android_system.gyp:gif',

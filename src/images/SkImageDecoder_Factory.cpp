@@ -12,6 +12,37 @@
 #include "SkStream.h"
 #include "SkTRegistry.h"
 
+//extern SkImageDecoder* sk_libbmp_dfactory(SkStream*);
+//extern SkImageDecoder* sk_libgif_dfactory(SkStream*);
+//extern SkImageDecoder* sk_libico_dfactory(SkStream*);
+extern SkImageDecoder* sk_libjpeg_dfactory(SkStream*);
+//extern SkImageDecoder* sk_libpng_dfactory(SkStream*);
+//extern SkImageDecoder* sk_wbmp_dfactory(SkStream*);
+
+// To get the various image decoding classes to register themselves
+// pre-main we need to ensure they are linked into the application.
+// Ultimately we need to move to using DLLs rather than tightly
+// coupling the factory with the file format classes.
+void ForceLinking()
+{
+    SkImageDecoder* codec = NULL;
+
+    // TODO: rather than force the linking here expose a
+    // "Sk*ImageDecoderCreate" function for each codec
+    // and let the app add these calls to force the linking.
+    // Besides decoupling the codecs from the factory this
+    // will also give the app the ability to circumvent the
+    // factory and explicitly create a decoder w/o reaching
+    // into Skia's guts
+
+//    codec = sk_libbmp_dfactory(NULL);
+//    codec = sk_libgif_dfactory(NULL);
+//    codec = sk_libico_dfactory(NULL);
+    codec = sk_libjpeg_dfactory(NULL);
+//    codec = sk_libpng_dfactory(NULL);
+//    codec = sk_wbmp_dfactory(NULL);
+}
+
 typedef SkTRegistry<SkImageDecoder*, SkStream*> DecodeReg;
 
 // N.B. You can't use "DecodeReg::gHead here" due to complex C++
