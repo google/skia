@@ -79,27 +79,27 @@ private:
 */
 class SkPDFFont : public SkPDFDict {
 public:
-    SK_API virtual ~SkPDFFont();
+    virtual ~SkPDFFont();
 
-    SK_API virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
     /** Returns the typeface represented by this class. Returns NULL for the
      *  default typeface.
      */
-    SK_API SkTypeface* typeface();
+    SkTypeface* typeface();
 
     /** Returns the font type represented in this font.  For Type0 fonts,
      *  returns the type of the decendant font.
      */
-    SK_API virtual SkAdvancedTypefaceMetrics::FontType getType();
+    virtual SkAdvancedTypefaceMetrics::FontType getType();
 
     /** Returns true if this font encoding supports glyph IDs above 255.
      */
-    SK_API virtual bool multiByteGlyphs() const = 0;
+    virtual bool multiByteGlyphs() const = 0;
 
     /** Return true if this font has an encoding for the passed glyph id.
      */
-    SK_API bool hasGlyph(uint16_t glyphID);
+    bool hasGlyph(uint16_t glyphID);
 
     /** Convert (in place) the input glyph IDs into the font encoding.  If the
      *  font has more glyphs than can be encoded (like a type 1 font with more
@@ -109,7 +109,7 @@ public:
      *  @param numGlyphs      The number of input glyphs.
      *  @return               Returns the number of glyphs consumed.
      */
-    SK_API size_t glyphsToPDFFontEncoding(uint16_t* glyphIDs, size_t numGlyphs);
+    size_t glyphsToPDFFontEncoding(uint16_t* glyphIDs, size_t numGlyphs);
 
     /** Get the font resource for the passed typeface and glyphID. The
      *  reference count of the object is incremented and it is the caller's
@@ -119,7 +119,7 @@ public:
      *  @param typeface  The typeface to find.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    SK_API static SkPDFFont* GetFontResource(SkTypeface* typeface,
+    static SkPDFFont* GetFontResource(SkTypeface* typeface,
                                              uint16_t glyphID);
 
     /** Subset the font based on usage set. Returns a SkPDFFont instance with
@@ -128,7 +128,7 @@ public:
      *  @return       NULL if font does not support subsetting, a new instance
      *                of SkPDFFont otherwise.
      */
-    SK_API virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
+    virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
 
 protected:
     // Common constructor to handle common members.
