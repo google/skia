@@ -16,6 +16,7 @@
 */
 
 #include "SkFontHost.h"
+#include "SkGraphics.h"
 #include "SkDescriptor.h"
 #include "SkMMapStream.h"
 #include "SkPaint.h"
@@ -26,6 +27,7 @@
 #include "SkTypeface_android.h"
 #include "FontHostConfiguration_android.h"
 #include <stdio.h>
+#include <string.h>
 
 #define FONT_CACHE_MEMORY_BUDGET    (768 * 1024)
 
@@ -73,6 +75,7 @@ static int32_t gUniqueFontID;
 // this is the mutex that protects gFamilyHead and GetNameList()
 SK_DECLARE_STATIC_MUTEX(gFamilyHeadAndNameListMutex);
 static FamilyRec* gFamilyHead;
+static SkTDArray<NameFamilyPair> gFallbackFilenameList;
 
 static NameFamilyPairList& GetNameList() {
     /*
@@ -265,7 +268,6 @@ public:
     : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedWidth) {
         fIsSysFont = sysFont;
 
-
         // our caller has acquired the gFamilyHeadAndNameListMutex so this is safe
         FamilyRec* rec = NULL;
         if (familyMember) {
@@ -439,8 +441,6 @@ static const struct {
 static FontInitRec *gSystemFonts;
 static size_t gNumSystemFonts = 0;
 
-#define SYSTEM_FONTS_FILE "/system/etc/system_fonts.cfg"
-
 // these globals are assigned (once) by load_system_fonts()
 static FamilyRec* gDefaultFamily;
 static SkTypeface* gDefaultNormal;
@@ -448,10 +448,66 @@ static char** gDefaultNames = NULL;
 static uint32_t *gFallbackFonts;
 static uint32_t *gFallbackScriptsMap;
 
+static void dump_globals() {
+    SkDebugf("gDefaultNormal=%p id=%u refCnt=%d", gDefaultNormal,
+             gDefaultNormal ? gDefaultNormal->uniqueID() : 0,
+             gDefaultNormal ? gDefaultNormal->getRefCnt() : 0);
+
+    if (gDefaultFamily) {
+        SkDebugf("gDefaultFamily=%p fFaces={%u,%u,%u,%u} refCnt={%d,%d,%d,%d}",
+                 gDefaultFamily,
+                 gDefaultFamily->fFaces[0] ? gDefaultFamily->fFaces[0]->uniqueID() : 0,
+                 gDefaultFamily->fFaces[1] ? gDefaultFamily->fFaces[1]->uniqueID() : 0,
+                 gDefaultFamily->fFaces[2] ? gDefaultFamily->fFaces[2]->uniqueID() : 0,
+                 gDefaultFamily->fFaces[3] ? gDefaultFamily->fFaces[3]->uniqueID() : 0,
+                 gDefaultFamily->fFaces[0] ? gDefaultFamily->fFaces[0]->getRefCnt() : 0,
+                 gDefaultFamily->fFaces[1] ? gDefaultFamily->fFaces[1]->getRefCnt() : 0,
+                 gDefaultFamily->fFaces[2] ? gDefaultFamily->fFaces[2]->getRefCnt() : 0,
+                 gDefaultFamily->fFaces[3] ? gDefaultFamily->fFaces[3]->getRefCnt() : 0);
+    } else {
+        SkDebugf("gDefaultFamily=%p", gDefaultFamily);
+    }
+
+    SkDebugf("gNumSystemFonts=%d gSystemFonts=%p gFallbackFonts=%p",
+             gNumSystemFonts, gSystemFonts, gFallbackFonts);
+
+    for (size_t i = 0; i < gNumSystemFonts; ++i) {
+        SkDebugf("gSystemFonts[%d] fileName=%s", i, gSystemFonts[i].fFileName);
+        size_t namesIndex = 0;
+        if (gSystemFonts[i].fNames)
+            for (const char* fontName = gSystemFonts[i].fNames[namesIndex];
+                    fontName != 0;
+                    fontName = gSystemFonts[i].fNames[++namesIndex]) {
+                SkDebugf("       name[%u]=%s", namesIndex, fontName);
+            }
+    }
+
+    if (gFamilyHead) {
+        FamilyRec* rec = gFamilyHead;
+        int i=0;
+        while (rec) {
+            SkDebugf("gFamilyHead[%d]=%p fFaces={%u,%u,%u,%u} refCnt={%d,%d,%d,%d}",
+                     i++, rec,
+                     rec->fFaces[0] ? rec->fFaces[0]->uniqueID() : 0,
+                     rec->fFaces[1] ? rec->fFaces[1]->uniqueID() : 0,
+                     rec->fFaces[2] ? rec->fFaces[2]->uniqueID() : 0,
+                     rec->fFaces[3] ? rec->fFaces[3]->uniqueID() : 0,
+                     rec->fFaces[0] ? rec->fFaces[0]->getRefCnt() : 0,
+                     rec->fFaces[1] ? rec->fFaces[1]->getRefCnt() : 0,
+                     rec->fFaces[2] ? rec->fFaces[2]->getRefCnt() : 0,
+                     rec->fFaces[3] ? rec->fFaces[3]->getRefCnt() : 0);
+            rec = rec->fNext;
+        }
+    } else {
+        SkDebugf("gFamilyHead=%p", gFamilyHead);
+    }
+
+}
+
+
 /*  Load info from a configuration file that populates the system/fallback font structures
 */
 static void load_font_info() {
-//    load_font_info_xml("/system/etc/system_fonts.xml");
     SkTDArray<FontFamily*> fontFamilies;
     getFontFamilies(fontFamilies);
 
@@ -513,9 +569,9 @@ static void load_font_info() {
  *
  *  gFamilyHeadAndNameListMutex must already be acquired.
  */
-static void load_system_fonts() {
-    // check if we've already be called
-    if (NULL != gDefaultNormal) {
+static void init_system_fonts() {
+    // check if we've already been called
+    if (gDefaultNormal) {
         return;
     }
 
@@ -587,6 +643,65 @@ static void load_system_fonts() {
     // now terminate our fallback list with the sentinel value
     gFallbackFonts[fallbackCount] = 0;
 }
+
+static size_t find_uniqueID(const char* filename) {
+    // uniqueID is the index, offset by one, of the associated element in gSystemFonts[]
+    // return 0 if not found
+    const FontInitRec* rec = gSystemFonts;
+    for (size_t i = 0; i < gNumSystemFonts; i++) {
+        if (strcmp(rec[i].fFileName, filename) == 0) {
+            return i+1;
+        }
+    }
+    return 0;
+}
+
+static void reload_fallback_fonts() {
+    SkGraphics::PurgeFontCache();
+
+    SkTDArray<FontFamily*> fallbackFamilies;
+    getFallbackFontFamilies(fallbackFamilies);
+
+    for (int i = 0; i < fallbackFamilies.count(); ++i) {
+        FontFamily *family = fallbackFamilies[i];
+
+        for (int j = 0; j < family->fFileNames.count(); ++j) {
+            if (family->fFileNames[j]) {
+                size_t uniqueID = find_uniqueID(family->fFileNames[j]);
+                if (uniqueID != gFallbackFonts[i])
+                    gFallbackFonts[i] = uniqueID;
+                break;  // The fallback set contains only the first font of each family
+            }
+        }
+    }
+}
+
+static void load_system_fonts() {
+#if !defined(SK_BUILD_FOR_ANDROID_NDK)
+    static char prevLanguage[3];
+    static char prevRegion[3];
+    char language[3] = "";
+    char region[3] = "";
+
+    getLocale(language, region);
+
+    if (!gDefaultNormal) {
+        strncpy(prevLanguage, language, 2);
+        strncpy(prevRegion, region, 2);
+        init_system_fonts();
+    } else if (strncmp(language, prevLanguage, 2) || strncmp(region, prevRegion, 2)) {
+        strncpy(prevLanguage, language, 2);
+        strncpy(prevRegion, region, 2);
+        reload_fallback_fonts();
+    }
+#else
+    if (!gDefaultNormal) {
+        init_system_fonts();
+        reload_fallback_fonts();
+    }
+#endif
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -706,7 +821,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         tf = find_best_face(gDefaultFamily, style);
     }
 
-    // we ref(), since the symantic is to return a new instance
+    // we ref(), since the semantic is to return a new instance
     tf->ref();
     return tf;
 }
@@ -792,6 +907,7 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
 
     SkASSERT(origTypeface != 0);
     SkASSERT(currTypeface != 0);
+    SkASSERT(gFallbackFonts);
 
     // Our fallback list always stores the id of the plain in each fallback
     // family, so we transform currFontID to its plain equivalent.

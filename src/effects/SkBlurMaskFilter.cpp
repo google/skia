@@ -22,7 +22,7 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) SK_OVERRIDE;
     virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
-    virtual void computeFastBounds(const SkRect& src, SkRect* dest) SK_OVERRIDE;
+    virtual void computeFastBounds(const SkRect& src, SkRect* dst) SK_OVERRIDE;
 
     // overrides from SkFlattenable
     virtual Factory getFactory() SK_OVERRIDE;

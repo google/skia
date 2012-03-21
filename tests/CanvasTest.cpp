@@ -128,6 +128,7 @@ public:
         *testStepArray().append() = this;
         fAssertMessageFormat = kDefaultAssertMessageFormat;
     }
+    virtual ~CanvasTestStep() { }
 
     virtual void draw(SkCanvas*, skiatest::Reporter*) = 0;
     virtual const char* name() const = 0;
