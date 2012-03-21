@@ -122,7 +122,7 @@ public:
         GrAlwaysAssert(size >= 0);
 
         // delete pre-existing data
-        delete fDataPtr;
+        delete[] fDataPtr;
 
         fSize = size;
         fDataPtr = new GrGLchar[size];
@@ -132,7 +132,7 @@ public:
         // TODO: w/ no dataPtr the data is unitialized - this could be tracked
     }
     GrGLint getSize() const { return fSize; }
-    GrGLvoid *getDataPtr()  { return fDataPtr; }
+    GrGLchar *getDataPtr()  { return fDataPtr; }
 
     GrGLint getUsage() const { return fUsage; }
     void setUsage(GrGLint usage) { fUsage = usage; }
@@ -494,7 +494,7 @@ GrDebugGL GrDebugGL::Obj;
 ////////////////////////////////////////////////////////////////////////////////
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture) {
     
-    GrAlwaysAssert(0 <= texture);
+//    GrAlwaysAssert(0 <= texture);
 //    GrAlwaysAssert(texture < GrDebugGL::getInstance()->getMaxTextureUnits());
 
     GrDebugGL::getInstance()->setCurTextureUnit(texture);
