@@ -14,6 +14,18 @@
 // the OpenGLES 2.0 spec says this must be >= 2
 static const GrGLint kDefaultMaxTextureUnits = 8;
 
+// the OpenGLES 2.0 spec says this must be >= 128
+static const GrGLint kDefaultMaxVertexUniformVectors = 128;
+
+// the OpenGLES 2.0 spec says this must be >=16
+static const GrGLint kDefaultMaxFragmentUniformVectors = 16;
+
+// the OpenGLES 2.0 spec says this must be >= 8
+static const GrGLint kDefaultMaxVertexAttribs = 8;
+
+// the OpenGLES 2.0 spec says this must be >= 8
+static const GrGLint kDefaultMaxVaryingVectors = 8;
+
 ////////////////////////////////////////////////////////////////////////////////
 // This object is used to track the OpenGL objects. We don't use real
 // reference counting (i.e., we don't free the objects when their ref count 
@@ -26,15 +38,23 @@ class GrFakeRefObj
 public:
     GrFakeRefObj(GrGLuint ID) 
         : fRef(0)
+        , fHighRefCount(0)
         , fID(ID)
         , fMarkedForDeletion(false)
         , fDeleted(false) {
     }
     virtual ~GrFakeRefObj() {};
 
-    void ref()   { fRef++; }
+    void ref() { 
+        fRef++; 
+        if (fHighRefCount < fRef) {
+            fHighRefCount = fRef;
+        }
+    }
     void unref() { 
         fRef--; 
+        GrAlwaysAssert(fRef >= 0);
+
         // often in OpenGL a given object may still be in use when the 
         // delete call is made. In these cases the object is marked
         // for deletion and then freed when it is no longer in use
@@ -43,6 +63,7 @@ public:
         }
     }
     int getRefCount() const { return fRef; }
+    int getHighRefCount() const { return fHighRefCount; }
 
     GrGLuint getID() const { return fID; }
 
@@ -60,6 +81,7 @@ public:
 protected:
 private:
     int         fRef;
+    int         fHighRefCount;      // high water mark of the ref count
     GrGLuint    fID;
     bool        fMarkedForDeletion;
     // The deleted flag is only set when OpenGL thinks the object is deleted
@@ -96,14 +118,14 @@ public:
     void resetBound()       { fBound = false; }
     bool getBound() const   { return fBound; }
 
-    void allocate(GrGLint size, const GrGLvoid *dataPtr) {
+    void allocate(GrGLint size, const GrGLchar *dataPtr) {
         GrAlwaysAssert(size >= 0);
 
         // delete pre-existing data
         delete fDataPtr;
 
         fSize = size;
-        fDataPtr = new char[size];
+        fDataPtr = new GrGLchar[size];
         if (dataPtr) {
             memcpy(fDataPtr, dataPtr, fSize);
         }
@@ -126,7 +148,7 @@ public:
 protected:
 private:
 
-    GrGLvoid*   fDataPtr;
+    GrGLchar*   fDataPtr;
     bool        fMapped;       // is the buffer object mapped via "glMapBuffer"?
     bool        fBound;        // is the buffer object bound via "glBindBuffer"?
     GrGLint     fSize;         // size in bytes
@@ -135,6 +157,32 @@ private:
     typedef GrFakeRefObj INHERITED;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// TODO: when a framebuffer obj is bound the GL_SAMPLES query must return 0
+// TODO: GL_STENCIL_BITS must also be redirected to the framebuffer
+class GrFrameBufferObj : public GrFakeRefObj
+{
+public:
+    GrFrameBufferObj(GrGLuint ID)
+        : GrFakeRefObj(ID)
+        , fBound(false) {
+    }
+
+    void setBound()         { fBound = true; }
+    void resetBound()       { fBound = false; }
+    bool getBound() const   { return fBound; }
+
+    virtual void deleteAction() SK_OVERRIDE {
+
+        this->setDeleted();
+    }
+
+protected:
+private:
+    bool fBound;        // is this frame buffer currently bound via "glBindFramebuffer"?
+
+    typedef GrFakeRefObj INHERITED;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 class GrShaderObj : public GrFakeRefObj
@@ -167,8 +215,7 @@ public:
         : GrFakeRefObj(ID)
         , fInUse(false) {}
 
-    void AttachShader(GrShaderObj *shader)
-    {
+    void AttachShader(GrShaderObj *shader) {
         shader->ref();
         fShaders.push_back(shader);
     }
@@ -185,7 +232,9 @@ public:
         this->setDeleted();
     }
 
+    // TODO: this flag system won't work w/ multiple contexts!
     void setInUse()         { fInUse = true; }
+    void resetInUse()       { fInUse = false; }
     bool getInUse() const   { return fInUse; }
 
 protected:
@@ -203,9 +252,8 @@ private:
 class GrDebugGL
 {
 public:
-    // TODO: merge findBuffer, findShader & findProgram??
-    GrBufferObj *findBuffer(GrGLuint ID)
-    {
+    // TODO: merge findBuffer, findFrameBuffer, findShader & findProgram??
+    GrBufferObj *findBuffer(GrGLuint ID) {
         GrFakeRefObj *obj = this->findObject(ID);
         if (NULL == obj) {
             return NULL;
@@ -214,8 +262,16 @@ public:
         return reinterpret_cast<GrBufferObj *>(obj);
     }
 
-    GrShaderObj *findShader(GrGLuint ID)
-    {
+    GrFrameBufferObj *findFrameBuffer(GrGLuint ID) {
+        GrFakeRefObj *obj = this->findObject(ID);
+        if (NULL == obj) {
+            return NULL;
+        }
+
+        return reinterpret_cast<GrFrameBufferObj *>(obj);
+    }
+
+    GrShaderObj *findShader(GrGLuint ID) {
         GrFakeRefObj *obj = this->findObject(ID);
         if (NULL == obj) {
             return NULL;
@@ -224,8 +280,7 @@ public:
         return reinterpret_cast<GrShaderObj *>(obj);
     }
 
-    GrProgramObj *findProgram(GrGLuint ID)
-    {
+    GrProgramObj *findProgram(GrGLuint ID) {
         GrFakeRefObj *obj = this->findObject(ID);
         if (NULL == obj) {
             return NULL;
@@ -235,8 +290,7 @@ public:
     }
 
     // TODO: merge createBuffer, createShader, createProgram??
-    GrBufferObj *createBuffer()
-    {
+    GrBufferObj *createBuffer() {
         GrBufferObj *buffer = new GrBufferObj(++fNextID);
 
         fObjects.push_back(buffer);
@@ -244,8 +298,15 @@ public:
         return buffer;
     }
 
-    GrShaderObj *createShader(GrGLenum type)
-    {
+    GrFrameBufferObj *createFrameBuffer() {
+        GrFrameBufferObj *buffer = new GrFrameBufferObj(++fNextID);
+
+        fObjects.push_back(buffer);
+
+        return buffer;
+    }
+
+    GrShaderObj *createShader(GrGLenum type) {
         GrShaderObj *shader = new GrShaderObj(++fNextID, type);
 
         fObjects.push_back(shader);
@@ -253,8 +314,7 @@ public:
         return shader;
     }
 
-    GrProgramObj *createProgram()
-    {
+    GrProgramObj *createProgram() {
         GrProgramObj *program = new GrProgramObj(++fNextID);
 
         fObjects.push_back(program);
@@ -262,8 +322,7 @@ public:
         return program;
     }
 
-    GrFakeRefObj *findObject(GrGLuint ID)
-    {
+    GrFakeRefObj *findObject(GrGLuint ID) {
         for (int i = 0; i < fObjects.count(); ++i) {
             if (fObjects[i]->getID() == ID) {
                 // The application shouldn't be accessing objects
@@ -284,14 +343,97 @@ public:
     void setCurTextureUnit(GrGLuint curTextureUnit) { fCurTextureUnit = curTextureUnit; }
     GrGLuint getCurTextureUnit() const { return fCurTextureUnit; }
 
-    void setArrayBuffer(GrBufferObj *arrayBuffer)    { fArrayBuffer = arrayBuffer; }
+    void setArrayBuffer(GrBufferObj *arrayBuffer) { 
+        if (fArrayBuffer) {
+            // automatically break the binding of the old buffer
+            GrAlwaysAssert(fArrayBuffer->getBound());
+            fArrayBuffer->resetBound();
+
+            GrAlwaysAssert(!fArrayBuffer->getDeleted());
+            fArrayBuffer->unref();
+        }
+
+        fArrayBuffer = arrayBuffer; 
+
+        if (fArrayBuffer) {
+            GrAlwaysAssert(!fArrayBuffer->getDeleted());
+            fArrayBuffer->ref();
+
+            GrAlwaysAssert(!fArrayBuffer->getBound());
+            fArrayBuffer->setBound();
+        }
+    }
     GrBufferObj *getArrayBuffer()                   { return fArrayBuffer; }
 
-    void setElementArrayBuffer(GrBufferObj *elementArrayBuffer)    { fElementArrayBuffer = elementArrayBuffer; }
+    void setElementArrayBuffer(GrBufferObj *elementArrayBuffer) { 
+        if (fElementArrayBuffer) {
+            // automatically break the binding of the old buffer
+            GrAlwaysAssert(fElementArrayBuffer->getBound());
+            fElementArrayBuffer->resetBound();
+
+            GrAlwaysAssert(!fElementArrayBuffer->getDeleted());
+            fElementArrayBuffer->unref();
+        }
+
+        fElementArrayBuffer = elementArrayBuffer; 
+
+        if (fElementArrayBuffer) {
+            GrAlwaysAssert(!fElementArrayBuffer->getDeleted());
+            fElementArrayBuffer->ref();
+
+            GrAlwaysAssert(!fElementArrayBuffer->getBound());
+            fElementArrayBuffer->setBound();
+        }
+    }
+
     GrBufferObj *getElementArrayBuffer()                            { return fElementArrayBuffer; }
 
-    static GrDebugGL *getInstance()
-    {
+    void setFrameBuffer(GrFrameBufferObj *frameBuffer)  { 
+        if (fFrameBuffer)
+        {
+            GrAlwaysAssert(fFrameBuffer->getBound());
+            fFrameBuffer->resetBound();
+
+            GrAlwaysAssert(!fFrameBuffer->getDeleted());
+            fFrameBuffer->unref();
+        }
+
+        fFrameBuffer = frameBuffer; 
+
+        if (fFrameBuffer)
+        {
+            GrAlwaysAssert(!fFrameBuffer->getDeleted());
+            fFrameBuffer->ref();
+
+            GrAlwaysAssert(!fFrameBuffer->getBound());
+            fFrameBuffer->setBound();
+        }
+    }
+
+    GrFrameBufferObj *getFrameBuffer()                  { return fFrameBuffer; }
+
+    void useProgram(GrProgramObj *program) {
+        if (fProgram) {
+            GrAlwaysAssert(fProgram->getInUse());
+            fProgram->resetInUse();
+
+            GrAlwaysAssert(!fProgram->getDeleted());
+            fProgram->unref();
+        }
+
+        fProgram = program;
+
+        if (fProgram)
+        {
+            GrAlwaysAssert(!fProgram->getDeleted());
+            fProgram->ref();
+
+            GrAlwaysAssert(!fProgram->getInUse());
+            fProgram->setInUse();
+        }
+    }
+
+    static GrDebugGL *getInstance() {
 //        static GrDebugGL Obj;
 
         return &Obj;
@@ -299,6 +441,8 @@ public:
 
     void report() const {
         for (int i = 0; i < fObjects.count(); ++i) {
+            GrAlwaysAssert(0 == fObjects[i]->getRefCount());
+            GrAlwaysAssert(0 < fObjects[i]->getHighRefCount());
             GrAlwaysAssert(fObjects[i]->getDeleted());
         }
     }
@@ -310,6 +454,8 @@ private:
     GrGLuint        fCurTextureUnit;
     GrBufferObj *   fArrayBuffer;
     GrBufferObj *   fElementArrayBuffer;
+    GrFrameBufferObj *fFrameBuffer;
+    GrProgramObj *  fProgram;
 
     static int fNextID;                     // source for globally unique IDs
 
@@ -320,10 +466,11 @@ private:
 
     GrDebugGL() 
         : fMaxTextureUnits(kDefaultMaxTextureUnits)
-        ,  fCurTextureUnit(0)
-        ,  fArrayBuffer(NULL)
-        ,  fElementArrayBuffer(NULL)
-    {
+        , fCurTextureUnit(0)
+        , fArrayBuffer(NULL)
+        , fElementArrayBuffer(NULL)
+        , fFrameBuffer(NULL)
+        , fProgram(NULL) {
     }
 
     ~GrDebugGL() {
@@ -333,8 +480,11 @@ private:
             delete fObjects[i];
         }
         fObjects.reset();
+
         fArrayBuffer = NULL;
         fElementArrayBuffer = NULL;
+        fFrameBuffer = NULL;
+        fProgram = NULL;
     }
 };
 
@@ -342,8 +492,7 @@ int GrDebugGL::fNextID = 0;
 GrDebugGL GrDebugGL::Obj;
 
 ////////////////////////////////////////////////////////////////////////////////
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture) 
-{
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture) {
     
     GrAlwaysAssert(0 <= texture);
 //    GrAlwaysAssert(texture < GrDebugGL::getInstance()->getMaxTextureUnits());
@@ -352,8 +501,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLAttachShader(GrGLuint programID, GrGLuint shaderID) 
-{
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLAttachShader(GrGLuint programID, GrGLuint shaderID) {
     GrProgramObj *program = GrDebugGL::getInstance()->findProgram(programID);
     GrAlwaysAssert(program);
 
@@ -371,8 +519,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFragDataLocation(GrGLuint program, GrGLu
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendFunc(GrGLenum sfactor, GrGLenum dfactor) {}
 
 ////////////////////////////////////////////////////////////////////////////////
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage) 
-{
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage) {
     GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target || GR_GL_ELEMENT_ARRAY_BUFFER == target);
     GrAlwaysAssert(size >= 0);
     GrAlwaysAssert(GR_GL_STREAM_DRAW == usage || GR_GL_STATIC_DRAW == usage || GR_GL_DYNAMIC_DRAW == usage);
@@ -393,7 +540,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target, GrGLsizeiptr siz
     GrAlwaysAssert(buffer);
     GrAlwaysAssert(buffer->getBound());
 
-    buffer->allocate(size, data);
+    buffer->allocate(size, reinterpret_cast<const GrGLchar *>(data));
     buffer->setUsage(usage);
 }
 
@@ -458,17 +605,51 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniformMatrix4fv(GrGLint location, GrGLsizei
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLUseProgram(GrGLuint programID) {
 
+    // A programID of 0 is legal
     GrProgramObj *program = GrDebugGL::getInstance()->findProgram(programID);
-    GrAlwaysAssert(program);
 
-    program->setInUse();
+    GrDebugGL::getInstance()->useProgram(program);
 }
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLVertexAttrib4fv(GrGLuint indx, const GrGLfloat* values) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLVertexAttribPointer(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLViewport(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFramebuffer(GrGLenum target, GrGLuint framebuffer) {}
+
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFramebuffer(GrGLenum target, GrGLuint frameBufferID) {
+
+    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
+
+    // a frameBufferID of 0 is acceptable - it binds to the default frame buffer
+    GrFrameBufferObj *framebuffer = GrDebugGL::getInstance()->findFrameBuffer(frameBufferID);
+
+    GrDebugGL::getInstance()->setFrameBuffer(framebuffer);
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindRenderbuffer(GrGLenum target, GrGLuint renderbuffer) {}
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLuint *framebuffers) {}
+
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLuint *framebuffers) {
+
+    // first potentially unbind the buffers
+    if (GrDebugGL::getInstance()->getFrameBuffer()) {
+        for (int i = 0; i < n; ++i) {
+
+            if (framebuffers[i] == GrDebugGL::getInstance()->getFrameBuffer()->getID()) {
+                // this ID is the current frame buffer - rebind to the default
+                GrDebugGL::getInstance()->setFrameBuffer(NULL);
+            }
+        }
+    }
+
+    // then actually "delete" the buffers
+    for (int i = 0; i < n; ++i) {
+        GrFrameBufferObj *buffer = GrDebugGL::getInstance()->findFrameBuffer(framebuffers[i]);
+        GrAlwaysAssert(buffer);
+
+        GrAlwaysAssert(!buffer->getDeleted());
+        buffer->deleteAction();
+    }
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteRenderbuffers(GrGLsizei n, const GrGLuint *renderbuffers) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferRenderbuffer(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level) {}
@@ -505,8 +686,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteProgram(GrGLuint programID) {
     GrProgramObj *program = GrDebugGL::getInstance()->findProgram(programID);
     GrAlwaysAssert(program);
 
-    program->unref();
-
     if (program->getRefCount()) {
         // someone is still using this program so we can't delete it here
         program->setMarkedForDeletion();
@@ -519,8 +698,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteShader(GrGLuint shaderID) {
 
     GrShaderObj *shader = GrDebugGL::getInstance()->findShader(shaderID);
     GrAlwaysAssert(shader);
-
-    shader->unref();
 
     if (shader->getRefCount()) {
         // someone is still using this shader so we can't delete it here
@@ -547,6 +724,15 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
     }
 }
 
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenFramebuffers(GrGLsizei n, GrGLuint* ids) {
+
+    for (int i = 0; i < n; ++i) {
+        GrFrameBufferObj *buffer = GrDebugGL::getInstance()->createFrameBuffer();
+        GrAlwaysAssert(buffer);
+        ids[i] = buffer->getID();
+    }
+}
+
 // same delete function for all glDelete*(GLsize i, const GLuint*) except buffers
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteIds(GrGLsizei n, const GrGLuint* ids) {}
 
@@ -560,30 +746,10 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target, GrGLuint bufferI
 
     switch (target) {
         case GR_GL_ARRAY_BUFFER:
-            if (GrDebugGL::getInstance()->getArrayBuffer()) {
-                // automatically break the binding of the old buffer
-                GrDebugGL::getInstance()->getArrayBuffer()->resetBound();
-            }
-            if (buffer) {
-                GrAlwaysAssert(!buffer->getBound());
-            }
             GrDebugGL::getInstance()->setArrayBuffer(buffer);
-            if (buffer) {
-                buffer->setBound();
-            }
             break;
         case GR_GL_ELEMENT_ARRAY_BUFFER:
-            if (GrDebugGL::getInstance()->getElementArrayBuffer()) {
-                // automatically break the binding of the old buffer
-                GrDebugGL::getInstance()->getElementArrayBuffer()->resetBound();
-            }
-            if (buffer) {
-                GrAlwaysAssert(!buffer->getBound());
-            }
             GrDebugGL::getInstance()->setElementArrayBuffer(buffer);
-            if (buffer) {
-                buffer->setBound();
-            }
             break;
         default:
             GrCrash("Unexpected target to glBindBuffer");
@@ -599,15 +765,11 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteBuffers(GrGLsizei n, const GrGLuint* i
         if (GrDebugGL::getInstance()->getArrayBuffer() && 
             ids[i] == GrDebugGL::getInstance()->getArrayBuffer()->getID()) {
             // this ID is the current array buffer
-            GrAlwaysAssert(GrDebugGL::getInstance()->getArrayBuffer()->getBound());
-            GrDebugGL::getInstance()->getArrayBuffer()->resetBound();
             GrDebugGL::getInstance()->setArrayBuffer(NULL);
         }
         if (GrDebugGL::getInstance()->getElementArrayBuffer() && 
             ids[i] == GrDebugGL::getInstance()->getElementArrayBuffer()->getID()) {
             // this ID is the current element array buffer
-            GrAlwaysAssert(GrDebugGL::getInstance()->getElementArrayBuffer()->getBound());
-            GrDebugGL::getInstance()->getElementArrayBuffer()->resetBound();
             GrDebugGL::getInstance()->setElementArrayBuffer(NULL);
         }
     }
@@ -745,8 +907,11 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetIntegerv(GrGLenum pname, GrGLint* params)
         case GR_GL_MAX_TEXTURE_IMAGE_UNITS:
             *params = 8;
             break;
+        case GR_GL_MAX_VERTEX_UNIFORM_VECTORS:
+            *params = kDefaultMaxVertexUniformVectors;
+            break;
         case GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS:
-            *params = 16;
+            *params = kDefaultMaxFragmentUniformVectors;
             break;
         case GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS:
             *params = 16 * 4;
@@ -766,7 +931,10 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetIntegerv(GrGLenum pname, GrGLint* params)
             *params = 32;
             break;
         case GR_GL_MAX_VERTEX_ATTRIBS:
-            *params = 16;
+            *params = kDefaultMaxVertexAttribs;
+            break;
+        case GR_GL_MAX_VARYING_VECTORS:
+            *params = kDefaultMaxVaryingVectors;
             break;
         case GR_GL_MAX_TEXTURE_UNITS:
             *params = GrDebugGL::getInstance()->getMaxTextureUnits();
@@ -983,7 +1151,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
         interface->fDeleteRenderbuffers = debugGLDeleteRenderbuffers;
         interface->fFramebufferRenderbuffer = debugGLFramebufferRenderbuffer;
         interface->fFramebufferTexture2D = debugGLFramebufferTexture2D;
-        interface->fGenFramebuffers = debugGLGenIds;
+        interface->fGenFramebuffers = debugGLGenFramebuffers;
         interface->fGenRenderbuffers = debugGLGenIds;
         interface->fGetFramebufferAttachmentParameteriv = debugGLGetFramebufferAttachmentParameteriv;
         interface->fGetRenderbufferParameteriv = debugGLGetRenderbufferParameteriv;

@@ -125,6 +125,7 @@ public:
 void GrGpuGLShaders::abandonResources(){
     INHERITED::abandonResources();
     fProgramCache->abandon();
+    fHWProgramID = 0;
 }
 
 void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
@@ -326,6 +327,13 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLContextInfo& ctxInfo)
 }
 
 GrGpuGLShaders::~GrGpuGLShaders() {
+
+    if (fProgramData && 0 != fHWProgramID) {
+        // detach the current program so there is no confusion on OpenGL's part
+        // that we want it to be deleted
+        SkASSERT(fHWProgramID == fProgramData->fProgramID);
+        GL_CALL(UseProgram(0));
+    }
     delete fProgramCache;
 }
 

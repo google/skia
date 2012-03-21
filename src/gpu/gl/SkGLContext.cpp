@@ -13,6 +13,11 @@ SkGLContext::SkGLContext()
 }
 
 SkGLContext::~SkGLContext() {
+
+    if (fGL) {
+        SK_GL(*this, DeleteFramebuffers(1, &fFBO));
+    }
+
     SkSafeUnref(fGL);
 }
 
