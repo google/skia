@@ -7,12 +7,12 @@
         'core.gyp:core',
         'images.gyp:images',
         'utils.gyp:utils',
-        'pdf.gyp:pdf', # needed to get SkBitSet
       ],
       'include_dirs': [
         '../include/device/xps',
         '../include/utils/win',
         '../src/core', # needed to get SkGlyphCache.h
+        '../src/utils', # needed to get SkBitSet.h
       ],
       'sources': [
         '../include/device/xps/SkConstexprMath.h',
