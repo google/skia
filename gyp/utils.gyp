@@ -10,7 +10,6 @@
         '../include/utils/mac',
         '../include/utils/unix',
         '../include/utils/win',
-        '../include/views',
         '../include/effects',
         '../include/xml',
       ],
@@ -62,13 +61,6 @@
         #mac
         '../include/utils/mac/SkCGUtils.h',
         '../src/utils/mac/SkCreateCGImageRef.cpp',
-
-        #sdl
-        '../src/utils/SDL/SkOSWindow_SDL.cpp',
-
-        #*nix
-        '../src/utils/unix/keysym2ucs.c',
-        '../src/utils/unix/SkOSWindow_Unix.cpp',
         
         #windows
         '../include/utils/win/SkAutoCoInitialize.h',
@@ -76,10 +68,8 @@
         '../include/utils/win/SkIStream.h',
         '../include/utils/win/SkTScopedComPtr.h',
         '../src/utils/win/SkAutoCoInitialize.cpp',
-        '../src/utils/win/skia_win.cpp',
         '../src/utils/win/SkHRESULT.cpp',
         '../src/utils/win/SkIStream.cpp',
-        '../src/utils/win/SkOSWindow_win.cpp',
         '../src/utils/win/SkWGL_win.cpp',
       ],
       'sources!': [
@@ -104,8 +94,6 @@
           'sources!': [
             '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
-            '../src/utils/mac/skia_mac.mm',
-            '../src/utils/mac/SkOSWindow_Mac.mm',
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
@@ -118,10 +106,6 @@
         },{ #else if 'skia_os not in ["linux", "freebsd", "openbsd", "solaris"]'
           'include_dirs!': [
             '../include/utils/unix',
-          ],
-          'sources!': [
-            '../src/utils/unix/keysym2ucs.c',
-            '../src/utils/unix/SkOSWindow_Unix.cpp',
           ],
         }],
         [ 'skia_os == "win"', {

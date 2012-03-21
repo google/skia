@@ -1,7 +1,4 @@
 {
-  'includes': [
-    'target_defaults.gypi',
-  ],
   'defines!': [
     'SK_BUILD_FOR_MAC',
   ],
@@ -212,7 +209,7 @@
             '../experimental/iOSSampleApp/iPhone/SkUINavigationController.mm',
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
 
-            '../src/utils/ios/SkOSWindow_iOS.mm',
+            '../src/views/ios/SkOSWindow_iOS.mm',
             '../src/utils/ios/SkImageDecoder_iOS.mm',
             '../src/utils/ios/SkStream_NSData.mm',
             '../src/utils/ios/SkOSFile_iOS.mm',

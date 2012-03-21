@@ -12,6 +12,7 @@
         '../include/images',
         '../include/animator',
         '../include/effects',
+        '../include/views/unix',
       ],
       'sources': [
         '../include/views/SkApplication.h',
@@ -64,10 +65,27 @@
         '../src/views/SkWidgets.cpp',
         '../src/views/SkWidgetViews.cpp',
         '../src/views/SkWindow.cpp',
+
+        #mac
+        '../src/views/mac/SkOSWindow_Mac.mm',
+        '../src/views/mac/skia_mac.mm',
+
+        #sdl
+        '../src/views/SDL/SkOSWindow_SDL.cpp',
+
+        #*nix
+        '../src/views/unix/SkOSWindow_Unix.cpp',
+        '../src/views/unix/keysym2ucs.c',
+
+        #windows
+        '../src/views/win/SkOSWindow_win.cpp',
+        '../src/views/win/skia_win.cpp',
+
       ],
       'sources!' : [
         '../src/views/SkListView.cpp',   #depends on missing SkListSource implementation
         '../src/views/SkListWidget.cpp', #depends on missing SkListSource implementation
+        '../src/views/SDL/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
         [ 'skia_os == "mac"', {
@@ -77,10 +95,27 @@
               '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
             ],
           },
+        },{
+          'sources!': [
+            '../src/views/mac/SkOSWindow_Mac.mm',
+            '../src/views/mac/skia_mac.mm',
+          ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources': [
             '../unix_test_app/main.cpp',
+          ],
+        },{
+          'sources!': [
+            '../src/views/unix/SkOSWindow_Unix.cpp',
+            '../src/views/unix/keysym2ucs.c',
+          ],
+        }],
+        [ 'skia_os == "win"', {
+        },{
+          'sources!': [
+            '../src/views/win/SkOSWindow_win.cpp',
+            '../src/views/win/skia_win.cpp',
           ],
         }],
         [ 'skia_os == "android"', {
