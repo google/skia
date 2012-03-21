@@ -3,14 +3,20 @@
     {
       'target_name': 'pdf',
       'type': 'static_library',
+      'dependencies': [
+        'core.gyp:core',
+        'ports.gyp:ports',
+        'utils.gyp:utils',
+        'zlib.gyp:zlib',
+      ],
       'include_dirs': [
         '../include/config',
         '../include/core',
         '../include/pdf',
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
+        '../src/utils', # needed to get SkBitSet.h
       ],
       'sources': [
-        '../include/pdf/SkBitSet.h',
         '../include/pdf/SkPDFCatalog.h',
         '../include/pdf/SkPDFDevice.h',
         '../include/pdf/SkPDFDocument.h',
@@ -24,7 +30,6 @@
         '../include/pdf/SkPDFTypes.h',
         '../include/pdf/SkPDFUtils.h',
 
-        '../src/pdf/SkBitSet.cpp',
         '../src/pdf/SkPDFCatalog.cpp',
         '../src/pdf/SkPDFDevice.cpp',
         '../src/pdf/SkPDFDocument.cpp',
@@ -49,9 +54,6 @@
           '../include/pdf',
         ],
       },
-      'dependencies': [
-        'zlib.gyp:zlib',
-      ],
     },
   ],
 }

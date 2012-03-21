@@ -11,6 +11,7 @@
         '../src/core',
         '../src/effects',
         '../src/gpu',
+        '../src/utils',
       ],
       'sources': [
         '../tests/AAClipTest.cpp',
