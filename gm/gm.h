@@ -45,15 +45,7 @@ namespace skiagm {
         uint32_t getFlags() const {
             return this->onGetFlags();
         }
-
-        // TODO(vandebo) Instead of exposing this, we should run all the GMs
-        // with and without an initial transform.
-        // Most GMs will return the identity matrix, but some PDFs tests
-        // require setting the initial transform.
-        SkMatrix getInitialTransform() const {
-            return this->onGetInitialTransform();
-        }
-
+        
         SkColor getBGColor() const { return fBGColor; }
         void setBGColor(SkColor);
 
@@ -73,8 +65,7 @@ namespace skiagm {
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
         virtual uint32_t onGetFlags() const { return 0; }
-        virtual SkMatrix onGetInitialTransform() const { return SkMatrix::I(); }
-
+        
     private:
         SkString fShortName;
         SkColor  fBGColor;
