@@ -138,8 +138,16 @@ static void toString(const void* text, size_t len, SkPaint::TextEncoding enc,
             str->printf("\"%.*S\"%s", SkMax32(len, 32), text,
                         len > 64 ? "..." : "");
             break;
+        case SkPaint::kUTF32_TextEncoding:
+            str->printf("\"%.*S\"%s", SkMax32(len, 32), text,
+                        len > 128 ? "..." : "");
+            break;
         case SkPaint::kGlyphID_TextEncoding:
             str->set("<glyphs>");
+            break;
+
+        default:
+            SkASSERT(false);
             break;
     }
 }

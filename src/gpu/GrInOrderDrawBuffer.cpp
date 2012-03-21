@@ -21,12 +21,12 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
                                          GrIndexBufferAllocPool* indexPool)
     : fAutoFlushTarget(NULL)
     , fClipSet(true)
+    , fVertexPool(*vertexPool)
+    , fIndexPool(*indexPool)
     , fLastRectVertexLayout(0)
     , fQuadIndexBuffer(NULL)
     , fMaxQuads(0)
-    , fCurrQuad(0)
-    , fVertexPool(*vertexPool)
-    , fIndexPool(*indexPool) {
+    , fCurrQuad(0) {
 
     fCaps = gpu->getCaps();
 
