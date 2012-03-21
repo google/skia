@@ -10,9 +10,8 @@
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
-#include "SkPDFFont.h"
 #include "SkPDFPage.h"
-#include "SkPDFTypes.h"
+#include "SkPDFFont.h"
 #include "SkStream.h"
 
 // Add the resources, starting at firstIndex to the catalog, removing any dupes.
@@ -223,23 +222,8 @@ bool SkPDFDocument::appendPage(SkPDFDevice* pdfDevice) {
     return true;
 }
 
-void SkPDFDocument::getCountOfFontTypes(
-        int counts[SkAdvancedTypefaceMetrics::kNotEmbeddable_Font + 1]) const {
-    memset(counts, 0,
-           sizeof(int)* SkAdvancedTypefaceMetrics::kNotEmbeddable_Font + 1);
-    SkTDArray<SkFontID> seenFonts;
-
-    for (int pageNumber = 0; pageNumber < fPages.count(); pageNumber++) {
-        const SkTDArray<SkPDFFont*>& fontResources =
-                fPages[pageNumber]->getFontResources();
-        for (int font = 0; font < fontResources.count(); font++) {
-            SkFontID fontID = fontResources[font]->typeface()->uniqueID();
-            if (seenFonts.find(fontID) != -1) {
-                counts[fontResources[font]->getType()]++;
-                seenFonts.push(fontID);
-            }
-        }
-    }
+const SkTDArray<SkPDFPage*>& SkPDFDocument::getPages() {
+    return fPages;
 }
 
 void SkPDFDocument::emitHeader(SkWStream* stream) {
