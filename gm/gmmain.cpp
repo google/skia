@@ -264,7 +264,10 @@ static void installFilter(SkCanvas* canvas) {
     }
 }
 
-static void invokeGM(GM* gm, SkCanvas* canvas) {
+static void invokeGM(GM* gm, SkCanvas* canvas, bool isPDF = false) {
+    if (!isPDF) {
+        canvas->setMatrix(gm->getInitialTransform());
+    }
     installFilter(canvas);
     gm->draw(canvas);
     canvas->setDrawFilter(NULL);
@@ -323,14 +326,26 @@ static void generate_image_from_picture(GM* gm, const ConfigData& gRec,
 
 static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
 #ifdef SK_SUPPORT_PDF
-    SkISize size = gm->getISize();
-    SkMatrix identity;
-    identity.reset();
-    SkPDFDevice* dev = new SkPDFDevice(size, size, identity);
+    SkMatrix initialTransform = gm->getInitialTransform();
+    SkISize pageSize = gm->getISize();
+    SkPDFDevice* dev = NULL;
+    if (initialTransform.isIdentity()) {
+        dev = new SkPDFDevice(pageSize, pageSize, initialTransform);
+    } else {
+        SkRect content = SkRect::MakeWH(SkIntToScalar(pageSize.width()),
+                                        SkIntToScalar(pageSize.height()));
+        initialTransform.mapRect(&content);
+        content.intersect(0, 0, SkIntToScalar(pageSize.width()),
+                                SkIntToScalar(pageSize.height()));
+        SkISize contentSize =
+            SkISize::Make(SkScalarRoundToInt(content.width()),
+                          SkScalarRoundToInt(content.height()));
+        dev = new SkPDFDevice(pageSize, contentSize, initialTransform);
+    }
     SkAutoUnref aur(dev);
 
     SkCanvas c(dev);
-    invokeGM(gm, &c);
+    invokeGM(gm, &c, true);
 
     SkPDFDocument doc;
     doc.appendPage(dev);
