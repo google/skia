@@ -21,6 +21,7 @@
 #include "SkImageEncoder.h"
 #include "gl/SkNativeGLContext.h"
 #include "gl/SkMesaGLContext.h"
+#include "gl/SkDebugGLContext.h"
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkRefCnt.h"
@@ -606,11 +607,12 @@ static void usage(const char * argv0) {
     SkDebugf(
         "%s [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n"
         "    [--noreplay] [--serialize] [--forceBWtext] [--nopdf] \n"
-        "    [--nodeferred] [--match substring] [--notexturecache]"
+        "    [--nodeferred] [--match substring] [--notexturecache]\n"
+        "    "
 #if SK_MESA
-        " [--mesagl]"
+        "[--mesagl]"
 #endif
-        "\n\n", argv0);
+        " [--debuggl]\n\n", argv0);
     SkDebugf("    writePath: directory to write rendered images in.\n");
     SkDebugf(
 "    readPath: directory to read reference images from;\n"
@@ -627,6 +629,7 @@ static void usage(const char * argv0) {
 #if SK_MESA
     SkDebugf("    --mesagl will run using the osmesa sw gl rasterizer.\n");
 #endif
+    SkDebugf("    --debuggl will run using the debugging gl utility.\n");
     SkDebugf("    --notexturecache: disable the gpu texture cache.\n");
 }
 
@@ -684,6 +687,7 @@ int main(int argc, char * const argv[]) {
     bool doReplay = true;
     bool doSerialize = false;
     bool useMesa = false;
+    bool useDebugGL = false;
     bool doDeferred = true;
     bool disableTextureCache = false;
 
@@ -730,6 +734,8 @@ int main(int argc, char * const argv[]) {
         } else if (strcmp(*argv, "--mesagl") == 0) {
             useMesa = true;
 #endif
+        } else if (strcmp(*argv, "--debuggl") == 0) {
+            useDebugGL = true;
         } else if (strcmp(*argv, "--notexturecache") == 0) {
             disableTextureCache = true;
         } else {
@@ -763,7 +769,9 @@ int main(int argc, char * const argv[]) {
         glContext.reset(new SkMesaGLContext());
     } else
 #endif
-    {
+    if (useDebugGL) {
+        glContext.reset(new SkDebugGLContext());
+    } else {
         glContext.reset(new SkNativeGLContext());
     }
 
@@ -893,5 +901,9 @@ int main(int argc, char * const argv[]) {
     }
     printf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
            testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
+
+    SkDELETE(skiagm::gGrContext);
+    skiagm::gGrContext = NULL;
+
     return (0 == testsFailed) ? 0 : -1;
 }
