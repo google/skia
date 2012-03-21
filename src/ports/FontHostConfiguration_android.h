@@ -39,4 +39,21 @@ struct FontFamily {
  */
 void getFontFamilies(SkTDArray<FontFamily*> &fontFamilies);
 
+/**
+ * Parse only the core system font configuration file and return the results in
+ * an array of FontFamily structures.
+ */
+void getSystemFontFamilies(SkTDArray<FontFamily*> &fontFamilies);
+
+
+/**
+ * Parse the fallback and vendor system font configuration files and return the
+ * results in an array of FontFamily structures.
+ */
+void getFallbackFontFamilies(SkTDArray<FontFamily*> &fallbackFonts);
+
+#if !defined(SK_BUILD_FOR_ANDROID_NDK)
+    void getLocale(char* language, char* region);
+#endif
+
 #endif /* FONTHOSTCONFIGURATION_ANDROID_H_ */

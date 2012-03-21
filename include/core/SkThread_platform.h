@@ -53,33 +53,6 @@ SK_API int32_t sk_atomic_dec(int32_t* addr);
 
 #endif // !SK_BUILD_FOR_ANDROID
 
-#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_NDK)
-
-#include <utils/threads.h>
-
-class SkMutex : android::Mutex {
-public:
-    SkMutex() {}
-    ~SkMutex() {}
-
-    void    acquire() { this->lock(); }
-    void    release() { this->unlock(); }
-};
-
-#else
-
-/** Implemented by the porting layer, this function adds 1 to the int specified
-    by the address (in a thread-safe manner), and returns the previous value.
-*/
-SK_API int32_t sk_atomic_inc(int32_t* addr);
-/** Implemented by the porting layer, this function subtracts 1 to the int
-    specified by the address (in a thread-safe manner), and returns the previous
-    value.
-*/
-SK_API int32_t sk_atomic_dec(int32_t* addr);
-
-#endif
-
 #ifdef SK_USE_POSIX_THREADS
 
 #include <pthread.h>

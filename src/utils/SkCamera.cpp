@@ -371,6 +371,18 @@ void Sk3DView::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
     fCamera.update();
     
 }
+
+SkScalar Sk3DView::getCameraLocationX() {
+    return fCamera.fLocation.fX / SkFloatToScalar(72.0f);
+}
+
+SkScalar Sk3DView::getCameraLocationY() {
+    return fCamera.fLocation.fY / SkFloatToScalar(72.0f);
+}
+
+SkScalar Sk3DView::getCameraLocationZ() {
+    return fCamera.fLocation.fZ / SkFloatToScalar(72.0f);
+}
 #endif
 
 void Sk3DView::translate(SkScalar x, SkScalar y, SkScalar z) {
