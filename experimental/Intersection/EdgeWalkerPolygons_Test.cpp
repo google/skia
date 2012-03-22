@@ -500,6 +500,12 @@ static void testPathTriangleRendering() {
     }
 }
 
+static void simplify(const char* functionName, const SkPath& path,
+        bool fill, SkPath& out) {
+    SkDebugf("%s\n", functionName);
+    simplify(path, fill, out);
+}
+
 static void testSimplifySkinnyTriangle1() {
     for (int x = 1; x < 255; ++x) {
         SkPath path, out;
@@ -518,7 +524,7 @@ static void testSimplifySkinnyTriangle1() {
         path.lineTo((x * 71) % 30, 2000);
         path.lineTo((x * 51) % 30, 3000);
         path.close();
-    testSimplify(path, true, out);
+        simplify(path, true, out);
     }
 }
 
@@ -546,7 +552,7 @@ path.lineTo(196.621033, 394.917633);
 //path.lineTo(289.392517, 517.138489);
 path.close();
 #endif
-    testSimplify(path, true, out);
+    simplify(__FUNCTION__, path, true, out);
 }
 
 static void testSimplifySkinnyTriangle3() {
@@ -561,7 +567,7 @@ static void testSimplifySkinnyTriangle3() {
         path.lineTo(416, 486.978577);
         path.lineTo(465, 430.970581);
         path.close();
-    testSimplify(path, true, out);
+    simplify(__FUNCTION__, path, true, out);
 }
 
 static void testSimplifySkinnyTriangle4() {
@@ -584,7 +590,7 @@ path.lineTo(210.344177, 437.315125);
 path.lineTo(197.019455, 383.794556);
 path.lineTo(278.742737, 508.065643);
 path.close();
-    testSimplify(path, true, out);
+    simplify(__FUNCTION__, path, true, out);
 }
 
 static void testSimplifySkinnyTriangle5() {
@@ -607,9 +613,31 @@ path.lineTo(203.059692, 441.332336);
 path.lineTo(195.994370, 386.856506);
 path.lineTo(271.998901, 521.301025);
 path.close();
-    testSimplify(path, true, out);
+    simplify(__FUNCTION__, path, true, out);
 }
 
+static void testSimplifySkinnyTriangle6() {
+        SkPath path, out;
+path.moveTo(591.091064, 627.534851);
+path.lineTo(541.088135, 560.707642);
+path.lineTo(491.085175, 493.880310);
+path.lineTo(441.082214, 427.053101);
+path.lineTo(591.091064, 627.534851);
+path.close();
+path.moveTo(317.093445, 592.013306);
+path.lineTo(366.316162, 542.986572);
+path.lineTo(416.051514, 486.978577);
+path.lineTo(465.786865, 430.970581);
+path.lineTo(317.093445, 592.013306);
+path.close();
+path.moveTo(289.392517, 517.138489);
+path.lineTo(249.886078, 508.598022);
+path.lineTo(217.110916, 450.916443);
+path.lineTo(196.621033, 394.917633);
+path.lineTo(289.392517, 517.138489);
+path.close();
+    simplify(__FUNCTION__, path, true, out);
+}
 
 static void testSimplifyTriangle22() {
     SkPath path, out;
@@ -650,7 +678,107 @@ static void testSimplifyTriangle24() {
     testSimplify(path, true, out);
 }
 
+static void testSimplifySkinnyTriangle7() {
+        SkPath path, out;
+path.moveTo(487.502319, 550.811279);
+path.lineTo(448.826050, 491.720123);
+path.lineTo(410.149780, 432.628967);
+path.lineTo(371.473572, 373.537781);
+path.lineTo(487.502319, 550.811279);
+path.close();
+path.moveTo(295.817108, 532.655579);
+path.lineTo(342.896271, 485.912292);
+path.lineTo(389.975433, 439.169006);
+path.lineTo(437.054596, 392.425781);
+path.lineTo(295.817108, 532.655579);
+path.close();
+path.moveTo(239.726822, 575.025269);
+path.lineTo(204.117569, 521.429688);
+path.lineTo(171.275452, 454.110382);
+path.lineTo(193.328583, 397.859497);
+path.lineTo(239.726822, 575.025269);
+path.close();
+    simplify(__FUNCTION__, path, true, out);
+}
+
+static void testSimplifySkinnyTriangle8() {
+        SkPath path, out;
+path.moveTo(441.943115, 511.678040);
+path.lineTo(408.487549, 456.880920);
+path.lineTo(375.031952, 402.083801);
+path.lineTo(341.576385, 347.286682);
+path.lineTo(441.943115, 511.678040);
+path.close();
+path.moveTo(297.548492, 557.246704);
+path.lineTo(350.768494, 507.627014);
+path.lineTo(403.988525, 458.007385);
+path.lineTo(457.208527, 408.387695);
+path.lineTo(297.548492, 557.246704);
+path.close();
+path.moveTo(209.857895, 615.802979);
+path.lineTo(178.249481, 534.230347);
+path.lineTo(144.905640, 460.056824);
+path.lineTo(192.953125, 404.972900);
+path.lineTo(209.857895, 615.802979);
+path.close();
+    simplify(__FUNCTION__, path, true, out);
+}
+
+static void testSimplifySkinnyTriangle9() {
+        SkPath path, out;
+path.moveTo(439.867065, 528.291931);
+path.lineTo(405.413025, 469.107178);
+path.lineTo(370.958954, 409.922363);
+path.lineTo(336.504883, 350.737610);
+path.lineTo(439.867065, 528.291931);
+path.close();
+path.moveTo(298.922455, 573.251953);
+path.lineTo(356.360962, 521.905090);
+path.lineTo(413.799438, 470.558228);
+path.lineTo(471.237915, 419.211365);
+path.lineTo(298.922455, 573.251953);
+path.close();
+path.moveTo(187.200775, 643.035156);
+path.lineTo(159.713165, 540.993774);
+path.lineTo(126.257164, 462.198517);
+path.lineTo(193.534012, 409.266235);
+path.lineTo(187.200775, 643.035156);
+path.close();
+path.close();
+    simplify(__FUNCTION__, path, true, out);
+}
+
+static void testSimplifySkinnyTriangle10() {
+        SkPath path, out;
+#if 0
+path.moveTo(99.270325, 239.365234);
+path.lineTo(105.967056, 173.361206);
+path.lineTo(148.821381, 141.309891);
+path.lineTo(159.101013, 189.235138);
+path.lineTo(99.270325, 239.365234);
+path.close();
+#endif
+path.moveTo(213.673737, 413.292938);
+path.lineTo(225.200134, 343.616821);
+path.lineTo(236.726532, 273.940704);
+path.lineTo(219.386414, 231.373322);
+path.lineTo(213.673737, 413.292938);
+path.close();
+path.moveTo(43.485352, 308.984497);
+path.lineTo(122.610657, 305.950134);
+path.lineTo(201.735962, 302.915802);
+path.lineTo(280.861267, 299.881470);
+path.lineTo(43.485352, 308.984497);
+path.close();
+    simplify(__FUNCTION__, path, true, out);
+}
+
 static void (*simplifyTests[])() = {
+    testSimplifySkinnyTriangle10,
+    testSimplifySkinnyTriangle9,
+    testSimplifySkinnyTriangle8,
+    testSimplifySkinnyTriangle7,
+    testSimplifySkinnyTriangle6,
     testSimplifySkinnyTriangle5,
     testSimplifySkinnyTriangle4,
     testSimplifySkinnyTriangle3,
@@ -691,7 +819,7 @@ static void (*simplifyTests[])() = {
 
 static size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
 
-static void (*firstTest)() = testSimplifySkinnyTriangle4;
+static void (*firstTest)() = 0;
 
 void SimplifyPolygonPaths_Test() {
     size_t index = 0;
@@ -703,6 +831,9 @@ void SimplifyPolygonPaths_Test() {
     bool firstTestComplete = false;
     for ( ; index < simplifyTestsCount; ++index) {
         (*simplifyTests[index])();
+        if (simplifyTests[index] == testSimplifySkinnyTriangle2) {
+            SkDebugf("%s last fast skinny test\n", __FUNCTION__);
+        }
         firstTestComplete = true;
     }
 }

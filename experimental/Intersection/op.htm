@@ -1,0 +1,244 @@
+<html>
+<head>
+<div style="height:0">
+<div id="test_1div">
+path.moveTo(213.673737, 413.292938);
+path.lineTo(225.200134, 343.616821);
+path.lineTo(236.726532, 273.940704);
+path.lineTo(219.386414, 231.373322);
+path.lineTo(213.673737, 413.292938);
+path.close();
+path.moveTo(43.485352, 308.984497);
+path.lineTo(122.610657, 305.950134);
+path.lineTo(201.735962, 302.915802);
+path.lineTo(280.861267, 299.881470);
+path.lineTo(43.485352, 308.984497);
+path.close();
+</div>
+</div>
+
+<script type="text/javascript">
+
+var testDivs = [
+    test_1div,
+];
+
+var scale, columns, rows, xStart, yStart;
+
+var ticks = 0.1;
+var at_x = 13 + 0.5;
+var at_y = 13 + 0.5;
+
+var tests = [];
+var testIndex = 0;
+
+var ctx;
+
+function parse(test) {
+    var contours = [];
+    var contourStrs = test.split("path.close();");
+    var pattern = /\d+\.*\d*/g;
+    for (var c in contourStrs) {
+        var points = contourStrs[c].match(pattern);
+        var pts = [];
+        for (var wd in points) {
+            var num = parseFloat(points[wd]);
+            if (isNaN(num)) continue;
+            pts.push(num );
+        }
+        contours.push(pts);
+    }
+    tests.push(contours);
+}
+
+function init(test) {
+    var canvas = document.getElementById('canvas');
+    if (!canvas.getContext) return;
+    ctx = canvas.getContext('2d');
+    var xmin = Infinity;
+    var xmax = -Infinity;
+    var ymin = Infinity;
+    var ymax = -Infinity;
+    for (pts in test) {
+        var pt = test[pts];
+        for (i = 0; i < pt.length; i += 2) {
+            xmin = Math.min(xmin, pt[i]);
+            ymin = Math.min(ymin, pt[i + 1]);
+            xmax = Math.max(xmax, pt[i]);
+            ymax = Math.max(ymax, pt[i + 1]);
+        }
+    }
+    var subscale = 1;
+    while ((xmax - xmin) * subscale < 0.1 && (ymax - ymin) * subscale < 0.1) {
+        subscale *= 10;
+    }
+    columns = Math.ceil(xmax) - Math.floor(xmin) + 1;
+    rows = Math.ceil(ymax) - Math.floor(ymin) + 1;
+    xStart = Math.floor(xmin);
+    yStart = Math.floor(ymin);
+    var hscale = ctx.canvas.width / columns / ticks;
+    var vscale = ctx.canvas.height / rows / ticks;
+    scale = Math.floor(Math.min(hscale, vscale)) * subscale;
+}
+
+function drawPoint(px, py, xoffset, yoffset, unit) {
+    var label = px + "=" + px.toFixed(3) + ", " + py + "=" + py.toFixed(3);
+    var _px = px * unit + xoffset;
+    var _py = py * unit + yoffset;
+    ctx.beginPath();
+    ctx.arc(_px, _py, 3, 0, Math.PI*2, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillText(label, _px + 5, _py);
+}
+
+function draw(test, _at_x, _at_y, scale) {
+    var unit = scale * ticks;
+    ctx.lineWidth = 1;
+    var i;
+    for (i = 0; i <= rows * ticks; ++i) {
+        ctx.strokeStyle = (i % ticks) != 0 ? "rgb(160,160,160)" : "black";
+        ctx.beginPath();
+        ctx.moveTo(_at_x + 0, _at_y + i * scale);
+        ctx.lineTo(_at_x + unit * columns, _at_y + i * scale);
+        ctx.stroke();
+    }
+    for (i = 0; i <= columns * ticks; ++i) {
+        ctx.strokeStyle = (i % ticks) != 0 ? "rgb(160,160,160)" : "black";
+        ctx.beginPath();
+        ctx.moveTo(_at_x + i * scale, _at_y + 0);
+        ctx.lineTo(_at_x + i * scale, _at_y + unit * rows);
+        ctx.stroke();
+    }
+ 
+    var xoffset = xStart * -unit + _at_x;
+    var yoffset = yStart * -unit + _at_y;
+
+    ctx.fillStyle = "rgb(40,80,60)"
+    for (i = 0; i <= columns; i += (1 / ticks))
+    {
+        num = (xoffset - _at_x) / -unit + i; 
+        ctx.fillText(num.toFixed(0), i * unit + _at_y - 5, 10);
+    }
+    for (i = 0; i <= rows; i += (1 / ticks))
+    {
+        num = (yoffset - _at_x) / -unit + i; 
+        ctx.fillText(num.toFixed(0), 0, i * unit + _at_y + 0);
+    }
+    ctx.strokeStyle = "red";
+    for (pts in test) {
+        var pt = test[pts];
+        var x = pt[0];
+        var y = pt[1];
+        ctx.beginPath();
+        ctx.moveTo(xoffset + x * unit, yoffset + y * unit);
+        for (i = 2; i < pt.length; i += 2) {
+            x = pt[i];
+            y = pt[i + 1];
+            ctx.lineTo(xoffset + x * unit, yoffset + y * unit);
+        }
+        ctx.stroke();
+    }
+    
+    ctx.fillStyle="blue";
+    for (pts in test) {
+        var pt = test[pts];
+        for (i = 0; i < pt.length; i += 2) {
+            x = pt[i];
+            y = pt[i + 1];
+            drawPoint(x, y, xoffset, yoffset, unit);
+        }
+    }
+}
+
+var mouseX = Infinity, mouseY;
+
+function calcXY() {
+    var e = window.event;
+	var tgt = e.target || e.srcElement;
+    var left = tgt.offsetLeft;
+    var top = tgt.offsetTop;
+    var unit = scale * ticks;
+    mouseX = (e.clientX - left - Math.ceil(at_x) + 1) / unit + xStart;
+    mouseY = (e.clientY - top - Math.ceil(at_y)) / unit + yStart;
+}
+
+function handleMouseOver() {
+    calcXY();
+    var num = mouseX.toFixed(3) + ", " + mouseY.toFixed(3);
+    ctx.beginPath();
+    ctx.rect(300,100,200,10);
+    ctx.fillStyle="white";
+    ctx.fill();
+    ctx.fillStyle="black";
+    ctx.fillText(num, 300, 108);
+}
+
+function handleMouseClick() {
+    calcXY();
+//    drawInset();
+}
+
+function drawTop() {
+    init(tests[testIndex]);
+    redraw();
+}
+
+function redraw() {
+    ctx.beginPath();
+    ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle="white";
+    ctx.fill();
+    draw(tests[testIndex], at_x, at_y, scale);
+//    if (insetScale != scale && mouseX != Infinity)
+//        drawInset();
+}
+
+function doKeyPress(evt) {
+    var char = String.fromCharCode(evt.charCode);
+    switch (char) {
+    case 'N':
+    case 'n':
+        if (++testIndex >= tests.length)
+            testIndex = 0;
+    //    insetScale = scale;
+        mouseX = Infinity;
+        drawTop();
+        break;
+    case 'T':
+    case 't':
+  //      drawTs(testIndex);
+        break;
+    case '-':
+ //       if (--insetScale < 1)
+ //           insetScale = 1;
+ //       else
+            redraw();
+        break;
+    case '=':
+    case '+':
+ //       ++insetScale;
+        redraw();
+        break;
+    }
+}
+
+function start() {
+    for (i = 0; i < testDivs.length; ++i) {
+        var str = testDivs[i].firstChild.data;
+        parse(str);
+    }
+    drawTop();
+    window.addEventListener('keypress', doKeyPress, true);
+}
+
+</script>
+</head>
+
+<body onLoad="start();">
+<canvas id="canvas" width="1500" height="1000"
+    onmousemove="handleMouseOver()"
+    onclick="handleMouseClick()"
+    ></canvas >
+</body>
+</html>
