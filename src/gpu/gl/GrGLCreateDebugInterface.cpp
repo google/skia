@@ -10,6 +10,7 @@
 #include "gl/GrGLInterface.h"
 
 #include "SkTArray.h"
+#include "SkTDArray.h"
 
 // the OpenGLES 2.0 spec says this must be >= 2
 static const GrGLint kDefaultMaxTextureUnits = 8;
@@ -158,19 +159,71 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// TODO: when a framebuffer obj is bound the GL_SAMPLES query must return 0
-// TODO: GL_STENCIL_BITS must also be redirected to the framebuffer
-class GrFrameBufferObj : public GrFakeRefObj
+class GrRenderBufferObj : public GrFakeRefObj
 {
 public:
-    GrFrameBufferObj(GrGLuint ID)
+    GrRenderBufferObj(GrGLuint ID)
         : GrFakeRefObj(ID)
         , fBound(false) {
+    }
+
+    virtual ~GrRenderBufferObj() {
+        GrAlwaysAssert(0 == fColorReferees.count());
+        GrAlwaysAssert(0 == fDepthReferees.count());
+        GrAlwaysAssert(0 == fStencilReferees.count());
     }
 
     void setBound()         { fBound = true; }
     void resetBound()       { fBound = false; }
     bool getBound() const   { return fBound; }
+
+    void setColorBound(GrFakeRefObj *referee) { 
+        fColorReferees.append(1, &referee);
+    }
+    void resetColorBound(GrFakeRefObj *referee) { 
+        int index = fColorReferees.find(referee);
+        GrAlwaysAssert(0 <= index);
+        fColorReferees.removeShuffle(index);
+    }
+    bool getColorBound(GrFakeRefObj *referee) const { 
+        int index = fColorReferees.find(referee);
+        return 0 <= index;
+    }
+    bool getColorBound() const { 
+        return 0 != fColorReferees.count();
+    }
+
+    void setDepthBound(GrFakeRefObj *referee) { 
+        fDepthReferees.append(1, &referee);
+    }
+    void resetDepthBound(GrFakeRefObj *referee) { 
+        int index = fDepthReferees.find(referee);
+        GrAlwaysAssert(0 <= index);
+        fDepthReferees.removeShuffle(index);
+    }
+    bool getDepthBound(GrFakeRefObj *referee) const { 
+        int index = fDepthReferees.find(referee);
+        return 0 <= index;
+    }
+    bool getDepthBound() const { 
+        return 0 != fDepthReferees.count();
+    }
+
+    void setStencilBound(GrFakeRefObj *referee) { 
+        fStencilReferees.append(1, &referee);
+    }
+    void resetStencilBound(GrFakeRefObj *referee) { 
+        int index = fStencilReferees.find(referee);
+        GrAlwaysAssert(0 <= index);
+        fStencilReferees.removeShuffle(index);
+    }
+    bool getStencilBound(GrFakeRefObj *referee) const { 
+        int index = fStencilReferees.find(referee);
+        return 0 <= index;
+    }
+    bool getStencilBound() const { 
+        return 0 != fStencilReferees.count();
+    }
 
     virtual void deleteAction() SK_OVERRIDE {
 
@@ -179,7 +232,113 @@ public:
 
 protected:
 private:
+    bool fBound;           // is this render buffer currently bound via "glBindRenderbuffer"?
+
+    SkTDArray<GrFakeRefObj *> fColorReferees;   // frame buffers that use this as a color buffer (via "glFramebufferRenderbuffer")
+    SkTDArray<GrFakeRefObj *> fDepthReferees;   // frame buffers that use this as a depth buffer (via "glFramebufferRenderbuffer")
+    SkTDArray<GrFakeRefObj *> fStencilReferees; // frame buffers that use this as a stencil buffer (via "glFramebufferRenderbuffer")
+
+    typedef GrFakeRefObj INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// TODO: when a framebuffer obj is bound the GL_SAMPLES query must return 0
+// TODO: GL_STENCIL_BITS must also be redirected to the framebuffer
+class GrFrameBufferObj : public GrFakeRefObj
+{
+public:
+    GrFrameBufferObj(GrGLuint ID)
+        : GrFakeRefObj(ID)
+        , fBound(false)
+        , fColorBuffer(NULL)
+        , fDepthBuffer(NULL)
+        , fStencilBuffer(NULL) {
+    }
+
+    virtual ~GrFrameBufferObj() {
+        fColorBuffer = NULL;
+        fDepthBuffer = NULL;
+        fStencilBuffer = NULL;
+    }
+
+    void setBound()         { fBound = true; }
+    void resetBound()       { fBound = false; }
+    bool getBound() const   { return fBound; }
+
+    void setColor(GrRenderBufferObj *buffer) {
+        if (fColorBuffer) {
+            // automatically break the binding of the old buffer
+            GrAlwaysAssert(fColorBuffer->getColorBound(this));
+            fColorBuffer->resetColorBound(this);
+
+            GrAlwaysAssert(!fColorBuffer->getDeleted());
+            fColorBuffer->unref();
+        }
+        fColorBuffer = buffer;
+        if (fColorBuffer) {
+            GrAlwaysAssert(!fColorBuffer->getDeleted());
+            fColorBuffer->ref();
+
+            GrAlwaysAssert(!fColorBuffer->getColorBound(this));
+            fColorBuffer->setColorBound(this);
+        }
+    }
+    GrRenderBufferObj *getColor()       { return fColorBuffer; }
+
+    void setDepth(GrRenderBufferObj *buffer) {
+        if (fDepthBuffer) {
+            // automatically break the binding of the old buffer
+            GrAlwaysAssert(fDepthBuffer->getDepthBound(this));
+            fDepthBuffer->resetDepthBound(this);
+
+            GrAlwaysAssert(!fDepthBuffer->getDeleted());
+            fDepthBuffer->unref();
+        }
+        fDepthBuffer = buffer;
+        if (fDepthBuffer) {
+            GrAlwaysAssert(!fDepthBuffer->getDeleted());
+            fDepthBuffer->ref();
+
+            GrAlwaysAssert(!fDepthBuffer->getDepthBound(this));
+            fDepthBuffer->setDepthBound(this);
+        }
+    }
+    GrRenderBufferObj *getDepth()       { return fDepthBuffer; }
+
+    void setStencil(GrRenderBufferObj *buffer) {
+        if (fStencilBuffer) {
+            // automatically break the binding of the old buffer
+            GrAlwaysAssert(fStencilBuffer->getStencilBound(this));
+            fStencilBuffer->resetStencilBound(this);
+
+            GrAlwaysAssert(!fStencilBuffer->getDeleted());
+            fStencilBuffer->unref();
+        }
+        fStencilBuffer = buffer;
+        if (fStencilBuffer) {
+            GrAlwaysAssert(!fStencilBuffer->getDeleted());
+            fStencilBuffer->ref();
+
+            GrAlwaysAssert(!fStencilBuffer->getStencilBound(this));
+            fStencilBuffer->setStencilBound(this);
+        }
+    }
+    GrRenderBufferObj *getStencil()     { return fStencilBuffer; }
+
+    virtual void deleteAction() SK_OVERRIDE {
+
+        setColor(NULL);
+        setDepth(NULL);
+        setStencil(NULL);
+        this->setDeleted();
+    }
+
+protected:
+private:
     bool fBound;        // is this frame buffer currently bound via "glBindFramebuffer"?
+    GrRenderBufferObj * fColorBuffer;
+    GrRenderBufferObj * fDepthBuffer;
+    GrRenderBufferObj * fStencilBuffer;
 
     typedef GrFakeRefObj INHERITED;
 };
@@ -271,6 +430,15 @@ public:
         return reinterpret_cast<GrFrameBufferObj *>(obj);
     }
 
+    GrRenderBufferObj *findRenderBuffer(GrGLuint ID) {
+        GrFakeRefObj *obj = this->findObject(ID);
+        if (NULL == obj) {
+            return NULL;
+        }
+
+        return reinterpret_cast<GrRenderBufferObj *>(obj);
+    }
+
     GrShaderObj *findShader(GrGLuint ID) {
         GrFakeRefObj *obj = this->findObject(ID);
         if (NULL == obj) {
@@ -300,6 +468,14 @@ public:
 
     GrFrameBufferObj *createFrameBuffer() {
         GrFrameBufferObj *buffer = new GrFrameBufferObj(++fNextID);
+
+        fObjects.push_back(buffer);
+
+        return buffer;
+    }
+
+    GrRenderBufferObj *createRenderBuffer() {
+        GrRenderBufferObj *buffer = new GrRenderBufferObj(++fNextID);
 
         fObjects.push_back(buffer);
 
@@ -389,8 +565,7 @@ public:
     GrBufferObj *getElementArrayBuffer()                            { return fElementArrayBuffer; }
 
     void setFrameBuffer(GrFrameBufferObj *frameBuffer)  { 
-        if (fFrameBuffer)
-        {
+        if (fFrameBuffer) {
             GrAlwaysAssert(fFrameBuffer->getBound());
             fFrameBuffer->resetBound();
 
@@ -400,8 +575,7 @@ public:
 
         fFrameBuffer = frameBuffer; 
 
-        if (fFrameBuffer)
-        {
+        if (fFrameBuffer) {
             GrAlwaysAssert(!fFrameBuffer->getDeleted());
             fFrameBuffer->ref();
 
@@ -411,6 +585,28 @@ public:
     }
 
     GrFrameBufferObj *getFrameBuffer()                  { return fFrameBuffer; }
+
+    void setRenderBuffer(GrRenderBufferObj *renderBuffer)  { 
+        if (fRenderBuffer) {
+            GrAlwaysAssert(fRenderBuffer->getBound());
+            fRenderBuffer->resetBound();
+
+            GrAlwaysAssert(!fRenderBuffer->getDeleted());
+            fRenderBuffer->unref();
+        }
+
+        fRenderBuffer = renderBuffer; 
+
+        if (fRenderBuffer) {
+            GrAlwaysAssert(!fRenderBuffer->getDeleted());
+            fRenderBuffer->ref();
+
+            GrAlwaysAssert(!fRenderBuffer->getBound());
+            fRenderBuffer->setBound();
+        }
+    }
+
+    GrRenderBufferObj *getRenderBuffer()                  { return fRenderBuffer; }
 
     void useProgram(GrProgramObj *program) {
         if (fProgram) {
@@ -423,8 +619,7 @@ public:
 
         fProgram = program;
 
-        if (fProgram)
-        {
+        if (fProgram) {
             GrAlwaysAssert(!fProgram->getDeleted());
             fProgram->ref();
 
@@ -455,6 +650,7 @@ private:
     GrBufferObj *   fArrayBuffer;
     GrBufferObj *   fElementArrayBuffer;
     GrFrameBufferObj *fFrameBuffer;
+    GrRenderBufferObj *fRenderBuffer;
     GrProgramObj *  fProgram;
 
     static int fNextID;                     // source for globally unique IDs
@@ -470,6 +666,7 @@ private:
         , fArrayBuffer(NULL)
         , fElementArrayBuffer(NULL)
         , fFrameBuffer(NULL)
+        , fRenderBuffer(NULL)
         , fProgram(NULL) {
     }
 
@@ -484,6 +681,7 @@ private:
         fArrayBuffer = NULL;
         fElementArrayBuffer = NULL;
         fFrameBuffer = NULL;
+        fRenderBuffer = NULL;
         fProgram = NULL;
     }
 };
@@ -620,20 +818,28 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFramebuffer(GrGLenum target, GrGLuint fr
     GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
 
     // a frameBufferID of 0 is acceptable - it binds to the default frame buffer
-    GrFrameBufferObj *framebuffer = GrDebugGL::getInstance()->findFrameBuffer(frameBufferID);
+    GrFrameBufferObj *frameBuffer = GrDebugGL::getInstance()->findFrameBuffer(frameBufferID);
 
-    GrDebugGL::getInstance()->setFrameBuffer(framebuffer);
+    GrDebugGL::getInstance()->setFrameBuffer(frameBuffer);
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindRenderbuffer(GrGLenum target, GrGLuint renderbuffer) {}
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindRenderbuffer(GrGLenum target, GrGLuint renderBufferID) {
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLuint *framebuffers) {
+    GrAlwaysAssert(GR_GL_RENDERBUFFER == target);
+
+    // a renderBufferID of 0 is acceptable - it unbinds the bound render buffer
+    GrRenderBufferObj *renderBuffer = GrDebugGL::getInstance()->findRenderBuffer(renderBufferID);
+
+    GrDebugGL::getInstance()->setRenderBuffer(renderBuffer);
+}
+
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLuint *frameBuffers) {
 
     // first potentially unbind the buffers
     if (GrDebugGL::getInstance()->getFrameBuffer()) {
         for (int i = 0; i < n; ++i) {
 
-            if (framebuffers[i] == GrDebugGL::getInstance()->getFrameBuffer()->getID()) {
+            if (frameBuffers[i] == GrDebugGL::getInstance()->getFrameBuffer()->getID()) {
                 // this ID is the current frame buffer - rebind to the default
                 GrDebugGL::getInstance()->setFrameBuffer(NULL);
             }
@@ -642,7 +848,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLui
 
     // then actually "delete" the buffers
     for (int i = 0; i < n; ++i) {
-        GrFrameBufferObj *buffer = GrDebugGL::getInstance()->findFrameBuffer(framebuffers[i]);
+        GrFrameBufferObj *buffer = GrDebugGL::getInstance()->findFrameBuffer(frameBuffers[i]);
         GrAlwaysAssert(buffer);
 
         GrAlwaysAssert(!buffer->getDeleted());
@@ -650,8 +856,87 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLui
     }
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteRenderbuffers(GrGLsizei n, const GrGLuint *renderbuffers) {}
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferRenderbuffer(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer) {}
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteRenderbuffers(GrGLsizei n, const GrGLuint *renderBuffers) {
+
+    // first potentially unbind the buffers
+    if (GrDebugGL::getInstance()->getRenderBuffer()) {
+        for (int i = 0; i < n; ++i) {
+
+            if (renderBuffers[i] == GrDebugGL::getInstance()->getRenderBuffer()->getID()) {
+                // this ID is the current render buffer - make no render buffer be bound
+                GrDebugGL::getInstance()->setRenderBuffer(NULL);
+            }
+        }
+    }
+
+    // Open GL will remove a deleted render buffer from the active frame buffer but not
+    // from any other frame buffer
+    if (GrDebugGL::getInstance()->getFrameBuffer()) {
+
+        GrFrameBufferObj *frameBuffer = GrDebugGL::getInstance()->getFrameBuffer();
+
+        for (int i = 0; i < n; ++i) {
+
+            if (NULL != frameBuffer->getColor() && renderBuffers[i] == frameBuffer->getColor()->getID()) {
+                frameBuffer->setColor(NULL);
+            } 
+            if (NULL != frameBuffer->getDepth() && renderBuffers[i] == frameBuffer->getDepth()->getID()) {
+                frameBuffer->setDepth(NULL);
+            }
+            if (NULL != frameBuffer->getStencil() && renderBuffers[i] == frameBuffer->getStencil()->getID()) {
+                frameBuffer->setStencil(NULL);
+            }
+        }
+    }
+
+    // then actually "delete" the buffers
+    for (int i = 0; i < n; ++i) {
+        GrRenderBufferObj *buffer = GrDebugGL::getInstance()->findRenderBuffer(renderBuffers[i]);
+        GrAlwaysAssert(buffer);
+
+        // OpenGL gives no guarantees if a render buffer is deleted while attached to
+        // something other than the currently bound frame buffer
+        GrAlwaysAssert(!buffer->getColorBound());
+        GrAlwaysAssert(!buffer->getDepthBound());
+        GrAlwaysAssert(!buffer->getStencilBound());
+
+        GrAlwaysAssert(!buffer->getDeleted());
+        buffer->deleteAction();
+    }
+}
+
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferRenderbuffer(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderBufferID) {
+
+    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
+    GrAlwaysAssert(GR_GL_COLOR_ATTACHMENT0 == attachment || 
+                   GR_GL_DEPTH_ATTACHMENT == attachment || 
+                   GR_GL_STENCIL_ATTACHMENT == attachment);
+    GrAlwaysAssert(GR_GL_RENDERBUFFER == renderbuffertarget);
+
+    GrFrameBufferObj *framebuffer = GrDebugGL::getInstance()->getFrameBuffer();
+    // A render buffer cannot be attached to the default framebuffer
+    GrAlwaysAssert(NULL != framebuffer);
+
+    // a renderBufferID of 0 is acceptable - it unbinds the current render buffer
+    GrRenderBufferObj *renderbuffer = GrDebugGL::getInstance()->findRenderBuffer(renderBufferID);
+
+    switch (attachment) {
+    case GR_GL_COLOR_ATTACHMENT0:
+        framebuffer->setColor(renderbuffer);
+        break;
+    case GR_GL_DEPTH_ATTACHMENT:
+        framebuffer->setDepth(renderbuffer);
+        break;
+    case GR_GL_STENCIL_ATTACHMENT:
+        framebuffer->setStencil(renderbuffer);
+        break;
+    default:
+        GrAlwaysAssert(false);
+        break;
+    };
+
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetFramebufferAttachmentParameteriv(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetRenderbufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) {}
@@ -728,6 +1013,15 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenFramebuffers(GrGLsizei n, GrGLuint* ids) 
 
     for (int i = 0; i < n; ++i) {
         GrFrameBufferObj *buffer = GrDebugGL::getInstance()->createFrameBuffer();
+        GrAlwaysAssert(buffer);
+        ids[i] = buffer->getID();
+    }
+}
+
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenRenderbuffers(GrGLsizei n, GrGLuint* ids) {
+
+    for (int i = 0; i < n; ++i) {
+        GrRenderBufferObj *buffer = GrDebugGL::getInstance()->createRenderBuffer();
         GrAlwaysAssert(buffer);
         ids[i] = buffer->getID();
     }
@@ -1152,7 +1446,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
         interface->fFramebufferRenderbuffer = debugGLFramebufferRenderbuffer;
         interface->fFramebufferTexture2D = debugGLFramebufferTexture2D;
         interface->fGenFramebuffers = debugGLGenFramebuffers;
-        interface->fGenRenderbuffers = debugGLGenIds;
+        interface->fGenRenderbuffers = debugGLGenRenderbuffers;
         interface->fGetFramebufferAttachmentParameteriv = debugGLGetFramebufferAttachmentParameteriv;
         interface->fGetRenderbufferParameteriv = debugGLGetRenderbufferParameteriv;
         interface->fRenderbufferStorage = debugGLRenderbufferStorage;

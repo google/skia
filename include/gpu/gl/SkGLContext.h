@@ -51,6 +51,8 @@ protected:
 private:
     SkString fExtensionString;
     GrGLuint fFBO;
+    GrGLuint fColorBufferID;
+    GrGLuint fDepthStencilBufferID;
     const GrGLInterface* fGL;
 };
 
