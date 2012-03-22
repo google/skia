@@ -591,12 +591,21 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 }
 
 static void usage(const char * argv0) {
-    SkDebugf("%s [sampleName] [-i resourcePath]\n", argv0);
+    SkDebugf("%s [--slide sampleName] [-i resourcePath]\n", argv0);
     SkDebugf("    sampleName: sample at which to start.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
 }
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager) : INHERITED(hwnd) {
+
+    SkGMRegistyToSampleRegistry();
+    {
+        const SkViewRegister* reg = SkViewRegister::Head();
+        while (reg) {
+            *fSamples.append() = reg->factory();
+            reg = reg->next();
+        }
+    }
 
     const char* resourcePath = NULL;
     fCurrIndex = -1;
@@ -609,11 +618,16 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
             if (argv < stop && **argv) {
                 resourcePath = *argv;
             }
-        } else {
-            fCurrIndex = findByTitle(*argv);
-            if (fCurrIndex < 0) {
-                fprintf(stderr, "Unknown sample \"%s\"\n", *argv);
+        } else if (strcmp(*argv, "--slide") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                fCurrIndex = findByTitle(*argv);
+                if (fCurrIndex < 0) {
+                    fprintf(stderr, "Unknown sample \"%s\"\n", *argv);
+                }
             }
+        } else {
+            usage(commandName);
         }
     }
 
@@ -732,15 +746,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     this->setClipToBounds(false);
 
     skiagm::GM::SetResourcePath(resourcePath);
-
-    SkGMRegistyToSampleRegistry();
-    {
-        const SkViewRegister* reg = SkViewRegister::Head();
-        while (reg) {
-            *fSamples.append() = reg->factory();
-            reg = reg->next();
-        }
-    }
 
     this->loadView((*fSamples[fCurrIndex])());
     
