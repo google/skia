@@ -182,7 +182,7 @@ typedef unsigned __int64 uint64_t;
 // debug -vs- release
 //
 
-extern GR_API void GrPrintf(const char format[], ...);
+#define GrPrintf SkDebugf
 
 /**
  *  GR_STRING makes a string of X where X is expanded before conversion to a string

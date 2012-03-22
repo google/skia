@@ -104,7 +104,6 @@
         '../include/gpu/gl/SkNullGLContext.h',
         '../include/gpu/gl/SkDebugGLContext.h',
 
-        '../src/gpu/GrPrintf_skia.cpp',
         '../src/gpu/SkGpuCanvas.cpp',
         '../src/gpu/SkGpuDevice.cpp',
         '../src/gpu/SkGr.cpp',
