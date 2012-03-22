@@ -43,7 +43,9 @@
 struct DiffRecord {
     DiffRecord (const SkString filename,
                 const SkString basePath,
-                const SkString comparisonPath)
+                const SkString comparisonPath,
+                bool baseMissing = false,
+                bool comparisonMissing = false)
         : fFilename (filename)
         , fBasePath (basePath)
         , fComparisonPath (comparisonPath)
@@ -61,7 +63,9 @@ struct DiffRecord {
         , fMaxMismatchR (0)
         , fMaxMismatchG (0)
         , fMaxMismatchB (0)
-        , fDoImageSizesMismatch (false) {
+        , fDoImageSizesMismatch (false)
+        , fBaseMissing(baseMissing)
+        , fComparisonMissing(comparisonMissing) {
         // These asserts are valid for GM, but not for --chromium
         //SkASSERT(basePath.endsWith(filename.c_str()));
         //SkASSERT(comparisonPath.endsWith(filename.c_str()));
@@ -96,6 +100,9 @@ struct DiffRecord {
     /// By the time we need to report image size mismatch, we've already
     /// released the bitmaps, so we need to remember it when we detect it.
     bool fDoImageSizesMismatch;
+
+    bool fBaseMissing;
+    bool fComparisonMissing;
 };
 
 #define MAX2(a,b) (((b) < (a)) ? (a) : (b))
@@ -104,6 +111,8 @@ struct DiffRecord {
 const SkPMColor PMCOLOR_WHITE = SkPreMultiplyColor(SK_ColorWHITE);
 const SkPMColor PMCOLOR_BLACK = SkPreMultiplyColor(SK_ColorBLACK);
 
+typedef SkTDArray<SkString*> FileArray;
+
 struct DiffSummary {
     DiffSummary ()
         : fNumMatches (0)
@@ -111,12 +120,34 @@ struct DiffSummary {
         , fMaxMismatchV (0)
         , fMaxMismatchPercent (0) { };
 
+    ~DiffSummary() {
+        fBaseMissing.deleteAll();
+        fComparisonMissing.deleteAll();
+    }
+
     uint32_t fNumMatches;
     uint32_t fNumMismatches;
     uint32_t fMaxMismatchV;
     float fMaxMismatchPercent;
 
+    FileArray fBaseMissing;
+    FileArray fComparisonMissing;
+
     void print () {
+        int n = fBaseMissing.count();
+        if (n > 0) {
+            printf("Missing in baseDir:\n");
+            for (int i = 0; i < n; ++i) {
+                printf("\t%s\n", fBaseMissing[i]->c_str());
+            }
+        }
+        n = fComparisonMissing.count();
+        if (n > 0) {
+            printf("Missing in comparisonDir:\n");
+            for (int i = 0; i < n; ++i) {
+                printf("\t%s\n", fComparisonMissing[i]->c_str());
+            }
+        }
         printf("%d of %d images matched.\n", fNumMatches,
                fNumMatches + fNumMismatches);
         if (fNumMismatches > 0) {
@@ -128,7 +159,13 @@ struct DiffSummary {
     }
 
     void add (DiffRecord* drp) {
-        if (0 == drp->fFractionDifference) {
+        if (drp->fBaseMissing) {
+            fBaseMissing.push(new SkString(drp->fFilename));
+            fNumMismatches++;
+        } else if (drp->fComparisonMissing) {
+            fComparisonMissing.push(new SkString(drp->fFilename));
+            fNumMismatches++;
+        } else if (0 == drp->fFractionDifference) {
             fNumMatches++;
         } else {
             fNumMismatches++;
@@ -264,6 +301,40 @@ static bool get_bitmaps (DiffRecord* diffRecord) {
                  diffRecord->fComparisonPath.c_str());
         return false;
     }
+
+    return true;
+}
+
+static bool get_bitmap_height_width(const SkString& path,
+                                    int *height, int *width) {
+    SkFILEStream stream(path.c_str());
+    if (!stream.isValid()) {
+        SkDebugf("ERROR: couldn't open file <%s>\n",
+                 path.c_str());
+        return false;
+    }
+
+    SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
+    if (NULL == codec) {
+        SkDebugf("ERROR: no codec found for <%s>\n",
+                 path.c_str());
+        return false;
+    }
+
+    SkAutoTDelete<SkImageDecoder> ad(codec);
+    SkBitmap bm;
+
+    stream.rewind();
+    if (!codec->decode(&stream, &bm,
+                       SkBitmap::kARGB_8888_Config,
+                       SkImageDecoder::kDecodePixels_Mode)) {
+        SkDebugf("ERROR: codec failed for <%s>\n",
+                 path.c_str());
+        return false;
+    }
+
+    *height = bm.height();
+    *width = bm.width();
 
     return true;
 }
@@ -445,6 +516,28 @@ static void create_and_write_diff_image(DiffRecord* drp,
     release_bitmaps(drp);
 }
 
+/// Iterate dir and get all files except 'pdf' files.
+static void get_file_list(const SkString& dir, FileArray *files) {
+    SkOSFile::Iter it(dir.c_str());
+    SkString filename;
+    while (it.next(&filename)) {
+        if (filename.endsWith(".pdf")) {
+            continue;
+        }
+
+        files->push(new SkString(filename));
+    }
+}
+
+static void release_file_list(FileArray *files) {
+    files->deleteAll();
+}
+
+/// Comparison routines for qsort, sort by file names.
+static int compare_file_name_metrics(SkString **lhs, SkString **rhs) {
+    return strcmp((*lhs)->c_str(), (*rhs)->c_str());
+}
+
 /// Creates difference images, returns the number that have a 0 metric.
 static void create_diff_images (DiffMetricProc dmp,
                                 const int colorThreshold,
@@ -453,35 +546,86 @@ static void create_diff_images (DiffMetricProc dmp,
                                 const SkString& comparisonDir,
                                 const SkString& outputDir,
                                 DiffSummary* summary) {
+    SkQSortCompareProc sortFileProc =
+            (SkQSortCompareProc)compare_file_name_metrics;
 
-    //@todo thudson 19 Apr 2011
-    // this lets us know about files in baseDir not in compareDir, but it
-    // doesn't detect files in compareDir not in baseDir. Doing that
-    // efficiently seems to imply iterating through both directories to
-    // create a merged list, and then attempting to process every entry
-    // in that list?
+    FileArray baseFiles;
+    FileArray comparisonFiles;
 
-    SkOSFile::Iter baseIterator (baseDir.c_str());
-    SkString filename;
-    while (baseIterator.next(&filename)) {
-        if (filename.endsWith(".pdf")) {
-            continue;
-        }
+    get_file_list(baseDir, &baseFiles);
+    get_file_list(comparisonDir, &comparisonFiles);
+
+    SkQSort(baseFiles.begin(), baseFiles.count(),
+            sizeof(SkString*), sortFileProc);
+    SkQSort(comparisonFiles.begin(), comparisonFiles.count(),
+            sizeof(SkString*), sortFileProc);
+
+    int i = 0;
+    int j = 0;
+
+    while (i < baseFiles.count() &&
+           j < comparisonFiles.count()) {
+
         SkString basePath (baseDir);
-        basePath.append(filename);
+        basePath.append(*baseFiles[i]);
         SkString comparisonPath (comparisonDir);
-        comparisonPath.append(filename);
-        DiffRecord * drp = new DiffRecord (filename, basePath, comparisonPath);
-        if (!get_bitmaps(drp)) {
-            continue;
-        }
+        comparisonPath.append(*comparisonFiles[j]);
 
-        create_and_write_diff_image(drp, dmp, colorThreshold,
-                                    outputDir, filename);
+        DiffRecord *drp = NULL;
+        int v = strcmp(baseFiles[i]->c_str(),
+                       comparisonFiles[j]->c_str());
+
+        if (v < 0) {
+            // in baseDir, but not in comparisonDir
+            drp = new DiffRecord(*baseFiles[i],
+                                 basePath, comparisonPath, false, true);
+            ++i;
+        } else if (v > 0) {
+            // in comparisonDir, but not in baseDir
+            drp = new DiffRecord(*comparisonFiles[j],
+                                 basePath, comparisonPath, true, false);
+            ++j;
+        } else {
+            // let's diff!
+            drp = new DiffRecord(*baseFiles[i], basePath, comparisonPath);
+
+            if (get_bitmaps(drp)) {
+                create_and_write_diff_image(drp, dmp, colorThreshold,
+                                            outputDir, *baseFiles[i]);
+            }
+
+            ++i;
+            ++j;
+        }
 
         differences->push(drp);
         summary->add(drp);
     }
+
+    for (; i < baseFiles.count(); ++i) {
+        // files only in baseDir
+        SkString basePath (baseDir);
+        basePath.append(*baseFiles[i]);
+        SkString comparisonPath;
+        DiffRecord *drp = new DiffRecord(*baseFiles[i], basePath,
+                                         comparisonPath, false, true);
+        differences->push(drp);
+        summary->add(drp);
+    }
+
+    for (; j < comparisonFiles.count(); ++j) {
+        // files only in comparisonDir
+        SkString basePath;
+        SkString comparisonPath(comparisonDir);
+        comparisonPath.append(*comparisonFiles[j]);
+        DiffRecord *drp = new DiffRecord(*comparisonFiles[j], basePath,
+                                         comparisonPath, true, false);
+        differences->push(drp);
+        summary->add(drp);
+    }
+
+    release_file_list(&baseFiles);
+    release_file_list(&comparisonFiles);
 }
 
 static void create_diff_images_chromium (DiffMetricProc dmp,
@@ -621,6 +765,10 @@ static void print_label_cell (SkFILEWStream* stream,
     stream->writeText("<td>");
     stream->writeText(diff.fFilename.c_str());
     stream->writeText("<br>");
+    if (diff.fBaseMissing || diff.fComparisonMissing) {
+        stream->writeText("</td>");
+        return;
+    }
     if (diff.fDoImageSizesMismatch) {
         stream->writeText("Image sizes differ");
         stream->writeText("</td>");
@@ -661,6 +809,45 @@ static void print_image_cell (SkFILEWStream* stream,
     stream->writeText("px\"></a></td>");
 }
 
+static void print_diff_with_missing_file(SkFILEWStream* stream,
+                                         DiffRecord& diff,
+                                         const SkString& relativePath) {
+    stream->writeText("<tr>\n");
+    print_label_cell(stream, diff);
+    stream->writeText("<td>N/A</td>");
+    stream->writeText("<td>N/A</td>");
+    if (!diff.fBaseMissing) {
+        int h, w;
+        if (!get_bitmap_height_width(diff.fBasePath, &h, &w)) {
+            stream->writeText("<td>N/A</td>");
+        } else {
+            int height = compute_image_height(h, w);
+            if (!diff.fBasePath.startsWith(PATH_DIV_STR)) {
+                diff.fBasePath.prepend(relativePath);
+            }
+            print_image_cell(stream, diff.fBasePath, height);
+        }
+    } else {
+        stream->writeText("<td>N/A</td>");
+    }
+    if (!diff.fComparisonMissing) {
+        int h, w;
+        if (!get_bitmap_height_width(diff.fComparisonPath, &h, &w)) {
+            stream->writeText("<td>N/A</td>");
+        } else {
+            int height = compute_image_height(h, w);
+            if (!diff.fComparisonPath.startsWith(PATH_DIV_STR)) {
+                diff.fComparisonPath.prepend(relativePath);
+            }
+            print_image_cell(stream, diff.fComparisonPath, height);
+        }
+    } else {
+        stream->writeText("<td>N/A</td>");
+    }
+    stream->writeText("</tr>\n");
+    stream->flush();
+}
+
 static void print_diff_page (const int matchCount,
                              const int colorThreshold,
                              const RecordArray& differences,
@@ -689,15 +876,21 @@ static void print_diff_page (const int matchCount,
     int i;
     for (i = 0; i < differences.count(); i++) {
         DiffRecord* diff = differences[i];
-        if (0 == diff->fFractionDifference) {
+
+        if (diff->fBaseMissing || diff->fComparisonMissing) {
+            print_diff_with_missing_file(&outputStream, *diff, relativePath);
+            continue;
+        } else if (0 == diff->fFractionDifference) {
             continue;
         }
+
         if (!diff->fBasePath.startsWith(PATH_DIV_STR)) {
             diff->fBasePath.prepend(relativePath);
         }
         if (!diff->fComparisonPath.startsWith(PATH_DIV_STR)) {
             diff->fComparisonPath.prepend(relativePath);
         }
+
         int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
         outputStream.writeText("<tr>\n");
         print_label_cell(&outputStream, *diff);
