@@ -11,13 +11,35 @@
 #define WIDTH 500
 #define HEIGHT 500
 
+class SkOnce {
+public:
+    SkOnce() : fOnce(false) {};
+
+    bool once() const {
+        if (fOnce) {
+            return false;
+        }
+        fOnce = true;
+        return true;
+    }
+    
+private:
+    mutable bool fOnce;
+};
+
 namespace skiagm {
 
 class ColorMatrixGM : public GM {
+    SkOnce fOnce;
+    void init() {
+        if (fOnce.once()) {
+            fBitmap = createBitmap(64, 64);
+        }
+    }
+
 public:
     ColorMatrixGM() {
         this->setBGColor(0xFF808080);
-        fBitmap = createBitmap(64, 64);
     }
     
 protected:
@@ -45,6 +67,7 @@ protected:
         return bm;
     }
     virtual void onDraw(SkCanvas* canvas) {
+        this->init();
 
         SkPaint paint;
         SkColorMatrix matrix;
