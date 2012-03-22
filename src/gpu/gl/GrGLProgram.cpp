@@ -1383,6 +1383,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
         programData->fRadial2Radius0[s] = -GR_ScalarMax;
         programData->fTextureWidth[s] = -1;
         programData->fTextureHeight[s] = -1;
+        programData->fTextureDomain[s].setEmpty();
     }
     programData->fViewMatrix = GrMatrix::InvalidMatrix();
     programData->fColor = GrColor_ILLEGAL;
