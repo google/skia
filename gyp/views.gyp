@@ -76,6 +76,7 @@
         #*nix
         '../src/views/unix/SkOSWindow_Unix.cpp',
         '../src/views/unix/keysym2ucs.c',
+        '../src/views/unix/skia_unix.cpp',
 
         #windows
         '../src/views/win/SkOSWindow_win.cpp',
@@ -102,13 +103,11 @@
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'sources': [
-            '../unix_test_app/main.cpp',
-          ],
         },{
           'sources!': [
             '../src/views/unix/SkOSWindow_Unix.cpp',
             '../src/views/unix/keysym2ucs.c',
+            '../src/views/unix/skia_unix.cpp',
           ],
         }],
         [ 'skia_os == "win"', {
