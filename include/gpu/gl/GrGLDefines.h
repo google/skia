@@ -673,7 +673,6 @@
 #define GR_GL_COLOR_ATTACHMENT0              0x8CE0
 #define GR_GL_DEPTH_ATTACHMENT               0x8D00
 #define GR_GL_STENCIL_ATTACHMENT             0x8D20
-#define GR_GL_DEPTH_STENCIL_ATTACHMENT       0x821A
 
 #define GR_GL_NONE                           0
 
