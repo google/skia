@@ -86,8 +86,8 @@ struct GrDrawState {
         GrAssert(kMemsetSize +  sizeof(fColor) + sizeof(fCoverage) +
                  sizeof(fFirstCoverageStage) + sizeof(fColorFilterMode) +
                  sizeof(fSrcBlend) + sizeof(fDstBlend) + sizeof(GrMatrix) ==
-                 reinterpret_cast<intptr_t>(&fEdgeAANumEdges) -
-                 reinterpret_cast<intptr_t>(this));
+                 reinterpret_cast<uintptr_t>(&fEdgeAANumEdges) -
+                 reinterpret_cast<uintptr_t>(this));
 
         fEdgeAANumEdges = 0;
     }
