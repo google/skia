@@ -82,7 +82,7 @@ public:
 
     /** Get the fonts used on this page.
      */
-    SK_API const SkTDArray<SkPDFFont*>& getFontResources() const;
+    const SkTDArray<SkPDFFont*>& getFontResources() const;
 
     /** Returns a SkPDFGlyphSetMap which represents glyph usage of every font
      *  that shows on this page.
