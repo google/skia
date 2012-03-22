@@ -5,13 +5,14 @@
 #include "SkPaint.h"
 
 static bool gShowPath = false;
-static bool gDrawLastAsciiPaths = false;
+static bool gComparePaths = false;
+static bool gDrawLastAsciiPaths = true;
 static bool gDrawAllAsciiPaths = false;
 static bool gShowAsciiPaths = false;
-static bool gComparePathsAssert = false;
+static bool gComparePathsAssert = true;
 
 void showPath(const SkPath& path, const char* str) {
-    SkDebugf("%s\n", str ? "original:" : str);
+    SkDebugf("%s\n", !str ? "original:" : str);
     SkPath::Iter iter(path, true);
     uint8_t verb;
     SkPoint pts[4];
@@ -76,10 +77,10 @@ static bool pathsDrawTheSame(const SkPath& one, const SkPath& two) {
     return true;
 }
 
-void drawAsciiPaths(const SkPath& one, const SkPath& two,
+bool drawAsciiPaths(const SkPath& one, const SkPath& two,
         bool drawPaths) {
     if (!drawPaths) {
-        return;
+        return true;
     }
     if (gShowAsciiPaths) {
         showPath(one, "one:");
@@ -90,8 +91,15 @@ void drawAsciiPaths(const SkPath& one, const SkPath& two,
     SkRect larger = bounds1;
     larger.join(bounds2);
     SkBitmap bits;
+    char out[256];
     int bitWidth = SkScalarCeil(larger.width()) + 2;
+    if (bitWidth * 2 + 1 >= (int) sizeof(out)) {
+        return false;
+    }
     int bitHeight = SkScalarCeil(larger.height()) + 2;
+    if (bitHeight >= (int) sizeof(out)) {
+        return false;
+    }
     bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
     bits.allocPixels();
     SkCanvas canvas(bits);
@@ -105,8 +113,6 @@ void drawAsciiPaths(const SkPath& one, const SkPath& two,
     canvas.translate(-bounds2.fLeft + 1 + bitWidth, -bounds2.fTop + 1);
     canvas.drawPath(two, paint);
     canvas.restore();
-    char out[1024];
-    SkASSERT(bitWidth * 2 + 1 < (int) sizeof(out));
     for (int y = 0; y < bitHeight; ++y) {
         uint32_t* addr1 = bits.getAddr32(0, y);
         int x;
@@ -121,20 +127,30 @@ void drawAsciiPaths(const SkPath& one, const SkPath& two,
         *outPtr++ = '\0';
         SkDebugf("%s\n", out);
     }
+    return true;
 }
 
 static bool scaledDrawTheSame(const SkPath& one, const SkPath& two,
         int a, int b, bool drawPaths) {
     SkMatrix scale;
     scale.reset();
-    scale.preScale(a * 1.21f, b * 1.11f);
+    float aScale = 1.21f;
+    float bScale = 1.11f;
+    scale.preScale(a * aScale, b * bScale);
     SkPath scaledOne, scaledTwo;
     one.transform(scale, &scaledOne);
     two.transform(scale, &scaledTwo);
     if (pathsDrawTheSame(scaledOne, scaledTwo)) {
         return true;
     }
-    drawAsciiPaths(scaledOne, scaledTwo, drawPaths);
+    while (!drawAsciiPaths(scaledOne, scaledTwo, drawPaths)) {
+        scale.reset();
+        aScale *= 0.5f;
+        bScale *= 0.5f;
+        scale.preScale(a * aScale, b * bScale);
+        one.transform(scale, &scaledOne);
+        two.transform(scale, &scaledTwo);
+    }
     return false;
 }
 
@@ -195,5 +211,8 @@ bool testSimplify(const SkPath& path, bool fill, SkPath& out) {
         showPath(path);
     }
     simplify(path, fill, out);
+    if (!gComparePaths) {
+        return true;
+    }
     return comparePaths(path, out);
 }

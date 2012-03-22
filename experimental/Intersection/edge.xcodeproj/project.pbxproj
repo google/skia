@@ -26,6 +26,9 @@
 		FE7413AE14F689E700056D7B /* libopts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF87C2C13E0410900335C58 /* libopts.a */; };
 		FE7413D414F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7413D314F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp */; };
 		FE7413D814F691C200056D7B /* EdgeWalker_TestUtility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7413D714F691C200056D7B /* EdgeWalker_TestUtility.cpp */; };
+		FE99AE40151B4ED10072AA0D /* tempskinny4.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE99AE3F151B4ED10072AA0D /* tempskinny4.txt */; };
+		FE99AE44151B4EE70072AA0D /* xtempskinny4.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE99AE43151B4EE70072AA0D /* xtempskinny4.txt */; };
+		FE99AEBE151B64ED0072AA0D /* op.htm in Resources */ = {isa = PBXBuildFile; fileRef = FE99AEBD151B64ED0072AA0D /* op.htm */; };
 		FEA5F4E21498000C005052F9 /* libports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA5F4E11497FFF6005052F9 /* libports.a */; };
 		FEA61B0014EF589900B736CB /* libanimator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7268144DD3EA0059E97B /* libanimator.a */; };
 		FEA61B2C14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */; };
@@ -258,6 +261,9 @@
 		FE7413D314F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerPolygons_Test.cpp; sourceTree = "<group>"; };
 		FE7413D714F691C200056D7B /* EdgeWalker_TestUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalker_TestUtility.cpp; sourceTree = "<group>"; };
 		FE7413DB14F6926D00056D7B /* EdgeWalker_Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeWalker_Test.h; sourceTree = "<group>"; };
+		FE99AE3F151B4ED10072AA0D /* tempskinny4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tempskinny4.txt; sourceTree = "<group>"; };
+		FE99AE43151B4EE70072AA0D /* xtempskinny4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = xtempskinny4.txt; sourceTree = "<group>"; };
+		FE99AEBD151B64ED0072AA0D /* op.htm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = op.htm; sourceTree = "<group>"; };
 		FEA5F4D91497FFF6005052F9 /* ports.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ports.xcodeproj; path = ../../out/gyp/ports.xcodeproj; sourceTree = SOURCE_ROOT; };
 		FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerRectangles_Test.cpp; sourceTree = "<group>"; };
 		FEA670F013C49E2200FE6FC1 /* SkAntiEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkAntiEdge.cpp; sourceTree = "<group>"; };
@@ -386,6 +392,7 @@
 		29B97314FDCFA39411CA2CEA /* edge */ = {
 			isa = PBXGroup;
 			children = (
+				FE99AEBD151B64ED0072AA0D /* op.htm */,
 				FEA670EF13C49D7600FE6FC1 /* views */,
 				FEC123A7149001B20086BF1F /* AntiEdge */,
 				29B97315FDCFA39411CA2CEA /* Intersection */,
@@ -481,6 +488,8 @@
 		FE71354F14D305FD0008E392 /* ShapeOps */ = {
 			isa = PBXGroup;
 			children = (
+				FE99AE43151B4EE70072AA0D /* xtempskinny4.txt */,
+				FE99AE3F151B4ED10072AA0D /* tempskinny4.txt */,
 				FE3DBAFD150E4A680006ADF4 /* junk.htm */,
 				FE3DB8C9150A48320006ADF4 /* junk.txt */,
 				FE71358514D309E90008E392 /* EdgeWalker.cpp */,
@@ -899,6 +908,9 @@
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
 				FEED72B0144DD5710059E97B /* SampleApp.xib in Resources */,
 				FE3DBAFE150E4A680006ADF4 /* junk.htm in Resources */,
+				FE99AE40151B4ED10072AA0D /* tempskinny4.txt in Resources */,
+				FE99AE44151B4EE70072AA0D /* xtempskinny4.txt in Resources */,
+				FE99AEBE151B64ED0072AA0D /* op.htm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
