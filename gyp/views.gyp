@@ -1,3 +1,9 @@
+#Views is the Skia windowing toolkit.
+#It provides
+#  * a portable means of creating native windows
+#  * events
+#  * basic widgets and controls
+
 {
   'targets': [
     {
@@ -10,7 +16,6 @@
         '../include/xml',
         '../include/utils',
         '../include/images',
-        '../include/animator',
         '../include/effects',
         '../include/views/unix',
       ],
@@ -36,23 +41,16 @@
         '../include/views/SkView.h',
         '../include/views/SkViewInflate.h',
         '../include/views/SkWidget.h',
-        '../include/views/SkWidgetViews.h',
         '../include/views/SkWindow.h',
 
         '../src/views/SkBGViewArtist.cpp',
-        '../src/views/SkBorderView.cpp',
         '../src/views/SkEvent.cpp',
         '../src/views/SkEventSink.cpp',
-        '../src/views/SkImageView.cpp',
         '../src/views/SkListView.cpp',
-        '../src/views/SkListWidget.cpp',
         '../src/views/SkOSMenu.cpp',
         '../src/views/SkParsePaint.cpp',
-        '../src/views/SkProgressBarView.cpp',
         '../src/views/SkProgressView.cpp',
-        '../src/views/SkScrollBarView.cpp',
         '../src/views/SkStackViewLayout.cpp',
-        '../src/views/SkStaticTextView.cpp',
         '../src/views/SkTagList.cpp',
         '../src/views/SkTagList.h',
         '../src/views/SkTextBox.cpp',
@@ -63,7 +61,6 @@
         '../src/views/SkViewPriv.h',
         '../src/views/SkWidget.cpp',
         '../src/views/SkWidgets.cpp',
-        '../src/views/SkWidgetViews.cpp',
         '../src/views/SkWindow.cpp',
 
         #mac
@@ -84,8 +81,6 @@
 
       ],
       'sources!' : [
-        '../src/views/SkListView.cpp',   #depends on missing SkListSource implementation
-        '../src/views/SkListWidget.cpp', #depends on missing SkListSource implementation
         '../src/views/SDL/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
@@ -115,21 +110,6 @@
           'sources!': [
             '../src/views/win/SkOSWindow_win.cpp',
             '../src/views/win/skia_win.cpp',
-          ],
-        }],
-        [ 'skia_os == "android"', {
-          # Android does not support animator so we need to remove all files
-          # that have references to it.
-          'include_dirs!': [
-            '../include/animator',
-          ],
-          'sources!': [
-            '../src/views/SkBorderView.cpp',
-            '../src/views/SkImageView.cpp',
-            '../src/views/SkProgressBarView.cpp',
-            '../src/views/SkScrollBarView.cpp',
-            '../src/views/SkStaticTextView.cpp',
-            '../src/views/SkWidgetViews.cpp',
           ],
         }],
       ],

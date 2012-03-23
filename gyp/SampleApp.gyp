@@ -154,6 +154,7 @@
         'gpu.gyp:gr',
         'gpu.gyp:skgr',
         'pdf.gyp:pdf',
+        'views_animated.gyp:views_animated',
       ],
       'conditions' : [
        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
