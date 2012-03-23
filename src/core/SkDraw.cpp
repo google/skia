@@ -2553,7 +2553,7 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
         pathBounds.roundOut(bounds);
     }
 
-    SkIPoint margin;
+    SkIPoint margin = SkIPoint::Make(0, 0);
     if (filter) {
         SkASSERT(filterMatrix);
 
