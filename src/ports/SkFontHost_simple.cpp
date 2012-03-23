@@ -575,7 +575,9 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
 #if 0
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
+        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount) {
     SkDEBUGFAIL("SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
     return NULL;
 }
