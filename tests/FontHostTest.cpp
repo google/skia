@@ -85,8 +85,64 @@ static void test_tables(skiatest::Reporter* reporter) {
     }
 }
 
+/*
+ * Verifies that the advance values returned by generateAdvance and
+ * generateMetrics match.
+ */
+static void test_advances(skiatest::Reporter* reporter) {
+    static const char* const faces[] = {
+        NULL,   // default font
+        "Arial", "Times", "Times New Roman", "Helvetica", "Courier",
+        "Courier New", "Verdana", "monospace",
+    };
+
+    static const struct {
+        SkPaint::Hinting    hinting;
+        unsigned            flags;
+    } settings[] = {
+        { SkPaint::kNo_Hinting,     0                               },
+        { SkPaint::kNo_Hinting,     SkPaint::kLinearText_Flag       },
+        { SkPaint::kNo_Hinting,     SkPaint::kSubpixelText_Flag     },
+        { SkPaint::kSlight_Hinting, 0                               },
+        { SkPaint::kSlight_Hinting, SkPaint::kLinearText_Flag       },
+        { SkPaint::kSlight_Hinting, SkPaint::kSubpixelText_Flag     },
+        { SkPaint::kNormal_Hinting, 0                               },
+        { SkPaint::kNormal_Hinting, SkPaint::kLinearText_Flag       },
+        { SkPaint::kNormal_Hinting, SkPaint::kSubpixelText_Flag     },
+    };
+
+    SkPaint paint;
+    char txt[] = "long.text.with.lots.of.dots.";
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
+        SkTypeface* face = SkTypeface::CreateFromName(faces[i], SkTypeface::kNormal);
+        paint.setTypeface(face);
+
+        for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
+             paint.setHinting(settings[j].hinting);
+             paint.setLinearText((settings[j].flags & SkPaint::kLinearText_Flag) != 0);
+             paint.setSubpixelText((settings[j].flags & SkPaint::kSubpixelText_Flag) != 0);
+
+             SkRect bounds;
+
+             // For no hinting and light hinting this should take the
+             // optimized generateAdvance path.
+             SkScalar width1 = paint.measureText(txt, strlen(txt));
+
+             // Requesting the bounds forces a generateMetrics call.
+             SkScalar width2 = paint.measureText(txt, strlen(txt), &bounds);
+
+             // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
+             //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));
+
+             REPORTER_ASSERT(reporter, width1 == width2);
+        }
+    }
+}
+
 static void TestFontHost(skiatest::Reporter* reporter) {
     test_tables(reporter);
+    test_advances(reporter);
 }
 
 // need tests for SkStrSearch
