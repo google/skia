@@ -61,6 +61,10 @@ private:
     typedef GM INHERITED;
 };
 
+void forceLinking() {
+    SkImageDecoder *creator = CreateJPEGImageDecoder();
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 static GM* MyFactory(void*) { return new CMYKJpegGM; }
