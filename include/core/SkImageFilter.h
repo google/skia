@@ -40,14 +40,16 @@ class SK_API SkImageFilter : public SkFlattenable {
 public:
     class Proxy {
     public:
+        virtual ~Proxy() {};
+
         virtual SkDevice* createDevice(int width, int height) = 0;
-        
+        // returns true if the proxy can handle this filter natively
+        virtual bool canHandleImageFilter(SkImageFilter*) = 0;
         // returns true if the proxy handled the filter itself. if this returns
         // false then the filter's code will be called.
         virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
                                  const SkMatrix& ctm,
                                  SkBitmap* result, SkIPoint* offset) = 0;
-        virtual ~Proxy() {};
     };
 
     /**

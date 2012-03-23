@@ -101,9 +101,13 @@ void SkDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& region,
                              const SkClipStack& clipStack) {
 }
 
-bool SkDevice::filterImage(SkImageFilter*, const SkBitmap& src,
-                           const SkMatrix& ctm,
-                           SkBitmap* result, SkIPoint* offset) {
+bool SkDevice::canHandleImageFilter(SkImageFilter*) {
+    return false;
+}
+
+bool SkDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
+                           const SkMatrix& ctm, SkBitmap* result,
+                           SkIPoint* offset) {
     return false;
 }
 

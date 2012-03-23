@@ -977,6 +977,7 @@ private:
     void updateDeviceCMCache();
 
     friend class SkDrawIter;    // needs setupDrawForLayerDevice()
+    friend class AutoDrawLooper;
 
     SkDevice* createLayerDevice(SkBitmap::Config, int width, int height,
                                 bool isOpaque);
@@ -992,9 +993,10 @@ private:
     void internalDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint* paint);
     void internalDrawPaint(const SkPaint& paint);
+    int internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                          SaveFlags, bool justForImageFilter);
+    void internalDrawDevice(SkDevice*, int x, int y, const SkPaint*);
 
-
-    void drawDevice(SkDevice*, int x, int y, const SkPaint*);
     // shared by save() and saveLayer()
     int internalSave(SaveFlags flags);
     void internalRestore();
