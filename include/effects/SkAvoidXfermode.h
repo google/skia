@@ -59,8 +59,6 @@ public:
         return SkNEW_ARGS(SkAvoidXfermode, (buffer));
     }
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
 protected:
     SkAvoidXfermode(SkFlattenableReadBuffer&);
 

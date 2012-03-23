@@ -333,6 +333,8 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
     return kColor_GradientType;
 }
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorShader)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkEmptyShader.h"
@@ -363,3 +365,4 @@ void SkEmptyShader::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);
 }
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkEmptyShader)

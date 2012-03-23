@@ -113,7 +113,7 @@ public:
                                  const SkColor colors[], const SkScalar pos[],
                                  int count, SkUnitMapper* mapper = NULL);
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };
 
 #endif

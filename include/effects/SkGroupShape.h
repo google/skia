@@ -138,8 +138,6 @@ public:
     // public for Registrar
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
 protected:
     // overrides
     virtual void onDraw(SkCanvas*);

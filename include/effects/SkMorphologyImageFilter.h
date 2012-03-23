@@ -37,7 +37,6 @@ public:
         return SkNEW_ARGS(SkDilateImageFilter, (buffer));
     }
     virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
 
     typedef SkMorphologyImageFilter INHERITED;
 };
@@ -55,7 +54,6 @@ public:
         return SkNEW_ARGS(SkErodeImageFilter, (buffer));
     }
     virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
 
 private:
     typedef SkMorphologyImageFilter INHERITED;

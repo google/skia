@@ -39,8 +39,6 @@ public:
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer);
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
 protected:
     // overrides for SkFlattenable
     virtual Factory getFactory();

@@ -399,3 +399,8 @@ SkFlattenable::Factory SkDownSampleImageFilter::getFactory() {
     return CreateProc;
 }
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkOffsetImageFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkComposeImageFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkMergeImageFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorFilterImageFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkDownSampleImageFilter)

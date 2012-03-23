@@ -118,7 +118,7 @@ public:
     */
     static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
     
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 protected:
     SkColorFilter() {}
     SkColorFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}

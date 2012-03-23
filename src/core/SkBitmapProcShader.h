@@ -37,7 +37,6 @@ public:
     // override from flattenable
     virtual bool toDumpString(SkString* str) const;
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
 protected:
     SkBitmapProcShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer& );

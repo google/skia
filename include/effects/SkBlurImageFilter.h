@@ -21,8 +21,6 @@ public:
         return SkNEW_ARGS(SkBlurImageFilter, (buffer));
     }
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
 protected:
     explicit SkBlurImageFilter(SkFlattenableReadBuffer& buffer);
 
