@@ -225,8 +225,7 @@ bool SkPDFDocument::appendPage(SkPDFDevice* pdfDevice) {
 
 void SkPDFDocument::getCountOfFontTypes(
         int counts[SkAdvancedTypefaceMetrics::kNotEmbeddable_Font + 1]) const {
-    memset(counts, 0,
-           sizeof(int)* SkAdvancedTypefaceMetrics::kNotEmbeddable_Font + 1);
+    sk_bzero(counts, sizeof(counts));
     SkTDArray<SkFontID> seenFonts;
 
     for (int pageNumber = 0; pageNumber < fPages.count(); pageNumber++) {
