@@ -1398,11 +1398,50 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
 }
 
+static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
+                                 SkImageFilter* filter, const GrRect& rect) {
+    GrAssert(filter);
+
+    SkSize blurSize;
+    SkISize radius;
+
+    const GrTextureDesc desc = {
+        kRenderTarget_GrTextureFlagBit,
+        rect.width(),
+        rect.height(),
+        kRGBA_8888_PM_GrPixelConfig,
+        {0} // samples
+    };
+
+    if (filter->asABlur(&blurSize)) {
+        GrAutoScratchTexture temp1, temp2;
+        texture = context->gaussianBlur(texture, &temp1, &temp2, rect,
+                                        blurSize.width(),
+                                        blurSize.height());
+        texture->ref();
+    } else if (filter->asADilate(&radius)) {
+        GrAutoScratchTexture temp1(context, desc), temp2(context, desc);
+        texture = context->applyMorphology(texture, rect,
+                                           temp1.texture(), temp2.texture(),
+                                           GrSamplerState::kDilate_Filter,
+                                           radius);
+        texture->ref();
+    } else if (filter->asAnErode(&radius)) {
+        GrAutoScratchTexture temp1(context, desc), temp2(context, desc);
+        texture = context->applyMorphology(texture, rect,
+                                           temp1.texture(), temp2.texture(),
+                                           GrSamplerState::kErode_Filter,
+                                           radius);
+        texture->ref();
+    }
+    return texture;
+}
+
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                             int left, int top, const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
 
-    SkAutoLockPixels alp(bitmap);
+    SkAutoLockPixels alp(bitmap, !bitmap.getTexture());
     if (!bitmap.getTexture() && !bitmap.readyToDraw()) {
         return;
     }
@@ -1422,50 +1461,19 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     GrTexture* texture;
     sampler->reset();
     SkAutoCachedTexture act(this, bitmap, sampler, &texture);
+    grPaint.setTexture(kBitmapTextureIdx, texture);
 
-    SkImageFilter* imageFilter = paint.getImageFilter();
-    SkSize blurSize;
-    SkISize radius;
-    if (NULL != imageFilter && imageFilter->asABlur(&blurSize)) {
-        GrAutoScratchTexture temp1, temp2;
-        GrTexture* blurTexture = fContext->gaussianBlur(texture, &temp1, &temp2,
-                                                        GrRect::MakeWH(w, h),
-                                                        blurSize.width(),
-                                                        blurSize.height());
-        texture = blurTexture;
-        grPaint.setTexture(kBitmapTextureIdx, texture);
-    } else if (NULL != imageFilter && imageFilter->asADilate(&radius)) {
-        const GrTextureDesc desc = {
-            kRenderTarget_GrTextureFlagBit,
-            w,
-            h,
-            kRGBA_8888_PM_GrPixelConfig,
-            {0} // samples
-        };
-        GrAutoScratchTexture temp1(fContext, desc), temp2(fContext, desc);
-        texture = fContext->applyMorphology(texture, GrRect::MakeWH(w, h),
-                                            temp1.texture(), temp2.texture(),
-                                            GrSamplerState::kDilate_Filter,
-                                            radius);
-        grPaint.setTexture(kBitmapTextureIdx, texture);
-    } else if (NULL != imageFilter && imageFilter->asAnErode(&radius)) {
-        const GrTextureDesc desc = {
-            kRenderTarget_GrTextureFlagBit,
-            w,
-            h,
-            kRGBA_8888_PM_GrPixelConfig,
-            {0} // samples
-        };
-        GrAutoScratchTexture temp1(fContext, desc), temp2(fContext, desc);
-        texture = fContext->applyMorphology(texture, GrRect::MakeWH(w, h),
-                                            temp1.texture(), temp2.texture(),
-                                            GrSamplerState::kErode_Filter,
-                                            radius);
-        grPaint.setTexture(kBitmapTextureIdx, texture);
-    } else {
-        grPaint.setTexture(kBitmapTextureIdx, texture);
+    SkImageFilter* filter = paint.getImageFilter();
+    if (NULL != filter) {
+        GrTexture* filteredTexture = filter_texture(fContext, texture, filter,
+                                                    GrRect::MakeWH(w, h));
+        if (filteredTexture) {
+            grPaint.setTexture(kBitmapTextureIdx, filteredTexture);
+            texture = filteredTexture;
+            filteredTexture->unref();
+        }
     }
-
+    
     fContext->drawRectToRect(grPaint,
                             GrRect::MakeXYWH(GrIntToScalar(left),
                                             GrIntToScalar(top),
@@ -1488,6 +1496,18 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
     GrTexture* devTex = grPaint.getTexture(0);
     SkASSERT(NULL != devTex);
 
+    SkImageFilter* filter = paint.getImageFilter();
+    if (NULL != filter) {
+        GrRect rect = GrRect::MakeWH(devTex->width(), devTex->height());
+        GrTexture* filteredTexture = filter_texture(fContext, devTex, filter,
+                                                    rect);
+        if (filteredTexture) {
+            grPaint.setTexture(kBitmapTextureIdx, filteredTexture);
+            devTex = filteredTexture;
+            filteredTexture->unref();
+        }
+    }
+    
     const SkBitmap& bm = dev->accessBitmap(false);
     int w = bm.width();
     int h = bm.height();
@@ -1509,27 +1529,43 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
     fContext->drawRectToRect(grPaint, dstRect, srcRect);
 }
 
-bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
-                              const SkMatrix& ctm,
-                              SkBitmap* result, SkIPoint* offset) {
+bool SkGpuDevice::canHandleImageFilter(SkImageFilter* filter) {
     SkSize size;
     SkISize radius;
     if (!filter->asABlur(&size) && !filter->asADilate(&radius) && !filter->asAnErode(&radius)) {
         return false;
     }
-    SkDevice* dev = this->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
-                                                 src.width(),
-                                                 src.height(),
-                                                 false);
-    if (NULL == dev) {
+    return true;
+}
+
+bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
+                              const SkMatrix& ctm,
+                              SkBitmap* result, SkIPoint* offset) {
+    // want explicitly our impl, so guard against a subclass of us overriding it
+    if (!this->SkGpuDevice::canHandleImageFilter(filter)) {
         return false;
     }
-    SkAutoUnref aur(dev);
-    SkCanvas canvas(dev);
-    SkPaint paint;
-    paint.setImageFilter(filter);
-    canvas.drawSprite(src, 0, 0, &paint);
-    *result = dev->accessBitmap(false);
+
+    SkAutoLockPixels alp(src, !src.getTexture());
+    if (!src.getTexture() && !src.readyToDraw()) {
+        return false;
+    }
+
+    GrPaint paint;
+    paint.reset();
+
+    GrSamplerState* sampler = paint.textureSampler(kBitmapTextureIdx);
+
+    GrTexture* texture;
+    SkAutoCachedTexture act(this, src, sampler, &texture);
+
+    result->setConfig(src.config(), src.width(), src.height());
+    GrRect rect = GrRect::MakeWH(src.width(), src.height());
+    GrTexture* resultTexture = filter_texture(fContext, texture, filter, rect);
+    if (resultTexture) {
+        result->setPixelRef(new SkGrTexturePixelRef(resultTexture))->unref();
+        resultTexture->unref();
+    }
     return true;
 }
 

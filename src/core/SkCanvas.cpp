@@ -277,13 +277,26 @@ private:
 
 class AutoDrawLooper {
 public:
-    AutoDrawLooper(SkCanvas* canvas, const SkPaint& paint) : fOrigPaint(paint) {
+    AutoDrawLooper(SkCanvas* canvas, const SkPaint& paint,
+                   bool skipLayerForImageFilter = false) : fOrigPaint(paint) {
         fCanvas = canvas;
         fLooper = paint.getLooper();
         fFilter = canvas->getDrawFilter();
         fPaint = NULL;
         fSaveCount = canvas->getSaveCount();
+        fDoClearImageFilter = false;
         fDone = false;
+
+        if (!skipLayerForImageFilter && fOrigPaint.getImageFilter()) {
+            SkPaint tmp;
+            tmp.setImageFilter(fOrigPaint.getImageFilter());
+            // it would be nice if we had a guess at the bounds, instead of null
+            (void)canvas->internalSaveLayer(NULL, &tmp,
+                                    SkCanvas::kARGB_ClipLayer_SaveFlag, true);
+            // we'll clear the imageFilter for the actual draws in next(), so
+            // it will only be applied during the restore().
+            fDoClearImageFilter = true;
+        }
 
         if (fLooper) {
             fLooper->init(canvas);
@@ -291,6 +304,9 @@ public:
     }
 
     ~AutoDrawLooper() {
+        if (fDoClearImageFilter) {
+            fCanvas->internalRestore();
+        }
         SkASSERT(fCanvas->getSaveCount() == fSaveCount);
     }
 
@@ -309,6 +325,7 @@ private:
     SkDrawFilter*   fFilter;
     const SkPaint*  fPaint;
     int             fSaveCount;
+    bool            fDoClearImageFilter;
     bool            fDone;
 };
 
@@ -318,8 +335,13 @@ bool AutoDrawLooper::next(SkDrawFilter::Type drawType) {
         return false;
     }
 
-    if (fLooper || fFilter) {
+    if (fLooper || fFilter || fDoClearImageFilter) {
         SkPaint* paint = fLazyPaint.set(fOrigPaint);
+
+        if (fDoClearImageFilter) {
+            paint->setImageFilter(NULL);
+        }
+
         if (fLooper && !fLooper->next(fCanvas, paint)) {
             fDone = true;
             return false;
@@ -332,6 +354,11 @@ bool AutoDrawLooper::next(SkDrawFilter::Type drawType) {
             }
         }
         fPaint = paint;
+
+        // if we only came in here for the imagefilter, mark us as done
+        if (!fLooper && !fFilter) {
+            fDone = true;
+        }
     } else {
         fDone = true;
         fPaint = &fOrigPaint;
@@ -385,6 +412,13 @@ private:
 };
 
 ////////// macros to place around the internal draw calls //////////////////
+
+#define LOOPER_BEGIN_DRAWDEVICE(paint, type)                        \
+/*    AutoValidator   validator(fMCRec->fTopLayer->fDevice); */     \
+    AutoDrawLooper  looper(this, paint, true);                      \
+    while (looper.next(type)) {                                     \
+        SkAutoBounderCommit ac(fBounder);                           \
+        SkDrawIter          iter(this);
 
 #define LOOPER_BEGIN(paint, type)                                   \
 /*    AutoValidator   validator(fMCRec->fTopLayer->fDevice); */     \
@@ -749,6 +783,11 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
                         SaveFlags flags) {
+    return this->internalSaveLayer(bounds, paint, flags, false);
+}
+
+int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                                SaveFlags flags, bool justForImageFilter) {
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
     int count = this->internalSave(flags);
@@ -764,6 +803,10 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     SkLazyPaint lazyP;
     if (paint && paint->getImageFilter()) {
         if (!this->getTopDevice()->allowImageFilter(paint->getImageFilter())) {
+            if (justForImageFilter) {
+                // early exit if the layer was just for the imageFilter
+                return count;
+            }
             SkPaint* p = lazyP.set(*paint);
             p->setImageFilter(NULL);
             paint = p;
@@ -841,9 +884,9 @@ void SkCanvas::internalRestore() {
     if (NULL != layer) {
         if (layer->fNext) {
             const SkIPoint& origin = layer->fDevice->getOrigin();
-            this->drawDevice(layer->fDevice, origin.x(), origin.y(),
-                             layer->fPaint);
-            // reset this, since drawDevice will have set it to true
+            this->internalDrawDevice(layer->fDevice, origin.x(), origin.y(),
+                                     layer->fPaint);
+            // reset this, since internalDrawDevice will have set it to true
             fDeviceCMDirty = true;
 
             SkASSERT(fLayerCount > 0);
@@ -905,43 +948,38 @@ class DeviceImageFilterProxy : public SkImageFilter::Proxy {
 public:
     DeviceImageFilterProxy(SkDevice* device) : fDevice(device) {}
 
-    virtual SkDevice* createDevice(int w, int h) SK_OVERRIDE;
-    virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
+    virtual SkDevice* createDevice(int w, int h) SK_OVERRIDE {
+        return fDevice->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
+                                               w, h, false);
+    }
+    virtual bool canHandleImageFilter(SkImageFilter* filter) SK_OVERRIDE {
+        return fDevice->canHandleImageFilter(filter);
+    }
+    virtual bool filterImage(SkImageFilter* filter, const SkBitmap& src,
                              const SkMatrix& ctm,
-                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
-
+                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
+        return fDevice->filterImage(filter, src, ctm, result, offset);
+    }
+    
 private:
     SkDevice* fDevice;
 };
 
-SkDevice* DeviceImageFilterProxy::createDevice(int w, int h) {
-    return fDevice->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
-                                           w, h, false);
-}
-
-bool DeviceImageFilterProxy::filterImage(SkImageFilter* filter,
-                                         const SkBitmap& src,
-                                         const SkMatrix& ctm,
-                                         SkBitmap* result,
-                                         SkIPoint* offset) {
-    return fDevice->filterImage(filter, src, ctm, result, offset);
-}
-
-void SkCanvas::drawDevice(SkDevice* srcDev, int x, int y,
-                          const SkPaint* paint) {
+void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
+                                  const SkPaint* paint) {
     SkPaint tmp;
     if (NULL == paint) {
         tmp.setDither(true);
         paint = &tmp;
     }
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
+    LOOPER_BEGIN_DRAWDEVICE(*paint, SkDrawFilter::kBitmap_Type)
     while (iter.next()) {
         SkDevice* dstDev = iter.fDevice;
         paint = &looper.paint();
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
-        if (filter) {
+        if (filter && !dstDev->canHandleImageFilter(filter)) {
             DeviceImageFilterProxy proxy(dstDev);
             SkBitmap dst;
             const SkBitmap& src = srcDev->accessBitmap(false);
@@ -952,6 +990,40 @@ void SkCanvas::drawDevice(SkDevice* srcDev, int x, int y,
             }
         } else {
             dstDev->drawDevice(iter, srcDev, pos.x(), pos.y(), *paint);
+        }
+    }
+    LOOPER_END
+}
+
+void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
+                          const SkPaint* paint) {
+    SkDEBUGCODE(bitmap.validate();)
+    
+    if (reject_bitmap(bitmap)) {
+        return;
+    }
+    
+    SkPaint tmp;
+    if (NULL == paint) {
+        paint = &tmp;
+    }
+    
+    LOOPER_BEGIN_DRAWDEVICE(*paint, SkDrawFilter::kBitmap_Type)
+    
+    while (iter.next()) {
+        paint = &looper.paint();
+        SkImageFilter* filter = paint->getImageFilter();
+        SkIPoint pos = { x - iter.getX(), y - iter.getY() };
+        if (filter && !iter.fDevice->canHandleImageFilter(filter)) {
+            DeviceImageFilterProxy proxy(iter.fDevice);
+            SkBitmap dst;
+            if (filter->filterImage(&proxy, bitmap, *iter.fMatrix, &dst, &pos)) {
+                SkPaint tmp(*paint);
+                tmp.setImageFilter(NULL);
+                iter.fDevice->drawSprite(iter, dst, pos.x(), pos.y(), tmp);
+            }
+        } else {
+            iter.fDevice->drawSprite(iter, bitmap, pos.x(), pos.y(), *paint);
         }
     }
     LOOPER_END
@@ -1573,28 +1645,6 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
 
     // Need a device entry-point, so gpu can use a mesh
     this->internalDrawBitmapNine(bitmap, center, dst, paint);
-}
-
-void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
-                          const SkPaint* paint) {
-    SkDEBUGCODE(bitmap.validate();)
-
-    if (reject_bitmap(bitmap)) {
-        return;
-    }
-
-    SkPaint tmp;
-    if (NULL == paint) {
-        paint = &tmp;
-    }
-
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
-
-    while (iter.next()) {
-        iter.fDevice->drawSprite(iter, bitmap, x - iter.getX(), y - iter.getY(),
-                                 looper.paint());
-    }
-    LOOPER_END
 }
 
 class SkDeviceFilteredPaint {

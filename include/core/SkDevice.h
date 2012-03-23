@@ -321,13 +321,22 @@ protected:
     virtual bool allowImageFilter(SkImageFilter*);
 
     /**
-     *  Override and return true for filters that the device handles
-     *  intrinsically. Returning false means call the filter.
-     *  Default impl returns false. This will only be called if allowImageFilter()
-     *  returned true.
+     *  Override and return true for filters that the device can handle
+     *  intrinsically. Doing so means that SkCanvas will pass-through this
+     *  filter to drawSprite and drawDevice (and potentially filterImage).
+     *  Returning false means the SkCanvas will have apply the filter itself,
+     *  and just pass the resulting image to the device.
      */
-    virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
-                             const SkMatrix& ctm,
+    virtual bool canHandleImageFilter(SkImageFilter*);
+
+    /**
+     *  Related (but not required) to canHandleImageFilter, this method returns
+     *  true if the device could apply the filter to the src bitmap and return
+     *  the result (and updates offset as needed).
+     *  If the device does not recognize or support this filter,
+     *  it just returns false and leaves result and offset unchanged.
+     */
+    virtual bool filterImage(SkImageFilter*, const SkBitmap&, const SkMatrix&,
                              SkBitmap* result, SkIPoint* offset);
 
     // This is equal kBGRA_Premul_Config8888 or kRGBA_Premul_Config8888 if
