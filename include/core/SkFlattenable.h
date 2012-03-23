@@ -22,33 +22,28 @@ class SkString;
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
-#define SK_DECLARE_FLATTENABLE_REGISTRAR() 
-
 #define SK_DEFINE_FLATTENABLE_REGISTRAR(flattenable) \
     static SkFlattenable::Registrar g##flattenable##Reg(#flattenable, \
-                                                      flattenable::CreateProc);
-                                                      
-#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(flattenable)
+                                                       flattenable::CreateProc);
 #define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(flattenable) \
     static SkFlattenable::Registrar g##flattenable##Reg(#flattenable, \
-                                                      flattenable::CreateProc);
+                                                       flattenable::CreateProc);
+
+#define SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(flattenable)
 #define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #else
 
-#define SK_DECLARE_FLATTENABLE_REGISTRAR() static void Init();
-
-#define SK_DEFINE_FLATTENABLE_REGISTRAR(flattenable) \
-    void flattenable::Init() { \
-        SkFlattenable::Registrar(#flattenable, CreateProc); \
-    }
-
-#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(flattenable) \
-    void flattenable::Init() {
-    
+#define SK_DEFINE_FLATTENABLE_REGISTRAR(flattenable)
 #define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(flattenable) \
         SkFlattenable::Registrar(#flattenable, flattenable::CreateProc);
-    
+
+#define SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP() static void InitializeFlattenables();
+
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(flattenable) \
+    void flattenable::InitializeFlattenables() {
+
 #define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END \
     }
 
@@ -77,22 +72,17 @@ public:
      */
     virtual void flatten(SkFlattenableWriteBuffer&);
     
-    /** Set the string to describe the sublass and return true. If this is not
-        overridden, ignore the string param and return false.
-     */
-    virtual bool toDumpString(SkString*) const;
-
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
     static void Register(const char name[], Factory);
-    
+
     class Registrar {
     public:
         Registrar(const char name[], Factory factory) {
             SkFlattenable::Register(name, factory);
         }
     };
-    
+
 protected:
     SkFlattenable(SkFlattenableReadBuffer&) {}
 

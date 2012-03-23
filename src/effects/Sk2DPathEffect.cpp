@@ -117,5 +117,6 @@ void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {
     dst->addPath(fPath, loc.fX, loc.fY);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkPath2DPathEffect)
+///////////////////////////////////////////////////////////////////////////////
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkPath2DPathEffect)

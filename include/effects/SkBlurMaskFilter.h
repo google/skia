@@ -55,8 +55,7 @@ public:
                                         SkScalar ambient, SkScalar specular,
                                         SkScalar blurRadius);
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 private:
     SkBlurMaskFilter(); // can't be instantiated
 };

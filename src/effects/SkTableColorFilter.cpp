@@ -218,3 +218,7 @@ SkColorFilter* SkTableColorFilter::CreateARGB(const uint8_t tableA[256],
                                               const uint8_t tableB[256]) {
     return SkNEW_ARGS(SkTable_ColorFilter, (tableA, tableR, tableG, tableB));
 }
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkTableColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTable_ColorFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

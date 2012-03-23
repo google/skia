@@ -63,8 +63,6 @@ public:
         return SkNEW_ARGS(SkPath1DPathEffect, (buffer));
     }
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
 protected:
     SkPath1DPathEffect(SkFlattenableReadBuffer& buffer);
 

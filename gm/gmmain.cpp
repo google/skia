@@ -877,7 +877,8 @@ int main(int argc, char * const argv[]) {
                                                     readPath, diffPath);
             }
 
-            if ((ERROR_NONE == testErrors) && doSerialize) {
+            if ((ERROR_NONE == testErrors) && doSerialize  &&
+                !(gmFlags & GM::kSkipPicture_Flag)) {
                 testErrors |= test_picture_serialization(gm, gRec[i],
                                                          forwardRenderedBitmap,
                                                          readPath, diffPath);

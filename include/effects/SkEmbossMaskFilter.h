@@ -41,8 +41,6 @@ public:
     //  This method is not exported to java.
     virtual void flatten(SkFlattenableWriteBuffer&);
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
 protected:
     SkEmbossMaskFilter(SkFlattenableReadBuffer&);
 

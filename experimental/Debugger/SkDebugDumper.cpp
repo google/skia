@@ -35,12 +35,7 @@ static void appendPtr(SkString* str, const void* ptr, const char name[]) {
 static void appendFlattenable(SkString* str, const SkFlattenable* ptr,
                               const char name[]) {
     if (ptr) {
-        SkString info;
-        if (ptr->toDumpString(&info)) {
-            str->appendf("%s\n", info.c_str());
-        } else {
-            str->appendf("%s: %p\n", name, ptr);
-        }
+        str->appendf("%s: %p\n", name, ptr);
     }
 }
 

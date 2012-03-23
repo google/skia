@@ -383,7 +383,3 @@ const char* SkFlattenable::FactoryToName(Factory fact) {
     }
     return NULL;
 }
-
-bool SkFlattenable::toDumpString(SkString* str) const {
-    return false;
-}

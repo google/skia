@@ -48,8 +48,6 @@ public:
         return SkNEW_ARGS(SkBlurDrawLooper, (buffer));
     }
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR()
-
 protected:
     SkBlurDrawLooper(SkFlattenableReadBuffer&);
     // overrides from SkFlattenable
