@@ -24,11 +24,11 @@
       'target_name': 'skdiff',
       'type': 'executable',
       'sources': [
-        '../src/effects/SkEffects_none.cpp',
         '../tools/skdiff_main.cpp',
       ],
       'dependencies': [
         'core.gyp:core',
+        'effects.gyp:effects',
         'images.gyp:images',
         'ports.gyp:ports',
         'utils.gyp:utils',
@@ -38,11 +38,11 @@
       'target_name': 'skhello',
       'type': 'executable',
       'sources': [
-        '../src/effects/SkEffects_none.cpp',
         '../tools/skhello.cpp',
       ],
       'dependencies': [
         'core.gyp:core',
+        'effects.gyp:effects',
         'images.gyp:images',
         'ports.gyp:ports',
         'utils.gyp:utils',
@@ -52,11 +52,11 @@
       'target_name': 'skimage',
       'type': 'executable',
       'sources': [
-        '../src/effects/SkEffects_none.cpp',
         '../tools/skimage_main.cpp',
       ],
       'dependencies': [
         'core.gyp:core',
+        'effects.gyp:effects',
         'images.gyp:images',
         'ports.gyp:ports',
         'utils.gyp:utils',
