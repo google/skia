@@ -22,6 +22,7 @@ BUILDTYPE = 'Debug'
 # special targets
 TARGET_ALL = 'all'
 TARGET_CLEAN = 'clean'
+TARGET_GYP = 'gyp'
 LIST_OF_ALL_TARGETS = ['SampleApp', 'bench', 'gm', 'tests', 'tools']
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -111,6 +112,10 @@ def MakeWindows(targets):
     mkdirs(final_output_dir)
 
     for target in targets:
+        # We already built the gypfiles...
+        if target == TARGET_GYP:
+            continue
+
         cd(msbuild_working_dir)
         runcommand(
             ('msbuild /nologo /property:Configuration=%s'
