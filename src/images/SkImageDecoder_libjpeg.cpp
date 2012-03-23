@@ -653,11 +653,14 @@ protected:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+DEFINE_DECODER_CREATOR(JPEGImageDecoder);
+DEFINE_ENCODER_CREATOR(JPEGImageEncoder);
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkTRegistry.h"
 
 SkImageDecoder* sk_libjpeg_dfactory(SkStream* stream) {
-    static const char gHeader[] = { 0xFF, 0xD8, 0xFF };
+    static const unsigned char gHeader[] = { 0xFF, 0xD8, 0xFF };
     static const size_t HEADER_SIZE = sizeof(gHeader);
 
     char buffer[HEADER_SIZE];

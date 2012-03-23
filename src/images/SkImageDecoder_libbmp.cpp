@@ -27,6 +27,10 @@ protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+DEFINE_DECODER_CREATOR(BMPImageDecoder);
+///////////////////////////////////////////////////////////////////////////////
+
 SkImageDecoder* sk_libbmp_dfactory(SkStream* stream) {
     static const char kBmpMagic[] = { 'B', 'M' };
     

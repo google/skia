@@ -40,4 +40,21 @@ protected:
     virtual bool onEncode(SkWStream*, const SkBitmap&, int quality) = 0;
 };
 
+// This macro declares a global (i.e., non-class owned) creation entry point
+// for each encoder (e.g., CreateJPEGImageEncoder)
+#define DECLARE_ENCODER_CREATOR(codec)          \
+    SkImageEncoder *Create ## codec ();
+
+// This macro defines the global creation entry point for each encoder. Each
+// encoder implementation that registers with the encoder factory must call it.
+#define DEFINE_ENCODER_CREATOR(codec)           \
+    SkImageEncoder *Create ## codec () {        \
+        return SkNEW( Sk ## codec );            \
+    }
+
+// All the encoders known by Skia. Note that, depending on the compiler settings,
+// not all of these will be available
+DECLARE_ENCODER_CREATOR(JPEGImageEncoder);
+DECLARE_ENCODER_CREATOR(PNGImageEncoder);
+
 #endif

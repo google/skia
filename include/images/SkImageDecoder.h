@@ -332,5 +332,25 @@ public:
     }
 };
 
+// This macro declares a global (i.e., non-class owned) creation entry point
+// for each decoder (e.g., CreateJPEGImageDecoder)
+#define DECLARE_DECODER_CREATOR(codec)          \
+    SkImageDecoder *Create ## codec ();
+
+// This macro defines the global creation entry point for each decoder. Each
+// decoder implementation that registers with the decoder factory must call it.
+#define DEFINE_DECODER_CREATOR(codec)           \
+    SkImageDecoder *Create ## codec () {        \
+        return SkNEW( Sk ## codec );            \
+    }
+
+// All the decoders known by Skia. Note that, depending on the compiler settings,
+// not all of these will be available
+DECLARE_DECODER_CREATOR(BMPImageDecoder);
+DECLARE_DECODER_CREATOR(GIFImageDecoder);
+DECLARE_DECODER_CREATOR(ICOImageDecoder);
+DECLARE_DECODER_CREATOR(JPEGImageDecoder);
+DECLARE_DECODER_CREATOR(PNGImageDecoder);
+DECLARE_DECODER_CREATOR(WBMPImageDecoder);
 
 #endif
