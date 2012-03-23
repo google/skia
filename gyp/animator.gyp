@@ -1,3 +1,7 @@
+#Animator is basically Skia's (much saner) version of Flash.
+#On top of Views it provides a declarative UI model which can be updated
+#based on events which trigger changes or scripts.
+
 {
   'targets': [
     {
