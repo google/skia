@@ -39,7 +39,6 @@ static bool are_equal(skiatest::Reporter* reporter,
     bool cheapEqual = a.cheapEqualTo(b);
     if (equal != cheapEqual) {
 #if SK_SCALAR_IS_FLOAT
-        if (equal) {
             bool foundZeroSignDiff = false;
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
@@ -291,7 +290,12 @@ void TestMatrix(skiatest::Reporter* reporter) {
     mat.reset();
     mat.set(SkMatrix::kMSkewX, SK_ScalarNaN);
     mat2.set(SkMatrix::kMSkewX, SK_ScalarNaN);
+    // fixed pt doesn't have the property that NaN does not equal itself.
+#ifdef SK_SCALAR_IS_FIXED
+    REPORTER_ASSERT(reporter, are_equal(reporter, mat, mat2));
+#else
     REPORTER_ASSERT(reporter, !are_equal(reporter, mat, mat2));
+#endif
 
     test_matrix_max_stretch(reporter);
 }
