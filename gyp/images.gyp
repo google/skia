@@ -4,6 +4,7 @@
       'target_name': 'images',
       'type': 'static_library',
       'dependencies': [
+        'libjpeg.gyp:libjpeg',
         'utils.gyp:utils',
       ],
       'include_dirs': [
