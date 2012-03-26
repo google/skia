@@ -146,6 +146,16 @@ protected:
             canvas->drawPath(path, paint);
             canvas->translate(0, 160);
         }
+
+        SkIRect rect = SkIRect::MakeXYWH(20, 20, 60, 60);
+        for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+            SkPaint p;
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kFill_Style);
+            gPE[i](&p);
+            canvas->drawIRect(rect, p);
+            canvas->translate(75, 0);
+        }
     }
 
 private:
