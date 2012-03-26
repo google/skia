@@ -674,8 +674,8 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
      */
     bool usePath = doStroke && width > 0 &&
                     paint.getStrokeJoin() != SkPaint::kMiter_Join;
-    // another reason we might need to call drawPath...
-    if (paint.getMaskFilter()) {
+    // another two reasons we might need to call drawPath...
+    if (paint.getMaskFilter() || paint.getPathEffect()) {
         usePath = true;
     }
     // until we aa rotated rects...
