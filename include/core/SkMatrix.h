@@ -497,7 +497,7 @@ public:
 
 #ifdef SK_SCALAR_IS_FIXED
     friend bool operator==(const SkMatrix& a, const SkMatrix& b) {
-        return a->cheapEquals(b);
+        return a.cheapEqualTo(b);
     }
 #else
     friend bool operator==(const SkMatrix& a, const SkMatrix& b);
