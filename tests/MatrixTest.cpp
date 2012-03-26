@@ -32,6 +32,49 @@ static bool nearly_equal(const SkMatrix& a, const SkMatrix& b) {
     return true;
 }
 
+static bool are_equal(skiatest::Reporter* reporter,
+                      const SkMatrix& a,
+                      const SkMatrix& b) {
+    bool equal = a == b;
+    bool cheapEqual = a.cheapEqualTo(b);
+    if (equal != cheapEqual) {
+#if SK_SCALAR_IS_FLOAT
+        if (equal) {
+            bool foundZeroSignDiff = false;
+            for (int i = 0; i < 9; ++i) {
+                float aVal = a.get(i);
+                float bVal = b.get(i);
+                int aValI = *reinterpret_cast<int*>(&aVal);
+                int bValI = *reinterpret_cast<int*>(&bVal);
+                if (0 == aVal && 0 == bVal && aValI != bValI) {
+                    foundZeroSignDiff = true;
+                } else {
+                    REPORTER_ASSERT(reporter, aVal == bVal && aValI == aValI);
+                }
+            }
+            REPORTER_ASSERT(reporter, foundZeroSignDiff);
+        } else {
+            bool foundNaN = false;
+            for (int i = 0; i < 9; ++i) {
+                float aVal = a.get(i);
+                float bVal = b.get(i);
+                int aValI = *reinterpret_cast<int*>(&aVal);
+                int bValI = *reinterpret_cast<int*>(&bVal);
+                if (sk_float_isnan(aVal) && aValI == bValI) {
+                    foundNaN = true;
+                } else {
+                    REPORTER_ASSERT(reporter, aVal == bVal && aValI == bValI);
+                }
+            }
+            REPORTER_ASSERT(reporter, foundNaN);
+        }
+#else
+        REPORTER_ASSERT(reporter, false);
+#endif
+    }
+    return equal;
+}
+
 static bool is_identity(const SkMatrix& m) {
     SkMatrix identity;
     identity.reset();
@@ -49,7 +92,7 @@ static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
     SkMatrix m2;
     uint32_t size3 = m2.unflatten(buffer);
     REPORTER_ASSERT(reporter, size1 == size2);
-    REPORTER_ASSERT(reporter, m == m2);
+    REPORTER_ASSERT(reporter, are_equal(reporter, m, m2));
     
     char buffer2[SkMatrix::kMaxFlattenSize + 100];
     size3 = m2.flatten(buffer2);
@@ -236,6 +279,19 @@ void TestMatrix(skiatest::Reporter* reporter) {
 
     mat.set(SkMatrix::kMPersp1, SkScalarToPersp(SK_Scalar1 / 2));
     REPORTER_ASSERT(reporter, !mat.asAffine(affine));
+
+    SkMatrix mat2;
+    mat2.reset();
+    mat.reset();
+    SkScalar zero = 0;
+    mat.set(SkMatrix::kMSkewX, -zero);
+    REPORTER_ASSERT(reporter, are_equal(reporter, mat, mat2));
+
+    mat2.reset();
+    mat.reset();
+    mat.set(SkMatrix::kMSkewX, SK_ScalarNaN);
+    mat2.set(SkMatrix::kMSkewX, SK_ScalarNaN);
+    REPORTER_ASSERT(reporter, !are_equal(reporter, mat, mat2));
 
     test_matrix_max_stretch(reporter);
 }
