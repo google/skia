@@ -10,14 +10,7 @@
 
 {
   'variables': {
-    'conditions': [
-      [ 'os_posix == 1 and OS != "mac"', {
-        # Link to system .so since we already use it due to GTK.
-        'use_system_libjpeg%': 1,
-      }, {  # os_posix != 1 or OS == "mac"
-        'use_system_libjpeg%': 0,
-      }],
-    ],
+    'use_system_libjpeg%': 0,
   },
   'conditions': [
     ['use_system_libjpeg==0', {
