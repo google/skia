@@ -35,8 +35,7 @@ public:
     SkGradientUnitMapper(SkAnimateMaker* maker, const char* script) : fMaker(maker), fScript(script) {
     }
     
-    // overrides for SkFlattenable
-    virtual Factory getFactory() { return NULL; }
+    SK_DECLARE_UNFLATTENABLE_OBJECT()
     
 protected:
     virtual uint16_t mapUnit16(uint16_t x) {

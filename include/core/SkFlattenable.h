@@ -49,6 +49,15 @@ class SkString;
 
 #endif
 
+#define SK_DECLARE_UNFLATTENABLE_OBJECT() \
+    virtual Factory getFactory() SK_OVERRIDE { return NULL; }; \
+
+#define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable) \
+    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }; \
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { \
+        return SkNEW_ARGS(flattenable, (buffer)); \
+    }
+
 /** \class SkFlattenable
  
  SkFlattenable is the base class for objects that need to be flattened

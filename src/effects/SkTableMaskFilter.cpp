@@ -81,14 +81,6 @@ SkTableMaskFilter::SkTableMaskFilter(SkFlattenableReadBuffer& rb)
     rb.read(fTable, 256);
 }
 
-SkFlattenable* SkTableMaskFilter::Factory(SkFlattenableReadBuffer& rb) {
-    return SkNEW_ARGS(SkTableMaskFilter, (rb));
-}
-
-SkFlattenable::Factory SkTableMaskFilter::getFactory() {
-    return SkTableMaskFilter::Factory;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkTableMaskFilter::MakeGammaTable(uint8_t table[256], SkScalar gamma) {

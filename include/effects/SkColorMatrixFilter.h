@@ -37,12 +37,9 @@ public:
         int32_t fResult[4];
     };
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorMatrixFilter)
 
 protected:
-    // overrides for SkFlattenable
-    virtual Factory getFactory();
-
     SkColorMatrixFilter(SkFlattenableReadBuffer& buffer);
 
 private:

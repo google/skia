@@ -13,19 +13,12 @@ public:
 
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE;
 
-    static SkFlattenable* Create(SkFlattenableReadBuffer& buffer) {
-        return NULL;
-    }
+    SK_DECLARE_UNFLATTENABLE_OBJECT()
 
 private:
     SkScalar fK[4];
 };
-
-SkFlattenable::Factory SkArithmeticMode_scalar::getFactory() {
-    return Create;
-}
 
 static int pinToByte(int value) {
     if (value < 0) {

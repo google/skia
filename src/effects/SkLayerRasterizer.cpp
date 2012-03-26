@@ -216,13 +216,5 @@ void SkLayerRasterizer::flatten(SkFlattenableWriteBuffer& buffer) {
     }
 }
 
-SkFlattenable* SkLayerRasterizer::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkLayerRasterizer, (buffer));
-}
-
-SkFlattenable::Factory SkLayerRasterizer::getFactory() {
-    return CreateProc;
-}
-
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkLayerRasterizer)
 

@@ -25,10 +25,9 @@ public:
     virtual void computeFastBounds(const SkRect& src, SkRect* dst) SK_OVERRIDE;
 
     // overrides from SkFlattenable
-    virtual Factory getFactory() SK_OVERRIDE;
     virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
 private:
     SkScalar                    fRadius;
@@ -102,14 +101,6 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
 void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src, SkRect* dst) {
     dst->set(src.fLeft - fRadius, src.fTop - fRadius,
              src.fRight + fRadius, src.fBottom + fRadius);
-}
-
-SkFlattenable* SkBlurMaskFilterImpl::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkBlurMaskFilterImpl, (buffer));
-}
-
-SkFlattenable::Factory SkBlurMaskFilterImpl::getFactory() {
-    return CreateProc;
 }
 
 SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer)

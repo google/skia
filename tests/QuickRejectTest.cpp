@@ -29,9 +29,7 @@ public:
         return false;
     }
 
-    virtual Factory getFactory() SK_OVERRIDE {
-        return NULL;
-    }
+    SK_DECLARE_UNFLATTENABLE_OBJECT()
 };
 
 static void test_drawBitmap(skiatest::Reporter* reporter) {

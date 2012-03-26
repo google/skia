@@ -247,14 +247,6 @@ void SkColorShader::flatten(SkFlattenableWriteBuffer& buffer) {
     buffer.write32(fColor);
 }
 
-SkFlattenable* SkColorShader::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkColorShader, (buffer));
-}
-
-SkFlattenable::Factory SkColorShader::getFactory() {
-    return CreateProc;
-}
-
 uint32_t SkColorShader::getFlags() {
     return fFlags;
 }
@@ -358,8 +350,6 @@ void SkEmptyShader::shadeSpan16(int x, int y, uint16_t span[], int count) {
 void SkEmptyShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
     SkDEBUGFAIL("should never get called, since setContext() returned false");
 }
-
-SkFlattenable::Factory SkEmptyShader::getFactory() { return NULL; }
 
 void SkEmptyShader::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);

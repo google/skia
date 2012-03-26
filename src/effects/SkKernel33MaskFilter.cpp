@@ -110,14 +110,6 @@ void SkKernel33MaskFilter::flatten(SkFlattenableWriteBuffer& wb) {
     wb.write32(fShift);
 }
 
-SkFlattenable::Factory SkKernel33MaskFilter::getFactory() {
-    return Create;
-}
-
-SkFlattenable* SkKernel33MaskFilter::Create(SkFlattenableReadBuffer& rb) {
-    return new SkKernel33MaskFilter(rb);
-}
-
 SkKernel33MaskFilter::SkKernel33MaskFilter(SkFlattenableReadBuffer& rb)
         : SkKernel33ProcMaskFilter(rb) {
     rb.read(fKernel, 9 * sizeof(int));

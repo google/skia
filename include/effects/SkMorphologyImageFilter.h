@@ -33,10 +33,8 @@ public:
     virtual bool asADilate(SkISize* radius) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkDilateImageFilter, (buffer));
-    }
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
 
     typedef SkMorphologyImageFilter INHERITED;
 };
@@ -50,10 +48,7 @@ public:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkErodeImageFilter, (buffer));
-    }
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
 
 private:
     typedef SkMorphologyImageFilter INHERITED;

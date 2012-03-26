@@ -53,11 +53,10 @@ public:
     
     // overrides from SkFlattenable
     virtual void flatten(SkFlattenableWriteBuffer& wb);
-    virtual Factory getFactory();
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
 
 protected:
     SkTableMaskFilter(SkFlattenableReadBuffer& rb);
-    static SkFlattenable* Factory(SkFlattenableReadBuffer&);
 
 private:
     uint8_t fTable[256];

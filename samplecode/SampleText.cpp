@@ -54,12 +54,10 @@ public:
     //    if (c < min) c = min;
         return c;
     }
-    virtual Factory getFactory() { return Create; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ReduceNoise)
+
 private:
     ReduceNoise(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
-    static SkFlattenable* Create(SkFlattenableReadBuffer& rb) {
-        return new ReduceNoise(rb);
-    }
 };
 
 class Darken : public SkKernel33ProcMaskFilter {
@@ -78,12 +76,10 @@ public:
         SkASSERT(f >= 0 && f <= 1);
         return (int)(f * 255);
     }
-    virtual Factory getFactory() { return Create; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Darken)
+
 private:
     Darken(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
-    static SkFlattenable* Create(SkFlattenableReadBuffer& rb) {
-        return new Darken(rb);
-    }
 };
 
 static SkMaskFilter* makemf() { return new Darken(0x30); }
@@ -136,11 +132,11 @@ public:
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
 
     // overrides for SkFlattenable
-    virtual Factory getFactory() { return Create; }
     virtual void flatten(SkFlattenableWriteBuffer& b) {
     //    this->INHERITED::flatten(b);  How can we know if this is legal????
         b.write32(SkScalarToFixed(fExp));
     }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPowerMode)
 
 private:
     SkScalar fExp;          // user's value
@@ -150,9 +146,6 @@ private:
     SkPowerMode(SkFlattenableReadBuffer& b) : SkXfermode(b) {
         // read the exponent
         this->init(SkFixedToScalar(b.readS32()));
-    }
-    static SkFlattenable* Create(SkFlattenableReadBuffer& b) {
-        return SkNEW_ARGS(SkPowerMode, (b));
     }
 
     typedef SkXfermode INHERITED;

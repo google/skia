@@ -115,14 +115,6 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     return true;
 }
 
-SkFlattenable* SkEmbossMaskFilter::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkEmbossMaskFilter, (buffer));
-}
-
-SkFlattenable::Factory SkEmbossMaskFilter::getFactory() {
-    return CreateProc;
-}
-
 SkEmbossMaskFilter::SkEmbossMaskFilter(SkFlattenableReadBuffer& buffer)
         : SkMaskFilter(buffer) {
     buffer.read(&fLight, sizeof(fLight));

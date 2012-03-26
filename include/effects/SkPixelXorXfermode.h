@@ -22,12 +22,9 @@ public:
     SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
 
     // override from SkFlattenable
-    virtual Factory getFactory();
     virtual void flatten(SkFlattenableWriteBuffer&);
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkPixelXorXfermode, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPixelXorXfermode)
 
 protected:
     // override from SkXfermode
@@ -37,8 +34,6 @@ private:
     SkColor fOpColor;
 
     SkPixelXorXfermode(SkFlattenableReadBuffer& rb);
-    // our private factory
-    static SkFlattenable* Create(SkFlattenableReadBuffer&);
 
     typedef SkXfermode INHERITED;
 };

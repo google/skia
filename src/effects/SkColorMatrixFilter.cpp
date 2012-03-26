@@ -318,8 +318,6 @@ void SkColorMatrixFilter::flatten(SkFlattenableWriteBuffer& buffer)  {
     buffer.write32(fFlags);
 }
 
-SkFlattenable::Factory SkColorMatrixFilter::getFactory() { return CreateProc;  }
-
 SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {
     fProc = (Proc)buffer.readFunctionPtr();
@@ -342,10 +340,6 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
         matrix[19] = SkFixedToScalar((array[19] - offset) << unshift);
     }
     return true;
-}
-
-SkFlattenable* SkColorMatrixFilter::CreateProc(SkFlattenableReadBuffer& buf) {
-    return SkNEW_ARGS(SkColorMatrixFilter, (buf));
 }
 
 void SkColorMatrixFilter::setMatrix(const SkColorMatrix& matrix) {

@@ -36,11 +36,8 @@ public:
     virtual void filterSpan(const SkPMColor src[], int count,
                             SkPMColor dst[]) SK_OVERRIDE;
     virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkTable_ColorFilter, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
 
 protected:
     SkTable_ColorFilter(SkFlattenableReadBuffer& buffer);
@@ -137,10 +134,6 @@ void SkTable_ColorFilter::filterSpan(const SkPMColor src[], int count,
         dst[i] = SkPremultiplyARGBInline(tableA[a], tableR[r],
                                          tableG[g], tableB[b]);
     }
-}
-
-SkFlattenable::Factory SkTable_ColorFilter::getFactory() {
-    return CreateProc;
 }
 
 static const uint8_t gCountNibBits[] = {
