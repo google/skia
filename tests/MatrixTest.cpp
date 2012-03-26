@@ -39,6 +39,7 @@ static bool are_equal(skiatest::Reporter* reporter,
     bool cheapEqual = a.cheapEqualTo(b);
     if (equal != cheapEqual) {
 #if SK_SCALAR_IS_FLOAT
+        if (equal) {
             bool foundZeroSignDiff = false;
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
