@@ -1379,21 +1379,6 @@ enum {
     SERIALIZE_PIXELTYPE_REF_PTR,
 };
 
-static void writeString(SkFlattenableWriteBuffer& buffer, const char str[]) {
-    size_t len = strlen(str);
-    buffer.write32(len);
-    buffer.writePad(str, len);
-}
-
-static SkPixelRef::Factory deserialize_factory(SkFlattenableReadBuffer& buffer) {
-    size_t len = buffer.readInt();
-    SkAutoSMalloc<256> storage(len + 1);
-    char* str = (char*)storage.get();
-    buffer.read(str, len);
-    str[len] = 0;
-    return SkPixelRef::NameToFactory(str);
-}
-
 /*
     It is tricky to know how much to flatten. If we don't have a pixelref (i.e.
     we just have pixels, then we can only flatten the pixels, or write out an
@@ -1439,7 +1424,7 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
             if (name && *name) {
                 buffer.write8(SERIALIZE_PIXELTYPE_REF_DATA);
                 buffer.write32(fPixelRefOffset);
-                writeString(buffer, name);
+                buffer.writeString(name);
                 fPixelRef->flatten(buffer);
                 return;
             }
@@ -1487,7 +1472,8 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
         }
         case SERIALIZE_PIXELTYPE_REF_DATA: {
             size_t offset = buffer.readU32();
-            SkPixelRef::Factory fact = deserialize_factory(buffer);
+            const char* factoryName = buffer.readString();
+            SkPixelRef::Factory fact = SkPixelRef::NameToFactory(factoryName);
             SkPixelRef* pr = fact(buffer);
             SkSafeUnref(this->setPixelRef(pr, offset));
             break;
