@@ -12,13 +12,8 @@
 #include "SkXfermode.h"
 
 static SkFlattenable* reincarnate_flattenable(SkFlattenable* obj) {
-    SkFlattenable::Factory fact = obj->getFactory();
-    if (NULL == fact) {
-        return NULL;
-    }
-
     SkFlattenableWriteBuffer wb(1024);
-    obj->flatten(wb);
+    wb.writeFlattenable(obj);
 
     size_t size = wb.size();
     SkAutoSMalloc<1024> storage(size);
@@ -26,7 +21,7 @@ static SkFlattenable* reincarnate_flattenable(SkFlattenable* obj) {
     wb.flatten(storage.get());
 
     SkFlattenableReadBuffer rb(storage.get(), size);
-    return fact(rb);
+    return rb.readFlattenable();
 }
 
 template <typename T> T* reincarnate(T* obj) {
