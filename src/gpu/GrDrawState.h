@@ -85,8 +85,8 @@ struct GrDrawState {
         // are tightly packed
         GrAssert(kMemsetSize +  sizeof(fColor) + sizeof(fCoverage) +
                  sizeof(fFirstCoverageStage) + sizeof(fColorFilterMode) +
-                 sizeof(fSrcBlend) + sizeof(fDstBlend) + sizeof(GrMatrix) ==
-                 reinterpret_cast<uintptr_t>(&fEdgeAANumEdges) -
+                 sizeof(fSrcBlend) + sizeof(fDstBlend) ==
+                 reinterpret_cast<uintptr_t>(&fViewMatrix) -
                  reinterpret_cast<uintptr_t>(this));
 
         fEdgeAANumEdges = 0;
@@ -740,7 +740,13 @@ struct GrDrawState {
     // Most stages are usually not used, so conditionals here
     // reduce the expected number of bytes touched by 50%.
     bool operator ==(const GrDrawState& s) const {
-        if (memcmp(this, &s, this->leadingBytes())) return false;
+        if (memcmp(this, &s, this->leadingBytes())) {
+            return false;
+        }
+
+        if (!s.fViewMatrix.cheapEqualTo(fViewMatrix)) {
+            return false;
+        }
 
         for (int i = 0; i < kNumStages; i++) {
             if (fTextures[i] &&
@@ -765,6 +771,8 @@ struct GrDrawState {
     // reduce the expected number of bytes touched by 50%.
     GrDrawState& operator =(const GrDrawState& s) {
         memcpy(this, &s, this->leadingBytes());
+
+        fViewMatrix = s.fViewMatrix;
 
         for (int i = 0; i < kNumStages; i++) {
             if (s.fTextures[i]) {
@@ -799,8 +807,9 @@ private:
     SkXfermode::Mode    fColorFilterMode;
     GrBlendCoeff        fSrcBlend;
     GrBlendCoeff        fDstBlend;
-    GrMatrix            fViewMatrix;
     // @}
+
+    GrMatrix            fViewMatrix;
 
     // @{ Data for GrTesselatedPathRenderer
     // TODO: currently ignored in copying & comparison for performance.
@@ -820,7 +829,7 @@ private:
         // TODO: ignores GrTesselatedPathRenderer data structures. We don't
         // have a compile-time flag that lets us know if it's being used, and
         // checking at runtime seems to cost 5% performance.
-        return (size_t) ((unsigned char*)&fEdgeAANumEdges -
+        return (size_t) ((unsigned char*)&fViewMatrix -
                          (unsigned char*)&fBlendConstant);
     }
 

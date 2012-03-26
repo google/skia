@@ -483,20 +483,28 @@ public:
     */
     bool fixedStepInX(SkScalar y, SkFixed* stepX, SkFixed* stepY) const;
 
-#ifdef SK_SCALAR_IS_FIXED
-    friend bool operator==(const SkMatrix& a, const SkMatrix& b) {
-        return memcmp(a.fMat, b.fMat, sizeof(a.fMat)) == 0;
+    /** Efficient comparison of two matrices. It distinguishes between zero and
+     *  negative zero. It will return false when the sign of zero values is the
+     *  only difference between the two matrices. It considers NaN values to be
+     *  equal to themselves. So a matrix full of NaNs is "cheap equal" to
+     *  another matrix full of NaNs iff the NaN values are bitwise identical
+     *  while according to strict the strict == test a matrix with a NaN value
+     *  is equal to nothing, including itself.
+     */
+    bool cheapEqualTo(const SkMatrix& m) const {
+        return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
     }
 
-    friend bool operator!=(const SkMatrix& a, const SkMatrix& b) {
-        return memcmp(a.fMat, b.fMat, sizeof(a.fMat)) != 0;
+#ifdef SK_SCALAR_IS_FIXED
+    friend bool operator==(const SkMatrix& a, const SkMatrix& b) {
+        return a->cheapEquals(b);
     }
 #else
-    friend bool operator==(const SkMatrix& a, const SkMatrix& b);    
+    friend bool operator==(const SkMatrix& a, const SkMatrix& b);
+#endif
     friend bool operator!=(const SkMatrix& a, const SkMatrix& b) {
         return !(a == b);
     }
-#endif
 
     enum {
         // flatten/unflatten will never return a value larger than this

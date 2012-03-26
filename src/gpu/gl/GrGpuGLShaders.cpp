@@ -409,7 +409,7 @@ void GrGpuGLShaders::onResetContext() {
 
 void GrGpuGLShaders::flushViewMatrix() {
     const GrMatrix& vm = this->getDrawState().getViewMatrix();
-    if (GrGpuGLShaders::getHWViewMatrix() != vm) {
+    if (!GrGpuGLShaders::getHWViewMatrix().cheapEqualTo(vm)) {
 
         const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
         GrAssert(NULL != rt);
@@ -492,11 +492,13 @@ void GrGpuGLShaders::flushTextureMatrix(int s) {
     const GrGLTexture* texture =
         static_cast<const GrGLTexture*>(drawState.getTexture(s));
     if (NULL != texture) {
+        const GrMatrix& hwMatrix = this->getHWSamplerMatrix(s);
+        const GrMatrix& samplerMatrix = drawState.getSampler(s).getMatrix();
         if (GrGLProgram::kUnusedUniform != uni &&
             (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
-            this->getHWSamplerMatrix(s) != drawState.getSampler(s).getMatrix())) {
+            !hwMatrix.cheapEqualTo(samplerMatrix))) {
 
-            GrMatrix m = drawState.getSampler(s).getMatrix();
+            GrMatrix m = samplerMatrix;
             GrSamplerState::SampleMode mode =
                 drawState.getSampler(s).getSampleMode();
             AdjustTextureMatrix(texture, mode, &m);
