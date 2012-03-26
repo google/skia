@@ -12,9 +12,6 @@
 #include "SkTArray.h"
 #include "SkTDArray.h"
 
-// the OpenGLES 2.0 spec says this must be >= 2
-static const GrGLint kDefaultMaxTextureUnits = 8;
-
 // the OpenGLES 2.0 spec says this must be >= 128
 static const GrGLint kDefaultMaxVertexUniformVectors = 128;
 
@@ -28,21 +25,47 @@ static const GrGLint kDefaultMaxVertexAttribs = 8;
 static const GrGLint kDefaultMaxVaryingVectors = 8;
 
 ////////////////////////////////////////////////////////////////////////////////
+// Each class derived from GrFakeRefObj should use this macro to add a
+// factory creation entry point. This entry point is used by the GrGLDebug
+// object to instantiate the various objects
+// all globally unique IDs
+#define GR_DEFINE_CREATOR(className)                        \
+    public:                                                 \
+    static GrFakeRefObj *create ## className() {            \
+        return SkNEW(className);                            \
+    }
+
+////////////////////////////////////////////////////////////////////////////////
+// Helper macro to make creating an object (where you need to get back a derived
+// type) easier
+#define GR_CREATE(className, classEnum)                     \
+    reinterpret_cast<className *>(GrDebugGL::getInstance()->createObj(classEnum))
+
+////////////////////////////////////////////////////////////////////////////////
+// Helper macro to make finding objects less painful
+#define GR_FIND(id, className, classEnum)                   \
+    reinterpret_cast<className *>(GrDebugGL::getInstance()->findObject(id, classEnum))
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 // This object is used to track the OpenGL objects. We don't use real
 // reference counting (i.e., we don't free the objects when their ref count 
 // goes to 0) so that we can detect invalid memory accesses. The refs we
 // are tracking in this class are actually OpenGL's references to the objects
 // not "ours"
 // Each object also gets a unique globally identifying ID
-class GrFakeRefObj
-{
+class GrFakeRefObj {
 public:
-    GrFakeRefObj(GrGLuint ID) 
+    GrFakeRefObj() 
         : fRef(0)
         , fHighRefCount(0)
-        , fID(ID)
         , fMarkedForDeletion(false)
         , fDeleted(false) {
+
+        static int fNextID = 0;  // source for globally unique IDs - 0 is reserved!
+
+        fID = ++fNextID;
     }
     virtual ~GrFakeRefObj() {};
 
@@ -71,13 +94,13 @@ public:
     void setMarkedForDeletion() { fMarkedForDeletion = true; }
     bool getMarkedForDeletion() const { return fMarkedForDeletion; }
 
-    // setDeleted should only ever appear in deleteAction methods!
-    void setDeleted()           { fDeleted = true; }
     bool getDeleted() const     { return fDeleted; }
 
     // The deleteAction fires if the object has been marked for deletion but
     // couldn't be deleted earlier due to refs
-    virtual void deleteAction() = 0;
+    virtual void deleteAction() {
+        this->setDeleted();
+    }
 
 protected:
 private:
@@ -88,14 +111,18 @@ private:
     // The deleted flag is only set when OpenGL thinks the object is deleted
     // It is obviously still allocated w/in this framework
     bool        fDeleted;
+
+    // setDeleted should only ever appear in the deleteAction method!
+    void setDeleted()           { fDeleted = true; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class GrBufferObj : public GrFakeRefObj
-{
+class GrBufferObj : public GrFakeRefObj {
+    GR_DEFINE_CREATOR(GrBufferObj);
+
 public:
-    GrBufferObj(GrGLuint ID) 
-        : GrFakeRefObj(ID)
+    GrBufferObj() 
+        : GrFakeRefObj()
         , fDataPtr(NULL)
         , fMapped(false)
         , fBound(false)
@@ -142,7 +169,8 @@ public:
 
         // buffers are automatically unmapped when deleted
         this->resetMapped();
-        this->setDeleted();
+
+        this->INHERITED::deleteAction();
     }
 
 
@@ -159,23 +187,19 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class GrRenderBufferObj : public GrFakeRefObj
-{
+// A common base class for render buffers and textures
+class GrFBBindable : public GrFakeRefObj {
+
 public:
-    GrRenderBufferObj(GrGLuint ID)
-        : GrFakeRefObj(ID)
-        , fBound(false) {
+    GrFBBindable() 
+        : GrFakeRefObj() {
     }
 
-    virtual ~GrRenderBufferObj() {
+    virtual ~GrFBBindable() {
         GrAlwaysAssert(0 == fColorReferees.count());
         GrAlwaysAssert(0 == fDepthReferees.count());
         GrAlwaysAssert(0 == fStencilReferees.count());
     }
-
-    void setBound()         { fBound = true; }
-    void resetBound()       { fBound = false; }
-    bool getBound() const   { return fBound; }
 
     void setColorBound(GrFakeRefObj *referee) { 
         fColorReferees.append(1, &referee);
@@ -225,30 +249,147 @@ public:
         return 0 != fStencilReferees.count();
     }
 
+
+protected:
+private:
+    SkTDArray<GrFakeRefObj *> fColorReferees;   // frame buffers that use this as a color buffer (via "glFramebufferRenderbuffer" or "glFramebufferTexture2D")
+    SkTDArray<GrFakeRefObj *> fDepthReferees;   // frame buffers that use this as a depth buffer (via "glFramebufferRenderbuffer" or "glFramebufferTexture2D")
+    SkTDArray<GrFakeRefObj *> fStencilReferees; // frame buffers that use this as a stencil buffer (via "glFramebufferRenderbuffer" or "glFramebufferTexture2D")
+
+    typedef GrFakeRefObj INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+class GrRenderBufferObj : public GrFBBindable {
+    GR_DEFINE_CREATOR(GrRenderBufferObj);
+
+public:
+    GrRenderBufferObj()
+        : GrFBBindable()
+        , fBound(false) {
+    }
+
+    void setBound()         { fBound = true; }
+    void resetBound()       { fBound = false; }
+    bool getBound() const   { return fBound; }
+
     virtual void deleteAction() SK_OVERRIDE {
 
-        this->setDeleted();
+        this->INHERITED::deleteAction();
     }
 
 protected:
 private:
     bool fBound;           // is this render buffer currently bound via "glBindRenderbuffer"?
 
-    SkTDArray<GrFakeRefObj *> fColorReferees;   // frame buffers that use this as a color buffer (via "glFramebufferRenderbuffer")
-    SkTDArray<GrFakeRefObj *> fDepthReferees;   // frame buffers that use this as a depth buffer (via "glFramebufferRenderbuffer")
-    SkTDArray<GrFakeRefObj *> fStencilReferees; // frame buffers that use this as a stencil buffer (via "glFramebufferRenderbuffer")
+    typedef GrFBBindable INHERITED;
+};
+
+class GrTextureUnitObj;
+
+////////////////////////////////////////////////////////////////////////////////
+class GrTextureObj : public GrFBBindable {
+    GR_DEFINE_CREATOR(GrTextureObj);
+
+public:
+    GrTextureObj() 
+        : GrFBBindable() {
+    }
+
+    virtual ~GrTextureObj() {
+        GrAlwaysAssert(0 == fTextureUnitReferees.count());
+    }
+
+    void setBound(GrTextureUnitObj *referee) { 
+        fTextureUnitReferees.append(1, &referee);
+    }
+
+    void resetBound(GrTextureUnitObj *referee) { 
+        int index = fTextureUnitReferees.find(referee);
+        GrAlwaysAssert(0 <= index);
+        fTextureUnitReferees.removeShuffle(index);
+    }
+    bool getBound(GrTextureUnitObj *referee) const { 
+        int index = fTextureUnitReferees.find(referee);
+        return 0 <= index;
+    }
+    bool getBound() const { 
+        return 0 != fTextureUnitReferees.count();
+    }
+
+    virtual void deleteAction() SK_OVERRIDE {
+
+        this->INHERITED::deleteAction();
+    }
+
+protected:
+
+private:
+    SkTDArray<GrTextureUnitObj *> fTextureUnitReferees;   // texture units that bind this texture (via "glBindTexture")
+
+    typedef GrFBBindable INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Although texture unit objects are allocated & deallocated like the other
+// GL emulation objects they are derived from GrFakeRefObj to provide some
+// uniformity in how the GrDebugGL class manages resources
+class GrTextureUnitObj : public GrFakeRefObj {
+    GR_DEFINE_CREATOR(GrTextureUnitObj);
+
+public:
+    GrTextureUnitObj()
+        : GrFakeRefObj()
+        , fNumber(0)
+        , fTexture(NULL) {
+    }
+
+    void setNumber(GrGLenum number) {
+        fNumber = number;
+    }
+    GrGLenum getNumber() const { return fNumber; }
+
+    void setTexture(GrTextureObj *texture)  { 
+
+        if (fTexture) {
+            GrAlwaysAssert(fTexture->getBound(this));
+            fTexture->resetBound(this);
+
+            GrAlwaysAssert(!fTexture->getDeleted());
+            fTexture->unref();
+        }
+
+        fTexture = texture; 
+
+        if (fTexture) {
+            GrAlwaysAssert(!fTexture->getDeleted());
+            fTexture->ref();
+
+            GrAlwaysAssert(!fTexture->getBound(this));
+            fTexture->setBound(this);
+        }
+    }
+
+    GrTextureObj *getTexture()                  { return fTexture; }
+
+protected:
+private:
+    GrGLenum fNumber;
+    GrTextureObj *fTexture;
 
     typedef GrFakeRefObj INHERITED;
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // TODO: when a framebuffer obj is bound the GL_SAMPLES query must return 0
 // TODO: GL_STENCIL_BITS must also be redirected to the framebuffer
-class GrFrameBufferObj : public GrFakeRefObj
-{
+class GrFrameBufferObj : public GrFakeRefObj {
+    GR_DEFINE_CREATOR(GrFrameBufferObj);
+
 public:
-    GrFrameBufferObj(GrGLuint ID)
-        : GrFakeRefObj(ID)
+    GrFrameBufferObj()
+        : GrFakeRefObj()
         , fBound(false)
         , fColorBuffer(NULL)
         , fDepthBuffer(NULL)
@@ -265,7 +406,7 @@ public:
     void resetBound()       { fBound = false; }
     bool getBound() const   { return fBound; }
 
-    void setColor(GrRenderBufferObj *buffer) {
+    void setColor(GrFBBindable *buffer) {
         if (fColorBuffer) {
             // automatically break the binding of the old buffer
             GrAlwaysAssert(fColorBuffer->getColorBound(this));
@@ -283,9 +424,9 @@ public:
             fColorBuffer->setColorBound(this);
         }
     }
-    GrRenderBufferObj *getColor()       { return fColorBuffer; }
+    GrFBBindable *getColor()       { return fColorBuffer; }
 
-    void setDepth(GrRenderBufferObj *buffer) {
+    void setDepth(GrFBBindable *buffer) {
         if (fDepthBuffer) {
             // automatically break the binding of the old buffer
             GrAlwaysAssert(fDepthBuffer->getDepthBound(this));
@@ -303,9 +444,9 @@ public:
             fDepthBuffer->setDepthBound(this);
         }
     }
-    GrRenderBufferObj *getDepth()       { return fDepthBuffer; }
+    GrFBBindable *getDepth()       { return fDepthBuffer; }
 
-    void setStencil(GrRenderBufferObj *buffer) {
+    void setStencil(GrFBBindable *buffer) {
         if (fStencilBuffer) {
             // automatically break the binding of the old buffer
             GrAlwaysAssert(fStencilBuffer->getStencilBound(this));
@@ -323,39 +464,42 @@ public:
             fStencilBuffer->setStencilBound(this);
         }
     }
-    GrRenderBufferObj *getStencil()     { return fStencilBuffer; }
+    GrFBBindable *getStencil()     { return fStencilBuffer; }
 
     virtual void deleteAction() SK_OVERRIDE {
 
         setColor(NULL);
         setDepth(NULL);
         setStencil(NULL);
-        this->setDeleted();
+
+        this->INHERITED::deleteAction();
     }
 
 protected:
 private:
     bool fBound;        // is this frame buffer currently bound via "glBindFramebuffer"?
-    GrRenderBufferObj * fColorBuffer;
-    GrRenderBufferObj * fDepthBuffer;
-    GrRenderBufferObj * fStencilBuffer;
+    GrFBBindable * fColorBuffer;
+    GrFBBindable * fDepthBuffer;
+    GrFBBindable * fStencilBuffer;
 
     typedef GrFakeRefObj INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class GrShaderObj : public GrFakeRefObj
-{
-public:
-    GrShaderObj(GrGLuint ID, GrGLenum type) 
-        : GrFakeRefObj(ID)
-        , fType(type)   {}
+class GrShaderObj : public GrFakeRefObj {
+    GR_DEFINE_CREATOR(GrShaderObj);
 
+public:
+    GrShaderObj() 
+        : GrFakeRefObj()
+        , fType(GR_GL_VERTEX_SHADER)   {}
+
+    void setType(GrGLenum type) { fType = type; }
     GrGLenum getType()  { return fType; }
 
     virtual void deleteAction() SK_OVERRIDE {
 
-        this->setDeleted();
+        this->INHERITED::deleteAction();
     }
 
 protected:
@@ -367,11 +511,12 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-class GrProgramObj : public GrFakeRefObj
-{
+class GrProgramObj : public GrFakeRefObj {
+    GR_DEFINE_CREATOR(GrProgramObj);
+
 public:
-    GrProgramObj(GrGLuint ID) 
-        : GrFakeRefObj(ID)
+    GrProgramObj() 
+        : GrFakeRefObj()
         , fInUse(false) {}
 
     void AttachShader(GrShaderObj *shader) {
@@ -388,7 +533,7 @@ public:
         }
         fShaders.reset();
 
-        this->setDeleted();
+        this->INHERITED::deleteAction();
     }
 
     // TODO: this flag system won't work w/ multiple contexts!
@@ -408,99 +553,30 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // This is the main debugging object. It is a singleton and keeps track of
 // all the other debug objects.
-class GrDebugGL
-{
+class GrDebugGL {
 public:
-    // TODO: merge findBuffer, findFrameBuffer, findShader & findProgram??
-    GrBufferObj *findBuffer(GrGLuint ID) {
-        GrFakeRefObj *obj = this->findObject(ID);
-        if (NULL == obj) {
-            return NULL;
-        }
+    typedef enum GrObjTypes {
+        kTexture_ObjTypes = 0,
+        kBuffer_ObjTypes,
+        kRenderBuffer_ObjTypes,
+        kFrameBuffer_ObjTypes,
+        kShader_ObjTypes,
+        kProgram_ObjTypes,
+        kTextureUnit_ObjTypes,
+        kObjTypeCount
+    };
 
-        return reinterpret_cast<GrBufferObj *>(obj);
+    GrFakeRefObj *createObj(GrObjTypes type) {
+        GrFakeRefObj *temp = (*gFactoryFunc[type])();
+
+        fObjects.push_back(temp);
+
+        return temp;
     }
 
-    GrFrameBufferObj *findFrameBuffer(GrGLuint ID) {
-        GrFakeRefObj *obj = this->findObject(ID);
-        if (NULL == obj) {
-            return NULL;
-        }
-
-        return reinterpret_cast<GrFrameBufferObj *>(obj);
-    }
-
-    GrRenderBufferObj *findRenderBuffer(GrGLuint ID) {
-        GrFakeRefObj *obj = this->findObject(ID);
-        if (NULL == obj) {
-            return NULL;
-        }
-
-        return reinterpret_cast<GrRenderBufferObj *>(obj);
-    }
-
-    GrShaderObj *findShader(GrGLuint ID) {
-        GrFakeRefObj *obj = this->findObject(ID);
-        if (NULL == obj) {
-            return NULL;
-        }
-
-        return reinterpret_cast<GrShaderObj *>(obj);
-    }
-
-    GrProgramObj *findProgram(GrGLuint ID) {
-        GrFakeRefObj *obj = this->findObject(ID);
-        if (NULL == obj) {
-            return NULL;
-        }
-
-        return reinterpret_cast<GrProgramObj *>(obj);
-    }
-
-    // TODO: merge createBuffer, createShader, createProgram??
-    GrBufferObj *createBuffer() {
-        GrBufferObj *buffer = new GrBufferObj(++fNextID);
-
-        fObjects.push_back(buffer);
-
-        return buffer;
-    }
-
-    GrFrameBufferObj *createFrameBuffer() {
-        GrFrameBufferObj *buffer = new GrFrameBufferObj(++fNextID);
-
-        fObjects.push_back(buffer);
-
-        return buffer;
-    }
-
-    GrRenderBufferObj *createRenderBuffer() {
-        GrRenderBufferObj *buffer = new GrRenderBufferObj(++fNextID);
-
-        fObjects.push_back(buffer);
-
-        return buffer;
-    }
-
-    GrShaderObj *createShader(GrGLenum type) {
-        GrShaderObj *shader = new GrShaderObj(++fNextID, type);
-
-        fObjects.push_back(shader);
-
-        return shader;
-    }
-
-    GrProgramObj *createProgram() {
-        GrProgramObj *program = new GrProgramObj(++fNextID);
-
-        fObjects.push_back(program);
-
-        return program;
-    }
-
-    GrFakeRefObj *findObject(GrGLuint ID) {
+    GrFakeRefObj *findObject(GrGLuint ID, GrObjTypes type) {
         for (int i = 0; i < fObjects.count(); ++i) {
-            if (fObjects[i]->getID() == ID) {
+            if (fObjects[i]->getID() == ID) { // && fObjects[i]->getType() == type) {
                 // The application shouldn't be accessing objects
                 // that (as far as OpenGL knows) were already deleted 
                 GrAlwaysAssert(!fObjects[i]->getDeleted());
@@ -512,12 +588,16 @@ public:
         return NULL;
     }
 
-    
-    void setMaxTextureUnits(GrGLuint maxTextureUnits) { fMaxTextureUnits = maxTextureUnits; }
-    GrGLuint getMaxTextureUnits() const { return fMaxTextureUnits; }
+    GrGLuint getMaxTextureUnits() const { return kDefaultMaxTextureUnits; }
 
     void setCurTextureUnit(GrGLuint curTextureUnit) { fCurTextureUnit = curTextureUnit; }
     GrGLuint getCurTextureUnit() const { return fCurTextureUnit; }
+
+    GrTextureUnitObj *getTextureUnit(int iUnit) {
+        GrAlwaysAssert(0 <= iUnit && kDefaultMaxTextureUnits > iUnit);
+
+        return fTextureUnits[iUnit];
+    }
 
     void setArrayBuffer(GrBufferObj *arrayBuffer) { 
         if (fArrayBuffer) {
@@ -563,6 +643,10 @@ public:
     }
 
     GrBufferObj *getElementArrayBuffer()                            { return fElementArrayBuffer; }
+
+    void setTexture(GrTextureObj *texture)  { 
+        fTextureUnits[fCurTextureUnit]->setTexture(texture);
+    }
 
     void setFrameBuffer(GrFrameBufferObj *frameBuffer)  { 
         if (fFrameBuffer) {
@@ -645,6 +729,9 @@ public:
 protected:
 
 private:
+    // the OpenGLES 2.0 spec says this must be >= 2
+    static const GrGLint kDefaultMaxTextureUnits = 8;
+
     GrGLuint        fMaxTextureUnits;
     GrGLuint        fCurTextureUnit;
     GrBufferObj *   fArrayBuffer;
@@ -652,8 +739,12 @@ private:
     GrFrameBufferObj *fFrameBuffer;
     GrRenderBufferObj *fRenderBuffer;
     GrProgramObj *  fProgram;
+    GrTextureObj *  fTexture;
+    GrTextureUnitObj *fTextureUnits[kDefaultMaxTextureUnits];
 
-    static int fNextID;                     // source for globally unique IDs
+    typedef GrFakeRefObj *(*Create)();
+
+    static Create gFactoryFunc[kObjTypeCount];
 
     static GrDebugGL Obj;
 
@@ -661,16 +752,29 @@ private:
     SkTArray<GrFakeRefObj *> fObjects;
 
     GrDebugGL() 
-        : fMaxTextureUnits(kDefaultMaxTextureUnits)
-        , fCurTextureUnit(0)
+        : fCurTextureUnit(0)
         , fArrayBuffer(NULL)
         , fElementArrayBuffer(NULL)
         , fFrameBuffer(NULL)
         , fRenderBuffer(NULL)
-        , fProgram(NULL) {
+        , fProgram(NULL)
+        , fTexture(NULL) {
+
+        for (int i = 0; i < kDefaultMaxTextureUnits; ++i) {
+            fTextureUnits[i] = GR_CREATE(GrTextureUnitObj, GrDebugGL::kTextureUnit_ObjTypes);
+            fTextureUnits[i]->ref();
+
+            fTextureUnits[i]->setNumber(i);
+        }
     }
 
     ~GrDebugGL() {
+        // unref & delete the texture units first so they don't show up on the leak report
+        for (int i = 0; i < kDefaultMaxTextureUnits; ++i) {
+            fTextureUnits[i]->unref();
+            fTextureUnits[i]->deleteAction();
+        }
+
         this->report();
 
         for (int i = 0; i < fObjects.count(); ++i) {
@@ -683,27 +787,39 @@ private:
         fFrameBuffer = NULL;
         fRenderBuffer = NULL;
         fProgram = NULL;
+        fTexture = NULL;
     }
 };
 
-int GrDebugGL::fNextID = 0;
 GrDebugGL GrDebugGL::Obj;
+GrDebugGL::Create GrDebugGL::gFactoryFunc[kObjTypeCount] = {
+    GrTextureObj::createGrTextureObj,
+    GrBufferObj::createGrBufferObj,
+    GrRenderBufferObj::createGrRenderBufferObj,
+    GrFrameBufferObj::createGrFrameBufferObj,
+    GrShaderObj::createGrShaderObj,
+    GrProgramObj::createGrProgramObj,
+    GrTextureUnitObj::createGrTextureUnitObj,
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture) {
     
-//    GrAlwaysAssert(0 <= texture);
-//    GrAlwaysAssert(texture < GrDebugGL::getInstance()->getMaxTextureUnits());
+    // Ganesh offsets the texture unit indices
+    texture -= GR_GL_TEXTURE0;
+    GrAlwaysAssert(texture < GrDebugGL::getInstance()->getMaxTextureUnits());
 
     GrDebugGL::getInstance()->setCurTextureUnit(texture);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLAttachShader(GrGLuint programID, GrGLuint shaderID) {
-    GrProgramObj *program = GrDebugGL::getInstance()->findProgram(programID);
+
+    GrProgramObj *program = GR_FIND(programID, GrProgramObj, GrDebugGL::kProgram_ObjTypes);
     GrAlwaysAssert(program);
 
-    GrShaderObj *shader = GrDebugGL::getInstance()->findShader(shaderID);
+    GrShaderObj *shader = GR_FIND(shaderID, GrShaderObj, GrDebugGL::kShader_ObjTypes);
     GrAlwaysAssert(shader);
 
     program->AttachShader(shader);
@@ -711,7 +827,19 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLAttachShader(GrGLuint programID, GrGLuint sh
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBeginQuery(GrGLenum target, GrGLuint id) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindAttribLocation(GrGLuint program, GrGLuint index, const char* name) {}
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindTexture(GrGLenum target, GrGLuint texture) {}
+
+////////////////////////////////////////////////////////////////////////////////
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindTexture(GrGLenum target, GrGLuint textureID) {
+
+    // we don't use cube maps
+    GrAlwaysAssert(target == GR_GL_TEXTURE_2D); // || target == GR_GL_TEXTURE_CUBE_MAP);
+
+    // a textureID of 0 is acceptable - it binds to the default texture target
+    GrTextureObj *texture = GR_FIND(textureID, GrTextureObj, GrDebugGL::kTexture_ObjTypes);
+
+    GrDebugGL::getInstance()->setTexture(texture);
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendColor(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFragDataLocation(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendFunc(GrGLenum sfactor, GrGLenum dfactor) {}
@@ -804,7 +932,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniformMatrix4fv(GrGLint location, GrGLsizei
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLUseProgram(GrGLuint programID) {
 
     // A programID of 0 is legal
-    GrProgramObj *program = GrDebugGL::getInstance()->findProgram(programID);
+    GrProgramObj *program = GR_FIND(programID, GrProgramObj, GrDebugGL::kProgram_ObjTypes);
 
     GrDebugGL::getInstance()->useProgram(program);
 }
@@ -818,7 +946,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFramebuffer(GrGLenum target, GrGLuint fr
     GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
 
     // a frameBufferID of 0 is acceptable - it binds to the default frame buffer
-    GrFrameBufferObj *frameBuffer = GrDebugGL::getInstance()->findFrameBuffer(frameBufferID);
+    GrFrameBufferObj *frameBuffer = GR_FIND(frameBufferID, GrFrameBufferObj, GrDebugGL::kFrameBuffer_ObjTypes);
 
     GrDebugGL::getInstance()->setFrameBuffer(frameBuffer);
 }
@@ -828,10 +956,66 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindRenderbuffer(GrGLenum target, GrGLuint r
     GrAlwaysAssert(GR_GL_RENDERBUFFER == target);
 
     // a renderBufferID of 0 is acceptable - it unbinds the bound render buffer
-    GrRenderBufferObj *renderBuffer = GrDebugGL::getInstance()->findRenderBuffer(renderBufferID);
+    GrRenderBufferObj *renderBuffer = GR_FIND(renderBufferID, GrRenderBufferObj, GrDebugGL::kRenderBuffer_ObjTypes);
 
     GrDebugGL::getInstance()->setRenderBuffer(renderBuffer);
 }
+
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteTextures(GrGLsizei n, const GrGLuint* textures) {
+
+    // first potentially unbind the texture
+    // TODO: move this into GrDebugGL as unBindTexture?
+    for (unsigned int i = 0; i < GrDebugGL::getInstance()->getMaxTextureUnits(); ++i)
+    {
+        GrTextureUnitObj *pTU = GrDebugGL::getInstance()->getTextureUnit(i);
+
+        if (pTU->getTexture()) {
+            for (int j = 0; j < n; ++j) {
+
+                if (textures[j] == pTU->getTexture()->getID()) {
+                    // this ID is the current texture - revert the binding to 0
+                    pTU->setTexture(NULL);
+                }
+            }
+        }
+    }
+
+    // TODO: fuse the following block with DeleteRenderBuffers?
+    // Open GL will remove a deleted render buffer from the active frame buffer but not
+    // from any other frame buffer
+    if (GrDebugGL::getInstance()->getFrameBuffer()) {
+
+        GrFrameBufferObj *frameBuffer = GrDebugGL::getInstance()->getFrameBuffer();
+
+        for (int i = 0; i < n; ++i) {
+
+            if (NULL != frameBuffer->getColor() && textures[i] == frameBuffer->getColor()->getID()) {
+                frameBuffer->setColor(NULL);
+            } 
+            if (NULL != frameBuffer->getDepth() && textures[i] == frameBuffer->getDepth()->getID()) {
+                frameBuffer->setDepth(NULL);
+            }
+            if (NULL != frameBuffer->getStencil() && textures[i] == frameBuffer->getStencil()->getID()) {
+                frameBuffer->setStencil(NULL);
+            }
+        }
+    }
+
+    // then actually "delete" the buffers
+    for (int i = 0; i < n; ++i) {
+        GrTextureObj *buffer = GR_FIND(textures[i], GrTextureObj, GrDebugGL::kTexture_ObjTypes);
+        GrAlwaysAssert(buffer);
+
+        // OpenGL gives no guarantees if a texture is deleted while attached to
+        // something other than the currently bound frame buffer
+        GrAlwaysAssert(!buffer->getBound());
+
+        GrAlwaysAssert(!buffer->getDeleted());
+        buffer->deleteAction();
+    }
+
+}
+
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLuint *frameBuffers) {
 
@@ -848,7 +1032,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n, const GrGLui
 
     // then actually "delete" the buffers
     for (int i = 0; i < n; ++i) {
-        GrFrameBufferObj *buffer = GrDebugGL::getInstance()->findFrameBuffer(frameBuffers[i]);
+        GrFrameBufferObj *buffer = GR_FIND(frameBuffers[i], GrFrameBufferObj, GrDebugGL::kFrameBuffer_ObjTypes);
         GrAlwaysAssert(buffer);
 
         GrAlwaysAssert(!buffer->getDeleted());
@@ -869,6 +1053,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteRenderbuffers(GrGLsizei n, const GrGLu
         }
     }
 
+    // TODO: fuse the following block with DeleteTextures?
     // Open GL will remove a deleted render buffer from the active frame buffer but not
     // from any other frame buffer
     if (GrDebugGL::getInstance()->getFrameBuffer()) {
@@ -891,7 +1076,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteRenderbuffers(GrGLsizei n, const GrGLu
 
     // then actually "delete" the buffers
     for (int i = 0; i < n; ++i) {
-        GrRenderBufferObj *buffer = GrDebugGL::getInstance()->findRenderBuffer(renderBuffers[i]);
+        GrRenderBufferObj *buffer = GR_FIND(renderBuffers[i], GrRenderBufferObj, GrDebugGL::kRenderBuffer_ObjTypes);
         GrAlwaysAssert(buffer);
 
         // OpenGL gives no guarantees if a render buffer is deleted while attached to
@@ -918,7 +1103,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferRenderbuffer(GrGLenum target, GrG
     GrAlwaysAssert(NULL != framebuffer);
 
     // a renderBufferID of 0 is acceptable - it unbinds the current render buffer
-    GrRenderBufferObj *renderbuffer = GrDebugGL::getInstance()->findRenderBuffer(renderBufferID);
+    GrRenderBufferObj *renderbuffer = GR_FIND(renderBufferID, GrRenderBufferObj, GrDebugGL::kRenderBuffer_ObjTypes);
 
     switch (attachment) {
     case GR_GL_COLOR_ATTACHMENT0:
@@ -937,7 +1122,44 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferRenderbuffer(GrGLenum target, GrG
 
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level) {}
+////////////////////////////////////////////////////////////////////////////////
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLFramebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint textureID, GrGLint level) {
+
+    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
+    GrAlwaysAssert(GR_GL_COLOR_ATTACHMENT0 == attachment || 
+                   GR_GL_DEPTH_ATTACHMENT == attachment || 
+                   GR_GL_STENCIL_ATTACHMENT == attachment);
+    GrAlwaysAssert(GR_GL_TEXTURE_2D == textarget);
+
+    GrFrameBufferObj *framebuffer = GrDebugGL::getInstance()->getFrameBuffer();
+    // A texture cannot be attached to the default framebuffer
+    GrAlwaysAssert(NULL != framebuffer);
+
+    // A textureID of 0 is allowed - it unbinds the currently bound texture
+    GrTextureObj *texture = GR_FIND(textureID, GrTextureObj, GrDebugGL::kTexture_ObjTypes);
+    if (texture) {
+        // The texture shouldn't be bound to a texture unit - this could lead to a feedback loop
+        GrAlwaysAssert(!texture->getBound());
+    }
+
+    GrAlwaysAssert(0 == level);
+
+    switch (attachment) {
+    case GR_GL_COLOR_ATTACHMENT0:
+        framebuffer->setColor(texture);
+        break;
+    case GR_GL_DEPTH_ATTACHMENT:
+        framebuffer->setDepth(texture);
+        break;
+    case GR_GL_STENCIL_ATTACHMENT:
+        framebuffer->setStencil(texture);
+        break;
+    default:
+        GrAlwaysAssert(false);
+        break;
+    };
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetFramebufferAttachmentParameteriv(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetRenderbufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLRenderbufferStorage(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height) {}
@@ -947,12 +1169,15 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLResolveMultisampleFramebuffer() {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFragDataLocationIndexed(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name) {}
 
 GrGLenum GR_GL_FUNCTION_TYPE debugGLCheckFramebufferStatus(GrGLenum target) {
+
+    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
+
     return GR_GL_FRAMEBUFFER_COMPLETE;
 }
 
 GrGLuint GR_GL_FUNCTION_TYPE debugGLCreateProgram() {
 
-    GrProgramObj *program = GrDebugGL::getInstance()->createProgram();
+    GrProgramObj *program = GR_CREATE(GrProgramObj, GrDebugGL::kProgram_ObjTypes);
 
     return program->getID();
 }
@@ -961,14 +1186,15 @@ GrGLuint GR_GL_FUNCTION_TYPE debugGLCreateShader(GrGLenum type) {
     
     GrAlwaysAssert(GR_GL_VERTEX_SHADER == type || GR_GL_FRAGMENT_SHADER == type);
 
-    GrShaderObj *shader = GrDebugGL::getInstance()->createShader(type);
+    GrShaderObj *shader = GR_CREATE(GrShaderObj, GrDebugGL::kShader_ObjTypes);
+    shader->setType(type);
 
     return shader->getID();
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteProgram(GrGLuint programID) {
 
-    GrProgramObj *program = GrDebugGL::getInstance()->findProgram(programID);
+    GrProgramObj *program = GR_FIND(programID, GrProgramObj, GrDebugGL::kProgram_ObjTypes);
     GrAlwaysAssert(program);
 
     if (program->getRefCount()) {
@@ -981,7 +1207,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteProgram(GrGLuint programID) {
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteShader(GrGLuint shaderID) {
 
-    GrShaderObj *shader = GrDebugGL::getInstance()->findShader(shaderID);
+    GrShaderObj *shader = GR_FIND(shaderID, GrShaderObj, GrDebugGL::kShader_ObjTypes);
     GrAlwaysAssert(shader);
 
     if (shader->getRefCount()) {
@@ -1000,42 +1226,43 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenIds(GrGLsizei n, GrGLuint* ids) {
     }
 }
 
+GrGLvoid debugGenObjs(GrDebugGL::GrObjTypes type, GrGLsizei n, GrGLuint* ids) {
+
+   for (int i = 0; i < n; ++i) {
+        GrFakeRefObj *obj = GrDebugGL::getInstance()->createObj(type);
+        GrAlwaysAssert(obj);
+        ids[i] = obj->getID();
+    }
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
 
-    for (int i = 0; i < n; ++i) {
-        GrBufferObj *buffer = GrDebugGL::getInstance()->createBuffer();
-        GrAlwaysAssert(buffer);
-        ids[i] = buffer->getID();
-    }
+    debugGenObjs(GrDebugGL::kBuffer_ObjTypes, n, ids);
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenFramebuffers(GrGLsizei n, GrGLuint* ids) {
 
-    for (int i = 0; i < n; ++i) {
-        GrFrameBufferObj *buffer = GrDebugGL::getInstance()->createFrameBuffer();
-        GrAlwaysAssert(buffer);
-        ids[i] = buffer->getID();
-    }
+    debugGenObjs(GrDebugGL::kFrameBuffer_ObjTypes, n, ids);
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenRenderbuffers(GrGLsizei n, GrGLuint* ids) {
 
-    for (int i = 0; i < n; ++i) {
-        GrRenderBufferObj *buffer = GrDebugGL::getInstance()->createRenderBuffer();
-        GrAlwaysAssert(buffer);
-        ids[i] = buffer->getID();
-    }
+    debugGenObjs(GrDebugGL::kRenderBuffer_ObjTypes, n, ids);
+}
+
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenTextures(GrGLsizei n, GrGLuint* ids) {
+
+    debugGenObjs(GrDebugGL::kTexture_ObjTypes, n, ids);
 }
 
 // same delete function for all glDelete*(GLsize i, const GLuint*) except buffers
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteIds(GrGLsizei n, const GrGLuint* ids) {}
 
-
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target, GrGLuint bufferID) {
 
     GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target || GR_GL_ELEMENT_ARRAY_BUFFER == target);
 
-    GrBufferObj *buffer = GrDebugGL::getInstance()->findBuffer(bufferID);
+    GrBufferObj *buffer = GR_FIND(bufferID, GrBufferObj, GrDebugGL::kBuffer_ObjTypes);
     // 0 is a permissable bufferID - it unbinds the current buffer
 
     switch (target) {
@@ -1070,7 +1297,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteBuffers(GrGLsizei n, const GrGLuint* i
 
     // then actually "delete" the buffers
     for (int i = 0; i < n; ++i) {
-        GrBufferObj *buffer = GrDebugGL::getInstance()->findBuffer(ids[i]);
+        GrBufferObj *buffer = GR_FIND(ids[i], GrBufferObj, GrDebugGL::kBuffer_ObjTypes);
         GrAlwaysAssert(buffer);
 
         GrAlwaysAssert(!buffer->getDeleted());
@@ -1333,12 +1560,59 @@ GrGLint GR_GL_FUNCTION_TYPE debugGLGetUniformLocation(GrGLuint program, const ch
     return ++gUniLocation;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+struct GrDebugGLInterface : public GrGLInterface {
+
+public:
+    GrDebugGLInterface()
+        : fWrapped(NULL) {
+    }
+
+    void setWrapped(GrGLInterface *interface) {
+        fWrapped.reset(interface);
+    }
+
+    // TODO: there are some issues w/ wrapping another GL interface inside the
+    // debug interface:
+    //      Since none of the "gl" methods are member functions they don't get
+    //      a "this" pointer through which to access "fWrapped"
+    //      This could be worked around by having all of them access the 
+    //      "glInterface" pointer - i.e., treating the debug interface as a 
+    //      true singleton
+    //
+    //      The problem with this is that we also want to handle OpenGL 
+    //      contexts. The natural way to do this is to have multiple debug 
+    //      interfaces. Each of which represents a separate context. The 
+    //      static ID count would still uniquify IDs across all of them. 
+    //      The problem then is that we couldn't treat the debug GL 
+    //      interface as a singleton (since there would be one for each 
+    //      context).
+    //
+    //      The solution to this is probably to alter SkDebugGlContext's 
+    //      "makeCurrent" method to make a call like "makeCurrent(this)" to 
+    //      the debug GL interface (assuming that the application will create 
+    //      multiple SkGLContext's) to let it switch between the active 
+    //      context. Everything in the GrDebugGL object would then need to be 
+    //      moved to a GrContextObj and the GrDebugGL object would just switch 
+    //      between them. Note that this approach would also require that 
+    //      SkDebugGLContext wrap an arbitrary other context
+    //      and then pass the wrapped interface to the debug GL interface.
+
+protected:
+private:
+
+    SkAutoTUnref<GrGLInterface> fWrapped;
+
+    typedef GrGLInterface INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 const GrGLInterface* GrGLCreateDebugInterface() {
     // The gl functions are not context-specific so we create one global 
     // interface
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
-        GrGLInterface* interface = new GrGLInterface;
+        GrGLInterface* interface = new GrDebugGLInterface;
         glInterface.reset(interface);
         interface->fBindingsExported = kDesktop_GrGLBinding;
         interface->fActiveTexture = debugGLActiveTexture;
@@ -1365,7 +1639,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
         interface->fDeleteProgram = debugGLDeleteProgram;
         interface->fDeleteQueries = debugGLDeleteIds;
         interface->fDeleteShader = debugGLDeleteShader;
-        interface->fDeleteTextures = debugGLDeleteIds;
+        interface->fDeleteTextures = debugGLDeleteTextures;
         interface->fDepthMask = debugGLDepthMask;
         interface->fDisable = debugGLDisable;
         interface->fDisableVertexAttribArray = debugGLDisableVertexAttribArray;
@@ -1381,7 +1655,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
         interface->fFrontFace = debugGLFrontFace;
         interface->fGenBuffers = debugGLGenBuffers;
         interface->fGenQueries = debugGLGenIds;
-        interface->fGenTextures = debugGLGenIds;
+        interface->fGenTextures = debugGLGenTextures;
         interface->fGetBufferParameteriv = debugGLGetBufferParameteriv;
         interface->fGetError = debugGLGetError;
         interface->fGetIntegerv = debugGLGetIntegerv;

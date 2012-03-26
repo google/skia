@@ -983,6 +983,9 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 #if GR_COLLECT_STATS
         ++fStats.fRenderTargetCreateCnt;
 #endif
+        // unbind the texture from the texture unit before binding it to the frame buffer
+        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, 0));
+
         if (!this->createRenderTargetObjects(glTexDesc.fWidth,
                                              glTexDesc.fHeight,
                                              glTexDesc.fTextureID,
