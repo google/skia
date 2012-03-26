@@ -43,10 +43,6 @@ SkOffsetImageFilter::SkOffsetImageFilter(SkFlattenableReadBuffer& buffer) : INHE
     fOffset.fY = buffer.readScalar();
 }
 
-SkFlattenable::Factory SkOffsetImageFilter::getFactory() {
-    return CreateProc;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkComposeImageFilter::~SkComposeImageFilter() {
@@ -98,10 +94,6 @@ void SkComposeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
 SkComposeImageFilter::SkComposeImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fOuter = (SkImageFilter*)buffer.readFlattenable();
     fInner = (SkImageFilter*)buffer.readFlattenable();
-}
-
-SkFlattenable::Factory SkComposeImageFilter::getFactory() {
-    return CreateProc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -282,10 +274,6 @@ SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERI
     }
 }
 
-SkFlattenable::Factory SkMergeImageFilter::getFactory() {
-    return CreateProc;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkColorFilter.h"
@@ -327,10 +315,6 @@ void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fColorFilter = (SkColorFilter*)buffer.readFlattenable();
-}
-
-SkFlattenable::Factory SkColorFilterImageFilter::getFactory() {
-    return CreateProc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -393,10 +377,6 @@ void SkDownSampleImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
 
 SkDownSampleImageFilter::SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fScale = buffer.readScalar();
-}
-
-SkFlattenable::Factory SkDownSampleImageFilter::getFactory() {
-    return CreateProc;
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkOffsetImageFilter)

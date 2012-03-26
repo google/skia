@@ -143,13 +143,13 @@ public:
     virtual void beginSession();
     virtual void endSession();
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkFilterShader)
+
 protected:
     SkFilterShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer& ) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
+
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkFilterShader, (buffer)); }
     SkShader*       fShader;
     SkColorFilter*  fFilter;
 

@@ -129,16 +129,8 @@ DONE:
     return true;
 }
 
-SkFlattenable::Factory SkCornerPathEffect::getFactory() {
-    return CreateProc;
-}
-
 void SkCornerPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
     buffer.writeScalar(fRadius);
-}
-
-SkFlattenable* SkCornerPathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkCornerPathEffect, (buffer));
 }
 
 SkCornerPathEffect::SkCornerPathEffect(SkFlattenableReadBuffer& buffer) {

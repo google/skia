@@ -849,10 +849,6 @@ public:
                              SkScalar* twoPointRadialParams) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(Linear_Gradient, (buffer));
-    }
-
     virtual void flatten(SkFlattenableWriteBuffer& buffer) SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fStart.fX);
@@ -861,13 +857,14 @@ public:
         buffer.writeScalar(fEnd.fY);
     }
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Linear_Gradient)
+
 protected:
     Linear_Gradient(SkFlattenableReadBuffer& buffer)
         : Gradient_Shader(buffer),
           fStart(unflatten_point(buffer)),
           fEnd(unflatten_point(buffer)) {
     }
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;
@@ -1510,10 +1507,6 @@ public:
         return kRadial_GradientType;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(Radial_Gradient, (buffer));
-    }
-
     virtual void flatten(SkFlattenableWriteBuffer& buffer) SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fCenter.fX);
@@ -1521,13 +1514,14 @@ public:
         buffer.writeScalar(fRadius);
     }
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Radial_Gradient)
+
 protected:
     Radial_Gradient(SkFlattenableReadBuffer& buffer)
         : Gradient_Shader(buffer),
           fCenter(unflatten_point(buffer)),
           fRadius(buffer.readScalar()) {
     }
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;
@@ -2045,10 +2039,6 @@ public:
         return true;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(Two_Point_Radial_Gradient, (buffer));
-    }
-
     virtual void flatten(SkFlattenableWriteBuffer& buffer) SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fCenter1.fX);
@@ -2059,6 +2049,8 @@ public:
         buffer.writeScalar(fRadius2);
     }
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Two_Point_Radial_Gradient)
+
 protected:
     Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer)
             : Gradient_Shader(buffer),
@@ -2068,7 +2060,6 @@ protected:
               fRadius2(buffer.readScalar()) {
         init();
     };
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;
@@ -2134,23 +2125,19 @@ public:
         return kSweep_GradientType;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(Sweep_Gradient, (buffer));
-    }
-
     virtual void flatten(SkFlattenableWriteBuffer& buffer) SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fCenter.fX);
         buffer.writeScalar(fCenter.fY);
     }
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sweep_Gradient)
+
 protected:
     Sweep_Gradient(SkFlattenableReadBuffer& buffer)
         : Gradient_Shader(buffer),
           fCenter(unflatten_point(buffer)) {
     }
-
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;

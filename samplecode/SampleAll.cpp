@@ -164,7 +164,7 @@ public:
         
         buffer.writeScalar(fRadius);
     }
-    virtual Factory getFactory() { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
 	virtual void next(const SkPoint& loc, int u, int v, SkPath* dst) {
@@ -176,10 +176,6 @@ protected:
     }
 private:
     SkScalar fRadius;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return new Dot2DPathEffect(buffer);
-    }
 
     typedef Sk2DPathEffect INHERITED;
 };
@@ -222,11 +218,13 @@ public:
         return false;
     }
     
-    virtual Factory getFactory() { return CreateProc; }
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fWidth);
     }
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Line2DPathEffect)
+
 protected:
 	virtual void nextSpan(int u, int v, int ucount, SkPath* dst) {
         if (ucount > 1) {
@@ -249,8 +247,6 @@ protected:
     
 private:
     SkScalar fWidth;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { return new Line2DPathEffect(buffer); }
 
     typedef Sk2DPathEffect INHERITED;
 };

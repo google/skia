@@ -38,16 +38,6 @@ void SkAvoidXfermode::flatten(SkFlattenableWriteBuffer& buffer)
     buffer.write8(fMode);
 }
 
-SkFlattenable* SkAvoidXfermode::Create(SkFlattenableReadBuffer& rb)
-{
-    return SkNEW_ARGS(SkAvoidXfermode, (rb));
-}
-
-SkFlattenable::Factory SkAvoidXfermode::getFactory()
-{
-    return Create;
-}
-
 // returns 0..31
 static unsigned color_dist16(uint16_t c, unsigned r, unsigned g, unsigned b)
 {

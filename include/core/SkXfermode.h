@@ -215,8 +215,8 @@ public:
                         const SkAlpha aa[]) SK_OVERRIDE;
 
     // overrides from SkFlattenable
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
     virtual void    flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcXfermode)
 
 protected:
     SkProcXfermode(SkFlattenableReadBuffer&);
@@ -228,9 +228,6 @@ protected:
 
 private:
     SkXfermodeProc  fProc;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkProcXfermode, (buffer)); }
 
     typedef SkXfermode INHERITED;
 };

@@ -76,7 +76,8 @@ public:
 
         buffer.writeScalar(fRadius);
     }
-    virtual Factory getFactory() { return CreateProc; }
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
     virtual void begin(const SkIRect& uvBounds, SkPath* dst) {
@@ -103,11 +104,6 @@ private:
     SkScalar fRadius;
     SkTDArray<SkPoint>* fPts;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)
-    {
-        return new Dot2DPathEffect(buffer);
-    }
-
     typedef Sk2DPathEffect INHERITED;
 };
 
@@ -119,13 +115,12 @@ public:
         dst->setFillType(SkPath::kInverseWinding_FillType);
         return true;
     }
-    virtual Factory getFactory() { return Factory; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(InverseFillPE)
+
 protected:
-//    InverseFillPE(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    InverseFillPE(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 private:
-    static SkFlattenable* Factory(SkFlattenableReadBuffer& buffer) {
-        return new InverseFillPE;
-    }
+
     typedef SkPathEffect INHERITED;
 };
 

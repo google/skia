@@ -612,12 +612,13 @@ public:
         return false;
     }
     
-    virtual Factory getFactory() { return CreateProc; }
     virtual void flatten(SkFlattenableWriteBuffer& buffer)
     {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fWidth);
     }
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Line2DPathEffect)
 protected:
 	virtual void nextSpan(int u, int v, int ucount, SkPath* dst)
     {
@@ -643,11 +644,6 @@ protected:
     
 private:
     SkScalar fWidth;
-    
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)
-    {
-        return new Line2DPathEffect(buffer);
-    }
     
     typedef Sk2DPathEffect INHERITED;
 };

@@ -729,15 +729,12 @@ public:
         return true;
     }
 
-    virtual Factory getFactory() { return CreateProc; }
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
         buffer.write32(fMode);
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkProcCoeffXfermode, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
     SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer)
@@ -768,11 +765,8 @@ public:
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkClearXfermode, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkClearXfermode)
 
 private:
     SkClearXfermode(SkFlattenableReadBuffer& buffer)
@@ -825,11 +819,8 @@ public:
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkSrcXfermode, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSrcXfermode)
 
 private:
     SkSrcXfermode(SkFlattenableReadBuffer& buffer)
@@ -887,11 +878,8 @@ public:
     SkDstInXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstIn_Mode) {}
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkDstInXfermode, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstInXfermode)
 
 private:
     SkDstInXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
@@ -926,11 +914,8 @@ public:
     SkDstOutXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstOut_Mode) {}
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkDstOutXfermode, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstOutXfermode)
 
 private:
     SkDstOutXfermode(SkFlattenableReadBuffer& buffer)

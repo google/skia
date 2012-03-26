@@ -656,6 +656,8 @@ public:
         this->INHERITED::endSession();
     }
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
+
 protected:
     Sk3DShader(SkFlattenableReadBuffer& buffer) :
             INHERITED(buffer) {
@@ -670,15 +672,7 @@ protected:
         buffer.write32(fPMColor);
     }
 
-    virtual Factory getFactory() {
-        return CreateProc;
-    }
-
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(Sk3DShader, (buffer));
-    }
-
     SkShader*       fProxy;
     SkPMColor       fPMColor;
     const SkMask*   fMask;

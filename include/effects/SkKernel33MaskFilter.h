@@ -50,14 +50,13 @@ public:
     
     // overrides from SkFlattenable
     virtual void flatten(SkFlattenableWriteBuffer& wb);
-    virtual Factory getFactory();
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkKernel33MaskFilter)
     
 private:
     int fKernel[3][3];
     int fShift;
 
     SkKernel33MaskFilter(SkFlattenableReadBuffer& rb);
-    static SkFlattenable* Create(SkFlattenableReadBuffer& rb);
     
     typedef SkKernel33ProcMaskFilter INHERITED;
 };

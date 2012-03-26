@@ -132,11 +132,9 @@ public:
     void removeAllShapes();
 
     // overrides
-    virtual Factory getFactory();
     virtual void flatten(SkFlattenableWriteBuffer&);
 
-    // public for Registrar
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkGroupShape)
 
 protected:
     // overrides

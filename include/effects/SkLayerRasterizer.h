@@ -33,10 +33,9 @@ public:
     void addLayer(const SkPaint& paint, SkScalar dx, SkScalar dy);
 
     // overrides from SkFlattenable
-    virtual Factory getFactory();
     virtual void    flatten(SkFlattenableWriteBuffer&);
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLayerRasterizer)
 
 protected:
     SkLayerRasterizer(SkFlattenableReadBuffer&);

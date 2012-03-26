@@ -49,13 +49,11 @@ public:
 
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorShader)
 
 protected:
     SkColorShader(SkFlattenableReadBuffer&);
-
     virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE;
 
 private:
 

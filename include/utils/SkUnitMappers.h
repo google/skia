@@ -20,17 +20,17 @@ public:
     // override from SkUnitMapper
     virtual uint16_t mapUnit16(uint16_t x);
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiscreteMapper)
+
 protected:
     SkDiscreteMapper(SkFlattenableReadBuffer& );
     // overrides from SkFlattenable
     virtual void flatten(SkFlattenableWriteBuffer& );
-    virtual Factory getFactory();
+
 private:
     int     fSegments;
     SkFract fScale;    // computed from fSegments
 
-    static SkFlattenable* Create(SkFlattenableReadBuffer& buffer);
-    
     typedef SkUnitMapper INHERITED;
 };
 
@@ -43,13 +43,12 @@ public:
     // override from SkUnitMapper
     virtual uint16_t mapUnit16(uint16_t x);
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCosineMapper)
+
 protected:
     SkCosineMapper(SkFlattenableReadBuffer&);
-    // overrides from SkFlattenable
-    virtual Factory getFactory();
 
 private:
-    static SkFlattenable* Create(SkFlattenableReadBuffer&);
 
     typedef SkUnitMapper INHERITED;
 };

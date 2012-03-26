@@ -83,10 +83,6 @@ void SkGroupShape::onDraw(SkCanvas* canvas) {
     }
 }
 
-SkFlattenable::Factory SkGroupShape::getFactory() {
-    return CreateProc;
-}
-
 void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);
 
@@ -125,10 +121,6 @@ SkGroupShape::SkGroupShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer){
         }
         SkSafeUnref(mr);
     }
-}
-
-SkFlattenable* SkGroupShape::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkGroupShape, (buffer));
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkGroupShape)

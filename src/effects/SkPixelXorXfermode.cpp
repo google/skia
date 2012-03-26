@@ -28,12 +28,4 @@ SkPixelXorXfermode::SkPixelXorXfermode(SkFlattenableReadBuffer& rb)
     fOpColor = rb.readU32();
 }
 
-SkFlattenable::Factory SkPixelXorXfermode::getFactory() {
-    return Create;
-}
-
-SkFlattenable* SkPixelXorXfermode::Create(SkFlattenableReadBuffer& rb) {
-    return SkNEW_ARGS(SkPixelXorXfermode, (rb));
-}
-
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkPixelXorXfermode)

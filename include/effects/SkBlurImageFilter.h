@@ -17,9 +17,7 @@ public:
 
     virtual bool asABlur(SkSize* sigma) const SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkBlurImageFilter, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
 
 protected:
     explicit SkBlurImageFilter(SkFlattenableReadBuffer& buffer);
@@ -27,7 +25,6 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
     virtual void flatten(SkFlattenableWriteBuffer& buffer) SK_OVERRIDE;
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
 private:
     SkSize   fSigma;

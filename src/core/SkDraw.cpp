@@ -2212,18 +2212,15 @@ public:
 
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTriColorShader)
+
 protected:
     SkTriColorShader(SkFlattenableReadBuffer& buffer) : SkShader(buffer) {}
-
-    virtual Factory getFactory() { return CreateProc; }
 
 private:
     SkMatrix    fDstToUnit;
     SkPMColor   fColors[3];
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkTriColorShader, (buffer));
-    }
     typedef SkShader INHERITED;
 };
 

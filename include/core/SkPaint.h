@@ -943,9 +943,7 @@ public:
 
     // overrides for SkFlattenable
     virtual void flatten(SkFlattenableWriteBuffer&);
-    virtual Factory getFactory();
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStrokePathEffect)
 
 private:
     SkScalar    fWidth, fMiter;

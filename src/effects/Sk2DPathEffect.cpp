@@ -80,14 +80,6 @@ Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer) {
     fMatrix.invert(&fInverse);
 }
 
-SkFlattenable::Factory Sk2DPathEffect::getFactory() {
-    return CreateProc;
-}
-
-SkFlattenable* Sk2DPathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(Sk2DPathEffect, (buffer));
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -100,17 +92,9 @@ SkPath2DPathEffect::SkPath2DPathEffect(SkFlattenableReadBuffer& buffer)
     fPath.unflatten(buffer);
 }
 
-SkFlattenable* SkPath2DPathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkPath2DPathEffect, (buffer));
-}
-
 void SkPath2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);
     fPath.flatten(buffer);
-}
-
-SkFlattenable::Factory SkPath2DPathEffect::getFactory() {
-    return CreateProc;
 }
 
 void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {

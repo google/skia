@@ -30,14 +30,10 @@ public:
     virtual void shadeSpan16(int x, int y, uint16_t span[], int count) SK_OVERRIDE;
     virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkEmptyShader, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmptyShader)
 
 protected:
     SkEmptyShader(SkFlattenableReadBuffer&);
-
-    virtual Factory getFactory() SK_OVERRIDE;
     virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
 
 private:

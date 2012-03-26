@@ -91,6 +91,8 @@ public:
         fDraw(draw), fMaker(maker) {
     }
 
+    SK_DECLARE_UNFLATTENABLE_OBJECT()
+
 protected:
     virtual SkScalar begin(SkScalar contourLength)
     {
@@ -139,7 +141,6 @@ protected:
 
 private:
     virtual void flatten(SkFlattenableWriteBuffer& ) {}
-    virtual Factory getFactory() { return NULL; }
 
     static bool GetContourLength(const char* token, size_t len, void* clen, SkScriptValue* value) {
         if (SK_LITERAL_STR_EQUAL("contourLength", token, len)) {

@@ -108,14 +108,6 @@ bool SkStrokePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
-SkFlattenable::Factory SkStrokePathEffect::getFactory() {
-    return CreateProc;
-}
-
-SkFlattenable* SkStrokePathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkStrokePathEffect, (buffer));
-}
-
 void SkStrokePathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
     buffer.writeScalar(fWidth);
     buffer.writeScalar(fMiter);

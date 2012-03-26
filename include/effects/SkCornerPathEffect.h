@@ -31,11 +31,8 @@ public:
 
     // overrides for SkFlattenable
     //  This method is not exported to java.
-    virtual Factory getFactory();
-    //  This method is not exported to java.
     virtual void flatten(SkFlattenableWriteBuffer&);
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCornerPathEffect)
 
 protected:
     SkCornerPathEffect(SkFlattenableReadBuffer&);

@@ -67,14 +67,6 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
-SkFlattenable::Factory SkDiscretePathEffect::getFactory() {
-    return CreateProc;
-}
-
-SkFlattenable* SkDiscretePathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkDiscretePathEffect, (buffer));
-}
-
 void SkDiscretePathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
     buffer.writeScalar(fSegLength);
     buffer.writeScalar(fPerterb);

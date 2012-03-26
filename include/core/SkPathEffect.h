@@ -34,10 +34,15 @@ public:
     */
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width) = 0;
 
+protected:
+    SkPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+
 private:
     // illegal
     SkPathEffect(const SkPathEffect&);
     SkPathEffect& operator=(const SkPathEffect&);
+
+    typedef SkFlattenable INHERITED;
 };
 
 /** \class SkPairPathEffect
@@ -80,12 +85,7 @@ public:
     
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkComposePathEffect, (buffer));
-    }
-
-protected:
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 private:
     SkComposePathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
@@ -115,12 +115,7 @@ public:
     // overrides
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)  {
-        return SkNEW_ARGS(SkSumPathEffect, (buffer));
-    }
-
-protected:
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 private:
     SkSumPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}

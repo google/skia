@@ -96,13 +96,9 @@ public:
         sk_memset16(result, SkPixel32ToPixel16(fPMColor), count);
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(Src_SkModeColorFilter, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Src_SkModeColorFilter)
 
 protected:
-    virtual Factory getFactory() { return CreateProc; }
-
     Src_SkModeColorFilter(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {}
 
@@ -139,13 +135,9 @@ public:
         sk_memset16(result, SkPixel32ToPixel16(fPMColor), count);
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SrcOver_SkModeColorFilter, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SrcOver_SkModeColorFilter)
 
 protected:
-    virtual Factory getFactory() { return CreateProc;  }
-
     SrcOver_SkModeColorFilter(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer), fColor32Proc(NULL) {}
 
@@ -198,19 +190,13 @@ public:
         }
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(Proc_SkModeColorFilter, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Proc_SkModeColorFilter)
 
 protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
         buffer.writeFunctionPtr((void*)fProc);
         buffer.writeFunctionPtr((void*)fProc16);
-    }
-
-    virtual Factory getFactory() {
-        return CreateProc;
     }
 
     Proc_SkModeColorFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
@@ -323,19 +309,13 @@ public:
         }
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter)
 
 protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
         buffer.write32(fMul);
         buffer.write32(fAdd);
-    }
-
-    virtual Factory getFactory() {
-        return CreateProc;
     }
 
     SkLightingColorFilter(SkFlattenableReadBuffer& buffer) {
@@ -374,13 +354,9 @@ public:
         }
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)  {
-        return SkNEW_ARGS(SkLightingColorFilter_JustAdd, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_JustAdd)
 
 protected:
-    virtual Factory getFactory() { return CreateProc; }
-
     SkLightingColorFilter_JustAdd(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {}
 
@@ -412,13 +388,9 @@ public:
         }
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter_JustMul, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_JustMul)
 
 protected:
-    virtual Factory getFactory() { return CreateProc; }
-
     SkLightingColorFilter_JustMul(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {}
 
@@ -453,13 +425,9 @@ public:
         }
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter_SingleMul, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_SingleMul)
 
 protected:
-    virtual Factory getFactory() { return CreateProc; }
-
     SkLightingColorFilter_SingleMul(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {}
 
@@ -496,13 +464,9 @@ public:
         }
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkLightingColorFilter_NoPin, (buffer));
-    }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_NoPin)
 
 protected:
-    virtual Factory getFactory() { return CreateProc; }
-
     SkLightingColorFilter_NoPin(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {}
 
