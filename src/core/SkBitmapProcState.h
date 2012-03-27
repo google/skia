@@ -58,15 +58,6 @@ struct SkBitmapProcState {
     typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
-    // If a shader proc is present, then the corresponding matrix/sample procs
-    // are ignored
-    ShaderProc32        fShaderProc32;      // chooseProcs
-    ShaderProc16        fShaderProc16;      // chooseProcs
-    // These are used if the shaderproc is NULL
-    MatrixProc          fMatrixProc;        // chooseProcs
-    SampleProc32        fSampleProc32;      // chooseProcs
-    SampleProc16        fSampleProc16;      // chooseProcs
-
     const SkBitmap*     fBitmap;            // chooseProcs - orig or mip
     const SkMatrix*     fInvMatrix;         // chooseProcs
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
@@ -117,15 +108,40 @@ struct SkBitmapProcState {
      */
     int maxCountForBufferSize(size_t bufferSize) const;
 
+    // If a shader proc is present, then the corresponding matrix/sample procs
+    // are ignored
+    ShaderProc32 getShaderProc32() const { return fShaderProc32; }
+    ShaderProc16 getShaderProc16() const { return fShaderProc16; }
+
+#ifdef SK_DEBUG
+    MatrixProc getMatrixProc() const;
+#else
+    MatrixProc getMatrixProc() const { return fMatrixProc; }
+#endif
+    SampleProc32 getSampleProc32() const { return fSampleProc32; }
+    SampleProc16 getSampleProc16() const { return fSampleProc16; }
+
 private:
     friend class SkBitmapProcShader;
 
+    ShaderProc32        fShaderProc32;      // chooseProcs
+    ShaderProc16        fShaderProc16;      // chooseProcs
+    // These are used if the shaderproc is NULL
+    MatrixProc          fMatrixProc;        // chooseProcs
+    SampleProc32        fSampleProc32;      // chooseProcs
+    SampleProc16        fSampleProc16;      // chooseProcs
+    
     SkMatrix            fUnitInvMatrix;     // chooseProcs
     SkBitmap            fOrigBitmap;        // CONSTRUCTOR
     SkBitmap            fMipBitmap;
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
+
+#ifdef SK_DEBUG
+    static void DebugMatrixProc(const SkBitmapProcState&,
+                                uint32_t[], int count, int x, int y);
+#endif
 };
 
 /*  Macros for packing and unpacking pairs of 16bit values in a 32bit uint.
