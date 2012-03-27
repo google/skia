@@ -86,8 +86,24 @@ public:
      */
     const GrClip& getClip() const;
 
-    const GrDrawState& getDrawState() const { return fCurrDrawState; }
-    GrDrawState* drawState() { return &fCurrDrawState; }
+    /**
+     * Sets the draw state object for the draw target. Note that this does not
+     * make a copy. The GrDrawTarget will take a reference to passed object.
+     * Passing NULL will cause the GrDrawTarget to use its own internal draw
+     * state object rather than an externally provided one.
+     */
+    void setDrawState(GrDrawState*  drawState);
+
+    /**
+     * Read-only access to the GrDrawTarget's current draw state.
+     */
+    const GrDrawState& getDrawState() const { return *fDrawState; }
+
+    /**
+     * Read-write access to the GrDrawTarget's current draw state. Note that
+     * this doesn't ref.
+     */
+    GrDrawState* drawState() { return fDrawState; }
 
     /**
      * Shortcut for drawState()->preConcatSamplerMatrices() on all enabled
@@ -962,7 +978,7 @@ protected:
 
     bool isStageEnabled(int stage) const {
         return StageWillBeUsed(stage, this->getGeomSrc().fVertexLayout, 
-                               fCurrDrawState);
+                               this->getDrawState());
     }
 
     StageMask enabledStages() const {
@@ -1041,7 +1057,8 @@ protected:
 
     GrClip fClip;
 
-    GrDrawState fCurrDrawState;
+    GrDrawState* fDrawState;
+    GrDrawState fDefaultDrawState;
 
     Caps fCaps;
 

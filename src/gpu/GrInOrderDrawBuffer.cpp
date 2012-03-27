@@ -509,9 +509,10 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     fVertexPool.unlock();
     fIndexPool.unlock();
 
-    GrDrawTarget::AutoStateRestore asr(target);
     GrDrawTarget::AutoClipRestore acr(target);
     AutoGeometryPush agp(target);
+    GrDrawState* prevDrawState = target->drawState();
+    prevDrawState->ref();
 
     int currState = ~0;
     int currClip  = ~0;
@@ -527,7 +528,8 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
         const Draw& draw = fDraws[i];
         if (draw.fStateChanged) {
             ++currState;
-            target->restoreDrawState(fStates[currState]);
+            GrDrawState* ds = &GrDrawTarget::accessSavedDrawState(fStates[currState]);
+            target->setDrawState(ds);
         }
         if (draw.fClipChanged) {
             ++currClip;
@@ -557,6 +559,8 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
         target->clear(&fClears[currClear].fRect, fClears[currClear].fColor);
         ++currClear;
     }
+    target->setDrawState(prevDrawState);
+    prevDrawState->unref();
 }
 
 void GrInOrderDrawBuffer::setAutoFlushTarget(GrDrawTarget* target) {
@@ -776,7 +780,7 @@ bool GrInOrderDrawBuffer::needsNewState() const {
         return true;
      } else {
         const GrDrawState& old = this->accessSavedDrawState(fStates.back());
-        return old != fCurrDrawState;
+        return old != this->getDrawState();
      }
 }
 
