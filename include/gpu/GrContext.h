@@ -17,6 +17,7 @@
 #include "GrRenderTarget.h" 
 
 class GrAutoScratchTexture;
+class GrDrawState;
 class GrDrawTarget;
 class GrFontCache;
 class GrGpu;
@@ -671,6 +672,8 @@ private:
     DrawCategory fLastDrawCategory;
 
     GrGpu*              fGpu;
+    GrDrawState*        fDrawState;
+
     GrResourceCache*    fTextureCache;
     GrFontCache*        fFontCache;
 
@@ -704,7 +707,7 @@ private:
 
     void flushDrawBuffer();
 
-    void setPaint(const GrPaint& paint, GrDrawTarget* target);
+    void setPaint(const GrPaint& paint);
 
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
