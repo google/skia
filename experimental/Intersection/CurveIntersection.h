@@ -1,3 +1,6 @@
+#ifndef CurveIntersection_DEFINE
+#define CurveIntersection_DEFINE
+
 #include "DataTypes.h"
 
 class Intersections;
@@ -32,3 +35,5 @@ bool intersect(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]);
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& );
 bool intersect(const Quadratic& quad, const _Line& line, Intersections& );
+
+#endif

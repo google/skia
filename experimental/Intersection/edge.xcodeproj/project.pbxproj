@@ -29,6 +29,8 @@
 		FE99AE40151B4ED10072AA0D /* tempskinny4.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE99AE3F151B4ED10072AA0D /* tempskinny4.txt */; };
 		FE99AE44151B4EE70072AA0D /* xtempskinny4.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE99AE43151B4EE70072AA0D /* xtempskinny4.txt */; };
 		FE99AEBE151B64ED0072AA0D /* op.htm in Resources */ = {isa = PBXBuildFile; fileRef = FE99AEBD151B64ED0072AA0D /* op.htm */; };
+		FE99AF2B151CC0AA0072AA0D /* ActiveEdge_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE99AF2A151CC0AA0072AA0D /* ActiveEdge_Test.cpp */; };
+		FE99B13215209E300072AA0D /* EdgeWalkerPolygon4x4_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE99B13115209E300072AA0D /* EdgeWalkerPolygon4x4_Test.cpp */; };
 		FEA5F4E21498000C005052F9 /* libports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEA5F4E11497FFF6005052F9 /* libports.a */; };
 		FEA61B0014EF589900B736CB /* libanimator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEED7268144DD3EA0059E97B /* libanimator.a */; };
 		FEA61B2C14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */; };
@@ -264,6 +266,8 @@
 		FE99AE3F151B4ED10072AA0D /* tempskinny4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tempskinny4.txt; sourceTree = "<group>"; };
 		FE99AE43151B4EE70072AA0D /* xtempskinny4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = xtempskinny4.txt; sourceTree = "<group>"; };
 		FE99AEBD151B64ED0072AA0D /* op.htm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = op.htm; sourceTree = "<group>"; };
+		FE99AF2A151CC0AA0072AA0D /* ActiveEdge_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ActiveEdge_Test.cpp; sourceTree = "<group>"; };
+		FE99B13115209E300072AA0D /* EdgeWalkerPolygon4x4_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerPolygon4x4_Test.cpp; sourceTree = "<group>"; };
 		FEA5F4D91497FFF6005052F9 /* ports.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ports.xcodeproj; path = ../../out/gyp/ports.xcodeproj; sourceTree = SOURCE_ROOT; };
 		FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeWalkerRectangles_Test.cpp; sourceTree = "<group>"; };
 		FEA670F013C49E2200FE6FC1 /* SkAntiEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkAntiEdge.cpp; sourceTree = "<group>"; };
@@ -525,6 +529,7 @@
 		FEC123A5149001540086BF1F /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				FE99AF2A151CC0AA0072AA0D /* ActiveEdge_Test.cpp */,
 				FEED76C0144F3E7F0059E97B /* ConvexHull_Test.cpp */,
 				FEC117CB14843B0A0086BF1F /* CubicBezierClip_Test.cpp */,
 				FEED7689144F2E7D0059E97B /* CubicIntersection_Test.cpp */,
@@ -533,8 +538,12 @@
 				FECA9A5914B3B09100B35E2C /* CubicParameterization_Test.cpp */,
 				FECAAB7F14BDFAFD00B35E2C /* CubicParameterization_TestUtility.cpp */,
 				FEED7625144F22E20059E97B /* CubicReduceOrder_Test.cpp */,
+				FE7413DB14F6926D00056D7B /* EdgeWalker_Test.h */,
 				FE7413D714F691C200056D7B /* EdgeWalker_TestUtility.cpp */,
 				FE7413D314F6915A00056D7B /* EdgeWalkerPolygons_Test.cpp */,
+				FE99B13115209E300072AA0D /* EdgeWalkerPolygon4x4_Test.cpp */,
+				FED866D615066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp */,
+				FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */,
 				FEA61B2B14F2AF6600B736CB /* EdgeWalkerRectangles_Test.cpp */,
 				FED53C381483CB9400F6359E /* Inline_Tests.cpp */,
 				FEED7680144F2E480059E97B /* Intersection_Tests.h */,
@@ -553,9 +562,6 @@
 				FECAA6E014BDDF2D00B35E2C /* QuadraticReduceOrder_Test.cpp */,
 				FEED7673144F2D770059E97B /* TestUtilities.h */,
 				FEED764B144F29BD0059E97B /* TestUtilities.cpp */,
-				FE7413DB14F6926D00056D7B /* EdgeWalker_Test.h */,
-				FED865F815056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp */,
-				FED866D615066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -974,6 +980,8 @@
 				FE7413D814F691C200056D7B /* EdgeWalker_TestUtility.cpp in Sources */,
 				FED865F915056A79006F4508 /* EdgeWalkerQuadralaterals_Test.cpp in Sources */,
 				FED866D715066642006F4508 /* EdgeWalkerPolygons_Mismatches.cpp in Sources */,
+				FE99AF2B151CC0AA0072AA0D /* ActiveEdge_Test.cpp in Sources */,
+				FE99B13215209E300072AA0D /* EdgeWalkerPolygon4x4_Test.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1025,92 +1033,77 @@
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = edge_Prefix.pch;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "edge-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PREBINDING = NO;
+				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/System/Library/Frameworks";
 				PRODUCT_NAME = edge;
-				SKIP_INSTALL = YES;
-				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
+				SDKROOT = macosx10.6;
+				SYMROOT = ../xcodebuild;
+				WRAPPER_PREFIX = "";
 			};
 			name = Debug;
 		};
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = edge_Prefix.pch;
+				CLANG_WARN_CXX0X_EXTENSIONS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				INFOPLIST_FILE = "edge-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/System/Library/Frameworks";
 				PRODUCT_NAME = edge;
+				SDKROOT = macosx10.6;
+				SYMROOT = ../xcodebuild;
+				WRAPPER_PREFIX = "";
 			};
 			name = Release;
 		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_ENABLE_CPP_EXCEPTIONS = YES;
-				GCC_ENABLE_CPP_RTTI = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = YES;
-				GCC_MODEL_TUNING = G4;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SK_BUILD_FOR_MAC,
-					SK_DEBUG,
+					"\"SK_SCALAR_IS_FLOAT\"",
+					"\"SK_CAN_USE_FLOAT\"",
+					"\"SK_BUILD_FOR_MAC\"",
+					"\"SK_USE_POSIX_THREADS\"",
+					"\"GR_MAC_BUILD=1\"",
+					"\"SK_SUPPORT_PDF\"",
+					"\"SK_DEBUG\"",
+					"\"GR_DEBUG=1\"",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_THREADSAFE_STATICS = YES;
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_INHIBIT_ALL_WARNINGS = NO;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GCC_WARN_PROTOTYPE_CONVERSION = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_UNKNOWN_PRAGMAS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
-				INFOPLIST_PREPROCESS = YES;
-				LD_RUNPATH_SEARCH_PATHS = "";
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_LDFLAGS = "";
-				PREBINDING = YES;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				SDKROOT = "";
-				USER_HEADER_SEARCH_PATHS = "../../gpu/include ../../src/core ../../include/** ../../gm";
+				HEADER_SEARCH_PATHS = (
+					../../gpu/include,
+					../../src/core,
+					"../../include/**",
+					../../gm,
+				);
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"\"SK_SCALAR_IS_FLOAT\"",
+					"\"SK_CAN_USE_FLOAT\"",
+					"\"SK_BUILD_FOR_MAC\"",
+					"\"SK_USE_POSIX_THREADS\"",
+					"\"GR_MAC_BUILD=1\"",
+					"\"SK_SUPPORT_PDF\"",
+					"\"SK_RELEASE\"",
+					"\"GR_RELEASE=1\"",
+					"\"NDEBUG\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					../../gpu/include,
+					../../src/core,
+					"../../include/**",
+					../../gm,
+				);
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
 			};
 			name = Release;
 		};

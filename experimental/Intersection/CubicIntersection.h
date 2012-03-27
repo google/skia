@@ -1,3 +1,6 @@
+#ifndef CubicIntersection_DEFINE
+#define CubicIntersection_DEFINE
+
 #include "DataTypes.h"
 
 class Intersections;
@@ -33,3 +36,5 @@ bool intersectStartT(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 bool intersectStart(const Cubic& cubic, const _Line& line, Intersections& );
 bool intersectStart(const Quadratic& q1, const Quadratic& q2, Intersections& );
 bool intersectStart(const Quadratic& quad, const _Line& line, Intersections& );
+
+#endif

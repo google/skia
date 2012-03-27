@@ -1,4 +1,5 @@
 
+#if 0
 // snippets that one day may be useful, unused for now...
 
 // get sign, exponent, mantissa from double
@@ -38,3 +39,4 @@
         mantissa >>= 1;
         exponent++;
     }
+#endif

@@ -1,15 +1,16 @@
 #ifndef __DataTypes_h__
 #define __DataTypes_h__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-extern double  fabs( double );
-
-#ifdef __cplusplus
-}
-#endif
+#include <assert.h>
+#include <float.h>
+#include <limits.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <sys/types.h>
 
 extern const double PointEpsilon;
 extern const double SquaredEpsilon;
