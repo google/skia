@@ -773,6 +773,9 @@ public:
 
         fViewMatrix = s.fViewMatrix;
 
+        GrAssert(0 == s.fEdgeAANumEdges);
+        fEdgeAANumEdges = 0;
+    
         for (int i = 0; i < kNumStages; i++) {
             if (s.fTextures[i]) {
                 memcpy(&this->fSamplerStates[i], &s.fSamplerStates[i],
