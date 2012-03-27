@@ -1911,7 +1911,7 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
                                   gXfermodeCoeff2Blend[dstCoeff]));
                 fHWDrawState.setBlendFunc(srcCoeff, dstCoeff);
             }
-            GrColor blendConst = fCurrDrawState.getBlendConstant();
+            GrColor blendConst = this->getDrawState().getBlendConstant();
             if ((BlendCoeffReferencesConstant(srcCoeff) ||
                  BlendCoeffReferencesConstant(dstCoeff)) &&
                 fHWDrawState.getBlendConstant() != blendConst) {
@@ -2099,7 +2099,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     }
 
     if (fHWDrawState.getDrawFace() != drawState->getDrawFace()) {
-        switch (fCurrDrawState.getDrawFace()) {
+        switch (this->getDrawState().getDrawFace()) {
             case GrDrawState::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_BACK));
@@ -2178,7 +2178,7 @@ void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         GrDrawState* drawState = this->drawState();
         if (drawState->getTexture(s) == texture) {
-            fCurrDrawState.setTexture(s, NULL);
+            this->drawState()->setTexture(s, NULL);
         }
         if (fHWDrawState.getTexture(s) == texture) {
             // deleting bound texture does implied bind to 0
