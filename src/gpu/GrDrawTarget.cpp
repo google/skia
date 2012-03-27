@@ -474,6 +474,9 @@ GrDrawTarget::GrDrawTarget() {
 #if GR_DEBUG
     VertexLayoutUnitTest();
 #endif
+    fDrawState = &fDefaultDrawState;
+    // We assume that fDrawState always owns a ref to the object it points at.
+    fDefaultDrawState.ref();
     GeometrySrcState& geoSrc = fGeoSrcStateStack.push_back();
 #if GR_DEBUG
     geoSrc.fVertexCount = DEBUG_INVAL_START_IDX;
@@ -490,6 +493,7 @@ GrDrawTarget::~GrDrawTarget() {
     GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     GrAssert(kNone_GeometrySrcType == geoSrc.fIndexSrc);
     GrAssert(kNone_GeometrySrcType == geoSrc.fVertexSrc);
+    fDrawState->unref();
 }
 
 void GrDrawTarget::releaseGeometry() {
@@ -511,16 +515,28 @@ const GrClip& GrDrawTarget::getClip() const {
     return fClip;
 }
 
+void GrDrawTarget::setDrawState(GrDrawState*  drawState) {
+    GrAssert(NULL != fDrawState);
+    if (NULL == drawState) {
+        drawState = &fDefaultDrawState;
+    }
+    if (fDrawState != drawState) {
+        fDrawState->unref();
+        drawState->ref();
+        fDrawState = drawState;
+    }
+}
+
 void GrDrawTarget::saveCurrentDrawState(SavedDrawState* state) const {
-    state->fState.set(fCurrDrawState);
+    state->fState.set(this->getDrawState());
 }
 
 void GrDrawTarget::restoreDrawState(const SavedDrawState& state) {
-    fCurrDrawState = *state.fState.get();
+    *fDrawState = *state.fState.get();
 }
 
 void GrDrawTarget::copyDrawState(const GrDrawTarget& srcTarget) {
-    fCurrDrawState = srcTarget.fCurrDrawState;
+    *fDrawState = srcTarget.getDrawState();
 }
 
 bool GrDrawTarget::reserveVertexSpace(GrVertexLayout vertexLayout,
@@ -855,7 +871,7 @@ bool GrDrawTarget::srcAlphaWillBeOne() const {
     }
     // Check if a color stage could create a partial alpha
     for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
-        if (StageWillBeUsed(s, layout, fCurrDrawState)) {
+        if (StageWillBeUsed(s, layout, this->getDrawState())) {
             GrAssert(NULL != drawState.getTexture(s));
             GrPixelConfig config = drawState.getTexture(s)->config();
             if (!GrPixelConfigIsOpaque(config)) {
@@ -932,7 +948,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     for (int s = drawState.getFirstCoverageStage();
          !hasCoverage && s < GrDrawState::kNumStages;
          ++s) {
-        if (StageWillBeUsed(s, layout, fCurrDrawState)) {
+        if (StageWillBeUsed(s, layout, this->getDrawState())) {
             hasCoverage = true;
         }
     }
