@@ -19,17 +19,17 @@ void showPath(const SkPath& path, const char* str) {
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                SkDebugf("path.moveTo(%3.6g, %3.6g);\n", pts[0].fX, pts[0].fY);
+                SkDebugf("path.moveTo(%1.9g, %1.9g);\n", pts[0].fX, pts[0].fY);
                 continue;
             case SkPath::kLine_Verb:
-                SkDebugf("path.lineTo(%3.6g, %3.6g);\n", pts[1].fX, pts[1].fY);
+                SkDebugf("path.lineTo(%1.9g, %1.9g);\n", pts[1].fX, pts[1].fY);
                 break;
             case SkPath::kQuad_Verb:
-                SkDebugf("path.quadTo(%3.6g, %3.6g, %3.6g, %3.6g);\n",
+                SkDebugf("path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n",
                     pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
             case SkPath::kCubic_Verb:
-                SkDebugf("path.cubicTo(%3.6g, %3.6g, %3.6g, %3.6g);\n",
+                SkDebugf("path.cubicTo(%1.9g, %1.9g, %1.9g, %1.9g);\n",
                     pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY,
                     pts[3].fX, pts[3].fY);
                 break;

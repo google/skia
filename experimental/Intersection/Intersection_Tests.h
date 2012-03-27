@@ -1,3 +1,4 @@
+void ActiveEdge_Test();
 void ConvexHull_Test();
 void ConvexHull_X_Test();
 void CubicBezierClip_Test();
@@ -11,8 +12,11 @@ void LineCubicIntersection_Test();
 void LineIntersection_Test();
 void LineParameter_Test();
 void LineQuadraticIntersection_Test();
+void SimplifyDegenerate4x4TrianglesThreaded_Test();
+void SimplifyNondegenerate4x4TrianglesThreaded_Test();
 void SimplifyPolygonPaths_Test();
 void SimplifyQuadralateralPaths_Test();
+void Simplify4x4QuadralateralsThreaded_Test();
 void SimplifyRectangularPaths_Test();
 void QuadraticBezierClip_Test();
 void QuadraticCoincidence_Test();

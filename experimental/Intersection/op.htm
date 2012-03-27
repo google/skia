@@ -15,11 +15,65 @@ path.lineTo(280.861267, 299.881470);
 path.lineTo(43.485352, 308.984497);
 path.close();
 </div>
+<div id="test_2div">
+path.moveTo(-177.878387, 265.368988);
+path.lineTo(-254.415771, 303.709961);
+path.lineTo(-317.465363, 271.325562);
+path.lineTo(-374.520386, 207.507660);
+path.lineTo(-177.878387, 265.368988);
+path.close();
+path.moveTo(-63.582489, -3.679123);
+path.lineTo(-134.496841, 26.434566);
+path.lineTo(-205.411209, 56.548256);
+path.lineTo(-276.325562, 86.661942);
+path.lineTo(-63.582489, -3.679123);
+path.close();
+path.moveTo(-57.078423, 162.633453);
+path.lineTo(-95.963928, 106.261139);
+path.lineTo(-134.849457, 49.888824);
+path.lineTo(-173.734955, -6.483480);
+path.lineTo(-57.078423, 162.633453);
+path.close();
+</div>
+<div id="test_3div">
+path.moveTo(98.666489, -94.295059);
+path.lineTo(156.584320, -61.939133);
+path.lineTo(174.672974, -12.343765);
+path.lineTo(158.622345, 52.028267);
+path.lineTo(98.666489, -94.295059);
+path.close();
+path.moveTo(-133.225616, -48.622055);
+path.lineTo(-73.855499, -10.375397);
+path.lineTo(-14.485367, 27.871277);
+path.lineTo(44.884750, 66.117935);
+path.lineTo(-133.225616, -48.622055);
+path.close();
+path.moveTo( 9.030045, -163.413132);
+path.lineTo(-19.605331, -89.588760);
+path.lineTo(-48.240707, -15.764404);
+path.lineTo(-76.876053, 58.059944);
+path.lineTo( 9.030045, -163.413132);
+path.close();
+</div>
+<div id="test_4div">
+path.moveTo( -5503.40843,1749.49658); 
+path.lineTo(-5503.40843,1749.49718);
+path.close();
+path.moveTo( -5503.40843,1749.49658); 
+path.lineTo(-5503.40729,1749.50314);
+path.close();
+path.moveTo( -5503.40729,1749.50314); 
+path.lineTo(-5503.40729,1749.50361);
+path.close();
+</div>
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    test_4div,
+    test_3div,
+    test_2div,
     test_1div,
 ];
 
@@ -37,7 +91,7 @@ var ctx;
 function parse(test) {
     var contours = [];
     var contourStrs = test.split("path.close();");
-    var pattern = /\d+\.*\d*/g;
+    var pattern = /-?\d+\.*\d*/g;
     for (var c in contourStrs) {
         var points = contourStrs[c].match(pattern);
         var pts = [];
@@ -82,7 +136,7 @@ function init(test) {
 }
 
 function drawPoint(px, py, xoffset, yoffset, unit) {
-    var label = px + "=" + px.toFixed(3) + ", " + py + "=" + py.toFixed(3);
+    var label = px.toFixed(3) + ", " + py.toFixed(3);
     var _px = px * unit + xoffset;
     var _py = py * unit + yoffset;
     ctx.beginPath();

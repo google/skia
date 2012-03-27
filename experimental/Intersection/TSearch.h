@@ -1,3 +1,6 @@
+#ifndef TSearch_DEFINED
+#define TSearch_DEFINED
+
 #include "SkTypes.h"
 
 // FIXME: Move this templated version into SKTSearch.h
@@ -61,3 +64,5 @@ void QSort(S& context, T* left, T* right,
     QSort(context, left, pivot - 1, lessThan);
     QSort(context, pivot + 1, right, lessThan);
 }
+
+#endif
