@@ -1,3 +1,6 @@
+#ifndef Intersections_DEFINE
+#define Intersections_DEFINE
+
 class Intersections {
 public:
     Intersections()
@@ -43,7 +46,10 @@ public:
     }
 
     double fT[2][9];
-private:
     int fUsed;
+private:
     int fSwap;
 };
+
+#endif
+

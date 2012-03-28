@@ -19,10 +19,12 @@ void Intersection_Tests() {
     LineQuadraticIntersection_Test();
     LineCubicIntersection_Test();
 
+    SimplifyQuadraticPaths_Test();
+
     SimplifyPolygonPaths_Test();
     SimplifyRectangularPaths_Test();
     SimplifyQuadralateralPaths_Test();
-
+    
     SimplifyDegenerate4x4TrianglesThreaded_Test();
     SimplifyNondegenerate4x4TrianglesThreaded_Test();
     Simplify4x4QuadralateralsThreaded_Test();
