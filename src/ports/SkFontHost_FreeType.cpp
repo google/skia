@@ -227,7 +227,7 @@ extern "C" {
 }
 
 SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
-        : fSkStream(strm), fFontID(fontID) {
+        : fNext(NULL), fSkStream(strm), fRefCnt(1), fFontID(fontID) {
 //    SkDEBUGF(("SkFaceRec: opening %s (%p)\n", key.c_str(), strm));
 
     sk_bzero(&fFTStream, sizeof(fFTStream));
@@ -287,7 +287,6 @@ static SkFaceRec* ref_ft_face(uint32_t fontID) {
         //fprintf(stderr, "Opened font '%s'\n", filename.c_str());
         rec->fNext = gFaceRecHead;
         gFaceRecHead = rec;
-        rec->fRefCnt = 1;
         return rec;
     }
 }
