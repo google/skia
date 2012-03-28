@@ -555,7 +555,7 @@ private:
 // all the other debug objects.
 class GrDebugGL {
 public:
-    typedef enum GrObjTypes {
+    enum GrObjTypes {
         kTexture_ObjTypes = 0,
         kBuffer_ObjTypes,
         kRenderBuffer_ObjTypes,
