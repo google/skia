@@ -37,6 +37,7 @@
         '../include/views/SkScrollBarView.h',
         '../include/views/SkStackViewLayout.h',
         '../include/views/SkSystemEventTypes.h',
+        '../include/views/SkTextBox.h',
         '../include/views/SkTouchGesture.h',
         '../include/views/SkView.h',
         '../include/views/SkViewInflate.h',

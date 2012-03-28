@@ -31,7 +31,6 @@
         '../include/utils/SkParsePath.h',
         '../include/utils/SkProxyCanvas.h',
         '../include/utils/SkSfntUtils.h',
-        '../include/utils/SkTextBox.h',
         '../include/utils/SkUnitMappers.h',
         '../include/utils/SkWGL.h',
 
