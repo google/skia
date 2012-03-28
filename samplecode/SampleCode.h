@@ -35,6 +35,10 @@ public:
     static SkMSec GetAnimTimeDelta();
     static SkScalar GetAnimSecondsDelta();
     static SkScalar GetAnimScalar(SkScalar speedPerSec, SkScalar period = 0);
+    // gives a sinusoidal value between 0 and amplitude
+    static SkScalar GetAnimSinScalar(SkScalar amplitude,
+                                     SkScalar periodInSec,
+                                     SkScalar phaseInSec = 0);
 
     static GrContext* GetGr();
 };

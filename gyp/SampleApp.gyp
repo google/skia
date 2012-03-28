@@ -28,6 +28,7 @@
         '../samplecode/SampleAARectModes.cpp',
         '../samplecode/SampleAll.cpp',
         '../samplecode/SampleAnimator.cpp',
+        '../samplecode/SampleAnimBlur.cpp',
         '../samplecode/SampleApp.cpp',
         '../samplecode/SampleArc.cpp',
         '../samplecode/SampleAvoid.cpp',
