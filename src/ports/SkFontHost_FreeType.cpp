@@ -1024,7 +1024,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         return;
     }
 
-    SkFixed vLeft, vTop;
+    SkFixed vLeft = 0, vTop = 0;
 
     switch ( fFace->glyph->format ) {
       case FT_GLYPH_FORMAT_OUTLINE: {
@@ -1116,7 +1116,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         }
 
         // bounding box of the unskewed and unscaled glyph
-        FT_BBox bbox;
+        FT_BBox bbox = {0, 0, 0, 0};  // Suppress Coverity warning.
         getBBoxForCurrentGlyph(glyph, &bbox);
 
         // compute the vertical gap above and below the glyph if the glyph were
