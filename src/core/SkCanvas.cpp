@@ -571,24 +571,18 @@ SkDevice* SkCanvas::setDevice(SkDevice* device) {
         accurately take advantage of the new device bounds.
     */
 
-    if (NULL == device) {
-        rec->fRasterClip->setEmpty();
-        while ((rec = (MCRec*)iter.next()) != NULL) {
-            (void)rec->fRasterClip->setEmpty();
-        }
-        fClipStack.reset();
-    } else {
-        // compute our total bounds for all devices
-        SkIRect bounds;
-
+    SkIRect bounds;
+    if (device) {
         bounds.set(0, 0, device->width(), device->height());
-
-        // now jam our 1st clip to be bounds, and intersect the rest with that
-        rec->fRasterClip->setRect(bounds);
-        while ((rec = (MCRec*)iter.next()) != NULL) {
-            (void)rec->fRasterClip->op(bounds, SkRegion::kIntersect_Op);
-        }
+    } else {
+        bounds.setEmpty();
     }
+    // now jam our 1st clip to be bounds, and intersect the rest with that
+    rec->fRasterClip->setRect(bounds);
+    while ((rec = (MCRec*)iter.next()) != NULL) {
+        (void)rec->fRasterClip->op(bounds, SkRegion::kIntersect_Op);
+    }
+
     return device;
 }
 
