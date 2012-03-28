@@ -34,6 +34,8 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance,
     if (advance <= 0 || path.isEmpty()) {
         SkDEBUGF(("SkPath1DPathEffect can't use advance <= 0\n"));
         fAdvance = 0;   // signals we can't draw anything
+        fInitialOffset = 0;
+        fStyle = kStyleCount;
     } else {
         // cleanup their phase parameter, inverting it so that it becomes an
         // offset along the path (to match the interpretation in PostScript)
@@ -142,6 +144,11 @@ SkPath1DPathEffect::SkPath1DPathEffect(SkFlattenableReadBuffer& buffer) {
         fPath.unflatten(buffer);
         fInitialOffset = buffer.readScalar();
         fStyle = (Style) buffer.readU8();
+    } else {
+        SkDEBUGF(("SkPath1DPathEffect can't use advance <= 0\n"));
+        // Make Coverity happy.
+        fInitialOffset = 0;
+        fStyle = kStyleCount;
     }
 }
 

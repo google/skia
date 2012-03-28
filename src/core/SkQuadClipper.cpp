@@ -22,7 +22,9 @@ static inline void clamp_ge(SkScalar& value, SkScalar min) {
     }
 }
 
-SkQuadClipper::SkQuadClipper() {}
+SkQuadClipper::SkQuadClipper() {
+    fClip.setEmpty();
+}
 
 void SkQuadClipper::setClip(const SkIRect& clip) {
     // conver to scalars, since that's where we'll see the points
