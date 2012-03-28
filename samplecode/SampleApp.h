@@ -48,7 +48,7 @@ public:
     class DeviceManager : public SkRefCnt {
     public:
         // called at end of SampleWindow cons
-        virtual void init(SampleWindow* win) = 0;
+        virtual void init(SampleWindow* win, bool useAltContext) = 0;
 
         // called when selecting a new device type
         // can disallow a device type by returning false.

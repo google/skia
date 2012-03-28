@@ -18,6 +18,9 @@
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
+#if SK_ANGLE
+#include "gl/SkANGLEGLContext.h"
+#endif
 #include "gl/SkNativeGLContext.h"
 #include "gl/SkNullGLContext.h"
 #include "gl/SkDebugGLContext.h"
@@ -239,6 +242,9 @@ private:
 static GLHelper gRealGLHelper;
 static GLHelper gNullGLHelper;
 static GLHelper gDebugGLHelper;
+#if SK_ANGLE
+static GLHelper gANGLEGLHelper;
+#endif
 
 static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
                              Backend backend, GLHelper* glHelper) {
@@ -272,6 +278,10 @@ static const struct {
     { SkBitmap::kARGB_8888_Config,  "8888",     kRaster_Backend, NULL },
     { SkBitmap::kRGB_565_Config,    "565",      kRaster_Backend, NULL },
     { SkBitmap::kARGB_8888_Config,  "GPU",      kGPU_Backend, &gRealGLHelper },
+#if SK_ANGLE
+    { SkBitmap::kARGB_8888_Config,  "ANGLE",    kGPU_Backend, &gANGLEGLHelper },
+#endif
+    { SkBitmap::kARGB_8888_Config,  "Debug",    kGPU_Backend, &gDebugGLHelper },
     { SkBitmap::kARGB_8888_Config,  "NULLGPU",  kGPU_Backend, &gNullGLHelper },
 };
 
@@ -521,9 +531,15 @@ int main (int argc, char * const argv[]) {
     SkAutoTUnref<SkGLContext> realGLCtx(new SkNativeGLContext);
     SkAutoTUnref<SkGLContext> nullGLCtx(new SkNullGLContext);
     SkAutoTUnref<SkGLContext> debugGLCtx(new SkDebugGLContext);
+#if SK_ANGLE
+    SkAutoTUnref<SkGLContext> angleGLCtx(new SkANGLEGLContext);
+#endif
     gRealGLHelper.init(realGLCtx.get(), contextWidth, contextHeight);
     gNullGLHelper.init(nullGLCtx.get(), contextWidth, contextHeight);
     gDebugGLHelper.init(debugGLCtx.get(), contextWidth, contextHeight);
+#if SK_ANGLE
+    gANGLEGLHelper.init(angleGLCtx.get(), contextWidth, contextHeight);
+#endif
 #endif
     BenchTimer timer = BenchTimer(gRealGLHelper.glContext());
 

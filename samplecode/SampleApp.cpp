@@ -130,7 +130,11 @@ static void writeTitleToPrefs(const char* title) {
 class SampleWindow::DefaultDeviceManager : public SampleWindow::DeviceManager {
 public:
 
-    DefaultDeviceManager() {
+    DefaultDeviceManager()
+#if SK_ANGLE
+    : fUseAltContext(false) 
+#endif
+    {
         fGrRenderTarget = NULL;
         fGrContext = NULL;
         fGL = NULL;
@@ -146,12 +150,32 @@ public:
         SkSafeUnref(fNullGrRenderTarget);
     }
 
-    virtual void init(SampleWindow* win) {
-        if (!win->attachGL()) {
+    virtual void init(SampleWindow* win, bool useAltContext) {
+#if SK_ANGLE
+        fUseAltContext = useAltContext;
+#endif
+        bool result;
+
+#if SK_ANGLE
+        if (useAltContext) {
+            result = win->attachANGLE();
+        } else 
+#endif
+        {
+            result = win->attachGL();
+        }
+        if (!result) {
             SkDebugf("Failed to initialize GL");
         }
         if (NULL == fGL) {
-            fGL = GrGLCreateNativeInterface();
+#if SK_ANGLE
+            if (useAltContext) {
+                fGL = GrGLCreateANGLEInterface();
+            } else 
+#endif
+            {
+                fGL = GrGLCreateNativeInterface();
+            }
             GrAssert(NULL == fGrContext);
             fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
                                            (GrPlatform3DContext) fGL);
@@ -160,7 +184,14 @@ public:
             SkSafeUnref(fGrContext);
             SkSafeUnref(fGL);
             SkDebugf("Failed to setup 3D");
-            win->detachGL();
+#if SK_ANGLE
+            if (useAltContext) {
+                win->detachANGLE();
+            } else 
+#endif
+            {
+                win->detachGL();
+            }
         }
         if (NULL == fNullGrContext) {
             const GrGLInterface* nullGL = GrGLCreateNullInterface();
@@ -231,12 +262,26 @@ public:
                                              bm.rowBytes());
             }
         }
-        win->presentGL();
+#if SK_ANGLE
+        if (fUseAltContext) {
+            win->presentANGLE();
+        } else 
+#endif
+        {
+            win->presentGL();
+        }
     }
 
     virtual void windowSizeChanged(SampleWindow* win) {
         if (fGrContext) {
-            win->attachGL();
+#if SK_ANGLE
+            if (fUseAltContext) {
+                win->attachANGLE();
+            } else 
+#endif
+            {
+                win->attachGL();
+            }
 
             GrPlatformRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
@@ -271,6 +316,9 @@ public:
         }
     }
 private:
+#if SK_ANGLE
+    bool fUseAltContext;
+#endif
     GrContext* fGrContext;
     const GrGLInterface* fGL;
     GrRenderTarget* fGrRenderTarget;
@@ -621,6 +669,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     const char* resourcePath = NULL;
     fCurrIndex = -1;
+    bool useAltContext = false;
 
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
@@ -638,7 +687,14 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                     fprintf(stderr, "Unknown sample \"%s\"\n", *argv);
                 }
             }
-        } else {
+        } 
+#if SK_ANGLE
+        else if (strcmp(*argv, "--angle") == 0) {
+            argv++;
+            useAltContext = true;
+        } 
+#endif
+        else {
             usage(commandName);
         }
     }
@@ -769,7 +825,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         devManager->ref();
         fDevManager = devManager;
     }
-    fDevManager->init(this);
+    fDevManager->init(this, useAltContext);
 
     // If another constructor set our dimensions, ensure that our
     // onSizeChange gets called.

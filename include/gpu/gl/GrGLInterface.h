@@ -96,10 +96,19 @@ const GrGLInterface* GrGLDefaultInterface();
  */
 const GrGLInterface* GrGLCreateNativeInterface();
 
+#if SK_MESA
 /**
  * Creates a GrGLInterface for an OSMesa context.
  */
 const GrGLInterface* GrGLCreateMesaInterface();
+#endif
+
+#if SK_ANGLE
+/**
+ * Creates a GrGLInterface for an ANGLE context.
+ */
+const GrGLInterface* GrGLCreateANGLEInterface();
+#endif
 
 /**
  * Creates a null GrGLInterface that doesn't draw anything. Used for measuring
