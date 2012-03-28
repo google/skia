@@ -23,13 +23,9 @@ public:
     virtual ~SkImageRef_ashmem();
     
     // overrides
-    virtual void flatten(SkFlattenableWriteBuffer&) const;
-    virtual Factory getFactory() const {
-        return Create;
-    }
-    static SkPixelRef* Create(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageRef_ashmem)
 
-    SK_DECLARE_PIXEL_REF_REGISTRAR()
 protected:
     virtual bool onDecode(SkImageDecoder* codec, SkStream* stream,
                           SkBitmap* bitmap, SkBitmap::Config config,

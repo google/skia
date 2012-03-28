@@ -71,11 +71,7 @@ SkImageRef_GlobalPool::SkImageRef_GlobalPool(SkFlattenableReadBuffer& buffer)
     this->mutex()->release();
 }
 
-SkPixelRef* SkImageRef_GlobalPool::Create(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkImageRef_GlobalPool, (buffer));
-}
-
-SK_DEFINE_PIXEL_REF_REGISTRAR(SkImageRef_GlobalPool)
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkImageRef_GlobalPool)
 
 ///////////////////////////////////////////////////////////////////////////////
 // global imagerefpool wrappers

@@ -29,15 +29,9 @@ public:
     void* getAddr() const { return fStorage; }
 
     // overrides from SkPixelRef
-    virtual void flatten(SkFlattenableWriteBuffer&) const;
-    virtual Factory getFactory() const {
-        return Create;
-    }
-    static SkPixelRef* Create(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkMallocPixelRef, (buffer));
-    }
+    virtual void flatten(SkFlattenableWriteBuffer&);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMallocPixelRef)
 
-    SK_DECLARE_PIXEL_REF_REGISTRAR()
 protected:
     // overrides from SkPixelRef
     virtual void* onLockPixels(SkColorTable**);

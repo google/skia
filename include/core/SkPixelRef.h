@@ -13,34 +13,14 @@
 #include "SkBitmap.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
+#include "SkFlattenable.h"
 
 class SkColorTable;
 struct SkIRect;
 class SkMutex;
-class SkFlattenableReadBuffer;
-class SkFlattenableWriteBuffer;
 
 // this is an opaque class, not interpreted by skia
 class SkGpuTexture;
-
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-
-#define SK_DECLARE_PIXEL_REF_REGISTRAR() 
-
-#define SK_DEFINE_PIXEL_REF_REGISTRAR(pixelRef) \
-    static SkPixelRef::Registrar g##pixelRef##Reg(#pixelRef, \
-                                                  pixelRef::Create);
-                                                      
-#else
-
-#define SK_DECLARE_PIXEL_REF_REGISTRAR() static void Init();
-
-#define SK_DEFINE_PIXEL_REF_REGISTRAR(pixelRef) \
-    void pixelRef::Init() { \
-        SkPixelRef::Registrar(#pixelRef, Create); \
-    }
-
-#endif
 
 /** \class SkPixelRef
 
@@ -50,7 +30,7 @@ class SkGpuTexture;
 
     This class can be shared/accessed between multiple threads.
 */
-class SK_API SkPixelRef : public SkRefCnt {
+class SK_API SkPixelRef : public SkFlattenable {
 public:
     explicit SkPixelRef(SkBaseMutex* mutex = NULL);
 
@@ -143,11 +123,7 @@ public:
     virtual SkPixelRef* deepCopy(SkBitmap::Config config) { return NULL; }
 
     // serialization
-
-    typedef SkPixelRef* (*Factory)(SkFlattenableReadBuffer&);
-
-    virtual Factory getFactory() const { return NULL; }
-    virtual void flatten(SkFlattenableWriteBuffer&) const;
+    virtual void flatten(SkFlattenableWriteBuffer&);
 
 #ifdef SK_BUILD_FOR_ANDROID
     /**
@@ -164,17 +140,6 @@ public:
      */
     virtual void globalUnref();
 #endif
-
-    static Factory NameToFactory(const char name[]);
-    static const char* FactoryToName(Factory);
-    static void Register(const char name[], Factory);
-
-    class Registrar {
-    public:
-        Registrar(const char name[], Factory factory) {
-            SkPixelRef::Register(name, factory);
-        }
-    };
 
 protected:
     /** Called when the lockCount goes from 0 to 1. The caller will have already
@@ -206,9 +171,6 @@ protected:
     SkPixelRef(SkFlattenableReadBuffer&, SkBaseMutex*);
 
 private:
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-    static void InitializeFlattenables();
-#endif
 
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object
     void*           fPixels;
@@ -222,7 +184,7 @@ private:
     // can go from false to true, but never from true to false
     bool    fIsImmutable;
 
-    friend class SkGraphics;
+    typedef SkFlattenable INHERITED;
 };
 
 #endif

@@ -1418,16 +1418,11 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 
     if (fPixelRef) {
-        SkPixelRef::Factory fact = fPixelRef->getFactory();
-        if (fact) {
-            const char* name = SkPixelRef::FactoryToName(fact);
-            if (name && *name) {
-                buffer.write8(SERIALIZE_PIXELTYPE_REF_DATA);
-                buffer.write32(fPixelRefOffset);
-                buffer.writeString(name);
-                fPixelRef->flatten(buffer);
-                return;
-            }
+        if (fPixelRef->getFactory()) {
+            buffer.write8(SERIALIZE_PIXELTYPE_REF_DATA);
+            buffer.write32(fPixelRefOffset);
+            buffer.writeFlattenable(fPixelRef);
+            return;
         }
         // if we get here, we can't record the pixels
         buffer.write8(SERIALIZE_PIXELTYPE_NONE);
@@ -1472,9 +1467,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
         }
         case SERIALIZE_PIXELTYPE_REF_DATA: {
             size_t offset = buffer.readU32();
-            const char* factoryName = buffer.readString();
-            SkPixelRef::Factory fact = SkPixelRef::NameToFactory(factoryName);
-            SkPixelRef* pr = fact(buffer);
+            SkPixelRef* pr = static_cast<SkPixelRef*>(buffer.readFlattenable());
             SkSafeUnref(this->setPixelRef(pr, offset));
             break;
         }
