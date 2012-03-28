@@ -53,6 +53,13 @@ public:
     virtual ~GrInOrderDrawBuffer();
 
     /**
+     * Copies the draw state and clip from target to this draw buffer.
+     *
+     * @param target    the target whose clip and state should be copied.
+     */
+    void initializeDrawStateAndClip(const GrDrawTarget& target);
+
+    /**
      * Provides the buffer with an index buffer that can be used for quad rendering.
      * The buffer may be able to batch consecutive drawRects if this is provided.
      * @param indexBuffer   index buffer with quad indices.

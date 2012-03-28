@@ -70,7 +70,6 @@ GrContext::~GrContext() {
     GrSafeUnref(fAAStrokeRectIndexBuffer);
     fGpu->unref();
     GrSafeUnref(fPathRendererChain);
-    fDrawState->unref();
 }
 
 void GrContext::contextLost() {
@@ -656,7 +655,7 @@ const GrClip& GrContext::getClip() const { return fGpu->getClip(); }
 
 void GrContext::setClip(const GrClip& clip) {
     fGpu->setClip(clip);
-    fDrawState->enableState(GrDrawState::kClip_StateBit);
+    fGpu->drawState()->enableState(GrDrawState::kClip_StateBit);
 }
 
 void GrContext::setClip(const GrIRect& rect) {
@@ -682,20 +681,21 @@ void GrContext::drawPaint(const GrPaint& paint) {
     GrMatrix inverse;
     SkTLazy<GrPaint> tmpPaint;
     const GrPaint* p = &paint;
+    GrDrawState* drawState = fGpu->drawState();
     GrAutoMatrix am;
 
     // We attempt to map r by the inverse matrix and draw that. mapRect will
     // map the four corners and bound them with a new rect. This will not
     // produce a correct result for some perspective matrices.
     if (!this->getMatrix().hasPerspective()) {
-        if (!fDrawState->getViewInverse(&inverse)) {
+        if (!drawState->getViewInverse(&inverse)) {
             GrPrintf("Could not invert matrix");
             return;
         }
         inverse.mapRect(&r);
     } else {
         if (paint.getActiveMaskStageMask() || paint.getActiveStageMask()) {
-            if (!fDrawState->getViewInverse(&inverse)) {
+            if (!drawState->getViewInverse(&inverse)) {
                 GrPrintf("Could not invert matrix");
                 return;
             }
@@ -1640,7 +1640,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
     ASSERT_OWNED_RESOURCE(target);
 
     if (NULL == target) { 
-        target = fDrawState->getRenderTarget();
+        target = fGpu->drawState()->getRenderTarget();
         if (NULL == target) {
             return false;
         }
@@ -1894,58 +1894,59 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::setPaint(const GrPaint& paint) {
+void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
+    GrDrawState* drawState = target->drawState();
 
     for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
         int s = i + GrPaint::kFirstTextureStage;
-        fDrawState->setTexture(s, paint.getTexture(i));
+        drawState->setTexture(s, paint.getTexture(i));
         ASSERT_OWNED_RESOURCE(paint.getTexture(i));
         if (paint.getTexture(i)) {
-            *fDrawState->sampler(s) = paint.getTextureSampler(i);
+            *drawState->sampler(s) = paint.getTextureSampler(i);
         }
     }
 
-    fDrawState->setFirstCoverageStage(GrPaint::kFirstMaskStage);
+    drawState->setFirstCoverageStage(GrPaint::kFirstMaskStage);
 
     for (int i = 0; i < GrPaint::kMaxMasks; ++i) {
         int s = i + GrPaint::kFirstMaskStage;
-        fDrawState->setTexture(s, paint.getMask(i));
+        drawState->setTexture(s, paint.getMask(i));
         ASSERT_OWNED_RESOURCE(paint.getMask(i));
         if (paint.getMask(i)) {
-            *fDrawState->sampler(s) = paint.getMaskSampler(i);
+            *drawState->sampler(s) = paint.getMaskSampler(i);
         }
     }
     
     // disable all stages not accessible via the paint
     for (int s = GrPaint::kTotalStages; s < GrDrawState::kNumStages; ++s) {
-        fDrawState->setTexture(s, NULL);
+        drawState->setTexture(s, NULL);
     }
 
-    fDrawState->setColor(paint.fColor);
+    drawState->setColor(paint.fColor);
 
     if (paint.fDither) {
-        fDrawState->enableState(GrDrawState::kDither_StateBit);
+        drawState->enableState(GrDrawState::kDither_StateBit);
     } else {
-        fDrawState->disableState(GrDrawState::kDither_StateBit);
+        drawState->disableState(GrDrawState::kDither_StateBit);
     }
     if (paint.fAntiAlias) {
-        fDrawState->enableState(GrDrawState::kHWAntialias_StateBit);
+        drawState->enableState(GrDrawState::kHWAntialias_StateBit);
     } else {
-        fDrawState->disableState(GrDrawState::kHWAntialias_StateBit);
+        drawState->disableState(GrDrawState::kHWAntialias_StateBit);
     }
     if (paint.fColorMatrixEnabled) {
-        fDrawState->enableState(GrDrawState::kColorMatrix_StateBit);
-        fDrawState->setColorMatrix(paint.fColorMatrix);
+        drawState->enableState(GrDrawState::kColorMatrix_StateBit);
+        drawState->setColorMatrix(paint.fColorMatrix);
     } else {
-        fDrawState->disableState(GrDrawState::kColorMatrix_StateBit);
+        drawState->disableState(GrDrawState::kColorMatrix_StateBit);
     }
-    fDrawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
-    fDrawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
-    fDrawState->setCoverage(paint.fCoverage);
+    drawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
+    drawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
+    drawState->setCoverage(paint.fCoverage);
 
-#if GR_DEBUG
-    if ((paint.getActiveMaskStageMask() || 0xff != paint.fCoverage) &&
-        !fGpu->canApplyCoverage()) {
+#if 0 // this code is broken. canApplyCoverage incorrectly looks at the
+      // the vertex layout when the vertex src hasn't been set yet
+    if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
     }
 #endif
@@ -1957,13 +1958,13 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
         this->flushDrawBuffer();
         fLastDrawCategory = category;
     }
-    this->setPaint(paint);
+    this->setPaint(paint, fGpu);
     GrDrawTarget* target = fGpu;
     switch (category) {
     case kText_DrawCategory:
 #if DEFER_TEXT_RENDERING
         target = fDrawBuffer;
-        fDrawBuffer->setClip(fGpu->getClip());
+        fDrawBuffer->initializeDrawStateAndClip(*fGpu);
 #else
         target = fGpu;
 #endif
@@ -1973,7 +1974,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
         break;
     case kBuffered_DrawCategory:
         target = fDrawBuffer;
-        fDrawBuffer->setClip(fGpu->getClip());
+        fDrawBuffer->initializeDrawStateAndClip(*fGpu);
         break;
     }
     return target;
@@ -1994,30 +1995,30 @@ GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
     ASSERT_OWNED_RESOURCE(target);
-    if (fDrawState->getRenderTarget() != target) {
+    if (fGpu->drawState()->getRenderTarget() != target) {
         this->flush(false);
-        fDrawState->setRenderTarget(target);
+        fGpu->drawState()->setRenderTarget(target);
     }
 }
 
 GrRenderTarget* GrContext::getRenderTarget() {
-    return fDrawState->getRenderTarget();
+    return fGpu->drawState()->getRenderTarget();
 }
 
 const GrRenderTarget* GrContext::getRenderTarget() const {
-    return fDrawState->getRenderTarget();
+    return fGpu->getDrawState().getRenderTarget();
 }
 
 const GrMatrix& GrContext::getMatrix() const {
-    return fDrawState->getViewMatrix();
+    return fGpu->getDrawState().getViewMatrix();
 }
 
 void GrContext::setMatrix(const GrMatrix& m) {
-    fDrawState->setViewMatrix(m);
+    fGpu->drawState()->setViewMatrix(m);
 }
 
 void GrContext::concatMatrix(const GrMatrix& m) const {
-    fDrawState->preConcatViewMatrix(m);
+    fGpu->drawState()->preConcatViewMatrix(m);
 }
 
 static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
@@ -2047,9 +2048,6 @@ GrContext::GrContext(GrGpu* gpu) {
     fGpu->ref();
     fGpu->setContext(this);
 
-    fDrawState = new GrDrawState();
-    fGpu->setDrawState(fDrawState);
-
     fPathRendererChain = NULL;
 
     fTextureCache = new GrResourceCache(MAX_TEXTURE_CACHE_COUNT,
@@ -2064,7 +2062,7 @@ GrContext::GrContext(GrGpu* gpu) {
 
     fAAFillRectIndexBuffer = NULL;
     fAAStrokeRectIndexBuffer = NULL;
-
+    
     this->setupDrawBuffer();
 }
 
@@ -2093,15 +2091,17 @@ void GrContext::setupDrawBuffer() {
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
 #endif
     fDrawBuffer->setAutoFlushTarget(fGpu);
-    fDrawBuffer->setDrawState(fDrawState);
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
+    GrDrawTarget* target;
 #if DEFER_TEXT_RENDERING
-    return prepareToDraw(paint, kText_DrawCategory);
+    target = prepareToDraw(paint, kText_DrawCategory);
 #else
-    return prepareToDraw(paint, kUnbuffered_DrawCategory);
+    target = prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
+    this->setPaint(paint, target);
+    return target;
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
