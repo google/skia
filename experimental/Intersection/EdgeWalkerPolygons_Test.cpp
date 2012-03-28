@@ -703,12 +703,6 @@ path.lineTo(497.278107, -113.884933);
 path.lineTo(449.18222, -45.6723022);
 path.lineTo(340.41568, -170.97171);
 path.close();
-path.moveTo(301.372925, -213.590073);
-path.lineTo(348.294434, -271.975586);
-path.lineTo(395.215973, -330.361145);
-path.lineTo(400.890381, -263.276855);
-path.lineTo(301.372925, -213.590073);
-path.close();
 path.moveTo(326.610535, 34.0393639);
 path.lineTo(371.334595, -14.9620667);
 path.lineTo(416.058624, -63.9634857);
@@ -765,7 +759,7 @@ static void (*simplifyTests[])() = {
 
 static size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
 
-static void (*firstTest)() = 0;
+static void (*firstTest)() = testSimplifySkinnyTriangle12;
 
 void SimplifyPolygonPaths_Test() {
     size_t index = 0;

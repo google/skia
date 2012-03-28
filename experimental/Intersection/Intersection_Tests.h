@@ -16,6 +16,7 @@ void SimplifyDegenerate4x4TrianglesThreaded_Test();
 void SimplifyNondegenerate4x4TrianglesThreaded_Test();
 void SimplifyPolygonPaths_Test();
 void SimplifyQuadralateralPaths_Test();
+void SimplifyQuadraticPaths_Test();
 void Simplify4x4QuadralateralsThreaded_Test();
 void SimplifyRectangularPaths_Test();
 void QuadraticBezierClip_Test();
