@@ -51,6 +51,7 @@
         '../src/effects/SkClampRange.cpp',
         '../src/effects/SkClampRange.h',
         '../src/effects/SkColorFilters.cpp',
+        '../src/effects/SkColorMatrix.cpp',
         '../src/effects/SkColorMatrixFilter.cpp',
         '../src/effects/SkCornerPathEffect.cpp',
         '../src/effects/SkDashPathEffect.cpp',
