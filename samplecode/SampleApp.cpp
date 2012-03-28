@@ -520,6 +520,18 @@ SkScalar SampleCode::GetAnimScalar(SkScalar speed, SkScalar period) {
     return SkDoubleToScalar(value);
 }
 
+SkScalar SampleCode::GetAnimSinScalar(SkScalar amplitude,
+                                      SkScalar periodInSec,
+                                      SkScalar phaseInSec) {
+    if (!periodInSec) {
+        return 0;
+    }
+    double t = (double)gAnimTime / 1000.0 + phaseInSec;
+    t *= SkScalarToFloat(2 * SK_ScalarPI) / periodInSec;
+    amplitude = SK_ScalarHalf * amplitude;
+    return SkScalarMul(amplitude, SkDoubleToScalar(sin(t))) + amplitude;
+}
+
 GrContext* SampleCode::GetGr() {
     return gSampleWindow ? gSampleWindow->getGrContext() : NULL;
 }

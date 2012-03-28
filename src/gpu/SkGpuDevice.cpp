@@ -716,7 +716,12 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 #include "SkMaskFilter.h"
 #include "SkBounder.h"
 
-static GrPathFill skToGrFillType(SkPath::FillType fillType) {
+///////////////////////////////////////////////////////////////////////////////
+
+// helpers for applying mask filters
+namespace {
+
+GrPathFill skToGrFillType(SkPath::FillType fillType) {
     switch (fillType) {
         case SkPath::kWinding_FillType:
             return kWinding_PathFill;
@@ -732,10 +737,22 @@ static GrPathFill skToGrFillType(SkPath::FillType fillType) {
     }
 }
 
-static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
-                                  SkMaskFilter* filter, const SkMatrix& matrix,
-                                  const SkRegion& clip, SkBounder* bounder,
-                                  GrPaint* grp) {
+// We prefer to blur small rect with small radius via CPU.
+#define MIN_GPU_BLUR_SIZE SkIntToScalar(64)
+#define MIN_GPU_BLUR_RADIUS SkIntToScalar(32)
+inline bool shouldDrawBlurWithCPU(const SkRect& rect, SkScalar radius) {
+    if (rect.width() <= MIN_GPU_BLUR_SIZE &&
+        rect.height() <= MIN_GPU_BLUR_SIZE &&
+        radius <= MIN_GPU_BLUR_RADIUS) {
+        return true;
+    }
+    return false;
+}
+
+bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
+                           SkMaskFilter* filter, const SkMatrix& matrix,
+                           const SkRegion& clip, SkBounder* bounder,
+                           GrPaint* grp) {
 #ifdef SK_DISABLE_GPU_BLUR
     return false;
 #endif
@@ -750,10 +767,15 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     if (radius <= 0) {
         return false;
     }
+
+    SkRect srcRect = path.getBounds();
+    if (shouldDrawBlurWithCPU(srcRect, radius)) {
+        return false;
+    }
+
     float sigma = SkScalarToFloat(radius) * BLUR_SIGMA_SCALE;
     float sigma3 = sigma * 3.0f;
 
-    SkRect srcRect = path.getBounds();
     SkRect clipRect;
     clipRect.set(clip.getBounds());
 
@@ -872,10 +894,10 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     return true;
 }
 
-static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
-                               SkMaskFilter* filter, const SkMatrix& matrix,
-                               const SkRegion& clip, SkBounder* bounder,
-                               GrPaint* grp) {
+bool drawWithMaskFilter(GrContext* context, const SkPath& path,
+                        SkMaskFilter* filter, const SkMatrix& matrix,
+                        const SkRegion& clip, SkBounder* bounder,
+                        GrPaint* grp) {
     SkMask  srcM, dstM;
 
     if (!SkDraw::DrawToMask(path, &clip.getBounds(), filter, &matrix, &srcM,
@@ -945,6 +967,10 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     context->drawRect(*grp, d);
     return true;
 }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
