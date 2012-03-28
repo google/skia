@@ -115,20 +115,20 @@
 
         '../src/gpu/gl/debug/SkDebugGLContext.cpp',
 
+        '../src/gpu/gl/mac/SkNativeGLContext_mac.cpp',
+
+        '../src/gpu/gl/win/SkNativeGLContext_win.cpp',
+
+        '../src/gpu/gl/unix/SkNativeGLContext_unix.cpp',
+
+        '../src/gpu/gl/mesa/SkMesaGLContext.cpp',
+
         '../src/gpu/android/SkNativeGLContext_android.cpp',
-
-        '../src/gpu/mac/SkNativeGLContext_mac.cpp',
-
-        '../src/gpu/win/SkNativeGLContext_win.cpp',
-
-        '../src/gpu/unix/SkNativeGLContext_unix.cpp',
-
-        '../src/gpu/mesa/SkMesaGLContext.cpp',
       ],
       'conditions': [
         [ 'not skia_mesa', {
           'sources!': [
-            '../src/gpu/mesa/SkMesaGLContext.cpp',
+            '../src/gpu/gl/mesa/SkMesaGLContext.cpp',
           ],
         }],
         [ 'skia_mesa and skia_os == "mac"', {
@@ -281,15 +281,15 @@
 
         '../src/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
 
-        '../src/gpu/mac/GrGLCreateNativeInterface_mac.cpp',
+        '../src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp',
 
-        '../src/gpu/win/GrGLCreateNativeInterface_win.cpp',
+        '../src/gpu/gl/win/GrGLCreateNativeInterface_win.cpp',
 
-        '../src/gpu/unix/GrGLCreateNativeInterface_unix.cpp',
+        '../src/gpu/gl/unix/GrGLCreateNativeInterface_unix.cpp',
+
+        '../src/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
 
         '../src/gpu/android/GrGLCreateNativeInterface_android.cpp',
-
-        '../src/gpu/mesa/GrGLCreateMesaInterface.cpp',
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',
@@ -337,7 +337,7 @@
         }],
         [ 'not skia_mesa', {
           'sources!': [
-            '../src/gpu/mesa/GrGLCreateMesaInterface.cpp',
+            '../src/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
           ],
         }],
         [ 'skia_os == "win"', {
