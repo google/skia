@@ -328,7 +328,6 @@ private:
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
     SkRasterizer*   fRasterizer;
-    SkScalar        fDevFrameWidth;
 
     // if this is set, we draw the image from a path, rather than
     // calling generateImage.

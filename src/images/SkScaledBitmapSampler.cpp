@@ -295,6 +295,10 @@ static bool Sample_Index_DI(void* SK_RESTRICT dstRow,
 
 SkScaledBitmapSampler::SkScaledBitmapSampler(int width, int height,
                                              int sampleSize) {
+    fCTable = NULL;
+    fDstRow = NULL;
+    fRowProc = NULL;
+
     if (width <= 0 || height <= 0) {
         sk_throw();
     }
@@ -327,9 +331,6 @@ SkScaledBitmapSampler::SkScaledBitmapSampler(int width, int height,
     
     SkASSERT(fDX > 0 && (fX0 + fDX * (fScaledWidth - 1)) < width);
     SkASSERT(fDY > 0 && (fY0 + fDY * (fScaledHeight - 1)) < height);
-    
-    fRowProc = NULL;
-    fCTable = NULL;
 }
 
 bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,

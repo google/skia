@@ -31,7 +31,8 @@ extern void gr_run_unittests();
 #define DEBUG_INVAL_START_IDX -1
 
 GrGpu::GrGpu()
-    : fContext(NULL)
+    : fClipInStencil(false)
+    , fContext(NULL)
     , fResetTimestamp(kExpiredTimestamp+1)
     , fVertexPool(NULL)
     , fIndexPool(NULL)

@@ -234,6 +234,7 @@ class A8_Bilinear_Sampler : public SkBitmapSampler {
 public:
     A8_Bilinear_Sampler(const SkBitmap& bm, SkShader::TileMode tmx, SkShader::TileMode tmy)
         : SkBitmapSampler(bm, true, tmx, tmy)
+        , fColor(0)
     {
         fProcTable = SkGetBilinearFilterProcTable();
     }
@@ -289,6 +290,7 @@ class A8_NoFilter_Sampler : public SkBitmapSampler {
 public:
     A8_NoFilter_Sampler(const SkBitmap& bm, SkShader::TileMode tmx, SkShader::TileMode tmy)
         : SkBitmapSampler(bm, false, tmx, tmy)
+        , fProcTable(NULL)
     {
     }
 

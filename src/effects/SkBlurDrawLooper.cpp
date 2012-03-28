@@ -14,7 +14,7 @@
 
 SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
                                    SkColor color, uint32_t flags)
-    : fDx(dx), fDy(dy), fBlurColor(color), fBlurFlags(flags) {
+    : fDx(dx), fDy(dy), fBlurColor(color), fBlurFlags(flags), fState(kDone) {
 
     SkASSERT(flags <= kAll_BlurFlag);
     if (radius > 0) {
