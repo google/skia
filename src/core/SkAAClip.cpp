@@ -1735,6 +1735,7 @@ bool SkAAClip::translate(int dx, int dy, SkAAClip* dst) const {
     
     if (this != dst) {
         sk_atomic_inc(&fRunHead->fRefCnt);
+        dst->freeRuns();
         dst->fRunHead = fRunHead;
         dst->fBounds = fBounds;
     }
