@@ -1943,10 +1943,12 @@ void GrContext::setPaint(const GrPaint& paint) {
     fDrawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
     fDrawState->setCoverage(paint.fCoverage);
 
+#if GR_DEBUG
     if ((paint.getActiveMaskStageMask() || 0xffffffff != paint.fCoverage) &&
         !fGpu->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
     }
+#endif
 }
 
 GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
