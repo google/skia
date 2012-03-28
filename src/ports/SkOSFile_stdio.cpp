@@ -45,7 +45,7 @@ size_t sk_fgetsize(SkFILE* f)
     if (size < 0) {
         size = 0;
     }
-    ::fseek((FILE*)f, SEEK_SET);        // go back to our prev loc
+    ::fseek((FILE*)f, curr, SEEK_SET);        // go back to our prev loc
     return size;
 }
 
