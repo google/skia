@@ -39,3 +39,6 @@ The following changes were made in order to incorporate this code:
 
   - rename all __gl_ functions to Sk__gl_ to avoid conflicting with other
     static linkers of this library.
+
+  - In sweep.c, added explicit cast to GLfloat in VertexWeights() to silence 
+    compiler complaint

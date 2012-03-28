@@ -66,7 +66,6 @@ protected:
         static const int DELTA_SCALE = 500;
         delta /= DELTA_SCALE;
 
-        SkRect rect;
         SkScalar w = SK_Scalar1 * 500;
         SkScalar h = SK_Scalar1 * 500;
         SkScalar l = SK_Scalar1 * 100;

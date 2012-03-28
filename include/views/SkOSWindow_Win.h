@@ -12,6 +12,10 @@
 
 #include "SkWindow.h"
 
+#if SK_ANGLE
+#include "EGL/egl.h"
+#endif
+
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void* hwnd);
@@ -26,6 +30,12 @@ public:
     bool attachGL();
     void detachGL();
     void presentGL();
+
+#if SK_ANGLE
+    bool attachANGLE();
+    void detachANGLE();
+    void presentANGLE();
+#endif
 
     bool attachD3D9();
     void detachD3D9();
@@ -57,6 +67,11 @@ private:
     void                doPaint(void* ctx);
 
     void*               fHGLRC;
+#if SK_ANGLE
+    angle::EGLDisplay   fDisplay;
+    angle::EGLContext   fContext;
+    angle::EGLSurface   fSurface;
+#endif
 
     bool                fGLAttached;
 
@@ -69,4 +84,3 @@ private:
 };
 
 #endif
-

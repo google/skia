@@ -21,6 +21,10 @@
 
 #include "SkGraphics.h"
 
+#if SK_ANGLE
+#include "GLES2/gl2.h"
+#endif
+
 #define INVALIDATE_DELAY_MS 200
 
 static SkOSWindow* gCurrOSWin;
@@ -33,8 +37,13 @@ void post_skwinevent()
     PostMessage(gEventTarget, WM_EVENT_CALLBACK, 0, 0);
 }
 
-SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd), 
-                                     fHGLRC(NULL),
+SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd) 
+#if SK_ANGLE
+                                     , fDisplay(EGL_NO_DISPLAY)
+                                     , fContext(EGL_NO_CONTEXT)
+                                     , fSurface(EGL_NO_SURFACE)
+#endif
+                                     , fHGLRC(NULL),
                                      fGLAttached(false),
                                      fD3D9Device(NULL),
                                      fD3D9Attached(FALSE) {
@@ -48,6 +57,11 @@ SkOSWindow::~SkOSWindow() {
     if (NULL != fHGLRC) {
         wglDeleteContext((HGLRC)fHGLRC);
     }
+#if SK_ANGLE
+    if (EGL_NO_DISPLAY != fDisplay) {
+        angle::eglDestroyContext(fDisplay, fContext);
+    }
+#endif
 }
 
 static SkKey winToskKey(WPARAM vk) {
@@ -381,6 +395,107 @@ void SkOSWindow::presentGL() {
     SwapBuffers(GetDC((HWND)fHWND));
 }
 
+#if SK_ANGLE
+bool create_ANGLE(EGLNativeWindowType hWnd, angle::EGLDisplay* eglDisplay,
+                  angle::EGLContext* eglContext, angle::EGLSurface* eglSurface) {
+    EGLint contextAttribs[] = { 
+        EGL_CONTEXT_CLIENT_VERSION, 2, 
+        EGL_NONE, EGL_NONE 
+    };
+    EGLint configAttribList[] = {
+        EGL_RED_SIZE,       8,
+        EGL_GREEN_SIZE,     8,
+        EGL_BLUE_SIZE,      8,
+        EGL_ALPHA_SIZE,     8,
+        EGL_DEPTH_SIZE,     8,
+        EGL_STENCIL_SIZE,   8,
+        EGL_NONE
+    };
+    EGLint surfaceAttribList[] = {
+        EGL_NONE, EGL_NONE
+    };
+
+    angle::EGLDisplay display = angle::eglGetDisplay(GetDC(hWnd));
+    if (display == EGL_NO_DISPLAY ) {
+       return false;
+    }
+
+    // Initialize EGL
+    EGLint majorVersion, minorVersion;
+    if (!angle::eglInitialize(display, &majorVersion, &minorVersion)) {
+       return false;
+    }
+
+    EGLint numConfigs;
+    if (!angle::eglGetConfigs(display, NULL, 0, &numConfigs)) {
+       return false;
+    }
+
+    // Choose config
+    angle::EGLConfig config;
+    if (!angle::eglChooseConfig(display, configAttribList, 
+                                &config, 1, &numConfigs)) {
+       return false;
+    }
+
+    // Create a surface
+    angle::EGLSurface surface = angle::eglCreateWindowSurface(display, config, 
+                                                        (EGLNativeWindowType)hWnd, 
+                                                        surfaceAttribList);
+    if (surface == EGL_NO_SURFACE) {
+       return false;
+    }
+
+    // Create a GL context
+    angle::EGLContext context = angle::eglCreateContext(display, config, 
+                                                        EGL_NO_CONTEXT,
+                                                        contextAttribs );
+    if (context == EGL_NO_CONTEXT ) {
+       return false;
+    }   
+    
+    // Make the context current
+    if (!angle::eglMakeCurrent(display, surface, surface, context)) {
+       return false;
+    }
+    
+    *eglDisplay = display;
+    *eglContext = context;
+    *eglSurface = surface;
+    return true;
+}
+
+bool SkOSWindow::attachANGLE() {
+    if (EGL_NO_DISPLAY == fDisplay) {
+        bool bResult = create_ANGLE((HWND)fHWND, &fDisplay, &fContext, &fSurface);
+        if (false == bResult) {
+            return false;
+        }
+        angle::glClearStencil(0);
+        angle::glClearColor(0, 0, 0, 0);
+        angle::glStencilMask(0xffffffff);
+        angle::glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    }
+    if (angle::eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+        angle::glViewport(0, 0, SkScalarRound(this->width()),
+                   SkScalarRound(this->height()));
+        fGLAttached = true;
+        return true;
+    }
+    return false;
+}
+
+void SkOSWindow::detachANGLE() {
+    angle::eglMakeCurrent(fDisplay, EGL_NO_SURFACE , EGL_NO_SURFACE , EGL_NO_CONTEXT);
+    fGLAttached = false;
+}
+
+void SkOSWindow::presentANGLE() {
+    angle::glFlush();
+    angle::eglSwapBuffers(fDisplay, fSurface);
+}
+#endif
+
 IDirect3DDevice9* create_d3d9_device(HWND hwnd) {
     HRESULT hr;
 
@@ -490,3 +605,4 @@ void SkOSWindow::presentD3D9() {
 
 
 #endif
+

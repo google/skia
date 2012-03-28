@@ -20,7 +20,12 @@
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "gl/SkNativeGLContext.h"
+#if SK_MESA
 #include "gl/SkMesaGLContext.h"
+#endif
+#if SK_ANGLE
+#include "gl/SkANGLEGLContext.h"
+#endif
 #include "gl/SkDebugGLContext.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -612,6 +617,9 @@ static void usage(const char * argv0) {
 #if SK_MESA
         "[--mesagl]"
 #endif
+#if SK_ANGLE
+        " [--angle]"
+#endif
         " [--debuggl]\n\n", argv0);
     SkDebugf("    writePath: directory to write rendered images in.\n");
     SkDebugf(
@@ -625,11 +633,14 @@ static void usage(const char * argv0) {
     SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
     SkDebugf("    --nopdf: skip the pdf rendering test pass.\n");
     SkDebugf("    --nodeferred: skip the deferred rendering test pass.\n");
-    SkDebugf("    --match foo will only run tests that substring match foo.\n");
+    SkDebugf("    --match foo: will only run tests that substring match foo.\n");
 #if SK_MESA
-    SkDebugf("    --mesagl will run using the osmesa sw gl rasterizer.\n");
+    SkDebugf("    --mesagl: will run using the osmesa sw gl rasterizer.\n");
 #endif
-    SkDebugf("    --debuggl will run using the debugging gl utility.\n");
+#if SK_ANGLE
+    SkDebugf("    --angle: use ANGLE backend on Windows.\n");
+#endif
+    SkDebugf("    --debuggl: will run using the debugging gl utility.\n");
     SkDebugf("    --notexturecache: disable the gpu texture cache.\n");
 }
 
@@ -686,7 +697,12 @@ int main(int argc, char * const argv[]) {
     bool doPDF = true;
     bool doReplay = true;
     bool doSerialize = false;
+#if SK_MESA
     bool useMesa = false;
+#endif
+#if SK_ANGLE
+    bool useAngle = false;
+#endif
     bool useDebugGL = false;
     bool doDeferred = true;
     bool disableTextureCache = false;
@@ -734,6 +750,10 @@ int main(int argc, char * const argv[]) {
         } else if (strcmp(*argv, "--mesagl") == 0) {
             useMesa = true;
 #endif
+#if SK_ANGLE
+        } else if (strcmp(*argv, "--angle") == 0) {
+            useAngle = true;
+#endif
         } else if (strcmp(*argv, "--debuggl") == 0) {
             useDebugGL = true;
         } else if (strcmp(*argv, "--notexturecache") == 0) {
@@ -767,6 +787,11 @@ int main(int argc, char * const argv[]) {
 #if SK_MESA
     if (useMesa) {
         glContext.reset(new SkMesaGLContext());
+    } else
+#endif
+#if SK_ANGLE
+    if (useAngle) {
+        glContext.reset(new SkANGLEGLContext());
     } else
 #endif
     if (useDebugGL) {
