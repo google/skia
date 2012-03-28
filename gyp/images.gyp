@@ -24,8 +24,6 @@
 
         '../src/images/bmpdecoderhelper.cpp',
         '../src/images/bmpdecoderhelper.h',
-        '../src/images/SkBitmap_RLEPixels.h',
-        '../src/images/SkCreateRLEPixelRef.cpp',
         '../src/images/SkFDStream.cpp',
         '../src/images/SkFlipPixelRef.cpp',
         '../src/images/SkImageDecoder.cpp',
