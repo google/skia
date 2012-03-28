@@ -53,9 +53,10 @@ typedef SkTArray<Segment, true> SegmentArray;
 
 void center_of_mass(const SegmentArray& segments, SkPoint* c) {
     GrScalar area = 0;
-    SkPoint center = {};
+    SkPoint center;
+    center.set(0, 0);
     int count = segments.count();
-    SkPoint p0 = {};
+    SkPoint p0;
     if (count > 2) {
         // We translate the polygon so that the first point is at the origin.
         // This avoids some precision issues with small area polygons far away
