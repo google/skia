@@ -112,7 +112,8 @@
 
         '../src/gpu/gl/SkGLContext.cpp',
         '../src/gpu/gl/SkNullGLContext.cpp',
-        '../src/gpu/gl/SkDebugGLContext.cpp',
+
+        '../src/gpu/gl/debug/SkDebugGLContext.cpp',
 
         '../src/gpu/android/SkNativeGLContext_android.cpp',
 
@@ -253,7 +254,6 @@
         '../src/gpu/gl/GrGLContextInfo.h',
         '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
         '../src/gpu/gl/GrGLCreateNullInterface.cpp',
-        '../src/gpu/gl/GrGLCreateDebugInterface.cpp',
         '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
         '../src/gpu/gl/GrGLDefaultInterface_native.cpp',
         '../src/gpu/gl/GrGLIndexBuffer.cpp',
@@ -278,6 +278,8 @@
         '../src/gpu/gl/GrGpuGL.h',
         '../src/gpu/gl/GrGpuGLShaders.cpp',
         '../src/gpu/gl/GrGpuGLShaders.h',
+
+        '../src/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
 
         '../src/gpu/mac/GrGLCreateNativeInterface_mac.cpp',
 
