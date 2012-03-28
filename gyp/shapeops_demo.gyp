@@ -25,7 +25,7 @@
         '../experimental/Intersection/EdgeWalker.cpp',
         '../experimental/Intersection/EdgeWalker_TestUtility.cpp',
         '../experimental/Intersection/Extrema.cpp',
-        '../experimental/Intersection/LineCubicIntersection.cpp
+        '../experimental/Intersection/LineCubicIntersection.cpp',
         '../experimental/Intersection/LineIntersection.cpp',
         '../experimental/Intersection/LineParameterization.cpp',
         '../experimental/Intersection/LineQuadraticIntersection.cpp',
