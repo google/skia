@@ -76,19 +76,15 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDownSampleImageFilter)
 
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkFlipPixelRef)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageRef_GlobalPool)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMallocPixelRef)
+
     SkBlurMaskFilter::InitializeFlattenables();
     SkColorFilter::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
-
-
-}
-
-void SkPixelRef::InitializeFlattenables() {
-    SkFlipPixelRef::Init();
-    SkImageRef_GlobalPool::Init();
-    SkMallocPixelRef::Init();
 }
 
 #endif

@@ -36,7 +36,8 @@ SkPixelRef::SkPixelRef(SkBaseMutex* mutex) {
     fIsImmutable = false;
 }
 
-SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex) {
+SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
+        : INHERITED(buffer) {
     if (NULL == mutex) {
         mutex = &gPixelRefMutex;
     }
@@ -48,7 +49,8 @@ SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex) {
     fIsImmutable = buffer.readBool();
 }
 
-void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) {
+    this->INHERITED::flatten(buffer);
     buffer.writeBool(fIsImmutable);
 }
 
@@ -106,71 +108,6 @@ bool SkPixelRef::readPixels(SkBitmap* dst, const SkIRect* subset) {
 
 bool SkPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
     return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-#define MAX_PAIR_COUNT  16
-
-struct Pair {
-    const char*          fName;
-    SkPixelRef::Factory  fFactory;
-};
-
-static int gCount;
-static Pair gPairs[MAX_PAIR_COUNT];
-
-void SkPixelRef::Register(const char name[], Factory factory) {
-    SkASSERT(name);
-    SkASSERT(factory);
-
-    static bool gOnce;
-    if (!gOnce) {
-        gCount = 0;
-        gOnce = true;
-    }
-
-    SkASSERT(gCount < MAX_PAIR_COUNT);
-
-    gPairs[gCount].fName = name;
-    gPairs[gCount].fFactory = factory;
-    gCount += 1;
-}
-
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
-static void report_no_entries(const char* functionName) {
-    if (!gCount) {
-        SkDebugf("%s has no registered name/factory pairs."
-                 " Call SkGraphics::Init() at process initialization time.",
-                 functionName);
-    }
-}
-#endif
-
-SkPixelRef::Factory SkPixelRef::NameToFactory(const char name[]) {
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
-    report_no_entries(__FUNCTION__);
-#endif
-    const Pair* pairs = gPairs;
-    for (int i = gCount - 1; i >= 0; --i) {
-        if (strcmp(pairs[i].fName, name) == 0) {
-            return pairs[i].fFactory;
-        }
-    }
-    return NULL;
-}
-
-const char* SkPixelRef::FactoryToName(Factory fact) {
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
-    report_no_entries(__FUNCTION__);
-#endif
-    const Pair* pairs = gPairs;
-    for (int i = gCount - 1; i >= 0; --i) {
-        if (pairs[i].fFactory == fact) {
-            return pairs[i].fName;
-        }
-    }
-    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

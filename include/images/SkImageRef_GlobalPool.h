@@ -18,13 +18,7 @@ public:
     SkImageRef_GlobalPool(SkStream*, SkBitmap::Config, int sampleSize = 1);
     virtual ~SkImageRef_GlobalPool();
     
-    // overrides
-    virtual Factory getFactory() const {
-        return Create;
-    }
-    static SkPixelRef* Create(SkFlattenableReadBuffer&);
-    
-    SK_DECLARE_PIXEL_REF_REGISTRAR()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageRef_GlobalPool)
 
     // API to control the global pool
 

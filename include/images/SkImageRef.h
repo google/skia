@@ -61,7 +61,7 @@ public:
     SkImageDecoderFactory* setDecoderFactory(SkImageDecoderFactory*);
 
     // overrides
-    virtual void flatten(SkFlattenableWriteBuffer&) const;
+    virtual void flatten(SkFlattenableWriteBuffer&);
 
 protected:
     /** Override if you want to install a custom allocator.
