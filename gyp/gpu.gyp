@@ -86,12 +86,9 @@
     {
       'target_name': 'skgr',
       'type': 'static_library',
-      'dependencies': [
-        'core.gyp:core',
-        'gpu.gyp:gr',
-        'ports.gyp:ports',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../src/core',
         '../include/gpu',
       ],
@@ -151,9 +148,7 @@
         '../src/core', # SkRasterClip.h
       ],
       'dependencies': [
-        'core.gyp:core',
         'libtess.gyp:libtess',
-        'ports.gyp:ports',
       ],
       'sources': [
         '../include/gpu/GrClip.h',

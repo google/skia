@@ -4,20 +4,13 @@
     {
       'target_name': 'ports',
       'type': 'static_library',
-      'dependencies': [
-        #ports depends on core, but core also depends on ports.
-        #'core.gyp:core',
-        #ports depends on utils, but utils also depends on ports.
-        #'utils.gyp:utils',
-      ],
       'include_dirs': [
         '../include/config',
         '../include/core',
-        '../include/utils',
-        #ports currently implements the xml parser backend.
-        '../include/xml',
-
+        '../include/images',
+        '../include/effects',
         '../include/ports',
+        '../include/xml',
         '../src/core',
       ],
       'sources': [

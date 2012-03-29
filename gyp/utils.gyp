@@ -3,15 +3,15 @@
     {
       'target_name': 'utils',
       'type': 'static_library',
-      'dependencies': [
-        'core.gyp:core',
-        'ports.gyp:ports',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../include/utils',
         '../include/utils/mac',
         '../include/utils/unix',
         '../include/utils/win',
+        '../include/effects',
+        '../include/xml',
       ],
       'sources': [
         '../include/utils/SkBoundaryPatch.h',

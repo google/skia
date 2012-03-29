@@ -3,13 +3,11 @@
     {
       'target_name': 'xml',
       'type': 'static_library',
-      'dependencies': [
-        'core.gyp:core',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../include/xml',
+        '../include/utils',
       ],
       'sources': [
         '../include/xml/SkBML_WXMLParser.h',

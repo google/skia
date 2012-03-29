@@ -9,16 +9,14 @@
     {
       'target_name': 'views',
       'type': 'static_library',
-      'dependencies': [
-        'core.gyp:core',
-        'effects.gyp:effects',
-        'images.gyp:images',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
-        'xml.gyp:xml',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../include/views',
+        '../include/xml',
+        '../include/utils',
+        '../include/images',
+        '../include/effects',
         '../include/views/unix',
       ],
       'sources': [
