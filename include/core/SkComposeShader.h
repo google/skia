@@ -44,7 +44,7 @@ public:
 
 protected:
     SkComposeShader(SkFlattenableReadBuffer& );
-    virtual void flatten(SkFlattenableWriteBuffer& );
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
 

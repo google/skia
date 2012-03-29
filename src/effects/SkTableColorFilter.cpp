@@ -35,12 +35,12 @@ public:
 
     virtual void filterSpan(const SkPMColor src[], int count,
                             SkPMColor dst[]) SK_OVERRIDE;
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
 
 protected:
     SkTable_ColorFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkBitmap* fBitmap;
@@ -145,7 +145,7 @@ static const uint8_t gCountNibBits[] = {
 
 #include "SkPackBits.h"
 
-void SkTable_ColorFilter::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkTable_ColorFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     uint8_t storage[5*256];

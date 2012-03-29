@@ -180,7 +180,7 @@ SkLayerDrawLooper::Rec* SkLayerDrawLooper::Rec::Reverse(Rec* head) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
 #ifdef SK_DEBUG

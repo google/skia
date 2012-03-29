@@ -61,7 +61,8 @@ SkBlurDrawLooper::~SkBlurDrawLooper() {
     SkSafeUnref(fColorFilter);
 }
 
-void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fDx);
     buffer.writeScalar(fDy);
     buffer.write32(fBlurColor);

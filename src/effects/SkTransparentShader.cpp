@@ -125,8 +125,3 @@ void SkTransparentShader::shadeSpan16(int x, int y, uint16_t span[], int count) 
         memcpy(span, src, count << 1);
     }
 }
-
-void SkTransparentShader::flatten(SkFlattenableWriteBuffer& buffer) {
-    this->INHERITED::flatten(buffer);
-}
-

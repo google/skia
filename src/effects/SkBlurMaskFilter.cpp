@@ -24,9 +24,6 @@ public:
     virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
     virtual void computeFastBounds(const SkRect& src, SkRect* dst) SK_OVERRIDE;
 
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
 private:
@@ -35,6 +32,7 @@ private:
     uint32_t                    fBlurFlags;
 
     SkBlurMaskFilterImpl(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
     typedef SkMaskFilter INHERITED;
 };
@@ -112,7 +110,7 @@ SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer)
     SkASSERT((unsigned)fBlurStyle < SkBlurMaskFilter::kBlurStyleCount);
 }
 
-void SkBlurMaskFilterImpl::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkBlurMaskFilterImpl::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fRadius);
     buffer.write32(fBlurStyle);

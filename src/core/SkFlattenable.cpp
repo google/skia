@@ -37,7 +37,7 @@ void SkWriteRegion(SkWriter32* writer, const SkRegion& rgn) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkFlattenable::flatten(SkFlattenableWriteBuffer&)
+void SkFlattenable::flatten(SkFlattenableWriteBuffer&) const
 {
     /*  we don't write anything at the moment, but this allows our subclasses
         to not know that, since we want them to always call INHERITED::flatten()

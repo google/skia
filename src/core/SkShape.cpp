@@ -60,10 +60,6 @@ SkShape::SkShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     inc_shape(this);
 }
 
-void SkShape::flatten(SkFlattenableWriteBuffer& buffer) {
-    this->INHERITED::flatten(buffer);
-}
-
 void SkShape::onDraw(SkCanvas*) {}
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkShape)

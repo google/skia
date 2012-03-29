@@ -83,7 +83,7 @@ void SkGroupShape::onDraw(SkCanvas* canvas) {
     }
 }
 
-void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     int count = fList.count();

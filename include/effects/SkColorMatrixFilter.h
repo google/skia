@@ -28,9 +28,6 @@ public:
     virtual uint32_t getFlags() SK_OVERRIDE;
     virtual bool asColorMatrix(SkScalar matrix[20]) SK_OVERRIDE;
 
-    // overrides for SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) SK_OVERRIDE;
-
     struct State {
         int32_t fArray[20];
         int     fShift;
@@ -41,6 +38,7 @@ public:
 
 protected:
     SkColorMatrixFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
 

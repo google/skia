@@ -29,7 +29,7 @@ SkAvoidXfermode::SkAvoidXfermode(SkFlattenableReadBuffer& buffer)
     fMode = (Mode)buffer.readU8();
 }
 
-void SkAvoidXfermode::flatten(SkFlattenableWriteBuffer& buffer)
+void SkAvoidXfermode::flatten(SkFlattenableWriteBuffer& buffer) const
 {
     this->INHERITED::flatten(buffer);
 

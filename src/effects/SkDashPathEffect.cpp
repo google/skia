@@ -140,9 +140,10 @@ SkFlattenable::Factory SkDashPathEffect::getFactory() {
     return fInitialDashLength < 0 ? NULL : CreateProc;
 }
 
-void SkDashPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkDashPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
     SkASSERT(fInitialDashLength >= 0);
 
+    this->INHERITED::flatten(buffer);
     buffer.write32(fCount);
     buffer.write32(fInitialDashIndex);
     buffer.writeScalar(fInitialDashLength);

@@ -28,8 +28,6 @@ public:
     size_t getSize() const { return fSize; }
     void* getAddr() const { return fStorage; }
 
-    // overrides from SkPixelRef
-    virtual void flatten(SkFlattenableWriteBuffer&);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMallocPixelRef)
 
 protected:
@@ -38,6 +36,7 @@ protected:
     virtual void onUnlockPixels();
 
     SkMallocPixelRef(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     void*           fStorage;

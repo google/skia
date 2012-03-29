@@ -70,7 +70,7 @@ private:
     uint8_t     fAlpha;
 };
 
-void SkComposeShader::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkComposeShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fShaderA);
     buffer.writeFlattenable(fShaderB);

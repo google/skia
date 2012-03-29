@@ -33,7 +33,7 @@ SkDiscreteMapper::SkDiscreteMapper(SkFlattenableReadBuffer& rb)
     fScale = rb.readU32();
 }
 
-void SkDiscreteMapper::flatten(SkFlattenableWriteBuffer& wb) {
+void SkDiscreteMapper::flatten(SkFlattenableWriteBuffer& wb) const {
     this->INHERITED::flatten(wb);
 
     wb.write32(fSegments);

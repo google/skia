@@ -156,7 +156,8 @@ SkScalar SkPath1DPathEffect::begin(SkScalar contourLength) {
     return fInitialOffset;
 }
 
-void SkPath1DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkPath1DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fAdvance);
     if (fAdvance > 0) {
         fPath.flatten(buffer);

@@ -71,7 +71,7 @@ SkMask::Format SkTableMaskFilter::getFormat() {
     return SkMask::kA8_Format;
 }
 
-void SkTableMaskFilter::flatten(SkFlattenableWriteBuffer& wb) {
+void SkTableMaskFilter::flatten(SkFlattenableWriteBuffer& wb) const {
     this->INHERITED::flatten(wb);
     wb.writePad(fTable, 256);
 }

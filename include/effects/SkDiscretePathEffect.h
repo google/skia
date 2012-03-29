@@ -28,13 +28,11 @@ public:
     //  This method is not exported to java.
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
-    // overrides for SkFlattenable
-    //  This method is not exported to java.
-    virtual void flatten(SkFlattenableWriteBuffer&);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiscretePathEffect)
 
 protected:
     SkDiscretePathEffect(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkScalar fSegLength, fPerterb;

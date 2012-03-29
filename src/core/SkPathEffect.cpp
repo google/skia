@@ -29,7 +29,8 @@ SkPairPathEffect::~SkPairPathEffect() {
 /*
     Format: [oe0-factory][pe1-factory][pe0-size][pe0-data][pe1-data]
 */
-void SkPairPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkPairPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fPE0);
     buffer.writeFlattenable(fPE1);
 }
@@ -108,7 +109,8 @@ bool SkStrokePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
-void SkStrokePathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkStrokePathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fWidth);
     buffer.writeScalar(fMiter);
     buffer.write8(fStyle);

@@ -612,12 +612,6 @@ public:
         return false;
     }
     
-    virtual void flatten(SkFlattenableWriteBuffer& buffer)
-    {
-        this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fWidth);
-    }
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Line2DPathEffect)
 protected:
 	virtual void nextSpan(int u, int v, int ucount, SkPath* dst)
@@ -637,9 +631,14 @@ protected:
         }
     }
     
-    Line2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
+    Line2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer)
     {
         fWidth = buffer.readScalar();
+    }
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE
+    {
+        this->INHERITED::flatten(buffer);
+        buffer.writeScalar(fWidth);
     }
     
 private:

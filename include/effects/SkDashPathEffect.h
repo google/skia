@@ -34,13 +34,11 @@ public:
     // overrides for SkFlattenable
     //  This method is not exported to java.
     virtual Factory getFactory();
-    //  This method is not exported to java.
-    virtual void flatten(SkFlattenableWriteBuffer&);
-
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
 protected:
     SkDashPathEffect(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
 private:
     SkScalar*   fIntervals;

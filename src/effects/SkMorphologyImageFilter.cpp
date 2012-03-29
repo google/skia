@@ -19,7 +19,7 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX, int radiusY)
 }
 
 
-void SkMorphologyImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkMorphologyImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fRadius.fWidth);
     buffer.writeScalar(fRadius.fHeight);

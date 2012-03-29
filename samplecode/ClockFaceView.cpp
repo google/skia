@@ -70,13 +70,6 @@ public:
                     SkTDArray<SkPoint>* pts)
     : Sk2DPathEffect(matrix), fRadius(radius), fPts(pts) {}
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer)
-    {
-        this->INHERITED::flatten(buffer);
-
-        buffer.writeScalar(fRadius);
-    }
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
@@ -95,11 +88,16 @@ protected:
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
+    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer)
     {
         fRadius = buffer.readScalar();
         fPts = NULL;
     }
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+        this->INHERITED::flatten(buffer);
+        buffer.writeScalar(fRadius);
+    }
+
 private:
     SkScalar fRadius;
     SkTDArray<SkPoint>* fPts;

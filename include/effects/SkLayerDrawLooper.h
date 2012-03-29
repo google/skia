@@ -105,9 +105,7 @@ public:
     
 protected:
     SkLayerDrawLooper(SkFlattenableReadBuffer&);
-
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer& );
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
 private:
     struct Rec {

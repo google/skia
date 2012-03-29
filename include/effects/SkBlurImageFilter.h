@@ -21,10 +21,10 @@ public:
 
 protected:
     explicit SkBlurImageFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) SK_OVERRIDE;
 
 private:
     SkSize   fSigma;

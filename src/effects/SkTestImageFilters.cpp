@@ -32,7 +32,7 @@ bool SkOffsetImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm
     return true;
 }
 
-void SkOffsetImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkOffsetImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fOffset.x());
     buffer.writeScalar(fOffset.y());
@@ -84,7 +84,7 @@ bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
            fOuter->filterBounds(tmp, ctm, dst);
 }
 
-void SkComposeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkComposeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeFlattenable(fOuter);
@@ -238,7 +238,7 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
-void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     int storedCount = fCount;
@@ -307,7 +307,7 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
-void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     
     buffer.writeFlattenable(fColorFilter);
@@ -369,7 +369,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
-void SkDownSampleImageFilter::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkDownSampleImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     
     buffer.writeScalar(fScale);

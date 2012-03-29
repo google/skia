@@ -60,7 +60,7 @@ void SkFlipPixelRef::swapPages() {
     fMutex.release();
 }
 
-void SkFlipPixelRef::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkFlipPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     
     buffer.write32(fSize);

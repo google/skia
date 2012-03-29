@@ -49,7 +49,7 @@ SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
     fIsImmutable = buffer.readBool();
 }
 
-void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeBool(fIsImmutable);
 }

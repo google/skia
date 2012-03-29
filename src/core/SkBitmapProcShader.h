@@ -36,7 +36,7 @@ public:
 
 protected:
     SkBitmapProcShader(SkFlattenableReadBuffer& );
-    virtual void flatten(SkFlattenableWriteBuffer& );
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
     SkBitmap          fRawBitmap;   // experimental for RLE encoding
     SkBitmapProcState fState;

@@ -75,11 +75,6 @@ public:
      override of flatten().
      */
     virtual Factory getFactory() = 0;
-    /** Override this to write data specific to your subclass into the buffer,
-     being sure to call your super-class' version first. This data will later
-     be passed to your Factory function, returned by getFactory().
-     */
-    virtual void flatten(SkFlattenableWriteBuffer&);
     
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
@@ -94,6 +89,11 @@ public:
 
 protected:
     SkFlattenable(SkFlattenableReadBuffer&) {}
+    /** Override this to write data specific to your subclass into the buffer,
+     being sure to call your super-class' version first. This data will later
+     be passed to your Factory function, returned by getFactory().
+     */
+    virtual void flatten(SkFlattenableWriteBuffer&) const;
 
 private:
 #if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
@@ -101,6 +101,7 @@ private:
 #endif
 
     friend class SkGraphics;
+    friend class SkFlattenableWriteBuffer;
 };
 
 // helpers for matrix and region

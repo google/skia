@@ -63,12 +63,11 @@ public:
 
 protected:
     SkPath1DPathEffect(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
     // overrides from Sk1DPathEffect
     virtual SkScalar begin(SkScalar contourLength) SK_OVERRIDE;
     virtual SkScalar next(SkPath*, SkScalar distance, SkPathMeasure&) SK_OVERRIDE;
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
     
 private:
     SkPath      fPath;          // copied from constructor

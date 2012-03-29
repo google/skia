@@ -189,7 +189,7 @@ SkImageRef::SkImageRef(SkFlattenableReadBuffer& buffer)
     fFactory = NULL;
 }
 
-void SkImageRef::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkImageRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.write8(fConfig);

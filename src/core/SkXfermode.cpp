@@ -685,7 +685,8 @@ SkProcXfermode::SkProcXfermode(SkFlattenableReadBuffer& buffer)
     fProc = (SkXfermodeProc)buffer.readFunctionPtr();
 }
 
-void SkProcXfermode::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkProcXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     if (buffer.isCrossProcess()) {
         // function pointer is only valid in the current process. Write a NULL
         // so it can't be accidentally used
@@ -729,16 +730,10 @@ public:
         return true;
     }
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
-        this->INHERITED::flatten(buffer);
-        buffer.write32(fMode);
-    }
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
-    SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer)
-            : INHERITED(buffer) {
+    SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
         fMode = (SkXfermode::Mode)buffer.readU32();
 
         const ProcCoeff& rec = gProcCoeffs[fMode];
@@ -747,6 +742,11 @@ protected:
         fDstCoeff = rec.fDC;
         // now update our function-ptr in the super class
         this->INHERITED::setProc(rec.fProc);
+    }
+
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+        this->INHERITED::flatten(buffer);
+        buffer.write32(fMode);
     }
 
 private:
