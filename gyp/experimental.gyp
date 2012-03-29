@@ -3,9 +3,9 @@
     {
       'target_name': 'experimental',
       'type': 'static_library',
-      'include_dirs': [
-        '../include/config',
-        '../include/core',
+      'dependencies': [
+        'core.gyp:core',
+        'ports.gyp:ports',
       ],
       'sources': [
         '../experimental/SkSetPoly3To3.cpp',
