@@ -27,12 +27,6 @@
 #include "SkStream.h"
 #include "SkXMLParser.h"
 
-static const int gKernel[3][3] = {
-//    { -1, -2, -1 }, { -2, 12, -2 }, { -1, -2, -1 }
-    { 1, 2, 1 }, { 2, 64-12, 2 }, { 1, 2, 1 }
-};
-static const int gShift = 6;
-
 class ReduceNoise : public SkKernel33ProcMaskFilter {
 public:
     ReduceNoise(int percent256) : SkKernel33ProcMaskFilter(percent256) {}
@@ -189,64 +183,6 @@ static const struct {
     { "Normal",   0,                           true },
     { "Subpixel", SkPaint::kSubpixelText_Flag, true }
 };
-
-static int count_char_points(const SkPaint& paint, char c) {
-    SkPath  path;
-
-    paint.getTextPath(&c, 1, 0, 0, &path);
-    return path.getPoints(NULL, 0);
-}
-
-static int gOld, gNew, gCount;
-
-static void dump(int c, int oldc, int newc) {
-    if (oldc != newc) {
-        gOld += oldc;
-        gNew += newc;
-        gCount += 1;
-        printf("char %c: old = %3d, new = %3d, reduction %g%%\n", c, oldc, newc, 100. * (oldc - newc) / oldc);
-    }
-}
-
-static void tab(int n) {
-//    printf("[%d] ", n); return;
-    SkASSERT(n >= 0);
-    for (int i = 0; i < n; i++)
-        printf("    ");
-}
-
-static void draw_rgn(const SkRegion& rgn, SkCanvas* canvas, const SkPaint& paint) {
-    SkRect    r;
-    SkRegion::Iterator  iter(rgn);
-
-    for (; !iter.done(); iter.next()) {
-        r.set(iter.rect());
-        canvas->drawRect(r, paint);
-    }
-}
-
-static void test_break(SkCanvas* canvas, const char text[], size_t length,
-                        SkScalar x, SkScalar y, const SkPaint& paint,
-                        SkScalar clickX) {
-    SkPaint linePaint;
-
-    linePaint.setAntiAlias(true);
-
-    SkScalar measured;
-
-    if (paint.breakText(text, length, clickX - x, &measured,
-                        SkPaint::kForward_TextBufferDirection)) {
-        linePaint.setColor(SK_ColorRED);
-        canvas->drawLine(x, y, x + measured, y, linePaint);
-    }
-
-    x += paint.measureText(text, length);
-    if (paint.breakText(text, length, x - clickX, &measured,
-                        SkPaint::kBackward_TextBufferDirection)) {
-        linePaint.setColor(SK_ColorBLUE);
-        canvas->drawLine(x - measured, y, x, y, linePaint);
-    }
-}
 
 static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
                         SkScalar x, SkScalar y, const SkPaint& paint,
