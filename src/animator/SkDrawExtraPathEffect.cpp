@@ -140,8 +140,6 @@ protected:
     }
 
 private:
-    virtual void flatten(SkFlattenableWriteBuffer& ) {}
-
     static bool GetContourLength(const char* token, size_t len, void* clen, SkScriptValue* value) {
         if (SK_LITERAL_STR_EQUAL("contourLength", token, len)) {
             value->fOperand.fScalar = *(SkScalar*) clen;

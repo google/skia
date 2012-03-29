@@ -147,7 +147,7 @@ public:
 
 protected:
     SkFilterShader(SkFlattenableReadBuffer& );
-    virtual void flatten(SkFlattenableWriteBuffer& ) SK_OVERRIDE;
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkShader*       fShader;

@@ -55,8 +55,6 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin);
 
-    virtual void flatten(SkFlattenableWriteBuffer& ) {}
-
     enum BlurType {
         kNone_BlurType,    //!< this maskfilter is not a blur
         kNormal_BlurType,  //!< fuzzy inside and outside
@@ -94,7 +92,7 @@ public:
 
 protected:
     // empty for now, but lets get our subclass to remember to init us for the future
-    SkMaskFilter(SkFlattenableReadBuffer&) {}
+    SkMaskFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     friend class SkDraw;
@@ -106,6 +104,8 @@ private:
      */
     bool filterPath(const SkPath& devPath, const SkMatrix& devMatrix,
                     const SkRasterClip&, SkBounder*, SkBlitter* blitter);
+
+    typedef SkFlattenable INHERITED;
 };
 
 #endif

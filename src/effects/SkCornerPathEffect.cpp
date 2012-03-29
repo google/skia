@@ -129,7 +129,8 @@ DONE:
     return true;
 }
 
-void SkCornerPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkCornerPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fRadius);
 }
 

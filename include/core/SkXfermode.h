@@ -214,12 +214,11 @@ public:
     virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) SK_OVERRIDE;
 
-    // overrides from SkFlattenable
-    virtual void    flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcXfermode)
 
 protected:
     SkProcXfermode(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
     // allow subclasses to update this after we unflatten
     void setProc(SkXfermodeProc proc) {

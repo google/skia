@@ -53,7 +53,7 @@ public:
 
 protected:
     SkColorShader(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
 

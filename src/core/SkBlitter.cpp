@@ -659,14 +659,13 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 
 protected:
-    Sk3DShader(SkFlattenableReadBuffer& buffer) :
-            INHERITED(buffer) {
+    Sk3DShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
         fProxy = static_cast<SkShader*>(buffer.readFlattenable());
         fPMColor = buffer.readU32();
         fMask = NULL;
     }
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeFlattenable(fProxy);
         buffer.write32(fPMColor);

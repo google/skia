@@ -122,9 +122,6 @@ public:
         support deep copies.  */
     virtual SkPixelRef* deepCopy(SkBitmap::Config config) { return NULL; }
 
-    // serialization
-    virtual void flatten(SkFlattenableWriteBuffer&);
-
 #ifdef SK_BUILD_FOR_ANDROID
     /**
      *  Acquire a "global" ref on this object.
@@ -168,7 +165,9 @@ protected:
     */
     SkBaseMutex* mutex() const { return fMutex; }
 
+    // serialization
     SkPixelRef(SkFlattenableReadBuffer&, SkBaseMutex*);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
 

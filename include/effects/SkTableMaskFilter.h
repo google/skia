@@ -51,12 +51,11 @@ public:
     virtual SkMask::Format getFormat();
     virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*);
     
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer& wb);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
 
 protected:
     SkTableMaskFilter(SkFlattenableReadBuffer& rb);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     uint8_t fTable[256];

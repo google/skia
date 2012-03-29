@@ -33,8 +33,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmptyShader)
 
 protected:
-    SkEmptyShader(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
+    SkEmptyShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     typedef SkShader INHERITED;

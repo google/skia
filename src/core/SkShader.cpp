@@ -41,7 +41,7 @@ void SkShader::endSession() {
     SkDEBUGCODE(fInSession = false;)
 }
 
-void SkShader::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeBool(fLocalMatrix != NULL);
     if (fLocalMatrix) {
@@ -238,7 +238,7 @@ SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
     fColor = b.readU32();
 }
 
-void SkColorShader::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkColorShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.write8(fInheritColor);
     if (fInheritColor) {
@@ -331,8 +331,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorShader)
 
 #include "SkEmptyShader.h"
 
-SkEmptyShader::SkEmptyShader(SkFlattenableReadBuffer& b) : INHERITED(b) {}
-
 uint32_t SkEmptyShader::getFlags() { return 0; }
 uint8_t SkEmptyShader::getSpan16Alpha() const { return 0; }
 
@@ -349,10 +347,6 @@ void SkEmptyShader::shadeSpan16(int x, int y, uint16_t span[], int count) {
 
 void SkEmptyShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
     SkDEBUGFAIL("should never get called, since setContext() returned false");
-}
-
-void SkEmptyShader::flatten(SkFlattenableWriteBuffer& buffer) {
-    this->INHERITED::flatten(buffer);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkEmptyShader)

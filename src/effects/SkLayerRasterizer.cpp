@@ -197,7 +197,7 @@ SkLayerRasterizer::SkLayerRasterizer(SkFlattenableReadBuffer& buffer)
     }
 }
 
-void SkLayerRasterizer::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkLayerRasterizer::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.write32(fLayers.count());

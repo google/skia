@@ -210,7 +210,7 @@ void SkImageRef_ashmem::onUnlockPixels() {
     fBitmap.setPixels(NULL, NULL);
 }
 
-void SkImageRef_ashmem::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkImageRef_ashmem::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     const char* uri = getURI();
     if (uri) {

@@ -15,12 +15,11 @@ public:
 
 protected:
     SkOffsetImageFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
 
 private:
     SkVector fOffset;
@@ -42,12 +41,11 @@ public:
     
 protected:
     SkComposeImageFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
     
 private:
     SkImageFilter*  fOuter;
@@ -70,12 +68,11 @@ public:
     
 protected:
     SkMergeImageFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
     
 private:
     SkImageFilter**     fFilters;
@@ -103,11 +100,10 @@ public:
     
 protected:
     SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
     
 private:
     SkColorFilter*  fColorFilter;
@@ -126,11 +122,10 @@ public:
     
 protected:
     SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
     
 private:
     SkScalar fScale;

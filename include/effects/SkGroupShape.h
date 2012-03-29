@@ -131,9 +131,6 @@ public:
      */
     void removeAllShapes();
 
-    // overrides
-    virtual void flatten(SkFlattenableWriteBuffer&);
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkGroupShape)
 
 protected:
@@ -141,6 +138,7 @@ protected:
     virtual void onDraw(SkCanvas*);
 
     SkGroupShape(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     struct Rec {

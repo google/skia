@@ -64,7 +64,8 @@ void Sk2DPathEffect::end(SkPath* dst) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sk2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void Sk2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     char storage[SkMatrix::kMaxFlattenSize];
     uint32_t size = fMatrix.flatten(storage);
     buffer.write32(size);
@@ -92,7 +93,7 @@ SkPath2DPathEffect::SkPath2DPathEffect(SkFlattenableReadBuffer& buffer)
     fPath.unflatten(buffer);
 }
 
-void SkPath2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkPath2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     fPath.flatten(buffer);
 }

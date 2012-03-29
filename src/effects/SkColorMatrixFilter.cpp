@@ -310,7 +310,7 @@ void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkColorMatrixFilter::flatten(SkFlattenableWriteBuffer& buffer)  {
+void SkColorMatrixFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeFunctionPtr((void*)fProc);

@@ -67,7 +67,8 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
-void SkDiscretePathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkDiscretePathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSegLength);
     buffer.writeScalar(fPerterb);
 }

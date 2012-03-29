@@ -24,8 +24,7 @@ public:
 
 protected:
     SkDiscreteMapper(SkFlattenableReadBuffer& );
-    // overrides from SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer& );
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     int     fSegments;

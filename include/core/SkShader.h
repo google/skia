@@ -293,7 +293,6 @@ public:
     static SkShader* CreateBitmapShader(const SkBitmap& src,
                                         TileMode tmx, TileMode tmy);
 
-    virtual void flatten(SkFlattenableWriteBuffer& ) SK_OVERRIDE;
 protected:
     enum MatrixClass {
         kLinear_MatrixClass,            // no perspective
@@ -309,6 +308,7 @@ protected:
     MatrixClass         getInverseClass() const { return (MatrixClass)fTotalInverseClass; }
 
     SkShader(SkFlattenableReadBuffer& );
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 private:
     SkMatrix*           fLocalMatrix;
     SkMatrix            fTotalInverse;

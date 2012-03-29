@@ -33,7 +33,6 @@ public:
     const SkRegion& beginUpdate(SkBitmap* device);
     void endUpdate();
 
-    virtual void flatten(SkFlattenableWriteBuffer&);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkFlipPixelRef)
 
 protected:
@@ -41,6 +40,7 @@ protected:
     virtual void onUnlockPixels();
 
     SkFlipPixelRef(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     
 private:
     void getFrontBack(const void** front, void** back) const {

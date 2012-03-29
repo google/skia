@@ -60,7 +60,7 @@ void SkRectShape::onDraw(SkCanvas* canvas) {
     }
 }
 
-void SkRectShape::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkRectShape::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeRect(fBounds);
@@ -74,7 +74,7 @@ SkRectShape::SkRectShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPaintShape::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkPaintShape::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     
     fPaint.flatten(buffer);

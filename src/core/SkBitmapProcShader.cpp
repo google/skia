@@ -68,7 +68,7 @@ SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
     return kDefault_BitmapType;
 }
 
-void SkBitmapProcShader::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkBitmapProcShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     fRawBitmap.flatten(buffer);

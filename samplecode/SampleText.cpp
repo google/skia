@@ -131,11 +131,6 @@ public:
 
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
 
-    // overrides for SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer& b) {
-    //    this->INHERITED::flatten(b);  How can we know if this is legal????
-        b.write32(SkScalarToFixed(fExp));
-    }
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPowerMode)
 
 private:
@@ -143,9 +138,13 @@ private:
     uint8_t fTable[256];    // cache
 
     void init(SkScalar exponent);
-    SkPowerMode(SkFlattenableReadBuffer& b) : SkXfermode(b) {
+    SkPowerMode(SkFlattenableReadBuffer& b) : INHERITED(b) {
         // read the exponent
         this->init(SkFixedToScalar(b.readS32()));
+    }
+    virtual void flatten(SkFlattenableWriteBuffer& b) const SK_OVERRIDE {
+        this->INHERITED::flatten(b);
+        b.write32(SkScalarToFixed(fExp));
     }
 
     typedef SkXfermode INHERITED;

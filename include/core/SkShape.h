@@ -31,8 +31,6 @@ public:
      */
     void drawMatrix(SkCanvas*, const SkMatrix&);
 
-    // overrides
-    virtual void flatten(SkFlattenableWriteBuffer&);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkShape)
 
 protected:

@@ -941,15 +941,15 @@ public:
     // overrides
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
-    // overrides for SkFlattenable
-    virtual void flatten(SkFlattenableWriteBuffer&);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStrokePathEffect)
+
+protected:
+    SkStrokePathEffect(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkScalar    fWidth, fMiter;
     uint8_t     fStyle, fJoin, fCap;
-
-    SkStrokePathEffect(SkFlattenableReadBuffer&);
 
     typedef SkPathEffect INHERITED;
 

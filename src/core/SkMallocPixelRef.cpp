@@ -34,7 +34,7 @@ void SkMallocPixelRef::onUnlockPixels() {
     // nothing to do
 }
 
-void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) {
+void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.write32(fSize);

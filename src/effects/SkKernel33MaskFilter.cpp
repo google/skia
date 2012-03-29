@@ -73,7 +73,7 @@ bool SkKernel33ProcMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     return true;
 }
 
-void SkKernel33ProcMaskFilter::flatten(SkFlattenableWriteBuffer& wb) {
+void SkKernel33ProcMaskFilter::flatten(SkFlattenableWriteBuffer& wb) const {
     this->INHERITED::flatten(wb);
     wb.write32(fPercent256);
 }
@@ -104,7 +104,7 @@ uint8_t SkKernel33MaskFilter::computeValue(uint8_t* const* srcRows) {
     return (uint8_t)value;
 }
 
-void SkKernel33MaskFilter::flatten(SkFlattenableWriteBuffer& wb) {
+void SkKernel33MaskFilter::flatten(SkFlattenableWriteBuffer& wb) const {
     this->INHERITED::flatten(wb);
     wb.writeMul4(fKernel, 9 * sizeof(int));
     wb.write32(fShift);
