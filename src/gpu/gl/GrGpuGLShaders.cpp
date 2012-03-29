@@ -661,7 +661,7 @@ void GrGpuGLShaders::flushColor(GrColor color) {
     const ProgramDesc& desc = fCurrentProgram.getDesc();
     const GrDrawState& drawState = this->getDrawState();
 
-    if (this->getGeomSrc().fVertexLayout & kColor_VertexLayoutBit) {
+    if (this->getVertexLayout() & kColor_VertexLayoutBit) {
         // color will be specified per-vertex as an attribute
         // invalidate the const vertex attrib color
         fHWDrawState.setColor(GrColor_ILLEGAL);
@@ -711,7 +711,7 @@ void GrGpuGLShaders::flushCoverage(GrColor coverage) {
     const GrDrawState& drawState = this->getDrawState();
 
 
-    if (this->getGeomSrc().fVertexLayout & kCoverage_VertexLayoutBit) {
+    if (this->getVertexLayout() & kCoverage_VertexLayoutBit) {
         // coverage will be specified per-vertex as an attribute
         // invalidate the const vertex attrib coverage
         fHWDrawState.setCoverage4(GrColor_ILLEGAL);
@@ -833,8 +833,10 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     int newTexCoordOffsets[GrDrawState::kMaxTexCoords];
     int newEdgeOffset;
 
+    GrVertexLayout currLayout = this->getVertexLayout();
+
     GrGLsizei newStride = VertexSizeAndOffsetsByIdx(
-                                            this->getGeomSrc().fVertexLayout,
+                                            currLayout,
                                             newTexCoordOffsets,
                                             &newColorOffset,
                                             &newCoverageOffset,
@@ -858,7 +860,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
 
     GrGLenum scalarType;
     bool texCoordNorm;
-    if (this->getGeomSrc().fVertexLayout & kTextFormat_VertexLayoutBit) {
+    if (currLayout & kTextFormat_VertexLayoutBit) {
         scalarType = GrGLTextType;
         texCoordNorm = GR_GL_TEXT_TEXTURE_NORMALIZED;
     } else {
@@ -882,8 +884,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     bool posAndTexChange = allOffsetsChange ||
                            (((GrGLTextType != GrGLType) || GR_GL_TEXT_TEXTURE_NORMALIZED) &&
                                 (kTextFormat_VertexLayoutBit &
-                                  (fHWGeometryState.fVertexLayout ^
-                                   this->getGeomSrc().fVertexLayout)));
+                                  (fHWGeometryState.fVertexLayout ^ currLayout)));
 
     if (posAndTexChange) {
         int idx = GrGLProgram::PositionAttributeIdx();
@@ -955,7 +956,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
         GL_CALL(DisableVertexAttribArray(GrGLProgram::EdgeAttributeIdx()));
     }
 
-    fHWGeometryState.fVertexLayout = this->getGeomSrc().fVertexLayout;
+    fHWGeometryState.fVertexLayout = currLayout;
     fHWGeometryState.fArrayPtrsDirty = false;
 }
 
@@ -979,7 +980,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
     // to a canonical value to avoid duplicate programs with different keys.
 
     // Must initialize all fields or cache will have false negatives!
-    desc.fVertexLayout = this->getGeomSrc().fVertexLayout;
+    desc.fVertexLayout = this->getVertexLayout();
 
     desc.fEmitsPointSize = kPoints_PrimitiveType == type;
 

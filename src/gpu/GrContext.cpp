@@ -1943,10 +1943,9 @@ void GrContext::setPaint(const GrPaint& paint, GrDrawTarget* target) {
     drawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     drawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
     drawState->setCoverage(paint.fCoverage);
-
-#if 0 // this code is broken. canApplyCoverage incorrectly looks at the
-      // the vertex layout when the vertex src hasn't been set yet
-    if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {
+#if GR_DEBUG
+    if ((paint.getActiveMaskStageMask() || 0xff != paint.fCoverage) &&
+        !target->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
     }
 #endif

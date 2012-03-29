@@ -356,7 +356,7 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
         this->pushState();
     }
 
-    draw.fVertexLayout = this->getGeomSrc().fVertexLayout;
+    draw.fVertexLayout = this->getVertexLayout();
     switch (this->getGeomSrc().fVertexSrc) {
     case kBuffer_GeometrySrcType:
         draw.fVertexBuffer = this->getGeomSrc().fVertexBuffer;
@@ -364,7 +364,7 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
     case kReserved_GeometrySrcType: // fallthrough
     case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
-                             VertexSize(this->getGeomSrc().fVertexLayout);
+                             VertexSize(draw.fVertexLayout);
         poolState.fUsedPoolVertexBytes = 
                             GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
         draw.fVertexBuffer = poolState.fPoolVertexBuffer;
@@ -423,7 +423,7 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
         this->pushState();
     }
 
-    draw.fVertexLayout = this->getGeomSrc().fVertexLayout;
+    draw.fVertexLayout = this->getVertexLayout();
     switch (this->getGeomSrc().fVertexSrc) {
     case kBuffer_GeometrySrcType:
         draw.fVertexBuffer = this->getGeomSrc().fVertexBuffer;
@@ -431,7 +431,7 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
     case kReserved_GeometrySrcType: // fallthrough
     case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
-                             VertexSize(this->getGeomSrc().fVertexLayout);
+                             VertexSize(draw.fVertexLayout);
         poolState.fUsedPoolVertexBytes = 
                             GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
         draw.fVertexBuffer = poolState.fPoolVertexBuffer;
@@ -706,7 +706,7 @@ void GrInOrderDrawBuffer::onSetVertexSourceToArray(const void* vertexArray,
 #if GR_DEBUG
     bool success =
 #endif
-    fVertexPool.appendVertices(this->getGeomSrc().fVertexLayout,
+    fVertexPool.appendVertices(this->getVertexLayout(),
                                vertexCount,
                                vertexArray,
                                &poolState.fPoolVertexBuffer,
