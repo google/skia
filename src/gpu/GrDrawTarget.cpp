@@ -853,9 +853,7 @@ bool GrDrawTarget::canTweakAlphaForCoverage() const {
            kISC_BlendCoeff == dstCoeff;
 }
 
-
-bool GrDrawTarget::srcAlphaWillBeOne() const {
-    const GrVertexLayout& layout = this->getGeomSrc().fVertexLayout;
+bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     const GrDrawState& drawState = this->getDrawState();
 
     // Check if per-vertex or constant color may have partial alpha
@@ -882,12 +880,28 @@ bool GrDrawTarget::srcAlphaWillBeOne() const {
     return true;
 }
 
+namespace {
+GrVertexLayout default_blend_opts_vertex_layout() {
+    GrVertexLayout layout = 0;
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
+    }
+    return layout;
+}
+}
+
 GrDrawTarget::BlendOptFlags
 GrDrawTarget::getBlendOpts(bool forceCoverage,
                            GrBlendCoeff* srcCoeff,
                            GrBlendCoeff* dstCoeff) const {
 
-    const GrVertexLayout& layout = this->getGeomSrc().fVertexLayout;
+    GrVertexLayout layout;
+    if (kNone_GeometrySrcType == this->getGeomSrc().fVertexSrc) {
+        layout = default_blend_opts_vertex_layout();
+    } else {
+        layout = this->getVertexLayout();
+    }
+
     const GrDrawState& drawState = this->getDrawState();
 
     GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
@@ -917,7 +931,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
         *dstCoeff = kOne_BlendCoeff;
     }
 
-    bool srcAIsOne = this->srcAlphaWillBeOne();
+    bool srcAIsOne = this->srcAlphaWillBeOne(layout);
     bool dstCoeffIsOne = kOne_BlendCoeff == *dstCoeff ||
                          (kSA_BlendCoeff == *dstCoeff && srcAIsOne);
     bool dstCoeffIsZero = kZero_BlendCoeff == *dstCoeff ||
@@ -1020,11 +1034,6 @@ bool GrDrawTarget::canApplyCoverage() const {
     // or b) one of our blend optimizations applies.
     return this->getCaps().fDualSourceBlendingSupport ||
            kNone_BlendOpt != this->getBlendOpts(true);
-}
-
-bool GrDrawTarget::drawWillReadDst() const {
-    return SkToBool((kDisableBlend_BlendOptFlag | kSkipDraw_BlendOptFlag) &
-                    this->getBlendOpts());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

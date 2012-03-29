@@ -117,38 +117,39 @@ public:
     }
 
     /**
-     * Determines if blending will require a read of a dst given the current
-     * state set on the draw target
-     *
-     * @return true if the dst surface will be read at each pixel hit by the
-     *         a draw operation.
-     */
-    bool drawWillReadDst() const;
-
-    /**
      * Color alpha and coverage are two inputs to the drawing pipeline. For some
      * blend modes it is safe to fold the coverage into constant or per-vertex
      * color alpha value. For other blend modes they must be handled separately.
      * Depending on features available in the underlying 3D API this may or may
      * not be possible.
      *
-     * This function looks at the current blend on the draw target and the draw
-     * target's capabilities to determine whether coverage can be handled
-     * correctly.
+     * This function considers the current draw state and the draw target's
+     * capabilities to determine whether coverage can be handled correctly. The
+     * following assumptions are made:
+     *    1. The caller intends to somehow specify coverage. This can be
+     *       specified either by enabling a coverage stage on the GrDrawState or
+     *       via the vertex layout.
+     *    2. Other than enabling coverage stages, the current configuration of 
+     *       the target's GrDrawState is as it will be at draw time.
+     *    3. If a vertex source has not yet been specified then all stages with
+     *       non-NULL textures will be referenced by the vertex layout.
      */
     bool canApplyCoverage() const;
 
     /**
      * Determines whether incorporating partial pixel coverage into the constant
      * color specified by setColor or per-vertex colors will give the right
-     * blending result.
+     * blending result. If a vertex source has not yet been specified then
+     * the function assumes that all stages with non-NULL textures will be
+     * referenced by the vertex layout.
      */
     bool canTweakAlphaForCoverage() const;
 
     /**
-     * Given the current draw state, vertex layout, and hw support, will HW AA
-     * lines be used (if line primitive type is drawn)? (Note that lines are
-     * always 1 pixel wide)
+     * Given the current draw state and hw support, will HW AA lines be used 
+     * (if line primitive type is drawn)? If a vertex source has not yet been
+     * specified then  the function assumes that all stages with non-NULL
+     * textures will be referenced by the vertex layout.
      */
     bool willUseHWAALines() const;
 
@@ -925,7 +926,7 @@ protected:
                                GrBlendCoeff* dstCoeff = NULL) const;
 
     // determine if src alpha is guaranteed to be one for all src pixels
-    bool srcAlphaWillBeOne() const;
+    bool srcAlphaWillBeOne(GrVertexLayout vertexLayout) const;
 
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified
@@ -977,7 +978,7 @@ protected:
     }
 
     bool isStageEnabled(int stage) const {
-        return StageWillBeUsed(stage, this->getGeomSrc().fVertexLayout, 
+        return StageWillBeUsed(stage, this->getVertexLayout(),
                                this->getDrawState());
     }
 
@@ -1050,9 +1051,17 @@ protected:
                                 GrVertexLayout layout,
                                 void* vertices);
 
-    // accessor for derived classes
+    // accessors for derived classes
     const GeometrySrcState& getGeomSrc() const {
         return fGeoSrcStateStack.back();
+    }
+    // it is prefereable to call this rather than getGeomSrc()->fVertexLayout
+    // because of the assert.
+    GrVertexLayout getVertexLayout() const {
+        // the vertex layout is only valid if a vertex source has been
+        // specified.
+        GrAssert(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
+        return this->getGeomSrc().fVertexLayout;
     }
 
     GrClip fClip;
