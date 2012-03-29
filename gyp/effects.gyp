@@ -3,11 +3,9 @@
     {
       'target_name': 'effects',
       'type': 'static_library',
-      'dependencies': [
-        'core.gyp:core',
-        'ports.gyp:ports',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../include/effects',
       ],
       'sources': [

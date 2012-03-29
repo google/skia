@@ -5,15 +5,16 @@
     {
       'target_name': 'views_animated',
       'type': 'static_library',
-      'dependencies': [
-        'animator.gyp:animator',
-        'core.gyp:core',
-        'images.gyp:images',
-        'ports.gyp:ports',
-        'views.gyp:views',
-        'xml.gyp:xml',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
+        '../include/views',
+        '../include/xml',
+        '../include/utils',
+        '../include/images',
+        '../include/animator',
+        '../include/effects',
+        '../include/views/unix',
         '../include/views/animated',
       ],
       'sources': [

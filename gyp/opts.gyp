@@ -21,16 +21,9 @@
     {
       'target_name': 'opts',
       'type': 'static_library',
-      'dependencies': [
-        #opts depends on core, but core also depends on opts.
-        #'core.gyp:core',
-        'opts.gyp:opts_ssse3',
-        'ports.gyp:ports',
-      ],
       'include_dirs': [
         '../include/config',
         '../include/core',
-
         '../src/core',
         '../src/opts',
       ],
@@ -88,15 +81,9 @@
     {
       'target_name': 'opts_ssse3',
       'type': 'static_library',
-      'dependencies': [
-        #opts_ssse3 depends on core, but core also depends on opts_ssse3.
-        #'core.gyp:core',
-        'ports.gyp:ports',
-      ],
       'include_dirs': [
         '../include/config',
         '../include/core',
-
         '../src/core',
       ],
       'conditions': [
