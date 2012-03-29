@@ -149,12 +149,17 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBeginQueryProc)(GrGLenum target, GrGLuint id);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindAttribLocationProc)(GrGLuint program, GrGLuint index, const char* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindBufferProc)(GrGLenum target, GrGLuint buffer);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFramebufferProc)(GrGLenum target, GrGLuint framebuffer);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindRenderbufferProc)(GrGLenum target, GrGLuint renderbuffer);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationProc)(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendFuncProc)(GrGLenum sfactor, GrGLenum dfactor);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlitFramebufferProc)(GrGLint srcX0, GrGLint srcY0, GrGLint srcX1, GrGLint srcY1, GrGLint dstX0, GrGLint dstY0, GrGLint dstX1, GrGLint dstY1, GrGLbitfield mask, GrGLenum filter);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferDataProc)(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferSubDataProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid* data);
+    typedef GrGLenum (GR_GL_FUNCTION_TYPE *GrGLCheckFramebufferStatusProc)(GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLClearProc)(GrGLbitfield mask);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLClearColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLClearStencilProc)(GrGLint s);
@@ -166,8 +171,10 @@ extern "C" {
     typedef GrGLuint (GR_GL_FUNCTION_TYPE *GrGLCreateShaderProc)(GrGLenum type);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLCullFaceProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteBuffersProc)(GrGLsizei n, const GrGLuint* buffers);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteFramebuffersProc)(GrGLsizei n, const GrGLuint *framebuffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteProgramProc)(GrGLuint program);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteQueriesProc)(GrGLsizei n, const GrGLuint *ids);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteRenderbuffersProc)(GrGLsizei n, const GrGLuint *renderbuffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteShaderProc)(GrGLuint shader);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteTexturesProc)(GrGLsizei n, const GrGLuint* textures);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDepthMaskProc)(GrGLboolean flag);
@@ -182,12 +189,17 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEndQueryProc)(GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFinishProc)();
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFlushProc)();
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFramebufferRenderbufferProc)(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFramebufferTexture2DProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFrontFaceProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenBuffersProc)(GrGLsizei n, GrGLuint* buffers);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenFramebuffersProc)(GrGLsizei n, GrGLuint *framebuffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenQueriesProc)(GrGLsizei n, GrGLuint *ids);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenRenderbuffersProc)(GrGLsizei n, GrGLuint *renderbuffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenTexturesProc)(GrGLsizei n, GrGLuint* textures);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetBufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
     typedef GrGLenum (GR_GL_FUNCTION_TYPE *GrGLGetErrorProc)();
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetFramebufferAttachmentParameterivProc)(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetIntegervProc)(GrGLenum pname, GrGLint* params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetProgramInfoLogProc)(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetProgramivProc)(GrGLuint program, GrGLenum pname, GrGLint* params);
@@ -196,6 +208,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryObjectivProc)(GrGLuint id, GrGLenum pname, GrGLint *params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryObjectui64vProc)(GrGLuint id, GrGLenum pname, GrGLuint64 *params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryObjectuivProc)(GrGLuint id, GrGLenum pname, GrGLuint *params);    
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetRenderbufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetShaderInfoLogProc)(GrGLuint shader, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetShaderivProc)(GrGLuint shader, GrGLenum pname, GrGLint* params);
     typedef const GrGLubyte* (GR_GL_FUNCTION_TYPE *GrGLGetStringProc)(GrGLenum name);
@@ -203,10 +216,14 @@ extern "C" {
     typedef GrGLint (GR_GL_FUNCTION_TYPE *GrGLGetUniformLocationProc)(GrGLuint program, const char* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLLineWidthProc)(GrGLfloat width);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLLinkProgramProc)(GrGLuint program);
+    typedef GrGLvoid* (GR_GL_FUNCTION_TYPE *GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLQueryCounterProc)(GrGLuint id, GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLReadBufferProc)(GrGLenum src);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageProc)(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageMultisampleProc)(GrGLenum target, GrGLsizei samples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLResolveMultisampleFramebufferProc)();
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLScissorProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLShaderSourceProc)(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLStencilFuncProc)(GrGLenum func, GrGLint ref, GrGLuint mask);
@@ -238,39 +255,11 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniformMatrix2fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniformMatrix3fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniformMatrix4fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
+    typedef GrGLboolean (GR_GL_FUNCTION_TYPE *GrGLUnmapBufferProc)(GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUseProgramProc)(GrGLuint program);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLVertexAttrib4fvProc)(GrGLuint indx, const GrGLfloat* values);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLVertexAttribPointerProc)(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLViewportProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-
-    // FBO Extension Functions
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFramebufferProc)(GrGLenum target, GrGLuint framebuffer);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindRenderbufferProc)(GrGLenum target, GrGLuint renderbuffer);
-    typedef GrGLenum (GR_GL_FUNCTION_TYPE *GrGLCheckFramebufferStatusProc)(GrGLenum target);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteFramebuffersProc)(GrGLsizei n, const GrGLuint *framebuffers);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteRenderbuffersProc)(GrGLsizei n, const GrGLuint *renderbuffers);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFramebufferRenderbufferProc)(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFramebufferTexture2DProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenFramebuffersProc)(GrGLsizei n, GrGLuint *framebuffers);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenRenderbuffersProc)(GrGLsizei n, GrGLuint *renderbuffers);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetFramebufferAttachmentParameterivProc)(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetRenderbufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageProc)(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
-
-    // Multisampling Extension Functions
-    // same prototype for ARB_FBO, EXT_FBO, GL 3.0, & Apple ES extension
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageMultisampleProc)(GrGLenum target, GrGLsizei samples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
-    // desktop: ext_fbo_blit, arb_fbo, gl 3.0
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlitFramebufferProc)(GrGLint srcX0, GrGLint srcY0, GrGLint srcX1, GrGLint srcY1, GrGLint dstX0, GrGLint dstY0, GrGLint dstX1, GrGLint dstY1, GrGLbitfield mask, GrGLenum filter);
-    // apple's es extension
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLResolveMultisampleFramebufferProc)();
-
-    // Buffer mapping (extension in ES).
-    typedef GrGLvoid* (GR_GL_FUNCTION_TYPE *GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
-    typedef GrGLboolean (GR_GL_FUNCTION_TYPE *GrGLUnmapBufferProc)(GrGLenum target);
-
-    // Dual source blending
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
 }  // extern "C"
 
 #if GR_GL_PER_GL_FUNC_CALLBACK
@@ -293,7 +282,18 @@ enum GrGLCapability {
  * extension pointer will be valid across contexts.
  */
 struct GR_API GrGLInterface : public GrRefCnt {
+private:
+    // simple wrapper class that exists only to initialize a pointers to NULL
+    template <typename FNPTR_TYPE> class GLPtr {
+    public:
+        GLPtr() : fPtr(NULL) {}
+        GLPtr operator =(FNPTR_TYPE ptr) { fPtr = ptr; return *this; }
+        operator FNPTR_TYPE() const { return fPtr; }
+    private:
+        FNPTR_TYPE fPtr;
+    };
 
+public:
     GrGLInterface();
 
     // Validates that the GrGLInterface supports a binding. This means that
@@ -302,136 +302,125 @@ struct GR_API GrGLInterface : public GrRefCnt {
     bool validate(GrGLBinding binding) const;
 
     // Indicator variable specifying the type of GL implementation
-    // exported:  GLES{1|2} or Desktop.
+    // exported:  GLES2 and/or Desktop.
     GrGLBinding fBindingsExported;
 
-    GrGLActiveTextureProc fActiveTexture;
-    GrGLAttachShaderProc fAttachShader;
-    GrGLBeginQueryProc fBeginQuery;
-    GrGLBindAttribLocationProc fBindAttribLocation;
-    GrGLBindBufferProc fBindBuffer;
-    GrGLBindFragDataLocationProc fBindFragDataLocation;
-    GrGLBindTextureProc fBindTexture;
-    GrGLBlendColorProc fBlendColor;
-    GrGLBlendFuncProc fBlendFunc;
-    GrGLBufferDataProc fBufferData;
-    GrGLBufferSubDataProc fBufferSubData;
-    GrGLClearProc fClear;
-    GrGLClearColorProc fClearColor;
-    GrGLClearStencilProc fClearStencil;
-    GrGLColorMaskProc fColorMask;
-    GrGLColorPointerProc fColorPointer;
-    GrGLCompileShaderProc fCompileShader;
-    GrGLCompressedTexImage2DProc fCompressedTexImage2D;
-    GrGLCreateProgramProc fCreateProgram;
-    GrGLCreateShaderProc fCreateShader;
-    GrGLCullFaceProc fCullFace;
-    GrGLDeleteBuffersProc fDeleteBuffers;
-    GrGLDeleteProgramProc fDeleteProgram;
-    GrGLDeleteQueriesProc fDeleteQueries;
-    GrGLDeleteShaderProc fDeleteShader;
-    GrGLDeleteTexturesProc fDeleteTextures;
-    GrGLDepthMaskProc fDepthMask;
-    GrGLDisableProc fDisable;
-    GrGLDisableVertexAttribArrayProc fDisableVertexAttribArray;
-    GrGLDrawArraysProc fDrawArrays;
-    GrGLDrawBufferProc fDrawBuffer;
-    GrGLDrawBuffersProc fDrawBuffers;
-    GrGLDrawElementsProc fDrawElements;
-    GrGLEnableProc fEnable;
-    GrGLEnableVertexAttribArrayProc fEnableVertexAttribArray;
-    GrGLEndQueryProc fEndQuery;
-    GrGLFinishProc fFinish;
-    GrGLFlushProc fFlush;
-    GrGLFrontFaceProc fFrontFace;
-    GrGLGenBuffersProc fGenBuffers;
-    GrGLGenQueriesProc fGenQueries;
-    GrGLGenTexturesProc fGenTextures;
-    GrGLGetBufferParameterivProc fGetBufferParameteriv;
-    GrGLGetErrorProc fGetError;
-    GrGLGetIntegervProc fGetIntegerv;
-    GrGLGetQueryObjecti64vProc fGetQueryObjecti64v;
-    GrGLGetQueryObjectivProc fGetQueryObjectiv;
-    GrGLGetQueryObjectui64vProc fGetQueryObjectui64v;
-    GrGLGetQueryObjectuivProc fGetQueryObjectuiv;
-    GrGLGetQueryivProc fGetQueryiv;
-    GrGLGetProgramInfoLogProc fGetProgramInfoLog;
-    GrGLGetProgramivProc fGetProgramiv;
-    GrGLGetShaderInfoLogProc fGetShaderInfoLog;
-    GrGLGetShaderivProc fGetShaderiv;
-    GrGLGetStringProc fGetString;
-    GrGLGetTexLevelParameterivProc fGetTexLevelParameteriv;
-    GrGLGetUniformLocationProc fGetUniformLocation;
-    GrGLLineWidthProc fLineWidth;
-    GrGLLinkProgramProc fLinkProgram;
-    GrGLPixelStoreiProc fPixelStorei;
-    GrGLQueryCounterProc fQueryCounter;
-    GrGLReadBufferProc fReadBuffer;
-    GrGLReadPixelsProc fReadPixels;
-    GrGLScissorProc fScissor;
-    GrGLShaderSourceProc fShaderSource;
-    GrGLStencilFuncProc fStencilFunc;
-    GrGLStencilFuncSeparateProc fStencilFuncSeparate;
-    GrGLStencilMaskProc fStencilMask;
-    GrGLStencilMaskSeparateProc fStencilMaskSeparate;
-    GrGLStencilOpProc fStencilOp;
-    GrGLStencilOpSeparateProc fStencilOpSeparate;
-    GrGLTexImage2DProc fTexImage2D;
-    GrGLTexParameteriProc fTexParameteri;
-    GrGLTexSubImage2DProc fTexSubImage2D;
-    GrGLTexStorage2DProc fTexStorage2D;
-    GrGLUniform1fProc fUniform1f;
-    GrGLUniform1iProc fUniform1i;
-    GrGLUniform1fvProc fUniform1fv;
-    GrGLUniform1ivProc fUniform1iv;
-    GrGLUniform2fProc fUniform2f;
-    GrGLUniform2iProc fUniform2i;
-    GrGLUniform2fvProc  fUniform2fv;
-    GrGLUniform2ivProc fUniform2iv;
-    GrGLUniform3fProc fUniform3f;
-    GrGLUniform3iProc fUniform3i;
-    GrGLUniform3fvProc fUniform3fv;
-    GrGLUniform3ivProc fUniform3iv;
-    GrGLUniform4fProc fUniform4f;
-    GrGLUniform4iProc fUniform4i;
-    GrGLUniform4fvProc fUniform4fv;
-    GrGLUniform4ivProc fUniform4iv;
-    GrGLUniformMatrix2fvProc fUniformMatrix2fv;
-    GrGLUniformMatrix3fvProc fUniformMatrix3fv;
-    GrGLUniformMatrix4fvProc fUniformMatrix4fv;
-    GrGLUseProgramProc fUseProgram;
-    GrGLVertexAttrib4fvProc fVertexAttrib4fv;
-    GrGLVertexAttribPointerProc fVertexAttribPointer;
-    GrGLViewportProc fViewport;
-
-    // FBO Extension Functions
-    GrGLBindFramebufferProc fBindFramebuffer;
-    GrGLBindRenderbufferProc fBindRenderbuffer;
-    GrGLCheckFramebufferStatusProc fCheckFramebufferStatus;
-    GrGLDeleteFramebuffersProc fDeleteFramebuffers;
-    GrGLDeleteRenderbuffersProc fDeleteRenderbuffers;
-    GrGLFramebufferRenderbufferProc fFramebufferRenderbuffer;
-    GrGLFramebufferTexture2DProc fFramebufferTexture2D;
-    GrGLGenFramebuffersProc fGenFramebuffers;
-    GrGLGenRenderbuffersProc fGenRenderbuffers;
-    GrGLGetFramebufferAttachmentParameterivProc fGetFramebufferAttachmentParameteriv;
-    GrGLGetRenderbufferParameterivProc fGetRenderbufferParameteriv;
-    GrGLRenderbufferStorageProc fRenderbufferStorage;
-
-    // Multisampling Extension Functions
-    // same prototype for ARB_FBO, EXT_FBO, GL 3.0, & Apple ES extension
-    GrGLRenderbufferStorageMultisampleProc fRenderbufferStorageMultisample;
-    // desktop: ext_fbo_blit, arb_fbo, gl 3.0
-    GrGLBlitFramebufferProc fBlitFramebuffer;
-    // apple's es extension
-    GrGLResolveMultisampleFramebufferProc fResolveMultisampleFramebuffer;
-
-    // Buffer mapping (extension in ES).
-    GrGLMapBufferProc fMapBuffer;
-    GrGLUnmapBufferProc fUnmapBuffer;
-
-    // Dual Source Blending
-    GrGLBindFragDataLocationIndexedProc fBindFragDataLocationIndexed;
+    GLPtr<GrGLActiveTextureProc> fActiveTexture;
+    GLPtr<GrGLAttachShaderProc> fAttachShader;
+    GLPtr<GrGLBeginQueryProc> fBeginQuery;
+    GLPtr<GrGLBindAttribLocationProc> fBindAttribLocation;
+    GLPtr<GrGLBindBufferProc> fBindBuffer;
+    GLPtr<GrGLBindFragDataLocationProc> fBindFragDataLocation;
+    GLPtr<GrGLBindFragDataLocationIndexedProc> fBindFragDataLocationIndexed;
+    GLPtr<GrGLBindFramebufferProc> fBindFramebuffer;
+    GLPtr<GrGLBindRenderbufferProc> fBindRenderbuffer;
+    GLPtr<GrGLBindTextureProc> fBindTexture;
+    GLPtr<GrGLBlendColorProc> fBlendColor;
+    GLPtr<GrGLBlendFuncProc> fBlendFunc;
+    GLPtr<GrGLBlitFramebufferProc> fBlitFramebuffer;
+    GLPtr<GrGLBufferDataProc> fBufferData;
+    GLPtr<GrGLBufferSubDataProc> fBufferSubData;
+    GLPtr<GrGLCheckFramebufferStatusProc> fCheckFramebufferStatus;
+    GLPtr<GrGLClearProc> fClear;
+    GLPtr<GrGLClearColorProc> fClearColor;
+    GLPtr<GrGLClearStencilProc> fClearStencil;
+    GLPtr<GrGLColorMaskProc> fColorMask;
+    GLPtr<GrGLColorPointerProc> fColorPointer;
+    GLPtr<GrGLCompileShaderProc> fCompileShader;
+    GLPtr<GrGLCompressedTexImage2DProc> fCompressedTexImage2D;
+    GLPtr<GrGLCreateProgramProc> fCreateProgram;
+    GLPtr<GrGLCreateShaderProc> fCreateShader;
+    GLPtr<GrGLCullFaceProc> fCullFace;
+    GLPtr<GrGLDeleteBuffersProc> fDeleteBuffers;
+    GLPtr<GrGLDeleteFramebuffersProc> fDeleteFramebuffers;
+    GLPtr<GrGLDeleteProgramProc> fDeleteProgram;
+    GLPtr<GrGLDeleteQueriesProc> fDeleteQueries;
+    GLPtr<GrGLDeleteRenderbuffersProc> fDeleteRenderbuffers;
+    GLPtr<GrGLDeleteShaderProc> fDeleteShader;
+    GLPtr<GrGLDeleteTexturesProc> fDeleteTextures;
+    GLPtr<GrGLDepthMaskProc> fDepthMask;
+    GLPtr<GrGLDisableProc> fDisable;
+    GLPtr<GrGLDisableVertexAttribArrayProc> fDisableVertexAttribArray;
+    GLPtr<GrGLDrawArraysProc> fDrawArrays;
+    GLPtr<GrGLDrawBufferProc> fDrawBuffer;
+    GLPtr<GrGLDrawBuffersProc> fDrawBuffers;
+    GLPtr<GrGLDrawElementsProc> fDrawElements;
+    GLPtr<GrGLEnableProc> fEnable;
+    GLPtr<GrGLEnableVertexAttribArrayProc> fEnableVertexAttribArray;
+    GLPtr<GrGLEndQueryProc> fEndQuery;
+    GLPtr<GrGLFinishProc> fFinish;
+    GLPtr<GrGLFlushProc> fFlush;
+    GLPtr<GrGLFramebufferRenderbufferProc> fFramebufferRenderbuffer;
+    GLPtr<GrGLFramebufferTexture2DProc> fFramebufferTexture2D;
+    GLPtr<GrGLFrontFaceProc> fFrontFace;
+    GLPtr<GrGLGenBuffersProc> fGenBuffers;
+    GLPtr<GrGLGenFramebuffersProc> fGenFramebuffers;
+    GLPtr<GrGLGenQueriesProc> fGenQueries;
+    GLPtr<GrGLGenRenderbuffersProc> fGenRenderbuffers;
+    GLPtr<GrGLGenTexturesProc> fGenTextures;
+    GLPtr<GrGLGetBufferParameterivProc> fGetBufferParameteriv;
+    GLPtr<GrGLGetErrorProc> fGetError;
+    GLPtr<GrGLGetFramebufferAttachmentParameterivProc> fGetFramebufferAttachmentParameteriv;
+    GLPtr<GrGLGetIntegervProc> fGetIntegerv;
+    GLPtr<GrGLGetQueryObjecti64vProc> fGetQueryObjecti64v;
+    GLPtr<GrGLGetQueryObjectivProc> fGetQueryObjectiv;
+    GLPtr<GrGLGetQueryObjectui64vProc> fGetQueryObjectui64v;
+    GLPtr<GrGLGetQueryObjectuivProc> fGetQueryObjectuiv;
+    GLPtr<GrGLGetQueryivProc> fGetQueryiv;
+    GLPtr<GrGLGetProgramInfoLogProc> fGetProgramInfoLog;
+    GLPtr<GrGLGetProgramivProc> fGetProgramiv;
+    GLPtr<GrGLGetRenderbufferParameterivProc> fGetRenderbufferParameteriv;
+    GLPtr<GrGLGetShaderInfoLogProc> fGetShaderInfoLog;
+    GLPtr<GrGLGetShaderivProc> fGetShaderiv;
+    GLPtr<GrGLGetStringProc> fGetString;
+    GLPtr<GrGLGetTexLevelParameterivProc> fGetTexLevelParameteriv;
+    GLPtr<GrGLGetUniformLocationProc> fGetUniformLocation;
+    GLPtr<GrGLLineWidthProc> fLineWidth;
+    GLPtr<GrGLLinkProgramProc> fLinkProgram;
+    GLPtr<GrGLMapBufferProc> fMapBuffer;
+    GLPtr<GrGLPixelStoreiProc> fPixelStorei;
+    GLPtr<GrGLQueryCounterProc> fQueryCounter;
+    GLPtr<GrGLReadBufferProc> fReadBuffer;
+    GLPtr<GrGLReadPixelsProc> fReadPixels;
+    GLPtr<GrGLRenderbufferStorageProc> fRenderbufferStorage;
+    GLPtr<GrGLRenderbufferStorageMultisampleProc> fRenderbufferStorageMultisample;
+    GLPtr<GrGLResolveMultisampleFramebufferProc> fResolveMultisampleFramebuffer;
+    GLPtr<GrGLScissorProc> fScissor;
+    GLPtr<GrGLShaderSourceProc> fShaderSource;
+    GLPtr<GrGLStencilFuncProc> fStencilFunc;
+    GLPtr<GrGLStencilFuncSeparateProc> fStencilFuncSeparate;
+    GLPtr<GrGLStencilMaskProc> fStencilMask;
+    GLPtr<GrGLStencilMaskSeparateProc> fStencilMaskSeparate;
+    GLPtr<GrGLStencilOpProc> fStencilOp;
+    GLPtr<GrGLStencilOpSeparateProc> fStencilOpSeparate;
+    GLPtr<GrGLTexImage2DProc> fTexImage2D;
+    GLPtr<GrGLTexParameteriProc> fTexParameteri;
+    GLPtr<GrGLTexSubImage2DProc> fTexSubImage2D;
+    GLPtr<GrGLTexStorage2DProc> fTexStorage2D;
+    GLPtr<GrGLUniform1fProc> fUniform1f;
+    GLPtr<GrGLUniform1iProc> fUniform1i;
+    GLPtr<GrGLUniform1fvProc> fUniform1fv;
+    GLPtr<GrGLUniform1ivProc> fUniform1iv;
+    GLPtr<GrGLUniform2fProc> fUniform2f;
+    GLPtr<GrGLUniform2iProc> fUniform2i;
+    GLPtr<GrGLUniform2fvProc> fUniform2fv;
+    GLPtr<GrGLUniform2ivProc> fUniform2iv;
+    GLPtr<GrGLUniform3fProc> fUniform3f;
+    GLPtr<GrGLUniform3iProc> fUniform3i;
+    GLPtr<GrGLUniform3fvProc> fUniform3fv;
+    GLPtr<GrGLUniform3ivProc> fUniform3iv;
+    GLPtr<GrGLUniform4fProc> fUniform4f;
+    GLPtr<GrGLUniform4iProc> fUniform4i;
+    GLPtr<GrGLUniform4fvProc> fUniform4fv;
+    GLPtr<GrGLUniform4ivProc> fUniform4iv;
+    GLPtr<GrGLUniformMatrix2fvProc> fUniformMatrix2fv;
+    GLPtr<GrGLUniformMatrix3fvProc> fUniformMatrix3fv;
+    GLPtr<GrGLUniformMatrix4fvProc> fUniformMatrix4fv;
+    GLPtr<GrGLUnmapBufferProc> fUnmapBuffer;
+    GLPtr<GrGLUseProgramProc> fUseProgram;
+    GLPtr<GrGLVertexAttrib4fvProc> fVertexAttrib4fv;
+    GLPtr<GrGLVertexAttribPointerProc> fVertexAttribPointer;
+    GLPtr<GrGLViewportProc> fViewport;
 
     // Per-GL func callback
 #if GR_GL_PER_GL_FUNC_CALLBACK
