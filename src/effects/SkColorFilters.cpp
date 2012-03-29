@@ -270,17 +270,6 @@ static inline unsigned pin(unsigned value, unsigned max) {
     return value;
 }
 
-static inline unsigned SkUClampMax(unsigned value, unsigned max) {
-    SkASSERT((int32_t)value >= 0);
-    SkASSERT((int32_t)max >= 0);
-
-    int diff = max - value;
-    // clear diff if diff is positive
-    diff &= diff >> 31;
-
-    return value + diff;
-}
-
 class SkLightingColorFilter : public SkColorFilter {
 public:
     SkLightingColorFilter(SkColor mul, SkColor add) : fMul(mul), fAdd(add) {}

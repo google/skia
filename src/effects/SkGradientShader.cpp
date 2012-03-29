@@ -224,16 +224,6 @@ private:
     typedef SkShader INHERITED;
 };
 
-static inline unsigned scalarToU16(SkScalar x) {
-    SkASSERT(x >= 0 && x <= SK_Scalar1);
-
-#ifdef SK_SCALAR_IS_FLOAT
-    return (unsigned)(x * 0xFFFF);
-#else
-    return x - (x >> 16);   // probably should be x - (x > 0x7FFF) but that is slower
-#endif
-}
-
 Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[],
              int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper) {
     SkASSERT(colorCount > 1);
@@ -471,38 +461,6 @@ void Gradient_Shader::setCacheAlpha(U8CPU alpha) const {
             fCache32PixelRef->notifyPixelsChanged();
         }
     }
-}
-
-static inline int blend8(int a, int b, int scale) {
-    SkASSERT(a == SkToU8(a));
-    SkASSERT(b == SkToU8(b));
-    SkASSERT(scale >= 0 && scale <= 256);
-    return a + ((b - a) * scale >> 8);
-}
-
-static inline uint32_t dot8_blend_packed32(uint32_t s0, uint32_t s1,
-                                           int blend) {
-#if 0
-    int a = blend8(SkGetPackedA32(s0), SkGetPackedA32(s1), blend);
-    int r = blend8(SkGetPackedR32(s0), SkGetPackedR32(s1), blend);
-    int g = blend8(SkGetPackedG32(s0), SkGetPackedG32(s1), blend);
-    int b = blend8(SkGetPackedB32(s0), SkGetPackedB32(s1), blend);
-
-    return SkPackARGB32(a, r, g, b);
-#else
-    int otherBlend = 256 - blend;
-
-#if 0
-    U32 t0 = (((s0 & 0xFF00FF) * blend + (s1 & 0xFF00FF) * otherBlend) >> 8) & 0xFF00FF;
-    U32 t1 = (((s0 >> 8) & 0xFF00FF) * blend + ((s1 >> 8) & 0xFF00FF) * otherBlend) & 0xFF00FF00;
-    SkASSERT((t0 & t1) == 0);
-    return t0 | t1;
-#else
-    return  ((((s0 & 0xFF00FF) * blend + (s1 & 0xFF00FF) * otherBlend) >> 8) & 0xFF00FF) |
-            ((((s0 >> 8) & 0xFF00FF) * blend + ((s1 >> 8) & 0xFF00FF) * otherBlend) & 0xFF00FF00);
-#endif
-
-#endif
 }
 
 #define Fixed_To_Dot8(x)        (((x) + 0x80) >> 8)

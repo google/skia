@@ -256,23 +256,6 @@ static const struct {
 
 #include "SkXfermode.h"
 
-static unsigned color_dist16(uint16_t a, uint16_t b) {
-    unsigned dr = SkAbs32(SkPacked16ToR32(a) - SkPacked16ToR32(b));
-    unsigned dg = SkAbs32(SkPacked16ToG32(a) - SkPacked16ToG32(b));
-    unsigned db = SkAbs32(SkPacked16ToB32(a) - SkPacked16ToB32(b));
-
-    return SkMax32(dr, SkMax32(dg, db));
-}
-
-static unsigned scale_dist(unsigned dist, unsigned scale) {
-    dist >>= 6;
-    dist = (dist << 2) | dist;
-    dist = (dist << 4) | dist;
-    return dist;
-
-//    return SkAlphaMul(dist, scale);
-}
-
 static void apply_shader(SkPaint* paint, int index) {
     raster_proc proc = gRastProcs[index];
     if (proc)
