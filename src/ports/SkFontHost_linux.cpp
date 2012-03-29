@@ -464,53 +464,43 @@ static void load_system_fonts() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-#if 0
-    const char* name = ((FamilyTypeface*)face)->getUniqueString();
-    
-    stream->write8((uint8_t)face->getStyle());
-    
-    if (NULL == name || 0 == *name) {
-        stream->writePackedUInt(0);
-        //        SkDebugf("--- fonthost serialize null\n");
-    } else {
-        uint32_t len = strlen(name);
-        stream->writePackedUInt(len);
-        stream->write(name, len);
-        //      SkDebugf("--- fonthost serialize <%s> %d\n", name, face->getStyle());
-    }
-#endif
-    sk_throw();
+    SkStream* fontStream = ((FamilyTypeface*)face)->openStream();
+
+    // store the length of the custom font
+    uint32_t len = fontStream->getLength();
+    stream->write32(len);
+
+    // store the entire font in the serialized stream
+    void* fontData = malloc(len);
+
+    fontStream->read(fontData, len);
+    stream->write(fontData, len);
+
+    fontStream->unref();
+    free(fontData);
+
+
+//    sk_throw();
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-#if 0
     load_system_fonts();
-    
-    int style = stream->readU8();
-    
-    int len = stream->readPackedUInt();
-    if (len > 0) {
-        SkString str;
-        str.resize(len);
-        stream->read(str.writable_str(), len);
-        
-        const FontInitRec* rec = gSystemFonts;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gSystemFonts); i++) {
-            if (strcmp(rec[i].fFileName, str.c_str()) == 0) {
-                // backup until we hit the fNames
-                for (int j = i; j >= 0; --j) {
-                    if (rec[j].fNames != NULL) {
-                        return SkFontHost::CreateTypeface(NULL, rec[j].fNames[0], NULL, 0,
-                                                          (SkTypeface::Style)style);
-                    }
-                }
-            }
-        }
-    }
-    return SkFontHost::CreateTypeface(NULL, NULL, NULL, 0, (SkTypeface::Style)style);
-#endif
-    sk_throw();
-    return NULL;
+
+    // read the length of the custom font from the stream
+    uint32_t len = stream->readU32();
+
+    // generate a new stream to store the custom typeface
+    SkMemoryStream* fontStream = new SkMemoryStream(len);
+    stream->read((void*)fontStream->getMemoryBase(), len);
+
+    SkTypeface* face = CreateTypefaceFromStream(fontStream);
+
+    fontStream->unref();
+
+    return face;
+
+//    sk_throw();
+//    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
