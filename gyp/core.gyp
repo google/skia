@@ -5,6 +5,10 @@
       'target_name': 'core',
       'type': 'static_library',
       'msvs_guid': 'B7760B5E-BFA8-486B-ACFD-49E3A6DE8E76',
+      'dependencies': [
+        'opts.gyp:opts',
+        'ports.gyp:ports',
+      ],
       'sources': [
         '../src/core/ARGB32_Clamp_Bilinear_BitmapShader.h',
         '../src/core/Sk64.cpp',
@@ -310,9 +314,6 @@
           'ext',
         ],
       },
-      'dependencies': [
-        'opts.gyp:opts'
-      ],
     },
   ],
 }

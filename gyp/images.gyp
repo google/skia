@@ -4,12 +4,12 @@
       'target_name': 'images',
       'type': 'static_library',
       'dependencies': [
+        'core.gyp:core',
         'libjpeg.gyp:libjpeg',
+        'ports.gyp:ports',
         'utils.gyp:utils',
       ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
         '../include/images',
       ],
       'sources': [

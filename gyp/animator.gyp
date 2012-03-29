@@ -7,15 +7,17 @@
     {
       'target_name': 'animator',
       'type': 'static_library',
+      'dependencies': [
+        'core.gyp:core',
+        'effects.gyp:effects',
+        'images.gyp:images',
+        'ports.gyp:ports',
+        'utils.gyp:utils',
+        'views.gyp:views',
+        'xml.gyp:xml',
+      ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
-        '../include/effects',
         '../include/animator',
-        '../include/views',
-        '../include/xml',
-        '../include/utils',
-        '../include/images',
         '../src/utils',
       ],
       'sources': [
