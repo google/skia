@@ -319,7 +319,7 @@ bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {
                          kNoStencil_GrTextureFlagBit;
         dstDesc.fWidth = 256;
         dstDesc.fHeight = 256;
-        dstDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        dstDesc.fConfig = kRGBA_8888_PM_GrPixelConfig;
         dstDesc.fSampleCnt = 0;
 
         SkAutoTUnref<GrTexture> dstTex(this->createTexture(dstDesc, NULL, 0));
