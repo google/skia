@@ -9,13 +9,28 @@
 #include "SkRandom.h"
 #include "SkTArray.h"
 
+class SkOnce : SkNoncopyable {
+public:
+    SkOnce() { fDidOnce = false; }
+    
+    bool needToDo() const { return !fDidOnce; }
+    bool alreadyDone() const { return fDidOnce; }
+    void accomplished() {
+        SkASSERT(!fDidOnce);
+        fDidOnce = true;
+    }
+
+private:
+    bool fDidOnce;
+};
+
 namespace skiagm {
 
 class ConvexPathsGM : public GM {
+    SkOnce fOnce;
 public:
     ConvexPathsGM() {
         this->setBGColor(0xFF000000);
-        this->makePaths();
     }
 
 protected:
@@ -29,6 +44,11 @@ protected:
     }
 
     void makePaths() {
+        if (fOnce.alreadyDone()) {
+            return;
+        }
+        fOnce.accomplished();
+
         // CW
         fPaths.push_back().moveTo(0, 0);
         fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
@@ -169,6 +189,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        this->makePaths();
 
     SkPaint paint;
     paint.setAntiAlias(true);

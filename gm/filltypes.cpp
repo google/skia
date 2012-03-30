@@ -14,9 +14,14 @@ class FillTypeGM : public GM {
 public:
 	FillTypeGM() {
         this->setBGColor(0xFFDDDDDD);
-        const SkScalar radius = SkIntToScalar(45);
-        fPath.addCircle(SkIntToScalar(50), SkIntToScalar(50), radius);
-        fPath.addCircle(SkIntToScalar(100), SkIntToScalar(100), radius);
+    }
+    
+    void makePath() {
+        if (fPath.isEmpty()) {
+            const SkScalar radius = SkIntToScalar(45);
+            fPath.addCircle(SkIntToScalar(50), SkIntToScalar(50), radius);
+            fPath.addCircle(SkIntToScalar(100), SkIntToScalar(100), radius);
+        }
     }
     
 protected:
@@ -57,6 +62,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        this->makePath();
+
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         
         SkPaint paint;

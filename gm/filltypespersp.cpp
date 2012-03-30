@@ -13,10 +13,14 @@ namespace skiagm {
 class FillTypePerspGM : public GM {
     SkPath fPath;
 public:
-    FillTypePerspGM() {
-        const SkScalar radius = SkIntToScalar(45);
-        fPath.addCircle(SkIntToScalar(50), SkIntToScalar(50), radius);
-        fPath.addCircle(SkIntToScalar(100), SkIntToScalar(100), radius);
+    FillTypePerspGM() {}
+    
+    void makePath() {
+        if (fPath.isEmpty()) {
+            const SkScalar radius = SkIntToScalar(45);
+            fPath.addCircle(SkIntToScalar(50), SkIntToScalar(50), radius);
+            fPath.addCircle(SkIntToScalar(100), SkIntToScalar(100), radius);
+        }
     }
     
 protected:
@@ -71,6 +75,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        this->makePath();
+
         // do perspective drawPaint as the background;
         SkPaint bkgnrd;
         SkPoint center = SkPoint::Make(SkIntToScalar(100),
