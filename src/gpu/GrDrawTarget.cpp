@@ -771,6 +771,14 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             GrCrash("Index reads outside valid index range.");
         }
     }
+
+    GrAssert(NULL != this->getDrawState().getRenderTarget());
+    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
+        if (this->getDrawState().getTexture(i)) {
+            GrAssert(this->getDrawState().getTexture(i)->asRenderTarget() != 
+                     this->getDrawState().getRenderTarget());
+        }
+    }
 #endif
     const GrDrawState& drawState = this->getDrawState();
     if (NULL == drawState.getRenderTarget()) {

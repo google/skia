@@ -94,6 +94,7 @@ public:
      *            render target
      */
     GrRenderTarget* asRenderTarget() { return fRenderTarget; }
+    const GrRenderTarget* asRenderTarget() const { return fRenderTarget; }
 
     /**
      * Removes the reference on the associated GrRenderTarget held by this
