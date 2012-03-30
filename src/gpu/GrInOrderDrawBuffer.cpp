@@ -7,7 +7,6 @@
  */
 
 
-
 #include "GrInOrderDrawBuffer.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
@@ -51,11 +50,6 @@ GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
     this->releaseGeometry();
     GrSafeUnref(fQuadIndexBuffer);
     GrSafeUnref(fAutoFlushTarget);
-}
-
-void GrInOrderDrawBuffer::initializeDrawStateAndClip(const GrDrawTarget& target) {
-    this->copyDrawState(target);
-    this->setClip(target.getClip());
 }
 
 void GrInOrderDrawBuffer::setQuadIndexBuffer(const GrIndexBuffer* indexBuffer) {
