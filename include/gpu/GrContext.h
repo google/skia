@@ -645,7 +645,6 @@ public:
     const GrGpu* getGpu() const { return fGpu; }
     GrFontCache* getFontCache() { return fFontCache; }
     GrDrawTarget* getTextTarget(const GrPaint& paint);
-    void flushText();
     const GrIndexBuffer* getQuadIndexBuffer() const;
     void resetStats();
     const GrGpuStats& getStats() const;
@@ -667,7 +666,6 @@ private:
     enum DrawCategory {
         kBuffered_DrawCategory,      // last draw was inserted in draw buffer
         kUnbuffered_DrawCategory,    // last draw was not inserted in the draw buffer
-        kText_DrawCategory           // text context was last to draw
     };
     DrawCategory fLastDrawCategory;
 
