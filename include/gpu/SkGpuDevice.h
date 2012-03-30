@@ -29,14 +29,11 @@ class SK_API SkGpuDevice : public SkDevice {
 public:
     /**
      *  New device that will create an offscreen renderTarget based on the
-     *  config, width, height.
-     *
-     *  usage is a special flag that should only be set by SkCanvas
-     *  internally.
+     *  config, width, height. The device's storage will not count against
+     *  the GrContext's texture cache budget. The device's pixels will be
+     *  uninitialized.
      */
-    SkGpuDevice(GrContext*, SkBitmap::Config,
-                int width, int height,
-                SkDevice::Usage usage = SkDevice::kGeneral_Usage);
+    SkGpuDevice(GrContext*, SkBitmap::Config, int width, int height);
 
     /**
      *  New device that will render to the specified renderTarget.
@@ -118,14 +115,8 @@ public:
 
 protected:
     typedef GrContext::TextureCacheEntry TexCache;
-    enum TexType {
-        kBitmap_TexType,
-        kDeviceRenderTarget_TexType,
-        kSaveLayerDeviceRenderTarget_TexType
-    };
     TexCache lockCachedTexture(const SkBitmap& bitmap,
-                               const GrSamplerState* sampler,
-                               TexType type = kBitmap_TexType);
+                               const GrSamplerState* sampler);
     bool isBitmapInTextureCache(const SkBitmap& bitmap,
                                 const GrSamplerState& sampler) const;
     void unlockCachedTexture(TexCache);
@@ -151,6 +142,9 @@ private:
 
     // called from rt and tex cons
     void initFromRenderTarget(GrContext*, GrRenderTarget*);
+
+    // used by createCompatibleDevice
+    SkGpuDevice(GrContext*, GrTexture* texture, TexCache, bool needClear);
 
     // override from SkDevice
     virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
