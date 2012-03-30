@@ -66,7 +66,6 @@
         '../experimental/Intersection/QuadraticUtilities.cpp',
         '../experimental/Intersection/RectUtilities.cpp',
         '../experimental/Intersection/TestUtilities.cpp',
-        '../experimental/Intersection/CubicIntersection.h',
         '../experimental/Intersection/CubicIntersection_TestData.h',
         '../experimental/Intersection/CubicUtilities.h',
         '../experimental/Intersection/CurveIntersection.h',
@@ -87,6 +86,7 @@
         '../experimental/Intersection/ShapeOps.h',
         '../experimental/Intersection/TestUtilities.h',
         '../experimental/Intersection/TSearch.h',
+        '../experimental/Intersection/thingsToDo.txt',
       ],
       'dependencies': [
         'core.gyp:core',

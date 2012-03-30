@@ -1,5 +1,8 @@
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
+#include "SkBitmap.h"
+
+static SkBitmap bitmap;
 
 static void testSimplifyQuadratic1() {
     SkPath path, out;
@@ -9,7 +12,7 @@ static void testSimplifyQuadratic1() {
     path.moveTo(1, 0);
     path.quadTo(0, 0, 0, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyQuadratic2() {
@@ -20,8 +23,7 @@ static void testSimplifyQuadratic2() {
     path.moveTo(20, 0);
     path.quadTo(0, 0, 0, 20);
     path.close();
-    testSimplify(path, true, out);
-    drawAsciiPaths(path, out, true);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyQuadratic3() {
@@ -32,11 +34,23 @@ static void testSimplifyQuadratic3() {
     path.moveTo(0, 20);
     path.quadTo(0, 0, 20, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
+}
+
+static void testSimplifyQuadratic4() {
+    SkPath path, out;
+    path.moveTo(0, 20);
+    path.quadTo(20, 0, 40, 20);
+    path.close();
+    path.moveTo(40, 10);
+    path.quadTo(20, 30, 0, 10);
+    path.close();
+    testSimplify(path, true, out, bitmap);
     drawAsciiPaths(path, out, true);
 }
 
 static void (*simplifyTests[])() = {
+    testSimplifyQuadratic4,
     testSimplifyQuadratic3,
     testSimplifyQuadratic2,
     testSimplifyQuadratic1,

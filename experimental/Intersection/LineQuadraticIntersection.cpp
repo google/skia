@@ -131,6 +131,16 @@ bool intersect() {
     return roots > 0;
 }
 
+int horizontalIntersect(double axisIntercept) {
+    double D = quad[2].y; // f
+    double E = quad[1].y; // e
+    double F = quad[0].y; // d
+    D += F - 2 * E; // D = d - 2*e + f
+    E -= F; // E = -(d - e)
+    F -= axisIntercept;
+    return quadraticRoots(D, E, F, intersections.fT[0]);
+}
+
 protected:
     
 double findLineT(double t) {
@@ -156,7 +166,24 @@ Intersections& intersections;
 bool moreHorizontal;
 
 };
- 
+
+int horizontalIntersect(const Quadratic& quad, double left, double right,
+        double y, double tRange[2]) {
+    Intersections i;
+    LineQuadraticIntersections q(quad, *((_Line*) 0), i);
+    int result = q.horizontalIntersect(y);
+    int tCount = 0;
+    for (int index = 0; index < result; ++index) {
+        double x, y;
+        xy_at_t(quad, i.fT[0][index], x, y);
+        if (x < left || x > right) {
+            continue;
+        }
+        tRange[tCount++] = i.fT[0][index];
+    }
+    return tCount;
+}
+
 bool intersect(const Quadratic& quad, const _Line& line, Intersections& i) {
     LineQuadraticIntersections q(quad, line, i);
     return q.intersect();
