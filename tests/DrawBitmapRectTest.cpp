@@ -9,6 +9,28 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 
+static void test_nan_antihair(skiatest::Reporter* reporter) {
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 20, 20);
+    bm.allocPixels();
+
+    SkCanvas canvas(bm);
+
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(10, SK_ScalarNaN);
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    
+    // before our fix to SkScan_Antihair.cpp to check for integral NaN (0x800...)
+    // this would trigger an assert/crash.
+    //
+    // see rev. 3558
+    canvas.drawPath(path, paint);
+}
+
 static bool check_for_all_zeros(const SkBitmap& bm) {
     SkAutoLockPixels alp(bm);
 
@@ -48,6 +70,8 @@ static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
 
     // ensure that we draw nothing if srcR does not intersect the bitmap
     REPORTER_ASSERT(reporter, check_for_all_zeros(dst));
+
+    test_nan_antihair(reporter);
 }
 
 #include "TestClassDef.h"
