@@ -213,10 +213,35 @@ static inline SkFixed fastfixdiv(SkFDot6 a, SkFDot6 b) {
     return (a << 16) / b;
 }
 
+#define SkBITCOUNT(x)   (sizeof(x) << 3)
+
+#if 1
+// returns high-bit set iff x==0x8000...
+static inline int bad_int(int x) {
+    return x & -x;
+}
+
+static int any_bad_ints(int a, int b, int c, int d) {
+    return (bad_int(a) | bad_int(b) | bad_int(c) | bad_int(d)) >> (SkBITCOUNT(int) - 1);
+}
+#else
+static inline int good_int(int x) {
+    return x ^ (1 << (SkBITCOUNT(x) - 1));
+}
+
+static int any_bad_ints(int a, int b, int c, int d) {
+    return !(good_int(a) & good_int(b) & good_int(c) & good_int(d));
+}
+#endif
+
 static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                              const SkIRect* clip, SkBlitter* blitter) {
-    // check that we're no larger than 511 pixels (so we can do a faster div).
-    // if we are, subdivide and call again
+    // check for integer NaN (0x80000000) which we can't handle (can't negate it)
+    // It appears typically from a huge float (inf or nan) being converted to int.
+    // If we see it, just don't draw.
+    if (any_bad_ints(x0, y0, x1, y1)) {
+        return;
+    }
 
     if (SkAbs32(x1 - x0) > SkIntToFDot6(511) || SkAbs32(y1 - y0) > SkIntToFDot6(511)) {
         /*  instead of (x0 + x1) >> 1, we shift each separately. This is less
