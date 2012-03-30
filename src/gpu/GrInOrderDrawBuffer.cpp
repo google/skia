@@ -462,11 +462,10 @@ void GrInOrderDrawBuffer::reset() {
     this->resetIndexSource();
     uint32_t numStates = fStates.count();
     for (uint32_t i = 0; i < numStates; ++i) {
-        const GrDrawState& dstate = this->accessSavedDrawState(fStates[i]);
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            GrSafeUnref(dstate.getTexture(s));
+            GrSafeUnref(fStates[i].getTexture(s));
         }
-        GrSafeUnref(dstate.getRenderTarget());
+        GrSafeUnref(fStates[i].getRenderTarget());
     }
     int numDraws = fDraws.count();
     for (int d = 0; d < numDraws; ++d) {
@@ -522,8 +521,7 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
         const Draw& draw = fDraws[i];
         if (draw.fStateChanged) {
             ++currState;
-            GrDrawState* ds = &GrDrawTarget::accessSavedDrawState(fStates[currState]);
-            target->setDrawState(ds);
+            target->setDrawState(&fStates[currState]);
         }
         if (draw.fClipChanged) {
             ++currClip;
@@ -773,8 +771,7 @@ bool GrInOrderDrawBuffer::needsNewState() const {
      if (fStates.empty()) {
         return true;
      } else {
-        const GrDrawState& old = this->accessSavedDrawState(fStates.back());
-        return old != this->getDrawState();
+        return fStates.back() != this->getDrawState();
      }
 }
 
@@ -784,7 +781,7 @@ void GrInOrderDrawBuffer::pushState() {
         GrSafeRef(drawState.getTexture(s));
     }
     GrSafeRef(drawState.getRenderTarget());
-    this->saveCurrentDrawState(&fStates.push_back());
+    fStates.push_back(this->getDrawState());
  }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {

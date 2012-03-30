@@ -609,17 +609,21 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         return false;
     }
 
-    GrDrawState* drawState = target->drawState();
-
     GrDrawTarget::AutoStateRestore asr;
+    GrDrawState* drawState = target->drawState();
     if (!drawState->getViewMatrix().hasPerspective()) {
-        asr.set(target);
+        // we are going to whack the view matrix to identity to remove
+        // perspective.
+        asr.set(target,
+                GrDrawTarget::kPreserve_ASRInit);
+        drawState = target->drawState();
         GrMatrix ivm;
         if (drawState->getViewInverse(&ivm)) {
             drawState->preConcatSamplerMatrices(stageMask, ivm);
         }
         drawState->viewMatrix()->reset();
     }
+    
 
     // TODO: See whether rendering lines as degenerate quads improves perf
     // when we have a mix

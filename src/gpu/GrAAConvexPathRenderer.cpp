@@ -454,14 +454,14 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     if (path->isEmpty()) {
         return true;
     }
+    GrDrawTarget::AutoStateRestore asr(target,
+                                       GrDrawTarget::kPreserve_ASRInit);
     GrDrawState* drawState = target->drawState();
 
-    GrDrawTarget::AutoStateRestore asr;
     GrMatrix vm = drawState->getViewMatrix();
     if (NULL != translate) {
         vm.postTranslate(translate->fX, translate->fY);
     }
-    asr.set(target);
     GrMatrix ivm;
     if (vm.invert(&ivm)) {
         drawState->preConcatSamplerMatrices(stageMask, ivm);

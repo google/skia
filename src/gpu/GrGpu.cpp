@@ -544,7 +544,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
     GrIRect clipRect;
 
     GrDrawState* drawState = this->drawState();
-    const GrRenderTarget* rt = drawState->getRenderTarget();
+    GrRenderTarget* rt = drawState->getRenderTarget();
 
     // GrDrawTarget should have filtered this for us
     GrAssert(NULL != rt);
@@ -592,16 +592,16 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             const GrClip& clip = stencilBuffer->getLastClip();
             fClip.setFromRect(bounds);
 
-            AutoStateRestore asr(this);
+            AutoStateRestore asr(this, GrDrawTarget::kReset_ASRInit);
+            drawState = this->drawState();
+            drawState->setRenderTarget(rt);
             AutoGeometryPush agp(this);
 
-            drawState->viewMatrix()->reset();
             this->flushScissor(NULL);
 #if !VISUALIZE_COMPLEX_CLIP
             drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
-#else
-            drawState->disableState(GrDrawState::kNoColorWrites_StateBit);
 #endif
+
             int count = clip.getElementCount();
             int clipBit = stencilBuffer->bits();
             SkASSERT((clipBit <= 16) &&

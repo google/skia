@@ -182,7 +182,7 @@ private:
     };
 
     GrSTAllocator<kDrawPreallocCnt, Draw>               fDraws;
-    GrSTAllocator<kStatePreallocCnt, SavedDrawState>    fStates;
+    GrSTAllocator<kStatePreallocCnt, GrDrawState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
     GrSTAllocator<kClipPreallocCnt, GrClip>             fClips;
 

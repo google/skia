@@ -268,10 +268,9 @@ void apply_morphology(GrGpu* gpu,
     GrAssert(filter == GrSamplerState::kErode_Filter ||
              filter == GrSamplerState::kDilate_Filter);
 
-    GrDrawTarget::AutoStateRestore asr(gpu);
+    GrRenderTarget* target = gpu->drawState()->getRenderTarget();
+    GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = gpu->drawState();
-    GrRenderTarget* target = drawState->getRenderTarget();
-    drawState->reset();
     drawState->setRenderTarget(target);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
@@ -289,10 +288,9 @@ void convolve(GrGpu* gpu,
               const float* kernel,
               int kernelWidth,
               GrSamplerState::FilterDirection direction) {
-    GrDrawTarget::AutoStateRestore asr(gpu);
+    GrRenderTarget* target = gpu->drawState()->getRenderTarget();
+    GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = gpu->drawState();
-    GrRenderTarget* target = drawState->getRenderTarget();
-    drawState->reset();
     drawState->setRenderTarget(target);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
@@ -428,9 +426,9 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
         GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
 
         if (NULL != texture) {
-            GrDrawTarget::AutoStateRestore asr(fGpu);
+            GrDrawTarget::AutoStateRestore asr(fGpu,
+                                               GrDrawTarget::kReset_ASRInit);
             GrDrawState* drawState = fGpu->drawState();
-            drawState->reset();
             drawState->setRenderTarget(texture->asRenderTarget());
             drawState->setTexture(0, clampEntry.texture());
 
@@ -1729,9 +1727,9 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         target = texture->asRenderTarget();
         GrAssert(NULL != target);
 
-        GrDrawTarget::AutoStateRestore asr(fGpu);
+        GrDrawTarget::AutoStateRestore asr(fGpu,
+                                           GrDrawTarget::kReset_ASRInit);
         GrDrawState* drawState = fGpu->drawState();
-        drawState->reset();
         drawState->setRenderTarget(target);
 
         GrMatrix matrix;
@@ -1773,9 +1771,8 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     }
     ASSERT_OWNED_RESOURCE(src);
 
-    GrDrawTarget::AutoStateRestore asr(fGpu);
+    GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
-    drawState->reset();
     drawState->setRenderTarget(dst);
     GrMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
@@ -1798,7 +1795,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     ASSERT_OWNED_RESOURCE(target);
 
     if (NULL == target) { 
-        target = fGpu->drawState()->getRenderTarget();
+        target = fDrawState->getRenderTarget();
         if (NULL == target) {
             return;
         }
@@ -1865,9 +1862,8 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     this->internalWriteTexturePixels(texture, 0, 0, width, height,
                                      config, buffer, rowBytes, flags);
 
-    GrDrawTarget::AutoStateRestore  asr(fGpu);
+    GrDrawTarget::AutoStateRestore  asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
-    drawState->reset();
 
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));

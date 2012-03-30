@@ -154,43 +154,6 @@ public:
     bool willUseHWAALines() const;
 
     /**
-     * Used to save and restore the GrGpu's drawing state
-     */
-    struct SavedDrawState {
-    private:
-        SkTLazy<GrDrawState> fState;
-        friend class GrDrawTarget;
-    };
-
-    /**
-     * Saves the current draw state. The state can be restored at a later time
-     * with restoreDrawState.
-     *
-     * See also AutoStateRestore class.
-     *
-     * @param   state will hold the state after the function returns.
-     */
-    void saveCurrentDrawState(SavedDrawState* state) const;
-
-    /**
-     * Restores previously saved draw state. The client guarantees that state
-     * was previously passed to saveCurrentDrawState and that the rendertarget
-     * and texture set at save are still valid.
-     *
-     * See also AutoStateRestore class.
-     *
-     * @param   state the previously saved state to restore.
-     */
-    void restoreDrawState(const SavedDrawState& state);
-
-    /**
-     * Copies the draw state from another target to this target.
-     *
-     * @param srcTarget     draw target used as src of the draw state.
-     */
-    void copyDrawState(const GrDrawTarget& srcTarget);
-
-    /**
      * The format of vertices is represented as a bitfield of flags.
      * Flags that indicate the layout of vertex data. Vertices always contain
      * positions and may also contain up to GrDrawState::kMaxTexCoords sets
@@ -580,22 +543,62 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * See AutoStateRestore below.
+     */
+    enum ASRInit {
+        kPreserve_ASRInit,
+        kReset_ASRInit
+    };
+
+    /**
+     * Saves off the current state and restores it in the destructor. It will
+     * install a new GrDrawState object on the target (setDrawState) and restore
+     * the previous one in the destructor. The caller should call drawState() to
+     * get the new draw state after the ASR is installed.
+     *
+     * GrDrawState* state = target->drawState();
+     * AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit).
+     * state->setRenderTarget(rt); // state refers to the GrDrawState set on
+     *                             // target before asr was initialized.
+     *                             // Therefore, rt is set on the GrDrawState
+     *                             // that will be restored after asr's
+     *                             // destructor rather than target's current
+     *                             // GrDrawState. 
+     */
     class AutoStateRestore : ::GrNoncopyable {
     public:
+        /**
+         * Default ASR will have no effect unless set() is subsequently called.
+         */
         AutoStateRestore();
-        AutoStateRestore(GrDrawTarget* target);
+
+        /**
+         * Saves the state on target. The state will be restored when the ASR
+         * is destroyed. If this constructor is used do not call set().
+         *
+         * @param init  Should the newly installed GrDrawState be a copy of the
+         *              previous state or a default-initialized GrDrawState.
+         */
+        AutoStateRestore(GrDrawTarget* target, ASRInit init);
+
         ~AutoStateRestore();
 
         /**
-         * if this object is already saving state for param target then
-         * this does nothing. Otherise, it restores previously saved state on
-         * previous target (if any) and saves current state on param target.
+         * Saves the state on target. The state will be restored when the ASR
+         * is destroyed. This should only be called once per ASR object and only
+         * when the default constructor was used. For nested saves use multiple
+         * ASR objects.
+         *
+         * @param init  Should the newly installed GrDrawState be a copy of the
+         *              previous state or a default-initialized GrDrawState.
          */
-        void set(GrDrawTarget* target);
+        void set(GrDrawTarget* target, ASRInit init);
 
     private:
-        GrDrawTarget*       fDrawTarget;
-        SavedDrawState      fDrawState;
+        GrDrawTarget*        fDrawTarget;
+        SkTLazy<GrDrawState> fTempState;
+        GrDrawState*         fSavedState;
     };
 
     ////////////////////////////////////////////////////////////////////////////
@@ -988,15 +991,6 @@ protected:
             mask |= this->isStageEnabled(s) ? 1 : 0;
         }
         return mask;
-    }
-
-    // Helpers for GrDrawTarget subclasses that won't have private access to
-    // SavedDrawState but need to peek at the state values.
-    static GrDrawState& accessSavedDrawState(SavedDrawState& sds) {
-        return *sds.fState.get();
-    }
-    static const GrDrawState& accessSavedDrawState(const SavedDrawState& sds){
-        return *sds.fState.get();
     }
 
     // A sublcass can optionally overload this function to be notified before
