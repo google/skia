@@ -281,6 +281,9 @@ static const struct {
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config,  "ANGLE",    kGPU_Backend, &gANGLEGLHelper },
 #endif
+#ifdef SK_DEBUG
+    { SkBitmap::kARGB_8888_Config,  "Debug",    kGPU_Backend, &gDebugGLHelper },
+#endif
     { SkBitmap::kARGB_8888_Config,  "NULLGPU",  kGPU_Backend, &gNullGLHelper },
 };
 
