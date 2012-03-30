@@ -14,10 +14,6 @@
 #include "SkRasterClip.h"
 #include "SkFDot6.h"
 
-// Define this in your Makefile if you want the old behavior, which may draw
-// outside of the clip (but retains the old images if that is important).
-//#define SK_IGNORE_HAIRLINE_CLIP_FIX
-
 /*  Our attempt to compute the worst case "bounds" for the horizontal and
     vertical cases has some numerical bug in it, and we sometimes undervalue
     our extends. The bug is that when this happens, we will set the clip to
@@ -300,17 +296,11 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 istart = clip->fLeft;
                 scaleStart = 64;
             }
-#ifdef SK_IGNORE_HAIRLINE_CLIP_FIX
-            if (istop > clip->fRight) {
-                istop = clip->fRight;
-                scaleStop = 64;
-            }
-#else
             if (istop > clip->fRight) {
                 istop = clip->fRight;
                 scaleStop = 0;  // so we don't draw this last column
             }
-#endif
+
             SkASSERT(istart <= istop);
             if (istart == istop) {
                 return;
@@ -376,17 +366,11 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 istart = clip->fTop;
                 scaleStart = 64;
             }
-#ifdef SK_IGNORE_HAIRLINE_CLIP_FIX
-            if (istop > clip->fBottom) {
-                istop = clip->fBottom;
-                scaleStop = 64;  // so we don't draw this last row
-            }
-#else
             if (istop > clip->fBottom) {
                 istop = clip->fBottom;
                 scaleStop = 0;  // so we don't draw this last row
             }
-#endif
+
             SkASSERT(istart <= istop);
             if (istart == istop)
                 return;
