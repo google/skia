@@ -745,9 +745,10 @@ void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
-
-    load_system_fonts();
+    {
+        SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
+        load_system_fonts();
+    }
 
     // check if the font is a custom or system font
     bool isCustomFont = stream->readBool();
