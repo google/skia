@@ -36,9 +36,6 @@ public:
         kRaster_DeviceType,
         kPicture_DeviceType,
         kGPU_DeviceType,
-#if SK_ANGLE
-        kANGLE_DeviceType,
-#endif
         kNullGPU_DeviceType
     };
     /**
@@ -50,9 +47,12 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
-        virtual void setUpBackend(SampleWindow* win) = 0;
+        // called at end of SampleWindow cons
+        virtual void init(SampleWindow* win, bool useAltContext) = 0;
 
-        virtual void tearDownBackend(SampleWindow* win) = 0;
+        // called when selecting a new device type
+        // can disallow a device type by returning false.
+        virtual bool supportsDeviceType(DeviceType dType) = 0;
 
         // called before drawing. should install correct device
         // type on the canvas. Will skip drawing if returns false.
@@ -71,7 +71,7 @@ public:
         virtual void windowSizeChanged(SampleWindow* win) = 0;
 
         // return the GrContext backing gpu devices
-        virtual GrContext* getGrContext() = 0;
+        virtual GrContext* getGrContext(DeviceType dType) = 0;
     };
 
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);
@@ -85,7 +85,7 @@ public:
     void toggleFPS();
     void showOverview();
 
-    GrContext* getGrContext() const { return fDevManager->getGrContext(); }
+    GrContext* getGrContext() const { return fDevManager->getGrContext(fDeviceType); }
 
     void setZoomCenter(float x, float y);
     void changeZoomLevel(float delta);
@@ -99,8 +99,6 @@ public:
     void saveToPdf();
     SkData* getPDFData() { return fPDFData; }
     void postInvalDelay();
-
-    DeviceType getDeviceType() const { return fDeviceType; }
 
 protected:
     virtual void onDraw(SkCanvas* canvas);

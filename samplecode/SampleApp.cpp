@@ -53,12 +53,7 @@ SkTDArray<char> gTempDataStore;
 #endif
 
 #define USE_ARROWS_FOR_ZOOM true
-
-#if SK_ANGLE
-//#define DEFAULT_TO_ANGLE 1
-#else
-//#define DEFAULT_TO_GPU 1
-#endif
+//#define DEFAULT_TO_GPU
 
 extern SkView* create_overview(int, const SkViewFactory*[]);
 extern bool is_overview(SkView* view);
@@ -136,129 +131,113 @@ class SampleWindow::DefaultDeviceManager : public SampleWindow::DeviceManager {
 public:
 
     DefaultDeviceManager()
-        : fCurContext(NULL)
-        , fCurIntf(NULL)
-        , fCurRenderTarget(NULL)
-        , fBackend(kNone_BackEndType) {
+#if SK_ANGLE
+    : fUseAltContext(false) 
+#endif
+    {
+        fGrRenderTarget = NULL;
+        fGrContext = NULL;
+        fGL = NULL;
+        fNullGrContext = NULL;
+        fNullGrRenderTarget = NULL;
     }
 
     virtual ~DefaultDeviceManager() {
-        SkSafeUnref(fCurContext);
-        SkSafeUnref(fCurIntf);
-        SkSafeUnref(fCurRenderTarget);
+        SkSafeUnref(fGrRenderTarget);
+        SkSafeUnref(fGrContext);
+        SkSafeUnref(fGL);
+        SkSafeUnref(fNullGrContext);
+        SkSafeUnref(fNullGrRenderTarget);
     }
 
-    virtual void setUpBackend(SampleWindow* win) {
-        SkASSERT(kNone_BackEndType == fBackend);
-
-        fBackend = kNone_BackEndType;
-
-        switch (win->getDeviceType()) {
-            case kRaster_DeviceType:
-                // fallthrough
-            case kPicture_DeviceType:
-                // fallthrough
-            case kGPU_DeviceType:
-                // fallthrough
-            case kNullGPU_DeviceType:
-                // all these guys use the native backend
-                fBackend = kNativeGL_BackEndType;
-                break;
+    virtual void init(SampleWindow* win, bool useAltContext) {
 #if SK_ANGLE
-            case kANGLE_DeviceType:
-                // ANGLE is really the only odd man out
-                fBackend = kANGLE_BackEndType;
-                break;
+        fUseAltContext = useAltContext;
 #endif
-            default:
-                SkASSERT(false);
-                break;
-        }
+        bool result;
 
-        bool result = win->attach(fBackend);
+#if SK_ANGLE
+        if (useAltContext) {
+            result = win->attachANGLE();
+        } else 
+#endif
+        {
+            result = win->attachGL();
+        }
         if (!result) {
             SkDebugf("Failed to initialize GL");
-            return;
         }
-
-        SkASSERT(NULL == fCurIntf);
-        switch (win->getDeviceType()) {
-            case kRaster_DeviceType:
-                // fallthrough
-            case kPicture_DeviceType:
-                // fallthrough
-            case kGPU_DeviceType:
-                // all these guys use the native interface
-                fCurIntf = GrGLCreateNativeInterface();
-                break;
+        if (NULL == fGL) {
 #if SK_ANGLE
-            case kANGLE_DeviceType:
-                fCurIntf = GrGLCreateANGLEInterface();
-                break;
+            if (useAltContext) {
+                fGL = GrGLCreateANGLEInterface();
+            } else 
 #endif
-            case kNullGPU_DeviceType:
-                fCurIntf = GrGLCreateNullInterface();
-                break;
-            default:
-                SkASSERT(false);
-                break;
+            {
+                fGL = GrGLCreateNativeInterface();
+            }
+            GrAssert(NULL == fGrContext);
+            fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
+                                           (GrPlatform3DContext) fGL);
         }
-
-        SkASSERT(NULL == fCurContext);
-        fCurContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
-                                        (GrPlatform3DContext) fCurIntf);
-
-        if (NULL == fCurContext || NULL == fCurIntf) {
-            // We need some context and interface to see results
-            SkSafeUnref(fCurContext);
-            SkSafeUnref(fCurIntf);
+        if (NULL == fGrContext || NULL == fGL) {
+            SkSafeUnref(fGrContext);
+            SkSafeUnref(fGL);
             SkDebugf("Failed to setup 3D");
-
-            win->detach();
+#if SK_ANGLE
+            if (useAltContext) {
+                win->detachANGLE();
+            } else 
+#endif
+            {
+                win->detachGL();
+            }
         }
-
-        // call windowSizeChanged to create the render target
-        windowSizeChanged(win);
+        if (NULL == fNullGrContext) {
+            const GrGLInterface* nullGL = GrGLCreateNullInterface();
+            fNullGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
+                                               (GrPlatform3DContext) nullGL);
+            nullGL->unref();
+        }
     }
 
-    virtual void tearDownBackend(SampleWindow *win) {
-        win->detach();
-        fBackend = kNone_BackEndType;
-
-        SkSafeUnref(fCurContext);
-        fCurContext = NULL;
-
-        SkSafeUnref(fCurIntf);
-        fCurIntf = NULL;
-
-        SkSafeUnref(fCurRenderTarget);
-        fCurRenderTarget = NULL;
+    virtual bool supportsDeviceType(SampleWindow::DeviceType dType) {
+        switch (dType) {
+            case kRaster_DeviceType:
+            case kPicture_DeviceType: // fallthru
+                return true;
+            case kGPU_DeviceType:
+                return NULL != fGrContext && NULL != fGrRenderTarget;
+            case kNullGPU_DeviceType:
+                return NULL != fNullGrContext && NULL != fNullGrRenderTarget;
+            default:
+                return false;
+        }
     }
 
     virtual bool prepareCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
                                SampleWindow* win) {
         switch (dType) {
-            case kRaster_DeviceType:
-                // fallthrough
-            case kPicture_DeviceType:
-                // fallthrough
-#if SK_ANGLE
-            case kANGLE_DeviceType:
-#endif
-                break;
             case kGPU_DeviceType:
-            case kNullGPU_DeviceType:
-                if (fCurContext) {
-                    canvas->setDevice(new SkGpuDevice(fCurContext,
-                                                    fCurRenderTarget))->unref();
+                if (fGrContext) {
+                    canvas->setDevice(new SkGpuDevice(fGrContext,
+                                                    fGrRenderTarget))->unref();
                 } else {
                     return false;
                 }
                 break;
-            default:
-                SkASSERT(false);
-                return false;
+            case kNullGPU_DeviceType:
+                if (fNullGrContext) {
+                    canvas->setDevice(new SkGpuDevice(fNullGrContext,
+                                                      fNullGrRenderTarget))->unref();
+                } else {
+                    return false;
+                }
+                break;
+            case kRaster_DeviceType:
+            case kPicture_DeviceType:
+                break;
         }
         return true;
     }
@@ -266,55 +245,85 @@ public:
     virtual void publishCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
                                SampleWindow* win) {
-        if (fCurContext) {
+        if (fGrContext) {
             // in case we have queued drawing calls
-            fCurContext->flush();
-
-            if (kGPU_DeviceType != dType && kNullGPU_DeviceType != dType) {
+            fGrContext->flush();
+            if (NULL != fNullGrContext) {
+                fNullGrContext->flush();
+            }
+            if (dType != kGPU_DeviceType &&
+                dType != kNullGPU_DeviceType) {
                 // need to send the raster bits to the (gpu) window
-                fCurContext->setRenderTarget(fCurRenderTarget);
+                fGrContext->setRenderTarget(fGrRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
-                fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
+                fGrRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
                                              kSkia8888_PM_GrPixelConfig,
                                              bm.getPixels(),
                                              bm.rowBytes());
             }
         }
-
-        win->present();
+#if SK_ANGLE
+        if (fUseAltContext) {
+            win->presentANGLE();
+        } else 
+#endif
+        {
+            win->presentGL();
+        }
     }
 
     virtual void windowSizeChanged(SampleWindow* win) {
-
-        if (fCurContext) {
-            win->attach(fBackend);
+        if (fGrContext) {
+#if SK_ANGLE
+            if (fUseAltContext) {
+                win->attachANGLE();
+            } else 
+#endif
+            {
+                win->attachGL();
+            }
 
             GrPlatformRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kSkia8888_PM_GrPixelConfig;
-            GR_GL_GetIntegerv(fCurIntf, GR_GL_SAMPLES, &desc.fSampleCnt);
-            GR_GL_GetIntegerv(fCurIntf, GR_GL_STENCIL_BITS, &desc.fStencilBits);
+            GR_GL_GetIntegerv(fGL, GR_GL_SAMPLES, &desc.fSampleCnt);
+            GR_GL_GetIntegerv(fGL, GR_GL_STENCIL_BITS, &desc.fStencilBits);
             GrGLint buffer;
-            GR_GL_GetIntegerv(fCurIntf, GR_GL_FRAMEBUFFER_BINDING, &buffer);
+            GR_GL_GetIntegerv(fGL, GR_GL_FRAMEBUFFER_BINDING, &buffer);
             desc.fRenderTargetHandle = buffer;
 
-            SkSafeUnref(fCurRenderTarget);
-            fCurRenderTarget = fCurContext->createPlatformRenderTarget(desc);
+            SkSafeUnref(fGrRenderTarget);
+            fGrRenderTarget = fGrContext->createPlatformRenderTarget(desc);
+        }
+        if (NULL != fNullGrContext) {
+            GrPlatformRenderTargetDesc desc;
+            desc.fWidth = SkScalarRound(win->width());
+            desc.fHeight = SkScalarRound(win->height());
+            desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fStencilBits = 8;
+            desc.fSampleCnt = 0;
+            desc.fRenderTargetHandle = 0;
+            fNullGrRenderTarget = fNullGrContext->createPlatformRenderTarget(desc);
         }
     }
 
-    virtual GrContext* getGrContext() {
-        return fCurContext;
+    virtual GrContext* getGrContext(SampleWindow::DeviceType dType) {
+        if (kNullGPU_DeviceType == dType) {
+            return fNullGrContext;
+        } else {
+            return fGrContext;
+        }
     }
 private:
-    GrContext*              fCurContext;
-    const GrGLInterface*    fCurIntf;
-    GrRenderTarget*         fCurRenderTarget;
-
-    SkOSWindow::SkBackEndTypes fBackend;
-
-    typedef SampleWindow::DeviceManager INHERITED;
+#if SK_ANGLE
+    bool fUseAltContext;
+#endif
+    GrContext* fGrContext;
+    const GrGLInterface* fGL;
+    GrRenderTarget* fGrRenderTarget;
+    GrContext* fNullGrContext;
+    GrRenderTarget* fNullGrRenderTarget;
 };
 
 ///////////////
@@ -635,9 +644,6 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
     static const SampleWindow::DeviceType gCT[] = {
         SampleWindow::kPicture_DeviceType,
         SampleWindow::kGPU_DeviceType,
-#if SK_ANGLE
-        SampleWindow::kANGLE_DeviceType,
-#endif
         SampleWindow::kRaster_DeviceType, // skip the null gpu device in normal cycling
         SampleWindow::kRaster_DeviceType
     };
@@ -663,6 +669,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     const char* resourcePath = NULL;
     fCurrIndex = -1;
+    bool useAltContext = false;
 
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
@@ -681,6 +688,12 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                 }
             }
         } 
+#if SK_ANGLE
+        else if (strcmp(*argv, "--angle") == 0) {
+            argv++;
+            useAltContext = true;
+        } 
+#endif
         else {
             usage(commandName);
         }
@@ -707,15 +720,11 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
      
     fPicture = NULL;
     
-    fDeviceType = kRaster_DeviceType;
-
-#if DEFAULT_TO_GPU
+#ifdef DEFAULT_TO_GPU
     fDeviceType = kGPU_DeviceType;
+#else
+    fDeviceType = kRaster_DeviceType;
 #endif
-#if SK_ANGLE && DEFAULT_TO_ANGLE
-    fDeviceType = kANGLE_DeviceType;
-#endif
-
     fUseClip = false;
     fNClip = false;
     fAnimating = false;
@@ -755,11 +764,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     int itemID;
     
     itemID =fAppMenu.appendList("Device Type", "Device Type", sinkID, 0, 
-                                "Raster", "Picture", "OpenGL", 
-#if SK_ANGLE
-                                "ANGLE",
-#endif
-                                NULL);
+                                "Raster", "Picture", "OpenGL", NULL);
     fAppMenu.assignKeyEquivalentToItem(itemID, 'd');
     itemID = fAppMenu.appendTriState("AA", "AA", sinkID, fAAState);
     fAppMenu.assignKeyEquivalentToItem(itemID, 'b');
@@ -820,7 +825,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         devManager->ref();
         fDevManager = devManager;
     }
-    fDevManager->setUpBackend(this);
+    fDevManager->init(this, useAltContext);
 
     // If another constructor set our dimensions, ensure that our
     // onSizeChange gets called.
@@ -1128,12 +1133,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     } else {
         switch (fDeviceType) {
             case kRaster_DeviceType:
-                // fallthrough
             case kGPU_DeviceType:
-                // fallthrough
-#if SK_ANGLE
-            case kANGLE_DeviceType:
-#endif
                 canvas = this->INHERITED::beforeChildren(canvas);
                 break;
             case kPicture_DeviceType:
@@ -1141,9 +1141,6 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                 canvas = fPicture->beginRecording(9999, 9999);
                 break;
             case kNullGPU_DeviceType:
-                break;
-            default:
-                SkASSERT(false);
                 break;
         }
     }
@@ -1631,9 +1628,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->updateTitle();
             return true;
         case '\\':
-            this->setDeviceType(kNullGPU_DeviceType);
-            this->inval(NULL);
-            this->updateTitle();
+            if (fDevManager->supportsDeviceType(kNullGPU_DeviceType)) {
+                fDeviceType=  kNullGPU_DeviceType;
+                this->inval(NULL);
+                this->updateTitle();
+            }
             return true;
         case 'p':
             {
@@ -1664,15 +1663,8 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
 }
 
 void SampleWindow::setDeviceType(DeviceType type) {
-    if (type == fDeviceType)
-        return;
-
-    fDevManager->tearDownBackend(this);
-
-    fDeviceType = type;
-
-    fDevManager->setUpBackend(this);
-
+    if (type != fDeviceType && fDevManager->supportsDeviceType(fDeviceType))
+        fDeviceType = type;
     this->updateTitle();
     this->inval(NULL);
 }
@@ -1684,7 +1676,11 @@ void SampleWindow::toggleSlideshow() {
 }
 
 void SampleWindow::toggleRendering() {
-    this->setDeviceType(cycle_devicetype(fDeviceType));
+    DeviceType origDevType = fDeviceType;
+    do {
+        fDeviceType = cycle_devicetype(fDeviceType);
+    } while (origDevType != fDeviceType &&
+             !fDevManager->supportsDeviceType(fDeviceType));
     this->updateTitle();
     this->inval(NULL);
 }
@@ -1861,9 +1857,6 @@ static const char* gDeviceTypePrefix[] = {
     "raster: ",
     "picture: ",
     "opengl: ",
-#if SK_ANGLE
-    "angle: ",
-#endif
     "null-gl: "
 };
 
