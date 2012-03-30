@@ -527,18 +527,6 @@ void GrDrawTarget::setDrawState(GrDrawState*  drawState) {
     }
 }
 
-void GrDrawTarget::saveCurrentDrawState(SavedDrawState* state) const {
-    state->fState.set(this->getDrawState());
-}
-
-void GrDrawTarget::restoreDrawState(const SavedDrawState& state) {
-    *fDrawState = *state.fState.get();
-}
-
-void GrDrawTarget::copyDrawState(const GrDrawTarget& srcTarget) {
-    *fDrawState = srcTarget.getDrawState();
-}
-
 bool GrDrawTarget::reserveVertexSpace(GrVertexLayout vertexLayout,
                                       int vertexCount,
                                       void** vertices) {
@@ -1155,29 +1143,34 @@ GrDrawTarget::AutoStateRestore::AutoStateRestore() {
     fDrawTarget = NULL;
 }
 
-GrDrawTarget::AutoStateRestore::AutoStateRestore(GrDrawTarget* target) {
-    fDrawTarget = target;
-    if (NULL != fDrawTarget) {
-        fDrawTarget->saveCurrentDrawState(&fDrawState);
-    }
+GrDrawTarget::AutoStateRestore::AutoStateRestore(GrDrawTarget* target,
+                                                 ASRInit init) {
+    fDrawTarget = NULL;
+    this->set(target, init);
 }
 
 GrDrawTarget::AutoStateRestore::~AutoStateRestore() {
     if (NULL != fDrawTarget) {
-        fDrawTarget->restoreDrawState(fDrawState);
+        fDrawTarget->setDrawState(fSavedState);
+        fSavedState->unref();
     }
 }
 
-void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target) {
-    if (target != fDrawTarget) {
-        if (NULL != fDrawTarget) {
-            fDrawTarget->restoreDrawState(fDrawState);
-        }
-        if (NULL != target) {
-            target->saveCurrentDrawState(&fDrawState);
-        }
-        fDrawTarget = target;
+void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target, ASRInit init) {
+    GrAssert(NULL == fDrawTarget);
+    fDrawTarget = target;
+    fSavedState = target->drawState();
+    GrAssert(fSavedState);
+    fSavedState->ref();
+    if (kReset_ASRInit == init) {
+        // calls the default cons
+        fTempState.init();
+    } else {
+        GrAssert(kPreserve_ASRInit == init);
+        // calls the copy cons
+        fTempState.set(*fSavedState);
     }
+    target->setDrawState(fTempState.get());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -354,7 +354,7 @@ bool GrTesselatedPathRenderer::onDrawPath(const SkPath& path,
                                           GrDrawState::StageMask stageMask,
                                           bool antiAlias) {
 
-    GrDrawTarget::AutoStateRestore asr(target);
+    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
     GrDrawState* drawState = target->drawState();
     // face culling doesn't make sense here
     GrAssert(GrDrawState::kBoth_DrawFace == drawState->getDrawFace());

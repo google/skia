@@ -340,7 +340,6 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
     GrMatrix viewM = target->getDrawState().getViewMatrix();
     GrScalar tol = GR_Scalar1;
     tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, path.getBounds());
-    GrDrawState* drawState = target->drawState();
 
     int vertexCnt;
     int indexCnt;
@@ -360,7 +359,8 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
     }
 
     GrAssert(NULL != target);
-    GrDrawTarget::AutoStateRestore asr(target);
+    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
+    GrDrawState* drawState = target->drawState();
     bool colorWritesWereDisabled = drawState->isColorWriteDisabled();
     // face culling doesn't make sense here
     GrAssert(GrDrawState::kBoth_DrawFace == drawState->getDrawFace());
