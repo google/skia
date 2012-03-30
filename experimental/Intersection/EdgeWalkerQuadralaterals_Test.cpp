@@ -1,5 +1,8 @@
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
+#include "SkBitmap.h"
+
+static SkBitmap bitmap;
 
 static void testSimplifyQuad1() {
     SkPath path, out;
@@ -13,7 +16,7 @@ static void testSimplifyQuad1() {
     path.lineTo(1, 3);
     path.lineTo(1, 3);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyQuad2() {
@@ -28,7 +31,7 @@ static void testSimplifyQuad2() {
     path.lineTo(1, 1);
     path.lineTo(0, 2);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyQuad3() {
@@ -43,7 +46,7 @@ static void testSimplifyQuad3() {
     path.lineTo(2, 1);
     path.lineTo(0, 2);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyQuad4() {
@@ -58,7 +61,7 @@ static void testSimplifyQuad4() {
     path.lineTo(3, 1);
     path.lineTo(3, 3);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyQuad5() {
@@ -73,7 +76,7 @@ static void testSimplifyQuad5() {
     path.lineTo(2, 1);
     path.lineTo(0, 2);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyQuad6() {
@@ -88,7 +91,7 @@ static void testSimplifyQuad6() {
     path.lineTo(1, 1);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void (*simplifyTests[])() = {

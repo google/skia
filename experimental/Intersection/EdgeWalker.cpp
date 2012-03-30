@@ -16,7 +16,7 @@
 #include "ShapeOps.h"
 #include "TSearch.h"
 
-#if 01 // set to 1 for no debugging whatsoever
+#if 0 // set to 1 for no debugging whatsoever
 const bool gShowDebugf = false; // FIXME: remove once debugging is complete
 
 #define DEBUG_DUMP 0
@@ -30,6 +30,7 @@ const bool gShowDebugf = false; // FIXME: remove once debugging is complete
 #define DEBUG_OUT_LESS_THAN 0
 #define DEBUG_ADJUST_COINCIDENT 0
 #define DEBUG_BOTTOM 0
+#define DEBUG_SPLIT 0
 
 #else
 const bool gShowDebugf = true; // FIXME: remove once debugging is complete
@@ -44,7 +45,8 @@ const bool gShowDebugf = true; // FIXME: remove once debugging is complete
 #define DEBUG_OUT 01
 #define DEBUG_OUT_LESS_THAN 0
 #define DEBUG_ADJUST_COINCIDENT 1
-#define DEBUG_BOTTOM 01
+#define DEBUG_BOTTOM 0
+#define DEBUG_SPLIT 1
 
 #endif
 
@@ -59,7 +61,8 @@ static int QuadLineIntersect(const SkPoint a[3], const SkPoint b[2],
         Intersections& intersections) {
     const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
     const _Line bLine = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}};
-    return intersect(aQuad, bLine, intersections);
+    intersect(aQuad, bLine, intersections);
+    return intersections.fUsed;
 }
 
 static int CubicLineIntersect(const SkPoint a[2], const SkPoint b[3],
@@ -67,15 +70,15 @@ static int CubicLineIntersect(const SkPoint a[2], const SkPoint b[3],
     const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
             {a[3].fX, a[3].fY}};
     const _Line bLine = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}};
-    intersections.fUsed = intersect(aCubic, bLine, intersections.fT[0], intersections.fT[1]);
-    return intersections.fUsed;
+    return intersect(aCubic, bLine, intersections.fT[0], intersections.fT[1]);
 }
 
 static int QuadIntersect(const SkPoint a[3], const SkPoint b[3],
         Intersections& intersections) {
     const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
     const Quadratic bQuad = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}, {b[2].fX, b[2].fY}};
-    return intersect(aQuad, bQuad, intersections);
+    intersect(aQuad, bQuad, intersections);
+    return intersections.fUsed;
 }
 
 static int CubicIntersect(const SkPoint a[4], const SkPoint b[4],
@@ -84,13 +87,27 @@ static int CubicIntersect(const SkPoint a[4], const SkPoint b[4],
             {a[3].fX, a[3].fY}};
     const Cubic bCubic = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}, {b[2].fX, b[2].fY},
             {b[3].fX, b[3].fY}};
-    return intersect(aCubic, bCubic, intersections);
+    intersect(aCubic, bCubic, intersections);
+    return intersections.fUsed;
 }
 
 static int LineIntersect(const SkPoint a[2], SkScalar left, SkScalar right,
         SkScalar y, double aRange[2]) {
     const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
     return horizontalLineIntersect(aLine, left, right, y, aRange);
+}
+
+static int QuadIntersect(const SkPoint a[3], SkScalar left, SkScalar right,
+        SkScalar y, double aRange[3]) {
+    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
+    return horizontalIntersect(aQuad, left, right, y, aRange);
+}
+
+static int CubicIntersect(const SkPoint a[4], SkScalar left, SkScalar right,
+        SkScalar y, double aRange[4]) {
+    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
+            {a[3].fX, a[3].fY}};
+    return horizontalIntersect(aCubic, left, right, y, aRange);
 }
 
 static void LineXYAtT(const SkPoint a[2], double t, SkPoint* out) {
@@ -632,7 +649,25 @@ class Intercepts {
 public:
     Intercepts()
         : fTopIntercepts(0)
-        , fBottomIntercepts(0) {
+        , fBottomIntercepts(0)
+        , fExplicit(false) {
+    }
+    
+    Intercepts& operator=(const Intercepts& src) {
+        fTs = src.fTs;
+        fTopIntercepts = src.fTopIntercepts;
+        fBottomIntercepts = src.fBottomIntercepts;
+    }
+
+    // OPTIMIZATION: remove this function if it's never called
+    double t(int tIndex) const {
+        if (tIndex == 0) {
+            return 0;
+        }
+        if (tIndex > fTs.count()) {
+            return 1;
+        }
+        return fTs[tIndex - 1];
     }
 
 #if DEBUG_DUMP
@@ -657,16 +692,18 @@ public:
             SkDebugf("%*s.fTs[%d]=%1.9g (%1.9g,%1.9g)\n", tab + sizeof(className),
                     className, i, fTs[i], out.fX, out.fY);
         }
-        SkDebugf("%*s.fTopIntercepts=%d\n", tab + sizeof(className),
+        SkDebugf("%*s.fTopIntercepts=%u\n", tab + sizeof(className),
                 className, fTopIntercepts);
-        SkDebugf("%*s.fBottomIntercepts=%d\n", tab + sizeof(className),
+        SkDebugf("%*s.fBottomIntercepts=%u\n", tab + sizeof(className),
                 className, fBottomIntercepts);
     }
 #endif
 
     SkTDArray<double> fTs;
-    int fTopIntercepts;
-    int fBottomIntercepts;
+    unsigned char fTopIntercepts; // 0=init state 1=1 edge >1=multiple edges
+    unsigned char fBottomIntercepts;
+    bool fExplicit; // if set, suppress 0 and 1
+    
 };
 
 struct HorizontalEdge {
@@ -709,13 +746,16 @@ struct InEdge {
         for (size_t index = 0; index < count; ++index) {
             double t = ts[index];
             if (t <= 0) {
+                intercepts.fTopIntercepts <<= 1;
                 fContainsIntercepts |= ++intercepts.fTopIntercepts > 1;
                 continue;
             }
             if (t >= 1) {
+                intercepts.fBottomIntercepts <<= 1;
                 fContainsIntercepts |= ++intercepts.fBottomIntercepts > 1;
                 continue;
             }
+            fIntersected = true;
             foundIntercept = true;
             size_t tCount = intercepts.fTs.count();
             double delta;
@@ -740,6 +780,40 @@ struct InEdge {
         fContainsIntercepts |= foundIntercept;
         return insertedAt;
     }
+    
+    void addPartial(SkTArray<InEdge>& edges, int id, int ptStart, int ptEnd,
+            int verbStart, int verbEnd) {
+        InEdge* edge = edges.push_back_n(1);
+        int verbCount = verbEnd - verbStart;
+        edge->fIntercepts.push_back_n(verbCount);
+        uint8_t* verbs = &fVerbs[verbStart];
+        for (int ceptIdx = 0; ceptIdx < verbCount; ++ceptIdx) {
+            edge->fIntercepts[ceptIdx] = fIntercepts[verbStart + ceptIdx];
+        }
+        edge->fPts.append(ptEnd - ptStart, &fPts[ptStart]);
+        edge->fVerbs.append(verbCount, &fVerbs[verbStart]);
+        edge->setBounds();
+        edge->fID = id + edges.count();
+        edge->fWinding = fWinding;
+        edge->fContainsIntercepts = fContainsIntercepts; // FIXME: may not be correct -- but do we need to know?
+    }
+
+    void addSplit(SkTArray<InEdge>& edges, int id, SkPoint* pts, uint8_t verb,
+            double* ts, int tCount, bool flipped) {
+        InEdge* edge = edges.push_back_n(1);
+        edge->fIntercepts.push_back_n(1);
+        edge->fIntercepts[0].fTs.append(tCount, ts);
+        edge->fIntercepts[0].fExplicit = true;
+        edge->fPts.append(verb, pts);
+        edge->fVerbs.append(1, &verb);
+        edge->setBounds();
+        edge->fID = id + edges.count();
+        edge->fWinding = fWinding;
+        edge->fContainsIntercepts = fContainsIntercepts; // FIXME: may not be correct -- but do we need to know?
+        if (flipped) {
+            flip();
+        }
+    }
 
     bool cached(const InEdge* edge) {
         // FIXME: in the pathological case where there is a ton of edges, binary search?
@@ -758,10 +832,44 @@ struct InEdge {
     }
 
     void complete(signed char winding, int id) {
+        setBounds();
+        fIntercepts.push_back_n(fVerbs.count());
+        if ((fWinding = winding) < 0) { // reverse verbs, pts, if bottom to top
+            flip();
+        }
+        fContainsIntercepts = fIntersected = false;
+        fID = id;
+    }
+    
+     void flip() {
+        size_t index;
+        size_t last = fPts.count() - 1;
+        for (index = 0; index < last; ++index, --last) {
+            SkTSwap<SkPoint>(fPts[index], fPts[last]);
+        }
+        last = fVerbs.count() - 1;
+        for (index = 0; index < last; ++index, --last) {
+            SkTSwap<uint8_t>(fVerbs[index], fVerbs[last]);
+        }
+    }
+
+    void reset() {
+        fCached.reset();
+        fIntercepts.reset();
+        fPts.reset();
+        fVerbs.reset();
+        fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
+        fID = -1;
+        fWinding = 0;
+        fContainsIntercepts = false;
+        fIntersected = false;
+    }
+
+    void setBounds() {
         SkPoint* ptPtr = fPts.begin();
         SkPoint* ptLast = fPts.end();
         if (ptPtr == ptLast) {
-            SkDebugf("empty edge\n");
+            SkDebugf("%s empty edge\n", __FUNCTION__);
             SkASSERT(0);
             // FIXME: delete empty edge?
             return;
@@ -772,20 +880,113 @@ struct InEdge {
             fBounds.growToInclude(ptPtr->fX, ptPtr->fY);
             ++ptPtr;
         }
-        fIntercepts.push_back_n(fVerbs.count());
-        if ((fWinding = winding) < 0) { // reverse verbs, pts, if bottom to top
-            size_t index;
-            size_t last = fPts.count() - 1;
-            for (index = 0; index < last; ++index, --last) {
-                SkTSwap<SkPoint>(fPts[index], fPts[last]);
+    }
+
+    void splitInflectionPts(SkTArray<InEdge>& edges, int idStart) {
+        if (!fIntersected) {
+            return;
+        }
+        uint8_t* verbs = fVerbs.begin();
+        SkPoint* pts = fPts.begin();
+        int lastVerb = 0;
+        int lastPt = 0;
+        uint8_t verb;
+        bool edgeSplit = false;
+        for (int ceptIdx = 0; ceptIdx < fIntercepts.count(); ++ceptIdx, pts += verb) {
+            Intercepts& intercepts = fIntercepts[ceptIdx];
+            verb = *verbs++;
+            if (verb <= SkPath::kLine_Verb) {
+                continue;
             }
-            last = fVerbs.count() - 1;
-            for (index = 0; index < last; ++index, --last) {
-                SkTSwap<uint8_t>(fVerbs[index], fVerbs[last]);
+            size_t tCount = intercepts.fTs.count();
+            if (!tCount) {
+                continue;
+            }
+            size_t tIndex = -1;
+            SkScalar y = pts[0].fY;
+            int lastSplit = 0;
+            int firstSplit = -1;
+            bool curveSplit = false;
+            while (++tIndex < tCount) {
+                double nextT = intercepts.fTs[tIndex];
+                SkScalar nextY = verb == SkPath::kQuad_Verb
+                        ? QuadYAtT(pts, nextT) : CubicYAtT(pts, nextT);
+                if (nextY < y) {
+                    edgeSplit = curveSplit = true;
+                    if (firstSplit < 0) {
+                        firstSplit = tIndex;
+                        int nextPt = pts - fPts.begin();
+                        int nextVerb = verbs - 1 - fVerbs.begin();
+                        if (lastVerb < nextVerb) {
+                            addPartial(edges, idStart, lastPt, nextPt,
+                                    lastVerb, nextVerb);
+            #if DEBUG_SPLIT
+                            SkDebugf("%s addPartial 1 edge=%d\n", __FUNCTION__,
+                                    fID);
+            #endif
+                        }
+                        lastPt = nextPt;
+                        lastVerb = nextVerb;
+                    }
+                } else {
+                    if (firstSplit >= 0) {
+                        if (lastSplit < firstSplit) {
+                            addSplit(edges, idStart, pts, verb,
+                                    &intercepts.fTs[lastSplit],
+                                    firstSplit - lastSplit, false);
+            #if DEBUG_SPLIT
+                            SkDebugf("%s addSplit 1 edge=%d tIndex=%d,%d\n",
+                                    __FUNCTION__, fID, lastSplit, firstSplit);
+            #endif
+                        }
+                        addSplit(edges, idStart, pts, verb,
+                                &intercepts.fTs[firstSplit],
+                                tIndex - firstSplit, true);
+            #if DEBUG_SPLIT
+                        SkDebugf("%s addSplit 2 edge=%d tIndex=%d,%d flip\n",
+                                __FUNCTION__, fID, firstSplit, tIndex);
+            #endif
+                        lastSplit = tIndex;
+                        firstSplit = -1;
+                    }
+                }
+                y = nextY;
+            }
+            if (curveSplit) {
+                if (firstSplit < 0) {
+                    firstSplit = lastSplit;
+                } else {
+                    addSplit(edges, idStart, pts, verb,
+                            &intercepts.fTs[lastSplit], firstSplit - lastSplit,
+                            false);
+            #if DEBUG_SPLIT
+                    SkDebugf("%s addSplit 3 edge=%d tIndex=%d,%d\n", __FUNCTION__,
+                            fID, lastSplit, firstSplit);
+            #endif
+                }
+                addSplit(edges, idStart, pts, verb,
+                        &intercepts.fTs[firstSplit], tIndex - firstSplit,
+                        pts[verb].fY < y);
+            #if DEBUG_SPLIT
+                SkDebugf("%s addSplit 4 edge=%d tIndex=%d,%d %s\n", __FUNCTION__,
+                        fID, firstSplit, tIndex, pts[verb].fY < y ? "flip" : "");
+            #endif
             }
         }
-        fContainsIntercepts = false;
-        fID = id;
+        // collapse remainder -- if there's nothing left, clear it somehow?
+        if (edgeSplit) {
+            int nextVerb = verbs - 1 - fVerbs.begin();
+            if (lastVerb < nextVerb) {
+                int nextPt = pts - fPts.begin();
+                addPartial(edges, idStart, lastPt, nextPt,
+                        lastVerb, nextVerb);
+            #if DEBUG_SPLIT
+                SkDebugf("%s addPartial 2 edge=%d\n", __FUNCTION__, fID);
+            #endif
+            }
+            // OPTIMIZATION: reuse the edge instead of marking it empty
+            reset();
+        }
     }
 
 #if DEBUG_DUMP
@@ -803,7 +1004,6 @@ struct InEdge {
         for (i = 0; i < fIntercepts.count(); ++i) {
             SkDebugf("%*s.fIntercepts[%d]:\n", tab + sizeof(className),
                     className, i);
-            // FIXME: take current verb into consideration
             fIntercepts[i].dump(pts, (SkPath::Verb) *verbs);
             pts += *verbs++;
         }
@@ -822,10 +1022,12 @@ struct InEdge {
                 fWinding);
         SkDebugf("%*s.fContainsIntercepts=%d\n", tab + sizeof(className),
                 className, fContainsIntercepts);
+        SkDebugf("%*s.fIntersected=%d\n", tab + sizeof(className),
+                className, fIntersected);
     }
 #endif
 
-    // temporary data : move this to a separate struct?
+    // FIXME: temporary data : move this to a separate struct?
     SkTDArray<const InEdge*> fCached; // list of edges already intercepted
     SkTArray<Intercepts> fIntercepts; // one per verb
 
@@ -836,6 +1038,7 @@ struct InEdge {
     int fID;
     signed char fWinding;
     bool fContainsIntercepts;
+    bool fIntersected;
 };
 
 class InEdgeBuilder {
@@ -849,8 +1052,17 @@ InEdgeBuilder(const SkPath& path, bool ignoreHorizontal, SkTArray<InEdge>& edges
     , fID(0)
     , fHorizontalEdges(horizontalEdges)
     , fIgnoreHorizontal(ignoreHorizontal)
+    , fContainsCurves(false)
 {
     walk();
+}
+
+bool containsCurves() const {
+    return fContainsCurves;
+}
+
+int nextID() {
+    return ++fID;
 }
 
 protected:
@@ -864,7 +1076,7 @@ void addEdge() {
 
 bool complete() {
     if (fCurrentEdge && fCurrentEdge->fVerbs.count()) {
-        fCurrentEdge->complete(fWinding, ++fID);
+        fCurrentEdge->complete(fWinding, nextID());
         fCurrentEdge = NULL;
         return true;
     }
@@ -913,9 +1125,11 @@ void walk() {
                 break;
             case SkPath::kQuad_Verb:
                 winding = direction(3);
+                fContainsCurves = true;
                 break;
             case SkPath::kCubic_Verb:
                 winding = direction(4);
+                fContainsCurves = true;
                 break;
             case SkPath::kClose_Verb:
                 SkASSERT(fCurrentEdge);
@@ -969,6 +1183,7 @@ private:
     int fID;
     int8_t fWinding;
     bool fIgnoreHorizontal;
+    bool fContainsCurves;
 };
 
 struct WorkEdge {
@@ -1134,8 +1349,8 @@ public:
     }
 
     bool advanceT() {
-        SkASSERT(fTIndex <= fTs->count());
-        return ++fTIndex <= fTs->count();
+        SkASSERT(fTIndex <= fTs->count() - fExplicitTs);
+        return ++fTIndex <= fTs->count() - fExplicitTs;
     }
 
     bool advance() {
@@ -1153,6 +1368,7 @@ public:
             SkASSERT(fWorkEdge.fEdge->fPts.begin() <= fWorkEdge.fPts);
         } while (fWorkEdge.fPts[0].fY >= y);
         initT();
+        SkASSERT(!fExplicitTs);
         fTIndex = fTs->count() + 1;
     }
 
@@ -1187,7 +1403,7 @@ public:
         //  for the fTIndex, don't do it again
         // For identical x, this lets us know which edge is first.
         // If both edges have T values < 1, check x at next T (fXBelow).
-        int add = (fTIndex <= fTs->count()) - 1;
+        int add = (fTIndex <= fTs->count() - fExplicitTs) - 1;
         double tAbove = t(fTIndex + add);
         (*xyAtTFunc)(fWorkEdge.fPts, tAbove, &fAbove);
         double tBelow = t(fTIndex - ~add);
@@ -1195,6 +1411,7 @@ public:
         SkASSERT(tAbove != tBelow);
         // FIXME: this can loop forever
         // need a break if we hit the end
+        // FIXME: in unit test, figure out how explicit Ts work as well
         while (fAbove.fY == fBelow.fY) {
             if (add < 0 || fTIndex == fTs->count()) {
                 add -= 1;
@@ -1249,7 +1466,8 @@ public:
         const Intercepts& intercepts = fWorkEdge.fEdge->fIntercepts.front();
         SkASSERT(fWorkEdge.verbIndex() <= fWorkEdge.fEdge->fIntercepts.count());
         const Intercepts* interceptPtr = &intercepts + fWorkEdge.verbIndex();
-        fTs = &interceptPtr->fTs; 
+        fTs = &interceptPtr->fTs;
+        fExplicitTs = interceptPtr->fExplicit;
   //  the above is conceptually the same as
   //    fTs = &fWorkEdge.fEdge->fIntercepts[fWorkEdge.verbIndex()].fTs;
   //  but templated arrays don't allow returning a pointer to the end() element
@@ -1379,23 +1597,21 @@ public:
 #endif
         return ulps >= 0 && ulps <= 32;
     }
-
+    
     double nextT() const {
-        SkASSERT(fTIndex <= fTs->count());
+        SkASSERT(fTIndex <= fTs->count() - fExplicitTs);
         return t(fTIndex + 1);
     }
 
     double t() const {
-        if (fTIndex == 0) {
-            return 0;
-        }
-        if (fTIndex > fTs->count()) {
-            return 1;
-        }
-        return (*fTs)[fTIndex - 1];
+        return t(fTIndex);
     }
 
     double t(int tIndex) const {
+        if (fExplicitTs) {
+            SkASSERT(tIndex < fTs->count());
+            return (*fTs)[tIndex];
+        } 
         if (tIndex == 0) {
             return 0;
         }
@@ -1426,6 +1642,7 @@ public:
     bool fCloseCall;
     bool fDone;
     bool fFixBelow;
+    bool fExplicitTs;
 };
 
 static void addToActive(SkTDArray<ActiveEdge>& activeEdges, const InEdge* edge) {
@@ -1462,24 +1679,39 @@ static void addBottomT(InEdge** currentPtr, InEdge** lastPtr,
             HorizontalEdge** sorted = horizontal;
             horzEdge = *sorted;
             do {
-                if (wt.verb() == SkPath::kLine_Verb) {
-                    double wtTs[2];
-                    int pts = LineIntersect(wt.fPts, horzEdge->fLeft,
-                            horzEdge->fRight, horzEdge->fY, wtTs);
-                    if (pts) {
+                double wtTs[4];
+                int pts;
+                uint8_t verb = wt.verb();
+                switch (verb) {
+                    case SkPath::kLine_Verb:
+                        pts = LineIntersect(wt.fPts, horzEdge->fLeft,
+                                horzEdge->fRight, horzEdge->fY, wtTs);
+                        break;
+                    case SkPath::kQuad_Verb:
+                        pts = QuadIntersect(wt.fPts, horzEdge->fLeft,
+                                horzEdge->fRight, horzEdge->fY, wtTs);
+                        break;
+                    case SkPath::kCubic_Verb:
+                        pts = CubicIntersect(wt.fPts, horzEdge->fLeft,
+                                horzEdge->fRight, horzEdge->fY, wtTs);
+                        break;
+                }
+                if (pts) {
 #if DEBUG_ADD_BOTTOM_TS
-                        SkDebugf("%s y=%g wtTs[0]=%g (%g,%g, %g,%g)\n", __FUNCTION__,
-                                horzEdge->fY, wtTs[0], wt.fPts[0].fX, wt.fPts[0].fY,
-                                wt.fPts[1].fX, wt.fPts[1].fY);
-                        if (pts == 2) {
-                            SkDebugf("%s wtTs[1]=%g\n", __FUNCTION__, wtTs[1]);
+                    for (int x = 0; x < pts; ++x) {
+                        SkDebugf("%s y=%g wtTs[0]=%g (%g,%g", __FUNCTION__,
+                                horzEdge->fY, wtTs[x], wt.fPts[0].fX, wt.fPts[0].fY);
+                        for (int y = 0; y < verb; ++y) {
+                            SkDebugf(" %g,%g", wt.fPts[y + 1].fX, wt.fPts[y + 1].fY));
                         }
-#endif
-                        test->add(wtTs, pts, wt.verbIndex());
+                        SkDebugf(")\n");
                     }
-                } else {
-                    // FIXME: add all curve types
-                    SkASSERT(0);
+                    if (pts > verb) {
+                        SkASSERT(0); // FIXME ? should this work?
+                        SkDebugf("%s wtTs[1]=%g\n", __FUNCTION__, wtTs[1]);
+                    }
+#endif
+                    test->add(wtTs, pts, wt.verbIndex());
                 }
                 horzEdge = *++sorted;
             } while (horzEdge->fY == bottom
@@ -1526,6 +1758,9 @@ static void addIntersectingTs(InEdge** currentPtr, InEdge** lastPtr) {
         InEdge** nextPtr = testPtr;
         do {
             InEdge* next = *++nextPtr;
+            // FIXME: this compares against the sentinel sometimes
+            // OPTIMIZATION: this may never be needed since this gets called
+            // in two passes now. Verify that double hits are appropriate.
             if (test->cached(next)) {
                 continue;
             }
@@ -1695,6 +1930,9 @@ static SkScalar computeInterceptBottom(SkTDArray<ActiveEdge>& activeEdges,
             }
         } while (wt.advance());
     }
+#if DEBUG_BOTTOM
+    SkDebugf("%s bottom=%1.9g\n", __FUNCTION__, bottom);
+#endif
     return bottom;
 }
 
@@ -1729,6 +1967,9 @@ static SkScalar findBottom(InEdge** currentPtr,
         }
         test = *++testPtr;
     }
+#if DEBUG_BOTTOM
+    SkDebugf("%s %d bottom=%1.9g\n", __FUNCTION__, activeEdges ? 2 : 1, bottom);
+#endif
     return bottom;
 }
 
@@ -2095,12 +2336,22 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
                     aboveBottom &= !activePtr->fCloseCall;
                 } else {
                     if (activePtr->fSkip || activePtr->fCloseCall) {
-                        SkDebugf("== %1.9g\n", clippedPts[0].fY);
+                        if (gShowDebugf) SkDebugf("== %1.9g\n", clippedPts[0].fY);
                     }
                 }
             } while (moreToDo & aboveBottom);
         } while ((moreToDo || activePtr->advance()) & aboveBottom);
     }
+}
+
+static void dumpEdgeList(const SkTDArray<InEdge*>& edgeList,
+        const InEdge& edgeSentinel) {
+#if DEBUG_DUMP
+    InEdge** debugPtr = edgeList.begin();
+    do {
+        (*debugPtr++)->dump();
+    } while (*debugPtr != &edgeSentinel);
+#endif
 }
 
 void simplify(const SkPath& path, bool asFill, SkPath& simple) {
@@ -2149,14 +2400,24 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
         y = bottom;
         currentPtr = advanceEdges(NULL, currentPtr, lastPtr, y);
     } while (*currentPtr != &edgeSentinel);
-
-#if DEBUG_DUMP
-    InEdge** debugPtr = edgeList.begin();
-    do {
-        (*debugPtr++)->dump();
-    } while (*debugPtr != &edgeSentinel);
-#endif
-
+    // if a quadratic or cubic now has an intermediate T value, see if the Ts
+    // on either side cause the Y values to monotonically increase. If not, split
+    // the curve at the new T.
+    if (builder.containsCurves()) {
+        currentPtr = edgeList.begin();
+        SkTArray<InEdge> splits;
+        do {
+            (*currentPtr)->splitInflectionPts(splits, builder.nextID());
+        } while (*++currentPtr != &edgeSentinel);
+        if (splits.count()) {
+            edges.pop_back(); // pop the sentinel
+            for (int index = 0; index < splits.count(); ++index) {
+                edges.push_back(splits[index]);
+            }
+            makeEdgeList(edges, edgeSentinel, edgeList);
+        }
+    }
+    dumpEdgeList(edgeList, edgeSentinel);
     // walk the sorted edges from top to bottom, computing accumulated winding
     SkTDArray<ActiveEdge> activeEdges;
     OutEdgeBuilder outBuilder(asFill);
@@ -2166,21 +2427,12 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
         InEdge** lastPtr = currentPtr; // find the edge below the bottom of the first set
         SkScalar bottom = findBottom(currentPtr, edgeList.end(),
                 &activeEdges, y, asFill, lastPtr);
-#if DEBUG_BOTTOM
-        SkDebugf("%s findBottom bottom=%1.9g\n", __FUNCTION__, bottom);
-#endif
         if (lastPtr > currentPtr) {
             bottom = computeInterceptBottom(activeEdges, y, bottom);
-#if DEBUG_BOTTOM
-            SkDebugf("%s computeInterceptBottom bottom=%1.9g\n", __FUNCTION__, bottom);
-#endif
             SkTDArray<ActiveEdge*> activeEdgeList;
             sortHorizontal(activeEdges, activeEdgeList, y);
             bottom = adjustCoincident(activeEdgeList, windingMask, y, bottom,
                 outBuilder);
-#if DEBUG_BOTTOM
-            SkDebugf("%s adjustCoincident bottom=%1.9g\n", __FUNCTION__, bottom);
-#endif
             stitchEdge(activeEdgeList, y, bottom, windingMask, asFill, outBuilder);
         }
         y = bottom;

@@ -86,16 +86,22 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
         double newMinT1 = interp(minT1, maxT1, minT);
         double newMaxT1 = interp(minT1, maxT1, maxT);
         split = (newMaxT1 - newMinT1 > (maxT1 - minT1) * tClipLimit) << 1;
+#define VERBOSE 0
+#if VERBOSE
         printf("%s d=%d s=%d new1=(%g,%g) old1=(%g,%g) split=%d\n", __FUNCTION__, depth,
             splits, newMinT1, newMaxT1, minT1, maxT1, split);
+#endif
         minT1 = newMinT1;
         maxT1 = newMaxT1;
     } else {
         double newMinT2 = interp(minT2, maxT2, minT);
         double newMaxT2 = interp(minT2, maxT2, maxT);
         split = newMaxT2 - newMinT2 > (maxT2 - minT2) * tClipLimit;
+#define VERBOSE 0
+#if VERBOSE
         printf("%s d=%d s=%d new2=(%g,%g) old2=(%g,%g) split=%d\n", __FUNCTION__, depth,
             splits, newMinT2, newMaxT2, minT2, maxT2, split);
+#endif
         minT2 = newMinT2;
         maxT2 = newMaxT2;
     }

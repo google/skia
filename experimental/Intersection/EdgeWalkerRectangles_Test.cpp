@@ -1,5 +1,8 @@
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
+#include "SkBitmap.h"
+
+static SkBitmap bitmap;
 
 static void testSimplifyCoincidentInner() {
     SkPath path, out;
@@ -7,7 +10,7 @@ static void testSimplifyCoincidentInner() {
     path.addRect(10, 10, 60, 60, SkPath::kCCW_Direction);
     path.addRect(20, 20, 50, 50, SkPath::kCW_Direction);
     path.addRect(20, 30, 40, 40, SkPath::kCW_Direction);
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyCoincidentVertical() {
@@ -304,7 +307,7 @@ static void testSimplifyOverlap() {
                         SkPath path, out;
                         path.addRect(rect1, static_cast<SkPath::Direction>(dir));
                         path.addRect(rect2, static_cast<SkPath::Direction>(dir));
-                        testSimplify(path, true, out);
+                        testSimplify(path, true, out, bitmap);
                     }
                 }
             }

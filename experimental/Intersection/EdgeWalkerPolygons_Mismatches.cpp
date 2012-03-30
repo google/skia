@@ -1,5 +1,6 @@
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
+#include "SkBitmap.h"
 
 // edges that didn't match
 struct misMatch {
@@ -1579,6 +1580,7 @@ size_t misMatchCount = sizeof(misMatches) / sizeof(misMatches[0]);
 void TestMismatches();
 
 void TestMismatches() {
+    SkBitmap bitmap;
     for (size_t index = 0; index < misMatchCount; ++index) {
         const misMatch& miss = misMatches[index];
         int ax = miss.a & 0x03;
@@ -1609,6 +1611,6 @@ void TestMismatches() {
         path.lineTo(gx, gy);
         path.lineTo(hx, hy);
         path.close();
-        testSimplify(path, true, out);
+        testSimplify(path, true, out, bitmap);
     }
 }

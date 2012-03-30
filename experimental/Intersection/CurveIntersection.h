@@ -31,6 +31,10 @@ int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Flags );
 int reduceOrder(const _Line& line, _Line& reduction);
 int reduceOrder(const Quadratic& quad, Quadratic& reduction);
 int horizontalIntersect(const Cubic& cubic, double y, double tRange[3]);
+int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
+        double tRange[3]);
+int horizontalIntersect(const Quadratic& quad, double left, double right,
+        double y, double tRange[2]);
 bool intersect(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]);
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& );

@@ -1,0 +1,20 @@
+add unit test for quadratic horizontal intersection
+add unit test for cubic horizontal intersection with left/right
+add unit test for ActiveEdge::calcLeft (can currently loop forever)
+does ActiveEdge::isCoincidentWith need to support quad, cubic?
+figure out why variation in ActiveEdge::tooCloseToCall isn't better
+why does 'lastPtr - 2' in addIntersectingTs break testSimplifyTriangle22?
+add code to promote quad to cubic, or add quad/cubic intersection
+figure out why testSimplifySkinnyTriangle13 fails
+
+for quadratics and cubics, once various T values are added, see if consecutive
+Ts have ys that go up instead of down. If so, the edge needs to be broken.
+
+when splitting curves at inflection pts, should I retain the original curve
+data and note that the first/last T are no longer 0/1 ?
+I need to figure this out before I can proceed
+
+would it make sense to leave the InEdge alone, and add multiple copies of
+ActiveEdge, pointing to the same InEdge, where the copy has only the subset
+of Ts that need to be walked in reverse order?
+

@@ -139,7 +139,25 @@ int horizontalIntersect(const Cubic& cubic, double y, double tRange[3]) {
     LineCubicIntersections c(cubic, *((_Line*) 0), tRange);
     return c.horizontalIntersect(y);
 }
- 
+
+int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
+        double tRange[3]) {
+    LineCubicIntersections c(cubic, *((_Line*) 0), tRange);
+    int result = c.horizontalIntersect(y);
+    for (int index = 0; index < result; ) {
+        double x, y;
+        xy_at_t(cubic, tRange[index], x, y);
+        if (x < left || x > right) {
+            if (--result > index) {
+                tRange[index] = tRange[result];
+            }
+            continue;
+        }
+        ++index;
+    }
+    return result;
+}
+
 int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]) {
     LineCubicIntersections c(cubic, line, cRange);
     int roots;

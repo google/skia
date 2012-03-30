@@ -1,5 +1,8 @@
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
+#include "SkBitmap.h"
+
+static SkBitmap bitmap;
 
 static void testSimplifyTriangle() {
     SkPath path, out;
@@ -12,7 +15,7 @@ static void testSimplifyTriangle() {
     path.lineTo(10,30); //                /_|
     path.lineTo(20,30);
     path.close();
-    testSimplify(path, true, out); // expect |\/|
+    testSimplify(path, true, out, bitmap); // expect |\/|
                                    //        |__|         
 }
 
@@ -26,7 +29,7 @@ static void testSimplifyTriangle3() {
     path.lineTo(1, 0);
     path.lineTo(3, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle4() {
@@ -39,7 +42,7 @@ static void testSimplifyTriangle4() {
     path.lineTo(1, 0);
     path.lineTo(2, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle5() {
@@ -52,7 +55,7 @@ static void testSimplifyTriangle5() {
     path.lineTo(1, 1);
     path.lineTo(2, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle6() {
@@ -67,7 +70,7 @@ static void testSimplifyTriangle6() {
     path.lineTo(3, 1);
     path.lineTo(0, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle7() {
@@ -82,7 +85,7 @@ static void testSimplifyTriangle7() {
     path.lineTo(0, 2);
     path.lineTo(0, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle8() {
@@ -97,7 +100,7 @@ static void testSimplifyTriangle8() {
     path.lineTo(1, 3);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle9() {
@@ -112,7 +115,7 @@ static void testSimplifyTriangle9() {
     path.lineTo(2, 1);
     path.lineTo(0, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle10() {
@@ -127,7 +130,7 @@ static void testSimplifyTriangle10() {
     path.lineTo(0, 1);
     path.lineTo(0, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle11() {
@@ -142,7 +145,7 @@ static void testSimplifyTriangle11() {
     path.lineTo(2, 2);
     path.lineTo(0, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle12() {
@@ -157,7 +160,7 @@ static void testSimplifyTriangle12() {
     path.lineTo(1, 1);
     path.lineTo(2, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle13() {
@@ -172,7 +175,7 @@ static void testSimplifyTriangle13() {
     path.lineTo(1, 1);
     path.lineTo(3, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle14() {
@@ -187,7 +190,7 @@ static void testSimplifyTriangle14() {
     path.lineTo(0, 1);
     path.lineTo(0, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle15() {
@@ -201,7 +204,7 @@ static void testSimplifyTriangle15() {
     path.lineTo(0, 1);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle16() {
@@ -214,7 +217,7 @@ static void testSimplifyTriangle16() {
     path.lineTo(0, 1);
     path.lineTo(1, 3);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle17() {
@@ -227,7 +230,7 @@ static void testSimplifyTriangle17() {
     path.lineTo(1, 3);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
     
 static void testSimplifyTriangle18() {
@@ -240,7 +243,7 @@ static void testSimplifyTriangle18() {
     path.lineTo(0, 1);
     path.lineTo(0, 3);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle19() {
@@ -254,7 +257,7 @@ static void testSimplifyTriangle19() {
     path.lineTo(1, 1);
     path.lineTo(2, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle20() {
@@ -267,7 +270,7 @@ static void testSimplifyTriangle20() {
     path.lineTo(3, 2);
     path.lineTo(0, 3);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle21() {
@@ -280,7 +283,7 @@ static void testSimplifyTriangle21() {
     path.lineTo(2, 1);
     path.lineTo(0, 3);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyDegenerateTriangle1() {
@@ -293,7 +296,7 @@ static void testSimplifyDegenerateTriangle1() {
     path.lineTo(0, 0);
     path.lineTo(0, 0);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyDegenerateTriangle2() {
@@ -306,7 +309,7 @@ static void testSimplifyDegenerateTriangle2() {
     path.lineTo(2, 2);
     path.lineTo(3, 3);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyWindingParallelogram() {
@@ -322,7 +325,7 @@ static void testSimplifyWindingParallelogram() {
     path.lineTo(20,30); //               /_/
     path.lineTo(30,10);
     path.close();
-    testSimplify(path, true, out); // expect   _
+    testSimplify(path, true, out, bitmap); // expect   _
                                    //         / \     .       
 }                                  //        /___\    .
 
@@ -339,7 +342,7 @@ static void testSimplifyXorParallelogram() {
     path.lineTo(20,30); //               /_/
     path.lineTo(30,10);
     path.close();
-    testSimplify(path, true, out); // expect   _
+    testSimplify(path, true, out, bitmap); // expect   _
 }                                  //         \ /
 
 static void testSimplifyTriangle2() {
@@ -353,9 +356,10 @@ static void testSimplifyTriangle2() {
     path.lineTo(20,10); //               \ |
     path.lineTo(20,30); //                \|
     path.close();                  //         _
-    testSimplify(path, true, out); // expect | |
+    testSimplify(path, true, out, bitmap); // expect | |
 }                                  //        |_|
 
+#if 0
 static void testPathTriangleRendering() {
     SkPath one, two;
     one.moveTo(0, 0);
@@ -375,10 +379,11 @@ static void testPathTriangleRendering() {
         two.reset();
     }
 }
+#endif
 
 static void simplify(const char* functionName, const SkPath& path,
         bool fill, SkPath& out) {
-    SkDebugf("%s\n", functionName);
+    if (false) SkDebugf("%s\n", functionName);
     simplify(path, fill, out);
 }
 
@@ -525,7 +530,7 @@ static void testSimplifyTriangle22() {
     path.lineTo(0, 2);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle23() {
@@ -538,7 +543,7 @@ static void testSimplifyTriangle23() {
     path.lineTo(0, 1);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifyTriangle24() {
@@ -551,7 +556,7 @@ static void testSimplifyTriangle24() {
     path.lineTo(1, 0);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(path, true, out);
+    testSimplify(path, true, out, bitmap);
 }
 
 static void testSimplifySkinnyTriangle7() {
@@ -754,7 +759,7 @@ static void (*simplifyTests[])() = {
     testSimplifyTriangle2,
     testSimplifyWindingParallelogram,
     testSimplifyXorParallelogram,
-    testPathTriangleRendering,
+//    testPathTriangleRendering,
 };
 
 static size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
@@ -772,7 +777,7 @@ void SimplifyPolygonPaths_Test() {
     for ( ; index < simplifyTestsCount; ++index) {
         (*simplifyTests[index])();
         if (simplifyTests[index] == testSimplifySkinnyTriangle2) {
-            SkDebugf("%s last fast skinny test\n", __FUNCTION__);
+            if (false) SkDebugf("%s last fast skinny test\n", __FUNCTION__);
         }
         firstTestComplete = true;
     }
