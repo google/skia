@@ -230,7 +230,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
         width,
         height,
         SkGr::Bitmap2PixelConfig(bm),
-        {0} // samples
+        0 // samples
     };
 
     fTexture = fContext->createUncachedTexture(desc, NULL, 0);
@@ -801,7 +801,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         // We actually only need A8, but it often isn't supported as a
         // render target
         kRGBA_8888_PM_GrPixelConfig,
-        {0} // samples
+        0 // samples
     };
 
     GrAutoScratchTexture pathEntry(context, desc);
@@ -932,7 +932,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
         dstM.fBounds.width(),
         dstM.fBounds.height(),
         kAlpha_8_GrPixelConfig,
-        {0}, // samples
+        0, // samples
     };
 
     GrAutoScratchTexture ast(context, desc);
@@ -1436,7 +1436,7 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
         rect.width(),
         rect.height(),
         kRGBA_8888_PM_GrPixelConfig,
-        {0} // samples
+        0 // samples
     };
 
     if (filter->asABlur(&blurSize)) {
@@ -1826,7 +1826,7 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             bitmap.width(),
             bitmap.height(),
             SkGr::Bitmap2PixelConfig(bitmap),
-            {0} // samples
+            0 // samples
         };
         GrContext::ScratchTexMatch match;
         if (kSaveLayerDeviceRenderTarget_TexType == type) {

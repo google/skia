@@ -1394,7 +1394,7 @@ bool sw_draw_path_to_mask_texture(const GrPath& clientPath,
         bounds.fRight,
         bounds.fBottom,
         kAlpha_8_GrPixelConfig,
-        {0} // samples
+        0 // samples
     };
 
     tex->set(context, desc);
@@ -1705,7 +1705,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
             kRenderTarget_GrTextureFlagBit,
             width, height,
             config,
-            {0}, // samples
+            0 // samples
         };
 
         // When a full readback is faster than a partial we could always make
@@ -1855,7 +1855,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     }
 
     const GrTextureDesc desc = {
-        kNone_GrTextureFlags, width, height, config, {0}
+        kNone_GrTextureFlags, width, height, config, 0
     };
     GrAutoScratchTexture ast(this, desc);
     GrTexture* texture = ast.texture();
@@ -2133,8 +2133,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit,
         SkScalarFloorToInt(srcRect.width()),
         SkScalarFloorToInt(srcRect.height()),
-        kRGBA_8888_GrPixelConfig,
-        {0} // samples 
+        kRGBA_8888_PM_GrPixelConfig,
+        0 // samples 
     };
 
     temp1->set(this, desc);

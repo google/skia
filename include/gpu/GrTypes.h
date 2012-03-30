@@ -321,11 +321,6 @@ enum GrPixelConfig {
     #error "SK_*32_SHIFT values must correspond to GL_BGRA or GL_RGBA format."
 #endif
 
-// WebKit is relying on this old name for the native skia PM config. This will
-// be deleted ASAP because it is so similar to kRGBA_PM_8888_GrPixelConfig but
-// has a different interpretation when skia is compiled BGRA.
-static const GrPixelConfig kRGBA_8888_GrPixelConfig = kSkia8888_PM_GrPixelConfig;
-
 // Returns true if the pixel config has 8bit r,g,b,a components in that byte
 // order
 static inline bool GrPixelConfigIsRGBA8888(GrPixelConfig config) {
@@ -431,12 +426,6 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
 }
 
 /**
- * DEPRECATED: This will be removed as soon as WebKit no longer references
- * this (former) enum value.
- */
-static const int kNone_GrAALevel = 0;
-
-/**
  * Optional bitfield flags that can be passed to createTexture.
  */
 enum GrTextureFlags {
@@ -481,7 +470,7 @@ struct GrTextureDesc {
      * internal format used by 3D API.
      */
     GrPixelConfig          fConfig;
-    
+
     /**
      * The number of samples per pixel or 0 to disable full scene AA. This only
      * applies if the kRenderTarget_GrTextureFlagBit is set. The actual number
@@ -489,15 +478,7 @@ struct GrTextureDesc {
      * up to the next supported sample count, or down if it is larger than the
      * max supportex count.
      */
-    union {
-        /**
-         * This field has two names for legacy reasons. Use the fSampleCnt name.
-         * fAALevel is deprecated and will be removed as soon as WebKit no
-         * longer uses it.
-         */
-        int fSampleCnt;
-        int fAALevel;
-    };
+    int fSampleCnt;
 };
 
 /**
