@@ -211,7 +211,7 @@ void GrDefaultTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
 
         // before we purge the cache, we must flush any accumulated draws
         this->flushGlyphs();
-        fContext->flushText();
+        fContext->flush();
 
         // try to purge
         fContext->getFontCache()->purgeExceptFor(fStrike);

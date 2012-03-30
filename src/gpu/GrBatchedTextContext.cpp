@@ -70,7 +70,7 @@ void GrBatchedTextContext::setupVertexBuff(void** vertexBuff,
                                                 NULL);
         if (flush) {
             this->flush();
-            fContext->flushText();
+            fContext->flush();
             fDrawTarget = fContext->getTextTarget(fGrPaint);
             fMaxVertices = kDefaultRequestedVerts;
             // ignore return, no point in flushing again.

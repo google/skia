@@ -1539,18 +1539,10 @@ void GrContext::flush(int flagsBitfield) {
     }
 }
 
-void GrContext::flushText() {
-    if (kText_DrawCategory == fLastDrawCategory) {
-        flushDrawBuffer();
-    }
-}
-
 void GrContext::flushDrawBuffer() {
-#if BATCH_RECT_TO_RECT || DEFER_TEXT_RENDERING
     if (fDrawBuffer) {
         fDrawBuffer->flushTo(fGpu);
     }
-#endif
 }
 
 void GrContext::internalWriteTexturePixels(GrTexture* texture,
@@ -1955,21 +1947,16 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
     this->setPaint(paint);
     GrDrawTarget* target = fGpu;
     switch (category) {
-    case kText_DrawCategory:
-#if DEFER_TEXT_RENDERING
-        target = fDrawBuffer;
-        fDrawBuffer->setClip(fGpu->getClip());
-#else
-        target = fGpu;
-#endif
-        break;
-    case kUnbuffered_DrawCategory:
-        target = fGpu;
-        break;
-    case kBuffered_DrawCategory:
-        target = fDrawBuffer;
-        fDrawBuffer->setClip(fGpu->getClip());
-        break;
+        case kUnbuffered_DrawCategory:
+            target = fGpu;
+            break;
+        case kBuffered_DrawCategory:
+            target = fDrawBuffer;
+            fDrawBuffer->setClip(fGpu->getClip());
+            break;
+        default:
+            GrCrash("Unexpected DrawCategory.");
+            break;
     }
     return target;
 }
@@ -2093,7 +2080,7 @@ void GrContext::setupDrawBuffer() {
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
 #if DEFER_TEXT_RENDERING
-    return prepareToDraw(paint, kText_DrawCategory);
+    return prepareToDraw(paint, kBuffered_DrawCategory);
 #else
     return prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
