@@ -37,16 +37,16 @@ void post_skwinevent()
     PostMessage(gEventTarget, WM_EVENT_CALLBACK, 0, 0);
 }
 
-SkOSWindow::SkOSWindow(void* hWnd) 
-    : fHWND(hWnd) 
+SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd) 
 #if SK_ANGLE
-    , fDisplay(EGL_NO_DISPLAY)
-    , fContext(EGL_NO_CONTEXT)
-    , fSurface(EGL_NO_SURFACE)
+                                     , fDisplay(EGL_NO_DISPLAY)
+                                     , fContext(EGL_NO_CONTEXT)
+                                     , fSurface(EGL_NO_SURFACE)
 #endif
-    , fHGLRC(NULL)
-    , fD3D9Device(NULL)
-    , fAttached(kNone_BackEndType) {
+                                     , fHGLRC(NULL),
+                                     fGLAttached(false),
+                                     fD3D9Device(NULL),
+                                     fD3D9Attached(FALSE) {
     gEventTarget = (HWND)hWnd;
 }
 
@@ -58,19 +58,8 @@ SkOSWindow::~SkOSWindow() {
         wglDeleteContext((HGLRC)fHGLRC);
     }
 #if SK_ANGLE
-    if (EGL_NO_CONTEXT != fContext) {
-        angle::eglDestroyContext(fDisplay, fContext);
-        fContext = EGL_NO_CONTEXT;
-    }
-
-    if (EGL_NO_SURFACE != fSurface) {
-        angle::eglDestroySurface(fDisplay, fSurface);
-        fSurface = EGL_NO_SURFACE;
-    }
-
     if (EGL_NO_DISPLAY != fDisplay) {
-        angle::eglTerminate(fDisplay);
-        fDisplay = EGL_NO_DISPLAY;
+        angle::eglDestroyContext(fDisplay, fContext);
     }
 #endif
 }
@@ -162,7 +151,7 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 void SkOSWindow::doPaint(void* ctx) {
     this->update(NULL);
 
-    if (kNone_BackEndType == fAttached)
+    if (!fGLAttached && !fD3D9Attached)
     {
         HDC hdc = (HDC)ctx;
         const SkBitmap& bitmap = this->getBitmap();
@@ -312,9 +301,7 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 #define USE_MSAA 0
 
 HGLRC create_gl(HWND hwnd) {
-
     HDC dc = GetDC(hwnd);
-
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(dc, "WGL_ARB_pixel_format")) {
         return NULL;
@@ -340,7 +327,6 @@ HGLRC create_gl(HWND hwnd) {
         SK_WGL_SAMPLES, 0,
         0,0
     };
-
     static const int kSampleBuffersValueIdx = SK_ARRAY_COUNT(iattrs) - 5;
     static const int kSamplesValueIdx = SK_ARRAY_COUNT(iattrs) - 3;
     if (USE_MSAA && extensions.hasExtension(dc, "WGL_ARB_multisample")) {
@@ -361,7 +347,6 @@ HGLRC create_gl(HWND hwnd) {
             }
         }
     }
-
     if (0 == format) {
         iattrs[kSampleBuffersValueIdx-1] = iattrs[kSampleBuffersValueIdx] = 0;
         iattrs[kSamplesValueIdx-1] = iattrs[kSamplesValueIdx] = 0;
@@ -394,6 +379,7 @@ bool SkOSWindow::attachGL() {
     if (wglMakeCurrent(GetDC((HWND)fHWND), (HGLRC)fHGLRC)) {
         glViewport(0, 0, SkScalarRound(this->width()),
                    SkScalarRound(this->height()));
+        fGLAttached = true;
         return true;
     }
     return false;
@@ -401,8 +387,7 @@ bool SkOSWindow::attachGL() {
 
 void SkOSWindow::detachGL() {
     wglMakeCurrent(GetDC((HWND)fHWND), 0);
-    wglDeleteContext((HGLRC)fHGLRC);
-    fHGLRC = NULL;
+    fGLAttached = false;
 }
 
 void SkOSWindow::presentGL() {
@@ -494,6 +479,7 @@ bool SkOSWindow::attachANGLE() {
     if (angle::eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         angle::glViewport(0, 0, SkScalarRound(this->width()),
                    SkScalarRound(this->height()));
+        fGLAttached = true;
         return true;
     }
     return false;
@@ -501,15 +487,7 @@ bool SkOSWindow::attachANGLE() {
 
 void SkOSWindow::detachANGLE() {
     angle::eglMakeCurrent(fDisplay, EGL_NO_SURFACE , EGL_NO_SURFACE , EGL_NO_CONTEXT);
-
-    angle::eglDestroyContext(fDisplay, fContext);
-    fContext = EGL_NO_CONTEXT;
-
-    angle::eglDestroySurface(fDisplay, fSurface);
-    fSurface = EGL_NO_SURFACE;
-
-    angle::eglTerminate(fDisplay);
-    fDisplay = EGL_NO_DISPLAY;
+    fGLAttached = false;
 }
 
 void SkOSWindow::presentANGLE() {
@@ -597,15 +575,16 @@ bool SkOSWindow::attachD3D9() {
     }
     if (NULL != fD3D9Device) {
         ((IDirect3DDevice9*)fD3D9Device)->BeginScene();
-        return true;
+        fD3D9Attached = true;
     }
-    return false;
+    return fD3D9Attached;
 }
 
 void SkOSWindow::detachD3D9() {
     if (NULL != fD3D9Device) {
         ((IDirect3DDevice9*)fD3D9Device)->EndScene();
     }
+    fD3D9Attached = false;
 }
 
 void SkOSWindow::presentD3D9() {
@@ -624,87 +603,6 @@ void SkOSWindow::presentD3D9() {
     }
 }
 
-// return true on success
-bool SkOSWindow::attach(SkBackEndTypes attachType) {
-
-    // attach doubles as "windowResize" so we need to allo
-    // already bound states to pass through again
-    // TODO: split out the resize functionality
-//    SkASSERT(kNone_BackEndType == fAttached);
-    bool result = true;
-
-    switch (attachType) {
-    case kNone_BackEndType:
-        // nothing to do
-        break; 
-    case kNativeGL_BackEndType:
-        result = attachGL();
-        break;
-#if SK_ANGLE
-    case kANGLE_BackEndType:
-        result = attachANGLE();
-        break;
-#endif
-    case kD3D9_BackEndType:
-        result = attachD3D9();
-        break;
-    default:
-        SkASSERT(false);
-        result = false;
-        break;
-    }
-
-    if (result) {
-        fAttached = attachType;
-    }
-
-    return result;
-}
-
-void SkOSWindow::detach() {
-    switch (fAttached) {
-    case kNone_BackEndType:
-        // nothing to do
-        break; 
-    case kNativeGL_BackEndType:
-        detachGL();
-        break;
-#if SK_ANGLE
-    case kANGLE_BackEndType:
-        detachANGLE();
-        break;
-#endif
-    case kD3D9_BackEndType:
-        detachD3D9();
-        break;
-    default:
-        SkASSERT(false);
-        break;
-    }
-    fAttached = kNone_BackEndType;
-}
-
-void SkOSWindow::present() {
-    switch (fAttached) {
-    case kNone_BackEndType:
-        // nothing to do
-        return; 
-    case kNativeGL_BackEndType:
-        presentGL();
-        break;
-#if SK_ANGLE
-    case kANGLE_BackEndType:
-        presentANGLE();
-        break;
-#endif
-    case kD3D9_BackEndType:
-        presentD3D9();
-        break;
-    default:
-        SkASSERT(false);
-        break;
-    }
-}
 
 #endif
 
