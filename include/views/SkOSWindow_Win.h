@@ -26,20 +26,19 @@ public:
     void    updateSize();
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
-    
-    bool attachGL();
-    void detachGL();
-    void presentGL();
 
+    enum SkBackEndTypes {
+        kNone_BackEndType,
+        kNativeGL_BackEndType,
 #if SK_ANGLE
-    bool attachANGLE();
-    void detachANGLE();
-    void presentANGLE();
+        kANGLE_BackEndType,
 #endif
+        kD3D9_BackEndType
+    };
 
-    bool attachD3D9();
-    void detachD3D9();
-    void presentD3D9();
+    bool attach(SkBackEndTypes attachType);
+    void detach();
+    void present();
 
     void* d3d9Device() { return fD3D9Device; }
 
@@ -73,12 +72,25 @@ private:
     angle::EGLSurface   fSurface;
 #endif
 
-    bool                fGLAttached;
-
     void*               fD3D9Device;
-    bool                fD3D9Attached;
 
     HMENU               fMBar;
+
+    SkBackEndTypes      fAttached;
+
+    bool attachGL();
+    void detachGL();
+    void presentGL();
+
+#if SK_ANGLE
+    bool attachANGLE();
+    void detachANGLE();
+    void presentANGLE();
+#endif
+
+    bool attachD3D9();
+    void detachD3D9();
+    void presentD3D9();
 
     typedef SkWindow INHERITED; 
 };
