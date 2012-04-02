@@ -631,6 +631,13 @@ static bool isAxisAligned(const SkScalerContext::Rec& rec) {
 }
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+    //BOGUS: http://code.google.com/p/chromium/issues/detail?id=121119
+    //Cap the requested size as larger sizes give bogus values.
+    //Remove when http://code.google.com/p/skia/issues/detail?id=554 is fixed.
+    if (rec->fTextSize > (1 << 14)) {
+      rec->fTextSize = (1 << 14);
+    }
+    
     if (!gLCDSupportValid) {
         InitFreetype();
         FT_Done_FreeType(gFTLibrary);
