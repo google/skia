@@ -500,7 +500,7 @@ AGLContext create_gl(WindowRef wref)
     return ctx;
 }
 
-bool SkOSWindow::attachGL()
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */)
 {
     if (NULL == fAGLCtx) {
         fAGLCtx = create_gl((WindowRef)fHWND);
@@ -532,11 +532,11 @@ bool SkOSWindow::attachGL()
     return success;
 }
 
-void SkOSWindow::detachGL() {
+void SkOSWindow::detach() {
     aglSetWindowRef((AGLContext)fAGLCtx, NULL);
 }
 
-void SkOSWindow::presentGL() {
+void SkOSWindow::present() {
     aglSwapBuffers((AGLContext)fAGLCtx);
 }
 
