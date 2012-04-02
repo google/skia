@@ -34,9 +34,15 @@ public:
     void* getUnixWindow() const { return (void*)&fUnixWindow; }
     void loop();
     void post_linuxevent();
-    bool attachGL();
-    void detachGL();
-    void presentGL();
+
+    enum SkBackEndTypes {
+        kNone_BackEndType,
+        kNativeGL_BackEndType,
+    };
+
+    bool attach(SkBackEndTypes attachType);
+    void detach();
+    void present();
 
     //static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 

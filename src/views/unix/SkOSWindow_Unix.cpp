@@ -170,7 +170,7 @@ void SkOSWindow::mapWindowAndWait()
 
 }
 
-bool SkOSWindow::attachGL()
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */)
 {
     if (fGLAttached) return true;
     Display* dsp = fUnixWindow.fDisplay;
@@ -194,7 +194,7 @@ bool SkOSWindow::attachGL()
     return true;
 }
 
-void SkOSWindow::detachGL()
+void SkOSWindow::detach()
 {
     if (!fUnixWindow.fDisplay || !fGLAttached) return;
     fGLAttached = false;
@@ -204,7 +204,7 @@ void SkOSWindow::detachGL()
     this->inval(NULL);
 }
 
-void SkOSWindow::presentGL()
+void SkOSWindow::present()
 {
     if (fUnixWindow.fDisplay && fGLAttached) {
         glXSwapBuffers(fUnixWindow.fDisplay, fUnixWindow.fWin);

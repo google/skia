@@ -19,9 +19,15 @@ public:
     
     virtual bool onDispatchClick(int x, int y, Click::State state, 
                                  void* owner);
-    void    detachGL();
-    bool    attachGL();
-    void    presentGL();
+
+    enum SkBackEndTypes {
+        kNone_BackEndType,
+        kNativeGL_BackEndType,
+    };
+
+    void    detach();
+    bool    attach(SkBackEndTypes attachType);
+    void    present();
     
 protected:
     // overrides from SkEventSink

@@ -18,9 +18,15 @@ class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void*) {}
     ~SkOSWindow() {}
-    bool attachGL() { return true; }
-    void detachGL() {}
-    void presentGL() {}
+
+    enum SkBackEndTypes {
+        kNone_BackEndType,
+        kNativeGL_BackEndType,
+    };
+
+    bool attach(SkBackEndTypes /* attachType */) { return true; }
+    void detach() {}
+    void present() {}
 
     virtual void onPDFSaved(const char title[], const char desc[],
         const char path[]);
