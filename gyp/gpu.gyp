@@ -92,6 +92,13 @@
         '../src/core',
         '../include/gpu',
       ],
+      'dependencies': [
+        'libtess.gyp:libtess',
+        'angle.gyp:*',
+      ],
+      'export_dependent_settings': [
+        'angle.gyp:*',
+      ],
       'sources': [
         '../include/gpu/SkGpuCanvas.h',
         '../include/gpu/SkGpuDevice.h',
@@ -100,6 +107,7 @@
 
         '../include/gpu/gl/SkGLContext.h',
         '../include/gpu/gl/SkMesaGLContext.h',
+        '../include/gpu/gl/SkANGLEGLContext.h',
         '../include/gpu/gl/SkNativeGLContext.h',
         '../include/gpu/gl/SkNullGLContext.h',
         '../include/gpu/gl/SkDebugGLContext.h',
@@ -122,6 +130,8 @@
         '../src/gpu/gl/unix/SkNativeGLContext_unix.cpp',
 
         '../src/gpu/gl/mesa/SkMesaGLContext.cpp',
+        '../src/gpu/gl/angle/SkANGLEGLContext.cpp',
+        '../src/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
 
         '../src/gpu/android/SkNativeGLContext_android.cpp',
       ],
@@ -134,6 +144,13 @@
         [ 'skia_mesa and skia_os == "mac"', {
           'include_dirs': [
              '$(SDKROOT)/usr/X11/include/',
+          ],
+        }],
+        [ 'not skia_angle', {
+          'sources!': [
+            '../include/gpu/gl/SkANGLEGLContext.h',
+            '../src/gpu/gl/angle/SkANGLEGLContext.cpp',
+            '../src/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
           ],
         }],
       ],
@@ -149,6 +166,10 @@
       ],
       'dependencies': [
         'libtess.gyp:libtess',
+        'angle.gyp:*',
+      ],
+      'export_dependent_settings': [
+        'angle.gyp:*',
       ],
       'sources': [
         '../include/gpu/GrClip.h',
@@ -288,6 +309,7 @@
         '../src/gpu/gl/unix/GrGLCreateNativeInterface_unix.cpp',
 
         '../src/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
+        '../src/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
 
         '../src/gpu/android/GrGLCreateNativeInterface_android.cpp',
       ],
@@ -344,6 +366,14 @@
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
+          ],
+        }],
+        [ 'not skia_angle', {
+          'sources!': [
+            '../include/gpu/gl/SkANGLEGLContext.h',
+
+            '../src/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
+            '../src/gpu/gl/angle/SkANGLEGLContext.cpp',
           ],
         }],
         [ 'skia_os == "android"', {

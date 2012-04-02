@@ -61,6 +61,8 @@
 
       'skia_scalar%': 'float',
       'skia_mesa%': 0,
+      # Do not turn on 'skia_angle' - it is currently experimental
+      'skia_angle%': 0,
       'skia_target_arch%': 'x86',
     },
 
@@ -70,6 +72,7 @@
     'os_posix%': '<(os_posix)',
     'skia_scalar%': '<(skia_scalar)',
     'skia_mesa%': '<(skia_mesa)',
+    'skia_angle%': '<(skia_angle)',
     'skia_target_arch%': '<(skia_target_arch)',
   },
 }
