@@ -22,6 +22,8 @@
 #include "SkGraphics.h"
 
 #if SK_ANGLE
+#include "gl/GrGLInterface.h"
+
 #include "GLES2/gl2.h"
 #endif
 
@@ -59,7 +61,7 @@ SkOSWindow::~SkOSWindow() {
     }
 #if SK_ANGLE
     if (EGL_NO_DISPLAY != fDisplay) {
-        angle::eglDestroyContext(fDisplay, fContext);
+        eglDestroyContext(fDisplay, fContext);
     }
 #endif
 }
@@ -396,8 +398,8 @@ void SkOSWindow::presentGL() {
 }
 
 #if SK_ANGLE
-bool create_ANGLE(EGLNativeWindowType hWnd, angle::EGLDisplay* eglDisplay,
-                  angle::EGLContext* eglContext, angle::EGLSurface* eglSurface) {
+bool create_ANGLE(EGLNativeWindowType hWnd, EGLDisplay* eglDisplay,
+                  EGLContext* eglContext, EGLSurface* eglSurface) {
     EGLint contextAttribs[] = { 
         EGL_CONTEXT_CLIENT_VERSION, 2, 
         EGL_NONE, EGL_NONE 
@@ -415,47 +417,47 @@ bool create_ANGLE(EGLNativeWindowType hWnd, angle::EGLDisplay* eglDisplay,
         EGL_NONE, EGL_NONE
     };
 
-    angle::EGLDisplay display = angle::eglGetDisplay(GetDC(hWnd));
+    EGLDisplay display = eglGetDisplay(GetDC(hWnd));
     if (display == EGL_NO_DISPLAY ) {
        return false;
     }
 
     // Initialize EGL
     EGLint majorVersion, minorVersion;
-    if (!angle::eglInitialize(display, &majorVersion, &minorVersion)) {
+    if (!eglInitialize(display, &majorVersion, &minorVersion)) {
        return false;
     }
 
     EGLint numConfigs;
-    if (!angle::eglGetConfigs(display, NULL, 0, &numConfigs)) {
+    if (!eglGetConfigs(display, NULL, 0, &numConfigs)) {
        return false;
     }
 
     // Choose config
-    angle::EGLConfig config;
-    if (!angle::eglChooseConfig(display, configAttribList, 
+    EGLConfig config;
+    if (!eglChooseConfig(display, configAttribList, 
                                 &config, 1, &numConfigs)) {
        return false;
     }
 
     // Create a surface
-    angle::EGLSurface surface = angle::eglCreateWindowSurface(display, config, 
-                                                        (EGLNativeWindowType)hWnd, 
-                                                        surfaceAttribList);
+    EGLSurface surface = eglCreateWindowSurface(display, config, 
+                                                (EGLNativeWindowType)hWnd, 
+                                                surfaceAttribList);
     if (surface == EGL_NO_SURFACE) {
        return false;
     }
 
     // Create a GL context
-    angle::EGLContext context = angle::eglCreateContext(display, config, 
-                                                        EGL_NO_CONTEXT,
-                                                        contextAttribs );
+    EGLContext context = eglCreateContext(display, config, 
+                                          EGL_NO_CONTEXT,
+                                          contextAttribs );
     if (context == EGL_NO_CONTEXT ) {
        return false;
     }   
     
     // Make the context current
-    if (!angle::eglMakeCurrent(display, surface, surface, context)) {
+    if (!eglMakeCurrent(display, surface, surface, context)) {
        return false;
     }
     
@@ -471,14 +473,22 @@ bool SkOSWindow::attachANGLE() {
         if (false == bResult) {
             return false;
         }
-        angle::glClearStencil(0);
-        angle::glClearColor(0, 0, 0, 0);
-        angle::glStencilMask(0xffffffff);
-        angle::glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        const GrGLInterface* intf = GrGLCreateANGLEInterface();
+
+        if (intf) {
+            GR_GL_CALL(intf, ClearStencil(0));
+            GR_GL_CALL(intf, ClearColor(0, 0, 0, 0));
+            GR_GL_CALL(intf, StencilMask(0xffffffff));
+            GR_GL_CALL(intf, Clear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
+        }
     }
-    if (angle::eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-        angle::glViewport(0, 0, SkScalarRound(this->width()),
-                   SkScalarRound(this->height()));
+    if (eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+        const GrGLInterface* intf = GrGLCreateANGLEInterface();
+
+        if (intf ) {
+            GR_GL_CALL(intf, Viewport(0, 0, SkScalarRound(this->width()),
+                                      SkScalarRound(this->height())));
+        }
         fGLAttached = true;
         return true;
     }
@@ -486,13 +496,17 @@ bool SkOSWindow::attachANGLE() {
 }
 
 void SkOSWindow::detachANGLE() {
-    angle::eglMakeCurrent(fDisplay, EGL_NO_SURFACE , EGL_NO_SURFACE , EGL_NO_CONTEXT);
+    eglMakeCurrent(fDisplay, EGL_NO_SURFACE , EGL_NO_SURFACE , EGL_NO_CONTEXT);
     fGLAttached = false;
 }
 
 void SkOSWindow::presentANGLE() {
-    angle::glFlush();
-    angle::eglSwapBuffers(fDisplay, fSurface);
+    const GrGLInterface* intf = GrGLCreateANGLEInterface();
+
+    if (intf) {
+        GR_GL_CALL(intf, Flush());
+    }
+    eglSwapBuffers(fDisplay, fSurface);
 }
 #endif
 

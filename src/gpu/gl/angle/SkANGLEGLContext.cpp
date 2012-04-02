@@ -9,15 +9,15 @@
 #include "gl/SkANGLEGLContext.h"
 
 SkANGLEGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldEGLContext = angle::eglGetCurrentContext();
-    fOldDisplay = angle::eglGetCurrentDisplay();
-    fOldSurface = angle::eglGetCurrentSurface(EGL_DRAW);
+    fOldEGLContext = eglGetCurrentContext();
+    fOldDisplay = eglGetCurrentDisplay();
+    fOldSurface = eglGetCurrentSurface(EGL_DRAW);
 
 }
 
 SkANGLEGLContext::AutoContextRestore::~AutoContextRestore() {
     if (NULL != fOldDisplay) {
-        angle::eglMakeCurrent(fOldDisplay, fOldSurface, fOldSurface, fOldEGLContext);
+        eglMakeCurrent(fOldDisplay, fOldSurface, fOldSurface, fOldEGLContext);
     }
 }
 
@@ -35,15 +35,15 @@ SkANGLEGLContext::~SkANGLEGLContext() {
 
 void SkANGLEGLContext::destroyGLContext() {
     if (fDisplay) {
-        angle::eglMakeCurrent(fDisplay, 0, 0, 0);
+        eglMakeCurrent(fDisplay, 0, 0, 0);
 
         if (fContext) {
-            angle::eglDestroyContext(fDisplay, fContext);
+            eglDestroyContext(fDisplay, fContext);
             fContext = EGL_NO_CONTEXT;
         }
 
         if (fSurface) {
-            angle::eglDestroySurface(fDisplay, fSurface);
+            eglDestroySurface(fDisplay, fSurface);
             fSurface = EGL_NO_SURFACE;
         }
 
@@ -54,11 +54,11 @@ void SkANGLEGLContext::destroyGLContext() {
 
 const GrGLInterface* SkANGLEGLContext::createGLContext() {
 
-    fDisplay = angle::eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
     EGLint majorVersion;
     EGLint minorVersion;
-    angle::eglInitialize(fDisplay, &majorVersion, &minorVersion);
+    eglInitialize(fDisplay, &majorVersion, &minorVersion);
 
     EGLint numConfigs;
     static const EGLint configAttribs[] = {
@@ -71,14 +71,14 @@ const GrGLInterface* SkANGLEGLContext::createGLContext() {
         EGL_NONE
     };
 
-    angle::EGLConfig surfaceConfig;
-    angle::eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs);
+    EGLConfig surfaceConfig;
+    eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs);
 
     static const EGLint contextAttribs[] = {
         EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE
     };
-    fContext = angle::eglCreateContext(fDisplay, surfaceConfig, NULL, contextAttribs);
+    fContext = eglCreateContext(fDisplay, surfaceConfig, NULL, contextAttribs);
 
 
     static const EGLint surfaceAttribs[] = {
@@ -86,9 +86,9 @@ const GrGLInterface* SkANGLEGLContext::createGLContext() {
             EGL_HEIGHT, 1,
             EGL_NONE
         };
-    fSurface = angle::eglCreatePbufferSurface(fDisplay, surfaceConfig, surfaceAttribs);
+    fSurface = eglCreatePbufferSurface(fDisplay, surfaceConfig, surfaceAttribs);
 
-    angle::eglMakeCurrent(fDisplay, fSurface, fSurface, fContext);
+    eglMakeCurrent(fDisplay, fSurface, fSurface, fContext);
 
     const GrGLInterface* interface = GrGLCreateANGLEInterface();
     if (NULL == interface) {
@@ -101,7 +101,7 @@ const GrGLInterface* SkANGLEGLContext::createGLContext() {
 }
 
 void SkANGLEGLContext::makeCurrent() const {
-    if (!angle::eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+    if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
 }

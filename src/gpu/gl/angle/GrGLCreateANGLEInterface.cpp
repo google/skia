@@ -17,113 +17,137 @@
 #include "GLES2/gl2ext.h"
 #include "EGL/egl.h"
 
+#define GR_GET_PROC(procType, baseName)             \
+    interface->f ## baseName = (procType) GetProcAddress(ghANGLELib, "gl" #baseName);
+
 const GrGLInterface* GrGLCreateANGLEInterface() {
+
     static SkAutoTUnref<GrGLInterface> glInterface;
+    static HMODULE ghANGLELib = NULL;
+    
+    if (NULL == ghANGLELib) {
+        // We load the ANGLE library and never let it go
+        ghANGLELib = LoadLibrary("libGLESv2.dll");
+    }
+    if (NULL == ghANGLELib) {
+        // We can't setup the interface correctly w/o the DLL
+        return NULL;
+    }
+
     if (!glInterface.get()) {
         GrGLInterface* interface = new GrGLInterface;
         glInterface.reset(interface);
         interface->fBindingsExported = kES2_GrGLBinding;
-        interface->fActiveTexture = angle::glActiveTexture;
-        interface->fAttachShader = angle::glAttachShader;
-        interface->fBindAttribLocation = angle::glBindAttribLocation;
-        interface->fBindBuffer = angle::glBindBuffer;
-        interface->fBindTexture = angle::glBindTexture;
-        interface->fBlendColor = angle::glBlendColor;
-        interface->fBlendFunc = angle::glBlendFunc;
-        interface->fBufferData = angle::glBufferData;
-        interface->fBufferSubData = angle::glBufferSubData;
-        interface->fClear = angle::glClear;
-        interface->fClearColor = angle::glClearColor;
-        interface->fClearStencil = angle::glClearStencil;
-        interface->fColorMask = angle::glColorMask;
-        interface->fCompileShader = angle::glCompileShader;
-        interface->fCompressedTexImage2D = angle::glCompressedTexImage2D;
-        interface->fCreateProgram = angle::glCreateProgram;
-        interface->fCreateShader = angle::glCreateShader;
-        interface->fCullFace = angle::glCullFace;
-        interface->fDeleteBuffers = angle::glDeleteBuffers;
-        interface->fDeleteProgram = angle::glDeleteProgram;
-        interface->fDeleteShader = angle::glDeleteShader;
-        interface->fDeleteTextures = angle::glDeleteTextures;
-        interface->fDepthMask = angle::glDepthMask;
-        interface->fDisable = angle::glDisable;
-        interface->fDisableVertexAttribArray = angle::glDisableVertexAttribArray;
-        interface->fDrawArrays = angle::glDrawArrays;
-        interface->fDrawElements = angle::glDrawElements;
-        interface->fEnable = angle::glEnable;
-        interface->fEnableVertexAttribArray = angle::glEnableVertexAttribArray;
-        interface->fFinish = angle::glFinish;
-        interface->fFlush = angle::glFlush;
-        interface->fFrontFace = angle::glFrontFace;
-        interface->fGenBuffers = angle::glGenBuffers;
-        interface->fGenTextures = angle::glGenTextures;
-        interface->fGetBufferParameteriv = angle::glGetBufferParameteriv;
-        interface->fGetError = angle::glGetError;
-        interface->fGetIntegerv = angle::glGetIntegerv;
-        interface->fGetProgramInfoLog = angle::glGetProgramInfoLog;
-        interface->fGetProgramiv = angle::glGetProgramiv;
-        interface->fGetShaderInfoLog = angle::glGetShaderInfoLog;
-        interface->fGetShaderiv = angle::glGetShaderiv;
-        interface->fGetString = angle::glGetString;
-        interface->fGetUniformLocation = angle::glGetUniformLocation;
-        interface->fLineWidth = angle::glLineWidth;
-        interface->fLinkProgram = angle::glLinkProgram;
-        interface->fPixelStorei = angle::glPixelStorei;
-        interface->fReadPixels = angle::glReadPixels;
-        interface->fScissor = angle::glScissor;
-        interface->fShaderSource = angle::glShaderSource;
-        interface->fStencilFunc = angle::glStencilFunc;
-        interface->fStencilFuncSeparate = angle::glStencilFuncSeparate;
-        interface->fStencilMask = angle::glStencilMask;
-        interface->fStencilMaskSeparate = angle::glStencilMaskSeparate;
-        interface->fStencilOp = angle::glStencilOp;
-        interface->fStencilOpSeparate = angle::glStencilOpSeparate;
-        interface->fTexImage2D = angle::glTexImage2D;
-        interface->fTexParameteri = angle::glTexParameteri;
-        interface->fTexSubImage2D = angle::glTexSubImage2D;
-#if GL_ARB_texture_storage
-        interface->fTexStorage2D = angle::glTexStorage2D;
-#elif GL_EXT_texture_storage
-        interface->fTexStorage2D = angle::glTexStorage2DEXT;
-#endif
-        interface->fUniform1f = angle::glUniform1f;
-        interface->fUniform1i = angle::glUniform1i;
-        interface->fUniform1fv = angle::glUniform1fv;
-        interface->fUniform1iv = angle::glUniform1iv;
-        interface->fUniform2f = angle::glUniform2f;
-        interface->fUniform2i = angle::glUniform2i;
-        interface->fUniform2fv = angle::glUniform2fv;
-        interface->fUniform2iv = angle::glUniform2iv;
-        interface->fUniform3f = angle::glUniform3f;
-        interface->fUniform3i = angle::glUniform3i;
-        interface->fUniform3fv = angle::glUniform3fv;
-        interface->fUniform3iv = angle::glUniform3iv;
-        interface->fUniform4f = angle::glUniform4f;
-        interface->fUniform4i = angle::glUniform4i;
-        interface->fUniform4fv = angle::glUniform4fv;
-        interface->fUniform4iv = angle::glUniform4iv;
-        interface->fUniformMatrix2fv = angle::glUniformMatrix2fv;
-        interface->fUniformMatrix3fv = angle::glUniformMatrix3fv;
-        interface->fUniformMatrix4fv = angle::glUniformMatrix4fv;
-        interface->fUseProgram = angle::glUseProgram;
-        interface->fVertexAttrib4fv = angle::glVertexAttrib4fv;
-        interface->fVertexAttribPointer = angle::glVertexAttribPointer;
-        interface->fViewport = angle::glViewport;
-        interface->fBindFramebuffer = angle::glBindFramebuffer;
-        interface->fBindRenderbuffer = angle::glBindRenderbuffer;
-        interface->fCheckFramebufferStatus = angle::glCheckFramebufferStatus;
-        interface->fDeleteFramebuffers = angle::glDeleteFramebuffers;
-        interface->fDeleteRenderbuffers = angle::glDeleteRenderbuffers;
-        interface->fFramebufferRenderbuffer = angle::glFramebufferRenderbuffer;
-        interface->fFramebufferTexture2D = angle::glFramebufferTexture2D;
-        interface->fGenFramebuffers = angle::glGenFramebuffers;
-        interface->fGenRenderbuffers = angle::glGenRenderbuffers;
-        interface->fGetFramebufferAttachmentParameteriv = angle::glGetFramebufferAttachmentParameteriv;
-        interface->fGetRenderbufferParameteriv = angle::glGetRenderbufferParameteriv;
-        interface->fRenderbufferStorage = angle::glRenderbufferStorage;
 
-        interface->fMapBuffer = (angle::PFNGLMAPBUFFEROESPROC) angle::eglGetProcAddress("glMapBufferOES");
-        interface->fUnmapBuffer = (angle::PFNGLUNMAPBUFFEROESPROC) angle::eglGetProcAddress("glUnmapBufferOES");
+        GR_GET_PROC(GrGLActiveTextureProc,      ActiveTexture);
+        GR_GET_PROC(GrGLAttachShaderProc,       AttachShader);
+        GR_GET_PROC(GrGLBindAttribLocationProc, BindAttribLocation);
+        GR_GET_PROC(GrGLBindBufferProc,         BindBuffer);
+        GR_GET_PROC(GrGLBindTextureProc,        BindTexture);
+        GR_GET_PROC(GrGLBlendColorProc,         BlendColor);
+        GR_GET_PROC(GrGLBlendFuncProc,          BlendFunc);
+        GR_GET_PROC(GrGLBufferDataProc,         BufferData);
+        GR_GET_PROC(GrGLBufferSubDataProc,      BufferSubData);
+        GR_GET_PROC(GrGLClearProc,              Clear);
+        GR_GET_PROC(GrGLClearColorProc,         ClearColor);
+        GR_GET_PROC(GrGLClearStencilProc,       ClearStencil);
+        GR_GET_PROC(GrGLColorMaskProc,          ColorMask);
+        GR_GET_PROC(GrGLCompileShaderProc,      CompileShader);
+        GR_GET_PROC(GrGLCompressedTexImage2DProc, CompressedTexImage2D);
+        GR_GET_PROC(GrGLCreateProgramProc,      CreateProgram);
+        GR_GET_PROC(GrGLCreateShaderProc,       CreateShader);
+        GR_GET_PROC(GrGLCullFaceProc,           CullFace);
+        GR_GET_PROC(GrGLDeleteBuffersProc,      DeleteBuffers);
+        GR_GET_PROC(GrGLDeleteProgramProc,      DeleteProgram);
+        GR_GET_PROC(GrGLDeleteShaderProc,       DeleteShader);
+        GR_GET_PROC(GrGLDeleteTexturesProc,     DeleteTextures);
+        GR_GET_PROC(GrGLDepthMaskProc,          DepthMask);
+        GR_GET_PROC(GrGLDisableProc,            Disable);
+        GR_GET_PROC(GrGLDisableVertexAttribArrayProc, DisableVertexAttribArray);
+        GR_GET_PROC(GrGLDrawArraysProc,         DrawArrays);
+        GR_GET_PROC(GrGLDrawElementsProc,       DrawElements);
+        GR_GET_PROC(GrGLEnableProc,             Enable);
+        GR_GET_PROC(GrGLEnableVertexAttribArrayProc, EnableVertexAttribArray);
+        GR_GET_PROC(GrGLFinishProc,             Finish);
+        GR_GET_PROC(GrGLFlushProc,              Flush);
+        GR_GET_PROC(GrGLFrontFaceProc,          FrontFace);
+        GR_GET_PROC(GrGLGenBuffersProc,         GenBuffers);
+        GR_GET_PROC(GrGLGenTexturesProc,        GenTextures);
+        GR_GET_PROC(GrGLGetBufferParameterivProc, GetBufferParameteriv);
+        GR_GET_PROC(GrGLGetErrorProc,           GetError);
+        GR_GET_PROC(GrGLGetIntegervProc,        GetIntegerv);
+        GR_GET_PROC(GrGLGetProgramInfoLogProc,  GetProgramInfoLog);
+        GR_GET_PROC(GrGLGetProgramivProc,       GetProgramiv);
+        GR_GET_PROC(GrGLGetShaderInfoLogProc,   GetShaderInfoLog);
+        GR_GET_PROC(GrGLGetShaderivProc,        GetShaderiv);
+        GR_GET_PROC(GrGLGetStringProc,          GetString);
+        GR_GET_PROC(GrGLGetUniformLocationProc, GetUniformLocation);
+        GR_GET_PROC(GrGLLineWidthProc,          LineWidth);
+        GR_GET_PROC(GrGLLinkProgramProc,        LinkProgram);
+        GR_GET_PROC(GrGLPixelStoreiProc,        PixelStorei);
+        GR_GET_PROC(GrGLReadPixelsProc,         ReadPixels);
+        GR_GET_PROC(GrGLScissorProc,            Scissor);
+        GR_GET_PROC(GrGLShaderSourceProc,       ShaderSource);
+        GR_GET_PROC(GrGLStencilFuncProc,        StencilFunc);
+        GR_GET_PROC(GrGLStencilFuncSeparateProc, StencilFuncSeparate);
+        GR_GET_PROC(GrGLStencilMaskProc,        StencilMask);
+        GR_GET_PROC(GrGLStencilMaskSeparateProc, StencilMaskSeparate);
+        GR_GET_PROC(GrGLStencilOpProc,          StencilOp);
+        GR_GET_PROC(GrGLStencilOpSeparateProc,  StencilOpSeparate);
+        GR_GET_PROC(GrGLTexImage2DProc,         TexImage2D);
+        GR_GET_PROC(GrGLTexParameteriProc,      TexParameteri);
+        GR_GET_PROC(GrGLTexSubImage2DProc,      TexSubImage2D);
+#if GL_ARB_texture_storage
+        GR_GET_PROC(GrGLTexStorage2DProc,       TexStorage2D);
+#elif GL_EXT_texture_storage
+        interface->fTexStorage2D = (GrGLTexStorage2DProc) 
+                                            GetProcAddress(ghANGLELib, 
+                                            "glTexStorage2DEXT");
+#endif
+        GR_GET_PROC(GrGLUniform1fProc,          Uniform1f);
+        GR_GET_PROC(GrGLUniform1iProc,          Uniform1i);
+        GR_GET_PROC(GrGLUniform1fvProc,         Uniform1fv);
+        GR_GET_PROC(GrGLUniform1ivProc,         Uniform1iv);
+
+        GR_GET_PROC(GrGLUniform2fProc,          Uniform2f);
+        GR_GET_PROC(GrGLUniform2iProc,          Uniform2i);
+        GR_GET_PROC(GrGLUniform2fvProc,         Uniform2fv);
+        GR_GET_PROC(GrGLUniform2ivProc,         Uniform2iv);
+
+        GR_GET_PROC(GrGLUniform3fProc,          Uniform3f);
+        GR_GET_PROC(GrGLUniform3iProc,          Uniform3i);
+        GR_GET_PROC(GrGLUniform3fvProc,         Uniform3fv);
+        GR_GET_PROC(GrGLUniform3ivProc,         Uniform3iv);
+
+        GR_GET_PROC(GrGLUniform4fProc,          Uniform4f);
+        GR_GET_PROC(GrGLUniform4iProc,          Uniform4i);
+        GR_GET_PROC(GrGLUniform4fvProc,         Uniform4fv);
+        GR_GET_PROC(GrGLUniform4ivProc,         Uniform4iv);
+
+        GR_GET_PROC(GrGLUniformMatrix2fvProc,   UniformMatrix2fv);
+        GR_GET_PROC(GrGLUniformMatrix3fvProc,   UniformMatrix3fv);
+        GR_GET_PROC(GrGLUniformMatrix4fvProc,   UniformMatrix4fv);
+        GR_GET_PROC(GrGLUseProgramProc,         UseProgram);
+        GR_GET_PROC(GrGLVertexAttrib4fvProc,    VertexAttrib4fv);
+        GR_GET_PROC(GrGLVertexAttribPointerProc, VertexAttribPointer);
+        GR_GET_PROC(GrGLViewportProc,           Viewport);
+        GR_GET_PROC(GrGLBindFramebufferProc,    BindFramebuffer);
+        GR_GET_PROC(GrGLBindRenderbufferProc,   BindRenderbuffer);
+        GR_GET_PROC(GrGLCheckFramebufferStatusProc, CheckFramebufferStatus);
+        GR_GET_PROC(GrGLDeleteFramebuffersProc, DeleteFramebuffers);
+        GR_GET_PROC(GrGLDeleteRenderbuffersProc, DeleteRenderbuffers);
+        GR_GET_PROC(GrGLFramebufferRenderbufferProc, FramebufferRenderbuffer);
+        GR_GET_PROC(GrGLFramebufferTexture2DProc, FramebufferTexture2D);
+        GR_GET_PROC(GrGLGenFramebuffersProc,    GenFramebuffers);
+        GR_GET_PROC(GrGLGenRenderbuffersProc,   GenRenderbuffers);
+        GR_GET_PROC(GrGLGetFramebufferAttachmentParameterivProc, 
+                                GetFramebufferAttachmentParameteriv);
+        GR_GET_PROC(GrGLGetRenderbufferParameterivProc, 
+                                GetRenderbufferParameteriv);
+        GR_GET_PROC(GrGLRenderbufferStorageProc, RenderbufferStorage);
+
+        interface->fMapBuffer = (PFNGLMAPBUFFEROESPROC) eglGetProcAddress("glMapBufferOES");
+        interface->fUnmapBuffer = (PFNGLUNMAPBUFFEROESPROC) eglGetProcAddress("glUnmapBufferOES");
     }
     glInterface.get()->ref();
     return glInterface.get();
