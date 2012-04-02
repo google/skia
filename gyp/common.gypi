@@ -21,6 +21,9 @@
           {'error': '<!(Cannot build with skia_os=<(skia_os) on OS=<(OS))'}],
         ['skia_mesa and skia_os not in ["mac", "linux"]',
           {'error': '<!(skia_mesa=1 only supported with skia_os="mac" or "linux".)'}],
+        ['skia_angle and not skia_os == "win"',
+          {'error': '<!(skia_angle=1 only supported with skia_os="win".)'
+        }],
       ],
     },
     'includes': [
@@ -47,6 +50,16 @@
         'direct_dependent_settings': {
           'defines': [
             'SK_MESA',
+          ],
+        },
+      }],
+      [ 'skia_angle', {
+        'defines': [
+          'SK_ANGLE',
+        ],
+        'direct_dependent_settings': {
+          'defines': [
+            'SK_ANGLE',
           ],
         },
       }],

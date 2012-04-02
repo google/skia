@@ -18,6 +18,10 @@
         '../include/images',
         '../include/effects',
         '../include/views/unix',
+        '../include/gpu',
+      ],
+      'dependencies': [
+        'angle.gyp:*',
       ],
       'sources': [
         '../include/views/SkApplication.h',
