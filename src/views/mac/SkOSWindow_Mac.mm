@@ -63,16 +63,16 @@ void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
     [(SkNSView*)fHWND onUpdateMenu:menu];
 }
 
-bool SkOSWindow::attachGL() {
-    return [(SkNSView*)fHWND attachGL];
+bool SkOSWindow::attach(SkBackEndTypes attachType) {
+    return [(SkNSView*)fHWND attach:attachType];
 }
 
-void SkOSWindow::detachGL() {
-    [(SkNSView*)fHWND detachGL];
+void SkOSWindow::detach() {
+    [(SkNSView*)fHWND detach];
 }
 
-void SkOSWindow::presentGL() {
-    [(SkNSView*)fHWND presentGL];
+void SkOSWindow::present() {
+    [(SkNSView*)fHWND present];
 }
 
 #endif

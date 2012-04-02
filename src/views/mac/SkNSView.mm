@@ -265,7 +265,7 @@ CGLContextObj createGLContext() {
         [fGLContext setView:self];
     }
 }
-- (bool)attachGL {
+- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType {
     if (nil == fGLContext) {
         fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:createGLContext()];
         if (NULL == fGLContext) {
@@ -282,11 +282,11 @@ CGLContextObj createGLContext() {
     return true;
 }
 
-- (void)detachGL {
+- (void)detach {
     [fGLContext clearDrawable];
 }
 
-- (void)presentGL {
+- (void)present {
     [fGLContext flushBuffer];
 }
 @end

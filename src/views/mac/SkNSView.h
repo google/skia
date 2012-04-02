@@ -42,7 +42,7 @@ class SkEvent;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
 
-- (bool)attachGL;
-- (void)detachGL;
-- (void)presentGL;
+- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType;
+- (void)detach;
+- (void)present;
 @end

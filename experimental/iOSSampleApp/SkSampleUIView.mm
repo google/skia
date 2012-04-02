@@ -28,7 +28,7 @@ public:
     }
     
     virtual void init(SampleWindow* win) {
-        win->attachGL();
+        win->attach(kNativeGL_BackEndType);
         if (NULL == fGrContext) {
 #ifdef USE_GL_1
             fGrContext = GrContext::Create(kOpenGL_Fixed_GrEngine, NULL);
@@ -83,7 +83,7 @@ public:
     
     virtual void windowSizeChanged(SampleWindow* win) {
         if (fGrContext) {
-            win->attachGL();
+            win->attach(kNativeGL_BackEndType);
             
             GrPlatformSurfaceDesc desc;
             desc.reset();
