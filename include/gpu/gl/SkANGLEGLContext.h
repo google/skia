@@ -29,9 +29,9 @@ public:
         ~AutoContextRestore();
 
     private:
-        angle::EGLContext fOldEGLContext;
-        angle::EGLDisplay fOldDisplay;
-        angle::EGLSurface fOldSurface;
+        EGLContext fOldEGLContext;
+        EGLDisplay fOldDisplay;
+        EGLSurface fOldSurface;
     };
 
 protected:
@@ -39,9 +39,9 @@ protected:
     virtual void destroyGLContext() SK_OVERRIDE;
 
 private:
-    angle::EGLContext fContext;
-    angle::EGLDisplay fDisplay;
-    angle::EGLSurface fSurface;
+    EGLContext fContext;
+    EGLDisplay fDisplay;
+    EGLSurface fSurface;
 };
 
 #endif

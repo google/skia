@@ -68,9 +68,9 @@ private:
 
     void*               fHGLRC;
 #if SK_ANGLE
-    angle::EGLDisplay   fDisplay;
-    angle::EGLContext   fContext;
-    angle::EGLSurface   fSurface;
+    EGLDisplay          fDisplay;
+    EGLContext          fContext;
+    EGLSurface          fSurface;
 #endif
 
     bool                fGLAttached;
