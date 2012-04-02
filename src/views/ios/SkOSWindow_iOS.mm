@@ -54,12 +54,12 @@ void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
     [(SkUIView*)fHWND onUpdateMenu:menu];
 }
 
-bool SkOSWindow::attachGL() {
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */) {
     bool success = true;
     return success;
 }
 
-void SkOSWindow::detachGL() {}
+void SkOSWindow::detach() {}
 
-void SkOSWindow::presentGL() {
+void SkOSWindow::present() {
 }
