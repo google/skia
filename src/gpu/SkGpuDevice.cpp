@@ -65,7 +65,7 @@ enum {
 #define DO_DEFERRED_CLEAR       \
     do {                        \
         if (fNeedClear) {       \
-            this->clear(NULL);  \
+            this->clear(0x0);   \
             fNeedClear = false; \
         }                       \
     } while (false)             \
