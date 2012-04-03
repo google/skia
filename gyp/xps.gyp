@@ -51,6 +51,7 @@
         ],
         'include_dirs': [
           '../include/device/xps',
+          '../src/utils', # needed to get SkBitSet.h
         ],
       },
     },
