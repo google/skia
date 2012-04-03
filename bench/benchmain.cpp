@@ -326,6 +326,37 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
     return true;
 }
 
+static void help() {
+    SkDebugf("Usage: bench [-o outDir] [-repeat nr] "
+                          "[-timers [wcg]*] [-rotate]\n"
+             "    [-scale] [-clip] [-forceAA 1|0] [-forceFilter 1|0]\n"
+             "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
+             "    [-match name] [-config 8888|565|GPU|ANGLE|NULLGPU]\n"
+             "    [-Dfoo bar] [-h|--help]");
+    SkDebugf("\n\n");
+    SkDebugf("    -o outDir : Image of each bench will be put in outDir.\n");
+    SkDebugf("    -repeat nr : Each bench repeats for nr times.\n");
+    SkDebugf("    -timers [wcg]* : "
+             "Display wall time, cpu time or gpu time for each bench.\n");
+    SkDebugf("    -rotate : Rotate before each bench runs.\n");
+    SkDebugf("    -scale : Scale before each bench runs.\n");
+    SkDebugf("    -clip : Clip before each bench runs.\n");
+    SkDebugf("    -forceAA 1|0 : "
+             "Enable/disable anti-aliased, default is enabled.\n");
+    SkDebugf("    -forceFilter 1|0 : "
+             "Enable/disable bitmap filtering, default is disabled.\n");
+    SkDebugf("    -forceDither 1|0 : "
+             "Enable/disable dithering, default is disabled.\n");
+    SkDebugf("    -forceBlend 1|0 : "
+             "Enable/disable dithering, default is disabled.\n");
+    SkDebugf("    -strokeWidth width : The width for path stroke.\n");
+    SkDebugf("    -match name : Only run bench whose name is matched.\n");
+    SkDebugf("    -config 8888|565|GPU|ANGLE|NULLGPU : "
+             "Run bench in corresponding config mode.\n");
+    SkDebugf("    -Dfoo bar : Add extra definition to bench.\n");
+    SkDebugf("    -h|--help : Show this help message.\n");
+}
+
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
     
@@ -371,6 +402,7 @@ int main (int argc, char * const argv[]) {
                 }
             } else {
                 log_error("missing arg for -repeat\n");
+                help();
                 return -1;
             }
         } else if (strcmp(*argv, "-timers") == 0) {
@@ -388,6 +420,7 @@ int main (int argc, char * const argv[]) {
                 }
             } else {
                 log_error("missing arg for -timers\n");
+                help();
                 return -1;
             }
         } else if (!strcmp(*argv, "-rotate")) {
@@ -399,17 +432,20 @@ int main (int argc, char * const argv[]) {
         } else if (strcmp(*argv, "-forceAA") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceAA)) {
                 log_error("missing arg for -forceAA\n");
+                help();
                 return -1;
             }
         } else if (strcmp(*argv, "-forceFilter") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceFilter)) {
                 log_error("missing arg for -forceFilter\n");
+                help();
                 return -1;
             }
         } else if (strcmp(*argv, "-forceDither") == 0) {
             bool tmp;
             if (!parse_bool_arg(++argv, stop, &tmp)) {
                 log_error("missing arg for -forceDither\n");
+                help();
                 return -1;
             }
             forceDither = tmp ? SkTriState::kTrue : SkTriState::kFalse;
@@ -417,6 +453,7 @@ int main (int argc, char * const argv[]) {
             bool wantAlpha = false;
             if (!parse_bool_arg(++argv, stop, &wantAlpha)) {
                 log_error("missing arg for -forceBlend\n");
+                help();
                 return -1;
             }
             forceAlpha = wantAlpha ? 0x80 : 0xFF;
@@ -426,11 +463,13 @@ int main (int argc, char * const argv[]) {
                 const char *strokeWidthStr = *argv;
                 if (sscanf(strokeWidthStr, "%f", &strokeWidth) != 1) {
                   log_error("bad arg for -strokeWidth\n");
+                  help();
                   return -1;
                 }
                 hasStrokeWidth = true;
             } else {
                 log_error("missing arg for -strokeWidth\n");
+                help();
                 return -1;
             }
         } else if (strcmp(*argv, "-match") == 0) {
@@ -439,6 +478,7 @@ int main (int argc, char * const argv[]) {
                 *fMatches.append() = *argv;
             } else {
                 log_error("missing arg for -match\n");
+                help();
                 return -1;
             }
         } else if (strcmp(*argv, "-config") == 0) {
@@ -455,10 +495,12 @@ int main (int argc, char * const argv[]) {
                     SkString str;
                     str.printf("unrecognized config %s\n", *argv);
                     log_error(str);
+                    help();
                     return -1;
                 }
             } else {
                 log_error("missing arg for -config\n");
+                help();
                 return -1;
             }
         } else if (strlen(*argv) > 2 && strncmp(*argv, "-D", 2) == 0) {
@@ -467,12 +509,17 @@ int main (int argc, char * const argv[]) {
                 defineDict.set(argv[-1] + 2, *argv);
             } else {
                 log_error("incomplete '-Dfoo bar' definition\n");
+                help();
                 return -1;
             }
+        } else if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
+            help();
+            return 0;
         } else {
             SkString str;
             str.printf("unrecognized arg %s\n", *argv);
             log_error(str);
+            help();
             return -1;
         }
     }
