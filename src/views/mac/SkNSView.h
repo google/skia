@@ -42,7 +42,7 @@ class SkEvent;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
 
-- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType;
+- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType withMSAASampleCount:(int) sampleCount;
 - (void)detach;
 - (void)present;
 @end

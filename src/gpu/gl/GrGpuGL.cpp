@@ -1848,6 +1848,7 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
 
         // we prefer smooth lines over multisampled lines
         // msaa should be disabled if drawing smooth lines.
+        bool handledMSAA = false;
         if (GrIsPrimTypeLines(type)) {
             bool smooth = this->willUseHWAALines();
             if (!fHWAAState.fSmoothLineEnabled && smooth) {
@@ -1857,14 +1858,15 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
                 GL_CALL(Disable(GR_GL_LINE_SMOOTH));
                 fHWAAState.fSmoothLineEnabled = false;
             }
-            if (rt->isMultisampled() && 
-                fHWAAState.fMSAAEnabled) {
+            if (smooth && rt->isMultisampled() && fHWAAState.fMSAAEnabled) {
                 GL_CALL(Disable(GR_GL_MULTISAMPLE));
                 fHWAAState.fMSAAEnabled = false;
+                handledMSAA = true;
             }
-        } else if (rt->isMultisampled() &&
-                   this->getDrawState().isHWAntialiasState() !=
-                   fHWAAState.fMSAAEnabled) {
+        }
+        if (!handledMSAA && rt->isMultisampled() &&
+            this->getDrawState().isHWAntialiasState() !=
+            fHWAAState.fMSAAEnabled) {
             if (fHWAAState.fMSAAEnabled) {
                 GL_CALL(Disable(GR_GL_MULTISAMPLE));
                 fHWAAState.fMSAAEnabled = false;

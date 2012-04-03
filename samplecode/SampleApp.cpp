@@ -139,7 +139,8 @@ public:
         : fCurContext(NULL)
         , fCurIntf(NULL)
         , fCurRenderTarget(NULL)
-        , fBackend(kNone_BackEndType) {
+        , fBackend(kNone_BackEndType)
+        , fMSAASampleCount(0) {
     }
 
     virtual ~DefaultDeviceManager() {
@@ -148,7 +149,7 @@ public:
         SkSafeUnref(fCurRenderTarget);
     }
 
-    virtual void setUpBackend(SampleWindow* win) {
+    virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) {
         SkASSERT(kNone_BackEndType == fBackend);
 
         fBackend = kNone_BackEndType;
@@ -175,11 +176,12 @@ public:
                 break;
         }
 
-        bool result = win->attach(fBackend);
+        bool result = win->attach(fBackend, msaaSampleCount);
         if (!result) {
             SkDebugf("Failed to initialize GL");
             return;
         }
+        fMSAASampleCount = msaaSampleCount;
 
         SkASSERT(NULL == fCurIntf);
         switch (win->getDeviceType()) {
@@ -287,7 +289,7 @@ public:
     virtual void windowSizeChanged(SampleWindow* win) {
 
         if (fCurContext) {
-            win->attach(fBackend);
+            win->attach(fBackend, fMSAASampleCount);
 
             GrPlatformRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
@@ -313,6 +315,7 @@ private:
     GrRenderTarget*         fCurRenderTarget;
 
     SkOSWindow::SkBackEndTypes fBackend;
+    int fMSAASampleCount;
 
     typedef SampleWindow::DeviceManager INHERITED;
 };
@@ -645,9 +648,10 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 }
 
 static void usage(const char * argv0) {
-    SkDebugf("%s [--slide sampleName] [-i resourcePath]\n", argv0);
+    SkDebugf("%s [--slide sampleName] [-i resourcePath] [-msaa=<samplecnt>]\n", argv0);
     SkDebugf("    sampleName: sample at which to start.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
+    SkDebugf("    msaa: request multisampling with the given sample count.\n");
 }
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager) : INHERITED(hwnd) {
@@ -663,6 +667,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     const char* resourcePath = NULL;
     fCurrIndex = -1;
+    fMSAASampleCount = 0;
 
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
@@ -680,7 +685,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                     fprintf(stderr, "Unknown sample \"%s\"\n", *argv);
                 }
             }
-        } 
+        } else if (1 == sscanf(*argv, "--msaa=%d", &fMSAASampleCount) &&
+                   fMSAASampleCount >= 0) {
+        }
         else {
             usage(commandName);
         }
@@ -820,7 +827,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         devManager->ref();
         fDevManager = devManager;
     }
-    fDevManager->setUpBackend(this);
+    fDevManager->setUpBackend(this, fMSAASampleCount);
 
     // If another constructor set our dimensions, ensure that our
     // onSizeChange gets called.
@@ -1671,7 +1678,7 @@ void SampleWindow::setDeviceType(DeviceType type) {
 
     fDeviceType = type;
 
-    fDevManager->setUpBackend(this);
+    fDevManager->setUpBackend(this, fMSAASampleCount);
 
     this->updateTitle();
     this->inval(NULL);
