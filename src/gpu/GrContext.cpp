@@ -22,11 +22,11 @@
 #include "SkTLazy.h"
 #include "SkTrace.h"
 
-#define DEFER_TEXT_RENDERING 1
+#define DEFER_TEXT_RENDERING 0
 
-#define DEFER_PATHS 1
+#define DEFER_PATHS 0
 
-#define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
+#define BATCH_RECT_TO_RECT (0 && !GR_STATIC_RECT_VB)
 
 #define MAX_BLUR_SIGMA 4.0f
 
@@ -2056,7 +2056,6 @@ void GrContext::setupDrawBuffer() {
     GrAssert(NULL == fDrawBufferVBAllocPool);
     GrAssert(NULL == fDrawBufferIBAllocPool);
 
-#if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT
     fDrawBufferVBAllocPool =
         new GrVertexBufferAllocPool(fGpu, false,
                                     DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
@@ -2069,11 +2068,7 @@ void GrContext::setupDrawBuffer() {
     fDrawBuffer = new GrInOrderDrawBuffer(fGpu,
                                           fDrawBufferVBAllocPool,
                                           fDrawBufferIBAllocPool);
-#endif
-
-#if BATCH_RECT_TO_RECT
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
-#endif
     fDrawBuffer->setAutoFlushTarget(fGpu);
     fDrawBuffer->setDrawState(fDrawState);
 }

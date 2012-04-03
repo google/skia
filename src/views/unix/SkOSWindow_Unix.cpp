@@ -170,7 +170,7 @@ void SkOSWindow::mapWindowAndWait()
 
 }
 
-bool SkOSWindow::attach(SkBackEndTypes /* attachType */)
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int msaaSampleCount)
 {
     if (fGLAttached) return true;
     Display* dsp = fUnixWindow.fDisplay;

@@ -50,7 +50,7 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
-        virtual void setUpBackend(SampleWindow* win) = 0;
+        virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) = 0;
 
         virtual void tearDownBackend(SampleWindow* win) = 0;
 
@@ -169,6 +169,8 @@ private:
     SkOSMenu::TriState fFilterState;
     SkOSMenu::TriState fHintingState;
     unsigned   fFlipAxis;
+
+    int fMSAASampleCount;
 
     int fScrollTestX, fScrollTestY;
     SkScalar fZoomCenterX, fZoomCenterY;
