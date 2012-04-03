@@ -225,6 +225,7 @@ static SkKey raw2key(UInt32 raw)
 ///////////////////////////////////////////////////////////////////////////////
 #include <OpenGL/OpenGL.h>
 
+namespace { 
 CGLContextObj createGLContext() {
     GLint major, minor;
     CGLGetVersion(&major, &minor);
@@ -254,6 +255,7 @@ CGLContextObj createGLContext() {
     CGLSetCurrentContext(ctx);
     return ctx;
 }
+}
 
 - (void)viewDidMoveToWindow {
     [super viewDidMoveToWindow];
@@ -267,10 +269,13 @@ CGLContextObj createGLContext() {
 }
 - (bool)attach:(SkOSWindow::SkBackEndTypes)attachType {
     if (nil == fGLContext) {
-        fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:createGLContext()];
+        CGLContextObj ctx = createGLContext();
+        fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
+        CGLReleaseContext(ctx);
         if (NULL == fGLContext) {
             return false;
         }
+        [fGLContext setView:self];
     }
     
     [fGLContext makeCurrentContext];
@@ -283,10 +288,13 @@ CGLContextObj createGLContext() {
 }
 
 - (void)detach {
-    [fGLContext clearDrawable];
+    [fGLContext release];
+    fGLContext = nil;
 }
 
 - (void)present {
-    [fGLContext flushBuffer];
+    if (nil != fGLContext) {
+        [fGLContext flushBuffer];
+    }
 }
 @end
