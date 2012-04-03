@@ -225,36 +225,25 @@ static SkKey raw2key(UInt32 raw)
 ///////////////////////////////////////////////////////////////////////////////
 #include <OpenGL/OpenGL.h>
 
-namespace { 
-CGLContextObj createGLContext(int msaaSampleCount) {
+CGLContextObj createGLContext() {
     GLint major, minor;
     CGLGetVersion(&major, &minor);
     
-    static const CGLPixelFormatAttribute attributes[] = {
+    const CGLPixelFormatAttribute attributes[] = {
         kCGLPFAStencilSize, (CGLPixelFormatAttribute)8,
+#if USE_MSAA
+        kCGLPFASampleBuffers, 1,
+        kCGLPFAMultisample,
+        kCGLPFASamples, 8,
+#endif
         kCGLPFAAccelerated,
         kCGLPFADoubleBuffer,
         (CGLPixelFormatAttribute)0
     };
     
     CGLPixelFormatObj format;
-    GLint npix = 0;
-    if (msaaSampleCount > 0) {
-        static int kAttributeCount = SK_ARRAY_COUNT(attributes);
-        CGLPixelFormatAttribute msaaAttributes[kAttributeCount + 5];
-        memcpy(msaaAttributes, attributes, sizeof(attributes));
-        SkASSERT(0 == msaaAttributes[kAttributeCount - 1]);
-        msaaAttributes[kAttributeCount - 1] = kCGLPFASampleBuffers;
-        msaaAttributes[kAttributeCount + 0] = (CGLPixelFormatAttribute)1;
-        msaaAttributes[kAttributeCount + 1] = kCGLPFAMultisample;
-        msaaAttributes[kAttributeCount + 2] = kCGLPFASamples;
-        msaaAttributes[kAttributeCount + 3] = (CGLPixelFormatAttribute)msaaSampleCount;
-        msaaAttributes[kAttributeCount + 4] = (CGLPixelFormatAttribute)0;
-        CGLChoosePixelFormat(msaaAttributes, &format, &npix);
-    }
-    if (!npix) {
-        CGLChoosePixelFormat(attributes, &format, &npix);
-    }
+    GLint npix;
+    CGLChoosePixelFormat(attributes, &format, &npix);
     
     CGLContextObj ctx;
     CGLCreateContext(format, NULL, &ctx);
@@ -264,7 +253,6 @@ CGLContextObj createGLContext(int msaaSampleCount) {
     CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
     CGLSetCurrentContext(ctx);
     return ctx;
-}
 }
 
 - (void)viewDidMoveToWindow {
@@ -277,15 +265,12 @@ CGLContextObj createGLContext(int msaaSampleCount) {
         [fGLContext setView:self];
     }
 }
-- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType withMSAASampleCount:(int) sampleCount {
+- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType {
     if (nil == fGLContext) {
-        CGLContextObj ctx = createGLContext(sampleCount);
-        fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
-        CGLReleaseContext(ctx);
+        fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:createGLContext()];
         if (NULL == fGLContext) {
             return false;
         }
-        [fGLContext setView:self];
     }
     
     [fGLContext makeCurrentContext];
@@ -298,13 +283,10 @@ CGLContextObj createGLContext(int msaaSampleCount) {
 }
 
 - (void)detach {
-    [fGLContext release];
-    fGLContext = nil;
+    [fGLContext clearDrawable];
 }
 
 - (void)present {
-    if (nil != fGLContext) {
-        [fGLContext flushBuffer];
-    }
+    [fGLContext flushBuffer];
 }
 @end
