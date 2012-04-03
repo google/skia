@@ -32,9 +32,11 @@ const int HEIGHT = 500;
 const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
         |ExposureMask|PointerMotionMask|KeyPressMask|KeyReleaseMask;
 
-SkOSWindow::SkOSWindow(void* unused) : INHERITED(), fGLAttached(false), fVi(0)
-{
+SkOSWindow::SkOSWindow(void* unused)
+    : INHERITED()
+    , fVi(0) {
     fUnixWindow.fDisplay = XOpenDisplay(NULL);
+    fUnixWindow.fGLContext = NULL;
     Display* dsp = fUnixWindow.fDisplay;
     if (dsp) {
         // Attempt to create a window that supports GL
@@ -61,27 +63,26 @@ SkOSWindow::SkOSWindow(void* unused) : INHERITED(), fGLAttached(false), fVi(0)
         fUnixWindow.fGc = XCreateGC(dsp, fUnixWindow.fWin, 0, NULL);
     }
     this->resize(WIDTH, HEIGHT);
-    fUnixWindow.fGLCreated = false;
 }
 
-SkOSWindow::~SkOSWindow()
-{
-    if (fUnixWindow.fDisplay) {
-        if (fGLAttached)
+SkOSWindow::~SkOSWindow() {
+    if (NULL != fUnixWindow.fDisplay) {
+        if (NULL != fUnixWindow.fGLContext) {
             glXMakeCurrent(fUnixWindow.fDisplay, None, NULL);
-        XFreeGC(fUnixWindow.fDisplay, fUnixWindow.fGc);
-        if (fUnixWindow.fGLCreated)
             glXDestroyContext(fUnixWindow.fDisplay, fUnixWindow.fGLContext);
+        }
+        XFreeGC(fUnixWindow.fDisplay, fUnixWindow.fGc);
         XDestroyWindow(fUnixWindow.fDisplay, fUnixWindow.fWin);
         XCloseDisplay(fUnixWindow.fDisplay);
         fUnixWindow.fDisplay = 0;
     }
 }
 
-void SkOSWindow::post_linuxevent()
-{
+void SkOSWindow::post_linuxevent() {
     // Put an event in the X queue to fire an SkEvent.
-    if (!fUnixWindow.fDisplay) return;
+    if (!fUnixWindow.fDisplay) {
+        return;
+    }
     long event_mask = NoEventMask;
     XClientMessageEvent event;
     event.type = ClientMessage;
@@ -94,8 +95,7 @@ void SkOSWindow::post_linuxevent()
     XFlush(fUnixWindow.fDisplay);
 }
 
-void SkOSWindow::loop()
-{
+void SkOSWindow::loop() {
     Display* dsp = fUnixWindow.fDisplay;
     XSelectInput(dsp, fUnixWindow.fWin, EVENT_MASK);
 
@@ -122,8 +122,7 @@ void SkOSWindow::loop()
             case MotionNotify:
                 this->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
                 break;
-            case KeyPress:
-            {
+            case KeyPress: {
                 KeySym keysym = XKeycodeToKeysym(dsp, evt.xkey.keycode, 0);
                 //SkDebugf("pressed key %i!\n\tKeySym:%i\n", evt.xkey.keycode, XKeycodeToKeysym(dsp, evt.xkey.keycode, 0));
                 if (keysym == XK_Escape) {
@@ -153,8 +152,7 @@ void SkOSWindow::loop()
     }
 }
 
-void SkOSWindow::mapWindowAndWait()
-{
+void SkOSWindow::mapWindowAndWait() {
     Display* dsp = fUnixWindow.fDisplay;
     Window win = fUnixWindow.fWin;
     XMapWindow(dsp, win);
@@ -170,50 +168,50 @@ void SkOSWindow::mapWindowAndWait()
 
 }
 
-bool SkOSWindow::attach(SkBackEndTypes /* attachType */)
-{
-    if (fGLAttached) return true;
-    Display* dsp = fUnixWindow.fDisplay;
-    if (!dsp || !fVi) return false;
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */) {
+    if (NULL == fUnixWindow.fGLContext) {
+        if (NULL == fUnixWindow.fDisplay || NULL == fVi) {
+            return false;
+        }
 
-    if (!fUnixWindow.fGLCreated) {
-        fUnixWindow.fGLContext = glXCreateContext(dsp, fVi, NULL, GL_TRUE);
-        fUnixWindow.fGLCreated = true;
-        glXMakeCurrent(dsp, fUnixWindow.fWin, fUnixWindow.fGLContext);
-        glViewport(0, 0, SkScalarRound(this->width()), SkScalarRound(this->height()));
-        glClearColor(0, 0, 0, 0);
-        glClearStencil(0);
-        glStencilMask(0xffffffff);
-        glDisable(GL_SCISSOR_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        fUnixWindow.fGLContext = glXCreateContext(fUnixWindow.fDisplay,
+                                                  fVi,
+                                                  NULL,
+                                                  GL_TRUE);
+        if (NULL == fUnixWindow.fGLContext) {
+            return false;
+        }
     }
-    else
-        glXMakeCurrent(dsp, fUnixWindow.fWin, fUnixWindow.fGLContext);
-    fGLAttached = true;
-
+    glXMakeCurrent(fUnixWindow.fDisplay,
+                   fUnixWindow.fWin,
+                   fUnixWindow.fGLContext);
+    glViewport(0, 0,
+               SkScalarRound(this->width()), SkScalarRound(this->height()));
+    glClearColor(0, 0, 0, 0);
+    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     return true;
 }
 
-void SkOSWindow::detach()
-{
-    if (!fUnixWindow.fDisplay || !fGLAttached) return;
-    fGLAttached = false;
-    // Returns back to normal drawing.
+void SkOSWindow::detach() {
+    if (NULL == fUnixWindow.fDisplay || NULL == fUnixWindow.fGLContext) {
+        return;
+    }
     glXMakeCurrent(fUnixWindow.fDisplay, None, NULL);
-    // Ensure that we redraw when switching back to raster.
-    this->inval(NULL);
+    glXDestroyContext(fUnixWindow.fDisplay, fUnixWindow.fGLContext);
+    fUnixWindow.fGLContext = NULL;
 }
 
-void SkOSWindow::present()
-{
-    if (fUnixWindow.fDisplay && fGLAttached) {
+void SkOSWindow::present() {
+    if (NULL != fUnixWindow.fDisplay && NULL != fUnixWindow.fGLContext) {
         glXSwapBuffers(fUnixWindow.fDisplay, fUnixWindow.fWin);
     }
 }
 
-void SkOSWindow::onSetTitle(const char title[])
-{
-    if (!fUnixWindow.fDisplay) return;
+void SkOSWindow::onSetTitle(const char title[]) {
+    if (!fUnixWindow.fDisplay) {
+        return;
+    }
     XTextProperty textProp;
     textProp.value = (unsigned char*)title;
     textProp.format = 8;
@@ -226,19 +224,17 @@ void SkOSWindow::onHandleInval(const SkIRect&) {
     (new SkEvent("inval-imageview", this->getSinkID()))->post();
 }
 
-bool SkOSWindow::onEvent(const SkEvent& evt)
-{
+bool SkOSWindow::onEvent(const SkEvent& evt) {
     if (evt.isType("inval-imageview")) {
         update(NULL);
-        if (!fGLAttached)
-            doPaint();
+        if (NULL == fUnixWindow.fGLContext)
+            this->doPaint();
         return true;
     }
     return INHERITED::onEvent(evt);
 }
 
-static bool convertBitmapToXImage(XImage& image, const SkBitmap& bitmap)
-{
+static bool convertBitmapToXImage(XImage& image, const SkBitmap& bitmap) {
     sk_bzero(&image, sizeof(image));
 
     int bitsPerPixel = bitmap.bytesPerPixel() * 8;
@@ -269,17 +265,14 @@ void SkOSWindow::doPaint() {
     XPutImage(fUnixWindow.fDisplay, fUnixWindow.fWin, fUnixWindow.fGc, &image, 0, 0, 0, 0, width, height);
 }
 
-bool SkOSWindow::onHandleChar(SkUnichar)
-{
+bool SkOSWindow::onHandleChar(SkUnichar) {
     return false;
 }
 
-bool SkOSWindow::onHandleKey(SkKey key)
-{
+bool SkOSWindow::onHandleKey(SkKey key) {
     return false;
 }
 
-bool SkOSWindow::onHandleKeyUp(SkKey key)
-{
+bool SkOSWindow::onHandleKeyUp(SkKey key) {
     return false;
 }

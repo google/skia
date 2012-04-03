@@ -21,7 +21,6 @@ struct SkUnixWindow {
   size_t fOSWin;
   GC fGc;
   GLXContext fGLContext;
-  bool fGLCreated;
 };
 
 class SkOSWindow : public SkWindow {
@@ -62,7 +61,6 @@ private:
     void mapWindowAndWait();
 
     SkUnixWindow fUnixWindow;
-    bool fGLAttached;
 
     // Needed for GL
     XVisualInfo* fVi;
