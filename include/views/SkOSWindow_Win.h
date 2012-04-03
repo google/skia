@@ -36,7 +36,7 @@ public:
         kD3D9_BackEndType
     };
 
-    bool attach(SkBackEndTypes attachType, int msaaSampleCount);
+    bool attach(SkBackEndTypes attachType);
     void detach();
     void present();
 
@@ -78,13 +78,13 @@ private:
 
     SkBackEndTypes      fAttached;
 
-    bool attachGL(int msaaSampleCount);
+    bool attachGL();
     void detachGL();
     void presentGL();
 
 #if SK_ANGLE
     bool attachANGLE();
-    void detachANGLE(int msaaSampleCount);
+    void detachANGLE();
     void presentANGLE();
 #endif
 
