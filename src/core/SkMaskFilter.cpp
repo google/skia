@@ -21,11 +21,12 @@ bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
 
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                               const SkRasterClip& clip, SkBounder* bounder,
-                              SkBlitter* blitter) {
+                              SkBlitter* blitter, SkPaint::Style style) {
     SkMask  srcM, dstM;
 
     if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), this, &matrix, &srcM,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
+                            SkMask::kComputeBoundsAndRenderImage_CreateMode,
+                            style)) {
         return false;
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);

@@ -77,7 +77,8 @@ public:
     */
     static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
                            SkMaskFilter* filter, const SkMatrix* filterMatrix,
-                           SkMask* mask, SkMask::CreateMode mode);
+                           SkMask* mask, SkMask::CreateMode mode,
+                           SkPaint::Style style);
 
     enum RectType {
         kHair_RectType,

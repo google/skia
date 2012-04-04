@@ -985,11 +985,14 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 
     SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, *paint);
 
-    // how does filterPath() know to fill or hairline the path??? <mrr>
-    if (paint->getMaskFilter() &&
-            paint->getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fRC,
-                                               fBounder, blitter.get())) {
-        return; // filterPath() called the blitter, so we're done
+    if (paint->getMaskFilter()) {
+        SkPaint::Style style = doFill ? SkPaint::kFill_Style : 
+            SkPaint::kStroke_Style;
+        if (paint->getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fRC,
+                                               fBounder, blitter.get(),
+                                               style)) {
+            return; // filterPath() called the blitter, so we're done
+        }
     }
 
     if (fBounder && !fBounder->doPath(*devPathPtr, *paint, doFill)) {
@@ -2585,7 +2588,8 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
     return true;
 }
 
-static void draw_into_mask(const SkMask& mask, const SkPath& devPath) {
+static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
+                           SkPaint::Style style) {
     SkBitmap        bm;
     SkDraw          draw;
     SkRasterClip    clip;
@@ -2605,12 +2609,14 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath) {
     draw.fMatrix    = &matrix;
     draw.fBounder   = NULL;
     paint.setAntiAlias(true);
+    paint.setStyle(style);
     draw.drawPath(devPath, paint);
 }
 
 bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
                         SkMaskFilter* filter, const SkMatrix* filterMatrix,
-                        SkMask* mask, SkMask::CreateMode mode) {
+                        SkMask* mask, SkMask::CreateMode mode,
+                        SkPaint::Style style) {
     if (SkMask::kJustRenderImage_CreateMode != mode) {
         if (!compute_bounds(devPath, clipBounds, filter, filterMatrix, &mask->fBounds))
             return false;
@@ -2629,7 +2635,7 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
     }
 
     if (SkMask::kJustComputeBounds_CreateMode != mode) {
-        draw_into_mask(*mask, devPath);
+        draw_into_mask(*mask, devPath, style);
     }
 
     return true;
