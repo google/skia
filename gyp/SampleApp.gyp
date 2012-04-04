@@ -263,9 +263,6 @@
       'msvs_settings': {
         'VCLinkerTool': {
           'SubSystem': '2',
-          'AdditionalDependencies': [
-            'd3d9.lib',
-          ],
         },
       },
     },
