@@ -30,7 +30,6 @@
 
 #define MAX_BLUR_SIGMA 4.0f
 
-
 // When we're using coverage AA but the blend is incompatible (given gpu
 // limitations) should we disable AA or draw wrong?
 #define DISABLE_COVERAGE_AA_FOR_BLEND 1
@@ -2056,7 +2055,7 @@ void GrContext::setupDrawBuffer() {
     GrAssert(NULL == fDrawBufferVBAllocPool);
     GrAssert(NULL == fDrawBufferIBAllocPool);
 
-#if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT
+#if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT || DEFER_PATHS
     fDrawBufferVBAllocPool =
         new GrVertexBufferAllocPool(fGpu, false,
                                     DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
