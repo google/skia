@@ -10,7 +10,6 @@
 #if defined(SK_BUILD_FOR_WIN)
 
 #include <GL/gl.h>
-#include <d3d9.h>
 #include <WindowsX.h>
 #include "SkWGL.h"
 #include "SkWindow.h"
@@ -47,15 +46,11 @@ SkOSWindow::SkOSWindow(void* hWnd)
     , fSurface(EGL_NO_SURFACE)
 #endif
     , fHGLRC(NULL)
-    , fD3D9Device(NULL)
     , fAttached(kNone_BackEndType) {
     gEventTarget = (HWND)hWnd;
 }
 
 SkOSWindow::~SkOSWindow() {
-    if (NULL != fD3D9Device) {
-        ((IDirect3DDevice9*)fD3D9Device)->Release();
-    }
     if (NULL != fHGLRC) {
         wglDeleteContext((HGLRC)fHGLRC);
     }
@@ -533,112 +528,6 @@ void SkOSWindow::presentANGLE() {
 }
 #endif
 
-IDirect3DDevice9* create_d3d9_device(HWND hwnd) {
-    HRESULT hr;
-
-    IDirect3D9* d3d9;
-    d3d9 = Direct3DCreate9(D3D_SDK_VERSION);
-    if (NULL == d3d9) {
-        return NULL;
-    }
-    D3DDEVTYPE devType = D3DDEVTYPE_HAL;
-    //D3DDEVTYPE devType = D3DDEVTYPE_REF;
-    DWORD qLevels;
-    DWORD qLevelsDepth;
-    D3DMULTISAMPLE_TYPE type;
-    for (type = D3DMULTISAMPLE_16_SAMPLES; 
-         type >= D3DMULTISAMPLE_NONMASKABLE; --(*(DWORD*)&type)) {
-        hr = d3d9->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, 
-                                              devType, D3DFMT_D24S8, TRUE,
-                                              type, &qLevels);
-        qLevels = (hr == D3D_OK) ? qLevels : 0;
-        hr = d3d9->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, 
-                                              devType, D3DFMT_A8R8G8B8, TRUE,
-                                              type, &qLevelsDepth);
-        qLevelsDepth = (hr == D3D_OK) ? qLevelsDepth : 0;
-        qLevels = min(qLevels,qLevelsDepth);
-        if (qLevels > 0) {
-            break;
-        }
-    }
-    qLevels = 0;
-    IDirect3DDevice9* d3d9Device;
-    D3DPRESENT_PARAMETERS pres;
-    memset(&pres, 0, sizeof(pres));
-    pres.EnableAutoDepthStencil = TRUE;
-    pres.AutoDepthStencilFormat = D3DFMT_D24S8;
-    pres.BackBufferCount = 2;
-    pres.BackBufferFormat = D3DFMT_A8R8G8B8;
-    pres.BackBufferHeight = 0;
-    pres.BackBufferWidth = 0;
-    if (qLevels > 0) {
-        pres.MultiSampleType = type;
-        pres.MultiSampleQuality = qLevels-1;
-    } else {
-        pres.MultiSampleType = D3DMULTISAMPLE_NONE;
-        pres.MultiSampleQuality = 0;
-    }
-    pres.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    pres.Windowed = TRUE;
-    pres.hDeviceWindow = hwnd;
-    pres.PresentationInterval = 1;
-    pres.Flags = 0;
-    hr = d3d9->CreateDevice(D3DADAPTER_DEFAULT,
-                            devType,
-                            hwnd, 
-                            D3DCREATE_HARDWARE_VERTEXPROCESSING, 
-                            &pres, 
-                            &d3d9Device);    
-    D3DERR_INVALIDCALL;
-    if (SUCCEEDED(hr)) {
-        d3d9Device->Clear(0, NULL, D3DCLEAR_TARGET, 0xFFFFFFFF, 0, 0);
-        return d3d9Device;
-    }
-    return NULL;
-}
-
-// This needs some improvement. D3D doesn't have the same notion of attach/detach
-// as GL. However, just allowing GDI to write to the window after creating the 
-// D3D device seems to work. 
-// We need to handle resizing. On XP and earlier Reset() will trash all our textures
-// so we would need to inform the SkGpu/caches or just recreate them. On Vista+ we
-// could use an IDirect3DDevice9Ex and call ResetEx() to resize without trashing
-// everything. Currently we do nothing and the D3D9 image gets stretched/compressed
-// when resized.
-
-bool SkOSWindow::attachD3D9() {
-    if (NULL == fD3D9Device) {
-        fD3D9Device = (void*) create_d3d9_device((HWND)fHWND);
-    }
-    if (NULL != fD3D9Device) {
-        ((IDirect3DDevice9*)fD3D9Device)->BeginScene();
-        return true;
-    }
-    return false;
-}
-
-void SkOSWindow::detachD3D9() {
-    if (NULL != fD3D9Device) {
-        ((IDirect3DDevice9*)fD3D9Device)->EndScene();
-    }
-}
-
-void SkOSWindow::presentD3D9() {
-    if (NULL != fD3D9Device) {
-        HRESULT hr;
-        hr = ((IDirect3DDevice9*)fD3D9Device)->EndScene();
-        SkASSERT(SUCCEEDED(hr));
-        hr = ((IDirect3DDevice9*)d3d9Device())->Present(NULL, NULL, NULL, NULL);
-        SkASSERT(SUCCEEDED(hr));
-        hr = ((IDirect3DDevice9*)fD3D9Device)->Clear(0,NULL,D3DCLEAR_TARGET | 
-                                                     D3DCLEAR_STENCIL, 0x0, 0, 
-                                                     0);
-        SkASSERT(SUCCEEDED(hr));
-        hr = ((IDirect3DDevice9*)fD3D9Device)->BeginScene();
-        SkASSERT(SUCCEEDED(hr));
-    }
-}
-
 // return true on success
 bool SkOSWindow::attach(SkBackEndTypes attachType) {
 
@@ -660,9 +549,6 @@ bool SkOSWindow::attach(SkBackEndTypes attachType) {
         result = attachANGLE();
         break;
 #endif
-    case kD3D9_BackEndType:
-        result = attachD3D9();
-        break;
     default:
         SkASSERT(false);
         result = false;
@@ -689,9 +575,6 @@ void SkOSWindow::detach() {
         detachANGLE();
         break;
 #endif
-    case kD3D9_BackEndType:
-        detachD3D9();
-        break;
     default:
         SkASSERT(false);
         break;
@@ -712,9 +595,6 @@ void SkOSWindow::present() {
         presentANGLE();
         break;
 #endif
-    case kD3D9_BackEndType:
-        presentD3D9();
-        break;
     default:
         SkASSERT(false);
         break;

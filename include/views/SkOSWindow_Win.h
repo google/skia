@@ -33,14 +33,11 @@ public:
 #if SK_ANGLE
         kANGLE_BackEndType,
 #endif
-        kD3D9_BackEndType
     };
 
     bool attach(SkBackEndTypes attachType);
     void detach();
     void present();
-
-    void* d3d9Device() { return fD3D9Device; }
 
     bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static bool QuitOnDeactivate(HWND hWnd);
@@ -72,8 +69,6 @@ private:
     EGLSurface          fSurface;
 #endif
 
-    void*               fD3D9Device;
-
     HMENU               fMBar;
 
     SkBackEndTypes      fAttached;
@@ -87,10 +82,6 @@ private:
     void detachANGLE();
     void presentANGLE();
 #endif
-
-    bool attachD3D9();
-    void detachD3D9();
-    void presentD3D9();
 
     typedef SkWindow INHERITED; 
 };
