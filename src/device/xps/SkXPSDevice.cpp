@@ -1785,7 +1785,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
                         &matrix,
                         &rasteredMask,
                         SkMask::kComputeBoundsAndRenderImage_CreateMode,
-                        SkPaint::kFill_Style)) {
+                        shaderPaint->getStyle())) {
 
             SkAutoMaskFreeImage rasteredAmi(rasteredMask.fImage);
             mask = &rasteredMask;
