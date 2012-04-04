@@ -750,7 +750,7 @@ inline bool shouldDrawBlurWithCPU(const SkRect& rect, SkScalar radius) {
 bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
                            SkMaskFilter* filter, const SkMatrix& matrix,
                            const SkRegion& clip, SkBounder* bounder,
-                           GrPaint* grp) {
+                           GrPaint* grp, GrPathFill pathFillType) {
 #ifdef SK_DISABLE_GPU_BLUR
     return false;
 #endif
@@ -830,7 +830,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         tempPaint.fDstBlendCoeff = kISC_BlendCoeff;
     }
     // Draw hard shadow to pathTexture with path topleft at origin 0,0.
-    context->drawPath(tempPaint, path, skToGrFillType(path.getFillType()), &offset);
+    context->drawPath(tempPaint, path, pathFillType, &offset);
 
     GrAutoScratchTexture temp1, temp2;
     // If we're doing a normal blur, we can clobber the pathTexture in the
@@ -895,12 +895,12 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
 bool drawWithMaskFilter(GrContext* context, const SkPath& path,
                         SkMaskFilter* filter, const SkMatrix& matrix,
                         const SkRegion& clip, SkBounder* bounder,
-                        GrPaint* grp) {
+                        GrPaint* grp, SkPaint::Style style) {
     SkMask  srcM, dstM;
 
     if (!SkDraw::DrawToMask(path, &clip.getBounds(), filter, &matrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode,
-                            SkPaint::kFill_Style)) {
+                            style)) {
         return false;
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);
@@ -1034,12 +1034,16 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // transform the path into device space
         pathPtr->transform(*draw.fMatrix, devPathPtr);
+        GrPathFill pathFillType = doFill ?
+            skToGrFillType(devPathPtr->getFillType()) : kHairLine_PathFill;
         if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                    *draw.fMatrix, *draw.fClip, draw.fBounder,
-                                   &grPaint)) {
+                                   &grPaint, pathFillType)) {
+            SkPaint::Style style = doFill ? SkPaint::kFill_Style : 
+                SkPaint::kStroke_Style;
             drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                *draw.fMatrix, *draw.fClip, draw.fBounder,
-                               &grPaint);
+                               &grPaint, style);
         }
         return;
     }
