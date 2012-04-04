@@ -43,6 +43,7 @@ bool SkRasterizer::onRasterize(const SkPath& fillPath, const SkMatrix& matrix,
     SkPath  devPath;
     
     fillPath.transform(matrix, &devPath);
-    return SkDraw::DrawToMask(devPath, clipBounds, NULL, NULL, mask, mode);
+    return SkDraw::DrawToMask(devPath, clipBounds, NULL, NULL, mask, mode,
+                              SkPaint::kFill_Style);
 }
 

@@ -12,6 +12,7 @@
 
 #include "SkFlattenable.h"
 #include "SkMask.h"
+#include "SkPaint.h"
 
 class SkBlitter;
 class SkBounder;
@@ -103,7 +104,8 @@ private:
      This method is not exported to java.
      */
     bool filterPath(const SkPath& devPath, const SkMatrix& devMatrix,
-                    const SkRasterClip&, SkBounder*, SkBlitter* blitter);
+                    const SkRasterClip&, SkBounder*, SkBlitter* blitter,
+                    SkPaint::Style style);
 
     typedef SkFlattenable INHERITED;
 };

@@ -74,7 +74,8 @@ static bool compute_bounds(const SkDeque& layers, const SkPath& path,
         SkMask  mask;
         if (!SkDraw::DrawToMask(devPath, clipBounds, paint.getMaskFilter(),
                                 &matrix, &mask,
-                                SkMask::kJustComputeBounds_CreateMode)) {
+                                SkMask::kJustComputeBounds_CreateMode,
+                                SkPaint::kFill_Style)) {
             return false;
         }
 

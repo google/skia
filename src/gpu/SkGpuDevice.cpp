@@ -899,7 +899,8 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     SkMask  srcM, dstM;
 
     if (!SkDraw::DrawToMask(path, &clip.getBounds(), filter, &matrix, &srcM,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
+                            SkMask::kComputeBoundsAndRenderImage_CreateMode,
+                            SkPaint::kFill_Style)) {
         return false;
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);
