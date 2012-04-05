@@ -76,7 +76,7 @@
           ],
           'direct_dependent_settings': {
             'include_dirs': [
-              '../third_party/externals/libjpeg',
+              '.',
             ],
           },
           'conditions': [
