@@ -23,13 +23,6 @@ extern "C" {
     #include "jerror.h"
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
-#include <cutils/properties.h>
-
-// Key to lookup the size of memory buffer set in system property
-static const char KEY_MEM_CAP[] = "ro.media.dec.jpeg.memcap";
-#endif
-
 // this enables timing code to report milliseconds for an encode
 //#define TIME_ENCODE
 //#define TIME_DECODE
@@ -88,9 +81,13 @@ private:
 };
 
 #ifdef SK_BUILD_FOR_ANDROID
-/* Check if the memory cap property is set.
-   If so, use the memory size for jpeg decode.
-*/
+
+/* For non-ndk builds we could look at the system's jpeg memory cap and use it
+ * if it is set. However, for now we will use the NDK compliant hardcoded values
+ */
+//#include <cutils/properties.h>
+//static const char KEY_MEM_CAP[] = "ro.media.dec.jpeg.memcap";
+
 static void overwrite_mem_buffer_size(j_decompress_ptr cinfo) {
 #ifdef ANDROID_LARGE_MEMORY_DEVICE
     cinfo->mem->max_memory_to_use = 30 * 1024 * 1024;
