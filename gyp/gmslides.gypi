@@ -14,6 +14,7 @@
     '../gm/complexclip2.cpp',
     '../gm/convexpaths.cpp',
     '../gm/cubicpaths.cpp',
+    '../gm/cmykjpeg.cpp',
     '../gm/degeneratesegments.cpp',
     '../gm/drawbitmaprect.cpp',
     '../gm/emptypath.cpp',
