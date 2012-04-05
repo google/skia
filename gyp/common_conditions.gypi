@@ -126,6 +126,7 @@
           },
         },
         'xcode_settings': {
+          'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
           'SYMROOT': '<(DEPTH)/xcodebuild',
           'SDKROOT': 'macosx10.6',
 # trying to get this to work, but it needs clang I think...
