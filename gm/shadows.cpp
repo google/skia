@@ -40,7 +40,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(200, 80);
+        return make_isize(200, 120);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -85,6 +85,7 @@ protected:
     } gRec[] = {
         { SK_ColorRED,      -SK_Scalar1 },
         { SK_ColorGREEN,    SkIntToScalar(4) },
+        { SK_ColorBLUE,     SkIntToScalar(0)},
     };
 
     SkPaint paint;
@@ -100,6 +101,10 @@ protected:
 
         canvas->translate(SkIntToScalar(0), SkIntToScalar(40));
         setup(&paint, gRec[1].fColor, gRec[1].fStrokeWidth);
+        canvas->drawPath(fCirclePath, paint);
+
+        canvas->translate(SkIntToScalar(0), SkIntToScalar(40));
+        setup(&paint, gRec[2].fColor, gRec[2].fStrokeWidth);
         canvas->drawPath(fCirclePath, paint);
     }
 }
