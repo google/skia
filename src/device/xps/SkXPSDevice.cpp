@@ -1671,7 +1671,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
         }
     }
 
-    SkTLazy<SkPaint> modifiedPaint;
+    SkTLazy<SkPaint> lazyShaderPaint;
     SkPaint* shaderPaint = const_cast<SkPaint*>(&paint);
 
     //Apply path effect [Skeletal-path -> Fillable-path].
@@ -1683,7 +1683,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
         }
         bool fill = paint.getFillPath(*skeletalPath, fillablePath);
 
-        shaderPaint = modifiedPaint.set(paint);
+        shaderPaint = lazyShaderPaint.set(*shaderPaint);
         shaderPaint->setPathEffect(NULL);
         if (fill) {
             shaderPaint->setStyle(SkPaint::kFill_Style);
@@ -1707,6 +1707,25 @@ void SkXPSDevice::drawPath(const SkDraw& d,
     HRVM(shadedPath->SetGeometryLocal(shadedGeometry.get()),
          "Could not add the shaded geometry to shaded path.");
 
+    SkRasterizer* rasterizer = paint.getRasterizer();
+    SkMaskFilter* filter = paint.getMaskFilter();
+
+    SkTLazy<SkPaint> lazyRasterizePaint;
+    const SkPaint* rasterizePaint = shaderPaint;
+
+    //Determine if we will draw or shade and mask.
+    if (rasterizer || filter) {
+        if (shaderPaint->getStyle() != SkPaint::kFill_Style) {
+            if (lazyShaderPaint.isValid()) {
+                rasterizePaint = lazyRasterizePaint.set(*shaderPaint);
+            } else {
+                rasterizePaint = shaderPaint;
+                shaderPaint = lazyShaderPaint.set(*shaderPaint);
+            }
+            shaderPaint->setStyle(SkPaint::kFill_Style);
+        }
+    }
+
     //Set the brushes.
     BOOL fill;
     BOOL stroke;
@@ -1716,10 +1735,8 @@ void SkXPSDevice::drawPath(const SkDraw& d,
                         &fill,
                         &stroke));
 
-    SkMaskFilter* filter = paint.getMaskFilter();
-
     //Rasterizer
-    if (paint.getRasterizer()) {
+    if (rasterizer) {
         SkIRect clipIRect;
         SkVector ppuScale;
         this->convertToPpm(filter,
@@ -1732,7 +1749,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
         //[Fillable-path -> Mask]
         SkMask rasteredMask;
-        if (paint.getRasterizer()->rasterize(
+        if (rasterizer->rasterize(
                 *fillablePath,
                 matrix,
                 &clipIRect,
@@ -1785,7 +1802,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
                         &matrix,
                         &rasteredMask,
                         SkMask::kComputeBoundsAndRenderImage_CreateMode,
-                        shaderPaint->getStyle())) {
+                        rasterizePaint->getStyle())) {
 
             SkAutoMaskFreeImage rasteredAmi(rasteredMask.fImage);
             mask = &rasteredMask;
