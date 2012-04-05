@@ -968,7 +968,7 @@ private:
 
     SkBounder*  fBounder;
     SkDevice*   fLastDeviceToGainFocus;
-    int         fLayerCount;    // number of successful saveLayer calls
+    int         fSaveLayerCount;    // number of successful saveLayer calls
 
     void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&,
                               const SkClipStack& clipStack);

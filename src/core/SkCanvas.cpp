@@ -439,7 +439,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fLocalBoundsCompareTypeDirtyBW = true;
     fLastDeviceToGainFocus = NULL;
     fDeviceCMDirty = false;
-    fLayerCount = 0;
+    fSaveLayerCount = 0;
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(NULL, 0);
@@ -479,7 +479,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
 SkCanvas::~SkCanvas() {
     // free up the contents of our deque
     this->restoreToCount(1);    // restore everything but the last
-    SkASSERT(0 == fLayerCount);
+    SkASSERT(0 == fSaveLayerCount);
 
     this->internalRestore();    // restore the last, since we're going away
 
@@ -831,7 +831,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
-    fLayerCount += 1;
+    fSaveLayerCount += 1;
     return count;
 }
 
@@ -883,8 +883,8 @@ void SkCanvas::internalRestore() {
             // reset this, since internalDrawDevice will have set it to true
             fDeviceCMDirty = true;
 
-            SkASSERT(fLayerCount > 0);
-            fLayerCount -= 1;
+            SkASSERT(fSaveLayerCount > 0);
+            fSaveLayerCount -= 1;
         }
         SkDELETE(layer);
     }
@@ -909,7 +909,7 @@ void SkCanvas::restoreToCount(int count) {
 }
 
 bool SkCanvas::isDrawingToLayer() const {
-    return fLayerCount > 0;
+    return fSaveLayerCount > 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
