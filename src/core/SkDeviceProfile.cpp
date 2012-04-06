@@ -2,8 +2,8 @@
 
 #include "SkDeviceProfile.h"
 
-#define DEFAULT_GAMMAEXP        2.2
-#define DEFAULT_CONTRASTSCALE   0.5
+#define DEFAULT_GAMMAEXP        2.2f
+#define DEFAULT_CONTRASTSCALE   0.5f
 #define DEFAULT_LCDCONFIG       SkDeviceProfile::kNone_LCDConfig
 #define DEFAULT_FONTHINTLEVEL   SkDeviceProfile::kSlight_FontHintLevel
 

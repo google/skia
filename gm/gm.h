@@ -12,7 +12,6 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
-#include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
 #include "SkTRegistry.h"

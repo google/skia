@@ -69,7 +69,7 @@ static void test_common_angles(skiatest::Reporter* reporter) {
     // Test precision of rotation in common cases
     int common_angles[] = { 0, 90, -90, 180, -180, 270, -270, 360, -360 };
     for (int i = 0; i < 9; ++i) {
-        rot.setRotateDegreesAbout(0, 0, -1, common_angles[i]);
+        rot.setRotateDegreesAbout(0, 0, -1, SkIntToScalar(common_angles[i]));
 
         SkMatrix rot3x3 = rot;
         REPORTER_ASSERT(reporter, rot3x3.rectStaysRect());

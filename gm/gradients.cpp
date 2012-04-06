@@ -237,9 +237,9 @@ protected:
         center.set(SkIntToScalar(dim.width())/2, SkIntToScalar(dim.height())/2);
         SkScalar radius = SkIntToScalar(dim.width())/2;
         const SkColor colors[] = { 0x7f7f7f7f, 0x7f7f7f7f, 0xb2000000 };
-        const SkScalar pos[] = { SkFloatToScalar(0.0),
-                             SkFloatToScalar(0.35),
-                             SkFloatToScalar(1.0) };
+        const SkScalar pos[] = { SkFloatToScalar(0.0f),
+                             SkFloatToScalar(0.35f),
+                             SkFloatToScalar(1.0f) };
         SkShader* shader =
             SkGradientShader::CreateRadial(center, radius, colors,
                                            pos, SK_ARRAY_COUNT(pos),
