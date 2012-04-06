@@ -29,7 +29,6 @@
 #include "gl/SkDebugGLContext.h"
 #include "SkPicture.h"
 #include "SkStream.h"
-#include "SkRefCnt.h"
 
 static bool gForceBWtext;
 

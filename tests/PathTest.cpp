@@ -162,7 +162,7 @@ static void stroke_tiny_cubic() {
 
 static void check_close(skiatest::Reporter* reporter, const SkPath& path) {
     for (int i = 0; i < 2; ++i) {
-        SkPath::Iter iter(path, (bool)i);
+        SkPath::Iter iter(path, SkToBool(i));
         SkPoint mv;
         SkPoint pts[4];
         SkPath::Verb v;
@@ -943,7 +943,6 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
             do {
                 nextVerb = static_cast<SkPath::Verb>((rand.nextU() >> 16) % SkPath::kDone_Verb);
             } while (lastWasClose && nextVerb == SkPath::kClose_Verb);
-            int numRequiredPts;
             switch (nextVerb) {
                 case SkPath::kMove_Verb:
                     expectedPts[numPoints] = randomPts[(rand.nextU() >> 16) % 25];

@@ -18,8 +18,8 @@ class InterpBench : public SkBenchmark {
 public:
     InterpBench(void* param, const char name[]) : INHERITED(param) {
         fName.printf("interp_%s", name);
-        fFx = 3.3;
-        fDx = 0.1257;
+        fFx = 3.3f;
+        fDx = 0.1257f;
     }
 
     virtual void performTest(int16_t dst[], float x, float dx, int count) = 0;
