@@ -39,9 +39,11 @@ public:
         kNativeGL_BackEndType,
     };
 
-    bool attach(SkBackEndTypes attachType);
+    bool attach(SkBackEndTypes attachType, int msaaSampleCount);
     void detach();
     void present();
+
+    int getMSAASampleCount() const { return fMSAASampleCount; }
 
     //static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
@@ -60,10 +62,15 @@ private:
     void doPaint();
     void mapWindowAndWait();
 
+    void closeWindow();
+    void initWindow(int newMSAASampleCount);
+
     SkUnixWindow fUnixWindow;
 
     // Needed for GL
     XVisualInfo* fVi;
+    // we recreate the underlying xwindow if this changes
+    int fMSAASampleCount;
 
     typedef SkWindow INHERITED;
 };

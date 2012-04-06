@@ -35,7 +35,7 @@ public:
 #endif
     };
 
-    bool attach(SkBackEndTypes attachType);
+    bool attach(SkBackEndTypes attachType, int msaaSampleCount);
     void detach();
     void present();
 
@@ -73,12 +73,12 @@ private:
 
     SkBackEndTypes      fAttached;
 
-    bool attachGL();
+    bool attachGL(int msaaSampleCount);
     void detachGL();
     void presentGL();
 
 #if SK_ANGLE
-    bool attachANGLE();
+    bool attachANGLE(int msaaSampleCount);
     void detachANGLE();
     void presentANGLE();
 #endif
