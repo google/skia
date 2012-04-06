@@ -30,6 +30,7 @@ void GrGLCaps::reset() {
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
     fTexStorageSupport = false;
+    fTextureRedSupport = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) {
@@ -52,6 +53,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fPackFlipYSupport = caps.fPackFlipYSupport;
     fTextureUsageSupport = caps.fTextureUsageSupport;
     fTexStorageSupport = caps.fTexStorageSupport;
+    fTextureRedSupport = caps.fTextureRedSupport;
 
     return *this;
 }
@@ -128,6 +130,14 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
                           version >= GR_GL_VER(4,2)) ||
                          ctxInfo.hasExtension("GL_ARB_texture_storage") ||
                          ctxInfo.hasExtension("GL_EXT_texture_storage");
+
+    // ARB_texture_rg is part of OpenGL 3.0
+    if (kDesktop_GrGLBinding == binding) {
+        fTextureRedSupport = version >= GR_GL_VER(3,0) ||
+                             ctxInfo.hasExtension("GL_ARB_texture_rg");
+    } else {
+        fTextureRedSupport = ctxInfo.hasExtension("GL_ARB_texture_rg");
+    }
 
     this->initFSAASupport(ctxInfo);
     this->initStencilFormats(ctxInfo);
