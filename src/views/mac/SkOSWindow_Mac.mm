@@ -63,8 +63,8 @@ void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
     [(SkNSView*)fHWND onUpdateMenu:menu];
 }
 
-bool SkOSWindow::attach(SkBackEndTypes attachType) {
-    return [(SkNSView*)fHWND attach:attachType];
+bool SkOSWindow::attach(SkBackEndTypes attachType, int sampleCount) {
+    return [(SkNSView*)fHWND attach:attachType withMSAASampleCount:sampleCount];
 }
 
 void SkOSWindow::detach() {

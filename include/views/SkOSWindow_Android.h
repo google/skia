@@ -24,7 +24,9 @@ public:
         kNativeGL_BackEndType,
     };
 
-    bool attach(SkBackEndTypes /* attachType */) { return true; }
+    bool attach(SkBackEndTypes /* attachType */, int /* msaaSampleCount */) {
+        return true;
+    }
     void detach() {}
     void present() {}
 

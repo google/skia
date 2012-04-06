@@ -108,6 +108,10 @@ public:
     bool isUsingGL() { return usingGL; }
     
     virtual GrContext* getGrContext() { return fGrContext; }
+
+    virtual GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
+        return fGrRenderTarget;
+    }
 private:
     bool usingGL;
     GrContext* fGrContext;

@@ -34,53 +34,109 @@ const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
 
 SkOSWindow::SkOSWindow(void* unused)
     : INHERITED()
-    , fVi(0) {
-    fUnixWindow.fDisplay = XOpenDisplay(NULL);
+    , fVi(NULL)
+    , fMSAASampleCount(0) {
+    fUnixWindow.fDisplay = NULL;
     fUnixWindow.fGLContext = NULL;
-    Display* dsp = fUnixWindow.fDisplay;
-    if (dsp) {
-        // Attempt to create a window that supports GL
-        GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER,
-                GLX_STENCIL_SIZE, 8, None };
-        fVi = glXChooseVisual(dsp, DefaultScreen(dsp), att);
-        if (fVi) {
-            Colormap colorMap = XCreateColormap(dsp, RootWindow(dsp, fVi->screen),
-                fVi->visual, AllocNone);
-            XSetWindowAttributes swa;
-            swa.colormap = colorMap;
-            swa.event_mask = EVENT_MASK;
-            fUnixWindow.fWin = XCreateWindow(dsp, RootWindow(dsp, fVi->screen),
-                    0, 0, WIDTH, HEIGHT, 0, fVi->depth,
-                    InputOutput, fVi->visual, CWEventMask | CWColormap, &swa);
-
-        } else {
-            // Create a simple window instead.  We will not be able to
-            // show GL
-            fUnixWindow.fWin = XCreateSimpleWindow(dsp, DefaultRootWindow(dsp),
-                    0, 0, WIDTH, HEIGHT, 0, 0, 0);
-        }
-        mapWindowAndWait();
-        fUnixWindow.fGc = XCreateGC(dsp, fUnixWindow.fWin, 0, NULL);
-    }
+    this->initWindow(0);
     this->resize(WIDTH, HEIGHT);
 }
 
 SkOSWindow::~SkOSWindow() {
+    this->closeWindow();
+}
+
+void SkOSWindow::closeWindow() {
     if (NULL != fUnixWindow.fDisplay) {
-        if (NULL != fUnixWindow.fGLContext) {
-            glXMakeCurrent(fUnixWindow.fDisplay, None, NULL);
-            glXDestroyContext(fUnixWindow.fDisplay, fUnixWindow.fGLContext);
-        }
+        this->detach();
+        SkASSERT(NULL != fUnixWindow.fGc);
         XFreeGC(fUnixWindow.fDisplay, fUnixWindow.fGc);
+        fUnixWindow.fGc = NULL;
         XDestroyWindow(fUnixWindow.fDisplay, fUnixWindow.fWin);
+        fVi = NULL;
         XCloseDisplay(fUnixWindow.fDisplay);
-        fUnixWindow.fDisplay = 0;
+        fUnixWindow.fDisplay = NULL;
+        fMSAASampleCount = 0;
     }
 }
 
+void SkOSWindow::initWindow(int requestedMSAASampleCount) {
+    if (fMSAASampleCount != requestedMSAASampleCount) {
+        this->closeWindow();
+    }
+    // presence of fDisplay means we already have a window
+    if (NULL != fUnixWindow.fDisplay) {
+        return;
+    }
+    fUnixWindow.fDisplay = XOpenDisplay(NULL);
+    Display* dsp = fUnixWindow.fDisplay;
+    if (NULL == dsp) {
+        SkDebugf("Could not open an X Display");
+        return;
+    }
+    // Attempt to create a window that supports GL
+    GLint att[] = {
+        GLX_RGBA,
+        GLX_DEPTH_SIZE, 24,
+        GLX_DOUBLEBUFFER,
+        GLX_STENCIL_SIZE, 8,
+        None
+    };
+    SkASSERT(NULL == fVi);
+    if (requestedMSAASampleCount > 0) {
+        static const GLint kAttCount = SK_ARRAY_COUNT(att);
+        GLint msaaAtt[kAttCount + 4];
+        memcpy(msaaAtt, att, sizeof(att));
+        SkASSERT(None == msaaAtt[kAttCount - 1]);
+        msaaAtt[kAttCount - 1] = GLX_SAMPLE_BUFFERS_ARB;
+        msaaAtt[kAttCount + 0] = 1;
+        msaaAtt[kAttCount + 1] = GLX_SAMPLES_ARB;
+        msaaAtt[kAttCount + 2] = requestedMSAASampleCount;
+        msaaAtt[kAttCount + 3] = None;
+        fVi = glXChooseVisual(dsp, DefaultScreen(dsp), msaaAtt);
+        fMSAASampleCount = requestedMSAASampleCount;
+    }
+    if (NULL == fVi) {
+        fVi = glXChooseVisual(dsp, DefaultScreen(dsp), att);
+        fMSAASampleCount = 0;
+    }
+
+    if (fVi) {
+        Colormap colorMap = XCreateColormap(dsp,
+                                            RootWindow(dsp, fVi->screen),
+                                            fVi->visual,
+                                             AllocNone);
+        XSetWindowAttributes swa;
+        swa.colormap = colorMap;
+        swa.event_mask = EVENT_MASK;
+        fUnixWindow.fWin = XCreateWindow(dsp,
+                                         RootWindow(dsp, fVi->screen),
+                                         0, 0, // x, y
+                                         WIDTH, HEIGHT,
+                                         0, // border width
+                                         fVi->depth,
+                                         InputOutput,
+                                         fVi->visual,
+                                         CWEventMask | CWColormap,
+                                         &swa);
+    } else {
+        // Create a simple window instead.  We will not be able to show GL
+        fUnixWindow.fWin = XCreateSimpleWindow(dsp,
+                                               DefaultRootWindow(dsp),
+                                               0, 0,  // x, y
+                                               WIDTH, HEIGHT,
+                                               0,     // border width
+                                               0,     // border value
+                                               0);    // background value
+    }
+    this->mapWindowAndWait();
+    fUnixWindow.fGc = XCreateGC(dsp, fUnixWindow.fWin, 0, NULL);
+}
+
+
 void SkOSWindow::post_linuxevent() {
     // Put an event in the X queue to fire an SkEvent.
-    if (!fUnixWindow.fDisplay) {
+    if (NULL == fUnixWindow.fDisplay) {
         return;
     }
     long event_mask = NoEventMask;
@@ -97,6 +153,9 @@ void SkOSWindow::post_linuxevent() {
 
 void SkOSWindow::loop() {
     Display* dsp = fUnixWindow.fDisplay;
+    if (NULL == dsp) {
+        return;
+    }
     XSelectInput(dsp, fUnixWindow.fWin, EVENT_MASK);
 
     bool loop = true;
@@ -153,6 +212,7 @@ void SkOSWindow::loop() {
 }
 
 void SkOSWindow::mapWindowAndWait() {
+    SkASSERT(NULL != fUnixWindow.fDisplay);
     Display* dsp = fUnixWindow.fDisplay;
     Window win = fUnixWindow.fWin;
     XMapWindow(dsp, win);
@@ -168,11 +228,13 @@ void SkOSWindow::mapWindowAndWait() {
 
 }
 
-bool SkOSWindow::attach(SkBackEndTypes /* attachType */) {
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int msaaSampleCount) {
+    this->initWindow(msaaSampleCount);
+    if (NULL == fUnixWindow.fDisplay) {
+        return false;
+    } 
     if (NULL == fUnixWindow.fGLContext) {
-        if (NULL == fUnixWindow.fDisplay || NULL == fVi) {
-            return false;
-        }
+        SkASSERT(NULL != fVi);
 
         fUnixWindow.fGLContext = glXCreateContext(fUnixWindow.fDisplay,
                                                   fVi,
@@ -209,7 +271,7 @@ void SkOSWindow::present() {
 }
 
 void SkOSWindow::onSetTitle(const char title[]) {
-    if (!fUnixWindow.fDisplay) {
+    if (NULL == fUnixWindow.fDisplay) {
         return;
     }
     XTextProperty textProp;
@@ -253,16 +315,26 @@ static bool convertBitmapToXImage(XImage& image, const SkBitmap& bitmap) {
 }
 
 void SkOSWindow::doPaint() {
-    if (!fUnixWindow.fDisplay) return;
+    if (NULL == fUnixWindow.fDisplay) {
+        return;
+    }
     // Draw the bitmap to the screen.
     const SkBitmap& bitmap = getBitmap();
     int width = bitmap.width();
     int height = bitmap.height();
 
     XImage image;
-    if (!convertBitmapToXImage(image, bitmap)) return;
+    if (!convertBitmapToXImage(image, bitmap)) {
+        return;
+    }
 
-    XPutImage(fUnixWindow.fDisplay, fUnixWindow.fWin, fUnixWindow.fGc, &image, 0, 0, 0, 0, width, height);
+    XPutImage(fUnixWindow.fDisplay,
+              fUnixWindow.fWin,
+              fUnixWindow.fGc,
+              &image,
+              0, 0,     // src x,y
+              0, 0,     // dst x,y
+              width, height);
 }
 
 bool SkOSWindow::onHandleChar(SkUnichar) {

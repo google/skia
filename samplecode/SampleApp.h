@@ -50,7 +50,7 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
-        virtual void setUpBackend(SampleWindow* win) = 0;
+        virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) = 0;
 
         virtual void tearDownBackend(SampleWindow* win) = 0;
 
@@ -72,6 +72,9 @@ public:
 
         // return the GrContext backing gpu devices
         virtual GrContext* getGrContext() = 0;
+
+        // return the GrRenderTarget backing gpu devices
+        virtual GrRenderTarget* getGrRenderTarget() = 0;
     };
 
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);
@@ -169,6 +172,8 @@ private:
     SkOSMenu::TriState fFilterState;
     SkOSMenu::TriState fHintingState;
     unsigned   fFlipAxis;
+
+    int fMSAASampleCount;
 
     int fScrollTestX, fScrollTestY;
     SkScalar fZoomCenterX, fZoomCenterY;

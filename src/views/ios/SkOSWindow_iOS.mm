@@ -54,7 +54,8 @@ void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
     [(SkUIView*)fHWND onUpdateMenu:menu];
 }
 
-bool SkOSWindow::attach(SkBackEndTypes /* attachType */) {
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */,
+                        int /* msaaSampleCount */) {
     bool success = true;
     return success;
 }

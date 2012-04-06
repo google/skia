@@ -25,7 +25,7 @@ public:
     };
 
     void    detach();
-    bool    attach(SkBackEndTypes attachType);
+    bool    attach(SkBackEndTypes attachType, int msaaSampleCount);
     void    present();
 
 protected:
