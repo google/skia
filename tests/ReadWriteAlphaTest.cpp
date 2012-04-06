@@ -14,6 +14,11 @@ static const int Y_SIZE = 12;
 
 void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context) {
 
+#if SK_SCALAR_IS_FIXED
+    // GPU device known not to work in the fixed pt build.
+    return;
+#endif
+
     unsigned char textureData[X_SIZE][Y_SIZE];
 
     memset(textureData, 0, X_SIZE * Y_SIZE);
