@@ -501,7 +501,6 @@ inline bool skPaint2GrPaintNoShader(const SkPaint& skPaint,
 // same meaning as in skPaint2GrPaintNoShader.
 inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
                                   const SkPaint& skPaint,
-                                  const SkMatrix& ctm,
                                   bool constantColor,
                                   SkGpuDevice::SkAutoCachedTexture* act,
                                   GrPaint* grPaint) {
@@ -604,7 +603,6 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
     SkAutoCachedTexture act;
     if (!skPaint2GrPaintShader(this,
                                paint,
-                               *draw.fMatrix,
                                true,
                                &act,
                                &grPaint)) {
@@ -640,7 +638,6 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     SkAutoCachedTexture act;
     if (!skPaint2GrPaintShader(this,
                                paint,
-                               *draw.fMatrix,
                                true,
                                &act,
                                &grPaint)) {
@@ -702,7 +699,6 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     SkAutoCachedTexture act;
     if (!skPaint2GrPaintShader(this,
                                paint,
-                               *draw.fMatrix,
                                true,
                                &act,
                                &grPaint)) {
@@ -982,7 +978,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     SkAutoCachedTexture act;
     if (!skPaint2GrPaintShader(this,
                                paint,
-                               *draw.fMatrix,
                                true,
                                &act,
                                &grPaint)) {
@@ -1635,7 +1630,6 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     } else {
         if (!skPaint2GrPaintShader(this,
                                    paint,
-                                   *draw.fMatrix,
                                    NULL == colors,
                                    &act,
                                    &grPaint)) {
@@ -1740,7 +1734,6 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
         if (!skPaint2GrPaintShader(this,
                                    paint,
-                                   *draw.fMatrix,
                                    true,
                                    &act,
                                    &grPaint)) {
@@ -1770,7 +1763,6 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         SkAutoCachedTexture act;
         if (!skPaint2GrPaintShader(this,
                                    paint,
-                                   *draw.fMatrix,
                                    true,
                                    &act,
                                    &grPaint)) {
