@@ -178,6 +178,7 @@ bool GrGpuGLShaders::programUnitTest() {
         StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag,
         StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag,
         StageDesc::kSmearAlpha_InConfigFlag,
+        StageDesc::kSmearRed_InConfigFlag,
     };
     GrGLProgram program;
     ProgramDesc& pdesc = program.fProgramDesc;
@@ -271,6 +272,7 @@ bool GrGpuGLShaders::programUnitTest() {
             static const uint32_t kMulByAlphaMask =
                 StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
                 StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
+
             switch (stage.fFetchMode) {
                 case StageDesc::kSingle_FetchMode:
                     stage.fKernelWidth = 0;
@@ -1132,9 +1134,17 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
             if (!this->glCaps().textureSwizzleSupport()) {
                 if (GrPixelConfigIsAlphaOnly(texture->config())) {
                     // if we don't have texture swizzle support then
-                    // the shader must do an alpha smear after reading
-                    // the texture
-                    stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
+                    // the shader must smear the single channel after
+                    // reading the texture
+                    if (this->glCaps().textureRedSupport()) {
+                        // we can use R8 textures so use kSmearRed
+                        stage.fInConfigFlags |= 
+                                        StageDesc::kSmearRed_InConfigFlag;
+                    } else {
+                        // we can use A8 textures so use kSmearAlpha
+                        stage.fInConfigFlags |= 
+                                        StageDesc::kSmearAlpha_InConfigFlag;
+                    }
                 } else if (sampler.swapsRAndB()) {
                     stage.fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
                 }
