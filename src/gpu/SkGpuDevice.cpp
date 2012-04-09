@@ -1872,8 +1872,8 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
     GrContext::TextureCacheEntry cacheEntry;
     GrTexture* texture;
     SkAutoTUnref<GrTexture> tunref;
-    // Skia's convention is to only clear a device if it is a non-opaque layer.
-    bool needClear = !isOpaque && kSaveLayer_Usage == usage;
+    // Skia's convention is to only clear a device if it is non-opaque.
+    bool needClear = !isOpaque;
 
 #if CACHE_COMPATIBLE_DEVICE_TEXTURES
     // layers are never draw in repeat modes, so we can request an approx
