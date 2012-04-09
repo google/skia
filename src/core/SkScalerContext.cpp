@@ -617,7 +617,10 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
         SkMatrix    matrix, inverse;
 
         fRec.getMatrixFrom2x2(&matrix);
-        matrix.invert(&inverse);
+        if (!matrix.invert(&inverse)) {
+            // assume fillPath and devPath are already empty.
+            return;
+        }
         path.transform(inverse, &localPath);
         // now localPath is only affected by the paint settings, and not the canvas matrix
 
