@@ -68,6 +68,9 @@
     #if !defined(SK_RESTRICT)
         #define SK_RESTRICT __restrict
     #endif
+    #if !defined(SK_WARN_UNUSED_RESULT)
+        #define SK_WARN_UNUSED_RESULT
+    #endif
     #include "sk_stdint.h"
 #endif
 
@@ -75,6 +78,10 @@
 
 #if !defined(SK_RESTRICT)
     #define SK_RESTRICT __restrict__
+#endif
+
+#if !defined(SK_WARN_UNUSED_RESULT)
+    #define SK_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #endif
 
 //////////////////////////////////////////////////////////////////////
