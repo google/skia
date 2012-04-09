@@ -50,7 +50,7 @@ protected:
                                        gStyles[i],
                                        SkBlurMaskFilter::kHighQuality_BlurFlag);
             SkPaint paint;
-            paint.setMaskFilter(mf)->unref();
+            SkSafeUnref(paint.setMaskFilter(mf));
             paint.setColor(random.nextU() | 0xff000000);
             canvas->drawCircle(200 * SK_Scalar1 + 400 * (i % 2) * SK_Scalar1,
                                200 * SK_Scalar1 + i / 2 * 400 * SK_Scalar1,
