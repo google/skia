@@ -423,9 +423,10 @@ static ErrorBitfield compare_to_reference_image(const SkString& name,
     SkBitmap diffBitmap;
     errors = compare(bitmap, comparisonBitmap, name, renderModeDescriptor,
                      diffPath ? &diffBitmap : NULL);
-    if ((ERROR_NONE == errors) && diffPath) {
-        SkString diffName = make_filename(diffPath, "", name, ".diff.png");
-        if (!write_bitmap(diffName, diffBitmap)) {
+    if ((ERROR_NONE != errors) && diffPath) {
+        // write out the generated image
+        SkString genName = make_filename(diffPath, "", name, "png");
+        if (!write_bitmap(genName, bitmap)) {
             errors |= ERROR_WRITING_REFERENCE_IMAGE;
         }
     }
