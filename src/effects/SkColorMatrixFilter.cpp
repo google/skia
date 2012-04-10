@@ -128,10 +128,7 @@ void SkColorMatrixFilter::setup(const SkScalar* SK_RESTRICT src) {
     }
 
     int32_t* array = fState.fArray;
-
-    int i;
     SkFixed max = 0;
-
     for (int i = 0; i < 20; i++) {
         SkFixed value = SkScalarToFixed(src[i]);
         array[i] = value;
@@ -150,7 +147,7 @@ void SkColorMatrixFilter::setup(const SkScalar* SK_RESTRICT src) {
     if (bits < 9) {
         bits = 9 - bits;
         fState.fShift -= bits;
-        for (i = 0; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             array[i] >>= bits;
         }
         one >>= bits;
