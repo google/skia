@@ -839,7 +839,6 @@ static SkScalar refine_cubic_root(const SkFP coeff[4], SkScalar root)
  *  keeping the existing sorting, and return the new count
  */
 static int collaps_duplicates(float array[], int count) {
-    int n = count;
     for (int n = count; n > 1; --n) {
         if (array[0] == array[1]) {
             for (int i = 1; i < n; ++i) {

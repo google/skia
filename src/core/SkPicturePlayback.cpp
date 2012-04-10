@@ -171,11 +171,9 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
         fReader.setMemory(buffer, size);
     }
 
-    int i;
-
     fBitmapCount = src.fBitmapCount;
     fBitmaps = SkNEW_ARRAY(SkBitmap, fBitmapCount);
-    for (i = 0; i < fBitmapCount; i++) {
+    for (int i = 0; i < fBitmapCount; i++) {
         fBitmaps[i] = src.fBitmaps[i];
     }
 
@@ -185,7 +183,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
 
     fPaintCount = src.fPaintCount;
     fPaints = SkNEW_ARRAY(SkPaint, fPaintCount);
-    for (i = 0; i < fPaintCount; i++) {
+    for (int i = 0; i < fPaintCount; i++) {
         fPaints[i] = src.fPaints[i];
     }
 
@@ -201,7 +199,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
 
     fRegionCount = src.fRegionCount;
     fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
-    for (i = 0; i < fRegionCount; i++) {
+    for (int i = 0; i < fRegionCount; i++) {
         fRegions[i] = src.fRegions[i];
     }
 }
@@ -429,11 +427,11 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     /*
         Now read the arrays chunk, and parse using a read buffer
     */
-    uint32_t size = readTagSize(stream, PICT_ARRAYS_TAG);
-    SkAutoMalloc storage(size);
-    stream->read(storage.get(), size);
+    uint32_t tagSize = readTagSize(stream, PICT_ARRAYS_TAG);
+    SkAutoMalloc storage(tagSize);
+    stream->read(storage.get(), tagSize);
 
-    SkFlattenableReadBuffer buffer(storage.get(), size);
+    SkFlattenableReadBuffer buffer(storage.get(), tagSize);
     fFactoryPlayback->setupBuffer(buffer);
     fTFPlayback.setupBuffer(buffer);
 
@@ -463,9 +461,10 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     fRegionCount = readTagSize(buffer, PICT_REGION_TAG);
     fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
-        uint32_t size = buffer.readU32();
-        SkDEBUGCODE(uint32_t bytes =) fRegions[i].unflatten(buffer.skip(size));
-        SkASSERT(size == bytes);
+        uint32_t bufferSize = buffer.readU32();
+        SkDEBUGCODE(uint32_t bytes =)
+            fRegions[i].unflatten(buffer.skip(bufferSize));
+        SkASSERT(bufferSize == bytes);
     }
 }
 

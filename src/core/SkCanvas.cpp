@@ -978,9 +978,9 @@ void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
             SkBitmap dst;
             const SkBitmap& src = srcDev->accessBitmap(false);
             if (filter->filterImage(&proxy, src, *iter.fMatrix, &dst, &pos)) {
-                SkPaint tmp(*paint);
-                tmp.setImageFilter(NULL);
-                dstDev->drawSprite(iter, dst, pos.x(), pos.y(), tmp);
+                SkPaint tmpUnfiltered(*paint);
+                tmpUnfiltered.setImageFilter(NULL);
+                dstDev->drawSprite(iter, dst, pos.x(), pos.y(), tmpUnfiltered);
             }
         } else {
             dstDev->drawDevice(iter, srcDev, pos.x(), pos.y(), *paint);
@@ -1011,10 +1011,12 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
         if (filter && !iter.fDevice->canHandleImageFilter(filter)) {
             DeviceImageFilterProxy proxy(iter.fDevice);
             SkBitmap dst;
-            if (filter->filterImage(&proxy, bitmap, *iter.fMatrix, &dst, &pos)) {
-                SkPaint tmp(*paint);
-                tmp.setImageFilter(NULL);
-                iter.fDevice->drawSprite(iter, dst, pos.x(), pos.y(), tmp);
+            if (filter->filterImage(&proxy, bitmap, *iter.fMatrix,
+                                    &dst, &pos)) {
+                SkPaint tmpUnfiltered(*paint);
+                tmpUnfiltered.setImageFilter(NULL);
+                iter.fDevice->drawSprite(iter, dst, pos.x(), pos.y(),
+                                         tmpUnfiltered);
             }
         } else {
             iter.fDevice->drawSprite(iter, bitmap, pos.x(), pos.y(), *paint);
