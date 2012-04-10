@@ -224,8 +224,6 @@ public:
     }
 
     virtual void tearDownBackend(SampleWindow *win) {
-        win->detach();
-        fBackend = kNone_BackEndType;
 
         SkSafeUnref(fCurContext);
         fCurContext = NULL;
@@ -235,6 +233,9 @@ public:
 
         SkSafeUnref(fCurRenderTarget);
         fCurRenderTarget = NULL;
+
+        win->detach();
+        fBackend = kNone_BackEndType;
     }
 
     virtual bool prepareCanvas(SampleWindow::DeviceType dType,
