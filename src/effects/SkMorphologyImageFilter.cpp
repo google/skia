@@ -30,7 +30,8 @@ static void erode(const SkPMColor* src, SkPMColor* dst,
                   int srcStrideX, int srcStrideY,
                   int dstStrideX, int dstStrideY)
 {
-    const SkPMColor* upperSrc = src + SkMin32(radius, width - 1) * srcStrideX;
+    radius = SkMin32(radius, width - 1);
+    const SkPMColor* upperSrc = src + radius * srcStrideX;
     for (int x = 0; x < width; ++x) {
         const SkPMColor* lp = src;
         const SkPMColor* up = upperSrc;
@@ -77,7 +78,8 @@ static void dilate(const SkPMColor* src, SkPMColor* dst,
                    int srcStrideX, int srcStrideY,
                    int dstStrideX, int dstStrideY)
 {
-    const SkPMColor* upperSrc = src + SkMin32(radius, width - 1) * srcStrideX;
+    radius = SkMin32(radius, width - 1);
+    const SkPMColor* upperSrc = src + radius * srcStrideX;
     for (int x = 0; x < width; ++x) {
         const SkPMColor* lp = src;
         const SkPMColor* up = upperSrc;

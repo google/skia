@@ -50,37 +50,37 @@ protected:
             fOnce = true;
         }
         struct {
+            int fWidth, fHeight;
             int fRadiusX, fRadiusY;
-            bool erode;
-            SkScalar fX, fY;
         } samples[] = {
-            { 0, 0, false, 0,   0 },
-            { 0, 2, false, 140, 0 },
-            { 2, 0, false, 280, 0 },
-            { 2, 2, false, 420, 0 },
-            { 0, 0, true,  0,   140 },
-            { 0, 2, true,  140, 140 },
-            { 2, 0, true,  280, 140 },
-            { 2, 2, true,  420, 140 },
+            { 140, 140,   0,   0 },
+            { 140, 140,   0,   2 },
+            { 140, 140,   2,   0 },
+            { 140, 140,   2,   2 },
+            {  24,  24,  25,  25 },
         };
-        const char* str = "The quick brown fox jumped over the lazy dog.";
         SkPaint paint;
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(samples); ++i) {
-            if (samples[i].erode) {
-                paint.setImageFilter(new SkErodeImageFilter(
-                    samples[i].fRadiusX,
-                    samples[i].fRadiusY))->unref();
-            } else {
-                paint.setImageFilter(new SkDilateImageFilter(
-                    samples[i].fRadiusX,
-                    samples[i].fRadiusY))->unref();
+        for (unsigned j = 0; j < 2; ++j) {
+            for (unsigned i = 0; i < SK_ARRAY_COUNT(samples); ++i) {
+                SkScalar x = SkIntToScalar(i * 140), y = SkIntToScalar(j * 140);
+                if (j) {
+                    paint.setImageFilter(new SkErodeImageFilter(
+                        samples[i].fRadiusX,
+                        samples[i].fRadiusY))->unref();
+                } else {
+                    paint.setImageFilter(new SkDilateImageFilter(
+                        samples[i].fRadiusX,
+                        samples[i].fRadiusY))->unref();
+                }
+                SkRect bounds = SkRect::MakeXYWH(
+                    x,
+                    y,
+                    SkIntToScalar(samples[i].fWidth),
+                    SkIntToScalar(samples[i].fHeight));
+                canvas->saveLayer(&bounds, &paint);
+                canvas->drawBitmap(fBitmap, x, y);
+                canvas->restore();
             }
-            SkRect bounds = SkRect::MakeXYWH(samples[i].fX,
-                                             samples[i].fY,
-                                             140, 140);
-            canvas->saveLayer(&bounds, &paint);
-            canvas->drawBitmap(fBitmap, samples[i].fX, samples[i].fY);
-            canvas->restore();
         }
     }
     
