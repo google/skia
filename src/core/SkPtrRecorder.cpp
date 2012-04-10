@@ -18,8 +18,8 @@ void SkPtrSet::reset() {
     fList.reset();
 }
 
-int SkPtrSet::Cmp(const Pair& a, const Pair& b) {
-    return (char*)a.fPtr - (char*)b.fPtr;
+int SkPtrSet::Cmp(const Pair* a, const Pair* b) {
+    return (char*)a->fPtr - (char*)b->fPtr;
 }
 
 uint32_t SkPtrSet::find(void* ptr) const {
