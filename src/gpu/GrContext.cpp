@@ -2108,7 +2108,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     SkRect srcRect(rect);
     scale_rect(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
     srcRect.roundOut();
-    scale_rect(&srcRect, scaleFactorX, scaleFactorY);
+    scale_rect(&srcRect, static_cast<float>(scaleFactorX), 
+                         static_cast<float>(scaleFactorY));
     this->setClip(srcRect);
 
     const GrTextureDesc desc = {

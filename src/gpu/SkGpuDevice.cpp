@@ -1431,8 +1431,8 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
 
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit,
-        rect.width(),
-        rect.height(),
+        SkScalarCeilToInt(rect.width()),
+        SkScalarCeilToInt(rect.height()),
         kRGBA_8888_PM_GrPixelConfig,
         0 // samples
     };
@@ -1490,7 +1490,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
         GrTexture* filteredTexture = filter_texture(fContext, texture, filter,
-                                                    GrRect::MakeWH(w, h));
+                 GrRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)));
         if (filteredTexture) {
             grPaint.setTexture(kBitmapTextureIdx, filteredTexture);
             texture = filteredTexture;
@@ -1529,7 +1529,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
-        GrRect rect = GrRect::MakeWH(devTex->width(), devTex->height());
+        GrRect rect = GrRect::MakeWH(SkIntToScalar(devTex->width()), 
+                                     SkIntToScalar(devTex->height()));
         GrTexture* filteredTexture = filter_texture(fContext, devTex, filter,
                                                     rect);
         if (filteredTexture) {
@@ -1591,7 +1592,8 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     SkAutoCachedTexture act(this, src, sampler, &texture);
 
     result->setConfig(src.config(), src.width(), src.height());
-    GrRect rect = GrRect::MakeWH(src.width(), src.height());
+    GrRect rect = GrRect::MakeWH(SkIntToScalar(src.width()), 
+                                 SkIntToScalar(src.height()));
     GrTexture* resultTexture = filter_texture(fContext, texture, filter, rect);
     if (resultTexture) {
         result->setPixelRef(new SkGrTexturePixelRef(resultTexture))->unref();
