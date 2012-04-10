@@ -58,9 +58,13 @@ static void (*simplifyTests[])() = {
 
 static size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
 
-static void (*firstTest)() = 0;
+static void (*firstTest)() = testSimplifyQuadratic3;
+static bool skipAll = false;
 
 void SimplifyQuadraticPaths_Test() {
+    if (skipAll) {
+        return;
+    }
     size_t index = 0;
     if (firstTest) {
         while (index < simplifyTestsCount && simplifyTests[index] != firstTest) {

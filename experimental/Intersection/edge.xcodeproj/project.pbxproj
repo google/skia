@@ -94,19 +94,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		FE74136014F6866000056D7B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FEF87C2413E0410900335C58 /* opts.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = ECDC7853EF9A45553165AE98;
-			remoteInfo = opts_ssse3;
-		};
 		FEA5F4E01497FFF6005052F9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FEA5F4D91497FFF6005052F9 /* ports.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = CDE03B47AA5CD6CE32E53995;
 			remoteInfo = ports;
+		};
+		FEE70DA6153487F200814606 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FEF87C2413E0410900335C58 /* opts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = ECDC7853EF9A45553165AE98 /* libopts_ssse3.a */;
+			remoteInfo = opts_ssse3;
 		};
 		FEED7261144DD38D0059E97B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -670,7 +670,7 @@
 			isa = PBXGroup;
 			children = (
 				FEF87C2C13E0410900335C58 /* libopts.a */,
-				FE74136114F6866000056D7B /* libopts_ssse3.a */,
+				FEE70DA7153487F200814606 /* libopts_ssse3.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -791,18 +791,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		FE74136114F6866000056D7B /* libopts_ssse3.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libopts_ssse3.a;
-			remoteRef = FE74136014F6866000056D7B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		FEA5F4E11497FFF6005052F9 /* libports.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libports.a;
 			remoteRef = FEA5F4E01497FFF6005052F9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FEE70DA7153487F200814606 /* libopts_ssse3.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libopts_ssse3.a;
+			remoteRef = FEE70DA6153487F200814606 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		FEED7262144DD38D0059E97B /* libviews.a */ = {

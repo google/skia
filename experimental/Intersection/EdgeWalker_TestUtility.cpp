@@ -3,6 +3,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include <algorithm>
 
 static bool gShowPath = false;
 static bool gComparePaths = true;
@@ -124,7 +125,7 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two,
     canvas.drawPath(one, paint);
     canvas.restore();
     canvas.save();
-    canvas.translate(-bounds2.fLeft + 1 + bitWidth, -bounds2.fTop + 1);
+    canvas.translate(-bounds1.fLeft + 1 + bitWidth, -bounds1.fTop + 1);
     canvas.drawPath(two, paint);
     canvas.restore();
     for (int y = 0; y < bitHeight; ++y) {
@@ -184,13 +185,19 @@ static int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
         }
     }
     if (!gDrawAllAsciiPaths) {
-        errors = scaledDrawTheSame(one, two, 9, 7, false, bitmap, canvas);
-        if (errors > 4) {
-            scaledDrawTheSame(one, two, 9, 7, true, bitmap, canvas);
+        const SkRect& bounds1 = one.getBounds();
+        const SkRect& bounds2 = two.getBounds();
+        SkRect larger = bounds1;
+        larger.join(bounds2);
+        SkScalar xScale = std::max(80.0f / larger.width(), 1.0f);
+        SkScalar yScale = std::max(60.0f / larger.height(), 1.0f);
+        errors = scaledDrawTheSame(one, two, xScale, yScale, false, bitmap, canvas);
+        if (errors > 8) {
+            scaledDrawTheSame(one, two, xScale, yScale, true, bitmap, canvas);
         }
     }
     if (errors > 0) SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
-    if (errors > 4 && gComparePathsAssert) {
+    if (errors > 31 && gComparePathsAssert) {
         showPath(one);
         showPath(two, "simplified:");
         SkASSERT(0);
