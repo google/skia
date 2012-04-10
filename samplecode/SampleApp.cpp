@@ -659,7 +659,9 @@ static void usage(const char * argv0) {
     SkDebugf("    msaa: request multisampling with the given sample count.\n");
 }
 
-SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager) : INHERITED(hwnd) {
+SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager) 
+    : INHERITED(hwnd)
+    , fDevManager(NULL) {
 
     SkGMRegistyToSampleRegistry();
     {
@@ -1952,6 +1954,7 @@ void SampleWindow::updateTitle() {
     }
 
     if (gDeviceTypeIsGPU[fDeviceType] &&
+        NULL != fDevManager &&
         fDevManager->getGrRenderTarget()->numSamples() > 0) {
         title.appendf(" [MSAA: %d]",
                        fDevManager->getGrRenderTarget()->numSamples());
