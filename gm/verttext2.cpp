@@ -73,7 +73,8 @@ protected:
         paint.setTextSize(textHeight);
 
         canvas->drawText(string.c_str(), string.size(), y, 
-                alignment == SkPaint::kLeft_Align ? 10 : 240, paint);
+                SkIntToScalar(alignment == SkPaint::kLeft_Align ? 10 : 240),
+                paint);
         y += textHeight;
     }
 

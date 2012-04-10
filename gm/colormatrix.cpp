@@ -61,7 +61,8 @@ protected:
             for (int x = 0; x < width; ++x) {
                 SkPaint paint;
                 paint.setColor(SkColorSetARGB(255, x * 255 / width, y * 255 / height, 0));
-                canvas.drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);
+                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(x),
+                    SkIntToScalar(y), SK_Scalar1, SK_Scalar1), paint);
             }
         }
         return bm;

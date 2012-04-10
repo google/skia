@@ -39,7 +39,8 @@ static void TestFillPathInverse(skiatest::Reporter* reporter) {
   int expected_lines = 5;
   clip.set(0, height - expected_lines, width, height);
   path.moveTo(0.0, 0.0);
-  path.quadTo(width/2, height, width, 0.0);
+  path.quadTo(SkIntToScalar(width/2), SkIntToScalar(height),
+              SkIntToScalar(width), 0.0);
   path.close();
   path.setFillType(SkPath::kInverseWinding_FillType);
   SkScan::FillPath(path, clip, &blitter);

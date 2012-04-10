@@ -36,10 +36,10 @@ static void test_Normalize(skiatest::Reporter* reporter,
 
 void PointTest(skiatest::Reporter* reporter) {
     test_length(reporter, SkIntToScalar(3), SkIntToScalar(4), SkIntToScalar(5));
-    test_length(reporter, SkFloatToScalar(0.6), SkFloatToScalar(0.8),
+    test_length(reporter, SkFloatToScalar(0.6f), SkFloatToScalar(0.8f),
                 SK_Scalar1);
     test_Normalize(reporter, SkIntToScalar(3), SkIntToScalar(4));
-    test_Normalize(reporter, SkFloatToScalar(0.6), SkFloatToScalar(0.8));
+    test_Normalize(reporter, SkFloatToScalar(0.6f), SkFloatToScalar(0.8f));
 }
 
 #include "TestClassDef.h"
