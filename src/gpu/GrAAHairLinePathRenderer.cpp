@@ -50,7 +50,7 @@ bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
         //     a0              c0
         //      a            c
         //       a1       c1
-        // Each is drawn as three triagnles specified by these 9 indices:
+        // Each is drawn as three triangles specified by these 9 indices:
         int baseIdx = i * kIdxsPerQuad;
         uint16_t baseVert = (uint16_t)(i * kVertsPerQuad);
         data[0 + baseIdx] = baseVert + 0; // a0
