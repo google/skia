@@ -11,7 +11,7 @@
 
 void SkTraceHR(const char* file, unsigned long line,
                HRESULT hr, const char* msg) {
-    if (NULL != msg) SkDEBUGF(("%s\n", msg));
+    SkDEBUGCODE(if (NULL != msg) SkDEBUGF(("%s\n", msg)));
     SkDEBUGF(("%s(%lu) : error 0x%x: ", file, line, hr));
     
     LPSTR errorText = NULL;

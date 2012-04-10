@@ -39,8 +39,9 @@ protected:
             int x = rand() % WIDTH;
             int y = rand() % HEIGHT;
             paint.setColor(rand() % 0x1000000 | 0xFF000000);
-            paint.setTextSize(rand() % 300);
-            canvas->drawText(str, strlen(str), x, y, paint);
+            paint.setTextSize(SkIntToScalar(rand() % 300));
+            canvas->drawText(str, strlen(str), SkIntToScalar(x),
+                             SkIntToScalar(y), paint);
         }
         canvas->restore();
     }

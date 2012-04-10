@@ -245,8 +245,8 @@ static float make_zero() {
 static void unittest_isfinite(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     float nan = sk_float_asin(2);
-    float inf = 1.0 / make_zero();
-    float big = 3.40282e+038;
+    float inf = 1.0f / make_zero();
+    float big = 3.40282e+038f;
 
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(inf));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(-inf));
@@ -416,9 +416,13 @@ static void TestMath(skiatest::Reporter* reporter) {
     for (i = 0; i < 10000; i++) {
         SkPoint p;
 
-        p.setLength(rand.nextS(), rand.nextS(), SK_Scalar1);
+        // These random values are being treated as 32-bit-patterns, not as
+        // ints; calling SkIntToScalar() here produces crashes.
+        p.setLength(rand.nextS(),
+                    rand.nextS(), SK_Scalar1);
         check_length(reporter, p, SK_Scalar1);
-        p.setLength(rand.nextS() >> 13, rand.nextS() >> 13, SK_Scalar1);
+        p.setLength(rand.nextS() >> 13,
+                    rand.nextS() >> 13, SK_Scalar1);
         check_length(reporter, p, SK_Scalar1);
     }
 
