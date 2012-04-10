@@ -69,11 +69,55 @@ path.lineTo(460.782654, -112.96492);
 path.lineTo(326.610535, 34.0393639);
 path.close();
 </div>
+<div id="test_5div">
+original:
+path.moveTo(0, 0);
+path.quadTo(20, 0, 20, 20);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(0, 20);
+path.quadTo(0, 0, 20, 0);
+path.lineTo(0, 20);
+path.close();
+simplified:
+path.moveTo(0, 0);
+path.lineTo(5, 5);
+path.quadTo(0, 10, 0, 20);
+path.lineTo(20, 20);
+path.quadTo(20, 10, 15, 5);
+path.lineTo(20, 0);
+path.quadTo(14.1421356, 0, 10, 1.71572876);
+path.quadTo(5.85786438, 0, 0, 0);
+path.close();
+</div>
+<div id="test_6div">
+original:
+path.moveTo(0, 20);
+path.quadTo(20, 0, 40, 20);
+path.lineTo(0, 20);
+path.close();
+path.moveTo(40, 10);
+path.quadTo(20, 30, 0, 10);
+path.lineTo(40, 10);
+path.close();
+simplified:
+path.moveTo(0, 10);
+path.quadTo(2.92893219, 12.9289322, 5.85786438, 15);
+path.quadTo(2.92893219, 17.0710678, 0, 20);
+path.lineTo(40, 20);
+path.quadTo(37.0710678, 17.0710678, 34.1421356, 15);
+path.quadTo(37.0710678, 12.9289322, 40, 10);
+path.lineTo(0, 10);
+path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    test_5div,
+    test_6div,
     test_4div,
     test_3div,
     test_2div,
@@ -96,16 +140,26 @@ function parse(test) {
     var contourStrs = test.split("path.close();");
     var pattern = /-?\d+\.*\d*/g;
     for (var c in contourStrs) {
-        var points = contourStrs[c].match(pattern);
-        var pts = [];
-        for (var wd in points) {
-            var num = parseFloat(points[wd]);
-            if (isNaN(num)) continue;
-            pts.push(num );
+        var contour = contourStrs[c];
+        var verbStrs = contour.split("path");
+        var verbs = [];
+        for (var v in verbStrs) {
+            var verbStr = verbStrs[v];
+            var points = verbStr.match(pattern);
+            var pts = [];
+            for (var wd in points) {
+                var num = parseFloat(points[wd]);
+                if (isNaN(num)) continue;
+                pts.push(num);
+            }
+            if (pts.length > 0)
+                verbs.push(pts);
         }
-        contours.push(pts);
+        if (verbs.length > 0)
+            contours.push(verbs);
     }
-    tests.push(contours);
+    if (contours.length > 0)
+        tests.push(contours);
 }
 
 function init(test) {
@@ -116,13 +170,15 @@ function init(test) {
     var xmax = -Infinity;
     var ymin = Infinity;
     var ymax = -Infinity;
-    for (pts in test) {
-        var pt = test[pts];
-        for (i = 0; i < pt.length; i += 2) {
-            xmin = Math.min(xmin, pt[i]);
-            ymin = Math.min(ymin, pt[i + 1]);
-            xmax = Math.max(xmax, pt[i]);
-            ymax = Math.max(ymax, pt[i + 1]);
+    for (var contours in test) {
+        var contour = test[contours];
+        for (var verbs in contour) {
+            var verb = contour[verbs];
+            var last = verb.length;
+            xmin = Math.min(xmin, verb[0]);
+            ymin = Math.min(ymin, verb[1]);
+            xmax = Math.max(xmax, verb[last - 2]);
+            ymax = Math.max(ymax, verb[last - 1]);
         }
     }
     var subscale = 1;
@@ -183,27 +239,46 @@ function draw(test, _at_x, _at_y, scale) {
         ctx.fillText(num.toFixed(0), 0, i * unit + _at_y + 0);
     }
     ctx.strokeStyle = "red";
-    for (pts in test) {
-        var pt = test[pts];
-        var x = pt[0];
-        var y = pt[1];
+    var contours, verbs, pts;
+    for (contours in test) {
+        var contour = test[contours];
+        if (contours == 2) ctx.strokeStyle = "blue";
         ctx.beginPath();
-        ctx.moveTo(xoffset + x * unit, yoffset + y * unit);
-        for (i = 2; i < pt.length; i += 2) {
-            x = pt[i];
-            y = pt[i + 1];
-            ctx.lineTo(xoffset + x * unit, yoffset + y * unit);
+        var first = true;
+        for (verbs in contour) {
+            var verb = contour[verbs];
+            switch (verb.length) {
+                case 2:
+                    if (first) {
+                        ctx.moveTo(xoffset + verb[0] * unit, yoffset + verb[1] * unit);
+                        first = false;
+                    } else
+                        ctx.lineTo(xoffset + verb[0] * unit, yoffset + verb[1] * unit);
+                    break;
+                case 4:
+                    ctx.quadraticCurveTo(xoffset + verb[0] * unit, yoffset + verb[1] * unit,
+                        xoffset + verb[2] * unit, yoffset + verb[3] * unit);
+                    break;
+                case 6:
+                    ctx.bezierCurveTo(xoffset + verb[0] * unit, yoffset + verb[1] * unit,
+                        xoffset + verb[2] * unit, yoffset + verb[3] * unit,
+                        xoffset + verb[4] * unit, yoffset + verb[5] * unit);
+                    break;
+            }
         }
         ctx.stroke();
     }
     
     ctx.fillStyle="blue";
-    for (pts in test) {
-        var pt = test[pts];
-        for (i = 0; i < pt.length; i += 2) {
-            x = pt[i];
-            y = pt[i + 1];
-            drawPoint(x, y, xoffset, yoffset, unit);
+    for (contours in test) {
+        var contour = test[contours];
+        for (verbs in contour) {
+            var verb = contour[verbs];
+            for (i = 0; i < verb.length; i += 2) {
+                x = verb[i];
+                y = verb[i + 1];
+                drawPoint(x, y, xoffset, yoffset, unit);
+            }
         }
     }
 }

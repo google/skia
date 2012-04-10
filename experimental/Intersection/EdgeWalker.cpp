@@ -16,7 +16,7 @@
 #include "ShapeOps.h"
 #include "TSearch.h"
 
-#if 0 // set to 1 for no debugging whatsoever
+#if 01 // set to 1 for no debugging whatsoever
 const bool gShowDebugf = false; // FIXME: remove once debugging is complete
 
 #define DEBUG_DUMP 0
@@ -25,13 +25,15 @@ const bool gShowDebugf = false; // FIXME: remove once debugging is complete
 #define DEBUG_ADD_BOTTOM_TS 0
 #define DEBUG_ABOVE_BELOW 0
 #define DEBUG_ACTIVE_LESS_THAN 0
+#define DEBUG_ASSEMBLE 0
+#define DEBUG_BRIDGE 0
 #define DEBUG_SORT_HORIZONTAL 0
 #define DEBUG_OUT 0
 #define DEBUG_OUT_LESS_THAN 0
 #define DEBUG_ADJUST_COINCIDENT 0
 #define DEBUG_BOTTOM 0
 #define DEBUG_SPLIT 0
-
+#define DEBUG_STITCH_EDGE 0
 #else
 const bool gShowDebugf = true; // FIXME: remove once debugging is complete
 
@@ -41,13 +43,23 @@ const bool gShowDebugf = true; // FIXME: remove once debugging is complete
 #define DEBUG_ADD_BOTTOM_TS 0
 #define DEBUG_ABOVE_BELOW 01
 #define DEBUG_ACTIVE_LESS_THAN 0
+#define DEBUG_ASSEMBLE 1
+#define DEBUG_BRIDGE 1
 #define DEBUG_SORT_HORIZONTAL 01
 #define DEBUG_OUT 01
 #define DEBUG_OUT_LESS_THAN 0
 #define DEBUG_ADJUST_COINCIDENT 1
 #define DEBUG_BOTTOM 0
 #define DEBUG_SPLIT 1
+#define DEBUG_STITCH_EDGE 1
 
+#endif
+
+#if DEBUG_ASSEMBLE || DEBUG_BRIDGE
+static const char* kLVerbStr[] = {"", "line", "quad", "cubic"};
+#endif
+#if DEBUG_STITCH_EDGE
+static const char* kUVerbStr[] = {"", "Line", "Quad", "Cubic"};
 #endif
 
 static int LineIntersect(const SkPoint a[2], const SkPoint b[2],
@@ -196,7 +208,29 @@ static void CubicSubDivide(const SkPoint a[4], double startT, double endT,
     sub[3].fX = SkDoubleToScalar(dst[3].x);
     sub[3].fY = SkDoubleToScalar(dst[3].y);
 }
- 
+
+static void QuadSubBounds(const SkPoint a[3], double startT, double endT,
+        SkRect& bounds) {
+    SkPoint dst[3];
+    QuadSubDivide(a, startT, endT, dst);
+    bounds.fLeft = bounds.fRight = dst[0].fX;
+    bounds.fTop = bounds.fBottom = dst[0].fY;
+    for (int index = 1; index < 3; ++index) {
+        bounds.growToInclude(dst[index].fX, dst[index].fY);
+    }
+}
+
+static void CubicSubBounds(const SkPoint a[4], double startT, double endT,
+        SkRect& bounds) {
+    SkPoint dst[4];
+    CubicSubDivide(a, startT, endT, dst);
+    bounds.fLeft = bounds.fRight = dst[0].fX;
+    bounds.fTop = bounds.fBottom = dst[0].fY;
+    for (int index = 1; index < 4; ++index) {
+        bounds.growToInclude(dst[index].fX, dst[index].fY);
+    }
+}
+
 /*
 list of edges
 bounds for edge
@@ -336,49 +370,57 @@ public:
                 break;
             }
             int closeEdgeIndex = -listIndex - 1;
+            // the curve is deferred and not added right away because the
+            // following edge may extend the first curve.
             SkPoint firstPt, lastCurve[4];
             uint8_t lastVerb;
+#if DEBUG_ASSEMBLE
+            int firstIndex, lastIndex;
+            const int tab = 8;
+#endif
             bool doMove = true;
             int edgeIndex;
             do {
                 SkPoint* ptArray = fEdges[listIndex].fPts;
                 uint8_t verb = fEdges[listIndex].fVerb;
-                SkPoint* start, * end;
+                SkPoint* curve[4];
                 if (advance < 0) {
-                    start = &ptArray[verb];
-                    end = &ptArray[0];
+                    curve[0] = &ptArray[verb];
+                    if (verb == SkPath::kCubic_Verb) {
+                        curve[1] = &ptArray[2];
+                        curve[2] = &ptArray[1];
+                    }
+                    curve[verb] = &ptArray[0];
                 } else {
-                    start = &ptArray[0];
-                    end = &ptArray[verb];
+                    curve[0] = &ptArray[0];
+                    if (verb == SkPath::kCubic_Verb) {
+                        curve[1] = &ptArray[1];
+                        curve[2] = &ptArray[2];
+                    }
+                    curve[verb] = &ptArray[verb];
+                }
+                if (verb == SkPath::kQuad_Verb) {
+                    curve[1] = &ptArray[1];
                 }
                 if (doMove) {
-                    firstPt = *start;
-                    simple.moveTo(start->fX, start->fY);
-                    if (gShowDebugf) {
-                        SkDebugf("%s moveTo (%g,%g)\n", __FUNCTION__,
-                                start->fX, start->fY);
+                    firstPt = *curve[0];
+                    simple.moveTo(curve[0]->fX, curve[0]->fY);
+#if DEBUG_ASSEMBLE
+                    SkDebugf("%s %d moveTo (%g,%g)\n", __FUNCTION__,
+                            listIndex + 1, curve[0]->fX, curve[0]->fY);
+                    firstIndex = listIndex;
+#endif
+                    for (int index = 0; index <= verb; ++index) {
+                        lastCurve[index] = *curve[index];
                     }
-                    lastCurve[0] = *start;
-                    if (verb == SkPath::kQuad_Verb) {
-                        lastCurve[1] = ptArray[1];
-                    } else if (verb == SkPath::kCubic_Verb) {
-                        if (advance < 0) {
-                            lastCurve[1] = ptArray[2];
-                            lastCurve[2] = ptArray[1];
-                        } else {
-                            lastCurve[1] = ptArray[1];
-                            lastCurve[2] = ptArray[2];
-                        }
-                    }
-                    lastCurve[verb] = *end;
-                    lastVerb = verb;
                     doMove = false;
                 } else {
-                    bool gap = lastCurve[verb] != *start;
-                    if (gap) {
+                    bool gap = lastCurve[lastVerb] != *curve[0];
+                    if (gap || lastVerb != SkPath::kLine_Verb) { // output the accumulated curve before the gap
                         // FIXME: see comment in bridge -- this probably
                         // conceals errors
-                        SkASSERT(fFill && UlpsDiff(lastCurve[lastVerb].fY, start->fY) <= 10);
+                        SkASSERT(fFill && UlpsDiff(lastCurve[lastVerb].fY,
+                                curve[0]->fY) <= 10);
                         switch (lastVerb) {
                             case SkPath::kLine_Verb:
                                 simple.lineTo(lastCurve[1].fX, lastCurve[1].fY);
@@ -393,43 +435,41 @@ public:
                                         lastCurve[3].fX, lastCurve[3].fY);
                                 break;
                         }
-                        if (gShowDebugf) {
-                            const char* verbStr[] = {"", "line", "quad", "cubic"};
-                            SkDebugf("%s %sTo-1 (%g,%g)\n", __FUNCTION__,
-                                    verbStr[lastVerb], lastCurve[lastVerb].fX,
-                                    lastCurve[lastVerb].fY);
-                        }
+#if DEBUG_ASSEMBLE
+                        SkDebugf("%*s %d %sTo (%g,%g)\n", tab, "", lastIndex + 1,
+                                kLVerbStr[lastVerb], lastCurve[lastVerb].fX,
+                                lastCurve[lastVerb].fY);
+#endif
                     }
-                    if (gap || lastVerb != SkPath::kLine_Verb || !extendLine(lastCurve, *end)) {
+                    int firstCopy = 1;
+                    if (gap || (lastVerb == SkPath::kLine_Verb &&
+                            !extendLine(lastCurve, *curve[verb]))) {
                         // FIXME: see comment in bridge -- this probably
                         // conceals errors
-                        SkASSERT(lastCurve[lastVerb] == *start ||
-                                (fFill && UlpsDiff(lastCurve[lastVerb].fY, start->fY) <= 10));
-                        simple.lineTo(start->fX, start->fY);
-                        if (gShowDebugf) {
-                            SkDebugf("%s lineTo (%g,%g)\n", __FUNCTION__,
-                                    start->fX, start->fY);
-                        }
-                        lastCurve[0] = *start;
+                        SkASSERT(lastCurve[lastVerb] == *curve[0] ||
+                                (fFill && UlpsDiff(lastCurve[lastVerb].fY,
+                                curve[0]->fY) <= 10));
+                        simple.lineTo(curve[0]->fX, curve[0]->fY);
+#if DEBUG_ASSEMBLE
+                        SkDebugf("%*s %d gap lineTo (%g,%g)\n", tab, "",
+                                lastIndex + 1, curve[0]->fX, curve[0]->fY);
+#endif
+                        firstCopy = 0;
+                    } else if (lastVerb != SkPath::kLine_Verb) {
+                        firstCopy = 0;
                     }
-                    if (verb == SkPath::kQuad_Verb) {
-                        lastCurve[1] = ptArray[1];
-                    } else if (verb == SkPath::kCubic_Verb) {
-                        if (advance < 0) {
-                            lastCurve[1] = ptArray[2];
-                            lastCurve[2] = ptArray[1];
-                        } else {
-                            lastCurve[1] = ptArray[1];
-                            lastCurve[2] = ptArray[2];
-                        }
+                    for (int index = firstCopy; index <= verb; ++index) {
+                        lastCurve[index] = *curve[index];
                     }
-                    lastCurve[verb] = *end;
-                    lastVerb = verb;
                 }
+                lastVerb = verb;
+#if DEBUG_ASSEMBLE
+                lastIndex = listIndex;
+#endif
                 if (advance < 0) {
                     edgeIndex = fTops[listIndex];
                     fTops[listIndex] = 0;
-                 } else {
+                } else {
                     edgeIndex = fBottoms[listIndex];
                     fBottoms[listIndex] = 0;
                 }
@@ -442,37 +482,44 @@ public:
                     }
                 }
                 if (edgeIndex == closeEdgeIndex || edgeIndex == 0) {
+                    switch (lastVerb) {
+                        case SkPath::kLine_Verb:
+                            simple.lineTo(lastCurve[1].fX, lastCurve[1].fY);
+                            break;
+                        case SkPath::kQuad_Verb:
+                            simple.quadTo(lastCurve[1].fX, lastCurve[1].fY,
+                                    lastCurve[2].fX, lastCurve[2].fY);
+                            break;
+                        case SkPath::kCubic_Verb:
+                            simple.cubicTo(lastCurve[1].fX, lastCurve[1].fY,
+                                    lastCurve[2].fX, lastCurve[2].fY,
+                                    lastCurve[3].fX, lastCurve[3].fY);
+                            break;
+                    }
+#if DEBUG_ASSEMBLE
+                    SkDebugf("%*s %d %sTo last (%g, %g)\n", tab, "",
+                            lastIndex + 1, kLVerbStr[lastVerb],
+                            lastCurve[lastVerb].fX, lastCurve[lastVerb].fY);
+#endif
                     if (lastCurve[lastVerb] != firstPt) {
-                        switch (lastVerb) {
-                            case SkPath::kLine_Verb:
-                                simple.lineTo(lastCurve[1].fX, lastCurve[1].fY);
-                                break;
-                            case SkPath::kQuad_Verb:
-                                simple.quadTo(lastCurve[1].fX, lastCurve[1].fY,
-                                        lastCurve[2].fX, lastCurve[2].fY);
-                                break;
-                            case SkPath::kCubic_Verb:
-                                simple.cubicTo(lastCurve[1].fX, lastCurve[1].fY,
-                                        lastCurve[2].fX, lastCurve[2].fY,
-                                        lastCurve[3].fX, lastCurve[3].fY);
-                                break;
-                        }
-                        if (gShowDebugf) {
-                            const char* verbStr[] = {"", "line", "quad", "cubic"};
-                            SkDebugf("%s %sTo last (%g, %g)\n", __FUNCTION__,
-                                    verbStr[lastVerb],
-                                    lastCurve[lastVerb].fX, lastCurve[lastVerb].fY);
-                        }
+                        simple.lineTo(firstPt.fX, firstPt.fY);
+#if DEBUG_ASSEMBLE
+                        SkDebugf("%*s %d final line (%g, %g)\n", tab, "",
+                                firstIndex + 1, firstPt.fX, firstPt.fY);
+#endif
                     }
-                    simple.lineTo(firstPt.fX, firstPt.fY);
                     simple.close();
-                    if (gShowDebugf) {
-                        SkDebugf("%s close (%g, %g)\n", __FUNCTION__,
-                                firstPt.fX, firstPt.fY);
-                    }
+#if DEBUG_ASSEMBLE
+                    SkDebugf("%*s   close\n", tab, "");
+#endif
                     break;
                 }
-                // if this and next edge go different directions 
+                // if this and next edge go different directions
+#if DEBUG_ASSEMBLE
+                SkDebugf("%*s   advance=%d edgeIndex=%d flip=%s\n", tab, "",
+                        advance, edgeIndex, advance > 0 ^ edgeIndex < 0 ?
+                        "true" : "false");
+#endif
                 if (advance > 0 ^ edgeIndex < 0) {
                     advance = -advance;
                 }
@@ -618,6 +665,22 @@ public:
         }
         SkASSERT(fMismatches.count() == 0);
 #endif
+#if DEBUG_BRIDGE
+    for (index = 0; index < count; ++index) {
+        const OutEdge& edge = fEdges[index];
+        uint8_t verb = edge.fVerb;
+        SkDebugf("%s %d edge=%d %s (%1.9g,%1.9g) (%1.9g,%1.9g)\n", 
+                index == 0 ? __FUNCTION__ : "      ",
+                index + 1, edge.fID, kLVerbStr[verb], edge.fPts[0].fX,
+                edge.fPts[0].fY, edge.fPts[verb].fX, edge.fPts[verb].fY);
+    }
+    for (index = 0; index < count; ++index) {
+        SkDebugf("       top    of % 2d connects to %s of % 2d\n", index + 1,
+                fTops[index] < 0 ? "top   " : "bottom", abs(fTops[index]));
+        SkDebugf("       bottom of % 2d connects to %s of % 2d\n", index + 1,
+                fBottoms[index] < 0 ? "top   " : "bottom", abs(fBottoms[index]));
+    }
+#endif
     }
 
 protected:
@@ -696,6 +759,8 @@ public:
                 className, fTopIntercepts);
         SkDebugf("%*s.fBottomIntercepts=%u\n", tab + sizeof(className),
                 className, fBottomIntercepts);
+        SkDebugf("%*s.fExplicit=%d\n", tab + sizeof(className),
+                className, fExplicit);
     }
 #endif
 
@@ -781,7 +846,7 @@ struct InEdge {
         return insertedAt;
     }
     
-    void addPartial(SkTArray<InEdge>& edges, int id, int ptStart, int ptEnd,
+    void addPartial(SkTArray<InEdge>& edges, int ptStart, int ptEnd,
             int verbStart, int verbEnd) {
         InEdge* edge = edges.push_back_n(1);
         int verbCount = verbEnd - verbStart;
@@ -793,25 +858,35 @@ struct InEdge {
         edge->fPts.append(ptEnd - ptStart, &fPts[ptStart]);
         edge->fVerbs.append(verbCount, &fVerbs[verbStart]);
         edge->setBounds();
-        edge->fID = id + edges.count();
         edge->fWinding = fWinding;
         edge->fContainsIntercepts = fContainsIntercepts; // FIXME: may not be correct -- but do we need to know?
     }
 
-    void addSplit(SkTArray<InEdge>& edges, int id, SkPoint* pts, uint8_t verb,
-            double* ts, int tCount, bool flipped) {
+    void addSplit(SkTArray<InEdge>& edges, SkPoint* pts, uint8_t verb,
+            Intercepts& intercepts, int firstT, int lastT, bool flipped) {
         InEdge* edge = edges.push_back_n(1);
         edge->fIntercepts.push_back_n(1);
-        edge->fIntercepts[0].fTs.append(tCount, ts);
+        if (firstT == 0) {
+            *edge->fIntercepts[0].fTs.append() = 0;
+        } else {
+            *edge->fIntercepts[0].fTs.append() = intercepts.fTs[firstT - 1];
+        }
+        bool add1 = lastT == intercepts.fTs.count();
+        edge->fIntercepts[0].fTs.append(lastT - firstT, &intercepts.fTs[firstT]);
+        if (add1) {
+            *edge->fIntercepts[0].fTs.append() = 1;
+        }
         edge->fIntercepts[0].fExplicit = true;
-        edge->fPts.append(verb, pts);
+        edge->fPts.append(verb + 1, pts);
         edge->fVerbs.append(1, &verb);
-        edge->setBounds();
-        edge->fID = id + edges.count();
-        edge->fWinding = fWinding;
+        // FIXME: bounds could be better for partial Ts
+        edge->setSubBounds();
         edge->fContainsIntercepts = fContainsIntercepts; // FIXME: may not be correct -- but do we need to know?
         if (flipped) {
-            flip();
+            edge->flipTs();
+            edge->fWinding = -fWinding;
+        } else {
+            edge->fWinding = fWinding;
         }
     }
 
@@ -831,17 +906,16 @@ struct InEdge {
         return false;
     }
 
-    void complete(signed char winding, int id) {
+    void complete(signed char winding) {
         setBounds();
         fIntercepts.push_back_n(fVerbs.count());
         if ((fWinding = winding) < 0) { // reverse verbs, pts, if bottom to top
             flip();
         }
         fContainsIntercepts = fIntersected = false;
-        fID = id;
     }
     
-     void flip() {
+    void flip() {
         size_t index;
         size_t last = fPts.count() - 1;
         for (index = 0; index < last; ++index, --last) {
@@ -852,6 +926,18 @@ struct InEdge {
             SkTSwap<uint8_t>(fVerbs[index], fVerbs[last]);
         }
     }
+    
+    void flipTs() {
+        SkASSERT(fIntercepts.count() == 1);
+        Intercepts& intercepts = fIntercepts[0];
+        SkASSERT(intercepts.fExplicit);
+        SkTDArray<double>& ts = intercepts.fTs;
+        size_t index;
+        size_t last = ts.count() - 1;
+        for (index = 0; index < last; ++index, --last) {
+            SkTSwap<double>(ts[index], ts[last]);
+        }
+    }
 
     void reset() {
         fCached.reset();
@@ -859,7 +945,6 @@ struct InEdge {
         fPts.reset();
         fVerbs.reset();
         fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
-        fID = -1;
         fWinding = 0;
         fContainsIntercepts = false;
         fIntersected = false;
@@ -881,8 +966,25 @@ struct InEdge {
             ++ptPtr;
         }
     }
+    
+    // recompute bounds based on subrange of T values
+    void setSubBounds() {
+        SkASSERT(fIntercepts.count() == 1);
+        Intercepts& intercepts = fIntercepts[0];
+        SkASSERT(intercepts.fExplicit);
+        SkASSERT(fVerbs.count() == 1);
+        SkTDArray<double>& ts = intercepts.fTs;
+        if (fVerbs[0] == SkPath::kQuad_Verb) {
+            SkASSERT(fPts.count() == 3);
+            QuadSubBounds(fPts.begin(), ts[0], ts[ts.count() - 1], fBounds);
+        } else {
+            SkASSERT(fVerbs[0] == SkPath::kCubic_Verb);
+            SkASSERT(fPts.count() == 4);
+            CubicSubBounds(fPts.begin(), ts[0], ts[ts.count() - 1], fBounds);
+        }
+    }
 
-    void splitInflectionPts(SkTArray<InEdge>& edges, int idStart) {
+    void splitInflectionPts(SkTArray<InEdge>& edges) {
         if (!fIntersected) {
             return;
         }
@@ -918,11 +1020,9 @@ struct InEdge {
                         int nextPt = pts - fPts.begin();
                         int nextVerb = verbs - 1 - fVerbs.begin();
                         if (lastVerb < nextVerb) {
-                            addPartial(edges, idStart, lastPt, nextPt,
-                                    lastVerb, nextVerb);
+                            addPartial(edges, lastPt, nextPt, lastVerb, nextVerb);
             #if DEBUG_SPLIT
-                            SkDebugf("%s addPartial 1 edge=%d\n", __FUNCTION__,
-                                    fID);
+                            SkDebugf("%s addPartial 1\n", __FUNCTION__);
             #endif
                         }
                         lastPt = nextPt;
@@ -931,20 +1031,18 @@ struct InEdge {
                 } else {
                     if (firstSplit >= 0) {
                         if (lastSplit < firstSplit) {
-                            addSplit(edges, idStart, pts, verb,
-                                    &intercepts.fTs[lastSplit],
-                                    firstSplit - lastSplit, false);
+                            addSplit(edges, pts, verb, intercepts,
+                                    lastSplit, firstSplit, false);
             #if DEBUG_SPLIT
-                            SkDebugf("%s addSplit 1 edge=%d tIndex=%d,%d\n",
-                                    __FUNCTION__, fID, lastSplit, firstSplit);
+                            SkDebugf("%s addSplit 1 tIndex=%d,%d\n",
+                                    __FUNCTION__, lastSplit, firstSplit);
             #endif
                         }
-                        addSplit(edges, idStart, pts, verb,
-                                &intercepts.fTs[firstSplit],
-                                tIndex - firstSplit, true);
+                        addSplit(edges, pts, verb, intercepts, 
+                                firstSplit, tIndex, true);
             #if DEBUG_SPLIT
-                        SkDebugf("%s addSplit 2 edge=%d tIndex=%d,%d flip\n",
-                                __FUNCTION__, fID, firstSplit, tIndex);
+                        SkDebugf("%s addSplit 2 tIndex=%d,%d flip\n",
+                                __FUNCTION__, firstSplit, tIndex);
             #endif
                         lastSplit = tIndex;
                         firstSplit = -1;
@@ -956,20 +1054,18 @@ struct InEdge {
                 if (firstSplit < 0) {
                     firstSplit = lastSplit;
                 } else {
-                    addSplit(edges, idStart, pts, verb,
-                            &intercepts.fTs[lastSplit], firstSplit - lastSplit,
-                            false);
+                    addSplit(edges, pts, verb, intercepts, lastSplit,
+                            firstSplit, false);
             #if DEBUG_SPLIT
-                    SkDebugf("%s addSplit 3 edge=%d tIndex=%d,%d\n", __FUNCTION__,
-                            fID, lastSplit, firstSplit);
+                    SkDebugf("%s addSplit 3 tIndex=%d,%d\n", __FUNCTION__,
+                            lastSplit, firstSplit);
             #endif
                 }
-                addSplit(edges, idStart, pts, verb,
-                        &intercepts.fTs[firstSplit], tIndex - firstSplit,
-                        pts[verb].fY < y);
+                addSplit(edges, pts, verb, intercepts, firstSplit,
+                        tIndex, pts[verb].fY < y);
             #if DEBUG_SPLIT
-                SkDebugf("%s addSplit 4 edge=%d tIndex=%d,%d %s\n", __FUNCTION__,
-                        fID, firstSplit, tIndex, pts[verb].fY < y ? "flip" : "");
+                SkDebugf("%s addSplit 4 tIndex=%d,%d %s\n", __FUNCTION__,
+                        firstSplit, tIndex, pts[verb].fY < y ? "flip" : "");
             #endif
             }
         }
@@ -978,10 +1074,9 @@ struct InEdge {
             int nextVerb = verbs - 1 - fVerbs.begin();
             if (lastVerb < nextVerb) {
                 int nextPt = pts - fPts.begin();
-                addPartial(edges, idStart, lastPt, nextPt,
-                        lastVerb, nextVerb);
+                addPartial(edges, lastPt, nextPt, lastVerb, nextVerb);
             #if DEBUG_SPLIT
-                SkDebugf("%s addPartial 2 edge=%d\n", __FUNCTION__, fID);
+                SkDebugf("%s addPartial 2\n", __FUNCTION__);
             #endif
             }
             // OPTIMIZATION: reuse the edge instead of marking it empty
@@ -1015,7 +1110,7 @@ struct InEdge {
             SkDebugf("%*s.fVerbs[%d]=%d\n", tab + sizeof(className),
                     className, i, fVerbs[i]);
         }
-        SkDebugf("%*s.fBounds=(%1.9g. %1.9g, %1.9g, %1.9g)\n", tab + sizeof(className),
+        SkDebugf("%*s.fBounds=(%1.9g, %1.9g, %1.9g, %1.9g)\n", tab + sizeof(className),
                 className, fBounds.fLeft, fBounds.fTop,
                 fBounds.fRight, fBounds.fBottom);
         SkDebugf("%*s.fWinding=%d\n", tab + sizeof(className), className,
@@ -1049,7 +1144,6 @@ InEdgeBuilder(const SkPath& path, bool ignoreHorizontal, SkTArray<InEdge>& edges
     : fPath(path)
     , fCurrentEdge(NULL)
     , fEdges(edges)
-    , fID(0)
     , fHorizontalEdges(horizontalEdges)
     , fIgnoreHorizontal(ignoreHorizontal)
     , fContainsCurves(false)
@@ -1059,10 +1153,6 @@ InEdgeBuilder(const SkPath& path, bool ignoreHorizontal, SkTArray<InEdge>& edges
 
 bool containsCurves() const {
     return fContainsCurves;
-}
-
-int nextID() {
-    return ++fID;
 }
 
 protected:
@@ -1076,7 +1166,7 @@ void addEdge() {
 
 bool complete() {
     if (fCurrentEdge && fCurrentEdge->fVerbs.count()) {
-        fCurrentEdge->complete(fWinding, nextID());
+        fCurrentEdge->complete(fWinding);
         fCurrentEdge = NULL;
         return true;
     }
@@ -1180,7 +1270,6 @@ private:
     SkPath::Verb fVerb;
     int fPtCount;
     int fPtOffset;
-    int fID;
     int8_t fWinding;
     bool fIgnoreHorizontal;
     bool fContainsCurves;
@@ -1729,19 +1818,17 @@ static void debugShowLineIntersection(int pts, const WorkEdge& wt,
     SkPoint wtOutPt, wnOutPt;
     LineXYAtT(wt.fPts, wtTs[0], &wtOutPt);
     LineXYAtT(wn.fPts, wnTs[0], &wnOutPt);
-    SkDebugf("%s wtTs[0]=%g (%g,%g, %g,%g) (%g,%g) (%d,%d)\n",
+    SkDebugf("%s wtTs[0]=%g (%g,%g, %g,%g) (%g,%g)\n",
             __FUNCTION__,
             wtTs[0], wt.fPts[0].fX, wt.fPts[0].fY,
-            wt.fPts[1].fX, wt.fPts[1].fY, wtOutPt.fX, wtOutPt.fY,
-            test->fID, next->fID);
+            wt.fPts[1].fX, wt.fPts[1].fY, wtOutPt.fX, wtOutPt.fY);
     if (pts == 2) {
         SkDebugf("%s wtTs[1]=%g\n", __FUNCTION__, wtTs[1]);
     }
-    SkDebugf("%s wnTs[0]=%g (%g,%g, %g,%g) (%g,%g) (%d,%d)\n",
+    SkDebugf("%s wnTs[0]=%g (%g,%g, %g,%g) (%g,%g)\n",
             __FUNCTION__,
             wnTs[0], wn.fPts[0].fX, wn.fPts[0].fY,
-            wn.fPts[1].fX, wn.fPts[1].fY, wnOutPt.fX, wnOutPt.fY,
-            test->fID, next->fID);
+            wn.fPts[1].fX, wn.fPts[1].fY, wnOutPt.fX, wnOutPt.fY);
     if (pts == 2) {
         SkDebugf("%s wnTs[1]=%g\n", __FUNCTION__, wnTs[1]);
     }
@@ -1979,10 +2066,15 @@ static void makeEdgeList(SkTArray<InEdge>& edges, InEdge& edgeSentinel,
     if (edgeCount == 0) {
         return;
     }
+    int id = 0;
     for (size_t index = 0; index < edgeCount; ++index) {
-        *edgeList.append() = &edges[index];
+        InEdge& edge = edges[index];
+        if (!edge.fWinding) {
+            continue;
+        }
+        edge.fID = ++id;
+        *edgeList.append() = &edge;
     }
-    edgeSentinel.fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
     *edgeList.append() = &edgeSentinel;
     QSort<InEdge>(edgeList.begin(), edgeList.end() - 1);
 }
@@ -2240,7 +2332,6 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
         bool moreToDo, aboveBottom;
         do {
             double currentT = activePtr->t();
-            SkASSERT(currentT < 1);
             const SkPoint* points = wt.fPts;
             double nextT;
             do {
@@ -2270,32 +2361,30 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
                 }
                 if (inWinding && !activePtr->fSkip && (fill ? clipped[0].fY
                         != clipped[verb].fY : clipped[0] != clipped[verb])) {
-                    if (gShowDebugf) {
-                        const char* verbStr[] = {"", "Line", "Quad", "Cubic"};
-                        SkDebugf("%*s add%s %1.9g,%1.9g %1.9g,%1.9g edge=%d"
-                                " v=%d t=(%1.9g,%1.9g)\n", tab, "",
-                                verbStr[verb], clipped[0].fX, clipped[0].fY,
-                                clipped[verb].fX, clipped[verb].fY,
-                                activePtr->ID(),
-                                activePtr->fWorkEdge.fVerb
-                                - activePtr->fWorkEdge.fEdge->fVerbs.begin(),
-                                currentT, nextT);
-                    }
+#if DEBUG_STITCH_EDGE
+                    SkDebugf("%*s add%s %1.9g,%1.9g %1.9g,%1.9g edge=%d"
+                            " v=%d t=(%1.9g,%1.9g)\n", tab, "",
+                            kUVerbStr[verb], clipped[0].fX, clipped[0].fY,
+                            clipped[verb].fX, clipped[verb].fY,
+                            activePtr->ID(),
+                            activePtr->fWorkEdge.fVerb
+                            - activePtr->fWorkEdge.fEdge->fVerbs.begin(),
+                            currentT, nextT);
+#endif
                     outBuilder.addCurve(clipped, (SkPath::Verb) verb,
                             activePtr->fWorkEdge.fEdge->fID,
                             activePtr->fCloseCall);
                 } else {
-                    if (gShowDebugf ) {
-                        const char* verbStr[] = {"", "Line", "Quad", "Cubic"};
-                        SkDebugf("%*s skip%s %1.9g,%1.9g %1.9g,%1.9g"
-                                " edge=%d v=%d t=(%1.9g,%1.9g)\n", tab, "",
-                                verbStr[verb], clipped[0].fX, clipped[0].fY,
-                                clipped[verb].fX, clipped[verb].fY,
-                                activePtr->ID(),
-                                activePtr->fWorkEdge.fVerb
-                                - activePtr->fWorkEdge.fEdge->fVerbs.begin(),
-                                currentT, nextT);
-                    }
+#if DEBUG_STITCH_EDGE
+                    SkDebugf("%*s skip%s %1.9g,%1.9g %1.9g,%1.9g"
+                            " edge=%d v=%d t=(%1.9g,%1.9g)\n", tab, "",
+                            kUVerbStr[verb], clipped[0].fX, clipped[0].fY,
+                            clipped[verb].fX, clipped[verb].fY,
+                            activePtr->ID(),
+                            activePtr->fWorkEdge.fVerb
+                            - activePtr->fWorkEdge.fEdge->fVerbs.begin(),
+                            currentT, nextT);
+#endif
                 }
             // by advancing fAbove/fBelow, the next call to sortHorizontal
             // will use these values if they're still valid instead of
@@ -2369,6 +2458,7 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
     InEdgeBuilder builder(path, asFill, edges, horizontalEdges);
     SkTDArray<InEdge*> edgeList;
     InEdge edgeSentinel;
+    edgeSentinel.reset();
     makeEdgeList(edges, edgeSentinel, edgeList);
     SkTDArray<HorizontalEdge*> horizontalList;
     HorizontalEdge horizontalSentinel;
@@ -2407,13 +2497,13 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
         currentPtr = edgeList.begin();
         SkTArray<InEdge> splits;
         do {
-            (*currentPtr)->splitInflectionPts(splits, builder.nextID());
+            (*currentPtr)->splitInflectionPts(splits);
         } while (*++currentPtr != &edgeSentinel);
         if (splits.count()) {
-            edges.pop_back(); // pop the sentinel
             for (int index = 0; index < splits.count(); ++index) {
                 edges.push_back(splits[index]);
             }
+            edgeList.reset();
             makeEdgeList(edges, edgeSentinel, edgeList);
         }
     }
