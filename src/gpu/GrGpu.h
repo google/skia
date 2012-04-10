@@ -333,6 +333,14 @@ public:
         return fResetTimestamp;
     }
 
+    /**
+     * Can the provided configuration act as a color render target?
+     */
+    bool isConfigRenderable(GrPixelConfig config) const {
+        GrAssert(kGrPixelConfigCount > config); 
+        return fConfigRenderSupport[config];
+    }
+
 protected:
     enum PrivateDrawStateStateBits {
         kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
@@ -376,6 +384,10 @@ protected:
     const GeometryPoolState& getGeomPoolState() { 
         return fGeomPoolStateStack.back(); 
     }
+
+    // Derived classes need access to this so they can fill it out in their
+    // constructors
+    bool    fConfigRenderSupport[kGrPixelConfigCount];
 
     // GrDrawTarget overrides
     virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,

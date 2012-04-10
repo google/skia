@@ -181,6 +181,8 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
 
     GrAssert(ctxInfo.isInitialized());
 
+    fillInConfigRenderableTable();
+
     fPrintedCaps = false;
 
     GrGLClearErr(fGLContextInfo.interface());
@@ -291,6 +293,71 @@ void GrGpuGL::initCaps() {
     fCaps.fMaxRenderTargetSize = GrMin(fCaps.fMaxTextureSize, fCaps.fMaxRenderTargetSize);
 
     fCaps.fFSAASupport = GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType();
+}
+
+void GrGpuGL::fillInConfigRenderableTable() {
+
+    // OpenGL < 3.0
+    //  no support for render targets unless the GL_ARB_framebuffer_object 
+    //  extension is supported (in which case we get ALPHA, RED, RG, RGB, 
+    //  RGBA (ALPHA8, RGBA4, RGBA8) for OpenGL > 1.1). Note that we 
+    //  probably don't get R8 in this case.
+
+    // OpenGL 3.0
+    //  base color renderable: ALPHA, RED, RG, RGB, and RGBA
+    //  sized derivatives: ALPHA8, R8, RGBA4, RGBA8
+
+    // >= OpenGL 3.1
+    //  base color renderable: RED, RG, RGB, and RGBA
+    //  sized derivatives: R8, RGBA4, RGBA8
+    //  if the GL_ARB_compatibility extension is supported then we get back
+    //  support for GL_ALPHA and ALPHA8
+
+    // GL_EXT_bgra adds BGRA render targets to any version
+
+    // ES 2.0
+    //  color renderable: RGBA4, RGB5_A1, RGB565
+    //  GL_EXT_texture_rg adds support for R8 as a color render target
+    //  GL_OES_rgb8_rgba8 and/or GL_ARM_rgba8 adds support for RGBA8
+    //  GL_EXT_texture_format_BGRA8888 and/or GL_APPLE_texture_format_BGRA8888
+    //          added BGRA support
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        // Post 3.0 we will get R8
+        // Prior to 3.0 we will get ALPHA8 (with GL_ARB_framebuffer_object)
+        if (this->glVersion() >= GR_GL_VER(3,0) ||
+            this->hasExtension("GL_ARB_framebuffer_object")) {
+            fConfigRenderSupport[kAlpha_8_GrPixelConfig] = true;
+        }
+    } else {
+        // On ES we can only hope for R8
+        fConfigRenderSupport[kAlpha_8_GrPixelConfig] = 
+                                this->glCaps().textureRedSupport();
+    }
+
+    if (kDesktop_GrGLBinding != this->glBinding()) {
+        // only available in ES
+        fConfigRenderSupport[kRGB_565_GrPixelConfig] = true;
+    }
+
+    // Pre 3.0, Ganesh relies on either GL_ARB_framebuffer_object or 
+    // GL_EXT_framebuffer_object for FBO support. Both of these
+    // allow RGBA4 render targets so this is always supported.
+    fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = true;
+
+    if (this->glCaps().rgba8RenderbufferSupport()) {
+        fConfigRenderSupport[kRGBA_8888_PM_GrPixelConfig] = true;
+    }
+
+    if (this->glCaps().bgraFormatSupport()) {
+        fConfigRenderSupport[kBGRA_8888_PM_GrPixelConfig] = true;
+    }
+
+    // the un-premultiplied formats just inherit the premultiplied setting
+    fConfigRenderSupport[kRGBA_8888_UPM_GrPixelConfig] = 
+                fConfigRenderSupport[kRGBA_8888_PM_GrPixelConfig];
+    fConfigRenderSupport[kBGRA_8888_UPM_GrPixelConfig] = 
+                fConfigRenderSupport[kBGRA_8888_PM_GrPixelConfig];
 }
 
 bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {

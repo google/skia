@@ -57,6 +57,10 @@ GrGpu::GrGpu()
     poolState.fPoolStartIndex = DEBUG_INVAL_START_IDX;
 #endif
     resetStats();
+
+    for (int i = 0; i < kGrPixelConfigCount; ++i) {
+        fConfigRenderSupport[i] = false;
+    };
 }
 
 GrGpu::~GrGpu() {
