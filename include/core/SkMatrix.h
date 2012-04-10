@@ -549,7 +549,7 @@ private:
     enum {
         /** Set if the matrix will map a rectangle to another rectangle. This
             can be true if the matrix is scale-only, or rotates a multiple of
-            90 degrees. This bit is not set if the matrix is identity.
+            90 degrees.
              
             This bit will be set on identity matrices
         */

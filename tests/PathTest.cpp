@@ -1053,7 +1053,6 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
     }
 }
 
-void TestPath(skiatest::Reporter* reporter);
 void TestPath(skiatest::Reporter* reporter) {
     {
         SkSize size;
