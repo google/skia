@@ -217,8 +217,7 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
 #define MAKENAME(suffix)        SA8_alpha_D32 ## suffix
 #define DSTSIZE                 32
 #define SRCTYPE                 uint8_t
-#define CHECKSTATE(state)       SkASSERT(state.fBitmap->config() == SkBitmap::kA8_Config); \
-                                SkASSERT(state.fAlphaScale == 256)
+#define CHECKSTATE(state)       SkASSERT(state.fBitmap->config() == SkBitmap::kA8_Config);
 #define PREAMBLE(state)         const SkPMColor pmColor = state.fPaintPMColor;
 #define RETURNDST(src)          SkAlphaMulQ(pmColor, SkAlpha255To256(src))
 #define SRC_TO_FILTER(src)      src
