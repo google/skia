@@ -233,6 +233,8 @@ private:
                                    GrGLuint texID,
                                    GrGLRenderTarget::Desc* desc);
 
+    void fillInConfigRenderableTable();
+
     friend class GrGLVertexBuffer;
     friend class GrGLIndexBuffer;
     friend class GrGLTexture;

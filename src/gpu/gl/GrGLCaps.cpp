@@ -136,7 +136,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
         fTextureRedSupport = version >= GR_GL_VER(3,0) ||
                              ctxInfo.hasExtension("GL_ARB_texture_rg");
     } else {
-        fTextureRedSupport = ctxInfo.hasExtension("GL_ARB_texture_rg");
+        fTextureRedSupport = ctxInfo.hasExtension("GL_EXT_texture_rg");
     }
 
     this->initFSAASupport(ctxInfo);

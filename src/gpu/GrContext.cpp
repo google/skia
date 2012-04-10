@@ -1989,6 +1989,10 @@ const GrRenderTarget* GrContext::getRenderTarget() const {
     return fDrawState->getRenderTarget();
 }
 
+bool GrContext::isConfigRenderable(GrPixelConfig config) const {
+    return fGpu->isConfigRenderable(config);
+}
+
 const GrMatrix& GrContext::getMatrix() const {
     return fDrawState->getViewMatrix();
 }
@@ -2112,16 +2116,22 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                          static_cast<float>(scaleFactorY));
     this->setClip(srcRect);
 
+    GrAssert(kBGRA_8888_PM_GrPixelConfig == srcTexture->config() ||
+             kRGBA_8888_PM_GrPixelConfig == srcTexture->config() ||
+             kAlpha_8_GrPixelConfig == srcTexture->config());
+
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit,
         SkScalarFloorToInt(srcRect.width()),
         SkScalarFloorToInt(srcRect.height()),
-        kRGBA_8888_PM_GrPixelConfig,
+        srcTexture->config(), 
         0 // samples 
     };
 
     temp1->set(this, desc);
-    if (temp2) temp2->set(this, desc);
+    if (temp2) {
+        temp2->set(this, desc);
+    }
 
     GrTexture* dstTexture = temp1->texture();
     GrPaint paint;
@@ -2160,7 +2170,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         convolve(fGpu, srcTexture, srcRect, kernelX, kernelWidthX,
                  GrSamplerState::kX_FilterDirection);
         SkTSwap(srcTexture, dstTexture);
-        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+        if (temp2 && dstTexture == origTexture) {
+            dstTexture = temp2->texture();
+        }
     }
 
     if (sigmaY > 0.0f) {
@@ -2180,7 +2192,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         convolve(fGpu, srcTexture, srcRect, kernelY, kernelWidthY,
                  GrSamplerState::kY_FilterDirection);
         SkTSwap(srcTexture, dstTexture);
-        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+        if (temp2 && dstTexture == origTexture) {
+            dstTexture = temp2->texture();
+        }
     }
 
     if (scaleFactorX > 1 || scaleFactorY > 1) {

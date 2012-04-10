@@ -274,6 +274,11 @@ public:
     const GrRenderTarget* getRenderTarget() const;
     GrRenderTarget* getRenderTarget();
 
+    /**
+     * Can the provided configuration act as a color render target?
+     */
+    bool isConfigRenderable(GrPixelConfig config) const;
+
     ///////////////////////////////////////////////////////////////////////////
     // Platform Surfaces
 

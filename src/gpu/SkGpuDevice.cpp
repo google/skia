@@ -788,15 +788,19 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     }
     GrPoint offset = GrPoint::Make(-srcRect.fLeft, -srcRect.fTop);
     srcRect.offset(offset);
-    const GrTextureDesc desc = {
+    GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit,
         SkScalarCeilToInt(srcRect.width()),
         SkScalarCeilToInt(srcRect.height()),
         // We actually only need A8, but it often isn't supported as a
-        // render target
+        // render target so default to RGBA_8888
         kRGBA_8888_PM_GrPixelConfig,
         0 // samples
     };
+
+    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig)) {
+        desc.fConfig = kAlpha_8_GrPixelConfig;
+    }
 
     GrAutoScratchTexture pathEntry(context, desc);
     GrTexture* pathTexture = pathEntry.texture();
