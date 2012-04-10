@@ -1137,7 +1137,8 @@ SkData* SkPDFDevice::copyContentToData() const {
     // we have to clip to the content area; we've already applied the
     // initial transform, so just clip to the device size.
     if (fPageSize != fContentSize) {
-        SkRect r = SkRect::MakeWH(this->width(), this->height());
+        SkRect r = SkRect::MakeWH(SkIntToScalar(this->width()),
+                                  SkIntToScalar(this->height()));
         emit_clip(NULL, &r, &data);
     }
 

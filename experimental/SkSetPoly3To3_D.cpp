@@ -17,7 +17,7 @@ static SkScalar SkDScalar_toScalar(SkDScalar value) {
 }
 
 static SkDScalar SkDScalar_setMul(SkScalar a, SkScalar b) {
-    return (SkDScalar)a * b;
+    return (SkDScalar) ((SkDScalar) a * b);
 }
 
 static void computeOuterProduct(SkMatrix* matrix,
@@ -48,7 +48,7 @@ static SkScalar dot(SkScalar ax, SkScalar ay, SkScalar bx, SkScalar by) {
                               SkDScalar_setMul(ay, by));
 }
 
-bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]) {
+bool SkSetPoly3To3_D(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]) {
     const SkPoint& srcAve = src[0];
     const SkPoint& dstAve = dst[0];
     
