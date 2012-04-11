@@ -223,6 +223,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageProc)(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageMultisampleProc)(GrGLenum target, GrGLsizei samples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageMultisampleCoverageProc)(GrGLenum target, GrGLsizei coverageSamples, GrGLsizei colorSamples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLResolveMultisampleFramebufferProc)();
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLScissorProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLShaderSourceProc)(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length);
@@ -384,6 +385,7 @@ public:
     GLPtr<GrGLReadPixelsProc> fReadPixels;
     GLPtr<GrGLRenderbufferStorageProc> fRenderbufferStorage;
     GLPtr<GrGLRenderbufferStorageMultisampleProc> fRenderbufferStorageMultisample;
+    GLPtr<GrGLRenderbufferStorageMultisampleCoverageProc> fRenderbufferStorageMultisampleCoverage;
     GLPtr<GrGLResolveMultisampleFramebufferProc> fResolveMultisampleFramebuffer;
     GLPtr<GrGLScissorProc> fScissor;
     GLPtr<GrGLShaderSourceProc> fShaderSource;
