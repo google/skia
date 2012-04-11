@@ -123,6 +123,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(GetShaderiv);
         GR_GL_GET_PROC(GetUniformLocation);
         GR_GL_GET_PROC(LinkProgram);
+        if (GrGLHasExtensionFromString("GL_NV_framebuffer_multisample_coverage", extString)) {
+            GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisampleCoverage, NV);
+        }
         GR_GL_GET_PROC(ShaderSource);
         GR_GL_GET_PROC(StencilFuncSeparate);
         GR_GL_GET_PROC(StencilMaskSeparate);

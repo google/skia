@@ -24,6 +24,23 @@ public:
     typedef GrGLStencilBuffer::Format StencilFormat;
 
     /**
+     * Represents a supported multisampling/coverage-sampling mode.
+     */
+    struct MSAACoverageMode {
+        // "Coverage samples" includes samples that actually have color, depth,
+        // stencil, ... as well as those that don't (coverage only). All samples
+        // are coverage samples. (We're using the word "coverage sample" to
+        // match the NV extension language.)
+        int fCoverageSampleCnt;
+
+        // Color samples are samples that store data values (color, stencil,
+        // depth) rather than just representing coverage. They are a subset
+        // of coverage samples. (Again the wording was chosen to match the
+        // extension.)
+        int fColorSampleCnt;
+    };
+
+    /**
      * The type of MSAA for FBOs supported. Different extensions have different
      * semantics of how / when a resolve is performed.
      */
@@ -44,6 +61,18 @@ public:
          * GL_APPLE_framebuffer_multisample ES extension
          */
         kAppleES_MSFBOType,
+    };
+
+    enum CoverageAAType {
+        /**
+         * No coverage sample support
+         */
+        kNone_CoverageAAType,
+
+        /**
+         * GL_NV_framebuffer_multisample_coverage
+         */
+        kNVDesktop_CoverageAAType,
     };
 
     /**
@@ -106,6 +135,20 @@ public:
      * Reports the type of MSAA FBO support.
      */
     MSFBOType msFBOType() const { return fMSFBOType; }
+
+    /**
+     * Reports the type of coverage sample AA support.
+     */
+    CoverageAAType coverageAAType() const { return fCoverageAAType; }
+
+    /**
+     * Chooses a supported coverage mode based on a desired sample count. The
+     * desired sample count is rounded up the next supported coverage sample
+     * count unless a it is larger than the max in which case it is rounded
+     * down. Once a coverage sample count is decided, the supported mode with
+     * the fewest color samples is chosen.
+     */
+    const MSAACoverageMode& getMSAACoverageMode(int desiredSampleCount) const;
 
     /**
      * Prints the caps info using GrPrintf.
@@ -214,6 +257,8 @@ private:
 
     int fMaxFragmentUniformVectors;
     MSFBOType fMSFBOType;
+    CoverageAAType fCoverageAAType;
+    SkTDArray<MSAACoverageMode> fMSAACoverageModes;
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAFormatSupport : 1;

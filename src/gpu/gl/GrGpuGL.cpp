@@ -845,6 +845,38 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     return succeeded;
 }
 
+namespace {
+bool renderbuffer_storage_msaa(GrGLContextInfo& ctxInfo,
+                               int sampleCount,
+                               GrGLenum format,
+                               int width, int height) {
+    CLEAR_ERROR_BEFORE_ALLOC(ctxInfo.interface());
+    GrAssert(GrGLCaps::kNone_MSFBOType != ctxInfo.caps().msFBOType());
+    bool created = false;
+    if (GrGLCaps::kNVDesktop_CoverageAAType ==
+        ctxInfo.caps().coverageAAType()) {
+        const GrGLCaps::MSAACoverageMode& mode =
+            ctxInfo.caps().getMSAACoverageMode(sampleCount);
+        GL_ALLOC_CALL(ctxInfo.interface(),
+                      RenderbufferStorageMultisampleCoverage(GR_GL_RENDERBUFFER,
+                                                        mode.fCoverageSampleCnt,
+                                                        mode.fColorSampleCnt,
+                                                        format,
+                                                        width, height));
+        created = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctxInfo.interface()));
+    }
+    if (!created) {
+        GL_ALLOC_CALL(ctxInfo.interface(),
+                      RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
+                                                     sampleCount,
+                                                     format,
+                                                     width, height));
+        created = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctxInfo.interface()));
+    }
+    return created;
+}
+}
+
 bool GrGpuGL::createRenderTargetObjects(int width, int height,
                                         GrGLuint texID,
                                         GrGLRenderTarget::Desc* desc) {
@@ -854,7 +886,6 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     desc->fOwnIDs = true;
 
     GrGLenum status;
-    GrGLint err;
 
     GrGLenum msColorFormat = 0; // suppress warning
 
@@ -890,14 +921,10 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         GrAssert(desc->fSampleCnt > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER,
                                desc->fMSColorRenderbufferID));
-        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-        GL_ALLOC_CALL(this->glInterface(),
-                      RenderbufferStorageMultisample(GR_GL_RENDERBUFFER, 
-                                                     desc->fSampleCnt,
-                                                     msColorFormat,
-                                                     width, height));
-        err = CHECK_ALLOC_ERROR(this->glInterface());
-        if (err != GR_GL_NO_ERROR) {
+        if (!renderbuffer_storage_msaa(fGLContextInfo,
+                                       desc->fSampleCnt,
+                                       msColorFormat,
+                                       width, height)) {
             goto FAILED;
         }
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, desc->fRTFBOID));
@@ -1128,23 +1155,23 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // we do this "if" so that we don't call the multisample
         // version on a GL that doesn't have an MSAA extension.
-        if (samples > 1) {
-            GL_ALLOC_CALL(this->glInterface(),
-                          RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
-                                                         samples,
-                                                         sFmt.fInternalFormat,
-                                                         width, height));
+        bool created;
+        if (samples > 0) {
+            created = renderbuffer_storage_msaa(fGLContextInfo,
+                                                samples,
+                                                sFmt.fInternalFormat,
+                                                width, height);
         } else {
             GL_ALLOC_CALL(this->glInterface(),
                           RenderbufferStorage(GR_GL_RENDERBUFFER,
                                               sFmt.fInternalFormat,
                                               width, height));
+            created =
+                (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(this->glInterface()));
         }
-
-        GrGLenum err = CHECK_ALLOC_ERROR(this->glInterface());
-        if (err == GR_GL_NO_ERROR) {
-            // After sized formats we attempt an unsized format and take whatever
-            // sizes GL gives us. In that case we query for the size.
+        if (created) {
+            // After sized formats we attempt an unsized format and take
+            // whatever sizes GL gives us. In that case we query for the size.
             GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), sbID, &format);
             sb = new GrGLStencilBuffer(this, sbID, width, height, 
