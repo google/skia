@@ -42,7 +42,7 @@ public:
     virtual int complexity() { return 0; }
 
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         fName.printf("path_%s_%s_",
                      fFlags & kStroke_Flag ? "stroke" : "fill",
                      fFlags & kBig_Flag ? "big" : "small");
@@ -50,7 +50,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
 
@@ -81,10 +81,10 @@ class TrianglePathBench : public PathBench {
 public:
     TrianglePathBench(void* param, Flags flags) : INHERITED(param, flags) {}
     
-    virtual void appendName(SkString* name) {
+    virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("triangle");
     }
-    virtual void makePath(SkPath* path) {
+    virtual void makePath(SkPath* path) SK_OVERRIDE {
         static const int gCoord[] = {
             10, 10, 15, 5, 20, 20
         };
@@ -101,10 +101,10 @@ class RectPathBench : public PathBench {
 public:
     RectPathBench(void* param, Flags flags) : INHERITED(param, flags) {}
     
-    virtual void appendName(SkString* name) {
+    virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("rect");
     }
-    virtual void makePath(SkPath* path) {
+    virtual void makePath(SkPath* path) SK_OVERRIDE {
         SkRect r = { 10, 10, 20, 20 };
         path->addRect(r);
     }
@@ -116,12 +116,27 @@ class OvalPathBench : public PathBench {
 public:
     OvalPathBench(void* param, Flags flags) : INHERITED(param, flags) {}
     
-    virtual void appendName(SkString* name) {
+    virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("oval");
     }
-    virtual void makePath(SkPath* path) {
+    virtual void makePath(SkPath* path) SK_OVERRIDE {
         SkRect r = { 10, 10, 20, 20 };
         path->addOval(r);
+    }
+private:
+    typedef PathBench INHERITED;
+};
+
+class CirclePathBench: public PathBench {
+public:
+    CirclePathBench(void* param, Flags flags) : INHERITED(param, flags) {}
+
+    virtual void appendName(SkString* name) SK_OVERRIDE {
+        name->append("circle");
+    }
+    virtual void makePath(SkPath* path) SK_OVERRIDE {
+        path->addCircle(SkIntToScalar(20), SkIntToScalar(20),
+                        SkIntToScalar(10));
     }
 private:
     typedef PathBench INHERITED;
@@ -131,7 +146,7 @@ class SawToothPathBench : public PathBench {
 public:
     SawToothPathBench(void* param, Flags flags) : INHERITED(param, flags) {}
     
-    virtual void appendName(SkString* name) {
+    virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("sawtooth");
     }
     virtual void makePath(SkPath* path) {
@@ -152,7 +167,7 @@ public:
         path->lineTo(x0, y + 2 * dy);
         path->close();
     }
-    virtual int complexity() { return 1; }
+    virtual int complexity() SK_OVERRIDE { return 1; }
 private:
     typedef PathBench INHERITED;
 };
@@ -163,10 +178,10 @@ public:
         : INHERITED(param, flags) {
     }
 
-    virtual void appendName(SkString* name) {
+    virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("long_curved");
     }
-    virtual void makePath(SkPath* path) {
+    virtual void makePath(SkPath* path) SK_OVERRIDE {
         SkRandom rand (12);
         int i;
         for (i = 0; i < 100; i++) {
@@ -177,7 +192,7 @@ public:
         }
         path->close();
     }
-    virtual int complexity() { return 2; }
+    virtual int complexity() SK_OVERRIDE { return 2; }
 private:
     typedef PathBench INHERITED;
 };
@@ -188,17 +203,17 @@ public:
         : INHERITED(param, flags) {
     }
 
-    virtual void appendName(SkString* name) {
+    virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("long_line");
     }
-    virtual void makePath(SkPath* path) {
+    virtual void makePath(SkPath* path) SK_OVERRIDE {
         SkRandom rand;
         path->moveTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         for (size_t i = 1; i < 100; i++) {
             path->lineTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         }
     }
-    virtual int complexity() { return 2; }
+    virtual int complexity() SK_OVERRIDE { return 2; }
 private:
     typedef PathBench INHERITED;
 };
@@ -218,6 +233,11 @@ static SkBenchmark* FactO00(void* p) { return new OvalPathBench(p, FLAGS00); }
 static SkBenchmark* FactO01(void* p) { return new OvalPathBench(p, FLAGS01); }
 static SkBenchmark* FactO10(void* p) { return new OvalPathBench(p, FLAGS10); }
 static SkBenchmark* FactO11(void* p) { return new OvalPathBench(p, FLAGS11); }
+
+static SkBenchmark* FactC00(void* p) { return new CirclePathBench(p, FLAGS00); }
+static SkBenchmark* FactC01(void* p) { return new CirclePathBench(p, FLAGS01); }
+static SkBenchmark* FactC10(void* p) { return new CirclePathBench(p, FLAGS10); }
+static SkBenchmark* FactC11(void* p) { return new CirclePathBench(p, FLAGS11); }
 
 static SkBenchmark* FactS00(void* p) { return new SawToothPathBench(p, FLAGS00); }
 static SkBenchmark* FactS01(void* p) { return new SawToothPathBench(p, FLAGS01); }
@@ -251,6 +271,11 @@ static BenchRegistry gRegO00(FactO00);
 static BenchRegistry gRegO01(FactO01);
 static BenchRegistry gRegO10(FactO10);
 static BenchRegistry gRegO11(FactO11);
+
+static BenchRegistry gRegC00(FactC00);
+static BenchRegistry gRegC01(FactC01);
+static BenchRegistry gRegC10(FactC10);
+static BenchRegistry gRegC11(FactC11);
 
 static BenchRegistry gRegS00(FactS00);
 static BenchRegistry gRegS01(FactS01);
