@@ -315,11 +315,29 @@ struct SK_API SkPoint {
         return a.fX != b.fX || a.fY != b.fY;
     }
 
-    /** Return true if this and the given point are componentwise within tol.
+    /** Return true if this point and the given point are far enough apart
+        such that a vector between them would be non-degenerate.
+
+        WARNING: Unlike the deprecated version of equalsWithinTolerance(),
+        this method does not use componentwise comparison.  Instead, it
+        uses a comparison designed to match judgments elsewhere regarding
+        degeneracy ("points A and B are so close that the vector between them
+        is essentially zero").
     */
-    bool equalsWithinTolerance(const SkPoint& v, SkScalar tol) const {
-        return SkScalarNearlyZero(fX - v.fX, tol)
-               && SkScalarNearlyZero(fY - v.fY, tol);
+    bool equalsWithinTolerance(const SkPoint& p) const {
+        return !CanNormalize(fX - p.fX, fY - p.fY);
+    }
+
+    /** DEPRECATED: Return true if this and the given point are componentwise
+        within tolerance "tol".
+
+        WARNING: There is no guarantee that the result will reflect judgments
+        elsewhere regarding degeneracy ("points A and B are so close that the
+        vector between them is essentially zero").
+    */
+    bool equalsWithinTolerance(const SkPoint& p, SkScalar tol) const {
+        return SkScalarNearlyZero(fX - p.fX, tol)
+               && SkScalarNearlyZero(fY - p.fY, tol);
     }
 
     /** Returns a new point whose coordinates are the difference between

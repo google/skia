@@ -185,7 +185,7 @@ public:
         @return true if the line is of zero length; otherwise false.
     */
     static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2) {
-        return p1.equalsWithinTolerance(p2, SK_ScalarNearlyZero);
+        return p1.equalsWithinTolerance(p2);
     }
 
     /** Test a quad for zero length
@@ -194,8 +194,8 @@ public:
     */
     static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
                                  const SkPoint& p3) {
-        return p1.equalsWithinTolerance(p2, SK_ScalarNearlyZero) &&
-               p2.equalsWithinTolerance(p3, SK_ScalarNearlyZero);
+        return p1.equalsWithinTolerance(p2) &&
+               p2.equalsWithinTolerance(p3);
     }
 
     /** Test a cubic curve for zero length
@@ -204,9 +204,9 @@ public:
     */
     static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
                                   const SkPoint& p3, const SkPoint& p4) {
-        return p1.equalsWithinTolerance(p2, SK_ScalarNearlyZero) &&
-               p2.equalsWithinTolerance(p3, SK_ScalarNearlyZero) &&
-               p3.equalsWithinTolerance(p4, SK_ScalarNearlyZero);
+        return p1.equalsWithinTolerance(p2) &&
+               p2.equalsWithinTolerance(p3) &&
+               p3.equalsWithinTolerance(p4);
     }
 
     /** Returns true if the path specifies a rectangle. If so, and if rect is

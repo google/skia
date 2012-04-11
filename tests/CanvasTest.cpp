@@ -286,6 +286,29 @@ SIMPLE_TEST_STEP(DrawData, drawData(kTestText.c_str(), kTestText.size()));
 ///////////////////////////////////////////////////////////////////////////////
 // Complex test steps
 
+// exercise fix for http://code.google.com/p/skia/issues/detail?id=560
+// ('SkPathStroker::lineTo() fails for line with length SK_ScalarNearlyZero')
+static void DrawNearlyZeroLengthPathTestStep(SkCanvas* canvas, 
+                                             skiatest::Reporter* reporter,
+                                             CanvasTestStep* testStep) {
+    SkPaint paint;
+    paint.setStrokeWidth(SkIntToScalar(1));
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    SkPath path;
+    SkPoint pt1 = { 0, 0 };
+    SkPoint pt2 = { 0, SK_ScalarNearlyZero };
+    SkPoint pt3 = { SkIntToScalar(1), 0 };
+    SkPoint pt4 = { SkIntToScalar(1), SK_ScalarNearlyZero/2 };
+    path.moveTo(pt1);
+    path.lineTo(pt2);
+    path.lineTo(pt3);
+    path.lineTo(pt4);
+
+    canvas->drawPath(path, paint);
+}
+TEST_STEP(DrawNearlyZeroLengthPath, DrawNearlyZeroLengthPathTestStep);
+
 static void DrawVerticesShaderTestStep(SkCanvas* canvas, 
                                        skiatest::Reporter* reporter,
                                        CanvasTestStep* testStep) {

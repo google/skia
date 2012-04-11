@@ -87,31 +87,49 @@ bool SkPoint::setLength(SkScalar length) {
     return this->setLength(fX, fY, length);
 }
 
+#ifdef SK_SCALAR_IS_FLOAT
+
+// Returns the square of the Euclidian distance to (dx,dy).
+static inline float getLengthSquared(float dx, float dy) {
+    return dx * dx + dy * dy;
+}
+
+// Calculates the square of the Euclidian distance to (dx,dy) and stores it in
+// *lengthSquared.  Returns true if the distance is judged to be "nearly zero".
+//
+// This logic is encapsulated in a helper method to make it explicit that we
+// always perform this check in the same manner, to avoid inconsistencies
+// (see http://code.google.com/p/skia/issues/detail?id=560 ).
+static inline bool isLengthNearlyZero(float dx, float dy,
+                                      float *lengthSquared) {
+    *lengthSquared = getLengthSquared(dx, dy);
+    return *lengthSquared <= (SK_ScalarNearlyZero * SK_ScalarNearlyZero);
+}
+
 SkScalar SkPoint::Normalize(SkPoint* pt) {
-    SkScalar mag = SkPoint::Length(pt->fX, pt->fY);
-    if (mag > SK_ScalarNearlyZero) {
-        SkScalar scale = SkScalarInvert(mag);
-        pt->fX = SkScalarMul(pt->fX, scale);
-        pt->fY = SkScalarMul(pt->fY, scale);
+    float mag2;
+    if (!isLengthNearlyZero(pt->fX, pt->fY, &mag2)) {
+        float mag = sk_float_sqrt(mag2);
+        float scale = 1.0 / mag;
+        pt->fX = pt->fX * scale;
+        pt->fY = pt->fY * scale;
         return mag;
     }
     return 0;
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-
 bool SkPoint::CanNormalize(SkScalar dx, SkScalar dy) {
-    float mag2 = dx * dx + dy * dy;
-    return mag2 > SK_ScalarNearlyZero * SK_ScalarNearlyZero;
+    float mag2_unused;
+    return !isLengthNearlyZero(dx, dy, &mag2_unused);
 }
 
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
-    return sk_float_sqrt(dx * dx + dy * dy);
+    return sk_float_sqrt(getLengthSquared(dx, dy));
 }
 
 bool SkPoint::setLength(float x, float y, float length) {
-    float mag2 = x * x + y * y;
-    if (mag2 > SK_ScalarNearlyZero * SK_ScalarNearlyZero) {
+    float mag2;
+    if (!isLengthNearlyZero(x, y, &mag2)) {
         float scale = length / sk_float_sqrt(mag2);
         fX = x * scale;
         fY = y * scale;
@@ -124,12 +142,25 @@ bool SkPoint::setLength(float x, float y, float length) {
 
 #include "Sk64.h"
 
-bool SkPoint::CanNormalize(SkScalar dx, SkScalar dy) {
-    Sk64    tmp1, tmp2, tolSqr;
-    
-    tmp1.setMul(dx, dx);
-    tmp2.setMul(dy, dy);
-    tmp1.add(tmp2);
+// Returns the square of the Euclidian distance to (dx,dy) in *result.
+static inline void getLengthSquared(SkScalar dx, SkScalar dy, Sk64 *result) {
+    Sk64    dySqr;
+
+    result->setMul(dx, dx);
+    dySqr.setMul(dy, dy);
+    result->add(dySqr);
+}
+
+// Calculates the square of the Euclidian distance to (dx,dy) and stores it in
+// *lengthSquared.  Returns true if the distance is judged to be "nearly zero".
+//
+// This logic is encapsulated in a helper method to make it explicit that we
+// always perform this check in the same manner, to avoid inconsistencies
+// (see http://code.google.com/p/skia/issues/detail?id=560 ).
+static inline bool isLengthNearlyZero(SkScalar dx, SkScalar dy,
+                                      Sk64 *lengthSquared) {
+    Sk64 tolSqr;
+    getLengthSquared(dx, dy, lengthSquared);
 
     // we want nearlyzero^2, but to compute it fast we want to just do a
     // 32bit multiply, so we require that it not exceed 31bits. That is true
@@ -138,17 +169,30 @@ bool SkPoint::CanNormalize(SkScalar dx, SkScalar dy) {
     SkASSERT(SK_ScalarNearlyZero <= 0xB504);
 
     tolSqr.set(0, SK_ScalarNearlyZero * SK_ScalarNearlyZero);
-    return tmp1 > tolSqr;
+    return *lengthSquared <= tolSqr;
+}
+
+SkScalar SkPoint::Normalize(SkPoint* pt) {
+    Sk64 mag2;
+    if (!isLengthNearlyZero(pt->fX, pt->fY, &mag2)) {
+        SkScalar mag = mag2.getSqrt();
+        SkScalar scale = SkScalarInvert(mag);
+        pt->fX = SkScalarMul(pt->fX, scale);
+        pt->fY = SkScalarMul(pt->fY, scale);
+        return mag;
+    }
+    return 0;
+}
+
+bool SkPoint::CanNormalize(SkScalar dx, SkScalar dy) {
+    Sk64 mag2_unused;
+    return !isLengthNearlyZero(dx, dy, &mag2_unused);
 }
 
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
-    Sk64    tmp1, tmp2;
-
-    tmp1.setMul(dx, dx);
-    tmp2.setMul(dy, dy);
-    tmp1.add(tmp2);
-
-    return tmp1.getSqrt();
+    Sk64    tmp;
+    getLengthSquared(dx, dy, &tmp);
+    return tmp.getSqrt();
 }
 
 #ifdef SK_DEBUGx
