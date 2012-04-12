@@ -38,17 +38,6 @@ static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Can't use a two-argument function with side effects like this in a
-// constructor's initializer's argument list because the order of
-// evaluations in that context is undefined (and backwards on linux/gcc).
-static SkPoint unflatten_point(SkReader32& buffer) {
-    SkPoint retval;
-    retval.fX = buffer.readScalar();
-    retval.fY = buffer.readScalar();
-    return retval;
-}
-
 //  Clamp
 
 static SkFixed clamp_tileproc(SkFixed x) {
@@ -371,7 +360,7 @@ Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
             recs[i].fScale = buffer.readU32();
         }
     }
-    SkReadMatrix(&buffer, &fPtsToUnit);
+    buffer.readMatrix(&fPtsToUnit);
     this->initCommon();
 }
 
@@ -408,7 +397,7 @@ void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer) const {
             buffer.write32(recs[i].fScale);
         }
     }
-    SkWriteMatrix(&buffer, fPtsToUnit);
+    buffer.writeMatrix(fPtsToUnit);
 }
 
 bool Gradient_Shader::isOpaque() const {
@@ -813,15 +802,13 @@ public:
 protected:
     Linear_Gradient(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer),
-          fStart(unflatten_point(buffer)),
-          fEnd(unflatten_point(buffer)) {
+          fStart(buffer.readPoint()),
+          fEnd(buffer.readPoint()) {
     }
     virtual void flatten(SkFlattenableWriteBuffer& buffer)  const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fStart.fX);
-        buffer.writeScalar(fStart.fY);
-        buffer.writeScalar(fEnd.fX);
-        buffer.writeScalar(fEnd.fY);
+        buffer.writePoint(fStart);
+        buffer.writePoint(fEnd);
     }
 
 private:
@@ -1470,13 +1457,12 @@ public:
 protected:
     Radial_Gradient(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer),
-          fCenter(unflatten_point(buffer)),
+          fCenter(buffer.readPoint()),
           fRadius(buffer.readScalar()) {
     }
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fCenter.fX);
-        buffer.writeScalar(fCenter.fY);
+        buffer.writePoint(fCenter);
         buffer.writeScalar(fRadius);
     }
 
@@ -2001,8 +1987,8 @@ public:
 protected:
     Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer)
             : INHERITED(buffer),
-              fCenter1(unflatten_point(buffer)),
-              fCenter2(unflatten_point(buffer)),
+              fCenter1(buffer.readPoint()),
+              fCenter2(buffer.readPoint()),
               fRadius1(buffer.readScalar()),
               fRadius2(buffer.readScalar()) {
         init();
@@ -2010,10 +1996,8 @@ protected:
 
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fCenter1.fX);
-        buffer.writeScalar(fCenter1.fY);
-        buffer.writeScalar(fCenter2.fX);
-        buffer.writeScalar(fCenter2.fY);
+        buffer.writePoint(fCenter1);
+        buffer.writePoint(fCenter2);
         buffer.writeScalar(fRadius1);
         buffer.writeScalar(fRadius2);
     }
@@ -2087,12 +2071,11 @@ public:
 protected:
     Sweep_Gradient(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer),
-          fCenter(unflatten_point(buffer)) {
+          fCenter(buffer.readPoint()) {
     }
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fCenter.fX);
-        buffer.writeScalar(fCenter.fY);
+        buffer.writePoint(fCenter);
     }
 
 private:

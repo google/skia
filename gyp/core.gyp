@@ -87,6 +87,8 @@
         '../src/core/SkMatrix.cpp',
         '../src/core/SkMetaData.cpp',
         '../src/core/SkMMapStream.cpp',
+        '../src/core/SkOrderedReadBuffer.cpp',
+        '../src/core/SkOrderedWriteBuffer.cpp',
         '../src/core/SkPackBits.cpp',
         '../src/core/SkPaint.cpp',
         '../src/core/SkPath.cpp',

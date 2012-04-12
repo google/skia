@@ -12,6 +12,8 @@
 
 #include "SkRefCnt.h"
 #include "SkBitmap.h"
+#include "SkPath.h"
+#include "SkPoint.h"
 #include "SkReader32.h"
 #include "SkTDArray.h"
 #include "SkWriter32.h"
@@ -119,12 +121,38 @@ extern void SkWriteRegion(SkWriter32*, const SkRegion&);
 
 class SkTypeface;
 
-class SkFlattenableReadBuffer : public SkReader32 {
+class SkFlattenableReadBuffer {
 public:
     SkFlattenableReadBuffer();
-    explicit SkFlattenableReadBuffer(const void* data);
-    SkFlattenableReadBuffer(const void* data, size_t size);
-    
+    virtual ~SkFlattenableReadBuffer() {}
+
+
+    virtual uint8_t readU8() = 0;
+    virtual uint16_t readU16() = 0;
+    virtual uint32_t readU32() = 0;
+    virtual void read(void* dst, size_t size) = 0;
+    virtual bool readBool() = 0;
+    virtual int32_t readInt() = 0;
+    virtual SkScalar readScalar() = 0;
+    virtual const void* skip(size_t size) = 0;
+
+    virtual int32_t readS32() { return readInt(); }
+    template <typename T> const T& skipT() {
+        SkASSERT(SkAlign4(sizeof(T)) == sizeof(T));
+        return *(const T*)this->skip(sizeof(T));
+    }
+
+    virtual void readMatrix(SkMatrix*) = 0;
+    virtual void readPath(SkPath*) = 0;
+    virtual void readPoint(SkPoint*) = 0;
+
+    // helper function for classes with const SkPoint members
+    SkPoint readPoint() {
+        SkPoint point;
+        this->readPoint(&point);
+        return point;
+    }
+
     void setRefCntArray(SkRefCnt* array[], int count) {
         fRCArray = array;
         fRCCount = count;
@@ -156,12 +184,12 @@ public:
         fFactoryCount = 0;
     }
     
-    SkTypeface* readTypeface();
-    SkRefCnt* readRefCnt();
-    void* readFunctionPtr();
-    SkFlattenable* readFlattenable();
+    virtual SkTypeface* readTypeface() = 0;
+    virtual SkRefCnt* readRefCnt() = 0;
+    virtual void* readFunctionPtr() = 0;
+    virtual SkFlattenable* readFlattenable() = 0;
     
-private:
+protected:
     SkRefCnt** fRCArray;
     int        fRCCount;
     
@@ -171,8 +199,6 @@ private:
     SkTDArray<SkFlattenable::Factory>* fFactoryTDArray;
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
-    
-    typedef SkReader32 INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -187,7 +213,7 @@ private:
 class SkRefCntSet : public SkTPtrSet<SkRefCnt*> {
 public:
     virtual ~SkRefCntSet();
-    
+
 protected:
     // overrides
     virtual void incPtr(void*);
@@ -196,22 +222,47 @@ protected:
 
 class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};
 
-class SkFlattenableWriteBuffer : public SkWriter32 {
+class SkFlattenableWriteBuffer {
 public:
-    SkFlattenableWriteBuffer(size_t minSize);
+    SkFlattenableWriteBuffer();
     virtual ~SkFlattenableWriteBuffer();
 
+    // deprecated naming convention that will be removed after callers are updated
+    virtual bool writeBool(bool value) = 0;
+    virtual void writeInt(int32_t value) = 0;
+    virtual void write8(int32_t value) = 0;
+    virtual void write16(int32_t value) = 0;
+    virtual void write32(int32_t value) = 0;
+    virtual void writeScalar(SkScalar value) = 0;
+    virtual void writeMul4(const void* values, size_t size) = 0;
+
+    virtual void writePad(const void* src, size_t size) = 0;
+    virtual void writeString(const char* str, size_t len = (size_t)-1) = 0;
+    virtual uint32_t* reserve(size_t size) = 0;
+    virtual void flatten(void* dst) = 0;
+    virtual uint32_t size() = 0;
+    virtual void write(const void* values, size_t size) = 0;
+    virtual void writeRect(const SkRect& rect) = 0;
+    virtual size_t readFromStream(SkStream*, size_t length) = 0;
+
+    virtual void writeMatrix(const SkMatrix& matrix) = 0;
+    virtual void writePath(const SkPath& path) = 0;
+    virtual void writePoint(const SkPoint& point) = 0;
+
+    virtual bool writeToStream(SkWStream*) = 0;
+
+    virtual void writeFunctionPtr(void*)= 0;
+    virtual void writeFlattenable(SkFlattenable* flattenable)= 0;
+
     void writeTypeface(SkTypeface*);
-    void writeRefCnt(SkRefCnt*);
-    void writeFunctionPtr(void*);
-    void writeFlattenable(SkFlattenable* flattenable);
-    
+    void writeRefCnt(SkRefCnt* obj);
+
     SkRefCntSet* getTypefaceRecorder() const { return fTFSet; }
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
-    
+
     SkRefCntSet* getRefCntRecorder() const { return fRCSet; }
     SkRefCntSet* setRefCntRecorder(SkRefCntSet*);
-    
+
     SkFactorySet* getFactoryRecorder() const { return fFactorySet; }
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
 
@@ -225,7 +276,7 @@ public:
     };
     Flags getFlags() const { return (Flags)fFlags; }
     void setFlags(Flags flags) { fFlags = flags; }
-    
+
     bool isCrossProcess() const {
         return SkToBool(fFlags & kCrossProcess_Flag);
     }
@@ -236,16 +287,21 @@ public:
     bool persistBitmapPixels() const {
         return (fFlags & kCrossProcess_Flag) != 0;
     }
-    
+
     bool persistTypeface() const { return (fFlags & kCrossProcess_Flag) != 0; }
 
-private:
+protected:
+
+    // A helper function so that each subclass does not have to be a friend of
+    // SkFlattenable.
+    void flattenObject(SkFlattenable* obj, SkFlattenableWriteBuffer& buffer) {
+        obj->flatten(buffer);
+    }
+
     uint32_t        fFlags;
     SkRefCntSet*    fTFSet;
     SkRefCntSet*    fRCSet;
     SkFactorySet*   fFactorySet;
-    
-    typedef SkWriter32 INHERITED;
 };
 
 #endif

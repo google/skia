@@ -23,6 +23,7 @@
 #include "SkMaskFilter.h"
 #include "SkRasterizer.h"
 #include "SkShader.h"
+#include "SkOrderedWriteBuffer.h"
 
 static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
     SkASSERT(paintFlat < kCount_PaintFlats);
@@ -194,7 +195,7 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
         return 0;
     }
 
-    SkFlattenableWriteBuffer tmpWriter(1024);
+    SkOrderedWriteBuffer tmpWriter(1024);
     tmpWriter.setFlags(SkFlattenableWriteBuffer::kInlineFactoryNames_Flag);
     tmpWriter.setFactoryRecorder(fFactorySet);
 
@@ -388,7 +389,7 @@ bool SkGPipeCanvas::concat(const SkMatrix& matrix) {
         NOTIFY_SETUP(this);
         if (this->needOpBytes(matrix.flatten(NULL))) {
             this->writeOp(kConcat_DrawOp);
-            SkWriteMatrix(&fWriter, matrix);
+            fWriter.writeMatrix(matrix);
         }
     }
     return this->INHERITED::concat(matrix);
@@ -398,7 +399,7 @@ void SkGPipeCanvas::setMatrix(const SkMatrix& matrix) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(matrix.flatten(NULL))) {
         this->writeOp(kSetMatrix_DrawOp);
-        SkWriteMatrix(&fWriter, matrix);
+        fWriter.writeMatrix(matrix);
     }
     this->INHERITED::setMatrix(matrix);
 }
@@ -426,7 +427,7 @@ bool SkGPipeCanvas::clipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(region.flatten(NULL))) {
         this->writeOp(kClipRegion_DrawOp, 0, rgnOp);
-        SkWriteRegion(&fWriter, region);
+        fWriter.writeRegion(region);
     }
     return this->INHERITED::clipRegion(region, rgnOp);
 }
@@ -575,7 +576,7 @@ void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength,
 
             path.flatten(fWriter);
             if (matrix) {
-                SkWriteMatrix(&fWriter, *matrix);
+                fWriter.writeMatrix(*matrix);
             }
         }
     }

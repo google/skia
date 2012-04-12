@@ -20,7 +20,7 @@ SkShader::SkShader(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer), fLocalMatrix(NULL) {
     if (buffer.readBool()) {
         SkMatrix matrix;
-        SkReadMatrix(&buffer, &matrix);
+        buffer.readMatrix(&matrix);
         setLocalMatrix(matrix);
     }
     SkDEBUGCODE(fInSession = false;)
@@ -45,7 +45,7 @@ void SkShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeBool(fLocalMatrix != NULL);
     if (fLocalMatrix) {
-        SkWriteMatrix(&buffer, *fLocalMatrix);
+        buffer.writeMatrix(*fLocalMatrix);
     }
 }
 

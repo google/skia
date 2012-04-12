@@ -26,7 +26,7 @@ SkPathHeap::SkPathHeap(SkFlattenableReadBuffer& buffer)
 
     for (int i = 0; i < count; i++) {
         new (p) SkPath;
-        p->unflatten(buffer);
+        buffer.readPath(p);
         *ptr++ = p; // record the pointer
         p++;        // move to the next storage location
     }
@@ -55,7 +55,7 @@ void SkPathHeap::flatten(SkFlattenableWriteBuffer& buffer) const {
     SkPath** iter = fPaths.begin();
     SkPath** stop = fPaths.end();
     while (iter < stop) {
-        (*iter)->flatten(buffer);
+        buffer.writePath(**iter);
         iter++;
     }
 }

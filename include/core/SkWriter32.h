@@ -15,6 +15,8 @@
 #include "SkScalar.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+#include "SkMatrix.h"
+#include "SkRegion.h"
 
 class SkStream;
 class SkWStream;
@@ -76,7 +78,19 @@ public:
     void writeRect(const SkRect& rect) {
         *(SkRect*)this->reserve(sizeof(rect)) = rect;
     }
+
+    void writeMatrix(const SkMatrix& matrix) {
+        size_t size = matrix.flatten(NULL);
+        SkASSERT(SkAlign4(size) == size);
+        matrix.flatten(this->reserve(size));
+    }
     
+    void writeRegion(const SkRegion& rgn) {
+        size_t size = rgn.flatten(NULL);
+        SkASSERT(SkAlign4(size) == size);
+        rgn.flatten(this->reserve(size));
+    }
+
     // write count bytes (must be a multiple of 4)
     void writeMul4(const void* values, size_t size) {
         this->write(values, size);
