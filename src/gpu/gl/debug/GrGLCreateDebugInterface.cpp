@@ -16,6 +16,7 @@
 #include "GrTextureObj.h"
 #include "GrFrameBufferObj.h"
 #include "GrRenderBufferObj.h"
+#include "SkFloatingPoint.h"
 
 // the OpenGLES 2.0 spec says this must be >= 128
 static const GrGLint kDefaultMaxVertexUniformVectors = 128;
@@ -119,10 +120,83 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLFlush() {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLFrontFace(GrGLenum mode) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLLineWidth(GrGLfloat width) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLLinkProgram(GrGLuint program) {}
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLPixelStorei(GrGLenum pname, GrGLint param) {}
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLPixelStorei(GrGLenum pname, GrGLint param) {
+
+    switch (pname) {
+        case GR_GL_UNPACK_ROW_LENGTH:
+            GrDebugGL::getInstance()->setUnPackRowLength(param);
+            break;
+        case GR_GL_PACK_ROW_LENGTH:
+            GrDebugGL::getInstance()->setPackRowLength(param);
+            break;
+        case GR_GL_UNPACK_ALIGNMENT:
+            break;
+        case GR_GL_PACK_ALIGNMENT:
+            GrAlwaysAssert(false);
+            break;
+        default:
+            GrAlwaysAssert(false);
+            break;
+    }
+}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLQueryCounter(GrGLuint id, GrGLenum target) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadBuffer(GrGLenum src) {}
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels) {}
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x, GrGLint y, 
+                                               GrGLsizei width, GrGLsizei height, 
+                                               GrGLenum format, GrGLenum type, 
+                                               GrGLvoid* pixels) {
+
+    GrGLint pixelsInRow = width;
+    if (0 < GrDebugGL::getInstance()->getPackRowLength()) {
+        pixelsInRow = GrDebugGL::getInstance()->getPackRowLength();
+    }
+
+    GrGLint componentsPerPixel = 0;
+
+    switch (format) {
+        case GR_GL_RGBA:
+            // fallthrough
+        case GR_GL_BGRA:
+            componentsPerPixel = 4;
+            break;
+        case GR_GL_RGB:
+            componentsPerPixel = 3;
+            break;
+        default:
+            GrAlwaysAssert(false);
+            break;
+    }
+
+    GrGLint alignment = 4;  // the pack alignment (one of 1, 2, 4 or 8)
+    // Ganesh currently doesn't support setting GR_GL_PACK_ALIGNMENT
+
+    GrGLint componentSize = 0;  // size (in bytes) of a single component
+
+    switch (type) {
+        case GR_GL_UNSIGNED_BYTE:
+            componentSize = 1;
+            break;
+        default:
+            GrAlwaysAssert(false);
+            break;
+    }
+
+    GrGLint rowStride = 0;  // number of components (not bytes) to skip
+    if (componentSize >= alignment) {
+        rowStride = componentsPerPixel * pixelsInRow;
+    } else {
+        float fTemp = 
+            sk_float_ceil(componentSize * componentsPerPixel * pixelsInRow / 
+                          static_cast<float>(alignment));
+        rowStride = static_cast<GrGLint>(alignment * fTemp / componentSize);
+    }
+
+    GrGLchar *scanline = static_cast<GrGLchar *>(pixels);
+    for (int y = 0; y < height; ++y) {
+        memset(scanline, 0, componentsPerPixel * componentSize * width);
+        scanline += rowStride;
+    }
+}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLScissor(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLShaderSource(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilFunc(GrGLenum func, GrGLint ref, GrGLuint mask) {}

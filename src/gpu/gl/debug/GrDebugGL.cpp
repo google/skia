@@ -29,7 +29,9 @@ GrDebugGL::Create GrDebugGL::gFactoryFunc[kObjTypeCount] = {
 
 
 GrDebugGL::GrDebugGL() 
-    : fCurTextureUnit(0)
+    : fPackRowLength(0)
+    , fUnPackRowLength(0)
+    , fCurTextureUnit(0)
     , fArrayBuffer(NULL)
     , fElementArrayBuffer(NULL)
     , fFrameBuffer(NULL)
