@@ -73,6 +73,16 @@ public:
 
     void useProgram(GrProgramObj *program);
 
+    void setPackRowLength(GrGLint packRowLength) { 
+        fPackRowLength = packRowLength; 
+    }
+    GrGLint getPackRowLength() const { return fPackRowLength; }
+
+    void setUnPackRowLength(GrGLint unPackRowLength) {
+        fUnPackRowLength = unPackRowLength;
+    }
+    GrGLint getUnPackRowLength() const { return fUnPackRowLength; }
+
     static GrDebugGL *getInstance() {
 //        static GrDebugGL Obj;
 
@@ -87,6 +97,8 @@ private:
     // the OpenGLES 2.0 spec says this must be >= 2
     static const GrGLint kDefaultMaxTextureUnits = 8;
 
+    GrGLint         fPackRowLength;
+    GrGLint         fUnPackRowLength;
     GrGLuint        fMaxTextureUnits;
     GrGLuint        fCurTextureUnit;
     GrBufferObj *   fArrayBuffer;
