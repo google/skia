@@ -319,7 +319,7 @@ void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint,
 
 void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
                       SkScalar y, const SkPaint& paint) {
-    bool fast = paint.canComputeFastBounds();
+    bool fast = !paint.isVerticalText() && paint.canComputeFastBounds();
 
     addDraw(fast ? DRAW_TEXT_TOP_BOTTOM : DRAW_TEXT);
     addPaint(paint);
@@ -356,7 +356,7 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
         }
     }
 
-    bool fastBounds = paint.canComputeFastBounds();
+    bool fastBounds = !paint.isVerticalText() && paint.canComputeFastBounds();
     bool fast = canUseDrawH && fastBounds;
 
     if (fast) {
@@ -404,7 +404,7 @@ void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
     if (0 == points)
         return;
 
-    bool fast = paint.canComputeFastBounds();
+    bool fast = !paint.isVerticalText() && paint.canComputeFastBounds();
 
     addDraw(fast ? DRAW_POS_TEXT_H_TOP_BOTTOM : DRAW_POS_TEXT_H);
     addPaint(paint);
