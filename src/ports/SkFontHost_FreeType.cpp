@@ -173,6 +173,7 @@ private:
     void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
                                 bool snapToPixelBoundary = false);
     void updateGlyphIfLCD(SkGlyph* glyph);
+    void updateGlyphPosIfLCD(SkGlyph* glyph);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1008,6 +1009,15 @@ void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
         }
     }
 }
+void SkScalerContext_FreeType::updateGlyphPosIfLCD(SkGlyph* glyph) {
+    if (isLCD(fRec)) {
+        if (fLCDIsVert) {
+            glyph->fTop -= gLCDExtra >> 1;
+        } else {
+            glyph->fLeft -= gLCDExtra >> 1;
+        }
+    }
+}
 
 void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
@@ -1142,7 +1152,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         glyph->fLeft = SkFixedRoundToInt(vLeft - vOrigin.x);
         glyph->fTop =  -SkFixedRoundToInt(vTop - vOrigin.y);
 
-        updateGlyphIfLCD(glyph);
+        updateGlyphPosIfLCD(glyph);
 
         // use the vertical advance values computed by freetype
         glyph->fAdvanceX = -SkFixedMul(fMatrix22.xy, fFace->glyph->linearVertAdvance);
