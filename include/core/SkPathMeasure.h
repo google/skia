@@ -29,7 +29,7 @@ public:
         a different path (or null), since the measure object keeps a pointer to the
         path object (does not copy its data).
     */
-    void    setPath(const SkPath*, bool forceClosed);
+    void setPath(const SkPath*, bool forceClosed);
 
     /** Return the total length of the current contour, or 0 if no path
         is associated (e.g. resetPath(null))
@@ -41,19 +41,23 @@ public:
         Returns false if there is no path, or a zero-length path was specified, in which case
         position and tangent are unchanged.
     */
-    bool getPosTan(SkScalar distance, SkPoint* position, SkVector* tangent);
+    bool SK_WARN_UNUSED_RESULT getPosTan(SkScalar distance, SkPoint* position, 
+                                         SkVector* tangent);
 
     enum MatrixFlags {
         kGetPosition_MatrixFlag     = 0x01,
         kGetTangent_MatrixFlag      = 0x02,
         kGetPosAndTan_MatrixFlag    = kGetPosition_MatrixFlag | kGetTangent_MatrixFlag
     };
+
     /** Pins distance to 0 <= distance <= getLength(), and then computes
         the corresponding matrix (by calling getPosTan).
         Returns false if there is no path, or a zero-length path was specified, in which case
         matrix is unchanged.
     */
-    bool getMatrix(SkScalar distance, SkMatrix* matrix, MatrixFlags flags = kGetPosAndTan_MatrixFlag);
+    bool SK_WARN_UNUSED_RESULT getMatrix(SkScalar distance, SkMatrix* matrix, 
+                                  MatrixFlags flags = kGetPosAndTan_MatrixFlag);
+
     /** Given a start and stop distance, return in dst the intervening segment(s).
         If the segment is zero-length, return false, else return true.
         startD and stopD are pinned to legal values (0..getLength()). If startD <= stopD
