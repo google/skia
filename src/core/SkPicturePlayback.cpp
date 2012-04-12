@@ -8,6 +8,8 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkTypeface.h"
+#include "SkOrderedReadBuffer.h"
+#include "SkOrderedWriteBuffer.h"
 #include <new>
 
 /*  Define this to spew out a debug statement whenever we skip the remainder of
@@ -319,7 +321,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
     SkRefCntSet  typefaceSet;
     SkFactorySet factSet;
 
-    SkFlattenableWriteBuffer buffer(1024);
+    SkOrderedWriteBuffer buffer(1024);
 
     buffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
     buffer.setTypefaceRecorder(&typefaceSet);
@@ -431,7 +433,7 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     SkAutoMalloc storage(tagSize);
     stream->read(storage.get(), tagSize);
 
-    SkFlattenableReadBuffer buffer(storage.get(), tagSize);
+    SkOrderedReadBuffer buffer(storage.get(), tagSize);
     fFactoryPlayback->setupBuffer(buffer);
     fTFPlayback.setupBuffer(buffer);
 

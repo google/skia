@@ -10,9 +10,11 @@
 #include "SkColorFilter.h"
 #include "SkRandom.h"
 #include "SkXfermode.h"
+#include "SkOrderedReadBuffer.h"
+#include "SkOrderedWriteBuffer.h"
 
 static SkFlattenable* reincarnate_flattenable(SkFlattenable* obj) {
-    SkFlattenableWriteBuffer wb(1024);
+    SkOrderedWriteBuffer wb(1024);
     wb.writeFlattenable(obj);
 
     size_t size = wb.size();
@@ -20,7 +22,7 @@ static SkFlattenable* reincarnate_flattenable(SkFlattenable* obj) {
     // make a copy into storage
     wb.flatten(storage.get());
 
-    SkFlattenableReadBuffer rb(storage.get(), size);
+    SkOrderedReadBuffer rb(storage.get(), size);
     return rb.readFlattenable();
 }
 

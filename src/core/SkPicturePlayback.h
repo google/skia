@@ -13,6 +13,7 @@
 
 #include "SkBitmap.h"
 #include "SkMatrix.h"
+#include "SkOrderedReadBuffer.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPathHeap.h"
@@ -166,7 +167,7 @@ private:
     int fPaintCount;
     SkRegion* fRegions;
     int fRegionCount;
-    mutable SkFlattenableReadBuffer fReader;
+    mutable SkOrderedReadBuffer fReader;
 
     SkPicture** fPictureRefs;
     int fPictureCount;

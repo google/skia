@@ -90,12 +90,12 @@ SkPath2DPathEffect::SkPath2DPathEffect(const SkMatrix& m, const SkPath& p)
 
 SkPath2DPathEffect::SkPath2DPathEffect(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {
-    fPath.unflatten(buffer);
+    buffer.readPath(&fPath);
 }
 
 void SkPath2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    fPath.flatten(buffer);
+    buffer.writePath(fPath);
 }
 
 void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {

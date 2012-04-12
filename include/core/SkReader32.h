@@ -10,6 +10,8 @@
 #ifndef SkReader32_DEFINED
 #define SkReader32_DEFINED
 
+#include "SkMatrix.h"
+#include "SkRegion.h"
 #include "SkScalar.h"
 
 class SkString;
@@ -89,6 +91,18 @@ public:
     uint16_t readU16() { return (uint16_t)this->readInt(); }
     int32_t readS32() { return this->readInt(); }
     uint32_t readU32() { return this->readInt(); }
+
+    void readMatrix(SkMatrix* matrix) {
+        size_t size = matrix->unflatten(this->peek());
+        SkASSERT(SkAlign4(size) == size);
+        (void)this->skip(size);
+    }
+
+    void readRegion(SkRegion* rgn) {
+        size_t size = rgn->unflatten(this->peek());
+        SkASSERT(SkAlign4(size) == size);
+        (void)this->skip(size);
+    }
 
     /**
      *  Read the length of a string (written by SkWriter32::writeString) into

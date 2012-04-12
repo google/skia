@@ -18,6 +18,7 @@
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
 #include "SkMaskFilter.h"
+#include "SkOrderedReadBuffer.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkShader.h"
@@ -131,7 +132,7 @@ static void clipPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 static void clipRegion_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
     SkRegion rgn;
-    SkReadRegion(reader, &rgn);
+    reader->readRegion(&rgn);
     canvas->clipRegion(rgn, (SkRegion::Op)DrawOp_unpackData(op32));
 }
 
@@ -145,14 +146,14 @@ static void clipRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 static void setMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                       SkGPipeState* state) {
     SkMatrix matrix;
-    SkReadMatrix(reader, &matrix);
+    reader->readMatrix(&matrix);
     canvas->setMatrix(matrix);
 }
 
 static void concat_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                       SkGPipeState* state) {
     SkMatrix matrix;
-    SkReadMatrix(reader, &matrix);
+    reader->readMatrix(&matrix);
     canvas->concat(matrix);
 }
 
@@ -315,7 +316,7 @@ static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op3
     SkMatrix matrixStorage;
     const SkMatrix* matrix = NULL;
     if (DrawOp_unpackFlags(op32) & kDrawTextOnPath_HasMatrix_DrawOpFlag) {
-        SkReadMatrix(reader, &matrixStorage);
+        reader->readMatrix(&matrixStorage);
         matrix = &matrixStorage;
     }
 
@@ -508,7 +509,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
     SkASSERT(SK_ARRAY_COUNT(gReadTable) == (kDone_DrawOp + 1));
 
     const ReadProc* table = gReadTable;
-    SkFlattenableReadBuffer reader(data, length);
+    SkOrderedReadBuffer reader(data, length);
     SkCanvas* canvas = fCanvas;
     Status status = kEOF_Status;
 
@@ -527,7 +528,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
             status = kDone_Status;
             break;
         }
-        table[op](canvas, &reader, op32, fState);
+        table[op](canvas, reader.getReader32(), op32, fState);
         if (readAtom && 
             (table[op] != paintOp_rp &&
              table[op] != def_Typeface_rp &&

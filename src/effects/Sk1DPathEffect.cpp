@@ -141,7 +141,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
 SkPath1DPathEffect::SkPath1DPathEffect(SkFlattenableReadBuffer& buffer) {
     fAdvance = buffer.readScalar();
     if (fAdvance > 0) {
-        fPath.unflatten(buffer);
+        buffer.readPath(&fPath);
         fInitialOffset = buffer.readScalar();
         fStyle = (Style) buffer.readU8();
     } else {
@@ -160,7 +160,7 @@ void SkPath1DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fAdvance);
     if (fAdvance > 0) {
-        fPath.flatten(buffer);
+        buffer.writePath(fPath);
         buffer.writeScalar(fInitialOffset);
         buffer.write8(fStyle);
     }

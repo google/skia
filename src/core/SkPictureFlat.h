@@ -10,6 +10,7 @@
 
 #include "SkChunkAlloc.h"
 #include "SkBitmap.h"
+#include "SkOrderedReadBuffer.h"
 #include "SkPicture.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
@@ -151,7 +152,7 @@ public:
                                  SkRefCntSet*);
 
     void unflatten(SkBitmap* bitmap, SkRefCntPlayback* rcp) const {
-        SkFlattenableReadBuffer buffer(fBitmapData);
+        SkOrderedReadBuffer buffer(fBitmapData, 1024*1024);
         if (rcp) {
             rcp->setupBuffer(buffer);
         }
