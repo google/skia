@@ -581,6 +581,29 @@ static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
             r.fRight < max && r.fBottom < max;
 }
 
+static int overflows_short_shift(int value, int shift) {
+    const int s = 16 + shift;
+    return (value << s >> s) - value;
+}
+
+/**
+  Would any of the coordinates of this rectangle not fit in a short,
+  when left-shifted by shift?
+*/
+static int rect_overflows_short_shift(SkIRect rect, int shift) {
+    SkASSERT(!overflows_short_shift(8191, SHIFT));
+    SkASSERT(overflows_short_shift(8192, SHIFT));
+    SkASSERT(!overflows_short_shift(32767, 0));
+    SkASSERT(overflows_short_shift(32768, 0));
+
+    // Since we expect these to succeed, we bit-or together
+    // for a tiny extra bit of speed.
+    return overflows_short_shift(rect.fLeft, SHIFT) |
+           overflows_short_shift(rect.fRight, SHIFT) |
+           overflows_short_shift(rect.fTop, SHIFT) |
+           overflows_short_shift(rect.fBottom, SHIFT);
+}
+
 static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
 #ifdef SK_SCALAR_IS_FIXED
     // the max-int (shifted) is exactly what we want to compare against, to know
@@ -618,12 +641,30 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
+    // If the intersection of the path bounds and the clip bounds
+    // will overflow 32767 when << by SHIFT, we can't supersample,
+    // so draw without antialiasing.
+    SkIRect clippedIR;
+    if (path.isInverseFillType()) {
+       // If the path is an inverse fill, it's going to fill the entire
+       // clip, and we care whether the entire clip exceeds our limits.
+       clippedIR = origClip.getBounds();
+    } else {
+       if (!clippedIR.intersect(ir, origClip.getBounds())) {
+           return;
+       }
+    }
+    if (rect_overflows_short_shift(clippedIR, SHIFT)) {
+        SkScan::FillPath(path, origClip, blitter);
+        return;
+    }
+
     // Our antialiasing can't handle a clip larger than 32767, so we restrict
     // the clip to that limit here. (the runs[] uses int16_t for its index).
     //
-    // A more general solution (one that could also eliminate the need to disable
-    // aa based on ir bounds (see overflows_short_shift) would be to tile the
-    // clip/target...
+    // A more general solution (one that could also eliminate the need to
+    // disable aa based on ir bounds (see overflows_short_shift) would be
+    // to tile the clip/target...
     SkRegion tmpClipStorage;
     const SkRegion* clipRgn = &origClip;
     {
