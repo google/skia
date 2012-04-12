@@ -28,7 +28,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
-    mat.invert(&fInverse);
+    if (!mat.invert(&fInverse)) {
+        fInverse.reset();
+    }
 }
 
 bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
@@ -78,7 +80,9 @@ Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer) {
     SkASSERT(size <= sizeof(storage));
     buffer.read(storage, size);
     fMatrix.unflatten(storage);
-    fMatrix.invert(&fInverse);
+    if (!fMatrix.invert(&fInverse)) {
+        fInverse.reset();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

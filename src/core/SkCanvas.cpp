@@ -1357,7 +1357,9 @@ void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
         fDeviceCMDirty = true;  // |= (fExternalMatrix != *matrix)
 
         fExternalMatrix = *matrix;
-        matrix->invert(&fExternalInverse);
+        if (!matrix->invert(&fExternalInverse)) {
+            fExternalInverse.reset();
+        }
     }
 }
 
