@@ -1888,7 +1888,10 @@ static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
         SkScalar sx = pos.fX;
         SkScalar sy = pos.fY;
 
-        meas.getPosTan(sx, &pos, &tangent);
+        if (!meas.getPosTan(sx, &pos, &tangent)) {
+            // set to 0 if the measure failed, so that we just set dst == pos
+            tangent.set(0, 0);
+        }
 
         /*  This is the old way (that explains our approach but is way too slow
             SkMatrix    matrix;
