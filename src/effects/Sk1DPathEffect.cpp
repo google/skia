@@ -75,7 +75,7 @@ bool SkPath1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
     return false;
 }
 
-static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
+static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
                         SkPathMeasure& meas, SkScalar dist) {
     for (int i = 0; i < count; i++) {
         SkPoint pos;
@@ -84,7 +84,9 @@ static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
         SkScalar sx = src[i].fX;
         SkScalar sy = src[i].fY;
         
-        meas.getPosTan(dist + sx, &pos, &tangent);
+        if (!meas.getPosTan(dist + sx, &pos, &tangent)) {
+            return false;
+        }
         
         SkMatrix    matrix;
         SkPoint     pt;
@@ -95,6 +97,7 @@ static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
         matrix.postTranslate(pos.fX, pos.fY);
         matrix.mapPoints(&dst[i], &pt, 1);
     }
+    return true;
 }
 
 /*  TODO
@@ -112,8 +115,9 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
     while ((verb = iter.next(srcP)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                morphpoints(dstP, srcP, 1, meas, dist);
-                dst->moveTo(dstP[0]);
+                if (morphpoints(dstP, srcP, 1, meas, dist)) {
+                    dst->moveTo(dstP[0]);
+                }
                 break;
             case SkPath::kLine_Verb:
                 srcP[2] = srcP[1];
@@ -121,12 +125,14 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
                             SkScalarAve(srcP[0].fY, srcP[2].fY));
                 // fall through to quad
             case SkPath::kQuad_Verb:
-                morphpoints(dstP, &srcP[1], 2, meas, dist);
-                dst->quadTo(dstP[0], dstP[1]);
+                if (morphpoints(dstP, &srcP[1], 2, meas, dist)) {
+                    dst->quadTo(dstP[0], dstP[1]);
+                }
                 break;
             case SkPath::kCubic_Verb:
-                morphpoints(dstP, &srcP[1], 3, meas, dist);
-                dst->cubicTo(dstP[0], dstP[1], dstP[2]);
+                if (morphpoints(dstP, &srcP[1], 3, meas, dist)) {
+                    dst->cubicTo(dstP[0], dstP[1], dstP[2]);
+                }
                 break;
             case SkPath::kClose_Verb:
                 dst->close();
@@ -171,13 +177,15 @@ SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
     switch (fStyle) {
         case kTranslate_Style: {
             SkPoint pos;
-            meas.getPosTan(distance, &pos, NULL);
-            dst->addPath(fPath, pos.fX, pos.fY);
+            if (meas.getPosTan(distance, &pos, NULL)) {
+                dst->addPath(fPath, pos.fX, pos.fY);
+            }
         } break;
         case kRotate_Style: {
             SkMatrix matrix;
-            meas.getMatrix(distance, &matrix);
-            dst->addPath(fPath, matrix);
+            if (meas.getMatrix(distance, &matrix)) {
+                dst->addPath(fPath, matrix);
+            }
         } break;
         case kMorph_Style:
             morphpath(dst, fPath, meas, distance);

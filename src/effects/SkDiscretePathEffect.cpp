@@ -50,14 +50,17 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
                 n -= 1;
                 distance += delta/2;
             }
-            meas.getPosTan(distance, &p, &v);
-            Perterb(&p, v, SkScalarMul(rand.nextSScalar1(), scale));
-            dst->moveTo(p);
+            
+            if (meas.getPosTan(distance, &p, &v)) {
+                Perterb(&p, v, SkScalarMul(rand.nextSScalar1(), scale));
+                dst->moveTo(p);
+            }
             while (--n >= 0) {
                 distance += delta;
-                meas.getPosTan(distance, &p, &v);
-                Perterb(&p, v, SkScalarMul(rand.nextSScalar1(), scale));
-                dst->lineTo(p);
+                if (meas.getPosTan(distance, &p, &v)) {
+                    Perterb(&p, v, SkScalarMul(rand.nextSScalar1(), scale));
+                    dst->lineTo(p);
+                }
             }
             if (meas.isClosed()) {
                 dst->close();
