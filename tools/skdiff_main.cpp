@@ -809,6 +809,14 @@ static void print_image_cell (SkFILEWStream* stream,
     stream->writeText("px\"></a></td>");
 }
 
+static void print_text_cell (SkFILEWStream* stream, const char* text) {
+    stream->writeText("<td align=center>");
+    if (NULL != text) {
+        stream->writeText(text);
+    }
+    stream->writeText("</td>");
+}
+
 static void print_diff_with_missing_file(SkFILEWStream* stream,
                                          DiffRecord& diff,
                                          const SkString& relativePath) {
@@ -894,10 +902,17 @@ static void print_diff_page (const int matchCount,
         int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
         outputStream.writeText("<tr>\n");
         print_label_cell(&outputStream, *diff);
-        print_image_cell(&outputStream,
-                         filename_to_white_filename(diff->fFilename), height);
-        print_image_cell(&outputStream,
-                         filename_to_diff_filename(diff->fFilename), height);
+        if (diff->fDoImageSizesMismatch) {
+            print_text_cell(&outputStream,
+                            "[image size mismatch, so no diff to display]");
+            print_text_cell(&outputStream,
+                            "[image size mismatch, so no diff to display]");
+        } else {
+            print_image_cell(&outputStream,
+                             filename_to_white_filename(diff->fFilename), height);
+            print_image_cell(&outputStream,
+                             filename_to_diff_filename(diff->fFilename), height);
+        }
         print_image_cell(&outputStream, diff->fBasePath, height);
         print_image_cell(&outputStream, diff->fComparisonPath, height);
         outputStream.writeText("</tr>\n");
