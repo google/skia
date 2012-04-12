@@ -305,19 +305,16 @@ static inline SkScalar SkScalarSignAsScalar(SkScalar x) {
 
 #define SK_ScalarNearlyZero         (SK_Scalar1 / (1 << 12))
 
-/*  <= is slower than < for floats, so we use < for our tolerance test
-*/
-
 static inline bool SkScalarNearlyZero(SkScalar x,
                                     SkScalar tolerance = SK_ScalarNearlyZero) {
-    SkASSERT(tolerance > 0);
-    return SkScalarAbs(x) < tolerance;
+    SkASSERT(tolerance >= 0);
+    return SkScalarAbs(x) <= tolerance;
 }
 
 static inline bool SkScalarNearlyEqual(SkScalar x, SkScalar y,
                                      SkScalar tolerance = SK_ScalarNearlyZero) {
-    SkASSERT(tolerance > 0);
-    return SkScalarAbs(x-y) < tolerance;
+    SkASSERT(tolerance >= 0);
+    return SkScalarAbs(x-y) <= tolerance;
 }
 
 /** Linearly interpolate between A and B, based on t.
