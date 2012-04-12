@@ -879,18 +879,12 @@ public:
     ClipType getClipType() const;
 
     /** Return the current device clip (concatenation of all clip calls).
-        This does not account for the translate in any of the devices.
-        @return the current device clip (concatenation of all clip calls).
-    */
-    const SkRegion& getTotalClip() const;
-
-    /**
-     *  Return true if the current clip is non-empty.
+     *  This does not account for the translate in any of the devices.
+     *  @return the current device clip (concatenation of all clip calls).
      *
-     *  If bounds is not NULL, set it to the bounds of the current clip
-     *  in global coordinates.
+     *  DEPRECATED -- call getClipDeviceBounds() instead.
      */
-    bool getTotalClipBounds(SkIRect* bounds) const;
+    const SkRegion& getTotalClip() const;
 
     /**
      *  Return the current clipstack. This mirrors the result in getTotalClip()
