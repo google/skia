@@ -21,20 +21,33 @@ import tempfile
 # modules declared within this same directory
 import svn
 
-USAGE_STRING = '''usage: %s [options]
+USAGE_STRING = 'Usage: %s [options]'
+HOWTO_STRING = '''
+To update the checked-in baselines across all platforms, follow these steps:
+
+cd .../trunk
+svn update
+svn stat   # and make sure there are no files awaiting svn commit
+make tools BUILDTYPE=Release
+python tools/download_baselines.py
+python tools/compare_baselines.py
+# view compare_baselines output in a browser and make sure it's reasonable
+# upload CL for review
+# validate that the diffs look right in the review tool
+# commit CL
+
+Note that the above instructions will only *update* already-checked-in
+baseline images; if you want to check in new baseline images (ones that the
+bots have been generating but we don't have a golden master for yet), you need
+to use download_baselines.py's --add-new-files option.
+'''
+HELP_STRING = '''
 
 Compares the gm results within the local checkout against those already
 committed to the Skia repository. Relies on skdiff to do the low-level
 comparison.
 
-for example:
-
-cd .../trunk
-# modify local gm images, maybe by running download-baselines.py
-make tools
-python tools/compare-baselines.py
-# validate that the image diffs look right
-'''
+''' + HOWTO_STRING
 
 TRUNK_PATH = os.path.join(os.path.dirname(__file__), os.pardir)
 
@@ -162,7 +175,7 @@ def CompareBaselines(gm_basedir, path_to_skdiff, svn_gm_url):
     # allow user to specify a different directory to write into?
 
 def RaiseUsageException():
-    raise Exception('%s\n\nRun with --help for more detail.' % (
+    raise Exception('%s\nRun with --help for more detail.' % (
         USAGE_STRING % __file__))
 
 def Main(options, args):
@@ -176,7 +189,7 @@ def Main(options, args):
                      svn_gm_url=options.svn_gm_url)
 
 if __name__ == '__main__':
-    parser = optparse.OptionParser(USAGE_STRING % '%prog')
+    parser = optparse.OptionParser(USAGE_STRING % '%prog' + HELP_STRING)
     parser.add_option(OPTION_GM_BASEDIR,
                       action='store', type='string', default=DEFAULT_GM_BASEDIR,
                       help='path to root of locally stored baseline images '
