@@ -219,6 +219,10 @@ static bool isLion() {
     return darwinVersion() == 11;
 }
 
+static bool isMountainLion() {
+    return darwinVersion() == 12;
+}
+
 static bool isLCDFormat(unsigned format) {
     return SkMask::kLCD16_Format == format || SkMask::kLCD32_Format == format;
 }
@@ -1024,7 +1028,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
 
     // Get the metrics
     bool lionAdjustedMetrics = false;
-    if (isLion()) {
+    if (isLion() || isMountainLion()) {
         if (cgGlyph < fGlyphCount && cgGlyph >= getAdjustStart() 
                     && generateBBoxes()) {
             lionAdjustedMetrics = true;
