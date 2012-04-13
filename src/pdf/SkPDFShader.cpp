@@ -23,8 +23,9 @@
 
 static void transformBBox(const SkMatrix& matrix, SkRect* bbox) {
     SkMatrix inverse;
-    inverse.reset();
-    matrix.invert(&inverse);
+    if (!matrix.invert(&inverse)) {
+        inverse.reset();
+    }
     inverse.mapRect(bbox);
 }
 
@@ -488,7 +489,9 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     if (fState.get()->fType == SkShader::kRadial2_GradientType) {
         SkShader::GradientInfo twoPointRadialInfo = *info;
         SkMatrix inverseMapperMatrix;
-        mapperMatrix.invert(&inverseMapperMatrix);
+        if (!mapperMatrix.invert(&inverseMapperMatrix)) {
+            inverseMapperMatrix.reset();
+        }
         inverseMapperMatrix.mapPoints(twoPointRadialInfo.fPoint, 2);
         twoPointRadialInfo.fRadius[0] =
             inverseMapperMatrix.mapRadius(info->fRadius[0]);
