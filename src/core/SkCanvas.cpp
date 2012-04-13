@@ -218,7 +218,7 @@ public:
         fCanvas = canvas;
         canvas->updateDeviceCMCache();
 
-        fClipStack = &canvas->getTotalClipStack();
+        fClipStack = &canvas->fClipStack;
         fBounder = canvas->getBounder();
         fCurrLayer = canvas->fMCRec->fTopLayer;
         fSkipEmptyClips = skipEmptyClips;
@@ -1210,6 +1210,22 @@ void SkCanvas::validateClip() const {
 }
 #endif
 
+void SkCanvas::replayClips(ClipVisitor* visitor) const {
+    SkClipStack::B2FIter                iter(fClipStack);
+    const SkClipStack::B2FIter::Clip*   clip;
+
+    SkRect empty = {};
+    while ((clip = iter.next()) != NULL) {
+        if (clip->fPath) {
+            visitor->clipPath(*clip->fPath, clip->fOp, clip->fDoAA);
+        } else if (clip->fRect) {
+            visitor->clipRect(*clip->fRect, clip->fOp, clip->fDoAA);
+        } else {
+            visitor->clipRect(empty, SkRegion::kIntersect_Op, false);
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::computeLocalClipBoundsCompareType(EdgeType et) const {
@@ -1340,10 +1356,6 @@ SkCanvas::ClipType SkCanvas::getClipType() const {
 
 const SkRegion& SkCanvas::getTotalClip() const {
     return fMCRec->fRasterClip->forceGetBW();
-}
-
-const SkClipStack& SkCanvas::getTotalClipStack() const {
-    return fClipStack;
 }
 
 void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {

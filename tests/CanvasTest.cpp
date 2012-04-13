@@ -62,6 +62,34 @@
 #include "SkTDArray.h"
 #include "Test.h"
 
+class Canvas2CanvasClipVisitor : public SkCanvas::ClipVisitor {
+public:
+    Canvas2CanvasClipVisitor(SkCanvas* target) : fTarget(target) {}
+
+    virtual void clipRect(const SkRect& r, SkRegion::Op op, bool aa) {
+        fTarget->clipRect(r, op, aa);
+    }
+    virtual void clipPath(const SkPath& p, SkRegion::Op op, bool aa) {
+        fTarget->clipPath(p, op, aa);
+    }
+
+private:
+    SkCanvas* fTarget;
+};
+
+static void test_clipVisitor(skiatest::Reporter* reporter, SkCanvas* canvas) {
+    SkISize size = canvas->getDeviceSize();
+    
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, size.width(), size.height());
+    SkCanvas c(bm);
+
+    Canvas2CanvasClipVisitor visitor(&c);
+    canvas->replayClips(&visitor);
+
+    REPORTER_ASSERT(reporter, c.getTotalClip() == canvas->getTotalClip());
+}
+
 static const int kWidth = 2;
 static const int kHeight = 2;
 // Maximum stream length for picture serialization
@@ -436,8 +464,6 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter,
         canvas2->getClipType(), testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, canvas1->getTotalClip() ==
         canvas2->getTotalClip(), testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, canvas1->getTotalClipStack() ==
-        canvas2->getTotalClipStack(), testStep->assertMessage());
 
     // The following test code is commented out because the test fails when
     // the canvas is an SkPictureRecord or SkDeferredCanvas 
