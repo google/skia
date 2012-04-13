@@ -490,7 +490,9 @@ static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
         SkMatrix inverse;
         drawingSize.set(SkIntToScalar(contentSize.fWidth),
                         SkIntToScalar(contentSize.fHeight));
-        initialTransform->invert(&inverse);
+        if (!initialTransform->invert(&inverse)) {
+            inverse.reset();
+        }
         inverse.mapVectors(&drawingSize, 1);
         SkISize size = SkSize::Make(drawingSize.fX, drawingSize.fY).toRound();
         bitmap.setConfig(SkBitmap::kNo_Config, abs(size.fWidth),
@@ -600,8 +602,9 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint,
     SkMatrix totalTransform = fInitialTransform;
     totalTransform.preConcat(contentEntry->fState.fMatrix);
     SkMatrix inverse;
-    inverse.reset();
-    totalTransform.invert(&inverse);
+    if (!totalTransform.invert(&inverse)) {
+        inverse.reset();
+    }
     inverse.mapRect(&bbox);
 
     SkPDFUtils::AppendRectangle(bbox, &contentEntry->fContent);
