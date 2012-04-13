@@ -82,8 +82,10 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
         if (chopMonoQuadAtY(pts, clip.fTop, &t)) {
             // take the 2nd chopped quad
             SkChopQuadAt(pts, tmp, t);
-            clamp_ge(tmp[2].fY, clip.fTop);
+            // clamp to clean up imprecise numerics in the chop
+            tmp[2].fY = clip.fTop;
             clamp_ge(tmp[3].fY, clip.fTop);
+
             pts[0] = tmp[2];
             pts[1] = tmp[3];
         } else {
@@ -101,8 +103,10 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
     if (pts[2].fY > clip.fBottom) {
         if (chopMonoQuadAtY(pts, clip.fBottom, &t)) {
             SkChopQuadAt(pts, tmp, t);
+            // clamp to clean up imprecise numerics in the chop
             clamp_le(tmp[1].fY, clip.fBottom);
-            clamp_le(tmp[2].fY, clip.fBottom);
+            tmp[2].fY = clip.fBottom;
+
             pts[1] = tmp[1];
             pts[2] = tmp[2];
         } else {
@@ -156,8 +160,10 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
         if (chopMonoQuadAtX(pts, clip.fLeft, &t)) {
             SkChopQuadAt(pts, tmp, t);
             this->appendVLine(clip.fLeft, tmp[0].fY, tmp[2].fY, reverse);
-            clamp_ge(tmp[2].fX, clip.fLeft);
+            // clamp to clean up imprecise numerics in the chop
+            tmp[2].fX = clip.fLeft;
             clamp_ge(tmp[3].fX, clip.fLeft);
+
             pts[0] = tmp[2];
             pts[1] = tmp[3];
         } else {
@@ -172,8 +178,10 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
     if (pts[2].fX > clip.fRight) {
         if (chopMonoQuadAtX(pts, clip.fRight, &t)) {
             SkChopQuadAt(pts, tmp, t);
+            // clamp to clean up imprecise numerics in the chop
             clamp_le(tmp[1].fX, clip.fRight);
-            clamp_le(tmp[2].fX, clip.fRight);
+            tmp[2].fX = clip.fRight;
+
             this->appendQuad(tmp, reverse);
             this->appendVLine(clip.fRight, tmp[2].fY, tmp[4].fY, reverse);
         } else {
