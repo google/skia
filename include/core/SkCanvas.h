@@ -886,13 +886,20 @@ public:
      */
     const SkRegion& getTotalClip() const;
 
-    /**
-     *  Return the current clipstack. This mirrors the result in getTotalClip()
-     *  but is represented as a stack of geometric clips + region-ops.
-     */
-    const SkClipStack& getTotalClipStack() const;
-
     void setExternalMatrix(const SkMatrix* = NULL);
+
+    class ClipVisitor {
+    public:
+        virtual void clipRect(const SkRect&, SkRegion::Op, bool antialias) = 0;
+        virtual void clipPath(const SkPath&, SkRegion::Op, bool antialias) = 0;
+    };
+
+    /**
+     *  Replays the clip operations, back to front, that have been applied to
+     *  the canvas, calling the appropriate method on the visitor for each
+     *  clip. All clips have already been transformed into device space.
+     */
+    void replayClips(ClipVisitor*) const;
 
     ///////////////////////////////////////////////////////////////////////////
 
