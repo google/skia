@@ -21,25 +21,48 @@ static SkCanvas* create(SkBitmap::Config config, int w, int h, int rb,
     return new SkCanvas(bm);
 }
 
+static SkCanvas* new_canvas(int w, int h) {
+    return create(SkBitmap::kARGB_8888_Config, w, h, 0, NULL);
+}
+
+static void test_bug533(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
+    /*
+        http://code.google.com/p/skia/issues/detail?id=533
+        This particular test/bug only applies to the float case, where the
+        coordinates are very large.
+     */
+    SkPath path;
+    path.moveTo(64, 3);
+    path.quadTo(-329936, -100000000, 1153, 330003);
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    canvas.get()->drawPath(path, paint);
+#endif
+}
+
 // we used to assert if the bounds of the device (clip) was larger than 32K
 // even when the path itself was smaller. We just draw and hope in the debug
 // version to not assert.
 static void test_giantaa(skiatest::Reporter* reporter) {
     const int W = 400;
     const int H = 400;
-    SkCanvas* canvas = create(SkBitmap::kARGB_8888_Config, 33000, 10, 0, NULL);
-    canvas->clear(0);
+    SkAutoTUnref<SkCanvas> canvas(new_canvas(33000, 10));
+    canvas.get()->clear(0);
     
     SkPaint paint;
     paint.setAntiAlias(true);
     SkPath path;
     path.addOval(SkRect::MakeXYWH(-10, -10, 20 + W, 20 + H));
-    canvas->drawPath(path, paint);
-    canvas->unref();
+    canvas.get()->drawPath(path, paint);
 }
 
 static void TestDrawPath(skiatest::Reporter* reporter) {
     test_giantaa(reporter);
+    test_bug533(reporter);
 }
 
 #include "TestClassDef.h"

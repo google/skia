@@ -32,6 +32,7 @@
         '../tests/DeferredCanvasTest.cpp',
         '../tests/DequeTest.cpp',
         '../tests/DrawBitmapRectTest.cpp',
+        '../tests/DrawPathTest.cpp',
         '../tests/DrawTextTest.cpp',
         '../tests/EmptyPathTest.cpp',
         '../tests/FillPathTest.cpp',
