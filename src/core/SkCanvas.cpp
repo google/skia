@@ -1365,12 +1365,10 @@ void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
         }
         fUseExternalMatrix = false;
     } else {
-        fUseExternalMatrix = true;
-        fDeviceCMDirty = true;  // |= (fExternalMatrix != *matrix)
-
-        fExternalMatrix = *matrix;
-        if (!matrix->invert(&fExternalInverse)) {
-            fExternalInverse.reset();
+        if (matrix->invert(&fExternalInverse)) {
+            fExternalMatrix = *matrix;
+            fUseExternalMatrix = true;
+            fDeviceCMDirty = true;  // |= (fExternalMatrix != *matrix)
         }
     }
 }

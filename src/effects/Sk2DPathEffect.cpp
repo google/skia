@@ -28,12 +28,14 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
-    if (!mat.invert(&fInverse)) {
-        fInverse.reset();
-    }
+    fMatrixIsInvertible = mat.invert(&fInverse);
 }
 
 bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
+    if (!fMatrixIsInvertible) {
+        return false;
+    }
+
     Sk2DPathEffectBlitter   blitter(this, dst);
     SkPath                  tmp;
     SkIRect                 ir;
@@ -49,6 +51,10 @@ bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width)
 }
 
 void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path) {
+    if (!fMatrixIsInvertible) {
+        return;
+    }
+
     const SkMatrix& mat = this->getMatrix();
     SkPoint src, dst;
 
@@ -80,9 +86,7 @@ Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer) {
     SkASSERT(size <= sizeof(storage));
     buffer.read(storage, size);
     fMatrix.unflatten(storage);
-    if (!fMatrix.invert(&fInverse)) {
-        fInverse.reset();
-    }
+    fMatrixIsInvertible = fMatrix.invert(&fInverse);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
