@@ -48,6 +48,8 @@ protected:
 
 private:
     SkMatrix    fMatrix, fInverse;
+    bool        fMatrixIsInvertible;
+
     // illegal
     Sk2DPathEffect(const Sk2DPathEffect&);
     Sk2DPathEffect& operator=(const Sk2DPathEffect&);
