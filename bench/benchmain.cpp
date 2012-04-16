@@ -14,6 +14,7 @@
 
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
+#include "SkDeferredCanvas.h"
 #include "SkColorPriv.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
@@ -331,8 +332,9 @@ static void help() {
                           "[-timers [wcg]*] [-rotate]\n"
              "    [-scale] [-clip] [-forceAA 1|0] [-forceFilter 1|0]\n"
              "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
-             "    [-match name] [-config 8888|565|GPU|ANGLE|NULLGPU]\n"
-             "    [-Dfoo bar] [-h|--help]");
+             "    [-forceDeferred 1|0] [-match name]\n"
+             "    [-config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar]\n"
+             "    [-h|--help]");
     SkDebugf("\n\n");
     SkDebugf("    -o outDir : Image of each bench will be put in outDir.\n");
     SkDebugf("    -repeat nr : Each bench repeats for nr times.\n");
@@ -349,6 +351,8 @@ static void help() {
              "Enable/disable dithering, default is disabled.\n");
     SkDebugf("    -forceBlend 1|0 : "
              "Enable/disable dithering, default is disabled.\n");
+    SkDebugf("    -forceDeferred 1|0 : "
+             "Enable/disable deferred canvas, default is disabled.\n");
     SkDebugf("    -strokeWidth width : The width for path stroke.\n");
     SkDebugf("    -match name : Only run bench whose name is matched.\n");
     SkDebugf("    -config 8888|565|GPU|ANGLE|NULLGPU : "
@@ -366,6 +370,7 @@ int main (int argc, char * const argv[]) {
     bool forceAA = true;
     bool forceFilter = false;
     SkTriState::State forceDither = SkTriState::kDefault;
+    bool forceDeferred = false;
     bool timerWall = false;
     bool timerCpu = true;
     bool timerGpu = true;
@@ -458,6 +463,12 @@ int main (int argc, char * const argv[]) {
                 return -1;
             }
             forceAlpha = wantAlpha ? 0x80 : 0xFF;
+        } else if (strcmp(*argv, "-forceDeferred") == 0) {
+            if (!parse_bool_arg(++argv, stop, &forceDeferred)) {
+                log_error("missing arg for -forceDeferred\n");
+                help();
+                return -1;
+            }
         } else if (strcmp(*argv, "-strokeWidth") == 0) {
             argv++;
             if (argv < stop) {
@@ -531,8 +542,8 @@ int main (int argc, char * const argv[]) {
     // report our current settings
     {
         SkString str;
-        str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d",
-                   forceAlpha, forceAA, forceFilter);
+        str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d deferred=%d",
+                   forceAlpha, forceAA, forceFilter, forceDeferred);
         str.appendf(" rotate=%d scale=%d clip=%d",
                    doRotate, doScale, doClip);
                    
@@ -638,23 +649,30 @@ int main (int argc, char * const argv[]) {
             }
             
             SkDevice* device = make_device(outConfig, dim, backend, glHelper);
-            SkCanvas canvas(device);
+            SkCanvas* canvas;
+            if (forceDeferred) {
+                canvas = new SkDeferredCanvas(device);
+            } else {
+                canvas = new SkCanvas(device);
+            }
             device->unref();
-            
+            SkAutoUnref canvasUnref(canvas);
+
             if (doClip) {
-                performClip(&canvas, dim.fX, dim.fY);
+                performClip(canvas, dim.fX, dim.fY);
             }
             if (doScale) {
-                performScale(&canvas, dim.fX, dim.fY);
+                performScale(canvas, dim.fX, dim.fY);
             }
             if (doRotate) {
-                performRotate(&canvas, dim.fX, dim.fY);
+                performRotate(canvas, dim.fX, dim.fY);
             }
 
             //warm up caches if needed
             if (repeatDraw > 1) {
-                SkAutoCanvasRestore acr(&canvas, true);
-                bench->draw(&canvas);
+                SkAutoCanvasRestore acr(canvas, true);
+                bench->draw(canvas);
+                canvas->flush();
                 if (glHelper) {
                     glHelper->grContext()->flush();
                     SK_GL(*glHelper->glContext(), Finish());
@@ -663,8 +681,9 @@ int main (int argc, char * const argv[]) {
             
             timer.start();
             for (int i = 0; i < repeatDraw; i++) {
-                SkAutoCanvasRestore acr(&canvas, true);
-                bench->draw(&canvas);
+                SkAutoCanvasRestore acr(canvas, true);
+                bench->draw(canvas);
+                canvas->flush();
                 if (glHelper) {
                     glHelper->grContext()->flush();
                 }
