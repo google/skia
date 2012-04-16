@@ -43,10 +43,7 @@ public:
         return 0 != fTextureUnitReferees.count();
     }
 
-    virtual void deleteAction() SK_OVERRIDE {
-
-        this->INHERITED::deleteAction();
-    }
+    virtual void deleteAction() SK_OVERRIDE;
 
 protected:
 

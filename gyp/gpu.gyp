@@ -302,7 +302,6 @@
 
         '../src/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
         '../src/gpu/gl/debug/GrFakeRefObj.h',
-        '../src/gpu/gl/debug/GrFakeRefObj.cpp',
         '../src/gpu/gl/debug/GrBufferObj.h',
         '../src/gpu/gl/debug/GrBufferObj.cpp',
         '../src/gpu/gl/debug/GrFBBindableObj.h',

@@ -18,15 +18,12 @@ class GrShaderObj : public GrFakeRefObj {
 public:
     GrShaderObj() 
         : GrFakeRefObj()
-        , fType(GR_GL_VERTEX_SHADER)   {}
+        , fType(GR_GL_VERTEX_SHADER)    {}
 
-    void setType(GrGLenum type) { fType = type; }
-    GrGLenum getType()  { return fType; }
+    void setType(GrGLenum type)         { fType = type; }
+    GrGLenum getType()                  { return fType; }
 
-    virtual void deleteAction() SK_OVERRIDE {
-
-        this->INHERITED::deleteAction();
-    }
+    virtual void deleteAction() SK_OVERRIDE;
 
 protected:
 private:
