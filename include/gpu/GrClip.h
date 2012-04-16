@@ -39,6 +39,8 @@ public:
 
     const GrRect& getConservativeBounds() const { return fConservativeBounds; }
 
+    bool requiresAA() const { return fRequiresAA; }
+
     int getElementCount() const { return fList.count(); }
 
     GrClipType getElementType(int i) const { return fList[i].fType; }
@@ -59,6 +61,8 @@ public:
     }
 
     GrSetOp getOp(int i) const { return fList[i].fOp; }
+
+    bool getDoAA(int i) const   { return fList[i].fDoAA; }
 
     bool isRect() const {
         if (1 == fList.count() && kRect_ClipType == fList[0].fType && 
@@ -112,8 +116,9 @@ private:
         GrPath      fPath;
         GrPathFill  fPathFill;
         GrSetOp     fOp;
+        bool        fDoAA;
         bool operator ==(const Element& e) const {
-            if (e.fType != fType || e.fOp != fOp) {
+            if (e.fType != fType || e.fOp != fOp || e.fDoAA != fDoAA) {
                 return false;
             }
             switch (fType) {
@@ -131,6 +136,8 @@ private:
 
     GrRect              fConservativeBounds;
     bool                fConservativeBoundsValid;
+
+    bool                fRequiresAA;
 
     enum {
         kPreAllocElements = 4,

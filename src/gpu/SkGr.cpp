@@ -181,6 +181,10 @@ GrSetOp SkGrClipIterator::getOp() const {
     return skToGrOps[fCurr->fOp];
 }
 
+bool SkGrClipIterator::getDoAA() const {
+    return fCurr->fDoAA;
+}
+
 GrPathFill SkGrClipIterator::getPathFill() const {
     switch (fCurr->fPath->getFillType()) {
         case SkPath::kWinding_FillType:
