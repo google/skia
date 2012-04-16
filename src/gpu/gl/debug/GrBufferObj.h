@@ -33,41 +33,22 @@ public:
         GrAlwaysAssert(!fMapped);
     }
 
-    void setMapped()        { fMapped = true; }
-    void resetMapped()      { fMapped = false; }
-    bool getMapped() const  { return fMapped; }
+    void setMapped()             { fMapped = true; }
+    void resetMapped()           { fMapped = false; }
+    bool getMapped() const       { return fMapped; }
 
-    void setBound()         { fBound = true; }
-    void resetBound()       { fBound = false; }
-    bool getBound() const   { return fBound; }
+    void setBound()              { fBound = true; }
+    void resetBound()            { fBound = false; }
+    bool getBound() const        { return fBound; }
 
-    void allocate(GrGLint size, const GrGLchar *dataPtr) {
-        GrAlwaysAssert(size >= 0);
+    void allocate(GrGLint size, const GrGLchar *dataPtr);
+    GrGLint getSize() const      { return fSize; }
+    GrGLchar *getDataPtr()       { return fDataPtr; }
 
-        // delete pre-existing data
-        delete[] fDataPtr;
-
-        fSize = size;
-        fDataPtr = new GrGLchar[size];
-        if (dataPtr) {
-            memcpy(fDataPtr, dataPtr, fSize);
-        }
-        // TODO: w/ no dataPtr the data is unitialized - this could be tracked
-    }
-    GrGLint getSize() const { return fSize; }
-    GrGLchar *getDataPtr()  { return fDataPtr; }
-
-    GrGLint getUsage() const { return fUsage; }
     void setUsage(GrGLint usage) { fUsage = usage; }
+    GrGLint getUsage() const     { return fUsage; }
 
-    virtual void deleteAction() SK_OVERRIDE {
-
-        // buffers are automatically unmapped when deleted
-        this->resetMapped();
-
-        this->INHERITED::deleteAction();
-    }
-
+    virtual void deleteAction() SK_OVERRIDE;
 
 protected:
 private:
@@ -76,7 +57,9 @@ private:
     bool        fMapped;       // is the buffer object mapped via "glMapBuffer"?
     bool        fBound;        // is the buffer object bound via "glBindBuffer"?
     GrGLint     fSize;         // size in bytes
-    GrGLint     fUsage;        // one of: GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW
+    GrGLint     fUsage;        // one of: GL_STREAM_DRAW, 
+                               //         GL_STATIC_DRAW, 
+                               //         GL_DYNAMIC_DRAW
 
     typedef GrFakeRefObj INHERITED;
 };

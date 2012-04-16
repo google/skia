@@ -10,6 +10,7 @@
 #define GrFakeRefObj_DEFINED
 
 #include "gl/GrGLInterface.h"
+#include "GrNoncopyable.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // This object is used to track the OpenGL objects. We don't use real
@@ -18,7 +19,7 @@
 // are tracking in this class are actually OpenGL's references to the objects
 // not "ours"
 // Each object also gets a unique globally identifying ID
-class GrFakeRefObj {
+class GrFakeRefObj : public GrNoncopyable {
 public:
     GrFakeRefObj() 
         : fRef(0)
@@ -26,7 +27,8 @@ public:
         , fMarkedForDeletion(false)
         , fDeleted(false) {
 
-        static int fNextID = 0;  // source for globally unique IDs - 0 is reserved!
+        // source for globally unique IDs - 0 is reserved!
+        static int fNextID = 0;  
 
         fID = ++fNextID;
     }
@@ -49,15 +51,15 @@ public:
             this->deleteAction(); 
         }
     }
-    int getRefCount() const { return fRef; }
-    int getHighRefCount() const { return fHighRefCount; }
+    int getRefCount() const             { return fRef; }
+    int getHighRefCount() const         { return fHighRefCount; }
 
-    GrGLuint getID() const { return fID; }
+    GrGLuint getID() const              { return fID; }
 
-    void setMarkedForDeletion() { fMarkedForDeletion = true; }
-    bool getMarkedForDeletion() const { return fMarkedForDeletion; }
+    void setMarkedForDeletion()         { fMarkedForDeletion = true; }
+    bool getMarkedForDeletion() const   { return fMarkedForDeletion; }
 
-    bool getDeleted() const     { return fDeleted; }
+    bool getDeleted() const             { return fDeleted; }
 
     // The deleteAction fires if the object has been marked for deletion but
     // couldn't be deleted earlier due to refs
@@ -67,16 +69,16 @@ public:
 
 protected:
 private:
-    int         fRef;
+    int         fRef;               // ref count
     int         fHighRefCount;      // high water mark of the ref count
-    GrGLuint    fID;
+    GrGLuint    fID;                // globally unique ID
     bool        fMarkedForDeletion;
     // The deleted flag is only set when OpenGL thinks the object is deleted
     // It is obviously still allocated w/in this framework
     bool        fDeleted;
 
     // setDeleted should only ever appear in the deleteAction method!
-    void setDeleted()           { fDeleted = true; }
+    void setDeleted()                   { fDeleted = true; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
