@@ -51,6 +51,66 @@ struct GrGpuStats {
     uint32_t fRenderTargetCreateCnt;
 };
 
+/**
+ * Scissoring needs special handling during stencil clip mask creation
+ * since the creation process re-entrantly invokes setupClipAndFlushState.
+ * During this process the call stack is used to keep 
+ * track of (and apply to the GPU) the current scissor settings.
+ */
+struct ScissoringSettings {
+    bool    fEnableScissoring;
+    GrIRect fScissorRect;
+
+    void setupScissoring(GrGpu* gpu);
+};
+
+/**
+ * The clip mask creator handles the generation of the clip mask. If anti 
+ * aliasing is requested it will (in the future) generate a single channel 
+ * (8bit) mask. If no anti aliasing is requested it will generate a 1-bit 
+ * mask in the stencil buffer. In the non anti-aliasing case, if the clip
+ * mask can be represented as a rectangle then scissoring is used. In all
+ * cases scissoring is used to bound the range of the clip mask.
+ */
+class GrClipMaskManager {
+public:
+    GrClipMaskManager()
+        : fClipMaskInStencil(false)
+        , fPathRendererChain(NULL) {
+    }
+
+    bool createClipMask(GrGpu* gpu, 
+                        const GrClip& clip, 
+                        ScissoringSettings* scissorSettings);
+
+    void freeResources();
+
+    bool isClipInStencil() const { return fClipMaskInStencil; }
+
+    void resetMask() {
+        fClipMaskInStencil = false;
+    }
+
+protected:
+private:
+    bool fClipMaskInStencil;        // is the clip mask in the stencil buffer?
+
+    // must be instantiated after GrGpu object has been given its owning
+    // GrContext ptr. (GrGpu is constructed first then handed off to GrContext).
+    GrPathRendererChain*        fPathRendererChain;
+
+    bool createStencilClipMask(GrGpu* gpu, 
+                               const GrClip& clip, 
+                               const GrRect& bounds,
+                               ScissoringSettings* scissorSettings);
+
+    // determines the path renderer used to draw a clip path element.
+    GrPathRenderer* getClipPathRenderer(GrGpu* gpu,
+                                        const SkPath& path, 
+                                        GrPathFill fill);
+
+};
+
 class GrGpu : public GrDrawTarget {
 
 public:
@@ -341,7 +401,14 @@ public:
         return fConfigRenderSupport[config];
     }
 
-protected:
+    virtual void enableScissoring(const GrIRect& rect) = 0;
+    virtual void disableScissor() = 0;
+
+    // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
+    // free to clear the remaining bits to zero if masked clears are more
+    // expensive than clearing all bits.
+    virtual void clearStencilClip(const GrIRect& rect, bool insideClip) = 0;
+
     enum PrivateDrawStateStateBits {
         kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
 
@@ -350,10 +417,7 @@ protected:
                                                  // clipping.
     };
 
-    // keep track of whether we are using stencil clipping (as opposed to
-    // scissor).
-    bool    fClipInStencil;
-
+protected:
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(GrPrimitiveType type);
 
@@ -373,6 +437,8 @@ protected:
     static const GrStencilSettings* GetClipStencilSettings();
 
     GrGpuStats fStats;
+
+    GrClipMaskManager           fClipMaskManager;
 
     struct GeometryPoolState {
         const GrVertexBuffer* fPoolVertexBuffer;
@@ -485,14 +551,6 @@ protected:
     // returns false if current state is unsupported.
     virtual bool flushGraphicsState(GrPrimitiveType type) = 0;
 
-    // Sets the scissor rect, or disables if rect is NULL.
-    virtual void flushScissor(const GrIRect* rect) = 0;
-
-    // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
-    // free to clear the remaining bits to zero if masked clears are more
-    // expensive than clearing all bits.
-    virtual void clearStencilClip(const GrIRect& rect, bool insideClip) = 0;
-
     // clears the entire stencil buffer to 0
     virtual void clearStencil() = 0;
 
@@ -521,10 +579,6 @@ private:
     mutable GrVertexBuffer*     fUnitSquareVertexBuffer; // mutable so it can be
                                                          // created on-demand
 
-    // must be instantiated after GrGpu object has been given its owning
-    // GrContext ptr. (GrGpu is constructed first then handed off to GrContext).
-    GrPathRendererChain*        fPathRendererChain;
-
     bool                        fContextIsDirty;
 
     GrResource*                 fResourceHead;
@@ -545,9 +599,6 @@ private:
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();
     void prepareIndexPool();
-
-    // determines the path renderer used to draw a clip path element.
-    GrPathRenderer* getClipPathRenderer(const SkPath& path, GrPathFill fill);
 
     void resetContext() {
         this->onResetContext();

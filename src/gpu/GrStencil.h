@@ -289,7 +289,8 @@ public:
     }
 
 private:
-    friend class GrGpu;
+    friend class GrClipMaskManager;
+
     enum {
         kMaxStencilClipPasses = 2  // maximum number of passes to add a clip 
                                    // element to the stencil buffer.

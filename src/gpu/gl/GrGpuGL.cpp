@@ -516,13 +516,16 @@ void GrGpuGL::onResetContext() {
     }
 
     fHWBounds.fScissorRect.invalidate();
-    fHWBounds.fScissorEnabled = false;
-    GL_CALL(Disable(GR_GL_SCISSOR_TEST));
+    this->disableScissor();
+
     fHWBounds.fViewportRect.invalidate();
 
     fHWDrawState.stencil()->invalidate();
     fHWStencilClip = false;
-    fClipInStencil = false;
+
+    // TODO: I believe this should actually go in GrGpu::onResetContext
+    // rather than here
+    fClipMaskManager.resetMask();
 
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
@@ -1311,7 +1314,7 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
     return NULL;
 }
 
-void GrGpuGL::flushScissor(const GrIRect* rect) {
+void GrGpuGL::enableScissoring(const GrIRect& rect) {
     const GrDrawState& drawState = this->getDrawState();
     const GrGLRenderTarget* rt =
         static_cast<const GrGLRenderTarget*>(drawState.getRenderTarget());
@@ -1320,28 +1323,28 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
     const GrGLIRect& vp = rt->getViewport();
 
     GrGLIRect scissor;
-    if (NULL != rect) {
-        scissor.setRelativeTo(vp, rect->fLeft, rect->fTop,
-                              rect->width(), rect->height());
-        if (scissor.contains(vp)) {
-            rect = NULL;
-        }
+    scissor.setRelativeTo(vp, rect.fLeft, rect.fTop,
+                          rect.width(), rect.height());
+    if (scissor.contains(vp)) {
+        disableScissor();
+        return;
     }
 
-    if (NULL != rect) {
-        if (fHWBounds.fScissorRect != scissor) {
-            scissor.pushToGLScissor(this->glInterface());
-            fHWBounds.fScissorRect = scissor;
-        }
-        if (!fHWBounds.fScissorEnabled) {
-            GL_CALL(Enable(GR_GL_SCISSOR_TEST));
-            fHWBounds.fScissorEnabled = true;
-        }
-    } else {
-        if (fHWBounds.fScissorEnabled) {
-            GL_CALL(Disable(GR_GL_SCISSOR_TEST));
-            fHWBounds.fScissorEnabled = false;
-        }
+    if (fHWBounds.fScissorRect != scissor) {
+        scissor.pushToGLScissor(this->glInterface());
+        fHWBounds.fScissorRect = scissor;
+    }
+    if (!fHWBounds.fScissorEnabled) {
+        GL_CALL(Enable(GR_GL_SCISSOR_TEST));
+        fHWBounds.fScissorEnabled = true;
+    }
+}
+
+void GrGpuGL::disableScissor() {
+    if (fHWBounds.fScissorEnabled) {
+        GL_CALL(Disable(GR_GL_SCISSOR_TEST));
+        fHWBounds.fScissorEnabled = false;
+//        fHWBounds.fScissorRect.invalidate();
     }
 }
 
@@ -1363,7 +1366,10 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
         }
     }
     this->flushRenderTarget(rect);
-    this->flushScissor(rect);
+    if (NULL != rect)
+        this->enableScissoring(*rect);
+    else
+        this->disableScissor();
 
     GrGLfloat r, g, b, a;
     static const GrGLfloat scale255 = 1.f / 255.f;
@@ -1389,10 +1395,8 @@ void GrGpuGL::clearStencil() {
     
     this->flushRenderTarget(&GrIRect::EmptyIRect());
 
-    if (fHWBounds.fScissorEnabled) {
-        GL_CALL(Disable(GR_GL_SCISSOR_TEST));
-        fHWBounds.fScissorEnabled = false;
-    }
+    this->disableScissor();
+
     GL_CALL(StencilMask(0xffffffff));
     GL_CALL(ClearStencil(0));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
@@ -1426,7 +1430,7 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
         value = 0;
     }
     this->flushRenderTarget(&GrIRect::EmptyIRect());
-    this->flushScissor(&rect);
+    this->enableScissoring(rect);
     GL_CALL(StencilMask(clipStencilMask));
     GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
@@ -1733,18 +1737,23 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
 
         if (GrGLCaps::kAppleES_MSFBOType == this->glCaps().msFBOType()) {
             // Apple's extension uses the scissor as the blit bounds.
+#if 1
             GL_CALL(Enable(GR_GL_SCISSOR_TEST));
             GL_CALL(Scissor(r.fLeft, r.fBottom,
                             r.fWidth, r.fHeight));
             GL_CALL(ResolveMultisampleFramebuffer());
             fHWBounds.fScissorRect.invalidate();
             fHWBounds.fScissorEnabled = true;
+#else
+            this->enableScissoring(dirtyRect);
+            GL_CALL(ResolveMultisampleFramebuffer());
+#endif
         } else {
             if (GrGLCaps::kDesktopARB_MSFBOType != this->glCaps().msFBOType()) {
                 // this respects the scissor during the blit, so disable it.
                 GrAssert(GrGLCaps::kDesktopEXT_MSFBOType ==
                          this->glCaps().msFBOType());
-                this->flushScissor(NULL);
+                this->disableScissor();
             }
             int right = r.fLeft + r.fWidth;
             int top = r.fBottom + r.fHeight;
@@ -1803,7 +1812,7 @@ void GrGpuGL::flushStencil() {
 
     // use stencil for clipping if clipping is enabled and the clip
     // has been written into the stencil.
-    bool stencilClip = fClipInStencil && drawState.isClipState();
+    bool stencilClip = fClipMaskManager.isClipInStencil() && drawState.isClipState();
     bool drawClipToStencil =
         drawState.isStateFlagEnabled(kModifyStencilClip_StateBit);
     bool stencilChange = (fHWDrawState.getStencil() != *settings) ||
