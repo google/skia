@@ -25,6 +25,8 @@ static SkCanvas* new_canvas(int w, int h) {
     return create(SkBitmap::kARGB_8888_Config, w, h, 0, NULL);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 static void test_bug533(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     /*
@@ -39,6 +41,20 @@ static void test_bug533(skiatest::Reporter* reporter) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
+    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    canvas.get()->drawPath(path, paint);
+#endif
+}
+
+static void test_bigcubic(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
+    SkPath path;
+    path.moveTo(64, 3);
+    path.cubicTo(-329936, -100000000, -329936, 100000000, 1153, 330003);
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    
     SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
     canvas.get()->drawPath(path, paint);
 #endif
@@ -63,6 +79,7 @@ static void test_giantaa(skiatest::Reporter* reporter) {
 static void TestDrawPath(skiatest::Reporter* reporter) {
     test_giantaa(reporter);
     test_bug533(reporter);
+    test_bigcubic(reporter);
 }
 
 #include "TestClassDef.h"
