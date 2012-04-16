@@ -1952,7 +1952,9 @@ int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
     int count = CFArrayGetCount(cfArray);
     if (tags) {
         for (int i = 0; i < count; ++i) {
-            tags[i] = (SkFontTableTag)CFArrayGetValueAtIndex(cfArray, i);
+            uintptr_t fontTag = reinterpret_cast<uintptr_t>(
+                    CFArrayGetValueAtIndex(cfArray, i));
+            tags[i] = static_cast<SkFontTableTag>(fontTag);
         }
     }
     return count;

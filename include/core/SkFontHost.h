@@ -17,7 +17,7 @@ class SkDescriptor;
 class SkStream;
 class SkWStream;
 
-typedef uintptr_t SkFontTableTag;
+typedef uint32_t SkFontTableTag;
 
 /** \class SkFontHost
 
