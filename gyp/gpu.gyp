@@ -227,6 +227,8 @@
         '../src/gpu/GrDrawTarget.cpp',
         '../src/gpu/GrDrawTarget.h',
         '../src/gpu/GrGeometryBuffer.h',
+        '../src/gpu/GrClipMaskManager.h',
+        '../src/gpu/GrClipMaskManager.cpp',
         '../src/gpu/GrGpu.cpp',
         '../src/gpu/GrGpu.h',
         '../src/gpu/GrGpuFactory.cpp',
