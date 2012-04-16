@@ -82,6 +82,12 @@
     #endif
 #endif
 
+#if defined(SK_ZLIB_INCLUDE) && defined(SK_SYSTEM_ZLIB)
+    #error "cannot define both SK_ZLIB_INCLUDE and SK_SYSTEM_ZLIB"
+#elif defined(SK_ZLIB_INCLUDE) || defined(SK_SYSTEM_ZLIB)
+    #define SK_HAS_ZLIB
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef SkNEW
