@@ -769,7 +769,11 @@ static void innerstrokedot8(FDot8 L, FDot8 T, FDot8 R, FDot8 B,
 
     int top = T >> 8;
     if (top == ((B - 1) >> 8)) {   // just one scanline high
-        inner_scanline(L, top, R, B - T, blitter);
+        // We want the inverse of B-T, since we're the inner-stroke
+        int alpha = 256 - (B - T);
+        if (alpha) {
+            inner_scanline(L, top, R, alpha, blitter);
+        }
         return;
     }
     
