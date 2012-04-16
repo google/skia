@@ -5,7 +5,7 @@
 static const char gIsDebuggerQuery[] = "is-debugger";
 class DebuggerView : public SampleView {
 public:
-	DebuggerView(const char* data, size_t size) {
+        DebuggerView(const char* data, size_t size) {
         fData.append(size, data);
         fCommandsVisible = true;
         fCommandsResizing = false;
@@ -192,7 +192,8 @@ protected:
                     fStateResizing = true;
                 }
                 else if (curr.fX < fCommands->width()) {
-                    fAtomsToRead = fCommands->selectHighlight(curr.fY);
+                    fAtomsToRead = fCommands->selectHighlight(
+                                                  SkScalarFloorToInt(curr.fY));
                 }
                 else 
                     handled = false;
@@ -232,8 +233,8 @@ protected:
         this->INHERITED::onSizeChange();
         fCommands->setSize(CMD_WIDTH, this->height());
         fCommands->setLoc(0, 0);
-        fState->setSize(this->width() - CMD_WIDTH, INFO_HEIGHT);
-        fState->setLoc(CMD_WIDTH, this->height() - INFO_HEIGHT);
+        fState->setSize(this->width() - CMD_WIDTH, SkFloatToScalar(INFO_HEIGHT));
+        fState->setLoc(CMD_WIDTH, this->height() - SkFloatToScalar(INFO_HEIGHT));
     }
     
 private:

@@ -61,7 +61,9 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     SkVector tangent;
     REPORTER_ASSERT(reporter, meas.getPosTan(SK_ScalarHalf, &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, -SK_ScalarHalf, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fX,
+                            -SK_ScalarHalf,
+                            SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter, position.fY == 0);
     REPORTER_ASSERT(reporter, tangent.fX == -SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
@@ -84,22 +86,28 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, length == SK_Scalar1 * 6);
     REPORTER_ASSERT(reporter, meas.getPosTan(SK_ScalarHalf, &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, SK_ScalarHalf, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fX,
+                            SK_ScalarHalf,
+                            SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter, position.fY == 0);
     REPORTER_ASSERT(reporter, tangent.fX == SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
     REPORTER_ASSERT(reporter, meas.getPosTan(SK_Scalar1 * 2.5f, &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, SK_Scalar1, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fX, SK_Scalar1, SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter,
         SkScalarNearlyEqual(position.fY, SK_Scalar1 * 1.5f));
     REPORTER_ASSERT(reporter, tangent.fX == 0);
     REPORTER_ASSERT(reporter, tangent.fY == SK_Scalar1);
     REPORTER_ASSERT(reporter, meas.getPosTan(SK_Scalar1 * 4.5f, &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, SK_Scalar1 * 2.5f, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fX, 
+                            SkFloatToScalar(2.5f), 
+                            SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fY, SK_Scalar1 * 2.0f, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fY, 
+                            SkFloatToScalar(2.0f),
+                            SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter, tangent.fX == SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
 
@@ -114,7 +122,9 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, length == SK_Scalar1);
     REPORTER_ASSERT(reporter, meas.getPosTan(SK_ScalarHalf, &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, SK_ScalarHalf, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fX,
+                            SK_ScalarHalf,
+                            SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter, position.fY == 0);
     REPORTER_ASSERT(reporter, tangent.fX == SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
@@ -123,9 +133,13 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, length == SK_Scalar1);
     REPORTER_ASSERT(reporter, meas.getPosTan(SK_ScalarHalf, &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, SK_Scalar1 * 1.5f, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fX, 
+                            SkFloatToScalar(1.5f),
+                            SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fY, SK_Scalar1 * 2.0f, SK_Scalar1 * 0.0001));
+        SkScalarNearlyEqual(position.fY,
+                            SkFloatToScalar(2.0f),
+                            SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter, tangent.fX == -SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
 }

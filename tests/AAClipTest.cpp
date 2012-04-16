@@ -322,10 +322,10 @@ static void test_regressions(skiatest::Reporter* reporter) {
     {
         SkAAClip clip;
         SkRect r;
-        r.fLeft = SkFloatToScalar(129.892181);
-        r.fTop = SkFloatToScalar(10.3999996);
-        r.fRight = SkFloatToScalar(130.892181); 
-        r.fBottom = SkFloatToScalar(20.3999996);
+        r.fLeft = SkFloatToScalar(129.892181f);
+        r.fTop = SkFloatToScalar(10.3999996f);
+        r.fRight = SkFloatToScalar(130.892181f); 
+        r.fBottom = SkFloatToScalar(20.3999996f);
         clip.setRect(r, true);
     }
 }

@@ -57,7 +57,7 @@ static void drawCircle(SkCanvas* canvas, int r, SkColor color) {
 class PictureView : public SampleView {
     SkBitmap fBitmap;
 public:
-	PictureView() {
+        PictureView() {
         SkImageRef_GlobalPool::SetRAMBudget(16 * 1024);
 
         fBitmap = load_bitmap();
@@ -102,7 +102,7 @@ protected:
         SkPaint paint;
 
         canvas->save();
-        canvas->scale(0.5f, 0.5f);
+        canvas->scale(SkFloatToScalar(0.5f), SkFloatToScalar(0.5f));
         canvas->drawBitmap(fBitmap, 0, 0, NULL);
         canvas->restore();
 

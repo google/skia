@@ -69,14 +69,14 @@ static void regression_cubic(skiatest::Reporter* reporter) {
     SkPath path, stroke;
     SkPaint paint;
 
-    path.moveTo(SkFloatToFixed(460.2881309415525f),
-                SkFloatToFixed(303.250847066498));
-    path.cubicTo(SkFloatToFixed(463.36378422175284),
-                 SkFloatToFixed(302.1169735073363),
-                 SkFloatToFixed(456.32239330810046),
-                 SkFloatToFixed(304.720354932878),
-                 SkFloatToFixed(453.15255460013304),
-                 SkFloatToFixed(305.788586869862));
+    path.moveTo(SkFloatToScalar(460.2881309415525f),
+                SkFloatToScalar(303.250847066498f));
+    path.cubicTo(SkFloatToScalar(463.36378422175284f),
+                 SkFloatToScalar(302.1169735073363f),
+                 SkFloatToScalar(456.32239330810046f),
+                 SkFloatToScalar(304.720354932878f),
+                 SkFloatToScalar(453.15255460013304f),
+                 SkFloatToScalar(305.788586869862f));
     
     SkRect fillR, strokeR;
     fillR = path.getBounds();

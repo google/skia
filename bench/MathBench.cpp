@@ -22,7 +22,9 @@ public:
         }
     }
 
-    virtual void performTest(float dst[], const float src[], int count) = 0;
+    virtual void performTest(float* SK_RESTRICT dst, 
+                              const float* SK_RESTRICT src, 
+                              int count) = 0;
 
 protected:
     virtual int mulLoopCount() const { return 1; }
@@ -47,10 +49,13 @@ public:
     MathBenchU32(void* param, const char name[]) : INHERITED(param, name) {}
 
 protected:
-    virtual void performITest(uint32_t* dst, const uint32_t* src, int count) = 0;
+    virtual void performITest(uint32_t* SK_RESTRICT dst, 
+                              const uint32_t* SK_RESTRICT src, 
+                              int count) = 0;
     
-    virtual void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src,
-                             int count) SK_OVERRIDE {
+    virtual void performTest(float* SK_RESTRICT dst, 
+                              const float* SK_RESTRICT src,
+                              int count) SK_OVERRIDE {
         uint32_t* d = SkTCast<uint32_t*>(dst);
         const uint32_t* s = SkTCast<const uint32_t*>(src);
         this->performITest(d, s, count);
@@ -65,7 +70,9 @@ class NoOpMathBench : public MathBench {
 public:
     NoOpMathBench(void* param) : INHERITED(param, "noOp") {}
 protected:
-    virtual void performTest(float dst[], const float src[], int count) {
+    virtual void performTest(float* SK_RESTRICT dst, 
+                              const float* SK_RESTRICT src, 
+                              int count) {
         for (int i = 0; i < count; ++i) {
             dst[i] = src[i] + 1;
         }
@@ -78,7 +85,9 @@ class SlowISqrtMathBench : public MathBench {
 public:
     SlowISqrtMathBench(void* param) : INHERITED(param, "slowIsqrt") {}
 protected:
-    virtual void performTest(float dst[], const float src[], int count) {
+    virtual void performTest(float* SK_RESTRICT dst, 
+                              const float* SK_RESTRICT src, 
+                              int count) {
         for (int i = 0; i < count; ++i) {
             dst[i] = 1.0f / sk_float_sqrt(src[i]);
         }
@@ -101,7 +110,9 @@ class FastISqrtMathBench : public MathBench {
 public:
     FastISqrtMathBench(void* param) : INHERITED(param, "fastIsqrt") {}
 protected:
-    virtual void performTest(float dst[], const float src[], int count) {
+    virtual void performTest(float* SK_RESTRICT dst, 
+                              const float* SK_RESTRICT src, 
+                              int count) {
         for (int i = 0; i < count; ++i) {
             dst[i] = SkFastInvSqrt(src[i]);
         }
@@ -159,7 +170,7 @@ static bool isFinite_int(float x) {
 }
 
 static bool isFinite_float(float x) {
-    return sk_float_isfinite(x);
+    return SkToBool(sk_float_isfinite(x));
 }
 
 static bool isFinite_mulzero(float x) {
