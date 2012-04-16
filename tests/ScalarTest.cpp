@@ -20,7 +20,7 @@ static bool isFinite_int(float x) {
 }
 
 static bool isFinite_float(float x) {
-    return sk_float_isfinite(x);
+    return SkToBool(sk_float_isfinite(x));
 }
 
 static bool isFinite_mulzero(float x) {

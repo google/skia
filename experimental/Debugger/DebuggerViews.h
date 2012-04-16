@@ -25,7 +25,7 @@
 
 #define SKDEBUGGER_TEXTSIZE         14
 #define CMD_WIDTH                   200
-#define INFO_HEIGHT                 150.0
+#define INFO_HEIGHT                 150.0f
 #define SKDEBUGGER_HIGHLIGHTCOLOR   0xFF113399
 #define SKDEBUGGER_TEXTCOLOR        0xFF000000
 #define SKDEBUGGER_RESIZEBARCOLOR   0xFF333333

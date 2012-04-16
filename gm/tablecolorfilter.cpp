@@ -66,7 +66,7 @@ static void make_table1(uint8_t table[]) {
 static void make_table2(uint8_t table[]) {
     for (int i = 0; i < 256; ++i) {
         float fi = i / 255.0f;
-        table[i] = sqrtf(fi) * 255;
+        table[i] = static_cast<uint8_t>(sqrtf(fi) * 255);
     }
 }
 

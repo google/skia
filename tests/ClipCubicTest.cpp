@@ -81,7 +81,7 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
     SkPoint clipped[4], shouldbe[4];
     SkIRect clipRect;
     bool success;
-    const float tol = SkFloatToScalar(1e-4);
+    const float tol = SkFloatToScalar(1e-4f);
 
     // Test no clip, with plenty of room.
     clipRect.set(-2, -2, 6, 14);
@@ -119,9 +119,9 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
     success = clipper.clipCubic(crv, clipped);
     REPORTER_ASSERT(reporter, success == true);
     REPORTER_ASSERT(reporter, CurvesAreEqual(clipped, SetCurve(
-        0.5126125216, 1,
-        1.841195941,  4.337081432,
-        1.297019958,  10.19801331,
+        0.5126125216f, 1,
+        1.841195941f,  4.337081432f,
+        1.297019958f,  10.19801331f,
         4,            12,
         shouldbe), tol));
 
@@ -131,9 +131,9 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
     success = clipper.clipCubic(crv, clipped);
     REPORTER_ASSERT(reporter, success == true);
     REPORTER_ASSERT(reporter, CurvesAreEqual(clipped, SetCurve(
-        00.8412352204, 2,
-        1.767683744,   5.400758266,
-        1.55052948,    10.36701965,
+        00.8412352204f, 2,
+        1.767683744f,   5.400758266f,
+        1.55052948f,    10.36701965f,
         4,             12,
         shouldbe), tol));
 
@@ -144,9 +144,9 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, success == true);
     REPORTER_ASSERT(reporter, CurvesAreEqual(clipped, SetCurve(
         0,           0,
-        1.742904663, 2.614356995,
-        1.207521796, 8.266430855,
-        3.026495695, 11,
+        1.742904663f, 2.614356995f,
+        1.207521796f, 8.266430855f,
+        3.026495695f, 11,
         shouldbe), tol));
 
     // Test clip at 10.
@@ -156,9 +156,9 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, success == true);
     REPORTER_ASSERT(reporter, CurvesAreEqual(clipped, SetCurve(
         0,           0,
-        1.551193237, 2.326789856,
-        1.297736168, 7.059780121,
-        2.505550385, 10,
+        1.551193237f, 2.326789856f,
+        1.297736168f, 7.059780121f,
+        2.505550385f, 10,
         shouldbe), tol));
 
     test_giantClip();
