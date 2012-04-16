@@ -31,8 +31,7 @@ extern void gr_run_unittests();
 #define DEBUG_INVAL_START_IDX -1
 
 GrGpu::GrGpu()
-    : fClipInStencil(false)
-    , fContext(NULL)
+    : fContext(NULL)
     , fResetTimestamp(kExpiredTimestamp+1)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
@@ -40,7 +39,6 @@ GrGpu::GrGpu()
     , fIndexPoolUseCnt(0)
     , fQuadIndexBuffer(NULL)
     , fUnitSquareVertexBuffer(NULL)
-    , fPathRendererChain(NULL)
     , fContextIsDirty(true)
     , fResourceHead(NULL) {
 
@@ -82,8 +80,8 @@ void GrGpu::abandonResources() {
     fVertexPool = NULL;
     delete fIndexPool;
     fIndexPool = NULL;
-    // in case path renderer has any GrResources, start from scratch
-    GrSafeSetNull(fPathRendererChain);
+
+    fClipMaskManager.freeResources();
 }
 
 void GrGpu::releaseResources() {
@@ -101,8 +99,8 @@ void GrGpu::releaseResources() {
     fVertexPool = NULL;
     delete fIndexPool;
     fIndexPool = NULL;
-    // in case path renderer has any GrResources, start from scratch
-    GrSafeSetNull(fPathRendererChain);
+
+    fClipMaskManager.freeResources();
 }
 
 void GrGpu::insertResource(GrResource* resource) {
@@ -543,206 +541,255 @@ int process_initial_clip_elements(const GrClip& clip,
 }
 }
 
-bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
-    const GrIRect* r = NULL;
-    GrIRect clipRect;
 
-    GrDrawState* drawState = this->drawState();
+
+// sort out what kind of clip mask needs to be created: A8/R8, stencil or scissor
+bool GrClipMaskManager::createClipMask(GrGpu* gpu, 
+                                       const GrClip& clipIn,
+                                       ScissoringSettings* scissorSettings) {
+
+    GrAssert(scissorSettings);
+
+    scissorSettings->fEnableScissoring = false;
+    fClipMaskInStencil = false;
+
+    GrDrawState* drawState = gpu->drawState();
+    if (!drawState->isClipState()) {
+        return true;
+    }
+
     GrRenderTarget* rt = drawState->getRenderTarget();
 
     // GrDrawTarget should have filtered this for us
     GrAssert(NULL != rt);
 
-    if (drawState->isClipState()) {
+    GrRect bounds;
+    GrRect rtRect;
+    rtRect.setLTRB(0, 0,
+                    GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
+    if (clipIn.hasConservativeBounds()) {
+        bounds = clipIn.getConservativeBounds();
+        if (!bounds.intersect(rtRect)) {
+            bounds.setEmpty();
+        }
+    } else {
+        bounds = rtRect;
+    }
 
-        GrRect bounds;
+    bounds.roundOut(&scissorSettings->fScissorRect);
+    if  (scissorSettings->fScissorRect.isEmpty()) {
+        scissorSettings->fScissorRect.setLTRB(0,0,0,0);
+        // TODO: I think we can do an early exit here - after refactoring try:
+        //  set fEnableScissoring to true but leave fClipMaskInStencil false
+        //  and return - everything is going to be scissored away anyway!
+    }
+    scissorSettings->fEnableScissoring = true;
+
+    // use the stencil clip if we can't represent the clip as a rectangle.
+    fClipMaskInStencil = !clipIn.isRect() && !clipIn.isEmpty() &&
+                         !bounds.isEmpty();
+
+    if (fClipMaskInStencil) {
+        return this->createStencilClipMask(gpu, clipIn, bounds, scissorSettings);
+    }
+
+    return true;
+}
+
+// Create a 1-bit clip mask in the stencil buffer
+bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu, 
+                                              const GrClip& clipIn,
+                                              const GrRect& bounds,
+                                              ScissoringSettings* scissorSettings) {
+
+    GrAssert(fClipMaskInStencil);
+
+    GrDrawState* drawState = gpu->drawState();
+    GrAssert(drawState->isClipState());
+
+    GrRenderTarget* rt = drawState->getRenderTarget();
+    GrAssert(NULL != rt);
+
+    // TODO: dynamically attach a SB when needed.
+    GrStencilBuffer* stencilBuffer = rt->getStencilBuffer();
+    if (NULL == stencilBuffer) {
+        return false;
+    }
+
+    if (stencilBuffer->mustRenderClip(clipIn, rt->width(), rt->height())) {
+
+        stencilBuffer->setLastClip(clipIn, rt->width(), rt->height());
+
+        // we set the current clip to the bounds so that our recursive
+        // draws are scissored to them. We use the copy of the complex clip
+        // we just stashed on the SB to render from. We set it back after
+        // we finish drawing it into the stencil.
+        const GrClip& clipCopy = stencilBuffer->getLastClip();
+        gpu->setClip(GrClip(bounds));
+
+        GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
+        drawState = gpu->drawState();
+        drawState->setRenderTarget(rt);
+        GrDrawTarget::AutoGeometryPush agp(gpu);
+
+        gpu->disableScissor();
+#if !VISUALIZE_COMPLEX_CLIP
+        drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
+#endif
+
+        int count = clipCopy.getElementCount();
+        int clipBit = stencilBuffer->bits();
+        SkASSERT((clipBit <= 16) &&
+                    "Ganesh only handles 16b or smaller stencil buffers");
+        clipBit = (1 << (clipBit-1));
+
         GrRect rtRect;
         rtRect.setLTRB(0, 0,
                        GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
-        if (fClip.hasConservativeBounds()) {
-            bounds = fClip.getConservativeBounds();
-            if (!bounds.intersect(rtRect)) {
-                bounds.setEmpty();
+
+        bool clearToInside;
+        GrSetOp startOp = kReplace_SetOp; // suppress warning
+        int start = process_initial_clip_elements(clipCopy,
+                                                    rtRect,
+                                                    &clearToInside,
+                                                    &startOp);
+
+        gpu->clearStencilClip(scissorSettings->fScissorRect, clearToInside);
+
+        // walk through each clip element and perform its set op
+        // with the existing clip.
+        for (int c = start; c < count; ++c) {
+            GrPathFill fill;
+            bool fillInverted;
+            // enabled at bottom of loop
+            drawState->disableState(GrGpu::kModifyStencilClip_StateBit);
+
+            bool canRenderDirectToStencil; // can the clip element be drawn
+                                            // directly to the stencil buffer
+                                            // with a non-inverted fill rule
+                                            // without extra passes to
+                                            // resolve in/out status.
+
+            GrPathRenderer* pr = NULL;
+            const GrPath* clipPath = NULL;
+            if (kRect_ClipType == clipCopy.getElementType(c)) {
+                canRenderDirectToStencil = true;
+                fill = kEvenOdd_PathFill;
+                fillInverted = false;
+                // there is no point in intersecting a screen filling
+                // rectangle.
+                if (kIntersect_SetOp == clipCopy.getOp(c) &&
+                    clipCopy.getRect(c).contains(rtRect)) {
+                    continue;
+                }
+            } else {
+                fill = clipCopy.getPathFill(c);
+                fillInverted = GrIsFillInverted(fill);
+                fill = GrNonInvertedFill(fill);
+                clipPath = &clipCopy.getPath(c);
+                pr = this->getClipPathRenderer(gpu, *clipPath, fill);
+                if (NULL == pr) {
+                    fClipMaskInStencil = false;
+                    gpu->setClip(clipCopy);     // restore to the original
+                    return false;
+                }
+                canRenderDirectToStencil =
+                    !pr->requiresStencilPass(*clipPath, fill, gpu);
             }
-        } else {
-            bounds = rtRect;
-        }
 
-        bounds.roundOut(&clipRect);
-        if  (clipRect.isEmpty()) {
-            clipRect.setLTRB(0,0,0,0);
-        }
-        r = &clipRect;
+            GrSetOp op = (c == start) ? startOp : clipCopy.getOp(c);
+            int passes;
+            GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
 
-        // use the stencil clip if we can't represent the clip as a rectangle.
-        fClipInStencil = !fClip.isRect() && !fClip.isEmpty() && 
-                         !bounds.isEmpty();
+            bool canDrawDirectToClip; // Given the renderer, the element,
+                                        // fill rule, and set operation can
+                                        // we render the element directly to
+                                        // stencil bit used for clipping.
+            canDrawDirectToClip =
+                GrStencilSettings::GetClipPasses(op,
+                                                    canRenderDirectToStencil,
+                                                    clipBit,
+                                                    fillInverted,
+                                                    &passes, stencilSettings);
 
-        // TODO: dynamically attach a SB when needed.
-        GrStencilBuffer* stencilBuffer = rt->getStencilBuffer();
-        if (fClipInStencil && NULL == stencilBuffer) {
-            return false;
-        }
-
-        if (fClipInStencil &&
-            stencilBuffer->mustRenderClip(fClip, rt->width(), rt->height())) {
-
-            stencilBuffer->setLastClip(fClip, rt->width(), rt->height());
-
-            // we set the current clip to the bounds so that our recursive
-            // draws are scissored to them. We use the copy of the complex clip
-            // we just stashed on the SB to render from. We set it back after
-            // we finish drawing it into the stencil.
-            const GrClip& clip = stencilBuffer->getLastClip();
-            fClip.setFromRect(bounds);
-
-            AutoStateRestore asr(this, GrDrawTarget::kReset_ASRInit);
-            drawState = this->drawState();
-            drawState->setRenderTarget(rt);
-            AutoGeometryPush agp(this);
-
-            this->flushScissor(NULL);
-#if !VISUALIZE_COMPLEX_CLIP
-            drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
-#endif
-
-            int count = clip.getElementCount();
-            int clipBit = stencilBuffer->bits();
-            SkASSERT((clipBit <= 16) &&
-                     "Ganesh only handles 16b or smaller stencil buffers");
-            clipBit = (1 << (clipBit-1));
-            
-            bool clearToInside;
-            GrSetOp startOp = kReplace_SetOp; // suppress warning
-            int start = process_initial_clip_elements(clip,
-                                                      rtRect,
-                                                      &clearToInside,
-                                                      &startOp);
-
-            this->clearStencilClip(clipRect, clearToInside);
-
-            // walk through each clip element and perform its set op
-            // with the existing clip.
-            for (int c = start; c < count; ++c) {
-                GrPathFill fill;
-                bool fillInverted;
-                // enabled at bottom of loop
-                drawState->disableState(kModifyStencilClip_StateBit);
-
-                bool canRenderDirectToStencil; // can the clip element be drawn
-                                               // directly to the stencil buffer
-                                               // with a non-inverted fill rule
-                                               // without extra passes to
-                                               // resolve in/out status.
-
-                GrPathRenderer* pr = NULL;
-                const GrPath* clipPath = NULL;
-                if (kRect_ClipType == clip.getElementType(c)) {
-                    canRenderDirectToStencil = true;
-                    fill = kEvenOdd_PathFill;
-                    fillInverted = false;
-                    // there is no point in intersecting a screen filling
-                    // rectangle.
-                    if (kIntersect_SetOp == clip.getOp(c) &&
-                        clip.getRect(c).contains(rtRect)) {
-                        continue;
-                    }
+            // draw the element to the client stencil bits if necessary
+            if (!canDrawDirectToClip) {
+                GR_STATIC_CONST_SAME_STENCIL(gDrawToStencil,
+                    kIncClamp_StencilOp,
+                    kIncClamp_StencilOp,
+                    kAlways_StencilFunc,
+                    0xffff,
+                    0x0000,
+                    0xffff);
+                SET_RANDOM_COLOR
+                if (kRect_ClipType == clipCopy.getElementType(c)) {
+                    *drawState->stencil() = gDrawToStencil;
+                    gpu->drawSimpleRect(clipCopy.getRect(c), NULL, 0);
                 } else {
-                    fill = clip.getPathFill(c);
-                    fillInverted = GrIsFillInverted(fill);
-                    fill = GrNonInvertedFill(fill);
-                    clipPath = &clip.getPath(c);
-                    pr = this->getClipPathRenderer(*clipPath, fill);
-                    if (NULL == pr) {
-                        fClipInStencil = false;
-                        fClip = clip;
-                        return false;
-                    }
-                    canRenderDirectToStencil =
-                        !pr->requiresStencilPass(*clipPath, fill, this);
-                }
-
-                GrSetOp op = (c == start) ? startOp : clip.getOp(c);
-                int passes;
-                GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
-
-                bool canDrawDirectToClip; // Given the renderer, the element,
-                                          // fill rule, and set operation can
-                                          // we render the element directly to
-                                          // stencil bit used for clipping.
-                canDrawDirectToClip =
-                    GrStencilSettings::GetClipPasses(op,
-                                                     canRenderDirectToStencil,
-                                                     clipBit,
-                                                     fillInverted,
-                                                     &passes, stencilSettings);
-
-                // draw the element to the client stencil bits if necessary
-                if (!canDrawDirectToClip) {
-                    GR_STATIC_CONST_SAME_STENCIL(gDrawToStencil,
-                        kIncClamp_StencilOp,
-                        kIncClamp_StencilOp,
-                        kAlways_StencilFunc,
-                        0xffff,
-                        0x0000,
-                        0xffff);
-                    SET_RANDOM_COLOR
-                    if (kRect_ClipType == clip.getElementType(c)) {
+                    if (canRenderDirectToStencil) {
                         *drawState->stencil() = gDrawToStencil;
-                        this->drawSimpleRect(clip.getRect(c), NULL, 0);
+                        pr->drawPath(*clipPath, fill, NULL, gpu, 0, false);
                     } else {
-                        if (canRenderDirectToStencil) {
-                            *drawState->stencil() = gDrawToStencil;
-                            pr->drawPath(*clipPath, fill, NULL, this, 0, false);
-                        } else {
-                            pr->drawPathToStencil(*clipPath, fill, this);
-                        }
+                        pr->drawPathToStencil(*clipPath, fill, gpu);
                     }
                 }
+            }
 
-                // now we modify the clip bit by rendering either the clip
-                // element directly or a bounding rect of the entire clip.
-                drawState->enableState(kModifyStencilClip_StateBit);
-                for (int p = 0; p < passes; ++p) {
-                    *drawState->stencil() = stencilSettings[p];
-                    if (canDrawDirectToClip) {
-                        if (kRect_ClipType == clip.getElementType(c)) {
-                            SET_RANDOM_COLOR
-                            this->drawSimpleRect(clip.getRect(c), NULL, 0);
-                        } else {
-                            SET_RANDOM_COLOR
-                            pr->drawPath(*clipPath, fill, NULL, this, 0, false);
-                        }
+            // now we modify the clip bit by rendering either the clip
+            // element directly or a bounding rect of the entire clip.
+            drawState->enableState(GrGpu::kModifyStencilClip_StateBit);
+            for (int p = 0; p < passes; ++p) {
+                *drawState->stencil() = stencilSettings[p];
+                if (canDrawDirectToClip) {
+                    if (kRect_ClipType == clipCopy.getElementType(c)) {
+                        SET_RANDOM_COLOR
+                        gpu->drawSimpleRect(clipCopy.getRect(c), NULL, 0);
                     } else {
                         SET_RANDOM_COLOR
-                        this->drawSimpleRect(bounds, NULL, 0);
+                        pr->drawPath(*clipPath, fill, NULL, gpu, 0, false);
                     }
+                } else {
+                    SET_RANDOM_COLOR
+                    gpu->drawSimpleRect(bounds, NULL, 0);
                 }
             }
-            // restore clip
-            fClip = clip;
-            // recusive draws would have disabled this since they drew with
-            // the clip bounds as clip.
-            fClipInStencil = true;
         }
+        // restore clip
+        gpu->setClip(clipCopy);
+        // recusive draws would have disabled this since they drew with
+        // the clip bounds as clip.
+        fClipMaskInStencil = true;
+    }
+
+    return true;
+}
+
+bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
+
+    ScissoringSettings scissoringSettings;
+
+    if (!fClipMaskManager.createClipMask(this, fClip, &scissoringSettings)) {
+        return false;
     }
 
     // Must flush the scissor after graphics state
     if (!this->flushGraphicsState(type)) {
         return false;
     }
-    this->flushScissor(r);
+
+    scissoringSettings.setupScissoring(this);
     return true;
 }
 
-GrPathRenderer* GrGpu::getClipPathRenderer(const GrPath& path,
-                                           GrPathFill fill) {
+GrPathRenderer* GrClipMaskManager::getClipPathRenderer(GrGpu* gpu,
+                                                       const GrPath& path,
+                                                       GrPathFill fill) {
     if (NULL == fPathRendererChain) {
         fPathRendererChain = 
-            new GrPathRendererChain(this->getContext(),
+            new GrPathRendererChain(gpu->getContext(),
                                     GrPathRendererChain::kNonAAOnly_UsageFlag);
     }
-    return fPathRendererChain->getPathRenderer(path, fill, this, false);
+    return fPathRendererChain->getPathRenderer(path, fill, gpu, false);
 }
 
 
@@ -982,3 +1029,19 @@ void GrGpu::printStats() const {
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+void ScissoringSettings::setupScissoring(GrGpu* gpu) {
+    if (!fEnableScissoring) {
+        gpu->disableScissor();
+        return;
+    }
+
+    gpu->enableScissoring(fScissorRect);
+}
+
+
+void GrClipMaskManager::freeResources() {
+    // in case path renderer has any GrResources, start from scratch
+    GrSafeSetNull(fPathRendererChain);
+}
