@@ -381,7 +381,8 @@ int main (int argc, char * const argv[]) {
     GLHelper* glHelper = NULL;
     const char* configName = "";
     Backend backend = kRaster_Backend;  // for warning
-    int configCount = SK_ARRAY_COUNT(gConfigs);
+    SkTDArray<int> configs;
+    bool userConfig = false;
     
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -486,11 +487,8 @@ int main (int argc, char * const argv[]) {
             if (argv < stop) {
                 int index = findConfig(*argv);
                 if (index >= 0) {
-                    outConfig = gConfigs[index].fConfig;
-                    configName = gConfigs[index].fName;
-                    backend = gConfigs[index].fBackend;
-                    glHelper = gConfigs[index].fGLHelper;
-                    configCount = 1;
+                    *configs.append() = index;
+                    userConfig = true;
                 } else {
                     SkString str;
                     str.printf("unrecognized config %s\n", *argv);
@@ -521,6 +519,12 @@ int main (int argc, char * const argv[]) {
             log_error(str);
             help();
             return -1;
+        }
+    }
+    if (!userConfig) {
+        // if no config is specified by user, we add them all.
+        for (unsigned int i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
+            *configs.append() = i;
         }
     }
     
@@ -620,13 +624,13 @@ int main (int argc, char * const argv[]) {
             log_progress(str);
         }
         
-        for (int configIndex = 0; configIndex < configCount; configIndex++) {
-            if (configCount > 1) {
-                outConfig = gConfigs[configIndex].fConfig;
-                configName = gConfigs[configIndex].fName;
-                backend = gConfigs[configIndex].fBackend;
-                glHelper = gConfigs[configIndex].fGLHelper;
-            }
+        for (int x = 0; x < configs.count(); ++x) {
+            int configIndex = configs[x];
+
+            outConfig = gConfigs[configIndex].fConfig;
+            configName = gConfigs[configIndex].fName;
+            backend = gConfigs[configIndex].fBackend;
+            glHelper = gConfigs[configIndex].fGLHelper;
 
             if (kGPU_Backend == backend &&
                 (NULL == glHelper || !glHelper->isValid())) {
