@@ -188,6 +188,147 @@ void test_matrix_max_stretch(skiatest::Reporter* reporter) {
     }
 }
 
+// This function is extracted from src/gpu/SkGpuDevice.cpp,
+// in order to make sure this function works correctly.
+static bool isSimilarityTransformation(const SkMatrix& matrix,
+                                       SkScalar tol = SK_ScalarNearlyZero) {
+    if (matrix.isIdentity() || matrix.getType() == SkMatrix::kTranslate_Mask) {
+        return true;
+    }
+    if (matrix.hasPerspective()) {
+        return false;
+    }
+
+    SkScalar mx = matrix.get(SkMatrix::kMScaleX);
+    SkScalar sx = matrix.get(SkMatrix::kMSkewX);
+    SkScalar my = matrix.get(SkMatrix::kMScaleY);
+    SkScalar sy = matrix.get(SkMatrix::kMSkewY);
+
+    if (mx == 0 && sx == 0 && my == 0 && sy == 0) {
+        return false;
+    }
+
+    // it has scales or skews, but it could also be rotation, check it out.
+    SkVector vec[2];
+    vec[0].set(mx, sx);
+    vec[1].set(sy, my);
+
+    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
+           SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
+                               SkScalarSquare(tol));
+}
+
+void test_matrix_is_similarity_transform(skiatest::Reporter* reporter) {
+    SkMatrix mat;
+
+    // identity
+    mat.setIdentity();
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+
+    // translation only
+    mat.reset();
+    mat.setTranslate(SkIntToScalar(100), SkIntToScalar(100));
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+
+    // scale with same size
+    mat.reset();
+    mat.setScale(SkIntToScalar(15), SkIntToScalar(15));
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+
+    // scale with one negative
+    mat.reset();
+    mat.setScale(SkIntToScalar(-15), SkIntToScalar(15));
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+
+    // scale with different size
+    mat.reset();
+    mat.setScale(SkIntToScalar(15), SkIntToScalar(20));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // scale with same size at a pivot point
+    mat.reset();
+    mat.setScale(SkIntToScalar(15), SkIntToScalar(15),
+                 SkIntToScalar(2), SkIntToScalar(2));
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+
+    // scale with different size at a pivot point
+    mat.reset();
+    mat.setScale(SkIntToScalar(15), SkIntToScalar(20),
+                 SkIntToScalar(2), SkIntToScalar(2));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // skew with same size
+    mat.reset();
+    mat.setSkew(SkIntToScalar(15), SkIntToScalar(15));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // skew with different size
+    mat.reset();
+    mat.setSkew(SkIntToScalar(15), SkIntToScalar(20));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // skew with same size at a pivot point
+    mat.reset();
+    mat.setSkew(SkIntToScalar(15), SkIntToScalar(15),
+                SkIntToScalar(2), SkIntToScalar(2));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // skew with different size at a pivot point
+    mat.reset();
+    mat.setSkew(SkIntToScalar(15), SkIntToScalar(20),
+                SkIntToScalar(2), SkIntToScalar(2));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // perspective x
+    mat.reset();
+    mat.setPerspX(SkScalarToPersp(SK_Scalar1 / 2));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // perspective y
+    mat.reset();
+    mat.setPerspY(SkScalarToPersp(SK_Scalar1 / 2));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // rotate
+    for (int angle = 0; angle < 360; ++angle) {
+        mat.reset();
+        mat.setRotate(SkIntToScalar(angle));
+        REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+    }
+
+    // rotate + translate
+    mat.reset();
+    mat.setRotate(SkIntToScalar(30));
+    mat.postTranslate(SkIntToScalar(10), SkIntToScalar(20));
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+
+    // rotate + uniform scale
+    mat.reset();
+    mat.setRotate(SkIntToScalar(30));
+    mat.postScale(SkIntToScalar(2), SkIntToScalar(2));
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+
+    // rotate + non-uniform scale
+    mat.reset();
+    mat.setRotate(SkIntToScalar(30));
+    mat.postScale(SkIntToScalar(3), SkIntToScalar(2));
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // all zero
+    mat.setAll(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // all zero except perspective
+    mat.setAll(0, 0, 0, 0, 0, 0, 0, 0, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !isSimilarityTransformation(mat));
+
+    // scales zero, only skews
+    mat.setAll(0, SK_Scalar1, 0,
+               SK_Scalar1, 0, 0,
+               0, 0, SkMatrix::I()[8]);
+    REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
+}
+
 void TestMatrix(skiatest::Reporter* reporter) {
     SkMatrix    mat, inverse, iden1, iden2;
 
@@ -299,6 +440,7 @@ void TestMatrix(skiatest::Reporter* reporter) {
 #endif
 
     test_matrix_max_stretch(reporter);
+    test_matrix_is_similarity_transform(reporter);
 }
 
 #include "TestClassDef.h"
