@@ -121,9 +121,11 @@
 
 /*  If zlib is available and you want to support the flate compression
     algorithm (used in PDF generation), define SK_ZLIB_INCLUDE to be the
-    include path.
+    include path. Alternatively, define SK_SYSTEM_ZLIB to use the system zlib
+    library specified as "#include <zlib.h>".
  */
 //#define SK_ZLIB_INCLUDE <zlib.h>
+//#define SK_SYSTEM_ZLIB
 
 /*  Define this to allow PDF scalars above 32k.  The PDF/A spec doesn't allow
     them, but modern PDF interpreters should handle them just fine.
