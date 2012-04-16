@@ -61,6 +61,11 @@ public:
     virtual GrSetOp getOp() const = 0;
 
     /**
+     * Gets anti-aliasing setting desired for the current clip
+     */
+    virtual bool getDoAA() const = 0;
+
+    /**
      *  Call to move to the next element in the list, previous path iter can be
      *  made invalid.
      */
