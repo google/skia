@@ -491,8 +491,6 @@ static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
         drawingSize.set(SkIntToScalar(contentSize.fWidth),
                         SkIntToScalar(contentSize.fHeight));
         if (!initialTransform->invert(&inverse)) {
-            // This shouldn't happen, initial transform should be invertible.
-            SkASSERT(false);
             inverse.reset();
         }
         inverse.mapVectors(&drawingSize, 1);
@@ -605,7 +603,7 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint,
     totalTransform.preConcat(contentEntry->fState.fMatrix);
     SkMatrix inverse;
     if (!totalTransform.invert(&inverse)) {
-        return;
+        inverse.reset();
     }
     inverse.mapRect(&bbox);
 
