@@ -305,9 +305,6 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
     }
 }
 
-
-#define USE_MSAA 0
-
 HGLRC create_gl(HWND hwnd, int msaaSampleCount) {
 
     HDC dc = GetDC(hwnd);
@@ -339,7 +336,7 @@ HGLRC create_gl(HWND hwnd, int msaaSampleCount) {
     if (msaaSampleCount > 0 &&
         extensions.hasExtension(dc, "WGL_ARB_multisample")) {
         static const int kIAttrsCount = SK_ARRAY_COUNT(iAttrs);
-        GLint msaaIAttrs[kIAttrsCount + 4];
+        GLint msaaIAttrs[kIAttrsCount + 6];
         memcpy(msaaIAttrs, iAttrs, sizeof(GLint) * kIAttrsCount);
         SkASSERT(0 == msaaIAttrs[kIAttrsCount - 2] &&
                  0 == msaaIAttrs[kIAttrsCount - 1]);
@@ -347,18 +344,29 @@ HGLRC create_gl(HWND hwnd, int msaaSampleCount) {
         msaaIAttrs[kIAttrsCount - 1] = TRUE;
         msaaIAttrs[kIAttrsCount + 0] = SK_WGL_SAMPLES;
         msaaIAttrs[kIAttrsCount + 1] = msaaSampleCount;
-        msaaIAttrs[kIAttrsCount + 2] = 0;
-        msaaIAttrs[kIAttrsCount + 3] = 0;
+        if (extensions.hasExtension(dc, "WGL_NV_multisample_coverage")) {
+            msaaIAttrs[kIAttrsCount + 2] = SK_WGL_COLOR_SAMPLES;
+            // We want the fewest number of color samples possible.
+            // Passing 0 gives only the formats where all samples are color
+            // samples.
+            msaaIAttrs[kIAttrsCount + 3] = 1;
+            msaaIAttrs[kIAttrsCount + 4] = 0;
+            msaaIAttrs[kIAttrsCount + 5] = 0;
+        } else {
+            msaaIAttrs[kIAttrsCount + 2] = 0;
+            msaaIAttrs[kIAttrsCount + 3] = 0;
+        }
         GLuint num;
         int formats[64];
         extensions.choosePixelFormat(dc, msaaIAttrs, fAttrs, 64, formats, &num);
         num = min(num,64);
-        for (GLuint i = 0; i < num; ++i) {
-            DescribePixelFormat(dc, formats[i], sizeof(pfd), &pfd);
-            if (SetPixelFormat(dc, formats[i], &pfd)) {
-                format = formats[i];
-                break;
-            }
+        int formatToTry = extensions.selectFormat(formats,
+                                                  num,
+                                                  dc,
+                                                  msaaSampleCount);
+        DescribePixelFormat(dc, formatToTry, sizeof(pfd), &pfd);
+        if (SetPixelFormat(dc, formatToTry, &pfd)) {
+            format = formatToTry;
         }
     }
 
