@@ -1053,6 +1053,196 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
     }
 }
 
+static void check_for_circle(skiatest::Reporter* reporter,
+                             const SkPath& path, bool expected) {
+    SkRect rect;
+    REPORTER_ASSERT(reporter, path.isOval(&rect) == expected);
+    if (expected) {
+        REPORTER_ASSERT(reporter, rect.height() == rect.width());
+    }
+}
+
+static void test_circle_skew(skiatest::Reporter* reporter,
+                             const SkPath& path) {
+    SkPath tmp;
+
+    SkMatrix m;
+    m.setSkew(SkIntToScalar(3), SkIntToScalar(5));
+    path.transform(m, &tmp);
+    check_for_circle(reporter, tmp, false);
+}
+
+static void test_circle_translate(skiatest::Reporter* reporter,
+                                  const SkPath& path) {
+    SkPath tmp;
+
+    // translate at small offset
+    SkMatrix m;
+    m.setTranslate(SkIntToScalar(15), SkIntToScalar(15));
+    path.transform(m, &tmp);
+    check_for_circle(reporter, tmp, true);
+
+    tmp.reset();
+    m.reset();
+
+    // translate at a relatively big offset
+    m.setTranslate(SkIntToScalar(1000), SkIntToScalar(1000));
+    path.transform(m, &tmp);
+    check_for_circle(reporter, tmp, true);
+}
+
+static void test_circle_rotate(skiatest::Reporter* reporter,
+                               const SkPath& path) {
+    for (int angle = 0; angle < 360; ++angle) {
+        SkPath tmp;
+        SkMatrix m;
+        m.setRotate(SkIntToScalar(angle));
+        path.transform(m, &tmp);
+
+        // TODO: a rotated circle whose rotated angle is not a mutiple of 90
+        // degrees is not an oval anymore, this can be improved.  we made this
+        // for the simplicity of our implementation.
+        if (angle % 90 == 0) {
+            check_for_circle(reporter, tmp, true);
+        } else {
+            check_for_circle(reporter, tmp, false);
+        }
+    }
+}
+
+static void test_circle_with_direction(skiatest::Reporter* reporter,
+                                       SkPath::Direction dir) {
+    SkPath path;
+
+    // circle at origin
+    path.addCircle(0, 0, SkIntToScalar(20), dir);
+    check_for_circle(reporter, path, true);
+    test_circle_rotate(reporter, path);
+    test_circle_translate(reporter, path);
+    test_circle_skew(reporter, path);
+
+    // circle at an offset at (10, 10)
+    path.reset();
+    path.addCircle(SkIntToScalar(10), SkIntToScalar(10),
+                   SkIntToScalar(20), dir);
+    check_for_circle(reporter, path, true);
+    test_circle_rotate(reporter, path);
+    test_circle_translate(reporter, path);
+    test_circle_skew(reporter, path);
+}
+
+static void test_circle_with_add_paths(skiatest::Reporter* reporter) {
+    SkPath path;
+    SkPath circle;
+    SkPath rect;
+    SkPath empty;
+
+    circle.addCircle(0, 0, SkIntToScalar(10), SkPath::kCW_Direction);
+    rect.addRect(SkIntToScalar(5), SkIntToScalar(5),
+                 SkIntToScalar(20), SkIntToScalar(20), SkPath::kCW_Direction);
+
+    SkMatrix translate;
+    translate.setTranslate(SkIntToScalar(12), SkIntToScalar(12));
+
+    // For simplicity, all the path concatenation related operations
+    // would mark it non-circle, though in theory it's still a circle.
+
+    // empty + circle (translate)
+    path = empty;
+    path.addPath(circle, translate);
+    check_for_circle(reporter, path, false);
+
+    // circle + empty (translate)
+    path = circle;
+    path.addPath(empty, translate);
+    check_for_circle(reporter, path, false);
+
+    // test reverseAddPath
+    path = circle;
+    path.reverseAddPath(rect);
+    check_for_circle(reporter, path, false);
+}
+
+static void test_circle(skiatest::Reporter* reporter) {
+    test_circle_with_direction(reporter, SkPath::kCW_Direction);
+    test_circle_with_direction(reporter, SkPath::kCCW_Direction);
+
+    // multiple addCircle()
+    SkPath path;
+    path.addCircle(0, 0, SkIntToScalar(10), SkPath::kCW_Direction);
+    path.addCircle(0, 0, SkIntToScalar(20), SkPath::kCW_Direction);
+    check_for_circle(reporter, path, false);
+
+    // some extra lineTo() would make isOval() fail
+    path.reset();
+    path.addCircle(0, 0, SkIntToScalar(10), SkPath::kCW_Direction);
+    path.lineTo(0, 0);
+    check_for_circle(reporter, path, false);
+
+    // not back to the original point
+    path.reset();
+    path.addCircle(0, 0, SkIntToScalar(10), SkPath::kCW_Direction);
+    path.setLastPt(SkIntToScalar(5), SkIntToScalar(5));
+    check_for_circle(reporter, path, false);
+
+    test_circle_with_add_paths(reporter);
+}
+
+static void test_oval(skiatest::Reporter* reporter) {
+    SkRect rect;
+    SkMatrix m;
+    SkPath path;
+
+    rect = SkRect::MakeWH(SkIntToScalar(30), SkIntToScalar(50));
+    path.addOval(rect);
+
+    REPORTER_ASSERT(reporter, path.isOval(NULL));
+
+    m.setRotate(90);
+    SkPath tmp;
+    path.transform(m, &tmp);
+    // an oval rotated 90 degrees is still an oval.
+    REPORTER_ASSERT(reporter, tmp.isOval(NULL));
+
+    m.reset();
+    m.setRotate(30);
+    tmp.reset();
+    path.transform(m, &tmp);
+    // an oval rotated 30 degrees is not an oval anymore.
+    REPORTER_ASSERT(reporter, !tmp.isOval(NULL));
+
+    // since empty path being transformed.
+    path.reset();
+    tmp.reset();
+    m.reset();
+    path.transform(m, &tmp);
+    REPORTER_ASSERT(reporter, !tmp.isOval(NULL));
+
+    // empty path is not an oval
+    tmp.reset();
+    REPORTER_ASSERT(reporter, !tmp.isOval(NULL));
+
+    // only has moveTo()s
+    tmp.reset();
+    tmp.moveTo(0, 0);
+    tmp.moveTo(SkIntToScalar(10), SkIntToScalar(10));
+    REPORTER_ASSERT(reporter, !tmp.isOval(NULL));
+
+    // mimic WebKit's calling convention,
+    // call moveTo() first and then call addOval()
+    path.reset();
+    path.moveTo(0, 0);
+    path.addOval(rect);
+    REPORTER_ASSERT(reporter, path.isOval(NULL));
+
+    // copy path
+    path.reset();
+    tmp.reset();
+    tmp.addOval(rect);
+    path = tmp;
+    REPORTER_ASSERT(reporter, path.isOval(NULL));
+}
+
 void TestPath(skiatest::Reporter* reporter) {
     {
         SkSize size;
@@ -1138,6 +1328,8 @@ void TestPath(skiatest::Reporter* reporter) {
     test_bounds(reporter);
     test_iter(reporter);
     test_raw_iter(reporter);
+    test_circle(reporter);
+    test_oval(reporter);
 }
 
 #include "TestClassDef.h"
