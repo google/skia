@@ -124,7 +124,7 @@ protected:
     }
 
     static void drawGrad(SkCanvas* canvas) {
-        SkPoint pts[] = { { 0, 0 }, { 0, HEIGHT } };
+        SkPoint pts[] = { { 0, 0 }, { 0, SkIntToScalar(HEIGHT) } };
 #if 0
         const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
         SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
@@ -135,7 +135,7 @@ protected:
         canvas->clear(SK_ColorRED);
         SkPaint paint;
         paint.setShader(s)->unref();
-        SkRect r = { 0, 0, 1024, HEIGHT };
+        SkRect r = { 0, 0, SkIntToScalar(1024), SkIntToScalar(HEIGHT) };
         canvas->drawRect(r, paint);
     }
 
@@ -162,17 +162,17 @@ protected:
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
 
-        SkScalar x = 10;
+        SkScalar x = SkIntToScalar(10);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
             
-            SkScalar y = 40;
-            SkScalar stopy = HEIGHT;
+            SkScalar y = SkIntToScalar(40);
+            SkScalar stopy = SkIntToScalar(HEIGHT);
             while (y < stopy) {
 #if 1
                 canvas->drawText(text, len, x, y, paint);
 #else
-                cgDrawText(cg, text, len, x, HEIGHT - y, paint);
+                cgDrawText(cg, text, len, x, SkIntToScalar(HEIGHT) - y, paint);
 #endif
                 y += paint.getTextSize() * 2;
             }
