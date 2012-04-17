@@ -21,12 +21,13 @@
 #include "SkThread.h"
 #include "SkTypes.h"
 
-static void transformBBox(const SkMatrix& matrix, SkRect* bbox) {
+static bool transformBBox(const SkMatrix& matrix, SkRect* bbox) {
     SkMatrix inverse;
     if (!matrix.invert(&inverse)) {
-        inverse.reset();
+        return false;
     }
     inverse.mapRect(bbox);
+    return true;
 }
 
 static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
@@ -309,7 +310,7 @@ public:
         fResources.unrefAll();
     }
 
-    bool isValid() { return fResources.count() > 0; }
+    virtual bool isValid() { return fResources.count() > 0; }
 
     void getResources(SkTDArray<SkPDFObject*>* resourceList) {
         GetResourcesHelper(&fResources, resourceList);
@@ -331,6 +332,8 @@ public:
         RemoveShader(this);
         fResources.unrefAll();
     }
+
+    virtual bool isValid() { return size() > 0; }
 
     void getResources(SkTDArray<SkPDFObject*>* resourceList) {
         GetResourcesHelper(&fResources, resourceList);
@@ -367,17 +370,23 @@ SkPDFObject* SkPDFShader::GetPDFShader(const SkShader& shader,
         result->ref();
         return result;
     }
+
+    bool valid = false;
     // The PDFShader takes ownership of the shaderSate.
     if (shaderState.get()->fType == SkShader::kNone_GradientType) {
-        result = new SkPDFImageShader(shaderState.detach());
+        SkPDFImageShader* imageShader =
+            new SkPDFImageShader(shaderState.detach());
+        valid = imageShader->isValid();
+        result = imageShader;
     } else {
         SkPDFFunctionShader* functionShader =
             new SkPDFFunctionShader(shaderState.detach());
-        if (!functionShader->isValid()) {
-            delete functionShader;
-            return NULL;
-        }
+        valid = functionShader->isValid();
         result = functionShader;
+    }
+    if (!valid) {
+        delete result;
+        return NULL;
     }
     entry.fPDFShader = result;
     CanonicalShaders().push(entry);
@@ -472,7 +481,9 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     finalMatrix.preConcat(fState.get()->fShaderTransform);
     SkRect bbox;
     bbox.set(fState.get()->fBBox);
-    transformBBox(finalMatrix, &bbox);
+    if (!transformBBox(finalMatrix, &bbox)) {
+        return;
+    }
 
     SkRefPtr<SkPDFArray> domain = new SkPDFArray;
     domain->unref();  // SkRefPtr and new both took a reference.
@@ -490,7 +501,7 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
         SkShader::GradientInfo twoPointRadialInfo = *info;
         SkMatrix inverseMapperMatrix;
         if (!mapperMatrix.invert(&inverseMapperMatrix)) {
-            inverseMapperMatrix.reset();
+            return;
         }
         inverseMapperMatrix.mapPoints(twoPointRadialInfo.fPoint, 2);
         twoPointRadialInfo.fRadius[0] =
@@ -525,7 +536,9 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     finalMatrix.preConcat(fState.get()->fShaderTransform);
     SkRect surfaceBBox;
     surfaceBBox.set(fState.get()->fBBox);
-    transformBBox(finalMatrix, &surfaceBBox);
+    if (!transformBBox(finalMatrix, &surfaceBBox)) {
+        return;
+    }
 
     SkMatrix unflip;
     unflip.setTranslate(0, SkScalarRoundToScalar(surfaceBBox.height()));
