@@ -161,18 +161,6 @@ public:
         this->setConvexity(isConvex ? kConvex_Convexity : kConcave_Convexity);
     }
 
-    /** Returns true if the path is an oval.
-     *
-     * @param rect      returns the bounding rect of this oval. It's a circle
-     *                  if the height and width are the same.
-     *
-     * @return true if this path is an oval.
-     *              Tracking whether a path is an oval is considered an
-     *              optimization for performance and so some paths that are in
-     *              fact ovals can report false.
-     */
-    bool isOval(SkRect* rect) const;
-
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
         This does NOT change the fill-type setting nor isConvex
@@ -759,8 +747,6 @@ private:
     uint8_t             fSegmentMask;
     mutable uint8_t     fBoundsIsDirty;
     mutable uint8_t     fConvexity;
-
-    mutable SkBool8     fIsOval;
 #ifdef SK_BUILD_FOR_ANDROID
     uint32_t            fGenerationID;
     const SkPath*       fSourcePath;
@@ -792,10 +778,7 @@ private:
     //
     inline void injectMoveToIfNeeded();
 
-    inline bool hasOnlyMoveTos() const;
-
     friend class SkAutoPathBoundsUpdate;
-    friend class SkAutoDisableOvalCheck;
 };
 
 #endif

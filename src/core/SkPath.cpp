@@ -32,21 +32,6 @@ static bool is_degenerate(const SkPath& path) {
     return SkPath::kDone_Verb == iter.next(pts);
 }
 
-class SkAutoDisableOvalCheck {
-public:
-    SkAutoDisableOvalCheck(SkPath* path) : fPath(path) {
-        fSaved = fPath->fIsOval;
-    }
-
-    ~SkAutoDisableOvalCheck() {
-        fPath->fIsOval = fSaved;
-    }
-
-private:
-    SkPath* fPath;
-    bool    fSaved;
-};
-
 /*  This guy's constructor/destructor bracket a path editing operation. It is
     used when we know the bounds of the amount we are going to add to the path
     (usually a new contour, but not required).
@@ -134,7 +119,6 @@ SkPath::SkPath()
     fConvexity = kUnknown_Convexity;
     fSegmentMask = 0;
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
-    fIsOval = false;
 #ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
     fSourcePath = NULL;
@@ -167,7 +151,6 @@ SkPath& SkPath::operator=(const SkPath& src) {
         fConvexity      = src.fConvexity;
         fSegmentMask    = src.fSegmentMask;
         fLastMoveToIndex = src.fLastMoveToIndex;
-        fIsOval         = src.fIsOval;
         GEN_ID_INC;
     }
     SkDEBUGCODE(this->validate();)
@@ -199,7 +182,6 @@ void SkPath::swap(SkPath& other) {
         SkTSwap<uint8_t>(fConvexity, other.fConvexity);
         SkTSwap<uint8_t>(fSegmentMask, other.fSegmentMask);
         SkTSwap<int>(fLastMoveToIndex, other.fLastMoveToIndex);
-        SkTSwap<SkBool8>(fIsOval, other.fIsOval);
         GEN_ID_INC;
     }
 }
@@ -228,7 +210,6 @@ void SkPath::reset() {
     fConvexity = kUnknown_Convexity;
     fSegmentMask = 0;
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
-    fIsOval = false;
 }
 
 void SkPath::rewind() {
@@ -241,7 +222,6 @@ void SkPath::rewind() {
     fBoundsIsDirty = true;
     fSegmentMask = 0;
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
-    fIsOval = false;
 }
 
 bool SkPath::isEmpty() const {
@@ -408,7 +388,6 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
     if (count == 0) {
         this->moveTo(x, y);
     } else {
-        fIsOval = false;
         fPts[count - 1].set(x, y);
         GEN_ID_INC;
     }
@@ -436,7 +415,6 @@ void SkPath::setConvexity(Convexity c) {
     do {                                 \
         fBoundsIsDirty = true;           \
         fConvexity = kUnknown_Convexity; \
-        fIsOval = false;                 \
     } while (0)
 
 #define DIRTY_AFTER_EDIT_NO_CONVEXITY_CHANGE    \
@@ -751,31 +729,7 @@ void SkPath::addRoundRect(const SkRect& rect, const SkScalar rad[],
     this->close();
 }
 
-bool SkPath::hasOnlyMoveTos() const {
-    const uint8_t* verbs = fVerbs.begin();
-    const uint8_t* verbStop = fVerbs.end();
-    while (verbs != verbStop) {
-        if (*verbs == kLine_Verb ||
-            *verbs == kQuad_Verb ||
-            *verbs == kCubic_Verb) {
-            return false;
-        }
-        ++verbs;
-    }
-    return true;
-}
-
 void SkPath::addOval(const SkRect& oval, Direction dir) {
-    /* If addOval() is called after previous moveTo(),
-       this path is still marked as an oval. This is used to
-       fit into WebKit's calling sequences.
-       We can't simply check isEmpty() in this case, as additional
-       moveTo() would mark the path non empty.
-     */
-    fIsOval = hasOnlyMoveTos();
-
-    SkAutoDisableOvalCheck adoc(this);
-
     SkAutoPathBoundsUpdate apbu(this, oval);
 
     SkScalar    cx = oval.centerX();
@@ -839,17 +793,6 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
     }
 #endif
     this->close();
-}
-
-bool SkPath::isOval(SkRect* rect) const {
-    if (isEmpty() || !fIsOval) {
-        return false;
-    }
-
-    if (rect) {
-        *rect = getBounds();
-    }
-    return true;
 }
 
 void SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {
@@ -1027,8 +970,6 @@ void SkPath::addPath(const SkPath& path, SkScalar dx, SkScalar dy) {
 void SkPath::addPath(const SkPath& path, const SkMatrix& matrix) {
     this->incReserve(path.fPts.count());
 
-    fIsOval = false;
-
     RawIter iter(path);
     SkPoint pts[4];
     Verb    verb;
@@ -1082,8 +1023,6 @@ void SkPath::pathTo(const SkPath& path) {
 
     this->incReserve(vcount);
 
-    fIsOval = false;
-
     const uint8_t*  verbs = path.fVerbs.begin();
     const SkPoint*  pts = path.fPts.begin() + 1;    // 1 for the initial moveTo
 
@@ -1115,8 +1054,6 @@ void SkPath::reversePathTo(const SkPath& path) {
     }
 
     this->incReserve(vcount);
-
-    fIsOval = false;
 
     const uint8_t*  verbs = path.fVerbs.begin();
     const SkPoint*  pts = path.fPts.begin();
@@ -1157,8 +1094,6 @@ void SkPath::reverseAddPath(const SkPath& src) {
     const SkPoint* pts = src.fPts.end();
     const uint8_t* startVerbs = src.fVerbs.begin();
     const uint8_t* verbs = src.fVerbs.end();
-
-    fIsOval = false;
 
     bool needMove = true;
     bool needClose = false;
@@ -1293,19 +1228,8 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fFillType = fFillType;
             dst->fSegmentMask = fSegmentMask;
             dst->fConvexity = fConvexity;
-            dst->fIsOval = fIsOval;
         }
-
         matrix.mapPoints(dst->fPts.begin(), fPts.begin(), fPts.count());
-
-        // isOval() must be called after dst->fPts are changed.
-        // otherwise, isOval() would call validate() implicitly and
-        // at that time it finds its control points are not bound by fBounds.
-        if (this->isOval(NULL)) {
-            // It's an oval only if it stays a rect.
-            dst->fIsOval = matrix.rectStaysRect();
-        }
-
         SkDEBUGCODE(dst->validate();)
     }
 }
