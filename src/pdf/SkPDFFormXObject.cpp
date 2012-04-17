@@ -37,8 +37,6 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     if (!device->initialTransform().isIdentity()) {
         SkMatrix inverse;
         if (!device->initialTransform().invert(&inverse)) {
-            // The initial transform should be invertible.
-            SkASSERT(false);
             inverse.reset();
         }
         insert("Matrix", SkPDFUtils::MatrixToArray(inverse))->unref();
