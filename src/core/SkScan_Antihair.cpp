@@ -230,6 +230,11 @@ static int any_bad_ints(int a, int b, int c, int d) {
 }
 #endif
 
+static bool canConvertFDot6ToFixed(SkFDot6 x) {
+    const int maxDot6 = SK_MaxS32 >> (16 - 6);
+    return SkAbs32(x) <= maxDot6;
+}
+
 static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                              const SkIRect* clip, SkBlitter* blitter) {
     // check for integer NaN (0x80000000) which we can't handle (can't negate it)
@@ -238,6 +243,13 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     if (any_bad_ints(x0, y0, x1, y1)) {
         return;
     }
+
+    // The caller must clip the line to [-32767.0 ... 32767.0] ahead of time
+    // (in dot6 format)
+    SkASSERT(canConvertFDot6ToFixed(x0));
+    SkASSERT(canConvertFDot6ToFixed(y0));
+    SkASSERT(canConvertFDot6ToFixed(x1));
+    SkASSERT(canConvertFDot6ToFixed(y1));
 
     if (SkAbs32(x1 - x0) > SkIntToFDot6(511) || SkAbs32(y1 - y0) > SkIntToFDot6(511)) {
         /*  instead of (x0 + x1) >> 1, we shift each separately. This is less
@@ -427,6 +439,19 @@ void SkScan::AntiHairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
 #endif
 
     SkPoint pts[2] = { pt0, pt1 };
+
+#ifdef SK_SCALAR_IS_FLOAT
+    // We have to pre-clip the line to fit in a SkFixed, so we just chop
+    // the line. TODO find a way to actually draw beyond that range.
+    {
+        SkRect fixedBounds;
+        const SkScalar max = SkIntToScalar(32767);
+        fixedBounds.set(-max, -max, max, max);
+        if (!SkLineClipper::IntersectLine(pts, fixedBounds, pts)) {
+            return;
+        }
+    }
+#endif
 
     if (clip) {
         SkRect clipBounds;
