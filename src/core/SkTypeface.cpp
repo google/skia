@@ -101,3 +101,23 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
                                                   glyphIDs,
                                                   glyphIDsCount);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+int SkTypeface::countTables() const {
+    return SkFontHost::CountTables(fUniqueID);
+}
+
+int SkTypeface::getTableTags(SkFontTableTag tags[]) const {
+    return SkFontHost::GetTableTags(fUniqueID, tags);
+}
+
+size_t SkTypeface::getTableSize(SkFontTableTag tag) const {
+    return SkFontHost::GetTableSize(fUniqueID, tag);
+}
+
+size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length,
+                                void* data) const {
+    return SkFontHost::GetTableData(fUniqueID, tag, offset, length, data);
+}
+

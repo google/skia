@@ -17,8 +17,6 @@ class SkDescriptor;
 class SkStream;
 class SkWStream;
 
-typedef uint32_t SkFontTableTag;
-
 /** \class SkFontHost
 
     This class is ported to each environment. It is responsible for bridging
