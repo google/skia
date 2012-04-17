@@ -78,8 +78,8 @@ protected:
         if (background) {
             scale = SkFloatToScalar(0.6f);
         }
-        SkScalar shaderWidth = SkIntToScalar(width)/scale;
-        SkScalar shaderHeight = SkIntToScalar(height)/scale;
+        SkScalar shaderWidth = SkScalarDiv(SkIntToScalar(width), scale);
+        SkScalar shaderHeight = SkScalarDiv(SkIntToScalar(height), scale);
         SkShader* shader = fShaderMaker(shaderWidth, shaderHeight, background);
         SkMatrix shaderScale;
         shaderScale.setScale(scale, scale);

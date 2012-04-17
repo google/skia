@@ -452,7 +452,7 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
         }
         case SkShader::kSweep_GradientType:
             transformPoints[1] = transformPoints[0];
-            transformPoints[1].fX += 1;
+            transformPoints[1].fX += SK_Scalar1;
             codeFunction = &sweepCode;
             break;
         case SkShader::kColor_GradientType:
