@@ -47,6 +47,26 @@ SkPoint leftRight[][4] = {
 
 size_t leftRightCount = sizeof(leftRight) / sizeof(leftRight[0]);
 
+// older code that worked mostly
+static bool operator_less_than(const UnitTest::ActiveEdge& lh,
+        const UnitTest::ActiveEdge& rh) {
+    if (rh.fAbove.fY - lh.fAbove.fY > lh.fBelow.fY - rh.fAbove.fY
+            && lh.fBelow.fY < rh.fBelow.fY
+            || lh.fAbove.fY - rh.fAbove.fY < rh.fBelow.fY - lh.fAbove.fY
+            && rh.fBelow.fY < lh.fBelow.fY) {
+        const SkPoint& check = rh.fBelow.fY <= lh.fBelow.fY
+                && lh.fBelow != rh.fBelow ? rh.fBelow :
+                rh.fAbove;
+        return (check.fY - lh.fAbove.fY) * (lh.fBelow.fX - lh.fAbove.fX)
+                < (lh.fBelow.fY - lh.fAbove.fY) * (check.fX - lh.fAbove.fX);
+    }
+    const SkPoint& check = lh.fBelow.fY <= rh.fBelow.fY 
+            && lh.fBelow != rh.fBelow ? lh.fBelow : lh.fAbove;
+    return (rh.fBelow.fY - rh.fAbove.fY) * (check.fX - rh.fAbove.fX)
+            < (check.fY - rh.fAbove.fY) * (rh.fBelow.fX - rh.fAbove.fX);
+}
+
+
 void ActiveEdge_Test() {
     UnitTest::InEdge leftIn, rightIn;
     UnitTest::ActiveEdge left, right;
@@ -58,9 +78,9 @@ void ActiveEdge_Test() {
         right.fAbove = leftRight[x][2];
         right.fBelow = leftRight[x][3];
         SkASSERT(left < right);
-        SkASSERT(left.operator_less_than(right));
+        SkASSERT(operator_less_than(left, right));
         SkASSERT(!(right < left));
-        SkASSERT(!right.operator_less_than(left));
+        SkASSERT(!operator_less_than(right, left));
     }
 }
 

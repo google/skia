@@ -9,12 +9,19 @@ int quadraticRoots(double A, double B, double C, double t[2]) {
     }
     double squareRt = sqrt(square);
     double Q = (B + (B < 0 ? -squareRt : squareRt)) / -2;
+    double ratio;
     int foundRoots = 0;
     if ((Q <= A) ^ (Q < 0)) {
-        t[foundRoots++] = Q / A;
+        ratio = Q / A;
+        if (!isnan(ratio)) {
+            t[foundRoots++] = ratio;
+        }
     }
     if ((C <= Q) ^ (C < 0)) {
-        t[foundRoots++] = C / Q;
+        ratio = C / Q;
+        if (!isnan(ratio)) {
+            t[foundRoots++] = ratio;
+        }
     }
     return foundRoots;
 }

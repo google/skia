@@ -5,43 +5,12 @@
 #include <assert.h>
 #include <pthread.h>
 
-struct State {
-    State() {
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 150 * 2, 100);
-    bitmap.allocPixels();
-    canvas = new SkCanvas(bitmap);
-    }
-
-    int a;
-    int b;
-    int c;
-    int d;
-    pthread_t threadID;
-    SkCanvas* canvas;
-    SkBitmap bitmap;
-    bool abcIsATriangle;
-};
-
-void createThread(State* statePtr, void* (*test)(void* )) {
-    int threadError = pthread_create(&statePtr->threadID, NULL, test,
-            (void*) statePtr);
-    SkASSERT(!threadError);
-}
-
-void waitForCompletion(State threadState[], int& threadIndex) {
-    for (int index = 0; index < threadIndex; ++index) {
-        pthread_join(threadState[index].threadID, NULL);
-    }
-    SkDebugf(".");
-    threadIndex = 0;
-}
-
 static void* testSimplify4x4QuadralateralsMain(void* data)
 {
     char pathStr[1024];
     bzero(pathStr, sizeof(pathStr));
     SkASSERT(data);
-    State& state = *(State*) data;
+    State4& state = *(State4*) data;
     int ax = state.a & 0x03;
     int ay = state.a >> 2;
     int bx = state.b & 0x03;
@@ -105,17 +74,17 @@ static void* testSimplify4x4QuadralateralsMain(void* data)
     return NULL;
 }
 
-const int maxThreads = gShowDebugf ? 1 : 24;
+const int maxThreads = gRunTestsInOneThread ? 1 : 24;
 
 void Simplify4x4QuadralateralsThreaded_Test()
 {
-    State threadState[maxThreads];
+    State4 threadState[maxThreads];
     int threadIndex = 0;
     for (int a = 0; a < 16; ++a) {
         for (int b = a ; b < 16; ++b) {
             for (int c = b ; c < 16; ++c) {
                 for (int d = c; d < 16; ++d) {                 
-                    State* statePtr = &threadState[threadIndex];
+                    State4* statePtr = &threadState[threadIndex];
                     statePtr->a = a;
                     statePtr->b = b;
                     statePtr->c = c;
@@ -140,7 +109,7 @@ static void* testSimplify4x4NondegeneratesMain(void* data) {
     char pathStr[1024];
     bzero(pathStr, sizeof(pathStr));
     SkASSERT(data);
-    State& state = *(State*) data;
+    State4& state = *(State4*) data;
     int ax = state.a & 0x03;
     int ay = state.a >> 2;
     int bx = state.b & 0x03;
@@ -193,7 +162,7 @@ static void* testSimplify4x4NondegeneratesMain(void* data) {
 }
 
 void SimplifyNondegenerate4x4TrianglesThreaded_Test() {
-    State threadState[maxThreads];
+    State4 threadState[maxThreads];
     int threadIndex = 0;
     for (int a = 0; a < 15; ++a) {
         int ax = a & 0x03;
@@ -210,7 +179,7 @@ void SimplifyNondegenerate4x4TrianglesThreaded_Test() {
                 if ((bx - ax) * (cy - ay) == (by - ay) * (cx - ax)) {
                     continue;
                 }
-                State* statePtr = &threadState[threadIndex];
+                State4* statePtr = &threadState[threadIndex];
                 statePtr->a = a;
                 statePtr->b = b;
                 statePtr->c = c;
@@ -232,7 +201,7 @@ static void* testSimplify4x4DegeneratesMain(void* data) {
     char pathStr[1024];
     bzero(pathStr, sizeof(pathStr));
     SkASSERT(data);
-    State& state = *(State*) data;
+    State4& state = *(State4*) data;
     int ax = state.a & 0x03;
     int ay = state.a >> 2;
     int bx = state.b & 0x03;
@@ -283,7 +252,7 @@ static void* testSimplify4x4DegeneratesMain(void* data) {
 }
 
 void SimplifyDegenerate4x4TrianglesThreaded_Test() {
-    State threadState[maxThreads];
+    State4 threadState[maxThreads];
     int threadIndex = 0;
     for (int a = 0; a < 16; ++a) {
         int ax = a & 0x03;
@@ -294,7 +263,7 @@ void SimplifyDegenerate4x4TrianglesThreaded_Test() {
             for (int c = a ; c < 16; ++c) {
                 int cx = c & 0x03;
                 int cy = c >> 2;
-                State* statePtr = &threadState[threadIndex];
+                State4* statePtr = &threadState[threadIndex];
                 statePtr->abcIsATriangle = (bx - ax) * (cy - ay)
                         != (by - ay) * (cx - ax);
                 statePtr->a = a;
