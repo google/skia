@@ -5,6 +5,9 @@
 #include "SkPaint.h"
 #include <algorithm>
 
+#undef SkASSERT
+#define SkASSERT(cond) while (!(cond)) { sk_throw(); }
+
 static bool gShowPath = false;
 static bool gComparePaths = true;
 static bool gDrawLastAsciiPaths = true;
@@ -170,6 +173,8 @@ static int scaledDrawTheSame(const SkPath& one, const SkPath& two,
     return errors;
 }
 
+static int max = 0;
+
 static int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
         SkCanvas* canvas) {
     int errors = pathsDrawTheSame(one, two, bitmap, canvas);
@@ -192,17 +197,22 @@ static int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
         SkScalar xScale = std::max(80.0f / larger.width(), 1.0f);
         SkScalar yScale = std::max(60.0f / larger.height(), 1.0f);
         errors = scaledDrawTheSame(one, two, xScale, yScale, false, bitmap, canvas);
-        if (errors > 8) {
+        if (errors > 50) {
             scaledDrawTheSame(one, two, xScale, yScale, true, bitmap, canvas);
         }
     }
-    if (errors > 0) SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
-    if (errors > 31 && gComparePathsAssert) {
+    if (errors > max) {
+        SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
+        max = errors;
+    }
+    const int MAX_ERRORS = 100;
+    if (errors > MAX_ERRORS) SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
+    if (errors > MAX_ERRORS && gComparePathsAssert) {
         showPath(one);
         showPath(two, "simplified:");
         SkASSERT(0);
     }
-    return errors;
+    return errors > MAX_ERRORS ? errors : 0;
 }
 
 // doesn't work yet
@@ -246,4 +256,24 @@ bool testSimplify(const SkPath& path, bool fill, SkPath& out, SkBitmap& bitmap,
         return true;
     }
     return comparePaths(path, out, bitmap, canvas) == 0;
+}
+
+State4::State4() {
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 150 * 2, 100);
+    bitmap.allocPixels();
+    canvas = new SkCanvas(bitmap);
+}
+
+void createThread(State4* statePtr, void* (*test)(void* )) {
+    int threadError = pthread_create(&statePtr->threadID, NULL, test,
+            (void*) statePtr);
+    SkASSERT(!threadError);
+}
+
+void waitForCompletion(State4 threadState[], int& threadIndex) {
+    for (int index = 0; index < threadIndex; ++index) {
+        pthread_join(threadState[index].threadID, NULL);
+    }
+    SkDebugf(".");
+    threadIndex = 0;
 }

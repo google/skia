@@ -14,6 +14,7 @@ int convex_hull(const Cubic& cubic, char order[4]);
 bool convex_x_hull(const Cubic& cubic, char connectTo0[2], char connectTo3[2]);
 bool implicit_matches(const Cubic& cubic1, const Cubic& cubic2);
 bool implicit_matches(const _Line& line1, const _Line& line2);
+bool implicit_matches_ulps(const _Line& one, const _Line& two, int ulps);
 bool implicit_matches(const Quadratic& quad1, const Quadratic& quad2);
 void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst);
 void sub_divide(const _Line& src, double t1, double t2, _Line& dst);

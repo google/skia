@@ -110,14 +110,150 @@ path.quadTo(37.0710678, 12.9289322, 40, 10);
 path.lineTo(0, 10);
 path.close();
 </div>
+<div id="test_7div">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.quadTo(1, 1, 1, 2);
+    path.lineTo(0, 0);
+    path.close();
+</div>
+
+<div id="test_8div">
+original:
+path.moveTo(0, 0);
+path.lineTo(3, 1);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(1, 0);
+path.lineTo(0, 1);
+path.quadTo(2, 1, 3, 3);
+path.lineTo(1, 0);
+path.close();
+simplified:
+path.moveTo(1, 0);
+path.lineTo(0, 1);
+path.quadTo(1.42857146, 1, 2.34693885, 2.02040815);
+path.lineTo(1.28571427, 0.428571433);
+path.lineTo(1, 0);
+path.close();
+path.moveTo(2.34693885, 2.02040815);
+path.quadTo(2.71428561, 2.42857146, 3, 3);
+path.lineTo(2.34693885, 2.02040815);
+path.close();
+</div>
+
+<div id="test_9div">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(0, 2);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 1);
+    path.quadTo(2, 2, 3, 3);
+    path.lineTo(0, 0);
+    path.close();
+</div>
+
+<div id="test_10div">
+original:
+path.moveTo(0, 0);
+path.lineTo(0, 2);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(3, 0);
+path.quadTo(1, 1, 0, 2);
+path.lineTo(3, 0);
+path.close();
+simplified:
+path.moveTo(0, 0);
+path.lineTo(0, 2);
+path.quadTo(1, 1, 3, 0);
+path.lineTo(0, 0);
+path.close();
+</div>
+
+<div id="test_11div">
+original:
+path.moveTo(0, 0);
+path.quadTo(0, 0, 1, 0);
+path.lineTo(1, 1);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(0, 0);
+path.quadTo(3, 0, 1, 1);
+path.lineTo(0, 0);
+path.close();
+simplified:
+path.moveTo(0, 0);
+path.lineTo(1, 1);
+path.lineTo(1, 0);
+path.lineTo(0, 0);
+</div>
+
+<div id="test_12div">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(1, 1);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 2, 1);
+    path.lineTo(0, 0);
+    path.close();
+</div>
+
+<div id="test_13div">
+original:
+path.moveTo(0, 0);
+path.quadTo(0, 0, 1, 3);
+path.lineTo(3, 3);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(0, 1);
+path.lineTo(1, 1);
+path.quadTo(0, 3, 3, 3);
+path.lineTo(0, 1);
+path.close();
+simplified:
+path.moveTo(0, 0);
+path.lineTo(0.333333343, 1);
+path.lineTo(0, 1);
+path.lineTo(0.428571433, 1.28571427);
+path.lineTo(0.333333343, 1);
+path.lineTo(1, 1);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(1, 1);
+path.quadTo(0.857142866, 1.28571427, 0.795918345, 1.53061223);
+path.lineTo(0.428571433, 1.28571427);
+path.lineTo(1, 3);
+path.lineTo(3, 3);
+path.lineTo(0.795918345, 1.53061223);
+path.quadTo(0.428571433, 3, 3, 3);
+path.lineTo(1, 1);
+path.close();
+</div>
 
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
-    test_5div,
+    test_13div,
+    test_12div,
+    test_11div,
+    test_10div,
+    test_9div,
+    test_8div,
+    test_7div,
     test_6div,
+    test_5div,
     test_4div,
     test_3div,
     test_2div,
