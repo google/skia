@@ -516,6 +516,8 @@ void GrGpuGL::onResetContext() {
     }
 
     fHWBounds.fScissorRect.invalidate();
+    // set to true to force disableScissor to make a GL call.
+    fHWBounds.fScissorEnabled = true;
     this->disableScissor();
 
     fHWBounds.fViewportRect.invalidate();
@@ -1344,7 +1346,6 @@ void GrGpuGL::disableScissor() {
     if (fHWBounds.fScissorEnabled) {
         GL_CALL(Disable(GR_GL_SCISSOR_TEST));
         fHWBounds.fScissorEnabled = false;
-//        fHWBounds.fScissorRect.invalidate();
     }
 }
 
