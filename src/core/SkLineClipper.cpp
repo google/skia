@@ -7,6 +7,21 @@
  */
 #include "SkLineClipper.h"
 
+template <typename T> T pin_unsorted(T value, T limit0, T limit1) {
+    if (limit1 < limit0) {
+        SkTSwap(limit0, limit1);
+    }
+    // now the limits are sorted
+    SkASSERT(limit0 <= limit1);
+
+    if (value < limit0) {
+        value = limit0;
+    } else if (value > limit1) {
+        value = limit1;
+    }
+    return value;
+}
+
 // return X coordinate of intersection with horizontal line at Y
 static SkScalar sect_with_horizontal(const SkPoint src[2], SkScalar Y) {
     SkScalar dy = src[1].fY - src[0].fY;
@@ -21,7 +36,11 @@ static SkScalar sect_with_horizontal(const SkPoint src[2], SkScalar Y) {
         double X1 = src[1].fX;
         double Y1 = src[1].fY;
         double result = X0 + ((double)Y - Y0) * (X1 - X0) / (Y1 - Y0);
-        return (float)result;
+        
+        // The computed X value might still exceed [X0..X1] due to quantum flux
+        // when the doubles were added and subtracted, so we have to pin the
+        // answer :(
+        return (float)pin_unsorted(result, X0, X1);
 #else
         return src[0].fX + SkScalarMulDiv(Y - src[0].fY, src[1].fX - src[0].fX,
                                           dy);
@@ -148,8 +167,35 @@ static bool is_between_unsorted(SkScalar value,
 }
 #endif
 
+#ifdef SK_SCALAR_IS_FLOAT
+// This is an example of why we need to pin the result computed in
+// sect_with_horizontal. If we didn't explicitly pin, is_between_unsorted would
+// fail.
+//
+static void sect_with_horizontal_test_for_pin_results() {
+    const SkPoint pts[] = {
+        { -540000,	-720000 },
+        { -9.10000017e-05,	9.99999996e-13 }
+    };
+    float x = sect_with_horizontal(pts, 0);
+    SkASSERT(is_between_unsorted(x, pts[0].fX, pts[1].fX));
+}
+#endif
+
 int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
                             SkPoint lines[]) {
+#ifdef SK_SCALAR_IS_FLOAT
+#ifdef SK_DEBUG
+    {
+        static bool gOnce;
+        if (!gOnce) {
+            sect_with_horizontal_test_for_pin_results();
+            gOnce = true;
+        }
+    }
+#endif
+#endif
+
     int index0, index1;
 
     if (pts[0].fY < pts[1].fY) {
