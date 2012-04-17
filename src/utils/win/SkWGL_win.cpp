@@ -8,6 +8,9 @@
 
 #include "SkWGL.h"
 
+#include "SkTDArray.h"
+#include "SkTSearch.h"
+
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
     if (NULL == this->fGetExtensionsString) {
         return false;
@@ -70,6 +73,81 @@ HGLRC SkWGLExtensions::createContextAttribs(HDC hDC,
                                             const int *attribList) const {
     return fCreateContextAttribs(hDC, hShareContext, attribList);
 }
+
+namespace {
+
+struct PixelFormat {
+    int fFormat;
+    int fCoverageSamples;
+    int fColorSamples;
+    int fChoosePixelFormatRank;
+};
+
+int compare_pf(const PixelFormat* a, const PixelFormat* b) {
+    if (a->fCoverageSamples < b->fCoverageSamples) {
+        return -1;
+    } else if (b->fCoverageSamples < a->fCoverageSamples) {
+        return 1;
+    } else if (a->fColorSamples < b->fColorSamples) {
+        return -1;
+    } else if (b->fColorSamples < a->fColorSamples) {
+        return 1;
+    } else if (a->fChoosePixelFormatRank < b->fChoosePixelFormatRank) {
+        return -1;
+    } else if (b->fChoosePixelFormatRank < a->fChoosePixelFormatRank) {
+        return 1;
+    }
+    return 0;
+}
+}
+
+int SkWGLExtensions::selectFormat(const int formats[],
+                                  int formatCount,
+                                  HDC dc,
+                                  int desiredSampleCount) {
+    PixelFormat desiredFormat = {
+        0,
+        desiredSampleCount,
+        0,
+        0,
+    };
+    SkTDArray<PixelFormat> rankedFormats;
+    rankedFormats.setCount(formatCount);
+    bool supportsCoverage = this->hasExtension(dc,
+                                               "WGL_NV_multisample_coverage");
+    for (int i = 0; i < formatCount; ++i) {
+        static const int queryAttrs[] = {
+            SK_WGL_COVERAGE_SAMPLES,
+            SK_WGL_COLOR_SAMPLES,
+        };
+        int answers[2];
+        int queryAttrCnt = supportsCoverage ? 2 : 1;
+        this->getPixelFormatAttribiv(dc,
+                                     formats[i],
+                                     0,
+                                     SK_ARRAY_COUNT(queryAttrs),
+                                     queryAttrs,
+                                     answers);
+        rankedFormats[i].fFormat =  formats[i];
+        rankedFormats[i].fCoverageSamples = answers[0];
+        rankedFormats[i].fColorSamples = answers[supportsCoverage ? 1 : 0];
+        rankedFormats[i].fChoosePixelFormatRank = i;
+    }
+    SkQSort(rankedFormats.begin(),
+            rankedFormats.count(),
+            sizeof(PixelFormat),
+            (SkQSortCompareProc)compare_pf);
+    int idx = SkTSearch<PixelFormat>(rankedFormats.begin(),
+                                     rankedFormats.count(),
+                                     desiredFormat,
+                                     sizeof(PixelFormat),
+                                     compare_pf);
+    if (idx < 0) {
+        idx = ~idx;
+    }
+    return rankedFormats[idx].fFormat;
+}
+
 
 namespace {
 
