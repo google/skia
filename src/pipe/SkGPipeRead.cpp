@@ -126,7 +126,8 @@ static void clipPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     SkPath path;
     path.unflatten(*reader);
-    canvas->clipPath(path, (SkRegion::Op)DrawOp_unpackData(op32));
+    canvas->clipPath(path, (SkRegion::Op)DrawOp_unpackData(op32),
+                     reader->readBool());
 }
 
 static void clipRegion_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -138,7 +139,8 @@ static void clipRegion_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void clipRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
-    canvas->clipRect(*skip<SkRect>(reader), (SkRegion::Op)DrawOp_unpackData(op32));
+    canvas->clipRect(*skip<SkRect>(reader),
+                     (SkRegion::Op)DrawOp_unpackData(op32), reader->readBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

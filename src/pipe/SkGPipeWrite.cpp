@@ -87,48 +87,52 @@ public:
     }
 
     // overrides from SkCanvas
-    virtual int save(SaveFlags);
-    virtual int saveLayer(const SkRect* bounds, const SkPaint*, SaveFlags);
-    virtual void restore();
-    virtual bool translate(SkScalar dx, SkScalar dy);
-    virtual bool scale(SkScalar sx, SkScalar sy);
-    virtual bool rotate(SkScalar degrees);
-    virtual bool skew(SkScalar sx, SkScalar sy);
-    virtual bool concat(const SkMatrix& matrix);
-    virtual void setMatrix(const SkMatrix& matrix);
-    virtual bool clipRect(const SkRect& rect, SkRegion::Op op);
-    virtual bool clipPath(const SkPath& path, SkRegion::Op op);
-    virtual bool clipRegion(const SkRegion& region, SkRegion::Op op);
-    virtual void clear(SkColor);
-    virtual void drawPaint(const SkPaint& paint);
+    virtual int save(SaveFlags) SK_OVERRIDE;
+    virtual int saveLayer(const SkRect* bounds, const SkPaint*,
+                          SaveFlags) SK_OVERRIDE;
+    virtual void restore() SK_OVERRIDE;
+    virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
+    virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
+    virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
+    virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
+    virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
+    virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
+    virtual bool clipRect(const SkRect& rect, SkRegion::Op op,
+                          bool doAntiAlias = false) SK_OVERRIDE;
+    virtual bool clipPath(const SkPath& path, SkRegion::Op op,
+                          bool doAntiAlias = false) SK_OVERRIDE;
+    virtual bool clipRegion(const SkRegion& region, SkRegion::Op op) SK_OVERRIDE;
+    virtual void clear(SkColor) SK_OVERRIDE;
+    virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
-                            const SkPaint&);
-    virtual void drawRect(const SkRect& rect, const SkPaint&);
-    virtual void drawPath(const SkPath& path, const SkPaint&);
+                            const SkPaint&) SK_OVERRIDE;
+    virtual void drawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
+    virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
-                            const SkPaint*);
+                            const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapRect(const SkBitmap&, const SkIRect* src,
-                                const SkRect& dst, const SkPaint*);
+                                const SkRect& dst, const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
-                                  const SkPaint*);
+                                  const SkPaint*) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap&, int left, int top,
-                            const SkPaint*);
+                            const SkPaint*) SK_OVERRIDE;
     virtual void drawText(const void* text, size_t byteLength, SkScalar x,
-                          SkScalar y, const SkPaint&);
+                          SkScalar y, const SkPaint&) SK_OVERRIDE;
     virtual void drawPosText(const void* text, size_t byteLength,
-                             const SkPoint pos[], const SkPaint&);
+                             const SkPoint pos[], const SkPaint&) SK_OVERRIDE;
     virtual void drawPosTextH(const void* text, size_t byteLength,
-                      const SkScalar xpos[], SkScalar constY, const SkPaint&);
+                              const SkScalar xpos[], SkScalar constY,
+                              const SkPaint&) SK_OVERRIDE;
     virtual void drawTextOnPath(const void* text, size_t byteLength,
                             const SkPath& path, const SkMatrix* matrix,
-                                const SkPaint&);
-    virtual void drawPicture(SkPicture& picture);
+                                const SkPaint&) SK_OVERRIDE;
+    virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
     virtual void drawVertices(VertexMode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
                           const SkColor colors[], SkXfermode*,
                           const uint16_t indices[], int indexCount,
-                              const SkPaint&);
-    virtual void drawData(const void*, size_t);
+                              const SkPaint&) SK_OVERRIDE;
+    virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
 private:
     SkFactorySet* fFactorySet;  // optional, only used if cross-process
@@ -404,23 +408,27 @@ void SkGPipeCanvas::setMatrix(const SkMatrix& matrix) {
     this->INHERITED::setMatrix(matrix);
 }
 
-bool SkGPipeCanvas::clipRect(const SkRect& rect, SkRegion::Op rgnOp) {
+bool SkGPipeCanvas::clipRect(const SkRect& rect, SkRegion::Op rgnOp,
+                             bool doAntiAlias) {
     NOTIFY_SETUP(this);
-    if (this->needOpBytes(sizeof(SkRect))) {
+    if (this->needOpBytes(sizeof(SkRect)) + sizeof(bool)) {
         this->writeOp(kClipRect_DrawOp, 0, rgnOp);
         fWriter.writeRect(rect);
+        fWriter.writeBool(doAntiAlias);
     }
-    return this->INHERITED::clipRect(rect, rgnOp);
+    return this->INHERITED::clipRect(rect, rgnOp, doAntiAlias);
 }
 
-bool SkGPipeCanvas::clipPath(const SkPath& path, SkRegion::Op rgnOp) {
+bool SkGPipeCanvas::clipPath(const SkPath& path, SkRegion::Op rgnOp,
+                             bool doAntiAlias) {
     NOTIFY_SETUP(this);
-    if (this->needOpBytes(estimateFlattenSize(path))) {
+    if (this->needOpBytes(estimateFlattenSize(path)) + sizeof(bool)) {
         this->writeOp(kClipPath_DrawOp, 0, rgnOp);
         path.flatten(fWriter);
+        fWriter.writeBool(doAntiAlias);
     }
     // we just pass on the bounds of the path
-    return this->INHERITED::clipRect(path.getBounds(), rgnOp);
+    return this->INHERITED::clipRect(path.getBounds(), rgnOp, doAntiAlias);
 }
 
 bool SkGPipeCanvas::clipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
