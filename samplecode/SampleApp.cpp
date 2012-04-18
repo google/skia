@@ -769,57 +769,59 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fTransitionPrev = 2;
     
     int sinkID = this->getSinkID();
-    fAppMenu.setTitle("Global Settings");
+    fAppMenu = new SkOSMenu;
+    fAppMenu->setTitle("Global Settings");
     int itemID;
     
-    itemID =fAppMenu.appendList("Device Type", "Device Type", sinkID, 0, 
+    itemID =fAppMenu->appendList("Device Type", "Device Type", sinkID, 0, 
                                 "Raster", "Picture", "OpenGL", 
 #if SK_ANGLE
                                 "ANGLE",
 #endif
                                 NULL);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'd');
-    itemID = fAppMenu.appendTriState("AA", "AA", sinkID, fAAState);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'b');
-    itemID = fAppMenu.appendTriState("LCD", "LCD", sinkID, fLCDState);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'l');
-    itemID = fAppMenu.appendTriState("Filter", "Filter", sinkID, fFilterState);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'n');
-    itemID = fAppMenu.appendTriState("Hinting", "Hinting", sinkID, fHintingState);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'h');
-    fUsePipeMenuItemID = fAppMenu.appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
-    fAppMenu.assignKeyEquivalentToItem(fUsePipeMenuItemID, 'p');
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'd');
+    itemID = fAppMenu->appendTriState("AA", "AA", sinkID, fAAState);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'b');
+    itemID = fAppMenu->appendTriState("LCD", "LCD", sinkID, fLCDState);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'l');
+    itemID = fAppMenu->appendTriState("Filter", "Filter", sinkID, fFilterState);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'n');
+    itemID = fAppMenu->appendTriState("Hinting", "Hinting", sinkID, fHintingState);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
+    fUsePipeMenuItemID = fAppMenu->appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
+    fAppMenu->assignKeyEquivalentToItem(fUsePipeMenuItemID, 'p');
 #ifdef DEBUGGER
-    itemID = fAppMenu.appendSwitch("Debugger", "Debugger", sinkID, fDebugger);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'q');
+    itemID = fAppMenu->appendSwitch("Debugger", "Debugger", sinkID, fDebugger);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'q');
 #endif
-    itemID = fAppMenu.appendSwitch("Slide Show", "Slide Show" , sinkID, false);    
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'a');    
-    itemID = fAppMenu.appendSwitch("Clip", "Clip" , sinkID, fUseClip);    
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'c');
-    itemID = fAppMenu.appendSwitch("Flip X", "Flip X" , sinkID, false); 
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'x');
-    itemID = fAppMenu.appendSwitch("Flip Y", "Flip Y" , sinkID, false);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'y');
-    itemID = fAppMenu.appendSwitch("Zoomer", "Zoomer" , sinkID, fShowZoomer);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'z');
-    itemID = fAppMenu.appendSwitch("Magnify", "Magnify" , sinkID, fMagnify);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'm');
-    itemID =fAppMenu.appendList("Transition-Next", "Transition-Next", sinkID, 
+    itemID = fAppMenu->appendSwitch("Slide Show", "Slide Show" , sinkID, false);    
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'a');    
+    itemID = fAppMenu->appendSwitch("Clip", "Clip" , sinkID, fUseClip);    
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'c');
+    itemID = fAppMenu->appendSwitch("Flip X", "Flip X" , sinkID, false); 
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'x');
+    itemID = fAppMenu->appendSwitch("Flip Y", "Flip Y" , sinkID, false);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'y');
+    itemID = fAppMenu->appendSwitch("Zoomer", "Zoomer" , sinkID, fShowZoomer);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'z');
+    itemID = fAppMenu->appendSwitch("Magnify", "Magnify" , sinkID, fMagnify);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'm');
+    itemID =fAppMenu->appendList("Transition-Next", "Transition-Next", sinkID, 
                                 fTransitionNext, "Up", "Up and Right", "Right", 
                                 "Down and Right", "Down", "Down and Left", 
                                 "Left", "Up and Left", NULL);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'j');
-    itemID =fAppMenu.appendList("Transition-Prev", "Transition-Prev", sinkID, 
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'j');
+    itemID =fAppMenu->appendList("Transition-Prev", "Transition-Prev", sinkID, 
                                 fTransitionPrev, "Up", "Up and Right", "Right", 
                                 "Down and Right", "Down", "Down and Left", 
                                 "Left", "Up and Left", NULL);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'k');
-    itemID = fAppMenu.appendAction("Save to PDF", sinkID);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'e');
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'k');
+    itemID = fAppMenu->appendAction("Save to PDF", sinkID);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'e');
     
-    this->addMenu(&fAppMenu);
-    this->addMenu(&fSlideMenu);
+    this->addMenu(fAppMenu);
+    fSlideMenu = new SkOSMenu;
+    this->addMenu(fSlideMenu);
     
 //    this->setConfig(SkBitmap::kRGB_565_Config);
     this->setConfig(SkBitmap::kARGB_8888_Config);
@@ -1282,8 +1284,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         //Stop Pipe when fDebugger is active
         fUsePipe = false;
         (void)SampleView::SetUsePipe(curr, false);
-        fAppMenu.getItemByID(fUsePipeMenuItemID)->setBool(fUsePipe);
-        this->onUpdateMenu(&fAppMenu);
+        fAppMenu->getItemByID(fUsePipeMenuItemID)->setBool(fUsePipe);
+        this->onUpdateMenu(fAppMenu);
         
         //Reset any transformations
         fGesture.stop();
@@ -1673,9 +1675,9 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
     }
     
-    if (fAppMenu.handleKeyEquivalent(uni)|| fSlideMenu.handleKeyEquivalent(uni)) {
-        this->onUpdateMenu(&fAppMenu);
-        this->onUpdateMenu(&fSlideMenu);
+    if (fAppMenu->handleKeyEquivalent(uni)|| fSlideMenu->handleKeyEquivalent(uni)) {
+        this->onUpdateMenu(fAppMenu);
+        this->onUpdateMenu(fSlideMenu);
         return true;
     }
     return this->INHERITED::onHandleChar(uni);
@@ -1847,7 +1849,7 @@ void SampleWindow::loadView(SkView* view) {
     view->setSize(this->width(), this->height());
 
     //repopulate the slide menu when a view is loaded
-    fSlideMenu.reset();
+    fSlideMenu->reset();
 #ifdef DEBUGGER
     if (!is_debugger(view) && !is_overview(view) && !is_transition(view) && fDebugger) {
         //Force Pipe to be on if using debugger
@@ -1856,8 +1858,8 @@ void SampleWindow::loadView(SkView* view) {
 #endif
     (void)SampleView::SetUsePipe(view, fUsePipe);
     if (SampleView::IsSampleView(view))
-        ((SampleView*)view)->requestMenu(&fSlideMenu);
-    this->onUpdateMenu(&fSlideMenu);
+        ((SampleView*)view)->requestMenu(fSlideMenu);
+    this->onUpdateMenu(fSlideMenu);
     this->updateTitle();
 }
 
