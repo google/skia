@@ -1848,22 +1848,39 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
             }
         }
     } else {    // not subpixel
-        while (text < stop) {
-            // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+        if (SkPaint::kLeft_Align == paint.getTextAlign()) {
+            while (text < stop) {
+                // the last 2 parameters are ignored
+                const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+                
+                if (glyph.fWidth) {
+                    tmsProc(tms, pos);
 
-            if (glyph.fWidth) {
-                tmsProc(tms, pos);
-
-                SkIPoint fixedLoc;
-                alignProc(tms.fLoc, glyph, &fixedLoc);
-
-                proc(d1g,
-                     fixedLoc.fX + SK_FixedHalf,
-                     fixedLoc.fY + SK_FixedHalf,
-                     glyph);
+                    proc(d1g,
+                         SkScalarToFixed(tms.fLoc.fX) + SK_FixedHalf,
+                         SkScalarToFixed(tms.fLoc.fY) + SK_FixedHalf,
+                         glyph);
+                }
+                pos += scalarsPerPosition;
             }
-            pos += scalarsPerPosition;
+        } else {
+            while (text < stop) {
+                // the last 2 parameters are ignored
+                const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+
+                if (glyph.fWidth) {
+                    tmsProc(tms, pos);
+
+                    SkIPoint fixedLoc;
+                    alignProc(tms.fLoc, glyph, &fixedLoc);
+
+                    proc(d1g,
+                         fixedLoc.fX + SK_FixedHalf,
+                         fixedLoc.fY + SK_FixedHalf,
+                         glyph);
+                }
+                pos += scalarsPerPosition;
+            }
         }
     }
 }
