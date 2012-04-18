@@ -1558,10 +1558,12 @@ static void populate_glyph_to_unicode_slow(CTFontRef ctFont,
 static void populate_glyph_to_unicode(CTFontRef ctFont,
         const unsigned glyphCount, SkTDArray<SkUnichar>* glyphToUnicode) {
     CFCharacterSetRef charSet = CTFontCopyCharacterSet(ctFont);
+    AutoCFRelease autoSetRelease(charSet);
     if (!charSet) {
         populate_glyph_to_unicode_slow(ctFont, glyphCount, glyphToUnicode);
         return;
     }
+
     CFDataRef bitmap = CFCharacterSetCreateBitmapRepresentation(
         kCFAllocatorDefault, charSet);
     if (!bitmap) {
@@ -1610,6 +1612,19 @@ static bool getWidthAdvance(CTFontRef ctFont, int gId, int16_t* data) {
     return true;
 }
 
+// we might move this into our CGUtils...
+static void CFStringToSkString(CFStringRef src, SkString* dst) {
+    // Reserve enough room for the worst-case string,
+    // plus 1 byte for the trailing null.
+    int length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(src),
+                                                   kCFStringEncodingUTF8) + 1;
+    dst->resize(length);
+    CFStringGetCString(src, dst->writable_str(), length,
+                       kCFStringEncodingUTF8);
+    // Resize to the actual UTF-8 length used, stripping the null character.
+    dst->resize(strlen(dst->c_str()));
+}
+
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
@@ -1620,16 +1635,13 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     ctFont = CTFontCreateCopyWithAttributes(ctFont, CTFontGetUnitsPerEm(ctFont),
                                             NULL, NULL);
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
-    CFStringRef fontName = CTFontCopyPostScriptName(ctFont);
-    // Reserve enough room for the worst-case string,
-    // plus 1 byte for the trailing null.
-    int length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(
-        fontName), kCFStringEncodingUTF8) + 1;
-    info->fFontName.resize(length);
-    CFStringGetCString(fontName, info->fFontName.writable_str(), length,
-        kCFStringEncodingUTF8);
-    // Resize to the actual UTF-8 length used, stripping the null character.
-    info->fFontName.resize(strlen(info->fFontName.c_str()));
+    
+    {
+        CFStringRef fontName = CTFontCopyPostScriptName(ctFont);
+        CFStringToSkString(fontName, &info->fFontName);
+        CFRelease(fontName);
+    }
+    
     info->fMultiMaster = false;
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont);
     info->fLastGlyphID = SkToU16(glyphCount - 1);
