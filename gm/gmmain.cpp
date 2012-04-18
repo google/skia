@@ -462,23 +462,25 @@ static ErrorBitfield handle_test_results(GM* gm,
                                          SkDynamicMemoryWStream* pdf,
                                          const SkBitmap* comparisonBitmap) {
     SkString name = make_name(gm->shortName(), gRec.fName);
+    ErrorBitfield retval = ERROR_NONE;
 
-    if (writePath) {
-        return write_reference_image(gRec, writePath, renderModeDescriptor,
-                                     name, bitmap, pdf);
-    } else if (readPath && (
+    if (readPath && (
                    gRec.fBackend == kRaster_Backend ||
                    gRec.fBackend == kGPU_Backend ||
                    (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF))) {
-        return compare_to_reference_image(readPath, name, bitmap,
-                                   diffPath, renderModeDescriptor);
-    } else if (comparisonBitmap) {
-        return compare_to_reference_image(name, bitmap,
-                                   *comparisonBitmap, diffPath,
-                                   renderModeDescriptor);
-    } else {
-        return ERROR_NONE;
+        retval |= compare_to_reference_image(readPath, name, bitmap,
+                                             diffPath, renderModeDescriptor);
     }
+    if (writePath) {
+        retval |= write_reference_image(gRec, writePath, renderModeDescriptor,
+                                        name, bitmap, pdf);
+    }
+    if (comparisonBitmap) {
+        retval |= compare_to_reference_image(name, bitmap,
+                                             *comparisonBitmap, diffPath,
+                                             renderModeDescriptor);
+    }
+    return retval;
 }
 
 static SkPicture* generate_new_picture(GM* gm) {
@@ -816,7 +818,8 @@ int main(int argc, char * const argv[]) {
 
     if (readPath) {
         fprintf(stderr, "reading from %s\n", readPath);
-    } else if (writePath) {
+    } 
+    if (writePath) {
         fprintf(stderr, "writing to %s\n", writePath);
     }
 
