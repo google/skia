@@ -33,12 +33,30 @@ static void vertline(int y, int stopy, SkFixed fx, SkFixed dx,
     } while (++y < stopy);
 }
 
+static bool canConvertFDot6ToFixed(SkFDot6 x) {
+    const int maxDot6 = SK_MaxS32 >> (16 - 6);
+    return SkAbs32(x) <= maxDot6;
+}
+
 void SkScan::HairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
                          const SkRegion* clip, SkBlitter* blitter) {
     SkBlitterClipper    clipper;
     SkRect  r;
     SkIRect clipR, ptsR;
     SkPoint pts[2] = { pt0, pt1 };
+
+#ifdef SK_SCALAR_IS_FLOAT
+    // We have to pre-clip the line to fit in a SkFixed, so we just chop
+    // the line. TODO find a way to actually draw beyond that range.
+    {
+        SkRect fixedBounds;
+        const SkScalar max = SkIntToScalar(32767);
+        fixedBounds.set(-max, -max, max, max);
+        if (!SkLineClipper::IntersectLine(pts, fixedBounds, pts)) {
+            return;
+        }
+    }
+#endif
 
     if (clip) {
         // Perform a clip in scalar space, so we catch huge values which might
@@ -53,7 +71,12 @@ void SkScan::HairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
     SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
     SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
     SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
-    
+  
+    SkASSERT(canConvertFDot6ToFixed(x0));
+    SkASSERT(canConvertFDot6ToFixed(y0));
+    SkASSERT(canConvertFDot6ToFixed(x1));
+    SkASSERT(canConvertFDot6ToFixed(y1));
+
     if (clip) {
         // now perform clipping again, as the rounding to dot6 can wiggle us
         // our rects are really dot6 rects, but since we've already used
