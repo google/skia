@@ -172,7 +172,9 @@ protected:
 #if 1
                 canvas->drawText(text, len, x, y, paint);
 #else
-                cgDrawText(cg, text, len, x, SkIntToScalar(HEIGHT) - y, paint);
+                cgDrawText(cg, text, len, SkScalarToFloat(x),
+                           static_cast<float>(HEIGHT) - SkScalarToFloat(y),
+                           paint);
 #endif
                 y += paint.getTextSize() * 2;
             }
