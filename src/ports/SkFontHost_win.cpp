@@ -109,12 +109,15 @@ static void setStyle(LOGFONT* lf, SkTypeface::Style style) {
 static inline FIXED SkFixedToFIXED(SkFixed x) {
     return *(FIXED*)(&x);
 }
+static inline SkFixed SkFIXEDToFixed(FIXED x) {
+    return *(SkFixed*)(&x);
+}
 
 static inline FIXED SkScalarToFIXED(SkScalar x) {
     return SkFixedToFIXED(SkScalarToFixed(x));
 }
 
-static unsigned calculateGlyphCount(HDC hdc) {
+static unsigned calculateOutlineGlyphCount(HDC hdc) {
     // The 'maxp' table stores the number of glyphs at offset 4, in 2 bytes.
     const DWORD maxpTag =
         SkEndian_SwapBE32(SkSetFourByteTag('m', 'a', 'x', 'p'));
@@ -438,6 +441,10 @@ private:
     HFONT        fHiResFont;
     MAT2         fMat22Identity;
     SkMatrix     fHiResMatrix;
+    enum Type {
+        kTrueType_Type, kBitmap_Type,
+    } fType;
+    TEXTMETRIC fTM;
 };
 
 static float mul2float(SkScalar a, SkScalar b) {
@@ -481,20 +488,6 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         , fGlyphCount(-1) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
-    fScale = fRec.fTextSize / gCanonicalTextSize;
-
-    fXform.eM11 = mul2float(fScale, fRec.fPost2x2[0][0]);
-    fXform.eM12 = mul2float(fScale, fRec.fPost2x2[1][0]);
-    fXform.eM21 = mul2float(fScale, fRec.fPost2x2[0][1]);
-    fXform.eM22 = mul2float(fScale, fRec.fPost2x2[1][1]);
-    fXform.eDx = 0;
-    fXform.eDy = 0;
-
-    fMat22.eM11 = float2FIXED(fXform.eM11);
-    fMat22.eM12 = float2FIXED(fXform.eM12);
-    fMat22.eM21 = float2FIXED(-fXform.eM21);
-    fMat22.eM22 = float2FIXED(-fXform.eM22);
-
     fDDC = ::CreateCompatibleDC(NULL);
     SetGraphicsMode(fDDC, GM_ADVANCED);
     SetBkMode(fDDC, TRANSPARENT);
@@ -523,8 +516,64 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     }
     fSavefont = (HFONT)SelectObject(fDDC, fFont);
 
-    if (needToRenderWithSkia(fRec)) {
-        this->forceGenerateImageFromPath();
+    if (0 == GetTextMetrics(fDDC, &fTM)) {
+        ensure_typeface_accessible(fRec.fFontID);
+        if (0 == GetTextMetrics(fDDC, &fTM)) {
+            fTM.tmPitchAndFamily = TMPF_TRUETYPE;
+        }
+    }
+    // Used a logfont on a memory context, should never get a device font.
+    SkASSERT(!(fTM.tmPitchAndFamily & (TMPF_DEVICE)));
+    if (fTM.tmPitchAndFamily & (TMPF_TRUETYPE | TMPF_VECTOR)) {
+        // Truetype or PostScript.
+        // Stroked FON also gets here (TMPF_VECTOR), but we don't handle it.
+        fType = SkScalerContext_Windows::kTrueType_Type;
+        fScale = fRec.fTextSize / gCanonicalTextSize;
+
+        fXform.eM11 = mul2float(fScale, fRec.fPost2x2[0][0]);
+        fXform.eM12 = mul2float(fScale, fRec.fPost2x2[1][0]);
+        fXform.eM21 = mul2float(fScale, fRec.fPost2x2[0][1]);
+        fXform.eM22 = mul2float(fScale, fRec.fPost2x2[1][1]);
+        fXform.eDx = 0;
+        fXform.eDy = 0;
+
+        fMat22.eM11 = float2FIXED(fXform.eM11);
+        fMat22.eM12 = float2FIXED(fXform.eM12);
+        fMat22.eM21 = float2FIXED(-fXform.eM21);
+        fMat22.eM22 = float2FIXED(-fXform.eM22);
+
+        if (needToRenderWithSkia(fRec)) {
+            this->forceGenerateImageFromPath();
+        }
+
+    } else {
+        // Assume bitmap
+        fType = SkScalerContext_Windows::kBitmap_Type;
+        fScale = SK_Scalar1;
+
+        fXform.eM11 = 1.0f;
+        fXform.eM12 = 0.0f;
+        fXform.eM21 = 0.0f;
+        fXform.eM22 = 1.0f;
+        fXform.eDx = 0.0f;
+        fXform.eDy = 0.0f;
+
+        fMat22.eM11 = SkScalarToFIXED(fRec.fPost2x2[0][0]);
+        fMat22.eM12 = SkScalarToFIXED(fRec.fPost2x2[1][0]);
+        fMat22.eM21 = SkScalarToFIXED(-fRec.fPost2x2[0][1]);
+        fMat22.eM22 = SkScalarToFIXED(-fRec.fPost2x2[1][1]);
+
+        lf.lfHeight = -SkScalarCeilToInt(fRec.fTextSize);
+        HFONT bitmapFont = CreateFontIndirect(&lf);
+        SelectObject(fDDC, bitmapFont);
+        ::DeleteObject(fFont);
+        fFont = bitmapFont;
+
+        if (0 == GetTextMetrics(fDDC, &fTM)) {
+            ensure_typeface_accessible(fRec.fFontID);
+            //if the following fails, we'll just draw at gCanonicalTextSize.
+            GetTextMetrics(fDDC, &fTM);
+        }
     }
 
     fOffscreen.init(fFont, fXform);
@@ -548,7 +597,10 @@ SkScalerContext_Windows::~SkScalerContext_Windows() {
 
 unsigned SkScalerContext_Windows::generateGlyphCount() {
     if (fGlyphCount < 0) {
-        fGlyphCount = calculateGlyphCount(fDDC);
+        if (fType == SkScalerContext_Windows::kBitmap_Type) {
+           return fTM.tmLastChar;
+        }
+        fGlyphCount = calculateOutlineGlyphCount(fDDC);
     }
     return fGlyphCount;
 }
@@ -585,6 +637,28 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
 void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
 
     SkASSERT(fDDC);
+
+    if (fType == SkScalerContext_Windows::kBitmap_Type) {
+        SIZE size;
+        WORD glyphs = glyph->getGlyphID(0);
+        if (0 == GetTextExtentPointI(fDDC, &glyphs, 1, &size)) {
+            glyph->fWidth = SkToS16(fTM.tmMaxCharWidth);
+        } else {
+            glyph->fWidth = SkToS16(size.cx);
+        }
+        glyph->fHeight = SkToS16(size.cy);
+
+        glyph->fTop = SkToS16(-fTM.tmAscent);
+        glyph->fLeft = SkToS16(0);
+        glyph->fAdvanceX = SkIntToFixed(glyph->fWidth);
+        glyph->fAdvanceY = 0;
+
+        //Apply matrix to values.
+        glyph->fAdvanceY = SkFixedMul(SkFIXEDToFixed(fMat22.eM21), glyph->fAdvanceX);
+        glyph->fAdvanceX = SkFixedMul(SkFIXEDToFixed(fMat22.eM11), glyph->fAdvanceX);
+
+        return;
+    }
 
     GLYPHMETRICS gm;
     sk_bzero(&gm, sizeof(gm));
@@ -642,7 +716,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
             SelectObject(fDDC, fFont);
         }
     } else {
-        glyph->fWidth = 0;
+        glyph->zeroMetrics();
     }
 }
 
@@ -654,6 +728,27 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 
     SkASSERT(fDDC);
 
+    if (fType == SkScalerContext_Windows::kBitmap_Type) {
+        if (mx) {
+            mx->fTop = SkIntToScalar(-fTM.tmAscent);
+            mx->fAscent = SkIntToScalar(-fTM.tmAscent);
+            mx->fDescent = -SkIntToScalar(fTM.tmDescent);
+            mx->fBottom = SkIntToScalar(fTM.tmDescent);
+            mx->fLeading = SkIntToScalar(fTM.tmInternalLeading
+                                         + fTM.tmExternalLeading);
+        }
+
+        if (my) {
+            my->fTop = SkIntToScalar(-fTM.tmAscent);
+            my->fAscent = SkIntToScalar(-fTM.tmAscent);
+            my->fDescent = SkIntToScalar(-fTM.tmDescent);
+            my->fBottom = SkIntToScalar(fTM.tmDescent);
+            my->fLeading = SkIntToScalar(fTM.tmInternalLeading
+                                         + fTM.tmExternalLeading);
+        }
+        return;
+    }
+
     OUTLINETEXTMETRIC otm;
 
     uint32_t ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
@@ -662,7 +757,7 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
         ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
     }
     if (sizeof(otm) != ret) {
-      return;
+        return;
     }
 
     if (mx) {
@@ -1074,7 +1169,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
         goto Error;
     }
-    glyphCount = calculateGlyphCount(hdc);
+    glyphCount = calculateOutlineGlyphCount(hdc);
 
     info = new SkAdvancedTypefaceMetrics;
     info->fEmSize = otm.otmEMSquare;
