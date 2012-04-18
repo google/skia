@@ -52,8 +52,24 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             #endif
         }
         interface->fBindTexture = glBindTexture;
-        interface->fBlendColor = glBlendColor;
         interface->fBlendFunc = glBlendFunc;
+
+        if (ver >= GR_GL_VER(1,4)) {
+            interface->fBlendColor = glBlendColor;
+            interface->fBlendEquation = glBlendEquation;
+        } else if (GrGLHasExtensionFromString("GL_ARB_imaging", extStr)) {
+            GET_PROC(BlendColor);
+            GET_PROC(BlendEquation);
+        } else {
+            if (GrGLHasExtensionFromString("GL_EXT_blend_color", extStr)) {
+                GET_PROC_SUFFIX(BlendColor, EXT);
+            } 
+            if (GrGLHasExtensionFromString("GL_EXT_blend_minmax", extStr) ||
+                GrGLHasExtensionFromString("GL_EXT_blend_subtract", extStr)) {
+                GET_PROC_SUFFIX(BlendEquation, EXT);
+            } 
+        } 
+
         interface->fBufferData = glBufferData;
         interface->fBufferSubData = glBufferSubData;
         interface->fClear = glClear;
