@@ -30,6 +30,21 @@ enum GrGLSLGeneration {
 };
 
 /**
+ * Types of shader-language-specific boxed variables we can create.
+ * (Currently only GrGLShaderVars, but should be applicable to other shader
+ * langauges.)
+ */
+enum GrSLType {
+    kFloat_GrSLType,
+    kVec2f_GrSLType,
+    kVec3f_GrSLType,
+    kVec4f_GrSLType,
+    kMat33f_GrSLType,
+    kMat44f_GrSLType,
+    kSampler2D_GrSLType
+};
+
+/**
  * Gets the most recent GLSL Generation compatible with the OpenGL context.
  */
 GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding,
@@ -69,8 +84,20 @@ const char* GrGetGLSLShaderPrecisionDecl(GrGLBinding binding);
  * In either case var is initialized to represent the color output in the
  * shader.
  */
- bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen,
+bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen,
                              const char* nameIfDeclared,
                              GrGLShaderVar* var);
+
+/** Convert a count of 1..n floats into the corresponding type enum,
+    e.g. 1 -> kFloat_GrSLType, 2 -> kVec2_GrSLType, ... */
+GrSLType GrSLFloatVectorType(int count);
+
+/** Return the GLSL swizzle operator for a homogenous component of a vector
+    with the given number of coordnates, e.g. 2 -> ".y", 3 -> ".z" */
+const char* GrGLSLVectorHomogCoord(int count);
+
+/** Return the GLSL swizzle operator for a nonhomogenous components of a vector
+    with the given number of coordnates, e.g. 2 -> ".x", 3 -> ".xy" */
+const char* GrGLSLVectorNonhomogCoords(int count);
 
 #endif
