@@ -93,12 +93,22 @@ static inline U16CPU fixed_repeat(SkFixed x)
     return x & 0xFFFF;
 }
 
+// Visual Studio 2010 (MSC_VER=1600) optimizes bit-shift code incorrectly.
+// See http://code.google.com/p/skia/issues/detail?id=472
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#pragma optimize("", off)
+#endif
+
 static inline U16CPU fixed_mirror(SkFixed x)
 {
     SkFixed s = x << 15 >> 31;
     // s is FFFFFFFF if we're on an odd interval, or 0 if an even interval
     return (x ^ s) & 0xFFFF;
 }
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#pragma optimize("", on)
+#endif
 
 static SkBitmapProcState::FixedTileProc choose_tile_proc(unsigned m)
 {
