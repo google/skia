@@ -167,7 +167,7 @@ private:
     int fPaintCount;
     SkRegion* fRegions;
     int fRegionCount;
-    mutable SkOrderedReadBuffer fReader;
+    mutable SkReader32 fReader;
 
     SkPicture** fPictureRefs;
     int fPictureCount;
