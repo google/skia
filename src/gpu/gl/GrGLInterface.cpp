@@ -174,6 +174,8 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         NULL == fBindBuffer ||
         NULL == fBindTexture ||
         NULL == fBlendFunc ||
+        NULL == fBlendColor ||      // -> GL >= 1.4, ES >= 2.0 or extension
+        NULL == fBlendEquation ||   // -> GL >= 1.4, ES >= 2.0 or extension
         NULL == fBufferData ||
         NULL == fBufferSubData ||
         NULL == fClear ||
@@ -270,13 +272,13 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // On the desktop we assume they are available if the extension
     // is present or GL version is high enough.
     if (kES2_GrGLBinding == binding) {
-        if (NULL == fBlendColor ||
-            NULL == fStencilFuncSeparate ||
+        if (NULL == fStencilFuncSeparate ||
             NULL == fStencilMaskSeparate ||
             NULL == fStencilOpSeparate) {
             return false;
         }
     } else if (kDesktop_GrGLBinding == binding) {
+
         if (glVer >= GR_GL_VER(2,0)) {
             if (NULL == fStencilFuncSeparate ||
                 NULL == fStencilMaskSeparate ||
@@ -293,12 +295,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
                 return false;
             }
         }
-        if (glVer >= GR_GL_VER(1,4) ||
-            GrGLHasExtensionFromString("GL_EXT_blend_color", ext)) {
-            if (NULL == fBlendColor) {
-                return false;
-            }
-        }
+
         if (glVer >= GR_GL_VER(1,5) ||
             GrGLHasExtensionFromString("GL_ARB_occlusion_query", ext)) {
             if (NULL == fGenQueries ||

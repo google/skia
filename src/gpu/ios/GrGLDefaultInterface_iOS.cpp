@@ -24,6 +24,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fBindBuffer = glBindBuffer;
         interface->fBindTexture = glBindTexture;
         interface->fBlendColor = glBlendColor;
+        interface->fBlendEquation = glBlendEquation;
         interface->fBlendFunc = glBlendFunc;
         interface->fBufferData = (GrGLBufferDataProc)glBufferData;
         interface->fBufferSubData = (GrGLBufferSubDataProc)glBufferSubData;
