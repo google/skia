@@ -179,12 +179,13 @@ private:
     SkScalar fZoomCenterX, fZoomCenterY;
 
     //Stores global settings
-    SkOSMenu fAppMenu;
+    SkOSMenu* fAppMenu; // We pass ownership to SkWindow, when we call addMenu
     //Stores slide specific settings
-    SkOSMenu fSlideMenu;
+    SkOSMenu* fSlideMenu; // We pass ownership to SkWindow, when we call addMenu
+
     int fTransitionNext;
     int fTransitionPrev;
-    
+
     void loadView(SkView*);
     void updateTitle();
 
