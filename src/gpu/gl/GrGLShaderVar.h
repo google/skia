@@ -21,16 +21,6 @@
 class GrGLShaderVar {
 public:
 
-    enum Type {
-        kFloat_Type,
-        kVec2f_Type,
-        kVec3f_Type,
-        kVec4f_Type,
-        kMat33f_Type,
-        kMat44f_Type,
-        kSampler2D_Type,
-    };
-
     /**
      * Early versions of GLSL have Varying and Attribute; those are later
      * deprecated, but we still need to know whether a Varying variable
@@ -48,7 +38,7 @@ public:
      * Defaults to a float with no precision specifier
      */
     GrGLShaderVar() {
-        fType = kFloat_Type;
+        fType = kFloat_GrSLType;
         fTypeModifier = kNone_TypeModifier;
         fCount = kNonArray;
         fEmitPrecision = false;
@@ -74,7 +64,7 @@ public:
     /**
      * Sets as a non-array.
      */
-    void set(Type type,
+    void set(GrSLType type,
              TypeModifier typeModifier,
              const GrStringBuilder& name,
              bool emitPrecision = false,
@@ -90,7 +80,7 @@ public:
     /**
      * Sets as a non-array.
      */
-    void set(Type type,
+    void set(GrSLType type,
              TypeModifier typeModifier,
              const char* name,
              bool specifyPrecision = false,
@@ -106,7 +96,7 @@ public:
     /**
      * Set all var options
      */
-    void set(Type type,
+    void set(GrSLType type,
              TypeModifier typeModifier,
              const GrStringBuilder& name,
              int count,
@@ -123,7 +113,7 @@ public:
     /**
      * Set all var options
      */
-    void set(Type type,
+    void set(GrSLType type,
              TypeModifier typeModifier,
              const char* name,
              int count,
@@ -179,11 +169,11 @@ public:
     /**
      * Get the type of the var
      */
-    Type getType() const { return fType; }
+    GrSLType getType() const { return fType; }
     /**
      * Set the type of the var
      */
-    void setType(Type type) { fType = type; }
+    void setType(GrSLType type) { fType = type; }
 
     TypeModifier getTypeModifier() const { return fTypeModifier; }
     void setTypeModifier(TypeModifier type) { fTypeModifier = type; }
@@ -210,7 +200,7 @@ public:
             out->append(GrGetGLSLVarPrecisionDeclType(gl.binding()));
             out->append(" ");
         }
-        Type effectiveType = this->getType();
+        GrSLType effectiveType = this->getType();
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
                 out->appendf("%s %s[]", 
@@ -231,21 +221,21 @@ public:
         out->append(";\n");
     }
 
-    static const char* TypeString(Type t) {
+    static const char* TypeString(GrSLType t) {
         switch (t) {
-            case kFloat_Type:
+            case kFloat_GrSLType:
                 return "float";
-            case kVec2f_Type:
+            case kVec2f_GrSLType:
                 return "vec2";
-            case kVec3f_Type:
+            case kVec3f_GrSLType:
                 return "vec3";
-            case kVec4f_Type:
+            case kVec4f_GrSLType:
                 return "vec4";
-            case kMat33f_Type:
+            case kMat33f_GrSLType:
                 return "mat3";
-            case kMat44f_Type:
+            case kMat44f_GrSLType:
                 return "mat4";
-            case kSampler2D_Type:
+            case kSampler2D_GrSLType:
                 return "sampler2D";
             default:
                 GrCrash("Unknown shader var type.");
@@ -287,7 +277,7 @@ private:
         }
     }
 
-    Type            fType;
+    GrSLType fType;
     TypeModifier    fTypeModifier;
     GrStringBuilder fName;
     int             fCount;

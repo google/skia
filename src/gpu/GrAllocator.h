@@ -11,6 +11,7 @@
 #ifndef GrAllocator_DEFINED
 #define GrAllocator_DEFINED
 
+#include "GrNoncopyable.h"
 #include "GrConfig.h"
 #include "SkTArray.h"
 

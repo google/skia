@@ -75,8 +75,30 @@ bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen,
                              const char* nameIfDeclared,
                              GrGLShaderVar* var) {
     bool declaredOutput = k110_GrGLSLGeneration != gen;
-    var->set(GrGLShaderVar::kVec4f_Type,
+    var->set(kVec4f_GrSLType,
              GrGLShaderVar::kOut_TypeModifier,
              declaredOutput ? nameIfDeclared : "gl_FragColor");
     return declaredOutput;
 }
+
+GrSLType GrSLFloatVectorType (int count) {
+    GR_STATIC_ASSERT(kFloat_GrSLType == 0);
+    GR_STATIC_ASSERT(kVec2f_GrSLType == 1);
+    GR_STATIC_ASSERT(kVec3f_GrSLType == 2);
+    GR_STATIC_ASSERT(kVec4f_GrSLType == 3);
+    GrAssert(count > 0 && count <= 4);
+    return (GrSLType)(count - 1);
+}
+
+const char* GrGLSLVectorHomogCoord(int count) {
+    static const char* HOMOGS[] = {"ERROR", "", ".y", ".z", ".w"};
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(HOMOGS));
+    return HOMOGS[count];
+}
+
+const char* GrGLSLVectorNonhomogCoords(int count) {
+    static const char* NONHOMOGS[] = {"ERROR", "", ".x", ".xy", ".xyz"};
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(NONHOMOGS));
+    return NONHOMOGS[count];
+}
+
