@@ -75,10 +75,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     // copy over the refcnt dictionary to our reader
     //
     fRCPlayback.reset(&record.fRCSet);
-    fRCPlayback.setupBuffer(fReader);
-
     fTFPlayback.reset(&record.fTFSet);
-    fTFPlayback.setupBuffer(fReader);
 
     const SkTDArray<const SkFlatBitmap* >& bitmaps = record.getBitmaps();
     fBitmapCount = bitmaps.count();
