@@ -363,6 +363,8 @@ struct SK_API SkRect {
 #endif
     }
 
+    SkScalar    x() const { return fLeft; }
+    SkScalar    y() const { return fTop; }
     SkScalar    left() const { return fLeft; }
     SkScalar    top() const { return fTop; }
     SkScalar    right() const { return fRight; }
