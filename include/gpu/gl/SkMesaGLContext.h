@@ -30,9 +30,9 @@ public:
 
     private:
         Context fOldContext;
-        GLint   fOldWidth;
-        GLint   fOldHeight;
-        GLint   fOldFormat;
+        GrGLint fOldWidth;
+        GrGLint fOldHeight;
+        GrGLint fOldFormat;
         void*   fOldImage;
     };
 
