@@ -193,18 +193,18 @@ void TestMatrix(skiatest::Reporter* reporter) {
 
     mat.reset();
     mat.setTranslate(SK_Scalar1, SK_Scalar1);
-    mat.invert(&inverse);
+    REPORTER_ASSERT(reporter, mat.invert(&inverse));
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
 
     mat.setScale(SkIntToScalar(2), SkIntToScalar(2));
-    mat.invert(&inverse);
+    REPORTER_ASSERT(reporter, mat.invert(&inverse));
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
     test_flatten(reporter, mat);
 
     mat.setScale(SK_Scalar1/2, SK_Scalar1/2);
-    mat.invert(&inverse);
+    REPORTER_ASSERT(reporter, mat.invert(&inverse));
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
     test_flatten(reporter, mat);
@@ -212,7 +212,7 @@ void TestMatrix(skiatest::Reporter* reporter) {
     mat.setScale(SkIntToScalar(3), SkIntToScalar(5), SkIntToScalar(20), 0);
     mat.postRotate(SkIntToScalar(25));
     REPORTER_ASSERT(reporter, mat.invert(NULL));
-    mat.invert(&inverse);
+    REPORTER_ASSERT(reporter, mat.invert(&inverse));
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
     iden2.setConcat(inverse, mat);
