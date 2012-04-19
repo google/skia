@@ -33,17 +33,6 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     length = meas.getLength();
 //    SkDebugf("circle arc-length = %g\n", length);
 
-    for (int i = 0; i < 8; i++) {
-        SkScalar    d = length * i / 8;
-        SkPoint     p;
-        SkVector    v;
-        meas.getPosTan(d, &p, &v);
-#if 0
-        SkDebugf("circle arc-length=%g, pos[%g %g] tan[%g %g]\n",
-                 d, p.fX, p.fY, v.fX, v.fY);
-#endif
-    }
-
     // Test the behavior following a close not followed by a move.
     path.reset();
     path.lineTo(SK_Scalar1, 0);
