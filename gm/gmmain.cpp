@@ -7,9 +7,8 @@
 
 #include "gm.h"
 #include "system_preferences.h"
-#include "GrContext.h"
+#include "GrContextFactory.h"
 #include "GrRenderTarget.h"
-
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDeferredCanvas.h"
@@ -19,14 +18,6 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
-#include "gl/SkNativeGLContext.h"
-#if SK_MESA
-#include "gl/SkMesaGLContext.h"
-#endif
-#if SK_ANGLE
-#include "gl/SkANGLEGLContext.h"
-#endif
-#include "gl/SkDebugGLContext.h"
 #include "SkPicture.h"
 #include "SkStream.h"
 
@@ -233,10 +224,22 @@ enum Backend {
   kXPS_Backend,
 };
 
+enum ConfigFlags {
+    kNone_ConfigFlag  = 0x0,
+    /* Write GM images if a write path is provided. */
+    kWrite_ConfigFlag = 0x1,
+    /* Read comparison GM images if a read path is provided. */
+    kRead_ConfigFlag  = 0x2,
+    kRW_ConfigFlag    = (kWrite_ConfigFlag | kRead_ConfigFlag),
+};
+
 struct ConfigData {
-    SkBitmap::Config    fConfig;
-    Backend             fBackend;
-    const char*         fName;
+    SkBitmap::Config                fConfig;
+    Backend                         fBackend;
+    GrContextFactory::GLContextType fGLContextType; // GPU backend only
+    int                             fSampleCnt;     // GPU backend only
+    ConfigFlags                     fFlags;
+    const char*                     fName;
 };
 
 /// Returns true if processing should continue, false to skip the
@@ -464,14 +467,11 @@ static ErrorBitfield handle_test_results(GM* gm,
     SkString name = make_name(gm->shortName(), gRec.fName);
     ErrorBitfield retval = ERROR_NONE;
 
-    if (readPath && (
-                   gRec.fBackend == kRaster_Backend ||
-                   gRec.fBackend == kGPU_Backend ||
-                   (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF))) {
+    if (readPath && (gRec.fFlags & kRead_ConfigFlag)) {
         retval |= compare_to_reference_image(readPath, name, bitmap,
                                              diffPath, renderModeDescriptor);
     }
-    if (writePath) {
+    if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
         retval |= write_reference_image(gRec, writePath, renderModeDescriptor,
                                         name, bitmap, pdf);
     }
@@ -615,14 +615,7 @@ static void usage(const char * argv0) {
         "%s [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n"
         "    [--noreplay] [--serialize] [--forceBWtext] [--nopdf] \n"
         "    [--nodeferred] [--match substring] [--notexturecache]\n"
-        "    "
-#if SK_MESA
-        "[--mesagl]"
-#endif
-#if SK_ANGLE
-        " [--angle]"
-#endif
-        " [--debuggl]\n\n", argv0);
+        , argv0);
     SkDebugf("    writePath: directory to write rendered images in.\n");
     SkDebugf(
 "    readPath: directory to read reference images from;\n"
@@ -636,28 +629,40 @@ static void usage(const char * argv0) {
     SkDebugf("    --nopdf: skip the pdf rendering test pass.\n");
     SkDebugf("    --nodeferred: skip the deferred rendering test pass.\n");
     SkDebugf("    --match foo: will only run tests that substring match foo.\n");
-#if SK_MESA
-    SkDebugf("    --mesagl: will run using the osmesa sw gl rasterizer.\n");
-#endif
-#if SK_ANGLE
-    SkDebugf("    --angle: use ANGLE backend on Windows.\n");
-#endif
-    SkDebugf("    --debuggl: will run using the debugging gl utility.\n");
     SkDebugf("    --notexturecache: disable the gpu texture cache.\n");
 }
 
+static const GrContextFactory::GLContextType kDontCare_GLContextType =
+    GrContextFactory::kNative_GLContextType;
+
+// If the platform does not support writing PNGs of PDFs then there will be no
+// comparison images to read. However, we can always write the .pdf files
+static const ConfigFlags kPDFConfigFlags = CAN_IMAGE_PDF ? kRW_ConfigFlag :
+                                                           kWrite_ConfigFlag;
+
 static const ConfigData gRec[] = {
-    { SkBitmap::kARGB_8888_Config, kRaster_Backend, "8888" },
-    { SkBitmap::kARGB_4444_Config, kRaster_Backend, "4444" },
-    { SkBitmap::kRGB_565_Config,   kRaster_Backend, "565" },
+    { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "8888" },
+    { SkBitmap::kARGB_4444_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "4444" },
+    { SkBitmap::kRGB_565_Config,   kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "565" },
 #ifdef SK_SCALAR_IS_FLOAT
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    "gpu" },
-#endif
-#ifdef SK_SUPPORT_PDF
-    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    "pdf" },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu" },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16" },
+    /* The debug context does not generate images */
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "debug" },
+  #ifdef SK_ANGLE
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle" },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16" },
+  #endif
+  #ifdef SK_MESA
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kMESA_GLContextType,    0, kRW_ConfigFlag,    "mesa" },
+  #endif
 #endif
 #ifdef SK_SUPPORT_XPS
-    { SkBitmap::kARGB_8888_Config, kXPS_Backend,    "xps" },
+    /* At present we have no way of comparing XPS files (either natively or by converting to PNG). */
+    { SkBitmap::kARGB_8888_Config, kXPS_Backend,    kDontCare_GLContextType,                  0, kWrite_ConfigFlag, "xps" },
+#endif
+#ifdef SK_SUPPORT_PDF
+    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kPDFConfigFlags,   "pdf" },
 #endif
 };
 
@@ -676,10 +681,39 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
 }
 
 namespace skiagm {
-static GrContext* gGrContext;
-GrContext* GetGr() {
-    return gGrContext;
+SkAutoTUnref<GrContext> gGrContext;
+/**
+ * Sets the global GrContext, accessible by indivual GMs
+ */
+void SetGr(GrContext* grContext) {
+    SkSafeRef(grContext);
+    gGrContext.reset(grContext);
 }
+
+/**
+ * Gets the global GrContext, can be called by GM tests.
+ */
+GrContext* GetGr() {
+    return gGrContext.get();
+}
+
+/**
+ * Sets the global GrContext and then resets it to its previous value at
+ * destruction.
+ */
+class AutoResetGr : SkNoncopyable {
+public:
+    AutoResetGr() : fOld(NULL) {}
+    void set(GrContext* context) {
+        SkASSERT(NULL == fOld);
+        fOld = GetGr();
+        SkSafeRef(fOld);
+        SetGr(context);
+    }
+    ~AutoResetGr() { SetGr(fOld); SkSafeUnref(fOld); }
+private:
+    GrContext* fOld;
+};
 }
 
 int main(int argc, char * const argv[]) {
@@ -699,12 +733,6 @@ int main(int argc, char * const argv[]) {
     bool doPDF = true;
     bool doReplay = true;
     bool doSerialize = false;
-#if SK_MESA
-    bool useMesa = false;
-#endif
-#if SK_ANGLE
-    bool useAngle = false;
-#endif
     bool useDebugGL = false;
     bool doDeferred = true;
     bool disableTextureCache = false;
@@ -748,16 +776,6 @@ int main(int argc, char * const argv[]) {
                 // just record the ptr, no need for a deep copy
                 *fMatches.append() = *argv;
             }
-#if SK_MESA
-        } else if (strcmp(*argv, "--mesagl") == 0) {
-            useMesa = true;
-#endif
-#if SK_ANGLE
-        } else if (strcmp(*argv, "--angle") == 0) {
-            useAngle = true;
-#endif
-        } else if (strcmp(*argv, "--debuggl") == 0) {
-            useDebugGL = true;
         } else if (strcmp(*argv, "--notexturecache") == 0) {
             disableTextureCache = true;
         } else {
@@ -772,49 +790,7 @@ int main(int argc, char * const argv[]) {
 
     GM::SetResourcePath(resourcePath);
 
-    int maxW = -1;
-    int maxH = -1;
-    Iter iter;
-    GM* gm;
-    while ((gm = iter.next()) != NULL) {
-        SkISize size = gm->getISize();
-        maxW = SkMax32(size.width(), maxW);
-        maxH = SkMax32(size.height(), maxH);
-        // This fixes a memory leak, but we are churning gms; we could
-        // instead cache them if we have constructors with side-effects.
-        SkDELETE(gm);
-    }
-    // setup a GL context for drawing offscreen
-    SkAutoTUnref<SkGLContext> glContext;
-#if SK_MESA
-    if (useMesa) {
-        glContext.reset(new SkMesaGLContext());
-    } else
-#endif
-#if SK_ANGLE
-    if (useAngle) {
-        glContext.reset(new SkANGLEGLContext());
-    } else
-#endif
-    if (useDebugGL) {
-        glContext.reset(new SkDebugGLContext());
-    } else {
-        glContext.reset(new SkNativeGLContext());
-    }
-
-    GrPlatformRenderTargetDesc rtDesc;
-    if (glContext.get()->init(maxW, maxH)) {
-        GrPlatform3DContext ctx =
-            reinterpret_cast<GrPlatform3DContext>(glContext.get()->gl());
-        gGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
-        if (NULL != gGrContext) {
-            rtDesc.fConfig = kSkia8888_PM_GrPixelConfig;
-            rtDesc.fStencilBits = 8;
-            rtDesc.fRenderTargetHandle = glContext.get()->getFBOID();
-        }
-    } else {
-        fprintf(stderr, "could not create GL context.\n");
-    }
+    GrContextFactory grFactory;
 
     if (readPath) {
         fprintf(stderr, "reading from %s\n", readPath);
@@ -837,7 +813,8 @@ int main(int argc, char * const argv[]) {
         skiagm::GetGr()->setTextureCacheLimits(0, 0);
     }
 
-    iter.reset();
+    Iter iter;
+    GM* gm;
     while ((gm = iter.next()) != NULL) {
         const char* shortName = gm->shortName();
         if (skip_name(fMatches, shortName)) {
@@ -850,20 +827,33 @@ int main(int argc, char * const argv[]) {
                  size.width(), size.height());
         SkBitmap forwardRenderedBitmap;
 
-        // Above we created an fbo for the context at maxW x maxH size.
-        // Here we lie about the size of the rt. We claim it is the size
-        // desired by the test. The reason is that rasterization may change
-        // slightly when the viewport dimensions change. Previously, whenever
-        // a new test was checked in that bumped maxW or maxH several images
-        // would slightly change.
-        rtDesc.fWidth = size.width();
-        rtDesc.fHeight = size.height();
-        SkAutoTUnref<GrRenderTarget> rt;
-        if (gGrContext) {
-            rt.reset(gGrContext->createPlatformRenderTarget(rtDesc));
-        }
-
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+            SkAutoTUnref<GrRenderTarget> rt;
+            AutoResetGr autogr;
+            if (kGPU_Backend == gRec[i].fBackend) {
+                GrContext* gr = grFactory.get(gRec[i].fGLContextType);
+                if (!gr) {
+                    continue;
+                }
+
+                // create a render target to back the device
+                GrTextureDesc desc;
+                desc.fConfig = kSkia8888_PM_GrPixelConfig;
+                desc.fFlags = kRenderTarget_GrTextureFlagBit;
+                desc.fWidth = gm->getISize().width();
+                desc.fHeight = gm->getISize().height();
+                desc.fSampleCnt = gRec[i].fSampleCnt;
+                GrTexture* tex = gr->createUncachedTexture(desc, NULL, 0);
+                if (!tex) {
+                    return false;
+                }
+                rt.reset(tex->asRenderTarget());
+                rt.get()->ref();
+                tex->unref();
+
+                autogr.set(gr);
+            }
+
             // Skip any tests that we don't even need to try.
             uint32_t gmFlags = gm->getFlags();
             if ((kPDF_Backend == gRec[i].fBackend) &&
@@ -886,7 +876,7 @@ int main(int argc, char * const argv[]) {
             if (ERROR_NONE == testErrors) {
                 testErrors |= test_drawing(gm, gRec[i],
                                            writePath, readPath, diffPath,
-                                           gGrContext,
+                                           GetGr(),
                                            rt.get(), &forwardRenderedBitmap);
             }
 
@@ -895,7 +885,7 @@ int main(int argc, char * const argv[]) {
                  kRaster_Backend == gRec[i].fBackend)) {
                 testErrors |= test_deferred_drawing(gm, gRec[i],
                                                     forwardRenderedBitmap,
-                                                    diffPath, gGrContext, rt.get());
+                                                    diffPath, GetGr(), rt.get());
             }
 
             if ((ERROR_NONE == testErrors) && doReplay &&
@@ -930,9 +920,6 @@ int main(int argc, char * const argv[]) {
     }
     printf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
            testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
-
-    SkDELETE(skiagm::gGrContext);
-    skiagm::gGrContext = NULL;
 
     return (0 == testsFailed) ? 0 : -1;
 }
