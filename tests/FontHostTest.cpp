@@ -6,8 +6,8 @@
  */
 
 #include "Test.h"
+#include "SkPaint.h"
 #include "SkTypeface.h"
-#include "SkFontHost.h"
 
 //#define DUMP_TABLES
 
@@ -27,16 +27,16 @@ static const struct TagSize {
 static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
     SkFontID fontID = face->uniqueID();
 
-    int count = SkFontHost::CountTables(fontID);
+    int count = face->countTables();
 
     SkAutoTMalloc<SkFontTableTag> storage(count);
     SkFontTableTag* tags = storage.get();
 
-    int count2 = SkFontHost::GetTableTags(fontID, tags);
+    int count2 = face->getTableTags(tags);
     REPORTER_ASSERT(reporter, count2 == count);
 
     for (int i = 0; i < count; ++i) {
-        size_t size = SkFontHost::GetTableSize(fontID, tags[i]);
+        size_t size = face->getTableSize(tags[i]);
         REPORTER_ASSERT(reporter, size > 0);
 
 #ifdef DUMP_TABLES
@@ -58,8 +58,7 @@ static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
         // do we get the same size from GetTableData and GetTableSize
         {
             SkAutoMalloc data(size);
-            size_t size2 = SkFontHost::GetTableData(fontID, tags[i], 0, size,
-                                                    data.get());
+            size_t size2 = face->getTableData(tags[i], 0, size, data.get());
             REPORTER_ASSERT(reporter, size2 == size);
         }
     }
