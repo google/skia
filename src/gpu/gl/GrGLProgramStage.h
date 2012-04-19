@@ -14,7 +14,7 @@
 #include "../GrStringBuilder.h"
 
 class GrCustomStage;
-class GrGLInterface;
+struct GrGLInterface;
 
 /** @file
     This file contains specializations for OpenGL of the shader stages
