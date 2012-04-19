@@ -39,7 +39,7 @@ protected:
         paint.setColor(SK_ColorRED);
         paint.setAntiAlias(true);
 
-        m.invert(&m);
+        bool success = m.invert(&m);
 
         SkPath path;
 
