@@ -329,7 +329,14 @@ static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op3
 
 static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
-    UNIMPLEMENTED
+    uint32_t bitmapSize = reader->readU32();
+    SkOrderedReadBuffer readBuffer(reader->skip(bitmapSize), bitmapSize);
+    SkBitmap bm;
+    bm.unflatten(readBuffer);
+    bool hasPaint = reader->readBool();
+    SkScalar left = reader->readScalar();
+    SkScalar top = reader->readScalar();
+    canvas->drawBitmap(bm, left, top, hasPaint ? &state->paint() : NULL);
 }
 
 static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,

@@ -114,6 +114,8 @@ public:
                                 const SkRect& dst, const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
                                   const SkPaint*) SK_OVERRIDE;
+    virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap&, int left, int top,
                             const SkPaint*) SK_OVERRIDE;
     virtual void drawText(const void* text, size_t byteLength, SkScalar x,
@@ -200,7 +202,13 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     }
 
     SkOrderedWriteBuffer tmpWriter(1024);
-    tmpWriter.setFlags(SkFlattenableWriteBuffer::kInlineFactoryNames_Flag);
+    
+    // Needs to be cross process so a bitmap shader will be preserved
+    // FIXME: Rather than forcing CrossProcess, we should create an SkRefCntSet
+    // so that we can store a pointer to a bitmap's pixels during flattening.
+    tmpWriter.setFlags((SkFlattenableWriteBuffer::Flags)
+                       (SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
+                       | SkFlattenableWriteBuffer::kCrossProcess_Flag));
     tmpWriter.setFactoryRecorder(fFactorySet);
 
     tmpWriter.writeFlattenable(obj);
@@ -243,6 +251,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
+    fBytesNotified = 0;
     sk_bzero(fCurrFlatIndex, sizeof(fCurrFlatIndex));
 
     // we need a device to limit our clip
@@ -267,7 +276,11 @@ bool SkGPipeCanvas::needOpBytes(size_t needed) {
 
     needed += 4;  // size of DrawOp atom
     if (fWriter.size() + needed > fBlockSize) {
-        void* block = fController->requestBlock(MIN_BLOCK_SIZE, &fBlockSize);
+        // Before we wipe out any data that has already been written, read it
+        // out.
+        this->doNotify();
+        size_t blockSize = SkMax32(MIN_BLOCK_SIZE, needed);
+        void* block = fController->requestBlock(blockSize, &fBlockSize);
         if (NULL == block) {
             fDone = true;
             return false;
@@ -495,9 +508,32 @@ void SkGPipeCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-void SkGPipeCanvas::drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
-                                   const SkPaint*) {
-    UNIMPLEMENTED
+void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
+                                   const SkPaint* paint) {
+    // This is the brute-force solution
+    // TODO: add the notion of a shared, counted for large immutable resources
+    NOTIFY_SETUP(this);
+    if (paint) {
+        this->writePaint(*paint);
+    }
+    SkOrderedWriteBuffer writeBuffer(0);
+    // FIXME: Rather than forcing CrossProcess, we should create an SkRefCntSet
+    // so that we can store a pointer to a bitmap's pixels during flattening.
+    writeBuffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
+    bm.flatten(writeBuffer);
+    int size = writeBuffer.size();
+    
+    if (this->needOpBytes(sizeof(uint32_t) + size + sizeof(SkScalar)*2)
+        + sizeof(bool)) {
+        // Record the act of drawing the bitmap
+        this->writeOp(kDrawBitmap_DrawOp);
+        fWriter.writeInt(size);
+        void* ptr = (void*) fWriter.reserve(size);
+        writeBuffer.flatten(ptr);
+        fWriter.writeBool(paint != NULL);
+        fWriter.writeScalar(left);
+        fWriter.writeScalar(top);
+    }
 }
 
 void SkGPipeCanvas::drawBitmapRect(const SkBitmap&, const SkIRect* src,
@@ -509,7 +545,10 @@ void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
                                          const SkPaint*) {
     UNIMPLEMENTED
 }
-
+void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                   const SkRect& dst, const SkPaint* paint) {
+    UNIMPLEMENTED
+}
 void SkGPipeCanvas::drawSprite(const SkBitmap&, int left, int top,
                                    const SkPaint*) {
     UNIMPLEMENTED
