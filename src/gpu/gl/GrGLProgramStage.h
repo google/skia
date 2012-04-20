@@ -96,8 +96,6 @@ public:
 
     void setSamplerMode(SamplerMode shaderMode) { fSamplerMode = shaderMode; }
 
-protected:
-
     /** Returns the *effective* coord name after any perspective divide
         or other transform. */
     GrStringBuilder emitTextureSetup(GrStringBuilder* code,
@@ -105,6 +103,8 @@ protected:
                                      int stageNum,
                                      int coordDims,
                                      int varyingDims);
+
+protected:
 
     /** Convenience function for subclasses to write texture2D() or
         texture2DProj(), depending on fSamplerMode. */
@@ -130,16 +130,19 @@ public:
     /** Returns a short unique identifier for this subclass x its
         parameters. If the key differs, different shader code must
         be generated; if the key matches, shader code can be reused.
-        0 == no custom stage.  */
+        0 == no custom stage. */
     virtual uint16_t stageKey(const GrCustomStage*);
 
+    /** Returns a new instance of the appropriate implementation class
+        for the given GrCustomStage; caller is responsible for deleting
+        the object. */
     virtual GrGLProgramStage* createGLInstance(GrCustomStage*) = 0;
 
 protected:
 
     /** Disable default constructor - instances should be singletons
         with static factory functions: our test examples are all stateless,
-        but we suspect that future implementations may want to cache data?  */
+        but we suspect that future implementations may want to cache data? */
     GrGLProgramStageFactory() { }
 };
 

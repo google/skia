@@ -8,7 +8,9 @@
 
 
 #include "../GrBinHashKey.h"
+#include "GrCustomStage.h"
 #include "GrGLProgram.h"
+#include "GrGLProgramStage.h"
 #include "GrGLSL.h"
 #include "GrGpuGLShaders.h"
 #include "../GrGpuVertex.h"
@@ -82,13 +84,14 @@ public:
         }
     }
 
-    GrGLProgram::CachedData* getProgramData(const GrGLProgram& desc) {
+    GrGLProgram::CachedData* getProgramData(const GrGLProgram& desc,
+                                            GrCustomStage** stages) {
         Entry newEntry;
         newEntry.fKey.setKeyData(desc.keyData());
         
         Entry* entry = fHashCache.find(newEntry.fKey);
         if (NULL == entry) {
-            if (!desc.genProgram(fGL, &newEntry.fProgramData)) {
+            if (!desc.genProgram(fGL, stages, &newEntry.fProgramData)) {
                 return NULL;
             }
             if (fCount < kMaxEntries) {
@@ -242,6 +245,8 @@ bool GrGpuGLShaders::programUnitTest() {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
+        GrCustomStage* customStages[GrDrawState::kNumStages];
+
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             // enable the stage?
             if (random_bool(&random)) {
@@ -288,9 +293,13 @@ bool GrGpuGLShaders::programUnitTest() {
                     stage.fInConfigFlags &= ~kMulByAlphaMask;
                     break;
             }
+
+            stage.fCustomStageKey = 0;
+            customStages[s] = NULL;
         }
         CachedData cachedData;
-        if (!program.genProgram(this->glContextInfo(), &cachedData)) {
+        if (!program.genProgram(this->glContextInfo(), customStages,
+                                &cachedData)) {
             return false;
         }
         DeleteProgram(this->glInterface(), &cachedData);
@@ -772,8 +781,10 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         return false;
     }
 
-    this->buildProgram(type, blendOpts, dstCoeff);
-    fProgramData = fProgramCache->getProgramData(fCurrentProgram);
+    GrCustomStage* customStages [GrDrawState::kNumStages];
+    this->buildProgram(type, blendOpts, dstCoeff, customStages);
+    fProgramData = fProgramCache->getProgramData(fCurrentProgram,
+                                                 customStages);
     if (NULL == fProgramData) {
         GrAssert(!"Failed to create program!");
         return false;
@@ -814,6 +825,13 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
             this->flushTexelSize(s);
 
             this->flushTextureDomain(s);
+
+            if (NULL != fProgramData->fCustomStage[s]) {
+                const GrSamplerState& sampler =
+                    this->getDrawState().getSampler(s);
+                fProgramData->fCustomStage[s]->setData(
+                    this->glInterface(), sampler.getCustomStage());
+            }
         }
     }
     this->flushEdgeAAData();
@@ -962,9 +980,29 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     fHWGeometryState.fArrayPtrsDirty = false;
 }
 
+namespace {
+
+void setup_custom_stage(GrGLProgram::ProgramDesc::StageDesc* stage,
+                        const GrSamplerState& sampler,
+                        GrCustomStage** customStages,
+                        GrGLProgram* program, int index) {
+    GrCustomStage* customStage = sampler.getCustomStage();
+    if (customStage) {
+        GrGLProgramStageFactory* factory = customStage->getGLFactory();
+        stage->fCustomStageKey = factory->stageKey(customStage);
+        customStages[index] = customStage;
+    } else {
+        stage->fCustomStageKey = 0;
+        customStages[index] = NULL;
+    }
+}
+
+}
+
 void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                                   BlendOptFlags blendOpts,
-                                  GrBlendCoeff dstCoeff) {
+                                  GrBlendCoeff dstCoeff,
+                                  GrCustomStage** customStages) {
     ProgramDesc& desc = fCurrentProgram.fProgramDesc;
     const GrDrawState& drawState = this->getDrawState();
 
@@ -1170,12 +1208,18 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
             } else {
                 stage.fKernelWidth = 0;
             }
+
+            setup_custom_stage(&stage, sampler, customStages,
+                               &fCurrentProgram, s);
+
         } else {
             stage.fOptFlags         = 0;
             stage.fCoordMapping     = (StageDesc::CoordMapping) 0;
             stage.fInConfigFlags    = 0;
             stage.fFetchMode        = (StageDesc::FetchMode) 0;
             stage.fKernelWidth      = 0;
+            stage.fCustomStageKey   = 0;
+            customStages[s] = NULL;
         }
     }
 
