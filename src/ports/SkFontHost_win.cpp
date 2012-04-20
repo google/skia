@@ -523,8 +523,16 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         }
     }
     // Used a logfont on a memory context, should never get a device font.
-    SkASSERT(!(fTM.tmPitchAndFamily & (TMPF_DEVICE)));
-    if (fTM.tmPitchAndFamily & (TMPF_TRUETYPE | TMPF_VECTOR)) {
+    // Therefore all TMPF_DEVICE will be PostScript fonts.
+
+    // If TMPF_VECTOR is set, one of TMPF_TRUETYPE or TMPF_DEVICE must be set,
+    // otherwise we have a vector FON, which we don't support.
+    // This was determined by testing with Type1 PFM/PFB and OpenTypeCFF OTF,
+    // as well as looking at Wine bugs and sources.
+    SkASSERT(!(fTM.tmPitchAndFamily & TMPF_VECTOR) ||
+              (fTM.tmPitchAndFamily & (TMPF_TRUETYPE | TMPF_DEVICE)));
+
+    if (fTM.tmPitchAndFamily & TMPF_VECTOR) {
         // Truetype or PostScript.
         // Stroked FON also gets here (TMPF_VECTOR), but we don't handle it.
         fType = SkScalerContext_Windows::kTrueType_Type;
