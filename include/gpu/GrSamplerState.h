@@ -11,8 +11,9 @@
 #ifndef GrSamplerState_DEFINED
 #define GrSamplerState_DEFINED
 
-#include "GrTypes.h"
+#include "GrCustomStage.h"
 #include "GrMatrix.h"
+#include "GrTypes.h"
 
 #define MAX_KERNEL_WIDTH 25
 
@@ -110,10 +111,15 @@ public:
      * unfiltered, and use identity matrix.
      */
     GrSamplerState()
-    : fRadial2CenterX1()
+    : fCustomStage (NULL)
+    , fRadial2CenterX1()
     , fRadial2Radius0()
     , fRadial2PosRoot() {
         this->reset();
+    }
+
+    ~GrSamplerState() {
+        GrSafeUnref(fCustomStage);
     }
 
     WrapMode getWrapX() const { return fWrapX; }
@@ -188,6 +194,7 @@ public:
         fMatrix = matrix;
         fTextureDomain.setEmpty();
         fSwapRAndB = false;
+        GrSafeSetNull(fCustomStage);
     }
     void reset(WrapMode wrapXAndY, Filter filter, const GrMatrix& matrix) {
         this->reset(wrapXAndY, filter, kDefault_FilterDirection, matrix);
@@ -236,6 +243,11 @@ public:
         fKernelWidth = radius;
     }
 
+    void setCustomStage(GrCustomStage* stage) {
+        GrSafeAssign(fCustomStage, stage);
+    }
+    GrCustomStage* getCustomStage() const { return fCustomStage; }
+
 private:
     WrapMode            fWrapX : 8;
     WrapMode            fWrapY : 8;
@@ -245,6 +257,12 @@ private:
     GrMatrix            fMatrix;
     bool                fSwapRAndB;
     GrRect              fTextureDomain;
+
+    /// BUG! Ganesh only works correctly so long as fCustomStage is  
+    /// NULL; we need to have a complex ID system here so that we can
+    /// have an equality-like comparison to determine whether two
+    /// fCustomStages are equal.
+    GrCustomStage*      fCustomStage;
 
     // these are undefined unless fSampleMode == kRadial2_SampleMode
     GrScalar            fRadial2CenterX1;

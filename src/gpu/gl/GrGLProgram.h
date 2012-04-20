@@ -19,6 +19,7 @@
 #include "SkXfermode.h"
 
 class GrBinHashKeyBuilder;
+class GrGLProgramStage;
 
 struct ShaderCodeSegments;
 
@@ -49,6 +50,7 @@ public:
      *  but in a separate cacheable container.
      */
     bool genProgram(const GrGLContextInfo& gl,
+                    GrCustomStage** customStages,
                     CachedData* programData) const;
 
      /**
@@ -180,6 +182,10 @@ public:
             uint8_t fCoordMapping;  // casts to enum CoordMapping
             uint8_t fKernelWidth;
 
+            /** Non-zero if user-supplied code will write the stage's
+                contribution to the fragment shader. */
+            uint16_t fCustomStageKey;
+
             GR_STATIC_ASSERT((InConfigFlags)(uint8_t)kInConfigBitMask ==
                              kInConfigBitMask);
 
@@ -305,10 +311,12 @@ public:
     class CachedData : public ::GrNoncopyable {
     public:
         CachedData() {
+            for (int i = 0; i < GrDrawState::kNumStages; ++i) {
+                fCustomStage[i] = NULL;
+            }
         }
 
-        ~CachedData() {
-        }
+        ~CachedData();
 
         void copyAndTakeOwnership(CachedData& other) {
             memcpy(this, &other, sizeof(*this));
@@ -340,6 +348,8 @@ public:
         bool                        fRadial2PosRoot[GrDrawState::kNumStages];
         GrRect                      fTextureDomain[GrDrawState::kNumStages];
 
+        GrGLProgramStage*           fCustomStage[GrDrawState::kNumStages];
+
     private:
         enum Constants {
             kUniLocationPreAllocSize = 8
@@ -366,7 +376,8 @@ private:
                       const char* fsOutColor,
                       const char* vsInCoord,
                       ShaderCodeSegments* segments,
-                      StageUniLocations* locations) const;
+                      StageUniLocations* locations,
+                      GrGLProgramStage* override) const;
 
     void genGeometryShader(const GrGLContextInfo& gl,
                            ShaderCodeSegments* segments) const;

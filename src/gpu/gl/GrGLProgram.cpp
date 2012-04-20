@@ -10,6 +10,8 @@
 #include "GrGLProgram.h"
 
 #include "../GrAllocator.h"
+#include "GrCustomStage.h"
+#include "GrGLProgramStage.h"
 #include "GrGLShaderVar.h"
 #include "SkTrace.h"
 #include "SkXfermode.h"
@@ -620,8 +622,17 @@ const char* GrGLProgram::adjustInColor(const GrStringBuilder& inColor) const {
     }
 }
 
+// If this destructor is in the header file, we must include GrGLProgramStage
+// instead of just forward-declaring it.
+GrGLProgram::CachedData::~CachedData() {
+    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
+        delete fCustomStage[i];
+    }
+}
+
 
 bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
+                             GrCustomStage** customStages,
                              GrGLProgram::CachedData* programData) const {
 
     ShaderCodeSegments segments;
@@ -733,6 +744,21 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    // Convert generic effect representation to GL-specific backend so they
+    // can be accesseed in genStageCode() and in subsequent uses of
+    // programData.
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        GrCustomStage* customStage = customStages[s];
+        if (NULL != customStage) {
+            GrGLProgramStageFactory* factory = customStage->getGLFactory();
+            programData->fCustomStage[s] =
+                factory->createGLInstance(customStage);
+        } else {
+            programData->fCustomStage[s] = NULL;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     // compute the final color
 
     // if we have color stages string them together, feeding the output color
@@ -766,7 +792,8 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                                    outColor.c_str(),
                                    inCoords,
                                    &segments,
-                                   &programData->fUniLocations.fStages[s]);
+                                   &programData->fUniLocations.fStages[s],
+                                   programData->fCustomStage[s]);
                 inColor = outColor;
             }
         }
@@ -878,13 +905,14 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                         inCoords = texCoordAttrs[tcIdx].c_str();
                     }
 
-                    genStageCode(gl, s,
-                                 fProgramDesc.fStages[s],
-                                 inCoverage.size() ? inCoverage.c_str() : NULL,
-                                 outCoverage.c_str(),
-                                 inCoords,
-                                 &segments,
-                                 &programData->fUniLocations.fStages[s]);
+                    this->genStageCode(gl, s,
+                        fProgramDesc.fStages[s],
+                        inCoverage.size() ? inCoverage.c_str() : NULL,
+                        outCoverage.c_str(),
+                        inCoords,
+                        &segments,
+                        &programData->fUniLocations.fStages[s],
+                        programData->fCustomStage[s]);
                     inCoverage = outCoverage;
                 }
             }
@@ -1348,6 +1376,11 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
                                                imageIncrementName.c_str()));
                 GrAssert(kUnusedUniform != locations.fImageIncrementUni);
             }
+
+            if (NULL != programData->fCustomStage[s]) {
+                programData->fCustomStage[s]->
+                    initUniforms(gl.interface(), progID);
+            }
         }
     }
     GL_CALL(UseProgram(progID));
@@ -1363,6 +1396,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
         programData->fTextureWidth[s] = -1;
         programData->fTextureHeight[s] = -1;
         programData->fTextureDomain[s].setEmpty();
+        // Must not reset fStageOverride[] here.
     }
     programData->fViewMatrix = GrMatrix::InvalidMatrix();
     programData->fColor = GrColor_ILLEGAL;
@@ -1712,7 +1746,8 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                const char* fsOutColor,
                                const char* vsInCoord,
                                ShaderCodeSegments* segments,
-                               StageUniLocations* locations) const {
+                               StageUniLocations* locations,
+                               GrGLProgramStage* customStage) const {
 
     GrAssert(stageNum >= 0 && stageNum <= GrDrawState::kNumStages);
     GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) ==
@@ -1723,7 +1758,12 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     // gradients.
     static const int coordDims = 2;
     int varyingDims;
+
     /// Vertex Shader Stuff
+
+    if (NULL != customStage) {
+        customStage->setupVSUnis(segments->fVSUnis, stageNum);
+    }
 
     // decide whether we need a matrix to transform texture coords
     // and whether the varying needs a perspective coord.
@@ -1808,7 +1848,20 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                         &imageIncrementName, varyingVSName);
     }
 
+    if (NULL != customStage) {
+        GrStringBuilder vertexShader;
+        customStage->emitVS(&vertexShader, varyingVSName);
+        segments->fVSCode.appendf("{\n");
+        segments->fVSCode.append(vertexShader);
+        segments->fVSCode.appendf("}\n");
+    }
+
     /// Fragment Shader Stuff
+
+    if (NULL != customStage) {
+        customStage->setupFSUnis(segments->fFSUnis, stageNum);
+    }
+
     GrStringBuilder fsCoordName;
     // function used to access the shader, may be made projective
     GrStringBuilder texFunc("texture2D");
@@ -1958,6 +2011,31 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                       samplerName, sampleCoords.c_str(),
                                       swizzle, modulate.c_str());
         }
+    }
+
+    if (NULL != customStage) {
+        if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
+                              StageDesc::kNoPerspective_OptFlagBit)) {
+            customStage->setSamplerMode(GrGLProgramStage::kDefault_SamplerMode);
+        } else if (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
+                   StageDesc::kSingle_FetchMode == desc.fFetchMode) {
+            customStage->setSamplerMode(GrGLProgramStage::kProj_SamplerMode);
+        } else {
+            customStage->setSamplerMode(
+                GrGLProgramStage::kExplicitDivide_SamplerMode);
+        }
+
+        GrStringBuilder fragmentShader;
+        fsCoordName = customStage->emitTextureSetup(
+                          &fragmentShader, varyingFSName,
+                          stageNum, coordDims, varyingDims);
+        customStage->emitFS(&fragmentShader, fsOutColor, fsInColor,
+                            samplerName, fsCoordName.c_str());
+      
+        // Enclose custom code in a block to avoid namespace conflicts
+        segments->fFSCode.appendf("{\n");
+        segments->fFSCode.append(fragmentShader);
+        segments->fFSCode.appendf("}\n");
     }
 }
 

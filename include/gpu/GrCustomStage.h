@@ -8,13 +8,15 @@
 #ifndef GrCustomStage_DEFINED
 #define GrCustomStage_DEFINED
 
+#include "GrRefCnt.h"
+
 class GrContext;
 class GrGLProgramStageFactory;
 
 /** Provides custom vertex shader, fragment shader, uniform data for a
     particular stage of the Ganesh shading pipeline.
     TODO: may want to refcount these? */
-class GrCustomStage {
+class GrCustomStage : public GrRefCnt {
 
 public:
 

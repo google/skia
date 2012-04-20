@@ -14,6 +14,7 @@
 #include "GrGpuGL.h"
 #include "GrGLProgram.h"
 
+class GrCustomStage;
 class GrGpuGLProgram;
 
 // Programmable OpenGL or OpenGL ES 2.0
@@ -86,7 +87,8 @@ private:
 
     void buildProgram(GrPrimitiveType typeBlend,
                       BlendOptFlags blendOpts,
-                      GrBlendCoeff dstCoeff);
+                      GrBlendCoeff dstCoeff,
+                      GrCustomStage** customStages);
 
     ProgramCache*               fProgramCache;
     CachedData*                 fProgramData;
