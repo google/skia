@@ -845,7 +845,7 @@ int main(int argc, char * const argv[]) {
                 desc.fSampleCnt = gRec[i].fSampleCnt;
                 GrTexture* tex = gr->createUncachedTexture(desc, NULL, 0);
                 if (!tex) {
-                    return false;
+                    continue;
                 }
                 rt.reset(tex->asRenderTarget());
                 rt.get()->ref();
