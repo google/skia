@@ -131,6 +131,4 @@ void SkEmbossMaskFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeScalar(fBlurRadius);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkEmbossMaskFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkEmbossMaskFilter)
