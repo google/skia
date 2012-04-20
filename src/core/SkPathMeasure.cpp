@@ -147,11 +147,16 @@ SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
 void SkPathMeasure::buildSegments() {
     SkPoint         pts[4];
     int             ptIndex = fFirstPtIndex;
-    SkScalar        d, distance = 0;
+    SkScalar        distance = 0;
     bool            isClosed = fForceClosed;
     bool            firstMoveTo = ptIndex < 0;
     Segment*        seg;
 
+    /*  Note:
+     *  as we accumulate distance, we have to check that the result of +=
+     *  actually made it larger, since a very small delta might be > 0, but
+     *  still have no effect on distance (if distance >>> delta).
+     */
     fSegments.reset();
     bool done = false;
     do {
@@ -166,32 +171,41 @@ void SkPathMeasure::buildSegments() {
                 firstMoveTo = false;
                 break;
 
-            case SkPath::kLine_Verb:
-                d = SkPoint::Distance(pts[0], pts[1]);
+            case SkPath::kLine_Verb: {
+                SkScalar d = SkPoint::Distance(pts[0], pts[1]);
                 SkASSERT(d >= 0);
+                SkScalar prevD = distance;
                 distance += d;
-                seg = fSegments.append();
-                seg->fDistance = distance;
-                seg->fPtIndex = ptIndex;
-                seg->fType = kLine_SegType;
-                seg->fTValue = kMaxTValue;
-                fPts.append(1, pts + 1);
-                ptIndex++;
-                break;
+                if (distance > prevD) {
+                    seg = fSegments.append();
+                    seg->fDistance = distance;
+                    seg->fPtIndex = ptIndex;
+                    seg->fType = kLine_SegType;
+                    seg->fTValue = kMaxTValue;
+                    fPts.append(1, pts + 1);
+                    ptIndex++;
+                }
+            } break;
 
-            case SkPath::kQuad_Verb:
+            case SkPath::kQuad_Verb: {
+                SkScalar prevD = distance;
                 distance = this->compute_quad_segs(pts, distance, 0,
                                                    kMaxTValue, ptIndex);
-                fPts.append(2, pts + 1);
-                ptIndex += 2;
-                break;
+                if (distance > prevD) {
+                    fPts.append(2, pts + 1);
+                    ptIndex += 2;
+                }
+            } break;
 
-            case SkPath::kCubic_Verb:
+            case SkPath::kCubic_Verb: {
+                SkScalar prevD = distance;
                 distance = this->compute_cubic_segs(pts, distance, 0,
                                                     kMaxTValue, ptIndex);
-                fPts.append(3, pts + 1);
-                ptIndex += 3;
-                break;
+                if (distance > prevD) {
+                    fPts.append(3, pts + 1);
+                    ptIndex += 3;
+                }
+            } break;
 
             case SkPath::kClose_Verb:
                 isClosed = true;

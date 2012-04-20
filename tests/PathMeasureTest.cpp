@@ -8,6 +8,40 @@
 #include "Test.h"
 #include "SkPathMeasure.h"
 
+static void test_small_segment(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
+    SkPath path;
+    const SkPoint pts[] = {
+        { 100000, 100000},
+        // big jump between these points, makes a big segment
+        { 1.0005, 0.9999 },
+        // tiny (non-zero) jump between these points
+        { 1, 1 },
+    };
+        
+    path.moveTo(pts[0]);
+    for (size_t i = 1; i < SK_ARRAY_COUNT(pts); ++i) {
+        path.lineTo(pts[i]);
+    }
+    SkPathMeasure meas(path, false);
+
+    /*  this would assert (before a fix) because we added a segment with
+        the same length as the prev segment, due to the follow (bad) pattern
+
+        d = distance(pts[0], pts[1]);
+        distance += d;
+        seg->fDistance = distance;
+     
+        SkASSERT(d > 0);    // TRUE
+        SkASSERT(seg->fDistance > prevSeg->fDistance);  // FALSE
+
+        This 2nd assert failes because (distance += d) didn't affect distance
+        because distance >>> d.
+     */
+    meas.getLength();
+#endif
+}
+
 static void TestPathMeasure(skiatest::Reporter* reporter) {
     SkPath  path;
 
@@ -131,6 +165,8 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
                             SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter, tangent.fX == -SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
+
+    test_small_segment(reporter);
 }
 
 #include "TestClassDef.h"
