@@ -586,6 +586,7 @@ SkGlyphCache* SkGlyphCache::FindTail(SkGlyphCache* cache) {
 void SkGlyphCache_Globals::validate() const {
     size_t computed = 0;
     
+    const SkGlyphCache* head = fHead;
     while (head != NULL) {
         computed += head->fMemoryUsed;
         head = head->fNext;
