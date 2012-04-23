@@ -149,3 +149,83 @@ void SkMutex::release() {
 }
 
 #endif // !SK_USE_POSIX_THREADS
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkTLS.h"
+
+struct SkTLSRec {
+    SkTLSRec*           fNext;
+    void*               fData;
+    SkTLS::CreateProc   fCreateProc;
+    SkTLS::DeleteProc   fDeleteProc;
+};
+
+static void sk_tls_destructor(void* ptr) {
+    SkTLSRec* rec = (SkTLSRec*)ptr;
+    do {
+        SkTLSRec* next = rec->fNext;
+        if (rec->fDeleteProc) {
+            rec->fDeleteProc(rec->fData);
+        }
+        delete rec;
+        rec = next;
+    } while (NULL != rec);
+}
+
+static pthread_key_t gSkTLSKey;
+static pthread_once_t gSkTLSKey_Once = PTHREAD_ONCE_INIT;
+
+static void sk_tls_make_key() {
+    (void)pthread_key_create(&gSkTLSKey, sk_tls_destructor);
+}
+
+void* SkTLS::Get(CreateProc createProc, DeleteProc deleteProc) {
+    if (NULL == createProc) {
+        return NULL;
+    }
+
+    (void)pthread_once(&gSkTLSKey_Once, sk_tls_make_key);
+    void* ptr = pthread_getspecific(gSkTLSKey);
+
+    if (ptr) {
+        const SkTLSRec* rec = (const SkTLSRec*)ptr;
+        do {
+            if (rec->fCreateProc == createProc) {
+                SkASSERT(rec->fDeleteProc == deleteProc);
+                return rec->fData;
+            }
+        } while ((rec = rec->fNext) != NULL);
+        // not found, so create a new one
+    }
+    
+    // add a new head of our change
+    SkTLSRec* rec = new SkTLSRec;
+    rec->fNext = (SkTLSRec*)ptr;
+    (void)pthread_setspecific(gSkTLSKey, rec);
+
+    rec->fData = createProc();
+    rec->fCreateProc = createProc;
+    rec->fDeleteProc = deleteProc;
+    return rec->fData;
+}
+
+void* SkTLS::Find(CreateProc createProc) {
+    if (NULL == createProc) {
+        return NULL;
+    }
+    
+    (void)pthread_once(&gSkTLSKey_Once, sk_tls_make_key);
+    void* ptr = pthread_getspecific(gSkTLSKey);
+
+    if (ptr) {
+        const SkTLSRec* rec = (const SkTLSRec*)ptr;
+        do {
+            if (rec->fCreateProc == createProc) {
+                return rec->fData;
+            }
+        } while ((rec = rec->fNext) != NULL);
+    }
+    return NULL;
+}
+
