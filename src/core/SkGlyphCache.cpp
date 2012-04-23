@@ -556,10 +556,7 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
 }
 
 size_t SkGlyphCache::GetCacheUsed() {
-    SkGlyphCache_Globals& globals = getGlobals();
-    SkAutoMutexAcquire  ac(globals.fMutex);
-
-    return SkGlyphCache::ComputeMemoryUsed(globals.fHead);
+    return getGlobals().fTotalMemoryUsed;
 }
 
 bool SkGlyphCache::SetCacheUsed(size_t bytesUsed) {
@@ -585,19 +582,15 @@ SkGlyphCache* SkGlyphCache::FindTail(SkGlyphCache* cache) {
     return cache;
 }
 
-size_t SkGlyphCache::ComputeMemoryUsed(const SkGlyphCache* head) {
-    size_t size = 0;
-
-    while (head != NULL) {
-        size += head->fMemoryUsed;
-        head = head->fNext;
-    }
-    return size;
-}
-
 #ifdef SK_DEBUG
 void SkGlyphCache_Globals::validate() const {
-    size_t computed = SkGlyphCache::ComputeMemoryUsed(fHead);
+    size_t computed = 0;
+    
+    while (head != NULL) {
+        computed += head->fMemoryUsed;
+        head = head->fNext;
+    }
+
     if (fTotalMemoryUsed != computed) {
         printf("total %d, computed %d\n", (int)fTotalMemoryUsed, (int)computed);
     }

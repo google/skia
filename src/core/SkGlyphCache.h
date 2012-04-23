@@ -276,7 +276,6 @@ private:
     static size_t InternalFreeCache(SkGlyphCache_Globals*, size_t bytesNeeded);
 
     inline static SkGlyphCache* FindTail(SkGlyphCache* head);
-    static size_t ComputeMemoryUsed(const SkGlyphCache* head);
 
     friend class SkGlyphCache_Globals;
 };
