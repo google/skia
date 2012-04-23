@@ -12,7 +12,7 @@
 
 #include "SkTypes.h"
 
-class SkGraphics {
+class SK_API SkGraphics {
 public:
     /**
      *  Call this at process initialization time if your environment does not
