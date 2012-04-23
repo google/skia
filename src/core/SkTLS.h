@@ -11,19 +11,14 @@
 
 #include "SkTypes.h"
 
+/**
+ *  Maintains a per-thread cache, using a CreateProc as the key into that cache.
+ */
 class SkTLS {
 public:
     typedef void* (*CreateProc)();
     typedef void  (*DeleteProc)(void*);
-
-    /**
-     *  Create proc is called once per thread, and its return value is cached
-     *  and returned by this call, treating the proc as a key. When this thread
-     *  exists, if DeleteProc is not NULL, it is called and passed the value
-     *  that was returned by CreateProc.
-     */
-    static void* Get(CreateProc, DeleteProc);
-
+    
     /**
      *  If Get() has previously been called with this CreateProc, then this
      *  returns its cached data, otherwise it returns NULL. The CreateProc is
@@ -31,6 +26,24 @@ public:
      *  cache.
      */
     static void* Find(CreateProc);
+    
+    /**
+     *  Return the cached data that was returned by the CreateProc. This proc
+     *  is only called the first time Get is called, and there after it is
+     *  cached (per-thread), using the CreateProc as a key to look it up.
+     *
+     *  When this thread, or Delete is called, the cached data is removed, and
+     *  if a DeleteProc was specified, it is passed the pointer to the cached
+     *  data.
+     */
+    static void* Get(CreateProc, DeleteProc);
+
+    /**
+     *  Remove (optionally calling the DeleteProc if it was specificed in Get)
+     *  the cached data associated with this CreateProc. If no associated cached
+     *  data is found, do nothing.
+     */
+    static void Delete(CreateProc);
 };
 
 #endif
