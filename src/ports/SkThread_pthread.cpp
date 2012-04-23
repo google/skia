@@ -241,11 +241,11 @@ void SkTLS::Delete(CreateProc createProc) {
     (void)pthread_once(&gSkTLSKey_Once, sk_tls_make_key);
     void* ptr = pthread_getspecific(gSkTLSKey);
     
-    SkTLSRec* curr = (const SkTLSRec*)ptr;
+    SkTLSRec* curr = (SkTLSRec*)ptr;
     SkTLSRec* prev = NULL;
     while (curr) {
         SkTLSRec* next = curr->fNext;
-        if (rec->fCreateProc == createProc) {
+        if (curr->fCreateProc == createProc) {
             if (prev) {
                 prev->fNext = next;
             } else {
