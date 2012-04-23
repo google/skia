@@ -159,16 +159,20 @@ struct SkTLSRec {
     void*               fData;
     SkTLS::CreateProc   fCreateProc;
     SkTLS::DeleteProc   fDeleteProc;
+
+    ~SkTLSRec() {
+        if (fDeleteProc) {
+            fDeleteProc(fData);
+        }
+        // else we leak fData, or it will be managed by the caller
+    }
 };
 
 static void sk_tls_destructor(void* ptr) {
     SkTLSRec* rec = (SkTLSRec*)ptr;
     do {
         SkTLSRec* next = rec->fNext;
-        if (rec->fDeleteProc) {
-            rec->fDeleteProc(rec->fData);
-        }
-        delete rec;
+        SkDELETE(rec);
         rec = next;
     } while (NULL != rec);
 }
@@ -227,5 +231,32 @@ void* SkTLS::Find(CreateProc createProc) {
         } while ((rec = rec->fNext) != NULL);
     }
     return NULL;
+}
+
+void SkTLS::Delete(CreateProc createProc) {
+    if (NULL == createProc) {
+        return;
+    }
+    
+    (void)pthread_once(&gSkTLSKey_Once, sk_tls_make_key);
+    void* ptr = pthread_getspecific(gSkTLSKey);
+    
+    SkTLSRec* curr = (const SkTLSRec*)ptr;
+    SkTLSRec* prev = NULL;
+    while (curr) {
+        SkTLSRec* next = curr->fNext;
+        if (rec->fCreateProc == createProc) {
+            if (prev) {
+                prev->fNext = next;
+            } else {
+                // we have a new head of our chain
+                (void)pthread_setspecific(gSkTLSKey, next);
+            }
+            SkDELETE(curr);
+            break;
+        }
+        prev = curr;
+        curr = next;
+    }
 }
 
