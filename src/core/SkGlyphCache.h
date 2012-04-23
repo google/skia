@@ -156,18 +156,6 @@ public:
         return VisitCache(desc, DetachProc, NULL);
     }
 
-    /** Return the approximate number of bytes used by the font cache
-    */
-    static size_t GetCacheUsed();
-
-    /** This can be called to purge old font data, in an attempt to free
-        enough bytes such that the font cache is not using more than the
-        specified number of bytes. It is thread-safe, and may be called at
-        any time.
-        Return true if some amount of the cache was purged.
-    */
-    static bool SetCacheUsed(size_t bytesUsed);
-
 #ifdef SK_DEBUG
     void validate() const;
 #else
