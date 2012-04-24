@@ -76,6 +76,24 @@ static void Tests(skiatest::Reporter* reporter) {
         writer.reset(storage, sizeof(storage));
         test2(reporter, &writer);
     }
+    
+    // small storage
+    {
+        intptr_t storage[8];
+        SkWriter32 writer(100, storage, sizeof(storage));
+        test1(reporter, &writer);
+        writer.reset(); // should just rewind our storage
+        test2(reporter, &writer);
+    }
+    
+    // large storage
+    {
+        intptr_t storage[1024];
+        SkWriter32 writer(100, storage, sizeof(storage));
+        test1(reporter, &writer);
+        writer.reset(); // should just rewind our storage
+        test2(reporter, &writer);
+    }
 }
 
 #include "TestClassDef.h"
