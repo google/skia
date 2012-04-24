@@ -14,6 +14,11 @@ SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize) :
     fWriter(minSize) {
 }
 
+SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, void* storage, size_t storageSize) :
+    INHERITED(),
+    fWriter(minSize, storage, storageSize) {
+}
+
 void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
     /*
      *  If we have a factoryset, then the first 32bits tell us...

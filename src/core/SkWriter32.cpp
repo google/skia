@@ -9,8 +9,8 @@
 
 struct SkWriter32::Block {
     Block*  fNext;
-    size_t  fSize;
-    size_t  fAllocated;
+    size_t  fSize;      // total space allocated (after this)
+    size_t  fAllocated; // space used so far
     
     size_t  available() const { return fSize - fAllocated; }
     char*   base() { return (char*)(this + 1); }
@@ -31,6 +31,12 @@ struct SkWriter32::Block {
         return (uint32_t*)ptr;
     }
 
+    void rewind() {
+        fNext = NULL;
+        fAllocated = 0;
+        // keep fSize as is
+    }
+
     static Block* Create(size_t size) {
         SkASSERT(SkAlign4(size) == size);
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
@@ -39,16 +45,50 @@ struct SkWriter32::Block {
         block->fAllocated = 0;
         return block;
     }
+    
+    static Block* CreateFromStorage(void* storage, size_t size) {
+        SkASSERT(SkIsAlign4((intptr_t)storage));
+        Block* block = (Block*)storage;
+        block->fNext = NULL;
+        block->fSize = size - sizeof(Block);
+        block->fAllocated = 0;
+        return block;
+    }
+    
 };
 
+#define MIN_BLOCKSIZE   (sizeof(SkWriter32::Block) + sizeof(intptr_t))
+
 ///////////////////////////////////////////////////////////////////////////////
+
+SkWriter32::SkWriter32(size_t minSize, void* storage, size_t storageSize) {
+    fMinSize = minSize;
+    fSize = 0;
+    fSingleBlock = NULL;
+    fSingleBlockSize = 0;
+
+    storageSize &= ~3;  // trunc down to multiple of 4
+    if (storageSize >= MIN_BLOCKSIZE) {
+        fHead = fTail = Block::CreateFromStorage(storage, storageSize);
+        fHeadIsExternalStorage = true;
+    } else {
+        fHead = fTail = NULL;
+        fHeadIsExternalStorage = false;
+    }
+}
 
 SkWriter32::~SkWriter32() {
     this->reset();
 }
 
 void SkWriter32::reset() {
-    Block* block = fHead;    
+    Block* block = fHead;
+    
+    if (fHeadIsExternalStorage) {
+        SkASSERT(block);
+        // don't 'free' the first block, since it is owned by the caller
+        block = block->fNext;
+    }
     while (block) {
         Block* next = block->fNext;
         sk_free(block);
@@ -56,8 +96,13 @@ void SkWriter32::reset() {
     }
 
     fSize = 0;
-    fHead = fTail = NULL;
     fSingleBlock = NULL;
+    if (fHeadIsExternalStorage) {
+        fHead->rewind();
+        fTail = fHead;
+    } else {
+        fHead = fTail = NULL;
+    }
 }
 
 void SkWriter32::reset(void* block, size_t size) {

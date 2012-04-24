@@ -23,14 +23,23 @@ class SkWStream;
 
 class SkWriter32 : SkNoncopyable {
 public:
+    /**
+     *  The caller can specify an initial block of storage, which the caller manages.
+     *  SkWriter32 will not attempt to free this in its destructor. It is up to the
+     *  implementation to decide if, and how much, of the storage to utilize, and it
+     *  is possible that it may be ignored entirely.
+     */
+    SkWriter32(size_t minSize, void* initialStorage, size_t storageSize);
+
     SkWriter32(size_t minSize)
         : fMinSize(minSize),
           fSize(0),
           fSingleBlock(NULL),
           fSingleBlockSize(0),
           fHead(NULL),
-          fTail(NULL) {
-    }
+          fTail(NULL),
+          fHeadIsExternalStorage(false) {}
+
     ~SkWriter32();
 
     /**
@@ -45,7 +54,7 @@ public:
      *  dynamic allocation (and resets).
      */
     void reset(void* block, size_t size);
-                    
+
     bool writeBool(bool value) {
         this->writeInt(value);
         return value;
@@ -150,10 +159,12 @@ private:
 
     char*       fSingleBlock;
     uint32_t    fSingleBlockSize;
-    
+
     struct Block;
     Block*  fHead;
     Block*  fTail;
+
+    bool fHeadIsExternalStorage;
 
     Block* newBlock(size_t bytes);
 };

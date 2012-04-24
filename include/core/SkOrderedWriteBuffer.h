@@ -18,6 +18,8 @@
 class SkOrderedWriteBuffer : public SkFlattenableWriteBuffer {
 public:
     SkOrderedWriteBuffer(size_t minSize);
+    SkOrderedWriteBuffer(size_t minSize, void* initialStorage,
+                         size_t storageSize);
     virtual ~SkOrderedWriteBuffer() {}
 
     // deprecated naming convention that will be removed after callers are updated
