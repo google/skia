@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkDashPathEffect.h"
 
 static SkCanvas* create(SkBitmap::Config config, int w, int h, int rb,
                         void* addr = NULL) {
@@ -46,6 +47,19 @@ static void test_bug533(skiatest::Reporter* reporter) {
 #endif
 }
 
+static void test_crbug_124652(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
+    /*
+        http://code.google.com/p/chromium/issues/detail?id=124652
+        This particular test/bug only applies to the float case, where
+        large values can "swamp" small ones.
+     */
+    SkScalar intervals[2] = {837099584, 33450};
+    SkAutoTUnref<SkDashPathEffect> dash(
+        new SkDashPathEffect(intervals, 2, -10, false));
+#endif
+}
+
 static void test_bigcubic(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
@@ -80,6 +94,7 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_giantaa(reporter);
     test_bug533(reporter);
     test_bigcubic(reporter);
+    test_crbug_124652(reporter);
 }
 
 #include "TestClassDef.h"

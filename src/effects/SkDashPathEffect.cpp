@@ -50,7 +50,14 @@ SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
                 phase = SkScalarMod(phase, len);
             }
             phase = len - phase;
-        } else if (phase >= len) {
+            // Due to finite precision, its possible that phase == len, even after the
+            // subtract (if len >>> phase), so we need to detect that here.
+            SkASSERT(phase <= len);
+            if (phase == len) {
+                phase = 0;
+            }
+        }
+        if (phase >= len) {
             phase = SkScalarMod(phase, len);
         }
 
