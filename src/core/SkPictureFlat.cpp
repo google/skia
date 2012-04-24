@@ -93,7 +93,8 @@ void SkFlatMatrix::dump() const {
 SkFlatPaint* SkFlatPaint::Flatten(SkChunkAlloc* heap, const SkPaint& paint,
                                   int index, SkRefCntSet* rec,
                                   SkRefCntSet* faceRecorder) {
-    SkOrderedWriteBuffer buffer(2*sizeof(SkPaint));
+    intptr_t storage[256];
+    SkOrderedWriteBuffer buffer(4*sizeof(SkPaint), storage, sizeof(storage));
 
     buffer.setRefCntRecorder(rec);
     buffer.setTypefaceRecorder(faceRecorder);
