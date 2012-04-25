@@ -1214,7 +1214,7 @@ void SkCanvas::replayClips(ClipVisitor* visitor) const {
     SkClipStack::B2FIter                iter(fClipStack);
     const SkClipStack::B2FIter::Clip*   clip;
 
-    SkRect empty = {};
+    SkRect empty = { 0, 0, 0, 0 };
     while ((clip = iter.next()) != NULL) {
         if (clip->fPath) {
             visitor->clipPath(*clip->fPath, clip->fOp, clip->fDoAA);
