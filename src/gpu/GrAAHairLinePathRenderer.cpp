@@ -164,7 +164,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
     // maybe different when do this using gpu (geo or tess shaders)
     static const SkScalar gSubdivTol = 175 * SK_Scalar1;
 
-    if (dsqd <= gSubdivTol*gSubdivTol) {
+    if (dsqd <= SkScalarMul(gSubdivTol, gSubdivTol)) {
         return 0;
     } else {
         // subdividing the quad reduces d by 4. so we want x = log4(d/tol)
@@ -177,7 +177,9 @@ int num_quad_subdivs(const SkPoint p[3]) {
         log = GrMin(GrMax(0, log), kMaxSub);
         return log;
 #else
-        SkScalar log = SkScalarLog(SkScalarDiv(dsqd,gSubdivTol*gSubdivTol));
+        SkScalar log = SkScalarLog(
+                          SkScalarDiv(dsqd, 
+                                      SkScalarMul(gSubdivTol, gSubdivTol)));
         static const SkScalar conv = SkScalarInvert(SkScalarLog(2));
         log = SkScalarMul(log, conv);
         return  GrMin(GrMax(0, SkScalarCeilToInt(log)),kMaxSub);

@@ -460,6 +460,7 @@ public:
         AutoRenderTargetRestore() : fDrawState(NULL), fSavedTarget(NULL) {}
         AutoRenderTargetRestore(GrDrawState* ds, GrRenderTarget* newTarget) {
             fDrawState = NULL;
+            fSavedTarget = NULL;
             this->set(ds, newTarget);
         }
         ~AutoRenderTargetRestore() { this->set(NULL, NULL); }

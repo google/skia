@@ -77,9 +77,12 @@ protected:
         if (false) {
             SkPoint pts[4];
             pts[0].set(1.61061274e+09f, 6291456);
-            pts[1].set(-7.18397061e+15f, -1.53091184e+13f);
-            pts[2].set(-1.30077315e+16f, -2.77196141e+13f);
-            pts[3].set(-1.30077315e+16f, -2.77196162e+13f);
+            pts[1].set(SkFloatToScalar(-7.18397061e+15f), 
+                       SkFloatToScalar(-1.53091184e+13f));
+            pts[2].set(SkFloatToScalar(-1.30077315e+16f), 
+                       SkFloatToScalar(-2.77196141e+13f));
+            pts[3].set(SkFloatToScalar(-1.30077315e+16f), 
+                       SkFloatToScalar(-2.77196162e+13f));
 
             SkPath path;
             path.moveTo(pts[0]);

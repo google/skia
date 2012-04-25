@@ -19,10 +19,11 @@
 
 static void test_edgeclipper() {
     SkPoint pts[] = {
-        { -8.38822452e+21f, -7.69721471e+19f },
-        { 1.57645875e+23f, 1.44634003e+21f },
-        { 1.61519691e+23f, 1.48208059e+21f },
-        { 3.13963584e+23f, 2.88057438e+21f }
+        { SkFloatToScalar(-8.38822452e+21f),
+                                           SkFloatToScalar(-7.69721471e+19f) },
+        { SkFloatToScalar(1.57645875e+23f), SkFloatToScalar(1.44634003e+21f) },
+        { SkFloatToScalar(1.61519691e+23f), SkFloatToScalar(1.48208059e+21f) },
+        { SkFloatToScalar(3.13963584e+23f), SkFloatToScalar(2.88057438e+21f) }
     };
     SkRect clip = { 0, 0, 300, 200 };
     

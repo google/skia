@@ -45,7 +45,7 @@ protected:
         };
         SkRandom random;
 
-        for (int i = 0; i < SK_ARRAY_COUNT(gStyles); ++i) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gStyles); ++i) {
             SkMaskFilter* mf = SkBlurMaskFilter::Create(blurRadius,
                                        gStyles[i],
                                        SkBlurMaskFilter::kHighQuality_BlurFlag);
