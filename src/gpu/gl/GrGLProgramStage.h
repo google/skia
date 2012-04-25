@@ -36,7 +36,8 @@ public:
     };
 
     typedef GrTAllocator<GrGLShaderVar> VarArray;
-
+    
+    virtual ~GrGLProgramStage();
 
     /** Creates any uniform variables the vertex shader requires
         and appends them to vsUnis;
