@@ -922,7 +922,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     // the current clip (and identity matrix) and grpaint settings
 
     // used to compute inverse view, if necessary
-    GrMatrix ivm = context->getMatrix();
+    GrMatrix ivm = matrix;
 
     GrAutoMatrix avm(context, GrMatrix::I());
 
