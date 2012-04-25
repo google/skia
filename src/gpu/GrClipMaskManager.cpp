@@ -91,7 +91,7 @@ namespace {
 int process_initial_clip_elements(const GrClip& clip,
                                   const GrRect& bounds,
                                   bool* clearToInside,
-                                  GrSetOp* startOp) {
+                                  SkRegion::Op* startOp) {
 
     // logically before the first element of the clip stack is 
     // processed the clip is entirely open. However, depending on the
@@ -105,13 +105,13 @@ int process_initial_clip_elements(const GrClip& clip,
 
     for (curr = 0; curr < count && !done; ++curr) {
         switch (clip.getOp(curr)) {
-            case kReplace_SetOp:
+            case SkRegion::kReplace_Op:
                 // replace ignores everything previous
-                *startOp = kReplace_SetOp;
+                *startOp = SkRegion::kReplace_Op;
                 *clearToInside = false;
                 done = true;
                 break;
-            case kIntersect_SetOp:
+            case SkRegion::kIntersect_Op:
                 // if this element contains the entire bounds then we
                 // can skip it.
                 if (kRect_ClipType == clip.getElementType(curr)
@@ -122,47 +122,47 @@ int process_initial_clip_elements(const GrClip& clip,
                 // same as clear to 0 and treat as a replace. Otherwise,
                 // set stays empty.
                 if (*clearToInside) {
-                    *startOp = kReplace_SetOp;
+                    *startOp = SkRegion::kReplace_Op;
                     *clearToInside = false;
                     done = true;
                 }
                 break;
                 // we can skip a leading union.
-            case kUnion_SetOp:
+            case SkRegion::kUnion_Op:
                 // if everything is initially outside then union is
                 // same as replace. Otherwise, every pixel is still 
                 // clearToInside
                 if (!*clearToInside) {
-                    *startOp = kReplace_SetOp;
+                    *startOp = SkRegion::kReplace_Op;
                     done = true;
                 }
                 break;
-            case kXor_SetOp:
+            case SkRegion::kXOR_Op:
                 // xor is same as difference or replace both of which
                 // can be 1-pass instead of 2 for xor.
                 if (*clearToInside) {
-                    *startOp = kDifference_SetOp;
+                    *startOp = SkRegion::kDifference_Op;
                 } else {
-                    *startOp = kReplace_SetOp;
+                    *startOp = SkRegion::kReplace_Op;
                 }
                 done = true;
                 break;
-            case kDifference_SetOp:
+            case SkRegion::kDifference_Op:
                 // if all pixels are clearToInside then we have to process the
                 // difference, otherwise it has no effect and all pixels
                 // remain outside.
                 if (*clearToInside) {
-                    *startOp = kDifference_SetOp;
+                    *startOp = SkRegion::kDifference_Op;
                     done = true;
                 }
                 break;
-            case kReverseDifference_SetOp:
+            case SkRegion::kReverseDifference_Op:
                 // if all pixels are clearToInside then reverse difference
                 // produces empty set. Otherise it is same as replace
                 if (*clearToInside) {
                     *clearToInside = false;
                 } else {
-                    *startOp = kReplace_SetOp;
+                    *startOp = SkRegion::kReplace_Op;
                     done = true;
                 }
                 break;
@@ -226,7 +226,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                        GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
 
         bool clearToInside;
-        GrSetOp startOp = kReplace_SetOp; // suppress warning
+        SkRegion::Op startOp = SkRegion::kReplace_Op; // suppress warning
         int start = process_initial_clip_elements(clipCopy,
                                                     rtRect,
                                                     &clearToInside,
@@ -256,7 +256,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                 fillInverted = false;
                 // there is no point in intersecting a screen filling
                 // rectangle.
-                if (kIntersect_SetOp == clipCopy.getOp(c) &&
+                if (SkRegion::kIntersect_Op == clipCopy.getOp(c) &&
                     clipCopy.getRect(c).contains(rtRect)) {
                     continue;
                 }
@@ -275,7 +275,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                     !pr->requiresStencilPass(*clipPath, fill, gpu);
             }
 
-            GrSetOp op = (c == start) ? startOp : clipCopy.getOp(c);
+            SkRegion::Op op = (c == start) ? startOp : clipCopy.getOp(c);
             int passes;
             GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
 

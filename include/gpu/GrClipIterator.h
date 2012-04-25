@@ -13,6 +13,7 @@
 
 #include "GrPath.h"
 #include "GrRect.h"
+#include "SkRegion.h"
 
 /**
  * A clip is a list of paths and/or rects with set operations to combine them.
@@ -58,7 +59,7 @@ public:
      * Gets the operation used to apply the current item to previously iterated
      * items. Iterators should not produce a Replace op.
      */
-    virtual GrSetOp getOp() const = 0;
+    virtual SkRegion::Op getOp() const = 0;
 
     /**
      * Gets anti-aliasing setting desired for the current clip

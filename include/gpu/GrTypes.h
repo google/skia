@@ -482,18 +482,6 @@ struct GrTextureDesc {
 };
 
 /**
- * Set Operations used to construct clips.
- */
-enum GrSetOp {
-    kReplace_SetOp,
-    kIntersect_SetOp,
-    kUnion_SetOp,
-    kXor_SetOp,
-    kDifference_SetOp,
-    kReverseDifference_SetOp,
-};
-
-/**
  * Clips are composed from these objects.
  */
 enum GrClipType {
