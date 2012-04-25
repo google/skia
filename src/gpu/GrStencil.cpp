@@ -220,7 +220,7 @@ GR_STATIC_CONST_SAME_STENCIL(gDiffClip,
     0x0000            // set clip bit
 );
 
-bool GrStencilSettings::GetClipPasses(GrSetOp op, 
+bool GrStencilSettings::GetClipPasses(SkRegion::Op op, 
                                       bool canBeDirect,
                                       unsigned int stencilClipMask,
                                       bool invertedFill,
@@ -229,19 +229,19 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
     if (canBeDirect && !invertedFill) {
         *numPasses = 0;
         switch (op) {
-            case kReplace_SetOp:
+            case SkRegion::kReplace_Op:
                 *numPasses = 1;
                 settings[0] = gReplaceClip;
                 break;
-            case kUnion_SetOp:
+            case SkRegion::kUnion_Op:
                 *numPasses = 1;
                 settings[0] = gUnionClip;
                 break;
-            case kXor_SetOp:
+            case SkRegion::kXOR_Op:
                 *numPasses = 1;
                 settings[0] = gXorClip;
                 break;
-            case kDifference_SetOp:
+            case SkRegion::kDifference_Op:
                 *numPasses = 1;
                 settings[0] = gDiffClip;
                 break;
@@ -260,7 +260,7 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
         // if we make the path renderer go to stencil we always give it a
         // non-inverted fill and we use the stencil rules on the client->clipbit
         // pass to select either the zeros or nonzeros.
-        case kReplace_SetOp:
+        case SkRegion::kReplace_Op:
             *numPasses= 1;
             settings[0] = invertedFill ? gInvUserToClipReplace : gUserToClipReplace;
             settings[0].fFrontFuncMask &= ~stencilClipMask;
@@ -268,13 +268,13 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
             settings[0].fBackFuncMask = settings[0].fFrontFuncMask;
             settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
             break;
-        case kIntersect_SetOp:
+        case SkRegion::kIntersect_Op:
             *numPasses = 1;
             settings[0] = invertedFill ? gInvUserToClipIsect : gUserToClipIsect;
             settings[0].fFrontFuncRef = stencilClipMask;
             settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
             break;
-        case kUnion_SetOp:
+        case SkRegion::kUnion_Op:
             *numPasses = 2;
             if (invertedFill) {
                 settings[0] = gInvUserToClipUnionPass0;
@@ -301,7 +301,7 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
                 settings[1].fBackFuncRef = settings[1].fFrontFuncRef;
             }
             break;
-        case kXor_SetOp:
+        case SkRegion::kXOR_Op:
             *numPasses = 2;
             if (invertedFill) {
                 settings[0] = gInvUserToClipXorPass0;
@@ -321,13 +321,13 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
                 settings[1].fBackFuncRef = settings[1].fFrontFuncRef;
             }
             break;
-        case kDifference_SetOp:
+        case SkRegion::kDifference_Op:
             *numPasses = 1;
             settings[0] = invertedFill ? gInvUserToClipDiff : gUserToClipDiff;
             settings[0].fFrontFuncRef |= stencilClipMask;
             settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
             break;
-        case kReverseDifference_SetOp:
+        case SkRegion::kReverseDifference_Op:
             if (invertedFill) {
                 *numPasses = 1;
                 settings[0] = gInvUserToClipRDiff;

@@ -108,7 +108,7 @@ public:
     virtual void rewind() SK_OVERRIDE { this->reset(*fClipStack); }
     virtual GrClipType getType() const SK_OVERRIDE;
 
-    virtual GrSetOp getOp() const SK_OVERRIDE;
+    virtual SkRegion::Op getOp() const SK_OVERRIDE;
 
     virtual bool getDoAA() const SK_OVERRIDE;
 
