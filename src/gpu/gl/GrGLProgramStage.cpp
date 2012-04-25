@@ -8,6 +8,11 @@
 #include "GrGLSL.h"
 #include "GrGLProgramStage.h"
 
+GrGLProgramStage::~GrGLProgramStage() {
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrGLProgramStageFactory::~GrGLProgramStageFactory(void) {
 
 }
