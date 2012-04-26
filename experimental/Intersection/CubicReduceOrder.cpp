@@ -24,7 +24,7 @@ static int vertical_line(const Cubic& cubic, Cubic& reduction) {
     reduction[1] = cubic[3];
     int smaller = reduction[1].y > reduction[0].y;
     int larger = smaller ^ 1;
-    int roots = SkFindCubicExtrema(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y, tValues);
+    int roots = findExtrema(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y, tValues);
     for (int index = 0; index < roots; ++index) {
         double yExtrema = interp_cubic_coords(&cubic[0].y, tValues[index]);
         if (reduction[smaller].y > yExtrema) {
@@ -44,7 +44,7 @@ static int horizontal_line(const Cubic& cubic, Cubic& reduction) {
     reduction[1] = cubic[3];
     int smaller = reduction[1].x > reduction[0].x;
     int larger = smaller ^ 1;
-    int roots = SkFindCubicExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x, tValues);
+    int roots = findExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x, tValues);
     for (int index = 0; index < roots; ++index) {
         double xExtrema = interp_cubic_coords(&cubic[0].x, tValues[index]);
         if (reduction[smaller].x > xExtrema) {
@@ -127,9 +127,9 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
     double tValues[2];
     int roots;
     if (useX) {
-        roots = SkFindCubicExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x, tValues);
+        roots = findExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x, tValues);
     } else {
-        roots = SkFindCubicExtrema(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y, tValues);
+        roots = findExtrema(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y, tValues);
     }
     for (index = 0; index < roots; ++index) {
         _Point extrema;

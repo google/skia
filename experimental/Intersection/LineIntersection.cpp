@@ -1,4 +1,5 @@
 #include "DataTypes.h"
+#include "Intersections.h"
 #include "LineIntersection.h"
 #include <algorithm> // used for std::swap
 
@@ -112,12 +113,122 @@ int horizontalLineIntersect(const _Line& line, double left, double right,
         double y, double tRange[2]) {
     int result = horizontalIntersect(line, y, tRange);
     if (result != 1) {
+        // FIXME: this is incorrect if result == 2
         return result;
     }
-    // FIXME: this is incorrect if result == 2
     double xIntercept = line[0].x + tRange[0] * (line[1].x - line[0].x);
     if (xIntercept > right || xIntercept < left) {
         return 0;
+    }
+    return result;
+}
+
+int horizontalIntersect(const _Line& line, double left, double right,
+        double y, bool flipped, Intersections& intersections) {
+    int result = horizontalIntersect(line, y, intersections.fT[0]);
+    switch (result) {
+        case 0:
+            break;
+        case 1: {
+            double xIntercept = line[0].x + intersections.fT[0][0]
+                    * (line[1].x - line[0].x);
+            if (xIntercept > right || xIntercept < left) {
+                return 0;
+            }
+            intersections.fT[1][0] = (xIntercept - left) / (right - left);
+            break;
+        }
+        case 2:
+            double lineL = line[0].x;
+            double lineR = line[1].x;
+            if (lineL > lineR) {
+                std::swap(lineL, lineR);
+            }
+            double overlapL = std::max(left, lineL);
+            double overlapR = std::min(right, lineR);
+            if (overlapL > overlapR) {
+                return 0;
+            }
+            if (overlapL == overlapR) {
+                result = 1;
+            }
+            intersections.fT[0][0] = (overlapL - line[0].x) / (line[1].x - line[0].x);
+            intersections.fT[1][0] = (overlapL - left) / (right - left);
+            if (result > 1) {
+                intersections.fT[0][1] = (overlapR - line[0].x) / (line[1].x - line[0].x);
+                intersections.fT[1][1] = (overlapR - left) / (right - left);
+            }
+            break;
+    }
+    if (flipped) {
+        // OPTIMIZATION: instead of swapping, pass original line, use [1].x - [0].x
+        for (int index = 0; index < result; ++index) {
+            intersections.fT[1][index] = 1 - intersections.fT[1][index];
+        }
+    }
+    return result;
+}
+
+int verticalIntersect(const _Line& line, double x, double tRange[2]) {
+    double min = line[0].x;
+    double max = line[1].x;
+    if (min > max) {
+        std::swap(min, max);
+    }
+    if (min > x || max < x) {
+        return 0;
+    }
+    if (approximately_equal(min, max)) {
+        tRange[0] = 0;
+        tRange[1] = 1;
+        return 2;
+    }
+    tRange[0] = (x - line[0].x) / (line[1].x - line[0].x);
+    return 1;
+}
+
+int verticalIntersect(const _Line& line, double top, double bottom,
+        double x, bool flipped, Intersections& intersections) {
+    int result = verticalIntersect(line, x, intersections.fT[0]);
+    switch (result) {
+        case 0:
+            break;
+        case 1: {
+            double yIntercept = line[0].y + intersections.fT[0][0]
+                    * (line[1].y - line[0].y);
+            if (yIntercept > bottom || yIntercept < top) {
+                return 0;
+            }
+            intersections.fT[1][0] = (yIntercept - top) / (bottom - top);
+            break;
+        }
+        case 2:
+            double lineT = line[0].y;
+            double lineB = line[1].y;
+            if (lineT > lineB) {
+                std::swap(lineT, lineB);
+            }
+            double overlapT = std::max(top, lineT);
+            double overlapB = std::min(bottom, lineB);
+            if (overlapT > overlapB) {
+                return 0;
+            }
+            if (overlapT == overlapB) {
+                result = 1;
+            }
+            intersections.fT[0][0] = (overlapT - line[0].y) / (line[1].y - line[0].y);
+            intersections.fT[1][0] = (overlapT - top) / (bottom - top);
+            if (result > 1) {
+                intersections.fT[0][1] = (overlapB - line[0].y) / (line[1].y - line[0].y);
+                intersections.fT[1][1] = (overlapB - top) / (bottom - top);
+            }
+            break;
+    }
+    if (flipped) {
+        // OPTIMIZATION: instead of swapping, pass original line, use [1].y - [0].y
+        for (int index = 0; index < result; ++index) {
+            intersections.fT[1][index] = 1 - intersections.fT[1][index];
+        }
     }
     return result;
 }

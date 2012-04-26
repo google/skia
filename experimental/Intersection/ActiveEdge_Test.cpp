@@ -74,9 +74,9 @@ void ActiveEdge_Test() {
     right.fWorkEdge.fEdge = &rightIn;
     for (size_t x = 0; x < leftRightCount; ++x) {
         left.fAbove = leftRight[x][0];
-        left.fBelow = leftRight[x][1]; 
+        left.fTangent = left.fBelow = leftRight[x][1]; 
         right.fAbove = leftRight[x][2];
-        right.fBelow = leftRight[x][3];
+        right.fTangent = right.fBelow = leftRight[x][3];
         SkASSERT(left < right);
         SkASSERT(operator_less_than(left, right));
         SkASSERT(!(right < left));

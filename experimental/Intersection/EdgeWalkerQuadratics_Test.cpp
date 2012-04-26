@@ -218,7 +218,22 @@ static void testSimplifyQuadratic16() {
     drawAsciiPaths(path, out, true);
 }
 
+static void testSimplifyQuadratic17() {
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(0, 1);
+    path.quadTo(2, 1, 3, 3);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
+
 static void (*simplifyTests[])() = {
+    testSimplifyQuadratic17,
     testSimplifyQuadratic16,
     testSimplifyQuadratic15,
     testSimplifyQuadratic14,
@@ -239,7 +254,7 @@ static void (*simplifyTests[])() = {
 
 static size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);
 
-static void (*firstTest)() = 0;
+static void (*firstTest)() = testSimplifyQuadratic14;
 static bool skipAll = false;
 
 void SimplifyQuadraticPaths_Test() {

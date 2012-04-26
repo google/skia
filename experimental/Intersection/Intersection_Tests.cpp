@@ -4,12 +4,10 @@
 void cubecode_test(int test);
 void testSimplify();
 
-#define TEST_QUADS_FIRST 01
+#define TEST_QUADS_FIRST 0
 
 void Intersection_Tests() {
-#if !TEST_QUADS_FIRST
-    ActiveEdge_Test();
-#endif
+    SimplifyAddIntersectingTs_Test();
 
     cubecode_test(1);
     convert_testx();
@@ -29,8 +27,8 @@ void Intersection_Tests() {
     SimplifyRectangularPaths_Test();
     SimplifyQuadralateralPaths_Test();
 
-#if TEST_QUADS_FIRST
     ActiveEdge_Test();
+#if TEST_QUADS_FIRST
     Simplify4x4QuadraticsThreaded_Test();
 #endif
     SimplifyDegenerate4x4TrianglesThreaded_Test();

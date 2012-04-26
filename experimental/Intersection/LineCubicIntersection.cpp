@@ -109,6 +109,13 @@ int horizontalIntersect(double axisIntercept) {
     return cubicRoots(A, B, C, D, range);
 }
 
+int verticalIntersect(double axisIntercept) {
+    double A, B, C, D;
+    coefficients(&cubic[0].x, A, B, C, D);
+    D -= axisIntercept;
+    return cubicRoots(A, B, C, D, range);
+}
+
 double findLineT(double t) {
     const double* cPtr;
     const double* lPtr;
@@ -154,6 +161,56 @@ int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
             continue;
         }
         ++index;
+    }
+    return result;
+}
+
+int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
+        bool flipped, Intersections& intersections) {
+    LineCubicIntersections c(cubic, *((_Line*) 0), intersections.fT[0]);
+    int result = c.horizontalIntersect(y);
+    for (int index = 0; index < result; ) {
+        double x, y;
+        xy_at_t(cubic, intersections.fT[0][index], x, y);
+        if (x < left || x > right) {
+            if (--result > index) {
+                intersections.fT[0][index] = intersections.fT[0][result];
+            }
+            continue;
+        }
+        intersections.fT[0][index] = (x - left) / (right - left);
+        ++index;
+    }
+    if (flipped) {
+        // OPTIMIZATION: instead of swapping, pass original line, use [1].x - [0].x
+        for (int index = 0; index < result; ++index) {
+            intersections.fT[1][index] = 1 - intersections.fT[1][index];
+        }
+    }
+    return result;
+}
+
+int verticalIntersect(const Cubic& cubic, double top, double bottom, double x,
+        bool flipped, Intersections& intersections) {
+    LineCubicIntersections c(cubic, *((_Line*) 0), intersections.fT[0]);
+    int result = c.verticalIntersect(x);
+    for (int index = 0; index < result; ) {
+        double x, y;
+        xy_at_t(cubic, intersections.fT[0][index], x, y);
+        if (y < top || y > bottom) {
+            if (--result > index) {
+                intersections.fT[0][index] = intersections.fT[0][result];
+            }
+            continue;
+        }
+        intersections.fT[0][index] = (y - top) / (bottom - top);
+        ++index;
+    }
+    if (flipped) {
+        // OPTIMIZATION: instead of swapping, pass original line, use [1].x - [0].x
+        for (int index = 0; index < result; ++index) {
+            intersections.fT[1][index] = 1 - intersections.fT[1][index];
+        }
     }
     return result;
 }

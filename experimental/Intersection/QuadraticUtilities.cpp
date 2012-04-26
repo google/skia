@@ -25,5 +25,3 @@ int quadraticRoots(double A, double B, double C, double t[2]) {
     }
     return foundRoots;
 }
-
-

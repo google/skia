@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -20,9 +19,9 @@
 #define SkASSERT(cond) while (!(cond)) { sk_throw(); }
 
 // FIXME: remove once debugging is complete
-#if 0 // set to 1 for no debugging whatsoever
+#if 01 // set to 1 for no debugging whatsoever
 
-const bool gRunTestsInOneThread = true;
+const bool gRunTestsInOneThread = false;
 
 #define DEBUG_ACTIVE_LESS_THAN 0
 #define DEBUG_ADD 0
@@ -1381,23 +1380,51 @@ struct WorkEdge {
 class ActiveEdge {
 public:
     // this logic must be kept in sync with tooCloseToCall
-    // callers expect this to only read fAbove, fBelow
+    // callers expect this to only read fAbove, fTangent
     bool operator<(const ActiveEdge& rh) const {
-        double topD = fAbove.fX - rh.fAbove.fX;
-        if (rh.fAbove.fY < fAbove.fY) {
-            topD = (rh.fBelow.fY - rh.fAbove.fY) * topD
-                    - (fAbove.fY - rh.fAbove.fY) * (rh.fBelow.fX - rh.fAbove.fX);
-        } else if (rh.fAbove.fY > fAbove.fY) {
-            topD = (fBelow.fY - fAbove.fY) * topD
-                    + (rh.fAbove.fY - fAbove.fY) * (fBelow.fX - fAbove.fX);
+        if (fVerb == rh.fVerb) {
+            // FIXME: don't know what to do if verb is quad, cubic
+            return abCompare(fAbove, fBelow, rh.fAbove, rh.fBelow);
         }
-        double botD = fBelow.fX - rh.fBelow.fX;
-        if (rh.fBelow.fY > fBelow.fY) {
-            botD = (rh.fBelow.fY - rh.fAbove.fY) * botD
-                    - (fBelow.fY - rh.fBelow.fY) * (rh.fBelow.fX - rh.fAbove.fX);
-        } else if (rh.fBelow.fY < fBelow.fY) {
-            botD = (fBelow.fY - fAbove.fY) * botD
-                    + (rh.fBelow.fY - fBelow.fY) * (fBelow.fX - fAbove.fX);
+        // figure out which is quad, line
+        // if cached data says line did not intersect quad, use top/bottom
+        if (fVerb != SkPath::kLine_Verb ? noIntersect(rh) : rh.noIntersect(*this)) {
+            return abCompare(fAbove, fBelow, rh.fAbove, rh.fBelow);
+        }
+        // use whichever of top/tangent tangent/bottom overlaps more 
+        // with line top/bot
+        // assumes quad/cubic can already be upconverted to cubic/cubic
+        const SkPoint* line[2];
+        const SkPoint* curve[4];
+        if (fVerb != SkPath::kLine_Verb) {
+            line[0] = &rh.fAbove;
+            line[1] = &rh.fBelow;
+            curve[0] = &fAbove;
+            curve[1] = &fTangent;
+            curve[2] = &fBelow;
+        } else {
+            line[0] = &fAbove;
+            line[1] = &fBelow;
+            curve[0] = &rh.fAbove;
+            curve[1] = &rh.fTangent;
+            curve[2] = &rh.fBelow;
+        }
+        
+    }
+    
+    bool abCompare(const SkPoint& a1, const SkPoint& a2, const SkPoint& b1,
+            const SkPoint& b2) const {
+        double topD = a1.fX - b1.fX;
+        if (b1.fY < a1.fY) {
+            topD = (b2.fY - b1.fY) * topD - (a1.fY - b1.fY) * (b2.fX - b1.fX);
+        } else if (b1.fY > a1.fY) {
+            topD = (a2.fY - a1.fY) * topD + (b1.fY - a1.fY) * (a2.fX - a1.fX);
+        }
+        double botD = a2.fX - b2.fX;
+        if (b2.fY > a2.fY) {
+            botD = (b2.fY - b1.fY) * botD - (a2.fY - b2.fY) * (b2.fX - b1.fX);
+        } else if (b2.fY < a2.fY) {
+            botD = (a2.fY - a1.fY) * botD + (b2.fY - a2.fY) * (a2.fX - a1.fX);
         }
         // return sign of greater absolute value
         return (fabs(topD) > fabs(botD) ? topD : botD) < 0;
@@ -1477,6 +1504,37 @@ public:
         SkASSERT(!fExplicitTs);
         fTIndex = fTs->count() + 1;
     }
+    
+    void calcAboveBelow(double tAbove, double tBelow) {
+        fVerb = fWorkEdge.verb();
+        switch (fVerb) {
+            case SkPath::kLine_Verb:
+                LineXYAtT(fWorkEdge.fPts, tAbove, &fAbove);
+                LineXYAtT(fWorkEdge.fPts, tBelow, &fTangent);
+                fBelow = fTangent;
+                break;
+            case SkPath::kQuad_Verb:
+                // FIXME: put array in struct to avoid copy?
+                SkPoint quad[3];
+                QuadSubDivide(fWorkEdge.fPts, tAbove, tBelow, quad);
+                fAbove = quad[0];
+                fTangent = quad[0] != quad[1] ? quad[1] : quad[2];
+                fBelow = quad[2];
+                break;
+            case SkPath::kCubic_Verb:
+                SkPoint cubic[3];
+                CubicSubDivide(fWorkEdge.fPts, tAbove, tBelow, cubic);
+                fAbove = cubic[0];
+                // FIXME: can't see how quad logic for how tangent is used
+                // extends to cubic 
+                fTangent = cubic[0] != cubic[1] ? cubic[1]
+                        : cubic[0] != cubic[2] ? cubic[2] : cubic[3];
+                fBelow = cubic[3];
+                break;
+            default:
+                SkASSERT(0);
+        }
+    }
 
     void calcLeft(SkScalar y) {
         // OPTIMIZE: put a kDone_Verb at the end of the verb list?
@@ -1491,29 +1549,14 @@ public:
     }
 
     void calcLeft() {
-        void (*xyAtTFunc)(const SkPoint a[], double t, SkPoint* out);
-        switch (fWorkEdge.verb()) {
-            case SkPath::kLine_Verb:
-                xyAtTFunc = LineXYAtT;
-                break;
-            case SkPath::kQuad_Verb:
-                xyAtTFunc = QuadXYAtT;
-                break;
-            case SkPath::kCubic_Verb:
-                xyAtTFunc = CubicXYAtT;
-                break;
-            default:
-                SkASSERT(0);
-        }
-        // OPTIMIZATION: if fXAbove, fXBelow have already been computed
-        //  for the fTIndex, don't do it again
-        // For identical x, this lets us know which edge is first.
-        // If both edges have T values < 1, check x at next T (fXBelow).
         int add = (fTIndex <= fTs->count() - fExplicitTs) - 1;
         double tAbove = t(fTIndex + add);
-        (*xyAtTFunc)(fWorkEdge.fPts, tAbove, &fAbove);
         double tBelow = t(fTIndex - ~add);
-        (*xyAtTFunc)(fWorkEdge.fPts, tBelow, &fBelow);
+        // OPTIMIZATION: if fAbove, fBelow have already been computed
+        //  for the fTIndex, don't do it again
+        calcAboveBelow(tAbove, tBelow);
+        // For identical x, this lets us know which edge is first.
+        // If both edges have T values < 1, check x at next T (fBelow).
         SkASSERT(tAbove != tBelow);
         // FIXME: this can loop forever
         // need a break if we hit the end
@@ -1523,13 +1566,12 @@ public:
                 add -= 1;
                 SkASSERT(fTIndex + add >= 0);
                 tAbove = t(fTIndex + add);
-                (*xyAtTFunc)(fWorkEdge.fPts, tAbove, &fAbove);
             } else {
                 add += 1;
                 SkASSERT(fTIndex - ~add <= fTs->count() + 1);
                 tBelow = t(fTIndex - ~add);
-                (*xyAtTFunc)(fWorkEdge.fPts, tBelow, &fBelow);
             }
+            calcAboveBelow(tAbove, tBelow);
         }
         fTAbove = tAbove;
         fTBelow = tBelow;
@@ -1541,28 +1583,17 @@ public:
     
     void fixBelow() {
         if (fFixBelow) {
-            switch (fWorkEdge.verb()) {
-                case SkPath::kLine_Verb:
-                    LineXYAtT(fWorkEdge.fPts, nextT(), &fBelow);
-                    break;
-                case SkPath::kQuad_Verb:
-                    QuadXYAtT(fWorkEdge.fPts, nextT(), &fBelow);
-                    break;
-                case SkPath::kCubic_Verb:
-                    CubicXYAtT(fWorkEdge.fPts, nextT(), &fBelow);
-                    break;
-                default:
-                    SkASSERT(0);
-            }
+            fTBelow = nextT();
+            calcAboveBelow(fTAbove, fTBelow);
             fFixBelow = false;
         }
     }
 
     void init(const InEdge* edge) {
         fWorkEdge.init(edge);
+        fDone = false;
         initT();
         fBelow.fY = SK_ScalarMin;
-        fDone = false;
         fYBottom = SK_ScalarMin;
     }
 
@@ -1576,6 +1607,10 @@ public:
   //    fTs = &fWorkEdge.fEdge->fIntercepts[fWorkEdge.verbIndex()].fTs;
   //  but templated arrays don't allow returning a pointer to the end() element
         fTIndex = 0;
+        if (!fDone) {
+            fVerb = fWorkEdge.verb();
+        }
+        SkASSERT(fVerb > SkPath::kMove_Verb);
     }
 
     // OPTIMIZATION: record if two edges are coincident when the are intersected
@@ -1586,13 +1621,10 @@ public:
         if (fAbove != edge->fAbove || fBelow != edge->fBelow) {
             return false;
         }
-        SkPath::Verb verb = fDone ? fWorkEdge.lastVerb() : fWorkEdge.verb();
-        SkPath::Verb edgeVerb = edge->fDone ? edge->fWorkEdge.lastVerb() 
-                : edge->fWorkEdge.verb();
-        if (verb != edgeVerb) {
+        if (fVerb != edge->fVerb) {
             return false;
         }
-        switch (verb) {
+        switch (fVerb) {
             case SkPath::kLine_Verb:
                 return true;
             default:
@@ -1607,12 +1639,17 @@ public:
         return fAbove == edge->fAbove && fBelow == edge->fBelow;
     }
 
-    SkPath::Verb lastVerb() const {
-        return fDone ? fWorkEdge.lastVerb() : fWorkEdge.verb();
-    }
+//    SkPath::Verb lastVerb() const {
+//        return fDone ? fWorkEdge.lastVerb() : fWorkEdge.verb();
+//    }
     
     const SkPoint* lastPoints() const {
         return fDone ? fWorkEdge.lastPoints() : fWorkEdge.points();
+    }
+    
+    bool noIntersect(const ActiveEdge& ) const {
+        // incomplete
+        return false;
     }
 
     // The shortest close call edge should be moved into a position where
@@ -1654,8 +1691,8 @@ public:
     }
     
     bool swapUnordered(const ActiveEdge* edge, SkScalar bottom) const {
-        SkASSERT(lastVerb() != SkPath::kLine_Verb
-                || edge->lastVerb() != SkPath::kLine_Verb);
+        SkASSERT(fVerb != SkPath::kLine_Verb
+                || edge->fVerb != SkPath::kLine_Verb);
         if (fDone || edge->fDone) {
             return false;
         }
@@ -1670,24 +1707,24 @@ public:
         double t1, t2, b1, b2;
         // This logic must be kept in sync with operator <
         if (edge->fAbove.fY < fAbove.fY) {
-            t1 = (edge->fBelow.fY - edge->fAbove.fY) * (fAbove.fX - edge->fAbove.fX);
-            t2 = (fAbove.fY - edge->fAbove.fY) * (edge->fBelow.fX - edge->fAbove.fX);
+            t1 = (edge->fTangent.fY - edge->fAbove.fY) * (fAbove.fX - edge->fAbove.fX);
+            t2 = (fAbove.fY - edge->fAbove.fY) * (edge->fTangent.fX - edge->fAbove.fX);
         } else if (edge->fAbove.fY > fAbove.fY) {
-            t1 = (fBelow.fY - fAbove.fY) * (fAbove.fX - edge->fAbove.fX);
-            t2 = (fAbove.fY - edge->fAbove.fY) * (fBelow.fX - fAbove.fX);
+            t1 = (fTangent.fY - fAbove.fY) * (fAbove.fX - edge->fAbove.fX);
+            t2 = (fAbove.fY - edge->fAbove.fY) * (fTangent.fX - fAbove.fX);
         } else {
             t1 = fAbove.fX;
             t2 = edge->fAbove.fX;
         }
-        if (edge->fBelow.fY > fBelow.fY) {
-            b1 = (edge->fBelow.fY - edge->fAbove.fY) * (fBelow.fX - edge->fBelow.fX);
-            b2 = (fBelow.fY - edge->fBelow.fY) * (edge->fBelow.fX - edge->fAbove.fX);
-        } else if (edge->fBelow.fY < fBelow.fY) {
-            b1 = (fBelow.fY - fAbove.fY) * (fBelow.fX - edge->fBelow.fX);
-            b2 = (fBelow.fY - edge->fBelow.fY) * (fBelow.fX - fAbove.fX);
+        if (edge->fTangent.fY > fTangent.fY) {
+            b1 = (edge->fTangent.fY - edge->fAbove.fY) * (fTangent.fX - edge->fTangent.fX);
+            b2 = (fTangent.fY - edge->fTangent.fY) * (edge->fTangent.fX - edge->fAbove.fX);
+        } else if (edge->fTangent.fY < fTangent.fY) {
+            b1 = (fTangent.fY - fAbove.fY) * (fTangent.fX - edge->fTangent.fX);
+            b2 = (fTangent.fY - edge->fTangent.fY) * (fTangent.fX - fAbove.fX);
         } else {
-            b1 = fBelow.fX;
-            b2 = edge->fBelow.fX;
+            b1 = fTangent.fX;
+            b2 = edge->fTangent.fX;
         }
         if (fabs(t1 - t2) > fabs(b1 - b2)) {
             ulps = UlpsDiff(t1, t2);
@@ -1701,32 +1738,30 @@ public:
         if (ulps < 0 || ulps > 32) {
             return false;
         }
-        SkPath::Verb verb = lastVerb();
-        SkPath::Verb edgeVerb = edge->lastVerb();
-        if (verb == SkPath::kLine_Verb && edgeVerb == SkPath::kLine_Verb) {
+        if (fVerb == SkPath::kLine_Verb && edge->fVerb == SkPath::kLine_Verb) {
             return true;
         }
-        if (verb != SkPath::kLine_Verb && edgeVerb != SkPath::kLine_Verb) {
+        if (fVerb != SkPath::kLine_Verb && edge->fVerb != SkPath::kLine_Verb) {
             return false;
         }
 
         double ts[2];
         bool isLine = true;
         bool curveQuad = true;
-        if (verb == SkPath::kCubic_Verb) {
+        if (fVerb == SkPath::kCubic_Verb) {
             ts[0] = (fTAbove * 2 + fTBelow) / 3;
             ts[1] = (fTAbove + fTBelow * 2) / 3;
             curveQuad = isLine = false;
-        } else if (edgeVerb == SkPath::kCubic_Verb) {
+        } else if (edge->fVerb == SkPath::kCubic_Verb) {
             ts[0] = (edge->fTAbove * 2 + edge->fTBelow) / 3;
             ts[1] = (edge->fTAbove + edge->fTBelow * 2) / 3;
             curveQuad = false;
-        } else if (verb == SkPath::kQuad_Verb) {
+        } else if (fVerb == SkPath::kQuad_Verb) {
                 ts[0] = fTAbove;
                 ts[1] = (fTAbove + fTBelow) / 2;
                 isLine = false;
         } else {
-            SkASSERT(edgeVerb == SkPath::kQuad_Verb);
+            SkASSERT(edge->fVerb == SkPath::kQuad_Verb);
             ts[0] = edge->fTAbove;
             ts[1] = (edge->fTAbove + edge->fTBelow) / 2;
         }
@@ -1775,10 +1810,10 @@ private:
     // utility used only by swapUnordered
     void extractAboveBelow(ActiveEdge& extracted) const {
         SkPoint curve[4];
-        switch (lastVerb()) {
+        switch (fVerb) {
             case SkPath::kLine_Verb: 
                 extracted.fAbove = fAbove;
-                extracted.fBelow = fBelow;
+                extracted.fTangent = fTangent;
                 return;
             case SkPath::kQuad_Verb:
                 QuadSubDivide(lastPoints(), fTAbove, fTBelow, curve);
@@ -1790,19 +1825,21 @@ private:
                 SkASSERT(0);
         }
         extracted.fAbove = curve[0];
-        extracted.fBelow = curve[1];
+        extracted.fTangent = curve[1];
     }
 
 public:
     WorkEdge fWorkEdge;
     const SkTDArray<double>* fTs;
     SkPoint fAbove;
+    SkPoint fTangent;
     SkPoint fBelow;
     double fTAbove; // OPTIMIZATION: only required if edge has quads or cubics
     double fTBelow;
     SkScalar fYBottom;
     int fCoincident;
     int fTIndex;
+    SkPath::Verb fVerb;
     bool fSkip; // OPTIMIZATION: use bitfields?
     bool fCloseCall;
     bool fDone;
@@ -2253,17 +2290,16 @@ static SkScalar adjustCoincident(SkTDArray<ActiveEdge*>& edgeList,
     for (index = 1; index < edgeCount; ++index) {
         activePtr = nextPtr;
         nextPtr = edgeList[index];
-        if (firstIndex != index - 1 && !activePtr->fSkip) {
-            if (nextPtr->fWorkEdge.verb() == SkPath::kLine_Verb
-                    && activePtr->isUnordered(nextPtr)) {
-                start here;
-                // swap the line with the curve 
-                // back up to the previous edge and retest
-                SkTSwap<ActiveEdge*>(edgeList[index - 1], edgeList[index]);
-                SkASSERT(index > 1);
-                index -= 2;
-                continue;
-            }
+        if (firstIndex != index - 1 && activePtr->fVerb > SkPath::kLine_Verb
+                && nextPtr->fVerb == SkPath::kLine_Verb
+                && activePtr->isUnordered(nextPtr)) {
+            // swap the line with the curve
+            // back up to the previous edge and retest
+            SkTSwap<ActiveEdge*>(edgeList[index - 1], edgeList[index]);
+            SkASSERT(index > 1);
+            index -= 2;
+            nextPtr = edgeList[index];
+            continue;
         }
         bool closeCall = false;
         activePtr->fCoincident = firstIndex;
@@ -2444,9 +2480,9 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
         bool moreToDo, aboveBottom;
         do {
             double currentT = activePtr->t();
-            uint8_t verb = wt.verb();
             const SkPoint* points = wt.fPts;
             double nextT;
+            SkPath::Verb verb = activePtr->fVerb;
             do {
                 nextT = activePtr->nextT();
                 // FIXME: obtuse: want efficient way to say 
@@ -2503,9 +2539,10 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
             // will use these values if they're still valid instead of
             // recomputing
                 if (clipped[verb].fY > activePtr->fBelow.fY
-                        && bottom >= activePtr->fBelow.fY ) {
+                        && bottom >= activePtr->fBelow.fY
+                        && verb == SkPath::kLine_Verb) {
                     activePtr->fAbove = activePtr->fBelow;
-                    activePtr->fBelow = clipped[verb];
+                    activePtr->fBelow = activePtr->fTangent = clipped[verb];
                     activePtr->fTAbove = activePtr->fTBelow < 1
                             ? activePtr->fTBelow : 0;
                     activePtr->fTBelow = nextT;
@@ -2609,6 +2646,17 @@ void simplify(const SkPath& path, bool asFill, SkPath& simple) {
     // if a quadratic or cubic now has an intermediate T value, see if the Ts
     // on either side cause the Y values to monotonically increase. If not, split
     // the curve at the new T.
+
+    // try an alternate approach which does not split curves or stitch edges
+    // (may still need adjustCoincident, though)
+    // the idea is to output non-intersecting contours, then figure out their
+    // respective winding contribution
+    // each contour will need to know whether it is CW or CCW, and then whether
+    // a ray from that contour hits any a contour that contains it. The ray can
+    // move to the left and then arbitrarily move up or down (as long as it never
+    // moves to the right) to find a reference sibling contour or containing 
+    // contour. If the contour is part of an intersection, the companion contour
+    // that is part of the intersection can determine the containership.
     if (builder.containsCurves()) {
         currentPtr = edgeList.begin();
         SkTArray<InEdge> splits;

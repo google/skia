@@ -6,6 +6,7 @@
 class Intersections;
 
 // unit-testable utilities
+double axialIntersect(const Quadratic& q1, const _Point& p, bool vert);
 bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double& maxT);
 bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double& maxT);
 void chop_at(const Cubic& src, CubicPair& dst, double t);
@@ -34,11 +35,26 @@ int reduceOrder(const Quadratic& quad, Quadratic& reduction);
 int horizontalIntersect(const Cubic& cubic, double y, double tRange[3]);
 int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
         double tRange[3]);
+int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
+        bool flipped, Intersections&);
+int horizontalIntersect(const _Line& line, double left, double right,
+        double y, bool flipped, Intersections& );
 int horizontalIntersect(const Quadratic& quad, double left, double right,
         double y, double tRange[2]);
+int horizontalIntersect(const Quadratic& quad, double left, double right,
+        double y, bool flipped, Intersections& );
 bool intersect(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]);
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& );
 bool intersect(const Quadratic& quad, const _Line& line, Intersections& );
+double leftMostT(const Cubic& , double startT, double endT);
+double leftMostT(const _Line& , double startT, double endT);
+double leftMostT(const Quadratic& , double startT, double endT);
+int verticalIntersect(const Cubic& cubic, double top, double bottom, double x,
+        bool flipped, Intersections& );
+int verticalIntersect(const _Line& line, double top, double bottom, double x,
+        bool flipped, Intersections& );
+int verticalIntersect(const Quadratic& quad, double top, double bottom,
+        double x, bool flipped, Intersections& );
 
 #endif

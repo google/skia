@@ -1,116 +1,133 @@
 <html>
 <head>
 <div style="height:0">
-<div id="test_1div">
-path.moveTo(213.673737, 413.292938);
-path.lineTo(225.200134, 343.616821);
-path.lineTo(236.726532, 273.940704);
-path.lineTo(219.386414, 231.373322);
-path.lineTo(213.673737, 413.292938);
-path.close();
-path.moveTo(43.485352, 308.984497);
-path.lineTo(122.610657, 305.950134);
-path.lineTo(201.735962, 302.915802);
-path.lineTo(280.861267, 299.881470);
-path.lineTo(43.485352, 308.984497);
-path.close();
+
+<div id="testSimplifyQuadratic1">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.quadTo(0, 0, 0, 1);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+}
 </div>
-<div id="test_2div">
-path.moveTo(-177.878387, 265.368988);
-path.lineTo(-254.415771, 303.709961);
-path.lineTo(-317.465363, 271.325562);
-path.lineTo(-374.520386, 207.507660);
-path.lineTo(-177.878387, 265.368988);
-path.close();
-path.moveTo(-63.582489, -3.679123);
-path.lineTo(-134.496841, 26.434566);
-path.lineTo(-205.411209, 56.548256);
-path.lineTo(-276.325562, 86.661942);
-path.lineTo(-63.582489, -3.679123);
-path.close();
-path.moveTo(-57.078423, 162.633453);
-path.lineTo(-95.963928, 106.261139);
-path.lineTo(-134.849457, 49.888824);
-path.lineTo(-173.734955, -6.483480);
-path.lineTo(-57.078423, 162.633453);
-path.close();
+
+<div id="testSimplifyQuadratic2">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(20, 0, 20, 20);
+    path.close();
+    path.moveTo(20, 0);
+    path.quadTo(0, 0, 0, 20);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+}
 </div>
-<div id="test_3div">
-path.moveTo(98.666489, -94.295059);
-path.lineTo(156.584320, -61.939133);
-path.lineTo(174.672974, -12.343765);
-path.lineTo(158.622345, 52.028267);
-path.lineTo(98.666489, -94.295059);
-path.close();
-path.moveTo(-133.225616, -48.622055);
-path.lineTo(-73.855499, -10.375397);
-path.lineTo(-14.485367, 27.871277);
-path.lineTo(44.884750, 66.117935);
-path.lineTo(-133.225616, -48.622055);
-path.close();
-path.moveTo( 9.030045, -163.413132);
-path.lineTo(-19.605331, -89.588760);
-path.lineTo(-48.240707, -15.764404);
-path.lineTo(-76.876053, 58.059944);
-path.lineTo( 9.030045, -163.413132);
-path.close();
+
+<div id="testSimplifyQuadratic3">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(20, 0, 20, 20);
+    path.close();
+    path.moveTo(0, 20);
+    path.quadTo(0, 0, 20, 0);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+}
 </div>
-<div id="test_4div">
-path.moveTo(340.41568, -170.97171);
-path.lineTo(418.846893, -142.428329);
-path.lineTo(497.278107, -113.884933);
-path.lineTo(449.18222, -45.6723022);
-path.lineTo(340.41568, -170.97171);
-path.close();
-path.moveTo(326.610535, 34.0393639);
-path.lineTo(371.334595, -14.9620667);
-path.lineTo(416.058624, -63.9634857);
-path.lineTo(460.782654, -112.96492);
-path.lineTo(326.610535, 34.0393639);
-path.close();
+
+<div id="testSimplifyQuadratic4">
+    SkPath path, out;
+    path.moveTo(0, 20);
+    path.quadTo(20, 0, 40, 20);
+    path.close();
+    path.moveTo(40, 10);
+    path.quadTo(20, 30, 0, 10);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
-<div id="test_5div">
-original:
-path.moveTo(0, 0);
-path.quadTo(20, 0, 20, 20);
-path.lineTo(0, 0);
-path.close();
-path.moveTo(0, 20);
-path.quadTo(0, 0, 20, 0);
-path.lineTo(0, 20);
-path.close();
-simplified:
-path.moveTo(0, 0);
-path.lineTo(5, 5);
-path.quadTo(0, 10, 0, 20);
-path.lineTo(20, 20);
-path.quadTo(20, 10, 15, 5);
-path.lineTo(20, 0);
-path.quadTo(14.1421356, 0, 10, 1.71572876);
-path.quadTo(5.85786438, 0, 0, 0);
-path.close();
+
+<div id="testSimplifyQuadratic5">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 0, 0, 1);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
-<div id="test_6div">
-original:
-path.moveTo(0, 20);
-path.quadTo(20, 0, 40, 20);
-path.lineTo(0, 20);
-path.close();
-path.moveTo(40, 10);
-path.quadTo(20, 30, 0, 10);
-path.lineTo(40, 10);
-path.close();
-simplified:
-path.moveTo(0, 10);
-path.quadTo(2.92893219, 12.9289322, 5.85786438, 15);
-path.quadTo(2.92893219, 17.0710678, 0, 20);
-path.lineTo(40, 20);
-path.quadTo(37.0710678, 17.0710678, 34.1421356, 15);
-path.quadTo(37.0710678, 12.9289322, 40, 10);
-path.lineTo(0, 10);
-path.close();
+
+<div id="testSimplifyQuadratic6">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(1, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
-<div id="test_7div">
+
+<div id="testSimplifyQuadratic7">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 2);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
+</div>
+
+<div id="testSimplifyQuadratic8">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 2);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
+</div>
+
+<div id="testSimplifyQuadratic9">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 2, 2);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
+</div>
+
+<div id="testSimplifyQuadratic10">
+    SkPath path, out;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(0, 0);
@@ -118,67 +135,44 @@ path.close();
     path.moveTo(0, 0);
     path.lineTo(0, 1);
     path.quadTo(1, 1, 1, 2);
-    path.lineTo(0, 0);
     path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
 
-<div id="test_8div">
-original:
-path.moveTo(0, 0);
-path.lineTo(3, 1);
-path.lineTo(0, 0);
-path.close();
-path.moveTo(1, 0);
-path.lineTo(0, 1);
-path.quadTo(2, 1, 3, 3);
-path.lineTo(1, 0);
-path.close();
-simplified:
-path.moveTo(1, 0);
-path.lineTo(0, 1);
-path.quadTo(1.42857146, 1, 2.34693885, 2.02040815);
-path.lineTo(1.28571427, 0.428571433);
-path.lineTo(1, 0);
-path.close();
-path.moveTo(2.34693885, 2.02040815);
-path.quadTo(2.71428561, 2.42857146, 3, 3);
-path.lineTo(2.34693885, 2.02040815);
-path.close();
-</div>
-
-<div id="test_9div">
+<div id="testSimplifyQuadratic11">
+    SkPath path, out;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(0, 2);
-    path.lineTo(0, 0);
     path.close();
     path.moveTo(0, 0);
     path.lineTo(2, 1);
     path.quadTo(2, 2, 3, 3);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
+</div>
+
+<div id="testSimplifyQuadratic12">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.lineTo(0, 2);
     path.lineTo(0, 0);
     path.close();
+    path.moveTo(3, 0);
+    path.quadTo(1, 1, 0, 2);
+    path.lineTo(3, 0);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
 
-<div id="test_10div">
-original:
-path.moveTo(0, 0);
-path.lineTo(0, 2);
-path.lineTo(0, 0);
-path.close();
-path.moveTo(3, 0);
-path.quadTo(1, 1, 0, 2);
-path.lineTo(3, 0);
-path.close();
-simplified:
-path.moveTo(0, 0);
-path.lineTo(0, 2);
-path.quadTo(1, 1, 3, 0);
-path.lineTo(0, 0);
-path.close();
-</div>
-
-<div id="test_11div">
-original:
+<div id="testSimplifyQuadratic13">
+    SkPath path, out;
 path.moveTo(0, 0);
 path.quadTo(0, 0, 1, 0);
 path.lineTo(1, 1);
@@ -188,56 +182,69 @@ path.moveTo(0, 0);
 path.quadTo(3, 0, 1, 1);
 path.lineTo(0, 0);
 path.close();
-simplified:
-path.moveTo(0, 0);
-path.lineTo(1, 1);
-path.lineTo(1, 0);
-path.lineTo(0, 0);
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
 
-<div id="test_12div">
+<div id="testSimplifyQuadratic14">
+    SkPath path, out;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(1, 1);
-    path.lineTo(0, 0);
     path.close();
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(0, 1, 2, 1);
-    path.lineTo(0, 0);
     path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
 
-<div id="test_13div">
-original:
-path.moveTo(0, 0);
-path.quadTo(0, 0, 1, 3);
-path.lineTo(3, 3);
-path.lineTo(0, 0);
-path.close();
-path.moveTo(0, 1);
-path.lineTo(1, 1);
-path.quadTo(0, 3, 3, 3);
-path.lineTo(0, 1);
-path.close();
-simplified:
-path.moveTo(0, 0);
-path.lineTo(0.333333343, 1);
-path.lineTo(0, 1);
-path.lineTo(0.428571433, 1.28571427);
-path.lineTo(0.333333343, 1);
-path.lineTo(1, 1);
-path.lineTo(0, 0);
-path.close();
-path.moveTo(1, 1);
-path.quadTo(0.857142866, 1.28571427, 0.795918345, 1.53061223);
-path.lineTo(0.428571433, 1.28571427);
-path.lineTo(1, 3);
-path.lineTo(3, 3);
-path.lineTo(0.795918345, 1.53061223);
-path.quadTo(0.428571433, 3, 3, 3);
-path.lineTo(1, 1);
-path.close();
+<div id="testSimplifyQuadratic15">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(1, 1);
+    path.quadTo(0, 3, 3, 3);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
+</div>
+
+<div id="testSimplifyQuadratic16">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
+</div>
+
+<div id="testSimplifyQuadratic17">
+    SkPath path, out;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(0, 1);
+    path.quadTo(2, 1, 3, 3);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+}
 </div>
 
 </div>
@@ -245,19 +252,23 @@ path.close();
 <script type="text/javascript">
 
 var testDivs = [
-    test_13div,
-    test_12div,
-    test_11div,
-    test_10div,
-    test_9div,
-    test_8div,
-    test_7div,
-    test_6div,
-    test_5div,
-    test_4div,
-    test_3div,
-    test_2div,
-    test_1div,
+    testSimplifyQuadratic17,
+    testSimplifyQuadratic16,
+    testSimplifyQuadratic15,
+    testSimplifyQuadratic14,
+    testSimplifyQuadratic13,
+    testSimplifyQuadratic12,
+    testSimplifyQuadratic11,
+    testSimplifyQuadratic10,
+    testSimplifyQuadratic9,
+    testSimplifyQuadratic8,
+    testSimplifyQuadratic7,
+    testSimplifyQuadratic6,
+    testSimplifyQuadratic5,
+    testSimplifyQuadratic4,
+    testSimplifyQuadratic3,
+    testSimplifyQuadratic2,
+    testSimplifyQuadratic1,
 ];
 
 var scale, columns, rows, xStart, yStart;
@@ -291,8 +302,18 @@ function parse(test) {
             if (pts.length > 0)
                 verbs.push(pts);
         }
-        if (verbs.length > 0)
+        if (verbs.length > 0) {
+            var lastIndex = verbs.length - 1;
+            var lastVerb = verbs[lastIndex];
+            var lastLen = lastVerb.length;
+            if (verbs[0][0] != lastVerb[lastLen - 2] && verbs[0][1] != lastVerb[lastLen - 1]) {
+                var lastPts = [];
+                lastPts.push(verbs[0][0]);
+                lastPts.push(verbs[0][1]);
+                verbs.push(lastPts);
+            }
             contours.push(verbs);
+        }
     }
     if (contours.length > 0)
         tests.push(contours);
@@ -469,23 +490,24 @@ function doKeyPress(evt) {
     case 'n':
         if (++testIndex >= tests.length)
             testIndex = 0;
-    //    insetScale = scale;
+        mouseX = Infinity;
+        drawTop();
+        break;
+    case 'P':
+    case 'p':
+        if (--testIndex < 0)
+            testIndex = tests.length - 1;
         mouseX = Infinity;
         drawTop();
         break;
     case 'T':
     case 't':
-  //      drawTs(testIndex);
         break;
     case '-':
- //       if (--insetScale < 1)
- //           insetScale = 1;
- //       else
             redraw();
         break;
     case '=':
     case '+':
- //       ++insetScale;
         redraw();
         break;
     }

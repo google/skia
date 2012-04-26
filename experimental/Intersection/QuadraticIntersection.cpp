@@ -97,7 +97,6 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
         double newMinT2 = interp(minT2, maxT2, minT);
         double newMaxT2 = interp(minT2, maxT2, maxT);
         split = newMaxT2 - newMinT2 > (maxT2 - minT2) * tClipLimit;
-#define VERBOSE 0
 #if VERBOSE
         printf("%s d=%d s=%d new2=(%g,%g) old2=(%g,%g) split=%d\n", __FUNCTION__, depth,
             splits, newMinT2, newMaxT2, minT2, maxT2, split);
@@ -144,6 +143,35 @@ int splits;
 };
 
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
+    if (implicit_matches(q1, q2)) {
+        // FIXME: compute T values
+        // compute the intersections of the ends to find the coincident span
+        bool useVertical = fabs(q1[0].x - q1[2].x) < fabs(q1[0].y - q1[2].y);
+        double t;
+        if ((t = axialIntersect(q1, q2[0], useVertical)) >= 0) {
+            i.fT[0][0] = t;
+            i.fT[1][0] = 0;
+            i.fUsed++;
+        }
+        if ((t = axialIntersect(q1, q2[2], useVertical)) >= 0) {
+            i.fT[0][i.fUsed] = t;
+            i.fT[1][i.fUsed] = 1;
+            i.fUsed++;
+        }
+        useVertical = fabs(q2[0].x - q2[2].x) < fabs(q2[0].y - q2[2].y);
+        if ((t = axialIntersect(q2, q1[0], useVertical)) >= 0) {
+            i.fT[0][i.fUsed] = 0;
+            i.fT[1][i.fUsed] = t;
+            i.fUsed++;
+        }
+        if ((t = axialIntersect(q2, q1[2], useVertical)) >= 0) {
+            i.fT[0][i.fUsed] = 1;
+            i.fT[1][i.fUsed] = t;
+            i.fUsed++;
+        }
+        assert(i.fUsed <= 2);
+        return i.fUsed > 0;
+    }
     QuadraticIntersections q(q1, q2, i);
     return q.intersect();
 }
