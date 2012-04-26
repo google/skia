@@ -21,7 +21,7 @@ static int vertical_line(const Quadratic& quad, Quadratic& reduction) {
     reduction[1] = quad[2];
     int smaller = reduction[1].y > reduction[0].y;
     int larger = smaller ^ 1;
-    if (SkFindQuadExtrema(quad[0].y, quad[1].y, quad[2].y, &tValue)) {
+    if (findExtrema(quad[0].y, quad[1].y, quad[2].y, &tValue)) {
         double yExtrema = interp_quad_coords(quad[0].y, quad[1].y, quad[2].y, tValue);
         if (reduction[smaller].y > yExtrema) {
             reduction[smaller].y = yExtrema;
@@ -38,7 +38,7 @@ static int horizontal_line(const Quadratic& quad, Quadratic& reduction) {
     reduction[1] = quad[2];
     int smaller = reduction[1].x > reduction[0].x;
     int larger = smaller ^ 1;
-    if (SkFindQuadExtrema(quad[0].x, quad[1].x, quad[2].x, &tValue)) {
+    if (findExtrema(quad[0].x, quad[1].x, quad[2].x, &tValue)) {
         double xExtrema = interp_quad_coords(quad[0].x, quad[1].x, quad[2].x, tValue);
         if (reduction[smaller].x > xExtrema) {
             reduction[smaller].x = xExtrema;
@@ -85,9 +85,9 @@ static int check_linear(const Quadratic& quad, Quadratic& reduction,
     double tValue;
     int root;
     if (useX) {
-        root = SkFindQuadExtrema(quad[0].x, quad[1].x, quad[2].x, &tValue);
+        root = findExtrema(quad[0].x, quad[1].x, quad[2].x, &tValue);
     } else {
-        root = SkFindQuadExtrema(quad[0].y, quad[1].y, quad[2].y, &tValue);
+        root = findExtrema(quad[0].y, quad[1].y, quad[2].y, &tValue);
     }
     if (root) {
         _Point extrema;
@@ -146,8 +146,8 @@ int reduceOrder(const Quadratic& quad, Quadratic& reduction) {
             minYSet |= 1 << index;
         }
     }
-    if (minXSet == 0xF) { // test for vertical line
-        if (minYSet == 0xF) { // return 1 if all four are coincident
+    if (minXSet == 0x7) { // test for vertical line
+        if (minYSet == 0x7) { // return 1 if all four are coincident
             return coincident_line(quad, reduction);
         }
         return vertical_line(quad, reduction);

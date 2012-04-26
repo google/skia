@@ -12,6 +12,7 @@ void LineCubicIntersection_Test();
 void LineIntersection_Test();
 void LineParameter_Test();
 void LineQuadraticIntersection_Test();
+void SimplifyAddIntersectingTs_Test();
 void SimplifyDegenerate4x4TrianglesThreaded_Test();
 void SimplifyNondegenerate4x4TrianglesThreaded_Test();
 void SimplifyPolygonPaths_Test();

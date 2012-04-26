@@ -141,6 +141,16 @@ int horizontalIntersect(double axisIntercept) {
     return quadraticRoots(D, E, F, intersections.fT[0]);
 }
 
+int verticalIntersect(double axisIntercept) {
+    double D = quad[2].x; // f
+    double E = quad[1].x; // e
+    double F = quad[0].x; // d
+    D += F - 2 * E; // D = d - 2*e + f
+    E -= F; // E = -(d - e)
+    F -= axisIntercept;
+    return quadraticRoots(D, E, F, intersections.fT[0]);
+}
+
 protected:
     
 double findLineT(double t) {
@@ -167,6 +177,46 @@ bool moreHorizontal;
 
 };
 
+// utility for pairs of coincident quads
+static double horizontalIntersect(const Quadratic& quad, const _Point& pt) {
+    Intersections intersections;
+    LineQuadraticIntersections q(quad, *((_Line*) 0), intersections);
+    int result = q.horizontalIntersect(pt.y);
+    if (result == 0) {
+        return -1;
+    }
+    assert(result == 1);
+    double x, y;
+    xy_at_t(quad, intersections.fT[0][0], x, y);
+    if (approximately_equal(x, pt.x)) {
+        return intersections.fT[0][0];
+    }
+    return -1;
+}
+
+static double verticalIntersect(const Quadratic& quad, const _Point& pt) {
+    Intersections intersections;
+    LineQuadraticIntersections q(quad, *((_Line*) 0), intersections);
+    int result = q.horizontalIntersect(pt.x);
+    if (result == 0) {
+        return -1;
+    }
+    assert(result == 1);
+    double x, y;
+    xy_at_t(quad, intersections.fT[0][0], x, y);
+    if (approximately_equal(y, pt.y)) {
+        return intersections.fT[0][0];
+    }
+    return -1;
+}
+
+double axialIntersect(const Quadratic& q1, const _Point& p, bool vertical) {
+    if (vertical) {
+        return verticalIntersect(q1, p);
+    }
+    return horizontalIntersect(q1, p);
+}
+
 int horizontalIntersect(const Quadratic& quad, double left, double right,
         double y, double tRange[2]) {
     Intersections i;
@@ -182,6 +232,56 @@ int horizontalIntersect(const Quadratic& quad, double left, double right,
         tRange[tCount++] = i.fT[0][index];
     }
     return tCount;
+}
+
+int horizontalIntersect(const Quadratic& quad, double left, double right, double y,
+        bool flipped, Intersections& intersections) {
+    LineQuadraticIntersections q(quad, *((_Line*) 0), intersections);
+    int result = q.horizontalIntersect(y);
+    for (int index = 0; index < result; ) {
+        double x, y;
+        xy_at_t(quad, intersections.fT[0][index], x, y);
+        if (x < left || x > right) {
+            if (--result > index) {
+                intersections.fT[0][index] = intersections.fT[0][result];
+            }
+            continue;
+        }
+        intersections.fT[0][index] = (x - left) / (right - left);
+        ++index;
+    }
+    if (flipped) {
+        // OPTIMIZATION: instead of swapping, pass original line, use [1].x - [0].x
+        for (int index = 0; index < result; ++index) {
+            intersections.fT[1][index] = 1 - intersections.fT[1][index];
+        }
+    }
+    return result;
+}
+
+int verticalIntersect(const Quadratic& quad, double top, double bottom, double x,
+        bool flipped, Intersections& intersections) {
+    LineQuadraticIntersections q(quad, *((_Line*) 0), intersections);
+    int result = q.verticalIntersect(x);
+    for (int index = 0; index < result; ) {
+        double x, y;
+        xy_at_t(quad, intersections.fT[0][index], x, y);
+        if (y < top || y > bottom) {
+            if (--result > index) {
+                intersections.fT[0][index] = intersections.fT[0][result];
+            }
+            continue;
+        }
+        intersections.fT[0][index] = (y - top) / (bottom - top);
+        ++index;
+    }
+    if (flipped) {
+        // OPTIMIZATION: instead of swapping, pass original line, use [1].x - [0].x
+        for (int index = 0; index < result; ++index) {
+            intersections.fT[1][index] = 1 - intersections.fT[1][index];
+        }
+    }
+    return result;
 }
 
 bool intersect(const Quadratic& quad, const _Line& line, Intersections& i) {
