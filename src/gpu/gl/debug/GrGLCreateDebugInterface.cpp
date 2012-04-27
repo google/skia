@@ -758,9 +758,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetIntegerv(GrGLenum pname, GrGLint* params)
         case GR_GL_MAX_VARYING_VECTORS:
             *params = kDefaultMaxVaryingVectors;
             break;
-        case GR_GL_MAX_TEXTURE_UNITS:
-            *params = GrDebugGL::getInstance()->getMaxTextureUnits();
-            break;
         default:
             GrCrash("Unexpected pname to GetIntegerv");
     }
