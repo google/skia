@@ -240,10 +240,10 @@ void build_kernel(float sigma, float* kernel, int kernelWidth) {
 }
 
 void scale_rect(SkRect* rect, float xScale, float yScale) {
-    rect->fLeft *= xScale;
-    rect->fTop *= yScale;
-    rect->fRight *= xScale;
-    rect->fBottom *= yScale;
+    rect->fLeft = SkScalarMul(rect->fLeft, SkFloatToScalar(xScale));
+    rect->fTop = SkScalarMul(rect->fTop, SkFloatToScalar(yScale));
+    rect->fRight = SkScalarMul(rect->fRight, SkFloatToScalar(xScale));
+    rect->fBottom = SkScalarMul(rect->fBottom, SkFloatToScalar(yScale));
 }
 
 float adjust_sigma(float sigma, int *scaleFactor, int *halfWidth,
