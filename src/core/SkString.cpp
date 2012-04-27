@@ -36,12 +36,6 @@ static const size_t kBufferSize = 256;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkStrStartsWith(const char string[], const char prefix[]) {
-    SkASSERT(string);
-    SkASSERT(prefix);
-    return !strncmp(string, prefix, strlen(prefix));
-}
-
 bool SkStrEndsWith(const char string[], const char suffix[]) {
     SkASSERT(string);
     SkASSERT(suffix);
