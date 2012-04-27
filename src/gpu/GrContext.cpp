@@ -1621,7 +1621,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
         if (translate) {
             ovalRect.offset(*translate);
         }
-        SkScalar width = (fill == kHairLine_PathFill) ? 0 : -1;
+        SkScalar width = (fill == kHairLine_PathFill) ? 0 : -SK_Scalar1;
         this->drawOval(paint, ovalRect, width);
         return;
     }
