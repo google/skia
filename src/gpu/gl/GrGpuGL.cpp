@@ -866,6 +866,8 @@ bool renderbuffer_storage_msaa(GrGLContextInfo& ctxInfo,
         created = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctxInfo.interface()));
     }
     if (!created) {
+        // glRBMS will fail if requested samples is > max samples.
+        sampleCount = GrMin(sampleCount, ctxInfo.caps().maxSampleCount());
         GL_ALLOC_CALL(ctxInfo.interface(),
                       RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                      sampleCount,
