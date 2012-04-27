@@ -291,7 +291,12 @@ GLUhalfEdge *__gl_meshMakeEdge( GLUmesh *mesh )
   } 
 
   e = MakeEdge( &mesh->eHead );
-  if (e == NULL) return NULL;
+  if (e == NULL) {
+     memFree(newVertex1);
+     memFree(newVertex2);
+     memFree(newFace);     
+     return NULL;
+  }
 
   MakeVertex( newVertex1, e, &mesh->vHead );
   MakeVertex( newVertex2, e->Sym, &mesh->vHead );

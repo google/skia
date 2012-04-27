@@ -60,6 +60,7 @@ protected:
     static void RemoveShader(SkPDFObject* shader);
 
     SkPDFShader();
+    virtual ~SkPDFShader() {};
 
     virtual bool isValid() = 0;
 };

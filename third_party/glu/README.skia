@@ -42,3 +42,6 @@ The following changes were made in order to incorporate this code:
 
   - In sweep.c, added explicit cast to GLfloat in VertexWeights() to silence 
     compiler complaint
+
+  - In mesh.c in method __gl_meshMakeEdge, added memory cleanup when
+    MakeEdge failed
