@@ -539,6 +539,9 @@ public:
      * When specifying edges as vertex data this enum specifies what type of
      * edges are in use. The edges are always 4 GrScalars in memory, even when
      * the edge type requires fewer than 4.
+     *
+     * TODO: Fix the fact that HairLine and Circle edge types use y-down coords.
+     *       (either adjust in VS or use origin_upper_left in GLSL)
      */
     enum VertexEdgeType {
         /* 1-pixel wide line
@@ -546,11 +549,15 @@ public:
         kHairLine_EdgeType,
         /* Quadratic specified by u^2-v canonical coords (only 2 
            components used). Coverage based on signed distance with negative
-           being inside, positive outside.*/
+           being inside, positive outside. Edge specified in window space
+           (y-down) */
         kQuad_EdgeType,
         /* Same as above but for hairline quadratics. Uses unsigned distance.
            Coverage is min(0, 1-distance). */
         kHairQuad_EdgeType,
+        /* Circle specified as center_x, center_y, outer_radius, inner_radius
+           all in window space (y-down). */
+        kCircle_EdgeType,
 
         kVertexEdgeTypeCnt
     };

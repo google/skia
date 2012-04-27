@@ -471,10 +471,12 @@ void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
         segments->fVSAttrs.push_back().set(kVec4f_GrSLType,
             GrGLShaderVar::kAttribute_TypeModifier, EDGE_ATTR_NAME);
         segments->fVSCode.appendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
-        if (GrDrawState::kHairLine_EdgeType == fProgramDesc.fVertexEdgeType) {
+        switch (fProgramDesc.fVertexEdgeType) {
+        case GrDrawState::kHairLine_EdgeType:
             segments->fFSCode.appendf("\tfloat edgeAlpha = abs(dot(vec3(gl_FragCoord.xy,1), %s.xyz));\n", fsName);
             segments->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
-        } else if (GrDrawState::kQuad_EdgeType == fProgramDesc.fVertexEdgeType) {
+            break;
+        case GrDrawState::kQuad_EdgeType:
             segments->fFSCode.append("\tfloat edgeAlpha;\n");
             // keep the derivative instructions outside the conditional 
             segments->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
@@ -492,8 +494,8 @@ void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
             if (kES2_GrGLBinding == gl.binding()) {
                 segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
-        } else {
-            GrAssert(GrDrawState::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType);
+            break;
+        case GrDrawState::kHairQuad_EdgeType:
             segments->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
             segments->fFSCode.appendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
             segments->fFSCode.appendf("\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
@@ -505,6 +507,17 @@ void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
             if (kES2_GrGLBinding == gl.binding()) {
                 segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
+            break;
+        case GrDrawState::kCircle_EdgeType:
+            segments->fFSCode.append("\tfloat edgeAlpha;\n");
+            segments->fFSCode.appendf("\tfloat d = distance(gl_FragCoord.xy, %s.xy);\n", fsName);
+            segments->fFSCode.appendf("\tfloat outerAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
+            segments->fFSCode.appendf("\tfloat innerAlpha = %s.w == 0.0 ? 1.0 : smoothstep(%s.w - 0.5, %s.w + 0.5, d);\n", fsName, fsName, fsName);
+            segments->fFSCode.append("\tedgeAlpha = outerAlpha * innerAlpha;\n");
+            break;
+        default:
+            GrCrash("Unknown Edge Type!");
+            break;
         }
         *coverageVar = "edgeAlpha";
     } else {
