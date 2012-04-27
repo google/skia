@@ -31,6 +31,7 @@
     '../bench/PathBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
     '../bench/RectBench.cpp',
+    '../bench/RegionBench.cpp',
     '../bench/RepeatTileBench.cpp',
     '../bench/ScalarBench.cpp',
     '../bench/ShaderMaskBench.cpp',
