@@ -15,9 +15,18 @@
 /*  Some helper functions for C strings
 */
 
-bool SkStrStartsWith(const char string[], const char prefix[]);
+static bool SkStrStartsWith(const char string[], const char prefix[]) {
+    SkASSERT(string);
+    SkASSERT(prefix);
+    return !strncmp(string, prefix, strlen(prefix));
+}
 bool SkStrEndsWith(const char string[], const char suffix[]);
 int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
+static bool SkStrContains(const char string[], const char substring[]) {
+    SkASSERT(string);
+    SkASSERT(substring);
+    return (NULL != strstr(string, substring));
+}
 
 #define SkStrAppendS32_MaxSize  11
 char*   SkStrAppendS32(char buffer[], int32_t);
@@ -80,6 +89,9 @@ public:
     }
     bool endsWith(const char suffix[]) const {
         return SkStrEndsWith(fRec->data(), suffix);
+    }
+    bool contains(const char substring[]) const {
+        return SkStrContains(fRec->data(), substring);
     }
 
     friend bool operator==(const SkString& a, const SkString& b) {
