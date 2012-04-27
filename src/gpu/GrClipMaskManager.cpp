@@ -12,6 +12,7 @@
 #include "GrStencilBuffer.h"
 #include "GrPathRenderer.h"
 
+////////////////////////////////////////////////////////////////////////////////
 void ScissoringSettings::setupScissoring(GrGpu* gpu) {
     if (!fEnableScissoring) {
         gpu->disableScissor();
@@ -21,7 +22,9 @@ void ScissoringSettings::setupScissoring(GrGpu* gpu) {
     gpu->enableScissoring(fScissorRect);
 }
 
-// sort out what kind of clip mask needs to be created: A8/R8, stencil or scissor
+////////////////////////////////////////////////////////////////////////////////
+// sort out what kind of clip mask needs to be created: alpha, stencil
+// or scissor
 bool GrClipMaskManager::createClipMask(GrGpu* gpu, 
                                        const GrClip& clipIn,
                                        ScissoringSettings* scissorSettings) {
@@ -30,6 +33,7 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
 
     scissorSettings->fEnableScissoring = false;
     fClipMaskInStencil = false;
+    fClipMaskInAlpha = false;
 
     GrDrawState* drawState = gpu->drawState();
     if (!drawState->isClipState()) {
@@ -40,6 +44,24 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
 
     // GrDrawTarget should have filtered this for us
     GrAssert(NULL != rt);
+
+#if GR_AA_CLIP
+    // If MSAA is enabled use the (faster) stencil path for AA clipping
+    // otherwise the alpha clip mask is our only option
+    if (clipIn.requiresAA() && 0 == rt->numSamples()) {
+        // Since we are going to create a destination texture of the correct
+        // size for the mask (rather than being bound by the size of the
+        // render target) we aren't going to use scissoring like the stencil
+        // path does (see scissorSettings below)
+        if (this->createAlphaClipMask(gpu, clipIn)) {
+            fClipMaskInAlpha = true;
+            return true;
+        }
+
+        // if alpha clip mask creation fails fall through to the stencil
+        // buffer method
+    }
+#endif // GR_AA_CLIP
 
     GrRect bounds;
     GrRect rtRect;
@@ -85,6 +107,7 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
 #endif
 
 namespace {
+////////////////////////////////////////////////////////////////////////////////
 // determines how many elements at the head of the clip can be skipped and
 // whether the initial clear should be to the inside- or outside-the-clip value,
 // and what op should be used to draw the first element that isn't skipped.
@@ -172,8 +195,279 @@ int process_initial_clip_elements(const GrClip& clip,
     }
     return done ? curr-1 : count;
 }
+
 }
 
+
+namespace {
+
+////////////////////////////////////////////////////////////////////////////////
+// set up the OpenGL blend function to perform the specified 
+// boolean operation for alpha clip mask creation 
+void setUpBooleanBlendCoeffs(GrDrawState* drawState, SkRegion::Op op) {
+
+    switch (op) {
+        case SkRegion::kReplace_Op:
+            drawState->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
+            break;
+        case SkRegion::kIntersect_Op:
+            drawState->setBlendFunc(kDC_BlendCoeff, kZero_BlendCoeff);
+            break;
+        case SkRegion::kUnion_Op:
+            drawState->setBlendFunc(kOne_BlendCoeff, kISC_BlendCoeff);
+            break;
+        case SkRegion::kXOR_Op:
+            drawState->setBlendFunc(kIDC_BlendCoeff, kISC_BlendCoeff);
+            break;
+        case SkRegion::kDifference_Op:
+            drawState->setBlendFunc(kZero_BlendCoeff, kISC_BlendCoeff);
+            break;
+        case SkRegion::kReverseDifference_Op:
+            drawState->setBlendFunc(kIDC_BlendCoeff, kZero_BlendCoeff);
+            break;
+        default:
+            GrAssert(false);
+            break;
+    }
+}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool GrClipMaskManager::drawPath(GrGpu* gpu,
+                                 const GrPath& path,
+                                 GrPathFill fill,
+                                 bool doAA) {
+
+    GrPathRenderer* pr = this->getClipPathRenderer(gpu, path, fill, doAA);
+    if (NULL == pr) {
+        return false;
+    }
+
+    pr->drawPath(path, fill, NULL, gpu, 0, doAA);
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool GrClipMaskManager::drawClipShape(GrGpu* gpu,
+                                      GrTexture* target,
+                                      const GrClip& clipIn,
+                                      int index) {
+    GrDrawState* drawState = gpu->drawState();
+    GrAssert(NULL != drawState);
+
+    drawState->setRenderTarget(target->asRenderTarget());
+
+    if (kRect_ClipType == clipIn.getElementType(index)) {
+        if (clipIn.getDoAA(index)) {
+            // convert the rect to a path for AA
+            SkPath temp;
+            temp.addRect(clipIn.getRect(index));
+
+            return this->drawPath(gpu, temp,
+                                  kEvenOdd_PathFill, clipIn.getDoAA(index));
+        } else {
+            gpu->drawSimpleRect(clipIn.getRect(index), NULL, 0);
+        }
+    } else {
+        return this->drawPath(gpu,
+                              clipIn.getPath(index),
+                              clipIn.getPathFill(index),
+                              clipIn.getDoAA(index));
+    }
+    return true;
+}
+
+void GrClipMaskManager::drawTexture(GrGpu* gpu,
+                                    GrTexture* target,
+                                    const GrRect& rect,
+                                    GrTexture* texture) {
+    GrDrawState* drawState = gpu->drawState();
+    GrAssert(NULL != drawState);
+
+    // no AA here since it is encoded in the texture
+    drawState->setRenderTarget(target->asRenderTarget());
+
+    GrMatrix sampleM;
+    sampleM.setIDiv(texture->width(), texture->height());
+    drawState->setTexture(0, texture);
+
+    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
+                                 GrSamplerState::kNearest_Filter,
+                                 sampleM);
+
+    gpu->drawSimpleRect(rect, NULL, 1 << 0);
+
+    drawState->setTexture(0, NULL);
+}
+
+namespace {
+
+void clear(GrGpu* gpu,
+           GrTexture* target,
+           const GrRect& bounds,
+           GrColor color) {
+    GrDrawState* drawState = gpu->drawState();
+    GrAssert(NULL != drawState);
+
+    // zap entire target to specified color
+    drawState->setRenderTarget(target->asRenderTarget());
+    gpu->clear(NULL, color);
+}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Create a 8-bit clip mask in alpha
+bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu, const GrClip& clipIn) {
+
+    GrDrawState* origDrawState = gpu->drawState();
+    GrAssert(origDrawState->isClipState());
+
+    GrRenderTarget* rt = origDrawState->getRenderTarget();
+    GrAssert(NULL != rt);
+
+    GrRect rtRect;
+    rtRect.setLTRB(0, 0,
+                    GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
+
+    // unlike the stencil path the alpha path is not bound to the size of the
+    // render target - determine the minimum size required for the mask
+    GrRect bounds;
+
+    if (clipIn.hasConservativeBounds()) {
+        bounds = clipIn.getConservativeBounds();
+        if (!bounds.intersect(rtRect)) {
+            // the mask will be empty in this case
+            GrAssert(false);
+            bounds.setEmpty();
+        }
+    } else {
+        // still locked to the size of the render target
+        bounds = rtRect;
+    }
+
+    bounds.roundOut();
+
+    // need to outset a pixel since the standard bounding box computation
+    // path doesn't leave any room for antialiasing (esp. w.r.t. rects)
+    bounds.outset(SkIntToScalar(1), SkIntToScalar(1));
+
+    GrAssert(SkScalarIsInt(bounds.width()));
+    GrAssert(SkScalarIsInt(bounds.height()));
+
+    GrTextureDesc desc = {
+        kRenderTarget_GrTextureFlagBit,
+        SkScalarCeilToInt(bounds.width()),
+        SkScalarCeilToInt(bounds.height()),
+        kAlpha_8_GrPixelConfig,
+        0           // samples
+    };
+
+    GrRect newRTBounds;
+    newRTBounds.setLTRB(0, 0, bounds.width(), bounds.height());
+
+    GrTexture* accum = gpu->createTexture(desc, NULL, 0);
+    GrTexture* temp = gpu->createTexture(desc, NULL, 0);
+    if (NULL == accum || NULL == temp) {
+        // TODO: free up accum & temp here!
+        fClipMaskInAlpha = false;
+        return false;
+    }
+
+    GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
+    GrDrawState* drawState = gpu->drawState();
+
+    GrDrawTarget::AutoGeometryPush agp(gpu);
+
+    int count = clipIn.getElementCount();
+
+    if (0 != bounds.fTop || 0 != bounds.fLeft) {
+        // if we were able to trim down the size of the mask we need to 
+        // offset the paths & rects that will be used to compute it
+        GrMatrix m;
+
+        m.setTranslate(-bounds.fLeft, -bounds.fTop);
+
+        drawState->preConcatViewMatrix(m);
+    }
+
+    bool clearToInside;
+    SkRegion::Op startOp = SkRegion::kReplace_Op; // suppress warning
+    int start = process_initial_clip_elements(clipIn,
+                                              bounds,
+                                              &clearToInside,
+                                              &startOp);
+
+    clear(gpu, accum, newRTBounds, clearToInside ? 0xffffffff : 0x00000000);
+
+    // walk through each clip element and perform its set op
+    for (int c = start; c < count; ++c) {
+
+        SkRegion::Op op = (c == start) ? startOp : clipIn.getOp(c);
+
+        if (SkRegion::kReplace_Op == op) {
+            // TODO: replace is actually a lot faster then intersection
+            // for this path - refactor the stencil path so it can handle
+            // replace ops and alter GrClip to allow them through
+
+            // clear the accumulator and draw the new object directly into it
+            clear(gpu, accum, newRTBounds, 0x00000000);
+
+            setUpBooleanBlendCoeffs(drawState, op);
+            this->drawClipShape(gpu, accum, clipIn, c);
+
+        } else if (SkRegion::kReverseDifference_Op == op ||
+                   SkRegion::kIntersect_Op == op) {
+            // there is no point in intersecting a screen filling rectangle.
+            if (SkRegion::kIntersect_Op == op &&
+                kRect_ClipType == clipIn.getElementType(c) &&
+                clipIn.getRect(c).contains(bounds)) {
+                continue;
+            }
+
+            // clear the temp target & draw into it
+            clear(gpu, temp, newRTBounds, 0x00000000);
+
+            setUpBooleanBlendCoeffs(drawState, SkRegion::kReplace_Op);
+            this->drawClipShape(gpu, temp, clipIn, c);
+
+            // TODO: rather than adding these two translations here
+            // compute the bounding box needed to render the texture
+            // into temp
+            if (0 != bounds.fTop || 0 != bounds.fLeft) {
+                GrMatrix m;
+
+                m.setTranslate(bounds.fLeft, bounds.fTop);
+
+                drawState->preConcatViewMatrix(m);
+            }
+
+            // Now draw into the accumulator using the real operation
+            // and the temp buffer as a texture
+            setUpBooleanBlendCoeffs(drawState, op);
+            this->drawTexture(gpu, accum, newRTBounds, temp);
+
+            if (0 != bounds.fTop || 0 != bounds.fLeft) {
+                GrMatrix m;
+
+                m.setTranslate(-bounds.fLeft, -bounds.fTop);
+
+                drawState->preConcatViewMatrix(m);
+            }
+
+        } else {
+            // all the remaining ops can just be directly draw into 
+            // the accumulation buffer
+            setUpBooleanBlendCoeffs(drawState, op);
+            this->drawClipShape(gpu, accum, clipIn, c);
+        }
+    }
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer
 bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu, 
                                               const GrClip& clipIn,
@@ -248,6 +542,8 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                                             // without extra passes to
                                             // resolve in/out status.
 
+            SkRegion::Op op = (c == start) ? startOp : clipCopy.getOp(c);
+
             GrPathRenderer* pr = NULL;
             const GrPath* clipPath = NULL;
             if (kRect_ClipType == clipCopy.getElementType(c)) {
@@ -256,7 +552,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                 fillInverted = false;
                 // there is no point in intersecting a screen filling
                 // rectangle.
-                if (SkRegion::kIntersect_Op == clipCopy.getOp(c) &&
+                if (SkRegion::kIntersect_Op == op &&
                     clipCopy.getRect(c).contains(rtRect)) {
                     continue;
                 }
@@ -265,7 +561,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                 fillInverted = GrIsFillInverted(fill);
                 fill = GrNonInvertedFill(fill);
                 clipPath = &clipCopy.getPath(c);
-                pr = this->getClipPathRenderer(gpu, *clipPath, fill);
+                pr = this->getClipPathRenderer(gpu, *clipPath, fill, false);
                 if (NULL == pr) {
                     fClipMaskInStencil = false;
                     gpu->setClip(clipCopy);     // restore to the original
@@ -275,7 +571,6 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                     !pr->requiresStencilPass(*clipPath, fill, gpu);
             }
 
-            SkRegion::Op op = (c == start) ? startOp : clipCopy.getOp(c);
             int passes;
             GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
 
@@ -342,17 +637,20 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer* GrClipMaskManager::getClipPathRenderer(GrGpu* gpu,
                                                        const GrPath& path,
-                                                       GrPathFill fill) {
+                                                       GrPathFill fill,
+                                                       bool antiAlias) {
     if (NULL == fPathRendererChain) {
         fPathRendererChain = 
             new GrPathRendererChain(gpu->getContext(),
-                                    GrPathRendererChain::kNonAAOnly_UsageFlag);
+                                    GrPathRendererChain::kNone_UsageFlag);
     }
-    return fPathRendererChain->getPathRenderer(path, fill, gpu, false);
+    return fPathRendererChain->getPathRenderer(path, fill, gpu, antiAlias);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void GrClipMaskManager::freeResources() {
     // in case path renderer has any GrResources, start from scratch
     GrSafeSetNull(fPathRendererChain);
