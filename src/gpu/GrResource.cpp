@@ -17,6 +17,11 @@ GrResource::GrResource(GrGpu* gpu) {
     fGpu->insertResource(this);
 }
 
+GrResource::~GrResource() {
+    // subclass should have released this.
+    GrAssert(!this->isValid());
+}
+
 void GrResource::release() {
     if (NULL != fGpu) {
         this->onRelease();

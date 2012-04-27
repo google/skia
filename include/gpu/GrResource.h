@@ -15,15 +15,11 @@
 class GrGpu;
 class GrContext;
 
+/**
+ * Base class for the GPU resources created by a GrContext.
+ */
 class GrResource : public GrRefCnt {
 public:
-    explicit GrResource(GrGpu* gpu);
-
-    virtual ~GrResource() {
-        // subclass should have released this.
-        GrAssert(!isValid());
-    }
-
     /**
      * Frees the resource in the underlying 3D API. It must be safe to call this
      * when the resource has been previously abandoned.
@@ -59,26 +55,29 @@ public:
      /**
       * Retrieves the context that owns the resource. Note that it is possible
       * for this to return NULL. When resources have been release()ed or
-      * abandon()ed they no longer have an unknowning context. Destroying a
+      * abandon()ed they no longer have an owning context. Destroying a
       * GrContext automatically releases all its resources.
       */
      const GrContext* getContext() const;
      GrContext* getContext();
 
 protected:
+    explicit GrResource(GrGpu* gpu);
+    virtual ~GrResource();
+
+    GrGpu* getGpu() const { return fGpu; }
 
     virtual void onRelease() = 0;
     virtual void onAbandon() = 0;
 
-    GrGpu* getGpu() const { return fGpu; }
-
 private:
-    GrResource(); // unimpl
-
-    GrGpu* fGpu; // not reffed. This can outlive the GrGpu.
 
     friend class GrGpu; // GrGpu manages list of resources.
 
+    GrGpu*      fGpu;       // not reffed. The GrGpu can be deleted while there
+                            // are still live GrResources. It will call
+                            // release() on all such resources in its
+                            // destructor.
     GrResource* fNext;      // dl-list of resources per-GrGpu
     GrResource* fPrevious;
 
