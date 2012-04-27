@@ -11,7 +11,7 @@
 #define GrPathUtils_DEFINED
 
 #include "GrMatrix.h"
-#include "GrPath.h"
+#include "SkPath.h"
 #include "SkTArray.h"
 
 /**
@@ -24,7 +24,7 @@ namespace GrPathUtils {
 
     /// Since we divide by tol if we're computing exact worst-case bounds,
     /// very small tolerances will be increased to gMinCurveTol.
-    int worstCasePointCount(const GrPath&,
+    int worstCasePointCount(const SkPath&,
                             int* subpaths,
                             GrScalar tol);
 

@@ -150,7 +150,7 @@ GR_STATIC_CONST_SAME_STENCIL(gDirectToStencil,
 
 #define STENCIL_OFF     0   // Always disable stencil (even when needed)
 
-static inline bool single_pass_path(const GrPath& path, GrPathFill fill) {
+static inline bool single_pass_path(const SkPath& path, GrPathFill fill) {
 #if STENCIL_OFF
     return true;
 #else

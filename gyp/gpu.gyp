@@ -186,7 +186,6 @@
         '../include/gpu/GrMatrix.h',
         '../include/gpu/GrNoncopyable.h',
         '../include/gpu/GrPaint.h',
-        '../include/gpu/GrPath.h',
         '../include/gpu/GrPoint.h',
         '../include/gpu/GrRect.h',
         '../include/gpu/GrRefCnt.h',

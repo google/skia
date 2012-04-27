@@ -11,8 +11,8 @@
 #ifndef GrClipIterator_DEFINED
 #define GrClipIterator_DEFINED
 
-#include "GrPath.h"
 #include "GrRect.h"
+#include "SkPath.h"
 #include "SkRegion.h"
 
 /**
@@ -41,7 +41,7 @@ public:
      * Return the current path. It is an error to call this when isDone() is
      * true or when getType() is kRect_Type.
      */
-    virtual const GrPath* getPath() = 0;
+    virtual const SkPath* getPath() = 0;
 
     /**
      * Return the fill rule for the path. It is an error to call this when

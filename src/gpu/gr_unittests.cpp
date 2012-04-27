@@ -11,7 +11,6 @@
 #include "GrBinHashKey.h"
 #include "GrDrawTarget.h"
 #include "GrMatrix.h"
-#include "GrPath.h"
 #include "GrRedBlackTree.h"
 #include "GrTDArray.h"
 
@@ -102,130 +101,11 @@ static void test_binHashKey()
     GrAssert(keyA.getHash() != keyB.getHash());    
 }
 
-static void test_convex() {
-#if 0
-    GrPath testPath;
-    GrPath::Iter testIter;
-    
-    GrPath pt;
-    pt.moveTo(0, 0);
-    pt.close();
-    
-    testIter.reset(pt);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
-    
-    GrPath line;
-    line.moveTo(GrIntToScalar(12), GrIntToScalar(20));
-    line.lineTo(GrIntToScalar(-12), GrIntToScalar(-20));
-    line.close();
-    
-    testIter.reset(line);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
-    
-    GrPath triLeft;
-    triLeft.moveTo(0, 0);
-    triLeft.lineTo(1, 0);
-    triLeft.lineTo(1, 1);
-    triLeft.close();
-    
-    testIter.reset(triLeft);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
-    
-    GrPath triRight;
-    triRight.moveTo(0, 0);
-    triRight.lineTo(-1, 0);
-    triRight.lineTo(1, 1);
-    triRight.close();
-    
-    testIter.reset(triRight);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
-    
-    GrPath square;
-    square.moveTo(0, 0);
-    square.lineTo(1, 0);
-    square.lineTo(1, 1);
-    square.lineTo(0, 1);
-    square.close();
-    
-    testIter.reset(square);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
-    
-    GrPath redundantSquare;
-    square.moveTo(0, 0);
-    square.lineTo(0, 0);
-    square.lineTo(0, 0);
-    square.lineTo(1, 0);
-    square.lineTo(1, 0);
-    square.lineTo(1, 0);
-    square.lineTo(1, 1);
-    square.lineTo(1, 1);
-    square.lineTo(1, 1);
-    square.lineTo(0, 1);
-    square.lineTo(0, 1);
-    square.lineTo(0, 1);
-    square.close();
-    
-    testIter.reset(redundantSquare);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
-    
-    GrPath bowTie;
-    bowTie.moveTo(0, 0);
-    bowTie.lineTo(0, 0);
-    bowTie.lineTo(0, 0);
-    bowTie.lineTo(1, 1);
-    bowTie.lineTo(1, 1);
-    bowTie.lineTo(1, 1);
-    bowTie.lineTo(1, 0);
-    bowTie.lineTo(1, 0);
-    bowTie.lineTo(1, 0);
-    bowTie.lineTo(0, 1);
-    bowTie.lineTo(0, 1);
-    bowTie.lineTo(0, 1);
-    bowTie.close();
-    
-    testIter.reset(bowTie);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConcave_ConvexHint == testPath.getConvexHint());
-    
-    GrPath spiral;
-    spiral.moveTo(0, 0);
-    spiral.lineTo(1, 0);
-    spiral.lineTo(1, 1);
-    spiral.lineTo(0, 1);
-    spiral.lineTo(0,.5);
-    spiral.lineTo(.5,.5);
-    spiral.lineTo(.5,.75);
-    spiral.close();
-    
-    testIter.reset(spiral);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConcave_ConvexHint == testPath.getConvexHint());
-    
-    GrPath dent;
-    dent.moveTo(0, 0);
-    dent.lineTo(1, 1);
-    dent.lineTo(0, 1);
-    dent.lineTo(-.5,2);
-    dent.lineTo(-2, 1);
-    dent.close();
-    
-    testIter.reset(dent);
-    testPath.resetFromIter(&testIter);
-    GrAssert(kConcave_ConvexHint == testPath.getConvexHint());
-#endif
-}
 
 void gr_run_unittests() {
     test_tdarray();
     test_bsearch();
     test_binHashKey();
-    test_convex();
     GrRedBlackTree<int>::UnitTest();
     GrDrawTarget::VertexLayoutUnitTest();
 }
