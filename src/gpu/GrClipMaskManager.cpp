@@ -235,7 +235,7 @@ void setUpBooleanBlendCoeffs(GrDrawState* drawState, SkRegion::Op op) {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawPath(GrGpu* gpu,
-                                 const GrPath& path,
+                                 const SkPath& path,
                                  GrPathFill fill,
                                  bool doAA) {
 
@@ -545,7 +545,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
             SkRegion::Op op = (c == start) ? startOp : clipCopy.getOp(c);
 
             GrPathRenderer* pr = NULL;
-            const GrPath* clipPath = NULL;
+            const SkPath* clipPath = NULL;
             if (kRect_ClipType == clipCopy.getElementType(c)) {
                 canRenderDirectToStencil = true;
                 fill = kEvenOdd_PathFill;
@@ -639,7 +639,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
 
 ////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer* GrClipMaskManager::getClipPathRenderer(GrGpu* gpu,
-                                                       const GrPath& path,
+                                                       const SkPath& path,
                                                        GrPathFill fill,
                                                        bool antiAlias) {
     if (NULL == fPathRendererChain) {

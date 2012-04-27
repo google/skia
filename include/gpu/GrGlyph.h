@@ -11,8 +11,8 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "GrPath.h"
 #include "GrRect.h"
+#include "SkPath.h"
 
 class GrAtlas;
 
@@ -26,7 +26,7 @@ struct GrGlyph {
     typedef uint32_t PackedID;
 
     GrAtlas*    fAtlas;
-    GrPath*     fPath;
+    SkPath*     fPath;
     PackedID    fPackedID;
     GrIRect16   fBounds;
     GrIPoint16  fAtlasLocation;

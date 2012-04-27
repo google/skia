@@ -1293,7 +1293,7 @@ SkPath::FillType gr_fill_to_sk_fill(GrPathFill fill) {
 // path bounds will be a subset of the clip bounds. returns false if 
 // path bounds would be empty.
 bool get_path_and_clip_bounds(const GrDrawTarget* target,
-                              const GrPath& path,
+                              const SkPath& path,
                               const GrVec* translate,
                               GrIRect* pathBounds,
                               GrIRect* clipBounds) {
@@ -1336,7 +1336,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
  * scratch texture.
  */
 
-bool sw_draw_path_to_mask_texture(const GrPath& clientPath,
+bool sw_draw_path_to_mask_texture(const SkPath& clientPath,
                                   const GrIRect& pathDevBounds,
                                   GrPathFill fill,
                                   GrContext* context,
@@ -1606,7 +1606,7 @@ bool onDrawPath(const SkPath& path,
     return false;
 }
 
-void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
+void GrContext::drawPath(const GrPaint& paint, const SkPath& path,
                          GrPathFill fill, const GrPoint* translate) {
 
     if (path.isEmpty()) {
@@ -1629,7 +1629,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     internalDrawPath(paint, path, fill, translate);
 }
 
-void GrContext::internalDrawPath(const GrPaint& paint, const GrPath& path,
+void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
                                  GrPathFill fill, const GrPoint* translate) {
 
     // Note that below we may sw-rasterize the path into a scratch texture.
@@ -2113,7 +2113,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
     return target;
 }
 
-GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
+GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                                            GrPathFill fill,
                                            const GrDrawTarget* target,
                                            bool antiAlias) {

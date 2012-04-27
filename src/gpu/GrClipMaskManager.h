@@ -10,7 +10,7 @@
 #define GrClipMaskManager_DEFINED
 
 #include "GrRect.h"
-#include "GrPath.h"
+#include "SkPath.h"
 
 class GrGpu;
 class GrClip;
@@ -79,7 +79,7 @@ private:
     bool createAlphaClipMask(GrGpu* gpu, const GrClip& clipIn);
 
     bool drawPath(GrGpu* gpu,
-                  const GrPath& path,
+                  const SkPath& path,
                   GrPathFill fill,
                   bool doAA);
 

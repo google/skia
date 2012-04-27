@@ -18,7 +18,6 @@
 #include "GrContext.h"
 #include "GrFontScaler.h"
 #include "GrClipIterator.h"
-#include "GrPath.h"
 
 // skia headers
 #include "SkBitmap.h"
@@ -120,7 +119,7 @@ public:
         }
     }
 
-    virtual const GrPath* getPath() SK_OVERRIDE {
+    virtual const SkPath* getPath() SK_OVERRIDE {
         return fCurr->fPath;
     }
 
@@ -147,7 +146,7 @@ public:
     virtual bool getPackedGlyphBounds(GrGlyph::PackedID, GrIRect* bounds);
     virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
                                      int rowBytes, void* image);
-    virtual bool getGlyphPath(uint16_t glyphID, GrPath*);
+    virtual bool getGlyphPath(uint16_t glyphID, SkPath*);
 
 private:
     SkGlyphCache* fStrike;

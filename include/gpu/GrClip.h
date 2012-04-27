@@ -13,9 +13,9 @@
 
 #include "GrClipIterator.h"
 #include "GrRect.h"
-#include "GrPath.h"
 #include "GrTemplates.h"
 
+#include "SkPath.h"
 #include "SkTArray.h"
 
 class GrClip {
@@ -45,7 +45,7 @@ public:
 
     GrClipType getElementType(int i) const { return fList[i].fType; }
 
-    const GrPath& getPath(int i) const {
+    const SkPath& getPath(int i) const {
         GrAssert(kPath_ClipType == fList[i].fType);
         return fList[i].fPath;
     }
@@ -113,7 +113,7 @@ private:
     struct Element {
         GrClipType   fType;
         GrRect       fRect;
-        GrPath       fPath;
+        SkPath       fPath;
         GrPathFill   fPathFill;
         SkRegion::Op fOp;
         bool         fDoAA;

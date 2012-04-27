@@ -200,7 +200,7 @@ void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
     }
 }
 
-inline SkPath::Direction get_direction(const GrPath& path, const GrMatrix& m) {
+inline SkPath::Direction get_direction(const SkPath& path, const GrMatrix& m) {
     SkPath::Direction dir;
     GR_DEBUGCODE(bool succeeded = )
     path.cheapComputeDirection(&dir);
@@ -220,7 +220,7 @@ inline SkPath::Direction get_direction(const GrPath& path, const GrMatrix& m) {
     return dir;
 }
 
-bool get_segments(const GrPath& path,
+bool get_segments(const SkPath& path,
                   const GrMatrix& m,
                   SegmentArray* segments,
                   SkPoint* fanPt,

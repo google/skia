@@ -220,7 +220,7 @@ void GrDefaultTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         }
 
         if (NULL == glyph->fPath) {
-            GrPath* path = new GrPath;
+            SkPath* path = new SkPath;
             if (!scaler->getGlyphPath(glyph->glyphID(), path)) {
                 // flag the glyph as being dead?
                 delete path;

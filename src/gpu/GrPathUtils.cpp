@@ -145,7 +145,7 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
     return a + b;
 }
 
-int GrPathUtils::worstCasePointCount(const GrPath& path, int* subpaths,
+int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
                                      GrScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;

@@ -411,7 +411,7 @@ public:
      * @param translate     optional additional translation applied to the
      *                      path.
      */
-    void drawPath(const GrPaint& paint, const GrPath& path, GrPathFill fill,
+    void drawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill,
                   const GrPoint* translate = NULL);
 
     /**
@@ -728,12 +728,12 @@ private:
 
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
-    GrPathRenderer* getPathRenderer(const GrPath& path,
+    GrPathRenderer* getPathRenderer(const SkPath& path,
                                     GrPathFill fill,
                                     const GrDrawTarget* target,
                                     bool antiAlias);
 
-    void internalDrawPath(const GrPaint& paint, const GrPath& path,
+    void internalDrawPath(const GrPaint& paint, const SkPath& path,
                           GrPathFill fill, const GrPoint* translate);
 
     /**
