@@ -38,7 +38,7 @@ public:
      * or not.
      */
     enum {
-        kNumStages = 3,
+        kNumStages = 4,
         kMaxTexCoords = kNumStages
     };
 

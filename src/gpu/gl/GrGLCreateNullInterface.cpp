@@ -275,9 +275,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetIntegerv(GrGLenum pname, GrGLint* params) 
         case GR_GL_MAX_VERTEX_ATTRIBS:
             *params = 16;
             break;
-        case GR_GL_MAX_TEXTURE_UNITS:
-            *params = 8;
-            break;
         default:
             GrCrash("Unexpected pname to GetIntegerv");
     }

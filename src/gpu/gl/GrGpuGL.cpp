@@ -230,10 +230,6 @@ void GrGpuGL::initCaps() {
     const GrGLInterface* gl = this->glInterface();
     GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
     GrAssert(maxTextureUnits > GrDrawState::kNumStages);
-    if (kES2_GrGLBinding != this->glBinding()) {
-        GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
-        GrAssert(maxTextureUnits > GrDrawState::kNumStages);
-    }
 
     GrGLint numFormats;
     GR_GL_GetIntegerv(gl, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
