@@ -1435,6 +1435,123 @@ void draw_around_inv_path(GrDrawTarget* target,
     }
 }
 
+struct CircleVertex {
+    GrPoint fPos;
+    GrPoint fCenter;
+    GrScalar fOuterRadius;
+    GrScalar fInnerRadius;
+};
+
+/* Returns true if will map a circle to another circle. This can be true
+ * if the matrix only includes square-scale, rotation, translation.
+ */
+inline bool isSimilarityTransformation(const SkMatrix& matrix,
+                                       SkScalar tol = SK_ScalarNearlyZero) {
+    if (matrix.isIdentity() || matrix.getType() == SkMatrix::kTranslate_Mask) {
+        return true;
+    }
+    if (matrix.hasPerspective()) {
+        return false;
+    }
+
+    SkScalar mx = matrix.get(SkMatrix::kMScaleX);
+    SkScalar sx = matrix.get(SkMatrix::kMSkewX);
+    SkScalar my = matrix.get(SkMatrix::kMScaleY);
+    SkScalar sy = matrix.get(SkMatrix::kMSkewY);
+
+    if (mx == 0 && sx == 0 && my == 0 && sy == 0) {
+        return false;
+    }
+
+    // it has scales or skews, but it could also be rotation, check it out.
+    SkVector vec[2];
+    vec[0].set(mx, sx);
+    vec[1].set(sy, my);
+
+    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
+           SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
+                SkScalarSquare(tol));
+}
+
+}
+
+// TODO: strokeWidth can't be larger than zero right now.
+// It will be fixed when drawPath() can handle strokes.
+void GrContext::drawOval(const GrPaint& paint,
+                         const GrRect& rect,
+                         SkScalar strokeWidth) {
+    DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
+                                            kUnbuffered_DrawCategory;
+    GrDrawTarget* target = this->prepareToDraw(paint, category);
+    GrDrawState* drawState = target->drawState();
+    GrMatrix vm = drawState->getViewMatrix();
+
+    if (!isSimilarityTransformation(vm) ||
+        !paint.fAntiAlias ||
+        rect.height() != rect.width()) {
+        SkPath path;
+        path.addOval(rect);
+        GrPathFill fill = (strokeWidth == 0) ?
+                            kHairLine_PathFill : kWinding_PathFill;
+        this->internalDrawPath(paint, path, fill, NULL);
+        return;
+    }
+
+    const GrRenderTarget* rt = drawState->getRenderTarget();
+    if (NULL == rt) {
+        return;
+    }
+
+    GrDrawTarget::AutoDeviceCoordDraw adcd(target, paint.getActiveStageMask());
+
+    GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL);
+    layout |= GrDrawTarget::kEdge_VertexLayoutBit;
+    GrAssert(sizeof(CircleVertex) == GrDrawTarget::VertexSize(layout));
+
+    GrPoint center = GrPoint::Make(rect.centerX(), rect.centerY());
+    GrScalar radius = SkScalarHalf(rect.width());
+
+    vm.mapPoints(&center, 1);
+    radius = vm.mapRadius(radius);
+
+    GrScalar outerRadius = radius;
+    GrScalar innerRadius = 0;
+    SkScalar halfWidth = 0;
+    if (strokeWidth == 0) {
+        halfWidth = SkScalarHalf(SK_Scalar1);
+
+        outerRadius += halfWidth;
+        innerRadius = SkMaxScalar(0, radius - halfWidth);
+    }
+
+    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 4, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
+        return;
+    }
+
+    CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
+
+    SkScalar L = center.fX - outerRadius;
+    SkScalar R = center.fX + outerRadius;
+    SkScalar T = center.fY - outerRadius;
+    SkScalar B = center.fY + outerRadius;
+
+    verts[0].fPos = SkPoint::Make(L, T);
+    verts[1].fPos = SkPoint::Make(R, T);
+    verts[2].fPos = SkPoint::Make(L, B);
+    verts[3].fPos = SkPoint::Make(R, B);
+
+    for (int i = 0; i < 4; ++i) {
+        // this goes to fragment shader, it should be in y-points-up space.
+        verts[i].fCenter = SkPoint::Make(center.fX, rt->height() - center.fY);
+
+        verts[i].fOuterRadius = outerRadius;
+        verts[i].fInnerRadius = innerRadius;
+    }
+
+    drawState->setVertexEdgeType(GrDrawState::kCircle_EdgeType);
+    target->drawNonIndexed(kTriangleStrip_PrimitiveType, 0, 4);
 }
 
 
@@ -1498,6 +1615,22 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
        }
        return;
     }
+
+    SkRect ovalRect;
+    if (!GrIsFillInverted(fill) && path.isOval(&ovalRect)) {
+        if (translate) {
+            ovalRect.offset(*translate);
+        }
+        SkScalar width = (fill == kHairLine_PathFill) ? 0 : -1;
+        this->drawOval(paint, ovalRect, width);
+        return;
+    }
+
+    internalDrawPath(paint, path, fill, translate);
+}
+
+void GrContext::internalDrawPath(const GrPaint& paint, const GrPath& path,
+                                 GrPathFill fill, const GrPoint* translate) {
 
     // Note that below we may sw-rasterize the path into a scratch texture.
     // Scratch textures can be recycled after they are returned to the texture

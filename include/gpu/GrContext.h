@@ -439,6 +439,20 @@ public:
                       const uint16_t indices[],
                       int indexCount);
 
+    /**
+     * Draws an oval.
+     *
+     * @param paint         describes how to color pixels.
+     * @param rect          the bounding rect of the oval.
+     * @param strokeWidth   if strokeWidth < 0, then the oval is filled, else
+     *                      the rect is stroked based on strokeWidth. If
+     *                      strokeWidth == 0, then the stroke is always a single
+     *                      pixel thick.
+     */
+    void drawOval(const GrPaint& paint,
+                  const GrRect& rect,
+                  SkScalar strokeWidth);
+
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
@@ -718,6 +732,9 @@ private:
                                     GrPathFill fill,
                                     const GrDrawTarget* target,
                                     bool antiAlias);
+
+    void internalDrawPath(const GrPaint& paint, const GrPath& path,
+                          GrPathFill fill, const GrPoint* translate);
 
     /**
      * Flags to the internal read/write pixels funcs
