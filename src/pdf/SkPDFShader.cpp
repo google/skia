@@ -303,7 +303,7 @@ public:
 class SkPDFFunctionShader : public SkPDFDict, public SkPDFShader {
 public:
     explicit SkPDFFunctionShader(SkPDFShader::State* state);
-    ~SkPDFFunctionShader() {
+    virtual ~SkPDFFunctionShader() {
         if (isValid()) {
             RemoveShader(this);
         }
@@ -328,7 +328,7 @@ private:
 class SkPDFImageShader : public SkPDFStream, public SkPDFShader {
 public:
     explicit SkPDFImageShader(SkPDFShader::State* state);
-    ~SkPDFImageShader() {
+    virtual ~SkPDFImageShader() {
         RemoveShader(this);
         fResources.unrefAll();
     }

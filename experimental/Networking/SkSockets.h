@@ -24,7 +24,7 @@
 class SkSocket {
 public:
     SkSocket();
-    ~SkSocket();
+    virtual ~SkSocket();
 
     enum State {
         kError_state,
@@ -152,7 +152,7 @@ protected:
 class SkTCPServer : public SkSocket {
 public:
     SkTCPServer(int port = DEFAULT_PORT);
-    ~SkTCPServer();
+    virtual ~SkTCPServer();
 
     /**
      * Accept any incoming connections to the server, will accept 1 connection
