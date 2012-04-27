@@ -281,11 +281,6 @@ void GrGpuGL::initCaps() {
 
     fCaps.fHWAALineSupport = (kDesktop_GrGLBinding == this->glBinding());
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Experiments to determine limitations that can't be queried.
-    // TODO: Make these a preprocess that generate some compile time constants.
-    // TODO: probe once at startup, rather than once per context creation.
-
     GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_SIZE, &fCaps.fMaxTextureSize);
     GR_GL_GetIntegerv(gl, GR_GL_MAX_RENDERBUFFER_SIZE, &fCaps.fMaxRenderTargetSize);
     // Our render targets are always created with textures as the color
