@@ -1915,6 +1915,12 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     }
     ASSERT_OWNED_RESOURCE(src);
 
+    // Writes pending to the source texture are not tracked, so a flush
+    // is required to ensure that the copy captures the most recent contents
+    // of the source texture. See similar behaviour in
+    // GrContext::resolveRenderTarget.
+    this->flush();
+
     GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
     drawState->setRenderTarget(dst);
