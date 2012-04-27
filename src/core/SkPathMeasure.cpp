@@ -108,8 +108,12 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
     } else {
         SkScalar d = SkPoint::Distance(pts[0], pts[2]);
         SkASSERT(d >= 0);
-        if (!SkScalarNearlyZero(d)) {
-            distance += d;
+        if (SkScalarNearlyZero(d)) {
+            d = 0;
+        }
+        SkScalar prevD = distance;
+        distance += d;
+        if (distance > prevD) {
             Segment* seg = fSegments.append();
             seg->fDistance = distance;
             seg->fPtIndex = ptIndex;
@@ -132,8 +136,12 @@ SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
     } else {
         SkScalar d = SkPoint::Distance(pts[0], pts[3]);
         SkASSERT(d >= 0);
-        if (!SkScalarNearlyZero(d)) {
-            distance += d;
+        if (SkScalarNearlyZero(d)) {
+            d = 0;
+        }
+        SkScalar prevD = distance;
+        distance += d;
+        if (distance > prevD) {
             Segment* seg = fSegments.append();
             seg->fDistance = distance;
             seg->fPtIndex = ptIndex;
@@ -156,6 +164,8 @@ void SkPathMeasure::buildSegments() {
      *  as we accumulate distance, we have to check that the result of +=
      *  actually made it larger, since a very small delta might be > 0, but
      *  still have no effect on distance (if distance >>> delta).
+     *
+     *  We do this check below, and in compute_quad_segs and compute_cubic_segs
      */
     fSegments.reset();
     bool done = false;
