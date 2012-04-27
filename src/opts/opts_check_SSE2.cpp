@@ -88,6 +88,7 @@ static bool cachedHasSSSE3() {
 
 void SkBitmapProcState::platformProcs() {
     if (cachedHasSSSE3()) {
+#if defined (__SSSE3__)
         if (fSampleProc32 == S32_opaque_D32_filter_DX) {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSSE3;
         } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
@@ -99,6 +100,7 @@ void SkBitmapProcState::platformProcs() {
         } else if (fSampleProc32 == S32_alpha_D32_filter_DXDY) {
             fSampleProc32 = S32_alpha_D32_filter_DXDY_SSSE3;
         }
+#endif
     } else if (cachedHasSSE2()) {
         if (fSampleProc32 == S32_opaque_D32_filter_DX) {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSE2;
