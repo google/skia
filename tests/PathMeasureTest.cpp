@@ -8,6 +8,43 @@
 #include "Test.h"
 #include "SkPathMeasure.h"
 
+static void test_small_segment3(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
+    SkPath path;
+    const SkPoint pts[] = {
+        { 0, 0 },
+        { 100000000000.0f, 100000000000.0f }, { 0, 0 }, { 10, 10 },
+        { 10, 10 }, { 0, 0 }, { 10, 10 }
+    };
+    
+    path.moveTo(pts[0]);
+    for (size_t i = 1; i < SK_ARRAY_COUNT(pts); i += 2) {
+        path.cubicTo(pts[i], pts[i + 1], pts[i + 2]);
+    }
+    
+    SkPathMeasure meas(path, false);
+    meas.getLength();
+#endif
+}
+
+static void test_small_segment2(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
+    SkPath path;
+    const SkPoint pts[] = {
+        { 0, 0 },
+        { 100000000000.0f, 100000000000.0f }, { 0, 0 }, 
+        { 10, 10 }, { 0, 0 }, 
+    };
+    
+    path.moveTo(pts[0]);
+    for (size_t i = 1; i < SK_ARRAY_COUNT(pts); i += 2) {
+        path.quadTo(pts[i], pts[i + 1]);
+    }
+    SkPathMeasure meas(path, false);
+    meas.getLength();
+#endif
+}
+
 static void test_small_segment(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
@@ -18,7 +55,7 @@ static void test_small_segment(skiatest::Reporter* reporter) {
         // tiny (non-zero) jump between these points
         { 1, 1 },
     };
-        
+    
     path.moveTo(pts[0]);
     for (size_t i = 1; i < SK_ARRAY_COUNT(pts); ++i) {
         path.lineTo(pts[i]);
@@ -31,7 +68,7 @@ static void test_small_segment(skiatest::Reporter* reporter) {
         d = distance(pts[0], pts[1]);
         distance += d;
         seg->fDistance = distance;
-     
+
         SkASSERT(d > 0);    // TRUE
         SkASSERT(seg->fDistance > prevSeg->fDistance);  // FALSE
 
@@ -167,6 +204,8 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, tangent.fY == 0);
 
     test_small_segment(reporter);
+    test_small_segment2(reporter);
+    test_small_segment3(reporter);
 }
 
 #include "TestClassDef.h"
