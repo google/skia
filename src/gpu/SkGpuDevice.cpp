@@ -774,8 +774,8 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     clipRect.set(clip.getBounds());
 
     // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
-    srcRect.inset(-sigma3, -sigma3);
-    clipRect.inset(-sigma3, -sigma3);
+    srcRect.inset(SkFloatToScalar(-sigma3), SkFloatToScalar(-sigma3));
+    clipRect.inset(SkFloatToScalar(-sigma3), SkFloatToScalar(-sigma3));
     srcRect.intersect(clipRect);
     SkRect finalRect = srcRect;
     SkIRect finalIRect;
