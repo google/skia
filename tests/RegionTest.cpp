@@ -9,6 +9,64 @@
 #include "SkRegion.h"
 #include "SkRandom.h"
 
+enum {
+    W = 256,
+    H = 256
+};
+
+static SkIRect randRect(SkRandom& rand) {
+    int x = rand.nextU() % W;
+    int y = rand.nextU() % H;
+    int w = rand.nextU() % W;
+    int h = rand.nextU() % H;
+    return SkIRect::MakeXYWH(x, y, w >> 1, h >> 1);
+}
+
+static void randRgn(SkRandom& rand, SkRegion* rgn, int n) {
+    rgn->setEmpty();
+    for (int i = 0; i < n; ++i) {
+        rgn->op(randRect(rand), SkRegion::kUnion_Op);
+    }
+}
+
+static bool slow_contains(const SkRegion& outer, const SkRegion& inner) {
+    SkRegion tmp;
+    tmp.op(outer, inner, SkRegion::kUnion_Op);
+    return outer == tmp;
+}
+
+static bool slow_intersects(const SkRegion& outer, const SkRegion& inner) {
+    SkRegion tmp;
+    return tmp.op(outer, inner, SkRegion::kIntersect_Op);
+}
+
+static void contains_proc(skiatest::Reporter* reporter,
+                          const SkRegion& a, const SkRegion& b) {
+    bool c0 = a.contains(b);
+    bool c1 = slow_contains(a, b);
+    REPORTER_ASSERT(reporter, c0 == c1);
+}
+
+static void intersects_proc(skiatest::Reporter* reporter,
+                          const SkRegion& a, const SkRegion& b) {
+    bool c0 = a.intersects(b);
+    bool c1 = slow_intersects(a, b);
+    REPORTER_ASSERT(reporter, c0 == c1);
+}
+
+static void test_proc(skiatest::Reporter* reporter,
+                      void (*proc)(skiatest::Reporter*,
+                                   const SkRegion& a, const SkRegion&)) {
+    SkRandom rand;
+    for (int i = 0; i < 10000; ++i) {
+        SkRegion outer;
+        randRgn(rand, &outer, 8);
+        SkRegion inner;
+        randRgn(rand, &inner, 2);
+        proc(reporter, outer, inner);
+    }
+}
+
 static void rand_rect(SkIRect* rect, SkRandom& rand) {
     int bits = 6;
     int shift = 32 - bits;
@@ -64,6 +122,9 @@ static void TestRegion(skiatest::Reporter* reporter) {
         }
         REPORTER_ASSERT(reporter, test_rects(rect, N));
     }
+    
+    test_proc(reporter, contains_proc);
+    test_proc(reporter, intersects_proc);
 }
 
 #include "TestClassDef.h"
