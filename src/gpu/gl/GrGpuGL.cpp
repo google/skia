@@ -322,8 +322,7 @@ void GrGpuGL::fillInConfigRenderableTable() {
         }
     } else {
         // On ES we can only hope for R8
-        fConfigRenderSupport[kAlpha_8_GrPixelConfig] = 
-                                this->glCaps().textureRedSupport();
+        fConfigRenderSupport[kAlpha_8_GrPixelConfig] = false;
     }
 
     if (kDesktop_GrGLBinding != this->glBinding()) {
@@ -2044,20 +2043,12 @@ unsigned gr_to_gl_filter(GrSamplerState::Filter filter) {
     }
 }
 
-// get_swizzle is only called from this .cpp so it is OK to inline it here
-inline const GrGLenum* get_swizzle(GrPixelConfig config,
-                                   const GrSamplerState& sampler,
-                                   const GrGLCaps& glCaps) {
+const GrGLenum* get_swizzle(GrPixelConfig config,
+                            const GrSamplerState& sampler) {
     if (GrPixelConfigIsAlphaOnly(config)) {
-        if (glCaps.textureRedSupport()) {
-            static const GrGLenum gRedSmear[] = { GR_GL_RED, GR_GL_RED,
-                                                  GR_GL_RED, GR_GL_RED };
-            return gRedSmear;
-        } else {
-            static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
-                                                    GR_GL_ALPHA, GR_GL_ALPHA };
-            return gAlphaSmear;
-        }
+        static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
+                                                GR_GL_ALPHA, GR_GL_ALPHA };
+        return gAlphaSmear;
     } else if (sampler.swapsRAndB()) {
         static const GrGLenum gRedBlueSwap[] = { GR_GL_BLUE, GR_GL_GREEN,
                                                  GR_GL_RED,  GR_GL_ALPHA };
@@ -2137,7 +2128,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             newTexParams.fWrapS = wraps[sampler.getWrapX()];
             newTexParams.fWrapT = wraps[sampler.getWrapY()];
             memcpy(newTexParams.fSwizzleRGBA,
-                   get_swizzle(nextTexture->config(), sampler, this->glCaps()),
+                   get_swizzle(nextTexture->config(), sampler),
                    sizeof(newTexParams.fSwizzleRGBA));
             if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
                 setTextureUnit(s);
@@ -2379,25 +2370,14 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             }
             break;
         case kAlpha_8_GrPixelConfig:
-            if (this->glCaps().textureRedSupport()) {
-                *internalFormat = GR_GL_RED;
-                *externalFormat = GR_GL_RED;
-                if (getSizedInternalFormat) {
-                    *internalFormat = GR_GL_R8;
-                } else {
-                    *internalFormat = GR_GL_RED;
-                }
-                *externalType = GR_GL_UNSIGNED_BYTE;
+            *internalFormat = GR_GL_ALPHA;
+            *externalFormat = GR_GL_ALPHA;
+            if (getSizedInternalFormat) {
+                *internalFormat = GR_GL_ALPHA8;
             } else {
                 *internalFormat = GR_GL_ALPHA;
-                *externalFormat = GR_GL_ALPHA;
-                if (getSizedInternalFormat) {
-                    *internalFormat = GR_GL_ALPHA8;
-                } else {
-                    *internalFormat = GR_GL_ALPHA;
-                }
-                *externalType = GR_GL_UNSIGNED_BYTE;
             }
+            *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         default:
             return false;
