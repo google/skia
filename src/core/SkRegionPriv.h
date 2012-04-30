@@ -22,8 +22,7 @@ struct SkRegion::RunHead {
     int32_t fRefCnt;
     int32_t fRunCount;
     
-    static RunHead* Alloc(int count)
-    {
+    static RunHead* Alloc(int count) {
         //SkDEBUGCODE(sk_atomic_inc(&gRgnAllocCounter);)
         //SkDEBUGF(("************** gRgnAllocCounter::alloc %d\n", gRgnAllocCounter));
 
@@ -35,30 +34,26 @@ struct SkRegion::RunHead {
         return head;
     }
     
-    bool isComplex() const
-    {
+    bool isComplex() const {
         return this != SkRegion_gEmptyRunHeadPtr && this != SkRegion_gRectRunHeadPtr;
     }
 
-    SkRegion::RunType* writable_runs()
-    {
+    SkRegion::RunType* writable_runs() {
         SkASSERT(this->isComplex());
         SkASSERT(fRefCnt == 1);
         return (SkRegion::RunType*)(this + 1);
     }
-    const SkRegion::RunType* readonly_runs() const
-    {
+
+    const SkRegion::RunType* readonly_runs() const {
         SkASSERT(this->isComplex());
         return (const SkRegion::RunType*)(this + 1);
     }
     
-    RunHead* ensureWritable()
-    {
+    RunHead* ensureWritable() {
         SkASSERT(this->isComplex());
         
         RunHead* writable = this;
-        if (fRefCnt > 1)
-        {
+        if (fRefCnt > 1) {
             // We need to alloc & copy the current region before we call
             // sk_atomic_dec because it could be freed in the meantime,
             // otherwise.            
@@ -69,8 +64,7 @@ struct SkRegion::RunHead {
             // fRefCount might have changed since we last checked.
             // If we own the last reference at this point, we need to
             // free the memory.
-            if (sk_atomic_dec(&fRefCnt) == 1)
-            {
+            if (sk_atomic_dec(&fRefCnt) == 1) {
                 sk_free(this);
             }
         }
