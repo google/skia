@@ -9,6 +9,23 @@
 #include "SkRegion.h"
 #include "SkRandom.h"
 
+static void test_empties(skiatest::Reporter* reporter) {
+    SkRegion valid(SkIRect::MakeWH(10, 10));
+    SkRegion empty, empty2;
+
+    REPORTER_ASSERT(reporter, empty.isEmpty());
+    REPORTER_ASSERT(reporter, !valid.isEmpty());
+
+    // test intersects
+    REPORTER_ASSERT(reporter, !empty.intersects(empty2));
+    REPORTER_ASSERT(reporter, !valid.intersects(empty));
+
+    // test contains
+    REPORTER_ASSERT(reporter, !empty.contains(empty2));
+    REPORTER_ASSERT(reporter, !valid.contains(empty));
+    REPORTER_ASSERT(reporter, !empty.contains(valid));
+}
+
 enum {
     W = 256,
     H = 256
@@ -125,6 +142,7 @@ static void TestRegion(skiatest::Reporter* reporter) {
     
     test_proc(reporter, contains_proc);
     test_proc(reporter, intersects_proc);
+    test_empties(reporter);
 }
 
 #include "TestClassDef.h"
