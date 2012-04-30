@@ -300,6 +300,8 @@
 #define GR_GL_PALETTE8_RGBA8                 0x8B96
 #define GR_GL_ALPHA8                         0x803C
 
+#define GR_GL_R8                             0x8229
+
 /* PixelType */
 /*      GL_UNSIGNED_BYTE */
 #define GR_GL_UNSIGNED_SHORT_4_4_4_4         0x8033

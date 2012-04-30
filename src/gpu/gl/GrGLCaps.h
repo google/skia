@@ -206,6 +206,9 @@ public:
     /// Is there support for glTexStorage
     bool texStorageSupport() const { return fTexStorageSupport; }
 
+    /// Is there support for GL_RED and GL_R8
+    bool textureRedSupport() const { return fTextureRedSupport; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -273,6 +276,7 @@ private:
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
     bool fTexStorageSupport : 1;
+    bool fTextureRedSupport : 1;
 };
 
 #endif
