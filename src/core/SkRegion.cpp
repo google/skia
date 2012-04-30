@@ -230,12 +230,16 @@ int SkRegion::count_runtype_values(int* itop, int* ibot) const
     return maxT;
 }
 
+static bool isRunCountEmpty(int count) {
+    return count <= 2;
+}
+
 bool SkRegion::setRuns(RunType runs[], int count)
 {
     SkDEBUGCODE(this->validate();)
     SkASSERT(count > 0);
 
-    if (count <= 2)
+    if (isRunCountEmpty(count))
     {
     //  SkDEBUGF(("setRuns: empty\n"));
         assert_sentinel(runs[count-1], true);
@@ -384,10 +388,11 @@ bool SkRegion::contains(const SkRegion& rgn) const
     if (this->isRect())
         return true;
 
-    SkRegion    tmp;
-    
-    tmp.op(*this, rgn, kUnion_Op);
-    return tmp == *this;
+    /*
+     *  A contains B is equivalent to
+     *  B - A == 0
+     */
+    return !Oper(rgn, *this, kDifference_Op, NULL);
 }
 
 const SkRegion::RunType* SkRegion::getRuns(RunType tmpStorage[], int* count) const
@@ -429,8 +434,7 @@ bool SkRegion::intersects(const SkIRect& r) const {
     }
     
     // we are complex
-    SkRegion tmp;
-    return tmp.op(*this, r, kIntersect_Op);
+    return Oper(*this, SkRegion(r), kIntersect_Op, NULL);
 }
 
 bool SkRegion::intersects(const SkRegion& rgn) const {
@@ -447,10 +451,7 @@ bool SkRegion::intersects(const SkRegion& rgn) const {
     }
     
     // one or both of us is complex
-    // TODO: write a faster version that aborts as soon as we write the first
-    //       non-empty span, to avoid build the entire result
-    SkRegion tmp;
-    return tmp.op(*this, rgn, kIntersect_Op);
+    return Oper(*this, rgn, kIntersect_Op, NULL);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -764,6 +765,8 @@ public:
         return (int)(fPrevDst - fStartDst + fPrevLen + 1);
     }
 
+    bool isEmpty() const { return 0 == fPrevLen; }
+
     uint8_t fMin, fMax;
 
 private:
@@ -773,10 +776,14 @@ private:
     SkRegion::RunType   fTop;
 };
 
+// want a unique value to signal that we exited due to quickExit
+#define QUICK_EXIT_TRUE_COUNT   (-1)
+
 static int operate(const SkRegion::RunType a_runs[],
                    const SkRegion::RunType b_runs[],
                    SkRegion::RunType dst[],
-                   SkRegion::Op op) {
+                   SkRegion::Op op,
+                   bool quickExit) {
     const SkRegion::RunType gSentinel[] = {
         SkRegion::kRunTypeSentinel,
         // just need a 2nd value, since spanRec.init() reads 2 values, even
@@ -846,6 +853,10 @@ static int operate(const SkRegion::RunType a_runs[],
         oper.addSpan(bot, run0, run1);
         firstInterval = false;
 
+        if (quickExit && !oper.isEmpty()) {
+            return QUICK_EXIT_TRUE_COUNT;
+        }
+
         if (a_flush) {
             a_runs = skip_scanline(a_runs);
             a_top = a_bot;
@@ -905,14 +916,25 @@ static int compute_worst_case_count(int a_count, int b_count) {
     return intervals_to_count(intervals);
 }
 
-bool SkRegion::op(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op)
-{
-    SkDEBUGCODE(this->validate();)
+static bool setEmptyCheck(SkRegion* result) {
+    return result ? result->setEmpty() : false;
+}
 
+static bool setRectCheck(SkRegion* result, const SkIRect& rect) {
+    return result ? result->setRect(rect) : !rect.isEmpty();
+}
+
+static bool setRegionCheck(SkRegion* result, const SkRegion& rgn) {
+    return result ? result->setRegion(rgn) : !rgn.isEmpty();
+}
+
+bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
+                    SkRegion* result) {
     SkASSERT((unsigned)op < kOpCount);
     
-    if (kReplace_Op == op)
-        return this->set(rgnbOrig);
+    if (kReplace_Op == op) {
+        return setRegionCheck(result, rgnbOrig);
+    }
     
     // swith to using pointers, so we can swap them as needed
     const SkRegion* rgna = &rgnaOrig;
@@ -920,8 +942,7 @@ bool SkRegion::op(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op)
     // after this point, do not refer to rgnaOrig or rgnbOrig!!!
 
     // collaps difference and reverse-difference into just difference
-    if (kReverseDifference_Op == op)
-    {
+    if (kReverseDifference_Op == op) {
         SkTSwap<const SkRegion*>(rgna, rgnb);
         op = kDifference_Op;
     }
@@ -934,40 +955,50 @@ bool SkRegion::op(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op)
 
     switch (op) {
     case kDifference_Op:
-        if (a_empty)
-            return this->setEmpty();
-        if (b_empty || !SkIRect::Intersects(rgna->fBounds, rgnb->fBounds))
-            return this->setRegion(*rgna);
+        if (a_empty) {
+            return setEmptyCheck(result);
+        }
+        if (b_empty || !SkIRect::Intersects(rgna->fBounds, rgnb->fBounds)) {
+            return setRegionCheck(result, *rgna);
+        }
         break;
 
     case kIntersect_Op:
         if ((a_empty | b_empty)
-                || !bounds.intersect(rgna->fBounds, rgnb->fBounds))
-            return this->setEmpty();
-        if (a_rect & b_rect)
-            return this->setRect(bounds);
+                || !bounds.intersect(rgna->fBounds, rgnb->fBounds)) {
+            return setEmptyCheck(result);
+        }
+        if (a_rect & b_rect) {
+            return setRectCheck(result, bounds);
+        }
         break;
 
     case kUnion_Op:
-        if (a_empty)
-            return this->setRegion(*rgnb);
-        if (b_empty)
-            return this->setRegion(*rgna);
-        if (a_rect && rgna->fBounds.contains(rgnb->fBounds))
-            return this->setRegion(*rgna);
-        if (b_rect && rgnb->fBounds.contains(rgna->fBounds))
-            return this->setRegion(*rgnb);
+        if (a_empty) {
+            return setRegionCheck(result, *rgnb);
+        }
+        if (b_empty) {
+            return setRegionCheck(result, *rgna);
+        }
+        if (a_rect && rgna->fBounds.contains(rgnb->fBounds)) {
+            return setRegionCheck(result, *rgna);
+        }
+        if (b_rect && rgnb->fBounds.contains(rgna->fBounds)) {
+            return setRegionCheck(result, *rgnb);
+        }
         break;
 
     case kXOR_Op:
-        if (a_empty)
-            return this->setRegion(*rgnb);
-        if (b_empty)
-            return this->setRegion(*rgna);
+        if (a_empty) {
+            return setRegionCheck(result, *rgnb);
+        }
+        if (b_empty) {
+            return setRegionCheck(result, *rgna);
+        }
         break;
     default:
         SkDEBUGFAIL("unknown region op");
-        return !this->isEmpty();
+        return false;
     }
 
     RunType tmpA[kRectRegionRuns];
@@ -978,14 +1009,24 @@ bool SkRegion::op(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op)
     const RunType* b_runs = rgnb->getRuns(tmpB, &b_count);
 
     int dstCount = compute_worst_case_count(a_count, b_count);
-    SkAutoSTMalloc<32, RunType> array(dstCount);
+    SkAutoSTMalloc<64, RunType> array(dstCount);
 
-    int count = operate(a_runs, b_runs, array.get(), op);
+    int count = operate(a_runs, b_runs, array.get(), op, NULL == result);
     SkASSERT(count <= dstCount);
-    return this->setRuns(array.get(), count);
+    if (result) {
+        SkASSERT(count >= 0);
+        return result->setRuns(array.get(), count);
+    } else {
+        return (QUICK_EXIT_TRUE_COUNT == count) || !isRunCountEmpty(count);
+    }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool SkRegion::op(const SkRegion& rgna, const SkRegion& rgnb, Op op) {
+    SkDEBUGCODE(this->validate();)
+    return SkRegion::Oper(rgna, rgnb, op, this);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkBuffer.h"
 
