@@ -59,7 +59,6 @@
         '../tests/QuickRejectTest.cpp',
         '../tests/Reader32Test.cpp',
         '../tests/ReadPixelsTest.cpp',
-        '../tests/ReadWriteAlphaTest.cpp',
         '../tests/RefDictTest.cpp',
         '../tests/RegionTest.cpp',
         '../tests/ScalarTest.cpp',

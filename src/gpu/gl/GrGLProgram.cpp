@@ -1942,17 +1942,11 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     const char* swizzle = "";
     if (desc.fInConfigFlags & StageDesc::kSwapRAndB_InConfigFlag) {
         GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag));
-        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearRed_InConfigFlag));
         swizzle = ".bgra";
     } else if (desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag) {
         GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearRed_InConfigFlag));
         swizzle = ".aaaa";
-    } else if (desc.fInConfigFlags & StageDesc::kSmearRed_InConfigFlag) {
-        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag));
-        swizzle = ".rrrr";
-    }
+    } 
 
     GrStringBuilder modulate;
     if (NULL != fsInColor) {
@@ -2002,8 +1996,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
             GrAssert(GrIsPow2(kMulByAlphaMask & desc.fInConfigFlags));
             GrAssert(!(desc.fInConfigFlags & 
                        StageDesc::kSmearAlpha_InConfigFlag));
-            GrAssert(!(desc.fInConfigFlags & 
-                       StageDesc::kSmearRed_InConfigFlag));
             segments->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
                                       fsOutColor, texFunc.c_str(), 
                                       samplerName, sampleCoords.c_str(),

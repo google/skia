@@ -122,7 +122,7 @@ public:
               described are performed after reading a texel.
              */
             enum InConfigFlags {
-                kNone_InConfigFlag                      = 0x00,
+                kNone_InConfigFlag                      = 0x0,
 
                 /**
                   Swap the R and B channels. This is incompatible with
@@ -130,24 +130,15 @@ public:
                   the shader using GL_ARB_texture_swizzle if possible rather
                   than setting this flag.
                  */
-                kSwapRAndB_InConfigFlag                 = 0x01,
+                kSwapRAndB_InConfigFlag                 = 0x1,
 
                 /**
                  Smear alpha across all four channels. This is incompatible with
-                 kSwapRAndB, kMulRGBByAlpha* and kSmearRed. It is prefereable 
-                 to perform the smear outside the shader using 
-                 GL_ARB_texture_swizzle if possible rather than setting this 
-                 flag.
+                 kSwapRAndB and kMulRGBByAlpha*. It is prefereable to perform
+                 the smear outside the shader using GL_ARB_texture_swizzle if
+                 possible rather than setting this flag.
                 */
-                kSmearAlpha_InConfigFlag                = 0x02,
-
-                /**
-                 Smear the red channel across all four channels. This flag is 
-                 incompatible with kSwapRAndB, kMulRGBByAlpha*and kSmearAlpha. 
-                 It is preferable to use GL_ARB_texture_swizzle instead of this 
-                 flag.
-                */
-                kSmearRed_InConfigFlag                  = 0x04,
+                kSmearAlpha_InConfigFlag                = 0x2,
 
                 /**
                  Multiply r,g,b by a after texture reads. This flag incompatible
@@ -158,8 +149,8 @@ public:
                  of 1/255.0 and the other rounds down. At most one of these
                  flags may be set.
                  */
-                kMulRGBByAlpha_RoundUp_InConfigFlag     =  0x08,
-                kMulRGBByAlpha_RoundDown_InConfigFlag   =  0x10,
+                kMulRGBByAlpha_RoundUp_InConfigFlag     =  0x4,
+                kMulRGBByAlpha_RoundDown_InConfigFlag   =  0x8,
 
                 kDummyInConfigFlag,
                 kInConfigBitMask = (kDummyInConfigFlag-1) |
