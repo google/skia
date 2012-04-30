@@ -12,6 +12,24 @@
 
 #include "SkTypes.h"
 
+/**
+ *  All of the SkTSearch variants want to return the index (0...N-1) of the
+ *  found element, or the bit-not of where to insert the element.
+ *
+ *  At a simple level, if the return value is negative, it was not found.
+ *
+ *  For clients that want to insert the new element if it was not found, use
+ *  the following logic:
+ *
+ *  int index = SkTSearch(...);
+ *  if (index >= 0) {
+ *      // found at index
+ *  } else {
+ *      index = ~index; // now we are positive
+ *      // insert at index
+ *  }
+ */
+
 template <typename T>
 int SkTSearch(const T* base, int count, const T& target, size_t elemSize)
 {
