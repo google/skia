@@ -122,6 +122,16 @@ public:
         GrSafeUnref(fCustomStage);
     }
 
+    bool operator ==(const GrSamplerState& s) const {
+        return !memcmp(this, &s, sizeof(GrSamplerState));
+    }
+    bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
+
+    GrSamplerState& operator =(const GrSamplerState s) {
+        memcpy(this, &s, sizeof(GrSamplerState));
+        return *this;
+    }
+
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
     FilterDirection getFilterDirection() const { return fFilterDirection; }
@@ -258,12 +268,6 @@ private:
     bool                fSwapRAndB;
     GrRect              fTextureDomain;
 
-    /// BUG! Ganesh only works correctly so long as fCustomStage is  
-    /// NULL; we need to have a complex ID system here so that we can
-    /// have an equality-like comparison to determine whether two
-    /// fCustomStages are equal.
-    GrCustomStage*      fCustomStage;
-
     // these are undefined unless fSampleMode == kRadial2_SampleMode
     GrScalar            fRadial2CenterX1;
     GrScalar            fRadial2Radius0;
@@ -272,6 +276,12 @@ private:
     // These are undefined unless fFilter == kConvolution_Filter
     uint8_t             fKernelWidth;
     float               fKernel[MAX_KERNEL_WIDTH];
+
+    /// BUG! Ganesh only works correctly so long as fCustomStage is  
+    /// NULL; we need to have a complex ID system here so that we can
+    /// have an equality-like comparison to determine whether two
+    /// fCustomStages are equal.
+    GrCustomStage*      fCustomStage;
 };
 
 #endif

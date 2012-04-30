@@ -27,9 +27,10 @@ public:
         stage guaranteed to produce an opaque output? */
     virtual bool isOpaque(bool inputTextureIsOpaque) const;
 
+    /** This pointer, besides creating back-end-specific helper
+        objects, is used for run-time-type-identification. Every
+        subclass must return a consistent unique value for it. */
     virtual GrGLProgramStageFactory* getGLFactory() = 0;
-
-protected:
 
 };
 

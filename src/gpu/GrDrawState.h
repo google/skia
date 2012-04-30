@@ -757,8 +757,7 @@ public:
 
         for (int i = 0; i < kNumStages; i++) {
             if (fTextures[i] &&
-                memcmp(&this->fSamplerStates[i], &s.fSamplerStates[i],
-                       sizeof(GrSamplerState))) {
+                this->fSamplerStates[i] != s.fSamplerStates[i]) {
                 return false;
             }
         }
@@ -786,8 +785,7 @@ public:
     
         for (int i = 0; i < kNumStages; i++) {
             if (s.fTextures[i]) {
-                memcpy(&this->fSamplerStates[i], &s.fSamplerStates[i],
-                       sizeof(GrSamplerState));
+                this->fSamplerStates[i] = s.fSamplerStates[i];
             }
         }
         if (kColorMatrix_StateBit & s.fFlagBits) {
