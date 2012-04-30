@@ -75,7 +75,7 @@ public:
 
     RegionBench(void* param, int count, Proc proc, const char name[]) : INHERITED(param) {
         fProc = proc;
-        fName.printf("Region_%s_%d", name, count);
+        fName.printf("region_%s_%d", name, count);
 
         SkRandom rand;
         for (int i = 0; i < count; i++) {
