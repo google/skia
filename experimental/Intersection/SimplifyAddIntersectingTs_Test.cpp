@@ -7,6 +7,7 @@
 #include "SkTDArray.h"
 #include "ShapeOps.h"
 #include "TSearch.h"
+#include <algorithm> // used for std::min
 
 namespace SimplifyAddIntersectingTsTest {
 
@@ -88,7 +89,7 @@ static void testPath(const SkPath& path, const SkPoint* pts1, SkPath::Verb c1Typ
     }
     SimplifyAddIntersectingTsTest::Contour& c1 = contour[0];
     SimplifyAddIntersectingTsTest::Contour& c2 = contour[1];
-    addIntersectingTs(&c1, &c2);
+    addIntersectTs(&c1, &c2, 1);
     bool c1Intersected = c1.fSegments[0].intersected();
     bool c2Intersected = c2.fSegments[0].intersected();
 #if DEBUG_DUMP
