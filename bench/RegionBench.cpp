@@ -32,7 +32,7 @@ static bool containsrgn_proc(SkRegion& a, SkRegion& b) {
 
     r = b.getBounds();
     r.inset(r.width()/4, r.height()/4);
-    (void)b.contains(r);
+    return b.contains(r);
 }
 
 static bool sects_proc(SkRegion& a, SkRegion& b) {
