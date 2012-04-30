@@ -401,6 +401,12 @@ private:
     static bool ComputeRunBounds(const RunType runs[], int count,
                                  SkIRect* bounds);
 
+    /**
+     *  If the last arg is null, just return if the result is non-empty,
+     *  else store the result in the last arg.
+     */
+    static bool Oper(const SkRegion&, const SkRegion&, SkRegion::Op, SkRegion*);
+
     friend struct RunHead;
     friend class Iterator;
     friend class Spanerator;
