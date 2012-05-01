@@ -228,7 +228,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         GrAssert(NULL != texture);
         GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
         enum {
-            kPathMaskStage = GrPaint::kTotalStages,
+            kPathMaskStage = GrPaint::kTotalStages+1,
         };
         target->drawState()->setTexture(kPathMaskStage, texture);
         target->drawState()->sampler(kPathMaskStage)->reset();
