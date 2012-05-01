@@ -209,6 +209,19 @@ public:
         return (1 << (TEX_COORD_BIT_CNT + stage));
     }
 
+    /**
+     * Modify the existing vertex layout. Realistically the only thing that 
+     * can be added w/o recomputing the vertex layout is one of the 
+     * StagePosAsTexCoordVertexLayoutBit flags
+     */
+    void addToVertexLayout(int flag) {
+        GrAssert((1 << TEX_COORD_BIT_CNT) == flag ||
+                 (1 << (TEX_COORD_BIT_CNT + 1)) == flag ||
+                 (1 << (TEX_COORD_BIT_CNT + 2)) == flag ||
+                 (1 << (TEX_COORD_BIT_CNT + 3)) == flag);
+        fGeoSrcStateStack.back().fVertexLayout |= flag;
+    }
+
 private:
     static const int STAGE_BIT_CNT = TEX_COORD_BIT_CNT +
         GrDrawState::kNumStages;

@@ -76,7 +76,10 @@ private:
                                const GrClip& clip, 
                                const GrRect& bounds,
                                ScissoringSettings* scissorSettings);
-    bool createAlphaClipMask(GrGpu* gpu, const GrClip& clipIn);
+    bool createAlphaClipMask(GrGpu* gpu,
+                             const GrClip& clipIn,
+                             GrTexture** result,
+                             GrRect *resultBounds);
 
     bool drawPath(GrGpu* gpu,
                   const SkPath& path,

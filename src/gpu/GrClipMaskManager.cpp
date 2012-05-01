@@ -11,6 +11,10 @@
 #include "GrRenderTarget.h"
 #include "GrStencilBuffer.h"
 #include "GrPathRenderer.h"
+#include "GrPaint.h"
+
+//#define GR_AA_CLIP 1
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void ScissoringSettings::setupScissoring(GrGpu* gpu) {
@@ -20,6 +24,34 @@ void ScissoringSettings::setupScissoring(GrGpu* gpu) {
     }
 
     gpu->enableScissoring(fScissorRect);
+}
+
+namespace {
+// set up the draw state to enable the aa clipping mask. Besides setting up the 
+// sampler matrix this also alters the vertex layout
+void setupDrawStateAAClip(GrGpu* gpu, GrTexture* result, const GrRect &bound) {
+    GrDrawState* drawState = gpu->drawState();
+    GrAssert(drawState);
+
+    static const int maskStage = GrPaint::kTotalStages+1;
+
+    GrMatrix mat;
+    mat.setIDiv(result->width(), result->height());
+    mat.preTranslate(-bound.fLeft, -bound.fTop);
+    mat.preConcat(drawState->getViewMatrix());
+
+    drawState->sampler(maskStage)->reset(GrSamplerState::kClamp_WrapMode,
+                                         GrSamplerState::kNearest_Filter,
+                                         mat);
+
+    drawState->setTexture(maskStage, result);
+
+    // The AA clipping determination happens long after the geometry has
+    // been set up to draw. Here we directly enable the AA clip mask stage
+    gpu->addToVertexLayout(
+                GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(maskStage));
+}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,8 +85,12 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
         // size for the mask (rather than being bound by the size of the
         // render target) we aren't going to use scissoring like the stencil
         // path does (see scissorSettings below)
-        if (this->createAlphaClipMask(gpu, clipIn)) {
+        GrTexture* result = NULL;
+        GrRect bound;
+        if (this->createAlphaClipMask(gpu, clipIn, &result, &bound)) {
             fClipMaskInAlpha = true;
+
+            setupDrawStateAAClip(gpu, result, bound);
             return true;
         }
 
@@ -319,7 +355,10 @@ void clear(GrGpu* gpu,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 8-bit clip mask in alpha
-bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu, const GrClip& clipIn) {
+bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
+                                            const GrClip& clipIn,
+                                            GrTexture** result,
+                                            GrRect *resultBounds) {
 
     GrDrawState* origDrawState = gpu->drawState();
     GrAssert(origDrawState->isClipState());
@@ -352,6 +391,8 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu, const GrClip& clipIn) {
     // need to outset a pixel since the standard bounding box computation
     // path doesn't leave any room for antialiasing (esp. w.r.t. rects)
     bounds.outset(SkIntToScalar(1), SkIntToScalar(1));
+
+    // TODO: make sure we don't outset if bounds are still 0,0 @ min
 
     GrAssert(SkScalarIsInt(bounds.width()));
     GrAssert(SkScalarIsInt(bounds.height()));
@@ -464,6 +505,8 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu, const GrClip& clipIn) {
         }
     }
 
+    *result = accum;
+    *resultBounds = bounds;
     return true;
 }
 

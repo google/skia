@@ -331,7 +331,7 @@ public:
     ////
 
     /**
-     * Sets the matrix applied to veretx positions.
+     * Sets the matrix applied to vertex positions.
      *
      * In the post-view-matrix space the rectangle [0,w]x[0,h]
      * fully covers the render target. (w and h are the width and height of the
