@@ -740,7 +740,8 @@ static void TestNWayCanvasStateConsistency(
     SkDevice indirectDevice2(indirectStore2);
     SkCanvas indirectCanvas2(&indirectDevice2);
 
-    SkNWayCanvas nWayCanvas;
+    SkISize canvasSize = referenceCanvas.getDeviceSize();
+    SkNWayCanvas nWayCanvas(canvasSize.width(), canvasSize.height());
     nWayCanvas.addCanvas(&indirectCanvas1);
     nWayCanvas.addCanvas(&indirectCanvas2);
 

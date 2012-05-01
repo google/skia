@@ -13,7 +13,7 @@
 
 class SkNWayCanvas : public SkCanvas {
 public:
-    SkNWayCanvas();
+    SkNWayCanvas(int width, int height);
     virtual ~SkNWayCanvas();
 
     void addCanvas(SkCanvas*);
