@@ -28,6 +28,48 @@ static SkCanvas* new_canvas(int w, int h) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Need to exercise drawing an inverse-path whose bounds intersect the clip,
+// but whose edges do not (since its a quad which draws only in the bottom half
+// of its bounds).
+// In the debug build, we used to assert in this case, until it was fixed.
+//
+static void test_inversepathwithclip(skiatest::Reporter* reporter) {
+    SkPath path;
+    
+    path.moveTo(0, SkIntToScalar(20));
+    path.quadTo(SkIntToScalar(10), SkIntToScalar(10),
+                SkIntToScalar(20), SkIntToScalar(20));
+    path.toggleInverseFillType();
+
+    SkPaint paint;
+
+    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    canvas.get()->save();
+    canvas.get()->clipRect(SkRect::MakeWH(SkIntToScalar(19), SkIntToScalar(11)));
+
+    paint.setAntiAlias(false);
+    canvas.get()->drawPath(path, paint);
+    paint.setAntiAlias(true);
+    canvas.get()->drawPath(path, paint);
+
+    canvas.get()->restore();
+    
+    // Now do the test again, with the path flipped, so we only draw in the
+    // top half of our bounds, and have the clip intersect our bounds at the
+    // bottom.
+    path.reset();   // preserves our filltype
+    path.moveTo(0, SkIntToScalar(10));
+    path.quadTo(SkIntToScalar(10), SkIntToScalar(20),
+                SkIntToScalar(20), SkIntToScalar(10));
+    canvas.get()->clipRect(SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(19),
+                                            SkIntToScalar(19), SkIntToScalar(11)));
+
+    paint.setAntiAlias(false);
+    canvas.get()->drawPath(path, paint);
+    paint.setAntiAlias(true);
+    canvas.get()->drawPath(path, paint);
+}
+
 static void test_bug533(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     /*
@@ -95,6 +137,7 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_bug533(reporter);
     test_bigcubic(reporter);
     test_crbug_124652(reporter);
+    test_inversepathwithclip(reporter);
 }
 
 #include "TestClassDef.h"
