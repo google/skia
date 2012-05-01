@@ -424,11 +424,25 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
 
     if (count < 2) {
         if (path.isInverseFillType()) {
-            const SkIRect& clipRect = clipRgn.getBounds();
-            blitter->blitRect(clipRect.fLeft << shiftEdgesUp,
-                              clipRect.fTop << shiftEdgesUp,
-                              clipRect.width() << shiftEdgesUp,
-                              clipRect.height() << shiftEdgesUp);
+            /*
+             *  Since we are in inverse-fill, our caller has already drawn above
+             *  our top (start_y) and will draw below our bottom (stop_y). Thus
+             *  we need to restrict our drawing to the intersection of the clip
+             *  and those two limits.
+             */
+            SkIRect rect = clipRgn.getBounds();
+            if (rect.fTop < start_y) {
+                rect.fTop = start_y;
+            }
+            if (rect.fBottom > stop_y) {
+                rect.fBottom = stop_y;
+            }
+            if (!rect.isEmpty()) {
+                blitter->blitRect(rect.fLeft << shiftEdgesUp,
+                                  rect.fTop << shiftEdgesUp,
+                                  rect.width() << shiftEdgesUp,
+                                  rect.height() << shiftEdgesUp);
+            }
         }
 
         return;
