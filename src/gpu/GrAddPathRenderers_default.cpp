@@ -9,6 +9,7 @@
  
 #include "GrAAHairLinePathRenderer.h"
 #include "GrAAConvexPathRenderer.h"
+#include "GrSoftwarePathRenderer.h"
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx,
                                       GrPathRendererChain::UsageFlags flags,
@@ -19,5 +20,6 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx,
             chain->addPathRenderer(pr)->unref();
         }
         chain->addPathRenderer(new GrAAConvexPathRenderer())->unref();
+        chain->addPathRenderer(new GrSoftwarePathRenderer(ctx))->unref();
     }
 }
