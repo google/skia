@@ -111,7 +111,8 @@ struct DiffRecord {
 const SkPMColor PMCOLOR_WHITE = SkPreMultiplyColor(SK_ColorWHITE);
 const SkPMColor PMCOLOR_BLACK = SkPreMultiplyColor(SK_ColorBLACK);
 
-typedef SkTDArray<SkString*> FileArray;
+typedef SkTDArray<SkString*> StringArray;
+typedef StringArray FileArray;
 
 struct DiffSummary {
     DiffSummary ()
@@ -494,6 +495,7 @@ static void release_bitmaps(DiffRecord* drp) {
 }
 
 
+/// If outputDir.isEmpty(), don't write out diff files.
 static void create_and_write_diff_image(DiffRecord* drp,
                                         DiffMetricProc dmp,
                                         const int colorThreshold,
@@ -507,25 +509,44 @@ static void create_and_write_diff_image(DiffRecord* drp,
     drp->fWhiteBitmap->allocPixels();
     compute_diff(drp, dmp, colorThreshold);
 
-    SkString differencePath (outputDir);
-    differencePath.append(filename_to_diff_filename(filename));
-    write_bitmap(differencePath, drp->fDifferenceBitmap);
-    SkString whitePath (outputDir);
-    whitePath.append(filename_to_white_filename(filename));
-    write_bitmap(whitePath, drp->fWhiteBitmap);
+    if (!outputDir.isEmpty()) {
+        SkString differencePath (outputDir);
+        differencePath.append(filename_to_diff_filename(filename));
+        write_bitmap(differencePath, drp->fDifferenceBitmap);
+        SkString whitePath (outputDir);
+        whitePath.append(filename_to_white_filename(filename));
+        write_bitmap(whitePath, drp->fWhiteBitmap);
+    }
+    
     release_bitmaps(drp);
 }
 
-/// Iterate dir and get all files except 'pdf' files.
-static void get_file_list(const SkString& dir, FileArray *files) {
+/// Returns true if string contains any of these substrings.
+static bool string_contains_any_of(const SkString& string,
+                                   const StringArray& substrings) {
+    for (int i = 0; i < substrings.count(); i++) {
+        if (string.contains(substrings[i]->c_str())) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/// Iterate over dir and get all files that:
+///  - match any of the substrings in matchSubstrings, but...
+///  - DO NOT match any of the substrings in nomatchSubstrings
+/// Returns the list of files in *files.
+static void get_file_list(const SkString& dir,
+                          const StringArray& matchSubstrings,
+                          const StringArray& nomatchSubstrings,
+                          FileArray *files) {
     SkOSFile::Iter it(dir.c_str());
     SkString filename;
     while (it.next(&filename)) {
-        if (filename.endsWith(".pdf")) {
-            continue;
+        if (string_contains_any_of(filename, matchSubstrings) &&
+            !string_contains_any_of(filename, nomatchSubstrings)) {
+            files->push(new SkString(filename));
         }
-
-        files->push(new SkString(filename));
     }
 }
 
@@ -539,27 +560,37 @@ static int compare_file_name_metrics(SkString **lhs, SkString **rhs) {
 }
 
 /// Creates difference images, returns the number that have a 0 metric.
+/// If outputDir.isEmpty(), don't write out diff files.
 static void create_diff_images (DiffMetricProc dmp,
                                 const int colorThreshold,
                                 RecordArray* differences,
                                 const SkString& baseDir,
                                 const SkString& comparisonDir,
                                 const SkString& outputDir,
+                                const StringArray& matchSubstrings,
+                                const StringArray& nomatchSubstrings,
                                 DiffSummary* summary) {
+    SkASSERT(!baseDir.isEmpty());
+    SkASSERT(!comparisonDir.isEmpty());
     SkQSortCompareProc sortFileProc =
             (SkQSortCompareProc)compare_file_name_metrics;
 
     FileArray baseFiles;
     FileArray comparisonFiles;
 
-    get_file_list(baseDir, &baseFiles);
-    get_file_list(comparisonDir, &comparisonFiles);
+    get_file_list(baseDir, matchSubstrings, nomatchSubstrings, &baseFiles);
+    get_file_list(comparisonDir, matchSubstrings, nomatchSubstrings,
+                  &comparisonFiles);
 
-    SkQSort(baseFiles.begin(), baseFiles.count(),
-            sizeof(SkString*), sortFileProc);
-    SkQSort(comparisonFiles.begin(), comparisonFiles.count(),
-            sizeof(SkString*), sortFileProc);
-
+    if (!baseFiles.isEmpty()) {
+        SkQSort(baseFiles.begin(), baseFiles.count(),
+                sizeof(SkString*), sortFileProc);
+    }
+    if (!comparisonFiles.isEmpty()) {
+        SkQSort(comparisonFiles.begin(), comparisonFiles.count(),
+                sizeof(SkString*), sortFileProc);
+    }
+    
     int i = 0;
     int j = 0;
 
@@ -634,6 +665,8 @@ static void create_diff_images_chromium (DiffMetricProc dmp,
                                          const SkString& dirname,
                                          const SkString& outputDir,
                                          DiffSummary* summary) {
+    SkASSERT(!outputDir.isEmpty());
+
     SkOSFile::Iter baseIterator (dirname.c_str());
     SkString filename;
     while (baseIterator.next(&filename)) {
@@ -665,6 +698,7 @@ static void analyze_chromium(DiffMetricProc dmp,
                              const SkString& dirname,
                              const SkString& outputDir,
                              DiffSummary* summary) {
+    SkASSERT(!outputDir.isEmpty());
     create_diff_images_chromium(dmp, colorThreshold, differences,
                                 dirname, outputDir, summary);
     SkOSFile::Iter dirIterator(dirname.c_str());
@@ -863,6 +897,10 @@ static void print_diff_page (const int matchCount,
                              const SkString& comparisonDir,
                              const SkString& outputDir) {
 
+    SkASSERT(!baseDir.isEmpty());
+    SkASSERT(!comparisonDir.isEmpty());
+    SkASSERT(!outputDir.isEmpty());
+
     SkString outputPath (outputDir);
     outputPath.append("index.html");
     //SkFILEWStream outputStream ("index.html");
@@ -925,16 +963,28 @@ static void print_diff_page (const int matchCount,
 
 static void usage (char * argv0) {
     SkDebugf("Skia baseline image diff tool\n");
-    SkDebugf("Usage: %s baseDir comparisonDir [outputDir]\n", argv0);
-    SkDebugf(
-"       %s --chromium --release|--debug baseDir outputDir\n", argv0);
-    SkDebugf(
-"    --threshold n: only report differences > n (in one channel) [default 0]\n"
+    SkDebugf("\n"
+"Usage: \n"
+"    %s <baseDir> <comparisonDir> [outputDir] \n"
+"or \n"
+"    %s --chromium-release|--chromium-debug <baseDir> <outputDir> \n",
+argv0, argv0);
+    SkDebugf("\n"
+"Arguments: \n"
+"    --nodiffs: don't write out image diffs or index.html, just generate \n"
+"               report on stdout \n"
+"    --threshold <n>: only report differences > n (per color channel) [default 0]\n"
+"    --match: compare files whose filenames contain this substring; if \n"
+"             unspecified, compare ALL files. \n"
+"             this flag may be repeated to add more matching substrings. \n"
+"    --nomatch: regardless of --match, DO NOT compare files whose filenames \n"
+"               contain this substring. \n"
+"               this flag may be repeated to add more forbidden substrings. \n"
 "    --sortbymismatch: sort by average color channel mismatch\n");
     SkDebugf(
-"    --sortbymaxmismatch: sort by worst color channel mismatch,\n"
-"                        break ties with -sortbymismatch,\n"
-"        [default by fraction of pixels mismatching]\n");
+"    --sortbymaxmismatch: sort by worst color channel mismatch;\n"
+"                         break ties with -sortbymismatch\n"
+"    [default sort is by fraction of pixels mismatching]\n");
     SkDebugf(
 "    --weighted: sort by # pixels different weighted by color difference\n");
     SkDebugf(
@@ -943,11 +993,11 @@ static void usage (char * argv0) {
     SkDebugf(
 "    baseDir: directory to read baseline images from,\n"
 "             or chromium/src directory for --chromium.\n");
-    SkDebugf("    comparisonDir: directory to read comparison images from\n");
     SkDebugf(
-"    outputDir: directory to write difference images to; defaults to\n"
-"               comparisonDir when not running --chromium\n");
-    SkDebugf("Also creates an \"index.html\" file in the output directory.\n");
+"    comparisonDir: directory to read comparison images from\n");
+    SkDebugf(
+"    outputDir: directory to write difference images and index.html to; \n"
+"               defaults to comparisonDir when not running --chromium \n");
 }
 
 int main (int argc, char ** argv) {
@@ -960,19 +1010,39 @@ int main (int argc, char ** argv) {
     SkString baseDir;
     SkString comparisonDir;
     SkString outputDir;
+    StringArray matchSubstrings;
+    StringArray nomatchSubstrings;
 
     bool analyzeChromium = false;
     bool chromiumDebug = false;
     bool chromiumRelease = false;
+    bool generateDiffs = true;
 
     RecordArray differences;
     DiffSummary summary;
 
-    int i, j;
-    for (i = 1, j = 0; i < argc; i++) {
+    int i;
+    int numUnflaggedArguments = 0;
+    for (i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--help")) {
             usage(argv[0]);
             return 0;
+        }
+        if (!strcmp(argv[i], "--nodiffs")) {
+            generateDiffs = false;
+            continue;
+        }
+        if (!strcmp(argv[i], "--threshold")) {
+            colorThreshold = atoi(argv[++i]);
+            continue;
+        }
+        if (!strcmp(argv[i], "--match")) {
+            matchSubstrings.push(new SkString(argv[++i]));
+            continue;
+        }
+        if (!strcmp(argv[i], "--nomatch")) {
+            nomatchSubstrings.push(new SkString(argv[++i]));
+            continue;
         }
         if (!strcmp(argv[i], "--sortbymismatch")) {
             sortProc = (SkQSortCompareProc) compare_diff_mean_mismatches;
@@ -997,7 +1067,7 @@ int main (int argc, char ** argv) {
             continue;
         }
         if (argv[i][0] != '-') {
-            switch (j++) {
+            switch (numUnflaggedArguments++) {
                 case 0:
                     baseDir.set(argv[i]);
                     continue;
@@ -1008,6 +1078,7 @@ int main (int argc, char ** argv) {
                     outputDir.set(argv[i]);
                     continue;
                 default:
+                    SkDebugf("extra unflagged argument <%s>\n", argv[i]);
                     usage(argv[0]);
                     return 0;
             }
@@ -1017,21 +1088,23 @@ int main (int argc, char ** argv) {
         usage(argv[0]);
         return 0;
     }
+
     if (analyzeChromium) {
-        if (j != 2) {
+        if (numUnflaggedArguments != 2) {
             usage(argv[0]);
             return 0;
         }
+        outputDir = comparisonDir;
         if (chromiumRelease && chromiumDebug) {
             SkDebugf(
 "--chromium must be either -release or -debug, not both!\n");
             return 0;
         }
     }
-
-    if (j == 2) {
+    
+    if (numUnflaggedArguments == 2) {
         outputDir = comparisonDir;
-    } else if (j != 3) {
+    } else if (numUnflaggedArguments != 3) {
         usage(argv[0]);
         return 0;
     }
@@ -1039,11 +1112,31 @@ int main (int argc, char ** argv) {
     if (!baseDir.endsWith(PATH_DIV_STR)) {
         baseDir.append(PATH_DIV_STR);
     }
+    printf("baseDir is [%s]\n", baseDir.c_str());
+
     if (!comparisonDir.endsWith(PATH_DIV_STR)) {
         comparisonDir.append(PATH_DIV_STR);
     }
+    printf("comparisonDir is [%s]\n", comparisonDir.c_str());
+
     if (!outputDir.endsWith(PATH_DIV_STR)) {
         outputDir.append(PATH_DIV_STR);
+    }
+    if (generateDiffs) {
+        printf("writing diffs to outputDir is [%s]\n", outputDir.c_str());
+    } else {
+        printf("not writing any diffs to outputDir [%s]\n", outputDir.c_str());
+        outputDir.set("");
+    }
+
+    // Default substring matching:
+    // - No matter what, don't match any PDF files.
+    //   We may want to change this later, but for now this maintains the filter
+    //   that get_file_list() used to always apply.
+    // - If no matchSubstrings were specified, match ALL strings.
+    nomatchSubstrings.push(new SkString(".pdf"));
+    if (matchSubstrings.isEmpty()) {
+        matchSubstrings.push(new SkString(""));
     }
 
     if (analyzeChromium) {
@@ -1059,7 +1152,8 @@ int main (int argc, char ** argv) {
                          baseDir, outputDir, &summary);
     } else {
         create_diff_images(diffProc, colorThreshold, &differences,
-                           baseDir, comparisonDir, outputDir, &summary);
+                           baseDir, comparisonDir, outputDir,
+                           matchSubstrings, nomatchSubstrings, &summary);
     }
     summary.print();
 
@@ -1067,10 +1161,15 @@ int main (int argc, char ** argv) {
         SkQSort(differences.begin(), differences.count(),
             sizeof(DiffRecord*), sortProc);
     }
-    print_diff_page(summary.fNumMatches, colorThreshold, differences,
-                    baseDir, comparisonDir, outputDir);
-
+    
+    if (generateDiffs) {
+        print_diff_page(summary.fNumMatches, colorThreshold, differences,
+                        baseDir, comparisonDir, outputDir);
+    }
+    
     for (i = 0; i < differences.count(); i++) {
         delete differences[i];
     }
+    matchSubstrings.deleteAll();
+    nomatchSubstrings.deleteAll();
 }
