@@ -264,6 +264,8 @@
         '../src/gpu/GrTDArray.h',
         '../src/gpu/GrTesselatedPathRenderer.cpp',
         '../src/gpu/GrTesselatedPathRenderer.h',
+        '../src/gpu/GrSoftwarePathRenderer.cpp',
+        '../src/gpu/GrSoftwarePathRenderer.h',
         '../src/gpu/GrTextStrike.cpp',
         '../src/gpu/GrTextStrike.h',
         '../src/gpu/GrTextStrike_impl.h',
