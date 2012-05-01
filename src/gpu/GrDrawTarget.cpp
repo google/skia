@@ -20,7 +20,7 @@ namespace {
 /**
  * This function generates some masks that we like to have known at compile
  * time. When the number of stages or tex coords is bumped or the way bits
- * are defined in GrDrawTarget.h changes this funcion should be rerun to
+ * are defined in GrDrawTarget.h changes this function should be rerun to
  * generate the new masks. (We attempted to force the compiler to generate the
  * masks using recursive templates but always wound up with static initializers
  * under gcc, even if they were just a series of immediate->memory moves.)
