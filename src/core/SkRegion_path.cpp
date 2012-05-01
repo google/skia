@@ -302,10 +302,14 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         this->setRect(fBounds);
     } else {
         SkRegion    tmp;
+        int         ySpanCount, intervalCount;
 
         tmp.fRunHead = RunHead::Alloc(count);
         builder.copyToRgn(tmp.fRunHead->writable_runs());
-        ComputeRunBounds(tmp.fRunHead->readonly_runs(), count, &tmp.fBounds);
+        ComputeRunBounds(tmp.fRunHead->readonly_runs(), count, &tmp.fBounds,
+                         &ySpanCount, &intervalCount);
+        tmp.fRunHead->updateYSpanCount(ySpanCount);
+        tmp.fRunHead->updateIntervalCount(intervalCount);
         this->swap(tmp);
     }
     SkDEBUGCODE(this->validate();)

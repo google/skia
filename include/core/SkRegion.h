@@ -382,15 +382,18 @@ private:
     };
 
     friend class android::Region;    // needed for marshalling efficiently
-    void allocateRuns(int count); // allocate space for count runs
 
     struct RunHead;
+    
+    // allocate space for count runs
+    void allocateRuns(int count, int ySpanCount, int intervalCount);
+    void allocateRuns(const RunHead& src);
 
     SkIRect     fBounds;
     RunHead*    fRunHead;
 
     void            freeRuns();
-    const RunType*  getRuns(RunType tmpStorage[], int* count) const;
+    const RunType*  getRuns(RunType tmpStorage[], int* intervals) const;
     bool            setRuns(RunType runs[], int count);
 
     int count_runtype_values(int* itop, int* ibot) const;
@@ -399,7 +402,7 @@ private:
                               RunType runs[kRectRegionRuns]);
     // returns true if runs are just a rect
     static bool ComputeRunBounds(const RunType runs[], int count,
-                                 SkIRect* bounds);
+                                 SkIRect*, int* ySpanCount, int* intervalCount);
 
     /**
      *  If the last arg is null, just return if the result is non-empty,

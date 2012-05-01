@@ -22,15 +22,57 @@ struct SkRegion::RunHead {
     int32_t fRefCnt;
     int32_t fRunCount;
     
+    /**
+     *  Number of spans with different Y values. This does not count the initial
+     *  Top value, nor does it count the final Y-Sentinel value. In the logical
+     *  case of a rectangle, this would return 1, and an empty region would
+     *  return 0.
+     */
+    int getYSpanCount() const {
+        return fYSpanCount;
+    }
+
+    /**
+     *  Number of intervals in the entire region. This equals the number of
+     *  rects that would be returned by the Iterator. In the logical case of
+     *  a rect, this would return 1, and an empty region would return 0.
+     */
+    int getIntervalCount() const {
+        return fIntervalCount;
+    }
+
+    void updateYSpanCount(int n) {
+        SkASSERT(n > 0);
+        fYSpanCount = n;
+    }
+    
+    void updateIntervalCount(int n) {
+        SkASSERT(n > 1);
+        fIntervalCount = n;
+    }
+
     static RunHead* Alloc(int count) {
         //SkDEBUGCODE(sk_atomic_inc(&gRgnAllocCounter);)
         //SkDEBUGF(("************** gRgnAllocCounter::alloc %d\n", gRgnAllocCounter));
-
+        
         SkASSERT(count >= SkRegion::kRectRegionRuns);
-
+        
         RunHead* head = (RunHead*)sk_malloc_throw(sizeof(RunHead) + count * sizeof(RunType));
         head->fRefCnt = 1;
         head->fRunCount = count;
+        // these must be filled in later, otherwise we will be invalid
+        head->fYSpanCount = 0;
+        head->fIntervalCount = 0;
+        return head;
+    }
+    
+    static RunHead* Alloc(int count, int yspancount, int intervalCount) {
+        SkASSERT(yspancount > 0);
+        SkASSERT(intervalCount > 1);
+
+        RunHead* head = Alloc(count);
+        head->fYSpanCount = yspancount;
+        head->fIntervalCount = intervalCount;
         return head;
     }
     
@@ -57,7 +99,7 @@ struct SkRegion::RunHead {
             // We need to alloc & copy the current region before we call
             // sk_atomic_dec because it could be freed in the meantime,
             // otherwise.            
-            writable = Alloc(fRunCount);
+            writable = Alloc(fRunCount, fYSpanCount, fIntervalCount);
             memcpy(writable->writable_runs(), this->readonly_runs(),
                    fRunCount * sizeof(RunType));
 
@@ -70,6 +112,10 @@ struct SkRegion::RunHead {
         }
         return writable;
     }
+
+private:
+    int32_t fYSpanCount;
+    int32_t fIntervalCount;
 };
 
 #endif
