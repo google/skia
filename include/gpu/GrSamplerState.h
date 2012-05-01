@@ -111,10 +111,10 @@ public:
      * unfiltered, and use identity matrix.
      */
     GrSamplerState()
-    : fCustomStage (NULL)
-    , fRadial2CenterX1()
+    : fRadial2CenterX1()
     , fRadial2Radius0()
-    , fRadial2PosRoot() {
+    , fRadial2PosRoot()
+    , fCustomStage (NULL) {
         this->reset();
     }
 
@@ -123,7 +123,19 @@ public:
     }
 
     bool operator ==(const GrSamplerState& s) const {
-        return !memcmp(this, &s, sizeof(GrSamplerState));
+        /* We must be bit-identical as far as the CustomStage;
+           there may be multiple CustomStages that will produce
+           the same shader code and so are equivalent. 
+           Can't take the address of fWrapX because it's :8 */
+        int bitwiseRegion = (intptr_t) &fCustomStage - (intptr_t) this;
+        GrAssert(sizeof(GrSamplerState) ==
+                 bitwiseRegion + sizeof(fCustomStage));
+        return !memcmp(this, &s, bitwiseRegion) &&
+               ((fCustomStage == s.fCustomStage) ||
+                (fCustomStage && s.fCustomStage &&
+                 (fCustomStage->getGLFactory() ==
+                     s.fCustomStage->getGLFactory()) &&
+                 fCustomStage->isEquivalent(s.fCustomStage)));
     }
     bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
 

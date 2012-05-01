@@ -30,7 +30,13 @@ public:
     /** This pointer, besides creating back-end-specific helper
         objects, is used for run-time-type-identification. Every
         subclass must return a consistent unique value for it. */
-    virtual GrGLProgramStageFactory* getGLFactory() = 0;
+    virtual GrGLProgramStageFactory* getGLFactory() const = 0;
+
+    /** Returns true if the other custom stage will generate
+        a compatible/equivalent shader. Must only be called if
+        the two are already known to be of the same type (i.e.
+        they return the same value from getGLFactory()). */
+    virtual bool isEquivalent(const GrCustomStage *) const = 0;
 
 };
 
