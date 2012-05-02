@@ -378,7 +378,10 @@ private:
     };
 
     enum {
-        kRectRegionRuns = 6 // need to store a region of a rect [T B L R S S]        
+        // T
+        // [B N L R S]
+        // S
+        kRectRegionRuns = 7
     };
 
     friend class android::Region;    // needed for marshalling efficiently
@@ -386,23 +389,36 @@ private:
     struct RunHead;
     
     // allocate space for count runs
+    void allocateRuns(int count);
     void allocateRuns(int count, int ySpanCount, int intervalCount);
     void allocateRuns(const RunHead& src);
 
     SkIRect     fBounds;
     RunHead*    fRunHead;
 
-    void            freeRuns();
+    void freeRuns();
+    
+    /**
+     *  Return the runs from this region, consing up fake runs if the region
+     *  is empty or a rect. In those 2 cases, we use tmpStorage to hold the
+     *  run data.
+     */
     const RunType*  getRuns(RunType tmpStorage[], int* intervals) const;
-    bool            setRuns(RunType runs[], int count);
+    
+    // This is called with runs[] that do not yet have their interval-count
+    // field set on each scanline. That is computed as part of this call
+    // (inside ComputeRunBounds).
+    bool setRuns(RunType runs[], int count);
 
     int count_runtype_values(int* itop, int* ibot) const;
     
     static void BuildRectRuns(const SkIRect& bounds,
                               RunType runs[kRectRegionRuns]);
-    // returns true if runs are just a rect
-    static bool ComputeRunBounds(const RunType runs[], int count,
-                                 SkIRect*, int* ySpanCount, int* intervalCount);
+
+    // If the runs define a simple rect, return true and set bounds to that
+    // rect. If not, return false and ignore bounds.
+    static bool RunsAreARect(const SkRegion::RunType runs[], int count,
+                             SkIRect* bounds);
 
     /**
      *  If the last arg is null, just return if the result is non-empty,
