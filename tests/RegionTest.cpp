@@ -52,16 +52,44 @@ static bool slow_contains(const SkRegion& outer, const SkRegion& inner) {
     return outer == tmp;
 }
 
+static bool slow_contains(const SkRegion& outer, const SkIRect& r) {
+    SkRegion tmp;
+    tmp.op(outer, SkRegion(r), SkRegion::kUnion_Op);
+    return outer == tmp;
+}
+
 static bool slow_intersects(const SkRegion& outer, const SkRegion& inner) {
     SkRegion tmp;
     return tmp.op(outer, inner, SkRegion::kIntersect_Op);
 }
 
+static void test_contains_iter(skiatest::Reporter* reporter, const SkRegion& rgn) {
+    SkRegion::Iterator iter(rgn);
+    while (!iter.done()) {
+        SkIRect r = iter.rect();
+        REPORTER_ASSERT(reporter, rgn.contains(r));
+        r.inset(-1, -1);
+        REPORTER_ASSERT(reporter, !rgn.contains(r));
+        iter.next();
+    }
+}
+
 static void contains_proc(skiatest::Reporter* reporter,
                           const SkRegion& a, const SkRegion& b) {
+    // test rgn
     bool c0 = a.contains(b);
     bool c1 = slow_contains(a, b);
     REPORTER_ASSERT(reporter, c0 == c1);
+
+    // test rect
+    SkIRect r = a.getBounds();
+    r.inset(r.width()/4, r.height()/4);
+    c0 = a.contains(r);
+    c1 = slow_contains(a, r);
+    REPORTER_ASSERT(reporter, c0 == c1);
+
+    test_contains_iter(reporter, a);
+    test_contains_iter(reporter, b);
 }
 
 static void intersects_proc(skiatest::Reporter* reporter,
