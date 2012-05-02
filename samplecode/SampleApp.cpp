@@ -654,7 +654,7 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 }
 
 static void usage(const char * argv0) {
-    SkDebugf("%s [--slide sampleName] [-i resourcePath] [-msaa sampleCount]\n", argv0);
+    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount]\n", argv0);
     SkDebugf("    sampleName: sample at which to start.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    msaa: request multisampling with the given sample count.\n");
