@@ -35,8 +35,14 @@ static bool containsrect_proc(SkRegion& a, SkRegion& b) {
     return b.contains(r);
 }
 
-static bool sects_proc(SkRegion& a, SkRegion& b) {
+static bool sectsrgn_proc(SkRegion& a, SkRegion& b) {
     return a.intersects(b);
+}
+
+static bool sectsrect_proc(SkRegion& a, SkRegion& b) {
+    SkIRect r = a.getBounds();
+    r.inset(r.width()/4, r.height()/4);
+    (void)a.intersects(r);
 }
 
 static bool containsxy_proc(SkRegion& a, SkRegion& b) {
@@ -107,8 +113,9 @@ static SkBenchmark* gF0(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, uni
 static SkBenchmark* gF1(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sect_proc, "intersect")); }
 static SkBenchmark* gF2(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diff_proc, "difference")); }
 static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrect_proc, "containsrect", 100)); }
-static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sects_proc, "intersects", 10)); }
-static SkBenchmark* gF5(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsxy_proc, "containsxy")); }
+static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrgn_proc, "intersectsrgn", 10)); }
+static SkBenchmark* gF5(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrect_proc, "intersectsrect", 200)); }
+static SkBenchmark* gF6(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsxy_proc, "containsxy")); }
 
 static BenchRegistry gR0(gF0);
 static BenchRegistry gR1(gF1);
@@ -116,3 +123,4 @@ static BenchRegistry gR2(gF2);
 static BenchRegistry gR3(gF3);
 static BenchRegistry gR4(gF4);
 static BenchRegistry gR5(gF5);
+static BenchRegistry gR6(gF6);
