@@ -49,7 +49,7 @@ public:
 
             for (int y = 0; y < src.fBounds.height(); ++y) {
                 for (int x = 0; x < src.fBounds.width(); ++x) {
-                    SkASSERT(unsigned int(scanline - dst->fImage) < dstSize);
+                    SkASSERT(size_t(scanline - dst->fImage) < dstSize);
                     scanline[x] = srcScanLine[x] && ((x+y) % 2) ? 0xFF : 0x00;
                 }
                 scanline += dst->fRowBytes;
