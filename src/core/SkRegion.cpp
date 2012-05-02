@@ -10,81 +10,60 @@
 #include "SkRegionPriv.h"
 #include "SkTemplates.h"
 #include "SkThread.h"
+#include "SkUtils.h"
+
+/* Region Layout
+ *
+ *  TOP
+ *
+ *  [ Bottom, X-Intervals, [Left, Right]..., X-Sentinel ]
+ *  ...
+ *
+ *  Y-Sentinel
+ */
 
 SkDEBUGCODE(int32_t gRgnAllocCounter;)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*  Pass in a scanline, beginning with the Left value of the pair (i.e. not the Y beginning)
-*/
-static SkRegion::RunType* skip_scanline(const SkRegion::RunType runs[]) {
-    while (runs[0] != SkRegion::kRunTypeSentinel) {
-        SkASSERT(runs[0] < runs[1]);    // valid span
-        runs += 2;
+/*  Pass in the beginning with the intervals.
+ *  We back up 1 to read the interval-count.
+ *  Return the beginning of the next scanline (i.e. the next Y-value)
+ */
+static SkRegion::RunType* skip_intervals(const SkRegion::RunType runs[]) {
+    int intervals = runs[-1];
+#ifdef SK_DEBUG
+    if (intervals > 0) {
+        SkASSERT(runs[0] < runs[1]);
+        SkASSERT(runs[1] < SkRegion::kRunTypeSentinel);
+    } else {
+        SkASSERT(0 == intervals);
+        SkASSERT(SkRegion::kRunTypeSentinel == runs[0]);
     }
-    return (SkRegion::RunType*)(runs + 1);  // return past the X-sentinel
+#endif
+    runs += intervals * 2 + 1;
+    return const_cast<SkRegion::RunType*>(runs);
 }
 
-// returns true if runs are just a rect
-bool SkRegion::ComputeRunBounds(const SkRegion::RunType runs[], int count,
-                                SkIRect* bounds, int* ySpanCountPtr,
-                                int* intervalCountPtr) {
+bool SkRegion::RunsAreARect(const SkRegion::RunType runs[], int count,
+                            SkIRect* bounds) {
     assert_sentinel(runs[0], false);    // top
+    SkASSERT(count >= kRectRegionRuns);
 
     if (count == kRectRegionRuns) {
         assert_sentinel(runs[1], false);    // bottom
-        assert_sentinel(runs[2], false);    // left
-        assert_sentinel(runs[3], false);    // right
-        assert_sentinel(runs[4], true);
+        SkASSERT(1 == runs[2]);
+        assert_sentinel(runs[3], false);    // left
+        assert_sentinel(runs[4], false);    // right
         assert_sentinel(runs[5], true);
-
+        assert_sentinel(runs[6], true);
+        
         SkASSERT(runs[0] < runs[1]);    // valid height
-        SkASSERT(runs[2] < runs[3]);    // valid width
-
-        bounds->set(runs[2], runs[0], runs[3], runs[1]);
-        *ySpanCountPtr = 1;
-        *intervalCountPtr = 1;
+        SkASSERT(runs[3] < runs[4]);    // valid width
+        
+        bounds->set(runs[3], runs[0], runs[4], runs[1]);
         return true;
     }
-
-    int left = SK_MaxS32;
-    int rite = SK_MinS32;
-    int bot;
-    int ySpanCount = 0;
-    int intervalCount = 0;
-
-    bounds->fTop = *runs++;
-    do {
-        bot = *runs++;
-        ySpanCount += 1;
-
-        if (*runs < SkRegion::kRunTypeSentinel) {
-            if (left > *runs) {
-                left = *runs;
-            }
-            
-            const RunType* prevRuns = runs;
-            runs = skip_scanline(runs);
-            // 2 run values == 1 pair, so hench the shift
-            // runs - prevRuns will be odd, since it is #pairs + 1 for the sentinel
-            // but our shift still gives us the right answer. More correct would
-            // be (runs - prevRuns - 1) >> 1, but that extra math is not needed
-            // since the shift truncates away the odd value.
-            intervalCount += (runs - prevRuns) >> 1;
-
-            if (rite < runs[-2]) {
-                rite = runs[-2];
-            }
-        } else {
-            runs += 1;  // skip X-sentinel
-        }
-    } while (runs[0] < SkRegion::kRunTypeSentinel);
-
-    bounds->fLeft = left;
-    bounds->fRight = rite;
-    bounds->fBottom = bot;
-    *ySpanCountPtr = ySpanCount;
-    *intervalCountPtr = intervalCount;
     return false;
 }
 
@@ -123,6 +102,10 @@ void SkRegion::freeRuns() {
 
 void SkRegion::allocateRuns(int count, int ySpanCount, int intervalCount) {
     fRunHead = RunHead::Alloc(count, ySpanCount, intervalCount);
+}
+
+void SkRegion::allocateRuns(int count) {
+    fRunHead = RunHead::Alloc(count);
 }
 
 void SkRegion::allocateRuns(const RunHead& head) {
@@ -231,25 +214,6 @@ int SkRegion::count_runtype_values(int* itop, int* ibot) const {
         maxT = 2;
     } else {
         SkASSERT(this->isComplex());
-
-        // compute the intervalCount, for consistency checking
-#ifdef SK_DEBUG
-        // skip the top
-        const RunType*  runs = fRunHead->readonly_runs() + 1;
-        maxT = 0;
-
-        do {
-            const RunType* next = skip_scanline(runs + 1);
-            SkASSERT(next > runs);
-            int         T = (int)(next - runs - 1);
-            if (maxT < T) {
-                maxT = T;
-            }
-            runs = next;
-        } while (runs[0] < SkRegion::kRunTypeSentinel);
-        
-        SkASSERT(fRunHead->getIntervalCount() * 2 == maxT);
-#endif
         maxT = fRunHead->getIntervalCount() * 2;
     }
     *itop = fBounds.fTop;
@@ -277,69 +241,52 @@ bool SkRegion::setRuns(RunType runs[], int count) {
         RunType* stop = runs + count;
         assert_sentinel(runs[0], false);    // top
         assert_sentinel(runs[1], false);    // bottom
-        if (runs[2] == SkRegion::kRunTypeSentinel) {  // should be first left...
-            runs += 2;  // skip empty initial span
-            runs[0] = runs[-1]; // set new top to prev bottom
+        // runs[2] is uncomputed intervalCount
+        
+        if (runs[3] == SkRegion::kRunTypeSentinel) {  // should be first left...
+            runs += 3;  // skip empty initial span
+            runs[0] = runs[-2]; // set new top to prev bottom
             assert_sentinel(runs[1], false);    // bot: a sentinal would mean two in a row
-            assert_sentinel(runs[2], false);    // left
-            assert_sentinel(runs[3], false);    // right
+            assert_sentinel(runs[2], false);    // intervalcount
+            assert_sentinel(runs[3], false);    // left
+            assert_sentinel(runs[4], false);    // right
         }
 
-        // now check for a trailing empty span
         assert_sentinel(stop[-1], true);
         assert_sentinel(stop[-2], true);
-        assert_sentinel(stop[-3], false);   // should be last right
-        if (stop[-4] == SkRegion::kRunTypeSentinel) { // eek, stop[-3] was a bottom with no x-runs
-            stop[-3] = SkRegion::kRunTypeSentinel;    // kill empty last span
-            stop -= 2;
-            assert_sentinel(stop[-1], true);
-            assert_sentinel(stop[-2], true);
-            assert_sentinel(stop[-3], false);
-            assert_sentinel(stop[-4], false);
-            assert_sentinel(stop[-5], false);
+
+        // now check for a trailing empty span
+        if (stop[-5] == SkRegion::kRunTypeSentinel) { // eek, stop[-4] was a bottom with no x-runs
+            stop[-4] = SkRegion::kRunTypeSentinel;    // kill empty last span
+            stop -= 3;
+            assert_sentinel(stop[-1], true);    // last y-sentinel
+            assert_sentinel(stop[-2], true);    // last x-sentinel
+            assert_sentinel(stop[-3], false);   // last right
+            assert_sentinel(stop[-4], false);   // last left
+            assert_sentinel(stop[-5], false);   // last interval-count
+            assert_sentinel(stop[-6], false);   // last bottom
         }
         count = (int)(stop - runs);
     }
 
     SkASSERT(count >= kRectRegionRuns);
 
-    int ySpanCount, intervalCount;
-    if (ComputeRunBounds(runs, count, &fBounds, &ySpanCount, &intervalCount)) {
-    //  SkDEBUGF(("setRuns: rect[%d %d %d %d]\n", fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom));
+    if (SkRegion::RunsAreARect(runs, count, &fBounds)) {
         return this->setRect(fBounds);
     }
-
+        
     //  if we get here, we need to become a complex region
 
     if (!fRunHead->isComplex() || fRunHead->fRunCount != count) {
-#ifdef SK_DEBUGx
-        SkDebugf("setRuns: rgn [");
-        {
-            const RunType* r = runs;
-
-            SkDebugf(" top: %d\n", *r++);
-            while (*r < SkRegion::kRunTypeSentinel) {
-                SkDebugf(" bottom: %d", *r++);
-                while (*r < SkRegion::kRunTypeSentinel) {
-                    SkDebugf(" [%d %d]", r[0], r[1]);
-                    r += 2;
-                }
-                SkDebugf("\n");
-            }
-        }
-#endif
         this->freeRuns();
-        this->allocateRuns(count, ySpanCount, intervalCount);
+        this->allocateRuns(count);
     }
     
     // must call this before we can write directly into runs()
     // in case we are sharing the buffer with another region (copy on write)
     fRunHead = fRunHead->ensureWritable();
-    // we may not have reallocated the runhead (because the total-size is the
-    // the same) but we may still different yspans or xpairs, so update these.
-    fRunHead->updateYSpanCount(ySpanCount);
-    fRunHead->updateIntervalCount(intervalCount);
     memcpy(fRunHead->writable_runs(), runs, count * sizeof(RunType));
+    fRunHead->computeRunBounds(&fBounds);
 
     SkDEBUGCODE(this->validate();)
 
@@ -350,29 +297,16 @@ void SkRegion::BuildRectRuns(const SkIRect& bounds,
                              RunType runs[kRectRegionRuns]) {
     runs[0] = bounds.fTop;
     runs[1] = bounds.fBottom;
-    runs[2] = bounds.fLeft;
-    runs[3] = bounds.fRight;
-    runs[4] = kRunTypeSentinel;
+    runs[2] = 1;    // 1 interval for this scanline
+    runs[3] = bounds.fLeft;
+    runs[4] = bounds.fRight;
     runs[5] = kRunTypeSentinel;
-}
-
-static SkRegion::RunType* find_scanline(const SkRegion::RunType runs[], int y) {
-    SkASSERT(y >= runs[0]); // if this fails, we didn't do a quick check on the boudns
-
-    runs += 1;  // skip top-Y
-    for (;;) {
-        if (SkRegion::kRunTypeSentinel == runs[0]) {
-            break;
-        }
-        if (y < runs[0]) {
-            return (SkRegion::RunType*)&runs[1];
-        }
-        runs = skip_scanline(runs + 1); // skip the Y value before calling
-    }
-    return NULL;
+    runs[6] = kRunTypeSentinel;
 }
 
 bool SkRegion::contains(int32_t x, int32_t y) const {
+    SkDEBUGCODE(this->validate();)
+
     if (!fBounds.contains(x, y)) {
         return false;
     }
@@ -381,32 +315,83 @@ bool SkRegion::contains(int32_t x, int32_t y) const {
     }
 
     SkASSERT(this->isComplex());
-    const RunType* runs = find_scanline(fRunHead->readonly_runs(), y);
+    const RunType* runs = fRunHead->findScanline(y);
 
-    if (runs) {
-        for (;;) {
-            if (x < runs[0]) {
-                break;
-            }
-            if (x < runs[1]) {
-                return true;
-            }
-            runs += 2;
+    // Skip the Bottom and IntervalCount
+    runs += 2;
+    
+    // Just walk this scanline, checking each interval. The X-sentinel will
+    // appear as a left-inteval (runs[0]) and should abort the search.
+    //
+    // We could do a bsearch, using interval-count (runs[1]), but need to time
+    // when that would be worthwhile.
+    //
+    for (;;) {
+        if (x < runs[0]) {
+            break;
         }
+        if (x < runs[1]) {
+            return true;
+        }
+        runs += 2;
+    }
+    return false;
+}
+
+static const SkRegion::RunType* scanline_next(const SkRegion::RunType runs[]) {
+    // skip [B N [L R]... S]
+    return runs + 2 + runs[1] * 2 + 1;
+}
+
+static bool scanline_contains(const SkRegion::RunType runs[],
+                              SkRegion::RunType L, SkRegion::RunType R) {
+    runs += 2;  // skip Bottom and IntervalCount
+    for (;;) {
+        if (L < runs[0]) {
+            break;
+        }
+        if (R <= runs[1]) {
+            return true;
+        }
+        runs += 2;
     }
     return false;
 }
 
 bool SkRegion::contains(const SkIRect& r) const {
-    return this->contains(SkRegion(r));
+    SkDEBUGCODE(this->validate();)
+
+    if (!fBounds.contains(r)) {
+        return false;
+    }
+    if (this->isRect()) {
+        return true;
+    }
+    
+    SkASSERT(this->isComplex());
+    const RunType* scanline = fRunHead->findScanline(r.fTop);
+    
+    do {
+        if (!scanline_contains(scanline, r.fLeft, r.fRight)) {
+            return false;
+        }
+        scanline = scanline_next(scanline);
+    } while (r.fBottom >= scanline[0]);
+    return true;
 }
 
 bool SkRegion::contains(const SkRegion& rgn) const {
+    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(rgn.validate();)
+
     if (this->isEmpty() || rgn.isEmpty() || !fBounds.contains(rgn.fBounds)) {
         return false;
     }
     if (this->isRect()) {
         return true;
+    }
+    if (rgn.isRect()) {
+        return this->contains(rgn.getBounds());
     }
 
     /*
@@ -436,21 +421,44 @@ const SkRegion::RunType* SkRegion::getRuns(RunType tmpStorage[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool scanline_intersects(const SkRegion::RunType runs[],
+                                SkRegion::RunType L, SkRegion::RunType R) {
+    runs += 2;  // skip Bottom and IntervalCount
+    for (;;) {
+        if (R <= runs[0]) {
+            break;
+        }
+        if (L < runs[1]) {
+            return true;
+        }
+        runs += 2;
+    }
+    return false;
+}
+
 bool SkRegion::intersects(const SkIRect& r) const {
+    SkDEBUGCODE(this->validate();)
+    
     if (this->isEmpty() || r.isEmpty()) {
         return false;
     }
     
-    if (!SkIRect::Intersects(fBounds, r)) {
+    SkIRect sect;
+    if (!sect.intersect(fBounds, r)) {
         return false;
     }
-
     if (this->isRect()) {
         return true;
     }
     
-    // we are complex
-    return Oper(*this, SkRegion(r), kIntersect_Op, NULL);
+    const RunType* scanline = fRunHead->findScanline(sect.fTop);
+    do {
+        if (scanline_intersects(scanline, sect.fLeft, sect.fRight)) {
+            return true;
+        }
+        scanline = scanline_next(scanline);
+    } while (sect.fBottom >= scanline[0]);
+    return false;
 }
 
 bool SkRegion::intersects(const SkRegion& rgn) const {
@@ -462,11 +470,20 @@ bool SkRegion::intersects(const SkRegion& rgn) const {
         return false;
     }
     
-    if (this->isRect() && rgn.isRect()) {
+    bool weAreARect = this->isRect();
+    bool theyAreARect = rgn.isRect();
+
+    if (weAreARect && theyAreARect) {
         return true;
     }
+    if (weAreARect) {
+        return rgn.intersects(this->getBounds());
+    }
+    if (theyAreARect) {
+        return this->intersects(rgn.getBounds());
+    }
     
-    // one or both of us is complex
+    // both of us are complex
     return Oper(*this, rgn, kIntersect_Op, NULL);
 }
 
@@ -532,6 +549,7 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
                 break;
             }
             *druns++ = (SkRegion::RunType)(bottom + dy);  // bottom;
+            *druns++ = *sruns++;    // copy intervalCount;
             for (;;) {
                 int x = *sruns++;
                 if (x == kRunTypeSentinel) {
@@ -740,19 +758,25 @@ public:
 
     void addSpan(int bottom, const SkRegion::RunType a_runs[],
                  const SkRegion::RunType b_runs[]) {
-        SkRegion::RunType*  start = fPrevDst + fPrevLen + 1;    // skip X values and slot for the next Y
+        // skip X values and slots for the next Y+intervalCount
+        SkRegion::RunType*  start = fPrevDst + fPrevLen + 2;
+        // start points to beginning of dst interval
         SkRegion::RunType*  stop = operate_on_span(a_runs, b_runs, start, fMin, fMax);
         size_t              len = stop - start;
+        SkASSERT(len >= 1 && (len & 1) == 1);
+        SkASSERT(SkRegion::kRunTypeSentinel == stop[-1]);
 
         if (fPrevLen == len &&
-            !memcmp(fPrevDst, start, len * sizeof(SkRegion::RunType))) {
+            (1 == len || !memcmp(fPrevDst, start,
+                                 (len - 1) * sizeof(SkRegion::RunType)))) {
             // update Y value
-            fPrevDst[-1] = (SkRegion::RunType)(bottom);
+            fPrevDst[-2] = (SkRegion::RunType)(bottom);
         } else {    // accept the new span
             if (len == 1 && fPrevLen == 0) {
                 fTop = (SkRegion::RunType)(bottom); // just update our bottom
             } else {
-                start[-1] = (SkRegion::RunType)(bottom);
+                start[-2] = (SkRegion::RunType)(bottom);
+                start[-1] = len >> 1;
                 fPrevDst = start;
                 fPrevLen = len;
             }
@@ -784,18 +808,22 @@ static int operate(const SkRegion::RunType a_runs[],
                    SkRegion::RunType dst[],
                    SkRegion::Op op,
                    bool quickExit) {
-    const SkRegion::RunType gSentinel[] = {
-        SkRegion::kRunTypeSentinel,
-        // just need a 2nd value, since spanRec.init() reads 2 values, even
-        // though if the first value is the sentinel, it ignores the 2nd value.
-        // w/o the 2nd value here, we might read uninitialized memory.
-        0,
+    const SkRegion::RunType gEmptyScanline[] = {
+        0,  // dummy bottom value
+        0,  // zero intervals
+        SkRegion::kRunTypeSentinel
     };
+    const SkRegion::RunType* const gSentinel = &gEmptyScanline[2];
 
     int a_top = *a_runs++;
     int a_bot = *a_runs++;
     int b_top = *b_runs++;
     int b_bot = *b_runs++;
+
+    a_runs += 1;    // skip the intervalCount;
+    b_runs += 1;    // skip the intervalCount;
+
+    // Now a_runs and b_runs to their intervals (or sentinel)
 
     assert_sentinel(a_top, false);
     assert_sentinel(a_bot, false);
@@ -858,17 +886,19 @@ static int operate(const SkRegion::RunType a_runs[],
         }
 
         if (a_flush) {
-            a_runs = skip_scanline(a_runs);
+            a_runs = skip_intervals(a_runs);
             a_top = a_bot;
             a_bot = *a_runs++;
+            a_runs += 1;    // skip uninitialized intervalCount
             if (a_bot == SkRegion::kRunTypeSentinel) {
                 a_top = a_bot;
             }
         }
         if (b_flush) {
-            b_runs = skip_scanline(b_runs);
+            b_runs = skip_intervals(b_runs);
             b_top = b_bot;
             b_bot = *b_runs++;
+            b_runs += 1;    // skip uninitialized intervalCount
             if (b_bot == SkRegion::kRunTypeSentinel) {
                 b_top = b_bot;
             }
@@ -898,10 +928,10 @@ static int count_to_intervals(int count) {
     many intervals?
  
     Worst case (from a storage perspective), is a vertical stack of single
-    intervals:  TOP + N * (BOTTOM LEFT RIGHT SENTINEL) + SENTINEL
+    intervals:  TOP + N * (BOTTOM INTERVALCOUNT LEFT RIGHT SENTINEL) + SENTINEL
  */
 static int intervals_to_count(int intervals) {
-    return 1 + intervals * 4 + 1;
+    return 1 + intervals * 5 + 1;
 }
 
 /*  Given the intervalCounts of RunTypes in two regions, return the worst-case number
@@ -1009,6 +1039,11 @@ bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
     int dstCount = compute_worst_case_count(a_intervals, b_intervals);
     SkAutoSTMalloc<256, RunType> array(dstCount);
 
+#ifdef SK_DEBUG
+//  Sometimes helpful to seed everything with a known value when debugging
+//  sk_memset32((uint32_t*)array.get(), 0x7FFFFFFF, dstCount);
+#endif
+
     int count = operate(a_runs, b_runs, array.get(), op, NULL == result);
     SkASSERT(count <= dstCount);
 
@@ -1094,26 +1129,69 @@ const SkRegion& SkRegion::GetEmptyRegion() {
 
 #ifdef SK_DEBUG
 
-static const SkRegion::RunType* validate_line(const SkRegion::RunType run[],
-                                              const SkIRect& bounds) {
-    // *run is the bottom of the current span
-    SkASSERT(*run > bounds.fTop);
-    SkASSERT(*run <= bounds.fBottom);
-    run += 1;
-
-    // check for empty span
-    if (*run != SkRegion::kRunTypeSentinel) {
-        int prevRite = bounds.fLeft - 1;
-        do {
-            int left = *run++;
-            int rite = *run++;
-            SkASSERT(left < rite);
-            SkASSERT(left > prevRite);
-            SkASSERT(rite <= bounds.fRight);
-            prevRite = rite;
-        } while (*run < SkRegion::kRunTypeSentinel);
+// Starts with first X-interval, and returns a ptr to the X-sentinel
+static const SkRegion::RunType* skip_intervals_slow(const SkRegion::RunType runs[]) {
+    // want to track that our intevals are all disjoint, such that
+    // prev-right < next-left. We rely on this optimization in places such as
+    // contains().
+    //
+    SkRegion::RunType prevR = -SkRegion::kRunTypeSentinel;
+    
+    while (runs[0] < SkRegion::kRunTypeSentinel) {
+        SkASSERT(prevR < runs[0]);
+        SkASSERT(runs[0] < runs[1]);
+        SkASSERT(runs[1] < SkRegion::kRunTypeSentinel);
+        prevR = runs[1];
+        runs += 2;
     }
-    return run + 1; // skip sentinel
+    return runs;
+}
+
+static void compute_bounds(const SkRegion::RunType runs[], int count,
+                           SkIRect* bounds, int* ySpanCountPtr,
+                           int* intervalCountPtr) {
+    assert_sentinel(runs[0], false);    // top
+    
+    int left = SK_MaxS32;
+    int rite = SK_MinS32;
+    int bot;
+    int ySpanCount = 0;
+    int intervalCount = 0;
+    
+    bounds->fTop = *runs++;
+    do {
+        bot = *runs++;
+        SkASSERT(SkRegion::kRunTypeSentinel > bot);
+
+        ySpanCount += 1;
+        
+        runs += 1;  // skip intervalCount for now
+        if (*runs < SkRegion::kRunTypeSentinel) {
+            if (left > *runs) {
+                left = *runs;
+            }
+            
+            const SkRegion::RunType* prev = runs;
+            runs = skip_intervals_slow(runs);
+            int intervals = (runs - prev) >> 1;
+            SkASSERT(prev[-1] == intervals);
+            intervalCount += intervals;
+            
+            if (rite < runs[-1]) {
+                rite = runs[-1];
+            }
+        } else {
+            SkASSERT(0 == runs[-1]);    // no intervals
+        }
+        SkASSERT(SkRegion::kRunTypeSentinel == *runs);
+        runs += 1;
+    } while (SkRegion::kRunTypeSentinel != *runs);
+    
+    bounds->fLeft = left;
+    bounds->fRight = rite;
+    bounds->fBottom = bot;
+    *ySpanCountPtr = ySpanCount;
+    *intervalCountPtr = intervalCount;
 }
 
 void SkRegion::validate() const {
@@ -1126,7 +1204,7 @@ void SkRegion::validate() const {
         SkASSERT(!fBounds.isEmpty());
         if (!this->isRect()) {
             SkASSERT(fRunHead->fRefCnt >= 1);
-            SkASSERT(fRunHead->fRunCount >= kRectRegionRuns);
+            SkASSERT(fRunHead->fRunCount > kRectRegionRuns);
 
             const RunType* run = fRunHead->readonly_runs();
             const RunType* stop = run + fRunHead->fRunCount;
@@ -1135,22 +1213,14 @@ void SkRegion::validate() const {
             {
                 SkIRect bounds;
                 int ySpanCount, intervalCount;
-                bool isARect = ComputeRunBounds(run, stop - run, &bounds,
-                                                &ySpanCount, &intervalCount);
-                SkASSERT(!isARect);
+                compute_bounds(run, stop - run, &bounds, &ySpanCount, &intervalCount);
+
                 SkASSERT(bounds == fBounds);
                 SkASSERT(ySpanCount > 0);
                 SkASSERT(fRunHead->getYSpanCount() == ySpanCount);
-                SkASSERT(intervalCount > 1);
+           //     SkASSERT(intervalCount > 1);
                 SkASSERT(fRunHead->getIntervalCount() == intervalCount);
             }
-
-            SkASSERT(*run == fBounds.fTop);
-            run++;
-            do {
-                run = validate_line(run, fBounds);
-            } while (*run < kRunTypeSentinel);
-            SkASSERT(run + 1 == stop);
         }
     }
 }
@@ -1160,8 +1230,7 @@ void SkRegion::dump() const {
         SkDebugf("  rgn: empty\n");
     } else {
         SkDebugf("  rgn: [%d %d %d %d]", fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
-        if (this->isComplex())
-        {
+        if (this->isComplex()) {
             const RunType* runs = fRunHead->readonly_runs();
             for (int i = 0; i < fRunHead->fRunCount; i++)
                 SkDebugf(" %d", runs[i]);
@@ -1197,8 +1266,9 @@ void SkRegion::Iterator::reset(const SkRegion& rgn) {
             fRuns = NULL;
         } else {
             fRuns = rgn.fRunHead->readonly_runs();
-            fRect.set(fRuns[2], fRuns[0], fRuns[3], fRuns[1]);
-            fRuns += 4;
+            fRect.set(fRuns[3], fRuns[0], fRuns[4], fRuns[1]);
+            fRuns += 5;
+            // Now fRuns points to the 2nd interval (or x-sentinel)
         }
     }
 }
@@ -1222,18 +1292,20 @@ void SkRegion::Iterator::next() {
     } else {    // we're at the end of a line
         runs += 1;
         if (runs[0] < kRunTypeSentinel) { // valid Y value
-            if (runs[1] == kRunTypeSentinel) {    // empty line
+            int intervals = runs[1];
+            if (0 == intervals) {    // empty line
                 fRect.fTop = runs[0];
-                runs += 2;
+                runs += 3;
             } else {
                 fRect.fTop = fRect.fBottom;
             }
     
             fRect.fBottom = runs[0];
-            assert_sentinel(runs[1], false);
-            fRect.fLeft = runs[1];
-            fRect.fRight = runs[2];
-            runs += 3;
+            assert_sentinel(runs[2], false);
+            assert_sentinel(runs[3], false);
+            fRect.fLeft = runs[2];
+            fRect.fRight = runs[3];
+            runs += 4;
         } else {    // end of rgn
             fDone = true;
         }
@@ -1280,24 +1352,6 @@ void SkRegion::Cliperator::next() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkRegion::RunType* find_y(const SkRegion::RunType runs[], int y) {
-    int top = *runs++;
-    if (top <= y) {
-        for (;;) {
-            int bot = *runs++;
-            if (bot > y) {
-                if (bot == SkRegion::kRunTypeSentinel ||
-                    *runs == SkRegion::kRunTypeSentinel) {
-                    break;
-				}
-                return (SkRegion::RunType*)runs;
-            }
-            runs = skip_scanline(runs);
-        }
-    }
-    return NULL;
-}
-
 SkRegion::Spanerator::Spanerator(const SkRegion& rgn, int y, int left,
                                  int right) {
     SkDEBUGCODE(rgn.validate();)
@@ -1319,26 +1373,24 @@ SkRegion::Spanerator::Spanerator(const SkRegion& rgn, int y, int left,
             fRuns = NULL;    // means we're a rect, not a rgn
             fDone = false;
         } else {
-            const SkRegion::RunType* runs = find_y(
-                                              rgn.fRunHead->readonly_runs(), y);
-            if (runs) {
-                for (;;) {
-                    // runs[0..1] is to the right of the span, so we're done
-                    if (runs[0] >= right) {
-                        break;
-                    }
-                    // runs[0..1] is to the left of the span, so continue
-                    if (runs[1] <= left) {
-                        runs += 2;
-                        continue;
-                    }
-                    // runs[0..1] intersects the span
-                    fRuns = runs;
-                    fLeft = left;
-                    fRight = right;
-                    fDone = false;
+            const SkRegion::RunType* runs = rgn.fRunHead->findScanline(y);
+            runs += 2;  // skip Bottom and IntervalCount
+            for (;;) {
+                // runs[0..1] is to the right of the span, so we're done
+                if (runs[0] >= right) {
                     break;
                 }
+                // runs[0..1] is to the left of the span, so continue
+                if (runs[1] <= left) {
+                    runs += 2;
+                    continue;
+                }
+                // runs[0..1] intersects the span
+                fRuns = runs;
+                fLeft = left;
+                fRight = right;
+                fDone = false;
+                break;
             }
         }
     }

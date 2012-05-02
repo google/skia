@@ -51,13 +51,26 @@ public:
     }
 #endif
 private:
+    /*
+     *  Scanline mimics a row in the region, nearly. A row in a region is:
+     *      [Bottom IntervalCount [L R]... Sentinel]
+     *  while a Scanline is
+     *      [LastY XCount [L R]... uninitialized]
+     *  The two are the same length (which is good), but we have to transmute
+     *  the scanline a little when we convert it to a region-row.
+     *
+     *  Potentially we could recode this to exactly match the row format, in
+     *  which case copyToRgn() could be a single memcpy. Not sure that is worth
+     *  the effort.
+     */
     struct Scanline {
         SkRegion::RunType fLastY;
         SkRegion::RunType fXCount;
 
         SkRegion::RunType* firstX() const { return (SkRegion::RunType*)(this + 1); }
         Scanline* nextScanline() const {
-            return (Scanline*)((SkRegion::RunType*)(this + 1) + fXCount);
+            // add final +1 for the x-sentinel
+            return (Scanline*)((SkRegion::RunType*)(this + 1) + fXCount + 1);
         }
     };
     SkRegion::RunType*  fStorage;
@@ -171,7 +184,8 @@ int SkRgnBuilder::computeRunCount() const {
 
 void SkRgnBuilder::copyToRect(SkIRect* r) const {
     SkASSERT(fCurrScanline != NULL);
-    SkASSERT((const SkRegion::RunType*)fCurrScanline - fStorage == 4);
+    // A rect's scanline is [bottom intervals left right sentinel] == 5
+    SkASSERT((const SkRegion::RunType*)fCurrScanline - fStorage == 5);
 
     const Scanline* line = (const Scanline*)fStorage;
     SkASSERT(line->fXCount == 2);
@@ -190,6 +204,7 @@ void SkRgnBuilder::copyToRgn(SkRegion::RunType runs[]) const {
     do {
         *runs++ = (SkRegion::RunType)(line->fLastY + 1);
         int count = line->fXCount;
+        *runs++ = count >> 1;   // intervalCount
         if (count) {
             memcpy(runs, line->firstX(), count * sizeof(SkRegion::RunType));
             runs += count;
@@ -301,15 +316,11 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         builder.copyToRect(&fBounds);
         this->setRect(fBounds);
     } else {
-        SkRegion    tmp;
-        int         ySpanCount, intervalCount;
+        SkRegion tmp;
 
         tmp.fRunHead = RunHead::Alloc(count);
         builder.copyToRgn(tmp.fRunHead->writable_runs());
-        ComputeRunBounds(tmp.fRunHead->readonly_runs(), count, &tmp.fBounds,
-                         &ySpanCount, &intervalCount);
-        tmp.fRunHead->updateYSpanCount(ySpanCount);
-        tmp.fRunHead->updateIntervalCount(intervalCount);
+        tmp.fRunHead->computeRunBounds(&tmp.fBounds);
         this->swap(tmp);
     }
     SkDEBUGCODE(this->validate();)
