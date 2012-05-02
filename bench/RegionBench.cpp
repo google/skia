@@ -42,7 +42,7 @@ static bool sectsrgn_proc(SkRegion& a, SkRegion& b) {
 static bool sectsrect_proc(SkRegion& a, SkRegion& b) {
     SkIRect r = a.getBounds();
     r.inset(r.width()/4, r.height()/4);
-    (void)a.intersects(r);
+    return a.intersects(r);
 }
 
 static bool containsxy_proc(SkRegion& a, SkRegion& b) {
