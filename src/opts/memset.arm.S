@@ -14,7 +14,8 @@
  */
 
     .text
-    .align
+    .align 4
+    .syntax unified
 
     .global arm_memset32
     .type   arm_memset32, %function
@@ -41,11 +42,11 @@ arm_memset16:
         mov         r2, r2, lsl #1
 
         /* expand the data to 32 bits */
-        orr         r1, r1, lsl #16
+        orr         r1, r1, r1, lsl #16
 
         /* align to 32 bits */
         tst         r0, #2
-        strneh      r1, [r0], #2
+        strhne      r1, [r0], #2
         subne       r2, r2, #2
 
         /* Now jump into the main loop below. */
@@ -81,9 +82,9 @@ arm_memset32:
         /* (Optionally) write any unaligned leading bytes.
          * (0-28 bytes, length in r3) */
         movs        r3, r3, lsl #28
-        stmcsia     r0!, {r1, lr}
-        stmcsia     r0!, {r1, lr}
-        stmmiia     r0!, {r1, lr}
+        stmiacs     r0!, {r1, lr}
+        stmiacs     r0!, {r1, lr}
+        stmiami     r0!, {r1, lr}
         movs        r3, r3, lsl #2
         strcs       r1, [r0], #4
 
@@ -91,19 +92,19 @@ arm_memset32:
 .Laligned32:
         mov         r3, r1
 1:      subs        r2, r2, #32
-        stmhsia     r0!, {r1,r3,ip,lr}
-        stmhsia     r0!, {r1,r3,ip,lr}
+        stmiahs     r0!, {r1,r3,ip,lr}
+        stmiahs     r0!, {r1,r3,ip,lr}
         bhs         1b
         add         r2, r2, #32
 
         /* (Optionally) store any remaining trailing bytes.
          * (0-30 bytes, length in r2) */
         movs        r2, r2, lsl #28
-        stmcsia     r0!, {r1,r3,ip,lr}
-        stmmiia     r0!, {r1,lr}
+        stmiacs     r0!, {r1,r3,ip,lr}
+        stmiami     r0!, {r1,lr}
         movs        r2, r2, lsl #2
         strcs       r1, [r0], #4
-        strmih      lr, [r0], #2
+        strhmi      lr, [r0], #2
 
 .Lfinish:
         pop         {pc}
