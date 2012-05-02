@@ -14,6 +14,7 @@
 #include "SkPaint.h"
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
+#include "SkImageFilter.h"
 #include "SkStream.h"
 #include "SkTSearch.h"
 #include "SkTypeface.h"
@@ -34,6 +35,7 @@ static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
         case kPathEffect_PaintFlat:     return paint.getPathEffect();
         case kRasterizer_PaintFlat:     return paint.getRasterizer();
         case kShader_PaintFlat:         return paint.getShader();
+        case kImageFilter_PaintFlat:    return paint.getImageFilter();
         case kXfermode_PaintFlat:       return paint.getXfermode();
     }
     SkDEBUGFAIL("never gets here");
@@ -161,8 +163,10 @@ private:
     inline void doNotify() {
         if (!fDone) {
             size_t bytes = fWriter.size() - fBytesNotified;
-            fController->notifyWritten(bytes);
-            fBytesNotified += bytes;
+            if (bytes > 0) {
+                fController->notifyWritten(bytes);
+                fBytesNotified += bytes;
+            }
         }
     }
 
@@ -176,6 +180,10 @@ private:
             return memcmp(&a->fSize, &b->fSize, a->fSize + sizeof(a->fSize));
         }
     };
+
+    SkTDArray<FlatData*> fBitmapArray;
+    int flattenToIndex(const SkBitmap&);
+
     SkTDArray<FlatData*> fFlatArray;
     int fCurrFlatIndex[kCount_PaintFlats];
     int flattenToIndex(SkFlattenable* obj, PaintFlats);
@@ -194,6 +202,41 @@ private:
 
     typedef SkCanvas INHERITED;
 };
+
+int SkGPipeCanvas::flattenToIndex(const SkBitmap & bitmap) {
+    SkOrderedWriteBuffer tmpWriter(1024);
+    // FIXME: Rather than forcing CrossProcess, we should create an SkRefCntSet
+    // so that we can store a pointer to a bitmap's pixels during flattening.
+    tmpWriter.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
+    bitmap.flatten(tmpWriter);
+
+    size_t len = tmpWriter.size();
+    size_t allocSize = len + sizeof(FlatData);
+
+    SkAutoSMalloc<1024> storage(allocSize);
+    FlatData* flat = (FlatData*)storage.get();
+    flat->fSize = len;
+    tmpWriter.flatten(flat->data());
+    
+    int index = SkTSearch<FlatData>((const FlatData**)fBitmapArray.begin(),
+                                     fBitmapArray.count(), flat, sizeof(flat),
+                                     &FlatData::Compare);
+    if (index < 0) {
+        index = ~index;
+        FlatData* copy = (FlatData*)sk_malloc_throw(allocSize);
+        memcpy(copy, flat, allocSize);
+        // For bitmaps, we can use zero based indices, since we will never ask
+        // for a NULL bitmap (unlike with paint flattenables).
+        copy->fIndex = fBitmapArray.count();
+        *fBitmapArray.insert(index) = copy;
+        if (this->needOpBytes(len + sizeof(uint32_t))) {
+            this->writeOp(kDef_Bitmap_DrawOp, 0, copy->fIndex);
+            fWriter.write32(len);
+            fWriter.write(copy->data(), len);
+        }
+    }
+    return fBitmapArray[index]->fIndex;
+}
 
 // return 0 for NULL (or unflattenable obj), or index-base-1
 int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
@@ -267,6 +310,7 @@ SkGPipeCanvas::~SkGPipeCanvas() {
     this->finish();
 
     fFlatArray.freeAll();
+    fBitmapArray.freeAll();
 }
 
 bool SkGPipeCanvas::needOpBytes(size_t needed) {
@@ -516,42 +560,84 @@ void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
     if (paint) {
         this->writePaint(*paint);
     }
-    SkOrderedWriteBuffer writeBuffer(0);
-    // FIXME: Rather than forcing CrossProcess, we should create an SkRefCntSet
-    // so that we can store a pointer to a bitmap's pixels during flattening.
-    writeBuffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
-    bm.flatten(writeBuffer);
-    int size = writeBuffer.size();
+
+    int bitmapIndex = this->flattenToIndex(bm);
     
-    if (this->needOpBytes(sizeof(uint32_t) + size + sizeof(SkScalar)*2)
-        + sizeof(bool)) {
-        // Record the act of drawing the bitmap
-        this->writeOp(kDrawBitmap_DrawOp);
-        fWriter.writeInt(size);
-        void* ptr = (void*) fWriter.reserve(size);
-        writeBuffer.flatten(ptr);
+    if (this->needOpBytes(sizeof(SkScalar) * 2 + sizeof(bool))) {
+        this->writeOp(kDrawBitmap_DrawOp, 0, bitmapIndex);
         fWriter.writeBool(paint != NULL);
         fWriter.writeScalar(left);
         fWriter.writeScalar(top);
     }
 }
 
-void SkGPipeCanvas::drawBitmapRect(const SkBitmap&, const SkIRect* src,
-                                       const SkRect& dst, const SkPaint*) {
-    UNIMPLEMENTED
+void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
+                                       const SkRect& dst, const SkPaint* paint) {
+    NOTIFY_SETUP(this);
+    if (paint) {
+        this->writePaint(*paint);
+    }
+
+    int bitmapIndex = this->flattenToIndex(bm);
+
+    size_t opBytesNeeded = sizeof(SkRect) + sizeof(bool) * 2;
+    bool hasSrc = src != NULL;
+    if (hasSrc) {
+        opBytesNeeded += sizeof(int32_t) * 4;
+    }
+    if (this->needOpBytes(opBytesNeeded)) {
+        this->writeOp(kDrawBitmapRect_DrawOp, 0, bitmapIndex);
+        fWriter.writeBool(paint != NULL);
+        fWriter.writeBool(hasSrc);
+        if (hasSrc) {
+            fWriter.write32(src->fLeft);
+            fWriter.write32(src->fTop);
+            fWriter.write32(src->fRight);
+            fWriter.write32(src->fBottom);
+        }
+        fWriter.writeRect(dst);
+    }
 }
 
 void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
                                          const SkPaint*) {
     UNIMPLEMENTED
 }
-void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+
+void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
                                    const SkRect& dst, const SkPaint* paint) {
-    UNIMPLEMENTED
+    NOTIFY_SETUP(this);
+    if (paint) {
+        this->writePaint(*paint);
+    }
+    int bitmapIndex = this->flattenToIndex(bm);
+
+    if (this->needOpBytes(sizeof(int32_t) * 4 + sizeof(bool)
+                          + sizeof(SkRect))) {
+        this->writeOp(kDrawBitmapNine_DrawOp, 0, bitmapIndex);
+        fWriter.writeBool(paint != NULL);
+        fWriter.write32(center.fLeft);
+        fWriter.write32(center.fTop);
+        fWriter.write32(center.fRight);
+        fWriter.write32(center.fBottom);
+        fWriter.writeRect(dst);
+    }
 }
-void SkGPipeCanvas::drawSprite(const SkBitmap&, int left, int top,
-                                   const SkPaint*) {
-    UNIMPLEMENTED
+
+void SkGPipeCanvas::drawSprite(const SkBitmap& bm, int left, int top,
+                                   const SkPaint* paint) {
+    NOTIFY_SETUP(this);
+    if (paint) {
+        this->writePaint(*paint);
+    }
+    int bitmapIndex = this->flattenToIndex(bm);
+
+    if (this->needOpBytes(sizeof(int32_t) * 2 + sizeof(bool))) {
+        this->writeOp(kDrawSprite_DrawOp, 0, bitmapIndex);
+        fWriter.writeBool(paint != NULL);
+        fWriter.write32(left);
+        fWriter.write32(top);
+    }
 }
 
 void SkGPipeCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
