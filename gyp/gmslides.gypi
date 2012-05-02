@@ -40,6 +40,7 @@
     '../gm/points.cpp',
     '../gm/poly2poly.cpp',
     '../gm/quadpaths.cpp',
+    '../gm/samplerstress.cpp',
     '../gm/shaderbounds.cpp',
     '../gm/shadertext.cpp',
     '../gm/shadows.cpp',
