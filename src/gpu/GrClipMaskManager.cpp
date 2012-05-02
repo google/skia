@@ -15,7 +15,6 @@
 
 //#define GR_AA_CLIP 1
 
-
 ////////////////////////////////////////////////////////////////////////////////
 void ScissoringSettings::setupScissoring(GrGpu* gpu) {
     if (!fEnableScissoring) {
@@ -366,9 +365,16 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
     GrRenderTarget* rt = origDrawState->getRenderTarget();
     GrAssert(NULL != rt);
 
+    if (fAACache.canReuse(clipIn, rt->width(), rt->height())) {
+        *result = fAACache.getLastMask();
+        *resultBounds = fAACache.getLastBound();
+        return true;
+    }
+
     GrRect rtRect;
     rtRect.setLTRB(0, 0,
                     GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
+
 
     // unlike the stencil path the alpha path is not bound to the size of the
     // render target - determine the minimum size required for the mask
@@ -411,8 +417,9 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
     GrTexture* accum = gpu->createTexture(desc, NULL, 0);
     GrTexture* temp = gpu->createTexture(desc, NULL, 0);
     if (NULL == accum || NULL == temp) {
-        // TODO: free up accum & temp here!
         fClipMaskInAlpha = false;
+        SkSafeUnref(accum);
+        SkSafeUnref(temp);
         return false;
     }
 
@@ -505,8 +512,11 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
         }
     }
 
+    fAACache.set(clipIn, rt->width(), rt->height(), accum, bounds);
     *result = accum;
     *resultBounds = bounds;
+    SkSafeUnref(accum);     // fAACache still has a ref to accum
+    SkSafeUnref(temp);
     return true;
 }
 

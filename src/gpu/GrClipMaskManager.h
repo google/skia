@@ -11,9 +11,11 @@
 
 #include "GrRect.h"
 #include "SkPath.h"
+#include "GrNoncopyable.h"
+#include "GrClip.h"
+#include "SkRefCnt.h"
 
 class GrGpu;
-class GrClip;
 class GrPathRenderer;
 class GrPathRendererChain;
 class SkPath;
@@ -33,6 +35,57 @@ struct ScissoringSettings {
     void setupScissoring(GrGpu* gpu);
 };
 
+/**
+ * The stencil buffer stores the last clip path - providing a single entry
+ * "cache". This class provides similar functionality for AA clip paths
+ */
+class GrClipMaskCache : public GrNoncopyable {
+public:
+    GrClipMaskCache() 
+    : fLastWidth(-1)
+    , fLastHeight(-1) {
+        fLastBound.MakeEmpty();
+    }
+
+    bool canReuse(const GrClip& clip, int width, int height) {
+        if (fLastWidth >= width &&
+            fLastHeight >= height &&
+            clip == fLastClip) {
+            return true;
+        }
+
+        return false;
+    }
+
+    void set(const GrClip& clip, int width, int height, 
+             GrTexture* mask, const GrRect& bound) {
+
+        fLastWidth = width;
+        fLastHeight = height;
+        fLastClip = clip;
+        SkSafeRef(mask);
+        fLastMask.reset(mask);
+        fLastBound = bound;
+    }
+
+    GrTexture*  getLastMask() {
+        return fLastMask.get();
+    }
+
+    const GrRect& getLastBound() const {
+        return fLastBound;
+    }
+
+protected:
+private:
+    int                     fLastWidth;
+    int                     fLastHeight;
+    GrClip                  fLastClip;
+    SkAutoTUnref<GrTexture> fLastMask;
+    GrRect                  fLastBound;
+
+    typedef GrNoncopyable INHERITED;
+};
 
 /**
  * The clip mask creator handles the generation of the clip mask. If anti 
@@ -42,7 +95,7 @@ struct ScissoringSettings {
  * mask can be represented as a rectangle then scissoring is used. In all
  * cases scissoring is used to bound the range of the clip mask.
  */
-class GrClipMaskManager {
+class GrClipMaskManager : public GrNoncopyable {
 public:
     GrClipMaskManager()
         : fClipMaskInStencil(false)
@@ -67,6 +120,7 @@ protected:
 private:
     bool fClipMaskInStencil;        // is the clip mask in the stencil buffer?
     bool fClipMaskInAlpha;          // is the clip mask in an alpha texture?
+    GrClipMaskCache fAACache;       // cache for the AA path
 
     // must be instantiated after GrGpu object has been given its owning
     // GrContext ptr. (GrGpu is constructed first then handed off to GrContext).
@@ -102,6 +156,7 @@ private:
                                         GrPathFill fill,
                                         bool antiAlias);
 
+    typedef GrNoncopyable INHERITED;
 };
 
 #endif // GrClipMaskManager_DEFINED
