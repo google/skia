@@ -58,6 +58,7 @@ public:
     SkRegion fA, fB;
     Proc     fProc;
     SkString fName;
+    int      fLoopMul;
     
     enum {
         W = 1024,
@@ -73,9 +74,10 @@ public:
         return SkIRect::MakeXYWH(x, y, w >> 1, h >> 1);
     }
 
-    RegionBench(void* param, int count, Proc proc, const char name[]) : INHERITED(param) {
+    RegionBench(void* param, int count, Proc proc, const char name[], int mul = 1) : INHERITED(param) {
         fProc = proc;
         fName.printf("region_%s_%d", name, count);
+        fLoopMul = mul;
 
         SkRandom rand;
         for (int i = 0; i < count; i++) {
@@ -89,7 +91,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         Proc proc = fProc;
-        for (int i = 0; i < N; ++i) {
+        int n = fLoopMul * N;
+        for (int i = 0; i < n; ++i) {
             proc(fA, fB);
         }
     }
@@ -103,8 +106,8 @@ private:
 static SkBenchmark* gF0(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, union_proc, "union")); }
 static SkBenchmark* gF1(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sect_proc, "intersect")); }
 static SkBenchmark* gF2(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diff_proc, "difference")); }
-static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrect_proc, "containsrect")); }
-static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sects_proc, "intersects")); }
+static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrect_proc, "containsrect", 100)); }
+static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sects_proc, "intersects", 10)); }
 static SkBenchmark* gF5(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsxy_proc, "containsxy")); }
 
 static BenchRegistry gR0(gF0);
