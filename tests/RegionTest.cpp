@@ -92,11 +92,25 @@ static void contains_proc(skiatest::Reporter* reporter,
     test_contains_iter(reporter, b);
 }
 
+static void test_intersects_iter(skiatest::Reporter* reporter, const SkRegion& rgn) {
+    SkRegion::Iterator iter(rgn);
+    while (!iter.done()) {
+        SkIRect r = iter.rect();
+        REPORTER_ASSERT(reporter, rgn.intersects(r));
+        r.inset(-1, -1);
+        REPORTER_ASSERT(reporter, rgn.intersects(r));
+        iter.next();
+    }
+}
+
 static void intersects_proc(skiatest::Reporter* reporter,
                           const SkRegion& a, const SkRegion& b) {
     bool c0 = a.intersects(b);
     bool c1 = slow_intersects(a, b);
     REPORTER_ASSERT(reporter, c0 == c1);
+
+    test_intersects_iter(reporter, a);
+    test_intersects_iter(reporter, b);
 }
 
 static void test_proc(skiatest::Reporter* reporter,
