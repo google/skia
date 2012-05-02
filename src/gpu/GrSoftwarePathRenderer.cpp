@@ -228,7 +228,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         GrAssert(NULL != texture);
         GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
         enum {
-            kPathMaskStage = GrPaint::kTotalStages+1,
+            // the SW path renderer shares this stage with glyph
+            // rendering (kGlyphMaskStage in GrBatchedTextContext)
+            kPathMaskStage = GrPaint::kTotalStages,
         };
         target->drawState()->setTexture(kPathMaskStage, texture);
         target->drawState()->sampler(kPathMaskStage)->reset();
