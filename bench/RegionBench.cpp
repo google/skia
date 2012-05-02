@@ -25,7 +25,7 @@ static bool diff_proc(SkRegion& a, SkRegion& b) {
     return result.op(a, b, SkRegion::kDifference_Op);
 }
 
-static bool containsrgn_proc(SkRegion& a, SkRegion& b) {
+static bool containsrect_proc(SkRegion& a, SkRegion& b) {
     SkIRect r = a.getBounds();
     r.inset(r.width()/4, r.height()/4);
     (void)a.contains(r);
@@ -103,7 +103,7 @@ private:
 static SkBenchmark* gF0(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, union_proc, "union")); }
 static SkBenchmark* gF1(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sect_proc, "intersect")); }
 static SkBenchmark* gF2(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diff_proc, "difference")); }
-static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrgn_proc, "containsrgb")); }
+static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrect_proc, "containsrect")); }
 static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sects_proc, "intersects")); }
 static SkBenchmark* gF5(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsxy_proc, "containsxy")); }
 
