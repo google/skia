@@ -8,6 +8,101 @@
 #include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkShader.h"
+
+static void assert_ifDrawnTo(skiatest::Reporter* reporter,
+                             const SkBitmap& bm, bool shouldBeDrawn) {
+    for (int y = 0; y < bm.height(); ++y) {
+        for (int x = 0; x < bm.width(); ++x) {
+            if (shouldBeDrawn) {
+                if (0 == *bm.getAddr32(x, y)) {
+                    REPORTER_ASSERT(reporter, false);
+                    return;
+                }
+            } else {
+                // should not be drawn
+                if (*bm.getAddr32(x, y)) {
+                    REPORTER_ASSERT(reporter, false);
+                    return;
+                }
+            }
+        }
+    }
+}
+
+static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
+                                    int width, int height, bool shouldBeDrawn) {
+    SkBitmap dev;
+    dev.setConfig(SkBitmap::kARGB_8888_Config, 0x56F, 0x4f6);
+    dev.allocPixels();
+    dev.eraseColor(0);  // necessary, so we know if we draw to it
+    
+    SkMatrix matrix;
+    
+    SkCanvas c(dev);
+    matrix.setAll(-119.34097, -43.436558, 93489.945,
+                  43.436558, -119.34097, 123.98426,
+                  0, 0, 1);
+    c.concat(matrix);
+    
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, width, height);
+    bm.allocPixels();
+    bm.eraseColor(SK_ColorRED);
+    
+    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode);
+    matrix.setAll(0.0078740157, 0, 249,
+                  0, 0.0078740157, 239,
+                  0, 0, 1);
+    s->setLocalMatrix(matrix);
+    
+    SkPaint paint;
+    paint.setShader(s)->unref();
+    
+    SkRect r = SkRect::MakeXYWH(681, 239, 695, 253);
+    c.drawRect(r, paint);
+    
+    assert_ifDrawnTo(reporter, dev, shouldBeDrawn);
+}
+
+/*
+ *  Original bug was asserting that the matrix-proc had generated a (Y) value
+ *  that was out of range. This led (in the release build) to the sampler-proc
+ *  reading memory out-of-bounds of the original bitmap.
+ *
+ *  We were numerically overflowing our 16bit coordinates that we communicate
+ *  between these two procs. The fixes was in two parts:
+ *
+ *  1. Just don't draw bitmaps larger than 64K-1 in width or height, since we
+ *     can't represent those coordinates in our transport format (yet).
+ *  2. Perform an unsigned shift during the calculation, so we don't get
+ *     sign-extension bleed when packing the two values (X,Y) into our 32bit
+ *     slot.
+ *
+ *  This tests exercises the original setup, plus 3 more to ensure that we can,
+ *  in fact, handle bitmaps at 64K-1 (assuming we don't exceed the total
+ *  memory allocation limit).
+ */
+static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
+    static const struct {
+        int fWidth;
+        int fHeight;
+        bool fExpectedToDraw;
+    } gTests[] = {
+        { 0x1b294, 0x7f,  false },   // crbug 118018 (width exceeds 64K)
+        { 0xFFFF, 0x7f,    true },   // should draw, test max width
+        { 0x7f, 0xFFFF,    true },   // should draw, test max height
+        { 0xFFFF, 0xFFFF, false },   // allocation fails (too much RAM)
+    };
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
+        test_wacky_bitmapshader(reporter,
+                                gTests[i].fWidth, gTests[i].fHeight,
+                                gTests[i].fExpectedToDraw);
+    }
+}
+///////////////////////////////////////////////////////////////////////////////
 
 static void test_nan_antihair(skiatest::Reporter* reporter) {
     SkBitmap bm;
@@ -72,6 +167,7 @@ static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, check_for_all_zeros(dst));
 
     test_nan_antihair(reporter);
+    test_giantrepeat_crbug118018(reporter);
 }
 
 #include "TestClassDef.h"

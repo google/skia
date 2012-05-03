@@ -9,6 +9,13 @@
 #include "SkShader.h"
 #include "SkUtils.h"
 
+// Helper to ensure that when we shift down, we do it w/o sign-extension
+// so the caller doesn't have to manually mask off the top 16 bits
+//
+static unsigned SK_USHIFT16(unsigned x) {
+    return x >> 16;
+}
+
 /*  returns 0...(n-1) given any x (positive or negative).
     
     As an example, if n (which is always positive) is 5...
@@ -32,8 +39,8 @@ void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 
 #define MAKENAME(suffix)        ClampX_ClampY ## suffix
-#define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
-#define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
+#define TILEX_PROCF(fx, max)    SkClampMax(SK_USHIFT16(fx), max)
+#define TILEY_PROCF(fy, max)    SkClampMax(SK_USHIFT16(fy), max)
 #define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
 #define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
 #define CHECK_FOR_DECAL
@@ -44,8 +51,8 @@ void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 #endif
 
 #define MAKENAME(suffix)        RepeatX_RepeatY ## suffix
-#define TILEX_PROCF(fx, max)    (((fx) & 0xFFFF) * ((max) + 1) >> 16)
-#define TILEY_PROCF(fy, max)    (((fy) & 0xFFFF) * ((max) + 1) >> 16)
+#define TILEX_PROCF(fx, max)    SK_USHIFT16(((fx) & 0xFFFF) * ((max) + 1))
+#define TILEY_PROCF(fy, max)    SK_USHIFT16(((fy) & 0xFFFF) * ((max) + 1))
 #define TILEX_LOW_BITS(fx, max) ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
 #define TILEY_LOW_BITS(fy, max) ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
 #if	defined(__ARM_HAVE_NEON)
@@ -63,8 +70,8 @@ void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 #define PREAMBLE_PARAM_Y        , SkBitmapProcState::FixedTileProc tileProcY, SkBitmapProcState::FixedTileLowBitsProc tileLowBitsProcY
 #define PREAMBLE_ARG_X          , tileProcX, tileLowBitsProcX
 #define PREAMBLE_ARG_Y          , tileProcY, tileLowBitsProcY
-#define TILEX_PROCF(fx, max)    (tileProcX(fx) * ((max) + 1) >> 16)
-#define TILEY_PROCF(fy, max)    (tileProcY(fy) * ((max) + 1) >> 16)
+#define TILEX_PROCF(fx, max)    SK_USHIFT16(tileProcX(fx) * ((max) + 1))
+#define TILEY_PROCF(fy, max)    SK_USHIFT16(tileProcY(fy) * ((max) + 1))
 #define TILEX_LOW_BITS(fx, max) tileLowBitsProcX(fx, (max) + 1)
 #define TILEY_LOW_BITS(fy, max) tileLowBitsProcY(fy, (max) + 1)
 #include "SkBitmapProcState_matrix.h"
