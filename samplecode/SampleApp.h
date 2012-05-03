@@ -198,6 +198,7 @@ private:
     void postAnimatingEvent();
     void installDrawFilter(SkCanvas*);
     int findByTitle(const char*);
+    void listTitles();
 
     typedef SkOSWindow INHERITED;
 };
