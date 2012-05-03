@@ -653,12 +653,3 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     }
 }
 
-void SkStroke::strokeLine(const SkPoint& p0, const SkPoint& p1,
-                          SkPath* dst) const {
-    SkPath  tmp;
-
-    tmp.moveTo(p0);
-    tmp.lineTo(p1);
-    this->strokePath(tmp, dst);
-}
-
