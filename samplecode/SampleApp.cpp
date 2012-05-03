@@ -691,6 +691,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                 fCurrIndex = findByTitle(*argv);
                 if (fCurrIndex < 0) {
                     fprintf(stderr, "Unknown sample \"%s\"\n", *argv);
+                    listTitles();
                 }
             }
         } else if (strcmp(*argv, "--msaa") == 0) {
@@ -698,6 +699,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
             if (argv < stop && **argv) {
                 fMSAASampleCount = atoi(*argv);
             }
+        } else if (strcmp(*argv, "--list") == 0) {
+            listTitles();
         }
         else {
             usage(commandName);
@@ -871,6 +874,14 @@ int SampleWindow::findByTitle(const char title[]) {
         }
     }
     return -1;
+}
+
+void SampleWindow::listTitles() {
+    int count = fSamples.count();
+    SkDebugf("All Slides:\n");
+    for (int i = 0; i < count; i++) {
+        SkDebugf("    %s\n", getSampleTitle(i).c_str());
+    }
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
