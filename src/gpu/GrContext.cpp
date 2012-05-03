@@ -1464,7 +1464,17 @@ void GrContext::flush(int flagsBitfield) {
 
 void GrContext::flushDrawBuffer() {
     if (fDrawBuffer) {
-        fDrawBuffer->flushTo(fGpu);
+        // With addition of the AA clip path, flushing the draw buffer can
+        // result in the generation of an AA clip mask. During this
+        // process the SW path renderer may be invoked which recusively
+        // calls this method (via internalWriteTexturePixels) creating
+        // infinite recursion
+        GrInOrderDrawBuffer* temp = fDrawBuffer;
+        fDrawBuffer = NULL;
+
+        temp->flushTo(fGpu);
+
+        fDrawBuffer = temp;
     }
 }
 
