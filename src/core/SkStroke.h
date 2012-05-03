@@ -40,10 +40,6 @@ public:
     bool    getDoFill() const { return SkToBool(fDoFill); }
     void    setDoFill(bool doFill) { fDoFill = SkToU8(doFill); }
 
-    void    strokeLine(const SkPoint& start, const SkPoint& end, SkPath*) const;
-    void    strokeRect(const SkRect& rect, SkPath*) const;
-    void    strokeOval(const SkRect& oval, SkPath*) const;
-    void    strokeRRect(const SkRect& rect, SkScalar rx, SkScalar ry, SkPath*) const;
     void    strokePath(const SkPath& path, SkPath*) const;
 
     ////////////////////////////////////////////////////////////////
