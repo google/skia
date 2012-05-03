@@ -147,7 +147,7 @@ protected:
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(gProc); ++i) {
                 canvas->save();
-                canvas->clipPath(clipPath, SkRegion::kIntersect_Op, true);
+                canvas->clipPath(clipPath, SkRegion::kIntersect_Op, SkToBool(aa));
 //                canvas->drawColor(SK_ColorWHITE);
                 gProc[i](canvas, SkToBool(aa));
                 canvas->restore();
