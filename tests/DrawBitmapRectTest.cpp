@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkShader.h"
 
+#ifdef SK_SCALAR_IS_FLOAT
 static void assert_ifDrawnTo(skiatest::Reporter* reporter,
                              const SkBitmap& bm, bool shouldBeDrawn) {
     for (int y = 0; y < bm.height(); ++y) {
@@ -65,6 +66,7 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     
     assert_ifDrawnTo(reporter, dev, shouldBeDrawn);
 }
+#endif
 
 /*
  *  Original bug was asserting that the matrix-proc had generated a (Y) value
@@ -85,6 +87,7 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
  *  memory allocation limit).
  */
 static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
     static const struct {
         int fWidth;
         int fHeight;
@@ -101,7 +104,9 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
                                 gTests[i].fWidth, gTests[i].fHeight,
                                 gTests[i].fExpectedToDraw);
     }
+#endif
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void test_nan_antihair(skiatest::Reporter* reporter) {
