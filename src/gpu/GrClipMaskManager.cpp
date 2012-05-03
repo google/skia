@@ -404,7 +404,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
     GrAssert(SkScalarIsInt(bounds.height()));
 
     GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit,
+        kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit,
         SkScalarCeilToInt(bounds.width()),
         SkScalarCeilToInt(bounds.height()),
         kAlpha_8_GrPixelConfig,
