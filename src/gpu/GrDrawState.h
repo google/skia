@@ -169,6 +169,18 @@ public:
      */
     void setTexture(int stage, GrTexture* texture) {
         GrAssert((unsigned)stage < kNumStages);
+
+        if (isStateFlagEnabled(kTexturesNeedRef_StateBit)) {
+            // If we don't clear out the current texture before unreffing
+            // it we can get into an infinite loop as the GrGLTexture's
+            // onRelease method recursively calls setTexture
+            GrTexture* temp = fTextures[stage];
+            fTextures[stage] = NULL;
+
+            SkSafeRef(texture);
+            SkSafeUnref(temp);
+        }
+
         fTextures[stage] = texture;
     }
 
@@ -657,6 +669,10 @@ public:
          * ignored.
          */
         kColorMatrix_StateBit   = 0x20,
+        /**
+         * Calls to setTexture will ref/unref the texture
+         */
+        kTexturesNeedRef_StateBit = 0x40,
 
         // Users of the class may add additional bits to the vector
         kDummyStateBit,

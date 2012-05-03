@@ -2102,7 +2102,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             // true for now, but maybe not with GrEffect.
             GrAssert(NULL != nextTexture);
             // if we created a rt/tex and rendered to it without using a
-            // texture and now we're texuring from the rt it will still be
+            // texture and now we're texturing from the rt it will still be
             // the last bound texture, but it needs resolving. So keep this
             // out of the "last != next" check.
             GrGLRenderTarget* texRT = 
@@ -2239,6 +2239,8 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     // relies on detecting when the kModifyStencilClip_StateBit state has
     // changed since the last draw.
     fHWDrawState.copyStateFlags(*drawState);
+    // only GrInOrderDrawBuffer ever needs to ref/unref the textures
+    fHWDrawState.disableState(GrDrawState::kTexturesNeedRef_StateBit);
     return true;
 }
 

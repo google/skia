@@ -466,6 +466,10 @@ void GrInOrderDrawBuffer::reset() {
             GrSafeUnref(fStates[i].getTexture(s));
         }
         GrSafeUnref(fStates[i].getRenderTarget());
+
+        // GrInOrderDrawBuffer is no longer managing the refs/unrefs 
+        // for the stored GrDrawStates
+        fStates[i].disableState(GrDrawState::kTexturesNeedRef_StateBit);
     }
     int numDraws = fDraws.count();
     for (int d = 0; d < numDraws; ++d) {
@@ -782,6 +786,10 @@ void GrInOrderDrawBuffer::pushState() {
     }
     GrSafeRef(drawState.getRenderTarget());
     fStates.push_back(this->getDrawState());
+
+    // Any textures that are added to the stored state need to be
+    // reffed so the unref in reset doesn't inappropriately free them
+    fStates.back().enableState(GrDrawState::kTexturesNeedRef_StateBit);
  }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
