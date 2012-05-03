@@ -811,7 +811,13 @@ static int operate(const SkRegion::RunType a_runs[],
     const SkRegion::RunType gEmptyScanline[] = {
         0,  // dummy bottom value
         0,  // zero intervals
-        SkRegion::kRunTypeSentinel
+        SkRegion::kRunTypeSentinel,
+        // just need a 2nd value, since spanRec.init() reads 2 values, even
+        // though if the first value is the sentinel, it ignores the 2nd value.
+        // w/o the 2nd value here, we might read uninitialized memory.
+        // This happens when we are using gSentinel, which is pointing at
+        // our sentinel value.
+        0
     };
     const SkRegion::RunType* const gSentinel = &gEmptyScanline[2];
 
