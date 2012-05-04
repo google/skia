@@ -2239,8 +2239,10 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     // relies on detecting when the kModifyStencilClip_StateBit state has
     // changed since the last draw.
     fHWDrawState.copyStateFlags(*drawState);
+
+    // TODO: may no longer need this
     // only GrInOrderDrawBuffer ever needs to ref/unref the textures
-    fHWDrawState.disableState(GrDrawState::kTexturesNeedRef_StateBit);
+    fHWDrawState.disableBehavior(GrDrawState::kTexturesNeedRef_BehaviorBit);
     return true;
 }
 

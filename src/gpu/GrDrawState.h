@@ -80,6 +80,7 @@ public:
         fSrcBlend = kOne_BlendCoeff;
         fDstBlend = kZero_BlendCoeff;
         fViewMatrix.reset();
+        fBehaviorBits = 0;
 
         // ensure values that will be memcmp'ed in == but not memset in reset()
         // are tightly packed
@@ -170,7 +171,7 @@ public:
     void setTexture(int stage, GrTexture* texture) {
         GrAssert((unsigned)stage < kNumStages);
 
-        if (isStateFlagEnabled(kTexturesNeedRef_StateBit)) {
+        if (isBehaviorEnabled(kTexturesNeedRef_BehaviorBit)) {
             // If we don't clear out the current texture before unreffing
             // it we can get into an infinite loop as the GrGLTexture's
             // onRelease method recursively calls setTexture
@@ -669,10 +670,6 @@ public:
          * ignored.
          */
         kColorMatrix_StateBit   = 0x20,
-        /**
-         * Calls to setTexture will ref/unref the texture
-         */
-        kTexturesNeedRef_StateBit = 0x40,
 
         // Users of the class may add additional bits to the vector
         kDummyStateBit,
@@ -729,6 +726,28 @@ public:
         fFlagBits = ds.fFlagBits;
     }
 
+    /**
+     *  Flags that do not affect rendering. 
+     */
+    enum GrBehaviorBits {
+        /**
+         * Calls to setTexture will ref/unref the texture
+         */
+        kTexturesNeedRef_BehaviorBit = 0x01,
+    };
+
+    void enableBehavior(uint32_t behaviorBits) {
+        fBehaviorBits |= behaviorBits;
+    }
+
+    void disableBehavior(uint32_t behaviorBits) {
+        fBehaviorBits &= ~(behaviorBits);
+    }
+
+    bool isBehaviorEnabled(uint32_t behaviorBits) const {
+        return 0 != (behaviorBits & fBehaviorBits);
+    }
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -771,6 +790,14 @@ public:
             return false;
         }
 
+        // kTexturesNeedRef is an internal flag for altering the draw state's 
+        // behavior rather than a property that will impact drawing - ignore it
+        // here
+        if ((fBehaviorBits & ~kTexturesNeedRef_BehaviorBit) != 
+            (s.fBehaviorBits & ~kTexturesNeedRef_BehaviorBit)) {
+            return false;
+        }
+
         for (int i = 0; i < kNumStages; i++) {
             if (fTextures[i] &&
                 this->fSamplerStates[i] != s.fSamplerStates[i]) {
@@ -795,6 +822,7 @@ public:
         memcpy(this->podStart(), s.podStart(), this->podSize());
 
         fViewMatrix = s.fViewMatrix;
+        fBehaviorBits = s.fBehaviorBits;
 
         GrAssert(0 == s.fEdgeAANumEdges);
         fEdgeAANumEdges = 0;
@@ -865,6 +893,7 @@ private:
     };
     // @}
 
+    uint32_t            fBehaviorBits;
     GrMatrix            fViewMatrix;
 
     // @{ Data for GrTesselatedPathRenderer
