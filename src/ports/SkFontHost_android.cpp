@@ -552,13 +552,14 @@ static void load_font_info() {
     gFallbackScriptsMap = (uint32_t*) calloc(kFallbackScriptNumber, sizeof(uint32_t));
     if (gSystemFonts == NULL) {
         // shouldn't get here
+        SkDEBUGFAIL("No system fonts were found");
         gNumSystemFonts = 0;
     }
-//    SkDebugf("---- We have %d system fonts", gNumSystemFonts);
+    SkDEBUGF(("---- We have %d system fonts", gNumSystemFonts));
     for (size_t i = 0; i < gNumSystemFonts; ++i) {
         gSystemFonts[i].fFileName = fontInfo[i].fFileName;
         gSystemFonts[i].fNames = fontInfo[i].fNames;
-//        SkDebugf("---- gSystemFonts[%d] fileName=%s", i, fontInfo[i].fFileName);
+        SkDEBUGF(("---- gSystemFonts[%d] fileName=%s", i, fontInfo[i].fFileName));
     }
     fontFamilies.deleteAll();
 }
@@ -574,6 +575,8 @@ static void init_system_fonts() {
     if (gDefaultNormal) {
         return;
     }
+
+    SkASSERT(gUniqueFontID == 0);
 
     load_font_info();
 
@@ -595,6 +598,10 @@ static void init_system_fonts() {
         bool isExpected = (rec[i].fNames != gFBNames);
         if (!get_name_and_style(rec[i].fFileName, &name, &style,
                                 &isFixedWidth, isExpected)) {
+            // We need to increase gUniqueFontID here so that the unique id of
+            // each font matches its index in gSystemFonts array, as expected
+            // by find_uniqueID.
+            sk_atomic_inc(&gUniqueFontID);
             continue;
         }
 
@@ -606,7 +613,8 @@ static void init_system_fonts() {
                                      isFixedWidth) // filename
                                     );
 
-//        SkDebugf("---- SkTypeface[%d] %s fontID %d\n", i, rec[i].fFileName, tf->uniqueID());
+        SkDEBUGF(("---- SkTypeface[%d] %s fontID %d\n",
+                  i, rec[i].fFileName, tf->uniqueID()));
 
         FallbackScripts fallbackScript = SkGetFallbackScriptFromID(rec[i].fFileName);
         if (SkTypeface_ValidScript(fallbackScript)) {
@@ -616,8 +624,8 @@ static void init_system_fonts() {
         if (rec[i].fNames != NULL) {
             // see if this is one of our fallback fonts
             if (rec[i].fNames == gFBNames) {
-//                SkDebugf("---- adding %s as fallback[%d] fontID %d\n",
-//                         rec[i].fFileName, fallbackCount, tf->uniqueID());
+                SkDEBUGF(("---- adding %s as fallback[%d] fontID %d\n",
+                          rec[i].fFileName, fallbackCount, tf->uniqueID()));
                 gFallbackFonts[fallbackCount++] = tf->uniqueID();
             }
 
@@ -642,10 +650,13 @@ static void init_system_fonts() {
     gDefaultNormal = find_best_face(gDefaultFamily, SkTypeface::kNormal);
     // now terminate our fallback list with the sentinel value
     gFallbackFonts[fallbackCount] = 0;
+
+//    SkDEBUGCODE(dump_globals());
 }
 
 static size_t find_uniqueID(const char* filename) {
-    // uniqueID is the index, offset by one, of the associated element in gSystemFonts[]
+    // uniqueID is the index, offset by one, of the associated element in
+    // gSystemFonts[] (assumes system fonts are loaded before external fonts)
     // return 0 if not found
     const FontInitRec* rec = gSystemFonts;
     for (size_t i = 0; i < gNumSystemFonts; i++) {
@@ -662,18 +673,35 @@ static void reload_fallback_fonts() {
     SkTDArray<FontFamily*> fallbackFamilies;
     getFallbackFontFamilies(fallbackFamilies);
 
+    int fallbackCount = 0;
     for (int i = 0; i < fallbackFamilies.count(); ++i) {
         FontFamily *family = fallbackFamilies[i];
 
         for (int j = 0; j < family->fFileNames.count(); ++j) {
             if (family->fFileNames[j]) {
+
+                // ensure the fallback font exists before adding it to the list
+                bool isFixedWidth;
+                SkString name;
+                SkTypeface::Style style;
+                if (!get_name_and_style(family->fFileNames[j], &name, &style,
+                                        &isFixedWidth, false)) {
+                    continue;
+                }
+
                 size_t uniqueID = find_uniqueID(family->fFileNames[j]);
-                if (uniqueID != gFallbackFonts[i])
-                    gFallbackFonts[i] = uniqueID;
+                SkASSERT(uniqueID != 0);
+                SkDEBUGF(("---- reload %s as fallback[%d] fontID %d oldFontID %d\n",
+                          family->fFileNames[j], fallbackCount, uniqueID,
+                          gFallbackFonts[fallbackCount]));
+
+                gFallbackFonts[fallbackCount++] = uniqueID;
                 break;  // The fallback set contains only the first font of each family
             }
         }
     }
+    // reset the sentinel the end of the newly ordered array
+    gFallbackFonts[fallbackCount] = 0;
 }
 
 static void load_system_fonts() {
@@ -941,6 +969,10 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     if (NULL == stream || stream->getLength() <= 0) {
         return NULL;
     }
+
+    // Make sure system fonts are loaded first to comply with the assumption
+    // that the font's uniqueID can be found using the find_uniqueID method.
+    load_system_fonts();
 
     bool isFixedWidth;
     SkTypeface::Style style;
