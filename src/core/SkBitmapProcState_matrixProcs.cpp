@@ -39,8 +39,8 @@ void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 
 #define MAKENAME(suffix)        ClampX_ClampY ## suffix
-#define TILEX_PROCF(fx, max)    SkClampMax(SK_USHIFT16(fx), max)
-#define TILEY_PROCF(fy, max)    SkClampMax(SK_USHIFT16(fy), max)
+#define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
+#define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
 #define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
 #define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
 #define CHECK_FOR_DECAL
