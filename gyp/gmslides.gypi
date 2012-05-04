@@ -17,6 +17,7 @@
     '../gm/cubicpaths.cpp',
     '../gm/cmykjpeg.cpp',
     '../gm/degeneratesegments.cpp',
+    '../gm/dashing.cpp',
     '../gm/drawbitmaprect.cpp',
     '../gm/emptypath.cpp',
     '../gm/filltypes.cpp',
