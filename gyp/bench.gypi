@@ -30,6 +30,7 @@
     '../bench/MatrixBench.cpp',
     '../bench/MutexBench.cpp',
     '../bench/PathBench.cpp',
+    '../bench/PathIterBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
     '../bench/RectBench.cpp',
     '../bench/RegionBench.cpp',
