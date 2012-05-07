@@ -133,10 +133,10 @@ int SkWGLExtensions::selectFormat(const int formats[],
         rankedFormats[i].fColorSamples = answers[supportsCoverage ? 1 : 0];
         rankedFormats[i].fChoosePixelFormatRank = i;
     }
-    SkQSort(rankedFormats.begin(),
+    qsort(rankedFormats.begin(),
             rankedFormats.count(),
             sizeof(PixelFormat),
-            (SkQSortCompareProc)compare_pf);
+            SkCastForQSort(compare_pf));
     int idx = SkTSearch<PixelFormat>(rankedFormats.begin(),
                                      rankedFormats.count(),
                                      desiredFormat,
