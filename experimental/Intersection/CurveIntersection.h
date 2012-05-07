@@ -47,6 +47,8 @@ bool intersect(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]);
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& );
 bool intersect(const Quadratic& quad, const _Line& line, Intersections& );
+bool isLinear(const Quadratic& quad, int startIndex, int endIndex);
+bool isLinear(const Cubic& cubic, int startIndex, int endIndex);
 double leftMostT(const Cubic& , double startT, double endT);
 double leftMostT(const _Line& , double startT, double endT);
 double leftMostT(const Quadratic& , double startT, double endT);

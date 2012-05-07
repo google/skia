@@ -18,3 +18,124 @@ would it make sense to leave the InEdge alone, and add multiple copies of
 ActiveEdge, pointing to the same InEdge, where the copy has only the subset
 of Ts that need to be walked in reverse order?
 
+
+-- A Digression Which Shows Why Resolving Coincidence Does Not Make Sense --
+
+Consider the following fine ASCII art:
+
+  +------>-------+       +------>-------+
+  |              |       |              |
+  ^              V       ^              V
+  |              |       |              |
+  +------<-------+       +------<-------+
+  +------>-------+       +------<-------+
+  |              |       |              |
+  ^              V       V              ^
+  |              |       |              |
+  +------<-------+       +------>-------+
+
+(assume the bottom and top of the stacked rectangles are coincident)
+
+Simplifying said rectangles, regardless of rectangle direction, and regardless
+of winding or even/odd, eliminates the coincident edge, i.e., the result is
+always:
+
+  +------>-------+
+  |              |
+  |              |
+  |              |
+  ^              V
+  |              |
+  |              |
+  |              |
+  +------<-------+
+
+But when the rectangles are enclosed in a larger rectangle:
+
++-------->---------+    +-------->---------+
+| +------>-------+ |    | +------>-------+ |
+| |              | |    | |              | |
+| ^              V |    | ^              V |
+| |              | |    | |              | |
+| +------<-------+ |    | +------<-------+ |
+| +------>-------+ |    | +------<-------+ |
+| |              | |    | |              | |
+| ^              V |    | V              ^ |
+| |              | |    | |              | |
+| +------<-------+ |    | +------>-------+ |
++--------<---------+    +--------<---------+
+
+Simplifying them gives different results depending on the winding setting:
+
+winding:
++-------->---------+    +-------->---------+
+|                  |    |                  |
+|                  |    |                  |
+|                  |    |                  |
+|                  |    |                  |
+|                  |    | +------<-------+ |
+|                  |    | |              | |
+|                  |    | V              ^ |
+|                  |    | |              | |
+|                  |    | +------>-------+ |
++--------<---------+    +--------<---------+
+
+even odd:
++-------->---------+    +-------->---------+
+| +------<-------+ |    | +------<-------+ |
+| |              | |    | |              | |
+| |              | |    | |              | |
+| |              | |    | |              | |
+| |              | |    | |              | |
+| V              ^ |    | V              ^ |
+| |              | |    | |              | |
+| |              | |    | |              | |
+| |              | |    | |              | |
+| +------>-------+ |    | +------>-------+ |
++--------<---------+    +--------<---------+
+
+So, given the inner rectangles alone (e.g., given coincident pairs in some local
+context), we can't know whether to keep the coincident edges or not.
+
+
+-- Thoughts About Sortless Ops --
+
+I can't come up with anything truly sortless. It seems that the crossings need
+to be sorted to know which segment is next on the outside, although sometimes
+we can use that it is not coincident just to follow the direction.
+
+If it is coincident or if there's more than two crossing segments, sorting
+seems inevitable.
+
+Likewise, to resolve whether one contour is inside another, it seems that
+sorting is required. Given a pair of segments on different contours, to know
+if one is inside of the other, I need to know for each which side of the edge
+is the inside/filled side. When the outer contour is walked, it seems like I
+could record the inside info. I guess when the inner contour is found, its
+inside sense is reversed (inside is above the top). But how do I know if the
+next contour is inside another? Maybe shoot out a line and brute-force
+intersect it with all the segments in all the other contours? If every contour
+has an extra segment when the intersections are computed, this may not be as
+crazy as it seems.
+
+Suppose each contour has one extra segment shooting straight up from the top
+(or straight up from any point on the segment). This ray is not intersected
+with the home contour, but is intersected with all other contours as part of
+the normal intersection engine. If it is possible to get from the T values to
+the other segments to the other contours, it would be straightforward to
+count the contour crossings and determine if the home contour is in another
+contour or not (if the count is even, not, if odd, is inside). By itself that
+doesn't tell us about winding, but it's a start.
+
+
+Since intersecting these rays is unrelated to computing other intersections,
+it can be lazily done once the contour is found.
+
+So
+repeat the following
+find the top segment of all contours
+trace the outside, marking touching first and last segments as inside
+continue tracing the touched segments with reversed outside/inside sense
+once the edges are exhausted, remaining must be disjoint contours
+send a ray from a disjoint point through all other contours
+count the crossings, determine if disjoint is inside or outside, then continue
