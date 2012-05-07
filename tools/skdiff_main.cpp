@@ -572,8 +572,6 @@ static void create_diff_images (DiffMetricProc dmp,
                                 DiffSummary* summary) {
     SkASSERT(!baseDir.isEmpty());
     SkASSERT(!comparisonDir.isEmpty());
-    SkQSortCompareProc sortFileProc =
-            (SkQSortCompareProc)compare_file_name_metrics;
 
     FileArray baseFiles;
     FileArray comparisonFiles;
@@ -583,12 +581,12 @@ static void create_diff_images (DiffMetricProc dmp,
                   &comparisonFiles);
 
     if (!baseFiles.isEmpty()) {
-        SkQSort(baseFiles.begin(), baseFiles.count(),
-                sizeof(SkString*), sortFileProc);
+        qsort(baseFiles.begin(), baseFiles.count(), sizeof(SkString*),
+              SkCastForQSort(compare_file_name_metrics));
     }
     if (!comparisonFiles.isEmpty()) {
-        SkQSort(comparisonFiles.begin(), comparisonFiles.count(),
-                sizeof(SkString*), sortFileProc);
+        qsort(comparisonFiles.begin(), comparisonFiles.count(),
+              sizeof(SkString*), SkCastForQSort(compare_file_name_metrics));
     }
     
     int i = 0;
@@ -1002,7 +1000,7 @@ argv0, argv0);
 
 int main (int argc, char ** argv) {
     DiffMetricProc diffProc = compute_diff_pmcolor;
-    SkQSortCompareProc sortProc = (SkQSortCompareProc) compare_diff_metrics;
+    int (*sortProc)(const void*, const void*) = SkCastForQSort(compare_diff_metrics);
 
     // Maximum error tolerated in any one color channel in any one pixel before
     // a difference is reported.
@@ -1045,15 +1043,15 @@ int main (int argc, char ** argv) {
             continue;
         }
         if (!strcmp(argv[i], "--sortbymismatch")) {
-            sortProc = (SkQSortCompareProc) compare_diff_mean_mismatches;
+            sortProc = SkCastForQSort(compare_diff_mean_mismatches);
             continue;
         }
         if (!strcmp(argv[i], "--sortbymaxmismatch")) {
-            sortProc = (SkQSortCompareProc) compare_diff_max_mismatches;
+            sortProc = SkCastForQSort(compare_diff_max_mismatches);
             continue;
         }
         if (!strcmp(argv[i], "--weighted")) {
-            sortProc = (SkQSortCompareProc) compare_diff_weighted;
+            sortProc = SkCastForQSort(compare_diff_weighted);
             continue;
         }
         if (!strcmp(argv[i], "--chromium-release")) {
@@ -1158,8 +1156,8 @@ int main (int argc, char ** argv) {
     summary.print();
 
     if (differences.count()) {
-        SkQSort(differences.begin(), differences.count(),
-            sizeof(DiffRecord*), sortProc);
+        qsort(differences.begin(), differences.count(),
+              sizeof(DiffRecord*), sortProc);
     }
     
     if (generateDiffs) {

@@ -7,7 +7,6 @@
  */
 #include "Test.h"
 #include "SkRandom.h"
-#include "SkTSearch.h"
 #include "SkTSort.h"
 
 extern "C" {
@@ -40,10 +39,6 @@ static void TestSort(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 10000; i++) {
         int count = rand.nextRangeU(1, SK_ARRAY_COUNT(array));
-
-        rand_array(rand, array, count);
-        SkQSort(array, count, sizeof(int), compare_int);
-        check_sort(reporter, "Quick", array, count);
 
         rand_array(rand, array, count);
         SkTHeapSort<int>(array, count);

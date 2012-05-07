@@ -167,10 +167,8 @@ private:
     char    fStorage[STORAGE+1];
 };
 
-extern "C" {
-    typedef int (*SkQSortCompareProc)(const void*, const void*);
-    void SkQSort(void* base, size_t count, size_t elemSize, SkQSortCompareProc);
-}
+// Helper when calling qsort with a compare proc that has typed its arguments
+#define SkCastForQSort(compare) reinterpret_cast<int (*)(const void*, const void*)>(compare)
 
 #endif
 

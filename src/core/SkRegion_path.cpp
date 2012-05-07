@@ -462,8 +462,7 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
         edge[0].set(r.fLeft, r.fBottom, r.fTop);
         edge[1].set(r.fRight, r.fTop, r.fBottom);
     }
-    SkQSort(edges.begin(), edges.count(), sizeof(Edge),
-            (SkQSortCompareProc)EdgeProc);
+    qsort(edges.begin(), edges.count(), sizeof(Edge), SkCastForQSort(EdgeProc));
     
     int count = edges.count();
     Edge* start = edges.begin();

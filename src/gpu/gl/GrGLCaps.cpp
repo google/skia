@@ -200,12 +200,10 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo) {
                               (int*)&fMSAACoverageModes[0]);
             // The NV driver seems to return the modes already sorted but the
             // spec doesn't require this. So we sort.
-            SkQSortCompareProc compareProc =
-                reinterpret_cast<SkQSortCompareProc>(&coverage_mode_compare);
-            SkQSort(&fMSAACoverageModes[0],
+            qsort(&fMSAACoverageModes[0],
                     count,
                     sizeof(MSAACoverageMode),
-                    compareProc);
+                    SkCastForQSort(coverage_mode_compare));
         }
     }
     if (kNone_MSFBOType != fMSFBOType) {
