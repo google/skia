@@ -97,13 +97,15 @@ typedef intptr_t GrGLInterfaceCallbackData;
 #endif
 
 /*
- * The following interface exports the OpenGL entry points used by the system.
- * Use of OpenGL calls is disallowed.  All calls should be invoked through
- * the global instance of this struct, defined above.
- *
- * IMPORTANT NOTE: The OpenGL entry points exposed here include both core GL
- * functions, and extensions.  The system assumes that the address of the
- * extension pointer will be valid across contexts.
+ * GrContext uses the following interface to make all calls into OpenGL. When a
+ * GrContext is created it is given a GrGLInterface. The interface's function
+ * pointers must be valid for the OpenGL context associated with the GrContext.
+ * On some platforms, such as Windows, function pointers for OpenGL extensions
+ * may vary between OpenGL contexts. So the caller must be careful to use a
+ * GrGLInterface initialized for the correct context. All functions that should
+ * be available based on the OpenGL's version and extension string must be
+ * non-NULL or GrContext creation will fail. This can be tested with the
+ * validate() method when the OpenGL context has been made current.
  */
 struct GR_API GrGLInterface : public GrRefCnt {
 private:
@@ -122,7 +124,8 @@ public:
 
     // Validates that the GrGLInterface supports a binding. This means that
     // the GrGLinterface advertises the binding in fBindingsExported and all
-    // the necessary function pointers have been initialized.
+    // the necessary function pointers have been initialized. The interface is
+    // validated for the current OpenGL context.
     bool validate(GrGLBinding binding) const;
 
     // Indicator variable specifying the type of GL implementation
