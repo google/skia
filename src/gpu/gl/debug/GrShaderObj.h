@@ -10,6 +10,7 @@
 #define GrShaderObj_DEFINED
 
 #include "GrFakeRefObj.h"
+#include "../GrGLDefines.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 class GrShaderObj : public GrFakeRefObj {

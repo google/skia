@@ -12,7 +12,6 @@
 #define GrGLConfig_DEFINED
 
 #include "GrTypes.h"
-#include "GrGLDefines.h"
 
 /**
  * Optional GL config file.
