@@ -138,6 +138,7 @@
         '../src/core/SkStrokerPriv.cpp',
         '../src/core/SkStrokerPriv.h',
         '../src/core/SkTextFormatParams.h',
+        '../src/core/SkTLS.cpp',
         '../src/core/SkTSearch.cpp',
         '../src/core/SkTSort.h',
         '../src/core/SkTemplatesPriv.h',
