@@ -340,7 +340,6 @@ namespace {
 
 void clear(GrGpu* gpu,
            GrTexture* target,
-           const GrRect& bounds,
            GrColor color) {
     GrDrawState* drawState = gpu->drawState();
     GrAssert(NULL != drawState);
@@ -350,6 +349,36 @@ void clear(GrGpu* gpu,
     gpu->clear(NULL, color);
 }
 
+// get a texture to act as a temporary buffer for AA clip boolean operations
+// TODO: given the expense of createTexture we may want to just cache this too
+void needTemp(GrGpu *gpu, const GrTextureDesc& desc, GrTexture** temp) {
+    if (NULL != *temp) {
+        // we've already allocated the temp texture
+        return;
+    }
+
+     *temp = gpu->createTexture(desc, NULL, 0);
+}
+
+}
+
+void GrClipMaskManager::getAccum(GrGpu* gpu,
+                                 const GrTextureDesc& desc,
+                                 GrTexture** accum) {
+    GrAssert(NULL == *accum);
+
+    // since we are getting an accumulator we know our cache is shot. See
+    // if we can reuse the texture stored in the cache
+    if (fAACache.getLastMaskWidth() >= desc.fWidth &&
+        fAACache.getLastMaskHeight() >= desc.fHeight) {
+        // we can just reuse the existing texture
+        *accum = fAACache.detachLastMask();
+        fAACache.reset();
+    } else {
+        *accum = gpu->createTexture(desc, NULL, 0);
+    }
+
+    GrAssert(1 == (*accum)->getRefCnt());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -403,7 +432,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
     GrAssert(SkScalarIsInt(bounds.width()));
     GrAssert(SkScalarIsInt(bounds.height()));
 
-    GrTextureDesc desc = {
+    const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit,
         SkScalarCeilToInt(bounds.width()),
         SkScalarCeilToInt(bounds.height()),
@@ -414,12 +443,12 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
     GrRect newRTBounds;
     newRTBounds.setLTRB(0, 0, bounds.width(), bounds.height());
 
-    GrTexture* accum = gpu->createTexture(desc, NULL, 0);
-    GrTexture* temp = gpu->createTexture(desc, NULL, 0);
-    if (NULL == accum || NULL == temp) {
+    GrTexture* accum = NULL, *temp = NULL;
+    
+    getAccum(gpu, desc, &accum);
+    if (NULL == accum) {
         fClipMaskInAlpha = false;
         SkSafeUnref(accum);
-        SkSafeUnref(temp);
         return false;
     }
 
@@ -437,7 +466,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
 
         m.setTranslate(-bounds.fLeft, -bounds.fTop);
 
-        drawState->preConcatViewMatrix(m);
+        drawState->setViewMatrix(m);
     }
 
     bool clearToInside;
@@ -447,7 +476,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
                                               &clearToInside,
                                               &startOp);
 
-    clear(gpu, accum, newRTBounds, clearToInside ? 0xffffffff : 0x00000000);
+    clear(gpu, accum, clearToInside ? 0xffffffff : 0x00000000);
 
     // walk through each clip element and perform its set op
     for (int c = start; c < count; ++c) {
@@ -460,7 +489,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
             // replace ops and alter GrClip to allow them through
 
             // clear the accumulator and draw the new object directly into it
-            clear(gpu, accum, newRTBounds, 0x00000000);
+            clear(gpu, accum, 0x00000000);
 
             setUpBooleanBlendCoeffs(drawState, op);
             this->drawClipShape(gpu, accum, clipIn, c);
@@ -474,8 +503,15 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
                 continue;
             }
 
+            needTemp(gpu, desc, &temp);
+            if (NULL == temp) {
+                fClipMaskInAlpha = false;
+                SkSafeUnref(accum);
+                return false;
+            }
+
             // clear the temp target & draw into it
-            clear(gpu, temp, newRTBounds, 0x00000000);
+            clear(gpu, temp, 0x00000000);
 
             setUpBooleanBlendCoeffs(drawState, SkRegion::kReplace_Op);
             this->drawClipShape(gpu, temp, clipIn, c);
@@ -517,6 +553,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
     *resultBounds = bounds;
     SkSafeUnref(accum);     // fAACache still has a ref to accum
     SkSafeUnref(temp);
+
     return true;
 }
 
