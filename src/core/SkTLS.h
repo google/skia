@@ -44,6 +44,29 @@ public:
      *  data is found, do nothing.
      */
     static void Delete(CreateProc);
+
+private:
+    // Our implementation requires only 1 TLS slot, as we manage multiple values
+    // ourselves in a list, with the platform specific value as our head.
+
+    /**
+     *  implemented by the platform, to return the value of our (one) slot per-thread
+     */
+    static void* PlatformGetSpecific();
+
+    /**
+     *  implemented by the platform, to set the value for our (one) slot per-thread
+     */
+    static void  PlatformSetSpecific(void*);
+
+public:
+    /**
+     *  Will delete our internal list. To be called by the platform if/when its
+     *  TLS slot is deleted (often at thread shutdown).
+     *
+     *  Public *only* for the platform's use, not to be called by a client.
+     */
+    static void Destructor(void* ptr);
 };
 
 #endif

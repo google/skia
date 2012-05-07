@@ -29,3 +29,14 @@ void SkMutex::acquire() {}
 
 void SkMutex::release() {}
 
+//////////////////////////////////////////////////////////////////////////
+
+static void* gSpecific;
+
+void* SkTLS::PlatformGetSpecific() {
+    return gSpecific;
+}
+
+void SkTLS::PlatformSetSpecific(void* ptr) {
+    gSpecific = ptr;
+}

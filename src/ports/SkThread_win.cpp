@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <intrin.h>
 #include "SkThread.h"
+#include "SkTLS.h"
 
 //MSDN says in order to declare an interlocked function for use as an
 //intrinsic, include intrin.h and put the function in a #pragma intrinsic
@@ -42,5 +43,25 @@ void SkMutex::acquire() {
 
 void SkMutex::release() {
     LeaveCriticalSection(reinterpret_cast<CRITICAL_SECTION*>(&fStorage));
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+static bool gOnce;
+static DWORD gTlsIndex;
+SK_DECLARE_STATIC_MUTEX(gMutex);
+
+void* SkTLS::PlatformGetSpecific() {
+    if (!gOnce) {
+        SkAutoMutexAcquire tmp(gMutex);
+        gTlsIndex = TlsAlloc();
+        gOnce = true;
+    }
+    return TlsGetValue(gTlsIndex);
+}
+
+void SkTLS::PlatformSetSpecific(void* ptr) {
+    SkASSERT(gOnce);
+    (void)TlsSetValue(gTlsIndex, ptr);
 }
 
