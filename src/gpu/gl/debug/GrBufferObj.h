@@ -10,6 +10,7 @@
 #define GrBufferObj_DEFINED
 
 #include "GrFakeRefObj.h"
+#include "../GrGLDefines.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 class GrBufferObj : public GrFakeRefObj {

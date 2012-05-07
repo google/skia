@@ -201,7 +201,6 @@
 
         '../include/gpu/gl/GrGLConfig.h',
         '../include/gpu/gl/GrGLConfig_chrome.h',
-        '../include/gpu/gl/GrGLDefines.h',
         '../include/gpu/gl/GrGLInterface.h',
 
         '../src/gpu/GrAAHairLinePathRenderer.cpp',
@@ -284,6 +283,7 @@
         '../src/gpu/gl/GrGLCreateNullInterface.cpp',
         '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
         '../src/gpu/gl/GrGLDefaultInterface_native.cpp',
+        '../src/gpu/gl/GrGLDefines.h',
         '../src/gpu/gl/GrGLIndexBuffer.cpp',
         '../src/gpu/gl/GrGLIndexBuffer.h',
         '../src/gpu/gl/GrGLInterface.cpp',

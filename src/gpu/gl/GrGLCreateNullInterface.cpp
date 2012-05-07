@@ -9,6 +9,7 @@
 
 #include "gl/GrGLInterface.h"
 #include "../GrTDArray.h"
+#include "GrGLDefines.h"
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shader) {}
