@@ -843,6 +843,19 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
 void GrGpuGLShaders::postDraw() {
 }
 
+#if GR_TEXT_SCALAR_IS_USHORT
+    #define TEXT_COORDS_GL_TYPE          GR_GL_UNSIGNED_SHORT
+    #define TEXT_COORDS_ARE_NORMALIZED   1
+#elif GR_TEXT_SCALAR_IS_FLOAT
+    #define TEXT_COORDS_GL_TYPE          GR_GL_FLOAT
+    #define TEXT_COORDS_ARE_NORMALIZED   0
+#elif GR_TEXT_SCALAR_IS_FIXED
+    #define TEXT_COORDS_GL_TYPE          GR_GL_FIXED
+    #define TEXT_COORDS_ARE_NORMALIZED   0
+#else
+    #error "unknown GR_TEXT_SCALAR type"
+#endif
+
 void GrGpuGLShaders::setupGeometry(int* startVertex,
                                     int* startIndex,
                                     int vertexCount,
@@ -881,10 +894,11 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     GrGLenum scalarType;
     bool texCoordNorm;
     if (currLayout & kTextFormat_VertexLayoutBit) {
-        scalarType = GrGLTextType;
-        texCoordNorm = GR_GL_TEXT_TEXTURE_NORMALIZED;
+        scalarType = TEXT_COORDS_GL_TYPE;
+        texCoordNorm = SkToBool(TEXT_COORDS_ARE_NORMALIZED);
     } else {
-        scalarType = GrGLType;
+        GR_STATIC_ASSERT(GR_SCALAR_IS_FLOAT);
+        scalarType = GR_GL_FLOAT;
         texCoordNorm = false;
     }
 
@@ -902,7 +916,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     // position and tex coord offsets change if above conditions are true
     // or the type/normalization changed based on text vs nontext type coords.
     bool posAndTexChange = allOffsetsChange ||
-                           (((GrGLTextType != GrGLType) || GR_GL_TEXT_TEXTURE_NORMALIZED) &&
+                           (((TEXT_COORDS_GL_TYPE != GR_GL_FLOAT) || TEXT_COORDS_ARE_NORMALIZED) &&
                                 (kTextFormat_VertexLayoutBit &
                                   (fHWGeometryState.fVertexLayout ^ currLayout)));
 
