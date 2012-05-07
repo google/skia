@@ -60,13 +60,7 @@ static int check_linear(const Quadratic& quad, Quadratic& reduction,
             assert(0);
         }
     }
-    LineParameters lineParameters;
-    lineParameters.quadEndPoints(quad, startIndex, endIndex);
-    double normalSquared = lineParameters.normalSquared();
-    double distance = lineParameters.controlPtDistance(quad); // not normalized
-    double limit = normalSquared * SquaredEpsilon;
-    double distSq = distance * distance;
-    if (distSq > limit) {
+    if (!isLinear(quad, startIndex, endIndex)) {
         return 0;
     }
     // four are colinear: return line formed by outside
@@ -111,6 +105,16 @@ static int check_linear(const Quadratic& quad, Quadratic& reduction,
         reduction[replace] = extrema;
     }
     return 2;
+}
+
+bool isLinear(const Quadratic& quad, int startIndex, int endIndex) {
+    LineParameters lineParameters;
+    lineParameters.quadEndPoints(quad, startIndex, endIndex);
+    double normalSquared = lineParameters.normalSquared();
+    double distance = lineParameters.controlPtDistance(quad); // not normalized
+    double limit = normalSquared * SquaredEpsilon;
+    double distSq = distance * distance;
+    return distSq <= limit;
 }
 
 // reduce to a quadratic or smaller

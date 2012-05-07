@@ -91,22 +91,8 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
             assert(0);
         }
     }
-    LineParameters lineParameters;
-    lineParameters.cubicEndPoints(cubic, startIndex, endIndex);
-    double normalSquared = lineParameters.normalSquared();
-    double distance[2]; // distance is not normalized
-    int mask = other_two(startIndex, endIndex);
-    int inner1 = startIndex ^ mask;
-    int inner2 = endIndex ^ mask;
-    lineParameters.controlPtDistance(cubic, inner1, inner2, distance);
-    double limit = normalSquared * SquaredEpsilon;
-    int index;
-    for (index = 0; index < 2; ++index) {
-        double distSq = distance[index];
-        distSq *= distSq;
-        if (distSq > limit) {
-            return 0;
-        }
+    if (!isLinear(cubic, startIndex, endIndex)) {
+        return 0;
     }
     // four are colinear: return line formed by outside
     reduction[0] = cubic[0];
@@ -131,7 +117,7 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
     } else {
         roots = findExtrema(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y, tValues);
     }
-    for (index = 0; index < roots; ++index) {
+    for (int index = 0; index < roots; ++index) {
         _Point extrema;
         extrema.x = interp_cubic_coords(&cubic[0].x, tValues[index]);
         extrema.y = interp_cubic_coords(&cubic[0].y, tValues[index]);
@@ -153,6 +139,27 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
         reduction[replace] = extrema;
     }
     return 2;
+}
+
+bool isLinear(const Cubic& cubic, int startIndex, int endIndex) {
+    LineParameters lineParameters;
+    lineParameters.cubicEndPoints(cubic, startIndex, endIndex);
+    double normalSquared = lineParameters.normalSquared();
+    double distance[2]; // distance is not normalized
+    int mask = other_two(startIndex, endIndex);
+    int inner1 = startIndex ^ mask;
+    int inner2 = endIndex ^ mask;
+    lineParameters.controlPtDistance(cubic, inner1, inner2, distance);
+    double limit = normalSquared * SquaredEpsilon;
+    int index;
+    for (index = 0; index < 2; ++index) {
+        double distSq = distance[index];
+        distSq *= distSq;
+        if (distSq > limit) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /* food for thought:
