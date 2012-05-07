@@ -42,8 +42,7 @@ static SkTypeface* get_default_typeface() {
 
     if (NULL == gDefaultTypeface) {
         gDefaultTypeface =
-        SkFontHost::CreateTypeface(NULL, NULL, NULL, 0,
-                                   SkTypeface::kNormal);
+        SkFontHost::CreateTypeface(NULL, NULL, SkTypeface::kNormal);
     }
     return gDefaultTypeface;
 }
@@ -62,16 +61,11 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
-    return SkFontHost::CreateTypeface(NULL, name, NULL, 0, style);
-}
-
-SkTypeface* SkTypeface::CreateForChars(const void* data, size_t bytelength,
-                                       Style s) {
-    return SkFontHost::CreateTypeface(NULL, NULL, data, bytelength, s);
+    return SkFontHost::CreateTypeface(NULL, name, style);
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
-    return SkFontHost::CreateTypeface(family, NULL, NULL, 0, s);
+    return SkFontHost::CreateTypeface(family, NULL, s);
 }
 
 SkTypeface* SkTypeface::CreateFromStream(SkStream* stream) {

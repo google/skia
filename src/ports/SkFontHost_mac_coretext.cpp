@@ -526,7 +526,6 @@ static const char* map_css_names(const char* name) {
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
-                                       const void* data, size_t bytelength,
                                        SkTypeface::Style style) {
     if (familyName) {
         familyName = map_css_names(familyName);

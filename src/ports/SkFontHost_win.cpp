@@ -1350,7 +1350,6 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
-                                       const void* data, size_t bytelength,
                                        SkTypeface::Style style) {
     LOGFONT lf;
     if (NULL == familyFace && NULL == familyName) {

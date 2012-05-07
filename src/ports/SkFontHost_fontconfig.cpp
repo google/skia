@@ -208,7 +208,6 @@ static unsigned FileIdFromFilename(const char* filename)
 // static
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
-                                       const void* data, size_t bytelength,
                                        SkTypeface::Style style)
 {
     const char* resolved_family_name = NULL;
