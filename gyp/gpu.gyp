@@ -201,6 +201,7 @@
 
         '../include/gpu/gl/GrGLConfig.h',
         '../include/gpu/gl/GrGLConfig_chrome.h',
+        '../include/gpu/gl/GrGLFunctions.h',
         '../include/gpu/gl/GrGLInterface.h',
 
         '../src/gpu/GrAAHairLinePathRenderer.cpp',
