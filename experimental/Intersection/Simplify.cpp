@@ -607,15 +607,10 @@ finish:
         // in the same direction
         // if there is coincidence, the only choice may be to reverse direction
             // find edge on either side of intersection
+            int oIndex = other->matchSpan(this, endSpan->fT);
             int oCount = other->fTs.count();
-            for (int oIndex = 0; oIndex < oCount; ++oIndex) {
+            do {
                 Span& otherSpan = other->fTs[oIndex];
-                if (otherSpan.fOther != this) {
-                    continue;
-                }
-                if (otherSpan.fOtherT != endSpan->fT) {
-                    continue;
-                }
                 // if done == -1, prior span has already been processed
                 int next = other->nextSpan(oIndex, step, endLoc, &otherSpan,
                         NULL, NULL);
@@ -625,11 +620,13 @@ finish:
                 bool otherIsCoincident;
                 last = other->lastSpan(next, step, &endLoc, &otherSpan,
                         otherIsCoincident);
-                if (step < 0) {
-                
+                if (last < 0) {
+                    continue;
+                }
+            #if 0
+                Span& prior = other->fTs[oIndex - 1];
                     if (otherSpan.fDone >= 0 && oIndex > 0) {
                         // FIXME: this needs to loop on -- until t && pt are different
-                        Span& prior = other->fTs[oIndex - 1];
                         if (prior.fDone > 0) {
                             continue;
                         }
@@ -644,6 +641,7 @@ finish:
                         }
                     }
                 }
+            #endif
                 if (!segmentCandidate) {
                     segmentCandidate = other;
                     spanCandidate = oIndex;
@@ -688,7 +686,7 @@ finish:
                 //  reference an unused other
                 // for coincident, the last span on the other may be marked done
                 //  (always?)
-            }
+            } while (++oIndex < oCount);
         } while ((end += step) != last);
         // if loop is exhausted, contour may be closed.
         // FIXME: pass in close point so we can check for closure
@@ -929,14 +927,18 @@ finish:
                 coincident = true;
             }
             if (step > 0 ? ++last < count : --last >= 0) {
-                break;
+                return -1;
             }
-            Span* lastSpan = &fTs[last];
-            if (lastSpan->fT == startSpan->fT) {
+            const Span& lastSpan = fTs[last];
+            if (lastSpan.fDone == -step) {
+                return -1;
+            }
+            if (lastSpan.fT == startSpan->fT) {
                 continue;
             }
-            xyAtT(lastSpan->fT, &lastLoc);
+            xyAtT(lastSpan.fT, &lastLoc);
         } while (*startLoc == lastLoc);
+        return last;
     }
 
     SkScalar leftMost(int start, int end) const {
