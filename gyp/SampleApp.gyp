@@ -10,6 +10,7 @@
         '../gm',       # needed to pull gm.h
         '../include/pipe', # To pull in SkGPipe.h for pipe reader/writer
         '../samplecode', # To pull SampleApp.h and SampleCode.h
+        '../src/gpu', # To pull gl/GrGLUtil.h
       ],
       'includes': [
         'gmslides.gypi',

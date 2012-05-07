@@ -8,6 +8,7 @@
 
 
 #include "gl/GrGLInterface.h"
+#include "../GrGLUtil.h"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <GL/GL.h>

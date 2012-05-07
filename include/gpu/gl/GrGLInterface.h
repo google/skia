@@ -7,7 +7,6 @@
  */
 
 
-
 #ifndef GrGLInterface_DEFINED
 #define GrGLInterface_DEFINED
 
@@ -34,32 +33,6 @@ enum GrGLBinding {
     kFirstGrGLBinding = kDesktop_GrGLBinding,
     kLastGrGLBinding = kES2_GrGLBinding
 };
-
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Helpers for glGetString()
- */
-
-typedef uint32_t GrGLVersion;
-typedef uint32_t GrGLSLVersion;
-
-#define GR_GL_VER(major, minor) ((static_cast<int>(major) << 16) | \
-                                 static_cast<int>(minor))
-#define GR_GLSL_VER(major, minor) ((static_cast<int>(major) << 16) | \
-                                   static_cast<int>(minor))
-
-// these variants assume caller already has a string from glGetString()
-GrGLVersion GrGLGetVersionFromString(const char* versionString);
-GrGLBinding GrGLGetBindingInUseFromString(const char* versionString);
-GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
-bool GrGLHasExtensionFromString(const char* ext, const char* extensionString);
-
-// these variants call glGetString()
-bool GrGLHasExtension(const GrGLInterface*, const char* ext);
-GrGLBinding GrGLGetBindingInUse(const GrGLInterface*);
-GrGLVersion GrGLGetVersion(const GrGLInterface*);
-GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -285,7 +258,7 @@ enum GrGLCapability {
  */
 struct GR_API GrGLInterface : public GrRefCnt {
 private:
-    // simple wrapper class that exists only to initialize a pointers to NULL
+    // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class GLPtr {
     public:
         GLPtr() : fPtr(NULL) {}
