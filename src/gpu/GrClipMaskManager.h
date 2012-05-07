@@ -14,6 +14,7 @@
 #include "GrNoncopyable.h"
 #include "GrClip.h"
 #include "SkRefCnt.h"
+#include "GrTexture.h"
 
 class GrGpu;
 class GrPathRenderer;
@@ -41,9 +42,15 @@ struct ScissoringSettings {
  */
 class GrClipMaskCache : public GrNoncopyable {
 public:
-    GrClipMaskCache() 
-    : fLastWidth(-1)
-    , fLastHeight(-1) {
+    GrClipMaskCache() {
+        reset();
+    }
+
+    void reset () {
+        fLastWidth = -1;
+        fLastHeight = -1;
+        fLastClip.setEmpty();
+        fLastMask.reset(NULL);
         fLastBound.MakeEmpty();
     }
 
@@ -68,8 +75,40 @@ public:
         fLastBound = bound;
     }
 
-    GrTexture*  getLastMask() {
+    int getLastWidth() const {
+        return fLastWidth;
+    }
+
+    int getLastHeight() const {
+        return fLastHeight;
+    }
+
+    const GrClip& getLastClip() const {
+        return fLastClip;
+    }
+
+    GrTexture* getLastMask() {
         return fLastMask.get();
+    }
+
+    GrTexture* detachLastMask() {
+        return fLastMask.detach();
+    }
+
+    int getLastMaskWidth() const {
+        if (NULL == fLastMask.get()) {
+            return -1;
+        }
+
+        return fLastMask.get()->width();
+    }
+
+    int getLastMaskHeight() const {
+        if (NULL == fLastMask.get()) {
+            return -1;
+        }
+
+        return fLastMask.get()->height();
     }
 
     const GrRect& getLastBound() const {
@@ -149,6 +188,10 @@ private:
                      GrTexture* target,
                      const GrRect& rect,
                      GrTexture* texture);
+
+    void getAccum(GrGpu* gpu,
+                  const GrTextureDesc& desc,
+                  GrTexture** accum);
 
     // determines the path renderer used to draw a clip path element.
     GrPathRenderer* getClipPathRenderer(GrGpu* gpu,
