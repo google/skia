@@ -267,36 +267,4 @@ extern void GrGLClearErr(const GrGLInterface* gl);
 
 #define GR_GL_GET_ERROR(IFACE) (IFACE)->fGetError()
 
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- *  Some drivers want the var-int arg to be zero-initialized on input.
- */
-#define GR_GL_INIT_ZERO     0
-#define GR_GL_GetIntegerv(gl, e, p)     \
-    do {                            \
-        *(p) = GR_GL_INIT_ZERO;     \
-        GR_GL_CALL(gl, GetIntegerv(e, p));   \
-    } while (0)
-
-#define GR_GL_GetFramebufferAttachmentParameteriv(gl, t, a, pname, p)           \
-    do {                                                                        \
-        *(p) = GR_GL_INIT_ZERO;                                                 \
-        GR_GL_CALL(gl, GetFramebufferAttachmentParameteriv(t, a, pname, p));    \
-    } while (0)
-
-#define GR_GL_GetRenderbufferParameteriv(gl, t, pname, p)                       \
-    do {                                                                        \
-        *(p) = GR_GL_INIT_ZERO;                                                 \
-        GR_GL_CALL(gl, GetRenderbufferParameteriv(t, pname, p));                \
-    } while (0)
-
-#define GR_GL_GetTexLevelParameteriv(gl, t, l, pname, p)                        \
-    do {                                                                        \
-        *(p) = GR_GL_INIT_ZERO;                                                 \
-        GR_GL_CALL(gl, GetTexLevelParameteriv(t, l, pname, p));                 \
-    } while (0)
-
-////////////////////////////////////////////////////////////////////////////////
-
 #endif

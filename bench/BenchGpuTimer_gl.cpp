@@ -7,6 +7,7 @@
  */
 #include "BenchGpuTimer_gl.h"
 #include "gl/SkGLContext.h"
+#include "gl/GrGLUtil.h"
 
 BenchGpuTimer::BenchGpuTimer(const SkGLContext* glctx) {
     fContext = glctx;

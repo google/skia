@@ -8,6 +8,7 @@
 
 
 #include "gl/GrGLInterface.h"
+#include "../GrGLUtil.h"
 
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>

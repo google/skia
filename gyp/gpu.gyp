@@ -91,6 +91,7 @@
         '../include/core',
         '../src/core',
         '../include/gpu',
+        '../src/gpu',
       ],
       'dependencies': [
         'libtess.gyp:libtess',
@@ -301,6 +302,7 @@
         '../src/gpu/gl/GrGLTexture.cpp',
         '../src/gpu/gl/GrGLTexture.h',
         '../src/gpu/gl/GrGLUtil.cpp',
+        '../src/gpu/gl/GrGLUtil.h',
         '../src/gpu/gl/GrGLVertexBuffer.cpp',
         '../src/gpu/gl/GrGLVertexBuffer.h',
         '../src/gpu/gl/GrGpuGL.cpp',

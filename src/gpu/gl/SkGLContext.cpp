@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "gl/SkGLContext.h"
+#include "gl/GrGLUtil.h"
 
 SkGLContext::SkGLContext()
     : fFBO(0)

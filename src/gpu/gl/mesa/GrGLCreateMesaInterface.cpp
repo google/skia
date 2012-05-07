@@ -8,6 +8,7 @@
 
 
 #include "gl/GrGLInterface.h"
+#include "../GrGLUtil.h"
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/osmesa.h>
