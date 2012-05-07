@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkThread.h"
+#include "SkTLS.h"
 
 #include <pthread.h>
 #include <errno.h>
