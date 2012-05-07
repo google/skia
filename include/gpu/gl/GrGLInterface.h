@@ -13,10 +13,6 @@
 #include "GrGLConfig.h"
 #include "GrRefCnt.h"
 
-#if !defined(GR_GL_FUNCTION_TYPE)
-    #define GR_GL_FUNCTION_TYPE
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /**

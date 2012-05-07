@@ -253,7 +253,7 @@ HAS_ATLAS:
     GrFixed tx = GrIntToFixed(glyph->fAtlasLocation.fX);
     GrFixed ty = GrIntToFixed(glyph->fAtlasLocation.fY);
 
-#if GR_GL_TEXT_TEXTURE_NORMALIZED
+#if GR_TEXT_SCALAR_IS_USHORT
     int x = vx >> 16;
     int y = vy >> 16;
     int w = width >> 16;
