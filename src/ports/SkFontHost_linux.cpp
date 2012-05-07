@@ -500,14 +500,14 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
                 // backup until we hit the fNames
                 for (int j = i; j >= 0; --j) {
                     if (rec[j].fNames != NULL) {
-                        return SkFontHost::CreateTypeface(NULL, rec[j].fNames[0], NULL, 0,
+                        return SkFontHost::CreateTypeface(NULL, rec[j].fNames[0],
                                                           (SkTypeface::Style)style);
                     }
                 }
             }
         }
     }
-    return SkFontHost::CreateTypeface(NULL, NULL, NULL, 0, (SkTypeface::Style)style);
+    return SkFontHost::CreateTypeface(NULL, NULL, (SkTypeface::Style)style);
 #endif
     sk_throw();
     return NULL;
@@ -517,7 +517,6 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
-                                       const void* data, size_t bytelength,
                                        SkTypeface::Style style) {
     load_system_fonts();
     

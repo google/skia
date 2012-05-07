@@ -813,7 +813,7 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
                     for (int j = i; j >= 0; --j) {
                         if (rec[j].fNames != NULL) {
                             return SkFontHost::CreateTypeface(NULL,
-                                        rec[j].fNames[0], NULL, 0,
+                                        rec[j].fNames[0],
                                         (SkTypeface::Style)style);
                         }
                     }
@@ -828,7 +828,6 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
-                                       const void* data, size_t bytelength,
                                        SkTypeface::Style style) {
     SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
 
