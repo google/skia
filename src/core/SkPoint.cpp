@@ -118,11 +118,6 @@ SkScalar SkPoint::Normalize(SkPoint* pt) {
     return 0;
 }
 
-bool SkPoint::CanNormalize(SkScalar dx, SkScalar dy) {
-    float mag2_unused;
-    return !isLengthNearlyZero(dx, dy, &mag2_unused);
-}
-
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
     return sk_float_sqrt(getLengthSquared(dx, dy));
 }
