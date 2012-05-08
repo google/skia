@@ -29,7 +29,8 @@
 static int test0(SkPoint pts[], SkRect* clip) {
     pts[0].set(200000, 140);
     pts[1].set(-740000, 483);
-    pts[2].set(1.00000102e-06f, 9.10000017e-05f);
+    pts[2].set(SkFloatToScalar(1.00000102e-06f),
+               SkFloatToScalar(9.10000017e-05f));
     clip->set(0, 0, 640, 480);
     return 2;
 }

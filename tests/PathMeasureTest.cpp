@@ -51,9 +51,9 @@ static void test_small_segment(skiatest::Reporter* reporter) {
     const SkPoint pts[] = {
         { 100000, 100000},
         // big jump between these points, makes a big segment
-        { 1.0005, 0.9999 },
+        { SkFloatToScalar(1.0005f), SkFloatToScalar(0.9999f) },
         // tiny (non-zero) jump between these points
-        { 1, 1 },
+        { SK_Scalar1, SK_Scalar1 },
     };
     
     path.moveTo(pts[0]);

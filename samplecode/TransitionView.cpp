@@ -146,7 +146,8 @@ protected:
         fEnd[kPrevX] = -lr;
         fEnd[kPrevY] = -ud;
         fEnd[kNextX] = fEnd[kNextY] = 0;
-        SkScalar blend[] = {0.8f, 0.0f, 0.0f, 1.0f};
+        SkScalar blend[] = { SkFloatToScalar(0.8f), SkFloatToScalar(0.0f),
+                             SkFloatToScalar(0.0f), SK_Scalar1 };
         fInterp.setKeyFrame(0, SkTime::GetMSecs(), fBegin, blend);
         fInterp.setKeyFrame(1, SkTime::GetMSecs()+500, fEnd, blend);
     }
