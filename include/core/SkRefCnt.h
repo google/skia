@@ -128,6 +128,9 @@ public:
         return obj;
     }
 
+    T* operator->() { return fObj; }
+    operator T*() { return fObj; }
+
 private:
     T*  fObj;
 };
