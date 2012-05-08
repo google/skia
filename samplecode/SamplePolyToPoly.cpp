@@ -113,7 +113,9 @@ protected:
         float y = D/2 - (fm.fAscent + fm.fDescent)/2;
         SkString str;
         str.appendS32(count);
-        canvas->drawText(str.c_str(), str.size(), x, y, *paint);
+        canvas->drawText(str.c_str(), str.size(),
+                         x, SkFloatToScalar(y),
+                         *paint);
 
         canvas->restore();
     }

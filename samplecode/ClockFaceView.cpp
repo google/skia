@@ -80,7 +80,7 @@ protected:
         this->INHERITED::begin(uvBounds, dst);
     }
 //    virtual void end(SkPath* dst) {}
-	virtual void next(const SkPoint& loc, int u, int v, SkPath* dst)
+    virtual void next(const SkPoint& loc, int u, int v, SkPath* dst)
     {
         if (fPts) {
             *fPts->append() = loc;
@@ -131,7 +131,7 @@ static SkPathEffect* makepe(float interp, SkTDArray<SkPoint>* pts) {
 }
 
 static void r7(SkLayerRasterizer* rast, SkPaint& p, SkScalar interp) {
-    p.setPathEffect(makepe(interp, NULL))->unref();
+    p.setPathEffect(makepe(SkScalarToFloat(interp), NULL))->unref();
     rast->addLayer(p);
 #if 0
     p.setPathEffect(new InverseFillPE())->unref();
@@ -152,7 +152,7 @@ static void apply_shader(SkPaint* paint, float scale)
     SkLayerRasterizer*  rast = new SkLayerRasterizer;
 
     p.setAntiAlias(true);
-    r7(rast, p, scale);
+    r7(rast, p, SkFloatToScalar(scale));
     paint->setRasterizer(rast)->unref();
 
     paint->setColor(SK_ColorBLUE);
@@ -163,7 +163,7 @@ class ClockFaceView : public SkView {
     SkScalar fInterp;
     SkScalar fDx;
 public:
-	ClockFaceView()
+    ClockFaceView()
     {
         fFace = SkTypeface::CreateFromFile("/Users/reed/Downloads/p052024l.pfb");
         fInterp = 0;
@@ -226,7 +226,7 @@ protected:
 
         paint.setTypeface(fFace);
 
-        apply_shader(&paint, fInterp);
+        apply_shader(&paint, SkScalarToFloat(fInterp));
         canvas->drawText(str.c_str(), str.size(), x, y, paint);
 
     //    drawdots(canvas, paint);
