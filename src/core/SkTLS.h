@@ -50,12 +50,24 @@ private:
     // ourselves in a list, with the platform specific value as our head.
 
     /**
-     *  implemented by the platform, to return the value of our (one) slot per-thread
+     *  Implemented by the platform, to return the value of our (one) slot per-thread
+     *
+     *  If forceCreateTheSlot is true, then we must have created the "slot" for
+     *  our TLS, even though we know that the return value will be NULL in that
+     *  case (i.e. no-slot and first-time-slot both return NULL). This ensures
+     *  that after calling GetSpecific, we know that we can legally call
+     *  SetSpecific.
+     *
+     *  If forceCreateTheSlot is false, then the impl can either create the
+     *  slot or not.
      */
-    static void* PlatformGetSpecific();
+    static void* PlatformGetSpecific(bool forceCreateTheSlot);
 
     /**
-     *  implemented by the platform, to set the value for our (one) slot per-thread
+     *  Implemented by the platform, to set the value for our (one) slot per-thread
+     *
+     *  The implementation can rely on GetSpecific(true) having been previously
+     *  called before SetSpecific is called.
      */
     static void  PlatformSetSpecific(void*);
 

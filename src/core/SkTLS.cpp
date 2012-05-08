@@ -28,7 +28,7 @@ void* SkTLS::Get(CreateProc createProc, DeleteProc deleteProc) {
         return NULL;
     }
 
-    void* ptr = SkTLS::PlatformGetSpecific();
+    void* ptr = SkTLS::PlatformGetSpecific(true);
 
     if (ptr) {
         const SkTLSRec* rec = (const SkTLSRec*)ptr;
@@ -58,7 +58,7 @@ void* SkTLS::Find(CreateProc createProc) {
         return NULL;
     }
     
-    void* ptr = SkTLS::PlatformGetSpecific();
+    void* ptr = SkTLS::PlatformGetSpecific(false);
 
     if (ptr) {
         const SkTLSRec* rec = (const SkTLSRec*)ptr;
@@ -76,7 +76,7 @@ void SkTLS::Delete(CreateProc createProc) {
         return;
     }
     
-    void* ptr = SkTLS::PlatformGetSpecific();
+    void* ptr = SkTLS::PlatformGetSpecific(false);
     
     SkTLSRec* curr = (SkTLSRec*)ptr;
     SkTLSRec* prev = NULL;
