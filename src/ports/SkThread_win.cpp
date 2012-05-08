@@ -51,11 +51,17 @@ static bool gOnce;
 static DWORD gTlsIndex;
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
-void* SkTLS::PlatformGetSpecific() {
+void* SkTLS::PlatformGetSpecific(bool forceCreateTheSlot) {
+    if (!forceCreateTheSlot && !gOnce) {
+        return NULL;
+    }
+
     if (!gOnce) {
         SkAutoMutexAcquire tmp(gMutex);
-        gTlsIndex = TlsAlloc();
-        gOnce = true;
+        if (!gOnce) {
+            gTlsIndex = TlsAlloc();
+            gOnce = true;
+        }
     }
     return TlsGetValue(gTlsIndex);
 }

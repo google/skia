@@ -33,7 +33,7 @@ void SkMutex::release() {}
 
 static void* gSpecific;
 
-void* SkTLS::PlatformGetSpecific() {
+void* SkTLS::PlatformGetSpecific(bool) {
     return gSpecific;
 }
 
