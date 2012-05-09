@@ -452,6 +452,17 @@ static inline uint32_t quadplicate_byte(U8CPU value) {
     return (pair << 16) | pair;
 }
 
+// Perform this tricky subtract, to avoid overflowing to 256. Our caller should
+// only ever call us with at most enough to hit 256 (never larger), so it is
+// enough to just subtract the high-bit. Actually clamping with a branch would
+// be slower (e.g. if (tmp > 255) tmp = 255;)
+//
+static inline void saturated_add(uint8_t* ptr, U8CPU add) {
+    unsigned tmp = *ptr + add;
+    SkASSERT(tmp <= 256);
+    *ptr = SkToU8(tmp - (tmp >> 8));
+}
+
 // minimum count before we want to setup an inner loop, adding 4-at-a-time
 #define MIN_COUNT_FOR_QUAD_LOOP  16
 
@@ -459,22 +470,8 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount,
                         U8CPU stopAlpha, U8CPU maxValue) {
     SkASSERT(middleCount >= 0);
 
-    /*  I should be able to just add alpha[x] + startAlpha.
-        However, if the trailing edge of the previous span and the leading
-        edge of the current span round to the same super-sampled x value,
-        I might overflow to 256 with this add, hence the funny subtract.
-    */
-#ifdef SK_SUPPORT_NEW_AA
-    if (startAlpha) {
-        unsigned tmp = *alpha + startAlpha;
-        SkASSERT(tmp <= 256);
-        *alpha++ = SkToU8(tmp - (tmp >> 8));
-    }
-#else
-    unsigned tmp = *alpha + startAlpha;
-    SkASSERT(tmp <= 256);
-    *alpha++ = SkToU8(tmp - (tmp >> 8));
-#endif
+    saturated_add(alpha, startAlpha);
+    alpha += 1;
 
     if (middleCount >= MIN_COUNT_FOR_QUAD_LOOP) {
         // loop until we're quad-byte aligned
@@ -505,7 +502,7 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount,
     // only happens if stopAlpha is also 0. Rather than test for stopAlpha != 0
     // every time (slow), we just do it, and ensure that we've allocated extra space
     // (see the + 1 comment in fStorage[]
-    *alpha = SkToU8(*alpha + stopAlpha);
+    saturated_add(alpha, stopAlpha);
 }
 
 void MaskSuperBlitter::blitH(int x, int y, int width) {
@@ -552,15 +549,7 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
         SkASSERT(row < fMask.fImage + kMAX_STORAGE + 1);
         add_aa_span(row, coverage_to_partial_alpha(fe - fb));
     } else {
-#ifdef SK_SUPPORT_NEW_AA
-        if (0 == fb) {
-            n += 1;
-        } else {
-            fb = SCALE - fb;
-        }
-#else
         fb = SCALE - fb;
-#endif
         SkASSERT(row >= fMask.fImage);
         SkASSERT(row + n + 1 < fMask.fImage + kMAX_STORAGE + 1);
         add_aa_span(row,  coverage_to_partial_alpha(fb),
