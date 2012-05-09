@@ -30,10 +30,6 @@
         abbreviated with 'i' or 'I' in variable names
     - supersampled coordinates, scale equal to the output * SCALE
 
-    NEW_AA is a set of code-changes to try to make both paths produce identical
-    results. Its not quite there yet, though the remaining differences may be
-    in the subsequent blits, and not in the different masks/runs...
-
     SK_USE_EXACT_COVERAGE makes coverage_to_partial_alpha() behave similarly to
     coverage_to_exact_alpha(). Enabling it will requrie rebaselining about 1/3
     of GMs for changes in the 3 least significant bits along the edges of
@@ -41,7 +37,6 @@
  */
 //#define FORCE_SUPERMASK
 //#define FORCE_RLE
-//#define SK_SUPPORT_NEW_AA
 //#define SK_USE_EXACT_COVERAGE
 
 ///////////////////////////////////////////////////////////////////////////////
