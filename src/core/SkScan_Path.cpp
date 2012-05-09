@@ -15,6 +15,10 @@
 #include "SkRasterClip.h"
 #include "SkRegion.h"
 #include "SkTemplates.h"
+#include "SkTSort.h"
+
+// undefine this to get faster inline sort
+#define SK_USE_STD_SORT_FOR_EDGES
 
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
@@ -374,6 +378,7 @@ static void PrePostInverseBlitterProc(SkBlitter* blitter, int y, bool isStart) {
 #pragma warning ( pop )
 #endif
 
+#ifdef SK_USE_STD_SORT_FOR_EDGES
 extern "C" {
     static int edge_compare(const void* a, const void* b) {
         const SkEdge* edgea = *(const SkEdge**)a;
@@ -393,9 +398,26 @@ extern "C" {
         return (valuea < valueb) ? -1 : (valuea > valueb);
     }
 }
+#else
+static bool operator<(const SkEdge& a, const SkEdge& b) {
+    int valuea = a.fFirstY;
+    int valueb = b.fFirstY;
+    
+    if (valuea == valueb) {
+        valuea = a.fX;
+        valueb = b.fX;
+    }
+    
+    return valuea < valueb;
+}
+#endif
 
 static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
+#ifdef SK_USE_STD_SORT_FOR_EDGES
     qsort(list, count, sizeof(SkEdge*), edge_compare);
+#else
+    SkTQSort(list, list + count - 1);
+#endif
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; i++) {
