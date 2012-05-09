@@ -37,7 +37,7 @@
 
 //#define FORCE_SUPERMASK
 //#define FORCE_RLE
-#define SK_USE_LEGACY_AA_COVERAGE
+//#define SK_USE_LEGACY_AA_COVERAGE
 
 ///////////////////////////////////////////////////////////////////////////////
 
