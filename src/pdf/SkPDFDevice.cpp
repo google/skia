@@ -262,7 +262,7 @@ static void emit_clip(SkPath* clipPath, SkRect* clipRect,
 
     SkPath::FillType clipFill;
     if (clipPath) {
-        SkPDFUtils::EmitPath(*clipPath, contentStream);
+        SkPDFUtils::EmitPath(*clipPath, SkPaint::kFill_Style, contentStream);
         clipFill = clipPath->getFillType();
     } else {
         SkPDFUtils::AppendRectangle(*clipRect, contentStream);
@@ -765,7 +765,8 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
     if (!content.entry()) {
         return;
     }
-    SkPDFUtils::EmitPath(*pathPtr, &content.entry()->fContent);
+    SkPDFUtils::EmitPath(*pathPtr, paint.getStyle(),
+                         &content.entry()->fContent);
     SkPDFUtils::PaintPath(paint.getStyle(), pathPtr->getFillType(),
                           &content.entry()->fContent);
 }

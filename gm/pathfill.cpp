@@ -92,6 +92,18 @@ static SkScalar make_star(SkPath* path, int n) {
 static SkScalar make_star_5(SkPath* path) { return make_star(path, 5); }
 static SkScalar make_star_13(SkPath* path) { return make_star(path, 13); }
 
+// We don't expect any output from this path.
+static SkScalar make_line(SkPath* path) {
+    path->moveTo(SkIntToScalar(30), SkIntToScalar(30));
+    path->lineTo(SkIntToScalar(120), SkIntToScalar(40));
+    path->close();
+    path->moveTo(SkIntToScalar(150), SkIntToScalar(30));
+    path->lineTo(SkIntToScalar(150), SkIntToScalar(30));
+    path->lineTo(SkIntToScalar(300), SkIntToScalar(40));
+    path->close();
+    return SkIntToScalar(40);
+}
+
 static const MakePathProc gProcs[] = {
     make_frame,
     make_triangle,
@@ -99,7 +111,8 @@ static const MakePathProc gProcs[] = {
     make_oval,
     make_sawtooth,
     make_star_5,
-    make_star_13
+    make_star_13,
+    make_line,
 };
 
 #define N   SK_ARRAY_COUNT(gProcs)
