@@ -9,6 +9,82 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+static SkCanvas* MakeCanvas(const SkIRect& bounds) {
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
+    bm.allocPixels();
+    bm.eraseColor(0);
+
+    SkCanvas* canvas = new SkCanvas(bm);
+    canvas->translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
+    return canvas;
+}
+
+static void GetBitmap(const SkCanvas* canvas, SkBitmap* bm) {
+    *bm = canvas->getDevice()->accessBitmap(false);
+}
+
+static void compare_canvas(const SkCanvas* a, const SkCanvas* b) {
+    SkBitmap bma, bmb;
+    GetBitmap(a, &bma);
+    GetBitmap(b, &bmb);
+
+    SkASSERT(bma.width() == bmb.width());
+    SkASSERT(bma.height() == bmb.height());
+
+    bma.lockPixels();
+    bmb.lockPixels();
+    for (int y = 0; y < bma.height(); ++y) {
+        const SkPMColor* rowa = bma.getAddr32(0, y);
+        const SkPMColor* rowb = bmb.getAddr32(0, y);
+        SkASSERT(!memcmp(rowa, rowb, bma.width() << 2));
+        
+        for (int x = 1; x < bma.width() - 1; ++x) {
+            SkASSERT(0xFF000000 == rowa[x]);
+            SkASSERT(0xFF000000 == rowb[x]);
+        }
+    }
+}
+
+static void drawRectAsPath(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
+    SkPath path;
+    path.addRect(r);
+    canvas->drawPath(path, p);
+}
+
+static void test_maskFromPath(const SkPath& path) {
+    SkIRect bounds;
+    path.getBounds().roundOut(&bounds);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    SkAutoTUnref<SkCanvas> path_canvas(MakeCanvas(bounds));
+    path_canvas->drawPath(path, paint);
+
+    SkAutoTUnref<SkCanvas> rect_canvas(MakeCanvas(bounds));
+    drawRectAsPath(rect_canvas, path.getBounds(), paint);
+
+    compare_canvas(path_canvas, rect_canvas);
+}
+
+static void test_mask() {
+    for (int i = 1; i <= 20; ++i) {
+        const SkScalar dx = SK_Scalar1 / i;
+        const SkRect constr = SkRect::MakeWH(dx, SkIntToScalar(2));
+        for (int n = 2; n < 20; ++n) {
+            SkPath path;
+            path.setFillType(SkPath::kEvenOdd_FillType);
+            SkRect r = constr;
+            while (r.fRight < SkIntToScalar(4)) {
+                path.addRect(r);
+                r.offset(dx, 0);
+            }
+            test_maskFromPath(path);
+        }
+    }
+}
+
 namespace skiagm {
 
 /** Draw a 2px border around the target, then red behind the target;
@@ -82,6 +158,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+//        test_mask();
+
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
