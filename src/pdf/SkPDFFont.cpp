@@ -1378,7 +1378,7 @@ bool SkPDFType3Font::populate(int16_t glyphID) {
                                     &content);
         const SkPath* path = cache->findPath(glyph);
         if (path) {
-            SkPDFUtils::EmitPath(*path, &content);
+            SkPDFUtils::EmitPath(*path, paint.getStyle(), &content);
             SkPDFUtils::PaintPath(paint.getStyle(), path->getFillType(),
                                   &content);
         }
