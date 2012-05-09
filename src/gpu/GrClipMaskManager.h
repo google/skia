@@ -15,6 +15,7 @@
 #include "GrClip.h"
 #include "SkRefCnt.h"
 #include "GrTexture.h"
+#include "SkDeque.h"
 
 class GrGpu;
 class GrPathRenderer;
@@ -42,22 +43,34 @@ struct ScissoringSettings {
  */
 class GrClipMaskCache : public GrNoncopyable {
 public:
-    GrClipMaskCache() {
-        reset();
+    GrClipMaskCache() 
+    : fStack(sizeof(GrClipStackFrame)) {
+        // We need an initial frame to capture the clip state prior to 
+        // any pushes
+        new (fStack.push_back()) GrClipStackFrame();
     }
 
-    void reset () {
-        fLastWidth = -1;
-        fLastHeight = -1;
-        fLastClip.setEmpty();
-        fLastMask.reset(NULL);
-        fLastBound.MakeEmpty();
+    ~GrClipMaskCache() {
+
+        while (!fStack.empty()) {
+            GrClipStackFrame* temp = (GrClipStackFrame*) fStack.back();
+            temp->~GrClipStackFrame();
+            fStack.pop_back();
+        }
     }
 
     bool canReuse(const GrClip& clip, int width, int height) {
-        if (fLastWidth >= width &&
-            fLastHeight >= height &&
-            clip == fLastClip) {
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            return false;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        if (back->fLastWidth >= width &&
+            back->fLastHeight >= height &&
+            clip == back->fLastClip) {
             return true;
         }
 
@@ -67,61 +80,204 @@ public:
     void set(const GrClip& clip, int width, int height, 
              GrTexture* mask, const GrRect& bound) {
 
-        fLastWidth = width;
-        fLastHeight = height;
-        fLastClip = clip;
+        if (fStack.empty()) {
+            GrAssert(false);
+            return;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        back->fLastWidth = width;
+        back->fLastHeight = height;
+        back->fLastClip = clip;
         SkSafeRef(mask);
-        fLastMask.reset(mask);
-        fLastBound = bound;
+        back->fLastMask.reset(mask);
+        back->fLastBound = bound;
+    }
+
+    void reset() {
+        if (fStack.empty()) {
+            GrAssert(false);
+            return;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        back->reset();
+    }
+
+    /**
+     * After a "push" the clip state is entirely open. Currently, the
+     * entire clip stack will be re-rendered into a new clip mask.
+     * TODO: can we take advantage of the nested nature of the clips to
+     * reduce the mask creation cost?
+     */
+    void push() {
+        new (fStack.push_back()) GrClipStackFrame();
+    }
+
+    void pop() {
+        GrAssert(!fStack.empty());
+
+        if (!fStack.empty()) {
+            GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+            back->~GrClipStackFrame();
+            fStack.pop_back();
+        }
     }
 
     int getLastWidth() const {
-        return fLastWidth;
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            return -1;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        return back->fLastWidth;
     }
 
     int getLastHeight() const {
-        return fLastHeight;
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            return -1;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        return back->fLastHeight;
     }
 
-    const GrClip& getLastClip() const {
-        return fLastClip;
+    void getLastClip(GrClip* clip) const {
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            clip->setEmpty();
+            return;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        *clip = back->fLastClip;
     }
 
     GrTexture* getLastMask() {
-        return fLastMask.get();
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            return NULL;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        return back->fLastMask.get();
+    }
+
+    const GrTexture* getLastMask() const {
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            return NULL;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        return back->fLastMask.get();
     }
 
     GrTexture* detachLastMask() {
-        return fLastMask.detach();
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            return NULL;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        return back->fLastMask.detach();
     }
 
     int getLastMaskWidth() const {
-        if (NULL == fLastMask.get()) {
+
+        if (fStack.empty()) {
+            GrAssert(false);
             return -1;
         }
 
-        return fLastMask.get()->width();
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        if (NULL == back->fLastMask.get()) {
+            return -1;
+        }
+
+        return back->fLastMask.get()->width();
     }
 
     int getLastMaskHeight() const {
-        if (NULL == fLastMask.get()) {
+
+        if (fStack.empty()) {
+            GrAssert(false);
             return -1;
         }
 
-        return fLastMask.get()->height();
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        if (NULL == back->fLastMask.get()) {
+            return -1;
+        }
+
+        return back->fLastMask.get()->height();
     }
 
-    const GrRect& getLastBound() const {
-        return fLastBound;
+    void getLastBound(GrRect* bound) const {
+
+        if (fStack.empty()) {
+            GrAssert(false);
+            bound->setEmpty();
+            return;
+        }
+
+        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
+
+        *bound = back->fLastBound;
     }
 
 protected:
 private:
-    int                     fLastWidth;
-    int                     fLastHeight;
-    GrClip                  fLastClip;
-    SkAutoTUnref<GrTexture> fLastMask;
-    GrRect                  fLastBound;
+    struct GrClipStackFrame {
+
+        GrClipStackFrame() {
+            reset();
+        }
+
+        void reset () {
+            fLastWidth = -1;
+            fLastHeight = -1;
+            fLastClip.setEmpty();
+            fLastMask.reset(NULL);
+            fLastBound.setEmpty();
+        }
+
+        // fLastWidth & fLastHeight store the render target size used when
+        // creating the mask. They factor into the reuse decision (in canReuse)
+        // TODO: We should probably use the mask's width & height rather than
+        // the render target's width & height for reuse decisions
+        int                     fLastWidth;
+        int                     fLastHeight;
+        GrClip                  fLastClip;
+        // The mask's width & height values are used in setupDrawStateAAClip to 
+        // correctly scale the uvs for geometry drawn with this mask
+        SkAutoTUnref<GrTexture> fLastMask;
+        // fLastBound stores the bounding box of the clip mask in canvas 
+        // space. The left and top fields are used to offset the uvs for 
+        // geometry drawn with this mask (in setupDrawStateAAClip)
+        GrRect                  fLastBound;
+    };
+
+    SkDeque      fStack;
 
     typedef GrNoncopyable INHERITED;
 };

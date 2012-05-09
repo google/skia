@@ -232,6 +232,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
             // rendering (kGlyphMaskStage in GrBatchedTextContext)
             kPathMaskStage = GrPaint::kTotalStages,
         };
+        GrAssert(NULL == target->drawState()->getTexture(kPathMaskStage));
         target->drawState()->setTexture(kPathMaskStage, texture);
         target->drawState()->sampler(kPathMaskStage)->reset();
         GrScalar w = GrIntToScalar(pathBounds.width());

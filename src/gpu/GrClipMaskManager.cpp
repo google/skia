@@ -396,7 +396,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
 
     if (fAACache.canReuse(clipIn, rt->width(), rt->height())) {
         *result = fAACache.getLastMask();
-        *resultBounds = fAACache.getLastBound();
+        fAACache.getLastBound(resultBounds);
         return true;
     }
 
