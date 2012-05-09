@@ -96,8 +96,8 @@ class NestedAAClipBench : public SkBenchmark {
     SkRect   fDrawRect;
     SkRandom fRandom;
 
-    static const int kNumDraws = SkBENCHLOOP(200);
-    static const int kNestingDepth = 4;
+    static const int kNumDraws = SkBENCHLOOP(2);
+    static const int kNestingDepth = 3;
     static const int kImageSize = 400;
 
     SkPoint fSizes[kNestingDepth+1];
