@@ -11,7 +11,7 @@
 #include "SkRegion.h"
 #include "SkString.h"
 #include "SkCanvas.h"
-
+#include "SkRandom.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // This bench tests out AA/BW clipping via canvas' clipPath and clipRect calls
@@ -29,9 +29,9 @@ class AAClipBench : public SkBenchmark {
 
 public:
     AAClipBench(void* param, bool doPath, bool doAA) 
-        : INHERITED(param) {
-        fDoPath = doPath;
-        fDoAA = doAA;
+        : INHERITED(param)
+        , fDoPath(doPath)
+        , fDoAA(doAA) {
 
         fName.printf("aaclip_%s_%s",
                      doPath ? "path" : "rect",
@@ -83,6 +83,98 @@ protected:
             canvas->restore();
         }
     }
+private:
+    typedef SkBenchmark INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// This bench tests out nested clip stacks. It is intended to simulate
+// how WebKit nests clips.
+class NestedAAClipBench : public SkBenchmark {
+    SkString fName;
+    bool     fDoAA;
+    SkRect   fDrawRect;
+    SkRandom fRandom;
+
+    static const int kNumDraws = SkBENCHLOOP(200);
+    static const int kNestingDepth = 4;
+    static const int kImageSize = 400;
+
+    SkPoint fSizes[kNestingDepth+1];
+
+public:
+    NestedAAClipBench(void* param, bool doAA) 
+        : INHERITED(param)
+        , fDoAA(doAA) {
+
+        fName.printf("nested_aaclip_%s", doAA ? "AA" : "BW");
+
+        fDrawRect = SkRect::MakeLTRB(0, 0, 
+                                     SkIntToScalar(kImageSize), 
+                                     SkIntToScalar(kImageSize));
+
+        fSizes[0].set(SkIntToScalar(kImageSize), SkIntToScalar(kImageSize));
+
+        for (int i = 1; i < kNestingDepth+1; ++i) {
+            fSizes[i].set(fSizes[i-1].fX/2, fSizes[i-1].fY/2);
+        }
+    }
+
+protected:
+    virtual const char* onGetName() { return fName.c_str(); }
+
+
+    void recurse(SkCanvas* canvas, 
+                 int depth,
+                 const SkPoint& offset) {
+
+            canvas->save();
+
+            SkRect temp = SkRect::MakeLTRB(0, 0, 
+                                           fSizes[depth].fX, fSizes[depth].fY);
+            temp.offset(offset);
+
+            SkPath path;
+            path.addRoundRect(temp, SkIntToScalar(3), SkIntToScalar(3));
+            SkASSERT(path.isConvex());
+
+            canvas->clipPath(path, 
+                             0 == depth ? SkRegion::kReplace_Op : 
+                                          SkRegion::kIntersect_Op,
+                             fDoAA);
+
+            if (kNestingDepth == depth) {
+                // we only draw the draw rect at the lowest nesting level
+                SkPaint paint;
+                paint.setColor(0xff000000 | fRandom.nextU());
+                canvas->drawRect(fDrawRect, paint);
+            } else {
+                SkPoint childOffset = offset;
+                this->recurse(canvas, depth+1, childOffset);
+
+                childOffset += fSizes[depth+1];
+                this->recurse(canvas, depth+1, childOffset);
+
+                childOffset.fX = offset.fX + fSizes[depth+1].fX;
+                childOffset.fY = offset.fY;
+                this->recurse(canvas, depth+1, childOffset);
+
+                childOffset.fX = offset.fX;
+                childOffset.fY = offset.fY + fSizes[depth+1].fY;
+                this->recurse(canvas, depth+1, childOffset);
+            }
+
+            canvas->restore();
+    }
+
+    virtual void onDraw(SkCanvas* canvas) {
+
+        for (int i = 0; i < kNumDraws; ++i) {
+            SkPoint offset = SkPoint::Make(0, 0);
+            this->recurse(canvas, 0, offset);
+        }
+    }
+
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -191,3 +283,8 @@ static BenchRegistry gReg001(Fact001);
 static BenchRegistry gReg002(Fact002);
 static BenchRegistry gReg003(Fact003);
 
+static SkBenchmark* Fact004(void* p) { return SkNEW_ARGS(NestedAAClipBench, (p, false)); }
+static SkBenchmark* Fact005(void* p) { return SkNEW_ARGS(NestedAAClipBench, (p, true)); }
+
+static BenchRegistry gReg004(Fact004);
+static BenchRegistry gReg005(Fact005);
