@@ -98,6 +98,7 @@ void SkWriter32::reset() {
     fSize = 0;
     fSingleBlock = NULL;
     if (fHeadIsExternalStorage) {
+        SkASSERT(fHead);
         fHead->rewind();
         fTail = fHead;
     } else {
