@@ -23,6 +23,7 @@
         '../tests/BlurTest.cpp',
         '../tests/CanvasTest.cpp',
         '../tests/ClampRangeTest.cpp',
+        '../tests/ClipCacheTest.cpp',
         '../tests/ClipCubicTest.cpp',
         '../tests/ClipStackTest.cpp',
         '../tests/ClipperTest.cpp',
