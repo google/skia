@@ -30,14 +30,14 @@
         abbreviated with 'i' or 'I' in variable names
     - supersampled coordinates, scale equal to the output * SCALE
 
-    SK_USE_EXACT_COVERAGE makes coverage_to_partial_alpha() behave similarly to
-    coverage_to_exact_alpha(). Enabling it will requrie rebaselining about 1/3
-    of GMs for changes in the 3 least significant bits along the edges of
-    antialiased spans.
+    Enabling SK_USE_LEGACY_AA_COVERAGE keeps the aa coverage calculations as
+    they were before the fix that unified the output of the RLE and MASK
+    supersamplers.
  */
+
 //#define FORCE_SUPERMASK
 //#define FORCE_RLE
-//#define SK_USE_EXACT_COVERAGE
+#define SK_USE_LEGACY_AA_COVERAGE
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -160,13 +160,11 @@ void SuperBlitter::flush() {
     coverage_to_exact_alpha().
 */
 static inline int coverage_to_partial_alpha(int aa) {
-#ifdef SK_USE_EXACT_COVERAGE
-    return aa << (8 - 2 * SHIFT);
-#else
     aa <<= 8 - 2*SHIFT;
+#ifdef SK_USE_LEGACY_AA_COVERAGE
     aa -= aa >> (8 - SHIFT - 1);
-    return aa;
 #endif
+    return aa;
 }
 
 /** coverage_to_exact_alpha() is being used by our blitter, which wants
