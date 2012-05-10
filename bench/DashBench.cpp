@@ -15,6 +15,7 @@
 #include "SkString.h"
 #include "SkTDArray.h"
 
+
 /*
  *  Cases to consider:
  *
@@ -29,6 +30,7 @@ static void path_hline(SkPath* path) {
 }
 
 class DashBench : public SkBenchmark {
+protected:
     SkString            fName;
     SkTDArray<SkScalar> fIntervals;
     int                 fWidth;
@@ -67,6 +69,11 @@ protected:
 
         paint.setPathEffect(new SkDashPathEffect(fIntervals.begin(),
                                                  fIntervals.count(), 0))->unref();
+        this->handlePath(canvas, path, paint, N);
+    }
+
+    virtual void handlePath(SkCanvas* canvas, const SkPath& path,
+                            const SkPaint& paint, int N) {
         for (int i = 0; i < N; ++i) {
             canvas->drawPath(path, paint);
         }
@@ -74,6 +81,47 @@ protected:
 
 private:
     typedef SkBenchmark INHERITED;
+};
+
+class RectDashBench : public DashBench {
+public:
+    RectDashBench(void* param, const SkScalar intervals[], int count, int width)
+    : INHERITED(param, intervals, count, width) {
+        fName.append("_rect");
+    }
+
+protected:
+    virtual void handlePath(SkCanvas* canvas, const SkPath& path,
+                            const SkPaint& paint, int N) SK_OVERRIDE {
+        SkPoint pts[2];
+        if (!path.isLine(pts) || pts[0].fY != pts[1].fY) {
+            this->INHERITED::handlePath(canvas, path, paint, N);
+        } else {
+            SkRect rect;
+            rect.fLeft = pts[0].fX;
+            rect.fTop = pts[0].fY - paint.getStrokeWidth() / 2;
+            rect.fRight = rect.fLeft + SkIntToScalar(fWidth);
+            rect.fBottom = rect.fTop + paint.getStrokeWidth();
+
+            SkPaint p(paint);
+            p.setStyle(SkPaint::kFill_Style);
+            p.setPathEffect(NULL);
+
+            int count = SkScalarRoundToInt((pts[1].fX - pts[0].fX) / (2*fWidth));
+            SkScalar dx = SkIntToScalar(2 * fWidth);
+
+            for (int i = 0; i < N*10; ++i) {
+                SkRect r = rect;
+                for (int j = 0; j < count; ++j) {
+                    canvas->drawRect(r, p);
+                    r.offset(dx, 0);
+                }
+            }
+        }
+    }
+    
+private:
+    typedef DashBench INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,7 +133,9 @@ static const SkScalar gDots[] = { SK_Scalar1, SK_Scalar1 };
 static SkBenchmark* gF0(void* p) { return new DashBench(p, PARAM(gDots), 0); }
 static SkBenchmark* gF1(void* p) { return new DashBench(p, PARAM(gDots), 1); }
 static SkBenchmark* gF2(void* p) { return new DashBench(p, PARAM(gDots), 4); }
+static SkBenchmark* gF3(void* p) { return new RectDashBench(p, PARAM(gDots), 4); }
 
 static BenchRegistry gR0(gF0);
 static BenchRegistry gR1(gF1);
 static BenchRegistry gR2(gF2);
+static BenchRegistry gR3(gF3);
