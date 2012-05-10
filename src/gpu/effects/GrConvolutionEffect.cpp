@@ -58,12 +58,12 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(GrConvolutionEffect* data)
 
 }
 
-const char* GrGLConvolutionEffect::name() const SK_OVERRIDE {
+const char* GrGLConvolutionEffect::name() const {
     return fData->name();
 }
 
 void GrGLConvolutionEffect::setupVSUnis(VarArray* vsUnis,
-                                        int stage) SK_OVERRIDE {
+                                        int stage) {
     fImageIncrementVar = &vsUnis->push_back();
     fImageIncrementVar->setType(kVec2f_GrSLType);
     fImageIncrementVar->setTypeModifier(
@@ -76,7 +76,7 @@ void GrGLConvolutionEffect::setupVSUnis(VarArray* vsUnis,
 }
 
 void GrGLConvolutionEffect::setupFSUnis(VarArray* fsUnis,
-                                        int stage) SK_OVERRIDE {
+                                        int stage) {
     fKernelVar = &fsUnis->push_back();
     fKernelVar->setType(kFloat_GrSLType);
     fKernelVar->setTypeModifier(
@@ -92,7 +92,7 @@ void GrGLConvolutionEffect::setupFSUnis(VarArray* fsUnis,
 }
 
 void GrGLConvolutionEffect::emitVS(GrStringBuilder* code,
-                        const char* vertexCoords) SK_OVERRIDE {
+                        const char* vertexCoords) {
     float scale = (fData->fKernelWidth - 1) * 0.5f;
     code->appendf("\t\t%s -= vec2(%g, %g) * %s;\n",
                   vertexCoords, scale, scale,
@@ -104,7 +104,7 @@ void GrGLConvolutionEffect::emitFS(GrStringBuilder* code,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName,
-                        const char* sampleCoords) SK_OVERRIDE {
+                        const char* sampleCoords) {
     const char* texFunc = "texture2D";
     bool complexCoord = false;
 
@@ -134,7 +134,7 @@ void GrGLConvolutionEffect::emitFS(GrStringBuilder* code,
 }
 
 void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
-                                         int programID) SK_OVERRIDE {
+                                         int programID) {
     GR_GL_CALL_RET(gl, fKernelLocation,
         GetUniformLocation(programID, fKernelVar->getName().c_str()));
     GR_GL_CALL_RET(gl, fImageIncrementLocation,
@@ -144,7 +144,7 @@ void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
 
 void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
                                     GrCustomStage* data,
-                                    const GrGLTexture* texture) SK_OVERRIDE {
+                                    const GrGLTexture* texture) {
     fData = static_cast<GrConvolutionEffect*>(data);
     GR_GL_CALL(gl, Uniform1fv(fKernelLocation,
                               fData->fKernelWidth,
@@ -195,8 +195,7 @@ GrConvolutionEffectFactory::~GrConvolutionEffectFactory() {
 
 }
 
-uint16_t GrConvolutionEffectFactory::stageKey(const GrCustomStage* s)
-    SK_OVERRIDE {
+uint16_t GrConvolutionEffectFactory::stageKey(const GrCustomStage* s) {
     const GrConvolutionEffect* c =
         static_cast<const GrConvolutionEffect*>(s);
     GrAssert(c->width() < 256);
@@ -204,7 +203,7 @@ uint16_t GrConvolutionEffectFactory::stageKey(const GrCustomStage* s)
 }
 
 GrGLProgramStage* GrConvolutionEffectFactory::createGLInstance(
-    GrCustomStage* s) SK_OVERRIDE {
+    GrCustomStage* s) {
     return new GrGLConvolutionEffect(static_cast<GrConvolutionEffect*>(s));
 }
 
