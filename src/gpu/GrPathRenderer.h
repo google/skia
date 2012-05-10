@@ -21,6 +21,10 @@ struct GrPoint;
 
 /**
  *  Base class for drawing paths into a GrDrawTarget.
+ *
+ *  Derived classes can use stages GrPaint::kTotalStages through 
+ *  GrDrawState::kNumStages-1. The stages before GrPaint::kTotalStages
+ *  are reserved for setting up the draw (i.e., textures and filter masks).
  */
 class GR_API GrPathRenderer : public GrRefCnt {
 public:

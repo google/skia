@@ -36,6 +36,11 @@ public:
      * the last enabled stage. The presence or absence of texture coordinates
      * for each stage in the vertex layout indicates whether a stage is enabled
      * or not.
+     *
+     * Stages 0 through GrPaint::kTotalStages-1 are reserved for setting up
+     * the draw (i.e., textures and filter masks). Stages GrPaint::kTotalStages 
+     * through kNumStages-1 are earmarked for use by GrTextContext and 
+     * GrPathRenderer-derived classes.
      */
     enum {
         kNumStages = 4,
