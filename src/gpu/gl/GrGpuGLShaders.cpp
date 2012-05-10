@@ -302,7 +302,7 @@ bool GrGpuGLShaders::programUnitTest() {
             // TODO: is there a more elegant way to express this?
             if (stage.fFetchMode == StageDesc::kConvolution_FetchMode) {
                 int direction = random_int(&random, 2);
-                float kernel[stage.fKernelWidth];
+                float kernel[MAX_KERNEL_WIDTH];
                 for (int i = 0; i < stage.fKernelWidth; i++) {
                     kernel[i] = random.nextF();
                 }
