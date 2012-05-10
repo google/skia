@@ -20,31 +20,31 @@
 struct SK_API SkIRect {
     int32_t fLeft, fTop, fRight, fBottom;
 
-    static SkIRect MakeEmpty() {
+    static SkIRect SK_WARN_UNUSED_RESULT MakeEmpty() {
         SkIRect r;
         r.setEmpty();
         return r;
     }
     
-    static SkIRect MakeWH(int32_t w, int32_t h) {
+    static SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h) {
         SkIRect r;
         r.set(0, 0, w, h);
         return r;
     }
     
-    static SkIRect MakeSize(const SkISize& size) {
+    static SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size) {
         SkIRect r;
         r.set(0, 0, size.width(), size.height());
         return r;
     }
     
-    static SkIRect MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b) {
+    static SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b) {
         SkIRect rect;
         rect.set(l, t, r, b);
         return rect;
     }
     
-    static SkIRect MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h) {
+    static SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h) {
         SkIRect r;
         r.set(x, y, x + w, y + h);
         return r;
@@ -185,18 +185,18 @@ struct SK_API SkIRect {
     }
 
     /** Return true if this rectangle contains the specified rectangle.
-		For speed, this method does not check if either this or the specified
-		rectangles are empty, and if either is, its return value is undefined.
-		In the debugging build however, we assert that both this and the
-		specified rectangles are non-empty.
+        For speed, this method does not check if either this or the specified
+        rectangles are empty, and if either is, its return value is undefined.
+        In the debugging build however, we assert that both this and the
+        specified rectangles are non-empty.
     */
     bool containsNoEmptyCheck(int32_t left, int32_t top,
-							  int32_t right, int32_t bottom) const {
-		SkASSERT(fLeft < fRight && fTop < fBottom);
+                              int32_t right, int32_t bottom) const {
+        SkASSERT(fLeft < fRight && fTop < fBottom);
         SkASSERT(left < right && top < bottom);
 
         return fLeft <= left && fTop <= top &&
-			   fRight >= right && fBottom >= bottom;
+               fRight >= right && fBottom >= bottom;
     }
     
     /** If r intersects this rectangle, return true and set this rectangle to that
@@ -294,7 +294,7 @@ struct SK_API SkIRect {
     */
     void sort();
 
-    static const SkIRect& EmptyIRect() {
+    static const SkIRect& SK_WARN_UNUSED_RESULT EmptyIRect() {
         static const SkIRect gEmpty = { 0, 0, 0, 0 };
         return gEmpty;
     }
@@ -305,31 +305,31 @@ struct SK_API SkIRect {
 struct SK_API SkRect {
     SkScalar    fLeft, fTop, fRight, fBottom;
 
-    static SkRect MakeEmpty() {
+    static SkRect SK_WARN_UNUSED_RESULT MakeEmpty() {
         SkRect r;
         r.setEmpty();
         return r;
     }
 
-    static SkRect MakeWH(SkScalar w, SkScalar h) {
+    static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h) {
         SkRect r;
         r.set(0, 0, w, h);
         return r;
     }
 
-    static SkRect MakeSize(const SkSize& size) {
+    static SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size) {
         SkRect r;
         r.set(0, 0, size.width(), size.height());
         return r;
     }
 
-    static SkRect MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
+    static SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
         SkRect rect;
         rect.set(l, t, r, b);
         return rect;
     }
 
-    static SkRect MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h) {
+    static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h) {
         SkRect r;
         r.set(x, y, x + w, y + h);
         return r;
