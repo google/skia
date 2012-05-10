@@ -12,6 +12,7 @@
 #include "SkData.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
+#include "SkPathEffect.h"
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
 #include "SkImageFilter.h"
