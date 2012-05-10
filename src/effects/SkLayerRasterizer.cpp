@@ -14,6 +14,7 @@
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathEffect.h"
 #include "../core/SkRasterClip.h"
 #include "SkXfermode.h"
 #include <new>

@@ -71,6 +71,39 @@ bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
 
 #include "SkStroke.h"
 
+/** \class SkStrokePathEffect
+ 
+ SkStrokePathEffect simulates stroking inside a patheffect, allowing the
+ caller to have explicit control of when to stroke a path. Typically this is
+ used if the caller wants to stroke before another patheffect is applied
+ (using SkComposePathEffect or SkSumPathEffect).
+ */
+class SkStrokePathEffect : public SkPathEffect {
+public:
+    SkStrokePathEffect(const SkPaint&);
+    SkStrokePathEffect(SkScalar width, SkPaint::Style, SkPaint::Join,
+                       SkPaint::Cap, SkScalar miterLimit = -1);
+    
+    // overrides
+    virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
+    
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStrokePathEffect)
+    
+protected:
+    SkStrokePathEffect(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    
+private:
+    SkScalar    fWidth, fMiter;
+    uint8_t     fStyle, fJoin, fCap;
+    
+    typedef SkPathEffect INHERITED;
+    
+    // illegal
+    SkStrokePathEffect(const SkStrokePathEffect&);
+    SkStrokePathEffect& operator=(const SkStrokePathEffect&);
+};
+
 SkStrokePathEffect::SkStrokePathEffect(const SkPaint& paint)
     : fWidth(paint.getStrokeWidth()), fMiter(paint.getStrokeMiter()),
       fStyle(SkToU8(paint.getStyle())), fJoin(SkToU8(paint.getStrokeJoin())),
@@ -129,6 +162,6 @@ SkStrokePathEffect::SkStrokePathEffect(SkFlattenableReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkComposePathEffect)
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkStrokePathEffect)
+//SK_DEFINE_FLATTENABLE_REGISTRAR(SkStrokePathEffect)
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkSumPathEffect)
 
