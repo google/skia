@@ -221,6 +221,14 @@ public:
                p3.equalsWithinTolerance(p4);
     }
 
+    /**
+     *  Returns true if the path specifies a single line (i.e. it contains just
+     *  a moveTo and a lineTo). If so, and line[] is not null, it sets the 2
+     *  points in line[] to the end-points of the line. If the path is not a
+     *  line, returns false and ignores line[].
+     */
+    bool isLine(SkPoint line[2]) const;
+
     /** Returns true if the path specifies a rectangle. If so, and if rect is
         not null, set rect to the bounds of the path. If the path does not
         specify a rectangle, return false and ignore rect.

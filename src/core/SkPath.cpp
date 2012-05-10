@@ -249,6 +249,24 @@ bool SkPath::isEmpty() const {
     return 0 == fVerbs.count();
 }
 
+bool SkPath::isLine(SkPoint line[2]) const {
+    int verbCount = fVerbs.count();
+    int ptCount = fPts.count();
+    
+    if (2 == verbCount && 2 == ptCount) {
+        const uint8_t* verbs = fVerbs.begin();
+        if (kMove_Verb == verbs[0] && kLine_Verb == verbs[1]) {
+            if (line) {
+                const SkPoint* pts = fPts.begin();
+                line[0] = pts[0];
+                line[1] = pts[1];
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 /*
  Determines if path is a rect by keeping track of changes in direction
  and looking for a loop either clockwise or counterclockwise.
