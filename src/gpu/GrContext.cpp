@@ -2094,6 +2094,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
     }
 
+    SkIRect srcIRect;
+    srcRect.roundOut(&srcIRect);
+
     if (sigmaX > 0.0f) {
         SkAutoTMalloc<float> kernelStorageX(kernelWidthX);
         float* kernelX = kernelStorageX.get();
@@ -2102,8 +2105,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         if (scaleFactorX > 1) {
             // Clear out a halfWidth to the right of the srcRect to prevent the
             // X convolution from reading garbage.
-            clearRect = SkIRect::MakeXYWH(
-                srcRect.fRight, srcRect.fTop, halfWidthX, srcRect.height());
+            clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop, 
+                                          halfWidthX, srcIRect.height());
             this->clear(&clearRect, 0x0);
         }
 
@@ -2124,8 +2127,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         if (scaleFactorY > 1 || sigmaX > 0.0f) {
             // Clear out a halfWidth below the srcRect to prevent the Y
             // convolution from reading garbage.
-            clearRect = SkIRect::MakeXYWH(
-                srcRect.fLeft, srcRect.fBottom, srcRect.width(), halfWidthY);
+            clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom, 
+                                          srcIRect.width(), halfWidthY);
             this->clear(&clearRect, 0x0);
         }
 
@@ -2141,11 +2144,11 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     if (scaleFactorX > 1 || scaleFactorY > 1) {
         // Clear one pixel to the right and below, to accommodate bilinear
         // upsampling.
-        clearRect = SkIRect::MakeXYWH(
-            srcRect.fLeft, srcRect.fBottom, srcRect.width() + 1, 1);
+        clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom, 
+                                      srcIRect.width() + 1, 1);
         this->clear(&clearRect, 0x0);
-        clearRect = SkIRect::MakeXYWH(
-            srcRect.fRight, srcRect.fTop, 1, srcRect.height());
+        clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop, 
+                                      1, srcIRect.height());
         this->clear(&clearRect, 0x0);
         // FIXME:  This should be mitchell, not bilinear.
         paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
@@ -2154,7 +2157,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         this->setRenderTarget(dstTexture->asRenderTarget());
         paint.setTexture(0, srcTexture);
         SkRect dstRect(srcRect);
-        scale_rect(&dstRect, scaleFactorX, scaleFactorY);
+        scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         SkTSwap(srcTexture, dstTexture);
@@ -2173,13 +2176,17 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
     GrAutoMatrix avm(this, GrMatrix::I());
     GrClip oldClip = this->getClip();
-    this->setClip(GrRect::MakeWH(srcTexture->width(), srcTexture->height()));
+    this->setClip(GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
+                                 SkIntToScalar(srcTexture->height())));
     if (radius.fWidth > 0) {
         this->setRenderTarget(temp1->asRenderTarget());
         apply_morphology(fGpu, srcTexture, rect, radius.fWidth, filter,
                          GrSamplerState::kX_FilterDirection);
-        SkIRect clearRect = SkIRect::MakeXYWH(rect.fLeft, rect.fBottom,
-                                              rect.width(), radius.fHeight);
+        SkIRect clearRect = SkIRect::MakeXYWH(
+                    SkScalarFloorToInt(rect.fLeft), 
+                    SkScalarFloorToInt(rect.fBottom),
+                    SkScalarFloorToInt(rect.width()), 
+                    radius.fHeight);
         this->clear(&clearRect, 0x0);
         srcTexture = temp1;
     }
