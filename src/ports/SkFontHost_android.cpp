@@ -705,31 +705,20 @@ static void reload_fallback_fonts() {
 }
 
 static void load_system_fonts() {
-#if !defined(SK_BUILD_FOR_ANDROID_NDK)
-    static char prevLanguage[3];
-    static char prevRegion[3];
-    char language[3] = "";
-    char region[3] = "";
+    static AndroidLocale prevLocale;
+    AndroidLocale locale;
 
-    getLocale(language, region);
+    getLocale(locale);
 
     if (!gDefaultNormal) {
-        strncpy(prevLanguage, language, 2);
-        strncpy(prevRegion, region, 2);
+        prevLocale = locale;
         init_system_fonts();
-    } else if (strncmp(language, prevLanguage, 2) || strncmp(region, prevRegion, 2)) {
-        strncpy(prevLanguage, language, 2);
-        strncpy(prevRegion, region, 2);
+    } else if (strncmp(locale.language, prevLocale.language, 2) ||
+            strncmp(locale.region, prevLocale.region, 2)) {
+        prevLocale = locale;
         reload_fallback_fonts();
     }
-#else
-    if (!gDefaultNormal) {
-        init_system_fonts();
-        reload_fallback_fonts();
-    }
-#endif
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 

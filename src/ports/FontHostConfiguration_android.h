@@ -52,8 +52,11 @@ void getSystemFontFamilies(SkTDArray<FontFamily*> &fontFamilies);
  */
 void getFallbackFontFamilies(SkTDArray<FontFamily*> &fallbackFonts);
 
-#if !defined(SK_BUILD_FOR_ANDROID_NDK)
-    void getLocale(char* language, char* region);
-#endif
+struct AndroidLocale {
+    char language[3];
+    char region[3];
+};
+
+void getLocale(AndroidLocale &locale);
 
 #endif /* FONTHOSTCONFIGURATION_ANDROID_H_ */
