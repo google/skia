@@ -425,6 +425,52 @@ static void test_convexity(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_isLine(skiatest::Reporter* reporter) {
+    SkPath path;
+    SkPoint pts[2];
+    const SkScalar value = SkIntToScalar(5);
+
+    REPORTER_ASSERT(reporter, !path.isLine(NULL));
+    
+    // set some non-zero values
+    pts[0].set(value, value);
+    pts[1].set(value, value);
+    REPORTER_ASSERT(reporter, !path.isLine(pts));
+    // check that pts was untouched
+    REPORTER_ASSERT(reporter, pts[0].equals(value, value));
+    REPORTER_ASSERT(reporter, pts[1].equals(value, value));
+
+    const SkScalar moveX = SkIntToScalar(1);
+    const SkScalar moveY = SkIntToScalar(2);
+    SkASSERT(value != moveX && value != moveY);
+
+    path.moveTo(moveX, moveY);
+    REPORTER_ASSERT(reporter, !path.isLine(NULL));
+    REPORTER_ASSERT(reporter, !path.isLine(pts));
+    // check that pts was untouched
+    REPORTER_ASSERT(reporter, pts[0].equals(value, value));
+    REPORTER_ASSERT(reporter, pts[1].equals(value, value));
+
+    const SkScalar lineX = SkIntToScalar(2);
+    const SkScalar lineY = SkIntToScalar(2);
+    SkASSERT(value != lineX && value != lineY);
+
+    path.lineTo(lineX, lineY);
+    REPORTER_ASSERT(reporter, path.isLine(NULL));
+
+    REPORTER_ASSERT(reporter, !pts[0].equals(moveX, moveY));
+    REPORTER_ASSERT(reporter, !pts[1].equals(lineX, lineY));
+    REPORTER_ASSERT(reporter, path.isLine(pts));
+    REPORTER_ASSERT(reporter, pts[0].equals(moveX, moveY));
+    REPORTER_ASSERT(reporter, pts[1].equals(lineX, lineY));
+
+    path.lineTo(0, 0);  // too many points/verbs
+    REPORTER_ASSERT(reporter, !path.isLine(NULL));
+    REPORTER_ASSERT(reporter, !path.isLine(pts));
+    REPORTER_ASSERT(reporter, pts[0].equals(moveX, moveY));
+    REPORTER_ASSERT(reporter, pts[1].equals(lineX, lineY));
+}
+
 // Simple isRect test is inline TestPath, below.
 // test_isRect provides more extensive testing.
 static void test_isRect(skiatest::Reporter* reporter) {
@@ -1315,8 +1361,9 @@ void TestPath(skiatest::Reporter* reporter) {
     bounds.set(0, 0, SK_Scalar1/2, SK_Scalar1/2);
     p.addRect(bounds);
     REPORTER_ASSERT(reporter, !p.isRect(NULL));
-    test_isRect(reporter);
 
+    test_isLine(reporter);
+    test_isRect(reporter);
     test_zero_length_paths(reporter);
     test_direction(reporter);
     test_convexity(reporter);
