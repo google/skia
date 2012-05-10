@@ -22,6 +22,11 @@ class GrPaint;
 class SkGpuDevice;
 class SkPaint;
 
+/**
+ * Derived classes can use stages GrPaint::kTotalStages through 
+ * GrDrawState::kNumStages-1. The stages before GrPaint::kTotalStages
+ * are reserved for setting up the draw (i.e., textures and filter masks).
+ */
 class GrTextContext: public GrRefCnt {
 protected:
     GrContext*      fContext;
