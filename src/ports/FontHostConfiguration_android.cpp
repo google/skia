@@ -19,9 +19,7 @@
 #include "SkString.h"
 #include "SkTDArray.h"
 #include <expat.h>
-#if !defined(SK_BUILD_FOR_ANDROID_NDK)
-    #include <cutils/properties.h>
-#endif
+#include <sys/system_properties.h>
 
 #define SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
 #define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
@@ -131,25 +129,29 @@ void endElementHandler(void *data, const char *tag) {
     }
 }
 
-#if !defined(SK_BUILD_FOR_ANDROID_NDK)
 /**
  * Read the persistent locale.
  */
-void getLocale(char* language, char* region)
+void getLocale(AndroidLocale &locale)
 {
-    char propLang[PROPERTY_VALUE_MAX], propRegn[PROPERTY_VALUE_MAX];
+    char propLang[PROP_VALUE_MAX], propRegn[PROP_VALUE_MAX];
+    __system_property_get("persist.sys.language", propLang);
+    __system_property_get("persist.sys.country", propRegn);
 
-    property_get("persist.sys.language", propLang, "");
-    property_get("persist.sys.country", propRegn, "");
     if (*propLang == 0 && *propRegn == 0) {
         /* Set to ro properties, default is en_US */
-        property_get("ro.product.locale.language", propLang, "en");
-        property_get("ro.product.locale.region", propRegn, "US");
+        __system_property_get("ro.product.locale.language", propLang);
+        __system_property_get("ro.product.locale.region", propRegn);
+        if (*propLang == 0 && *propRegn == 0) {
+            strcpy(propLang, "en");
+            strcpy(propRegn, "US");
+        }
     }
-    strncat(language, propLang, 2);
-    strncat(region, propRegn, 2);
+    strncpy(locale.language, propLang, 2);
+    locale.language[2] = '\0';
+    strncpy(locale.region, propRegn, 2);
+    locale.region[2] = '\0';
 }
-#endif
 
 /**
  * Use the current system locale (language and region) to open the best matching
@@ -160,32 +162,28 @@ void getLocale(char* language, char* region)
  */
 FILE* openLocalizedFile(const char* origname) {
     FILE* file = 0;
-
-#if !defined(SK_BUILD_FOR_ANDROID_NDK)
     SkString basename;
     SkString filename;
-    char language[3] = "";
-    char region[3] = "";
+    AndroidLocale locale;
 
     basename.set(origname);
     // Remove the .xml suffix. We'll add it back in a moment.
     if (basename.endsWith(".xml")) {
         basename.resize(basename.size()-4);
     }
-    getLocale(language, region);
+    getLocale(locale);
     // Try first with language and region
-    filename.printf("%s-%s-%s.xml", basename.c_str(), language, region);
+    filename.printf("%s-%s-%s.xml", basename.c_str(), locale.language, locale.region);
     file = fopen(filename.c_str(), "r");
     if (!file) {
         // If not found, try next with just language
-        filename.printf("%s-%s.xml", basename.c_str(), language);
+        filename.printf("%s-%s.xml", basename.c_str(), locale.language);
         file = fopen(filename.c_str(), "r");
-    }
-#endif
 
-    if (!file) {
-        // If still not found, try just the original name
-        file = fopen(origname, "r");
+        if (!file) {
+            // If still not found, try just the original name
+            file = fopen(origname, "r");
+        }
     }
     return file;
 }
