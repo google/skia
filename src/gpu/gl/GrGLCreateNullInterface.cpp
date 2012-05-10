@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -8,7 +7,7 @@
 
 
 #include "gl/GrGLInterface.h"
-#include "../GrTDArray.h"
+#include "GrTDArray.h"
 #include "GrGLDefines.h"
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}

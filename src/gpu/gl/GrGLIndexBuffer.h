@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -11,7 +10,7 @@
 #ifndef GrGLIndexBuffer_DEFINED
 #define GrGLIndexBuffer_DEFINED
 
-#include "../GrIndexBuffer.h"
+#include "GrIndexBuffer.h"
 #include "gl/GrGLInterface.h"
 
 class GrGpuGL;

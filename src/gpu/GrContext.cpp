@@ -11,6 +11,7 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrClipIterator.h"
+#include "effects/GrConvolutionEffect.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
@@ -296,8 +297,8 @@ void convolve(GrGpu* gpu,
     drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
                                  GrSamplerState::kConvolution_Filter,
                                  sampleM);
-    drawState->sampler(0)->setConvolutionParams(kernelWidth, kernel);
-    drawState->sampler(0)->setFilterDirection(direction);
+    drawState->sampler(0)->setCustomStage(
+        new GrConvolutionEffect(direction, kernelWidth, kernel));
     drawState->setTexture(0, texture);
     gpu->drawSimpleRect(rect, NULL, 1 << 0);
 }

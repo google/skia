@@ -13,19 +13,11 @@ GrGLProgramStage::~GrGLProgramStage() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramStageFactory::~GrGLProgramStageFactory(void) {
+void GrGLProgramStage::setupVSUnis(VarArray* vsUnis, int stage) {
 
 }
 
-uint16_t GrGLProgramStageFactory::stageKey(const GrCustomStage*) {
-    return 0;
-}
-
-void GrGLProgramStage::setupVSUnis(VarArray& vsUnis, int stage) {
-
-}
-
-void GrGLProgramStage::setupFSUnis(VarArray& fsUnis, int stage) {
+void GrGLProgramStage::setupFSUnis(VarArray* fsUnis, int stage) {
 
 }
 
@@ -33,7 +25,8 @@ void GrGLProgramStage::initUniforms(const GrGLInterface*, int progID) {
 
 }
 
-void GrGLProgramStage::setData(const GrGLInterface*, GrCustomStage*) {
+void GrGLProgramStage::setData(const GrGLInterface*, GrCustomStage*,
+                               const GrGLTexture*) {
 
 }
 

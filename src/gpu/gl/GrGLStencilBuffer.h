@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -11,7 +10,7 @@
 #define GrGLStencilBuffer_DEFINED
 
 #include "gl/GrGLInterface.h"
-#include "../GrStencilBuffer.h"
+#include "GrStencilBuffer.h"
 
 class GrGLStencilBuffer : public GrStencilBuffer {
 public:

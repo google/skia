@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -11,7 +10,7 @@
 #ifndef GrGLVertexBuffer_DEFINED
 #define GrGLVertexBuffer_DEFINED
 
-#include "../GrVertexBuffer.h"
+#include "GrVertexBuffer.h"
 #include "gl/GrGLInterface.h"
 
 class GrGpuGL;

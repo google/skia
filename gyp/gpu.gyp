@@ -164,6 +164,7 @@
         '../include/config',
         '../include/gpu',
         '../src/core', # SkRasterClip.h
+        '../src/gpu'
       ],
       'dependencies': [
         'libtess.gyp:libtess',
@@ -248,6 +249,8 @@
         '../src/gpu/GrPathUtils.cpp',
         '../src/gpu/GrPathUtils.h',
         '../src/gpu/GrPlotMgr.h',
+        '../src/gpu/GrProgramStageFactory.cpp',
+        '../src/gpu/GrProgramStageFactory.h',
         '../src/gpu/GrRandom.h',
         '../src/gpu/GrRectanizer.cpp',
         '../src/gpu/GrRectanizer.h',
@@ -275,6 +278,9 @@
         '../src/gpu/GrTLList.h',
         '../src/gpu/GrVertexBuffer.h',
         '../src/gpu/gr_unittests.cpp',
+
+        '../src/gpu/effects/GrConvolutionEffect.cpp',
+        '../src/gpu/effects/GrConvolutionEffect.h',
 
         '../src/gpu/gl/GrGLCaps.cpp',
         '../src/gpu/gl/GrGLCaps.h',
