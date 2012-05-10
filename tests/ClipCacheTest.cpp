@@ -14,16 +14,15 @@ static const int Y_SIZE = 12;
 
 ////////////////////////////////////////////////////////////////////////////////
 static GrTexture* createTexture(GrContext* context) {
-    unsigned char textureData[X_SIZE][Y_SIZE];
+    unsigned char textureData[X_SIZE][Y_SIZE][4];
 
-    memset(textureData, 0, X_SIZE * Y_SIZE);
+    memset(textureData, 0, 4* X_SIZE * Y_SIZE);
 
     GrTextureDesc desc;
 
     // let Skia know we will be using this texture as a render target
     desc.fFlags     = kRenderTarget_GrTextureFlagBit;
-    // it is a single channel texture
-    desc.fConfig    = kAlpha_8_GrPixelConfig;
+    desc.fConfig    = kSkia8888_PM_GrPixelConfig;
     desc.fWidth     = X_SIZE;
     desc.fHeight    = Y_SIZE;
     desc.fSampleCnt = 0;
@@ -84,6 +83,11 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     clip1.setFromRect(bound1);
 
     SkAutoTUnref<GrTexture> texture(createTexture(context));
+    REPORTER_ASSERT(reporter, texture.get());
+
+    if (NULL == texture.get()) {
+        return;
+    }
 
     cache.set(clip1, 128, 128, texture.get(), bound1);
 
@@ -144,7 +148,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 ////////////////////////////////////////////////////////////////////////////////
 static void TestClipCache(skiatest::Reporter* reporter, GrContext* context) {
 
-    // test_cache(reporter, context);
+    test_cache(reporter, context);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
