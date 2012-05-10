@@ -8,13 +8,14 @@
 #ifndef GrGLCustomStage_DEFINED
 #define GrGLCustomStage_DEFINED
 
-#include "../GrAllocator.h"
+#include "GrAllocator.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
-#include "../GrStringBuilder.h"
+#include "GrStringBuilder.h"
 
 class GrCustomStage;
 struct GrGLInterface;
+class GrGLTexture;
 
 /** @file
     This file contains specializations for OpenGL of the shader stages
@@ -39,17 +40,19 @@ public:
     
     virtual ~GrGLProgramStage();
 
+    virtual const char* name() const = 0;
+
     /** Creates any uniform variables the vertex shader requires
         and appends them to vsUnis;
         must guarantee they are unique (typically done by
         appending the stage number). */
-    virtual void setupVSUnis(VarArray& vsUnis, int stage);
+    virtual void setupVSUnis(VarArray* vsUnis, int stage);
 
     /** Creates any uniform variables the fragment shader requires
         and appends them to fsUnis;
         must guarantee they are unique (typically done by
         appending the stage number). */
-    virtual void setupFSUnis(VarArray& fsUnis, int stage);
+    virtual void setupFSUnis(VarArray* fsUnis, int stage);
 
     /** Given an empty GrStringBuilder and the names of variables;
         must write shader code into that GrStringBuilder.
@@ -86,7 +89,8 @@ public:
         are to be read.
         TODO: since we don't have a factory, we can't assert to enforce
         this. Shouldn't we? */
-    virtual void setData(const GrGLInterface*, GrCustomStage*);
+    virtual void setData(const GrGLInterface*, GrCustomStage*,
+                         const GrGLTexture*);
 
     // TODO: needs a better name
     enum SamplerMode {
@@ -95,7 +99,7 @@ public:
         kExplicitDivide_SamplerMode  // must do an explicit divide
     };
 
-    void setSamplerMode(SamplerMode shaderMode) { fSamplerMode = shaderMode; }
+    void setSamplerMode(SamplerMode samplerMode) { fSamplerMode = samplerMode; }
 
     /** Returns the *effective* coord name after any perspective divide
         or other transform. */
@@ -116,35 +120,6 @@ protected:
     SamplerMode fSamplerMode;
     GrStringBuilder fCoordName;
 
-};
-
-
-/// Every GrGLProgramStage subclass needs a GrGLProgramStageFactory subclass
-/// to manage its creation.
-
-class GrGLProgramStageFactory {
-
-public:
-
-    virtual ~GrGLProgramStageFactory();
-
-    /** Returns a short unique identifier for this subclass x its
-        parameters. If the key differs, different shader code must
-        be generated; if the key matches, shader code can be reused.
-        0 == no custom stage. */
-    virtual uint16_t stageKey(const GrCustomStage*);
-
-    /** Returns a new instance of the appropriate implementation class
-        for the given GrCustomStage; caller is responsible for deleting
-        the object. */
-    virtual GrGLProgramStage* createGLInstance(GrCustomStage*) = 0;
-
-protected:
-
-    /** Disable default constructor - instances should be singletons
-        with static factory functions: our test examples are all stateless,
-        but we suspect that future implementations may want to cache data? */
-    GrGLProgramStageFactory() { }
 };
 
 #endif

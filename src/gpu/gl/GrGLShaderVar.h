@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -11,7 +10,7 @@
 
 #include "GrGLContextInfo.h"
 #include "GrGLSL.h"
-#include "../GrStringBuilder.h"
+#include "GrStringBuilder.h"
 
 #define USE_UNIFORM_FLOAT_ARRAYS true
 

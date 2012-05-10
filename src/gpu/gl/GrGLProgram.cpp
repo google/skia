@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrGLProgram.h"
 
-#include "../GrAllocator.h"
+#include "GrAllocator.h"
 #include "GrCustomStage.h"
 #include "GrGLProgramStage.h"
 #include "GrGLShaderVar.h"
+#include "GrProgramStageFactory.h"
 #include "SkTrace.h"
 #include "SkXfermode.h"
 
@@ -647,7 +646,6 @@ GrGLProgram::CachedData::~CachedData() {
 bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                              GrCustomStage** customStages,
                              GrGLProgram::CachedData* programData) const {
-
     ShaderCodeSegments segments;
     const uint32_t& layout = fProgramDesc.fVertexLayout;
 
@@ -757,18 +755,12 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Convert generic effect representation to GL-specific backend so they
-    // can be accesseed in genStageCode() and in subsequent uses of
-    // programData.
+    // We need to convert generic effect representations to GL-specific
+    // backends so they can be accesseed in genStageCode() and in subsequent,
+    // uses of programData, but it's safest to do so below when we're *sure*
+    // we need them.
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        GrCustomStage* customStage = customStages[s];
-        if (NULL != customStage) {
-            GrGLProgramStageFactory* factory = customStage->getGLFactory();
-            programData->fCustomStage[s] =
-                factory->createGLInstance(customStage);
-        } else {
-            programData->fCustomStage[s] = NULL;
-        }
+        programData->fCustomStage[s] = NULL;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -798,6 +790,12 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                     inCoords = texCoordAttrs[tcIdx].c_str();
                 }
 
+                if (NULL != customStages[s]) {
+                    GrProgramStageFactory* factory =
+                        customStages[s]->getFactory();
+                    programData->fCustomStage[s] =
+                        factory->createGLInstance(customStages[s]);
+                }
                 this->genStageCode(gl,
                                    s,
                                    fProgramDesc.fStages[s],
@@ -918,6 +916,12 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                         inCoords = texCoordAttrs[tcIdx].c_str();
                     }
 
+                    if (NULL != customStages[s]) {
+                        GrProgramStageFactory* factory =
+                            customStages[s]->getFactory();
+                        programData->fCustomStage[s] =
+                            factory->createGLInstance(customStages[s]);
+                    }
                     this->genStageCode(gl, s,
                         fProgramDesc.fStages[s],
                         inCoverage.size() ? inCoverage.c_str() : NULL,
@@ -1618,76 +1622,6 @@ void gen2x2FS(int stageNum,
 
 }
 
-void genConvolutionVS(int stageNum,
-                      const StageDesc& desc,
-                      ShaderCodeSegments* segments,
-                      GrGLProgram::StageUniLocations* locations,
-                      GrGLShaderVar** kernel,
-                      const char** imageIncrementName,
-                      const char* varyingVSName) {
-    //GrGLShaderVar* kernel = &segments->fFSUnis.push_back();
-    *kernel = &segments->fFSUnis.push_back();
-    (*kernel)->setType(kFloat_GrSLType);
-    (*kernel)->setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
-    (*kernel)->setArrayCount(desc.fKernelWidth);
-    GrGLShaderVar* imgInc = &segments->fFSUnis.push_back();
-    imgInc->setType(kVec2f_GrSLType);
-    imgInc->setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
-
-    convolve_param_names(stageNum,
-                         (*kernel)->accessName(),
-                         imgInc->accessName());
-    *imageIncrementName = imgInc->getName().c_str();
-
-    // need image increment in both VS and FS
-    segments->fVSUnis.push_back(*imgInc).setEmitPrecision(true);
-
-    locations->fKernelUni = kUseUniform;
-    locations->fImageIncrementUni = kUseUniform;
-    float scale = (desc.fKernelWidth - 1) * 0.5f;
-    segments->fVSCode.appendf("\t%s -= vec2(%g, %g) * %s;\n",
-                                  varyingVSName, scale, scale,
-                                  *imageIncrementName);
-}
-
-void genConvolutionFS(int stageNum,
-                      const StageDesc& desc,
-                      ShaderCodeSegments* segments,
-                      const char* samplerName,
-                      GrGLShaderVar* kernel,
-                      const char* swizzle,
-                      const char* imageIncrementName,
-                      const char* fsOutColor,
-                      GrStringBuilder& sampleCoords,
-                      GrStringBuilder& texFunc,
-                      GrStringBuilder& modulate) {
-    GrStringBuilder sumVar("sum");
-    sumVar.appendS32(stageNum);
-    GrStringBuilder coordVar("coord");
-    coordVar.appendS32(stageNum);
-
-    GrStringBuilder kernelIndex;
-    kernel->appendArrayAccess("i", &kernelIndex);
-
-    segments->fFSCode.appendf("\tvec4 %s = vec4(0, 0, 0, 0);\n",
-                              sumVar.c_str());
-    segments->fFSCode.appendf("\tvec2 %s = %s;\n", 
-                              coordVar.c_str(),
-                              sampleCoords.c_str());
-    segments->fFSCode.appendf("\tfor (int i = 0; i < %d; i++) {\n",
-                              desc.fKernelWidth);
-    segments->fFSCode.appendf("\t\t%s += %s(%s, %s)%s * %s;\n",
-                              sumVar.c_str(), texFunc.c_str(),
-                              samplerName, coordVar.c_str(), swizzle,
-                              kernelIndex.c_str());
-    segments->fFSCode.appendf("\t\t%s += %s;\n",
-                              coordVar.c_str(),
-                              imageIncrementName);
-    segments->fFSCode.append("\t}\n");
-    segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
-                              sumVar.c_str(), modulate.c_str());
-}
- 
 void genMorphologyVS(int stageNum,
                      const StageDesc& desc,
                      ShaderCodeSegments* segments,
@@ -1775,7 +1709,7 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     /// Vertex Shader Stuff
 
     if (NULL != customStage) {
-        customStage->setupVSUnis(segments->fVSUnis, stageNum);
+        customStage->setupVSUnis(&segments->fVSUnis, stageNum);
     }
 
     // decide whether we need a matrix to transform texture coords
@@ -1852,10 +1786,7 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     GrGLShaderVar* kernel = NULL;
     const char* imageIncrementName = NULL;
-    if (StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
-        genConvolutionVS(stageNum, desc, segments, locations,
-                         &kernel, &imageIncrementName, varyingVSName);
-    } else if (StageDesc::kDilate_FetchMode == desc.fFetchMode ||
+    if (StageDesc::kDilate_FetchMode == desc.fFetchMode ||
                StageDesc::kErode_FetchMode == desc.fFetchMode) {
         genMorphologyVS(stageNum, desc, segments, locations,
                         &imageIncrementName, varyingVSName);
@@ -1864,15 +1795,16 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     if (NULL != customStage) {
         GrStringBuilder vertexShader;
         customStage->emitVS(&vertexShader, varyingVSName);
-        segments->fVSCode.appendf("{\n");
+        segments->fVSCode.appendf("\t{ // stage %d %s\n",
+                                  stageNum, customStage->name());
         segments->fVSCode.append(vertexShader);
-        segments->fVSCode.appendf("}\n");
+        segments->fVSCode.appendf("\t}\n");
     }
 
     /// Fragment Shader Stuff
 
     if (NULL != customStage) {
-        customStage->setupFSUnis(segments->fFSUnis, stageNum);
+        customStage->setupFSUnis(&segments->fFSUnis, stageNum);
     }
 
     GrStringBuilder fsCoordName;
@@ -1985,9 +1917,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         break;
     case StageDesc::kConvolution_FetchMode:
         GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        genConvolutionFS(stageNum, desc, segments,
-            samplerName, kernel, swizzle, imageIncrementName, fsOutColor,
-            sampleCoords, texFunc, modulate);
         break;
     case StageDesc::kDilate_FetchMode:
     case StageDesc::kErode_FetchMode:
@@ -2040,15 +1969,16 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
         GrStringBuilder fragmentShader;
         fsCoordName = customStage->emitTextureSetup(
-                          &fragmentShader, varyingFSName,
+                          &fragmentShader, sampleCoords.c_str(),
                           stageNum, coordDims, varyingDims);
         customStage->emitFS(&fragmentShader, fsOutColor, fsInColor,
                             samplerName, fsCoordName.c_str());
       
         // Enclose custom code in a block to avoid namespace conflicts
-        segments->fFSCode.appendf("{\n");
+        segments->fFSCode.appendf("\t{ // stage %d %s \n",
+                                  stageNum, customStage->name());
         segments->fFSCode.append(fragmentShader);
-        segments->fFSCode.appendf("}\n");
+        segments->fFSCode.appendf("\t}\n");
     }
 }
 

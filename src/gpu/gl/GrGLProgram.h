@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -10,11 +9,11 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
-#include "../GrDrawState.h"
+#include "GrDrawState.h"
 #include "GrGLContextInfo.h"
 #include "GrGLSL.h"
-#include "../GrStringBuilder.h"
-#include "../GrGpu.h"
+#include "GrStringBuilder.h"
+#include "GrGpu.h"
 
 #include "SkXfermode.h"
 
@@ -108,6 +107,7 @@ public:
                 kCustomTextureDomain_OptFlagBit = 1 << 2,
                 kIsEnabled_OptFlagBit           = 1 << 7
             };
+            // Convolution is obsolete; left in for testing only
             enum FetchMode {
                 kSingle_FetchMode,
                 k2x2_FetchMode,
@@ -320,6 +320,9 @@ public:
 
         void copyAndTakeOwnership(CachedData& other) {
             memcpy(this, &other, sizeof(*this));
+            for (int i = 0; i < GrDrawState::kNumStages; ++i) {
+                other.fCustomStage[i] = NULL;
+            }
         }
 
     public:

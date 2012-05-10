@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -10,7 +9,7 @@
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
-#include "../GrGpu.h"
+#include "GrGpu.h"
 #include "GrGLRenderTarget.h"
 
 /**

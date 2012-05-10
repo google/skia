@@ -133,9 +133,9 @@ public:
         return !memcmp(this, &s, bitwiseRegion) &&
                ((fCustomStage == s.fCustomStage) ||
                 (fCustomStage && s.fCustomStage &&
-                 (fCustomStage->getGLFactory() ==
-                     s.fCustomStage->getGLFactory()) &&
-                 fCustomStage->isEquivalent(s.fCustomStage)));
+                 (fCustomStage->getFactory() ==
+                     s.fCustomStage->getFactory()) &&
+                 fCustomStage->isEqual(s.fCustomStage)));
     }
     bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
 
@@ -289,10 +289,6 @@ private:
     uint8_t             fKernelWidth;
     float               fKernel[MAX_KERNEL_WIDTH];
 
-    /// BUG! Ganesh only works correctly so long as fCustomStage is  
-    /// NULL; we need to have a complex ID system here so that we can
-    /// have an equality-like comparison to determine whether two
-    /// fCustomStages are equal.
     GrCustomStage*      fCustomStage;
 };
 

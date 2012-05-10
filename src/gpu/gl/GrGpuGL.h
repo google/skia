@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -11,8 +10,8 @@
 #ifndef GrGpuGL_DEFINED
 #define GrGpuGL_DEFINED
 
-#include "../GrDrawState.h"
-#include "../GrGpu.h"
+#include "GrDrawState.h"
+#include "GrGpu.h"
 #include "GrGLContextInfo.h"
 #include "GrGLIndexBuffer.h"
 #include "GrGLIRect.h"

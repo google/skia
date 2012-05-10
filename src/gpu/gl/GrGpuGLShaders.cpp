@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -7,16 +6,18 @@
  */
 
 
-#include "../GrBinHashKey.h"
+#include "GrBinHashKey.h"
+#include "effects/GrConvolutionEffect.h"
 #include "GrCustomStage.h"
 #include "GrGLProgram.h"
 #include "GrGLProgramStage.h"
 #include "GrGLSL.h"
 #include "GrGpuGLShaders.h"
-#include "../GrGpuVertex.h"
+#include "GrGpuVertex.h"
 #include "GrNoncopyable.h"
-#include "../GrStringBuilder.h"
-#include "../GrRandom.h"
+#include "GrProgramStageFactory.h"
+#include "GrRandom.h"
+#include "GrStringBuilder.h"
 
 #define SKIP_CACHE_CHECK    true
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
@@ -263,6 +264,10 @@ bool GrGpuGLShaders::programUnitTest() {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
             StageDesc& stage = pdesc.fStages[s];
+
+            stage.fCustomStageKey = 0;
+            customStages[s] = NULL;
+
             stage.fOptFlags = STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
             stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
             stage.fCoordMapping =  random_int(&random, StageDesc::kCoordMappingCnt);
@@ -294,8 +299,19 @@ bool GrGpuGLShaders::programUnitTest() {
                     break;
             }
 
-            stage.fCustomStageKey = 0;
-            customStages[s] = NULL;
+            // TODO: is there a more elegant way to express this?
+            if (stage.fFetchMode == StageDesc::kConvolution_FetchMode) {
+                int direction = random_int(&random, 2);
+                float kernel[stage.fKernelWidth];
+                for (int i = 0; i < stage.fKernelWidth; i++) {
+                    kernel[i] = random.nextF();
+                }
+                customStages[s] = new GrConvolutionEffect(
+                    (GrSamplerState::FilterDirection)direction,
+                    stage.fKernelWidth, kernel);
+                stage.fCustomStageKey =
+                    customStages[s]->getFactory()->stageKey(customStages[s]);
+            }
         }
         CachedData cachedData;
         if (!program.genProgram(this->glContextInfo(), customStages,
@@ -829,8 +845,11 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
             if (NULL != fProgramData->fCustomStage[s]) {
                 const GrSamplerState& sampler =
                     this->getDrawState().getSampler(s);
+                const GrGLTexture* texture =
+                    static_cast<const GrGLTexture*>(
+                        this->getDrawState().getTexture(s));
                 fProgramData->fCustomStage[s]->setData(
-                    this->glInterface(), sampler.getCustomStage());
+                    this->glInterface(), sampler.getCustomStage(), texture);
             }
         }
     }
@@ -1002,7 +1021,7 @@ void setup_custom_stage(GrGLProgram::ProgramDesc::StageDesc* stage,
                         GrGLProgram* program, int index) {
     GrCustomStage* customStage = sampler.getCustomStage();
     if (customStage) {
-        GrGLProgramStageFactory* factory = customStage->getGLFactory();
+        GrProgramStageFactory* factory = customStage->getFactory();
         stage->fCustomStageKey = factory->stageKey(customStage);
         customStages[index] = customStage;
     } else {
@@ -1215,8 +1234,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
                 }
             }
 
-            if (sampler.getFilter() == GrSamplerState::kConvolution_Filter ||
-                sampler.getFilter() == GrSamplerState::kDilate_Filter ||
+            if (sampler.getFilter() == GrSamplerState::kDilate_Filter ||
                 sampler.getFilter() == GrSamplerState::kErode_Filter) {
                 stage.fKernelWidth = sampler.getKernelWidth();
             } else {
