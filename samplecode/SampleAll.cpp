@@ -594,20 +594,7 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
         inner->unref();
         return result;
     }
-    
-    SkPathEffect* pathEffectTest2() { // unsure this works (has no visible effect)
-        SkPathEffect* outer = new SkStrokePathEffect(SkIntToScalar(4), 
-            SkPaint::kStroke_Style, SkPaint::kMiter_Join, SkPaint::kButt_Cap);
-        static const SkScalar intervals[] = {SkIntToScalar(1), SkIntToScalar(2),
-            SkIntToScalar(2), SkIntToScalar(1)};
-        SkPathEffect* inner = new SkDashPathEffect(intervals, 
-            sizeof(intervals) / sizeof(intervals[0]), 0);
-        SkPathEffect* result = new SkSumPathEffect(outer, inner);
-        outer->unref();
-        inner->unref();
-        return result;
-    }
-    
+
     SkShader* shaderTest() {
         SkPoint pts[] = { { 0, 0, }, { SkIntToScalar(100), 0 } };
         SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
