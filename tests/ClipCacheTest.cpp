@@ -144,7 +144,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 ////////////////////////////////////////////////////////////////////////////////
 static void TestClipCache(skiatest::Reporter* reporter, GrContext* context) {
 
-    test_cache(reporter, context);
+    // test_cache(reporter, context);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
