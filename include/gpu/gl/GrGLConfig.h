@@ -52,12 +52,6 @@
  * doesn't actually support immediate style attribute values (e.g. when 
  * the GL stream is converted to DX as in ANGLE on Chrome). Defaults to 0.
  *
- * GR_GL_ATTRIBUTE_MATRICES: If changing uniforms is very expensive it may be
- * faster to use vertex attributes for matrices (set via glVertexAttrib3fv). 
- * Setting this build flag enables this behavior. GR_GL_NO_CONSTANT_ATTRIBUTES
- * must not be set since this uses constant attributes for the matrices. 
- * Defaults to 0.
- *
  * GR_GL_USE_BUFFER_DATA_NULL_HINT: When specifing new data for a vertex/index
  * buffer that replaces old data Ganesh can give a hint to the driver that the
  * previous data will not be used in future draws like this:
@@ -120,10 +114,6 @@
     #define GR_GL_NO_CONSTANT_ATTRIBUTES                0
 #endif
 
-#if !defined(GR_GL_ATTRIBUTE_MATRICES)
-    #define GR_GL_ATTRIBUTE_MATRICES                    0
-#endif
-
 #if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)
     #define GR_GL_USE_BUFFER_DATA_NULL_HINT             1
 #endif
@@ -176,9 +166,5 @@
 #define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND   \
     (GR_MAC_BUILD &&                                    \
      !GR_GL_USE_BUFFER_DATA_NULL_HINT)
-
-#if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)
-    #error "Cannot combine GR_GL_NO_CONSTANT_ATTRIBUTES and GR_GL_ATTRIBUTE_MATRICES"
-#endif
 
 #endif
