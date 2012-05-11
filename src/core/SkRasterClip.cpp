@@ -161,7 +161,7 @@ static bool is_integral(SkScalar x) {
 bool SkRasterClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
     AUTO_RASTERCLIP_VALIDATE(*this);
     
-    if (doAA) {
+    if (fIsBW && doAA) {
         // check that the rect really needs aa
         if (is_integral(r.fLeft) && is_integral(r.fTop) &&
             is_integral(r.fRight) && is_integral(r.fBottom)) {
