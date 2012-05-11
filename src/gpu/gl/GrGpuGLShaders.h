@@ -34,7 +34,6 @@ protected:
                                int* startIndex,
                                int vertexCount,
                                int indexCount);
-    virtual void postDraw();
 
 private:
 
