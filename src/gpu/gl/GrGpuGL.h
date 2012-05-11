@@ -242,11 +242,6 @@ private:
 
     GrGLContextInfo fGLContextInfo;
 
-    // we want to clear stencil buffers when they are created. We want to clear
-    // the entire buffer even if it is larger than the color attachment. We
-    // attach it to this fbo with no color attachment to do the initial clear.
-    GrGLuint fStencilClearFBO;
-
     bool fHWBlendDisabled;
 
     int fActiveTextureUnitIdx;

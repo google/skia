@@ -774,9 +774,6 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     return true;
 }
 
-void GrGpuGLShaders::postDraw() {
-}
-
 #if GR_TEXT_SCALAR_IS_USHORT
     #define TEXT_COORDS_GL_TYPE          GR_GL_UNSIGNED_SHORT
     #define TEXT_COORDS_ARE_NORMALIZED   1
