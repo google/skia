@@ -30,11 +30,7 @@ enum {
 
 typedef GrGLProgram::ProgramDesc::StageDesc StageDesc;
 
-#if GR_GL_ATTRIBUTE_MATRICES
-    #define VIEW_MATRIX_NAME "aViewM"
-#else
-    #define VIEW_MATRIX_NAME "uViewM"
-#endif
+#define VIEW_MATRIX_NAME "uViewM"
 
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
@@ -81,11 +77,7 @@ inline const char* declared_color_output_name() { return "fsColorOut"; }
 inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
 inline void tex_matrix_name(int stage, GrStringBuilder* s) {
-#if GR_GL_ATTRIBUTE_MATRICES
-    *s = "aTexM";
-#else
     *s = "uTexM";
-#endif
     s->appendS32(stage);
 }
 
@@ -562,15 +554,10 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
         segments.fFSOutputs.push_back(colorOutput);
     }
 
-#if GR_GL_ATTRIBUTE_MATRICES
-    segments.fVSAttrs.push_back().set(kMat33f_GrSLType,
-        GrGLShaderVar::kAttribute_TypeModifier, VIEW_MATRIX_NAME);
-    programData->fUniLocations.fViewMatrixUni = kSetAsAttribute;
-#else
     segments.fVSUnis.push_back().set(kMat33f_GrSLType,
         GrGLShaderVar::kUniform_TypeModifier, VIEW_MATRIX_NAME);
     programData->fUniLocations.fViewMatrixUni = kUseUniform;
-#endif
+
     segments.fVSAttrs.push_back().set(kVec2f_GrSLType,
         GrGLShaderVar::kAttribute_TypeModifier, POS_ATTR_NAME);
 
@@ -1097,23 +1084,6 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
         }
     }
 
-    if (kSetAsAttribute == programData->fUniLocations.fViewMatrixUni) {
-        GL_CALL(BindAttribLocation(progID,
-                                   ViewMatrixAttributeIdx(),
-                                   VIEW_MATRIX_NAME));
-    }
-
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        const StageUniLocations& unis = programData->fUniLocations.fStages[s];
-        if (kSetAsAttribute == unis.fTextureMatrixUni) {
-            GrStringBuilder matName;
-            tex_matrix_name(s, &matName);
-            GL_CALL(BindAttribLocation(progID,
-                                       TextureMatrixAttributeIdx(s),
-                                       matName.c_str()));
-        }
-    }
-
     GL_CALL(BindAttribLocation(progID, ColorAttributeIdx(), COL_ATTR_NAME));
     GL_CALL(BindAttribLocation(progID, CoverageAttributeIdx(), COV_ATTR_NAME));
     GL_CALL(BindAttribLocation(progID, EdgeAttributeIdx(), EDGE_ATTR_NAME));
@@ -1569,15 +1539,10 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         varyingDims = coordDims;
     } else {
         GrGLShaderVar* mat;
-    #if GR_GL_ATTRIBUTE_MATRICES
-        mat = &segments->fVSAttrs.push_back();
-        mat->setTypeModifier(GrGLShaderVar::kAttribute_TypeModifier);
-        locations->fTextureMatrixUni = kSetAsAttribute;
-    #else
         mat = &segments->fVSUnis.push_back();
         mat->setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
         locations->fTextureMatrixUni = kUseUniform;
-    #endif
+
         tex_matrix_name(stageNum, mat->accessName());
         mat->setType(kMat33f_GrSLType);
         matName = mat->getName().c_str();

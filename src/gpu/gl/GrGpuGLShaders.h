@@ -45,12 +45,6 @@ private:
 
     class ProgramCache;
 
-    // Helpers to make code more readable
-    const GrMatrix& getHWViewMatrix();
-    void recordHWViewMatrix(const GrMatrix& matrix);
-    const GrMatrix& getHWSamplerMatrix(int stage);
-    void recordHWSamplerMatrix(int stage, const GrMatrix& matrix);
-
     // sets the texture matrix uniform for currently bound program
     void flushTextureMatrix(int stage);
 

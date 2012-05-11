@@ -260,7 +260,6 @@ private:
 public:
     enum {
         kUnusedUniform = -1,
-        kSetAsAttribute = 1000,
     };
 
     struct StageUniLocations {

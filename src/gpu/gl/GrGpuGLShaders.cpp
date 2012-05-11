@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrGpuGLShaders.h"
 
 #include "GrBinHashKey.h"
 #include "effects/GrConvolutionEffect.h"
@@ -12,7 +13,6 @@
 #include "GrGLProgram.h"
 #include "GrGLProgramStage.h"
 #include "GrGLSL.h"
-#include "GrGpuGLShaders.h"
 #include "GrGpuVertex.h"
 #include "GrNoncopyable.h"
 #include "GrProgramStageFactory.h"
@@ -356,48 +356,6 @@ GrGpuGLShaders::~GrGpuGLShaders() {
     delete fProgramCache;
 }
 
-const GrMatrix& GrGpuGLShaders::getHWViewMatrix() {
-    GrAssert(fProgramData);
-
-    if (GrGLProgram::kSetAsAttribute == 
-        fProgramData->fUniLocations.fViewMatrixUni) {
-        return fHWDrawState.getViewMatrix();
-    } else {
-        return fProgramData->fViewMatrix;
-    }
-}
-
-void GrGpuGLShaders::recordHWViewMatrix(const GrMatrix& matrix) {
-    GrAssert(fProgramData);
-    if (GrGLProgram::kSetAsAttribute == 
-        fProgramData->fUniLocations.fViewMatrixUni) {
-        fHWDrawState.setViewMatrix(matrix);
-    } else {
-        fProgramData->fViewMatrix = matrix;
-    }
-}
-
-const GrMatrix& GrGpuGLShaders::getHWSamplerMatrix(int stage) {
-    GrAssert(fProgramData);
-
-    if (GrGLProgram::kSetAsAttribute == 
-        fProgramData->fUniLocations.fStages[stage].fTextureMatrixUni) {
-        return fHWDrawState.getSampler(stage).getMatrix();
-    } else {
-        return fProgramData->fTextureMatrices[stage];
-    }
-}
-
-void GrGpuGLShaders::recordHWSamplerMatrix(int stage, const GrMatrix& matrix) {
-    GrAssert(fProgramData);
-    if (GrGLProgram::kSetAsAttribute == 
-        fProgramData->fUniLocations.fStages[stage].fTextureMatrixUni) {
-        *fHWDrawState.sampler(stage)->matrix() = matrix;
-    } else {
-        fProgramData->fTextureMatrices[stage] = matrix;
-    }
-}
-
 void GrGpuGLShaders::onResetContext() {
     INHERITED::onResetContext();
 
@@ -428,7 +386,7 @@ void GrGpuGLShaders::onResetContext() {
 
 void GrGpuGLShaders::flushViewMatrix() {
     const GrMatrix& vm = this->getDrawState().getViewMatrix();
-    if (!GrGpuGLShaders::getHWViewMatrix().cheapEqualTo(vm)) {
+    if (!fProgramData->fViewMatrix.cheapEqualTo(vm)) {
 
         const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
         GrAssert(NULL != rt);
@@ -453,19 +411,11 @@ void GrGpuGLShaders::flushViewMatrix() {
             GrScalarToFloat(m[GrMatrix::kMPersp2])
         };
 
-        if (GrGLProgram::kSetAsAttribute ==  
-            fProgramData->fUniLocations.fViewMatrixUni) {
-            int baseIdx = GrGLProgram::ViewMatrixAttributeIdx();
-            GL_CALL(VertexAttrib4fv(baseIdx + 0, mt+0));
-            GL_CALL(VertexAttrib4fv(baseIdx + 1, mt+3));
-            GL_CALL(VertexAttrib4fv(baseIdx + 2, mt+6));
-        } else {
-            GrAssert(GrGLProgram::kUnusedUniform != 
-                     fProgramData->fUniLocations.fViewMatrixUni);
-            GL_CALL(UniformMatrix3fv(fProgramData->fUniLocations.fViewMatrixUni,
-                                     1, false, mt));
-        }
-        this->recordHWViewMatrix(vm);
+        GrAssert(GrGLProgram::kUnusedUniform != 
+                 fProgramData->fUniLocations.fViewMatrixUni);
+        GL_CALL(UniformMatrix3fv(fProgramData->fUniLocations.fViewMatrixUni,
+                                 1, false, mt));
+        fProgramData->fViewMatrix = vm;
     }
 }
 
@@ -511,7 +461,7 @@ void GrGpuGLShaders::flushTextureMatrix(int s) {
     const GrGLTexture* texture =
         static_cast<const GrGLTexture*>(drawState.getTexture(s));
     if (NULL != texture) {
-        const GrMatrix& hwMatrix = this->getHWSamplerMatrix(s);
+        const GrMatrix& hwMatrix = fProgramData->fTextureMatrices[s];
         const GrMatrix& samplerMatrix = drawState.getSampler(s).getMatrix();
         if (GrGLProgram::kUnusedUniform != uni &&
             (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
@@ -536,16 +486,8 @@ void GrGpuGLShaders::flushTextureMatrix(int s) {
                 GrScalarToFloat(m[GrMatrix::kMPersp2])
             };
 
-            if (GrGLProgram::kSetAsAttribute ==
-                fProgramData->fUniLocations.fStages[s].fTextureMatrixUni) {
-                int baseIdx = GrGLProgram::TextureMatrixAttributeIdx(s);
-                GL_CALL(VertexAttrib4fv(baseIdx + 0, mt+0));
-                GL_CALL(VertexAttrib4fv(baseIdx + 1, mt+3));
-                GL_CALL(VertexAttrib4fv(baseIdx + 2, mt+6));
-            } else {
-                GL_CALL(UniformMatrix3fv(uni, 1, false, mt));
-            }
-            this->recordHWSamplerMatrix(s, drawState.getSampler(s).getMatrix());
+            GL_CALL(UniformMatrix3fv(uni, 1, false, mt));
+            fProgramData->fTextureMatrices[s] = samplerMatrix;
         }
     }
 }
