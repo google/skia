@@ -150,21 +150,27 @@ bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
     return this->updateCacheAndReturnNonEmpty();
 }
 
-// return true if x is nearly integral (within 1/16) since that is the highest
-// precision our aa code can have.
-static bool is_integral(SkScalar x) {
-    int ix = SkScalarRoundToInt(x);
-    SkScalar sx = SkIntToScalar(ix);
-    return SkScalarAbs(sx - x) < (SK_Scalar1 / 16);
+/**
+ *  Our antialiasing currently has a granularity of 1/4 of a pixel along each
+ *  axis. Thus we can treat an axis coordinate as an integer if it differs
+ *  from its nearest int by < half of that value (1.8 in this case).
+ */
+static bool nearly_integral(SkScalar x) {
+    static const SkScalar domain = SK_Scalar1 / 4;
+    static const SkScalar halfDomain = domain / 2;
+
+    x += halfDomain;
+    return x - SkScalarFloorToScalar(x) < domain;
 }
 
 bool SkRasterClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
     AUTO_RASTERCLIP_VALIDATE(*this);
     
     if (fIsBW && doAA) {
-        // check that the rect really needs aa
-        if (is_integral(r.fLeft) && is_integral(r.fTop) &&
-            is_integral(r.fRight) && is_integral(r.fBottom)) {
+        // check that the rect really needs aa, or is it close enought to
+        // integer boundaries that we can just treat it as a BW rect?
+        if (nearly_integral(r.fLeft) && nearly_integral(r.fTop) &&
+            nearly_integral(r.fRight) && nearly_integral(r.fBottom)) {
             doAA = false;
         }
     }
