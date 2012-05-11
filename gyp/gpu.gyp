@@ -297,6 +297,8 @@
         '../src/gpu/gl/GrGLProgramStage.h',
         '../src/gpu/gl/GrGLRenderTarget.cpp',
         '../src/gpu/gl/GrGLRenderTarget.h',
+        '../src/gpu/gl/GrGLShaderBuilder.cpp',
+        '../src/gpu/gl/GrGLShaderBuilder.h',
         '../src/gpu/gl/GrGLShaderVar.h',
         '../src/gpu/gl/GrGLSL.cpp',
         '../src/gpu/gl/GrGLSL.h',

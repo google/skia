@@ -19,8 +19,7 @@
 
 class GrBinHashKeyBuilder;
 class GrGLProgramStage;
-
-struct ShaderCodeSegments;
+class GrGLShaderBuilder;
 
 // optionally compile the experimental GS code. Set to GR_DEBUG
 // so that debug build bots will execute the code.
@@ -376,22 +375,22 @@ private:
                       const char* fsInColor, // NULL means no incoming color
                       const char* fsOutColor,
                       const char* vsInCoord,
-                      ShaderCodeSegments* segments,
+                      GrGLShaderBuilder* segments,
                       StageUniLocations* locations,
                       GrGLProgramStage* override) const;
 
     void genGeometryShader(const GrGLContextInfo& gl,
-                           ShaderCodeSegments* segments) const;
+                           GrGLShaderBuilder* segments) const;
 
     // generates code to compute coverage based on edge AA.
     void genEdgeCoverage(const GrGLContextInfo& gl,
                          GrVertexLayout layout,
                          CachedData* programData,
                          GrStringBuilder* coverageVar,
-                         ShaderCodeSegments* segments) const;
+                         GrGLShaderBuilder* segments) const;
 
     static bool CompileShaders(const GrGLContextInfo& gl,
-                               const ShaderCodeSegments& segments, 
+                               const GrGLShaderBuilder& segments, 
                                CachedData* programData);
 
     // Compiles a GL shader, returns shader ID or 0 if failed
