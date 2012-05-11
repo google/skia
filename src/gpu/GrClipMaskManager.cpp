@@ -394,12 +394,6 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
     GrRenderTarget* rt = origDrawState->getRenderTarget();
     GrAssert(NULL != rt);
 
-    if (fAACache.canReuse(clipIn, rt->width(), rt->height())) {
-        *result = fAACache.getLastMask();
-        fAACache.getLastBound(resultBounds);
-        return true;
-    }
-
     GrRect rtRect;
     rtRect.setLTRB(0, 0,
                     GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
@@ -431,6 +425,14 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
 
     GrAssert(SkScalarIsInt(bounds.width()));
     GrAssert(SkScalarIsInt(bounds.height()));
+
+    if (fAACache.canReuse(clipIn, 
+                          SkScalarCeilToInt(bounds.width()),
+                          SkScalarCeilToInt(bounds.height()))) {
+        *result = fAACache.getLastMask();
+        fAACache.getLastBound(resultBounds);
+        return true;
+    }
 
     const GrTextureDesc desc = {
         kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit,
@@ -548,7 +550,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
         }
     }
 
-    fAACache.set(clipIn, rt->width(), rt->height(), accum, bounds);
+    fAACache.set(clipIn, accum, bounds);
     *result = accum;
     *resultBounds = bounds;
     SkSafeUnref(accum);     // fAACache still has a ref to accum

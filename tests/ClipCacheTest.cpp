@@ -40,14 +40,9 @@ static GrTexture* createTexture(GrContext* context) {
 // verify that the top state of the stack matches the passed in state
 static void check_state(skiatest::Reporter* reporter,
                         const GrClipMaskCache& cache,
-                        int width,
-                        int height,
                         const GrClip& clip,
                         GrTexture* mask,
                         const GrRect& bound) {
-    REPORTER_ASSERT(reporter, width == cache.getLastWidth());
-    REPORTER_ASSERT(reporter, height == cache.getLastHeight());
-
     GrClip cacheClip;
     cache.getLastClip(&cacheClip);
     REPORTER_ASSERT(reporter, clip == cacheClip);
@@ -73,7 +68,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     emptyBound.setEmpty();
 
     // check initial state
-    check_state(reporter, cache, -1, -1, emptyClip, NULL, emptyBound);
+    check_state(reporter, cache, emptyClip, NULL, emptyBound);
 
     // set the current state
     GrRect bound1;
@@ -89,17 +84,17 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
         return;
     }
 
-    cache.set(clip1, 128, 128, texture.get(), bound1);
+    cache.set(clip1, texture.get(), bound1);
 
     // check that the set took
-    check_state(reporter, cache, 128, 128, clip1, texture.get(), bound1);
+    check_state(reporter, cache, clip1, texture.get(), bound1);
     REPORTER_ASSERT(reporter, 2 == texture.get()->getRefCnt());
 
     // push the state
     cache.push();
 
     // verify that the pushed state is initially empty
-    check_state(reporter, cache, -1, -1, emptyClip, NULL, emptyBound);
+    check_state(reporter, cache, emptyClip, NULL, emptyBound);
     REPORTER_ASSERT(reporter, 2 == texture.get()->getRefCnt());
 
     // modify the new state
@@ -110,10 +105,10 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     clip2.setEmpty();
     clip2.setFromRect(bound2);
 
-    cache.set(clip2, 10, 10, texture.get(), bound2);
+    cache.set(clip2, texture.get(), bound2);
 
     // check that the changes took
-    check_state(reporter, cache, 10, 10, clip2, texture.get(), bound2);
+    check_state(reporter, cache, clip2, texture.get(), bound2);
     REPORTER_ASSERT(reporter, 3 == texture.get()->getRefCnt());
 
     // check to make sure canReuse works
@@ -124,14 +119,14 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     cache.pop();
 
     // verify that the old state is restored
-    check_state(reporter, cache, 128, 128, clip1, texture.get(), bound1);
+    check_state(reporter, cache, clip1, texture.get(), bound1);
     REPORTER_ASSERT(reporter, 2 == texture.get()->getRefCnt());
 
     // manually clear the state
     cache.reset();
 
     // verify it is now empty
-    check_state(reporter, cache, -1, -1, emptyClip, NULL, emptyBound);
+    check_state(reporter, cache, emptyClip, NULL, emptyBound);
     REPORTER_ASSERT(reporter, 1 == texture.get()->getRefCnt());
 
     // pop again - so there is no state
