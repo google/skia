@@ -94,7 +94,6 @@
         '../src/gpu',
       ],
       'dependencies': [
-        'libtess.gyp:libtess',
         'angle.gyp:*',
       ],
       'export_dependent_settings': [
@@ -167,7 +166,6 @@
         '../src/gpu'
       ],
       'dependencies': [
-        'libtess.gyp:libtess',
         'angle.gyp:*',
       ],
       'export_dependent_settings': [
@@ -266,8 +264,6 @@
         '../src/gpu/GrStringBuilder.h',
         '../src/gpu/GrTBSearch.h',
         '../src/gpu/GrTDArray.h',
-        '../src/gpu/GrTesselatedPathRenderer.cpp',
-        '../src/gpu/GrTesselatedPathRenderer.h',
         '../src/gpu/GrSoftwarePathRenderer.cpp',
         '../src/gpu/GrSoftwarePathRenderer.h',
         '../src/gpu/GrTextStrike.cpp',

@@ -545,15 +545,6 @@ public:
      */
     virtual void clear(const GrIRect* rect, GrColor color) = 0;
 
-    /**
-     * Returns the maximum number of edges that may be specified in a single
-     * draw call when performing edge antialiasing.  This is usually limited
-     * by the number of fragment uniforms which may be uploaded.  Must be a
-     * minimum of six, since a triangle's vertices each belong to two boundary
-     * edges which may be distinct.
-     */
-    virtual int getMaxEdges() const { return 6; }
-
     ////////////////////////////////////////////////////////////////////////////
 
     /**

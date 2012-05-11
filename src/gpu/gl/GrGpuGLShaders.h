@@ -75,9 +75,6 @@ private:
     // flushes the normalized texel size
     void flushTexelSize(int stage);
 
-    // flushes the edges for edge AA
-    void flushEdgeAAData();
-
     // flushes the color matrix
     void flushColorMatrix();
 

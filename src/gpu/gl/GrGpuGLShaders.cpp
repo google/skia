@@ -221,21 +221,13 @@ bool GrGpuGLShaders::programUnitTest() {
 
         bool edgeAA = random_bool(&random);
         if (edgeAA) {
-            bool vertexEdgeAA = random_bool(&random);
-            if (vertexEdgeAA) {
-                pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
-                if (this->getCaps().fShaderDerivativeSupport) {
-                    pdesc.fVertexEdgeType = (GrDrawState::VertexEdgeType) random_int(&random, GrDrawState::kVertexEdgeTypeCnt);
-                } else {
-                    pdesc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
-                }
-                pdesc.fEdgeAANumEdges = 0;
+            pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
+            if (this->getCaps().fShaderDerivativeSupport) {
+                pdesc.fVertexEdgeType = (GrDrawState::VertexEdgeType) random_int(&random, GrDrawState::kVertexEdgeTypeCnt);
             } else {
-                pdesc.fEdgeAANumEdges = random_int(&random, 1, this->getMaxEdges());
-                pdesc.fEdgeAAConcave = random_bool(&random);
+                pdesc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
             }
         } else {
-            pdesc.fEdgeAANumEdges = 0;
         }
 
         pdesc.fColorMatrixEnabled = random_bool(&random);
@@ -635,24 +627,6 @@ void GrGpuGLShaders::flushTexelSize(int s) {
     }
 }
 
-void GrGpuGLShaders::flushEdgeAAData() {
-    const int& uni = fProgramData->fUniLocations.fEdgesUni;
-    if (GrGLProgram::kUnusedUniform != uni) {
-        int count = this->getDrawState().getNumAAEdges();
-        GrDrawState::Edge edges[GrDrawState::kMaxEdges];
-        // Flip the edges in Y
-        float height = 
-            static_cast<float>(this->getDrawState().getRenderTarget()->height());
-        for (int i = 0; i < count; ++i) {
-            edges[i] = this->getDrawState().getAAEdges()[i];
-            float b = edges[i].fY;
-            edges[i].fY = -b;
-            edges[i].fZ += b * height;
-        }
-        GL_CALL(Uniform3fv(uni, count, &edges[0].fX));
-    }
-}
-
 void GrGpuGLShaders::flushColorMatrix() {
     const ProgramDesc& desc = fCurrentProgram.getDesc();
     int matrixUni = fProgramData->fUniLocations.fColorMatrixUni;
@@ -853,7 +827,6 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
             }
         }
     }
-    this->flushEdgeAAData();
     this->flushColorMatrix();
     resetDirtyFlags();
     return true;
@@ -1108,10 +1081,6 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
         desc.fCoverageInput = ProgramDesc::kAttribute_ColorInput;
     }
 
-    desc.fEdgeAANumEdges = skipCoverage ? 0 : drawState.getNumAAEdges();
-    desc.fEdgeAAConcave = desc.fEdgeAANumEdges > 0 &&
-                          drawState.isConcaveEdgeAAState();
-
     int lastEnabledStage = -1;
 
     if (!skipCoverage && (desc.fVertexLayout &
@@ -1294,7 +1263,6 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
     // other coverage inputs
     if (!hasCoverage) {
         hasCoverage =
-               desc.fEdgeAANumEdges ||
                requiresAttributeCoverage ||
                (desc.fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit);
     }

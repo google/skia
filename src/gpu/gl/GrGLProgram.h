@@ -242,12 +242,10 @@ public:
         uint8_t fDualSrcOutput;     // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
         SkBool8 fEmitsPointSize;
-        SkBool8 fEdgeAAConcave;
         SkBool8 fColorMatrixEnabled;
 
-        int8_t fEdgeAANumEdges;
         uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
-        int8_t fPadding[3];
+        int8_t fPadding[1];
 
     } fProgramDesc;
     GR_STATIC_ASSERT(!(sizeof(ProgramDesc) % 4));

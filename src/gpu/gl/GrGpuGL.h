@@ -144,7 +144,6 @@ protected:
 
     virtual void clearStencil();
     virtual void clearStencilClip(const GrIRect& rect, bool insideClip);
-    virtual int getMaxEdges() const;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
