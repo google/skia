@@ -11,6 +11,10 @@ import bench_util
 import json
 import xml.sax.saxutils
 
+# We throw out any measurement outside this range, and log a warning.
+MIN_REASONABLE_TIME = 0
+MAX_REASONABLE_TIME = 99999
+
 def usage():
     """Prints simple usage information."""
     
@@ -92,15 +96,15 @@ def parse_dir(directory, default_settings, oldest_revision, newest_revision):
         file_name_match = re.match('bench_r(\d+)_(\S+)', bench_file)
         if (file_name_match is None):
             continue
-        
+
         revision = int(file_name_match.group(1))
         scalar_type = file_name_match.group(2)
-        
+
         if (revision < oldest_revision or revision > newest_revision):
             continue
-        
+
         file_handle = open(directory + '/' + bench_file, 'r')
-        
+
         if (revision not in revision_data_points):
             revision_data_points[revision] = []
         default_settings['scalar'] = scalar_type
@@ -108,6 +112,32 @@ def parse_dir(directory, default_settings, oldest_revision, newest_revision):
                         bench_util.parse(default_settings, file_handle))
         file_handle.close()
     return revision_data_points
+
+def add_to_revision_data_points(new_point, revision, revision_data_points):
+    """Add new_point to set of revision_data_points we are building up.
+    """
+    if (revision not in revision_data_points):
+        revision_data_points[revision] = []
+    revision_data_points[revision].append(new_point)
+
+def filter_data_points(unfiltered_revision_data_points):
+    """Filter out any data points that are utterly bogus.
+
+    Returns (allowed_revision_data_points, ignored_revision_data_points):
+        allowed_revision_data_points: points that survived the filter
+        ignored_revision_data_points: points that did NOT survive the filter
+    """
+    allowed_revision_data_points = {} # {revision : [BenchDataPoints]}
+    ignored_revision_data_points = {} # {revision : [BenchDataPoints]}
+    revisions = unfiltered_revision_data_points.keys()
+    revisions.sort()
+    for revision in revisions:
+        for point in unfiltered_revision_data_points[revision]:
+            if point.time < MIN_REASONABLE_TIME or point.time > MAX_REASONABLE_TIME:
+                add_to_revision_data_points(point, revision, ignored_revision_data_points)
+            else:
+                add_to_revision_data_points(point, revision, allowed_revision_data_points)
+    return (allowed_revision_data_points, ignored_revision_data_points)
 
 def create_lines(revision_data_points, settings
                , bench_of_interest, config_of_interest, time_of_interest):
@@ -288,17 +318,22 @@ def main():
     oldest_revision, newest_revision = parse_range(revision_range)
     oldest_regression, newest_regression = parse_range(regression_range)
 
-    revision_data_points = parse_dir(directory
+    unfiltered_revision_data_points = parse_dir(directory
                                    , default_settings
                                    , oldest_revision
                                    , newest_revision)
 
+    # Filter out any data points that are utterly bogus... make sure to report
+    # that we did so later!
+    (allowed_revision_data_points, ignored_revision_data_points) = filter_data_points(
+        unfiltered_revision_data_points)
+
     # Update oldest_revision and newest_revision based on the data we could find
-    all_revision_numbers = revision_data_points.keys()
+    all_revision_numbers = allowed_revision_data_points.keys()
     oldest_revision = min(all_revision_numbers)
     newest_revision = max(all_revision_numbers)
 
-    lines = create_lines(revision_data_points
+    lines = create_lines(allowed_revision_data_points
                    , settings
                    , bench_of_interest
                    , config_of_interest
@@ -308,7 +343,7 @@ def main():
                                    , oldest_regression
                                    , newest_regression)
 
-    output_xhtml(lines, oldest_revision, newest_revision,
+    output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_points,
                  regressions, requested_width, requested_height, title)
 
 def qa(out):
@@ -340,19 +375,47 @@ def create_select(qualifier, lines, select_id=None):
         + ']') + '>'+qe(option)+'</option>'
     print '</select>'
 
-def output_xhtml(lines, oldest_revision, newest_revision,
+def output_ignored_data_points_warning(ignored_revision_data_points):
+    """Write description of ignored_revision_data_points to stdout as xhtml.
+    """
+    num_ignored_points = 0
+    description = ''
+    revisions = ignored_revision_data_points.keys()
+    if revisions:
+        revisions.sort()
+        revisions.reverse()
+        for revision in revisions:
+            num_ignored_points += len(ignored_revision_data_points[revision])
+            points_at_this_revision = []
+            for point in ignored_revision_data_points[revision]:
+                points_at_this_revision.append(point.bench)
+            points_at_this_revision.sort()
+            description += 'r%d: %s\n' % (revision, points_at_this_revision)
+    if num_ignored_points == 0:
+        print 'Did not discard any data points; all were within the range [%d-%d]' % (
+            MIN_REASONABLE_TIME, MAX_REASONABLE_TIME)
+    else:
+        print '<table width="100%" bgcolor="ff0000"><tr><td align="center">'
+        print 'Discarded %d data points outside of range [%d-%d]' % (
+            num_ignored_points, MIN_REASONABLE_TIME, MAX_REASONABLE_TIME)
+        print '</td></tr><tr><td width="100%" align="center">'
+        print ('<textarea rows="4" style="width:97%" readonly="true" wrap="off">'
+            + qe(description) + '</textarea>')
+        print '</td></tr></table>'
+
+def output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_points,
                  regressions, requested_width, requested_height, title):
     """Outputs an svg/xhtml view of the data."""
     print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"',
     print '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
     print '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
     print '<head>'
-    print '<title>%s</title>' % title
+    print '<title>%s</title>' % qe(title)
     print '</head>'
     print '<body>'
     
     output_svg(lines, regressions, requested_width, requested_height)
-    
+
     #output the manipulation controls
     print """
 <script type="text/javascript">//<![CDATA[
@@ -438,19 +501,17 @@ def output_xhtml(lines, oldest_revision, newest_revision,
 
     print '<table border="0" width="%s">' % requested_width
     print """
+<tr valign="top"><td width="50%">
+<table border="0" width="100%">
+<tr><td align="center"><table border="0">
 <form>
 <tr valign="bottom" align="center">
 <td width="1">Bench&nbsp;Type</td>
 <td width="1">Bitmap Config</td>
 <td width="1">Timer&nbsp;Type (Cpu/Gpu/wall)</td>
 <td width="1"><!--buttons--></td>
-<td width="10%"><!--spacing--></td>"""
-
-    print '<td>%s<br></br>revisions r%s - r%s</td>' % (
-        title,
-        bench_util.CreateRevisionLink(oldest_revision),
-        bench_util.CreateRevisionLink(newest_revision))
-    print '</tr><tr valign="top" align="center">'
+</tr><tr valign="top" align="center">
+"""
     print '<td width="1">'
     create_select(lambda l: l.bench, lines, 'benchSelect')
     print '</td><td width="1">'
@@ -474,11 +535,26 @@ def output_xhtml(lines, oldest_revision, newest_revision,
     print 'onclick=%s' % qa("mark('url(#circleMark)'); return false;"),
     print '>Mark Points</button>'
     print '<button type="button" onclick="mark(null);">Clear Points</button>'
-
+    print '</td>'
     print """
-</td>
-<td width="10%"></td>
-<td align="left">
+</tr>
+</form>
+</table></td></tr>
+<tr><td align="center">
+<hr />
+"""
+
+    output_ignored_data_points_warning(ignored_revision_data_points)
+    print '</td></tr></table>'
+    print '</td><td width="2%"><!--gutter--></td>'
+
+    print '<td><table border="0">'
+    print '<tr><td align="center">%s<br></br>revisions r%s - r%s</td></tr>' % (
+        qe(title),
+        bench_util.CreateRevisionLink(oldest_revision),
+        bench_util.CreateRevisionLink(newest_revision))
+    print """
+<tr><td align="left">
 <p>Brighter red indicates tests that have gotten worse; brighter green
 indicates tests that have gotten better.</p>
 <p>To highlight individual tests, hold down CONTROL and mouse over
@@ -489,9 +565,11 @@ the graph area.</p>
 tests in the selectors at left.  (To show all, select all.)</p>
 <p>Use buttons at left to mark/clear points on the lines for selected
 benchmarks.</p>
+</td></tr>
+</table>
+
 </td>
 </tr>
-</form>
 </table>
 </body>
 </html>"""
