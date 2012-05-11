@@ -23,8 +23,16 @@ public:
     const SkRegion& bwRgn() const { SkASSERT(fIsBW); return fBW; }
     const SkAAClip& aaRgn() const { SkASSERT(!fIsBW); return fAA; }
 
-    bool isEmpty() const;
-    bool isRect() const;
+    bool isEmpty() const {
+        SkASSERT(this->computeIsEmpty() == fIsEmpty);
+        return fIsEmpty;
+    }
+
+    bool isRect() const {
+        SkASSERT(this->computeIsRect() == fIsRect);
+        return fIsRect;
+    }
+
     bool isComplex() const;
     const SkIRect& getBounds() const;
 
@@ -73,6 +81,23 @@ private:
     SkRegion    fBW;
     SkAAClip    fAA;
     bool        fIsBW;
+    // these 2 are caches based on querying the right obj based on fIsBW
+    bool        fIsEmpty;
+    bool        fIsRect;
+
+    bool computeIsEmpty() const {
+        return fIsBW ? fBW.isEmpty() : fAA.isEmpty();
+    }
+
+    bool computeIsRect() const {
+        return fIsBW ? fBW.isRect() : false;
+    }
+    
+    bool updateCacheAndReturnNonEmpty() {
+        fIsEmpty = this->computeIsEmpty();
+        fIsRect = this->computeIsRect();
+        return !fIsEmpty;
+    }
 
     void convertToAA();
 };
