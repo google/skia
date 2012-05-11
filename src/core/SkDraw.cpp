@@ -708,9 +708,12 @@ SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
     return rtype;
 }
 
-static SkPoint* rect_points(SkRect& r, int index) {
-    SkASSERT((unsigned)index < 2);
-    return &((SkPoint*)(void*)&r)[index];
+static const SkPoint* rect_points(const SkRect& r) {
+    return (const SkPoint*)(void*)&r;
+}
+
+static SkPoint* rect_points(SkRect& r) {
+    return (SkPoint*)(void*)&r;
 }
 
 void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
@@ -742,18 +745,15 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     SkRect          devRect;
 
     // transform rect into devRect
-    {
-        matrix.mapXY(rect.fLeft, rect.fTop, rect_points(devRect, 0));
-        matrix.mapXY(rect.fRight, rect.fBottom, rect_points(devRect, 1));
-        devRect.sort();
-    }
+    matrix.mapPoints(rect_points(devRect), rect_points(rect), 2);
+    devRect.sort();
 
     if (fBounder && !fBounder->doRect(devRect, paint)) {
         return;
     }
 
     // look for the quick exit, before we build a blitter
-    {
+    if (true) {
         SkIRect ir;
         devRect.roundOut(&ir);
         if (paint.getStyle() != SkPaint::kFill_Style) {
