@@ -316,6 +316,67 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
     }
 }
 
+#include "SkRasterClip.h"
+
+static void copyToMask(const SkRasterClip& rc, SkMask* mask) {
+    if (rc.isAA()) {
+        rc.aaRgn().copyToMask(mask);
+    } else {
+        copyToMask(rc.bwRgn(), mask);
+    }
+}
+
+static bool operator==(const SkRasterClip& a, const SkRasterClip& b) {
+    if (a.isEmpty()) {
+        return b.isEmpty();
+    }
+    if (b.isEmpty()) {
+        return false;
+    }
+
+    SkMask ma, mb;
+    copyToMask(a, &ma);
+    copyToMask(b, &mb);
+    return ma == mb;
+}
+
+static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
+                          size_t count, bool changed) {
+    SkIRect ir = { 0, 0, 10, 10 };
+
+    for (size_t i = 0; i < count; ++i) {
+        SkRect r;
+        r.set(ir);
+        
+        SkRasterClip rc0(ir);
+        SkRasterClip rc1(ir);
+        SkRasterClip rc2(ir);
+
+        rc0.op(r, SkRegion::kIntersect_Op, false);
+        r.offset(dx[i], 0);
+        rc1.op(r, SkRegion::kIntersect_Op, true);
+        r.offset(-2*dx[i], 0);
+        rc2.op(r, SkRegion::kIntersect_Op, true);
+    
+        REPORTER_ASSERT(reporter, changed != (rc0 == rc1));
+        REPORTER_ASSERT(reporter, changed != (rc0 == rc2));
+    }
+}
+
+static void test_nearly_integral(skiatest::Reporter* reporter) {
+    // All of these should generate equivalent rasterclips
+    
+    static const SkScalar gSafeX[] = {
+        0, SK_Scalar1/1000, SK_Scalar1/100, SK_Scalar1/10,
+    };
+    did_dx_affect(reporter, gSafeX, SK_ARRAY_COUNT(gSafeX), false);
+
+    static const SkScalar gUnsafeX[] = {
+        SK_Scalar1/4, SK_Scalar1/3,
+    };
+    did_dx_affect(reporter, gUnsafeX, SK_ARRAY_COUNT(gUnsafeX), true);
+}
+
 static void test_regressions(skiatest::Reporter* reporter) {
     // these should not assert in the debug build
     // bug was introduced in rev. 3209
@@ -337,6 +398,7 @@ static void TestAAClip(skiatest::Reporter* reporter) {
     test_rgn(reporter);
     test_path_with_hole(reporter);
     test_regressions(reporter);
+    test_nearly_integral(reporter);
 }
 
 #include "TestClassDef.h"
