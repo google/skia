@@ -413,57 +413,7 @@ void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
                                   CachedData* programData,
                                   GrStringBuilder* coverageVar,
                                   ShaderCodeSegments* segments) const {
-    if (fProgramDesc.fEdgeAANumEdges > 0) {
-        segments->fFSUnis.push_back().set(kVec3f_GrSLType,
-                                          GrGLShaderVar::kUniform_TypeModifier,
-                                          EDGES_UNI_NAME,
-                                          fProgramDesc.fEdgeAANumEdges);
-        programData->fUniLocations.fEdgesUni = kUseUniform;
-        int count = fProgramDesc.fEdgeAANumEdges;
-        segments->fFSCode.append(
-            "\tvec3 pos = vec3(gl_FragCoord.xy, 1);\n");
-        for (int i = 0; i < count; i++) {
-            segments->fFSCode.append("\tfloat a");
-            segments->fFSCode.appendS32(i);
-            segments->fFSCode.append(" = clamp(dot(" EDGES_UNI_NAME "[");
-            segments->fFSCode.appendS32(i);
-            segments->fFSCode.append("], pos), 0.0, 1.0);\n");
-        }
-        if (fProgramDesc.fEdgeAAConcave && (count & 0x01) == 0) {
-            // For concave polys, we consider the edges in pairs.
-            segments->fFSFunctions.append("float cross2(vec2 a, vec2 b) {\n");
-            segments->fFSFunctions.append("\treturn dot(a, vec2(b.y, -b.x));\n");
-            segments->fFSFunctions.append("}\n");
-            for (int i = 0; i < count; i += 2) {
-                segments->fFSCode.appendf("\tfloat eb%d;\n", i / 2);
-                segments->fFSCode.appendf("\tif (cross2(" EDGES_UNI_NAME "[%d].xy, " EDGES_UNI_NAME "[%d].xy) < 0.0) {\n", i, i + 1);
-                segments->fFSCode.appendf("\t\teb%d = a%d * a%d;\n", i / 2, i, i + 1);
-                segments->fFSCode.append("\t} else {\n");
-                segments->fFSCode.appendf("\t\teb%d = a%d + a%d - a%d * a%d;\n", i / 2, i, i + 1, i, i + 1);
-                segments->fFSCode.append("\t}\n");
-            }
-            segments->fFSCode.append("\tfloat edgeAlpha = ");
-            for (int i = 0; i < count / 2 - 1; i++) {
-                segments->fFSCode.appendf("min(eb%d, ", i);
-            }
-            segments->fFSCode.appendf("eb%d", count / 2 - 1);
-            for (int i = 0; i < count / 2 - 1; i++) {
-                segments->fFSCode.append(")");
-            }
-            segments->fFSCode.append(";\n");
-        } else {
-            segments->fFSCode.append("\tfloat edgeAlpha = ");
-            for (int i = 0; i < count - 1; i++) {
-                segments->fFSCode.appendf("min(a%d * a%d, ", i, i + 1);
-            }
-            segments->fFSCode.appendf("a%d * a0", count - 1);
-            for (int i = 0; i < count - 1; i++) {
-                segments->fFSCode.append(")");
-            }
-            segments->fFSCode.append(";\n");
-        }
-        *coverageVar = "edgeAlpha";
-    } else  if (layout & GrDrawTarget::kEdge_VertexLayoutBit) {
+    if (layout & GrDrawTarget::kEdge_VertexLayoutBit) {
         const char *vsName, *fsName;
         append_varying(kVec4f_GrSLType, "Edge", segments,
             &vsName, &fsName);

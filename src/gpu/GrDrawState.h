@@ -93,8 +93,6 @@ public:
                  sizeof(fFirstCoverageStage) + sizeof(fColorFilterMode) +
                  sizeof(fSrcBlend) + sizeof(fDstBlend) ==
                  this->podSize());
-
-        fEdgeAANumEdges = 0;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -545,12 +543,10 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // @name Edge AA
-    // There are two ways to perform antialiasing using edge equations. One
-    // is to specify an (linear or quadratic) edge eq per-vertex. This requires
-    // splitting vertices shared by primitives.
+    // Edge equations can be specified to perform antialiasing. Because the
+    // edges are specified as per-vertex data, vertices that are shared by
+    // multiple edges must be split.
     //
-    // The other is via setEdgeAAData which sets a set of edges and each
-    // is tested against all the edges.
     ////
 
     /**
@@ -591,48 +587,6 @@ public:
     }
 
     VertexEdgeType getVertexEdgeType() const { return fVertexEdgeType; }
-
-    /**
-     * The absolute maximum number of edges that may be specified for
-     * a single draw call when performing edge antialiasing.  This is used for
-     * the size of several static buffers, so implementations of getMaxEdges()
-     * (below) should clamp to this value.
-     */
-    enum {
-        // TODO: this should be 32 when GrTesselatedPathRenderer is used
-        // Visual Studio 2010 does not permit a member array of size 0.
-        kMaxEdges = 1
-    };
-
-    class Edge {
-      public:
-        Edge() {}
-        Edge(float x, float y, float z) : fX(x), fY(y), fZ(z) {}
-        GrPoint intersect(const Edge& other) {
-            return GrPoint::Make(
-                SkFloatToScalar((fY * other.fZ - other.fY * fZ) /
-                                (fX * other.fY - other.fX * fY)),
-                SkFloatToScalar((fX * other.fZ - other.fX * fZ) /
-                                (other.fX * fY - fX * other.fY)));
-        }
-        float fX, fY, fZ;
-    };
-
-    /**
-     * Sets the edge data required for edge antialiasing.
-     *
-     * @param edges       3 * numEdges float values, representing the edge
-     *                    equations in Ax + By + C form
-     */
-    void setEdgeAAData(const Edge* edges, int numEdges) {
-        GrAssert(numEdges <= GrDrawState::kMaxEdges);
-        memcpy(fEdgeAAEdges, edges, numEdges * sizeof(GrDrawState::Edge));
-        fEdgeAANumEdges = numEdges;
-    }
-
-    int getNumAAEdges() const { return fEdgeAANumEdges; }
-
-    const Edge* getAAEdges() const { return fEdgeAAEdges; }
 
     /// @}
 
@@ -717,10 +671,6 @@ public:
 
     bool isColorWriteDisabled() const {
         return 0 != (fFlagBits & kNoColorWrites_StateBit);
-    }
-
-    bool isConcaveEdgeAAState() const {
-        return 0 != (fFlagBits & kEdgeAAConcave_StateBit);
     }
 
     bool isStateFlagEnabled(uint32_t stateBit) const {
@@ -829,9 +779,6 @@ public:
         fViewMatrix = s.fViewMatrix;
         fBehaviorBits = s.fBehaviorBits;
 
-        GrAssert(0 == s.fEdgeAANumEdges);
-        fEdgeAANumEdges = 0;
-    
         for (int i = 0; i < kNumStages; i++) {
             if (s.fTextures[i]) {
                 this->fSamplerStates[i] = s.fSamplerStates[i];
@@ -859,9 +806,6 @@ private:
     }
     size_t podSize() const {
         // Can't use offsetof() with non-POD types, so stuck with pointer math.
-        // TODO: ignores GrTesselatedPathRenderer data structures. We don't
-        // have a compile-time flag that lets us know if it's being used, and
-        // checking at runtime seems to cost 5% performance.
         return reinterpret_cast<size_t>(&fPodEndMarker) -
                reinterpret_cast<size_t>(&fPodStartMarker) +
                sizeof(fPodEndMarker);
@@ -900,13 +844,6 @@ private:
 
     uint32_t            fBehaviorBits;
     GrMatrix            fViewMatrix;
-
-    // @{ Data for GrTesselatedPathRenderer
-    // TODO: currently ignored in copying & comparison for performance.
-    // Must be considered if GrTesselatedPathRenderer is being used.
-    int                 fEdgeAANumEdges;
-    Edge                fEdgeAAEdges[kMaxEdges];
-    // @}
 
     // This field must be last; it will not be copied or compared
     // if the corresponding fTexture[] is NULL.

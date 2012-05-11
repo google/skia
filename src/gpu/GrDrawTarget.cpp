@@ -956,7 +956,6 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     // edge aa or coverage texture stage
     bool hasCoverage = forceCoverage ||
                        0xffffffff != drawState.getCoverage() || 
-                       drawState.getNumAAEdges() > 0 ||
                        (layout & kCoverage_VertexLayoutBit) ||
                        (layout & kEdge_VertexLayoutBit);
     for (int s = drawState.getFirstCoverageStage();

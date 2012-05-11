@@ -2489,10 +2489,3 @@ void GrGpuGL::setBuffers(bool indexed,
     }
 }
 
-int GrGpuGL::getMaxEdges() const {
-    // FIXME:  This is a pessimistic estimate based on how many other things
-    // want to add uniforms.  This should be centralized somewhere.
-    return GR_CT_MIN(this->glCaps().maxFragmentUniformVectors() - 8,
-                     GrDrawState::kMaxEdges);
-}
-
