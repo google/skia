@@ -68,8 +68,9 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (back->fLastWidth >= width &&
-            back->fLastHeight >= height &&
+        if (back->fLastMask &&
+            back->fLastMask->width() >= width &&
+            back->fLastMask->height() >= height &&
             clip == back->fLastClip) {
             return true;
         }
@@ -77,8 +78,7 @@ public:
         return false;
     }
 
-    void set(const GrClip& clip, int width, int height, 
-             GrTexture* mask, const GrRect& bound) {
+    void set(const GrClip& clip, GrTexture* mask, const GrRect& bound) {
 
         if (fStack.empty()) {
             GrAssert(false);
@@ -87,8 +87,6 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        back->fLastWidth = width;
-        back->fLastHeight = height;
         back->fLastClip = clip;
         SkSafeRef(mask);
         back->fLastMask.reset(mask);
@@ -125,30 +123,6 @@ public:
             back->~GrClipStackFrame();
             fStack.pop_back();
         }
-    }
-
-    int getLastWidth() const {
-
-        if (fStack.empty()) {
-            GrAssert(false);
-            return -1;
-        }
-
-        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
-
-        return back->fLastWidth;
-    }
-
-    int getLastHeight() const {
-
-        if (fStack.empty()) {
-            GrAssert(false);
-            return -1;
-        }
-
-        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
-
-        return back->fLastHeight;
     }
 
     void getLastClip(GrClip* clip) const {
@@ -254,19 +228,11 @@ private:
         }
 
         void reset () {
-            fLastWidth = -1;
-            fLastHeight = -1;
             fLastClip.setEmpty();
             fLastMask.reset(NULL);
             fLastBound.setEmpty();
         }
 
-        // fLastWidth & fLastHeight store the render target size used when
-        // creating the mask. They factor into the reuse decision (in canReuse)
-        // TODO: We should probably use the mask's width & height rather than
-        // the render target's width & height for reuse decisions
-        int                     fLastWidth;
-        int                     fLastHeight;
         GrClip                  fLastClip;
         // The mask's width & height values are used in setupDrawStateAAClip to 
         // correctly scale the uvs for geometry drawn with this mask
