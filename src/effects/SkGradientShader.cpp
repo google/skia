@@ -1370,9 +1370,11 @@ public:
 
     virtual void shadeSpan(int x, int y, SkPMColor* dstC, int count)
         SK_OVERRIDE;
-    virtual void shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
+    virtual void shadeSpan16(int x, int y, uint16_t* dstCParam,
                              int count) SK_OVERRIDE {
         SkASSERT(count > 0);
+
+        uint16_t* SK_RESTRICT dstC = dstCParam;
 
         SkPoint             srcPt;
         SkMatrix::MapXYProc dstProc = fDstToIndexProc;
@@ -1902,9 +1904,11 @@ public:
         return kRadial2_GradientType;
     }
 
-    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
+    virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
                            int count) SK_OVERRIDE {
         SkASSERT(count > 0);
+
+        SkPMColor* SK_RESTRICT dstC = dstCParam;
 
         // Zero difference between radii:  fill with transparent black.
         if (fDiffRadius == 0) {
