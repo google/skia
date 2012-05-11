@@ -295,6 +295,15 @@ private:
                              const GrClip& clipIn,
                              GrTexture** result,
                              GrRect *resultBounds);
+    bool createSoftwareClipMask(GrGpu* gpu,
+                                const GrClip& clipIn,
+                                GrTexture** result,
+                                GrRect *resultBounds);
+    bool clipMaskPreamble(GrGpu* gpu,
+                          const GrClip& clipIn,
+                          GrTexture** result,
+                          GrRect *resultBounds,
+                          GrTexture** maskStorage);
 
     bool drawPath(GrGpu* gpu,
                   const SkPath& path,
@@ -311,9 +320,7 @@ private:
                      const GrRect& rect,
                      GrTexture* texture);
 
-    void getAccum(GrGpu* gpu,
-                  const GrTextureDesc& desc,
-                  GrTexture** accum);
+    void getAccum(GrGpu* gpu, const GrRect& bounds, GrTexture** accum);
 
     // determines the path renderer used to draw a clip path element.
     GrPathRenderer* getClipPathRenderer(GrGpu* gpu,
