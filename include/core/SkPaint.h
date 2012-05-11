@@ -484,14 +484,21 @@ public:
     SkShader* getShader() const { return fShader; }
 
     /** Set or clear the shader object.
-        <p />
-        Pass NULL to clear any previous shader.
-        As a convenience, the parameter passed is also returned.
-        If a previous shader exists, its reference count is decremented.
-        If shader is not NULL, its reference count is incremented.
-        @param shader   May be NULL. The shader to be installed in the paint
-        @return         shader
-    */
+     *  Shaders specify the source color(s) for what is being drawn. If a paint
+     *  has no shader, then the paint's color is used. If the paint has a
+     *  shader, then the shader's color(s) are use instead, but they are
+     *  modulated by the paint's alpha. This makes it easy to create a shader
+     *  once (e.g. bitmap tiling or gradient) and then change its transparency
+     *  w/o having to modify the original shader... only the paint's alpha needs
+     *  to be modified.
+     *  <p />
+     *  Pass NULL to clear any previous shader.
+     *  As a convenience, the parameter passed is also returned.
+     *  If a previous shader exists, its reference count is decremented.
+     *  If shader is not NULL, its reference count is incremented.
+     *  @param shader   May be NULL. The shader to be installed in the paint
+     *  @return         shader
+     */
     SkShader* setShader(SkShader* shader);
 
     /** Get the paint's colorfilter. If there is a colorfilter, its reference
