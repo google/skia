@@ -135,7 +135,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 #if !defined(SK_DEBUG)
     // verify that the getters don't crash
     // only do in release since it generates asserts in debug
-    check_state(reporter, cache, -1, -1, emptyClip, NULL, emptyBound);
+    check_state(reporter, cache, emptyClip, NULL, emptyBound);
 #endif
     REPORTER_ASSERT(reporter, 1 == texture.get()->getRefCnt());
 }
