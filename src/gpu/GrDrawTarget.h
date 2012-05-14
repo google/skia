@@ -545,6 +545,12 @@ public:
      */
     virtual void clear(const GrIRect* rect, GrColor color) = 0;
 
+    /**
+     * Release any resources that are cached but not currently in use. This
+     * is intended to give an application some recourse when resources are low.
+     */
+    virtual void purgeResources() {};
+
     ////////////////////////////////////////////////////////////////////////////
 
     /**

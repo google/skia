@@ -318,6 +318,12 @@ public:
     // GrDrawTarget overrides
     virtual void clear(const GrIRect* rect, GrColor color);
 
+    virtual void purgeResources() SK_OVERRIDE {
+        // The clip mask manager can rebuild all its clip masks so just
+        // get rid of them all.
+        fClipMaskManager.releaseResources();
+    }
+
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.
     // Each time this occurs the GrGpu bumps a timestamp.
