@@ -853,6 +853,7 @@ public:
                         GrContext::kApprox_ScratchTexMatch) {
         if (NULL != fContext) {
             fContext->unlockTexture(fEntry);
+            fEntry.reset();
         }
         fContext = context;
         if (NULL != fContext) {

@@ -338,7 +338,6 @@ bool GrClipMaskManager::drawClipShape(GrGpu* gpu,
 
 void GrClipMaskManager::drawTexture(GrGpu* gpu,
                                     GrTexture* target,
-                                    const GrRect& rect,
                                     GrTexture* texture) {
     GrDrawState* drawState = gpu->drawState();
     GrAssert(NULL != drawState);
@@ -353,6 +352,9 @@ void GrClipMaskManager::drawTexture(GrGpu* gpu,
     drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
                                  GrSamplerState::kNearest_Filter,
                                  sampleM);
+
+    GrRect rect = GrRect::MakeWH(SkIntToScalar(target->width()), 
+                                 SkIntToScalar(target->height()));
 
     gpu->drawSimpleRect(rect, NULL, 1 << 0);
 
@@ -372,10 +374,13 @@ void clear(GrGpu* gpu,
     gpu->clear(NULL, color);
 }
 
+}
+
 // get a texture to act as a temporary buffer for AA clip boolean operations
 // TODO: given the expense of createTexture we may want to just cache this too
-void get_temp(GrGpu *gpu, const GrRect& bounds, GrTexture** temp) {
-    if (NULL != *temp) {
+void GrClipMaskManager::getTemp(const GrRect& bounds, 
+                                GrAutoScratchTexture* temp) {
+    if (NULL != temp->texture()) {
         // we've already allocated the temp texture
         return;
     }
@@ -388,38 +393,26 @@ void get_temp(GrGpu *gpu, const GrRect& bounds, GrTexture** temp) {
         0           // samples
     };
 
-    *temp = gpu->createTexture(desc, NULL, 0);
+    temp->set(fAACache.getContext(), desc);
 }
 
+
+void GrClipMaskManager::setupCache(const GrClip& clipIn,
+                                   const GrRect& bounds) {
+    // Since we are setting up the cache we know the last lookup was a miss
+    // Free up the currently cached mask so it can be reused
+    fAACache.reset();
+
+    const GrTextureDesc desc = {
+        kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit,
+        SkScalarCeilToInt(bounds.width()),
+        SkScalarCeilToInt(bounds.height()),
+        kAlpha_8_GrPixelConfig,
+        0           // samples
+    };
+
+    fAACache.acquireMask(clipIn, desc, bounds);
 }
-
-void GrClipMaskManager::getAccum(GrGpu* gpu,
-                                 const GrRect& bounds,
-                                 GrTexture** accum) {
-    GrAssert(NULL == *accum);
-
-    // since we are getting an accumulator we know our cache is shot. See
-    // if we can reuse the texture stored in the cache
-    if (fAACache.getLastMaskWidth() >= bounds.width() &&
-        fAACache.getLastMaskHeight() >= bounds.height()) {
-        // we can just reuse the existing texture
-        *accum = fAACache.detachLastMask();
-        fAACache.reset();
-    } else {
-        const GrTextureDesc desc = {
-            kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit,
-            SkScalarCeilToInt(bounds.width()),
-            SkScalarCeilToInt(bounds.height()),
-            kAlpha_8_GrPixelConfig,
-            0           // samples
-        };
-
-        *accum = gpu->createTexture(desc, NULL, 0);
-    }
-
-    GrAssert(1 == (*accum)->getRefCnt());
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Shared preamble between gpu and SW-only AA clip mask creation paths.
@@ -429,8 +422,7 @@ void GrClipMaskManager::getAccum(GrGpu* gpu,
 bool GrClipMaskManager::clipMaskPreamble(GrGpu* gpu,
                                          const GrClip& clipIn,
                                          GrTexture** result,
-                                         GrRect *resultBounds,
-                                         GrTexture** maskStorage) {
+                                         GrRect *resultBounds) {
     GrDrawState* origDrawState = gpu->drawState();
     GrAssert(origDrawState->isClipState());
 
@@ -440,7 +432,6 @@ bool GrClipMaskManager::clipMaskPreamble(GrGpu* gpu,
     GrRect rtRect;
     rtRect.setLTRB(0, 0,
                     GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
-
 
     // unlike the stencil path the alpha path is not bound to the size of the
     // render target - determine the minimum size required for the mask
@@ -477,7 +468,8 @@ bool GrClipMaskManager::clipMaskPreamble(GrGpu* gpu,
         return true;
     }
 
-    this->getAccum(gpu, bounds, maskStorage);
+    this->setupCache(clipIn, bounds);
+
     *resultBounds = bounds;
     return false;
 }
@@ -489,19 +481,17 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
                                             GrTexture** result,
                                             GrRect *resultBounds) {
 
-    GrTexture* accum = NULL;
-    if (this->clipMaskPreamble(gpu, clipIn, result, resultBounds, &accum)) {
+    if (this->clipMaskPreamble(gpu, clipIn, result, resultBounds)) {
         return true;
     }
 
+    GrTexture* accum = fAACache.getLastMask();
     if (NULL == accum) {
         fClipMaskInAlpha = false;
+        fAACache.reset();
         return false;
     }
 
-    GrRect newRTBounds;
-    newRTBounds.setLTRB(0, 0, resultBounds->width(), resultBounds->height());
-    
     GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = gpu->drawState();
 
@@ -528,7 +518,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
 
     clear(gpu, accum, clearToInside ? 0xffffffff : 0x00000000);
 
-    GrTexture* temp = NULL;
+    GrAutoScratchTexture temp;
 
     // walk through each clip element and perform its set op
     for (int c = start; c < count; ++c) {
@@ -555,18 +545,18 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
                 continue;
             }
 
-            get_temp(gpu, *resultBounds, &temp);
-            if (NULL == temp) {
+            getTemp(*resultBounds, &temp);
+            if (NULL == temp.texture()) {
                 fClipMaskInAlpha = false;
-                SkSafeUnref(accum);
+                fAACache.reset();
                 return false;
             }
 
             // clear the temp target & draw into it
-            clear(gpu, temp, 0x00000000);
+            clear(gpu, temp.texture(), 0x00000000);
 
             setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
-            this->drawClipShape(gpu, temp, clipIn, c);
+            this->drawClipShape(gpu, temp.texture(), clipIn, c);
 
             // TODO: rather than adding these two translations here
             // compute the bounding box needed to render the texture
@@ -582,7 +572,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
             // Now draw into the accumulator using the real operation
             // and the temp buffer as a texture
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawTexture(gpu, accum, newRTBounds, temp);
+            this->drawTexture(gpu, accum, temp.texture());
 
             if (0 != resultBounds->fTop || 0 != resultBounds->fLeft) {
                 GrMatrix m;
@@ -600,10 +590,7 @@ bool GrClipMaskManager::createAlphaClipMask(GrGpu* gpu,
         }
     }
 
-    fAACache.set(clipIn, accum, *resultBounds);
     *result = accum;
-    SkSafeUnref(accum);     // fAACache still has a ref to accum
-    SkSafeUnref(temp);
 
     return true;
 }
@@ -784,13 +771,14 @@ bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
                                                GrTexture** result,
                                                GrRect *resultBounds) {
 
-    GrTexture* accum = NULL;
-    if (this->clipMaskPreamble(gpu, clipIn, result, resultBounds, &accum)) {
+    if (this->clipMaskPreamble(gpu, clipIn, result, resultBounds)) {
         return true;
     }
 
+    GrTexture* accum = fAACache.getLastMask();
     if (NULL == accum) {
         fClipMaskInAlpha = false;
+        fAACache.reset();
         return false;
     }
 
@@ -819,9 +807,7 @@ bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
     // TODO: need to get pixels out of SkRasterClip & into the texture!
 #endif
 
-    fAACache.set(clipIn, accum, *resultBounds);
     *result = accum;
-    SkSafeUnref(accum);     // fAACache still has a ref to accum
 
     return true;
 }
@@ -841,7 +827,8 @@ GrPathRenderer* GrClipMaskManager::getClipPathRenderer(GrGpu* gpu,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GrClipMaskManager::freeResources() {
+void GrClipMaskManager::releaseResources() {
     // in case path renderer has any GrResources, start from scratch
     GrSafeSetNull(fPathRendererChain);
+    fAACache.releaseResources();
 }

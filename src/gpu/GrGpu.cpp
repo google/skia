@@ -66,6 +66,8 @@ GrGpu::~GrGpu() {
 
 void GrGpu::abandonResources() {
 
+    fClipMaskManager.releaseResources();
+
     while (NULL != fResourceHead) {
         fResourceHead->abandon();
     }
@@ -79,11 +81,11 @@ void GrGpu::abandonResources() {
     fVertexPool = NULL;
     delete fIndexPool;
     fIndexPool = NULL;
-
-    fClipMaskManager.freeResources();
 }
 
 void GrGpu::releaseResources() {
+
+    fClipMaskManager.releaseResources();
 
     while (NULL != fResourceHead) {
         fResourceHead->release();
@@ -98,8 +100,6 @@ void GrGpu::releaseResources() {
     fVertexPool = NULL;
     delete fIndexPool;
     fIndexPool = NULL;
-
-    fClipMaskManager.freeResources();
 }
 
 void GrGpu::insertResource(GrResource* resource) {
