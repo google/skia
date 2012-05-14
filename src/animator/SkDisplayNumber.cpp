@@ -31,6 +31,13 @@ const SkMemberInfo SkDisplayNumber::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDisplayNumber);
 
+#if defined _WIN32
+#pragma warning ( push )
+// we are intentionally causing an overflow here
+//      (warning C4756: overflow in constant arithmetic)
+#pragma warning ( disable : 4756 )
+#endif
+
 bool SkDisplayNumber::getProperty(int index, SkScriptValue* value) const {
     SkScalar constant;
     switch (index) {
@@ -57,3 +64,7 @@ bool SkDisplayNumber::getProperty(int index, SkScriptValue* value) const {
     value->fType = SkType_Float;
     return true;
 }
+
+#if defined _WIN32
+#pragma warning ( pop )
+#endif

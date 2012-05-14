@@ -58,6 +58,13 @@ static void test_floatclass(skiatest::Reporter* reporter, float value, FloatClas
     REPORTER_ASSERT(reporter, !!sk_float_isnan(value) == (fc == kNaN));
 }
 
+#if defined _WIN32
+#pragma warning ( push )
+// we are intentionally causing an overflow here
+//      (warning C4756: overflow in constant arithmetic)
+#pragma warning ( disable : 4756 )
+#endif
+
 static void test_isfinite(skiatest::Reporter* reporter) {
 #ifdef SK_CAN_USE_FLOAT
     struct Rec {
@@ -127,6 +134,10 @@ static void test_isfinite(skiatest::Reporter* reporter) {
     }
 #endif
 }
+
+#if defined _WIN32
+#pragma warning ( pop )
+#endif
 
 static void TestScalar(skiatest::Reporter* reporter) {
     test_isfinite(reporter);
