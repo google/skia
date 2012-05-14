@@ -38,11 +38,22 @@ static int R(float x) {
   return (int)floor(SkScalarToFloat(gRand.nextUScalar1()) * x);
 }
 
+#if defined _WIN32
+#pragma warning ( push )
+// we are intentionally causing an overflow here
+//      (warning C4756: overflow in constant arithmetic)
+#pragma warning ( disable : 4756 )
+#endif
+
 static float huge() {
     double d = 1e100;
     float f = (float)d;
     return f;
 }
+
+#if defined _WIN32
+#pragma warning ( pop )
+#endif
 
 static float make_number() {
   float v = 0;
