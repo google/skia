@@ -17,6 +17,11 @@ static const int sMaxFSOutputs = 2;
 
 }
 
+// Architectural assumption: always 2-d input coords.
+// Likely to become non-constant and non-static, perhaps even
+// varying by stage, if we use 1D textures for gradients!
+//const int GrGLShaderBuilder::fCoordDims = 2;
+
 GrGLShaderBuilder::GrGLShaderBuilder()
     : fVSUnis(sVarsPerBlock)
     , fVSAttrs(sVarsPerBlock)
@@ -26,6 +31,7 @@ GrGLShaderBuilder::GrGLShaderBuilder()
     , fFSInputs(sVarsPerBlock)
     , fFSUnis(sVarsPerBlock)
     , fFSOutputs(sMaxFSOutputs)
+    , fVaryingDims(0)
     , fUsesGS(false) {
 
 }

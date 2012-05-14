@@ -52,7 +52,11 @@ public:
     GrStringBuilder fGSCode;
     GrStringBuilder fFSCode;
 
+    int             fVaryingDims;
+    static const int fCoordDims = 2;
+
     bool            fUsesGS;
+
 };
 
 #endif

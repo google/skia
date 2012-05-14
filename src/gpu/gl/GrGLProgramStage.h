@@ -9,6 +9,7 @@
 #define GrGLCustomStage_DEFINED
 
 #include "GrAllocator.h"
+#include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
 #include "GrStringBuilder.h"
@@ -106,8 +107,7 @@ public:
     GrStringBuilder emitTextureSetup(GrStringBuilder* code,
                                      const char* coordName,
                                      int stageNum,
-                                     int coordDims,
-                                     int varyingDims);
+                                     GrGLShaderBuilder* segments);
 
 protected:
 
