@@ -56,6 +56,14 @@
         '../src/utils/SkParsePath.cpp',
         '../src/utils/SkProxyCanvas.cpp',
         '../src/utils/SkSfntUtils.cpp',
+        '../src/utils/SkThreadUtils.h',
+        '../src/utils/SkThreadUtils_pthread.cpp',
+        '../src/utils/SkThreadUtils_pthread.h',
+        '../src/utils/SkThreadUtils_pthread_linux.cpp',
+        '../src/utils/SkThreadUtils_pthread_mach.cpp',
+        '../src/utils/SkThreadUtils_pthread_other.cpp',
+        '../src/utils/SkThreadUtils_win.cpp',
+        '../src/utils/SkThreadUtils_win.h',
         '../src/utils/SkUnitMappers.cpp',
 
         #mac
@@ -87,6 +95,9 @@
               '../include/utils/mac',
             ],
           },
+          'sources!': [
+            '../src/utils/SkThreadUtils_pthread_other.cpp',
+          ],
         },{ #else if 'skia_os != "mac"'
           'include_dirs!': [
             '../include/utils/mac',
@@ -94,6 +105,7 @@
           'sources!': [
             '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
+            '../src/utils/SkThreadUtils_pthread_mach.cpp',
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
@@ -103,9 +115,15 @@
               '-lGLU',
             ],
           },
+          'sources!': [
+            '../src/utils/SkThreadUtils_pthread_other.cpp',
+          ],
         },{ #else if 'skia_os not in ["linux", "freebsd", "openbsd", "solaris"]'
           'include_dirs!': [
             '../include/utils/unix',
+          ],
+          'sources!': [
+            '../src/utils/SkThreadUtils_pthread_linux.cpp',
           ],
         }],
         [ 'skia_os == "win"', {
@@ -114,6 +132,11 @@
               '../include/utils/win',
             ],
           },
+          'sources!': [
+            '../src/utils/SkThreadUtils_pthread.cpp',
+            '../src/utils/SkThreadUtils_pthread.h',
+            '../src/utils/SkThreadUtils_pthread_other.cpp',
+          ],
         },{ #else if 'skia_os != "win"'
           'include_dirs!': [
             '../include/utils/win',
