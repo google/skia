@@ -12,7 +12,7 @@
 
 #include "SkThreadUtils.h"
 
-class SkThread_WinData {
+class SkThread_WinData : SkNoncopyable {
 public:
     SkThread_WinData(SkThread::entryPointProc entryPoint, void* data);
     ~SkThread_WinData();
