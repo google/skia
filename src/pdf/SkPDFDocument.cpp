@@ -263,7 +263,7 @@ void SkPDFDocument::emitFooter(SkWStream* stream, int64_t objCount) {
 
         // TODO(vandebo): Linearized format will take a Prev entry too.
         // TODO(vandebo): PDF/A requires an ID entry.
-        fTrailerDict->insertInt("Size", objCount);
+        fTrailerDict->insertInt("Size", int(objCount));
         fTrailerDict->insert("Root",
                              new SkPDFObjRef(fDocCatalog.get()))->unref();
     }

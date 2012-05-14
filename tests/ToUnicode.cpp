@@ -7,8 +7,6 @@
  */
 
 
-#include <string>
-
 #include "Test.h"
 #include "SkData.h"
 #include "SkPDFTypes.h"

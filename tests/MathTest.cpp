@@ -418,11 +418,13 @@ static void TestMath(skiatest::Reporter* reporter) {
 
         // These random values are being treated as 32-bit-patterns, not as
         // ints; calling SkIntToScalar() here produces crashes.
-        p.setLength(rand.nextS(),
-                    rand.nextS(), SK_Scalar1);
+        p.setLength((SkScalar) rand.nextS(),
+                    (SkScalar) rand.nextS(), 
+                    SK_Scalar1);
         check_length(reporter, p, SK_Scalar1);
-        p.setLength(rand.nextS() >> 13,
-                    rand.nextS() >> 13, SK_Scalar1);
+        p.setLength((SkScalar) (rand.nextS() >> 13),
+                    (SkScalar) (rand.nextS() >> 13), 
+                    SK_Scalar1);
         check_length(reporter, p, SK_Scalar1);
     }
 
