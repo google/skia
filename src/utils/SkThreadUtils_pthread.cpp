@@ -13,39 +13,58 @@
 #include <pthread.h>
 #include <signal.h>
 
+PThreadEvent::PThreadEvent() : fConditionFlag(false) {
+    pthread_cond_init(&fCondition, NULL);
+    pthread_mutex_init(&fConditionMutex, NULL);
+}
+PThreadEvent::~PThreadEvent() {
+    pthread_mutex_destroy(&fConditionMutex);
+    pthread_cond_destroy(&fCondition);
+}
+void PThreadEvent::trigger() {
+    pthread_mutex_lock(&fConditionMutex);
+    fConditionFlag = true;
+    pthread_cond_signal(&fCondition);
+    pthread_mutex_unlock(&fConditionMutex);
+}
+void PThreadEvent::wait() {
+    pthread_mutex_lock(&fConditionMutex);
+    while (!fConditionFlag) {
+        pthread_cond_wait(&fCondition, &fConditionMutex);
+    }
+    pthread_mutex_unlock(&fConditionMutex);
+}
+bool PThreadEvent::isTriggered() {
+    bool currentFlag;
+    pthread_mutex_lock(&fConditionMutex);
+    currentFlag = fConditionFlag;
+    pthread_mutex_unlock(&fConditionMutex);
+    return currentFlag;
+}
+
 SkThread_PThreadData::SkThread_PThreadData(SkThread::entryPointProc entryPoint, void* data)
     : fPThread()
     , fValidPThread(false)
     , fParam(data)
     , fEntryPoint(entryPoint)
-    , fStarted(false)
 {
-    pthread_mutex_init(&fStartMutex, NULL);
-
-    pthread_cond_init(&fStartCondition, NULL);
-
     pthread_attr_init(&fAttr);
     pthread_attr_setdetachstate(&fAttr, PTHREAD_CREATE_JOINABLE);
 }
+
 SkThread_PThreadData::~SkThread_PThreadData() {
     pthread_attr_destroy(&fAttr);
-    pthread_cond_destroy(&fStartCondition);
-    pthread_mutex_destroy(&fStartMutex);
 }
 
 static void* thread_start(void* arg) {
     SkThread_PThreadData* pthreadData = static_cast<SkThread_PThreadData*>(arg);
-    //Wait for start signal
-    pthread_mutex_lock(&(pthreadData->fStartMutex));
-    while (!pthreadData->fStarted) {
-        pthread_cond_wait(&(pthreadData->fStartCondition), &(pthreadData->fStartMutex));
+    // Wait for start signal
+    pthreadData->fStarted.wait();
+
+    // Call entry point only if thread was not canceled before starting.
+    if (!pthreadData->fCanceled.isTriggered()) {
+        pthreadData->fEntryPoint(pthreadData->fParam);
     }
-    pthread_mutex_unlock(&(pthreadData->fStartMutex));
-
-    //See if this thread was canceled before starting.
-    pthread_testcancel();
-
-    pthreadData->fEntryPoint(pthreadData->fParam);
     return NULL;
 }
 
@@ -65,14 +84,10 @@ SkThread::~SkThread() {
     if (fData != NULL) {
         SkThread_PThreadData* pthreadData = static_cast<SkThread_PThreadData*>(fData);
         // If created thread but start was never called, kill the thread.
-        if (pthreadData->fValidPThread && !pthreadData->fStarted) {
-            if (pthread_cancel(pthreadData->fPThread) == 0) {
-                if (this->start()) {
-                    this->join();
-                }
-            } else {
-                //kill with prejudice
-                pthread_kill(pthreadData->fPThread, SIGKILL);
+        if (pthreadData->fValidPThread && !pthreadData->fStarted.isTriggered()) {
+            pthreadData->fCanceled.trigger();
+            if (this->start()) {
+                this->join();
             }
         }
         delete pthreadData;
@@ -85,19 +100,16 @@ bool SkThread::start() {
         return false;
     }
 
-    if (pthreadData->fStarted) {
+    if (pthreadData->fStarted.isTriggered()) {
         return false;
     }
-    pthreadData->fStarted = true;
-    pthread_mutex_lock(&(pthreadData->fStartMutex));
-    pthread_cond_signal(&(pthreadData->fStartCondition));
-    pthread_mutex_unlock(&(pthreadData->fStartMutex));
+    pthreadData->fStarted.trigger();
     return true;
 }
 
 void SkThread::join() {
     SkThread_PThreadData* pthreadData = static_cast<SkThread_PThreadData*>(fData);
-    if (!pthreadData->fValidPThread || !pthreadData->fStarted) {
+    if (!pthreadData->fValidPThread || !pthreadData->fStarted.isTriggered()) {
         return;
     }
 

@@ -11,19 +11,33 @@
 #include "SkThreadUtils.h"
 #include <pthread.h>
 
-class SkThread_PThreadData {
+class PThreadEvent : SkNoncopyable {
+public:
+    PThreadEvent();
+    ~PThreadEvent();
+    void trigger();
+    void wait();
+    bool isTriggered();
+
+private:
+    pthread_cond_t fCondition;
+    pthread_mutex_t fConditionMutex;
+    bool fConditionFlag;
+};
+
+class SkThread_PThreadData : SkNoncopyable {
 public:
     SkThread_PThreadData(SkThread::entryPointProc entryPoint, void* data);
     ~SkThread_PThreadData();
     pthread_t fPThread;
     bool fValidPThread;
-    pthread_mutex_t fStartMutex;
-    pthread_cond_t fStartCondition;
+    PThreadEvent fStarted;
+    PThreadEvent fCanceled;
+
     pthread_attr_t fAttr;
 
     void* fParam;
     SkThread::entryPointProc fEntryPoint;
-    bool fStarted;
 };
 
 #endif
