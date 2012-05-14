@@ -61,6 +61,7 @@
         '../tests/Reader32Test.cpp',
         '../tests/ReadPixelsTest.cpp',
         '../tests/ReadWriteAlphaTest.cpp',
+        '../tests/RefCntTest.cpp',
         '../tests/RefDictTest.cpp',
         '../tests/RegionTest.cpp',
         '../tests/ScalarTest.cpp',

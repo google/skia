@@ -33,6 +33,7 @@
     '../bench/PathIterBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
     '../bench/RectBench.cpp',
+    '../bench/RefCntBench.cpp',
     '../bench/RegionBench.cpp',
     '../bench/RepeatTileBench.cpp',
     '../bench/ScalarBench.cpp',

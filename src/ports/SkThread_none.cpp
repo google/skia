@@ -8,6 +8,7 @@
 
 
 #include "SkThread.h"
+#include "SkTLS.h"
 
 int32_t sk_atomic_inc(int32_t* addr) {
     int32_t value = *addr;
@@ -25,9 +26,10 @@ SkMutex::SkMutex() {}
 
 SkMutex::~SkMutex() {}
 
+#ifndef SK_USE_POSIX_THREADS
 void SkMutex::acquire() {}
-
 void SkMutex::release() {}
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 
