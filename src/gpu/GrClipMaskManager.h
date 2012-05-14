@@ -16,6 +16,7 @@
 #include "SkRefCnt.h"
 #include "GrTexture.h"
 #include "SkDeque.h"
+#include "GrContext.h"
 
 class GrGpu;
 class GrPathRenderer;
@@ -44,7 +45,8 @@ struct ScissoringSettings {
 class GrClipMaskCache : public GrNoncopyable {
 public:
     GrClipMaskCache() 
-    : fStack(sizeof(GrClipStackFrame)) {
+    : fContext(NULL)
+    , fStack(sizeof(GrClipStackFrame)) {
         // We need an initial frame to capture the clip state prior to 
         // any pushes
         new (fStack.push_back()) GrClipStackFrame();
@@ -68,29 +70,14 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (back->fLastMask &&
-            back->fLastMask->width() >= width &&
-            back->fLastMask->height() >= height &&
+        if (back->fLastMask.texture() &&
+            back->fLastMask.texture()->width() >= width &&
+            back->fLastMask.texture()->height() >= height &&
             clip == back->fLastClip) {
             return true;
         }
 
         return false;
-    }
-
-    void set(const GrClip& clip, GrTexture* mask, const GrRect& bound) {
-
-        if (fStack.empty()) {
-            GrAssert(false);
-            return;
-        }
-
-        GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
-
-        back->fLastClip = clip;
-        SkSafeRef(mask);
-        back->fLastMask.reset(mask);
-        back->fLastBound = bound;
     }
 
     void reset() {
@@ -147,7 +134,7 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        return back->fLastMask.get();
+        return back->fLastMask.texture();
     }
 
     const GrTexture* getLastMask() const {
@@ -159,19 +146,21 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        return back->fLastMask.get();
+        return back->fLastMask.texture();
     }
 
-    GrTexture* detachLastMask() {
+    void acquireMask(const GrClip& clip,
+                     const GrTextureDesc& desc,
+                     const GrRect& bound) {
 
         if (fStack.empty()) {
             GrAssert(false);
-            return NULL;
+            return;
         }
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        return back->fLastMask.detach();
+        back->acquireMask(fContext, clip, desc, bound);
     }
 
     int getLastMaskWidth() const {
@@ -183,11 +172,11 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (NULL == back->fLastMask.get()) {
+        if (NULL == back->fLastMask.texture()) {
             return -1;
         }
 
-        return back->fLastMask.get()->width();
+        return back->fLastMask.texture()->width();
     }
 
     int getLastMaskHeight() const {
@@ -199,11 +188,11 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (NULL == back->fLastMask.get()) {
+        if (NULL == back->fLastMask.texture()) {
             return -1;
         }
 
-        return back->fLastMask.get()->height();
+        return back->fLastMask.texture()->height();
     }
 
     void getLastBound(GrRect* bound) const {
@@ -219,6 +208,24 @@ public:
         *bound = back->fLastBound;
     }
 
+    void setContext(GrContext* context) {
+        fContext = context;
+    }
+
+    GrContext* getContext() {
+        return fContext;
+    }
+
+    void releaseResources() {
+
+        SkDeque::F2BIter iter(fStack);
+        for (GrClipStackFrame* frame = (GrClipStackFrame*) iter.next();
+                frame != NULL;
+                frame = (GrClipStackFrame*) iter.next()) {
+            frame->reset();
+        }
+    }
+
 protected:
 private:
     struct GrClipStackFrame {
@@ -227,22 +234,39 @@ private:
             reset();
         }
 
+        void acquireMask(GrContext* context,
+                         const GrClip& clip, 
+                         const GrTextureDesc& desc,
+                         const GrRect& bound) {
+
+            fLastClip = clip;
+
+            fLastMask.set(context, desc);
+
+            fLastBound = bound;
+        }
+
         void reset () {
             fLastClip.setEmpty();
-            fLastMask.reset(NULL);
+
+            const GrTextureDesc desc = { kNone_GrTextureFlags, 0, 0, 
+                                         kUnknown_GrPixelConfig, 0 };
+
+            fLastMask.set(NULL, desc);
             fLastBound.setEmpty();
         }
 
         GrClip                  fLastClip;
         // The mask's width & height values are used in setupDrawStateAAClip to 
         // correctly scale the uvs for geometry drawn with this mask
-        SkAutoTUnref<GrTexture> fLastMask;
+        GrAutoScratchTexture    fLastMask;
         // fLastBound stores the bounding box of the clip mask in canvas 
         // space. The left and top fields are used to offset the uvs for 
         // geometry drawn with this mask (in setupDrawStateAAClip)
         GrRect                  fLastBound;
     };
 
+    GrContext*   fContext;
     SkDeque      fStack;
 
     typedef GrNoncopyable INHERITED;
@@ -268,13 +292,17 @@ public:
                         const GrClip& clip, 
                         ScissoringSettings* scissorSettings);
 
-    void freeResources();
+    void releaseResources();
 
     bool isClipInStencil() const { return fClipMaskInStencil; }
     bool isClipInAlpha() const { return fClipMaskInAlpha; }
 
     void resetMask() {
         fClipMaskInStencil = false;
+    }
+
+    void setContext(GrContext* context) {
+        fAACache.setContext(context);
     }
 
 protected:
@@ -302,8 +330,7 @@ private:
     bool clipMaskPreamble(GrGpu* gpu,
                           const GrClip& clipIn,
                           GrTexture** result,
-                          GrRect *resultBounds,
-                          GrTexture** maskStorage);
+                          GrRect *resultBounds);
 
     bool drawPath(GrGpu* gpu,
                   const SkPath& path,
@@ -317,10 +344,12 @@ private:
 
     void drawTexture(GrGpu* gpu,
                      GrTexture* target,
-                     const GrRect& rect,
                      GrTexture* texture);
 
-    void getAccum(GrGpu* gpu, const GrRect& bounds, GrTexture** accum);
+    void getTemp(const GrRect& bounds, GrAutoScratchTexture* temp);
+
+    void setupCache(const GrClip& clip, 
+                    const GrRect& bounds);
 
     // determines the path renderer used to draw a clip path element.
     GrPathRenderer* getClipPathRenderer(GrGpu* gpu,

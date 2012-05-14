@@ -87,6 +87,7 @@ public:
     void setContext(GrContext* context) {
         GrAssert(NULL == fContext); 
         fContext = context;
+        fClipMaskManager.setContext(context);
     }
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
