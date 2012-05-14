@@ -31,10 +31,9 @@ void GrGLProgramStage::setData(const GrGLInterface*, GrCustomStage*,
 }
 
 GrStringBuilder GrGLProgramStage::emitTextureSetup(GrStringBuilder* code,
-                                                   const char* coordName,
-                                                   int stageNum,
-                                                   int coordDims,
-                                                   int varyingDims) {
+                    const char* coordName,
+                    int stageNum,
+                    GrGLShaderBuilder* segments) {
     GrStringBuilder retval;
 
     switch (fSamplerMode) {
@@ -48,12 +47,13 @@ GrStringBuilder GrGLProgramStage::emitTextureSetup(GrStringBuilder* code,
             retval = "inCoord";
             retval.appendS32(stageNum);
             code->appendf("\t %s %s = %s%s / %s%s\n",
-                GrGLShaderVar::TypeString(GrSLFloatVectorType(coordDims)),
+                GrGLShaderVar::TypeString
+                    (GrSLFloatVectorType(segments->fCoordDims)),
                 fCoordName.c_str(),
                 coordName,
-                GrGLSLVectorNonhomogCoords(varyingDims),
+                GrGLSLVectorNonhomogCoords(segments->fVaryingDims),
                 coordName,
-                GrGLSLVectorHomogCoord(varyingDims));
+                GrGLSLVectorHomogCoord(segments->fVaryingDims));
             break;
     }
     return retval;
