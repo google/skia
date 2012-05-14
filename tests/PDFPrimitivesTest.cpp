@@ -7,8 +7,6 @@
  */
 
 
-#include <string>
-
 #include "Test.h"
 #include "SkData.h"
 #include "SkFlate.h"
@@ -89,9 +87,9 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
 
 static void SimpleCheckObjectOutput(skiatest::Reporter* reporter,
                                     SkPDFObject* obj,
-                                    const std::string& expectedResult) {
-    CheckObjectOutput(reporter, obj, expectedResult.c_str(),
-                      expectedResult.length(), true, false);
+                                    const char* expectedResult) {
+    CheckObjectOutput(reporter, obj, expectedResult,
+                      strlen(expectedResult), true, false);
 }
 
 static void TestPDFStream(skiatest::Reporter* reporter) {

@@ -41,9 +41,13 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     SkMatrix matrix;
     
     SkCanvas c(dev);
-    matrix.setAll(-119.34097, -43.436558, 93489.945,
-                  43.436558, -119.34097, 123.98426,
-                  0, 0, 1);
+    matrix.setAll(SkFloatToScalar(-119.34097f), 
+                  SkFloatToScalar(-43.436558f), 
+                  SkFloatToScalar(93489.945f),
+                  SkFloatToScalar(43.436558f), 
+                  SkFloatToScalar(-119.34097f), 
+                  SkFloatToScalar(123.98426f),
+                  0, 0, SK_Scalar1);
     c.concat(matrix);
     
     SkBitmap bm;
@@ -53,9 +57,13 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    matrix.setAll(0.0078740157, 0, 249,
-                  0, 0.0078740157, 239,
-                  0, 0, 1);
+    matrix.setAll(SkFloatToScalar(0.0078740157f), 
+                  0, 
+                  SkIntToScalar(249),
+                  0, 
+                  SkFloatToScalar(0.0078740157f), 
+                  SkIntToScalar(239),
+                  0, 0, SK_Scalar1);
     s->setLocalMatrix(matrix);
     
     SkPaint paint;

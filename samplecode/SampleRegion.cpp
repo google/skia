@@ -28,8 +28,10 @@ static void test_strokerect(SkCanvas* canvas) {
     SkScalar dy = 20;
     
     SkPath path;
-    path.addRect(0.0f, 0.0f, width, height, SkPath::kCW_Direction);
-    SkRect r = SkRect::MakeWH(width, height);
+    path.addRect(0.0f, 0.0f, 
+                 SkIntToScalar(width), SkIntToScalar(height), 
+                 SkPath::kCW_Direction);
+    SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
     
     SkCanvas c(bitmap);
     c.translate(dx, dy);
@@ -46,7 +48,7 @@ static void test_strokerect(SkCanvas* canvas) {
     // use the path
     c.clear(0);
     c.drawPath(path, paint);
-    canvas->drawBitmap(bitmap, 2*width, 0, NULL);
+    canvas->drawBitmap(bitmap, SkIntToScalar(2*width), 0, NULL);
 }
 
 static void drawFadingText(SkCanvas* canvas,
@@ -74,7 +76,7 @@ static void drawFadingText(SkCanvas* canvas,
 
     // pos[1] value is where we start to fade, relative to the width
     // of our pts[] array.
-    const SkScalar pos[] = { 0, SkFloatToScalar(0.9), SK_Scalar1 };
+    const SkScalar pos[] = { 0, SkFloatToScalar(0.9f), SK_Scalar1 };
 
     SkShader* s = SkGradientShader::CreateLinear(pts, colors, pos, 3,
                                                  SkShader::kClamp_TileMode);
