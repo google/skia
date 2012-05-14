@@ -110,6 +110,9 @@ void GrContext::resetContext() {
 
 void GrContext::freeGpuResources() {
     this->flush();
+    
+    fGpu->purgeResources();
+
     fTextureCache->removeAll();
     fFontCache->freeAll();
     // a path renderer may be holding onto resources
