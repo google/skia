@@ -25,8 +25,8 @@ void* GetProcAddress(const char* name) {
     return NULL == symbol ? NULL : NSAddressOfSymbol(symbol); 
 }
 
-#define GET_PROC(name) ((GrGL ## name ## Proc) GetProcAddress("_gl" #name))
-#define GET_PROC_SUFFIX(name, suffix) ((GrGL ## name ## Proc) GetProcAddress("_gl" #name #suffix))
+#define GET_PROC(name) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("_gl" #name)))
+#define GET_PROC_SUFFIX(name, suffix) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("_gl" #name #suffix)))
 
 const GrGLInterface* GrGLCreateNativeInterface() {
     // The gl functions are not context-specific so we create one global 
