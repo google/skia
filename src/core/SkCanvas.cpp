@@ -300,6 +300,10 @@ public:
 
         if (fLooper) {
             fLooper->init(canvas);
+            fIsSimple = false;
+        } else {
+            // can we be marked as simple?
+            fIsSimple = !fFilter && !fDoClearImageFilter;
         }
     }
 
@@ -315,7 +319,17 @@ public:
         return *fPaint;
     }
 
-    bool next(SkDrawFilter::Type drawType);
+    bool next(SkDrawFilter::Type drawType) {
+        if (fDone) {
+            return false;
+        } else if (fIsSimple) {
+            fDone = true;
+            fPaint = &fOrigPaint;
+            return !fPaint->nothingToDraw();
+        } else {
+            return this->doNext(drawType);
+        }
+    }        
 
 private:
     SkLazyPaint     fLazyPaint;
@@ -327,41 +341,38 @@ private:
     int             fSaveCount;
     bool            fDoClearImageFilter;
     bool            fDone;
+    bool            fIsSimple;
+
+    bool doNext(SkDrawFilter::Type drawType);
 };
 
-bool AutoDrawLooper::next(SkDrawFilter::Type drawType) {
+bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     fPaint = NULL;
-    if (fDone) {
-        return false;
+    SkASSERT(!fIsSimple);
+    SkASSERT(fLooper || fFilter || fDoClearImageFilter);
+
+    SkPaint* paint = fLazyPaint.set(fOrigPaint);
+
+    if (fDoClearImageFilter) {
+        paint->setImageFilter(NULL);
     }
 
-    if (fLooper || fFilter || fDoClearImageFilter) {
-        SkPaint* paint = fLazyPaint.set(fOrigPaint);
-
-        if (fDoClearImageFilter) {
-            paint->setImageFilter(NULL);
-        }
-
-        if (fLooper && !fLooper->next(fCanvas, paint)) {
-            fDone = true;
-            return false;
-        }
-        if (fFilter) {
-            fFilter->filter(paint, drawType);
-            if (NULL == fLooper) {
-                // no looper means we only draw once
-                fDone = true;
-            }
-        }
-        fPaint = paint;
-
-        // if we only came in here for the imagefilter, mark us as done
-        if (!fLooper && !fFilter) {
-            fDone = true;
-        }
-    } else {
+    if (fLooper && !fLooper->next(fCanvas, paint)) {
         fDone = true;
-        fPaint = &fOrigPaint;
+        return false;
+    }
+    if (fFilter) {
+        fFilter->filter(paint, drawType);
+        if (NULL == fLooper) {
+            // no looper means we only draw once
+            fDone = true;
+        }
+    }
+    fPaint = paint;
+
+    // if we only came in here for the imagefilter, mark us as done
+    if (!fLooper && !fFilter) {
+        fDone = true;
     }
 
     // call this after any possible paint modifiers
