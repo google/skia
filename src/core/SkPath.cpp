@@ -1390,6 +1390,7 @@ bool SkPath::Iter::isClosedContour() const {
 }
 
 SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
+    SkASSERT(pts);
     if (fLastPt != fMoveTo) {
         // A special case: if both points are NaN, SkPoint::operation== returns
         // false, but the iterator expects that they are treated as the same.
@@ -1399,10 +1400,8 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
             return kClose_Verb;
         }
 
-        if (pts) {
-            pts[0] = fLastPt;
-            pts[1] = fMoveTo;
-        }
+        pts[0] = fLastPt;
+        pts[1] = fMoveTo;
         fLastPt = fMoveTo;
         fCloseLine = true;
         return kLine_Verb;
@@ -1412,21 +1411,16 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
     }
 }
 
-bool SkPath::Iter::cons_moveTo(SkPoint pts[1]) {
+const SkPoint& SkPath::Iter::cons_moveTo() {
     if (fSegmentState == kAfterMove_SegmentState) {
         // Set the first return pt to the move pt
-        if (pts) {
-            *pts = fMoveTo;
-        }
         fSegmentState = kAfterPrimitive_SegmentState;
+        return fMoveTo;
     } else {
         SkASSERT(fSegmentState == kAfterPrimitive_SegmentState);
          // Set the first return pt to the last pt of the previous primitive.
-        if (pts) {
-            *pts = fPts[-1];
-        }
+        return fPts[-1];
     }
-    return false;
 }
 
 void SkPath::Iter::consumeDegenerateSegments() {
@@ -1504,13 +1498,14 @@ void SkPath::Iter::consumeDegenerateSegments() {
     }
 }
 
-SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
+SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
+    SkASSERT(ptsParam);
     this->consumeDegenerateSegments();
 
     if (fVerbs == fVerbStop) {
         // Close the curve if requested and if there is some curve to close
         if (fNeedClose && fSegmentState == kAfterPrimitive_SegmentState) {
-            if (kLine_Verb == this->autoClose(pts)) {
+            if (kLine_Verb == this->autoClose(ptsParam)) {
                 return kLine_Verb;
             }
             fNeedClose = false;
@@ -1520,7 +1515,8 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
     }
 
     unsigned        verb = *fVerbs++;
-    const SkPoint*  srcPts = fPts;
+    const SkPoint* SK_RESTRICT srcPts = fPts;
+    SkPoint* SK_RESTRICT       pts = ptsParam;
 
     switch (verb) {
         case kMove_Verb:
@@ -1536,42 +1532,28 @@ SkPath::Verb SkPath::Iter::next(SkPoint pts[4]) {
                 return kDone_Verb;
             }
             fMoveTo = *srcPts;
-            if (pts) {
-                pts[0] = *srcPts;
-            }
+            pts[0] = *srcPts;
             srcPts += 1;
             fSegmentState = kAfterMove_SegmentState;
             fLastPt = fMoveTo;
             fNeedClose = fForceClose;
             break;
         case kLine_Verb:
-            if (this->cons_moveTo(pts)) {
-                return kMove_Verb;
-            }
-            if (pts) {
-                pts[1] = srcPts[0];
-            }
+            pts[0] = this->cons_moveTo();
+            pts[1] = srcPts[0];
             fLastPt = srcPts[0];
             fCloseLine = false;
             srcPts += 1;
             break;
         case kQuad_Verb:
-            if (this->cons_moveTo(pts)) {
-                return kMove_Verb;
-            }
-            if (pts) {
-                memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
-            }
+            pts[0] = this->cons_moveTo();
+            memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
             fLastPt = srcPts[1];
             srcPts += 2;
             break;
         case kCubic_Verb:
-            if (this->cons_moveTo(pts)) {
-                return kMove_Verb;
-            }
-            if (pts) {
-                memcpy(&pts[1], srcPts, 3 * sizeof(SkPoint));
-            }
+            pts[0] = this->cons_moveTo();
+            memcpy(&pts[1], srcPts, 3 * sizeof(SkPoint));
             fLastPt = srcPts[2];
             srcPts += 3;
             break;
