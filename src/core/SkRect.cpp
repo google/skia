@@ -61,6 +61,15 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     #define SkFLOATCODE(code)
 #endif
 
+// For float compares (at least on x86, by removing the else from the min/max
+// computation, we get MAXSS and MINSS instructions, and no branches.
+// Fixed point has no such opportunity (afaik), so we leave the else in that case
+#ifdef SK_SCALAR_IS_FLOAT
+    #define MINMAX_ELSE
+#else
+    #define MINMAX_ELSE else
+#endif
+
 void SkRect::set(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
 
@@ -94,6 +103,7 @@ void SkRect::set(const SkPoint pts[], int count) {
         // If all of the points are finite, accum should stay 0. If we encounter
         // a NaN or infinity, then accum should become NaN.
         SkFLOATCODE(float accum = 0;)
+        SkFLOATCODE(accum *= l; accum *= t;)
 
         for (int i = 1; i < count; i++) {
             SkScalar x = pts[i].fX;
@@ -101,8 +111,8 @@ void SkRect::set(const SkPoint pts[], int count) {
 
             SkFLOATCODE(accum *= x; accum *= y;)
 
-            if (x < l) l = x; else if (x > r) r = x;
-            if (y < t) t = y; else if (y > b) b = y;
+            if (x < l) l = x; MINMAX_ELSE if (x > r) r = x;
+            if (y < t) t = y; MINMAX_ELSE if (y > b) b = y;
         }
 
 #ifdef SK_SCALAR_IS_FLOAT
