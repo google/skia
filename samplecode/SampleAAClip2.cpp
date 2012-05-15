@@ -16,6 +16,8 @@
 #include "SkUtils.h"
 #include "SkImageDecoder.h"
 
+#define USE_PATHS 1
+
 #ifdef SK_BUILD_FOR_WIN
 // windows doesn't have roundf
 inline float roundf(float x) { return (x-floor(x))>0.5 ? ceil(x) : floor(x); }
@@ -59,7 +61,7 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
 
 class AAClipView2 : public SampleView {
 public:
-	AAClipView2() {
+        AAClipView2() {
         fBase.set(100, 100, 150, 150);
         fRect = fBase;
         fRect.inset(5, 5);
@@ -72,7 +74,7 @@ public:
         r.set(rect);
         SkPath path;
         path.addRoundRect(r, SkIntToScalar(5), SkIntToScalar(5));
-        clip->setPath(path);
+        clip->setPath(path, NULL, true);
     }
 
     void build_rgn(SkAAClip* clip, SkRegion::Op op) {
@@ -82,7 +84,6 @@ public:
         setAAClip(&clip2, fRect);
         clip->op(clip2, op);
     }
-
 
 protected:
     // overrides from SkEventSink
@@ -120,10 +121,10 @@ protected:
     }
 
     void drawRgnOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
+
         SkAAClip clip;
 
         this->build_rgn(&clip, op);
-        
         this->drawOrig(canvas, true);
 
         SkPaint paint;
@@ -133,13 +134,69 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(color);
         paint_rgn(canvas, clip, paint);
-        
         SkAAClip clip2(clip);
         clip2.translate(0, 80);
         outer_frame(canvas, clip2.getBounds());
         paint_rgn(canvas, clip2, paint);
     }
     
+    static void createPath(SkPath *path, const SkIRect& rect) {
+        SkRect r;
+        r.set(rect);
+        path->addRoundRect(r, SkIntToScalar(5), SkIntToScalar(5));
+    }
+
+    void drawPathsOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
+
+        this->drawOrig(canvas, true);
+
+        canvas->save();
+
+        // create the clip mask with the supplied boolean op
+
+#if USE_PATHS
+        // path-based case
+        SkPath base;
+        createPath(&base, fBase);
+
+        canvas->clipPath(base, SkRegion::kReplace_Op, true);
+#else
+        // rect-based case
+        SkRect base;
+        base.set(fBase);
+        // offset the rects so we get a bit of anti-aliasing
+        base.offset(SkFloatToScalar(0.5f), SkFloatToScalar(0.5f));
+        canvas->clipRect(base, SkRegion::kReplace_Op, true);
+
+#endif
+
+#if USE_PATHS
+        // path-based case
+        SkPath rect;
+        createPath(&rect, fRect);
+
+        canvas->clipPath(rect, op, true);
+#else
+        // rect-based case
+        SkRect rect;
+        rect.set(fRect);
+        // offset the rects so we get a bit of anti-aliasing
+        rect.offset(SkFloatToScalar(0.5f), SkFloatToScalar(0.5f));
+        canvas->clipRect(rect, op, true);
+#endif
+
+        // draw a rect that will entirely cover the clip mask area
+        SkPaint paint;
+        paint.setColor(color);
+
+        SkRect r = SkRect::MakeLTRB(SkIntToScalar(90),  SkIntToScalar(90),
+                                    SkIntToScalar(180), SkIntToScalar(180));
+
+        canvas->drawRect(r, paint);
+
+        canvas->restore();
+    }
+
     virtual void onDrawContent(SkCanvas* canvas) {
 
         static const struct {
@@ -147,10 +204,12 @@ protected:
             const char*     fName;
             SkRegion::Op    fOp;
         } gOps[] = {
-            { SK_ColorBLACK,    "Difference",   SkRegion::kDifference_Op    },
-            { SK_ColorRED,      "Intersect",    SkRegion::kIntersect_Op     },
-            { 0xFF008800,       "Union",        SkRegion::kUnion_Op         },
-            { SK_ColorBLUE,     "XOR",          SkRegion::kXOR_Op           }
+            { SK_ColorBLACK,    "Difference", SkRegion::kDifference_Op    },
+            { SK_ColorRED,      "Intersect",  SkRegion::kIntersect_Op     },
+            { 0xFF008800,       "Union",      SkRegion::kUnion_Op         },
+            { SK_ColorBLUE,     "XOR",        SkRegion::kXOR_Op           },
+            { SK_ColorGREEN,    "Rev Diff",   SkRegion::kReverseDifference_Op },
+            { SK_ColorYELLOW,   "Replace",    SkRegion::kReplace_Op       }
         };
 
         SkPaint textPaint;
@@ -158,18 +217,40 @@ protected:
         textPaint.setTextSize(SK_Scalar1*24);
 
         this->drawOrig(canvas, false);
-        
+
         canvas->translate(0, SkIntToScalar(200));
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName), SkIntToScalar(75), SkIntToScalar(50), textPaint);
+            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
+                             SkIntToScalar(75), SkIntToScalar(50), textPaint);
 
             this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);
-            
-            canvas->translate(SkIntToScalar(200), 0);
+
+            if (op && !(op % 3)) {
+                canvas->translate(SkIntToScalar(-600), SkIntToScalar(250));
+            } else {
+                canvas->translate(SkIntToScalar(200), 0);
+            }
         }
+
+        canvas->translate(SkIntToScalar(int(SK_ARRAY_COUNT(gOps) / 3) * -200), 
+                          SkIntToScalar(250));
+
+        for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
+            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
+                             SkIntToScalar(75), SkIntToScalar(50), textPaint);
+
+            this->drawPathsOped(canvas, gOps[op].fOp, gOps[op].fColor);
+
+            if (op && !(op % 3)) {
+                canvas->translate(SkIntToScalar(-600), SkIntToScalar(250));
+            } else {
+                canvas->translate(SkIntToScalar(200), 0);
+            }
+        }
+
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         return fRect.contains(SkScalarRound(x), SkScalarRound(y)) ? new Click(this) : NULL;
     }
