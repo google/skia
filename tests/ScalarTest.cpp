@@ -21,6 +21,7 @@ struct PointSet {
 };
 
 static void test_isRectFinite(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
     static const SkPoint gF0[] = {
         { 0, 0 }, { 1, 1 }
     };
@@ -61,6 +62,7 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
         bool rectIsFinite = !r.isEmpty();
         REPORTER_ASSERT(reporter, gSets[i].fIsFinite == rectIsFinite);
     }
+#endif
 }
 
 static bool isFinite_int(float x) {
