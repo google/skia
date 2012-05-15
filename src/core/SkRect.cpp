@@ -90,19 +90,24 @@ void SkRect::set(const SkPoint pts[], int count) {
 
         l = r = pts[0].fX;
         t = b = pts[0].fY;
-        SkFLOATCODE(isNaN = (l != l) | (t != t);)
+
+        // If all of the points are finite, accum should stay 0. If we encounter
+        // a NaN or infinity, then accum should become NaN.
+        SkFLOATCODE(float accum = 0;)
 
         for (int i = 1; i < count; i++) {
             SkScalar x = pts[i].fX;
             SkScalar y = pts[i].fY;
-            SkFLOATCODE(isNaN |= (x != x) | (y != y);)
+
+            SkFLOATCODE(accum *= x; accum *= y;)
 
             if (x < l) l = x; else if (x > r) r = x;
             if (y < t) t = y; else if (y > b) b = y;
         }
 
 #ifdef SK_SCALAR_IS_FLOAT
-        if (isNaN) {
+        SkASSERT(!accum || !SkScalarIsFinite(accum));
+        if (accum) {
             l = t = r = b = 0;
         }
 #endif
