@@ -10,8 +10,58 @@
 #include "SkMath.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
+#include "SkRect.h"
 
 #ifdef SK_CAN_USE_FLOAT
+
+struct PointSet {
+    const SkPoint* fPts;
+    size_t         fCount;
+    bool           fIsFinite;
+};
+
+static void test_isRectFinite(skiatest::Reporter* reporter) {
+    static const SkPoint gF0[] = {
+        { 0, 0 }, { 1, 1 }
+    };
+    static const SkPoint gF1[] = {
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }
+    };
+
+    static const SkPoint gI0[] = {
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { SK_ScalarNaN, 3 }, { 2, 3 },
+    };
+    static const SkPoint gI1[] = {
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { 3, SK_ScalarNaN }, { 2, 3 },
+    };
+    static const SkPoint gI2[] = {
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { SK_ScalarInfinity, 3 }, { 2, 3 },
+    };
+    static const SkPoint gI3[] = {
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { 3, SK_ScalarInfinity }, { 2, 3 },
+    };
+
+    static const struct {
+        const SkPoint* fPts;
+        size_t         fCount;
+        bool           fIsFinite;
+    } gSets[] = {
+        { gF0, SK_ARRAY_COUNT(gF0), true },
+        { gF1, SK_ARRAY_COUNT(gF1), true },
+
+        { gI0, SK_ARRAY_COUNT(gI0), false },
+        { gI1, SK_ARRAY_COUNT(gI1), false },
+        { gI2, SK_ARRAY_COUNT(gI2), false },
+        { gI3, SK_ARRAY_COUNT(gI3), false },
+    };
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gSets); ++i) {
+        SkRect r;
+        r.set(gSets[i].fPts, gSets[i].fCount);
+        bool rectIsFinite = !r.isEmpty();
+        REPORTER_ASSERT(reporter, gSets[i].fIsFinite == rectIsFinite);
+    }
+}
 
 static bool isFinite_int(float x) {
     uint32_t bits = SkFloat2Bits(x);    // need unsigned for our shifts
@@ -132,6 +182,8 @@ static void test_isfinite(skiatest::Reporter* reporter) {
             }
         }
     }
+    
+    test_isRectFinite(reporter);
 #endif
 }
 
