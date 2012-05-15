@@ -181,6 +181,66 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+/** Explicitly invoke some filter types to improve coverage of acceleration
+    procs. */
+
+class FilterBitmapBench : public BitmapBench {
+    bool        fScale;
+    bool        fRotate;
+    bool        fFilter;
+    SkString    fFullName;
+    enum { N = SkBENCHLOOP(300) };
+public:
+    FilterBitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
+                bool forceUpdate = false, bool bitmapVolatile = false, 
+                int tx = -1, int ty = -1, bool addScale = false,
+                bool addRotate = false, bool addFilter = false)
+        : INHERITED(param, isOpaque, c, forceUpdate, bitmapVolatile, tx, ty)
+        , fScale(addScale), fRotate(addRotate), fFilter(addFilter) {
+
+    }
+
+protected:
+    virtual const char* onGetName() {
+        fFullName.set(INHERITED::onGetName());
+        if (fScale) 
+            fFullName.append("_scale");
+        if (fRotate) 
+            fFullName.append("_rotate");
+        if (fFilter) 
+            fFullName.append("_filter");
+
+        return fFullName.c_str();
+    }
+
+    virtual void onDraw(SkCanvas* canvas) {
+        SkISize dim = canvas->getDeviceSize();
+        if (fScale) {
+            const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
+            const SkScalar y = SkIntToScalar(dim.fHeight) / 2;
+    
+            canvas->translate(x, y);
+            // just enough so we can't take the sprite case
+            canvas->scale(SK_Scalar1 * 99/100, SK_Scalar1 * 99/100);
+            canvas->translate(-x, -y);
+        }
+        if (fRotate) {
+            const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
+            const SkScalar y = SkIntToScalar(dim.fHeight) / 2;
+    
+            canvas->translate(x, y);
+            canvas->rotate(SkIntToScalar(35));
+            canvas->translate(-x, -y);
+        }
+
+        this->setForceFilter(fFilter);
+        INHERITED::onDraw(canvas);
+    }
+
+private:
+    typedef BitmapBench INHERITED;
+};
+
 static SkBenchmark* Fact0(void* p) { return new BitmapBench(p, false, SkBitmap::kARGB_8888_Config); }
 static SkBenchmark* Fact1(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config); }
 static SkBenchmark* Fact2(void* p) { return new BitmapBench(p, true, SkBitmap::kRGB_565_Config); }
@@ -191,6 +251,18 @@ static SkBenchmark* Fact6(void* p) { return new BitmapBench(p, true, SkBitmap::k
 static SkBenchmark* Fact7(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true); }
 static SkBenchmark* Fact8(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false); }
 
+// scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3}
+static SkBenchmark* Fact9(void* p) { return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); }
+static SkBenchmark* Fact10(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); }
+static SkBenchmark* Fact11(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, false, true); }
+static SkBenchmark* Fact12(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, false, true); }
+
+// scale rotate filter -> S32_opaque_D32_filter_DXDY_{SSE2,SSSE3}
+static SkBenchmark* Fact13(void* p) { return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); }
+static SkBenchmark* Fact14(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); }
+static SkBenchmark* Fact15(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, true, true); }
+static SkBenchmark* Fact16(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, true, true); }
+
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
@@ -200,3 +272,14 @@ static BenchRegistry gReg5(Fact5);
 static BenchRegistry gReg6(Fact6);
 static BenchRegistry gReg7(Fact7);
 static BenchRegistry gReg8(Fact8);
+
+static BenchRegistry gReg9(Fact9);
+static BenchRegistry gReg10(Fact10);
+static BenchRegistry gReg11(Fact11);
+static BenchRegistry gReg12(Fact12);
+
+static BenchRegistry gReg13(Fact13);
+static BenchRegistry gReg14(Fact14);
+static BenchRegistry gReg15(Fact15);
+static BenchRegistry gReg16(Fact16);
+
