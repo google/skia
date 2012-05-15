@@ -151,7 +151,7 @@ public:
 
     void acquireMask(const GrClip& clip,
                      const GrTextureDesc& desc,
-                     const GrRect& bound) {
+                     const GrIRect& bound) {
 
         if (fStack.empty()) {
             GrAssert(false);
@@ -195,7 +195,7 @@ public:
         return back->fLastMask.texture()->height();
     }
 
-    void getLastBound(GrRect* bound) const {
+    void getLastBound(GrIRect* bound) const {
 
         if (fStack.empty()) {
             GrAssert(false);
@@ -237,7 +237,7 @@ private:
         void acquireMask(GrContext* context,
                          const GrClip& clip, 
                          const GrTextureDesc& desc,
-                         const GrRect& bound) {
+                         const GrIRect& bound) {
 
             fLastClip = clip;
 
@@ -263,7 +263,7 @@ private:
         // fLastBound stores the bounding box of the clip mask in canvas 
         // space. The left and top fields are used to offset the uvs for 
         // geometry drawn with this mask (in setupDrawStateAAClip)
-        GrRect                  fLastBound;
+        GrIRect                 fLastBound;
     };
 
     GrContext*   fContext;
@@ -322,15 +322,15 @@ private:
     bool createAlphaClipMask(GrGpu* gpu,
                              const GrClip& clipIn,
                              GrTexture** result,
-                             GrRect *resultBounds);
+                             GrIRect *resultBounds);
     bool createSoftwareClipMask(GrGpu* gpu,
                                 const GrClip& clipIn,
                                 GrTexture** result,
-                                GrRect *resultBounds);
+                                GrIRect *resultBounds);
     bool clipMaskPreamble(GrGpu* gpu,
                           const GrClip& clipIn,
                           GrTexture** result,
-                          GrRect *resultBounds);
+                          GrIRect *resultBounds);
 
     bool drawPath(GrGpu* gpu,
                   const SkPath& path,
@@ -346,10 +346,10 @@ private:
                      GrTexture* target,
                      GrTexture* texture);
 
-    void getTemp(const GrRect& bounds, GrAutoScratchTexture* temp);
+    void getTemp(const GrIRect& bounds, GrAutoScratchTexture* temp);
 
     void setupCache(const GrClip& clip, 
-                    const GrRect& bounds);
+                    const GrIRect& bounds);
 
     // determines the path renderer used to draw a clip path element.
     GrPathRenderer* getClipPathRenderer(GrGpu* gpu,
