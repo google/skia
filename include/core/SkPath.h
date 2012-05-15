@@ -714,7 +714,7 @@ public:
         SkBool8         fCloseLine;
         SkBool8         fSegmentState;
 
-        bool cons_moveTo(SkPoint pts[1]);
+        inline const SkPoint& cons_moveTo();
         Verb autoClose(SkPoint pts[2]);
         void consumeDegenerateSegments();
     };
