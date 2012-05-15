@@ -63,7 +63,8 @@ static bool set_normal_unitnormal(const SkVector& vec,
 
 class SkPathStroker {
 public:
-    SkPathStroker(SkScalar radius, SkScalar miterLimit, SkPaint::Cap cap,
+    SkPathStroker(const SkPath& src,
+                  SkScalar radius, SkScalar miterLimit, SkPaint::Cap cap,
                   SkPaint::Join join);
 
     void moveTo(const SkPoint&);
@@ -171,13 +172,16 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
             fOuter.close();
         }
     }
-    fInner.reset();
+    // since we may re-use fInner, we rewind instead of reset, to save on
+    // reallocating its internal storage.
+    fInner.rewind();
     fSegmentCount = -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPathStroker::SkPathStroker(SkScalar radius, SkScalar miterLimit,
+SkPathStroker::SkPathStroker(const SkPath& src,
+                             SkScalar radius, SkScalar miterLimit,
                              SkPaint::Cap cap, SkPaint::Join join)
         : fRadius(radius) {
 
@@ -197,6 +201,15 @@ SkPathStroker::SkPathStroker(SkScalar radius, SkScalar miterLimit,
     fJoiner = SkStrokerPriv::JoinFactory(join);
     fSegmentCount = -1;
     fPrevIsLine = false;
+
+    // Need some estimate of how large our final result (fOuter)
+    // and our per-contour temp (fInner) will be, so we don't spend
+    // extra time repeatedly growing these arrays.
+    //
+    // 3x for result == inner + outer + join (swag)
+    // 1x for inner == 'wag' (worst contour length would be better guess)
+    fOuter.incReserve(src.countPoints() * 3);
+    fInner.incReserve(src.countPoints());
 }
 
 void SkPathStroker::moveTo(const SkPoint& pt) {
@@ -571,7 +584,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     }
 #endif
 
-    SkPathStroker   stroker(radius, fMiterLimit, this->getCap(),
+    SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(),
                             this->getJoin());
 
     SkPath::Iter    iter(src, false);
