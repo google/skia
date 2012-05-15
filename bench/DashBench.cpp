@@ -34,18 +34,21 @@ protected:
     SkString            fName;
     SkTDArray<SkScalar> fIntervals;
     int                 fWidth;
+    bool fDoClip;
 
     enum {
         N = SkBENCHLOOP(100)
     };
 public:
-    DashBench(void* param, const SkScalar intervals[], int count, int width) : INHERITED(param) {
+    DashBench(void* param, const SkScalar intervals[], int count, int width,
+              bool doClip = false) : INHERITED(param) {
         fIntervals.append(count, intervals);
         for (int i = 0; i < count; ++i) {
             fIntervals[i] *= width;
         }
         fWidth = width;
-        fName.printf("dash_%d", width);
+        fName.printf("dash_%d_%s", width, doClip ? "clipped" : "noclip");
+        fDoClip = doClip;
     }
 
     virtual void makePath(SkPath* path) {
@@ -69,6 +72,15 @@ protected:
 
         paint.setPathEffect(new SkDashPathEffect(fIntervals.begin(),
                                                  fIntervals.count(), 0))->unref();
+
+        if (fDoClip) {
+            SkRect r = path.getBounds();
+            r.inset(-SkIntToScalar(20), -SkIntToScalar(20));
+            // now move it so we don't intersect
+            r.offset(0, r.height() * 3 / 2);
+            canvas->clipRect(r);
+        }
+
         this->handlePath(canvas, path, paint, N);
     }
 
@@ -85,7 +97,7 @@ private:
 
 class RectDashBench : public DashBench {
 public:
-    RectDashBench(void* param, const SkScalar intervals[], int count, int width)
+    RectDashBench(void* param, const SkScalar intervals[], int count, int width, bool doClip = false)
     : INHERITED(param, intervals, count, width) {
         fName.append("_rect");
     }
@@ -132,10 +144,12 @@ static const SkScalar gDots[] = { SK_Scalar1, SK_Scalar1 };
 
 static SkBenchmark* gF0(void* p) { return new DashBench(p, PARAM(gDots), 0); }
 static SkBenchmark* gF1(void* p) { return new DashBench(p, PARAM(gDots), 1); }
-static SkBenchmark* gF2(void* p) { return new DashBench(p, PARAM(gDots), 4); }
-static SkBenchmark* gF3(void* p) { return new RectDashBench(p, PARAM(gDots), 4); }
+static SkBenchmark* gF2(void* p) { return new DashBench(p, PARAM(gDots), 1, true); }
+static SkBenchmark* gF3(void* p) { return new DashBench(p, PARAM(gDots), 4); }
+static SkBenchmark* gF4(void* p) { return new RectDashBench(p, PARAM(gDots), 4); }
 
 static BenchRegistry gR0(gF0);
 static BenchRegistry gR1(gF1);
 static BenchRegistry gR2(gF2);
 static BenchRegistry gR3(gF3);
+static BenchRegistry gR4(gF4);
