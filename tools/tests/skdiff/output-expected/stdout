@@ -1,0 +1,12 @@
+ERROR: no codec found for <tools/tests/skdiff/baseDir/different-bits-unknown-format.xyz>
+ERROR: no codec found for <tools/tests/skdiff/baseDir/identical-bits-unknown-format.xyz>
+baseDir is [tools/tests/skdiff/baseDir/]
+comparisonDir is [tools/tests/skdiff/comparisonDir/]
+writing diffs to outputDir is [tools/tests/skdiff/output-actual/]
+Missing in baseDir:
+	missing-from-baseDir.png
+Missing in comparisonDir:
+	missing-from-comparisonDir.png
+4 of 8 images matched.
+Maximum pixel intensity mismatch 239
+Largest area mismatch was 100.00% of pixels

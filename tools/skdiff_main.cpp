@@ -735,24 +735,27 @@ static void print_table_header (SkFILEWStream* stream,
                                 const int colorThreshold,
                                 const RecordArray& differences,
                                 const SkString &baseDir,
-                                const SkString &comparisonDir) {
-    SkTime::DateTime dt;
-    SkTime::GetDateTime(&dt);
+                                const SkString &comparisonDir,
+                                bool doOutputDate=false) {
     stream->writeText("<table>\n");
     stream->writeText("<tr><th>");
-    stream->writeText("SkDiff run at ");
-    stream->writeDecAsText(dt.fHour);
-    stream->writeText(":");
-    if (dt.fMinute < 10) {
-        stream->writeText("0");
+    if (doOutputDate) {
+        SkTime::DateTime dt;
+        SkTime::GetDateTime(&dt);
+        stream->writeText("SkDiff run at ");
+        stream->writeDecAsText(dt.fHour);
+        stream->writeText(":");
+        if (dt.fMinute < 10) {
+            stream->writeText("0");
+        }
+        stream->writeDecAsText(dt.fMinute);
+        stream->writeText(":");
+        if (dt.fSecond < 10) {
+            stream->writeText("0");
+        }
+        stream->writeDecAsText(dt.fSecond);
+        stream->writeText("<br>");
     }
-    stream->writeDecAsText(dt.fMinute);
-    stream->writeText(":");
-    if (dt.fSecond < 10) {
-        stream->writeText("0");
-    }
-    stream->writeDecAsText(dt.fSecond);
-    stream->writeText("<br>");
     stream->writeDecAsText(matchCount);
     stream->writeText(" of ");
     stream->writeDecAsText(differences.count());
