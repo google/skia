@@ -11,6 +11,10 @@
 #include "SkPath.h"
 #include "SkBuffer.h"
 
+void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) {
+    *dst = src;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPairPathEffect::SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1)

@@ -1,4 +1,5 @@
 
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -441,9 +442,7 @@ public:
         if (this->getLooper()) {
             return this->getLooper()->canComputeFastBounds(*this);
         }
-        // use bit-or since no need for early exit
-        return (reinterpret_cast<uintptr_t>(this->getRasterizer()) |
-                reinterpret_cast<uintptr_t>(this->getPathEffect())) == 0;
+        return !this->getRasterizer();
     }
 
     /** Only call this if canComputeFastBounds() returned true. This takes a
@@ -468,9 +467,14 @@ public:
         }
     */
     const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
-        if (this->getStyle() == kFill_Style &&
-                !this->getLooper() && !this->getMaskFilter()) {
-            return orig;
+        // ultra fast-case: filling with no effects that affect geometry
+        if (this->getStyle() == kFill_Style) {
+            uintptr_t effects = reinterpret_cast<uintptr_t>(this->getLooper());
+            effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
+            effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
+            if (!effects) {
+                return orig;
+            }
         }
 
         return this->doComputeFastBounds(orig, storage);

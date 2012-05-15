@@ -2044,14 +2044,22 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const {
     return width != 0;  // return true if we're filled, or false if we're hairline (width == 0)
 }
 
-const SkRect& SkPaint::doComputeFastBounds(const SkRect& src,
+const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
                                                  SkRect* storage) const {
     SkASSERT(storage);
 
+    const SkRect* src = &origSrc;
+
     if (this->getLooper()) {
         SkASSERT(this->getLooper()->canComputeFastBounds(*this));
-        this->getLooper()->computeFastBounds(*this, src, storage);
+        this->getLooper()->computeFastBounds(*this, *src, storage);
         return *storage;
+    }
+
+    SkRect tmpSrc;
+    if (this->getPathEffect()) {
+        this->getPathEffect()->computeFastBounds(&tmpSrc, origSrc);
+        src = &tmpSrc;
     }
 
     if (this->getStyle() != SkPaint::kFill_Style) {
@@ -2065,13 +2073,12 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& src,
                 radius = SkScalarMul(radius, scale);
             }
         }
-        storage->set(src.fLeft - radius, src.fTop - radius,
-                     src.fRight + radius, src.fBottom + radius);
+        storage->set(src->fLeft - radius, src->fTop - radius,
+                     src->fRight + radius, src->fBottom + radius);
     } else {
-        *storage = src;
+        *storage = *src;
     }
 
-    // check the mask filter
     if (this->getMaskFilter()) {
         this->getMaskFilter()->computeFastBounds(*storage, storage);
     }
