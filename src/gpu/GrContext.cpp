@@ -35,6 +35,13 @@
 // limitations) should we disable AA or draw wrong?
 #define DISABLE_COVERAGE_AA_FOR_BLEND 1
 
+#if GR_DEBUG
+    // change this to a 1 to see notifications when partial coverage fails
+    #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
+#else
+    #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
+#endif
+
 static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
 
@@ -1873,7 +1880,7 @@ void GrContext::setPaint(const GrPaint& paint) {
     fDrawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     fDrawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
     fDrawState->setCoverage(paint.fCoverage);
-#if GR_DEBUG
+#if GR_DEBUG_PARTIAL_COVERAGE_CHECK
     if ((paint.getActiveMaskStageMask() || 0xff != paint.fCoverage) &&
         !fGpu->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
