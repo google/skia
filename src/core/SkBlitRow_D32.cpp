@@ -180,12 +180,76 @@ void SkBlitRow::Color32(SkPMColor* SK_RESTRICT dst,
     }
 }
 
+template <size_t N> void assignLoop(SkPMColor* dst, SkPMColor color) {
+    for (size_t i = 0; i < N; ++i) {
+        *dst++ = color;
+    }
+}
+
+static inline void assignLoop(SkPMColor dst[], SkPMColor color, int count) {
+    while (count >= 4) {
+        *dst++ = color;
+        *dst++ = color;
+        *dst++ = color;
+        *dst++ = color;
+        count -= 4;
+    }
+    if (count >= 2) {
+        *dst++ = color;
+        *dst++ = color;
+        count -= 2;
+    }
+    if (count > 0) {
+        *dst++ = color;
+    }
+}
+
 void SkBlitRow::ColorRect32(SkPMColor* dst, int width, int height,
                             size_t rowBytes, SkPMColor color) {
-    SkBlitRow::ColorProc proc = SkBlitRow::ColorProcFactory();
-    while (--height >= 0) {
-        (*proc)(dst, dst, width, color);
-        dst = (SkPMColor*) ((char*)dst + rowBytes);
+    if (width <= 0 || height <= 0 || 0 == color) {
+        return;
+    }
+
+    // Just made up this value, since I saw it once in a SSE2 file.
+    // We should consider writing some tests to find the optimimal break-point
+    // (or query the Platform proc?)
+    static const int MIN_WIDTH_FOR_SCANLINE_PROC = 32;
+
+    bool isOpaque = (0xFF == SkGetPackedA32(color));
+
+    if (!isOpaque || width >= MIN_WIDTH_FOR_SCANLINE_PROC) {
+        SkBlitRow::ColorProc proc = SkBlitRow::ColorProcFactory();
+        while (--height >= 0) {
+            (*proc)(dst, dst, width, color);
+            dst = (SkPMColor*) ((char*)dst + rowBytes);
+        }
+    } else {
+        switch (width) {
+            case 1:
+                while (--height >= 0) {
+                    assignLoop<1>(dst, color);
+                    dst = (SkPMColor*) ((char*)dst + rowBytes);
+                }
+                break;
+            case 2:
+                while (--height >= 0) {
+                    assignLoop<2>(dst, color);
+                    dst = (SkPMColor*) ((char*)dst + rowBytes);
+                }
+                break;
+            case 3:
+                while (--height >= 0) {
+                    assignLoop<3>(dst, color);
+                    dst = (SkPMColor*) ((char*)dst + rowBytes);
+                }
+                break;
+            default:
+                while (--height >= 0) {
+                    assignLoop(dst, color, width);
+                    dst = (SkPMColor*) ((char*)dst + rowBytes);
+                }
+                break;
+        }
     }
 }
 
