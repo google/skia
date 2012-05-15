@@ -34,6 +34,12 @@ public:
     */
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width) = 0;
 
+    /**
+     *  Compute a conservative bounds for its effect, given the src bounds.
+     *  The baseline implementation just assigns src to dst.
+     */
+    virtual void computeFastBounds(SkRect* dst, const SkRect& src);
+
 protected:
     SkPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
