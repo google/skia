@@ -794,7 +794,7 @@ public:
      *
      *  @param text     Address of the text
      *  @param length   Number of bytes of text to measure
-     *  @return         The width of the text
+     *  @return         The advance width of the text
      */
     SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, NULL, 0);
