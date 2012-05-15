@@ -144,7 +144,7 @@ struct SK_API SkIRect {
 
     /** Inset the rectangle by (dx,dy). If dx is positive, then the sides are moved inwards,
         making the rectangle narrower. If dx is negative, then the sides are moved outwards,
-        making the rectangle wider. The same hods true for dy and the top and bottom.
+        making the rectangle wider. The same holds true for dy and the top and bottom.
     */
     void inset(int32_t dx, int32_t dy) {
         fLeft   += dx;
@@ -152,6 +152,13 @@ struct SK_API SkIRect {
         fRight  -= dx;
         fBottom -= dy;
     }
+
+   /** Outset the rectangle by (dx,dy). If dx is positive, then the sides are
+       moved outwards, making the rectangle wider. If dx is negative, then the
+       sides are moved inwards, making the rectangle narrower. The same holds
+       true for dy and the top and bottom.
+    */
+    void outset(int32_t dx, int32_t dy)  { this->inset(-dx, -dy); }
 
     bool quickReject(int l, int t, int r, int b) const {
         return l >= fRight || fLeft >= r || t >= fBottom || fTop >= b;
@@ -481,7 +488,7 @@ struct SK_API SkRect {
 
    /** Outset the rectangle by (dx,dy). If dx is positive, then the sides are
        moved outwards, making the rectangle wider. If dx is negative, then the
-       sides are moved inwards, making the rectangle narrower. The same hods
+       sides are moved inwards, making the rectangle narrower. The same holds
        true for dy and the top and bottom.
     */
     void outset(SkScalar dx, SkScalar dy)  { this->inset(-dx, -dy); }
