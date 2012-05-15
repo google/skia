@@ -8,6 +8,7 @@
 #include "SkBenchmark.h"
 #include "SkFloatBits.h"
 #include "SkRandom.h"
+#include "SkRect.h"
 #include "SkString.h"
 
 class ScalarBench : public SkBenchmark {
@@ -97,8 +98,46 @@ private:
     typedef ScalarBench INHERITED;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+class RectBoundsBench : public SkBenchmark {
+    enum {
+        PTS = 100,
+        N = SkBENCHLOOP(10000)
+    };
+    SkPoint fPts[PTS];
+
+public:
+    RectBoundsBench(void* param) : INHERITED(param) {
+        SkRandom rand;
+        for (int i = 0; i < PTS; ++i) {
+            fPts[i].fX = rand.nextSScalar1();
+            fPts[i].fY = rand.nextSScalar1();
+        }
+    }
+
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return "rect_bounds";
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkRect r;
+        for (int i = 0; i < N; ++i) {
+            r.set(fPts, PTS);
+        }
+    }
+
+private:
+    typedef SkBenchmark INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 static SkBenchmark* S0(void* p) { return new FloatComparisonBench(p); }
 static SkBenchmark* S1(void* p) { return new ForcedIntComparisonBench(p); }
+static SkBenchmark* S2(void* p) { return new RectBoundsBench(p); }
 
 static BenchRegistry gReg0(S0);
 static BenchRegistry gReg1(S1);
+static BenchRegistry gReg2(S2);
