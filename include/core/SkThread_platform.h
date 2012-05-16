@@ -19,16 +19,16 @@
 /* Just use the GCC atomic intrinsics. They're supported by the NDK toolchain,
  * have reasonable performance, and provide full memory barriers
  */
-static __attribute__((always_inline)) int32_t sk_atomic_inc(int32_t *addr) {
+static inline __attribute__((always_inline)) int32_t sk_atomic_inc(int32_t *addr) {
     return __sync_fetch_and_add(addr, 1);
 }
 
-static __attribute__((always_inline)) int32_t sk_atomic_dec(int32_t *addr) {
+static inline __attribute__((always_inline)) int32_t sk_atomic_dec(int32_t *addr) {
     return __sync_fetch_and_add(addr, -1);
 }
-static __attribute__((always_inline)) void sk_membar_aquire__after_atomic_dec() { }
+static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic_dec() { }
 
-static __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(int32_t* addr) {
+static inline __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(int32_t* addr) {
     int32_t value = *addr;
 
     while (true) {
@@ -45,7 +45,7 @@ static __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(int32_t*
         }
     }
 }
-static __attribute__((always_inline)) void sk_membar_aquire__after_atomic_conditional_inc() { }
+static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic_conditional_inc() { }
 
 #else // !SK_BUILD_FOR_ANDROID_NDK
 
