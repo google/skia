@@ -1194,7 +1194,7 @@ bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
 
     // todo: signal fClipStack that we have a region, and therefore (I guess)
     // we have to ignore it, and use the region directly?
-    fClipStack.clipDevRect(rgn.getBounds());
+    fClipStack.clipDevRect(rgn.getBounds(), op);
 
     return fMCRec->fRasterClip->op(rgn, op);
 }
