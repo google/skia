@@ -40,12 +40,24 @@
     #define PATH_DIV_CHAR '/'
 #endif
 
+// Result of comparison for each pair of files.
+// TODO: we don't actually use all of these yet.
+enum Result {
+    kEqualBits,      // both files in the pair contain exactly the same bits
+    kEqualPixels,    // not bitwise equal, but their pixels are exactly the same
+    kDifferentSizes, // both are images we can parse, but of different sizes
+    kDifferentPixels,// both are images we can parse, but with different pixels
+    kDifferentOther, // files have different bits but are not parsable images
+    kBaseMissing,      // missing from baseDir
+    kComparisonMissing,// missing from comparisonDir
+    kUnknown
+};
+
 struct DiffRecord {
     DiffRecord (const SkString filename,
                 const SkString basePath,
                 const SkString comparisonPath,
-                bool baseMissing = false,
-                bool comparisonMissing = false)
+                const Result result = kUnknown)
         : fFilename (filename)
         , fBasePath (basePath)
         , fComparisonPath (comparisonPath)
@@ -63,9 +75,7 @@ struct DiffRecord {
         , fMaxMismatchR (0)
         , fMaxMismatchG (0)
         , fMaxMismatchB (0)
-        , fDoImageSizesMismatch (false)
-        , fBaseMissing(baseMissing)
-        , fComparisonMissing(comparisonMissing) {
+        , fResult(result) {
         // These asserts are valid for GM, but not for --chromium
         //SkASSERT(basePath.endsWith(filename.c_str()));
         //SkASSERT(comparisonPath.endsWith(filename.c_str()));
@@ -97,12 +107,8 @@ struct DiffRecord {
     uint32_t fMaxMismatchG;
     uint32_t fMaxMismatchB;
 
-    /// By the time we need to report image size mismatch, we've already
-    /// released the bitmaps, so we need to remember it when we detect it.
-    bool fDoImageSizesMismatch;
-
-    bool fBaseMissing;
-    bool fComparisonMissing;
+    /// Which category of diff result.
+    Result fResult;
 };
 
 #define MAX2(a,b) (((b) < (a)) ? (a) : (b))
@@ -160,15 +166,27 @@ struct DiffSummary {
     }
 
     void add (DiffRecord* drp) {
-        if (drp->fBaseMissing) {
+        // Maintain current (and, I think, incorrect) skdiff behavior:
+        // If we were unable to parse either file in the pair as an image,
+        // treat them as matching.
+        // TODO: Remove this logic and change the results for the better.
+        if (kUnknown == drp->fResult) {
+            drp->fResult = kEqualPixels;
+        }
+
+        switch (drp->fResult) {
+          case kEqualPixels:
+            fNumMatches++;
+            break;
+          case kBaseMissing:
             fBaseMissing.push(new SkString(drp->fFilename));
             fNumMismatches++;
-        } else if (drp->fComparisonMissing) {
+            break;
+          case kComparisonMissing:
             fComparisonMissing.push(new SkString(drp->fFilename));
             fNumMismatches++;
-        } else if (0 == drp->fFractionDifference) {
-            fNumMatches++;
-        } else {
+            break;
+          default:
             fNumMismatches++;
             if (drp->fFractionDifference * 100 > fMaxMismatchPercent) {
                 fMaxMismatchPercent = drp->fFractionDifference * 100;
@@ -178,6 +196,7 @@ struct DiffSummary {
             if (value > fMaxMismatchV) {
                 fMaxMismatchV = value;
             }
+            break;
         }
     }
 };
@@ -396,8 +415,8 @@ static void compute_diff(DiffRecord* dr,
     int totalMismatchB = 0;
 
     if (w != dr->fBaseWidth || h != dr->fBaseHeight) {
-        dr->fDoImageSizesMismatch = true;
-        dr->fFractionDifference = 1;
+        dr->fResult = kDifferentSizes;
+        dr->fFractionDifference = 1; // for sorting the diffs later
         return;
     }
     // Accumulate fractionally different pixels, then divide out
@@ -437,6 +456,11 @@ static void compute_diff(DiffRecord* dr,
             }
         }
     }
+    if (0 == mismatchedPixels) {
+        dr->fResult = kEqualPixels;
+        return;
+    }
+    dr->fResult = kDifferentPixels;
     int pixelCount = w * h;
     dr->fFractionDifference = ((float) mismatchedPixels) / pixelCount;
     dr->fWeightedFraction /= pixelCount;
@@ -606,13 +630,13 @@ static void create_diff_images (DiffMetricProc dmp,
 
         if (v < 0) {
             // in baseDir, but not in comparisonDir
-            drp = new DiffRecord(*baseFiles[i],
-                                 basePath, comparisonPath, false, true);
+            drp = new DiffRecord(*baseFiles[i], basePath, comparisonPath,
+                                 kComparisonMissing);
             ++i;
         } else if (v > 0) {
             // in comparisonDir, but not in baseDir
-            drp = new DiffRecord(*comparisonFiles[j],
-                                 basePath, comparisonPath, true, false);
+            drp = new DiffRecord(*comparisonFiles[j], basePath, comparisonPath,
+                                 kBaseMissing);
             ++j;
         } else {
             // let's diff!
@@ -637,7 +661,7 @@ static void create_diff_images (DiffMetricProc dmp,
         basePath.append(*baseFiles[i]);
         SkString comparisonPath;
         DiffRecord *drp = new DiffRecord(*baseFiles[i], basePath,
-                                         comparisonPath, false, true);
+                                         comparisonPath, kComparisonMissing);
         differences->push(drp);
         summary->add(drp);
     }
@@ -648,7 +672,7 @@ static void create_diff_images (DiffMetricProc dmp,
         SkString comparisonPath(comparisonDir);
         comparisonPath.append(*comparisonFiles[j]);
         DiffRecord *drp = new DiffRecord(*comparisonFiles[j], basePath,
-                                         comparisonPath, true, false);
+                                         comparisonPath, kBaseMissing);
         differences->push(drp);
         summary->add(drp);
     }
@@ -800,15 +824,20 @@ static void print_label_cell (SkFILEWStream* stream,
     stream->writeText("<td>");
     stream->writeText(diff.fFilename.c_str());
     stream->writeText("<br>");
-    if (diff.fBaseMissing || diff.fComparisonMissing) {
+    switch (diff.fResult) {
+      case kBaseMissing:
+        // fall through
+      case kComparisonMissing:
         stream->writeText("</td>");
         return;
-    }
-    if (diff.fDoImageSizesMismatch) {
+      case kDifferentSizes:
         stream->writeText("Image sizes differ");
         stream->writeText("</td>");
         return;
+      default:
+        break; // continue in this function
     }
+
     char metricBuf [20];
     sprintf(metricBuf, "%12.4f%%", 100 * diff.fFractionDifference);
     stream->writeText(metricBuf);
@@ -859,7 +888,7 @@ static void print_diff_with_missing_file(SkFILEWStream* stream,
     print_label_cell(stream, diff);
     stream->writeText("<td>N/A</td>");
     stream->writeText("<td>N/A</td>");
-    if (!diff.fBaseMissing) {
+    if (kBaseMissing != diff.fResult) {
         int h, w;
         if (!get_bitmap_height_width(diff.fBasePath, &h, &w)) {
             stream->writeText("<td>N/A</td>");
@@ -873,7 +902,7 @@ static void print_diff_with_missing_file(SkFILEWStream* stream,
     } else {
         stream->writeText("<td>N/A</td>");
     }
-    if (!diff.fComparisonMissing) {
+    if (kComparisonMissing != diff.fResult) {
         int h, w;
         if (!get_bitmap_height_width(diff.fComparisonPath, &h, &w)) {
             stream->writeText("<td>N/A</td>");
@@ -924,11 +953,16 @@ static void print_diff_page (const int matchCount,
     for (i = 0; i < differences.count(); i++) {
         DiffRecord* diff = differences[i];
 
-        if (diff->fBaseMissing || diff->fComparisonMissing) {
+        switch (diff->fResult) {
+          case kEqualPixels:
+            continue;
+          case kBaseMissing:
+            // fall through
+          case kComparisonMissing:
             print_diff_with_missing_file(&outputStream, *diff, relativePath);
             continue;
-        } else if (0 == diff->fFractionDifference) {
-            continue;
+          default:
+            break;
         }
 
         if (!diff->fBasePath.startsWith(PATH_DIV_STR)) {
@@ -941,12 +975,14 @@ static void print_diff_page (const int matchCount,
         int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
         outputStream.writeText("<tr>\n");
         print_label_cell(&outputStream, *diff);
-        if (diff->fDoImageSizesMismatch) {
+        switch (diff->fResult) {
+          case kDifferentSizes:
             print_text_cell(&outputStream,
                             "[image size mismatch, so no diff to display]");
             print_text_cell(&outputStream,
                             "[image size mismatch, so no diff to display]");
-        } else {
+            break;
+          default:
             print_image_cell(&outputStream,
                              filename_to_white_filename(diff->fFilename), height);
             print_image_cell(&outputStream,
