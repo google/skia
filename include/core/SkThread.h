@@ -17,6 +17,7 @@
 
 int32_t sk_atomic_inc(int32_t*);
 int32_t sk_atomic_dec(int32_t*);
+int32_t sk_atomic_conditional_inc(int32_t*);
 
 class SkMutex {
 public:

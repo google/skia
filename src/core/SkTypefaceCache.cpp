@@ -13,7 +13,9 @@
 
 #define TYPEFACE_CACHE_LIMIT    128
 
-void SkTypefaceCache::add(SkTypeface* face, SkTypeface::Style requestedStyle) {
+void SkTypefaceCache::add(SkTypeface* face,
+                          SkTypeface::Style requestedStyle,
+                          bool strong) {
     if (fArray.count() >= TYPEFACE_CACHE_LIMIT) {
         this->purge(TYPEFACE_CACHE_LIMIT >> 2);
     }
@@ -21,7 +23,12 @@ void SkTypefaceCache::add(SkTypeface* face, SkTypeface::Style requestedStyle) {
     Rec* rec = fArray.append();
     rec->fFace = face;
     rec->fRequestedStyle = requestedStyle;
-    face->ref();
+    rec->fStrong = strong;
+    if (strong) {
+        face->ref();
+    } else {
+        face->weak_ref();
+    }
 }
 
 SkTypeface* SkTypefaceCache::findByID(SkFontID fontID) const {
@@ -36,12 +43,20 @@ SkTypeface* SkTypefaceCache::findByID(SkFontID fontID) const {
     return NULL;
 }
 
-SkTypeface* SkTypefaceCache::findByProc(FindProc proc, void* ctx) const {
+SkTypeface* SkTypefaceCache::findByProcAndRef(FindProc proc, void* ctx) const {
     const Rec* curr = fArray.begin();
     const Rec* stop = fArray.end();
     while (curr < stop) {
-        if (proc(curr->fFace, curr->fRequestedStyle, ctx)) {
-            return curr->fFace;
+        SkTypeface* currFace = curr->fFace;
+        if (proc(currFace, curr->fRequestedStyle, ctx)) {
+            if (curr->fStrong) {
+                currFace->ref();
+                return currFace;
+            } else if (currFace->try_ref()) {
+                return currFace;
+            } else {
+                //remove currFace from fArray?
+            }
         }
         curr += 1;
     }
@@ -53,8 +68,15 @@ void SkTypefaceCache::purge(int numToPurge) {
     int i = 0;
     while (i < count) {
         SkTypeface* face = fArray[i].fFace;
-        if (1 == face->getRefCnt()) {
-            face->unref();
+        bool strong = fArray[i].fStrong;
+        if ((strong && face->getRefCnt() == 1) ||
+            (!strong && face->weak_expired()))
+        {
+            if (strong) {
+                face->unref();
+            } else {
+                face->weak_unref();
+            }
             fArray.remove(i);
             --count;
             if (--numToPurge == 0) {
@@ -84,9 +106,11 @@ SkFontID SkTypefaceCache::NewFontID() {
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
-void SkTypefaceCache::Add(SkTypeface* face, SkTypeface::Style requestedStyle) {
+void SkTypefaceCache::Add(SkTypeface* face,
+                          SkTypeface::Style requestedStyle,
+                          bool strong) {
     SkAutoMutexAcquire ama(gMutex);
-    Get().add(face, requestedStyle);
+    Get().add(face, requestedStyle, strong);
 }
 
 SkTypeface* SkTypefaceCache::FindByID(SkFontID fontID) {
@@ -96,8 +120,7 @@ SkTypeface* SkTypefaceCache::FindByID(SkFontID fontID) {
 
 SkTypeface* SkTypefaceCache::FindByProcAndRef(FindProc proc, void* ctx) {
     SkAutoMutexAcquire ama(gMutex);
-    SkTypeface* typeface = Get().findByProc(proc, ctx);
-    SkSafeRef(typeface);
+    SkTypeface* typeface = Get().findByProcAndRef(proc, ctx);
     return typeface;
 }
 
@@ -119,7 +142,7 @@ static bool DumpProc(SkTypeface* face, SkTypeface::Style style, void* ctx) {
 void SkTypefaceCache::Dump() {
 #ifdef SK_DEBUG
     SkAutoMutexAcquire ama(gMutex);
-    (void)Get().findByProc(DumpProc, NULL);
+    (void)Get().findByProcAndRef(DumpProc, NULL);
 #endif
 }
 

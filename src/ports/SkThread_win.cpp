@@ -17,6 +17,7 @@
 //directive.
 //The pragma appears to be unnecessary, but doesn't hurt.
 #pragma intrinsic(_InterlockedIncrement, _InterlockedDecrement)
+#pragma intrinsic(_InterlockedCompareExchange)
 
 int32_t sk_atomic_inc(int32_t* addr) {
     // InterlockedIncrement returns the new value, we want to return the old.
@@ -26,6 +27,22 @@ int32_t sk_atomic_inc(int32_t* addr) {
 int32_t sk_atomic_dec(int32_t* addr) {
     return _InterlockedDecrement(reinterpret_cast<LONG*>(addr)) + 1;
 }
+void sk_membar_aquire__after_atomic_dec() { }
+
+int32_t sk_atomic_conditional_inc(int32_t* addr) {
+    while (true) {
+        LONG value = static_cast<LONG const volatile&>(*addr);
+        if (value == 0) {
+            return 0;
+        }
+        if (_InterlockedCompareExchange(reinterpret_cast<LONG*>(addr),
+                                        value + 1,
+                                        value) == value) {
+            return value;
+        }
+    }
+}
+void sk_membar_aquire__after_atomic_conditional_inc() { }
 
 SkMutex::SkMutex() {
     SK_COMPILE_ASSERT(sizeof(fStorage) > sizeof(CRITICAL_SECTION),
