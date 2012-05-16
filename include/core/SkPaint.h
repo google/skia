@@ -829,47 +829,9 @@ public:
     // mean that we need not draw at all (e.g. SrcOver + 0-alpha)
     bool nothingToDraw() const;
 
-private:
-    SkTypeface*     fTypeface;
-    SkScalar        fTextSize;
-    SkScalar        fTextScaleX;
-    SkScalar        fTextSkewX;
-
-    SkPathEffect*   fPathEffect;
-    SkShader*       fShader;
-    SkXfermode*     fXfermode;
-    SkMaskFilter*   fMaskFilter;
-    SkColorFilter*  fColorFilter;
-    SkRasterizer*   fRasterizer;
-    SkDrawLooper*   fLooper;
-    SkImageFilter*  fImageFilter;
-
-    SkColor         fColor;
-    SkScalar        fWidth;
-    SkScalar        fMiterLimit;
-    unsigned        fFlags : 15;
-    unsigned        fTextAlign : 2;
-    unsigned        fCapType : 2;
-    unsigned        fJoinType : 2;
-    unsigned        fStyle : 2;
-    unsigned        fTextEncoding : 2;  // 3 values
-    unsigned        fHinting : 2;
-
-    SkDrawCacheProc    getDrawCacheProc() const;
-    SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,
-                                           bool needFullMetrics) const;
-
-    SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
-                          int* count, SkRect* bounds) const;
-
-    SkGlyphCache*   detachCache(const SkMatrix*) const;
-
-    void descriptorProc(const SkMatrix* deviceMatrix,
-                        void (*proc)(const SkDescriptor*, void*),
-                        void* context, bool ignoreGamma = false) const;
-
     ///////////////////////////////////////////////////////////////////////////
-    
+    // would prefer to make these private...
+
     /** Returns true if the current paint settings allow for fast computation of
      bounds (i.e. there is nothing complex like a patheffect that would make
      the bounds computation expensive.
@@ -926,8 +888,45 @@ private:
     // without having to make a copy of the paint just to change that field.
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style) const;
+    
+private:
+    SkTypeface*     fTypeface;
+    SkScalar        fTextSize;
+    SkScalar        fTextScaleX;
+    SkScalar        fTextSkewX;
 
-    ///////////////////////////////////////////////////////////////////////////
+    SkPathEffect*   fPathEffect;
+    SkShader*       fShader;
+    SkXfermode*     fXfermode;
+    SkMaskFilter*   fMaskFilter;
+    SkColorFilter*  fColorFilter;
+    SkRasterizer*   fRasterizer;
+    SkDrawLooper*   fLooper;
+    SkImageFilter*  fImageFilter;
+
+    SkColor         fColor;
+    SkScalar        fWidth;
+    SkScalar        fMiterLimit;
+    unsigned        fFlags : 15;
+    unsigned        fTextAlign : 2;
+    unsigned        fCapType : 2;
+    unsigned        fJoinType : 2;
+    unsigned        fStyle : 2;
+    unsigned        fTextEncoding : 2;  // 3 values
+    unsigned        fHinting : 2;
+
+    SkDrawCacheProc    getDrawCacheProc() const;
+    SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,
+                                           bool needFullMetrics) const;
+
+    SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
+                          int* count, SkRect* bounds) const;
+
+    SkGlyphCache*   detachCache(const SkMatrix*) const;
+
+    void descriptorProc(const SkMatrix* deviceMatrix,
+                        void (*proc)(const SkDescriptor*, void*),
+                        void* context, bool ignoreGamma = false) const;
 
     enum {
         kCanonicalTextSizeForPaths = 64
@@ -935,8 +934,6 @@ private:
     friend class SkAutoGlyphCache;
     friend class SkCanvas;
     friend class SkDraw;
-    friend class SkDrawLooper;      // computeFastBounds
-    friend class SkPictureRecord;   // computeFastBounds
     friend class SkPDFDevice;
     friend class SkTextToPathIter;
 
