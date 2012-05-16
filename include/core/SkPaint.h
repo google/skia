@@ -881,7 +881,7 @@ public:
     
     const SkRect& computeFastStrokeBounds(const SkRect& orig,
                                           SkRect* storage) const {
-        return this->doComputeFastBounds(orig, storage, kFill_Style);
+        return this->doComputeFastBounds(orig, storage, kStroke_Style);
     }
     
     // Take the style explicitly, so the caller can force us to be stroked
