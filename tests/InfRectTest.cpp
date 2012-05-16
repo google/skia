@@ -25,24 +25,28 @@ static void check_invalid(skiatest::Reporter* reporter,
 // as one of its coordinates.
 static void TestInfRect(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
-    float invalid = 1 / make_zero();    // infinity
+    float inf = 1 / make_zero();    // infinity
+    float nan = inf * 0;
+    SkASSERT(!(nan == nan));
 #else
-    SkFixed invalid = SK_FixedNaN;
+    SkFixed inf = SK_FixedNaN;
+    SkFixed nan = SK_FixedNaN;
 #endif
     SkScalar small = SkIntToScalar(10);
     SkScalar big = SkIntToScalar(100);
 
+    REPORTER_ASSERT(reporter, SkRect::MakeEmpty().isFinite());
+
     SkRect rect = SkRect::MakeXYWH(small, small, big, big);
     REPORTER_ASSERT(reporter, rect.isFinite());
 
-    check_invalid(reporter, small, small, big, invalid);
-    check_invalid(reporter, small, small, invalid, big);
-    check_invalid(reporter, small, invalid, big, big);
-    check_invalid(reporter, invalid, small, big, big);
-    check_invalid(reporter, small, small, big, -invalid);
-    check_invalid(reporter, small, small, -invalid, big);
-    check_invalid(reporter, small, -invalid, big, big);
-    check_invalid(reporter, -invalid, small, big, big);
+    const SkScalar invalid[] = { nan, inf, -inf };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(invalid); ++i) {
+        check_invalid(reporter, small, small, big, invalid[i]);
+        check_invalid(reporter, small, small, invalid[i], big);
+        check_invalid(reporter, small, invalid[i], big, big);
+        check_invalid(reporter, invalid[i], small, big, big);
+    }
 }
 
 // need tests for SkStrSearch

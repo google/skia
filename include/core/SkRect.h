@@ -75,7 +75,7 @@ struct SK_API SkIRect {
      *  Return true if the rectangle's width or height are <= 0
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-
+    
     friend bool operator==(const SkIRect& a, const SkIRect& b) {
         return !memcmp(&a, &b, sizeof(a));
     }
@@ -354,13 +354,18 @@ struct SK_API SkRect {
      */
     bool isFinite() const {
 #ifdef SK_SCALAR_IS_FLOAT
-        // x * 0 will be NaN iff x is infinity or NaN.
-        // a + b will be NaN iff either a or b is NaN.
-        float value = fLeft * 0 + fTop * 0 + fRight * 0 + fBottom * 0;
+        float accum = 0;
+        accum *= fLeft;
+        accum *= fTop;
+        accum *= fRight;
+        accum *= fBottom;
         
-        // value is either NaN or it is finite (zero).
+        // accum is either NaN or it is finite (zero).
+        SkASSERT(0 == accum || !(accum == accum));
+
         // value==value will be true iff value is not NaN
-        return value == value;
+        // TODO: is it faster to say !accum or accum==accum?
+        return accum == accum;
 #else
         // use bit-or for speed, since we don't care about short-circuting the
         // tests, and we expect the common case will be that we need to check all.
@@ -434,6 +439,13 @@ struct SK_API SkRect {
     // alias for set(pts, count)
     void setBounds(const SkPoint pts[], int count) {
         this->set(pts, count);
+    }
+
+    void set(const SkPoint& p0, const SkPoint& p1) {
+        fLeft =   SkMinScalar(p0.fX, p1.fX);
+        fRight =  SkMaxScalar(p0.fX, p1.fX);
+        fTop =    SkMinScalar(p0.fY, p1.fY);
+        fBottom = SkMaxScalar(p0.fY, p1.fY);
     }
 
     void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height) {
