@@ -92,7 +92,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
         setShiftedClip(&clip, *iclip, shiftUp);
         SkEdgeClipper clipper;
 
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:
                 case SkPath::kClose_Verb:
@@ -123,7 +123,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
             }
         }
     } else {
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:
                 case SkPath::kClose_Verb:

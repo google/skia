@@ -1265,7 +1265,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         SkPoint         pts[4];
         SkPath::Verb    verb;
 
-        while ((verb = iter.next(pts)) != kDone_Verb) {
+        while ((verb = iter.next(pts, false)) != kDone_Verb) {
             switch (verb) {
                 case kMove_Verb:
                     tmp.moveTo(pts[0]);
@@ -1498,9 +1498,8 @@ void SkPath::Iter::consumeDegenerateSegments() {
     }
 }
 
-SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
+SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
     SkASSERT(ptsParam);
-    this->consumeDegenerateSegments();
 
     if (fVerbs == fVerbStop) {
         // Close the curve if requested and if there is some curve to close
@@ -1689,7 +1688,7 @@ void SkPath::dump(bool forceClose, const char title[]) const {
     SkDebugf("path: forceClose=%s %s\n", forceClose ? "true" : "false",
              title ? title : "");
 
-    while ((verb = iter.next(pts)) != kDone_Verb) {
+    while ((verb = iter.next(pts, false)) != kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
 #ifdef SK_CAN_USE_FLOAT

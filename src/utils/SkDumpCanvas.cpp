@@ -33,7 +33,7 @@ static void dumpVerbs(const SkPath& path, SkString* str) {
     SkPath::Iter iter(path, false);
     SkPoint pts[4];
     for (;;) {
-        switch (iter.next(pts)) {
+        switch (iter.next(pts, false)) {
             case SkPath::kMove_Verb:
                 str->appendf(" M%g,%g", pts[0].fX, pts[0].fY);
                 break;

@@ -303,7 +303,7 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
     SkPoint         pts[4];
     SkPath::Verb    verb;
 
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
                 lineproc(pts[0], pts[1], clip, blitter);

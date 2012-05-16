@@ -243,7 +243,7 @@ static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
     SkScalar    top = SkIntToScalar(SK_MaxS16);
     SkScalar    bot = SkIntToScalar(SK_MinS16);
 
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
         maxEdges += gPathVerbToMaxEdges[verb];
 
         int lastIndex = gPathVerbToInitialLastIndex[verb];
