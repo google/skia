@@ -401,6 +401,8 @@ static inline bool colors_match_thresholded(SkPMColor c0, SkPMColor c1,
 }
 
 // based on gm
+// Postcondition: when we exit this method, dr->fResult should have some value
+// other than kUnknown.
 static void compute_diff(DiffRecord* dr,
                          DiffMetricProc diffFunction,
                          const int colorThreshold) {
@@ -531,9 +533,12 @@ static void create_and_write_diff_image(DiffRecord* drp,
     drp->fDifferenceBitmap->allocPixels();
     drp->fWhiteBitmap->setConfig(SkBitmap::kARGB_8888_Config, w, h);
     drp->fWhiteBitmap->allocPixels();
-    compute_diff(drp, dmp, colorThreshold);
 
-    if (!outputDir.isEmpty()) {
+    SkASSERT(kUnknown == drp->fResult);
+    compute_diff(drp, dmp, colorThreshold);
+    SkASSERT(kUnknown != drp->fResult);
+
+    if ((kDifferentPixels == drp->fResult) && !outputDir.isEmpty()) {
         SkString differencePath (outputDir);
         differencePath.append(filename_to_diff_filename(filename));
         write_bitmap(differencePath, drp->fDifferenceBitmap);
@@ -541,7 +546,7 @@ static void create_and_write_diff_image(DiffRecord* drp,
         whitePath.append(filename_to_white_filename(filename));
         write_bitmap(whitePath, drp->fWhiteBitmap);
     }
-    
+
     release_bitmaps(drp);
 }
 
@@ -612,7 +617,7 @@ static void create_diff_images (DiffMetricProc dmp,
         qsort(comparisonFiles.begin(), comparisonFiles.count(),
               sizeof(SkString*), SkCastForQSort(compare_file_name_metrics));
     }
-    
+
     int i = 0;
     int j = 0;
 
@@ -1138,7 +1143,7 @@ int main (int argc, char ** argv) {
             return 0;
         }
     }
-    
+
     if (numUnflaggedArguments == 2) {
         outputDir = comparisonDir;
     } else if (numUnflaggedArguments != 3) {
@@ -1198,7 +1203,7 @@ int main (int argc, char ** argv) {
         qsort(differences.begin(), differences.count(),
               sizeof(DiffRecord*), sortProc);
     }
-    
+
     if (generateDiffs) {
         print_diff_page(summary.fNumMatches, colorThreshold, differences,
                         baseDir, comparisonDir, outputDir);
