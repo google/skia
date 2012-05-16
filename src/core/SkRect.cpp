@@ -95,7 +95,6 @@ void SkRect::set(const SkPoint pts[], int count) {
                   Sk2sComplimentAsScalar(b));
 #else
         SkScalar    l, t, r, b;
-        SkFLOATCODE(int isNaN;)
 
         l = r = pts[0].fX;
         t = b = pts[0].fY;
