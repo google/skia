@@ -2045,7 +2045,8 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const {
 }
 
 const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
-                                                 SkRect* storage) const {
+                                           SkRect* storage,
+                                           Style style) const {
     SkASSERT(storage);
 
     const SkRect* src = &origSrc;
@@ -2062,7 +2063,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
         src = &tmpSrc;
     }
 
-    if (this->getStyle() != SkPaint::kFill_Style) {
+    if (kFill_Style != style) {
         // since we're stroked, outset the rect by the radius (and join type)
         SkScalar radius = SkScalarHalf(this->getStrokeWidth());
         if (0 == radius) {  // hairline

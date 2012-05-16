@@ -34,7 +34,8 @@ protected:
     SkString            fName;
     SkTDArray<SkScalar> fIntervals;
     int                 fWidth;
-    bool fDoClip;
+    SkPoint             fPts[2];
+    bool                fDoClip;
 
     enum {
         N = SkBENCHLOOP(100)
@@ -49,6 +50,9 @@ public:
         fWidth = width;
         fName.printf("dash_%d_%s", width, doClip ? "clipped" : "noclip");
         fDoClip = doClip;
+        
+        fPts[0].set(SkIntToScalar(10), SkIntToScalar(10));
+        fPts[1].set(SkIntToScalar(600), SkIntToScalar(10));
     }
 
     virtual void makePath(SkPath* path) {
@@ -87,6 +91,7 @@ protected:
     virtual void handlePath(SkCanvas* canvas, const SkPath& path,
                             const SkPaint& paint, int N) {
         for (int i = 0; i < N; ++i) {
+//            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, paint);
             canvas->drawPath(path, paint);
         }
     }
