@@ -4,14 +4,18 @@
     {
       'target_name': 'ports',
       'type': 'static_library',
+      'dependencies': [
+        'core.gyp:core',
+        'sfnt.gyp:sfnt',
+        'utils.gyp:utils',
+      ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
         '../include/images',
         '../include/effects',
         '../include/ports',
         '../include/xml',
         '../src/core',
+        '../src/utils',
       ],
       'sources': [
         '../src/ports/SkDebug_stdio.cpp',

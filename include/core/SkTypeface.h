@@ -11,7 +11,7 @@
 #define SkTypeface_DEFINED
 
 #include "SkAdvancedTypefaceMetrics.h"
-#include "SkRefCnt.h"
+#include "SkWeakRefCnt.h"
 
 class SkStream;
 class SkAdvancedTypefaceMetrics;
@@ -29,7 +29,7 @@ typedef uint32_t SkFontTableTag;
 
     Typeface objects are immutable, and so they can be shared between threads.
 */
-class SK_API SkTypeface : public SkRefCnt {
+class SK_API SkTypeface : public SkWeakRefCnt {
 public:
     /** Style specifies the intrinsic style attributes of a given typeface
     */
@@ -186,7 +186,7 @@ private:
     Style       fStyle;
     bool        fIsFixedWidth;
 
-    typedef SkRefCnt INHERITED;
+    typedef SkWeakRefCnt INHERITED;
 };
 
 #endif

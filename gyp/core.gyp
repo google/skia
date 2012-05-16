@@ -233,6 +233,7 @@
         '../include/core/SkUnPreMultiply.h',
         '../include/core/SkUnitMapper.h',
         '../include/core/SkUtils.h',
+        '../include/core/SkWeakRefCnt.h',
         '../include/core/SkWriter32.h',
         '../include/core/SkXfermode.h',
       ],
