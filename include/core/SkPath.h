@@ -684,9 +684,16 @@ public:
             segments have been visited, return kDone_Verb.
 
             @param  pts The points representing the current verb and/or segment
+            @param doConsumeDegerates If true, first scan for segments that are
+                   deemed degenerate (too short) and skip those.
             @return The verb for the current segment
         */
-        Verb next(SkPoint pts[4]);
+        Verb next(SkPoint pts[4], bool doConsumeDegerates = true) {
+            if (doConsumeDegerates) {
+                this->consumeDegenerateSegments();
+            }
+            return this->doNext(pts);
+        }
 
         /** If next() returns kLine_Verb, then this query returns true if the
             line was the result of a close() command (i.e. the end point is the
@@ -717,6 +724,7 @@ public:
         inline const SkPoint& cons_moveTo();
         Verb autoClose(SkPoint pts[2]);
         void consumeDegenerateSegments();
+        Verb doNext(SkPoint pts[4]);
     };
 
     /** Iterate through the verbs in the path, providing the associated points.

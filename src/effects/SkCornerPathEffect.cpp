@@ -56,7 +56,7 @@ bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src,
     lastCorner.set(0, 0);
 
     for (;;) {
-        switch (verb = iter.next(pts)) {
+        switch (verb = iter.next(pts, false)) {
             case SkPath::kMove_Verb:
                     // close out the previous (open) contour
                 if (SkPath::kLine_Verb == prevVerb) {

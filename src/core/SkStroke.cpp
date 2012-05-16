@@ -591,7 +591,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     SkPoint         pts[4];
     SkPath::Verb    verb, lastSegment = SkPath::kMove_Verb;
 
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
                 APPLY_PROC(proc, &pts[0], 1);
