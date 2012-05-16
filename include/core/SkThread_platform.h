@@ -26,7 +26,7 @@ static __attribute__((always_inline)) int32_t sk_atomic_inc(int32_t *addr) {
 static __attribute__((always_inline)) int32_t sk_atomic_dec(int32_t *addr) {
     return __sync_fetch_and_add(addr, -1);
 }
-void sk_membar_aquire__after_atomic_dec() { }
+static __attribute__((always_inline)) void sk_membar_aquire__after_atomic_dec() { }
 
 static __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(int32_t* addr) {
     int32_t value = *addr;
@@ -45,7 +45,7 @@ static __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(int32_t*
         }
     }
 }
-void sk_membar_aquire__after_atomic_conditional_inc() { }
+static __attribute__((always_inline)) void sk_membar_aquire__after_atomic_conditional_inc() { }
 
 #else // !SK_BUILD_FOR_ANDROID_NDK
 
