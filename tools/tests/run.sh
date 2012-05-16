@@ -19,6 +19,7 @@ function compare_directories {
 #
 SKDIFF_TESTDIR=tools/tests/skdiff
 SKDIFF_OUTPUT_DIR=$SKDIFF_TESTDIR/output-actual
+rm -rf $SKDIFF_OUTPUT_DIR
 mkdir -p $SKDIFF_OUTPUT_DIR
 $SKDIFF_BINARY $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir \
   $SKDIFF_OUTPUT_DIR &>$SKDIFF_OUTPUT_DIR/stdout
