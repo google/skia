@@ -30,8 +30,7 @@ public:
     void save();
     void restore();
 
-    void clipDevRect(const SkIRect& ir,
-                     SkRegion::Op op = SkRegion::kIntersect_Op) {
+    void clipDevRect(const SkIRect& ir, SkRegion::Op op) {
         SkRect r;
         r.set(ir);
         this->clipDevRect(r, op, false);
