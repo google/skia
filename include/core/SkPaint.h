@@ -434,52 +434,6 @@ public:
     */
     bool getFillPath(const SkPath& src, SkPath* dst) const;
 
-    /** Returns true if the current paint settings allow for fast computation of
-        bounds (i.e. there is nothing complex like a patheffect that would make
-        the bounds computation expensive.
-    */
-    bool canComputeFastBounds() const {
-        if (this->getLooper()) {
-            return this->getLooper()->canComputeFastBounds(*this);
-        }
-        return !this->getRasterizer();
-    }
-
-    /** Only call this if canComputeFastBounds() returned true. This takes a
-        raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
-        effects in the paint (e.g. stroking). If needed, it uses the storage
-        rect parameter. It returns the adjusted bounds that can then be used
-        for quickReject tests.
-
-        The returned rect will either be orig or storage, thus the caller
-        should not rely on storage being set to the result, but should always
-        use the retured value. It is legal for orig and storage to be the same
-        rect.
-
-        e.g.
-        if (paint.canComputeFastBounds()) {
-            SkRect r, storage;
-            path.computeBounds(&r, SkPath::kFast_BoundsType);
-            const SkRect& fastR = paint.computeFastBounds(r, &storage);
-            if (canvas->quickReject(fastR, ...)) {
-                // don't draw the path
-            }
-        }
-    */
-    const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
-        // ultra fast-case: filling with no effects that affect geometry
-        if (this->getStyle() == kFill_Style) {
-            uintptr_t effects = reinterpret_cast<uintptr_t>(this->getLooper());
-            effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
-            effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
-            if (!effects) {
-                return orig;
-            }
-        }
-
-        return this->doComputeFastBounds(orig, storage);
-    }
-
     /** Get the paint's shader object.
         <p />
       The shader's reference count is not affected.
@@ -914,7 +868,66 @@ private:
                         void (*proc)(const SkDescriptor*, void*),
                         void* context, bool ignoreGamma = false) const;
 
-    const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage) const;
+    ///////////////////////////////////////////////////////////////////////////
+    
+    /** Returns true if the current paint settings allow for fast computation of
+     bounds (i.e. there is nothing complex like a patheffect that would make
+     the bounds computation expensive.
+     */
+    bool canComputeFastBounds() const {
+        if (this->getLooper()) {
+            return this->getLooper()->canComputeFastBounds(*this);
+        }
+        return !this->getRasterizer();
+    }
+    
+    /** Only call this if canComputeFastBounds() returned true. This takes a
+     raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
+     effects in the paint (e.g. stroking). If needed, it uses the storage
+     rect parameter. It returns the adjusted bounds that can then be used
+     for quickReject tests.
+     
+     The returned rect will either be orig or storage, thus the caller
+     should not rely on storage being set to the result, but should always
+     use the retured value. It is legal for orig and storage to be the same
+     rect.
+     
+     e.g.
+     if (paint.canComputeFastBounds()) {
+     SkRect r, storage;
+     path.computeBounds(&r, SkPath::kFast_BoundsType);
+     const SkRect& fastR = paint.computeFastBounds(r, &storage);
+     if (canvas->quickReject(fastR, ...)) {
+     // don't draw the path
+     }
+     }
+     */
+    const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
+        SkPaint::Style style = this->getStyle();
+        // ultra fast-case: filling with no effects that affect geometry
+        if (kFill_Style == style) {
+            uintptr_t effects = reinterpret_cast<uintptr_t>(this->getLooper());
+            effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
+            effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
+            if (!effects) {
+                return orig;
+            }
+        }
+        
+        return this->doComputeFastBounds(orig, storage, style);
+    }
+    
+    const SkRect& computeFastStrokeBounds(const SkRect& orig,
+                                          SkRect* storage) const {
+        return this->doComputeFastBounds(orig, storage, kFill_Style);
+    }
+    
+    // Take the style explicitly, so the caller can force us to be stroked
+    // without having to make a copy of the paint just to change that field.
+    const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
+                                      Style) const;
+
+    ///////////////////////////////////////////////////////////////////////////
 
     enum {
         kCanonicalTextSizeForPaths = 64
@@ -922,6 +935,8 @@ private:
     friend class SkAutoGlyphCache;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkDrawLooper;      // computeFastBounds
+    friend class SkPictureRecord;   // computeFastBounds
     friend class SkPDFDevice;
     friend class SkTextToPathIter;
 

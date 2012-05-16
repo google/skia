@@ -1452,6 +1452,21 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
         return;
     }
 
+    if (paint.canComputeFastBounds()) {
+        SkRect r;
+        // special-case 2 points (common for drawing a single line)
+        if (2 == count) {
+            r.set(pts[0], pts[1]);
+        } else {
+            r.set(pts, count);
+        }
+        SkRect storage;
+        if (this->quickReject(paint.computeFastStrokeBounds(r, &storage),
+                              paint2EdgeType(&paint))) {
+            return;
+        }
+    }    
+
     SkASSERT(pts != NULL);
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPoint_Type)
