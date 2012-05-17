@@ -4,7 +4,7 @@ ERROR: no codec found for <tools/tests/skdiff/comparisonDir/missing-from-baseDir
 ERROR: no codec found for <tools/tests/skdiff/baseDir/missing-from-comparisonDir.xyz>
 baseDir is [tools/tests/skdiff/baseDir/]
 comparisonDir is [tools/tests/skdiff/comparisonDir/]
-writing diffs to outputDir is [tools/tests/skdiff/output-actual/]
+writing diffs to outputDir is [tools/tests/skdiff/test1/output-actual/]
 Missing in baseDir:
 	missing-from-baseDir.png
 	missing-from-baseDir.xyz
