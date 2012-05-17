@@ -121,6 +121,15 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
     }
 #endif // GR_AA_CLIP
 
+    // Either a hard (stencil buffer) clip was explicitly requested or 
+    // an antialiased clip couldn't be created. In either case, free up
+    // the texture in the antialiased mask cache.
+    // TODO: this may require more investigation. Ganesh performs a lot of
+    // utility draws (e.g., clears, InOderDrawBuffer playbacks) that hit
+    // the stencil buffer path. These may be incorrectly messing up the 
+    // AA cache.
+    fAACache.reset();
+
     GrRect bounds;
     GrRect rtRect;
     rtRect.setLTRB(0, 0,
