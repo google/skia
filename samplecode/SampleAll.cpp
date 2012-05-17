@@ -386,11 +386,13 @@ protected:
         SkTDArray<SkPoint>(pos);
 		pos.setCount(asciiLength);
 		for (index = 0;  index < asciiLength; index++)
-			pos[index].set(SkIntToScalar(index * 10), SkIntToScalar(index * 2));
+			pos[index].set(SkIntToScalar((unsigned int)index * 10),
+                                       SkIntToScalar((unsigned int)index * 2));
         SkTDArray<SkPoint>(pos2);
 		pos2.setCount(asciiLength);
 		for (index = 0;  index < asciiLength; index++)
-			pos2[index].set(SkIntToScalar(index * 10), SkIntToScalar(20));
+			pos2[index].set(SkIntToScalar((unsigned int)index * 10),
+                                        SkIntToScalar(20));
 		
         // shaders
         SkPoint linearPoints[] = { { 0, 0, }, { SkIntToScalar(40), SkIntToScalar(40) } };

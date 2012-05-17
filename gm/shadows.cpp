@@ -95,7 +95,7 @@ protected:
 
         paint.setLooper(shadowLoopers[i]);
 
-        canvas->translate(SkIntToScalar(i*40), SkIntToScalar(0));
+        canvas->translate(SkIntToScalar((unsigned int)i*40), SkIntToScalar(0));
         setup(&paint, gRec[0].fColor, gRec[0].fStrokeWidth);
         canvas->drawRect(fRect, paint);
 

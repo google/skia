@@ -105,7 +105,7 @@ static void test_breakText() {
                 SkASSERT(m > mm);
             }
         }
-        nn = SkIntToScalar(n);
+        nn = SkIntToScalar((unsigned int)n);
         mm = m;
     }
 
