@@ -430,17 +430,24 @@ void create_vertices(const SegmentArray&  segments,
 
 }
 
-bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
-                                         GrPathFill fill,
-                                         const GrDrawTarget* target,
-                                         bool antiAlias) const {
+bool GrAAConvexPathRenderer::staticCanDrawPath(bool pathIsConvex,
+                                               GrPathFill fill,
+                                               const GrDrawTarget* target,
+                                               bool antiAlias) {
     if (!target->getCaps().fShaderDerivativeSupport || !antiAlias ||
         kHairLine_PathFill == fill || GrIsFillInverted(fill) ||
-        !path.isConvex()) {
+        !pathIsConvex) {
         return false;
     }  else {
         return true;
     }
+}
+
+bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
+                                         GrPathFill fill,
+                                         const GrDrawTarget* target,
+                                         bool antiAlias) const {
+    return staticCanDrawPath(path.isConvex(), fill, target, antiAlias);
 }
 
 bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,

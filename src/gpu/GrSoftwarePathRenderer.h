@@ -28,16 +28,23 @@ public:
 
     }
 
-    void draw(const GrRect& clientRect, SkRegion::Op op, bool antiAlias);
+    void draw(const GrRect& clientRect, SkRegion::Op op, 
+              bool antiAlias, GrColor color);
 
     void draw(const SkPath& clientPath, SkRegion::Op op, 
-              GrPathFill fill, bool antiAlias);
+              GrPathFill fill, bool antiAlias, GrColor color);
 
-    bool init(const GrIRect& pathDevBounds, const GrPoint* translate);
+    bool init(const GrIRect& pathDevBounds, 
+              const GrPoint* translate,
+              bool useMatrix);
 
     bool getTexture(GrAutoScratchTexture* tex);
 
     void toTexture(GrTexture* texture);
+
+    void clear(GrColor color) {
+        fBM.eraseColor(color);
+    }
 
 protected:
 private:
