@@ -18,6 +18,8 @@ SkMallocPixelRef::SkMallocPixelRef(void* storage, size_t size,
     fSize = size;
     fCTable = ctable;
     SkSafeRef(ctable);
+    
+    this->setPreLocked(fStorage, fCTable);
 }
 
 SkMallocPixelRef::~SkMallocPixelRef() {
@@ -57,6 +59,8 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
     } else {
         fCTable = NULL;
     }
+
+    this->setPreLocked(fStorage, fCTable);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkMallocPixelRef)

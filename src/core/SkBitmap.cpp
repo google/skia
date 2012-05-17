@@ -297,7 +297,7 @@ err:
 void SkBitmap::updatePixelsFromRef() const {
     if (NULL != fPixelRef) {
         if (fPixelLockCount > 0) {
-            SkASSERT(fPixelRef->getLockCount() > 0);
+            SkASSERT(fPixelRef->isLocked());
 
             void* p = fPixelRef->pixels();
             if (NULL != p) {
@@ -1525,7 +1525,7 @@ void SkBitmap::validate() const {
 #if 0   // these asserts are not thread-correct, so disable for now
     if (fPixelRef) {
         if (fPixelLockCount > 0) {
-            SkASSERT(fPixelRef->getLockCount() > 0);
+            SkASSERT(fPixelRef->isLocked());
         } else {
             SkASSERT(NULL == fPixels);
             SkASSERT(NULL == fColorTable);

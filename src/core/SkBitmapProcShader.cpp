@@ -173,7 +173,7 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
 
     SkASSERT(state.fBitmap->getPixels());
     SkASSERT(state.fBitmap->pixelRef() == NULL ||
-             state.fBitmap->pixelRef()->getLockCount());
+             state.fBitmap->pixelRef()->isLocked());
 
     for (;;) {
         int n = count;
@@ -217,7 +217,7 @@ void SkBitmapProcShader::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
 
     SkASSERT(state.fBitmap->getPixels());
     SkASSERT(state.fBitmap->pixelRef() == NULL ||
-             state.fBitmap->pixelRef()->getLockCount());
+             state.fBitmap->pixelRef()->isLocked());
 
     for (;;) {
         int n = count;
