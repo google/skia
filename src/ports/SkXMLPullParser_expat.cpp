@@ -177,7 +177,7 @@ SkXMLPullParser::EventType SkXMLPullParser::onNextToken()
         return SkXMLPullParser::END_TAG;
     }
 
-    fImpl->fData.fAlloc.reuse();
+    fImpl->fData.fAlloc.reset();
 
     XML_Parser p = fImpl->fData.fParser;
     XML_Status status;
