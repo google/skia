@@ -80,13 +80,10 @@ public:
     
     /**
      *  Specify the max number of bytes that should be used by the thread-local
-     *  font cache. If this value is zero (the default), then this thread will
-     *  share the global font cache and its limit.
-     *
-     *  This function returns the previous setting, as if GetFontCacheLimit()
-     *  had be called before the new limit was set.
+     *  font cache. If this value is 0, then this thread will use the shared
+     *  global font cache.
      */
-    static size_t SetTLSFontCacheLimit(size_t bytes);
+    static void SetTLSFontCacheLimit(size_t bytes);
     
 private:
     /** This is automatically called by SkGraphics::Init(), and must be

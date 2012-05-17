@@ -733,7 +733,7 @@ size_t SkGraphics::GetTLSFontCacheLimit() {
     return tls ? tls->getFontCacheLimit() : 0;
 }
 
-size_t SkGraphics::SetTLSFontCacheLimit(size_t bytes) {
+void SkGraphics::SetTLSFontCacheLimit(size_t bytes) {
     if (0 == bytes) {
         SkGlyphCache_Globals::DeleteTLS();
     } else {
