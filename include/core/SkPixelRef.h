@@ -43,9 +43,10 @@ public:
     */
     SkColorTable* colorTable() const { return fColorTable; }
 
-    /** Return the current lockcount (defaults to 0)
-    */
-    int getLockCount() const { return fLockCount; }
+    /**
+     *  Returns true if the lockcount > 0
+     */
+    bool isLocked() const { return fLockCount > 0; }
 
     /** Call to access the pixel memory, which is returned. Balance with a call
         to unlockPixels().
@@ -169,6 +170,18 @@ protected:
     SkPixelRef(SkFlattenableReadBuffer&, SkBaseMutex*);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
+    // only call from constructor. Flags this to always be locked, removing
+    // the need to grab the mutex and call onLockPixels/onUnlockPixels.
+    // Performance tweak to avoid those calls (esp. in multi-thread use case).
+    void setPreLocked(void* pixels, SkColorTable* ctable);
+
+    /**
+     *  If a subclass passed a particular mutex to the base constructor, it can
+     *  override that to go back to the default mutex by calling this. However,
+     *  this should only be called from within the subclass' constructor.
+     */
+    void useDefaultMutex() { this->setMutex(NULL); }
+
 private:
 
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object
@@ -182,6 +195,10 @@ private:
 
     // can go from false to true, but never from true to false
     bool    fIsImmutable;
+    // only ever set in constructor, const after that
+    bool    fPreLocked;
+
+    void setMutex(SkBaseMutex* mutex);
 
     typedef SkFlattenable INHERITED;
 };
