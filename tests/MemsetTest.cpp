@@ -1,12 +1,38 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "SkChunkAlloc.h"
 #include "SkUtils.h"
+
+static void test_chunkalloc(skiatest::Reporter* reporter) {
+    size_t min = 256;
+    SkChunkAlloc alloc(min);
+    
+    REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
+    REPORTER_ASSERT(reporter, 0 == alloc.blockCount());
+    REPORTER_ASSERT(reporter, !alloc.contains(NULL));
+    REPORTER_ASSERT(reporter, !alloc.contains(reporter));
+
+    alloc.reset();
+    REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
+    REPORTER_ASSERT(reporter, 0 == alloc.blockCount());
+
+    size_t size = min >> 1;
+    void* ptr = alloc.allocThrow(size);
+    REPORTER_ASSERT(reporter, alloc.totalCapacity() >= size);
+    REPORTER_ASSERT(reporter, alloc.blockCount() > 0);
+    REPORTER_ASSERT(reporter, alloc.contains(ptr));
+    
+    alloc.reset();
+    REPORTER_ASSERT(reporter, !alloc.contains(ptr));
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void set_zero(void* dst, size_t bytes) {
     char* ptr = (char*)dst;
@@ -85,6 +111,8 @@ static void test_32(skiatest::Reporter* reporter) {
 static void TestMemset(skiatest::Reporter* reporter) {
     test_16(reporter);
     test_32(reporter);
+    
+    test_chunkalloc(reporter);
 };
 
 #include "TestClassDef.h"

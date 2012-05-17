@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,8 +5,17 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkChunkAlloc.h"
+
+// Don't malloc any chunks smaller than this
+#define MIN_CHUNKALLOC_BLOCK_SIZE   1024
+
+// Return the new min blocksize given the current value
+static size_t increase_next_size(size_t size) {
+    return size + (size >> 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 struct SkChunkAlloc::Block {
     Block*  fNext;
@@ -19,8 +27,7 @@ struct SkChunkAlloc::Block {
         return reinterpret_cast<char*>(this + 1);
     }
 
-    void freeChain() {    // this can be null
-        Block* block = this;
+    static void FreeChain(Block* block) {
         while (block) {
             Block* next = block->fNext;
             sk_free(block);
@@ -28,29 +35,24 @@ struct SkChunkAlloc::Block {
         }
     };
     
-    Block* tail() {
-        Block* block = this;
-        if (block) {
-            for (;;) {
-                Block* next = block->fNext;
-                if (NULL == next) {
-                    break;
-                }
-                block = next;
-            }
-        }
-        return block;
-    }
-
     bool contains(const void* addr) const {
         const char* ptr = reinterpret_cast<const char*>(addr);
         return ptr >= (const char*)(this + 1) && ptr < fFreePtr;
     }
 };
 
-SkChunkAlloc::SkChunkAlloc(size_t minSize)
-    : fBlock(NULL), fMinSize(SkAlign4(minSize)), fPool(NULL), fTotalCapacity(0)
-{
+///////////////////////////////////////////////////////////////////////////////
+
+SkChunkAlloc::SkChunkAlloc(size_t minSize) {
+    if (minSize < MIN_CHUNKALLOC_BLOCK_SIZE) {
+        minSize = MIN_CHUNKALLOC_BLOCK_SIZE;
+    }
+
+    fBlock = NULL;
+    fMinSize = minSize;
+    fChunkSize = fMinSize;
+    fTotalCapacity = 0;
+    fBlockCount = 0;
 }
 
 SkChunkAlloc::~SkChunkAlloc() {
@@ -58,35 +60,20 @@ SkChunkAlloc::~SkChunkAlloc() {
 }
 
 void SkChunkAlloc::reset() {
-    fBlock->freeChain();
+    Block::FreeChain(fBlock);
     fBlock = NULL;
-    fPool->freeChain();
-    fPool = NULL;
+    fChunkSize = fMinSize;  // reset to our initial minSize
     fTotalCapacity = 0;
-}
-
-void SkChunkAlloc::reuse() {
-    if (fPool && fBlock) {
-        fPool->tail()->fNext = fBlock;
-    }
-    fPool = fBlock;
-    fBlock = NULL;
-    fTotalCapacity = 0;
+    fBlockCount = 0;
 }
 
 SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
-    Block* block = fPool;
-
-    if (block && bytes <= block->fFreeSize) {
-        fPool = block->fNext;
-        return block;
+    size_t size = bytes;
+    if (size < fChunkSize) {
+        size = fChunkSize;
     }
 
-    size_t size = bytes;
-    if (size < fMinSize)
-        size = fMinSize;
-
-    block = (Block*)sk_malloc_flags(sizeof(Block) + size,
+    Block* block = (Block*)sk_malloc_flags(sizeof(Block) + size,
                         ftype == kThrow_AllocFailType ? SK_MALLOC_THROW : 0);
 
     if (block) {
@@ -95,6 +82,9 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
         block->fFreePtr = block->startOfData();
         
         fTotalCapacity += size;
+        fBlockCount += 1;
+        
+        fChunkSize = increase_next_size(fChunkSize);
     }
     return block;
 }
@@ -114,10 +104,10 @@ void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
     }
 
     SkASSERT(block && bytes <= block->fFreeSize);
-    void* ptr = block->fFreePtr;
+    char* ptr = block->fFreePtr;
 
     block->fFreeSize -= bytes;
-    block->fFreePtr += bytes;
+    block->fFreePtr = ptr + bytes;
     return ptr;
 }
 

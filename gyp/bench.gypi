@@ -28,6 +28,7 @@
     '../bench/InterpBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
+    '../bench/MemoryBench.cpp',
     '../bench/MutexBench.cpp',
     '../bench/PathBench.cpp',
     '../bench/PathIterBench.cpp',
