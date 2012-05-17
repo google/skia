@@ -52,6 +52,9 @@ const static ErrorBitfield ERROR_DIMENSION_MISMATCH      = 0x04;
 const static ErrorBitfield ERROR_READING_REFERENCE_IMAGE = 0x08;
 const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
 
+// If true, emit a messange when we can't find a reference image to compare
+static bool gNotifyMissingReadReference;
+
 using namespace skiagm;
 
 class Iter {
@@ -450,7 +453,9 @@ static ErrorBitfield compare_to_reference_image(const char readPath [],
                                           orig, diffPath,
                                           renderModeDescriptor);
     } else {
-        fprintf(stderr, "FAILED to read %s\n", path.c_str());
+        if (gNotifyMissingReadReference) {
+            fprintf(stderr, "FAILED to read %s\n", path.c_str());
+        }
         return ERROR_READING_REFERENCE_IMAGE;
     }
 }
@@ -737,6 +742,8 @@ int main(int argc, char * const argv[]) {
     bool doDeferred = true;
     bool disableTextureCache = false;
 
+    gNotifyMissingReadReference = true;
+
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -768,6 +775,10 @@ int main(int argc, char * const argv[]) {
             doPDF = false;
         } else if (strcmp(*argv, "--nodeferred") == 0) {
             doDeferred = false;
+        } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
+            gNotifyMissingReadReference = false;
+        } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
+            gNotifyMissingReadReference = true;
         } else if (strcmp(*argv, "--serialize") == 0) {
             doSerialize = true;
         } else if (strcmp(*argv, "--match") == 0) {
