@@ -101,7 +101,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
 SkXfermode::Mode op_to_mode(SkRegion::Op op) {
 
     static const SkXfermode::Mode modeMap[] = {
-        SkXfermode::kSrcOut_Mode,   // kDifference_Op
+        SkXfermode::kDstOut_Mode,   // kDifference_Op
         SkXfermode::kMultiply_Mode, // kIntersect_Op
         SkXfermode::kSrcOver_Mode,  // kUnion_Op
         SkXfermode::kXor_Mode,      // kXOR_Op
@@ -118,14 +118,14 @@ SkXfermode::Mode op_to_mode(SkRegion::Op op) {
  * Draw a single rect element of the clip stack into the accumulation bitmap
  */
 void GrSWMaskHelper::draw(const GrRect& clientRect, SkRegion::Op op, 
-                          bool antiAlias) {
+                          bool antiAlias, GrColor color) {
     SkPaint paint;
 
     SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
 
     paint.setXfermode(mode);
     paint.setAntiAlias(antiAlias);
-    paint.setColor(SK_ColorWHITE);
+    paint.setColor(color);
 
     fDraw.drawRect(clientRect, paint);
 
@@ -136,7 +136,7 @@ void GrSWMaskHelper::draw(const GrRect& clientRect, SkRegion::Op op,
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
 void GrSWMaskHelper::draw(const SkPath& clientPath, SkRegion::Op op,
-                          GrPathFill fill, bool antiAlias) {
+                          GrPathFill fill, bool antiAlias, GrColor color) {
 
     SkPaint paint;
     SkPath tmpPath;
@@ -157,23 +157,30 @@ void GrSWMaskHelper::draw(const SkPath& clientPath, SkRegion::Op op,
 
     paint.setXfermode(mode);
     paint.setAntiAlias(antiAlias);
-    paint.setColor(SK_ColorWHITE);
+    paint.setColor(color);
 
     fDraw.drawPath(*pathToDraw, paint);
 
     SkSafeUnref(mode);
 }
 
-bool GrSWMaskHelper::init(const GrIRect& pathDevBounds, const GrPoint* translate) {
-    fMatrix = fContext->getMatrix();
+bool GrSWMaskHelper::init(const GrIRect& pathDevBounds, 
+                          const GrPoint* translate,
+                          bool useMatrix) {
+    if (useMatrix) {    
+        fMatrix = fContext->getMatrix();
+    } else {
+        fMatrix.setIdentity();
+    }
+
     if (NULL != translate) {
         fMatrix.postTranslate(translate->fX, translate->fY);
     }
 
     fMatrix.postTranslate(-pathDevBounds.fLeft * SK_Scalar1,
-                            -pathDevBounds.fTop * SK_Scalar1);
+                          -pathDevBounds.fTop * SK_Scalar1);
     GrIRect bounds = GrIRect::MakeWH(pathDevBounds.width(),
-                                        pathDevBounds.height());
+                                     pathDevBounds.height());
 
     fBM.setConfig(SkBitmap::kA8_Config, bounds.fRight, bounds.fBottom);
     if (!fBM.allocPixels()) {
@@ -237,11 +244,12 @@ bool sw_draw_path_to_mask_texture(const SkPath& clientPath,
                                   bool antiAlias) {
     GrSWMaskHelper helper(context);
 
-    if (!helper.init(pathDevBounds, translate)) {
+    if (!helper.init(pathDevBounds, translate, true)) {
         return false;
     }
 
-    helper.draw(clientPath, SkRegion::kReplace_Op, fill, antiAlias);
+    helper.draw(clientPath, SkRegion::kReplace_Op, 
+                fill, antiAlias, SK_ColorWHITE);
 
     if (!helper.getTexture(tex)) {
         return false;
@@ -339,4 +347,3 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
 
     return false;
 }
-

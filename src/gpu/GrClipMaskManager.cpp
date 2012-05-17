@@ -13,6 +13,11 @@
 #include "GrPathRenderer.h"
 #include "GrPaint.h"
 #include "SkRasterClip.h"
+#include "GrAAConvexPathRenderer.h"
+#include "GrAAHairLinePathRenderer.h"
+
+// TODO: move GrSWMaskHelper out of GrSoftwarePathRender.h & remove this include
+#include "GrSoftwarePathRenderer.h"
 
 //#define GR_AA_CLIP 1
 //#define GR_SW_CLIP 1
@@ -55,11 +60,79 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                 GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(maskStage));
 }
 
-bool create_mask_in_sw() {
-    return false;
 }
 
+/*
+ * This method traverses the clip stack to see if the GrSoftwarePathRenderer
+ * will be used on any element. If so, it returns true to indicate that the
+ * entire clip should be rendered in SW and then uploaded en masse to the gpu.
+ */
+bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
+    // TODO: this check is correct for the createAlphaClipMask path.
+    // The createStencilClipMask path does a lot more flip flopping of fill,
+    // etc - so this isn't quite correct in that case
+
+    // TODO: generalize this test so that when
+    // a clip gets complex enough it can just be done in SW regardless
+    // of whether it would invoke the GrSoftwarePathRenderer.
+    bool useSW = false;
+
+    for (int i = 0; i < clipIn.getElementCount(); ++i) {
+
+        if (SkRegion::kReplace_Op == clipIn.getOp(i)) {
+            // Everything before a replace op can be ignored so start
+            // afresh w.r.t. determining if any element uses the SW path
+            useSW = false;
+        }
+
+        if (!clipIn.getDoAA(i)) {
+            // non-anti-aliased rects and paths can always be drawn either
+            // directly or by the GrDefaultPathRenderer
+            continue;
+        }
+
+        if (kRect_ClipType == clipIn.getElementType(i)) {
+            // Antialiased rects are converted to paths and then drawn with
+            // kEvenOdd_PathFill. 
+            if (!GrAAConvexPathRenderer::staticCanDrawPath(
+                                                    true, // always convex
+                                                    kEvenOdd_PathFill,
+                                                    gpu, true)) {
+                // if the GrAAConvexPathRenderer can't render this rect (due
+                // to lack of derivative support in the shaders) then 
+                // the GrSoftwarePathRenderer will be used
+                useSW = true;
+            }
+
+            continue;
+        }
+
+        // only paths need to be considered in the rest of the loop body
+
+        if (GrAAHairLinePathRenderer::staticCanDrawPath(clipIn.getPath(i),
+                                                        clipIn.getPathFill(i),
+                                                        gpu,
+                                                        clipIn.getDoAA(i))) {
+            // the hair line path renderer can handle this one
+            continue;
+        }
+
+        if (GrAAConvexPathRenderer::staticCanDrawPath(
+                                                clipIn.getPath(i).isConvex(),
+                                                clipIn.getPathFill(i),
+                                                gpu,
+                                                clipIn.getDoAA(i))) {
+            // the convex path renderer can handle this one
+            continue;
+        }
+
+        // otherwise the GrSoftwarePathRenderer is going to be invoked
+        useSW = true;
+    }
+
+    return useSW;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
@@ -85,7 +158,7 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
     GrAssert(NULL != rt);
 
 #if GR_SW_CLIP
-    if (create_mask_in_sw()) {
+    if (useSWOnlyPath(gpu, clipIn)) {
         // The clip geometry is complex enough that it will be more
         // efficient to create it entirely in software
         GrTexture* result = NULL;
@@ -133,7 +206,7 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
     GrRect bounds;
     GrRect rtRect;
     rtRect.setLTRB(0, 0,
-                    GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
+                   GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
     if (clipIn.hasConservativeBounds()) {
         bounds = clipIn.getConservativeBounds();
         if (!bounds.intersect(rtRect)) {
@@ -786,6 +859,27 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
     return true;
 }
 
+namespace {
+
+GrPathFill invert_fill(GrPathFill fill) {
+    static const GrPathFill gInvertedFillTable[] = {
+        kInverseWinding_PathFill, // kWinding_PathFill
+        kInverseEvenOdd_PathFill, // kEvenOdd_PathFill
+        kWinding_PathFill,        // kInverseWinding_PathFill
+        kEvenOdd_PathFill,        // kInverseEvenOdd_PathFill
+        kHairLine_PathFill,       // kHairLine_PathFill
+    };
+    GR_STATIC_ASSERT(0 == kWinding_PathFill);
+    GR_STATIC_ASSERT(1 == kEvenOdd_PathFill);
+    GR_STATIC_ASSERT(2 == kInverseWinding_PathFill);
+    GR_STATIC_ASSERT(3 == kInverseEvenOdd_PathFill);
+    GR_STATIC_ASSERT(4 == kHairLine_PathFill);
+    GR_STATIC_ASSERT(5 == kPathFillCount);
+    return gInvertedFillTable[fill];
+}
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
                                                const GrClip& clipIn,
@@ -803,30 +897,98 @@ bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
         return false;
     }
 
-#if 0
-    SkRasterClip rasterClip;
+    GrSWMaskHelper helper(fAACache.getContext());
 
-    // TODO: refactor GrClip out of existance and use SkCanvas's ClipVisitor
-    //      - may have to move it to SkClipStack
-    for (int i = 0; i < clipIn.getElementCount(); ++i) {
+    helper.init(*resultBounds, NULL, false);
+
+    int count = clipIn.getElementCount();
+
+    bool clearToInside;
+    SkRegion::Op startOp = SkRegion::kReplace_Op; // suppress warning
+    int start = process_initial_clip_elements(clipIn,
+                                              *resultBounds,
+                                              &clearToInside,
+                                              &startOp);
+
+    helper.clear(clearToInside ? SK_ColorWHITE : 0x00000000);
+
+    for (int i = start; i < count; ++i) {
+
+        SkRegion::Op op = (i == start) ? startOp : clipIn.getOp(i);
+
+        if (SkRegion::kIntersect_Op == op ||
+            SkRegion::kReverseDifference_Op == op) {
+            // Intersect and reverse difference require modifying pixels
+            // outside of the geometry that is being "drawn". In both cases
+            // we erase all the pixels outside of the geometry but
+            // leave the pixels inside the geometry alone. For reverse
+            // difference we invert all the pixels before clearing the ones
+            // outside the geometry.
+            if (SkRegion::kReverseDifference_Op == op) {
+                SkRect temp = SkRect::MakeLTRB(
+                                       SkIntToScalar(resultBounds->left()),
+                                       SkIntToScalar(resultBounds->top()),
+                                       SkIntToScalar(resultBounds->right()),
+                                       SkIntToScalar(resultBounds->bottom()));
+
+                // invert the entire scene
+                helper.draw(temp, SkRegion::kXOR_Op, false, SK_ColorWHITE);
+            }
+
+            if (kRect_ClipType == clipIn.getElementType(i)) {
+
+                // convert the rect to a path so we can invert the fill
+                SkPath temp;
+                temp.addRect(clipIn.getRect(i));
+
+                helper.draw(temp, SkRegion::kReplace_Op, 
+                            kInverseEvenOdd_PathFill, clipIn.getDoAA(i),
+                            0x00000000);
+            } else {
+                GrAssert(kPath_ClipType == clipIn.getElementType(i));
+
+                helper.draw(clipIn.getPath(i),
+                            SkRegion::kReplace_Op,
+                            invert_fill(clipIn.getPathFill(i)),
+                            clipIn.getDoAA(i),
+                            0x00000000);
+            }
+
+            continue;
+        }
+
+        // The other ops (union, xor, diff) only affect pixels inside
+        // the geometry so they can just be drawn normally
         if (kRect_ClipType == clipIn.getElementType(i)) {
-            rasterClip.op(clipIn.getRect(i), clipIn.getOp(i), clipIn.getDoAA(i));
+
+            helper.draw(clipIn.getRect(i),
+                        op,
+                        clipIn.getDoAA(i), SK_ColorWHITE);
+
         } else {
             GrAssert(kPath_ClipType == clipIn.getElementType(i));
 
-            SkIPoint deviceSize = SkIPoint::Make(resultBounds->width(), 
-                                                 resultBounds->height());
-
-            SkRasterClip::clipPathHelper(&rasterClip, 
-                                         clipIn.getPath(i),
-                                         clipIn.getOp(i),
-                                         clipIn.getDoAA(i),
-                                         deviceSize);
+            helper.draw(clipIn.getPath(i), 
+                        op,
+                        clipIn.getPathFill(i), 
+                        clipIn.getDoAA(i), SK_ColorWHITE);
         }
     }
 
-    // TODO: need to get pixels out of SkRasterClip & into the texture!
-#endif
+    // Because we are using the scratch texture cache, "accum" may be
+    // larger than expected and have some cruft in the areas we aren't using.
+    // Clear it out.
+
+    // TODO: need a simpler way to clear the texture - can we combine
+    // the clear and the writePixels (inside toTexture)
+    GrDrawState* drawState = gpu->drawState();
+    GrAssert(NULL != drawState);
+    GrRenderTarget* temp = drawState->getRenderTarget();
+    clear(gpu, accum, 0x00000000);
+    // can't leave the accum bound as a rendertarget
+    drawState->setRenderTarget(temp);
+
+    helper.toTexture(accum);
 
     *result = accum;
 

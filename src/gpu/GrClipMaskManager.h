@@ -332,6 +332,8 @@ private:
                           GrTexture** result,
                           GrIRect *resultBounds);
 
+    bool useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn);
+
     bool drawPath(GrGpu* gpu,
                   const SkPath& path,
                   GrPathFill fill,
