@@ -9,6 +9,7 @@
 #define GrProgramStageFactory_DEFINED
 
 #include "GrTypes.h"
+#include "SkTemplates.h"
 
 /** Given a GrCustomStage of a particular type, creates the corresponding
     graphics-backend-specific GrProgramStage. Also tracks equivalence

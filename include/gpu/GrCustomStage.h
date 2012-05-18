@@ -11,7 +11,6 @@
 #include "GrRefCnt.h"
 #include "GrNoncopyable.h"
 #include "GrProgramStageFactory.h"
-#include "SkTemplates.h"
 
 class GrContext;
 
