@@ -1,3 +1,7 @@
+#if !defined(IN_TEST)
+    #define IN_TEST 1
+#endif
+
 #include "DataTypes.h"
 
 extern const Quadratic quadraticLines[];

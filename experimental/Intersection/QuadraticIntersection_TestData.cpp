@@ -1,10 +1,8 @@
 /*
- *  QuadraticIntersection_TestData.cpp
- *  edge
+ * Copyright 2012 Google Inc.
  *
- *  Created by Cary Clark on 1/10/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
  */
 
 #include "QuadraticIntersection_TestData.h"

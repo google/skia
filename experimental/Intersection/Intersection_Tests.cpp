@@ -7,8 +7,13 @@ void testSimplify();
 #define TEST_QUADS_FIRST 0
 
 void Intersection_Tests() {
+    SimplifyFindTop_Test();
+    SimplifyAngle_Test();
+    QuadraticReduceOrder_Test();
+    QuadraticBezierClip_Test();
+    QuadraticIntersection_Test();
     SimplifyAddIntersectingTs_Test();
-
+    
     cubecode_test(1);
     convert_testx();
     // tests are in dependency / complexity order
@@ -39,8 +44,6 @@ void Intersection_Tests() {
 #endif
 
     QuadraticCoincidence_Test();
-    QuadraticReduceOrder_Test();
-    QuadraticBezierClip_Test();
     QuadraticIntersection_Test();
 
     CubicParameterization_Test();

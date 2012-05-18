@@ -2,7 +2,24 @@
 #include "Intersection_Tests.h"
 #include "QuadraticIntersection_TestData.h"
 
-void QuadraticBezierClip_Test() {
+static const Quadratic testSet[] = {
+    {{8.0000000000000071, 8.0000000000000071},
+     {8.7289570079366854, 8.7289570079366889},
+     {9.3914917259458743, 9.0593802763083691}},
+    {{8.0000000000000142, 8.0000000000000142},
+     {8.1250000000000107, 8.1250000000000071},
+     {8.2500000000000071, 8.2187500000000053}}
+};
+
+static void oneOffTest() {
+    const Quadratic& quad1 = testSet[0];
+    const Quadratic& quad2 = testSet[1];
+    double minT = 0;
+    double maxT = 1;
+    bezier_clip(quad1, quad2, minT, maxT);
+}
+
+void standardTestCases() {
     for (size_t index = 0; index < quadraticTests_count; ++index) {
         const Quadratic& quad1 = quadraticTests[index][0];
         const Quadratic& quad2 = quadraticTests[index][1];
@@ -21,4 +38,9 @@ void QuadraticBezierClip_Test() {
             bezier_clip(reduce1, reduce2, minT, maxT);
         }
     }
+}
+
+void QuadraticBezierClip_Test() {
+    oneOffTest();
+    standardTestCases();
 }

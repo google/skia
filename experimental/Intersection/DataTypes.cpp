@@ -14,8 +14,12 @@ void	*memcpy(void *, const void *, size_t);
 #endif
 
 
+#if USE_EPSILON
 const double PointEpsilon = 0.000001;
 const double SquaredEpsilon = PointEpsilon * PointEpsilon;
+#endif
+
+const int UlpsEpsilon = 16;
 
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath) {
     double dy = cubic[index].y - cubic[zero].y;

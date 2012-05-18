@@ -1,3 +1,4 @@
+#define IN_TEST 1
 #include "CubicIntersection_TestData.h"
 #include <limits>
 

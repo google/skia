@@ -12,6 +12,13 @@
 #include <strings.h>
 #include <sys/types.h>
 
+bool AlmostEqualUlps(float A, float B, int maxUlpsDiff);
+int UlpsDiff(float A, float B);
+int FloatAsInt(float A);
+
+#define USE_EPSILON 0
+
+#if USE_EPSILON
 extern const double PointEpsilon;
 extern const double SquaredEpsilon;
 
@@ -42,6 +49,48 @@ inline bool approximately_zero_squared(double x) {
 inline bool approximately_negative(double x) {
     return x < PointEpsilon;
 }
+#else
+extern const int UlpsEpsilon;
+
+#if defined(IN_TEST)
+// FIXME: move to test-only header
+const double PointEpsilon = 0.000001;
+const double SquaredEpsilon = PointEpsilon * PointEpsilon;
+#endif
+
+inline bool approximately_zero(double x) {
+    
+    return fabs(x) < FLT_EPSILON;
+}
+
+inline bool approximately_equal(double x, double y) {
+    if (approximately_zero(x - y)) {
+        return true;
+    }
+    return AlmostEqualUlps((float) x, (float) y, UlpsEpsilon);
+}
+
+inline bool approximately_equal_squared(double x, double y) {
+    return approximately_equal(x, y);
+}
+
+inline bool approximately_greater(double x, double y) {
+    return approximately_equal(x, y) ? false : x > y;
+}
+
+inline bool approximately_lesser(double x, double y) {
+    return approximately_equal(x, y) ? false : x < y;
+}
+
+inline bool approximately_zero_squared(double x) {
+    return approximately_zero(x);
+}
+
+inline bool approximately_negative(double x) {
+    return x < FLT_EPSILON;
+}
+
+#endif
 
 struct _Point {
     double x;
@@ -134,8 +183,5 @@ void xy_at_t(const Cubic& , double t, double& x, double& y);
 void xy_at_t(const _Line& , double t, double& x, double& y);
 void xy_at_t(const Quadratic& , double t, double& x, double& y);
 
-bool AlmostEqualUlps(float A, float B, int maxUlpsDiff);
-int UlpsDiff(float A, float B);
-int FloatAsInt(float A);
 
 #endif // __DataTypes_h__

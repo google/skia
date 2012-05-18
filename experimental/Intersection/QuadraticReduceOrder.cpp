@@ -110,11 +110,10 @@ static int check_linear(const Quadratic& quad, Quadratic& reduction,
 bool isLinear(const Quadratic& quad, int startIndex, int endIndex) {
     LineParameters lineParameters;
     lineParameters.quadEndPoints(quad, startIndex, endIndex);
-    double normalSquared = lineParameters.normalSquared();
-    double distance = lineParameters.controlPtDistance(quad); // not normalized
-    double limit = normalSquared * SquaredEpsilon;
-    double distSq = distance * distance;
-    return distSq <= limit;
+    // FIXME: maybe it's possible to avoid this and compare non-normalized
+    lineParameters.normalize();
+    double distance = lineParameters.controlPtDistance(quad);
+    return approximately_zero(distance);
 }
 
 // reduce to a quadratic or smaller

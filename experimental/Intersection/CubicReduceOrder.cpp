@@ -150,12 +150,12 @@ bool isLinear(const Cubic& cubic, int startIndex, int endIndex) {
     int inner1 = startIndex ^ mask;
     int inner2 = endIndex ^ mask;
     lineParameters.controlPtDistance(cubic, inner1, inner2, distance);
-    double limit = normalSquared * SquaredEpsilon;
+    double limit = normalSquared;
     int index;
     for (index = 0; index < 2; ++index) {
         double distSq = distance[index];
         distSq *= distSq;
-        if (distSq > limit) {
+        if (approximately_greater(distSq, limit)) {
             return false;
         }
     }
