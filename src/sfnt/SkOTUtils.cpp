@@ -75,7 +75,7 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData,
     size_t newDataSize = originalDataSize + nameTablePhysicalSize;
     
     SK_OT_BYTE* data = static_cast<SK_OT_BYTE*>(sk_malloc_throw(newDataSize));
-    SkAutoTUnref<SkData> rewrittenFontData = SkAutoTUnref<SkData>(SkData::NewFromMalloc(data, newDataSize));
+    SkAutoTUnref<SkData> rewrittenFontData(SkData::NewFromMalloc(data, newDataSize));
 
     if (fontData->read(data, oldNameTableOffset) < oldNameTableOffset) {
         return NULL;
