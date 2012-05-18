@@ -1,0 +1,1 @@
+out/Debug/skdiff --nodiffs tools/tests/skdiff/baseDir tools/tests/skdiff/comparisonDir tools/tests/skdiff/test2/output-actual
