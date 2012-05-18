@@ -629,10 +629,10 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                 }
 
                 if (NULL != customStages[s]) {
-                    GrProgramStageFactory* factory =
+                    const GrProgramStageFactory& factory =
                         customStages[s]->getFactory();
                     programData->fCustomStage[s] =
-                        factory->createGLInstance(customStages[s]);
+                        factory.createGLInstance(customStages[s]);
                 }
                 this->genStageCode(gl,
                                    s,
@@ -755,10 +755,10 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                     }
 
                     if (NULL != customStages[s]) {
-                        GrProgramStageFactory* factory =
+                        const GrProgramStageFactory& factory =
                             customStages[s]->getFactory();
                         programData->fCustomStage[s] =
-                            factory->createGLInstance(customStages[s]);
+                            factory.createGLInstance(customStages[s]);
                     }
                     this->genStageCode(gl, s,
                         fProgramDesc.fStages[s],

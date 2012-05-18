@@ -9,12 +9,12 @@
 #define GrGLCustomStage_DEFINED
 
 #include "GrAllocator.h"
+#include "GrCustomStage.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
 #include "GrStringBuilder.h"
 
-class GrCustomStage;
 struct GrGLInterface;
 class GrGLTexture;
 
@@ -31,6 +31,7 @@ class GrGLTexture;
 class GrGLProgramStage {
 
 public:
+    typedef GrCustomStage::StageKey StageKey ;
     // TODO: redundant with GrGLProgram.cpp
     enum {
         kUnusedUniform = -1,
@@ -90,7 +91,7 @@ public:
         are to be read.
         TODO: since we don't have a factory, we can't assert to enforce
         this. Shouldn't we? */
-    virtual void setData(const GrGLInterface*, GrCustomStage*,
+    virtual void setData(const GrGLInterface*, const GrCustomStage*,
                          const GrGLTexture*);
 
     // TODO: needs a better name

@@ -8,8 +8,10 @@
 #include "GrContext.h"
 #include "GrCustomStage.h"
 
-GrCustomStage::GrCustomStage() {
+int32_t GrProgramStageFactory::fCurrStageClassID =
+                                    GrProgramStageFactory::kIllegalStageClassID;
 
+GrCustomStage::GrCustomStage() {
 }
 
 GrCustomStage::~GrCustomStage() {

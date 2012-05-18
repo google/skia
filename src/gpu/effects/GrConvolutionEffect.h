@@ -11,6 +11,8 @@
 #include "GrCustomStage.h"
 #include "GrSamplerState.h" // for MAX_KENEL_WIDTH, FilterDirection
 
+class GrGLConvolutionEffect;
+
 class GrConvolutionEffect : public GrCustomStage {
 
 public:
@@ -19,11 +21,17 @@ public:
                         unsigned int kernelWidth, const float* kernel);
     virtual ~GrConvolutionEffect();
 
-    virtual const char* name() const SK_OVERRIDE;
-    virtual GrProgramStageFactory* getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrCustomStage *) const SK_OVERRIDE;
-
     unsigned int width() const { return fKernelWidth; }
+    const float* kernel() const { return fKernel; }
+    GrSamplerState::FilterDirection direction() const { return fDirection; }
+    
+    static const char* Name() { return "Convolution"; }
+
+    typedef GrGLConvolutionEffect GLProgramStage;
+    
+    virtual const char* name() const SK_OVERRIDE;
+    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual bool isEqual(const GrCustomStage *) const SK_OVERRIDE;
 
 protected:
 
@@ -31,7 +39,6 @@ protected:
     unsigned int fKernelWidth;
     float fKernel[MAX_KERNEL_WIDTH];
 
-    friend class GrGLConvolutionEffect;
 
 private:
 

@@ -17,7 +17,7 @@ class GrGLConvolutionEffect : public GrGLProgramStage {
 
 public:
 
-    GrGLConvolutionEffect(GrConvolutionEffect* data);
+    GrGLConvolutionEffect(const GrCustomStage* stage);
     virtual const char* name() const SK_OVERRIDE;
     virtual void setupVSUnis(VarArray* vsUnis, int stage) SK_OVERRIDE;
     virtual void setupFSUnis(VarArray* fsUnis, int stage) SK_OVERRIDE;
@@ -30,13 +30,14 @@ public:
                         const char* sampleCoords) SK_OVERRIDE;
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
 
-    virtual void setData(const GrGLInterface*, GrCustomStage*,
+    virtual void setData(const GrGLInterface*, const GrCustomStage*,
                          const GrGLTexture*) SK_OVERRIDE;
 
+    static inline StageKey GenKey(const GrCustomStage* s);
+    
 protected:
 
-    GrConvolutionEffect* fData;
- 
+    int            fKernelWidth;
     GrGLShaderVar* fKernelVar;
     GrGLShaderVar* fImageIncrementVar;
  
@@ -48,18 +49,16 @@ private:
     typedef GrGLProgramStage INHERITED;
 };
 
-GrGLConvolutionEffect::GrGLConvolutionEffect(GrConvolutionEffect* data)
-    : fData(data)
-    , fKernelVar(NULL)
+GrGLConvolutionEffect::GrGLConvolutionEffect(const GrCustomStage* data)
+    : fKernelVar(NULL)
     , fImageIncrementVar(NULL)
     , fKernelLocation(0)
-    , fImageIncrementLocation(0)
-{
-
+    , fImageIncrementLocation(0) {
+    fKernelWidth = static_cast<const GrConvolutionEffect*>(data)->width();
 }
 
 const char* GrGLConvolutionEffect::name() const {
-    return fData->name();
+    return GrConvolutionEffect::Name();
 }
 
 void GrGLConvolutionEffect::setupVSUnis(VarArray* vsUnis,
@@ -81,7 +80,7 @@ void GrGLConvolutionEffect::setupFSUnis(VarArray* fsUnis,
     fKernelVar->setType(kFloat_GrSLType);
     fKernelVar->setTypeModifier(
         GrGLShaderVar::kUniform_TypeModifier);
-    fKernelVar->setArrayCount(fData->fKernelWidth);
+    fKernelVar->setArrayCount(fKernelWidth);
     (*fKernelVar->accessName()) = "uKernel";
     fKernelVar->accessName()->appendS32(stage);
 
@@ -93,7 +92,7 @@ void GrGLConvolutionEffect::setupFSUnis(VarArray* fsUnis,
 
 void GrGLConvolutionEffect::emitVS(GrStringBuilder* code,
                         const char* vertexCoords) {
-    float scale = (fData->fKernelWidth - 1) * 0.5f;
+    float scale = (fKernelWidth - 1) * 0.5f;
     code->appendf("\t\t%s -= vec2(%g, %g) * %s;\n",
                   vertexCoords, scale, scale,
                   fImageIncrementVar->getName().c_str());
@@ -121,7 +120,7 @@ void GrGLConvolutionEffect::emitFS(GrStringBuilder* code,
     code->appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
     code->appendf("\t\tvec2 coord = %s;\n", sampleCoords);
     code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n",
-                  fData->fKernelWidth);
+                  fKernelWidth);
 
     code->appendf("\t\t\tsum += ");
     this->emitTextureLookup(code, samplerName, "coord");
@@ -143,14 +142,17 @@ void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
 }
 
 void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
-                                    GrCustomStage* data,
+                                    const GrCustomStage* data,
                                     const GrGLTexture* texture) {
-    fData = static_cast<GrConvolutionEffect*>(data);
+    const GrConvolutionEffect* conv =
+        static_cast<const GrConvolutionEffect*>(data);
+    // the code we generated was for a specific kernel width
+    GrAssert(conv->width() == fKernelWidth);
     GR_GL_CALL(gl, Uniform1fv(fKernelLocation,
-                              fData->fKernelWidth,
-                              fData->fKernel));
+                              fKernelWidth,
+                              conv->kernel()));
     float imageIncrement[2] = { 0 };
-    switch (fData->fDirection) {
+    switch (conv->direction()) {
         case GrSamplerState::kX_FilterDirection:
             imageIncrement[0] = 1.0f / texture->width();
             break;
@@ -163,58 +165,9 @@ void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
     GR_GL_CALL(gl, Uniform2fv(fImageIncrementLocation, 1, imageIncrement));
 }
 
-/////////////////////////////////////////////////////////////////////
-// TODO: stageKey() and sEffectId are the only non-boilerplate in
-// this class; we ought to be able to templatize?
-
-class GrConvolutionEffectFactory : public GrProgramStageFactory {
-
-public:
-
-    virtual ~GrConvolutionEffectFactory();
-
-    virtual uint16_t stageKey(const GrCustomStage* s) SK_OVERRIDE;
-    virtual GrGLProgramStage* createGLInstance(GrCustomStage* s) SK_OVERRIDE;
-
-    static GrConvolutionEffectFactory* getInstance();
-
-protected:
-
-    GrConvolutionEffectFactory();
-
-    // TODO: find a more reliable installation than hand-coding
-    // id values like '1'. 
-    static const int sEffectId = 1;
-
-private:
-
-    typedef GrProgramStageFactory INHERITED;
-};
-
-GrConvolutionEffectFactory::~GrConvolutionEffectFactory() {
-
-}
-
-uint16_t GrConvolutionEffectFactory::stageKey(const GrCustomStage* s) {
-    const GrConvolutionEffect* c =
-        static_cast<const GrConvolutionEffect*>(s);
-    GrAssert(c->width() < 256);
-    return (sEffectId << 8) | (c->width() & 0xff);
-}
-
-GrGLProgramStage* GrConvolutionEffectFactory::createGLInstance(
-    GrCustomStage* s) {
-    return new GrGLConvolutionEffect(static_cast<GrConvolutionEffect*>(s));
-}
-
-GrConvolutionEffectFactory* GrConvolutionEffectFactory::getInstance() {
-    static GrConvolutionEffectFactory* instance =
-        new GrConvolutionEffectFactory;
-    return instance;
-}
-
-GrConvolutionEffectFactory::GrConvolutionEffectFactory() {
-
+GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(
+                                                    const GrCustomStage* s) {
+    return static_cast<const GrConvolutionEffect*>(s)->width();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -236,11 +189,12 @@ GrConvolutionEffect::~GrConvolutionEffect() {
 }
 
 const char* GrConvolutionEffect::name() const {
-    return "Convolution";
+    return Name();
 }
 
-GrProgramStageFactory* GrConvolutionEffect::getFactory() const {
-    return GrConvolutionEffectFactory::getInstance();
+
+const GrProgramStageFactory& GrConvolutionEffect::getFactory() const {
+    return GrTProgramStageFactory<GrConvolutionEffect>::getInstance();
 }
 
 bool GrConvolutionEffect::isEqual(const GrCustomStage * sBase) const {
