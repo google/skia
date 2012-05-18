@@ -30,10 +30,15 @@ function skdiff_test {
 
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
-  $SKDIFF_BINARY $SKDIFF_ARGS $ACTUAL_OUTPUT_DIR &>$ACTUAL_OUTPUT_DIR/stdout
+  COMMAND="$SKDIFF_BINARY $SKDIFF_ARGS $ACTUAL_OUTPUT_DIR"
+  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
+  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
+  echo $? >$ACTUAL_OUTPUT_DIR/return_value
+
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
 SKDIFF_TESTDIR=tools/tests/skdiff
 skdiff_test "$SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test1"
+skdiff_test "--nodiffs $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test2"
 echo "All tests passed."
