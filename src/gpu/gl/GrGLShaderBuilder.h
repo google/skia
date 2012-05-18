@@ -51,11 +51,20 @@ public:
     GrStringBuilder fVSCode;
     GrStringBuilder fGSCode;
     GrStringBuilder fFSCode;
+    bool            fUsesGS;
+
+    /// Per-stage settings
+    //@{
 
     int             fVaryingDims;
     static const int fCoordDims = 2;
 
-    bool            fUsesGS;
+    /// True if fSampleCoords is an expression; false if it's a bare
+    /// variable name
+    bool            fComplexCoord;
+    GrStringBuilder fSampleCoords;
+
+    //@}
 
 };
 

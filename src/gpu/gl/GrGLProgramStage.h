@@ -102,12 +102,9 @@ public:
 
     void setSamplerMode(SamplerMode samplerMode) { fSamplerMode = samplerMode; }
 
-    /** Returns the *effective* coord name after any perspective divide
-        or other transform. */
-    GrStringBuilder emitTextureSetup(GrStringBuilder* code,
-                                     const char* coordName,
-                                     int stageNum,
-                                     GrGLShaderBuilder* segments);
+    /** Does perspective divide or other necessary transform, then
+        updates the name of the sample coordinates. */
+    void emitTextureSetup(GrGLShaderBuilder* segments);
 
 protected:
 
@@ -118,8 +115,6 @@ protected:
                            const char* coordName);
 
     SamplerMode fSamplerMode;
-    GrStringBuilder fCoordName;
-
 };
 
 #endif

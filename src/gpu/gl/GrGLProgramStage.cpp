@@ -30,10 +30,7 @@ void GrGLProgramStage::setData(const GrGLInterface*, GrCustomStage*,
 
 }
 
-GrStringBuilder GrGLProgramStage::emitTextureSetup(GrStringBuilder* code,
-                    const char* coordName,
-                    int stageNum,
-                    GrGLShaderBuilder* segments) {
+void GrGLProgramStage::emitTextureSetup(GrGLShaderBuilder* segments) {
     GrStringBuilder retval;
 
     switch (fSamplerMode) {
@@ -41,22 +38,20 @@ GrStringBuilder GrGLProgramStage::emitTextureSetup(GrStringBuilder* code,
             // Fall through
         case kProj_SamplerMode:
             // Do nothing
-            retval = coordName;
             break;
         case kExplicitDivide_SamplerMode:
             retval = "inCoord";
-            retval.appendS32(stageNum);
-            code->appendf("\t %s %s = %s%s / %s%s\n",
+            segments->fFSCode.appendf("\t %s %s = %s%s / %s%s\n",
                 GrGLShaderVar::TypeString
                     (GrSLFloatVectorType(segments->fCoordDims)),
-                fCoordName.c_str(),
-                coordName,
+                retval.c_str(),
+                segments->fSampleCoords.c_str(),
                 GrGLSLVectorNonhomogCoords(segments->fVaryingDims),
-                coordName,
+                segments->fSampleCoords.c_str(),
                 GrGLSLVectorHomogCoord(segments->fVaryingDims));
+            segments->fSampleCoords = retval;
             break;
     }
-    return retval;
 }
 
 void GrGLProgramStage::emitTextureLookup(GrStringBuilder* code,

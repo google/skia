@@ -31,8 +31,9 @@ GrGLShaderBuilder::GrGLShaderBuilder()
     , fFSInputs(sVarsPerBlock)
     , fFSUnis(sVarsPerBlock)
     , fFSOutputs(sMaxFSOutputs)
+    , fUsesGS(false)
     , fVaryingDims(0)
-    , fUsesGS(false) {
+    , fComplexCoord(false) {
 
 }
 
