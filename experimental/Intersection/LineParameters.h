@@ -4,6 +4,15 @@
 // computer-aided design - volume 22 number 9 november 1990 pp 538 - 549
 // online at http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf
 
+// This turns a line segment into a parameterized line, of the form
+// ax + by + c = 0
+// When a^2 + b^2 == 1, the line is normalized.
+// The distance to the line for (x, y) is d(x,y) = ax + by + c
+//
+// Note that the distances below are not necessarily normalized. To get the true
+// distance, it's necessary to either call normalize() after xxxEndPoints(), or
+// divide the result of xxxDistance() by sqrt(normalSquared())
+
 class LineParameters {
 public:
     void cubicEndPoints(const Cubic& pts) {
@@ -42,7 +51,7 @@ public:
 
     bool normalize() {
         double normal = sqrt(normalSquared());
-        if (normal < SquaredEpsilon) {
+        if (approximately_zero_squared(normal)) {
             a = b = c = 0;
             return false;
         }
@@ -87,6 +96,7 @@ public:
     double pointDistance(const _Point& pt) {
         return a * pt.x + b * pt.y + c;
     }
+
 private:
     double a;
     double b;

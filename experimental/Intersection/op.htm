@@ -234,24 +234,37 @@ path.close();
 
 <div id="testSimplifyQuadratic17">
     SkPath path, out;
-    path.moveTo(0, 0);
-    path.quadTo(0, 0, 0, 0);
-    path.lineTo(2, 2);
+    path.moveTo(8, 8);
+    path.quadTo(10, 10, 8, -10);
     path.close();
-    path.moveTo(0, 1);
-    path.lineTo(0, 1);
-    path.quadTo(2, 1, 3, 3);
+    path.moveTo(8, 8);
+    path.quadTo(12, 12, 14, 4);
+    path.close();
+    path.moveTo(8, 8);
+    path.quadTo(9, 9, 10, 8);
     path.close();
     testSimplify(path, true, out, bitmap);
     drawAsciiPaths(path, out, true);
 }
 </div>
 
+<div id="testSimplifyQuadratic18">
+    SkPath path, out;
+    path.moveTo(8.0000000000000071, 8.0000000000000071);
+    path.quadTo(8.7289570079366854, 8.7289570079366889, 9.3914917259458743, 9.0593802763083691);
+    path.close();
+    path.moveTo(8.0000000000000142, 8.0000000000000142);
+    path.quadTo(8.1250000000000107, 8.1250000000000071, 8.2500000000000071, 8.2187500000000053);
+    path.close();
+    testSimplify(path, true, out, bitmap);
+    drawAsciiPaths(path, out, true);
+</div>
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testSimplifyQuadratic18,
     testSimplifyQuadratic17,
     testSimplifyQuadratic16,
     testSimplifyQuadratic15,
@@ -332,10 +345,12 @@ function init(test) {
         for (var verbs in contour) {
             var verb = contour[verbs];
             var last = verb.length;
-            xmin = Math.min(xmin, verb[0]);
-            ymin = Math.min(ymin, verb[1]);
-            xmax = Math.max(xmax, verb[last - 2]);
-            ymax = Math.max(ymax, verb[last - 1]);
+            for (var idx = 0; idx < last; idx += 2) {
+                xmin = Math.min(xmin, verb[idx]);
+                xmax = Math.max(xmax, verb[idx]);
+                ymin = Math.min(ymin, verb[idx + 1]);
+                ymax = Math.max(ymax, verb[idx + 1]);
+            }
         }
     }
     var subscale = 1;

@@ -767,6 +767,7 @@ public:
         fTs = src.fTs;
         fTopIntercepts = src.fTopIntercepts;
         fBottomIntercepts = src.fBottomIntercepts;
+        return *this;
     }
 
     // OPTIMIZATION: remove this function if it's never called
@@ -1409,7 +1410,8 @@ public:
             curve[1] = &rh.fTangent;
             curve[2] = &rh.fBelow;
         }
-        
+        // FIXME: code has been abandoned, incomplete....
+        return false;
     }
     
     bool abCompare(const SkPoint& a1, const SkPoint& a2, const SkPoint& b1,
@@ -1727,9 +1729,9 @@ public:
             b2 = edge->fTangent.fX;
         }
         if (fabs(t1 - t2) > fabs(b1 - b2)) {
-            ulps = UlpsDiff(t1, t2);
+            ulps = UlpsDiff((float) t1, (float) t2);
         } else {
-            ulps = UlpsDiff(b1, b2);
+            ulps = UlpsDiff((float) b1, (float) b2);
         }
 #if DEBUG_ADJUST_COINCIDENT
         SkDebugf("%s this=%d edge=%d ulps=%d\n", __FUNCTION__, ID(), edge->ID(),

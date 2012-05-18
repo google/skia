@@ -139,3 +139,28 @@ continue tracing the touched segments with reversed outside/inside sense
 once the edges are exhausted, remaining must be disjoint contours
 send a ray from a disjoint point through all other contours
 count the crossings, determine if disjoint is inside or outside, then continue
+
+===
+
+On Quadratic (and Cubic) Intersections
+
+Currently, if only the end points touch, QuadracticIntersections does a lot of
+work to figure that out. Can I test for that up front, then short circuit the
+recursive search for the end points?
+
+Or, is there something defective in the current approach that makes the end
+point recursion go so deep? I'm seeing 56 stack frames (about 28 divides, but
+thankfully, no splits) to find one matching endpoint.
+
+
+Bezier curve focus may allow more quickly determining that end points with
+identical tangents are practically coicident for some range of T, but I don't
+understand the math yet to know.
+
+Another approach is to determine how flat the curve is to make good guesses
+about how far to move away in T before doing the intersection for the remainder
+and/or to determine whether one curve is to the inside or outside of another.
+According to Mike/Rob, the flatness for quadratics increases by 4 for each
+subdivision, and a crude guess of the curvature can be had by comparing P1 to
+(P0+P2)/2. By looking at the ULPS of the numbers, I can guess what value of
+T may be far enough that the curves diverge but don't cross.

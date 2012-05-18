@@ -1,11 +1,13 @@
 /*
- *  EdgeMain.cpp
- *  shapeops_edge
+ * Copyright 2012 Google Inc.
  *
- *  Created by Cary Clark on 3/26/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
  */
 
-#include "EdgeMain.h"
+#include "Intersection_Tests.h"
 
+int main(int argc, char* argv) {
+    Intersection_Tests();
+    return 0;
+}

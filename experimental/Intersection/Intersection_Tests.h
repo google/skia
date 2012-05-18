@@ -1,3 +1,7 @@
+#if !defined(IN_TEST)
+    #define IN_TEST 1
+#endif
+
 void ActiveEdge_Test();
 void ConvexHull_Test();
 void ConvexHull_X_Test();
@@ -13,6 +17,9 @@ void LineIntersection_Test();
 void LineParameter_Test();
 void LineQuadraticIntersection_Test();
 void SimplifyAddIntersectingTs_Test();
+void SimplifyAngle_Test();
+void SimplifyFindNext_Test();
+void SimplifyFindTop_Test();
 void SimplifyDegenerate4x4TrianglesThreaded_Test();
 void SimplifyNondegenerate4x4TrianglesThreaded_Test();
 void SimplifyPolygonPaths_Test();
