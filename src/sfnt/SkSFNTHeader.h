@@ -9,6 +9,7 @@
 #define SkSFNTHeader_DEFINED
 
 #include "SkEndian.h"
+#include "SkOTTableTypes.h"
 
 //All SK_SFNT_ prefixed types should be considered as big endian.
 typedef uint16_t SK_SFNT_USHORT;

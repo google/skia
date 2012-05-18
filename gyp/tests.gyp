@@ -38,6 +38,7 @@
         '../tests/EmptyPathTest.cpp',
         '../tests/FillPathTest.cpp',
         '../tests/FlateTest.cpp',
+        '../tests/FontHostStreamTest.cpp',
         '../tests/FontHostTest.cpp',
         '../tests/GeometryTest.cpp',
         '../tests/GLInterfaceValidation.cpp',
@@ -93,6 +94,14 @@
         'ports.gyp:ports',
         'pdf.gyp:pdf',
         'utils.gyp:utils',
+      ],
+      'conditions': [
+        [ 'skia_os == "mac"', {
+          'sources!': [
+            #mac port currently does not support fonts from streams.
+            '../tests/FontHostStreamTest.cpp',
+          ],
+        }],
       ],
     },
   ],
