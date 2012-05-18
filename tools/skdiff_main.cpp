@@ -26,10 +26,6 @@
  * Creates an index.html in the current third directory to compare each
  * pair that does not match exactly.
  * Does *not* recursively descend directories.
- *
- * With the --chromium flag, *does* recursively descend the first directory
- * named, comparing *-expected.png with *-actual.png and writing diff
- * images into the second directory, also writing index.html there.
  */
 
 #if SK_BUILD_FOR_WIN32
@@ -76,9 +72,6 @@ struct DiffRecord {
         , fMaxMismatchG (0)
         , fMaxMismatchB (0)
         , fResult(result) {
-        // These asserts are valid for GM, but not for --chromium
-        //SkASSERT(basePath.endsWith(filename.c_str()));
-        //SkASSERT(comparisonPath.endsWith(filename.c_str()));
     };
 
     SkString fFilename;
@@ -493,22 +486,6 @@ static SkString filename_to_white_filename (const SkString& filename) {
     return filename_to_derived_filename(filename, "-white.png");
 }
 
-/// Convert a chromium/WebKit LayoutTest "foo-expected.png" to "foo-actual.png"
-static SkString chrome_expected_path_to_actual (const SkString& expected) {
-    SkString actualPath (expected);
-    actualPath.remove(actualPath.size() - 13, 13);
-    actualPath.append("-actual.png");
-    return actualPath;
-}
-
-/// Convert a chromium/WebKit LayoutTest "foo-expected.png" to "foo.png"
-static SkString chrome_expected_name_to_short (const SkString& expected) {
-    SkString shortName (expected);
-    shortName.remove(shortName.size() - 13, 13);
-    shortName.append(".png");
-    return shortName;
-}
-
 static void release_bitmaps(DiffRecord* drp) {
     delete drp->fBaseBitmap;
     drp->fBaseBitmap = NULL;
@@ -684,64 +661,6 @@ static void create_diff_images (DiffMetricProc dmp,
 
     release_file_list(&baseFiles);
     release_file_list(&comparisonFiles);
-}
-
-static void create_diff_images_chromium (DiffMetricProc dmp,
-                                         const int colorThreshold,
-                                         RecordArray* differences,
-                                         const SkString& dirname,
-                                         const SkString& outputDir,
-                                         DiffSummary* summary) {
-    SkASSERT(!outputDir.isEmpty());
-
-    SkOSFile::Iter baseIterator (dirname.c_str());
-    SkString filename;
-    while (baseIterator.next(&filename)) {
-        if (filename.endsWith(".pdf")) {
-            continue;
-        }
-        if (filename.endsWith("-expected.png")) {
-            SkString expectedPath (dirname);
-            expectedPath.append(filename);
-            SkString shortName (chrome_expected_name_to_short(filename));
-            SkString actualPath (chrome_expected_path_to_actual(expectedPath));
-            DiffRecord * drp =
-                new DiffRecord (shortName, expectedPath, actualPath);
-            if (!get_bitmaps(drp)) {
-                continue;
-            }
-            create_and_write_diff_image(drp, dmp, colorThreshold,
-                                        outputDir, shortName);
-
-            differences->push(drp);
-            summary->add(drp);
-        }
-    }
-}
-
-static void analyze_chromium(DiffMetricProc dmp,
-                             const int colorThreshold,
-                             RecordArray* differences,
-                             const SkString& dirname,
-                             const SkString& outputDir,
-                             DiffSummary* summary) {
-    SkASSERT(!outputDir.isEmpty());
-    create_diff_images_chromium(dmp, colorThreshold, differences,
-                                dirname, outputDir, summary);
-    SkOSFile::Iter dirIterator(dirname.c_str());
-    SkString newdirname;
-    while (dirIterator.next(&newdirname, true)) {
-        if (newdirname.startsWith(".")) {
-            continue;
-        }
-        SkString fullname (dirname);
-        fullname.append(newdirname);
-        if (!fullname.endsWith(PATH_DIV_STR)) {
-            fullname.append(PATH_DIV_STR);
-        }
-        analyze_chromium(dmp, colorThreshold, differences,
-                         fullname, outputDir, summary);
-    }
 }
 
 /// Make layout more consistent by scaling image to 240 height, 360 width,
@@ -1008,9 +927,7 @@ static void usage (char * argv0) {
     SkDebugf("\n"
 "Usage: \n"
 "    %s <baseDir> <comparisonDir> [outputDir] \n"
-"or \n"
-"    %s --chromium-release|--chromium-debug <baseDir> <outputDir> \n",
-argv0, argv0);
+, argv0, argv0);
     SkDebugf("\n"
 "Arguments: \n"
 "    --nodiffs: don't write out image diffs or index.html, just generate \n"
@@ -1030,16 +947,12 @@ argv0, argv0);
     SkDebugf(
 "    --weighted: sort by # pixels different weighted by color difference\n");
     SkDebugf(
-"    --chromium-release: process Webkit LayoutTests results instead of gm\n"
-"    --chromium-debug: process Webkit LayoutTests results instead of gm\n");
-    SkDebugf(
-"    baseDir: directory to read baseline images from,\n"
-"             or chromium/src directory for --chromium.\n");
+"    baseDir: directory to read baseline images from.\n");
     SkDebugf(
 "    comparisonDir: directory to read comparison images from\n");
     SkDebugf(
 "    outputDir: directory to write difference images and index.html to; \n"
-"               defaults to comparisonDir when not running --chromium \n");
+"               defaults to comparisonDir \n");
 }
 
 int main (int argc, char ** argv) {
@@ -1055,9 +968,6 @@ int main (int argc, char ** argv) {
     StringArray matchSubstrings;
     StringArray nomatchSubstrings;
 
-    bool analyzeChromium = false;
-    bool chromiumDebug = false;
-    bool chromiumRelease = false;
     bool generateDiffs = true;
 
     RecordArray differences;
@@ -1098,16 +1008,6 @@ int main (int argc, char ** argv) {
             sortProc = SkCastForQSort(compare_diff_weighted);
             continue;
         }
-        if (!strcmp(argv[i], "--chromium-release")) {
-            analyzeChromium = true;
-            chromiumRelease = true;
-            continue;
-        }
-        if (!strcmp(argv[i], "--chromium-debug")) {
-            analyzeChromium = true;
-            chromiumDebug = true;
-            continue;
-        }
         if (argv[i][0] != '-') {
             switch (numUnflaggedArguments++) {
                 case 0:
@@ -1129,19 +1029,6 @@ int main (int argc, char ** argv) {
         SkDebugf("Unrecognized argument <%s>\n", argv[i]);
         usage(argv[0]);
         return 0;
-    }
-
-    if (analyzeChromium) {
-        if (numUnflaggedArguments != 2) {
-            usage(argv[0]);
-            return 0;
-        }
-        outputDir = comparisonDir;
-        if (chromiumRelease && chromiumDebug) {
-            SkDebugf(
-"--chromium must be either -release or -debug, not both!\n");
-            return 0;
-        }
     }
 
     if (numUnflaggedArguments == 2) {
@@ -1181,22 +1068,9 @@ int main (int argc, char ** argv) {
         matchSubstrings.push(new SkString(""));
     }
 
-    if (analyzeChromium) {
-        baseDir.append("webkit" PATH_DIV_STR);
-        if (chromiumRelease) {
-            baseDir.append("Release" PATH_DIV_STR);
-        }
-        if (chromiumDebug) {
-            baseDir.append("Debug" PATH_DIV_STR);
-        }
-        baseDir.append("layout-test-results" PATH_DIV_STR);
-        analyze_chromium(diffProc, colorThreshold, &differences,
-                         baseDir, outputDir, &summary);
-    } else {
-        create_diff_images(diffProc, colorThreshold, &differences,
-                           baseDir, comparisonDir, outputDir,
-                           matchSubstrings, nomatchSubstrings, &summary);
-    }
+    create_diff_images(diffProc, colorThreshold, &differences,
+                       baseDir, comparisonDir, outputDir,
+                       matchSubstrings, nomatchSubstrings, &summary);
     summary.print();
 
     if (differences.count()) {
