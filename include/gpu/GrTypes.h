@@ -225,6 +225,8 @@ static inline bool GrIsPrimTypeTris(GrPrimitiveType type) {
  * Coeffecients for alpha-blending.
  */
 enum GrBlendCoeff {
+    kInvalid_BlendCoeff = -1,
+
     kZero_BlendCoeff,    //<! 0
     kOne_BlendCoeff,     //<! 1
     kSC_BlendCoeff,      //<! src color

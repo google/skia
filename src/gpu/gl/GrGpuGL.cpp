@@ -456,10 +456,6 @@ void GrGpuGL::onResetContext() {
         this->glCaps().print();
     }
 
-    // We detect cases when blending is effectively off
-    fHWBlendDisabled = false;
-    GL_CALL(Enable(GR_GL_BLEND));
-
     // we don't use the zb at all
     GL_CALL(Disable(GR_GL_DEPTH_TEST));
     GL_CALL(DepthMask(GR_GL_FALSE));
@@ -486,11 +482,7 @@ void GrGpuGL::onResetContext() {
     // invalid
     fActiveTextureUnitIdx = -1;
 
-    // illegal values
-    fHWDrawState.setBlendFunc((GrBlendCoeff)0xFF, (GrBlendCoeff)0xFF);
-
-    fHWDrawState.setBlendConstant(0x00000000);
-    GL_CALL(BlendColor(0,0,0,0));
+    fHWBlendState.invalidate();
 
     fHWDrawState.setColor(GrColor_ILLEGAL);
 
@@ -1976,15 +1968,16 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
                          GrBlendCoeff srcCoeff,
                          GrBlendCoeff dstCoeff) {
     if (GrIsPrimTypeLines(type) && this->willUseHWAALines()) {
-        if (fHWBlendDisabled) {
+        if (kYes_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Enable(GR_GL_BLEND));
-            fHWBlendDisabled = false;
+            fHWBlendState.fEnabled = kYes_TriState;
         }
-        if (kSA_BlendCoeff != fHWDrawState.getSrcBlendCoeff() ||
-            kISA_BlendCoeff != fHWDrawState.getDstBlendCoeff()) {
+        if (kSA_BlendCoeff != fHWBlendState.fSrcCoeff ||
+            kISA_BlendCoeff != fHWBlendState.fDstCoeff) {
             GL_CALL(BlendFunc(gXfermodeCoeff2Blend[kSA_BlendCoeff],
                               gXfermodeCoeff2Blend[kISA_BlendCoeff]));
-            fHWDrawState.setBlendFunc(kSA_BlendCoeff, kISA_BlendCoeff);
+            fHWBlendState.fSrcCoeff = kSA_BlendCoeff;
+            fHWBlendState.fDstCoeff = kISA_BlendCoeff;
         }
     } else {
         // any optimization to disable blending should
@@ -1992,25 +1985,28 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
         // to (1, 0).
         bool blendOff = kOne_BlendCoeff == srcCoeff &&
                         kZero_BlendCoeff == dstCoeff;
-        if (fHWBlendDisabled != blendOff) {
-            if (blendOff) {
+        if (blendOff) {
+            if (kNo_TriState != fHWBlendState.fEnabled) {
                 GL_CALL(Disable(GR_GL_BLEND));
-            } else {
-                GL_CALL(Enable(GR_GL_BLEND));
+                fHWBlendState.fEnabled = kNo_TriState;
             }
-            fHWBlendDisabled = blendOff;
-        }
-        if (!blendOff) {
-            if (fHWDrawState.getSrcBlendCoeff() != srcCoeff ||
-                fHWDrawState.getDstBlendCoeff() != dstCoeff) {
+        } else {
+            if (kYes_TriState != fHWBlendState.fEnabled) {
+                GL_CALL(Enable(GR_GL_BLEND));
+                fHWBlendState.fEnabled = kYes_TriState;
+            }
+            if (fHWBlendState.fSrcCoeff != srcCoeff ||
+                fHWBlendState.fDstCoeff != dstCoeff) {
                 GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
                                   gXfermodeCoeff2Blend[dstCoeff]));
-                fHWDrawState.setBlendFunc(srcCoeff, dstCoeff);
+                fHWBlendState.fSrcCoeff = srcCoeff;
+                fHWBlendState.fDstCoeff = dstCoeff;
             }
             GrColor blendConst = this->getDrawState().getBlendConstant();
             if ((BlendCoeffReferencesConstant(srcCoeff) ||
                  BlendCoeffReferencesConstant(dstCoeff)) &&
-                fHWDrawState.getBlendConstant() != blendConst) {
+                (!fHWBlendState.fConstColorValid ||
+                 fHWBlendState.fConstColor != blendConst)) {
 
                 float c[] = {
                     GrColorUnpackR(blendConst) / 255.f,
@@ -2019,12 +2015,12 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
                     GrColorUnpackA(blendConst) / 255.f
                 };
                 GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
-                fHWDrawState.setBlendConstant(blendConst);
+                fHWBlendState.fConstColor = blendConst;
+                fHWBlendState.fConstColorValid = true;
             }
         }
     }
 }
-
 namespace {
 
 unsigned gr_to_gl_filter(GrSamplerState::Filter filter) {
