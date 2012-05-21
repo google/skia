@@ -487,12 +487,7 @@ void GrGpuGL::onResetContext() {
     fHWDrawState.setViewMatrix(GrMatrix::InvalidMatrix());
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        fHWDrawState.setTexture(s, NULL);
-        fHWDrawState.sampler(s)->setRadial2Params(-GR_ScalarMax,
-                                                  -GR_ScalarMax,
-                                                  true);
-        *fHWDrawState.sampler(s)->matrix() = GrMatrix::InvalidMatrix();
-        fHWDrawState.sampler(s)->setConvolutionParams(0, NULL);
+        fHWBoundTextures[s] = NULL;
     }
 
     fHWBounds.fScissorRect.invalidate();
@@ -515,7 +510,8 @@ void GrGpuGL::onResetContext() {
     fHWGeometryState.fArrayPtrsDirty = true;
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
-    fHWDrawState.setRenderTarget(NULL);
+
+    fHWBoundRenderTarget = NULL;
 
     // we assume these values
     if (this->glCaps().unpackRowLengthSupport()) {
@@ -903,7 +899,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     }
 
     // below here we may bind the FBO
-    fHWDrawState.setRenderTarget(NULL);
+    fHWBoundRenderTarget = NULL;
     if (desc->fRTFBOID != desc->fTexFBOID) {
         GrAssert(desc->fSampleCnt > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER,
@@ -1202,7 +1198,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
         GrGLStencilBuffer* glsb = (GrGLStencilBuffer*) sb;
         GrGLuint rb = glsb->renderbufferID();
 
-        fHWDrawState.setRenderTarget(NULL);
+        fHWBoundRenderTarget = NULL;
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fbo));
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                       GR_GL_STENCIL_ATTACHMENT,
@@ -1579,7 +1575,7 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
         static_cast<GrGLRenderTarget*>(this->drawState()->getRenderTarget());
     GrAssert(NULL != rt);
 
-    if (fHWDrawState.getRenderTarget() != rt) {
+    if (fHWBoundRenderTarget != rt) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
     #if GR_COLLECT_STATS
         ++fStats.fRenderTargetChngCnt;
@@ -1592,7 +1588,7 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
         }
     #endif
         fDirtyFlags.fRenderTargetChanged = true;
-        fHWDrawState.setRenderTarget(rt);
+        fHWBoundRenderTarget = rt;
         const GrGLIRect& vp = rt->getViewport();
         if (fHWBounds.fViewportRect != vp) {
             vp.pushToGLViewport(this->glInterface());
@@ -1711,7 +1707,7 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
     #endif
         // make sure we go through flushRenderTarget() since we've modified
         // the bound DRAW FBO ID.
-        fHWDrawState.setRenderTarget(NULL);
+        fHWBoundRenderTarget = NULL;
         const GrGLIRect& vp = rt->getViewport();
         const GrIRect dirtyRect = rt->getResolveRect();
         GrGLIRect r;
@@ -2104,14 +2100,14 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                 this->onResolveRenderTarget(texRT);
             }
 
-            if (fHWDrawState.getTexture(s) != nextTexture) {
-                setTextureUnit(s);
+            if (fHWBoundTextures[s] != nextTexture) {
+                this->setTextureUnit(s);
                 GL_CALL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
             #if GR_COLLECT_STATS
                 ++fStats.fTextureChngCnt;
             #endif
                 //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
-                fHWDrawState.setTexture(s, nextTexture);
+                fHWBoundTextures[s] = nextTexture;
                 // The texture matrix has to compensate for texture width/height
                 // and NPOT-embedded-in-POT
                 fDirtyFlags.fTextureChangedMask |= (1 << s);
@@ -2133,7 +2129,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                    get_swizzle(nextTexture->config(), sampler, this->glCaps()),
                    sizeof(newTexParams.fSwizzleRGBA));
             if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
-                setTextureUnit(s);
+                this->setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                         GR_GL_TEXTURE_MAG_FILTER,
                                         newTexParams.fFilter));
@@ -2142,13 +2138,13 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                                         newTexParams.fFilter));
             }
             if (setAll || newTexParams.fWrapS != oldTexParams.fWrapS) {
-                setTextureUnit(s);
+                this->setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                         GR_GL_TEXTURE_WRAP_S,
                                         newTexParams.fWrapS));
             }
             if (setAll || newTexParams.fWrapT != oldTexParams.fWrapT) {
-                setTextureUnit(s);
+                this->setTextureUnit(s);
                 GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                                         GR_GL_TEXTURE_WRAP_T,
                                         newTexParams.fWrapT));
@@ -2158,7 +2154,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                  memcmp(newTexParams.fSwizzleRGBA,
                         oldTexParams.fSwizzleRGBA,
                         sizeof(newTexParams.fSwizzleRGBA)))) {
-                setTextureUnit(s);
+                this->setTextureUnit(s);
                 set_tex_swizzle(newTexParams.fSwizzleRGBA,
                                 this->glInterface());
             }
@@ -2277,8 +2273,8 @@ void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     if (drawState->getRenderTarget() == renderTarget) {
         drawState->setRenderTarget(NULL);
     }
-    if (fHWDrawState.getRenderTarget() == renderTarget) {
-        fHWDrawState.setRenderTarget(NULL);
+    if (fHWBoundRenderTarget == renderTarget) {
+        fHWBoundRenderTarget = NULL;
     }
 }
 
@@ -2288,9 +2284,9 @@ void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
         if (drawState->getTexture(s) == texture) {
             this->drawState()->setTexture(s, NULL);
         }
-        if (fHWDrawState.getTexture(s) == texture) {
+        if (fHWBoundTextures[s] == texture) {
             // deleting bound texture does implied bind to 0
-            fHWDrawState.setTexture(s, NULL);
+            fHWBoundTextures[s] = NULL;
        }
     }
 }
