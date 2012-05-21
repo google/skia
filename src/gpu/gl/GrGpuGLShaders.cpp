@@ -613,7 +613,7 @@ void GrGpuGLShaders::flushColor(GrColor color) {
     } else {
         switch (desc.fColorInput) {
             case ProgramDesc::kAttribute_ColorInput:
-                if (fHWDrawState.getColor() != color) {
+                if (fHWConstAttribColor != color) {
                     // OpenGL ES only supports the float varieties of
                     // glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(color);
@@ -663,7 +663,7 @@ void GrGpuGLShaders::flushCoverage(GrColor coverage) {
     } else {
         switch (desc.fCoverageInput) {
             case ProgramDesc::kAttribute_ColorInput:
-                if (fHWDrawState.getCoverage() != coverage) {
+                if (fHWConstAttribCoverage != coverage) {
                     // OpenGL ES only supports the float varieties of
                     // glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(coverage);
