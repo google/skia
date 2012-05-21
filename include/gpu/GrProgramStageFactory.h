@@ -75,9 +75,11 @@ public:
     virtual StageKey stageKey(const GrCustomStage* stage) const SK_OVERRIDE {
         GrAssert(kIllegalStageClassID != fStageClassID);
         StageKey stageID = GLProgramStage::GenKey(stage);
+#if GR_DEBUG
         static const StageKey kIllegalIDMask =
             ~((1 << kProgramStageKeyBits) - 1);
         GrAssert(!(kIllegalIDMask & stageID));
+#endif
         return fStageClassID | stageID;
     }
 
