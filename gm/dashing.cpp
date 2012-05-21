@@ -10,7 +10,8 @@
 #include "SkPaint.h"
 #include "SkDashPathEffect.h"
 
-static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint) {
+static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
+                     SkScalar finalX = SkIntToScalar(600)) {
     SkPaint p(paint);
 
     const SkScalar intervals[] = {
@@ -19,7 +20,16 @@ static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint) {
     };
 
     p.setPathEffect(new SkDashPathEffect(intervals, 2, 0))->unref();
-    canvas->drawLine(0, 0, SkIntToScalar(600), 0, p);
+    canvas->drawLine(0, 0, finalX, 0, p);
+}
+
+// earlier bug stopped us from drawing very long single-segment dashes, because
+// SkPathMeasure was skipping very small delta-T values (nearlyzero). This is
+// now fixes, so this giant dash should appear.
+static void show_giant_dash(SkCanvas* canvas) {
+    SkPaint paint;
+
+    drawline(canvas, 1, 1, paint, SkIntToScalar(20 * 1000));
 }
 
 class DashingGM : public skiagm::GM {
@@ -64,6 +74,8 @@ protected:
                 }
             }
         }
+        
+        show_giant_dash(canvas);
     }
 };
 

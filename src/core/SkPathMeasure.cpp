@@ -96,10 +96,6 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
         distance = this->compute_quad_segs(&tmp[2], distance, halft, maxt, ptIndex);
     } else {
         SkScalar d = SkPoint::Distance(pts[0], pts[2]);
-        SkASSERT(d >= 0);
-        if (SkScalarNearlyZero(d)) {
-            d = 0;
-        }
         SkScalar prevD = distance;
         distance += d;
         if (distance > prevD) {
@@ -124,10 +120,6 @@ SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
         distance = this->compute_cubic_segs(&tmp[3], distance, halft, maxt, ptIndex);
     } else {
         SkScalar d = SkPoint::Distance(pts[0], pts[3]);
-        SkASSERT(d >= 0);
-        if (SkScalarNearlyZero(d)) {
-            d = 0;
-        }
         SkScalar prevD = distance;
         distance += d;
         if (distance > prevD) {
@@ -283,8 +275,8 @@ static void seg_to(const SkPoint pts[], int segType,
     SkASSERT(stopT >= 0 && stopT <= SK_Scalar1);
     SkASSERT(startT <= stopT);
 
-    if (SkScalarNearlyZero(stopT - startT)) {
-        return;
+    if (startT == stopT) {
+        return; // should we report this, to undo a moveTo?
     }
 
     SkPoint         tmp0[7], tmp1[7];
