@@ -432,6 +432,13 @@ public:
     }
 
     ~SkGlyphCache_Globals() {
+        SkGlyphCache* cache = fHead;
+        while (cache) {
+            SkGlyphCache* next = cache->fNext;
+            SkDELETE(cache);
+            cache = next;
+        }
+
         SkDELETE(fMutex);
     }
     
