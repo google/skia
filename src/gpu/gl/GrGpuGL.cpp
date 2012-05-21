@@ -483,7 +483,6 @@ void GrGpuGL::onResetContext() {
     }
     fHWAAState.invalidate();
     fHWWriteToColor = kUnknown_TriState;
-    fHWDrawState.resetStateFlags();
 
     // we only ever use lines in hairline mode
     GL_CALL(LineWidth(1));
@@ -492,8 +491,6 @@ void GrGpuGL::onResetContext() {
     fActiveTextureUnitIdx = -1;
 
     fHWBlendState.invalidate();
-
-    fHWDrawState.setViewMatrix(GrMatrix::InvalidMatrix());
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         fHWBoundTextures[s] = NULL;
@@ -2251,14 +2248,6 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     this->flushStencil();
 
-    // This copy must happen after flushStencil() is called. flushStencil()
-    // relies on detecting when the kModifyStencilClip_StateBit state has
-    // changed since the last draw.
-    fHWDrawState.copyStateFlags(*drawState);
-
-    // TODO: may no longer need this
-    // only GrInOrderDrawBuffer ever needs to ref/unref the textures
-    fHWDrawState.disableBehavior(GrDrawState::kTexturesNeedRef_BehaviorBit);
     return true;
 }
 

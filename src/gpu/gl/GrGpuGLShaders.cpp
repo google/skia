@@ -701,9 +701,6 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     const GrDrawState& drawState = this->getDrawState();
 
     if (fDirtyFlags.fRenderTargetChanged) {
-        // our coords are in pixel space and the GL matrices map to NDC
-        // so if the viewport changed, our matrix is now wrong.
-        fHWDrawState.setViewMatrix(GrMatrix::InvalidMatrix());
         // we assume all shader matrices may be wrong after viewport changes
         fProgramCache->invalidateViewMatrices();
     }

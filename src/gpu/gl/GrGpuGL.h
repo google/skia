@@ -69,13 +69,14 @@ protected:
         kDownOnWrite_UpOnRead_UnpremulConversion
     } fUnpremulConversion;
 
-    GrDrawState fHWDrawState;
-
-    // As flush of GL state proceeds it updates fHDrawState
-    // to reflect the new state. Later parts of the state flush
-    // may perform cascaded changes but cannot refer to fHWDrawState.
-    // These code paths can refer to the dirty flags. Subclass should
-    // call resetDirtyFlags after its flush is complete
+    // As flush of GL state proceeds the tracking variables are updated to
+    // reflect the new state. Later parts of the flush may have to perform
+    // cascaded changes but now the tracking vars have been updated. These flags
+    // track when the RT or texture has been changed so that the subclass can
+    // trigger any cascaded changes. Subclass should call resetDirtyFlags after 
+    // its flush is complete.
+    // TODO: Merge GrGpuGLShaders into GrGpuGL and remove the need for these
+    // flags
     struct {
         bool fRenderTargetChanged : 1;
         int  fTextureChangedMask;
