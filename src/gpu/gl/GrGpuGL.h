@@ -50,6 +50,12 @@ public:
 protected:
     GrGpuGL(const GrGLContextInfo& ctxInfo);
 
+    enum TriState {
+        kNo_TriState,
+        kYes_TriState,
+        kUnknown_TriState
+    };
+
     struct {
         size_t                  fVertexOffset;
         GrVertexLayout          fVertexLayout;
@@ -242,9 +248,22 @@ private:
 
     GrGLContextInfo fGLContextInfo;
 
-    bool fHWBlendDisabled;
-
     int fActiveTextureUnitIdx;
+
+    struct {
+        GrBlendCoeff    fSrcCoeff;
+        GrBlendCoeff    fDstCoeff;
+        GrColor         fConstColor;
+        bool            fConstColorValid;
+        TriState        fEnabled;
+
+        void invalidate() {
+            fSrcCoeff = kInvalid_BlendCoeff;
+            fDstCoeff = kInvalid_BlendCoeff;
+            fConstColorValid = false;
+            fEnabled = kUnknown_TriState;
+        }
+    } fHWBlendState;
 
     // we record what stencil format worked last time to hopefully exit early
     // from our loop that tries stencil formats and calls check fb status.
