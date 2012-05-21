@@ -65,8 +65,8 @@ public:
                                ReleaseProc proc, void* context);
 
     /**
-     *  Create a new dataref, reference the data ptr as is, and calling
-     *  sk_free to delete it.
+     *  Create a new dataref from a pointer allocated by malloc. The Data object
+     *  takes ownership of that allocation, and will handling calling sk_free.
      */
     static SkData* NewFromMalloc(const void* data, size_t length);
 
