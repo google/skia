@@ -76,6 +76,7 @@
         '../tests/Test.cpp',
         '../tests/Test.h',
         '../tests/TestSize.cpp',
+        '../tests/TLSTest.cpp',
         '../tests/ToUnicode.cpp',
         '../tests/UnicodeTest.cpp',
         '../tests/UtilsTest.cpp',
