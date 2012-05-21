@@ -15,7 +15,10 @@
 class GrContext;
 
 /** Provides custom vertex shader, fragment shader, uniform data for a
-    particular stage of the Ganesh shading pipeline. */
+    particular stage of the Ganesh shading pipeline. 
+    Subclasses must have a function that produces a human-readable name:
+        static const char* Name();
+  */
 class GrCustomStage : public GrRefCnt {
 
 public:
@@ -23,10 +26,6 @@ public:
 
     GrCustomStage();
     virtual ~GrCustomStage();
-
-    /** Human-meaningful string to identify this effect; may be embedded
-        in generated shader code. */
-    virtual const char* name() const = 0;
 
     /** If given an input texture that is/is not opaque, is this
         stage guaranteed to produce an opaque output? */
@@ -59,6 +58,10 @@ public:
         shader, but perhaps have different uniforms), check equality
         of the stageKey produced by the GrProgramStageFactory. */
     virtual bool isEqual(const GrCustomStage *) const = 0;
+
+     /** Human-meaningful string to identify this effect; may be embedded
+         in generated shader code. */
+    const char* name() const { return this->getFactory().name(); }
 
 private:
 

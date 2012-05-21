@@ -8,6 +8,10 @@
 #include "GrGLSL.h"
 #include "GrGLProgramStage.h"
 
+GrGLProgramStage::GrGLProgramStage(const GrProgramStageFactory& factory)
+    : fFactory(factory) {
+}
+
 GrGLProgramStage::~GrGLProgramStage() {
 }
 

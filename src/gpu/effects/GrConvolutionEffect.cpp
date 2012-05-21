@@ -17,8 +17,8 @@ class GrGLConvolutionEffect : public GrGLProgramStage {
 
 public:
 
-    GrGLConvolutionEffect(const GrCustomStage* stage);
-    virtual const char* name() const SK_OVERRIDE;
+    GrGLConvolutionEffect(const GrProgramStageFactory& factory,
+                          const GrCustomStage* stage);
     virtual void setupVSUnis(VarArray* vsUnis, int stage) SK_OVERRIDE;
     virtual void setupFSUnis(VarArray* fsUnis, int stage) SK_OVERRIDE;
     virtual void emitVS(GrStringBuilder* code,
@@ -49,16 +49,15 @@ private:
     typedef GrGLProgramStage INHERITED;
 };
 
-GrGLConvolutionEffect::GrGLConvolutionEffect(const GrCustomStage* data)
-    : fKernelVar(NULL)
+GrGLConvolutionEffect::GrGLConvolutionEffect(
+                                    const GrProgramStageFactory& factory,
+                                    const GrCustomStage* data)
+    : GrGLProgramStage(factory)
+    , fKernelVar(NULL)
     , fImageIncrementVar(NULL)
     , fKernelLocation(0)
     , fImageIncrementLocation(0) {
     fKernelWidth = static_cast<const GrConvolutionEffect*>(data)->width();
-}
-
-const char* GrGLConvolutionEffect::name() const {
-    return GrConvolutionEffect::Name();
 }
 
 void GrGLConvolutionEffect::setupVSUnis(VarArray* vsUnis,
@@ -187,11 +186,6 @@ GrConvolutionEffect::GrConvolutionEffect(
 GrConvolutionEffect::~GrConvolutionEffect() {
 
 }
-
-const char* GrConvolutionEffect::name() const {
-    return Name();
-}
-
 
 const GrProgramStageFactory& GrConvolutionEffect::getFactory() const {
     return GrTProgramStageFactory<GrConvolutionEffect>::getInstance();
