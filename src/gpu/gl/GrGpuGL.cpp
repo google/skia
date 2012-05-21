@@ -493,8 +493,6 @@ void GrGpuGL::onResetContext() {
 
     fHWBlendState.invalidate();
 
-    fHWDrawState.setColor(GrColor_ILLEGAL);
-
     fHWDrawState.setViewMatrix(GrMatrix::InvalidMatrix());
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {

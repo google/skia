@@ -382,6 +382,8 @@ void GrGpuGLShaders::onResetContext() {
     }
 
     fHWProgramID = 0;
+    fHWConstAttribColor = GrColor_ILLEGAL;
+    fHWConstAttribCoverage = GrColor_ILLEGAL;
 }
 
 void GrGpuGLShaders::flushViewMatrix() {
@@ -607,7 +609,7 @@ void GrGpuGLShaders::flushColor(GrColor color) {
     if (this->getVertexLayout() & kColor_VertexLayoutBit) {
         // color will be specified per-vertex as an attribute
         // invalidate the const vertex attrib color
-        fHWDrawState.setColor(GrColor_ILLEGAL);
+        fHWConstAttribColor = GrColor_ILLEGAL;
     } else {
         switch (desc.fColorInput) {
             case ProgramDesc::kAttribute_ColorInput:
@@ -617,7 +619,7 @@ void GrGpuGLShaders::flushColor(GrColor color) {
                     float c[] = GR_COLOR_TO_VEC4(color);
                     GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(), 
                                             c));
-                    fHWDrawState.setColor(color);
+                    fHWConstAttribColor = color;
                 }
                 break;
             case ProgramDesc::kUniform_ColorInput:
@@ -657,7 +659,7 @@ void GrGpuGLShaders::flushCoverage(GrColor coverage) {
     if (this->getVertexLayout() & kCoverage_VertexLayoutBit) {
         // coverage will be specified per-vertex as an attribute
         // invalidate the const vertex attrib coverage
-        fHWDrawState.setCoverage4(GrColor_ILLEGAL);
+        fHWConstAttribCoverage = GrColor_ILLEGAL;
     } else {
         switch (desc.fCoverageInput) {
             case ProgramDesc::kAttribute_ColorInput:
@@ -667,7 +669,7 @@ void GrGpuGLShaders::flushCoverage(GrColor coverage) {
                     float c[] = GR_COLOR_TO_VEC4(coverage);
                     GL_CALL(VertexAttrib4fv(GrGLProgram::CoverageAttributeIdx(), 
                                             c));
-                    fHWDrawState.setCoverage(coverage);
+                    fHWConstAttribCoverage = coverage;
                 }
                 break;
             case ProgramDesc::kUniform_ColorInput:
