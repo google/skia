@@ -464,9 +464,22 @@ void GrGpuGL::onResetContext() {
     fHWDitherEnabled = kUnknown_TriState;
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        // we never use point or polygon smoothing
-        // should we also disable polygon smoothing?
+        // Desktop-only state that we never change
         GL_CALL(Disable(GR_GL_POINT_SMOOTH));
+        GL_CALL(Disable(GR_GL_LINE_SMOOTH));
+        GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
+        GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
+        GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
+        GL_CALL(Disable(GR_GL_COLOR_TABLE));
+        GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
+        GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
+        // Since ES doesn't support glPointSize at all we always use the VS to
+        // set the point size
+        GL_CALL(Enable(GR_GL_VERTEX_PROGRAM_POINT_SIZE));
+
+        // We should set glPolygonMode(FRONT_AND_BACK,FILL) here, too. It isn't
+        // currently part of our gl interface. There are probably others as 
+        // well.
     }
     fHWAAState.invalidate();
     fHWWriteToColor = kUnknown_TriState;
@@ -506,8 +519,6 @@ void GrGpuGL::onResetContext() {
     fHWGeometryState.fVertexBuffer = NULL;
     
     fHWGeometryState.fArrayPtrsDirty = true;
-
-    GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
 
     fHWBoundRenderTarget = NULL;
 
