@@ -302,7 +302,7 @@ bool GrGpuGLShaders::programUnitTest() {
                     (GrSamplerState::FilterDirection)direction,
                     stage.fKernelWidth, kernel);
                 stage.fCustomStageKey =
-                    customStages[s]->getFactory().stageKey(customStages[s]);
+                    customStages[s]->getFactory().glStageKey(customStages[s]);
             }
         }
         CachedData cachedData;
@@ -934,7 +934,7 @@ void setup_custom_stage(GrGLProgram::ProgramDesc::StageDesc* stage,
     GrCustomStage* customStage = sampler.getCustomStage();
     if (customStage) {
         const GrProgramStageFactory& factory = customStage->getFactory();
-        stage->fCustomStageKey = factory.stageKey(customStage);
+        stage->fCustomStageKey = factory.glStageKey(customStage);
         customStages[index] = customStage;
     } else {
         stage->fCustomStageKey = 0;
