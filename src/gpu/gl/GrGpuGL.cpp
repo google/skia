@@ -460,11 +460,9 @@ void GrGpuGL::onResetContext() {
     GL_CALL(Disable(GR_GL_DEPTH_TEST));
     GL_CALL(DepthMask(GR_GL_FALSE));
 
-    GL_CALL(Disable(GR_GL_CULL_FACE));
-    GL_CALL(FrontFace(GR_GL_CCW));
-    fHWDrawState.setDrawFace(GrDrawState::kBoth_DrawFace);
+    fHWDrawFace = GrDrawState::kInvalid_DrawFace;
+    fHWDitherEnabled = kUnknown_TriState;
 
-    GL_CALL(Disable(GR_GL_DITHER));
     if (kDesktop_GrGLBinding == this->glBinding()) {
         GL_CALL(Disable(GR_GL_LINE_SMOOTH));
         GL_CALL(Disable(GR_GL_POINT_SMOOTH));
@@ -473,7 +471,7 @@ void GrGpuGL::onResetContext() {
         fHWAAState.fSmoothLineEnabled = false;
     }
 
-    GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
+    fHWWriteToColor = kUnknown_TriState;
     fHWDrawState.resetStateFlags();
 
     // we only ever use lines in hairline mode
@@ -1368,7 +1366,7 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     b = GrColorUnpackB(color) * scaleRGB;
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
-    fHWDrawState.disableState(GrDrawState::kNoColorWrites_StateBit);
+    fHWWriteToColor = kYes_TriState;
     GL_CALL(ClearColor(r, g, b, a));
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
@@ -2178,27 +2176,33 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     }
     this->flushRenderTarget(rect);
     this->flushAAState(type);
-    
-    if (drawState->isDitherState() != fHWDrawState.isDitherState()) {
-        if (drawState->isDitherState()) {
+
+    if (drawState->isDitherState()) {
+        if (kYes_TriState != fHWDitherEnabled) {
             GL_CALL(Enable(GR_GL_DITHER));
-        } else {
+            fHWDitherEnabled = kYes_TriState;
+        }
+    } else {
+        if (kNo_TriState != fHWDitherEnabled) {
             GL_CALL(Disable(GR_GL_DITHER));
+            fHWDitherEnabled = kNo_TriState;
         }
     }
 
-    if (drawState->isColorWriteDisabled() !=
-        fHWDrawState.isColorWriteDisabled()) {
-        GrGLenum mask;
-        if (drawState->isColorWriteDisabled()) {
-            mask = GR_GL_FALSE;
-        } else {
-            mask = GR_GL_TRUE;
+    if (drawState->isColorWriteDisabled()) {
+        if (kNo_TriState != fHWWriteToColor) {
+            GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE,
+                              GR_GL_FALSE, GR_GL_FALSE));
+            fHWWriteToColor = kNo_TriState;
         }
-        GL_CALL(ColorMask(mask, mask, mask, mask));
+    } else {
+        if (kYes_TriState != fHWWriteToColor) {
+            GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
+            fHWWriteToColor = kYes_TriState;
+        }
     }
 
-    if (fHWDrawState.getDrawFace() != drawState->getDrawFace()) {
+    if (fHWDrawFace != drawState->getDrawFace()) {
         switch (this->getDrawState().getDrawFace()) {
             case GrDrawState::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
@@ -2214,7 +2218,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             default:
                 GrCrash("Unknown draw face.");
         }
-        fHWDrawState.setDrawFace(drawState->getDrawFace());
+        fHWDrawFace = drawState->getDrawFace();
     }
 
 #if GR_DEBUG
