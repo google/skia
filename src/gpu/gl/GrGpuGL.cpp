@@ -464,13 +464,11 @@ void GrGpuGL::onResetContext() {
     fHWDitherEnabled = kUnknown_TriState;
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        GL_CALL(Disable(GR_GL_LINE_SMOOTH));
+        // we never use point or polygon smoothing
+        // should we also disable polygon smoothing?
         GL_CALL(Disable(GR_GL_POINT_SMOOTH));
-        GL_CALL(Disable(GR_GL_MULTISAMPLE));
-        fHWAAState.fMSAAEnabled = false;
-        fHWAAState.fSmoothLineEnabled = false;
     }
-
+    fHWAAState.invalidate();
     fHWWriteToColor = kUnknown_TriState;
     fHWDrawState.resetStateFlags();
 
@@ -1927,32 +1925,40 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
         // smooth lines.
-
         // we prefer smooth lines over multisampled lines
-        // msaa should be disabled if drawing smooth lines.
+        bool smoothLines = false;
+
         if (GrIsPrimTypeLines(type)) {
-            bool smooth = this->willUseHWAALines();
-            if (!fHWAAState.fSmoothLineEnabled && smooth) {
-                GL_CALL(Enable(GR_GL_LINE_SMOOTH));
-                fHWAAState.fSmoothLineEnabled = true;
-            } else if (fHWAAState.fSmoothLineEnabled && !smooth) {
-                GL_CALL(Disable(GR_GL_LINE_SMOOTH));
-                fHWAAState.fSmoothLineEnabled = false;
-            }
-            if (rt->isMultisampled() && 
-                fHWAAState.fMSAAEnabled) {
-                GL_CALL(Disable(GR_GL_MULTISAMPLE));
-                fHWAAState.fMSAAEnabled = false;
-            }
-        } else if (rt->isMultisampled() &&
-                   this->getDrawState().isHWAntialiasState() !=
-                   fHWAAState.fMSAAEnabled) {
-            if (fHWAAState.fMSAAEnabled) {
-                GL_CALL(Disable(GR_GL_MULTISAMPLE));
-                fHWAAState.fMSAAEnabled = false;
+            smoothLines = this->willUseHWAALines();
+            if (smoothLines) {
+                if (kYes_TriState != fHWAAState.fSmoothLineEnabled) {
+                    GL_CALL(Enable(GR_GL_LINE_SMOOTH));
+                    fHWAAState.fSmoothLineEnabled = kYes_TriState;
+                    // must disable msaa to use line smoothing
+                    if (rt->isMultisampled() &&
+                        kNo_TriState != fHWAAState.fMSAAEnabled) {
+                        GL_CALL(Disable(GR_GL_MULTISAMPLE));
+                        fHWAAState.fMSAAEnabled = kNo_TriState;
+                    }
+                }
             } else {
-                GL_CALL(Enable(GR_GL_MULTISAMPLE));
-                fHWAAState.fMSAAEnabled = true;
+                if (kNo_TriState != fHWAAState.fSmoothLineEnabled) {
+                    GL_CALL(Disable(GR_GL_LINE_SMOOTH));
+                    fHWAAState.fSmoothLineEnabled = kNo_TriState;
+                }
+            }
+        }
+        if (!smoothLines  && rt->isMultisampled()) {
+            if (this->getDrawState().isHWAntialiasState()) {
+                if (kYes_TriState != fHWAAState.fMSAAEnabled) {
+                    GL_CALL(Enable(GR_GL_MULTISAMPLE));
+                    fHWAAState.fMSAAEnabled = kYes_TriState;
+                }
+            } else {
+                if (kNo_TriState != fHWAAState.fMSAAEnabled) {
+                    GL_CALL(Disable(GR_GL_MULTISAMPLE));
+                    fHWAAState.fMSAAEnabled = kNo_TriState;
+                }
             }
         }
     }
