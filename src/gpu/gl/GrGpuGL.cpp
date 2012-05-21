@@ -508,8 +508,8 @@ void GrGpuGL::onResetContext() {
 
     fHWBounds.fViewportRect.invalidate();
 
-    fHWDrawState.stencil()->invalidate();
-    fHWStencilClip = false;
+    fHWStencilSettings.invalidate();
+    fHWStencilClipMode = kInvalid_StencilClipMode;
 
     // TODO: I believe this should actually go in GrGpu::onResetContext
     // rather than here
@@ -1388,7 +1388,8 @@ void GrGpuGL::clearStencil() {
     GL_CALL(StencilMask(0xffffffff));
     GL_CALL(ClearStencil(0));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-    fHWDrawState.stencil()->invalidate();
+    fHWStencilSettings.invalidate();
+    fHWStencilClipMode = kInvalid_StencilClipMode;
 }
 
 void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
@@ -1422,7 +1423,8 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
     GL_CALL(StencilMask(clipStencilMask));
     GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-    fHWDrawState.stencil()->invalidate();
+    fHWStencilSettings.invalidate();
+    fHWStencilClipMode = kInvalid_StencilClipMode;
 }
 
 void GrGpuGL::onForceRenderTargetFlush() {
@@ -1800,22 +1802,24 @@ void GrGpuGL::flushStencil() {
 
     // use stencil for clipping if clipping is enabled and the clip
     // has been written into the stencil.
-    bool stencilClip = fClipMaskManager.isClipInStencil() && drawState.isClipState();
-    bool drawClipToStencil =
-        drawState.isStateFlagEnabled(kModifyStencilClip_StateBit);
-    bool stencilChange = (fHWDrawState.getStencil() != *settings) ||
-                         (fHWStencilClip != stencilClip) ||
-                         (fHWDrawState.isStateFlagEnabled(kModifyStencilClip_StateBit) !=
-                          drawClipToStencil);
+    StencilClipMode clipMode;
+    if (fClipMaskManager.isClipInStencil() &&
+        drawState.isClipState()) {
+        clipMode = kUseClip_StencilClipMode;
+        // We can't be modifying the clip and respecting it at the same time.
+        GrAssert(!drawState.isStateFlagEnabled(kModifyStencilClip_StateBit));
+    } else if (drawState.isStateFlagEnabled(kModifyStencilClip_StateBit)) {
+        clipMode = kModifyClip_StencilClipMode;
+    } else {
+        clipMode = kIgnoreClip_StencilClipMode;
+    }
 
+    bool stencilChange = (fHWStencilSettings != *settings) ||
+                         (fHWStencilClipMode != clipMode);
     if (stencilChange) {
 
-        // we can't simultaneously perform stencil-clipping and 
-        // modify the stencil clip
-        GrAssert(!stencilClip || !drawClipToStencil);
-
         if (settings->isDisabled()) {
-            if (stencilClip) {
+            if (kUseClip_StencilClipMode == clipMode) {
                 settings = GetClipStencilSettings();
             }
         }
@@ -1857,15 +1861,16 @@ void GrGpuGL::flushStencil() {
             unsigned int frontWriteMask = settings->frontWriteMask();
             GrGLenum frontFunc;
 
-            if (drawClipToStencil) {
+            if (kModifyClip_StencilClipMode == clipMode) {
                 GrAssert(settings->frontFunc() < kBasicStencilFuncCount);
                 frontFunc = grToGLStencilFunc[settings->frontFunc()];
             } else {
-                frontFunc = grToGLStencilFunc[ConvertStencilFunc(
-                        stencilClip, settings->frontFunc())];
+                bool useClip = kUseClip_StencilClipMode == clipMode;
+                frontFunc = grToGLStencilFunc[ConvertStencilFunc(useClip,
+                                                    settings->frontFunc())];
 
                 ConvertStencilFuncAndMask(settings->frontFunc(),
-                                          stencilClip,
+                                          useClip,
                                           clipStencilMask,
                                           userStencilMask,
                                           &frontRef,
@@ -1888,14 +1893,15 @@ void GrGpuGL::flushStencil() {
                 unsigned int backWriteMask = settings->backWriteMask();
 
 
-                if (drawClipToStencil) {
+                if (kModifyClip_StencilClipMode == clipMode) {
                     GrAssert(settings->backFunc() < kBasicStencilFuncCount);
                     backFunc = grToGLStencilFunc[settings->backFunc()];
                 } else {
-                    backFunc = grToGLStencilFunc[ConvertStencilFunc(
-                        stencilClip, settings->backFunc())];
+                    bool useClip = kUseClip_StencilClipMode == clipMode;
+                    backFunc = grToGLStencilFunc[ConvertStencilFunc(useClip, 
+                                                        settings->backFunc())];
                     ConvertStencilFuncAndMask(settings->backFunc(),
-                                              stencilClip,
+                                              useClip,
                                               clipStencilMask,
                                               userStencilMask,
                                               &backRef,
@@ -1926,8 +1932,8 @@ void GrGpuGL::flushStencil() {
                                 grToGLStencilOp[settings->frontPassOp()]));
             }
         }
-        *fHWDrawState.stencil() = *settings;
-        fHWStencilClip = stencilClip;
+        fHWStencilSettings = *settings;
+        fHWStencilClipMode = clipMode;
     }
 }
 
