@@ -1432,14 +1432,13 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     }
     
     // Change the name of the font.
-    SkData* rewrittenFontData = SkOTUtils::RenameFont(stream, familyName, familyNameSize-1);
-    if (NULL == rewrittenFontData) {
+    SkAutoTUnref<SkData> rewrittenFontData(SkOTUtils::RenameFont(stream, familyName, familyNameSize-1));
+    if (NULL == rewrittenFontData.get()) {
         return NULL;
     }
-    SkAutoUnref aur = SkAutoUnref(rewrittenFontData);
 
     // Register the font with GDI.
-    HANDLE fontReference = activate_font(rewrittenFontData);
+    HANDLE fontReference = activate_font(rewrittenFontData.get());
     if (NULL == fontReference) {
         return NULL;
     }
