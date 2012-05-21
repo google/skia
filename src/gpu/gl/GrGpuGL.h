@@ -64,11 +64,6 @@ protected:
         bool                    fArrayPtrsDirty;
     } fHWGeometryState;
 
-    struct AAState {
-        bool fMSAAEnabled;
-        bool fSmoothLineEnabled;
-    } fHWAAState;
-
     enum UnpremulConversion {
         kUpOnWrite_DownOnRead_UnpremulConversion,
         kDownOnWrite_UpOnRead_UnpremulConversion
@@ -264,6 +259,15 @@ private:
             fEnabled = kUnknown_TriState;
         }
     } fHWBlendState;
+
+    struct {
+        TriState fMSAAEnabled;
+        TriState fSmoothLineEnabled;
+        void invalidate() {
+            fMSAAEnabled = kUnknown_TriState;
+            fSmoothLineEnabled = kUnknown_TriState;
+        }
+    } fHWAAState;
 
     GrDrawState::DrawFace   fHWDrawFace;
     TriState                fHWWriteToColor;
