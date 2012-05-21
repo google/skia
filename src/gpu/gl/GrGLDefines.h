@@ -129,6 +129,14 @@
 #define GR_GL_POLYGON_OFFSET_FILL            0x8037
 #define GR_GL_SAMPLE_ALPHA_TO_COVERAGE       0x809E
 #define GR_GL_SAMPLE_COVERAGE                0x80A0
+#define GR_GL_POLYGON_OFFSET_FILL            0x8037
+#define GR_GL_POLYGON_SMOOTH                 0x0B41
+#define GR_GL_POLYGON_STIPPLE                0x0B42
+#define GR_GL_COLOR_LOGIC_OP                 0x0BF2
+#define GR_GL_COLOR_TABLE                    0x80D0
+#define GR_GL_INDEX_LOGIC_OP                 0x0BF1
+#define GR_GL_VERTEX_PROGRAM_POINT_SIZE      0x8642
+#define GR_GL_LINE_STIPPLE                   0x0B24
 
 /* ErrorCode */
 #define GR_GL_NO_ERROR                       0
