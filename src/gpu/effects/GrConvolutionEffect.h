@@ -24,12 +24,11 @@ public:
     unsigned int width() const { return fKernelWidth; }
     const float* kernel() const { return fKernel; }
     GrSamplerState::FilterDirection direction() const { return fDirection; }
-    
+
     static const char* Name() { return "Convolution"; }
 
     typedef GrGLConvolutionEffect GLProgramStage;
-    
-    virtual const char* name() const SK_OVERRIDE;
+
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrCustomStage *) const SK_OVERRIDE;
 

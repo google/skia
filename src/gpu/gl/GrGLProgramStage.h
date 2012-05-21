@@ -39,10 +39,10 @@ public:
     };
 
     typedef GrTAllocator<GrGLShaderVar> VarArray;
-    
-    virtual ~GrGLProgramStage();
 
-    virtual const char* name() const = 0;
+    GrGLProgramStage(const GrProgramStageFactory&);
+
+    virtual ~GrGLProgramStage();
 
     /** Creates any uniform variables the vertex shader requires
         and appends them to vsUnis;
@@ -107,6 +107,12 @@ public:
         updates the name of the sample coordinates. */
     void emitTextureSetup(GrGLShaderBuilder* segments);
 
+     /** Human-meaningful string to identify this effect; may be embedded
+         in generated shader code. Because the implementation is delegated to
+         the factory, the name will be the same as that of the generating
+         GrCustomStage. */
+    const char* name() const { return fFactory.name(); }
+
 protected:
 
     /** Convenience function for subclasses to write texture2D() or
@@ -116,6 +122,8 @@ protected:
                            const char* coordName);
 
     SamplerMode fSamplerMode;
+
+    const GrProgramStageFactory& fFactory;
 };
 
 #endif
