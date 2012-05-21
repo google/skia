@@ -710,6 +710,8 @@ public:
     ////
 
     enum DrawFace {
+        kInvalid_DrawFace = -1,
+
         kBoth_DrawFace,
         kCCW_DrawFace,
         kCW_DrawFace,
@@ -720,6 +722,7 @@ public:
      * @param face  the face(s) to draw.
      */
     void setDrawFace(DrawFace face) {
+        GrAssert(kInvalid_DrawFace != face);
         fDrawFace = face;
     }
 
