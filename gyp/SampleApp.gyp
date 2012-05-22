@@ -24,7 +24,6 @@
         '../samplecode/OverView.cpp',
         '../samplecode/Sample2PtRadial.cpp',
         '../samplecode/SampleAAClip.cpp',
-        '../samplecode/SampleAAClip2.cpp',
         '../samplecode/SampleAARects.cpp',
         '../samplecode/SampleAARectModes.cpp',
         '../samplecode/SampleAll.cpp',
