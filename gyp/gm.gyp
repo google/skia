@@ -7,6 +7,9 @@
     {
       'target_name': 'gm',
       'type': 'executable',
+      'include_dirs' : [
+        '../src/core',
+      ],
       'includes': [
         'gmslides.gypi',
       ],
