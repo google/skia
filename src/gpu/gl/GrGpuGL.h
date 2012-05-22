@@ -69,14 +69,17 @@ protected:
         kDownOnWrite_UpOnRead_UnpremulConversion
     } fUnpremulConversion;
 
-    // As flush of GL state proceeds the tracking variables are updated to
-    // reflect the new state. Later parts of the flush may have to perform
-    // cascaded changes but now the tracking vars have been updated. These flags
-    // track when the RT or texture has been changed so that the subclass can
-    // trigger any cascaded changes. Subclass should call resetDirtyFlags after 
-    // its flush is complete.
+    // The current render target and textures are bound by GrGpuGL when it
+    // flushes state to GL. After the bindings occur the variables that track
+    // the current GL state are updated to reflect the new bindings. However,
+    // the GrGpuGL subclass may have subsequent GL state manipulation it must
+    // perform whenever RT or textures change. So the GrGpuGL will set these
+    // dirty flags when it changes the RT or texture bindings. The subclass can
+    // use them to trigger its dependent state flushing. The subclass should
+    // call resetDirtyFlags to zero these out after it has consumed them.
+    //
     // TODO: Merge GrGpuGLShaders into GrGpuGL and remove the need for these
-    // flags
+    // flags.
     struct {
         bool fRenderTargetChanged : 1;
         int  fTextureChangedMask;
