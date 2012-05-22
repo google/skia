@@ -68,9 +68,11 @@ void setup_drawstate_aaclip(GrGpu* gpu,
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
 bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
-    // TODO: this check is correct for the createAlphaClipMask path.
-    // The createStencilClipMask path does a lot more flip flopping of fill,
-    // etc - so this isn't quite correct in that case
+
+    if (!clipIn.requiresAA()) {
+        // The stencil buffer can handle this case
+        return false;
+    }
 
     // TODO: generalize this test so that when
     // a clip gets complex enough it can just be done in SW regardless
@@ -95,9 +97,10 @@ bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
             // Antialiased rects are converted to paths and then drawn with
             // kEvenOdd_PathFill. 
             if (!GrAAConvexPathRenderer::staticCanDrawPath(
-                                                    true, // always convex
+                                                    true,     // always convex
                                                     kEvenOdd_PathFill,
-                                                    gpu, true)) {
+                                                    gpu, 
+                                                    true)) {  // anti-aliased
                 // if the GrAAConvexPathRenderer can't render this rect (due
                 // to lack of derivative support in the shaders) then 
                 // the GrSoftwarePathRenderer will be used
@@ -158,7 +161,11 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
     GrAssert(NULL != rt);
 
 #if GR_SW_CLIP
-    if (useSWOnlyPath(gpu, clipIn)) {
+    // If MSAA is enabled we can do everything in the stencil buffer.
+    // Otherwise check if we should just create the entire clip mask 
+    // in software (this will only happen if the clip mask is anti-aliased
+    // and too complex for the gpu to handle in its entirety)
+    if (0 == rt->numSamples() && useSWOnlyPath(gpu, clipIn)) {
         // The clip geometry is complex enough that it will be more
         // efficient to create it entirely in software
         GrTexture* result = NULL;
@@ -169,13 +176,16 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
             setup_drawstate_aaclip(gpu, result, bound);
             return true;
         }
+
+        // if SW clip mask creation fails fall through to the other
+        // two possible methods (bottoming out at stencil clipping)
     }
-#endif
+#endif // GR_SW_CLIP
 
 #if GR_AA_CLIP
     // If MSAA is enabled use the (faster) stencil path for AA clipping
     // otherwise the alpha clip mask is our only option
-    if (clipIn.requiresAA() && 0 == rt->numSamples()) {
+    if (0 == rt->numSamples() && clipIn.requiresAA()) {
         // Since we are going to create a destination texture of the correct
         // size for the mask (rather than being bound by the size of the
         // render target) we aren't going to use scissoring like the stencil
@@ -198,8 +208,8 @@ bool GrClipMaskManager::createClipMask(GrGpu* gpu,
     // an antialiased clip couldn't be created. In either case, free up
     // the texture in the antialiased mask cache.
     // TODO: this may require more investigation. Ganesh performs a lot of
-    // utility draws (e.g., clears, InOderDrawBuffer playbacks) that hit
-    // the stencil buffer path. These may be incorrectly messing up the 
+    // utility draws (e.g., clears, InOrderDrawBuffer playbacks) that hit
+    // the stencil buffer path. These may be "incorrectly" clearing the 
     // AA cache.
     fAACache.reset();
 
