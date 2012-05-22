@@ -108,17 +108,21 @@ def DownloadBaselinesForOnePlatform(baseline_subdir):
     download_repo = None
 
     # Add any new files to SVN control (if we are running with add_new_files).
-    new_files = repo_to_modify.GetNewFiles()
-    if new_files and options.add_new_files:
-        repo_to_modify.AddFiles(new_files)
+    if options.add_new_files:
+        new_files = repo_to_modify.GetNewFiles()
+        if new_files:
+            repo_to_modify.AddFiles(sorted(new_files))
 
-    # Set the mimetype property on *all* image files in baseline_subdir, even
-    # the ones that were already there (in case that property wasn't properly
-    # set already).
-    repo_to_modify.SetPropertyByFilenamePattern(
-        '*.png', svn.PROPERTY_MIMETYPE, 'image/png')
-    repo_to_modify.SetPropertyByFilenamePattern(
-        '*.pdf', svn.PROPERTY_MIMETYPE, 'application/pdf')
+    # Set the mimetype property on any new/modified image files in
+    # baseline_subdir.  (We used to set the mimetype property on *all* image
+    # files in the directory, even those whose content wasn't changing,
+    # but that caused confusion.  See
+    # http://code.google.com/p/skia/issues/detail?id=618 .)
+    modified_files = repo_to_modify.GetNewAndModifiedFiles()
+    repo_to_modify.SetProperty(sorted(fnmatch.filter(modified_files, '*.png')),
+                               svn.PROPERTY_MIMETYPE, 'image/png')
+    repo_to_modify.SetProperty(sorted(fnmatch.filter(modified_files, '*.pdf')),
+                               svn.PROPERTY_MIMETYPE, 'application/pdf')
 
 def RaiseUsageException():
     raise Exception('%s\nRun with --help for more detail.' % (
