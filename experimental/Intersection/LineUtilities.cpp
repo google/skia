@@ -53,5 +53,5 @@ void sub_divide(const _Line& line, double t1, double t2, _Line& dst) {
 //    See: the January 2001 Algorithm on Area of Triangles
 float isLeft( _Point P0, _Point P1, _Point P2 )
 {
-    return (P1.x - P0.x)*(P2.y - P0.y) - (P2.x - P0.x)*(P1.y - P0.y);
+    return (float) ((P1.x - P0.x)*(P2.y - P0.y) - (P2.x - P0.x)*(P1.y - P0.y));
 }

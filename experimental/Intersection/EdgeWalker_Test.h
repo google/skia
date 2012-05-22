@@ -7,6 +7,8 @@
 class SkCanvas;
 
 //extern int comparePaths(const SkPath& one, const SkPath& two);
+extern int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
+        SkCanvas* canvas);
 extern void comparePathsTiny(const SkPath& one, const SkPath& two);
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two,
         bool drawPaths);

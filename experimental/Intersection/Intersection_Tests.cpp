@@ -7,6 +7,8 @@ void testSimplify();
 #define TEST_QUADS_FIRST 0
 
 void Intersection_Tests() {
+    SimplifyNew_Test();
+    SimplifyFindNext_Test();
     SimplifyFindTop_Test();
     SimplifyAngle_Test();
     QuadraticReduceOrder_Test();

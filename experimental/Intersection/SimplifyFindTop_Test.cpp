@@ -17,11 +17,10 @@ namespace SimplifyFindTopTest {
 
 static const SimplifyFindTopTest::Segment* testCommon(
         SkTArray<SimplifyFindTopTest::Contour>& contours,
-        SimplifyFindTopTest::EdgeBuilder& builder, const SkPath& path) {
+        SimplifyFindTopTest::EdgeBuilder& builder, const SkPath& path,
+        int& index, int& end) {
     SkTDArray<SimplifyFindTopTest::Contour*> contourList;
-    SimplifyFindTopTest::Contour sentinel;
-    sentinel.reset();
-    makeContourList(contours, sentinel, contourList);
+    makeContourList(contours, contourList);
     addIntersectTs(contourList[0], contourList[0], -1);
     if (contours.count() > 1) {
         SkASSERT(contours.count() == 2);
@@ -31,35 +30,45 @@ static const SimplifyFindTopTest::Segment* testCommon(
     fixOtherTIndex(contourList);
     SimplifyFindTopTest::Segment* topStart = findTopContour(contourList,
             contourList.count());
-    int index, direction;
     const SimplifyFindTopTest::Segment* topSegment = topStart->findTop(index,
-            direction);
-    SkASSERT(direction == 1);
+            end);
     return topSegment;
 }
 
 static void test(const SkPath& path) {
     SkTArray<SimplifyFindTopTest::Contour> contours;
     SimplifyFindTopTest::EdgeBuilder builder(path, contours);
-    testCommon(contours, builder, path);
+    int index, end;
+    testCommon(contours, builder, path, index, end);
+    SkASSERT(index + 1 == end);
 }
 
 static void test(const SkPath& path, SkScalar x1, SkScalar y1,
         SkScalar x2, SkScalar y2) {
     SkTArray<SimplifyFindTopTest::Contour> contours;
     SimplifyFindTopTest::EdgeBuilder builder(path, contours);
+    int index, end;
     const SimplifyFindTopTest::Segment* topSegment =
-            testCommon(contours, builder, path);
-    const SkPoint* pts = topSegment->pts();
-    SkPoint top = pts[0];
-    SkPoint bottom = pts[1];
-    if (top.fY > bottom.fY) {
-        SkTSwap<SkPoint>(top, bottom);
-    }
-    SkASSERT(top.fX == x1);
-    SkASSERT(top.fY == y1);
-    SkASSERT(bottom.fX == x2);
-    SkASSERT(bottom.fY == y2);
+            testCommon(contours, builder, path, index, end);
+    SkPoint pts[2];
+    double firstT = topSegment->t(index);
+    topSegment->xyAtT(firstT, &pts[0]);
+    int direction = index < end ? 1 : -1;
+    do {
+        index += direction;
+        double nextT = topSegment->t(index);
+        if (nextT == firstT) {
+            continue;
+        }
+        topSegment->xyAtT(nextT, &pts[1]);
+        if (pts[0] != pts[1]) {
+            break;
+        }
+    } while (true);
+    SkASSERT(pts[0].fX == x1);
+    SkASSERT(pts[0].fY == y1);
+    SkASSERT(pts[1].fX == x2);
+    SkASSERT(pts[1].fY == y2);
 }
 
 static void testLine1() {
@@ -103,56 +112,56 @@ static void testLine2() {
     SkPath path;
     addInnerCWTriangle(path);
     addOuterCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testLine3() {
     SkPath path;
     addOuterCWTriangle(path);
     addInnerCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testLine4() {
     SkPath path;
     addInnerCCWTriangle(path);
     addOuterCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testLine5() {
     SkPath path;
     addOuterCWTriangle(path);
     addInnerCCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testLine6() {
     SkPath path;
     addInnerCWTriangle(path);
     addOuterCCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testLine7() {
     SkPath path;
     addOuterCCWTriangle(path);
     addInnerCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testLine8() {
     SkPath path;
     addInnerCCWTriangle(path);
     addOuterCCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testLine9() {
     SkPath path;
     addOuterCCWTriangle(path);
     addInnerCCWTriangle(path);
-    test(path, 3, 0, 0, 2);
+    test(path, 0, 2, 3, 0);
 }
 
 static void testQuads() {

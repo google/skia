@@ -415,7 +415,7 @@ public:
     // since all angles share a point, this needs to know which point
     // is the common origin, i.e., whether the center is at pts[0] or pts[verb]
     // practically, this should only be called by addAngle
-    void set(const SkPoint* pts, SkPath::Verb verb, const Segment* segment,
+    void set(const SkPoint* pts, SkPath::Verb verb, Segment* segment,
             int start, int end, bool coincident) {
         SkASSERT(start != end);
         fSegment = segment;
@@ -441,7 +441,7 @@ public:
     // noncoincident quads/cubics may have the same initial angle
     // as lines, so must sort by derivatives as well
     // if flatness turns out to be a reasonable way to sort, use the below:
-    void setFlat(const SkPoint* pts, SkPath::Verb verb, const Segment* segment,
+    void setFlat(const SkPoint* pts, SkPath::Verb verb, Segment* segment,
             int start, int end, bool coincident) {
         fSegment = segment;
         fStart = start;
@@ -487,7 +487,7 @@ public:
         SkASSERT(0); // FIXME: add cubic case
     }
     
-    const Segment* segment() const {
+    Segment* segment() const {
         return fSegment;
     }
     
@@ -508,7 +508,7 @@ private:
     SkScalar fDDy;
     SkScalar fDDDx;
     SkScalar fDDDy;
-    const Segment* fSegment;
+    Segment* fSegment;
     int fStart;
     int fEnd;
     bool fCoincident;
@@ -578,8 +578,14 @@ public:
     }
     
     void addAngle(SkTDArray<Angle>& angles, int start, int end,
-            bool coincident) const {
+            bool coincident) {
         SkASSERT(start != end);
+        int direction = start < end ? 1 : -1;
+        if (fTs[start].fDone) {
+            SkASSERT(fTs[start].fDone == direction);
+            SkASSERT(fTs[end].fDone == -direction);
+            return;
+        }
         SkPoint edge[4];
         (*SegmentSubDivide[fVerb])(fPts, fTs[start].fT, fTs[end].fT, edge);
         Angle* angle = angles.append();
@@ -591,9 +597,33 @@ public:
         fBounds.setCubicBounds(pts);
     }
 
+    void addCurveTo(int start, int end, SkPath& path) {
+        SkPoint edge[4];
+        (*SegmentSubDivide[fVerb])(fPts, fTs[start].fT, fTs[end].fT, edge);
+        switch (fVerb) {
+            case SkPath::kLine_Verb:
+                path.lineTo(edge[1].fX, edge[1].fY);
+                break;
+            case SkPath::kQuad_Verb:
+                path.quadTo(edge[1].fX, edge[1].fY, edge[2].fX, edge[2].fY);
+                break;
+            case SkPath::kCubic_Verb:
+                path.cubicTo(edge[1].fX, edge[1].fY, edge[2].fX, edge[2].fY,
+                        edge[3].fX, edge[3].fY);
+                break;
+        }
+    }
+
     void addLine(const SkPoint pts[2]) {
         init(pts, SkPath::kLine_Verb);
         fBounds.set(pts, 2);
+    }
+
+    void addMoveTo(int tIndex, SkPath& path) {
+        SkPoint pt;
+        double firstT = t(tIndex);
+        xyAtT(firstT, &pt);
+        path.moveTo(pt.fX, pt.fY);
     }
 
     // add 2 to edge or out of range values to get T extremes
@@ -641,7 +671,7 @@ finish:
     }
 
     void addTwoAngles(int start, int end, const SkPoint& endLoc,
-            const Span* endSpan, bool startCo, SkTDArray<Angle>& angles) const {
+            const Span* endSpan, bool startCo, SkTDArray<Angle>& angles) {
         // add edge leading into junction
         addAngle(angles, end, start, startCo);
         // add edge leading away from junction
@@ -649,7 +679,7 @@ finish:
         int step = start < end ? 1 : -1;
         int tIndex = nextSpan(end, step, endLoc, endSpan, NULL, coincident);
         if (tIndex >= 0) {
-            lastSpan(tIndex, step, endLoc, endSpan, coincident);
+            lastSpan(tIndex, step, endLoc, endSpan->fT, coincident);
             addAngle(angles, end, tIndex, coincident);
         }
     }
@@ -686,7 +716,7 @@ finish:
                 next = other->nextSpan(oIndex, localStep, loc, otherSpan,
                     NULL, otherCo);
             }
-            other->lastSpan(next, localStep, loc, otherSpan, otherCo);
+            other->lastSpan(next, localStep, loc, otherSpan->fT, otherCo);
             // add candidate into and away from junction
             other->addTwoAngles(next, oIndex, loc, span, otherCo, angles);
             
@@ -729,33 +759,35 @@ finish:
     // winding -1 means ccw, 1 means cw
     // step is in/out -1 or 1
     // spanIndex is returned
-    Segment* findNext(int start, int winding, int& step, int& spanIndex) const {
-        SkASSERT(step == 1 || step == -1);
+    Segment* findNext(int winding, int& startIndex, int& endIndex) {
+        SkASSERT(startIndex != endIndex);
         int count = fTs.count();
-        SkASSERT(step > 0 ? start < count - 1 : start > 0);
-        Span* startSpan = &fTs[start];
+        SkASSERT(startIndex < endIndex ? startIndex < count - 1
+                : startIndex > 0);
+        Span* startSpan = &fTs[startIndex];
         // FIXME:
         // since Ts can be stepped either way, done markers must be careful
         // not to assume that segment was only ascending in T. This shouldn't
         // be a problem unless pathologically a segment can be partially
         // ascending and partially descending -- maybe quads/cubic can do this?
+        int step = startIndex < endIndex ? 1 : -1;
+        SkASSERT(startSpan->fDone == 0);
         startSpan->fDone = step;
         SkPoint startLoc; // OPTIMIZATION: store this in the t span?
         xyAtT(startSpan->fT, &startLoc);
         SkPoint endLoc;
         bool startCo;
-        int end = nextSpan(start, step, startLoc, startSpan, &endLoc, startCo);
-        
-        // if we hit the end looking for span end, is that always an error?
-        SkASSERT(step > 0 ? end + 1 < count : end - 1 >= 0);
+        int end = nextSpan(startIndex, step, startLoc, startSpan, &endLoc,
+                startCo);
+        SkASSERT(end >= 0);
 
         // preflight for coincidence -- if present, it may change winding
         // considerations and whether reversed edges can be followed
-        int last = lastSpan(end, step, startLoc, startSpan, startCo);
+        int last = lastSpan(end, step, endLoc, fTs[end].fT, startCo);
         
         // Discard opposing direction candidates if no coincidence was found.
         Span* endSpan = &fTs[end];
-        int candidateCount = abs(last - end);
+        int candidateCount = abs(last - end) + 1;
         Segment* other;
         if (candidateCount == 1) {
             SkASSERT(!startCo);
@@ -764,52 +796,78 @@ finish:
             // this requres that the intersection is angularly sorted
             // for a single intersection, special case -- choose the opposite
             // edge that steps the same
+            SkASSERT(endSpan->fDone == 0);
+            endSpan->fDone = -step;
+            SkASSERT(fDone == false);
+            fDone = true;
             other = endSpan->fOther;
-            SkASSERT(!other->fDone);
-            spanIndex = endSpan->fOtherIndex;
-            SkASSERT(step < 0 ? spanIndex > 0
-                    : spanIndex < other->fTs.count() - 1);
+            startIndex = endSpan->fOtherIndex;
+            endIndex = startIndex + step;
+            SkASSERT(step < 0 ? endIndex >= 0 : endIndex < other->fTs.count());
             return other;
         }
 
         // more than one viable candidate -- measure angles to find best
         SkTDArray<Angle> angles;
-        SkASSERT(end - start != 0);
-        SkASSERT((end - start < 0) ^ (step < 0));
-        addTwoAngles(start, end, endLoc, endSpan, startCo, angles);
+        SkASSERT(endIndex - startIndex != 0);
+        SkASSERT((endIndex - startIndex < 0) ^ (step < 0));
+        addTwoAngles(startIndex, end, endLoc, endSpan, startCo, angles);
         buildAngles(end, last, step, endLoc, angles);
         SkTDArray<Angle*> sorted;
         sortAngles(angles, sorted);
         // find the starting edge
-        int startIndex = -1;
+        int firstIndex = -1;
         int angleCount = angles.count();
         int angleIndex;
         const Angle* angle;
         for (angleIndex = 0; angleIndex < angleCount; ++angleIndex) {
             angle = sorted[angleIndex];
             if (angle->segment() == this && angle->start() == end &&
-                    angle->end() == start) {
-                startIndex = angleIndex;
+                    angle->end() == startIndex) {
+                firstIndex = angleIndex;
                 break;
             }
         }
-        SkASSERT(startIndex >= 0);
+        SkASSERT(firstIndex >= 0);
         winding += angle->sign();
-        int nextIndex = startIndex;
+        int nextIndex = firstIndex;
         const Angle* nextAngle;
         do {
             if (++nextIndex == angleCount) {
                 nextIndex = 0;
             }
-            SkASSERT(nextIndex != startIndex); // should never wrap around
+            SkASSERT(nextIndex != firstIndex); // should never wrap around
             nextAngle = sorted[nextIndex];
             // OPTIMIZATION: Figure out all connections, given the initial
             // winding info (e.g., accumulate winding in span for reuse)
             winding -= nextAngle->sign();
-        } while (winding);
-        // FIXME: get rid of cast
-        return const_cast<Segment*>(nextAngle->segment());
-        
+            
+   //         start here;
+            // if the winding is non-zero, nextAngle does not connect to
+            // current chain. We may be able to deduce whether it will be
+            // in some future chain or ignored altogether based on winding,
+            // but for the first cut, just detach it from this chain.
+            if (!winding) {
+                break;
+            }
+            // but how to detach? Maybe it is correct to mark both ends
+            // for all of the sorted angles as done, regardless of whether we
+            // also compute the connectedness and/or winding for the inner ones.
+            
+        } while (true);
+        Segment* result = nextAngle->segment();
+        startIndex = nextAngle->end();
+        endIndex = nextAngle->start();
+        int direction = startIndex < endIndex ? 1 : -1;
+        SkASSERT(result->fTs[startIndex].fDone == 0);
+        SkASSERT(result->fTs[endIndex].fDone == 0);
+        result->fTs[startIndex].fDone = direction;
+        result->fTs[endIndex].fDone = -direction;
+        // FIXME: how to mark that segment is completely done?
+        return result;
+    }
+    
+    
         // so the span needs to contain the pairing info found here
         // this should include the winding computed for the edge, and
         //  what edge it connects to, and whether it is discarded
@@ -830,8 +888,8 @@ finish:
         // choices to connections in the correct direction
         
         // mark found segments as done
-    }
 
+    // FIXME: this is tricky code; needs its own unit test
     void findTooCloseToCall(int winding) {
         int count = fTs.count();
         if (count < 3) { // require t=0, x, 1 at minimum
@@ -845,7 +903,13 @@ finish:
             match = &fTs[matchIndex];
             mOther = match->fOther;
             moCount = mOther->fTs.count();
-        } while (moCount >= 3 || ++matchIndex < count - 1); // require t=0, x, 1 at minimum
+            if (moCount >= 3) {
+                break;
+            }
+            if (++matchIndex >= count) {
+                return;
+            }
+        } while (true); // require t=0, x, 1 at minimum
         SkPoint matchPt;
         // OPTIMIZATION: defer matchPt until qualifying toCount is found?
         xyAtT(match->fT, &matchPt);
@@ -869,89 +933,72 @@ finish:
                 matchPt = testPt;
                 continue;
             }
-            int moStart = -1; // FIXME: initialization is debugging only
+            int moStart = -1;
+            int moEnd = -1;
+            double moStartT, moEndT;
             for (int moIndex = 0; moIndex < moCount; ++moIndex) {
                 Span& moSpan = mOther->fTs[moIndex];
                 if (moSpan.fOther == this) {
                     if (moSpan.fOtherT == match->fT) {
                         moStart = moIndex;
+                        moStartT = moSpan.fT;
                     }
                     continue;
                 }
-                if (moSpan.fOther != tOther) {
-                    continue;
+                if (moSpan.fOther == tOther) {
+                    SkASSERT(moEnd == -1);
+                    moEnd = moIndex;
+                    moEndT = moSpan.fT;
                 }
-                int toStart = -1;
-                int toIndex; // FIXME: initialization is debugging only
-                bool found = false;
-                for (toIndex = 0; toIndex < toCount; ++toIndex) {
-                    Span& toSpan = tOther->fTs[toIndex];
-                    if (toSpan.fOther == this) {
-                        if (toSpan.fOtherT == test->fT) {
-                            toStart = toIndex;
-                        }
-                        continue;
-                    }
-                    if (toSpan.fOther == mOther && toSpan.fOtherT == moSpan.fT) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    continue;
-                }
-                SkASSERT(moStart >= 0);
-                SkASSERT(toStart >= 0);
-                // test to see if the segment between there and here is linear
-                if (!mOther->isLinear(moStart, moIndex)
-                        || !tOther->isLinear(toStart, toIndex)) {
-                    continue;
-                }
-                mOther->fTs[moStart].fCoincident = -1;
-                tOther->fTs[toStart].fCoincident = -1;
-                mOther->fTs[moIndex].fCoincident = 1;
-                tOther->fTs[toIndex].fCoincident = 1;
             }
-    nextStart:
-            ;
-        }
-    }
-
-    // find the adjacent T that is leftmost, with a point != base
-    int findLefty(int tIndex, const SkPoint& base) const {
-        int bestTIndex = -1;
-        SkPoint test;
-        SkScalar bestX = FLT_MAX;
-        int testTIndex = tIndex;
-        while (--testTIndex >= 0) {
-            xyAtT(fTs[testTIndex].fT, &test);
-            if (test == base) {
+            if (moStart < 0 || moEnd < 0) {
                 continue;
             }
-            bestX = test.fX;
-            bestTIndex = testTIndex;
-            break;
-        }
-        int count = fTs.count();
-        testTIndex = tIndex;
-        while (++testTIndex < count) {
-            xyAtT(fTs[testTIndex].fT, &test);
-            if (test == base) {
+            // FIXME: if moStartT, moEndT are initialized to NaN, can skip this test
+            if (moStartT == moEndT) {
                 continue;
             }
-            if (bestX > test.fX) {
-                bestTIndex = testTIndex;
+            int toStart = -1;
+            int toEnd = -1;
+            double toStartT, toEndT;
+            for (int toIndex = 0; toIndex < toCount; ++toIndex) {
+                Span& toSpan = tOther->fTs[toIndex];
+                if (toSpan.fOther == this) {
+                    if (toSpan.fOtherT == test->fT) {
+                        toStart = toIndex;
+                        toStartT = toSpan.fT;
+                    }
+                    continue;
+                }
+                if (toSpan.fOther == mOther && toSpan.fOtherT == moEndT) {
+                    SkASSERT(toEnd == -1);
+                    toEnd = toIndex;
+                    toEndT = toSpan.fT;
+                }
             }
-            break;
+            // FIXME: if toStartT, toEndT are initialized to NaN, can skip this test
+            if (toStart <= 0 || toEnd <= 0) {
+                continue;
+            }
+            if (toStartT == toEndT) {
+                continue;
+            }
+            // test to see if the segment between there and here is linear
+            if (!mOther->isLinear(moStart, moEnd)
+                    || !tOther->isLinear(toStart, toEnd)) {
+                continue;
+            }
+            mOther->fTs[moStart].fCoincident = -1;
+            tOther->fTs[toStart].fCoincident = -1;
+            mOther->fTs[moEnd].fCoincident = 1;
+            tOther->fTs[toEnd].fCoincident = 1;
         }
-        SkASSERT(bestTIndex != -1);
-        return bestTIndex;
     }
 
     // OPTIMIZATION : for a pair of lines, can we compute points at T (cached)
     // and use more concise logic like the old edge walker code?
     // FIXME: this needs to deal with coincident edges
-    const Segment* findTop(int& tIndex, int& direction) const {
+    Segment* findTop(int& tIndex, int& endIndex) {
         // iterate through T intersections and return topmost
         // topmost tangent from y-min to first pt is closer to horizontal
         int firstT = 0;
@@ -973,6 +1020,7 @@ finish:
         // if there's only a pair of segments, go with the endpoint chosen above
         if (firstT == lastT) {
             tIndex = firstT;
+            endIndex = firstT > 0 ? tIndex - 1 : tIndex + 1;
             return this;
         }
         // sort the edges to find the leftmost
@@ -993,11 +1041,9 @@ finish:
         buildAngles(firstT, lastT, 1, startLoc, angles);
         SkTDArray<Angle*> sorted;
         sortAngles(angles, sorted);
-        const Segment* leftSegment = sorted[0]->segment();
+        Segment* leftSegment = sorted[0]->segment();
         tIndex = sorted[0]->end();
-        direction = sorted[0]->start() - tIndex;
-        SkASSERT(direction);
-        direction = direction < 0 ? -1 : 1; 
+        endIndex = sorted[0]->start();
         return leftSegment;
     }
 
@@ -1059,7 +1105,7 @@ finish:
     }
 
     int lastSpan(int end, int step, const SkPoint& startLoc,
-            const Span* startSpan, bool& coincident) const {
+            double startT, bool& coincident) const {
         int last = end;
         int count = fTs.count();
         SkPoint lastLoc;
@@ -1075,7 +1121,7 @@ finish:
             if (lastSpan.fDone == -step) {
                 return end;
             }
-            if (lastSpan.fT == startSpan->fT) {
+            if (lastSpan.fT == startT) {
                 continue;
             }
             xyAtT(lastSpan.fT, &lastLoc);
@@ -1129,8 +1175,10 @@ finish:
         fTs.reset();
     }
 
-    // OPTIMIZATION: remove this function if it's never called
+    // OPTIMIZATION: mark as debugging only if used solely by tests
     double t(int tIndex) const {
+        SkASSERT(tIndex >= 0);
+        SkASSERT(tIndex < fTs.count());
         return fTs[tIndex].fT;
     }
     
@@ -1876,7 +1924,7 @@ static Segment* findTopContour(SkTDArray<Contour*>& contourList,
 // is an option, choose first edge that continues the inside.
     // since we start with leftmost top edge, we'll traverse through a
     // smaller angle counterclockwise to get to the next edge.  
-static void bridge(SkTDArray<Contour*>& contourList) {
+static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
     int contourCount = contourList.count();
     int winding = 0; // there are no contours outside this one
     do {
@@ -1886,13 +1934,17 @@ static void bridge(SkTDArray<Contour*>& contourList) {
         }
         // Start at the top. Above the top is outside, below is inside.
         // follow edges to intersection by changing the tIndex by direction.
-        int tIndex, step;
-        const Segment* topSegment = topStart->findTop(tIndex, step);
-        const Segment* next = topSegment;
+        int tIndex, endIndex;
+        Segment* topSegment = topStart->findTop(tIndex, endIndex);
+        Segment* next = topSegment;
+        next->addMoveTo(tIndex, simple);
         do {
-            int spanIndex;
-            next = next->findNext(tIndex, winding, step, spanIndex);
+            SkASSERT(!next->done());
+            next->addCurveTo(tIndex, endIndex, simple);
+            next = next->findNext(winding, tIndex, endIndex);
         } while (next != topSegment);
+        simple.close();
+    } while (true);
         
         // at intersection, stay on outside, but mark remaining edges as inside
             // or, only mark first pair as inside?
@@ -1904,7 +1956,6 @@ static void bridge(SkTDArray<Contour*>& contourList) {
     // output span
     // mark span as processed
         
-    } while (true);
         
 
 }
@@ -1917,7 +1968,7 @@ static void fixOtherTIndex(SkTDArray<Contour*>& contourList) {
     }
 }
 
-static void makeContourList(SkTArray<Contour>& contours, Contour& sentinel,
+static void makeContourList(SkTArray<Contour>& contours,
         SkTDArray<Contour*>& list) {
     int count = contours.count();
     if (count == 0) {
@@ -1926,7 +1977,6 @@ static void makeContourList(SkTArray<Contour>& contours, Contour& sentinel,
     for (int index = 0; index < count; ++index) {
         *list.append() = &contours[index];
     }
-    *list.append() = &sentinel;
     QSort<Contour>(list.begin(), list.end() - 1);
 }
 
@@ -1941,13 +1991,12 @@ void simplifyx(const SkPath& path, bool asFill, SkPath& simple) {
     // FIXME: add self-intersecting cubics' T values to segment
     EdgeBuilder builder(path, contours);
     SkTDArray<Contour*> contourList;
-    Contour sentinel;
-    sentinel.reset();
-    makeContourList(contours, sentinel, contourList);
+    makeContourList(contours, contourList);
     Contour** currentPtr = contourList.begin();
     if (!currentPtr) {
         return;
     }
+    Contour** listEnd = contourList.end();
     // find all intersections between segments
     do {
         Contour** nextPtr = currentPtr;
@@ -1955,12 +2004,12 @@ void simplifyx(const SkPath& path, bool asFill, SkPath& simple) {
         Contour* next;
         do {
             next = *nextPtr++;
-        } while (next != &sentinel && addIntersectTs(current, next, winding));
-    } while (*currentPtr != &sentinel);
+        } while (addIntersectTs(current, next, winding) && nextPtr != listEnd);
+    } while (currentPtr != listEnd);
     fixOtherTIndex(contourList);
     // eat through coincident edges
     coincidenceCheck(contourList, winding);
     // construct closed contours
-    bridge(contourList);
+    bridge(contourList, simple);
 }
 
