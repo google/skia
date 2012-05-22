@@ -175,7 +175,7 @@ static int scaledDrawTheSame(const SkPath& one, const SkPath& two,
 
 static int max = 0;
 
-static int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
+int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
         SkCanvas* canvas) {
     int errors = pathsDrawTheSame(one, two, bitmap, canvas);
     if (errors == 0) {
