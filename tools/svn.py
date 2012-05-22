@@ -92,5 +92,5 @@ class Svn:
         @param property_value what to set the property_name to
         """
         all_files = os.listdir(self._directory)
-        matching_files = fnmatch.filter(all_files, filename_pattern)
+        matching_files = sorted(fnmatch.filter(all_files, filename_pattern))
         self.SetProperty(matching_files, property_name, property_value)
