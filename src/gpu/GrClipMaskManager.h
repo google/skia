@@ -284,8 +284,7 @@ class GrClipMaskManager : public GrNoncopyable {
 public:
     GrClipMaskManager()
         : fClipMaskInStencil(false)
-        , fClipMaskInAlpha(false)
-        , fPathRendererChain(NULL) {
+        , fClipMaskInAlpha(false) {
     }
 
     bool createClipMask(GrGpu* gpu, 
@@ -305,15 +304,15 @@ public:
         fAACache.setContext(context);
     }
 
+    GrContext* getContext() {
+        return fAACache.getContext();
+    }
+
 protected:
 private:
     bool fClipMaskInStencil;        // is the clip mask in the stencil buffer?
     bool fClipMaskInAlpha;          // is the clip mask in an alpha texture?
     GrClipMaskCache fAACache;       // cache for the AA path
-
-    // must be instantiated after GrGpu object has been given its owning
-    // GrContext ptr. (GrGpu is constructed first then handed off to GrContext).
-    GrPathRendererChain*        fPathRendererChain;
 
     bool createStencilClipMask(GrGpu* gpu, 
                                const GrClip& clip, 
@@ -334,11 +333,6 @@ private:
 
     bool useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn);
 
-    bool drawPath(GrGpu* gpu,
-                  const SkPath& path,
-                  GrPathFill fill,
-                  bool doAA);
-
     bool drawClipShape(GrGpu* gpu,
                        GrTexture* target,
                        const GrClip& clipIn,
@@ -352,12 +346,6 @@ private:
 
     void setupCache(const GrClip& clip, 
                     const GrIRect& bounds);
-
-    // determines the path renderer used to draw a clip path element.
-    GrPathRenderer* getClipPathRenderer(GrGpu* gpu,
-                                        const SkPath& path, 
-                                        GrPathFill fill,
-                                        bool antiAlias);
 
     typedef GrNoncopyable INHERITED;
 };

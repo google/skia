@@ -680,6 +680,11 @@ public:
     void unlockStencilBuffer(GrResourceEntry* sbEntry);
     GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
 
+    GrPathRenderer* getPathRenderer(const SkPath& path,
+                                    GrPathFill fill,
+                                    const GrDrawTarget* target,
+                                    bool antiAlias);
+
 private:
     // used to keep track of when we need to flush the draw buffer
     enum DrawCategory {
@@ -727,11 +732,6 @@ private:
     void setPaint(const GrPaint& paint);
 
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
-
-    GrPathRenderer* getPathRenderer(const SkPath& path,
-                                    GrPathFill fill,
-                                    const GrDrawTarget* target,
-                                    bool antiAlias);
 
     void internalDrawPath(const GrPaint& paint, const SkPath& path,
                           GrPathFill fill, const GrPoint* translate);

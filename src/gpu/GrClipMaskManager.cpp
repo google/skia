@@ -136,7 +136,6 @@ bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
     return useSW;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
@@ -396,13 +395,15 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
 
 }
 
+namespace {
 ////////////////////////////////////////////////////////////////////////////////
-bool GrClipMaskManager::drawPath(GrGpu* gpu,
-                                 const SkPath& path,
-                                 GrPathFill fill,
-                                 bool doAA) {
+bool draw_path(GrContext* context,
+               GrGpu* gpu,
+               const SkPath& path,
+               GrPathFill fill,
+               bool doAA) {
 
-    GrPathRenderer* pr = this->getClipPathRenderer(gpu, path, fill, doAA);
+    GrPathRenderer* pr = context->getPathRenderer(path, fill, gpu, doAA);
     if (NULL == pr) {
         return false;
     }
@@ -410,6 +411,7 @@ bool GrClipMaskManager::drawPath(GrGpu* gpu,
     pr->drawPath(path, fill, NULL, gpu, 0, doAA);
     return true;
 }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawClipShape(GrGpu* gpu,
@@ -427,16 +429,16 @@ bool GrClipMaskManager::drawClipShape(GrGpu* gpu,
             SkPath temp;
             temp.addRect(clipIn.getRect(index));
 
-            return this->drawPath(gpu, temp,
-                                  kEvenOdd_PathFill, clipIn.getDoAA(index));
+            return draw_path(this->getContext(), gpu, temp,
+                             kEvenOdd_PathFill, clipIn.getDoAA(index));
         } else {
             gpu->drawSimpleRect(clipIn.getRect(index), NULL, 0);
         }
     } else {
-        return this->drawPath(gpu,
-                              clipIn.getPath(index),
-                              clipIn.getPathFill(index),
-                              clipIn.getDoAA(index));
+        return draw_path(this->getContext(), gpu,
+                         clipIn.getPath(index),
+                         clipIn.getPathFill(index),
+                         clipIn.getDoAA(index));
     }
     return true;
 }
@@ -498,7 +500,7 @@ void GrClipMaskManager::getTemp(const GrIRect& bounds,
         0           // samples
     };
 
-    temp->set(fAACache.getContext(), desc);
+    temp->set(this->getContext(), desc);
 }
 
 
@@ -793,7 +795,8 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                 fillInverted = GrIsFillInverted(fill);
                 fill = GrNonInvertedFill(fill);
                 clipPath = &clipCopy.getPath(c);
-                pr = this->getClipPathRenderer(gpu, *clipPath, fill, false);
+                pr = this->getContext()->getPathRenderer(*clipPath,
+                                                         fill, gpu, false);
                 if (NULL == pr) {
                     fClipMaskInStencil = false;
                     gpu->setClip(clipCopy);     // restore to the original
@@ -907,7 +910,7 @@ bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
         return false;
     }
 
-    GrSWMaskHelper helper(fAACache.getContext());
+    GrSWMaskHelper helper(this->getContext());
 
     helper.init(*resultBounds, NULL, false);
 
@@ -1005,23 +1008,7 @@ bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
     return true;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-GrPathRenderer* GrClipMaskManager::getClipPathRenderer(GrGpu* gpu,
-                                                       const SkPath& path,
-                                                       GrPathFill fill,
-                                                       bool antiAlias) {
-    if (NULL == fPathRendererChain) {
-        fPathRendererChain = 
-            new GrPathRendererChain(gpu->getContext(),
-                                    GrPathRendererChain::kNone_UsageFlag);
-    }
-    return fPathRendererChain->getPathRenderer(path, fill, gpu, antiAlias);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 void GrClipMaskManager::releaseResources() {
-    // in case path renderer has any GrResources, start from scratch
-    GrSafeSetNull(fPathRendererChain);
     fAACache.releaseResources();
 }
