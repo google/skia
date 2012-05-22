@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkColorPriv.h"
+#include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
@@ -37,7 +38,6 @@
 #endif
 
 // Result of comparison for each pair of files.
-// TODO: we don't actually use all of these yet.
 enum Result {
     kEqualBits,      // both files in the pair contain exactly the same bits
     kEqualPixels,    // not bitwise equal, but their pixels are exactly the same
@@ -159,36 +159,47 @@ struct DiffSummary {
     }
 
     void add (DiffRecord* drp) {
-        // Maintain current (and, I think, incorrect) skdiff behavior:
-        // If we were unable to parse either file in the pair as an image,
-        // treat them as matching.
-        // TODO: Remove this logic and change the results for the better.
-        if (kUnknown == drp->fResult) {
-            drp->fResult = kEqualPixels;
-        }
+        uint32_t mismatchValue;
 
         switch (drp->fResult) {
+          case kEqualBits:
+            fNumMatches++;
+            break;
           case kEqualPixels:
             fNumMatches++;
             break;
-          case kBaseMissing:
-            fBaseMissing.push(new SkString(drp->fFilename));
+          case kDifferentSizes:
             fNumMismatches++;
+            drp->fFractionDifference = 2.0;// sort as if 200% of pixels differed
             break;
-          case kComparisonMissing:
-            fComparisonMissing.push(new SkString(drp->fFilename));
-            fNumMismatches++;
-            break;
-          default:
+          case kDifferentPixels:
             fNumMismatches++;
             if (drp->fFractionDifference * 100 > fMaxMismatchPercent) {
                 fMaxMismatchPercent = drp->fFractionDifference * 100;
             }
-            uint32_t value = MAX3(drp->fMaxMismatchR, drp->fMaxMismatchG,
-                                  drp->fMaxMismatchB);
-            if (value > fMaxMismatchV) {
-                fMaxMismatchV = value;
+            mismatchValue = MAX3(drp->fMaxMismatchR, drp->fMaxMismatchG,
+                                 drp->fMaxMismatchB);
+            if (mismatchValue > fMaxMismatchV) {
+                fMaxMismatchV = mismatchValue;
             }
+            break;
+          case kDifferentOther:
+            fNumMismatches++;
+            drp->fFractionDifference = 3.0;// sort as if 300% of pixels differed
+            break;
+          case kBaseMissing:
+            fNumMismatches++;
+            fBaseMissing.push(new SkString(drp->fFilename));
+            break;
+          case kComparisonMissing:
+            fNumMismatches++;
+            fComparisonMissing.push(new SkString(drp->fFilename));
+            break;
+          case kUnknown:
+            SkDEBUGFAIL("adding uncategorized DiffRecord");
+            break;
+          default:
+            SkDEBUGFAIL("adding DiffRecord with unhandled fResult value");
             break;
         }
     }
@@ -269,24 +280,59 @@ static void expand_and_copy (int width, int height, SkBitmap** dest) {
     *dest = temp;
 }
 
-static bool get_bitmaps (DiffRecord* diffRecord) {
-    SkFILEStream compareStream(diffRecord->fComparisonPath.c_str());
-    if (!compareStream.isValid()) {
-        SkDebugf("WARNING: couldn't open comparison file <%s>\n",
-                 diffRecord->fComparisonPath.c_str());
+/// Returns true if the two buffers passed in are both non-NULL, and include
+/// exactly the same byte values (and identical lengths).
+static bool are_buffers_equal(SkData* skdata1, SkData* skdata2) {
+    if ((NULL == skdata1) || (NULL == skdata2)) {
         return false;
     }
+    if (skdata1->size() != skdata2->size()) {
+        return false;
+    }
+    return (0 == memcmp(skdata1->data(), skdata2->data(), skdata1->size()));
+}
 
-    SkFILEStream baseStream(diffRecord->fBasePath.c_str());
-    if (!baseStream.isValid()) {
-        SkDebugf("ERROR: couldn't open base file <%s>\n",
-                 diffRecord->fBasePath.c_str());
-        return false;
+/// Reads the file at the given path and returns its complete contents as an
+/// SkData object (or returns NULL on error).
+static SkData* read_file(const char* file_path) {
+    SkFILEStream fileStream(file_path);
+    if (!fileStream.isValid()) {
+        SkDebugf("WARNING: could not open file <%s> for reading\n", file_path);
+        return NULL;
     }
+    size_t bytesInFile = fileStream.getLength();
+    size_t bytesLeftToRead = bytesInFile;
+
+    void* bufferStart = sk_malloc_throw(bytesInFile);
+    char* bufferPointer = (char*)bufferStart;
+    while (bytesLeftToRead > 0) {
+        size_t bytesReadThisTime = fileStream.read(
+            bufferPointer, bytesLeftToRead);
+        if (0 == bytesReadThisTime) {
+            SkDebugf("WARNING: error reading from <%s>\n", file_path);
+            sk_free(bufferStart);
+            return NULL;
+        }
+        bytesLeftToRead -= bytesReadThisTime;
+        bufferPointer += bytesReadThisTime;
+    }
+    return SkData::NewFromMalloc(bufferStart, bytesInFile);
+}
+
+/// Decodes binary contents of baseFile and comparisonFile into
+/// diffRecord->fBaseBitmap and diffRecord->fComparisonBitmap.
+/// Returns true if that succeeds.
+static bool get_bitmaps (SkData* baseFileContents,
+                         SkData* comparisonFileContents,
+                         DiffRecord* diffRecord) {
+    SkMemoryStream compareStream(comparisonFileContents->data(),
+                                 comparisonFileContents->size());
+    SkMemoryStream baseStream(baseFileContents->data(),
+                              baseFileContents->size());
 
     SkImageDecoder* codec = SkImageDecoder::Factory(&baseStream);
     if (NULL == codec) {
-        SkDebugf("ERROR: no codec found for <%s>\n",
+        SkDebugf("ERROR: no codec found for basePath <%s>\n",
                  diffRecord->fBasePath.c_str());
         return false;
     }
@@ -299,7 +345,7 @@ static bool get_bitmaps (DiffRecord* diffRecord) {
     if (!codec->decode(&baseStream, diffRecord->fBaseBitmap,
                        SkBitmap::kARGB_8888_Config,
                        SkImageDecoder::kDecodePixels_Mode)) {
-        SkDebugf("ERROR: codec failed for <%s>\n",
+        SkDebugf("ERROR: codec failed for basePath <%s>\n",
                  diffRecord->fBasePath.c_str());
         return false;
     }
@@ -310,7 +356,7 @@ static bool get_bitmaps (DiffRecord* diffRecord) {
     if (!codec->decode(&compareStream, diffRecord->fComparisonBitmap,
                        SkBitmap::kARGB_8888_Config,
                        SkImageDecoder::kDecodePixels_Mode)) {
-        SkDebugf("ERROR: codec failed for <%s>\n",
+        SkDebugf("ERROR: codec failed for comparisonPath <%s>\n",
                  diffRecord->fComparisonPath.c_str());
         return false;
     }
@@ -411,7 +457,6 @@ static void compute_diff(DiffRecord* dr,
 
     if (w != dr->fBaseWidth || h != dr->fBaseHeight) {
         dr->fResult = kDifferentSizes;
-        dr->fFractionDifference = 1; // for sorting the diffs later
         return;
     }
     // Accumulate fractionally different pixels, then divide out
@@ -621,18 +666,41 @@ static void create_diff_images (DiffMetricProc dmp,
                                  kBaseMissing);
             ++j;
         } else {
-            // let's diff!
+            // Found the same filename in both baseDir and comparisonDir.
             drp = new DiffRecord(*baseFiles[i], basePath, comparisonPath);
+            SkASSERT(kUnknown == drp->fResult);
 
-            if (get_bitmaps(drp)) {
-                create_and_write_diff_image(drp, dmp, colorThreshold,
-                                            outputDir, *baseFiles[i]);
+            SkData* baseFileBits;
+            SkData* comparisonFileBits;
+            if (NULL == (baseFileBits = read_file(basePath.c_str()))) {
+                SkDebugf("WARNING: couldn't read base file <%s>\n",
+                         basePath.c_str());
+                drp->fResult = kBaseMissing;
+            } else if (NULL == (comparisonFileBits = read_file(
+                comparisonPath.c_str()))) {
+                SkDebugf("WARNING: couldn't read comparison file <%s>\n",
+                         comparisonPath.c_str());
+                drp->fResult = kComparisonMissing;
+            } else {
+                if (are_buffers_equal(baseFileBits, comparisonFileBits)) {
+                    drp->fResult = kEqualBits;
+                } else if (get_bitmaps(baseFileBits, comparisonFileBits, drp)) {
+                    create_and_write_diff_image(drp, dmp, colorThreshold,
+                                                outputDir, *baseFiles[i]);
+                } else {
+                    drp->fResult = kDifferentOther;
+                }
             }
-
+            if (baseFileBits) {
+                baseFileBits->unref();
+            }
+            if (comparisonFileBits) {
+                comparisonFileBits->unref();
+            }
             ++i;
             ++j;
         }
-
+        SkASSERT(kUnknown != drp->fResult);
         differences->push(drp);
         summary->add(drp);
     }
@@ -745,44 +813,56 @@ static void print_pixel_count (SkFILEWStream* stream,
 
 static void print_label_cell (SkFILEWStream* stream,
                               const DiffRecord& diff) {
-    stream->writeText("<td>");
+    char metricBuf [20];
+
+    stream->writeText("<td><b>");
     stream->writeText(diff.fFilename.c_str());
-    stream->writeText("<br>");
+    stream->writeText("</b><br>");
     switch (diff.fResult) {
-      case kBaseMissing:
-        // fall through
-      case kComparisonMissing:
-        stream->writeText("</td>");
+      case kEqualBits:
+        SkDEBUGFAIL("should not encounter DiffRecord with kEqualBits here");
+        return;
+      case kEqualPixels:
+        SkDEBUGFAIL("should not encounter DiffRecord with kEqualPixels here");
         return;
       case kDifferentSizes:
-        stream->writeText("Image sizes differ");
+        stream->writeText("Image sizes differ</td>");
+        return;
+      case kDifferentPixels:
+        sprintf(metricBuf, "%12.4f%%", 100 * diff.fFractionDifference);
+        stream->writeText(metricBuf);
+        stream->writeText(" of pixels differ");
+        stream->writeText("\n  (");
+        sprintf(metricBuf, "%12.4f%%", 100 * diff.fWeightedFraction);
+        stream->writeText(metricBuf);
+        stream->writeText(" weighted)");
+        // Write the actual number of pixels that differ if it's < 1%
+        if (diff.fFractionDifference < 0.01) {
+            print_pixel_count(stream, diff);
+        }
+        stream->writeText("<br>Average color mismatch ");
+        stream->writeDecAsText(static_cast<int>(MAX3(diff.fAverageMismatchR,
+                                                     diff.fAverageMismatchG,
+                                                     diff.fAverageMismatchB)));
+        stream->writeText("<br>Max color mismatch ");
+        stream->writeDecAsText(MAX3(diff.fMaxMismatchR,
+                                    diff.fMaxMismatchG,
+                                    diff.fMaxMismatchB));
         stream->writeText("</td>");
+        break;
+      case kDifferentOther:
+        stream->writeText("Files differ; unable to parse one or both files</td>");
+        return;
+      case kBaseMissing:
+        stream->writeText("Missing from baseDir</td>");
+        return;
+      case kComparisonMissing:
+        stream->writeText("Missing from comparisonDir</td>");
         return;
       default:
-        break; // continue in this function
+        SkDEBUGFAIL("encountered DiffRecord with unknown result type");
+        return;
     }
-
-    char metricBuf [20];
-    sprintf(metricBuf, "%12.4f%%", 100 * diff.fFractionDifference);
-    stream->writeText(metricBuf);
-    stream->writeText(" of pixels differ");
-    stream->writeText("\n  (");
-    sprintf(metricBuf, "%12.4f%%", 100 * diff.fWeightedFraction);
-    stream->writeText(metricBuf);
-    stream->writeText(" weighted)");
-    // Write the actual number of pixels that differ if it's < 1%
-    if (diff.fFractionDifference < 0.01) {
-        print_pixel_count(stream, diff);
-    }
-    stream->writeText("<br>Average color mismatch ");
-    stream->writeDecAsText(static_cast<int>(MAX3(diff.fAverageMismatchR,
-                                                 diff.fAverageMismatchG,
-                                                 diff.fAverageMismatchB)));
-    stream->writeText("<br>Max color mismatch ");
-    stream->writeDecAsText(MAX3(diff.fMaxMismatchR,
-                                diff.fMaxMismatchG,
-                                diff.fMaxMismatchB));
-    stream->writeText("</td>");
 }
 
 static void print_image_cell (SkFILEWStream* stream,
@@ -878,15 +958,23 @@ static void print_diff_page (const int matchCount,
         DiffRecord* diff = differences[i];
 
         switch (diff->fResult) {
+          // Cases in which there is no diff to report.
+          case kEqualBits:
           case kEqualPixels:
             continue;
+          // Cases in which we want a detailed pixel diff.
+          case kDifferentPixels:
+            break;
+          // Cases in which the files differed, but we can't display the diff.
+          case kDifferentSizes:
+          case kDifferentOther:
           case kBaseMissing:
-            // fall through
           case kComparisonMissing:
             print_diff_with_missing_file(&outputStream, *diff, relativePath);
             continue;
           default:
-            break;
+            SkDEBUGFAIL("encountered DiffRecord with unknown result type");
+            continue;
         }
 
         if (!diff->fBasePath.startsWith(PATH_DIV_STR)) {
@@ -899,19 +987,10 @@ static void print_diff_page (const int matchCount,
         int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
         outputStream.writeText("<tr>\n");
         print_label_cell(&outputStream, *diff);
-        switch (diff->fResult) {
-          case kDifferentSizes:
-            print_text_cell(&outputStream,
-                            "[image size mismatch, so no diff to display]");
-            print_text_cell(&outputStream,
-                            "[image size mismatch, so no diff to display]");
-            break;
-          default:
-            print_image_cell(&outputStream,
-                             filename_to_white_filename(diff->fFilename), height);
-            print_image_cell(&outputStream,
-                             filename_to_diff_filename(diff->fFilename), height);
-        }
+        print_image_cell(&outputStream,
+                         filename_to_white_filename(diff->fFilename), height);
+        print_image_cell(&outputStream,
+                         filename_to_diff_filename(diff->fFilename), height);
         print_image_cell(&outputStream, diff->fBasePath, height);
         print_image_cell(&outputStream, diff->fComparisonPath, height);
         outputStream.writeText("</tr>\n");
