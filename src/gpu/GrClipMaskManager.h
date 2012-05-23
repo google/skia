@@ -82,7 +82,7 @@ public:
 
     void reset() {
         if (fStack.empty()) {
-            GrAssert(false);
+//            GrAssert(false);
             return;
         }
 
@@ -102,7 +102,7 @@ public:
     }
 
     void pop() {
-        GrAssert(!fStack.empty());
+        //GrAssert(!fStack.empty());
 
         if (!fStack.empty()) {
             GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
