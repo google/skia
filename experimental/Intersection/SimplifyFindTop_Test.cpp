@@ -17,15 +17,14 @@ namespace SimplifyFindTopTest {
 
 static const SimplifyFindTopTest::Segment* testCommon(
         SkTArray<SimplifyFindTopTest::Contour>& contours,
-        SimplifyFindTopTest::EdgeBuilder& builder, const SkPath& path,
         int& index, int& end) {
     SkTDArray<SimplifyFindTopTest::Contour*> contourList;
     makeContourList(contours, contourList);
-    addIntersectTs(contourList[0], contourList[0], -1);
+    addIntersectTs(contourList[0], contourList[0]);
     if (contours.count() > 1) {
         SkASSERT(contours.count() == 2);
-        addIntersectTs(contourList[0], contourList[1], -1);
-        addIntersectTs(contourList[1], contourList[1], -1);
+        addIntersectTs(contourList[0], contourList[1]);
+        addIntersectTs(contourList[1], contourList[1]);
     }
     fixOtherTIndex(contourList);
     SimplifyFindTopTest::Segment* topStart = findTopContour(contourList,
@@ -39,7 +38,7 @@ static void test(const SkPath& path) {
     SkTArray<SimplifyFindTopTest::Contour> contours;
     SimplifyFindTopTest::EdgeBuilder builder(path, contours);
     int index, end;
-    testCommon(contours, builder, path, index, end);
+    testCommon(contours, index, end);
     SkASSERT(index + 1 == end);
 }
 
@@ -49,7 +48,7 @@ static void test(const SkPath& path, SkScalar x1, SkScalar y1,
     SimplifyFindTopTest::EdgeBuilder builder(path, contours);
     int index, end;
     const SimplifyFindTopTest::Segment* topSegment =
-            testCommon(contours, builder, path, index, end);
+            testCommon(contours, index, end);
     SkPoint pts[2];
     double firstT = topSegment->t(index);
     topSegment->xyAtT(firstT, &pts[0]);
