@@ -17,15 +17,14 @@ namespace SimplifyFindNextTest {
 
 static const SimplifyFindNextTest::Segment* testCommon(
         int winding, int startIndex, int endIndex,
-        SkTArray<SimplifyFindNextTest::Contour>& contours,
-        SimplifyFindNextTest::EdgeBuilder& builder, const SkPath& path) {
+        SkTArray<SimplifyFindNextTest::Contour>& contours) {
     SkTDArray<SimplifyFindNextTest::Contour*> contourList;
     makeContourList(contours, contourList);
-    addIntersectTs(contourList[0], contourList[0], -1);
+    addIntersectTs(contourList[0], contourList[0]);
     if (contours.count() > 1) {
         SkASSERT(contours.count() == 2);
-        addIntersectTs(contourList[0], contourList[1], -1);
-        addIntersectTs(contourList[1], contourList[1], -1);
+        addIntersectTs(contourList[0], contourList[1]);
+        addIntersectTs(contourList[1], contourList[1]);
     }
     fixOtherTIndex(contourList);
     SimplifyFindNextTest::Segment& segment = contours[0].fSegments[0];
@@ -46,14 +45,14 @@ static void test(const SkPath& path) {
     int winding = 0;
     int start = 0;
     int end = 1;
-    testCommon(winding, start, end, contours, builder, path);
+    testCommon(winding, start, end, contours);
 }
 
 static void test(const SkPath& path, int start, int end) {
     SkTArray<SimplifyFindNextTest::Contour> contours;
     SimplifyFindNextTest::EdgeBuilder builder(path, contours);
     int winding = 0;
-    testCommon(winding, start, end, contours, builder, path);
+    testCommon(winding, start, end, contours);
 }
 
 static void testLine1() {
@@ -72,12 +71,14 @@ static void addInnerCWTriangle(SkPath& path) {
     path.close();
 }
 
+#if DEBUG_UNUSED
 static void addInnerCCWTriangle(SkPath& path) {
     path.moveTo(3,0);
     path.lineTo(2,1);
     path.lineTo(4,1);
     path.close();
 }
+#endif
 
 static void addOuterCWTriangle(SkPath& path) {
     path.moveTo(3,0);
@@ -86,12 +87,14 @@ static void addOuterCWTriangle(SkPath& path) {
     path.close();
 }
 
+#if DEBUG_UNUSED
 static void addOuterCCWTriangle(SkPath& path) {
     path.moveTo(3,0);
     path.lineTo(0,2);
     path.lineTo(6,2);
     path.close();
 }
+#endif
 
 static void testLine2() {
     SkPath path;

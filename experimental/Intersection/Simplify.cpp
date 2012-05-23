@@ -26,20 +26,24 @@
 #define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_BRIDGE 0
 #define DEBUG_DUMP 0
+#define DEBUG_PATH_CONSTRUCTION 0
+#define DEBUG_UNUSED 0 // set to expose unused functions
 
 #else
 
 //const bool gRunTestsInOneThread = true;
 
-#define DEBUG_ADD_INTERSECTING_TS 1
+#define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_BRIDGE 1
 #define DEBUG_DUMP 1
+#define DEBUG_PATH_CONSTRUCTION 1
+#define DEBUG_UNUSED 0 // set to expose unused functions
 
 #endif
 
 #if DEBUG_DUMP
 static const char* kLVerbStr[] = {"", "line", "quad", "cubic"};
-static const char* kUVerbStr[] = {"", "Line", "Quad", "Cubic"};
+// static const char* kUVerbStr[] = {"", "Line", "Quad", "Cubic"};
 static int gContourID;
 static int gSegmentID;
 #endif
@@ -262,6 +266,7 @@ static void (* const SegmentSubDivide[])(const SkPoint [], double , double ,
     CubicSubDivide
 };
 
+#if DEBUG_UNUSED
 static void QuadSubBounds(const SkPoint a[3], double startT, double endT,
         SkRect& bounds) {
     SkPoint dst[3];
@@ -283,6 +288,7 @@ static void CubicSubBounds(const SkPoint a[4], double startT, double endT,
         bounds.growToInclude(dst[index].fX, dst[index].fY);
     }
 }
+#endif
 
 static SkPath::Verb QuadReduceOrder(const SkPoint a[3],
         SkTDArray<SkPoint>& reducePts) {
@@ -357,12 +363,14 @@ static SkScalar (* const SegmentLeftMost[])(const SkPoint [], double , double) =
     CubicLeftMost
 };
 
+#if DEBUG_UNUSED
 static bool IsCoincident(const SkPoint a[2], const SkPoint& above,
         const SkPoint& below) {
     const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
     const _Line bLine = {{above.fX, above.fY}, {below.fX, below.fY}};
     return implicit_matches_ulps(aLine, bLine, 32);
 }
+#endif
 
 class Segment;
 
@@ -563,10 +571,9 @@ struct Span {
     double fOtherT; // value at fOther[fOtherIndex].fT
     int fOtherIndex;  // can't be used during intersection
     int fWinding; // accumulated from contours surrounding this one
-    // OPTIMIZATION: done needs only 2 bits (values are -1, 0, 1)
-    int fDone; // set when this pointer to the other span is processed
-    // OPTIMIZATION: done needs only 2 bits (values are -1, 0, 1)
+    // OPTIMIZATION: coincident needs only 2 bits (values are -1, 0, 1)
     int fCoincident; // -1 start of coincidence, 0 no coincidence, 1 end
+    bool fDone; // if set, this span to next higher T has been processed
 };
 
 class Segment {
@@ -581,7 +588,7 @@ public:
             bool coincident) {
         SkASSERT(start != end);
         int smaller = start < end ? start : end;
-        if (fTs[start].fDone) {
+        if (fTs[smaller].fDone) {
             return;
         }
         SkPoint edge[4];
@@ -598,6 +605,17 @@ public:
     void addCurveTo(int start, int end, SkPath& path) {
         SkPoint edge[4];
         (*SegmentSubDivide[fVerb])(fPts, fTs[start].fT, fTs[end].fT, edge);
+    #if DEBUG_PATH_CONSTRUCTION
+        SkDebugf("%s %s (%1.9g,%1.9g)", __FUNCTION__,
+                kLVerbStr[fVerb], edge[1].fX, edge[1].fY);
+        if (fVerb > 1) {
+            SkDebugf(" (%1.9g,%1.9g)", edge[2].fX, edge[2].fY);
+        }
+        if (fVerb > 2) {
+            SkDebugf(" (%1.9g,%1.9g)", edge[3].fX, edge[3].fY);
+        }
+        SkDebugf("\n");
+    #endif
         switch (fVerb) {
             case SkPath::kLine_Verb:
                 path.lineTo(edge[1].fX, edge[1].fY);
@@ -610,7 +628,6 @@ public:
                         edge[3].fX, edge[3].fY);
                 break;
         }
-        int smaller = start < end ? start : end;
     }
 
     void addLine(const SkPoint pts[2]) {
@@ -622,6 +639,9 @@ public:
         SkPoint pt;
         double firstT = t(tIndex);
         xyAtT(firstT, &pt);
+    #if DEBUG_PATH_CONSTRUCTION
+        SkDebugf("%s (%1.9g,%1.9g)\n", __FUNCTION__, pt.fX, pt.fY);
+    #endif
         path.moveTo(pt.fX, pt.fY);
     }
 
@@ -643,7 +663,6 @@ public:
         int insertedAt = -1;
         Span* span;
         size_t tCount = fTs.count();
-        double delta;
         for (size_t idx2 = 0; idx2 < tCount; ++idx2) {
             // OPTIMIZATION: if there are three or more identical Ts, then
             // the fourth and following could be further insertion-sorted so
@@ -663,7 +682,9 @@ finish:
         span->fT = newT;
         span->fOther = &other;
         span->fWinding = 1;
-        span->fDone = 0;
+        if (span->fDone = newT == 1) {
+            ++fDoneSpans;
+        } 
         span->fCoincident = coincident;
         fCoincident |= coincident;
         return insertedAt;
@@ -728,7 +749,7 @@ finish:
     // sort them using buildAngleList
     // find the first in the sort
     // see if ascendingT goes to top
-    bool clockwise(int tIndex) const {
+    bool clockwise(int /* tIndex */) const {
         SkASSERT(0); // incomplete
         return false;
     }
@@ -856,8 +877,8 @@ finish:
         } while (true);
         markDone(startIndex < endIndex ? startIndex : endIndex);
         other = nextAngle->segment();
-        startIndex = nextAngle->end();
-        endIndex = nextAngle->start();
+        startIndex = nextAngle->start();
+        endIndex = nextAngle->end();
         return other;
     }
     
@@ -884,7 +905,7 @@ finish:
         // mark found segments as done
 
     // FIXME: this is tricky code; needs its own unit test
-    void findTooCloseToCall(int winding) {
+    void findTooCloseToCall(int /* winding */ ) { // FIXME: winding should be considered
         int count = fTs.count();
         if (count < 3) { // require t=0, x, 1 at minimum
             return;
@@ -1026,6 +1047,7 @@ finish:
         int end = nextSpan(firstT, 1, startLoc, startSpan, &endLoc, nextCo);
         if (end == -1) {
             end = nextSpan(firstT, -1, startLoc, startSpan, &endLoc, nextCo);
+            SkASSERT(end != -1);
         }
         // if the topmost T is not on end, or is three-way or more, find left
         // look for left-ness from tLeft to firstT (matching y of other)
@@ -1098,6 +1120,7 @@ finish:
         return fBounds.fLeft == fBounds.fRight;
     }
 
+    // last does not check for done spans because done is only set for the start
     int lastSpan(int end, int step, const SkPoint& startLoc,
             double startT, bool& coincident, bool* manyPtr = NULL) const {
         int last = end;
@@ -1113,9 +1136,6 @@ finish:
                 break;
             }
             const Span& lastSpan = fTs[last];
-            if (lastSpan.fDone) {
-                continue;
-            }
             if (lastSpan.fT == startT) {
                 ++found;
                 continue;
@@ -1137,27 +1157,26 @@ finish:
     }
     
     void markDone(int index) {
-        SkASSERT(!fTs[index].fDone);
+        SkASSERT(!done());
         double referenceT = fTs[index].fT;
         int lesser = index;
         while (--lesser >= 0 && referenceT == fTs[lesser].fT) {
             SkASSERT(!fTs[lesser].fDone);
             fTs[lesser].fDone = true;
+            fDoneSpans++;
         }
         do {
             SkASSERT(!fTs[index].fDone);
             fTs[index].fDone = true;
+            fDoneSpans++;
         } while (++index < fTs.count() && referenceT == fTs[index].fT);
-        SkASSERT(!done());
-        fDoneSpans++;
     }
 
+    // note the assert logic looks for unexpected done of span start
     int nextSpan(int from, int step, const SkPoint& fromLoc,
             const Span* fromSpan, SkPoint* toLoc, bool& coincident) const {
         coincident = false;
-        if (done()) {
-            return -1;
-        }
+        SkASSERT(!done());
         int count = fTs.count();
         int to = from;
         while (step > 0 ? ++to < count : --to >= 0) {
@@ -1173,9 +1192,8 @@ finish:
             if (fromLoc == loc) {
                 continue;
             }
-            if (span->fDone) {
-                return -1;
-            }
+            SkASSERT(step < 0 || !fTs[from].fDone);
+            SkASSERT(step > 0 || !span->fDone);
             if (toLoc) {
                 *toLoc = loc;
             }
@@ -1676,9 +1694,9 @@ protected:
     int fLast;
 };
 
+#if DEBUG_ADD_INTERSECTING_TS
 static void debugShowLineIntersection(int pts, const Work& wt,
         const Work& wn, const double wtTs[2], const double wnTs[2]) {
-#if DEBUG_ADD_INTERSECTING_TS
     if (!pts) {
         SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g %1.9g,%1.9g)\n",
                 __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY,
@@ -1703,10 +1721,13 @@ static void debugShowLineIntersection(int pts, const Work& wt,
         SkDebugf(" wnTs[1]=%g", wnTs[1]);
     SkDebugf("\n");
     }
-#endif
+#else
+static void debugShowLineIntersection(int , const Work& ,
+        const Work& , const double [2], const double [2]) {
 }
+#endif
 
-static bool addIntersectTs(Contour* test, Contour* next, int winding) {
+static bool addIntersectTs(Contour* test, Contour* next) {
 
     if (test != next) {
         if (test->bounds().fBottom < next->bounds().fTop) {
@@ -1962,6 +1983,9 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
             next->addCurveTo(tIndex, endIndex, simple);
             next = next->findNext(winding, tIndex, endIndex);
         } while (next != topSegment);
+    #if DEBUG_PATH_CONSTRUCTION
+        SkDebugf("%s close\n", __FUNCTION__);
+    #endif
         simple.close();
     } while (true);
         
@@ -1999,7 +2023,7 @@ static void makeContourList(SkTArray<Contour>& contours,
     QSort<Contour>(list.begin(), list.end() - 1);
 }
 
-void simplifyx(const SkPath& path, bool asFill, SkPath& simple) {
+void simplifyx(const SkPath& path, SkPath& simple) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     int winding = (path.getFillType() & 1) ? 1 : -1;
     simple.reset();
@@ -2023,7 +2047,7 @@ void simplifyx(const SkPath& path, bool asFill, SkPath& simple) {
         Contour* next;
         do {
             next = *nextPtr++;
-        } while (addIntersectTs(current, next, winding) && nextPtr != listEnd);
+        } while (addIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
     fixOtherTIndex(contourList);
     // eat through coincident edges

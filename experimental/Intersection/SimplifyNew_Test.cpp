@@ -18,12 +18,11 @@ namespace SimplifyNewTest {
 
 static SkBitmap bitmap;
 
-static bool testSimplifyx(const SkPath& path, bool fill, SkPath& out,
-        SkBitmap& bitmap) {
+static bool testSimplifyx(const SkPath& path, SkPath& out, SkBitmap& bitmap) {
     if (false) {
         showPath(path);
     }
-    simplifyx(path, fill, out);
+    simplifyx(path, out);
     if (false) {
         return true;
     }
@@ -36,7 +35,7 @@ static void testLine1() {
     path.lineTo(1,1);
     path.lineTo(0,0);
     path.close();
-    testSimplifyx(path, true, simple, bitmap);
+    testSimplifyx(path, simple, bitmap);
 }
 
 static void addInnerCWTriangle(SkPath& path) {
@@ -46,12 +45,14 @@ static void addInnerCWTriangle(SkPath& path) {
     path.close();
 }
 
+#if DEBUG_UNUSED
 static void addInnerCCWTriangle(SkPath& path) {
     path.moveTo(3,0);
     path.lineTo(2,1);
     path.lineTo(4,1);
     path.close();
 }
+#endif
 
 static void addOuterCWTriangle(SkPath& path) {
     path.moveTo(3,0);
@@ -60,18 +61,20 @@ static void addOuterCWTriangle(SkPath& path) {
     path.close();
 }
 
+#if DEBUG_UNUSED
 static void addOuterCCWTriangle(SkPath& path) {
     path.moveTo(3,0);
     path.lineTo(0,2);
     path.lineTo(6,2);
     path.close();
 }
+#endif
 
 static void testLine2() {
     SkPath path, simple;
     addInnerCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplifyx(path, true, simple, bitmap);
+    testSimplifyx(path, simple, bitmap);
 }
 
 

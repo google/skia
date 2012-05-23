@@ -72,6 +72,7 @@
         '../experimental/Intersection/SimplifyAngle_Test.cpp',
         '../experimental/Intersection/SimplifyFindNext_Test.cpp',
         '../experimental/Intersection/SimplifyFindTop_Test.cpp',
+        '../experimental/Intersection/SimplifyNew_Test.cpp',
         '../experimental/Intersection/TestUtilities.cpp',
         '../experimental/Intersection/CubicIntersection_TestData.h',
         '../experimental/Intersection/CubicUtilities.h',
