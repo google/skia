@@ -20,6 +20,5 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx,
             chain->addPathRenderer(pr)->unref();
         }
         chain->addPathRenderer(new GrAAConvexPathRenderer())->unref();
-        chain->addPathRenderer(new GrSoftwarePathRenderer(ctx))->unref();
     }
 }
