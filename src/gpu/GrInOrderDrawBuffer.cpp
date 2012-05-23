@@ -223,7 +223,7 @@ void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
         bool clipChanged = this->needsNewClip();
         bool stateChanged = this->needsNewState();
         if (clipChanged) {
-            this->pushClip();
+            this->storeClip();
         }
         if (stateChanged) {
             this->pushState();
@@ -342,7 +342,7 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
 
     draw.fClipChanged = this->needsNewClip();
     if (draw.fClipChanged) {
-       this->pushClip();
+       this->storeClip();
     }
 
     draw.fStateChanged = this->needsNewState();
@@ -409,7 +409,7 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
 
     draw.fClipChanged = this->needsNewClip();
     if (draw.fClipChanged) {
-        this->pushClip();
+        this->storeClip();
     }
 
     draw.fStateChanged = this->needsNewState();
@@ -801,7 +801,7 @@ bool GrInOrderDrawBuffer::needsNewClip() const {
     return false;
 }
 
-void GrInOrderDrawBuffer::pushClip() {
+void GrInOrderDrawBuffer::storeClip() {
     fClips.push_back() = fClip;
     fClipSet = false;
 }

@@ -1103,9 +1103,6 @@ GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageMask stageMask,
     return layout;
 }
 
-void GrDrawTarget::clipWillBeSet(const GrClip& clip) {
-}
-
 void GrDrawTarget::SetRectVertices(const GrRect& rect,
                                    const GrMatrix* matrix, 
                                    const GrRect* srcRects[], 

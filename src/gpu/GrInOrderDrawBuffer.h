@@ -167,7 +167,7 @@ private:
     bool needsNewClip() const;
 
     void pushState();
-    void pushClip();
+    void storeClip();
 
     // call this to invalidate the tracking data that is used to concatenate 
     // multiple draws into a single draw.

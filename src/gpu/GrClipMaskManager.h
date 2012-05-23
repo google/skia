@@ -300,6 +300,17 @@ public:
         fClipMaskInStencil = false;
     }
 
+    void postClipPush() {
+        // TODO: make sure that, if the clip stack is unaltered, the 
+        // prior clip mask is reused (i.e., a push w/ no change to the 
+        // clip stack)
+        fAACache.push();
+    }
+
+    void preClipPop() {
+        fAACache.pop();
+    }
+
     void setContext(GrContext* context) {
         fAACache.setContext(context);
     }

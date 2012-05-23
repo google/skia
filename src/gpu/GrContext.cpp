@@ -2216,4 +2216,12 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     return srcTexture;
 }
 
+void GrContext::postClipPush() {
+    fGpu->postClipPush();
+}
+
+void GrContext::preClipPop() {
+    fGpu->preClipPop();
+};
+
 ///////////////////////////////////////////////////////////////////////////////

@@ -190,6 +190,9 @@ public:
         return 1 << (stage + (texCoordIdx * GrDrawState::kNumStages));
     }
 
+    virtual void postClipPush() {};
+    virtual void preClipPop() {};
+
 private:
     static const int TEX_COORD_BIT_CNT = GrDrawState::kNumStages *
                                          GrDrawState::kMaxTexCoords;
@@ -1041,7 +1044,7 @@ protected:
                                   int vertexCount) = 0;
     // subclass overrides to be notified when clip is set. Must call
     // INHERITED::clipwillBeSet
-    virtual void clipWillBeSet(const GrClip& clip);
+    virtual void clipWillBeSet(const GrClip& clip) {}
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.
