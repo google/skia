@@ -700,6 +700,14 @@ int SkCanvas::internalSave(SaveFlags flags) {
     fClipStack.save();
     SkASSERT(fClipStack.getSaveCount() == this->getSaveCount() - 1);
 
+    for (DeviceCM* curLayer = fMCRec->fTopLayer; 
+         curLayer; 
+         curLayer = curLayer->fNext) {
+        if (NULL != curLayer->fDevice) {
+            curLayer->fDevice->postSave();
+        }
+    }
+
     return saveCount;
 }
 
@@ -869,6 +877,14 @@ void SkCanvas::restore() {
 
 void SkCanvas::internalRestore() {
     SkASSERT(fMCStack.count() != 0);
+
+    for (DeviceCM* curLayer = fMCRec->fTopLayer; 
+         curLayer; 
+         curLayer = curLayer->fNext) {
+        if (NULL != curLayer->fDevice) {
+            curLayer->fDevice->preRestore();
+        }
+    }
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;

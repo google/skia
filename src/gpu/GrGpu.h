@@ -365,6 +365,13 @@ public:
                                                  // clipping.
     };
 
+    virtual void postClipPush() SK_OVERRIDE {
+        fClipMaskManager.postClipPush();
+    }
+    virtual void preClipPop() SK_OVERRIDE {
+        fClipMaskManager.preClipPop();
+    }
+
 protected:
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(GrPrimitiveType type);

@@ -146,11 +146,18 @@ private:
     // used by createCompatibleDevice
     SkGpuDevice(GrContext*, GrTexture* texture, TexCache, bool needClear);
 
-    // override from SkDevice
+    // overrides from SkDevice
+    virtual void postSave() SK_OVERRIDE {
+        fContext->postClipPush();
+    }
+    virtual void preRestore() SK_OVERRIDE {
+        fContext->preClipPop();
+    }
+
     virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
                                                int width, int height,
                                                bool isOpaque,
-                                               Usage usage);
+                                               Usage usage) SK_OVERRIDE;
 
     SkDrawProcs* initDrawForText(GrTextContext*);
     bool bindDeviceAsTexture(GrPaint* paint);
