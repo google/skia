@@ -32,6 +32,7 @@ class GrResourceCache;
 class GrStencilBuffer;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
+class GrSoftwarePathRenderer;
 
 class GR_API GrContext : public GrRefCnt {
 public:
@@ -695,7 +696,8 @@ public:
     GrPathRenderer* getPathRenderer(const SkPath& path,
                                     GrPathFill fill,
                                     const GrDrawTarget* target,
-                                    bool antiAlias);
+                                    bool antiAlias,
+                                    bool allowSW);
 
 private:
     // used to keep track of when we need to flush the draw buffer
@@ -712,6 +714,7 @@ private:
     GrFontCache*        fFontCache;
 
     GrPathRendererChain*        fPathRendererChain;
+    GrSoftwarePathRenderer*     fSoftwarePathRenderer;
 
     GrVertexBufferAllocPool*    fDrawBufferVBAllocPool;
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;

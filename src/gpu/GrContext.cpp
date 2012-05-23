@@ -18,6 +18,7 @@
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
 #include "GrResourceCache.h"
+#include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
 #include "SkTLazy.h"
@@ -82,6 +83,7 @@ GrContext::~GrContext() {
     GrSafeUnref(fAAStrokeRectIndexBuffer);
     fGpu->unref();
     GrSafeUnref(fPathRendererChain);
+    GrSafeUnref(fSoftwarePathRenderer);
     fDrawState->unref();
 }
 
@@ -98,6 +100,7 @@ void GrContext::contextDestroyed() {
     // a path renderer may be holding onto resources that
     // are now unusable
     GrSafeSetNull(fPathRendererChain);
+    GrSafeSetNull(fSoftwarePathRenderer);
 
     delete fDrawBuffer;
     fDrawBuffer = NULL;
@@ -129,6 +132,7 @@ void GrContext::freeGpuResources() {
     fFontCache->freeAll();
     // a path renderer may be holding onto resources
     GrSafeSetNull(fPathRendererChain);
+    GrSafeSetNull(fSoftwarePathRenderer);
 }
 
 size_t GrContext::getGpuTextureCacheBytes() const {
@@ -1454,7 +1458,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
         prAA = false;
     }
 
-    GrPathRenderer* pr = this->getPathRenderer(path, fill, target, prAA);
+    GrPathRenderer* pr = this->getPathRenderer(path, fill, target, prAA, true);
     if (NULL == pr) {
 #if GR_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
@@ -1916,15 +1920,35 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
     return target;
 }
 
+/*
+ * This method finds a path renderer that can draw the specified path on
+ * the provided target.
+ * Due to its expense, the software path renderer has split out so it can 
+ * can be individually allowed/disallowed via the "allowSW" boolean.
+ */
 GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                                            GrPathFill fill,
                                            const GrDrawTarget* target,
-                                           bool antiAlias) {
+                                           bool antiAlias,
+                                           bool allowSW) {
     if (NULL == fPathRendererChain) {
         fPathRendererChain = 
             new GrPathRendererChain(this, GrPathRendererChain::kNone_UsageFlag);
     }
-    return fPathRendererChain->getPathRenderer(path, fill, target, antiAlias);
+
+    GrPathRenderer* pr = fPathRendererChain->getPathRenderer(path, fill,
+                                                             target,
+                                                             antiAlias);
+
+    if (NULL == pr && allowSW) {
+        if (NULL == fSoftwarePathRenderer) {
+            fSoftwarePathRenderer = new GrSoftwarePathRenderer(this);
+        }
+
+        pr = fSoftwarePathRenderer;
+    }
+
+    return pr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1992,6 +2016,7 @@ GrContext::GrContext(GrGpu* gpu) {
     fGpu->setDrawState(fDrawState);
 
     fPathRendererChain = NULL;
+    fSoftwarePathRenderer = NULL;
 
     fTextureCache = new GrResourceCache(MAX_TEXTURE_CACHE_COUNT,
                                         MAX_TEXTURE_CACHE_BYTES);

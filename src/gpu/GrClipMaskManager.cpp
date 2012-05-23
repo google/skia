@@ -393,9 +393,6 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
     }
 }
 
-}
-
-namespace {
 ////////////////////////////////////////////////////////////////////////////////
 bool draw_path(GrContext* context,
                GrGpu* gpu,
@@ -403,7 +400,7 @@ bool draw_path(GrContext* context,
                GrPathFill fill,
                bool doAA) {
 
-    GrPathRenderer* pr = context->getPathRenderer(path, fill, gpu, doAA);
+    GrPathRenderer* pr = context->getPathRenderer(path, fill, gpu, doAA, true);
     if (NULL == pr) {
         return false;
     }
@@ -411,7 +408,8 @@ bool draw_path(GrContext* context,
     pr->drawPath(path, fill, NULL, gpu, 0, doAA);
     return true;
 }
-};
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawClipShape(GrGpu* gpu,
@@ -796,7 +794,8 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
                 fill = GrNonInvertedFill(fill);
                 clipPath = &clipCopy.getPath(c);
                 pr = this->getContext()->getPathRenderer(*clipPath,
-                                                         fill, gpu, false);
+                                                         fill, gpu, false,
+                                                         true);
                 if (NULL == pr) {
                     fClipMaskInStencil = false;
                     gpu->setClip(clipCopy);     // restore to the original
