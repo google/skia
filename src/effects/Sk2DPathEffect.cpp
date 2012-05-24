@@ -31,7 +31,7 @@ Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     fMatrixIsInvertible = mat.invert(&fInverse);
 }
 
-bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
+bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) {
     if (!fMatrixIsInvertible) {
         return false;
     }
