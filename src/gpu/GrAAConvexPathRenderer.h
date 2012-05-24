@@ -18,11 +18,6 @@ public:
                              const GrDrawTarget* target,
                              bool antiAlias) const SK_OVERRIDE;
 
-    static bool staticCanDrawPath(bool pathIsConvex,
-                                  GrPathFill fill,
-                                  const GrDrawTarget* target,
-                                  bool antiAlias);
-
 protected:
     virtual bool onDrawPath(const SkPath& path,
                             GrPathFill fill,
