@@ -60,6 +60,15 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                 GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(maskStage));
 }
 
+bool path_needs_SW_renderer(GrContext* context,
+                           GrGpu* gpu,
+                           const SkPath& path,
+                           GrPathFill fill,
+                           bool doAA) {
+    // last (false) parameter disallows use of the SW path renderer
+    return NULL == context->getPathRenderer(path, fill, gpu, doAA, false);
+}
+
 }
 
 /*
@@ -74,7 +83,7 @@ bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
         return false;
     }
 
-    // TODO: generalize this test so that when
+    // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
     bool useSW = false;
@@ -87,50 +96,32 @@ bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
             useSW = false;
         }
 
-        if (!clipIn.getDoAA(i)) {
-            // non-anti-aliased rects and paths can always be drawn either
-            // directly or by the GrDefaultPathRenderer
-            continue;
-        }
-
         if (kRect_ClipType == clipIn.getElementType(i)) {
-            // Antialiased rects are converted to paths and then drawn with
-            // kEvenOdd_PathFill. 
-            if (!GrAAConvexPathRenderer::staticCanDrawPath(
-                                                    true,     // always convex
-                                                    kEvenOdd_PathFill,
-                                                    gpu, 
-                                                    true)) {  // anti-aliased
-                // if the GrAAConvexPathRenderer can't render this rect (due
-                // to lack of derivative support in the shaders) then 
-                // the GrSoftwarePathRenderer will be used
+            // Non-anti-aliased rects can always be drawn directly (w/o 
+            // using the software path) so the anti-aliased rects are all 
+            // that need to be checked here
+            if (clipIn.getDoAA(i)) {
+                // Antialiased rects are converted to paths and then drawn with
+                // kEvenOdd_PathFill. 
+
+                // TODO: wrap GrContext::fillAARect in a helper class and
+                // draw AA rects directly rather than converting to paths
+                SkPath temp;
+                temp.addRect(clipIn.getRect(i));	
+
+                if (path_needs_SW_renderer(this->getContext(), gpu, temp,
+                                           kEvenOdd_PathFill, true)) {
+                    useSW = true;
+                }
+            }
+        } else {
+            if (path_needs_SW_renderer(this->getContext(), gpu, 
+                                       clipIn.getPath(i), 
+                                       clipIn.getPathFill(i), 
+                                       clipIn.getDoAA(i))) {
                 useSW = true;
             }
-
-            continue;
         }
-
-        // only paths need to be considered in the rest of the loop body
-
-        if (GrAAHairLinePathRenderer::staticCanDrawPath(clipIn.getPath(i),
-                                                        clipIn.getPathFill(i),
-                                                        gpu,
-                                                        clipIn.getDoAA(i))) {
-            // the hair line path renderer can handle this one
-            continue;
-        }
-
-        if (GrAAConvexPathRenderer::staticCanDrawPath(
-                                                clipIn.getPath(i).isConvex(),
-                                                clipIn.getPathFill(i),
-                                                gpu,
-                                                clipIn.getDoAA(i))) {
-            // the convex path renderer can handle this one
-            continue;
-        }
-
-        // otherwise the GrSoftwarePathRenderer is going to be invoked
-        useSW = true;
     }
 
     return useSW;

@@ -574,10 +574,10 @@ bool GrAAHairLinePathRenderer::createGeom(
     return true;
 }
 
-bool GrAAHairLinePathRenderer::staticCanDrawPath(const SkPath& path,
-                                                 GrPathFill fill,
-                                                 const GrDrawTarget* target,
-                                                 bool antiAlias) {
+bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
+                                           GrPathFill fill,
+                                           const GrDrawTarget* target,
+                                           bool antiAlias) const {
     if (fill != kHairLine_PathFill || !antiAlias) {
         return false;
     }
@@ -589,13 +589,6 @@ bool GrAAHairLinePathRenderer::staticCanDrawPath(const SkPath& path,
         return false;
     }
     return true;
-}
-
-bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
-                                           GrPathFill fill,
-                                           const GrDrawTarget* target,
-                                           bool antiAlias) const {
-    return staticCanDrawPath(path, fill, target, antiAlias);
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
