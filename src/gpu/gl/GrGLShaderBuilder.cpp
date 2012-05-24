@@ -6,6 +6,7 @@
  */
 
 #include "gl/GrGLShaderBuilder.h"
+#include "gl/GrGLProgram.h"
 
 namespace {
 
@@ -33,6 +34,7 @@ GrGLShaderBuilder::GrGLShaderBuilder()
     , fFSOutputs(sMaxFSOutputs)
     , fUsesGS(false)
     , fVaryingDims(0)
+    , fSamplerMode(kDefault_SamplerMode)
     , fComplexCoord(false) {
 
 }
@@ -85,3 +87,87 @@ void GrGLShaderBuilder::appendVarying(GrSLType type,
     nameWithStage.appendS32(stageNum);
     this->appendVarying(type, nameWithStage.c_str(), vsOutName, fsInName);
 }
+
+void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {
+   static const uint32_t kMulByAlphaMask =
+        (GrGLProgram::StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
+         GrGLProgram::StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag);
+
+    fSwizzle = "";
+    if (configFlags & GrGLProgram::StageDesc::kSwapRAndB_InConfigFlag) {
+        GrAssert(!(configFlags &
+                   GrGLProgram::StageDesc::kSmearAlpha_InConfigFlag));
+        GrAssert(!(configFlags &
+                   GrGLProgram::StageDesc::kSmearRed_InConfigFlag));
+        fSwizzle = ".bgra";
+    } else if (configFlags & GrGLProgram::StageDesc::kSmearAlpha_InConfigFlag) {
+        GrAssert(!(configFlags & kMulByAlphaMask));
+        GrAssert(!(configFlags &
+                   GrGLProgram::StageDesc::kSmearRed_InConfigFlag));
+        fSwizzle = ".aaaa";
+    } else if (configFlags & GrGLProgram::StageDesc::kSmearRed_InConfigFlag) {
+        GrAssert(!(configFlags & kMulByAlphaMask));
+        GrAssert(!(configFlags &
+                   GrGLProgram::StageDesc::kSmearAlpha_InConfigFlag));
+        fSwizzle = ".rrrr";
+    }
+}
+
+void GrGLShaderBuilder::computeModulate(const char* fsInColor) {
+    if (NULL != fsInColor) {
+        fModulate.printf(" * %s", fsInColor);
+    }
+}
+
+void GrGLShaderBuilder::emitTextureSetup() {
+    GrStringBuilder retval;
+
+    switch (fSamplerMode) {
+        case kDefault_SamplerMode:
+            // Fall through
+        case kProj_SamplerMode:
+            // Do nothing
+            break;
+        case kExplicitDivide_SamplerMode:
+            retval = "inCoord";
+            fFSCode.appendf("\t %s %s = %s%s / %s%s\n",
+                GrGLShaderVar::TypeString
+                    (GrSLFloatVectorType(fCoordDims)),
+                retval.c_str(),
+                fSampleCoords.c_str(),
+                GrGLSLVectorNonhomogCoords(fVaryingDims),
+                fSampleCoords.c_str(),
+                GrGLSLVectorHomogCoord(fVaryingDims));
+            fSampleCoords = retval;
+            break;
+    }
+}
+
+void GrGLShaderBuilder::emitTextureLookup(const char* samplerName,
+                                          const char* coordName) {
+    if (NULL == coordName) {
+        coordName = fSampleCoords.c_str();
+    }
+    switch (fSamplerMode) {
+        default:
+            SkDEBUGFAIL("Unknown sampler mode");
+            // Fall through
+        case kDefault_SamplerMode:
+            // Fall through
+        case kExplicitDivide_SamplerMode:
+            fFSCode.appendf("texture2D(%s, %s)", samplerName, coordName);
+            break;
+        case kProj_SamplerMode:
+            fFSCode.appendf("texture2DProj(%s, %s)", samplerName, coordName);
+            break;
+    }
+
+}
+
+void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
+                                         const char* samplerName) {
+    fFSCode.appendf("\t%s = ", outColor);
+    this->emitTextureLookup(samplerName);
+    fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
+}
+
