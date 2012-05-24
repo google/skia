@@ -124,7 +124,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
                   fKernelWidth);
 
     code->appendf("\t\t\tsum += ");
-    this->emitTextureLookup(code, samplerName, "coord");
+    state->emitTextureLookup(samplerName, "coord");
     code->appendf(" * %s;\n", kernelIndex.c_str());
 
     code->appendf("\t\t\tcoord += %s;\n",

@@ -1405,10 +1405,8 @@ void gen2x2FS(int stageNum,
               GrGLProgram::StageUniLocations* locations,
               const char* samplerName,
               const char* texelSizeName,
-              const char* swizzle,
               const char* fsOutColor,
-              GrStringBuilder& texFunc,
-              GrStringBuilder& modulate) {
+              GrStringBuilder& texFunc) {
     locations->fNormalizedTexelSizeUni = kUseUniform;
     if (segments->fComplexCoord) {
         // assign the coord to a var rather than compute 4x.
@@ -1422,11 +1420,11 @@ void gen2x2FS(int stageNum,
     GrAssert(2 == segments->fCoordDims);
     GrStringBuilder accumVar("accum");
     accumVar.appendS32(stageNum);
-    segments->fFSCode.appendf("\tvec4 %s  = %s(%s, %s + vec2(-%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, swizzle);
-    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, swizzle);
-    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, swizzle);
-    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, swizzle);
-    segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), modulate.c_str());
+    segments->fFSCode.appendf("\tvec4 %s  = %s(%s, %s + vec2(-%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, segments->fSwizzle.c_str());
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, segments->fSwizzle.c_str());
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, segments->fSwizzle.c_str());
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, segments->fSampleCoords.c_str(), texelSizeName, texelSizeName, segments->fSwizzle.c_str());
+    segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), segments->fModulate.c_str());
 
 }
 
@@ -1456,11 +1454,9 @@ void genMorphologyFS(int stageNum,
                      const StageDesc& desc,
                      GrGLShaderBuilder* segments,
                      const char* samplerName,
-                     const char* swizzle,
                      const char* imageIncrementName,
                      const char* fsOutColor,
-                     GrStringBuilder& texFunc,
-                     GrStringBuilder& modulate) {
+                     GrStringBuilder& texFunc) {
     GrStringBuilder valueVar("value");
     valueVar.appendS32(stageNum);
     GrStringBuilder coordVar("coord");
@@ -1482,13 +1478,14 @@ void genMorphologyFS(int stageNum,
     segments->fFSCode.appendf("\t\t%s = %s(%s, %s(%s, %s)%s);\n",
                               valueVar.c_str(), isDilate ? "max" : "min",
                               valueVar.c_str(), texFunc.c_str(),
-                              samplerName, coordVar.c_str(), swizzle);
+                              samplerName, coordVar.c_str(),
+                              segments->fSwizzle.c_str());
     segments->fFSCode.appendf("\t\t%s += %s;\n",
                               coordVar.c_str(),
                               imageIncrementName);
     segments->fFSCode.appendf("\t}\n");
     segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
-                              valueVar.c_str(), modulate.c_str());
+                              valueVar.c_str(), segments->fModulate.c_str());
 }
 
 }
@@ -1660,25 +1657,8 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         (StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
          StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag);
 
-    const char* swizzle = "";
-    if (desc.fInConfigFlags & StageDesc::kSwapRAndB_InConfigFlag) {
-        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag));
-        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearRed_InConfigFlag));
-        swizzle = ".bgra";
-    } else if (desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag) {
-        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearRed_InConfigFlag));
-        swizzle = ".aaaa";
-    } else if (desc.fInConfigFlags & StageDesc::kSmearRed_InConfigFlag) {
-        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        GrAssert(!(desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag));
-        swizzle = ".rrrr";
-    }
-
-    GrStringBuilder modulate;
-    if (NULL != fsInColor) {
-        modulate.printf(" * %s", fsInColor);
-    }
+    segments->computeSwizzle(desc.fInConfigFlags);
+    segments->computeModulate(fsInColor);
 
     if (desc.fOptFlags &
         StageDesc::kCustomTextureDomain_OptFlagBit) {
@@ -1697,14 +1677,24 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         locations->fTexDomUni = kUseUniform;
     }
 
+    if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
+                          StageDesc::kNoPerspective_OptFlagBit)) {
+        segments->setSamplerMode(GrGLShaderBuilder::kDefault_SamplerMode);
+    } else if (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
+               StageDesc::kSingle_FetchMode == desc.fFetchMode) {
+        segments->setSamplerMode(GrGLShaderBuilder::kProj_SamplerMode);
+    } else {
+        segments->setSamplerMode(
+            GrGLShaderBuilder::kExplicitDivide_SamplerMode);
+    }
+
     // NOTE: GrGLProgramStages are now responsible for fetching
     if (NULL == customStage) {
         switch (desc.fFetchMode) {
         case StageDesc::k2x2_FetchMode:
             GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
             gen2x2FS(stageNum, segments, locations,
-                samplerName, texelSizeName, swizzle, fsOutColor,
-                texFunc, modulate);
+                samplerName, texelSizeName, fsOutColor, texFunc);
             break;
         case StageDesc::kConvolution_FetchMode:
             GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
@@ -1713,8 +1703,7 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         case StageDesc::kErode_FetchMode:
             GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
             genMorphologyFS(stageNum, desc, segments,
-                samplerName, swizzle, imageIncrementName, fsOutColor,
-                texFunc, modulate);
+                samplerName, imageIncrementName, fsOutColor, texFunc);
             break;
         default:
             if (desc.fInConfigFlags & kMulByAlphaMask) {
@@ -1728,43 +1717,28 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                           fsOutColor, texFunc.c_str(), 
                                           samplerName,
                                           segments->fSampleCoords.c_str(),
-                                          swizzle);
+                                          segments->fSwizzle.c_str());
                 if (desc.fInConfigFlags &
                     StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag) {
                     segments->fFSCode.appendf("\t%s = vec4(ceil(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
                                               fsOutColor, fsOutColor, fsOutColor,
-                                              fsOutColor, modulate.c_str());
+                                              fsOutColor, segments->fModulate.c_str());
                 } else {
                     segments->fFSCode.appendf("\t%s = vec4(floor(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
                                               fsOutColor, fsOutColor, fsOutColor,
-                                              fsOutColor, modulate.c_str());
+                                              fsOutColor, segments->fModulate.c_str());
                 }
             } else {
-                segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
-                                          fsOutColor, texFunc.c_str(), 
-                                          samplerName, 
-                                          segments->fSampleCoords.c_str(),
-                                          swizzle, modulate.c_str());
+                segments->emitDefaultFetch(fsOutColor, samplerName);
             }
         }
     }
 
     if (NULL != customStage) {
-        if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
-                              StageDesc::kNoPerspective_OptFlagBit)) {
-            customStage->setSamplerMode(GrGLProgramStage::kDefault_SamplerMode);
-        } else if (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
-                   StageDesc::kSingle_FetchMode == desc.fFetchMode) {
-            customStage->setSamplerMode(GrGLProgramStage::kProj_SamplerMode);
-        } else {
-            customStage->setSamplerMode(
-                GrGLProgramStage::kExplicitDivide_SamplerMode);
-        }
-
         // Enclose custom code in a block to avoid namespace conflicts
         segments->fFSCode.appendf("\t{ // stage %d %s \n",
                                   stageNum, customStage->name());
-        customStage->emitTextureSetup(segments);
+        segments->emitTextureSetup();
         customStage->emitFS(segments, fsOutColor, fsInColor, samplerName);
         segments->fFSCode.appendf("\t}\n");
     }

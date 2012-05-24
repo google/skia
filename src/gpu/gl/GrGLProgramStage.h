@@ -96,42 +96,9 @@ public:
                          GrCustomStage* stage,
                          int stageNum);
 
-    // TODO: needs a better name
-    enum SamplerMode {
-        kDefault_SamplerMode,
-        kProj_SamplerMode,
-        kExplicitDivide_SamplerMode  // must do an explicit divide
-    };
-
-    void setSamplerMode(SamplerMode samplerMode) { fSamplerMode = samplerMode; }
-
-    /** Does perspective divide or other necessary transform, then
-        updates the name of the sample coordinates. */
-    void emitTextureSetup(GrGLShaderBuilder* segments);
-
-     /** Human-meaningful string to identify this effect; may be embedded
-         in generated shader code. Because the implementation is delegated to
-         the factory, the name will be the same as that of the generating
-         GrCustomStage. */
     const char* name() const { return fFactory.name(); }
 
 protected:
-
-    /** Convenience function for subclasses to write texture2D() or
-        texture2DProj(), depending on fSamplerMode. */
-    void emitTextureLookup(GrStringBuilder* code,
-                           const char* samplerName,
-                           const char* coordName);
-
-    /** Standard texture fetch, complete with swizzle & modulate if
-        appropriate. */
-    void emitDefaultFetch(GrGLShaderBuilder* state,
-                          const char* fsOutColor,
-                          const char* samplerName,
-                          const char* swizzle,
-                          const char* modulate);
-
-    SamplerMode fSamplerMode;
 
     const GrProgramStageFactory& fFactory;
 };
