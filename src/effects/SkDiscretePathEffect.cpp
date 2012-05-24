@@ -26,8 +26,8 @@ SkDiscretePathEffect::SkDiscretePathEffect(SkScalar segLength, SkScalar deviatio
 }
 
 bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                      SkScalar* width) {
-    bool doFill = *width < 0;
+                                      SkStrokeRec* rec) {
+    bool doFill = rec->isFillStyle();
 
     SkPathMeasure   meas(src, doFill);
     uint32_t        seed = SkScalarRound(meas.getLength());

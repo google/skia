@@ -563,12 +563,38 @@ void SkStroke::setJoin(SkPaint::Join join) {
     #define APPLY_PROC(proc, pts, count)
 #endif
 
+// If src==dst, then we use a tmp path to record the stroke, and then swap
+// its contents with src when we're done.
+class AutoTmpPath {
+public:
+    AutoTmpPath(const SkPath& src, SkPath** dst) : fSrc(src) {
+        if (&src == *dst) {
+            *dst = &fTmpDst;
+        } else {
+            (*dst)->reset();
+            fSwapWithSrc = false;
+        }
+    }
+    
+    ~AutoTmpPath() {
+        if (fSwapWithSrc) {
+            fTmpDst.swap(*const_cast<SkPath*>(&fSrc));
+        }
+    }
+    
+private:
+    SkPath          fTmpDst;
+    const SkPath&   fSrc;
+    bool            fSwapWithSrc;
+};
+
 void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     SkASSERT(&src != NULL && dst != NULL);
 
     SkScalar radius = SkScalarHalf(fWidth);
 
-    dst->reset();
+    AutoTmpPath tmp(src, &dst);
+
     if (radius <= 0) {
         return;
     }
