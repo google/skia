@@ -25,12 +25,19 @@ void GrGLProgramStage::setupFSUnis(VarArray* fsUnis, int stage) {
 
 }
 
+void GrGLProgramStage::setupVaryings(GrGLShaderBuilder* state, int stage) {
+
+}
+
 void GrGLProgramStage::initUniforms(const GrGLInterface*, int progID) {
 
 }
 
-void GrGLProgramStage::setData(const GrGLInterface*, const GrCustomStage*,
-                               const GrGLTexture*) {
+void GrGLProgramStage::setData(const GrGLInterface*, 
+                               const GrGLTexture&, 
+                               GrCustomStage*,
+                               int stageNum) {
+
 
 }
 
@@ -73,4 +80,16 @@ void GrGLProgramStage::emitTextureLookup(GrStringBuilder* code,
     }
 
 }
+
+void GrGLProgramStage::emitDefaultFetch(GrGLShaderBuilder* state,
+                                        const char* fsOutColor,
+                                        const char* samplerName,
+                                        const char* swizzle,
+                                        const char* modulate) {
+    state->fFSCode.appendf("\t%s = ", fsOutColor);
+    this->emitTextureLookup(&state->fFSCode, samplerName,
+                            state->fSampleCoords.c_str());
+    state->fFSCode.appendf("%s%s;\n", swizzle, modulate);
+}
+
 

@@ -10,6 +10,7 @@
 
 #include "GrAllocator.h"
 #include "GrCustomStage.h"
+#include "GrGLProgram.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
@@ -38,8 +39,6 @@ public:
         kUseUniform = 2000
     };
 
-    typedef GrTAllocator<GrGLShaderVar> VarArray;
-
     GrGLProgramStage(const GrProgramStageFactory&);
 
     virtual ~GrGLProgramStage();
@@ -56,16 +55,22 @@ public:
         appending the stage number). */
     virtual void setupFSUnis(VarArray* fsUnis, int stage);
 
-    /** Given an empty GrStringBuilder and the names of variables;
-        must write shader code into that GrStringBuilder.
+    /** Creates any varying variables shared between the shaders;
+        must guarantee they are unique (typically done by
+        appending the stage number). */
+    virtual void setupVaryings(GrGLShaderBuilder* state, int stage);
+
+    /** Appends vertex code to the appropriate GrStringBuilder
+        on the state.
+        The code will be inside an otherwise-empty block.
         Vertex shader input is a vec2 of coordinates, which may
         be altered.
         The code will be inside an otherwise-empty block. */
-    virtual void emitVS(GrStringBuilder* code,
+    virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) = 0;
 
-    /** Given an empty GrStringBuilder and the names of variables;
-        must write shader code into that GrStringBuilder.
+    /** Appends fragment code to the appropriate GrStringBuilder
+        on the state.
         The code will be inside an otherwise-empty block.
         Fragment shader inputs are a vec2 of coordinates, one texture,
         and a color; output is a color. */
@@ -73,26 +78,23 @@ public:
        a function here for them to call into that'll apply any texture
        domain - but do we force them to be honest about texture domain
        parameters? */
-    virtual void emitFS(GrStringBuilder* code,
+    virtual void emitFS(GrGLShaderBuilder* state,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName,
-                        const char* sampleCoords) = 0;
+                        const char* samplerName) = 0;
 
     /** Binds uniforms; we must have already bound the program and
         determined its GL program ID. */
-    virtual void initUniforms(const GrGLInterface*, int programID);
+    virtual void initUniforms(const GrGLInterface* gl, int programID);
 
     /** A GrGLCustomStage instance can be reused with any GrCustomStage
         that produces the same stage key; this function reads data from
         a stage and uploads any uniform variables required by the shaders
-        created in emit*().
-        flush() to change the GrCustomStage from which the uniforms
-        are to be read.
-        TODO: since we don't have a factory, we can't assert to enforce
-        this. Shouldn't we? */
-    virtual void setData(const GrGLInterface*, const GrCustomStage*,
-                         const GrGLTexture*);
+        created in emit*(). */
+    virtual void setData(const GrGLInterface* gl,
+                         const GrGLTexture& texture,
+                         GrCustomStage* stage,
+                         int stageNum);
 
     // TODO: needs a better name
     enum SamplerMode {
@@ -120,6 +122,14 @@ protected:
     void emitTextureLookup(GrStringBuilder* code,
                            const char* samplerName,
                            const char* coordName);
+
+    /** Standard texture fetch, complete with swizzle & modulate if
+        appropriate. */
+    void emitDefaultFetch(GrGLShaderBuilder* state,
+                          const char* fsOutColor,
+                          const char* samplerName,
+                          const char* swizzle,
+                          const char* modulate);
 
     SamplerMode fSamplerMode;
 

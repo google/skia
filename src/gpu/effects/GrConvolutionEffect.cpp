@@ -21,23 +21,24 @@ public:
                           const GrCustomStage* stage);
     virtual void setupVSUnis(VarArray* vsUnis, int stage) SK_OVERRIDE;
     virtual void setupFSUnis(VarArray* fsUnis, int stage) SK_OVERRIDE;
-    virtual void emitVS(GrStringBuilder* code,
+    virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) SK_OVERRIDE;
-    virtual void emitFS(GrStringBuilder* code,
+    virtual void emitFS(GrGLShaderBuilder* state,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName,
-                        const char* sampleCoords) SK_OVERRIDE;
+                        const char* samplerName) SK_OVERRIDE;
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
 
-    virtual void setData(const GrGLInterface*, const GrCustomStage*,
-                         const GrGLTexture*) SK_OVERRIDE;
+    virtual void setData(const GrGLInterface*, 
+                         const GrGLTexture&,
+                         GrCustomStage*,
+                         int stageNum) SK_OVERRIDE;
 
     static inline StageKey GenKey(const GrCustomStage* s);
     
 protected:
 
-    int            fKernelWidth;
+    unsigned int   fKernelWidth;
     GrGLShaderVar* fKernelVar;
     GrGLShaderVar* fImageIncrementVar;
  
@@ -89,8 +90,9 @@ void GrGLConvolutionEffect::setupFSUnis(VarArray* fsUnis,
     fsUnis->push_back(*fImageIncrementVar).setEmitPrecision(false);
 }
 
-void GrGLConvolutionEffect::emitVS(GrStringBuilder* code,
+void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) {
+    GrStringBuilder* code = &state->fVSCode;
     float scale = (fKernelWidth - 1) * 0.5f;
     code->appendf("\t\t%s -= vec2(%g, %g) * %s;\n",
                   vertexCoords, scale, scale,
@@ -98,11 +100,11 @@ void GrGLConvolutionEffect::emitVS(GrStringBuilder* code,
 
 }
 
-void GrGLConvolutionEffect::emitFS(GrStringBuilder* code,
+void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName,
-                        const char* sampleCoords) {
+                        const char* samplerName) {
+    GrStringBuilder* code = &state->fFSCode;
     const char* texFunc = "texture2D";
     bool complexCoord = false;
 
@@ -117,7 +119,7 @@ void GrGLConvolutionEffect::emitFS(GrStringBuilder* code,
     fKernelVar->appendArrayAccess("i", &kernelIndex);
 
     code->appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
-    code->appendf("\t\tvec2 coord = %s;\n", sampleCoords);
+    code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
     code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n",
                   fKernelWidth);
 
@@ -141,8 +143,9 @@ void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
 }
 
 void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
-                                    const GrCustomStage* data,
-                                    const GrGLTexture* texture) {
+                                    const GrGLTexture& texture,
+                                    GrCustomStage* data,
+                                    int stageNum) {
     const GrConvolutionEffect* conv =
         static_cast<const GrConvolutionEffect*>(data);
     // the code we generated was for a specific kernel width
@@ -153,10 +156,10 @@ void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
     float imageIncrement[2] = { 0 };
     switch (conv->direction()) {
         case GrSamplerState::kX_FilterDirection:
-            imageIncrement[0] = 1.0f / texture->width();
+            imageIncrement[0] = 1.0f / texture.width();
             break;
         case GrSamplerState::kY_FilterDirection:
-            imageIncrement[1] = 1.0f / texture->width();
+            imageIncrement[1] = 1.0f / texture.width();
             break;
         default:
             GrCrash("Unknown filter direction.");

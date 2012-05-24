@@ -1588,11 +1588,9 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     }
 
     if (NULL != customStage) {
-        GrStringBuilder vertexShader;
-        customStage->emitVS(&vertexShader, varyingVSName);
         segments->fVSCode.appendf("\t{ // stage %d %s\n",
                                   stageNum, customStage->name());
-        segments->fVSCode.append(vertexShader);
+        customStage->emitVS(segments, varyingVSName);
         segments->fVSCode.appendf("\t}\n");
     }
 
@@ -1631,30 +1629,32 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     }
 
     segments->fComplexCoord = false;
-    switch (desc.fCoordMapping) {
-    case StageDesc::kIdentity_CoordMapping:
-        // Do nothing
-        break;
-    case StageDesc::kSweepGradient_CoordMapping:
-        segments->fSampleCoords.printf("vec2(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5, 0.5)", segments->fSampleCoords.c_str(), segments->fSampleCoords.c_str());
-        segments->fComplexCoord = true;
-        break;
-    case StageDesc::kRadialGradient_CoordMapping:
-        segments->fSampleCoords.printf("vec2(length(%s.xy), 0.5)", segments->fSampleCoords.c_str());
-        segments->fComplexCoord = true;
-        break;
-    case StageDesc::kRadial2Gradient_CoordMapping:
-        genRadial2GradientCoordMapping(
-                           stageNum, segments,
-                           radial2VaryingFSName, radial2Params);
-        break;
-    case StageDesc::kRadial2GradientDegenerate_CoordMapping:
-        genRadial2GradientDegenerateCoordMapping(
-                           stageNum, segments,
-                           radial2VaryingFSName, radial2Params);
-        break;
-
-    };
+    // NOTE: GrGLProgramStages will soon responsible for mapping
+    //if (NULL == customStage) {
+        switch (desc.fCoordMapping) {
+        case StageDesc::kIdentity_CoordMapping:
+            // Do nothing
+            break;
+        case StageDesc::kSweepGradient_CoordMapping:
+            segments->fSampleCoords.printf("vec2(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5, 0.5)", segments->fSampleCoords.c_str(), segments->fSampleCoords.c_str());
+            segments->fComplexCoord = true;
+            break;
+        case StageDesc::kRadialGradient_CoordMapping:
+            segments->fSampleCoords.printf("vec2(length(%s.xy), 0.5)", segments->fSampleCoords.c_str());
+            segments->fComplexCoord = true;
+            break;
+        case StageDesc::kRadial2Gradient_CoordMapping:
+            genRadial2GradientCoordMapping(
+                               stageNum, segments,
+                               radial2VaryingFSName, radial2Params);
+            break;
+        case StageDesc::kRadial2GradientDegenerate_CoordMapping:
+            genRadial2GradientDegenerateCoordMapping(
+                               stageNum, segments,
+                               radial2VaryingFSName, radial2Params);
+            break;
+        }
+    //}
 
     static const uint32_t kMulByAlphaMask =
         (StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
@@ -1697,52 +1697,55 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         locations->fTexDomUni = kUseUniform;
     }
 
-    switch (desc.fFetchMode) {
-    case StageDesc::k2x2_FetchMode:
-        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        gen2x2FS(stageNum, segments, locations,
-            samplerName, texelSizeName, swizzle, fsOutColor,
-            texFunc, modulate);
-        break;
-    case StageDesc::kConvolution_FetchMode:
-        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        break;
-    case StageDesc::kDilate_FetchMode:
-    case StageDesc::kErode_FetchMode:
-        GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-        genMorphologyFS(stageNum, desc, segments,
-            samplerName, swizzle, imageIncrementName, fsOutColor,
-            texFunc, modulate);
-        break;
-    default:
-        if (desc.fInConfigFlags & kMulByAlphaMask) {
-            // only one of the mul by alpha flags should be set
-            GrAssert(GrIsPow2(kMulByAlphaMask & desc.fInConfigFlags));
-            GrAssert(!(desc.fInConfigFlags & 
-                       StageDesc::kSmearAlpha_InConfigFlag));
-            GrAssert(!(desc.fInConfigFlags & 
-                       StageDesc::kSmearRed_InConfigFlag));
-            segments->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
-                                      fsOutColor, texFunc.c_str(), 
-                                      samplerName,
-                                      segments->fSampleCoords.c_str(),
-                                      swizzle);
-            if (desc.fInConfigFlags &
-                StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag) {
-                segments->fFSCode.appendf("\t%s = vec4(ceil(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
-                                          fsOutColor, fsOutColor, fsOutColor,
-                                          fsOutColor, modulate.c_str());
+    // NOTE: GrGLProgramStages are now responsible for fetching
+    if (NULL == customStage) {
+        switch (desc.fFetchMode) {
+        case StageDesc::k2x2_FetchMode:
+            GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
+            gen2x2FS(stageNum, segments, locations,
+                samplerName, texelSizeName, swizzle, fsOutColor,
+                texFunc, modulate);
+            break;
+        case StageDesc::kConvolution_FetchMode:
+            GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
+            break;
+        case StageDesc::kDilate_FetchMode:
+        case StageDesc::kErode_FetchMode:
+            GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
+            genMorphologyFS(stageNum, desc, segments,
+                samplerName, swizzle, imageIncrementName, fsOutColor,
+                texFunc, modulate);
+            break;
+        default:
+            if (desc.fInConfigFlags & kMulByAlphaMask) {
+                // only one of the mul by alpha flags should be set
+                GrAssert(GrIsPow2(kMulByAlphaMask & desc.fInConfigFlags));
+                GrAssert(!(desc.fInConfigFlags & 
+                           StageDesc::kSmearAlpha_InConfigFlag));
+                GrAssert(!(desc.fInConfigFlags & 
+                           StageDesc::kSmearRed_InConfigFlag));
+                segments->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
+                                          fsOutColor, texFunc.c_str(), 
+                                          samplerName,
+                                          segments->fSampleCoords.c_str(),
+                                          swizzle);
+                if (desc.fInConfigFlags &
+                    StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag) {
+                    segments->fFSCode.appendf("\t%s = vec4(ceil(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
+                                              fsOutColor, fsOutColor, fsOutColor,
+                                              fsOutColor, modulate.c_str());
+                } else {
+                    segments->fFSCode.appendf("\t%s = vec4(floor(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
+                                              fsOutColor, fsOutColor, fsOutColor,
+                                              fsOutColor, modulate.c_str());
+                }
             } else {
-                segments->fFSCode.appendf("\t%s = vec4(floor(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
-                                          fsOutColor, fsOutColor, fsOutColor,
-                                          fsOutColor, modulate.c_str());
+                segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
+                                          fsOutColor, texFunc.c_str(), 
+                                          samplerName, 
+                                          segments->fSampleCoords.c_str(),
+                                          swizzle, modulate.c_str());
             }
-        } else {
-            segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
-                                      fsOutColor, texFunc.c_str(), 
-                                      samplerName, 
-                                      segments->fSampleCoords.c_str(),
-                                      swizzle, modulate.c_str());
         }
     }
 
@@ -1762,8 +1765,7 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         segments->fFSCode.appendf("\t{ // stage %d %s \n",
                                   stageNum, customStage->name());
         customStage->emitTextureSetup(segments);
-        customStage->emitFS(&segments->fFSCode, fsOutColor, fsInColor,
-                            samplerName, segments->fSampleCoords.c_str());
+        customStage->emitFS(segments, fsOutColor, fsInColor, samplerName);
         segments->fFSCode.appendf("\t}\n");
     }
 }

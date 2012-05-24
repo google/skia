@@ -764,7 +764,8 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
                     static_cast<const GrGLTexture*>(
                         this->getDrawState().getTexture(s));
                 fProgramData->fCustomStage[s]->setData(
-                    this->glInterface(), sampler.getCustomStage(), texture);
+                    this->glInterface(), *texture,
+                    sampler.getCustomStage(), s);
             }
         }
     }
