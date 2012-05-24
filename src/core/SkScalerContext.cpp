@@ -625,30 +625,26 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
         path.transform(inverse, &localPath);
         // now localPath is only affected by the paint settings, and not the canvas matrix
 
-        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-        
-        if (fRec.fFrameWidth > 0) {
-            rec.setStrokeStyle(fRec.fFrameWidth,
-                               SkToBool(fRec.fFlags & kFrameAndFill_Flag));
-            // glyphs are always closed contours, so cap type is ignored,
-            // so we just pass something.
-            rec.setStrokeParams(SkPaint::kButt_Cap,
-                                (SkPaint::Join)fRec.fStrokeJoin,
-                                fRec.fMiterLimit);
-        }
-        
+        SkScalar width = fRec.fFrameWidth;
+
         if (fPathEffect) {
             SkPath effectPath;
-            if (fPathEffect->filterPath(&effectPath, localPath, &rec)) {
+
+            if (fPathEffect->filterPath(&effectPath, localPath, &width)) {
                 localPath.swap(effectPath);
             }
         }
 
-        if (rec.needToApply()) {
-            SkPath strokePath;
-            if (rec.applyToPath(&strokePath, localPath)) {
-                localPath.swap(strokePath);
-            }
+        if (width > 0) {
+            SkStroke    stroker;
+            SkPath      outline;
+
+            stroker.setWidth(width);
+            stroker.setMiterLimit(fRec.fMiterLimit);
+            stroker.setJoin((SkPaint::Join)fRec.fStrokeJoin);
+            stroker.setDoFill(SkToBool(fRec.fFlags & kFrameAndFill_Flag));
+            stroker.strokePath(localPath, &outline);
+            localPath.swap(outline);
         }
 
         // now return stuff to the caller

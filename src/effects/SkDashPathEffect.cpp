@@ -81,9 +81,9 @@ SkDashPathEffect::~SkDashPathEffect() {
 }
 
 bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                  SkStrokeRec* rec) {
+                                  SkScalar* width) {
     // we do nothing if the src wants to be filled, or if our dashlength is 0
-    if (rec->isFillStyle() || fInitialDashLength < 0) {
+    if (*width < 0 || fInitialDashLength < 0) {
         return false;
     }
 
