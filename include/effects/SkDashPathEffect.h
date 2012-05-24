@@ -41,7 +41,9 @@ public:
     SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase, bool scaleToFit = false);
     virtual ~SkDashPathEffect();
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE;
+    // overrides for SkPathEffect
+    //  This method is not exported to java.
+    virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
     // overrides for SkFlattenable
     //  This method is not exported to java.

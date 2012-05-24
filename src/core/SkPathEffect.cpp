@@ -10,78 +10,6 @@
 #include "SkPathEffect.h"
 #include "SkPath.h"
 #include "SkBuffer.h"
-#include "SkPaintDefaults.h"
-
-#define kStrokeRec_FillStyleWidth     (-SK_Scalar1)
-
-SkStrokeRec::SkStrokeRec(InitStyle s) {
-    fWidth          = (kFill_InitStyle == s) ? kStrokeRec_FillStyleWidth : 0;
-    fMiterLimit     = SkPaintDefaults_MiterLimit;
-    fCap            = SkPaint::kDefault_Cap;
-    fJoin           = SkPaint::kDefault_Join;
-    fStrokeAndFill  = false;
-}
-
-SkStrokeRec::SkStrokeRec(const SkStrokeRec& src) {
-    memcpy(this, &src, sizeof(src));
-}
-
-SkStrokeRec::SkStrokeRec(const SkPaint& paint) {
-    switch (paint.getStyle()) {
-        case SkPaint::kFill_Style:
-            fWidth = kStrokeRec_FillStyleWidth;
-            fStrokeAndFill = false;
-            break;
-        case SkPaint::kStroke_Style:
-            fWidth = paint.getStrokeWidth();
-            fStrokeAndFill = false;
-            break;
-        case SkPaint::kStrokeAndFill_Style:
-            fWidth = paint.getStrokeWidth();
-            fStrokeAndFill = true;
-            break;
-        default:
-            SkASSERT(!"unknown paint style");
-            // fall back on just fill
-            fWidth = kStrokeRec_FillStyleWidth;
-            fStrokeAndFill = false;
-            break;
-    }
-
-    // copy these from the paint, regardless of our "style"
-    fMiterLimit = paint.getStrokeMiter();
-    fCap        = paint.getStrokeCap();
-    fJoin       = paint.getStrokeJoin();
-}
-
-SkStrokeRec::Style SkStrokeRec::getStyle() const {
-    if (fWidth < 0) {
-        return kFill_Style;
-    } else if (0 == fWidth) {
-        return kHairline_Style;
-    } else {
-        return fStrokeAndFill ? kStrokeAndFill_Style : kStroke_Style;
-    }
-}
-
-#include "SkStroke.h"
-
-bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
-    if (fWidth <= 0) {  // hairline or fill
-        return false;
-    }
-
-    SkStroke stroker;
-    stroker.setCap(fCap);
-    stroker.setJoin(fJoin);
-    stroker.setMiterLimit(fMiterLimit);
-    stroker.setWidth(fWidth);
-    stroker.setDoFill(fStrokeAndFill);
-    stroker.strokePath(src, dst);
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) {
     *dst = src;
@@ -120,7 +48,7 @@ SkPairPathEffect::SkPairPathEffect(SkFlattenableReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                     SkStrokeRec* rec) {
+                                     SkScalar* width) {
     // we may have failed to unflatten these, so we have to check
     if (!fPE0 || !fPE1) {
         return false;
@@ -129,22 +57,115 @@ bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
     SkPath          tmp;
     const SkPath*   ptr = &src;
 
-    if (fPE1->filterPath(&tmp, src, rec)) {
+    if (fPE1->filterPath(&tmp, src, width)) {
         ptr = &tmp;
     }
-    return fPE0->filterPath(dst, *ptr, rec);
+    return fPE0->filterPath(dst, *ptr, width);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                 SkStrokeRec* rec) {
+                                 SkScalar* width) {
     // use bit-or so that we always call both, even if the first one succeeds
-    return fPE0->filterPath(dst, src, rec) | fPE1->filterPath(dst, src, rec);
+    return  fPE0->filterPath(dst, src, width) | fPE1->filterPath(dst, src, width);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkStroke.h"
+
+/** \class SkStrokePathEffect
+ 
+ SkStrokePathEffect simulates stroking inside a patheffect, allowing the
+ caller to have explicit control of when to stroke a path. Typically this is
+ used if the caller wants to stroke before another patheffect is applied
+ (using SkComposePathEffect or SkSumPathEffect).
+ */
+class SkStrokePathEffect : public SkPathEffect {
+public:
+    SkStrokePathEffect(const SkPaint&);
+    SkStrokePathEffect(SkScalar width, SkPaint::Style, SkPaint::Join,
+                       SkPaint::Cap, SkScalar miterLimit = -1);
+    
+    // overrides
+    virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
+    
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStrokePathEffect)
+    
+protected:
+    SkStrokePathEffect(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    
+private:
+    SkScalar    fWidth, fMiter;
+    uint8_t     fStyle, fJoin, fCap;
+    
+    typedef SkPathEffect INHERITED;
+    
+    // illegal
+    SkStrokePathEffect(const SkStrokePathEffect&);
+    SkStrokePathEffect& operator=(const SkStrokePathEffect&);
+};
+
+SkStrokePathEffect::SkStrokePathEffect(const SkPaint& paint)
+    : fWidth(paint.getStrokeWidth()), fMiter(paint.getStrokeMiter()),
+      fStyle(SkToU8(paint.getStyle())), fJoin(SkToU8(paint.getStrokeJoin())),
+      fCap(SkToU8(paint.getStrokeCap())) {
+}
+
+SkStrokePathEffect::SkStrokePathEffect(SkScalar width, SkPaint::Style style,
+                           SkPaint::Join join, SkPaint::Cap cap, SkScalar miter)
+        : fWidth(width), fMiter(miter), fStyle(SkToU8(style)),
+          fJoin(SkToU8(join)), fCap(SkToU8(cap)) {
+    if (miter < 0) {  // signal they want the default
+        fMiter = SkIntToScalar(4);
+    }
+}
+
+bool SkStrokePathEffect::filterPath(SkPath* dst, const SkPath& src,
+                                    SkScalar* width) {
+    if (fWidth < 0 || fStyle == SkPaint::kFill_Style) {
+        return false;
+    }
+
+    if (fStyle == SkPaint::kStroke_Style && fWidth == 0) {  // hairline
+        *width = 0;
+        return true;
+    }
+
+    SkStroke    stroke;
+
+    stroke.setWidth(fWidth);
+    stroke.setMiterLimit(fMiter);
+    stroke.setJoin((SkPaint::Join)fJoin);
+    stroke.setCap((SkPaint::Cap)fCap);
+    stroke.setDoFill(fStyle == SkPaint::kStrokeAndFill_Style);
+
+    stroke.strokePath(src, dst);
+    return true;
+}
+
+void SkStrokePathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    buffer.writeScalar(fWidth);
+    buffer.writeScalar(fMiter);
+    buffer.write8(fStyle);
+    buffer.write8(fJoin);
+    buffer.write8(fCap);
+}
+
+SkStrokePathEffect::SkStrokePathEffect(SkFlattenableReadBuffer& buffer) {
+    fWidth = buffer.readScalar();
+    fMiter = buffer.readScalar();
+    fStyle = buffer.readU8();
+    fJoin = buffer.readU8();
+    fCap = buffer.readU8();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkComposePathEffect)
+//SK_DEFINE_FLATTENABLE_REGISTRAR(SkStrokePathEffect)
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkSumPathEffect)
 

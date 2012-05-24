@@ -1987,27 +1987,61 @@ SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const {
-    SkStrokeRec rec(*this);
+    SkPath          effectPath, strokePath;
+    const SkPath*   path = &src;
 
-    const SkPath* srcPtr = &src;
-    SkPath tmpPath;
+    SkScalar width = this->getStrokeWidth();
 
-    if (fPathEffect && fPathEffect->filterPath(&tmpPath, src, &rec)) {
-        srcPtr = &tmpPath;
+    switch (this->getStyle()) {
+        case SkPaint::kFill_Style:
+            width = -1; // mark it as no-stroke
+            break;
+        case SkPaint::kStrokeAndFill_Style:
+            if (width == 0) {
+                width = -1; // mark it as no-stroke
+            }
+            break;
+        case SkPaint::kStroke_Style:
+            break;
+        default:
+            SkDEBUGFAIL("unknown paint style");
     }
 
-    if (!rec.applyToPath(dst, *srcPtr)) {
-        if (srcPtr == &tmpPath) {
-            // If path's were copy-on-write, this trick would not be needed.
-            // As it is, we want to save making a deep-copy from tmpPath -> dst
-            // since we know we're just going to delete tmpPath when we return,
-            // so the swap saves that copy.
-            dst->swap(tmpPath);
-        } else {
-            *dst = *srcPtr;
+    if (this->getPathEffect()) {
+        // lie to the pathEffect if our style is strokeandfill, so that it treats us as just fill
+        if (this->getStyle() == SkPaint::kStrokeAndFill_Style) {
+            width = -1; // mark it as no-stroke
+        }
+
+        if (this->getPathEffect()->filterPath(&effectPath, src, &width)) {
+            path = &effectPath;
+        }
+
+        // restore the width if we earlier had to lie, and if we're still set to no-stroke
+        // note: if we're now stroke (width >= 0), then the pathEffect asked for that change
+        // and we want to respect that (i.e. don't overwrite their setting for width)
+        if (this->getStyle() == SkPaint::kStrokeAndFill_Style && width < 0) {
+            width = this->getStrokeWidth();
+            if (width == 0) {
+                width = -1;
+            }
         }
     }
-    return !rec.isHairlineStyle();
+
+    if (width > 0 && !path->isEmpty()) {
+        SkStroke stroker(*this, width);
+        stroker.strokePath(*path, &strokePath);
+        path = &strokePath;
+    }
+
+    if (path == &src) {
+        *dst = src;
+    } else {
+        SkASSERT(path == &effectPath || path == &strokePath);
+        dst->swap(*(SkPath*)path);
+    }
+
+    return width != 0;  // return true if we're filled, or false if we're hairline (width == 0)
 }
 
 const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
