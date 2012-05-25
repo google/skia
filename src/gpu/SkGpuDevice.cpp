@@ -258,10 +258,6 @@ SkGpuDevice::~SkGpuDevice() {
         delete fDrawProcs;
     }
 
-    // The SkGpuDevice gives the context the render target (e.g., in gainFocus)
-    // This call gives the context a chance to relinquish it 
-    fContext->setRenderTarget(NULL);
-
     SkSafeUnref(fTexture);
     SkSafeUnref(fRenderTarget);
     if (fCache.texture()) {
