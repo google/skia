@@ -108,7 +108,7 @@ private:
 class InverseFillPE : public SkPathEffect {
 public:
     InverseFillPE() {}
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
+    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE {
         *dst = src;
         dst->setFillType(SkPath::kInverseWinding_FillType);
         return true;
@@ -197,10 +197,10 @@ protected:
         SkTDArray<SkPoint> pts;
         SkPathEffect* pe = makepe(0, &pts);
 
-        SkScalar width = -1;
+        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
         SkPath path, dstPath;
         orig.getTextPath("9", 1, 0, 0, &path);
-        pe->filterPath(&dstPath, path, &width);
+        pe->filterPath(&dstPath, path, &rec);
 
         SkPaint p;
         p.setAntiAlias(true);

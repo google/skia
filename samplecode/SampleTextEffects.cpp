@@ -181,9 +181,9 @@ public:
     Line2DPathEffect(SkScalar width, const SkMatrix& matrix)
         : Sk2DPathEffect(matrix), fWidth(width) {}
 
-	virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
-        if (this->INHERITED::filterPath(dst, src, width)) {
-            *width = fWidth;
+	virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec) SK_OVERRIDE {
+        if (this->INHERITED::filterPath(dst, src, rec)) {
+            rec->setStrokeStyle(fWidth);
             return true;
         }
         return false;

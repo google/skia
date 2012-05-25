@@ -10,7 +10,7 @@
 #include "Sk1DPathEffect.h"
 #include "SkPathMeasure.h"
 
-bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
+bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) {
     SkPathMeasure   meas(src, false);
     do {
         SkScalar    length = meas.getLength();
@@ -67,10 +67,10 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance,
 }
 
 bool SkPath1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                    SkScalar* width) {
+                                    SkStrokeRec* rec) {
     if (fAdvance > 0) {
-        *width = -1;
-        return this->INHERITED::filterPath(dst, src, width);
+        rec->setFillStyle();
+        return this->INHERITED::filterPath(dst, src, rec);
     }
     return false;
 }
