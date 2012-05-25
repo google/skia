@@ -64,6 +64,15 @@ class Svn:
         files = new_regex.findall(stdout)
         return files
 
+    def GetModifiedFiles(self):
+        """Return a list of files in this dir which are under SVN control, and
+        have been modified.
+        """
+        stdout = self._RunCommand(['svn', 'status'])
+        new_regex = re.compile('^M.....\s+(.+)$', re.MULTILINE)
+        files = new_regex.findall(stdout)
+        return files
+
     def AddFiles(self, filenames):
         """Adds these files to SVN control.
 
@@ -94,3 +103,14 @@ class Svn:
         all_files = os.listdir(self._directory)
         matching_files = sorted(fnmatch.filter(all_files, filename_pattern))
         self.SetProperty(matching_files, property_name, property_value)
+
+    def ExportBaseVersionOfFile(self, file_within_repo, dest_path):
+        """Retrieves a copy of the base version (what you would get if you ran
+        'svn revert') of a file within the repository.
+
+        @param file_within_repo path to the file within the repo whose base
+               version you wish to obtain
+        @param dest_path destination to which to write the base content
+        """
+        self._RunCommand(['svn', 'export', '--revision', 'BASE',
+                          file_within_repo, dest_path])
