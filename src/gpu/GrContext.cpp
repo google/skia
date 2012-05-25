@@ -69,6 +69,8 @@ GrContext* GrContext::Create(GrEngine engine,
 GrContext::~GrContext() {
     this->flush();
 
+    // The gpu refs textures in its drawstate. 
+    fGpu->setDrawState(NULL);
     // Since the gpu can hold scratch textures, give it a chance to let go
     // of them before freeing the texture cache
     fGpu->purgeResources();
