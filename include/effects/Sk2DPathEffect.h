@@ -19,7 +19,7 @@ public:
     Sk2DPathEffect(const SkMatrix& mat);
 
     // overrides
-    virtual bool filterPath(SkPath*, const SkPath&, SkScalar* width) SK_OVERRIDE;
+    virtual bool filterPath(SkPath*, const SkPath&, SkStrokeRec*) SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk2DPathEffect)
 

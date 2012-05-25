@@ -204,9 +204,9 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPath dst;
         for (int i = 0; i < N; ++i) {
-            SkScalar width = 0;
+            SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
             
-            fPE->filterPath(&dst, fPath, &width);
+            fPE->filterPath(&dst, fPath, &rec);
             dst.rewind();
         }
     }
