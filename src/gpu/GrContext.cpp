@@ -69,12 +69,6 @@ GrContext* GrContext::Create(GrEngine engine,
 GrContext::~GrContext() {
     this->flush();
 
-    // the context's drawstate can be holding onto texture/render target refs. 
-    // Relinquish them before the texture cache is freed lest a cached 
-    // texture/RT not be freed in the right order
-    fDrawState->reset();
-    // The gpu refs textures in its drawstate. 
-    fGpu->setDrawState(NULL);
     // Since the gpu can hold scratch textures, give it a chance to let go
     // of them before freeing the texture cache
     fGpu->purgeResources();

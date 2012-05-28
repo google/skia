@@ -14,10 +14,11 @@
 #include "GrRefCnt.h"
 #include "GrSamplerState.h"
 #include "GrStencil.h"
-#include "GrRenderTarget.h"
 
 #include "SkXfermode.h"
 
+class GrRenderTarget;
+class GrTexture;
 
 class GrDrawState : public GrRefCnt {
 
@@ -52,52 +53,18 @@ public:
     typedef uint32_t StageMask;
     GR_STATIC_ASSERT(sizeof(StageMask)*8 >= GrDrawState::kNumStages);
 
-    GrDrawState() 
-        : fRenderTarget(NULL) {
-
-        for (int i = 0; i < kNumStages; ++i) {
-            fTextures[i] = NULL;
-        }
-
+    GrDrawState() {
         this->reset();
     }
 
-    GrDrawState(const GrDrawState& state) 
-        : fRenderTarget(NULL) {
-
-        for (int i = 0; i < kNumStages; ++i) {
-            fTextures[i] = NULL;
-        }
-
+    GrDrawState(const GrDrawState& state) {
         *this = state;
-    }
-
-    virtual ~GrDrawState() {
-        for (int i = 0; i < kNumStages; ++i) {
-            GrSafeSetNull(fTextures[i]);
-        }
-        GrSafeSetNull(fRenderTarget);
     }
 
     /**
      * Resets to the default state. Sampler states will not be modified.
      */ 
     void reset() {
-
-        for (int i = 0; i < kNumStages; ++i) {
-            // just as in setTexture we have to detach the texture before
-            // unreffing it because, if a texture is actually freed here,
-            // GrGLTexture's onRelease method will try to remove it from all
-            // possible owner's (including this one) via setTexture(NULL)
-            GrTexture* temp = fTextures[i];
-            fTextures[i] = NULL;
-            GrSafeUnref(temp);
-        }
-
-        GrRenderTarget* temp = fRenderTarget;
-        fRenderTarget = NULL;
-        GrSafeUnref(temp);
-
         // make sure any pad is zero for memcmp
         // all GrDrawState members should default to something valid by the
         // the memset except those initialized individually below. There should
@@ -118,13 +85,14 @@ public:
         fSrcBlend = kOne_BlendCoeff;
         fDstBlend = kZero_BlendCoeff;
         fViewMatrix.reset();
+        fBehaviorBits = 0;
 
         // ensure values that will be memcmp'ed in == but not memset in reset()
         // are tightly packed
         GrAssert(this->memsetSize() +  sizeof(fColor) + sizeof(fCoverage) +
                  sizeof(fFirstCoverageStage) + sizeof(fColorFilterMode) +
-                 sizeof(fSrcBlend) + sizeof(fDstBlend) + sizeof(fTextures) +
-                 sizeof(fRenderTarget) == this->podSize());
+                 sizeof(fSrcBlend) + sizeof(fDstBlend) ==
+                 this->podSize());
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -206,14 +174,16 @@ public:
     void setTexture(int stage, GrTexture* texture) {
         GrAssert((unsigned)stage < kNumStages);
 
-        // If we don't clear out the current texture before unreffing
-        // it we can get into an infinite loop as the GrGLTexture's
-        // onRelease method recursively calls setTexture
-        GrTexture* temp = fTextures[stage];
-        fTextures[stage] = NULL;
+        if (isBehaviorEnabled(kTexturesNeedRef_BehaviorBit)) {
+            // If we don't clear out the current texture before unreffing
+            // it we can get into an infinite loop as the GrGLTexture's
+            // onRelease method recursively calls setTexture
+            GrTexture* temp = fTextures[stage];
+            fTextures[stage] = NULL;
 
-        SkSafeRef(texture);
-        SkSafeUnref(temp);
+            SkSafeRef(texture);
+            SkSafeUnref(temp);
+        }
 
         fTextures[stage] = texture;
     }
@@ -491,18 +461,7 @@ public:
      *
      * @param target  The render target to set.
      */
-    void setRenderTarget(GrRenderTarget* target) { 
-
-        // If we don't clear out the current render target before unreffing
-        // it we can get into an infinite loop as the GrGLRenderTarget's
-        // onRelease method recursively calls setTexture
-        GrRenderTarget* temp = fRenderTarget;
-        fRenderTarget = NULL;
-
-        SkSafeRef(target);
-        SkSafeUnref(temp);
-        fRenderTarget = target; 
-    }
+    void setRenderTarget(GrRenderTarget* target) { fRenderTarget = target; }
 
     /**
      * Retrieves the currently set rendertarget.
@@ -520,26 +479,16 @@ public:
             fSavedTarget = NULL;
             this->set(ds, newTarget);
         }
-        ~AutoRenderTargetRestore() { this->restore(); }
-
-        void restore() {
+        ~AutoRenderTargetRestore() { this->set(NULL, NULL); }
+        void set(GrDrawState* ds, GrRenderTarget* newTarget) {
             if (NULL != fDrawState) {
                 fDrawState->setRenderTarget(fSavedTarget);
-                fDrawState = NULL;
             }
-            GrSafeSetNull(fSavedTarget);
-        }
-
-        void set(GrDrawState* ds, GrRenderTarget* newTarget) {
-            this->restore();
-
             if (NULL != ds) {
-                GrAssert(NULL == fSavedTarget);
                 fSavedTarget = ds->getRenderTarget();
-                SkSafeRef(fSavedTarget);
                 ds->setRenderTarget(newTarget);
-                fDrawState = ds;
             }
+            fDrawState = ds;
         }
     private:
         GrDrawState* fDrawState;
@@ -732,6 +681,28 @@ public:
         fFlagBits = ds.fFlagBits;
     }
 
+    /**
+     *  Flags that do not affect rendering. 
+     */
+    enum GrBehaviorBits {
+        /**
+         * Calls to setTexture will ref/unref the texture
+         */
+        kTexturesNeedRef_BehaviorBit = 0x01,
+    };
+
+    void enableBehavior(uint32_t behaviorBits) {
+        fBehaviorBits |= behaviorBits;
+    }
+
+    void disableBehavior(uint32_t behaviorBits) {
+        fBehaviorBits &= ~(behaviorBits);
+    }
+
+    bool isBehaviorEnabled(uint32_t behaviorBits) const {
+        return 0 != (behaviorBits & fBehaviorBits);
+    }
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -777,6 +748,14 @@ public:
             return false;
         }
 
+        // kTexturesNeedRef is an internal flag for altering the draw state's 
+        // behavior rather than a property that will impact drawing - ignore it
+        // here
+        if ((fBehaviorBits & ~kTexturesNeedRef_BehaviorBit) != 
+            (s.fBehaviorBits & ~kTexturesNeedRef_BehaviorBit)) {
+            return false;
+        }
+
         for (int i = 0; i < kNumStages; i++) {
             if (fTextures[i] &&
                 this->fSamplerStates[i] != s.fSamplerStates[i]) {
@@ -801,16 +780,13 @@ public:
         memcpy(this->podStart(), s.podStart(), this->podSize());
 
         fViewMatrix = s.fViewMatrix;
+        fBehaviorBits = s.fBehaviorBits;
 
         for (int i = 0; i < kNumStages; i++) {
-            SkSafeRef(fTextures[i]);            // already copied by memcpy
             if (s.fTextures[i]) {
                 this->fSamplerStates[i] = s.fSamplerStates[i];
             }
         }
-
-        SkSafeRef(fRenderTarget);               // already copied by memcpy
-
         if (kColorMatrix_StateBit & s.fFlagBits) {
             memcpy(this->fColorMatrix, s.fColorMatrix, sizeof(fColorMatrix));
         }
@@ -844,13 +820,15 @@ private:
         GrColor             fBlendConstant;
         GrColor             fPodStartMarker;
     };
+    GrTexture*          fTextures[kNumStages];
     GrColor             fColorFilterColor;
     uint32_t            fFlagBits;
     DrawFace            fDrawFace; 
+    VertexEdgeType      fVertexEdgeType;
     GrStencilSettings   fStencilSettings;
     union {
-        VertexEdgeType  fVertexEdgeType;
-        VertexEdgeType  fMemsetEndMarker;
+        GrRenderTarget* fRenderTarget;
+        GrRenderTarget* fMemsetEndMarker;
     };
     // @}
 
@@ -861,14 +839,13 @@ private:
     int                 fFirstCoverageStage;
     SkXfermode::Mode    fColorFilterMode;
     GrBlendCoeff        fSrcBlend;
-    GrBlendCoeff        fDstBlend;
-    GrTexture*          fTextures[kNumStages];
     union {
-        GrRenderTarget* fRenderTarget;
-        GrRenderTarget* fPodEndMarker;
+        GrBlendCoeff    fDstBlend;
+        GrBlendCoeff    fPodEndMarker;
     };
     // @}
 
+    uint32_t            fBehaviorBits;
     GrMatrix            fViewMatrix;
 
     // This field must be last; it will not be copied or compared
