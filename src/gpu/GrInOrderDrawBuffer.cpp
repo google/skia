@@ -460,17 +460,7 @@ void GrInOrderDrawBuffer::reset() {
     GrAssert(1 == fGeoPoolStateStack.count());
     this->resetVertexSource();
     this->resetIndexSource();
-    uint32_t numStates = fStates.count();
-    for (uint32_t i = 0; i < numStates; ++i) {
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            GrSafeUnref(fStates[i].getTexture(s));
-        }
-        GrSafeUnref(fStates[i].getRenderTarget());
 
-        // GrInOrderDrawBuffer is no longer managing the refs/unrefs 
-        // for the stored GrDrawStates
-        fStates[i].disableBehavior(GrDrawState::kTexturesNeedRef_BehaviorBit);
-    }
     int numDraws = fDraws.count();
     for (int d = 0; d < numDraws; ++d) {
         // we always have a VB, but not always an IB
@@ -780,16 +770,7 @@ bool GrInOrderDrawBuffer::needsNewState() const {
 }
 
 void GrInOrderDrawBuffer::pushState() {
-    const GrDrawState& drawState = this->getDrawState();
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        GrSafeRef(drawState.getTexture(s));
-    }
-    GrSafeRef(drawState.getRenderTarget());
     fStates.push_back(this->getDrawState());
-
-    // Any textures that are added to the stored state need to be
-    // reffed so the unref in reset doesn't inappropriately free them
-    fStates.back().enableBehavior(GrDrawState::kTexturesNeedRef_BehaviorBit);
  }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
