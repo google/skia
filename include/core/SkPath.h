@@ -559,6 +559,19 @@ public:
     void addRoundRect(const SkRect& rect, const SkScalar radii[],
                       Direction dir = kCW_Direction);
 
+    /**
+     *  Add a new contour made of just lines. This is just a fast version of
+     *  the following:
+     *      this->moveTo(pts[0]);
+     *      for (int i = 1; i < count; ++i) {
+     *          this->lineTo(pts[i]);
+     *      }
+     *      if (close) {
+     *          this->close();
+     *      }
+     */
+    void addPoly(const SkPoint pts[], int count, bool close);
+
     /** Add a copy of src to the path, offset by (dx,dy)
         @param src  The path to add as a new contour
         @param dx   The amount to translate the path in X as it is added

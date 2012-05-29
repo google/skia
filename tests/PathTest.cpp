@@ -16,6 +16,72 @@
 #include "SkSize.h"
 #include "SkWriter32.h"
 
+// assert that we always
+//  start with a moveTo
+//  only have 1 moveTo
+//  only have Lines after that
+//  end with a single close
+//  only have (at most) 1 close
+//
+static void test_poly(skiatest::Reporter* reporter, const SkPath& path,
+                      const SkPoint srcPts[], int count, bool expectClose) {
+    SkPath::RawIter iter(path);
+    SkPoint         pts[4];
+    SkPath::Verb    verb;
+
+    bool firstTime = true;
+    bool foundClose = false;
+    for (;;) {
+        switch (iter.next(pts)) {
+            case SkPath::kMove_Verb:
+                REPORTER_ASSERT(reporter, firstTime);
+                REPORTER_ASSERT(reporter, pts[0] == srcPts[0]);
+                srcPts++;
+                firstTime = false;
+                break;
+            case SkPath::kLine_Verb:
+                REPORTER_ASSERT(reporter, !firstTime);
+                REPORTER_ASSERT(reporter, pts[1] == srcPts[0]);
+                srcPts++;
+                break;
+            case SkPath::kQuad_Verb:
+                REPORTER_ASSERT(reporter, !"unexpected quad verb");
+                break;
+            case SkPath::kCubic_Verb:
+                REPORTER_ASSERT(reporter, !"unexpected cubic verb");
+                break;
+            case SkPath::kClose_Verb:
+                REPORTER_ASSERT(reporter, !firstTime);
+                REPORTER_ASSERT(reporter, !foundClose);
+                REPORTER_ASSERT(reporter, expectClose);
+                foundClose = true;
+                break;
+            case SkPath::kDone_Verb:
+                goto DONE;
+        }
+    }
+DONE:
+    REPORTER_ASSERT(reporter, foundClose == expectClose);
+}
+
+static void test_addPoly(skiatest::Reporter* reporter) {
+    SkPoint pts[32];
+    SkRandom rand;
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
+        pts[i].fX = rand.nextSScalar1();
+        pts[i].fY = rand.nextSScalar1();
+    }
+
+    for (int doClose = 0; doClose <= 1; ++doClose) {
+        for (size_t count = 1; count <= SK_ARRAY_COUNT(pts); ++count) {
+            SkPath path;
+            path.addPoly(pts, count, SkToBool(doClose));
+            test_poly(reporter, path, pts, count, SkToBool(doClose));
+        }
+    }
+}
+
 static void test_strokerec(skiatest::Reporter* reporter) {
     SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
     REPORTER_ASSERT(reporter, rec.isFillStyle());
@@ -1398,8 +1464,8 @@ void TestPath(skiatest::Reporter* reporter) {
     test_raw_iter(reporter);
     test_circle(reporter);
     test_oval(reporter);
-    
     test_strokerec(reporter);
+    test_addPoly(reporter);
 }
 
 #include "TestClassDef.h"
