@@ -46,14 +46,16 @@ public:
     bool isFillStyle() const {
         return kFill_Style == this->getStyle();
     }
-    
-    void setFillStyle();
-    void setHairlineStyle() { fWidth = 0; }
 
-    void setStrokeStyle(SkScalar width, bool strokeAndFill = false) {
-        fWidth = width;
-        fStrokeAndFill = strokeAndFill;
-    }
+    void setFillStyle();
+    void setHairlineStyle();
+    /**
+     *  Specify the strokewidth, and optionally if you want stroke + fill.
+     *  Note, if width==0, then this request is taken to mean:
+     *      strokeAndFill==true -> new style will be Fill
+     *      strokeAndFill==false -> new style will be Hairline
+     */
+    void setStrokeStyle(SkScalar width, bool strokeAndFill = false);
 
     void setStrokeParams(SkPaint::Cap cap, SkPaint::Join join, SkScalar miterLimit) {
         fCap = cap;
