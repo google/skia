@@ -12,6 +12,12 @@ import subprocess
 
 PROPERTY_MIMETYPE = 'svn:mime-type'
 
+# Status types for GetFilesWithStatus()
+STATUS_ADDED                 = 0x01
+STATUS_DELETED               = 0x02
+STATUS_MODIFIED              = 0x04
+STATUS_NOT_UNDER_SVN_CONTROL = 0x08
+
 class Svn:
 
     def __init__(self, directory):
@@ -50,27 +56,33 @@ class Svn:
         """Return a list of files which are in this directory but NOT under
         SVN control.
         """
-        stdout = self._RunCommand(['svn', 'status'])
-        new_regex = re.compile('^\?.....\s+(.+)$', re.MULTILINE)
-        files = new_regex.findall(stdout)
-        return files
+        return self.GetFilesWithStatus(STATUS_NOT_UNDER_SVN_CONTROL)
 
     def GetNewAndModifiedFiles(self):
         """Return a list of files in this dir which are newly added or modified,
         including those that are not (yet) under SVN control.
         """
-        stdout = self._RunCommand(['svn', 'status'])
-        new_regex = re.compile('^[AM\?].....\s+(.+)$', re.MULTILINE)
-        files = new_regex.findall(stdout)
-        return files
+        return self.GetFilesWithStatus(
+            STATUS_ADDED | STATUS_MODIFIED | STATUS_NOT_UNDER_SVN_CONTROL)
 
-    def GetModifiedFiles(self):
-        """Return a list of files in this dir which are under SVN control, and
-        have been modified.
+    def GetFilesWithStatus(self, status):
+        """Return a list of files in this dir with the given SVN status.
+
+        @param status bitfield combining one or more STATUS_xxx values
         """
+        status_types_string = ''
+        if status & STATUS_ADDED:
+            status_types_string += 'A'
+        if status & STATUS_DELETED:
+            status_types_string += 'D'
+        if status & STATUS_MODIFIED:
+            status_types_string += 'M'
+        if status & STATUS_NOT_UNDER_SVN_CONTROL:
+            status_types_string += '\?'
+        status_regex_string = '^[%s].....\s+(.+)$' % status_types_string
         stdout = self._RunCommand(['svn', 'status'])
-        new_regex = re.compile('^M.....\s+(.+)$', re.MULTILINE)
-        files = new_regex.findall(stdout)
+        status_regex = re.compile(status_regex_string, re.MULTILINE)
+        files = status_regex.findall(stdout)
         return files
 
     def AddFiles(self, filenames):
