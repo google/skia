@@ -38,8 +38,14 @@ SkStrokeRec::SkStrokeRec(const SkPaint& paint) {
             fStrokeAndFill = false;
             break;
         case SkPaint::kStrokeAndFill_Style:
-            fWidth = paint.getStrokeWidth();
-            fStrokeAndFill = true;
+            if (0 == paint.getStrokeWidth()) {
+                // hairline+fill == fill
+                fWidth = kStrokeRec_FillStyleWidth;
+                fStrokeAndFill = false;
+            } else {
+                fWidth = paint.getStrokeWidth();
+                fStrokeAndFill = true;
+            }
             break;
         default:
             SkASSERT(!"unknown paint style");
@@ -67,6 +73,22 @@ SkStrokeRec::Style SkStrokeRec::getStyle() const {
 
 void SkStrokeRec::setFillStyle() {
     fWidth = kStrokeRec_FillStyleWidth;
+    fStrokeAndFill = false;
+}
+
+void SkStrokeRec::setHairlineStyle() {
+    fWidth = 0;
+    fStrokeAndFill = false;
+}
+
+void SkStrokeRec::setStrokeStyle(SkScalar width, bool strokeAndFill) {
+    if (strokeAndFill && (0 == width)) {
+        // hairline+fill == fill
+        this->setFillStyle();
+    } else {
+        fWidth = width;
+        fStrokeAndFill = strokeAndFill;
+    }
 }
 
 #include "SkStroke.h"

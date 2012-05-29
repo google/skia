@@ -10,10 +10,31 @@
 #include "SkPath.h"
 #include "SkParse.h"
 #include "SkParsePath.h"
+#include "SkPathEffect.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkSize.h"
 #include "SkWriter32.h"
+
+static void test_strokerec(skiatest::Reporter* reporter) {
+    SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+    REPORTER_ASSERT(reporter, rec.isFillStyle());
+    
+    rec.setHairlineStyle();
+    REPORTER_ASSERT(reporter, rec.isHairlineStyle());
+    
+    rec.setStrokeStyle(SK_Scalar1, false);
+    REPORTER_ASSERT(reporter, SkStrokeRec::kStroke_Style == rec.getStyle());
+    
+    rec.setStrokeStyle(SK_Scalar1, true);
+    REPORTER_ASSERT(reporter, SkStrokeRec::kStrokeAndFill_Style == rec.getStyle());
+    
+    rec.setStrokeStyle(0, false);
+    REPORTER_ASSERT(reporter, SkStrokeRec::kHairline_Style == rec.getStyle());
+    
+    rec.setStrokeStyle(0, true);
+    REPORTER_ASSERT(reporter, SkStrokeRec::kFill_Style == rec.getStyle());
+}
 
 /**
  * cheapIsDirection can take a shortcut when a path is marked convex.
@@ -1377,6 +1398,8 @@ void TestPath(skiatest::Reporter* reporter) {
     test_raw_iter(reporter);
     test_circle(reporter);
     test_oval(reporter);
+    
+    test_strokerec(reporter);
 }
 
 #include "TestClassDef.h"
