@@ -12,6 +12,11 @@
 #include "SkWriter32.h"
 #include "SkMath.h"
 
+// This value is just made-up for now. When count is 4, calling memset was much
+// slower than just writing the loop. This seems odd, and hopefully in the
+// future this we appear to have been a fluke...
+#define MIN_COUNT_FOR_MEMSET_TO_BE_FAST 16
+
 ////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -625,6 +630,39 @@ void SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
         this->lineTo(left, bottom);
     }
     this->close();
+}
+
+void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
+    SkDEBUGCODE(this->validate();)
+    if (count <= 0) {
+        return;
+    }
+
+    fLastMoveToIndex = fPts.count();
+    fPts.append(count, pts);
+
+    // +close makes room for the extra kClose_Verb
+    uint8_t* vb = fVerbs.append(count + close);
+    vb[0] = kMove_Verb;
+
+    if (count > 1) {
+        // cast to unsigned, so if MIN_COUNT_FOR_MEMSET_TO_BE_FAST is defined to
+        // be 0, the compiler will remove the test/branch entirely.
+        if ((unsigned)count >= MIN_COUNT_FOR_MEMSET_TO_BE_FAST) {
+            memset(&vb[1], kLine_Verb, count - 1);
+        } else {
+            for (int i = 1; i < count; ++i) {
+                vb[i] = kLine_Verb;
+            }
+        }
+        fSegmentMask |= kLine_SegmentMask;
+    }
+    if (close) {
+        vb[count] = kClose_Verb;
+    }
+
+    GEN_ID_INC;
+    DIRTY_AFTER_EDIT;
 }
 
 #define CUBIC_ARC_FACTOR    ((SK_ScalarSqrt2 - SK_Scalar1) * 4 / 3)
