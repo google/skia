@@ -1,6 +1,5 @@
 '''
-Compares all locally modified images within this SVN checkout against the
-SVN base revision of each image.
+Generates a visual diff of all pending changes in the local SVN checkout.
 
 Launch with --help to see more information.
 
@@ -24,8 +23,11 @@ import svn
 USAGE_STRING = 'Usage: %s [options]'
 HELP_STRING = '''
 
-Compares all locally modified images within this SVN checkout against the
-SVN base revision of each image.
+Generates a visual diff of all pending changes in the local SVN checkout.
+
+This includes a list of all files that have been added, deleted, or modified
+(as far as SVN knows about).  For any image modifications, pixel diffs will
+be generated.
 
 '''
 
@@ -69,8 +71,7 @@ def FindPathToSkDiff(user_set_path=None):
                         possible_paths, OPTION_PATH_TO_SKDIFF))
 
 def SvnDiff(path_to_skdiff, dest_dir):
-    """Compares all locally modified images within this SVN checkout against
-    the SVN base revision of each image.
+    """Generates a visual diff of all pending changes in the local SVN checkout.
 
     @param path_to_skdiff
     @param dest_dir existing directory within which to write results
@@ -88,17 +89,21 @@ def SvnDiff(path_to_skdiff, dest_dir):
         shutil.rmtree(dir, ignore_errors=True)
         os.mkdir(dir)
 
-    # Get a list of all locally modified files, descending subdirectories.
+    # Get a list of all locally modified (including added/deleted) files,
+    # descending subdirectories.
     svn_repo = svn.Svn('.')
-    modified_file_paths = svn_repo.GetModifiedFiles()
+    modified_file_paths = svn_repo.GetFilesWithStatus(
+        svn.STATUS_ADDED | svn.STATUS_DELETED | svn.STATUS_MODIFIED)
 
     # For each modified file:
     # 1. copy its current contents into modified_flattened_dir
     # 2. copy its original contents into original_flattened_dir
     for modified_file_path in modified_file_paths:
         dest_filename = re.sub(os.sep, '__', modified_file_path)
-        shutil.copyfile(modified_file_path,
-                        os.path.join(modified_flattened_dir, dest_filename))
+        # If the file had STATUS_DELETED, it won't exist anymore...
+        if os.path.isfile(modified_file_path):
+            shutil.copyfile(modified_file_path,
+                            os.path.join(modified_flattened_dir, dest_filename))
         svn_repo.ExportBaseVersionOfFile(
             modified_file_path,
             os.path.join(original_flattened_dir, dest_filename))
