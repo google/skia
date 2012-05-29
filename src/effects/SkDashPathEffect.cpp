@@ -80,6 +80,73 @@ SkDashPathEffect::~SkDashPathEffect() {
     sk_free(fIntervals);
 }
 
+class SpecialLineRec {
+public:
+    bool init(const SkPath& src, SkPath* dst, SkStrokeRec* rec,
+              SkScalar pathLength,
+              int intervalCount, SkScalar intervalLength) {
+        if (rec->isHairlineStyle() || !src.isLine(fPts)) {
+            return false;
+        }
+        
+        // can relax this in the future, if we handle square and round caps
+        if (SkPaint::kButt_Cap != rec->getCap()) {
+            return false;
+        }
+        
+        fTangent = fPts[1] - fPts[0];
+        if (fTangent.isZero()) {
+            return false;
+        }
+
+        fPathLength = pathLength;
+        fTangent.scale(SkScalarInvert(pathLength));
+        fTangent.rotateCCW(&fNormal);
+        fNormal.scale(SkScalarHalf(rec->getWidth()));
+
+        // now estimate how many quads will be added to the path
+        //     resulting segments = pathLen * intervalCount / intervalLen
+        //     resulting points = 4 * segments
+    
+        SkScalar ptCount = SkScalarMulDiv(pathLength,
+                                          SkIntToScalar(intervalCount),
+                                          intervalLength);
+        int n = SkScalarCeilToInt(ptCount) << 2;
+        dst->incReserve(n);
+        
+        // we will take care of the stroking
+        rec->setFillStyle();
+        return true;
+    }
+
+    void addSegment(SkScalar d0, SkScalar d1, SkPath* path) const {
+        SkASSERT(d0 < fPathLength);
+        // clamp the segment to our length
+        if (d1 > fPathLength) {
+            d1 = fPathLength;
+        }
+
+        SkScalar x0 = fPts[0].fX + SkScalarMul(fTangent.fX, d0);
+        SkScalar x1 = fPts[0].fX + SkScalarMul(fTangent.fX, d1);
+        SkScalar y0 = fPts[0].fY + SkScalarMul(fTangent.fY, d0);
+        SkScalar y1 = fPts[0].fY + SkScalarMul(fTangent.fY, d1);
+
+        SkPoint pts[4];
+        pts[0].set(x0 + fNormal.fX, y0 + fNormal.fY);   // moveTo
+        pts[1].set(x1 + fNormal.fX, y1 + fNormal.fY);   // lineTo
+        pts[2].set(x1 - fNormal.fX, y1 - fNormal.fY);   // lineTo
+        pts[3].set(x0 - fNormal.fX, y0 - fNormal.fY);   // lineTo
+
+        path->addPoly(pts, SK_ARRAY_COUNT(pts), false);
+    }
+
+private:
+    SkPoint fPts[2];
+    SkVector fTangent;
+    SkVector fNormal;
+    SkScalar fPathLength;
+};
+
 bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
                                   SkStrokeRec* rec) {
     // we do nothing if the src wants to be filled, or if our dashlength is 0
@@ -90,13 +157,17 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
     SkPathMeasure   meas(src, false);
     const SkScalar* intervals = fIntervals;
 
+    SpecialLineRec lineRec;
+    const bool specialLine = lineRec.init(src, dst, rec, meas.getLength(),
+                                          fCount >> 1, fIntervalLength);
+
     do {
         bool        skipFirstSegment = meas.isClosed();
         bool        addedSegment = false;
         SkScalar    length = meas.getLength();
         int         index = fInitialDashIndex;
         SkScalar    scale = SK_Scalar1;
-
+        
         if (fScaleToFit) {
             if (fIntervalLength >= length) {
                 scale = SkScalarDiv(length, fIntervalLength);
@@ -115,7 +186,12 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
             addedSegment = false;
             if (is_even(index) && dlen > 0 && !skipFirstSegment) {
                 addedSegment = true;
-                meas.getSegment(distance, distance + dlen, dst, true);
+                
+                if (specialLine) {
+                    lineRec.addSegment(distance, distance + dlen, dst);
+                } else {
+                    meas.getSegment(distance, distance + dlen, dst, true);
+                }
             }
             distance += dlen;
 
@@ -139,6 +215,7 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
             meas.getSegment(0, SkScalarMul(fInitialDashLength, scale), dst, !addedSegment);
         }
     } while (meas.nextContour());
+
     return true;
 }
 
