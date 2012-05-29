@@ -152,7 +152,7 @@ public:
                                  SkRefCntSet*);
 
     void unflatten(SkBitmap* bitmap, SkRefCntPlayback* rcp) const {
-        SkOrderedReadBuffer buffer(fBitmapData, 1024*1024);
+        SkOrderedReadBuffer buffer(fBitmapData, fAllocSize);
         if (rcp) {
             rcp->setupBuffer(buffer);
         }
