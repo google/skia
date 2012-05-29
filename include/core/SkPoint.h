@@ -145,6 +145,11 @@ struct SK_API SkPoint {
     SkScalar x() const { return fX; }
     SkScalar y() const { return fY; }
 
+    /**
+     *  Returns true iff fX and fY are both zero.
+     */
+    bool isZero() const { return (0 == fX) & (0 == fY); }
+
     /** Set the point's X and Y coordinates */
     void set(SkScalar x, SkScalar y) { fX = x; fY = y; }
 
