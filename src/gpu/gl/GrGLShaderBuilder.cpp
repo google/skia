@@ -116,6 +116,8 @@ void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {
 void GrGLShaderBuilder::computeModulate(const char* fsInColor) {
     if (NULL != fsInColor) {
         fModulate.printf(" * %s", fsInColor);
+    } else {
+        fModulate.reset();
     }
 }
 
