@@ -163,6 +163,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x, GrGLint y,
         case GR_GL_RGB:
             componentsPerPixel = 3;
             break;
+        case GR_GL_RED:
+            componentsPerPixel = 1;
+            break;
         default:
             GrAlwaysAssert(false);
             break;
