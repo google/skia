@@ -173,3 +173,35 @@ void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
     fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
 }
 
+const GrGLShaderVar& GrGLShaderBuilder::addUniform(VariableLifetime lifetime,
+                                             GrSLType type,
+                                             const char* name,
+                                             int stageNum,
+                                             int count) {
+    GrAssert(name && strlen(name));
+
+    GrGLShaderVar* var = NULL;
+    if (kVertex_VariableLifetime & lifetime) {
+        var = &fVSUnis.push_back();
+    } else {
+        GrAssert(kFragment_VariableLifetime & lifetime);
+        var = &fFSUnis.push_back();
+    }
+    var->setType(type);
+    var->setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
+    var->setName(name);
+    if (stageNum >= 0) {
+        var->accessName()->appendS32(stageNum);
+    }
+    var->setArrayCount(count);
+
+    if ((kVertex_VariableLifetime |
+        kFragment_VariableLifetime) == lifetime) {
+        fFSUnis.push_back(*var);
+        // If it's shared between VS and FS, VS must override
+        // default highp and specify mediump.
+        var->setEmitPrecision(true);
+    }
+
+    return *var;
+}
