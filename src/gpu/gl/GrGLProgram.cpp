@@ -309,7 +309,7 @@ void GrGLProgram::genEdgeCoverage(const GrGLContextInfo& gl,
                                   GrGLShaderBuilder* segments) const {
     if (layout & GrDrawTarget::kEdge_VertexLayoutBit) {
         const char *vsName, *fsName;
-        segments->appendVarying(kVec4f_GrSLType, "Edge", &vsName, &fsName);
+        segments->addVarying(kVec4f_GrSLType, "Edge", &vsName, &fsName);
         segments->fVSAttrs.push_back().set(kVec4f_GrSLType,
             GrGLShaderVar::kAttribute_TypeModifier, EDGE_ATTR_NAME);
         segments->fVSCode.appendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
@@ -379,7 +379,7 @@ void genInputColor(GrGLProgram::ProgramDesc::ColorInput colorInput,
                 GrGLShaderVar::kAttribute_TypeModifier,
                 COL_ATTR_NAME);
             const char *vsName, *fsName;
-            segments->appendVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
+            segments->addVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
             segments->fVSCode.appendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
             *inColor = fsName;
             } break;
@@ -406,7 +406,7 @@ void genAttributeCoverage(GrGLShaderBuilder* segments,
                                        GrGLShaderVar::kAttribute_TypeModifier,
                                        COV_ATTR_NAME);
     const char *vsName, *fsName;
-    segments->appendVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
+    segments->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
     segments->fVSCode.appendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
     if (inOutCoverage->size()) {
         segments->fFSCode.appendf("\tvec4 attrCoverage = %s * %s;\n",
@@ -1256,11 +1256,11 @@ const GrGLShaderVar* genRadialVS(int stageNum,
     // part of the quadratic as a varying.
     if (segments->fVaryingDims == segments->fCoordDims) {
         GrAssert(2 == segments->fCoordDims);
-        segments->appendVarying(kFloat_GrSLType,
-                                "Radial2BCoeff",
-                                stageNum,
-                                radial2VaryingVSName,
-                                radial2VaryingFSName);
+        segments->addVarying(kFloat_GrSLType,
+                             "Radial2BCoeff",
+                             stageNum,
+                             radial2VaryingVSName,
+                             radial2VaryingFSName);
 
         GrStringBuilder radial2p2;
         GrStringBuilder radial2p3;
@@ -1486,11 +1486,11 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) ==
              desc.fInConfigFlags);
 
-    /// Vertex Shader Stuff
-
     if (NULL != customStage) {
-        customStage->setupVSUnis(&segments->fVSUnis, stageNum);
+        customStage->setupVariables(segments, stageNum);
     }
+
+    /// Vertex Shader Stuff
 
     // decide whether we need a matrix to transform texture coords
     // and whether the varying needs a perspective coord.
@@ -1532,11 +1532,11 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     }
 
     const char *varyingVSName, *varyingFSName;
-    segments->appendVarying(GrSLFloatVectorType(segments->fVaryingDims),
-                            "Stage",
-                           stageNum,
-                           &varyingVSName,
-                           &varyingFSName);
+    segments->addVarying(GrSLFloatVectorType(segments->fVaryingDims),
+                         "Stage",
+                        stageNum,
+                        &varyingVSName,
+                        &varyingFSName);
 
     if (!matName) {
         GrAssert(segments->fVaryingDims == segments->fCoordDims);
@@ -1576,10 +1576,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     }
 
     /// Fragment Shader Stuff
-
-    if (NULL != customStage) {
-        customStage->setupFSUnis(&segments->fFSUnis, stageNum);
-    }
 
     // Function used to access the shader, may be made projective.
     GrStringBuilder texFunc("texture2D");

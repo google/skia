@@ -43,22 +43,8 @@ public:
 
     virtual ~GrGLProgramStage();
 
-    /** Creates any uniform variables the vertex shader requires
-        and appends them to vsUnis;
-        must guarantee they are unique (typically done by
-        appending the stage number). */
-    virtual void setupVSUnis(VarArray* vsUnis, int stage);
-
-    /** Creates any uniform variables the fragment shader requires
-        and appends them to fsUnis;
-        must guarantee they are unique (typically done by
-        appending the stage number). */
-    virtual void setupFSUnis(VarArray* fsUnis, int stage);
-
-    /** Creates any varying variables shared between the shaders;
-        must guarantee they are unique (typically done by
-        appending the stage number). */
-    virtual void setupVaryings(GrGLShaderBuilder* state, int stage);
+    /** Create any uniforms or varyings the vertex shader requires. */
+    virtual void setupVariables(GrGLShaderBuilder* state, int stage);
 
     /** Appends vertex code to the appropriate GrStringBuilder
         on the state.

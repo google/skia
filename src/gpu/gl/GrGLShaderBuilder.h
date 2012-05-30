@@ -26,17 +26,6 @@ public:
 
     GrGLShaderBuilder();
 
-    void appendVarying(GrSLType type,
-                       const char* name,
-                       const char** vsOutName = NULL,
-                       const char** fsInName = NULL);
-
-    void appendVarying(GrSLType type,
-                       const char* name,
-                       int stageNum,
-                       const char** vsOutName = NULL,
-                       const char** fsInName = NULL);
-
     void computeSwizzle(uint32_t configFlags);
     void computeModulate(const char* fsInColor);
 
@@ -72,6 +61,26 @@ public:
         const char* name,
         int stageNum = -1,
         int count = GrGLShaderVar::kNonArray);
+
+    /** Add a varying variable to the current program to pass
+        values between vertex and fragment shaders.
+        If the last two parameters are non-NULL, they are filled
+        in with the name generated. */
+    void addVarying(GrSLType type,
+                    const char* name,
+                    const char** vsOutName = NULL,
+                    const char** fsInName = NULL);
+
+    /** Add a varying variable to the current program to pass
+        values between vertex and fragment shaders;
+        stageNum is appended to the name to guarantee uniqueness.
+        If the last two parameters are non-NULL, they are filled
+        in with the name generated. */
+    void addVarying(GrSLType type,
+                    const char* name,
+                    int stageNum,
+                    const char** vsOutName = NULL,
+                    const char** fsInName = NULL);
 
     // TODO: needs a better name
     enum SamplerMode {
