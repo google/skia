@@ -12,8 +12,13 @@
 #define HEAP_BLOCK_SIZE 4096
 
 SkPictureRecord::SkPictureRecord(uint32_t flags) :
-        fHeap(HEAP_BLOCK_SIZE), fWriter(MIN_WRITER_SIZE), fRecordFlags(flags) {
-    fBitmapIndex = fMatrixIndex = fPaintIndex = fRegionIndex = 1;
+        fHeap(HEAP_BLOCK_SIZE),
+        fBitmaps(&fHeap),
+        fMatrices(&fHeap),
+        fPaints(&fHeap),
+        fRegions(&fHeap),
+        fWriter(MIN_WRITER_SIZE),
+        fRecordFlags(flags) {
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;
     fPointWrites = fRectWrites = fTextWrites = 0;
@@ -505,7 +510,7 @@ void SkPictureRecord::reset() {
 }
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
-    addInt(find(fBitmaps, bitmap));
+    addInt(fBitmaps.find(&bitmap, &fRCSet));
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -513,7 +518,7 @@ void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
 }
 
 void SkPictureRecord::addMatrixPtr(const SkMatrix* matrix) {
-    addInt(find(fMatrices, matrix));
+    addInt(fMatrices.find(matrix));
 }
 
 void SkPictureRecord::addPaint(const SkPaint& paint) {
@@ -521,7 +526,7 @@ void SkPictureRecord::addPaint(const SkPaint& paint) {
 }
 
 void SkPictureRecord::addPaintPtr(const SkPaint* paint) {
-    addInt(find(fPaints, paint));
+    addInt(fPaints.find(paint, &fRCSet, &fTFSet));
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {
@@ -589,7 +594,7 @@ void SkPictureRecord::addIRectPtr(const SkIRect* rect) {
 }
 
 void SkPictureRecord::addRegion(const SkRegion& region) {
-    addInt(find(fRegions, region));
+    addInt(fRegions.find(&region));
 }
 
 void SkPictureRecord::addText(const void* text, size_t byteLength) {
@@ -605,85 +610,6 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-int SkPictureRecord::find(SkTDArray<const SkFlatBitmap* >& bitmaps, const SkBitmap& bitmap) {
-    SkFlatBitmap* flat = SkFlatBitmap::Flatten(&fHeap, bitmap, fBitmapIndex,
-                                               &fRCSet);
-    int index = SkTSearch<SkFlatData>((const SkFlatData**) bitmaps.begin(),
-        bitmaps.count(), (SkFlatData*) flat, sizeof(flat), &SkFlatData::Compare);
-    if (index >= 0) {
-        (void)fHeap.unalloc(flat);
-        return bitmaps[index]->index();
-    }
-    index = ~index;
-    *bitmaps.insert(index) = flat;
-    return fBitmapIndex++;
-}
-
-int SkPictureRecord::find(SkTDArray<const SkFlatMatrix* >& matrices, const SkMatrix* matrix) {
-    if (matrix == NULL)
-        return 0;
-    SkFlatMatrix* flat = SkFlatMatrix::Flatten(&fHeap, *matrix, fMatrixIndex);
-    int index = SkTSearch<SkFlatData>((const SkFlatData**) matrices.begin(),
-        matrices.count(), (SkFlatData*) flat, sizeof(flat), &SkFlatData::Compare);
-    if (index >= 0) {
-        (void)fHeap.unalloc(flat);
-        return matrices[index]->index();
-    }
-    index = ~index;
-    *matrices.insert(index) = flat;
-    return fMatrixIndex++;
-}
-
-int SkPictureRecord::find(SkTDArray<const SkFlatPaint* >& paints, const SkPaint* paint) {
-    if (paint == NULL) {
-        return 0;
-    }
-
-    SkFlatPaint* flat = SkFlatPaint::Flatten(&fHeap, *paint, fPaintIndex,
-                                             &fRCSet, &fTFSet);
-    int index = SkTSearch<SkFlatData>((const SkFlatData**) paints.begin(),
-        paints.count(), (SkFlatData*) flat, sizeof(flat), &SkFlatData::Compare);
-    if (index >= 0) {
-        (void)fHeap.unalloc(flat);
-        return paints[index]->index();
-    }
-
-    index = ~index;
-    *paints.insert(index) = flat;
-    return fPaintIndex++;
-}
-
-int SkPictureRecord::find(SkTDArray<const SkFlatRegion* >& regions, const SkRegion& region) {
-    SkFlatRegion* flat = SkFlatRegion::Flatten(&fHeap, region, fRegionIndex);
-    int index = SkTSearch<SkFlatData>((const SkFlatData**) regions.begin(),
-        regions.count(), (SkFlatData*) flat, sizeof(flat), &SkFlatData::Compare);
-    if (index >= 0) {
-        (void)fHeap.unalloc(flat);
-        return regions[index]->index();
-    }
-    index = ~index;
-    *regions.insert(index) = flat;
-    return fRegionIndex++;
-}
-
-#ifdef SK_DEBUG_DUMP
-void SkPictureRecord::dumpMatrices() {
-    int count = fMatrices.count();
-    SkMatrix defaultMatrix;
-    defaultMatrix.reset();
-    for (int index = 0; index < count; index++) {
-        const SkFlatMatrix* flatMatrix = fMatrices[index];
-        flatMatrix->dump();
-    }
-}
-
-void SkPictureRecord::dumpPaints() {
-    int count = fPaints.count();
-    for (int index = 0; index < count; index++)
-        fPaints[index]->dump();
-}
-#endif
 
 #ifdef SK_DEBUG_SIZE
 size_t SkPictureRecord::size() const {

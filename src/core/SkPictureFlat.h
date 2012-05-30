@@ -11,11 +11,13 @@
 #include "SkChunkAlloc.h"
 #include "SkBitmap.h"
 #include "SkOrderedReadBuffer.h"
+#include "SkOrderedWriteBuffer.h"
 #include "SkPicture.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRegion.h"
+#include "SkTSearch.h"
 
 enum DrawType {
     UNUSED,
@@ -127,112 +129,193 @@ private:
     SkFlattenable::Factory* fArray;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+// The following templated classes provide an efficient way to store and compare
+// objects that have been flattened (i.e. serialized in an ordered binary
+// format).
+//
+// SkFlatData:       is a simple indexable container for the flattened data
+//                   which is agnostic to the type of data is is indexing. It is
+//                   also responsible for flattening/unflattening objects but
+//                   details of that operation are hidden in the provided procs
+// SkFlatDictionary: is a abstract templated dictionary that maintains a
+//                   searchable set of SkFlataData objects of type T.
+//
+// NOTE: any class that wishes to be used in conjunction with SkFlatDictionary
+// must subclass the dictionary and provide the necessary flattening procs.
+// The end of this header contains dictionary subclasses for some common classes
+// like SkBitmap, SkMatrix, SkPaint, and SkRegion.
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+
 class SkFlatData {
 public:
+
     static int Compare(const SkFlatData* a, const SkFlatData* b) {
-        return memcmp(&a->fAllocSize, &b->fAllocSize, a->fAllocSize);
+        return memcmp(a->data(), b->data(), a->fAllocSize);
     }
     
     int index() const { return fIndex; }
+    void* data() const { return (char*)this + sizeof(*this); }
     
 #ifdef SK_DEBUG_SIZE
-    size_t size() const { return sizeof(fIndex) + fAllocSize; }
+    size_t size() const { return sizeof(SkFlatData) + fAllocSize; }
 #endif
 
-protected:
-    static SkFlatData* Alloc(SkChunkAlloc* heap, int32_t size, int index);
-    
+    static SkFlatData* Create(SkChunkAlloc* heap, const void* obj, int index,
+                              void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
+                              SkRefCntSet* refCntRecorder = NULL,
+                              SkRefCntSet* faceRecorder = NULL);
+    void unflatten(void* result,
+                   void (*unflattenProc)(SkOrderedReadBuffer&, void*),
+                   SkRefCntPlayback* refCntPlayback = NULL,
+                   SkTypefacePlayback* facePlayback = NULL) const;
+
+private:
     int fIndex;
     int32_t fAllocSize;
 };
 
-class SkFlatBitmap : public SkFlatData {
+template <class T>
+class SkFlatDictionary {
 public:
-    static SkFlatBitmap* Flatten(SkChunkAlloc*, const SkBitmap&, int index,
-                                 SkRefCntSet*);
+    SkFlatDictionary(SkChunkAlloc* heap) {
+        fFlattenProc = NULL;
+        fUnflattenProc = NULL;
+        fHeap = heap;
+        // set to 1 since returning a zero from find() indicates failure
+        fNextIndex = 1;
+    }
 
-    void unflatten(SkBitmap* bitmap, SkRefCntPlayback* rcp) const {
-        SkOrderedReadBuffer buffer(fBitmapData, fAllocSize);
-        if (rcp) {
-            rcp->setupBuffer(buffer);
+    int count() const { return fData.count(); }
+
+    const SkFlatData*  operator[](int index) const {
+        SkASSERT(index >= 0 && index < fData.count());
+        return fData[index];
+    }
+
+    /**
+     * Clears the dictionary of all entries. However, it does NOT free the
+     * memory that was allocated for each entry.
+     */
+    void reset() { fData.reset(); fNextIndex = 1; }
+
+    /**
+     * Given an element of type T it returns its index in the dictionary. If
+     * the element wasn't previously in the dictionary it is automatically added
+     */
+    int find(const T* element, SkRefCntSet* refCntRecorder = NULL,
+             SkRefCntSet* faceRecorder = NULL) {
+        if (element == NULL)
+            return 0;
+        SkFlatData* flat = SkFlatData::Create(fHeap, element, fNextIndex,
+                fFlattenProc, refCntRecorder, faceRecorder);
+        int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
+                fData.count(), flat, sizeof(flat), &SkFlatData::Compare);
+        if (index >= 0) {
+            (void)fHeap->unalloc(flat);
+            return fData[index]->index();
         }
-        bitmap->unflatten(buffer);
+        index = ~index;
+        *fData.insert(index) = flat;
+        SkASSERT(fData.count() == fNextIndex);
+        return fNextIndex++;
     }
 
-#ifdef SK_DEBUG_VALIDATE
-    void validate() const {
-        // to be written
+    /**
+     * Given a pointer to a array of type T we allocate the array and fill it
+     * with the unflattened dictionary contents. The return value is the size of
+     * the allocated array.
+     */
+    int unflattenDictionary(T*& array, SkRefCntPlayback* refCntPlayback = NULL,
+            SkTypefacePlayback* facePlayback = NULL) const {
+        int elementCount = fData.count();
+        if (elementCount > 0) {
+            array = SkNEW_ARRAY(T, elementCount);
+            for (const SkFlatData** elementPtr = fData.begin();
+                    elementPtr != fData.end(); elementPtr++) {
+                const SkFlatData* element = *elementPtr;
+                int index = element->index() - 1;
+                element->unflatten(&array[index], fUnflattenProc,
+                                   refCntPlayback, facePlayback);
+            }
+        }
+        return elementCount;
     }
-#endif
+
+protected:
+    void (*fFlattenProc)(SkOrderedWriteBuffer&, const void*);
+    void (*fUnflattenProc)(SkOrderedReadBuffer&, void*);
 
 private:
-    char fBitmapData[1];
-    typedef SkFlatData INHERITED;
+    SkChunkAlloc* fHeap;
+    int fNextIndex;
+    SkTDArray<const SkFlatData*> fData;
 };
 
-class SkFlatMatrix : public SkFlatData {
+///////////////////////////////////////////////////////////////////////////////
+// Some common dictionaries are defined here for both reference and convenience
+///////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+static void SkFlattenObjectProc(SkOrderedWriteBuffer& buffer, const void* obj) {
+    ((T*)obj)->flatten(buffer);
+}
+
+template <class T>
+static void SkUnflattenObjectProc(SkOrderedReadBuffer& buffer, void* obj) {
+    ((T*)obj)->unflatten(buffer);
+}
+
+class SkBitmapDictionary : public SkFlatDictionary<SkBitmap> {
 public:
-    static SkFlatMatrix* Flatten(SkChunkAlloc* heap, const SkMatrix& matrix, int index);
-
-    void unflatten(SkMatrix* result) const {
-        result->unflatten(fMatrixData);
+    SkBitmapDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkBitmap>(heap) {
+        fFlattenProc = &SkFlattenObjectProc<SkBitmap>;
+        fUnflattenProc = &SkUnflattenObjectProc<SkBitmap>;
     }
-
-#ifdef SK_DEBUG_DUMP
-    void dump() const;
-#endif
-
-#ifdef SK_DEBUG_VALIDATE
-    void validate() const {
-        // to be written
-    }
-#endif
-
-private:
-    char fMatrixData[1];
-    typedef SkFlatData INHERITED;
 };
 
-class SkFlatPaint : public SkFlatData {
-public:
-    static SkFlatPaint* Flatten(SkChunkAlloc* heap, const SkPaint& paint,
-                                int index, SkRefCntSet*,
-                                SkRefCntSet* faceRecorder);
-    
-    void unflatten(SkPaint* result, SkRefCntPlayback* rcp,
-                   SkTypefacePlayback* facePlayback) const {
-        Read(fPaintData, result, rcp, facePlayback);
+class SkMatrixDictionary : public SkFlatDictionary<SkMatrix> {
+ public:
+    SkMatrixDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkMatrix>(heap) {
+        fFlattenProc = &flattenMatrix;
+        fUnflattenProc = &unflattenMatrix;
     }
-    
-    static void Read(const void* storage, SkPaint* paint, SkRefCntPlayback*,
-                     SkTypefacePlayback* facePlayback);
 
-#ifdef SK_DEBUG_DUMP
-    void dump() const;
-#endif
-    
-private:
-    char fPaintData[1];
-    typedef SkFlatData INHERITED;
+    static void flattenMatrix(SkOrderedWriteBuffer& buffer, const void* obj) {
+        buffer.getWriter32()->writeMatrix(*(SkMatrix*)obj);
+    }
+
+    static void unflattenMatrix(SkOrderedReadBuffer& buffer, void* obj) {
+        buffer.getReader32()->readMatrix((SkMatrix*)obj);
+    }
 };
 
-class SkFlatRegion : public SkFlatData {
-public:
-    static SkFlatRegion* Flatten(SkChunkAlloc* heap, const SkRegion& region, int index);
-    
-    void unflatten(SkRegion* result) const {
-        result->unflatten(fRegionData);
+class SkPaintDictionary : public SkFlatDictionary<SkPaint> {
+ public:
+    SkPaintDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkPaint>(heap) {
+        fFlattenProc = &SkFlattenObjectProc<SkPaint>;
+        fUnflattenProc = &SkUnflattenObjectProc<SkPaint>;
+    }
+};
+
+class SkRegionDictionary : public SkFlatDictionary<SkRegion> {
+ public:
+    SkRegionDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkRegion>(heap) {
+        fFlattenProc = &flattenRegion;
+        fUnflattenProc = &unflattenRegion;
     }
 
-#ifdef SK_DEBUG_VALIDATE
-    void validate() const {
-        // to be written
+    static void flattenRegion(SkOrderedWriteBuffer& buffer, const void* obj) {
+        buffer.getWriter32()->writeRegion(*(SkRegion*)obj);
     }
-#endif
 
-private:
-    char fRegionData[1];
-    typedef SkFlatData INHERITED;
+    static void unflattenRegion(SkOrderedReadBuffer& buffer, void* obj) {
+        buffer.getReader32()->readRegion((SkRegion*)obj);
+    }
 };
 
 #endif

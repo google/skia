@@ -22,6 +22,8 @@ public:
                          size_t storageSize);
     virtual ~SkOrderedWriteBuffer() {}
 
+    SkWriter32* getWriter32() { return &fWriter; }
+
     // deprecated naming convention that will be removed after callers are updated
     virtual bool writeBool(bool value) { return fWriter.writeBool(value); }
     virtual void writeInt(int32_t value) { fWriter.writeInt(value); }
