@@ -10,7 +10,8 @@ static float sk_fsel(float pred, float result_ge, float result_lt) {
 }
 
 static float fast_floor(float x) {
-    float big = sk_fsel(x, 0x1.0p+23, -0x1.0p+23);
+//    float big = sk_fsel(x, 0x1.0p+23, -0x1.0p+23);
+    float big = sk_fsel(x, (float)(1 << 23), -(float)(1 << 23));
     return (x + big) - big;
 }
 
