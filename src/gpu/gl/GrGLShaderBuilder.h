@@ -53,6 +53,26 @@ public:
     void emitDefaultFetch(const char* outColor,
                           const char* samplerName);
 
+    /* TODO: can't arbitrarily OR together enum components, so
+       VariableLifetime will need to be reworked if we add
+       Geometry shaders. */
+    enum VariableLifetime {
+        kVertex_VariableLifetime = 1,
+        kFragment_VariableLifetime = 2,
+        kBoth_VariableLifetime = 3
+    };
+
+    /** Add a uniform variable to the current program, accessed
+       in vertex, fragment, or both stages. If stageNum is
+       specified, it is appended to the name to guarantee uniqueness;
+       if count is specified, the uniform is an array.
+    */
+    const GrGLShaderVar& addUniform(VariableLifetime lifetime,
+        GrSLType type,
+        const char* name,
+        int stageNum = -1,
+        int count = GrGLShaderVar::kNonArray);
+
     // TODO: needs a better name
     enum SamplerMode {
         kDefault_SamplerMode,
