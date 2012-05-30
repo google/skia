@@ -1,0 +1,4 @@
+baseDir is [tools/tests/skdiff/baseDir/]
+comparisonDir is [tools/tests/skdiff/comparisonDir/]
+not writing any diffs to outputDir [tools/tests/skdiff/identical-bits/output-actual/]
+2 of 2 images matched.
