@@ -233,6 +233,7 @@
         '../include/core/SkUnPreMultiply.h',
         '../include/core/SkUnitMapper.h',
         '../include/core/SkUtils.h',
+        '../include/core/SkUtilsArm.h',
         '../include/core/SkWeakRefCnt.h',
         '../include/core/SkWriter32.h',
         '../include/core/SkXfermode.h',
@@ -304,7 +305,13 @@
           'dependencies': [
              'android_system.gyp:ft2',
           ],
-        }],        
+        }],
+        [ 'skia_os == "android" and skia_target_arch == "arm" and armv7 == 1', {
+          # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
+          'sources': [
+            '../src/core/SkUtilsArm.cpp',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
