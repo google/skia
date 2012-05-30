@@ -39,6 +39,22 @@ function skdiff_test {
 }
 
 SKDIFF_TESTDIR=tools/tests/skdiff
+
+# Run skdiff over a variety of file pair types: identical bits, identical
+# pixels, missing from baseDir, etc.
+# TODO: In the near future, skdiff will return a nonzero exit code in this case.
 skdiff_test "$SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test1"
+
+# Same as above but without generating HTML output files.
+# TODO: In the near future, skdiff will return a nonzero exit code in this case.
 skdiff_test "--nodiffs $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test2"
+
+# Run skdiff over just the files that have identical bits, to validate any
+# behavior/return value differences in this case.
+skdiff_test "--nodiffs --match identical-bits $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits"
+
+# Run skdiff over just the files that have identical bits or identical pixels,
+# to validate any behavior/return value differences in this case.
+skdiff_test "--nodiffs --match identical-bits --match identical-pixels $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits-or-pixels"
+
 echo "All tests passed."
