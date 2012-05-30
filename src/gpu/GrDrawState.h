@@ -619,12 +619,6 @@ public:
          */
         kNoColorWrites_StateBit = 0x08,
         /**
-         * Modifies the behavior of edge AA specified by setEdgeAA. If set, 
-         * will test edge pairs for convexity when rasterizing. Set this if the 
-         * source polygon is non-convex.
-         */
-        kEdgeAAConcave_StateBit = 0x10,
-        /**
          * Draws will apply the color matrix, otherwise the color matrix is
          * ignored.
          */

@@ -285,7 +285,6 @@ public:
         GrGLint fViewMatrixUni;
         GrGLint fColorUni;
         GrGLint fCoverageUni;
-        GrGLint fEdgesUni;
         GrGLint fColorFilterUni;
         GrGLint fColorMatrixUni;
         GrGLint fColorMatrixVecUni;
@@ -294,7 +293,6 @@ public:
             fViewMatrixUni = kUnusedUniform;
             fColorUni = kUnusedUniform;
             fCoverageUni = kUnusedUniform;
-            fEdgesUni = kUnusedUniform;
             fColorFilterUni = kUnusedUniform;
             fColorMatrixUni = kUnusedUniform;
             fColorMatrixVecUni = kUnusedUniform;
