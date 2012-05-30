@@ -17,8 +17,12 @@ static float sk_fsel(float pred, float result_ge, float result_lt) {
 }
 
 static float fast_floor(float x) {
+#ifdef SK_BUILD_FOR_WIN
+    return sk_float_floor(x);
+#else
     float big = sk_fsel(x, 0x1.0p+23, -0x1.0p+23);
     return (x + big) - big;
+#endif
 }
 
 static float std_floor(float x) {
