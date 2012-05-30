@@ -583,14 +583,14 @@ public:
 
         // Verify that deserialization-serialization round trip conserves all
         // data by comparing referenceRecord to roundTripRecord
-        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fBitmapIndex ==
-            roundTripRecord->fBitmapIndex, testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fMatrixIndex ==
-            roundTripRecord->fMatrixIndex, testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fPaintIndex ==
-            roundTripRecord->fPaintIndex, testStep->assertMessage());
-        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fRegionIndex ==
-            roundTripRecord->fRegionIndex, testStep->assertMessage());
+        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fBitmaps.count() ==
+            roundTripRecord->fBitmaps.count(), testStep->assertMessage());
+        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fMatrices.count() ==
+            roundTripRecord->fMatrices.count(), testStep->assertMessage());
+        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fPaints.count() ==
+            roundTripRecord->fPaints.count(), testStep->assertMessage());
+        REPORTER_ASSERT_MESSAGE(reporter, referenceRecord->fRegions.count() ==
+            roundTripRecord->fRegions.count(), testStep->assertMessage());
         char referenceBuffer[kMaxPictureBufferSize];
         SkMemoryWStream referenceStream(referenceBuffer,
             kMaxPictureBufferSize);

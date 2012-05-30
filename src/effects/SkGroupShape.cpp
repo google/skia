@@ -92,13 +92,9 @@ void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) const {
     const Rec* stop = fList.end();
     while (rec < stop) {
         buffer.writeFlattenable(rec->fShape);
+        buffer.writeBool(rec->fMatrixRef);
         if (rec->fMatrixRef) {
-            char storage[SkMatrix::kMaxFlattenSize];
-            uint32_t size = rec->fMatrixRef->flatten(storage);
-            buffer.write32(size);
-            buffer.writePad(storage, size);
-        } else {
-            buffer.write32(0);
+            buffer.writeMatrix(*rec->fMatrixRef);
         }
         rec += 1;
     }
@@ -109,12 +105,10 @@ SkGroupShape::SkGroupShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer){
     for (int i = 0; i < count; i++) {
         SkShape* shape = reinterpret_cast<SkShape*>(buffer.readFlattenable());
         SkMatrixRef* mr = NULL;
-        uint32_t size = buffer.readS32();
-        if (size) {
-            char storage[SkMatrix::kMaxFlattenSize];
-            buffer.read(storage, SkAlign4(size));
+        bool hasMatrix = buffer.readBool();
+        if (hasMatrix) {
             mr = SkNEW(SkMatrixRef);
-            mr->unflatten(storage);
+            buffer.readMatrix(mr);
         }
         if (shape) {
             this->appendShape(shape, mr)->unref();

@@ -69,19 +69,19 @@ public:
 
     void addFontMetricsTopBottom(const SkPaint& paint, SkScalar minY, SkScalar maxY);
 
-    const SkTDArray<const SkFlatBitmap* >& getBitmaps() const {
+    const SkBitmapDictionary& getBitmaps() const {
         return fBitmaps;
     }
-    const SkTDArray<const SkFlatMatrix* >& getMatrices() const {
+    const SkMatrixDictionary& getMatrices() const {
         return fMatrices;
     }
-    const SkTDArray<const SkFlatPaint* >& getPaints() const {
+    const SkPaintDictionary& getPaints() const {
         return fPaints;
     }
     const SkTDArray<SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
     }
-    const SkTDArray<const SkFlatRegion* >& getRegions() const {
+    const SkRegionDictionary& getRegions() const {
         return fRegions;
     }
 
@@ -127,13 +127,6 @@ private:
     void addRegion(const SkRegion& region);
     void addText(const void* text, size_t byteLength);
 
-    int find(SkTDArray<const SkFlatBitmap* >& bitmaps,
-                   const SkBitmap& bitmap);
-    int find(SkTDArray<const SkFlatMatrix* >& matrices,
-                   const SkMatrix* matrix);
-    int find(SkTDArray<const SkFlatPaint* >& paints, const SkPaint* paint);
-    int find(SkTDArray<const SkFlatRegion* >& regions, const SkRegion& region);
-
 #ifdef SK_DEBUG_DUMP
 public:
     void dumpMatrices();
@@ -170,14 +163,11 @@ public:
 
 private:
     SkChunkAlloc fHeap;
-    int fBitmapIndex;
-    SkTDArray<const SkFlatBitmap* > fBitmaps;
-    int fMatrixIndex;
-    SkTDArray<const SkFlatMatrix* > fMatrices;
-    int fPaintIndex;
-    SkTDArray<const SkFlatPaint* > fPaints;
-    int fRegionIndex;
-    SkTDArray<const SkFlatRegion* > fRegions;
+    SkBitmapDictionary fBitmaps;
+    SkMatrixDictionary fMatrices;
+    SkPaintDictionary fPaints;
+    SkRegionDictionary fRegions;
+
     SkPathHeap* fPathHeap;  // reference counted
     SkWriter32 fWriter;
 

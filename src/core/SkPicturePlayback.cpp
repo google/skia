@@ -77,41 +77,15 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     fRCPlayback.reset(&record.fRCSet);
     fTFPlayback.reset(&record.fTFSet);
 
-    const SkTDArray<const SkFlatBitmap* >& bitmaps = record.getBitmaps();
-    fBitmapCount = bitmaps.count();
-    if (fBitmapCount > 0) {
-        fBitmaps = SkNEW_ARRAY(SkBitmap, fBitmapCount);
-        for (const SkFlatBitmap** flatBitmapPtr = bitmaps.begin();
-             flatBitmapPtr != bitmaps.end(); flatBitmapPtr++) {
-            const SkFlatBitmap* flatBitmap = *flatBitmapPtr;
-            int index = flatBitmap->index() - 1;
-            flatBitmap->unflatten(&fBitmaps[index], &fRCPlayback);
-        }
-    }
+    fBitmapCount = record.getBitmaps().unflattenDictionary(fBitmaps, &fRCPlayback);
+    fMatrixCount = record.getMatrices().unflattenDictionary(fMatrices);
+    fPaintCount = record.getPaints().unflattenDictionary(fPaints, &fRCPlayback, &fTFPlayback);
+    fRegionCount = record.getRegions().unflattenDictionary(fRegions);
 
-    const SkTDArray<const SkFlatMatrix* >& matrices = record.getMatrices();
-    fMatrixCount = matrices.count();
-    if (fMatrixCount > 0) {
-        fMatrices = SkNEW_ARRAY(SkMatrix, fMatrixCount);
-        for (const SkFlatMatrix** matrixPtr = matrices.begin();
-             matrixPtr != matrices.end(); matrixPtr++) {
-            const SkFlatMatrix* flatMatrix = *matrixPtr;
-            flatMatrix->unflatten(&fMatrices[flatMatrix->index() - 1]);
-        }
-    }
-
-    const SkTDArray<const SkFlatPaint* >& paints = record.getPaints();
-    fPaintCount = paints.count();
-    if (fPaintCount > 0) {
-        fPaints = SkNEW_ARRAY(SkPaint, fPaintCount);
-        for (const SkFlatPaint** flatPaintPtr = paints.begin();
-             flatPaintPtr != paints.end(); flatPaintPtr++) {
-            const SkFlatPaint* flatPaint = *flatPaintPtr;
-            int index = flatPaint->index() - 1;
-            SkASSERT((unsigned)index < (unsigned)fPaintCount);
-            flatPaint->unflatten(&fPaints[index], &fRCPlayback, &fTFPlayback);
-        }
-    }
+    SkASSERT(fBitmapCount == record.getBitmaps().count());
+    SkASSERT(fMatrixCount == record.getMatrices().count());
+    SkASSERT(fPaintCount == record.getPaints().count());
+    SkASSERT(fRegionCount == record.getRegions().count());
 
     fPathHeap = record.fPathHeap;
     SkSafeRef(fPathHeap);
@@ -123,17 +97,6 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
         for (int i = 0; i < fPictureCount; i++) {
             fPictureRefs[i] = pictures[i];
             fPictureRefs[i]->ref();
-        }
-    }
-
-    const SkTDArray<const SkFlatRegion* >& regions = record.getRegions();
-    fRegionCount = regions.count();
-    if (fRegionCount > 0) {
-        fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
-        for (const SkFlatRegion** flatRegionPtr = regions.begin();
-             flatRegionPtr != regions.end(); flatRegionPtr++) {
-            const SkFlatRegion* flatRegion = *flatRegionPtr;
-            flatRegion->unflatten(&fRegions[flatRegion->index() - 1]);
         }
     }
 
@@ -349,11 +312,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
 
     writeTagSize(buffer, PICT_REGION_TAG, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
-        uint32_t size = fRegions[i].flatten(NULL);
-        buffer.write32(size);
-        SkAutoSMalloc<512> storage(size);
-        fRegions[i].flatten(storage.get());
-        buffer.writePad(storage.get(), size);
+        buffer.getWriter32()->writeRegion(fRegions[i]);
     }
 
     // now we can write to the stream again
@@ -460,10 +419,7 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     fRegionCount = readTagSize(buffer, PICT_REGION_TAG);
     fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
-        uint32_t bufferSize = buffer.readU32();
-        SkDEBUGCODE(uint32_t bytes =)
-            fRegions[i].unflatten(buffer.skip(bufferSize));
-        SkASSERT(bufferSize == bytes);
+        buffer.getReader32()->readRegion(&fRegions[i]);
     }
 }
 
