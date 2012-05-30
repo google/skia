@@ -5,6 +5,15 @@
 #include "SkString.h"
 #include "SkPaint.h"
 
+static float sk_fsel(float pred, float result_ge, float result_lt) {
+    return pred >= 0 ? result_ge : result_lt;
+}
+
+static float fast_floor(float x) {
+    float big = sk_fsel(x, 0x1.0p+23, -0x1.0p+23);
+    return (x + big) - big;
+}
+
 class MathBench : public SkBenchmark {
     enum {
         kBuffer = 100,
@@ -296,6 +305,65 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+class FloorBench : public SkBenchmark {
+    enum {
+        ARRAY = SkBENCHLOOP(1000),
+        LOOP = SkBENCHLOOP(1000),
+    };
+    float fData[ARRAY];
+    bool fFast;
+public:
+    
+    FloorBench(void* param, bool fast) : INHERITED(param), fFast(fast) {
+        SkRandom rand;
+        
+        for (int i = 0; i < ARRAY; ++i) {
+            fData[i] = rand.nextSScalar1();
+        }
+        
+        if (fast) {
+            fName = "floor_fast";
+        } else {
+            fName = "floor_std";
+        }
+    }
+    
+    virtual void process(float) {}
+
+protected:
+    virtual void onDraw(SkCanvas* canvas) {
+        SkRandom rand;
+        float accum = 0;
+        const float* data = fData;
+        float tmp[ARRAY] = {};
+    
+        if (fFast) {
+            for (int j = 0; j < LOOP; ++j) {
+                for (int i = 0; i < ARRAY; ++i) {
+                    accum += fast_floor(data[i]);
+                }
+                this->process(accum);
+            }
+        } else {
+            for (int j = 0; j < LOOP; ++j) {
+                for (int i = 0; i < ARRAY; ++i) {
+                    accum += sk_float_floor(data[i]);
+                }
+                this->process(accum);
+            }
+        }
+    }
+    
+    virtual const char* onGetName() {
+        return fName;
+    }
+    
+private:
+    const char*     fName;
+    
+    typedef SkBenchmark INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkBenchmark* M0(void* p) { return new NoOpMathBench(p); }
@@ -312,6 +380,9 @@ static SkBenchmark* M53(void* p) { return new IsFiniteBench(p, 3); }
 static SkBenchmark* M54(void* p) { return new IsFiniteBench(p, 4); }
 static SkBenchmark* M55(void* p) { return new IsFiniteBench(p, 5); }
 
+static SkBenchmark* F0(void* p) { return new FloorBench(p, false); }
+static SkBenchmark* F1(void* p) { return new FloorBench(p, true); }
+
 static BenchRegistry gReg0(M0);
 static BenchRegistry gReg1(M1);
 static BenchRegistry gReg2(M2);
@@ -325,3 +396,6 @@ static BenchRegistry gReg52(M52);
 static BenchRegistry gReg53(M53);
 static BenchRegistry gReg54(M54);
 static BenchRegistry gReg55(M55);
+
+static BenchRegistry gRF0(F0);
+static BenchRegistry gRF1(F1);
