@@ -38,7 +38,6 @@ typedef GrGLProgram::ProgramDesc::StageDesc StageDesc;
 #define EDGE_ATTR_NAME "aEdge"
 #define COL_UNI_NAME "uColor"
 #define COV_UNI_NAME "uCoverage"
-#define EDGES_UNI_NAME "uEdges"
 #define COL_FILTER_UNI_NAME "uColorFilter"
 #define COL_MATRIX_UNI_NAME "uColorMatrix"
 #define COL_MATRIX_VEC_UNI_NAME "uColorMatrixVec"
@@ -1142,14 +1141,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
         GL_CALL_RET(programData->fUniLocations.fCoverageUni,
                     GetUniformLocation(progID, COV_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fCoverageUni);
-    }
-
-    if (kUseUniform == programData->fUniLocations.fEdgesUni) {
-        GL_CALL_RET(programData->fUniLocations.fEdgesUni,
-                    GetUniformLocation(progID, EDGES_UNI_NAME));
-        GrAssert(kUnusedUniform != programData->fUniLocations.fEdgesUni);
-    } else {
-        programData->fUniLocations.fEdgesUni = kUnusedUniform;
     }
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
