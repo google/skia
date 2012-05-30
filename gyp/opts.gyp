@@ -56,13 +56,21 @@
           'cflags': [
             '-fomit-frame-pointer',
           ],
+          'variables': {
+            'arm_neon_optional%': '<(arm_neon_optional>',
+          },
           'sources': [
             '../src/opts/opts_check_arm.cpp',
             '../src/opts/memset.arm.S',
-            '../src/opts/memset16_neon.S',
-            '../src/opts/memset32_neon.S',
             '../src/opts/SkBitmapProcState_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.cpp',
+          ],
+          'conditions': [
+            [ 'arm_neon == 1 or arm_neon_optional == 1', {
+              'dependencies': [
+                'opts_neon',
+              ]
+            }]
           ],
         }],
         [ 'skia_target_arch == "arm" and armv7 != 1', {
@@ -105,6 +113,33 @@
             '../src/opts/SkBitmapProcState_opts_SSSE3.cpp',
           ],
         }],
+      ],
+    },
+    # NEON code must be compiled with -mfpu=neon which also affects scalar
+    # code. To support dynamic NEON code paths, we need to build all
+    # NEON-specific sources in a separate static library. The situation
+    # is very similar to the SSSE3 one.
+    {
+      'target_name': 'opts_neon',
+      'type': 'static_library',
+      'include_dirs': [
+        '../include/config',
+        '../include/core',
+        '../src/core',
+      ],
+      'cflags!': [
+        '-fno-omit-frame-pointer',
+        '-mfpu=vfp',  # remove them all, just in case.
+        '-mfpu=vfpv3',
+        '-mfpu=vfpv3-d16',
+      ],
+      'cflags': [
+        '-fomit-frame-pointer',
+        '-mfpu=neon',
+      ],
+      'sources': [
+        '../src/opts/memset16_neon.S',
+        '../src/opts/memset32_neon.S',
       ],
     },
   ],

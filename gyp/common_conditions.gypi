@@ -192,6 +192,9 @@
             ],
           }],
           [ 'skia_target_arch == "arm" and armv7 == 1', {
+            'variables': {
+              'arm_neon_optional%': 0,
+            },
             'defines': [
               '__ARM_ARCH__=7',
             ],
@@ -207,7 +210,12 @@
                 'cflags': [
                   '-mfpu=neon',
                 ],
-             }],
+              }],
+              [ 'arm_neon_optional == 1', {
+                'defines': [
+                  '__ARM_HAVE_OPTIONAL_NEON_SUPPORT',
+                ],
+              }],
             ],
          }],
         ], 
