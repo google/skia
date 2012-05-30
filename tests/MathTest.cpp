@@ -12,6 +12,40 @@
 #include "SkRandom.h"
 #include "SkColorPriv.h"
 
+static float sk_fsel(float pred, float result_ge, float result_lt) {
+    return pred >= 0 ? result_ge : result_lt;
+}
+
+static float fast_floor(float x) {
+    float big = sk_fsel(x, 0x1.0p+23, -0x1.0p+23);
+    return (x + big) - big;
+}
+
+static float std_floor(float x) {
+    return sk_float_floor(x);
+}
+
+static void test_floor_value(skiatest::Reporter* reporter, float value) {
+    float fast = fast_floor(value);
+    float std = std_floor(value);
+    REPORTER_ASSERT(reporter, std == fast);
+//    SkDebugf("value[%1.9f] std[%g] fast[%g] equal[%d]\n",
+//             value, std, fast, std == fast);
+}
+
+static void test_floor(skiatest::Reporter* reporter) {
+    static const float gVals[] = {
+        0, 1, 1.1f, 1.01f, 1.001f, 1.0001f, 1.00001f, 1.000001f, 1.0000001f
+    };
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gVals); ++i) {
+        test_floor_value(reporter, gVals[i]);
+//        test_floor_value(reporter, -gVals[i]);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static float float_blend(int src, int dst, float unit) {
     return dst + (src - dst) * unit;
 }
@@ -557,6 +591,10 @@ static void TestMath(skiatest::Reporter* reporter) {
 
 #ifdef SK_SCALAR_IS_FLOAT
     test_blend(reporter);
+#endif
+
+#ifdef SK_CAN_USE_FLOAT
+    test_floor(reporter);
 #endif
 
     // disable for now
