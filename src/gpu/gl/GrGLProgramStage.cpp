@@ -17,15 +17,7 @@ GrGLProgramStage::~GrGLProgramStage() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgramStage::setupVSUnis(VarArray* vsUnis, int stage) {
-
-}
-
-void GrGLProgramStage::setupFSUnis(VarArray* fsUnis, int stage) {
-
-}
-
-void GrGLProgramStage::setupVaryings(GrGLShaderBuilder* state, int stage) {
+void GrGLProgramStage::setupVariables(GrGLShaderBuilder* state, int stage) {
 
 }
 

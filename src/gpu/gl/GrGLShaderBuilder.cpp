@@ -39,55 +39,6 @@ GrGLShaderBuilder::GrGLShaderBuilder()
 
 }
 
-void GrGLShaderBuilder::appendVarying(GrSLType type,
-                                      const char* name,
-                                      const char** vsOutName,
-                                      const char** fsInName) {
-    fVSOutputs.push_back();
-    fVSOutputs.back().setType(type);
-    fVSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
-    fVSOutputs.back().accessName()->printf("v%s", name);
-    if (vsOutName) {
-        *vsOutName = fVSOutputs.back().getName().c_str();
-    }
-    // input to FS comes either from VS or GS
-    const GrStringBuilder* fsName;
-    if (fUsesGS) {
-        // if we have a GS take each varying in as an array
-        // and output as non-array.
-        fGSInputs.push_back();
-        fGSInputs.back().setType(type);
-        fGSInputs.back().setTypeModifier(GrGLShaderVar::kIn_TypeModifier);
-        fGSInputs.back().setUnsizedArray();
-        *fGSInputs.back().accessName() = fVSOutputs.back().getName();
-        fGSOutputs.push_back();
-        fGSOutputs.back().setType(type);
-        fGSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
-        fGSOutputs.back().accessName()->printf("g%s", name);
-        fsName = fGSOutputs.back().accessName();
-    } else {
-        fsName = fVSOutputs.back().accessName();
-    }
-    fFSInputs.push_back();
-    fFSInputs.back().setType(type);
-    fFSInputs.back().setTypeModifier(GrGLShaderVar::kIn_TypeModifier);
-    fFSInputs.back().setName(*fsName);
-    if (fsInName) {
-        *fsInName = fsName->c_str();
-    }
-}
-
-
-void GrGLShaderBuilder::appendVarying(GrSLType type,
-                                      const char* name,
-                                      int stageNum,
-                                      const char** vsOutName,
-                                      const char** fsInName) {
-    GrStringBuilder nameWithStage(name);
-    nameWithStage.appendS32(stageNum);
-    this->appendVarying(type, nameWithStage.c_str(), vsOutName, fsInName);
-}
-
 void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {
    static const uint32_t kMulByAlphaMask =
         (GrGLProgram::StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
@@ -205,3 +156,53 @@ const GrGLShaderVar& GrGLShaderBuilder::addUniform(VariableLifetime lifetime,
 
     return *var;
 }
+
+void GrGLShaderBuilder::addVarying(GrSLType type,
+                                   const char* name,
+                                   const char** vsOutName,
+                                   const char** fsInName) {
+    fVSOutputs.push_back();
+    fVSOutputs.back().setType(type);
+    fVSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
+    fVSOutputs.back().accessName()->printf("v%s", name);
+    if (vsOutName) {
+        *vsOutName = fVSOutputs.back().getName().c_str();
+    }
+    // input to FS comes either from VS or GS
+    const GrStringBuilder* fsName;
+    if (fUsesGS) {
+        // if we have a GS take each varying in as an array
+        // and output as non-array.
+        fGSInputs.push_back();
+        fGSInputs.back().setType(type);
+        fGSInputs.back().setTypeModifier(GrGLShaderVar::kIn_TypeModifier);
+        fGSInputs.back().setUnsizedArray();
+        *fGSInputs.back().accessName() = fVSOutputs.back().getName();
+        fGSOutputs.push_back();
+        fGSOutputs.back().setType(type);
+        fGSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
+        fGSOutputs.back().accessName()->printf("g%s", name);
+        fsName = fGSOutputs.back().accessName();
+    } else {
+        fsName = fVSOutputs.back().accessName();
+    }
+    fFSInputs.push_back();
+    fFSInputs.back().setType(type);
+    fFSInputs.back().setTypeModifier(GrGLShaderVar::kIn_TypeModifier);
+    fFSInputs.back().setName(*fsName);
+    if (fsInName) {
+        *fsInName = fsName->c_str();
+    }
+}
+
+
+void GrGLShaderBuilder::addVarying(GrSLType type,
+                                   const char* name,
+                                   int stageNum,
+                                   const char** vsOutName,
+                                   const char** fsInName) {
+    GrStringBuilder nameWithStage(name);
+    nameWithStage.appendS32(stageNum);
+    this->addVarying(type, nameWithStage.c_str(), vsOutName, fsInName);
+}
+

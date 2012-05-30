@@ -19,8 +19,8 @@ public:
 
     GrGLConvolutionEffect(const GrProgramStageFactory& factory,
                           const GrCustomStage* stage);
-    virtual void setupVSUnis(VarArray* vsUnis, int stage) SK_OVERRIDE;
-    virtual void setupFSUnis(VarArray* fsUnis, int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* state,
+                                int stage) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) SK_OVERRIDE;
     virtual void emitFS(GrGLShaderBuilder* state,
@@ -38,12 +38,12 @@ public:
     
 protected:
 
-    unsigned int   fKernelWidth;
-    GrGLShaderVar* fKernelVar;
-    GrGLShaderVar* fImageIncrementVar;
+    unsigned int         fKernelWidth;
+    const GrGLShaderVar* fKernelVar;
+    const GrGLShaderVar* fImageIncrementVar;
  
-    GrGLint fKernelLocation;
-    GrGLint fImageIncrementLocation;
+    GrGLint              fKernelLocation;
+    GrGLint              fImageIncrementLocation;
 
 private:
 
@@ -61,33 +61,17 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(
     fKernelWidth = static_cast<const GrConvolutionEffect*>(data)->width();
 }
 
-void GrGLConvolutionEffect::setupVSUnis(VarArray* vsUnis,
-                                        int stage) {
-    fImageIncrementVar = &vsUnis->push_back();
-    fImageIncrementVar->setType(kVec2f_GrSLType);
-    fImageIncrementVar->setTypeModifier(
-        GrGLShaderVar::kUniform_TypeModifier);
-    (*fImageIncrementVar->accessName()) = "uImageIncrement";
-    fImageIncrementVar->accessName()->appendS32(stage);
-    fImageIncrementVar->setEmitPrecision(true);
+void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* state,
+                                           int stage) {
+    fImageIncrementVar = &state->addUniform(
+        GrGLShaderBuilder::kBoth_VariableLifetime,
+        kVec2f_GrSLType, "uImageIncrement", stage);
+    fKernelVar = &state->addUniform(
+        GrGLShaderBuilder::kFragment_VariableLifetime,
+        kFloat_GrSLType, "uKernel", stage, fKernelWidth);
 
     fImageIncrementLocation = kUseUniform;
-}
-
-void GrGLConvolutionEffect::setupFSUnis(VarArray* fsUnis,
-                                        int stage) {
-    fKernelVar = &fsUnis->push_back();
-    fKernelVar->setType(kFloat_GrSLType);
-    fKernelVar->setTypeModifier(
-        GrGLShaderVar::kUniform_TypeModifier);
-    fKernelVar->setArrayCount(fKernelWidth);
-    (*fKernelVar->accessName()) = "uKernel";
-    fKernelVar->accessName()->appendS32(stage);
-
     fKernelLocation = kUseUniform;
-
-    // Image increment is used in both vertex & fragment shaders.
-    fsUnis->push_back(*fImageIncrementVar).setEmitPrecision(false);
 }
 
 void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* state,
