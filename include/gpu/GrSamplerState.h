@@ -140,7 +140,28 @@ public:
     bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
 
     GrSamplerState& operator =(const GrSamplerState s) {
-        memcpy(this, &s, sizeof(GrSamplerState));
+        // memcpy() breaks refcounting
+        fWrapX = s.fWrapX;
+        fWrapY = s.fWrapY;
+        fFilterDirection = s.fFilterDirection;
+        fSampleMode = s.fSampleMode;
+        fFilter = s.fFilter;
+        fMatrix = s.fMatrix;
+        fSwapRAndB = s.fSwapRAndB;
+        fTextureDomain = s.fTextureDomain;
+
+        fRadial2CenterX1 = s.fRadial2CenterX1;
+        fRadial2Radius0 = s.fRadial2Radius0;
+        fRadial2PosRoot = s.fRadial2PosRoot;
+
+        fKernelWidth = s.fKernelWidth;
+        if (kConvolution_Filter == kFilter) {
+            memcpy(fKernel, s.fKernel, MAX_KERNEL_WIDTH * sizeof(float));
+        }
+
+        fCustomStage = s.fCustomStage;
+        SkSafeRef(fCustomStage);
+
         return *this;
     }
 
