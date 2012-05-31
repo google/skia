@@ -155,7 +155,7 @@ public:
         fRadial2PosRoot = s.fRadial2PosRoot;
 
         fKernelWidth = s.fKernelWidth;
-        if (kConvolution_Filter == kFilter) {
+        if (kConvolution_Filter == fFilter) {
             memcpy(fKernel, s.fKernel, MAX_KERNEL_WIDTH * sizeof(float));
         }
 
