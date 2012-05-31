@@ -32,7 +32,12 @@ class GrGLTexture;
 class GrGLProgramStage {
 
 public:
-    typedef GrCustomStage::StageKey StageKey ;
+    typedef GrCustomStage::StageKey StageKey;
+    enum {
+        // the number of bits in StageKey available to GenKey
+        kProgramStageKeyBits = GrProgramStageFactory::kProgramStageKeyBits,
+    };
+
     // TODO: redundant with GrGLProgram.cpp
     enum {
         kUnusedUniform = -1,
@@ -79,7 +84,7 @@ public:
         created in emit*(). */
     virtual void setData(const GrGLInterface* gl,
                          const GrGLTexture& texture,
-                         GrCustomStage* stage,
+                         const GrCustomStage& stage,
                          int stageNum);
 
     const char* name() const { return fFactory.name(); }

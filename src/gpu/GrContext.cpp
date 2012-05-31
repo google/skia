@@ -9,9 +9,11 @@
 
 #include "GrContext.h"
 
+#include "effects/GrMorphologyEffect.h"
+#include "effects/GrConvolutionEffect.h"
+
 #include "GrBufferAllocPool.h"
 #include "GrClipIterator.h"
-#include "effects/GrConvolutionEffect.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
@@ -242,23 +244,6 @@ void gen_stencil_key_values(const GrStencilBuffer* sb,
                            sb->numSamples(), v);
 }
 
-void build_kernel(float sigma, float* kernel, int kernelWidth) {
-    int halfWidth = (kernelWidth - 1) / 2;
-    float sum = 0.0f;
-    float denom = 1.0f / (2.0f * sigma * sigma);
-    for (int i = 0; i < kernelWidth; ++i) {
-        float x = static_cast<float>(i - halfWidth);
-        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
-        // is dropped here, since we renormalize the kernel below.
-        kernel[i] = sk_float_exp(- x * x * denom);
-        sum += kernel[i];
-    }
-    // Normalize the kernel
-    float scale = 1.0f / sum;
-    for (int i = 0; i < kernelWidth; ++i)
-        kernel[i] *= scale;
-}
-
 void scale_rect(SkRect* rect, float xScale, float yScale) {
     rect->fLeft = SkScalarMul(rect->fLeft, SkFloatToScalar(xScale));
     rect->fTop = SkScalarMul(rect->fTop, SkFloatToScalar(yScale));
@@ -266,15 +251,14 @@ void scale_rect(SkRect* rect, float xScale, float yScale) {
     rect->fBottom = SkScalarMul(rect->fBottom, SkFloatToScalar(yScale));
 }
 
-float adjust_sigma(float sigma, int *scaleFactor, int *halfWidth,
-                          int *kernelWidth) {
+float adjust_sigma(float sigma, int *scaleFactor, int *radius) {
     *scaleFactor = 1;
     while (sigma > MAX_BLUR_SIGMA) {
         *scaleFactor *= 2;
         sigma *= 0.5f;
     }
-    *halfWidth = static_cast<int>(ceilf(sigma * 3.0f));
-    *kernelWidth = *halfWidth * 2 + 1;
+    *radius = static_cast<int>(ceilf(sigma * 3.0f));
+    GrAssert(*radius <= GrConvolutionEffect::kMaxKernelRadius);
     return sigma;
 }
 
@@ -282,10 +266,8 @@ void apply_morphology(GrGpu* gpu,
                       GrTexture* texture,
                       const SkRect& rect,
                       int radius,
-                      GrSamplerState::Filter filter,
-                      GrSamplerState::FilterDirection direction) {
-    GrAssert(filter == GrSamplerState::kErode_Filter ||
-             filter == GrSamplerState::kDilate_Filter);
+                      GrContext::MorphologyType morphType,
+                      Gr1DKernelEffect::Direction direction) {
 
     GrRenderTarget* target = gpu->drawState()->getRenderTarget();
     GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
@@ -293,31 +275,31 @@ void apply_morphology(GrGpu* gpu,
     drawState->setRenderTarget(target);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode, filter,
-                                 sampleM);
-    drawState->sampler(0)->setMorphologyRadius(radius);
-    drawState->sampler(0)->setFilterDirection(direction);
+    drawState->sampler(0)->reset(sampleM);
+    SkAutoTUnref<GrCustomStage> morph(
+        new GrMorphologyEffect(direction, radius, morphType));
+    drawState->sampler(0)->setCustomStage(morph);
     drawState->setTexture(0, texture);
     gpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
 
-void convolve(GrGpu* gpu,
-              GrTexture* texture,
-              const SkRect& rect,
-              const float* kernel,
-              int kernelWidth,
-              GrSamplerState::FilterDirection direction) {
+void convolve_gaussian(GrGpu* gpu,
+                       GrTexture* texture,
+                       const SkRect& rect,
+                       float sigma,
+                       int radius,
+                       Gr1DKernelEffect::Direction direction) {
     GrRenderTarget* target = gpu->drawState()->getRenderTarget();
     GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = gpu->drawState();
     drawState->setRenderTarget(target);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
-                                 GrSamplerState::kConvolution_Filter,
-                                 sampleM);
-    drawState->sampler(0)->setCustomStage(
-        new GrConvolutionEffect(direction, kernelWidth, kernel));
+    drawState->sampler(0)->reset(sampleM);
+    SkAutoTUnref<GrConvolutionEffect> conv(new
+        GrConvolutionEffect(direction, radius));
+    conv->setGaussianKernel(sigma);
+    drawState->sampler(0)->setCustomStage(conv);
     drawState->setTexture(0, texture);
     gpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
@@ -2085,10 +2067,10 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     GrTexture* origTexture = srcTexture;
     GrAutoMatrix avm(this, GrMatrix::I());
     SkIRect clearRect;
-    int scaleFactorX, halfWidthX, kernelWidthX;
-    int scaleFactorY, halfWidthY, kernelWidthY;
-    sigmaX = adjust_sigma(sigmaX, &scaleFactorX, &halfWidthX, &kernelWidthX);
-    sigmaY = adjust_sigma(sigmaY, &scaleFactorY, &halfWidthY, &kernelWidthY);
+    int scaleFactorX, radiusX;
+    int scaleFactorY, radiusY;
+    sigmaX = adjust_sigma(sigmaX, &scaleFactorX, &radiusX);
+    sigmaY = adjust_sigma(sigmaY, &scaleFactorY, &radiusY);
 
     SkRect srcRect(rect);
     scale_rect(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
@@ -2138,21 +2120,17 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     srcRect.roundOut(&srcIRect);
 
     if (sigmaX > 0.0f) {
-        SkAutoTMalloc<float> kernelStorageX(kernelWidthX);
-        float* kernelX = kernelStorageX.get();
-        build_kernel(sigmaX, kernelX, kernelWidthX);
-
         if (scaleFactorX > 1) {
-            // Clear out a halfWidth to the right of the srcRect to prevent the
+            // Clear out a radius to the right of the srcRect to prevent the
             // X convolution from reading garbage.
             clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop, 
-                                          halfWidthX, srcIRect.height());
+                                          radiusX, srcIRect.height());
             this->clear(&clearRect, 0x0);
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        convolve(fGpu, srcTexture, srcRect, kernelX, kernelWidthX,
-                 GrSamplerState::kX_FilterDirection);
+        convolve_gaussian(fGpu, srcTexture, srcRect, sigmaX, radiusX,
+                          Gr1DKernelEffect::kX_Direction);
         SkTSwap(srcTexture, dstTexture);
         if (temp2 && dstTexture == origTexture) {
             dstTexture = temp2->texture();
@@ -2160,21 +2138,17 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     }
 
     if (sigmaY > 0.0f) {
-        SkAutoTMalloc<float> kernelStorageY(kernelWidthY);
-        float* kernelY = kernelStorageY.get();
-        build_kernel(sigmaY, kernelY, kernelWidthY);
-
         if (scaleFactorY > 1 || sigmaX > 0.0f) {
-            // Clear out a halfWidth below the srcRect to prevent the Y
+            // Clear out a radius below the srcRect to prevent the Y
             // convolution from reading garbage.
             clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom, 
-                                          srcIRect.width(), halfWidthY);
+                                          srcIRect.width(), radiusY);
             this->clear(&clearRect, 0x0);
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        convolve(fGpu, srcTexture, srcRect, kernelY, kernelWidthY,
-                 GrSamplerState::kY_FilterDirection);
+        convolve_gaussian(fGpu, srcTexture, srcRect, sigmaY, radiusY,
+                          Gr1DKernelEffect::kY_Direction);
         SkTSwap(srcTexture, dstTexture);
         if (temp2 && dstTexture == origTexture) {
             dstTexture = temp2->texture();
@@ -2210,7 +2184,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
 GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
                                       const GrRect& rect,
                                       GrTexture* temp1, GrTexture* temp2,
-                                      GrSamplerState::Filter filter,
+                                      MorphologyType morphType,
                                       SkISize radius) {
     ASSERT_OWNED_RESOURCE(srcTexture);
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
@@ -2220,8 +2194,8 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
                                  SkIntToScalar(srcTexture->height())));
     if (radius.fWidth > 0) {
         this->setRenderTarget(temp1->asRenderTarget());
-        apply_morphology(fGpu, srcTexture, rect, radius.fWidth, filter,
-                         GrSamplerState::kX_FilterDirection);
+        apply_morphology(fGpu, srcTexture, rect, radius.fWidth, morphType,
+                         Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(
                     SkScalarFloorToInt(rect.fLeft), 
                     SkScalarFloorToInt(rect.fBottom),
@@ -2232,8 +2206,8 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     }
     if (radius.fHeight > 0) {
         this->setRenderTarget(temp2->asRenderTarget());
-        apply_morphology(fGpu, srcTexture, rect, radius.fHeight, filter,
-                         GrSamplerState::kY_FilterDirection);
+        apply_morphology(fGpu, srcTexture, rect, radius.fHeight, morphType,
+                         Gr1DKernelEffect::kY_Direction);
         srcTexture = temp2;
     }
     this->setRenderTarget(oldRenderTarget);

@@ -617,6 +617,14 @@ public:
                              float sigmaX, float sigmaY);
 
     /**
+     * This enum is used with the function below, applyMorphology.
+     */
+    enum MorphologyType {
+        kErode_MorphologyType,
+        kDilate_MorphologyType,
+    };
+
+    /**
      * Applies a 2D morphology to a given texture.
      * @param srcTexture      The source texture to be blurred.
      * @param rect            The destination rectangle.
@@ -632,7 +640,7 @@ public:
     GrTexture* applyMorphology(GrTexture* srcTexture,
                                const GrRect& rect,
                                GrTexture* temp1, GrTexture* temp2,
-                               GrSamplerState::Filter filter,
+                               MorphologyType type,
                                SkISize radius);
     
     ///////////////////////////////////////////////////////////////////////////

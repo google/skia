@@ -7,8 +7,10 @@
 
 #include "GrGpuGL.h"
 
-#include "GrBinHashKey.h"
 #include "effects/GrConvolutionEffect.h"
+#include "effects/GrMorphologyEffect.h"
+
+#include "GrBinHashKey.h"
 #include "GrCustomStage.h"
 #include "GrGLProgramStage.h"
 #include "GrGLSL.h"
@@ -176,6 +178,75 @@ bool random_bool(GrRandom* r) {
     return r->nextF() > .5f;
 }
 
+typedef GrGLProgram::StageDesc StageDesc;
+// TODO: Effects should be able to register themselves for inclusion in the
+// randomly generated shaders. They should be able to configure themselves
+// randomly.
+GrCustomStage* create_random_effect(StageDesc* stageDesc,
+                                    GrRandom* random) {
+    enum EffectType {
+        kConvolution_EffectType,
+        kErode_EffectType,
+        kDilate_EffectType,
+
+        kEffectCount
+    };
+
+    // TODO: Remove this when generator doesn't apply this non-custom-stage
+    // notion to custom stages automatically.
+    static const uint32_t kMulByAlphaMask =
+        StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
+        StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
+
+    static const Gr1DKernelEffect::Direction gKernelDirections[] = {
+        Gr1DKernelEffect::kX_Direction,
+        Gr1DKernelEffect::kY_Direction
+    };
+
+    // TODO: When matrices are property of the custom-stage then remove the
+    // no-persp flag code below.
+    int effect = random_int(random, kEffectCount);
+    switch (effect) {
+        case kConvolution_EffectType: {
+            int direction = random_int(random, 2);
+            int kernelRadius = random_int(random, 1, 4);
+            float kernel[GrConvolutionEffect::kMaxKernelWidth];
+            for (int i = 0; i < GrConvolutionEffect::kMaxKernelWidth; i++) {
+                kernel[i] = random->nextF();
+            }
+            // does not work with perspective or mul-by-alpha-mask
+            stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
+            stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
+            return new GrConvolutionEffect(gKernelDirections[direction],
+                                           kernelRadius,
+                                           kernel);
+            }
+        case kErode_EffectType: {
+            int direction = random_int(random, 2);
+            int kernelRadius = random_int(random, 1, 4);
+            // does not work with perspective or mul-by-alpha-mask
+            stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
+            stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
+            return new GrMorphologyEffect(gKernelDirections[direction],
+                                          kernelRadius,
+                                          GrContext::kErode_MorphologyType);
+            }
+        case kDilate_EffectType: {
+            int direction = random_int(random, 2);
+            int kernelRadius = random_int(random, 1, 4);
+            // does not work with perspective or mul-by-alpha-mask
+            stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
+            stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
+            return new GrMorphologyEffect(gKernelDirections[direction],
+                                          kernelRadius,
+                                          GrContext::kDilate_MorphologyType);
+            }
+        default:
+            GrCrash("Unexpected custom effect type");
+    }
+    return NULL;
+}
+
 }
 
 bool GrGpuGL::programUnitTest() {
@@ -250,7 +321,7 @@ bool GrGpuGL::programUnitTest() {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
-        GrCustomStage* customStages[GrDrawState::kNumStages];
+        SkAutoTUnref<GrCustomStage> customStages[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             // enable the stage?
@@ -270,56 +341,34 @@ bool GrGpuGL::programUnitTest() {
             StageDesc& stage = pdesc.fStages[s];
 
             stage.fCustomStageKey = 0;
-            customStages[s] = NULL;
 
             stage.fOptFlags = STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
             stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
             stage.fCoordMapping =  random_int(&random, StageDesc::kCoordMappingCnt);
             stage.fFetchMode = random_int(&random, StageDesc::kFetchModeCnt);
-            // convolution shaders don't work with persp tex matrix
-            if (stage.fFetchMode == StageDesc::kConvolution_FetchMode ||
-                stage.fFetchMode == StageDesc::kDilate_FetchMode ||
-                stage.fFetchMode == StageDesc::kErode_FetchMode) {
-                stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-            }
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
             static const uint32_t kMulByAlphaMask =
                 StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
                 StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
 
-            switch (stage.fFetchMode) {
-                case StageDesc::kSingle_FetchMode:
-                    stage.fKernelWidth = 0;
-                    break;
-                case StageDesc::kConvolution_FetchMode:
-                case StageDesc::kDilate_FetchMode:
-                case StageDesc::kErode_FetchMode:
-                    stage.fKernelWidth = random_int(&random, 2, 8);
-                    stage.fInConfigFlags &= ~kMulByAlphaMask;
-                    break;
-                case StageDesc::k2x2_FetchMode:
-                    stage.fKernelWidth = 0;
-                    stage.fInConfigFlags &= ~kMulByAlphaMask;
-                    break;
+            if (StageDesc::k2x2_FetchMode == stage.fFetchMode) {
+                stage.fInConfigFlags &= ~kMulByAlphaMask;
             }
 
-            // TODO: is there a more elegant way to express this?
-            if (stage.fFetchMode == StageDesc::kConvolution_FetchMode) {
-                int direction = random_int(&random, 2);
-                float kernel[MAX_KERNEL_WIDTH];
-                for (int i = 0; i < stage.fKernelWidth; i++) {
-                    kernel[i] = random.nextF();
+            bool useCustomEffect = random_bool(&random);
+            if (useCustomEffect) {
+                customStages[s].reset(create_random_effect(&stage, &random));
+                if (NULL != customStages[s]) {
+                    stage.fCustomStageKey =
+                        customStages[s]->getFactory().glStageKey(*customStages[s]);
                 }
-                customStages[s] = new GrConvolutionEffect(
-                    (GrSamplerState::FilterDirection)direction,
-                    stage.fKernelWidth, kernel);
-                stage.fCustomStageKey =
-                    customStages[s]->getFactory().glStageKey(customStages[s]);
             }
         }
         CachedData cachedData;
-        if (!program.genProgram(this->glContextInfo(), customStages,
-                                &cachedData)) {
+        GR_STATIC_ASSERT(sizeof(customStages) ==
+                         GrDrawState::kNumStages * sizeof(GrCustomStage*));
+        GrCustomStage** stages = reinterpret_cast<GrCustomStage**>(&customStages);
+        if (!program.genProgram(this->glContextInfo(), stages, &cachedData)) {
             return false;
         }
         DeleteProgram(this->glInterface(), &cachedData);
@@ -466,32 +515,6 @@ void GrGpuGL::flushRadial2(int s) {
         fProgramData->fRadial2CenterX1[s] = sampler.getRadial2CenterX1();
         fProgramData->fRadial2Radius0[s]  = sampler.getRadial2Radius0();
         fProgramData->fRadial2PosRoot[s]  = sampler.isRadial2PosRoot();
-    }
-}
-
-void GrGpuGL::flushConvolution(int s) {
-    const GrSamplerState& sampler = this->getDrawState().getSampler(s);
-    int kernelUni = fProgramData->fUniLocations.fStages[s].fKernelUni;
-    if (GrGLProgram::kUnusedUniform != kernelUni) {
-        GL_CALL(Uniform1fv(kernelUni, sampler.getKernelWidth(),
-                           sampler.getKernel()));
-    }
-    int imageIncrementUni = fProgramData->fUniLocations.fStages[s].fImageIncrementUni;
-    if (GrGLProgram::kUnusedUniform != imageIncrementUni) {
-        const GrGLTexture* texture =
-            static_cast<const GrGLTexture*>(this->getDrawState().getTexture(s));
-        float imageIncrement[2] = { 0 };
-        switch (sampler.getFilterDirection()) {
-            case GrSamplerState::kX_FilterDirection:
-                imageIncrement[0] = 1.0f / texture->width();
-                break;
-            case GrSamplerState::kY_FilterDirection:
-                imageIncrement[1] = 1.0f / texture->height();
-                break;
-            default:
-                GrCrash("Unknown filter direction.");
-        }
-        GL_CALL(Uniform2fv(imageIncrementUni, 1, imageIncrement));
     }
 }
 
@@ -692,8 +715,6 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 
             this->flushRadial2(s);
 
-            this->flushConvolution(s);
-
             this->flushTexelSize(s);
 
             this->flushTextureDomain(s);
@@ -706,7 +727,7 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
                         this->getDrawState().getTexture(s));
                 fProgramData->fCustomStage[s]->setData(
                     this->glInterface(), *texture,
-                    sampler.getCustomStage(), s);
+                    *sampler.getCustomStage(), s);
             }
         }
     }
@@ -875,7 +896,7 @@ void setup_custom_stage(GrGLProgram::ProgramDesc::StageDesc* stage,
     GrCustomStage* customStage = sampler.getCustomStage();
     if (customStage) {
         const GrProgramStageFactory& factory = customStage->getFactory();
-        stage->fCustomStageKey = factory.glStageKey(customStage);
+        stage->fCustomStageKey = factory.glStageKey(*customStage);
         customStages[index] = customStage;
     } else {
         stage->fCustomStageKey = 0;
@@ -1027,16 +1048,6 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
                 case GrSamplerState::k4x4Downsample_Filter:
                     stage.fFetchMode = StageDesc::k2x2_FetchMode;
                     break;
-                // performs fKernelWidth texture2D()s
-                case GrSamplerState::kConvolution_Filter:
-                    stage.fFetchMode = StageDesc::kConvolution_FetchMode;
-                    break;
-                case GrSamplerState::kDilate_Filter:
-                    stage.fFetchMode = StageDesc::kDilate_FetchMode;
-                    break;
-                case GrSamplerState::kErode_Filter:
-                    stage.fFetchMode = StageDesc::kErode_FetchMode;
-                    break;
                 default:
                     GrCrash("Unexpected filter!");
                     break;
@@ -1083,13 +1094,6 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
                 }
             }
 
-            if (sampler.getFilter() == GrSamplerState::kDilate_Filter ||
-                sampler.getFilter() == GrSamplerState::kErode_Filter) {
-                stage.fKernelWidth = sampler.getKernelWidth();
-            } else {
-                stage.fKernelWidth = 0;
-            }
-
             setup_custom_stage(&stage, sampler, customStages,
                                &fCurrentProgram, s);
 
@@ -1098,7 +1102,6 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
             stage.fCoordMapping     = (StageDesc::CoordMapping) 0;
             stage.fInConfigFlags    = 0;
             stage.fFetchMode        = (StageDesc::FetchMode) 0;
-            stage.fKernelWidth      = 0;
             stage.fCustomStageKey   = 0;
             customStages[s] = NULL;
         }

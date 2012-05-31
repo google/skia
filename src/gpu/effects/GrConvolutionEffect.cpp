@@ -11,14 +11,11 @@
 #include "gl/GrGLTexture.h"
 #include "GrProgramStageFactory.h"
 
-/////////////////////////////////////////////////////////////////////
-
 class GrGLConvolutionEffect : public GrGLProgramStage {
-
 public:
-
     GrGLConvolutionEffect(const GrProgramStageFactory& factory,
-                          const GrCustomStage* stage);
+                          const GrCustomStage& stage);
+
     virtual void setupVariables(GrGLShaderBuilder* state,
                                 int stage) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
@@ -27,38 +24,38 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
+
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
 
-    virtual void setData(const GrGLInterface*, 
+    virtual void setData(const GrGLInterface*,
                          const GrGLTexture&,
-                         GrCustomStage*,
+                         const GrCustomStage&,
                          int stageNum) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrCustomStage* s);
-    
-protected:
-
-    unsigned int         fKernelWidth;
-    const GrGLShaderVar* fKernelVar;
-    const GrGLShaderVar* fImageIncrementVar;
- 
-    GrGLint              fKernelLocation;
-    GrGLint              fImageIncrementLocation;
+    static inline StageKey GenKey(const GrCustomStage&);
 
 private:
+    int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
+
+    int                   fRadius;
+    const GrGLShaderVar*  fKernelVar;
+    GrGLint               fKernelLocation;
+    const GrGLShaderVar*  fImageIncrementVar;
+    GrGLint               fImageIncrementLocation;
 
     typedef GrGLProgramStage INHERITED;
 };
 
-GrGLConvolutionEffect::GrGLConvolutionEffect(
-                                    const GrProgramStageFactory& factory,
-                                    const GrCustomStage* data)
+GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factory,
+                                             const GrCustomStage& stage)
     : GrGLProgramStage(factory)
     , fKernelVar(NULL)
-    , fImageIncrementVar(NULL)
     , fKernelLocation(0)
+    , fImageIncrementVar(NULL)
     , fImageIncrementLocation(0) {
-    fKernelWidth = static_cast<const GrConvolutionEffect*>(data)->width();
+    const GrConvolutionEffect& c =
+        static_cast<const GrConvolutionEffect&>(stage);
+    fRadius = c.radius();
 }
 
 void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* state,
@@ -68,124 +65,132 @@ void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* state,
         kVec2f_GrSLType, "uImageIncrement", stage);
     fKernelVar = &state->addUniform(
         GrGLShaderBuilder::kFragment_VariableLifetime,
-        kFloat_GrSLType, "uKernel", stage, fKernelWidth);
+        kFloat_GrSLType, "uKernel", stage, this->width());
 
     fImageIncrementLocation = kUseUniform;
     fKernelLocation = kUseUniform;
 }
 
 void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* state,
-                        const char* vertexCoords) {
+                                   const char* vertexCoords) {
     GrStringBuilder* code = &state->fVSCode;
-    float scale = (fKernelWidth - 1) * 0.5f;
-    code->appendf("\t\t%s -= vec2(%g, %g) * %s;\n",
-                  vertexCoords, scale, scale,
+    code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n",
+                  vertexCoords, fRadius, fRadius,
                   fImageIncrementVar->getName().c_str());
-
 }
 
 void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const char* samplerName) {
+                                   const char* outputColor,
+                                   const char* inputColor,
+                                   const char* samplerName) {
     GrStringBuilder* code = &state->fFSCode;
     const char* texFunc = "texture2D";
     bool complexCoord = false;
 
-    GrStringBuilder modulate;
-    if (NULL != inputColor) {
-        modulate.printf(" * %s", inputColor);
-    }
+    state->fFSCode.appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
+
+    code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
+    code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
 
     // Creates the string "kernel[i]" with workarounds for
     // possible driver bugs
     GrStringBuilder kernelIndex;
     fKernelVar->appendArrayAccess("i", &kernelIndex);
-
-    code->appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
-    code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
-    code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n",
-                  fKernelWidth);
-
-    code->appendf("\t\t\tsum += ");
+    state->fFSCode.appendf("\t\t\tsum += ");
     state->emitTextureLookup(samplerName, "coord");
-    code->appendf(" * %s;\n", kernelIndex.c_str());
+    state->fFSCode.appendf(" * %s;\n", kernelIndex.c_str());
 
     code->appendf("\t\t\tcoord += %s;\n",
                   fImageIncrementVar->getName().c_str());
     code->appendf("\t\t}\n");
-    code->appendf("\t\t%s = sum%s;\n", outputColor, modulate.c_str());
+
+    state->fFSCode.appendf("\t\t%s = sum%s;\n",
+                           outputColor,
+                           state->fModulate.c_str());
 }
 
 void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
                                          int programID) {
-    GR_GL_CALL_RET(gl, fKernelLocation,
-        GetUniformLocation(programID, fKernelVar->getName().c_str()));
     GR_GL_CALL_RET(gl, fImageIncrementLocation,
         GetUniformLocation(programID,
             fImageIncrementVar->getName().c_str()));
+    GR_GL_CALL_RET(gl, fKernelLocation,
+        GetUniformLocation(programID, fKernelVar->getName().c_str()));
 }
 
 void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
                                     const GrGLTexture& texture,
-                                    GrCustomStage* data,
+                                    const GrCustomStage& data,
                                     int stageNum) {
-    const GrConvolutionEffect* conv =
-        static_cast<const GrConvolutionEffect*>(data);
-    // the code we generated was for a specific kernel width
-    GrAssert(conv->width() == fKernelWidth);
-    GR_GL_CALL(gl, Uniform1fv(fKernelLocation,
-                              fKernelWidth,
-                              conv->kernel()));
+    const GrConvolutionEffect& conv =
+        static_cast<const GrConvolutionEffect&>(data);
+    // the code we generated was for a specific kernel radius
+    GrAssert(conv.radius() == fRadius);
     float imageIncrement[2] = { 0 };
-    switch (conv->direction()) {
-        case GrSamplerState::kX_FilterDirection:
+    switch (conv.direction()) {
+        case Gr1DKernelEffect::kX_Direction:
             imageIncrement[0] = 1.0f / texture.width();
             break;
-        case GrSamplerState::kY_FilterDirection:
-            imageIncrement[1] = 1.0f / texture.width();
+        case Gr1DKernelEffect::kY_Direction:
+            imageIncrement[1] = 1.0f / texture.height();
             break;
         default:
             GrCrash("Unknown filter direction.");
     }
     GR_GL_CALL(gl, Uniform2fv(fImageIncrementLocation, 1, imageIncrement));
+
+    GR_GL_CALL(gl, Uniform1fv(fKernelLocation, this->width(), conv.kernel()));
 }
 
 GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(
-                                                    const GrCustomStage* s) {
-    return static_cast<const GrConvolutionEffect*>(s)->width();
+                                                    const GrCustomStage& s) {
+    return static_cast<const GrConvolutionEffect&>(s).radius();
 }
 
-/////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-GrConvolutionEffect::GrConvolutionEffect(
-        GrSamplerState::FilterDirection direction,
-        unsigned int kernelWidth,
-        const float* kernel)
-    : fDirection (direction)
-    , fKernelWidth (kernelWidth) {
-    GrAssert(kernelWidth <= MAX_KERNEL_WIDTH);
-    for (unsigned int i = 0; i < kernelWidth; i++) {
-        fKernel[i] = kernel[i];
+GrConvolutionEffect::GrConvolutionEffect(Direction direction,
+                                         int radius,
+                                         const float* kernel)
+    : Gr1DKernelEffect(direction, radius) {
+    GrAssert(radius <= kMaxKernelRadius);
+    int width = this->width();
+    if (NULL != kernel) {
+        for (int i = 0; i < width; i++) {
+            fKernel[i] = kernel[i];
+        }
     }
 }
 
 GrConvolutionEffect::~GrConvolutionEffect() {
-
 }
 
 const GrProgramStageFactory& GrConvolutionEffect::getFactory() const {
     return GrTProgramStageFactory<GrConvolutionEffect>::getInstance();
 }
 
-bool GrConvolutionEffect::isEqual(const GrCustomStage * sBase) const {
-    const GrConvolutionEffect* s =
-        static_cast<const GrConvolutionEffect*>(sBase);
-
-    return (fKernelWidth == s->fKernelWidth &&
-            fDirection == s->fDirection &&
-            0 == memcmp(fKernel, s->fKernel, fKernelWidth * sizeof(float)));
+bool GrConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
+     const GrConvolutionEffect& s =
+        static_cast<const GrConvolutionEffect&>(sBase);
+    return (this->radius() == s.radius() &&
+             this->direction() == s.direction() &&
+             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
 }
 
-
-
+void GrConvolutionEffect::setGaussianKernel(float sigma) {
+    int width = this->width();
+    float sum = 0.0f;
+    float denom = 1.0f / (2.0f * sigma * sigma);
+    for (int i = 0; i < width; ++i) {
+        float x = static_cast<float>(i - this->radius());
+        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+        // is dropped here, since we renormalize the kernel below.
+        fKernel[i] = sk_float_exp(- x * x * denom);
+        sum += fKernel[i];
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < width; ++i) {
+        fKernel[i] *= scale;
+    }
+}

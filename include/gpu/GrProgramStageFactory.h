@@ -26,9 +26,9 @@ public:
         kProgramStageKeyBits = 10,
     };
 
-    virtual StageKey glStageKey(const GrCustomStage* stage) const = 0;
+    virtual StageKey glStageKey(const GrCustomStage& stage) const = 0;
     virtual GrGLProgramStage* createGLInstance(
-        const GrCustomStage* stage) const = 0;
+        const GrCustomStage& stage) const = 0;
 
     bool operator ==(const GrProgramStageFactory& b) const {
         return fStageClassID == b.fStageClassID;
@@ -79,7 +79,7 @@ public:
         id identifies the GrCustomShader subclass. The remainder is based
         on the aspects of the GrCustomStage object's configuration that affect
         GLSL code generation. */
-    virtual StageKey glStageKey(const GrCustomStage* stage) const SK_OVERRIDE {
+    virtual StageKey glStageKey(const GrCustomStage& stage) const SK_OVERRIDE {
         GrAssert(kIllegalStageClassID != fStageClassID);
         StageKey stageID = GLProgramStage::GenKey(stage);
 #if GR_DEBUG
@@ -94,7 +94,7 @@ public:
      for the given GrCustomStage; caller is responsible for deleting
      the object. */
     virtual GLProgramStage* createGLInstance(
-                        const GrCustomStage* stage) const SK_OVERRIDE {
+                        const GrCustomStage& stage) const SK_OVERRIDE {
         return new GLProgramStage(*this, stage);
     }
 

@@ -95,18 +95,6 @@ inline void radial2_param_name(int stage, GrStringBuilder* s) {
     s->appendS32(stage);
 }
 
-inline void convolve_param_names(int stage, GrStringBuilder* k, GrStringBuilder* i) {
-    *k = "uKernel";
-    k->appendS32(stage);
-    *i = "uImageIncrement";
-    i->appendS32(stage);
-}
-
-inline void image_increment_param_name(int stage, GrStringBuilder* i) {
-    *i = "uImageIncrement";
-    i->appendS32(stage);
-}
-
 inline void tex_domain_name(int stage, GrStringBuilder* s) {
     *s = "uTexDom";
     s->appendS32(stage);
@@ -629,7 +617,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                     const GrProgramStageFactory& factory =
                         customStages[s]->getFactory();
                     programData->fCustomStage[s] =
-                        factory.createGLInstance(customStages[s]);
+                        factory.createGLInstance(*customStages[s]);
                 }
                 this->genStageCode(gl,
                                    s,
@@ -752,7 +740,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
                         const GrProgramStageFactory& factory =
                             customStages[s]->getFactory();
                         programData->fCustomStage[s] =
-                            factory.createGLInstance(customStages[s]);
+                            factory.createGLInstance(*customStages[s]);
                     }
                     this->genStageCode(gl, s,
                         fProgramDesc.fStages[s],
@@ -1186,21 +1174,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
                 GrAssert(kUnusedUniform != locations.fTexDomUni);
             }
 
-            GrStringBuilder kernelName, imageIncrementName;
-            convolve_param_names(s, &kernelName, &imageIncrementName);
-            if (kUseUniform == locations.fKernelUni) {
-                GL_CALL_RET(locations.fKernelUni,
-                            GetUniformLocation(progID, kernelName.c_str()));
-                GrAssert(kUnusedUniform != locations.fKernelUni);
-            }
-
-            if (kUseUniform == locations.fImageIncrementUni) {
-                GL_CALL_RET(locations.fImageIncrementUni, 
-                            GetUniformLocation(progID, 
-                                               imageIncrementName.c_str()));
-                GrAssert(kUnusedUniform != locations.fImageIncrementUni);
-            }
-
             if (NULL != programData->fCustomStage[s]) {
                 programData->fCustomStage[s]->
                     initUniforms(gl.interface(), progID);
@@ -1411,65 +1384,6 @@ void gen2x2FS(int stageNum,
 
 }
 
-void genMorphologyVS(int stageNum,
-                     const StageDesc& desc,
-                     GrGLShaderBuilder* segments,
-                     GrGLProgram::StageUniLocations* locations,
-                     const char** imageIncrementName,
-                     const char* varyingVSName) {
-
-    GrStringBuilder iiName;
-    image_increment_param_name(stageNum, &iiName);
-    const GrGLShaderVar* imgInc =
-        &segments->addUniform(
-            GrGLShaderBuilder::kBoth_VariableLifetime, kVec2f_GrSLType, 
-            iiName.c_str());
-    *imageIncrementName = imgInc->getName().c_str();
-
-    locations->fImageIncrementUni = kUseUniform;
-    segments->fVSCode.appendf("\t%s -= vec2(%d, %d) * %s;\n",
-                                  varyingVSName, desc.fKernelWidth,
-                                  desc.fKernelWidth, *imageIncrementName);
-}
- 
-void genMorphologyFS(int stageNum,
-                     const StageDesc& desc,
-                     GrGLShaderBuilder* segments,
-                     const char* samplerName,
-                     const char* imageIncrementName,
-                     const char* fsOutColor,
-                     GrStringBuilder& texFunc) {
-    GrStringBuilder valueVar("value");
-    valueVar.appendS32(stageNum);
-    GrStringBuilder coordVar("coord");
-    coordVar.appendS32(stageNum);
-    bool isDilate = StageDesc::kDilate_FetchMode == desc.fFetchMode;
-
-   if (isDilate) {
-        segments->fFSCode.appendf("\tvec4 %s = vec4(0, 0, 0, 0);\n",
-                                  valueVar.c_str());
-    } else {
-        segments->fFSCode.appendf("\tvec4 %s = vec4(1, 1, 1, 1);\n",
-                                  valueVar.c_str());
-    }
-    segments->fFSCode.appendf("\tvec2 %s = %s;\n", 
-                              coordVar.c_str(),
-                              segments->fSampleCoords.c_str());
-    segments->fFSCode.appendf("\tfor (int i = 0; i < %d; i++) {\n",
-                              desc.fKernelWidth * 2 + 1);
-    segments->fFSCode.appendf("\t\t%s = %s(%s, %s(%s, %s)%s);\n",
-                              valueVar.c_str(), isDilate ? "max" : "min",
-                              valueVar.c_str(), texFunc.c_str(),
-                              samplerName, coordVar.c_str(),
-                              segments->fSwizzle.c_str());
-    segments->fFSCode.appendf("\t\t%s += %s;\n",
-                              coordVar.c_str(),
-                              imageIncrementName);
-    segments->fFSCode.appendf("\t}\n");
-    segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
-                              valueVar.c_str(), segments->fModulate.c_str());
-}
-
 }
 
 void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
@@ -1562,12 +1476,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     GrGLShaderVar* kernel = NULL;
     const char* imageIncrementName = NULL;
-    if (StageDesc::kDilate_FetchMode == desc.fFetchMode ||
-               StageDesc::kErode_FetchMode == desc.fFetchMode) {
-        genMorphologyVS(stageNum, desc, segments, locations,
-                        &imageIncrementName, varyingVSName);
-    }
-
     if (NULL != customStage) {
         segments->fVSCode.appendf("\t{ // stage %d %s\n",
                                   stageNum, customStage->name());
@@ -1676,15 +1584,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
             GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
             gen2x2FS(stageNum, segments, locations,
                 samplerName.c_str(), texelSizeName, fsOutColor, texFunc);
-            break;
-        case StageDesc::kConvolution_FetchMode:
-            GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-            break;
-        case StageDesc::kDilate_FetchMode:
-        case StageDesc::kErode_FetchMode:
-            GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
-            genMorphologyFS(stageNum, desc, segments,
-                samplerName.c_str(), imageIncrementName, fsOutColor, texFunc);
             break;
         default:
             if (desc.fInConfigFlags & kMulByAlphaMask) {
