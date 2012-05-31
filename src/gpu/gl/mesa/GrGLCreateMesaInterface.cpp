@@ -127,6 +127,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(StencilOpSeparate);
         GR_GL_GET_PROC(TexImage2D)
         GR_GL_GET_PROC(TexParameteri);
+        GR_GL_GET_PROC(TexParameteriv);
         GR_GL_GET_PROC(TexStorage2D);
         if (NULL == interface->fTexStorage2D) {
             GR_GL_GET_PROC_SUFFIX(TexStorage2D, EXT);
