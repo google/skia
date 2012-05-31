@@ -105,7 +105,7 @@ public:
         return this->dotWith(v.fX, v.fY, v.fZ);
     }
 
-    // depreicated, but still here for animator (for now)
+    // deprecated, but still here for animator (for now)
     void rotate(SkScalar x, SkScalar y, SkScalar z) {}
     void rotateDegrees(SkScalar x, SkScalar y, SkScalar z) {}
 

@@ -84,7 +84,7 @@
     static inline float SkIntToScalar(unsigned long param) {
         return (float)param;
     }
-    static inline float SkIntToScalar(float param) {
+    static inline float SkIntToScalar(float /* param */) {
         /* If the parameter passed into SkIntToScalar is a float,
          * one of two things has happened:
          * 1. the parameter was an SkScalar (which is typedef'd to float)

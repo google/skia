@@ -92,7 +92,7 @@ void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) const {
     const Rec* stop = fList.end();
     while (rec < stop) {
         buffer.writeFlattenable(rec->fShape);
-        buffer.writeBool(rec->fMatrixRef);
+        buffer.writeBool(NULL != rec->fMatrixRef);
         if (rec->fMatrixRef) {
             buffer.writeMatrix(*rec->fMatrixRef);
         }

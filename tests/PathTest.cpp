@@ -27,7 +27,6 @@ static void test_poly(skiatest::Reporter* reporter, const SkPath& path,
                       const SkPoint srcPts[], int count, bool expectClose) {
     SkPath::RawIter iter(path);
     SkPoint         pts[4];
-    SkPath::Verb    verb;
 
     bool firstTime = true;
     bool foundClose = false;
