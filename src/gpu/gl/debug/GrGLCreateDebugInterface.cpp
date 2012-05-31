@@ -211,6 +211,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilOp(GrGLenum fail, GrGLenum zfail, GrG
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilOpSeparate(GrGLenum face, GrGLenum fail, GrGLenum zfail, GrGLenum zpass) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexImage2D(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexParameteri(GrGLenum target, GrGLenum pname, GrGLint param) {}
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexParameteriv(GrGLenum target, GrGLenum pname, const GrGLint* params) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexStorage2D(GrGLenum target, GrGLsizei levels, GrGLenum internalformat, GrGLsizei width, GrGLsizei height) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexSubImage2D(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform1f(GrGLint location, GrGLfloat v0) {}
@@ -989,6 +990,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
         interface->fStencilOpSeparate = debugGLStencilOpSeparate;
         interface->fTexImage2D = debugGLTexImage2D;
         interface->fTexParameteri = debugGLTexParameteri;
+        interface->fTexParameteriv = debugGLTexParameteriv;
         interface->fTexSubImage2D = debugGLTexSubImage2D;
         interface->fTexStorage2D = debugGLTexStorage2D;
         interface->fUniform1f = debugGLUniform1f;

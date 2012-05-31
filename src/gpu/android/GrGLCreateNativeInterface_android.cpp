@@ -77,6 +77,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fStencilOpSeparate = glStencilOpSeparate;
         interface->fTexImage2D = glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
+        interface->fTexParameteriv = glTexParameteriv;
         interface->fTexSubImage2D = glTexSubImage2D;
 #if GL_ARB_texture_storage
         interface->fTexStorage2D = glTexStorage2D;
