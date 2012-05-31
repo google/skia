@@ -45,14 +45,12 @@ static void addInnerCWTriangle(SkPath& path) {
     path.close();
 }
 
-#if DEBUG_UNUSED
 static void addInnerCCWTriangle(SkPath& path) {
     path.moveTo(3,0);
     path.lineTo(2,1);
     path.lineTo(4,1);
     path.close();
 }
-#endif
 
 static void addOuterCWTriangle(SkPath& path) {
     path.moveTo(3,0);
@@ -61,14 +59,12 @@ static void addOuterCWTriangle(SkPath& path) {
     path.close();
 }
 
-#if DEBUG_UNUSED
 static void addOuterCCWTriangle(SkPath& path) {
     path.moveTo(3,0);
     path.lineTo(0,2);
     path.lineTo(6,2);
     path.close();
 }
-#endif
 
 static void testLine2() {
     SkPath path, simple;
@@ -77,15 +73,38 @@ static void testLine2() {
     testSimplifyx(path, simple, bitmap);
 }
 
+static void testLine3() {
+    SkPath path, simple;
+    addInnerCCWTriangle(path);
+    addOuterCWTriangle(path);
+    testSimplifyx(path, simple, bitmap);
+}
+
+static void testLine4() {
+    SkPath path, simple;
+    addOuterCCWTriangle(path);
+    addOuterCWTriangle(path);
+    testSimplifyx(path, simple, bitmap);
+}
+
+static void testLine5() {
+    SkPath path, simple;
+    addOuterCWTriangle(path);
+    addOuterCWTriangle(path);
+    testSimplifyx(path, simple, bitmap);
+}
 
 static void (*tests[])() = {
     testLine1,
     testLine2,
+    testLine3,
+    testLine4,
+    testLine5
 };
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
-static void (*firstTest)() = testLine2;
+static void (*firstTest)() = testLine5;
 static bool skipAll = false;
 
 void SimplifyNew_Test() {

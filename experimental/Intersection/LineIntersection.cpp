@@ -56,9 +56,10 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
                 aRange[0] = bMin <= aMin ? 0 : (bMin - aMin) / (aMax - aMin);
                 aRange[1] = bMax >= aMax ? 1 : (bMax - aMin) / (aMax - aMin);
             }
+            int bIn = (aPtr[0] - aPtr[2]) * (bPtr[0] - bPtr[2]) < 0;
             if (bRange) {
-                bRange[0] = aMin <= bMin ? 0 : (aMin - bMin) / (bMax - bMin);
-                bRange[1] = aMax >= bMax ? 1 : (aMax - bMin) / (bMax - bMin);
+                bRange[bIn] = aMin <= bMin ? 0 : (aMin - bMin) / (bMax - bMin);
+                bRange[!bIn] = aMax >= bMax ? 1 : (aMax - bMin) / (bMax - bMin);
             }
             return 1 + ((aRange[0] != aRange[1]) || (bRange[0] != bRange[1]));
         }
