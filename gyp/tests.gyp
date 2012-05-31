@@ -96,14 +96,6 @@
         'pdf.gyp:pdf',
         'utils.gyp:utils',
       ],
-      'conditions': [
-        [ 'skia_os == "mac"', {
-          'sources!': [
-            #mac port currently does not support fonts from streams.
-            '../tests/FontHostStreamTest.cpp',
-          ],
-        }],
-      ],
     },
   ],
 }
