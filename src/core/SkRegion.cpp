@@ -992,8 +992,12 @@ bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
         if (a_empty) {
             return setEmptyCheck(result);
         }
-        if (b_empty || !SkIRect::Intersects(rgna->fBounds, rgnb->fBounds)) {
+        if (b_empty || !SkIRect::IntersectsNoEmptyCheck(rgna->fBounds,
+                                                        rgnb->fBounds)) {
             return setRegionCheck(result, *rgna);
+        }
+        if (b_rect && rgnb->fBounds.containsNoEmptyCheck(rgna->fBounds)) {
+            return setEmptyCheck(result);
         }
         break;
 
