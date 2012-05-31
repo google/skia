@@ -47,18 +47,19 @@
           'Release': {
             'msvs_settings': {
               'VCCLCompilerTool': {
-                'DebugInformationFormat': '3',   # programDatabase (/Zi)
+                'DebugInformationFormat': '3',      # programDatabase (/Zi)
                 'ProgramDataBaseFileName': '$(OutDir)\\$(ProjectName).pdb',
-                'Optimization': '3',             # full (/Ox)
+                'Optimization': '3',                # full (/Ox)
                 'WholeProgramOptimization': 'true', #/GL
                # Changing the floating point model requires rebaseling gm images
-               #'FloatingPointModel': '2',       # fast (/fp:fast)
-                'FavorSizeOrSpeed': '1',         # speed (/Ot)
+               #'FloatingPointModel': '2',          # fast (/fp:fast)
+                'FavorSizeOrSpeed': '1',            # speed (/Ot)
                 'PreprocessorDefinitions': ['NDEBUG'],
-                'RuntimeLibrary': '2',           # rtMultiThreadedDLL (/MD)
+                'RuntimeLibrary': '2',              # rtMultiThreadedDLL (/MD)
                 'ExceptionHandling': '0',
-                'RuntimeTypeInfo': 'false',      # /GR-
-                'WarningLevel': '3',             # level3 (/W3)
+                'EnableEnhancedInstructionSet': '2',# /arch:SSE2
+                'RuntimeTypeInfo': 'false',         # /GR-
+                'WarningLevel': '3',                # level3 (/W3)
               },
               'VCLinkerTool': {
                 'GenerateDebugInformation': 'true', # /DEBUG
