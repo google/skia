@@ -57,7 +57,7 @@ public:
         For equivalence (that they will generate the same
         shader, but perhaps have different uniforms), check equality
         of the stageKey produced by the GrProgramStageFactory. */
-    virtual bool isEqual(const GrCustomStage *) const = 0;
+    virtual bool isEqual(const GrCustomStage&) const = 0;
 
      /** Human-meaningful string to identify this effect; may be embedded
          in generated shader code. */

@@ -106,13 +106,10 @@ public:
                 kCustomTextureDomain_OptFlagBit = 1 << 2,
                 kIsEnabled_OptFlagBit           = 1 << 7
             };
-            // Convolution is obsolete; left in for testing only
+
             enum FetchMode {
                 kSingle_FetchMode,
                 k2x2_FetchMode,
-                kConvolution_FetchMode,
-                kErode_FetchMode,
-                kDilate_FetchMode,
 
                 kFetchModeCnt,
             };
@@ -179,7 +176,6 @@ public:
             uint8_t fInConfigFlags; // bitfield of InConfigFlags values
             uint8_t fFetchMode;     // casts to enum FetchMode
             uint8_t fCoordMapping;  // casts to enum CoordMapping
-            uint8_t fKernelWidth;
 
             /** Non-zero if user-supplied code will write the stage's
                 contribution to the fragment shader. */
@@ -268,16 +264,12 @@ public:
         GrGLint fSamplerUni;
         GrGLint fRadial2Uni;
         GrGLint fTexDomUni;
-        GrGLint fKernelUni;
-        GrGLint fImageIncrementUni;
         void reset() {
             fTextureMatrixUni = kUnusedUniform;
             fNormalizedTexelSizeUni = kUnusedUniform;
             fSamplerUni = kUnusedUniform;
             fRadial2Uni = kUnusedUniform;
             fTexDomUni = kUnusedUniform;
-            fKernelUni = kUnusedUniform;
-            fImageIncrementUni = kUnusedUniform;
         }
     };
 

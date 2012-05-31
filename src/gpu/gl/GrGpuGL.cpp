@@ -2102,9 +2102,6 @@ unsigned gr_to_gl_filter(GrSamplerState::Filter filter) {
         case GrSamplerState::k4x4Downsample_Filter:
             return GR_GL_LINEAR;
         case GrSamplerState::kNearest_Filter:
-        case GrSamplerState::kConvolution_Filter:
-        case GrSamplerState::kErode_Filter:
-        case GrSamplerState::kDilate_Filter:
             return GR_GL_NEAREST;
         default:
             GrAssert(!"Unknown filter type");

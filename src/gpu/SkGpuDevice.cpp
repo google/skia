@@ -1451,14 +1451,14 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
         GrAutoScratchTexture temp1(context, desc), temp2(context, desc);
         texture = context->applyMorphology(texture, rect,
                                            temp1.texture(), temp2.texture(),
-                                           GrSamplerState::kDilate_Filter,
+                                           GrContext::kDilate_MorphologyType,
                                            radius);
         texture->ref();
     } else if (filter->asAnErode(&radius)) {
         GrAutoScratchTexture temp1(context, desc), temp2(context, desc);
         texture = context->applyMorphology(texture, rect,
                                            temp1.texture(), temp2.texture(),
-                                           GrSamplerState::kErode_Filter,
+                                           GrContext::kErode_MorphologyType,
                                            radius);
         texture->ref();
     }

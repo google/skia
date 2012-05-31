@@ -274,8 +274,11 @@
         '../src/gpu/GrVertexBuffer.h',
         '../src/gpu/gr_unittests.cpp',
 
+        '../src/gpu/effects/Gr1DKernelEffect.h',
         '../src/gpu/effects/GrConvolutionEffect.cpp',
         '../src/gpu/effects/GrConvolutionEffect.h',
+        '../src/gpu/effects/GrMorphologyEffect.cpp',
+        '../src/gpu/effects/GrMorphologyEffect.h',
 
         '../src/gpu/gl/GrGLCaps.cpp',
         '../src/gpu/gl/GrGLCaps.h',

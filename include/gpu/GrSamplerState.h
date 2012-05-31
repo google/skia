@@ -15,8 +15,6 @@
 #include "GrMatrix.h"
 #include "GrTypes.h"
 
-#define MAX_KERNEL_WIDTH 25
-
 class GrSamplerState {
 public:
     enum Filter {
@@ -36,18 +34,6 @@ public:
          * on shader backends.
          */
         k4x4Downsample_Filter,
-        /**
-         * Apply a separable convolution kernel.
-         */
-        kConvolution_Filter,
-        /**
-         * Apply a dilate filter (max over a 1D radius).
-         */
-        kDilate_Filter,
-        /**
-         * Apply an erode filter (min over a 1D radius).
-         */
-        kErode_Filter,
 
         kDefault_Filter = kNearest_Filter
     };
@@ -96,17 +82,6 @@ public:
     };
 
     /**
-     * For the filters which perform more than one texture sample (convolution,
-     * erode, dilate), this determines the direction in which the texture
-     * coordinates will be incremented.
-     */
-    enum FilterDirection {
-        kX_FilterDirection,
-        kY_FilterDirection,
-
-        kDefault_FilterDirection = kX_FilterDirection,
-    };
-    /**
      * Default sampler state is set to clamp, use normal sampling mode, be
      * unfiltered, and use identity matrix.
      */
@@ -135,7 +110,7 @@ public:
                 (fCustomStage && s.fCustomStage &&
                  (fCustomStage->getFactory() ==
                      s.fCustomStage->getFactory()) &&
-                 fCustomStage->isEqual(s.fCustomStage)));
+                 fCustomStage->isEqual(*s.fCustomStage)));
     }
     bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
 
@@ -143,7 +118,6 @@ public:
         // memcpy() breaks refcounting
         fWrapX = s.fWrapX;
         fWrapY = s.fWrapY;
-        fFilterDirection = s.fFilterDirection;
         fSampleMode = s.fSampleMode;
         fFilter = s.fFilter;
         fMatrix = s.fMatrix;
@@ -154,11 +128,6 @@ public:
         fRadial2Radius0 = s.fRadial2Radius0;
         fRadial2PosRoot = s.fRadial2PosRoot;
 
-        fKernelWidth = s.fKernelWidth;
-        if (kConvolution_Filter == fFilter) {
-            memcpy(fKernel, s.fKernel, MAX_KERNEL_WIDTH * sizeof(float));
-        }
-
         fCustomStage = s.fCustomStage;
         SkSafeRef(fCustomStage);
 
@@ -167,16 +136,12 @@ public:
 
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
-    FilterDirection getFilterDirection() const { return fFilterDirection; }
     SampleMode getSampleMode() const { return fSampleMode; }
     const GrMatrix& getMatrix() const { return fMatrix; }
     const GrRect& getTextureDomain() const { return fTextureDomain; }
     bool hasTextureDomain() const {return SkIntToScalar(0) != fTextureDomain.right();}
     Filter getFilter() const { return fFilter; }
-    int getKernelWidth() const { return fKernelWidth; }
-    const float* getKernel() const { return fKernel; }
     bool swapsRAndB() const { return fSwapRAndB; }
-
     bool isGradient() const {
         return  kRadial_SampleMode == fSampleMode ||
                 kRadial2_SampleMode == fSampleMode ||
@@ -186,7 +151,6 @@ public:
     void setWrapX(WrapMode mode) { fWrapX = mode; }
     void setWrapY(WrapMode mode) { fWrapY = mode; }
     void setSampleMode(SampleMode mode) { fSampleMode = mode; }
-    void setFilterDirection(FilterDirection mode) { fFilterDirection = mode; }
     
     /**
      * Access the sampler's matrix. See SampleMode for explanation of
@@ -227,30 +191,24 @@ public:
 
     void reset(WrapMode wrapXAndY,
                Filter filter,
-               FilterDirection direction,
                const GrMatrix& matrix) {
         fWrapX = wrapXAndY;
         fWrapY = wrapXAndY;
         fSampleMode = kDefault_SampleMode;
         fFilter = filter;
-        fFilterDirection = direction;
         fMatrix = matrix;
         fTextureDomain.setEmpty();
         fSwapRAndB = false;
         GrSafeSetNull(fCustomStage);
     }
-    void reset(WrapMode wrapXAndY, Filter filter, const GrMatrix& matrix) {
-        this->reset(wrapXAndY, filter, kDefault_FilterDirection, matrix);
-    }
-    void reset(WrapMode wrapXAndY,
-               Filter filter) {
-        this->reset(wrapXAndY, filter, kDefault_FilterDirection, GrMatrix::I());
+    void reset(WrapMode wrapXAndY, Filter filter) {
+        this->reset(wrapXAndY, filter, GrMatrix::I());
     }
     void reset(const GrMatrix& matrix) {
-        this->reset(kDefault_WrapMode, kDefault_Filter, kDefault_FilterDirection, matrix);
+        this->reset(kDefault_WrapMode, kDefault_Filter, matrix);
     }
     void reset() {
-        this->reset(kDefault_WrapMode, kDefault_Filter, kDefault_FilterDirection, GrMatrix::I());
+        this->reset(kDefault_WrapMode, kDefault_Filter, GrMatrix::I());
     }
 
     GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
@@ -273,19 +231,6 @@ public:
         fRadial2PosRoot = posRoot;
     }
 
-    void setConvolutionParams(int kernelWidth, const float* kernel) {
-        GrAssert(kernelWidth >= 0 && kernelWidth <= MAX_KERNEL_WIDTH);
-        fKernelWidth = kernelWidth;
-        if (NULL != kernel) {
-            memcpy(fKernel, kernel, kernelWidth * sizeof(float));
-        }
-    }
-
-    void setMorphologyRadius(int radius) {
-        GrAssert(radius >= 0 && radius <= MAX_KERNEL_WIDTH);
-        fKernelWidth = radius;
-    }
-
     void setCustomStage(GrCustomStage* stage) {
         GrSafeAssign(fCustomStage, stage);
     }
@@ -294,7 +239,6 @@ public:
 private:
     WrapMode            fWrapX : 8;
     WrapMode            fWrapY : 8;
-    FilterDirection     fFilterDirection : 8;
     SampleMode          fSampleMode : 8;
     Filter              fFilter : 8;
     GrMatrix            fMatrix;
@@ -305,10 +249,6 @@ private:
     GrScalar            fRadial2CenterX1;
     GrScalar            fRadial2Radius0;
     SkBool8             fRadial2PosRoot;
-
-    // These are undefined unless fFilter == kConvolution_Filter
-    uint8_t             fKernelWidth;
-    float               fKernel[MAX_KERNEL_WIDTH];
 
     GrCustomStage*      fCustomStage;
 };
