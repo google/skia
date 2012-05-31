@@ -13,20 +13,14 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
 
-#include <mach-o/dyld.h>
+#include <dlfcn.h>
 
-
-// This uses deprecated functions, should rewrite using dlopen, dlsym, dlclose
 void* GetProcAddress(const char* name) {
-    NSSymbol symbol = NULL;
-    if (NSIsSymbolNameDefined(name)) {
-        symbol = NSLookupAndBindSymbol(name);
-    }
-    return NULL == symbol ? NULL : NSAddressOfSymbol(symbol); 
+    return dlsym(RTLD_DEFAULT, name);
 }
 
-#define GET_PROC(name) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("_gl" #name)))
-#define GET_PROC_SUFFIX(name, suffix) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("_gl" #name #suffix)))
+#define GET_PROC(name) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("gl" #name)))
+#define GET_PROC_SUFFIX(name, suffix) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("gl" #name #suffix)))
 
 const GrGLInterface* GrGLCreateNativeInterface() {
     // The gl functions are not context-specific so we create one global 
