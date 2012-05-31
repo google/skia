@@ -671,10 +671,6 @@ public:
         return 0 != (stateBit & fFlagBits);
     }
 
-    void copyStateFlags(const GrDrawState& ds) {
-        fFlagBits = ds.fFlagBits;
-    }
-
     /**
      *  Flags that do not affect rendering. 
      */

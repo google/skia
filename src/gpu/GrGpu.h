@@ -316,7 +316,7 @@ public:
     void removeResource(GrResource* resource);
 
     // GrDrawTarget overrides
-    virtual void clear(const GrIRect* rect, GrColor color);
+    virtual void clear(const GrIRect* rect, GrColor color) SK_OVERRIDE;
 
     virtual void purgeResources() SK_OVERRIDE {
         // The clip mask manager can rebuild all its clip masks so just
@@ -413,18 +413,20 @@ protected:
     // GrDrawTarget overrides
     virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,
                                       int vertexCount,
-                                      void** vertices);
-    virtual bool onReserveIndexSpace(int indexCount, void** indices);
-    virtual void releaseReservedVertexSpace();
-    virtual void releaseReservedIndexSpace();    
+                                      void** vertices) SK_OVERRIDE;
+    virtual bool onReserveIndexSpace(int indexCount,
+                                     void** indices) SK_OVERRIDE;
+    virtual void releaseReservedVertexSpace() SK_OVERRIDE;
+    virtual void releaseReservedIndexSpace() SK_OVERRIDE;
     virtual void onSetVertexSourceToArray(const void* vertexArray,
-                                          int vertexCount);
+                                          int vertexCount) SK_OVERRIDE;
     virtual void onSetIndexSourceToArray(const void* indexArray,
-                                         int indexCount);
-    virtual void releaseVertexArray();
-    virtual void releaseIndexArray();
-    virtual void geometrySourceWillPush();
-    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState);
+                                         int indexCount) SK_OVERRIDE;
+    virtual void releaseVertexArray() SK_OVERRIDE;
+    virtual void releaseIndexArray() SK_OVERRIDE;
+    virtual void geometrySourceWillPush() SK_OVERRIDE;
+    virtual void geometrySourceWillPop(
+        const GeometrySrcState& restoredState) SK_OVERRIDE;
 
     // Helpers for setting up geometry state
     void finalizeReservedVertices();
@@ -546,10 +548,10 @@ private:
                                int startVertex,
                                int startIndex,
                                int vertexCount,
-                               int indexCount);
+                               int indexCount) SK_OVERRIDE;
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
-                                  int vertexCount);
+                                  int vertexCount) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();
