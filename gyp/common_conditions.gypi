@@ -132,6 +132,7 @@
 # trying to get this to work, but it needs clang I think...
 #          'WARNING_CFLAGS': '-Wexit-time-destructors',
           'CLANG_WARN_CXX0X_EXTENSIONS': 'NO',
+          'OTHER_CPLUSPLUSFLAGS': '-mssse3 -fvisibility=hidden -fvisibility-inlines-hidden',
         },
       },
     ],
