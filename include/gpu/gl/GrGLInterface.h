@@ -224,6 +224,7 @@ public:
     GLPtr<GrGLStencilOpSeparateProc> fStencilOpSeparate;
     GLPtr<GrGLTexImage2DProc> fTexImage2D;
     GLPtr<GrGLTexParameteriProc> fTexParameteri;
+    GLPtr<GrGLTexParameterivProc> fTexParameteriv;
     GLPtr<GrGLTexSubImage2DProc> fTexSubImage2D;
     GLPtr<GrGLTexStorage2DProc> fTexStorage2D;
     GLPtr<GrGLUniform1fProc> fUniform1f;

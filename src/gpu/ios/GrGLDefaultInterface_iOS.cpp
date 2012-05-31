@@ -85,6 +85,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fTexStorage2D = glTexStorage2DEXT;
     #endif
         interface->fTexParameteri = glTexParameteri;
+        interface->fTexParameteriv = glTexParameteriv;
         interface->fTexSubImage2D = glTexSubImage2D;
         interface->fUniform1f = glUniform1f;
         interface->fUniform1i = glUniform1i;

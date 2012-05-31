@@ -136,6 +136,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         // amounts to int vs. uint.
         interface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
+        interface->fTexParameteriv = glTexParameteriv;
     #if GL_ARB_texture_storage || GL_VERSION_4_2
         interface->fTexStorage2D = glTexStorage2D
     #elif GL_EXT_texture_storage

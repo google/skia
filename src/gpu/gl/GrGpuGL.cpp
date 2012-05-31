@@ -2138,19 +2138,9 @@ inline const GrGLenum* get_swizzle(GrPixelConfig config,
 }
 
 void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
-    // should add texparameteri to interface to make 1 instead of 4 calls here
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_R,
-                                 swizzle[0]));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_G,
-                                 swizzle[1]));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_B,
-                                 swizzle[2]));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_SWIZZLE_A,
-                                 swizzle[3]));
+    GR_GL_CALL(gl, TexParameteriv(GR_GL_TEXTURE_2D,
+                                  GR_GL_TEXTURE_SWIZZLE_RGBA,
+                                  reinterpret_cast<const GrGLint*>(swizzle)));
 }
 }
 

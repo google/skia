@@ -88,6 +88,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fStencilOp = glStencilOp;
         interface->fTexImage2D = glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
+        interface->fTexParameteriv = glTexParameteriv;
         if (glVer >= GR_GL_VER(4,2) ||
             GrGLHasExtensionFromString("GL_ARB_texture_storage", extString)) {
             GR_GL_GET_PROC(TexStorage2D);

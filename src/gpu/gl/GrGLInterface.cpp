@@ -88,6 +88,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         NULL == fStencilOp ||
         NULL == fTexImage2D ||
         NULL == fTexParameteri ||
+        NULL == fTexParameteriv ||
         NULL == fTexSubImage2D ||
         NULL == fUniform1f ||
         NULL == fUniform1i ||
