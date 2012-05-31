@@ -46,7 +46,9 @@ enum Result {
     kDifferentOther, // files have different bits but are not parsable images
     kBaseMissing,      // missing from baseDir
     kComparisonMissing,// missing from comparisonDir
-    kUnknown
+    kUnknown,        // not compared yet
+    //
+    kNumResultTypes  // NOT A VALID VALUE--used to set up arrays. Must be last.
 };
 
 struct DiffRecord {
@@ -121,8 +123,9 @@ struct DiffSummary {
         , fMaxMismatchPercent (0) { };
 
     ~DiffSummary() {
-        fBaseMissing.deleteAll();
-        fComparisonMissing.deleteAll();
+        for (int i = 0; i < kNumResultTypes; i++) {
+            fResultsOfType[i].deleteAll();
+        }
     }
 
     uint32_t fNumMatches;
@@ -130,24 +133,25 @@ struct DiffSummary {
     uint32_t fMaxMismatchV;
     float fMaxMismatchPercent;
 
-    FileArray fBaseMissing;
-    FileArray fComparisonMissing;
+    FileArray fResultsOfType[kNumResultTypes];
+
+    // Print the contents of this FileArray, if any, to stdout.
+    // (If the FileArray is empty, print nothing.)
+    void printContents(const FileArray& fileArray, const char* headerText) {
+        int n = fileArray.count();
+        if (n > 0) {
+            printf("%s:\n", headerText);
+            for (int i = 0; i < n; ++i) {
+                printf("\t%s\n", fileArray[i]->c_str());
+            }
+        }
+    }
 
     void print () {
-        int n = fBaseMissing.count();
-        if (n > 0) {
-            printf("Missing in baseDir:\n");
-            for (int i = 0; i < n; ++i) {
-                printf("\t%s\n", fBaseMissing[i]->c_str());
-            }
-        }
-        n = fComparisonMissing.count();
-        if (n > 0) {
-            printf("Missing in comparisonDir:\n");
-            for (int i = 0; i < n; ++i) {
-                printf("\t%s\n", fComparisonMissing[i]->c_str());
-            }
-        }
+        printContents(fResultsOfType[kBaseMissing],
+                      "Missing in baseDir");
+        printContents(fResultsOfType[kComparisonMissing],
+                      "Missing in comparisonDir");
         printf("%d of %d images matched.\n", fNumMatches,
                fNumMatches + fNumMismatches);
         if (fNumMismatches > 0) {
@@ -161,6 +165,7 @@ struct DiffSummary {
     void add (DiffRecord* drp) {
         uint32_t mismatchValue;
 
+        fResultsOfType[drp->fResult].push(new SkString(drp->fFilename));
         switch (drp->fResult) {
           case kEqualBits:
             fNumMatches++;
@@ -189,11 +194,9 @@ struct DiffSummary {
             break;
           case kBaseMissing:
             fNumMismatches++;
-            fBaseMissing.push(new SkString(drp->fFilename));
             break;
           case kComparisonMissing:
             fNumMismatches++;
-            fComparisonMissing.push(new SkString(drp->fFilename));
             break;
           case kUnknown:
             SkDEBUGFAIL("adding uncategorized DiffRecord");
@@ -1161,7 +1164,7 @@ int main (int argc, char ** argv) {
         print_diff_page(summary.fNumMatches, colorThreshold, differences,
                         baseDir, comparisonDir, outputDir);
     }
-    
+
     for (i = 0; i < differences.count(); i++) {
         delete differences[i];
     }
