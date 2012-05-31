@@ -311,8 +311,7 @@
         '../src/gpu/gl/GrGLVertexBuffer.h',
         '../src/gpu/gl/GrGpuGL.cpp',
         '../src/gpu/gl/GrGpuGL.h',
-        '../src/gpu/gl/GrGpuGLShaders.cpp',
-        '../src/gpu/gl/GrGpuGLShaders.h',
+        '../src/gpu/gl/GrGpuGL_program.cpp',
 
         '../src/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
         '../src/gpu/gl/debug/GrFakeRefObj.h',

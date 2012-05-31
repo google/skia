@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrGpuGLShaders.h"
+#include "GrGpuGL.h"
 
 #include "GrBinHashKey.h"
 #include "effects/GrConvolutionEffect.h"
 #include "GrCustomStage.h"
-#include "GrGLProgram.h"
 #include "GrGLProgramStage.h"
 #include "GrGLSL.h"
 #include "GrGpuVertex.h"
@@ -24,7 +23,7 @@
 
 #include "../GrTHashCache.h"
 
-class GrGpuGLShaders::ProgramCache : public ::GrNoncopyable {
+class GrGpuGL::ProgramCache : public ::GrNoncopyable {
 private:
     class Entry;
 
@@ -69,7 +68,7 @@ public:
 
     ~ProgramCache() {
         for (int i = 0; i < fCount; ++i) {
-            GrGpuGLShaders::DeleteProgram(fGL.interface(),
+            GrGpuGL::DeleteProgram(fGL.interface(),
                                           &fEntries[i].fProgramData);
         }
     }
@@ -107,7 +106,7 @@ public:
                     }
                 }
                 fHashCache.remove(entry->fKey, entry);
-                GrGpuGLShaders::DeleteProgram(fGL.interface(),
+                GrGpuGL::DeleteProgram(fGL.interface(),
                                               &entry->fProgramData);
             }
             entry->copyAndTakeOwnership(newEntry);
@@ -126,13 +125,7 @@ public:
     }
 };
 
-void GrGpuGLShaders::abandonResources(){
-    INHERITED::abandonResources();
-    fProgramCache->abandon();
-    fHWProgramID = 0;
-}
-
-void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
+void GrGpuGL::DeleteProgram(const GrGLInterface* gl,
                                    CachedData* programData) {
     GR_GL_CALL(gl, DeleteShader(programData->fVShaderID));
     if (programData->fGShaderID) {
@@ -141,6 +134,25 @@ void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
     GR_GL_CALL(gl, DeleteShader(programData->fFShaderID));
     GR_GL_CALL(gl, DeleteProgram(programData->fProgramID));
     GR_DEBUGCODE(memset(programData, 0, sizeof(*programData));)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrGpuGL::createProgramCache() {
+    fProgramData = NULL;
+    fProgramCache = new ProgramCache(this->glContextInfo());
+}
+
+void GrGpuGL::deleteProgramCache() {
+    delete fProgramCache;
+    fProgramCache = NULL;
+    fProgramData = NULL;
+}
+
+void GrGpuGL::abandonResources(){
+    INHERITED::abandonResources();
+    fProgramCache->abandon();
+    fHWProgramID = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +178,7 @@ bool random_bool(GrRandom* r) {
 
 }
 
-bool GrGpuGLShaders::programUnitTest() {
+bool GrGpuGL::programUnitTest() {
 
     GrGLSLGeneration glslGeneration = 
             GrGetGLSLGeneration(this->glBinding(), this->glInterface());
@@ -315,78 +327,7 @@ bool GrGpuGLShaders::programUnitTest() {
     return true;
 }
 
-GrGpuGLShaders::GrGpuGLShaders(const GrGLContextInfo& ctxInfo)
-    : GrGpuGL(ctxInfo) {
-
-    // Enable supported shader-related caps
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        fCaps.fDualSourceBlendingSupport =
-                            this->glVersion() >= GR_GL_VER(3,3) ||
-                            this->hasExtension("GL_ARB_blend_func_extended");
-        fCaps.fShaderDerivativeSupport = true;
-        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
-        fCaps.fGeometryShaderSupport = 
-                                this->glVersion() >= GR_GL_VER(3,2) &&
-                                this->glslGeneration() >= k150_GrGLSLGeneration;
-    } else {
-        fCaps.fShaderDerivativeSupport =
-                            this->hasExtension("GL_OES_standard_derivatives");
-    }
-
-    GR_GL_GetIntegerv(this->glInterface(),
-                      GR_GL_MAX_VERTEX_ATTRIBS,
-                      &fMaxVertexAttribs);
-
-    fProgramData = NULL;
-    fProgramCache = new ProgramCache(this->glContextInfo());
-
-#if 0
-    this->programUnitTest();
-#endif
-}
-
-GrGpuGLShaders::~GrGpuGLShaders() {
-
-    if (fProgramData && 0 != fHWProgramID) {
-        // detach the current program so there is no confusion on OpenGL's part
-        // that we want it to be deleted
-        SkASSERT(fHWProgramID == fProgramData->fProgramID);
-        GL_CALL(UseProgram(0));
-    }
-    delete fProgramCache;
-}
-
-void GrGpuGLShaders::onResetContext() {
-    INHERITED::onResetContext();
-
-    fHWGeometryState.fVertexOffset = ~0;
-
-    // Third party GL code may have left vertex attributes enabled. Some GL
-    // implementations (osmesa) may read vetex attributes that are not required
-    // by the current shader. Therefore, we have to ensure that only the
-    // attributes we require for the current draw are enabled or we may cause an
-    // invalid read.
-
-    // Disable all vertex layout bits so that next flush will assume all
-    // optional vertex attributes are disabled.
-    fHWGeometryState.fVertexLayout = 0;
-
-    // We always use the this attribute and assume it is always enabled.
-    int posAttrIdx = GrGLProgram::PositionAttributeIdx();
-    GL_CALL(EnableVertexAttribArray(posAttrIdx));
-    // Disable all other vertex attributes.
-    for  (int va = 0; va < fMaxVertexAttribs; ++va) {
-        if (va != posAttrIdx) {
-            GL_CALL(DisableVertexAttribArray(va));
-        }
-    }
-
-    fHWProgramID = 0;
-    fHWConstAttribColor = GrColor_ILLEGAL;
-    fHWConstAttribCoverage = GrColor_ILLEGAL;
-}
-
-void GrGpuGLShaders::flushViewMatrix() {
+void GrGpuGL::flushViewMatrix() {
     const GrMatrix& vm = this->getDrawState().getViewMatrix();
     if (!fProgramData->fViewMatrix.cheapEqualTo(vm)) {
 
@@ -421,7 +362,7 @@ void GrGpuGLShaders::flushViewMatrix() {
     }
 }
 
-void GrGpuGLShaders::flushTextureDomain(int s) {
+void GrGpuGL::flushTextureDomain(int s) {
     const GrGLint& uni = fProgramData->fUniLocations.fStages[s].fTexDomUni;
     const GrDrawState& drawState = this->getDrawState();
     if (GrGLProgram::kUnusedUniform != uni) {
@@ -457,7 +398,7 @@ void GrGpuGLShaders::flushTextureDomain(int s) {
     }
 }
 
-void GrGpuGLShaders::flushTextureMatrix(int s) {
+void GrGpuGL::flushTextureMatrix(int s) {
     const GrGLint& uni = fProgramData->fUniLocations.fStages[s].fTextureMatrixUni;
     const GrDrawState& drawState = this->getDrawState();
     const GrGLTexture* texture =
@@ -494,7 +435,7 @@ void GrGpuGLShaders::flushTextureMatrix(int s) {
     }
 }
 
-void GrGpuGLShaders::flushRadial2(int s) {
+void GrGpuGL::flushRadial2(int s) {
 
     const int &uni = fProgramData->fUniLocations.fStages[s].fRadial2Uni;
     const GrSamplerState& sampler = this->getDrawState().getSampler(s);
@@ -528,7 +469,7 @@ void GrGpuGLShaders::flushRadial2(int s) {
     }
 }
 
-void GrGpuGLShaders::flushConvolution(int s) {
+void GrGpuGL::flushConvolution(int s) {
     const GrSamplerState& sampler = this->getDrawState().getSampler(s);
     int kernelUni = fProgramData->fUniLocations.fStages[s].fKernelUni;
     if (GrGLProgram::kUnusedUniform != kernelUni) {
@@ -554,7 +495,7 @@ void GrGpuGLShaders::flushConvolution(int s) {
     }
 }
 
-void GrGpuGLShaders::flushTexelSize(int s) {
+void GrGpuGL::flushTexelSize(int s) {
     const int& uni = fProgramData->fUniLocations.fStages[s].fNormalizedTexelSizeUni;
     if (GrGLProgram::kUnusedUniform != uni) {
         const GrGLTexture* texture =
@@ -571,7 +512,7 @@ void GrGpuGLShaders::flushTexelSize(int s) {
     }
 }
 
-void GrGpuGLShaders::flushColorMatrix() {
+void GrGpuGL::flushColorMatrix() {
     const ProgramDesc& desc = fCurrentProgram.getDesc();
     int matrixUni = fProgramData->fUniLocations.fColorMatrixUni;
     int vecUni = fProgramData->fUniLocations.fColorMatrixVecUni;
@@ -602,7 +543,7 @@ static const float ONE_OVER_255 = 1.f / 255.f;
     GrColorUnpackA(color) * ONE_OVER_255 \
 }
 
-void GrGpuGLShaders::flushColor(GrColor color) {
+void GrGpuGL::flushColor(GrColor color) {
     const ProgramDesc& desc = fCurrentProgram.getDesc();
     const GrDrawState& drawState = this->getDrawState();
 
@@ -651,7 +592,7 @@ void GrGpuGLShaders::flushColor(GrColor color) {
     }
 }
 
-void GrGpuGLShaders::flushCoverage(GrColor coverage) {
+void GrGpuGL::flushCoverage(GrColor coverage) {
     const ProgramDesc& desc = fCurrentProgram.getDesc();
     const GrDrawState& drawState = this->getDrawState();
 
@@ -693,7 +634,7 @@ void GrGpuGLShaders::flushCoverage(GrColor coverage) {
     }
 }
 
-bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
+bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
     if (!flushGLStateCommon(type)) {
         return false;
     }
@@ -787,7 +728,7 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     #error "unknown GR_TEXT_SCALAR type"
 #endif
 
-void GrGpuGLShaders::setupGeometry(int* startVertex,
+void GrGpuGL::setupGeometry(int* startVertex,
                                     int* startIndex,
                                     int vertexCount,
                                     int indexCount) {
@@ -944,7 +885,7 @@ void setup_custom_stage(GrGLProgram::ProgramDesc::StageDesc* stage,
 
 }
 
-void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
+void GrGpuGL::buildProgram(GrPrimitiveType type,
                                   BlendOptFlags blendOpts,
                                   GrBlendCoeff dstCoeff,
                                   GrCustomStage** customStages) {

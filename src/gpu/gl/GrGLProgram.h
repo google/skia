@@ -410,7 +410,7 @@ private:
     void getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
                                          CachedData* programData) const;
 
-    friend class GrGpuGLShaders;
+    friend class GrGpuGL;
 };
 
 #endif
