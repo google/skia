@@ -87,7 +87,7 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*,
                          const GrGLTexture&,
-                         GrCustomStage*,
+                         const GrCustomStage&,
                          int stageNum) SK_OVERRIDE;
 
     static StageKey GenKey(const GrCustomStage& s) {
@@ -248,16 +248,16 @@ void GrGLRadial2Gradient::initUniforms(const GrGLInterface* gl, int programID) {
 
 void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
                                  const GrGLTexture& texture,
-                                 GrCustomStage* baseData,
+                                 const GrCustomStage& baseData,
                                  int stageNum) {
-    const GrRadial2Gradient* data =
-        static_cast<const GrRadial2Gradient*>(baseData);
-    GrAssert(data->isDegenerate() == fIsDegenerate);
-    GrScalar centerX1 = data->center();
-    GrScalar radius0 = data->radius();
+    const GrRadial2Gradient& data =
+        static_cast<const GrRadial2Gradient&>(baseData);
+    GrAssert(data.isDegenerate() == fIsDegenerate);
+    GrScalar centerX1 = data.center();
+    GrScalar radius0 = data.radius();
     if (fCachedCenter != centerX1 ||
         fCachedRadius != radius0 ||
-        fCachedPosRoot != data->isPosRoot()) {
+        fCachedPosRoot != data.isPosRoot()) {
 
         GrScalar a = GrMul(centerX1, centerX1) - GR_Scalar1;
 
@@ -272,13 +272,13 @@ void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
             GrScalarToFloat(centerX1),
             GrScalarToFloat(radius0),
             GrScalarToFloat(GrMul(radius0, radius0)),
-            data->isPosRoot() ? 1.f : -1.f
+            data.isPosRoot() ? 1.f : -1.f
         };
 
         GR_GL_CALL(gl, Uniform1fv(fParamLocation, 6, values));
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
-        fCachedPosRoot = data->isPosRoot();
+        fCachedPosRoot = data.isPosRoot();
     }
 }
 
