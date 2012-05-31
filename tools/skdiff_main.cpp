@@ -27,6 +27,8 @@
  * Creates an index.html in the current third directory to compare each
  * pair that does not match exactly.
  * Does *not* recursively descend directories.
+ *
+ * Returns zero exit code if all images match across baseDir and comparisonDir.
  */
 
 #if SK_BUILD_FOR_WIN32
@@ -1170,4 +1172,6 @@ int main (int argc, char ** argv) {
     }
     matchSubstrings.deleteAll();
     nomatchSubstrings.deleteAll();
+
+    return summary.fNumMismatches;
 }
