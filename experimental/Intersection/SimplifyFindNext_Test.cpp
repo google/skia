@@ -31,9 +31,10 @@ static const SimplifyFindNextTest::Segment* testCommon(
     SkPoint pts[2];
     double startT = segment.t(endIndex);
     segment.xyAtT(startT, &pts[0]);
+    int nextStart, nextEnd;
     SimplifyFindNextTest::Segment* next = segment.findNext(winding,
-            startIndex, endIndex);
-    double endT = next->t(startIndex);
+            startIndex, endIndex, nextStart, nextEnd);
+    double endT = next->t(nextStart);
     next->xyAtT(endT, &pts[1]);
     SkASSERT(pts[0] == pts[1]);
     return next;
