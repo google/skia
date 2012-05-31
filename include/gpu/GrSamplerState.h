@@ -90,6 +90,7 @@ public:
     , fRadial2Radius0()
     , fRadial2PosRoot()
     , fCustomStage (NULL) {
+        memset(this, 0, sizeof(GrSamplerState));
         this->reset();
     }
 
