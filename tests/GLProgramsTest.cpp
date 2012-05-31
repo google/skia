@@ -8,10 +8,10 @@
 
 #include "Test.h"
 #include "GrContext.h"
-#include "gl/GrGpuGLShaders.h"
+#include "gl/GrGpuGL.h"
 
 static void GLProgramsTest(skiatest::Reporter* reporter, GrContext* context) {
-    GrGpuGLShaders* shadersGpu = (GrGpuGLShaders*) context->getGpu();
+    GrGpuGL* shadersGpu = static_cast<GrGpuGL*>(context->getGpu());
     REPORTER_ASSERT(reporter, shadersGpu->programUnitTest());
 }
 

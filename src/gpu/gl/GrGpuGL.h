@@ -15,12 +15,14 @@
 #include "GrGLContextInfo.h"
 #include "GrGLIndexBuffer.h"
 #include "GrGLIRect.h"
+#include "GrGLProgram.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTexture.h"
 #include "GrGLVertexBuffer.h"
 
 class GrGpuGL : public GrGpu {
 public:
+    GrGpuGL(const GrGLContextInfo& ctxInfo);
     virtual ~GrGpuGL();
 
     const GrGLInterface* glInterface() const { 
@@ -47,8 +49,11 @@ public:
 
     virtual bool canPreserveReadWriteUnpremulPixels() SK_OVERRIDE;
 
+    virtual void abandonResources() SK_OVERRIDE;
+
+    bool programUnitTest();
+
 protected:
-    GrGpuGL(const GrGLContextInfo& ctxInfo);
 
     enum TriState {
         kNo_TriState,
@@ -153,6 +158,12 @@ protected:
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const GrIRect& rect,
                                   bool insideClip) SK_OVERRIDE;
+    virtual bool flushGraphicsState(GrPrimitiveType type) SK_OVERRIDE;
+    virtual void setupGeometry(int* startVertex,
+                               int* startIndex,
+                               int vertexCount,
+                               int indexCount) SK_OVERRIDE;
+
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -200,6 +211,52 @@ protected:
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
 private:
+
+    // for readability of function impls
+    typedef GrGLProgram::ProgramDesc ProgramDesc;
+    typedef ProgramDesc::StageDesc   StageDesc;
+    typedef GrGLProgram::CachedData  CachedData;
+
+    class ProgramCache;
+
+    void createProgramCache();
+    void deleteProgramCache();
+
+    // sets the texture matrix uniform for currently bound program
+    void flushTextureMatrix(int stage);
+
+    // sets the texture domain uniform for currently bound program
+    void flushTextureDomain(int stage);
+
+    // sets the color specified by GrDrawState::setColor()
+    void flushColor(GrColor color);
+
+    // sets the color specified by GrDrawState::setCoverage()
+    void flushCoverage(GrColor color);
+
+    // sets the MVP matrix uniform for currently bound program
+    void flushViewMatrix();
+
+    // flushes the parameters to two point radial gradient
+    void flushRadial2(int stage);
+
+    // flushes the parameters for convolution
+    void flushConvolution(int stage);
+
+    // flushes the normalized texel size
+    void flushTexelSize(int stage);
+
+    // flushes the color matrix
+    void flushColorMatrix();
+
+    static void DeleteProgram(const GrGLInterface* gl,
+                              CachedData* programData);
+
+    void buildProgram(GrPrimitiveType typeBlend,
+                      BlendOptFlags blendOpts,
+                      GrBlendCoeff dstCoeff,
+                      GrCustomStage** customStages);
+
     // Inits GrDrawTarget::Caps, sublcass may enable additional caps.
     void initCaps();
 
@@ -250,6 +307,17 @@ private:
     friend class GrGLRenderTarget;
 
     GrGLContextInfo fGLContextInfo;
+
+    // GL program-related state
+    ProgramCache*               fProgramCache;
+    CachedData*                 fProgramData;
+    GrGLuint                    fHWProgramID;
+    GrColor                     fHWConstAttribColor;
+    GrColor                     fHWConstAttribCoverage;
+    GrGLProgram                 fCurrentProgram;
+    // If we get rid of fixed function subclass this should move
+    // to the GLCaps struct in parent class
+    GrGLint                     fMaxVertexAttribs;
 
     int fActiveTextureUnitIdx;
 

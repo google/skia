@@ -207,11 +207,26 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
 
     this->initCaps();
 
+    this->createProgramCache();
+
+#if 0
+    this->programUnitTest();
+#endif
+
     fLastSuccessfulStencilFmtIdx = 0;
     fCanPreserveUnpremulRoundtrip = kUnknown_CanPreserveUnpremulRoundtrip;
 }
 
 GrGpuGL::~GrGpuGL() {
+    if (fProgramData && 0 != fHWProgramID) {
+        // detach the current program so there is no confusion on OpenGL's part
+        // that we want it to be deleted
+        GrAssert(fHWProgramID == fProgramData->fProgramID);
+        GL_CALL(UseProgram(0));
+    }
+
+    this->deleteProgramCache();
+
     // This must be called by before the GrDrawTarget destructor
     this->releaseGeometry();
     // This subclass must do this before the base class destructor runs
@@ -283,6 +298,26 @@ void GrGpuGL::initCaps() {
     fCaps.fMaxRenderTargetSize = GrMin(fCaps.fMaxTextureSize, fCaps.fMaxRenderTargetSize);
 
     fCaps.fFSAASupport = GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType();
+
+    // Enable supported shader-related caps
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        fCaps.fDualSourceBlendingSupport =
+                            this->glVersion() >= GR_GL_VER(3,3) ||
+                            this->hasExtension("GL_ARB_blend_func_extended");
+        fCaps.fShaderDerivativeSupport = true;
+        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
+        fCaps.fGeometryShaderSupport = 
+                                this->glVersion() >= GR_GL_VER(3,2) &&
+                                this->glslGeneration() >= k150_GrGLSLGeneration;
+    } else {
+        fCaps.fShaderDerivativeSupport =
+                            this->hasExtension("GL_OES_standard_derivatives");
+    }
+
+    GR_GL_GetIntegerv(this->glInterface(),
+                      GR_GL_MAX_VERTEX_ATTRIBS,
+                      &fMaxVertexAttribs);
+
 }
 
 void GrGpuGL::fillInConfigRenderableTable() {
@@ -530,6 +565,32 @@ void GrGpuGL::onResetContext() {
     if (this->glCaps().packFlipYSupport()) {
         GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
     }
+
+    fHWGeometryState.fVertexOffset = ~0;
+
+    // Third party GL code may have left vertex attributes enabled. Some GL
+    // implementations (osmesa) may read vetex attributes that are not required
+    // by the current shader. Therefore, we have to ensure that only the
+    // attributes we require for the current draw are enabled or we may cause an
+    // invalid read.
+
+    // Disable all vertex layout bits so that next flush will assume all
+    // optional vertex attributes are disabled.
+    fHWGeometryState.fVertexLayout = 0;
+
+    // We always use the this attribute and assume it is always enabled.
+    int posAttrIdx = GrGLProgram::PositionAttributeIdx();
+    GL_CALL(EnableVertexAttribArray(posAttrIdx));
+    // Disable all other vertex attributes.
+    for  (int va = 0; va < fMaxVertexAttribs; ++va) {
+        if (va != posAttrIdx) {
+            GL_CALL(DisableVertexAttribArray(va));
+        }
+    }
+
+    fHWProgramID = 0;
+    fHWConstAttribColor = GrColor_ILLEGAL;
+    fHWConstAttribCoverage = GrColor_ILLEGAL;
 }
 
 GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
