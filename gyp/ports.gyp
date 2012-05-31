@@ -20,6 +20,8 @@
       'sources': [
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
+        '../src/ports/SkFontDescriptor.h',
+        '../src/ports/SkFontDescriptor.cpp',
         '../src/ports/SkFontHost_sandbox_none.cpp',
         '../src/ports/SkFontHost_win.cpp',
         '../src/ports/SkGlobalInitialization_default.cpp',

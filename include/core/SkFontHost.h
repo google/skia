@@ -118,12 +118,17 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /** Write a unique identifier to the stream, so that the same typeface can
-        be retrieved with Deserialize().
+        be retrieved with Deserialize(). The standard format is to serialize
+        a SkFontDescriptor followed by a uint32_t length value. If the length
+        is non-zero then the following bytes (of that length) represent a
+        serialized copy of the font which can be recreated from a stream.
     */
     static void Serialize(const SkTypeface*, SkWStream*);
 
     /** Given a stream created by Serialize(), return a new typeface (like
-        CreateTypeface) or return NULL if no match is found.
+        CreateTypeface) which is either an exact match to the one serialized
+        or the best available typeface based on the data in the deserialized
+        SkFontDescriptor.
      */
     static SkTypeface* Deserialize(SkStream*);
 
