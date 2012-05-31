@@ -57,4 +57,7 @@ static void TestTLS(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("TLS", TLSClass, TestTLS)
+// TODO: Disabled for now to work around
+// http://code.google.com/p/skia/issues/detail?id=619
+// ('flaky segfault in TLS test on Shuttle_Ubuntu12 buildbots')
+// DEFINE_TESTCLASS("TLS", TLSClass, TestTLS)
