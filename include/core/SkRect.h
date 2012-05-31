@@ -206,6 +206,10 @@ struct SK_API SkIRect {
                fRight >= right && fBottom >= bottom;
     }
     
+    bool containsNoEmptyCheck(const SkIRect& r) const {
+        return containsNoEmptyCheck(r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
+    
     /** If r intersects this rectangle, return true and set this rectangle to that
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
@@ -273,10 +277,20 @@ struct SK_API SkIRect {
     }
     
     /** Returns true if a and b are not empty, and they intersect
-    */
+     */
     static bool Intersects(const SkIRect& a, const SkIRect& b) {
         return  !a.isEmpty() && !b.isEmpty() &&              // check for empties
-                a.fLeft < b.fRight && b.fLeft < a.fRight &&
+        a.fLeft < b.fRight && b.fLeft < a.fRight &&
+        a.fTop < b.fBottom && b.fTop < a.fBottom;
+    }
+    
+    /**
+     *  Returns true if a and b intersect. debug-asserts that neither are empty.
+     */
+    static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
+        SkASSERT(!a.isEmpty());
+        SkASSERT(!b.isEmpty());
+        return  a.fLeft < b.fRight && b.fLeft < a.fRight &&
                 a.fTop < b.fBottom && b.fTop < a.fBottom;
     }
     

@@ -25,6 +25,16 @@ static bool diff_proc(SkRegion& a, SkRegion& b) {
     return result.op(a, b, SkRegion::kDifference_Op);
 }
 
+static bool diffrect_proc(SkRegion& a, SkRegion& b) {
+    SkRegion result;
+    return result.op(a, b.getBounds(), SkRegion::kDifference_Op);
+}
+
+static bool diffrectbig_proc(SkRegion& a, SkRegion& b) {
+    SkRegion result;
+    return result.op(a, a.getBounds(), SkRegion::kDifference_Op);
+}
+
 static bool containsrect_proc(SkRegion& a, SkRegion& b) {
     SkIRect r = a.getBounds();
     r.inset(r.width()/4, r.height()/4);
@@ -112,10 +122,12 @@ private:
 static SkBenchmark* gF0(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, union_proc, "union")); }
 static SkBenchmark* gF1(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sect_proc, "intersect")); }
 static SkBenchmark* gF2(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diff_proc, "difference")); }
-static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrect_proc, "containsrect", 100)); }
-static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrgn_proc, "intersectsrgn", 10)); }
-static SkBenchmark* gF5(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrect_proc, "intersectsrect", 200)); }
-static SkBenchmark* gF6(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsxy_proc, "containsxy")); }
+static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diffrect_proc, "differencerect")); }
+static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diffrectbig_proc, "differencerectbig")); }
+static SkBenchmark* gF5(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrect_proc, "containsrect", 100)); }
+static SkBenchmark* gF6(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrgn_proc, "intersectsrgn", 10)); }
+static SkBenchmark* gF7(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrect_proc, "intersectsrect", 200)); }
+static SkBenchmark* gF8(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsxy_proc, "containsxy")); }
 
 static BenchRegistry gR0(gF0);
 static BenchRegistry gR1(gF1);
@@ -124,3 +136,5 @@ static BenchRegistry gR3(gF3);
 static BenchRegistry gR4(gF4);
 static BenchRegistry gR5(gF5);
 static BenchRegistry gR6(gF6);
+static BenchRegistry gR7(gF7);
+static BenchRegistry gR8(gF8);
