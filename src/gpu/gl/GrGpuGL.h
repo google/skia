@@ -103,21 +103,25 @@ protected:
 
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
-                                       size_t rowBytes);
+                                       size_t rowBytes) SK_OVERRIDE;
     virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
-                                                 bool dynamic);
+                                                 bool dynamic) SK_OVERRIDE;
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
-                                               bool dynamic);
-    virtual GrTexture* onCreatePlatformTexture(const GrPlatformTextureDesc& desc) SK_OVERRIDE;
-    virtual GrRenderTarget* onCreatePlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) SK_OVERRIDE;
+                                               bool dynamic) SK_OVERRIDE;
+    virtual GrTexture* onCreatePlatformTexture(
+        const GrPlatformTextureDesc& desc) SK_OVERRIDE;
+    virtual GrRenderTarget* onCreatePlatformRenderTarget(
+        const GrPlatformRenderTargetDesc& desc) SK_OVERRIDE;
     virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
-                                                    int width, int height);
-    virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
-                                                   GrRenderTarget* rt);
+                                                    int width,
+                                                    int height) SK_OVERRIDE;
+    virtual bool attachStencilBufferToRenderTarget(
+        GrStencilBuffer* sb,
+        GrRenderTarget* rt) SK_OVERRIDE;
 
-    virtual void onClear(const GrIRect* rect, GrColor color);
+    virtual void onClear(const GrIRect* rect, GrColor color) SK_OVERRIDE;
 
-    virtual void onForceRenderTargetFlush();
+    virtual void onForceRenderTargetFlush() SK_OVERRIDE;
 
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top, 
@@ -139,15 +143,16 @@ protected:
                                   uint32_t startVertex,
                                   uint32_t startIndex,
                                   uint32_t vertexCount,
-                                  uint32_t indexCount);
+                                  uint32_t indexCount) SK_OVERRIDE;
     virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
                                      uint32_t vertexCount,
-                                     uint32_t numVertices);
-    virtual void enableScissoring(const GrIRect& rect);
-    virtual void disableScissor();
+                                     uint32_t numVertices) SK_OVERRIDE;
+    virtual void enableScissoring(const GrIRect& rect) SK_OVERRIDE;
+    virtual void disableScissor() SK_OVERRIDE;
 
-    virtual void clearStencil();
-    virtual void clearStencilClip(const GrIRect& rect, bool insideClip);
+    virtual void clearStencil() SK_OVERRIDE;
+    virtual void clearStencilClip(const GrIRect& rect,
+                                  bool insideClip) SK_OVERRIDE;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);

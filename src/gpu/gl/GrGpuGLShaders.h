@@ -22,18 +22,18 @@ public:
              GrGpuGLShaders(const GrGLContextInfo& ctxInfo);
     virtual ~GrGpuGLShaders();
 
-    virtual void abandonResources();
+    virtual void abandonResources() SK_OVERRIDE;
 
     bool programUnitTest();
 
 protected:
     // overrides from GrGpu
     virtual void onResetContext() SK_OVERRIDE;
-    virtual bool flushGraphicsState(GrPrimitiveType type);
+    virtual bool flushGraphicsState(GrPrimitiveType type) SK_OVERRIDE;
     virtual void setupGeometry(int* startVertex,
                                int* startIndex,
                                int vertexCount,
-                               int indexCount);
+                               int indexCount) SK_OVERRIDE;
 
 private:
 
