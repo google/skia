@@ -9,27 +9,31 @@
 #include "SkStream.h"
 
 enum {
+    // these must match the sfnt 'name' enums
     kFontFamilyName = 0x01,
-    kFontStyle      = 0x02,
-    kFontFileName   = 0xFD,
-    kSentinel       = 0xFE,
+    kFullName       = 0x04,
+    kPostscriptName = 0x06,
+    
+    // These count backwards from 0xFF, so as not to collide with the SFNT
+    // defines for names in its 'name' table.
+    kFontFileName   = 0xFE,
+    kSentinel       = 0xFF,
 };
 
-SkFontDescriptor::SkFontDescriptor() {
-    fFontStyle = SkTypeface::kNormal;
+SkFontDescriptor::SkFontDescriptor(SkTypeface::Style style) {
+    fStyle = style;
 }
 
-static const char* read_string(SkStream* stream) {
-    SkString string;
+static void read_string(SkStream* stream, SkString* string) {
     const uint32_t length = stream->readPackedUInt();
     if (length > 0) {
-        string.resize(length);
-        stream->read(string.writable_str(), length);
+        string->resize(length);
+        stream->read(string->writable_str(), length);
     }
-    return string.c_str();
 }
 
-static void write_string(SkWStream* stream, SkString string, uint32_t id) {
+static void write_string(SkWStream* stream, const SkString& string,
+                         uint32_t id) {
     if (!string.isEmpty()) {
         stream->writePackedUInt(id);
         stream->writePackedUInt(string.size());
@@ -38,36 +42,38 @@ static void write_string(SkWStream* stream, SkString string, uint32_t id) {
 }
 
 SkFontDescriptor::SkFontDescriptor(SkStream* stream) {
-    fFontStyle = SkTypeface::kNormal;
+    fStyle = (SkTypeface::Style)stream->readPackedUInt();
 
-    uint32_t id = stream->readPackedUInt();
-    while (id != kSentinel) {
-        switch (id) {
-            case kFontFamilyName: {
-                fFontFamilyName.set(read_string(stream));
-            } break;
-            case kFontStyle: {
-                fFontStyle = (SkTypeface::Style)stream->readPackedUInt();
-            } break;
-            case kFontFileName: {
-                fFontFileName.set(read_string(stream));
-            } break;
+    for (;;) {
+        switch (stream->readPackedUInt()) {
+            case kFontFamilyName:
+                read_string(stream, &fFamilyName);
+                break;
+            case kFullName:
+                read_string(stream, &fFullName);
+                break;
+            case kPostscriptName:
+                read_string(stream, &fPostscriptName);
+                break;
+            case kFontFileName:
+                read_string(stream, &fFontFileName);
+                break;
+            case kSentinel:
+                return;
             default:
                 SkDEBUGFAIL("Unknown id used by a font descriptor");
+                return;
         }
-        int prevId = id;
-        id = stream->readPackedUInt();
     }
 }
 
 void SkFontDescriptor::serialize(SkWStream* stream) {
-    write_string(stream, fFontFamilyName, kFontFamilyName);
-    write_string(stream, fFontFileName, kFontFileName);
+    stream->writePackedUInt(fStyle);
 
-    if (fFontStyle != SkTypeface::kNormal) {
-        stream->writePackedUInt(kFontStyle);
-        stream->writePackedUInt((uint32_t)fFontStyle);
-    }
+    write_string(stream, fFamilyName, kFontFamilyName);
+    write_string(stream, fFullName, kFullName);
+    write_string(stream, fPostscriptName, kPostscriptName);
+    write_string(stream, fFontFileName, kFontFileName);
 
     stream->writePackedUInt(kSentinel);
 }
