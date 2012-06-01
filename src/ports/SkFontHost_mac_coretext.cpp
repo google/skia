@@ -21,6 +21,7 @@
 #include "SkCGUtils.h"
 #include "SkDescriptor.h"
 #include "SkEndian.h"
+#include "SkFontDescriptor.h"
 #include "SkFloatingPoint.h"
 #include "SkPaint.h"
 #include "SkString.h"
@@ -377,6 +378,11 @@ public:
     SkString    fName;
     CTFontRef   fFontRef;
 };
+
+static CTFontRef typeface_to_fontref(const SkTypeface* face) {
+    const SkTypeface_Mac* macface = reinterpret_cast<const SkTypeface_Mac*>(face);
+    return macface->fFontRef;
+}
 
 static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
     SkASSERT(fontRef);
@@ -1835,18 +1841,30 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 
 #include "SkStream.h"
 
+// we take ownership of the ref
+static const char* get_str(CFStringRef ref, SkString* str) {
+    CFStringToSkString(ref, str);
+    CFSafeRelease(ref);
+    return str->c_str();
+}
+
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    // hack: need a real name or something from CG
-    uint32_t fontID = face->uniqueID();
-    stream->write(&fontID, 4);
+    CTFontRef        ctFont = typeface_to_fontref(face);
+    SkFontDescriptor desc(face->style());
+    SkString         tmpStr;
+
+    desc.setFamilyName(get_str(CTFontCopyFamilyName(ctFont), &tmpStr));
+    desc.setFullName(get_str(CTFontCopyFullName(ctFont), &tmpStr));
+    desc.setPostscriptName(get_str(CTFontCopyPostScriptName(ctFont), &tmpStr));
+
+    desc.serialize(stream);
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    // hack: need a real name or something from CG
-    SkFontID fontID = stream->readU32();
-    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
-    SkSafeRef(face);
-    return face;
+    SkFontDescriptor desc(stream);
+
+    return SkFontHost::CreateTypeface(NULL, desc.getFamilyName(),
+                                      desc.getStyle());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
