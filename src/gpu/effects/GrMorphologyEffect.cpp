@@ -97,6 +97,7 @@ void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* state,
             break;
         default:
             GrCrash("Unexpected type");
+            func = ""; // suppress warning
             break;
     }
 
