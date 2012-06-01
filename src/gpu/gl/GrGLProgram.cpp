@@ -1193,6 +1193,9 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
         programData->fTextureWidth[s] = -1;
         programData->fTextureHeight[s] = -1;
         programData->fTextureDomain[s].setEmpty();
+        // this is arbitrary, just initialize to something
+        programData->fTextureOrientation[s] =
+            GrGLTexture::kBottomUp_Orientation;
         // Must not reset fStageOverride[] here.
     }
     programData->fViewMatrix = GrMatrix::InvalidMatrix();

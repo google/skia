@@ -76,26 +76,6 @@ protected:
         kDownOnWrite_UpOnRead_UnpremulConversion
     } fUnpremulConversion;
 
-    // The current render target and textures are bound by GrGpuGL when it
-    // flushes state to GL. After the bindings occur the variables that track
-    // the current GL state are updated to reflect the new bindings. However,
-    // the GrGpuGL subclass may have subsequent GL state manipulation it must
-    // perform whenever RT or textures change. So the GrGpuGL will set these
-    // dirty flags when it changes the RT or texture bindings. The subclass can
-    // use them to trigger its dependent state flushing. The subclass should
-    // call resetDirtyFlags to zero these out after it has consumed them.
-    //
-    // TODO: Merge GrGpuGLShaders into GrGpuGL and remove the need for these
-    // flags.
-    struct {
-        bool fRenderTargetChanged : 1;
-        int  fTextureChangedMask;
-    } fDirtyFlags;
-    GR_STATIC_ASSERT(8 * sizeof(int) >= GrDrawState::kNumStages);
-
-    // clears the dirty flags
-    void resetDirtyFlags();
-
     // last scissor / viewport scissor state seen by the GL.
     struct {
         bool        fScissorEnabled;
@@ -260,11 +240,8 @@ private:
         const GrGLContextInfo&      fGL;
     };
 
-    // sets the texture matrix uniform for currently bound program
-    void flushTextureMatrix(int stage);
-
-    // sets the texture domain uniform for currently bound program
-    void flushTextureDomain(int stage);
+    // sets the texture matrix and domain for the currently bound program
+    void flushTextureMatrixAndDomain(int stage);
 
     // sets the color specified by GrDrawState::setColor()
     void flushColor(GrColor color);

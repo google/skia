@@ -366,53 +366,61 @@ void GrGpuGL::flushViewMatrix() {
     }
 }
 
-void GrGpuGL::flushTextureDomain(int s) {
-    const GrGLint& uni = fProgramData->fUniLocations.fStages[s].fTexDomUni;
-    const GrDrawState& drawState = this->getDrawState();
-    if (GrGLProgram::kUnusedUniform != uni) {
-        const GrRect &texDom = drawState.getSampler(s).getTextureDomain();
+///////////////////////////////////////////////////////////////////////////////
 
-        if (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
-            fProgramData->fTextureDomain[s] != texDom) {
+// helpers for texture matrices
 
-            fProgramData->fTextureDomain[s] = texDom;
-
-            float values[4] = {
-                GrScalarToFloat(texDom.left()),
-                GrScalarToFloat(texDom.top()),
-                GrScalarToFloat(texDom.right()),
-                GrScalarToFloat(texDom.bottom())
-            };
-
-            const GrGLTexture* texture =
-                static_cast<const GrGLTexture*>(drawState.getTexture(s));
-            GrGLTexture::Orientation orientation = texture->orientation();
-
-            // vertical flip if necessary
-            if (GrGLTexture::kBottomUp_Orientation == orientation) {
-                values[1] = 1.0f - values[1];
-                values[3] = 1.0f - values[3];
-                // The top and bottom were just flipped, so correct the ordering
-                // of elements so that values = (l, t, r, b).
-                SkTSwap(values[1], values[3]);
-            }
-
-            GL_CALL(Uniform4fv(uni, 1, values));
-        }
+void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
+                                  GrSamplerState::SampleMode mode,
+                                  GrMatrix* matrix) {
+    GrAssert(NULL != texture);
+    GrAssert(NULL != matrix);
+    GrGLTexture::Orientation orientation = texture->orientation();
+    if (GrGLTexture::kBottomUp_Orientation == orientation) {
+        GrMatrix invY;
+        invY.setAll(GR_Scalar1, 0,           0,
+                    0,          -GR_Scalar1, GR_Scalar1,
+                    0,          0,           GrMatrix::I()[8]);
+        matrix->postConcat(invY);
+    } else {
+        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
     }
 }
 
-void GrGpuGL::flushTextureMatrix(int s) {
-    const GrGLint& uni = fProgramData->fUniLocations.fStages[s].fTextureMatrixUni;
+bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
+                                      const GrSamplerState& sampler) {
+    GrAssert(NULL != texture);
+    if (!sampler.getMatrix().isIdentity()) {
+        return false;
+    }
+    GrGLTexture::Orientation orientation = texture->orientation();
+    if (GrGLTexture::kBottomUp_Orientation == orientation) {
+        return false;
+    } else {
+        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
+    }
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrGpuGL::flushTextureMatrixAndDomain(int s) {
     const GrDrawState& drawState = this->getDrawState();
     const GrGLTexture* texture =
         static_cast<const GrGLTexture*>(drawState.getTexture(s));
     if (NULL != texture) {
+
+        bool orientationChange = fProgramData->fTextureOrientation[s] !=
+                                 texture->orientation();
+
+        const GrGLint& matrixUni =
+            fProgramData->fUniLocations.fStages[s].fTextureMatrixUni;
+
         const GrMatrix& hwMatrix = fProgramData->fTextureMatrices[s];
         const GrMatrix& samplerMatrix = drawState.getSampler(s).getMatrix();
-        if (GrGLProgram::kUnusedUniform != uni &&
-            (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
-            !hwMatrix.cheapEqualTo(samplerMatrix))) {
+
+        if (GrGLProgram::kUnusedUniform != matrixUni &&
+            (orientationChange || !hwMatrix.cheapEqualTo(samplerMatrix))) {
 
             GrMatrix m = samplerMatrix;
             GrSamplerState::SampleMode mode =
@@ -433,9 +441,36 @@ void GrGpuGL::flushTextureMatrix(int s) {
                 GrScalarToFloat(m[GrMatrix::kMPersp2])
             };
 
-            GL_CALL(UniformMatrix3fv(uni, 1, false, mt));
+            GL_CALL(UniformMatrix3fv(matrixUni, 1, false, mt));
             fProgramData->fTextureMatrices[s] = samplerMatrix;
         }
+
+        const GrGLint& domUni = 
+            fProgramData->fUniLocations.fStages[s].fTexDomUni;
+        const GrRect &texDom = drawState.getSampler(s).getTextureDomain();
+        if (GrGLProgram::kUnusedUniform != domUni &&
+            (orientationChange ||fProgramData->fTextureDomain[s] != texDom)) {
+
+            fProgramData->fTextureDomain[s] = texDom;
+
+            float values[4] = {
+                GrScalarToFloat(texDom.left()),
+                GrScalarToFloat(texDom.top()),
+                GrScalarToFloat(texDom.right()),
+                GrScalarToFloat(texDom.bottom())
+            };
+
+            // vertical flip if necessary
+            if (GrGLTexture::kBottomUp_Orientation == texture->orientation()) {
+                values[1] = 1.0f - values[1];
+                values[3] = 1.0f - values[3];
+                // The top and bottom were just flipped, so correct the ordering
+                // of elements so that values = (l, t, r, b).
+                SkTSwap(values[1], values[3]);
+            }
+            GL_CALL(Uniform4fv(domUni, 1, values));
+        }
+        fProgramData->fTextureOrientation[s] = texture->orientation();
     }
 }
 
@@ -619,11 +654,6 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 
     const GrDrawState& drawState = this->getDrawState();
 
-    if (fDirtyFlags.fRenderTargetChanged) {
-        // we assume all shader matrices may be wrong after viewport changes
-        fProgramCache->invalidateViewMatrices();
-    }
-
     GrBlendCoeff srcCoeff;
     GrBlendCoeff dstCoeff;
     BlendOptFlags blendOpts = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
@@ -666,13 +696,11 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (this->isStageEnabled(s)) {
-            this->flushTextureMatrix(s);
+            this->flushTextureMatrixAndDomain(s);
 
             this->flushRadial2(s);
 
             this->flushTexelSize(s);
-
-            this->flushTextureDomain(s);
 
             if (NULL != fProgramData->fCustomStage[s]) {
                 const GrSamplerState& sampler =
@@ -687,7 +715,6 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
         }
     }
     this->flushColorMatrix();
-    resetDirtyFlags();
     return true;
 }
 
