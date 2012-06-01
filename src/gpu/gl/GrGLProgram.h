@@ -12,6 +12,7 @@
 #include "GrDrawState.h"
 #include "GrGLContextInfo.h"
 #include "GrGLSL.h"
+#include "GrGLTexture.h"
 #include "GrStringBuilder.h"
 #include "GrGpu.h"
 
@@ -336,6 +337,9 @@ public:
         GrScalar                    fRadial2Radius0[GrDrawState::kNumStages];
         bool                        fRadial2PosRoot[GrDrawState::kNumStages];
         GrRect                      fTextureDomain[GrDrawState::kNumStages];
+        // The texture domain and texture matrix sent to GL depend upon the
+        // orientation.
+        GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
 
         GrGLProgramStage*           fCustomStage[GrDrawState::kNumStages];
 

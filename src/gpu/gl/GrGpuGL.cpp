@@ -111,40 +111,6 @@ bool GrGpuGL::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
-                                  GrSamplerState::SampleMode mode,
-                                  GrMatrix* matrix) {
-    GrAssert(NULL != texture);
-    GrAssert(NULL != matrix);
-    GrGLTexture::Orientation orientation = texture->orientation();
-    if (GrGLTexture::kBottomUp_Orientation == orientation) {
-        GrMatrix invY;
-        invY.setAll(GR_Scalar1, 0,           0,
-                    0,          -GR_Scalar1, GR_Scalar1,
-                    0,          0,           GrMatrix::I()[8]);
-        matrix->postConcat(invY);
-    } else {
-        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
-    }
-}
-
-bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
-                                      const GrSamplerState& sampler) {
-    GrAssert(NULL != texture);
-    if (!sampler.getMatrix().isIdentity()) {
-        return false;
-    }
-    GrGLTexture::Orientation orientation = texture->orientation();
-    if (GrGLTexture::kBottomUp_Orientation == orientation) {
-        return false;
-    } else {
-        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
-    }
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static bool gPrintStartupSpew;
 
 static bool fbo_test(const GrGLInterface* gl, int w, int h) {
@@ -202,8 +168,6 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
         GrPrintf("------ VERSION %s\n",  version);
         GrPrintf("------ EXTENSIONS\n %s \n", ext);
     }
-
-    this->resetDirtyFlags();
 
     this->initCaps();
 
@@ -1657,12 +1621,14 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
             GrPrintf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
         }
     #endif
-        fDirtyFlags.fRenderTargetChanged = true;
         fHWBoundRenderTarget = rt;
         const GrGLIRect& vp = rt->getViewport();
         if (fHWBounds.fViewportRect != vp) {
             vp.pushToGLViewport(this->glInterface());
             fHWBounds.fViewportRect = vp;
+            // View matrices pushed to GL depend upon the viewport. So they
+            // are now invalid.
+            fProgramCache->invalidateViewMatrices();
         }
     }
     if (NULL == bound || !bound->isEmpty()) {
@@ -2177,9 +2143,6 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             #endif
                 //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
                 fHWBoundTextures[s] = nextTexture;
-                // The texture matrix has to compensate for texture width/height
-                // and NPOT-embedded-in-POT
-                fDirtyFlags.fTextureChangedMask |= (1 << s);
             }
 
             const GrSamplerState& sampler = drawState->getSampler(s);
@@ -2478,10 +2441,6 @@ void GrGpuGL::setSpareTextureUnit() {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + SPARE_TEX_UNIT));
         fActiveTextureUnitIdx = SPARE_TEX_UNIT;
     }
-}
-
-void GrGpuGL::resetDirtyFlags() {
-    Gr_bzero(&fDirtyFlags, sizeof(fDirtyFlags));
 }
 
 void GrGpuGL::setBuffers(bool indexed,
