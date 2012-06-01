@@ -142,10 +142,10 @@ public:
     }
 
     /**
-     * BlockRef<T> is a type which inherits from T, cannot be created,
+     * BlockRef<B> is a type which inherits from B, cannot be created,
      * and makes ref and unref private.
      */
-    template<typename T> class BlockRef : public T {
+    template<typename B> class BlockRef : public B {
     private:
         BlockRef();
         void ref() const;
