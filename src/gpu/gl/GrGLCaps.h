@@ -171,6 +171,9 @@ public:
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
 
+    // maximum number of attribute values per vertex
+    int maxVertexAttributes() const { return fMaxVertexAttributes; }
+
     /// ES requires an extension to support RGBA8 in RenderBufferStorage
     bool rgba8RenderbufferSupport() const { return fRGBA8RenderbufferSupport; }
 
@@ -260,6 +263,8 @@ private:
     SkTArray<VerifiedColorConfigs, true> fStencilVerifiedColorConfigs;
 
     int fMaxFragmentUniformVectors;
+    int fMaxVertexAttributes;
+
     MSFBOType fMSFBOType;
     int fMaxSampleCount;
     CoverageAAType fCoverageAAType;

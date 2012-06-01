@@ -280,11 +280,6 @@ void GrGpuGL::initCaps() {
         fCaps.fShaderDerivativeSupport =
                             this->hasExtension("GL_OES_standard_derivatives");
     }
-
-    GR_GL_GetIntegerv(this->glInterface(),
-                      GR_GL_MAX_VERTEX_ATTRIBS,
-                      &fMaxVertexAttribs);
-
 }
 
 void GrGpuGL::fillInConfigRenderableTable() {
@@ -549,7 +544,7 @@ void GrGpuGL::onResetContext() {
     int posAttrIdx = GrGLProgram::PositionAttributeIdx();
     GL_CALL(EnableVertexAttribArray(posAttrIdx));
     // Disable all other vertex attributes.
-    for  (int va = 0; va < fMaxVertexAttribs; ++va) {
+    for  (int va = 0; va < this->glCaps().maxVertexAttributes(); ++va) {
         if (va != posAttrIdx) {
             GL_CALL(DisableVertexAttribArray(va));
         }
