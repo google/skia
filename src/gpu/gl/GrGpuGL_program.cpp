@@ -10,7 +10,6 @@
 #include "effects/GrConvolutionEffect.h"
 #include "effects/GrMorphologyEffect.h"
 
-#include "GrBinHashKey.h"
 #include "GrCustomStage.h"
 #include "GrGLProgramStage.h"
 #include "GrGLSL.h"
@@ -23,109 +22,76 @@
 #define SKIP_CACHE_CHECK    true
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
 
-#include "../GrTHashCache.h"
+void GrGpuGL::ProgramCache::Entry::copyAndTakeOwnership(Entry& entry) {
+    fProgramData.copyAndTakeOwnership(entry.fProgramData);
+    fKey = entry.fKey; // ownership transfer
+    fLRUStamp = entry.fLRUStamp;
+}
 
-class GrGpuGL::ProgramCache : public ::GrNoncopyable {
-private:
-    class Entry;
+GrGpuGL::ProgramCache::ProgramCache(const GrGLContextInfo& gl)
+    : fCount(0)
+    , fCurrLRUStamp(0)
+    , fGL(gl) {
+}
 
-    typedef GrBinHashKey<Entry, GrGLProgram::kProgramKeySize> ProgramHashKey;
-
-    class Entry : public ::GrNoncopyable {
-    public:
-        Entry() {}
-        void copyAndTakeOwnership(Entry& entry) {
-            fProgramData.copyAndTakeOwnership(entry.fProgramData);
-            fKey = entry.fKey; // ownership transfer
-            fLRUStamp = entry.fLRUStamp;
-        }
-
-    public:
-        int compare(const ProgramHashKey& key) const { return fKey.compare(key); }
-
-    public:
-        GrGLProgram::CachedData fProgramData;
-        ProgramHashKey          fKey;
-        unsigned int            fLRUStamp;
-    };
-
-    GrTHashTable<Entry, ProgramHashKey, 8> fHashCache;
-
-    // We may have kMaxEntries+1 shaders in the GL context because
-    // we create a new shader before evicting from the cache.
-    enum {
-        kMaxEntries = 32
-    };
-    Entry                       fEntries[kMaxEntries];
-    int                         fCount;
-    unsigned int                fCurrLRUStamp;
-    const GrGLContextInfo&      fGL;
-
-public:
-    ProgramCache(const GrGLContextInfo& gl)
-        : fCount(0)
-        , fCurrLRUStamp(0)
-        , fGL(gl) {
+GrGpuGL::ProgramCache::~ProgramCache() {
+    for (int i = 0; i < fCount; ++i) {
+        GrGpuGL::DeleteProgram(fGL.interface(),
+                                        &fEntries[i].fProgramData);
     }
+}
 
-    ~ProgramCache() {
-        for (int i = 0; i < fCount; ++i) {
-            GrGpuGL::DeleteProgram(fGL.interface(),
-                                          &fEntries[i].fProgramData);
-        }
+void GrGpuGL::ProgramCache::abandon() {
+    fCount = 0;
+}
+
+void GrGpuGL::ProgramCache::invalidateViewMatrices() {
+    for (int i = 0; i < fCount; ++i) {
+        // set to illegal matrix
+        fEntries[i].fProgramData.fViewMatrix = GrMatrix::InvalidMatrix();
     }
+}
 
-    void abandon() {
-        fCount = 0;
-    }
-
-    void invalidateViewMatrices() {
-        for (int i = 0; i < fCount; ++i) {
-            // set to illegal matrix
-            fEntries[i].fProgramData.fViewMatrix = GrMatrix::InvalidMatrix();
-        }
-    }
-
-    GrGLProgram::CachedData* getProgramData(const GrGLProgram& desc,
-                                            GrCustomStage** stages) {
-        Entry newEntry;
-        newEntry.fKey.setKeyData(desc.keyData());
+GrGLProgram::CachedData* GrGpuGL::ProgramCache::getProgramData(
+                                        const GrGLProgram& desc,
+                                        GrCustomStage** stages) {
+    Entry newEntry;
+    newEntry.fKey.setKeyData(desc.keyData());
         
-        Entry* entry = fHashCache.find(newEntry.fKey);
-        if (NULL == entry) {
-            if (!desc.genProgram(fGL, stages, &newEntry.fProgramData)) {
-                return NULL;
-            }
-            if (fCount < kMaxEntries) {
-                entry = fEntries + fCount;
-                ++fCount;
-            } else {
-                GrAssert(kMaxEntries == fCount);
-                entry = fEntries;
-                for (int i = 1; i < kMaxEntries; ++i) {
-                    if (fEntries[i].fLRUStamp < entry->fLRUStamp) {
-                        entry = fEntries + i;
-                    }
+    Entry* entry = fHashCache.find(newEntry.fKey);
+    if (NULL == entry) {
+        if (!desc.genProgram(fGL, stages, &newEntry.fProgramData)) {
+            return NULL;
+        }
+        if (fCount < kMaxEntries) {
+            entry = fEntries + fCount;
+            ++fCount;
+        } else {
+            GrAssert(kMaxEntries == fCount);
+            entry = fEntries;
+            for (int i = 1; i < kMaxEntries; ++i) {
+                if (fEntries[i].fLRUStamp < entry->fLRUStamp) {
+                    entry = fEntries + i;
                 }
-                fHashCache.remove(entry->fKey, entry);
-                GrGpuGL::DeleteProgram(fGL.interface(),
-                                              &entry->fProgramData);
             }
-            entry->copyAndTakeOwnership(newEntry);
-            fHashCache.insert(entry->fKey, entry);
+            fHashCache.remove(entry->fKey, entry);
+            GrGpuGL::DeleteProgram(fGL.interface(),
+                                            &entry->fProgramData);
         }
-
-        entry->fLRUStamp = fCurrLRUStamp;
-        if (GR_UINT32_MAX == fCurrLRUStamp) {
-            // wrap around! just trash our LRU, one time hit.
-            for (int i = 0; i < fCount; ++i) {
-                fEntries[i].fLRUStamp = 0;
-            }
-        }
-        ++fCurrLRUStamp;
-        return &entry->fProgramData;
+        entry->copyAndTakeOwnership(newEntry);
+        fHashCache.insert(entry->fKey, entry);
     }
-};
+
+    entry->fLRUStamp = fCurrLRUStamp;
+    if (GR_UINT32_MAX == fCurrLRUStamp) {
+        // wrap around! just trash our LRU, one time hit.
+        for (int i = 0; i < fCount; ++i) {
+            fEntries[i].fLRUStamp = 0;
+        }
+    }
+    ++fCurrLRUStamp;
+    return &entry->fProgramData;
+}
 
 void GrGpuGL::DeleteProgram(const GrGLInterface* gl,
                                    CachedData* programData) {
@@ -139,17 +105,6 @@ void GrGpuGL::DeleteProgram(const GrGLInterface* gl,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void GrGpuGL::createProgramCache() {
-    fProgramData = NULL;
-    fProgramCache = new ProgramCache(this->glContextInfo());
-}
-
-void GrGpuGL::deleteProgramCache() {
-    delete fProgramCache;
-    fProgramCache = NULL;
-    fProgramData = NULL;
-}
 
 void GrGpuGL::abandonResources(){
     INHERITED::abandonResources();
