@@ -267,15 +267,20 @@ public:
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
 
     enum Flags {
-        kCrossProcess_Flag       = 0x01,
+        kCrossProcess_Flag               = 0x01,
         /**
          *  Instructs the writer to inline Factory names as there are seen the
          *  first time (after that we store an index). The pipe code uses this.
          */
-        kInlineFactoryNames_Flag = 0x02
+        kInlineFactoryNames_Flag         = 0x02,
+        /**
+         *  Instructs the writer to always serialize bitmap pixel data.
+         */
+        kForceFlattenBitmapPixels_Flag   = 0x04
     };
-    Flags getFlags() const { return (Flags)fFlags; }
-    void setFlags(Flags flags) { fFlags = flags; }
+
+    uint32_t getFlags() const { return fFlags; }
+    void setFlags(uint32_t flags) { fFlags = flags; }
 
     bool isCrossProcess() const {
         return SkToBool(fFlags & kCrossProcess_Flag);
@@ -285,7 +290,7 @@ public:
     }
 
     bool persistBitmapPixels() const {
-        return (fFlags & kCrossProcess_Flag) != 0;
+        return (fFlags & (kCrossProcess_Flag | kForceFlattenBitmapPixels_Flag)) != 0;
     }
 
     bool persistTypeface() const { return (fFlags & kCrossProcess_Flag) != 0; }

@@ -61,7 +61,8 @@ SkRefCnt* SkRefCntPlayback::set(int index, SkRefCnt* obj) {
 
 SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
         int index, void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
-        SkRefCntSet* refCntRecorder, SkRefCntSet* faceRecorder) {
+        SkRefCntSet* refCntRecorder, SkRefCntSet* faceRecorder,
+        uint32_t writeBufferflags) {
 
     // a buffer of 256 bytes should be sufficient for most paints, regions,
     // and matrices.
@@ -73,6 +74,7 @@ SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
     if (faceRecorder) {
         buffer.setTypefaceRecorder(faceRecorder);
     }
+    buffer.setFlags(writeBufferflags);
 
     flattenProc(buffer, obj);
     uint32_t size = buffer.size();

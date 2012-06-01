@@ -162,6 +162,14 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     return fRecord;
 }
 
+bool SkPicture::hasRecorded() const {
+    return NULL != fRecord && fRecord->writeStream().size() > 0;
+}
+
+bool SkPicture::willFlattenPixelsOnRecord(const SkBitmap& bitmap) const {
+    return NULL != fRecord && fRecord->shouldFlattenPixels(bitmap);
+}
+
 SkCanvas* SkPicture::getRecordingCanvas() const {
     // will be null if we are not recording
     return fRecord;
