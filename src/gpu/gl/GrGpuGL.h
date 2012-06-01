@@ -181,7 +181,6 @@ protected:
 
     // adjusts texture matrix to account for orientation
     static void AdjustTextureMatrix(const GrGLTexture* texture,
-                                    GrSamplerState::SampleMode mode,
                                     GrMatrix* matrix);
 
     // subclass may try to take advantage of identity tex matrices.

@@ -162,21 +162,10 @@ public:
                 kInConfigBitMask = (kDummyInConfigFlag-1) |
                                    (kDummyInConfigFlag-2)
             };
-            enum CoordMapping {
-                kIdentity_CoordMapping,
-                kRadialGradient_CoordMapping,
-                kSweepGradient_CoordMapping,
-                kRadial2Gradient_CoordMapping,
-                // need different shader computation when quadratic
-                // eq describing the gradient degenerates to a linear eq.
-                kRadial2GradientDegenerate_CoordMapping,
-                kCoordMappingCnt
-            };
 
             uint8_t fOptFlags;
             uint8_t fInConfigFlags; // bitfield of InConfigFlags values
             uint8_t fFetchMode;     // casts to enum FetchMode
-            uint8_t fCoordMapping;  // casts to enum CoordMapping
 
             /** Non-zero if user-supplied code will write the stage's
                 contribution to the fragment shader. */
@@ -263,13 +252,11 @@ public:
         GrGLint fTextureMatrixUni;
         GrGLint fNormalizedTexelSizeUni;
         GrGLint fSamplerUni;
-        GrGLint fRadial2Uni;
         GrGLint fTexDomUni;
         void reset() {
             fTextureMatrixUni = kUnusedUniform;
             fNormalizedTexelSizeUni = kUnusedUniform;
             fSamplerUni = kUnusedUniform;
-            fRadial2Uni = kUnusedUniform;
             fTexDomUni = kUnusedUniform;
         }
     };
@@ -333,9 +320,6 @@ public:
         // width and height used for normalized texel size
         int                         fTextureWidth[GrDrawState::kNumStages];
         int                         fTextureHeight[GrDrawState::kNumStages]; 
-        GrScalar                    fRadial2CenterX1[GrDrawState::kNumStages];
-        GrScalar                    fRadial2Radius0[GrDrawState::kNumStages];
-        bool                        fRadial2PosRoot[GrDrawState::kNumStages];
         GrRect                      fTextureDomain[GrDrawState::kNumStages];
         // The texture domain and texture matrix sent to GL depend upon the
         // orientation.

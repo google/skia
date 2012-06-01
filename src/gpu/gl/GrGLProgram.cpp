@@ -1158,14 +1158,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
                 GrAssert(kUnusedUniform != locations.fNormalizedTexelSizeUni);
             }
 
-            if (kUseUniform == locations.fRadial2Uni) {
-                GrStringBuilder radial2ParamName;
-                radial2_param_name(s, &radial2ParamName);
-                GL_CALL_RET(locations.fRadial2Uni,
-                            GetUniformLocation(progID, radial2ParamName.c_str()));
-                GrAssert(kUnusedUniform != locations.fRadial2Uni);
-            }
-
             if (kUseUniform == locations.fTexDomUni) {
                 GrStringBuilder texDomName;
                 tex_domain_name(s, &texDomName);
@@ -1188,8 +1180,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
             GL_CALL(Uniform1i(programData->fUniLocations.fStages[s].fSamplerUni, s));
         }
         programData->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
-        programData->fRadial2CenterX1[s] = GR_ScalarMax;
-        programData->fRadial2Radius0[s] = -GR_ScalarMax;
         programData->fTextureWidth[s] = -1;
         programData->fTextureHeight[s] = -1;
         programData->fTextureDomain[s].setEmpty();
@@ -1208,156 +1198,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
 //============================================================================
 
 namespace {
-
-bool isRadialMapping(GrGLProgram::StageDesc::CoordMapping mapping) {
-    return
-       (GrGLProgram::StageDesc::kRadial2Gradient_CoordMapping == mapping ||
-        GrGLProgram::StageDesc::kRadial2GradientDegenerate_CoordMapping == mapping);
-}
-
-const GrGLShaderVar* genRadialVS(int stageNum,
-                        GrGLShaderBuilder* segments,
-                        GrGLProgram::StageUniLocations* locations,
-                        const char** radial2VaryingVSName,
-                        const char** radial2VaryingFSName,
-                        const char* varyingVSName) {
-    GrStringBuilder r2ParamsName;
-    radial2_param_name(stageNum, &r2ParamsName);
-    const GrGLShaderVar* radial2FSParams =
-        &segments->addUniform(GrGLShaderBuilder::kBoth_VariableLifetime,
-                              kFloat_GrSLType, r2ParamsName.c_str(), -1, 6);
-    locations->fRadial2Uni = kUseUniform;
-
-    // for radial grads without perspective we can pass the linear
-    // part of the quadratic as a varying.
-    if (segments->fVaryingDims == segments->fCoordDims) {
-        GrAssert(2 == segments->fCoordDims);
-        segments->addVarying(kFloat_GrSLType,
-                             "Radial2BCoeff",
-                             stageNum,
-                             radial2VaryingVSName,
-                             radial2VaryingFSName);
-
-        GrStringBuilder radial2p2;
-        GrStringBuilder radial2p3;
-        radial2FSParams->appendArrayAccess(2, &radial2p2);
-        radial2FSParams->appendArrayAccess(3, &radial2p3);
-
-        // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
-        const char* r2ParamName = radial2FSParams->getName().c_str();
-        segments->fVSCode.appendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
-                                  *radial2VaryingVSName, radial2p2.c_str(),
-                                  varyingVSName, radial2p3.c_str());
-    }
-
-    return radial2FSParams;
-}
-
-void genRadial2GradientCoordMapping(int stageNum,
-                                    GrGLShaderBuilder* segments,
-                                    const char* radial2VaryingFSName,
-                                    const GrGLShaderVar* radial2Params) {
-    GrStringBuilder cName("c");
-    GrStringBuilder ac4Name("ac4");
-    GrStringBuilder rootName("root");
-
-    cName.appendS32(stageNum);
-    ac4Name.appendS32(stageNum);
-    rootName.appendS32(stageNum);
-
-    GrStringBuilder radial2p0;
-    GrStringBuilder radial2p1;
-    GrStringBuilder radial2p2;
-    GrStringBuilder radial2p3;
-    GrStringBuilder radial2p4;
-    GrStringBuilder radial2p5;
-    radial2Params->appendArrayAccess(0, &radial2p0);
-    radial2Params->appendArrayAccess(1, &radial2p1);
-    radial2Params->appendArrayAccess(2, &radial2p2);
-    radial2Params->appendArrayAccess(3, &radial2p3);
-    radial2Params->appendArrayAccess(4, &radial2p4);
-    radial2Params->appendArrayAccess(5, &radial2p5);
-
-    // if we were able to interpolate the linear component bVar is the varying
-    // otherwise compute it
-    GrStringBuilder bVar;
-    if (segments->fCoordDims == segments->fVaryingDims) {
-        bVar = radial2VaryingFSName;
-        GrAssert(2 == segments->fVaryingDims);
-    } else {
-        GrAssert(3 == segments->fVaryingDims);
-        bVar = "b";
-        bVar.appendS32(stageNum);
-        segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
-                                    bVar.c_str(), radial2p2.c_str(),
-                                    segments->fSampleCoords.c_str(), radial2p3.c_str());
-    }
-
-    // c = (x^2)+(y^2) - params[4]
-    segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s;\n",
-                              cName.c_str(), segments->fSampleCoords.c_str(),
-                              segments->fSampleCoords.c_str(),
-                              radial2p4.c_str());
-    // ac4 = 4.0 * params[0] * c
-    segments->fFSCode.appendf("\tfloat %s = %s * 4.0 * %s;\n",
-                              ac4Name.c_str(), radial2p0.c_str(),
-                              cName.c_str());
-
-    // root = sqrt(b^2-4ac)
-    // (abs to avoid exception due to fp precision)
-    segments->fFSCode.appendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
-                              rootName.c_str(), bVar.c_str(), bVar.c_str(),
-                              ac4Name.c_str());
-
-    // x coord is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
-    // y coord is 0.5 (texture is effectively 1D)
-    segments->fSampleCoords.printf("vec2((-%s + %s * %s) * %s, 0.5)",
-                        bVar.c_str(), radial2p5.c_str(),
-                        rootName.c_str(), radial2p1.c_str());
-    segments->fComplexCoord = true;
-}
-
-void genRadial2GradientDegenerateCoordMapping(int stageNum,
-                                              GrGLShaderBuilder* segments,
-                                              const char* radial2VaryingFSName,
-                                              const GrGLShaderVar* radial2Params) {
-    GrStringBuilder cName("c");
-
-    cName.appendS32(stageNum);
-
-    GrStringBuilder radial2p2;
-    GrStringBuilder radial2p3;
-    GrStringBuilder radial2p4;
-    radial2Params->appendArrayAccess(2, &radial2p2);
-    radial2Params->appendArrayAccess(3, &radial2p3);
-    radial2Params->appendArrayAccess(4, &radial2p4);
-
-    // if we were able to interpolate the linear component bVar is the varying
-    // otherwise compute it
-    GrStringBuilder bVar;
-    if (segments->fCoordDims == segments->fVaryingDims) {
-        bVar = radial2VaryingFSName;
-        GrAssert(2 == segments->fVaryingDims);
-    } else {
-        GrAssert(3 == segments->fVaryingDims);
-        bVar = "b";
-        bVar.appendS32(stageNum);
-        segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
-                                    bVar.c_str(), radial2p2.c_str(),
-                                    segments->fSampleCoords.c_str(), radial2p3.c_str());
-    }
-
-    // c = (x^2)+(y^2) - params[4]
-    segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s;\n",
-                              cName.c_str(), segments->fSampleCoords.c_str(),
-                              segments->fSampleCoords.c_str(),
-                              radial2p4.c_str());
-
-    // x coord is: -c/b
-    // y coord is 0.5 (texture is effectively 1D)
-    segments->fSampleCoords.printf("vec2((-%s / %s), 0.5)", cName.c_str(), bVar.c_str());
-    segments->fComplexCoord = true;
-}
 
 void gen2x2FS(int stageNum,
               GrGLShaderBuilder* segments,
@@ -1403,10 +1243,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) ==
              desc.fInConfigFlags);
 
-    if (NULL != customStage) {
-        customStage->setupVariables(segments, stageNum);
-    }
-
     /// Vertex Shader Stuff
 
     // decide whether we need a matrix to transform texture coords
@@ -1431,6 +1267,11 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         }
     }
     GrAssert(segments->fVaryingDims > 0);
+
+    // Must setup variables after computing segments->fVaryingDims
+    if (NULL != customStage) {
+        customStage->setupVariables(segments, stageNum);
+    }
 
     GrStringBuilder samplerName;
     sampler_name(stageNum, &samplerName);
@@ -1465,18 +1306,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                   vector_all_coords(segments->fVaryingDims));
     }
 
-    const GrGLShaderVar* radial2Params = NULL;
-    const char* radial2VaryingVSName = NULL;
-    const char* radial2VaryingFSName = NULL;
-
-    if (isRadialMapping((StageDesc::CoordMapping) desc.fCoordMapping)) {
-        radial2Params = genRadialVS(stageNum, segments,
-                                    locations,
-                                    &radial2VaryingVSName,
-                                    &radial2VaryingFSName,
-                                    varyingVSName);
-    }
-
     GrGLShaderVar* kernel = NULL;
     const char* imageIncrementName = NULL;
     if (NULL != customStage) {
@@ -1495,45 +1324,18 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
                           StageDesc::kNoPerspective_OptFlagBit)) {
         sampleMode = GrGLShaderBuilder::kDefault_SamplerMode;
-    } else if (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
+    } else if (NULL == customStage &&
                StageDesc::kSingle_FetchMode == desc.fFetchMode) {
         sampleMode = GrGLShaderBuilder::kProj_SamplerMode;
     }
     segments->setupTextureAccess(sampleMode, stageNum);
 
-    // NOTE: GrGLProgramStages will soon responsible for mapping
-    //if (NULL == customStage) {
-        switch (desc.fCoordMapping) {
-        case StageDesc::kIdentity_CoordMapping:
-            // Do nothing
-            break;
-        case StageDesc::kSweepGradient_CoordMapping:
-            segments->fSampleCoords.printf("vec2(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5, 0.5)", segments->fSampleCoords.c_str(), segments->fSampleCoords.c_str());
-            segments->fComplexCoord = true;
-            break;
-        case StageDesc::kRadialGradient_CoordMapping:
-            segments->fSampleCoords.printf("vec2(length(%s.xy), 0.5)", segments->fSampleCoords.c_str());
-            segments->fComplexCoord = true;
-            break;
-        case StageDesc::kRadial2Gradient_CoordMapping:
-            genRadial2GradientCoordMapping(
-                               stageNum, segments,
-                               radial2VaryingFSName, radial2Params);
-            break;
-        case StageDesc::kRadial2GradientDegenerate_CoordMapping:
-            genRadial2GradientDegenerateCoordMapping(
-                               stageNum, segments,
-                               radial2VaryingFSName, radial2Params);
-            break;
-        }
-    //}
+    segments->computeSwizzle(desc.fInConfigFlags);
+    segments->computeModulate(fsInColor);
 
     static const uint32_t kMulByAlphaMask =
         (StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
          StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag);
-
-    segments->computeSwizzle(desc.fInConfigFlags);
-    segments->computeModulate(fsInColor);
 
     if (desc.fOptFlags & StageDesc::kCustomTextureDomain_OptFlagBit) {
         GrStringBuilder texDomainName;

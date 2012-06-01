@@ -39,37 +39,6 @@ public:
     };
 
     /**
-     * The intepretation of the texture matrix depends on the sample mode. The
-     * texture matrix is applied both when the texture coordinates are explicit
-     * and  when vertex positions are used as texture  coordinates. In the latter
-     * case the texture matrix is applied to the pre-view-matrix position 
-     * values.
-     *
-     * kNormal_SampleMode
-     *  The post-matrix texture coordinates are in normalize space with (0,0) at
-     *  the top-left and (1,1) at the bottom right.
-     * kRadial_SampleMode
-     *  The matrix specifies the radial gradient parameters.
-     *  (0,0) in the post-matrix space is center of the radial gradient.
-     * kRadial2_SampleMode
-     *   Matrix transforms to space where first circle is centered at the
-     *   origin. The second circle will be centered (x, 0) where x may be 
-     *   0 and is provided by setRadial2Params. The post-matrix space is 
-     *   normalized such that 1 is the second radius - first radius.
-     * kSweepSampleMode
-     *  The angle from the origin of texture coordinates in post-matrix space
-     *  determines the gradient value.
-     */
-    enum SampleMode {
-        kNormal_SampleMode,     //!< sample color directly
-        kRadial_SampleMode,     //!< treat as radial gradient
-        kRadial2_SampleMode,    //!< treat as 2-point radial gradient
-        kSweep_SampleMode,      //!< treat as sweep gradient
-
-        kDefault_SampleMode = kNormal_SampleMode
-    };
-
-    /**
      * Describes how a texture is sampled when coordinates are outside the
      * texture border
      */
@@ -86,10 +55,7 @@ public:
      * unfiltered, and use identity matrix.
      */
     GrSamplerState()
-    : fRadial2CenterX1()
-    , fRadial2Radius0()
-    , fRadial2PosRoot()
-    , fCustomStage (NULL) {
+    : fCustomStage (NULL) {
         memset(this, 0, sizeof(GrSamplerState));
         this->reset();
     }
@@ -119,15 +85,10 @@ public:
         // memcpy() breaks refcounting
         fWrapX = s.fWrapX;
         fWrapY = s.fWrapY;
-        fSampleMode = s.fSampleMode;
         fFilter = s.fFilter;
         fMatrix = s.fMatrix;
         fSwapRAndB = s.fSwapRAndB;
         fTextureDomain = s.fTextureDomain;
-
-        fRadial2CenterX1 = s.fRadial2CenterX1;
-        fRadial2Radius0 = s.fRadial2Radius0;
-        fRadial2PosRoot = s.fRadial2PosRoot;
 
         fCustomStage = s.fCustomStage;
         SkSafeRef(fCustomStage);
@@ -137,21 +98,14 @@ public:
 
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
-    SampleMode getSampleMode() const { return fSampleMode; }
     const GrMatrix& getMatrix() const { return fMatrix; }
     const GrRect& getTextureDomain() const { return fTextureDomain; }
     bool hasTextureDomain() const {return SkIntToScalar(0) != fTextureDomain.right();}
     Filter getFilter() const { return fFilter; }
     bool swapsRAndB() const { return fSwapRAndB; }
-    bool isGradient() const {
-        return  kRadial_SampleMode == fSampleMode ||
-                kRadial2_SampleMode == fSampleMode ||
-                kSweep_SampleMode == fSampleMode;
-    }
 
     void setWrapX(WrapMode mode) { fWrapX = mode; }
     void setWrapY(WrapMode mode) { fWrapY = mode; }
-    void setSampleMode(SampleMode mode) { fSampleMode = mode; }
     
     /**
      * Access the sampler's matrix. See SampleMode for explanation of
@@ -195,7 +149,6 @@ public:
                const GrMatrix& matrix) {
         fWrapX = wrapXAndY;
         fWrapY = wrapXAndY;
-        fSampleMode = kDefault_SampleMode;
         fFilter = filter;
         fMatrix = matrix;
         fTextureDomain.setEmpty();
@@ -212,26 +165,6 @@ public:
         this->reset(kDefault_WrapMode, kDefault_Filter, GrMatrix::I());
     }
 
-    GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
-    GrScalar getRadial2Radius0() const { return fRadial2Radius0; }
-    bool     isRadial2PosRoot() const { return SkToBool(fRadial2PosRoot); }
-    // do the radial gradient params lead to a linear (rather than quadratic)
-    // equation.
-    bool radial2IsDegenerate() const { return GR_Scalar1 == fRadial2CenterX1; }
-
-    /**
-     * Sets the parameters for kRadial2_SampleMode. The texture
-     * matrix must be set so that the first point is at (0,0) and the second
-     * point lies on the x-axis. The second radius minus the first is 1 unit.
-     * The additional parameters to define the gradient are specified by this
-     * function.
-     */
-    void setRadial2Params(GrScalar centerX1, GrScalar radius0, bool posRoot) {
-        fRadial2CenterX1 = centerX1;
-        fRadial2Radius0 = radius0;
-        fRadial2PosRoot = posRoot;
-    }
-
     void setCustomStage(GrCustomStage* stage) {
         GrSafeAssign(fCustomStage, stage);
     }
@@ -240,16 +173,10 @@ public:
 private:
     WrapMode            fWrapX : 8;
     WrapMode            fWrapY : 8;
-    SampleMode          fSampleMode : 8;
     Filter              fFilter : 8;
-    GrMatrix            fMatrix;
     bool                fSwapRAndB;
+    GrMatrix            fMatrix;
     GrRect              fTextureDomain;
-
-    // these are undefined unless fSampleMode == kRadial2_SampleMode
-    GrScalar            fRadial2CenterX1;
-    GrScalar            fRadial2Radius0;
-    SkBool8             fRadial2PosRoot;
 
     GrCustomStage*      fCustomStage;
 };

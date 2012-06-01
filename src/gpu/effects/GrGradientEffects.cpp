@@ -212,7 +212,7 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
 
     // If we aren't degenerate, emit some extra code, and accept a slightly
     // more complex coord.
-    if (fIsDegenerate) {
+    if (!fIsDegenerate) {
 
         // ac4 = 4.0 * params[0] * c
         code->appendf("\tfloat %s = %s * 4.0 * %s;\n",
