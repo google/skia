@@ -54,8 +54,8 @@ static const Quadratic testSet[] = {
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static void oneOffTest() {
-    for (int outer = 0; outer < testSetCount - 1; ++outer) {
-        for (int inner = outer + 1; inner < testSetCount; ++inner) {
+    for (size_t outer = 0; outer < testSetCount - 1; ++outer) {
+        for (size_t inner = outer + 1; inner < testSetCount; ++inner) {
             const Quadratic& quad1 = testSet[outer];
             const Quadratic& quad2 = testSet[inner];
             Intersections intersections;

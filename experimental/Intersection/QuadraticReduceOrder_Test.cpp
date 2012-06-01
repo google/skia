@@ -14,7 +14,7 @@ static const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static void oneOffTest() {
     SkDebugf("%s FLT_EPSILON=%1.9g\n", __FUNCTION__, FLT_EPSILON);
-    for (int index = 0; index < testSetCount; ++index) {
+    for (size_t index = 0; index < testSetCount; ++index) {
         const Quadratic& quad = testSet[index];
         Quadratic reduce;
         int order = reduceOrder(quad, reduce);
