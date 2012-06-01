@@ -472,8 +472,8 @@ static void load_system_fonts() {
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
 
     SkFontDescriptor descriptor;
-    descriptor.setFontFamilyName(find_family_name(face));
-    descriptor.setFontStyle(face->style());
+    descriptor.setFamilyName(find_family_name(face));
+    descriptor.setStyle(face->style());
     descriptor.setFontFileName(((FamilyTypeface*)face)->getUniqueString());
 
     descriptor.serialize(stream);
@@ -500,9 +500,9 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     }
 
     SkFontDescriptor descriptor(stream);
-    const char* familyName = descriptor.getFontFamilyName();
+    const char* familyName = descriptor.getFamilyName();
     const char* typefaceName = descriptor.getFontFileName();
-    const SkTypeface::Style style = descriptor.getFontStyle();
+    const SkTypeface::Style style = descriptor.getStyle();
 
     const uint32_t customFontDataLength = stream->readPackedUInt();
     if (customFontDataLength > 0) {

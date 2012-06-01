@@ -34,12 +34,6 @@ public:
     void setPostscriptName(const char* name) { fPostscriptName.set(name); }
     void setFontFileName(const char* name) { fFontFileName.set(name); }
 
-    // legacy naming
-    SkTypeface::Style getFontStyle() { return this->getStyle(); }
-    void setFontStyle(SkTypeface::Style style) { this->setStyle(style); }
-    const char* getFontFamilyName() { return this->getFamilyName(); }
-    void setFontFamilyName(const char* name) { this->setFamilyName(name); }
-
 private:
     SkString fFamilyName;
     SkString fFullName;
