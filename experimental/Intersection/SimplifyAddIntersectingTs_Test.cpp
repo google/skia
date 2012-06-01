@@ -49,7 +49,7 @@ static const SkPoint cubics[][4] = {
 static const size_t cubicCount = sizeof(cubics) / sizeof(cubics[0]);
 static const size_t testCount = lineCount + quadCount + cubicCount;
 
-static SkPath::Verb setPath(int outer, SkPath& path, const SkPoint*& pts1) {
+static SkPath::Verb setPath(size_t outer, SkPath& path, const SkPoint*& pts1) {
     SkPath::Verb c1Type;
     if (outer < lineCount) {
         path.moveTo(lines[outer][0].fX, lines[outer][0].fY);
@@ -105,8 +105,8 @@ static void testPath(const SkPath& path, const SkPoint* pts1, SkPath::Verb c1Typ
 #endif            
 }
 
-static const int firstO = 6;
-static const int firstI = 1;
+static const size_t firstO = 6;
+static const size_t firstI = 1;
 
 void SimplifyAddIntersectingTs_Test() {
     const SkPoint* pts1, * pts2;
@@ -117,10 +117,10 @@ void SimplifyAddIntersectingTs_Test() {
         SkPath::Verb c2Type = setPath(firstI, path2, pts2);
         testPath(path2, pts1, c1Type, pts2, c2Type);
     }
-    for (int o = 0; o < testCount; ++o) {
+    for (size_t o = 0; o < testCount; ++o) {
         SkPath path;
         SkPath::Verb c1Type = setPath(o, path, pts1);
-        for (int i = 0; i < testCount; ++i) {
+        for (size_t i = 0; i < testCount; ++i) {
             SkPath path2(path);
             SkPath::Verb c2Type = setPath(i, path2, pts2);
             testPath(path2, pts1, c1Type, pts2, c2Type);

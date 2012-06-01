@@ -125,7 +125,7 @@ static void testQuads(bool testFlat) {
         *angleList[x] < *angleList[x + 1];
         SkASSERT(x == quadCount - 1 || *angleList[x] < *angleList[x + 1]);
         const SimplifyAngleTest::Angle* angle = angleList[x];
-        if (x != angle->start()) {
+        if ((int) x != angle->start()) {
             SkDebugf("%s [%d] [%d]\n", __FUNCTION__, x, angle->start());
             SkASSERT(0);
         }
@@ -147,7 +147,7 @@ static void testCubics(bool testFlat) {
     QSort<SimplifyAngleTest::Angle>(angleList.begin(), angleList.end() - 1);
     for (size_t x = 0; x < cubicCount; ++x) {
         const SimplifyAngleTest::Angle* angle = angleList[x];
-        if (x != angle->start()) {
+        if ((int) x != angle->start()) {
             SkDebugf("%s [%d] [%d]\n", __FUNCTION__, x, angle->start());
             SkASSERT(0);
         }

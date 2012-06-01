@@ -2292,7 +2292,7 @@ static SkScalar adjustCoincident(SkTDArray<ActiveEdge*>& edgeList,
     ActiveEdge* activePtr, * nextPtr = edgeList[0];
     size_t index;
     bool foundCoincident = false;
-    int firstIndex = 0;
+    size_t firstIndex = 0;
     for (index = 1; index < edgeCount; ++index) {
         activePtr = nextPtr;
         nextPtr = edgeList[index];

@@ -2145,7 +2145,7 @@ static bool addIntersectTs(Contour* test, Contour* next) {
 // see if coincidence is formed by clipping non-concident segments
 static void coincidenceCheck(SkTDArray<Contour*>& contourList, int winding) {
     int contourCount = contourList.count();
-    for (size_t cIndex = 0; cIndex < contourCount; ++cIndex) {
+    for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
         Contour* contour = contourList[cIndex];
         contour->findTooCloseToCall(winding);
     }
