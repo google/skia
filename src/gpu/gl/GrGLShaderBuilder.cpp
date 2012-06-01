@@ -34,7 +34,6 @@ GrGLShaderBuilder::GrGLShaderBuilder()
     , fFSOutputs(sMaxFSOutputs)
     , fUsesGS(false)
     , fVaryingDims(0)
-    , fSamplerMode(kDefault_SamplerMode)
     , fComplexCoord(false) {
 
 }
@@ -72,18 +71,23 @@ void GrGLShaderBuilder::computeModulate(const char* fsInColor) {
     }
 }
 
-void GrGLShaderBuilder::emitTextureSetup() {
+void GrGLShaderBuilder::setupTextureAccess(SamplerMode samplerMode,
+                                           int stageNum) {
     GrStringBuilder retval;
 
-    switch (fSamplerMode) {
+    fTexFunc = "texture2D";
+    switch (samplerMode) {
         case kDefault_SamplerMode:
-            // Fall through
-        case kProj_SamplerMode:
+            GrAssert(fVaryingDims == fCoordDims);
             // Do nothing
+            break;
+        case kProj_SamplerMode:
+            fTexFunc.append("Proj");
             break;
         case kExplicitDivide_SamplerMode:
             retval = "inCoord";
-            fFSCode.appendf("\t %s %s = %s%s / %s%s\n",
+            retval.appendS32(stageNum);
+            fFSCode.appendf("\t%s %s = %s%s / %s%s;\n",
                 GrGLShaderVar::TypeString
                     (GrSLFloatVectorType(fCoordDims)),
                 retval.c_str(),
@@ -94,6 +98,7 @@ void GrGLShaderBuilder::emitTextureSetup() {
             fSampleCoords = retval;
             break;
     }
+    fComplexCoord = false;
 }
 
 void GrGLShaderBuilder::emitTextureLookup(const char* samplerName,
@@ -101,20 +106,7 @@ void GrGLShaderBuilder::emitTextureLookup(const char* samplerName,
     if (NULL == coordName) {
         coordName = fSampleCoords.c_str();
     }
-    switch (fSamplerMode) {
-        default:
-            SkDEBUGFAIL("Unknown sampler mode");
-            // Fall through
-        case kDefault_SamplerMode:
-            // Fall through
-        case kExplicitDivide_SamplerMode:
-            fFSCode.appendf("texture2D(%s, %s)", samplerName, coordName);
-            break;
-        case kProj_SamplerMode:
-            fFSCode.appendf("texture2DProj(%s, %s)", samplerName, coordName);
-            break;
-    }
-
+    fFSCode.appendf("%s(%s, %s)", fTexFunc.c_str(), samplerName, coordName);
 }
 
 void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,

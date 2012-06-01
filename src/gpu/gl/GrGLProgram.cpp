@@ -1485,35 +1485,19 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     /// Fragment Shader Stuff
 
-    // Function used to access the shader, may be made projective.
-    GrStringBuilder texFunc("texture2D");
+    segments->fSampleCoords = varyingFSName;
+
+    GrGLShaderBuilder::SamplerMode sampleMode =
+        GrGLShaderBuilder::kExplicitDivide_SamplerMode;
     if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
                           StageDesc::kNoPerspective_OptFlagBit)) {
-        GrAssert(segments->fVaryingDims == segments->fCoordDims);
-        segments->fSampleCoords = varyingFSName;
-    } else {
-        // If we have to do some special op on the varyings to get
-        // our final tex coords then when in perspective we have to
-        // do an explicit divide. Otherwise, we can use a Proj func.
-        if  (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
-             StageDesc::kSingle_FetchMode == desc.fFetchMode) {
-            texFunc.append("Proj");
-            segments->fSampleCoords = varyingFSName;
-        } else {
-            // This block is replicated in GrGLProgramStage::emitTextureLookup()
-            segments->fSampleCoords = "inCoord";
-            segments->fSampleCoords.appendS32(stageNum);
-            segments->fFSCode.appendf("\t%s %s = %s%s / %s%s;\n",
-                GrGLShaderVar::TypeString(GrSLFloatVectorType(segments->fCoordDims)),
-                segments->fSampleCoords.c_str(),
-                varyingFSName,
-                GrGLSLVectorNonhomogCoords(segments->fVaryingDims),
-                varyingFSName,
-                GrGLSLVectorHomogCoord(segments->fVaryingDims));
-        }
+        sampleMode = GrGLShaderBuilder::kDefault_SamplerMode;
+    } else if (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
+               StageDesc::kSingle_FetchMode == desc.fFetchMode) {
+        sampleMode = GrGLShaderBuilder::kProj_SamplerMode;
     }
+    segments->setupTextureAccess(sampleMode, stageNum);
 
-    segments->fComplexCoord = false;
     // NOTE: GrGLProgramStages will soon responsible for mapping
     //if (NULL == customStage) {
         switch (desc.fCoordMapping) {
@@ -1566,24 +1550,14 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         locations->fTexDomUni = kUseUniform;
     }
 
-    if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
-                          StageDesc::kNoPerspective_OptFlagBit)) {
-        segments->setSamplerMode(GrGLShaderBuilder::kDefault_SamplerMode);
-    } else if (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
-               StageDesc::kSingle_FetchMode == desc.fFetchMode) {
-        segments->setSamplerMode(GrGLShaderBuilder::kProj_SamplerMode);
-    } else {
-        segments->setSamplerMode(
-            GrGLShaderBuilder::kExplicitDivide_SamplerMode);
-    }
-
     // NOTE: GrGLProgramStages are now responsible for fetching
     if (NULL == customStage) {
         switch (desc.fFetchMode) {
         case StageDesc::k2x2_FetchMode:
             GrAssert(!(desc.fInConfigFlags & kMulByAlphaMask));
             gen2x2FS(stageNum, segments, locations,
-                samplerName.c_str(), texelSizeName, fsOutColor, texFunc);
+                samplerName.c_str(), texelSizeName, fsOutColor,
+                segments->fTexFunc);
             break;
         default:
             if (desc.fInConfigFlags & kMulByAlphaMask) {
@@ -1594,7 +1568,8 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                 GrAssert(!(desc.fInConfigFlags & 
                            StageDesc::kSmearRed_InConfigFlag));
                 segments->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
-                                          fsOutColor, texFunc.c_str(), 
+                                          fsOutColor,
+                                          segments->fTexFunc.c_str(), 
                                           samplerName.c_str(),
                                           segments->fSampleCoords.c_str(),
                                           segments->fSwizzle.c_str());
@@ -1618,7 +1593,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
         // Enclose custom code in a block to avoid namespace conflicts
         segments->fFSCode.appendf("\t{ // stage %d %s \n",
                                   stageNum, customStage->name());
-        segments->emitTextureSetup();
         customStage->emitFS(segments, fsOutColor, fsInColor,
                             samplerName.c_str());
         segments->fFSCode.appendf("\t}\n");

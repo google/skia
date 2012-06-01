@@ -29,7 +29,17 @@ public:
     void computeSwizzle(uint32_t configFlags);
     void computeModulate(const char* fsInColor);
 
-    void emitTextureSetup();
+    // TODO: needs a better name
+    enum SamplerMode {
+        kDefault_SamplerMode,
+        kProj_SamplerMode,
+        kExplicitDivide_SamplerMode  // must do an explicit divide
+    };
+
+    /** Determines whether we should use texture2D() or texture2Dproj(),
+        and if an explicit divide is required for the sample coordinates,
+        creates the new variable and emits the code to initialize it. */
+    void setupTextureAccess(SamplerMode samplerMode, int stageNum);
 
     /** texture2D(samplerName, coordName), with projection
         if necessary; if coordName is not specified,
@@ -82,21 +92,6 @@ public:
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
 
-    // TODO: needs a better name
-    enum SamplerMode {
-        kDefault_SamplerMode,
-        kProj_SamplerMode,
-        kExplicitDivide_SamplerMode  // must do an explicit divide
-    };
-
-    // TODO: computing this requires information about fetch mode
-    // && coord mapping, as well as StageDesc::fOptFlags - proably
-    // need to set up default value and have some custom stages
-    // override as necessary?
-    void setSamplerMode(SamplerMode samplerMode) {
-        fSamplerMode = samplerMode;
-    }
-
 
     GrStringBuilder fHeader; // VS+FS, GLSL version, etc
     VarArray        fVSUnis;
@@ -121,12 +116,6 @@ public:
     int              fVaryingDims;
     static const int fCoordDims = 2;
 
-protected:
-
-    SamplerMode      fSamplerMode;
-
-public:
-
     /// True if fSampleCoords is an expression; false if it's a bare
     /// variable name
     bool             fComplexCoord;
@@ -134,6 +123,8 @@ public:
 
     GrStringBuilder  fSwizzle;
     GrStringBuilder  fModulate;
+
+    GrStringBuilder  fTexFunc;
 
     //@}
 
