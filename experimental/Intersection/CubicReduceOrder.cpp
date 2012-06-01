@@ -59,8 +59,7 @@ static int horizontal_line(const Cubic& cubic, Cubic& reduction) {
 }
 
 // check to see if it is a quadratic or a line
-static int check_quadratic(const Cubic& cubic, Cubic& reduction,
-        int minX, int maxX, int minY, int maxY) {
+static int check_quadratic(const Cubic& cubic, Cubic& reduction) {
     double dx10 = cubic[1].x - cubic[0].x;
     double dx23 = cubic[2].x - cubic[3].x;
     double midX = cubic[0].x + dx10 * 3 / 2;
@@ -228,7 +227,7 @@ int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Flags allowQua
     if (result) {
         return result;
     }
-    if (allowQuadratics && (result = check_quadratic(cubic, reduction, minX, maxX, minY, maxY))) {
+    if (allowQuadratics && (result = check_quadratic(cubic, reduction))) {
         return result;
     }
     memcpy(reduction, cubic, sizeof(Cubic));

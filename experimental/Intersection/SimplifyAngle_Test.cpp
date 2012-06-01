@@ -61,9 +61,9 @@ static void testLines(bool testFlat) {
     for (x = 0; x < lineCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
         if (testFlat) {
-            angle->setFlat(lines[x], SkPath::kLine_Verb, 0, x, x + 1, false);
+            angle->setFlat(lines[x], SkPath::kLine_Verb, 0, x, x + 1);
         } else {
-            angle->set(lines[x], SkPath::kLine_Verb, 0, x, x + 1, false);
+            angle->set(lines[x], SkPath::kLine_Verb, 0, x, x + 1);
         }
         double arcTan = atan2(lines[x][0].fX - lines[x][1].fX,
                 lines[x][0].fY - lines[x][1].fY);
@@ -112,9 +112,9 @@ static void testQuads(bool testFlat) {
     for (x = 0; x < quadCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
         if (testFlat) {
-            angle->setFlat(quads[x], SkPath::kQuad_Verb, 0, x, x + 1, false);
+            angle->setFlat(quads[x], SkPath::kQuad_Verb, 0, x, x + 1);
         } else {
-            angle->set(quads[x], SkPath::kQuad_Verb, 0, x, x + 1, false);
+            angle->set(quads[x], SkPath::kQuad_Verb, 0, x, x + 1);
         }
     }
     for (x = 0; x < quadCount; ++x) {
@@ -138,9 +138,9 @@ static void testCubics(bool testFlat) {
     for (size_t x = 0; x < cubicCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
         if (testFlat) {
-            angle->setFlat(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1, false);
+            angle->setFlat(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1);
         } else {
-            angle->set(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1, false);
+            angle->set(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1);
         }
         angleList.push(angle);
     }

@@ -51,7 +51,7 @@ static void test(const SkPath& path, SkScalar x1, SkScalar y1,
             testCommon(contours, index, end);
     SkPoint pts[2];
     double firstT = topSegment->t(index);
-    topSegment->xyAtT(firstT, &pts[0]);
+    pts[0] = topSegment->xyAtT(&topSegment->span(index));
     int direction = index < end ? 1 : -1;
     do {
         index += direction;
@@ -59,7 +59,7 @@ static void test(const SkPath& path, SkScalar x1, SkScalar y1,
         if (nextT == firstT) {
             continue;
         }
-        topSegment->xyAtT(nextT, &pts[1]);
+        pts[1] = topSegment->xyAtT(&topSegment->span(index));
         if (pts[0] != pts[1]) {
             break;
         }
