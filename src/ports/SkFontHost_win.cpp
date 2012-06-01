@@ -10,6 +10,7 @@
 #include "SkBase64.h"
 #include "SkData.h"
 #include "SkDescriptor.h"
+#include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkOTUtils.h"
 #include "SkStream.h"
@@ -147,9 +148,10 @@ static unsigned calculateOutlineGlyphCount(HDC hdc) {
 class LogFontTypeface : public SkTypeface {
 public:
     LogFontTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf) :
-      SkTypeface(style, fontID, false), fLogFont(lf) {}
+      SkTypeface(style, fontID, false), fLogFont(lf), fSerializeAsStream(false) {}
 
     LOGFONT fLogFont;
+    bool fSerializeAsStream;
 
     static LogFontTypeface* Create(const LOGFONT& lf) {
         SkTypeface::Style style = get_style(lf);
@@ -164,7 +166,9 @@ public:
      *  Takes ownership of fontMemResource.
      */
     FontMemResourceTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf, HANDLE fontMemResource) :
-      LogFontTypeface(style, fontID, lf), fFontMemResource(fontMemResource) {}
+      LogFontTypeface(style, fontID, lf), fFontMemResource(fontMemResource) {
+      fSerializeAsStream = true;
+    }
 
     HANDLE fFontMemResource;
 
@@ -1160,13 +1164,79 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
     //OutputDebugString(buf);
 }
 
-void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
+static void logfont_for_name(const char* familyName, LOGFONT& lf) {
+        memset(&lf, 0, sizeof(LOGFONT));
+#ifdef UNICODE
+        // Get the buffer size needed first.
+        size_t str_len = ::MultiByteToWideChar(CP_UTF8, 0, familyName,
+                                                -1, NULL, 0);
+        // Allocate a buffer (str_len already has terminating null
+        // accounted for).
+        wchar_t *wideFamilyName = new wchar_t[str_len];
+        // Now actually convert the string.
+        ::MultiByteToWideChar(CP_UTF8, 0, familyName, -1,
+                                wideFamilyName, str_len);
+        ::wcsncpy(lf.lfFaceName, wideFamilyName, LF_FACESIZE - 1);
+        delete [] wideFamilyName;
+        lf.lfFaceName[LF_FACESIZE-1] = L'\0';
+#else
+        ::strncpy(lf.lfFaceName, familyName, LF_FACESIZE - 1);
+        lf.lfFaceName[LF_FACESIZE - 1] = '\0';
+#endif
+}
+
+static void logfont_to_name(const LOGFONT& lf, SkString* s) {
+#ifdef UNICODE
+    // Get the buffer size needed first.
+    size_t str_len = WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1, NULL,
+                                         0, NULL, NULL);
+    // Allocate a buffer (str_len already has terminating null accounted for).
+    s->resize(str_len);
+    // Now actually convert the string.
+    WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1,
+                        s->writable_str(), str_len,
+                        NULL, NULL);
+#else
+    s->set(lf.lfFaceName);
+#endif
+}
+
+void SkFontHost::Serialize(const SkTypeface* rawFace, SkWStream* stream) {
+    const LogFontTypeface* face = static_cast<const LogFontTypeface*>(rawFace);
+    SkFontDescriptor descriptor(face->style());
+
+    SkString familyName;
+    logfont_to_name(face->fLogFont, &familyName);
+    descriptor.setFamilyName(familyName.c_str());
+    //TODO: FileName and PostScriptName currently unsupported.
+
+    descriptor.serialize(stream);
+
+    if (face->fSerializeAsStream) {
+        // store the entire font in the fontData
+        SkAutoTUnref<SkStream> fontStream(SkFontHost::OpenStream(face->uniqueID()));
+        const uint32_t length = fontStream->getLength();
+
+        stream->writePackedUInt(length);
+        stream->writeStream(fontStream, length);
+    } else {
+        stream->writePackedUInt(0);
+    }
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkDEBUGFAIL("SkFontHost::Deserialize unimplemented");
-    return NULL;
+    SkFontDescriptor descriptor(stream);
+
+    const uint32_t customFontDataLength = stream->readPackedUInt();
+    if (customFontDataLength > 0) {
+        // generate a new stream to store the custom typeface
+        SkAutoTUnref<SkMemoryStream> fontStream(SkNEW_ARGS(SkMemoryStream, (customFontDataLength - 1)));
+        stream->read((void*)fontStream->getMemoryBase(), customFontDataLength - 1);
+
+        return CreateTypefaceFromStream(fontStream.get());
+    }
+
+    return SkFontHost::CreateTypeface(NULL, descriptor.getFamilyName(), descriptor.getStyle());
 }
 
 static bool getWidthAdvance(HDC hdc, int gId, int16_t* advance) {
@@ -1226,20 +1296,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     info->fMultiMaster = false;
     info->fLastGlyphID = SkToU16(glyphCount - 1);
     info->fStyle = 0;
-#ifdef UNICODE
-    // Get the buffer size needed first.
-    size_t str_len = WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1, NULL,
-                                         0, NULL, NULL);
-    // Allocate a buffer (str_len already has terminating null accounted for).
-    char *familyName = new char[str_len];
-    // Now actually convert the string.
-    WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1, familyName, str_len,
-                          NULL, NULL);
-    info->fFontName.set(familyName);
-    delete [] familyName;
-#else
-    info->fFontName.set(lf.lfFaceName);
-#endif
+    logfont_to_name(lf, &info->fFontName);
 
     if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
@@ -1399,27 +1456,6 @@ static HANDLE activate_font(SkData* fontData) {
     }
 
     return fontHandle;
-}
-
-static void logfont_for_name(const char* familyName, LOGFONT& lf) {
-        memset(&lf, 0, sizeof(LOGFONT));
-#ifdef UNICODE
-        // Get the buffer size needed first.
-        size_t str_len = ::MultiByteToWideChar(CP_UTF8, 0, familyName,
-                                                -1, NULL, 0);
-        // Allocate a buffer (str_len already has terminating null
-        // accounted for).
-        wchar_t *wideFamilyName = new wchar_t[str_len];
-        // Now actually convert the string.
-        ::MultiByteToWideChar(CP_UTF8, 0, familyName, -1,
-                                wideFamilyName, str_len);
-        ::wcsncpy(lf.lfFaceName, wideFamilyName, LF_FACESIZE);
-        delete [] wideFamilyName;
-        lf.lfFaceName[LF_FACESIZE-1] = L'\0';
-#else
-        ::strncpy(lf.lfFaceName, familyName, LF_FACESIZE);
-        lf.lfFaceName[LF_FACESIZE-1] = '\0';
-#endif
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
