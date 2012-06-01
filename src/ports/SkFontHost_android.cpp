@@ -139,6 +139,27 @@ static FamilyRec* find_family(const SkTypeface* member) {
     return NULL;
 }
 
+//  gFamilyHeadAndNameListMutex must already be acquired
+static const char* find_family_name(const SkTypeface* member) {
+    FamilyRec* family = find_family(member);
+    if (NULL == family) {
+        return NULL;
+    }
+
+    NameFamilyPairList& namelist = GetNameList();
+    NameFamilyPair* list = namelist.begin();
+    int             count = namelist.count();
+
+    for (int i = 0; i < count; i++) {
+        NameFamilyPair* pair = &list[i];
+        if (pair->fFamily == family) {
+            return pair->fName;
+        }
+    }
+
+    return NULL;
+}
+
 /*  Returns the matching typeface, or NULL. If a typeface is found, its refcnt
     is not modified.
  */
@@ -699,9 +720,12 @@ static void load_system_fonts() {
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
 
     SkFontDescriptor descriptor;
-    //descriptor.setFontFamilyName();
-    descriptor.setFontStyle(face->style());
-    descriptor.setFontFileName(((FamilyTypeface*)face)->getUniqueString());
+    {
+        SkAutoMutexAcquire ac(gFamilyHeadAndNameListMutex);
+        descriptor.setFamilyName(find_family_name(face));
+        descriptor.setStyle(face->style());
+        descriptor.setFontFileName(((FamilyTypeface*)face)->getUniqueString());
+    }
 
     descriptor.serialize(stream);
 
@@ -727,9 +751,9 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     }
 
     SkFontDescriptor descriptor(stream);
-    const char* familyName = descriptor.getFontFamilyName();
+    const char* familyName = descriptor.getFamilyName();
     const char* fontFileName = descriptor.getFontFileName();
-    const SkTypeface::Style style = descriptor.getFontStyle();
+    const SkTypeface::Style style = descriptor.getStyle();
 
     const uint32_t customFontDataLength = stream->readPackedUInt();
     if (customFontDataLength > 0) {
