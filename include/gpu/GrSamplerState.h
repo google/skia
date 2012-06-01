@@ -115,7 +115,7 @@ public:
     }
     bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
 
-    GrSamplerState& operator =(const GrSamplerState s) {
+    GrSamplerState& operator =(const GrSamplerState& s) {
         // memcpy() breaks refcounting
         fWrapX = s.fWrapX;
         fWrapY = s.fWrapY;
