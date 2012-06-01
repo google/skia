@@ -1858,10 +1858,19 @@ void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
     desc.setPostscriptName(get_str(CTFontCopyPostScriptName(ctFont), &tmpStr));
 
     desc.serialize(stream);
+    
+    // by convention, we also write out the actual sfnt data, preceeded by
+    // a packed-length. For now we skip that, so we just write the zero.
+    stream->writePackedUInt(0);
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     SkFontDescriptor desc(stream);
+
+    // by convention, Serialize will have also written the actual sfnt data.
+    // for now, we just want to skip it.
+    size_t size = stream->readPackedUInt();
+    stream->skip(size);
 
     return SkFontHost::CreateTypeface(NULL, desc.getFamilyName(),
                                       desc.getStyle());
