@@ -330,9 +330,6 @@ private:
     GrColor                     fHWConstAttribColor;
     GrColor                     fHWConstAttribCoverage;
     GrGLProgram                 fCurrentProgram;
-    // If we get rid of fixed function subclass this should move
-    // to the GLCaps struct in parent class
-    GrGLint                     fMaxVertexAttribs;
 
     int fActiveTextureUnitIdx;
 

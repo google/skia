@@ -22,6 +22,7 @@ void GrGLCaps::reset() {
     fMaxSampleCount = 0;
     fCoverageAAType = kNone_CoverageAAType;
     fMaxFragmentUniformVectors = 0;
+    fMaxVertexAttributes = 0;
     fRGBA8RenderbufferSupport = false;
     fBGRAFormatSupport = false;
     fBGRAIsInternalFormat = false;
@@ -44,6 +45,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fStencilFormats = caps.fStencilFormats;
     fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
+    fMaxVertexAttributes = caps.fMaxVertexAttributes;
     fMSFBOType = caps.fMSFBOType;
     fMaxSampleCount = caps.fMaxSampleCount;
     fCoverageAAType = caps.fCoverageAAType;
@@ -83,6 +85,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
         fMaxFragmentUniformVectors = max / 4;
     }
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
 
     if (kDesktop_GrGLBinding == binding) {
         fRGBA8RenderbufferSupport = true;
