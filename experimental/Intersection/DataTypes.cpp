@@ -53,8 +53,7 @@ double t_at(const _Line& line, const _Point& pt) {
     return (pt.y - line[0].y) / dy;
 }
 
-static void setMinMax(double x, double y1, double y2, int flags,
-        double& minX, double& maxX) {
+static void setMinMax(double x, int flags, double& minX, double& maxX) {
     if (minX > x && (flags & (kFindTopMin | kFindBottomMin))) {
         minX = x;
     }
@@ -81,13 +80,13 @@ void x_at(const _Point& p1, const _Point& p2, double top, double bottom,
     if (topFlags && (top <= p1.y && top >= p2.y
             || top >= p1.y && top <= p2.y)) {
         double x = p1.x + (top - p1.y) * slope;
-        setMinMax(x, p1.y, p2.y, topFlags, minX, maxX);
+        setMinMax(x, topFlags, minX, maxX);
     }
     int bottomFlags = flags & (kFindBottomMin | kFindBottomMax);
     if (bottomFlags && (bottom <= p1.y && bottom >= p2.y
             || bottom >= p1.y && bottom <= p2.y)) {
         double x = p1.x + (bottom - p1.y) * slope;
-        setMinMax(x, p1.y, p2.y, bottomFlags, minX, maxX);
+        setMinMax(x, bottomFlags, minX, maxX);
     }
 }
 

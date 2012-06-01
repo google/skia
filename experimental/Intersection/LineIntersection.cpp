@@ -1,4 +1,4 @@
-#include "DataTypes.h"
+#include "CurveIntersection.h"
 #include "Intersections.h"
 #include "LineIntersection.h"
 #include <algorithm> // used for std::swap
@@ -170,7 +170,7 @@ int horizontalIntersect(const _Line& line, double left, double right,
     return result;
 }
 
-int verticalIntersect(const _Line& line, double x, double tRange[2]) {
+static int verticalIntersect(const _Line& line, double x, double tRange[2]) {
     double min = line[0].x;
     double max = line[1].x;
     if (min > max) {

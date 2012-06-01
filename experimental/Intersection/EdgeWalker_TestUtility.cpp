@@ -10,7 +10,7 @@
 
 static bool gShowPath = false;
 static bool gComparePaths = true;
-static bool gDrawLastAsciiPaths = true;
+//static bool gDrawLastAsciiPaths = true;
 static bool gDrawAllAsciiPaths = false;
 static bool gShowAsciiPaths = false;
 static bool gComparePathsAssert = true;
@@ -92,9 +92,6 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     return errors;
 }
 
-void bitmapInit(SkBitmap& bits) {
-}
-
 bool drawAsciiPaths(const SkPath& one, const SkPath& two,
         bool drawPaths) {
     if (!drawPaths) {
@@ -149,7 +146,8 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two,
 }
 
 static int scaledDrawTheSame(const SkPath& one, const SkPath& two,
-        int a, int b, bool drawPaths, SkBitmap& bitmap, SkCanvas* canvas) {
+        SkScalar a, SkScalar b, bool drawPaths, SkBitmap& bitmap,
+        SkCanvas* canvas) {
     SkMatrix scale;
     scale.reset();
     float aScale = 1.21f;

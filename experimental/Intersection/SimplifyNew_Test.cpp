@@ -104,7 +104,7 @@ static void (*tests[])() = {
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
-static void (*firstTest)() = testLine5;
+static void (*firstTest)() = 0;
 static bool skipAll = false;
 
 void SimplifyNew_Test() {
@@ -119,6 +119,7 @@ void SimplifyNew_Test() {
     }
     bool firstTestComplete = false;
     for ( ; index < testCount; ++index) {
+        SkDebugf("%s [%d]\n", __FUNCTION__, index + 1);
         (*tests[index])();
         firstTestComplete = true;
     }

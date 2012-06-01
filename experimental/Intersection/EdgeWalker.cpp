@@ -899,7 +899,7 @@ struct InEdge {
         InEdge* edge = edges.push_back_n(1);
         int verbCount = verbEnd - verbStart;
         edge->fIntercepts.push_back_n(verbCount);
-        uint8_t* verbs = &fVerbs[verbStart];
+     //   uint8_t* verbs = &fVerbs[verbStart];
         for (int ceptIdx = 0; ceptIdx < verbCount; ++ceptIdx) {
             edge->fIntercepts[ceptIdx] = fIntercepts[verbStart + ceptIdx];
         }
@@ -1052,7 +1052,7 @@ struct InEdge {
             if (!tCount) {
                 continue;
             }
-            size_t tIndex = -1;
+            size_t tIndex = (size_t) -1;
             SkScalar y = pts[0].fY;
             int lastSplit = 0;
             int firstSplit = -1;
@@ -1692,7 +1692,7 @@ public:
         return false;
     }
     
-    bool swapUnordered(const ActiveEdge* edge, SkScalar bottom) const {
+    bool swapUnordered(const ActiveEdge* edge, SkScalar /* bottom */) const {
         SkASSERT(fVerb != SkPath::kLine_Verb
                 || edge->fVerb != SkPath::kLine_Verb);
         if (fDone || edge->fDone) {
@@ -1924,9 +1924,9 @@ static void addBottomT(InEdge** currentPtr, InEdge** lastPtr,
     }
 }
 
+#if DEBUG_ADD_INTERSECTING_TS
 static void debugShowLineIntersection(int pts, const WorkEdge& wt,
         const WorkEdge& wn, const double wtTs[2], const double wnTs[2]) {
-#if DEBUG_ADD_INTERSECTING_TS
     if (!pts) {
         return;
     }
@@ -1947,8 +1947,12 @@ static void debugShowLineIntersection(int pts, const WorkEdge& wt,
     if (pts == 2) {
         SkDebugf("%s wnTs[1]=%g\n", __FUNCTION__, wnTs[1]);
     }
-#endif
 }
+#else
+static void debugShowLineIntersection(int , const WorkEdge& ,
+        const WorkEdge& , const double [2], const double [2]) {
+}
+#endif
 
 static void addIntersectingTs(InEdge** currentPtr, InEdge** lastPtr) {
     InEdge** testPtr = currentPtr - 1;
@@ -2140,7 +2144,7 @@ static SkScalar computeInterceptBottom(SkTDArray<ActiveEdge>& activeEdges,
 
 static SkScalar findBottom(InEdge** currentPtr, 
         InEdge** edgeListEnd, SkTDArray<ActiveEdge>* activeEdges, SkScalar y,
-        bool asFill, InEdge**& testPtr) {
+        bool /*asFill*/, InEdge**& testPtr) {
     InEdge* current = *currentPtr;
     SkScalar bottom = current->fBounds.fBottom;
 
@@ -2445,13 +2449,17 @@ static SkScalar adjustCoincident(SkTDArray<ActiveEdge*>& edgeList,
 }
 
 // stitch edge and t range that satisfies operation
-static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
+static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar 
+#if DEBUG_STITCH_EDGE
+y
+#endif
+,
         SkScalar bottom, int windingMask, bool fill, OutEdgeBuilder& outBuilder) {
     int winding = 0;
     ActiveEdge** activeHandle = edgeList.begin() - 1;
     ActiveEdge** lastActive = edgeList.end();
-    const int tab = 7; // FIXME: debugging only
 #if DEBUG_STITCH_EDGE
+    const int tab = 7; // FIXME: debugging only
     SkDebugf("%s y=%1.9g bottom=%1.9g\n", __FUNCTION__, y, bottom);
 #endif
     while (++activeHandle != lastActive) {
@@ -2588,15 +2596,19 @@ static void stitchEdge(SkTDArray<ActiveEdge*>& edgeList, SkScalar y,
     }
 }
 
+#if DEBUG_DUMP
 static void dumpEdgeList(const SkTDArray<InEdge*>& edgeList,
         const InEdge& edgeSentinel) {
-#if DEBUG_DUMP
     InEdge** debugPtr = edgeList.begin();
     do {
         (*debugPtr++)->dump();
     } while (*debugPtr != &edgeSentinel);
-#endif
 }
+#else
+static void dumpEdgeList(const SkTDArray<InEdge*>& ,
+        const InEdge& ) {
+}
+#endif
 
 void simplify(const SkPath& path, bool asFill, SkPath& simple) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness

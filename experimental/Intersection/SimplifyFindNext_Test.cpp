@@ -29,13 +29,11 @@ static const SimplifyFindNextTest::Segment* testCommon(
     fixOtherTIndex(contourList);
     SimplifyFindNextTest::Segment& segment = contours[0].fSegments[0];
     SkPoint pts[2];
-    double startT = segment.t(endIndex);
-    segment.xyAtT(startT, &pts[0]);
+    pts[0] = segment.xyAtT(&segment.span(endIndex));
     int nextStart, nextEnd;
     SimplifyFindNextTest::Segment* next = segment.findNext(winding,
             startIndex, endIndex, nextStart, nextEnd);
-    double endT = next->t(nextStart);
-    next->xyAtT(endT, &pts[1]);
+    pts[1] = next->xyAtT(&segment.span(nextStart));
     SkASSERT(pts[0] == pts[1]);
     return next;
 }

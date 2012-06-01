@@ -19,7 +19,7 @@ static void oneOffTest() {
     bezier_clip(quad1, quad2, minT, maxT);
 }
 
-void standardTestCases() {
+static void standardTestCases() {
     for (size_t index = 0; index < quadraticTests_count; ++index) {
         const Quadratic& quad1 = quadraticTests[index][0];
         const Quadratic& quad2 = quadraticTests[index][1];
