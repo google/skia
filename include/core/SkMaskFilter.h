@@ -61,7 +61,7 @@ public:
         kNormal_BlurType,  //!< fuzzy inside and outside
         kSolid_BlurType,   //!< solid inside, fuzzy outside
         kOuter_BlurType,   //!< nothing inside, fuzzy outside
-        kInner_BlurType,   //!< fuzzy inside, nothing outside
+        kInner_BlurType    //!< fuzzy inside, nothing outside
     };
 
     struct BlurInfo {

@@ -1720,7 +1720,7 @@ const SkMatrix& SkMatrix::I() {
         gOnce = true;
     }
     return gIdentity;
-};
+}
 
 const SkMatrix& SkMatrix::InvalidMatrix() {
     static SkMatrix gInvalid;

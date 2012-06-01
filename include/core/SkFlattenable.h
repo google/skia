@@ -272,7 +272,7 @@ public:
          *  Instructs the writer to inline Factory names as there are seen the
          *  first time (after that we store an index). The pipe code uses this.
          */
-        kInlineFactoryNames_Flag = 0x02,
+        kInlineFactoryNames_Flag = 0x02
     };
     Flags getFlags() const { return (Flags)fFlags; }
     void setFlags(Flags flags) { fFlags = flags; }

@@ -183,11 +183,11 @@ public:
         kGenA8FromLCD_Flag        = 0x0800,
 
 #ifdef SK_USE_COLOR_LUMINANCE
-        kLuminance_Bits           = 3,
+        kLuminance_Bits           = 3
 #else
         // luminance : 0 for black text, kLuminance_Max for white text
         kLuminance_Shift          = 13, // shift to land in the high 3-bits of Flags
-        kLuminance_Bits           = 3,  // ensure Flags doesn't exceed 16bits
+        kLuminance_Bits           = 3  // ensure Flags doesn't exceed 16bits
 #endif
     };
     
@@ -197,7 +197,7 @@ public:
 #ifdef SK_USE_COLOR_LUMINANCE
 #else
         kLuminance_Max  = (1 << kLuminance_Bits) - 1,
-        kLuminance_Mask = kLuminance_Max << kLuminance_Shift,
+        kLuminance_Mask = kLuminance_Max << kLuminance_Shift
 #endif
     };
 

@@ -42,7 +42,7 @@ public:
 
     enum Flags32 {
         kGlobalAlpha_Flag32     = 1 << 0,
-        kSrcPixelAlpha_Flag32   = 1 << 1,
+        kSrcPixelAlpha_Flag32   = 1 << 1
     };
 
     /** Function pointer that blends 32bit colors onto a 32bit destination.

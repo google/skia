@@ -41,7 +41,7 @@ public:
          *  - Flags and Color are always computed using the LayerInfo's
          *    fFlagsMask and fColorMode.
          */
-        kEntirePaint_Bits = -1,
+        kEntirePaint_Bits = -1
         
     };
     typedef int32_t BitFlags;

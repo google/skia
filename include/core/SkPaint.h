@@ -76,7 +76,7 @@ public:
         kNo_Hinting            = 0,
         kSlight_Hinting        = 1,
         kNormal_Hinting        = 2,     //!< this is the default
-        kFull_Hinting          = 3,
+        kFull_Hinting          = 3
     };
 
     Hinting getHinting() const {
@@ -289,7 +289,7 @@ public:
         kStroke_Style,          //!< stroke the geometry
         kStrokeAndFill_Style,   //!< fill and stroke the geometry
 
-        kStyleCount,
+        kStyleCount
     };
 
     /** Return the paint's style, used for controlling how primitives'

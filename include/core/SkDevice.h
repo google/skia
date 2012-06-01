@@ -139,7 +139,7 @@ public:
 protected:
     enum Usage {
        kGeneral_Usage,
-       kSaveLayer_Usage, // <! internal use only
+       kSaveLayer_Usage  // <! internal use only
     };
 
     struct TextFlags {
