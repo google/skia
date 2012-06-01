@@ -207,7 +207,8 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
 
     this->initCaps();
 
-    this->createProgramCache();
+    fProgramData = NULL;
+    fProgramCache = new ProgramCache(this->glContextInfo());
 
 #if 0
     this->programUnitTest();
@@ -225,7 +226,9 @@ GrGpuGL::~GrGpuGL() {
         GL_CALL(UseProgram(0));
     }
 
-    this->deleteProgramCache();
+    delete fProgramCache;
+    fProgramCache = NULL;
+    fProgramData = NULL;
 
     // This must be called by before the GrDrawTarget destructor
     this->releaseGeometry();

@@ -10,6 +10,7 @@
 #ifndef GrGpuGL_DEFINED
 #define GrGpuGL_DEFINED
 
+#include "GrBinHashKey.h"
 #include "GrDrawState.h"
 #include "GrGpu.h"
 #include "GrGLContextInfo.h"
@@ -19,6 +20,7 @@
 #include "GrGLStencilBuffer.h"
 #include "GrGLTexture.h"
 #include "GrGLVertexBuffer.h"
+#include "../GrTHashCache.h"
 
 class GrGpuGL : public GrGpu {
 public:
@@ -211,16 +213,52 @@ protected:
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
 private:
-
     // for readability of function impls
     typedef GrGLProgram::ProgramDesc ProgramDesc;
     typedef ProgramDesc::StageDesc   StageDesc;
     typedef GrGLProgram::CachedData  CachedData;
 
-    class ProgramCache;
+    class ProgramCache : public ::GrNoncopyable {
+    public:
+        ProgramCache(const GrGLContextInfo& gl);
+        ~ProgramCache();
 
-    void createProgramCache();
-    void deleteProgramCache();
+        void abandon();
+        void invalidateViewMatrices();
+        CachedData* getProgramData(const GrGLProgram& desc,
+                                   GrCustomStage** stages);
+    private:
+        enum {
+            kKeySize = GrGLProgram::kProgramKeySize,
+            // We may actually have kMaxEntries+1 shaders in the GL context
+            // because we create a new shader before evicting from the cache.
+            kMaxEntries = 32
+        };
+
+        class Entry;
+        typedef GrBinHashKey<Entry, kKeySize> ProgramHashKey;
+
+        class Entry : public ::GrNoncopyable {
+        public:
+            Entry() {}
+            void copyAndTakeOwnership(Entry& entry);
+            int compare(const ProgramHashKey& key) const {
+                return fKey.compare(key);
+            }
+
+        public:
+            CachedData      fProgramData;
+            ProgramHashKey  fKey;
+            unsigned int    fLRUStamp;
+        };
+
+        GrTHashTable<Entry, ProgramHashKey, 8> fHashCache;
+
+        Entry                       fEntries[kMaxEntries];
+        int                         fCount;
+        unsigned int                fCurrLRUStamp;
+        const GrGLContextInfo&      fGL;
+    };
 
     // sets the texture matrix uniform for currently bound program
     void flushTextureMatrix(int stage);
