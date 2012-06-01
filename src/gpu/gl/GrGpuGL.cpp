@@ -174,10 +174,6 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
     fProgramData = NULL;
     fProgramCache = new ProgramCache(this->glContextInfo());
 
-#if 0
-    this->programUnitTest();
-#endif
-
     fLastSuccessfulStencilFmtIdx = 0;
     fCanPreserveUnpremulRoundtrip = kUnknown_CanPreserveUnpremulRoundtrip;
 }

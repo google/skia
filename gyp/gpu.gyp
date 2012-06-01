@@ -317,6 +317,7 @@
         '../src/gpu/gl/GrGpuGL.cpp',
         '../src/gpu/gl/GrGpuGL.h',
         '../src/gpu/gl/GrGpuGL_program.cpp',
+        '../src/gpu/gl/GrGpuGL_unittest.cpp',
 
         '../src/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
         '../src/gpu/gl/debug/GrFakeRefObj.h',
