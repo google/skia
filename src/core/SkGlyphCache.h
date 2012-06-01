@@ -123,6 +123,8 @@ public:
     //  call the proc)
     void removeAuxProc(void (*auxProc)(void*));
 
+    SkScalerContext* getScalerContext() const { return fScalerContext; }
+
     /** Call proc on all cache entries, stopping early if proc returns true.
         The proc should not create or delete caches, since it could produce
         deadlock.
