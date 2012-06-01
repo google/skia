@@ -562,17 +562,19 @@ private:
 public:
 
     static void TestPictureSerializationRoundTrip(skiatest::Reporter* reporter, 
-                                                  CanvasTestStep* testStep) {
+                                                  CanvasTestStep* testStep,
+                                                  uint32_t recordFlags) {
         testStep->setAssertMessageFormat(kPictureDrawAssertMessageFormat);
         SkPicture referencePicture;
-        testStep->draw(referencePicture.beginRecording(kWidth, kHeight),
-            reporter);
+        testStep->draw(referencePicture.beginRecording(kWidth, kHeight, 
+            recordFlags), reporter);
         SkPicture initialPicture;
-        testStep->draw(initialPicture.beginRecording(kWidth, kHeight),
-            reporter);
+        testStep->draw(initialPicture.beginRecording(kWidth, kHeight, 
+            recordFlags), reporter);
         testStep->setAssertMessageFormat(kPictureReDrawAssertMessageFormat);
         SkPicture roundTripPicture;
-        initialPicture.draw(roundTripPicture.beginRecording(kWidth, kHeight));
+        initialPicture.draw(roundTripPicture.beginRecording(kWidth, kHeight,
+            recordFlags));
 
         SkPictureRecord* referenceRecord = static_cast<SkPictureRecord*>(
             referencePicture.getRecordingCanvas());
@@ -618,17 +620,18 @@ public:
     }
 
     static void TestPictureFlattenedObjectReuse(skiatest::Reporter* reporter, 
-                                         CanvasTestStep* testStep) {
+                                                CanvasTestStep* testStep,
+                                                uint32_t recordFlags) {
         // Verify that when a test step is executed twice, no extra resources
         // are flattened during the second execution
         testStep->setAssertMessageFormat(kPictureDrawAssertMessageFormat);
         SkPicture referencePicture;
         SkCanvas* referenceCanvas = referencePicture.beginRecording(kWidth,
-            kHeight);
+            kHeight, recordFlags);
         testStep->draw(referenceCanvas, reporter);
         SkPicture testPicture;
         SkCanvas* testCanvas = testPicture.beginRecording(kWidth,
-            kHeight);
+            kHeight, recordFlags);
         testStep->draw(testCanvas, reporter);
         testStep->setAssertMessageFormat(kPictureSecondDrawAssertMessageFormat);
         testStep->draw(testCanvas, reporter);
@@ -645,11 +648,13 @@ public:
 
 static void TestPictureStateConsistency(skiatest::Reporter* reporter, 
                                         CanvasTestStep* testStep,
-                                        const SkCanvas& referenceCanvas) {
+                                        const SkCanvas& referenceCanvas,
+                                        uint32_t recordFlags) {
     // Verify that the recording canvas's state is consistent
     // with that of a regular canvas
     SkPicture testPicture;
-    SkCanvas* pictureCanvas = testPicture.beginRecording(kWidth, kHeight);
+    SkCanvas* pictureCanvas = testPicture.beginRecording(kWidth, kHeight,
+        recordFlags);
     testStep->setAssertMessageFormat(kPictureDrawAssertMessageFormat);
     testStep->draw(pictureCanvas, reporter);
     testStep->setAssertMessageFormat(kPictureRecoringAssertMessageFormat);
@@ -668,7 +673,8 @@ static void TestPictureStateConsistency(skiatest::Reporter* reporter,
     // The following test code is commented out because SkPicture is not
     // currently expected to preserve state when restarting recording.
     /*
-    SkCanvas* pictureCanvas = testPicture.beginRecording(kWidth, kHeight);
+    SkCanvas* pictureCanvas = testPicture.beginRecording(kWidth, kHeight,
+        recordFlags);
     testStep->setAssertMessageFormat(kPictureResumeAssertMessageFormat);
     AssertCanvasStatesEqual(reporter, pictureCanvas, &referenceCanvas,
         testStep);
@@ -775,7 +781,9 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, reporter);
 
-    TestPictureStateConsistency(reporter, testStep, referenceCanvas);
+    TestPictureStateConsistency(reporter, testStep, referenceCanvas, 0);
+    TestPictureStateConsistency(reporter, testStep, referenceCanvas, 
+        SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
     TestDeferredCanvasStateConsistency(reporter, testStep, referenceCanvas);
 
     // The following test code is commented out because SkProxyCanvas is
@@ -800,9 +808,15 @@ static void TestCanvas(skiatest::Reporter* reporter) {
     for (int testStep = 0; testStep < testStepArray().count(); testStep++) {
         TestOverrideStateConsistency(reporter, testStepArray()[testStep]);
         SkPictureTester::TestPictureSerializationRoundTrip(reporter, 
-            testStepArray()[testStep]);
+            testStepArray()[testStep], 0);
+        SkPictureTester::TestPictureSerializationRoundTrip(reporter, 
+            testStepArray()[testStep], 
+            SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
         SkPictureTester::TestPictureFlattenedObjectReuse(reporter,
-            testStepArray()[testStep]);
+            testStepArray()[testStep], 0);
+        SkPictureTester::TestPictureFlattenedObjectReuse(reporter,
+            testStepArray()[testStep],
+            SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
     }
 }
 

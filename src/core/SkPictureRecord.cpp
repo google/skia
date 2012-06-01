@@ -7,6 +7,7 @@
  */
 #include "SkPictureRecord.h"
 #include "SkTSearch.h"
+#include "SkPixelRef.h"
 
 #define MIN_WRITER_SIZE 16384
 #define HEAP_BLOCK_SIZE 4096
@@ -495,6 +496,7 @@ void SkPictureRecord::reset() {
     fPathHeap = NULL;
 
     fBitmaps.reset();
+    fPixelRefDictionary.reset();
     fMatrices.reset();
     fPaints.reset();
     fPictureRefs.unrefAll();
@@ -510,7 +512,7 @@ void SkPictureRecord::reset() {
 }
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
-    addInt(fBitmaps.find(&bitmap, &fRCSet));
+    addInt(find(bitmap));
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -610,6 +612,42 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkPictureRecord::shouldFlattenPixels(const SkBitmap& bitmap) const {
+    return (fRecordFlags &
+        SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag)
+        && !bitmap.isImmutable() && bitmap.pixelRef()
+        && NULL == bitmap.getTexture();
+}
+
+int SkPictureRecord::find(const SkBitmap& bitmap) {
+    int dictionaryIndex = 0;
+    PixelRefDictionaryEntry entry;
+    bool flattenPixels = shouldFlattenPixels(bitmap);
+    if (flattenPixels) {
+        // Flattened bitmap may be very large. First attempt a fast lookup
+        // based on generation ID to avoid unnecessary flattening in
+        // fBitmaps.find()
+        entry.fKey = bitmap.pixelRef()->getGenerationID();
+        dictionaryIndex = 
+            SkTSearch<const PixelRefDictionaryEntry>(fPixelRefDictionary.begin(),
+            fPixelRefDictionary.count(), entry, sizeof(entry));
+        if (dictionaryIndex >= 0) {
+            return fPixelRefDictionary[dictionaryIndex].fIndex;
+        }
+    }
+    
+    uint32_t writeFlags = flattenPixels ?
+        SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag : 0;
+    int index = fBitmaps.find(&bitmap, &fRCSet, NULL, writeFlags);
+
+    if (flattenPixels) {
+        entry.fIndex = index;
+        dictionaryIndex = ~dictionaryIndex;
+        *fPixelRefDictionary.insert(dictionaryIndex) = entry;
+    }
+    return index;
+}
 
 #ifdef SK_DEBUG_SIZE
 size_t SkPictureRecord::size() const {

@@ -168,7 +168,8 @@ public:
     static SkFlatData* Create(SkChunkAlloc* heap, const void* obj, int index,
                               void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
                               SkRefCntSet* refCntRecorder = NULL,
-                              SkRefCntSet* faceRecorder = NULL);
+                              SkRefCntSet* faceRecorder = NULL,
+                              uint32_t writeBufferflags = 0);
     void unflatten(void* result,
                    void (*unflattenProc)(SkOrderedReadBuffer&, void*),
                    SkRefCntPlayback* refCntPlayback = NULL,
@@ -208,11 +209,11 @@ public:
      * the element wasn't previously in the dictionary it is automatically added
      */
     int find(const T* element, SkRefCntSet* refCntRecorder = NULL,
-             SkRefCntSet* faceRecorder = NULL) {
+             SkRefCntSet* faceRecorder = NULL, uint32_t writeBufferflags = 0) {
         if (element == NULL)
             return 0;
         SkFlatData* flat = SkFlatData::Create(fHeap, element, fNextIndex,
-                fFlattenProc, refCntRecorder, faceRecorder);
+                fFlattenProc, refCntRecorder, faceRecorder, writeBufferflags);
         int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
                 fData.count(), flat, sizeof(flat), &SkFlatData::Compare);
         if (index >= 0) {

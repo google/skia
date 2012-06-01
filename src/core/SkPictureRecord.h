@@ -86,12 +86,27 @@ public:
     }
 
     void reset();
+    void setFlags(uint32_t recordFlags) {
+        fRecordFlags = recordFlags;
+    }
 
     const SkWriter32& writeStream() const {
         return fWriter;
     }
 
+    bool shouldFlattenPixels(const SkBitmap&) const;
 private:
+    struct PixelRefDictionaryEntry {
+        uint32_t fKey; // SkPixelRef GenerationID.
+        uint32_t fIndex; // Index of corresponding flattened bitmap in fBitmaps.
+        bool operator < (const PixelRefDictionaryEntry& other) const {
+            return this->fKey < other.fKey;
+        } 
+        bool operator != (const PixelRefDictionaryEntry& other) const {
+            return this->fKey != other.fKey;
+        } 
+    };
+
     SkTDArray<uint32_t> fRestoreOffsetStack;
     int fFirstSavedLayerIndex;
     enum {
@@ -126,6 +141,8 @@ private:
     void addIRectPtr(const SkIRect* rect);
     void addRegion(const SkRegion& region);
     void addText(const void* text, size_t byteLength);
+
+    int find(const SkBitmap& bitmap);
 
 #ifdef SK_DEBUG_DUMP
 public:
@@ -163,6 +180,8 @@ public:
 
 private:
     SkChunkAlloc fHeap;
+
+    SkTDArray<PixelRefDictionaryEntry> fPixelRefDictionary;
     SkBitmapDictionary fBitmaps;
     SkMatrixDictionary fMatrices;
     SkPaintDictionary fPaints;
