@@ -109,7 +109,7 @@ protected:
 
     GrScalar fCachedCenter;
     GrScalar fCachedRadius;
-    SkBool8  fCachedPosRoot;
+    bool     fCachedPosRoot;
 
     // @}
 
