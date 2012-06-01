@@ -6,13 +6,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkGpuDevice.h"
 
+#include "effects/GrGradientEffects.h"
 
 #include "GrContext.h"
 #include "GrDefaultTextContext.h"
 #include "GrTextContext.h"
 
-#include "SkGpuDevice.h"
 #include "SkGrTexturePixelRef.h"
 
 #include "SkColorFilter.h"
@@ -421,14 +422,6 @@ SK_COMPILE_ASSERT(SkShader::kTwoPointRadial_BitmapType == 4,
                   shader_type_mismatch);
 SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 4, shader_type_mismatch);
 
-static const GrSamplerState::SampleMode sk_bmp_type_to_sample_mode[] = {
-    (GrSamplerState::SampleMode) -1,                    // kNone_BitmapType
-    GrSamplerState::kNormal_SampleMode,                 // kDefault_BitmapType
-    GrSamplerState::kRadial_SampleMode,                 // kRadial_BitmapType
-    GrSamplerState::kSweep_SampleMode,                  // kSweep_BitmapType
-    GrSamplerState::kRadial2_SampleMode,                // kTwoPointRadial_BitmapType
-};
-
 namespace {
 
 // converts a SkPaint to a GrPaint, ignoring the skPaint's shader
@@ -524,8 +517,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     SkShader::BitmapType bmptype = shader->asABitmap(&bitmap, matrix,
                                                      tileModes, twoPointParams);
 
-    GrSamplerState::SampleMode sampleMode = sk_bmp_type_to_sample_mode[bmptype];
-    if (-1 == sampleMode) {
+    if (SkShader::kNone_BitmapType == bmptype) {
         SkShader::GradientInfo info;
         SkColor                color;
 
@@ -546,7 +538,21 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return false;
     }
     GrSamplerState* sampler = grPaint->textureSampler(kShaderTextureIdx);
-    sampler->setSampleMode(sampleMode);
+    switch (bmptype) {
+    case SkShader::kRadial_BitmapType: {
+        sampler->setCustomStage(new GrRadialGradient());
+        } break;
+    case SkShader::kSweep_BitmapType: {
+        sampler->setCustomStage(new GrSweepGradient());
+        } break;
+    case SkShader::kTwoPointRadial_BitmapType: {
+        sampler->setCustomStage(new GrRadial2Gradient(twoPointParams[0],
+                                                      twoPointParams[1],
+                                                      twoPointParams[2] < 0));
+        } break;
+    default:
+        break;
+    }
     if (skPaint.isFilterBitmap()) {
         sampler->setFilter(GrSamplerState::kBilinear_Filter);
     } else {
@@ -554,11 +560,6 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
     sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
     sampler->setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
-    if (GrSamplerState::kRadial2_SampleMode == sampleMode) {
-        sampler->setRadial2Params(twoPointParams[0],
-                                  twoPointParams[1],
-                                  twoPointParams[2] < 0);
-    }
 
     GrTexture* texture = act->set(dev, bitmap, sampler);
     if (NULL == texture) {
@@ -1354,7 +1355,6 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
 
     sampler->setWrapX(GrSamplerState::kClamp_WrapMode);
     sampler->setWrapY(GrSamplerState::kClamp_WrapMode);
-    sampler->setSampleMode(GrSamplerState::kNormal_SampleMode);
     sampler->matrix()->reset();
 
     GrTexture* texture;

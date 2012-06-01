@@ -7,6 +7,8 @@
 
 #include "GrGpuGL.h"
 
+#include "effects/GrGradientEffects.h"
+
 #include "GrCustomStage.h"
 #include "GrGLProgramStage.h"
 #include "GrGpuVertex.h"
@@ -148,7 +150,6 @@ void GrGpuGL::flushViewMatrix() {
 // helpers for texture matrices
 
 void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
-                                  GrSamplerState::SampleMode mode,
                                   GrMatrix* matrix) {
     GrAssert(NULL != texture);
     GrAssert(NULL != matrix);
@@ -200,9 +201,7 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
             (orientationChange || !hwMatrix.cheapEqualTo(samplerMatrix))) {
 
             GrMatrix m = samplerMatrix;
-            GrSamplerState::SampleMode mode =
-                drawState.getSampler(s).getSampleMode();
-            AdjustTextureMatrix(texture, mode, &m);
+            AdjustTextureMatrix(texture, &m);
 
             // ES doesn't allow you to pass true to the transpose param,
             // so do our own transpose
@@ -248,40 +247,6 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
             GL_CALL(Uniform4fv(domUni, 1, values));
         }
         fProgramData->fTextureOrientation[s] = texture->orientation();
-    }
-}
-
-void GrGpuGL::flushRadial2(int s) {
-
-    const int &uni = fProgramData->fUniLocations.fStages[s].fRadial2Uni;
-    const GrSamplerState& sampler = this->getDrawState().getSampler(s);
-    if (GrGLProgram::kUnusedUniform != uni &&
-        (fProgramData->fRadial2CenterX1[s] != sampler.getRadial2CenterX1() ||
-         fProgramData->fRadial2Radius0[s]  != sampler.getRadial2Radius0()  ||
-         fProgramData->fRadial2PosRoot[s]  != sampler.isRadial2PosRoot())) {
-
-        GrScalar centerX1 = sampler.getRadial2CenterX1();
-        GrScalar radius0 = sampler.getRadial2Radius0();
-
-        GrScalar a = GrMul(centerX1, centerX1) - GR_Scalar1;
-
-        // when were in the degenerate (linear) case the second
-        // value will be INF but the program doesn't read it. (We
-        // use the same 6 uniforms even though we don't need them
-        // all in the linear case just to keep the code complexity
-        // down).
-        float values[6] = {
-            GrScalarToFloat(a),
-            1 / (2.f * GrScalarToFloat(a)),
-            GrScalarToFloat(centerX1),
-            GrScalarToFloat(radius0),
-            GrScalarToFloat(GrMul(radius0, radius0)),
-            sampler.isRadial2PosRoot() ? 1.f : -1.f
-        };
-        GL_CALL(Uniform1fv(uni, 6, values));
-        fProgramData->fRadial2CenterX1[s] = sampler.getRadial2CenterX1();
-        fProgramData->fRadial2Radius0[s]  = sampler.getRadial2Radius0();
-        fProgramData->fRadial2PosRoot[s]  = sampler.isRadial2PosRoot();
     }
 }
 
@@ -474,8 +439,6 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (this->isStageEnabled(s)) {
             this->flushTextureMatrixAndDomain(s);
-
-            this->flushRadial2(s);
 
             this->flushTexelSize(s);
 
@@ -773,29 +736,6 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
             } else if (!sampler.getMatrix().hasPerspective()) {
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
-            switch (sampler.getSampleMode()) {
-                case GrSamplerState::kNormal_SampleMode:
-                    stage.fCoordMapping = StageDesc::kIdentity_CoordMapping;
-                    break;
-                case GrSamplerState::kRadial_SampleMode:
-                    stage.fCoordMapping = StageDesc::kRadialGradient_CoordMapping;
-                    break;
-                case GrSamplerState::kRadial2_SampleMode:
-                    if (sampler.radial2IsDegenerate()) {
-                        stage.fCoordMapping =
-                            StageDesc::kRadial2GradientDegenerate_CoordMapping;
-                    } else {
-                        stage.fCoordMapping =
-                            StageDesc::kRadial2Gradient_CoordMapping;
-                    }
-                    break;
-                case GrSamplerState::kSweep_SampleMode:
-                    stage.fCoordMapping = StageDesc::kSweepGradient_CoordMapping;
-                    break;
-                default:
-                    GrCrash("Unexpected sample mode!");
-                    break;
-            }
 
             switch (sampler.getFilter()) {
                 // these both can use a regular texture2D()
@@ -858,7 +798,6 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
 
         } else {
             stage.fOptFlags         = 0;
-            stage.fCoordMapping     = (StageDesc::CoordMapping) 0;
             stage.fInConfigFlags    = 0;
             stage.fFetchMode        = (StageDesc::FetchMode) 0;
             stage.fCustomStageKey   = 0;

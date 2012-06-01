@@ -1,6 +1,7 @@
 #include "GrGpuGL.h"
 
 #include "effects/GrConvolutionEffect.h"
+#include "effects/GrGradientEffects.h"
 #include "effects/GrMorphologyEffect.h"
 #include "GrProgramStageFactory.h"
 #include "GrRandom.h"
@@ -32,6 +33,9 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         kConvolution_EffectType,
         kErode_EffectType,
         kDilate_EffectType,
+        kRadialGradient_EffectType,
+        kRadial2Gradient_EffectType,
+        kSweepGradient_EffectType,
 
         kEffectCount
     };
@@ -85,6 +89,21 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
                                           kernelRadius,
                                           GrContext::kDilate_MorphologyType);
             }
+        case kRadialGradient_EffectType: {
+            return new GrRadialGradient();
+            }
+        case kRadial2Gradient_EffectType: {
+            float center;
+            do {
+                center = random->nextF();
+            } while (GR_Scalar1 == center);
+            float radius = random->nextF();
+            bool root = random_bool(random);
+            return new GrRadial2Gradient(center, radius, root);
+            }
+        case kSweepGradient_EffectType: {
+            return new GrSweepGradient();
+            }
         default:
             GrCrash("Unexpected custom effect type");
     }
@@ -99,7 +118,6 @@ bool GrGpuGL::programUnitTest() {
     static const int STAGE_OPTS[] = {
         0,
         StageDesc::kNoPerspective_OptFlagBit,
-        StageDesc::kIdentity_CoordMapping
     };
     static const int IN_CONFIG_FLAGS[] = {
         StageDesc::kNone_InConfigFlag,
@@ -187,7 +205,6 @@ bool GrGpuGL::programUnitTest() {
 
             stage.fOptFlags = STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
             stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
-            stage.fCoordMapping =  random_int(&random, StageDesc::kCoordMappingCnt);
             stage.fFetchMode = random_int(&random, StageDesc::kFetchModeCnt);
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
             static const uint32_t kMulByAlphaMask =
