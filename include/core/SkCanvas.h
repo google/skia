@@ -148,7 +148,7 @@ public:
          * low byte to high byte: R, G, B, A.
          */
         kRGBA_Premul_Config8888,
-        kRGBA_Unpremul_Config8888,
+        kRGBA_Unpremul_Config8888
     };
 
     /**

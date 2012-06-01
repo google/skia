@@ -438,7 +438,7 @@ public:
          *  current block is dynamically allocated, just return the old
          *  block.
          */
-        kReuse_OnShrink,
+        kReuse_OnShrink
     };
 
     /**

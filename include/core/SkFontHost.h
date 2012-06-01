@@ -245,7 +245,7 @@ public:
     */
     enum LCDOrientation {
         kHorizontal_LCDOrientation = 0,    //!< this is the default
-        kVertical_LCDOrientation   = 1,
+        kVertical_LCDOrientation   = 1
     };
 
     static void SetSubpixelOrientation(LCDOrientation orientation);
@@ -264,7 +264,7 @@ public:
     enum LCDOrder {
         kRGB_LCDOrder = 0,    //!< this is the default
         kBGR_LCDOrder = 1,
-        kNONE_LCDOrder = 2,
+        kNONE_LCDOrder = 2
     };
 
     static void SetSubpixelOrder(LCDOrder order);
