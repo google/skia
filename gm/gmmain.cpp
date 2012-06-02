@@ -615,6 +615,23 @@ static ErrorBitfield test_picture_serialization(GM* gm,
     }
 }
 
+static void write_picture_serialization(GM* gm, const ConfigData& rec,
+                                        const char writePicturePath[]) {
+    // only do this once, so we pick raster
+    if (kRaster_Backend == rec.fBackend &&
+        SkBitmap::kARGB_8888_Config == rec.fConfig) {
+
+        SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
+        
+        const char* pictureSuffix = "skp";
+        SkString path = make_filename(writePicturePath, "",
+                                      SkString(gm->shortName()), pictureSuffix);
+        
+        SkFILEWStream stream(path.c_str());
+        pict->serialize(&stream);
+    }
+}
+
 static void usage(const char * argv0) {
     SkDebugf(
         "%s [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n"
@@ -729,6 +746,7 @@ int main(int argc, char * const argv[]) {
     setSystemPreferences();
 
     const char* writePath = NULL;   // if non-null, where we write the originals
+    const char* writePicturePath = NULL;    // if non-null, where we write serialized pictures
     const char* readPath = NULL;    // if non-null, were we read from to compare
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
     const char* resourcePath = NULL;// if non-null, where we read from for image resources
@@ -751,6 +769,11 @@ int main(int argc, char * const argv[]) {
             argv++;
             if (argv < stop && **argv) {
                 writePath = *argv;
+            }
+        } else if (strcmp(*argv, "-wp") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                writePicturePath = *argv;
             }
         } else if (strcmp(*argv, "-r") == 0) {
             argv++;
@@ -809,7 +832,9 @@ int main(int argc, char * const argv[]) {
     if (writePath) {
         fprintf(stderr, "writing to %s\n", writePath);
     }
-
+    if (writePicturePath) {
+        fprintf(stderr, "writing pictures to %s\n", writePicturePath);
+    }
     if (resourcePath) {
         fprintf(stderr, "reading resources from %s\n", resourcePath);
     }
@@ -911,6 +936,10 @@ int main(int argc, char * const argv[]) {
                 testErrors |= test_picture_serialization(gm, gRec[i],
                                                          forwardRenderedBitmap,
                                                          readPath, diffPath);
+            }
+            
+            if (!(gmFlags & GM::kSkipPicture_Flag) && writePicturePath) {
+                write_picture_serialization(gm, gRec[i], writePicturePath);
             }
 
             // Update overall results.
