@@ -371,84 +371,99 @@ void SkView::Click::copyType(const char type[])
 
 SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y)
 {
-	if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
-		return NULL;
+    if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
+        return NULL;
     }
 
     if (this->onSendClickToChildren(x, y)) {
         F2BIter	iter(this);
         SkView*	child;
-        
+
         while ((child = iter.next()) != NULL)
         {
             SkPoint p;
-            child->globalToLocal(x, y, &p);
-            
+            if (!child->globalToLocal(x, y, &p)) {
+                continue;
+            }
+
             Click* click = child->findClickHandler(p.fX, p.fY);
-            
+
             if (click) {
                 return click;
             }
         }
     }
-	return this->onFindClickHandler(x, y);
+
+    return this->onFindClickHandler(x, y);
 }
 
 void SkView::DoClickDown(Click* click, int x, int y)
 {
-	SkASSERT(click);
+    SkASSERT(click);
 
-	SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
-	if (target == NULL)
-		return;
+    SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
+    if (NULL == target) {
+        return;
+    }
 
-	click->fIOrig.set(x, y);
-	click->fICurr = click->fIPrev = click->fIOrig;
+    click->fIOrig.set(x, y);
+    click->fICurr = click->fIPrev = click->fIOrig;
 
-	click->fOrig.iset(x, y);
-	target->globalToLocal(&click->fOrig);
-	click->fPrev = click->fCurr = click->fOrig;
+    click->fOrig.iset(x, y);
+    if (!target->globalToLocal(&click->fOrig)) {
+        // no history to let us recover from this failure
+        return;
+    }
+    click->fPrev = click->fCurr = click->fOrig;
 
-	click->fState = Click::kDown_State;
-	target->onClick(click);
+    click->fState = Click::kDown_State;
+    target->onClick(click);
 }
 
 void SkView::DoClickMoved(Click* click, int x, int y)
 {
-	SkASSERT(click);
+    SkASSERT(click);
 
-	SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
-	if (target == NULL)
-		return;
+    SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
+    if (NULL == target) {
+        return;
+    }
 
-	click->fIPrev = click->fICurr;
-	click->fICurr.set(x, y);
+    click->fIPrev = click->fICurr;
+    click->fICurr.set(x, y);
 
-	click->fPrev = click->fCurr;
-	click->fCurr.iset(x, y);
-	target->globalToLocal(&click->fCurr);
+    click->fPrev = click->fCurr;
+    click->fCurr.iset(x, y);
+    if (!target->globalToLocal(&click->fCurr)) {
+        // on failure pretend the mouse didn't move
+        click->fCurr = click->fPrev;
+    }
 
-	click->fState = Click::kMoved_State;
-	target->onClick(click);
+    click->fState = Click::kMoved_State;
+    target->onClick(click);
 }
 
 void SkView::DoClickUp(Click* click, int x, int y)
 {
-	SkASSERT(click);
+    SkASSERT(click);
 
-	SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
-	if (target == NULL)
-		return;
+    SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
+    if (NULL == target) {
+        return;
+    }
 
-	click->fIPrev = click->fICurr;
-	click->fICurr.set(x, y);
+    click->fIPrev = click->fICurr;
+    click->fICurr.set(x, y);
 
-	click->fPrev = click->fCurr;
-	click->fCurr.iset(x, y);
-	target->globalToLocal(&click->fCurr);
+    click->fPrev = click->fCurr;
+    click->fCurr.iset(x, y);
+    if (!target->globalToLocal(&click->fCurr)) {
+        // on failure pretend the mouse didn't move
+        click->fCurr = click->fPrev;
+    }
 
-	click->fState = Click::kUp_State;
-	target->onClick(click);
+    click->fState = Click::kUp_State;
+    target->onClick(click);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -619,18 +634,22 @@ void SkView::localToGlobal(SkMatrix* matrix) const
         }
     }
 }
-void SkView::globalToLocal(SkScalar x, SkScalar y, SkPoint* local) const
+bool SkView::globalToLocal(SkScalar x, SkScalar y, SkPoint* local) const
 {
-	SkASSERT(this);
-	if (local)
-	{
+    SkASSERT(this);
+
+    if (NULL != local) {
         SkMatrix m;
         this->localToGlobal(&m);
+        if (!m.invert(&m)) {
+            return false;
+        }
         SkPoint p;
-        m.invert(&m);
         m.mapXY(x, y, &p);
-		local->set(p.fX, p.fY);
-	}
+        local->set(p.fX, p.fY);
+    }
+
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////

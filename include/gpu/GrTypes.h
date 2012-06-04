@@ -58,11 +58,11 @@
 #define GrIsALIGN4(n)   SkIsAlign4(n)
 
 template <typename T> const T& GrMin(const T& a, const T& b) {
-	return (a < b) ? a : b;
+    return (a < b) ? a : b;
 }
 
 template <typename T> const T& GrMax(const T& a, const T& b) {
-	return (b < a) ? a : b;
+    return (b < a) ? a : b;
 }
 
 // compile time versions of min/max
@@ -468,7 +468,7 @@ struct GrTextureDesc {
     int                    fHeight; //!< Height of the texture
 
     /**
-     * Format of source data of the texture. Not guaraunteed to be the same as
+     * Format of source data of the texture. Not guaranteed to be the same as
      * internal format used by 3D API.
      */
     GrPixelConfig          fConfig;

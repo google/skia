@@ -116,12 +116,17 @@ protected:
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, &fPts[1], paint);
     }
 
-    SkPoint invertPt(SkScalar x, SkScalar y) {
-        SkPoint pt;
+    bool invertPt(SkScalar x, SkScalar y, SkPoint* result) {
+        if (NULL == result)
+            return true;
+
         SkMatrix m;
-        fMatrix.invert(&m);
-        m.mapXY(x, y, &pt);
-        return pt;
+        if (!fMatrix.invert(&m)) {
+            return false;
+        }
+
+        m.mapXY(x, y, result);
+        return true;
     }
 
     int hittest(SkScalar x, SkScalar y) {
@@ -143,7 +148,11 @@ protected:
     
     virtual bool onClick(Click* click) {
         if (fDragIndex >= 0) {
-            fPts[fDragIndex] = invertPt(click->fCurr.fX, click->fCurr.fY);
+            if (!invertPt(click->fCurr.fX, click->fCurr.fY, 
+                          &fPts[fDragIndex])) {
+                return false;
+            }
+
             this->setViews();
             this->inval(NULL);
             return true;
