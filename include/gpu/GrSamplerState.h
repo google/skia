@@ -165,8 +165,9 @@ public:
         this->reset(kDefault_WrapMode, kDefault_Filter, GrMatrix::I());
     }
 
-    void setCustomStage(GrCustomStage* stage) {
+    GrCustomStage* setCustomStage(GrCustomStage* stage) {
         GrSafeAssign(fCustomStage, stage);
+        return stage;
     }
     GrCustomStage* getCustomStage() const { return fCustomStage; }
 

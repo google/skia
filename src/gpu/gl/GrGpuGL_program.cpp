@@ -7,8 +7,6 @@
 
 #include "GrGpuGL.h"
 
-#include "effects/GrGradientEffects.h"
-
 #include "GrCustomStage.h"
 #include "GrGLProgramStage.h"
 #include "GrGpuVertex.h"

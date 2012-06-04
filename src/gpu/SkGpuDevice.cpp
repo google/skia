@@ -540,15 +540,16 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     GrSamplerState* sampler = grPaint->textureSampler(kShaderTextureIdx);
     switch (bmptype) {
     case SkShader::kRadial_BitmapType: {
-        sampler->setCustomStage(new GrRadialGradient());
+        sampler->setCustomStage(new GrRadialGradient())->unref();
         } break;
     case SkShader::kSweep_BitmapType: {
-        sampler->setCustomStage(new GrSweepGradient());
+        sampler->setCustomStage(new GrSweepGradient())->unref();
         } break;
     case SkShader::kTwoPointRadial_BitmapType: {
-        sampler->setCustomStage(new GrRadial2Gradient(twoPointParams[0],
-                                                      twoPointParams[1],
-                                                      twoPointParams[2] < 0));
+        sampler->setCustomStage(new
+            GrRadial2Gradient(twoPointParams[0],
+                              twoPointParams[1],
+                              twoPointParams[2] < 0))->unref();
         } break;
     default:
         break;
