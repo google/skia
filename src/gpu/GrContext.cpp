@@ -163,17 +163,6 @@ int GrContext::PaintStageVertexLayoutBits(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-enum {
-    // flags for textures
-    kNPOTBit            = 0x1,
-    kFilterBit          = 0x2,
-    kScratchBit         = 0x4,
-
-    // resource type
-    kTextureBit         = 0x8,
-    kStencilBufferBit   = 0x10
-};
-
 GrTexture* GrContext::TextureCacheEntry::texture() const {
     if (NULL == fEntry) {
         return NULL; 
@@ -183,50 +172,6 @@ GrTexture* GrContext::TextureCacheEntry::texture() const {
 }
 
 namespace {
-// returns true if this is a "special" texture because of gpu NPOT limitations
-bool gen_texture_key_values(const GrGpu* gpu,
-                            const GrSamplerState* sampler,
-                            GrContext::TextureKey clientKey,
-                            int width,
-                            int height,
-                            int sampleCnt,
-                            bool scratch,
-                            uint32_t v[4]) {
-    GR_STATIC_ASSERT(sizeof(GrContext::TextureKey) == sizeof(uint64_t));
-    // we assume we only need 16 bits of width and height
-    // assert that texture creation will fail anyway if this assumption
-    // would cause key collisions.
-    GrAssert(gpu->getCaps().fMaxTextureSize <= SK_MaxU16);
-    v[0] = clientKey & 0xffffffffUL;
-    v[1] = (clientKey >> 32) & 0xffffffffUL;
-    v[2] = width | (height << 16);
-
-    v[3] = (sampleCnt << 24);
-    GrAssert(sampleCnt >= 0 && sampleCnt < 256);
-
-    if (!gpu->getCaps().fNPOTTextureTileSupport) {
-        bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
-
-        bool tiled = NULL != sampler &&
-                     ((sampler->getWrapX() != GrSamplerState::kClamp_WrapMode) ||
-                      (sampler->getWrapY() != GrSamplerState::kClamp_WrapMode));
-
-        if (tiled && !isPow2) {
-            v[3] |= kNPOTBit;
-            if (GrSamplerState::kNearest_Filter != sampler->getFilter()) {
-                v[3] |= kFilterBit;
-            }
-        }
-    }
-
-    if (scratch) {
-        v[3] |= kScratchBit;
-    }
-
-    v[3] |= kTextureBit;
-
-    return v[3] & kNPOTBit;
-}
 
 // we should never have more than one stencil buffer with same combo of
 // (width,height,samplecount)
@@ -235,7 +180,7 @@ void gen_stencil_key_values(int width, int height,
     v[0] = width;
     v[1] = height;
     v[2] = sampleCnt;
-    v[3] = kStencilBufferBit;
+    v[3] = GrResourceKey::kStencilBuffer_TypeBit;
 }
 
 void gen_stencil_key_values(const GrStencilBuffer* sb,
@@ -307,24 +252,18 @@ void convolve_gaussian(GrGpu* gpu,
 }
 
 GrContext::TextureCacheEntry GrContext::findAndLockTexture(
-        TextureKey key,
-        int width,
-        int height,
+        GrTexture::TextureKey key,
+        const GrTextureDesc& desc,
         const GrSamplerState* sampler) {
-    uint32_t v[4];
-    gen_texture_key_values(fGpu, sampler, key, width, height, 0, false, v);
-    GrResourceKey resourceKey(v);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, key, desc, false);
     return TextureCacheEntry(fTextureCache->findAndLock(resourceKey,
                                             GrResourceCache::kNested_LockType));
 }
 
-bool GrContext::isTextureInCache(TextureKey key,
-                                 int width,
-                                 int height,
+bool GrContext::isTextureInCache(GrTexture::TextureKey key,
+                                 const GrTextureDesc& desc,
                                  const GrSamplerState* sampler) const {
-    uint32_t v[4];
-    gen_texture_key_values(fGpu, sampler, key, width, height, 0, false, v);
-    GrResourceKey resourceKey(v);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, key, desc, false);
     return fTextureCache->hasKey(resourceKey);
 }
 
@@ -384,7 +323,7 @@ static void stretchImage(void* dst,
 }
 
 GrContext::TextureCacheEntry GrContext::createAndLockTexture(
-        TextureKey key,
+        GrTexture::TextureKey key,
         const GrSamplerState* sampler,
         const GrTextureDesc& desc,
         void* srcData,
@@ -396,17 +335,16 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
 #endif
 
     TextureCacheEntry entry;
-    uint32_t v[4];
-    bool special = gen_texture_key_values(fGpu, sampler, key,
-                                          desc.fWidth, desc.fHeight,
-                                          desc.fSampleCnt, false, v);
-    GrResourceKey resourceKey(v);
 
-    if (special) {
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, key,
+                                                      desc, false);
+
+    if (GrTexture::NeedsResizing(resourceKey)) {
+        // The desired texture is NPOT and tiled but that isn't supported by 
+        // the current hardware. Resize the texture to be a POT
         GrAssert(NULL != sampler);
         TextureCacheEntry clampEntry = this->findAndLockTexture(key,
-                                                                desc.fWidth,
-                                                                desc.fHeight,
+                                                                desc,
                                                                 NULL);
 
         if (NULL == clampEntry.texture()) {
@@ -437,10 +375,10 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
             // if filtering is not desired then we want to ensure all
             // texels in the resampled image are copies of texels from
             // the original.
-            if (GrSamplerState::kNearest_Filter == sampler->getFilter()) {
-                filter = GrSamplerState::kNearest_Filter;
-            } else {
+            if (GrTexture::NeedsFiltering(resourceKey)) {
                 filter = GrSamplerState::kBilinear_Filter;
+            } else {
+                filter = GrSamplerState::kNearest_Filter;
             }
             drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
                                          filter);
@@ -497,21 +435,6 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
     return entry;
 }
 
-namespace {
-inline void gen_scratch_tex_key_values(const GrGpu* gpu, 
-                                       const GrTextureDesc& desc,
-                                       uint32_t v[4]) {
-    // Instead of a client-provided key of the texture contents
-    // we create a key of from the descriptor.
-    GrContext::TextureKey descKey = (desc.fFlags << 8) |
-                                    ((uint64_t) desc.fConfig << 32);
-    // this code path isn't friendly to tiling with NPOT restricitons
-    // We just pass ClampNoFilter()
-    gen_texture_key_values(gpu, NULL, descKey, desc.fWidth,
-                           desc.fHeight, desc.fSampleCnt, true, v);
-}
-}
-
 GrContext::TextureCacheEntry GrContext::lockScratchTexture(
                                                 const GrTextureDesc& inDesc,
                                                 ScratchTexMatch match) {
@@ -531,9 +454,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
     bool doubledH = false;
 
     do {
-        uint32_t v[4];
-        gen_scratch_tex_key_values(fGpu, desc, v);
-        GrResourceKey key(v);
+        GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, 0, desc, true);
         entry = fTextureCache->findAndLock(key,
                                            GrResourceCache::kNested_LockType);
         // if we miss, relax the fit of the flags...
@@ -566,9 +487,9 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
         desc.fHeight = origHeight;
         GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
         if (NULL != texture) {
-            uint32_t v[4];
-            gen_scratch_tex_key_values(fGpu, desc, v);
-            GrResourceKey key(v);
+            GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, 0,
+                                                      texture->desc(),
+                                                      true);
             entry = fTextureCache->createAndLock(key, texture);
         }
     }
@@ -587,7 +508,7 @@ void GrContext::unlockTexture(TextureCacheEntry entry) {
     // If this is a scratch texture we detached it from the cache
     // while it was locked (to avoid two callers simultaneously getting
     // the same texture).
-    if (kScratchBit & entry.cacheEntry()->key().getValue32(3)) {
+    if (GrTexture::IsScratchTexture(entry.cacheEntry()->key())) {
         fTextureCache->reattachAndUnlock(entry.cacheEntry());
     } else {
         fTextureCache->unlock(entry.cacheEntry());

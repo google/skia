@@ -41,6 +41,16 @@ public:
         kHashMask   = kHashCount - 1
     };
 
+    enum TypeBits {
+        // resource types
+        kTexture_TypeBit         = 0x01,
+        kStencilBuffer_TypeBit   = 0x02,
+
+        // Derived classes may add additional bits
+        kDummy_TypeBit,
+        kLastPublic_TypeBit = kDummy_TypeBit-1,
+    };
+
     GrResourceKey(uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3) {
         fP[0] = p0;
         fP[1] = p1;
