@@ -20,18 +20,21 @@ public:
     SkModeColorFilter(SkColor color) {
         fColor = color;
         fMode = ILLEGAL_XFERMODE_MODE;
-
-        fPMColor = SkPreMultiplyColor(fColor);
+        this->updateCache();
     }
 
     SkModeColorFilter(SkColor color, SkXfermode::Mode mode) {
         fColor = color;
         fMode = mode;
-
-        fPMColor = SkPreMultiplyColor(fColor);
+        this->updateCache();
     };
 
-    virtual bool asColorMode(SkColor* color, SkXfermode::Mode* mode) {
+    SkColor getColor() const { return fColor; }
+    SkXfermode::Mode getMode() const { return fMode; }
+    bool isModeValid() const { return ILLEGAL_XFERMODE_MODE != fMode; }
+    SkPMColor getPMColor() const { return fPMColor; }
+    
+    virtual bool asColorMode(SkColor* color, SkXfermode::Mode* mode) SK_OVERRIDE {
         if (ILLEGAL_XFERMODE_MODE == fMode) {
             return false;
         }
@@ -45,9 +48,33 @@ public:
         return true;
     }
 
-    SkColor getColor() const { return fColor; }
-    SkXfermode::Mode getMode() const { return fMode; }
-    bool isModeValid() const { return ILLEGAL_XFERMODE_MODE != fMode; }
+    virtual uint32_t getFlags() SK_OVERRIDE {
+        return fProc16 ? (kAlphaUnchanged_Flag | kHasFilter16_Flag) : 0;
+    }
+    
+    virtual void filterSpan(const SkPMColor shader[], int count,
+                            SkPMColor result[]) SK_OVERRIDE {
+        SkPMColor       color = fPMColor;
+        SkXfermodeProc  proc = fProc;
+        
+        for (int i = 0; i < count; i++) {
+            result[i] = proc(color, shader[i]);
+        }
+    }
+    
+    virtual void filterSpan16(const uint16_t shader[], int count,
+                              uint16_t result[]) SK_OVERRIDE {
+        SkASSERT(this->getFlags() & kHasFilter16_Flag);
+        
+        SkPMColor        color = fPMColor;
+        SkXfermodeProc16 proc16 = fProc16;
+        
+        for (int i = 0; i < count; i++) {
+            result[i] = proc16(color, shader[i]);
+        }
+    }
+    
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 
 protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
@@ -59,17 +86,23 @@ protected:
     SkModeColorFilter(SkFlattenableReadBuffer& buffer) {
         fColor = buffer.readU32();
         fMode = (SkXfermode::Mode)buffer.readU32();
-
-        fPMColor = SkPreMultiplyColor(fColor);
+        this->updateCache();
     }
-
-    // cache of fColor in premultiply space
-    SkPMColor   fPMColor;
 
 private:
     SkColor             fColor;
     SkXfermode::Mode    fMode;
-
+    // cache
+    SkPMColor           fPMColor;
+    SkXfermodeProc      fProc;
+    SkXfermodeProc16    fProc16;
+    
+    void updateCache() {
+        fPMColor = SkPreMultiplyColor(fColor);
+        fProc = SkXfermode::GetProc(fMode);
+        fProc16 = SkXfermode::GetProc16(fMode, fColor);
+    }
+    
     typedef SkColorFilter INHERITED;
 };
 
@@ -78,7 +111,7 @@ public:
     Src_SkModeColorFilter(SkColor color) : INHERITED(color, SkXfermode::kSrc_Mode) {}
 
     virtual uint32_t getFlags() {
-        if (SkGetPackedA32(fPMColor) == 0xFF) {
+        if (SkGetPackedA32(this->getPMColor()) == 0xFF) {
             return kAlphaUnchanged_Flag | kHasFilter16_Flag;
         } else {
             return 0;
@@ -87,13 +120,13 @@ public:
 
     virtual void filterSpan(const SkPMColor shader[], int count,
                             SkPMColor result[]) {
-        sk_memset32(result, fPMColor, count);
+        sk_memset32(result, this->getPMColor(), count);
     }
 
     virtual void filterSpan16(const uint16_t shader[], int count,
                               uint16_t result[]) {
         SkASSERT(this->getFlags() & kHasFilter16_Flag);
-        sk_memset16(result, SkPixel32ToPixel16(fPMColor), count);
+        sk_memset16(result, SkPixel32ToPixel16(this->getPMColor()), count);
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Src_SkModeColorFilter)
@@ -114,7 +147,7 @@ public:
     }
 
     virtual uint32_t getFlags() {
-        if (SkGetPackedA32(fPMColor) == 0xFF) {
+        if (SkGetPackedA32(this->getPMColor()) == 0xFF) {
             return kAlphaUnchanged_Flag | kHasFilter16_Flag;
         } else {
             return 0;
@@ -126,13 +159,13 @@ public:
         if (NULL == fColor32Proc) {
             fColor32Proc = SkBlitRow::ColorProcFactory();
         }
-        fColor32Proc(result, shader, count, fPMColor);
+        fColor32Proc(result, shader, count, this->getPMColor());
     }
 
     virtual void filterSpan16(const uint16_t shader[], int count,
                               uint16_t result[]) {
         SkASSERT(this->getFlags() & kHasFilter16_Flag);
-        sk_memset16(result, SkPixel32ToPixel16(fPMColor), count);
+        sk_memset16(result, SkPixel32ToPixel16(this->getPMColor()), count);
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SrcOver_SkModeColorFilter)
@@ -147,77 +180,6 @@ private:
 
     typedef SkModeColorFilter INHERITED;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-class Proc_SkModeColorFilter : public SkModeColorFilter {
-public:
-    Proc_SkModeColorFilter(SkColor color, SkXfermode::Mode mode) : INHERITED(color, mode) {
-        fProc = SkXfermode::GetProc(mode);
-        fProc16 = SkXfermode::GetProc16(mode, color);
-    }
-
-    Proc_SkModeColorFilter(SkColor color,
-                           SkXfermodeProc proc, SkXfermodeProc16 proc16)
-            : INHERITED(color, ILLEGAL_XFERMODE_MODE) {
-        fProc = proc;
-        fProc16 = proc16;
-    }
-
-    virtual uint32_t getFlags() {
-        return fProc16 ? (kAlphaUnchanged_Flag | kHasFilter16_Flag) : 0;
-    }
-
-    virtual void filterSpan(const SkPMColor shader[], int count,
-                            SkPMColor result[]) {
-        SkPMColor       color = fPMColor;
-        SkXfermodeProc  proc = fProc;
-
-        for (int i = 0; i < count; i++) {
-            result[i] = proc(color, shader[i]);
-        }
-    }
-
-    virtual void filterSpan16(const uint16_t shader[], int count,
-                              uint16_t result[]) {
-        SkASSERT(this->getFlags() & kHasFilter16_Flag);
-
-        SkPMColor        color = fPMColor;
-        SkXfermodeProc16 proc16 = fProc16;
-
-        for (int i = 0; i < count; i++) {
-            result[i] = proc16(color, shader[i]);
-        }
-    }
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Proc_SkModeColorFilter)
-
-protected:
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
-        this->INHERITED::flatten(buffer);
-        buffer.writeFunctionPtr((void*)fProc);
-        buffer.writeFunctionPtr((void*)fProc16);
-    }
-
-    Proc_SkModeColorFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-        fProc = (SkXfermodeProc) buffer.readFunctionPtr();
-        fProc16 = (SkXfermodeProc16) buffer.readFunctionPtr();
-    }
-
-private:
-    SkXfermodeProc   fProc;
-    SkXfermodeProc16 fProc16;
-
-    typedef SkModeColorFilter INHERITED;
-};
-
-SkColorFilter* SkColorFilter::CreateProcFilter(SkColor color,
-                                               SkXfermodeProc proc,
-                                               SkXfermodeProc16 proc16) {
-    return proc ?
-            SkNEW_ARGS(Proc_SkModeColorFilter, (color, proc, proc16)) :
-            NULL;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -257,7 +219,7 @@ SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color,
         case SkXfermode::kSrcOver_Mode:
             return SkNEW_ARGS(SrcOver_SkModeColorFilter, (color));
         default:
-            return SkNEW_ARGS(Proc_SkModeColorFilter, (color, mode));
+            return SkNEW_ARGS(SkModeColorFilter, (color, mode));
     }
 }
 
@@ -517,9 +479,9 @@ SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Src_SkModeColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SrcOver_SkModeColorFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Proc_SkModeColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_JustAdd)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_JustMul)
