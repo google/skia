@@ -26,9 +26,21 @@
 #include "gl/GrGLUtil.h"
 #include "GrRenderTarget.h"
 
+#include "SkOSFile.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
 #include "SkStream.h"
+
+extern SampleView* CreateSamplePictFileView(const char filename[]);
+
+class PictFileFactory : public SkViewFactory {
+    SkString fFilename;
+public:
+    PictFileFactory(const SkString& filename) : fFilename(filename) {}
+    virtual SkView* operator() () const SK_OVERRIDE {
+        return CreateSamplePictFileView(fFilename.c_str());
+    }
+};
 
 #define TEST_GPIPE
 
@@ -655,7 +667,7 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 }
 
 static void usage(const char * argv0) {
-    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount]\n", argv0);
+    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount] [--pictureDir path]\n", argv0);
     SkDebugf("    sampleName: sample at which to start.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    msaa: request multisampling with the given sample count.\n");
@@ -665,6 +677,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     : INHERITED(hwnd)
     , fDevManager(NULL) {
 
+    this->registerPictFileSamples(argv, argc);
     SkGMRegistyToSampleRegistry();
     {
         const SkViewRegister* reg = SkViewRegister::Head();
@@ -865,6 +878,38 @@ SampleWindow::~SampleWindow() {
     fTypeface->unref();
 
     SkSafeUnref(fDevManager);
+}
+
+static void make_filepath(SkString* path, const char* dir, const SkString& name) {
+    size_t len = strlen(dir);
+    path->set(dir);
+    if (len > 0 && dir[len - 1] != '/') {
+        path->append("/");
+    }
+    path->append(name);
+}
+
+void SampleWindow::registerPictFileSamples(char** argv, int argc) {
+    const char* pictDir = NULL;
+
+    for (int i = 0; i < argc; ++i) {
+        if (!strcmp(argv[i], "--pictureDir")) {
+            i += 1;
+            if (i < argc) {
+                pictDir = argv[i];
+                break;
+            }
+        }
+    }
+    if (pictDir) {
+        SkOSFile::Iter iter(pictDir, "skp");
+        SkString filename;
+        while (iter.next(&filename)) {
+            SkString path;
+            make_filepath(&path, pictDir, filename);
+            *fSamples.append() = new PictFileFactory(path);
+        }
+    }
 }
 
 int SampleWindow::findByTitle(const char title[]) {
