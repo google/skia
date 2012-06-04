@@ -538,25 +538,28 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
     GrSamplerState* sampler = grPaint->textureSampler(kShaderTextureIdx);
     switch (bmptype) {
-    case SkShader::kRadial_BitmapType: {
-        sampler->setCustomStage(new GrRadialGradient())->unref();
-        } break;
-    case SkShader::kSweep_BitmapType: {
-        sampler->setCustomStage(new GrSweepGradient())->unref();
-        } break;
-    case SkShader::kTwoPointRadial_BitmapType: {
-        sampler->setCustomStage(new
-            GrRadial2Gradient(twoPointParams[0],
-                              twoPointParams[1],
-                              twoPointParams[2] < 0))->unref();
-        } break;
-    default:
-        break;
-    }
-    if (skPaint.isFilterBitmap()) {
-        sampler->setFilter(GrSamplerState::kBilinear_Filter);
-    } else {
-        sampler->setFilter(GrSamplerState::kNearest_Filter);
+        case SkShader::kRadial_BitmapType:
+            sampler->setCustomStage(new GrRadialGradient())->unref();
+            sampler->setFilter(GrSamplerState::kBilinear_Filter);
+            break;
+        case SkShader::kSweep_BitmapType:
+            sampler->setCustomStage(new GrSweepGradient())->unref();
+            sampler->setFilter(GrSamplerState::kBilinear_Filter);
+            break;
+        case SkShader::kTwoPointRadial_BitmapType:
+            sampler->setCustomStage(new
+                GrRadial2Gradient(twoPointParams[0],
+                                  twoPointParams[1],
+                                  twoPointParams[2] < 0))->unref();
+            sampler->setFilter(GrSamplerState::kBilinear_Filter);
+            break;
+        default:
+            if (skPaint.isFilterBitmap()) {
+                sampler->setFilter(GrSamplerState::kBilinear_Filter);
+            } else {
+                sampler->setFilter(GrSamplerState::kNearest_Filter);
+            }
+            break;
     }
     sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
     sampler->setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
