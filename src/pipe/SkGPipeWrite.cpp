@@ -67,9 +67,9 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
     if (writer) {
         writer->write32(size);
         SkAutoDataUnref data(stream.copyToData());
-        writer->write(data.data(), size);
+        writer->writePad(data.data(), size);
     }
-    return 4 + size;
+    return 4 + SkAlign4(size);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

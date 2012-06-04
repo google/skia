@@ -13,6 +13,7 @@
 #include "SkData.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
+#include "SkGPipe.h"
 #include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
@@ -615,6 +616,67 @@ static ErrorBitfield test_picture_serialization(GM* gm,
     }
 }
 
+class PipeController : public SkGPipeController {
+public:
+    PipeController(SkCanvas* target);
+    ~PipeController();
+    virtual void* requestBlock(size_t minRequest, size_t* actual);
+    virtual void notifyWritten(size_t bytes);
+private:
+    SkGPipeReader fReader;
+    void* fBlock;
+    size_t fBlockSize;
+    size_t fBytesWritten;
+    SkGPipeReader::Status fStatus;
+};
+
+PipeController::PipeController(SkCanvas* target)
+:fReader(target) {
+    fBlock = NULL;
+    fBlockSize = fBytesWritten = 0;
+}
+
+PipeController::~PipeController() {
+    sk_free(fBlock);
+}
+
+void* PipeController::requestBlock(size_t minRequest, size_t *actual) {
+    sk_free(fBlock);
+    fBlockSize = minRequest * 4;
+    fBlock = sk_malloc_throw(fBlockSize);
+    fBytesWritten = 0;
+    *actual = fBlockSize;
+    return fBlock;
+}
+
+void PipeController::notifyWritten(size_t bytes) {
+    fStatus = fReader.playback((const char*)fBlock + fBytesWritten, bytes);
+    SkASSERT(SkGPipeReader::kError_Status != fStatus);
+    fBytesWritten += bytes;
+}
+
+static ErrorBitfield test_pipe_playback(GM* gm,
+                                        const ConfigData& gRec,
+                                        const SkBitmap& comparisonBitmap,
+                                        const char readPath [],
+                                        const char diffPath []) {
+    if (kRaster_Backend != gRec.fBackend) {
+        return ERROR_NONE;
+    }
+    SkBitmap bitmap;
+    SkISize size = gm->getISize();
+    setup_bitmap(gRec, size, &bitmap);
+    SkCanvas canvas(bitmap);
+    PipeController pipeController(&canvas);
+    SkGPipeWriter writer;
+    SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
+            SkGPipeWriter::kCrossProcess_Flag);
+    invokeGM(gm, pipeCanvas);
+    writer.endRecording();
+    return handle_test_results(gm, gRec, NULL, NULL, diffPath,
+                               "-pipe", bitmap, NULL, &comparisonBitmap);
+}
+
 static void write_picture_serialization(GM* gm, const ConfigData& rec,
                                         const char writePicturePath[]) {
     // only do this once, so we pick raster
@@ -635,7 +697,7 @@ static void write_picture_serialization(GM* gm, const ConfigData& rec,
 static void usage(const char * argv0) {
     SkDebugf(
         "%s [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n"
-        "    [--noreplay] [--serialize] [--forceBWtext] [--nopdf] \n"
+        "    [--noreplay] [--nopipe] [--serialize] [--forceBWtext] [--nopdf] \n"
         "    [--nodeferred] [--match substring] [--notexturecache]\n"
         , argv0);
     SkDebugf("    writePath: directory to write rendered images in.\n");
@@ -645,6 +707,7 @@ static void usage(const char * argv0) {
     SkDebugf("    diffPath: directory to write difference images in.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
+    SkDebugf("    --nopipe: Skip SkGPipe replay.\n");
     SkDebugf(
 "    --serialize: exercise SkPicture serialization & deserialization.\n");
     SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
@@ -755,6 +818,7 @@ int main(int argc, char * const argv[]) {
 
     bool doPDF = true;
     bool doReplay = true;
+    bool doPipe = true;
     bool doSerialize = false;
     bool useDebugGL = false;
     bool doDeferred = true;
@@ -792,6 +856,8 @@ int main(int argc, char * const argv[]) {
             }
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
             gForceBWtext = true;
+        } else if (strcmp(*argv, "--nopipe") == 0) {
+            doPipe = false;
         } else if (strcmp(*argv, "--noreplay") == 0) {
             doReplay = false;
         } else if (strcmp(*argv, "--nopdf") == 0) {
@@ -929,6 +995,13 @@ int main(int argc, char * const argv[]) {
                 testErrors |= test_picture_playback(gm, gRec[i],
                                                     forwardRenderedBitmap,
                                                     readPath, diffPath);
+            }
+
+            if ((ERROR_NONE == testErrors) && doPipe &&
+                !(gmFlags & GM::kSkipPipe_Flag)) {
+                testErrors |= test_pipe_playback(gm, gRec[i],
+                                                 forwardRenderedBitmap,
+                                                 readPath, diffPath);
             }
 
             if ((ERROR_NONE == testErrors) && doSerialize  &&
