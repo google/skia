@@ -108,12 +108,6 @@ public:
                 kIsEnabled_OptFlagBit           = 1 << 7
             };
 
-            enum FetchMode {
-                kSingle_FetchMode,
-                k2x2_FetchMode,
-
-                kFetchModeCnt,
-            };
             /**
               Flags set based on a src texture's pixel config. The operations
               described are performed after reading a texel.
@@ -148,7 +142,7 @@ public:
 
                 /**
                  Multiply r,g,b by a after texture reads. This flag incompatible
-                 with kSmearAlpha and may only be used with FetchMode kSingle.
+                 with kSmearAlpha.
 
                  It is assumed the src texture has 8bit color components. After
                  reading the texture one version rounds up to the next multiple
@@ -165,7 +159,6 @@ public:
 
             uint8_t fOptFlags;
             uint8_t fInConfigFlags; // bitfield of InConfigFlags values
-            uint8_t fFetchMode;     // casts to enum FetchMode
 
             /** Non-zero if user-supplied code will write the stage's
                 contribution to the fragment shader. */
@@ -250,12 +243,10 @@ public:
 
     struct StageUniLocations {
         GrGLint fTextureMatrixUni;
-        GrGLint fNormalizedTexelSizeUni;
         GrGLint fSamplerUni;
         GrGLint fTexDomUni;
         void reset() {
             fTextureMatrixUni = kUnusedUniform;
-            fNormalizedTexelSizeUni = kUnusedUniform;
             fSamplerUni = kUnusedUniform;
             fTexDomUni = kUnusedUniform;
         }

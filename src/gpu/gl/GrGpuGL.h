@@ -250,9 +250,6 @@ private:
     // flushes the parameters for convolution
     void flushConvolution(int stage);
 
-    // flushes the normalized texel size
-    void flushTexelSize(int stage);
-
     // flushes the color matrix
     void flushColorMatrix();
 

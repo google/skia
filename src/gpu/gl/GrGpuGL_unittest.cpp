@@ -205,15 +205,10 @@ bool GrGpuGL::programUnitTest() {
 
             stage.fOptFlags = STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
             stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
-            stage.fFetchMode = random_int(&random, StageDesc::kFetchModeCnt);
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
             static const uint32_t kMulByAlphaMask =
                 StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
                 StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
-
-            if (StageDesc::k2x2_FetchMode == stage.fFetchMode) {
-                stage.fInConfigFlags &= ~kMulByAlphaMask;
-            }
 
             bool useCustomEffect = random_bool(&random);
             if (useCustomEffect) {

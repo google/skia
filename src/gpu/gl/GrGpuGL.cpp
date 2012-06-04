@@ -2064,7 +2064,6 @@ namespace {
 unsigned gr_to_gl_filter(GrSamplerState::Filter filter) {
     switch (filter) {
         case GrSamplerState::kBilinear_Filter:
-        case GrSamplerState::k4x4Downsample_Filter:
             return GR_GL_LINEAR;
         case GrSamplerState::kNearest_Filter:
             return GR_GL_NEAREST;

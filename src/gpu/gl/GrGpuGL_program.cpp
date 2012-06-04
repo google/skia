@@ -247,22 +247,6 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
     }
 }
 
-void GrGpuGL::flushTexelSize(int s) {
-    const int& uni = fProgramData->fUniLocations.fStages[s].fNormalizedTexelSizeUni;
-    if (GrGLProgram::kUnusedUniform != uni) {
-        const GrGLTexture* texture =
-            static_cast<const GrGLTexture*>(this->getDrawState().getTexture(s));
-        if (texture->width() != fProgramData->fTextureWidth[s] ||
-            texture->height() != fProgramData->fTextureHeight[s]) {
-
-            float texelSize[] = {1.f / texture->width(),
-                                 1.f / texture->height()};
-            GL_CALL(Uniform2fv(uni, 1, texelSize));
-            fProgramData->fTextureWidth[s] = texture->width();
-            fProgramData->fTextureHeight[s] = texture->height();
-        }
-    }
-}
 
 void GrGpuGL::flushColorMatrix() {
     const ProgramDesc& desc = fCurrentProgram.getDesc();
@@ -451,8 +435,6 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
             this->flushBoundTextureAndParams(s);
 
             this->flushTextureMatrixAndDomain(s);
-
-            this->flushTexelSize(s);
 
             if (NULL != fProgramData->fCustomStage[s]) {
                 const GrSamplerState& sampler =
@@ -761,21 +743,6 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
 
-            switch (sampler.getFilter()) {
-                // these both can use a regular texture2D()
-                case GrSamplerState::kNearest_Filter:
-                case GrSamplerState::kBilinear_Filter:
-                    stage.fFetchMode = StageDesc::kSingle_FetchMode;
-                    break;
-                // performs 4 texture2D()s
-                case GrSamplerState::k4x4Downsample_Filter:
-                    stage.fFetchMode = StageDesc::k2x2_FetchMode;
-                    break;
-                default:
-                    GrCrash("Unexpected filter!");
-                    break;
-            }
-
             if (sampler.hasTextureDomain()) {
                 GrAssert(GrSamplerState::kClamp_WrapMode ==
                             sampler.getWrapX() &&
@@ -823,7 +790,6 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
         } else {
             stage.fOptFlags         = 0;
             stage.fInConfigFlags    = 0;
-            stage.fFetchMode        = (StageDesc::FetchMode) 0;
             stage.fCustomStageKey   = 0;
             customStages[s] = NULL;
         }
