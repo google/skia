@@ -149,6 +149,8 @@
         '../src/core/SkUtils.cpp',
         '../src/core/SkWriter32.cpp',
         '../src/core/SkXfermode.cpp',
+        '../src/pipe/SkGPipeRead.cpp',
+        '../src/pipe/SkGPipeWrite.cpp',
 
         '../include/core/Sk64.h',
         '../include/core/SkAdvancedTypefaceMetrics.h',
@@ -241,6 +243,7 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
+        '../include/pipe',
         '../include/ports',
         '../include/xml',
         '../src/core',
@@ -318,6 +321,7 @@
           'config',
           '../include/config',
           '../include/core',
+          '../include/pipe',
           'ext',
         ],
       },

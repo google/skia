@@ -8,7 +8,6 @@
       'include_dirs' : [
         '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
         '../gm',       # needed to pull gm.h
-        '../include/pipe', # To pull in SkGPipe.h for pipe reader/writer
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/gpu', # To pull gl/GrGLUtil.h
       ],
@@ -111,11 +110,7 @@
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
         '../samplecode/TransitionView.cpp',
-        
-        # Dependencies for the pipe code in SampleApp
-        '../src/pipe/SkGPipeRead.cpp',
-        '../src/pipe/SkGPipeWrite.cpp',
-        
+     
         # DrawingBoard
         #'../experimental/DrawingBoard/SkColorPalette.h',
         #'../experimental/DrawingBoard/SkColorPalette.cpp',
