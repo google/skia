@@ -39,13 +39,6 @@ void GrGpuGL::ProgramCache::abandon() {
     fCount = 0;
 }
 
-void GrGpuGL::ProgramCache::invalidateViewMatrices() {
-    for (int i = 0; i < fCount; ++i) {
-        // set to illegal matrix
-        fEntries[i].fProgramData.fViewMatrix = GrMatrix::InvalidMatrix();
-    }
-}
-
 GrGLProgram::CachedData* GrGpuGL::ProgramCache::getProgramData(
                                         const GrGLProgram& desc,
                                         GrCustomStage** stages) {
@@ -111,15 +104,20 @@ void GrGpuGL::abandonResources(){
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
 void GrGpuGL::flushViewMatrix() {
-    const GrMatrix& vm = this->getDrawState().getViewMatrix();
-    if (!fProgramData->fViewMatrix.cheapEqualTo(vm)) {
+    const GrGLRenderTarget* rt = static_cast<const GrGLRenderTarget*>(this->getDrawState().getRenderTarget());
+    SkISize viewportSize;
+    const GrGLIRect& viewport = rt->getViewport();
+    viewportSize.set(viewport.fWidth, viewport.fHeight);
 
-        const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
-        GrAssert(NULL != rt);
+    const GrMatrix& vm = this->getDrawState().getViewMatrix();
+
+    if (!fProgramData->fViewMatrix.cheapEqualTo(vm) ||
+        fProgramData->fViewportSize != viewportSize) {
+
         GrMatrix m;
         m.setAll(
-            GrIntToScalar(2) / rt->width(), 0, -GR_Scalar1,
-            0,-GrIntToScalar(2) / rt->height(), GR_Scalar1,
+            GrIntToScalar(2) / viewportSize.fWidth, 0, -GR_Scalar1,
+            0,-GrIntToScalar(2) / viewportSize.fHeight, GR_Scalar1,
             0, 0, GrMatrix::I()[8]);
         m.setConcat(m, vm);
 
@@ -142,6 +140,7 @@ void GrGpuGL::flushViewMatrix() {
         GL_CALL(UniformMatrix3fv(fProgramData->fUniLocations.fViewMatrixUni,
                                  1, false, mt));
         fProgramData->fViewMatrix = vm;
+        fProgramData->fViewportSize = viewportSize;
     }
 }
 
@@ -438,6 +437,9 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (this->isStageEnabled(s)) {
+
+            this->flushBoundTextureAndParams(s);
+
             this->flushTextureMatrixAndDomain(s);
 
             this->flushTexelSize(s);
@@ -455,6 +457,18 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
         }
     }
     this->flushColorMatrix();
+
+    GrIRect* rect = NULL;
+    GrIRect clipBounds;
+    if (drawState.isClipState() &&
+        fClip.hasConservativeBounds()) {
+        fClip.getConservativeBounds().roundOut(&clipBounds);
+        rect = &clipBounds;
+    }
+    // This must come after textures are flushed because a texture may need
+    // to be msaa-resolved (which will modify bound FBO state).
+    this->flushRenderTarget(rect);
+
     return true;
 }
 

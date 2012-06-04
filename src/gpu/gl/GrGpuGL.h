@@ -203,7 +203,6 @@ private:
         ~ProgramCache();
 
         void abandon();
-        void invalidateViewMatrices();
         CachedData* getProgramData(const GrGLProgram& desc,
                                    GrCustomStage** stages);
     private:
@@ -238,6 +237,9 @@ private:
         unsigned int                fCurrLRUStamp;
         const GrGLContextInfo&      fGL;
     };
+
+    // binds the texture and sets its texture params
+    void flushBoundTextureAndParams(int stage);
 
     // sets the texture matrix and domain for the currently bound program
     void flushTextureMatrixAndDomain(int stage);

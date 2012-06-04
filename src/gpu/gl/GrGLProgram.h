@@ -309,7 +309,10 @@ public:
         // shader uniform locations (-1 if shader doesn't use them)
         UniLocations fUniLocations;
 
+        // The matrix sent to GL is determined by both the client's matrix and
+        // the size of the viewport.
         GrMatrix  fViewMatrix;
+        SkISize   fViewportSize;
 
         // these reflect the current values of uniforms
         // (GL uniform values travel with program)
