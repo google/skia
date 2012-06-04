@@ -593,13 +593,15 @@ typedef intptr_t GrPlatform3DObject;
  * count Gr will create an MSAA buffer that resolves into the texture. Gr auto-
  * resolves when it reads from the texture. The client can explictly resolve
  * using the GrRenderTarget interface.
+ *
+ * Note: These flags currently form a subset of GrTexture's flags.
  */
 
 enum GrPlatformTextureFlags {
     /**
      * No flags enabled
      */
-    kNone_GrPlatformTextureFlag              = 0x0,
+    kNone_GrPlatformTextureFlag              = kNone_GrTextureFlags,
     /**
      * Indicates that the texture is also a render target, and thus should have
      * a GrRenderTarget object.
@@ -607,7 +609,7 @@ enum GrPlatformTextureFlags {
      * D3D (future): client must have created the texture with flags that allow
      * it to be used as a render target.
      */
-    kRenderTarget_GrPlatformTextureFlag      = 0x1,
+    kRenderTarget_GrPlatformTextureFlag      = kRenderTarget_GrTextureFlagBit,
 };
 GR_MAKE_BITFIELD_OPS(GrPlatformTextureFlags)
 

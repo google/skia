@@ -23,34 +23,45 @@ public:
      *
      * @return the width in texels
      */
-    int width() const { return fWidth; }
+    int width() const { return fDesc.fWidth; }
 
     /**
      * Retrieves the height of the texture.
      *
      * @return the height in texels
      */
-    int height() const { return fHeight; }
+    int height() const { return fDesc.fHeight; }
 
     /**
      * Convert from texels to normalized texture coords for POT textures
      * only.
      */
-    GrFixed normalizeFixedX(GrFixed x) const { GrAssert(GrIsPow2(fWidth));
-                                               return x >> fShiftFixedX; }
-    GrFixed normalizeFixedY(GrFixed y) const { GrAssert(GrIsPow2(fHeight));
-                                               return y >> fShiftFixedY; }
+    GrFixed normalizeFixedX(GrFixed x) const { 
+        GrAssert(GrIsPow2(fDesc.fWidth));
+        return x >> fShiftFixedX; 
+    }
+    GrFixed normalizeFixedY(GrFixed y) const { 
+        GrAssert(GrIsPow2(fDesc.fHeight));
+        return y >> fShiftFixedY; 
+    }
 
     /**
      * Retrieves the pixel config specified when the texture was created.
      */
-    GrPixelConfig config() const { return fConfig; }
+    GrPixelConfig config() const { return fDesc.fConfig; }
+
+    /**
+     * Return the descriptor describing the texture
+     */
+    const GrTextureDesc& desc() const { return fDesc; }
 
     /**
      *  Approximate number of bytes used by the texture
      */
     virtual size_t sizeInBytes() const {
-        return (size_t) fWidth * fHeight * GrBytesPerPixel(fConfig);
+        return (size_t) fDesc.fWidth * 
+                        fDesc.fHeight * 
+                        GrBytesPerPixel(fDesc.fConfig);
     }
 
     /**
@@ -112,6 +123,8 @@ public:
 #if GR_DEBUG
     void validate() const {
         this->INHERITED::validate();
+
+        this->validateDesc();
     }
 #else
     void validate() const {}
@@ -122,18 +135,14 @@ protected:
                                    // base class cons sets to NULL
                                    // subclass cons can create and set
 
-    GrTexture(GrGpu* gpu,
-              int width,
-              int height,
-              GrPixelConfig config)
+    GrTexture(GrGpu* gpu, const GrTextureDesc& desc)
     : INHERITED(gpu)
     , fRenderTarget(NULL)
-    , fWidth(width)
-    , fHeight(height)
-    , fConfig(config) {
+    , fDesc(desc) {
+
         // only make sense if alloc size is pow2
-        fShiftFixedX = 31 - Gr_clz(fWidth);
-        fShiftFixedY = 31 - Gr_clz(fHeight);
+        fShiftFixedX = 31 - Gr_clz(fDesc.fWidth);
+        fShiftFixedY = 31 - Gr_clz(fDesc.fHeight);
     }
 
     // GrResource overrides
@@ -143,16 +152,15 @@ protected:
 
     virtual void onAbandon();
 
+    void validateDesc() const;
+
 private:
-    int fWidth;
-    int fHeight;
+    GrTextureDesc       fDesc;
 
     // these two shift a fixed-point value into normalized coordinates
     // for this texture if the texture is power of two sized.
-    int      fShiftFixedX;
-    int      fShiftFixedY;
-
-    GrPixelConfig fConfig;
+    int                 fShiftFixedX;
+    int                 fShiftFixedY;
 
     typedef GrResource INHERITED;
 };
