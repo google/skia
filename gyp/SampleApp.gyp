@@ -83,6 +83,7 @@
         '../samplecode/SamplePathClip.cpp',
         '../samplecode/SamplePathEffects.cpp',
         '../samplecode/SamplePicture.cpp',
+        '../samplecode/SamplePictFile.cpp',
         '../samplecode/SamplePoints.cpp',
         '../samplecode/SamplePolyToPoly.cpp',
         '../samplecode/SampleRegion.cpp',

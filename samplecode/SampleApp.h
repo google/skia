@@ -123,6 +123,8 @@ protected:
     virtual bool onClick(Click* click);
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
 
+    void registerPictFileSamples(char** argv, int argc);
+
 private:
     class DefaultDeviceManager;
 
