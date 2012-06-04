@@ -62,7 +62,7 @@ static SkGrTexturePixelRef* copyToTexturePixelRef(GrTexture* texture,
     desc.fWidth  = texture->width();
     desc.fHeight = texture->height();
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fConfig = SkGr::BitmapConfig2PixelConfig(dstConfig, false);
+    desc.fConfig = SkGr::BitmapConfig2PixelConfig(dstConfig);
     desc.fSampleCnt = 0;
 
     GrTexture* dst = context->createUncachedTexture(desc, NULL, 0);

@@ -230,7 +230,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         kRenderTarget_GrTextureFlagBit,
         width,
         height,
-        SkGr::Bitmap2PixelConfig(bm),
+        SkGr::BitmapConfig2PixelConfig(bm.config()),
         0 // samples
     };
 
@@ -337,8 +337,7 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
     if (SkBitmap::kARGB_8888_Config == bitmap.config()) {
         config = config8888_to_gr_config(config8888);
     } else {
-        config= SkGr::BitmapConfig2PixelConfig(bitmap.config(),
-                                               bitmap.isOpaque());
+        config= SkGr::BitmapConfig2PixelConfig(bitmap.config());
     }
 
     fRenderTarget->writePixels(x, y, bitmap.width(), bitmap.height(),
@@ -1831,11 +1830,18 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(
     GrContext* ctx = this->context();
 
     if (!bitmap.isVolatile()) {
-        GrContext::TextureKey key = bitmap.getGenerationID();
+        GrTexture::TextureKey key = bitmap.getGenerationID();
         key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
 
-        entry = ctx->findAndLockTexture(key, bitmap.width(),
-                                        bitmap.height(), sampler);
+        GrTextureDesc desc = {
+            kNone_GrTextureFlags,
+            bitmap.width(),
+            bitmap.height(),
+            SkGr::BitmapConfig2PixelConfig(bitmap.config()),
+            0 // samples
+        };
+
+        entry = ctx->findAndLockTexture(key, desc, sampler);
         if (NULL == entry.texture()) {
             entry = sk_gr_create_bitmap_texture(ctx, key, sampler,
                                                 bitmap);
@@ -1857,11 +1863,18 @@ void SkGpuDevice::unlockCachedTexture(TexCache cache) {
 
 bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
                                          const GrSamplerState& sampler) const {
-    GrContext::TextureKey key = bitmap.getGenerationID();
+    GrTexture::TextureKey key = bitmap.getGenerationID();
     key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
-    return this->context()->isTextureInCache(key, bitmap.width(),
-                                             bitmap.height(), &sampler);
 
+    GrTextureDesc desc = {
+        kNone_GrTextureFlags,
+        bitmap.width(),
+        bitmap.height(),
+        SkGr::BitmapConfig2PixelConfig(bitmap.config()),
+        0 // samples
+    };
+
+    return this->context()->isTextureInCache(key, desc, &sampler);
 }
 
 

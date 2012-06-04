@@ -74,12 +74,7 @@ public:
      *  Convert the SkBitmap::Config to the corresponding PixelConfig, or
      *  kUnknown_PixelConfig if the conversion cannot be done.
      */
-    static GrPixelConfig BitmapConfig2PixelConfig(SkBitmap::Config,
-                                                  bool isOpaque);
-
-    static GrPixelConfig Bitmap2PixelConfig(const SkBitmap& bm) {
-        return BitmapConfig2PixelConfig(bm.config(), bm.isOpaque());
-    }
+    static GrPixelConfig BitmapConfig2PixelConfig(SkBitmap::Config);
 
     static GrColor SkColor2GrColor(SkColor c) {
         SkPMColor pm = SkPreMultiplyColor(c);
@@ -157,9 +152,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // Helper functions
 
-static const GrContext::TextureKey gUNCACHED_KEY = ~0;
+static const GrTexture::TextureKey gUNCACHED_KEY = ~0;
 GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
-                                                GrContext::TextureKey key,
+                                                GrTexture::TextureKey key,
                                                 const GrSamplerState* sampler,
                                                 const SkBitmap& bitmap);
 

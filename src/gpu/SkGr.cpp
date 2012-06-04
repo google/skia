@@ -57,7 +57,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
-                                                GrContext::TextureKey key,
+                                                GrTexture::TextureKey key,
                                                 const GrSamplerState* sampler,
                                                 const SkBitmap& origBitmap) {
     SkAutoLockPixels alp(origBitmap);
@@ -75,7 +75,7 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
         kNone_GrTextureFlags,
         bitmap->width(),
         bitmap->height(),
-        SkGr::Bitmap2PixelConfig(*bitmap),
+        SkGr::BitmapConfig2PixelConfig(bitmap->config()),
         0 // samples
     };
 
@@ -112,7 +112,7 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
         }
     }
 
-    desc.fConfig = SkGr::Bitmap2PixelConfig(*bitmap);
+    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap->config());
     if (gUNCACHED_KEY != key) {
         return ctx->createAndLockTexture(key, sampler, desc,
                                          bitmap->getPixels(),
@@ -194,8 +194,7 @@ GrPathFill SkGrClipIterator::getPathFill() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrPixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config,
-                                                    bool isOpaque) {
+GrPixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config) {
     switch (config) {
         case SkBitmap::kA8_Config:
             return kAlpha_8_GrPixelConfig;
@@ -208,6 +207,7 @@ GrPixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config,
         case SkBitmap::kARGB_8888_Config:
             return kSkia8888_PM_GrPixelConfig;
         default:
+            // kNo_Config, kA1_Config missing, and kRLE_Index8_Config
             return kUnknown_GrPixelConfig;
     }
 }
