@@ -32,7 +32,7 @@ enum FallbackScripts {
 // This particular mapping will be removed after WebKit is updated to use the
 // new mappings. No new caller should use the kTamil_FallbackScript but rather
 // the more specific Tamil scripts in the standard enum.
-static FallbackScripts kTamil_FallbackScript = kTamilRegular_FallbackScript;
+#define kTamil_FallbackScript kTamilRegular_FallbackScript
 
 #define SkTypeface_ValidScript(s) (s >= 0 && s < kFallbackScriptNumber)
 
