@@ -91,7 +91,6 @@ public:
      */
     SkColor filterColor(SkColor);
 
-
     /** Create a colorfilter that uses the specified color and mode.
         If the Mode is DST, this function will return NULL (since that
         mode will have no effect on the result).
@@ -102,14 +101,6 @@ public:
                     or NULL if the mode will have no effect.
     */
     static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode);
-
-    /** Create a colorfilter that calls through to the specified procs to
-        filter the colors. The SkXfermodeProc parameter must be non-null, but
-        the SkXfermodeProc16 is optional, and may be null.
-    */
-    static SkColorFilter* CreateProcFilter(SkColor srcColor,
-                                           SkXfermodeProc proc,
-                                           SkXfermodeProc16 proc16 = NULL);
 
     /** Create a colorfilter that multiplies the RGB channels by one color, and
         then adds a second color, pinning the result for each component to
