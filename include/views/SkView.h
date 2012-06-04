@@ -203,12 +203,18 @@ public:
     void        detachAllChildren();
 
     /** Convert the specified point from global coordinates into view-local coordinates
-    */
-    void        globalToLocal(SkPoint* pt) const { if (pt) this->globalToLocal(pt->fX, pt->fY, pt); }
+     *  Return true on success; false on failure
+     */
+    bool        globalToLocal(SkPoint* pt) const { 
+        if (NULL != pt) {
+            return this->globalToLocal(pt->fX, pt->fY, pt);
+        }
+        return true;  // nothing to do so return true
+    }
     /** Convert the specified x,y from global coordinates into view-local coordinates, returning
         the answer in the local parameter.
     */
-    void        globalToLocal(SkScalar globalX, SkScalar globalY, SkPoint* local) const;
+    bool        globalToLocal(SkScalar globalX, SkScalar globalY, SkPoint* local) const;
 
     /** \class F2BIter
     

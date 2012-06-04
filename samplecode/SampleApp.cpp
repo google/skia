@@ -1051,7 +1051,9 @@ void SampleWindow::magnify(SkCanvas* canvas) {
     int count = canvas->save();
     
     SkMatrix m = canvas->getTotalMatrix();
-    m.invert(&m);
+    if (!m.invert(&m)) {
+        return;
+    }
     SkPoint offset, center;
     SkScalar mouseX = fMouseX * SK_Scalar1;
     SkScalar mouseY = fMouseY * SK_Scalar1;
