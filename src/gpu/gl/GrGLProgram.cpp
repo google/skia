@@ -1167,8 +1167,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
             GL_CALL(Uniform1i(programData->fUniLocations.fStages[s].fSamplerUni, s));
         }
         programData->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
-        programData->fTextureWidth[s] = -1;
-        programData->fTextureHeight[s] = -1;
         programData->fTextureDomain[s].setEmpty();
         // this is arbitrary, just initialize to something
         programData->fTextureOrientation[s] =
