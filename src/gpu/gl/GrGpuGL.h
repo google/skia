@@ -156,15 +156,6 @@ protected:
                     int* extraVertexOffset,
                     int* extraIndexOffset);
 
-    // flushes state that is common to fixed and programmable GL
-    // dither
-    // line smoothing
-    // texture binding
-    // sampler state (filtering, tiling)
-    // FBO binding
-    // line width
-    bool flushGLStateCommon(GrPrimitiveType type);
-
     // Subclasses should call this to flush the blend state.
     // The params should be the final coeffecients to apply
     // (after any blending optimizations or dual source blending considerations
@@ -264,6 +255,9 @@ private:
 
     // flushes the color matrix
     void flushColorMatrix();
+
+    // flushes dithering, color-mask, and face culling stat
+    void flushMiscFixedFunctionState();
 
     static void DeleteProgram(const GrGLInterface* gl,
                               CachedData* programData);
