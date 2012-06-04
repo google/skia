@@ -1189,6 +1189,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
         // Must not reset fStageOverride[] here.
     }
     programData->fViewMatrix = GrMatrix::InvalidMatrix();
+    programData->fViewportSize.set(-1, -1);
     programData->fColor = GrColor_ILLEGAL;
     programData->fColorFilterColor = GrColor_ILLEGAL;
 }
