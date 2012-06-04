@@ -58,10 +58,7 @@ public:
         void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 
-    struct Desc {
-        int             fWidth;
-        int             fHeight;
-        GrPixelConfig   fConfig;
+    struct Desc : public GrTextureDesc {
         GrGLuint        fTextureID;
         bool            fOwnsID;
         Orientation     fOrientation;

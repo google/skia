@@ -557,9 +557,12 @@ GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
         return NULL;
     }
 
+    // next line relies on PlatformTextureDesc's flags matching GrTexture's
+    glTexDesc.fFlags = (GrTextureFlags) desc.fFlags;
     glTexDesc.fWidth = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
+    glTexDesc.fSampleCnt = desc.fSampleCnt;
     glTexDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
     glTexDesc.fOwnsID = false;
     glTexDesc.fOrientation = GrGLTexture::kBottomUp_Orientation;
@@ -638,11 +641,13 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     this->setSpareTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTex->textureID()));
     GrGLTexture::Desc desc;
-    desc.fConfig = glTex->config();
+    desc.fFlags = glTex->desc().fFlags;
     desc.fWidth = glTex->width();
     desc.fHeight = glTex->height();
-    desc.fOrientation = glTex->orientation();
+    desc.fConfig = glTex->config();
+    desc.fSampleCnt = glTex->desc().fSampleCnt;
     desc.fTextureID = glTex->textureID();
+    desc.fOrientation = glTex->orientation();
 
     this->uploadTexData(desc, false,
                         left, top, width, height, 
@@ -1002,9 +1007,12 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     // Attempt to catch un- or wrongly initialized sample counts;
     GrAssert(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
 
+    glTexDesc.fFlags  = desc.fFlags;
     glTexDesc.fWidth  = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
+    glTexDesc.fSampleCnt = desc.fSampleCnt;
+
     glTexDesc.fOwnsID = true;
 
     glRTDesc.fMSColorRenderbufferID = 0;

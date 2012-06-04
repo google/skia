@@ -44,9 +44,15 @@ void GrTexture::writePixels(int left, int top, int width, int height,
 void GrTexture::releaseRenderTarget() {
     if (NULL != fRenderTarget) {
         GrAssert(fRenderTarget->asTexture() == this);
+        GrAssert(fDesc.fFlags & kRenderTarget_GrTextureFlagBit);
+
         fRenderTarget->onTextureReleaseRenderTarget();
         fRenderTarget->unref();
         fRenderTarget = NULL;
+
+        fDesc.fFlags = fDesc.fFlags &
+            ~(kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit);
+        fDesc.fSampleCnt = 0;
     }
 }
 
@@ -56,3 +62,21 @@ void GrTexture::onAbandon() {
     }
 }
 
+void GrTexture::validateDesc() const {
+    if (NULL != this->asRenderTarget()) {
+        // This texture has a render target
+        GrAssert(0 != (fDesc.fFlags & kRenderTarget_GrTextureFlagBit));
+
+        if (NULL != this->asRenderTarget()->getStencilBuffer()) {
+            GrAssert(0 != (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
+        } else {
+            GrAssert(0 == (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
+        }
+
+        GrAssert(fDesc.fSampleCnt == this->asRenderTarget()->numSamples());
+    } else {
+        GrAssert(0 == (fDesc.fFlags & kRenderTarget_GrTextureFlagBit));
+        GrAssert(0 == (fDesc.fFlags & kNoStencil_GrTextureFlagBit));
+        GrAssert(0 == fDesc.fSampleCnt);
+    }
+}
