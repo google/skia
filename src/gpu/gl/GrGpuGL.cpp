@@ -2182,16 +2182,11 @@ void GrGpuGL::flushBoundTextureAndParams(int stage) {
                                     this->getResetTimestamp());
 }
 
-bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
+void GrGpuGL::flushMiscFixedFunctionState() {
 
-    GrDrawState* drawState = this->drawState();
-    // GrGpu::setupClipAndFlushState should have already checked this
-    // and bailed if not true.
-    GrAssert(NULL != drawState->getRenderTarget());
+    const GrDrawState& drawState = this->getDrawState();
 
-    this->flushAAState(type);
-
-    if (drawState->isDitherState()) {
+    if (drawState.isDitherState()) {
         if (kYes_TriState != fHWDitherEnabled) {
             GL_CALL(Enable(GR_GL_DITHER));
             fHWDitherEnabled = kYes_TriState;
@@ -2203,7 +2198,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
         }
     }
 
-    if (drawState->isColorWriteDisabled()) {
+    if (drawState.isColorWriteDisabled()) {
         if (kNo_TriState != fHWWriteToColor) {
             GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE,
                               GR_GL_FALSE, GR_GL_FALSE));
@@ -2216,7 +2211,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
         }
     }
 
-    if (fHWDrawFace != drawState->getDrawFace()) {
+    if (fHWDrawFace != drawState.getDrawFace()) {
         switch (this->getDrawState().getDrawFace()) {
             case GrDrawState::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
@@ -2232,23 +2227,8 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             default:
                 GrCrash("Unknown draw face.");
         }
-        fHWDrawFace = drawState->getDrawFace();
+        fHWDrawFace = drawState.getDrawFace();
     }
-
-#if GR_DEBUG
-    // check for circular rendering
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        GrAssert(!this->isStageEnabled(s) ||
-                 NULL == drawState->getRenderTarget() ||
-                 NULL == drawState->getTexture(s) ||
-                 drawState->getTexture(s)->asRenderTarget() !=
-                    drawState->getRenderTarget());
-    }
-#endif
-
-    this->flushStencil();
-
-    return true;
 }
 
 void GrGpuGL::notifyVertexBufferBind(const GrGLVertexBuffer* buffer) {

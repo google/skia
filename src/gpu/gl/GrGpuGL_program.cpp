@@ -389,11 +389,14 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
 }
 
 bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
-    if (!flushGLStateCommon(type)) {
-        return false;
-    }
-
     const GrDrawState& drawState = this->getDrawState();
+
+    // GrGpu::setupClipAndFlushState should have already checked this
+    // and bailed if not true.
+    GrAssert(NULL != drawState.getRenderTarget());
+
+    this->flushStencil();
+    this->flushAAState(type);
 
     GrBlendCoeff srcCoeff;
     GrBlendCoeff dstCoeff;
@@ -437,6 +440,15 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (this->isStageEnabled(s)) {
+
+
+#if GR_DEBUG
+        // check for circular rendering
+        GrAssert(NULL == drawState.getRenderTarget() ||
+                 NULL == drawState.getTexture(s) ||
+                 drawState.getTexture(s)->asRenderTarget() !=
+                    drawState.getRenderTarget());
+#endif
 
             this->flushBoundTextureAndParams(s);
 
