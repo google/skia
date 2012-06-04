@@ -438,9 +438,6 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (this->isStageEnabled(s)) {
-
-            this->flushBoundTextureAndParams(s);
-
             this->flushTextureMatrixAndDomain(s);
 
             this->flushTexelSize(s);
@@ -458,18 +455,6 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
         }
     }
     this->flushColorMatrix();
-
-    GrIRect* rect = NULL;
-    GrIRect clipBounds;
-    if (drawState.isClipState() &&
-        fClip.hasConservativeBounds()) {
-        fClip.getConservativeBounds().roundOut(&clipBounds);
-        rect = &clipBounds;
-    }
-    // This must come after textures are flushed because a texture may need
-    // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(rect);
-
     return true;
 }
 
