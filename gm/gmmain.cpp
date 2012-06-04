@@ -697,7 +697,7 @@ static void write_picture_serialization(GM* gm, const ConfigData& rec,
 static void usage(const char * argv0) {
     SkDebugf(
         "%s [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n"
-        "    [--noreplay] [--nopipe] [--serialize] [--forceBWtext] [--nopdf] \n"
+        "    [--noreplay] [--pipe] [--serialize] [--forceBWtext] [--nopdf] \n"
         "    [--nodeferred] [--match substring] [--notexturecache]\n"
         , argv0);
     SkDebugf("    writePath: directory to write rendered images in.\n");
@@ -707,7 +707,7 @@ static void usage(const char * argv0) {
     SkDebugf("    diffPath: directory to write difference images in.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
-    SkDebugf("    --nopipe: Skip SkGPipe replay.\n");
+    SkDebugf("    --pipe: Exercise SkGPipe replay.\n");
     SkDebugf(
 "    --serialize: exercise SkPicture serialization & deserialization.\n");
     SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
@@ -818,7 +818,7 @@ int main(int argc, char * const argv[]) {
 
     bool doPDF = true;
     bool doReplay = true;
-    bool doPipe = true;
+    bool doPipe = false;
     bool doSerialize = false;
     bool useDebugGL = false;
     bool doDeferred = true;
@@ -856,8 +856,8 @@ int main(int argc, char * const argv[]) {
             }
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
             gForceBWtext = true;
-        } else if (strcmp(*argv, "--nopipe") == 0) {
-            doPipe = false;
+        } else if (strcmp(*argv, "--pipe") == 0) {
+            doPipe = true;
         } else if (strcmp(*argv, "--noreplay") == 0) {
             doReplay = false;
         } else if (strcmp(*argv, "--nopdf") == 0) {
