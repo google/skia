@@ -311,9 +311,6 @@ public:
         GrColor                     fCoverage;
         GrColor                     fColorFilterColor;
         GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
-        // width and height used for normalized texel size
-        int                         fTextureWidth[GrDrawState::kNumStages];
-        int                         fTextureHeight[GrDrawState::kNumStages]; 
         GrRect                      fTextureDomain[GrDrawState::kNumStages];
         // The texture domain and texture matrix sent to GL depend upon the
         // orientation.
