@@ -27,6 +27,14 @@ private:
     mutable bool fOnce;
 };
 
+static void setColorMatrix(SkPaint* paint, const SkColorMatrix& matrix) {
+    paint->setColorFilter(SkNEW_ARGS(SkColorMatrixFilter, (matrix)))->unref();
+}
+
+static void setArray(SkPaint* paint, const SkScalar array[]) {
+    paint->setColorFilter(SkNEW_ARGS(SkColorMatrixFilter, (array)))->unref();
+}
+
 namespace skiagm {
 
 class ColorMatrixGM : public GM {
@@ -72,47 +80,45 @@ protected:
 
         SkPaint paint;
         SkColorMatrix matrix;
-        SkColorMatrixFilter* filter = new SkColorMatrixFilter();
-        paint.setColorFilter(filter)->unref();
 
         matrix.setIdentity();
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 0, 0, &paint);
 
         matrix.setRotate(SkColorMatrix::kR_Axis, 90);
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 80, 0, &paint);
 
         matrix.setRotate(SkColorMatrix::kG_Axis, 90);
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 160, 0, &paint);
 
         matrix.setRotate(SkColorMatrix::kB_Axis, 90);
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 240, 0, &paint);
 
         matrix.setSaturation(SkFloatToScalar(0.0f));
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 0, 80, &paint);
 
         matrix.setSaturation(SkFloatToScalar(0.5f));
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 80, 80, &paint);
 
         matrix.setSaturation(SkFloatToScalar(1.0f));
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 160, 80, &paint);
 
         matrix.setSaturation(SkFloatToScalar(2.0f));
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 240, 80, &paint);
 
         matrix.setRGB2YUV();
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 0, 160, &paint);
 
         matrix.setYUV2RGB();
-        filter->setMatrix(matrix);
+        setColorMatrix(&paint, matrix);
         canvas->drawBitmap(fBitmap, 80, 160, &paint);
 
         SkScalar s1 = SK_Scalar1;
@@ -125,7 +131,7 @@ protected:
             s1, 0, 0, 0, 0,
         };
 
-        filter->setArray(data);
+        setArray(&paint, data);
         canvas->drawBitmap(fBitmap, 160, 160, &paint);
     }
     
