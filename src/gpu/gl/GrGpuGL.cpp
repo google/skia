@@ -2109,6 +2109,82 @@ void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
 }
 }
 
+void GrGpuGL::flushBoundTextureAndParams(int stage) {
+    GrDrawState* drawState = this->drawState();
+
+    GrGLTexture* nextTexture = 
+        static_cast<GrGLTexture*>(drawState->getTexture(stage));
+
+    // true for now, but maybe not with GrEffect.
+    GrAssert(NULL != nextTexture);
+    // if we created a rt/tex and rendered to it without using a
+    // texture and now we're texturing from the rt it will still be
+    // the last bound texture, but it needs resolving. So keep this
+    // out of the "last != next" check.
+    GrGLRenderTarget* texRT = 
+        static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
+    if (NULL != texRT) {
+        this->onResolveRenderTarget(texRT);
+    }
+
+    if (fHWBoundTextures[stage] != nextTexture) {
+        this->setTextureUnit(stage);
+        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
+    #if GR_COLLECT_STATS
+        ++fStats.fTextureChngCnt;
+    #endif
+        //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
+        fHWBoundTextures[stage] = nextTexture;
+    }
+
+    const GrSamplerState& sampler = drawState->getSampler(stage);
+    ResetTimestamp timestamp;
+    const GrGLTexture::TexParams& oldTexParams =
+                            nextTexture->getCachedTexParams(&timestamp);
+    bool setAll = timestamp < this->getResetTimestamp();
+    GrGLTexture::TexParams newTexParams;
+
+    newTexParams.fFilter = gr_to_gl_filter(sampler.getFilter());
+
+    const GrGLenum* wraps =  GrGLTexture::WrapMode2GLWrap();
+    newTexParams.fWrapS = wraps[sampler.getWrapX()];
+    newTexParams.fWrapT = wraps[sampler.getWrapY()];
+    memcpy(newTexParams.fSwizzleRGBA,
+           get_swizzle(nextTexture->config(), sampler, this->glCaps()),
+           sizeof(newTexParams.fSwizzleRGBA));
+    if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
+        this->setTextureUnit(stage);
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_MAG_FILTER,
+                              newTexParams.fFilter));
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_MIN_FILTER,
+                              newTexParams.fFilter));
+    }
+    if (setAll || newTexParams.fWrapS != oldTexParams.fWrapS) {
+        this->setTextureUnit(stage);
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_WRAP_S,
+                              newTexParams.fWrapS));
+    }
+    if (setAll || newTexParams.fWrapT != oldTexParams.fWrapT) {
+        this->setTextureUnit(stage);
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_WRAP_T,
+                              newTexParams.fWrapT));
+    }
+    if (this->glCaps().textureSwizzleSupport() &&
+        (setAll || memcmp(newTexParams.fSwizzleRGBA,
+                          oldTexParams.fSwizzleRGBA,
+                          sizeof(newTexParams.fSwizzleRGBA)))) {
+        this->setTextureUnit(stage);
+        set_tex_swizzle(newTexParams.fSwizzleRGBA,
+                        this->glInterface());
+    }
+    nextTexture->setCachedTexParams(newTexParams,
+                                    this->getResetTimestamp());
+}
+
 bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     GrDrawState* drawState = this->drawState();
@@ -2116,92 +2192,6 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     // and bailed if not true.
     GrAssert(NULL != drawState->getRenderTarget());
 
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        // bind texture and set sampler state
-        if (this->isStageEnabled(s)) {
-            GrGLTexture* nextTexture = 
-                static_cast<GrGLTexture*>(drawState->getTexture(s));
-
-            // true for now, but maybe not with GrEffect.
-            GrAssert(NULL != nextTexture);
-            // if we created a rt/tex and rendered to it without using a
-            // texture and now we're texturing from the rt it will still be
-            // the last bound texture, but it needs resolving. So keep this
-            // out of the "last != next" check.
-            GrGLRenderTarget* texRT = 
-                static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
-            if (NULL != texRT) {
-                this->onResolveRenderTarget(texRT);
-            }
-
-            if (fHWBoundTextures[s] != nextTexture) {
-                this->setTextureUnit(s);
-                GL_CALL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
-            #if GR_COLLECT_STATS
-                ++fStats.fTextureChngCnt;
-            #endif
-                //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
-                fHWBoundTextures[s] = nextTexture;
-            }
-
-            const GrSamplerState& sampler = drawState->getSampler(s);
-            ResetTimestamp timestamp;
-            const GrGLTexture::TexParams& oldTexParams =
-                                    nextTexture->getCachedTexParams(&timestamp);
-            bool setAll = timestamp < this->getResetTimestamp();
-            GrGLTexture::TexParams newTexParams;
-
-            newTexParams.fFilter = gr_to_gl_filter(sampler.getFilter());
-
-            const GrGLenum* wraps =  GrGLTexture::WrapMode2GLWrap();
-            newTexParams.fWrapS = wraps[sampler.getWrapX()];
-            newTexParams.fWrapT = wraps[sampler.getWrapY()];
-            memcpy(newTexParams.fSwizzleRGBA,
-                   get_swizzle(nextTexture->config(), sampler, this->glCaps()),
-                   sizeof(newTexParams.fSwizzleRGBA));
-            if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
-                this->setTextureUnit(s);
-                GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_MAG_FILTER,
-                                        newTexParams.fFilter));
-                GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_MIN_FILTER,
-                                        newTexParams.fFilter));
-            }
-            if (setAll || newTexParams.fWrapS != oldTexParams.fWrapS) {
-                this->setTextureUnit(s);
-                GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_WRAP_S,
-                                        newTexParams.fWrapS));
-            }
-            if (setAll || newTexParams.fWrapT != oldTexParams.fWrapT) {
-                this->setTextureUnit(s);
-                GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_WRAP_T,
-                                        newTexParams.fWrapT));
-            }
-            if (this->glCaps().textureSwizzleSupport() &&
-                (setAll ||
-                 memcmp(newTexParams.fSwizzleRGBA,
-                        oldTexParams.fSwizzleRGBA,
-                        sizeof(newTexParams.fSwizzleRGBA)))) {
-                this->setTextureUnit(s);
-                set_tex_swizzle(newTexParams.fSwizzleRGBA,
-                                this->glInterface());
-            }
-            nextTexture->setCachedTexParams(newTexParams,
-                                            this->getResetTimestamp());
-        }
-    }
-
-    GrIRect* rect = NULL;
-    GrIRect clipBounds;
-    if (drawState->isClipState() &&
-        fClip.hasConservativeBounds()) {
-        fClip.getConservativeBounds().roundOut(&clipBounds);
-        rect = &clipBounds;
-    }
-    this->flushRenderTarget(rect);
     this->flushAAState(type);
 
     if (drawState->isDitherState()) {
