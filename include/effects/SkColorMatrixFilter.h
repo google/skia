@@ -15,12 +15,8 @@
 
 class SK_API SkColorMatrixFilter : public SkColorFilter {
 public:
-    SkColorMatrixFilter();
     explicit SkColorMatrixFilter(const SkColorMatrix&);
     SkColorMatrixFilter(const SkScalar array[20]);
-
-    void setMatrix(const SkColorMatrix&);
-    void setArray(const SkScalar array[20]);
 
     // overrides from SkColorFilter
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor[]) SK_OVERRIDE;
@@ -41,6 +37,7 @@ protected:
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
+    SkColorMatrix fMatrix;
 
     typedef void (*Proc)(State*, unsigned r, unsigned g, unsigned b,
                          unsigned a);
@@ -49,7 +46,7 @@ private:
     State       fState;
     uint32_t    fFlags;
 
-    void setup(const SkScalar array[20]);
+    void initState(const SkScalar array[20]);
 
     typedef SkColorFilter INHERITED;
 };
