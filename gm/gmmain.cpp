@@ -277,8 +277,10 @@ static void installFilter(SkCanvas* canvas) {
 }
 
 static void invokeGM(GM* gm, SkCanvas* canvas, bool isPDF = false) {
+    SkAutoCanvasRestore acr(canvas, true);
+
     if (!isPDF) {
-        canvas->setMatrix(gm->getInitialTransform());
+        canvas->concat(gm->getInitialTransform());
     }
     installFilter(canvas);
     gm->draw(canvas);
