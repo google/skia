@@ -156,8 +156,9 @@ static void clipRegion_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void clipRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
-    canvas->clipRect(*skip<SkRect>(reader),
-                     (SkRegion::Op)DrawOp_unpackData(op32), reader->readBool());
+    const SkRect* rect = skip<SkRect>(reader);
+    bool doAA = reader->readBool();
+    canvas->clipRect(*rect, (SkRegion::Op)DrawOp_unpackData(op32), doAA);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -364,10 +365,9 @@ static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
     unsigned index = DrawOp_unpackData(op32);
     SkBitmap* bm = state->getBitmap(index);
     bool hasPaint = reader->readBool();
-    SkIRect center = SkIRect::MakeLTRB(reader->readInt(), reader->readInt(),
-                                       reader->readInt(), reader->readInt());
+    const SkIRect* center = skip<SkIRect>(reader);
     const SkRect* dst = skip<SkRect>(reader);
-    canvas->drawBitmapNine(*bm, center, *dst,
+    canvas->drawBitmapNine(*bm, *center, *dst,
                            hasPaint ? &state->paint() : NULL);
 }
 
@@ -377,14 +377,14 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
     SkBitmap* bm = state->getBitmap(index);
     bool hasPaint = reader->readBool();
     bool hasSrc = reader->readBool();
-    SkIRect src; 
+    const SkIRect* src;
     if (hasSrc) {
-        src = SkIRect::MakeLTRB(reader->readInt(), reader->readInt(),
-                                reader->readInt(), reader->readInt());
+        src = skip<SkIRect>(reader);
+    } else {
+        src = NULL;
     }
     const SkRect* dst = skip<SkRect>(reader);
-    canvas->drawBitmapRect(*bm, hasSrc ? &src : NULL, *dst,
-                           hasPaint ? &state->paint() : NULL);
+    canvas->drawBitmapRect(*bm, src, *dst, hasPaint ? &state->paint() : NULL);
 }
 
 static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -392,8 +392,8 @@ static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     unsigned index = DrawOp_unpackData(op32);
     SkBitmap* bm = state->getBitmap(index);
     bool hasPaint = reader->readBool();
-    canvas->drawSprite(*bm, reader->readInt(), reader->readInt(),
-                       hasPaint ? &state->paint() : NULL);
+    const SkIPoint* point = skip<SkIPoint>(reader);
+    canvas->drawSprite(*bm, point->fX, point->fY, hasPaint ? &state->paint() : NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
