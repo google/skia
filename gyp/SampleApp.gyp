@@ -252,7 +252,7 @@
             'experimental.gyp:experimental',
           ],
           'dependencies': [
-            'android_system.gyp:sampleApp',
+            'android_system.gyp:SampleAppAndroid',
           ],
         }],
       ],
