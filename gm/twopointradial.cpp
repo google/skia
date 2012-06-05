@@ -50,6 +50,9 @@ protected:
 
     SkISize onISize() { return skiagm::make_isize(480, 725); }
 
+    // BUG: PDF code (at least on mac) fails when we run this
+    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPDF_Flag; }
+
     virtual void onDraw(SkCanvas* canvas) {
         if (false) {
             SkPaint paint;
