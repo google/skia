@@ -55,36 +55,8 @@ public:
 
     bool programUnitTest();
 
+
 protected:
-
-    enum TriState {
-        kNo_TriState,
-        kYes_TriState,
-        kUnknown_TriState
-    };
-
-    struct {
-        size_t                  fVertexOffset;
-        GrVertexLayout          fVertexLayout;
-        const GrVertexBuffer*   fVertexBuffer;
-        const GrIndexBuffer*    fIndexBuffer;
-        bool                    fArrayPtrsDirty;
-    } fHWGeometryState;
-
-    enum UnpremulConversion {
-        kUpOnWrite_DownOnRead_UnpremulConversion,
-        kDownOnWrite_UpOnRead_UnpremulConversion
-    } fUnpremulConversion;
-
-    // last scissor / viewport scissor state seen by the GL.
-    struct {
-        bool        fScissorEnabled;
-        GrGLIRect   fScissorRect;
-        GrGLIRect   fViewportRect;
-    } fHWBounds;
-
-    const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
-
     // GrGpu overrides
     virtual void onResetContext() SK_OVERRIDE;
 
@@ -146,6 +118,9 @@ protected:
                                int vertexCount,
                                int indexCount) SK_OVERRIDE;
 
+private:
+
+    const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -182,7 +157,6 @@ protected:
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
-private:
     // for readability of function impls
     typedef GrGLProgram::ProgramDesc ProgramDesc;
     typedef ProgramDesc::StageDesc   StageDesc;
@@ -318,12 +292,36 @@ private:
     // GL program-related state
     ProgramCache*               fProgramCache;
     CachedData*                 fProgramData;
+    GrGLProgram                 fCurrentProgram;
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///@name Caching of GL State
+    ///@{
+    int                         fHWActiveTextureUnitIdx;
     GrGLuint                    fHWProgramID;
     GrColor                     fHWConstAttribColor;
     GrColor                     fHWConstAttribCoverage;
-    GrGLProgram                 fCurrentProgram;
 
-    int fActiveTextureUnitIdx;
+    // last scissor / viewport scissor state seen by the GL.
+    struct {
+        bool        fScissorEnabled;
+        GrGLIRect   fScissorRect;
+        GrGLIRect   fViewportRect;
+    } fHWBounds;
+
+    enum TriState {
+        kNo_TriState,
+        kYes_TriState,
+        kUnknown_TriState
+    };
+
+    struct {
+        size_t                  fVertexOffset;
+        GrVertexLayout          fVertexLayout;
+        const GrVertexBuffer*   fVertexBuffer;
+        const GrIndexBuffer*    fIndexBuffer;
+        bool                    fArrayPtrsDirty;
+    } fHWGeometryState;
 
     struct {
         GrBlendCoeff    fSrcCoeff;
@@ -371,10 +369,16 @@ private:
     TriState                fHWDitherEnabled;
     GrRenderTarget*         fHWBoundRenderTarget;
     GrTexture*              fHWBoundTextures[GrDrawState::kNumStages];
+    ///@}
 
     // we record what stencil format worked last time to hopefully exit early
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
+
+    enum UnpremulConversion {
+        kUpOnWrite_DownOnRead_UnpremulConversion,
+        kDownOnWrite_UpOnRead_UnpremulConversion
+    } fUnpremulConversion;
 
     enum CanPreserveUnpremulRoundtrip {
         kUnknown_CanPreserveUnpremulRoundtrip,

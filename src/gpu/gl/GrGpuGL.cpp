@@ -481,7 +481,7 @@ void GrGpuGL::onResetContext() {
     GL_CALL(LineWidth(1));
 
     // invalid
-    fActiveTextureUnitIdx = -1;
+    fHWActiveTextureUnitIdx = -1;
 
     fHWBlendState.invalidate();
 
@@ -2395,16 +2395,16 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
 
 void GrGpuGL::setTextureUnit(int unit) {
     GrAssert(unit >= 0 && unit < GrDrawState::kNumStages);
-    if (fActiveTextureUnitIdx != unit) {
+    if (fHWActiveTextureUnitIdx != unit) {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + unit));
-        fActiveTextureUnitIdx = unit;
+        fHWActiveTextureUnitIdx = unit;
     }
 }
 
 void GrGpuGL::setSpareTextureUnit() {
-    if (fActiveTextureUnitIdx != (GR_GL_TEXTURE0 + SPARE_TEX_UNIT)) {
+    if (fHWActiveTextureUnitIdx != (GR_GL_TEXTURE0 + SPARE_TEX_UNIT)) {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + SPARE_TEX_UNIT));
-        fActiveTextureUnitIdx = SPARE_TEX_UNIT;
+        fHWActiveTextureUnitIdx = SPARE_TEX_UNIT;
     }
 }
 

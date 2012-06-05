@@ -79,7 +79,7 @@ GrGLProgram::CachedData* GrGpuGL::ProgramCache::getProgramData(
 }
 
 void GrGpuGL::DeleteProgram(const GrGLInterface* gl,
-                                   CachedData* programData) {
+                            CachedData* programData) {
     GR_GL_CALL(gl, DeleteShader(programData->fVShaderID));
     if (programData->fGShaderID) {
         GR_GL_CALL(gl, DeleteShader(programData->fGShaderID));
@@ -478,9 +478,9 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 #endif
 
 void GrGpuGL::setupGeometry(int* startVertex,
-                                    int* startIndex,
-                                    int vertexCount,
-                                    int indexCount) {
+                            int* startIndex,
+                            int vertexCount,
+                            int indexCount) {
 
     int newColorOffset;
     int newCoverageOffset;
@@ -635,9 +635,9 @@ void setup_custom_stage(GrGLProgram::ProgramDesc::StageDesc* stage,
 }
 
 void GrGpuGL::buildProgram(GrPrimitiveType type,
-                                  BlendOptFlags blendOpts,
-                                  GrBlendCoeff dstCoeff,
-                                  GrCustomStage** customStages) {
+                           BlendOptFlags blendOpts,
+                           GrBlendCoeff dstCoeff,
+                           GrCustomStage** customStages) {
     ProgramDesc& desc = fCurrentProgram.fProgramDesc;
     const GrDrawState& drawState = this->getDrawState();
 
