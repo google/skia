@@ -347,22 +347,8 @@ private:
         }
     } fHWAAState;
 
-    // The high bit of the stencil buffer is used for clipping. This enum is
-    // used to track whether the clip bit of the stencil buffer is being used,
-    // manipulated, or neither.
-    enum StencilClipMode {
-        // Draw to the clip bit of the stencil buffer
-        kModifyClip_StencilClipMode,
-        // Clip against the existing representation of the clip in the high bit
-        // of the stencil buffer.
-        kUseClip_StencilClipMode,
-        // Neither writing to nor clipping against the clip bit.
-        kIgnoreClip_StencilClipMode,
-        // Unknown state of HW
-        kInvalid_StencilClipMode,
-    };
-    StencilClipMode     fHWStencilClipMode;
-    GrStencilSettings   fHWStencilSettings;
+    GrClipMaskManager::StencilClipMode     fHWStencilClipMode;
+    GrStencilSettings                      fHWStencilSettings;
 
     GrDrawState::DrawFace   fHWDrawFace;
     TriState                fHWWriteToColor;

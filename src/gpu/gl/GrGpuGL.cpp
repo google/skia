@@ -497,7 +497,9 @@ void GrGpuGL::onResetContext() {
     fHWBounds.fViewportRect.invalidate();
 
     fHWStencilSettings.invalidate();
-    fHWStencilClipMode = kInvalid_StencilClipMode;
+    // This is arbitrary. The above invalidate ensures a full setup of the
+    // stencil on the next draw.
+    fHWStencilClipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
 
     // TODO: I believe this should actually go in GrGpu::onResetContext
     // rather than here
@@ -1411,7 +1413,6 @@ void GrGpuGL::clearStencil() {
     GL_CALL(ClearStencil(0));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
-    fHWStencilClipMode = kInvalid_StencilClipMode;
 }
 
 void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
@@ -1446,7 +1447,6 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
     GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
-    fHWStencilClipMode = kInvalid_StencilClipMode;
 }
 
 void GrGpuGL::onForceRenderTargetFlush() {
@@ -1776,75 +1776,121 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
     }
 }
 
-static const GrGLenum grToGLStencilFunc[] = {
-    GR_GL_ALWAYS,           // kAlways_StencilFunc
-    GR_GL_NEVER,            // kNever_StencilFunc
-    GR_GL_GREATER,          // kGreater_StencilFunc
-    GR_GL_GEQUAL,           // kGEqual_StencilFunc
-    GR_GL_LESS,             // kLess_StencilFunc
-    GR_GL_LEQUAL,           // kLEqual_StencilFunc,
-    GR_GL_EQUAL,            // kEqual_StencilFunc,
-    GR_GL_NOTEQUAL,         // kNotEqual_StencilFunc,
-};
-GR_STATIC_ASSERT(GR_ARRAY_COUNT(grToGLStencilFunc) == kBasicStencilFuncCount);
-GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
-GR_STATIC_ASSERT(1 == kNever_StencilFunc);
-GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
-GR_STATIC_ASSERT(3 == kGEqual_StencilFunc);
-GR_STATIC_ASSERT(4 == kLess_StencilFunc);
-GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
-GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
-GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
+namespace {
 
-static const GrGLenum grToGLStencilOp[] = {
-    GR_GL_KEEP,        // kKeep_StencilOp
-    GR_GL_REPLACE,     // kReplace_StencilOp
-    GR_GL_INCR_WRAP,   // kIncWrap_StencilOp
-    GR_GL_INCR,        // kIncClamp_StencilOp
-    GR_GL_DECR_WRAP,   // kDecWrap_StencilOp
-    GR_GL_DECR,        // kDecClamp_StencilOp
-    GR_GL_ZERO,        // kZero_StencilOp
-    GR_GL_INVERT,      // kInvert_StencilOp
-};
-GR_STATIC_ASSERT(GR_ARRAY_COUNT(grToGLStencilOp) == kStencilOpCount);
-GR_STATIC_ASSERT(0 == kKeep_StencilOp);
-GR_STATIC_ASSERT(1 == kReplace_StencilOp);
-GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);
-GR_STATIC_ASSERT(3 == kIncClamp_StencilOp);
-GR_STATIC_ASSERT(4 == kDecWrap_StencilOp);
-GR_STATIC_ASSERT(5 == kDecClamp_StencilOp);
-GR_STATIC_ASSERT(6 == kZero_StencilOp);
-GR_STATIC_ASSERT(7 == kInvert_StencilOp);
+GrGLenum gr_to_gl_stencil_func(GrStencilFunc basicFunc) {
+    static const GrGLenum gTable[] = {
+        GR_GL_ALWAYS,           // kAlways_StencilFunc
+        GR_GL_NEVER,            // kNever_StencilFunc
+        GR_GL_GREATER,          // kGreater_StencilFunc
+        GR_GL_GEQUAL,           // kGEqual_StencilFunc
+        GR_GL_LESS,             // kLess_StencilFunc
+        GR_GL_LEQUAL,           // kLEqual_StencilFunc,
+        GR_GL_EQUAL,            // kEqual_StencilFunc,
+        GR_GL_NOTEQUAL,         // kNotEqual_StencilFunc,
+    };
+    GR_STATIC_ASSERT(GR_ARRAY_COUNT(gTable) == kBasicStencilFuncCount);
+    GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
+    GR_STATIC_ASSERT(1 == kNever_StencilFunc);
+    GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
+    GR_STATIC_ASSERT(3 == kGEqual_StencilFunc);
+    GR_STATIC_ASSERT(4 == kLess_StencilFunc);
+    GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
+    GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
+    GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
+    GrAssert((unsigned) basicFunc < kBasicStencilFuncCount);
+
+    return gTable[basicFunc];
+}
+
+GrGLenum gr_to_gl_stencil_op(GrStencilOp op) {
+    static const GrGLenum gTable[] = {
+        GR_GL_KEEP,        // kKeep_StencilOp
+        GR_GL_REPLACE,     // kReplace_StencilOp
+        GR_GL_INCR_WRAP,   // kIncWrap_StencilOp
+        GR_GL_INCR,        // kIncClamp_StencilOp
+        GR_GL_DECR_WRAP,   // kDecWrap_StencilOp
+        GR_GL_DECR,        // kDecClamp_StencilOp
+        GR_GL_ZERO,        // kZero_StencilOp
+        GR_GL_INVERT,      // kInvert_StencilOp
+    };
+    GR_STATIC_ASSERT(GR_ARRAY_COUNT(gTable) == kStencilOpCount);
+    GR_STATIC_ASSERT(0 == kKeep_StencilOp);
+    GR_STATIC_ASSERT(1 == kReplace_StencilOp);
+    GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);
+    GR_STATIC_ASSERT(3 == kIncClamp_StencilOp);
+    GR_STATIC_ASSERT(4 == kDecWrap_StencilOp);
+    GR_STATIC_ASSERT(5 == kDecClamp_StencilOp);
+    GR_STATIC_ASSERT(6 == kZero_StencilOp);
+    GR_STATIC_ASSERT(7 == kInvert_StencilOp);
+    GrAssert((unsigned) op < kStencilOpCount);
+    return gTable[op];
+}
+
+void set_gl_stencil(const GrGLInterface* gl,
+                    GrGLenum glFace,
+                    GrStencilFunc func,
+                    GrStencilOp failOp,
+                    GrStencilOp passOp,
+                    unsigned int ref,
+                    unsigned int mask,
+                    unsigned int writeMask) {
+    GrGLenum glFunc = gr_to_gl_stencil_func(func);
+    GrGLenum glFailOp = gr_to_gl_stencil_op(failOp);
+    GrGLenum glPassOp = gr_to_gl_stencil_op(passOp);
+
+    if (GR_GL_FRONT_AND_BACK == glFace) {
+        // we call the combined func just in case separate stencil is not
+        // supported.
+        GR_GL_CALL(gl, StencilFunc(glFunc, ref, mask));
+        GR_GL_CALL(gl, StencilMask(writeMask));
+        GR_GL_CALL(gl, StencilOp(glFailOp, glPassOp, glPassOp));
+    } else {
+        GR_GL_CALL(gl, StencilFuncSeparate(glFace, glFunc, ref, mask));
+        GR_GL_CALL(gl, StencilMaskSeparate(glFace, writeMask));
+        GR_GL_CALL(gl, StencilOpSeparate(glFace, glFailOp, glPassOp, glPassOp));
+    }
+}
+}
 
 void GrGpuGL::flushStencil() {
     const GrDrawState& drawState = this->getDrawState();
 
-    const GrStencilSettings* settings = &drawState.getStencil();
-
     // use stencil for clipping if clipping is enabled and the clip
     // has been written into the stencil.
-    StencilClipMode clipMode;
+    GrClipMaskManager::StencilClipMode clipMode;
     if (fClipMaskManager.isClipInStencil() &&
         drawState.isClipState()) {
-        clipMode = kUseClip_StencilClipMode;
+        clipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
         // We can't be modifying the clip and respecting it at the same time.
         GrAssert(!drawState.isStateFlagEnabled(kModifyStencilClip_StateBit));
     } else if (drawState.isStateFlagEnabled(kModifyStencilClip_StateBit)) {
-        clipMode = kModifyClip_StencilClipMode;
+        clipMode = GrClipMaskManager::kModifyClip_StencilClipMode;
     } else {
-        clipMode = kIgnoreClip_StencilClipMode;
+        clipMode = GrClipMaskManager::kIgnoreClip_StencilClipMode;
     }
 
-    bool stencilChange = (fHWStencilSettings != *settings) ||
-                         (fHWStencilClipMode != clipMode);
-    if (stencilChange) {
+    // The caller may not be using the stencil buffer but we may need to enable
+    // it in order to respect a stencil clip.
+    const GrStencilSettings* settings = &drawState.getStencil();
+    if (settings->isDisabled() &&
+        GrClipMaskManager::kRespectClip_StencilClipMode == clipMode) {
+        settings = GetClipStencilSettings();
+    }
 
-        if (settings->isDisabled()) {
-            if (kUseClip_StencilClipMode == clipMode) {
-                settings = GetClipStencilSettings();
-            }
-        }
+    // TODO: dynamically attach a stencil buffer
+    int stencilBits = 0;
+    GrStencilBuffer* stencilBuffer = 
+        drawState.getRenderTarget()->getStencilBuffer();
+    if (NULL != stencilBuffer) {
+        stencilBits = stencilBuffer->bits();
+    }
+    GrAssert(stencilBits || settings->isDisabled());
 
+    bool updateStencilSettings = stencilBits > 0 &&
+                                 ((fHWStencilSettings != *settings) ||
+                                  (fHWStencilClipMode != clipMode));
+    if (updateStencilSettings) {
         if (settings->isDisabled()) {
             GL_CALL(Disable(GR_GL_STENCIL_TEST));
         } else {
@@ -1861,96 +1907,55 @@ void GrGpuGL::flushStencil() {
                 GrAssert(settings->frontFailOp() != kDecWrap_StencilOp);
             }
     #endif
-            int stencilBits = 0;
-            GrStencilBuffer* stencilBuffer =
-                drawState.getRenderTarget()->getStencilBuffer();
-            if (NULL != stencilBuffer) {
-                stencilBits = stencilBuffer->bits();
-            }
-            // TODO: dynamically attach a stencil buffer
-            GrAssert(stencilBits || settings->isDisabled());
-
-            GrGLuint clipStencilMask = 0;
-            GrGLuint userStencilMask = ~0;
-            if (stencilBits > 0) {
-                clipStencilMask =  1 << (stencilBits - 1);
-                userStencilMask = clipStencilMask - 1;
-            }
 
             unsigned int frontRef  = settings->frontFuncRef();
             unsigned int frontMask = settings->frontFuncMask();
             unsigned int frontWriteMask = settings->frontWriteMask();
-            GrGLenum frontFunc;
 
-            if (kModifyClip_StencilClipMode == clipMode) {
-                GrAssert(settings->frontFunc() < kBasicStencilFuncCount);
-                frontFunc = grToGLStencilFunc[settings->frontFunc()];
-            } else {
-                bool useClip = kUseClip_StencilClipMode == clipMode;
-                frontFunc = grToGLStencilFunc[ConvertStencilFunc(useClip,
-                                                    settings->frontFunc())];
-
-                ConvertStencilFuncAndMask(settings->frontFunc(),
-                                          useClip,
-                                          clipStencilMask,
-                                          userStencilMask,
-                                          &frontRef,
-                                          &frontMask);
-                frontWriteMask &= userStencilMask;
-            }
-            GrAssert((size_t)
-                settings->frontFailOp() < GR_ARRAY_COUNT(grToGLStencilOp));
-            GrAssert((size_t)
-                settings->frontPassOp() < GR_ARRAY_COUNT(grToGLStencilOp));
-            GrAssert((size_t)
-                settings->backFailOp() < GR_ARRAY_COUNT(grToGLStencilOp));
-            GrAssert((size_t)
-                settings->backPassOp() < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrStencilFunc frontFunc =
+                fClipMaskManager.adjustStencilParams(settings->frontFunc(),
+                                                     clipMode,
+                                                     stencilBits,
+                                                     &frontRef,
+                                                     &frontMask,
+                                                     &frontWriteMask);
             if (this->getCaps().fTwoSidedStencilSupport) {
-                GrGLenum backFunc;
-
                 unsigned int backRef  = settings->backFuncRef();
                 unsigned int backMask = settings->backFuncMask();
                 unsigned int backWriteMask = settings->backWriteMask();
 
-
-                if (kModifyClip_StencilClipMode == clipMode) {
-                    GrAssert(settings->backFunc() < kBasicStencilFuncCount);
-                    backFunc = grToGLStencilFunc[settings->backFunc()];
-                } else {
-                    bool useClip = kUseClip_StencilClipMode == clipMode;
-                    backFunc = grToGLStencilFunc[ConvertStencilFunc(useClip, 
-                                                        settings->backFunc())];
-                    ConvertStencilFuncAndMask(settings->backFunc(),
-                                              useClip,
-                                              clipStencilMask,
-                                              userStencilMask,
-                                              &backRef,
-                                              &backMask);
-                    backWriteMask &= userStencilMask;
-                }
-
-                GL_CALL(StencilFuncSeparate(GR_GL_FRONT, frontFunc,
-                                            frontRef, frontMask));
-                GL_CALL(StencilMaskSeparate(GR_GL_FRONT, frontWriteMask));
-                GL_CALL(StencilFuncSeparate(GR_GL_BACK, backFunc,
-                                            backRef, backMask));
-                GL_CALL(StencilMaskSeparate(GR_GL_BACK, backWriteMask));
-                GL_CALL(StencilOpSeparate(GR_GL_FRONT,
-                                    grToGLStencilOp[settings->frontFailOp()],
-                                    grToGLStencilOp[settings->frontPassOp()],
-                                    grToGLStencilOp[settings->frontPassOp()]));
-
-                GL_CALL(StencilOpSeparate(GR_GL_BACK,
-                                    grToGLStencilOp[settings->backFailOp()],
-                                    grToGLStencilOp[settings->backPassOp()],
-                                    grToGLStencilOp[settings->backPassOp()]));
+                GrStencilFunc backFunc =
+                    fClipMaskManager.adjustStencilParams(settings->frontFunc(),
+                                                         clipMode,
+                                                         stencilBits,
+                                                         &backRef,
+                                                         &backMask,
+                                                         &backWriteMask);
+                set_gl_stencil(this->glInterface(),
+                               GR_GL_FRONT,
+                               frontFunc,
+                               settings->frontFailOp(),
+                               settings->frontPassOp(),
+                               frontRef,
+                               frontMask,
+                               frontWriteMask);
+                set_gl_stencil(this->glInterface(),
+                               GR_GL_BACK,
+                               backFunc,
+                               settings->backFailOp(),
+                               settings->backPassOp(),
+                               backRef,
+                               backMask,
+                               backWriteMask);
             } else {
-                GL_CALL(StencilFunc(frontFunc, frontRef, frontMask));
-                GL_CALL(StencilMask(frontWriteMask));
-                GL_CALL(StencilOp(grToGLStencilOp[settings->frontFailOp()],
-                                grToGLStencilOp[settings->frontPassOp()],
-                                grToGLStencilOp[settings->frontPassOp()]));
+                set_gl_stencil(this->glInterface(),
+                               GR_GL_FRONT_AND_BACK,
+                               frontFunc,
+                               settings->frontFailOp(),
+                               settings->frontPassOp(),
+                               frontRef,
+                               frontMask,
+                               frontWriteMask);
             }
         }
         fHWStencilSettings = *settings;

@@ -862,6 +862,100 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
     return true;
 }
 
+// mapping of clip-respecting stencil funcs to normal stencil funcs
+// mapping depends on whether stencil-clipping is in effect.
+static const GrStencilFunc 
+    gSpecialToBasicStencilFunc[2][kClipStencilFuncCount] = {
+    {// Stencil-Clipping is DISABLED,  we are effectively always inside the clip
+        // In the Clip Funcs
+        kAlways_StencilFunc,          // kAlwaysIfInClip_StencilFunc
+        kEqual_StencilFunc,           // kEqualIfInClip_StencilFunc
+        kLess_StencilFunc,            // kLessIfInClip_StencilFunc
+        kLEqual_StencilFunc,          // kLEqualIfInClip_StencilFunc
+        // Special in the clip func that forces user's ref to be 0.
+        kNotEqual_StencilFunc,        // kNonZeroIfInClip_StencilFunc
+                                      // make ref 0 and do normal nequal.
+    },
+    {// Stencil-Clipping is ENABLED
+        // In the Clip Funcs
+        kEqual_StencilFunc,           // kAlwaysIfInClip_StencilFunc
+                                      // eq stencil clip bit, mask
+                                      // out user bits.
+
+        kEqual_StencilFunc,           // kEqualIfInClip_StencilFunc
+                                      // add stencil bit to mask and ref
+
+        kLess_StencilFunc,            // kLessIfInClip_StencilFunc
+        kLEqual_StencilFunc,          // kLEqualIfInClip_StencilFunc
+                                      // for both of these we can add
+                                      // the clip bit to the mask and
+                                      // ref and compare as normal
+        // Special in the clip func that forces user's ref to be 0.
+        kLess_StencilFunc,            // kNonZeroIfInClip_StencilFunc
+                                      // make ref have only the clip bit set
+                                      // and make comparison be less
+                                      // 10..0 < 1..user_bits..
+    }
+};
+
+GrStencilFunc GrClipMaskManager::adjustStencilParams(GrStencilFunc func,
+                                                     StencilClipMode mode,
+                                                     unsigned int stencilBitCnt,
+                                                     unsigned int* ref,
+                                                     unsigned int* mask,
+                                                     unsigned int* writeMask) {
+    GrAssert(stencilBitCnt > 0);
+    GrAssert((unsigned) func < kStencilFuncCount);
+
+    if (kModifyClip_StencilClipMode == mode) {
+        // We assume that this class is the client/draw-caller of the GrGpu and
+        // has already setup the correct values
+        return func;
+    }
+    unsigned int clipBit = (1 << (stencilBitCnt - 1));
+    unsigned int userBits = clipBit - 1;
+
+    *writeMask &= userBits;
+
+    if (func >= kBasicStencilFuncCount) {
+        int respectClip = kRespectClip_StencilClipMode == mode;
+        if (respectClip) {
+            // The GrGpu class should have checked this
+            GrAssert(this->isClipInStencil());
+            switch (func) {
+                case kAlwaysIfInClip_StencilFunc:
+                    *mask = clipBit;
+                    *ref = clipBit;
+                    break;
+                case kEqualIfInClip_StencilFunc:
+                case kLessIfInClip_StencilFunc:
+                case kLEqualIfInClip_StencilFunc:
+                    *mask = (*mask & userBits) | clipBit;
+                    *ref = (*ref & userBits) | clipBit;
+                    break;
+                case kNonZeroIfInClip_StencilFunc:
+                    *mask = (*mask & userBits) | clipBit;
+                    *ref = clipBit;
+                    break;
+                default:
+                    GrCrash("Unknown stencil func");
+            }
+        } else {
+            *mask &= userBits;
+            *ref &= userBits;
+        }
+        const GrStencilFunc* table =  gSpecialToBasicStencilFunc[respectClip];
+        func = table[func - kBasicStencilFuncCount];
+        GrAssert(func >= 0 && func < kBasicStencilFuncCount);
+    } else {
+        *mask &= userBits;
+        *ref &= userBits;
+    }
+    return func;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace {
 
 GrPathFill invert_fill(GrPathFill fill) {
@@ -883,7 +977,6 @@ GrPathFill invert_fill(GrPathFill fill) {
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
                                                const GrClip& clipIn,
                                                GrTexture** result,

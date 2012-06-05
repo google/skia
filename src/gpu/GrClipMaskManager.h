@@ -9,14 +9,16 @@
 #ifndef GrClipMaskManager_DEFINED
 #define GrClipMaskManager_DEFINED
 
-#include "GrRect.h"
-#include "SkPath.h"
-#include "GrNoncopyable.h"
 #include "GrClip.h"
-#include "SkRefCnt.h"
-#include "GrTexture.h"
-#include "SkDeque.h"
 #include "GrContext.h"
+#include "GrNoncopyable.h"
+#include "GrRect.h"
+#include "GrStencil.h"
+#include "GrTexture.h"
+
+#include "SkDeque.h"
+#include "SkPath.h"
+#include "SkRefCnt.h"
 
 class GrGpu;
 class GrPathRenderer;
@@ -319,7 +321,34 @@ public:
         return fAACache.getContext();
     }
 
-protected:
+    /**
+     * Informs the helper function adjustStencilParams() about how the stencil
+     * buffer clip is being used.
+     */
+    enum StencilClipMode {
+        // Draw to the clip bit of the stencil buffer
+        kModifyClip_StencilClipMode,
+        // Clip against the existing representation of the clip in the high bit
+        // of the stencil buffer.
+        kRespectClip_StencilClipMode,
+        // Neither writing to nor clipping against the clip bit.
+        kIgnoreClip_StencilClipMode,
+    };
+
+    /**
+     * The stencil func, mask, and reference value are specified by GrGpu's
+     * caller but the actual values passed to the API may have to be adjusted
+     * due to the stencil buffer simultaneously being used for clipping. This
+     * function should be called even when clipping is disabled in order to
+     * prevent the clip from being accidentally overwritten.
+     */
+    GrStencilFunc adjustStencilParams(GrStencilFunc,
+                                      StencilClipMode mode,
+                                      unsigned int stencilBitCnt,
+                                      unsigned int* ref,
+                                      unsigned int* mask,
+                                      unsigned int* writeMask);
+
 private:
     bool fClipMaskInStencil;        // is the clip mask in the stencil buffer?
     bool fClipMaskInAlpha;          // is the clip mask in an alpha texture?
