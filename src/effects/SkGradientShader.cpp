@@ -2023,7 +2023,8 @@ private:
     void init() {
         fDiff = fCenter1 - fCenter2;
         fDiffRadius = fRadius2 - fRadius1;
-        SkScalar inv = SkScalarInvert(fDiffRadius);
+        // hack to avoid zero-divide for now
+        SkScalar inv = fDiffRadius ? SkScalarInvert(fDiffRadius) : 0;
         fDiff.fX = SkScalarMul(fDiff.fX, inv);
         fDiff.fY = SkScalarMul(fDiff.fY, inv);
         fStartRadius = SkScalarMul(fRadius1, inv);
