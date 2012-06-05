@@ -11,8 +11,6 @@
 #include "gm.h"
 #include "SkRandom.h"
 
-namespace skiagm {
-
 #define W   400
 #define H   400
 #define N   50
@@ -36,7 +34,7 @@ static void rnd_rect(SkRect* r, SkPaint* paint, SkRandom& rand) {
 }
 
     
-class StrokesGM : public GM {
+class StrokesGM : public skiagm::GM {
 public:
     StrokesGM() {}
     
@@ -46,7 +44,7 @@ protected:
     }
     
     virtual SkISize onISize() {
-        return make_isize(W, H*2);
+        return SkISize::Make(W, H*2);
     }
     
     virtual void onDraw(SkCanvas* canvas) {        
@@ -76,10 +74,10 @@ protected:
     }
     
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
 
-class Strokes2GM : public GM {
+class Strokes2GM : public skiagm::GM {
     SkPath fPath;
 public:
     Strokes2GM() {
@@ -98,7 +96,7 @@ protected:
     }
     
     virtual SkISize onISize() {
-        return make_isize(W, H*2);
+        return SkISize::Make(W, H*2);
     }
     
     static void rotate(SkScalar angle, SkScalar px, SkScalar py, SkCanvas* canvas) {
@@ -134,16 +132,121 @@ protected:
     }
     
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new StrokesGM; }
-static GMRegistry reg(MyFactory);
-
-static GM* MyFactory2(void*) { return new Strokes2GM; }
-static GMRegistry reg2(MyFactory2);
-
+static SkRect inset(const SkRect& r) {
+    SkRect rr(r);
+    rr.inset(r.width()/10, r.height()/10);
+    return rr;
 }
+
+class Strokes3GM : public skiagm::GM {
+    static void make0(SkPath* path, const SkRect& bounds, SkString* title) {
+        path->addRect(bounds, SkPath::kCW_Direction);
+        path->addRect(inset(bounds), SkPath::kCW_Direction);
+        title->set("CW CW");
+    }
+    
+    static void make1(SkPath* path, const SkRect& bounds, SkString* title) {
+        path->addRect(bounds, SkPath::kCW_Direction);
+        path->addRect(inset(bounds), SkPath::kCCW_Direction);
+        title->set("CW CCW");
+    }
+    
+    static void make2(SkPath* path, const SkRect& bounds, SkString* title) {
+        path->addOval(bounds, SkPath::kCW_Direction);
+        path->addOval(inset(bounds), SkPath::kCW_Direction);
+        title->set("CW CW");
+    }
+    
+    static void make3(SkPath* path, const SkRect& bounds, SkString* title) {
+        path->addOval(bounds, SkPath::kCW_Direction);
+        path->addOval(inset(bounds), SkPath::kCCW_Direction);
+        title->set("CW CCW");
+    }
+    
+    static void make4(SkPath* path, const SkRect& bounds, SkString* title) {
+        path->addRect(bounds, SkPath::kCW_Direction);
+        SkRect r = bounds;
+        r.inset(bounds.width() / 10, -bounds.height() / 10);
+        path->addOval(r, SkPath::kCW_Direction);
+        title->set("CW CW");
+    }
+    
+    static void make5(SkPath* path, const SkRect& bounds, SkString* title) {
+        path->addRect(bounds, SkPath::kCW_Direction);
+        SkRect r = bounds;
+        r.inset(bounds.width() / 10, -bounds.height() / 10);
+        path->addOval(r, SkPath::kCCW_Direction);
+        title->set("CW CCW");
+    }
+
+public:
+    Strokes3GM() {}
+    
+protected:
+    virtual SkString onShortName() {
+        return SkString("strokes3");
+    }
+    
+    virtual SkISize onISize() {
+        return SkISize::Make(W, H*2);
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) {
+        SkPaint origPaint;
+        origPaint.setAntiAlias(true);
+        origPaint.setStyle(SkPaint::kStroke_Style);
+        SkPaint fillPaint(origPaint);
+        fillPaint.setColor(SK_ColorRED);
+        SkPaint strokePaint(origPaint);
+        strokePaint.setColor(0xFF4444FF);
+
+        void (*procs[])(SkPath*, const SkRect&, SkString*) = {
+            make0, make1, make2, make3, make4, make5
+        };
+
+        canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
+
+        SkRect bounds = SkRect::MakeWH(SkIntToScalar(50), SkIntToScalar(50));
+        SkScalar dx = bounds.width() * 4/3;
+        SkScalar dy = bounds.height() * 5;
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
+            SkPath orig;
+            SkString str;
+            procs[i](&orig, bounds, &str);
+            
+            canvas->save();
+            for (int j = 0; j < 13; ++j) {
+                strokePaint.setStrokeWidth(SK_Scalar1 * j * j);
+                canvas->drawPath(orig, strokePaint);
+                canvas->drawPath(orig, origPaint);
+                SkPath fill;
+                strokePaint.getFillPath(orig, &fill);
+                canvas->drawPath(fill, fillPaint);
+                canvas->translate(dx + strokePaint.getStrokeWidth(), 0);
+            }
+            canvas->restore();
+            canvas->translate(0, dy);
+        }
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+static skiagm::GM* F0(void*) { return new StrokesGM; }
+static skiagm::GM* F1(void*) { return new Strokes2GM; }
+static skiagm::GM* F2(void*) { return new Strokes3GM; }
+
+static skiagm::GMRegistry R0(F0);
+static skiagm::GMRegistry R1(F1);
+static skiagm::GMRegistry R2(F2);
+
 
