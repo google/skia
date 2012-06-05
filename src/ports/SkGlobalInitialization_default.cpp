@@ -42,6 +42,7 @@
 #include "SkPathEffect.h"
 #include "SkPixelXorXfermode.h"
 #include "SkRectShape.h"
+#include "SkStippleMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
 
