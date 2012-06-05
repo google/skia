@@ -21,6 +21,7 @@
 #include "SkImageEncoder.h"
 #include "SkPicture.h"
 #include "SkStream.h"
+#include "SkRefCnt.h"
 
 static bool gForceBWtext;
 
@@ -804,7 +805,7 @@ private:
 }
 
 int main(int argc, char * const argv[]) {
-    SkAutoGraphics ag;
+    SkGraphics::Init();
     // we don't need to see this during a run
     gSkSuppressFontCachePurgeSpew = true;
 
@@ -892,7 +893,7 @@ int main(int argc, char * const argv[]) {
 
     GM::SetResourcePath(resourcePath);
 
-    GrContextFactory grFactory;
+    GrContextFactory* grFactory = new GrContextFactory;
 
     if (readPath) {
         fprintf(stderr, "reading from %s\n", readPath);
@@ -935,7 +936,7 @@ int main(int argc, char * const argv[]) {
             SkAutoTUnref<GrRenderTarget> rt;
             AutoResetGr autogr;
             if (kGPU_Backend == gRec[i].fBackend) {
-                GrContext* gr = grFactory.get(gRec[i].fGLContextType);
+                GrContext* gr = grFactory->get(gRec[i].fGLContextType);
                 if (!gr) {
                     continue;
                 }
@@ -1035,6 +1036,12 @@ int main(int argc, char * const argv[]) {
     }
     printf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
            testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
+
+    delete grFactory;
+    SkGraphics::Term();
+
+    PRINT_INST_COUNT(SkRefCnt);
+    PRINT_INST_COUNT(GrResource);
 
     return (0 == testsFailed) ? 0 : -1;
 }
