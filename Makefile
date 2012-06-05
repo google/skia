@@ -86,12 +86,15 @@ out/Makefile:
 # For the Mac, we create a convenience symlink to the generated binary.
 .PHONY: $(ALL_TARGETS)
 $(ALL_TARGETS):: gyp_if_needed
-ifneq (,$(findstring Linux, $(uname)))
+ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
 	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
-endif
-ifneq (,$(findstring Darwin, $(uname)))
+else ifneq (,$(findstring Linux, $(uname)))
+	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
+else ifneq (,$(findstring Darwin, $(uname)))
 	rm -f out/$(BUILDTYPE) || if test -d out/$(BUILDTYPE); then echo "run 'make clean' or otherwise delete out/$(BUILDTYPE)"; exit 1; fi
 	xcodebuild -project out/gyp/$@.xcodeproj -configuration $(BUILDTYPE)
 	ln -s $(CWD)/xcodebuild/$(BUILDTYPE) out/$(BUILDTYPE)
+else
+	echo "unknown platform $(uname)"
+	exit 1
 endif
-
