@@ -8,78 +8,9 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
-#include "SkMaskFilter.h"
+#include "SkStippleMaskFilter.h"
 
 namespace skiagm {
-
-
-/**
- * Simple MaskFilter that creates a screen door stipple pattern
- */
-class SkStippleMaskFilter : public SkMaskFilter {
-public:
-    SkStippleMaskFilter() : INHERITED() {
-    }
-
-    virtual ~SkStippleMaskFilter() {
-    }
-
-    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin) SK_OVERRIDE {
-
-        if (src.fFormat != SkMask::kA8_Format) {
-            return false;
-        }
-
-        dst->fBounds = src.fBounds;
-        dst->fRowBytes = dst->fBounds.width();
-        dst->fFormat = SkMask::kA8_Format;
-        dst->fImage = NULL;
-
-        if (NULL != src.fImage) {
-            size_t dstSize = dst->computeImageSize();
-            if (0 == dstSize) {
-                return false;   // too big to allocate, abort
-            }
-
-            dst->fImage = SkMask::AllocImage(dstSize);
-
-            uint8_t* srcScanLine = src.fImage;
-            uint8_t* scanline = dst->fImage;
-
-            for (int y = 0; y < src.fBounds.height(); ++y) {
-                for (int x = 0; x < src.fBounds.width(); ++x) {
-                    SkASSERT(size_t(scanline - dst->fImage) < dstSize);
-                    scanline[x] = srcScanLine[x] && ((x+y) % 2) ? 0xFF : 0x00;
-                }
-                scanline += dst->fRowBytes;
-                srcScanLine += src.fRowBytes;
-            }
-        }
-
-        return true;
-    }
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW(SkStippleMaskFilter);
-    }
-
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {}
-
-    // getFactory is from SkFlattenable
-    virtual Factory getFactory() SK_OVERRIDE {
-        return CreateProc;
-    }
-
-    // getFormat is from SkMaskFilter
-    virtual SkMask::Format getFormat() SK_OVERRIDE {
-        return SkMask::kA8_Format;
-    }
-protected:
-
-private:
-    typedef SkMaskFilter INHERITED;
-};
 
 /** 
  * Stress test the samplers by rendering a textured glyph with a mask and
