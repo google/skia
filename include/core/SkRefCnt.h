@@ -11,6 +11,7 @@
 #define SkRefCnt_DEFINED
 
 #include "SkThread.h"
+#include "SkInstCnt.h"
 
 /** \class SkRefCnt
 
@@ -24,6 +25,8 @@
 */
 class SK_API SkRefCnt : SkNoncopyable {
 public:
+    DECLARE_INST_COUNT
+
     /** Default construct, initializing the reference count to 1.
     */
     SkRefCnt() : fRefCnt(1) {}
