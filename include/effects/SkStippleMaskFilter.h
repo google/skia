@@ -30,7 +30,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStippleMaskFilter);
 
 protected:
-    SkStippleMaskFilter::SkStippleMaskFilter(SkFlattenableReadBuffer& buffer)
+    SkStippleMaskFilter(SkFlattenableReadBuffer& buffer)
     : SkMaskFilter(buffer) {
     }
 
