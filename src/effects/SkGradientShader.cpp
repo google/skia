@@ -1981,6 +1981,11 @@ public:
             return false;
         }
 
+        // For now, we might have divided by zero, so detect that
+        if (0 == fDiffRadius) {
+            return false;
+        }
+
         // we don't have a span16 proc
         fFlags &= ~kHasSpan16_Flag;
         return true;
