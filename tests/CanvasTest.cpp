@@ -218,7 +218,20 @@ static SkBitmap testBitmap() {
 }
 SkBitmap kTestBitmap; // cannot be created during static init
 SkString kTestText("Hello World");
-SkPoint kTestPoint = SkPoint::Make(SkIntToScalar(0), SkIntToScalar(1));
+SkPoint kTestPoints2[] = {
+  { SkIntToScalar(0), SkIntToScalar(1) },
+  { SkIntToScalar(1), SkIntToScalar(1) },
+  { SkIntToScalar(2), SkIntToScalar(1) },
+  { SkIntToScalar(3), SkIntToScalar(1) },
+  { SkIntToScalar(4), SkIntToScalar(1) },
+  { SkIntToScalar(5), SkIntToScalar(1) },
+  { SkIntToScalar(6), SkIntToScalar(1) },
+  { SkIntToScalar(7), SkIntToScalar(1) },
+  { SkIntToScalar(8), SkIntToScalar(1) },
+  { SkIntToScalar(9), SkIntToScalar(1) },
+  { SkIntToScalar(10), SkIntToScalar(1) },
+};
+  
 
 ///////////////////////////////////////////////////////////////////////////////
 // Macros for defining test steps
@@ -303,7 +316,7 @@ SIMPLE_TEST_STEP(DrawSpritePaint, drawSprite(kTestBitmap, 0, 0, &kTestPaint));
 SIMPLE_TEST_STEP(DrawText, drawText(kTestText.c_str(), kTestText.size(),
     0, 1, kTestPaint));
 SIMPLE_TEST_STEP(DrawPosText, drawPosText(kTestText.c_str(),
-    kTestText.size(), &kTestPoint, kTestPaint));
+    kTestText.size(), kTestPoints2, kTestPaint));
 SIMPLE_TEST_STEP(DrawTextOnPath, drawTextOnPath(kTestText.c_str(),
     kTestText.size(), kTestPath, NULL, kTestPaint));
 SIMPLE_TEST_STEP(DrawTextOnPathMatrix, drawTextOnPath(kTestText.c_str(),
