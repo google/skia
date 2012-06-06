@@ -150,7 +150,7 @@ void SkStaticTextView::onDraw(SkCanvas* canvas)
 
 void SkStaticTextView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 {
-#if 0
+if (false) { // avoid bit rot, suppress warning
 	this->INHERITED::onInflate(dom, node);
 
 	int	index;
@@ -177,8 +177,12 @@ void SkStaticTextView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 	if ((node = dom.getFirstChild(node, "paint")) != NULL &&
 		(node = dom.getFirstChild(node, "screenplay")) != NULL)
 	{
+// FIXME: Including inflate_paint causes Windows build to fail -- it complains
+//  that SKListView::SkListView is undefined.
+#if 0
 		inflate_paint(dom, node, &fPaint);
-	}
 #endif
+	}
+}
 }
 

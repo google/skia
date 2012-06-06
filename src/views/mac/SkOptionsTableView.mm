@@ -50,7 +50,7 @@
 
 - (void)registerMenus:(const SkTDArray<SkOSMenu*>*)menus {
     fMenus = menus;
-    for (NSUInteger i = 0; i < fMenus->count(); ++i) {
+    for (int i = 0; i < fMenus->count(); ++i) {
         [self loadMenu:(*fMenus)[i]];
     }
 }

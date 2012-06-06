@@ -24,7 +24,7 @@
 }
 
 - (id)initWithFrame:(NSRect)frameRect {
-    if (self = [super initWithFrame:frameRect]) {
+    if ((self = [super initWithFrame:frameRect])) {
         self = [self initWithDefaults];
         [self setUpWindow];
     }
@@ -40,7 +40,7 @@
 - (void)setUpWindow {
     if (NULL != fWind) {
         fWind->setVisibleP(true);
-        fWind->resize(self.frame.size.width, self.frame.size.height, 
+        fWind->resize((int) self.frame.size.width, (int) self.frame.size.height, 
                       SkBitmap::kARGB_8888_Config);
     }
 }
@@ -55,7 +55,7 @@
 
 - (void)resizeSkView:(NSSize)newSize {
     if (NULL != fWind && (fWind->width() != newSize.width || fWind->height() != newSize.height)) {
-        fWind->resize(newSize.width, newSize.height);
+        fWind->resize((int) newSize.width, (int) newSize.height);
         glClear(GL_STENCIL_BUFFER_BIT);
         [fGLContext update];
     }
@@ -185,16 +185,15 @@ static SkKey raw2key(UInt32 raw)
     SkKey key = raw2key([event keyCode]);
     if (kNONE_SkKey != key)
         fWind->handleKeyUp(key);
-    else{
-        unichar c = [[event characters] characterAtIndex:0];
-    }
+ // else
+ //     unichar c = [[event characters] characterAtIndex:0];
 }
 
 - (void)mouseDown:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick(loc.x, loc.y, SkView::Click::kDown_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kDown_State, self);
     }
 }
 
@@ -202,7 +201,7 @@ static SkKey raw2key(UInt32 raw)
     NSPoint p = [event locationInWindow];
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick(loc.x, loc.y, SkView::Click::kMoved_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kMoved_State, self);
     }
 }
 
@@ -210,7 +209,7 @@ static SkKey raw2key(UInt32 raw)
     NSPoint p = [event locationInWindow];
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick(loc.x, loc.y, SkView::Click::kMoved_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kMoved_State, self);
     }
 }
 
@@ -218,7 +217,7 @@ static SkKey raw2key(UInt32 raw)
     NSPoint p = [event locationInWindow];
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick(loc.x, loc.y, SkView::Click::kUp_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kUp_State, self);
     }
 }
 
@@ -292,7 +291,7 @@ CGLContextObj createGLContext(int msaaSampleCount) {
     
     [fGLContext makeCurrentContext];
     
-    glViewport(0, 0, self.bounds.size.width, self.bounds.size.width);
+    glViewport(0, 0, (int) self.bounds.size.width, (int) self.bounds.size.width);
     glClearColor(0, 0, 0, 0);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
