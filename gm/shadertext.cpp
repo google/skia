@@ -36,7 +36,7 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
     canvas.drawPaint(paint);
 }
 
-SkShader* MakeBitmapShader(SkShader::TileMode tx, SkShader::TileMode ty,
+static SkShader* MakeBitmapShader(SkShader::TileMode tx, SkShader::TileMode ty,
                            int w, int h) {
     static SkBitmap bmp;
     if (bmp.isNull()) {

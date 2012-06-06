@@ -10,18 +10,6 @@
 #include "SkColorPriv.h"
 #include "SkShader.h"
 
-static SkCanvas* create_canvas(int w, int h) {
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    bm.allocPixels();
-    bm.eraseColor(0);
-    return new SkCanvas(bm);
-}
-
-static const SkBitmap& extract_bitmap(SkCanvas* canvas) {
-    return canvas->getDevice()->accessBitmap(false);
-}
-
 static const struct {
     SkXfermode::Mode  fMode;
     const char*         fLabel;

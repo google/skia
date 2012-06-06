@@ -61,8 +61,11 @@ private:
     typedef GM INHERITED;
 };
 
+void forceLinking();
+
 void forceLinking() {
     SkImageDecoder *creator = CreateJPEGImageDecoder();
+    SkASSERT(creator);
 }
 
 //////////////////////////////////////////////////////////////////////////////
