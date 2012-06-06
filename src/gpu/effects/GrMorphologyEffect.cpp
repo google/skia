@@ -82,8 +82,8 @@ void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* state,
                                    const char* inputColor,
                                    const char* samplerName) {
     GrStringBuilder* code = &state->fFSCode;
-    const char* texFunc = "texture2D";
-    bool complexCoord = false;
+    // const char* texFunc = "texture2D";
+    // bool complexCoord = false;
 
     const char* func;
     switch (fType) {

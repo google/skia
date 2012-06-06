@@ -152,7 +152,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // Helper functions
 
-static const GrTexture::TextureKey gUNCACHED_KEY = ~0;
+static const GrTexture::TextureKey gUNCACHED_KEY = ~0U;
 GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
                                                 GrTexture::TextureKey key,
                                                 const GrSamplerState* sampler,

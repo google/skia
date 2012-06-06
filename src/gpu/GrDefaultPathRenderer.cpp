@@ -307,7 +307,7 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
             case kClose_PathCmd:
                 break;
             case kEnd_PathCmd:
-                uint16_t currIdx = (uint16_t) (vert - base);
+             // uint16_t currIdx = (uint16_t) (vert - base);
                 goto FINISHED;
         }
         first = false;

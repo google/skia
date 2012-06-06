@@ -84,7 +84,7 @@ public:
         StageKey stageID = GLProgramStage::GenKey(stage);
 #if GR_DEBUG
         static const StageKey kIllegalIDMask =
-            ~((1 << kProgramStageKeyBits) - 1);
+            (uint16_t) (~((1U << kProgramStageKeyBits) - 1));
         GrAssert(!(kIllegalIDMask & stageID));
 #endif
         return fStageClassID | stageID;

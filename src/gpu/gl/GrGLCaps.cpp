@@ -98,7 +98,6 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
         fBGRAFormatSupport = version >= GR_GL_VER(1,2) ||
                              ctxInfo.hasExtension("GL_EXT_bgra");
     } else {
-        bool hasBGRAExt = false;
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
             fBGRAFormatSupport = true;
         } else if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
@@ -256,7 +255,7 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
         gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
         gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true },
         gS4    = {GR_GL_STENCIL_INDEX4,   4,                4,                false},
-        gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
+    //  gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
         gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
 
     if (kDesktop_GrGLBinding == ctxInfo.binding()) {

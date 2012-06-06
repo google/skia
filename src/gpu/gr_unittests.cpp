@@ -14,6 +14,9 @@
 #include "GrRedBlackTree.h"
 #include "GrTDArray.h"
 
+// FIXME: needs to be in a header
+void gr_run_unittests();
+
 // If we aren't inheriting these as #defines from elsewhere,
 // clang demands they be declared before we #include the template
 // that relies on them.

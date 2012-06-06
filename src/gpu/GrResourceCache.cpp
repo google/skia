@@ -292,15 +292,13 @@ void GrResourceCache::purgeAsNeeded() {
 void GrResourceCache::removeAll() {
     GrAutoResourceCacheValidate atcv(this);
 
-    GrResourceEntry* entry = fHead;
-
     // we can have one GrResource holding a lock on another
     // so we don't want to just do a simple loop kicking each
     // entry out. Instead change the budget and purge.
 
     int savedMaxBytes = fMaxBytes;
     int savedMaxCount = fMaxCount;
-    fMaxBytes = -1;
+    fMaxBytes = (size_t) -1;
     fMaxCount = 0;
     this->purgeAsNeeded();
 

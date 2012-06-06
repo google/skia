@@ -113,7 +113,7 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
 
 bool GrGpuGL::programUnitTest() {
 
-    GrGLSLGeneration glslGeneration = 
+    // GrGLSLGeneration glslGeneration = 
             GrGetGLSLGeneration(this->glBinding(), this->glInterface());
     static const int STAGE_OPTS[] = {
         0,
@@ -206,9 +206,6 @@ bool GrGpuGL::programUnitTest() {
             stage.fOptFlags = STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
             stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
-            static const uint32_t kMulByAlphaMask =
-                StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
-                StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
 
             bool useCustomEffect = random_bool(&random);
             if (useCustomEffect) {

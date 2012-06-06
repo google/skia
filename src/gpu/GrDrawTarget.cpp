@@ -723,7 +723,6 @@ void GrDrawTarget::pushGeometrySource() {
 }
 
 void GrDrawTarget::popGeometrySource() {
-    const GeometrySrcState& geoSrc = this->getGeomSrc();
     // if popping last element then pops are unbalanced with pushes
     GrAssert(fGeoSrcStateStack.count() > 1);
     
