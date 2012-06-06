@@ -7,6 +7,9 @@
  */
 #include "SkMatrix.h"
 
+// FIXME: needs to be in a header
+bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]);
+
 static void computeOuterProduct(SkScalar op[4],
                                 const SkPoint pts0[3], const SkPoint& ave0,
                                 const SkPoint pts1[3], const SkPoint& ave1) {
