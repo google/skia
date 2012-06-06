@@ -773,7 +773,7 @@ SkAutoTUnref<GrContext> gGrContext;
 /**
  * Sets the global GrContext, accessible by indivual GMs
  */
-void SetGr(GrContext* grContext) {
+static void SetGr(GrContext* grContext) {
     SkSafeRef(grContext);
     gGrContext.reset(grContext);
 }
@@ -781,6 +781,7 @@ void SetGr(GrContext* grContext) {
 /**
  * Gets the global GrContext, can be called by GM tests.
  */
+GrContext* GetGr();
 GrContext* GetGr() {
     return gGrContext.get();
 }
@@ -823,7 +824,6 @@ int main(int argc, char * const argv[]) {
     bool doReplay = true;
     bool doPipe = false;
     bool doSerialize = false;
-    bool useDebugGL = false;
     bool doDeferred = true;
     bool disableTextureCache = false;
 

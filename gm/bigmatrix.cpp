@@ -40,6 +40,7 @@ protected:
         paint.setAntiAlias(true);
 
         bool success = m.invert(&m);
+        SkASSERT(success);
 
         SkPath path;
 

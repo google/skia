@@ -91,7 +91,7 @@ namespace skiagm {
     set the clip to match the target, then draw >> the target in blue.
 */
 
-void draw (SkCanvas* canvas, SkRect& target, int x, int y) {
+static void draw (SkCanvas* canvas, SkRect& target, int x, int y) {
     SkPaint borderPaint;
     borderPaint.setColor(SkColorSetRGB(0x0, 0xDD, 0x0));
     borderPaint.setAntiAlias(true);
@@ -114,22 +114,22 @@ void draw (SkCanvas* canvas, SkRect& target, int x, int y) {
     canvas->restore();
 }
 
-void draw_square (SkCanvas* canvas, int x, int y) {
+static void draw_square (SkCanvas* canvas, int x, int y) {
     SkRect target (SkRect::MakeWH(10 * SK_Scalar1, 10 * SK_Scalar1));
     draw(canvas, target, x, y);
 }
 
-void draw_column (SkCanvas* canvas, int x, int y) {
+static void draw_column (SkCanvas* canvas, int x, int y) {
     SkRect target (SkRect::MakeWH(1 * SK_Scalar1, 10 * SK_Scalar1));
     draw(canvas, target, x, y);
 }
 
-void draw_bar (SkCanvas* canvas, int x, int y) {
+static void draw_bar (SkCanvas* canvas, int x, int y) {
     SkRect target (SkRect::MakeWH(10 * SK_Scalar1, 1 * SK_Scalar1));
     draw(canvas, target, x, y);
 }
 
-void draw_rect_tests (SkCanvas* canvas) {
+static void draw_rect_tests (SkCanvas* canvas) {
     draw_square(canvas, 10, 10);
     draw_column(canvas, 30, 10);
     draw_bar(canvas, 10, 30);
@@ -158,7 +158,9 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-//        test_mask();
+        if (false) { // avoid bit rot, suppress warning
+            test_mask();
+        }
 
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);

@@ -7,16 +7,21 @@
 
 #import <Cocoa/Cocoa.h>
 
+// FIXME: should be in a header
+void setSystemPreferences();
+
 void setSystemPreferences() {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
     // Set LCD font smoothing level for this application (does not affect other
     // applications). Based on resetDefaultsToConsistentValues() in
     // http://trac.webkit.org/browser/trunk/Tools/DumpRenderTree/mac/DumpRenderTree.mm
-    static const int NoFontSmoothing     = 0;
-    static const int LightFontSmoothing  = 1;
-    static const int MediumFontSmoothing = 2;
-    static const int StrongFontSmoothing = 3;
+    enum {
+        NoFontSmoothing     = 0,
+        LightFontSmoothing  = 1,
+        MediumFontSmoothing = 2,
+        StrongFontSmoothing = 3,
+    };
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setInteger:MediumFontSmoothing forKey:@"AppleFontSmoothing"];
 

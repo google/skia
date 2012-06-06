@@ -78,6 +78,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        if (false) test_rev(canvas); // avoid bit rot, suppress warning
         SkRect r = { 10, 10, 100, 60 };
         
         SkPath path;

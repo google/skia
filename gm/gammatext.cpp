@@ -12,10 +12,12 @@
 #include "SkTypeface.h"
 
 static SkShader* make_heatGradient(const SkPoint pts[2]) {
+#if 0 // UNUSED
     const SkColor colors[] = {
         SK_ColorBLACK, SK_ColorBLUE, SK_ColorCYAN, SK_ColorGREEN,
         SK_ColorYELLOW, SK_ColorRED, SK_ColorWHITE
     };
+#endif
     const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
 
     return SkGradientShader::CreateLinear(pts, bw, NULL,
@@ -66,10 +68,10 @@ static CGFontRef typefaceToCGFont(const SkTypeface* face) {
 static void cgSetPaintForText(CGContextRef cg, const SkPaint& paint) {
     SkColor c = paint.getColor();
     CGFloat rgba[] = {
-        SkColorGetB(c) / 255.0,
-        SkColorGetG(c) / 255.0,
-        SkColorGetR(c) / 255.0,
-        SkColorGetA(c) / 255.0,
+        SkColorGetB(c) / 255.0f,
+        SkColorGetG(c) / 255.0f,
+        SkColorGetR(c) / 255.0f,
+        SkColorGetA(c) / 255.0f,
     };
     CGContextSetRGBFillColor(cg, rgba[0], rgba[1], rgba[2], rgba[3]);
 
@@ -169,12 +171,15 @@ protected:
             SkScalar y = SkIntToScalar(40);
             SkScalar stopy = SkIntToScalar(HEIGHT);
             while (y < stopy) {
-#if 1
-                canvas->drawText(text, len, x, y, paint);
-#else
-                cgDrawText(cg, text, len, SkScalarToFloat(x),
-                           static_cast<float>(HEIGHT) - SkScalarToFloat(y),
-                           paint);
+                if (true) {
+                    canvas->drawText(text, len, x, y, paint);
+                } 
+#ifdef SK_BUILD_FOR_MAC
+                else {
+                    cgDrawText(cg, text, len, SkScalarToFloat(x),
+                               static_cast<float>(HEIGHT) - SkScalarToFloat(y),
+                               paint);
+                }
 #endif
                 y += paint.getTextSize() * 2;
             }

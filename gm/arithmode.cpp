@@ -113,7 +113,6 @@ protected:
         const SkScalar* k = K;
         const SkScalar* stop = k + SK_ARRAY_COUNT(K);
         SkScalar y = 0;
-        SkScalar x = 0;
         SkScalar gap = SkIntToScalar(src.width() + 20);
         while (k < stop) {
             SkScalar x = 0;

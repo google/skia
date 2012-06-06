@@ -57,18 +57,6 @@ static void test4(SkCanvas* canvas) {
     canvas->drawPath(path, paint);
 }
 
-static SkCanvas* create_canvas(int w, int h) {
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    bm.allocPixels();
-    bm.eraseColor(0);
-    return new SkCanvas(bm);
-}
-
-static const SkBitmap& extract_bitmap(SkCanvas* canvas) {
-    return canvas->getDevice()->accessBitmap(false);
-}
-
 static const struct {
     SkXfermode::Mode  fMode;
     const char*         fLabel;
@@ -154,7 +142,9 @@ namespace skiagm {
         virtual SkISize onISize() { return make_isize(640, 480); }
 
         virtual void onDraw(SkCanvas* canvas) {
-//            test4(canvas);
+            if (false) { // avoid bit rot, suppress warning
+                test4(canvas);
+            }
             const SkRect bounds = SkRect::MakeWH(W, H);
             static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 
