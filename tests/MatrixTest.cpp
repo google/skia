@@ -100,7 +100,7 @@ static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
     REPORTER_ASSERT(reporter, memcmp(buffer, buffer2, size1) == 0);
 }
 
-void test_matrix_max_stretch(skiatest::Reporter* reporter) {
+static void test_matrix_max_stretch(skiatest::Reporter* reporter) {
     SkMatrix identity;
     identity.reset();
     REPORTER_ASSERT(reporter, SK_Scalar1 == identity.getMaxStretch());
@@ -218,7 +218,7 @@ static bool isSimilarityTransformation(const SkMatrix& matrix,
                 SkScalarSquare(tol));
 }
 
-void test_matrix_is_similarity_transform(skiatest::Reporter* reporter) {
+static void test_matrix_is_similarity_transform(skiatest::Reporter* reporter) {
     SkMatrix mat;
 
     // identity
@@ -347,7 +347,7 @@ void test_matrix_is_similarity_transform(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, isSimilarityTransformation(mat));
 }
 
-void TestMatrix(skiatest::Reporter* reporter) {
+static void TestMatrix(skiatest::Reporter* reporter) {
     SkMatrix    mat, inverse, iden1, iden2;
 
     mat.reset();

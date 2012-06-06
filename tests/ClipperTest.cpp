@@ -22,8 +22,8 @@ static void test_hairclipping(skiatest::Reporter* reporter) {
 
     SkCanvas canvas(bm);
     canvas.clipRect(SkRect::MakeWH(SkIntToScalar(4), SkIntToScalar(2)));
-    canvas.drawLine(SkFloatToScalar(1.5), SkFloatToScalar(1.5),
-                    SkFloatToScalar(3.5), SkFloatToScalar(3.5), paint);
+    canvas.drawLine(SkFloatToScalar(1.5f), SkFloatToScalar(1.5f),
+                    SkFloatToScalar(3.5f), SkFloatToScalar(3.5f), paint);
     
     /**
      *  We had a bug where we misinterpreted the bottom of the clip, and
@@ -144,7 +144,7 @@ static void test_intersectline(skiatest::Reporter* reporter) {
     
 }
 
-void TestClipper(skiatest::Reporter* reporter) {
+static void TestClipper(skiatest::Reporter* reporter) {
     test_intersectline(reporter);
     test_edgeclipper(reporter);
     test_hairclipping(reporter);

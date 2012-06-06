@@ -28,7 +28,7 @@
         va_end(args);                               \
     } while (0)
 
-void printfAnalog(char* buffer, int size, const char format[], ...) {
+static void printfAnalog(char* buffer, int size, const char format[], ...) {
     ARGS_TO_BUFFER(format, buffer, size);
 }
 

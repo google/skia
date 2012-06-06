@@ -12,7 +12,7 @@
 static const int X_SIZE = 12;
 static const int Y_SIZE = 12;
 
-void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context) {
+static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context) {
 
 #if SK_SCALAR_IS_FIXED
     // GPU device known not to work in the fixed pt build.

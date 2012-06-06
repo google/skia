@@ -722,6 +722,7 @@ static void TestDeferredCanvasStateConsistency(
     */
 }
 
+// unused
 static void TestProxyCanvasStateConsistency(
     skiatest::Reporter* reporter,
     CanvasTestStep* testStep,
@@ -744,6 +745,7 @@ static void TestProxyCanvasStateConsistency(
         testStep);
 }
 
+// unused
 static void TestNWayCanvasStateConsistency(
     skiatest::Reporter* reporter,
     CanvasTestStep* testStep,
@@ -799,18 +801,26 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
         SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
     TestDeferredCanvasStateConsistency(reporter, testStep, referenceCanvas);
 
-    // The following test code is commented out because SkProxyCanvas is
+    // The following test code is disabled because SkProxyCanvas is
     // missing a lot of virtual overrides on get* methods, which are used
     // to verify canvas state.
     // Issue: http://code.google.com/p/skia/issues/detail?id=500
-    
-    //TestProxyCanvasStateConsistency(reporter, testStep, referenceCanvas);
 
-    // The following test code is commented out because SkNWayCanvas does not
+    if (false) { // avoid bit rot, suppress warning
+        TestProxyCanvasStateConsistency(reporter, testStep, referenceCanvas);
+    }
+
+    // The following test code is disabled because SkNWayCanvas does not
     // report correct clipping and device bounds information
     // Issue: http://code.google.com/p/skia/issues/detail?id=501
+
+    if (false) { // avoid bit rot, suppress warning
+        TestNWayCanvasStateConsistency(reporter, testStep, referenceCanvas);
+    }
     
-    //TestNWayCanvasStateConsistency(reporter, testStep, referenceCanvas);
+    if (false) { // avoid bit rot, suppress warning
+        test_clipVisitor(reporter, &referenceCanvas);
+    }
 }
 
 static void TestCanvas(skiatest::Reporter* reporter) {

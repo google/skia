@@ -26,6 +26,9 @@ static const struct TagSize {
 
 static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
     SkFontID fontID = face->uniqueID();
+    if (false) { // avoid bit rot, suppress warning
+        REPORTER_ASSERT(reporter, fontID);
+    }
 
     int count = face->countTables();
 

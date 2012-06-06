@@ -240,7 +240,7 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     SimpleCheckObjectOutput(reporter, realHalf.get(), "0.5");
 
 #if defined(SK_SCALAR_IS_FLOAT)
-    SkRefPtr<SkPDFScalar> bigScalar = new SkPDFScalar(110999.75);
+    SkRefPtr<SkPDFScalar> bigScalar = new SkPDFScalar(110999.75f);
     bigScalar->unref();  // SkRefPtr and new both took a reference.
 #if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
     SimpleCheckObjectOutput(reporter, bigScalar.get(), "111000");

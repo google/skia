@@ -13,6 +13,7 @@ static const int X_SIZE = 12;
 static const int Y_SIZE = 12;
 
 ////////////////////////////////////////////////////////////////////////////////
+// note: this is unused
 static GrTexture* createTexture(GrContext* context) {
     unsigned char textureData[X_SIZE][Y_SIZE][4];
 
@@ -59,6 +60,9 @@ static void check_state(skiatest::Reporter* reporter,
 //  push, pop, set, canReuse & getters
 static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
+    if (false) { // avoid bit rot, suppress warning
+        createTexture(context); 
+    }
     GrClipMaskCache cache;
 
     cache.setContext(context);
