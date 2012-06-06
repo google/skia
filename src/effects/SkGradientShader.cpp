@@ -2093,6 +2093,7 @@ private:
     const SkPoint fCenter;
 };
 
+#ifndef SK_SCALAR_IS_FLOAT
 #ifdef COMPUTE_SWEEP_TABLE
 #define PI  3.14159265
 static bool gSweepTableReady;
@@ -2129,12 +2130,14 @@ static const uint8_t gSweepTable[] = {
 };
 static const uint8_t* build_sweep_table() { return gSweepTable; }
 #endif
+#endif
 
 // divide numer/denom, with a bias of 6bits. Assumes numer <= denom
 // and denom != 0. Since our table is 6bits big (+1), this is a nice fit.
 // Same as (but faster than) SkFixedDiv(numer, denom) >> 10
 
 //unsigned div_64(int numer, int denom);
+#ifndef SK_SCALAR_IS_FLOAT
 static unsigned div_64(int numer, int denom) {
     SkASSERT(numer <= denom);
     SkASSERT(numer > 0);
@@ -2201,8 +2204,10 @@ static unsigned div_64(int numer, int denom) {
     }
     return result;
 }
+#endif
 
 // Given x,y in the first quadrant, return 0..63 for the angle [0..90]
+#ifndef SK_SCALAR_IS_FLOAT
 static unsigned atan_0_90(SkFixed y, SkFixed x) {
 #ifdef SK_DEBUG
     {
@@ -2256,6 +2261,7 @@ static unsigned atan_0_90(SkFixed y, SkFixed x) {
     SkASSERT(result <= 63);
     return result;
 }
+#endif
 
 //  returns angle in a circle [0..2PI) -> [0..255]
 #ifdef SK_SCALAR_IS_FLOAT
