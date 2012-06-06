@@ -19,7 +19,7 @@
     SK_DECLARE_STATIC_MUTEX(gPixelRefMutex);
 #endif
 
-SkBaseMutex* get_default_mutex() {
+static SkBaseMutex* get_default_mutex() {
 #ifdef PIXELREF_MUTEX_RING_COUNT
     // atomic_inc might be overkill here. It may be fine if once in a while
     // we hit a race-condition and two subsequent calls get the same index...

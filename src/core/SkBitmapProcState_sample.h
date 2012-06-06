@@ -23,6 +23,21 @@
     #error "unsupported DSTSIZE"
 #endif
 
+
+// declare functions externally to suppress warnings.
+void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
+                              const uint32_t* SK_RESTRICT xy,
+                              int count, DSTTYPE* SK_RESTRICT colors);
+void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
+                            const uint32_t* SK_RESTRICT xy,
+                            int count, DSTTYPE* SK_RESTRICT colors);
+void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
+                          const uint32_t* SK_RESTRICT xy,
+                           int count, DSTTYPE* SK_RESTRICT colors);
+void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
+                            const uint32_t* SK_RESTRICT xy,
+                            int count, DSTTYPE* SK_RESTRICT colors);
+
 void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
                               const uint32_t* SK_RESTRICT xy,
                               int count, DSTTYPE* SK_RESTRICT colors) {

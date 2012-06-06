@@ -479,7 +479,6 @@ void SkPath::incReserve(U16CPU inc) {
 void SkPath::moveTo(SkScalar x, SkScalar y) {
     SkDEBUGCODE(this->validate();)
 
-    int      vc = fVerbs.count();
     SkPoint* pt;
 
     // remember our index
@@ -1206,7 +1205,6 @@ void SkPath::reversePathTo(const SkPath& path) {
 void SkPath::reverseAddPath(const SkPath& src) {
     this->incReserve(src.fPts.count());
 
-    const SkPoint* startPts = src.fPts.begin();
     const SkPoint* pts = src.fPts.end();
     const uint8_t* startVerbs = src.fVerbs.begin();
     const uint8_t* verbs = src.fVerbs.end();
