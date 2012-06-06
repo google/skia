@@ -545,10 +545,19 @@ SkGPipeState::~SkGPipeState() {
 
 #include "SkGPipe.h"
 
-SkGPipeReader::SkGPipeReader(SkCanvas* target) {
-    SkSafeRef(target);
-    fCanvas = target;
+SkGPipeReader::SkGPipeReader() {
+    fCanvas = NULL;
     fState = NULL;
+}
+
+SkGPipeReader::SkGPipeReader(SkCanvas* target) {
+    fCanvas = NULL;
+    this->setCanvas(target);
+    fState = NULL;
+}
+
+void SkGPipeReader::setCanvas(SkCanvas *target) {
+    SkRefCnt_SafeAssign(fCanvas, target);
 }
 
 SkGPipeReader::~SkGPipeReader() {
