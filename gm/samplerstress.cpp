@@ -36,12 +36,6 @@ protected:
         return make_isize(640, 480);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        // Skip Pipe playback since we use a custom MaskFilter that will not be
-        // flattened correctly
-        return this->INHERITED::onGetFlags() | GM::kSkipPipe_Flag;
-    }
-
     /**
      * Create a red & green stripes on black texture
      */
