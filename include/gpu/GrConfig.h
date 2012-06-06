@@ -328,14 +328,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 #endif
 
 /**
- *  GR_COLLECT_STATS controls whether the GrGpu class collects stats.
- *  If not already defined then collect in debug build but not release.
- */
-#if !defined(GR_COLLECT_STATS)
-    #define GR_COLLECT_STATS GR_DEBUG
-#endif
-
-/**
  *  GR_STATIC_RECT_VB controls whether rects are drawn by issuing a vertex
  *  for each corner or using a static vb that is positioned by modifying the
  *  view / texture matrix.

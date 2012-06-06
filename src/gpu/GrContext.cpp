@@ -1898,18 +1898,6 @@ static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
     return bits;
 }
 
-void GrContext::resetStats() {
-    fGpu->resetStats();
-}
-
-const GrGpuStats& GrContext::getStats() const {
-    return fGpu->getStats();
-}
-
-void GrContext::printStats() const {
-    fGpu->printStats();
-}
-
 GrContext::GrContext(GrGpu* gpu) {
     fGpu = gpu;
     fGpu->ref();

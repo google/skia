@@ -354,14 +354,6 @@ static FPSState gFPS;
     glBindRenderbuffer(GL_RENDERBUFFER, fGL.fRenderbuffer);
     [fGL.fContext presentRenderbuffer:GL_RENDERBUFFER];
     
-#if GR_COLLECT_STATS
-    //    static int frame = 0;
-    //    if (!(frame % 100)) {
-    //        ctx->printStats();
-    //    }
-    //    ctx->resetStats();
-    //    ++frame;
-#endif
 }
 
 - (void)drawInRaster {
