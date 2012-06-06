@@ -17,6 +17,8 @@
         '../gm/gm.cpp',
         '../gm/gmmain.cpp',
         '../gm/system_preferences_default.cpp',
+        '../src/pipe/utils/SamplePipeControllers.h',
+        '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'dependencies': [
         'core.gyp:core',

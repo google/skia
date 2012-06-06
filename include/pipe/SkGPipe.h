@@ -23,6 +23,7 @@ class SkCanvas;
 
 class SkGPipeReader {
 public:
+    SkGPipeReader();
     SkGPipeReader(SkCanvas* target);
     ~SkGPipeReader();
 
@@ -33,6 +34,7 @@ public:
         kReadAtom_Status//!< finished reading an atom
     };
 
+    void setCanvas(SkCanvas*);
     // data must be 4-byte aligned
     // length must be a multiple of 4
     Status playback(const void* data, size_t length, size_t* bytesRead = NULL,
