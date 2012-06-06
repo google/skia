@@ -79,6 +79,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fGetString = glGetString;
         interface->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
         interface->fLineWidth = glLineWidth;
+        interface->fLoadIdentity = glLoadIdentity;
+        interface->fLoadMatrixf = glLoadMatrixf;
+        interface->fMatrixMode = glMatrixMode;
         interface->fPixelStorei = glPixelStorei;
         interface->fReadBuffer = glReadBuffer;
         interface->fReadPixels = glReadPixels;
@@ -215,6 +218,58 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         }
         GR_GL_GET_PROC(MapBuffer);
         GR_GL_GET_PROC(UnmapBuffer);
+
+        if (GrGLHasExtensionFromString("GL_NV_path_rendering", extString)) {
+            GR_GL_GET_PROC_SUFFIX(PathCommands, NV);
+            GR_GL_GET_PROC_SUFFIX(PathCoords, NV);
+            GR_GL_GET_PROC_SUFFIX(PathSubCommands, NV);
+            GR_GL_GET_PROC_SUFFIX(PathSubCoords, NV);
+            GR_GL_GET_PROC_SUFFIX(PathString, NV);
+            GR_GL_GET_PROC_SUFFIX(PathGlyphs, NV);
+            GR_GL_GET_PROC_SUFFIX(PathGlyphRange, NV);
+            GR_GL_GET_PROC_SUFFIX(WeightPaths, NV);
+            GR_GL_GET_PROC_SUFFIX(CopyPath, NV);
+            GR_GL_GET_PROC_SUFFIX(InterpolatePaths, NV);
+            GR_GL_GET_PROC_SUFFIX(TransformPath, NV);
+            GR_GL_GET_PROC_SUFFIX(PathParameteriv, NV);
+            GR_GL_GET_PROC_SUFFIX(PathParameteri, NV);
+            GR_GL_GET_PROC_SUFFIX(PathParameterfv, NV);
+            GR_GL_GET_PROC_SUFFIX(PathParameterf, NV);
+            GR_GL_GET_PROC_SUFFIX(PathDashArray, NV);
+            GR_GL_GET_PROC_SUFFIX(GenPaths, NV);
+            GR_GL_GET_PROC_SUFFIX(DeletePaths, NV);
+            GR_GL_GET_PROC_SUFFIX(IsPath, NV);
+            GR_GL_GET_PROC_SUFFIX(PathStencilFunc, NV);
+            GR_GL_GET_PROC_SUFFIX(PathStencilDepthOffset, NV);
+            GR_GL_GET_PROC_SUFFIX(StencilFillPath, NV);
+            GR_GL_GET_PROC_SUFFIX(StencilStrokePath, NV);
+            GR_GL_GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
+            GR_GL_GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
+            GR_GL_GET_PROC_SUFFIX(PathCoverDepthFunc, NV);
+            GR_GL_GET_PROC_SUFFIX(PathColorGen, NV);
+            GR_GL_GET_PROC_SUFFIX(PathTexGen, NV);
+            GR_GL_GET_PROC_SUFFIX(PathFogGen, NV);
+            GR_GL_GET_PROC_SUFFIX(CoverFillPath, NV);
+            GR_GL_GET_PROC_SUFFIX(CoverStrokePath, NV);
+            GR_GL_GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
+            GR_GL_GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathParameteriv, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathParameterfv, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathCommands, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathCoords, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathDashArray, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathMetrics, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathMetricRange, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathSpacing, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathColorGeniv, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathColorGenfv, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathTexGeniv, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathTexGenfv, NV);
+            GR_GL_GET_PROC_SUFFIX(IsPointInFillPath, NV);
+            GR_GL_GET_PROC_SUFFIX(IsPointInStrokePath, NV);
+            GR_GL_GET_PROC_SUFFIX(GetPathLength, NV);
+            GR_GL_GET_PROC_SUFFIX(PointAlongPath, NV);
+        }
 
         interface->fBindingsExported = kDesktop_GrGLBinding;
 
