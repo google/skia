@@ -17,6 +17,11 @@ static void intToScalars(SkScalar dst[], const int src[], int n) {
 }
 
 static void drawGrad(SkCanvas* canvas, const SkScalar d0[], const SkScalar d1[]) {
+    const SkRect bounds = SkRect::MakeXYWH(SkIntToScalar(-50),
+                                           SkIntToScalar(-50),
+                                           SkIntToScalar(200),
+                                           SkIntToScalar(100));
+
     SkPoint c0 = { d0[0], d0[1] };
     SkScalar r0 = d0[2];
     SkPoint c1 = { d1[0], d1[1] };
@@ -25,18 +30,25 @@ static void drawGrad(SkCanvas* canvas, const SkScalar d0[], const SkScalar d1[])
     SkColor colors[] = { SK_ColorGREEN, SK_ColorRED };
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setShader(SkGradientShader::CreateTwoPointRadial(c0, r0, c1, r1,
-                                                           colors, NULL, 2,
-                                                           SkShader::kClamp_TileMode))->unref();
-    canvas->drawRect(SkRect::MakeXYWH(SkIntToScalar(-50),
-                                      SkIntToScalar(-50),
-                                      SkIntToScalar(200),
-                                      SkIntToScalar(100)), paint);
+    
+    SkString str;
+    str.printf("%g,%g,%g  %g,%g,%g",
+               SkScalarToFloat(c0.fX), SkScalarToFloat(c0.fY), SkScalarToFloat(r0),
+               SkScalarToFloat(c1.fX), SkScalarToFloat(c1.fY), SkScalarToFloat(r1));
+    canvas->drawText(str.c_str(), str.size(),
+                     bounds.fLeft, bounds.fTop - paint.getTextSize()/2, paint);
+    
+    paint.setShader(SkGradientShader::CreateTwoPointConical(c0, r0, c1, r1,
+                                                            colors, NULL, 2,
+                                                            SkShader::kClamp_TileMode))->unref();
+    canvas->drawRect(bounds, paint);
     
     paint.setShader(NULL);
+    paint.setColor(0x66000000);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawCircle(c0.fX, c0.fY, r0, paint);
     canvas->drawCircle(c1.fX, c1.fY, r1, paint);
+    canvas->drawRect(bounds, paint);
 }
 
 class TwoPointRadialGM : public skiagm::GM {
@@ -45,10 +57,10 @@ public:
 
 protected:
     SkString onShortName() {
-        return SkString("two_point_radial");
+        return SkString("twopointconical");
     }
 
-    SkISize onISize() { return skiagm::make_isize(480, 725); }
+    SkISize onISize() { return skiagm::make_isize(480, 780); }
 
     // BUG: PDF code (at least on mac) fails when we run this
     virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPDF_Flag; }
@@ -64,15 +76,15 @@ protected:
         const int R1 = 40;
     
         const SkScalar DX = SkIntToScalar(250);
-        const SkScalar DY = SkIntToScalar(120);
+        const SkScalar DY = SkIntToScalar(130);
 
-        canvas->translate(SkIntToScalar(60), SkIntToScalar(60));
+        canvas->translate(SkIntToScalar(60), SkIntToScalar(70));
 
         static const int gData[] = {
             0, 0, R0,       0, 0, R1,
+            0, 0, R0,       20, 0, R1,
             0, 0, R0,       25, 0, R1,
             0, 0, R0,       100, 0, R1,
-            0, 0, R0,       0, 0, R0,
             0, 0, R0,       25, 0, R0,
             0, 0, R0,       100, 0, R0,
         };

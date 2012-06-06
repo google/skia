@@ -2039,6 +2039,294 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int valid_divide(float numer, float denom, float* ratio) {
+    SkASSERT(ratio);
+    if (0 == denom) {
+        return 0;
+    }
+    *ratio = numer / denom;
+    return 1;
+}
+
+// Return the number of distinct real roots, and write them into roots[] in
+// ascending order
+static int find_quad_roots(float A, float B, float C, float roots[2]) {
+    SkASSERT(roots);
+    
+    if (A == 0) {
+        return valid_divide(-C, B, roots);
+    }
+    
+    float* r = roots;
+    float R = B*B - 4*A*C;
+    if (R < 0 || sk_float_isnan(R)) {  // complex roots
+        return 0;
+    }
+    R = sk_float_sqrt(R);
+    
+    float Q = (B < 0) ? -(B-R)/2 : -(B+R)/2;
+    r += valid_divide(Q, A, r);
+    r += valid_divide(C, Q, r);
+    if (r - roots == 2) {
+        if (roots[0] > roots[1]) {
+            SkTSwap<float>(roots[0], roots[1]);
+        } else if (roots[0] == roots[1]) {  // nearly-equal?
+            r -= 1; // skip the double root
+        }
+    }
+    return (int)(r - roots);
+}
+
+static float lerp(float x, float dx, float t) {
+    return x + t * dx;
+}
+
+static float sqr(float x) { return x * x; }
+
+struct TwoPtRadial {
+    enum {
+        kDontDrawT  = 0x80000000
+    };
+
+    float   fCenterX, fCenterY;
+    float   fDCenterX, fDCenterY;
+    float   fRadius;
+    float   fDRadius;
+    float   fA;
+    float   fRadius2;
+    float   fRDR;
+
+    void init(const SkPoint& center0, SkScalar rad0,
+              const SkPoint& center1, SkScalar rad1) {
+        fCenterX = SkScalarToFloat(center0.fX);
+        fCenterY = SkScalarToFloat(center0.fY);
+        fDCenterX = SkScalarToFloat(center1.fX) - fCenterX;
+        fDCenterY = SkScalarToFloat(center1.fY) - fCenterY;
+        fRadius = SkScalarToFloat(rad0);
+        fDRadius = SkScalarToFloat(rad1) - fRadius;
+
+        fA = sqr(fDCenterX) - sqr(fDCenterY) - sqr(fDRadius);
+        fRadius2 = sqr(fRadius);
+        fRDR = fRadius * fDRadius;
+    }
+    
+    // used by setup and nextT
+    float   fRelX, fRelY, fIncX, fIncY;
+    float   fB, fDB;
+    
+    void setup(SkScalar fx, SkScalar fy, SkScalar dfx, SkScalar dfy) {
+        fRelX = SkScalarToFloat(fx) - fCenterX;
+        fRelY = SkScalarToFloat(fy) - fCenterY;
+        fIncX = SkScalarToFloat(dfx);
+        fIncY = SkScalarToFloat(dfy);
+        fB = -2 * (fDCenterX * fRelX + fDCenterY * fRelY + fRDR);
+        fDB = -2 * (fDCenterX * fIncX + fDCenterY * fIncY);
+    }
+
+    SkFixed nextT() {
+        float roots[2];
+        
+        float dx = fRelX;
+        float dy = fRelY;
+
+        float C = sqr(dx) + sqr(dy) - fRadius2;
+        int countRoots = find_quad_roots(fA, fB, C, roots);
+
+        fRelX += fIncX;
+        fRelY += fIncY;
+        fB += fDB;
+
+        if (0 == countRoots) {
+            return kDontDrawT;
+        }
+
+        // Prefer the bigger t value if both give a radius(t) > 0
+        // find_quad_roots returns the values sorted, so we start with the last
+        float t = roots[countRoots - 1];
+        float r = lerp(fRadius, fDRadius, t);
+        if (r <= 0) {
+            t = roots[0];   // might be the same as roots[countRoots-1]
+            r = lerp(fRadius, fDRadius, t);
+            if (r <= 0) {
+                return kDontDrawT;
+            }
+        }
+        return SkFloatToFixed(t);
+    }
+    
+    static bool DontDrawT(SkFixed t) {
+        return kDontDrawT == t;
+    }
+};
+
+typedef void (*TwoPointRadialProc)(TwoPtRadial* rec, SkPMColor* dstC,
+                                   const SkPMColor* cache, int count);
+
+void twopoint_clamp(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+                    const SkPMColor* SK_RESTRICT cache, int count) {
+    for (; count > 0; --count) {
+        SkFixed t = rec->nextT();
+        if (TwoPtRadial::DontDrawT(t)) {
+            *dstC++ = 0;
+        } else {
+            SkFixed index = SkClampMax(t, 0xFFFF);
+            SkASSERT(index <= 0xFFFF);
+            *dstC++ = cache[index >> Gradient_Shader::kCache32Shift];
+        }
+    }
+}
+
+void twopoint_repeat(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+                     const SkPMColor* SK_RESTRICT cache, int count) {
+    for (; count > 0; --count) {
+        SkFixed t = rec->nextT();
+        if (TwoPtRadial::DontDrawT(t)) {
+            *dstC++ = 0;
+        } else {
+            SkFixed index = repeat_tileproc(t);
+            SkASSERT(index <= 0xFFFF);
+            *dstC++ = cache[index >> Gradient_Shader::kCache32Shift];
+        }
+    }
+}
+
+void twopoint_mirror(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+                     const SkPMColor* SK_RESTRICT cache, int count) {
+    for (; count > 0; --count) {
+        SkFixed t = rec->nextT();
+        if (TwoPtRadial::DontDrawT(t)) {
+            *dstC++ = 0;
+        } else {
+            SkFixed index = mirror_tileproc(t);
+            SkASSERT(index <= 0xFFFF);
+            *dstC++ = cache[index >> Gradient_Shader::kCache32Shift];
+        }
+    }
+}
+
+class Two_Point_Conical_Gradient : public Gradient_Shader {
+    TwoPtRadial fRec;
+
+    void init() {
+        fRec.init(fCenter1, fRadius1, fCenter2, fRadius2);
+        fPtsToUnit.reset();
+    }
+public:
+    Two_Point_Conical_Gradient(const SkPoint& start, SkScalar startRadius,
+                              const SkPoint& end, SkScalar endRadius,
+                              const SkColor colors[], const SkScalar pos[],
+                              int colorCount, SkShader::TileMode mode,
+                              SkUnitMapper* mapper)
+    : Gradient_Shader(colors, pos, colorCount, mode, mapper),
+    fCenter1(start),
+    fCenter2(end),
+    fRadius1(startRadius),
+    fRadius2(endRadius) {
+        // this is degenerate, and should be caught by our caller
+        SkASSERT(fCenter1 != fCenter2 || fRadius1 != fRadius2);
+        this->init();
+    }
+    
+    virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
+                           int count) SK_OVERRIDE {
+        SkASSERT(count > 0);
+        
+        SkPMColor* SK_RESTRICT dstC = dstCParam;
+        
+        SkMatrix::MapXYProc dstProc = fDstToIndexProc;
+        TileProc            proc = fTileProc;
+        const SkPMColor* SK_RESTRICT cache = this->getCache32();
+
+        TwoPointRadialProc shadeProc = twopoint_repeat;
+        if (proc == clamp_tileproc) {
+            shadeProc = twopoint_clamp;
+        } else if (proc == mirror_tileproc) {
+            shadeProc = twopoint_mirror;
+        } else {
+            SkASSERT(proc == repeat_tileproc);
+        }
+        
+        if (fDstToIndexClass != kPerspective_MatrixClass) {
+            SkPoint srcPt;
+            dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                    SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+            SkScalar dx, fx = srcPt.fX;
+            SkScalar dy, fy = srcPt.fY;
+            
+            if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
+                SkFixed fixedX, fixedY;
+                (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &fixedX, &fixedY);
+                dx = SkFixedToScalar(fixedX);
+                dy = SkFixedToScalar(fixedY);
+            } else {
+                SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
+                dx = fDstToIndex.getScaleX();
+                dy = fDstToIndex.getSkewY();
+            }
+
+            fRec.setup(fx, fy, dx, dy);
+            (*shadeProc)(&fRec, dstC, cache, count);
+        } else {    // perspective case
+            SkScalar dstX = SkIntToScalar(x);
+            SkScalar dstY = SkIntToScalar(y);
+            for (; count > 0; --count) {
+                SkPoint srcPt;
+                dstProc(fDstToIndex, dstX, dstY, &srcPt);
+                dstX += SK_Scalar1;
+                
+                fRec.setup(srcPt.fX, srcPt.fY, 0, 0);
+                (*shadeProc)(&fRec, dstC, cache, 1);
+            }
+        }
+    }
+    
+    virtual bool setContext(const SkBitmap& device,
+                            const SkPaint& paint,
+                            const SkMatrix& matrix) SK_OVERRIDE {
+        if (!this->INHERITED::setContext(device, paint, matrix)) {
+            return false;
+        }
+        
+        // we don't have a span16 proc
+        fFlags &= ~kHasSpan16_Flag;
+        
+        // in general, we might discard based on computed-radius, so clear
+        // this flag (todo: sometimes we can detect that we never discard...)
+        fFlags &= ~kOpaqueAlpha_Flag;
+
+        return true;
+    }
+    
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Two_Point_Conical_Gradient)
+    
+protected:
+    Two_Point_Conical_Gradient(SkFlattenableReadBuffer& buffer)
+    : INHERITED(buffer),
+    fCenter1(buffer.readPoint()),
+    fCenter2(buffer.readPoint()),
+    fRadius1(buffer.readScalar()),
+    fRadius2(buffer.readScalar()) {
+        this->init();
+    };
+    
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+        this->INHERITED::flatten(buffer);
+        buffer.writePoint(fCenter1);
+        buffer.writePoint(fCenter2);
+        buffer.writeScalar(fRadius1);
+        buffer.writeScalar(fRadius2);
+    }
+    
+private:
+    typedef Gradient_Shader INHERITED;
+    const SkPoint fCenter1;
+    const SkPoint fCenter2;
+    const SkScalar fRadius1;
+    const SkScalar fRadius2;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class Sweep_Gradient : public Gradient_Shader {
 public:
     Sweep_Gradient(SkScalar cx, SkScalar cy, const SkColor colors[],
@@ -2425,6 +2713,8 @@ void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkEmptyShader.h"
+
 // assumes colors is SkColor* and pos is SkScalar*
 #define EXPAND_1_COLOR(count)               \
     SkColor tmp[2];                         \
@@ -2478,8 +2768,29 @@ SkShader* SkGradientShader::CreateTwoPointRadial(const SkPoint& start,
         return NULL;
     }
     EXPAND_1_COLOR(colorCount);
-
+    
     return SkNEW_ARGS(Two_Point_Radial_Gradient,
+                      (start, startRadius, end, endRadius, colors, pos,
+                       colorCount, mode, mapper));
+}
+
+SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
+                                                 SkScalar startRadius,
+                                                 const SkPoint& end,
+                                                 SkScalar endRadius,
+                                                 const SkColor colors[],
+                                                 const SkScalar pos[],
+                                                 int colorCount,
+                                                 SkShader::TileMode mode,
+                                                 SkUnitMapper* mapper) {
+    if (startRadius < 0 || endRadius < 0 || NULL == colors || colorCount < 1) {
+        return NULL;
+    }
+    if (start == end && startRadius == endRadius) {
+        return SkNEW(SkEmptyShader);
+    }
+
+    return SkNEW_ARGS(Two_Point_Conical_Gradient,
                       (start, startRadius, end, endRadius, colors, pos,
                        colorCount, mode, mapper));
 }

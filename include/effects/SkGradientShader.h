@@ -93,6 +93,22 @@ public:
                                           const SkScalar pos[], int count,
                                           SkShader::TileMode mode,
                                           SkUnitMapper* mapper = NULL);
+
+    /**
+     *  Returns a shader that generates a conical gradient given two circles, or
+     *  returns NULL if the inputs are invalid. The gradient interprets the
+     *  two circles according to the following HTML spec.
+     *  http://dev.w3.org/html5/2dcontext/#dom-context-2d-createradialgradient
+     */
+    static SkShader* CreateTwoPointConical(const SkPoint& start,
+                                          SkScalar startRadius,
+                                          const SkPoint& end,
+                                          SkScalar endRadius,
+                                          const SkColor colors[],
+                                          const SkScalar pos[], int count,
+                                          SkShader::TileMode mode,
+                                          SkUnitMapper* mapper = NULL);
+    
     /** Returns a shader that generates a sweep gradient given a center.
         <p />
         CreateSweep returns a shader with a reference count of 1.
