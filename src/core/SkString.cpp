@@ -101,7 +101,7 @@ char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
     }
 
     do {
-        *--p = SkToU8('0' + dec % 10);
+        *--p = SkToU8('0' + (int32_t) (dec % 10));
         dec /= 10;
         minDigits--;
     } while (dec != 0);

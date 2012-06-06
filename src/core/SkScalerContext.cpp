@@ -341,11 +341,14 @@ SK_ERROR:
     glyph->fMaskFormat = fRec.fMaskFormat;
 }
 
+#if 0 // UNUSED
 static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat ||
            SkMask::kLCD32_Format == rec.fMaskFormat;
 }
+#endif
 
+#if 0 // UNUSED
 static uint16_t a8_to_rgb565(unsigned a8) {
     return SkPackRGB16(a8 >> 3, a8 >> 2, a8 >> 3);
 }
@@ -368,6 +371,7 @@ static void copyToLCD16(const SkBitmap& src, const SkMask& dst) {
         dstP = (uint16_t*)((char*)dstP + dstRB);
     }
 }
+#endif
 
 #define SK_FREETYPE_LCD_LERP    160
 

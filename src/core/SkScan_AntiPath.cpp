@@ -235,6 +235,7 @@ void SuperBlitter::blitH(int x, int y, int width) {
 #endif
 }
 
+#if 0 // UNUSED
 static void set_left_rite_runs(SkAlphaRuns& runs, int ileft, U8CPU leftA,
                                int n, U8CPU riteA) {
     SkASSERT(leftA <= 0xFF);
@@ -270,6 +271,7 @@ static void set_left_rite_runs(SkAlphaRuns& runs, int ileft, U8CPU leftA,
     }
     run[0] = 0;
 }
+#endif
 
 void SuperBlitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(width > 0);

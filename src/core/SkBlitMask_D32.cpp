@@ -353,7 +353,9 @@ static void A8_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
 static void A8_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
                               const uint8_t* SK_RESTRICT mask,
                               const SkPMColor* SK_RESTRICT src, int count) {
+#if 0 // suppress warning
     const uint32_t rbmask = gMask_00FF00FF;
+#endif
     for (int i = 0; i < count; ++i) {
         int m = mask[i];
         if (m) {
@@ -564,7 +566,8 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
 
     static const RowProc gProcs[] = {
         // need X coordinate to handle BW
-        NULL, NULL, //(RowProc)BW_RowProc_Blend,      (RowProc)BW_RowProc_Opaque,
+        false ? (RowProc)BW_RowProc_Blend : NULL, // suppress unused warning
+        false ? (RowProc)BW_RowProc_Opaque : NULL, // suppress unused warning
         (RowProc)A8_RowProc_Blend,      (RowProc)A8_RowProc_Opaque,
         (RowProc)LCD16_RowProc_Blend,   (RowProc)LCD16_RowProc_Opaque,
         (RowProc)LCD32_RowProc_Blend,   (RowProc)LCD32_RowProc_Opaque,

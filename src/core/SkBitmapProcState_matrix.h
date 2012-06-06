@@ -26,6 +26,22 @@
     #define PREAMBLE_ARG_Y
 #endif
 
+// declare functions externally to suppress warnings.
+void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
+                                uint32_t xy[], int count, int x, int y);
+void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
+                                 uint32_t xy[], int count, int x, int y);
+void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
+                                uint32_t* SK_RESTRICT xy,
+                                int count, int x, int y);
+void SCALE_FILTER_NAME(const SkBitmapProcState& s,
+                              uint32_t xy[], int count, int x, int y);
+void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
+                               uint32_t xy[], int count, int x, int y);
+void PERSP_FILTER_NAME(const SkBitmapProcState& s,
+                              uint32_t* SK_RESTRICT xy, int count,
+                              int x, int y);
+
 void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
                                 uint32_t xy[], int count, int x, int y) {
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
@@ -189,7 +205,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     if (dx > 0 &&
             (unsigned)(fx >> 16) <= maxX &&
             (unsigned)((fx + dx * (count - 1)) >> 16) < maxX) {
-        decal_filter_scale(xy, fx, dx, count);
+        decal_filter_scale(xy, (SkFixed) fx, (SkFixed) dx, count);
     } else
 #endif
     {

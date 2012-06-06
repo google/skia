@@ -925,10 +925,12 @@ static int operate(const SkRegion::RunType a_runs[],
     interval, but we can first trim off the const overhead of the initial TOP
     value, plus the final BOTTOM + 2 sentinels.
  */
+#if 0 // UNUSED
 static int count_to_intervals(int count) {
     SkASSERT(count >= 6);   // a single rect is 6 values
     return (count - 4) >> 1;
 }
+#endif
 
 /*  Given a number of intervals, what is the worst case representation of that
     many intervals?
