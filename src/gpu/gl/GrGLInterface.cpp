@@ -196,9 +196,9 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         // GL_NV_path_rendering. We're not enforcing that they be non-NULL
         // because they aren't actually called at this time.
         if (false &&
-            NULL == fMatrixMode ||
-            NULL == fLoadIdentity ||
-            NULL == fLoadMatrixf) {
+            (NULL == fMatrixMode ||
+             NULL == fLoadIdentity ||
+             NULL == fLoadMatrixf)) {
             return false;
         }
         if (false && GrGLHasExtensionFromString("GL_NV_path_rendering", ext)) {
