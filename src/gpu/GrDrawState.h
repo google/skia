@@ -804,7 +804,7 @@ private:
                sizeof(fPodEndMarker);
     }
 
-    static const StageMask kIllegalStageMaskBits = ~((1 << kNumStages)-1);
+    static const StageMask kIllegalStageMaskBits = ~((1U << kNumStages)-1);
     // @{ these fields can be initialized with memset to 0
     union {
         GrColor             fBlendConstant;

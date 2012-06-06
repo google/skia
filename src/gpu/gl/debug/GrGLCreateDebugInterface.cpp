@@ -30,6 +30,8 @@ static const GrGLint kDefaultMaxVertexAttribs = 8;
 // the OpenGLES 2.0 spec says this must be >= 8
 static const GrGLint kDefaultMaxVaryingVectors = 8;
 
+namespace { // suppress no previsous prototype warning
+
 ////////////////////////////////////////////////////////////////////////////////
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture) {
     
@@ -861,6 +863,8 @@ GrGLint GR_GL_FUNCTION_TYPE debugGLGetUniformLocation(GrGLuint program, const ch
     static int gUniLocation = 0;
     return ++gUniLocation;
 }
+
+} // end of namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 struct GrDebugGLInterface : public GrGLInterface {

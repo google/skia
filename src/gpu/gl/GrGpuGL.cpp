@@ -11,7 +11,7 @@
 #include "GrTypes.h"
 #include "SkTemplates.h"
 
-static const GrGLuint GR_MAX_GLUINT = ~0;
+static const GrGLuint GR_MAX_GLUINT = ~0U;
 static const GrGLint  GR_INVAL_GLINT = ~0;
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
@@ -176,6 +176,9 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
 
     fLastSuccessfulStencilFmtIdx = 0;
     fCanPreserveUnpremulRoundtrip = kUnknown_CanPreserveUnpremulRoundtrip;
+    if (false) { // avoid bit rot, suppress warning
+        fbo_test(this->glInterface(), 0, 0);
+    }
 }
 
 GrGpuGL::~GrGpuGL() {
@@ -526,7 +529,7 @@ void GrGpuGL::onResetContext() {
         GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
     }
 
-    fHWGeometryState.fVertexOffset = ~0;
+    fHWGeometryState.fVertexOffset = ~0U;
 
     // Third party GL code may have left vertex attributes enabled. Some GL
     // implementations (osmesa) may read vetex attributes that are not required
@@ -989,7 +992,7 @@ static GrTexture* return_null_texture() {
     return NULL;
 }
 
-#if GR_DEBUG
+#if 0 && GR_DEBUG
 static size_t as_size_t(int x) {
     return x;
 }
@@ -1443,7 +1446,7 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
     }
     this->flushRenderTarget(&GrIRect::EmptyIRect());
     this->enableScissoring(rect);
-    GL_CALL(StencilMask(clipStencilMask));
+    GL_CALL(StencilMask((uint32_t) clipStencilMask));
     GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
@@ -1583,7 +1586,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     } else {
         GrAssert(readDst != buffer);        GrAssert(rowBytes != tightRowBytes);
         // copy from readDst to buffer while flipping y
-        const int halfY = height >> 1;
+        // const int halfY = height >> 1;
         const char* src = reinterpret_cast<const char*>(readDst);
         char* dst = reinterpret_cast<char*>(buffer);
         if (!invertY) {

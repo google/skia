@@ -1229,9 +1229,9 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     GrStringBuilder samplerName;
     sampler_name(stageNum, &samplerName);
-    const GrGLShaderVar* sampler = &segments->addUniform(
-        GrGLShaderBuilder::kFragment_VariableLifetime, kSampler2D_GrSLType,
-        samplerName.c_str());
+    // const GrGLShaderVar* sampler = &
+        segments->addUniform(GrGLShaderBuilder::kFragment_VariableLifetime,
+        kSampler2D_GrSLType, samplerName.c_str());
     locations->fSamplerUni = kUseUniform;
 
     const char *varyingVSName, *varyingFSName;
@@ -1251,8 +1251,8 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                   vector_all_coords(segments->fVaryingDims));
     }
 
-    GrGLShaderVar* kernel = NULL;
-    const char* imageIncrementName = NULL;
+    // GrGLShaderVar* kernel = NULL;
+    // const char* imageIncrementName = NULL;
     if (NULL != customStage) {
         segments->fVSCode.appendf("\t{ // stage %d %s\n",
                                   stageNum, customStage->name());
@@ -1284,8 +1284,8 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     if (desc.fOptFlags & StageDesc::kCustomTextureDomain_OptFlagBit) {
         GrStringBuilder texDomainName;
         tex_domain_name(stageNum, &texDomainName);
-        const GrGLShaderVar* texDomain =
-            &segments->addUniform(
+        // const GrGLShaderVar* texDomain = &
+            segments->addUniform(
                 GrGLShaderBuilder::kFragment_VariableLifetime,
                 kVec4f_GrSLType, texDomainName.c_str());
         GrStringBuilder coordVar("clampCoord");

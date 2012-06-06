@@ -15,7 +15,7 @@
 
 #include <dlfcn.h>
 
-void* GetProcAddress(const char* name) {
+static void* GetProcAddress(const char* name) {
     return dlsym(RTLD_DEFAULT, name);
 }
 

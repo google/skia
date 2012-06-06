@@ -10,6 +10,8 @@
 #include "GrTDArray.h"
 #include "GrGLDefines.h"
 
+namespace { // added to suppress 'no previous prototype' warning
+
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shader) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBeginQuery(GrGLenum target, GrGLuint id) {}
@@ -375,6 +377,8 @@ GrGLint GR_GL_FUNCTION_TYPE nullGLGetUniformLocation(GrGLuint program, const cha
     static int gUniLocation = 0;
     return ++gUniLocation;
 }
+
+} // end anonymous namespace
 
 const GrGLInterface* GrGLCreateNullInterface() {
     // The gl functions are not context-specific so we create one global 

@@ -249,7 +249,7 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
 
 
 void GrGpuGL::flushColorMatrix() {
-    const ProgramDesc& desc = fCurrentProgram.getDesc();
+    // const ProgramDesc& desc = fCurrentProgram.getDesc();
     int matrixUni = fProgramData->fUniLocations.fColorMatrixUni;
     int vecUni = fProgramData->fUniLocations.fColorMatrixVecUni;
     if (GrGLProgram::kUnusedUniform != matrixUni
@@ -330,7 +330,7 @@ void GrGpuGL::flushColor(GrColor color) {
 
 void GrGpuGL::flushCoverage(GrColor coverage) {
     const ProgramDesc& desc = fCurrentProgram.getDesc();
-    const GrDrawState& drawState = this->getDrawState();
+    // const GrDrawState& drawState = this->getDrawState();
 
 
     if (this->getVertexLayout() & kCoverage_VertexLayoutBit) {

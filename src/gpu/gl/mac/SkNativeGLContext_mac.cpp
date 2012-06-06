@@ -33,7 +33,7 @@ void SkNativeGLContext::destroyGLContext() {
 
 const GrGLInterface* SkNativeGLContext::createGLContext() {
     GLint major, minor;
-    AGLContext ctx;
+    // AGLContext ctx;
 
     aglGetVersion(&major, &minor);
     //SkDebugf("---- agl version %d %d\n", major, minor);

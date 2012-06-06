@@ -9,6 +9,7 @@
 
 
 #include <stdlib.h>
+#include "GrTypes.h"
 
 void* GrMalloc(size_t bytes) {
     void* ptr = ::malloc(bytes);

@@ -84,8 +84,8 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
                                    const char* inputColor,
                                    const char* samplerName) {
     GrStringBuilder* code = &state->fFSCode;
-    const char* texFunc = "texture2D";
-    bool complexCoord = false;
+ // const char* texFunc = "texture2D";
+ // bool complexCoord = false;
 
     state->fFSCode.appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
 

@@ -124,8 +124,8 @@ void gen_texture_key_values(const GrGpu* gpu,
     // assert that texture creation will fail anyway if this assumption
     // would cause key collisions.
     GrAssert(gpu->getCaps().fMaxTextureSize <= SK_MaxU16);
-    v[0] = clientKey & 0xffffffffUL;
-    v[1] = (clientKey >> 32) & 0xffffffffUL;
+    v[0] = (uint32_t) (clientKey & 0xffffffffUL);
+    v[1] = (uint32_t) ((clientKey >> 32) & 0xffffffffUL);
     v[2] = desc.fWidth | (desc.fHeight << 16);
 
     v[3] = (desc.fSampleCnt << 24);
