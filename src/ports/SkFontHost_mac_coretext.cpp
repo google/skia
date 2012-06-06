@@ -81,10 +81,6 @@ static CGFloat CGRectGetWidth_inline(const CGRect& rect) {
     return rect.size.width;
 }
 
-static CGFloat CGRectGetHeight(const CGRect& rect) {
-    return rect.size.height;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void sk_memset_rect32(uint32_t* ptr, uint32_t value, size_t width,
@@ -134,6 +130,7 @@ static void sk_memset_rect32(uint32_t* ptr, uint32_t value, size_t width,
 // Potentially this should be made (1) public (2) optimized when width is small.
 // Also might want 16 and 32 bit version
 //
+#if 0 // UNUSED
 static void sk_memset_rect(void* ptr, U8CPU byte, size_t width, size_t height,
                            size_t rowBytes) {
     uint8_t* dst = (uint8_t*)ptr;
@@ -143,6 +140,7 @@ static void sk_memset_rect(void* ptr, U8CPU byte, size_t width, size_t height,
         height -= 1;
     }
 }
+#endif
 
 #include <sys/utsname.h>
 
@@ -233,7 +231,7 @@ static CGFloat ScalarToCG(SkScalar scalar) {
         return SkScalarToFloat(scalar);
     } else {
         SkASSERT(sizeof(CGFloat) == sizeof(double));
-        return SkScalarToDouble(scalar);
+        return (CGFloat) SkScalarToDouble(scalar);
     }
 }
 
@@ -254,13 +252,6 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix,
                                  ScalarToCG(matrix[SkMatrix::kMScaleY]) * sy,
                                  ScalarToCG(matrix[SkMatrix::kMTransX]) * sx,
                                  ScalarToCG(matrix[SkMatrix::kMTransY]) * sy);
-}
-
-static void CGAffineTransformToMatrix(const CGAffineTransform& xform, SkMatrix* matrix) {
-    matrix->setAll(
-                   CGToScalar(xform.a), CGToScalar(xform.c), CGToScalar(xform.tx),
-                   CGToScalar(xform.b), CGToScalar(xform.d), CGToScalar(xform.ty),
-                   0, 0, SK_Scalar1);
 }
 
 static SkScalar getFontScale(CGFontRef cgFont) {
@@ -772,7 +763,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         fDoLCD = doLCD;
     }
     if (fFgColorIsWhite != fgColorIsWhite) {
-        CGContextSetGrayFillColor(fCG, fgColorIsWhite ? 1.0 : 0, 1.0);
+        CGContextSetGrayFillColor(fCG, fgColorIsWhite ? 1 : 0, 1);
         fFgColorIsWhite = fgColorIsWhite;
     }
 
@@ -1086,13 +1077,14 @@ static const uint8_t* getInverseTable(bool isWhite) {
     return isWhite ? gWhiteTable : gTable;
 }
 
+#ifdef SK_USE_COLOR_LUMINANCE
 static const uint8_t* getGammaTable(U8CPU luminance) {
     static uint8_t gGammaTables[4][256];
     static bool gInited;
     if (!gInited) {
 #if 1
-        float start = 1.1;
-        float stop = 2.1;
+        float start = 1.1f;
+        float stop = 2.1f;
         for (int i = 0; i < 4; ++i) {
             float g = start + (stop - start) * i / 3;
             build_power_table(gGammaTables[i], 1/g);
@@ -1108,6 +1100,7 @@ static const uint8_t* getGammaTable(U8CPU luminance) {
     SkASSERT(0 == (luminance >> 8));
     return gGammaTables[luminance >> 6];
 }
+#endif
 
 static void invertGammaMask(bool isWhite, CGRGBPixel rgb[], int width,
                             int height, size_t rb) {
@@ -1137,6 +1130,7 @@ static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
     }
 }
 
+#ifdef SK_USE_COLOR_LUMINANCE
 static int lerpScale(int dst, int src, int scale) {
     return dst + (scale * (src - dst) >> 23);
 }
@@ -1158,16 +1152,9 @@ static CGRGBPixel lerpPixel(CGRGBPixel dst, CGRGBPixel src,
 
 static void lerpPixels(CGRGBPixel dst[], const CGRGBPixel src[], int width,
                        int height, int rowBytes, int lumBits) {
-#ifdef SK_USE_COLOR_LUMINANCE
     int scaleR = (1 << 23) * SkColorGetR(lumBits) / 0xFF;
     int scaleG = (1 << 23) * SkColorGetG(lumBits) / 0xFF;
     int scaleB = (1 << 23) * SkColorGetB(lumBits) / 0xFF;
-#else
-    int scale = (1 << 23) * lumBits / SkScalerContext::kLuminance_Max;
-    int scaleR = scale;
-    int scaleG = scale;
-    int scaleB = scale;
-#endif
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -1179,6 +1166,7 @@ static void lerpPixels(CGRGBPixel dst[], const CGRGBPixel src[], int width,
         dst = (CGRGBPixel*)((char*)dst + rowBytes);
     }
 }
+#endif
 
 #if 1
 static inline int r32_to_16(int x) { return SkR32ToR16(x); }
@@ -1225,10 +1213,10 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
 
     const bool isLCD = isLCDFormat(glyph.fMaskFormat);
+#ifdef SK_USE_COLOR_LUMINANCE
     const bool isBW = SkMask::kBW_Format == glyph.fMaskFormat;
     const bool isA8 = !isLCD && !isBW;
     
-#ifdef SK_USE_COLOR_LUMINANCE
     unsigned lumBits = fRec.getLuminanceColor();
     uint32_t xorMask = 0;
 
@@ -1250,7 +1238,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
      */
     if (isLCD) {
         if (isBlack) {
-            xorMask = ~0;
+            xorMask = ~0U;
             fgColorIsWhite = false;
         } else {    /* white or neutral */
             xorMask = 0;
@@ -1693,13 +1681,13 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     } else if (stylisticClass & kCTFontScriptsClass) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     }
-    info->fItalicAngle = CTFontGetSlantAngle(ctFont);
-    info->fAscent = CTFontGetAscent(ctFont);
-    info->fDescent = CTFontGetDescent(ctFont);
-    info->fCapHeight = CTFontGetCapHeight(ctFont);
+    info->fItalicAngle = (int16_t) CTFontGetSlantAngle(ctFont);
+    info->fAscent = (int16_t) CTFontGetAscent(ctFont);
+    info->fDescent = (int16_t) CTFontGetDescent(ctFont);
+    info->fCapHeight = (int16_t) CTFontGetCapHeight(ctFont);
     CGRect bbox = CTFontGetBoundingBox(ctFont);
-    info->fBBox = SkIRect::MakeXYWH(bbox.origin.x, bbox.origin.y,
-        bbox.size.width, bbox.size.height);
+    info->fBBox = SkIRect::MakeXYWH((int16_t) bbox.origin.x, (int16_t) bbox.origin.y,
+        (int16_t) bbox.size.width, (int16_t) bbox.size.height);
 
     // Figure out a good guess for StemV - Min width of i, I, !, 1.
     // This probably isn't very good with an italic font.
@@ -1713,7 +1701,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         CTFontGetBoundingRectsForGlyphs(ctFont, kCTFontHorizontalOrientation,
             glyphs, boundingRects, count);
         for (size_t i = 0; i < count; i++) {
-            int16_t width = boundingRects[i].size.width;
+            int16_t width = (int16_t) boundingRects[i].size.width;
             if (width > 0 && width < min_width) {
                 min_width = width;
                 info->fStemV = min_width;
@@ -1904,7 +1892,7 @@ static bool supports_LCD() {
     CGContextSetShouldSmoothFonts(cgContext, true);
     CGContextSetShouldAntialias(cgContext, true);
     CGContextSetTextDrawingMode(cgContext, kCGTextFill);
-    CGContextSetGrayFillColor(  cgContext, 1, 1.0);
+    CGContextSetGrayFillColor(  cgContext, 1, 1);
     CGContextShowTextAtPoint(cgContext, -1, 0, "|", 1);
     CFSafeRelease(colorspace);
     CFSafeRelease(cgContext);
