@@ -406,7 +406,7 @@ private:
 // registers GMs as Samples
 // This can't be performed during static initialization because it could be
 // run before GMRegistry has been fully built.
-void SkGMRegistyToSampleRegistry() {
+static void SkGMRegistyToSampleRegistry() {
     static bool gOnce;
     static AutoUnrefArray fRegisters; 
 
@@ -599,6 +599,8 @@ GrContext* SampleCode::GetGr() {
 
 // some GMs rely on having a skiagm::GetGr function defined
 namespace skiagm {
+    // FIXME: this should be moved into a header
+    GrContext* GetGr();
     GrContext* GetGr() { return SampleCode::GetGr(); }
 }
 
@@ -1173,6 +1175,7 @@ void SampleWindow::onDraw(SkCanvas* canvas) {
 
 #include "SkColorPriv.h"
 
+#if 0 // UNUSED
 static void reverseRedAndBlue(const SkBitmap& bm) {
     SkASSERT(bm.config() == SkBitmap::kARGB_8888_Config);
     uint8_t* p = (uint8_t*)bm.getPixels();
@@ -1188,6 +1191,7 @@ static void reverseRedAndBlue(const SkBitmap& bm) {
         p += 4;
     }
 }
+#endif
 
 void SampleWindow::saveToPdf()
 {
@@ -1631,6 +1635,7 @@ bool SampleWindow::onQuery(SkEvent* query) {
     return this->INHERITED::onQuery(query);
 }
 
+#if 0 // UNUSED
 static void cleanup_for_filename(SkString* name) {
     char* str = name->writable_str();
     for (size_t i = 0; i < name->size(); i++) {
@@ -1642,6 +1647,7 @@ static void cleanup_for_filename(SkString* name) {
         }
     }
 }
+#endif
 
 bool SampleWindow::onHandleChar(SkUnichar uni) {
     {
@@ -2329,11 +2335,17 @@ static void test() {
     }
 }
 
+// FIXME: this should be in a header
+SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
-//    test();
+    if (false) { // avoid bit rot, suppress warning
+        test();
+    }
     return new SampleWindow(hwnd, argc, argv, NULL);
 }
 
+// FIXME: this should be in a header
+void get_preferred_size(int* x, int* y, int* width, int* height);
 void get_preferred_size(int* x, int* y, int* width, int* height) {
     *x = 10;
     *y = 50;
@@ -2341,6 +2353,8 @@ void get_preferred_size(int* x, int* y, int* width, int* height) {
     *height = 480;
 }
 
+// FIXME: this should be in a header
+void application_init();
 void application_init() {
 //    setenv("ANDROID_ROOT", "../../../data", 0);
 #ifdef SK_BUILD_FOR_MAC
@@ -2350,6 +2364,8 @@ void application_init() {
     SkEvent::Init();
 }
 
+// FIXME: this should be in a header
+void application_term();
 void application_term() {
     SkEvent::Term();
     SkGraphics::Term();

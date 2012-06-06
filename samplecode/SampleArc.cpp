@@ -25,7 +25,7 @@
 #include "SkParsePath.h"
 static void testparse() {
     SkRect r;
-    r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5));
+    r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5f));
     SkPath p, p2;
     SkString str, str2;
 

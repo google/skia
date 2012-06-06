@@ -9,6 +9,7 @@
 #include "SkView.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkDevice.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -82,8 +83,10 @@ protected:
             canvas->drawText(str, strlen(str), x, y, paint);
             y += paint.getFontMetrics(NULL);
         }
-        //check_for_nonwhite(canvas->getDevice()->accessBitmap(), fByte);
-        //SkDebugf("------ byte %x\n", fByte);
+        if (false) { // avoid bit rot, suppress warning
+            check_for_nonwhite(canvas->getDevice()->accessBitmap(false), fByte);
+            SkDebugf("------ byte %x\n", fByte);
+        }
 
         if (false) {
             fByte += 1;

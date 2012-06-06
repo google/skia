@@ -209,7 +209,9 @@ protected:
             this->inval(NULL);
         }
 
-     //   fProcIndex = test0(fPts, &fClip);
+        if (false) { // avoid bit rot, suppress warning
+            fProcIndex = test0(fPts, &fClip);
+        }
 
         SkPaint paint, paint1;
         

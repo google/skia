@@ -133,7 +133,9 @@ public:
         fBitmap = createBitmap(N);
         fShader = createChecker();
       
-//        test_5bits();
+        if (false) { // avoid bit rot, suppress warning
+            test_5bits();
+        }
     }
 
     virtual ~ColorFilterView() {

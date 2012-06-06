@@ -168,7 +168,9 @@ protected:
         canvas->restore();
         
         canvas->translate(0, SkIntToScalar(370));
-     //   test_alphagradients(canvas);
+        if (false) { // avoid bit rot, suppress warning
+            test_alphagradients(canvas);
+        }
         this->inval(NULL);
     }
     

@@ -77,7 +77,7 @@ protected:
     virtual bool onClick(Click* click) {
         fCenter.set(click->fCurr.fX, click->fCurr.fY);
         this->inval(NULL);
-        return NULL;
+        return false;
     }
     
 private:

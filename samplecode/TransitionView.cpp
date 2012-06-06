@@ -15,7 +15,7 @@ extern bool is_overview(SkView* view);
 static const char gIsTransitionQuery[] = "is-transition";
 static const char gReplaceTransitionEvt[] = "replace-transition-view";
 
-bool is_transition(SkView* view) {
+static bool is_transition(SkView* view) {
     SkEvent isTransition(gIsTransitionQuery);
     return view->doQuery(&isTransition);
 }
@@ -181,6 +181,9 @@ private:
     
     typedef SampleView INHERITED;
 };
+
+// FIXME: this should go in a header
+SkView* create_transition(SkView* prev, SkView* next, int direction);
 
 SkView* create_transition(SkView* prev, SkView* next, int direction) {
     return SkNEW_ARGS(TransitionView, (prev, next, direction));

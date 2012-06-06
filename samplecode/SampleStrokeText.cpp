@@ -131,7 +131,9 @@ protected:
 //        paint.setTypeface(Typeface.DEFAULT_BOLD);
         
         lettersToBitmap(&bm, "Test Case", paint, SkBitmap::kARGB_4444_Config);
-        
+        if (false) { // avoid bit rot, suppress warning
+            lettersToBitmap2(&bm, "Test Case", paint, SkBitmap::kARGB_4444_Config);
+        }
         canvas->drawBitmap(bm, 0, 0);
     }
     
