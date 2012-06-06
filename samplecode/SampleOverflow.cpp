@@ -56,6 +56,7 @@ static void DrawRoundRect() {
 #endif
 }
 
+#ifdef SK_SCALAR_IS_FLOATx // FIXME: unclear when if ever this can be enabled
 static bool HitTestPath(const SkPath& path, SkScalar x, SkScalar y) {
     SkRegion    rgn, clip;
     
@@ -67,11 +68,12 @@ static bool HitTestPath(const SkPath& path, SkScalar x, SkScalar y) {
     bool contains = rgn.setPath(path, clip);
     return contains;
 }
+#endif
 
 static void TestOverflowHitTest() {
     SkPath path;
     
-#ifdef SK_SCALAR_IS_FLOATx
+#ifdef SK_SCALAR_IS_FLOATx // FIXME: unclear when if ever this can be enabled
     path.addCircle(0, 0, 70000, SkPath::kCCW_Direction);
     SkASSERT(HitTestPath(path, 40000, 40000));
 #endif

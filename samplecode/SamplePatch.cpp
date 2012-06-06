@@ -27,17 +27,6 @@
 
 #include "SkGeometry.h" // private include :(
 
-static void drawtriangle(SkCanvas* canvas, const SkPaint& paint,
-                         const SkPoint pts[3]) {
-    SkPath path;
-
-    path.moveTo(pts[0]);
-    path.lineTo(pts[1]);
-    path.lineTo(pts[2]);
-
-    canvas->drawPath(path, paint);
-}
-
 static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;
 

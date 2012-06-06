@@ -31,10 +31,6 @@ static void show_text(SkCanvas* canvas, bool doAA) {
     }
 }
 
-static bool valid(int i) {
-    return i < 15 && i > 7;
-}
-
 static void show_fill(SkCanvas* canvas, bool doAA) {
     SkRandom rand;
     SkPaint paint;

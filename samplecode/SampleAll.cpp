@@ -323,8 +323,8 @@ protected:
         path.addCircle(SkIntToScalar(20), SkIntToScalar(20), SkIntToScalar(20),
             SkPath::kCCW_Direction);
         for (int index = 0; index < 10; index++) {
-            SkScalar x = SkFloatToScalar(cos(index / 10.0f * 2 * 3.1415925358f));
-            SkScalar y = SkFloatToScalar(sin(index / 10.0f * 2 * 3.1415925358f));
+            SkScalar x = SkFloatToScalar((float) cos(index / 10.0f * 2 * 3.1415925358f));
+            SkScalar y = SkFloatToScalar((float) sin(index / 10.0f * 2 * 3.1415925358f));
             x *= index & 1 ? 7 : 14;
             y *= index & 1 ? 7 : 14;
             x += SkIntToScalar(20);

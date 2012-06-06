@@ -76,7 +76,7 @@ class XfermodesBlurView : public SampleView {
 
 #ifdef SK_BUILD_FOR_MAC
         static const char* gNames[] = { "Arial", "Times", "Courier", "Lucida" };
-        for (int j = 0; j < SK_ARRAY_COUNT(gNames); ++j) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(gNames); ++j) {
             CFStringRef name = CFStringCreateWithCString(NULL, gNames[j], kCFStringEncodingUTF8);
             CTFontRef font = CTFontCreateWithName(name, 0, NULL);
             SkTypeface* face = SkCreateTypefaceFromCTFont(font);
@@ -99,9 +99,6 @@ public:
     const static int W = 64;
     const static int H = 64;
     XfermodesBlurView() {
-        const int W = 64;
-        const int H = 64;
-
         fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
         fBG.setPixels(gBG);
         fBG.setIsOpaque(true);

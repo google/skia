@@ -323,8 +323,14 @@ protected:
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
-//        test_strokerect(canvas); return;
-//        test_text(canvas); return;
+        if (false) { // avoid bit rot, suppress warning
+            test_strokerect(canvas);
+            return;
+        }
+        if (false) { // avoid bit rot, suppress warning
+            test_text(canvas);
+            return;
+        }
 #ifdef SK_DEBUG
         if (true) {
             SkRegion a, b, c;

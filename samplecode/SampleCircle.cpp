@@ -57,6 +57,9 @@ protected:
             paint.setStrokeWidth(SkIntToScalar(width));
         }
         canvas->drawCircle(0, 0, SkIntToScalar(9) + fRAD, paint);
+        if (false) { // avoid bit rot, suppress warning
+            test_circlebounds(canvas);
+        }
     }
     
     void drawSix(SkCanvas* canvas, SkScalar dx, SkScalar dy) {

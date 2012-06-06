@@ -343,7 +343,7 @@ public:
     ~Rec() { delete[] fVerts; delete[] fTexs; }
 };
 
-void make_tris(Rec* rec) {
+static void make_tris(Rec* rec) {
     int n = 10;
     SkRandom    rand;
     
@@ -359,7 +359,7 @@ void make_tris(Rec* rec) {
     }
 }
 
-void make_fan(Rec* rec, int texWidth, int texHeight) {
+static void make_fan(Rec* rec, int texWidth, int texHeight) {
     const SkScalar tx = SkIntToScalar(texWidth);
     const SkScalar ty = SkIntToScalar(texHeight);
     const int n = 24;
@@ -389,7 +389,7 @@ void make_fan(Rec* rec, int texWidth, int texHeight) {
     m.mapPoints(v, rec->fCount);
 }
 
-void make_strip(Rec* rec, int texWidth, int texHeight) {
+static void make_strip(Rec* rec, int texWidth, int texHeight) {
     const SkScalar tx = SkIntToScalar(texWidth);
     const SkScalar ty = SkIntToScalar(texHeight);
     const int n = 24;
