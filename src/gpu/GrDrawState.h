@@ -82,8 +82,8 @@ public:
         fCoverage = 0xffffffff;
         fFirstCoverageStage = kNumStages;
         fColorFilterMode = SkXfermode::kDst_Mode;
-        fSrcBlend = kOne_BlendCoeff;
-        fDstBlend = kZero_BlendCoeff;
+        fSrcBlend = kOne_GrBlendCoeff;
+        fDstBlend = kZero_GrBlendCoeff;
         fViewMatrix.reset();
         fBehaviorBits = 0;
 
@@ -289,10 +289,10 @@ public:
         fDstBlend = dstCoeff;
     #if GR_DEBUG
         switch (dstCoeff) {
-        case kDC_BlendCoeff:
-        case kIDC_BlendCoeff:
-        case kDA_BlendCoeff:
-        case kIDA_BlendCoeff:
+        case kDC_GrBlendCoeff:
+        case kIDC_GrBlendCoeff:
+        case kDA_GrBlendCoeff:
+        case kIDA_GrBlendCoeff:
             GrPrintf("Unexpected dst blend coeff. Won't work correctly with"
                      "coverage stages.\n");
             break;
@@ -300,10 +300,10 @@ public:
             break;
         }
         switch (srcCoeff) {
-        case kSC_BlendCoeff:
-        case kISC_BlendCoeff:
-        case kSA_BlendCoeff:
-        case kISA_BlendCoeff:
+        case kSC_GrBlendCoeff:
+        case kISC_GrBlendCoeff:
+        case kSA_GrBlendCoeff:
+        case kISA_GrBlendCoeff:
             GrPrintf("Unexpected src blend coeff. Won't work correctly with"
                      "coverage stages.\n");
             break;
@@ -325,10 +325,10 @@ public:
     /**
      * Sets the blending function constant referenced by the following blending
      * coeffecients:
-     *      kConstC_BlendCoeff
-     *      kIConstC_BlendCoeff
-     *      kConstA_BlendCoeff
-     *      kIConstA_BlendCoeff
+     *      kConstC_GrBlendCoeff
+     *      kIConstC_GrBlendCoeff
+     *      kConstA_GrBlendCoeff
+     *      kIConstA_GrBlendCoeff
      *
      * @param constant the constant to set
      */

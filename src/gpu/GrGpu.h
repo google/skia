@@ -35,12 +35,12 @@ public:
     enum ExtendedBlendCoeffs {
         // source 2 refers to second output color when
         // using dual source blending.
-        kS2C_BlendCoeff = kPublicBlendCoeffCount,
-        kIS2C_BlendCoeff,
-        kS2A_BlendCoeff,
-        kIS2A_BlendCoeff,
+        kS2C_GrBlendCoeff = kPublicGrBlendCoeffCount,
+        kIS2C_GrBlendCoeff,
+        kS2A_GrBlendCoeff,
+        kIS2A_GrBlendCoeff,
 
-        kTotalBlendCoeffCount
+        kTotalGrBlendCoeffCount
     };
 
     /**
@@ -133,7 +133,7 @@ public:
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
      * The max number of quads can be queried using GrIndexBuffer::maxQuads().
-     * Draw with kTriangles_PrimitiveType
+     * Draw with kTriangles_GrPrimitiveType
      * @ return the quad index buffer
      */
     const GrIndexBuffer* getQuadIndexBuffer() const;

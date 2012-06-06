@@ -112,7 +112,7 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
         case ProgramDesc::kCoverage_DualSrcOutput:
         case ProgramDesc::kCoverageISA_DualSrcOutput:
         case ProgramDesc::kCoverageISC_DualSrcOutput:
-        *dstCoeff = (GrBlendCoeff)GrGpu::kIS2C_BlendCoeff;
+        *dstCoeff = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
         break;
         default:
             GrCrash("Unexpected dual source blend output");

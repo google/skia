@@ -237,8 +237,8 @@ private:
     GrTexture*      fMaskTextures[kMaxMasks];
 
     void resetBlend() {
-        fSrcBlendCoeff = kOne_BlendCoeff;
-        fDstBlendCoeff = kZero_BlendCoeff;
+        fSrcBlendCoeff = kOne_GrBlendCoeff;
+        fDstBlendCoeff = kZero_GrBlendCoeff;
     }
 
     void resetOptions() {

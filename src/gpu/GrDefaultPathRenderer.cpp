@@ -154,7 +154,7 @@ static inline bool single_pass_path(const SkPath& path, GrPathFill fill) {
 #if STENCIL_OFF
     return true;
 #else
-    if (kEvenOdd_PathFill == fill || kWinding_PathFill == fill) {
+    if (kEvenOdd_GrPathFill == fill || kWinding_GrPathFill == fill) {
         return path.isConvex();
     }
     return false;
@@ -174,7 +174,7 @@ static inline void append_countour_edge_indices(GrPathFill fillType,
     // when drawing lines we're appending line segments along
     // the contour. When applying the other fill rules we're
     // drawing triangle fans around fanCenterIdx.
-    if (kHairLine_PathFill != fillType) {
+    if (kHairLine_GrPathFill != fillType) {
         *((*indices)++) = fanCenterIdx;
     }
     *((*indices)++) = edgeV0Idx;
@@ -217,19 +217,19 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
     bool indexed = contourCnt > 1;
 
     int maxIdxs = 0;
-    if (kHairLine_PathFill == fill) {
+    if (kHairLine_GrPathFill == fill) {
         if (indexed) {
             maxIdxs = 2 * maxPts;
-            *primType = kLines_PrimitiveType;
+            *primType = kLines_GrPrimitiveType;
         } else {
-            *primType = kLineStrip_PrimitiveType;
+            *primType = kLineStrip_GrPrimitiveType;
         }
     } else {
         if (indexed) {
             maxIdxs = 3 * maxPts;
-            *primType = kTriangles_PrimitiveType;
+            *primType = kTriangles_GrPrimitiveType;
         } else {
-            *primType = kTriangleFan_PrimitiveType;
+            *primType = kTriangleFan_GrPrimitiveType;
         }
     }
 
@@ -371,7 +371,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
     bool                        reverse = false;
     bool                        lastPassIsBounds;
 
-    if (kHairLine_PathFill == fill) {
+    if (kHairLine_GrPathFill == fill) {
         passCount = 1;
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
@@ -392,10 +392,10 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
             lastPassIsBounds = false;
         } else {
             switch (fill) {
-                case kInverseEvenOdd_PathFill:
+                case kInverseEvenOdd_GrPathFill:
                     reverse = true;
                     // fallthrough
-                case kEvenOdd_PathFill:
+                case kEvenOdd_GrPathFill:
                     passes[0] = &gEOStencilPass;
                     if (stencilOnly) {
                         passCount = 1;
@@ -412,10 +412,10 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                     drawFace[0] = drawFace[1] = GrDrawState::kBoth_DrawFace;
                     break;
 
-                case kInverseWinding_PathFill:
+                case kInverseWinding_GrPathFill:
                     reverse = true;
                     // fallthrough
-                case kWinding_PathFill:
+                case kWinding_GrPathFill:
                     if (fSeparateStencil) {
                         if (fStencilWrapOps) {
                             passes[0] = &gWindStencilSeparateWithWrap;
@@ -540,7 +540,7 @@ bool GrDefaultPathRenderer::onDrawPath(const SkPath& path,
 void GrDefaultPathRenderer::drawPathToStencil(const SkPath& path,
                                               GrPathFill fill,
                                               GrDrawTarget* target) {
-    GrAssert(kInverseEvenOdd_PathFill != fill);
-    GrAssert(kInverseWinding_PathFill != fill);
+    GrAssert(kInverseEvenOdd_GrPathFill != fill);
+    GrAssert(kInverseWinding_GrPathFill != fill);
     this->internalDrawPath(path, fill, NULL, target, 0, true);
 }

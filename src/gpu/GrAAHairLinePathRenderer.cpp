@@ -578,7 +578,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
                                            GrPathFill fill,
                                            const GrDrawTarget* target,
                                            bool antiAlias) const {
-    if (fill != kHairLine_PathFill || !antiAlias) {
+    if (fill != kHairLine_GrPathFill || !antiAlias) {
         return false;
     }
 
@@ -635,7 +635,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     while (lines < lineCnt) {
         int n = GrMin(lineCnt - lines, nBufLines);
         drawState->setVertexEdgeType(GrDrawState::kHairLine_EdgeType);
-        target->drawIndexed(kTriangles_PrimitiveType,
+        target->drawIndexed(kTriangles_GrPrimitiveType,
                             kVertsPerLineSeg*lines,    // startV
                             0,                         // startI
                             kVertsPerLineSeg*n,        // vCount
@@ -648,7 +648,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     while (quads < quadCnt) {
         int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
         drawState->setVertexEdgeType(GrDrawState::kHairQuad_EdgeType);
-        target->drawIndexed(kTriangles_PrimitiveType,
+        target->drawIndexed(kTriangles_GrPrimitiveType,
                             4 * lineCnt + kVertsPerQuad*quads, // startV
                             0,                                 // startI
                             kVertsPerQuad*n,                   // vCount

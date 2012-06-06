@@ -37,14 +37,14 @@ void GrDefaultTextContext::flushGlyphs() {
         drawState->setTexture(kGlyphMaskStage, fCurrTexture);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
-            if (kOne_BlendCoeff != fGrPaint.fSrcBlendCoeff ||
-                kISA_BlendCoeff != fGrPaint.fDstBlendCoeff ||
+            if (kOne_GrBlendCoeff != fGrPaint.fSrcBlendCoeff ||
+                kISA_GrBlendCoeff != fGrPaint.fDstBlendCoeff ||
                 fGrPaint.hasTexture()) {
                 GrPrintf("LCD Text will not draw correctly.\n");
             }
             // setup blend so that we get mask * paintColor + (1-mask)*dstColor
             drawState->setBlendConstant(fGrPaint.fColor);
-            drawState->setBlendFunc(kConstC_BlendCoeff, kISC_BlendCoeff);
+            drawState->setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
             // don't modulate by the paint's color in the frag since we're
             // already doing it via the blend const.
             drawState->setColor(0xffffffff);
@@ -56,7 +56,7 @@ void GrDefaultTextContext::flushGlyphs() {
 
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         int nGlyphs = fCurrVertex / 4;
-        fDrawTarget->drawIndexedInstances(kTriangles_PrimitiveType,
+        fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
                                           nGlyphs,
                                           4, 6);
         fVertices = NULL;
@@ -232,7 +232,7 @@ void GrDefaultTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         GrPoint translate;
         translate.set(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
                       GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
-        fContext->drawPath(fGrPaint, *glyph->fPath, kWinding_PathFill,
+        fContext->drawPath(fGrPaint, *glyph->fPath, kWinding_GrPathFill,
                            &translate);
         return;
     }

@@ -83,30 +83,32 @@ bool GrGpuGL::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
         false,
     };
     return gCoeffReferencesBlendConst[coeff];
-    GR_STATIC_ASSERT(kTotalBlendCoeffCount == GR_ARRAY_COUNT(gCoeffReferencesBlendConst));
+    GR_STATIC_ASSERT(kTotalGrBlendCoeffCount ==
+                     GR_ARRAY_COUNT(gCoeffReferencesBlendConst));
 
-    GR_STATIC_ASSERT(0 == kZero_BlendCoeff);
-    GR_STATIC_ASSERT(1 == kOne_BlendCoeff);
-    GR_STATIC_ASSERT(2 == kSC_BlendCoeff);
-    GR_STATIC_ASSERT(3 == kISC_BlendCoeff);
-    GR_STATIC_ASSERT(4 == kDC_BlendCoeff);
-    GR_STATIC_ASSERT(5 == kIDC_BlendCoeff);
-    GR_STATIC_ASSERT(6 == kSA_BlendCoeff);
-    GR_STATIC_ASSERT(7 == kISA_BlendCoeff);
-    GR_STATIC_ASSERT(8 == kDA_BlendCoeff);
-    GR_STATIC_ASSERT(9 == kIDA_BlendCoeff);
-    GR_STATIC_ASSERT(10 == kConstC_BlendCoeff);
-    GR_STATIC_ASSERT(11 == kIConstC_BlendCoeff);
-    GR_STATIC_ASSERT(12 == kConstA_BlendCoeff);
-    GR_STATIC_ASSERT(13 == kIConstA_BlendCoeff);
+    GR_STATIC_ASSERT(0 == kZero_GrBlendCoeff);
+    GR_STATIC_ASSERT(1 == kOne_GrBlendCoeff);
+    GR_STATIC_ASSERT(2 == kSC_GrBlendCoeff);
+    GR_STATIC_ASSERT(3 == kISC_GrBlendCoeff);
+    GR_STATIC_ASSERT(4 == kDC_GrBlendCoeff);
+    GR_STATIC_ASSERT(5 == kIDC_GrBlendCoeff);
+    GR_STATIC_ASSERT(6 == kSA_GrBlendCoeff);
+    GR_STATIC_ASSERT(7 == kISA_GrBlendCoeff);
+    GR_STATIC_ASSERT(8 == kDA_GrBlendCoeff);
+    GR_STATIC_ASSERT(9 == kIDA_GrBlendCoeff);
+    GR_STATIC_ASSERT(10 == kConstC_GrBlendCoeff);
+    GR_STATIC_ASSERT(11 == kIConstC_GrBlendCoeff);
+    GR_STATIC_ASSERT(12 == kConstA_GrBlendCoeff);
+    GR_STATIC_ASSERT(13 == kIConstA_GrBlendCoeff);
 
-    GR_STATIC_ASSERT(14 == kS2C_BlendCoeff);
-    GR_STATIC_ASSERT(15 == kIS2C_BlendCoeff);
-    GR_STATIC_ASSERT(16 == kS2A_BlendCoeff);
-    GR_STATIC_ASSERT(17 == kIS2A_BlendCoeff);
+    GR_STATIC_ASSERT(14 == kS2C_GrBlendCoeff);
+    GR_STATIC_ASSERT(15 == kIS2C_GrBlendCoeff);
+    GR_STATIC_ASSERT(16 == kS2A_GrBlendCoeff);
+    GR_STATIC_ASSERT(17 == kIS2A_GrBlendCoeff);
 
     // assertion for gXfermodeCoeff2Blend have to be in GrGpu scope
-    GR_STATIC_ASSERT(kTotalBlendCoeffCount == GR_ARRAY_COUNT(gXfermodeCoeff2Blend));
+    GR_STATIC_ASSERT(kTotalGrBlendCoeffCount ==
+                     GR_ARRAY_COUNT(gXfermodeCoeff2Blend));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2005,19 +2007,19 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
             GL_CALL(Enable(GR_GL_BLEND));
             fHWBlendState.fEnabled = kYes_TriState;
         }
-        if (kSA_BlendCoeff != fHWBlendState.fSrcCoeff ||
-            kISA_BlendCoeff != fHWBlendState.fDstCoeff) {
-            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[kSA_BlendCoeff],
-                              gXfermodeCoeff2Blend[kISA_BlendCoeff]));
-            fHWBlendState.fSrcCoeff = kSA_BlendCoeff;
-            fHWBlendState.fDstCoeff = kISA_BlendCoeff;
+        if (kSA_GrBlendCoeff != fHWBlendState.fSrcCoeff ||
+            kISA_GrBlendCoeff != fHWBlendState.fDstCoeff) {
+            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[kSA_GrBlendCoeff],
+                              gXfermodeCoeff2Blend[kISA_GrBlendCoeff]));
+            fHWBlendState.fSrcCoeff = kSA_GrBlendCoeff;
+            fHWBlendState.fDstCoeff = kISA_GrBlendCoeff;
         }
     } else {
         // any optimization to disable blending should
         // have already been applied and tweaked the coeffs
         // to (1, 0).
-        bool blendOff = kOne_BlendCoeff == srcCoeff &&
-                        kZero_BlendCoeff == dstCoeff;
+        bool blendOff = kOne_GrBlendCoeff == srcCoeff &&
+                        kZero_GrBlendCoeff == dstCoeff;
         if (blendOff) {
             if (kNo_TriState != fHWBlendState.fEnabled) {
                 GL_CALL(Disable(GR_GL_BLEND));
