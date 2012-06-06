@@ -7,6 +7,7 @@
 
 
 #include "SkBlitRow_opts_SSE2.h"
+#include "SkBitmapProcState_opts_SSE2.h"
 #include "SkColorPriv.h"
 #include "SkUtils.h"
 
