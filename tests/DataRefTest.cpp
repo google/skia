@@ -26,7 +26,7 @@ static void assert_data(skiatest::Reporter* reporter, SkData* ref,
     REPORTER_ASSERT(reporter, !memcmp(ref->data(), data, len));
 }
 
-void TestDataRef(skiatest::Reporter* reporter) {
+static void TestDataRef(skiatest::Reporter* reporter) {
     const char* str = "We the people, in order to form a more perfect union.";
     const int N = 10;
 

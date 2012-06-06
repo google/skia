@@ -1375,7 +1375,7 @@ static void test_oval(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.isOval(NULL));
 }
 
-void TestPath(skiatest::Reporter* reporter) {
+static void TestPath(skiatest::Reporter* reporter) {
     {
         SkSize size;
         size.fWidth = 3.4f;

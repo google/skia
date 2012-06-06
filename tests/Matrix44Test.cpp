@@ -76,7 +76,7 @@ static void test_common_angles(skiatest::Reporter* reporter) {
     }
 }
 
-void TestMatrix44(skiatest::Reporter* reporter) {
+static void TestMatrix44(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     SkMatrix44 mat, inverse, iden1, iden2, rot;
 
@@ -139,9 +139,9 @@ void TestMatrix44(skiatest::Reporter* reporter) {
                         0, 0, 0, 1);
     }
 
-#if 0   // working on making this pass
-    test_common_angles(reporter);
-#endif
+    if (false) { // avoid bit rot, suppress warning (working on making this pass)
+        test_common_angles(reporter);
+    }
 #endif
 }
 

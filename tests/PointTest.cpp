@@ -34,7 +34,7 @@ static void test_Normalize(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(newLength, SK_Scalar1));
 }
 
-void PointTest(skiatest::Reporter* reporter) {
+static void PointTest(skiatest::Reporter* reporter) {
     test_length(reporter, SkIntToScalar(3), SkIntToScalar(4), SkIntToScalar(5));
     test_length(reporter, SkFloatToScalar(0.6f), SkFloatToScalar(0.8f),
                 SK_Scalar1);

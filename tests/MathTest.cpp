@@ -73,9 +73,20 @@ static int blend31_old(int src, int dst, int a31) {
     return dst + ((src - dst) * a31 >> 5);
 }
 
+// suppress unused code warning
+static int (*blend_functions[])(int, int, int) = {
+    blend31,
+    blend31_slow,
+    blend31_round,
+    blend31_old
+};
+
 static void test_blend31() {
     int failed = 0;
     int death = 0;
+    if (false) { // avoid bit rot, suppress warning
+        failed = (*blend_functions[0])(0,0,0);
+    }
     for (int src = 0; src <= 255; src++) {
         for (int dst = 0; dst <= 255; dst++) {
             for (int a = 0; a <= 31; a++) {
@@ -599,7 +610,7 @@ static void TestMath(skiatest::Reporter* reporter) {
 #endif
 
     // disable for now
-//    test_blend31();
+    if (false) test_blend31();  // avoid bit rot, suppress warning
 }
 
 #include "TestClassDef.h"

@@ -39,7 +39,7 @@ static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
     size_t count = DIMENSION * DIMENSION;
     const SkPMColor* ptr = bm.getAddr32(0, 0);
 
-    SkPMColor andValue = ~0;
+    SkPMColor andValue = ~0U;
     SkPMColor orValue = 0;
     for (size_t i = 0; i < count; ++i) {
         SkPMColor c = ptr[i];

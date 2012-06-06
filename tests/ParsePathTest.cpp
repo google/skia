@@ -27,18 +27,18 @@ static void test_to_from(skiatest::Reporter* reporter, const SkPath& path) {
 #endif
 }
 
+static struct {
+    const char* fStr;
+    const SkRect fBounds;
+} gRec[] = {
+    { "", { 0, 0, 0, 0 } },
+    { "M0,0L10,10", { 0, 0, SkIntToScalar(10), SkIntToScalar(10) } },
+    { "M-5.5,-0.5 Q 0 0 6,6.50",
+        { SkFloatToScalar(-5.5f), SkFloatToScalar(-0.5f),
+          SkFloatToScalar(6), SkFloatToScalar(6.5f) } }
+};
+
 static void TestParsePath(skiatest::Reporter* reporter) {
-    static const struct {
-        const char* fStr;
-        SkRect      fBounds;
-    } gRec[] = {
-        { "", { 0, 0, 0, 0 } },
-        { "M0,0L10,10", { 0, 0, SkIntToScalar(10), SkIntToScalar(10) } },
-        { "M-5.5,-0.5 Q 0 0 6,6.50",
-            { SkFloatToScalar(-5.5f), SkFloatToScalar(-0.5f),
-              SkFloatToScalar(6), SkFloatToScalar(6.5f) } }
-    };
-    
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
         SkPath  path;
         bool success = SkParsePath::FromSVGString(gRec[i].fStr, &path);
@@ -51,13 +51,13 @@ static void TestParsePath(skiatest::Reporter* reporter) {
     }
     
     SkRect r;
-    r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5));
+    r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5f));
     SkPath p;
     p.addRect(r);
     test_to_from(reporter, p);
     p.addOval(r);
     test_to_from(reporter, p);
-    p.addRoundRect(r, SkFloatToScalar(4), SkFloatToScalar(4.5));
+    p.addRoundRect(r, SkFloatToScalar(4), SkFloatToScalar(4.5f));
     test_to_from(reporter, p);
 }
 

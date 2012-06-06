@@ -10,7 +10,7 @@
 #include "SkTSort.h"
 
 extern "C" {
-    int compare_int(const void* a, const void* b) {
+    static int compare_int(const void* a, const void* b) {
         return *(const int*)a - *(const int*)b;
     }
 }
@@ -43,6 +43,9 @@ static void TestSort(skiatest::Reporter* reporter) {
         rand_array(rand, array, count);
         SkTHeapSort<int>(array, count);
         check_sort(reporter, "Heap", array, count);
+    }
+    if (false) { // avoid bit rot, suppress warning
+        compare_int(array, array);
     }
 }
 

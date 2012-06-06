@@ -80,7 +80,7 @@ static void init_src(const SkBitmap& bitmap, const SkColorTable* ct) {
     }
 }
 
-SkColorTable* init_ctable() {
+static SkColorTable* init_ctable() {
     static const SkColor colors[] = {
         SK_ColorBLACK, SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE
     };
@@ -102,7 +102,7 @@ struct Pair {
 
 // Utility function to read the value of a given pixel in bm. All
 // values converted to uint32_t for simplification of comparisons.
-uint32_t getPixel(int x, int y, const SkBitmap& bm) {
+static uint32_t getPixel(int x, int y, const SkBitmap& bm) {
     uint32_t val = 0;
     uint16_t val16;
     uint8_t val8, shift;
@@ -137,7 +137,7 @@ uint32_t getPixel(int x, int y, const SkBitmap& bm) {
 // Utility function to set value of any pixel in bm.
 // bm.getConfig() specifies what format 'val' must be
 // converted to, but at present uint32_t can handle all formats.
-void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
+static void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
     uint16_t val16;
     uint8_t val8, shift;
     SkAutoLockPixels lock(bm);
@@ -174,7 +174,7 @@ void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
 
 // Utility to return string containing name of each format, to
 // simplify diagnostic output.
-const char* getSkConfigName(const SkBitmap& bm) {
+static const char* getSkConfigName(const SkBitmap& bm) {
     switch (bm.getConfig()) {
         case SkBitmap::kNo_Config: return "SkBitmap::kNo_Config";
         case SkBitmap::kA1_Config: return "SkBitmap::kA1_Config";
@@ -211,7 +211,7 @@ struct Coordinates {
 // A function to verify that two bitmaps contain the same pixel values
 // at all coordinates indicated by coords. Simplifies verification of
 // copied bitmaps.
-void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
+static void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
                             Coordinates& coords,
                             const char* msg,
                             skiatest::Reporter* reporter){
@@ -232,7 +232,7 @@ void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
 }
 
 // Writes unique pixel values at locations specified by coords.
-void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
+static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
     for (int i = 0; i < coords.length; ++i)
         setPixel(coords[i]->fX, coords[i]->fY, i, bm);
 }

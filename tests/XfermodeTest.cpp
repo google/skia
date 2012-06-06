@@ -9,7 +9,7 @@
 #include "SkColor.h"
 #include "SkXfermode.h"
 
-SkPMColor bogusXfermodeProc(SkPMColor src, SkPMColor dst) {
+static SkPMColor bogusXfermodeProc(SkPMColor src, SkPMColor dst) {
     return 42;
 }
 
