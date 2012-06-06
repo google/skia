@@ -7,6 +7,9 @@
  */
 #include "SkMatrix.h"
 
+// FIXME: needs to be in a header
+bool SkSetPoly3To3_D(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]);
+
 typedef int64_t SkDScalar;
 
 static SkScalar SkDScalar_toScalar(SkDScalar value) {
@@ -17,7 +20,7 @@ static SkScalar SkDScalar_toScalar(SkDScalar value) {
 }
 
 static SkDScalar SkDScalar_setMul(SkScalar a, SkScalar b) {
-    return (SkDScalar) ((SkDScalar) a * b);
+    return (SkDScalar) ((SkDScalar) a * (SkDScalar) b);
 }
 
 static void computeOuterProduct(SkMatrix* matrix,
