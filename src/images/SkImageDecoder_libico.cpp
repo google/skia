@@ -24,9 +24,11 @@ protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
+#if 0 // UNUSED
 SkImageDecoder* SkCreateICOImageDecoder() {
     return new SkICOImageDecoder;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -372,7 +374,7 @@ DEFINE_DECODER_CREATOR(ICOImageDecoder);
 
 #include "SkTRegistry.h"
 
-SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
+static SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
     // Check to see if the first four bytes are 0,0,1,0
     // FIXME: Is that required and sufficient?
     SkAutoMalloc autoMal(4);
