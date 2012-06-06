@@ -12,7 +12,7 @@
 @implementation SkSampleNSView
 
 - (id)initWithDefaults {
-    if (self = [super initWithDefaults]) {
+    if ((self = [super initWithDefaults])) {
         fWind = new SampleWindow(self, *_NSGetArgc(), *_NSGetArgv(), NULL);
     }
     return self;
