@@ -17,7 +17,7 @@
 
 // Add the resources, starting at firstIndex to the catalog, removing any dupes.
 // A hash table would be really nice here.
-void addResourcesToCatalog(int firstIndex, bool firstPage,
+static void addResourcesToCatalog(int firstIndex, bool firstPage,
                           SkTDArray<SkPDFObject*>* resourceList,
                           SkPDFCatalog* catalog) {
     for (int i = firstIndex; i < resourceList->count(); i++) {
@@ -123,12 +123,14 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
 
         // Figure out the size of things and inform the catalog of file offsets.
         off_t fileOffset = headerSize();
-        fileOffset += fCatalog->setFileOffset(fDocCatalog.get(), fileOffset);
-        fileOffset += fCatalog->setFileOffset(fPages[0], fileOffset);
-        fileOffset += fPages[0]->getPageSize(fCatalog.get(), fileOffset);
+        fileOffset += fCatalog->setFileOffset(fDocCatalog.get(),
+                (size_t) fileOffset);
+        fileOffset += fCatalog->setFileOffset(fPages[0], (size_t) fileOffset);
+        fileOffset += fPages[0]->getPageSize(fCatalog.get(),
+                (size_t) fileOffset);
         for (int i = 0; i < fSecondPageFirstResourceIndex; i++) {
             fileOffset += fCatalog->setFileOffset(fPageResources[i],
-                                                  fileOffset);
+                                                  (size_t) fileOffset);
         }
         // Add the size of resources of substitute objects used on page 1.
         fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset, true);
@@ -138,18 +140,20 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         }
 
         for (int i = 0; i < fPageTree.count(); i++) {
-            fileOffset += fCatalog->setFileOffset(fPageTree[i], fileOffset);
+            fileOffset += fCatalog->setFileOffset(fPageTree[i],
+                    (size_t) fileOffset);
         }
 
         for (int i = 1; i < fPages.count(); i++) {
-            fileOffset += fPages[i]->getPageSize(fCatalog.get(), fileOffset);
+            fileOffset += fPages[i]->getPageSize(fCatalog.get(),
+                    (size_t) fileOffset);
         }
 
         for (int i = fSecondPageFirstResourceIndex;
                  i < fPageResources.count();
                  i++) {
             fileOffset += fCatalog->setFileOffset(fPageResources[i],
-                                                  fileOffset);
+                                                  (size_t) fileOffset);
         }
 
         fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset,
