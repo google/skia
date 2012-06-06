@@ -17,7 +17,7 @@ class GrIndexBuffer : public GrGeometryBuffer {
 public:
         /**
          * Retrieves the maximum number of quads that could be rendered
-         * from the index buffer (using kTriangles_PrimitiveType).
+         * from the index buffer (using kTriangles_GrPrimitiveType).
          * @return the maximum number of quads using full size of index buffer.
          */
         int maxQuads() const {

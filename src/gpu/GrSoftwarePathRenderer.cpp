@@ -37,13 +37,13 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////
 SkPath::FillType gr_fill_to_sk_fill(GrPathFill fill) {
     switch (fill) {
-        case kWinding_PathFill:
+        case kWinding_GrPathFill:
             return SkPath::kWinding_FillType;
-        case kEvenOdd_PathFill:
+        case kEvenOdd_GrPathFill:
             return SkPath::kEvenOdd_FillType;
-        case kInverseWinding_PathFill:
+        case kInverseWinding_GrPathFill:
             return SkPath::kInverseWinding_FillType;
-        case kInverseEvenOdd_PathFill:
+        case kInverseEvenOdd_GrPathFill:
             return SkPath::kInverseEvenOdd_FillType;
         default:
             GrCrash("Unexpected fill.");
@@ -141,7 +141,7 @@ void GrSWMaskHelper::draw(const SkPath& clientPath, SkRegion::Op op,
     SkPaint paint;
     SkPath tmpPath;
     const SkPath* pathToDraw = &clientPath;
-    if (kHairLine_PathFill == fill) {
+    if (kHairLine_GrPathFill == fill) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SK_Scalar1);
     } else {

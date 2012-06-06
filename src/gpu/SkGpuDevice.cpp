@@ -618,9 +618,9 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 
 // must be in SkCanvas::PointMode order
 static const GrPrimitiveType gPointMode2PrimtiveType[] = {
-    kPoints_PrimitiveType,
-    kLines_PrimitiveType,
-    kLineStrip_PrimitiveType
+    kPoints_GrPrimitiveType,
+    kLines_GrPrimitiveType,
+    kLineStrip_GrPrimitiveType
 };
 
 void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
@@ -722,16 +722,16 @@ namespace {
 GrPathFill skToGrFillType(SkPath::FillType fillType) {
     switch (fillType) {
         case SkPath::kWinding_FillType:
-            return kWinding_PathFill;
+            return kWinding_GrPathFill;
         case SkPath::kEvenOdd_FillType:
-            return kEvenOdd_PathFill;
+            return kEvenOdd_GrPathFill;
         case SkPath::kInverseWinding_FillType:
-            return kInverseWinding_PathFill;
+            return kInverseWinding_GrPathFill;
         case SkPath::kInverseEvenOdd_FillType:
-            return kInverseEvenOdd_PathFill;
+            return kInverseEvenOdd_GrPathFill;
         default:
             SkDebugf("Unsupported path fill type\n");
-            return kHairLine_PathFill;
+            return kHairLine_GrPathFill;
     }
 }
 
@@ -830,8 +830,8 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         // code path may not be taken. So we use a dst blend coeff of ISA. We
         // could special case AA draws to a dst surface with known alpha=0 to
         // use a zero dst coeff when dual source blending isn't available.
-        tempPaint.fSrcBlendCoeff = kOne_BlendCoeff;
-        tempPaint.fDstBlendCoeff = kISC_BlendCoeff;
+        tempPaint.fSrcBlendCoeff = kOne_GrBlendCoeff;
+        tempPaint.fDstBlendCoeff = kISC_GrBlendCoeff;
     }
     // Draw hard shadow to pathTexture with path topleft at origin 0,0.
     context->drawPath(tempPaint, path, pathFillType, &offset);
@@ -856,18 +856,18 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         paint.setTexture(0, pathTexture);
         if (SkMaskFilter::kInner_BlurType == blurType) {
             // inner:  dst = dst * src
-            paint.fSrcBlendCoeff = kDC_BlendCoeff;
-            paint.fDstBlendCoeff = kZero_BlendCoeff;
+            paint.fSrcBlendCoeff = kDC_GrBlendCoeff;
+            paint.fDstBlendCoeff = kZero_GrBlendCoeff;
         } else if (SkMaskFilter::kSolid_BlurType == blurType) {
             // solid:  dst = src + dst - src * dst
             //             = (1 - dst) * src + 1 * dst
-            paint.fSrcBlendCoeff = kIDC_BlendCoeff;
-            paint.fDstBlendCoeff = kOne_BlendCoeff;
+            paint.fSrcBlendCoeff = kIDC_GrBlendCoeff;
+            paint.fDstBlendCoeff = kOne_GrBlendCoeff;
         } else if (SkMaskFilter::kOuter_BlurType == blurType) {
             // outer:  dst = dst * (1 - src)
             //             = 0 * src + (1 - src) * dst
-            paint.fSrcBlendCoeff = kZero_BlendCoeff;
-            paint.fDstBlendCoeff = kISC_BlendCoeff;
+            paint.fSrcBlendCoeff = kZero_GrBlendCoeff;
+            paint.fDstBlendCoeff = kISC_GrBlendCoeff;
         }
         context->drawRect(paint, srcRect);
     }
@@ -1038,7 +1038,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         // transform the path into device space
         pathPtr->transform(*draw.fMatrix, devPathPtr);
         GrPathFill pathFillType = doFill ?
-            skToGrFillType(devPathPtr->getFillType()) : kHairLine_PathFill;
+            skToGrFillType(devPathPtr->getFillType()) : kHairLine_GrPathFill;
         if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                    *draw.fMatrix, *draw.fClip, draw.fBounder,
                                    &grPaint, pathFillType)) {
@@ -1051,21 +1051,21 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         return;
     }
 
-    GrPathFill fill = kHairLine_PathFill;
+    GrPathFill fill = kHairLine_GrPathFill;
 
     if (doFill) {
         switch (pathPtr->getFillType()) {
             case SkPath::kWinding_FillType:
-                fill = kWinding_PathFill;
+                fill = kWinding_GrPathFill;
                 break;
             case SkPath::kEvenOdd_FillType:
-                fill = kEvenOdd_PathFill;
+                fill = kEvenOdd_GrPathFill;
                 break;
             case SkPath::kInverseWinding_FillType:
-                fill = kInverseWinding_PathFill;
+                fill = kInverseWinding_GrPathFill;
                 break;
             case SkPath::kInverseEvenOdd_FillType:
-                fill = kInverseEvenOdd_PathFill;
+                fill = kInverseEvenOdd_GrPathFill;
                 break;
             default:
                 SkDebugf("Unsupported path fill type\n");
@@ -1613,9 +1613,9 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
 
 // must be in SkCanvas::VertexMode order
 static const GrPrimitiveType gVertexMode2PrimitiveType[] = {
-    kTriangles_PrimitiveType,
-    kTriangleStrip_PrimitiveType,
-    kTriangleFan_PrimitiveType,
+    kTriangles_GrPrimitiveType,
+    kTriangleStrip_GrPrimitiveType,
+    kTriangleFan_GrPrimitiveType,
 };
 
 void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,

@@ -156,7 +156,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             Draw& lastDraw = fDraws.back();
 
             GrAssert(lastDraw.fIndexBuffer == fQuadIndexBuffer);
-            GrAssert(kTriangles_PrimitiveType == lastDraw.fPrimitiveType);
+            GrAssert(kTriangles_GrPrimitiveType == lastDraw.fPrimitiveType);
             GrAssert(0 == lastDraw.fVertexCount % 4);
             GrAssert(0 == lastDraw.fIndexCount % 6);
             GrAssert(0 == lastDraw.fStartIndex);
@@ -183,7 +183,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         }
         if (!appendToPreviousDraw) {
             this->setIndexSourceToBuffer(fQuadIndexBuffer);
-            this->drawIndexed(kTriangles_PrimitiveType, 0, 0, 4, 6);
+            this->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 4, 6);
             fCurrQuad = 1;
             fLastRectVertexLayout = layout;
         }

@@ -120,7 +120,7 @@ public:
     /**
      * Draws the path to the stencil buffer. Assume the writable stencil bits
      * are already initialized to zero. Fill will always be either
-     * kWinding_PathFill or kEvenOdd_PathFill.
+     * kWinding_GrPathFill or kEvenOdd_GrPathFill.
      *
      * Only called if requiresStencilPass returns true for the same combo of
      * target, path, and fill. Never called with an inverse fill.

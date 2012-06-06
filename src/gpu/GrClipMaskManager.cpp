@@ -102,7 +102,7 @@ bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
             // that need to be checked here
             if (clipIn.getDoAA(i)) {
                 // Antialiased rects are converted to paths and then drawn with
-                // kEvenOdd_PathFill. 
+                // kEvenOdd_GrPathFill. 
 
                 // TODO: wrap GrContext::fillAARect in a helper class and
                 // draw AA rects directly rather than converting to paths
@@ -110,7 +110,7 @@ bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
                 temp.addRect(clipIn.getRect(i));	
 
                 if (path_needs_SW_renderer(this->getContext(), gpu, temp,
-                                           kEvenOdd_PathFill, true)) {
+                                           kEvenOdd_GrPathFill, true)) {
                     useSW = true;
                 }
             }
@@ -361,22 +361,22 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
 
     switch (op) {
         case SkRegion::kReplace_Op:
-            drawState->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
+            drawState->setBlendFunc(kOne_GrBlendCoeff, kZero_GrBlendCoeff);
             break;
         case SkRegion::kIntersect_Op:
-            drawState->setBlendFunc(kDC_BlendCoeff, kZero_BlendCoeff);
+            drawState->setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
             break;
         case SkRegion::kUnion_Op:
-            drawState->setBlendFunc(kOne_BlendCoeff, kISC_BlendCoeff);
+            drawState->setBlendFunc(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
             break;
         case SkRegion::kXOR_Op:
-            drawState->setBlendFunc(kIDC_BlendCoeff, kISC_BlendCoeff);
+            drawState->setBlendFunc(kIDC_GrBlendCoeff, kISC_GrBlendCoeff);
             break;
         case SkRegion::kDifference_Op:
-            drawState->setBlendFunc(kZero_BlendCoeff, kISC_BlendCoeff);
+            drawState->setBlendFunc(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
             break;
         case SkRegion::kReverseDifference_Op:
-            drawState->setBlendFunc(kIDC_BlendCoeff, kZero_BlendCoeff);
+            drawState->setBlendFunc(kIDC_GrBlendCoeff, kZero_GrBlendCoeff);
             break;
         default:
             GrAssert(false);
@@ -419,7 +419,7 @@ bool GrClipMaskManager::drawClipShape(GrGpu* gpu,
             temp.addRect(clipIn.getRect(index));
 
             return draw_path(this->getContext(), gpu, temp,
-                             kEvenOdd_PathFill, clipIn.getDoAA(index));
+                             kEvenOdd_GrPathFill, clipIn.getDoAA(index));
         } else {
             gpu->drawSimpleRect(clipIn.getRect(index), NULL, 0);
         }
@@ -771,7 +771,7 @@ bool GrClipMaskManager::createStencilClipMask(GrGpu* gpu,
             const SkPath* clipPath = NULL;
             if (kRect_ClipType == clipCopy.getElementType(c)) {
                 canRenderDirectToStencil = true;
-                fill = kEvenOdd_PathFill;
+                fill = kEvenOdd_GrPathFill;
                 fillInverted = false;
                 // there is no point in intersecting a screen filling
                 // rectangle.
@@ -960,18 +960,18 @@ namespace {
 
 GrPathFill invert_fill(GrPathFill fill) {
     static const GrPathFill gInvertedFillTable[] = {
-        kInverseWinding_PathFill, // kWinding_PathFill
-        kInverseEvenOdd_PathFill, // kEvenOdd_PathFill
-        kWinding_PathFill,        // kInverseWinding_PathFill
-        kEvenOdd_PathFill,        // kInverseEvenOdd_PathFill
-        kHairLine_PathFill,       // kHairLine_PathFill
+        kInverseWinding_GrPathFill, // kWinding_GrPathFill
+        kInverseEvenOdd_GrPathFill, // kEvenOdd_GrPathFill
+        kWinding_GrPathFill,        // kInverseWinding_GrPathFill
+        kEvenOdd_GrPathFill,        // kInverseEvenOdd_GrPathFill
+        kHairLine_GrPathFill,       // kHairLine_GrPathFill
     };
-    GR_STATIC_ASSERT(0 == kWinding_PathFill);
-    GR_STATIC_ASSERT(1 == kEvenOdd_PathFill);
-    GR_STATIC_ASSERT(2 == kInverseWinding_PathFill);
-    GR_STATIC_ASSERT(3 == kInverseEvenOdd_PathFill);
-    GR_STATIC_ASSERT(4 == kHairLine_PathFill);
-    GR_STATIC_ASSERT(5 == kPathFillCount);
+    GR_STATIC_ASSERT(0 == kWinding_GrPathFill);
+    GR_STATIC_ASSERT(1 == kEvenOdd_GrPathFill);
+    GR_STATIC_ASSERT(2 == kInverseWinding_GrPathFill);
+    GR_STATIC_ASSERT(3 == kInverseEvenOdd_GrPathFill);
+    GR_STATIC_ASSERT(4 == kHairLine_GrPathFill);
+    GR_STATIC_ASSERT(5 == kGrPathFillCount);
     return gInvertedFillTable[fill];
 }
 
@@ -1038,7 +1038,7 @@ bool GrClipMaskManager::createSoftwareClipMask(GrGpu* gpu,
                 temp.addRect(clipIn.getRect(i));
 
                 helper.draw(temp, SkRegion::kReplace_Op, 
-                            kInverseEvenOdd_PathFill, clipIn.getDoAA(i),
+                            kInverseEvenOdd_GrPathFill, clipIn.getDoAA(i),
                             0x00000000);
             } else {
                 GrAssert(kPath_ClipType == clipIn.getElementType(i));

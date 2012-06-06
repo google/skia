@@ -203,46 +203,46 @@ typedef int GrVertexLayout;
 * Geometric primitives used for drawing.
 */
 enum GrPrimitiveType {
-    kTriangles_PrimitiveType,
-    kTriangleStrip_PrimitiveType,
-    kTriangleFan_PrimitiveType,
-    kPoints_PrimitiveType,
-    kLines_PrimitiveType,     // 1 pix wide only
-    kLineStrip_PrimitiveType  // 1 pix wide only
+    kTriangles_GrPrimitiveType,
+    kTriangleStrip_GrPrimitiveType,
+    kTriangleFan_GrPrimitiveType,
+    kPoints_GrPrimitiveType,
+    kLines_GrPrimitiveType,     // 1 pix wide only
+    kLineStrip_GrPrimitiveType  // 1 pix wide only
 };
 
 static inline bool GrIsPrimTypeLines(GrPrimitiveType type) {
-    return kLines_PrimitiveType == type || kLineStrip_PrimitiveType == type;
+    return kLines_GrPrimitiveType == type || kLineStrip_GrPrimitiveType == type;
 }
 
 static inline bool GrIsPrimTypeTris(GrPrimitiveType type) {
-    return kTriangles_PrimitiveType == type     ||
-           kTriangleStrip_PrimitiveType == type ||
-           kTriangleFan_PrimitiveType == type;
+    return kTriangles_GrPrimitiveType == type     ||
+           kTriangleStrip_GrPrimitiveType == type ||
+           kTriangleFan_GrPrimitiveType == type;
 }
 
 /**
  * Coeffecients for alpha-blending.
  */
 enum GrBlendCoeff {
-    kInvalid_BlendCoeff = -1,
+    kInvalid_GrBlendCoeff = -1,
 
-    kZero_BlendCoeff,    //<! 0
-    kOne_BlendCoeff,     //<! 1
-    kSC_BlendCoeff,      //<! src color
-    kISC_BlendCoeff,     //<! one minus src color
-    kDC_BlendCoeff,      //<! dst color
-    kIDC_BlendCoeff,     //<! one minus dst color
-    kSA_BlendCoeff,      //<! src alpha
-    kISA_BlendCoeff,     //<! one minus src alpha
-    kDA_BlendCoeff,      //<! dst alpha
-    kIDA_BlendCoeff,     //<! one minus dst alpha
-    kConstC_BlendCoeff,  //<! constant color
-    kIConstC_BlendCoeff, //<! one minus constant color
-    kConstA_BlendCoeff,  //<! constant color alpha
-    kIConstA_BlendCoeff, //<! one minus constant color alpha
+    kZero_GrBlendCoeff,    //<! 0
+    kOne_GrBlendCoeff,     //<! 1
+    kSC_GrBlendCoeff,      //<! src color
+    kISC_GrBlendCoeff,     //<! one minus src color
+    kDC_GrBlendCoeff,      //<! dst color
+    kIDC_GrBlendCoeff,     //<! one minus dst color
+    kSA_GrBlendCoeff,      //<! src alpha
+    kISA_GrBlendCoeff,     //<! one minus src alpha
+    kDA_GrBlendCoeff,      //<! dst alpha
+    kIDA_GrBlendCoeff,     //<! one minus dst alpha
+    kConstC_GrBlendCoeff,  //<! constant color
+    kIConstC_GrBlendCoeff, //<! one minus constant color
+    kConstA_GrBlendCoeff,  //<! constant color alpha
+    kIConstA_GrBlendCoeff, //<! one minus constant color alpha
 
-    kPublicBlendCoeffCount
+    kPublicGrBlendCoeffCount
 };
 
 /**
@@ -528,46 +528,46 @@ static int inline NumPathCmdPoints(GrPathCmd cmd) {
  * Path filling rules
  */
 enum GrPathFill {
-    kWinding_PathFill,
-    kEvenOdd_PathFill,
-    kInverseWinding_PathFill,
-    kInverseEvenOdd_PathFill,
-    kHairLine_PathFill,
+    kWinding_GrPathFill,
+    kEvenOdd_GrPathFill,
+    kInverseWinding_GrPathFill,
+    kInverseEvenOdd_GrPathFill,
+    kHairLine_GrPathFill,
 
-    kPathFillCount
+    kGrPathFillCount
 };
 
 static inline GrPathFill GrNonInvertedFill(GrPathFill fill) {
     static const GrPathFill gNonInvertedFills[] = {
-        kWinding_PathFill, // kWinding_PathFill
-        kEvenOdd_PathFill, // kEvenOdd_PathFill
-        kWinding_PathFill, // kInverseWinding_PathFill
-        kEvenOdd_PathFill, // kInverseEvenOdd_PathFill
-        kHairLine_PathFill,// kHairLine_PathFill
+        kWinding_GrPathFill, // kWinding_GrPathFill
+        kEvenOdd_GrPathFill, // kEvenOdd_GrPathFill
+        kWinding_GrPathFill, // kInverseWinding_GrPathFill
+        kEvenOdd_GrPathFill, // kInverseEvenOdd_GrPathFill
+        kHairLine_GrPathFill,// kHairLine_GrPathFill
     };
-    GR_STATIC_ASSERT(0 == kWinding_PathFill);
-    GR_STATIC_ASSERT(1 == kEvenOdd_PathFill);
-    GR_STATIC_ASSERT(2 == kInverseWinding_PathFill);
-    GR_STATIC_ASSERT(3 == kInverseEvenOdd_PathFill);
-    GR_STATIC_ASSERT(4 == kHairLine_PathFill);
-    GR_STATIC_ASSERT(5 == kPathFillCount);
+    GR_STATIC_ASSERT(0 == kWinding_GrPathFill);
+    GR_STATIC_ASSERT(1 == kEvenOdd_GrPathFill);
+    GR_STATIC_ASSERT(2 == kInverseWinding_GrPathFill);
+    GR_STATIC_ASSERT(3 == kInverseEvenOdd_GrPathFill);
+    GR_STATIC_ASSERT(4 == kHairLine_GrPathFill);
+    GR_STATIC_ASSERT(5 == kGrPathFillCount);
     return gNonInvertedFills[fill];
 }
 
 static inline bool GrIsFillInverted(GrPathFill fill) {
     static const bool gIsFillInverted[] = {
-        false, // kWinding_PathFill
-        false, // kEvenOdd_PathFill
-        true,  // kInverseWinding_PathFill
-        true,  // kInverseEvenOdd_PathFill
-        false, // kHairLine_PathFill
+        false, // kWinding_GrPathFill
+        false, // kEvenOdd_GrPathFill
+        true,  // kInverseWinding_GrPathFill
+        true,  // kInverseEvenOdd_GrPathFill
+        false, // kHairLine_GrPathFill
     };
-    GR_STATIC_ASSERT(0 == kWinding_PathFill);
-    GR_STATIC_ASSERT(1 == kEvenOdd_PathFill);
-    GR_STATIC_ASSERT(2 == kInverseWinding_PathFill);
-    GR_STATIC_ASSERT(3 == kInverseEvenOdd_PathFill);
-    GR_STATIC_ASSERT(4 == kHairLine_PathFill);
-    GR_STATIC_ASSERT(5 == kPathFillCount);
+    GR_STATIC_ASSERT(0 == kWinding_GrPathFill);
+    GR_STATIC_ASSERT(1 == kEvenOdd_GrPathFill);
+    GR_STATIC_ASSERT(2 == kInverseWinding_GrPathFill);
+    GR_STATIC_ASSERT(3 == kInverseEvenOdd_GrPathFill);
+    GR_STATIC_ASSERT(4 == kHairLine_GrPathFill);
+    GR_STATIC_ASSERT(5 == kGrPathFillCount);
     return gIsFillInverted[fill];
 }
 

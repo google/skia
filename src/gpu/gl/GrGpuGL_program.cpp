@@ -657,7 +657,7 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
     // Must initialize all fields or cache will have false negatives!
     desc.fVertexLayout = this->getVertexLayout();
 
-    desc.fEmitsPointSize = kPoints_PrimitiveType == type;
+    desc.fEmitsPointSize = kPoints_GrPrimitiveType == type;
 
     bool requiresAttributeColors = 
         !skipColor && SkToBool(desc.fVertexLayout & kColor_VertexLayoutBit);
@@ -847,16 +847,16 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
         if (this->getCaps().fDualSourceBlendingSupport &&
             !(blendOpts & (kEmitCoverage_BlendOptFlag |
                            kCoverageAsAlpha_BlendOptFlag))) {
-            if (kZero_BlendCoeff == dstCoeff) {
+            if (kZero_GrBlendCoeff == dstCoeff) {
                 // write the coverage value to second color
                 desc.fDualSrcOutput =  ProgramDesc::kCoverage_DualSrcOutput;
                 desc.fFirstCoverageStage = firstCoverageStage;
-            } else if (kSA_BlendCoeff == dstCoeff) {
+            } else if (kSA_GrBlendCoeff == dstCoeff) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially 
                 // cover
                 desc.fDualSrcOutput = ProgramDesc::kCoverageISA_DualSrcOutput;
                 desc.fFirstCoverageStage = firstCoverageStage;
-            } else if (kSC_BlendCoeff == dstCoeff) {
+            } else if (kSC_GrBlendCoeff == dstCoeff) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially
                 // cover
                 desc.fDualSrcOutput = ProgramDesc::kCoverageISC_DualSrcOutput;

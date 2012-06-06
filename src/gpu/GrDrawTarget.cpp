@@ -788,8 +788,8 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         return false;
     }
     if (GrPixelConfigIsUnpremultiplied(drawState.getRenderTarget()->config())) {
-        if (kOne_BlendCoeff != drawState.getSrcBlendCoeff() ||
-            kZero_BlendCoeff != drawState.getDstBlendCoeff()) {
+        if (kOne_GrBlendCoeff != drawState.getSrcBlendCoeff() ||
+            kZero_GrBlendCoeff != drawState.getDstBlendCoeff()) {
             return false;
         }
     }
@@ -847,9 +847,9 @@ bool GrDrawTarget::canTweakAlphaForCoverage() const {
      * coeffecient in terms of S' and D.
      */
     GrBlendCoeff dstCoeff = this->getDrawState().getDstBlendCoeff();
-    return kOne_BlendCoeff == dstCoeff ||
-           kISA_BlendCoeff == dstCoeff ||
-           kISC_BlendCoeff == dstCoeff;
+    return kOne_GrBlendCoeff == dstCoeff ||
+           kISA_GrBlendCoeff == dstCoeff ||
+           kISC_GrBlendCoeff == dstCoeff;
 }
 
 bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
@@ -915,32 +915,32 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     *dstCoeff = drawState.getDstBlendCoeff();
 
     // We don't ever expect source coeffecients to reference the source
-    GrAssert(kSA_BlendCoeff != *srcCoeff &&
-             kISA_BlendCoeff != *srcCoeff &&
-             kSC_BlendCoeff != *srcCoeff &&
-             kISC_BlendCoeff != *srcCoeff);
+    GrAssert(kSA_GrBlendCoeff != *srcCoeff &&
+             kISA_GrBlendCoeff != *srcCoeff &&
+             kSC_GrBlendCoeff != *srcCoeff &&
+             kISC_GrBlendCoeff != *srcCoeff);
     // same for dst
-    GrAssert(kDA_BlendCoeff != *dstCoeff &&
-             kIDA_BlendCoeff != *dstCoeff &&
-             kDC_BlendCoeff != *dstCoeff &&
-             kIDC_BlendCoeff != *dstCoeff);
+    GrAssert(kDA_GrBlendCoeff != *dstCoeff &&
+             kIDA_GrBlendCoeff != *dstCoeff &&
+             kDC_GrBlendCoeff != *dstCoeff &&
+             kIDC_GrBlendCoeff != *dstCoeff);
 
     if (drawState.isColorWriteDisabled()) {
-        *srcCoeff = kZero_BlendCoeff;
-        *dstCoeff = kOne_BlendCoeff;
+        *srcCoeff = kZero_GrBlendCoeff;
+        *dstCoeff = kOne_GrBlendCoeff;
     }
 
     bool srcAIsOne = this->srcAlphaWillBeOne(layout);
-    bool dstCoeffIsOne = kOne_BlendCoeff == *dstCoeff ||
-                         (kSA_BlendCoeff == *dstCoeff && srcAIsOne);
-    bool dstCoeffIsZero = kZero_BlendCoeff == *dstCoeff ||
-                         (kISA_BlendCoeff == *dstCoeff && srcAIsOne);
+    bool dstCoeffIsOne = kOne_GrBlendCoeff == *dstCoeff ||
+                         (kSA_GrBlendCoeff == *dstCoeff && srcAIsOne);
+    bool dstCoeffIsZero = kZero_GrBlendCoeff == *dstCoeff ||
+                         (kISA_GrBlendCoeff == *dstCoeff && srcAIsOne);
 
 
     // When coeffs are (0,1) there is no reason to draw at all, unless
     // stenciling is enabled. Having color writes disabled is effectively
     // (0,1). The same applies when coverage is known to be 0.
-    if ((kZero_BlendCoeff == *srcCoeff && dstCoeffIsOne) ||
+    if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne) ||
         (!(layout & kCoverage_VertexLayoutBit) && 
          0 == drawState.getCoverage())) {
         if (drawState.getStencil().doesWrite()) {
@@ -969,15 +969,15 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     // has to read at all. If not, we'll disable blending.
     if (!hasCoverage) {
         if (dstCoeffIsZero) {
-            if (kOne_BlendCoeff == *srcCoeff) {
+            if (kOne_GrBlendCoeff == *srcCoeff) {
                 // if there is no coverage and coeffs are (1,0) then we
                 // won't need to read the dst at all, it gets replaced by src
                 return kDisableBlend_BlendOptFlag;
-            } else if (kZero_BlendCoeff == *srcCoeff) {
+            } else if (kZero_GrBlendCoeff == *srcCoeff) {
                 // if the op is "clear" then we don't need to emit a color
                 // or blend, just write transparent black into the dst.
-                *srcCoeff = kOne_BlendCoeff;
-                *dstCoeff = kZero_BlendCoeff;
+                *srcCoeff = kOne_GrBlendCoeff;
+                *dstCoeff = kZero_GrBlendCoeff;
                 return kDisableBlend_BlendOptFlag |
                        kEmitTransBlack_BlendOptFlag;
             }
@@ -989,24 +989,24 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
             return kCoverageAsAlpha_BlendOptFlag;
         }
         if (dstCoeffIsZero) {
-            if (kZero_BlendCoeff == *srcCoeff) {
+            if (kZero_GrBlendCoeff == *srcCoeff) {
                 // the source color is not included in the blend
                 // the dst coeff is effectively zero so blend works out to:
                 // (c)(0)D + (1-c)D = (1-c)D.
-                *dstCoeff = kISA_BlendCoeff;
+                *dstCoeff = kISA_GrBlendCoeff;
                 return  kEmitCoverage_BlendOptFlag;
             } else if (srcAIsOne) {
                 // the dst coeff is effectively zero so blend works out to:
                 // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
                 // If Sa is 1 then we can replace Sa with c 
                 // and set dst coeff to 1-Sa.
-                *dstCoeff = kISA_BlendCoeff;
+                *dstCoeff = kISA_GrBlendCoeff;
                 return  kCoverageAsAlpha_BlendOptFlag;
             }
         } else if (dstCoeffIsOne) {
             // the dst coeff is effectively one so blend works out to:
             // cS + (c)(1)D + (1-c)D = cS + D.
-            *dstCoeff = kOne_BlendCoeff;
+            *dstCoeff = kOne_GrBlendCoeff;
             return  kCoverageAsAlpha_BlendOptFlag;
         }
     }
@@ -1081,7 +1081,7 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     SetRectVertices(rect, matrix, srcRects, 
                     srcMatrices, layout, geo.vertices());
 
-    drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
+    drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 }
 
 GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageMask stageMask, 

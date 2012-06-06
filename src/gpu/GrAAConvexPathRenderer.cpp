@@ -435,7 +435,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
                                          const GrDrawTarget* target,
                                          bool antiAlias) const {
     if (!target->getCaps().fShaderDerivativeSupport || !antiAlias ||
-        kHairLine_PathFill == fill || GrIsFillInverted(fill) ||
+        kHairLine_GrPathFill == fill || GrIsFillInverted(fill) ||
         !path.isConvex()) {
         return false;
     }  else {
@@ -511,7 +511,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     create_vertices(segments, fanPt, verts, idxs);
 
     drawState->setVertexEdgeType(GrDrawState::kQuad_EdgeType);
-    target->drawIndexed(kTriangles_PrimitiveType,
+    target->drawIndexed(kTriangles_GrPrimitiveType,
                         0,        // start vertex
                         0,        // start index
                         vCount,

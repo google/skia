@@ -394,7 +394,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
                                      texture->height(),
                                      2*sizeof(GrPoint));
                 verts[1].setIRectFan(0, 0, 1, 1, 2*sizeof(GrPoint));
-                fGpu->drawNonIndexed(kTriangleFan_PrimitiveType,
+                fGpu->drawNonIndexed(kTriangleFan_GrPrimitiveType,
                                      0, 4);
                 entry.set(fTextureCache->createAndLock(resourceKey, texture));
             }
@@ -800,7 +800,7 @@ void GrContext::fillAARect(GrDrawTarget* target,
 
     target->setIndexSourceToBuffer(indexBuffer);
 
-    target->drawIndexed(kTriangles_PrimitiveType, 0,
+    target->drawIndexed(kTriangles_GrPrimitiveType, 0,
                          0, 8, this->aaFillRectIndexCount());
 }
 
@@ -874,7 +874,7 @@ void GrContext::strokeAARect(GrDrawTarget* target,
     }
 
     target->setIndexSourceToBuffer(indexBuffer);
-    target->drawIndexed(kTriangles_PrimitiveType,
+    target->drawIndexed(kTriangles_GrPrimitiveType,
                         0, 0, 16, aaStrokeRectIndexCount());
 }
 
@@ -1002,12 +1002,12 @@ void GrContext::drawRect(const GrPaint& paint,
 
         if (width > 0) {
             vertCount = 10;
-            primType = kTriangleStrip_PrimitiveType;
+            primType = kTriangleStrip_GrPrimitiveType;
             setStrokeRectStrip(vertex, rect, width);
         } else {
             // hairline
             vertCount = 5;
-            primType = kLineStrip_PrimitiveType;
+            primType = kLineStrip_GrPrimitiveType;
             vertex[0].set(rect.fLeft, rect.fTop);
             vertex[1].set(rect.fRight, rect.fTop);
             vertex[2].set(rect.fRight, rect.fBottom);
@@ -1046,7 +1046,7 @@ void GrContext::drawRect(const GrPaint& paint,
             drawState->preConcatViewMatrix(m);
             drawState->preConcatSamplerMatrices(stageMask, m);
  
-            target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
+            target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
             target->drawSimpleRect(rect, matrix, stageMask);
 #endif
@@ -1105,7 +1105,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         return;
     }
     target->setVertexSourceToBuffer(layout, sqVB);
-    target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
+    target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
 
     GrDrawTarget* target;
@@ -1250,7 +1250,7 @@ void GrContext::drawOval(const GrPaint& paint,
         SkPath path;
         path.addOval(rect);
         GrPathFill fill = (strokeWidth == 0) ?
-                            kHairLine_PathFill : kWinding_PathFill;
+                            kHairLine_GrPathFill : kWinding_GrPathFill;
         this->internalDrawPath(paint, path, fill, NULL);
         return;
     }
@@ -1309,7 +1309,7 @@ void GrContext::drawOval(const GrPaint& paint,
     }
 
     drawState->setVertexEdgeType(GrDrawState::kCircle_EdgeType);
-    target->drawNonIndexed(kTriangleStrip_PrimitiveType, 0, 4);
+    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
 
 void GrContext::drawPath(const GrPaint& paint, const SkPath& path,
@@ -1327,7 +1327,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path,
         if (translate) {
             ovalRect.offset(*translate);
         }
-        SkScalar width = (fill == kHairLine_PathFill) ? 0 : -SK_Scalar1;
+        SkScalar width = (fill == kHairLine_GrPathFill) ? 0 : -SK_Scalar1;
         this->drawOval(paint, ovalRect, width);
         return;
     }
@@ -1740,7 +1740,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
         return;
     }
     ((GrPoint*)geo.vertices())->setIRectFan(0, 0, width, height);
-    fGpu->drawNonIndexed(kTriangleFan_PrimitiveType, 0, VCOUNT);
+    fGpu->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, VCOUNT);
 }
 ////////////////////////////////////////////////////////////////////////////////
 

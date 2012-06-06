@@ -179,16 +179,16 @@ bool SkGrClipIterator::getDoAA() const {
 GrPathFill SkGrClipIterator::getPathFill() const {
     switch (fCurr->fPath->getFillType()) {
         case SkPath::kWinding_FillType:
-            return kWinding_PathFill;
+            return kWinding_GrPathFill;
         case SkPath::kEvenOdd_FillType:
-            return  kEvenOdd_PathFill;
+            return  kEvenOdd_GrPathFill;
         case SkPath::kInverseWinding_FillType:
-            return kInverseWinding_PathFill;
+            return kInverseWinding_GrPathFill;
         case SkPath::kInverseEvenOdd_FillType:
-            return kInverseEvenOdd_PathFill;
+            return kInverseEvenOdd_GrPathFill;
         default:
             GrCrash("Unsupported path fill in clip.");
-            return kWinding_PathFill; // suppress warning
+            return kWinding_GrPathFill; // suppress warning
     }
 }
 

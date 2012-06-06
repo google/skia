@@ -331,8 +331,8 @@ private:
         TriState        fEnabled;
 
         void invalidate() {
-            fSrcCoeff = kInvalid_BlendCoeff;
-            fDstCoeff = kInvalid_BlendCoeff;
+            fSrcCoeff = kInvalid_GrBlendCoeff;
+            fDstCoeff = kInvalid_GrBlendCoeff;
             fConstColorValid = false;
             fEnabled = kUnknown_TriState;
         }
