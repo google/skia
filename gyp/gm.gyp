@@ -9,6 +9,7 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
+        '../src/pipe/utils/',
       ],
       'includes': [
         'gmslides.gypi',
