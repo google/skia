@@ -463,6 +463,13 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 // For the worst case (having 65536 continuous unicode and we use every other
 // one of them), the possible savings by aggressive optimization is 416KB
 // pre-compressed and does not provide enough motivation for implementation.
+
+// FIXME: this should be in a header so that it is separately testable
+// ( see caller in tests/ToUnicode.cpp )
+void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
+                          const SkPDFGlyphSet* subset,
+                          SkDynamicMemoryWStream* cmap);
+                          
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           const SkPDFGlyphSet* subset,
                           SkDynamicMemoryWStream* cmap) {
@@ -529,10 +536,12 @@ static SkPDFStream* generate_tounicode_cmap(
     return new SkPDFStream(cmapStream.get());
 }
 
+#if defined (SK_SFNTLY_SUBSETTER)
 static void sk_delete_array(const void* ptr, size_t, void*) {
     // Use C-style cast to cast away const and cast type simultaneously.
     delete[] (unsigned char*)ptr;
 }
+#endif
 
 static int get_subset_font_stream(const char* fontName,
                                   const SkTypeface* typeface,

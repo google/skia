@@ -37,7 +37,7 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
 
 off_t SkPDFPage::getPageSize(SkPDFCatalog* catalog, off_t fileOffset) {
     SkASSERT(fContentStream.get() != NULL);
-    catalog->setFileOffset(fContentStream.get(), fileOffset);
+    catalog->setFileOffset(fContentStream.get(), (size_t) fileOffset);
     return fContentStream->getOutputSize(catalog, true);
 }
 
