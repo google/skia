@@ -13,7 +13,7 @@
 #include "SkGradientShader.h"
 #include "SkUnitMapper.h"
 
-SkScalar SkUnitToScalar(U16CPU x) {
+static SkScalar SkUnitToScalar(U16CPU x) {
 #ifdef SK_SCALAR_IS_FLOAT
     return x / 65535.0f;
 #else
@@ -21,7 +21,7 @@ SkScalar SkUnitToScalar(U16CPU x) {
 #endif
 }
 
-U16CPU SkScalarToUnit(SkScalar x) {
+static U16CPU SkScalarToUnit(SkScalar x) {
     SkScalar pin =  SkScalarPin(x, 0, SK_Scalar1);
 #ifdef SK_SCALAR_IS_FLOAT
     return (int) (pin * 65535.0f);
