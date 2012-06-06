@@ -577,7 +577,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
     while (!reader.eof()) {
         uint32_t op32 = reader.readU32();
         unsigned op = DrawOp_unpackOp(op32);
-        SkDEBUGCODE(DrawOps drawOp = (DrawOps)op;)
+        // SkDEBUGCODE(DrawOps drawOp = (DrawOps)op;)
         
         if (op >= SK_ARRAY_COUNT(gReadTable)) {
             SkDebugf("---- bad op during GPipeState::playback\n");
