@@ -192,6 +192,68 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
                 return false;
             }
         }
+        // The below two blocks are checks for functions used with
+        // GL_NV_path_rendering. We're not enforcing that they be non-NULL
+        // because they aren't actually called at this time.
+        if (false &&
+            NULL == fMatrixMode ||
+            NULL == fLoadIdentity ||
+            NULL == fLoadMatrixf) {
+            return false;
+        }
+        if (false && GrGLHasExtensionFromString("GL_NV_path_rendering", ext)) {
+            if (NULL == fPathCommands ||
+                NULL == fPathCoords ||
+                NULL == fPathSubCommands ||
+                NULL == fPathSubCoords ||
+                NULL == fPathString ||
+                NULL == fPathGlyphs ||
+                NULL == fPathGlyphRange ||
+                NULL == fWeightPaths ||
+                NULL == fCopyPath ||
+                NULL == fInterpolatePaths ||
+                NULL == fTransformPath ||
+                NULL == fPathParameteriv ||
+                NULL == fPathParameteri ||
+                NULL == fPathParameterfv ||
+                NULL == fPathParameterf ||
+                NULL == fPathDashArray ||
+                NULL == fGenPaths ||
+                NULL == fDeletePaths ||
+                NULL == fIsPath ||
+                NULL == fPathStencilFunc ||
+                NULL == fPathStencilDepthOffset ||
+                NULL == fStencilFillPath ||
+                NULL == fStencilStrokePath ||
+                NULL == fStencilFillPathInstanced ||
+                NULL == fStencilStrokePathInstanced ||
+                NULL == fPathCoverDepthFunc ||
+                NULL == fPathColorGen ||
+                NULL == fPathTexGen ||
+                NULL == fPathFogGen ||
+                NULL == fCoverFillPath ||
+                NULL == fCoverStrokePath ||
+                NULL == fCoverFillPathInstanced ||
+                NULL == fCoverStrokePathInstanced ||
+                NULL == fGetPathParameteriv ||
+                NULL == fGetPathParameterfv ||
+                NULL == fGetPathCommands ||
+                NULL == fGetPathCoords ||
+                NULL == fGetPathDashArray ||
+                NULL == fGetPathMetrics ||
+                NULL == fGetPathMetricRange ||
+                NULL == fGetPathSpacing ||
+                NULL == fGetPathColorGeniv ||
+                NULL == fGetPathColorGenfv ||
+                NULL == fGetPathTexGeniv ||
+                NULL == fGetPathTexGenfv ||
+                NULL == fIsPointInFillPath ||
+                NULL == fIsPointInStrokePath ||
+                NULL == fGetPathLength ||
+                NULL == fPointAlongPath) {
+                return false;
+            }
+        }
     }
 
     // optional function on desktop before 1.3

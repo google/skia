@@ -490,8 +490,8 @@
 #define GR_GL_SPHERE_MAP                    0x2402
 #define GR_GL_DECAL                         0x2101
 #define GR_GL_MODULATE                      0x2100
-/*	GL_NEAREST */
-/*	GL_REPEAT */
+/* GL_NEAREST */
+/* GL_REPEAT */
 #define GR_GL_CLAMP                         0x2900
 #define GR_GL_S                             0x2000
 #define GR_GL_T                             0x2001
@@ -700,5 +700,183 @@
 #define GR_GL_MAX_RENDERBUFFER_SIZE          0x84E8
 
 #define GR_GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
+
+/* Path Rendering */
+// commands
+#define GR_GL_CLOSE_PATH                                    0x00
+#define GR_GL_MOVE_TO                                       0x02
+#define GR_GL_RELATIVE_MOVE_TO                              0x03
+#define GR_GL_LINE_TO                                       0x04
+#define GR_GL_RELATIVE_LINE_TO                              0x05
+#define GR_GL_HORIZONTAL_LINE_TO                            0x06
+#define GR_GL_RELATIVE_HORIZONTAL_LINE_TO                   0x07
+#define GR_GL_VERTICAL_LINE_TO                              0x08
+#define GR_GL_RELATIVE_VERTICAL_LINE_TO                     0x09
+#define GR_GL_QUADRATIC_CURVE_TO                            0x0A
+#define GR_GL_RELATIVE_QUADRATIC_CURVE_TO                   0x0B
+#define GR_GL_CUBIC_CURVE_TO                                0x0C
+#define GR_GL_RELATIVE_CUBIC_CURVE_TO                       0x0D
+#define GR_GL_SMOOTH_QUADRATIC_CURVE_TO                     0x0E
+#define GR_GL_RELATIVE_SMOOTH_QUADRATIC_CURVE_TO            0x0F
+#define GR_GL_SMOOTH_CUBIC_CURVE_TO                         0x10
+#define GR_GL_RELATIVE_SMOOTH_CUBIC_CURVE_TO                0x11
+#define GR_GL_SMALL_CCW_ARC_TO                              0x12
+#define GR_GL_RELATIVE_SMALL_CCW_ARC_TO                     0x13
+#define GR_GL_SMALL_CW_ARC_TO                               0x14
+#define GR_GL_RELATIVE_SMALL_CW_ARC_TO                      0x15
+#define GR_GL_LARGE_CCW_ARC_TO                              0x16
+#define GR_GL_RELATIVE_LARGE_CCW_ARC_TO                     0x17
+#define GR_GL_LARGE_CW_ARC_TO                               0x18
+#define GR_GL_RELATIVE_LARGE_CW_ARC_TO                      0x19
+#define GR_GL_CIRCULAR_CCW_ARC_TO                           0xF8
+#define GR_GL_CIRCULAR_CW_ARC_TO                            0xFA
+#define GR_GL_CIRCULAR_TANGENT_ARC_TO                       0xFC
+#define GR_GL_ARC_TO                                        0xFE
+#define GR_GL_RELATIVE_ARC_TO                               0xFF
+
+// path string formats
+#define GR_GL_PATH_FORMAT_SVG                               0x9070
+#define GR_GL_PATH_FORMAT_PS                                0x9071
+
+// font targets
+#define GR_GL_STANDARD_FONT_NAME                            0x9072
+#define GR_GL_SYSTEM_FONT_NAME                              0x9073
+#define GR_GL_FILE_NAME                                     0x9074
+
+// handle missing glyphs
+#define GR_GL_SKIP_MISSING_GLYPH                            0x90A9
+#define GR_GL_USE_MISSING_GLYPH                             0x90AA
+
+// path parameters
+#define GR_GL_PATH_STROKE_WIDTH                             0x9075
+#define GR_GL_PATH_INITIAL_END_CAP                          0x9077
+#define GR_GL_PATH_TERMINAL_END_CAP                         0x9078
+#define GR_GL_PATH_JOIN_STYLE                               0x9079
+#define GR_GL_PATH_MITER_LIMIT                              0x907A
+#define GR_GL_PATH_INITIAL_DASH_CAP                         0x907C
+#define GR_GL_PATH_TERMINAL_DASH_CAP                        0x907D
+#define GR_GL_PATH_DASH_OFFSET                              0x907E
+#define GR_GL_PATH_CLIENT_LENGTH                            0x907F
+#define GR_GL_PATH_DASH_OFFSET_RESET                        0x90B4
+#define GR_GL_PATH_FILL_MODE                                0x9080
+#define GR_GL_PATH_FILL_MASK                                0x9081
+#define GR_GL_PATH_FILL_COVER_MODE                          0x9082
+#define GR_GL_PATH_STROKE_COVER_MODE                        0x9083
+#define GR_GL_PATH_STROKE_MASK                              0x9084
+#define GR_GL_PATH_END_CAPS                                 0x9076
+#define GR_GL_PATH_DASH_CAPS                                0x907B
+#define GR_GL_PATH_COMMAND_COUNT                            0x909D
+#define GR_GL_PATH_COORD_COUNT                              0x909E
+#define GR_GL_PATH_DASH_ARRAY_COUNT                         0x909F
+#define GR_GL_PATH_FILL_BOUNDING_BOX                        0x90A1
+#define GR_GL_PATH_STROKE_BOUNDING_BOX                      0x90A2
+
+// fill modes
+/*      GL_INVERT */
+#define GR_GL_COUNT_UP                                      0x9088
+#define GR_GL_COUNT_DOWN                                    0x9089
+/*      GL_PATH_FILL_MODE_NV */
+
+// path color gen
+/*      GL_PRIMARY_COLOR */
+#define GR_GL_SECONDARY_COLOR                               0x852D
+
+// gen mode
+/*      GL_NONE */
+/*      GL_EYE_LINEAR */
+/*      GL_OBJECT_LINEAR */
+#define GR_GL_PATH_OBJECT_BOUNDING_BOX                      0x908A
+
+// cover mode
+#define GR_GL_CONVEX_HULL                                   0x908B
+#define GR_GL_BOUNDING_BOX                                  0x908D
+#define GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES                0x909C
+/*      GL_PATH_FILL_COVER_MODE_NV */
+
+// transform type
+/*      GL_NONE */
+#define GR_GL_TRANSLATE_X                                   0x908E
+#define GR_GL_TRANSLATE_Y                                   0x908F
+#define GR_GL_TRANSLATE_2D                                  0x9090
+#define GR_GL_TRANSLATE_3D                                  0x9091
+#define GR_GL_AFFINE_2D                                     0x9092
+#define GR_GL_AFFINE_3D                                     0x9094
+#define GR_GL_TRANSPOSE_AFFINE_2D                           0x9096
+#define GR_GL_TRANSPOSE_AFFINE_3D                           0x9098
+
+// path string types
+#define GR_GL_UTF8                                          0x909A
+#define GR_GL_UTF16                                         0x909B
+
+#define GR_GL_PATH_COMPUTED_LENGTH                          0x90A0
+
+// cap/dash values
+/*      GL_FLAT */
+#define GR_GL_SQUARE                                        0x90A3
+#define GR_GL_ROUND                                         0x90A4
+#define GR_GL_TRIANGULAR                                    0x90A5
+
+// join values
+/*      GL_NONE */
+/*      GL_ROUND_NV  */
+#define GR_GL_BEVEL                                         0x90A6
+#define GR_GL_MITER_REVERT                                  0x90A7
+#define GR_GL_MITER_TRUNCATE                                0x90A8
+
+// path dash reset values
+#define GR_GL_MOVE_TO_RESETS                                0x90B5
+#define GR_GL_MOVE_TO_CONTINUES                             0x90B6
+
+// font styles
+/*      GL_NONE */
+#define GR_GL_BOLD_BIT                                      0x01
+#define GR_GL_ITALIC_BIT                                    0x02
+
+// pnames for glGet
+#define GR_GL_PATH_ERROR_POSITION                           0x90AB
+#define GR_GL_PATH_FOG_GEN_MODE                             0x90AC
+#define GR_GL_PATH_STENCIL_FUNC                             0x90B7
+#define GR_GL_PATH_STENCIL_REF                              0x90B8
+#define GR_GL_PATH_STENCIL_VALUE_MASK                       0x90B9
+#define GR_GL_PATH_STENCIL_DEPTH_OFFSET_FACTOR              0x90BD
+#define GR_GL_PATH_STENCIL_DEPTH_OFFSET_UNITS               0x90BE
+#define GR_GL_PATH_COVER_DEPTH_FUNC                         0x90BF
+
+// per-glyph metrics bits in metric mask query
+#define GR_GL_GLYPH_WIDTH_BIT                               0x01
+#define GR_GL_GLYPH_HEIGHT_BIT                              0x02
+#define GR_GL_GLYPH_HORIZONTAL_BEARING_X_BIT                0x04
+#define GR_GL_GLYPH_HORIZONTAL_BEARING_Y_BIT                0x08
+#define GR_GL_GLYPH_HORIZONTAL_BEARING_ADVANCE_BIT          0x10
+#define GR_GL_GLYPH_VERTICAL_BEARING_X_BIT                  0x20
+#define GR_GL_GLYPH_VERTICAL_BEARING_Y_BIT                  0x40
+#define GR_GL_GLYPH_VERTICAL_BEARING_ADVANCE_BIT            0x80
+#define GR_GL_GLYPH_HAS_KERNING                             0x100
+
+// per-font face metrics in metric mask query
+#define GR_GL_FONT_X_MIN_BOUNDS                             0x00010000
+#define GR_GL_FONT_Y_MIN_BOUNDS                             0x00020000
+#define GR_GL_FONT_X_MAX_BOUNDS                             0x00040000
+#define GR_GL_FONT_Y_MAX_BOUNDS                             0x00080000
+#define GR_GL_FONT_UNITS_PER_EM                             0x00100000
+#define GR_GL_FONT_ASCENDER                                 0x00200000
+#define GR_GL_FONT_DESCENDER                                0x00400000
+#define GR_GL_FONT_HEIGHT                                   0x00800000
+#define GR_GL_FONT_MAX_ADVANCE_WIDTH                        0x01000000
+#define GR_GL_FONT_MAX_ADVANCE_HEIGHT                       0x02000000
+#define GR_GL_FONT_UNDERLINE_POSITION                       0x04000000
+#define GR_GL_FONT_UNDERLINE_THICKNESS                      0x08000000
+#define GR_GL_FONT_HAS_KERNING                              0x10000000
+
+// path list modes (glGetPathSpacing)
+#define GR_GL_ACCUM_ADJACENT_PAIRS                          0x90AD
+#define GR_GL_ADJACENT_PAIRS                                0x90AE
+#define GR_GL_FIRST_TO_REST                                 0x90AF
+
+//path gen modes
+#define GR_GL_PATH_GEN_MODE                                 0x90B0
+#define GR_GL_PATH_GEN_COEFF                                0x90B1
+#define GR_GL_PATH_GEN_COLOR_FORMAT                         0x90B2
+#define GR_GL_PATH_GEN_COMPONENTS                           0x90B3
 
 #endif
