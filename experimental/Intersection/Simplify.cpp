@@ -1063,17 +1063,17 @@ finish:
         int firstT = 0;
         int lastT = 0;
         int firstCoinT = 0;
-        SkScalar topY = fPts[0].fY;
+        SkPoint topPt = fPts[0];
         int count = fTs.count();
         int index;
         for (index = 1; index < count; ++index) {
             const Span& span = fTs[index];
-            double t = span.fT;
-            SkScalar yIntercept = t == 1 ? fPts[fVerb].fY : yAtT(t);
-            if (topY > yIntercept) {
-                topY = yIntercept;
+            const SkPoint& intercept = xyAtT(&span);
+            if (topPt.fY > intercept.fY || (topPt.fY == intercept.fY
+                    && topPt.fX > intercept.fX)) {
+                topPt = intercept;
                 firstT = lastT = firstCoinT = index;
-            } else if (topY == yIntercept) {
+            } else if (topPt == intercept) {
                 lastT = index;
                 if (span.fCoincident) {
                     firstCoinT = index;
