@@ -53,7 +53,6 @@ GrGpu::GrGpu()
     poolState.fPoolIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
     poolState.fPoolStartIndex = DEBUG_INVAL_START_IDX;
 #endif
-    resetStats();
 
     for (int i = 0; i < kGrPixelConfigCount; ++i) {
         fConfigRenderSupport[i] = false;
@@ -415,12 +414,6 @@ void GrGpu::onDrawIndexed(GrPrimitiveType type,
         return;
     }
 
-#if GR_COLLECT_STATS
-    fStats.fVertexCnt += vertexCount;
-    fStats.fIndexCnt  += indexCount;
-    fStats.fDrawCnt   += 1;
-#endif
-
     int sVertex = startVertex;
     int sIndex = startIndex;
     setupGeometry(&sVertex, &sIndex, vertexCount, indexCount);
@@ -437,10 +430,6 @@ void GrGpu::onDrawNonIndexed(GrPrimitiveType type,
     if (!this->setupClipAndFlushState(type)) {
         return;
     }
-#if GR_COLLECT_STATS
-    fStats.fVertexCnt += vertexCount;
-    fStats.fDrawCnt   += 1;
-#endif
 
     int sVertex = startVertex;
     setupGeometry(&sVertex, NULL, vertexCount, 0);
@@ -585,31 +574,4 @@ void GrGpu::releaseIndexArray() {
     fIndexPool->putBack(bytes);
     --fIndexPoolUseCnt;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-const GrGpuStats& GrGpu::getStats() const {
-    return fStats;
-}
-
-void GrGpu::resetStats() {
-    memset(&fStats, 0, sizeof(fStats));
-}
-
-void GrGpu::printStats() const {
-    if (GR_COLLECT_STATS) {
-     GrPrintf(
-     "-v-------------------------GPU STATS----------------------------v-\n"
-     "Stats collection is: %s\n"
-     "Draws: %04d, Verts: %04d, Indices: %04d\n"
-     "ProgChanges: %04d, TexChanges: %04d, RTChanges: %04d\n"
-     "TexCreates: %04d, RTCreates:%04d\n"
-     "-^--------------------------------------------------------------^-\n",
-     (GR_COLLECT_STATS ? "ON" : "OFF"),
-    fStats.fDrawCnt, fStats.fVertexCnt, fStats.fIndexCnt,
-    fStats.fProgChngCnt, fStats.fTextureChngCnt, fStats.fRenderTargetChngCnt,
-    fStats.fTextureCreateCnt, fStats.fRenderTargetCreateCnt);
-    }
-}
-
 

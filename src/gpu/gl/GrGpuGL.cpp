@@ -1002,10 +1002,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                     const void* srcData,
                                     size_t rowBytes) {
 
-#if GR_COLLECT_STATS
-    ++fStats.fTextureCreateCnt;
-#endif
-
     GrGLTexture::Desc glTexDesc;
     GrGLRenderTarget::Desc  glRTDesc;
 
@@ -1093,9 +1089,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     GrGLTexture* tex;
     if (renderTarget) {
-#if GR_COLLECT_STATS
-        ++fStats.fRenderTargetCreateCnt;
-#endif
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, 0));
 
@@ -1613,9 +1606,6 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
 
     if (fHWBoundRenderTarget != rt) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
-    #if GR_COLLECT_STATS
-        ++fStats.fRenderTargetChngCnt;
-    #endif
     #if GR_DEBUG
         GrGLenum status;
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
@@ -1737,9 +1727,6 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
                                 rt->renderFBOID()));
         GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER,
                                 rt->textureFBOID()));
-    #if GR_COLLECT_STATS
-        ++fStats.fRenderTargetChngCnt;
-    #endif
         // make sure we go through flushRenderTarget() since we've modified
         // the bound DRAW FBO ID.
         fHWBoundRenderTarget = NULL;
@@ -2134,9 +2121,6 @@ void GrGpuGL::flushBoundTextureAndParams(int stage) {
     if (fHWBoundTextures[stage] != nextTexture) {
         this->setTextureUnit(stage);
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
-    #if GR_COLLECT_STATS
-        ++fStats.fTextureChngCnt;
-    #endif
         //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
         fHWBoundTextures[stage] = nextTexture;
     }

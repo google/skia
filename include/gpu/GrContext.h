@@ -21,7 +21,6 @@ class GrDrawState;
 class GrDrawTarget;
 class GrFontCache;
 class GrGpu;
-struct GrGpuStats;
 class GrIndexBuffer;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
@@ -665,9 +664,7 @@ public:
     GrFontCache* getFontCache() { return fFontCache; }
     GrDrawTarget* getTextTarget(const GrPaint& paint);
     const GrIndexBuffer* getQuadIndexBuffer() const;
-    void resetStats();
-    const GrGpuStats& getStats() const;
-    void printStats() const;
+
     /**
      * Stencil buffers add themselves to the cache using
      * addAndLockStencilBuffer. When a SB's RT-attachment count

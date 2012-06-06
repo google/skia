@@ -24,34 +24,6 @@ class GrResource;
 class GrStencilBuffer;
 class GrVertexBufferAllocPool;
 
-/**
- * Gpu usage statistics.
- */
-struct GrGpuStats {
-    uint32_t fVertexCnt;  //<! Number of vertices drawn
-    uint32_t fIndexCnt;   //<! Number of indices drawn
-    uint32_t fDrawCnt;    //<! Number of draws
-
-    uint32_t fProgChngCnt;//<! Number of program changes
-
-    /**
-     *  Number of times the texture is set in 3D API
-     */
-    uint32_t fTextureChngCnt;
-    /**
-     *  Number of times the render target is set in 3D API
-     */
-    uint32_t fRenderTargetChngCnt;
-    /**
-     *  Number of textures created (includes textures that are rendertargets).
-     */
-    uint32_t fTextureCreateCnt;
-    /**
-     *  Number of rendertargets created.
-     */
-    uint32_t fRenderTargetCreateCnt;
-};
-
 class GrGpu : public GrDrawTarget {
 
 public:
@@ -286,10 +258,6 @@ public:
                             GrPixelConfig config, const void* buffer,
                             size_t rowBytes);
 
-    const GrGpuStats& getStats() const;
-    void resetStats();
-    void printStats() const;
-
     /**
      * Called to tell Gpu object that all GrResources have been lost and should
      * be abandoned. Overrides must call INHERITED::abandonResources().
@@ -390,8 +358,6 @@ protected:
     // stencil settings to clip drawing when stencil clipping is in effect
     // and the client isn't using the stencil test.
     static const GrStencilSettings* GetClipStencilSettings();
-
-    GrGpuStats fStats;
 
     GrClipMaskManager           fClipMaskManager;
 
