@@ -31,7 +31,7 @@ protected:
 DEFINE_DECODER_CREATOR(BMPImageDecoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImageDecoder* sk_libbmp_dfactory(SkStream* stream) {
+static SkImageDecoder* sk_libbmp_dfactory(SkStream* stream) {
     static const char kBmpMagic[] = { 'B', 'M' };
     
     size_t len = stream->getLength();

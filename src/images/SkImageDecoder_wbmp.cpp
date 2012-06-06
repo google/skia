@@ -153,7 +153,7 @@ DEFINE_DECODER_CREATOR(WBMPImageDecoder);
 
 #include "SkTRegistry.h"
 
-SkImageDecoder* sk_wbmp_dfactory(SkStream* stream) {
+static SkImageDecoder* sk_wbmp_dfactory(SkStream* stream) {
     wbmp_head   head;
 
     if (head.init(stream)) {
