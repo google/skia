@@ -17,13 +17,13 @@ static void unref_data_proc(void* info, const void* addr, size_t size) {
 
 // These are used by CGDataProviderSequentialCallbacks
 
-size_t get_bytes_proc(void* info, void* buffer, size_t bytes) {
+static size_t get_bytes_proc(void* info, void* buffer, size_t bytes) {
     SkASSERT(info);
     return ((SkStream*)info)->read(buffer, bytes);
 }
 
 static off_t skip_forward_proc(void* info, off_t bytes) {
-    return ((SkStream*)info)->skip(bytes);
+    return ((SkStream*)info)->skip((size_t) bytes);
 }
 
 static void rewind_proc(void* info) {

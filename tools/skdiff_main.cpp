@@ -177,7 +177,7 @@ struct DiffSummary {
             break;
           case kDifferentSizes:
             fNumMismatches++;
-            drp->fFractionDifference = 2.0;// sort as if 200% of pixels differed
+            drp->fFractionDifference = 2;// sort as if 200% of pixels differed
             break;
           case kDifferentPixels:
             fNumMismatches++;
@@ -192,7 +192,7 @@ struct DiffSummary {
             break;
           case kDifferentOther:
             fNumMismatches++;
-            drp->fFractionDifference = 3.0;// sort as if 300% of pixels differed
+            drp->fFractionDifference = 3;// sort as if 300% of pixels differed
             break;
           case kBaseMissing:
             fNumMismatches++;
@@ -275,6 +275,7 @@ static int compare_diff_max_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
 /// Parameterized routine to compute the color of a pixel in a difference image.
 typedef SkPMColor (*DiffMetricProc)(SkPMColor, SkPMColor);
 
+#if 0 // UNUSED
 static void expand_and_copy (int width, int height, SkBitmap** dest) {
     SkBitmap* temp = new SkBitmap ();
     temp->reset();
@@ -284,6 +285,7 @@ static void expand_and_copy (int width, int height, SkBitmap** dest) {
                           temp->rowBytes());
     *dest = temp;
 }
+#endif
 
 /// Returns true if the two buffers passed in are both non-NULL, and include
 /// exactly the same byte values (and identical lengths).
@@ -882,6 +884,7 @@ static void print_image_cell (SkFILEWStream* stream,
     stream->writeText("px\"></a></td>");
 }
 
+#if 0 // UNUSED
 static void print_text_cell (SkFILEWStream* stream, const char* text) {
     stream->writeText("<td align=center>");
     if (NULL != text) {
@@ -889,6 +892,7 @@ static void print_text_cell (SkFILEWStream* stream, const char* text) {
     }
     stream->writeText("</td>");
 }
+#endif
 
 static void print_diff_with_missing_file(SkFILEWStream* stream,
                                          DiffRecord& diff,
