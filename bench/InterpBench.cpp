@@ -102,10 +102,10 @@ protected:
         int64_t step = (int64_t)(dx * 65536 * 655536 * 65536);
         SkFixed tmp;
         for (int i = 0; i < count; i += 4) {
-            tmp = curr >> 32; dst[i + 0] = TILE(tmp, count); curr += step;
-            tmp = curr >> 32; dst[i + 1] = TILE(tmp, count); curr += step;
-            tmp = curr >> 32; dst[i + 2] = TILE(tmp, count); curr += step;
-            tmp = curr >> 32; dst[i + 3] = TILE(tmp, count); curr += step;
+            tmp = (SkFixed) (curr >> 32); dst[i + 0] = TILE(tmp, count); curr += step;
+            tmp = (SkFixed) (curr >> 32); dst[i + 1] = TILE(tmp, count); curr += step;
+            tmp = (SkFixed) (curr >> 32); dst[i + 2] = TILE(tmp, count); curr += step;
+            tmp = (SkFixed) (curr >> 32); dst[i + 3] = TILE(tmp, count); curr += step;
         }
     }
 private:

@@ -138,7 +138,7 @@ static inline uint32_t QMul64(uint32_t value, U8CPU alpha) {
     uint64_t tmp = value;
     tmp = (tmp & mask) | ((tmp & ~mask) << 24);
     tmp *= alpha;
-    return ((tmp >> 8) & mask) | ((tmp >> 32) & ~mask);
+    return (uint32_t) (((tmp >> 8) & mask) | ((tmp >> 32) & ~mask));
 }
 
 class QMul64Bench : public MathBenchU32 {
@@ -284,6 +284,9 @@ protected:
             for (int j = 0; j < NN; ++j) {
                 for (int i = 0; i < N - 4; ++i) {
                     const SkRect* r = reinterpret_cast<const SkRect*>(&data[i]);
+                    if (false) { // avoid bit rot, suppress warning
+                        isFinite(*r);
+                    }
                     counter += r->isFinite();
                 }
             }
@@ -336,7 +339,6 @@ protected:
         SkRandom rand;
         float accum = 0;
         const float* data = fData;
-        float tmp[ARRAY] = {};
     
         if (fFast) {
             for (int j = 0; j < LOOP; ++j) {
