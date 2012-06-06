@@ -222,7 +222,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         gRand.setSeed(fNow);
         
-        if (false) {
+        if (false) { // avoid bit rot, suppress warning
             test_chromium_9005();
         }
         
