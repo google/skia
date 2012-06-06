@@ -223,6 +223,8 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
     }
 }
 
+SkBlitRow::ColorRectProc PlatformColorRectProcFactory(); // suppress warning
+
 SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
     if (cachedHasSSE2()) {
         return ColorRect32_SSE2;
