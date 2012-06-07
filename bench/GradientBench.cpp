@@ -78,9 +78,23 @@ static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
     return SkGradientShader::CreateTwoPointRadial(
-            center1, (pts[1].fX - pts[0].fX) / 7,
-            center0, (pts[1].fX - pts[0].fX) / 2,
-            data.fColors, data.fPos, data.fCount, tm, mapper);
+                                                  center1, (pts[1].fX - pts[0].fX) / 7,
+                                                  center0, (pts[1].fX - pts[0].fX) / 2,
+                                                  data.fColors, data.fPos, data.fCount, tm, mapper);
+}
+
+/// Ignores scale
+static SkShader* MakeConical(const SkPoint pts[2], const GradData& data,
+                             SkShader::TileMode tm, SkUnitMapper* mapper,
+                             float scale) {
+    SkPoint center0, center1;
+    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
+                SkScalarAve(pts[0].fY, pts[1].fY));
+    center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
+                SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
+    return SkGradientShader::CreateTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
+                                                   center0, (pts[1].fX - pts[0].fX) / 2,
+                                                   data.fColors, data.fPos, data.fCount, tm, mapper);
 }
 
 typedef SkShader* (*GradMaker)(const SkPoint pts[2], const GradData& data,
@@ -96,13 +110,15 @@ static const struct {
     { MakeRadial,   "radial1", 10 },
     { MakeSweep,    "sweep",    1 },
     { Make2Radial,  "radial2",  5 },
+    { MakeConical,  "conical",  5 },
 };
 
 enum GradType { // these must match the order in gGrads
     kLinear_GradType,
     kRadial_GradType,
     kSweep_GradType,
-    kRadial2_GradType
+    kRadial2_GradType,
+    kConical_GradType
 };
 
 enum GeomType {
@@ -256,6 +272,7 @@ static SkBenchmark* Fact11(void* p) { return new GradientBench(p, kRadial_GradTy
 static SkBenchmark* Fact2(void* p) { return new GradientBench(p, kSweep_GradType); }
 static SkBenchmark* Fact3(void* p) { return new GradientBench(p, kRadial2_GradType); }
 static SkBenchmark* Fact31(void* p) { return new GradientBench(p, kRadial2_GradType, SkShader::kMirror_TileMode); }
+static SkBenchmark* Fact5(void* p) { return new GradientBench(p, kConical_GradType); }
 
 static SkBenchmark* Fact4(void* p) { return new Gradient2Bench(p); }
 
@@ -267,6 +284,7 @@ static BenchRegistry gReg11(Fact11);
 static BenchRegistry gReg2(Fact2);
 static BenchRegistry gReg3(Fact3);
 static BenchRegistry gReg31(Fact31);
+static BenchRegistry gReg5(Fact5);
 
 static BenchRegistry gReg4(Fact4);
 
