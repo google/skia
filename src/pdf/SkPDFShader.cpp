@@ -466,6 +466,7 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
             break;
         case SkShader::kColor_GradientType:
         case SkShader::kNone_GradientType:
+        case SkShader::kConical_GradientType: // similar to twoPointRadialCode? 
         default:
             return;
     }

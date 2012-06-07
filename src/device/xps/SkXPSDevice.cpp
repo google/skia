@@ -1001,7 +1001,8 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kRadial2_GradientType == gradientType) {
+        if (SkShader::kRadial2_GradientType == gradientType ||
+            SkShader::kConical_GradientType == gradientType) {
             //simple if affine and one is 0, otherwise will have to fake
         }
 

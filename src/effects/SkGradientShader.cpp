@@ -2303,7 +2303,18 @@ public:
 
         return true;
     }
-    
+
+    SkShader::GradientType asAGradient(GradientInfo* info) const  SK_OVERRIDE {
+        if (info) {
+            commonAsAGradient(info);
+            info->fPoint[0] = fCenter1;
+            info->fPoint[1] = fCenter2;
+            info->fRadius[0] = fRadius1;
+            info->fRadius[1] = fRadius2;
+        }
+        return kConical_GradientType;
+    }
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Two_Point_Conical_Gradient)
     
 protected:
