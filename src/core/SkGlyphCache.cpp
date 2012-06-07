@@ -313,7 +313,7 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
             const_cast<SkGlyph&>(glyph).fPath = SkNEW(SkPath);
             fScalerContext->getPath(glyph, glyph.fPath);
             fMemoryUsed += sizeof(SkPath) +
-                    glyph.fPath->getPoints(NULL, 0x7FFFFFFF) * sizeof(SkPoint);
+                    glyph.fPath->countPoints() * sizeof(SkPoint);
         }
     }
     return glyph.fPath;

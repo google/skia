@@ -228,6 +228,25 @@ public:
         return -1;
     }
 
+    /**
+     * Copies up to max elements into dst. The number of items copied is
+     * capped by count - index. The actual number copied is returned.
+     */
+    int copyRange(T* dst, size_t index, int max) const {
+        SkASSERT(max >= 0);
+        SkASSERT(!max || dst);
+        if (index >= fCount) {
+            return 0;
+        }
+        int count = SkMin32(max, fCount - index);
+        memcpy(dst, fArray + index, sizeof(T) * count);
+        return count;
+    }
+
+    void copy(T* dst) const {
+        this->copyRange(0, fCount, dst);
+    }
+
     // routines to treat the array like a stack
     T*          push() { return this->append(); }
     void        push(const T& elem) { *this->append() = elem; }

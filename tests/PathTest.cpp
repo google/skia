@@ -756,16 +756,28 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pt.fY == SK_Scalar1);
     bounds.set(0, 0, 0, 0);
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[1];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    }
 
     // MoveTo-MoveTo case
     p.moveTo(SK_Scalar1*2, SK_Scalar1);
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 2 == p.countPoints());
+    REPORTER_ASSERT(reporter, 2 == p.countVerbs());
     p.getLastPt(&pt);
     REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1*2);
     REPORTER_ASSERT(reporter, pt.fY == SK_Scalar1);
     bounds.set(SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1);
     REPORTER_ASSERT(reporter, bounds == p.getBounds()); 
+    {
+    uint8_t verbs[2];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[1]);
+    }
 
     // moveTo-close case
     p.reset();
@@ -774,7 +786,14 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     bounds.set(0, 0, 0, 0);
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 1 == p.countPoints());
+    REPORTER_ASSERT(reporter, 2 == p.countVerbs());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[2];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[1]);
+    }
 
     // moveTo-close-moveTo-close case
     p.moveTo(SK_Scalar1*2, SK_Scalar1);
@@ -783,6 +802,14 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 2 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[4];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[1]);
+    }
 
     // moveTo-line case
     p.reset();
@@ -792,6 +819,12 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 2 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[2];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
+    }
 
     // moveTo-lineTo-moveTo-lineTo case
     p.moveTo(SK_Scalar1*2, SK_Scalar1);
@@ -800,6 +833,14 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 4 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[4];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[2]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[3]);
+    }
 
     // moveTo-line-close case
     p.reset();
@@ -810,6 +851,13 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 2 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[3];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[2]);
+    }
 
     // moveTo-line-close-moveTo-line-close case
     p.moveTo(SK_Scalar1*2, SK_Scalar1);
@@ -819,6 +867,16 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 4 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[6];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[2]);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[3]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[4]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[5]);
+    }
 
     // moveTo-quadTo case
     p.reset();
@@ -828,12 +886,26 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 3 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[2];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
+    }
 
     // moveTo-quadTo-close case
     p.close();
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 3 == p.countPoints());
+    REPORTER_ASSERT(reporter, 3 == p.countVerbs());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[3];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[2]);
+    }
 
     // moveTo-quadTo-moveTo-quadTo case
     p.reset();
@@ -845,6 +917,14 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 6 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[4];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
+    }
 
     // moveTo-cubicTo case
     p.reset();
@@ -856,14 +936,27 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 4 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[2];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb  == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb == verbs[1]);
+    }
 
-    // moveTo-quadTo-close case
+    // moveTo-cubicTo-close case
     p.close();
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 4 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[3];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb   == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb  == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb  == verbs[2]);
+    }
 
-    // moveTo-quadTo-moveTo-quadTo case
+    // moveTo-cubicTo-moveTo-cubicTo case
     p.reset();
     p.moveTo(SK_Scalar1, SK_Scalar1);
     p.cubicTo(SK_Scalar1, SK_Scalar1,
@@ -877,6 +970,14 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
     REPORTER_ASSERT(reporter, 8 == p.countPoints());
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    {
+    uint8_t verbs[4];
+    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb  == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb  == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[2]);
+    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb == verbs[3]);
+    }
 }
 
 struct SegmentInfo {
@@ -1391,6 +1492,7 @@ static void TestPath(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, p.isEmpty());
     REPORTER_ASSERT(reporter, 0 == p.countPoints());
+    REPORTER_ASSERT(reporter, 0 == p.countVerbs());
     REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, p.isConvex());
     REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
@@ -1426,11 +1528,21 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p != p2);
     REPORTER_ASSERT(reporter, !(p == p2));
 
-    // does getPoints return the right result
-    REPORTER_ASSERT(reporter, p.getPoints(NULL, 5) == 4);
+    // do getPoints and getVerbs return the right result
+    REPORTER_ASSERT(reporter, p.getPoints(NULL, 0) == 4);
+    REPORTER_ASSERT(reporter, p.getVerbs(NULL, 0) == 5);
     SkPoint pts[4];
     int count = p.getPoints(pts, 4);
     REPORTER_ASSERT(reporter, count == 4);
+    uint8_t verbs[6];
+    verbs[5] = 0xff;
+    p.getVerbs(verbs, 5);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[2]);
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[3]);
+    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[4]);
+    REPORTER_ASSERT(reporter, 0xff == verbs[5]);
     bounds2.set(pts, 4);
     REPORTER_ASSERT(reporter, bounds == bounds2);
 
