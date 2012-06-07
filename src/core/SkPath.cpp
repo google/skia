@@ -1632,6 +1632,7 @@ void SkPath::RawIter::setPath(const SkPath& path) {
 }
 
 SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
+    SkASSERT(NULL != pts);
     if (fVerbs == fVerbStop) {
         return kDone_Verb;
     }
@@ -1641,42 +1642,32 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
 
     switch (verb) {
         case kMove_Verb:
-            if (pts) {
-                pts[0] = *srcPts;
-            }
+            pts[0] = *srcPts;
             fMoveTo = srcPts[0];
             fLastPt = fMoveTo;
             srcPts += 1;
             break;
         case kLine_Verb:
-            if (pts) {
-                pts[0] = fLastPt;
-                pts[1] = srcPts[0];
-            }
+            pts[0] = fLastPt;
+            pts[1] = srcPts[0];
             fLastPt = srcPts[0];
             srcPts += 1;
             break;
         case kQuad_Verb:
-            if (pts) {
-                pts[0] = fLastPt;
-                memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
-            }
+            pts[0] = fLastPt;
+            memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
             fLastPt = srcPts[1];
             srcPts += 2;
             break;
         case kCubic_Verb:
-            if (pts) {
-                pts[0] = fLastPt;
-                memcpy(&pts[1], srcPts, 3 * sizeof(SkPoint));
-            }
+            pts[0] = fLastPt;
+            memcpy(&pts[1], srcPts, 3 * sizeof(SkPoint));
             fLastPt = srcPts[2];
             srcPts += 3;
             break;
         case kClose_Verb:
             fLastPt = fMoveTo;
-            if (pts) {
-                pts[0] = fMoveTo;
-            }
+            pts[0] = fMoveTo;
             break;
     }
     fPts = srcPts;

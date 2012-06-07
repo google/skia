@@ -753,6 +753,7 @@ public:
             segments have been visited, return kDone_Verb.
          
             @param  pts The points representing the current verb and/or segment
+                        This must not be NULL.
             @return The verb for the current segment
         */
         Verb next(SkPoint pts[4]);
