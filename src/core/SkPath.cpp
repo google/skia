@@ -390,14 +390,13 @@ bool SkPath::isRect(SkRect* rect) const {
     return result;
 }
 
-int SkPath::getPoints(SkPoint copy[], int max) const {
+int SkPath::getPoints(SkPoint dst[], int max) const {
     SkDEBUGCODE(this->validate();)
 
     SkASSERT(max >= 0);
+    SkASSERT(!max || dst);
     int count = fPts.count();
-    if (copy && max > 0 && count > 0) {
-        memcpy(copy, fPts.begin(), sizeof(SkPoint) * SkMin32(max, count));
-    }
+    fPts.copyRange(dst, 0, max);
     return count;
 }
 
@@ -406,6 +405,15 @@ SkPoint SkPath::getPoint(int index) const {
         return fPts[index];
     }
     return SkPoint::Make(0, 0);
+}
+
+int SkPath::getVerbs(uint8_t dst[], int max) const {
+    SkDEBUGCODE(this->validate();)
+
+    SkASSERT(max >= 0);
+    SkASSERT(!max || dst);
+    fVerbs.copyRange(dst, 0, max);
+    return fVerbs.count();
 }
 
 bool SkPath::getLastPt(SkPoint* lastPt) const {

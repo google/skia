@@ -259,6 +259,21 @@ public:
     */
     int getPoints(SkPoint points[], int max) const;
 
+    /** Return the number of verbs in the path
+     */
+    int countVerbs() const {
+        return this->getVerbs(NULL, 0);
+    }
+
+    /** Returns the number of verbs in the path. Up to max verbs are copied. The
+        verbs are copied as one byte per verb.
+        
+        @param verbs If not null, receives up to max verbs
+        @param max The maximum number of verbs to copy into verbs
+        @return the actual number of verbs in the path
+    */
+    int getVerbs(uint8_t verbs[], int max) const;
+
     //! Swap contents of this and other. Guaranteed not to throw
     void swap(SkPath& other);
 
