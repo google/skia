@@ -111,9 +111,6 @@ public:
      *  Create a new entry, based on the specified key and texture, and return
      *  its "locked" entry. Must call be balanced with an unlockTexture() call.
      *
-     *  @param key      A client-generated key that identifies the contents
-     *                  of the texture. Respecified to findAndLockTexture
-     *                  for subsequent uses of the texture.
      *  @param sampler  The sampler state used to draw a texture may be used
      *                  to determine how to store the pixel data in the texture
      *                  cache. (e.g. different versions may exist for different
@@ -125,8 +122,7 @@ public:
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows.
      */
-    TextureCacheEntry createAndLockTexture(GrTexture::TextureKey key,
-                                           const GrSamplerState* sampler,
+    TextureCacheEntry createAndLockTexture(const GrSamplerState* sampler,
                                            const GrTextureDesc& desc,
                                            void* srcData, size_t rowBytes);
 
@@ -135,14 +131,7 @@ public:
      *  return it. The entry's texture() function will return NULL if not found.
      *  Must be balanced with an unlockTexture() call.
      *
-     *  @param key      A client-generated key that identifies the contents
-     *                  of the texture.
-     *  @param width    The width of the texture in pixels as specifed in
-     *                  the GrTextureDesc originally passed to
-     *                  createAndLockTexture
-     *  @param width    The height of the texture in pixels as specifed in
-     *                  the GrTextureDesc originally passed to
-     *                  createAndLockTexture
+     *  @param desc      Description of the texture properties.
      *  @param sampler  The sampler state used to draw a texture may be used
      *                  to determine the cache entry used. (e.g. different
      *                  versions may exist for different wrap modes on GPUs with
@@ -150,17 +139,15 @@ public:
      *                  filter fields are used. NULL implies clamp wrap modes
      *                  and nearest filtering.
      */
-    TextureCacheEntry findAndLockTexture(GrTexture::TextureKey key,
-                                         const GrTextureDesc& desc,
+    TextureCacheEntry findAndLockTexture(const GrTextureDesc& desc,
                                          const GrSamplerState* sampler);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
      * will not be locked or returned. This call does not affect the priority of
      * the texture for deletion.
      */
-    bool isTextureInCache(GrTexture::TextureKey key,
-                          const GrTextureDesc& desc,
-                          const GrSamplerState*) const;
+    bool isTextureInCache(const GrTextureDesc& desc,
+                          const GrSamplerState* sampler) const;
 
     /**
      * Enum that determines how closely a returned scratch texture must match
@@ -194,7 +181,8 @@ public:
      * such an API will create gaps in the tiling pattern. This includes clamp
      * mode. (This may be addressed in a future update.)
      */
-    TextureCacheEntry lockScratchTexture(const GrTextureDesc& desc, ScratchTexMatch match);
+    TextureCacheEntry lockScratchTexture(const GrTextureDesc& desc, 
+                                         ScratchTexMatch match);
 
     /**
      *  When done with an entry, call unlockTexture(entry) on it, which returns
@@ -206,14 +194,14 @@ public:
      * Creates a texture that is outside the cache. Does not count against
      * cache's budget.
      */
-    GrTexture* createUncachedTexture(const GrTextureDesc&,
+    GrTexture* createUncachedTexture(const GrTextureDesc& desc,
                                      void* srcData,
                                      size_t rowBytes);
 
     /**
      *  Returns true if the specified use of an indexed texture is supported.
      */
-    bool supportsIndex8PixelConfig(const GrSamplerState*,
+    bool supportsIndex8PixelConfig(const GrSamplerState* sampler,
                                    int width,
                                    int height) const;
 

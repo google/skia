@@ -26,7 +26,6 @@ static GrTexture* createTexture(GrContext* context) {
     desc.fConfig    = kSkia8888_PM_GrPixelConfig;
     desc.fWidth     = X_SIZE;
     desc.fHeight    = Y_SIZE;
-    desc.fSampleCnt = 0;
 
     // We are initializing the texture with zeros here
     GrTexture* texture = context->createUncachedTexture(desc, textureData, 0);
@@ -83,13 +82,11 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     GrClip clip1;
     clip1.setFromIRect(bound1);
 
-    const GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit,
-        X_SIZE,
-        Y_SIZE,
-        kSkia8888_PM_GrPixelConfig,
-        0
-    };
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = X_SIZE;
+    desc.fHeight = Y_SIZE;
+    desc.fConfig = kSkia8888_PM_GrPixelConfig;
 
     cache.acquireMask(clip1, desc, bound1);
 

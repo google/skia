@@ -226,13 +226,11 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     SkBitmap bm;
     bm.setConfig(config, width, height);
 
-    const GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit,
-        width,
-        height,
-        SkGr::BitmapConfig2PixelConfig(bm.config()),
-        0 // samples
-    };
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bm.config());
 
     fTexture = fContext->createUncachedTexture(desc, NULL, 0);
 
@@ -792,15 +790,13 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     }
     GrPoint offset = GrPoint::Make(-srcRect.fLeft, -srcRect.fTop);
     srcRect.offset(offset);
-    GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit,
-        SkScalarCeilToInt(srcRect.width()),
-        SkScalarCeilToInt(srcRect.height()),
-        // We actually only need A8, but it often isn't supported as a
-        // render target so default to RGBA_8888
-        kRGBA_8888_PM_GrPixelConfig,
-        0 // samples
-    };
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = SkScalarCeilToInt(srcRect.width());
+    desc.fHeight = SkScalarCeilToInt(srcRect.height());
+    // We actually only need A8, but it often isn't supported as a
+    // render target so default to RGBA_8888
+    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
 
     if (context->isConfigRenderable(kAlpha_8_GrPixelConfig)) {
         desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -930,13 +926,10 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 
     GrAutoMatrix avm(context, GrMatrix::I());
 
-    const GrTextureDesc desc = {
-        kNone_GrTextureFlags,
-        dstM.fBounds.width(),
-        dstM.fBounds.height(),
-        kAlpha_8_GrPixelConfig,
-        0, // samples
-    };
+    GrTextureDesc desc;
+    desc.fWidth = dstM.fBounds.width();
+    desc.fHeight = dstM.fBounds.height();
+    desc.fConfig = kAlpha_8_GrPixelConfig;
 
     GrAutoScratchTexture ast(context, desc);
     GrTexture* texture = ast.texture();
@@ -1436,13 +1429,11 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
     SkSize blurSize;
     SkISize radius;
 
-    const GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit,
-        SkScalarCeilToInt(rect.width()),
-        SkScalarCeilToInt(rect.height()),
-        kRGBA_8888_PM_GrPixelConfig,
-        0 // samples
-    };
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit,
+    desc.fWidth = SkScalarCeilToInt(rect.width());
+    desc.fHeight = SkScalarCeilToInt(rect.height());
+    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
 
     if (filter->asABlur(&blurSize)) {
         GrAutoScratchTexture temp1, temp2;
@@ -1833,24 +1824,21 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(
     GrContext* ctx = this->context();
 
     if (!bitmap.isVolatile()) {
-        GrTexture::TextureKey key = bitmap.getGenerationID();
+        uint64_t key = bitmap.getGenerationID();
         key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
 
-        GrTextureDesc desc = {
-            kNone_GrTextureFlags,
-            bitmap.width(),
-            bitmap.height(),
-            SkGr::BitmapConfig2PixelConfig(bitmap.config()),
-            0 // samples
-        };
+        GrTextureDesc desc;
+        desc.fWidth = bitmap.width();
+        desc.fHeight = bitmap.height();
+        desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap.config());
 
-        entry = ctx->findAndLockTexture(key, desc, sampler);
+        entry = ctx->findAndLockTexture(desc, sampler);
         if (NULL == entry.texture()) {
             entry = sk_gr_create_bitmap_texture(ctx, key, sampler,
                                                 bitmap);
         }
     } else {
-        entry = sk_gr_create_bitmap_texture(ctx, gUNCACHED_KEY,
+        entry = sk_gr_create_bitmap_texture(ctx, kUncached_CacheID,
                                             sampler, bitmap);
     }
     if (NULL == entry.texture()) {
@@ -1866,18 +1854,16 @@ void SkGpuDevice::unlockCachedTexture(TexCache cache) {
 
 bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
                                          const GrSamplerState& sampler) const {
-    GrTexture::TextureKey key = bitmap.getGenerationID();
+    uint64_t key = bitmap.getGenerationID();
     key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
 
-    GrTextureDesc desc = {
-        kNone_GrTextureFlags,
-        bitmap.width(),
-        bitmap.height(),
-        SkGr::BitmapConfig2PixelConfig(bitmap.config()),
-        0 // samples
-    };
+    GrTextureDesc desc;
+    desc.fWidth = bitmap.width();
+    desc.fHeight = bitmap.height();
+    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap.config());
+    desc.fClientCacheID = key;
 
-    return this->context()->isTextureInCache(key, desc, &sampler);
+    return this->context()->isTextureInCache(desc, &sampler);
 }
 
 

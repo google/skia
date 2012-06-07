@@ -31,7 +31,6 @@ static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context)
     desc.fConfig    = kAlpha_8_GrPixelConfig;
     desc.fWidth     = X_SIZE;
     desc.fHeight    = Y_SIZE;
-    desc.fSampleCnt = 0;
 
     // We are initializing the texture with zeros here
     GrTexture* texture = context->createUncachedTexture(desc, textureData, 0);

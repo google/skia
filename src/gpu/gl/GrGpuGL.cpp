@@ -375,7 +375,6 @@ bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {
         dstDesc.fWidth = 256;
         dstDesc.fHeight = 256;
         dstDesc.fConfig = kRGBA_8888_PM_GrPixelConfig;
-        dstDesc.fSampleCnt = 0;
 
         SkAutoTUnref<GrTexture> dstTex(this->createTexture(dstDesc, NULL, 0));
         if (!dstTex.get()) {
@@ -1015,6 +1014,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
     glTexDesc.fSampleCnt = desc.fSampleCnt;
+    glTexDesc.fClientCacheID = desc.fClientCacheID;
 
     glTexDesc.fOwnsID = true;
 

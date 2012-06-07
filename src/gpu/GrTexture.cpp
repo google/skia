@@ -107,16 +107,16 @@ enum TextureBits {
 namespace {
 void gen_texture_key_values(const GrGpu* gpu,
                             const GrSamplerState* sampler,
-                            GrTexture::TextureKey clientKey,
                             const GrTextureDesc& desc,
                             bool scratch,
                             uint32_t v[4]) {
-    GR_STATIC_ASSERT(sizeof(GrTexture::TextureKey) == sizeof(uint64_t));
+
+    uint64_t clientKey = desc.fClientCacheID;
 
     if (scratch) {
         // Instead of a client-provided key of the texture contents
         // we create a key of from the descriptor.
-        GrAssert(0 == clientKey);
+        GrAssert(kScratch_CacheID == clientKey);
         clientKey = (desc.fFlags << 8) | ((uint64_t) desc.fConfig << 32);
     }
 
@@ -156,11 +156,10 @@ void gen_texture_key_values(const GrGpu* gpu,
 
 GrResourceKey GrTexture::ComputeKey(const GrGpu* gpu,
                                     const GrSamplerState* sampler,
-                                    TextureKey clientKey,
                                     const GrTextureDesc& desc,
                                     bool scratch) {
     uint32_t v[4];
-    gen_texture_key_values(gpu, sampler, clientKey, desc, scratch, v);
+    gen_texture_key_values(gpu, sampler, desc, scratch, v);
     return GrResourceKey(v);
 }
 
