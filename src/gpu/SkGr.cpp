@@ -57,7 +57,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
-                                                GrTexture::TextureKey key,
+                                                uint64_t key,
                                                 const GrSamplerState* sampler,
                                                 const SkBitmap& origBitmap) {
     SkAutoLockPixels alp(origBitmap);
@@ -71,13 +71,11 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
 
     const SkBitmap* bitmap = &origBitmap;
 
-    GrTextureDesc desc = {
-        kNone_GrTextureFlags,
-        bitmap->width(),
-        bitmap->height(),
-        SkGr::BitmapConfig2PixelConfig(bitmap->config()),
-        0 // samples
-    };
+    GrTextureDesc desc;
+    desc.fWidth = bitmap->width();
+    desc.fHeight = bitmap->height();
+    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap->config());
+    desc.fClientCacheID = key;
 
     if (SkBitmap::kIndex8_Config == bitmap->config()) {
         // build_compressed_data doesn't do npot->pot expansion
@@ -93,8 +91,8 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
             
-            if (gUNCACHED_KEY != key) {
-                return ctx->createAndLockTexture(key, sampler, desc, storage.get(),
+            if (kUncached_CacheID != key) {
+                return ctx->createAndLockTexture(sampler, desc, storage.get(),
                                                  bitmap->width());
             } else {
                 entry = ctx->lockScratchTexture(desc,
@@ -113,8 +111,8 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
     }
 
     desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap->config());
-    if (gUNCACHED_KEY != key) {
-        return ctx->createAndLockTexture(key, sampler, desc,
+    if (kUncached_CacheID != key) {
+        return ctx->createAndLockTexture(sampler, desc,
                                          bitmap->getPixels(),
                                          bitmap->rowBytes());
     } else {

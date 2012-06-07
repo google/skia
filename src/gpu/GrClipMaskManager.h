@@ -251,8 +251,7 @@ private:
         void reset () {
             fLastClip.setEmpty();
 
-            const GrTextureDesc desc = { kNone_GrTextureFlags, 0, 0, 
-                                         kUnknown_GrPixelConfig, 0 };
+            GrTextureDesc desc;
 
             fLastMask.set(NULL, desc);
             fLastBound.setEmpty();

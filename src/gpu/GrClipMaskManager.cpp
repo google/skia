@@ -481,13 +481,11 @@ void GrClipMaskManager::getTemp(const GrIRect& bounds,
         return;
     }
 
-    const GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit,
-        bounds.width(),
-        bounds.height(),
-        kAlpha_8_GrPixelConfig,
-        0           // samples
-    };
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit;
+    desc.fWidth = bounds.width();
+    desc.fHeight = bounds.height();
+    desc.fConfig = kAlpha_8_GrPixelConfig;
 
     temp->set(this->getContext(), desc);
 }
@@ -499,13 +497,11 @@ void GrClipMaskManager::setupCache(const GrClip& clipIn,
     // Free up the currently cached mask so it can be reused
     fAACache.reset();
 
-    const GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit,
-        bounds.width(),
-        bounds.height(),
-        kAlpha_8_GrPixelConfig,
-        0           // samples
-    };
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit;
+    desc.fWidth = bounds.width();
+    desc.fHeight = bounds.height();
+    desc.fConfig = kAlpha_8_GrPixelConfig;
 
     fAACache.acquireMask(clipIn, desc, bounds);
 }

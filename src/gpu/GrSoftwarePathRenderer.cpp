@@ -201,13 +201,10 @@ bool GrSWMaskHelper::init(const GrIRect& pathDevBounds,
  * Get a texture (from the texture cache) of the correct size & format
  */
 bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* tex) {
-    const GrTextureDesc desc = {
-        kNone_GrTextureFlags,
-        fBM.width(),
-        fBM.height(),
-        kAlpha_8_GrPixelConfig,
-        0 // samples
-    };
+    GrTextureDesc desc;
+    desc.fWidth = fBM.width();
+    desc.fHeight = fBM.height();
+    desc.fConfig = kAlpha_8_GrPixelConfig;
 
     tex->set(fContext, desc);
     GrTexture* texture = tex->texture();

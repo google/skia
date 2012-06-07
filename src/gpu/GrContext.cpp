@@ -252,18 +252,16 @@ void convolve_gaussian(GrGpu* gpu,
 }
 
 GrContext::TextureCacheEntry GrContext::findAndLockTexture(
-        GrTexture::TextureKey key,
         const GrTextureDesc& desc,
         const GrSamplerState* sampler) {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, key, desc, false);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, desc, false);
     return TextureCacheEntry(fTextureCache->findAndLock(resourceKey,
                                             GrResourceCache::kNested_LockType));
 }
 
-bool GrContext::isTextureInCache(GrTexture::TextureKey key,
-                                 const GrTextureDesc& desc,
+bool GrContext::isTextureInCache(const GrTextureDesc& desc,
                                  const GrSamplerState* sampler) const {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, key, desc, false);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, desc, false);
     return fTextureCache->hasKey(resourceKey);
 }
 
@@ -323,7 +321,6 @@ static void stretchImage(void* dst,
 }
 
 GrContext::TextureCacheEntry GrContext::createAndLockTexture(
-        GrTexture::TextureKey key,
         const GrSamplerState* sampler,
         const GrTextureDesc& desc,
         void* srcData,
@@ -336,19 +333,18 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
 
     TextureCacheEntry entry;
 
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, key,
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler,
                                                       desc, false);
 
     if (GrTexture::NeedsResizing(resourceKey)) {
         // The desired texture is NPOT and tiled but that isn't supported by 
         // the current hardware. Resize the texture to be a POT
         GrAssert(NULL != sampler);
-        TextureCacheEntry clampEntry = this->findAndLockTexture(key,
-                                                                desc,
+        TextureCacheEntry clampEntry = this->findAndLockTexture(desc,
                                                                 NULL);
 
         if (NULL == clampEntry.texture()) {
-            clampEntry = this->createAndLockTexture(key, NULL, desc,
+            clampEntry = this->createAndLockTexture(NULL, desc,
                                                     srcData, rowBytes);
             GrAssert(NULL != clampEntry.texture());
             if (NULL == clampEntry.texture()) {
@@ -438,8 +434,9 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
 GrContext::TextureCacheEntry GrContext::lockScratchTexture(
                                                 const GrTextureDesc& inDesc,
                                                 ScratchTexMatch match) {
-
     GrTextureDesc desc = inDesc;
+    desc.fClientCacheID = kScratch_CacheID;
+
     if (kExact_ScratchTexMatch != match) {
         // bin by pow2 with a reasonable min
         static const int MIN_SIZE = 256;
@@ -454,7 +451,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
     bool doubledH = false;
 
     do {
-        GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, 0, desc, true);
+        GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, desc, true);
         entry = fTextureCache->findAndLock(key,
                                            GrResourceCache::kNested_LockType);
         // if we miss, relax the fit of the flags...
@@ -487,7 +484,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
         desc.fHeight = origHeight;
         GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
         if (NULL != texture) {
-            GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, 0,
+            GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL,
                                                       texture->desc(),
                                                       true);
             entry = fTextureCache->createAndLock(key, texture);
@@ -515,10 +512,12 @@ void GrContext::unlockTexture(TextureCacheEntry entry) {
     }
 }
 
-GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& desc,
+GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,
                                             void* srcData,
                                             size_t rowBytes) {
-    return fGpu->createTexture(desc, srcData, rowBytes);
+    GrTextureDesc descCopy = descIn;
+    descCopy.fClientCacheID = kUncached_CacheID;
+    return fGpu->createTexture(descCopy, srcData, rowBytes);
 }
 
 void GrContext::getTextureCacheLimits(int* maxTextures,
@@ -1547,12 +1546,11 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         }
         // Make the scratch a render target because we don't have a robust
         // readTexturePixels as of yet (it calls this function).
-        const GrTextureDesc desc = {
-            kRenderTarget_GrTextureFlagBit,
-            width, height,
-            config,
-            0 // samples
-        };
+        GrTextureDesc desc;
+        desc.fFlags = kRenderTarget_GrTextureFlagBit;
+        desc.fWidth = width;
+        desc.fHeight = height;
+        desc.fConfig = config;
 
         // When a full readback is faster than a partial we could always make
         // the scratch exactly match the passed rect. However, if we see many
@@ -1705,9 +1703,11 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
         config = GrPixelConfigSwapRAndB(config);
     }
 
-    const GrTextureDesc desc = {
-        kNone_GrTextureFlags, width, height, config, 0
-    };
+    GrTextureDesc desc;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = config;
+
     GrAutoScratchTexture ast(this, desc);
     GrTexture* texture = ast.texture();
     if (NULL == texture) {
@@ -1992,13 +1992,11 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
              kRGBA_8888_PM_GrPixelConfig == srcTexture->config() ||
              kAlpha_8_GrPixelConfig == srcTexture->config());
 
-    const GrTextureDesc desc = {
-        kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit,
-        SkScalarFloorToInt(srcRect.width()),
-        SkScalarFloorToInt(srcRect.height()),
-        srcTexture->config(), 
-        0 // samples 
-    };
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc.fWidth = SkScalarFloorToInt(srcRect.width());
+    desc.fHeight = SkScalarFloorToInt(srcRect.height());
+    desc.fConfig = srcTexture->config();
 
     temp1->set(this, desc);
     if (temp2) {

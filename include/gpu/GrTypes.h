@@ -459,10 +459,24 @@ enum {
     kGrColorTableSize = 256 * 4 //sizeof(GrColor)
 };
 
+/*
+ * Default value for fClientCacheID
+ */
+static const uint64_t kDefault_CacheID = 0;
+
 /**
  * Describes a texture to be created.
  */
 struct GrTextureDesc {
+    GrTextureDesc() 
+    : fFlags(kNone_GrTextureFlags)
+    , fWidth(0)
+    , fHeight(0)
+    , fConfig(kUnknown_GrPixelConfig)
+    , fSampleCnt(0)
+    , fClientCacheID(kDefault_CacheID) {
+    }
+
     GrTextureFlags         fFlags;  //!< bitfield of TextureFlags
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
@@ -480,7 +494,15 @@ struct GrTextureDesc {
      * up to the next supported sample count, or down if it is larger than the
      * max supportex count.
      */
-    int fSampleCnt;
+    int                    fSampleCnt;
+
+    /**
+     * A user-provided texture ID. It should be unique to the texture data and
+     * does not need to take into account the width or height. Two textures
+     * with the same ID but different dimensions will not collide. This field
+     * is only relevant for textures that will be cached.
+     */
+    uint64_t               fClientCacheID;
 };
 
 /**

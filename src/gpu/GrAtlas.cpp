@@ -177,13 +177,12 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
     GrAssert(0 == kA8_GrMaskFormat);
     GrAssert(1 == kA565_GrMaskFormat);
     if (NULL == fTexture[format]) {
-        GrTextureDesc desc = {
-            kDynamicUpdate_GrTextureFlagBit,
-            GR_ATLAS_TEXTURE_WIDTH,
-            GR_ATLAS_TEXTURE_HEIGHT,
-            maskformat2pixelconfig(format),
-            0 // samples
-        };
+        GrTextureDesc desc;
+        desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
+        desc.fWidth = GR_ATLAS_TEXTURE_WIDTH;
+        desc.fHeight = GR_ATLAS_TEXTURE_HEIGHT;
+        desc.fConfig = maskformat2pixelconfig(format);
+
         fTexture[format] = fGpu->createTexture(desc, NULL, 0);
         if (NULL == fTexture[format]) {
             return NULL;
