@@ -267,7 +267,8 @@ public:
         kRadial_GradientType,
         kRadial2_GradientType,
         kSweep_GradientType,
-        kLast_GradientType = kSweep_GradientType
+        kConical_GradientType,
+        kLast_GradientType = kConical_GradientType
     };
 
     struct GradientInfo {

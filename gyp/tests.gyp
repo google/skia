@@ -43,6 +43,7 @@
         '../tests/GeometryTest.cpp',
         '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',
+        '../tests/GradientTest.cpp',
         '../tests/InfRectTest.cpp',
         '../tests/MathTest.cpp',
         '../tests/MatrixTest.cpp',
