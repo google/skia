@@ -680,31 +680,6 @@ static void write_picture_serialization(GM* gm, const ConfigData& rec,
     }
 }
 
-static void usage(const char * argv0) {
-    SkDebugf(
-        "%s [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n"
-        "    [--noreplay] [--pipe] [--serialize] [--forceBWtext] [--nopdf] \n"
-        "    [--tiledPipe] \n"
-        "    [--nodeferred] [--match substring] [--notexturecache]\n"
-        , argv0);
-    SkDebugf("    writePath: directory to write rendered images in.\n");
-    SkDebugf(
-"    readPath: directory to read reference images from;\n"
-"        reports if any pixels mismatch between reference and new images\n");
-    SkDebugf("    diffPath: directory to write difference images in.\n");
-    SkDebugf("    resourcePath: directory that stores image resources.\n");
-    SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
-    SkDebugf("    --pipe: Exercise SkGPipe replay.\n");
-    SkDebugf("    --tiledPipe: Exercise tiled SkGPipe replay.\n");
-    SkDebugf(
-"    --serialize: exercise SkPicture serialization & deserialization.\n");
-    SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
-    SkDebugf("    --nopdf: skip the pdf rendering test pass.\n");
-    SkDebugf("    --nodeferred: skip the deferred rendering test pass.\n");
-    SkDebugf("    --match foo: will only run tests that substring match foo.\n");
-    SkDebugf("    --notexturecache: disable the gpu texture cache.\n");
-}
-
 static const GrContextFactory::GLContextType kDontCare_GLContextType =
     GrContextFactory::kNative_GLContextType;
 
@@ -738,6 +713,50 @@ static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kPDFConfigFlags,   "pdf" },
 #endif
 };
+
+static void usage(const char * argv0) {
+    SkDebugf("%s\n", argv0);
+    SkDebugf("    [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n");
+    SkDebugf("    [-config ");
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        if (i > 0) {
+            SkDebugf("|");
+        }
+        SkDebugf(gRec[i].fName);
+    }
+    SkDebugf(" ]\n");
+    SkDebugf("    [--noreplay] [--pipe] [--serialize] [--forceBWtext] [--nopdf] \n"
+             "    [--tiledPipe] \n"
+             "    [--nodeferred] [--match substring] [--notexturecache]\n"
+             "    [-h|--help]\n"
+             );
+    SkDebugf("    writePath: directory to write rendered images in.\n");
+    SkDebugf(
+             "    readPath: directory to read reference images from;\n"
+             "        reports if any pixels mismatch between reference and new images\n");
+    SkDebugf("    diffPath: directory to write difference images in.\n");
+    SkDebugf("    resourcePath: directory that stores image resources.\n");
+    SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
+    SkDebugf("    --pipe: Exercise SkGPipe replay.\n");
+    SkDebugf("    --tiledPipe: Exercise tiled SkGPipe replay.\n");
+    SkDebugf(
+             "    --serialize: exercise SkPicture serialization & deserialization.\n");
+    SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
+    SkDebugf("    --nopdf: skip the pdf rendering test pass.\n");
+    SkDebugf("    --nodeferred: skip the deferred rendering test pass.\n");
+    SkDebugf("    --match foo: will only run tests that substring match foo.\n");
+    SkDebugf("    --notexturecache: disable the gpu texture cache.\n");
+    SkDebugf("    -h|--help : Show this help message. \n");
+}
+
+static int findConfig(const char config[]) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+        if (!strcmp(config, gRec[i].fName)) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
     if (0 == array.count()) {
@@ -812,6 +831,8 @@ int main(int argc, char * const argv[]) {
     bool doSerialize = false;
     bool doDeferred = true;
     bool disableTextureCache = false;
+    SkTDArray<size_t> configs;
+    bool userConfig = false;
 
     gNotifyMissingReadReference = true;
 
@@ -869,6 +890,28 @@ int main(int argc, char * const argv[]) {
             }
         } else if (strcmp(*argv, "--notexturecache") == 0) {
             disableTextureCache = true;
+        } else if (strcmp(*argv, "-config") == 0) {
+            argv++;
+            if (argv < stop) {
+                int index = findConfig(*argv);
+                if (index >= 0) {
+                    *configs.append() = index;
+                    userConfig = true;
+                } else {
+                    SkString str;
+                    str.printf("unrecognized config %s\n", *argv);
+                    SkDebugf(str.c_str());
+                    usage(commandName);
+                    return -1;
+                }
+            } else {
+                SkDebugf("missing arg for -config\n");
+                usage(commandName);
+                return -1;
+            }
+        } else if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
+            usage(commandName);
+            return -1;
         } else {
             usage(commandName);
             return -1;
@@ -877,6 +920,13 @@ int main(int argc, char * const argv[]) {
     if (argv != stop) {
         usage(commandName);
         return -1;
+    }
+
+    if (!userConfig) {
+        // if no config is specified by user, we add them all.
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+            *configs.append() = i;
+        }
     }
 
     GM::SetResourcePath(resourcePath);
@@ -920,11 +970,12 @@ int main(int argc, char * const argv[]) {
                  size.width(), size.height());
         SkBitmap forwardRenderedBitmap;
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+        for (int i = 0; i < configs.count(); i++) {
+            ConfigData config = gRec[configs[i]];
             SkAutoTUnref<GrRenderTarget> rt;
             AutoResetGr autogr;
-            if (kGPU_Backend == gRec[i].fBackend) {
-                GrContext* gr = grFactory->get(gRec[i].fGLContextType);
+            if (kGPU_Backend == config.fBackend) {
+                GrContext* gr = grFactory->get(config.fGLContextType);
                 if (!gr) {
                     continue;
                 }
@@ -935,7 +986,7 @@ int main(int argc, char * const argv[]) {
                 desc.fFlags = kRenderTarget_GrTextureFlagBit;
                 desc.fWidth = gm->getISize().width();
                 desc.fHeight = gm->getISize().height();
-                desc.fSampleCnt = gRec[i].fSampleCnt;
+                desc.fSampleCnt = config.fSampleCnt;
                 GrTexture* tex = gr->createUncachedTexture(desc, NULL, 0);
                 if (!tex) {
                     continue;
@@ -949,7 +1000,7 @@ int main(int argc, char * const argv[]) {
 
             // Skip any tests that we don't even need to try.
             uint32_t gmFlags = gm->getFlags();
-            if ((kPDF_Backend == gRec[i].fBackend) &&
+            if ((kPDF_Backend == config.fBackend) &&
                 (!doPDF || (gmFlags & GM::kSkipPDF_Flag)))
             {
                 continue;
@@ -960,57 +1011,57 @@ int main(int argc, char * const argv[]) {
             ErrorBitfield testErrors = ERROR_NONE;
 
             if ((ERROR_NONE == testErrors) &&
-                (kGPU_Backend == gRec[i].fBackend) &&
+                (kGPU_Backend == config.fBackend) &&
                 (NULL == rt.get())) {
                 fprintf(stderr, "Could not create render target for gpu.\n");
                 testErrors |= ERROR_NO_GPU_CONTEXT;
             }
 
             if (ERROR_NONE == testErrors) {
-                testErrors |= test_drawing(gm, gRec[i],
+                testErrors |= test_drawing(gm, config,
                                            writePath, readPath, diffPath,
                                            GetGr(),
                                            rt.get(), &forwardRenderedBitmap);
             }
 
             if (doDeferred && !testErrors &&
-                (kGPU_Backend == gRec[i].fBackend ||
-                 kRaster_Backend == gRec[i].fBackend)) {
-                testErrors |= test_deferred_drawing(gm, gRec[i],
+                (kGPU_Backend == config.fBackend ||
+                 kRaster_Backend == config.fBackend)) {
+                testErrors |= test_deferred_drawing(gm, config,
                                                     forwardRenderedBitmap,
                                                     diffPath, GetGr(), rt.get());
             }
 
             if ((ERROR_NONE == testErrors) && doReplay &&
                 !(gmFlags & GM::kSkipPicture_Flag)) {
-                testErrors |= test_picture_playback(gm, gRec[i],
+                testErrors |= test_picture_playback(gm, config,
                                                     forwardRenderedBitmap,
                                                     readPath, diffPath);
             }
 
             if ((ERROR_NONE == testErrors) && doPipe &&
                 !(gmFlags & GM::kSkipPipe_Flag)) {
-                testErrors |= test_pipe_playback(gm, gRec[i],
+                testErrors |= test_pipe_playback(gm, config,
                                                  forwardRenderedBitmap,
                                                  readPath, diffPath);
             }
 
             if ((ERROR_NONE == testErrors) && doTiledPipe &&
                 !(gmFlags & GM::kSkipPipe_Flag)) {
-                testErrors |= test_tiled_pipe_playback(gm, gRec[i],
+                testErrors |= test_tiled_pipe_playback(gm, config,
                                                  forwardRenderedBitmap,
                                                  readPath, diffPath);
             }
 
             if ((ERROR_NONE == testErrors) && doSerialize  &&
                 !(gmFlags & GM::kSkipPicture_Flag)) {
-                testErrors |= test_picture_serialization(gm, gRec[i],
+                testErrors |= test_picture_serialization(gm, config,
                                                          forwardRenderedBitmap,
                                                          readPath, diffPath);
             }
             
             if (!(gmFlags & GM::kSkipPicture_Flag) && writePicturePath) {
-                write_picture_serialization(gm, gRec[i], writePicturePath);
+                write_picture_serialization(gm, config, writePicturePath);
             }
 
             // Update overall results.
