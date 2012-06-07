@@ -16,16 +16,16 @@ namespace SimplifyNewTest {
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
 
-static SkBitmap bitmap;
-
-static bool testSimplifyx(const SkPath& path, SkPath& out, SkBitmap& bitmap) {
+static bool testSimplifyx(const SkPath& path) {
     if (false) {
         showPath(path);
     }
+    SkPath out;
     simplifyx(path, out);
     if (false) {
         return true;
     }
+    SkBitmap bitmap;
     return comparePaths(path, out, bitmap, 0) == 0;
 }
 
@@ -35,7 +35,7 @@ static void testLine1() {
     path.lineTo(1,1);
     path.lineTo(0,0);
     path.close();
-    testSimplifyx(path, simple, bitmap);
+    testSimplifyx(path);
 }
 
 static void addInnerCWTriangle(SkPath& path) {
@@ -70,41 +70,98 @@ static void testLine2() {
     SkPath path, simple;
     addInnerCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplifyx(path, simple, bitmap);
+    testSimplifyx(path);
 }
 
 static void testLine3() {
     SkPath path, simple;
     addInnerCCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplifyx(path, simple, bitmap);
+    testSimplifyx(path);
 }
 
 static void testLine4() {
     SkPath path, simple;
     addOuterCCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplifyx(path, simple, bitmap);
+    testSimplifyx(path);
 }
 
 static void testLine5() {
     SkPath path, simple;
     addOuterCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplifyx(path, simple, bitmap);
+    testSimplifyx(path);
 }
+
+static void testLine6() {
+    SkPath path, simple;
+    path.moveTo(0,0);
+    path.lineTo(4,0);
+    path.lineTo(2,2);
+    path.close();
+    path.moveTo(2,0);
+    path.lineTo(6,0);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testLine7() {
+    SkPath path, simple;
+    path.moveTo(0,0);
+    path.lineTo(4,0);
+    path.lineTo(2,2);
+    path.close();
+    path.moveTo(6,0);
+    path.lineTo(2,0);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testLine8() {
+    SkPath path, simple;
+    path.moveTo(0,4);
+    path.lineTo(4,4);
+    path.lineTo(2,2);
+    path.close();
+    path.moveTo(2,4);
+    path.lineTo(6,4);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testLine9() {
+    SkPath path, simple;
+    path.moveTo(0,4);
+    path.lineTo(4,4);
+    path.lineTo(2,2);
+    path.close();
+    path.moveTo(6,4);
+    path.lineTo(2,4);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+}
+
 
 static void (*tests[])() = {
     testLine1,
     testLine2,
     testLine3,
     testLine4,
-    testLine5
+    testLine5,
+    testLine6,
+    testLine7,
+    testLine8,
+    testLine9
 };
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
-static void (*firstTest)() = testLine5;
+static void (*firstTest)() = 0;
 static bool skipAll = false;
 
 void SimplifyNew_Test() {

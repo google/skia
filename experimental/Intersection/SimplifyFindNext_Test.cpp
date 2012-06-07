@@ -33,7 +33,7 @@ static const SimplifyFindNextTest::Segment* testCommon(
     int nextStart, nextEnd;
     SimplifyFindNextTest::Segment* next = segment.findNext(winding,
             startIndex, endIndex, nextStart, nextEnd);
-    pts[1] = next->xyAtT(&segment.span(nextStart));
+    pts[1] = next->xyAtT(&next->span(nextStart));
     SkASSERT(pts[0] == pts[1]);
     return next;
 }
