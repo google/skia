@@ -2057,24 +2057,34 @@ static int find_quad_roots(float A, float B, float C, float roots[2]) {
         return valid_divide(-C, B, roots);
     }
     
-    float* r = roots;
     float R = B*B - 4*A*C;
-    if (R < 0 || sk_float_isnan(R)) {  // complex roots
+    if (R < 0) {
         return 0;
     }
     R = sk_float_sqrt(R);
-    
-    float Q = (B < 0) ? -(B-R)/2 : -(B+R)/2;
-    r += valid_divide(Q, A, r);
-    r += valid_divide(C, Q, r);
-    if (r - roots == 2) {
-        if (roots[0] > roots[1]) {
-            SkTSwap<float>(roots[0], roots[1]);
-        } else if (roots[0] == roots[1]) {  // nearly-equal?
-            r -= 1; // skip the double root
-        }
+
+#if 1
+    float Q = B;
+    if (Q < 0) {
+        Q -= R;
+    } else {
+        Q += R;
     }
-    return (int)(r - roots);
+#else
+    // on 10.6 this was much slower than the above branch :(
+    float Q = B + copysignf(R, B);
+#endif
+    Q *= -0.5f;
+    if (0 == Q) {
+        roots[0] = 0;
+        return 1;
+    }
+
+    float r0 = Q / A;
+    float r1 = C / Q;
+    roots[0] = r0 < r1 ? r0 : r1;
+    roots[1] = r0 > r1 ? r0 : r1;
+    return 2;
 }
 
 static float lerp(float x, float dx, float t) {
@@ -2126,10 +2136,7 @@ struct TwoPtRadial {
     SkFixed nextT() {
         float roots[2];
         
-        float dx = fRelX;
-        float dy = fRelY;
-
-        float C = sqr(dx) + sqr(dy) - fRadius2;
+        float C = sqr(fRelX) + sqr(fRelY) - fRadius2;
         int countRoots = find_quad_roots(fA, fB, C, roots);
 
         fRelX += fIncX;
@@ -2155,15 +2162,15 @@ struct TwoPtRadial {
     }
     
     static bool DontDrawT(SkFixed t) {
-        return kDontDrawT == t;
+        return kDontDrawT == (uint32_t)t;
     }
 };
 
 typedef void (*TwoPointRadialProc)(TwoPtRadial* rec, SkPMColor* dstC,
                                    const SkPMColor* cache, int count);
 
-void twopoint_clamp(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
-                    const SkPMColor* SK_RESTRICT cache, int count) {
+static void twopoint_clamp(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+                           const SkPMColor* SK_RESTRICT cache, int count) {
     for (; count > 0; --count) {
         SkFixed t = rec->nextT();
         if (TwoPtRadial::DontDrawT(t)) {
@@ -2176,8 +2183,8 @@ void twopoint_clamp(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
     }
 }
 
-void twopoint_repeat(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
-                     const SkPMColor* SK_RESTRICT cache, int count) {
+static void twopoint_repeat(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+                            const SkPMColor* SK_RESTRICT cache, int count) {
     for (; count > 0; --count) {
         SkFixed t = rec->nextT();
         if (TwoPtRadial::DontDrawT(t)) {
@@ -2190,8 +2197,8 @@ void twopoint_repeat(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
     }
 }
 
-void twopoint_mirror(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
-                     const SkPMColor* SK_RESTRICT cache, int count) {
+static void twopoint_mirror(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+                            const SkPMColor* SK_RESTRICT cache, int count) {
     for (; count > 0; --count) {
         SkFixed t = rec->nextT();
         if (TwoPtRadial::DontDrawT(t)) {
