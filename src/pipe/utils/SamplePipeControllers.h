@@ -9,6 +9,7 @@
 #include "SkGPipe.h"
 
 class SkCanvas;
+class SkMatrix;
 
 class PipeController : public SkGPipeController {
 public:
@@ -30,7 +31,7 @@ private:
 
 class TiledPipeController : public PipeController {
 public:
-    TiledPipeController(const SkBitmap&);
+    TiledPipeController(const SkBitmap&, const SkMatrix* initialMatrix = NULL);
     virtual ~TiledPipeController() {};
     virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
 private:

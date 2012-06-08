@@ -6,9 +6,11 @@
  */
 
 #include "SamplePipeControllers.h"
+
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGPipe.h"
+#include "SkMatrix.h"
 
 PipeController::PipeController(SkCanvas* target)
 :fReader(target) {
@@ -37,7 +39,8 @@ void PipeController::notifyWritten(size_t bytes) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TiledPipeController::TiledPipeController(const SkBitmap& bitmap)
+TiledPipeController::TiledPipeController(const SkBitmap& bitmap,
+                                         const SkMatrix* initial)
 : INHERITED(NULL) {
     int32_t top = 0;
     int32_t bottom;
@@ -53,6 +56,9 @@ TiledPipeController::TiledPipeController(const SkBitmap& bitmap)
         SkDevice* device = new SkDevice(fBitmaps[i]);
         SkCanvas* canvas = new SkCanvas(device);
         device->unref();
+        if (initial != NULL) {
+            canvas->setMatrix(*initial);
+        }
         canvas->translate(SkIntToScalar(-rect.left()),
                           SkIntToScalar(-rect.top()));
         if (0 == i) {

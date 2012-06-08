@@ -157,7 +157,9 @@ private:
     bool fMagnify;
     
     
-    bool fUsePipe;
+    SkOSMenu::TriState fPipeState;  // Mixed uses a tiled pipe
+                                    // On uses a normal pipe
+                                    // Off uses no pipe
     int  fUsePipeMenuItemID;
     bool fDebugger;
     

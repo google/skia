@@ -10,6 +10,7 @@
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/gpu', # To pull gl/GrGLUtil.h
+        '../src/pipe/utils', # For TiledPipeController
       ],
       'includes': [
         'gmslides.gypi',
@@ -131,6 +132,10 @@
         '../experimental/Debugger/DebuggerStateView.cpp',
         '../experimental/Debugger/SkDebugDumper.cpp',
         '../experimental/Debugger/SkDebugDumper.h',
+
+        # TiledPipeController
+        '../src/pipe/utils/SamplePipeControllers.h',
+        '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
