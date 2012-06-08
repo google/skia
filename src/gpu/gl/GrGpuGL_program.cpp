@@ -377,6 +377,7 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
     // and bailed if not true.
     GrAssert(NULL != drawState.getRenderTarget());
 
+    this->flushMiscFixedFunctionState();
     this->flushStencil();
     this->flushAAState(type);
 
