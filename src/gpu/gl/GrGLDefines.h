@@ -67,16 +67,6 @@
 /*      GL_SRC1_ALPHA */
 #define GR_GL_ONE_MINUS_SRC1_ALPHA           0x88FB
 
-/* BlendEquationSeparate */
-#define GR_GL_FUNC_ADD                       0x8006
-#define GR_GL_BLEND_EQUATION                 0x8009
-#define GR_GL_BLEND_EQUATION_RGB             0x8009    /* same as BLEND_EQUATION */
-#define GR_GL_BLEND_EQUATION_ALPHA           0x883D
-
-/* BlendSubtract */
-#define GR_GL_FUNC_SUBTRACT                  0x800A
-#define GR_GL_FUNC_REVERSE_SUBTRACT          0x800B
-
 /* Separate Blend Functions */
 #define GR_GL_BLEND_DST_RGB                  0x80C8
 #define GR_GL_BLEND_SRC_RGB                  0x80C9

@@ -44,7 +44,6 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         NULL == fBindTexture ||
         NULL == fBlendFunc ||
         NULL == fBlendColor ||      // -> GL >= 1.4, ES >= 2.0 or extension
-        NULL == fBlendEquation ||   // -> GL >= 1.4, ES >= 2.0 or extension
         NULL == fBufferData ||
         NULL == fBufferSubData ||
         NULL == fClear ||

@@ -43,17 +43,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fBlendFunc = glBlendFunc;
 
         if (glVer >= GR_GL_VER(1,4) ||
-            GrGLHasExtensionFromString("GL_ARB_imaging", extString)) {
+            GrGLHasExtensionFromString("GL_ARB_imaging", extString) ||
+            GrGLHasExtensionFromString("GL_EXT_blend_color", extString)) {
             GR_GL_GET_PROC(BlendColor);
-            GR_GL_GET_PROC(BlendEquation);
-        } else {
-            if (GrGLHasExtensionFromString("GL_EXT_blend_color", extString)) {
-                GR_GL_GET_PROC_SUFFIX(BlendColor, EXT);
-            } 
-            if (GrGLHasExtensionFromString("GL_EXT_blend_minmax", extString) ||
-                GrGLHasExtensionFromString("GL_EXT_blend_subtract", extString)) {
-                GR_GL_GET_PROC_SUFFIX(BlendEquation, EXT);
-            } 
         } 
 
         GR_GL_GET_PROC(BufferData);
@@ -62,7 +54,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fClearColor = glClearColor;
         interface->fClearStencil = glClearStencil;
         interface->fColorMask = glColorMask;
-        interface->fColorPointer = glColorPointer;
         GR_GL_GET_PROC(CompileShader);
         interface->fCompressedTexImage2D = glCompressedTexImage2D;
         GR_GL_GET_PROC(CreateProgram);

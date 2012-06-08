@@ -46,7 +46,6 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         GR_GET_PROC(GrGLBindTextureProc,        BindTexture);
         GR_GET_PROC(GrGLBlendColorProc,         BlendColor);
         GR_GET_PROC(GrGLBlendFuncProc,          BlendFunc);
-        GR_GET_PROC(GrGLBlendEquationProc,      BlendEquation);
         GR_GET_PROC(GrGLBufferDataProc,         BufferData);
         GR_GET_PROC(GrGLBufferSubDataProc,      BufferSubData);
         GR_GET_PROC(GrGLClearProc,              Clear);
