@@ -31,6 +31,9 @@
 #include "SkPDFDocument.h"
 #include "SkStream.h"
 
+#include "SkGPipe.h"
+#include "SamplePipeControllers.h"
+
 extern SampleView* CreateSamplePictFileView(const char filename[]);
 
 class PictFileFactory : public SkViewFactory {
@@ -42,9 +45,6 @@ public:
     }
 };
 
-#define TEST_GPIPE
-
-#ifdef  TEST_GPIPE
 #define PIPE_FILEx
 #ifdef  PIPE_FILE
 #define FILE_PATH "/path/to/drawing.data"
@@ -63,7 +63,6 @@ extern bool is_debugger(SkView* view);
 SkTDArray<char> gTempDataStore;
 #endif
 
-#endif
 
 #define USE_ARROWS_FOR_ZOOM true
 
@@ -761,7 +760,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fPerspAnimTime = 0;
     fScale = false;
     fRequestGrabImage = false;
-    fUsePipe = false;
+    fPipeState = SkOSMenu::kOffState;
     fMeasureFPS = false;
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
@@ -807,8 +806,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->assignKeyEquivalentToItem(itemID, 'n');
     itemID = fAppMenu->appendTriState("Hinting", "Hinting", sinkID, fHintingState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
-    fUsePipeMenuItemID = fAppMenu->appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
-    fAppMenu->assignKeyEquivalentToItem(fUsePipeMenuItemID, 'p');
+    fUsePipeMenuItemID = fAppMenu->appendTriState("Pipe", "Pipe" , sinkID,
+                                                  fPipeState);    
+    fAppMenu->assignKeyEquivalentToItem(fUsePipeMenuItemID, 'P');
 #ifdef DEBUGGER
     itemID = fAppMenu->appendSwitch("Debugger", "Debugger", sinkID, fDebugger);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'q');
@@ -1345,10 +1345,12 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     SkView* curr = curr_view(this);
     if (fDebugger && !is_debugger(curr) && !is_transition(curr) && !is_overview(curr)) {
         //Stop Pipe when fDebugger is active
-        fUsePipe = false;
-        (void)SampleView::SetUsePipe(curr, false);
-        fAppMenu->getItemByID(fUsePipeMenuItemID)->setBool(fUsePipe);
-        this->onUpdateMenu(fAppMenu);
+        if (fPipeState != SkOSMenu::kOffState) {
+            fPipeState = SkOSMenu::kOffState;
+            (void)SampleView::SetUsePipe(curr, fPipeState);
+            fAppMenu->getItemByID(fUsePipeMenuItemID)->setTriState(fPipeState);
+            this->onUpdateMenu(fAppMenu);
+        }
         
         //Reset any transformations
         fGesture.stop();
@@ -1406,7 +1408,6 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     if (fPerspAnim) {
         this->inval(NULL);
     }
-    //(void)SampleView::SetUsePipe(child, fUsePipe);
 }
 
 void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
@@ -1554,12 +1555,12 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->setDeviceType((DeviceType)selected);
         return true; 
     }
-    if (SkOSMenu::FindSwitchState(evt, "Pipe", &fUsePipe)) {
+    if (SkOSMenu::FindTriState(evt, "Pipe", &fPipeState)) {
 #ifdef PIPE_NET
-        if (!fUsePipe)
+        if (!fPipeState != SkOSMenu::kOnState)
             gServer.disconnectAll();
 #endif
-        (void)SampleView::SetUsePipe(curr_view(this), fUsePipe);
+        (void)SampleView::SetUsePipe(curr_view(this), fPipeState);
         this->updateTitle();
         this->inval(NULL);
         return true;
@@ -1598,10 +1599,10 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
 #ifdef DEBUGGER
     if (SkOSMenu::FindSwitchState(evt, "Debugger", &fDebugger)) {
         if (fDebugger) {
-            fUsePipe = true;
-            (void)SampleView::SetUsePipe(curr_view(this), true);
+            fPipeState = SkOSMenu::kOnState;
+            (void)SampleView::SetUsePipe(curr_view(this), fPipeState);
         } else {
-            this->loadView(fSamples[fCurrIndex]());
+            this->loadView((*fSamples[fCurrIndex])());
         }
         this->inval(NULL);
         return true;
@@ -1918,10 +1919,10 @@ void SampleWindow::loadView(SkView* view) {
 #ifdef DEBUGGER
     if (!is_debugger(view) && !is_overview(view) && !is_transition(view) && fDebugger) {
         //Force Pipe to be on if using debugger
-        fUsePipe = true;
+        fPipeState = SkOSMenu::kOnState;
     }
 #endif
-    (void)SampleView::SetUsePipe(view, fUsePipe);
+    (void)SampleView::SetUsePipe(view, fPipeState);
     if (SampleView::IsSampleView(view))
         ((SampleView*)view)->requestMenu(fSlideMenu);
     this->onUpdateMenu(fSlideMenu);
@@ -2014,10 +2015,18 @@ void SampleWindow::updateTitle() {
     if (fMeasureFPS) {
         title.appendf(" %6.1f ms", fMeasureFPS_Time / (float)FPS_REPEAT_MULTIPLIER);
     }
-    if (fUsePipe && SampleView::IsSampleView(view)) {
-        title.prepend("<P> ");
-    }
     if (SampleView::IsSampleView(view)) {
+        switch (fPipeState) {
+            case SkOSMenu::kOnState:
+                title.prepend("<Pipe> ");
+                break;
+            case SkOSMenu::kMixedState:
+                title.prepend("<Tiled Pipe> ");
+                break;
+                
+            default:
+                break;
+        }
         title.prepend("! ");
     }
 
@@ -2089,9 +2098,9 @@ bool SampleView::SetRepeatDraw(SkView* view, int count) {
     return view->doEvent(evt);
 }
 
-bool SampleView::SetUsePipe(SkView* view, bool pred) {
-    SkEvent evt(set_use_pipe_tag);
-    evt.setFast32(pred);
+bool SampleView::SetUsePipe(SkView* view, SkOSMenu::TriState state) {
+    SkEvent evt;
+    evt.setS32(set_use_pipe_tag, state);
     return view->doEvent(evt);
 }
 
@@ -2100,8 +2109,9 @@ bool SampleView::onEvent(const SkEvent& evt) {
         fRepeatCount = evt.getFast32();
         return true;
     }
-    if (evt.isType(set_use_pipe_tag)) {
-        fUsePipe = !!evt.getFast32();
+    int32_t pipeHolder;
+    if (evt.findS32(set_use_pipe_tag, &pipeHolder)) {
+        fPipeState = static_cast<SkOSMenu::TriState>(pipeHolder);
         return true;
     }
     return this->INHERITED::onEvent(evt);
@@ -2114,18 +2124,12 @@ bool SampleView::onQuery(SkEvent* evt) {
     return this->INHERITED::onQuery(evt);
 }
 
-#ifdef TEST_GPIPE
-    #include "SkGPipe.h"
 
 class SimplePC : public SkGPipeController {
 public:
     SimplePC(SkCanvas* target);
     ~SimplePC();
     
-    /**
-     * User this method to halt/restart pipe
-     */
-    void setWriteToPipe(bool writeToPipe) { fWriteToPipe = writeToPipe; }
     virtual void* requestBlock(size_t minRequest, size_t* actual);
     virtual void notifyWritten(size_t bytes);
 
@@ -2136,7 +2140,6 @@ private:
     size_t          fBytesWritten;
     int             fAtomsWritten;
     SkGPipeReader::Status   fStatus;
-    bool            fWriteToPipe;
 
     size_t        fTotalWritten;
 };
@@ -2147,33 +2150,30 @@ SimplePC::SimplePC(SkCanvas* target) : fReader(target) {
     fStatus = SkGPipeReader::kDone_Status;
     fTotalWritten = 0;
     fAtomsWritten = 0;
-    fWriteToPipe = true;
 }
 
 SimplePC::~SimplePC() {
 //    SkASSERT(SkGPipeReader::kDone_Status == fStatus);
     if (fTotalWritten) {
-        if (fWriteToPipe) {
-            SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
-                     fAtomsWritten, fStatus);
+        SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
+                 fAtomsWritten, fStatus);
 #ifdef  PIPE_FILE
-            //File is open in append mode
-            FILE* f = fopen(FILE_PATH, "ab");
-            SkASSERT(f != NULL);
-            fwrite((const char*)fBlock + fBytesWritten, 1, bytes, f);
-            fclose(f);
+        //File is open in append mode
+        FILE* f = fopen(FILE_PATH, "ab");
+        SkASSERT(f != NULL);
+        fwrite((const char*)fBlock + fBytesWritten, 1, bytes, f);
+        fclose(f);
 #endif
 #ifdef PIPE_NET
-            if (fAtomsWritten > 1 && fTotalWritten > 4) { //ignore done
-                gServer.acceptConnections();
-                gServer.writePacket(fBlock, fTotalWritten);
-            }
+        if (fAtomsWritten > 1 && fTotalWritten > 4) { //ignore done
+            gServer.acceptConnections();
+            gServer.writePacket(fBlock, fTotalWritten);
+        }
 #endif
 #ifdef  DEBUGGER
-            gTempDataStore.reset();
-            gTempDataStore.append(fTotalWritten, (const char*)fBlock);
+        gTempDataStore.reset();
+        gTempDataStore.append(fTotalWritten, (const char*)fBlock);
 #endif
-        }
     }
     sk_free(fBlock);
 }
@@ -2198,27 +2198,29 @@ void SimplePC::notifyWritten(size_t bytes) {
     fAtomsWritten += 1;
 }
 
-#endif
-
 void SampleView::draw(SkCanvas* canvas) {
-#ifdef TEST_GPIPE
-    if (fUsePipe) {
+    if (SkOSMenu::kOffState == fPipeState) {
+        this->INHERITED::draw(canvas);
+    } else {
         SkGPipeWriter writer;
         SimplePC controller(canvas);
+        TiledPipeController tc(canvas->getDevice()->accessBitmap(false),
+                               &canvas->getTotalMatrix());
+        SkGPipeController* pc;
+        if (SkOSMenu::kMixedState == fPipeState) {
+            pc = &tc;
+        } else {
+            pc = &controller;
+        }
         uint32_t flags = SkGPipeWriter::kCrossProcess_Flag;
-        canvas = writer.startRecording(&controller, flags);
+        
+        canvas = writer.startRecording(pc, flags);
         //Must draw before controller goes out of scope and sends data
         this->INHERITED::draw(canvas);
         //explicitly end recording to ensure writer is flushed before the memory
         //is freed in the deconstructor of the controller
         writer.endRecording();
-        controller.setWriteToPipe(fUsePipe);
     }
-    else
-        this->INHERITED::draw(canvas);
-#else
-    this->INHERITED::draw(canvas);
-#endif
 }
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);

@@ -28,7 +28,7 @@ public:
         fPrev = prev;
         fPrev->setClipToBounds(false);
         fPrev->setVisibleP(true);
-        (void)SampleView::SetUsePipe(fPrev, false);
+        (void)SampleView::SetUsePipe(fPrev, SkOSMenu::kOffState);
         //Not calling unref because fPrev is assumed to have been created, so 
         //this will result in a transfer of ownership
         this->attachChildToBack(fPrev);
@@ -36,7 +36,7 @@ public:
         fNext = next;
         fNext->setClipToBounds(true);
         fNext->setVisibleP(true);
-        (void)SampleView::SetUsePipe(fNext, false);
+        (void)SampleView::SetUsePipe(fNext, SkOSMenu::kOffState);
         //Calling unref because next is a newly created view and TransitionView
         //is now the sole owner of fNext
         this->attachChildToFront(fNext)->unref();
@@ -73,7 +73,7 @@ protected:
         if (evt.isType(gReplaceTransitionEvt)) {
             fPrev->detachFromParent();
             fPrev = (SkView*)SkEventSink::FindSink(evt.getFast32());
-            (void)SampleView::SetUsePipe(fPrev, false);
+            (void)SampleView::SetUsePipe(fPrev, SkOSMenu::kOffState);
             //attach the new fPrev and call unref to balance the ref in onDraw
             this->attachChildToBack(fPrev)->unref();
             this->inval(NULL);
@@ -99,7 +99,7 @@ protected:
             return;
 
         if (is_overview(fNext) || is_overview(fPrev)) {
-            fUsePipe = false;
+            fPipeState = SkOSMenu::kOffState;
         }
         
         SkScalar values[4];

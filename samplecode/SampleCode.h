@@ -14,7 +14,7 @@
 #include "SkEvent.h"
 #include "SkKey.h"
 #include "SkView.h"
-class SkOSMenu;
+#include "SkOSMenu.h"
 class GrContext;
 
 class SampleCode {
@@ -107,15 +107,15 @@ private:
 
 class SampleView : public SkView {
 public:
-    SampleView() : fBGColor(SK_ColorWHITE), fRepeatCount(1) {
-        fUsePipe = false;
+    SampleView() : fPipeState(SkOSMenu::kOffState), 
+            fBGColor(SK_ColorWHITE), fRepeatCount(1) {
     }
 
     void setBGColor(SkColor color) { fBGColor = color; }
 
     static bool IsSampleView(SkView*);
     static bool SetRepeatDraw(SkView*, int count);
-    static bool SetUsePipe(SkView*, bool);
+    static bool SetUsePipe(SkView*, SkOSMenu::TriState);
     
     /**
      *  Call this to request menu items from a SampleView.
@@ -136,7 +136,7 @@ protected:
     virtual void draw(SkCanvas*);
     virtual void onDraw(SkCanvas*);
 
-    bool fUsePipe;
+    SkOSMenu::TriState fPipeState;
     SkColor fBGColor;
     
 private:
