@@ -351,13 +351,13 @@ public:
      *  Write the region to the buffer, and return the number of bytes written.
      *  If buffer is NULL, it still returns the number of bytes.
      */
-    uint32_t flatten(void* buffer) const;
+    uint32_t writeToMemory(void* buffer) const;
 
     /**
      *  Initialized the region from the buffer, returning the number
      *  of bytes actually read.
      */
-    uint32_t unflatten(const void* buffer);
+    uint32_t readFromMemory(const void* buffer);
 
     /**
      *  Returns a reference to a global empty region. Just a convenience for

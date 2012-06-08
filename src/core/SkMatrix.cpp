@@ -1737,7 +1737,7 @@ const SkMatrix& SkMatrix::InvalidMatrix() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-uint32_t SkMatrix::flatten(void* buffer) const {
+uint32_t SkMatrix::writeToMemory(void* buffer) const {
     // TODO write less for simple matrices
     if (buffer) {
         memcpy(buffer, fMat, 9 * sizeof(SkScalar));
@@ -1745,7 +1745,7 @@ uint32_t SkMatrix::flatten(void* buffer) const {
     return 9 * sizeof(SkScalar);
 }
 
-uint32_t SkMatrix::unflatten(const void* buffer) {
+uint32_t SkMatrix::readFromMemory(const void* buffer) {
     if (buffer) {
         memcpy(fMat, buffer, 9 * sizeof(SkScalar));
         this->setTypeMask(kUnknown_Mask);

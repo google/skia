@@ -84,19 +84,19 @@ static bool is_identity(const SkMatrix& m) {
 static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
     // add 100 in case we have a bug, I don't want to kill my stack in the test
     char buffer[SkMatrix::kMaxFlattenSize + 100];
-    uint32_t size1 = m.flatten(NULL);
-    uint32_t size2 = m.flatten(buffer);
+    uint32_t size1 = m.writeToMemory(NULL);
+    uint32_t size2 = m.writeToMemory(buffer);
     REPORTER_ASSERT(reporter, size1 == size2);
     REPORTER_ASSERT(reporter, size1 <= SkMatrix::kMaxFlattenSize);
     
     SkMatrix m2;
-    uint32_t size3 = m2.unflatten(buffer);
-    REPORTER_ASSERT(reporter, size1 == size2);
+    uint32_t size3 = m2.readFromMemory(buffer);
+    REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, are_equal(reporter, m, m2));
     
     char buffer2[SkMatrix::kMaxFlattenSize + 100];
-    size3 = m2.flatten(buffer2);
-    REPORTER_ASSERT(reporter, size1 == size2);
+    size3 = m2.writeToMemory(buffer2);
+    REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, memcmp(buffer, buffer2, size1) == 0);
 }
 

@@ -142,7 +142,7 @@ template <typename T> const T* skipAlign(SkReader32* reader, int count = 1) {
 static void clipPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     SkPath path;
-    path.unflatten(*reader);
+    reader->readPath(&path);
     canvas->clipPath(path, (SkRegion::Op)DrawOp_unpackData(op32),
                      reader->readBool());
 }
@@ -260,7 +260,7 @@ static void drawRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 static void drawPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     SkPath path;
-    path.unflatten(*reader);
+    reader->readPath(&path);
     canvas->drawPath(path, state->paint());
 }
 
@@ -331,7 +331,7 @@ static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op3
     const void* text = reader->skip(SkAlign4(len));
 
     SkPath path;
-    path.unflatten(*reader);
+    reader->readPath(&path);
 
     SkMatrix matrixStorage;
     const SkMatrix* matrix = NULL;

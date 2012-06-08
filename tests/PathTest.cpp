@@ -700,7 +700,7 @@ static void test_flattening(skiatest::Reporter* reporter) {
     p.cubicTo(pts[4], pts[5], pts[6]);
 
     SkWriter32 writer(100);
-    p.flatten(writer);
+    writer.writePath(p);
     size_t size = writer.size();
     SkAutoMalloc storage(size);
     writer.flatten(storage.get());
@@ -708,8 +708,25 @@ static void test_flattening(skiatest::Reporter* reporter) {
 
     SkPath p1;
     REPORTER_ASSERT(reporter, p1 != p);
-    p1.unflatten(reader);
+    reader.readPath(&p1);
     REPORTER_ASSERT(reporter, p1 == p);
+
+    // create a buffer that should be much larger than the path so we don't
+    // kill our stack if writer goes too far.
+    char buffer[1024];
+    uint32_t size1 = p.writeToMemory(NULL);
+    uint32_t size2 = p.writeToMemory(buffer);
+    REPORTER_ASSERT(reporter, size1 == size2);
+
+    SkPath p2;
+    uint32_t size3 = p2.readFromMemory(buffer);
+    REPORTER_ASSERT(reporter, size1 == size3);
+    REPORTER_ASSERT(reporter, p == p2);
+
+    char buffer2[1024];
+    size3 = p2.writeToMemory(buffer2);
+    REPORTER_ASSERT(reporter, size1 == size3);
+    REPORTER_ASSERT(reporter, memcmp(buffer, buffer2, size1) == 0);
 }
 
 static void test_transform(skiatest::Reporter* reporter) {

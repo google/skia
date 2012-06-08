@@ -507,13 +507,13 @@ public:
     }
 
     enum {
-        // flatten/unflatten will never return a value larger than this
+        // writeTo/readFromMemory will never return a value larger than this
         kMaxFlattenSize = 9 * sizeof(SkScalar) + sizeof(uint32_t)
     };
     // return the number of bytes written, whether or not buffer is null
-    uint32_t flatten(void* buffer) const;
+    uint32_t writeToMemory(void* buffer) const;
     // return the number of bytes read
-    uint32_t unflatten(const void* buffer);
+    uint32_t readFromMemory(const void* buffer);
     
     void dump() const;
     void toDumpString(SkString*) const;

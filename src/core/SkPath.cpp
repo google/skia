@@ -8,8 +8,7 @@
 
 
 #include "SkPath.h"
-#include "SkReader32.h"
-#include "SkWriter32.h"
+#include "SkBuffer.h"
 #include "SkMath.h"
 
 // This value is just made-up for now. When count is 4, calling memset was much
@@ -1685,20 +1684,31 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
-    Format in flattened buffer: [ptCount, verbCount, pts[], verbs[]]
+    Format in compressed buffer: [ptCount, verbCount, pts[], verbs[]]
 */
 
-void SkPath::flatten(SkWriter32& buffer) const {
+uint32_t SkPath::writeToMemory(void* storage) const {
     SkDEBUGCODE(this->validate();)
 
+    if (NULL == storage) {
+        const int byteCount = 3 * sizeof(int32_t)
+                      + sizeof(SkPoint) * fPts.count()
+                      + sizeof(uint8_t) * fVerbs.count();
+        return SkAlign4(byteCount);
+    }
+
+    SkWBuffer   buffer(storage);
     buffer.write32(fPts.count());
     buffer.write32(fVerbs.count());
     buffer.write32((fFillType << 8) | fSegmentMask);
-    buffer.writeMul4(fPts.begin(), sizeof(SkPoint) * fPts.count());
-    buffer.writePad(fVerbs.begin(), fVerbs.count());
+    buffer.write(fPts.begin(), sizeof(SkPoint) * fPts.count());
+    buffer.write(fVerbs.begin(), fVerbs.count());
+    buffer.padToAlign4();
+    return buffer.pos();
 }
 
-void SkPath::unflatten(SkReader32& buffer) {
+uint32_t SkPath::readFromMemory(const void* storage) {
+    SkRBuffer   buffer(storage);
     fPts.setCount(buffer.readS32());
     fVerbs.setCount(buffer.readS32());
     uint32_t packed = buffer.readS32();
@@ -1706,11 +1716,13 @@ void SkPath::unflatten(SkReader32& buffer) {
     fSegmentMask = packed & 0xFF;
     buffer.read(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.read(fVerbs.begin(), fVerbs.count());
+    buffer.skipToAlign4();
 
     GEN_ID_INC;
     DIRTY_AFTER_EDIT;
 
     SkDEBUGCODE(this->validate();)
+    return buffer.pos();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
