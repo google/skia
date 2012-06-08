@@ -540,6 +540,14 @@ void sk_blit_below(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const SkIRect gHugeIRect = {
+    SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32
+};
+
+/**
+ *  If the caller is drawing an inverse-fill path, then it shouldn't pass a
+ *  huge rect for ir, since the path draws "everywhere".
+ */
 SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
                              const SkIRect& ir) {
     fBlitter = NULL;     // null means blit nothing
@@ -610,7 +618,8 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
-    SkScanClipper   clipper(blitter, clipPtr, ir);
+    SkScanClipper clipper(blitter, clipPtr,
+                          path.isInverseFillType() ? gHugeIRect : ir);
 
     blitter = clipper.getBlitter();
     if (blitter) {
