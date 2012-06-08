@@ -1831,6 +1831,7 @@ SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(
         desc.fWidth = bitmap.width();
         desc.fHeight = bitmap.height();
         desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap.config());
+        desc.fClientCacheID = key;
 
         entry = ctx->findAndLockTexture(desc, sampler);
         if (NULL == entry.texture()) {
