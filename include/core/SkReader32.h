@@ -11,6 +11,7 @@
 #define SkReader32_DEFINED
 
 #include "SkMatrix.h"
+#include "SkPath.h"
 #include "SkRegion.h"
 #include "SkScalar.h"
 
@@ -92,14 +93,20 @@ public:
     int32_t readS32() { return this->readInt(); }
     uint32_t readU32() { return this->readInt(); }
 
+    void readPath(SkPath* path) {
+        size_t size = path->readFromMemory(this->peek());
+        SkASSERT(SkAlign4(size) == size);
+        (void)this->skip(size);
+    }
+
     void readMatrix(SkMatrix* matrix) {
-        size_t size = matrix->unflatten(this->peek());
+        size_t size = matrix->readFromMemory(this->peek());
         SkASSERT(SkAlign4(size) == size);
         (void)this->skip(size);
     }
 
     void readRegion(SkRegion* rgn) {
-        size_t size = rgn->unflatten(this->peek());
+        size_t size = rgn->readFromMemory(this->peek());
         SkASSERT(SkAlign4(size) == size);
         (void)this->skip(size);
     }

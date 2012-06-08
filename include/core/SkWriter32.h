@@ -13,6 +13,7 @@
 #include "SkTypes.h"
 
 #include "SkScalar.h"
+#include "SkPath.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkMatrix.h"
@@ -88,16 +89,22 @@ public:
         *(SkRect*)this->reserve(sizeof(rect)) = rect;
     }
 
-    void writeMatrix(const SkMatrix& matrix) {
-        size_t size = matrix.flatten(NULL);
+    void writePath(const SkPath& path) {
+        size_t size = path.writeToMemory(NULL);
         SkASSERT(SkAlign4(size) == size);
-        matrix.flatten(this->reserve(size));
+        path.writeToMemory(this->reserve(size));
+    }
+
+    void writeMatrix(const SkMatrix& matrix) {
+        size_t size = matrix.writeToMemory(NULL);
+        SkASSERT(SkAlign4(size) == size);
+        matrix.writeToMemory(this->reserve(size));
     }
     
     void writeRegion(const SkRegion& rgn) {
-        size_t size = rgn.flatten(NULL);
+        size_t size = rgn.writeToMemory(NULL);
         SkASSERT(SkAlign4(size) == size);
-        rgn.flatten(this->reserve(size));
+        rgn.writeToMemory(this->reserve(size));
     }
 
     // write count bytes (must be a multiple of 4)

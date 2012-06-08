@@ -784,8 +784,16 @@ public:
     void dump(bool forceClose, const char title[] = NULL) const;
     void dump() const;
 
-    void flatten(SkWriter32&) const;
-    void unflatten(SkReader32&);
+    /**
+     *  Write the region to the buffer, and return the number of bytes written.
+     *  If buffer is NULL, it still returns the number of bytes.
+     */
+    uint32_t writeToMemory(void* buffer) const;
+    /**
+     *  Initialized the region from the buffer, returning the number
+     *  of bytes actually read.
+     */
+    uint32_t readFromMemory(const void* buffer);
 
 #ifdef SK_BUILD_FOR_ANDROID
     uint32_t getGenerationID() const;

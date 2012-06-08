@@ -1076,7 +1076,7 @@ bool SkRegion::op(const SkRegion& rgna, const SkRegion& rgnb, Op op) {
 
 #include "SkBuffer.h"
 
-uint32_t SkRegion::flatten(void* storage) const {
+uint32_t SkRegion::writeToMemory(void* storage) const {
     if (NULL == storage) {
         uint32_t size = sizeof(int32_t); // -1 (empty), 0 (rect), runCount
         if (!this->isEmpty()) {
@@ -1109,7 +1109,7 @@ uint32_t SkRegion::flatten(void* storage) const {
     return buffer.pos();
 }
 
-uint32_t SkRegion::unflatten(const void* storage) {
+uint32_t SkRegion::readFromMemory(const void* storage) {
     SkRBuffer   buffer(storage);
     SkRegion    tmp;
     int32_t     count;

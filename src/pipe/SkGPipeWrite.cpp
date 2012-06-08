@@ -43,22 +43,6 @@ static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
     return NULL;
 }
 
-static size_t estimateFlattenSize(const SkPath& path) {
-    int n = path.countPoints();
-    size_t bytes = 3 * sizeof(int32_t);
-    bytes += n * sizeof(SkPoint);
-    bytes += SkAlign4(n + 2);    // verbs: add 2 for move/close extras
-
-#ifdef SK_DEBUG
-    {
-        SkWriter32 writer(1024);
-        path.flatten(writer);
-        SkASSERT(writer.size() <= bytes);
-    }
-#endif
-    return bytes;
-}
-
 static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
     SkASSERT(typeface);
     SkDynamicMemoryWStream stream;
@@ -449,7 +433,7 @@ bool SkGPipeCanvas::skew(SkScalar sx, SkScalar sy) {
 bool SkGPipeCanvas::concat(const SkMatrix& matrix) {
     if (!matrix.isIdentity()) {
         NOTIFY_SETUP(this);
-        if (this->needOpBytes(matrix.flatten(NULL))) {
+        if (this->needOpBytes(matrix.writeToMemory(NULL))) {
             this->writeOp(kConcat_DrawOp);
             fWriter.writeMatrix(matrix);
         }
@@ -459,7 +443,7 @@ bool SkGPipeCanvas::concat(const SkMatrix& matrix) {
 
 void SkGPipeCanvas::setMatrix(const SkMatrix& matrix) {
     NOTIFY_SETUP(this);
-    if (this->needOpBytes(matrix.flatten(NULL))) {
+    if (this->needOpBytes(matrix.writeToMemory(NULL))) {
         this->writeOp(kSetMatrix_DrawOp);
         fWriter.writeMatrix(matrix);
     }
@@ -480,9 +464,9 @@ bool SkGPipeCanvas::clipRect(const SkRect& rect, SkRegion::Op rgnOp,
 bool SkGPipeCanvas::clipPath(const SkPath& path, SkRegion::Op rgnOp,
                              bool doAntiAlias) {
     NOTIFY_SETUP(this);
-    if (this->needOpBytes(estimateFlattenSize(path)) + sizeof(bool)) {
+    if (this->needOpBytes(path.writeToMemory(NULL)) + sizeof(bool)) {
         this->writeOp(kClipPath_DrawOp, 0, rgnOp);
-        path.flatten(fWriter);
+        fWriter.writePath(path);
         fWriter.writeBool(doAntiAlias);
     }
     // we just pass on the bounds of the path
@@ -491,7 +475,7 @@ bool SkGPipeCanvas::clipPath(const SkPath& path, SkRegion::Op rgnOp,
 
 bool SkGPipeCanvas::clipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
     NOTIFY_SETUP(this);
-    if (this->needOpBytes(region.flatten(NULL))) {
+    if (this->needOpBytes(region.writeToMemory(NULL))) {
         this->writeOp(kClipRegion_DrawOp, 0, rgnOp);
         fWriter.writeRegion(region);
     }
@@ -547,9 +531,9 @@ void SkGPipeCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
 void SkGPipeCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
-    if (this->needOpBytes(estimateFlattenSize(path))) {
+    if (this->needOpBytes(path.writeToMemory(NULL))) {
         this->writeOp(kDrawPath_DrawOp);
-        path.flatten(fWriter);
+        fWriter.writePath(path);
     }
 }
 
@@ -696,10 +680,10 @@ void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength,
     if (byteLength) {
         NOTIFY_SETUP(this);
         unsigned flags = 0;
-        size_t size = 4 + SkAlign4(byteLength) + estimateFlattenSize(path);
+        size_t size = 4 + SkAlign4(byteLength) + path.writeToMemory(NULL);
         if (matrix) {
             flags |= kDrawTextOnPath_HasMatrix_DrawOpFlag;
-            size += matrix->flatten(NULL);
+            size += matrix->writeToMemory(NULL);
         }
         this->writePaint(paint);
         if (this->needOpBytes(size)) {
@@ -708,7 +692,7 @@ void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength,
             fWriter.write32(byteLength);
             fWriter.writePad(text, byteLength);
 
-            path.flatten(fWriter);
+            fWriter.writePath(path);
             if (matrix) {
                 fWriter.writeMatrix(*matrix);
             }

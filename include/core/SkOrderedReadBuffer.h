@@ -40,7 +40,8 @@ public:
     virtual const void* skip(size_t size) { return fReader.skip(size); }
 
     virtual void readMatrix(SkMatrix* m) { fReader.readMatrix(m); }
-    virtual void readPath(SkPath* p) { p->unflatten(fReader); }
+    virtual void readPath(SkPath* p) { fReader.readPath(p); }
+
     virtual void readPoint(SkPoint* p) {
         p->fX = fReader.readScalar();
         p->fY = fReader.readScalar();
