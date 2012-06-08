@@ -144,7 +144,6 @@ public:
     GLPtr<GrGLBindTextureProc> fBindTexture;
     GLPtr<GrGLBlendColorProc> fBlendColor;
     GLPtr<GrGLBlendFuncProc> fBlendFunc;
-    GLPtr<GrGLBlendEquationProc> fBlendEquation;
     GLPtr<GrGLBlitFramebufferProc> fBlitFramebuffer;
     GLPtr<GrGLBufferDataProc> fBufferData;
     GLPtr<GrGLBufferSubDataProc> fBufferSubData;
@@ -153,7 +152,6 @@ public:
     GLPtr<GrGLClearColorProc> fClearColor;
     GLPtr<GrGLClearStencilProc> fClearStencil;
     GLPtr<GrGLColorMaskProc> fColorMask;
-    GLPtr<GrGLColorPointerProc> fColorPointer;
     GLPtr<GrGLCompileShaderProc> fCompileShader;
     GLPtr<GrGLCompressedTexImage2DProc> fCompressedTexImage2D;
     GLPtr<GrGLCreateProgramProc> fCreateProgram;

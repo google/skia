@@ -20,7 +20,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindTexture(GrGLenum target, GrGLuint texture
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBlendColor(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindFragDataLocation(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBlendFunc(GrGLenum sfactor, GrGLenum dfactor) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBlendEquation(GrGLenum mode) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferSubData(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid* data) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLClear(GrGLbitfield mask) {}
@@ -397,7 +396,6 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fBindTexture = nullGLBindTexture;
         interface->fBlendColor = nullGLBlendColor;
         interface->fBlendFunc = nullGLBlendFunc;
-        interface->fBlendEquation = nullGLBlendEquation;
         interface->fBufferData = nullGLBufferData;
         interface->fBufferSubData = nullGLBufferSubData;
         interface->fClear = nullGLClear;

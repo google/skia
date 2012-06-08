@@ -72,7 +72,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindTexture(GrGLenum target, GrGLuint textur
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendColor(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFragDataLocation(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name) {}
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendFunc(GrGLenum sfactor, GrGLenum dfactor) {}
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendEquation(GrGLenum mode) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage) {
@@ -930,7 +929,6 @@ const GrGLInterface* GrGLCreateDebugInterface() {
         interface->fBindTexture = debugGLBindTexture;
         interface->fBlendColor = debugGLBlendColor;
         interface->fBlendFunc = debugGLBlendFunc;
-        interface->fBlendEquation = debugGLBlendEquation;
         interface->fBufferData = debugGLBufferData;
         interface->fBufferSubData = debugGLBufferSubData;
         interface->fClear = debugGLClear;
