@@ -2115,7 +2115,7 @@ struct TwoPtRadial {
         fRadius = SkScalarToFloat(rad0);
         fDRadius = SkScalarToFloat(rad1) - fRadius;
 
-        fA = sqr(fDCenterX) - sqr(fDCenterY) - sqr(fDRadius);
+        fA = sqr(fDCenterX) + sqr(fDCenterY) - sqr(fDRadius);
         fRadius2 = sqr(fRadius);
         fRDR = fRadius * fDRadius;
     }
