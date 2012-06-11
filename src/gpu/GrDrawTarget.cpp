@@ -830,6 +830,14 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
     }
 }
 
+void GrDrawTarget::stencilPath(const GrPath& path, GrPathFill fill) {
+    // TODO: extract portions of checkDraw that are relevant to path stenciling.
+    GrAssert(fCaps.fPathStencilingSupport);
+    GrAssert(kHairLine_GrPathFill != fill);
+    GrAssert(!GrIsFillInverted(fill));
+    this->onStencilPath(path, fill);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Some blend modes allow folding a partial coverage value into the color's

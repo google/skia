@@ -226,6 +226,12 @@ GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
     return this->onCreateIndexBuffer(size, dynamic);
 }
 
+GrPath* GrGpu::createPath(const SkPath& path) {
+    GrAssert(fCaps.fPathStencilingSupport);
+    this->handleDirtyContext();
+    return this->onCreatePath(path);
+}
+
 void GrGpu::clear(const GrIRect* rect, GrColor color) {
     if (NULL == this->getDrawState().getRenderTarget()) {
         return;
@@ -358,7 +364,7 @@ const GrStencilSettings* GrGpu::GetClipStencilSettings(void) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
+bool GrGpu::setupClipAndFlushState(DrawType type) {
 
     ScissoringSettings scissoringSettings;
 
@@ -410,7 +416,7 @@ void GrGpu::onDrawIndexed(GrPrimitiveType type,
 
     this->handleDirtyContext();
 
-    if (!this->setupClipAndFlushState(type)) {
+    if (!this->setupClipAndFlushState(PrimTypeToDrawType(type))) {
         return;
     }
 
@@ -423,11 +429,11 @@ void GrGpu::onDrawIndexed(GrPrimitiveType type,
 }
 
 void GrGpu::onDrawNonIndexed(GrPrimitiveType type,
-                           int startVertex,
-                           int vertexCount) {
+                             int startVertex,
+                             int vertexCount) {
     this->handleDirtyContext();
 
-    if (!this->setupClipAndFlushState(type)) {
+    if (!this->setupClipAndFlushState(PrimTypeToDrawType(type))) {
         return;
     }
 
@@ -435,6 +441,16 @@ void GrGpu::onDrawNonIndexed(GrPrimitiveType type,
     setupGeometry(&sVertex, NULL, vertexCount, 0);
 
     this->onGpuDrawNonIndexed(type, sVertex, vertexCount);
+}
+
+void GrGpu::onStencilPath(const GrPath& path, GrPathFill fill) {
+    this->handleDirtyContext();
+
+    if (!this->setupClipAndFlushState(kStencilPath_DrawType)) {
+        return;
+    }
+
+    this->onGpuStencilPath(path, fill);
 }
 
 void GrGpu::finalizeReservedVertices() {

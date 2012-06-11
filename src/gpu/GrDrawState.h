@@ -14,6 +14,7 @@
 #include "GrRefCnt.h"
 #include "GrSamplerState.h"
 #include "GrStencil.h"
+#include "GrTexture.h"
 
 #include "SkXfermode.h"
 

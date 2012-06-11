@@ -13,11 +13,11 @@
 #include "GrDrawTarget.h"
 #include "GrRect.h"
 #include "GrRefCnt.h"
-#include "GrTexture.h"
 #include "GrClipMaskManager.h"
 
 class GrContext;
 class GrIndexBufferAllocPool;
+class GrPath;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrResource;
@@ -128,6 +128,12 @@ public:
      * @return The index buffer if successful, otherwise NULL.
      */
     GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
+
+    /**
+     * Creates a path object that can be stenciled using stencilPath(). It is
+     * only legal to call this if the caps report support for path stenciling.
+     */
+    GrPath* createPath(const SkPath& path);
 
     /**
      * Returns an index buffer that can be used to render quads.
@@ -341,8 +347,32 @@ public:
     }
 
 protected:
+    enum DrawType {
+        kDrawPoints_DrawType,
+        kDrawLines_DrawType,
+        kDrawTriangles_DrawType,
+        kStencilPath_DrawType,
+    };
+
+    DrawType PrimTypeToDrawType(GrPrimitiveType type) {
+        switch (type) {
+            case kTriangles_GrPrimitiveType:
+            case kTriangleStrip_GrPrimitiveType:
+            case kTriangleFan_GrPrimitiveType:
+                return kDrawTriangles_DrawType;
+            case kPoints_GrPrimitiveType:
+                return kDrawPoints_DrawType;
+            case kLines_GrPrimitiveType:
+            case kLineStrip_GrPrimitiveType:
+                return kDrawLines_DrawType;
+            default:
+                GrCrash("Unexpected primitive type");
+                return kDrawTriangles_DrawType;
+        }
+    }
+
     // prepares clip flushes gpu state before a draw
-    bool setupClipAndFlushState(GrPrimitiveType type);
+    bool setupClipAndFlushState(DrawType);
 
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
@@ -413,6 +443,7 @@ protected:
                                                  bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic) = 0;
+    virtual GrPath* onCreatePath(const SkPath& path) = 0;
 
     // overridden by API-specific derivated class to perform the clear and 
     // clearRect. NULL rect means clear whole target.
@@ -428,6 +459,8 @@ protected:
     virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
                                      uint32_t vertexCount,
                                      uint32_t numVertices) = 0;
+    // overridden by API-specific derived class to perform the path stenciling.
+    virtual void onGpuStencilPath(const GrPath& path, GrPathFill fill) = 0;
 
     // overridden by API-specific derived class to perform flush
     virtual void onForceRenderTargetFlush() = 0;
@@ -472,7 +505,7 @@ protected:
     // deltas from previous state at draw time. This function does the
     // API-specific flush of the state
     // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(GrPrimitiveType type) = 0;
+    virtual bool flushGraphicsState(DrawType) = 0;
 
     // clears the entire stencil buffer to 0
     virtual void clearStencil() = 0;
@@ -518,6 +551,7 @@ private:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
+    virtual void onStencilPath(const GrPath& path, GrPathFill fill) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();
