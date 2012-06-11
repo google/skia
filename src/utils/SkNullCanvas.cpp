@@ -14,5 +14,5 @@
 SkCanvas* SkCreateNullCanvas() {
     // An N-Way canvas forwards calls to N canvas's. When N == 0 it's
     // effectively a null canvas.
-    return SkNEW(SkNWayCanvas);
+    return SkNEW(SkNWayCanvas(0,0));
 }
