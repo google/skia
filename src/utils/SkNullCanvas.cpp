@@ -8,7 +8,7 @@
 #include "SkNullCanvas.h"
 
 #include "SkCanvas.h"
-#include "SKNWayCanvas.h"
+#include "SkNWayCanvas.h"
 
 
 SkCanvas* SkCreateNullCanvas() {
