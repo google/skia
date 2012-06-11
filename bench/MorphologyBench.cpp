@@ -96,6 +96,10 @@ static SkBenchmark* Fact21(void* p) { return new MorphologyBench(p, REAL, kDilat
 
 static SkBenchmark* FactNone(void* p) { return new MorphologyBench(p, 0, kErode_MT); }
 
+// Fixed point can be 100x slower than float on these tests, causing
+// bench to timeout.
+#ifndef SK_SCALAR_IS_FIXED
+
 static BenchRegistry gReg00(Fact00);
 static BenchRegistry gReg01(Fact01);
 
@@ -106,4 +110,6 @@ static BenchRegistry gReg20(Fact20);
 static BenchRegistry gReg21(Fact21);
 
 static BenchRegistry gRegNone(FactNone);
+
+#endif
 
