@@ -15,6 +15,6 @@ class SkCanvas;
 /**
  * Creates a canvas that draws nothing. This is useful for performance testing.
  */
-SkCanvas* SkCreateNullCanvas();
+SK_API SkCanvas* SkCreateNullCanvas();
 
 #endif
