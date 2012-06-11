@@ -84,29 +84,25 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
                                    const char* inputColor,
                                    const char* samplerName) {
     GrStringBuilder* code = &state->fFSCode;
- // const char* texFunc = "texture2D";
- // bool complexCoord = false;
 
-    state->fFSCode.appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
+    code->appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
 
     code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
-    code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
 
-    // Creates the string "kernel[i]" with workarounds for
-    // possible driver bugs
-    GrStringBuilder kernelIndex;
-    fKernelVar->appendArrayAccess("i", &kernelIndex);
-    state->fFSCode.appendf("\t\t\tsum += ");
-    state->emitTextureLookup(samplerName, "coord");
-    state->fFSCode.appendf(" * %s;\n", kernelIndex.c_str());
+    // Manually unroll loop because some drivers don't; yields 20-30% speedup.
+    for (int i = 0; i < this->width(); i++) {
+        GrStringBuilder index;
+        GrStringBuilder kernelIndex;
+        index.appendS32(i);
+        fKernelVar->appendArrayAccess(index.c_str(), &kernelIndex);
+        code->appendf("\t\tsum += ");
+        state->emitTextureLookup(samplerName, "coord");
+        code->appendf(" * %s;\n", kernelIndex.c_str());
+        code->appendf("\t\tcoord += %s;\n",
+                      fImageIncrementVar->getName().c_str());
+    }
 
-    code->appendf("\t\t\tcoord += %s;\n",
-                  fImageIncrementVar->getName().c_str());
-    code->appendf("\t\t}\n");
-
-    state->fFSCode.appendf("\t\t%s = sum%s;\n",
-                           outputColor,
-                           state->fModulate.c_str());
+    code->appendf("\t\t%s = sum%s;\n", outputColor, state->fModulate.c_str());
 }
 
 void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
