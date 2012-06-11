@@ -222,13 +222,11 @@
     #define SkIntToScalar(n)        SkIntToFixed(n)
     #define SkFixedToScalar(x)      (x)
     #define SkScalarToFixed(x)      (x)
-    #ifdef SK_CAN_USE_FLOAT
-        #define SkScalarToFloat(n)  SkFixedToFloat(n)
-        #define SkFloatToScalar(n)  SkFloatToFixed(n)
+    #define SkScalarToFloat(n)  SkFixedToFloat(n)
+    #define SkFloatToScalar(n)  SkFloatToFixed(n)
 
-        #define SkScalarToDouble(n) SkFixedToDouble(n)
-        #define SkDoubleToScalar(n) SkDoubleToFixed(n)
-    #endif
+    #define SkScalarToDouble(n) SkFixedToDouble(n)
+    #define SkDoubleToScalar(n) SkDoubleToFixed(n)
     #define SkScalarFraction(x)     SkFixedFraction(x)
 
     #define SkScalarFloorToScalar(x)    SkFixedFloorToFixed(x)

@@ -205,11 +205,7 @@ void SkDisplayable::dumpAttrs(SkAnimateMaker* maker) {
                             SkDebugf("%d", op->fS32);
                             break;
                         case SkType_Float:
-#ifdef SK_CAN_USE_FLOAT
                             SkDebugf("%g", SkScalarToFloat(op->fScalar));
-#else
-                            SkDebugf("%x", op->fScalar);
-#endif
                             break;
                         case SkType_String:
                         case SkType_DynamicString:    
@@ -311,11 +307,7 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
     //should make this a separate case in dump attrs, rather than make dump values have a larger signature
     case SkType_Point:
         if (op.fScalar != blankOp.fScalar || op2.fScalar != blankOp.fScalar) {
-#ifdef SK_CAN_USE_FLOAT
             SkDebugf("%s=\"[%g,%g]\" ", info->fName, SkScalarToFloat(op.fScalar), SkScalarToFloat(op2.fScalar));
-#else
-            SkDebugf("%s=\"[%x,%x]\" ", info->fName, op.fScalar, op2.fScalar);
-#endif
         }
         break;
     case SkType_FromPathMode:
@@ -375,11 +367,7 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
         break;
     case SkType_Float:
         if (op.fScalar != blankOp.fScalar) { //or /65536?
-#ifdef SK_CAN_USE_FLOAT
             SkDebugf("%s=\"%g\"  ", info->fName, SkScalarToFloat(op.fScalar));
-#else
-            SkDebugf("%s=\"%x\"  ", info->fName, op.fScalar);
-#endif
         }
         break;
     case SkType_String:
@@ -389,11 +377,7 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
         break;
     case SkType_MSec:
         if (op.fS32 != blankOp.fS32) {
-#ifdef SK_CAN_USE_FLOAT
             SkDebugf(" %s=\"%g\"  ", info->fName, SkScalarToFloat(SkScalarDiv(op.fS32, 1000)));
-#else
-            SkDebugf(" %s=\"%x\"  ", info->fName, SkScalarDiv(op.fS32, 1000));
-#endif
         }
     default:
         SkDebugf("");

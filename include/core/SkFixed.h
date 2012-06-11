@@ -30,8 +30,7 @@ typedef int32_t             SkFixed;
 #define SK_FixedTanPIOver8  (0x6A0A)
 #define SK_FixedRoot2Over2  (0xB505)
 
-#ifdef SK_CAN_USE_FLOAT
-    #define SkFixedToFloat(x)   ((x) * 1.5258789e-5f)
+#define SkFixedToFloat(x)   ((x) * 1.5258789e-5f)
 #if 1
     #define SkFloatToFixed(x)   ((SkFixed)((x) * SK_Fixed1))
 #else
@@ -42,9 +41,8 @@ typedef int32_t             SkFixed;
     }
 #endif
 
-    #define SkFixedToDouble(x)  ((x) * 1.5258789e-5)
-    #define SkDoubleToFixed(x)  ((SkFixed)((x) * SK_Fixed1))
-#endif
+#define SkFixedToDouble(x)  ((x) * 1.5258789e-5)
+#define SkDoubleToFixed(x)  ((SkFixed)((x) * SK_Fixed1))
 
 /** 32 bit signed integer used to represent fractions values with 30 bits to the right of the decimal point
 */
@@ -53,10 +51,8 @@ typedef int32_t             SkFract;
 #define Sk_FracHalf         (1 << 29)
 #define SK_FractPIOver180   (0x11DF46A)
 
-#ifdef SK_CAN_USE_FLOAT
-    #define SkFractToFloat(x)   ((float)(x) * 0.00000000093132257f)
-    #define SkFloatToFract(x)   ((SkFract)((x) * SK_Fract1))
-#endif
+#define SkFractToFloat(x)   ((float)(x) * 0.00000000093132257f)
+#define SkFloatToFract(x)   ((SkFract)((x) * SK_Fract1))
 
 /** Converts an integer to a SkFixed, asserting that the result does not overflow
     a 32 bit signed integer

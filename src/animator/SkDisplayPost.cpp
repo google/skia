@@ -76,11 +76,7 @@ void SkPost::dump(SkAnimateMaker* maker) {
     delete eventType;
     
     if (delay > 0) {
-#ifdef SK_CAN_USE_FLOAT
         SkDebugf("delay=\"%g\" ", SkScalarToFloat(SkScalarDiv(delay, 1000)));
-#else
-        SkDebugf("delay=\"%x\" ", SkScalarDiv(delay, 1000));
-#endif
     }
 //  if (initialized == false)
 //      SkDebugf("(uninitialized) ");
@@ -131,11 +127,7 @@ void SkPost::dump(SkAnimateMaker* maker) {
             case SkMetaData::kScalar_Type: {
                 SkScalar scalar;
                 meta.findScalar(name, &scalar);
-#ifdef SK_CAN_USE_FLOAT
                 SkDebugf("float=\"%g\" ", SkScalarToFloat(scalar));
-#else
-                SkDebugf("float=\"%x\" ", scalar);
-#endif
                 } break;
             case SkMetaData::kString_Type:
                 SkDebugf("string=\"%s\" ", meta.findString(name));

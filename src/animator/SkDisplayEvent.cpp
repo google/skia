@@ -104,11 +104,7 @@ void SkDisplayEvent::dumpEvent(SkAnimateMaker* maker) {
         SkDebugf("target=\"%s\" ", fTarget->id);
     }
     if (kind >= SkDisplayEvent::kMouseDown && kind <= SkDisplayEvent::kMouseUp) {
-#ifdef SK_CAN_USE_FLOAT
         SkDebugf("x=\"%g\" y=\"%g\" ", SkScalarToFloat(x), SkScalarToFloat(y));
-#else
-        SkDebugf("x=\"%x\" y=\"%x\" ", x, y);
-#endif
     }
     if (disable)
         SkDebugf("disable=\"true\" ");

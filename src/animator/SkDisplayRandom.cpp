@@ -35,15 +35,9 @@ SkDisplayRandom::SkDisplayRandom() : blend(0), min(0), max(SK_Scalar1) {
 #ifdef SK_DUMP_ENABLED
 void SkDisplayRandom::dump(SkAnimateMaker* maker) {
     dumpBase(maker);
-#ifdef SK_CAN_USE_FLOAT
     SkDebugf("min=\"%g\" ", SkScalarToFloat(min));
     SkDebugf("max=\"%g\" ", SkScalarToFloat(max));
     SkDebugf("blend=\"%g\" ", SkScalarToFloat(blend));    
-#else
-    SkDebugf("min=\"%x\" ", min);
-    SkDebugf("max=\"%x\" ", max);
-    SkDebugf("blend=\"%x\" ", blend);    
-#endif
     SkDebugf("/>\n");
 }
 #endif

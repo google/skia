@@ -1738,42 +1738,23 @@ void SkPath::dump(bool forceClose, const char title[]) const {
     while ((verb = iter.next(pts, false)) != kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
-#ifdef SK_CAN_USE_FLOAT
                 SkDebugf("  path: moveTo [%g %g]\n",
                         SkScalarToFloat(pts[0].fX), SkScalarToFloat(pts[0].fY));
-#else
-                SkDebugf("  path: moveTo [%x %x]\n", pts[0].fX, pts[0].fY);
-#endif
                 break;
             case kLine_Verb:
-#ifdef SK_CAN_USE_FLOAT
                 SkDebugf("  path: lineTo [%g %g]\n",
                         SkScalarToFloat(pts[1].fX), SkScalarToFloat(pts[1].fY));
-#else
-                SkDebugf("  path: lineTo [%x %x]\n", pts[1].fX, pts[1].fY);
-#endif
                 break;
             case kQuad_Verb:
-#ifdef SK_CAN_USE_FLOAT
                 SkDebugf("  path: quadTo [%g %g] [%g %g]\n",
                         SkScalarToFloat(pts[1].fX), SkScalarToFloat(pts[1].fY),
                         SkScalarToFloat(pts[2].fX), SkScalarToFloat(pts[2].fY));
-#else
-                SkDebugf("  path: quadTo [%x %x] [%x %x]\n",
-                         pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
-#endif
                 break;
             case kCubic_Verb:
-#ifdef SK_CAN_USE_FLOAT
                 SkDebugf("  path: cubeTo [%g %g] [%g %g] [%g %g]\n",
                         SkScalarToFloat(pts[1].fX), SkScalarToFloat(pts[1].fY),
                         SkScalarToFloat(pts[2].fX), SkScalarToFloat(pts[2].fY),
                         SkScalarToFloat(pts[3].fX), SkScalarToFloat(pts[3].fY));
-#else
-                SkDebugf("  path: cubeTo [%x %x] [%x %x] [%x %x]\n",
-                         pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY,
-                         pts[3].fX, pts[3].fY);
-#endif
                 break;
             case kClose_Verb:
                 SkDebugf("  path: close\n");

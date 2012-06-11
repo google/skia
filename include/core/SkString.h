@@ -55,9 +55,7 @@ char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
     #define SkStrAppendScalar SkStrAppendFixed
 #endif
 
-#ifdef SK_CAN_USE_FLOAT
 char* SkStrAppendFloat(char buffer[], float);
-#endif
 char* SkStrAppendFixed(char buffer[], SkFixed);
 
 /** \class SkString

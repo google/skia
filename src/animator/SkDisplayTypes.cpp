@@ -81,11 +81,7 @@ SkDisplayFloat::SkDisplayFloat() : value(0) {
 #ifdef SK_DUMP_ENABLED
 void SkDisplayFloat::dump(SkAnimateMaker* maker) {
     dumpBase(maker);
-#ifdef SK_CAN_USE_FLOAT
     SkDebugf("value=\"%g\" />\n", SkScalarToFloat(value));
-#else
-    SkDebugf("value=\"%x\" />\n", value);
-#endif
 }
 #endif
 

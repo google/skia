@@ -152,8 +152,6 @@ int32_t SkFloatBits_toIntCeil(int32_t packed) {
     }
 }
 
-#ifdef SK_CAN_USE_FLOAT
-
 float SkIntToFloatCast(int32_t value) {
     if (0 == value) {
         return 0;
@@ -207,4 +205,3 @@ float SkIntToFloatCast_NoOverflowCheck(int32_t value) {
     return data.fFloat;
 }
 
-#endif
