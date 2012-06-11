@@ -12,22 +12,17 @@
 #define GrDrawTarget_DEFINED
 
 #include "GrClip.h"
-#include "GrColor.h"
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
 #include "GrMatrix.h"
 #include "GrRefCnt.h"
-#include "GrSamplerState.h"
-#include "GrStencil.h"
-#include "GrTexture.h"
 
 #include "SkXfermode.h"
 #include "SkTLazy.h"
 
-class GrTexture;
 class GrClipIterator;
+class GrPath;
 class GrVertexBuffer;
-class GrIndexBuffer;
 
 class GrDrawTarget : public GrRefCnt {
 public:
@@ -52,6 +47,7 @@ public:
         bool fFSAASupport               : 1;
         bool fDualSourceBlendingSupport : 1;
         bool fBufferLockSupport         : 1;
+        bool fPathStencilingSupport     : 1;
         int fMaxRenderTargetSize;
         int fMaxTextureSize;
     };
@@ -436,7 +432,7 @@ public:
      * Pops the vertex / index sources from the matching push.
      */
     void popGeometrySource();
-    
+
     /**
      * Draws indexed geometry using the current state and current vertex / index
      * sources.
@@ -468,6 +464,13 @@ public:
     void drawNonIndexed(GrPrimitiveType type,
                         int startVertex,
                         int vertexCount);
+
+    /**
+     * Draws path into the stencil buffer. The fill must be either even/odd or
+     * winding (not inverse or hairline). It will respect the HW antialias flag
+     * on the draw state (if possible in the 3D API).
+     */
+    void stencilPath(const GrPath& path, GrPathFill fill);
 
     /**
      * Helper function for drawing rects. This does not use the current index
@@ -1042,6 +1045,8 @@ protected:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) = 0;
+    virtual void onStencilPath(const GrPath& path, GrPathFill fill) = 0;
+
     // subclass overrides to be notified when clip is set. Must call
     // INHERITED::clipwillBeSet
     virtual void clipWillBeSet(const GrClip& clip) {}

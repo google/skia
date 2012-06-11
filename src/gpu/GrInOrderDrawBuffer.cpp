@@ -439,6 +439,10 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
     draw.fIndexBuffer = NULL;
 }
 
+void GrInOrderDrawBuffer::onStencilPath(const GrPath&, GrPathFill) {
+    GrCrash("Not implemented yet. Should not get here.");
+}
+
 void GrInOrderDrawBuffer::clear(const GrIRect* rect, GrColor color) {
     GrIRect r;
     if (NULL == rect) {

@@ -8,6 +8,7 @@
 
 #include "GrGpuGL.h"
 #include "GrGLStencilBuffer.h"
+#include "GrGLPath.h"
 #include "GrTypes.h"
 #include "SkTemplates.h"
 
@@ -1325,6 +1326,14 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
     return NULL;
 }
 
+GrPath* GrGpuGL::onCreatePath(const SkPath& inPath) {
+    GrPath* path = NULL;
+    if (fCaps.fPathStencilingSupport) {
+        path = new GrGLPath(this, inPath);
+    }
+    return path;
+}
+
 void GrGpuGL::enableScissoring(const GrIRect& rect) {
     const GrDrawState& drawState = this->getDrawState();
     const GrGLRenderTarget* rt =
@@ -1718,6 +1727,10 @@ void GrGpuGL::onGpuDrawNonIndexed(GrPrimitiveType type,
 #endif
 }
 
+void GrGpuGL::onGpuStencilPath(const GrPath&, GrPathFill) {
+    GrCrash("Not implemented yet. Should not get here.");
+}
+
 void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
@@ -1955,7 +1968,7 @@ void GrGpuGL::flushStencil() {
     }
 }
 
-void GrGpuGL::flushAAState(GrPrimitiveType type) {
+void GrGpuGL::flushAAState(bool isLines) {
     const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
@@ -1963,7 +1976,7 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
         // we prefer smooth lines over multisampled lines
         bool smoothLines = false;
 
-        if (GrIsPrimTypeLines(type)) {
+        if (isLines) {
             smoothLines = this->willUseHWAALines();
             if (smoothLines) {
                 if (kYes_TriState != fHWAAState.fSmoothLineEnabled) {
@@ -1999,10 +2012,10 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
     }
 }
 
-void GrGpuGL::flushBlend(GrPrimitiveType type,
+void GrGpuGL::flushBlend(bool isLines,
                          GrBlendCoeff srcCoeff,
                          GrBlendCoeff dstCoeff) {
-    if (GrIsPrimTypeLines(type) && this->willUseHWAALines()) {
+    if (isLines && this->willUseHWAALines()) {
         if (kYes_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Enable(GR_GL_BLEND));
             fHWBlendState.fEnabled = kYes_TriState;

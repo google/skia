@@ -147,6 +147,7 @@ private:
     virtual void onDrawNonIndexed(GrPrimitiveType primitiveType,
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
+    virtual void onStencilPath(const GrPath&, GrPathFill) SK_OVERRIDE;
     virtual bool onReserveVertexSpace(GrVertexLayout layout, 
                                       int vertexCount,
                                       void** vertices) SK_OVERRIDE;

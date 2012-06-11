@@ -67,6 +67,7 @@ protected:
                                                  bool dynamic) SK_OVERRIDE;
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic) SK_OVERRIDE;
+    virtual GrPath* onCreatePath(const SkPath&) SK_OVERRIDE;
     virtual GrTexture* onCreatePlatformTexture(
         const GrPlatformTextureDesc& desc) SK_OVERRIDE;
     virtual GrRenderTarget* onCreatePlatformRenderTarget(
@@ -106,13 +107,14 @@ protected:
     virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
                                      uint32_t vertexCount,
                                      uint32_t numVertices) SK_OVERRIDE;
+    virtual void onGpuStencilPath(const GrPath&, GrPathFill) SK_OVERRIDE;
     virtual void enableScissoring(const GrIRect& rect) SK_OVERRIDE;
     virtual void disableScissor() SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const GrIRect& rect,
                                   bool insideClip) SK_OVERRIDE;
-    virtual bool flushGraphicsState(GrPrimitiveType type) SK_OVERRIDE;
+    virtual bool flushGraphicsState(DrawType) SK_OVERRIDE;
     virtual void setupGeometry(int* startVertex,
                                int* startIndex,
                                int vertexCount,
@@ -135,7 +137,7 @@ private:
     // The params should be the final coeffecients to apply
     // (after any blending optimizations or dual source blending considerations
     // have been accounted for).
-    void flushBlend(GrPrimitiveType type,
+    void flushBlend(bool isLines,
                     GrBlendCoeff srcCoeff,
                     GrBlendCoeff dstCoeff);
 
@@ -233,7 +235,7 @@ private:
     static void DeleteProgram(const GrGLInterface* gl,
                               CachedData* programData);
 
-    void buildProgram(GrPrimitiveType typeBlend,
+    void buildProgram(bool isPoints,
                       BlendOptFlags blendOpts,
                       GrBlendCoeff dstCoeff,
                       GrCustomStage** customStages);
@@ -261,7 +263,7 @@ private:
     // NULL means whole target. Can be an empty rect.
     void flushRenderTarget(const GrIRect* bound);
     void flushStencil();
-    void flushAAState(GrPrimitiveType type);
+    void flushAAState(bool isLines);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,

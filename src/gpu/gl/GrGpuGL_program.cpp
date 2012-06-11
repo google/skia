@@ -370,7 +370,7 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
     }
 }
 
-bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
+bool GrGpuGL::flushGraphicsState(DrawType type) {
     const GrDrawState& drawState = this->getDrawState();
 
     // GrGpu::setupClipAndFlushState should have already checked this
@@ -379,7 +379,7 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
 
     this->flushMiscFixedFunctionState();
     this->flushStencil();
-    this->flushAAState(type);
+    this->flushAAState(kDrawLines_DrawType == type);
 
     GrBlendCoeff srcCoeff;
     GrBlendCoeff dstCoeff;
@@ -389,7 +389,8 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
     }
 
     GrCustomStage* customStages [GrDrawState::kNumStages];
-    this->buildProgram(type, blendOpts, dstCoeff, customStages);
+    this->buildProgram(kDrawPoints_DrawType == type,
+                       blendOpts, dstCoeff, customStages);
     fProgramData = fProgramCache->getProgramData(fCurrentProgram,
                                                  customStages);
     if (NULL == fProgramData) {
@@ -402,7 +403,7 @@ bool GrGpuGL::flushGraphicsState(GrPrimitiveType type) {
         fHWProgramID = fProgramData->fProgramID;
     }
     fCurrentProgram.overrideBlend(&srcCoeff, &dstCoeff);
-    this->flushBlend(type, srcCoeff, dstCoeff);
+    this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
     GrColor color;
     GrColor coverage;
@@ -635,7 +636,7 @@ void setup_custom_stage(GrGLProgram::ProgramDesc::StageDesc* stage,
 
 }
 
-void GrGpuGL::buildProgram(GrPrimitiveType type,
+void GrGpuGL::buildProgram(bool isPoints,
                            BlendOptFlags blendOpts,
                            GrBlendCoeff dstCoeff,
                            GrCustomStage** customStages) {
@@ -658,7 +659,7 @@ void GrGpuGL::buildProgram(GrPrimitiveType type,
     // Must initialize all fields or cache will have false negatives!
     desc.fVertexLayout = this->getVertexLayout();
 
-    desc.fEmitsPointSize = kPoints_GrPrimitiveType == type;
+    desc.fEmitsPointSize = isPoints;
 
     bool requiresAttributeColors = 
         !skipColor && SkToBool(desc.fVertexLayout & kColor_VertexLayoutBit);
