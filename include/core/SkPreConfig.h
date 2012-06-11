@@ -88,7 +88,6 @@
 
 #if !defined(SK_SCALAR_IS_FLOAT) && !defined(SK_SCALAR_IS_FIXED)
     #define SK_SCALAR_IS_FLOAT
-    #define SK_CAN_USE_FLOAT
 #endif
 
 //////////////////////////////////////////////////////////////////////

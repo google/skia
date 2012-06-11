@@ -27,16 +27,7 @@
 #if defined(SK_SCALAR_IS_FIXED) && defined(SK_SCALAR_IS_FLOAT)
     #error "cannot define both SK_SCALAR_IS_FIXED and SK_SCALAR_IS_FLOAT"
 #elif !defined(SK_SCALAR_IS_FIXED) && !defined(SK_SCALAR_IS_FLOAT)
-    #ifdef SK_CAN_USE_FLOAT
-        #define SK_SCALAR_IS_FLOAT
-    #else
-        #define SK_SCALAR_IS_FIXED
-    #endif
-#endif
-
-#if defined(SK_SCALAR_IS_FLOAT) && !defined(SK_CAN_USE_FLOAT)
-    #define SK_CAN_USE_FLOAT
-    // we do nothing in the else case: fixed-scalars can have floats or not
+    #define SK_SCALAR_IS_FLOAT
 #endif
 
 #if defined(SK_CPU_LENDIAN) && defined(SK_CPU_BENDIAN)

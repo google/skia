@@ -14,9 +14,7 @@
 #include "SkScalar.h"
 
 #ifdef SK_DEBUG
-    #ifdef SK_CAN_USE_FLOAT
-        #define SK_DUMP_ENABLED
-    #endif
+    #define SK_DUMP_ENABLED
     #ifdef SK_BUILD_FOR_MAC
         #define SK_FIND_LEAKS
     #endif

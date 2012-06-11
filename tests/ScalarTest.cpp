@@ -12,8 +12,6 @@
 #include "SkRandom.h"
 #include "SkRect.h"
 
-#ifdef SK_CAN_USE_FLOAT
-
 struct PointSet {
     const SkPoint* fPts;
     size_t         fCount;
@@ -94,8 +92,6 @@ static bool isFinite2_mulzeroadd(float x, float y, IsFiniteProc1 proc) {
 // return true if both floats are finite
 typedef bool (*IsFiniteProc2)(float, float, IsFiniteProc1);
 
-#endif
-
 enum FloatClass {
     kFinite,
     kInfinite,
@@ -118,7 +114,6 @@ static void test_floatclass(skiatest::Reporter* reporter, float value, FloatClas
 #endif
 
 static void test_isfinite(skiatest::Reporter* reporter) {
-#ifdef SK_CAN_USE_FLOAT
     struct Rec {
         float   fValue;
         bool    fIsFinite;
@@ -186,7 +181,6 @@ static void test_isfinite(skiatest::Reporter* reporter) {
     }
     
     test_isRectFinite(reporter);
-#endif
 }
 
 #if defined _WIN32

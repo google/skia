@@ -1760,7 +1760,6 @@ void SkMatrix::dump() const {
 }
 
 void SkMatrix::toDumpString(SkString* str) const {
-#ifdef SK_CAN_USE_FLOAT
     str->printf("[%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f]",
 #ifdef SK_SCALAR_IS_FLOAT
              fMat[0], fMat[1], fMat[2], fMat[3], fMat[4], fMat[5],
@@ -1769,10 +1768,5 @@ void SkMatrix::toDumpString(SkString* str) const {
     SkFixedToFloat(fMat[0]), SkFixedToFloat(fMat[1]), SkFixedToFloat(fMat[2]),
     SkFixedToFloat(fMat[3]), SkFixedToFloat(fMat[4]), SkFixedToFloat(fMat[5]),
     SkFractToFloat(fMat[6]), SkFractToFloat(fMat[7]), SkFractToFloat(fMat[8]));
-#endif
-#else   // can't use float
-    str->printf("[%x %x %x][%x %x %x][%x %x %x]",
-                fMat[0], fMat[1], fMat[2], fMat[3], fMat[4], fMat[5],
-                fMat[6], fMat[7], fMat[8]);
 #endif
 }

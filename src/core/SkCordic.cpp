@@ -197,13 +197,11 @@ SkFixed SkCordicExp(SkFixed a) {
 
 #ifdef SK_DEBUG
 
-#ifdef SK_CAN_USE_FLOAT
-    #include "SkFloatingPoint.h"
-#endif
+#include "SkFloatingPoint.h"
 
 void SkCordic_UnitTest()
 {
-#if defined(SK_SUPPORT_UNITTEST) && defined(SK_CAN_USE_FLOAT)
+#if defined(SK_SUPPORT_UNITTEST)
     float val;
     for (float angle = -720; angle < 720; angle += 30) {
         float radian = angle * 3.1415925358f / 180.0f;

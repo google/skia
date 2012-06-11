@@ -41,15 +41,9 @@ void SkAnimate::dump(SkAnimateMaker* maker) {
             SkDebugf("mirror=\"true\" ");
         if (fReset)
             SkDebugf("reset=\"true\" ");
-#ifdef SK_CAN_USE_FLOAT
         SkDebugf("dur=\"%g\" ", SkScalarToFloat(SkScalarDiv(dur,1000)));
         if (repeat != SK_Scalar1)
             SkDebugf("repeat=\"%g\" ", SkScalarToFloat(repeat));
-#else
-        SkDebugf("dur=\"%x\" ", SkScalarDiv(dur,1000));
-        if (repeat != SK_Scalar1)
-            SkDebugf("repeat=\"%x\" ", repeat);
-#endif
         //if (fHasValues)
         //    SkDebugf("values=\"%s\" ", values);
         if (blend.count() != 1 || blend[0] != SK_Scalar1) {
@@ -59,11 +53,7 @@ void SkAnimate::dump(SkAnimateMaker* maker) {
                 if (!firstElem) 
                     SkDebugf(",");
                 firstElem = false;
-#ifdef SK_CAN_USE_FLOAT
                 SkDebugf("%g", SkScalarToFloat(blend[i]));
-#else
-                SkDebugf("%x", blend[i]);
-#endif
             }
             SkDebugf("]\" ");
         }

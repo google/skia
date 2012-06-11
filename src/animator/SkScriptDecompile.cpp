@@ -155,11 +155,7 @@ void SkScriptEngine2::decompile(const unsigned char* start, size_t length) {
             SkScalar scalar;
             memcpy(&scalar, opCode, sizeof(scalar));
             opCode += sizeof(SkScalar);
-#ifdef SK_CAN_USE_FLOAT
             SkDebugf(" scalar: %g", SkScalarToFloat(scalar));
-#else
-            SkDebugf(" scalar: %x", scalar);
-#endif
             } break;
         case SkScriptEngine2::kStringAccumulator:
         case SkScriptEngine2::kStringOperand: {

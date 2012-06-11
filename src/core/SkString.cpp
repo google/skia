@@ -123,7 +123,6 @@ char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
     return string;
 }
 
-#ifdef SK_CAN_USE_FLOAT
 char* SkStrAppendFloat(char string[], float value) {
     // since floats have at most 8 significant digits, we limit our %g to that.
     static const char gFormat[] = "%.8g";
@@ -134,7 +133,6 @@ char* SkStrAppendFloat(char string[], float value) {
     SkASSERT(len <= SkStrAppendScalar_MaxSize);
     return string + len;
 }
-#endif
 
 char* SkStrAppendFixed(char string[], SkFixed x) {
     SkDEBUGCODE(char* start = string;)

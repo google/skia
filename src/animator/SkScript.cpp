@@ -1644,9 +1644,7 @@ bool SkScriptEngine::ValueToString(SkScriptValue value, SkString* string) {
 
 #ifdef SK_SUPPORT_UNITTEST
 
-#ifdef SK_CAN_USE_FLOAT
-    #include "SkFloatingPoint.h"
-#endif
+#include "SkFloatingPoint.h"
 
 #define DEF_SCALAR_ANSWER   0
 #define DEF_STRING_ANSWER   NULL
@@ -1656,10 +1654,8 @@ bool SkScriptEngine::ValueToString(SkScriptValue value, SkString* string) {
     #define testScalar(expression) { #expression, SkType_Float, 0, (float) expression, DEF_STRING_ANSWER }
     #define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkType_Float, 0, sk_float_mod(exp1, exp2), DEF_STRING_ANSWER }
 #else
-    #ifdef SK_CAN_USE_FLOAT
-        #define testScalar(expression) { #expression, SkType_Float, 0, (int) ((expression) * 65536.0f), DEF_STRING_ANSWER }
-        #define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkType_Float, 0, (int) (sk_float_mod(exp1, exp2)  * 65536.0f), DEF_STRING_ANSWER }
-    #endif
+    #define testScalar(expression) { #expression, SkType_Float, 0, (int) ((expression) * 65536.0f), DEF_STRING_ANSWER }
+    #define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkType_Float, 0, (int) (sk_float_mod(exp1, exp2)  * 65536.0f), DEF_STRING_ANSWER }
 #endif
 #define testTrue(expression) { #expression, SkType_Int, 1, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
 #define testFalse(expression) { #expression, SkType_Int, 0, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
@@ -1669,7 +1665,6 @@ static const SkScriptNAnswer scriptTests[]  = {
     testInt((6+7)*8),
     testInt(0&&1?2:3),
     testInt(3*(4+5)),
-#ifdef SK_CAN_USE_FLOAT
     testScalar(1.0+2.0), 
     testScalar(1.0+5), 
     testScalar(3.0-1.0), 
@@ -1689,7 +1684,6 @@ static const SkScriptNAnswer scriptTests[]  = {
     testFalse(-9!=-9.0),
     testFalse(-9.!=-4.0-5),
     testFalse(-9.*1!=-4-5),
-#endif
     testInt(0x123),
     testInt(0XABC),
     testInt(0xdeadBEEF),
@@ -1740,7 +1734,6 @@ static const SkScriptNAnswer scriptTests[]  = {
     testInt(2!=2),
     testInt(2!=11),
     testInt(20!=11),
-#ifdef SK_CAN_USE_FLOAT
     // left int, right scalar
     testInt(2<2.),
     testInt(2<11.),
@@ -1797,7 +1790,6 @@ static const SkScriptNAnswer scriptTests[]  = {
     testInt(2.!=2.),
     testInt(2.!=11.),
     testInt(20.!=11.),
-#endif
     // int, string (string is int)
     testFalse(2<'2'),
     testTrue(2<'11'),
@@ -1821,7 +1813,6 @@ static const SkScriptNAnswer scriptTests[]  = {
     testFalse(20<'11.'),
     testTrue(2=='2.'),
     testFalse(2=='11.'),
-#ifdef SK_CAN_USE_FLOAT
     // scalar, string
     testFalse(2.<'2.'),
     testTrue(2.<'11.'),
@@ -1840,7 +1831,6 @@ static const SkScriptNAnswer scriptTests[]  = {
     testFalse('20'<11.),
     testTrue('2'==2.),
     testFalse('2'==11.),
-#endif
     // string, string
     testFalse('2'<'2'),
     testFalse('2'<'11'),
@@ -1873,9 +1863,7 @@ static const SkScriptNAnswer scriptTests[]  = {
     testInt(0?2:3?4:5),
     testInt(1?0:3?4:5),
     testInt(0?0:3?4:5)
-#ifdef SK_CAN_USE_FLOAT
     , { "123.5", SkType_Float, 0, SkIntToScalar(123) + SK_Scalar1/2, DEF_STRING_ANSWER }
-#endif
 };
 
 #define SkScriptNAnswer_testCount   SK_ARRAY_COUNT(scriptTests)
