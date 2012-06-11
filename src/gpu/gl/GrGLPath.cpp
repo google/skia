@@ -57,7 +57,9 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {
     SkPath::Iter iter(path, true);
 
     SkSTArray<16, GrGLubyte, true> pathCommands;
-    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT); // assuming SkPoint is floats
+#ifndef SK_SCALAR_IS_FLOAT
+    GrCrash("Expected scalar is float.");
+#endif
     SkSTArray<16, SkPoint, true> pathPoints;
 
     int verbCnt = path.countVerbs();
