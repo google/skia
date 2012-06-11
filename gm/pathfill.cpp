@@ -117,9 +117,7 @@ static const MakePathProc gProcs[] = {
 
 #define N   SK_ARRAY_COUNT(gProcs)
 
-namespace skiagm {
-
-class PathFillGM : public GM {
+class PathFillGM : public skiagm::GM {
     SkPath  fPath[N];
     SkScalar fDY[N];
 public:
@@ -128,16 +126,16 @@ public:
             fDY[i] = gProcs[i](&fPath[i]);
         }
     }
-
+    
 protected:
     virtual SkString onShortName() {
         return SkString("pathfill");
     }
-
+    
     virtual SkISize onISize() {
-        return make_isize(640, 480);
+        return SkISize::Make(640, 480);
     }
-
+    
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -147,14 +145,82 @@ protected:
             canvas->translate(SkIntToScalar(0), fDY[i]);
         }
     }
-
+    
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
+};
+
+// test inverse-fill w/ a clip that completely excludes the geometry
+class PathInverseFillGM : public skiagm::GM {
+    SkPath  fPath[N];
+    SkScalar fDY[N];
+public:
+    PathInverseFillGM() {
+        for (size_t i = 0; i < N; i++) {
+            fDY[i] = gProcs[i](&fPath[i]);
+        }
+    }
+    
+protected:
+    virtual SkString onShortName() {
+        return SkString("pathinvfill");
+    }
+    
+    virtual SkISize onISize() {
+        return SkISize::Make(450, 220);
+    }
+    
+    static void show(SkCanvas* canvas, const SkPath& path, const SkPaint& paint,
+                     const SkRect* clip, SkScalar top, const SkScalar bottom) {
+        canvas->save();
+        if (clip) {
+            SkRect r = *clip;
+            r.fTop = top;
+            r.fBottom = bottom;
+            canvas->clipRect(r);
+        }
+        canvas->drawPath(path, paint);
+        canvas->restore();
+    }
+
+    virtual void onDraw(SkCanvas* canvas) {
+        SkPath path;
+        
+        path.addCircle(SkIntToScalar(50), SkIntToScalar(50), SkIntToScalar(40));
+        path.toggleInverseFillType();
+
+        SkRect clipR = { 0, 0, SkIntToScalar(100), SkIntToScalar(200) };
+
+        canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
+
+        for (int doclip = 0; doclip <= 1; ++doclip) {
+            for (int aa = 0; aa <= 1; ++aa) {
+                SkPaint paint;
+                paint.setAntiAlias(SkToBool(aa));
+
+                canvas->save();
+                canvas->clipRect(clipR);
+                
+                const SkRect* clipPtr = doclip ? &clipR : NULL;
+
+                show(canvas, path, paint, clipPtr, clipR.fTop, clipR.centerY());
+                show(canvas, path, paint, clipPtr, clipR.centerY(), clipR.fBottom);
+                
+                canvas->restore();
+                canvas->translate(SkIntToScalar(110), 0);
+            }
+        }
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new PathFillGM; }
-static GMRegistry reg(MyFactory);
+static skiagm::GM* MyFactory(void*) { return new PathFillGM; }
+static skiagm::GMRegistry reg(MyFactory);
 
-}
+static skiagm::GM* F1(void*) { return new PathInverseFillGM; }
+static skiagm::GMRegistry gR1(F1);
+
