@@ -15,7 +15,8 @@
 
 class SkScanClipper {
 public:
-    SkScanClipper(SkBlitter* blitter, const SkRegion* clip, const SkIRect& bounds);
+    SkScanClipper(SkBlitter* blitter, const SkRegion* clip, const SkIRect& bounds,
+                  bool skipRejectTest = false);
 
     SkBlitter*      getBlitter() const { return fBlitter; }
     const SkIRect*  getClipRect() const { return fClipRect; }
