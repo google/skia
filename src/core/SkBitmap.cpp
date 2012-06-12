@@ -1429,7 +1429,7 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     } else if (fPixels) {
         if (fColorTable) {
             buffer.write8(SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE);
-            fColorTable->flatten(buffer);
+            buffer.writeFlattenable(fColorTable);
         } else {
             buffer.write8(SERIALIZE_PIXELTYPE_RAW_NO_CTABLE);
         }
@@ -1475,7 +1475,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
         case SERIALIZE_PIXELTYPE_RAW_NO_CTABLE: {
             SkColorTable* ctable = NULL;
             if (SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE == reftype) {
-                ctable = SkNEW_ARGS(SkColorTable, (buffer));
+                ctable = static_cast<SkColorTable*>(buffer.readFlattenable());
             }
             size_t size = this->getSize();
             if (this->allocPixels(ctable)) {

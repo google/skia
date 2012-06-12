@@ -9,6 +9,7 @@
 #ifndef SkSfntUtils_DEFINED
 #define SkSfntUtils_DEFINED
 
+#include "Sk64.h"
 #include "SkFontHost.h"
 
 struct SkSfntTable_head {
