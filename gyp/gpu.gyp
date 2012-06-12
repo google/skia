@@ -172,6 +172,7 @@
         'angle.gyp:*',
       ],
       'sources': [
+        '../include/gpu/GrAARectRenderer.h',
         '../include/gpu/GrClip.h',
         '../include/gpu/GrClipIterator.h',
         '../include/gpu/GrColor.h',
@@ -208,6 +209,7 @@
         '../src/gpu/GrAAHairLinePathRenderer.h',
         '../src/gpu/GrAAConvexPathRenderer.cpp',
         '../src/gpu/GrAAConvexPathRenderer.h',
+        '../src/gpu/GrAARectRenderer.cpp',
         '../src/gpu/GrAddPathRenderers_default.cpp',
         '../src/gpu/GrAllocator.h',
         '../src/gpu/GrAllocPool.h',

@@ -1088,6 +1088,7 @@ int main(int argc, char * const argv[]) {
 
     PRINT_INST_COUNT(SkRefCnt);
     PRINT_INST_COUNT(GrResource);
+    PRINT_INST_COUNT(GrAARectRenderer);
 
     return (0 == testsFailed) ? 0 : -1;
 }
