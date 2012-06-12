@@ -112,7 +112,9 @@ protected:
     virtual void performTest() SK_OVERRIDE {
         int sum = 0;
         for (size_t i = 0; i < ARRAY_N; ++i) {
-            sum += SkScalarIsFinite(fArray[i]);
+            // We pass -fArray[i], so the compiler can't cheat and treat the
+            // value as an int (even though we tell it that it is a float)
+            sum += SkScalarIsFinite(-fArray[i]);
         }
         // we do this so the compiler won't optimize our loop away...
         this->doSomething(fArray, sum);
