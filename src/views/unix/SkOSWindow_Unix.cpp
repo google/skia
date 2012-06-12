@@ -33,8 +33,7 @@ const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
         |ExposureMask|PointerMotionMask|KeyPressMask|KeyReleaseMask;
 
 SkOSWindow::SkOSWindow(void* unused)
-    : INHERITED()
-    , fVi(NULL)
+    : fVi(NULL)
     , fMSAASampleCount(0) {
     fUnixWindow.fDisplay = NULL;
     fUnixWindow.fGLContext = NULL;

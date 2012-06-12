@@ -69,10 +69,12 @@ protected:
                 SkMorphologyImageFilter* mf = NULL;
                 switch (fStyle) {
                 case kDilate_MT:
-                    mf = new SkDilateImageFilter(fRadius, fRadius);
+                    mf = new SkDilateImageFilter(SkScalarFloorToInt(fRadius), 
+                                                 SkScalarFloorToInt(fRadius));
                     break;
                 case kErode_MT:
-                    mf = new SkErodeImageFilter(fRadius, fRadius);
+                    mf = new SkErodeImageFilter(SkScalarFloorToInt(fRadius), 
+                                                SkScalarFloorToInt(fRadius));
                     break;
                 }
                 paint.setImageFilter(mf)->unref();

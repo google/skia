@@ -19,7 +19,7 @@ class SkBitmap;
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
 class SkPath;
-class SkPoint;
+struct SkPoint;
 class SkString;
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
