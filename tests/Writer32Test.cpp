@@ -12,6 +12,34 @@
 #include "SkWriter32.h"
 #include "Test.h"
 
+static void test_ptr(skiatest::Reporter* reporter) {
+    SkSWriter32<32> writer(32);
+    
+    void* p0 = reporter;
+    void* p1 = &writer;
+
+    // try writing ptrs where at least one of them may be at a non-multiple of
+    // 8 boundary, to confirm this works on 64bit machines.
+
+    writer.writePtr(p0);
+    writer.write8(0x33);
+    writer.writePtr(p1);
+    writer.write8(0x66);
+
+    size_t size = writer.size();
+    REPORTER_ASSERT(reporter, 2 * sizeof(void*) + 2 * sizeof(int32_t));
+
+    char buffer[32];
+    SkASSERT(sizeof(buffer) >= size);
+    writer.flatten(buffer);
+
+    SkReader32 reader(buffer, size);
+    REPORTER_ASSERT(reporter, reader.readPtr() == p0);
+    REPORTER_ASSERT(reporter, reader.readInt() == 0x33);
+    REPORTER_ASSERT(reporter, reader.readPtr() == p1);
+    REPORTER_ASSERT(reporter, reader.readInt() == 0x66);
+}
+
 static void test1(skiatest::Reporter* reporter, SkWriter32* writer) {
     const uint32_t data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     for (size_t i = 0; i < SK_ARRAY_COUNT(data); ++i) {
@@ -79,8 +107,7 @@ static void Tests(skiatest::Reporter* reporter) {
     
     // small storage
     {
-        intptr_t storage[8];
-        SkWriter32 writer(100, storage, sizeof(storage));
+        SkSWriter32<8 * sizeof(intptr_t)> writer(100);
         test1(reporter, &writer);
         writer.reset(); // should just rewind our storage
         test2(reporter, &writer);
@@ -88,12 +115,13 @@ static void Tests(skiatest::Reporter* reporter) {
     
     // large storage
     {
-        intptr_t storage[1024];
-        SkWriter32 writer(100, storage, sizeof(storage));
+        SkSWriter32<1024 * sizeof(intptr_t)> writer(100);
         test1(reporter, &writer);
         writer.reset(); // should just rewind our storage
         test2(reporter, &writer);
     }
+    
+    test_ptr(reporter);
 }
 
 #include "TestClassDef.h"
