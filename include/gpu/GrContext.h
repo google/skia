@@ -12,6 +12,7 @@
 
 #include "GrClip.h"
 #include "GrPaint.h"
+#include "GrAARectRenderer.h"
 // not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
 // remove.
 #include "GrRenderTarget.h" 
@@ -704,25 +705,9 @@ private:
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;
     GrInOrderDrawBuffer*        fDrawBuffer;
 
-    GrIndexBuffer*              fAAFillRectIndexBuffer;
-    GrIndexBuffer*              fAAStrokeRectIndexBuffer;
-
     GrContext(GrGpu* gpu);
 
-    void fillAARect(GrDrawTarget* target,
-                    const GrRect& devRect,
-                    bool useVertexCoverage);
-
-    void strokeAARect(GrDrawTarget* target,
-                      const GrRect& devRect,
-                      const GrVec& devStrokeSize,
-                      bool useVertexCoverage);
-
-    inline int aaFillRectIndexCount() const;
-    GrIndexBuffer* aaFillRectIndexBuffer();
-
-    inline int aaStrokeRectIndexCount() const;
-    GrIndexBuffer* aaStrokeRectIndexBuffer();
+    GrAARectRenderer*            fAARectRenderer;
 
     void setupDrawBuffer();
 

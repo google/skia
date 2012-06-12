@@ -81,8 +81,8 @@ GrContext::~GrContext() {
     delete fDrawBufferVBAllocPool;
     delete fDrawBufferIBAllocPool;
 
-    GrSafeUnref(fAAFillRectIndexBuffer);
-    GrSafeUnref(fAAStrokeRectIndexBuffer);
+    fAARectRenderer->unref();
+
     fGpu->unref();
     GrSafeUnref(fPathRendererChain);
     GrSafeUnref(fSoftwarePathRenderer);
@@ -113,8 +113,7 @@ void GrContext::contextDestroyed() {
     delete fDrawBufferIBAllocPool;
     fDrawBufferIBAllocPool = NULL;
 
-    GrSafeSetNull(fAAFillRectIndexBuffer);
-    GrSafeSetNull(fAAStrokeRectIndexBuffer);
+    fAARectRenderer->reset();
 
     fTextureCache->removeAll();
     fFontCache->freeAll();
@@ -129,6 +128,8 @@ void GrContext::freeGpuResources() {
     this->flush();
     
     fGpu->purgeResources();
+
+    fAARectRenderer->reset();
 
     fTextureCache->removeAll();
     fFontCache->freeAll();
@@ -668,215 +669,6 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
     verts[9] = verts[1];
 }
 
-static void setInsetFan(GrPoint* pts, size_t stride,
-                        const GrRect& r, GrScalar dx, GrScalar dy) {
-    pts->setRectFan(r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
-}
-
-static const uint16_t gFillAARectIdx[] = {
-    0, 1, 5, 5, 4, 0,
-    1, 2, 6, 6, 5, 1,
-    2, 3, 7, 7, 6, 2,
-    3, 0, 4, 4, 7, 3,
-    4, 5, 6, 6, 7, 4,
-};
-
-int GrContext::aaFillRectIndexCount() const {
-    return GR_ARRAY_COUNT(gFillAARectIdx);
-}
-
-GrIndexBuffer* GrContext::aaFillRectIndexBuffer() {
-    if (NULL == fAAFillRectIndexBuffer) {
-        fAAFillRectIndexBuffer = fGpu->createIndexBuffer(sizeof(gFillAARectIdx),
-                                                         false);
-        if (NULL != fAAFillRectIndexBuffer) {
-    #if GR_DEBUG
-            bool updated =
-    #endif
-            fAAFillRectIndexBuffer->updateData(gFillAARectIdx,
-                                               sizeof(gFillAARectIdx));
-            GR_DEBUGASSERT(updated);
-        }
-    }
-    return fAAFillRectIndexBuffer;
-}
-
-static const uint16_t gStrokeAARectIdx[] = {
-    0 + 0, 1 + 0, 5 + 0, 5 + 0, 4 + 0, 0 + 0,
-    1 + 0, 2 + 0, 6 + 0, 6 + 0, 5 + 0, 1 + 0,
-    2 + 0, 3 + 0, 7 + 0, 7 + 0, 6 + 0, 2 + 0,
-    3 + 0, 0 + 0, 4 + 0, 4 + 0, 7 + 0, 3 + 0,
-
-    0 + 4, 1 + 4, 5 + 4, 5 + 4, 4 + 4, 0 + 4,
-    1 + 4, 2 + 4, 6 + 4, 6 + 4, 5 + 4, 1 + 4,
-    2 + 4, 3 + 4, 7 + 4, 7 + 4, 6 + 4, 2 + 4,
-    3 + 4, 0 + 4, 4 + 4, 4 + 4, 7 + 4, 3 + 4,
-
-    0 + 8, 1 + 8, 5 + 8, 5 + 8, 4 + 8, 0 + 8,
-    1 + 8, 2 + 8, 6 + 8, 6 + 8, 5 + 8, 1 + 8,
-    2 + 8, 3 + 8, 7 + 8, 7 + 8, 6 + 8, 2 + 8,
-    3 + 8, 0 + 8, 4 + 8, 4 + 8, 7 + 8, 3 + 8,
-};
-
-int GrContext::aaStrokeRectIndexCount() const {
-    return GR_ARRAY_COUNT(gStrokeAARectIdx);
-}
-
-GrIndexBuffer* GrContext::aaStrokeRectIndexBuffer() {
-    if (NULL == fAAStrokeRectIndexBuffer) {
-        fAAStrokeRectIndexBuffer = fGpu->createIndexBuffer(sizeof(gStrokeAARectIdx),
-                                                           false);
-        if (NULL != fAAStrokeRectIndexBuffer) {
-    #if GR_DEBUG
-            bool updated =
-    #endif
-            fAAStrokeRectIndexBuffer->updateData(gStrokeAARectIdx,
-                                                 sizeof(gStrokeAARectIdx));
-            GR_DEBUGASSERT(updated);
-        }
-    }
-    return fAAStrokeRectIndexBuffer;
-}
-
-static GrVertexLayout aa_rect_layout(const GrDrawTarget* target,
-                                     bool useCoverage) {
-    GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (NULL != target->getDrawState().getTexture(s)) {
-            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
-        }
-    }
-    if (useCoverage) {
-        layout |= GrDrawTarget::kCoverage_VertexLayoutBit;
-    } else {
-        layout |= GrDrawTarget::kColor_VertexLayoutBit;
-    }
-    return layout;
-}
-
-void GrContext::fillAARect(GrDrawTarget* target,
-                           const GrRect& devRect,
-                           bool useVertexCoverage) {
-    GrVertexLayout layout = aa_rect_layout(target, useVertexCoverage);
-
-    size_t vsize = GrDrawTarget::VertexSize(layout);
-
-    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 8, 0);
-    if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
-        return;
-    }
-    GrIndexBuffer* indexBuffer = this->aaFillRectIndexBuffer();
-    if (NULL == indexBuffer) {
-        GrPrintf("Failed to create index buffer!\n");
-        return;
-    }
-
-    intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-
-    GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
-    GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
-
-    setInsetFan(fan0Pos, vsize, devRect, -GR_ScalarHalf, -GR_ScalarHalf);
-    setInsetFan(fan1Pos, vsize, devRect,  GR_ScalarHalf,  GR_ScalarHalf);
-
-    verts += sizeof(GrPoint);
-    for (int i = 0; i < 4; ++i) {
-        *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
-    }
-
-    GrColor innerColor;
-    if (useVertexCoverage) {
-        innerColor = 0xffffffff;
-    } else {
-        innerColor = target->getDrawState().getColor();
-    }
-
-    verts += 4 * vsize;
-    for (int i = 0; i < 4; ++i) {
-        *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
-    }
-
-    target->setIndexSourceToBuffer(indexBuffer);
-
-    target->drawIndexed(kTriangles_GrPrimitiveType, 0,
-                         0, 8, this->aaFillRectIndexCount());
-}
-
-void GrContext::strokeAARect(GrDrawTarget* target,
-                             const GrRect& devRect,
-                             const GrVec& devStrokeSize,
-                             bool useVertexCoverage) {
-    const GrScalar& dx = devStrokeSize.fX;
-    const GrScalar& dy = devStrokeSize.fY;
-    const GrScalar rx = GrMul(dx, GR_ScalarHalf);
-    const GrScalar ry = GrMul(dy, GR_ScalarHalf);
-
-    GrScalar spare;
-    {
-        GrScalar w = devRect.width() - dx;
-        GrScalar h = devRect.height() - dy;
-        spare = GrMin(w, h);
-    }
-
-    if (spare <= 0) {
-        GrRect r(devRect);
-        r.inset(-rx, -ry);
-        fillAARect(target, r, useVertexCoverage);
-        return;
-    }
-    GrVertexLayout layout = aa_rect_layout(target, useVertexCoverage);
-    size_t vsize = GrDrawTarget::VertexSize(layout);
-
-    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 16, 0);
-    if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
-        return;
-    }
-    GrIndexBuffer* indexBuffer = this->aaStrokeRectIndexBuffer();
-    if (NULL == indexBuffer) {
-        GrPrintf("Failed to create index buffer!\n");
-        return;
-    }
-
-    intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-
-    GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
-    GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
-    GrPoint* fan2Pos = reinterpret_cast<GrPoint*>(verts + 8 * vsize);
-    GrPoint* fan3Pos = reinterpret_cast<GrPoint*>(verts + 12 * vsize);
-
-    setInsetFan(fan0Pos, vsize, devRect, -rx - GR_ScalarHalf, -ry - GR_ScalarHalf);
-    setInsetFan(fan1Pos, vsize, devRect, -rx + GR_ScalarHalf, -ry + GR_ScalarHalf);
-    setInsetFan(fan2Pos, vsize, devRect,  rx - GR_ScalarHalf,  ry - GR_ScalarHalf);
-    setInsetFan(fan3Pos, vsize, devRect,  rx + GR_ScalarHalf,  ry + GR_ScalarHalf);
-
-    verts += sizeof(GrPoint);
-    for (int i = 0; i < 4; ++i) {
-        *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
-    }
-
-    GrColor innerColor;
-    if (useVertexCoverage) {
-        innerColor = 0xffffffff;
-    } else {
-        innerColor = target->getDrawState().getColor();
-    }
-    verts += 4 * vsize;
-    for (int i = 0; i < 8; ++i) {
-        *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
-    }
-
-    verts += 8 * vsize;
-    for (int i = 0; i < 8; ++i) {
-        *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
-    }
-
-    target->setIndexSourceToBuffer(indexBuffer);
-    target->drawIndexed(kTriangles_GrPrimitiveType,
-                        0, 0, 16, aaStrokeRectIndexCount());
-}
-
 /**
  * Returns true if the rects edges are integer-aligned.
  */
@@ -974,9 +766,11 @@ void GrContext::drawRect(const GrPaint& paint,
             } else {
                 strokeSize.set(GR_Scalar1, GR_Scalar1);
             }
-            strokeAARect(target, devRect, strokeSize, useVertexCoverage);
+            fAARectRenderer->strokeAARect(this->getGpu(), target, devRect, 
+                                         strokeSize, useVertexCoverage);
         } else {
-            fillAARect(target, devRect, useVertexCoverage);
+            fAARectRenderer->fillAARect(this->getGpu(), target, 
+                                       devRect, useVertexCoverage);
         }
         return;
     }
@@ -1919,8 +1713,7 @@ GrContext::GrContext(GrGpu* gpu) {
     fDrawBufferVBAllocPool = NULL;
     fDrawBufferIBAllocPool = NULL;
 
-    fAAFillRectIndexBuffer = NULL;
-    fAAStrokeRectIndexBuffer = NULL;
+    fAARectRenderer = new GrAARectRenderer;
 
     this->setupDrawBuffer();
 }
