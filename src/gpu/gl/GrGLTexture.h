@@ -76,7 +76,9 @@ public:
 
     virtual ~GrGLTexture() { this->release(); }
 
-    virtual intptr_t getTextureHandle() const;
+    virtual intptr_t getTextureHandle() const SK_OVERRIDE;
+
+    virtual void invalidateCachedState() SK_OVERRIDE { fTexParams.invalidate(); }
 
     // these functions 
     const TexParams& getCachedTexParams(GrGpu::ResetTimestamp* timestamp) const {
@@ -105,8 +107,8 @@ public:
 protected:
 
     // overrides of GrTexture
-    virtual void onAbandon();
-    virtual void onRelease();
+    virtual void onAbandon() SK_OVERRIDE;
+    virtual void onRelease() SK_OVERRIDE;
 
 private:
     TexParams                       fTexParams;

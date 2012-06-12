@@ -133,6 +133,12 @@ public:
      */
     virtual intptr_t getTextureHandle() const = 0;
 
+    /**
+     *  Call this when the state of the native API texture object is
+     *  altered directly, without being tracked by skia. 
+     */
+    virtual void invalidateCachedState() = 0;
+
 #if GR_DEBUG
     void validate() const {
         this->INHERITED::validate();
