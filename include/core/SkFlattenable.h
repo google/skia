@@ -11,15 +11,15 @@
 #define SkFlattenable_DEFINED
 
 #include "SkRefCnt.h"
-#include "SkBitmap.h"
-#include "SkPath.h"
-#include "SkPoint.h"
 #include "SkReader32.h"
 #include "SkTDArray.h"
 #include "SkWriter32.h"
 
+class SkBitmap;
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
+class SkPath;
+class SkPoint;
 class SkString;
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

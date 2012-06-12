@@ -6,6 +6,7 @@
  */
 
 #include "SkMorphologyImageFilter.h"
+#include "SkBitmap.h"
 #include "SkColorPriv.h"
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer)
