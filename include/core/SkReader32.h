@@ -58,7 +58,19 @@ public:
         SkASSERT(fCurr <= fStop);
         return value;
     }
-    
+
+    void* readPtr() {
+        void* ptr;
+        // we presume this "if" is resolved at compile-time
+        if (4 == sizeof(void*)) {
+            ptr = *(void**)fCurr;
+        } else {
+            memcpy(&ptr, fCurr, sizeof(void*));
+        }
+        fCurr += sizeof(void*);
+        return ptr;
+    }
+
     SkScalar readScalar() {
         SkASSERT(ptr_align_4(fCurr));
         SkScalar value = *(const SkScalar*)fCurr;

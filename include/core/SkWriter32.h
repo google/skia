@@ -77,6 +77,17 @@ public:
         *(int32_t*)this->reserve(sizeof(value)) = value;
     }
     
+    void writePtr(void* ptr) {
+        // Since we "know" that we're always 4-byte aligned, we can tell the
+        // compiler that here, by assigning to an int32 ptr.
+        int32_t* addr = (int32_t*)this->reserve(sizeof(void*));
+        if (4 == sizeof(void*)) {
+            *(void**)addr = ptr;
+        } else {
+            memcpy(addr, &ptr, sizeof(void*));
+        }
+    }
+
     void writeScalar(SkScalar value) {
         *(SkScalar*)this->reserve(sizeof(value)) = value;
     }
@@ -174,6 +185,24 @@ private:
     bool fHeadIsExternalStorage;
 
     Block* newBlock(size_t bytes);
+};
+
+/**
+ *  Helper class to allocated SIZE bytes as part of the writer, and to provide
+ *  that storage to the constructor as its initial storage buffer.
+ *
+ *  This wrapper ensures proper alignment rules are met for the storage.
+ */
+template <size_t SIZE> class SkSWriter32 : public SkWriter32 {
+public:
+    SkSWriter32(size_t minSize) : SkWriter32(minSize, fData.fStorage, SIZE) {}
+    
+private:
+    union {
+        void*   fPtrAlignment;
+        double  fDoubleAlignment;
+        char    fStorage[SIZE];
+    } fData;
 };
 
 #endif
