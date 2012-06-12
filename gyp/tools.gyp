@@ -18,6 +18,7 @@
         'skdiff',
         'skhello',
         'skimage',
+        'render_pictures',
       ],
     },
     {
@@ -62,6 +63,19 @@
         'utils.gyp:utils',
       ],
     },
+    {
+      'target_name': 'render_pictures',
+      'type': 'executable',
+      'sources': [
+        '../tools/render_pictures_main.cpp',
+      ],
+      'dependencies': [
+        'core.gyp:core',
+        'images.gyp:images',
+        'ports.gyp:ports',
+      ],
+    },
+
   ],
 }
 
