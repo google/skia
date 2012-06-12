@@ -10,8 +10,7 @@
 #include "SkTypeface.h"
 
 
-SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size)
-        : INHERITED() {
+SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) {
     fReader.setMemory(data, size);
 }
 

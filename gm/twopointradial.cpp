@@ -69,7 +69,10 @@ protected:
         if (false) {
             SkPaint paint;
             paint.setColor(SK_ColorBLUE);
-            canvas->drawRect(SkRect::MakeWH(this->getISize().fWidth, this->getISize().fHeight), paint);
+            canvas->drawRect(
+                    SkRect::MakeWH(SkIntToScalar(this->getISize().fWidth), 
+                                   SkIntToScalar(this->getISize().fHeight)), 
+                    paint);
         }
         SkPaint paint;
         const int R0 = 20;

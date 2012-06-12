@@ -27,7 +27,7 @@ SkColorTable::SkColorTable(int count)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 }
 
-SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
+SkColorTable::SkColorTable(const SkColorTable& src) {
     f16BitCache = NULL;
     fFlags = src.fFlags;
     int count = src.count();

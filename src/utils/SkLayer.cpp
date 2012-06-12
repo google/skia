@@ -34,7 +34,7 @@ SkLayer::SkLayer() {
 #endif
 }
 
-SkLayer::SkLayer(const SkLayer& src) : INHERITED() {
+SkLayer::SkLayer(const SkLayer& src) {
     fParent = NULL;
     m_opacity = src.m_opacity;
     m_size = src.m_size;

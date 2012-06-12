@@ -9,14 +9,14 @@
 #include "SkOrderedWriteBuffer.h"
 #include "SkTypeface.h"
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize) :
-    INHERITED(),
-    fWriter(minSize) {
+SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize) 
+    : fWriter(minSize) {
 }
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, void* storage, size_t storageSize) :
-    INHERITED(),
-    fWriter(minSize, storage, storageSize) {
+SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, 
+                                           void* storage, 
+                                           size_t storageSize)
+    : fWriter(minSize, storage, storageSize) {
 }
 
 void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
