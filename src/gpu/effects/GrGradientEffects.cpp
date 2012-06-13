@@ -96,8 +96,10 @@ public:
 
 protected:
 
-    const GrGLShaderVar* fParamVar;
-    GrGLint fParamLocation;
+    const GrGLShaderVar* fVSParamVar;
+    GrGLint fVSParamLocation;
+    const GrGLShaderVar* fFSParamVar;
+    GrGLint fFSParamLocation;
 
     const char* fVSVaryingName;
     const char* fFSVaryingName;
@@ -123,7 +125,8 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
         const GrProgramStageFactory& factory,
         const GrCustomStage& baseData)
     : INHERITED(factory)
-    , fParamVar(NULL)
+    , fVSParamVar(NULL)
+    , fFSParamVar(NULL)
     , fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
     , fCachedCenter(GR_ScalarMax)
@@ -136,11 +139,18 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
 }
 
 void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* state, int stage) {
-    fParamVar = &state->addUniform(
-        GrGLShaderBuilder::kBoth_VariableLifetime,
-        kFloat_GrSLType, "uRadial2Params", stage, 6);
+    // 2 copies of uniform array, 1 for each of vertex & fragment shader,
+    // to work around Xoom bug. Doesn't seem to cause performance decrease
+    // in test apps, but need to keep an eye on it.
+    fVSParamVar = &state->addUniform(
+        GrGLShaderBuilder::kVertex_VariableLifetime,
+        kFloat_GrSLType, "uRadial2VSParams", stage, 6);
+    fFSParamVar = &state->addUniform(
+        GrGLShaderBuilder::kFragment_VariableLifetime,
+        kFloat_GrSLType, "uRadial2FSParams", stage, 6);
 
-    fParamLocation = GrGLProgramStage::kUseUniform;
+    fVSParamLocation = GrGLProgramStage::kUseUniform;
+    fFSParamLocation = GrGLProgramStage::kUseUniform;
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
@@ -155,8 +165,8 @@ void GrGLRadial2Gradient::emitVS(GrGLShaderBuilder* state,
     GrStringBuilder* code = &state->fVSCode;
     GrStringBuilder p2;
     GrStringBuilder p3;
-    fParamVar->appendArrayAccess(2, &p2);
-    fParamVar->appendArrayAccess(3, &p3);
+    fVSParamVar->appendArrayAccess(2, &p2);
+    fVSParamVar->appendArrayAccess(3, &p3);
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
@@ -182,12 +192,12 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
     GrStringBuilder p3;
     GrStringBuilder p4;
     GrStringBuilder p5;
-    fParamVar->appendArrayAccess(0, &p0);
-    fParamVar->appendArrayAccess(1, &p1);
-    fParamVar->appendArrayAccess(2, &p2);
-    fParamVar->appendArrayAccess(3, &p3);
-    fParamVar->appendArrayAccess(4, &p4);
-    fParamVar->appendArrayAccess(5, &p5);
+    fFSParamVar->appendArrayAccess(0, &p0);
+    fFSParamVar->appendArrayAccess(1, &p1);
+    fFSParamVar->appendArrayAccess(2, &p2);
+    fFSParamVar->appendArrayAccess(3, &p3);
+    fFSParamVar->appendArrayAccess(4, &p4);
+    fFSParamVar->appendArrayAccess(5, &p5);
 
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
@@ -242,8 +252,10 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
 }
 
 void GrGLRadial2Gradient::initUniforms(const GrGLInterface* gl, int programID) {
-    GR_GL_CALL_RET(gl, fParamLocation,
-        GetUniformLocation(programID, fParamVar->getName().c_str()));
+    GR_GL_CALL_RET(gl, fVSParamLocation,
+        GetUniformLocation(programID, fVSParamVar->getName().c_str()));
+    GR_GL_CALL_RET(gl, fFSParamLocation,
+        GetUniformLocation(programID, fFSParamVar->getName().c_str()));
 }
 
 void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
@@ -275,7 +287,8 @@ void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
             data.isPosRoot() ? 1.f : -1.f
         };
 
-        GR_GL_CALL(gl, Uniform1fv(fParamLocation, 6, values));
+        GR_GL_CALL(gl, Uniform1fv(fVSParamLocation, 6, values));
+        GR_GL_CALL(gl, Uniform1fv(fFSParamLocation, 6, values));
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
         fCachedPosRoot = data.isPosRoot();
