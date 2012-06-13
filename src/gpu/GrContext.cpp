@@ -744,6 +744,7 @@ void GrContext::drawRect(const GrPaint& paint,
     SK_TRACE_EVENT0("GrContext::drawRect");
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    GrDrawState::AutoTextureRelease atr(fDrawState);
     int stageMask = paint.getActiveStageMask();
 
     GrRect devRect = rect;
@@ -863,6 +864,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 
 #if GR_STATIC_RECT_VB
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    GrDrawState::AutoTextureRelease atr(fDrawState);
     GrDrawState* drawState = target->drawState();
     GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL);
     GrDrawState::AutoViewMatrixRestore avmr(drawState);
@@ -907,6 +909,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 #else
     target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
+    GrDrawState::AutoTextureRelease atr(fDrawState);
 
     const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
     const GrMatrix* srcMatrices[GrDrawState::kNumStages] = {NULL};
@@ -930,6 +933,7 @@ void GrContext::drawVertices(const GrPaint& paint,
     GrDrawTarget::AutoReleaseGeometry geo;
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    GrDrawState::AutoTextureRelease atr(fDrawState);
 
     bool hasTexCoords[GrPaint::kTotalStages] = {
         NULL != texCoords,   // texCoordSrc provides explicit stage 0 coords
@@ -1034,6 +1038,7 @@ void GrContext::drawOval(const GrPaint& paint,
     DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
                                             kUnbuffered_DrawCategory;
     GrDrawTarget* target = this->prepareToDraw(paint, category);
+    GrDrawState::AutoTextureRelease atr(fDrawState);
     GrDrawState* drawState = target->drawState();
     GrMatrix vm = drawState->getViewMatrix();
 
@@ -1139,6 +1144,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
     DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
                                             kUnbuffered_DrawCategory;
     GrDrawTarget* target = this->prepareToDraw(paint, category);
+    GrDrawState::AutoTextureRelease atr(fDrawState);
     GrDrawState::StageMask stageMask = paint.getActiveStageMask();
 
     bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
@@ -1813,7 +1819,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         srcRect = dstRect;
         SkTSwap(srcTexture, dstTexture);
         // If temp2 is non-NULL, don't render back to origTexture
-        if (temp2 && dstTexture == origTexture) dstTexture = temp2->texture();
+        if (temp2 && dstTexture == origTexture) {
+            dstTexture = temp2->texture();
+        }
     }
 
     SkIRect srcIRect;

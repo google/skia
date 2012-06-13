@@ -205,6 +205,27 @@ public:
         return fTextures[stage];
     }
 
+    /**
+     * Release all the textures referred to by this draw state
+     */
+    void releaseTextures() {
+        for (int i = 0; i < kNumStages; ++i) {
+            this->setTexture(i, NULL);
+        }
+    }
+
+    class AutoTextureRelease : public ::GrNoncopyable {
+    public:
+        AutoTextureRelease(GrDrawState* ds) : fDrawState(ds) {}
+        ~AutoTextureRelease() { 
+            if (NULL != fDrawState) {
+                fDrawState->releaseTextures();
+            }
+        }
+    private:
+        GrDrawState* fDrawState;
+    };
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
