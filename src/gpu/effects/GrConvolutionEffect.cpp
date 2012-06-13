@@ -85,7 +85,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
                                    const char* samplerName) {
     GrStringBuilder* code = &state->fFSCode;
 
-    code->appendf("\t\tvec4 sum = vec4(0, 0, 0, 0);\n");
+    code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
 
     code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
 
@@ -95,14 +95,17 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
         GrStringBuilder kernelIndex;
         index.appendS32(i);
         fKernelVar->appendArrayAccess(index.c_str(), &kernelIndex);
-        code->appendf("\t\tsum += ");
+        code->appendf("\t\t%s += ", outputColor);
         state->emitTextureLookup(samplerName, "coord");
         code->appendf(" * %s;\n", kernelIndex.c_str());
         code->appendf("\t\tcoord += %s;\n",
                       fImageIncrementVar->getName().c_str());
     }
 
-    code->appendf("\t\t%s = sum%s;\n", outputColor, state->fModulate.c_str());
+    if (state->fModulate.size()) {
+        code->appendf("\t\t%s = %s%s;\n", outputColor, outputColor,
+                      state->fModulate.c_str());
+    }
 }
 
 void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
