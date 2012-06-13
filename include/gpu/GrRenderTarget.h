@@ -33,6 +33,7 @@ class GrTexture;
  */
 class GrRenderTarget : public GrResource {
 public:
+    SK_DECLARE_INST_COUNT(GrRenderTarget)
 
     /**
      * @return the width of the rendertarget

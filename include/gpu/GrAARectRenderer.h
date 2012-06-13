@@ -21,7 +21,7 @@ class GrIndexBuffer;
  */
 class GrAARectRenderer : public GrRefCnt {
 public:
-    DECLARE_INST_COUNT
+    SK_DECLARE_INST_COUNT(GrAARectRenderer)
 
     GrAARectRenderer() 
     : fAAFillRectIndexBuffer(NULL)
@@ -62,6 +62,8 @@ private:
 
     static int aaStrokeRectIndexCount();
     GrIndexBuffer* aaStrokeRectIndexBuffer(GrGpu* gpu);
+
+    typedef GrRefCnt INHERITED;
 };
 
 #endif // GrAARectRenderer_DEFINED

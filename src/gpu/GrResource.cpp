@@ -10,7 +10,7 @@
 #include "GrResource.h"
 #include "GrGpu.h"
 
-DEFINE_INST_COUNT(GrResource)
+SK_DEFINE_INST_COUNT(GrResource)
 
 GrResource::GrResource(GrGpu* gpu) {
     fGpu        = gpu;

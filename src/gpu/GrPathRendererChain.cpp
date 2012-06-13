@@ -13,6 +13,8 @@
 #include "GrDefaultPathRenderer.h"
 #include "GrGpu.h"
 
+SK_DEFINE_INST_COUNT(GrPathRendererChain)
+
 GrPathRendererChain::GrPathRendererChain(GrContext* context, UsageFlags flags)
     : fInit(false)
     , fOwner(context)

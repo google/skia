@@ -25,7 +25,7 @@
 */
 class SK_API SkRefCnt : SkNoncopyable {
 public:
-    DECLARE_INST_COUNT
+    SK_DECLARE_INST_COUNT_ROOT(SkRefCnt)
 
     /** Default construct, initializing the reference count to 1.
     */
@@ -83,6 +83,8 @@ private:
     friend class SkWeakRefCnt;
 
     mutable int32_t fRefCnt;
+
+    typedef SkNoncopyable INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

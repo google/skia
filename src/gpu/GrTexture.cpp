@@ -14,6 +14,8 @@
 #include "GrRenderTarget.h"
 #include "GrResourceCache.h"
 
+SK_DEFINE_INST_COUNT(GrTexture)
+
 bool GrTexture::readPixels(int left, int top, int width, int height,
                            GrPixelConfig config, void* buffer,
                            size_t rowBytes) {

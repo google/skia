@@ -18,8 +18,10 @@ class SkFlattenableWriteBuffer;
 
 class SkPathHeap : public SkRefCnt {
 public:
-            SkPathHeap();
-            SkPathHeap(SkFlattenableReadBuffer&);
+    SK_DECLARE_INST_COUNT(SkPathHeap)
+
+    SkPathHeap();
+    SkPathHeap(SkFlattenableReadBuffer&);
     virtual ~SkPathHeap();
 
     /** Copy the path into the heap, and return the new total number of paths.
@@ -41,6 +43,8 @@ private:
     SkChunkAlloc        fHeap;
     // we just store ptrs into fHeap here
     SkTDArray<SkPath*>  fPaths;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
