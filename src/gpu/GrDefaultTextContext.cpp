@@ -61,6 +61,7 @@ void GrDefaultTextContext::flushGlyphs() {
                                           4, 6);
         fVertices = NULL;
         this->INHERITED::reset();
+        drawState->setTexture(kGlyphMaskStage, NULL);
     }
 }
 
