@@ -761,239 +761,72 @@ static void test_transform(skiatest::Reporter* reporter) {
 
 static void test_zero_length_paths(skiatest::Reporter* reporter) {
     SkPath  p;
-    SkPoint pt;
-    SkRect  bounds;
+    uint8_t verbs[32];
 
-    // Lone moveTo case
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 1 == p.countPoints());
-    p.getLastPt(&pt);
-    REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1);
-    REPORTER_ASSERT(reporter, pt.fY == SK_Scalar1);
-    bounds.set(0, 0, 0, 0);
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[1];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    }
+    struct zeroPathTestData {
+        const char* testPath;
+        const size_t numResultPts;
+        const SkRect resultBound;
+        const SkPath::Verb* resultVerbs;
+        const size_t numResultVerbs;
+    };
 
-    // MoveTo-MoveTo case
-    p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 2 == p.countPoints());
-    REPORTER_ASSERT(reporter, 2 == p.countVerbs());
-    p.getLastPt(&pt);
-    REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1*2);
-    REPORTER_ASSERT(reporter, pt.fY == SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1);
-    REPORTER_ASSERT(reporter, bounds == p.getBounds()); 
-    {
-    uint8_t verbs[2];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[1]);
-    }
+    static const SkPath::Verb resultVerbs1[] = { SkPath::kMove_Verb };
+    static const SkPath::Verb resultVerbs2[] = { SkPath::kMove_Verb, SkPath::kMove_Verb };
+    static const SkPath::Verb resultVerbs3[] = { SkPath::kMove_Verb, SkPath::kClose_Verb };
+    static const SkPath::Verb resultVerbs4[] = { SkPath::kMove_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb };
+    static const SkPath::Verb resultVerbs5[] = { SkPath::kMove_Verb, SkPath::kLine_Verb };
+    static const SkPath::Verb resultVerbs6[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kLine_Verb };
+    static const SkPath::Verb resultVerbs7[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb };
+    static const SkPath::Verb resultVerbs8[] = {
+        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb
+    };
+    static const SkPath::Verb resultVerbs9[] = { SkPath::kMove_Verb, SkPath::kQuad_Verb };
+    static const SkPath::Verb resultVerbs10[] = { SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kMove_Verb, SkPath::kQuad_Verb };
+    static const SkPath::Verb resultVerbs11[] = { SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb };
+    static const SkPath::Verb resultVerbs12[] = {
+        SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb
+    };
+    static const SkPath::Verb resultVerbs13[] = { SkPath::kMove_Verb, SkPath::kCubic_Verb };
+    static const SkPath::Verb resultVerbs14[] = { SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kMove_Verb, SkPath::kCubic_Verb };
+    static const SkPath::Verb resultVerbs15[] = { SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb };
+    static const SkPath::Verb resultVerbs16[] = {
+        SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb
+    };
+    static const struct zeroPathTestData gZeroLengthTests[] = {
+        { "M 1 1", 1, {0, 0, 0, 0}, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 1 m 1 0", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs2, SK_ARRAY_COUNT(resultVerbs2) },
+        { "M 1 1 z", 1, {0, 0, 0, 0}, resultVerbs3, SK_ARRAY_COUNT(resultVerbs3) },
+        { "M 1 1 z m 1 0 z", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs4, SK_ARRAY_COUNT(resultVerbs4) },
+        { "M 1 1 l 0 0", 2, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs5, SK_ARRAY_COUNT(resultVerbs5) },
+        { "M 1 1 l 0 0 m 1 0 l 0 0", 4, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs6, SK_ARRAY_COUNT(resultVerbs6) },
+        { "M 1 1 l 0 0 z", 2, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs7, SK_ARRAY_COUNT(resultVerbs7) },
+        { "M 1 1 l 0 0 z m 1 0 l 0 0 z", 4, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs8, SK_ARRAY_COUNT(resultVerbs8) },
+        { "M 1 1 q 0 0 0 0", 3, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs9, SK_ARRAY_COUNT(resultVerbs9) },
+        { "M 1 1 q 0 0  0 0 m 1 0 q 0 0 0 0", 6, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs10, SK_ARRAY_COUNT(resultVerbs10) },
+        { "M 1 1 q 0 0 0 0 z", 3, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs11, SK_ARRAY_COUNT(resultVerbs11) },
+        { "M 1 1 q 0 0 0 0 z m 1 0 q 0 0 0 0 z", 6, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs12, SK_ARRAY_COUNT(resultVerbs12) },
+        { "M 1 1 c 0 0 0 0 0 0", 4, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs13, SK_ARRAY_COUNT(resultVerbs13) },
+        { "M 1 1 c 0 0 0 0 0 0 m 1 0 c 0 0 0 0 0 0", 8, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs14,
+            SK_ARRAY_COUNT(resultVerbs14)
+        },
+        { "M 1 1 c 0 0 0 0 0 0 z", 4, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs15, SK_ARRAY_COUNT(resultVerbs15) },
+        { "M 1 1 c 0 0 0 0 0 0 z m 1 0 c 0 0 0 0 0 0 z", 8, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs16,
+            SK_ARRAY_COUNT(resultVerbs16)
+        }
+    };
 
-    // moveTo-close case
-    p.reset();
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    p.close();
-    bounds.set(0, 0, 0, 0);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 1 == p.countPoints());
-    REPORTER_ASSERT(reporter, 2 == p.countVerbs());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[2];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[1]);
-    }
-
-    // moveTo-close-moveTo-close case
-    p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    p.close();
-    bounds.set(SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 2 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[4];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[1]);
-    }
-
-    // moveTo-line case
-    p.reset();
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    p.lineTo(SK_Scalar1, SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 2 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[2];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
-    }
-
-    // moveTo-lineTo-moveTo-lineTo case
-    p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    p.lineTo(SK_Scalar1*2, SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 4 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[4];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[2]);
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[3]);
-    }
-
-    // moveTo-line-close case
-    p.reset();
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    p.lineTo(SK_Scalar1, SK_Scalar1);
-    p.close();
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 2 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[3];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[2]);
-    }
-
-    // moveTo-line-close-moveTo-line-close case
-    p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    p.lineTo(SK_Scalar1*2, SK_Scalar1);
-    p.close();
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 4 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[6];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[2]);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[3]);
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[4]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[5]);
-    }
-
-    // moveTo-quadTo case
-    p.reset();
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    p.quadTo(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 3 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[2];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
-    }
-
-    // moveTo-quadTo-close case
-    p.close();
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 3 == p.countPoints());
-    REPORTER_ASSERT(reporter, 3 == p.countVerbs());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[3];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb == verbs[2]);
-    }
-
-    // moveTo-quadTo-moveTo-quadTo case
-    p.reset();
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    p.quadTo(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
-    p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    p.quadTo(SK_Scalar1*2, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 6 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[4];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == verbs[1]);
-    }
-
-    // moveTo-cubicTo case
-    p.reset();
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    p.cubicTo(SK_Scalar1, SK_Scalar1,
-              SK_Scalar1, SK_Scalar1,
-              SK_Scalar1, SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 4 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[2];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb  == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb == verbs[1]);
-    }
-
-    // moveTo-cubicTo-close case
-    p.close();
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 4 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[3];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb   == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb  == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kClose_Verb  == verbs[2]);
-    }
-
-    // moveTo-cubicTo-moveTo-cubicTo case
-    p.reset();
-    p.moveTo(SK_Scalar1, SK_Scalar1);
-    p.cubicTo(SK_Scalar1, SK_Scalar1,
-              SK_Scalar1, SK_Scalar1,
-              SK_Scalar1, SK_Scalar1);
-    p.moveTo(SK_Scalar1*2, SK_Scalar1);
-    p.cubicTo(SK_Scalar1*2, SK_Scalar1,
-              SK_Scalar1*2, SK_Scalar1,
-              SK_Scalar1*2, SK_Scalar1);
-    bounds.set(SK_Scalar1, SK_Scalar1, SK_Scalar1*2, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    REPORTER_ASSERT(reporter, 8 == p.countPoints());
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
-    {
-    uint8_t verbs[4];
-    REPORTER_ASSERT(reporter, SK_ARRAY_COUNT(verbs) == p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb  == verbs[0]);
-    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb  == verbs[1]);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[2]);
-    REPORTER_ASSERT(reporter, SkPath::kCubic_Verb == verbs[3]);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gZeroLengthTests); ++i) {
+        p.reset();
+        bool valid = SkParsePath::FromSVGString(gZeroLengthTests[i].testPath, &p);
+        REPORTER_ASSERT(reporter, valid);
+        REPORTER_ASSERT(reporter, !p.isEmpty());
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultPts == (size_t)p.countPoints());
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultBound == p.getBounds());
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == (size_t)p.getVerbs(verbs, SK_ARRAY_COUNT(verbs)));
+        for (size_t j = 0; j < gZeroLengthTests[i].numResultVerbs; ++j) {
+            REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultVerbs[j] == verbs[j]);
+        }
     }
 }
 
@@ -1021,69 +854,102 @@ static void test_segment_masks(skiatest::Reporter* reporter) {
 }
 
 static void test_iter(skiatest::Reporter* reporter) {
-    SkPath p;
+    SkPath  p;
     SkPoint pts[4];
 
     // Test an iterator with no path
     SkPath::Iter noPathIter;
     REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
+
     // Test that setting an empty path works
     noPathIter.setPath(p, false);
     REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
+
     // Test that close path makes no difference for an empty path
     noPathIter.setPath(p, true);
     REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
-    
+
     // Test an iterator with an initial empty path
     SkPath::Iter iter(p, false);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
 
     // Test that close path makes no difference
-    SkPath::Iter forceCloseIter(p, true);
-    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
-
-    // Test that a move-only path produces nothing when iterated.
-    p.moveTo(SK_Scalar1, 0);
-    iter.setPath(p, false);
+    iter.setPath(p, true);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
 
-    // No matter how many moves we add, we should still get nothing back.
-    p.moveTo(SK_Scalar1*2, 0);
-    p.moveTo(SK_Scalar1*3, 0);
-    p.moveTo(SK_Scalar1*4, 0);
-    p.moveTo(SK_Scalar1*5, 0);
-    iter.setPath(p, false);
-    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
+    
+    struct iterTestData {
+        const char* testPath;
+        const bool forceClose;
+        const bool consumeDegenerates;
+        const size_t* numResultPtsPerVerb;
+        const SkPoint* resultPts;
+        const SkPath::Verb* resultVerbs;
+        const size_t numResultVerbs;
+    };
 
-    // Nor should force closing
-    forceCloseIter.setPath(p, true);
-    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
+    static const SkPath::Verb resultVerbs1[] = { SkPath::kDone_Verb };
+    static const SkPath::Verb resultVerbs2[] = {
+        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kDone_Verb
+    };
+    static const SkPath::Verb resultVerbs3[] = {
+        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kDone_Verb
+    };
+    static const SkPath::Verb resultVerbs4[] = {
+        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb, SkPath::kDone_Verb
+    };
+    static const SkPath::Verb resultVerbs5[] = {
+        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb, SkPath::kDone_Verb
+    };
+    static const size_t resultPtsSizes1[] = { 0 };
+    static const size_t resultPtsSizes2[] = { 1, 2, 2 };
+    static const size_t resultPtsSizes3[] = { 1, 2, 2, 2, 1 };
+    static const size_t resultPtsSizes4[] = { 1, 2, 1, 1 };
+    static const size_t resultPtsSizes5[] = { 1, 2, 1, 1, 1 };
+    static const SkPoint resultPts1[] = { };
+    static const SkPoint resultPts2[] = {
+        { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, SK_Scalar1 }, { SK_Scalar1, SK_Scalar1 }, { 0, SK_Scalar1 }
+    };
+    static const SkPoint resultPts3[] = {
+        { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, SK_Scalar1 }, { SK_Scalar1, SK_Scalar1 }, { 0, SK_Scalar1 },
+        { 0, SK_Scalar1 }, { SK_Scalar1, 0 }, { SK_Scalar1, 0 }
+    };
+    static const SkPoint resultPts4[] = {
+        { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { 0, 0 }, { 0, 0 }
+    };
+    static const SkPoint resultPts5[] = {
+        { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { 0, 0 }, { 0, 0 }
+    };
+    static const struct iterTestData gIterTests[] = {
+        { "M 1 0", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 m 1 0 m 1 0 m 1 0 m 1 0", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 m 1 0 m 1 0 m 1 0 m 1 0", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "z", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "z", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "z M 1 0 z z M 2 0 z M 3 0 M 4 0 z", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "z M 1 0 z z M 2 0 z M 3 0 M 4 0 z", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 l 0 1 L 0 1 M 0 0 z", false, true, resultPtsSizes2, resultPts2, resultVerbs2, SK_ARRAY_COUNT(resultVerbs2) },
+        { "M 1 0 l 0 1 L 0 1 M 0 0 z", true, true, resultPtsSizes3, resultPts3, resultVerbs3, SK_ARRAY_COUNT(resultVerbs3) },
+        { "M 1 0 l 0 0 M 0 0 z", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 l 0 0 M 0 0 z", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 l 0 0 M 0 0 z", false, false, resultPtsSizes4, resultPts4, resultVerbs4, SK_ARRAY_COUNT(resultVerbs4) },
+        { "M 1 0 l 0 0 M 0 0 z", true, false, resultPtsSizes5, resultPts5, resultVerbs5, SK_ARRAY_COUNT(resultVerbs5) }
+    };
 
-    // Initial closes should be ignored
-    p.reset();
-    p.close();
-    iter.setPath(p, false);
-    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
-    // Even if force closed
-    forceCloseIter.setPath(p, true);
-    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
-
-    // Move/close sequences should also be ignored
-    p.reset();
-    p.close();
-    p.moveTo(SK_Scalar1, 0);
-    p.close();
-    p.close();
-    p.moveTo(SK_Scalar1*2, 0);
-    p.close();
-    p.moveTo(SK_Scalar1*3, 0);
-    p.moveTo(SK_Scalar1*4, 0);
-    p.close();
-    iter.setPath(p, false);
-    REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
-    // Even if force closed
-    forceCloseIter.setPath(p, true);
-    REPORTER_ASSERT(reporter, forceCloseIter.next(pts) == SkPath::kDone_Verb);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gIterTests); ++i) {
+        p.reset();
+        bool valid = SkParsePath::FromSVGString(gIterTests[i].testPath, &p);
+        REPORTER_ASSERT(reporter, valid);
+        iter.setPath(p, gIterTests[i].forceClose);
+        int j = 0, l = 0;
+        do {
+            REPORTER_ASSERT(reporter, iter.next(pts, gIterTests[i].consumeDegenerates) == gIterTests[i].resultVerbs[j]);
+            for (int k = 0; k < (int)gIterTests[i].numResultPtsPerVerb[j]; ++k) {
+                REPORTER_ASSERT(reporter, pts[k] == gIterTests[i].resultPts[l++]);
+            }
+        } while (gIterTests[i].resultVerbs[j++] != SkPath::kDone_Verb);
+        REPORTER_ASSERT(reporter, j == (int)gIterTests[i].numResultVerbs);
+    }
 
     // The GM degeneratesegments.cpp test is more extensive
 }

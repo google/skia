@@ -1485,8 +1485,9 @@ void SkPath::Iter::consumeDegenerateSegments() {
                 break;
 
             case kClose_Verb:
-                // A close when we are in a segment is always valid
-                if (fSegmentState == kAfterPrimitive_SegmentState) {
+                // A close when we are in a segment is always valid except when it
+                // follows a move which follows a segment.
+                if (fSegmentState == kAfterPrimitive_SegmentState && !lastMoveVerb) {
                     return;
                 }
                 // A close at any other time must be ignored
