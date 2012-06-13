@@ -795,23 +795,23 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     };
     static const struct zeroPathTestData gZeroLengthTests[] = {
         { "M 1 1", 1, {0, 0, 0, 0}, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
-        { "M 1 1 m 1 0", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs2, SK_ARRAY_COUNT(resultVerbs2) },
+        { "M 1 1 M 2 1", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs2, SK_ARRAY_COUNT(resultVerbs2) },
         { "M 1 1 z", 1, {0, 0, 0, 0}, resultVerbs3, SK_ARRAY_COUNT(resultVerbs3) },
-        { "M 1 1 z m 1 0 z", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs4, SK_ARRAY_COUNT(resultVerbs4) },
-        { "M 1 1 l 0 0", 2, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs5, SK_ARRAY_COUNT(resultVerbs5) },
-        { "M 1 1 l 0 0 m 1 0 l 0 0", 4, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs6, SK_ARRAY_COUNT(resultVerbs6) },
-        { "M 1 1 l 0 0 z", 2, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs7, SK_ARRAY_COUNT(resultVerbs7) },
-        { "M 1 1 l 0 0 z m 1 0 l 0 0 z", 4, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs8, SK_ARRAY_COUNT(resultVerbs8) },
-        { "M 1 1 q 0 0 0 0", 3, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs9, SK_ARRAY_COUNT(resultVerbs9) },
-        { "M 1 1 q 0 0  0 0 m 1 0 q 0 0 0 0", 6, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs10, SK_ARRAY_COUNT(resultVerbs10) },
-        { "M 1 1 q 0 0 0 0 z", 3, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs11, SK_ARRAY_COUNT(resultVerbs11) },
-        { "M 1 1 q 0 0 0 0 z m 1 0 q 0 0 0 0 z", 6, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs12, SK_ARRAY_COUNT(resultVerbs12) },
-        { "M 1 1 c 0 0 0 0 0 0", 4, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs13, SK_ARRAY_COUNT(resultVerbs13) },
-        { "M 1 1 c 0 0 0 0 0 0 m 1 0 c 0 0 0 0 0 0", 8, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs14,
+        { "M 1 1 z M 2 1 z", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs4, SK_ARRAY_COUNT(resultVerbs4) },
+        { "M 1 1 L 1 1", 2, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs5, SK_ARRAY_COUNT(resultVerbs5) },
+        { "M 1 1 L 1 1 M 2 1 L 2 1", 4, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs6, SK_ARRAY_COUNT(resultVerbs6) },
+        { "M 1 1 L 1 1 z", 2, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs7, SK_ARRAY_COUNT(resultVerbs7) },
+        { "M 1 1 L 1 1 z M 2 1 L 2 1 z", 4, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs8, SK_ARRAY_COUNT(resultVerbs8) },
+        { "M 1 1 Q 1 1 1 1", 3, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs9, SK_ARRAY_COUNT(resultVerbs9) },
+        { "M 1 1 Q 1 1 1 1 M 2 1 Q 2 1 2 1", 6, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs10, SK_ARRAY_COUNT(resultVerbs10) },
+        { "M 1 1 Q 1 1 1 1 z", 3, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs11, SK_ARRAY_COUNT(resultVerbs11) },
+        { "M 1 1 Q 1 1 1 1 z M 2 1 Q 2 1 2 1 z", 6, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs12, SK_ARRAY_COUNT(resultVerbs12) },
+        { "M 1 1 C 1 1 1 1 1 1", 4, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs13, SK_ARRAY_COUNT(resultVerbs13) },
+        { "M 1 1 C 1 1 1 1 1 1 M 2 1 C 2 1 2 1 2 1", 8, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs14,
             SK_ARRAY_COUNT(resultVerbs14)
         },
-        { "M 1 1 c 0 0 0 0 0 0 z", 4, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs15, SK_ARRAY_COUNT(resultVerbs15) },
-        { "M 1 1 c 0 0 0 0 0 0 z m 1 0 c 0 0 0 0 0 0 z", 8, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs16,
+        { "M 1 1 C 1 1 1 1 1 1 z", 4, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs15, SK_ARRAY_COUNT(resultVerbs15) },
+        { "M 1 1 C 1 1 1 1 1 1 z M 2 1 C 2 1 2 1 2 1 z", 8, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs16,
             SK_ARRAY_COUNT(resultVerbs16)
         }
     };
@@ -906,7 +906,7 @@ static void test_iter(skiatest::Reporter* reporter) {
     static const size_t resultPtsSizes3[] = { 1, 2, 2, 2, 1 };
     static const size_t resultPtsSizes4[] = { 1, 2, 1, 1 };
     static const size_t resultPtsSizes5[] = { 1, 2, 1, 1, 1 };
-    static const SkPoint resultPts1[] = { };
+    static const SkPoint* resultPts1 = 0;
     static const SkPoint resultPts2[] = {
         { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, SK_Scalar1 }, { SK_Scalar1, SK_Scalar1 }, { 0, SK_Scalar1 }
     };
@@ -922,18 +922,18 @@ static void test_iter(skiatest::Reporter* reporter) {
     };
     static const struct iterTestData gIterTests[] = {
         { "M 1 0", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
-        { "M 1 0 m 1 0 m 1 0 m 1 0 m 1 0", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
-        { "M 1 0 m 1 0 m 1 0 m 1 0 m 1 0", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 M 2 0 M 3 0 M 4 0 M 5 0", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 M 1 0 M 3 0 M 4 0 M 5 0", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
         { "z", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
         { "z", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
         { "z M 1 0 z z M 2 0 z M 3 0 M 4 0 z", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
         { "z M 1 0 z z M 2 0 z M 3 0 M 4 0 z", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
-        { "M 1 0 l 0 1 L 0 1 M 0 0 z", false, true, resultPtsSizes2, resultPts2, resultVerbs2, SK_ARRAY_COUNT(resultVerbs2) },
-        { "M 1 0 l 0 1 L 0 1 M 0 0 z", true, true, resultPtsSizes3, resultPts3, resultVerbs3, SK_ARRAY_COUNT(resultVerbs3) },
-        { "M 1 0 l 0 0 M 0 0 z", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
-        { "M 1 0 l 0 0 M 0 0 z", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
-        { "M 1 0 l 0 0 M 0 0 z", false, false, resultPtsSizes4, resultPts4, resultVerbs4, SK_ARRAY_COUNT(resultVerbs4) },
-        { "M 1 0 l 0 0 M 0 0 z", true, false, resultPtsSizes5, resultPts5, resultVerbs5, SK_ARRAY_COUNT(resultVerbs5) }
+        { "M 1 0 L 1 1 L 0 1 M 0 0 z", false, true, resultPtsSizes2, resultPts2, resultVerbs2, SK_ARRAY_COUNT(resultVerbs2) },
+        { "M 1 0 L 1 1 L 0 1 M 0 0 z", true, true, resultPtsSizes3, resultPts3, resultVerbs3, SK_ARRAY_COUNT(resultVerbs3) },
+        { "M 1 0 L 1 0 M 0 0 z", false, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 L 1 0 M 0 0 z", true, true, resultPtsSizes1, resultPts1, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 0 L 1 0 M 0 0 z", false, false, resultPtsSizes4, resultPts4, resultVerbs4, SK_ARRAY_COUNT(resultVerbs4) },
+        { "M 1 0 L 1 0 M 0 0 z", true, false, resultPtsSizes5, resultPts5, resultVerbs5, SK_ARRAY_COUNT(resultVerbs5) }
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gIterTests); ++i) {
