@@ -25,6 +25,37 @@
 #include <usp10.h>
 #include <objbase.h>
 
+static int compute_extra_height(const LOGFONT& lf) {
+    static const struct {
+        const char* fUCName;
+        int         fExtraHeight;
+    } gData[] = {
+        { "DOTUM", 1 }, // http://code.google.com/p/chromium/issues/detail?id=130842
+    };
+
+    // Convert the lfFaceName into upper-case ascii, since our target
+    // list is explicitly stored that way.
+    char name[LF_FACESIZE];
+
+    for (int i = 0; i < LF_FACESIZE - 1; ++i) {
+        TCHAR c = lf.lfFaceName[i];
+        if (c >= 'a' && c <= 'z') {
+            c = c - 'a' + 'A';
+        }
+        name[i] = (char)c;
+        if (0 == c) {
+            break;
+        }
+    }
+
+    for (size_t j = 0; j < SK_ARRAY_COUNT(gData); ++j) {
+        if (!strcmp(gData[j].fUCName, name)) {
+            return gData[j].fExtraHeight;
+        }
+    }
+    return 0;
+}
+
 // always packed xxRRGGBB
 typedef uint32_t SkGdiRGB;
 
@@ -457,7 +488,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     return (const char*)fBits + (fHeight - glyph.fHeight) * srcRB;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 class SkScalerContext_Windows : public SkScalerContext {
 public:
@@ -471,7 +502,8 @@ protected:
     virtual void generateMetrics(SkGlyph* glyph);
     virtual void generateImage(const SkGlyph& glyph);
     virtual void generatePath(const SkGlyph& glyph, SkPath* path);
-    virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY);
+    virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
+                                     SkPaint::FontMetrics* mY);
 
 private:
     HDCOffscreen fOffscreen;
@@ -483,6 +515,14 @@ private:
     HFONT        fFont;
     SCRIPT_CACHE fSC;
     int          fGlyphCount;
+
+    /**
+     *  Some fonts need extra pixels added to avoid clipping, as the bounds
+     *  returned by getOutlineMetrics does not match what GDI draws. Since
+     *  this costs more RAM and therefore slower blits, we have a table to
+     *  only do this for known "bad" fonts.
+     */
+    int          fExtraHeightHack;
 
     HFONT        fHiResFont;
     MAT2         fMat22Identity;
@@ -545,6 +585,8 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     lf.lfHeight = -gCanonicalTextSize;
     lf.lfQuality = compute_quality(fRec);
     fFont = CreateFontIndirect(&lf);
+
+    fExtraHeightHack = compute_extra_height(lf);
 
     // if we're rotated, or want fractional widths, create a hires font
     fHiResFont = 0;
@@ -711,6 +753,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
         glyph->fAdvanceY = SkFixedMul(SkFIXEDToFixed(fMat22.eM21), glyph->fAdvanceX);
         glyph->fAdvanceX = SkFixedMul(SkFIXEDToFixed(fMat22.eM11), glyph->fAdvanceX);
 
+        glyph->fHeight += fExtraHeightHack;
         return;
     }
 
@@ -755,6 +798,8 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
             glyph->fHeight += 4;
             glyph->fTop -= 2;
             glyph->fLeft -= 2;
+
+            glyph->fHeight += fExtraHeightHack;
         }
 
         if (fHiResFont) {
