@@ -347,8 +347,7 @@ static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op3
 
 static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
-    unsigned index = DrawOp_unpackData(op32);
-    SkBitmap* bm = state->getBitmap(index);
+    const SkBitmap* bm(static_cast<const SkBitmap*>(reader->readPtr()));
     bool hasPaint = reader->readBool();
     SkScalar left = reader->readScalar();
     SkScalar top = reader->readScalar();
@@ -362,8 +361,7 @@ static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t o
 
 static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
                               uint32_t op32, SkGPipeState* state) {
-    unsigned index = DrawOp_unpackData(op32);
-    SkBitmap* bm = state->getBitmap(index);
+    const SkBitmap* bm(static_cast<const SkBitmap*>(reader->readPtr()));
     bool hasPaint = reader->readBool();
     const SkIRect* center = skip<SkIRect>(reader);
     const SkRect* dst = skip<SkRect>(reader);
@@ -373,8 +371,7 @@ static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
 
 static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
                               uint32_t op32, SkGPipeState* state) {
-    unsigned index = DrawOp_unpackData(op32);
-    SkBitmap* bm = state->getBitmap(index);
+    const SkBitmap* bm(static_cast<const SkBitmap*>(reader->readPtr()));
     bool hasPaint = reader->readBool();
     bool hasSrc = reader->readBool();
     const SkIRect* src;
@@ -389,8 +386,7 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
 
 static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
-    unsigned index = DrawOp_unpackData(op32);
-    SkBitmap* bm = state->getBitmap(index);
+    const SkBitmap* bm(static_cast<const SkBitmap*>(reader->readPtr()));
     bool hasPaint = reader->readBool();
     const SkIPoint* point = skip<SkIPoint>(reader);
     canvas->drawSprite(*bm, point->fX, point->fY, hasPaint ? &state->paint() : NULL);
