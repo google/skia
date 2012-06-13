@@ -37,18 +37,18 @@ public:
     /**
      * @return the width of the rendertarget
      */
-    int width() const { return fWidth; }
+    int width() const { return fDesc.fWidth; }
     /**
      * @return the height of the rendertarget
      */
-    int height() const { return fHeight; }
+    int height() const { return fDesc.fHeight; }
 
     /**
      * @return the pixel config. Can be kUnknown_GrPixelConfig
      * if client asked us to render to a target that has a pixel
      * config that isn't equivalent with one of our configs.
      */
-    GrPixelConfig config() const { return fConfig; }
+    GrPixelConfig config() const { return fDesc.fConfig; }
 
     /**
      * @return the texture associated with the rendertarget, may be NULL.
@@ -72,12 +72,12 @@ public:
     /**
      * @return true if the render target is multisampled, false otherwise
      */
-    bool isMultisampled() const { return 0 != fSampleCnt; }
+    bool isMultisampled() const { return 0 != fDesc.fSampleCnt; }
 
     /**
      * @return the number of samples-per-pixel or zero if non-MSAA.
      */
-    int numSamples() const { return fSampleCnt; }
+    int numSamples() const { return fDesc.fSampleCnt; }
 
     /**
      * Call to indicate the multisample contents were modified such that the
@@ -180,12 +180,13 @@ protected:
                    int sampleCnt)
         : INHERITED(gpu)
         , fStencilBuffer(NULL)
-        , fTexture(texture)
-        , fWidth(width)
-        , fHeight(height)
-        , fConfig(config)
-        , fSampleCnt(sampleCnt) {
+        , fTexture(texture) {
         fResolveRect.setLargestInverted();
+
+        fDesc.fWidth = width;
+        fDesc.fHeight = height;
+        fDesc.fConfig = config;
+        fDesc.fSampleCnt = sampleCnt;
     }
 
     friend class GrTexture;
@@ -202,10 +203,9 @@ protected:
 private:
     GrStencilBuffer*  fStencilBuffer;
     GrTexture*        fTexture; // not ref'ed
-    int               fWidth;
-    int               fHeight;
-    GrPixelConfig     fConfig;
-    int               fSampleCnt;
+
+    GrTextureDesc     fDesc;
+
     GrIRect           fResolveRect;
 
     typedef GrResource INHERITED;
