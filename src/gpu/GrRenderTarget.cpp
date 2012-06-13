@@ -13,6 +13,8 @@
 #include "GrGpu.h"
 #include "GrStencilBuffer.h"
 
+SK_DEFINE_INST_COUNT(GrRenderTarget)
+
 bool GrRenderTarget::readPixels(int left, int top, int width, int height,
                                 GrPixelConfig config, void* buffer,
                                 size_t rowBytes) {

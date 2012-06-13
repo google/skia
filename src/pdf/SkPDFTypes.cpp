@@ -17,6 +17,8 @@
     #define SNPRINTF    snprintf
 #endif
 
+SK_DEFINE_INST_COUNT(SkPDFObject)
+
 SkPDFObject::SkPDFObject() {}
 SkPDFObject::~SkPDFObject() {}
 

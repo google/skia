@@ -27,6 +27,8 @@ class SkWStream;
 */
 class SkPDFObject : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkPDFObject)
+
     /** Create a PDF object.
      */
     SkPDFObject();
@@ -91,6 +93,8 @@ protected:
      */
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                             bool indirect) = 0;
+
+        typedef SkRefCnt INHERITED;
 };
 
 /** \class SkPDFObjRef

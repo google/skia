@@ -31,6 +31,8 @@ static const uint64_t kScratch_CacheID = 0xBBBBBBBB;
 class GrTexture : public GrResource {
 
 public:
+    SK_DECLARE_INST_COUNT(GrTexture)
+
     /**
      * Retrieves the width of the texture.
      *

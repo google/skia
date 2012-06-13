@@ -1086,9 +1086,9 @@ int main(int argc, char * const argv[]) {
     delete grFactory;
     SkGraphics::Term();
 
-    PRINT_INST_COUNT(SkRefCnt);
-    PRINT_INST_COUNT(GrResource);
-    PRINT_INST_COUNT(GrAARectRenderer);
+#ifdef SK_DEBUG
+    SkRefCnt::CheckInstanceCount();
+#endif
 
     return (0 == testsFailed) ? 0 : -1;
 }

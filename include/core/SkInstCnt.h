@@ -12,40 +12,74 @@
 /*
  * The instance counting system consists of three macros that create the 
  * instance counting machinery. A class is added to the system by adding:
- *   DECLARE_INST_COUNT at the top of its declaration
- *   DEFINE_INST_COUNT at the top of its .cpp file
- *   and a PRINT_INST_COUNT line at the application's end point
+ *   SK_DECLARE_INST_COUNT at the top of its declaration for derived classes
+ *   SK_DECLARE_INST_COUNT_ROOT at the top of its declaration for a root class
+ *   SK_DEFINE_INST_COUNT at the top of its .cpp file (for both kinds).
+ * At the end of an application a call to all the "root" objects'
+ * CheckInstanceCount methods should be made
  */
 #ifdef SK_DEBUG
-#define DECLARE_INST_COUNT                  \
-    class SkInstanceCountHelper {           \
-    public:                                 \
-        SkInstanceCountHelper() {           \
-            gInstanceCount++;               \
-        }                                   \
-                                            \
-        ~SkInstanceCountHelper() {          \
-            gInstanceCount--;               \
-        }                                   \
-                                            \
-        static int32_t gInstanceCount;      \
-    } fInstanceCountHelper;                 \
-                                            \
-    static int32_t GetInstanceCount() {     \
-        return SkInstanceCountHelper::gInstanceCount;   \
+#include "SkTArray.h"
+
+#define SK_DECLARE_INST_COUNT(className)                                    \
+    SK_DECLARE_INST_COUNT_INTERNAL(className,                               \
+                                INHERITED::AddInstChild(CheckInstanceCount);)
+
+#define SK_DECLARE_INST_COUNT_ROOT(className)                               \
+    SK_DECLARE_INST_COUNT_INTERNAL(className, ;)
+
+#define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
+    class SkInstanceCountHelper {                                           \
+    public:                                                                 \
+        typedef void (*PFCheckInstCnt)();                                   \
+        SkInstanceCountHelper() {                                           \
+            if (!gInited) {                                                 \
+                initStep                                                    \
+                gInited = true;                                             \
+            }                                                               \
+            gInstanceCount++;                                               \
+        }                                                                   \
+                                                                            \
+        SkInstanceCountHelper(const SkInstanceCountHelper& other) {         \
+            gInstanceCount++;                                               \
+        }                                                                   \
+                                                                            \
+        ~SkInstanceCountHelper() {                                          \
+            gInstanceCount--;                                               \
+        }                                                                   \
+                                                                            \
+        static int32_t gInstanceCount;                                      \
+        static bool gInited;                                                \
+        static SkTArray<PFCheckInstCnt> gChildren;                          \
+    } fInstanceCountHelper;                                                 \
+                                                                            \
+    static void CheckInstanceCount() {                                      \
+        if (0 != SkInstanceCountHelper::gInstanceCount) {                   \
+            SkDebugf("Leaked %s objects: %d\n", #className,                 \
+                     SkInstanceCountHelper::gInstanceCount);                \
+        }                                                                   \
+        for (int i = 0; i < SkInstanceCountHelper::gChildren.count(); ++i) { \
+            (*SkInstanceCountHelper::gChildren[i])();                       \
+        }                                                                   \
+    }                                                                       \
+                                                                            \
+    static void AddInstChild(SkInstanceCountHelper::PFCheckInstCnt          \
+                                                       childCheckInstCnt) { \
+        if (CheckInstanceCount != childCheckInstCnt) {                      \
+            SkInstanceCountHelper::gChildren.push_back(childCheckInstCnt);  \
+        }                                                                   \
     }
 
-#define DEFINE_INST_COUNT(className)        \
-    int32_t className::SkInstanceCountHelper::gInstanceCount = 0;
+#define SK_DEFINE_INST_COUNT(className)                                     \
+    int32_t className::SkInstanceCountHelper::gInstanceCount = 0;           \
+    bool className::SkInstanceCountHelper::gInited = false;                 \
+    SkTArray<className::SkInstanceCountHelper::PFCheckInstCnt>              \
+                        className::SkInstanceCountHelper::gChildren;
 
-#define PRINT_INST_COUNT(className)         \
-    SkDebugf("Leaked %s objects: %d\n",     \
-                  #className,               \
-                  className::GetInstanceCount());
 #else
-#define DECLARE_INST_COUNT
-#define DEFINE_INST_COUNT(className)
-#define PRINT_INST_COUNT(className)
+#define SK_DECLARE_INST_COUNT(className)
+#define SK_DECLARE_INST_COUNT_ROOT(className)
+#define SK_DEFINE_INST_COUNT(className)
 #endif
 
 #endif // SkInstCnt_DEFINED

@@ -9,7 +9,7 @@
 #include "GrRefCnt.h"
 #include "GrGpu.h"
 
-DEFINE_INST_COUNT(GrAARectRenderer)
+SK_DEFINE_INST_COUNT(GrAARectRenderer)
 
 namespace {
 

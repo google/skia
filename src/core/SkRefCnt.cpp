@@ -8,5 +8,5 @@
 
 #include "SkRefCnt.h"
 
-DEFINE_INST_COUNT(SkRefCnt)
+SK_DEFINE_INST_COUNT(SkRefCnt)
 
