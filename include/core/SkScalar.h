@@ -53,12 +53,19 @@
     /** SkScalarIsNaN(n) returns true if argument is not a number
     */
     static inline bool SkScalarIsNaN(float x) { return x != x; }
+
     /** Returns true if x is not NaN and not infinite */
     static inline bool SkScalarIsFinite(float x) {
-        uint32_t bits = SkFloat2Bits(x);    // need unsigned for our shifts
-        int exponent = bits << 1 >> 24;
-        return exponent != 0xFF;
+        // We rely on the following behavior of infinities and nans
+        // 0 * finite --> 0
+        // 0 * infinity --> NaN
+        // 0 * NaN --> NaN
+        float prod = x * 0;
+        // At this point, prod will either be NaN or 0
+        // Therefore we can return (prod == prod) or (0 == prod).
+        return prod == prod;
     }
+
 #ifdef SK_DEBUG
     /** SkIntToScalar(n) returns its integer argument as an SkScalar
      *
