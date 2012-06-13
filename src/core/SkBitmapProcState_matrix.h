@@ -71,12 +71,9 @@ void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
     const SkFractionalInt dx = s.fInvSxFractionalInt;
 
 #ifdef CHECK_FOR_DECAL
-    // test if we don't need to apply the tile proc
-    SkFixed tmpFx = SkFractionalIntToFixed(fx);
-    SkFixed tmpDx = SkFractionalIntToFixed(dx);
-    if ((unsigned)(tmpFx >> 16) <= maxX &&
-        (unsigned)((tmpFx + tmpDx * (count - 1)) >> 16) <= maxX) {
-        decal_nofilter_scale(xy, tmpFx, tmpDx, count);
+    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
+        decal_nofilter_scale(xy, SkFractionalIntToFixed(fx),
+                             SkFractionalIntToFixed(dx), count);
     } else
 #endif
     {
@@ -201,11 +198,9 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     }
 
 #ifdef CHECK_FOR_DECAL
-    // test if we don't need to apply the tile proc
-    if (dx > 0 &&
-            (unsigned)(fx >> 16) <= maxX &&
-            (unsigned)((fx + dx * (count - 1)) >> 16) < maxX) {
-        decal_filter_scale(xy, (SkFixed) fx, (SkFixed) dx, count);
+    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
+        decal_filter_scale(xy, SkFractionalIntToFixed(fx),
+                           SkFractionalIntToFixed(dx), count);
     } else
 #endif
     {
