@@ -58,6 +58,62 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Shared heap for storing large things that can be shared, for a stream
+ * used by multiple readers.
+ * TODO: Make the allocations all come from cross process safe address space
+ * TODO: Store paths (others?)
+ * TODO: Allow reclaiming of memory. Will require us to know when all readers
+ *       have used the object.
+ */
+class Heap {
+public:
+    Heap() {}
+    ~Heap() {
+        for (int i = 0; i < fBitmaps.count(); i++) {
+            delete fBitmaps[i].fBitmap;
+        }
+    }
+
+    /*
+     * Add a copy of a bitmap to the heap.
+     * @param bm The SkBitmap to be copied and placed in the heap.
+     * @return void* Pointer to the heap's copy of the bitmap. If NULL,
+     *               the bitmap could not be copied.
+     */
+    const SkBitmap* addBitmap(const SkBitmap& bm) {
+        const uint32_t genID = bm.getGenerationID();
+        for (int i = fBitmaps.count() - 1; i >= 0; i--) {
+            if (genID == fBitmaps[i].fGenID) {
+                return fBitmaps[i].fBitmap;
+            }
+        }
+        // TODO: Use a flag to determine whether we need the bitmap to be
+        // in shared cross process address space. If not, we can do a shallow
+        // copy.
+        SkBitmap* copy = new SkBitmap();
+        if (bm.copyTo(copy, bm.getConfig())) {
+            BitmapInfo* info = fBitmaps.append();
+            info->fBitmap = copy;
+            info->fGenID = genID;
+            return copy;
+        }
+        delete copy;
+        return NULL;
+    }
+private:
+    struct BitmapInfo {
+        SkBitmap* fBitmap;
+        // Store the generation ID of the original bitmap, since copying does
+        // not copy this field, so fBitmap's generation ID will not be useful
+        // for comparing.
+        uint32_t fGenID;
+    };
+    SkTDArray<BitmapInfo>fBitmaps;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class SkGPipeCanvas : public SkCanvas {
 public:
     SkGPipeCanvas(SkGPipeController*, SkWriter32*, SkFactorySet*);
@@ -124,6 +180,7 @@ public:
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
 private:
+    Heap fHeap;
     SkFactorySet* fFactorySet;  // optional, only used if cross-process
     SkGPipeController* fController;
     SkWriter32& fWriter;
@@ -539,17 +596,19 @@ void SkGPipeCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 
 void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
                                    const SkPaint* paint) {
-    // This is the brute-force solution
-    // TODO: add the notion of a shared, counted for large immutable resources
+    const void* ptr(fHeap.addBitmap(bm));
+    if (NULL == ptr) {
+        return;
+    }
+
     NOTIFY_SETUP(this);
     if (paint) {
         this->writePaint(*paint);
     }
 
-    int bitmapIndex = this->flattenToIndex(bm);
-    
-    if (this->needOpBytes(sizeof(SkScalar) * 2 + sizeof(bool))) {
-        this->writeOp(kDrawBitmap_DrawOp, 0, bitmapIndex);
+    if (this->needOpBytes(sizeof(SkScalar) * 2 + sizeof(bool) + sizeof(void*))) {
+        this->writeOp(kDrawBitmap_DrawOp, 0, 0);
+        fWriter.writePtr(const_cast<void*>(ptr));
         fWriter.writeBool(paint != NULL);
         fWriter.writeScalar(left);
         fWriter.writeScalar(top);
@@ -558,20 +617,24 @@ void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
 
 void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
                                        const SkRect& dst, const SkPaint* paint) {
+    const void* ptr(fHeap.addBitmap(bm));
+    if (NULL == ptr) {
+        return;
+    }
+
     NOTIFY_SETUP(this);
     if (paint) {
         this->writePaint(*paint);
     }
 
-    int bitmapIndex = this->flattenToIndex(bm);
-
-    size_t opBytesNeeded = sizeof(SkRect) + sizeof(bool) * 2;
+    size_t opBytesNeeded = sizeof(SkRect) + sizeof(bool) * 2 + sizeof(void*);
     bool hasSrc = src != NULL;
     if (hasSrc) {
         opBytesNeeded += sizeof(int32_t) * 4;
     }
     if (this->needOpBytes(opBytesNeeded)) {
-        this->writeOp(kDrawBitmapRect_DrawOp, 0, bitmapIndex);
+        this->writeOp(kDrawBitmapRect_DrawOp, 0, 0);
+        fWriter.writePtr(const_cast<void*>(ptr));
         fWriter.writeBool(paint != NULL);
         fWriter.writeBool(hasSrc);
         if (hasSrc) {
@@ -591,15 +654,20 @@ void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
 
 void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
                                    const SkRect& dst, const SkPaint* paint) {
+    const void* ptr(fHeap.addBitmap(bm));
+    if (NULL == ptr) {
+        return;
+    }
+
     NOTIFY_SETUP(this);
     if (paint) {
         this->writePaint(*paint);
     }
-    int bitmapIndex = this->flattenToIndex(bm);
 
     if (this->needOpBytes(sizeof(int32_t) * 4 + sizeof(bool)
-                          + sizeof(SkRect))) {
-        this->writeOp(kDrawBitmapNine_DrawOp, 0, bitmapIndex);
+                          + sizeof(SkRect) + sizeof(void*))) {
+        this->writeOp(kDrawBitmapNine_DrawOp, 0, 0);
+        fWriter.writePtr(const_cast<void*>(ptr));
         fWriter.writeBool(paint != NULL);
         fWriter.write32(center.fLeft);
         fWriter.write32(center.fTop);
@@ -611,14 +679,19 @@ void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
 
 void SkGPipeCanvas::drawSprite(const SkBitmap& bm, int left, int top,
                                    const SkPaint* paint) {
+    const void* ptr(fHeap.addBitmap(bm));
+    if (NULL == ptr) {
+        return;
+    }
+
     NOTIFY_SETUP(this);
     if (paint) {
         this->writePaint(*paint);
     }
-    int bitmapIndex = this->flattenToIndex(bm);
 
-    if (this->needOpBytes(sizeof(int32_t) * 2 + sizeof(bool))) {
-        this->writeOp(kDrawSprite_DrawOp, 0, bitmapIndex);
+    if (this->needOpBytes(sizeof(int32_t) * 2 + sizeof(bool) + sizeof(void*))) {
+        this->writeOp(kDrawSprite_DrawOp, 0, 0);
+        fWriter.writePtr(const_cast<void*>(ptr));
         fWriter.writeBool(paint != NULL);
         fWriter.write32(left);
         fWriter.write32(top);

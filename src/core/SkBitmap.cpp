@@ -925,7 +925,6 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         return false;
     }
     
-    SkAutoLockPixels dstlock(tmpDst);
     if (!tmpDst.readyToDraw()) {
         // allocator/lock failed
         return false;
