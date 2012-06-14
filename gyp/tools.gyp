@@ -19,6 +19,7 @@
         'skhello',
         'skimage',
         'render_pictures',
+        'pinspect',
       ],
     },
     {
@@ -73,6 +74,20 @@
         'core.gyp:core',
         'images.gyp:images',
         'ports.gyp:ports',
+      ],
+    },
+    {
+      'target_name': 'pinspect',
+      'type': 'executable',
+      'sources': [
+        '../tools/pinspect.cpp',
+      ],
+      'dependencies': [
+        'core.gyp:core',
+        'effects.gyp:effects',
+        'images.gyp:images',
+        'ports.gyp:ports',
+        'utils.gyp:utils',
       ],
     },
 
