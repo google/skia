@@ -88,9 +88,10 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
     code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
 
     code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
-
+    
+    int width = this ->width();
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
-    for (int i = 0; i < this->width(); i++) {
+    for (int i = 0; i < width; i++) {
         GrStringBuilder index;
         GrStringBuilder kernelIndex;
         index.appendS32(i);
