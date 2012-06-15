@@ -283,13 +283,13 @@ private:
  */
 class GrClipMaskManager : public GrNoncopyable {
 public:
-    GrClipMaskManager()
-        : fClipMaskInStencil(false)
+    GrClipMaskManager(GrGpu* gpu)
+        : fGpu(gpu)
+        , fClipMaskInStencil(false)
         , fClipMaskInAlpha(false) {
     }
 
-    bool createClipMask(GrGpu* gpu, 
-                        const GrClip& clip, 
+    bool createClipMask(const GrClip& clip, 
                         ScissoringSettings* scissorSettings);
 
     void releaseResources();
@@ -349,36 +349,31 @@ public:
                                       unsigned int* writeMask);
 
 private:
+    GrGpu* fGpu;
     bool fClipMaskInStencil;        // is the clip mask in the stencil buffer?
     bool fClipMaskInAlpha;          // is the clip mask in an alpha texture?
     GrClipMaskCache fAACache;       // cache for the AA path
 
-    bool createStencilClipMask(GrGpu* gpu, 
-                               const GrClip& clip, 
+    bool createStencilClipMask(const GrClip& clip, 
                                const GrRect& bounds,
                                ScissoringSettings* scissorSettings);
-    bool createAlphaClipMask(GrGpu* gpu,
-                             const GrClip& clipIn,
+    bool createAlphaClipMask(const GrClip& clipIn,
                              GrTexture** result,
                              GrIRect *resultBounds);
-    bool createSoftwareClipMask(GrGpu* gpu,
-                                const GrClip& clipIn,
+    bool createSoftwareClipMask(const GrClip& clipIn,
                                 GrTexture** result,
                                 GrIRect *resultBounds);
-    bool clipMaskPreamble(GrGpu* gpu,
-                          const GrClip& clipIn,
+    bool clipMaskPreamble(const GrClip& clipIn,
                           GrTexture** result,
                           GrIRect *resultBounds);
 
-    bool useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn);
+    bool useSWOnlyPath(const GrClip& clipIn);
 
-    bool drawClipShape(GrGpu* gpu,
-                       GrTexture* target,
+    bool drawClipShape(GrTexture* target,
                        const GrClip& clipIn,
                        int index);
 
-    void drawTexture(GrGpu* gpu,
-                     GrTexture* target,
+    void drawTexture(GrTexture* target,
                      GrTexture* texture);
 
     void getTemp(const GrIRect& bounds, GrAutoScratchTexture* temp);

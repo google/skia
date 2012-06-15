@@ -30,7 +30,8 @@ extern void gr_run_unittests();
 #define DEBUG_INVAL_START_IDX -1
 
 GrGpu::GrGpu()
-    : fContext(NULL)
+    : fClipMaskManager(this)
+    , fContext(NULL)
     , fResetTimestamp(kExpiredTimestamp+1)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
@@ -368,7 +369,7 @@ bool GrGpu::setupClipAndFlushState(DrawType type) {
 
     ScissoringSettings scissoringSettings;
 
-    if (!fClipMaskManager.createClipMask(this, fClip, &scissoringSettings)) {
+    if (!fClipMaskManager.createClipMask(fClip, &scissoringSettings)) {
         return false;
     }
 
