@@ -96,31 +96,14 @@ bool GrClipMaskManager::useSWOnlyPath(GrGpu* gpu, const GrClip& clipIn) {
             useSW = false;
         }
 
-        if (kRect_ClipType == clipIn.getElementType(i)) {
-            // Non-anti-aliased rects can always be drawn directly (w/o 
-            // using the software path) so the anti-aliased rects are all 
-            // that need to be checked here
-            if (clipIn.getDoAA(i)) {
-                // Antialiased rects are converted to paths and then drawn with
-                // kEvenOdd_GrPathFill. 
-
-                // TODO: wrap GrContext::fillAARect in a helper class and
-                // draw AA rects directly rather than converting to paths
-                SkPath temp;
-                temp.addRect(clipIn.getRect(i));	
-
-                if (path_needs_SW_renderer(this->getContext(), gpu, temp,
-                                           kEvenOdd_GrPathFill, true)) {
-                    useSW = true;
-                }
-            }
-        } else {
-            if (path_needs_SW_renderer(this->getContext(), gpu, 
-                                       clipIn.getPath(i), 
-                                       clipIn.getPathFill(i), 
-                                       clipIn.getDoAA(i))) {
-                useSW = true;
-            }
+        // rects can always be drawn directly w/o using the software path
+        // so only paths need to be checked
+        if (kPath_ClipType == clipIn.getElementType(i) &&
+            path_needs_SW_renderer(this->getContext(), gpu, 
+                                    clipIn.getPath(i), 
+                                    clipIn.getPathFill(i), 
+                                    clipIn.getDoAA(i))) {
+            useSW = true;
         }
     }
 
@@ -414,12 +397,9 @@ bool GrClipMaskManager::drawClipShape(GrGpu* gpu,
 
     if (kRect_ClipType == clipIn.getElementType(index)) {
         if (clipIn.getDoAA(index)) {
-            // convert the rect to a path for AA
-            SkPath temp;
-            temp.addRect(clipIn.getRect(index));
-
-            return draw_path(this->getContext(), gpu, temp,
-                             kEvenOdd_GrPathFill, clipIn.getDoAA(index));
+            getContext()->getAARectRenderer()->fillAARect(gpu, gpu,
+                                                          clipIn.getRect(index), 
+                                                          true);
         } else {
             gpu->drawSimpleRect(clipIn.getRect(index), NULL, 0);
         }
