@@ -26,23 +26,35 @@
 #include <objbase.h>
 
 static int compute_extra_height(const LOGFONT& lf) {
+
     static const struct {
-        const char* fUCName;
+        const char* fUCName;    // UTF8 encoded, ascii is upper-case
         int         fExtraHeight;
     } gData[] = {
-        { "DOTUM", 1 }, // http://code.google.com/p/chromium/issues/detail?id=130842
+        // http://code.google.com/p/chromium/issues/detail?id=130842
+        { "DOTUM", 1 },
+        { "DOTUMCHE", 1 },
+        { "\xEB\x8F\x8B\xEC\x9B\x80", 1 },
+        { "\xEB\x8F\x8B\xEC\x9B\x80\xEC\xB2\xB4", 1 },
     };
 
-    // Convert the lfFaceName into upper-case ascii, since our target
-    // list is explicitly stored that way.
-    char name[LF_FACESIZE];
+    /**
+     *  We convert the target name into upper-case (for ascii chars) UTF8.
+     *  Our database is already stored in this fashion, and it allows us to
+     *  search it with straight memcmp, since everyone is in this canonical
+     *  form.
+     */
 
-    for (int i = 0; i < LF_FACESIZE - 1; ++i) {
-        TCHAR c = lf.lfFaceName[i];
+    // temp storage is max # TCHARs * max expantion for UTF8 + null
+    char name[kMaxBytesInUTF8Sequence * LF_FACESIZE + 1];
+    int index = 0;
+    for (int i = 0; i < LF_FACESIZE; ++i) {
+        uint16_t c = lf.lfFaceName[i];
         if (c >= 'a' && c <= 'z') {
             c = c - 'a' + 'A';
         }
-        name[i] = (char)c;
+        size_t n = SkUTF16_ToUTF8(&c, 1, &name[index]);
+        index += n;
         if (0 == c) {
             break;
         }
