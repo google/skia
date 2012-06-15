@@ -85,11 +85,6 @@ inline void sampler_name(int stage, GrStringBuilder* s) {
     s->appendS32(stage);
 }
 
-inline void radial2_param_name(int stage, GrStringBuilder* s) {
-    *s = "uRadial2Params";
-    s->appendS32(stage);
-}
-
 inline void tex_domain_name(int stage, GrStringBuilder* s) {
     *s = "uTexDom";
     s->appendS32(stage);
