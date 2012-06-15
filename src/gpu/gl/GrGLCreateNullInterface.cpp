@@ -360,6 +360,10 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE nullGLGetString(GrGLenum name) {
             return (const GrGLubyte*)"4.0 Null GL";
         case GR_GL_SHADING_LANGUAGE_VERSION:
             return (const GrGLubyte*)"4.20.8 Null GLSL";
+        case GR_GL_VENDOR:
+            return (const GrGLubyte*)"Null Vendor";
+        case GR_GL_RENDERER:
+            return (const GrGLubyte*)"The Null (Non-)Renderer";
         default:
             GrCrash("Unexpected name to GetString");
             return NULL;
