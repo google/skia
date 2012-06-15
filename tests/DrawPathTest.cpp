@@ -28,6 +28,54 @@ static SkCanvas* new_canvas(int w, int h) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void moveToH(SkPath* path, const uint32_t raw[]) {
+    const float* fptr = (const float*)raw;
+    path->moveTo(fptr[0], fptr[1]);
+}
+
+static void cubicToH(SkPath* path, const uint32_t raw[]) {
+    const float* fptr = (const float*)raw;
+    path->cubicTo(fptr[0], fptr[1], fptr[2], fptr[3], fptr[4], fptr[5]);
+}
+
+// This used to assert, because we performed a cast (int)(pt[0].fX * scale) to
+// arrive at an int (SkFDot6) rather than calling sk_float_round2int. The assert
+// was that the initial line-segment produced by the cubic was not monotonically
+// going down (i.e. the initial DY was negative). By rounding the floats, we get
+// the more proper result.
+//
+// http://code.google.com/p/chromium/issues/detail?id=131181
+//
+static void test_crbug131181(skiatest::Reporter*) {
+    /*
+     fX = 18.8943768,
+     fY = 129.121277
+     }, {
+     fX = 18.8937435,
+     fY = 129.121689
+     }, {
+     fX = 18.8950119,
+     fY = 129.120422
+     }, {
+     fX = 18.5030727,
+     fY = 129.13121
+     */
+    uint32_t data[] = {
+        0x419727af, 0x43011f0c, 0x41972663, 0x43011f27,
+        0x419728fc, 0x43011ed4, 0x4194064b, 0x43012197
+    };
+    
+    SkPath path;
+    moveToH(&path, &data[0]);
+    cubicToH(&path, &data[2]);
+    
+    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawPath(path, paint);
+}
+
 // Need to exercise drawing an inverse-path whose bounds intersect the clip,
 // but whose edges do not (since its a quad which draws only in the bottom half
 // of its bounds).
@@ -138,6 +186,7 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_bigcubic(reporter);
     test_crbug_124652(reporter);
     test_inversepathwithclip(reporter);
+//    test_crbug131181(reporter);
 }
 
 #include "TestClassDef.h"
