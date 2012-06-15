@@ -108,9 +108,9 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu) {
 }
 
 void GrAARectRenderer::fillAARect(GrGpu* gpu,
-                                GrDrawTarget* target,
-                                const GrRect& devRect,
-                                bool useVertexCoverage) {
+                                  GrDrawTarget* target,
+                                  const GrRect& devRect,
+                                  bool useVertexCoverage) {
     GrVertexLayout layout = aa_rect_layout(target, useVertexCoverage);
 
     size_t vsize = GrDrawTarget::VertexSize(layout);

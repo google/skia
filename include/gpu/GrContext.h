@@ -254,6 +254,8 @@ public:
     const GrRenderTarget* getRenderTarget() const;
     GrRenderTarget* getRenderTarget();
 
+    GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
+
     /**
      * Can the provided configuration act as a color render target?
      */
@@ -705,9 +707,9 @@ private:
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;
     GrInOrderDrawBuffer*        fDrawBuffer;
 
-    GrContext(GrGpu* gpu);
+    GrAARectRenderer*           fAARectRenderer;
 
-    GrAARectRenderer*            fAARectRenderer;
+    GrContext(GrGpu* gpu);
 
     void setupDrawBuffer();
 
