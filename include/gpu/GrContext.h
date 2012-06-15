@@ -42,6 +42,11 @@ public:
     static GrContext* Create(GrEngine engine,
                              GrPlatform3DContext context3D);
 
+    /**
+     * Returns the number of GrContext instances for the current thread.
+     */
+    static int GetThreadInstanceCount();
+
     virtual ~GrContext();
 
     /**

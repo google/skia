@@ -24,6 +24,7 @@
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
 #include "SkTLazy.h"
+#include "SkTLS.h"
 #include "SkTrace.h"
 
 #define DEFER_TEXT_RENDERING 1
@@ -68,6 +69,23 @@ GrContext* GrContext::Create(GrEngine engine,
     return ctx;
 }
 
+namespace {
+void* CreateThreadInstanceCount() {
+    return new int(0);
+}
+void DeleteThreadInstanceCount(void* v) {
+    delete reinterpret_cast<int*>(v);
+}
+#define THREAD_INSTANCE_COUNT                                               \
+    (*reinterpret_cast<int*>(SkTLS::Get(CreateThreadInstanceCount,          \
+                                        DeleteThreadInstanceCount)))
+
+}
+
+int GrContext::GetThreadInstanceCount() {
+    return THREAD_INSTANCE_COUNT;
+}
+
 GrContext::~GrContext() {
     this->flush();
 
@@ -87,6 +105,8 @@ GrContext::~GrContext() {
     GrSafeUnref(fPathRendererChain);
     GrSafeUnref(fSoftwarePathRenderer);
     fDrawState->unref();
+
+    --THREAD_INSTANCE_COUNT;
 }
 
 void GrContext::contextLost() {
@@ -1699,6 +1719,8 @@ static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
 }
 
 GrContext::GrContext(GrGpu* gpu) {
+    ++THREAD_INSTANCE_COUNT;
+
     fGpu = gpu;
     fGpu->ref();
     fGpu->setContext(this);
