@@ -1038,7 +1038,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glRTDesc.fSampleCnt = desc.fSampleCnt;
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() &&
         desc.fSampleCnt) {
-        GrPrintf("MSAA RT requested but not supported on this platform.");
+        //GrPrintf("MSAA RT requested but not supported on this platform.");
+        return return_null_texture();
     }
 
     if (renderTarget) {
