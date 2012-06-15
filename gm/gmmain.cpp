@@ -725,7 +725,7 @@ static void usage(const char * argv0) {
         SkDebugf(gRec[i].fName);
     }
     SkDebugf(" ]\n");
-    SkDebugf("    [--noreplay] [--pipe] [--serialize] [--forceBWtext] [--nopdf] \n"
+    SkDebugf("    [--noreplay] [--pipe] [--noserialize] [--forceBWtext] [--nopdf] \n"
              "    [--tiledPipe] \n"
              "    [--nodeferred] [--match substring] [--notexturecache]\n"
              "    [-h|--help]\n"
@@ -740,7 +740,7 @@ static void usage(const char * argv0) {
     SkDebugf("    --pipe: Exercise SkGPipe replay.\n");
     SkDebugf("    --tiledPipe: Exercise tiled SkGPipe replay.\n");
     SkDebugf(
-             "    --serialize: exercise SkPicture serialization & deserialization.\n");
+             "    --noserialize: do not exercise SkPicture serialization & deserialization.\n");
     SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
     SkDebugf("    --nopdf: skip the pdf rendering test pass.\n");
     SkDebugf("    --nodeferred: skip the deferred rendering test pass.\n");
@@ -828,7 +828,7 @@ int main(int argc, char * const argv[]) {
     bool doReplay = true;
     bool doPipe = false;
     bool doTiledPipe = false;
-    bool doSerialize = false;
+    bool doSerialize = true;
     bool doDeferred = true;
     bool disableTextureCache = false;
     SkTDArray<size_t> configs;
@@ -880,8 +880,10 @@ int main(int argc, char * const argv[]) {
             gNotifyMissingReadReference = false;
         } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
             gNotifyMissingReadReference = true;
+        } else if (strcmp(*argv, "--noserialize") == 0) {
+            doSerialize = false;
         } else if (strcmp(*argv, "--serialize") == 0) {
-            doSerialize = true;
+            //@todo borenet - Remove unused "--serialize" flag
         } else if (strcmp(*argv, "--match") == 0) {
             ++argv;
             if (argv < stop && **argv) {
