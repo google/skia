@@ -843,9 +843,13 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE debugGLGetString(GrGLenum name) {
         case GR_GL_EXTENSIONS:
             return (const GrGLubyte*)"GL_ARB_framebuffer_object GL_ARB_blend_func_extended GL_ARB_timer_query GL_ARB_draw_buffers GL_ARB_occlusion_query GL_EXT_blend_color GL_EXT_stencil_wrap";
         case GR_GL_VERSION:
-            return (const GrGLubyte*)"4.0 Null GL";
+            return (const GrGLubyte*)"4.0 Debug GL";
         case GR_GL_SHADING_LANGUAGE_VERSION:
-            return (const GrGLubyte*)"4.20.8 Null GLSL";
+            return (const GrGLubyte*)"4.20.8 Debug GLSL";
+        case GR_GL_VENDOR:
+            return (const GrGLubyte*)"Debug Vendor";
+        case GR_GL_RENDERER:
+            return (const GrGLubyte*)"The Debug (Non-)Renderer";
         default:
             GrCrash("Unexpected name to GetString");
             return NULL;
