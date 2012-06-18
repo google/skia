@@ -25,17 +25,18 @@
 #include <usp10.h>
 #include <objbase.h>
 
-static int compute_extra_height(const LOGFONT& lf) {
+static bool compute_bounds_outset(const LOGFONT& lf, SkIRect* outset) {
 
     static const struct {
         const char* fUCName;    // UTF8 encoded, ascii is upper-case
-        int         fExtraHeight;
+        SkIRect     fOutset;    // these are deltas for the glyph's bounds
     } gData[] = {
         // http://code.google.com/p/chromium/issues/detail?id=130842
-        { "DOTUM", 1 },
-        { "DOTUMCHE", 1 },
-        { "\xEB\x8F\x8B\xEC\x9B\x80", 1 },
-        { "\xEB\x8F\x8B\xEC\x9B\x80\xEC\xB2\xB4", 1 },
+        { "DOTUM", { 0, 0, 0, 1 } },
+        { "DOTUMCHE", { 0, 0, 0, 1 } },
+        { "\xEB\x8F\x8B\xEC\x9B\x80", { 0, 0, 0, 1 } },
+        { "\xEB\x8F\x8B\xEC\x9B\x80\xEC\xB2\xB4", { 0, 0, 0, 1 } },
+        { "MS UI GOTHIC", { 1, 0, 0, 0 } },
     };
 
     /**
@@ -62,10 +63,25 @@ static int compute_extra_height(const LOGFONT& lf) {
 
     for (size_t j = 0; j < SK_ARRAY_COUNT(gData); ++j) {
         if (!strcmp(gData[j].fUCName, name)) {
-            return gData[j].fExtraHeight;
+            *outset = gData[j].fOutset;
+            return true;
         }
     }
-    return 0;
+    return false;
+}
+
+// outset isn't really a rect, but 4 (non-negative) values to outset the
+// glyph's metrics by. For "normal" fonts, all these values should be 0.
+static void apply_outset(SkGlyph* glyph, const SkIRect& outset) {
+    SkASSERT(outset.fLeft >= 0);
+    SkASSERT(outset.fTop >= 0);
+    SkASSERT(outset.fRight >= 0);
+    SkASSERT(outset.fBottom >= 0);
+
+    glyph->fLeft -= outset.fLeft;
+    glyph->fTop -= outset.fTop;
+    glyph->fWidth += outset.fLeft + outset.fRight;
+    glyph->fHeight += outset.fTop + outset.fBottom;
 }
 
 // always packed xxRRGGBB
@@ -534,7 +550,7 @@ private:
      *  this costs more RAM and therefore slower blits, we have a table to
      *  only do this for known "bad" fonts.
      */
-    int          fExtraHeightHack;
+    SkIRect      fOutset;
 
     HFONT        fHiResFont;
     MAT2         fMat22Identity;
@@ -598,7 +614,9 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     lf.lfQuality = compute_quality(fRec);
     fFont = CreateFontIndirect(&lf);
 
-    fExtraHeightHack = compute_extra_height(lf);
+    if (!compute_bounds_outset(lf, &fOutset)) {
+        fOutset.setEmpty();
+    }
 
     // if we're rotated, or want fractional widths, create a hires font
     fHiResFont = 0;
@@ -765,7 +783,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
         glyph->fAdvanceY = SkFixedMul(SkFIXEDToFixed(fMat22.eM21), glyph->fAdvanceX);
         glyph->fAdvanceX = SkFixedMul(SkFIXEDToFixed(fMat22.eM11), glyph->fAdvanceX);
 
-        glyph->fHeight += fExtraHeightHack;
+        apply_outset(glyph, fOutset);
         return;
     }
 
@@ -811,7 +829,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
             glyph->fTop -= 2;
             glyph->fLeft -= 2;
 
-            glyph->fHeight += fExtraHeightHack;
+            apply_outset(glyph, fOutset);
         }
 
         if (fHiResFont) {
