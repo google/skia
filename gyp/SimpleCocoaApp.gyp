@@ -27,6 +27,7 @@
       'dependencies': [
         'core.gyp:core',
         'opts.gyp:opts',
+        'ports.gyp:ports',
         'utils.gyp:utils',
         'views.gyp:views',
         'xml.gyp:xml',
