@@ -508,10 +508,6 @@ void GrGpuGL::onResetContext() {
     // stencil on the next draw.
     fHWStencilClipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
 
-    // TODO: I believe this should actually go in GrGpu::onResetContext
-    // rather than here
-    fClipMaskManager.resetMask();
-
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
     
