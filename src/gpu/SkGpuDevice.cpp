@@ -630,8 +630,9 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         return;
     }
 
-    // we only handle hairlines here, else we let the SkDraw call our drawPath()
-    if (width > 0) {
+    // we only handle hairlines and paints without path effects or mask filters,
+    // else we let the SkDraw call our drawPath()
+    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter()) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
     }
