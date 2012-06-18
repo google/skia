@@ -429,7 +429,7 @@ protected:
     void finalizeReservedIndices();
 
     // called when the 3D context state is unknown. Subclass should emit any
-    // assumed 3D context state and dirty any state cache
+    // assumed 3D context state and dirty any state cache.
     virtual void onResetContext() = 0;
 
     
@@ -558,6 +558,10 @@ private:
     void prepareIndexPool();
 
     void resetContext() {
+        // We call this because the client may have messed with the
+        // stencil buffer. Perhaps we should detect whether it is a
+        // internally created stencil buffer and if so skip the invalidate.
+        fClipMaskManager.invalidateStencilMask();
         this->onResetContext();
         ++fResetTimestamp;
     }

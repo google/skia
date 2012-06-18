@@ -119,9 +119,9 @@ bool GrClipMaskManager::createClipMask(const GrClip& clipIn,
     GrAssert(scissorSettings);
 
     scissorSettings->fEnableScissoring = false;
-    fClipMaskInStencil = false;
-    fClipMaskInAlpha = false;
 
+    fCurrClipMaskType = kNone_ClipMaskType;
+    
     GrDrawState* drawState = fGpu->drawState();
     if (!drawState->isClipState()) {
         return true;
@@ -143,8 +143,6 @@ bool GrClipMaskManager::createClipMask(const GrClip& clipIn,
         GrTexture* result = NULL;
         GrIRect bound;
         if (this->createSoftwareClipMask(fGpu, clipIn, &result, &bound)) {
-            fClipMaskInAlpha = true;
-
             setup_drawstate_aaclip(fGpu, result, bound);
             return true;
         }
@@ -165,8 +163,6 @@ bool GrClipMaskManager::createClipMask(const GrClip& clipIn,
         GrTexture* result = NULL;
         GrIRect bound;
         if (this->createAlphaClipMask(fGpu, clipIn, &result, &bound)) {
-            fClipMaskInAlpha = true;
-
             setup_drawstate_aaclip(fGpu, result, bound);
             return true;
         }
@@ -208,10 +204,10 @@ bool GrClipMaskManager::createClipMask(const GrClip& clipIn,
     scissorSettings->fEnableScissoring = true;
 
     // use the stencil clip if we can't represent the clip as a rectangle.
-    fClipMaskInStencil = !clipIn.isRect() && !clipIn.isEmpty() &&
-                         !bounds.isEmpty();
+    bool useStencil = !clipIn.isRect() && !clipIn.isEmpty() &&
+                      !bounds.isEmpty();
 
-    if (fClipMaskInStencil) {
+    if (useStencil) {
         return this->createStencilClipMask(clipIn, bounds, scissorSettings);
     }
 
@@ -546,13 +542,15 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
                                             GrTexture** result,
                                             GrIRect *resultBounds) {
 
+    GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
+
     if (this->clipMaskPreamble(clipIn, result, resultBounds)) {
+        fCurrClipMaskType = kAlpha_ClipMaskType;
         return true;
     }
 
     GrTexture* accum = fAACache.getLastMask();
     if (NULL == accum) {
-        fClipMaskInAlpha = false;
         fAACache.reset();
         return false;
     }
@@ -613,7 +611,6 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
 
             getTemp(*resultBounds, &temp);
             if (NULL == temp.texture()) {
-                fClipMaskInAlpha = false;
                 fAACache.reset();
                 return false;
             }
@@ -659,7 +656,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
     }
 
     *result = accum;
-
+    fCurrClipMaskType = kAlpha_ClipMaskType;
     return true;
 }
 
@@ -669,7 +666,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                                               const GrRect& bounds,
                                               ScissoringSettings* scissorSettings) {
 
-    GrAssert(fClipMaskInStencil);
+    GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
 
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(drawState->isClipState());
@@ -758,7 +755,6 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                                                          fill, fGpu, false,
                                                          true);
                 if (NULL == pr) {
-                    fClipMaskInStencil = false;
                     fGpu->setClip(clipCopy);     // restore to the original
                     return false;
                 }
@@ -824,11 +820,10 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
         }
         // restore clip
         fGpu->setClip(clipCopy);
-        // recusive draws would have disabled this since they drew with
-        // the clip bounds as clip.
-        fClipMaskInStencil = true;
     }
-
+    // set this last because recursive draws may overwrite it back to kNone.
+    GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
+    fCurrClipMaskType = kStencil_ClipMaskType;
     return true;
 }
 
@@ -950,6 +945,7 @@ GrPathFill invert_fill(GrPathFill fill) {
 bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
                                                GrTexture** result,
                                                GrIRect *resultBounds) {
+    GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
 
     if (this->clipMaskPreamble(clipIn, result, resultBounds)) {
         return true;
@@ -957,7 +953,6 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
 
     GrTexture* accum = fAACache.getLastMask();
     if (NULL == accum) {
-        fClipMaskInAlpha = false;
         fAACache.reset();
         return false;
     }
@@ -1057,6 +1052,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
 
     *result = accum;
 
+    fCurrClipMaskType = kAlpha_ClipMaskType;
     return true;
 }
 

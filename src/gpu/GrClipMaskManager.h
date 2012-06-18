@@ -285,8 +285,7 @@ class GrClipMaskManager : public GrNoncopyable {
 public:
     GrClipMaskManager(GrGpu* gpu)
         : fGpu(gpu)
-        , fClipMaskInStencil(false)
-        , fClipMaskInAlpha(false) {
+        , fCurrClipMaskType(kNone_ClipMaskType) {
     }
 
     bool createClipMask(const GrClip& clip, 
@@ -294,11 +293,17 @@ public:
 
     void releaseResources();
 
-    bool isClipInStencil() const { return fClipMaskInStencil; }
-    bool isClipInAlpha() const { return fClipMaskInAlpha; }
+    bool isClipInStencil() const {
+        return kStencil_ClipMaskType == fCurrClipMaskType;
+    }
+    bool isClipInAlpha() const {
+        return kAlpha_ClipMaskType == fCurrClipMaskType;
+    }
 
-    void resetMask() {
-        fClipMaskInStencil = false;
+    void invalidateStencilMask() {
+        if (kStencil_ClipMaskType == fCurrClipMaskType) {
+            fCurrClipMaskType = kNone_ClipMaskType;
+        }
     }
 
     void postClipPush() {
@@ -350,8 +355,18 @@ public:
 
 private:
     GrGpu* fGpu;
-    bool fClipMaskInStencil;        // is the clip mask in the stencil buffer?
-    bool fClipMaskInAlpha;          // is the clip mask in an alpha texture?
+
+    /**
+     * We may represent the clip as a mask in the stencil buffer or as an alpha
+     * texture. It may be neither because the scissor rect suffices or we
+     * haven't yet examined the clip.
+     */
+    enum ClipMaskType {
+        kNone_ClipMaskType,
+        kStencil_ClipMaskType,
+        kAlpha_ClipMaskType,
+    } fCurrClipMaskType;
+    
     GrClipMaskCache fAACache;       // cache for the AA path
 
     bool createStencilClipMask(const GrClip& clip, 
