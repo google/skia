@@ -211,6 +211,9 @@ public:
     /// Is there support for GL_RED and GL_R8
     bool textureRedSupport() const { return fTextureRedSupport; }
 
+    /// Is GL_ARB_IMAGING supported
+    bool imagingSupport() const { return fImagingSupport; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -281,6 +284,7 @@ private:
     bool fTextureUsageSupport : 1;
     bool fTexStorageSupport : 1;
     bool fTextureRedSupport : 1;
+    bool fImagingSupport  : 1;
 };
 
 #endif

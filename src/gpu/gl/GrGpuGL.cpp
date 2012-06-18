@@ -468,7 +468,9 @@ void GrGpuGL::onResetContext() {
         GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
         GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
         GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
-        GL_CALL(Disable(GR_GL_COLOR_TABLE));
+        if (this->glCaps().imagingSupport()) {
+            GL_CALL(Disable(GR_GL_COLOR_TABLE));
+        }
         GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
         GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
         // Since ES doesn't support glPointSize at all we always use the VS to

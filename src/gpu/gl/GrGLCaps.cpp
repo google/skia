@@ -34,6 +34,7 @@ void GrGLCaps::reset() {
     fTextureUsageSupport = false;
     fTexStorageSupport = false;
     fTextureRedSupport = false;
+    fImagingSupport = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) {
@@ -61,6 +62,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fTextureUsageSupport = caps.fTextureUsageSupport;
     fTexStorageSupport = caps.fTexStorageSupport;
     fTextureRedSupport = caps.fTextureRedSupport;
+    fImagingSupport = caps.fImagingSupport;
 
     return *this;
 }
@@ -145,6 +147,9 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
     } else {
         fTextureRedSupport = ctxInfo.hasExtension("GL_EXT_texture_rg");
     }
+
+    fImagingSupport = kDesktop_GrGLBinding == binding &&
+                      ctxInfo.hasExtension("GL_ARB_imaging");
 
     this->initFSAASupport(ctxInfo);
     this->initStencilFormats(ctxInfo);
