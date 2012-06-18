@@ -8,8 +8,29 @@
 
 #include "GrGLUtil.h"
 
+
 void GrGLClearErr(const GrGLInterface* gl) {
     while (GR_GL_NO_ERROR != gl->fGetError()) {}
+}
+
+namespace {
+const char *get_error_string(uint32_t err) {
+    switch (err) {
+    case GR_GL_NO_ERROR:
+        return "";
+    case GR_GL_INVALID_ENUM:
+        return "Invalid Enum";
+    case GR_GL_INVALID_VALUE:
+        return "Invalid Value";
+    case GR_GL_INVALID_OPERATION:
+        return "Invalid Operation";
+    case GR_GL_OUT_OF_MEMORY:
+        return "Out of Memory";
+    case GR_GL_CONTEXT_LOST:
+        return "Context Lost";
+    }
+    return "Unknown";
+}
 }
 
 void GrGLCheckErr(const GrGLInterface* gl,
@@ -17,7 +38,7 @@ void GrGLCheckErr(const GrGLInterface* gl,
                   const char* call) {
     uint32_t err = GR_GL_GET_ERROR(gl);
     if (GR_GL_NO_ERROR != err) {
-        GrPrintf("---- glGetError %x", err);
+        GrPrintf("---- glGetError 0x%x(%s)", err, get_error_string(err));
         if (NULL != location) {
             GrPrintf(" at\n\t%s", location);
         }
