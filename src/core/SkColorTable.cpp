@@ -27,7 +27,9 @@ SkColorTable::SkColorTable(int count)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 }
 
-SkColorTable::SkColorTable(const SkColorTable& src) {
+// As copy constructor is hidden in the class hierarchy, we need to call
+// default constructor explicitly to suppress a compiler warning.
+SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
     f16BitCache = NULL;
     fFlags = src.fFlags;
     int count = src.count();
