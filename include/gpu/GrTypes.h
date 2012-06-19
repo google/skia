@@ -79,9 +79,12 @@ static inline int32_t GrIDivRoundUp(int x, int y) {
 static inline uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
     return (x + (y-1)) / y;
 }
-static inline size_t GrSizeDivRoundUp(size_t x, uint32_t y) {
+static inline size_t GrSizeDivRoundUp(size_t x, size_t y) {
     return (x + (y-1)) / y;
 }
+
+// compile time, evaluates Y multiple times
+#define GR_CT_DIV_ROUND_UP(X, Y) (((X) + ((Y)-1)) / (Y))
 
 /**
  *  align up
@@ -89,9 +92,12 @@ static inline size_t GrSizeDivRoundUp(size_t x, uint32_t y) {
 static inline uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
     return GrUIDivRoundUp(x, alignment) * alignment;
 }
-static inline uint32_t GrSizeAlignUp(size_t x, uint32_t alignment) {
+static inline size_t GrSizeAlignUp(size_t x, size_t alignment) {
     return GrSizeDivRoundUp(x, alignment) * alignment;
 }
+
+// compile time, evaluates A multiple times
+#define GR_CT_ALIGN_UP(X, A) (GR_CT_DIV_ROUND_UP((X),(A)) * (A))
 
 /**
  * amount of pad needed to align up
@@ -99,7 +105,7 @@ static inline uint32_t GrSizeAlignUp(size_t x, uint32_t alignment) {
 static inline uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
     return (alignment - x % alignment) % alignment;
 }
-static inline size_t GrSizeAlignUpPad(size_t x, uint32_t alignment) {
+static inline size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
     return (alignment - x % alignment) % alignment;
 }
 

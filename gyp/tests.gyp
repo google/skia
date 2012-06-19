@@ -44,6 +44,7 @@
         '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',
         '../tests/GradientTest.cpp',
+        '../tests/GrMemoryPoolTest.cpp',
         '../tests/InfRectTest.cpp',
         '../tests/MathTest.cpp',
         '../tests/MatrixTest.cpp',

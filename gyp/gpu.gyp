@@ -243,6 +243,8 @@
         '../src/gpu/GrInOrderDrawBuffer.h',
         '../src/gpu/GrMatrix.cpp',
         '../src/gpu/GrMemory.cpp',
+        '../src/gpu/GrMemoryPool.cpp',
+        '../src/gpu/GrMemoryPool.h',
         '../src/gpu/GrPath.h',
         '../src/gpu/GrPathRendererChain.cpp',
         '../src/gpu/GrPathRendererChain.h',

@@ -53,6 +53,10 @@
         static SkTArray<PFCheckInstCnt> gChildren;                          \
     } fInstanceCountHelper;                                                 \
                                                                             \
+    static int32_t GetInstanceCount() {                                     \
+        return SkInstanceCountHelper::gInstanceCount;                       \
+    }                                                                       \
+                                                                            \
     static void CheckInstanceCount() {                                      \
         if (0 != SkInstanceCountHelper::gInstanceCount) {                   \
             SkDebugf("Leaked %s objects: %d\n", #className,                 \
