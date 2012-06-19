@@ -7,7 +7,7 @@
  */
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-#include <X11/keysym.h>
+#include <X11/XKBlib.h>
 #include <GL/glx.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -181,7 +181,7 @@ void SkOSWindow::loop() {
                 this->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
                 break;
             case KeyPress: {
-                KeySym keysym = XKeycodeToKeysym(dsp, evt.xkey.keycode, 0);
+                KeySym keysym = XkbKeycodeToKeysym(dsp, evt.xkey.keycode, 0, 0);
                 //SkDebugf("pressed key %i!\n\tKeySym:%i\n", evt.xkey.keycode, XKeycodeToKeysym(dsp, evt.xkey.keycode, 0));
                 if (keysym == XK_Escape) {
                     loop = false;
@@ -196,7 +196,7 @@ void SkOSWindow::loop() {
             }
             case KeyRelease:
                 //SkDebugf("released key %i\n", evt.xkey.keycode);
-                this->handleKeyUp(XKeyToSkKey(XKeycodeToKeysym(dsp, evt.xkey.keycode, 0)));
+                this->handleKeyUp(XKeyToSkKey(XkbKeycodeToKeysym(dsp, evt.xkey.keycode, 0, 0)));
                 break;
             case ClientMessage:
                 if (SkEvent::ProcessEvent()) {
