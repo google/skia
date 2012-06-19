@@ -86,9 +86,12 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
         GrIRect pathIBounds;
         pathSBounds.roundOut(&pathIBounds);
         if (!pathBounds->intersect(pathIBounds)) {
+            // set the correct path bounds, as this would be used later.
+            *pathBounds = pathIBounds;
             return false;
         }
     } else {
+        *pathBounds = GrIRect::EmptyIRect();
         return false;
     }
     return true;
@@ -305,7 +308,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
     GrIRect pathBounds, clipBounds;
     if (!get_path_and_clip_bounds(target, path, translate,
                                   &pathBounds, &clipBounds)) {
-        return true;    // path is empty so there is nothing to do
+        if (GrIsFillInverted(fill)) {
+            draw_around_inv_path(target, stageMask,
+                                 clipBounds, pathBounds);
+        }
+        return true;
     }
     if (sw_draw_path_to_mask_texture(path, pathBounds,
                                      fill, fContext,
