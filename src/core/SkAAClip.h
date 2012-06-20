@@ -61,8 +61,8 @@ public:
         return this->quickContains(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
 
-    const uint8_t* findRow(int y, int* lastYForRow) const;
-    const uint8_t* findX(const uint8_t data[], int x, int* initialCount) const;
+    const uint8_t* findRow(int y, int* lastYForRow = NULL) const;
+    const uint8_t* findX(const uint8_t data[], int x, int* initialCount = NULL) const;
 
     class Iter;
     struct RunHead;
