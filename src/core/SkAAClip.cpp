@@ -135,6 +135,7 @@ SkAAClip::Iter::Iter(const SkAAClip& clip) {
         fDone = true;
         fTop = fBottom = clip.fBounds.fBottom;
         fData = NULL;
+        fStopYOff = NULL;
         return;
     }
     
@@ -809,7 +810,9 @@ const uint8_t* SkAAClip::findX(const uint8_t data[], int x, int* initialCount) c
     for (;;) {
         int n = data[0];
         if (x < n) {
-            *initialCount = n - x;
+            if (initialCount) {
+                *initialCount = n - x;
+            }
             break;
         }
         data += 2;
@@ -831,7 +834,7 @@ bool SkAAClip::quickContains(int left, int top, int right, int bottom) const {
     }
 #endif
 
-    int lastY;
+    int lastY SK_INIT_TO_AVOID_WARNING;
     const uint8_t* row = this->findRow(top, &lastY);
     if (lastY < bottom) {
         return false;
@@ -1835,8 +1838,7 @@ void SkAAClipBlitter::blitH(int x, int y, int width) {
     SkASSERT(fAAClipBounds.contains(x, y));
     SkASSERT(fAAClipBounds.contains(x + width  - 1, y));
 
-    int lastY;
-    const uint8_t* row = fAAClip->findRow(y, &lastY);
+    const uint8_t* row = fAAClip->findRow(y);
     int initialCount;
     row = fAAClip->findX(row, x, &initialCount);
 
@@ -1903,8 +1905,8 @@ static void merge(const uint8_t* SK_RESTRICT row, int rowN,
 
 void SkAAClipBlitter::blitAntiH(int x, int y, const SkAlpha aa[],
                                 const int16_t runs[]) {
-    int lastY;
-    const uint8_t* row = fAAClip->findRow(y, &lastY);
+
+    const uint8_t* row = fAAClip->findRow(y);
     int initialCount;
     row = fAAClip->findX(row, x, &initialCount);
 
@@ -1921,7 +1923,7 @@ void SkAAClipBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     }
 
     for (;;) {
-        int lastY;
+        int lastY SK_INIT_TO_AVOID_WARNING;
         const uint8_t* row = fAAClip->findRow(y, &lastY);
         int dy = lastY - y + 1;
         if (dy > height) {
@@ -1929,8 +1931,7 @@ void SkAAClipBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
         }
         height -= dy;
 
-        int initialCount;
-        row = fAAClip->findX(row, x, &initialCount);
+        row = fAAClip->findX(row, x);
         SkAlpha newAlpha = SkMulDiv255Round(alpha, row[1]);
         if (newAlpha) {
             fBlitter->blitV(x, y, dy, newAlpha);
@@ -2138,7 +2139,7 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
     const int stopY = y + clip.height();
 
     do {
-        int localStopY;
+        int localStopY SK_INIT_TO_AVOID_WARNING;
         const uint8_t* row = fAAClip->findRow(y, &localStopY);
         // findRow returns last Y, not stop, so we add 1
         localStopY = SkMin32(localStopY + 1, stopY);
