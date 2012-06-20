@@ -86,7 +86,10 @@ void GrGpuGL::DeleteProgram(const GrGLInterface* gl,
     }
     GR_GL_CALL(gl, DeleteShader(programData->fFShaderID));
     GR_GL_CALL(gl, DeleteProgram(programData->fProgramID));
-    GR_DEBUGCODE(memset(programData, 0, sizeof(*programData));)
+    GR_DEBUGCODE(programData->fVShaderID = 0);
+    GR_DEBUGCODE(programData->fGShaderID = 0);
+    GR_DEBUGCODE(programData->fFShaderID = 0);
+    GR_DEBUGCODE(programData->fProgramID = 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

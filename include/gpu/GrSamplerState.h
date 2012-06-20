@@ -81,8 +81,7 @@ public:
         fSwapRAndB = s.fSwapRAndB;
         fTextureDomain = s.fTextureDomain;
 
-        fCustomStage = s.fCustomStage;
-        SkSafeRef(fCustomStage);
+        GrSafeAssign(fCustomStage, s.fCustomStage);
 
         return *this;
     }
