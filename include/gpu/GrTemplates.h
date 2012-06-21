@@ -25,36 +25,37 @@ template <typename Dst, typename Src> Dst GrTCast(Src src) {
 }
 
 /**
- * saves value of T* in and restores in destructor
+ * takes a T*, saves the value it points to,  in and restores the value in the
+ * destructor
  * e.g.:
  * {
- *      GrAutoTPtrValueRestore<int*> autoCountRestore;
+ *      GrAutoTRestore<int*> autoCountRestore;
  *      if (useExtra) {
- *          autoCountRestore.save(&fCount);
+ *          autoCountRestore.reset(&fCount);
  *          fCount += fExtraCount;
  *      }
  *      ...
  * }  // fCount is restored
  */
-template <typename T> class GrAutoTPtrValueRestore : public GrNoncopyable {
+template <typename T> class GrAutoTRestore : public GrNoncopyable {
 public:
-    GrAutoTPtrValueRestore() : fPtr(NULL), fVal() {}
+    GrAutoTRestore() : fPtr(NULL), fVal() {}
     
-    GrAutoTPtrValueRestore(T* ptr) {
+    GrAutoTRestore(T* ptr) {
         fPtr = ptr;
         if (NULL != ptr) {
             fVal = *ptr;
         }
     }
     
-    ~GrAutoTPtrValueRestore() {
+    ~GrAutoTRestore() {
         if (NULL != fPtr) {
             *fPtr = fVal;
         }
     }
     
     // restores previously saved value (if any) and saves value for passed T*
-    void save(T* ptr) {
+    void reset(T* ptr) {
         if (NULL != fPtr) {
             *fPtr = fVal;
         }

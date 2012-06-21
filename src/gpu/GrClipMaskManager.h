@@ -28,19 +28,6 @@ class GrTexture;
 class GrDrawState;
 
 /**
- * Scissoring needs special handling during stencil clip mask creation
- * since the creation process re-entrantly invokes setupClipAndFlushState.
- * During this process the call stack is used to keep 
- * track of (and apply to the GPU) the current scissor settings.
- */
-struct ScissoringSettings {
-    bool    fEnableScissoring;
-    GrIRect fScissorRect;
-
-    void setupScissoring(GrGpu* gpu);
-};
-
-/**
  * The stencil buffer stores the last clip path - providing a single entry
  * "cache". This class provides similar functionality for AA clip paths
  */
@@ -288,8 +275,12 @@ public:
         , fCurrClipMaskType(kNone_ClipMaskType) {
     }
 
-    bool createClipMask(const GrClip& clip, 
-                        ScissoringSettings* scissorSettings);
+    /**
+     * Creates a clip mask if necessary as a stencil buffer or alpha texture
+     * and sets the GrGpu's scissor and stencil state. If the return is false
+     * then the draw can be skipped.
+     */
+    bool setupClipping(const GrClip& clip);
 
     void releaseResources();
 
@@ -325,6 +316,7 @@ public:
         return fAACache.getContext();
     }
 
+private:
     /**
      * Informs the helper function adjustStencilParams() about how the stencil
      * buffer clip is being used.
@@ -339,21 +331,6 @@ public:
         kIgnoreClip_StencilClipMode,
     };
 
-    /**
-     * The stencil func, mask, and reference value are specified by GrGpu's
-     * caller but the actual values passed to the API may have to be adjusted
-     * due to the stencil buffer simultaneously being used for clipping. This
-     * function should be called even when clipping is disabled in order to
-     * prevent the clip from being accidentally overwritten.
-     */
-    GrStencilFunc adjustStencilParams(GrStencilFunc,
-                                      StencilClipMode mode,
-                                      unsigned int stencilBitCnt,
-                                      unsigned int* ref,
-                                      unsigned int* mask,
-                                      unsigned int* writeMask);
-
-private:
     GrGpu* fGpu;
 
     /**
@@ -369,9 +346,8 @@ private:
     
     GrClipMaskCache fAACache;       // cache for the AA path
 
-    bool createStencilClipMask(const GrClip& clip, 
-                               const GrRect& bounds,
-                               ScissoringSettings* scissorSettings);
+    bool createStencilClipMask(const GrClip& clip,
+                               const GrIRect& bounds);
     bool createAlphaClipMask(const GrClip& clipIn,
                              GrTexture** result,
                              GrIRect *resultBounds);
@@ -395,6 +371,21 @@ private:
 
     void setupCache(const GrClip& clip, 
                     const GrIRect& bounds);
+
+    /**
+     * Called prior to return control back the GrGpu in setupClipping. It
+     * updates the GrGpu with stencil settings that account stencil-based
+     * clipping.
+     */
+    void setGpuStencil();
+
+    /**
+     * Adjusts the stencil settings to account for interaction with stencil
+     * clipping.
+     */
+    void adjustStencilParams(GrStencilSettings* settings,
+                             StencilClipMode mode,
+                             int stencilBitCnt);
 
     typedef GrNoncopyable INHERITED;
 };

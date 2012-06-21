@@ -351,34 +351,16 @@ const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const GrStencilSettings* GrGpu::GetClipStencilSettings(void) {
-    // stencil settings to use when clip is in stencil
-    GR_STATIC_CONST_SAME_STENCIL_STRUCT(sClipStencilSettings,
-        kKeep_StencilOp,
-        kKeep_StencilOp,
-        kAlwaysIfInClip_StencilFunc,
-        0x0000,
-        0x0000,
-        0x0000);
-    return GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&sClipStencilSettings);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 bool GrGpu::setupClipAndFlushState(DrawType type) {
 
-    ScissoringSettings scissoringSettings;
-
-    if (!fClipMaskManager.createClipMask(fClip, &scissoringSettings)) {
+    if (!fClipMaskManager.setupClipping(fClip)) {
         return false;
     }
 
-    // Must flush the scissor after graphics state
     if (!this->flushGraphicsState(type)) {
         return false;
     }
 
-    scissoringSettings.setupScissoring(this);
     return true;
 }
 

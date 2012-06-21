@@ -454,6 +454,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
         }
     }
     this->flushColorMatrix();
+    this->flushScissor();
 
     GrIRect* rect = NULL;
     GrIRect clipBounds;

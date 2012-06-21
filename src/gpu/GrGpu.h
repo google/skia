@@ -323,8 +323,29 @@ public:
         return fConfigRenderSupport[config];
     }
 
-    virtual void enableScissoring(const GrIRect& rect) = 0;
-    virtual void disableScissor() = 0;
+    /**
+     * These methods are called by the clip manager's setupClipping function
+     * which (called as part of GrGpu's implementation of onDraw* and
+     * onStencilPath member functions.) The GrGpu subclass should flush the
+     * stencil state to the 3D API in its implementation of flushGraphicsState.
+     */
+    void enableScissor(const GrIRect& rect) {
+        fScissorState.fEnabled = true;
+        fScissorState.fRect = rect;
+    }
+    void disableScissor() { fScissorState.fEnabled = false; }
+
+    /**
+     * Like the scissor methods above this is called by setupClipping and
+     * should be flushed by the GrGpu subclass in flushGraphicsState. These
+     * stencil settings should be used in place of those on the GrDrawState.
+     * They have been adjusted to account for any interactions between the
+     * GrDrawState's stencil settings and stencil clipping.
+     */
+    void setStencilSettings(const GrStencilSettings& settings) {
+        fStencilSettings = settings;
+    }
+    void disableStencil() { fStencilSettings.setDisabled(); }
 
     // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
     // free to clear the remaining bits to zero if masked clears are more
@@ -385,10 +406,6 @@ protected:
                                           unsigned int* ref,
                                           unsigned int* mask);
 
-    // stencil settings to clip drawing when stencil clipping is in effect
-    // and the client isn't using the stencil test.
-    static const GrStencilSettings* GetClipStencilSettings();
-
     GrClipMaskManager           fClipMaskManager;
 
     struct GeometryPoolState {
@@ -401,6 +418,15 @@ protected:
     const GeometryPoolState& getGeomPoolState() { 
         return fGeomPoolStateStack.back(); 
     }
+
+    // The state of the scissor is controlled by the clip manager
+    struct ScissorState {
+        bool    fEnabled;
+        GrIRect fRect;
+    } fScissorState;
+
+    // The final stencil settings to use as determined by the clip manager.
+    GrStencilSettings fStencilSettings;
 
     // Derived classes need access to this so they can fill it out in their
     // constructors

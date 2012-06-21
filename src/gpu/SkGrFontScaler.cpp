@@ -7,7 +7,7 @@
  */
 
 
-
+#include "GrTemplates.h"
 #include "SkGr.h"
 #include "SkDescriptor.h"
 #include "SkGlyphCache.h"

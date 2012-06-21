@@ -13,7 +13,6 @@
 
 #include "GrClipIterator.h"
 #include "GrRect.h"
-#include "GrTemplates.h"
 
 #include "SkPath.h"
 #include "SkTArray.h"
@@ -78,6 +77,8 @@ public:
         }
     }
 
+    // FIXME: This word "empty" is confusing. It means that the clip has no
+    // elements (it is the infinite plane) not that it has no area.
     bool isEmpty() const { return 0 == fList.count(); }
 
     /**
