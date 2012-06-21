@@ -546,11 +546,13 @@ public:
     }
 
     /**
-     * Clear the render target. Ignores the clip and all other draw state
-     * (blend mode, stages, etc). Clears the whole thing if rect is NULL,
-     * otherwise just the rect.
+     * Clear the current render target if one isn't passed in. Ignores the 
+     * clip and all other draw state (blend mode, stages, etc). Clears the 
+     * whole thing if rect is NULL, otherwise just the rect.
      */
-    virtual void clear(const GrIRect* rect, GrColor color) = 0;
+    virtual void clear(const GrIRect* rect, 
+                       GrColor color,
+                       GrRenderTarget* renderTarget = NULL) = 0;
 
     /**
      * Release any resources that are cached but not currently in use. This

@@ -40,7 +40,7 @@ public:
 
     bool getTexture(GrAutoScratchTexture* tex);
 
-    void toTexture(GrTexture* texture);
+    void toTexture(GrTexture* texture, bool clearToWhite);
 
     void clear(GrColor color) {
         fBM.eraseColor(color);

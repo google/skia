@@ -592,10 +592,8 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
 void SkGpuDevice::clear(SkColor color) {
-    fContext->setRenderTarget(fRenderTarget);
-    fContext->clear(NULL, color);
+    fContext->clear(NULL, color, fRenderTarget);
 }
 
 void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {

@@ -290,7 +290,9 @@ public:
     void removeResource(GrResource* resource);
 
     // GrDrawTarget overrides
-    virtual void clear(const GrIRect* rect, GrColor color) SK_OVERRIDE;
+    virtual void clear(const GrIRect* rect, 
+                       GrColor color,
+                       GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
     virtual void purgeResources() SK_OVERRIDE {
         // The clip mask manager can rebuild all its clip masks so just

@@ -13,6 +13,7 @@
 #include "GrContext.h"
 #include "SkDraw.h"
 #include "SkRasterClip.h"
+#include "GrGpu.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::canDrawPath(const SkPath& path,
@@ -222,8 +223,26 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* tex) {
 /**
  * Move the result of the software mask generation back to the gpu
  */
-void GrSWMaskHelper::toTexture(GrTexture *texture) {
+void GrSWMaskHelper::toTexture(GrTexture *texture, bool clearToWhite) {
     SkAutoLockPixels alp(fBM);
+
+    // The destination texture is almost always larger than "fBM". Clear
+    // it appropriately so we don't get mask artifacts outside of the path's
+    // bounding box
+    
+    // "texture" needs to be installed as the render target for the clear
+    // and the texture upload but cannot remain the render target upon
+    // returned. Callers typically use it as a texture and it would then
+    // be both source and dest.
+    GrDrawState::AutoRenderTargetRestore artr(fContext->getGpu()->drawState(), 
+                                              texture->asRenderTarget());
+
+    if (clearToWhite) {
+        fContext->getGpu()->clear(NULL, SK_ColorWHITE);
+    } else {
+        fContext->getGpu()->clear(NULL, 0x00000000);
+    }
+
     texture->writePixels(0, 0, fBM.width(), fBM.height(), 
                          kAlpha_8_GrPixelConfig,
                          fBM.getPixels(), fBM.rowBytes());
@@ -255,7 +274,7 @@ bool sw_draw_path_to_mask_texture(const SkPath& clientPath,
         return false;
     }
 
-    helper.toTexture(tex->texture());
+    helper.toTexture(tex->texture(), false);
 
     return true;
 }
