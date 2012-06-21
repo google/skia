@@ -195,6 +195,7 @@
         '../include/gpu/GrResource.h',
         '../include/gpu/GrSamplerState.h',
         '../include/gpu/GrScalar.h',
+        '../include/gpu/GrTemplates.h',
         '../include/gpu/GrTextContext.h',
         '../include/gpu/GrTexture.h',
         '../include/gpu/GrTypes.h',

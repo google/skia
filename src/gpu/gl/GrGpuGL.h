@@ -108,8 +108,6 @@ protected:
                                      uint32_t vertexCount,
                                      uint32_t numVertices) SK_OVERRIDE;
     virtual void onGpuStencilPath(const GrPath&, GrPathFill) SK_OVERRIDE;
-    virtual void enableScissoring(const GrIRect& rect) SK_OVERRIDE;
-    virtual void disableScissor() SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const GrIRect& rect,
@@ -206,6 +204,10 @@ private:
     };
 
     // binds the texture and sets its texture params
+    // This may also perform a downsample on the src texture which may or may
+    // not modify the scissor test and rect. So in flushGraphicsState a
+    // call to flushScissor must occur after all textures have been flushed via
+    // this function.
     void flushBoundTextureAndParams(int stage);
 
     // sets the texture matrix and domain for the currently bound program
@@ -231,6 +233,10 @@ private:
 
     // flushes dithering, color-mask, and face culling stat
     void flushMiscFixedFunctionState();
+
+    // flushes the scissor. see the note on flushBoundTextureAndParams about
+    // flushing the scissor after that function is called.
+    void flushScissor();
 
     static void DeleteProgram(const GrGLInterface* gl,
                               CachedData* programData);
@@ -304,18 +310,23 @@ private:
     GrColor                     fHWConstAttribColor;
     GrColor                     fHWConstAttribCoverage;
 
-    // last scissor / viewport scissor state seen by the GL.
-    struct {
-        bool        fScissorEnabled;
-        GrGLIRect   fScissorRect;
-        GrGLIRect   fViewportRect;
-    } fHWBounds;
-
     enum TriState {
         kNo_TriState,
         kYes_TriState,
         kUnknown_TriState
     };
+
+    // last scissor / viewport scissor state seen by the GL.
+    struct {
+        TriState    fEnabled;
+        GrGLIRect   fRect;
+        void invalidate() {
+            fEnabled = kUnknown_TriState;
+            fRect.invalidate();
+        }
+    } fHWScissorSettings;
+
+    GrGLIRect   fHWViewport;
 
     struct {
         size_t                  fVertexOffset;
@@ -349,8 +360,8 @@ private:
         }
     } fHWAAState;
 
-    GrClipMaskManager::StencilClipMode     fHWStencilClipMode;
-    GrStencilSettings                      fHWStencilSettings;
+    GrStencilSettings       fHWStencilSettings;
+    TriState                fHWStencilTestEnabled;
 
     GrDrawState::DrawFace   fHWDrawFace;
     TriState                fHWWriteToColor;

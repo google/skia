@@ -9,6 +9,7 @@
 #include "GrGpuGL.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLPath.h"
+#include "GrTemplates.h"
 #include "GrTypes.h"
 #include "SkTemplates.h"
 
@@ -496,21 +497,16 @@ void GrGpuGL::onResetContext() {
         fHWBoundTextures[s] = NULL;
     }
 
-    fHWBounds.fScissorRect.invalidate();
-    // set to true to force disableScissor to make a GL call.
-    fHWBounds.fScissorEnabled = true;
-    this->disableScissor();
+    fHWScissorSettings.invalidate();
 
-    fHWBounds.fViewportRect.invalidate();
+    fHWViewport.invalidate();
 
     fHWStencilSettings.invalidate();
-    // This is arbitrary. The above invalidate ensures a full setup of the
-    // stencil on the next draw.
-    fHWStencilClipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
+    fHWStencilTestEnabled = kUnknown_TriState;
 
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
-    
+
     fHWGeometryState.fArrayPtrsDirty = true;
 
     fHWBoundRenderTarget = NULL;
@@ -1333,7 +1329,7 @@ GrPath* GrGpuGL::onCreatePath(const SkPath& inPath) {
     return path;
 }
 
-void GrGpuGL::enableScissoring(const GrIRect& rect) {
+void GrGpuGL::flushScissor() {
     const GrDrawState& drawState = this->getDrawState();
     const GrGLRenderTarget* rt =
         static_cast<const GrGLRenderTarget*>(drawState.getRenderTarget());
@@ -1341,28 +1337,31 @@ void GrGpuGL::enableScissoring(const GrIRect& rect) {
     GrAssert(NULL != rt);
     const GrGLIRect& vp = rt->getViewport();
 
-    GrGLIRect scissor;
-    scissor.setRelativeTo(vp, rect.fLeft, rect.fTop,
-                          rect.width(), rect.height());
-    if (scissor.contains(vp)) {
-        disableScissor();
-        return;
+    if (fScissorState.fEnabled) {
+        GrGLIRect scissor;
+        scissor.setRelativeTo(vp,
+                              fScissorState.fRect.fLeft,
+                              fScissorState.fRect.fTop,
+                              fScissorState.fRect.width(),
+                              fScissorState.fRect.height());
+        // if the scissor fully contains the viewport then we fall through and
+        // disable the scissor test.
+        if (!scissor.contains(vp)) {
+            if (fHWScissorSettings.fRect != scissor) {
+                scissor.pushToGLScissor(this->glInterface());
+                fHWScissorSettings.fRect = scissor;
+            }
+            if (kYes_TriState != fHWScissorSettings.fEnabled) {
+                GL_CALL(Enable(GR_GL_SCISSOR_TEST));
+                fHWScissorSettings.fEnabled = kYes_TriState;
+            }
+            return;
+        }
     }
-
-    if (fHWBounds.fScissorRect != scissor) {
-        scissor.pushToGLScissor(this->glInterface());
-        fHWBounds.fScissorRect = scissor;
-    }
-    if (!fHWBounds.fScissorEnabled) {
-        GL_CALL(Enable(GR_GL_SCISSOR_TEST));
-        fHWBounds.fScissorEnabled = true;
-    }
-}
-
-void GrGpuGL::disableScissor() {
-    if (fHWBounds.fScissorEnabled) {
+    if (kNo_TriState != fHWScissorSettings.fEnabled) {
         GL_CALL(Disable(GR_GL_SCISSOR_TEST));
-        fHWBounds.fScissorEnabled = false;
+        fHWScissorSettings.fEnabled = kNo_TriState;
+        return;
     }
 }
 
@@ -1384,10 +1383,12 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
         }
     }
     this->flushRenderTarget(rect);
-    if (NULL != rect)
-        this->enableScissoring(*rect);
-    else
-        this->disableScissor();
+    GrAutoTRestore<ScissorState> asr(&fScissorState);
+    fScissorState.fEnabled = (NULL != rect);
+    if (fScissorState.fEnabled) {
+        fScissorState.fRect = *rect;
+    }
+    this->flushScissor();
 
     GrGLfloat r, g, b, a;
     static const GrGLfloat scale255 = 1.f / 255.f;
@@ -1413,7 +1414,9 @@ void GrGpuGL::clearStencil() {
     
     this->flushRenderTarget(&GrIRect::EmptyIRect());
 
-    this->disableScissor();
+    GrAutoTRestore<ScissorState> asr(&fScissorState);
+    fScissorState.fEnabled = false;
+    this->flushScissor();
 
     GL_CALL(StencilMask(0xffffffff));
     GL_CALL(ClearStencil(0));
@@ -1448,7 +1451,12 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
         value = 0;
     }
     this->flushRenderTarget(&GrIRect::EmptyIRect());
-    this->enableScissoring(rect);
+
+    GrAutoTRestore<ScissorState> asr(&fScissorState);
+    fScissorState.fEnabled = true;
+    fScissorState.fRect = rect;
+    this->flushScissor();
+
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
     GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
@@ -1625,9 +1633,9 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
     #endif
         fHWBoundRenderTarget = rt;
         const GrGLIRect& vp = rt->getViewport();
-        if (fHWBounds.fViewportRect != vp) {
+        if (fHWViewport != vp) {
             vp.pushToGLViewport(this->glInterface());
-            fHWBounds.fViewportRect = vp;
+            fHWViewport = vp;
         }
     }
     if (NULL == bound || !bound->isEmpty()) {
@@ -1747,28 +1755,25 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
         const GrGLIRect& vp = rt->getViewport();
         const GrIRect dirtyRect = rt->getResolveRect();
         GrGLIRect r;
-        r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop, 
+        r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
                         dirtyRect.width(), dirtyRect.height());
 
+        GrAutoTRestore<ScissorState> asr;
         if (GrGLCaps::kAppleES_MSFBOType == this->glCaps().msFBOType()) {
             // Apple's extension uses the scissor as the blit bounds.
-#if 1
-            GL_CALL(Enable(GR_GL_SCISSOR_TEST));
-            GL_CALL(Scissor(r.fLeft, r.fBottom,
-                            r.fWidth, r.fHeight));
+            asr.reset(&fScissorState);
+            fScissorState.fEnabled = true;
+            fScissorState.fRect = dirtyRect;
+            this->flushScissor();
             GL_CALL(ResolveMultisampleFramebuffer());
-            fHWBounds.fScissorRect.invalidate();
-            fHWBounds.fScissorEnabled = true;
-#else
-            this->enableScissoring(dirtyRect);
-            GL_CALL(ResolveMultisampleFramebuffer());
-#endif
         } else {
             if (GrGLCaps::kDesktopARB_MSFBOType != this->glCaps().msFBOType()) {
                 // this respects the scissor during the blit, so disable it.
                 GrAssert(GrGLCaps::kDesktopEXT_MSFBOType ==
                          this->glCaps().msFBOType());
-                this->disableScissor();
+                asr.reset(&fScissorState);
+                fScissorState.fEnabled = false;
+                this->flushScissor();
             }
             int right = r.fLeft + r.fWidth;
             int top = r.fBottom + r.fHeight;
@@ -1832,16 +1837,16 @@ GrGLenum gr_to_gl_stencil_op(GrStencilOp op) {
 }
 
 void set_gl_stencil(const GrGLInterface* gl,
+                    const GrStencilSettings& settings,
                     GrGLenum glFace,
-                    GrStencilFunc func,
-                    GrStencilOp failOp,
-                    GrStencilOp passOp,
-                    unsigned int ref,
-                    unsigned int mask,
-                    unsigned int writeMask) {
-    GrGLenum glFunc = gr_to_gl_stencil_func(func);
-    GrGLenum glFailOp = gr_to_gl_stencil_op(failOp);
-    GrGLenum glPassOp = gr_to_gl_stencil_op(passOp);
+                    GrStencilSettings::Face grFace) {
+    GrGLenum glFunc = gr_to_gl_stencil_func(settings.func(grFace));
+    GrGLenum glFailOp = gr_to_gl_stencil_op(settings.failOp(grFace));
+    GrGLenum glPassOp = gr_to_gl_stencil_op(settings.passOp(grFace));
+
+    GrGLint ref = settings.funcRef(grFace);
+    GrGLint mask = settings.funcMask(grFace);
+    GrGLint writeMask = settings.writeMask(grFace);
 
     if (GR_GL_FRONT_AND_BACK == glFace) {
         // we call the combined func just in case separate stencil is not
@@ -1858,112 +1863,36 @@ void set_gl_stencil(const GrGLInterface* gl,
 }
 
 void GrGpuGL::flushStencil() {
-    const GrDrawState& drawState = this->getDrawState();
-
-    // use stencil for clipping if clipping is enabled and the clip
-    // has been written into the stencil.
-    GrClipMaskManager::StencilClipMode clipMode;
-    if (fClipMaskManager.isClipInStencil() &&
-        drawState.isClipState()) {
-        clipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
-        // We can't be modifying the clip and respecting it at the same time.
-        GrAssert(!drawState.isStateFlagEnabled(kModifyStencilClip_StateBit));
-    } else if (drawState.isStateFlagEnabled(kModifyStencilClip_StateBit)) {
-        clipMode = GrClipMaskManager::kModifyClip_StencilClipMode;
-    } else {
-        clipMode = GrClipMaskManager::kIgnoreClip_StencilClipMode;
-    }
-
-    // The caller may not be using the stencil buffer but we may need to enable
-    // it in order to respect a stencil clip.
-    const GrStencilSettings* settings = &drawState.getStencil();
-    if (settings->isDisabled() &&
-        GrClipMaskManager::kRespectClip_StencilClipMode == clipMode) {
-        settings = GetClipStencilSettings();
-    }
-
-    // TODO: dynamically attach a stencil buffer
-    int stencilBits = 0;
-    GrStencilBuffer* stencilBuffer = 
-        drawState.getRenderTarget()->getStencilBuffer();
-    if (NULL != stencilBuffer) {
-        stencilBits = stencilBuffer->bits();
-    }
-    GrAssert(stencilBits || settings->isDisabled());
-
-    bool updateStencilSettings = stencilBits > 0 &&
-                                 ((fHWStencilSettings != *settings) ||
-                                  (fHWStencilClipMode != clipMode));
-    if (updateStencilSettings) {
-        if (settings->isDisabled()) {
+    if (fStencilSettings.isDisabled()) {
+        if (kNo_TriState != fHWStencilTestEnabled) {
             GL_CALL(Disable(GR_GL_STENCIL_TEST));
-        } else {
+            fHWStencilTestEnabled = kNo_TriState;
+        }
+    } else {
+        if (kYes_TriState != fHWStencilTestEnabled) {
             GL_CALL(Enable(GR_GL_STENCIL_TEST));
-    #if GR_DEBUG
-            if (!this->getCaps().fStencilWrapOpsSupport) {
-                GrAssert(settings->frontPassOp() != kIncWrap_StencilOp);
-                GrAssert(settings->frontPassOp() != kDecWrap_StencilOp);
-                GrAssert(settings->frontFailOp() != kIncWrap_StencilOp);
-                GrAssert(settings->backFailOp() != kDecWrap_StencilOp);
-                GrAssert(settings->backPassOp() != kIncWrap_StencilOp);
-                GrAssert(settings->backPassOp() != kDecWrap_StencilOp);
-                GrAssert(settings->backFailOp() != kIncWrap_StencilOp);
-                GrAssert(settings->frontFailOp() != kDecWrap_StencilOp);
-            }
-    #endif
-
-            unsigned int frontRef  = settings->frontFuncRef();
-            unsigned int frontMask = settings->frontFuncMask();
-            unsigned int frontWriteMask = settings->frontWriteMask();
-
-            GrStencilFunc frontFunc =
-                fClipMaskManager.adjustStencilParams(settings->frontFunc(),
-                                                     clipMode,
-                                                     stencilBits,
-                                                     &frontRef,
-                                                     &frontMask,
-                                                     &frontWriteMask);
+            fHWStencilTestEnabled = kYes_TriState;
+        }
+    }
+    if (fHWStencilSettings != fStencilSettings) {
+        if (!fStencilSettings.isDisabled()) {
             if (this->getCaps().fTwoSidedStencilSupport) {
-                unsigned int backRef  = settings->backFuncRef();
-                unsigned int backMask = settings->backFuncMask();
-                unsigned int backWriteMask = settings->backWriteMask();
-
-                GrStencilFunc backFunc =
-                    fClipMaskManager.adjustStencilParams(settings->frontFunc(),
-                                                         clipMode,
-                                                         stencilBits,
-                                                         &backRef,
-                                                         &backMask,
-                                                         &backWriteMask);
                 set_gl_stencil(this->glInterface(),
+                               fStencilSettings,
                                GR_GL_FRONT,
-                               frontFunc,
-                               settings->frontFailOp(),
-                               settings->frontPassOp(),
-                               frontRef,
-                               frontMask,
-                               frontWriteMask);
+                               GrStencilSettings::kFront_Face);
                 set_gl_stencil(this->glInterface(),
+                               fStencilSettings,
                                GR_GL_BACK,
-                               backFunc,
-                               settings->backFailOp(),
-                               settings->backPassOp(),
-                               backRef,
-                               backMask,
-                               backWriteMask);
+                               GrStencilSettings::kBack_Face);
             } else {
                 set_gl_stencil(this->glInterface(),
+                               fStencilSettings,
                                GR_GL_FRONT_AND_BACK,
-                               frontFunc,
-                               settings->frontFailOp(),
-                               settings->frontPassOp(),
-                               frontRef,
-                               frontMask,
-                               frontWriteMask);
+                               GrStencilSettings::kFront_Face);
             }
         }
-        fHWStencilSettings = *settings;
-        fHWStencilClipMode = clipMode;
+        fHWStencilSettings = fStencilSettings;
     }
 }
 

@@ -23,15 +23,6 @@
 //#define GR_SW_CLIP 1
 
 ////////////////////////////////////////////////////////////////////////////////
-void ScissoringSettings::setupScissoring(GrGpu* gpu) {
-    if (!fEnableScissoring) {
-        gpu->disableScissor();
-        return;
-    }
-
-    gpu->enableScissoring(fScissorRect);
-}
-
 namespace {
 // set up the draw state to enable the aa clipping mask. Besides setting up the 
 // sampler matrix this also alters the vertex layout
@@ -113,37 +104,50 @@ bool GrClipMaskManager::useSWOnlyPath(const GrClip& clipIn) {
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
-bool GrClipMaskManager::createClipMask(const GrClip& clipIn,
-                                       ScissoringSettings* scissorSettings) {
-
-    GrAssert(scissorSettings);
-
-    scissorSettings->fEnableScissoring = false;
-
+bool GrClipMaskManager::setupClipping(const GrClip& clipIn) {
     fCurrClipMaskType = kNone_ClipMaskType;
-    
+
     GrDrawState* drawState = fGpu->drawState();
-    if (!drawState->isClipState()) {
+    if (!drawState->isClipState() || clipIn.isEmpty()) {
+        fGpu->disableScissor();
+        this->setGpuStencil();
         return true;
     }
 
     GrRenderTarget* rt = drawState->getRenderTarget();
-
     // GrDrawTarget should have filtered this for us
     GrAssert(NULL != rt);
+
+    GrIRect bounds;
+    GrIRect rtRect;
+    rtRect.setLTRB(0, 0, rt->width(), rt->height());
+    if (clipIn.hasConservativeBounds()) {
+        GrRect softBounds = clipIn.getConservativeBounds();
+        softBounds.roundOut(&bounds);
+        if (!bounds.intersect(rtRect)) {
+            bounds.setEmpty();
+        }
+        if (bounds.isEmpty()) {
+            return false;
+        }
+    } else {
+        bounds = rtRect;
+    }
 
 #if GR_SW_CLIP
     // If MSAA is enabled we can do everything in the stencil buffer.
     // Otherwise check if we should just create the entire clip mask 
     // in software (this will only happen if the clip mask is anti-aliased
     // and too complex for the gpu to handle in its entirety)
-    if (0 == rt->numSamples() && useSWOnlyPath(gpu, clipIn)) {
+    if (0 == rt->numSamples() && this->useSWOnlyPath(clipIn)) {
         // The clip geometry is complex enough that it will be more
         // efficient to create it entirely in software
         GrTexture* result = NULL;
         GrIRect bound;
-        if (this->createSoftwareClipMask(fGpu, clipIn, &result, &bound)) {
+        if (this->createSoftwareClipMask(clipIn, &result, &bound)) {
             setup_drawstate_aaclip(fGpu, result, bound);
+            fGpu->disableScissor();
+            this->setGpuStencil();
             return true;
         }
 
@@ -162,8 +166,10 @@ bool GrClipMaskManager::createClipMask(const GrClip& clipIn,
         // path does (see scissorSettings below)
         GrTexture* result = NULL;
         GrIRect bound;
-        if (this->createAlphaClipMask(fGpu, clipIn, &result, &bound)) {
+        if (this->createAlphaClipMask(clipIn, &result, &bound)) {
             setup_drawstate_aaclip(fGpu, result, bound);
+            fGpu->disableScissor();
+            this->setGpuStencil();
             return true;
         }
 
@@ -181,36 +187,27 @@ bool GrClipMaskManager::createClipMask(const GrClip& clipIn,
     // AA cache.
     fAACache.reset();
 
-    GrRect bounds;
-    GrRect rtRect;
-    rtRect.setLTRB(0, 0,
-                   GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
-    if (clipIn.hasConservativeBounds()) {
-        bounds = clipIn.getConservativeBounds();
-        if (!bounds.intersect(rtRect)) {
-            bounds.setEmpty();
-        }
-    } else {
-        bounds = rtRect;
+    // If the clip is a rectangle then just set the scissor. Otherwise, create
+    // a stencil mask.
+    if (clipIn.isRect()) {
+        fGpu->enableScissor(bounds);
+        this->setGpuStencil();
+        return true;
     }
-
-    bounds.roundOut(&scissorSettings->fScissorRect);
-    if  (scissorSettings->fScissorRect.isEmpty()) {
-        scissorSettings->fScissorRect.setLTRB(0,0,0,0);
-        // TODO: I think we can do an early exit here - after refactoring try:
-        //  set fEnableScissoring to true but leave fClipMaskInStencil false
-        //  and return - everything is going to be scissored away anyway!
-    }
-    scissorSettings->fEnableScissoring = true;
 
     // use the stencil clip if we can't represent the clip as a rectangle.
     bool useStencil = !clipIn.isRect() && !clipIn.isEmpty() &&
                       !bounds.isEmpty();
 
     if (useStencil) {
-        return this->createStencilClipMask(clipIn, bounds, scissorSettings);
+        this->createStencilClipMask(clipIn, bounds);
     }
-
+    // This must occur after createStencilClipMask. That function may change
+    // the scissor. Also, it only guarantees that the stencil mask is correct
+    // within the bounds it was passed, so we must use both stencil and scissor
+    // test to the bounds for the final draw.
+    fGpu->enableScissor(bounds);
+    this->setGpuStencil();
     return true;
 }
 
@@ -663,8 +660,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer
 bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
-                                              const GrRect& bounds,
-                                              ScissoringSettings* scissorSettings) {
+                                              const GrIRect& bounds) {
 
     GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
 
@@ -696,7 +692,6 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
         drawState->setRenderTarget(rt);
         GrDrawTarget::AutoGeometryPush agp(fGpu);
 
-        fGpu->disableScissor();
 #if !VISUALIZE_COMPLEX_CLIP
         drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
 #endif
@@ -716,7 +711,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                                                     &clearToInside,
                                                     &startOp);
 
-        fGpu->clearStencilClip(scissorSettings->fScissorRect, clearToInside);
+        fGpu->clearStencilClip(bounds, clearToInside);
 
         // walk through each clip element and perform its set op
         // with the existing clip.
@@ -814,7 +809,12 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                     }
                 } else {
                     SET_RANDOM_COLOR
-                    fGpu->drawSimpleRect(bounds, NULL, 0);
+                    GrRect rect = GrRect::MakeLTRB(
+                            SkIntToScalar(bounds.fLeft),
+                            SkIntToScalar(bounds.fTop),
+                            SkIntToScalar(bounds.fRight),
+                            SkIntToScalar(bounds.fBottom));
+                    fGpu->drawSimpleRect(rect, NULL, 0);
                 }
             }
         }
@@ -863,60 +863,162 @@ static const GrStencilFunc
     }
 };
 
-GrStencilFunc GrClipMaskManager::adjustStencilParams(GrStencilFunc func,
-                                                     StencilClipMode mode,
-                                                     unsigned int stencilBitCnt,
-                                                     unsigned int* ref,
-                                                     unsigned int* mask,
-                                                     unsigned int* writeMask) {
+namespace {
+// Sets the settings to clip against the stencil buffer clip while ignoring the
+// client bits.
+const GrStencilSettings& basic_apply_stencil_clip_settings() {
+    // stencil settings to use when clip is in stencil
+    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
+        kKeep_StencilOp,
+        kKeep_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0x0000,
+        0x0000,
+        0x0000);    
+    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
+}
+}
+
+void GrClipMaskManager::setGpuStencil() {
+    // We make two copies of the StencilSettings here (except in the early
+    // exit scenario. One copy from draw state to the stack var. Then another
+    // from the stack var to the gpu. We could make this class hold a ptr to
+    // GrGpu's fStencilSettings and eliminate the stack copy here.
+
+    const GrDrawState& drawState = fGpu->getDrawState();
+
+    // use stencil for clipping if clipping is enabled and the clip
+    // has been written into the stencil.
+    GrClipMaskManager::StencilClipMode clipMode;
+    if (this->isClipInStencil() && drawState.isClipState()) {
+        clipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
+        // We can't be modifying the clip and respecting it at the same time.
+        GrAssert(!drawState.isStateFlagEnabled(
+                    GrGpu::kModifyStencilClip_StateBit));
+    } else if (drawState.isStateFlagEnabled(
+                    GrGpu::kModifyStencilClip_StateBit)) {
+        clipMode = GrClipMaskManager::kModifyClip_StencilClipMode;
+    } else {
+        clipMode = GrClipMaskManager::kIgnoreClip_StencilClipMode;
+    }
+
+    GrStencilSettings settings;
+    // The GrGpu client may not be using the stencil buffer but we may need to
+    // enable it in order to respect a stencil clip.
+    if (drawState.getStencil().isDisabled()) {
+        if (GrClipMaskManager::kRespectClip_StencilClipMode == clipMode) {
+            settings = basic_apply_stencil_clip_settings();
+        } else {
+            fGpu->disableStencil();
+            return;
+        }
+    } else {
+        settings = drawState.getStencil();
+    }
+
+    // TODO: dynamically attach a stencil buffer
+    int stencilBits = 0;
+    GrStencilBuffer* stencilBuffer = 
+        drawState.getRenderTarget()->getStencilBuffer();
+    if (NULL != stencilBuffer) {
+        stencilBits = stencilBuffer->bits();
+    }
+
+#if GR_DEBUG
+    if (!fGpu->getCaps().fStencilWrapOpsSupport) {
+        GrAssert(settings.frontPassOp() != kIncWrap_StencilOp);
+        GrAssert(settings.frontPassOp() != kDecWrap_StencilOp);
+        GrAssert(settings.frontFailOp() != kIncWrap_StencilOp);
+        GrAssert(settings.backFailOp() != kDecWrap_StencilOp);
+        GrAssert(settings.backPassOp() != kIncWrap_StencilOp);
+        GrAssert(settings.backPassOp() != kDecWrap_StencilOp);
+        GrAssert(settings.backFailOp() != kIncWrap_StencilOp);
+        GrAssert(settings.frontFailOp() != kDecWrap_StencilOp);
+    }
+#endif
+    this->adjustStencilParams(&settings, clipMode, stencilBits);
+    fGpu->setStencilSettings(settings);
+}
+
+void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
+                                            StencilClipMode mode,
+                                            int stencilBitCnt) {
     GrAssert(stencilBitCnt > 0);
-    GrAssert((unsigned) func < kStencilFuncCount);
 
     if (kModifyClip_StencilClipMode == mode) {
-        // We assume that this class is the client/draw-caller of the GrGpu and
-        // has already setup the correct values
-        return func;
+        // We assume that this clip manager itself is drawing to the GrGpu and
+        // has already setup the correct values.
+        return;
     }
+
     unsigned int clipBit = (1 << (stencilBitCnt - 1));
     unsigned int userBits = clipBit - 1;
 
-    *writeMask &= userBits;
+    GrStencilSettings::Face face = GrStencilSettings::kFront_Face;
+    bool twoSided = fGpu->getCaps().fTwoSidedStencilSupport;
 
-    if (func >= kBasicStencilFuncCount) {
-        int respectClip = kRespectClip_StencilClipMode == mode;
-        if (respectClip) {
-            // The GrGpu class should have checked this
-            GrAssert(this->isClipInStencil());
-            switch (func) {
-                case kAlwaysIfInClip_StencilFunc:
-                    *mask = clipBit;
-                    *ref = clipBit;
-                    break;
-                case kEqualIfInClip_StencilFunc:
-                case kLessIfInClip_StencilFunc:
-                case kLEqualIfInClip_StencilFunc:
-                    *mask = (*mask & userBits) | clipBit;
-                    *ref = (*ref & userBits) | clipBit;
-                    break;
-                case kNonZeroIfInClip_StencilFunc:
-                    *mask = (*mask & userBits) | clipBit;
-                    *ref = clipBit;
-                    break;
-                default:
-                    GrCrash("Unknown stencil func");
+    bool finished = false;
+    while (!finished) {
+        GrStencilFunc func = settings->func(face);
+        uint16_t writeMask = settings->writeMask(face);
+        uint16_t funcMask = settings->funcMask(face);
+        uint16_t funcRef = settings->funcRef(face);
+
+        GrAssert((unsigned) func < kStencilFuncCount);
+
+        writeMask &= userBits;
+
+        if (func >= kBasicStencilFuncCount) {
+            int respectClip = kRespectClip_StencilClipMode == mode;
+            if (respectClip) {
+                // The GrGpu class should have checked this
+                GrAssert(this->isClipInStencil());
+                switch (func) {
+                    case kAlwaysIfInClip_StencilFunc:
+                        funcMask = clipBit;
+                        funcRef = clipBit;
+                        break;
+                    case kEqualIfInClip_StencilFunc:
+                    case kLessIfInClip_StencilFunc:
+                    case kLEqualIfInClip_StencilFunc:
+                        funcMask = (funcMask & userBits) | clipBit;
+                        funcRef  = (funcRef  & userBits) | clipBit;
+                        break;
+                    case kNonZeroIfInClip_StencilFunc:
+                        funcMask = (funcMask & userBits) | clipBit;
+                        funcRef = clipBit;
+                        break;
+                    default:
+                        GrCrash("Unknown stencil func");
+                }
+            } else {
+                funcMask &= userBits;
+                funcRef &= userBits;
             }
+            const GrStencilFunc* table = 
+                gSpecialToBasicStencilFunc[respectClip];
+            func = table[func - kBasicStencilFuncCount];
+            GrAssert(func >= 0 && func < kBasicStencilFuncCount);
         } else {
-            *mask &= userBits;
-            *ref &= userBits;
+            funcMask &= userBits;
+            funcRef &= userBits;
         }
-        const GrStencilFunc* table =  gSpecialToBasicStencilFunc[respectClip];
-        func = table[func - kBasicStencilFuncCount];
-        GrAssert(func >= 0 && func < kBasicStencilFuncCount);
-    } else {
-        *mask &= userBits;
-        *ref &= userBits;
+
+        settings->setFunc(face, func);
+        settings->setWriteMask(face, writeMask);
+        settings->setFuncMask(face, funcMask);
+        settings->setFuncRef(face, funcRef);
+
+        if (GrStencilSettings::kFront_Face == face) {
+            face = GrStencilSettings::kBack_Face;
+            finished = !twoSided;
+        } else {
+            finished = true;
+        }
     }
-    return func;
+    if (!twoSided) {
+        settings->copyFrontSettingsToBack();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

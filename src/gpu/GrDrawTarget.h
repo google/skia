@@ -16,6 +16,7 @@
 #include "GrIndexBuffer.h"
 #include "GrMatrix.h"
 #include "GrRefCnt.h"
+#include "GrTemplates.h"
 
 #include "SkXfermode.h"
 #include "SkTLazy.h"
