@@ -72,8 +72,8 @@ SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
     fPixels = NULL;
     fColorTable = NULL; // we do not track ownership of this
     fLockCount = 0;
-    fGenerationID = 0;  // signal to rebuild
     fIsImmutable = buffer.readBool();
+    fGenerationID = buffer.readU32();
     fPreLocked = false;
 }
 
@@ -89,6 +89,16 @@ void SkPixelRef::setPreLocked(void* pixels, SkColorTable* ctable) {
 void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeBool(fIsImmutable);
+    // We write the gen ID into the picture for within-process recording. This
+    // is safe since the same genID will never refer to two different sets of
+    // pixels (barring overflow). However, each process has its own "namespace"
+    // of genIDs. So for cross-process recording we write a zero which will
+    // trigger assignment of a new genID in playback.
+    if (buffer.isCrossProcess()) {
+        buffer.write32(0);
+    } else {
+        buffer.write32(fGenerationID);
+    }
 }
 
 void SkPixelRef::lockPixels() {
