@@ -119,7 +119,11 @@ private:
         FNPTR_TYPE fPtr;
     };
 
+    typedef GrRefCnt INHERITED;
+
 public:
+    SK_DECLARE_INST_COUNT(GrGLInterface)
+
     GrGLInterface();
 
     // Validates that the GrGLInterface supports a binding. This means that

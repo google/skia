@@ -17,6 +17,8 @@ class SkData;
 
 class SK_API SkStream : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkStream)
+
     virtual ~SkStream();
     /** Called to rewind to the beginning of the stream. If this cannot be
         done, return false.
@@ -63,6 +65,9 @@ public:
     bool     readBool() { return this->readU8() != 0; }
     SkScalar readScalar();
     size_t   readPackedUInt();
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 class SK_API SkWStream : SkNoncopyable {

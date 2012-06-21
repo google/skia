@@ -18,6 +18,8 @@
 
 class SkGLContext : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkGLContext)
+
     SkGLContext();
     virtual ~SkGLContext();
 
@@ -54,6 +56,8 @@ private:
     GrGLuint fColorBufferID;
     GrGLuint fDepthStencilBufferID;
     const GrGLInterface* fGL;
+
+    typedef SkRefCnt INHERITED;
 };
 
 /**

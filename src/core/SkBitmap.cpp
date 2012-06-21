@@ -20,6 +20,8 @@
 #include "SkPackBits.h"
 #include <new>
 
+SK_DEFINE_INST_COUNT(SkBitmap::Allocator)
+
 extern int32_t SkNextPixelRefGenerationID();
 
 static bool isPos32Bits(const Sk64& value) {

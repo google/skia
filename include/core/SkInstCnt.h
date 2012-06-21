@@ -31,7 +31,7 @@
 #define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
     class SkInstanceCountHelper {                                           \
     public:                                                                 \
-        typedef void (*PFCheckInstCnt)();                                   \
+        typedef void (*PFCheckInstCnt)(int level);                          \
         SkInstanceCountHelper() {                                           \
             if (!gInited) {                                                 \
                 initStep                                                    \
@@ -57,13 +57,14 @@
         return SkInstanceCountHelper::gInstanceCount;                       \
     }                                                                       \
                                                                             \
-    static void CheckInstanceCount() {                                      \
+    static void CheckInstanceCount(int level = 0) {                         \
         if (0 != SkInstanceCountHelper::gInstanceCount) {                   \
-            SkDebugf("Leaked %s objects: %d\n", #className,                 \
+            SkDebugf("%*c Leaked %s objects: %d\n",                         \
+                     4*level, ' ', #className,                              \
                      SkInstanceCountHelper::gInstanceCount);                \
         }                                                                   \
-        for (int i = 0; i < SkInstanceCountHelper::gChildren.count(); ++i) { \
-            (*SkInstanceCountHelper::gChildren[i])();                       \
+        for (int i = 0; i < SkInstanceCountHelper::gChildren.count(); ++i) {\
+            (*SkInstanceCountHelper::gChildren[i])(level+1);                \
         }                                                                   \
     }                                                                       \
                                                                             \

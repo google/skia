@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 
+SK_DEFINE_INST_COUNT(GrGLInterface)
+
 #if GR_GL_PER_GL_FUNC_CALLBACK
 namespace {
 void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}

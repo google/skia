@@ -38,6 +38,9 @@ public:
      *  The implementation may modify the paint as they wish.
      */
     virtual void filter(SkPaint*, Type) = 0;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

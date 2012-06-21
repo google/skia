@@ -26,6 +26,8 @@ class SkWStream;
 */
 class SK_API SkPicture : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkPicture)
+
     /** The constructor prepares the picture to record.
         @param width the width of the virtual device the picture records.
         @param height the height of the virtual device the picture records.
@@ -130,6 +132,8 @@ private:
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
+
+    typedef SkRefCnt INHERITED;
 };
 
 class SkAutoPictureRecord : SkNoncopyable {

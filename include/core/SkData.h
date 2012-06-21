@@ -20,6 +20,8 @@
  */
 class SkData : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkData)
+
     /**
      *  Returns the number of bytes stored.
      */
@@ -91,6 +93,8 @@ private:
 
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
     ~SkData();
+
+    typedef SkRefCnt INHERITED;
 };
 
 /**

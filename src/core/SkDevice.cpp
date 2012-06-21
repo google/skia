@@ -11,6 +11,8 @@
 #include "SkMetaData.h"
 #include "SkRect.h"
 
+SK_DEFINE_INST_COUNT(SkDevice)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDevice::SkDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {

@@ -8,6 +8,8 @@
 #include "SkFlattenable.h"
 #include "SkTypeface.h"
 
+SK_DEFINE_INST_COUNT(SkFlattenable)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkFlattenable::flatten(SkFlattenableWriteBuffer&) const

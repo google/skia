@@ -84,6 +84,8 @@ private:
     friend class SkDrawIter;
     friend struct Draw1Glyph;
     friend class SkMaskFilter;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

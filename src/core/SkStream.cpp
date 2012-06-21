@@ -13,6 +13,8 @@
 #include "SkString.h"
 #include "SkOSFile.h"
 
+SK_DEFINE_INST_COUNT(SkStream)
+
 SkStream::~SkStream() {}
 
 const char* SkStream::getFileName()

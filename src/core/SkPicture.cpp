@@ -23,6 +23,8 @@
 #include "SkReader32.h"
 #include "SkWriter32.h"
 
+SK_DEFINE_INST_COUNT(SkPicture)
+
 #define DUMP_BUFFER_SIZE 65536
 
 //#define ENABLE_TIME_DRAW    // dumps milliseconds for each draw

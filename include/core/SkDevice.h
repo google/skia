@@ -27,6 +27,8 @@ class SkGpuRenderTarget;
 
 class SK_API SkDevice : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkDevice)
+
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
@@ -387,6 +389,8 @@ private:
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

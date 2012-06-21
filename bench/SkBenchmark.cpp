@@ -9,6 +9,8 @@
 #include "SkPaint.h"
 #include "SkParse.h"
 
+SK_DEFINE_INST_COUNT(SkBenchmark)
+
 template BenchRegistry* BenchRegistry::gHead;
 
 SkBenchmark::SkBenchmark(void* defineDict) {

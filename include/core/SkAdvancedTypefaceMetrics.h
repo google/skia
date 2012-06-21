@@ -26,6 +26,8 @@
 
 class SkAdvancedTypefaceMetrics : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkAdvancedTypefaceMetrics)
+
     SkString fFontName;
 
     enum FontType {
@@ -112,6 +114,9 @@ public:
     // The mapping from glyph to Unicode, only populated if
     // kToUnicode_PerGlyphInfo is passed to GetAdvancedTypefaceMetrics.
     SkTDArray<SkUnichar> fGlyphToUnicode;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 namespace skia_advanced_typeface_metrics_utils {
