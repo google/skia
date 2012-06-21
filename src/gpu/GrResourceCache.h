@@ -194,29 +194,22 @@ private:
  */
 class GrResourceCache {
 public:
-    GrResourceCache(int maxCount, size_t maxBytes);
+    GrResourceCache(size_t maxResourceBytes);
     ~GrResourceCache();
 
     /**
-     *  Return the current resource cache limits.
-     *
-     *  @param maxResource If non-null, returns maximum number of resources 
-     *                     that can be held in the cache.
-     *  @param maxBytes    If non-null, returns maximum number of bytes of
-     *                         gpu memory that can be held in the cache.
+     *  Returns the cache budget in bytes.
      */
-    void getLimits(int* maxResources, size_t* maxBytes) const;
+    size_t getBudget() const { return fMaxBytes; }
 
     /**
-     *  Specify the resource cache limits. If the current cache exceeds either
-     *  of these, it will be purged (LRU) to keep the cache within these limits.
+     *  Specify the resource cache budget in bytes of GPU memory. If the current
+     *  cache exceeds the budget it will be purged to be within the budget.
      *
-     *  @param maxResources The maximum number of resources that can be held in
-     *                      the cache.
-     *  @param maxBytes     The maximum number of bytes of resource memory that
-     *                      can be held in the cache.
+     *  @param maxResourceBytes The maximum number of bytes of GPU memory that
+     *                          can be held in the cache.
      */
-    void setLimits(int maxResource, size_t maxResourceBytes);
+    void setBudget(size_t maxResourceBytes);
 
     /**
      * Returns the number of bytes consumed by cached resources.
@@ -241,8 +234,8 @@ public:
      *  Create a new entry, based on the specified key and resource, and return
      *  its "locked" entry.
      *
-     *  Ownership of the resource is transferred to the Entry, which will unref()
-     *  it when we are purged or deleted.
+     *  Ownership of the resource is transferred to the Entry, which will
+     *  unref() it when we are purged or deleted.
      */
     GrResourceEntry* createAndLock(const GrResourceKey&, GrResource*);
 
@@ -294,7 +287,6 @@ private:
     GrResourceEntry* fTail;
 
     // our budget, used in purgeAsNeeded()
-    int fMaxCount;
     size_t fMaxBytes;
 
     // our current stats, related to our budget
