@@ -81,8 +81,18 @@ public:
      * constraints and side-effects or playback() and reset apply().
      */
     void flushTo(GrDrawTarget* target) {
+        if (fFlushing) {
+            // When creating SW-only clip masks, the GrClipMaskManager can
+            // cause a GrContext::flush (when copying the mask results back
+            // to the GPU). Without a guard this results in a recursive call
+            // to this method.
+            return;
+        }
+
+        fFlushing = true;
         this->playback(target);
         this->reset();
+        fFlushing = false;
     }
 
     /**
@@ -112,7 +122,9 @@ public:
                                int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
 
-    virtual void clear(const GrIRect* rect, GrColor color) SK_OVERRIDE;
+    virtual void clear(const GrIRect* rect, 
+                       GrColor color,
+                       GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
 protected:
     virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
@@ -133,9 +145,13 @@ private:
     };
 
     struct Clear {
-        int fBeforeDrawIdx;
-        GrIRect fRect;
-        GrColor fColor;
+        Clear() : fRenderTarget(NULL) {}
+        ~Clear() { GrSafeUnref(fRenderTarget); }
+
+        int             fBeforeDrawIdx;
+        GrIRect         fRect;
+        GrColor         fColor;
+        GrRenderTarget* fRenderTarget;
     };
 
     // overrides from GrDrawTarget
@@ -225,6 +241,8 @@ private:
         size_t                          fUsedPoolIndexBytes;
     };
     SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> fGeoPoolStateStack;
+
+    bool                            fFlushing;
 
     typedef GrDrawTarget INHERITED;
 };

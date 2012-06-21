@@ -25,7 +25,8 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
     , fLastRectVertexLayout(0)
     , fQuadIndexBuffer(NULL)
     , fMaxQuads(0)
-    , fCurrQuad(0) {
+    , fCurrQuad(0)
+    , fFlushing(false) {
 
     fCaps = gpu->getCaps();
 
@@ -443,7 +444,9 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath&, GrPathFill) {
     GrCrash("Not implemented yet. Should not get here.");
 }
 
-void GrInOrderDrawBuffer::clear(const GrIRect* rect, GrColor color) {
+void GrInOrderDrawBuffer::clear(const GrIRect* rect, 
+                                GrColor color,
+                                GrRenderTarget* renderTarget) {
     GrIRect r;
     if (NULL == rect) {
         // We could do something smart and remove previous draws and clears to
@@ -458,6 +461,8 @@ void GrInOrderDrawBuffer::clear(const GrIRect* rect, GrColor color) {
     clr.fColor = color;
     clr.fBeforeDrawIdx = fDraws.count();
     clr.fRect = *rect;
+    clr.fRenderTarget = renderTarget;
+    GrSafeRef(clr.fRenderTarget);
 }
 
 void GrInOrderDrawBuffer::reset() {
@@ -522,7 +527,9 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     for (int i = 0; i < numDraws; ++i) {
         while (currClear < fClears.count() && 
                i == fClears[currClear].fBeforeDrawIdx) {
-            target->clear(&fClears[currClear].fRect, fClears[currClear].fColor);
+            target->clear(&fClears[currClear].fRect, 
+                          fClears[currClear].fColor,
+                          fClears[currClear].fRenderTarget);
             ++currClear;
         }
 
@@ -556,7 +563,9 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     }
     while (currClear < fClears.count()) {
         GrAssert(fDraws.count() == fClears[currClear].fBeforeDrawIdx);
-        target->clear(&fClears[currClear].fRect, fClears[currClear].fColor);
+        target->clear(&fClears[currClear].fRect, 
+                      fClears[currClear].fColor,
+                      fClears[currClear].fRenderTarget);
         ++currClear;
     }
     target->setDrawState(prevDrawState);

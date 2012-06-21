@@ -427,21 +427,6 @@ void GrClipMaskManager::drawTexture(GrTexture* target,
     drawState->setTexture(0, NULL);
 }
 
-namespace {
-
-void clear(GrGpu* gpu,
-           GrTexture* target,
-           GrColor color) {
-    GrDrawState* drawState = gpu->drawState();
-    GrAssert(NULL != drawState);
-
-    // zap entire target to specified color
-    drawState->setRenderTarget(target->asRenderTarget());
-    gpu->clear(NULL, color);
-}
-
-}
-
 // get a texture to act as a temporary buffer for AA clip boolean operations
 // TODO: given the expense of createTexture we may want to just cache this too
 void GrClipMaskManager::getTemp(const GrIRect& bounds, 
@@ -577,7 +562,9 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
                                               &clearToInside,
                                               &startOp);
 
-    clear(fGpu, accum, clearToInside ? 0xffffffff : 0x00000000);
+    fGpu->clear(NULL, 
+                clearToInside ? 0xffffffff : 0x00000000, 
+                accum->asRenderTarget());
 
     GrAutoScratchTexture temp;
 
@@ -592,7 +579,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             // replace ops and alter GrClip to allow them through
 
             // clear the accumulator and draw the new object directly into it
-            clear(fGpu, accum, 0x00000000);
+            fGpu->clear(NULL, 0x00000000, accum->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, op);
             this->drawClipShape(accum, clipIn, c);
@@ -613,7 +600,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             }
 
             // clear the temp target & draw into it
-            clear(fGpu, temp.texture(), 0x00000000);
+            fGpu->clear(NULL, 0x00000000, temp.texture()->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
             this->drawClipShape(temp.texture(), clipIn, c);
@@ -1146,11 +1133,11 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(NULL != drawState);
     GrRenderTarget* temp = drawState->getRenderTarget();
-    clear(fGpu, accum, 0x00000000);
+    fGpu->clear(NULL, 0x00000000, accum->asRenderTarget());
     // can't leave the accum bound as a rendertarget
     drawState->setRenderTarget(temp);
 
-    helper.toTexture(accum);
+    helper.toTexture(accum, clearToInside);
 
     *result = accum;
 

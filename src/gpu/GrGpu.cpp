@@ -233,12 +233,25 @@ GrPath* GrGpu::createPath(const SkPath& path) {
     return this->onCreatePath(path);
 }
 
-void GrGpu::clear(const GrIRect* rect, GrColor color) {
+void GrGpu::clear(const GrIRect* rect, 
+                  GrColor color, 
+                  GrRenderTarget* renderTarget) {
+    GrRenderTarget* oldRT = NULL;
+    if (NULL != renderTarget && 
+        renderTarget != this->drawState()->getRenderTarget()) {
+        oldRT = this->drawState()->getRenderTarget();
+        this->drawState()->setRenderTarget(renderTarget);
+    }
+
     if (NULL == this->getDrawState().getRenderTarget()) {
         return;
     }
     this->handleDirtyContext();
     this->onClear(rect, color);
+
+    if (NULL != oldRT) {
+        this->drawState()->setRenderTarget(oldRT);
+    }
 }
 
 void GrGpu::forceRenderTargetFlush() {

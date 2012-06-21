@@ -605,9 +605,11 @@ void GrContext::setClip(const GrIRect& rect) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::clear(const GrIRect* rect, const GrColor color) {
+void GrContext::clear(const GrIRect* rect, 
+                      const GrColor color, 
+                      GrRenderTarget* target) {
     this->flush();
-    fGpu->clear(rect, color);
+    fGpu->clear(rect, color, target);
 }
 
 void GrContext::drawPaint(const GrPaint& paint) {
