@@ -21,6 +21,8 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
+SK_DEFINE_INST_COUNT(SkCanvas)
+
 //#define SK_TRACE_SAVERESTORE
 
 #ifdef SK_TRACE_SAVERESTORE

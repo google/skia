@@ -22,6 +22,8 @@ class GrContext;
 class GrCustomStage : public GrRefCnt {
 
 public:
+    SK_DECLARE_INST_COUNT(GrCustomStage)
+
     typedef GrProgramStageFactory::StageKey StageKey;
 
     GrCustomStage();

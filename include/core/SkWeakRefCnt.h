@@ -150,6 +150,8 @@ private:
 
     /* Invariant: fWeakCnt = #weak + (fRefCnt > 0 ? 1 : 0) */
     mutable int32_t fWeakCnt;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

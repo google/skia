@@ -44,6 +44,8 @@ class SkPicture;
 */
 class SK_API SkCanvas : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkCanvas)
+
     SkCanvas();
 
     /** Construct a canvas with the specified device to draw into.
@@ -1058,6 +1060,8 @@ private:
 #else
     void validateClip() const {}
 #endif
+
+    typedef SkRefCnt INHERITED;
 };
 
 /** Stack helper class to automatically call restoreToCount() on the canvas

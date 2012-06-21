@@ -13,6 +13,8 @@
 
 class SkTextStyle : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkTextStyle)
+
     SkTextStyle();
     SkTextStyle(const SkTextStyle&);
     explicit SkTextStyle(const SkPaint&);
@@ -25,6 +27,8 @@ public:
 
 private:
     SkPaint fPaint;
+
+    typedef SkRefCnt INHERITED;
 };
 
 class SkTextLayout {

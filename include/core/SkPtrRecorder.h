@@ -21,6 +21,8 @@
  */
 class SkPtrSet : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkPtrSet)
+
     /**
      *  Search for the specified ptr in the set. If it is found, return its
      *  32bit ID [1..N], or if not found, return 0. Always returns 0 for NULL.

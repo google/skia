@@ -558,6 +558,8 @@ public:
 
     class Allocator : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(Allocator)
+
         /** Allocate the pixel memory for the bitmap, given its dimensions and
             config. Return true on success, where success means either setPixels
             or setPixelRef was called. The pixels need not be locked when this
@@ -566,6 +568,8 @@ public:
             colortable should be left unchanged.
         */
         virtual bool allocPixelRef(SkBitmap*, SkColorTable*) = 0;
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
     /** Subclass of Allocator that returns a pixelref that allocates its pixel

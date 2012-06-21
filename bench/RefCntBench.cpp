@@ -40,9 +40,16 @@ private:
 
 class PlacedRefCnt : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(PlacedRefCnt)
+
     PlacedRefCnt() : SkRefCnt() { }
     void operator delete(void *p) { }
+
+private:
+    typedef SkRefCnt INHERITED;
 };
+
+SK_DEFINE_INST_COUNT(PlacedRefCnt)
 
 class RefCntBench_Heap : public SkBenchmark {
 public:

@@ -17,6 +17,8 @@ class SkStream;
 
 class SkMovie : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkMovie)
+
     /** Try to create a movie from the stream. If the stream format is not
         supported, return NULL.
     */
@@ -71,6 +73,8 @@ private:
     bool        fNeedBitmap;
     
     void ensureInfo();
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

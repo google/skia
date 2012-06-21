@@ -68,6 +68,8 @@ class SkString;
  */
 class SK_API SkFlattenable : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkFlattenable)
+
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
     
     SkFlattenable() {}
@@ -104,6 +106,8 @@ private:
 
     friend class SkGraphics;
     friend class SkFlattenableWriteBuffer;
+
+    typedef SkRefCnt INHERITED;
 };
 
 // helpers for matrix and region

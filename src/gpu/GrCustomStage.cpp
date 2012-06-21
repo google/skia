@@ -8,6 +8,8 @@
 #include "GrContext.h"
 #include "GrCustomStage.h"
 
+SK_DEFINE_INST_COUNT(GrCustomStage)
+
 int32_t GrProgramStageFactory::fCurrStageClassID =
                                     GrProgramStageFactory::kIllegalStageClassID;
 

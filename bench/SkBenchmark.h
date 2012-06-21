@@ -33,6 +33,8 @@ public:
 
 class SkBenchmark : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkBenchmark)
+
     SkBenchmark(void* defineDict);
 
     const char* getName();
@@ -88,6 +90,8 @@ private:
     SkTriState::State  fDither;
     bool    fHasStrokeWidth;
     SkScalar strokeWidth;
+
+    typedef SkRefCnt INHERITED;
 };
 
 typedef SkTRegistry<SkBenchmark*, void*> BenchRegistry;

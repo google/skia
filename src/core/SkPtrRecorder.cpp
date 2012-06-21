@@ -8,6 +8,8 @@
 #include "SkPtrRecorder.h"
 #include "SkTSearch.h"
 
+SK_DEFINE_INST_COUNT(SkPtrSet)
+
 void SkPtrSet::reset() {
     Pair* p = fList.begin();
     Pair* stop = fList.end();

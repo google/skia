@@ -9,6 +9,8 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
+SK_DEFINE_INST_COUNT(SkMovie)
+
 // We should never see this in normal operation since our time values are
 // 0-based. So we use it as a sentinal.
 #define UNINITIALIZED_MSEC ((SkMSec)-1)

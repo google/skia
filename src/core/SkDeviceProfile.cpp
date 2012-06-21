@@ -1,6 +1,14 @@
+/*
+ * Copyright 2012 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 
 #include "SkDeviceProfile.h"
+
+SK_DEFINE_INST_COUNT(SkDeviceProfile)
 
 #define DEFAULT_GAMMAEXP        2.2f
 #define DEFAULT_CONTRASTSCALE   0.5f

@@ -56,10 +56,14 @@ public:
     */
     class Peeker : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(Peeker)
+
         /** Return true to continue decoding, or false to indicate an error, which
             will cause the decoder to not return the image.
         */
         virtual bool peek(const char tag[], const void* data, size_t length) = 0;
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
     Peeker* getPeeker() const { return fPeeker; }
@@ -72,11 +76,16 @@ public:
     */
     class Chooser : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(Chooser)
+
         virtual void begin(int count) {}
         virtual void inspect(int index, SkBitmap::Config config, int width, int height) {}
         /** Return the index of the subimage you want, or -1 to choose none of them.
         */
         virtual int choose() = 0;
+
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
     Chooser* getChooser() const { return fChooser; }
@@ -321,7 +330,12 @@ private:
  */
 class SkImageDecoderFactory : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkImageDecoderFactory)
+
     virtual SkImageDecoder* newDecoder(SkStream*) = 0;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 class SkDefaultImageDecoderFactory : SkImageDecoderFactory {

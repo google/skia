@@ -12,6 +12,8 @@
 
 class SkDeviceProfile : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkDeviceProfile)
+
     enum LCDConfig {
         kNone_LCDConfig,   // disables LCD text rendering, uses A8 instead
         kRGB_Horizontal_LCDConfig,
@@ -89,6 +91,8 @@ private:
     float           fContrastScale;
     LCDConfig       fLCDConfig;
     FontHintLevel   fFontHintLevel;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

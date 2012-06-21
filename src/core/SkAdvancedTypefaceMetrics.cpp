@@ -10,6 +10,8 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkTypes.h"
 
+SK_DEFINE_INST_COUNT(SkAdvancedTypefaceMetrics)
+
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
 #include <ft2build.h>
 #include FT_FREETYPE_H
