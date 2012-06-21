@@ -46,8 +46,7 @@
     #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
 #endif
 
-static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
-static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
+static const size_t kDefaultTextureCacheBudget = 16 * 1024 * 1024;
 
 static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
@@ -541,13 +540,12 @@ GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,
     return fGpu->createTexture(descCopy, srcData, rowBytes);
 }
 
-void GrContext::getTextureCacheLimits(int* maxTextures,
-                                      size_t* maxTextureBytes) const {
-    fTextureCache->getLimits(maxTextures, maxTextureBytes);
+size_t GrContext::getTextureCacheBudget() const {
+    return fTextureCache->getBudget();
 }
 
-void GrContext::setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
-    fTextureCache->setLimits(maxTextures, maxTextureBytes);
+void GrContext::setTextureCacheBudget(size_t maxTextureBytes) {
+    fTextureCache->setBudget(maxTextureBytes);
 }
 
 int GrContext::getMaxTextureSize() const {
@@ -1731,8 +1729,7 @@ GrContext::GrContext(GrGpu* gpu) {
     fPathRendererChain = NULL;
     fSoftwarePathRenderer = NULL;
 
-    fTextureCache = new GrResourceCache(MAX_TEXTURE_CACHE_COUNT,
-                                        MAX_TEXTURE_CACHE_BYTES);
+    fTextureCache = new GrResourceCache(kDefaultTextureCacheBudget);
     fFontCache = new GrFontCache(fGpu);
 
     fLastDrawCategory = kUnbuffered_DrawCategory;

@@ -34,9 +34,8 @@ void GrResourceEntry::validate() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrResourceCache::GrResourceCache(int maxCount, size_t maxBytes) :
-        fMaxCount(maxCount),
-        fMaxBytes(maxBytes) {
+GrResourceCache::GrResourceCache(size_t maxBytes) {
+    fMaxBytes            = maxBytes;
     fEntryCount          = 0;
     fUnlockedEntryCount  = 0;
     fEntryBytes          = 0;
@@ -53,19 +52,9 @@ GrResourceCache::~GrResourceCache() {
     this->removeAll();
 }
 
-void GrResourceCache::getLimits(int* maxResources, size_t* maxResourceBytes) const{
-    if (maxResources) {
-        *maxResources = fMaxCount;
-    }
-    if (maxResourceBytes) {
-        *maxResourceBytes = fMaxBytes;
-    }
-}
+void GrResourceCache::setBudget(size_t maxResourceBytes) {
+    bool smaller = maxResourceBytes < fMaxBytes;
 
-void GrResourceCache::setLimits(int maxResources, size_t maxResourceBytes) {
-    bool smaller = (maxResources < fMaxCount) || (maxResourceBytes < fMaxBytes);
-
-    fMaxCount = maxResources;
     fMaxBytes = maxResourceBytes;
 
     if (smaller) {
@@ -223,6 +212,7 @@ void GrResourceCache::reattachAndUnlock(GrResourceEntry* entry) {
         fClientDetachedCount -= 1;
         fEntryCount -= 1;
         size_t size = entry->resource()->sizeInBytes();
+        GrAssert(size > 0);
         fClientDetachedBytes -= size;
         fEntryBytes -= size;
     }
@@ -261,7 +251,7 @@ void GrResourceCache::purgeAsNeeded() {
             GrResourceEntry* entry = fTail;
             while (entry && fUnlockedEntryCount) {
                 GrAutoResourceCacheValidate atcv(this);
-                if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
+                if (fEntryBytes <= fMaxBytes) {
                     withinBudget = true;
                     break;
                 }
@@ -297,9 +287,7 @@ void GrResourceCache::removeAll() {
     // entry out. Instead change the budget and purge.
 
     int savedMaxBytes = fMaxBytes;
-    int savedMaxCount = fMaxCount;
-    fMaxBytes = (size_t) -1;
-    fMaxCount = 0;
+    fMaxBytes = 0;
     this->purgeAsNeeded();
 
 #if GR_DEBUG
@@ -316,7 +304,6 @@ void GrResourceCache::removeAll() {
 #endif
 
     fMaxBytes = savedMaxBytes;
-    fMaxCount = savedMaxCount;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
