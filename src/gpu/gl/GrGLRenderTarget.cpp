@@ -25,6 +25,23 @@ void GrGLRenderTarget::init(const Desc& desc,
     GrSafeRef(fTexIDObj);
 }
 
+namespace {
+GrTextureDesc MakeDesc(GrTextureFlags flags,
+                       int width, int height,
+                       GrPixelConfig config, int sampleCnt,
+                       uint64_t clientCacheID) {
+    GrTextureDesc temp;
+    temp.fFlags = flags;
+    temp.fWidth = width;
+    temp.fHeight = height;
+    temp.fConfig = config;
+    temp.fSampleCnt = sampleCnt;
+    temp.fClientCacheID = clientCacheID;
+    return temp;
+}
+
+};
+
 GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                                    const Desc& desc,
                                    const GrGLIRect& viewport,
@@ -32,10 +49,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                                    GrGLTexture* texture)
     : INHERITED(gpu,
                 texture,
-                viewport.fWidth,
-                viewport.fHeight,
-                desc.fConfig,
-                desc.fSampleCnt) {
+                MakeDesc(kNone_GrTextureFlags,
+                         viewport.fWidth, viewport.fHeight,
+                         desc.fConfig, desc.fSampleCnt, 
+                         kDefault_CacheID)) {
     GrAssert(NULL != texID);
     GrAssert(NULL != texture);
     // FBO 0 can't also be a texture, right?
@@ -54,10 +71,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                                    const GrGLIRect& viewport)
     : INHERITED(gpu,
                 NULL,
-                viewport.fWidth,
-                viewport.fHeight,
-                desc.fConfig,
-                desc.fSampleCnt) {
+                MakeDesc(kNone_GrTextureFlags,
+                         viewport.fWidth, viewport.fHeight,
+                         desc.fConfig, desc.fSampleCnt, 
+                         kDefault_CacheID)) {
     this->init(desc, viewport, NULL);
 }
 

@@ -19,7 +19,7 @@
 #define GrRenderTarget_DEFINED
 
 #include "GrRect.h"
-#include "GrResource.h"
+#include "GrSurface.h"
 
 class GrStencilBuffer;
 class GrTexture;
@@ -31,31 +31,63 @@ class GrTexture;
  * Additionally, GrContext provides methods for creating GrRenderTargets
  * that wrap externally created render targets.
  */
-class GrRenderTarget : public GrResource {
+class GrRenderTarget : public GrSurface {
 public:
     SK_DECLARE_INST_COUNT(GrRenderTarget)
 
-    /**
-     * @return the width of the rendertarget
-     */
-    int width() const { return fDesc.fWidth; }
-    /**
-     * @return the height of the rendertarget
-     */
-    int height() const { return fDesc.fHeight; }
+    // GrResource overrides
+    virtual size_t sizeInBytes() const SK_OVERRIDE;
 
-    /**
-     * @return the pixel config. Can be kUnknown_GrPixelConfig
-     * if client asked us to render to a target that has a pixel
-     * config that isn't equivalent with one of our configs.
-     */
-    GrPixelConfig config() const { return fDesc.fConfig; }
-
+    // GrSurface overrides
     /**
      * @return the texture associated with the rendertarget, may be NULL.
      */
-    GrTexture* asTexture() {return fTexture;}
+    virtual GrTexture* asTexture() SK_OVERRIDE { return fTexture; }
+    virtual const GrTexture* asTexture() const SK_OVERRIDE { return fTexture; }
 
+    /**
+     * @return this render target.
+     */
+    virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE { return this; }
+    virtual const GrRenderTarget* asRenderTarget() const  SK_OVERRIDE { 
+        return this; 
+    }
+
+    /**
+     * Reads a rectangle of pixels from the render target.
+     * @param left          left edge of the rectangle to read (inclusive)
+     * @param top           top edge of the rectangle to read (inclusive)
+     * @param width         width of rectangle to read in pixels.
+     * @param height        height of rectangle to read in pixels.
+     * @param config        the pixel config of the destination buffer
+     * @param buffer        memory to read the rectangle into.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
+     *
+     * @return true if the read succeeded, false if not. The read can fail
+     *              because of an unsupported pixel config.
+     */
+    virtual bool readPixels(int left, int top, int width, int height,
+                            GrPixelConfig config, void* buffer, 
+                            size_t rowBytes) SK_OVERRIDE;
+
+    /**
+     * Copy the src pixels [buffer, rowbytes, pixelconfig] into the render
+     * target at the specified rectangle.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        memory to read the rectangle from.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     *                      means rows are tightly packed.
+     */
+    virtual void writePixels(int left, int top, int width, int height,
+                             GrPixelConfig config, const void* buffer, 
+                             size_t rowBytes) SK_OVERRIDE;
+
+    // GrRenderTarget
     /**
      * If this RT is multisampled, this is the multisample buffer
      * @return the 3D API's handle to this object (e.g. FBO ID in OpenGL)
@@ -71,7 +103,7 @@ public:
     virtual intptr_t getRenderTargetResolvedHandle() const = 0;
 
     /**
-     * @return true if the render target is multisampled, false otherwise
+     * @return true if the surface is multisampled, false otherwise
      */
     bool isMultisampled() const { return 0 != fDesc.fSampleCnt; }
 
@@ -121,41 +153,6 @@ public:
      */
     void resolve();
 
-    // GrResource overrides
-    virtual size_t sizeInBytes() const;
-
-    /**
-     * Reads a rectangle of pixels from the render target.
-     * @param left          left edge of the rectangle to read (inclusive)
-     * @param top           top edge of the rectangle to read (inclusive)
-     * @param width         width of rectangle to read in pixels.
-     * @param height        height of rectangle to read in pixels.
-     * @param config        the pixel config of the destination buffer
-     * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
-     *
-     * @return true if the read succeeded, false if not. The read can fail
-     *              because of an unsupported pixel config.
-     */
-    bool readPixels(int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer, size_t rowBytes);
-
-    /**
-     * Copy the src pixels [buffer, rowbytes, pixelconfig] into the render
-     * target at the specified rectangle.
-     * @param left          left edge of the rectangle to write (inclusive)
-     * @param top           top edge of the rectangle to write (inclusive)
-     * @param width         width of rectangle to write in pixels.
-     * @param height        height of rectangle to write in pixels.
-     * @param config        the pixel config of the source buffer
-     * @param buffer        memory to read the rectangle from.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
-     */
-    void writePixels(int left, int top, int width, int height,
-                     GrPixelConfig config, const void* buffer, size_t rowBytes);
-
     // a MSAA RT may require explicit resolving , it may auto-resolve (e.g. FBO
     // 0 in GL), or be unresolvable because the client didn't give us the 
     // resolve destination.
@@ -175,26 +172,18 @@ public:
 protected:
     GrRenderTarget(GrGpu* gpu,
                    GrTexture* texture,
-                   int width,
-                   int height,
-                   GrPixelConfig config,
-                   int sampleCnt)
-        : INHERITED(gpu)
+                   const GrTextureDesc& desc)
+        : INHERITED(gpu, desc)
         , fStencilBuffer(NULL)
         , fTexture(texture) {
         fResolveRect.setLargestInverted();
-
-        fDesc.fWidth = width;
-        fDesc.fHeight = height;
-        fDesc.fConfig = config;
-        fDesc.fSampleCnt = sampleCnt;
     }
 
     friend class GrTexture;
     // When a texture unrefs an owned rendertarget this func
-    // removes the back pointer. This could be done called from 
+    // removes the back pointer. This could be called from 
     // texture's destructor but would have to be done in derived
-    // class. By the time of texture base destructor it has already
+    // classes. By the time of texture base destructor it has already
     // lost its pointer to the rt.
     void onTextureReleaseRenderTarget() {
         GrAssert(NULL != fTexture);
@@ -205,11 +194,9 @@ private:
     GrStencilBuffer*  fStencilBuffer;
     GrTexture*        fTexture; // not ref'ed
 
-    GrTextureDesc     fDesc;
-
     GrIRect           fResolveRect;
 
-    typedef GrResource INHERITED;
+    typedef GrSurface INHERITED;
 };
 
 #endif
