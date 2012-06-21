@@ -197,7 +197,8 @@ void SkPicture::draw(SkCanvas* surface) {
 
 #include "SkStream.h"
 
-#define PICTURE_VERSION     1
+#define PICTURE_VERSION     2
+// Version 2 adds SkPixelRef's generation ID.
 
 SkPicture::SkPicture(SkStream* stream) : SkRefCnt() {
     if (stream->readU32() != PICTURE_VERSION) {
