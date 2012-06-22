@@ -29,6 +29,7 @@
     '../gm/gradtext.cpp',
     '../gm/hairmodes.cpp',
     '../gm/imageblur.cpp',
+    '../gm/lighting.cpp',
     '../gm/imagefiltersbase.cpp',
     '../gm/lcdtext.cpp',
     '../gm/linepaths.cpp',
