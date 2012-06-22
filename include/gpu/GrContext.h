@@ -772,7 +772,6 @@ private:
     static int PaintStageVertexLayoutBits(
                                     const GrPaint& paint,
                                     const bool hasTexCoords[GrPaint::kTotalStages]);
-    
 };
 
 /**
@@ -834,8 +833,13 @@ public:
     }
     
     ~GrAutoScratchTexture() {
+        this->reset();
+    }
+
+    void reset() {
         if (NULL != fContext) {
             fContext->unlockTexture(fEntry);
+            fEntry.reset();
         }
     }
 
@@ -843,10 +847,8 @@ public:
                    const GrTextureDesc& desc,
                    GrContext::ScratchTexMatch match =
                         GrContext::kApprox_ScratchTexMatch) {
-        if (NULL != fContext) {
-            fContext->unlockTexture(fEntry);
-            fEntry.reset();
-        }
+        this->reset();
+
         fContext = context;
         if (NULL != fContext) {
             fEntry = fContext->lockScratchTexture(desc, match);
