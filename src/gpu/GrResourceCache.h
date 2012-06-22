@@ -231,13 +231,24 @@ public:
     GrResourceEntry* findAndLock(const GrResourceKey&, LockType style);
 
     /**
-     *  Create a new entry, based on the specified key and resource, and return
-     *  its "locked" entry.
+     *  Create a new cache entry, based on the provided key and resource, and 
+     *  return it.
      *
-     *  Ownership of the resource is transferred to the Entry, which will
-     *  unref() it when we are purged or deleted.
+     *  Ownership of the resource is transferred to the resource cache, 
+     *  which will unref() it when it is purged or deleted.
      */
     GrResourceEntry* createAndLock(const GrResourceKey&, GrResource*);
+
+    /**
+     *  Create a new cache entry, based on the provided key and resource.
+     *
+     *  Ownership of the resource is transferred to the resource cache, 
+     *  which will unref() it when it is purged or deleted.
+     *
+     *  Currently this entry point is only intended for textures "detached"
+     *  from an AutoScratchTexture object.
+     */
+    void attach(const GrResourceKey& key, GrResource* resource);
 
     /**
      * Determines if the cache contains an entry matching a key. If a matching
@@ -252,6 +263,8 @@ public:
      * when exclusive access is no longer needed.
      */
     void detach(GrResourceEntry*);
+
+    void freeEntry(GrResourceEntry* entry);
 
     /**
      * Reattaches a resource to the cache and unlocks it. Allows it to be found
@@ -298,6 +311,11 @@ private:
     
     // prevents recursive purging
     bool fPurging;
+
+    GrResourceEntry* create(const GrResourceKey& key,
+                            GrResource* resource,
+                            bool lock);
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////

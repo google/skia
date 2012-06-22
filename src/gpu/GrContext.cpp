@@ -520,6 +520,18 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
     return TextureCacheEntry(entry);
 }
 
+void GrContext::addExistingTextureToCache(GrTexture* texture) {
+
+    if (NULL == texture) {
+        return;
+    }
+
+    GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL,
+                                              texture->desc(),
+                                              true);
+    fTextureCache->attach(key, texture);
+}
+
 void GrContext::unlockTexture(TextureCacheEntry entry) {
     ASSERT_OWNED_RESOURCE(entry.texture());
     // If this is a scratch texture we detached it from the cache
@@ -530,6 +542,12 @@ void GrContext::unlockTexture(TextureCacheEntry entry) {
     } else {
         fTextureCache->unlock(entry.cacheEntry());
     }
+}
+
+void GrContext::freeEntry(TextureCacheEntry entry) {
+    ASSERT_OWNED_RESOURCE(entry.texture());
+
+    fTextureCache->freeEntry(entry.cacheEntry());
 }
 
 GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,

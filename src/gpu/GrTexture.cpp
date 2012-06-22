@@ -16,6 +16,30 @@
 
 SK_DEFINE_INST_COUNT(GrTexture)
 
+/** 
+ * This method allows us to interrupt the normal deletion process and place
+ * textures back in the texture cache when their ref count goes to zero.
+ */
+void GrTexture::internal_dispose() const {
+
+    if (this->isSetFlag((GrTextureFlags) kReturnToCache_FlagBit) &&
+        NULL != this->INHERITED::getContext()) {
+        GrTexture* nonConstThis = const_cast<GrTexture *>(this);
+        this->fRefCnt = 1;      // restore ref count to initial setting
+
+        nonConstThis->resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
+        nonConstThis->INHERITED::getContext()->addExistingTextureToCache(nonConstThis);
+
+        // Note: this next assert is only correct for the texture cache's
+        // current single threaded usage. If we ever start accessing it via 
+        // threads it isn't guaranteed to be correct.
+        GrAssert(1 == this->INHERITED::getRefCnt());
+        return;
+    }
+
+    this->INHERITED::internal_dispose();
+}
+
 bool GrTexture::readPixels(int left, int top, int width, int height,
                            GrPixelConfig config, void* buffer,
                            size_t rowBytes) {
@@ -57,6 +81,11 @@ void GrTexture::releaseRenderTarget() {
             ~(kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit);
         fDesc.fSampleCnt = 0;
     }
+}
+
+void GrTexture::onRelease() {
+    GrAssert(!this->isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
+    this->releaseRenderTarget();
 }
 
 void GrTexture::onAbandon() {

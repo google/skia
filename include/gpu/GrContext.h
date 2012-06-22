@@ -100,10 +100,10 @@ public:
         }
         GrTexture* texture() const;
         void reset() { fEntry = NULL; }
+        GrResourceEntry* cacheEntry() { return fEntry; }
     private:
         explicit TextureCacheEntry(GrResourceEntry* entry) { fEntry = entry; }
         void set(GrResourceEntry* entry) { fEntry = entry; }
-        GrResourceEntry* cacheEntry() { return fEntry; }
         GrResourceEntry* fEntry;
         friend class GrContext;
     };
@@ -174,7 +174,7 @@ public:
      * Returns a texture matching the desc. It's contents are unknown. Subsequent
      * requests with the same descriptor are not guaranteed to return the same
      * texture. The same texture is guaranteed not be returned again until it is
-     * unlocked. Must call be balanced with an unlockTexture() call.
+     * unlocked. Call must be balanced with an unlockTexture() call.
      *
      * Textures created by createAndLockTexture() hide the complications of
      * tiling non-power-of-two textures on APIs that don't support this (e.g. 
@@ -190,6 +190,11 @@ public:
      *  it to the cache, where it may be purged.
      */
     void unlockTexture(TextureCacheEntry entry);
+
+    /**
+     * Free any data associated with the provided entry in the texture cache
+     */
+    void freeEntry(TextureCacheEntry entry);
 
     /**
      * Creates a texture that is outside the cache. Does not count against
@@ -772,6 +777,14 @@ private:
     static int PaintStageVertexLayoutBits(
                                     const GrPaint& paint,
                                     const bool hasTexCoords[GrPaint::kTotalStages]);
+
+    // Needed so GrTexture's returnToCache helper function can call
+    // addExistingTextureToCache
+    friend class GrTexture;
+
+    // Add an existing texture to the texture cache. This is intended solely
+    // for use with textures released from an GrAutoScratchTexture.
+    void addExistingTextureToCache(GrTexture* texture);
 };
 
 /**
@@ -837,10 +850,37 @@ public:
     }
 
     void reset() {
-        if (NULL != fContext) {
+        if (NULL != fContext && NULL != fEntry.cacheEntry()) {
             fContext->unlockTexture(fEntry);
             fEntry.reset();
         }
+    }
+
+    /*
+     * When detaching a texture we do not unlock it in the texture cache but
+     * we do set the returnToCache flag. In this way the texture remains 
+     * "locked" in the texture cache until it is freed and recycled in 
+     * GrTexture::internal_dispose. In reality, the texture has been removed 
+     * from the cache (because this is in AutoScratchTexture) and by not 
+     * calling unlockTexture we simply don't re-add it. It will be reattached 
+     * in GrTexture::internal_dispose.
+     *
+     * Note that the caller is assumed to accept and manage the ref to the
+     * returned texture.
+     */
+    GrTexture* detach() {
+        GrTexture* temp = this->texture();
+
+        GrAssert(1 == temp->getRefCnt());
+
+        // freeEntry will remove the texture cache's ref
+        temp->ref();
+        fContext->freeEntry(fEntry);
+        fEntry.reset();
+
+        temp->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
+        GrAssert(1 == temp->getRefCnt());
+        return temp;
     }
 
     GrTexture* set(GrContext* context,

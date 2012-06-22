@@ -81,6 +81,9 @@ void GrResourceCache::internalDetach(GrResourceEntry* entry,
         --fUnlockedEntryCount;
     }
 
+    entry->fPrev = NULL;
+    entry->fNext = NULL;
+
     // update our stats
     if (clientDetach) {
         fClientDetachedCount += 1;
@@ -165,8 +168,9 @@ bool GrResourceCache::hasKey(const GrResourceKey& key) const {
     return NULL != fCache.find(key);
 }
 
-GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
-                                              GrResource* resource) {
+GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
+                                         GrResource* resource,
+                                         bool lock) {
     // we don't expect to create new resources during a purge. In theory
     // this could cause purgeAsNeeded() into an infinite loop (e.g.
     // each resource destroyed creates and locks 2 resources and
@@ -176,9 +180,11 @@ GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
 
     GrResourceEntry* entry = new GrResourceEntry(key, resource);
 
-    // mark the entry as "busy" so it doesn't get purged
-    // do this before attach for locked count tracking
-    entry->lock();
+    if (lock) {
+        // mark the entry as "busy" so it doesn't get purged
+        // do this before attach for locked count tracking
+        entry->lock();
+    }
 
     this->attachToHead(entry, false);
     fCache.insert(key, entry);
@@ -192,10 +198,25 @@ GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
     return entry;
 }
 
+GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
+                                                GrResource* resource) {
+    return this->create(key, resource, true);
+}
+
+void GrResourceCache::attach(const GrResourceKey& key,
+                             GrResource* resource) {
+    this->create(key, resource, false);
+}
+
 void GrResourceCache::detach(GrResourceEntry* entry) {
     GrAutoResourceCacheValidate atcv(this);
-    internalDetach(entry, true);
+    this->internalDetach(entry, true);
     fCache.remove(entry->fKey, entry);
+}
+
+void GrResourceCache::freeEntry(GrResourceEntry* entry) {
+    GrAssert(NULL == entry->fNext && NULL == entry->fPrev);
+    delete entry;
 }
 
 void GrResourceCache::reattachAndUnlock(GrResourceEntry* entry) {
