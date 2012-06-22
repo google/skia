@@ -178,19 +178,6 @@ public:
         fPad0 = fPad1 = 0;
         this->setDisabled();
     }
-    
-    GrStencilOp frontPassOp() const { return static_cast<GrStencilOp>(fPassOps[kFront_Face]); }
-    GrStencilOp backPassOp() const  { return static_cast<GrStencilOp>(fPassOps[kBack_Face]); }
-    GrStencilOp frontFailOp() const { return static_cast<GrStencilOp>(fFailOps[kFront_Face]); }
-    GrStencilOp backFailOp() const  { return static_cast<GrStencilOp>(fFailOps[kBack_Face]); }
-    GrStencilFunc frontFunc() const { return static_cast<GrStencilFunc>(fFuncs[kFront_Face]); }
-    GrStencilFunc backFunc() const  { return static_cast<GrStencilFunc>(fFuncs[kBack_Face]); }
-    uint16_t frontFuncMask() const  { return fFuncMasks[kFront_Face]; }
-    uint16_t backFuncMask() const   { return fFuncMasks[kBack_Face]; }
-    uint16_t frontFuncRef() const   { return fFuncRefs[kFront_Face]; }
-    uint16_t backFuncRef() const    { return fFuncRefs[kBack_Face]; }
-    uint16_t frontWriteMask() const { return fWriteMasks[kFront_Face]; }
-    uint16_t backWriteMask() const  { return fWriteMasks[kFront_Face]; }
 
     GrStencilOp passOp(Face f) const { return static_cast<GrStencilOp>(fPassOps[f]); }
     GrStencilOp failOp(Face f) const { return static_cast<GrStencilOp>(fFailOps[f]); }
@@ -198,19 +185,6 @@ public:
     uint16_t funcMask(Face f) const  { return fFuncMasks[f]; }
     uint16_t funcRef(Face f) const   { return fFuncRefs[f]; }
     uint16_t writeMask(Face f) const { return fWriteMasks[f]; }
-
-    void setFrontPassOp(GrStencilOp op) { fPassOps[kFront_Face] = op; fFlags = 0;}
-    void setBackPassOp(GrStencilOp op)  { fPassOps[kBack_Face]  = op; fFlags = 0;}
-    void setFrontFailOp(GrStencilOp op) { fFailOps[kFront_Face] = op; fFlags = 0;}
-    void setBackFailOp(GrStencilOp op)  { fFailOps[kBack_Face]  = op; fFlags = 0;}
-    void setFrontFunc(GrStencilFunc func) { fFuncs[kFront_Face] = func; fFlags = 0;}
-    void setBackFunc(GrStencilFunc func)  { fFuncs[kBack_Face]  = func; fFlags = 0;}
-    void setFrontFuncMask(unsigned short mask) { fFuncMasks[kFront_Face] = mask; }
-    void setBackFuncMask(unsigned short mask)  { fFuncMasks[kBack_Face]  = mask; }
-    void setFrontFuncRef(unsigned short ref) { fFuncRefs[kFront_Face] = ref; }
-    void setBackFuncRef(unsigned short ref)  { fFuncRefs[kBack_Face]  = ref; }
-    void setFrontWriteMask(unsigned short writeMask) { fWriteMasks[kFront_Face] = writeMask; }
-    void setBackWriteMask(unsigned short writeMask)  { fWriteMasks[kBack_Face]  = writeMask; }
 
     void setPassOp(Face f, GrStencilOp op) { fPassOps[f] = op; fFlags = 0;}
     void setFailOp(Face f, GrStencilOp op) { fFailOps[f] = op; fFlags = 0;}
@@ -249,6 +223,26 @@ public:
         GR_STATIC_ASSERT(0 == kKeep_StencilOp);
         GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
         fFlags = kIsDisabled_StencilFlag | kDoesNotWrite_StencilFlag;
+    }
+
+    bool isTwoSided() const {
+        return fPassOps[kFront_Face]    != fPassOps[kBack_Face]   ||
+               fFailOps[kFront_Face]    != fFailOps[kBack_Face]   ||
+               fFuncs[kFront_Face]      != fFuncs[kBack_Face]     ||
+               fFuncMasks[kFront_Face]  != fFuncMasks[kBack_Face] ||
+               fFuncRefs[kFront_Face]   != fFuncRefs[kBack_Face]  ||
+               fWriteMasks[kFront_Face] != fWriteMasks[kBack_Face];
+    }
+
+    bool usesWrapOp() const {
+        return kIncWrap_StencilOp == fPassOps[kFront_Face] ||
+               kDecWrap_StencilOp == fPassOps[kFront_Face] ||
+               kIncWrap_StencilOp == fPassOps[kBack_Face]  ||
+               kDecWrap_StencilOp == fPassOps[kBack_Face]  ||
+               kIncWrap_StencilOp == fFailOps[kFront_Face] ||
+               kDecWrap_StencilOp == fFailOps[kFront_Face] ||
+               kIncWrap_StencilOp == fFailOps[kBack_Face]  ||
+               kDecWrap_StencilOp == fFailOps[kBack_Face];
     }
 
     bool isDisabled() const {
