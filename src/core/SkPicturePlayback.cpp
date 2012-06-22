@@ -210,23 +210,19 @@ void SkPicturePlayback::dumpSize() const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-// Optionally (depending on version) this chunk may appear at the beginning
-
-#define PICT_INFO_TAG     SkSetFourByteTag('i', 'n', 'f', 'o')
-
-// The chunks are writte/read in this order...
-
 #define PICT_READER_TAG     SkSetFourByteTag('r', 'e', 'a', 'd')
 #define PICT_FACTORY_TAG    SkSetFourByteTag('f', 'a', 'c', 't')
 #define PICT_TYPEFACE_TAG   SkSetFourByteTag('t', 'p', 'f', 'c')
 #define PICT_PICTURE_TAG    SkSetFourByteTag('p', 'c', 't', 'r')
-#define PICT_ARRAYS_TAG     SkSetFourByteTag('a', 'r', 'a', 'y')
+
+// This tag specifies the size of the ReadBuffer, needed for the following tags
+#define PICT_BUFFER_SIZE_TAG     SkSetFourByteTag('a', 'r', 'a', 'y')
 // these are all inside the ARRAYS tag
-#define PICT_BITMAP_TAG     SkSetFourByteTag('b', 't', 'm', 'p')
-#define PICT_MATRIX_TAG     SkSetFourByteTag('m', 't', 'r', 'x')
-#define PICT_PAINT_TAG      SkSetFourByteTag('p', 'n', 't', ' ')
-#define PICT_PATH_TAG       SkSetFourByteTag('p', 't', 'h', ' ')
-#define PICT_REGION_TAG     SkSetFourByteTag('r', 'g', 'n', ' ')
+#define PICT_BITMAP_BUFFER_TAG  SkSetFourByteTag('b', 't', 'm', 'p')
+#define PICT_MATRIX_BUFFER_TAG  SkSetFourByteTag('m', 't', 'r', 'x')
+#define PICT_PAINT_BUFFER_TAG   SkSetFourByteTag('p', 'n', 't', ' ')
+#define PICT_PATH_BUFFER_TAG    SkSetFourByteTag('p', 't', 'h', ' ')
+#define PICT_REGION_BUFFER_TAG  SkSetFourByteTag('r', 'g', 'n', ' ')
 
 // Always write this guy last (with no length field afterwards)
 #define PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
@@ -243,41 +239,6 @@ static void writeTagSize(SkWStream* stream, uint32_t tag,
                          uint32_t size) {
     stream->write32(tag);
     stream->write32(size);
-}
-
-struct PictInfo {
-    enum Version {
-        kCurr_Version = 0
-    };
-    
-    enum Flags {
-        kCrossProcess_Flag      = 1 << 0,
-        kScalarIsFloat_Flag     = 1 << 1,
-        kPtrIs64Bit_Flag        = 1 << 2,
-    };
-    
-    uint32_t    fVersion;
-    uint32_t    fFlags;
-};
-
-static void writeInfo(SkWStream* stream) {
-    PictInfo info;
-
-    info.fVersion = PictInfo::kCurr_Version;
-
-    info.fFlags = PictInfo::kCrossProcess_Flag;
-#ifdef SK_SCALAR_IS_FLOAT
-    info.fFlags |= PictInfo::kScalarIsFloat_Flag;
-#endif
-    if (8 == sizeof(void*)) {
-        info.fFlags |= PictInfo::kPtrIs64Bit_Flag;
-    }
-    
-    uint32_t size = sizeof(info);
-    SkASSERT(SkAlign4(size) == size);
-
-    writeTagSize(stream, PICT_INFO_TAG, size);
-    stream->write(&info, size);
 }
 
 static void writeFactories(SkWStream* stream, const SkFactorySet& rec) {
@@ -316,179 +277,203 @@ static void writeTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     }
 }
 
-void SkPicturePlayback::serialize(SkWStream* stream) const {
-    // note: earlier formats did not write a 'info' tag
-    writeInfo(stream);
-
-    writeTagSize(stream, PICT_READER_TAG, fReader.size());
-    stream->write(fReader.base(), fReader.size());
-
-    SkRefCntSet  typefaceSet;
-    SkFactorySet factSet;
-
-    SkOrderedWriteBuffer buffer(1024);
-
-    buffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
-    buffer.setTypefaceRecorder(&typefaceSet);
-    buffer.setFactoryRecorder(&factSet);
-
+void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
     int i;
 
-    writeTagSize(buffer, PICT_BITMAP_TAG, fBitmapCount);
-    for (i = 0; i < fBitmapCount; i++) {
-        fBitmaps[i].flatten(buffer);
+    if (fBitmapCount > 0) {
+        writeTagSize(buffer, PICT_BITMAP_BUFFER_TAG, fBitmapCount);
+        for (i = 0; i < fBitmapCount; i++) {
+            fBitmaps[i].flatten(buffer);
+        }
     }
-
-    writeTagSize(buffer, PICT_MATRIX_TAG, fMatrixCount);
-    buffer.writeMul4(fMatrices, fMatrixCount * sizeof(SkMatrix));
-
-    writeTagSize(buffer, PICT_PAINT_TAG, fPaintCount);
-    for (i = 0; i < fPaintCount; i++) {
-        fPaints[i].flatten(buffer);
+    
+    if (fMatrixCount > 0) {
+        writeTagSize(buffer, PICT_MATRIX_BUFFER_TAG, fMatrixCount);
+        buffer.writeMul4(fMatrices, fMatrixCount * sizeof(SkMatrix));
     }
-
-    {
-        int count = fPathHeap ? fPathHeap->count() : 0;
-        writeTagSize(buffer, PICT_PATH_TAG, count);
+    
+    if (fPaintCount > 0) {
+        writeTagSize(buffer, PICT_PAINT_BUFFER_TAG, fPaintCount);
+        for (i = 0; i < fPaintCount; i++) {
+            fPaints[i].flatten(buffer);
+        }
+    }
+    
+    if (fPathHeap && fPathHeap->count() > 0) {
+        int count = fPathHeap->count();
+        writeTagSize(buffer, PICT_PATH_BUFFER_TAG, count);
         if (count > 0) {
             fPathHeap->flatten(buffer);
         }
     }
+    
+    if (fRegionCount > 0) {
+        writeTagSize(buffer, PICT_REGION_BUFFER_TAG, fRegionCount);
+        for (i = 0; i < fRegionCount; i++) {
+            buffer.getWriter32()->writeRegion(fRegions[i]);
+        }
+    }
+}
 
-    writeTagSize(buffer, PICT_REGION_TAG, fRegionCount);
-    for (i = 0; i < fRegionCount; i++) {
-        buffer.getWriter32()->writeRegion(fRegions[i]);
+void SkPicturePlayback::serialize(SkWStream* stream) const {
+    writeTagSize(stream, PICT_READER_TAG, fReader.size());
+    stream->write(fReader.base(), fReader.size());
+
+    if (fPictureCount > 0) {
+        writeTagSize(stream, PICT_PICTURE_TAG, fPictureCount);
+        for (int i = 0; i < fPictureCount; i++) {
+            fPictureRefs[i]->serialize(stream);
+        }
     }
 
-    // now we can write to the stream again
+    // Write some of our data into a writebuffer, and then serialize that
+    // into our stream
+    {
+        SkRefCntSet  typefaceSet;
+        SkFactorySet factSet;
 
-    writeFactories(stream, factSet);
-    writeTypefaces(stream, typefaceSet);
+        SkOrderedWriteBuffer buffer(1024);
 
-    writeTagSize(stream, PICT_PICTURE_TAG, fPictureCount);
-    for (i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i]->serialize(stream);
+        buffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
+        buffer.setTypefaceRecorder(&typefaceSet);
+        buffer.setFactoryRecorder(&factSet);
+        this->flattenToBuffer(buffer);
+
+        // We have to write these to sets into the stream *before* we write
+        // the buffer, since parsing that buffer will require that we already
+        // have these sets available to use.
+        writeFactories(stream, factSet);
+        writeTypefaces(stream, typefaceSet);
+
+        writeTagSize(stream, PICT_BUFFER_SIZE_TAG, buffer.size());
+        buffer.writeToStream(stream);
     }
 
-    writeTagSize(stream, PICT_ARRAYS_TAG, buffer.size());
-    buffer.writeToStream(stream);
-
-    // always write this guy last
     stream->write32(PICT_EOF_TAG);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static int readTagSize(SkFlattenableReadBuffer& buffer, uint32_t expectedTag) {
-    uint32_t tag = buffer.readU32();
-    if (tag != expectedTag) {
-        sk_throw();
+bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
+                                       uint32_t tag, size_t size) {
+    /*
+     *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
+     *  its dependents: FACTORY_TAG and TYPEFACE_TAG. These two are not required
+     *  but if they are present, they need to have been seen before the buffer.
+     *
+     *  We assert that if/when we see either of these, that we have not yet seen
+     *  the buffer tag, because if we have, then its too-late to deal with the
+     *  factories or typefaces.
+     */
+    bool haveBuffer = false;
+
+    switch (tag) {
+        case PICT_READER_TAG: {
+            void* storage = sk_malloc_throw(size);
+            stream->read(storage, size);
+            fReader.setMemory(storage, size);
+        } break;
+        case PICT_FACTORY_TAG: {
+            SkASSERT(!haveBuffer);
+            fFactoryPlayback = SkNEW_ARGS(SkFactoryPlayback, (size));
+            for (size_t i = 0; i < size; i++) {
+                SkString str;
+                int len = stream->readPackedUInt();
+                str.resize(len);
+                stream->read(str.writable_str(), len);
+                fFactoryPlayback->base()[i] = SkFlattenable::NameToFactory(str.c_str());
+            }
+        } break;
+        case PICT_TYPEFACE_TAG: {
+            SkASSERT(!haveBuffer);
+            fTFPlayback.setCount(size);
+            for (size_t i = 0; i < size; i++) {
+                SkSafeUnref(fTFPlayback.set(i, SkTypeface::Deserialize(stream)));
+            }
+        } break;
+        case PICT_PICTURE_TAG: {
+            fPictureCount = size;
+            fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
+            for (int i = 0; i < fPictureCount; i++) {
+                fPictureRefs[i] = SkNEW_ARGS(SkPicture, (stream));
+            }
+        } break;
+        case PICT_BUFFER_SIZE_TAG: {
+            SkAutoMalloc storage(size);
+            stream->read(storage.get(), size);
+            
+            SkOrderedReadBuffer buffer(storage.get(), size);
+            fFactoryPlayback->setupBuffer(buffer);
+            fTFPlayback.setupBuffer(buffer);
+            
+            while (!buffer.eof()) {
+                tag = buffer.readU32();
+                size = buffer.readU32();
+                if (!this->parseBufferTag(buffer, tag, size)) {
+                    return false;
+                }
+            }
+            haveBuffer = true;
+        } break;
     }
-    return buffer.readU32();
+    return true;    // success
 }
 
-static int readTagSize(SkStream* stream, uint32_t expectedTag) {
-    uint32_t tag = stream->readU32();
-    if (tag != expectedTag) {
-        sk_throw();
+bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
+                                       uint32_t tag, size_t size) {
+    switch (tag) {
+        case PICT_BITMAP_BUFFER_TAG: {
+            fBitmapCount = size;
+            fBitmaps = SkNEW_ARRAY(SkBitmap, fBitmapCount);
+            for (int i = 0; i < fBitmapCount; i++) {
+                fBitmaps[i].unflatten(buffer);
+            }
+        } break;
+        case PICT_MATRIX_BUFFER_TAG:
+            fMatrixCount = size;
+            fMatrices = SkNEW_ARRAY(SkMatrix, fMatrixCount);
+            buffer.read(fMatrices, fMatrixCount * sizeof(SkMatrix));
+            break;
+        case PICT_PAINT_BUFFER_TAG: {
+            fPaintCount = size;
+            fPaints = SkNEW_ARRAY(SkPaint, fPaintCount);
+            for (int i = 0; i < fPaintCount; i++) {
+                fPaints[i].unflatten(buffer);
+            }
+        } break;
+        case PICT_PATH_BUFFER_TAG:
+            if (size > 0) {
+                fPathHeap = SkNEW_ARGS(SkPathHeap, (buffer));
+            }
+            break;
+        case PICT_REGION_BUFFER_TAG: {
+            fRegionCount = size;
+            fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
+            for (int i = 0; i < fRegionCount; i++) {
+                buffer.getReader32()->readRegion(&fRegions[i]);
+            }
+        } break;
     }
-    return stream->readU32();
+    return true;    // success
 }
 
-SkPicturePlayback::SkPicturePlayback(SkStream* stream, uint32_t version) {
+SkPicturePlayback::SkPicturePlayback(SkStream* stream, const SkPictInfo& info,
+                                     bool* isValid) {
     this->init();
 
-    int i;
+    *isValid = false;   // wait until we're done parsing to mark as true
+    for (;;) {
+        uint32_t tag = stream->readU32();
+        if (PICT_EOF_TAG == tag) {
+            break;
+        }
 
-    // read the first tag
-    uint32_t tag = stream->readU32();
-
-    if (PICT_INFO_TAG == tag) {
         uint32_t size = stream->readU32();
-        if (sizeof(PictInfo) != size) {
-            return;
-        }
-        PictInfo info;
-        if (stream->read(&info, size) != size) {
-            return;
-        }
-        tag = stream->readU32();    // read the next tag
-    }
-
-    if (PICT_READER_TAG != tag) {
-        return;
-    } else {
-        size_t size = stream->readU32();
-        void* storage = sk_malloc_throw(size);
-        stream->read(storage, size);
-        fReader.setMemory(storage, size);
-    }
-
-    int factoryCount = readTagSize(stream, PICT_FACTORY_TAG);
-    fFactoryPlayback = SkNEW_ARGS(SkFactoryPlayback, (factoryCount));
-    for (i = 0; i < factoryCount; i++) {
-        SkString str;
-        int len = stream->readPackedUInt();
-        str.resize(len);
-        stream->read(str.writable_str(), len);
-//        SkDebugf("--- factory playback [%d] <%s>\n", i, str.c_str());
-        fFactoryPlayback->base()[i] = SkFlattenable::NameToFactory(str.c_str());
-    }
-
-    int typefaceCount = readTagSize(stream, PICT_TYPEFACE_TAG);
-    fTFPlayback.setCount(typefaceCount);
-    for (i = 0; i < typefaceCount; i++) {
-        SkSafeUnref(fTFPlayback.set(i, SkTypeface::Deserialize(stream)));
-    }
-
-    fPictureCount = readTagSize(stream, PICT_PICTURE_TAG);
-    fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
-    for (i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i] = SkNEW_ARGS(SkPicture, (stream));
-    }
-
-    /*
-        Now read the arrays chunk, and parse using a read buffer
-    */
-    uint32_t tagSize = readTagSize(stream, PICT_ARRAYS_TAG);
-    SkAutoMalloc storage(tagSize);
-    stream->read(storage.get(), tagSize);
-
-    SkOrderedReadBuffer buffer(storage.get(), tagSize);
-    fFactoryPlayback->setupBuffer(buffer);
-    fTFPlayback.setupBuffer(buffer);
-
-    fBitmapCount = readTagSize(buffer, PICT_BITMAP_TAG);
-    fBitmaps = SkNEW_ARRAY(SkBitmap, fBitmapCount);
-    for (i = 0; i < fBitmapCount; i++) {
-        fBitmaps[i].unflatten(buffer);
-    }
-
-    fMatrixCount = readTagSize(buffer, PICT_MATRIX_TAG);
-    fMatrices = SkNEW_ARRAY(SkMatrix, fMatrixCount);
-    buffer.read(fMatrices, fMatrixCount * sizeof(SkMatrix));
-
-    fPaintCount = readTagSize(buffer, PICT_PAINT_TAG);
-    fPaints = SkNEW_ARRAY(SkPaint, fPaintCount);
-    for (i = 0; i < fPaintCount; i++) {
-        fPaints[i].unflatten(buffer);
-    }
-
-    {
-        int count = readTagSize(buffer, PICT_PATH_TAG);
-        if (count > 0) {
-            fPathHeap = SkNEW_ARGS(SkPathHeap, (buffer));
+        if (!this->parseStreamTag(stream, info, tag, size)) {
+            return; // we're invalid
         }
     }
-
-    fRegionCount = readTagSize(buffer, PICT_REGION_TAG);
-    fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
-    for (i = 0; i < fRegionCount; i++) {
-        buffer.getReader32()->readRegion(&fRegions[i]);
-    }
-
-    tag = stream->readU32();
-    SkASSERT(PICT_EOF_TAG == tag);
+    *isValid = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

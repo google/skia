@@ -28,12 +28,25 @@ class SkPictureRecord;
 class SkStream;
 class SkWStream;
 
+struct SkPictInfo {
+    enum Flags {
+        kCrossProcess_Flag      = 1 << 0,
+        kScalarIsFloat_Flag     = 1 << 1,
+        kPtrIs64Bit_Flag        = 1 << 2,
+    };
+    
+    uint32_t    fVersion;
+    uint32_t    fWidth;
+    uint32_t    fHeight;
+    uint32_t    fFlags;
+};
+
 class SkPicturePlayback {
 public:
     SkPicturePlayback();
     SkPicturePlayback(const SkPicturePlayback& src);
     explicit SkPicturePlayback(const SkPictureRecord& record);
-    explicit SkPicturePlayback(SkStream*, uint32_t version);
+    SkPicturePlayback(SkStream*, const SkPictInfo&, bool* isValid);
 
     virtual ~SkPicturePlayback();
 
@@ -48,7 +61,6 @@ public:
     void abort();
 
 private:
-
     class TextContainer {
     public:
         size_t length() { return fByteLength; }
@@ -157,6 +169,11 @@ public:
     void dump() const;
 #endif
 
+private:    // these help us with reading/writing
+    bool parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size);
+    bool parseBufferTag(SkOrderedReadBuffer&, uint32_t tag, size_t size);
+    void flattenToBuffer(SkOrderedWriteBuffer&) const;
+        
 private:
     SkPathHeap* fPathHeap;  // reference counted
     SkBitmap* fBitmaps;
