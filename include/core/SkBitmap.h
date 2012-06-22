@@ -18,7 +18,6 @@
 
 struct SkIRect;
 struct SkRect;
-class SkColorTable;
 class SkPaint;
 class SkPixelRef;
 class SkRegion;

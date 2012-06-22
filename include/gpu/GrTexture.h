@@ -33,6 +33,29 @@ public:
 
     // from GrResource
     /**
+     * Informational texture flags
+     */
+    enum FlagBits {
+        kFirstBit = (kLastPublic_GrTextureFlagBit << 1),
+
+        /**
+         * This texture should be returned to the texture cache when
+         * it is no longer reffed
+         */
+        kReturnToCache_FlagBit        = kFirstBit,
+    };
+
+    void setFlag(GrTextureFlags flags) {
+        fDesc.fFlags = fDesc.fFlags | flags;
+    }
+    void resetFlag(GrTextureFlags flags) {
+        fDesc.fFlags = fDesc.fFlags & ~flags;
+    }
+    bool isSetFlag(GrTextureFlags flags) const { 
+        return 0 != (fDesc.fFlags & flags); 
+    }
+
+    /**
      *  Approximate number of bytes used by the texture
      */
     virtual size_t sizeInBytes() const SK_OVERRIDE {
@@ -162,11 +185,8 @@ protected:
     }
 
     // GrResource overrides
-    virtual void onRelease() {
-        this->releaseRenderTarget();
-    }
-
-    virtual void onAbandon();
+    virtual void onRelease() SK_OVERRIDE;
+    virtual void onAbandon() SK_OVERRIDE;
 
     void validateDesc() const;
 
@@ -175,6 +195,8 @@ private:
     // for this texture if the texture is power of two sized.
     int                 fShiftFixedX;
     int                 fShiftFixedY;
+
+    virtual void internal_dispose() const SK_OVERRIDE;
 
     typedef GrSurface INHERITED;
 };

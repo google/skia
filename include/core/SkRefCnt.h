@@ -80,7 +80,10 @@ private:
 #endif
         SkDELETE(this);
     }
+
     friend class SkWeakRefCnt;
+    friend class GrTexture;     // to allow GrTexture's internal_dispose to
+                                // call SkRefCnt's & directly set fRefCnt (to 1)
 
     mutable int32_t fRefCnt;
 
