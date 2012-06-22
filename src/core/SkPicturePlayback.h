@@ -33,7 +33,7 @@ public:
     SkPicturePlayback();
     SkPicturePlayback(const SkPicturePlayback& src);
     explicit SkPicturePlayback(const SkPictureRecord& record);
-    explicit SkPicturePlayback(SkStream*);
+    explicit SkPicturePlayback(SkStream*, uint32_t version);
 
     virtual ~SkPicturePlayback();
 

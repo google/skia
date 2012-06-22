@@ -199,11 +199,14 @@ void SkPicture::draw(SkCanvas* surface) {
 
 #include "SkStream.h"
 
-#define PICTURE_VERSION     2
-// Version 2 adds SkPixelRef's generation ID.
+// V2 : adds SkPixelRef's generation ID.
+// V3 : PictInfo tag at beginning, and EOF tag at the end
+#define PICTURE_VERSION     3
 
 SkPicture::SkPicture(SkStream* stream) : SkRefCnt() {
-    if (stream->readU32() != PICTURE_VERSION) {
+    uint32_t version = stream->readU32();
+
+    if (PICTURE_VERSION != version) {
         sk_throw();
     }
 
@@ -214,7 +217,7 @@ SkPicture::SkPicture(SkStream* stream) : SkRefCnt() {
     fPlayback = NULL;
 
     if (stream->readBool()) {
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream));
+        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream, version));
     }
 }
 

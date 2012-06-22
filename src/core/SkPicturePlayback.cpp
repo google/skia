@@ -210,6 +210,10 @@ void SkPicturePlayback::dumpSize() const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+// Optionally (depending on version) this chunk may appear at the beginning
+
+#define PICT_INFO_TAG     SkSetFourByteTag('i', 'n', 'f', 'o')
+
 // The chunks are writte/read in this order...
 
 #define PICT_READER_TAG     SkSetFourByteTag('r', 'e', 'a', 'd')
@@ -224,6 +228,9 @@ void SkPicturePlayback::dumpSize() const {
 #define PICT_PATH_TAG       SkSetFourByteTag('p', 't', 'h', ' ')
 #define PICT_REGION_TAG     SkSetFourByteTag('r', 'g', 'n', ' ')
 
+// Always write this guy last (with no length field afterwards)
+#define PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
+
 #include "SkStream.h"
 
 static void writeTagSize(SkFlattenableWriteBuffer& buffer, uint32_t tag,
@@ -236,6 +243,41 @@ static void writeTagSize(SkWStream* stream, uint32_t tag,
                          uint32_t size) {
     stream->write32(tag);
     stream->write32(size);
+}
+
+struct PictInfo {
+    enum Version {
+        kCurr_Version = 0
+    };
+    
+    enum Flags {
+        kCrossProcess_Flag      = 1 << 0,
+        kScalarIsFloat_Flag     = 1 << 1,
+        kPtrIs64Bit_Flag        = 1 << 2,
+    };
+    
+    uint32_t    fVersion;
+    uint32_t    fFlags;
+};
+
+static void writeInfo(SkWStream* stream) {
+    PictInfo info;
+
+    info.fVersion = PictInfo::kCurr_Version;
+
+    info.fFlags = PictInfo::kCrossProcess_Flag;
+#ifdef SK_SCALAR_IS_FLOAT
+    info.fFlags |= PictInfo::kScalarIsFloat_Flag;
+#endif
+    if (8 == sizeof(void*)) {
+        info.fFlags |= PictInfo::kPtrIs64Bit_Flag;
+    }
+    
+    uint32_t size = sizeof(info);
+    SkASSERT(SkAlign4(size) == size);
+
+    writeTagSize(stream, PICT_INFO_TAG, size);
+    stream->write(&info, size);
 }
 
 static void writeFactories(SkWStream* stream, const SkFactorySet& rec) {
@@ -275,6 +317,9 @@ static void writeTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
 }
 
 void SkPicturePlayback::serialize(SkWStream* stream) const {
+    // note: earlier formats did not write a 'info' tag
+    writeInfo(stream);
+
     writeTagSize(stream, PICT_READER_TAG, fReader.size());
     stream->write(fReader.base(), fReader.size());
 
@@ -327,6 +372,9 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
 
     writeTagSize(stream, PICT_ARRAYS_TAG, buffer.size());
     buffer.writeToStream(stream);
+
+    // always write this guy last
+    stream->write32(PICT_EOF_TAG);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -347,13 +395,30 @@ static int readTagSize(SkStream* stream, uint32_t expectedTag) {
     return stream->readU32();
 }
 
-SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
+SkPicturePlayback::SkPicturePlayback(SkStream* stream, uint32_t version) {
     this->init();
 
     int i;
 
-    {
-        size_t size = readTagSize(stream, PICT_READER_TAG);
+    // read the first tag
+    uint32_t tag = stream->readU32();
+
+    if (PICT_INFO_TAG == tag) {
+        uint32_t size = stream->readU32();
+        if (sizeof(PictInfo) != size) {
+            return;
+        }
+        PictInfo info;
+        if (stream->read(&info, size) != size) {
+            return;
+        }
+        tag = stream->readU32();    // read the next tag
+    }
+
+    if (PICT_READER_TAG != tag) {
+        return;
+    } else {
+        size_t size = stream->readU32();
         void* storage = sk_malloc_throw(size);
         stream->read(storage, size);
         fReader.setMemory(storage, size);
@@ -421,6 +486,9 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     for (i = 0; i < fRegionCount; i++) {
         buffer.getReader32()->readRegion(&fRegions[i]);
     }
+
+    tag = stream->readU32();
+    SkASSERT(PICT_EOF_TAG == tag);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
