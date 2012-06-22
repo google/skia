@@ -1126,10 +1126,13 @@ void GrContext::drawOval(const GrPaint& paint,
 
     CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
 
-    SkScalar L = center.fX - outerRadius;
-    SkScalar R = center.fX + outerRadius;
-    SkScalar T = center.fY - outerRadius;
-    SkScalar B = center.fY + outerRadius;
+    // The fragment shader will extend the radius out half a pixel
+    // to antialias. Expand the drawn rect here so all the pixels
+    // will be captured.
+    SkScalar L = center.fX - outerRadius - SkFloatToScalar(0.5f);
+    SkScalar R = center.fX + outerRadius + SkFloatToScalar(0.5f);
+    SkScalar T = center.fY - outerRadius - SkFloatToScalar(0.5f);
+    SkScalar B = center.fY + outerRadius + SkFloatToScalar(0.5f);
 
     verts[0].fPos = SkPoint::Make(L, T);
     verts[1].fPos = SkPoint::Make(R, T);
