@@ -1154,7 +1154,8 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
     // assumption here is that sw bitmap size is a good proxy for its size as
     // a texture
     size_t bmpSize = bitmap.getSize();
-    size_t cacheSize = fContext->getTextureCacheBudget();
+    size_t cacheSize;
+    fContext->getTextureCacheLimits(NULL, &cacheSize);
     if (bmpSize < cacheSize / 2) {
         return false;
     }

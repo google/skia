@@ -194,22 +194,29 @@ private:
  */
 class GrResourceCache {
 public:
-    GrResourceCache(size_t maxResourceBytes);
+    GrResourceCache(int maxCount, size_t maxBytes);
     ~GrResourceCache();
 
     /**
-     *  Returns the cache budget in bytes.
+     *  Return the current resource cache limits.
+     *
+     *  @param maxResource If non-null, returns maximum number of resources 
+     *                     that can be held in the cache.
+     *  @param maxBytes    If non-null, returns maximum number of bytes of
+     *                         gpu memory that can be held in the cache.
      */
-    size_t getBudget() const { return fMaxBytes; }
+    void getLimits(int* maxResources, size_t* maxBytes) const;
 
     /**
-     *  Specify the resource cache budget in bytes of GPU memory. If the current
-     *  cache exceeds the budget it will be purged to be within the budget.
+     *  Specify the resource cache limits. If the current cache exceeds either
+     *  of these, it will be purged (LRU) to keep the cache within these limits.
      *
-     *  @param maxResourceBytes The maximum number of bytes of GPU memory that
-     *                          can be held in the cache.
+     *  @param maxResources The maximum number of resources that can be held in
+     *                      the cache.
+     *  @param maxBytes     The maximum number of bytes of resource memory that
+     *                      can be held in the cache.
      */
-    void setBudget(size_t maxResourceBytes);
+    void setLimits(int maxResource, size_t maxResourceBytes);
 
     /**
      * Returns the number of bytes consumed by cached resources.
@@ -300,6 +307,7 @@ private:
     GrResourceEntry* fTail;
 
     // our budget, used in purgeAsNeeded()
+    int fMaxCount;
     size_t fMaxBytes;
 
     // our current stats, related to our budget

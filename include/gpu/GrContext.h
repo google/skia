@@ -83,6 +83,11 @@ public:
      */
     void freeGpuResources();
 
+    /**
+     * Returns the number of bytes of GPU memory hosted by the texture cache.
+     */
+    size_t getGpuTextureCacheBytes() const;
+
     ///////////////////////////////////////////////////////////////////////////
     // Textures
 
@@ -212,28 +217,25 @@ public:
                                    int height) const;
 
     /**
-     *  Return the current texture cache budget in bytes.
+     *  Return the current texture cache limits.
+     *
+     *  @param maxTextures If non-null, returns maximum number of textures that
+     *                     can be held in the cache.
+     *  @param maxTextureBytes If non-null, returns maximum number of bytes of
+     *                         texture memory that can be held in the cache.
      */
-    size_t getTextureCacheBudget() const;
+    void getTextureCacheLimits(int* maxTextures, size_t* maxTextureBytes) const;
 
     /**
-     *  Specify the texture cache budget. If the current cache size exceeds the
-     *  budget it will immediately be purged to be within the budget.
+     *  Specify the texture cache limits. If the current cache exceeds either
+     *  of these, it will be purged (LRU) to keep the cache within these limits.
      *
+     *  @param maxTextures The maximum number of textures that can be held in
+     *                     the cache.
      *  @param maxTextureBytes The maximum number of bytes of texture memory
      *                         that can be held in the cache.
      */
-    void setTextureCacheBudget(size_t maxTextureBytes);
-    // DEPRECATED, this will be deleted soon.
-    void setTextureCacheLimits(int ignored, size_t maxTextureBytes) {
-        this->setTextureCacheBudget(maxTextureBytes);
-    }
-
-    /**
-     * Returns the current number of bytes of GPU memory hosted by the texture
-     * cache.
-     */
-    size_t getGpuTextureCacheBytes() const;
+    void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes);
 
     /**
      *  Return the max width or height of a texture supported by the current gpu
