@@ -3,17 +3,6 @@
 {
   'sources': [
     '../bench/benchmain.cpp',
-    '../bench/BenchTimer.h',
-    '../bench/BenchTimer.cpp',
-    '../bench/BenchSysTimer_mach.h',
-    '../bench/BenchSysTimer_mach.cpp',
-    '../bench/BenchSysTimer_posix.h',
-    '../bench/BenchSysTimer_posix.cpp',
-    '../bench/BenchSysTimer_windows.h',
-    '../bench/BenchSysTimer_windows.cpp',
-    '../bench/BenchGpuTimer_gl.h',
-    '../bench/BenchGpuTimer_gl.cpp',
-
     '../bench/SkBenchmark.h',
     '../bench/SkBenchmark.cpp',
 
@@ -44,33 +33,6 @@
     '../bench/ShaderMaskBench.cpp',
     '../bench/TextBench.cpp',
     '../bench/VertBench.cpp',
-  ],
-  'conditions': [
-    [ 'skia_os != "mac"', {
-      'sources!': [
-        '../bench/BenchSysTimer_mach.h',
-        '../bench/BenchSysTimer_mach.cpp',
-      ],
-    }],
-    [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "android"]', {
-      'sources!': [
-        '../bench/BenchSysTimer_posix.h',
-        '../bench/BenchSysTimer_posix.cpp',
-      ],
-    }],
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-      'link_settings': {
-        'libraries': [
-          '-lrt',
-        ],
-      },
-    }],
-    [ 'skia_os != "win"', {
-      'sources!': [
-        '../bench/BenchSysTimer_windows.h',
-        '../bench/BenchSysTimer_windows.cpp',
-      ],
-    }],
   ],
 }
 
