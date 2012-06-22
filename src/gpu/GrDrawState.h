@@ -74,16 +74,18 @@ public:
     }
 
     virtual ~GrDrawState() {
-        this->releaseTextures();
+        this->disableStages();
         GrSafeSetNull(fRenderTarget);
     }
 
     /**
-     * Resets to the default state. Sampler states will not be modified.
+     * Resets to the default state.
+     * Sampler states *will* be modified: textures or CustomStage objects
+     * will be released.
      */ 
     void reset() {
 
-        this->releaseTextures();
+        this->disableStages();
         GrSafeSetNull(fRenderTarget);
 
         // make sure any pad is zero for memcmp
@@ -213,21 +215,32 @@ public:
         return fTextures[stage];
     }
 
+    bool stagesDisabled() {
+        for (int i = 0; i < kNumStages; ++i) {
+            if (NULL != fTextures[i] ||
+                NULL != fSamplerStates[i].getCustomStage()) {
+                return false;
+            }
+            return true;
+        }
+    }
     /**
-     * Release all the textures referred to by this draw state
+     * Release all the textures and custom stages referred to by this
+     * draw state.
      */
-    void releaseTextures() {
+    void disableStages() {
         for (int i = 0; i < kNumStages; ++i) {
             GrSafeSetNull(fTextures[i]);
+            fSamplerStates[i].setCustomStage(NULL);
         }
     }
 
-    class AutoTextureRelease : public ::GrNoncopyable {
+    class AutoStageDisable : public ::GrNoncopyable {
     public:
-        AutoTextureRelease(GrDrawState* ds) : fDrawState(ds) {}
-        ~AutoTextureRelease() {
+        AutoStageDisable(GrDrawState* ds) : fDrawState(ds) {}
+        ~AutoStageDisable() {
             if (NULL != fDrawState) {
-                fDrawState->releaseTextures();
+                fDrawState->disableStages();
             }
         }
     private:

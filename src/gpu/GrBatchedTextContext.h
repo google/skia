@@ -38,6 +38,8 @@ protected:
     };
 
     GrPaint         fGrPaint;
+
+    /** fDrawTarget is not set by init() - MUST be set by subclasses! */
     GrDrawTarget*   fDrawTarget;
 
     int32_t     fMaxVertices;

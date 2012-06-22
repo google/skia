@@ -131,8 +131,6 @@ void GrDefaultTextContext::init(GrContext* context,
         }
     }
 
-    // this has been already done in the baseclass, but we need to repeat
-    // due to new matrix
     fDrawTarget = fContext->getTextTarget(fGrPaint);
 
     fVertices = NULL;
