@@ -717,7 +717,7 @@ static const ConfigData gRec[] = {
 static void usage(const char * argv0) {
     SkDebugf("%s\n", argv0);
     SkDebugf("    [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n");
-    SkDebugf("    [-config ");
+    SkDebugf("    [--config ");
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         if (i > 0) {
             SkDebugf("|");
@@ -890,7 +890,7 @@ int main(int argc, char * const argv[]) {
             }
         } else if (strcmp(*argv, "--notexturecache") == 0) {
             disableTextureCache = true;
-        } else if (strcmp(*argv, "-config") == 0) {
+        } else if (strcmp(*argv, "--config") == 0) {
             argv++;
             if (argv < stop) {
                 int index = findConfig(*argv);
@@ -905,7 +905,7 @@ int main(int argc, char * const argv[]) {
                     return -1;
                 }
             } else {
-                SkDebugf("missing arg for -config\n");
+                SkDebugf("missing arg for --config\n");
                 usage(commandName);
                 return -1;
             }
