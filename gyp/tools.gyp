@@ -74,6 +74,17 @@
         'core.gyp:core',
         'images.gyp:images',
         'ports.gyp:ports',
+        'tools.gyp:picture_utils',
+      ],
+    },
+    {
+      'target_name': 'picture_utils',
+      'type': 'static_library',
+      'sources': [
+        '../tools/picture_utils.cpp',
+      ],
+      'dependencies': [
+        'core.gyp:core',
       ],
     },
     {
@@ -90,7 +101,6 @@
         'utils.gyp:utils',
       ],
     },
-
   ],
 }
 

@@ -14,6 +14,7 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "picture_utils.h"
 
 
 static void usage(const char* argv0) {
@@ -28,43 +29,15 @@ static void usage(const char* argv0) {
 "     outputDir: directory to write the rendered images.\n");
 }
 
-static void make_filepath(SkString* path, const char* dir,
-                          const SkString& name) {
-    size_t len = strlen(dir);
-    path->set(dir);
-    if (0 < len  && '/' != dir[len - 1]) {
-        path->append("/");
-    }
-    path->append(name);
-}
-
-static void open_picture_stream(const char* inputDir,
-                                const SkString& inputFilename,
-                                SkFILEStream* inputStream) {
-    SkString inputPath;
-    make_filepath(&inputPath, inputDir, inputFilename);
-    inputStream->setPath(inputPath.c_str());
-    if (!inputStream->isValid()) {
-        SkDebugf("Could not open file %s\n", inputPath.c_str());
-    }
-}
-
 static void make_output_filepath(SkString* path, const char* dir,
                                  const SkString& name) {
-    make_filepath(path, dir, name);
+    sk_tools::make_filepath(path, dir, name);
     path->remove(path->size() - 3, 3);
     path->append("png");
 }
 
-static void setup_bitmap(SkPicture& picture, SkBitmap* bitmap) {
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, picture.width(),
-                     picture.height());
-    bitmap->allocPixels();
-    bitmap->eraseColor(0);
-}
-
 static void generate_image_from_picture(SkPicture& pict, SkBitmap* bitmap) {
-    setup_bitmap(pict, bitmap);
+    sk_tools::setup_bitmap(bitmap, pict.width(), pict.height());
     SkCanvas canvas(*bitmap);
     canvas.drawPicture(pict);
 }
@@ -103,7 +76,15 @@ static void write_output(const char* outputDir, const SkString& inputFilename,
 static void render_picture(const char* inputDir, const char* outputDir,
                            const SkString& inputFilename) {
     SkFILEStream inputStream;
-    open_picture_stream(inputDir, inputFilename, &inputStream);
+
+    SkString inputPath;
+    sk_tools::make_filepath(&inputPath, inputDir, inputFilename);
+    inputStream.setPath(inputPath.c_str());
+    if (!inputStream.isValid()) {
+        SkDebugf("Could not open file %s\n", inputPath.c_str());
+        return;
+    }
+
     SkPicture picture(&inputStream);
     SkBitmap bitmap;
     generate_image_from_picture(picture, &bitmap);
