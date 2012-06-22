@@ -911,18 +911,9 @@ void GrClipMaskManager::setGpuStencil() {
         stencilBits = stencilBuffer->bits();
     }
 
-#if GR_DEBUG
-    if (!fGpu->getCaps().fStencilWrapOpsSupport) {
-        GrAssert(settings.frontPassOp() != kIncWrap_StencilOp);
-        GrAssert(settings.frontPassOp() != kDecWrap_StencilOp);
-        GrAssert(settings.frontFailOp() != kIncWrap_StencilOp);
-        GrAssert(settings.backFailOp() != kDecWrap_StencilOp);
-        GrAssert(settings.backPassOp() != kIncWrap_StencilOp);
-        GrAssert(settings.backPassOp() != kDecWrap_StencilOp);
-        GrAssert(settings.backFailOp() != kIncWrap_StencilOp);
-        GrAssert(settings.frontFailOp() != kDecWrap_StencilOp);
-    }
-#endif
+    GrAssert(fGpu->getCaps().fStencilWrapOpsSupport ||
+             !settings.usesWrapOp());
+    GrAssert(fGpu->getCaps().fTwoSidedStencilSupport || !settings.isTwoSided());
     this->adjustStencilParams(&settings, clipMode, stencilBits);
     fGpu->setStencilSettings(settings);
 }
