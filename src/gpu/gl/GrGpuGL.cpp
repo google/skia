@@ -2193,10 +2193,6 @@ void GrGpuGL::notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
 
 void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     GrAssert(NULL != renderTarget);
-    GrDrawState* drawState = this->drawState();
-    if (drawState->getRenderTarget() == renderTarget) {
-        drawState->setRenderTarget(NULL);
-    }
     if (fHWBoundRenderTarget == renderTarget) {
         fHWBoundRenderTarget = NULL;
     }
@@ -2204,10 +2200,6 @@ void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
 
 void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        GrDrawState* drawState = this->drawState();
-        if (drawState->getTexture(s) == texture) {
-            this->drawState()->setTexture(s, NULL);
-        }
         if (fHWBoundTextures[s] == texture) {
             // deleting bound texture does implied bind to 0
             fHWBoundTextures[s] = NULL;
