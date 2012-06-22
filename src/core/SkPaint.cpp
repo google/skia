@@ -180,67 +180,54 @@ void SkPaint::setFlags(uint32_t flags) {
 }
 
 void SkPaint::setAntiAlias(bool doAA) {
-    GEN_ID_INC_EVAL(doAA != isAntiAlias());
     this->setFlags(SkSetClearMask(fFlags, doAA, kAntiAlias_Flag));
 }
 
 void SkPaint::setDither(bool doDither) {
-    GEN_ID_INC_EVAL(doDither != isDither());
     this->setFlags(SkSetClearMask(fFlags, doDither, kDither_Flag));
 }
 
 void SkPaint::setSubpixelText(bool doSubpixel) {
-    GEN_ID_INC_EVAL(doSubpixel != isSubpixelText());
     this->setFlags(SkSetClearMask(fFlags, doSubpixel, kSubpixelText_Flag));
 }
 
 void SkPaint::setLCDRenderText(bool doLCDRender) {
-    GEN_ID_INC_EVAL(doLCDRender != isLCDRenderText());
     this->setFlags(SkSetClearMask(fFlags, doLCDRender, kLCDRenderText_Flag));
 }
 
 void SkPaint::setEmbeddedBitmapText(bool doEmbeddedBitmapText) {
-    GEN_ID_INC_EVAL(doEmbeddedBitmapText != isEmbeddedBitmapText());
     this->setFlags(SkSetClearMask(fFlags, doEmbeddedBitmapText, kEmbeddedBitmapText_Flag));
 }
 
 void SkPaint::setAutohinted(bool useAutohinter) {
-    GEN_ID_INC_EVAL(useAutohinter != isAutohinted());
     this->setFlags(SkSetClearMask(fFlags, useAutohinter, kAutoHinting_Flag));
 }
 
 void SkPaint::setLinearText(bool doLinearText) {
-    GEN_ID_INC_EVAL(doLinearText != isLinearText());
     this->setFlags(SkSetClearMask(fFlags, doLinearText, kLinearText_Flag));
 }
 
 void SkPaint::setVerticalText(bool doVertical) {
-    GEN_ID_INC_EVAL(doVertical != isVerticalText());
     this->setFlags(SkSetClearMask(fFlags, doVertical, kVerticalText_Flag));
 }
 
 void SkPaint::setUnderlineText(bool doUnderline) {
-    GEN_ID_INC_EVAL(doUnderline != isUnderlineText());
     this->setFlags(SkSetClearMask(fFlags, doUnderline, kUnderlineText_Flag));
 }
 
 void SkPaint::setStrikeThruText(bool doStrikeThru) {
-    GEN_ID_INC_EVAL(doStrikeThru != isStrikeThruText());
     this->setFlags(SkSetClearMask(fFlags, doStrikeThru, kStrikeThruText_Flag));
 }
 
 void SkPaint::setFakeBoldText(bool doFakeBold) {
-    GEN_ID_INC_EVAL(doFakeBold != isFakeBoldText());
     this->setFlags(SkSetClearMask(fFlags, doFakeBold, kFakeBoldText_Flag));
 }
 
 void SkPaint::setDevKernText(bool doDevKern) {
-    GEN_ID_INC_EVAL(doDevKern != isDevKernText());
     this->setFlags(SkSetClearMask(fFlags, doDevKern, kDevKernText_Flag));
 }
 
 void SkPaint::setFilterBitmap(bool doFilter) {
-    GEN_ID_INC_EVAL(doFilter != isFilterBitmap());
     this->setFlags(SkSetClearMask(fFlags, doFilter, kFilterBitmap_Flag));
 }
 
