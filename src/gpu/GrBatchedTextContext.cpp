@@ -26,7 +26,7 @@ void GrBatchedTextContext::init(GrContext* context,
                                 const GrMatrix* extMatrix) {
     this->INHERITED::init(context, grPaint, extMatrix);
     fGrPaint = grPaint;
-    fDrawTarget = fContext->getTextTarget(fGrPaint);
+    fDrawTarget = NULL;
 
     fMaxVertices = 0;
     fCurrTexture = NULL;
@@ -34,6 +34,10 @@ void GrBatchedTextContext::init(GrContext* context,
 }
 
 void GrBatchedTextContext::finish() {
+    GrAssert(fDrawTarget);
+    if (fDrawTarget) {
+        fDrawTarget->drawState()->disableStages();
+    }
     fDrawTarget = NULL;
 
     this->INHERITED::finish();
@@ -41,6 +45,7 @@ void GrBatchedTextContext::finish() {
 
 void GrBatchedTextContext::reset() {
     GrAssert(this->isValid());
+    GrAssert(fDrawTarget);
     fDrawTarget->resetVertexSource();
     fMaxVertices = 0;
     fCurrVertex = 0;
@@ -61,6 +66,7 @@ void GrBatchedTextContext::prepareForGlyph(GrTexture* texture) {
 void GrBatchedTextContext::setupVertexBuff(void** vertexBuff,
                                            GrVertexLayout vertexLayout) {
     GrAssert(this->isValid());
+    GrAssert(fDrawTarget);
     if (NULL == *vertexBuff) {
         // If we need to reserve vertices allow the draw target to suggest
         // a number of verts to reserve and whether to perform a flush.
