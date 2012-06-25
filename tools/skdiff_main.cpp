@@ -1146,12 +1146,8 @@ int main (int argc, char ** argv) {
         outputDir.set("");
     }
 
-    // Default substring matching:
-    // - No matter what, don't match any PDF files.
-    //   We may want to change this later, but for now this maintains the filter
-    //   that get_file_list() used to always apply.
-    // - If no matchSubstrings were specified, match ALL strings.
-    nomatchSubstrings.push(new SkString(".pdf"));
+    // If no matchSubstrings were specified, match ALL strings
+    // (except for whatever nomatchSubstrings were specified, if any).
     if (matchSubstrings.isEmpty()) {
         matchSubstrings.push(new SkString(""));
     }
