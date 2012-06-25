@@ -1792,8 +1792,10 @@ void GrContext::setupDrawBuffer() {
 #if BATCH_RECT_TO_RECT
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
 #endif
-    fDrawBuffer->setAutoFlushTarget(fGpu);
-    fDrawBuffer->setDrawState(fDrawState);
+    if (fDrawBuffer) {
+        fDrawBuffer->setAutoFlushTarget(fGpu);
+        fDrawBuffer->setDrawState(fDrawState);
+    }
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
