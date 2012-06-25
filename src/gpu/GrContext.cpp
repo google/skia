@@ -893,7 +893,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     SK_TRACE_EVENT0("GrContext::drawRectToRect");
 
     // srcRect refers to paint's first texture
-    if (NULL == paint.getTexture(0)) {
+    if (!paint.isTextureStageEnabled(0)) {
         drawRect(paint, dstRect, -1, dstMatrix);
         return;
     }
@@ -1590,9 +1590,9 @@ void GrContext::setPaint(const GrPaint& paint) {
 
     for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
         int s = i + GrPaint::kFirstTextureStage;
-        fDrawState->setTexture(s, paint.getTexture(i));
         ASSERT_OWNED_RESOURCE(paint.getTexture(i));
-        if (paint.getTexture(i)) {
+        if (paint.isTextureStageEnabled(i)) {
+            fDrawState->setTexture(s, paint.getTexture(i));
             *fDrawState->sampler(s) = paint.getTextureSampler(i);
         }
     }
@@ -1601,9 +1601,9 @@ void GrContext::setPaint(const GrPaint& paint) {
 
     for (int i = 0; i < GrPaint::kMaxMasks; ++i) {
         int s = i + GrPaint::kFirstMaskStage;
-        fDrawState->setTexture(s, paint.getMask(i));
         ASSERT_OWNED_RESOURCE(paint.getMask(i));
-        if (paint.getMask(i)) {
+        if (paint.isMaskStageEnabled(i)) {
+            fDrawState->setTexture(s, paint.getMask(i));
             *fDrawState->sampler(s) = paint.getMaskSampler(i);
         }
     }

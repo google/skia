@@ -115,7 +115,7 @@ void GrDefaultTextContext::init(GrContext* context,
     bool invVMComputed = false;
     GrMatrix invVM;
     for (int t = 0; t < GrPaint::kMaxTextures; ++t) {
-        if (NULL != fGrPaint.getTexture(t)) {
+        if (fGrPaint.isTextureStageEnabled(t)) {
             if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
                 invVMComputed = true;
                 fGrPaint.textureSampler(t)->preConcatMatrix(invVM);
@@ -123,7 +123,7 @@ void GrDefaultTextContext::init(GrContext* context,
         }
     }
     for (int m = 0; m < GrPaint::kMaxMasks; ++m) {
-        if (NULL != fGrPaint.getMask(m)) {
+        if (fGrPaint.isMaskStageEnabled(m)) {
             if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
                 invVMComputed = true;
                 fGrPaint.maskSampler(m)->preConcatMatrix(invVM);

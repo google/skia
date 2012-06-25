@@ -64,6 +64,12 @@ public:
         return fTextureSamplers[i];
     }
 
+    bool isTextureStageEnabled(int i) const {
+        GrAssert((unsigned)i < kMaxTextures);
+        return (NULL != fTextures[i]) ||
+               (NULL != fTextureSamplers[i].getCustomStage());
+    }
+
     // The mask can be alpha-only or per channel. It is applied
     // after the colorfilter
     void setMask(int i, GrTexture* mask) {
@@ -88,6 +94,12 @@ public:
     const GrSamplerState& getMaskSampler(int i) const {
         GrAssert((unsigned)i < kMaxMasks);
         return fMaskSamplers[i];
+    }
+
+    bool isMaskStageEnabled(int i) const {
+        GrAssert((unsigned)i < kMaxTextures);
+        return (NULL != fMaskTextures[i]) ||
+               (NULL != fMaskSamplers[i].getCustomStage());
     }
 
     // pre-concats sampler matrices for non-NULL textures and masks
