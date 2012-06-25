@@ -221,8 +221,8 @@ public:
                 NULL != fSamplerStates[i].getCustomStage()) {
                 return false;
             }
-            return true;
         }
+        return true;
     }
     /**
      * Release all the textures and custom stages referred to by this
