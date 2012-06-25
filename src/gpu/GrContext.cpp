@@ -173,8 +173,6 @@ int GrContext::PaintStageVertexLayoutBits(
         if ((1 << i) & stageMask) {
             if (NULL != hasTexCoords && hasTexCoords[i]) {
                 layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(i, i);
-            } else {
-                layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(i);
             }
         }
     }
@@ -1574,7 +1572,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
                                  matrix);
     drawState->sampler(0)->setRAndBSwap(swapRAndB);
 
-    GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
+    static const GrVertexLayout layout = 0;
     static const int VCOUNT = 4;
     // TODO: Use GrGpu::drawRect here
     GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, VCOUNT, 0);

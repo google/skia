@@ -16,11 +16,6 @@ namespace {
 static GrVertexLayout aa_rect_layout(const GrDrawTarget* target,
                                      bool useCoverage) {
     GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (NULL != target->getDrawState().getTexture(s)) {
-            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
-        }
-    }
     if (useCoverage) {
         layout |= GrDrawTarget::kCoverage_VertexLayoutBit;
     } else {

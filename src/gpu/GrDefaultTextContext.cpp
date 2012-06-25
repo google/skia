@@ -138,17 +138,6 @@ void GrDefaultTextContext::init(GrContext* context,
     fVertexLayout = 
         GrDrawTarget::kTextFormat_VertexLayoutBit |
         GrDrawTarget::StageTexCoordVertexLayoutBit(kGlyphMaskStage, 0);
-
-    int stageMask = paint.getActiveStageMask();
-    if (stageMask) {
-        for (int i = 0; i < GrPaint::kTotalStages; ++i) {
-            if ((1 << i) & stageMask) {
-                fVertexLayout |= 
-                    GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(i);
-                GrAssert(i != kGlyphMaskStage);
-            }
-        }
-    }
 }
 
 void GrDefaultTextContext::finish() {

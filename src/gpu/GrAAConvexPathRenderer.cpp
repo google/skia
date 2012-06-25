@@ -469,11 +469,6 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     drawState->viewMatrix()->reset();
 
     GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if ((1 << s) & stageMask) {
-            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
-        }
-    }
     layout |= GrDrawTarget::kEdge_VertexLayoutBit;
 
     // We use the fact that SkPath::transform path does subdivision based on

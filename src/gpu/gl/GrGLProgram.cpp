@@ -592,13 +592,11 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
 
                 const char* inCoords;
                 // figure out what our input coords are
-                if (GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s) &
-                    layout) {
+                int tcIdx = GrDrawTarget::VertexTexCoordsForStage(s, layout);
+                if (tcIdx < 0) {
                     inCoords = POS_ATTR_NAME;
                 } else {
-                    int tcIdx = GrDrawTarget::VertexTexCoordsForStage(s, layout);
-                     // we better have input tex coordinates if stage is enabled.
-                    GrAssert(tcIdx >= 0);
+                    // must have input tex coordinates if stage is enabled.
                     GrAssert(texCoordAttrs[tcIdx].size());
                     inCoords = texCoordAttrs[tcIdx].c_str();
                 }
@@ -713,15 +711,13 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
 
                     const char* inCoords;
                     // figure out what our input coords are
-                    if (GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s) &
-                        layout) {
+                    int tcIdx =
+                        GrDrawTarget::VertexTexCoordsForStage(s, layout);
+                    if (tcIdx < 0) {
                         inCoords = POS_ATTR_NAME;
                     } else {
-                        int tcIdx =
-                            GrDrawTarget::VertexTexCoordsForStage(s, layout);
-                        // we better have input tex coordinates if stage is
+                        // must have input tex coordinates if stage is
                         // enabled.
-                        GrAssert(tcIdx >= 0);
                         GrAssert(texCoordAttrs[tcIdx].size());
                         inCoords = texCoordAttrs[tcIdx].c_str();
                     }
