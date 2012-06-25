@@ -18,18 +18,19 @@ MAX_REASONABLE_TIME = 99999
 def usage():
     """Prints simple usage information."""
     
-    print '-d <dir> a directory containing bench_r<revision>_<scalar> files.'
     print '-b <bench> the bench to show.'
     print '-c <config> the config to show (GPU, 8888, 565, etc).'
-    print '-t <time> the time to show (w, c, g, etc).'
-    print '-s <setting>[=<value>] a setting to show (alpha, scalar, etc).'
-    print '-r <revision>[:<revision>] the revisions to show.'
-    print '   Negative <revision> is taken as offset from most recent revision.'
+    print '-d <dir> a directory containing bench_r<revision>_<scalar> files.'
     print '-f <revision>[:<revision>] the revisions to use for fitting.'
     print '   Negative <revision> is taken as offset from most recent revision.'
+    print '-l <title> title to use for the output graph'
+    print '-o <path> path to which to write output; writes to stdout if not specified'
+    print '-r <revision>[:<revision>] the revisions to show.'
+    print '   Negative <revision> is taken as offset from most recent revision.'
+    print '-s <setting>[=<value>] a setting to show (alpha, scalar, etc).'
+    print '-t <time> the time to show (w, c, g, etc).'
     print '-x <int> the desired width of the svg.'
     print '-y <int> the desired height of the svg.'
-    print '-l <title> title to use for the output graph'
     print '--default-setting <setting>[=<value>] setting for those without.'
     
 
@@ -139,6 +140,18 @@ def filter_data_points(unfiltered_revision_data_points):
                 add_to_revision_data_points(point, revision, allowed_revision_data_points)
     return (allowed_revision_data_points, ignored_revision_data_points)
 
+def redirect_stdout(output_path):
+    """Redirect all following stdout to a file.
+
+    You may be asking yourself, why redirect stdout within Python rather than
+    redirecting the script's output in the calling shell?
+    The answer lies in https://code.google.com/p/skia/issues/detail?id=674
+    ('buildbot: windows GenerateBenchGraphs step fails due to filename length'):
+    On Windows, we need to generate the absolute path within Python to avoid
+    the operating system's 260-character pathname limit, including chdirs."""
+    abs_path = os.path.abspath(output_path)
+    sys.stdout = open(abs_path, 'w')
+
 def create_lines(revision_data_points, settings
                , bench_of_interest, config_of_interest, time_of_interest):
     """Convert revision data into sorted line data.
@@ -235,7 +248,7 @@ def main():
     
     try:
         opts, _ = getopt.getopt(sys.argv[1:]
-                                 , "d:b:c:l:t:s:r:f:x:y:"
+                                 , "b:c:d:f:l:o:r:s:t:x:y:"
                                  , "default-setting=")
     except getopt.GetoptError, err:
         print str(err) 
@@ -281,26 +294,28 @@ def main():
         
     try:
         for option, value in opts:
-            if option == "-d":
-                directory = value
-            elif option == "-b":
+            if option == "-b":
                 bench_of_interest = value
             elif option == "-c":
                 config_of_interest = value
-            elif option == "-t":
-                time_of_interest = value
-            elif option == "-s":
-                add_setting(settings, value)
-            elif option == "-r":
-                revision_range = value
+            elif option == "-d":
+                directory = value
             elif option == "-f":
                 regression_range = value
+            elif option == "-l":
+                title = value
+            elif option == "-o":
+                redirect_stdout(value)
+            elif option == "-r":
+                revision_range = value
+            elif option == "-s":
+                add_setting(settings, value)
+            elif option == "-t":
+                time_of_interest = value
             elif option == "-x":
                 requested_width = int(value)
             elif option == "-y":
                 requested_height = int(value)
-            elif option == "-l":
-                title = value
             elif option == "--default-setting":
                 add_setting(default_settings, value)
             else:
