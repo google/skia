@@ -185,27 +185,25 @@ bool GrGpuGL::programUnitTest() {
         SkAutoTUnref<GrCustomStage> customStages[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            StageDesc& stage = pdesc.fStages[s];
             // enable the stage?
             if (random_bool(&random)) {
                 // use separate tex coords?
                 if (random_bool(&random)) {
                     int t = random_int(&random, GrDrawState::kMaxTexCoords);
                     pdesc.fVertexLayout |= StageTexCoordVertexLayoutBit(s, t);
-                } else {
-                    pdesc.fVertexLayout |= StagePosAsTexCoordVertexLayoutBit(s);
                 }
+                stage.setEnabled(true);
             }
             // use text-formatted verts?
             if (random_bool(&random)) {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
-            StageDesc& stage = pdesc.fStages[s];
 
             stage.fCustomStageKey = 0;
 
             stage.fOptFlags = STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
             stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
-            stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
 
             bool useCustomEffect = random_bool(&random);
             if (useCustomEffect) {

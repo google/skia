@@ -44,11 +44,6 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                                          mat);
 
     drawState->setTexture(maskStage, result);
-
-    // The AA clipping determination happens long after the geometry has
-    // been set up to draw. Here we directly enable the AA clip mask stage
-    gpu->addToVertexLayout(
-                GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(maskStage));
 }
 
 bool path_needs_SW_renderer(GrContext* context,

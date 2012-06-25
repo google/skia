@@ -521,12 +521,6 @@ bool GrAAHairLinePathRenderer::createGeom(
 
 
     GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if ((1 << s) & stageMask) {
-            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
-        }
-    }
-
     GrMatrix viewM = drawState.getViewMatrix();
 
     PREALLOC_PTARRAY(128) lines;

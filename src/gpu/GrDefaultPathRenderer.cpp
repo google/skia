@@ -208,12 +208,6 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
     }
 
     GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if ((1 << s) & stageMask) {
-            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
-        }
-    }
-
     bool indexed = contourCnt > 1;
 
     int maxIdxs = 0;

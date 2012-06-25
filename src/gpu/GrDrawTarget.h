@@ -154,7 +154,7 @@ public:
      * The format of vertices is represented as a bitfield of flags.
      * Flags that indicate the layout of vertex data. Vertices always contain
      * positions and may also contain up to GrDrawState::kMaxTexCoords sets
-     * of 2D texture * coordinates, per-vertex colors, and per-vertex coverage.
+     * of 2D texture coordinates, per-vertex colors, and per-vertex coverage.
      * Each stage can 
      * use any of the texture coordinates as its input texture coordinates or it
      * may use the positions as texture coordinates.
@@ -187,42 +187,14 @@ public:
         return 1 << (stage + (texCoordIdx * GrDrawState::kNumStages));
     }
 
+    static bool StageUsesTexCoords(GrVertexLayout layout, int stage);
+
     virtual void postClipPush() {};
     virtual void preClipPop() {};
 
 private:
     static const int TEX_COORD_BIT_CNT = GrDrawState::kNumStages *
                                          GrDrawState::kMaxTexCoords;
-
-public:
-    /**
-     * Generates a bit indicating that a texture stage uses the position
-     * as its texture coordinate.
-     *
-     * @param stage       the stage that will use position as texture
-     *                    coordinates.
-     *
-     * @return the bit to add to a GrVertexLayout bitfield.
-     */
-    static int StagePosAsTexCoordVertexLayoutBit(int stage) {
-        GrAssert(stage < GrDrawState::kNumStages);
-        return (1 << (TEX_COORD_BIT_CNT + stage));
-    }
-
-    /**
-     * Modify the existing vertex layout. Realistically the only thing that 
-     * can be added w/o recomputing the vertex layout is one of the 
-     * StagePosAsTexCoordVertexLayoutBit flags
-     */
-    void addToVertexLayout(int flag) {
-        GrAssert((1 << TEX_COORD_BIT_CNT) == flag ||
-                 (1 << (TEX_COORD_BIT_CNT + 1)) == flag ||
-                 (1 << (TEX_COORD_BIT_CNT + 2)) == flag ||
-                 (1 << (TEX_COORD_BIT_CNT + 3)) == flag);
-        fGeoSrcStateStack.back().fVertexLayout |= flag;
-    }
-
-private:
     static const int STAGE_BIT_CNT = TEX_COORD_BIT_CNT +
         GrDrawState::kNumStages;
 
@@ -765,18 +737,6 @@ public:
                                       GrVertexLayout vertexLayout);
 
     /**
-     * Helper function to determine if vertex layout contains either explicit or
-     * implicit texture coordinates for a stage.
-     *
-     * @param stage         the stage to query
-     * @param vertexLayout  layout to query
-     *
-     * @return true if vertex specifies texture coordinates for the stage,
-     *              false otherwise.
-     */
-    static bool VertexUsesStage(int stage, GrVertexLayout vertexLayout);
-
-    /**
      * Helper function to compute the size of each vertex and the offsets of
      * texture coordinates and color. Determines tex coord offsets by tex coord
      * index rather than by stage. (Each stage can be mapped to any t.c. index
@@ -992,15 +952,14 @@ protected:
                 return 0;
         }
     }
-    // given a vertex layout and a draw state, will a stage be used?
-    static bool StageWillBeUsed(int stage, GrVertexLayout layout, 
+    // given (a vertex layout and) a draw state, will a stage be used?
+    static bool StageWillBeUsed(int stage,
                                 const GrDrawState& state) {
-        return NULL != state.getTexture(stage) &&
-               VertexUsesStage(stage, layout);
+        return NULL != state.getTexture(stage);
     }
 
     bool isStageEnabled(int stage) const {
-        return StageWillBeUsed(stage, this->getVertexLayout(),
+        return StageWillBeUsed(stage,
                                this->getDrawState());
     }
 
