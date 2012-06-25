@@ -862,7 +862,7 @@ bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     }
     // Check if a color stage could create a partial alpha
     for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
-        if (StageWillBeUsed(s, this->getDrawState())) {
+        if (this->isStageEnabled(s)) {
             GrAssert(NULL != drawState.getTexture(s));
             GrPixelConfig config = drawState.getTexture(s)->config();
             if (!GrPixelConfigIsOpaque(config)) {
@@ -951,7 +951,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     for (int s = drawState.getFirstCoverageStage();
          !hasCoverage && s < GrDrawState::kNumStages;
          ++s) {
-        if (StageWillBeUsed(s, this->getDrawState())) {
+        if (this->isStageEnabled(s)) {
             hasCoverage = true;
         }
     }

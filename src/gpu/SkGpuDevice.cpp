@@ -883,7 +883,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
 
     static const int MASK_IDX = GrPaint::kMaxMasks - 1;
     // we assume the last mask index is available for use
-    GrAssert(NULL == grp->getMask(MASK_IDX));
+    GrAssert(!grp->isMaskStageEnabled(MASK_IDX));
     grp->setMask(MASK_IDX, blurTexture);
     grp->maskSampler(MASK_IDX)->reset();
 
@@ -949,7 +949,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 
     static const int MASK_IDX = GrPaint::kMaxMasks - 1;
     // we assume the last mask index is available for use
-    GrAssert(NULL == grp->getMask(MASK_IDX));
+    GrAssert(!grp->isMaskStageEnabled(MASK_IDX));
     grp->setMask(MASK_IDX, texture);
     grp->maskSampler(MASK_IDX)->reset();
 

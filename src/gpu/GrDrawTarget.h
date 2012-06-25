@@ -952,15 +952,9 @@ protected:
                 return 0;
         }
     }
-    // given (a vertex layout and) a draw state, will a stage be used?
-    static bool StageWillBeUsed(int stage,
-                                const GrDrawState& state) {
-        return NULL != state.getTexture(stage);
-    }
 
     bool isStageEnabled(int stage) const {
-        return StageWillBeUsed(stage,
-                               this->getDrawState());
+        return this->getDrawState().isStageEnabled(stage);
     }
 
     StageMask enabledStages() const {

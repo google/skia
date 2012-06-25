@@ -760,6 +760,12 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    bool isStageEnabled(int s) const {
+        GrAssert((unsigned)s < kNumStages);
+        return (NULL != fTextures[s]) ||
+               (NULL != fSamplerStates[s].getCustomStage());
+    }
+
     // Most stages are usually not used, so conditionals here
     // reduce the expected number of bytes touched by 50%.
     bool operator ==(const GrDrawState& s) const {
@@ -772,7 +778,7 @@ public:
         }
 
         for (int i = 0; i < kNumStages; i++) {
-            if (fTextures[i] &&
+            if (this->isStageEnabled(i) &&
                 this->fSamplerStates[i] != s.fSamplerStates[i]) {
                 return false;
             }
