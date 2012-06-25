@@ -57,3 +57,5 @@ uint16_t SkCosineMapper::mapUnit16(uint16_t input)
 SkCosineMapper::SkCosineMapper(SkFlattenableReadBuffer& rb)
     : SkUnitMapper(rb) {}
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkDiscreteMapper)
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkCosineMapper)

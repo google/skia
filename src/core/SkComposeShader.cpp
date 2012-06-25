@@ -165,3 +165,5 @@ void SkComposeShader::shadeSpan(int x, int y, SkPMColor result[], int count) {
     }
 }
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkComposeShader)
+
