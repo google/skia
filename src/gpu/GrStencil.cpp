@@ -167,7 +167,9 @@ GR_STATIC_CONST_SAME_STENCIL(gUserToClipRDiffPass1,
     0x0000,          // set clip bit
     0xffff);
 
-GR_STATIC_CONST_SAME_STENCIL(gInvUserToClipRDiff,
+// We are looking for stencil values that are all zero. The first pass sets the
+// clip bit if the stencil is all zeros. The second pass clears the user bits.
+GR_STATIC_CONST_SAME_STENCIL(gInvUserToClipRDiffPass0,
     kInvert_StencilOp,
     kZero_StencilOp,
     kEqual_StencilFunc,
@@ -175,6 +177,16 @@ GR_STATIC_CONST_SAME_STENCIL(gInvUserToClipRDiff,
     0x0000,
     0x0000           // set clip bit
 );
+
+GR_STATIC_CONST_SAME_STENCIL(gInvUserToClipRDiffPass1,
+    kZero_StencilOp,
+    kZero_StencilOp,
+    kAlways_StencilFunc,
+    0xffff,
+    0x0000,
+    0xffff           // unset clip bit
+);
+
 ///////
 // Direct to Stencil
 
@@ -348,11 +360,15 @@ bool GrStencilSettings::GetClipPasses(
             break;
         case SkRegion::kReverseDifference_Op:
             if (invertedFill) {
-                *numPasses = 1;
-                settings[0] = gInvUserToClipRDiff;
+                *numPasses = 2;
+                settings[0] = gInvUserToClipRDiffPass0;
                 settings[0].fWriteMasks[kFront_Face] |= stencilClipMask;
                 settings[0].fWriteMasks[kBack_Face] =
                     settings[0].fWriteMasks[kFront_Face];
+                settings[1] = gInvUserToClipRDiffPass1;
+                settings[1].fWriteMasks[kFront_Face] &= ~stencilClipMask;
+                settings[1].fWriteMasks[kBack_Face] =
+                    settings[1].fWriteMasks[kFront_Face];
             } else {
                 *numPasses = 2;
                 settings[0] = gUserToClipRDiffPass0;
