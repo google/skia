@@ -298,4 +298,12 @@ template void finishRange<SkAdvancedTypefaceMetrics::VerticalMetric>(
         int endId,
         SkAdvancedTypefaceMetrics::VerticalAdvanceRange::MetricType type);
 
+// additional declaration needed for testing with a face of an unknown type
+template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
+        void* fontData,
+        int num_glyphs,
+        const uint32_t* subsetGlyphIDs,
+        uint32_t subsetGlyphIDsLength,
+        bool (*getAdvance)(void* fontData, int gId, int16_t* data));
+
 } // namespace skia_advanced_typeface_metrics_utils

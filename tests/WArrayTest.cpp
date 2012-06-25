@@ -8,7 +8,7 @@
 #include "Test.h"
 
 // Include the implementation so we can make an appropriate template instance.
-#include "SkAdvancedTypefaceMetrics.cpp"
+#include "SkAdvancedTypefaceMetrics.h"
 
 using namespace skia_advanced_typeface_metrics_utils;
 
@@ -102,8 +102,7 @@ const char* expectedSubset14 = "0[1] 5[2]";
 
 }
 
-static SkString stringify_advance_data(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* data) {
+static SkString stringify_advance_data(SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* data) {
     SkString result;
     bool leadingSpace = false;
     while (data != NULL) {
@@ -114,8 +113,7 @@ static SkString stringify_advance_data(
       }
       switch(data->fType) {
         case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kRun:
-          result.appendf("%d %d %d", data->fStartId, data->fEndId,
-              data->fAdvance[0]);
+          result.appendf("%d %d %d", data->fStartId, data->fEndId, data->fAdvance[0]);
           break;
         case SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>::kRange:
           result.appendf("%d[", data->fStartId);
@@ -139,10 +137,8 @@ static SkString stringify_advance_data(
 class TestWData {
   public:
     TestWData(skiatest::Reporter* reporter,
-              const int16_t advances[],
-              int advanceLen,
-              const uint32_t subset[],
-              int subsetLen,
+              const int16_t advances[], int advanceLen,
+              const uint32_t subset[], int subsetLen,
               const char* expected)
             : fAdvances(advances)
             , fAdvancesLen(advanceLen)
@@ -159,7 +155,8 @@ class TestWData {
     const int fSubsetLen;
     const char* fExpected;
 
-    static bool getAdvance(TestWData* testCase, int gId, int16_t* advance) {
+    static bool getAdvance(void* tc, int gId, int16_t* advance) {
+        TestWData* testCase = (TestWData*)tc;
         if (gId >= 0 && gId < testCase->fAdvancesLen) {
             *advance = testCase->fAdvances[gId];
             return true;
@@ -169,13 +166,11 @@ class TestWData {
 
     bool RunTest() {
         SkTScopedPtr<SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t> > result;
-        result.reset(getAdvanceData(this, fAdvancesLen, fSubset, fSubsetLen,
-                                    getAdvance));
+        result.reset(getAdvanceData((void*)this, fAdvancesLen, fSubset, fSubsetLen, getAdvance));
 
         SkString stringResult = stringify_advance_data(result.get());
         if (!stringResult.equals(fExpected)) {
-            printf("Expected: %s\n  Result: %s\n", fExpected,
-                   stringResult.c_str());
+            printf("Expected: %s\n  Result: %s\n", fExpected, stringResult.c_str());
             return false;
         }
         return true;
