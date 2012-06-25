@@ -127,9 +127,21 @@ class SkTypeface;
 
 class SkFlattenableReadBuffer {
 public:
+    enum Flags {
+        kCrossProcess_Flag      = 1 << 0,
+        kScalarIsFloat_Flag     = 1 << 1,
+        kPtrIs64Bit_Flag        = 1 << 2,
+    };
+
     SkFlattenableReadBuffer();
     virtual ~SkFlattenableReadBuffer() {}
 
+    void setFlags(uint32_t flags) { fFlags = flags; }
+    uint32_t getFlags() const { return fFlags; }
+
+    bool isCrossProcess() const { return SkToBool(fFlags & kCrossProcess_Flag); }
+    bool isScalarFloat() const { return SkToBool(fFlags & kScalarIsFloat_Flag); }
+    bool isPtr64Bit() const { return SkToBool(fFlags & kPtrIs64Bit_Flag); }
 
     virtual uint8_t readU8() = 0;
     virtual uint16_t readU16() = 0;
@@ -192,7 +204,7 @@ public:
     virtual SkRefCnt* readRefCnt() = 0;
     virtual void* readFunctionPtr() = 0;
     virtual SkFlattenable* readFlattenable() = 0;
-    
+
 protected:
     SkRefCnt** fRCArray;
     int        fRCCount;
@@ -203,6 +215,9 @@ protected:
     SkTDArray<SkFlattenable::Factory>* fFactoryTDArray;
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
+
+private:
+    uint32_t    fFlags;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

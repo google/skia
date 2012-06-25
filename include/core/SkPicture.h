@@ -37,6 +37,10 @@ public:
         this call, those elements will not appear in this picture.
     */
     SkPicture(const SkPicture& src);
+    /**
+     *  Recreate a picture that was serialized into a stream. If an error occurs
+     *  the picture will be "empty" : width and height == 0
+     */
     explicit SkPicture(SkStream*);
     virtual ~SkPicture();
     

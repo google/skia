@@ -32,6 +32,16 @@ SkFlattenableReadBuffer::SkFlattenableReadBuffer() {
     fFactoryTDArray = NULL;
     fFactoryArray = NULL;
     fFactoryCount = 0;
+    
+    // Set default values. These should be explicitly set by our client
+    // via setFlags() if the buffer came from serialization.
+    fFlags = 0;
+#ifdef SK_SCALAR_IS_FLOAT
+    fFlags |= kScalarIsFloat_Flag;
+#endif
+    if (8 == sizeof(void*)) {
+        fFlags |= kPtrIs64Bit_Flag;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -681,17 +681,15 @@ void SkProcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 
 SkProcXfermode::SkProcXfermode(SkFlattenableReadBuffer& buffer)
         : SkXfermode(buffer) {
-    // Might be a NULL if the Xfermode is recorded using the CrossProcess flag
-    fProc = (SkXfermodeProc)buffer.readFunctionPtr();
+    fProc = NULL;
+    if (!buffer.isCrossProcess()) {
+        fProc = (SkXfermodeProc)buffer.readFunctionPtr();
+    }
 }
 
 void SkProcXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    if (buffer.isCrossProcess()) {
-        // function pointer is only valid in the current process. Write a NULL
-        // so it can't be accidentally used
-        buffer.writeFunctionPtr(NULL);
-    } else {
+    if (!buffer.isCrossProcess()) {
         buffer.writeFunctionPtr((void*)fProc);
     }
 }
