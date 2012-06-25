@@ -1658,6 +1658,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #if GR_MAC_BUILD
         #include <AGL/agl.h>
     #elif GR_WIN32_BUILD
+        #include <gl/GL.h>
         void SwapBuf() {
             DWORD procID = GetCurrentProcessId();
             HWND hwnd = GetTopWindow(GetDesktopWindow());
