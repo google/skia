@@ -125,3 +125,5 @@ void SkTransparentShader::shadeSpan16(int x, int y, uint16_t span[], int count) 
         memcpy(span, src, count << 1);
     }
 }
+
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkTransparentShader)

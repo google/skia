@@ -250,6 +250,8 @@ private:
     typedef Sk2DPathEffect INHERITED;
 };
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(Line2DPathEffect)
+
 static void r9(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
     
