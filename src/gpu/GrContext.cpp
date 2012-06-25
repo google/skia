@@ -1586,7 +1586,8 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::setPaint(const GrPaint& paint) {
-    GrAssert(fDrawState->stagesDisabled());
+    // TODO: reenable this once we've cleaned up text state management
+    //GrAssert(fDrawState->stagesDisabled());
 
     for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
         int s = i + GrPaint::kFirstTextureStage;
