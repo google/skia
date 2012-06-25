@@ -1702,7 +1702,11 @@ bool SkAAClip::op(const SkRect& rOrig, SkRegion::Op op, bool doAA) {
         case SkRegion::kIntersect_Op:
         case SkRegion::kDifference_Op:
             if (!rStorage.intersect(rOrig, boundsStorage)) {
-                return this->setEmpty();
+                if (SkRegion::kIntersect_Op == op) {
+                    return this->setEmpty();
+                } else {    // kDifference
+                    return !this->isEmpty();
+                }
             }
             r = &rStorage;   // use the intersected bounds
             break;
