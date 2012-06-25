@@ -99,6 +99,8 @@ SkFlattenable* SkOrderedReadBuffer::readFlattenable() {
 }
 
 void* SkOrderedReadBuffer::readFunctionPtr() {
+    SkASSERT(!this->isCrossProcess());
+
     void* proc;
     fReader.read(&proc, sizeof(proc));
     return proc;

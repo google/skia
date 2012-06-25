@@ -202,7 +202,8 @@ void SkPicture::draw(SkCanvas* surface) {
 // V2 : adds SkPixelRef's generation ID.
 // V3 : PictInfo tag at beginning, and EOF tag at the end
 // V4 : move SkPictInfo to be the header
-#define PICTURE_VERSION     4
+// V5 : don't read/write FunctionPtr on cross-process (we can detect that)
+#define PICTURE_VERSION     5
 
 SkPicture::SkPicture(SkStream* stream) : SkRefCnt() {
     fRecord = NULL;
