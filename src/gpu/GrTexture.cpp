@@ -30,10 +30,8 @@ void GrTexture::internal_dispose() const {
         nonConstThis->resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
         nonConstThis->INHERITED::getContext()->addExistingTextureToCache(nonConstThis);
 
-        // Note: this next assert is only correct for the texture cache's
-        // current single threaded usage. If we ever start accessing it via 
-        // threads it isn't guaranteed to be correct.
-        GrAssert(1 == this->INHERITED::getRefCnt());
+        // Note: "this" texture might be freed inside addExistingTextureToCache 
+        // if it is purged.
         return;
     }
 
