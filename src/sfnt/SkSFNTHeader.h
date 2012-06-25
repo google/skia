@@ -19,10 +19,34 @@ typedef uint32_t SK_SFNT_ULONG;
 
 struct SkSFNTHeader {
     SK_SFNT_ULONG fontType;
-    static const SK_OT_ULONG fontType_WindowsTrueType = SkTEndian_SwapBE32(0x00010000);
-    static const SK_OT_ULONG fontType_MacTrueType = SkTEndian_SwapBE32('true');
-    static const SK_OT_ULONG fontType_PostScript = SkTEndian_SwapBE32('typ1');
-    static const SK_OT_ULONG fontType_OpenTypeCFF = SkTEndian_SwapBE32('OTTO');
+    struct fontType_WindowsTrueType {
+        static const SK_OT_CHAR TAG0 = 0;
+        static const SK_OT_CHAR TAG1 = 1;
+        static const SK_OT_CHAR TAG2 = 0;
+        static const SK_OT_CHAR TAG3 = 0;
+        static const SK_OT_ULONG TAG = SkOTTableTAG<fontType_WindowsTrueType>::value;
+    };
+    struct fontType_MacTrueType {
+        static const SK_OT_CHAR TAG0 = 't';
+        static const SK_OT_CHAR TAG1 = 'r';
+        static const SK_OT_CHAR TAG2 = 'u';
+        static const SK_OT_CHAR TAG3 = 'e';
+        static const SK_OT_ULONG TAG = SkOTTableTAG<fontType_MacTrueType>::value;
+    };
+    struct fontType_PostScript {
+        static const SK_OT_CHAR TAG0 = 't';
+        static const SK_OT_CHAR TAG1 = 'y';
+        static const SK_OT_CHAR TAG2 = 'p';
+        static const SK_OT_CHAR TAG3 = '1';
+        static const SK_OT_ULONG TAG = SkOTTableTAG<fontType_PostScript>::value;
+    };
+    struct fontType_OpenTypeCFF {
+        static const SK_OT_CHAR TAG0 = 'O';
+        static const SK_OT_CHAR TAG1 = 'T';
+        static const SK_OT_CHAR TAG2 = 'T';
+        static const SK_OT_CHAR TAG3 = 'O';
+        static const SK_OT_ULONG TAG = SkOTTableTAG<fontType_OpenTypeCFF>::value;
+    };
 
     SK_SFNT_USHORT numTables;
     SK_SFNT_USHORT searchRange;

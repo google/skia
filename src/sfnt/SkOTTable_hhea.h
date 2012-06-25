@@ -15,6 +15,12 @@
 #pragma pack(push, 1)
 
 struct SkOTTableHorizontalHeader {
+    static const SK_OT_CHAR TAG0 = 'h';
+    static const SK_OT_CHAR TAG1 = 'h';
+    static const SK_OT_CHAR TAG2 = 'e';
+    static const SK_OT_CHAR TAG3 = 'a';
+    static const SK_OT_ULONG TAG = SkOTTableTAG<SkOTTableHorizontalHeader>::value;
+
     SK_OT_Fixed version;
     static const SK_OT_Fixed version1 = SkTEndian_SwapBE32(0x00010000);
     SK_OT_FWORD Ascender;
