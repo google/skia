@@ -40,17 +40,18 @@ struct FontFamily {
 void getFontFamilies(SkTDArray<FontFamily*> &fontFamilies);
 
 /**
- * Parse only the core system font configuration file and return the results in
- * an array of FontFamily structures.
- */
-void getSystemFontFamilies(SkTDArray<FontFamily*> &fontFamilies);
-
-
-/**
  * Parse the fallback and vendor system font configuration files and return the
  * results in an array of FontFamily structures.
  */
 void getFallbackFontFamilies(SkTDArray<FontFamily*> &fallbackFonts);
+
+/**
+ * Parses all test font configuration files and returns the results in an
+ * array of FontFamily structures.
+ */
+void getTestFontFamilies(SkTDArray<FontFamily*> &fontFamilies,
+                         const char* testMainConfigFile,
+                         const char* testFallbackConfigFile);
 
 struct AndroidLocale {
     char language[3];
