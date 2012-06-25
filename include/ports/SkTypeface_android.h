@@ -58,4 +58,11 @@ SK_API const char* SkGetFallbackScriptID(FallbackScripts script);
  */
 SK_API FallbackScripts SkGetFallbackScriptFromID(const char* id);
 
+/**
+ *  For test only.
+ *  Load font config from given xml files, instead of those from Android system.
+ */
+SK_API void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
+                                    const char* fontsdir);
+
 #endif

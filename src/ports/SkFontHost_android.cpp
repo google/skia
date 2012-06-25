@@ -33,12 +33,21 @@
     #define SK_FONT_FILE_PREFIX          "/fonts/"
 #endif
 
+// For test only.
+static const char* gTestMainConfigFile = NULL;
+static const char* gTestFallbackConfigFile = NULL;
+static const char* gTestFontFilePrefix = NULL;
+
 bool find_name_and_attributes(SkStream* stream, SkString* name,
                               SkTypeface::Style* style, bool* isFixedWidth);
 
 static void GetFullPathForSysFonts(SkString* full, const char name[]) {
-    full->set(getenv("ANDROID_ROOT"));
-    full->append(SK_FONT_FILE_PREFIX);
+    if (gTestFontFilePrefix) {
+        full->set(gTestFontFilePrefix);
+    } else {
+        full->set(getenv("ANDROID_ROOT"));
+        full->append(SK_FONT_FILE_PREFIX);
+    }
     full->append(name);
 }
 
@@ -422,7 +431,7 @@ static bool get_name_and_style(const char path[], SkString* name,
     }
 
     if (isExpected) {
-        SkDebugf("---- failed to open <%s> as a font\n", fullpath.c_str());
+        SkDebugf("---- failed to open <%s> as a font", fullpath.c_str());
     }
     return false;
 }
@@ -510,7 +519,11 @@ static void dump_globals() {
 */
 static void load_font_info() {
     SkTDArray<FontFamily*> fontFamilies;
-    getFontFamilies(fontFamilies);
+    if (gTestMainConfigFile) {
+        getTestFontFamilies(fontFamilies, gTestMainConfigFile, gTestFallbackConfigFile);
+    } else {
+        getFontFamilies(fontFamilies);
+    }
 
     SkTDArray<FontInitRec> fontInfo;
     bool firstInFamily = false;
@@ -613,13 +626,13 @@ static void init_system_fonts() {
                                      isFixedWidth) // filename
                                     );
 
-        SkDEBUGF(("---- SkTypeface[%d] %s fontID %d\n",
+        SkDEBUGF(("---- SkTypeface[%d] %s fontID %d",
                   i, rec[i].fFileName, tf->uniqueID()));
 
         if (rec[i].fNames != NULL) {
             // see if this is one of our fallback fonts
             if (rec[i].fNames == gFBNames) {
-                SkDEBUGF(("---- adding %s as fallback[%d] fontID %d\n",
+                SkDEBUGF(("---- adding %s as fallback[%d] fontID %d",
                           rec[i].fFileName, fallbackCount, tf->uniqueID()));
                 gFallbackFonts[fallbackCount++] = tf->uniqueID();
             }
@@ -663,6 +676,11 @@ static size_t find_uniqueID(const char* filename) {
 }
 
 static void reload_fallback_fonts() {
+    if (gTestFallbackConfigFile) {
+        // No need to reload fallback fonts in test environment.
+        return;
+    }
+
     SkGraphics::PurgeFontCache();
 
     SkTDArray<FontFamily*> fallbackFamilies;
@@ -686,7 +704,7 @@ static void reload_fallback_fonts() {
 
                 size_t uniqueID = find_uniqueID(family->fFileNames[j]);
                 SkASSERT(uniqueID != 0);
-                SkDEBUGF(("---- reload %s as fallback[%d] fontID %d oldFontID %d\n",
+                SkDEBUGF(("---- reload %s as fallback[%d] fontID %d oldFontID %d",
                           family->fFileNames[j], fallbackCount, uniqueID,
                           gFallbackFonts[fallbackCount]));
 
@@ -882,7 +900,8 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     }
 
     // If we get here, currFontID was not a fallback, so we start at the
-    // beginning of our list.
+    // beginning of our list. Assuming there is at least one fallback font,
+    // i.e. gFallbackFonts[0] != 0.
     const SkTypeface* firstTypeface = find_from_uniqueID(list[0]);
     return find_typeface(firstTypeface, origTypeface->style())->uniqueID();
 }
@@ -981,7 +1000,6 @@ static SkFontID findFontIDForChar(SkUnichar uni, SkTypeface::Style style) {
 
 // this function can't be called if the gFamilyHeadAndNameListMutex is already locked
 static void initFBScriptInfo() {
-
     if (gFBScriptInitialized) {
         return;
     }
@@ -997,6 +1015,7 @@ static void initFBScriptInfo() {
         // bold is requested and no bold font exists for the typeface containing
         // the character the next best style is chosen (e.g. normal).
         scriptInfo.fFontID = findFontIDForChar(scriptInfo.fChar, scriptInfo.fStyle);
+        SkDEBUGF(("gFBScriptInfo[%s] --> %d", scriptInfo.fScriptID, scriptInfo.fFontID));
     }
     // mark the value as initialized so we don't repeat our work unnecessarily
     gFBScriptInitialized = true;
@@ -1045,4 +1064,16 @@ FallbackScripts SkGetFallbackScriptFromID(const char* id) {
         }
     }
     return kFallbackScriptNumber; // Use kFallbackScriptNumber as an invalid value.
+}
+
+void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
+                             const char* fontsdir) {
+    gTestMainConfigFile = mainconf;
+    gTestFallbackConfigFile = fallbackconf;
+    gTestFontFilePrefix = fontsdir;
+    SkASSERT(gTestMainConfigFile);
+    SkASSERT(gTestFallbackConfigFile);
+    SkASSERT(gTestFontFilePrefix);
+    SkDEBUGF(("Use Test Config File Main %s, Fallback %s, Font Dir %s",
+              gTestMainConfigFile, gTestFallbackConfigFile, gTestFontFilePrefix));
 }

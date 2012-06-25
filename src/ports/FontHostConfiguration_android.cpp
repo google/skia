@@ -263,3 +263,17 @@ void getFontFamilies(SkTDArray<FontFamily*> &fontFamilies) {
         *fontFamilies.append() = fallbackFonts[i];
     }
 }
+
+void getTestFontFamilies(SkTDArray<FontFamily*> &fontFamilies,
+                         const char* testMainConfigFile,
+                         const char* testFallbackConfigFile) {
+    parseConfigFile(testMainConfigFile, fontFamilies);
+
+    SkTDArray<FontFamily*> fallbackFonts;
+    parseConfigFile(testFallbackConfigFile, fallbackFonts);
+
+    // Append all fallback fonts to system fonts
+    for (int i = 0; i < fallbackFonts.count(); ++i) {
+        *fontFamilies.append() = fallbackFonts[i];
+    }
+}
