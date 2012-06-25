@@ -15,6 +15,12 @@
 #pragma pack(push, 1)
 
 struct SkOTTablePostScript {
+    static const SK_OT_CHAR TAG0 = 'p';
+    static const SK_OT_CHAR TAG1 = 'o';
+    static const SK_OT_CHAR TAG2 = 's';
+    static const SK_OT_CHAR TAG3 = 't';
+    static const SK_OT_ULONG TAG = SkOTTableTAG<SkOTTablePostScript>::value;
+
     struct Format {
         SK_TYPED_ENUM(Value, SK_OT_Fixed,
             ((version1, SkTEndian_SwapBE32(0x00010000)))

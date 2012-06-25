@@ -15,6 +15,12 @@
 #pragma pack(push, 1)
 
 struct SkOTTableName {
+    static const SK_OT_CHAR TAG0 = 'n';
+    static const SK_OT_CHAR TAG1 = 'a';
+    static const SK_OT_CHAR TAG2 = 'm';
+    static const SK_OT_CHAR TAG3 = 'e';
+    static const SK_OT_ULONG TAG = SkOTTableTAG<SkOTTableName>::value;
+
     SK_OT_USHORT format;
     static const SK_OT_USHORT format_0 = SkTEndian_SwapBE16(0);
     static const SK_OT_USHORT format_1 = SkTEndian_SwapBE16(1);

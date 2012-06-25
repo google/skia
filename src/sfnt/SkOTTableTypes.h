@@ -32,4 +32,15 @@ typedef uint64_t SK_OT_LONGDATETIME;
 
 #define SK_OT_BYTE_BITFIELD SK_UINT8_BITFIELD
 
+template<typename T> class SkOTTableTAG {
+public:
+    /**
+     * SkOTTableTAG<T>::value is the big endian value of an OpenType table tag.
+     * It may be directly compared with raw big endian table data.
+     */
+    static const SK_OT_ULONG value = SkTEndian_SwapBE32(
+        SkSetFourByteTag(T::TAG0, T::TAG1, T::TAG2, T::TAG3)
+    );
+};
+
 #endif
