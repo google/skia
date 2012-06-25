@@ -336,7 +336,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
     if (sw_draw_path_to_mask_texture(path, pathBounds,
                                      fill, fContext,
                                      translate, &ast, antiAlias)) {
+#if 1
+        GrTexture* texture = ast.texture();
+#else
         SkAutoTUnref<GrTexture> texture(ast.detach());
+#endif
         GrAssert(NULL != texture);
         GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
         enum {
