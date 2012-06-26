@@ -74,7 +74,10 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFragDataLocation(GrGLuint program, GrGLu
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendFunc(GrGLenum sfactor, GrGLenum dfactor) {}
 
 ////////////////////////////////////////////////////////////////////////////////
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage) {
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target, 
+                                               GrGLsizeiptr size, 
+                                               const GrGLvoid* data, 
+                                               GrGLenum usage) {
     GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target || GR_GL_ELEMENT_ARRAY_BUFFER == target);
     GrAlwaysAssert(size >= 0);
     GrAlwaysAssert(GR_GL_STREAM_DRAW == usage || GR_GL_STATIC_DRAW == usage || GR_GL_DYNAMIC_DRAW == usage);
@@ -873,6 +876,8 @@ GrGLint GR_GL_FUNCTION_TYPE debugGLGetUniformLocation(GrGLuint program, const ch
 struct GrDebugGLInterface : public GrGLInterface {
 
 public:
+    SK_DECLARE_INST_COUNT(GrDebugGLInterface)
+
     GrDebugGLInterface()
         : fWrapped(NULL) {
     }
@@ -915,132 +920,129 @@ private:
     typedef GrGLInterface INHERITED;
 };
 
+SK_DEFINE_INST_COUNT(GrDebugGLInterface)
+
 ////////////////////////////////////////////////////////////////////////////////
 const GrGLInterface* GrGLCreateDebugInterface() {
-    // The gl functions are not context-specific so we create one global 
-    // interface
-    static SkAutoTUnref<GrGLInterface> glInterface;
-    if (!glInterface.get()) {
-        GrGLInterface* interface = new GrDebugGLInterface;
-        glInterface.reset(interface);
-        interface->fBindingsExported = kDesktop_GrGLBinding;
-        interface->fActiveTexture = debugGLActiveTexture;
-        interface->fAttachShader = debugGLAttachShader;
-        interface->fBeginQuery = debugGLBeginQuery;
-        interface->fBindAttribLocation = debugGLBindAttribLocation;
-        interface->fBindBuffer = debugGLBindBuffer;
-        interface->fBindFragDataLocation = debugGLBindFragDataLocation;
-        interface->fBindTexture = debugGLBindTexture;
-        interface->fBlendColor = debugGLBlendColor;
-        interface->fBlendFunc = debugGLBlendFunc;
-        interface->fBufferData = debugGLBufferData;
-        interface->fBufferSubData = debugGLBufferSubData;
-        interface->fClear = debugGLClear;
-        interface->fClearColor = debugGLClearColor;
-        interface->fClearStencil = debugGLClearStencil;
-        interface->fColorMask = debugGLColorMask;
-        interface->fCompileShader = debugGLCompileShader;
-        interface->fCompressedTexImage2D = debugGLCompressedTexImage2D;
-        interface->fCreateProgram = debugGLCreateProgram;
-        interface->fCreateShader = debugGLCreateShader;
-        interface->fCullFace = debugGLCullFace;
-        interface->fDeleteBuffers = debugGLDeleteBuffers;
-        interface->fDeleteProgram = debugGLDeleteProgram;
-        interface->fDeleteQueries = debugGLDeleteIds;
-        interface->fDeleteShader = debugGLDeleteShader;
-        interface->fDeleteTextures = debugGLDeleteTextures;
-        interface->fDepthMask = debugGLDepthMask;
-        interface->fDisable = debugGLDisable;
-        interface->fDisableVertexAttribArray = debugGLDisableVertexAttribArray;
-        interface->fDrawArrays = debugGLDrawArrays;
-        interface->fDrawBuffer = debugGLDrawBuffer;
-        interface->fDrawBuffers = debugGLDrawBuffers;
-        interface->fDrawElements = debugGLDrawElements;
-        interface->fEnable = debugGLEnable;
-        interface->fEnableVertexAttribArray = debugGLEnableVertexAttribArray;
-        interface->fEndQuery = debugGLEndQuery;
-        interface->fFinish = debugGLFinish;
-        interface->fFlush = debugGLFlush;
-        interface->fFrontFace = debugGLFrontFace;
-        interface->fGenBuffers = debugGLGenBuffers;
-        interface->fGenQueries = debugGLGenIds;
-        interface->fGenTextures = debugGLGenTextures;
-        interface->fGetBufferParameteriv = debugGLGetBufferParameteriv;
-        interface->fGetError = debugGLGetError;
-        interface->fGetIntegerv = debugGLGetIntegerv;
-        interface->fGetQueryObjecti64v = debugGLGetQueryObjecti64v;
-        interface->fGetQueryObjectiv = debugGLGetQueryObjectiv;
-        interface->fGetQueryObjectui64v = debugGLGetQueryObjectui64v;
-        interface->fGetQueryObjectuiv = debugGLGetQueryObjectuiv;
-        interface->fGetQueryiv = debugGLGetQueryiv;
-        interface->fGetProgramInfoLog = debugGLGetInfoLog;
-        interface->fGetProgramiv = debugGLGetShaderOrProgramiv;
-        interface->fGetShaderInfoLog = debugGLGetInfoLog;
-        interface->fGetShaderiv = debugGLGetShaderOrProgramiv;
-        interface->fGetString = debugGLGetString;
-        interface->fGetTexLevelParameteriv = debugGLGetTexLevelParameteriv;
-        interface->fGetUniformLocation = debugGLGetUniformLocation;
-        interface->fLineWidth = debugGLLineWidth;
-        interface->fLinkProgram = debugGLLinkProgram;
-        interface->fPixelStorei = debugGLPixelStorei;
-        interface->fQueryCounter = debugGLQueryCounter;
-        interface->fReadBuffer = debugGLReadBuffer;
-        interface->fReadPixels = debugGLReadPixels;
-        interface->fScissor = debugGLScissor;
-        interface->fShaderSource = debugGLShaderSource;
-        interface->fStencilFunc = debugGLStencilFunc;
-        interface->fStencilFuncSeparate = debugGLStencilFuncSeparate;
-        interface->fStencilMask = debugGLStencilMask;
-        interface->fStencilMaskSeparate = debugGLStencilMaskSeparate;
-        interface->fStencilOp = debugGLStencilOp;
-        interface->fStencilOpSeparate = debugGLStencilOpSeparate;
-        interface->fTexImage2D = debugGLTexImage2D;
-        interface->fTexParameteri = debugGLTexParameteri;
-        interface->fTexParameteriv = debugGLTexParameteriv;
-        interface->fTexSubImage2D = debugGLTexSubImage2D;
-        interface->fTexStorage2D = debugGLTexStorage2D;
-        interface->fUniform1f = debugGLUniform1f;
-        interface->fUniform1i = debugGLUniform1i;
-        interface->fUniform1fv = debugGLUniform1fv;
-        interface->fUniform1iv = debugGLUniform1iv;
-        interface->fUniform2f = debugGLUniform2f;
-        interface->fUniform2i = debugGLUniform2i;
-        interface->fUniform2fv = debugGLUniform2fv;
-        interface->fUniform2iv = debugGLUniform2iv;
-        interface->fUniform3f = debugGLUniform3f;
-        interface->fUniform3i = debugGLUniform3i;
-        interface->fUniform3fv = debugGLUniform3fv;
-        interface->fUniform3iv = debugGLUniform3iv;
-        interface->fUniform4f = debugGLUniform4f;
-        interface->fUniform4i = debugGLUniform4i;
-        interface->fUniform4fv = debugGLUniform4fv;
-        interface->fUniform4iv = debugGLUniform4iv;
-        interface->fUniformMatrix2fv = debugGLUniformMatrix2fv;
-        interface->fUniformMatrix3fv = debugGLUniformMatrix3fv;
-        interface->fUniformMatrix4fv = debugGLUniformMatrix4fv;
-        interface->fUseProgram = debugGLUseProgram;
-        interface->fVertexAttrib4fv = debugGLVertexAttrib4fv;
-        interface->fVertexAttribPointer = debugGLVertexAttribPointer;
-        interface->fViewport = debugGLViewport;
-        interface->fBindFramebuffer = debugGLBindFramebuffer;
-        interface->fBindRenderbuffer = debugGLBindRenderbuffer;
-        interface->fCheckFramebufferStatus = debugGLCheckFramebufferStatus;
-        interface->fDeleteFramebuffers = debugGLDeleteFramebuffers;
-        interface->fDeleteRenderbuffers = debugGLDeleteRenderbuffers;
-        interface->fFramebufferRenderbuffer = debugGLFramebufferRenderbuffer;
-        interface->fFramebufferTexture2D = debugGLFramebufferTexture2D;
-        interface->fGenFramebuffers = debugGLGenFramebuffers;
-        interface->fGenRenderbuffers = debugGLGenRenderbuffers;
-        interface->fGetFramebufferAttachmentParameteriv = debugGLGetFramebufferAttachmentParameteriv;
-        interface->fGetRenderbufferParameteriv = debugGLGetRenderbufferParameteriv;
-        interface->fRenderbufferStorage = debugGLRenderbufferStorage;
-        interface->fRenderbufferStorageMultisample = debugGLRenderbufferStorageMultisample;
-        interface->fBlitFramebuffer = debugGLBlitFramebuffer;
-        interface->fResolveMultisampleFramebuffer = debugGLResolveMultisampleFramebuffer;
-        interface->fMapBuffer = debugGLMapBuffer;
-        interface->fUnmapBuffer = debugGLUnmapBuffer;
-        interface->fBindFragDataLocationIndexed = debugGLBindFragDataLocationIndexed;
-    }
-    glInterface.get()->ref();
-    return glInterface.get();
+    GrGLInterface* interface = SkNEW(GrDebugGLInterface);
+
+    interface->fBindingsExported = kDesktop_GrGLBinding;
+    interface->fActiveTexture = debugGLActiveTexture;
+    interface->fAttachShader = debugGLAttachShader;
+    interface->fBeginQuery = debugGLBeginQuery;
+    interface->fBindAttribLocation = debugGLBindAttribLocation;
+    interface->fBindBuffer = debugGLBindBuffer;
+    interface->fBindFragDataLocation = debugGLBindFragDataLocation;
+    interface->fBindTexture = debugGLBindTexture;
+    interface->fBlendColor = debugGLBlendColor;
+    interface->fBlendFunc = debugGLBlendFunc;
+    interface->fBufferData = debugGLBufferData;
+    interface->fBufferSubData = debugGLBufferSubData;
+    interface->fClear = debugGLClear;
+    interface->fClearColor = debugGLClearColor;
+    interface->fClearStencil = debugGLClearStencil;
+    interface->fColorMask = debugGLColorMask;
+    interface->fCompileShader = debugGLCompileShader;
+    interface->fCompressedTexImage2D = debugGLCompressedTexImage2D;
+    interface->fCreateProgram = debugGLCreateProgram;
+    interface->fCreateShader = debugGLCreateShader;
+    interface->fCullFace = debugGLCullFace;
+    interface->fDeleteBuffers = debugGLDeleteBuffers;
+    interface->fDeleteProgram = debugGLDeleteProgram;
+    interface->fDeleteQueries = debugGLDeleteIds;
+    interface->fDeleteShader = debugGLDeleteShader;
+    interface->fDeleteTextures = debugGLDeleteTextures;
+    interface->fDepthMask = debugGLDepthMask;
+    interface->fDisable = debugGLDisable;
+    interface->fDisableVertexAttribArray = debugGLDisableVertexAttribArray;
+    interface->fDrawArrays = debugGLDrawArrays;
+    interface->fDrawBuffer = debugGLDrawBuffer;
+    interface->fDrawBuffers = debugGLDrawBuffers;
+    interface->fDrawElements = debugGLDrawElements;
+    interface->fEnable = debugGLEnable;
+    interface->fEnableVertexAttribArray = debugGLEnableVertexAttribArray;
+    interface->fEndQuery = debugGLEndQuery;
+    interface->fFinish = debugGLFinish;
+    interface->fFlush = debugGLFlush;
+    interface->fFrontFace = debugGLFrontFace;
+    interface->fGenBuffers = debugGLGenBuffers;
+    interface->fGenQueries = debugGLGenIds;
+    interface->fGenTextures = debugGLGenTextures;
+    interface->fGetBufferParameteriv = debugGLGetBufferParameteriv;
+    interface->fGetError = debugGLGetError;
+    interface->fGetIntegerv = debugGLGetIntegerv;
+    interface->fGetQueryObjecti64v = debugGLGetQueryObjecti64v;
+    interface->fGetQueryObjectiv = debugGLGetQueryObjectiv;
+    interface->fGetQueryObjectui64v = debugGLGetQueryObjectui64v;
+    interface->fGetQueryObjectuiv = debugGLGetQueryObjectuiv;
+    interface->fGetQueryiv = debugGLGetQueryiv;
+    interface->fGetProgramInfoLog = debugGLGetInfoLog;
+    interface->fGetProgramiv = debugGLGetShaderOrProgramiv;
+    interface->fGetShaderInfoLog = debugGLGetInfoLog;
+    interface->fGetShaderiv = debugGLGetShaderOrProgramiv;
+    interface->fGetString = debugGLGetString;
+    interface->fGetTexLevelParameteriv = debugGLGetTexLevelParameteriv;
+    interface->fGetUniformLocation = debugGLGetUniformLocation;
+    interface->fLineWidth = debugGLLineWidth;
+    interface->fLinkProgram = debugGLLinkProgram;
+    interface->fPixelStorei = debugGLPixelStorei;
+    interface->fQueryCounter = debugGLQueryCounter;
+    interface->fReadBuffer = debugGLReadBuffer;
+    interface->fReadPixels = debugGLReadPixels;
+    interface->fScissor = debugGLScissor;
+    interface->fShaderSource = debugGLShaderSource;
+    interface->fStencilFunc = debugGLStencilFunc;
+    interface->fStencilFuncSeparate = debugGLStencilFuncSeparate;
+    interface->fStencilMask = debugGLStencilMask;
+    interface->fStencilMaskSeparate = debugGLStencilMaskSeparate;
+    interface->fStencilOp = debugGLStencilOp;
+    interface->fStencilOpSeparate = debugGLStencilOpSeparate;
+    interface->fTexImage2D = debugGLTexImage2D;
+    interface->fTexParameteri = debugGLTexParameteri;
+    interface->fTexParameteriv = debugGLTexParameteriv;
+    interface->fTexSubImage2D = debugGLTexSubImage2D;
+    interface->fTexStorage2D = debugGLTexStorage2D;
+    interface->fUniform1f = debugGLUniform1f;
+    interface->fUniform1i = debugGLUniform1i;
+    interface->fUniform1fv = debugGLUniform1fv;
+    interface->fUniform1iv = debugGLUniform1iv;
+    interface->fUniform2f = debugGLUniform2f;
+    interface->fUniform2i = debugGLUniform2i;
+    interface->fUniform2fv = debugGLUniform2fv;
+    interface->fUniform2iv = debugGLUniform2iv;
+    interface->fUniform3f = debugGLUniform3f;
+    interface->fUniform3i = debugGLUniform3i;
+    interface->fUniform3fv = debugGLUniform3fv;
+    interface->fUniform3iv = debugGLUniform3iv;
+    interface->fUniform4f = debugGLUniform4f;
+    interface->fUniform4i = debugGLUniform4i;
+    interface->fUniform4fv = debugGLUniform4fv;
+    interface->fUniform4iv = debugGLUniform4iv;
+    interface->fUniformMatrix2fv = debugGLUniformMatrix2fv;
+    interface->fUniformMatrix3fv = debugGLUniformMatrix3fv;
+    interface->fUniformMatrix4fv = debugGLUniformMatrix4fv;
+    interface->fUseProgram = debugGLUseProgram;
+    interface->fVertexAttrib4fv = debugGLVertexAttrib4fv;
+    interface->fVertexAttribPointer = debugGLVertexAttribPointer;
+    interface->fViewport = debugGLViewport;
+    interface->fBindFramebuffer = debugGLBindFramebuffer;
+    interface->fBindRenderbuffer = debugGLBindRenderbuffer;
+    interface->fCheckFramebufferStatus = debugGLCheckFramebufferStatus;
+    interface->fDeleteFramebuffers = debugGLDeleteFramebuffers;
+    interface->fDeleteRenderbuffers = debugGLDeleteRenderbuffers;
+    interface->fFramebufferRenderbuffer = debugGLFramebufferRenderbuffer;
+    interface->fFramebufferTexture2D = debugGLFramebufferTexture2D;
+    interface->fGenFramebuffers = debugGLGenFramebuffers;
+    interface->fGenRenderbuffers = debugGLGenRenderbuffers;
+    interface->fGetFramebufferAttachmentParameteriv = debugGLGetFramebufferAttachmentParameteriv;
+    interface->fGetRenderbufferParameteriv = debugGLGetRenderbufferParameteriv;
+    interface->fRenderbufferStorage = debugGLRenderbufferStorage;
+    interface->fRenderbufferStorageMultisample = debugGLRenderbufferStorageMultisample;
+    interface->fBlitFramebuffer = debugGLBlitFramebuffer;
+    interface->fResolveMultisampleFramebuffer = debugGLResolveMultisampleFramebuffer;
+    interface->fMapBuffer = debugGLMapBuffer;
+    interface->fUnmapBuffer = debugGLUnmapBuffer;
+    interface->fBindFragDataLocationIndexed = debugGLBindFragDataLocationIndexed;
+
+    return interface;
 }
