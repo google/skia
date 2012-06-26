@@ -49,8 +49,7 @@ void GrBatchedTextContext::reset() {
     fDrawTarget->resetVertexSource();
     fMaxVertices = 0;
     fCurrVertex = 0;
-    fCurrTexture->unref();
-    fCurrTexture = NULL;
+    GrSafeSetNull(fCurrTexture);
 }
 
 void GrBatchedTextContext::prepareForGlyph(GrTexture* texture) {
