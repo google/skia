@@ -38,6 +38,7 @@
 #include "SkGroupShape.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
+#include "SkLightingImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkPathEffect.h"
 #include "SkPixelXorXfermode.h"
@@ -86,6 +87,7 @@ void SkFlattenable::InitializeFlattenables() {
     SkBlurMaskFilter::InitializeFlattenables();
     SkColorFilter::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
+    SkLightingImageFilter::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
 }

@@ -65,7 +65,7 @@ public:
         SkScalar shininess);
     ~SkLightingImageFilter();
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingImageFilter)
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
     SkLightingImageFilter(SkLight* light, const SkColor& lightColor,
