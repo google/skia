@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrGLTexture.h"
-
 #include "GrGpuGL.h"
+
+SK_DEFINE_INST_COUNT(GrGLTexID)
 
 #define GPUGL static_cast<GrGpuGL*>(getGpu())
 

@@ -27,6 +27,9 @@
 #include "SkTLS.h"
 #include "SkTrace.h"
 
+SK_DEFINE_INST_COUNT(GrContext)
+SK_DEFINE_INST_COUNT(GrDrawState)
+
 #define DEFER_TEXT_RENDERING 1
 
 #define DEFER_PATHS 1

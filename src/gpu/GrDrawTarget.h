@@ -27,6 +27,8 @@ class GrVertexBuffer;
 
 class GrDrawTarget : public GrRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(GrDrawTarget)
+
     /**
      * Represents the draw target capabilities.
      */
@@ -1065,7 +1067,8 @@ private:
     };
     SkSTArray<kPreallocGeoSrcStateStackCnt, 
               GeometrySrcState, true>           fGeoSrcStateStack;
-    
+
+    typedef GrRefCnt INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrDrawTarget::BlendOptFlags);

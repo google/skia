@@ -16,8 +16,9 @@
  * A ref counted tex id that deletes the texture in its destructor.
  */
 class GrGLTexID : public GrRefCnt {
-
 public:
+    SK_DECLARE_INST_COUNT(GrGLTexID)
+
     GrGLTexID(const GrGLInterface* gl, GrGLuint texID, bool ownsID)
         : fGL(gl)
         , fTexID(texID)
@@ -37,6 +38,8 @@ private:
     const GrGLInterface* fGL;
     GrGLuint             fTexID;
     bool                 fOwnsID;
+
+    typedef GrRefCnt INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

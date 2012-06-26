@@ -15,6 +15,8 @@
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
 
+SK_DEFINE_INST_COUNT(GrDrawTarget)
+
 namespace {
 
 /**

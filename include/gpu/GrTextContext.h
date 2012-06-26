@@ -32,6 +32,8 @@ protected:
     GrContext*      fContext;
 
 public:
+    SK_DECLARE_INST_COUNT(GrTextContext)
+
     /**
      * To use a text context it must be wrapped in an AutoFinish. AutoFinish's
      * destructor ensures all drawing is flushed to the GrContext.

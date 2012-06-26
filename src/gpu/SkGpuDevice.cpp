@@ -23,6 +23,8 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
+SK_DEFINE_INST_COUNT(GrTextContext)
+
 #define CACHE_COMPATIBLE_DEVICE_TEXTURES 1
 
 #if 0
