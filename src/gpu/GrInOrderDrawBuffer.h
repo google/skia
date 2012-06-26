@@ -72,9 +72,12 @@ public:
      * the target will be finalized because it's geometry source will be pushed
      * before playback and popped afterwards.
      *
+     * @return false if the playback trivially drew nothing because nothing was
+     *         recorded.
+     *
      * @param target    the target to receive the playback
      */
-    void playback(GrDrawTarget* target);
+    bool playback(GrDrawTarget* target);
 
     /**
      * A convenience method to do a playback followed by a reset. All the
@@ -90,8 +93,9 @@ public:
         }
 
         fFlushing = true;
-        this->playback(target);
-        this->reset();
+        if (this->playback(target)) {
+            this->reset();
+        }
         fFlushing = false;
     }
 
@@ -131,14 +135,19 @@ protected:
                                                 int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
 private:
+    enum Cmd {
+        kDraw_Cmd       = 1,
+        kSetState_Cmd   = 2,
+        kSetClip_Cmd    = 3,
+        kClear_Cmd      = 4,
+    };
+
     struct Draw {
         GrPrimitiveType         fPrimitiveType;
         int                     fStartVertex;
         int                     fStartIndex;
         int                     fVertexCount;
         int                     fIndexCount;
-        bool                    fStateChanged;
-        bool                    fClipChanged;
         GrVertexLayout          fVertexLayout;
         const GrVertexBuffer*   fVertexBuffer;
         const GrIndexBuffer*    fIndexBuffer;
@@ -148,7 +157,6 @@ private:
         Clear() : fRenderTarget(NULL) {}
         ~Clear() { GrSafeUnref(fRenderTarget); }
 
-        int             fBeforeDrawIdx;
         GrIRect         fRect;
         GrColor         fColor;
         GrRenderTarget* fRenderTarget;
@@ -182,17 +190,25 @@ private:
         const GeometrySrcState& restoredState) SK_OVERRIDE;
     virtual void clipWillBeSet(const GrClip& newClip) SK_OVERRIDE;
 
+    // we lazily record state and clip changes in order to skip clips and states
+    // that have no effect.
     bool needsNewState() const;
     bool needsNewClip() const;
 
-    void pushState();
-    void storeClip();
+    // these functions record a command
+    void   recordState();
+    void   recordDefaultState();
+    void   recordClip();
+    void   recordDefaultClip();
+    Draw*  recordDraw();
+    Clear* recordClear();
 
     // call this to invalidate the tracking data that is used to concatenate 
     // multiple draws into a single draw.
     void resetDrawTracking();
 
     enum {
+        kCmdPreallocCnt          = 32,
         kDrawPreallocCnt         = 8,
         kStatePreallocCnt        = 8,
         kClipPreallocCnt         = 8,
@@ -200,6 +216,7 @@ private:
         kGeoPoolStatePreAllocCnt = 4,
     };
 
+    SkSTArray<kCmdPreallocCnt, uint8_t, true>           fCmds;
     GrSTAllocator<kDrawPreallocCnt, Draw>               fDraws;
     GrSTAllocator<kStatePreallocCnt, GrDrawState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
