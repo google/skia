@@ -21,8 +21,13 @@ public:
     VertText2GM() {
         const int pointSize = 24;
         textHeight = SkIntToScalar(pointSize);
-        prop = SkTypeface::CreateFromName("Helvetica", SkTypeface::kNormal);
-        mono = SkTypeface::CreateFromName("Courier New", SkTypeface::kNormal);
+        fProp = SkTypeface::CreateFromName("Helvetica", SkTypeface::kNormal);
+        fMono = SkTypeface::CreateFromName("Courier New", SkTypeface::kNormal);
+    }
+
+    virtual ~VertText2GM() {
+        SkSafeUnref(fProp);
+        SkSafeUnref(fMono);
     }
 
 protected:
@@ -47,13 +52,13 @@ protected:
             canvas->drawLine(0, SkIntToScalar(470),
                     SkIntToScalar(110), SkIntToScalar(470), paint);
             drawText(canvas, SkString("Proportional / Top Aligned"),
-                     prop,  SkPaint::kLeft_Align);
+                     fProp,  SkPaint::kLeft_Align);
             drawText(canvas, SkString("<   Proportional / Centered   >"),
-                     prop,  SkPaint::kCenter_Align);
+                     fProp,  SkPaint::kCenter_Align);
             drawText(canvas, SkString("Monospaced / Top Aligned"),
-                     mono, SkPaint::kLeft_Align);
+                     fMono, SkPaint::kLeft_Align);
             drawText(canvas, SkString("<    Monospaced / Centered    >"),
-                     mono, SkPaint::kCenter_Align);
+                     fMono, SkPaint::kCenter_Align);
             canvas->rotate(SkIntToScalar(-15));
             canvas->translate(textHeight * 4, SkIntToScalar(50));
             if (i > 0) {
@@ -81,8 +86,8 @@ protected:
 private:
     typedef GM INHERITED;
     SkScalar y, textHeight;
-    SkTypeface* prop;
-    SkTypeface* mono;
+    SkTypeface* fProp;
+    SkTypeface* fMono;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

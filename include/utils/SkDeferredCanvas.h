@@ -141,7 +141,12 @@ private:
 public:
     class DeviceContext : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(DeviceContext)
+
         virtual void prepareForDraw() {}
+        
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
 public:

@@ -13,6 +13,8 @@
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
 
+SK_DEFINE_INST_COUNT(SkDeferredCanvas::DeviceContext)
+
 namespace {
 
 bool isPaintOpaque(const SkPaint* paint, 
