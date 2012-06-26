@@ -83,8 +83,6 @@ private:
 
 class SkViewRegister : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkViewRegister)
-    
     explicit SkViewRegister(SkViewFactory*);
     explicit SkViewRegister(SkViewCreateFunc);
     explicit SkViewRegister(GMFactoryFunc);
