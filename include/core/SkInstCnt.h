@@ -31,7 +31,7 @@
 #define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
     class SkInstanceCountHelper {                                           \
     public:                                                                 \
-        typedef void (*PFCheckInstCnt)(int level);                          \
+        typedef int (*PFCheckInstCnt)(int level);                           \
         SkInstanceCountHelper() {                                           \
             if (!gInited) {                                                 \
                 initStep                                                    \
@@ -57,15 +57,22 @@
         return SkInstanceCountHelper::gInstanceCount;                       \
     }                                                                       \
                                                                             \
-    static void CheckInstanceCount(int level = 0) {                         \
+    static int CheckInstanceCount(int level = 0) {                          \
         if (0 != SkInstanceCountHelper::gInstanceCount) {                   \
-            SkDebugf("%*c Leaked %s objects: %d\n",                         \
+            SkDebugf("%*c Leaked %s: %d\n",                                 \
                      4*level, ' ', #className,                              \
                      SkInstanceCountHelper::gInstanceCount);                \
         }                                                                   \
-        for (int i = 0; i < SkInstanceCountHelper::gChildren.count(); ++i) {\
-            (*SkInstanceCountHelper::gChildren[i])(level+1);                \
+        int childCount = SkInstanceCountHelper::gChildren.count();          \
+        int count = SkInstanceCountHelper::gInstanceCount;                  \
+        for (int i = 0; i < childCount; ++i) {                              \
+            count -= (*SkInstanceCountHelper::gChildren[i])(level+1);       \
         }                                                                   \
+        SkASSERT(count >= 0);                                               \
+        if (childCount > 0 && count > 0) {                                  \
+            SkDebugf("%*c Leaked ???: %d\n", 4*(level + 1), ' ', count);    \
+        }                                                                   \
+        return SkInstanceCountHelper::gInstanceCount;                       \
     }                                                                       \
                                                                             \
     static void AddInstChild(SkInstanceCountHelper::PFCheckInstCnt          \
