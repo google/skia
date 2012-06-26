@@ -47,7 +47,7 @@ public:
 
 // interface that constructs SkViews
 class SkViewFactory : public SkRefCnt {
-public:
+public:    
     virtual SkView* operator() () const = 0;
 };
 
@@ -83,6 +83,8 @@ private:
 
 class SkViewRegister : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkViewRegister)
+    
     explicit SkViewRegister(SkViewFactory*);
     explicit SkViewRegister(SkViewCreateFunc);
     explicit SkViewRegister(GMFactoryFunc);
