@@ -29,6 +29,8 @@ class SkRegion;
 */
 class SkBounder : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkBounder)
+    
     SkBounder();
 
     /* Call to perform a clip test before calling onIRect. 
