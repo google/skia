@@ -15,6 +15,11 @@
 #include "GrTextStrike_impl.h"
 #include "GrRect.h"
 
+SK_DEFINE_INST_COUNT(GrFontScaler)
+SK_DEFINE_INST_COUNT(GrKey)
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrFontCache::GrFontCache(GrGpu* gpu) : fGpu(gpu) {
     gpu->ref();
     fAtlasMgr = NULL;

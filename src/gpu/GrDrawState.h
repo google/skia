@@ -21,8 +21,9 @@
 
 
 class GrDrawState : public GrRefCnt {
-
 public:
+    SK_DECLARE_INST_COUNT(GrDrawState)
+    
     /**
      * Number of texture stages. Each stage takes as input a color and
      * 2D texture coordinates. The color input to the first enabled stage is the
@@ -879,6 +880,7 @@ private:
     // only compared if the color matrix enable flag is set
     float               fColorMatrix[20];       // 5 x 4 matrix
 
+    typedef GrRefCnt INHERITED;
 };
 
 #endif

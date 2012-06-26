@@ -15,6 +15,8 @@
 
 class GrKey : public GrRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(GrKey)
+
     typedef intptr_t Hash;
 
     explicit GrKey(Hash hash) : fHash(hash) {}
@@ -34,6 +36,8 @@ protected:
 
 private:
     const Hash fHash;
+
+    typedef GrRefCnt INHERITED;
 };
 
 #endif

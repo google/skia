@@ -36,6 +36,8 @@ class GrSoftwarePathRenderer;
 
 class GR_API GrContext : public GrRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(GrContext)
+
     /**
      * Creates a GrContext from within a 3D context.
      */
@@ -787,6 +789,8 @@ private:
     // Add an existing texture to the texture cache. This is intended solely
     // for use with textures released from an GrAutoScratchTexture.
     void addExistingTextureToCache(GrTexture* texture);
+
+    typedef GrRefCnt INHERITED;
 };
 
 /**

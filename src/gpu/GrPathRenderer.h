@@ -28,6 +28,7 @@ struct GrPoint;
  */
 class GR_API GrPathRenderer : public GrRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(GrPathRenderer)
 
     /**
      * This is called to install custom path renderers in every GrContext at
