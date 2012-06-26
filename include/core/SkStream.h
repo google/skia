@@ -19,7 +19,6 @@ class SK_API SkStream : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkStream)
 
-    virtual ~SkStream();
     /** Called to rewind to the beginning of the stream. If this cannot be
         done, return false.
     */
@@ -72,6 +71,8 @@ private:
 
 class SK_API SkWStream : SkNoncopyable {
 public:
+    SK_DECLARE_INST_COUNT_ROOT(SkWStream)
+
     virtual ~SkWStream();
 
     /** Called to write bytes to a SkWStream. Returns true on success
@@ -115,6 +116,8 @@ struct SkFILE;
  */
 class SkFILEStream : public SkStream {
 public:
+    SK_DECLARE_INST_COUNT(SkFILEStream)
+
     /** Initialize the stream by calling fopen on the specified path. Will be
         closed in the destructor.
      */
@@ -136,12 +139,16 @@ public:
 private:
     SkFILE*     fFILE;
     SkString    fName;
+
+    typedef SkStream INHERITED;
 };
 
 /** A stream that reads from a file descriptor
  */
 class SkFDStream : public SkStream {
 public:
+    SK_DECLARE_INST_COUNT(SkFDStream)
+
     /** Initialize the stream with a dup() of the specified file descriptor.
         If closeWhenDone is true, then the descriptor will be closed in the
         destructor.
@@ -160,10 +167,14 @@ public:
 private:
     int     fFD;
     bool    fCloseWhenDone;
+
+    typedef SkStream INHERITED;
 };
 
 class SkMemoryStream : public SkStream {
 public:
+    SK_DECLARE_INST_COUNT(SkMemoryStream)
+
     SkMemoryStream();
     /** We allocate (and free) the memory. Write to it via getMemoryBase()
     */
@@ -209,6 +220,8 @@ public:
 private:
     SkData* fData;
     size_t  fOffset;
+
+    typedef SkStream INHERITED;
 };
 
 /** \class SkBufferStream
@@ -218,6 +231,8 @@ private:
 */
 class SkBufferStream : public SkStream {
 public:
+    SK_DECLARE_INST_COUNT(SkBufferStream)
+
     /** Provide the stream to be buffered (proxy), and the size of the buffer that
         should be used. This will be allocated and freed automatically. If bufferSize is 0,
         a default buffer size will be used.
@@ -254,13 +269,17 @@ private:
     bool        fWeOwnTheBuffer;
 
     void    init(void*, size_t);
+
+    typedef SkStream INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkFILEWStream : public SkWStream {
 public:
-            SkFILEWStream(const char path[]);
+    SK_DECLARE_INST_COUNT(SkFILEWStream)
+
+    SkFILEWStream(const char path[]);
     virtual ~SkFILEWStream();
 
     /** Returns true if the current path could be opened.
@@ -269,12 +288,17 @@ public:
 
     virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
     virtual void flush() SK_OVERRIDE;
+
 private:
     SkFILE* fFILE;
+
+    typedef SkWStream INHERITED;
 };
 
 class SkMemoryWStream : public SkWStream {
 public:
+    SK_DECLARE_INST_COUNT(SkMemoryWStream)
+
     SkMemoryWStream(void* buffer, size_t size);
     virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
     size_t bytesWritten() const { return fBytesWritten; }
@@ -283,10 +307,14 @@ private:
     char*   fBuffer;
     size_t  fMaxLength;
     size_t  fBytesWritten;
+
+    typedef SkWStream INHERITED;
 };
 
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
+    SK_DECLARE_INST_COUNT(SkDynamicMemoryWStream)
+
     SkDynamicMemoryWStream();
     virtual ~SkDynamicMemoryWStream();
 
@@ -318,14 +346,21 @@ private:
     mutable SkData* fCopy;  // is invalidated if we write after it is created
 
     void invalidateCopy();
+
+    typedef SkWStream INHERITED;
 };
 
 
 class SkDebugWStream : public SkWStream {
 public:
+    SK_DECLARE_INST_COUNT(SkDebugWStream)
+
     // overrides
     virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
     virtual void newline() SK_OVERRIDE;
+
+private:
+    typedef SkWStream INHERITED;
 };
 
 // for now
