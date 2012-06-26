@@ -19,6 +19,8 @@
 #include "SkPathEffect.h"
 #include "SkMaskFilter.h"
 
+SK_DEFINE_INST_COUNT(SkDumpCanvas::Dumper)
+
 static void toString(const SkRect& r, SkString* str) {
     str->printf("[%g,%g %g:%g]",
                 SkScalarToFloat(r.fLeft), SkScalarToFloat(r.fTop),

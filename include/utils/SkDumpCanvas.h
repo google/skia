@@ -49,8 +49,13 @@ public:
      */
     class Dumper : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(Dumper)
+
         virtual void dump(SkDumpCanvas*, SkDumpCanvas::Verb, const char str[],
                           const SkPaint*) = 0;
+        
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
     Dumper* getDumper() const { return fDumper; }

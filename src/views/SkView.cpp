@@ -8,6 +8,9 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 
+SK_DEFINE_INST_COUNT(SkViewFactory)
+SK_DEFINE_INST_COUNT(SkViewRegister)
+
 ////////////////////////////////////////////////////////////////////////
 
 SkView::SkView(uint32_t flags) : fFlags(SkToU8(flags))
