@@ -21,7 +21,10 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
+SK_DEFINE_INST_COUNT(SkBounder)
 SK_DEFINE_INST_COUNT(SkCanvas)
+SK_DEFINE_INST_COUNT(SkDrawFilter)
+
 
 //#define SK_TRACE_SAVERESTORE
 
