@@ -1088,6 +1088,7 @@ int main(int argc, char * const argv[]) {
 
 #ifdef SK_DEBUG
     SkRefCnt::CheckInstanceCount();
+    SkWStream::CheckInstanceCount();
 #endif
 
     return (0 == testsFailed) ? 0 : -1;
