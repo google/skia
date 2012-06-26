@@ -855,12 +855,12 @@ private:
     };
     // @}
 
-    int                 fFirstCoverageStage;
-
     // @{ Initialized to values other than zero, but memcmp'ed in operator==
     // and memcpy'ed in operator=.
     GrTexture*          fTextures[kNumStages];
     GrRenderTarget*     fRenderTarget;
+
+    int                 fFirstCoverageStage;
 
     GrColor             fColor;
     GrColor             fCoverage;
