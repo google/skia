@@ -85,9 +85,9 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-#ifndef SK_BUILD_FOR_ANDROID
+
 static GM* MyFactory(void*) { return new FontScalerGM; }
 static GMRegistry reg(MyFactory);
-#endif
+
 }
 
