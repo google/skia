@@ -269,6 +269,8 @@
         '../src/gpu/GrStringBuilder.h',
         '../src/gpu/GrTBSearch.h',
         '../src/gpu/GrTDArray.h',
+        '../src/gpu/GrSWMaskHelper.cpp',
+        '../src/gpu/GrSWMaskHelper.h',
         '../src/gpu/GrSoftwarePathRenderer.cpp',
         '../src/gpu/GrSoftwarePathRenderer.h',
         '../src/gpu/GrSurface.cpp',
