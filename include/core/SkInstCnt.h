@@ -19,16 +19,20 @@
  * CheckInstanceCount methods should be made
  */
 #ifdef SK_ENABLE_INST_COUNT
+#include <stdlib.h>
 #include "SkTArray.h"
 
 extern bool gPrintInstCount;
 
+// The non-root classes just register themselves with their parent
 #define SK_DECLARE_INST_COUNT(className)                                    \
     SK_DECLARE_INST_COUNT_INTERNAL(className,                               \
                                 INHERITED::AddInstChild(CheckInstanceCount);)
 
+// The root classes registers a function to print out the memory stats when
+// the app ends
 #define SK_DECLARE_INST_COUNT_ROOT(className)                               \
-    SK_DECLARE_INST_COUNT_INTERNAL(className, ;)
+    SK_DECLARE_INST_COUNT_INTERNAL(className, atexit(exitPrint);)
 
 #define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
     class SkInstanceCountHelper {                                           \
@@ -57,6 +61,10 @@ extern bool gPrintInstCount;
                                                                             \
     static int32_t GetInstanceCount() {                                     \
         return SkInstanceCountHelper::gInstanceCount;                       \
+    }                                                                       \
+                                                                            \
+    static void exitPrint() {                                               \
+        CheckInstanceCount();                                               \
     }                                                                       \
                                                                             \
     static int CheckInstanceCount(int level = 0) {                          \
