@@ -19,6 +19,7 @@
         'skhello',
         'skimage',
         'render_pictures',
+        'bench_pictures',
         'pinspect',
       ],
     },
@@ -75,6 +76,23 @@
         'images.gyp:images',
         'ports.gyp:ports',
         'tools.gyp:picture_utils',
+      ],
+    },
+    {
+      'target_name': 'bench_pictures',
+      'type': 'executable',
+      'sources': [
+        '../tools/bench_pictures_main.cpp'
+      ],
+      'include_dirs': [
+        '../bench',
+      ],
+      'dependencies': [
+        'core.gyp:core',
+        'ports.gyp:ports',
+       'images.gyp:images',
+        'tools.gyp:picture_utils',
+        'bench.gyp:bench_timer',
       ],
     },
     {
