@@ -79,6 +79,7 @@
         '../src/core/SkGlyphCache.cpp',
         '../src/core/SkGlyphCache.h',
         '../src/core/SkGraphics.cpp',
+        '../src/core/SkInstCnt.cpp',
         '../src/core/SkLineClipper.cpp',
         '../src/core/SkMallocPixelRef.cpp',
         '../src/core/SkMask.cpp',

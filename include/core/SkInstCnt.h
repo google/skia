@@ -18,8 +18,10 @@
  * At the end of an application a call to all the "root" objects'
  * CheckInstanceCount methods should be made
  */
-#ifdef SK_DEBUG
+#ifdef SK_ENABLE_INST_COUNT
 #include "SkTArray.h"
+
+extern bool gPrintInstCount;
 
 #define SK_DECLARE_INST_COUNT(className)                                    \
     SK_DECLARE_INST_COUNT_INTERNAL(className,                               \
@@ -58,7 +60,7 @@
     }                                                                       \
                                                                             \
     static int CheckInstanceCount(int level = 0) {                          \
-        if (0 != SkInstanceCountHelper::gInstanceCount) {                   \
+        if (gPrintInstCount && 0 != SkInstanceCountHelper::gInstanceCount) {\
             SkDebugf("%*c Leaked %s: %d\n",                                 \
                      4*level, ' ', #className,                              \
                      SkInstanceCountHelper::gInstanceCount);                \
@@ -69,7 +71,7 @@
             count -= (*SkInstanceCountHelper::gChildren[i])(level+1);       \
         }                                                                   \
         SkASSERT(count >= 0);                                               \
-        if (childCount > 0 && count > 0) {                                  \
+        if (gPrintInstCount && childCount > 0 && count > 0) {               \
             SkDebugf("%*c Leaked ???: %d\n", 4*(level + 1), ' ', count);    \
         }                                                                   \
         return SkInstanceCountHelper::gInstanceCount;                       \
