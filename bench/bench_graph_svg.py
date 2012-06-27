@@ -140,6 +140,25 @@ def filter_data_points(unfiltered_revision_data_points):
                 add_to_revision_data_points(point, revision, allowed_revision_data_points)
     return (allowed_revision_data_points, ignored_revision_data_points)
 
+def get_abs_path(relative_path):
+    """My own implementation of os.path.abspath() that better handles paths
+    which approach Window's 260-character limit.
+    See https://code.google.com/p/skia/issues/detail?id=674
+
+    This implementation adds path components one at a time, resolving the
+    absolute path each time, to take advantage of any chdirs into outer
+    directories that will shorten the total path length.
+
+    TODO: share a single implementation with upload_to_bucket.py, instead
+    of pasting this same code into both files."""
+    if os.path.isabs(relative_path):
+        return relative_path
+    path_parts = relative_path.split(os.sep)
+    abs_path = os.path.abspath('.')
+    for path_part in path_parts:
+        abs_path = os.path.abspath(os.path.join(abs_path, path_part))
+    return abs_path
+
 def redirect_stdout(output_path):
     """Redirect all following stdout to a file.
 
@@ -149,7 +168,7 @@ def redirect_stdout(output_path):
     ('buildbot: windows GenerateBenchGraphs step fails due to filename length'):
     On Windows, we need to generate the absolute path within Python to avoid
     the operating system's 260-character pathname limit, including chdirs."""
-    abs_path = os.path.abspath(output_path)
+    abs_path = get_abs_path(output_path)
     sys.stdout = open(abs_path, 'w')
 
 def create_lines(revision_data_points, settings
