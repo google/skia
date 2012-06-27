@@ -167,7 +167,7 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
                                    GrGLenum type) const { 
     if (GR_GL_RGBA == format && GR_GL_UNSIGNED_BYTE == type) {
         // ES 2 guarantees this format is supported
-        true;
+        return true;
     }
 
     if (!fTwoFormatLimit) {
