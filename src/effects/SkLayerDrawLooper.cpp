@@ -11,6 +11,8 @@
 #include "SkPaint.h"
 #include "SkUnPreMultiply.h"
 
+SK_DEFINE_INST_COUNT(SkLayerDrawLooper)
+
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fFlagsMask = 0;                     // ignore our paint flags
     fPaintBits = 0;                     // ignore our paint fields

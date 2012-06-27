@@ -20,6 +20,8 @@
 */
 class SkColorTable : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkColorTable)
+
     /** Makes a deep copy of colors.
      */
     SkColorTable(const SkColorTable& src);

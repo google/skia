@@ -110,6 +110,8 @@ bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SK_DEFINE_INST_COUNT(SkPathEffect)
+
 void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) {
     *dst = src;
 }

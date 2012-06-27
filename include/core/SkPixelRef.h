@@ -32,6 +32,8 @@ class SkGpuTexture;
 */
 class SK_API SkPixelRef : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkPixelRef)
+
     explicit SkPixelRef(SkBaseMutex* mutex = NULL);
 
     /** Return the pixel memory returned from lockPixels, or null if the

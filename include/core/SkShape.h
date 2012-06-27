@@ -16,6 +16,8 @@ class SkWStream;
 
 class SkShape : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkShape)
+
     SkShape();
     virtual ~SkShape();
 

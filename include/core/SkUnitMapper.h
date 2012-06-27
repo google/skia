@@ -17,6 +17,8 @@
 
 class SkUnitMapper : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkUnitMapper)
+
     SkUnitMapper() {}
 
     /** Given a value in [0..0xFFFF], return a value in the same range.
@@ -25,6 +27,9 @@ public:
     
 protected:
     SkUnitMapper(SkFlattenableReadBuffer& rb) : SkFlattenable(rb) {}
+
+private:
+    typedef SkFlattenable INHERITED;
 };
 
 #endif

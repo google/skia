@@ -12,6 +12,8 @@
 #include "SkPaint.h"
 #include "SkMallocPixelRef.h"
 
+SK_DEFINE_INST_COUNT(SkShader)
+
 SkShader::SkShader() : fLocalMatrix(NULL) {
     SkDEBUGCODE(fInSession = false;)
 }

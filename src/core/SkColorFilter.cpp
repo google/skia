@@ -11,6 +11,8 @@
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
 
+SK_DEFINE_INST_COUNT(SkColorFilter)
+
 bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) {
     return false;
 }

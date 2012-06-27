@@ -2159,6 +2159,8 @@ bool SkPaint::nothingToDraw() const {
 
 //////////// Move these to their own file soon.
 
+SK_DEFINE_INST_COUNT(SkImageFilter)
+
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const SkMatrix& ctm,
                                 SkBitmap* result, SkIPoint* loc) {
@@ -2204,6 +2206,8 @@ bool SkImageFilter::asADilate(SkISize* radius) const {
 }
 
 //////
+
+SK_DEFINE_INST_COUNT(SkDrawLooper)
 
 bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) {
     SkCanvas canvas;

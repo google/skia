@@ -11,6 +11,8 @@
 #include "SkStream.h"
 #include "SkTemplates.h"
 
+SK_DEFINE_INST_COUNT(SkColorTable)
+
 SkColorTable::SkColorTable(int count)
     : f16BitCache(NULL), fFlags(0)
 {

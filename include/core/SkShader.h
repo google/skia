@@ -30,7 +30,9 @@ class SkPath;
  */
 class SK_API SkShader : public SkFlattenable {
 public:
-            SkShader();
+    SK_DECLARE_INST_COUNT(SkShader)
+
+    SkShader();
     virtual ~SkShader();
 
     /**
