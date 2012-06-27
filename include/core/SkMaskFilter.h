@@ -33,6 +33,8 @@ class SkRasterClip;
 */
 class SkMaskFilter : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkMaskFilter)
+
     SkMaskFilter() {}
 
     /** Returns the format of the resulting mask that this subclass will return

@@ -15,6 +15,8 @@ struct SkPoint;
 
 class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:
+    SK_DECLARE_INST_COUNT(SkLayerDrawLooper)
+
             SkLayerDrawLooper();
     virtual ~SkLayerDrawLooper();
 

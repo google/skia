@@ -9,6 +9,8 @@
 #include "SkFlattenable.h"
 #include "SkThread.h"
 
+SK_DEFINE_INST_COUNT(SkPixelRef)
+
 // must be a power-of-2. undef to just use 1 mutex
 #define PIXELREF_MUTEX_RING_COUNT       32
 

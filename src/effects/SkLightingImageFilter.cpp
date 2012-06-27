@@ -271,6 +271,8 @@ private:
 
 class SkLight : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkLight)
+
     enum LightType {
         kDistant_LightType,
         kPoint_LightType,
@@ -288,6 +290,8 @@ protected:
 private:
     typedef SkFlattenable INHERITED;
 };
+
+SK_DEFINE_INST_COUNT(SkLight)
 
 class SkDistantLight : public SkLight {
 public:

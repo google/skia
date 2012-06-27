@@ -9,6 +9,8 @@
 #include "SkShape.h"
 #include "SkMatrix.h"
 
+SK_DEFINE_INST_COUNT(SkShape)
+
 #if 0
 static int gShapeCounter;
 static void inc_shape(const SkShape* s) {

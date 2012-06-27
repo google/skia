@@ -38,6 +38,8 @@ struct SkPoint;
  */
 class SK_API SkImageFilter : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkImageFilter)
+
     class Proxy {
     public:
         virtual ~Proxy() {};

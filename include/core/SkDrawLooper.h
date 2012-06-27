@@ -25,6 +25,8 @@ class SkPaint;
 */
 class SK_API SkDrawLooper : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkDrawLooper)
+
     /**
      *  Called right before something is being drawn. This will be followed by
      *  calls to next() until next() returns false.

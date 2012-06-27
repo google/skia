@@ -102,6 +102,8 @@ private:
 */
 class SK_API SkPathEffect : public SkFlattenable {
 public:
+    SK_DECLARE_INST_COUNT(SkPathEffect)
+
     SkPathEffect() {}
 
     /**
