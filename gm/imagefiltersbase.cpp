@@ -202,6 +202,10 @@ protected:
             canvas->restore();
             canvas->translate(DX, 0);
         }
+        
+        for(size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
+            SkSafeUnref(filters[j]);
+        }
     }
 
 private:
