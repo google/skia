@@ -430,7 +430,8 @@ SkLightingImageFilter::SkLightingImageFilter(SkLight* light, const SkColor& ligh
     fSurfaceScale(SkScalarDiv(surfaceScale, SkIntToScalar(255)))
 {
     SkASSERT(fLight);
-    fLight->ref();
+    // our caller knows that we take ownership of the light, so we don't
+    // need to call ref() here.
 }
 
 SkImageFilter* SkLightingImageFilter::CreateDistantLitDiffuse(
