@@ -1091,10 +1091,5 @@ int main(int argc, char * const argv[]) {
     delete grFactory;
     SkGraphics::Term();
 
-#ifdef SK_DEBUG
-    SkRefCnt::CheckInstanceCount();
-    SkWStream::CheckInstanceCount();
-#endif
-
     return (0 == testsFailed) ? 0 : -1;
 }
