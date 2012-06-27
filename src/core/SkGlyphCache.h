@@ -119,9 +119,6 @@ public:
     bool getAuxProcData(void (*auxProc)(void*), void** dataPtr) const;
     //! Add a proc/data pair to the glyphcache. proc should be non-null
     void setAuxProc(void (*auxProc)(void*), void* auxData);
-    //! If found, remove the proc/data pair from the glyphcache (does not
-    //  call the proc)
-    void removeAuxProc(void (*auxProc)(void*));
 
     SkScalerContext* getScalerContext() const { return fScalerContext; }
 

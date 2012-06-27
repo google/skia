@@ -356,25 +356,6 @@ void SkGlyphCache::setAuxProc(void (*proc)(void*), void* data) {
     fAuxProcList = rec;
 }
 
-void SkGlyphCache::removeAuxProc(void (*proc)(void*)) {
-    AuxProcRec* rec = fAuxProcList;
-    AuxProcRec* prev = NULL;
-    while (rec) {
-        AuxProcRec* next = rec->fNext;
-        if (rec->fProc == proc) {
-            if (prev) {
-                prev->fNext = next;
-            } else {
-                fAuxProcList = next;
-            }
-            SkDELETE(rec);
-            return;
-        }
-        prev = rec;
-        rec = next;
-    }
-}
-
 void SkGlyphCache::invokeAndRemoveAuxProcs() {
     AuxProcRec* rec = fAuxProcList;
     while (rec) {
@@ -457,6 +438,7 @@ public:
 
     size_t  getFontCacheLimit() const { return fFontCacheLimit; }
     size_t  setFontCacheLimit(size_t limit);
+    void    purgeAll(); // does not change budget
 
     // can return NULL
     static SkGlyphCache_Globals* FindTLS() {
@@ -486,7 +468,7 @@ size_t SkGlyphCache_Globals::setFontCacheLimit(size_t newLimit) {
     if (newLimit < minLimit) {
         newLimit = minLimit;
     }
-
+    
     size_t prevLimit = fFontCacheLimit;
     fFontCacheLimit = newLimit;
     
@@ -496,6 +478,11 @@ size_t SkGlyphCache_Globals::setFontCacheLimit(size_t newLimit) {
         SkGlyphCache::InternalFreeCache(this, currUsed - newLimit);
     }
     return prevLimit;
+}
+
+void SkGlyphCache_Globals::purgeAll() {
+    SkAutoMutexAcquire    ac(fMutex);
+    SkGlyphCache::InternalFreeCache(this, fTotalMemoryUsed);
 }
 
 // Returns the shared globals
@@ -731,7 +718,7 @@ size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
 }
 
 void SkGraphics::PurgeFontCache() {
-    getSharedGlobals().setFontCacheLimit(0);
+    getSharedGlobals().purgeAll();
     SkTypefaceCache::PurgeAll();
 }
 

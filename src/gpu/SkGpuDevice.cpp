@@ -1673,7 +1673,8 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 ///////////////////////////////////////////////////////////////////////////////
 
 static void GlyphCacheAuxProc(void* data) {
-    delete (GrFontScaler*)data;
+    GrFontScaler* scaler = (GrFontScaler*)data;
+    SkSafeUnref(scaler);
 }
 
 static GrFontScaler* get_gr_font_scaler(SkGlyphCache* cache) {
