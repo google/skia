@@ -163,6 +163,7 @@
         '../include/core/SkBounder.h',
         '../include/core/SkBuffer.h',
         '../include/core/SkCanvas.h',
+        '../include/core/SkChecksum.h',
         '../include/core/SkChunkAlloc.h',
         '../include/core/SkClipStack.h',
         '../include/core/SkColor.h',

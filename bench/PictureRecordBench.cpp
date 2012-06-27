@@ -123,8 +123,65 @@ private:
     typedef PictureRecordBench INHERITED;
 };
 
+/*
+ *  Populates the SkPaint dictionary with a large number of unique paint
+ *  objects that differ only by color
+ */
+class UniquePaintDictionaryRecordBench : public PictureRecordBench {
+public:
+    UniquePaintDictionaryRecordBench(void* param)
+        : INHERITED(param, "unique_paint_dictionary") { }
+
+    enum {
+        M = SkBENCHLOOP(15000),   // number of unique paint objects
+    };
+protected:
+    virtual void recordCanvas(SkCanvas* canvas) {
+
+        for (int i = 0; i < M; i++) {
+            SkPaint paint;
+            paint.setColor(i);
+            canvas->drawPaint(paint);
+        }
+    }
+
+private:
+    typedef PictureRecordBench INHERITED;
+};
+
+/*
+ *  Populates the SkPaint dictionary with a number of unique paint
+ *  objects that get reused repeatedly
+ */
+class RecurringPaintDictionaryRecordBench : public PictureRecordBench {
+public:
+    RecurringPaintDictionaryRecordBench(void* param)
+        : INHERITED(param, "recurring_paint_dictionary") { }
+
+    enum {
+        ObjCount = 100,           // number of unique paint objects
+        M = SkBENCHLOOP(50000),   // number of draw iterations
+    };
+protected:
+    virtual void recordCanvas(SkCanvas* canvas) {
+
+        for (int i = 0; i < M; i++) {
+            SkPaint paint;
+            paint.setColor(i % ObjCount);
+            canvas->drawPaint(paint);
+        }
+    }
+
+private:
+    typedef PictureRecordBench INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkBenchmark* Fact0(void* p) { return new DictionaryRecordBench(p); }
+static SkBenchmark* Fact1(void* p) { return new UniquePaintDictionaryRecordBench(p); }
+static SkBenchmark* Fact2(void* p) { return new RecurringPaintDictionaryRecordBench(p); }
 
 static BenchRegistry gReg0(Fact0);
+static BenchRegistry gReg1(Fact1);
+static BenchRegistry gReg2(Fact2);
