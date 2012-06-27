@@ -21,6 +21,13 @@
         'gyp/tests.gyp:tests',
         'gyp/tools.gyp:tools',
       ],
+      'conditions': [
+        ['skia_os == "android"', {
+          'dependencies': [
+            'gyp/android_system.gyp:SkiaAndroidApp',
+          ],
+        }],
+      ],
     },
   ],
 }
