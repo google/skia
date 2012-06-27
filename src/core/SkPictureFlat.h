@@ -155,7 +155,25 @@ class SkFlatData {
 public:
 
     static int Compare(const SkFlatData* a, const SkFlatData* b) {
-        return memcmp(a->data(), b->data(), a->fAllocSize);
+        size_t bytesToCompare = sizeof(a->fChecksum) + a->fAllocSize;
+#if SK_PREFER_32BIT_CHECKSUM
+        typedef uint32_t CompareType;
+        SkASSERT(SkIsAlign4(bytesToCompare));
+#else
+        typedef uint64_t CompareType;
+        SkASSERT(SkIsAlign8(bytesToCompare));
+#endif
+        const CompareType* a_ptr = &(a->fChecksum);
+        const CompareType* b_ptr = &(b->fChecksum);
+        const CompareType* stop = a_ptr + bytesToCompare / sizeof(CompareType);
+        while(a_ptr < stop) {
+            if (*a_ptr != *b_ptr) {
+                return (*a_ptr < *b_ptr) ? -1 : 1;
+            }
+            a_ptr++;
+            b_ptr++;
+        }
+        return 0;
     }
     
     int index() const { return fIndex; }
@@ -176,8 +194,16 @@ public:
                    SkTypefacePlayback* facePlayback = NULL) const;
 
 private:
+    // Data members add-up to 128 bits of storage, so data() is 128-bit
+    // aligned, which helps performance of memcpy in SkWriter32::flatten
     int fIndex;
     int32_t fAllocSize;
+    // fChecksum must be defined last in order to be contiguous with data()
+#if SK_PREFER_32BIT_CHECKSUM
+    uint32_t fChecksum;
+#else
+    uint64_t fChecksum;
+#endif
 };
 
 template <class T>
