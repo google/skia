@@ -31,6 +31,10 @@ BUILDTYPE ?= Debug
 CWD := $(shell pwd)
 ALL_TARGETS := core SampleApp bench gm tests tools
 
+ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
+  ALL_TARGETS += SkiaAndroidApp
+endif
+
 # Default target.  This must be listed before all other targets.
 .PHONY: default
 default: all

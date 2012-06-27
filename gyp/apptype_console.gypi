@@ -11,6 +11,13 @@
         'EntryPointSymbol': 'mainCRTStartup',
       },
     },
+    'conditions': [
+      [ 'skia_os == "android"', {
+        'dependencies': [
+          'android_system.gyp:Android_EntryPoint',
+        ],
+      }],
+    ],
   },
 }
 
