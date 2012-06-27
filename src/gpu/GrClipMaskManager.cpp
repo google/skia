@@ -15,9 +15,7 @@
 #include "SkRasterClip.h"
 #include "GrAAConvexPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
-
-// TODO: move GrSWMaskHelper out of GrSoftwarePathRender.h & remove this include
-#include "GrSoftwarePathRenderer.h"
+#include "GrSWMaskHelper.h"
 
 //#define GR_AA_CLIP 1
 //#define GR_SW_CLIP 1
