@@ -48,13 +48,17 @@ public:
     static A* Create(SkRandom* r);
 
     static void SetAllocator(size_t preallocSize, size_t minAllocSize) {
+#ifdef SK_ENABLE_INST_COUNT
         SkASSERT(0 == GetInstanceCount());
+#endif
         GrMemoryPool* pool = new GrMemoryPool(preallocSize, minAllocSize);
         gPool.reset(pool);
     }
 
     static void ResetAllocator() {
+#ifdef SK_ENABLE_INST_COUNT
         SkASSERT(0 == GetInstanceCount());
+#endif
         gPool.reset(NULL);
     }
 

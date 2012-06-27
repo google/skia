@@ -810,6 +810,11 @@ private:
 }
 
 int main(int argc, char * const argv[]) {
+
+#ifdef SK_ENABLE_INST_COUNT
+    gPrintInstCount = true;
+#endif
+
     SkGraphics::Init();
     // we don't need to see this during a run
     gSkSuppressFontCachePurgeSpew = true;
