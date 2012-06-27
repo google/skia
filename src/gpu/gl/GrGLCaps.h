@@ -214,6 +214,11 @@ public:
     /// Is GL_ARB_IMAGING supported
     bool imagingSupport() const { return fImagingSupport; }
 
+    // Does ReadPixels support the provided format/type combo?
+    bool readPixelsSupported(const GrGLInterface* intf,
+                             GrGLenum format, 
+                             GrGLenum type) const;
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -285,6 +290,7 @@ private:
     bool fTexStorageSupport : 1;
     bool fTextureRedSupport : 1;
     bool fImagingSupport  : 1;
+    bool fTwoFormatLimit : 1;
 };
 
 #endif
