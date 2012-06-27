@@ -181,7 +181,8 @@ bool GrResourceCache::hasKey(const GrResourceKey& key) const {
 
 GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
                                          GrResource* resource,
-                                         bool lock) {
+                                         bool lock,
+                                         bool clientReattach) {
     // we don't expect to create new resources during a purge. In theory
     // this could cause purgeAsNeeded() into an infinite loop (e.g.
     // each resource destroyed creates and locks 2 resources and
@@ -197,7 +198,7 @@ GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
         entry->lock();
     }
 
-    this->attachToHead(entry, false);
+    this->attachToHead(entry, clientReattach);
     fCache.insert(key, entry);
 
 #if GR_DUMP_TEXTURE_UPLOAD
@@ -211,12 +212,12 @@ GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
 
 GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
                                                 GrResource* resource) {
-    return this->create(key, resource, true);
+    return this->create(key, resource, true, false);
 }
 
 void GrResourceCache::attach(const GrResourceKey& key,
                              GrResource* resource) {
-    this->create(key, resource, false);
+    this->create(key, resource, false, true);
 }
 
 void GrResourceCache::detach(GrResourceEntry* entry) {

@@ -316,13 +316,14 @@ private:
     size_t fEntryBytes;
     int fClientDetachedCount;
     size_t fClientDetachedBytes;
-    
+
     // prevents recursive purging
     bool fPurging;
 
     GrResourceEntry* create(const GrResourceKey& key,
                             GrResource* resource,
-                            bool lock);
+                            bool lock,
+                            bool clientReattach);
 
 };
 
