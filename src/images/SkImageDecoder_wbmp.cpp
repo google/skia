@@ -96,8 +96,6 @@ static void expand_bits_to_bytes(uint8_t dst[], const uint8_t src[], int bits)
     }
 }
 
-#define SkAlign8(x)     (((x) + 7) & ~7)
-
 bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
                                   Mode mode)
 {
