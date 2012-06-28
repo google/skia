@@ -59,7 +59,7 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {
 
     SkSTArray<16, GrGLubyte, true> pathCommands;
 #ifndef SK_SCALAR_IS_FLOAT
-    GR_STATIC_ASSERT(false);
+    GrCrash("Assumes scalar is float.");
 #endif
     SkSTArray<16, SkPoint, true> pathPoints;
 
