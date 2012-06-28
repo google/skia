@@ -40,14 +40,15 @@
 #endif
 
 // Result of comparison for each pair of files.
+// Listed from "better" to "worse", for sorting of results.
 enum Result {
     kEqualBits,      // both files in the pair contain exactly the same bits
     kEqualPixels,    // not bitwise equal, but their pixels are exactly the same
-    kDifferentSizes, // both are images we can parse, but of different sizes
     kDifferentPixels,// both are images we can parse, but with different pixels
+    kDifferentSizes, // both are images we can parse, but of different sizes
     kDifferentOther, // files have different bits but are not parsable images
-    kBaseMissing,      // missing from baseDir
     kComparisonMissing,// missing from comparisonDir
+    kBaseMissing,      // missing from baseDir
     kUnknown,        // not compared yet
     //
     kNumResultTypes  // NOT A VALID VALUE--used to set up arrays. Must be last.
@@ -177,7 +178,6 @@ struct DiffSummary {
             break;
           case kDifferentSizes:
             fNumMismatches++;
-            drp->fFractionDifference = 2;// sort as if 200% of pixels differed
             break;
           case kDifferentPixels:
             fNumMismatches++;
@@ -192,7 +192,6 @@ struct DiffSummary {
             break;
           case kDifferentOther:
             fNumMismatches++;
-            drp->fFractionDifference = 3;// sort as if 300% of pixels differed
             break;
           case kBaseMissing:
             fNumMismatches++;
@@ -212,63 +211,100 @@ struct DiffSummary {
 
 typedef SkTDArray<DiffRecord*> RecordArray;
 
-/// Comparison routine for qsort;  sorts by fFractionDifference
-/// from largest to smallest.
-static int compare_diff_metrics (DiffRecord** lhs, DiffRecord** rhs) {
-    if ((*lhs)->fFractionDifference < (*rhs)->fFractionDifference) {
-        return 1;
+/// A wrapper for any sortProc (comparison routine) which applies a first-order
+/// sort beforehand, and a tiebreaker if the sortProc returns 0.
+template<typename T>
+static int compare(const void* untyped_lhs, const void* untyped_rhs) {
+    const DiffRecord* lhs = *reinterpret_cast<DiffRecord* const*>(untyped_lhs);
+    const DiffRecord* rhs = *reinterpret_cast<DiffRecord* const*>(untyped_rhs);
+
+    // First-order sort... these comparisons should be applied before comparing
+    // pixel values, no matter what.
+    if (lhs->fResult != rhs->fResult) {
+        return (lhs->fResult < rhs->fResult) ? 1 : -1;
     }
-    if ((*rhs)->fFractionDifference < (*lhs)->fFractionDifference) {
-        return -1;
+
+    // Passed first-order sort, so call the pixel comparison routine.
+    int result = T::comparePixels(lhs, rhs);
+    if (result != 0) {
+        return result;
     }
-    return 0;
+
+    // Tiebreaker... if we got to this point, we don't really care
+    // which order they are sorted in, but let's at least be consistent.
+    return strcmp(lhs->fFilename.c_str(), rhs->fFilename.c_str());
 }
 
-static int compare_diff_weighted (DiffRecord** lhs, DiffRecord** rhs) {
-    if ((*lhs)->fWeightedFraction < (*rhs)->fWeightedFraction) {
-        return 1;
+/// Comparison routine for qsort;  sorts by fFractionDifference
+/// from largest to smallest.
+class CompareDiffMetrics {
+public:
+    static int comparePixels(const DiffRecord* lhs, const DiffRecord* rhs) {
+        if (lhs->fFractionDifference < rhs->fFractionDifference) {
+          return 1;
+        }
+        if (rhs->fFractionDifference < lhs->fFractionDifference) {
+          return -1;
+        }
+        return 0;
     }
-    if ((*lhs)->fWeightedFraction > (*rhs)->fWeightedFraction) {
-        return -1;
+};
+
+class CompareDiffWeighted {
+public:
+    static int comparePixels(const DiffRecord* lhs, const DiffRecord* rhs) {
+        if (lhs->fWeightedFraction < rhs->fWeightedFraction) {
+            return 1;
+        }
+        if (lhs->fWeightedFraction > rhs->fWeightedFraction) {
+            return -1;
+        }
+        return 0;
     }
-    return 0;
-}
+};
 
 /// Comparison routine for qsort;  sorts by max(fAverageMismatch{RGB})
 /// from largest to smallest.
-static int compare_diff_mean_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
-    float leftValue = MAX3((*lhs)->fAverageMismatchR,
-                           (*lhs)->fAverageMismatchG,
-                           (*lhs)->fAverageMismatchB);
-    float rightValue = MAX3((*rhs)->fAverageMismatchR,
-                            (*rhs)->fAverageMismatchG,
-                            (*rhs)->fAverageMismatchB);
-    if (leftValue < rightValue) {
-        return 1;
+class CompareDiffMeanMismatches {
+public:
+    static int comparePixels(const DiffRecord* lhs, const DiffRecord* rhs) {
+        float leftValue = MAX3(lhs->fAverageMismatchR,
+                               lhs->fAverageMismatchG,
+                               lhs->fAverageMismatchB);
+        float rightValue = MAX3(rhs->fAverageMismatchR,
+                                rhs->fAverageMismatchG,
+                                rhs->fAverageMismatchB);
+        if (leftValue < rightValue) {
+            return 1;
+        }
+        if (rightValue < leftValue) {
+            return -1;
+        }
+        return 0;
     }
-    if (rightValue < leftValue) {
-        return -1;
-    }
-    return 0;
-}
+};
 
 /// Comparison routine for qsort;  sorts by max(fMaxMismatch{RGB})
 /// from largest to smallest.
-static int compare_diff_max_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
-    uint32_t leftValue = MAX3((*lhs)->fMaxMismatchR,
-                              (*lhs)->fMaxMismatchG,
-                              (*lhs)->fMaxMismatchB);
-    uint32_t rightValue = MAX3((*rhs)->fMaxMismatchR,
-                               (*rhs)->fMaxMismatchG,
-                               (*rhs)->fMaxMismatchB);
-    if (leftValue < rightValue) {
-        return 1;
+class CompareDiffMaxMismatches {
+public:
+    static int comparePixels(const DiffRecord* lhs, const DiffRecord* rhs) {
+        uint32_t leftValue = MAX3(lhs->fMaxMismatchR,
+                                  lhs->fMaxMismatchG,
+                                  lhs->fMaxMismatchB);
+        uint32_t rightValue = MAX3(rhs->fMaxMismatchR,
+                                   rhs->fMaxMismatchG,
+                                   rhs->fMaxMismatchB);
+        if (leftValue < rightValue) {
+            return 1;
+        }
+        if (rightValue < leftValue) {
+            return -1;
+        }
+
+        return CompareDiffMeanMismatches::comparePixels(lhs, rhs);
     }
-    if (rightValue < leftValue) {
-        return -1;
-    }
-    return compare_diff_mean_mismatches(lhs, rhs);
-}
+};
 
 
 
@@ -1045,7 +1081,7 @@ static void usage (char * argv0) {
 
 int main (int argc, char ** argv) {
     DiffMetricProc diffProc = compute_diff_pmcolor;
-    int (*sortProc)(const void*, const void*) = SkCastForQSort(compare_diff_metrics);
+    int (*sortProc)(const void*, const void*) = compare<CompareDiffMetrics>;
 
     // Maximum error tolerated in any one color channel in any one pixel before
     // a difference is reported.
@@ -1085,15 +1121,15 @@ int main (int argc, char ** argv) {
             continue;
         }
         if (!strcmp(argv[i], "--sortbymismatch")) {
-            sortProc = SkCastForQSort(compare_diff_mean_mismatches);
+            sortProc = compare<CompareDiffMeanMismatches>;
             continue;
         }
         if (!strcmp(argv[i], "--sortbymaxmismatch")) {
-            sortProc = SkCastForQSort(compare_diff_max_mismatches);
+            sortProc = compare<CompareDiffMaxMismatches>;
             continue;
         }
         if (!strcmp(argv[i], "--weighted")) {
-            sortProc = SkCastForQSort(compare_diff_weighted);
+            sortProc = compare<CompareDiffWeighted>;
             continue;
         }
         if (argv[i][0] != '-') {
