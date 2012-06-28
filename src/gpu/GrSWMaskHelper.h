@@ -60,4 +60,4 @@ private:
     typedef GrNoncopyable INHERITED;
 };
 
-#endif GrSWMaskHelper_DEFINED
+#endif // GrSWMaskHelper_DEFINED
