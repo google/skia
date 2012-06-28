@@ -26,21 +26,29 @@ static void assert_data(skiatest::Reporter* reporter, SkData* ref,
     REPORTER_ASSERT(reporter, !memcmp(ref->data(), data, len));
 }
 
+static void test_cstring(skiatest::Reporter* reporter) {
+    const char str[] = "Hello world";
+    size_t     len = strlen(str);
+
+    SkAutoTUnref<SkData> r0(SkData::NewWithCopy(str, len));
+    SkAutoTUnref<SkData> r1(SkData::NewWithCString(str));
+
+    REPORTER_ASSERT(reporter, r0->equals(r1));
+
+    SkAutoTUnref<SkData> r2(SkData::NewWithCString(NULL));
+    REPORTER_ASSERT(reporter, r2->isEmpty());
+}
+
 static void TestDataRef(skiatest::Reporter* reporter) {
     const char* str = "We the people, in order to form a more perfect union.";
     const int N = 10;
 
-    SkData* r0 = SkData::NewEmpty();
-    SkData* r1 = SkData::NewWithCopy(str, strlen(str));
-    SkData* r2 = SkData::NewWithProc(new int[N], N*sizeof(int),
-                                           delete_int_proc, gGlobal);
-    SkData* r3 = SkData::NewSubset(r1, 7, 6);
+    SkAutoTUnref<SkData> r0(SkData::NewEmpty());
+    SkAutoTUnref<SkData> r1(SkData::NewWithCopy(str, strlen(str)));
+    SkAutoTUnref<SkData> r2(SkData::NewWithProc(new int[N], N*sizeof(int),
+                                           delete_int_proc, gGlobal));
+    SkAutoTUnref<SkData> r3(SkData::NewSubset(r1, 7, 6));
 
-    SkAutoUnref aur0(r0);
-    SkAutoUnref aur1(r1);
-    SkAutoUnref aur2(r2);
-    SkAutoUnref aur3(r3);
-    
     assert_len(reporter, r0, 0);
     assert_len(reporter, r1, strlen(str));
     assert_len(reporter, r2, N * sizeof(int));
@@ -55,6 +63,8 @@ static void TestDataRef(skiatest::Reporter* reporter) {
     tmp = SkData::NewSubset(r1, 0, 0);
     assert_len(reporter, tmp, 0);
     tmp->unref();
+    
+    test_cstring(reporter);
 }
 
 #include "TestClassDef.h"
