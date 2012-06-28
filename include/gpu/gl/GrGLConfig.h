@@ -92,6 +92,10 @@
  * check the first time we use a color format or a combination of color /
  * stencil formats as attachments. If the FBO is complete we will assume
  * subsequent attachments with the same formats are complete as well.
+ *
+ * GR_GL_USE_NV_PATH_RENDERING: Enable experimental support for
+ * GL_NV_path_rendering. There are known issues with clipping, non-AA paths, and
+ * perspective.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -136,6 +140,10 @@
 
 #if !defined(GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT)
     #define GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT      0
+#endif
+
+#if !defined(GR_GL_USE_NV_PATH_RENDERING)
+    #define GR_GL_USE_NV_PATH_RENDERING                 0
 #endif
 
 /**

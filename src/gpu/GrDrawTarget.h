@@ -445,7 +445,7 @@ public:
      * winding (not inverse or hairline). It will respect the HW antialias flag
      * on the draw state (if possible in the 3D API).
      */
-    void stencilPath(const GrPath& path, GrPathFill fill);
+    void stencilPath(const GrPath*, GrPathFill);
 
     /**
      * Helper function for drawing rects. This does not use the current index
@@ -1003,7 +1003,7 @@ protected:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) = 0;
-    virtual void onStencilPath(const GrPath& path, GrPathFill fill) = 0;
+    virtual void onStencilPath(const GrPath*, GrPathFill) = 0;
 
     // subclass overrides to be notified when clip is set. Must call
     // INHERITED::clipwillBeSet

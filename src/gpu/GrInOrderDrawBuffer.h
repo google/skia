@@ -14,7 +14,10 @@
 #include "GrDrawTarget.h"
 #include "GrAllocPool.h"
 #include "GrAllocator.h"
+#include "GrPath.h"
 #include "GrClip.h"
+
+#include "SkTemplates.h"
 
 class GrGpu;
 class GrIndexBufferAllocPool;
@@ -136,10 +139,11 @@ protected:
                                                 int indexCount) SK_OVERRIDE;
 private:
     enum Cmd {
-        kDraw_Cmd       = 1,
-        kSetState_Cmd   = 2,
-        kSetClip_Cmd    = 3,
-        kClear_Cmd      = 4,
+        kDraw_Cmd           = 1,
+        kStencilPath_Cmd    = 2,
+        kSetState_Cmd       = 3,
+        kSetClip_Cmd        = 4,
+        kClear_Cmd          = 5,
     };
 
     struct Draw {
@@ -151,6 +155,11 @@ private:
         GrVertexLayout          fVertexLayout;
         const GrVertexBuffer*   fVertexBuffer;
         const GrIndexBuffer*    fIndexBuffer;
+    };
+
+    struct StencilPath {
+        SkAutoTUnref<const GrPath>  fPath;
+        GrPathFill                  fFill;
     };
 
     struct Clear {
@@ -171,7 +180,7 @@ private:
     virtual void onDrawNonIndexed(GrPrimitiveType primitiveType,
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath&, GrPathFill) SK_OVERRIDE;
+    virtual void onStencilPath(const GrPath*, GrPathFill) SK_OVERRIDE;
     virtual bool onReserveVertexSpace(GrVertexLayout layout, 
                                       int vertexCount,
                                       void** vertices) SK_OVERRIDE;
@@ -196,12 +205,13 @@ private:
     bool needsNewClip() const;
 
     // these functions record a command
-    void   recordState();
-    void   recordDefaultState();
-    void   recordClip();
-    void   recordDefaultClip();
-    Draw*  recordDraw();
-    Clear* recordClear();
+    void            recordState();
+    void            recordDefaultState();
+    void            recordClip();
+    void            recordDefaultClip();
+    Draw*           recordDraw();
+    StencilPath*    recordStencilPath();
+    Clear*          recordClear();
 
     // call this to invalidate the tracking data that is used to concatenate 
     // multiple draws into a single draw.
@@ -210,6 +220,7 @@ private:
     enum {
         kCmdPreallocCnt          = 32,
         kDrawPreallocCnt         = 8,
+        kStencilPathPreallocCnt  = 8,
         kStatePreallocCnt        = 8,
         kClipPreallocCnt         = 8,
         kClearPreallocCnt        = 4,
@@ -218,6 +229,7 @@ private:
 
     SkSTArray<kCmdPreallocCnt, uint8_t, true>           fCmds;
     GrSTAllocator<kDrawPreallocCnt, Draw>               fDraws;
+    GrSTAllocator<kStatePreallocCnt, StencilPath>       fStencilPaths;
     GrSTAllocator<kStatePreallocCnt, GrDrawState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
     GrSTAllocator<kClipPreallocCnt, GrClip>             fClips;

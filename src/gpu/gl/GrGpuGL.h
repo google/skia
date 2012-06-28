@@ -98,7 +98,6 @@ protected:
 
     virtual void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
 
-
     virtual void onGpuDrawIndexed(GrPrimitiveType type,
                                   uint32_t startVertex,
                                   uint32_t startIndex,
@@ -107,7 +106,12 @@ protected:
     virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
                                      uint32_t vertexCount,
                                      uint32_t numVertices) SK_OVERRIDE;
-    virtual void onGpuStencilPath(const GrPath&, GrPathFill) SK_OVERRIDE;
+
+    virtual void setStencilPathSettings(const GrPath&,
+                                        GrPathFill,
+                                        GrStencilSettings* settings)
+                                        SK_OVERRIDE;
+    virtual void onGpuStencilPath(const GrPath*, GrPathFill) SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const GrIRect& rect,
@@ -220,7 +224,7 @@ private:
     void flushCoverage(GrColor color);
 
     // sets the MVP matrix uniform for currently bound program
-    void flushViewMatrix();
+    void flushViewMatrix(DrawType type);
 
     // flushes the parameters to two point radial gradient
     void flushRadial2(int stage);
@@ -268,8 +272,8 @@ private:
     // bound is region that may be modified and therefore has to be resolved.
     // NULL means whole target. Can be an empty rect.
     void flushRenderTarget(const GrIRect* bound);
-    void flushStencil();
-    void flushAAState(bool isLines);
+    void flushStencil(DrawType);
+    void flushAAState(DrawType);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,
@@ -359,6 +363,15 @@ private:
             fSmoothLineEnabled = kUnknown_TriState;
         }
     } fHWAAState;
+
+    struct {
+        GrMatrix    fViewMatrix;
+        SkISize     fRTSize;
+        void invalidate() {
+            fViewMatrix = GrMatrix::InvalidMatrix();
+            fRTSize.fWidth = -1; // just make the first value compared illegal.
+        }
+    } fHWPathMatrixState;
 
     GrStencilSettings       fHWStencilSettings;
     TriState                fHWStencilTestEnabled;

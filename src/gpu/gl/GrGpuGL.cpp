@@ -268,6 +268,8 @@ void GrGpuGL::initCaps() {
     fCaps.fMaxRenderTargetSize = GrMin(fCaps.fMaxTextureSize, fCaps.fMaxRenderTargetSize);
 
     fCaps.fFSAASupport = GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType();
+    fCaps.fPathStencilingSupport = GR_GL_USE_NV_PATH_RENDERING &&
+                                   this->hasExtension("GL_NV_path_rendering");
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -510,6 +512,8 @@ void GrGpuGL::onResetContext() {
     fHWGeometryState.fArrayPtrsDirty = true;
 
     fHWBoundRenderTarget = NULL;
+
+    fHWPathMatrixState.invalidate();
 
     // we assume these values
     if (this->glCaps().unpackRowLengthSupport()) {
@@ -1322,11 +1326,8 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
 }
 
 GrPath* GrGpuGL::onCreatePath(const SkPath& inPath) {
-    GrPath* path = NULL;
-    if (fCaps.fPathStencilingSupport) {
-        path = new GrGLPath(this, inPath);
-    }
-    return path;
+    GrAssert(fCaps.fPathStencilingSupport);
+    return new GrGLPath(this, inPath);
 }
 
 void GrGpuGL::flushScissor() {
@@ -1735,8 +1736,78 @@ void GrGpuGL::onGpuDrawNonIndexed(GrPrimitiveType type,
 #endif
 }
 
-void GrGpuGL::onGpuStencilPath(const GrPath&, GrPathFill) {
-    GrCrash("Not implemented yet. Should not get here.");
+namespace {
+const GrStencilSettings& winding_nv_path_stencil_settings() {
+    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
+        kIncClamp_StencilOp,
+        kIncClamp_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        ~0, ~0, ~0);
+    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
+}
+const GrStencilSettings& even_odd_nv_path_stencil_settings() {
+    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
+        kInvert_StencilOp,
+        kInvert_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        ~0, ~0, ~0);
+    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
+}
+}
+
+
+void GrGpuGL::setStencilPathSettings(const GrPath&,
+                                     GrPathFill fill,
+                                     GrStencilSettings* settings) {
+    switch (fill) {
+        case kEvenOdd_GrPathFill:
+            *settings = even_odd_nv_path_stencil_settings();
+            return;
+        case kWinding_GrPathFill:
+            *settings = winding_nv_path_stencil_settings();
+            return;
+        default:
+            GrCrash("Unexpected path fill.");
+    }
+}
+
+void GrGpuGL::onGpuStencilPath(const GrPath* path, GrPathFill fill) {
+    GrAssert(fCaps.fPathStencilingSupport);
+
+    GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
+    GrDrawState* drawState = this->drawState();
+    GrAssert(NULL != drawState->getRenderTarget());
+    if (NULL == drawState->getRenderTarget()->getStencilBuffer()) {
+        return;
+    }
+
+    // Decide how to manipulate the stencil buffer based on the fill rule.
+    // Also, assert that the stencil settings we set in setStencilPathSettings
+    // are present.
+    GrAssert(!fStencilSettings.isTwoSided());
+    GrGLenum fillMode;
+    switch (fill) {
+        case kWinding_GrPathFill:
+            fillMode = GR_GL_COUNT_UP;
+            GrAssert(kIncClamp_StencilOp ==
+                     fStencilSettings.passOp(GrStencilSettings::kFront_Face));
+            GrAssert(kIncClamp_StencilOp ==
+                     fStencilSettings.failOp(GrStencilSettings::kFront_Face));
+            break;
+        case kEvenOdd_GrPathFill:
+            fillMode = GR_GL_INVERT;
+            GrAssert(kInvert_StencilOp ==
+                     fStencilSettings.passOp(GrStencilSettings::kFront_Face));
+            GrAssert(kInvert_StencilOp ==
+                fStencilSettings.failOp(GrStencilSettings::kFront_Face));
+            break;
+        default:
+            // Only the above two fill rules are allowed.
+            GrCrash("Unexpected path fill.");
+    }
+    GrGLint writeMask = fStencilSettings.writeMask(GrStencilSettings::kFront_Face);
+    GL_CALL(StencilFillPath(id, fillMode, writeMask));
+    //GrPrintf("\tStencilFillPath ID: %d\n", id);
 }
 
 void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
@@ -1863,19 +1934,28 @@ void set_gl_stencil(const GrGLInterface* gl,
 }
 }
 
-void GrGpuGL::flushStencil() {
-    if (fStencilSettings.isDisabled()) {
-        if (kNo_TriState != fHWStencilTestEnabled) {
-            GL_CALL(Disable(GR_GL_STENCIL_TEST));
-            fHWStencilTestEnabled = kNo_TriState;
+void GrGpuGL::flushStencil(DrawType type) {
+    if (kStencilPath_DrawType == type) {
+        GrAssert(!fStencilSettings.isTwoSided());
+        // Just the func, ref, and mask is set here. The op and write mask are params to the call
+        // that draws the path to the SB (glStencilFillPath)
+        GrGLenum func =
+            gr_to_gl_stencil_func(fStencilSettings.func(GrStencilSettings::kFront_Face));
+        GL_CALL(PathStencilFunc(func,
+                                fStencilSettings.funcRef(GrStencilSettings::kFront_Face),
+                                fStencilSettings.funcMask(GrStencilSettings::kFront_Face)));
+    } else if (fHWStencilSettings != fStencilSettings) {
+        if (fStencilSettings.isDisabled()) {
+            if (kNo_TriState != fHWStencilTestEnabled) {
+                GL_CALL(Disable(GR_GL_STENCIL_TEST));
+                fHWStencilTestEnabled = kNo_TriState;
+            }
+        } else {
+            if (kYes_TriState != fHWStencilTestEnabled) {
+                GL_CALL(Enable(GR_GL_STENCIL_TEST));
+                fHWStencilTestEnabled = kYes_TriState;
+            }
         }
-    } else {
-        if (kYes_TriState != fHWStencilTestEnabled) {
-            GL_CALL(Enable(GR_GL_STENCIL_TEST));
-            fHWStencilTestEnabled = kYes_TriState;
-        }
-    }
-    if (fHWStencilSettings != fStencilSettings) {
         if (!fStencilSettings.isDisabled()) {
             if (this->getCaps().fTwoSidedStencilSupport) {
                 set_gl_stencil(this->glInterface(),
@@ -1897,7 +1977,7 @@ void GrGpuGL::flushStencil() {
     }
 }
 
-void GrGpuGL::flushAAState(bool isLines) {
+void GrGpuGL::flushAAState(DrawType type) {
     const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
@@ -1905,7 +1985,7 @@ void GrGpuGL::flushAAState(bool isLines) {
         // we prefer smooth lines over multisampled lines
         bool smoothLines = false;
 
-        if (isLines) {
+        if (kDrawLines_DrawType == type) {
             smoothLines = this->willUseHWAALines();
             if (smoothLines) {
                 if (kYes_TriState != fHWAAState.fSmoothLineEnabled) {
@@ -1925,8 +2005,12 @@ void GrGpuGL::flushAAState(bool isLines) {
                 }
             }
         }
-        if (!smoothLines  && rt->isMultisampled()) {
-            if (this->getDrawState().isHWAntialiasState()) {
+        if (!smoothLines && rt->isMultisampled()) {
+            // FIXME: GL_NV_pr doesn't seem to like MSAA disabled. The paths
+            // convex hulls of each segment appear to get filled.
+            bool enableMSAA = kStencilPath_DrawType == type ||
+                              this->getDrawState().isHWAntialiasState();
+            if (enableMSAA) {
                 if (kYes_TriState != fHWAAState.fMSAAEnabled) {
                     GL_CALL(Enable(GR_GL_MULTISAMPLE));
                     fHWAAState.fMSAAEnabled = kYes_TriState;

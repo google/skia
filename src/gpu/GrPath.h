@@ -16,10 +16,10 @@ class GrPath : public GrResource {
 public:
     GrPath(GrGpu* gpu) : INHERITED(gpu) {}
 
-    const GrIRect& getBounds() const { return fBounds; }
+    const GrRect& getBounds() const { return fBounds; }
 
 protected:
-    GrIRect fBounds;
+    GrRect fBounds;
 
 private:
     typedef GrResource INHERITED;
