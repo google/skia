@@ -28,7 +28,7 @@
         '../src/opts',
       ],
       'conditions': [
-        [ 'skia_target_arch == "x86"', {
+        [ 'skia_arch_type == "x86"', {
           'conditions': [
             [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
               'cflags': [
@@ -47,7 +47,7 @@
             'opts_ssse3',
           ],
         }],
-        [ 'skia_target_arch == "arm" and armv7 == 1', {
+        [ 'skia_arch_type == "arm" and armv7 == 1', {
           # The assembly uses the frame pointer register (r7 in Thumb/r11 in
           # ARM), the compiler doesn't like that.
           'cflags!': [
@@ -73,7 +73,7 @@
             }]
           ],
         }],
-        [ 'skia_target_arch == "arm" and armv7 != 1', {
+        [ 'skia_arch_type == "arm" and armv7 != 1', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_none.cpp',
             '../src/opts/SkBlitRow_opts_none.cpp',
@@ -108,7 +108,7 @@
             'OTHER_CFLAGS': ['-mssse3',],
           },
         }],
-        [ 'skia_target_arch == "x86"', {
+        [ 'skia_arch_type == "x86"', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_SSSE3.cpp',
           ],

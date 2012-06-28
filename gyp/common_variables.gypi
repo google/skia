@@ -63,7 +63,8 @@
       'skia_mesa%': 0,
       # Do not turn on 'skia_angle' - it is currently experimental
       'skia_angle%': 0,
-      'skia_target_arch%': 'x86',
+      'skia_arch_type%': 'x86',
+      'skia_arch_width%': '32',
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
@@ -73,7 +74,8 @@
     'skia_scalar%': '<(skia_scalar)',
     'skia_mesa%': '<(skia_mesa)',
     'skia_angle%': '<(skia_angle)',
-    'skia_target_arch%': '<(skia_target_arch)',
+    'skia_arch_type%': '<(skia_arch_type)',
+    'skia_arch_width%': '<(skia_arch_width)',
   },
 }
 # Local Variables:
