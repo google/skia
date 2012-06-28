@@ -25,6 +25,14 @@ SkData::~SkData() {
     }
 }
 
+bool SkData::equals(const SkData* other) const {
+    if (NULL == other) {
+        return false;
+    }
+
+    return fSize == other->fSize && !memcmp(fPtr, other->fPtr, fSize);
+}
+
 size_t SkData::copyRange(size_t offset, size_t length, void* buffer) const {
     size_t available = fSize;
     if (offset >= available || 0 == length) {
@@ -101,5 +109,13 @@ SkData* SkData::NewSubset(const SkData* src, size_t offset, size_t length) {
     src->ref(); // this will be balanced in sk_dataref_releaseproc
     return new SkData(src->bytes() + offset, length, sk_dataref_releaseproc,
                          const_cast<SkData*>(src));
+}
+
+SkData* SkData::NewWithCString(const char cstr[]) {
+    if (NULL == cstr || 0 == cstr[0]) {
+        return NewEmpty();
+    } else {
+        return NewWithCopy(cstr, strlen(cstr));
+    }
 }
 

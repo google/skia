@@ -27,6 +27,8 @@ public:
      */
     size_t size() const { return fSize; }
 
+    bool isEmpty() const { return 0 == fSize; }
+
     /**
      *  Returns the ptr to the data.
      */
@@ -49,6 +51,12 @@ public:
     size_t copyRange(size_t offset, size_t length, void* buffer) const;
 
     /**
+     *  Returns true if these two objects have the same length and contents,
+     *  effectively returning 0 == memcmp(...)
+     */
+    bool equals(const SkData* other) const;
+
+    /**
      *  Function that, if provided, will be called when the SkData goes out
      *  of scope, allowing for custom allocation/freeing of the data.
      */
@@ -58,7 +66,13 @@ public:
      *  Create a new dataref by copying the specified data
      */
     static SkData* NewWithCopy(const void* data, size_t length);
-
+    
+    /**
+     *  Create a new dataref by copying the specified c-string
+     *  (a null-terminated array of bytes).
+     */
+    static SkData* NewWithCString(const char cstr[]);
+    
     /**
      *  Create a new dataref, taking the data ptr as is, and using the
      *  releaseproc to free it. The proc may be NULL.
