@@ -489,6 +489,7 @@ public:
             }
             fDrawState = ds;
         }
+        bool isSet() const { return NULL != fDrawState; }
     private:
         GrDrawState* fDrawState;
         GrMatrix fSavedMatrix;

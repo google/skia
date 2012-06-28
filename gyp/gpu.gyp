@@ -264,6 +264,8 @@
         '../src/gpu/GrResourceCache.h',
         '../src/gpu/GrStencil.cpp',
         '../src/gpu/GrStencil.h',
+        '../src/gpu/GrStencilAndCoverPathRenderer.cpp',
+        '../src/gpu/GrStencilAndCoverPathRenderer.h',
         '../src/gpu/GrStencilBuffer.cpp',
         '../src/gpu/GrStencilBuffer.h',
         '../src/gpu/GrStringBuilder.h',
@@ -365,6 +367,11 @@
         'GR_IMPLEMENTATION=1',
       ],
       'conditions': [
+        [ 'skia_nv_path_rendering', {
+          'defines': [
+            'GR_GL_USE_NV_PATH_RENDERING=1',
+          ],
+        }],
         [ 'skia_os == "linux"', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',

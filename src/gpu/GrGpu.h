@@ -487,8 +487,15 @@ protected:
     virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
                                      uint32_t vertexCount,
                                      uint32_t numVertices) = 0;
+    // when GrDrawTarget::stencilPath is called the draw state's current stencil
+    // settings are ignored. Instead the GrGpu decides the stencil rules
+    // necessary to stencil the path. These are still subject to filtering by
+    // the clip mask manager.
+    virtual void setStencilPathSettings(const GrPath&,
+                                        GrPathFill,
+                                        GrStencilSettings* settings) = 0;
     // overridden by API-specific derived class to perform the path stenciling.
-    virtual void onGpuStencilPath(const GrPath& path, GrPathFill fill) = 0;
+    virtual void onGpuStencilPath(const GrPath*, GrPathFill) = 0;
 
     // overridden by API-specific derived class to perform flush
     virtual void onForceRenderTargetFlush() = 0;
@@ -579,7 +586,7 @@ private:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath& path, GrPathFill fill) SK_OVERRIDE;
+    virtual void onStencilPath(const GrPath* path, GrPathFill fill) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();

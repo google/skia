@@ -439,9 +439,13 @@ void GrGpu::onDrawNonIndexed(GrPrimitiveType type,
     this->onGpuDrawNonIndexed(type, sVertex, vertexCount);
 }
 
-void GrGpu::onStencilPath(const GrPath& path, GrPathFill fill) {
+void GrGpu::onStencilPath(const GrPath* path, GrPathFill fill) {
     this->handleDirtyContext();
 
+    // TODO: make this more effecient (don't copy and copy back)
+    GrAutoTRestore<GrStencilSettings> asr(this->drawState()->stencil());
+
+    this->setStencilPathSettings(*path, fill, this->drawState()->stencil());
     if (!this->setupClipAndFlushState(kStencilPath_DrawType)) {
         return;
     }

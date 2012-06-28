@@ -687,9 +687,9 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
         bool clearToInside;
         SkRegion::Op startOp = SkRegion::kReplace_Op; // suppress warning
         int start = process_initial_clip_elements(clipCopy,
-                                                    rtRect,
-                                                    &clearToInside,
-                                                    &startOp);
+                                                  rtRect,
+                                                  &clearToInside,
+                                                  &startOp);
 
         fGpu->clearStencilClip(bounds, clearToInside);
 
@@ -700,6 +700,14 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
             bool fillInverted;
             // enabled at bottom of loop
             drawState->disableState(GrGpu::kModifyStencilClip_StateBit);
+            // if the target is MSAA then we want MSAA enabled when the clip is soft
+            if (rt->isMultisampled()) {
+                if (clipCopy.getDoAA(c)) {
+                    drawState->enableState(GrDrawState::kHWAntialias_StateBit);
+                } else {
+                    drawState->disableState(GrDrawState::kHWAntialias_StateBit);
+                }
+            }
 
             bool canRenderDirectToStencil; // can the clip element be drawn
                                            // directly to the stencil buffer

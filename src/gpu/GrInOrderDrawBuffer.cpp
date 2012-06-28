@@ -8,12 +8,13 @@
 
 
 #include "GrInOrderDrawBuffer.h"
+#include "GrBufferAllocPool.h"
+#include "GrGpu.h"
+#include "GrIndexBuffer.h"
+#include "GrPath.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
-#include "GrBufferAllocPool.h"
-#include "GrIndexBuffer.h"
 #include "GrVertexBuffer.h"
-#include "GrGpu.h"
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
                                          GrVertexBufferAllocPool* vertexPool,
@@ -426,8 +427,18 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
     draw->fIndexBuffer = NULL;
 }
 
-void GrInOrderDrawBuffer::onStencilPath(const GrPath&, GrPathFill) {
-    GrCrash("Not implemented yet. Should not get here.");
+void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, GrPathFill fill) {
+    if (this->needsNewClip()) {
+        this->recordClip();
+    }
+    // Only compare the subset of GrDrawState relevant to path stenciling?
+    if (this->needsNewState()) {
+        this->recordState();
+    }
+    StencilPath* sp = this->recordStencilPath();
+    sp->fPath.reset(path);
+    path->ref();
+    sp->fFill = fill;
 }
 
 void GrInOrderDrawBuffer::clear(const GrIRect* rect, 
@@ -463,6 +474,7 @@ void GrInOrderDrawBuffer::reset() {
     }
     fCmds.reset();
     fDraws.reset();
+    fStencilPaths.reset();
     fStates.reset();
     fClears.reset();
     fVertexPool.reset();
@@ -502,10 +514,11 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     GrDrawState* prevDrawState = target->drawState();
     prevDrawState->ref();
 
-    int currState = 0;
-    int currClip  = 0;
-    int currClear = 0;
-    int currDraw  = 0;
+    int currState       = 0;
+    int currClip        = 0;
+    int currClear       = 0;
+    int currDraw        = 0;
+    int currStencilPath = 0;
 
     for (int c = 0; c < numCmds; ++c) {
         switch (fCmds[c]) {
@@ -528,6 +541,12 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
                                            draw.fVertexCount);
                 }
                 ++currDraw;
+                break;
+            }
+            case kStencilPath_Cmd: {
+                const StencilPath& sp = fStencilPaths[currStencilPath];
+                target->stencilPath(sp.fPath.get(), sp.fFill);
+                ++currStencilPath;
                 break;
             }
             case kSetState_Cmd:
@@ -808,6 +827,11 @@ void GrInOrderDrawBuffer::recordDefaultState() {
 GrInOrderDrawBuffer::Draw* GrInOrderDrawBuffer::recordDraw() {
     fCmds.push_back(kDraw_Cmd);
     return &fDraws.push_back();
+}
+
+GrInOrderDrawBuffer::StencilPath* GrInOrderDrawBuffer::recordStencilPath() {
+    fCmds.push_back(kStencilPath_Cmd);
+    return &fStencilPaths.push_back();
 }
 
 GrInOrderDrawBuffer::Clear* GrInOrderDrawBuffer::recordClear() {

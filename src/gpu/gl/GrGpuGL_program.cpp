@@ -104,7 +104,7 @@ void GrGpuGL::abandonResources(){
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
-void GrGpuGL::flushViewMatrix() {
+void GrGpuGL::flushViewMatrix(DrawType type) {
     const GrGLRenderTarget* rt = static_cast<const GrGLRenderTarget*>(this->getDrawState().getRenderTarget());
     SkISize viewportSize;
     const GrGLIRect& viewport = rt->getViewport();
@@ -112,7 +112,56 @@ void GrGpuGL::flushViewMatrix() {
 
     const GrMatrix& vm = this->getDrawState().getViewMatrix();
 
-    if (!fProgramData->fViewMatrix.cheapEqualTo(vm) ||
+    if (kStencilPath_DrawType == type) {
+        if (fHWPathMatrixState.fViewMatrix != vm) {
+            // We use the GL model view matrix to hold the draw state's view
+            // matrix and the GL projection matrix to convert to normalized y-up
+            // coords.
+            GrGLfloat mv[]  = {
+                // col 0
+                GrScalarToFloat(vm[GrMatrix::kMScaleX]),
+                GrScalarToFloat(vm[GrMatrix::kMSkewY]),
+                0,
+                GrScalarToFloat(vm[GrMatrix::kMPersp0]),
+
+                // col 1
+                GrScalarToFloat(vm[GrMatrix::kMSkewX]),
+                GrScalarToFloat(vm[GrMatrix::kMScaleY]),
+                0,
+                GrScalarToFloat(vm[GrMatrix::kMPersp1]),
+
+                // col 2
+                0, 0, 0, 0,
+
+                // col3
+                GrScalarToFloat(vm[GrMatrix::kMTransX]),
+                GrScalarToFloat(vm[GrMatrix::kMTransY]),
+                0.5f,
+                GrScalarToFloat(vm[GrMatrix::kMPersp2])
+            };
+            GL_CALL(MatrixMode(GR_GL_MODELVIEW));
+            GL_CALL(LoadMatrixf(mv));
+            fHWPathMatrixState.fViewMatrix = vm;
+        }
+        if (fHWPathMatrixState.fRTSize != viewportSize) {
+            GrGLfloat p[] = {
+                // col 0
+                2.f / rt->width(), 0, 0, 0,
+
+                // col 1
+                0, -2.f / rt->height(), 0, 0,
+
+                // col 2
+                0, 0, 1.f, 0,
+
+                // col 3
+                -1.f, 1.f, 0, 1.f,
+            };
+            GL_CALL(MatrixMode(GR_GL_PROJECTION));
+            GL_CALL(LoadMatrixf(p));
+            fHWPathMatrixState.fRTSize = viewportSize;
+        }
+    } else if (!fProgramData->fViewMatrix.cheapEqualTo(vm) ||
         fProgramData->fViewportSize != viewportSize) {
 
         GrMatrix m;
@@ -380,81 +429,79 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     // and bailed if not true.
     GrAssert(NULL != drawState.getRenderTarget());
 
-    this->flushMiscFixedFunctionState();
-    this->flushStencil();
-    this->flushAAState(kDrawLines_DrawType == type);
+    if (kStencilPath_DrawType != type) {
+        this->flushMiscFixedFunctionState();
 
-    GrBlendCoeff srcCoeff;
-    GrBlendCoeff dstCoeff;
-    BlendOptFlags blendOpts = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
-    if (kSkipDraw_BlendOptFlag & blendOpts) {
-        return false;
-    }
+        GrBlendCoeff srcCoeff;
+        GrBlendCoeff dstCoeff;
+        BlendOptFlags blendOpts = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
+        if (kSkipDraw_BlendOptFlag & blendOpts) {
+            return false;
+        }
 
-    GrCustomStage* customStages [GrDrawState::kNumStages];
-    this->buildProgram(kDrawPoints_DrawType == type,
-                       blendOpts, dstCoeff, customStages);
-    fProgramData = fProgramCache->getProgramData(fCurrentProgram,
-                                                 customStages);
-    if (NULL == fProgramData) {
-        GrAssert(!"Failed to create program!");
-        return false;
-    }
+        GrCustomStage* customStages [GrDrawState::kNumStages];
+        this->buildProgram(kDrawPoints_DrawType == type,
+                           blendOpts, dstCoeff, customStages);
+        fProgramData = fProgramCache->getProgramData(fCurrentProgram,
+                                                     customStages);
+        if (NULL == fProgramData) {
+            GrAssert(!"Failed to create program!");
+            return false;
+        }
 
-    if (fHWProgramID != fProgramData->fProgramID) {
-        GL_CALL(UseProgram(fProgramData->fProgramID));
-        fHWProgramID = fProgramData->fProgramID;
-    }
-    fCurrentProgram.overrideBlend(&srcCoeff, &dstCoeff);
-    this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
+        if (fHWProgramID != fProgramData->fProgramID) {
+            GL_CALL(UseProgram(fProgramData->fProgramID));
+            fHWProgramID = fProgramData->fProgramID;
+        }
+        fCurrentProgram.overrideBlend(&srcCoeff, &dstCoeff);
+        this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-    GrColor color;
-    GrColor coverage;
-    if (blendOpts & kEmitTransBlack_BlendOptFlag) {
-        color = 0;
-        coverage = 0;
-    } else if (blendOpts & kEmitCoverage_BlendOptFlag) {
-        color = 0xffffffff;
-        coverage = drawState.getCoverage();
-    } else {
-        color = drawState.getColor();
-        coverage = drawState.getCoverage();
-    }
-    this->flushColor(color);
-    this->flushCoverage(coverage);
+        GrColor color;
+        GrColor coverage;
+        if (blendOpts & kEmitTransBlack_BlendOptFlag) {
+            color = 0;
+            coverage = 0;
+        } else if (blendOpts & kEmitCoverage_BlendOptFlag) {
+            color = 0xffffffff;
+            coverage = drawState.getCoverage();
+        } else {
+            color = drawState.getColor();
+            coverage = drawState.getCoverage();
+        }
+        this->flushColor(color);
+        this->flushCoverage(coverage);
 
-    this->flushViewMatrix();
-
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (this->isStageEnabled(s)) {
-
-
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            if (this->isStageEnabled(s)) {
 #if GR_DEBUG
-        // check for circular rendering
-        GrAssert(NULL == drawState.getRenderTarget() ||
-                 NULL == drawState.getTexture(s) ||
-                 drawState.getTexture(s)->asRenderTarget() !=
-                    drawState.getRenderTarget());
+                // check for circular rendering
+                GrAssert(NULL == drawState.getRenderTarget() ||
+                         NULL == drawState.getTexture(s) ||
+                         drawState.getTexture(s)->asRenderTarget() !=
+                            drawState.getRenderTarget());
 #endif
+                this->flushBoundTextureAndParams(s);
 
-            this->flushBoundTextureAndParams(s);
+                this->flushTextureMatrixAndDomain(s);
 
-            this->flushTextureMatrixAndDomain(s);
-
-            if (NULL != fProgramData->fCustomStage[s]) {
-                const GrSamplerState& sampler =
-                    this->getDrawState().getSampler(s);
-                const GrGLTexture* texture =
-                    static_cast<const GrGLTexture*>(
-                        this->getDrawState().getTexture(s));
-                fProgramData->fCustomStage[s]->setData(
-                    this->glInterface(), *texture,
-                    *sampler.getCustomStage(), s);
+                if (NULL != fProgramData->fCustomStage[s]) {
+                    const GrSamplerState& sampler =
+                        this->getDrawState().getSampler(s);
+                    const GrGLTexture* texture =
+                        static_cast<const GrGLTexture*>(
+                            this->getDrawState().getTexture(s));
+                    fProgramData->fCustomStage[s]->setData(
+                        this->glInterface(), *texture,
+                        *sampler.getCustomStage(), s);
+                }
             }
         }
+        this->flushColorMatrix();
     }
-    this->flushColorMatrix();
+    this->flushStencil(type);
+    this->flushViewMatrix(type);
     this->flushScissor();
+    this->flushAAState(type);
 
     GrIRect* rect = NULL;
     GrIRect clipBounds;

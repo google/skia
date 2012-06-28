@@ -818,8 +818,9 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
     }
 }
 
-void GrDrawTarget::stencilPath(const GrPath& path, GrPathFill fill) {
+void GrDrawTarget::stencilPath(const GrPath* path, GrPathFill fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
+    GrAssert(NULL != path);
     GrAssert(fCaps.fPathStencilingSupport);
     GrAssert(kHairLine_GrPathFill != fill);
     GrAssert(!GrIsFillInverted(fill));
