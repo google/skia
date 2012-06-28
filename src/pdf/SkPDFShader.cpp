@@ -362,6 +362,14 @@ SkPDFObject* SkPDFShader::GetPDFShader(const SkShader& shader,
     SkPDFObject* result;
     SkAutoMutexAcquire lock(CanonicalShadersMutex());
     SkAutoTDelete<State> shaderState(new State(shader, matrix, surfaceBBox));
+    if (shaderState.get()->fType == SkShader::kNone_GradientType &&
+            shaderState.get()->fImage.isNull()) {
+        // TODO(vandebo) This drops SKComposeShader on the floor.  We could
+        // handle compose shader by pulling things up to a layer, drawing with
+        // the first shader, applying the xfer mode and drawing again with the
+        // second shader, then applying the layer to the original drawing.
+        return NULL;
+    }
 
     ShaderCanonicalEntry entry(NULL, shaderState.get());
     int index = CanonicalShaders().find(entry);

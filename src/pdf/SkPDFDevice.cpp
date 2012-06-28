@@ -1401,6 +1401,8 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     entry->fMatrix = matrix;
     entry->fClipStack = clipStack;
     entry->fClipRegion = clipRegion;
+    entry->fColor = SkColorSetA(paint.getColor(), 0xFF);
+    entry->fShaderIndex = -1;
 
     // PDF treats a shader as a color, so we only set one or the other.
     SkRefPtr<SkPDFObject> pdfShader;
@@ -1439,11 +1441,6 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         } else {
             // A color shader is treated as an invalid shader so we don't have
             // to set a shader just for a color.
-            entry->fShaderIndex = -1;
-            entry->fColor = 0;
-            color = 0;
-
-            // Check for a color shader.
             SkShader::GradientInfo gradientInfo;
             SkColor gradientColor;
             gradientInfo.fColors = &gradientColor;
@@ -1455,10 +1452,6 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
                 color = gradientColor;
             }
         }
-    } else {
-        entry->fShaderIndex = -1;
-        entry->fColor = SkColorSetA(paint.getColor(), 0xFF);
-        color = paint.getColor();
     }
 
     SkRefPtr<SkPDFGraphicState> newGraphicState;
