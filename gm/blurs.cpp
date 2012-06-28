@@ -17,6 +17,10 @@ public:
     }
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return this->INHERITED::onGetFlags() | GM::kSkipPipe_Flag;
+    }
+
     virtual SkString onShortName() {
         return SkString("blurs");
     }
