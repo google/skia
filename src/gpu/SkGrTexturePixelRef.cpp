@@ -48,8 +48,8 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkGrTexturePixelRef* copyToTexturePixelRef(GrTexture* texture,
-                                                  SkBitmap::Config dstConfig) {
+static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture,
+                                           SkBitmap::Config dstConfig) {
     if (NULL == texture) {
         return NULL;
     }
@@ -70,110 +70,81 @@ static SkGrTexturePixelRef* copyToTexturePixelRef(GrTexture* texture,
     }
 
     context->copyTexture(texture, dst->asRenderTarget());
-    SkGrTexturePixelRef* pixelRef = new SkGrTexturePixelRef(dst);
+
+    // The render texture we have created (to perform the copy) isn't fully
+    // functional (since it doesn't have a stencil buffer). Release it here
+    // so the caller doesn't try to render to it.
+    // TODO: we can undo this release when dynamic stencil buffer attach/
+    // detach has been implemented
+    dst->releaseRenderTarget();
+
+    SkGrPixelRef* pixelRef = new SkGrPixelRef(dst);
     GrSafeUnref(dst);
     return pixelRef;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGrTexturePixelRef::SkGrTexturePixelRef(GrTexture* tex) {
-    fTexture = tex;
-    GrSafeRef(tex);
-}
-
-SkGrTexturePixelRef::~SkGrTexturePixelRef() {
-    GrSafeUnref(fTexture);
-}
-
-SkGpuTexture* SkGrTexturePixelRef::getTexture() {
-    return (SkGpuTexture*)fTexture;
-}
-
-SkPixelRef* SkGrTexturePixelRef::deepCopy(SkBitmap::Config dstConfig) {
-    return copyToTexturePixelRef(fTexture, dstConfig);
-}
-
-bool SkGrTexturePixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
-    if (NULL != fTexture && fTexture->isValid()) {
-        int left, top, width, height;
-        if (NULL != subset) {
-            left = subset->fLeft;
-            width = subset->width();
-            top = subset->fTop;
-            height = subset->height();
-        } else {
-            left = 0;
-            width = fTexture->width();
-            top = 0;
-            height = fTexture->height();
-        }
-        dst->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        dst->allocPixels();
-        SkAutoLockPixels al(*dst);
-        void* buffer = dst->getPixels();
-        return fTexture->readPixels(left, top, width, height,
-                                    kSkia8888_PM_GrPixelConfig,
-                                    buffer, dst->rowBytes());
-    } else {
-        return false;
+SkGrPixelRef::SkGrPixelRef(GrSurface* surface) {
+    // The GrTexture has a ref to the GrRenderTarget but not vice versa.
+    // If the GrTexture exists take a ref to that (rather than the render
+    // target)
+    fSurface = surface->asTexture();
+    if (NULL == fSurface) {
+        fSurface = surface;
     }
+
+    GrSafeRef(surface);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-SkGrRenderTargetPixelRef::SkGrRenderTargetPixelRef(GrRenderTarget* rt) {
-    fRenderTarget = rt;
-    GrSafeRef(fRenderTarget);
+SkGrPixelRef::~SkGrPixelRef() {
+    GrSafeUnref(fSurface);
 }
 
-SkGrRenderTargetPixelRef::~SkGrRenderTargetPixelRef() {
-    GrSafeUnref(fRenderTarget);
-}
-
-SkGpuTexture* SkGrRenderTargetPixelRef::getTexture() { 
-    if (NULL != fRenderTarget) {
-        return (SkGpuTexture*) fRenderTarget->asTexture();
+SkGpuTexture* SkGrPixelRef::getTexture() {
+    if (NULL != fSurface) {
+        return (SkGpuTexture*) fSurface->asTexture();
     }
     return NULL;
 }
 
-SkPixelRef* SkGrRenderTargetPixelRef::deepCopy(SkBitmap::Config dstConfig) {
-    if (NULL == fRenderTarget) {
+SkPixelRef* SkGrPixelRef::deepCopy(SkBitmap::Config dstConfig) {
+    if (NULL == fSurface) {
         return NULL;
     }
-    // Note that when copying an SkGrRenderTargetPixelRef, we actually 
-    // return an SkGrTexturePixelRef instead.  This is because
-    // SkGrRenderTargetPixelRef is usually created in conjunction with
-    // GrTexture owned elsewhere (e.g., SkGpuDevice), and cannot live
-    // independently of that texture.  SkGrTexturePixelRef, on the other
-    // hand, owns its own GrTexture, and is thus self-contained.
-    return copyToTexturePixelRef(fRenderTarget->asTexture(), dstConfig);
+
+    // Note that when copying a render-target-backed pixel ref, we
+    // return a texture-backed pixel ref instead.  This is because
+    // render-target pixel refs are usually created in conjunction with
+    // a GrTexture owned elsewhere (e.g., SkGpuDevice), and cannot live
+    // independently of that texture.  Texture-backed pixel refs, on the other
+    // hand, own their GrTextures, and are thus self-contained.
+    return copyToTexturePixelRef(fSurface->asTexture(), dstConfig);
 }
 
-bool SkGrRenderTargetPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
-    if (NULL != fRenderTarget && fRenderTarget->isValid()) {
-        int left, top, width, height;
-        if (NULL != subset) {
-            left = subset->fLeft;
-            width = subset->width();
-            top = subset->fTop;
-            height = subset->height();
-        } else {
-            left = 0;
-            width = fRenderTarget->width();
-            top = 0;
-            height = fRenderTarget->height();
-        }
-        dst->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        dst->allocPixels();
-        SkAutoLockPixels al(*dst);
-        void* buffer = dst->getPixels();
-        return fRenderTarget->readPixels(left, top, width, height,
-                                         kSkia8888_PM_GrPixelConfig,
-                                         buffer, dst->rowBytes());
-    } else {
+bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
+    if (NULL == fSurface || !fSurface->isValid()) {
         return false;
     }
+
+    int left, top, width, height;
+    if (NULL != subset) {
+        left = subset->fLeft;
+        width = subset->width();
+        top = subset->fTop;
+        height = subset->height();
+    } else {
+        left = 0;
+        width = fSurface->width();
+        top = 0;
+        height = fSurface->height();
+    }
+    dst->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+    dst->allocPixels();
+    SkAutoLockPixels al(*dst);
+    void* buffer = dst->getPixels();
+    return fSurface->readPixels(left, top, width, height,
+                                kSkia8888_PM_GrPixelConfig,
+                                buffer, dst->rowBytes());
 }
 

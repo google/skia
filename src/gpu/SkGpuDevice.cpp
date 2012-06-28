@@ -198,9 +198,9 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     // are ensuring that both objects will live as long as the pixel ref.
     SkPixelRef* pr;
     if (fTexture) {
-        pr = new SkGrTexturePixelRef(fTexture);
+        pr = new SkGrPixelRef(fTexture);
     } else {
-        pr = new SkGrRenderTargetPixelRef(fRenderTarget);
+        pr = new SkGrPixelRef(fRenderTarget);
     }
     this->setPixelRef(pr, 0)->unref();
 
@@ -243,7 +243,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         GrAssert(NULL != fRenderTarget);
 
         // wrap the bitmap with a pixelref to expose our texture
-        SkGrTexturePixelRef* pr = new SkGrTexturePixelRef(fTexture);
+        SkGrPixelRef* pr = new SkGrPixelRef(fTexture);
         this->setPixelRef(pr, 0)->unref();
     } else {
         GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
@@ -1599,7 +1599,7 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
                                  SkIntToScalar(src.height()));
     GrTexture* resultTexture = filter_texture(fContext, texture, filter, rect);
     if (resultTexture) {
-        result->setPixelRef(new SkGrTexturePixelRef(resultTexture))->unref();
+        result->setPixelRef(new SkGrPixelRef(resultTexture))->unref();
         resultTexture->unref();
     }
     return true;
