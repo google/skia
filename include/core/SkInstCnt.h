@@ -37,10 +37,11 @@ extern bool gPrintInstCount;
 #define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
     class SkInstanceCountHelper {                                           \
     public:                                                                 \
-        typedef int (*PFCheckInstCnt)(int level);                           \
+        typedef int (*PFCheckInstCnt)(int level, bool cleanUp);             \
         SkInstanceCountHelper() {                                           \
             if (!gInited) {                                                 \
                 initStep                                                    \
+                gChildren = new SkTArray<PFCheckInstCnt>;                   \
                 gInited = true;                                             \
             }                                                               \
             gInstanceCount++;                                               \
@@ -56,7 +57,7 @@ extern bool gPrintInstCount;
                                                                             \
         static int32_t gInstanceCount;                                      \
         static bool gInited;                                                \
-        static SkTArray<PFCheckInstCnt> gChildren;                          \
+        static SkTArray<PFCheckInstCnt>* gChildren;                         \
     } fInstanceCountHelper;                                                 \
                                                                             \
     static int32_t GetInstanceCount() {                                     \
@@ -64,39 +65,47 @@ extern bool gPrintInstCount;
     }                                                                       \
                                                                             \
     static void exitPrint() {                                               \
-        CheckInstanceCount();                                               \
+        CheckInstanceCount(0, true);                                        \
     }                                                                       \
                                                                             \
-    static int CheckInstanceCount(int level = 0) {                          \
+    static int CheckInstanceCount(int level = 0, bool cleanUp = false) {    \
         if (gPrintInstCount && 0 != SkInstanceCountHelper::gInstanceCount) {\
             SkDebugf("%*c Leaked %s: %d\n",                                 \
                      4*level, ' ', #className,                              \
                      SkInstanceCountHelper::gInstanceCount);                \
         }                                                                   \
-        int childCount = SkInstanceCountHelper::gChildren.count();          \
+        if (NULL == SkInstanceCountHelper::gChildren) {                     \
+            return SkInstanceCountHelper::gInstanceCount;                   \
+        }                                                                   \
+        int childCount = SkInstanceCountHelper::gChildren->count();         \
         int count = SkInstanceCountHelper::gInstanceCount;                  \
         for (int i = 0; i < childCount; ++i) {                              \
-            count -= (*SkInstanceCountHelper::gChildren[i])(level+1);       \
+            count -= (*(*SkInstanceCountHelper::gChildren)[i])(level+1, cleanUp); \
         }                                                                   \
         SkASSERT(count >= 0);                                               \
         if (gPrintInstCount && childCount > 0 && count > 0) {               \
             SkDebugf("%*c Leaked ???: %d\n", 4*(level + 1), ' ', count);    \
+        }                                                                   \
+        if (cleanUp) {                                                      \
+            delete SkInstanceCountHelper::gChildren;                        \
+            SkInstanceCountHelper::gChildren = NULL;                        \
         }                                                                   \
         return SkInstanceCountHelper::gInstanceCount;                       \
     }                                                                       \
                                                                             \
     static void AddInstChild(SkInstanceCountHelper::PFCheckInstCnt          \
                                                        childCheckInstCnt) { \
-        if (CheckInstanceCount != childCheckInstCnt) {                      \
-            SkInstanceCountHelper::gChildren.push_back(childCheckInstCnt);  \
+        if (CheckInstanceCount != childCheckInstCnt &&                      \
+            NULL != SkInstanceCountHelper::gChildren) {                     \
+            SkInstanceCountHelper::gChildren->push_back(childCheckInstCnt); \
         }                                                                   \
     }
 
 #define SK_DEFINE_INST_COUNT(className)                                     \
     int32_t className::SkInstanceCountHelper::gInstanceCount = 0;           \
     bool className::SkInstanceCountHelper::gInited = false;                 \
-    SkTArray<className::SkInstanceCountHelper::PFCheckInstCnt>              \
-                        className::SkInstanceCountHelper::gChildren;
+    SkTArray<className::SkInstanceCountHelper::PFCheckInstCnt>*             \
+                        className::SkInstanceCountHelper::gChildren = NULL;
 
 #else
 #define SK_DECLARE_INST_COUNT(className)
