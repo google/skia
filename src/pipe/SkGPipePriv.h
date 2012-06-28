@@ -71,6 +71,7 @@ enum DrawOps {
     kDef_Bitmap_DrawOp,
 
     // these are signals to playback, not drawing verbs
+    kReportFlags_DrawOp,
     kDone_DrawOp,
 };
 
@@ -135,6 +136,13 @@ enum {
     kDrawVertices_HasColors_DrawOpFlag   = 1 << 1,
     kDrawVertices_HasIndices_DrawOpFlag  = 1 << 2,
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+static inline bool shouldFlattenBitmaps(uint32_t flags) {
+    return flags & SkGPipeWriter::kCrossProcess_Flag
+            && !(flags & SkGPipeWriter::kSharedAddressSpace_SkGPipeFlag);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

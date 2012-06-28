@@ -78,7 +78,17 @@ public:
     bool isRecording() const { return NULL != fCanvas; }
 
     enum Flags {
-        kCrossProcess_Flag = 1 << 0,
+        /**
+         *  Tells the writer that the reader will be in a different process, so
+         *  (for example) we cannot put function pointers in the stream.
+         */
+        kCrossProcess_Flag              = 1 << 0,
+        /**
+         *  Only meaningful if kCrossProcess_Flag is set. Tells the writer that
+         *  in spite of being cross process, it will have shared address space
+         *  with the reader, so the two can share large objects (like SkBitmaps)
+         */
+        kSharedAddressSpace_SkGPipeFlag = 1 << 1
     };
 
     SkCanvas* startRecording(SkGPipeController*, uint32_t flags = 0);
@@ -91,7 +101,7 @@ private:
     class SkGPipeCanvas* fCanvas;
     SkGPipeController*   fController;
     SkFactorySet         fFactorySet;
-    SkWriter32 fWriter;
+    SkWriter32           fWriter;
 };
 
 #endif
