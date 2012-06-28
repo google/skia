@@ -64,7 +64,7 @@
       # Do not turn on 'skia_angle' - it is currently experimental
       'skia_angle%': 0,
       'skia_arch_type%': 'x86',
-      'skia_arch_width%': '32',
+      'skia_arch_width%': 32,
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
