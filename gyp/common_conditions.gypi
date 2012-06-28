@@ -113,6 +113,18 @@
         'defines': [
           'SK_BUILD_FOR_MAC',
         ],
+        'conditions' : [
+          ['skia_arch_width == 64', {
+            'xcode_settings': {
+              'ARCHS': 'x86_64',
+            },
+          }],
+          ['skia_arch_width == 32', {
+            'xcode_settings': {
+              'ARCHS': 'i386',
+            },
+          }],
+        ],
         'configurations': {
           'Debug': {
             'xcode_settings': {
@@ -200,18 +212,18 @@
           '-fno-rtti',
         ],
         'conditions': [
-          [ 'skia_target_arch == "arm"', {
+          [ 'skia_arch_type == "arm"', {
             'ldflags': [
               '-Wl',
               '--fix-cortex-a8',
             ],
           }],
-          [ 'skia_target_arch == "arm" and arm_thumb == 1', {
+          [ 'skia_arch_type == "arm" and arm_thumb == 1', {
             'cflags': [
               '-mthumb',
             ],
           }],
-          [ 'skia_target_arch == "arm" and armv7 == 1', {
+          [ 'skia_arch_type == "arm" and armv7 == 1', {
             'variables': {
               'arm_neon_optional%': 0,
             },
