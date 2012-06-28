@@ -24,7 +24,7 @@
         ['skia_angle and not skia_os == "win"',
           {'error': '<!(skia_angle=1 only supported with skia_os="win".)'
         }],
-        ['skia_arch_width != 32 or skia_arch_width != 64',
+        ['skia_arch_width != 32 and skia_arch_width != 64',
           {'error': '<!(skia_arch_width can only be 32 or 64 bits not <(skia_arch_width) bits)'
         }],
       ],
