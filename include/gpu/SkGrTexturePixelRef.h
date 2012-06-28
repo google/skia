@@ -8,8 +8,8 @@
 
 
 
-#ifndef SkGrTexturePixelRef_DEFINED
-#define SkGrTexturePixelRef_DEFINED
+#ifndef SkGrPixelRef_DEFINED
+#define SkGrPixelRef_DEFINED
 
 #include "SkBitmap.h"
 #include "SkPixelRef.h"
@@ -38,52 +38,25 @@ private:
 };
 
 /**
- *  PixelRef that wraps a GrTexture
+ *  PixelRef that wraps a GrSurface
  */
-class SK_API SkGrTexturePixelRef : public SkROLockPixelsPixelRef {
+class SK_API SkGrPixelRef : public SkROLockPixelsPixelRef {
 public:
-            SkGrTexturePixelRef(GrTexture*);
-    virtual ~SkGrTexturePixelRef();
+    SkGrPixelRef(GrSurface* surface);
+    virtual ~SkGrPixelRef();
 
     // override from SkPixelRef
-    virtual SkGpuTexture* getTexture();
+    virtual SkGpuTexture* getTexture() SK_OVERRIDE;
 
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 
 protected:
-    // override from SkPixelRef
-    virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset);
-
-    // override from SkPixelRef
+    // overrides from SkPixelRef
+    virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset) SK_OVERRIDE;
     virtual SkPixelRef* deepCopy(SkBitmap::Config dstConfig) SK_OVERRIDE;
 
 private:
-    GrTexture*  fTexture;
-    typedef SkROLockPixelsPixelRef INHERITED;
-};
-
-/**
- *  PixelRef that wraps a GrRenderTarget
- */
-class SK_API SkGrRenderTargetPixelRef : public SkROLockPixelsPixelRef {
-public:
-            SkGrRenderTargetPixelRef(GrRenderTarget* rt);
-    virtual ~SkGrRenderTargetPixelRef();
-
-    // override from SkPixelRef
-    virtual SkGpuTexture* getTexture();
-
-    SK_DECLARE_UNFLATTENABLE_OBJECT()
-
-protected:
-    // override from SkPixelRef
-    virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset);
-
-    // override from SkPixelRef
-    virtual SkPixelRef* deepCopy(SkBitmap::Config dstConfig) SK_OVERRIDE;
-
-private:
-    GrRenderTarget*  fRenderTarget;
+    GrSurface*  fSurface;
     typedef SkROLockPixelsPixelRef INHERITED;
 };
 
