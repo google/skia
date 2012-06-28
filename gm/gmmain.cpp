@@ -620,6 +620,18 @@ static ErrorBitfield test_picture_serialization(GM* gm,
     }
 }
 
+struct PipeFlagComboData {
+    const char* name;
+    uint32_t flags;
+};
+
+static PipeFlagComboData gPipeWritingFlagCombos[] = {
+    { "", 0 },
+    { " cross-process", SkGPipeWriter::kCrossProcess_Flag },
+    { " cross-process, shared adress", SkGPipeWriter::kCrossProcess_Flag
+        | SkGPipeWriter::kSharedAddressSpace_SkGPipeFlag }
+};
+
 static ErrorBitfield test_pipe_playback(GM* gm,
                                         const ConfigData& gRec,
                                         const SkBitmap& comparisonBitmap,
@@ -628,18 +640,27 @@ static ErrorBitfield test_pipe_playback(GM* gm,
     if (kRaster_Backend != gRec.fBackend) {
         return ERROR_NONE;
     }
-    SkBitmap bitmap;
-    SkISize size = gm->getISize();
-    setup_bitmap(gRec, size, &bitmap);
-    SkCanvas canvas(bitmap);
-    PipeController pipeController(&canvas);
-    SkGPipeWriter writer;
-    SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
-            SkGPipeWriter::kCrossProcess_Flag);
-    invokeGM(gm, pipeCanvas);
-    writer.endRecording();
-    return handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                               "-pipe", bitmap, NULL, &comparisonBitmap);
+    ErrorBitfield errors = ERROR_NONE;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
+        SkBitmap bitmap;
+        SkISize size = gm->getISize();
+        setup_bitmap(gRec, size, &bitmap);
+        SkCanvas canvas(bitmap);
+        PipeController pipeController(&canvas);
+        SkGPipeWriter writer;
+        SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
+                                                     gPipeWritingFlagCombos[i].flags);
+        invokeGM(gm, pipeCanvas);
+        writer.endRecording();
+        SkString string("-pipe");
+        string.append(gPipeWritingFlagCombos[i].name);
+        errors |= handle_test_results(gm, gRec, NULL, NULL, diffPath,
+                                   string.c_str(), bitmap, NULL, &comparisonBitmap);
+        if (errors != ERROR_NONE) {
+            break;
+        }
+    }
+    return errors;
 }
 
 static ErrorBitfield test_tiled_pipe_playback(GM* gm,
@@ -650,17 +671,27 @@ static ErrorBitfield test_tiled_pipe_playback(GM* gm,
     if (kRaster_Backend != gRec.fBackend) {
         return ERROR_NONE;
     }
-    SkBitmap bitmap;
-    SkISize size = gm->getISize();
-    setup_bitmap(gRec, size, &bitmap);
-    TiledPipeController pipeController(bitmap);
-    SkGPipeWriter writer;
-    SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
-                                                 SkGPipeWriter::kCrossProcess_Flag);
-    invokeGM(gm, pipeCanvas);
-    writer.endRecording();
-    return handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                               "-tiled pipe", bitmap, NULL, &comparisonBitmap);
+    ErrorBitfield errors = ERROR_NONE;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
+        SkBitmap bitmap;
+        SkISize size = gm->getISize();
+        setup_bitmap(gRec, size, &bitmap);
+        SkCanvas canvas(bitmap);
+        TiledPipeController pipeController(bitmap);
+        SkGPipeWriter writer;
+        SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
+                                                     gPipeWritingFlagCombos[i].flags);
+        invokeGM(gm, pipeCanvas);
+        writer.endRecording();
+        SkString string("-pipe");
+        string.append(gPipeWritingFlagCombos[i].name);
+        errors |= handle_test_results(gm, gRec, NULL, NULL, diffPath,
+                                      string.c_str(), bitmap, NULL, &comparisonBitmap);
+        if (errors != ERROR_NONE) {
+            break;
+        }
+    }
+    return errors;
 }
 
 static void write_picture_serialization(GM* gm, const ConfigData& rec,
@@ -725,7 +756,7 @@ static void usage(const char * argv0) {
         SkDebugf(gRec[i].fName);
     }
     SkDebugf(" ]\n");
-    SkDebugf("    [--noreplay] [--pipe] [--serialize] [--forceBWtext] [--nopdf] \n"
+    SkDebugf("    [--noreplay] [--nopipe] [--serialize] [--forceBWtext] [--nopdf] \n"
              "    [--tiledPipe] \n"
              "    [--nodeferred] [--match substring] [--notexturecache]\n"
              "    [-h|--help]\n"
@@ -737,7 +768,7 @@ static void usage(const char * argv0) {
     SkDebugf("    diffPath: directory to write difference images in.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
-    SkDebugf("    --pipe: Exercise SkGPipe replay.\n");
+    SkDebugf("    --nopipe: Skip SkGPipe replay.\n");
     SkDebugf("    --tiledPipe: Exercise tiled SkGPipe replay.\n");
     SkDebugf(
              "    --serialize: exercise SkPicture serialization & deserialization.\n");
@@ -831,7 +862,7 @@ int main(int argc, char * const argv[]) {
 
     bool doPDF = true;
     bool doReplay = true;
-    bool doPipe = false;
+    bool doPipe = true;
     bool doTiledPipe = false;
     bool doSerialize = false;
     bool doDeferred = true;
@@ -871,8 +902,8 @@ int main(int argc, char * const argv[]) {
             }
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
             gForceBWtext = true;
-        } else if (strcmp(*argv, "--pipe") == 0) {
-            doPipe = true;
+        } else if (strcmp(*argv, "--nopipe") == 0) {
+            doPipe = false;
         } else if (strcmp(*argv, "--tiledPipe") == 0) {
             doTiledPipe = true;
         } else if (strcmp(*argv, "--noreplay") == 0) {
