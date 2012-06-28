@@ -68,3 +68,4 @@ inline uint32_t SkComputeChecksum32(const uint32_t* ptr, size_t size) {
     return result;
 }
 #endif
+
