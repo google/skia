@@ -101,6 +101,12 @@ protected:
         return SkString("bitmapfilters");
     }
 
+#ifdef SK_BUILD_FOR_ANDROID
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return this->INHERITED::onGetFlags() | GM::kSkipPipe_Flag;
+    }
+#endif
+
 	virtual SkISize onISize() {
         return make_isize(540, 330);
     }
