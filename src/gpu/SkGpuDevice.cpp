@@ -14,7 +14,7 @@
 #include "GrDefaultTextContext.h"
 #include "GrTextContext.h"
 
-#include "SkGrTexturePixelRef.h"
+#include "SkGrPixelRef.h"
 
 #include "SkColorFilter.h"
 #include "SkDrawProcs.h"

@@ -8,7 +8,7 @@
 
 
 
-#include "SkGrTexturePixelRef.h"
+#include "SkGrPixelRef.h"
 #include "GrContext.h"
 #include "GrTexture.h"
 #include "SkGr.h"
