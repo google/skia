@@ -104,8 +104,8 @@ def RunCommand(command):
     """
     print 'running command [%s]...' % command
     retval = os.system(command)
-    if retval is not 0:
-        raise Exception('command [%s] failed' % command)
+    #if retval is not 0:
+    #    raise Exception('command [%s] failed' % command)
 
 def FindPathToSkDiff(user_set_path=None):
     """Return path to an existing skdiff binary, or raise an exception if we
