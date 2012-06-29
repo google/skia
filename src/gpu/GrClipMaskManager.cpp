@@ -353,15 +353,63 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool draw_path_in_software(GrContext* context,
+                           GrGpu* gpu,
+                           const SkPath& path,
+                           GrPathFill fill,
+                           bool doAA,
+                           const GrIRect& resultBounds) {
+
+    GrAutoScratchTexture ast;
+
+    if (!GrSWMaskHelper::DrawToTexture(context, path, resultBounds, fill, 
+                                       &ast, doAA, NULL)) {
+        return false;
+    }
+
+    // TODO: merge this with the similar code in the GrSoftwarePathRenderer.cpp
+    SkAutoTUnref<GrTexture> texture(ast.detach());
+    GrAssert(NULL != texture);
+
+    GrDrawState::StageMask stageMask = 0;
+    GrDrawTarget::AutoDeviceCoordDraw adcd(gpu, stageMask);
+    enum {
+        // the SW path renderer shares this stage with glyph
+        // rendering (kGlyphMaskStage in GrBatchedTextContext)
+        kPathMaskStage = GrPaint::kTotalStages,
+    };
+    GrAssert(NULL == gpu->drawState()->getTexture(kPathMaskStage));
+    gpu->drawState()->setTexture(kPathMaskStage, texture);
+    gpu->drawState()->sampler(kPathMaskStage)->reset();
+    GrScalar w = GrIntToScalar(resultBounds.width());
+    GrScalar h = GrIntToScalar(resultBounds.height());
+    GrRect maskRect = GrRect::MakeWH(w / texture->width(),
+                                        h / texture->height());
+
+    const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
+    srcRects[kPathMaskStage] = &maskRect;
+    stageMask |= 1 << kPathMaskStage;
+    GrRect dstRect = GrRect::MakeWH(
+                                SK_Scalar1* resultBounds.width(),
+                                SK_Scalar1* resultBounds.height());
+    gpu->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
+    gpu->drawState()->setTexture(kPathMaskStage, NULL);
+    GrAssert(!GrIsFillInverted(fill));
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 bool draw_path(GrContext* context,
                GrGpu* gpu,
                const SkPath& path,
                GrPathFill fill,
-               bool doAA) {
+               bool doAA,
+               const GrIRect& resultBounds) {
 
-    GrPathRenderer* pr = context->getPathRenderer(path, fill, gpu, doAA, true);
+    GrPathRenderer* pr = context->getPathRenderer(path, fill, gpu, doAA, false);
     if (NULL == pr) {
-        return false;
+        return draw_path_in_software(context, gpu, path, fill, doAA, resultBounds);
     }
 
     pr->drawPath(path, fill, NULL, gpu, 0, doAA);
@@ -373,7 +421,8 @@ bool draw_path(GrContext* context,
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawClipShape(GrTexture* target,
                                       const GrClip& clipIn,
-                                      int index) {
+                                      int index,
+                                      const GrIRect& resultBounds) {
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(NULL != drawState);
 
@@ -391,7 +440,8 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target,
         return draw_path(this->getContext(), fGpu,
                          clipIn.getPath(index),
                          clipIn.getPathFill(index),
-                         clipIn.getDoAA(index));
+                         clipIn.getDoAA(index),
+                         resultBounds);
     }
     return true;
 }
@@ -461,7 +511,7 @@ void GrClipMaskManager::setupCache(const GrClip& clipIn,
 // Returns true if there is no more work to be done (i.e., we got a cache hit)
 bool GrClipMaskManager::clipMaskPreamble(const GrClip& clipIn,
                                          GrTexture** result,
-                                         GrIRect *resultBounds) {
+                                         GrIRect* resultBounds) {
     GrDrawState* origDrawState = fGpu->drawState();
     GrAssert(origDrawState->isClipState());
 
@@ -516,7 +566,7 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClip& clipIn,
 bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
                                             GrTexture** result,
                                             GrIRect *resultBounds) {
-
+    GrAssert(NULL != resultBounds);
     GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
 
     if (this->clipMaskPreamble(clipIn, result, resultBounds)) {
@@ -575,7 +625,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             fGpu->clear(NULL, 0x00000000, accum->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(accum, clipIn, c);
+            this->drawClipShape(accum, clipIn, c, *resultBounds);
 
         } else if (SkRegion::kReverseDifference_Op == op ||
                    SkRegion::kIntersect_Op == op) {
@@ -596,7 +646,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             fGpu->clear(NULL, 0x00000000, temp.texture()->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
-            this->drawClipShape(temp.texture(), clipIn, c);
+            this->drawClipShape(temp.texture(), clipIn, c, *resultBounds);
 
             // TODO: rather than adding these two translations here
             // compute the bounding box needed to render the texture
@@ -628,7 +678,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             // all the remaining ops can just be directly draw into 
             // the accumulation buffer
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(accum, clipIn, c);
+            this->drawClipShape(accum, clipIn, c, *resultBounds);
         }
     }
 
@@ -1025,7 +1075,7 @@ GrPathFill invert_fill(GrPathFill fill) {
 
 bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
                                                GrTexture** result,
-                                               GrIRect *resultBounds) {
+                                               GrIRect* resultBounds) {
     GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
 
     if (this->clipMaskPreamble(clipIn, result, resultBounds)) {
@@ -1040,7 +1090,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
 
     GrSWMaskHelper helper(this->getContext());
 
-    helper.init(*resultBounds, NULL, false);
+    helper.init(*resultBounds, NULL);
 
     int count = clipIn.getElementCount();
 
@@ -1051,7 +1101,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
                                               &clearToInside,
                                               &startOp);
 
-    helper.clear(clearToInside ? SK_ColorWHITE : 0x00000000);
+    helper.clear(clearToInside ? 0xFF : 0x00);
 
     for (int i = start; i < count; ++i) {
 
@@ -1073,7 +1123,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
                                        SkIntToScalar(resultBounds->bottom()));
 
                 // invert the entire scene
-                helper.draw(temp, SkRegion::kXOR_Op, false, SK_ColorWHITE);
+                helper.draw(temp, SkRegion::kXOR_Op, false, 0xFF);
             }
 
             if (kRect_ClipType == clipIn.getElementType(i)) {
@@ -1084,7 +1134,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
 
                 helper.draw(temp, SkRegion::kReplace_Op, 
                             kInverseEvenOdd_GrPathFill, clipIn.getDoAA(i),
-                            0x00000000);
+                            0x00);
             } else {
                 GrAssert(kPath_ClipType == clipIn.getElementType(i));
 
@@ -1092,7 +1142,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
                             SkRegion::kReplace_Op,
                             invert_fill(clipIn.getPathFill(i)),
                             clipIn.getDoAA(i),
-                            0x00000000);
+                            0x00);
             }
 
             continue;
@@ -1104,7 +1154,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
 
             helper.draw(clipIn.getRect(i),
                         op,
-                        clipIn.getDoAA(i), SK_ColorWHITE);
+                        clipIn.getDoAA(i), 0xFF);
 
         } else {
             GrAssert(kPath_ClipType == clipIn.getElementType(i));
@@ -1112,7 +1162,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
             helper.draw(clipIn.getPath(i), 
                         op,
                         clipIn.getPathFill(i), 
-                        clipIn.getDoAA(i), SK_ColorWHITE);
+                        clipIn.getDoAA(i), 0xFF);
         }
     }
 
@@ -1129,7 +1179,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
     // can't leave the accum bound as a rendertarget
     drawState->setRenderTarget(temp);
 
-    helper.toTexture(accum, clearToInside);
+    helper.toTexture(accum, clearToInside ? 0xFF : 0x00);
 
     *result = accum;
 

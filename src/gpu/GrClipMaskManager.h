@@ -362,7 +362,8 @@ private:
 
     bool drawClipShape(GrTexture* target,
                        const GrClip& clipIn,
-                       int index);
+                       int index,
+                       const GrIRect& resultBounds);
 
     void drawTexture(GrTexture* target,
                      GrTexture* texture);

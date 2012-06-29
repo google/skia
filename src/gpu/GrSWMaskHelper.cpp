@@ -52,17 +52,17 @@ SkPath::FillType gr_fill_to_sk_fill(GrPathFill fill) {
 /**
  * Draw a single rect element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::draw(const GrRect& clientRect, SkRegion::Op op, 
-                          bool antiAlias, GrColor color) {
+void GrSWMaskHelper::draw(const GrRect& rect, SkRegion::Op op, 
+                          bool antiAlias, uint8_t alpha) {
     SkPaint paint;
 
     SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
 
     paint.setXfermode(mode);
     paint.setAntiAlias(antiAlias);
-    paint.setColor(color);
+    paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
-    fDraw.drawRect(clientRect, paint);
+    fDraw.drawRect(rect, paint);
 
     SkSafeUnref(mode);
 }
@@ -70,12 +70,12 @@ void GrSWMaskHelper::draw(const GrRect& clientRect, SkRegion::Op op,
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::draw(const SkPath& clientPath, SkRegion::Op op,
-                          GrPathFill fill, bool antiAlias, GrColor color) {
+void GrSWMaskHelper::draw(const SkPath& path, SkRegion::Op op,
+                          GrPathFill fill, bool antiAlias, uint8_t alpha) {
 
     SkPaint paint;
     SkPath tmpPath;
-    const SkPath* pathToDraw = &clientPath;
+    const SkPath* pathToDraw = &path;
     if (kHairLine_GrPathFill == fill) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SK_Scalar1);
@@ -92,30 +92,26 @@ void GrSWMaskHelper::draw(const SkPath& clientPath, SkRegion::Op op,
 
     paint.setXfermode(mode);
     paint.setAntiAlias(antiAlias);
-    paint.setColor(color);
+    paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
     fDraw.drawPath(*pathToDraw, paint);
 
     SkSafeUnref(mode);
 }
 
-bool GrSWMaskHelper::init(const GrIRect& pathDevBounds, 
-                          const GrPoint* translate,
-                          bool useMatrix) {
-    if (useMatrix) {    
-        fMatrix = fContext->getMatrix();
+bool GrSWMaskHelper::init(const GrIRect& resultBounds, 
+                          const GrMatrix* matrix) {
+    if (NULL != matrix) {
+        fMatrix = *matrix;
     } else {
         fMatrix.setIdentity();
     }
 
-    if (NULL != translate) {
-        fMatrix.postTranslate(translate->fX, translate->fY);
-    }
-
-    fMatrix.postTranslate(-pathDevBounds.fLeft * SK_Scalar1,
-                          -pathDevBounds.fTop * SK_Scalar1);
-    GrIRect bounds = GrIRect::MakeWH(pathDevBounds.width(),
-                                     pathDevBounds.height());
+    // Now translate so the bound's UL corner is at the origin
+    fMatrix.postTranslate(-resultBounds.fLeft * SK_Scalar1,
+                          -resultBounds.fTop * SK_Scalar1);
+    GrIRect bounds = GrIRect::MakeWH(resultBounds.width(),
+                                     resultBounds.height());
 
     fBM.setConfig(SkBitmap::kA8_Config, bounds.fRight, bounds.fBottom);
     if (!fBM.allocPixels()) {
@@ -133,28 +129,23 @@ bool GrSWMaskHelper::init(const GrIRect& pathDevBounds,
 }
 
 /**
- * Get a texture (from the texture cache) of the correct size & format
+ * Get a texture (from the texture cache) of the correct size & format.
+ * Return true on success; false on failure.
  */
-bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* tex) {
+bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
     GrTextureDesc desc;
     desc.fWidth = fBM.width();
     desc.fHeight = fBM.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    tex->set(fContext, desc);
-    GrTexture* texture = tex->texture();
-
-    if (NULL == texture) {
-        return false;
-    }
-
-    return true;
+    texture->set(fContext, desc);
+    return NULL != texture->texture();
 }
 
 /**
  * Move the result of the software mask generation back to the gpu
  */
-void GrSWMaskHelper::toTexture(GrTexture *texture, bool clearToWhite) {
+void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
     SkAutoLockPixels alp(fBM);
 
     // The destination texture is almost always larger than "fBM". Clear
@@ -163,19 +154,45 @@ void GrSWMaskHelper::toTexture(GrTexture *texture, bool clearToWhite) {
     
     // "texture" needs to be installed as the render target for the clear
     // and the texture upload but cannot remain the render target upon
-    // returned. Callers typically use it as a texture and it would then
+    // return. Callers typically use it as a texture and it would then
     // be both source and dest.
     GrDrawState::AutoRenderTargetRestore artr(fContext->getGpu()->drawState(), 
                                               texture->asRenderTarget());
 
-    if (clearToWhite) {
-        fContext->getGpu()->clear(NULL, SK_ColorWHITE);
-    } else {
-        fContext->getGpu()->clear(NULL, 0x00000000);
-    }
+    fContext->getGpu()->clear(NULL, SkColorSetARGB(alpha, alpha, alpha, alpha));
 
     texture->writePixels(0, 0, fBM.width(), fBM.height(), 
                          kAlpha_8_GrPixelConfig,
                          fBM.getPixels(), fBM.rowBytes());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+ * Software rasterizes path to A8 mask (possibly using the context's matrix) 
+ * and uploads the result to a scratch texture. Returns true on success; 
+ * false on failure.
+ */
+bool GrSWMaskHelper::DrawToTexture(GrContext* context,
+                                   const SkPath& path,
+                                   const GrIRect& resultBounds,
+                                   GrPathFill fill,
+                                   GrAutoScratchTexture* result,
+                                   bool antiAlias,
+                                   GrMatrix* matrix) {
+    GrSWMaskHelper helper(context);
+
+    if (!helper.init(resultBounds, matrix)) {
+        return false;
+    }
+
+    helper.draw(path, SkRegion::kReplace_Op, fill, antiAlias, 0xFF);
+
+    if (!helper.getTexture(result)) {
+        return false;
+    }
+
+    helper.toTexture(result->texture(), 0x00);
+
+    return true;
 }
 

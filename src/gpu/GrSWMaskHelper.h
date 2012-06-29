@@ -23,7 +23,17 @@ class SkPath;
 
 /**
  * The GrSWMaskHelper helps generate clip masks using the software rendering
- * path.
+ * path. It is intended to be used as:
+ *
+ *   GrSWMaskHelper helper(context);
+ *   helper.init(...);
+ *
+ *      draw one or more paths/rects specifying the required boolean ops
+ *
+ *   toTexture();   // to get it from the internal bitmap to the GPU
+ *
+ * The result of this process will be the final mask (on the GPU) in the
+ * upper left hand corner of the texture.
  */
 class GrSWMaskHelper : public GrNoncopyable {
 public:
@@ -31,23 +41,42 @@ public:
     : fContext(context) {
     }
 
-    void draw(const GrRect& clientRect, SkRegion::Op op, 
-              bool antiAlias, GrColor color);
+    // set up the internal state in preparation for draws. Since many masks
+    // may be accumulated in the helper during creation, "resultBounds" 
+    // allows the caller to specify the region of interest - to limit the 
+    // amount of work.
+    bool init(const GrIRect& resultBounds, const GrMatrix* matrix);
 
-    void draw(const SkPath& clientPath, SkRegion::Op op, 
-              GrPathFill fill, bool antiAlias, GrColor color);
+    // Draw a single rect into the accumulation bitmap using the specified op
+    void draw(const GrRect& rect, SkRegion::Op op, 
+              bool antiAlias, uint8_t alpha);
 
-    bool init(const GrIRect& pathDevBounds, 
-              const GrPoint* translate,
-              bool useMatrix);
+    // Draw a single path into the accumuation bitmap using the specified op
+    void draw(const SkPath& path, SkRegion::Op op, 
+              GrPathFill fill, bool antiAlias, uint8_t alpha);
 
-    bool getTexture(GrAutoScratchTexture* tex);
+    // Helper function to get a scratch texture suitable for capturing the
+    // result (i.e., right size & format)
+    bool getTexture(GrAutoScratchTexture* texture);
 
-    void toTexture(GrTexture* texture, bool clearToWhite);
+    // Move the mask generation results from the internal bitmap to the gpu.
+    // The space outside of the mask is cleared using "alpha"
+    void toTexture(GrTexture* texture, uint8_t alpha);
 
-    void clear(GrColor color) {
-        fBM.eraseColor(color);
+    // Reset the internal bitmap
+    void clear(uint8_t alpha) {
+        fBM.eraseColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
     }
+
+    // Canonical usage utility that draws a single path and uploads it
+    // to the GPU. The result is returned in "result".
+    static bool DrawToTexture(GrContext* context,
+                              const SkPath& path,
+                              const GrIRect& resultBounds,
+                              GrPathFill fill,
+                              GrAutoScratchTexture* result,
+                              bool antiAlias,
+                              GrMatrix* matrix);
 
 protected:
 private:
