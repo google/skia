@@ -71,12 +71,15 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture,
 
     context->copyTexture(texture, dst->asRenderTarget());
 
+    // TODO: figure out if this is responsible for Chrome canvas errors
+#if 0
     // The render texture we have created (to perform the copy) isn't fully
     // functional (since it doesn't have a stencil buffer). Release it here
     // so the caller doesn't try to render to it.
     // TODO: we can undo this release when dynamic stencil buffer attach/
     // detach has been implemented
     dst->releaseRenderTarget();
+#endif
 
     SkGrPixelRef* pixelRef = new SkGrPixelRef(dst);
     GrSafeUnref(dst);
@@ -86,10 +89,15 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGrPixelRef::SkGrPixelRef(GrSurface* surface) {
+    // TODO: figure out if this is responsible for Chrome canvas errors
+#if 0
     // The GrTexture has a ref to the GrRenderTarget but not vice versa.
     // If the GrTexture exists take a ref to that (rather than the render
     // target)
     fSurface = surface->asTexture();
+#else
+    fSurface = NULL;
+#endif
     if (NULL == fSurface) {
         fSurface = surface;
     }

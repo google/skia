@@ -103,6 +103,7 @@
         '../include/gpu/SkGpuCanvas.h',
         '../include/gpu/SkGpuDevice.h',
         '../include/gpu/SkGr.h',
+        '../include/gpu/SkGrPixelRef.h',
         '../include/gpu/SkGrTexturePixelRef.h',
 
         '../include/gpu/gl/SkGLContext.h',
@@ -116,6 +117,7 @@
         '../src/gpu/SkGpuDevice.cpp',
         '../src/gpu/SkGr.cpp',
         '../src/gpu/SkGrFontScaler.cpp',
+        '../src/gpu/SkGrPixelRef.cpp',
         '../src/gpu/SkGrTexturePixelRef.cpp',
 
         '../src/gpu/gl/SkGLContext.cpp',
