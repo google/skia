@@ -514,6 +514,11 @@ void GrGpuGL::onResetContext() {
     fHWBoundRenderTarget = NULL;
 
     fHWPathMatrixState.invalidate();
+    if (fCaps.fPathStencilingSupport) {
+        // we don't use the model view matrix.
+        GL_CALL(MatrixMode(GR_GL_MODELVIEW));
+        GL_CALL(LoadIdentity());
+    }
 
     // we assume these values
     if (this->glCaps().unpackRowLengthSupport()) {

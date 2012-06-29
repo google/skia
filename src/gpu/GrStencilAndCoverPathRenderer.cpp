@@ -95,7 +95,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
         GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,
             kZero_StencilOp,
             kZero_StencilOp,
-            kEqual_StencilFunc,
+            // We know our rect will hit pixels outside the clip and the user bits will be 0
+            // outside the clip. So we can't just fill where the user bits are 0. We also need to
+            // check that the clip bit is set.
+            kEqualIfInClip_StencilFunc,
             0xffff,
             0x0000,
             0xffff);
@@ -106,7 +109,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
         // mapRect through persp matrix may not be correct
         if (!drawState->getViewMatrix().hasPerspective() && drawState->getViewInverse(&vmi)) {
             vmi.mapRect(&bounds);
-            // theoretically could set bloat = 0, instead leave it because of matrix inversion precision.
+            // theoretically could set bloat = 0, instead leave it because of matrix inversion
+            // precision.
         } else {
             if (stageMask) {
                 if (!drawState->getViewInverse(&vmi)) {

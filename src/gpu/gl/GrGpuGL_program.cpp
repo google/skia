@@ -113,57 +113,45 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
     const GrMatrix& vm = this->getDrawState().getViewMatrix();
 
     if (kStencilPath_DrawType == type) {
-        if (fHWPathMatrixState.fViewMatrix != vm) {
-            // We use the GL model view matrix to hold the draw state's view
-            // matrix and the GL projection matrix to convert to normalized y-up
-            // coords.
+        if (fHWPathMatrixState.fViewMatrix != vm ||
+            fHWPathMatrixState.fRTSize != viewportSize) {
+            // rescale the coords from skia's "device" coords to GL's normalized coords,
+            // and perform a y-flip.
+            GrMatrix m;
+            m.setScale(GrIntToScalar(2) / rt->width(), GrIntToScalar(-2) / rt->height());
+            m.postTranslate(-1.f , 1.f);
+            m.preConcat(vm);
+
+            // GL wants a column-major 4x4.
             GrGLfloat mv[]  = {
                 // col 0
-                GrScalarToFloat(vm[GrMatrix::kMScaleX]),
-                GrScalarToFloat(vm[GrMatrix::kMSkewY]),
+                GrScalarToFloat(m[GrMatrix::kMScaleX]),
+                GrScalarToFloat(m[GrMatrix::kMSkewY]),
                 0,
-                GrScalarToFloat(vm[GrMatrix::kMPersp0]),
+                GrScalarToFloat(m[GrMatrix::kMPersp0]),
 
                 // col 1
-                GrScalarToFloat(vm[GrMatrix::kMSkewX]),
-                GrScalarToFloat(vm[GrMatrix::kMScaleY]),
+                GrScalarToFloat(m[GrMatrix::kMSkewX]),
+                GrScalarToFloat(m[GrMatrix::kMScaleY]),
                 0,
-                GrScalarToFloat(vm[GrMatrix::kMPersp1]),
+                GrScalarToFloat(m[GrMatrix::kMPersp1]),
 
                 // col 2
                 0, 0, 0, 0,
 
                 // col3
-                GrScalarToFloat(vm[GrMatrix::kMTransX]),
-                GrScalarToFloat(vm[GrMatrix::kMTransY]),
-                0.5f,
-                GrScalarToFloat(vm[GrMatrix::kMPersp2])
-            };
-            GL_CALL(MatrixMode(GR_GL_MODELVIEW));
-            GL_CALL(LoadMatrixf(mv));
-            fHWPathMatrixState.fViewMatrix = vm;
-        }
-        if (fHWPathMatrixState.fRTSize != viewportSize) {
-            GrGLfloat p[] = {
-                // col 0
-                2.f / rt->width(), 0, 0, 0,
-
-                // col 1
-                0, -2.f / rt->height(), 0, 0,
-
-                // col 2
-                0, 0, 1.f, 0,
-
-                // col 3
-                -1.f, 1.f, 0, 1.f,
+                GrScalarToFloat(m[GrMatrix::kMTransX]),
+                GrScalarToFloat(m[GrMatrix::kMTransY]),
+                0.0f,
+                GrScalarToFloat(m[GrMatrix::kMPersp2])
             };
             GL_CALL(MatrixMode(GR_GL_PROJECTION));
-            GL_CALL(LoadMatrixf(p));
+            GL_CALL(LoadMatrixf(mv));
+            fHWPathMatrixState.fViewMatrix = vm;
             fHWPathMatrixState.fRTSize = viewportSize;
         }
     } else if (!fProgramData->fViewMatrix.cheapEqualTo(vm) ||
-        fProgramData->fViewportSize != viewportSize) {
-
+               fProgramData->fViewportSize != viewportSize) {
         GrMatrix m;
         m.setAll(
             GrIntToScalar(2) / viewportSize.fWidth, 0, -GR_Scalar1,
