@@ -29,7 +29,7 @@
 
 BUILDTYPE ?= Debug
 CWD := $(shell pwd)
-ALL_TARGETS := core SampleApp bench gm tests tools debugger
+ALL_TARGETS := core SampleApp bench gm tests tools
 
 ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
   ALL_TARGETS += SkiaAndroidApp
@@ -37,7 +37,7 @@ endif
 
 # Default target.  This must be listed before all other targets.
 .PHONY: default
-default: core SampleApp bench gm tests tools
+default: $(ALL_TARGETS)
 
 # As noted in http://code.google.com/p/skia/issues/detail?id=330 , building
 # multiple targets in parallel was failing.  The special .NOTPARALLEL target
@@ -57,6 +57,11 @@ all: $(ALL_TARGETS)
 .PHONY: clean
 clean:
 	rm -rf out xcodebuild
+
+# Add the debugger to the target list after the 'all' target is defined so that the
+# debugger is only executed with 'make debugger' and not 'make all' as well. The reason
+# for this is unless the user has Qt installed the debugger target will fail.
+ALL_TARGETS += debugger
 
 # Run gyp no matter what.
 .PHONY: gyp
