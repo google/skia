@@ -341,7 +341,7 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, SkFactorySet* fset, uint32_t flags)
-: fWriter(*writer), fFlags(flags), fHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag)) {
+: fHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag)), fWriter(*writer), fFlags(flags) {
     fFactorySet = fset;
     fController = controller;
     fDone = false;
