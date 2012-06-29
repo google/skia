@@ -17,9 +17,15 @@ public:
     }
 
 protected:
+#ifdef SK_SCALAR_IS_FIXED
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // SkCanvas::drawCircle, used by this test, performs a quick reject.
+        // The large size given to the device used by SkGPipeCanvas means that
+        // the device clip will not be set properly and circles will be
+        // rejected when in FIXED.
         return this->INHERITED::onGetFlags() | GM::kSkipPipe_Flag;
     }
+#endif
 
     virtual SkString onShortName() {
         return SkString("blurs");
