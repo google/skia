@@ -36,7 +36,7 @@ namespace {
 // path bounds would be empty.
 bool get_path_and_clip_bounds(const GrDrawTarget* target,
                               const SkPath& path,
-                              const GrVec* translate,
+                              const GrMatrix& matrix,
                               GrIRect* pathBounds,
                               GrIRect* clipBounds) {
     // compute bounds as intersection of rt size, clip, and path
@@ -55,13 +55,9 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
         // pathBounds is currently the rt extent, set clip bounds to that rect.
         *clipBounds = *pathBounds;
     }
-    GrRect pathSBounds = path.getBounds();
-    if (!pathSBounds.isEmpty()) {
-        if (NULL != translate) {
-            pathSBounds.offset(*translate);
-        }
-        target->getDrawState().getViewMatrix().mapRect(&pathSBounds,
-                                                        pathSBounds);
+    if (!path.getBounds().isEmpty()) {
+        GrRect pathSBounds;
+        matrix.mapRect(&pathSBounds, path.getBounds());
         GrIRect pathIBounds;
         pathSBounds.roundOut(&pathIBounds);
         if (!pathBounds->intersect(pathIBounds)) {
@@ -73,36 +69,6 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
         *pathBounds = GrIRect::EmptyIRect();
         return false;
     }
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/**
- * sw rasterizes path to A8 mask using the context's matrix and uploads to a 
- * scratch texture.
- */
-bool sw_draw_path_to_mask_texture(const SkPath& clientPath,
-                                  const GrIRect& pathDevBounds,
-                                  GrPathFill fill,
-                                  GrContext* context,
-                                  const GrPoint* translate,
-                                  GrAutoScratchTexture* tex,
-                                  bool antiAlias) {
-    GrSWMaskHelper helper(context);
-
-    if (!helper.init(pathDevBounds, translate, true)) {
-        return false;
-    }
-
-    helper.draw(clientPath, SkRegion::kReplace_Op, 
-                fill, antiAlias, SK_ColorWHITE);
-
-    if (!helper.getTexture(tex)) {
-        return false;
-    }
-
-    helper.toTexture(tex->texture(), false);
-
     return true;
 }
 
@@ -150,9 +116,16 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         return false;
     }
 
+    GrDrawState* drawState = target->drawState();
+
+    GrMatrix vm = drawState->getViewMatrix();
+    if (NULL != translate) {
+        vm.postTranslate(translate->fX, translate->fY);
+    }
+
     GrAutoScratchTexture ast;
     GrIRect pathBounds, clipBounds;
-    if (!get_path_and_clip_bounds(target, path, translate,
+    if (!get_path_and_clip_bounds(target, path, vm,
                                   &pathBounds, &clipBounds)) {
         if (GrIsFillInverted(fill)) {
             draw_around_inv_path(target, stageMask,
@@ -160,9 +133,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         }
         return true;
     }
-    if (sw_draw_path_to_mask_texture(path, pathBounds,
-                                     fill, fContext,
-                                     translate, &ast, antiAlias)) {
+
+    if (GrSWMaskHelper::DrawToTexture(fContext, path, pathBounds, fill, 
+                                      &ast, antiAlias, &vm)) {
         SkAutoTUnref<GrTexture> texture(ast.detach());
         GrAssert(NULL != texture);
         GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
@@ -171,9 +144,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
             // rendering (kGlyphMaskStage in GrBatchedTextContext)
             kPathMaskStage = GrPaint::kTotalStages,
         };
-        GrAssert(NULL == target->drawState()->getTexture(kPathMaskStage));
-        target->drawState()->setTexture(kPathMaskStage, texture);
-        target->drawState()->sampler(kPathMaskStage)->reset();
+        GrAssert(NULL == drawState->getTexture(kPathMaskStage));
+        drawState->setTexture(kPathMaskStage, texture);
+        drawState->sampler(kPathMaskStage)->reset();
         GrScalar w = GrIntToScalar(pathBounds.width());
         GrScalar h = GrIntToScalar(pathBounds.height());
         GrRect maskRect = GrRect::MakeWH(w / texture->width(),
@@ -188,7 +161,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
                               SK_Scalar1* pathBounds.fRight,
                               SK_Scalar1* pathBounds.fBottom);
         target->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
-        target->drawState()->setTexture(kPathMaskStage, NULL);
+        drawState->setTexture(kPathMaskStage, NULL);
         if (GrIsFillInverted(fill)) {
             draw_around_inv_path(target, stageMask,
                                  clipBounds, pathBounds);
