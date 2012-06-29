@@ -20,18 +20,12 @@
         'gyp/SampleApp.gyp:SampleApp',
         'gyp/tests.gyp:tests',
         'gyp/tools.gyp:tools',
+        'gyp/debugger.gyp:debugger',
       ],
       'conditions': [
         ['skia_os == "android"', {
           'dependencies': [
             'gyp/android_system.gyp:SkiaAndroidApp',
-          ],
-        }],
-      ],
-      'conditions': [
-        ['skia_debugger == "on"', {
-          'dependencies': [
-            'gyp/debugger.gyp:debugger',
           ],
         }],
       ],
