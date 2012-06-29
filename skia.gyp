@@ -36,14 +36,6 @@
         }],
       ],
     },
-    #{
-    #  'target_name': 'debugger',
-    #  'type': 'none',
-    #  'dependencies': [
-    #    'gyp/debugger.gyp:debugger',
-    #  ],
-#
- #   },
   ],
 }
 
