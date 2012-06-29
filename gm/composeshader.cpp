@@ -59,10 +59,6 @@ protected:
         return make_isize(640, 480);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return this->INHERITED::onGetFlags() | GM::kSkipPDF_Flag;
-    }
-
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkPaint paint;
