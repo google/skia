@@ -13,6 +13,7 @@
     '../gm/colormatrix.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',
+    '../gm/composeshader.cpp',
     '../gm/convexpaths.cpp',
     '../gm/cubicpaths.cpp',
     '../gm/cmykjpeg.cpp',
