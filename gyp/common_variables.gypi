@@ -66,6 +66,7 @@
       'skia_angle%': 0,
       'skia_arch_type%': 'x86',
       'skia_arch_width%': 32,
+      'skia_debugger%': 'off',
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
@@ -78,6 +79,7 @@
     'skia_angle%': '<(skia_angle)',
     'skia_arch_type%': '<(skia_arch_type)',
     'skia_arch_width%': '<(skia_arch_width)',
+    'skia_debugger%': '<(skia_debugger)',
   },
 }
 # Local Variables:
