@@ -29,19 +29,15 @@
 
 BUILDTYPE ?= Debug
 CWD := $(shell pwd)
-ALL_TARGETS := core SampleApp bench gm tests tools
+ALL_TARGETS := core SampleApp bench gm tests tools debugger
 
 ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
   ALL_TARGETS += SkiaAndroidApp
 endif
 
-ifneq (,$(findstring skia_debugger=on, $(GYP_DEFINES)))
-  ALL_TARGETS += debugger
-endif
-
 # Default target.  This must be listed before all other targets.
 .PHONY: default
-default: all
+default: core SampleApp bench gm tests tools
 
 # As noted in http://code.google.com/p/skia/issues/detail?id=330 , building
 # multiple targets in parallel was failing.  The special .NOTPARALLEL target
