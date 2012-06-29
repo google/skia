@@ -28,7 +28,22 @@
           ],
         }],
       ],
+      'conditions': [
+        ['skia_debugger == "on"', {
+          'dependencies': [
+            'gyp/debugger.gyp:debugger',
+          ],
+        }],
+      ],
     },
+    #{
+    #  'target_name': 'debugger',
+    #  'type': 'none',
+    #  'dependencies': [
+    #    'gyp/debugger.gyp:debugger',
+    #  ],
+#
+ #   },
   ],
 }
 
