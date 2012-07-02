@@ -55,7 +55,7 @@ def parse(settings, lines):
     setting_re = '([^\s=]+)(?:=(\S+))?'
     settings_re = 'skia bench:((?:\s+' + setting_re + ')*)'
     bench_re = 'running bench (?:\[\d+ \d+\] )?\s*(\S+)'
-    time_re = '(?:(\w*)msecs = )?\s*(\d+\.\d+)'
+    time_re = '(?:(\w*)msecs = )?\s*((?:\d+\.\d+)(?:,\d+\.\d+)*)'
     config_re = '(\S+): ((?:' + time_re + '\s+)+)'
     
     for line in lines:
@@ -82,7 +82,9 @@ def parse(settings, lines):
                 times = new_config.group(2)
                 for new_time in re.finditer(time_re, times):
                     current_time_type = new_time.group(1)
-                    current_time = float(new_time.group(2))
+                    iters = [float[i] for i in
+                             new_time.group(2).strip().split(',')]
+                    current_time = sum(iters) / len(iters)
                     benches.append(BenchDataPoint(
                             current_bench
                             , current_config
