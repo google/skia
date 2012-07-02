@@ -103,19 +103,30 @@
 //////////////////////////////////////////////////////////////////////
 
 /**
+ *  SK_CPU_SSE_LEVEL
+ *
  *  If defined, SK_CPU_SSE_LEVEL should be set to the highest supported level.
  *  On non-intel CPU this should be undefined.
  */
+
 #define SK_CPU_LEVEL_SSE2_VALUE     20
 #define SK_CPU_LEVEL_SSE3_VALUE     30
 #define SK_CPU_LEVEL_SSSE3_VALUE    31
 
+// Are we in GCC?
 #ifndef SK_CPU_SSE_LEVEL
     #if defined(__SSSE3__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_LEVEL_SSSE3_VALUE
     #elif defined(__SSE3__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_LEVEL_SSE3_VALUE
     #elif defined(__SSE2__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_LEVEL_SSE2_VALUE
+    #endif
+#endif
+
+// Are we in VisualStudio?
+#ifndef SK_CPU_SSE_LEVEL
+    #if _M_IX86_FP == 2
         #define SK_CPU_SSE_LEVEL    SK_CPU_LEVEL_SSE2_VALUE
     #endif
 #endif
