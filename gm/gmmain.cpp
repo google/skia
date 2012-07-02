@@ -628,7 +628,7 @@ struct PipeFlagComboData {
 static PipeFlagComboData gPipeWritingFlagCombos[] = {
     { "", 0 },
     { " cross-process", SkGPipeWriter::kCrossProcess_Flag },
-    { " cross-process, shared adress", SkGPipeWriter::kCrossProcess_Flag
+    { " cross-process, shared address", SkGPipeWriter::kCrossProcess_Flag
         | SkGPipeWriter::kSharedAddressSpace_SkGPipeFlag }
 };
 

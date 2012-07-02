@@ -28,6 +28,8 @@
 #include "SkColorFilter.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorShader.h"
+#include "SkColorTable.h"
+#include "SkComposeShader.h"
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
 #include "SkDiscretePathEffect.h"
@@ -55,7 +57,9 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorTable)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposePathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCornerPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDashPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDilateImageFilter)
