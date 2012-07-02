@@ -52,7 +52,7 @@ protected:
 
         canvas->drawBitmap(bitmap, 0, 0);
         canvas->drawBitmap(subset, 0, 0);
-
+/*
         // Now do the same but with a device bitmap as source image
         SkRefPtr<SkDevice> primaryDevice(canvas->getDevice());
         SkRefPtr<SkDevice> secondDevice(canvas->createCompatibleDevice(
@@ -71,7 +71,7 @@ protected:
 
         canvas->drawBitmap(deviceBitmap, 0, 0);
         canvas->drawBitmap(deviceSubset, 0, 0);
-
+*/
     }
     
 private:
