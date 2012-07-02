@@ -103,14 +103,20 @@
 //////////////////////////////////////////////////////////////////////
 
 /**
- *  If defined, SK_CPU_SSE_LEVEL should be set to [2,3,41,42]. On non-intel CPU,
- *  this should be undefined.
+ *  If defined, SK_CPU_SSE_LEVEL should be set to the highest supported level.
+ *  On non-intel CPU this should be undefined.
  */
+#define SK_CPU_LEVEL_SSE2_VALUE     20
+#define SK_CPU_LEVEL_SSE3_VALUE     30
+#define SK_CPU_LEVEL_SSSE3_VALUE    31
+
 #ifndef SK_CPU_SSE_LEVEL
-    #ifdef __SSE3__
-        #define SK_CPU_SSE_LEVEL    3
+    #if defined(__SSSE3__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_LEVEL_SSSE3_VALUE
+    #elif defined(__SSE3__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_LEVEL_SSE3_VALUE
     #elif defined(__SSE2__)
-        #define SK_CPU_SSE_LEVEL    2
+        #define SK_CPU_SSE_LEVEL    SK_CPU_LEVEL_SSE2_VALUE
     #endif
 #endif
 
