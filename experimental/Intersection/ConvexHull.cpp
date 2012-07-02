@@ -1,4 +1,5 @@
 #include "CurveIntersection.h"
+#include "CurveUtilities.h"
 #include "IntersectionUtilities.h"
 
 /* Given a cubic, find the convex hull described by the end and control points.

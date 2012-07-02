@@ -39,6 +39,7 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
                 aPtr = &a[0].y;
                 bPtr = &b[0].y;
             }
+        #if 0 // sorting edges fails to preserve original direction
             double aMin = aPtr[0];
             double aMax = aPtr[2];
             double bMin = bPtr[0];
@@ -62,6 +63,27 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
                 bRange[!bIn] = aMax >= bMax ? 1 : (aMax - bMin) / (bMax - bMin);
             }
             return 1 + ((aRange[0] != aRange[1]) || (bRange[0] != bRange[1]));
+        #else
+            assert(aRange);
+            assert(bRange);
+            double a0 = aPtr[0];
+            double a1 = aPtr[2];
+            double b0 = bPtr[0];
+            double b1 = bPtr[2];
+            double at0 = (a0 - b0) / (a0 - a1);
+            double at1 = (a0 - b1) / (a0 - a1);
+            if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
+                return 0;
+            }
+            aRange[0] = std::max(std::min(at0, 1.0), 0.0);
+            aRange[1] = std::max(std::min(at1, 1.0), 0.0);
+            int bIn = (a0 - a1) * (b0 - b1) < 0;
+            bRange[bIn] = std::max(std::min((b0 - a0) / (b0 - b1), 1.0), 0.0);
+            bRange[!bIn] = std::max(std::min((b0 - a1) / (b0 - b1), 1.0), 0.0);
+            bool second = fabs(aRange[0] - aRange[1]) > FLT_EPSILON;
+            assert((fabs(bRange[0] - bRange[1]) <= FLT_EPSILON) ^ second);
+            return 1 + second;
+        #endif
         }
     }
     double ab0y = a[0].y - b[0].y;
@@ -140,6 +162,7 @@ int horizontalIntersect(const _Line& line, double left, double right,
             break;
         }
         case 2:
+        #if 0 // sorting edges fails to preserve original direction
             double lineL = line[0].x;
             double lineR = line[1].x;
             if (lineL > lineR) {
@@ -159,6 +182,30 @@ int horizontalIntersect(const _Line& line, double left, double right,
                 intersections.fT[0][1] = (overlapR - line[0].x) / (line[1].x - line[0].x);
                 intersections.fT[1][1] = (overlapR - left) / (right - left);
             }
+        #else
+            double a0 = line[0].x;
+            double a1 = line[1].x;
+            double b0 = flipped ? right : left;
+            double b1 = flipped ? left : right;
+            // FIXME: share common code below
+            double at0 = (a0 - b0) / (a0 - a1);
+            double at1 = (a0 - b1) / (a0 - a1);
+            if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
+                return 0;
+            }
+            intersections.fT[0][0] = std::max(std::min(at0, 1.0), 0.0);
+            intersections.fT[0][1] = std::max(std::min(at1, 1.0), 0.0);
+            int bIn = (a0 - a1) * (b0 - b1) < 0;
+            intersections.fT[1][bIn] = std::max(std::min((b0 - a0) / (b0 - b1),
+                    1.0), 0.0);
+            intersections.fT[1][!bIn] = std::max(std::min((b0 - a1) / (b0 - b1),
+                    1.0), 0.0);
+            bool second = fabs(intersections.fT[0][0] - intersections.fT[0][1])
+                    > FLT_EPSILON;
+            assert((fabs(intersections.fT[1][0] - intersections.fT[1][1])
+                    <= FLT_EPSILON) ^ second);
+            return 1 + second;
+        #endif
             break;
     }
     if (flipped) {
@@ -204,6 +251,7 @@ int verticalIntersect(const _Line& line, double top, double bottom,
             break;
         }
         case 2:
+        #if 0 // sorting edges fails to preserve original direction
             double lineT = line[0].y;
             double lineB = line[1].y;
             if (lineT > lineB) {
@@ -223,6 +271,30 @@ int verticalIntersect(const _Line& line, double top, double bottom,
                 intersections.fT[0][1] = (overlapB - line[0].y) / (line[1].y - line[0].y);
                 intersections.fT[1][1] = (overlapB - top) / (bottom - top);
             }
+        #else
+            double a0 = line[0].y;
+            double a1 = line[1].y;
+            double b0 = flipped ? bottom : top;
+            double b1 = flipped ? top : bottom;
+            // FIXME: share common code above
+            double at0 = (a0 - b0) / (a0 - a1);
+            double at1 = (a0 - b1) / (a0 - a1);
+            if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
+                return 0;
+            }
+            intersections.fT[0][0] = std::max(std::min(at0, 1.0), 0.0);
+            intersections.fT[0][1] = std::max(std::min(at1, 1.0), 0.0);
+            int bIn = (a0 - a1) * (b0 - b1) < 0;
+            intersections.fT[1][bIn] = std::max(std::min((b0 - a0) / (b0 - b1),
+                    1.0), 0.0);
+            intersections.fT[1][!bIn] = std::max(std::min((b0 - a1) / (b0 - b1),
+                    1.0), 0.0);
+            bool second = fabs(intersections.fT[0][0] - intersections.fT[0][1])
+                    > FLT_EPSILON;
+            assert((fabs(intersections.fT[1][0] - intersections.fT[1][1])
+                    <= FLT_EPSILON) ^ second);
+            return 1 + second;
+        #endif
             break;
     }
     if (flipped) {

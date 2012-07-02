@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "CurveIntersection.h"
+#include "CurveUtilities.h"
 #include "Intersections.h"
 #include "LineIntersection.h"
 #include "LineParameters.h"

@@ -27,8 +27,8 @@ static const SimplifyFindTopTest::Segment* testCommon(
         addIntersectTs(contourList[1], contourList[1]);
     }
     fixOtherTIndex(contourList);
-    SimplifyFindTopTest::Segment* topStart = findTopContour(contourList,
-            contourList.count());
+    SimplifyFindTopTest::Contour* top;
+    SimplifyFindTopTest::Segment* topStart = findTopContour(contourList, top);
     const SimplifyFindTopTest::Segment* topSegment = topStart->findTop(index,
             end);
     return topSegment;

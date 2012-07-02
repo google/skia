@@ -2,12 +2,12 @@
 #include "Intersection_Tests.h"
 
 void cubecode_test(int test);
-void testSimplify();
 
 #define TEST_QUADS_FIRST 0
 
 void Intersection_Tests() {
     SimplifyNew_Test();
+    Simplify4x4RectsThreaded_Test();
     SimplifyFindNext_Test();
     SimplifyFindTop_Test();
     SimplifyAngle_Test();

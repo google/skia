@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
  
+#define DEBUG_TEST 1
+ 
 #include "Simplify.h"
 
 namespace SimplifyFindNextTest {
@@ -27,12 +29,12 @@ static const SimplifyFindNextTest::Segment* testCommon(
         addIntersectTs(contourList[1], contourList[1]);
     }
     fixOtherTIndex(contourList);
-    SimplifyFindNextTest::Segment& segment = contours[0].fSegments[0];
+    SimplifyFindNextTest::Segment& segment = contours[0].debugSegments()[0];
     SkPoint pts[2];
     pts[0] = segment.xyAtT(&segment.span(endIndex));
     int nextStart, nextEnd;
     SimplifyFindNextTest::Segment* next = segment.findNext(winding,
-            startIndex, endIndex, nextStart, nextEnd);
+            startIndex, endIndex, nextStart, nextEnd, true);
     pts[1] = next->xyAtT(&next->span(nextStart));
     SkASSERT(pts[0] == pts[1]);
     return next;

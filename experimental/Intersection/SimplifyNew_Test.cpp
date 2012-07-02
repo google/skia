@@ -5,29 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Simplify.h"
-
-namespace SimplifyNewTest {
-
-#include "Simplify.cpp"
-
-} // end of SimplifyNewTest namespace
-
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
-
-static bool testSimplifyx(const SkPath& path) {
-    if (false) {
-        showPath(path);
-    }
-    SkPath out;
-    simplifyx(path, out);
-    if (false) {
-        return true;
-    }
-    SkBitmap bitmap;
-    return comparePaths(path, out, bitmap, 0) == 0;
-}
+#include "ShapeOps.h"
 
 static void testLine1() {
     SkPath path, simple;
@@ -146,17 +126,228 @@ static void testLine9() {
     testSimplifyx(path);
 }
 
+static void testLine10() {
+    SkPath path, simple;
+    path.moveTo(0,4);
+    path.lineTo(4,4);
+    path.lineTo(2,2);
+    path.close();
+    path.moveTo(2,1);
+    path.lineTo(3,4);
+    path.lineTo(6,1);
+    path.close();
+    testSimplifyx(path);
+}
 
-static void (*tests[])() = {
-    testLine1,
-    testLine2,
-    testLine3,
-    testLine4,
-    testLine5,
-    testLine6,
-    testLine7,
-    testLine8,
-    testLine9
+static void testLine10a() {
+    SkPath path, simple;
+    path.moveTo(0,4);
+    path.lineTo(8,4);
+    path.lineTo(4,0);
+    path.close();
+    path.moveTo(2,2);
+    path.lineTo(3,3);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void addCWContainer(SkPath& path) {
+    path.moveTo(6,4);
+    path.lineTo(0,4);
+    path.lineTo(3,1);
+    path.close();
+}
+
+static void addCCWContainer(SkPath& path) {
+    path.moveTo(0,4);
+    path.lineTo(6,4);
+    path.lineTo(3,1);
+    path.close();
+}
+
+static void addCWContents(SkPath& path) {
+    path.moveTo(2,3);
+    path.lineTo(3,2);
+    path.lineTo(4,3);
+    path.close();
+}
+
+static void addCCWContents(SkPath& path) {
+    path.moveTo(3,2);
+    path.lineTo(2,3);
+    path.lineTo(4,3);
+    path.close();
+}
+
+static void testLine11() {
+    SkPath path, simple;
+    addCWContainer(path);
+    addCWContents(path);
+    testSimplifyx(path);
+}
+
+static void testLine12() {
+    SkPath path, simple;
+    addCCWContainer(path);
+    addCWContents(path);
+    testSimplifyx(path);
+}
+
+static void testLine13() {
+    SkPath path, simple;
+    addCWContainer(path);
+    addCCWContents(path);
+    testSimplifyx(path);
+}
+
+static void testLine14() {
+    SkPath path, simple;
+    addCCWContainer(path);
+    addCCWContents(path);
+    testSimplifyx(path);
+}
+
+static void testLine15() {
+    SkPath path, simple;
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine16() {
+    SkPath path, simple;
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine17() {
+    SkPath path, simple;
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine18() {
+    SkPath path, simple;
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 4, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine19() {
+    SkPath path, simple;
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);    
+    testSimplifyx(path);
+}
+
+static void testLine20() {
+    SkPath path, simple;
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine21() {
+    SkPath path, simple;
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 16, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine22() {
+    SkPath path, simple;
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine23() {
+    SkPath path, simple;
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+
+
+static void testLine24a() {
+    SkPath path, simple;
+    path.moveTo(2,0);
+    path.lineTo(4,4);
+    path.lineTo(0,4);
+    path.close();
+    path.moveTo(2,0);
+    path.lineTo(1,2);
+    path.lineTo(2,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testLine24() {
+    SkPath path, simple;
+    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine25() {
+    SkPath path, simple;
+    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine26() {
+    SkPath path, simple;
+    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine27() {
+    SkPath path, simple;
+    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 8, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+#define TEST(name) { name, #name }
+
+static struct {
+    void (*fun)();
+    const char* str;
+} tests[] = {
+    TEST(testLine1),
+    TEST(testLine2),
+    TEST(testLine3),
+    TEST(testLine4),
+    TEST(testLine5),
+    TEST(testLine6),
+    TEST(testLine7),
+    TEST(testLine8),
+    TEST(testLine9),
+    TEST(testLine10),
+    TEST(testLine10a),
+    TEST(testLine11),
+    TEST(testLine12),
+    TEST(testLine13),
+    TEST(testLine14),
+    TEST(testLine15),
+    TEST(testLine16),
+    TEST(testLine17),
+    TEST(testLine18),
+    TEST(testLine19),
+    TEST(testLine20),
+    TEST(testLine21),
+    TEST(testLine22),
+    TEST(testLine23),
+    TEST(testLine24a),
+    TEST(testLine24),
+    TEST(testLine25),
+    TEST(testLine26),
+    TEST(testLine27),
 };
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
@@ -170,14 +361,14 @@ void SimplifyNew_Test() {
     }
     size_t index = 0;
     if (firstTest) {
-        while (index < testCount && tests[index] != firstTest) {
+        while (index < testCount && tests[index].fun != firstTest) {
             ++index;
         }
     }
     bool firstTestComplete = false;
     for ( ; index < testCount; ++index) {
-        SkDebugf("%s [%d]\n", __FUNCTION__, index + 1);
-        (*tests[index])();
+        SkDebugf("%s [%s]\n", __FUNCTION__, tests[index].str);
+        (*tests[index].fun)();
         firstTestComplete = true;
     }
 }

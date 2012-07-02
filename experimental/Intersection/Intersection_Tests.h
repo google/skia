@@ -28,6 +28,7 @@ void SimplifyQuadralateralPaths_Test();
 void SimplifyQuadraticPaths_Test();
 void Simplify4x4QuadralateralsThreaded_Test();
 void Simplify4x4QuadraticsThreaded_Test();
+void Simplify4x4RectsThreaded_Test();
 void SimplifyRectangularPaths_Test();
 void QuadraticBezierClip_Test();
 void QuadraticCoincidence_Test();
