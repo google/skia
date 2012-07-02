@@ -102,6 +102,20 @@
 
 //////////////////////////////////////////////////////////////////////
 
+/**
+ *  If defined, SK_CPU_SSE_LEVEL should be set to [2,3,41,42]. On non-intel CPU,
+ *  this should be undefined.
+ */
+#ifndef SK_CPU_SSE_LEVEL
+    #ifdef __SSE3__
+        #define SK_CPU_SSE_LEVEL    3
+    #elif defined(__SSE2__)
+        #define SK_CPU_SSE_LEVEL    2
+    #endif
+#endif
+
+//////////////////////////////////////////////////////////////////////
+
 #if (defined(__arm__) && !defined(__thumb__)) || defined(SK_BUILD_FOR_WINCE) || (defined(SK_BUILD_FOR_SYMBIAN) && !defined(__MARM_THUMB__))
     /* e.g. the ARM instructions have conditional execution, making tiny branches cheap */
     #define SK_CPU_HAS_CONDITIONAL_INSTR
