@@ -59,12 +59,6 @@ protected:
         return make_isize(640, 480);
     }
 
-#ifdef SK_BUILD_FOR_ANDROID
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return this->INHERITED::onGetFlags() | GM::kSkipPipe_Flag;
-    }
-#endif
-
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkPaint paint;
