@@ -112,10 +112,13 @@ SkData* SkData::NewSubset(const SkData* src, size_t offset, size_t length) {
 }
 
 SkData* SkData::NewWithCString(const char cstr[]) {
-    if (NULL == cstr || 0 == cstr[0]) {
-        return NewEmpty();
+    size_t size;
+    if (NULL == cstr) {
+        cstr = "";
+        size = 1;
     } else {
-        return NewWithCopy(cstr, strlen(cstr));
+        size = strlen(cstr) + 1;
     }
+    return NewWithCopy(cstr, size);
 }
 

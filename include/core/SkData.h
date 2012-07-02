@@ -69,7 +69,9 @@ public:
     
     /**
      *  Create a new dataref by copying the specified c-string
-     *  (a null-terminated array of bytes).
+     *  (a null-terminated array of bytes). The returned SkData will have size()
+     *  equal to strlen(cstr) + 1. If cstr is NULL, it will be treated the same
+     *  as "".
      */
     static SkData* NewWithCString(const char cstr[]);
     
