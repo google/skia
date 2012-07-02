@@ -82,7 +82,7 @@ def parse(settings, lines):
                 times = new_config.group(2)
                 for new_time in re.finditer(time_re, times):
                     current_time_type = new_time.group(1)
-                    iters = [float[i] for i in
+                    iters = [float(i) for i in
                              new_time.group(2).strip().split(',')]
                     current_time = sum(iters) / len(iters)
                     benches.append(BenchDataPoint(
