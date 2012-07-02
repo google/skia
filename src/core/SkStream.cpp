@@ -93,13 +93,13 @@ size_t SkStream::readPackedUInt() {
     }
 }
 
-SkData* SkStream::readStream() {
+SkData* SkStream::readData() {
     size_t size = this->readU32();
     if (0 == size) {
         return SkData::NewEmpty();
     } else {
         void* buffer = sk_malloc_throw(size);
-        stream->read(buffer, size);
+        this->read(buffer, size);
         return SkData::NewFromMalloc(buffer, size);
     }
 }
