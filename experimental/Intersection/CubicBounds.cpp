@@ -1,4 +1,5 @@
 #include "CurveIntersection.h"
+#include "CurveUtilities.h"
 #include "Extrema.h"
 
 static int isBoundedByEndPoints(double a, double b, double c, double d)

@@ -5,15 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "CurveIntersection.h"
-#include "Intersections.h"
-#include "LineIntersection.h"
-#include "SkPath.h"
-#include "SkRect.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "ShapeOps.h"
-#include "TSearch.h"
+#include "Simplify.h"
 
 #undef SkASSERT
 #define SkASSERT(cond) while (!(cond)) { sk_throw(); }

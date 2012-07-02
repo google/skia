@@ -15,6 +15,9 @@ extern bool drawAsciiPaths(const SkPath& one, const SkPath& two,
 extern void showPath(const SkPath& path, const char* str = NULL);
 extern bool testSimplify(const SkPath& path, bool fill, SkPath& out,
         SkBitmap& bitmap, SkCanvas* canvas = 0);
+extern bool testSimplifyx(const SkPath& path, SkPath& out,
+        SkBitmap& bitmap, SkCanvas* canvas = 0);
+extern bool testSimplifyx(const SkPath& path);
 
 struct State4 {
     State4();

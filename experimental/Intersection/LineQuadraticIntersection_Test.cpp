@@ -1,7 +1,7 @@
 #include "CurveIntersection.h"
+#include "CurveUtilities.h"
 #include "Intersection_Tests.h"
 #include "Intersections.h"
-#include "LineUtilities.h"
 #include "TestUtilities.h"
 
 struct lineQuad {

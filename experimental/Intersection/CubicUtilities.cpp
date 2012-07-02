@@ -74,3 +74,75 @@ int cubicRoots(double A, double B, double C, double D, double t[3]) {
     }
     return (int)(roots - t);
 }
+
+// from http://www.cs.sunysb.edu/~qin/courses/geometry/4.pdf
+// c(t)  = a(1-t)^3 + 3bt(1-t)^2 + 3c(1-t)t^2 + dt^3
+// c'(t) = -3a(1-t)^2 + 3b((1-t)^2 - 2t(1-t)) + 3c(2t(1-t) - t^2) + 3dt^2
+//       = 3(b-a)(1-t)^2 + 6(c-b)t(1-t) + 3(d-c)t^2
+double derivativeAtT(const double* cubic, double t) {
+    double one_t = 1 - t;
+    double a = cubic[0];
+    double b = cubic[2];
+    double c = cubic[4];
+    double d = cubic[6];
+    return (b - a) * one_t * one_t + 2 * (c - b) * t * one_t + (d - c) * t * t;
+}
+
+// same as derivativeAtT
+// which is more accurate? which is faster?
+double derivativeAtT_2(const double* cubic, double t) {
+    double a = cubic[2] - cubic[0];
+    double b = cubic[4] - 2 * cubic[2] + cubic[0];
+    double c = cubic[6] + 3 * (cubic[2] - cubic[4]) - cubic[0];
+    return c * c * t * t + 2 * b * t + a;
+}
+
+void dxdy_at_t(const Cubic& cubic, double t, double& dx, double& dy) {
+    if (&dx) {
+        dx = derivativeAtT(&cubic[0].x, t);
+    }
+    if (&dy) {
+        dy = derivativeAtT(&cubic[0].y, t);
+    }
+}
+
+bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath) {
+    double dy = cubic[index].y - cubic[zero].y;
+    double dx = cubic[index].x - cubic[zero].x;
+    if (approximately_equal(dy, 0)) {
+        if (approximately_equal(dx, 0)) {
+            return false;
+        }
+        memcpy(rotPath, cubic, sizeof(Cubic));
+        return true;
+    }
+    for (int index = 0; index < 4; ++index) {
+        rotPath[index].x = cubic[index].x * dx + cubic[index].y * dy;
+        rotPath[index].y = cubic[index].y * dx - cubic[index].x * dy;
+    }
+    return true;
+}
+
+double secondDerivativeAtT(const double* cubic, double t) {
+    double a = cubic[0];
+    double b = cubic[2];
+    double c = cubic[4];
+    double d = cubic[6];
+    return (c - 2 * b + a) * (1 - t) + (d - 2 * c + b) * t;
+}
+
+void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
+    double one_t = 1 - t;
+    double one_t2 = one_t * one_t;
+    double a = one_t2 * one_t;
+    double b = 3 * one_t2 * t;
+    double t2 = t * t;
+    double c = 3 * one_t * t2;
+    double d = t2 * t;
+    if (&x) {
+        x = a * cubic[0].x + b * cubic[1].x + c * cubic[2].x + d * cubic[3].x;
+    }
+    if (&y) {
+        y = a * cubic[0].y + b * cubic[1].y + c * cubic[2].y + d * cubic[3].y;
+    }
+}

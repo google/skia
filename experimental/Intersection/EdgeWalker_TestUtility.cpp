@@ -60,7 +60,7 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     int bitWidth = SkScalarCeil(larger.width()) + 2;
     int bitHeight = SkScalarCeil(larger.height()) + 2;
     if (bits.width() < bitWidth * 2 || bits.height() < bitHeight) {
-        if (bits.width() >= 200) {
+        if (bits.width() >= 200 && false) {
             SkDebugf("%s bitWidth=%d bitHeight=%d\n", __FUNCTION__, bitWidth, bitHeight);
         }
         bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
@@ -192,10 +192,10 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
         const SkRect& bounds2 = two.getBounds();
         SkRect larger = bounds1;
         larger.join(bounds2);
-        SkScalar xScale = std::max(80.0f / larger.width(), 1.0f);
-        SkScalar yScale = std::max(60.0f / larger.height(), 1.0f);
+        SkScalar xScale = std::max(32.0f / larger.width(), 1.0f);
+        SkScalar yScale = std::max(24.0f / larger.height(), 1.0f);
         errors = scaledDrawTheSame(one, two, xScale, yScale, false, bitmap, canvas);
-        if (errors > 50) {
+        if (errors > 5) {
             scaledDrawTheSame(one, two, xScale, yScale, true, bitmap, canvas);
         }
     }
@@ -203,7 +203,7 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
         SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
         max = errors;
     }
-    const int MAX_ERRORS = 100;
+    const int MAX_ERRORS = 20;
     if (errors > MAX_ERRORS) SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
     if (errors > MAX_ERRORS && gComparePathsAssert) {
         showPath(one);
@@ -254,6 +254,31 @@ bool testSimplify(const SkPath& path, bool fill, SkPath& out, SkBitmap& bitmap,
         return true;
     }
     return comparePaths(path, out, bitmap, canvas) == 0;
+}
+
+bool testSimplifyx(const SkPath& path, SkPath& out, SkBitmap& bitmap,
+        SkCanvas* canvas) {
+    if (gShowPath) {
+        showPath(path);
+    }
+    simplifyx(path, out);
+    if (!gComparePaths) {
+        return true;
+    }
+    return comparePaths(path, out, bitmap, canvas) == 0;
+}
+
+bool testSimplifyx(const SkPath& path) {
+    if (false) {
+        showPath(path);
+    }
+    SkPath out;
+    simplifyx(path, out);
+    if (false) {
+        return true;
+    }
+    SkBitmap bitmap;
+    return comparePaths(path, out, bitmap, 0) == 0;
 }
 
 State4::State4() {

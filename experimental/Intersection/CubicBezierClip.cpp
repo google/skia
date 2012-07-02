@@ -1,4 +1,5 @@
 #include "CurveIntersection.h"
+#include "CurveUtilities.h"
 #include "LineParameters.h"
 #include <algorithm> // used for std::swap
 
