@@ -65,6 +65,12 @@ public:
     SkScalar readScalar();
     size_t   readPackedUInt();
 
+    /**
+     *  Create a new SkData from the stream contents. This balances the call
+     *  SkWStream::writeData().
+     */
+    SkData* readData();
+
 private:
     typedef SkRefCnt INHERITED;
 };
