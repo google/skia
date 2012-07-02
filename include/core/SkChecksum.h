@@ -59,27 +59,11 @@ inline uint32_t SkComputeChecksum32(const uint32_t* ptr, size_t size) {
     SkASSERT(SkIsAlign4(size));
     SkASSERT(SkIsAlign4((intptr_t)ptr));
 
-    uint32_t result;
-    
-    if (8 == sizeof(void*)) {
-        uint64_t result8 = 0;
-        if (size & 4) {
-            result8 = *ptr++;   // initial 32bit value
-        }
-        const uint64_t* ptr8 = (const uint64_t*)ptr;
-        const uint64_t* stop = ptr8 + (size >> 3);
-        while (ptr8 < stop) {
-            SkCHECKSUM_MASH(result8, *ptr8);
-            ptr8++;
-        }
-        result = static_cast<uint32_t>(result8 ^ (result8 >> 32));
-    } else {
-        result = 0;
-        const uint32_t* stop = ptr + (size >> 2);
-        while (ptr < stop) {
-            SkCHECKSUM_MASH(result, *ptr);
-            ptr++;
-        }
+    const uint32_t* stop = ptr + (size >> 2);
+    uint32_t result = 0;
+    while (ptr < stop) {
+        SkCHECKSUM_MASH(result, *ptr);
+        ptr++;
     }
     return result;
 }
