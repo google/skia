@@ -30,13 +30,14 @@ static void test_cstring(skiatest::Reporter* reporter) {
     const char str[] = "Hello world";
     size_t     len = strlen(str);
 
-    SkAutoTUnref<SkData> r0(SkData::NewWithCopy(str, len));
+    SkAutoTUnref<SkData> r0(SkData::NewWithCopy(str, len + 1));
     SkAutoTUnref<SkData> r1(SkData::NewWithCString(str));
 
     REPORTER_ASSERT(reporter, r0->equals(r1));
 
     SkAutoTUnref<SkData> r2(SkData::NewWithCString(NULL));
-    REPORTER_ASSERT(reporter, r2->isEmpty());
+    REPORTER_ASSERT(reporter, 1 == r2->size());
+    REPORTER_ASSERT(reporter, 0 == *r2->bytes());
 }
 
 static void TestDataRef(skiatest::Reporter* reporter) {
