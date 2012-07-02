@@ -5,12 +5,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "gm.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkShader.h"
-#include "SkUtils.h"
 #include "SkDevice.h"
+#include "SkString.h"
+
+namespace skiagm {
 
 static void create_bitmap(SkBitmap* bitmap) {
     const int W = 100;
@@ -25,22 +26,21 @@ static void create_bitmap(SkBitmap* bitmap) {
     canvas.drawCircle(SkIntToScalar(W)/2, SkIntToScalar(H)/2, SkIntToScalar(W)/2, paint);
 }
 
-class DrawBitmapView : public SampleView {
-    SkPath fPath;
+class ExtractBitmapGM : public GM {
 public:
-	DrawBitmapView() {}
+    ExtractBitmapGM() {}
     
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "DrawBitmap");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    virtual SkString onShortName() SK_OVERRIDE {
+        return SkString("extractbitmap");
     }
-    
-    virtual void onDrawContent(SkCanvas* canvas) {
+
+    virtual SkISize onISize() SK_OVERRIDE {
+        return make_isize(600, 600);
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkBitmap bitmap;
         create_bitmap(&bitmap);
         int x = bitmap.width() / 2;
@@ -75,10 +75,12 @@ protected:
     }
     
 private:
-    typedef SampleView INHERITED;
+    typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DrawBitmapView; }
-static SkViewRegister reg(MyFactory);
+static GM* MyFactory(void*) { return new ExtractBitmapGM; }
+static GMRegistry reg(MyFactory);
+
+}

@@ -81,10 +81,19 @@ public:
      * @return void* Pointer to the heap's copy of the bitmap. If NULL,
      *               the bitmap could not be copied.
      */
-    const SkBitmap* addBitmap(const SkBitmap& bm) {
-        const uint32_t genID = bm.getGenerationID();
+    const SkBitmap* addBitmap(const SkBitmap& orig) {
+        const uint32_t genID = orig.getGenerationID();
+        SkPixelRef* sharedPixelRef = NULL;
         for (int i = fBitmaps.count() - 1; i >= 0; i--) {
             if (genID == fBitmaps[i].fGenID) {
+                if (orig.pixelRefOffset() != fBitmaps[i].fBitmap->pixelRefOffset()) {
+                    // In this case, the bitmaps share a pixelRef, but have
+                    // different offsets. Keep track of the other bitmap so that
+                    // instead of making another copy of the pixelRef we can use
+                    // the copy we already made.
+                    sharedPixelRef = fBitmaps[i].fBitmap->pixelRef();
+                    break;
+                }
                 return fBitmaps[i].fBitmap;
             }
         }
@@ -92,13 +101,21 @@ public:
         // If the bitmap is mutable, we still need to do a deep copy, since the
         // caller may modify it afterwards. That said, if the bitmap is mutable,
         // but has no pixelRef, the copy constructor actually does a deep copy.
-        if (fCanDoShallowCopies && (bm.isImmutable() || !bm.pixelRef())) {
-            copy = new SkBitmap(bm);
+        if (fCanDoShallowCopies && (orig.isImmutable() || !orig.pixelRef())) {
+            copy = new SkBitmap(orig);
         } else {
-            copy = new SkBitmap();
-            if (!bm.copyTo(copy, bm.getConfig())) {
-                delete copy;
-                return NULL;
+            if (sharedPixelRef != NULL) {
+                // Do a shallow copy of the bitmap to get the width, height, etc
+                copy = new SkBitmap(orig);
+                // Replace the pixelRef with the copy that was already made, and
+                // use the appropriate offset.
+                copy->setPixelRef(sharedPixelRef, orig.pixelRefOffset());
+            } else {
+                copy = new SkBitmap();
+                if (!orig.copyTo(copy, orig.getConfig())) {
+                    delete copy;
+                    return NULL;
+                }
             }
         }
         BitmapInfo* info = fBitmaps.append();
