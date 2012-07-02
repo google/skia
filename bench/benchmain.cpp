@@ -328,7 +328,7 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
 }
 
 static void help() {
-    SkDebugf("Usage: bench [-o outDir] [-repeat nr] "
+    SkDebugf("Usage: bench [-o outDir] [-repeat nr] [-logPerIter 1|0] "
                           "[-timers [wcg]*] [-rotate]\n"
              "    [-scale] [-clip] [-forceAA 1|0] [-forceFilter 1|0]\n"
              "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
@@ -338,6 +338,8 @@ static void help() {
     SkDebugf("\n\n");
     SkDebugf("    -o outDir : Image of each bench will be put in outDir.\n");
     SkDebugf("    -repeat nr : Each bench repeats for nr times.\n");
+    SkDebugf("    -logPerIter 1|0 : "
+             "Log each repeat timer instead of mean, default is disabled.\n");
     SkDebugf("    -timers [wcg]* : "
              "Display wall time, cpu time or gpu time for each bench.\n");
     SkDebugf("    -rotate : Rotate before each bench runs.\n");
@@ -366,6 +368,7 @@ int main (int argc, char * const argv[]) {
     
     SkTDict<const char*> defineDict(1024);
     int repeatDraw = 1;
+    bool logPerIter = false;
     int forceAlpha = 0xFF;
     bool forceAA = true;
     bool forceFilter = false;
@@ -408,6 +411,12 @@ int main (int argc, char * const argv[]) {
                 }
             } else {
                 log_error("missing arg for -repeat\n");
+                help();
+                return -1;
+            }
+        } else if (strcmp(*argv, "-logPerIter") == 0) {
+            if (!parse_bool_arg(++argv, stop, &logPerIter)) {
+                log_error("missing arg for -logPerIter\n");
                 help();
                 return -1;
             }
@@ -542,8 +551,9 @@ int main (int argc, char * const argv[]) {
     // report our current settings
     {
         SkString str;
-        str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d deferred=%d",
-                   forceAlpha, forceAA, forceFilter, forceDeferred);
+        str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d "
+                   "deferred=%d logperiter=%d",
+                   forceAlpha, forceAA, forceFilter, forceDeferred, logPerIter);
         str.appendf(" rotate=%d scale=%d clip=%d",
                    doRotate, doScale, doClip);
                    
@@ -605,8 +615,8 @@ int main (int argc, char * const argv[]) {
     gANGLEGLHelper.init(angleGLCtx.get(), contextWidth, contextHeight);
 #endif
 #endif
-    BenchTimer timer = BenchTimer(gRealGLHelper.glContext());
 
+    BenchTimer timer = BenchTimer(gRealGLHelper.glContext());
     Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
@@ -668,7 +678,7 @@ int main (int argc, char * const argv[]) {
                 performRotate(canvas, dim.fX, dim.fY);
             }
 
-            //warm up caches if needed
+            // warm up caches if needed
             if (repeatDraw > 1) {
                 SkAutoCanvasRestore acr(canvas, true);
                 bench->draw(canvas);
@@ -678,32 +688,60 @@ int main (int argc, char * const argv[]) {
                     SK_GL(*glHelper->glContext(), Finish());
                 }
             }
-            
-            timer.start();
+
+            // record timer values for each repeat, and their sum
+            SkString fWallStr(" msecs = ");
+            SkString fCpuStr(" cmsecs = ");
+            SkString fGpuStr(" gmsecs = ");
+            double fWallSum = 0.0;
+            double fCpuSum = 0.0;
+            double fGpuSum = 0.0;
             for (int i = 0; i < repeatDraw; i++) {
+                timer.start();
                 SkAutoCanvasRestore acr(canvas, true);
                 bench->draw(canvas);
                 canvas->flush();
                 if (glHelper) {
                     glHelper->grContext()->flush();
                 }
+                timer.end();
+
+                if (i == repeatDraw - 1) {
+                    // no comma after the last value
+                    fWallStr.appendf("%.2f", timer.fWall);
+                    fCpuStr.appendf("%.2f", timer.fCpu);
+                    fGpuStr.appendf("%.2f", timer.fGpu);
+                } else {
+                    fWallStr.appendf("%.2f,", timer.fWall);
+                    fCpuStr.appendf("%.2f,", timer.fCpu);
+                    fGpuStr.appendf("%.2f,", timer.fGpu);
+                }
+                fWallSum += timer.fWall;
+                fCpuSum += timer.fCpu;
+                fGpuSum += timer.fGpu;
             }
            if (glHelper) {
                 SK_GL(*glHelper->glContext(), Finish());
            }
-           timer.end();
-            
+
             if (repeatDraw > 1) {
+                // output each repeat (no average) if logPerIter is set,
+                // otherwise output only the average
+                if (!logPerIter) {
+                    fWallStr.printf(" msecs = %6.2f", fWallSum / repeatDraw);
+                    fCpuStr.printf(" cmsecs = %6.2f", fCpuSum / repeatDraw);
+                    fGpuStr.printf(" gmsecs = %6.2f", fGpuSum / repeatDraw);
+                }
                 SkString str;
                 str.printf("  %4s:", configName);
                 if (timerWall) {
-                    str.appendf(" msecs = %6.2f", timer.fWall / repeatDraw);
+                    str += fWallStr;
                 }
                 if (timerCpu) {
-                    str.appendf(" cmsecs = %6.2f", timer.fCpu / repeatDraw);
+                    str += fCpuStr;
                 }
-                if (timerGpu && glHelper && timer.fGpu > 0) {
-                    str.appendf(" gmsecs = %6.2f", timer.fGpu / repeatDraw);
+                if (timerGpu && glHelper && fGpuSum > 0) {
+                    str += fGpuStr;
                 }
                 log_progress(str);
             }
