@@ -20,6 +20,7 @@
     '../gm/degeneratesegments.cpp',
     '../gm/dashing.cpp',
     '../gm/drawbitmaprect.cpp',
+    '../gm/extractbitmap.cpp',
     '../gm/emptypath.cpp',
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',
