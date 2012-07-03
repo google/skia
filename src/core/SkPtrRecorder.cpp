@@ -33,7 +33,7 @@ uint32_t SkPtrSet::find(void* ptr) const {
     Pair pair;
     pair.fPtr = ptr;
     
-    int index = SkTSearch<Pair>(fList.begin(), count, pair, sizeof(pair), &Cmp);
+    int index = SkTSearch<Pair, Cmp>(fList.begin(), count, pair, sizeof(pair));
     if (index < 0) {
         return 0;
     }
@@ -49,7 +49,7 @@ uint32_t SkPtrSet::add(void* ptr) {
     Pair pair;
     pair.fPtr = ptr;
 
-    int index = SkTSearch<Pair>(fList.begin(), count, pair, sizeof(pair), &Cmp);
+    int index = SkTSearch<Pair, Cmp>(fList.begin(), count, pair, sizeof(pair));
     if (index < 0) {
         index = ~index; // turn it back into an index for insertion
         this->incPtr(ptr);
