@@ -32,8 +32,10 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        int n = (int)(N * this->innerLoopScale());
+        n = SkMax32(1, n);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < n; i++) {
 
             SkPicture picture;
 
@@ -48,6 +50,7 @@ protected:
     }
 
     virtual void recordCanvas(SkCanvas* canvas) = 0;
+    virtual float innerLoopScale() const { return 1; }
 
     SkString fName;
     SkScalar fPictureWidth;
@@ -136,6 +139,7 @@ public:
         M = SkBENCHLOOP(15000),   // number of unique paint objects
     };
 protected:
+    virtual float innerLoopScale() const SK_OVERRIDE { return 0.1f; }
     virtual void recordCanvas(SkCanvas* canvas) {
 
         for (int i = 0; i < M; i++) {
@@ -163,6 +167,7 @@ public:
         M = SkBENCHLOOP(50000),   // number of draw iterations
     };
 protected:
+    virtual float innerLoopScale() const SK_OVERRIDE { return 0.1f; }
     virtual void recordCanvas(SkCanvas* canvas) {
 
         for (int i = 0; i < M; i++) {
