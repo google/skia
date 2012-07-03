@@ -353,20 +353,6 @@ private:
     friend class SkDeviceFilteredPaint;
     friend class DeviceImageFilterProxy;
 
-    /**
-     * postSave is called by SkCanvas to inform the device that it has
-     * just completed a save operation. This allows derived
-     * classes to initialize their state-dependent caches.
-     */
-    virtual void postSave() {};
-
-    /**
-     * preRestore is called by SkCanvas right before it executes a restore
-     * operation. As the partner of postSave, it allows
-     * derived classes to clear their state-dependent caches.
-     */
-    virtual void preRestore() {};
-
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
     // just called by SkCanvas for saveLayer
