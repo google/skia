@@ -10,6 +10,8 @@
 #ifndef SKINSPECTORWIDGET_H_
 #define SKINSPECTORWIDGET_H_
 
+#include "SkMatrix.h"
+
 #include <QWidget>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -34,16 +36,9 @@ public:
 
     ~SkInspectorWidget();
 
-    /**
-        Returns a QString representation of the text currently in the detail tab.
-     */
-    QString getDetailText();
-
-    /**
-        Returns a QString representation of the text currently in the overview tab.
-     */
-    QString getOverviewText();
-
+    void setDisabled(bool isDisabled) {
+        fMatrixAndClipWidget.setDisabled(isDisabled);
+    }
     /**
         Sets the text in the detail tab.
         @param text
@@ -56,31 +51,45 @@ public:
      */
     void setOverviewText(QString text);
 
+    /**
+        Sets the text in the current matrix.
+        @param matrixValues
+     */
+    void setMatrix(const SkMatrix& matrix);
+
+    /**
+        Sets the text in the current clip.
+        @param clipValues
+     */
+    void setClip(const SkIRect& clip);
+
 private:
-    QWidget* fDetailTab;
-    QTextEdit* fDetailText;
-    QHBoxLayout* fDetailLayout;
-    QHBoxLayout* fHorizontalLayout;
-    QWidget* fOverviewTab;
-    QTextEdit* fOverviewText;
-    QHBoxLayout* fOverviewLayout;
-    QTabWidget* fTabWidget;
+    QHBoxLayout fHorizontalLayout;
+    QTabWidget fTabWidget;
 
-    QWidget* fMatrixAndClipWidget;
-    QVBoxLayout* fVerticalLayout;
+    QWidget fOverviewTab;
+    QHBoxLayout fOverviewLayout;
+    QTextEdit fOverviewText;
 
-    QVBoxLayout* fMatrixLayout;
-    QLabel* fMatrixLabel;
-    QHBoxLayout* fMatrixRow[3];
-    QLineEdit* fMatrixEntry[9];
+    QWidget fDetailTab;
+    QHBoxLayout fDetailLayout;
+    QTextEdit fDetailText;
 
-    QVBoxLayout* fClipLayout;
-    QLabel* fClipLabel;
-    QHBoxLayout* fClipRow[2];
-    QLineEdit* fClipEntry[4];
+    QWidget fMatrixAndClipWidget;
+    QVBoxLayout fVerticalLayout;
 
-    QVBoxLayout* currentMatrix();
-    QVBoxLayout* currentClip();
+    QLabel fMatrixLabel;
+    QVBoxLayout fMatrixLayout;
+    QHBoxLayout fMatrixRow[3];
+    QLineEdit fMatrixEntry[9];
+
+    QLabel fClipLabel;
+    QVBoxLayout fClipLayout;
+    QHBoxLayout fClipRow[2];
+    QLineEdit fClipEntry[4];
+
+    QVBoxLayout* setupMatrix();
+    QVBoxLayout* setupClip();
 };
 
 #endif
