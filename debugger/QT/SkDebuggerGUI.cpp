@@ -190,7 +190,6 @@ void SkDebuggerGUI::openFile() {
                                                      tr("Files (*.*)"));
     fDirectoryWidgetActive = false;
     if (!fileName.isNull()) {
-
         QFileInfo pathInfo(fileName);
         fPath = pathInfo.path();
         loadPicture(fileName);
@@ -225,6 +224,9 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
                 info.append("<br/>");
             }
             fInspectorWidget->setDetailText(info);
+            fInspectorWidget->setDisabled(false);
+            fInspectorWidget->setMatrix(fCanvasWidget->getCurrentMatrix());
+            fInspectorWidget->setClip(fCanvasWidget->getCurrentClip());
         }
     }
 }

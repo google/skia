@@ -18,6 +18,7 @@
 #include <QApplication>
 #include <QtGui>
 #include <QWidget>
+#include <QWheelEvent>
 
 /** \class SkCanvasWidget
 
@@ -47,13 +48,27 @@ public:
     /**
         Returns the height of the bitmap.
      */
-    int getBitmapHeight() { return fBitmap->height(); }
+    int getBitmapHeight() { return fBitmap.height(); }
 
 
     /*
         Returns the width of the bitmap.
      */
-    int getBitmapWidth() { return fBitmap->width(); }
+    int getBitmapWidth() { return fBitmap.width(); }
+
+    /**
+        Returns an array of values of the current matrix.
+     */
+    const SkMatrix& getCurrentMatrix() {
+        return fCanvas->getTotalMatrix();
+    }
+
+    /**
+        Returns an array of values of the current bounding clip.
+     */
+    const SkIRect& getCurrentClip() {
+        return fCanvas->getTotalClip().getBounds();
+    }
 
     /**
         TODO(chudy): Refactor into a struct of char**
@@ -100,6 +115,19 @@ public:
         fDebugCanvas->toggleFilter(toggle);
     }
 
+    /**
+        Captures mouse clicks
+        @param event  The event intercepted by Qt
+     */
+    void mouseMoveEvent(QMouseEvent* event);
+
+    void mousePressEvent(QMouseEvent* event);
+
+    void mouseDoubleClickEvent(QMouseEvent* event);
+
+    void resizeEvent(QResizeEvent* event);
+
+    void wheelEvent(QWheelEvent* event);
 
 protected:
     /**
@@ -109,10 +137,16 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    SkBitmap* fBitmap;
+    SkBitmap fBitmap;
     SkCanvas* fCanvas;
     SkDebugCanvas* fDebugCanvas;
     SkDevice* fDevice;
+
+    SkIPoint fPreviousPoint;
+    SkIPoint fTransform;
+
+    int fIndex;
+    int fScaleFactor;
 };
 
 #endif
