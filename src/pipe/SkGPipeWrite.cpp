@@ -85,16 +85,19 @@ public:
         const uint32_t genID = orig.getGenerationID();
         SkPixelRef* sharedPixelRef = NULL;
         for (int i = fBitmaps.count() - 1; i >= 0; i--) {
+            SkBitmap* storedBitmap = fBitmaps[i].fBitmap;
             if (genID == fBitmaps[i].fGenID) {
-                if (orig.pixelRefOffset() != fBitmaps[i].fBitmap->pixelRefOffset()) {
+                if (orig.pixelRefOffset() != storedBitmap->pixelRefOffset()
+                    || orig.width() != storedBitmap->width()
+                    || orig.height() != storedBitmap->height()) {
                     // In this case, the bitmaps share a pixelRef, but have
-                    // different offsets. Keep track of the other bitmap so that
-                    // instead of making another copy of the pixelRef we can use
-                    // the copy we already made.
-                    sharedPixelRef = fBitmaps[i].fBitmap->pixelRef();
+                    // different offsets or sizes. Keep track of the other
+                    // bitmap so that instead of making another copy of the
+                    // pixelRef we can use the copy we already made.
+                    sharedPixelRef = storedBitmap->pixelRef();
                     break;
                 }
-                return fBitmaps[i].fBitmap;
+                return storedBitmap;
             }
         }
         SkBitmap* copy;
