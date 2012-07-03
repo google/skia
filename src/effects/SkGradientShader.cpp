@@ -2304,6 +2304,47 @@ public:
         return true;
     }
 
+    virtual BitmapType asABitmap(SkBitmap* bitmap,
+                                 SkMatrix* matrix,
+                                 TileMode* xy,
+                                 SkScalar* twoPointRadialParams) const {
+
+        SkPoint diff = fCenter2 - fCenter1;
+        SkScalar diffRadius = fRadius2 - fRadius1;
+        SkScalar startRadius = fRadius1;
+        SkScalar diffLen = 0;
+
+        if (bitmap) {
+            this->commonAsABitmap(bitmap);
+        }
+        if (matrix || twoPointRadialParams) {
+            diffLen = diff.length();
+        }
+        if (matrix) {
+            if (diffLen) {
+                SkScalar invDiffLen = SkScalarInvert(diffLen);
+                // rotate to align circle centers with the x-axis
+                matrix->setSinCos(-SkScalarMul(invDiffLen, diff.fY),
+                                  SkScalarMul(invDiffLen, diff.fX));
+            } else {
+                matrix->reset();
+            }
+            matrix->preTranslate(-fCenter1.fX, -fCenter1.fY);
+        }
+        if (xy) {
+            xy[0] = fTileMode;
+            xy[1] = kClamp_TileMode;
+        }
+        if (NULL != twoPointRadialParams) {
+            twoPointRadialParams[0] = diffLen;
+            twoPointRadialParams[1] = startRadius;
+            twoPointRadialParams[2] = diffRadius;
+        }
+
+        return kTwoPointConical_BitmapType;
+    }
+
+
     SkShader::GradientType asAGradient(GradientInfo* info) const  SK_OVERRIDE {
         if (info) {
             commonAsAGradient(info);

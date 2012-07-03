@@ -26,7 +26,7 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
     SkPoint c1 = { l + 3 * w / 5, t + h / 2 };
     SkScalar r0 = w / 5;
     SkScalar r1 = 2 * w / 5;
-    SkShader* s = SkGradientShader::CreateTwoPointRadial(c0, r0, c1, r1, colors,
+    SkShader* s = SkGradientShader::CreateTwoPointConical(c0, r0, c1, r1, colors,
                                                          pos, SK_ARRAY_COUNT(pos),
                                                          SkShader::kClamp_TileMode);
     SkPaint paint;
