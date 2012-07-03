@@ -70,6 +70,13 @@ public:
     std::vector<std::string>* getDrawCommandsAsStrings();
 
     /**
+        Returns length of draw command vector.
+     */
+    int getSize() {
+        return commandVector.size();
+    }
+
+    /**
         Toggles the execution of the draw command at index i.
      */
     void toggleCommand(int index);
