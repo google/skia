@@ -72,13 +72,11 @@ protected:
             canvas->translate(0, SkIntToScalar(bitmap.height() + 20));
             canvas->drawBitmap(subset, 0, 0);
         }
-/*
+
         // Now do the same but with a device bitmap as source image
-        SkRefPtr<SkDevice> primaryDevice(canvas->getDevice());
-        SkRefPtr<SkDevice> secondDevice(canvas->createCompatibleDevice(
+        SkAutoTUnref<SkDevice> secondDevice(canvas->createCompatibleDevice(
             SkBitmap::kARGB_8888_Config, bitmap.width(), 
             bitmap.height(), true));
-        secondDevice->unref();
         SkCanvas secondCanvas(secondDevice.get());
         secondCanvas.writePixels(bitmap, 0, 0);
 
@@ -91,7 +89,7 @@ protected:
 
         canvas->drawBitmap(deviceBitmap, 0, 0);
         canvas->drawBitmap(deviceSubset, 0, 0);
-*/
+
     }
     
 private:
