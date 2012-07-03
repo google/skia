@@ -460,10 +460,6 @@ public:
         return fDDDx * rh.fDDDy < rh.fDDDx * fDDDy;
     }
 
-    bool cancels(const Angle& rh) const {
-        return fDx * rh.fDx < 0 || fDy * rh.fDy < 0;
-    }
-
     int end() const {
         return fEnd;
     }
@@ -802,23 +798,17 @@ public:
         while (startT - fTs[index].fT >= FLT_EPSILON) {
             ++index;
         }
-        int oCount = other.fTs.count();
-        while (other.fTs[--oCount].fT - oEndT >= FLT_EPSILON)
-            ;
-        int oIndex = oCount;
+        int oIndex = other.fTs.count();
         while (other.fTs[--oIndex].fT - oEndT > -FLT_EPSILON)
             ;
         Span* test = &fTs[index];
         Span* oTest = &other.fTs[oIndex];
-        SkDEBUGCODE(int testWindValue = test->fWindValue);
-        SkDEBUGCODE(int oTestWindValue = oTest->fWindValue);
-        SkDEBUGCODE(int startIndex = index);
         do {
             bool decrement = test->fWindValue && oTest->fWindValue;
             Span* end = test;
             do {
-                SkASSERT(testWindValue == end->fWindValue);
                 if (decrement) {
+                    SkASSERT(end->fWindValue > 0);
                     if (--(end->fWindValue) == 0) {
                         end->fDone = true;
                         ++fDoneSpans;
@@ -826,12 +816,10 @@ public:
                 }
                 end = &fTs[++index];
             } while (end->fT - test->fT < FLT_EPSILON);
-            SkASSERT(oCount - oIndex == index - startIndex);
             Span* oTestStart = oTest;
-            SkDEBUGCODE(oCount = oIndex);
             do {
-                SkASSERT(oTestWindValue == oTestStart->fWindValue);
                 if (decrement) {
+                    SkASSERT(oTestStart->fWindValue > 0);
                     if (--(oTestStart->fWindValue) == 0) {
                         oTestStart->fDone = true;
                         ++other.fDoneSpans;
@@ -864,41 +852,52 @@ public:
         }
         Span* test = &fTs[index];
         Span* oTest = &other.fTs[oIndex];
-        SkDEBUGCODE(int testWindValue = test->fWindValue);
-        SkDEBUGCODE(int oTestWindValue = oTest->fWindValue);
         SkTDArray<double> outsideTs;
         SkTDArray<double> oOutsideTs;
         do {
+            bool transfer = test->fWindValue && oTest->fWindValue;
             bool decrementOther = test->fWindValue >= oTest->fWindValue;
             Span* end = test;
             double startT = end->fT;
             double oStartT = oTest->fT;
             do {
-                SkASSERT(testWindValue == end->fWindValue);
-                if (decrementOther) {
-                    ++(end->fWindValue);
-                } else {
-                    if (--(end->fWindValue) == 0) {
-                        end->fDone = true;
-                        ++fDoneSpans;
-                        *outsideTs.append() = end->fT;
-                        *outsideTs.append() = oStartT;
+                if (transfer) {
+                    if (decrementOther) {
+                        ++(end->fWindValue);
+                    } else {
+                        SkASSERT(end->fWindValue > 0);
+                        if (--(end->fWindValue) == 0) {
+                            end->fDone = true;
+                            ++fDoneSpans;
+                            int outCount = outsideTs.count();
+                            if (outCount == 0 || end->fT - outsideTs[outCount - 2]
+                                    >= FLT_EPSILON) {
+                                *outsideTs.append() = end->fT;
+                                *outsideTs.append() = oStartT;
+                            }
+                        }
                     }
                 }
                 end = &fTs[++index];
             } while (end->fT - test->fT < FLT_EPSILON);
             Span* oEnd = oTest;
             do {
-                SkASSERT(oTestWindValue == oEnd->fWindValue);
-                if (decrementOther) {
-                    if (--(oEnd->fWindValue) == 0) {
-                        oEnd->fDone = true;
-                        ++other.fDoneSpans;
-                        *oOutsideTs.append() = oEnd->fT;
-                        *oOutsideTs.append() = startT;
+                if (transfer) {
+                    if (decrementOther) {
+                        SkASSERT(oEnd->fWindValue > 0);
+                        if (--(oEnd->fWindValue) == 0) {
+                            oEnd->fDone = true;
+                            ++other.fDoneSpans;
+                            int oOutCount = oOutsideTs.count();
+                            if (oOutCount == 0 || oEnd->fT
+                                    - oOutsideTs[oOutCount - 2] >= FLT_EPSILON) {
+                                *oOutsideTs.append() = oEnd->fT;
+                                *oOutsideTs.append() = startT;
+                            }
+                        }
+                    } else {
+                        ++(oEnd->fWindValue);
                     }
-                } else {
-                    ++(oEnd->fWindValue);
                 }
                 oEnd = &other.fTs[++oIndex];
             } while (oEnd->fT - oTest->fT < FLT_EPSILON);
@@ -908,14 +907,14 @@ public:
         SkASSERT(oTest->fT < oEndT + FLT_EPSILON);
         SkASSERT(oTest->fT > oEndT - FLT_EPSILON);
         if (!done() && outsideTs.count()) {
-            addTOutsides(outsideTs, &other, oEndT);
+            addTOutsides(outsideTs, other, oEndT);
         }
         if (!other.done() && oOutsideTs.count()) {
-            other.addTOutsides(oOutsideTs, this, endT);
+            other.addTOutsides(oOutsideTs, *this, endT);
         }
     }
 
-    void addTOutsides(const SkTDArray<double>& outsideTs, Segment* other,
+    void addTOutsides(const SkTDArray<double>& outsideTs, Segment& other,
             double otherEnd) {
         int count = outsideTs.count();
         double endT = 0;
@@ -936,11 +935,11 @@ public:
         addTPair(endT, other, otherEnd);
     }
     
-    int addTPair(double t, Segment* other, double otherT) {
-        int insertedAt = addT(t, other);
-        int otherInsertedAt = other->addT(otherT, this);
+    int addTPair(double t, Segment& other, double otherT) {
+        int insertedAt = addT(t, &other);
+        int otherInsertedAt = other.addT(otherT, this);
         addOtherT(insertedAt, otherT, otherInsertedAt);
-        other->addOtherT(otherInsertedAt, t, insertedAt);
+        other.addOtherT(otherInsertedAt, t, insertedAt);
         return insertedAt;
     }
 
@@ -991,12 +990,12 @@ public:
         other->addTwoAngles(next, oIndex, angles);
     }
 
-    // OPTIMIZATION: inefficient, refactor
     bool cancels(const Segment& other) const {
-        SkTDArray<Angle> angles;
-        addAngle(angles, 0, fTs.count() - 1);
-        other.addAngle(angles, 0, other.fTs.count() - 1);
-        return angles[0].cancels(angles[1]);
+        SkASSERT(fVerb == SkPath::kLine_Verb);
+        SkASSERT(other.fVerb == SkPath::kLine_Verb);
+        SkPoint dxy = fPts[0] - fPts[1];
+        SkPoint odxy = other.fPts[0] - other.fPts[1];
+        return dxy.fX * odxy.fX < 0 || dxy.fY * odxy.fY < 0;
     }
 
     // figure out if the segment's ascending T goes clockwise or not
@@ -1431,7 +1430,19 @@ public:
             return CubicIsLinear(cPart);
         }
     }
-    
+
+    // OPTIMIZE: successive calls could start were the last leaves off
+    // or calls could specialize to walk forwards or backwards
+    bool isMissing(double startT) const {
+        size_t tCount = fTs.count();
+        for (size_t index = 0; index < tCount; ++index) {
+            if (fabs(startT - fTs[index].fT) < FLT_EPSILON) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     bool isSimple(int end) const {
         int count = fTs.count();
         if (count == 2) {
@@ -1730,8 +1741,11 @@ private:
 #endif
 };
 
+class Contour;
+
 struct Coincidence {
-    Segment* fSegments[2];
+    Contour* fContours[2];
+    int fSegments[2];
     double fTs[2][2];
 };
 
@@ -1753,8 +1767,10 @@ public:
     void addCoincident(int index, Contour* other, int otherIndex,
             const Intersections& ts, bool swap) {
         Coincidence& coincidence = *fCoincidences.append();
-        coincidence.fSegments[0] = &fSegments[index];
-        coincidence.fSegments[1] = &other->fSegments[otherIndex];
+        coincidence.fContours[0] = this;
+        coincidence.fContours[1] = other;
+        coincidence.fSegments[0] = index;
+        coincidence.fSegments[1] = otherIndex;
         coincidence.fTs[swap][0] = ts.fT[0][0];
         coincidence.fTs[swap][1] = ts.fT[0][1];
         coincidence.fTs[!swap][0] = ts.fT[1][0];
@@ -1870,13 +1886,17 @@ public:
         fContainsCurves = fContainsIntercepts = false;
         fWindingSum = SK_MinS32;
     }
-    
+
     void resolveCoincidence(int winding) {
         int count = fCoincidences.count();
         for (int index = 0; index < count; ++index) {
             Coincidence& coincidence = fCoincidences[index];
-            Segment* thisOne = coincidence.fSegments[0];
-            Segment* other = coincidence.fSegments[1];
+            Contour* thisContour = coincidence.fContours[0];
+            Contour* otherContour = coincidence.fContours[1];
+            int thisIndex = coincidence.fSegments[0];
+            int otherIndex = coincidence.fSegments[1];
+            Segment& thisOne = thisContour->fSegments[thisIndex];
+            Segment& other = otherContour->fSegments[otherIndex];
             double startT = coincidence.fTs[0][0];
             double endT = coincidence.fTs[0][1];
             if (startT > endT) {
@@ -1889,10 +1909,23 @@ public:
                 SkTSwap<double>(oStartT, oEndT);
             }
             SkASSERT(oEndT - oStartT >= FLT_EPSILON);
-            if (winding > 0 || thisOne->cancels(*other)) {
-                thisOne->addTCancel(startT, endT, *other, oStartT, oEndT);
+            if (winding > 0 || thisOne.cancels(other)) {
+                        // make sure startT and endT have t entries
+                if (thisOne.isMissing(startT) || other.isMissing(oEndT)) {
+                    thisOne.addTPair(startT, other, oEndT);
+                }
+                if (thisOne.isMissing(endT) || other.isMissing(oStartT)) {
+                    other.addTPair(oStartT, thisOne, endT);
+                }
+                thisOne.addTCancel(startT, endT, other, oStartT, oEndT);
             } else {
-                thisOne->addTCoincident(startT, endT, *other, oStartT, oEndT);
+                if (thisOne.isMissing(startT) || other.isMissing(oStartT)) {
+                    thisOne.addTPair(startT, other, oStartT);
+                }
+                if (thisOne.isMissing(endT) || other.isMissing(oEndT)) {
+                    other.addTPair(oEndT, thisOne, endT);
+                }
+                thisOne.addTCoincident(startT, endT, other, oStartT, oEndT);
             }
         }
     }
@@ -2331,13 +2364,14 @@ static void debugShowLineIntersection(int pts, const Work& wt,
     if (pts == 2) {
         SkDebugf(" wtTs[1]=%g", wtTs[1]);
     }
-    SkDebugf(" wnTs[0]=%g (%g,%g, %g,%g) (%g,%g)\n",
+    SkDebugf(" wnTs[0]=%g (%g,%g, %g,%g) (%g,%g)",
             wnTs[0], wn.pts()[0].fX, wn.pts()[0].fY,
             wn.pts()[1].fX, wn.pts()[1].fY, wnOutPt.fX, wnOutPt.fY);
     if (pts == 2) {
         SkDebugf(" wnTs[1]=%g", wnTs[1]);
-    SkDebugf("\n");
     }
+    SkDebugf("\n");
+}
 #else
 static void debugShowLineIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
@@ -2522,18 +2556,6 @@ static bool addIntersectTs(Contour* test, Contour* next) {
             // in addition to recording T values, record matching segment
             if (pts == 2 && wn.segmentType() <= Work::kLine_Segment
                     && wt.segmentType() <= Work::kLine_Segment) {
-                if (wt.isAdjacent(wn)) {
-                    int testEndTAt = wt.addT(1, wn);
-                    int nextEndTAt = wn.addT(0, wt);
-                    wt.addOtherT(testEndTAt, 0, nextEndTAt);
-                    wn.addOtherT(nextEndTAt, 1, testEndTAt);
-                }
-                if (wt.isFirstLast(wn)) {
-                    int testStartTAt = wt.addT(0, wn);
-                    int nextStartTAt = wn.addT(1, wt);
-                    wt.addOtherT(testStartTAt, 1, nextStartTAt);
-                    wn.addOtherT(nextStartTAt, 0, testStartTAt);
-                }
                 wt.addCoincident(wn, ts, swap);
                 continue;
             }
