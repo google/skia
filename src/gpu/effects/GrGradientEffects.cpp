@@ -497,7 +497,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
 
         // intermediate value we'll use to compute the roots
         // q = -0.5 * (b +/- sqrt(d))
-        code->appendf("\tfloat %s = -0.5f * (%s + (%s < 0.0 ? -1.0 : 1.0)"
+        code->appendf("\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
                       " * sqrt(%s));\n", qName.c_str(), bVar.c_str(), 
                       bVar.c_str(), dName.c_str());
 
