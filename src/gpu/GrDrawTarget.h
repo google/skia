@@ -191,9 +191,6 @@ public:
 
     static bool StageUsesTexCoords(GrVertexLayout layout, int stage);
 
-    virtual void postClipPush() {};
-    virtual void preClipPop() {};
-
 private:
     static const int TEX_COORD_BIT_CNT = GrDrawState::kNumStages *
                                          GrDrawState::kMaxTexCoords;

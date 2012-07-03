@@ -683,18 +683,6 @@ public:
     void unlockStencilBuffer(GrResourceEntry* sbEntry);
     GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
 
-    /*
-     * postClipPush acts as a hint to this and lower-level classes (e.g.,
-     * GrGpu) that the clip stack has changed.
-     */
-    virtual void postClipPush();
-
-    /*
-     * preClipPop acts as a hint that the clip stack has been restored to an
-     * earlier state.
-     */
-    virtual void preClipPop();
-
     GrPathRenderer* getPathRenderer(const SkPath& path,
                                     GrPathFill fill,
                                     const GrDrawTarget* target,

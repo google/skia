@@ -144,14 +144,7 @@ private:
     // used by createCompatibleDevice
     SkGpuDevice(GrContext*, GrTexture* texture, TexCache, bool needClear);
 
-    // overrides from SkDevice
-    virtual void postSave() SK_OVERRIDE {
-        fContext->postClipPush();
-    }
-    virtual void preRestore() SK_OVERRIDE {
-        fContext->preClipPop();
-    }
-
+    // override from SkDevice
     virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
                                                int width, int height,
                                                bool isOpaque,

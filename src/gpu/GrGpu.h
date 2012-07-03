@@ -362,13 +362,6 @@ public:
                                                  // clipping.
     };
 
-    virtual void postClipPush() SK_OVERRIDE {
-        fClipMaskManager.postClipPush();
-    }
-    virtual void preClipPop() SK_OVERRIDE {
-        fClipMaskManager.preClipPop();
-    }
-
 protected:
     enum DrawType {
         kDrawPoints_DrawType,
