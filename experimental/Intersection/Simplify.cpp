@@ -43,7 +43,7 @@
 #define DEBUG_PATH_CONSTRUCTION 1
 #define DEBUG_WINDING 0
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define DEBUG_MARK_DONE 01
+#define DEBUG_MARK_DONE 0
 
 #endif
 
@@ -813,21 +813,15 @@ public:
         SkDEBUGCODE(int testWindValue = test->fWindValue);
         SkDEBUGCODE(int oTestWindValue = oTest->fWindValue);
         SkDEBUGCODE(int startIndex = index);
-        SkTDArray<double> outsideTs;
-        SkTDArray<double> oOutsideTs;
         do {
             bool decrement = test->fWindValue && oTest->fWindValue;
             Span* end = test;
-            double startT = end->fT;
-            double oStartT = oTest->fT;
             do {
                 SkASSERT(testWindValue == end->fWindValue);
                 if (decrement) {
                     if (--(end->fWindValue) == 0) {
                         end->fDone = true;
                         ++fDoneSpans;
-                        *outsideTs.append() = end->fT;
-                        *outsideTs.append() = oStartT;
                     }
                 }
                 end = &fTs[++index];
@@ -841,8 +835,6 @@ public:
                     if (--(oTestStart->fWindValue) == 0) {
                         oTestStart->fDone = true;
                         ++other.fDoneSpans;
-                        *oOutsideTs.append() = oTestStart->fT;
-                        *oOutsideTs.append() = startT;
                     }
                 }
                 if (!oIndex) {
@@ -854,14 +846,6 @@ public:
             oTest = oTestStart;
         } while (test->fT < endT - FLT_EPSILON);
         SkASSERT(!oIndex || oTest->fT <= oStartT - FLT_EPSILON);
-#if 0
-        if (!done() && outsideTs.count()) {
-            addTOutsides(outsideTs, &other, oStartT);
-        }
-        if (!other.done() && oOutsideTs.count()) {
-            other.addTOutsides(oOutsideTs, this, startT);
-        }
-#endif
     }
 
     // set spans from start to end to increment the greater by one and decrement
@@ -1884,7 +1868,7 @@ public:
         fSegments.reset();
         fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
         fContainsCurves = fContainsIntercepts = false;
-        fWindingSum = -1;
+        fWindingSum = SK_MinS32;
     }
     
     void resolveCoincidence(int winding) {
@@ -2240,6 +2224,15 @@ public:
         fIndex = 0;
         fLast = contour->segments().count();
     }
+    
+    bool isAdjacent(const Work& next) {
+        return fContour == next.fContour && fIndex + 1 == next.fIndex;
+    }
+
+    bool isFirstLast(const Work& next) {
+        return fContour == next.fContour && fIndex == 0
+                && next.fIndex == fLast - 1;
+    }
 
     SkScalar left() const {
         return bounds().fLeft;
@@ -2529,6 +2522,18 @@ static bool addIntersectTs(Contour* test, Contour* next) {
             // in addition to recording T values, record matching segment
             if (pts == 2 && wn.segmentType() <= Work::kLine_Segment
                     && wt.segmentType() <= Work::kLine_Segment) {
+                if (wt.isAdjacent(wn)) {
+                    int testEndTAt = wt.addT(1, wn);
+                    int nextEndTAt = wn.addT(0, wt);
+                    wt.addOtherT(testEndTAt, 0, nextEndTAt);
+                    wn.addOtherT(nextEndTAt, 1, testEndTAt);
+                }
+                if (wt.isFirstLast(wn)) {
+                    int testStartTAt = wt.addT(0, wn);
+                    int nextStartTAt = wn.addT(1, wt);
+                    wt.addOtherT(testStartTAt, 1, nextStartTAt);
+                    wn.addOtherT(nextStartTAt, 0, testStartTAt);
+                }
                 wt.addCoincident(wn, ts, swap);
                 continue;
             }
@@ -2697,19 +2702,13 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
         // follow edges to intersection by changing the index by direction.
         int index, endIndex;
         Segment* current = topStart->findTop(index, endIndex);
-        int winding;
-        int contourWinding;
-        if (firstContour) {
-            topContour->setWinding(0);
-            contourWinding = 0;
-            firstContour = false;
-            winding = 0;
-        } else {
-            winding = topContour->winding();
+        int winding = 0;
+        if (!firstContour) {
+            int contourWinding = topContour->winding();
     #if DEBUG_WINDING
             SkDebugf("%s 1 winding=%d\n", __FUNCTION__, winding);
     #endif
-            if (!winding) {
+            if (contourWinding == SK_MinS32) {
                 const SkPoint& topPoint = current->xyAtT(endIndex);
                 winding = innerContourCheck(contourList, topContour, topPoint);
     #if DEBUG_WINDING
@@ -2719,12 +2718,13 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
         }
         const SkPoint* firstPt = NULL;
         SkPoint lastPt;
-        bool active = winding >= -1 && winding <= 1;
         bool firstTime = true;
         int spanWinding = current->spanSign(index, endIndex);
-    #if DEBUG_WINDING
-        SkDebugf("%s spanWinding=%d\n", __FUNCTION__, startWinding);
-    #endif
+        if (firstContour) {
+            topContour->setWinding(spanWinding);
+            firstContour = false;
+        }
+        bool active = winding * spanWinding <= 0;
         do {
             SkASSERT(!current->done());
             int nextStart, nextEnd;
@@ -2742,6 +2742,9 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
             endIndex = nextEnd;
             spanWinding = SkSign32(spanWinding) * next->windValue(
                     SkMin32(nextStart, nextEnd));
+    #if DEBUG_WINDING
+            SkDebugf("%s spanWinding=%d\n", __FUNCTION__, spanWinding);
+    #endif
             firstTime = false;
         } while (*firstPt != lastPt);
         if (firstPt) {
@@ -2799,9 +2802,9 @@ void simplifyx(const SkPath& path, SkPath& simple) {
             next = *nextPtr++;
         } while (addIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
-    fixOtherTIndex(contourList);
     // eat through coincident edges
     coincidenceCheck(contourList, winding);
+    fixOtherTIndex(contourList);
     // construct closed contours
     bridge(contourList, simple);
 }
