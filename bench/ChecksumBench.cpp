@@ -61,15 +61,33 @@ private:
 class ComputeChecksum64Bench : public ComputeChecksumBench {
 public:
     ComputeChecksum64Bench(void* param)
-        : INHERITED(param, "64") { }
-
+    : INHERITED(param, "64") { }
+    
 protected:
     virtual void computeChecksum(const uint64_t* data, size_t len) {
         for (int i = 0; i < N; i++) {
             volatile uint64_t result = SkComputeChecksum64(data, len);
         }
     }
+    
+private:
+    typedef ComputeChecksumBench INHERITED;
+};
 
+/*
+ *  Use SkComputeChecksum64 to compute a checksum on a datablock
+ */
+class ComputeChecksumXXBench : public ComputeChecksumBench {
+public:
+    ComputeChecksumXXBench(void* param) : INHERITED(param, "XX") { }
+    
+protected:
+    virtual void computeChecksum(const uint64_t* data, size_t len) {
+        for (int i = 0; i < N; i++) {
+            volatile uint32_t result = SkChecksum::Compute(reinterpret_cast<const uint32_t*>(data), len);
+        }
+    }
+    
 private:
     typedef ComputeChecksumBench INHERITED;
 };
@@ -78,6 +96,8 @@ private:
 
 static SkBenchmark* Fact0(void* p) { return new ComputeChecksum32Bench(p); }
 static SkBenchmark* Fact1(void* p) { return new ComputeChecksum64Bench(p); }
+static SkBenchmark* Fact2(void* p) { return new ComputeChecksumXXBench(p); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
+static BenchRegistry gReg2(Fact2);
