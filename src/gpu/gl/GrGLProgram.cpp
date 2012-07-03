@@ -26,7 +26,7 @@ enum {
 
 }  // namespace
 
-#define PRINT_SHADERS GR_DEBUG
+#define PRINT_SHADERS 0
 
 typedef GrGLProgram::ProgramDesc::StageDesc StageDesc;
 
