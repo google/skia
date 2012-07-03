@@ -1,5 +1,5 @@
 # To update the Doxygen output checked into the Skia subversion repo (which is
-# browsable at http://skia.googlecode.com/svn/docs/html/index.html ), run:
+# browsable at http://skia-autogen.googlecode.com/svn/docs/html/index.html ), run:
 # tools/update-doxygen.sh
 
 PROJECT_NAME = skia
