@@ -45,13 +45,33 @@ protected:
         create_bitmap(&bitmap);
         int x = bitmap.width() / 2;
         int y = bitmap.height() / 2;
-        SkBitmap subset;
-        bitmap.extractSubset(&subset, SkIRect::MakeXYWH(x, y, x, y));
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         canvas->drawBitmap(bitmap, 0, 0);
-        canvas->drawBitmap(subset, 0, 0);
+
+        {
+            // Do some subset drawing. This will test that an SkGPipe properly
+            // handles the case where bitmaps share a pixelref
+            // Draw the bottom right fourth of the bitmap over the top left
+            SkBitmap subset;
+            bitmap.extractSubset(&subset, SkIRect::MakeXYWH(x, y, x, y));
+            canvas->drawBitmap(subset, 0, 0);
+            // Draw the top left corner over the bottom right
+            bitmap.extractSubset(&subset, SkIRect::MakeWH(x, y));
+            canvas->drawBitmap(subset, SkIntToScalar(x), SkIntToScalar(y));
+            // Draw a subset which has the same height and pixelref offset but a
+            // different width
+            bitmap.extractSubset(&subset, SkIRect::MakeWH(x, bitmap.height()));
+            SkAutoCanvasRestore autoRestore(canvas, true);
+            canvas->translate(0, SkIntToScalar(bitmap.height() + 20));
+            canvas->drawBitmap(subset, 0, 0);
+            // Now draw a subet which has the same width and pixelref offset but
+            // a different height
+            bitmap.extractSubset(&subset, SkIRect::MakeWH(bitmap.height(), y));
+            canvas->translate(0, SkIntToScalar(bitmap.height() + 20));
+            canvas->drawBitmap(subset, 0, 0);
+        }
 /*
         // Now do the same but with a device bitmap as source image
         SkRefPtr<SkDevice> primaryDevice(canvas->getDevice());
