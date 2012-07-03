@@ -75,11 +75,6 @@
             '../bench/BenchSysTimer_windows.cpp',
           ],
         }],
-        [ 'skia_os == "android"', {
-          'dependencies!': [
-            'android_system.gyp:Android_EntryPoint',
-          ],
-        }],
       ],
     }
   ],
