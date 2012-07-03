@@ -17,9 +17,11 @@ static void test_hittest(SkCanvas* canvas, const SkPath& path, bool hires) {
     paint.setColor(SK_ColorRED);
     canvas->drawPath(path, paint);
     
+    const SkScalar MARGIN = SkIntToScalar(4);
+    
     paint.setColor(0x800000FF);
-    for (SkScalar y = r.fTop + 0.5 - 4; y < r.fBottom + 4; y += 1) {
-        for (SkScalar x = r.fLeft + 0.5 - 4; x < r.fRight + 4; x += 1) {
+    for (SkScalar y = r.fTop + SK_ScalarHalf - MARGIN; y < r.fBottom + MARGIN; y += SK_Scalar1) {
+        for (SkScalar x = r.fLeft + SK_ScalarHalf - MARGIN; x < r.fRight + MARGIN; x += SK_Scalar1) {
             if (hires) {
                 if (SkHitTestPathEx(path, x, y)) {
                     canvas->drawPoint(x, y, paint);
@@ -55,17 +57,17 @@ protected:
         }
         
         path.setFillType(SkPath::kEvenOdd_FillType);
-        path.offset(20, 20);
+        path.offset(SkIntToScalar(20), SkIntToScalar(20));
         
         test_hittest(canvas, path, false);
-        canvas->translate(200, 0);
+        canvas->translate(SkIntToScalar(200), 0);
         test_hittest(canvas, path, true);
         
-        canvas->translate(-200, 200);
+        canvas->translate(-SkIntToScalar(200), SkIntToScalar(200));
         path.setFillType(SkPath::kWinding_FillType);
         
         test_hittest(canvas, path, false);
-        canvas->translate(200, 0);
+        canvas->translate(SkIntToScalar(200), 0);
         test_hittest(canvas, path, true);
     }
     
