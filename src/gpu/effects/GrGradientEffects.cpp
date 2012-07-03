@@ -475,6 +475,10 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
                       p3.c_str(), p5.c_str());
     }
 
+    // output will default to transparent black (we simply won't write anything
+    // else to it if invalid, instead of discarding or returning prematurely)
+    code->appendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
+
     // c = (x^2)+(y^2) - params[4]
     code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(), 
                   state->fSampleCoords.c_str(), state->fSampleCoords.c_str(),
@@ -491,43 +495,58 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
         code->appendf("\tfloat %s = %s * %s - %s;\n", dName.c_str(), 
                       bVar.c_str(), bVar.c_str(), ac4Name.c_str());
 
-        // if discriminant is < 0, set to transparent black and return
-        code->appendf("\tif (%s < 0.0) {\n\t\tgl_FragColor = vec4(0.0,0.0,0.0,"
-                      "0.0);\n\t\treturn;\n\t}\n", dName.c_str());
+        // only proceed if discriminant is >= 0
+        code->appendf("\tif (%s >= 0.0) {\n", dName.c_str());
 
         // intermediate value we'll use to compute the roots
         // q = -0.5 * (b +/- sqrt(d))
-        code->appendf("\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
+        code->appendf("\t\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
                       " * sqrt(%s));\n", qName.c_str(), bVar.c_str(), 
                       bVar.c_str(), dName.c_str());
 
         // compute both roots
         // r0 = q * params[1]
-        code->appendf("\tfloat %s = %s * %s;\n", r0Name.c_str(), qName.c_str(),
-                      p1.c_str());
+        code->appendf("\t\tfloat %s = %s * %s;\n", r0Name.c_str(), 
+                      qName.c_str(), p1.c_str());
         // r1 = c / q
-        code->appendf("\tfloat %s = %s / %s;\n", r1Name.c_str(), cName.c_str(),
-                      qName.c_str());
+        code->appendf("\t\tfloat %s = %s / %s;\n", r1Name.c_str(), 
+                      cName.c_str(), qName.c_str());
 
         // Note: If there are two roots that both generate radius(t) > 0, the 
         // Canvas spec says to choose the larger t.
 
         // so we'll look at the larger one first:
-        code->appendf("\tfloat %s = max(%s, %s);\n", tName.c_str(), 
+        code->appendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(), 
                       r0Name.c_str(), r1Name.c_str());
 
-        // if r(t) for the larger root is <= 0, try the other one
-        code->appendf("\tif (%s * %s + %s <= 0.0) {\n", tName.c_str(), 
+        // if r(t) > 0, then we're done; t will be our x coordinate
+        code->appendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(), 
                       p5.c_str(), p3.c_str());
-        code->appendf("\t\t%s = min(%s, %s);\n", tName.c_str(), 
+
+        // y coord is 0.5 (texture is effectively 1D)
+        code->appendf("\t\t");
+        state->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
+        state->emitDefaultFetch(outputColor, samplerName);
+
+        // otherwise, if r(t) for the larger root was <= 0, try the other root
+        code->appendf("\t\t} else {\n");
+        code->appendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(), 
                       r0Name.c_str(), r1Name.c_str());
 
-        // if r(t) for the smaller root is also <= 0, set the fragment to 
-        // transparent black and return
-        code->appendf("\t\tif (%s * %s + %s <= 0.0) {\n\t\t\tgl_FragColor = "
-                      "vec4(0.0,0.0,0.0,0.0);\n\t\t\treturn;\n\t\t}\n", 
+        // if r(t) > 0 for the smaller root, then t will be our x coordinate
+        code->appendf("\t\t\tif (%s * %s + %s > 0.0) {\n",
                       tName.c_str(), p5.c_str(), p3.c_str());
-        
+
+        // y coord is 0.5 (texture is effectively 1D)
+        code->appendf("\t\t\t");
+        state->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
+        state->emitDefaultFetch(outputColor, samplerName);
+
+        // end if (r(t) > 0) for smaller root 
+        code->appendf("\t\t\t}\n");
+        // end if (r(t) > 0), else, for larger root
+        code->appendf("\t\t}\n");
+        // end if (discriminant >= 0)
         code->appendf("\t}\n");
     } else {
 
@@ -535,18 +554,15 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
         code->appendf("\tfloat %s = -(%s / %s);\n", tName.c_str(), 
                       cName.c_str(), bVar.c_str());
 
-        // set the fragment to transparent black and return if r(t) is <= 0
-        code->appendf("\tif (%s * %s + %s <= 0.0) {\n\t\tgl_FragColor = vec4("
-                      "0.0,0.0,0.0,0.0);\n\t\treturn;\n\t}\n", tName.c_str(),
+        // if r(t) > 0, then t will be the x coordinate
+        code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                       p5.c_str(), p3.c_str());
+        code->appendf("\t");
+        state->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
+        state->emitDefaultFetch(outputColor, samplerName);
+        code->appendf("\t}\n");
     }
     state->fComplexCoord = true;
-
-    // x coord is: t
-    // y coord is 0.5 (texture is effectively 1D)
-    state->fSampleCoords.printf("\tvec2(%s, 0.5)", tName.c_str());
-
-    state->emitDefaultFetch(outputColor, samplerName);
 }
 
 void GrGLConical2Gradient::initUniforms(const GrGLInterface* gl, int programID) {
