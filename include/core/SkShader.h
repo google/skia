@@ -212,8 +212,18 @@ public:
                             //         space
                             //      2: the second radius minus the first radius
                             //         in pre-transformed space.
+        kTwoPointConical_BitmapType,
+                            //<! Matrix transforms to space where (0,0) is
+                            //   the center of the starting circle.  The second
+                            //   circle will be centered (x, 0) where x  may be
+                            //   0.
+                            //   Three extra parameters are returned:
+                            //      0: x-offset of second circle center
+                            //         to first.
+                            //      1: radius of first circle
+                            //      2: the second radius minus the first radius
 
-       kLast_BitmapType = kTwoPointRadial_BitmapType
+       kLast_BitmapType = kTwoPointConical_BitmapType
     };
     /** Optional methods for shaders that can pretend to be a bitmap/texture
         to play along with opengl. Default just returns kNone_BitmapType and
