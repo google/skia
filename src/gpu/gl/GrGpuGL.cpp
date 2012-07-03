@@ -115,7 +115,7 @@ bool GrGpuGL::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool gPrintStartupSpew;
+static bool gPrintStartupSpew = GR_DEBUG;
 
 static bool fbo_test(const GrGLInterface* gl, int w, int h) {
 
