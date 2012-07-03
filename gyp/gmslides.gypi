@@ -30,6 +30,7 @@
     '../gm/gradients.cpp',
     '../gm/gradtext.cpp',
     '../gm/hairmodes.cpp',
+    '../gm/hittestpath.cpp',
     '../gm/imageblur.cpp',
     '../gm/lighting.cpp',
     '../gm/imagefiltersbase.cpp',
