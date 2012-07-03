@@ -146,3 +146,222 @@ void SkCullPointsPath::lineTo(int x, int y) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkMatrix.h"
+#include "SkRegion.h"
+
+bool SkHitTestPath(const SkPath& path, SkRect& target, bool hires) {
+    if (target.isEmpty()) {
+        return false;
+    }
+
+    bool isInverse = path.isInverseFillType();
+    if (path.isEmpty()) {
+        return isInverse;
+    }
+
+    SkRect bounds = path.getBounds();
+
+    bool sects = SkRect::Intersects(target, bounds);
+    if (isInverse) {
+        if (!sects) {
+            return true;
+        }
+    } else {
+        if (!sects) {
+            return false;
+        }
+        if (target.contains(bounds)) {
+            return true;
+        }
+    }
+
+    SkPath devPath;
+    const SkPath* pathPtr;
+    SkRect        devTarget;
+
+    if (hires) {
+        const SkScalar coordLimit = SkIntToScalar(16384);
+        const SkRect limit = { 0, 0, coordLimit, coordLimit };
+        
+        SkMatrix matrix;
+        matrix.setRectToRect(bounds, limit, SkMatrix::kFill_ScaleToFit);
+
+        path.transform(matrix, &devPath);
+        matrix.mapRect(&devTarget, target);
+
+        pathPtr = &devPath;
+    } else {
+        devTarget = target;
+        pathPtr = &path;
+    }
+
+    SkIRect iTarget;
+    devTarget.round(&iTarget);
+    if (iTarget.isEmpty()) {
+        iTarget.fLeft = SkScalarFloorToInt(devTarget.fLeft);
+        iTarget.fTop = SkScalarFloorToInt(devTarget.fTop);
+        iTarget.fRight = iTarget.fLeft + 1;
+        iTarget.fBottom = iTarget.fTop + 1;
+    }
+
+    SkRegion clip(iTarget);
+    SkRegion rgn;
+    return rgn.setPath(*pathPtr, clip) ^ isInverse;
+}
+
+bool SkHitTestPath(const SkPath& path, SkScalar x, SkScalar y, bool hires) {
+    const SkScalar half = SK_ScalarHalf;
+    const SkScalar one = SK_Scalar1;
+    SkRect r = SkRect::MakeXYWH(x - half, y - half, one, one);
+    return SkHitTestPath(path, r, hires);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkGeometry.h"
+
+static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
+    SkScalar y0 = pts[0].fY;
+    SkScalar y2 = pts[2].fY;
+    
+    int dir = 1;
+    if (y0 > y2) {
+        SkTSwap(y0, y2);
+        dir = -1;
+    }
+    if (y < y0 || y >= y2) {
+        return 0;
+    }
+
+    // bounds check on X (not required, but maybe faster)
+#if 0
+    if (pts[0].fX > x && pts[1].fX > x && pts[2].fX > x) {
+        return 0;
+    }
+#endif
+    
+    SkScalar roots[2];
+    int n = SkFindUnitQuadRoots(pts[0].fY - 2 * pts[1].fY + pts[2].fY,
+                                2 * (pts[1].fY - pts[0].fY),
+                                pts[0].fY - y,
+                                roots);
+    SkASSERT(n <= 1);
+    SkScalar xt;
+    if (0 == n) {
+        SkScalar mid = SkScalarAve(y0, y2);
+        // Need [0] and [2] if dir == 1
+        // and  [2] and [0] if dir == -1
+        xt = y < mid ? pts[1 - dir].fX : pts[dir - 1].fX;
+    } else {
+        SkScalar t = roots[0];
+        SkScalar C = pts[0].fX;
+        SkScalar A = pts[2].fX - 2 * pts[1].fX + C;
+        SkScalar B = 2 * (pts[1].fX - C);
+        xt = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
+    }
+    return xt < x ? dir : 0;
+}
+
+static bool is_mono(SkScalar y0, SkScalar y1, SkScalar y2) {
+//    return SkScalarSignAsInt(y0 - y1) + SkScalarSignAsInt(y1 - y2) != 0;
+    if (y0 == y1) {
+        return true;
+    }
+    if (y0 < y1) {
+        return y1 <= y2;
+    } else {
+        return y1 >= y2;
+    }
+}
+
+static int winding_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
+    SkPoint dst[5];
+    int     n = 0;
+
+    if (!is_mono(pts[0].fY, pts[1].fY, pts[2].fY)) {
+        n = SkChopQuadAtYExtrema(pts, dst);
+        pts = dst;
+    }
+    int w = winding_mono_quad(pts, x, y);
+    if (n > 0) {
+        w += winding_mono_quad(&pts[2], x, y);
+    }
+    return w;
+}
+
+static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y) {
+    SkScalar x0 = pts[0].fX;
+    SkScalar y0 = pts[0].fY;
+    SkScalar x1 = pts[1].fX;
+    SkScalar y1 = pts[1].fY;
+
+    SkScalar dy = y1 - y0;
+
+    int dir = 1;
+    if (y0 > y1) {
+        SkTSwap(y0, y1);
+        dir = -1;
+    }
+    if (y < y0 || y >= y1) {
+        return 0;
+    }
+
+    SkScalar cross = SkScalarMul(x1 - x0, y - pts[0].fY) -
+                     SkScalarMul(dy, x - pts[0].fX);
+
+    if (SkScalarSignAsInt(cross) == dir) {
+        dir = 0;
+    }
+    return dir;
+}
+
+static int winding_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
+    return 0;
+}
+
+bool SkHitTestPathEx(const SkPath& path, SkScalar x, SkScalar y) {
+    bool isInverse = path.isInverseFillType();
+    if (path.isEmpty()) {
+        return isInverse;
+    }
+    
+    const SkRect& bounds = path.getBounds();
+    if (!bounds.contains(x, y)) {
+        return isInverse;
+    }
+
+    SkPath::Iter iter(path, true);
+    bool done = false;
+    int w = 0;
+    do {
+        SkPoint pts[4];
+        switch (iter.next(pts, false)) {
+            case SkPath::kMove_Verb:
+            case SkPath::kClose_Verb:
+                break;
+            case SkPath::kLine_Verb:
+                w += winding_line(pts, x, y);
+                break;
+            case SkPath::kQuad_Verb:
+                w += winding_quad(pts, x, y);
+                break;
+            case SkPath::kCubic_Verb:
+                w += winding_cubic(pts, x, y);
+                break;
+            case SkPath::kDone_Verb:
+                done = true;
+                break;
+        }
+    } while (!done);
+
+    switch (path.getFillType()) {
+        case SkPath::kEvenOdd_FillType:
+        case SkPath::kInverseEvenOdd_FillType:
+            w &= 1;
+            break;
+    }
+    return SkToBool(w);
+}
+
