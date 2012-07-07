@@ -271,6 +271,18 @@ static bool chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
     return true;
 }
 
+template <size_t N> static void find_minmax(const SkPoint pts[],
+                                            SkScalar* minPtr, SkScalar* maxPtr) {
+    SkScalar min, max;
+    min = max = pts[0].fX;
+    for (size_t i = 1; i < N; ++i) {
+        min = SkMinScalar(min, pts[i].fX);
+        max = SkMaxScalar(max, pts[i].fX);
+    }
+    *minPtr = min;
+    *maxPtr = max;
+}
+
 static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
     SkPoint storage[4];
 
@@ -287,6 +299,17 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
         return 0;
     }
 
+    // quickreject or quickaccept
+    SkScalar min, max;
+    find_minmax<4>(pts, &min, &max);
+    if (x < min) {
+        return 0;
+    }
+    if (x > max) {
+        return dir;
+    }
+
+    // compute the actual x(t) value
     SkScalar t, xt;
     if (chopMonoCubicAt(pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY, y, &t)) {
         xt = eval_cubic_pts(pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX, t);
