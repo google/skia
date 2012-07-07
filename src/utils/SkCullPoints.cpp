@@ -222,6 +222,91 @@ bool SkHitTestPath(const SkPath& path, SkScalar x, SkScalar y, bool hires) {
 
 #include "SkGeometry.h"
 
+static SkScalar eval_cubic_coeff(SkScalar A, SkScalar B, SkScalar C,
+                                 SkScalar D, SkScalar t) {
+    return SkScalarMulAdd(SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C), t, D);
+}
+
+static SkScalar eval_cubic_pts(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
+                               SkScalar t) {
+    SkScalar A = c3 + 3*(c1 - c2) - c0;
+    SkScalar B = 3*(c2 - c1 - c1 + c0);
+    SkScalar C = 3*(c1 - c0);
+    SkScalar D = c0;
+    return eval_cubic_coeff(A, B, C, D, t);
+}
+
+/*  Given 4 cubic points (either Xs or Ys), and a target X or Y, compute the
+ t value such that cubic(t) = target
+ */
+static bool chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
+                            SkScalar target, SkScalar* t) {
+//   SkASSERT(c0 <= c1 && c1 <= c2 && c2 <= c3);
+    SkASSERT(c0 < target && target < c3);
+    
+    SkScalar D = c0 - target;
+    SkScalar A = c3 + 3*(c1 - c2) - c0;
+    SkScalar B = 3*(c2 - c1 - c1 + c0);
+    SkScalar C = 3*(c1 - c0);
+
+    const SkScalar TOLERANCE = SK_Scalar1 / 4096;
+    SkScalar minT = 0;
+    SkScalar maxT = SK_Scalar1;
+    SkScalar mid;
+    int i;
+    for (i = 0; i < 16; i++) {
+        mid = SkScalarAve(minT, maxT);
+        SkScalar delta = eval_cubic_coeff(A, B, C, D, mid);
+        if (delta < 0) {
+            minT = mid;
+            delta = -delta;
+        } else {
+            maxT = mid;
+        }
+        if (delta < TOLERANCE) {
+            break;
+        }
+    }
+    *t = mid;
+    return true;
+}
+
+static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
+    SkPoint storage[4];
+
+    int dir = 1;
+    if (pts[0].fY > pts[3].fY) {
+        storage[0] = pts[3];
+        storage[1] = pts[2];
+        storage[2] = pts[1];
+        storage[3] = pts[0];
+        pts = storage;
+        dir = -1;
+    }
+    if (y < pts[0].fY || y >= pts[3].fY) {
+        return 0;
+    }
+
+    SkScalar t, xt;
+    if (chopMonoCubicAt(pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY, y, &t)) {
+        xt = eval_cubic_pts(pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX, t);
+    } else {
+        SkScalar mid = SkScalarAve(pts[0].fY, pts[3].fY);
+        xt = y < mid ? pts[0].fX : pts[3].fX;
+    }
+    return xt < x ? dir : 0;
+}
+
+static int winding_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
+    SkPoint dst[10];
+    int n = SkChopCubicAtYExtrema(pts, dst);
+    int w = 0;
+    for (int i = 0; i <= n; ++i) {
+        w += winding_mono_cubic(&dst[i * 3], x, y);
+    }
+    return w;
+}
+
 static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
     SkScalar y0 = pts[0].fY;
     SkScalar y2 = pts[2].fY;
@@ -264,7 +349,7 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
     return xt < x ? dir : 0;
 }
 
-static bool is_mono(SkScalar y0, SkScalar y1, SkScalar y2) {
+static bool is_mono_quad(SkScalar y0, SkScalar y1, SkScalar y2) {
 //    return SkScalarSignAsInt(y0 - y1) + SkScalarSignAsInt(y1 - y2) != 0;
     if (y0 == y1) {
         return true;
@@ -280,7 +365,7 @@ static int winding_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
     SkPoint dst[5];
     int     n = 0;
 
-    if (!is_mono(pts[0].fY, pts[1].fY, pts[2].fY)) {
+    if (!is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY)) {
         n = SkChopQuadAtYExtrema(pts, dst);
         pts = dst;
     }
@@ -315,10 +400,6 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y) {
         dir = 0;
     }
     return dir;
-}
-
-static int winding_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
-    return 0;
 }
 
 bool SkHitTestPathEx(const SkPath& path, SkScalar x, SkScalar y) {
