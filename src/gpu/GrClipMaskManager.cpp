@@ -360,40 +360,19 @@ bool draw_path_in_software(GrContext* context,
                            bool doAA,
                            const GrIRect& resultBounds) {
 
-    GrAutoScratchTexture ast;
-
-    if (!GrSWMaskHelper::DrawToTexture(context, path, resultBounds, fill, 
-                                       &ast, doAA, NULL)) {
+    SkAutoTUnref<GrTexture> texture(
+                GrSWMaskHelper::DrawPathMaskToTexture(context, path, 
+                                                      resultBounds, fill, 
+                                                      doAA, NULL));
+    if (NULL == texture) {
         return false;
     }
 
-    // TODO: merge this with the similar code in the GrSoftwarePathRenderer.cpp
-    SkAutoTUnref<GrTexture> texture(ast.detach());
-    GrAssert(NULL != texture);
+    // The ClipMaskManager accumulates the clip mask in the UL corner
+    GrIRect rect = GrIRect::MakeWH(resultBounds.width(), resultBounds.height());
 
-    GrDrawState::StageMask stageMask = 0;
-    GrDrawTarget::AutoDeviceCoordDraw adcd(gpu, stageMask);
-    enum {
-        // the SW path renderer shares this stage with glyph
-        // rendering (kGlyphMaskStage in GrBatchedTextContext)
-        kPathMaskStage = GrPaint::kTotalStages,
-    };
-    GrAssert(NULL == gpu->drawState()->getTexture(kPathMaskStage));
-    gpu->drawState()->setTexture(kPathMaskStage, texture);
-    gpu->drawState()->sampler(kPathMaskStage)->reset();
-    GrScalar w = GrIntToScalar(resultBounds.width());
-    GrScalar h = GrIntToScalar(resultBounds.height());
-    GrRect maskRect = GrRect::MakeWH(w / texture->width(),
-                                        h / texture->height());
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, gpu, 0, rect);
 
-    const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
-    srcRects[kPathMaskStage] = &maskRect;
-    stageMask |= 1 << kPathMaskStage;
-    GrRect dstRect = GrRect::MakeWH(
-                                SK_Scalar1* resultBounds.width(),
-                                SK_Scalar1* resultBounds.height());
-    gpu->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
-    gpu->drawState()->setTexture(kPathMaskStage, NULL);
     GrAssert(!GrIsFillInverted(fill));
     return true;
 }
