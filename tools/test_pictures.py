@@ -74,8 +74,9 @@ def DiffImages(expected_dir, comparison_dir, diff_dir):
     @param diff_dir the location to write out the diff results
     """
     skdiff_path = FindPathToProgram('skdiff')
-    RunCommand('%s %s %s %s' %
-               (skdiff_path, expected_dir, comparison_dir, diff_dir))
+    RunCommand('%s %s %s %s %s' %
+               (skdiff_path, expected_dir, comparison_dir, diff_dir,
+                '--noprintdirs'))
 
 
 def Cleanup(options, render_dir, diff_dir):

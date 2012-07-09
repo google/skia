@@ -1071,6 +1071,8 @@ static void usage (char * argv0) {
     SkDebugf(
 "    --weighted: sort by # pixels different weighted by color difference\n");
     SkDebugf(
+"    --noprintdirs: do not print the directories used.");
+    SkDebugf(
 "    baseDir: directory to read baseline images from.\n");
     SkDebugf(
 "    comparisonDir: directory to read comparison images from\n");
@@ -1093,6 +1095,7 @@ int main (int argc, char ** argv) {
     StringArray nomatchSubstrings;
 
     bool generateDiffs = true;
+    bool printDirs = true;
 
     RecordArray differences;
     DiffSummary summary;
@@ -1132,6 +1135,10 @@ int main (int argc, char ** argv) {
             sortProc = compare<CompareDiffWeighted>;
             continue;
         }
+        if (!strcmp(argv[i], "--noprintdirs")) {
+            printDirs = false;
+            continue;
+        }
         if (argv[i][0] != '-') {
             switch (numUnflaggedArguments++) {
                 case 0:
@@ -1165,20 +1172,28 @@ int main (int argc, char ** argv) {
     if (!baseDir.endsWith(PATH_DIV_STR)) {
         baseDir.append(PATH_DIV_STR);
     }
-    printf("baseDir is [%s]\n", baseDir.c_str());
+    if (printDirs) {
+        printf("baseDir is [%s]\n", baseDir.c_str());
+    }
 
     if (!comparisonDir.endsWith(PATH_DIV_STR)) {
         comparisonDir.append(PATH_DIV_STR);
     }
-    printf("comparisonDir is [%s]\n", comparisonDir.c_str());
+    if (printDirs) {
+        printf("comparisonDir is [%s]\n", comparisonDir.c_str());
+    }
 
     if (!outputDir.endsWith(PATH_DIV_STR)) {
         outputDir.append(PATH_DIV_STR);
     }
     if (generateDiffs) {
-        printf("writing diffs to outputDir is [%s]\n", outputDir.c_str());
+        if (printDirs) {
+            printf("writing diffs to outputDir is [%s]\n", outputDir.c_str());
+        }
     } else {
-        printf("not writing any diffs to outputDir [%s]\n", outputDir.c_str());
+        if (printDirs) {
+            printf("not writing any diffs to outputDir [%s]\n", outputDir.c_str());
+        }
         outputDir.set("");
     }
 
