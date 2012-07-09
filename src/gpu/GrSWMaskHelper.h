@@ -15,11 +15,13 @@
 #include "SkDraw.h"
 #include "SkRasterClip.h"
 #include "SkRegion.h"
+#include "GrDrawState.h"
 
 class GrAutoScratchTexture;
 class GrContext;
 class GrTexture;
 class SkPath;
+class GrDrawTarget;
 
 /**
  * The GrSWMaskHelper helps generate clip masks using the software rendering
@@ -70,13 +72,27 @@ public:
 
     // Canonical usage utility that draws a single path and uploads it
     // to the GPU. The result is returned in "result".
-    static bool DrawToTexture(GrContext* context,
-                              const SkPath& path,
-                              const GrIRect& resultBounds,
-                              GrPathFill fill,
-                              GrAutoScratchTexture* result,
-                              bool antiAlias,
-                              GrMatrix* matrix);
+    static GrTexture* DrawPathMaskToTexture(GrContext* context,
+                                            const SkPath& path,
+                                            const GrIRect& resultBounds,
+                                            GrPathFill fill,
+                                            bool antiAlias,
+                                            GrMatrix* matrix);
+
+    // This utility routine is used to add a path's mask to some other draw.
+    // The ClipMaskManager uses it to accumulate clip masks while the 
+    // GrSoftwarePathRenderer uses it to fulfill a drawPath call.
+    // It draws with "texture" as a path mask into "target" using "rect" as 
+    // geometry and the current drawState. The current drawState is altered to
+    // accommodate the mask.
+    // Note that this method assumes that the GrPaint::kTotalStages slot in 
+    // the draw state can be used to hold the mask texture stage.
+    // This method is really only intended to be used with the 
+    // output of DrawPathMaskToTexture.
+    static void DrawToTargetWithPathMask(GrTexture* texture,
+                                         GrDrawTarget* target,
+                                         GrDrawState::StageMask stageMask,
+                                         const GrIRect& rect);
 
 protected:
 private:

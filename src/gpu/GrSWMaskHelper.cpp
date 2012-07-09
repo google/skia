@@ -169,30 +169,63 @@ void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
 ////////////////////////////////////////////////////////////////////////////////
 /**
  * Software rasterizes path to A8 mask (possibly using the context's matrix) 
- * and uploads the result to a scratch texture. Returns true on success; 
- * false on failure.
+ * and uploads the result to a scratch texture. Returns the resulting
+ * texture on success; NULL on failure.
  */
-bool GrSWMaskHelper::DrawToTexture(GrContext* context,
-                                   const SkPath& path,
-                                   const GrIRect& resultBounds,
-                                   GrPathFill fill,
-                                   GrAutoScratchTexture* result,
-                                   bool antiAlias,
-                                   GrMatrix* matrix) {
+GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
+                                                 const SkPath& path,
+                                                 const GrIRect& resultBounds,
+                                                 GrPathFill fill,
+                                                 bool antiAlias,
+                                                 GrMatrix* matrix) {
+    GrAutoScratchTexture ast;
+
     GrSWMaskHelper helper(context);
 
     if (!helper.init(resultBounds, matrix)) {
-        return false;
+        return NULL;
     }
 
     helper.draw(path, SkRegion::kReplace_Op, fill, antiAlias, 0xFF);
 
-    if (!helper.getTexture(result)) {
-        return false;
+    if (!helper.getTexture(&ast)) {
+        return NULL;
     }
 
-    helper.toTexture(result->texture(), 0x00);
+    helper.toTexture(ast.texture(), 0x00);
 
-    return true;
+    return ast.detach();
+}
+
+void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
+                                              GrDrawTarget* target,
+                                              GrDrawState::StageMask stageMask,
+                                              const GrIRect& rect) {
+    GrDrawState* drawState = target->drawState();
+
+    GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
+    enum {
+        // the SW path renderer shares this stage with glyph
+        // rendering (kGlyphMaskStage in GrBatchedTextContext)
+        kPathMaskStage = GrPaint::kTotalStages,
+    };
+    GrAssert(!drawState->isStageEnabled(kPathMaskStage));
+    drawState->setTexture(kPathMaskStage, texture);
+    drawState->sampler(kPathMaskStage)->reset();
+    GrScalar w = GrIntToScalar(rect.width());
+    GrScalar h = GrIntToScalar(rect.height());
+    GrRect maskRect = GrRect::MakeWH(w / texture->width(),
+                                     h / texture->height());
+
+    const GrRect* srcRects[GrDrawState::kNumStages] = { NULL };
+    srcRects[kPathMaskStage] = &maskRect;
+    stageMask |= 1 << kPathMaskStage;
+    GrRect dstRect = GrRect::MakeLTRB(
+                            SK_Scalar1 * rect.fLeft,
+                            SK_Scalar1 * rect.fTop,
+                            SK_Scalar1 * rect.fRight,
+                            SK_Scalar1 * rect.fBottom);
+    target->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
+    drawState->setTexture(kPathMaskStage, NULL);
 }
 

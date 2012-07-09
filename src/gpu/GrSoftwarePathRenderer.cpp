@@ -123,7 +123,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         vm.postTranslate(translate->fX, translate->fY);
     }
 
-    GrAutoScratchTexture ast;
     GrIRect pathBounds, clipBounds;
     if (!get_path_and_clip_bounds(target, path, vm,
                                   &pathBounds, &clipBounds)) {
@@ -134,40 +133,21 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         return true;
     }
 
-    if (GrSWMaskHelper::DrawToTexture(fContext, path, pathBounds, fill, 
-                                      &ast, antiAlias, &vm)) {
-        SkAutoTUnref<GrTexture> texture(ast.detach());
-        GrAssert(NULL != texture);
-        GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
-        enum {
-            // the SW path renderer shares this stage with glyph
-            // rendering (kGlyphMaskStage in GrBatchedTextContext)
-            kPathMaskStage = GrPaint::kTotalStages,
-        };
-        GrAssert(NULL == drawState->getTexture(kPathMaskStage));
-        drawState->setTexture(kPathMaskStage, texture);
-        drawState->sampler(kPathMaskStage)->reset();
-        GrScalar w = GrIntToScalar(pathBounds.width());
-        GrScalar h = GrIntToScalar(pathBounds.height());
-        GrRect maskRect = GrRect::MakeWH(w / texture->width(),
-                                         h / texture->height());
-
-        const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
-        srcRects[kPathMaskStage] = &maskRect;
-        stageMask |= 1 << kPathMaskStage;
-        GrRect dstRect = GrRect::MakeLTRB(
-                              SK_Scalar1* pathBounds.fLeft,
-                              SK_Scalar1* pathBounds.fTop,
-                              SK_Scalar1* pathBounds.fRight,
-                              SK_Scalar1* pathBounds.fBottom);
-        target->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
-        drawState->setTexture(kPathMaskStage, NULL);
-        if (GrIsFillInverted(fill)) {
-            draw_around_inv_path(target, stageMask,
-                                 clipBounds, pathBounds);
-        }
-        return true;
+    SkAutoTUnref<GrTexture> texture(
+            GrSWMaskHelper::DrawPathMaskToTexture(fContext, path, 
+                                                  pathBounds, fill, 
+                                                  antiAlias, &vm));
+    if (NULL == texture) {
+        return false;
     }
 
-    return false;
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, 
+                                             stageMask, pathBounds);
+
+    if (GrIsFillInverted(fill)) {
+        draw_around_inv_path(target, stageMask,
+                                clipBounds, pathBounds);
+    }
+
+    return true;
 }
