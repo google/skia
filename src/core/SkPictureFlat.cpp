@@ -80,12 +80,6 @@ SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
     flattenProc(buffer, obj);
     uint32_t size = buffer.size();
 
-
-#if !SK_PREFER_32BIT_CHECKSUM
-    uint32_t unpaddedSize = size;
-    size = SkAlign8(size);
-#endif
-
     // allocate enough memory to hold both SkFlatData and the serialized
     // contents
     SkFlatData* result = (SkFlatData*) heap->allocThrow(size + sizeof(SkFlatData));
@@ -94,18 +88,7 @@ SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
 
     // put the serialized contents into the data section of the new allocation
     buffer.flatten(result->data());
-#if SK_PREFER_32BIT_CHECKSUM
-    result->fChecksum =
-        SkComputeChecksum32(reinterpret_cast<uint32_t*>(result->data()), size);
-#else
-    if (size != unpaddedSize) {
-        // Flat data is padded: put zeros in the last 32 bits.
-        SkASSERT(size - 4 == unpaddedSize);
-        *((uint32_t*)((char*)result->data() + unpaddedSize)) = 0;
-    }
-    result->fChecksum =
-        SkComputeChecksum64(reinterpret_cast<uint64_t*>(result->data()), size);
-#endif
+    result->fChecksum = SkChecksum::Compute(result->data32(), size);
     return result;
 }
 
