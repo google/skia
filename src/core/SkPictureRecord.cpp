@@ -83,14 +83,8 @@ void SkPictureRecord::restore() {
         return;
     }
 
-    // patch up the clip offsets
-    uint32_t restoreOffset = (uint32_t)fWriter.size();
-    uint32_t offset = fRestoreOffsetStack.top();
-    while (offset) {
-        uint32_t* peek = fWriter.peek32(offset);
-        offset = *peek;
-        *peek = restoreOffset;
-    }
+    fillRestoreOffsetPlaceholdersForCurrentStackLevel(
+        (uint32_t)fWriter.size());
 
     if (fRestoreOffsetStack.count() == fFirstSavedLayerIndex) {
         fFirstSavedLayerIndex = kNoSavedLayerIndex;
@@ -166,21 +160,31 @@ static bool regionOpExpands(SkRegion::Op op) {
     }
 }
 
-void SkPictureRecord::recordOffsetForRestore(SkRegion::Op op) {
+void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(
+    uint32_t restoreOffset) {
+    uint32_t offset = fRestoreOffsetStack.top();
+    while (offset) {
+        uint32_t* peek = fWriter.peek32(offset);
+        offset = *peek;
+        *peek = restoreOffset;
+    }
+}
+
+void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
     if (regionOpExpands(op)) {
         // Run back through any previous clip ops, and mark their offset to
         // be 0, disabling their ability to trigger a jump-to-restore, otherwise
         // they could hide this clips ability to expand the clip (i.e. go from
         // empty to non-empty).
-        uint32_t offset = fRestoreOffsetStack.top();
-        while (offset) {
-            uint32_t* peek = fWriter.peek32(offset);
-            offset = *peek;
-            *peek = 0;
-        }
+        fillRestoreOffsetPlaceholdersForCurrentStackLevel(0);
     }
 
     size_t offset = fWriter.size();
+    // The RestoreOffset field is initially filled with a placeholder
+    // value that points to the offset of the previous RestoreOffset
+    // in the current stack level, thus forming a linked list so that
+    // the restore offsets can be filled in when the corresponding 
+    // restore command is recorded.
     addInt(fRestoreOffsetStack.top());
     fRestoreOffsetStack.top() = offset;
 }
@@ -189,8 +193,7 @@ bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     addDraw(CLIP_RECT);
     addRect(rect);
     addInt(ClipParams_pack(op, doAA));
-
-    this->recordOffsetForRestore(op);
+    recordRestoreOffsetPlaceholder(op);
 
     validate();
     return this->INHERITED::clipRect(rect, op, doAA);
@@ -200,8 +203,7 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     addDraw(CLIP_PATH);
     addPath(path);
     addInt(ClipParams_pack(op, doAA));
-
-    this->recordOffsetForRestore(op);
+    recordRestoreOffsetPlaceholder(op);
 
     validate();
 
@@ -216,8 +218,7 @@ bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
     addDraw(CLIP_REGION);
     addRegion(region);
     addInt(ClipParams_pack(op, false));
-
-    this->recordOffsetForRestore(op);
+    recordRestoreOffsetPlaceholder(op);
 
     validate();
     return this->INHERITED::clipRegion(region, op);
