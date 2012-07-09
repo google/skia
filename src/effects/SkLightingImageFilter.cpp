@@ -135,7 +135,7 @@ inline SkPoint3 bottomRightNormal(int m[9], SkScalar surfaceScale) {
                          surfaceScale);
 }
 
-template <class LightingType, class LightType> void lightBitmap(const LightingType& lightingType, const SkLight* light, const SkBitmap& src, SkBitmap* dst, const SkPoint3& lightColor, SkScalar surfaceScale) {
+template <class LightingType, class LightType> void lightBitmap(const LightingType& lightingType, const SkLight* light, const SkBitmap& src, SkBitmap* dst, SkScalar surfaceScale) {
     const LightType* l = static_cast<const LightType*>(light);
     int y = 0;
     {
@@ -149,18 +149,18 @@ template <class LightingType, class LightType> void lightBitmap(const LightingTy
         m[7] = SkGetPackedA32(*row2++);
         m[8] = SkGetPackedA32(*row2++);
         SkPoint3 surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-        *dptr++ = lightingType.light(topLeftNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+        *dptr++ = lightingType.light(topLeftNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
         for (x = 1; x < src.width() - 1; ++x)
         {
             shiftMatrixLeft(m);
             m[5] = SkGetPackedA32(*row1++);
             m[8] = SkGetPackedA32(*row2++);
             surfaceToLight = l->surfaceToLight(x, 0, m[4], surfaceScale);
-            *dptr++ = lightingType.light(topNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+            *dptr++ = lightingType.light(topNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
         }
         shiftMatrixLeft(m);
         surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-        *dptr++ = lightingType.light(topRightNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+        *dptr++ = lightingType.light(topRightNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
     }
 
     for (++y; y < src.height() - 1; ++y) {
@@ -177,18 +177,18 @@ template <class LightingType, class LightType> void lightBitmap(const LightingTy
         m[7] = SkGetPackedA32(*row2++);
         m[8] = SkGetPackedA32(*row2++);
         SkPoint3 surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-        *dptr++ = lightingType.light(leftNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+        *dptr++ = lightingType.light(leftNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
         for (x = 1; x < src.width() - 1; ++x) {
             shiftMatrixLeft(m);
             m[2] = SkGetPackedA32(*row0++);
             m[5] = SkGetPackedA32(*row1++);
             m[8] = SkGetPackedA32(*row2++);
             surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-            *dptr++ = lightingType.light(interiorNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+            *dptr++ = lightingType.light(interiorNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
         }
         shiftMatrixLeft(m);
         surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-        *dptr++ = lightingType.light(rightNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+        *dptr++ = lightingType.light(rightNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
     }
 
     {
@@ -202,18 +202,18 @@ template <class LightingType, class LightType> void lightBitmap(const LightingTy
         m[4] = SkGetPackedA32(*row1++);
         m[5] = SkGetPackedA32(*row1++);
         SkPoint3 surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-        *dptr++ = lightingType.light(bottomLeftNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+        *dptr++ = lightingType.light(bottomLeftNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
         for (x = 1; x < src.width() - 1; ++x)
         {
             shiftMatrixLeft(m);
             m[2] = SkGetPackedA32(*row0++);
             m[5] = SkGetPackedA32(*row1++);
             surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-            *dptr++ = lightingType.light(bottomNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+            *dptr++ = lightingType.light(bottomNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
         }
         shiftMatrixLeft(m);
         surfaceToLight = l->surfaceToLight(x, y, m[4], surfaceScale);
-        *dptr++ = lightingType.light(bottomRightNormal(m, surfaceScale), surfaceToLight, lightColor * l->lightColorScale(surfaceToLight));
+        *dptr++ = lightingType.light(bottomRightNormal(m, surfaceScale), surfaceToLight, l->lightColor(surfaceToLight));
     }
 }
 
@@ -233,9 +233,10 @@ void writePoint3(const SkPoint3& point, SkFlattenableWriteBuffer& buffer) {
 
 class SkDiffuseLightingImageFilter : public SkLightingImageFilter {
 public:
-    SkDiffuseLightingImageFilter(SkLight* light, const SkColor& lightColor,
-                                 SkScalar surfaceScale, SkScalar kd);
+    SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
+
+    SkScalar kd() const { return fKD; }
 
 protected:
     explicit SkDiffuseLightingImageFilter(SkFlattenableReadBuffer& buffer);
@@ -251,8 +252,7 @@ private:
 
 class SkSpecularLightingImageFilter : public SkLightingImageFilter {
 public:
-    SkSpecularLightingImageFilter(SkLight* light, const SkColor& lightColor,
-                                  SkScalar surfaceScale, SkScalar ks, SkScalar shininess);
+    SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
 protected:
@@ -279,30 +279,41 @@ public:
         kSpot_LightType,
     };
     virtual LightType type() const = 0;
+    const SkPoint3& color() const { return fColor; }
 
 protected:
-    SkLight() {}
-    SkLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkLight(SkColor color)
+      : fColor(SkIntToScalar(SkColorGetR(color)),
+               SkIntToScalar(SkColorGetG(color)),
+               SkIntToScalar(SkColorGetB(color))) {}
+    SkLight(SkFlattenableReadBuffer& buffer)
+      : INHERITED(buffer) {
+        fColor = readPoint3(buffer);
+    }
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         INHERITED::flatten(buffer);
+        writePoint3(fColor, buffer);
     }
 
 private:
     typedef SkFlattenable INHERITED;
+    SkPoint3 fColor;
 };
 
 SK_DEFINE_INST_COUNT(SkLight)
 
 class SkDistantLight : public SkLight {
 public:
-    SkDistantLight(const SkPoint3& direction) : fDirection(direction) {
+    SkDistantLight(const SkPoint3& direction, SkColor color)
+      : INHERITED(color), fDirection(direction) {
     }
 
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
         return fDirection;
     };
-    SkScalar lightColorScale(const SkPoint3&) const { return SK_Scalar1; }
+    SkPoint3 lightColor(const SkPoint3&) const { return color(); }
     virtual LightType type() const { return kDistant_LightType; }
+    SkPoint3 direction() const { return fDirection; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDistantLight)
 
@@ -322,8 +333,8 @@ private:
 
 class SkPointLight : public SkLight {
 public:
-    SkPointLight(const SkPoint3& location)
-     : fLocation(location) {}
+    SkPointLight(const SkPoint3& location, SkColor color)
+     : INHERITED(color), fLocation(location) {}
 
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
         SkPoint3 direction(fLocation.fX - SkIntToScalar(x),
@@ -332,7 +343,7 @@ public:
         direction.normalize();
         return direction;
     };
-    SkScalar lightColorScale(const SkPoint3&) const { return SK_Scalar1; }
+    SkPoint3 lightColor(const SkPoint3&) const { return color(); }
     virtual LightType type() const { return kPoint_LightType; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPointLight)
@@ -353,8 +364,9 @@ private:
 
 class SkSpotLight : public SkLight {
 public:
-    SkSpotLight(const SkPoint3& location, const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle)
-     : fLocation(location),
+    SkSpotLight(const SkPoint3& location, const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle, SkColor color)
+     : INHERITED(color),
+       fLocation(location),
        fTarget(target),
        fSpecularExponent(specularExponent)
     {
@@ -373,17 +385,17 @@ public:
         direction.normalize();
         return direction;
     };
-    SkScalar lightColorScale(const SkPoint3& surfaceToLight) const {
+    SkPoint3 lightColor(const SkPoint3& surfaceToLight) const {
         SkScalar cosAngle = -surfaceToLight.dot(fS);
         if (cosAngle < fCosOuterConeAngle) {
-            return 0;
+            return SkPoint3(0, 0, 0);
         }
         SkScalar scale = SkScalarPow(cosAngle, fSpecularExponent);
         if (cosAngle < fCosInnerConeAngle) {
             scale = SkScalarMul(scale, cosAngle - fCosOuterConeAngle);
-            return SkScalarMul(scale, fConeScale);
+            return color() * SkScalarMul(scale, fConeScale);
         }
-        return scale;
+        return color() * scale;
     }
 
     virtual LightType type() const { return kSpot_LightType; }
@@ -422,11 +434,8 @@ private:
     SkPoint3 fS;
 };
 
-SkLightingImageFilter::SkLightingImageFilter(SkLight* light, const SkColor& lightColor, SkScalar surfaceScale)
+SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceScale)
   : fLight(light),
-    fLightColor(SkIntToScalar(SkColorGetR(lightColor)),
-                SkIntToScalar(SkColorGetG(lightColor)),
-                SkIntToScalar(SkColorGetB(lightColor))),
     fSurfaceScale(SkScalarDiv(surfaceScale, SkIntToScalar(255)))
 {
     SkASSERT(fLight);
@@ -435,51 +444,50 @@ SkLightingImageFilter::SkLightingImageFilter(SkLight* light, const SkColor& ligh
 }
 
 SkImageFilter* SkLightingImageFilter::CreateDistantLitDiffuse(
-    const SkPoint3& direction, const SkColor& lightColor, SkScalar surfaceScale,
+    const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale,
     SkScalar kd) {
     return new SkDiffuseLightingImageFilter(
-        new SkDistantLight(direction), lightColor, surfaceScale, kd);
+        new SkDistantLight(direction, lightColor), surfaceScale, kd);
 }
 
 SkImageFilter* SkLightingImageFilter::CreatePointLitDiffuse(
-    SkPoint3& location, const SkColor& lightColor, SkScalar surfaceScale,
+    const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale,
     SkScalar kd) {
     return new SkDiffuseLightingImageFilter(
-        new SkPointLight(location), lightColor, surfaceScale, kd);
+        new SkPointLight(location, lightColor), surfaceScale, kd);
 }
 
 SkImageFilter* SkLightingImageFilter::CreateSpotLitDiffuse(
-    const SkPoint3& location, const SkPoint3& target, SkScalar specularExponent,
-    SkScalar cutoffAngle, const SkColor& lightColor, SkScalar surfaceScale,
-    SkScalar kd) {
+    const SkPoint3& location, const SkPoint3& target,
+    SkScalar specularExponent, SkScalar cutoffAngle,
+    SkColor lightColor, SkScalar surfaceScale, SkScalar kd) {
     return new SkDiffuseLightingImageFilter(
-        new SkSpotLight(location, target, specularExponent, cutoffAngle),
-        lightColor, surfaceScale, kd);
+        new SkSpotLight(location, target, specularExponent, cutoffAngle, lightColor),
+        surfaceScale, kd);
 }
 
 SkImageFilter* SkLightingImageFilter::CreateDistantLitSpecular(
-    const SkPoint3& direction, const SkColor& lightColor, SkScalar surfaceScale,
+    const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale,
     SkScalar ks, SkScalar shininess) {
     return new SkSpecularLightingImageFilter(
-        new SkDistantLight(direction), lightColor, surfaceScale, ks, shininess);
+        new SkDistantLight(direction, lightColor), surfaceScale, ks, shininess);
 }
 
 SkImageFilter* SkLightingImageFilter::CreatePointLitSpecular(
-    SkPoint3& location,
-    const SkColor& lightColor, SkScalar surfaceScale, SkScalar ks,
-    SkScalar shininess) {
+    const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale,
+    SkScalar ks, SkScalar shininess) {
     return new SkSpecularLightingImageFilter(
-        new SkPointLight(location), lightColor, surfaceScale, ks, shininess);
+        new SkPointLight(location, lightColor), surfaceScale, ks, shininess);
 }
 
 SkImageFilter* SkLightingImageFilter::CreateSpotLitSpecular(
-    const SkPoint3& location,
-    const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle,
-    const SkColor& lightColor, SkScalar surfaceScale, SkScalar ks,
-    SkScalar shininess) {
+    const SkPoint3& location, const SkPoint3& target,
+    SkScalar specularExponent, SkScalar cutoffAngle,
+    SkColor lightColor, SkScalar surfaceScale,
+    SkScalar ks, SkScalar shininess) {
     return new SkSpecularLightingImageFilter(
-        new SkSpotLight(location, target, specularExponent, cutoffAngle),
-        lightColor, surfaceScale, ks, shininess);
+        new SkSpotLight(location, target, specularExponent, cutoffAngle, lightColor),
+        surfaceScale, ks, shininess);
 }
 
 SkLightingImageFilter::~SkLightingImageFilter() {
@@ -490,19 +498,17 @@ SkLightingImageFilter::SkLightingImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer)
 {
     fLight = (SkLight*)buffer.readFlattenable();
-    fLightColor = readPoint3(buffer);
     fSurfaceScale = buffer.readScalar();
 }
 
 void SkLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fLight);
-    writePoint3(fLightColor, buffer);
     buffer.writeScalar(fSurfaceScale);
 }
 
-SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, const SkColor& lightColor, SkScalar surfaceScale, SkScalar kd)
-  : SkLightingImageFilter(light, lightColor, surfaceScale),
+SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd)
+  : SkLightingImageFilter(light, surfaceScale),
     fKD(kd)
 {
 }
@@ -539,20 +545,20 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
     DiffuseLightingType lightingType(fKD);
     switch (light()->type()) {
         case SkLight::kDistant_LightType:
-            lightBitmap<DiffuseLightingType, SkDistantLight>(lightingType, light(), src, dst, lightColor(), surfaceScale());
+            lightBitmap<DiffuseLightingType, SkDistantLight>(lightingType, light(), src, dst, surfaceScale());
             break;
         case SkLight::kPoint_LightType:
-            lightBitmap<DiffuseLightingType, SkPointLight>(lightingType, light(), src, dst, lightColor(), surfaceScale());
+            lightBitmap<DiffuseLightingType, SkPointLight>(lightingType, light(), src, dst, surfaceScale());
             break;
         case SkLight::kSpot_LightType:
-            lightBitmap<DiffuseLightingType, SkSpotLight>(lightingType, light(), src, dst, lightColor(), surfaceScale());
+            lightBitmap<DiffuseLightingType, SkSpotLight>(lightingType, light(), src, dst, surfaceScale());
             break;
     }
     return true;
 }
 
-SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, const SkColor& lightColor, SkScalar surfaceScale, SkScalar ks, SkScalar shininess)
-  : SkLightingImageFilter(light, lightColor, surfaceScale),
+SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess)
+  : SkLightingImageFilter(light, surfaceScale),
     fKS(ks),
     fShininess(shininess)
 {
@@ -592,13 +598,13 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
     SpecularLightingType lightingType(fKS, fShininess);
     switch (light()->type()) {
         case SkLight::kDistant_LightType:
-            lightBitmap<SpecularLightingType, SkDistantLight>(lightingType, light(), src, dst, lightColor(), surfaceScale());
+            lightBitmap<SpecularLightingType, SkDistantLight>(lightingType, light(), src, dst, surfaceScale());
             break;
         case SkLight::kPoint_LightType:
-            lightBitmap<SpecularLightingType, SkPointLight>(lightingType, light(), src, dst, lightColor(), surfaceScale());
+            lightBitmap<SpecularLightingType, SkPointLight>(lightingType, light(), src, dst, surfaceScale());
             break;
         case SkLight::kSpot_LightType:
-            lightBitmap<SpecularLightingType, SkSpotLight>(lightingType, light(), src, dst, lightColor(), surfaceScale());
+            lightBitmap<SpecularLightingType, SkSpotLight>(lightingType, light(), src, dst, surfaceScale());
             break;
     }
     return true;
