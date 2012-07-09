@@ -60,7 +60,7 @@ public:
         To test for equivalence (that they will generate the same
         shader code, but may have different uniforms), check equality
         of the stageKey produced by the GrProgramStageFactory:
-        a.getFactory().genStageKey(a) == b.getFactory().genStageKey(b). */
+        a.getFactory().glStageKey(a) == b.getFactory().glStageKey(b). */
     virtual bool isEqual(const GrCustomStage&) const = 0;
 
      /** Human-meaningful string to identify this effect; may be embedded
