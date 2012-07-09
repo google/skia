@@ -16,11 +16,12 @@ import sys
 import shutil
 import tempfile
 
-USAGE_STRING = 'Usage: %s inputDir expectedDir [renderDir [diffDir]]'
+USAGE_STRING = 'Usage: %s input... expectedDir'
 HELP_STRING = '''
 
-Compares the renderings of serialized SkPicture files in inputDir with the
-images in expectedDir.
+Compares the renderings of serialized SkPicture files and directories specified
+by input with the images in expectedDir. Note, files in directoriers are
+expected to end with .skp.
 '''
 
 def RunCommand(command):
@@ -49,16 +50,17 @@ def FindPathToProgram(program):
                     'build %s?' % (program, possible_paths, program))
 
 
-def RenderImages(input_dir, render_dir):
+def RenderImages(inputs, render_dir):
     """Renders the serialized SkPictures.
 
     Uses the render_pictures program to do the rendering.
 
-    @param input_dir the location to read the serlialized SkPictures
+    @param inputs the location(s) to read the serlialized SkPictures
     @param render_dir the location to write out the rendered images
     """
     renderer_path = FindPathToProgram('render_pictures')
-    RunCommand('%s %s %s' % (renderer_path, input_dir, render_dir))
+    inputs_as_string = " ".join(inputs)
+    RunCommand('%s %s %s' % (renderer_path, inputs_as_string, render_dir))
 
 
 def DiffImages(expected_dir, comparison_dir, diff_dir):
@@ -107,8 +109,13 @@ def Main(args):
 
     options, arguments = parser.parse_args(args)
 
-    input_dir = arguments[1]
-    expected_dir = arguments[2]
+    if (len(arguments) < 3):
+        print("Expected at least one input and one ouput folder.")
+        parser.print_help()
+        sys.exit(-1)
+
+    inputs = arguments[1:-1]
+    expected_dir = arguments[-1]
 
     if (options.render_dir):
         render_dir = options.render_dir
@@ -121,7 +128,7 @@ def Main(args):
         diff_dir = tempfile.mkdtemp()
 
     try:
-        RenderImages(input_dir, render_dir)
+        RenderImages(inputs, render_dir)
         DiffImages(expected_dir, render_dir, diff_dir)
     finally:
         Cleanup(options, render_dir, diff_dir)

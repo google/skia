@@ -19,6 +19,12 @@ namespace sk_tools {
     // forward slash into path.
     void make_filepath(SkString* path, const char* dir, const SkString& name);
 
+    // Returns the last part of the path (file name or leaf directory name)
+    //
+    // This basically just looks for a foward slash or backslash (windows
+    // only)
+    void get_basename(SkString* basename, const SkString& path);
+
     // Prepares the bitmap so that it can be written.
     //
     // Specifically, it configures the bitmap, allocates pixels and then

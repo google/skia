@@ -13,6 +13,7 @@
         '../src/gpu',
         '../src/pdf',
         '../src/utils',
+        '../tools/',
       ],
       'sources': [
         '../tests/AAClipTest.cpp',
@@ -58,6 +59,7 @@
         '../tests/PathMeasureTest.cpp',
         '../tests/PathTest.cpp',
         '../tests/PDFPrimitivesTest.cpp',
+        '../tests/PictureUtilsTest.cpp',
         '../tests/PointTest.cpp',
         '../tests/PremulAlphaRoundTripTest.cpp',
         '../tests/QuickRejectTest.cpp',
@@ -96,6 +98,7 @@
         'images.gyp:images',
         'ports.gyp:ports',
         'pdf.gyp:pdf',
+        'tools.gyp:picture_utils',
         'utils.gyp:utils',
       ],
     },

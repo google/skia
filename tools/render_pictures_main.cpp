@@ -21,10 +21,11 @@ static void usage(const char* argv0) {
     SkDebugf("SkPicture rendering tool\n");
     SkDebugf("\n"
 "Usage: \n"
-"     %s <inputDir> <outputDir> \n\n"
+"     %s <input>... <outputDir> \n\n"
 , argv0);
     SkDebugf(
-"     inputDir:  directory to read the serialized SkPicture files.\n");
+"     input:     A list of directories and files to use as input.\n"
+"                    Files are expected to have the .skp extension.\n");
     SkDebugf(
 "     outputDir: directory to write the rendered images.\n");
 }
@@ -73,12 +74,11 @@ static void write_output(const char* outputDir, const SkString& inputFilename,
     }
 }
 
-static void render_picture(const char* inputDir, const char* outputDir,
-                           const SkString& inputFilename) {
-    SkFILEStream inputStream;
+static void render_picture(const SkString& inputPath, const char* outputDir) {
+    SkString inputFilename;
+    sk_tools::get_basename(&inputFilename, inputPath);
 
-    SkString inputPath;
-    sk_tools::make_filepath(&inputPath, inputDir, inputFilename);
+    SkFILEStream inputStream;
     inputStream.setPath(inputPath.c_str());
     if (!inputStream.isValid()) {
         SkDebugf("Could not open file %s\n", inputPath.c_str());
@@ -91,20 +91,32 @@ static void render_picture(const char* inputDir, const char* outputDir,
     write_output(outputDir, inputFilename, bitmap);
 }
 
-int main(int argc, char* const argv[]) {
-    const char* inputDir;
-    const char* outputDir;
-    if (argc != 3) {
-        usage(argv[0]);
-    }
-
-    inputDir = argv[1];
-    outputDir = argv[2];
-
-    SkOSFile::Iter iter(inputDir, "skp");
+static void process_input(const char* input, const char* outputDir) {
+    SkOSFile::Iter iter(input, "skp");
     SkString inputFilename;
 
-    while(iter.next(&inputFilename)) {
-        render_picture(inputDir, outputDir, inputFilename);
+    if (iter.next(&inputFilename)) {
+        do {
+            SkString inputPath;
+            sk_tools::make_filepath(&inputPath, input, inputFilename);
+            render_picture(inputPath, outputDir);
+        } while(iter.next(&inputFilename));
+    } else {
+        SkString inputPath(input);
+        render_picture(inputPath, outputDir);
+    }
+}
+
+int main(int argc, char* const argv[]) {
+    const char* outputDir;
+    if (argc < 3) {
+        usage(argv[0]);
+        return -1;
+    }
+
+    outputDir = argv[argc - 1];
+
+    for (int i = 1; i < argc - 1; i ++) {
+        process_input(argv[i], outputDir);
     }
 }
