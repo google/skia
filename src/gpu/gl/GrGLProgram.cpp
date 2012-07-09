@@ -518,7 +518,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
     bool dualSourceOutputWritten = false;
-    segments.fHeader.printf(GrGetGLSLVersionDecl(gl.binding(),
+    segments.fHeader.append(GrGetGLSLVersionDecl(gl.binding(),
                                                  gl.glslGeneration()));
 
     GrGLShaderVar colorOutput;

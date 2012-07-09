@@ -290,6 +290,26 @@
 
 //////////////////////////////////////////////////////////////////////
 
+#ifndef SK_PRINTF_LIKE
+#if defined(__clang__) || defined(__GNUC__)
+#define SK_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))
+#else
+#define SK_PRINTF_LIKE(A, B)
+#endif
+#endif
+
+//////////////////////////////////////////////////////////////////////
+
+#ifndef SK_SIZE_T_SPECIFIER
+#if defined(_MSC_VER)
+#define SK_SIZE_T_SPECIFIER "%Iu"
+#else
+#define SK_SIZE_T_SPECIFIER "%zu"
+#endif
+#endif
+
+//////////////////////////////////////////////////////////////////////
+
 #ifndef SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 #define SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 1
 #endif
