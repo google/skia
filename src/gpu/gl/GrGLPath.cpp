@@ -54,7 +54,6 @@ inline int num_pts(const SkPath::Verb verb) {
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {
     GL_CALL_RET(fPathID, GenPaths(1));
-    //GrPrintf("\tGenPaths ID: %d\n", fPathID);
     SkPath::Iter iter(path, true);
 
     SkSTArray<16, GrGLubyte, true> pathCommands;
@@ -83,7 +82,6 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {
     GL_CALL(PathCommands(fPathID,
                          verbCnt, &pathCommands[0],
                          2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]));
-    //GrPrintf("\tPathCommands ID: %d\n", fPathID);
     fBounds = path.getBounds();
 }
 
@@ -93,27 +91,7 @@ GrGLPath::~GrGLPath() {
 
 void GrGLPath::onRelease() {
     if (0 != fPathID) {
-    // FIXME: When we draw a clipped path we may get a call sequence that looks
-    // like this:
-    // GenPaths(1, &fPathID); // fPathID = 1, the path to draw
-    // PathCommands(1, ...);
-    // GenPaths(1, &fPathID); // fPathID = 2, the clip path
-    // PathCommands(2, ...);
-    // PathStencilFunc(...);
-    // StencilFillPath(2, ...); // draw the clip
-    // DeletePath(1, &fPathID); // fPathID == 2
-    // PathStencilFunc(...);
-    // StencilFillPath(2, ...); // draw the path
-    // DeletePath(1, &fPathID); // fPathID == 1
-    //
-    // Deleting the clip path causes the second StencilFillPath to fail with
-    // INVALID_OPERATION.
-#if 0
-        GL_CALL(DeletePaths(1, fPathID));
-        //GrPrintf("\tDeletePaths ID: %d\n", fPathID);
-#else
-        //GrPrintf("\tLeak Path ID: %d\n", fPathID);
-#endif
+        GL_CALL(DeletePaths(fPathID, 1));
         fPathID = 0;
     }
 }
