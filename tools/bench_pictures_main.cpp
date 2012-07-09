@@ -37,13 +37,13 @@ static void usage(const char* argv0) {
     SkDebugf("SkPicture benchmarking tool\n");
     SkDebugf("\n"
 "Usage: \n"
-"     %s <inputDir>\n"
+"     %s <inputDir>...\n"
 "     [--repeat] [--tile width height]"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
-"     inputDir: directory to read the serialized SkPicture files."
-"                Files are expected to have the .skp extension.\n\n");
+"     inputDir:  A list of directories and files to use as input.\n"
+"                    Files are expected to have the .skp extension.\n\n");
     SkDebugf(
 "     --repeat : "
 "Set the number of times to repeat each test."
@@ -133,13 +133,10 @@ static void run_tile_benchmark(SkPicture* picture, const SkBitmap& bitmap,
            options.fTileHeight, timer.fWall / options.fRepeats);
 }
 
-static void run_benchmark(const char* inputDir,
-                          const SkString& inputFilename,
-                          const Options& options) {
+static void run_single_benchmark(const SkString& inputPath,
+                                 const Options& options) {
     SkFILEStream inputStream;
 
-    SkString inputPath;
-    sk_tools::make_filepath(&inputPath, inputDir, inputFilename);
     inputStream.setPath(inputPath.c_str());
     if (!inputStream.isValid()) {
         SkDebugf("Could not open file %s\n", inputPath.c_str());
@@ -150,13 +147,16 @@ static void run_benchmark(const char* inputDir,
     SkBitmap bitmap;
     sk_tools::setup_bitmap(&bitmap, picture.width(), picture.height());
 
+    SkString filename;
+    sk_tools::get_basename(&filename, inputPath);
     printf("running bench [%i %i] %s ", picture.width(), picture.height(),
-           inputFilename.c_str());
+           filename.c_str());
+
     options.fBenchmark(&picture, bitmap, options);
 }
 
 static void parse_commandline(int argc, char* const argv[],
-                              const char** inputDir, Options* options) {
+                              SkTArray<SkString>* inputs, Options* options) {
     const char* argv0 = argv[0];
     char* const* stop = argv + argc;
 
@@ -205,32 +205,39 @@ static void parse_commandline(int argc, char* const argv[],
             usage(argv0);
             exit(0);
         } else {
-            if (NULL == *inputDir) {
-                *inputDir = *argv;
-            } else {
-                usage(argv0);
-                exit(-1);
-            }
+            inputs->push_back(SkString(*argv));
         }
     }
 
-    if (NULL == *inputDir) {
+    if (inputs->count() < 1) {
         usage(argv0);
         exit(-1);
     }
+}
 
+static void process_input(const SkString& input, const Options& options) {
+    SkOSFile::Iter iter(input.c_str(), "skp");
+    SkString inputFilename;
+
+    if (iter.next(&inputFilename)) {
+        do {
+            SkString inputPath;
+            sk_tools::make_filepath(&inputPath, input.c_str(),
+                                    inputFilename);
+            run_single_benchmark(inputPath, options);
+        } while(iter.next(&inputFilename));
+    } else {
+          run_single_benchmark(input, options);
+    }
 }
 
 int main(int argc, char* const argv[]) {
-    const char* inputDir = NULL;
+    SkTArray<SkString> inputs;
     Options options;
 
-    parse_commandline(argc, argv, &inputDir, &options);
+    parse_commandline(argc, argv, &inputs, &options);
 
-    SkOSFile::Iter iter(inputDir, "skp");
-    SkString inputFilename;
-
-    while(iter.next(&inputFilename)) {
-        run_benchmark(inputDir, inputFilename, options);
+    for (int i = 0; i < inputs.count(); ++i) {
+        process_input(inputs[i], options);
     }
 }
