@@ -22,7 +22,7 @@ class ChunkAllocBench : public SkBenchmark {
 public:
     ChunkAllocBench(void* param, size_t minSize) : INHERITED(param) {
         fMinSize = minSize;
-        fName.printf("chunkalloc_%d", minSize);
+        fName.printf("chunkalloc_" SK_SIZE_T_SPECIFIER, minSize);
     }
     
 protected:

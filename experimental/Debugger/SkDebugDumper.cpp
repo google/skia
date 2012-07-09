@@ -28,7 +28,7 @@ SkDebugDumper::SkDebugDumper(SkEventSinkID cID, SkEventSinkID clID,
 
 static void appendPtr(SkString* str, const void* ptr, const char name[]) {
     if (ptr) {
-        str->appendf("$s: %p\t", name, ptr);
+        str->appendf("%s: %p\t", name, ptr);
     }
 }
 
