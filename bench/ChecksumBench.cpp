@@ -7,41 +7,97 @@
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkChecksum.h"
-#include "SkRandom.h"
+#include "SkString.h"
 
 class ComputeChecksumBench : public SkBenchmark {
-    enum {
-        U32COUNT  = 256,
-        SIZE      = U32COUNT * 4,
-        N         = SkBENCHLOOP(100000),
-    };
-    uint32_t    fData[U32COUNT];
-
 public:
-    ComputeChecksumBench(void* param) : INHERITED(param) {
-        SkRandom rand;
-        for (int i = 0; i < U32COUNT; ++i) {
-            fData[i] = rand.nextU();
-        }
+    ComputeChecksumBench(void* param, const char name[]) : INHERITED(param) {
+        fName.printf("compute_checksum_%s", name);
     }
 
+    enum {
+        DATA_SIZE = 1024,
+        N         = SkBENCHLOOP(100000),
+    };
 protected:
     virtual const char* onGetName() {
-        return "compute_checksum";
+        return fName.c_str();
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        for (int i = 0; i < N; i++) {
-            volatile uint32_t result = SkChecksum::Compute(fData, sizeof(fData));
-        }
+        uint64_t data[DATA_SIZE / sizeof(uint64_t)];
+        computeChecksum(data, DATA_SIZE);
     }
 
+    virtual void computeChecksum(const uint64_t*, size_t) = 0;
+
+    SkString fName;
 private:
     typedef SkBenchmark INHERITED;
 };
 
+/*
+ *  Use SkComputeChecksum32 to compute a checksum on a datablock
+ */
+class ComputeChecksum32Bench : public ComputeChecksumBench {
+public:
+    ComputeChecksum32Bench(void* param)
+        : INHERITED(param, "32") { }
+
+protected:
+    virtual void computeChecksum(const uint64_t* data, size_t len) {
+        for (int i = 0; i < N; i++) {
+            volatile uint32_t result = SkComputeChecksum32(reinterpret_cast<const uint32_t*>(data), len);
+        }
+    }
+
+private:
+    typedef ComputeChecksumBench INHERITED;
+};
+
+/*
+ *  Use SkComputeChecksum64 to compute a checksum on a datablock
+ */
+class ComputeChecksum64Bench : public ComputeChecksumBench {
+public:
+    ComputeChecksum64Bench(void* param)
+    : INHERITED(param, "64") { }
+    
+protected:
+    virtual void computeChecksum(const uint64_t* data, size_t len) {
+        for (int i = 0; i < N; i++) {
+            volatile uint64_t result = SkComputeChecksum64(data, len);
+        }
+    }
+    
+private:
+    typedef ComputeChecksumBench INHERITED;
+};
+
+/*
+ *  Use SkComputeChecksum64 to compute a checksum on a datablock
+ */
+class ComputeChecksumXXBench : public ComputeChecksumBench {
+public:
+    ComputeChecksumXXBench(void* param) : INHERITED(param, "XX") { }
+    
+protected:
+    virtual void computeChecksum(const uint64_t* data, size_t len) {
+        for (int i = 0; i < N; i++) {
+            volatile uint32_t result = SkChecksum::Compute(reinterpret_cast<const uint32_t*>(data), len);
+        }
+    }
+    
+private:
+    typedef ComputeChecksumBench INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return new ComputeChecksumBench(p); }
+static SkBenchmark* Fact0(void* p) { return new ComputeChecksum32Bench(p); }
+static SkBenchmark* Fact1(void* p) { return new ComputeChecksum64Bench(p); }
+static SkBenchmark* Fact2(void* p) { return new ComputeChecksumXXBench(p); }
 
 static BenchRegistry gReg0(Fact0);
+static BenchRegistry gReg1(Fact1);
+static BenchRegistry gReg2(Fact2);
