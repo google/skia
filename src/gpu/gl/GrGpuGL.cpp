@@ -1812,7 +1812,6 @@ void GrGpuGL::onGpuStencilPath(const GrPath* path, GrPathFill fill) {
     }
     GrGLint writeMask = fStencilSettings.writeMask(GrStencilSettings::kFront_Face);
     GL_CALL(StencilFillPath(id, fillMode, writeMask));
-    //GrPrintf("\tStencilFillPath ID: %d\n", id);
 }
 
 void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
