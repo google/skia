@@ -32,13 +32,13 @@ public:
         fStop = (const char*)data + size;
     }
     
-    uint32_t size() const { return fStop - fBase; }
-    uint32_t offset() const { return fCurr - fBase; }
+    uint32_t size() const { return SkToU32(fStop - fBase); }
+    uint32_t offset() const { return SkToU32(fCurr - fBase); }
     bool eof() const { return fCurr >= fStop; }
     const void* base() const { return fBase; }
     const void* peek() const { return fCurr; }
 
-    uint32_t available() const { return fStop - fCurr; }
+    uint32_t available() const { return SkToU32(fStop - fCurr); }
     bool isAvailable(uint32_t size) const { return fCurr + size <= fStop; }
     
     void rewind() { fCurr = fBase; }
