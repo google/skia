@@ -95,7 +95,7 @@ public:
     /**
      *  Return the number of elements in the array
      */
-    int count() const { return fCount; }
+    int count() const { return (int)fCount; }
 
     /**
      *  return the number of bytes in the array: count * sizeof(T)

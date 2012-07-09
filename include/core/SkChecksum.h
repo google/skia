@@ -110,8 +110,8 @@ public:
          *  if we're on a 32bit or 64bit arch, since we use sizeof(uintptr_t)
          *  to compute how much to shift-down the size.
          */
-        int n4 = size / (sizeof(uintptr_t) << 2);
-        for (int i = 0; i < n4; ++i) {
+        size_t n4 = size / (sizeof(uintptr_t) << 2);
+        for (size_t i = 0; i < n4; ++i) {
             result = Mash(result, *ptr++);
             result = Mash(result, *ptr++);
             result = Mash(result, *ptr++);
