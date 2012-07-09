@@ -683,7 +683,7 @@ static ErrorBitfield test_tiled_pipe_playback(GM* gm,
                                                      gPipeWritingFlagCombos[i].flags);
         invokeGM(gm, pipeCanvas);
         writer.endRecording();
-        SkString string("-pipe");
+        SkString string("-tiled pipe");
         string.append(gPipeWritingFlagCombos[i].name);
         errors |= handle_test_results(gm, gRec, NULL, NULL, diffPath,
                                       string.c_str(), bitmap, NULL, &comparisonBitmap);
