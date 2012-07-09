@@ -84,17 +84,23 @@ struct TileInfo {
     SkCanvas* fCanvas;
 };
 
-static void setup_single_tile(const SkBitmap& bitmap, const Options& options,
-                              SkTArray<TileInfo>* tiles,
+static void clip_tile(SkPicture* picture, const TileInfo& tile) {
+    SkRect clip = SkRect::MakeWH(picture->width(), picture->height());
+    tile.fCanvas->clipRect(clip);
+}
+
+static void setup_single_tile(SkPicture* picture, const SkBitmap& bitmap,
+                              const Options& options, SkTArray<TileInfo>* tiles,
                               int tile_x_start, int tile_y_start) {
     TileInfo& tile = tiles->push_back();
     tile.fBitmap = new SkBitmap();
     SkIRect rect = SkIRect::MakeXYWH(tile_x_start, tile_y_start,
-                                             options.fTileWidth,
-                                             options.fTileHeight);
+                                     options.fTileWidth, options.fTileHeight);
     bitmap.extractSubset(tile.fBitmap, rect);
     tile.fCanvas = new SkCanvas(*(tile.fBitmap));
     tile.fCanvas->translate(-tile_x_start, -tile_y_start);
+
+    clip_tile(picture, tile);
 }
 
 static void setup_tiles(SkPicture* picture, const SkBitmap& bitmap,
@@ -103,7 +109,7 @@ static void setup_tiles(SkPicture* picture, const SkBitmap& bitmap,
          tile_y_start += options.fTileHeight) {
         for (int tile_x_start = 0; tile_x_start < picture->width();
              tile_x_start += options.fTileWidth) {
-            setup_single_tile(bitmap, options, tiles, tile_x_start,
+            setup_single_tile(picture, bitmap, options, tiles, tile_x_start,
                               tile_y_start);
         }
     }
