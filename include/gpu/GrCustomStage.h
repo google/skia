@@ -52,13 +52,15 @@ public:
      */
     virtual const GrProgramStageFactory& getFactory() const = 0;
 
-    /** Returns true if the other custom stage will generate
-        equal output.
+    /** Returns true if the other custom stage will generate identical output.
         Must only be called if the two are already known to be of the
         same type (i.e.  they return the same value from getFactory()).
-        For equivalence (that they will generate the same
-        shader, but perhaps have different uniforms), check equality
-        of the stageKey produced by the GrProgramStageFactory. */
+
+        Equality is not the same thing as equivalence.
+        To test for equivalence (that they will generate the same
+        shader code, but may have different uniforms), check equality
+        of the stageKey produced by the GrProgramStageFactory:
+        a.getFactory().genStageKey(a) == b.getFactory().genStageKey(b). */
     virtual bool isEqual(const GrCustomStage&) const = 0;
 
      /** Human-meaningful string to identify this effect; may be embedded

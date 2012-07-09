@@ -318,7 +318,9 @@ const GrProgramStageFactory& GrRadial2Gradient::getFactory() const {
 
 bool GrRadial2Gradient::isEqual(const GrCustomStage& sBase) const {
     const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
-    return (this->isDegenerate() == s.isDegenerate());
+    return (this->fCenterX1 == s.fCenterX1 &&
+            this->fRadius0 == s.fRadius0 &&
+            this->fPosRoot == s.fPosRoot);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -634,7 +636,9 @@ const GrProgramStageFactory& GrConical2Gradient::getFactory() const {
 
 bool GrConical2Gradient::isEqual(const GrCustomStage& sBase) const {
     const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
-    return (this->isDegenerate() == s.isDegenerate());
+    return (this->fCenterX1 == s.fCenterX1 &&
+            this->fRadius0 == s.fRadius0 &&
+            this->fDiffRadius == s.fDiffRadius);
 }
 
 /////////////////////////////////////////////////////////////////////
