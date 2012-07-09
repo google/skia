@@ -194,9 +194,9 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     // are ensuring that both objects will live as long as the pixel ref.
     SkPixelRef* pr;
     if (fTexture) {
-        pr = new SkGrTexturePixelRef(fTexture);
+        pr = SkNEW_ARGS(SkGrTexturePixelRef, (fTexture));
     } else {
-        pr = new SkGrRenderTargetPixelRef(fRenderTarget);
+        pr = SkNEW_ARGS(SkGrRenderTargetPixelRef, (fRenderTarget));
     }
     this->setPixelRef(pr, 0)->unref();
 }
@@ -237,7 +237,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         GrAssert(NULL != fRenderTarget);
 
         // wrap the bitmap with a pixelref to expose our texture
-        SkGrTexturePixelRef* pr = new SkGrTexturePixelRef(fTexture);
+        SkGrTexturePixelRef* pr = SkNEW_ARGS(SkGrTexturePixelRef, (fTexture));
         this->setPixelRef(pr, 0)->unref();
     } else {
         GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
@@ -533,25 +533,25 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     GrSamplerState* sampler = grPaint->textureSampler(kShaderTextureIdx);
     switch (bmptype) {
         case SkShader::kRadial_BitmapType:
-            sampler->setCustomStage(new GrRadialGradient())->unref();
+            sampler->setCustomStage(SkNEW(GrRadialGradient))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         case SkShader::kSweep_BitmapType:
-            sampler->setCustomStage(new GrSweepGradient())->unref();
+            sampler->setCustomStage(SkNEW(GrSweepGradient))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         case SkShader::kTwoPointRadial_BitmapType:
-            sampler->setCustomStage(new
-                GrRadial2Gradient(twoPointParams[0],
-                                  twoPointParams[1],
-                                  twoPointParams[2] < 0))->unref();
+            sampler->setCustomStage(SkNEW_ARGS(GrRadial2Gradient,
+                         (twoPointParams[0],
+                          twoPointParams[1],
+                          twoPointParams[2] < 0)))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         case SkShader::kTwoPointConical_BitmapType:
-            sampler->setCustomStage(new
-                GrConical2Gradient(twoPointParams[0],
-                                   twoPointParams[1],
-                                   twoPointParams[2]))->unref();
+            sampler->setCustomStage(SkNEW_ARGS(GrConical2Gradient,
+                                               (twoPointParams[0],
+                                                twoPointParams[1],
+                                                twoPointParams[2])))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         default:
@@ -1596,7 +1596,8 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
                                  SkIntToScalar(src.height()));
     GrTexture* resultTexture = filter_texture(fContext, texture, filter, rect);
     if (resultTexture) {
-        result->setPixelRef(new SkGrTexturePixelRef(resultTexture))->unref();
+        result->setPixelRef(SkNEW_ARGS(SkGrTexturePixelRef,
+                                       (resultTexture)))->unref();
         resultTexture->unref();
     }
     return true;
@@ -1681,7 +1682,7 @@ static GrFontScaler* get_gr_font_scaler(SkGlyphCache* cache) {
         scaler = (GrFontScaler*)auxData;
     }
     if (NULL == scaler) {
-        scaler = new SkGrFontScaler(cache);
+        scaler = SkNEW_ARGS(SkGrFontScaler, (cache));
         cache->setAuxProc(GlyphCacheAuxProc, scaler);
     }
     return scaler;
@@ -1710,7 +1711,7 @@ SkDrawProcs* SkGpuDevice::initDrawForText(GrTextContext* context) {
 
     // deferred allocation
     if (NULL == fDrawProcs) {
-        fDrawProcs = new GrSkDrawProcs;
+        fDrawProcs = SkNEW(GrSkDrawProcs);
         fDrawProcs->fD1GProc = SkGPU_Draw1Glyph;
         fDrawProcs->fContext = fContext;
     }

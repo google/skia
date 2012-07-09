@@ -22,7 +22,7 @@ public:
         if (needed <= sizeof(fStorage)) {
             fBusy = fStorage;
         } else {
-            fBusy = new char[needed];
+            fBusy = SkNEW_ARRAY(char, needed);
         }
         this->reset();
     }

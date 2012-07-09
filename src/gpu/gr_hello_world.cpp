@@ -17,7 +17,7 @@ extern "C" {
 void gr_hello_world() {
     static GrGpu* gGpu;
     if (NULL == gGpu) {
-        gGpu = new SkGpuGLShaders;
+        gGpu = SkNEW(SkGpuGLShaders);
     }
 
     SkGLCanvas canvas(gGpu);

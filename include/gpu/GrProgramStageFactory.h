@@ -95,7 +95,7 @@ public:
      the object. */
     virtual GLProgramStage* createGLInstance(
                         const GrCustomStage& stage) const SK_OVERRIDE {
-        return new GLProgramStage(*this, stage);
+        return SkNEW_ARGS(GLProgramStage, (*this, stage));
     }
 
     /** This class is a singleton. This function returns the single instance.
@@ -104,7 +104,8 @@ public:
         static SkAlignedSTStorage<1, GrTProgramStageFactory> gInstanceMem;
         static const GrTProgramStageFactory* gInstance;
         if (!gInstance) {
-            gInstance = new (gInstanceMem.get()) GrTProgramStageFactory();
+            gInstance = SkNEW_PLACEMENT(gInstanceMem.get(),
+                                        GrTProgramStageFactory);
         }
         return *gInstance;
     }

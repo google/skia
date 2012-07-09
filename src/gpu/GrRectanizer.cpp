@@ -117,7 +117,7 @@ bool GrRectanizerPow2::addRect(int width, int height, GrIPoint16* loc) {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrRectanizer* GrRectanizer::Factory(int width, int height) {
-    return new GrRectanizerPow2(width, height);
+    return SkNEW_ARGS(GrRectanizerPow2, (width, height));
 }
 
 

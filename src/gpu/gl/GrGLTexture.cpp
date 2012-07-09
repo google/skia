@@ -31,9 +31,10 @@ void GrGLTexture::init(GrGpuGL* gpu,
 
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
-    fTexIDObj           = new GrGLTexID(GPUGL->glInterface(),
-                                        textureDesc.fTextureID,
-                                        textureDesc.fOwnsID);
+    fTexIDObj           = SkNEW_ARGS(GrGLTexID,
+                                     (GPUGL->glInterface(),
+                                      textureDesc.fTextureID,
+                                      textureDesc.fOwnsID));
     fOrientation        = textureDesc.fOrientation;
 
     if (NULL != rtDesc) {
@@ -44,7 +45,8 @@ void GrGLTexture::init(GrGpuGL* gpu,
         vp.fBottom = 0;
         vp.fHeight = textureDesc.fHeight;
 
-        fRenderTarget = new GrGLRenderTarget(gpu, *rtDesc, vp, fTexIDObj, this);
+        fRenderTarget = SkNEW_ARGS(GrGLRenderTarget,
+                                   (gpu, *rtDesc, vp, fTexIDObj, this));
     }
 }
 

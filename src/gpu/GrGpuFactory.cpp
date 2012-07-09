@@ -36,7 +36,7 @@ GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
         }
         GrGLContextInfo ctxInfo(glInterface);
         if (ctxInfo.isInitialized()) {
-            return new GrGpuGL(ctxInfo);
+            return SkNEW_ARGS(GrGpuGL, (ctxInfo));
         }
     }
     return NULL;

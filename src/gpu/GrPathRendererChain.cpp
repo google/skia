@@ -54,6 +54,7 @@ void GrPathRendererChain::init() {
     bool twoSided = gpu->getCaps().fTwoSidedStencilSupport;
     bool wrapOp = gpu->getCaps().fStencilWrapOpsSupport;
     GrPathRenderer::AddPathRenderers(fOwner, fFlags, this);
-    this->addPathRenderer(new GrDefaultPathRenderer(twoSided, wrapOp))->unref();
+    this->addPathRenderer(SkNEW_ARGS(GrDefaultPathRenderer,
+                                     (twoSided, wrapOp)))->unref();
     fInit = true;
 }

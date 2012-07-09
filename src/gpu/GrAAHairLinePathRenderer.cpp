@@ -35,7 +35,7 @@ bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
     uint16_t* data = (uint16_t*) qIdxBuffer->lock();
     bool tempData = NULL == data;
     if (tempData) {
-        data = new uint16_t[kNumQuadsInIdxBuffer * kIdxsPerQuad];
+        data = SkNEW_ARRAY(uint16_t, kNumQuadsInIdxBuffer * kIdxsPerQuad);
     }
     for (int i = 0; i < kNumQuadsInIdxBuffer; ++i) {
 
@@ -86,9 +86,8 @@ GrPathRenderer* GrAAHairLinePathRenderer::Create(GrContext* context) {
         !push_quad_index_data(qIdxBuf)) {
         return NULL;
     }
-    return new GrAAHairLinePathRenderer(context,
-                                        lIdxBuffer,
-                                        qIdxBuf);
+    return SkNEW_ARGS(GrAAHairLinePathRenderer,
+                      (context, lIdxBuffer, qIdxBuf));
 }
 
 GrAAHairLinePathRenderer::GrAAHairLinePathRenderer(

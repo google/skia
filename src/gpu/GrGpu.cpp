@@ -466,9 +466,9 @@ void GrGpu::finalizeReservedIndices() {
 void GrGpu::prepareVertexPool() {
     if (NULL == fVertexPool) {
         GrAssert(0 == fVertexPoolUseCnt);
-        fVertexPool = new GrVertexBufferAllocPool(this, true,
+        fVertexPool = SkNEW_ARGS(GrVertexBufferAllocPool, (this, true,
                                                   VERTEX_POOL_VB_SIZE,
-                                                  VERTEX_POOL_VB_COUNT);
+                                                  VERTEX_POOL_VB_COUNT));
         fVertexPool->releaseGpuRef();
     } else if (!fVertexPoolUseCnt) {
         // the client doesn't have valid data in the pool
@@ -479,9 +479,9 @@ void GrGpu::prepareVertexPool() {
 void GrGpu::prepareIndexPool() {
     if (NULL == fIndexPool) {
         GrAssert(0 == fIndexPoolUseCnt);
-        fIndexPool = new GrIndexBufferAllocPool(this, true,
+        fIndexPool = SkNEW_ARGS(GrIndexBufferAllocPool, (this, true,
                                                 INDEX_POOL_IB_SIZE,
-                                                INDEX_POOL_IB_COUNT);
+                                                INDEX_POOL_IB_COUNT));
         fIndexPool->releaseGpuRef();
     } else if (!fIndexPoolUseCnt) {
         // the client doesn't have valid data in the pool

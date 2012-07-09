@@ -190,7 +190,7 @@ GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
     GrAssert(!fPurging);
     GrAutoResourceCacheValidate atcv(this);
 
-    GrResourceEntry* entry = new GrResourceEntry(key, resource);
+    GrResourceEntry* entry = SkNEW_ARGS(GrResourceEntry, (key, resource));
 
     if (lock) {
         // mark the entry as "busy" so it doesn't get purged
