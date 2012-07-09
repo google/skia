@@ -2,13 +2,25 @@
 #
 # Runs doxygen and stores its results in the skia-autogen repo, so that they
 # can be browsed at http://skia-autogen.googlecode.com/svn/docs/html/index.html
+#
+# The DOXYGEN_TEMPDIR env variable is the working directory within which we will
+# check out the code, generate documentation, and store the doxygen log
+# (by default, /tmp/skia-doxygen). The DOXYGEN_COMMIT env variable determines
+# whether docs should be commited (true by default).
+#
+# Sample Usage:
+#  export DOXYGEN_TEMPDIR=/tmp/doxygen
+#  export DOXYGEN_COMMIT=false
+#  bash update-doxygen.sh
 
 # Prepare a temporary dir and check out Skia trunk and docs.
 cd
-TEMPDIR=/tmp/skia-doxygen
-rm -rf $TEMPDIR
-mkdir -p $TEMPDIR
-cd $TEMPDIR
+DOXYGEN_TEMPDIR=${DOXYGEN_TEMPDIR:-/tmp/skia-doxygen}
+DOXYGEN_COMMIT=${DOXYGEN_COMMIT:-true}
+
+rm -rf $DOXYGEN_TEMPDIR
+mkdir -p $DOXYGEN_TEMPDIR
+cd $DOXYGEN_TEMPDIR
 svn checkout http://skia.googlecode.com/svn/trunk  # read-only
 svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
 
@@ -49,5 +61,11 @@ find . -name '*.js'   -exec svn propset svn:mime-type text/javascript '{}' \;
 find . -name '*.gif'  -exec svn propset svn:mime-type image/gif '{}' \;
 find . -name '*.png'  -exec svn propset svn:mime-type image/png '{}' \;
 
-# Commit the updated docs to the subversion repo.
-svn commit --message 'commit doxygen-generated documentation'
+# Output files with documentation updates.
+echo -e "\n\nThe following are the documentation updates:"
+echo $MODFILES
+
+if $DOXYGEN_COMMIT ; then
+  # Commit the updated docs to the subversion repo.
+  svn commit --message 'commit doxygen-generated documentation'
+fi
