@@ -82,15 +82,18 @@
       'target_name': 'bench_pictures',
       'type': 'executable',
       'sources': [
-        '../tools/bench_pictures_main.cpp'
+        '../tools/bench_pictures_main.cpp',
+        '../src/pipe/utils/SamplePipeControllers.h',
+        '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'include_dirs': [
         '../bench',
+        '../src/pipe/utils/',
       ],
       'dependencies': [
         'core.gyp:core',
         'ports.gyp:ports',
-       'images.gyp:images',
+        'images.gyp:images',
         'tools.gyp:picture_utils',
         'bench.gyp:bench_timer',
       ],

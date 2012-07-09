@@ -6,8 +6,10 @@
  */
 
 #include "BenchTimer.h"
+#include "SamplePipeControllers.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkGPipe.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -44,6 +46,10 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     inputDir:  A list of directories and files to use as input.\n"
 "                    Files are expected to have the .skp extension.\n\n");
+    SkDebugf(
+"     --pipe : "
+"Set to use piping."
+" Default is to not use piping.\n");
     SkDebugf(
 "     --repeat : "
 "Set the number of times to repeat each test."
@@ -133,6 +139,32 @@ static void run_tile_benchmark(SkPicture* picture, const SkBitmap& bitmap,
            options.fTileHeight, timer.fWall / options.fRepeats);
 }
 
+static void pipe_run(SkPicture* picture, SkCanvas* canvas) {
+    PipeController pipeController(canvas);
+    SkGPipeWriter writer;
+    SkCanvas* pipeCanvas = writer.startRecording(&pipeController);
+    pipeCanvas->drawPicture(*picture);
+    writer.endRecording();
+}
+
+static void run_pipe_benchmark(SkPicture* picture, const SkBitmap& bitmap,
+                                    const Options& options) {
+    SkCanvas canvas(bitmap);
+
+    // We throw this away to remove first time effects (such as paging in this
+    // program)
+    pipe_run(picture, &canvas);
+
+    BenchTimer timer = BenchTimer(NULL);
+    timer.start();
+    for (int i = 0; i < options.fRepeats; ++i) {
+        pipe_run(picture, &canvas);
+    }
+    timer.end();
+
+    printf("pipe: cmsecs = %6.2f\n", timer.fWall / options.fRepeats);
+}
+
 static void run_single_benchmark(const SkString& inputPath,
                                  const Options& options) {
     SkFILEStream inputStream;
@@ -201,6 +233,8 @@ static void parse_commandline(int argc, char* const argv[],
                 usage(argv0);\
                 exit(-1);
             }
+        } else if (0 == strcmp(*argv, "--pipe")) {
+            options->fBenchmark = run_pipe_benchmark;
         } else if (0 == strcmp(*argv, "--help") || 0 == strcmp(*argv, "-h")) {
             usage(argv0);
             exit(0);
