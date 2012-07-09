@@ -241,6 +241,8 @@ private:
 
     struct FlatData {
         uint32_t    fIndex; // always > 0
+        PaintFlats  fPaintFlat; // deliberately before fSize so that Compare
+                                // will ignore it.
         uint32_t    fSize;
 
         void*       data() { return (char*)this + sizeof(*this); }
@@ -254,8 +256,10 @@ private:
     int flattenToIndex(const SkBitmap&);
 
     SkTDArray<FlatData*> fFlatArray;
+    size_t fBytesOfFlatData;
     int fCurrFlatIndex[kCount_PaintFlats];
     int flattenToIndex(SkFlattenable* obj, PaintFlats);
+    int flattenableToReplace(const FlatData& newFlat);
 
     SkPaint fPaint;
     void writePaint(const SkPaint&);
@@ -308,7 +312,28 @@ int SkGPipeCanvas::flattenToIndex(const SkBitmap & bitmap) {
     return fBitmapArray[index]->fIndex;
 }
 
+// Return -1 if there is no need to replace a flattenable, or there was not an
+// appropriate one to replace. Otherwise return the index of a flattenable to
+// replace.
+int SkGPipeCanvas::flattenableToReplace(const FlatData& newFlat) {
+    // For now, set an arbitrary limit on the size of FlatData we have stored.
+    // Note that this is currently a soft limit. If we have reached the limit,
+    // we replace one, but do not ensure that we return to below the limit.
+    if (fBytesOfFlatData + fFlatArray.bytes() > 1024) {
+        for (int i = 0; i < fFlatArray.count(); i++) {
+            // Only replace the same paint flat. Since a paint can only have
+            // one of each type, replacing one of the same type means that
+            // we will not be purging a flat on the same paint.
+            if (newFlat.fPaintFlat == fFlatArray[i]->fPaintFlat) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
 // return 0 for NULL (or unflattenable obj), or index-base-1
+// return ~(index-base-1) if an old flattenable was replaced
 int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     if (NULL == obj) {
         return 0;
@@ -336,23 +361,46 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     tmpWriter.flatten(flat->data());
 
     int index = SkTSearch<FlatData>((const FlatData**)fFlatArray.begin(),
-                                    fFlatArray.count(), flat, sizeof(flat),
+                                    fFlatArray.count(), flat, sizeof(FlatData*),
                                     &FlatData::Compare);
+    bool replacedAFlat = false;
     if (index < 0) {
         index = ~index;
         FlatData* copy = (FlatData*)sk_malloc_throw(allocSize);
         memcpy(copy, flat, allocSize);
+        copy->fPaintFlat = paintflat;
+        int indexToReplace = this->flattenableToReplace(*copy);
+        if (indexToReplace >= 0) {
+            replacedAFlat = true;
+            FlatData* oldData = fFlatArray[indexToReplace];
+            copy->fIndex = oldData->fIndex;
+            fBytesOfFlatData -= (sizeof(FlatData) + oldData->fSize);
+            sk_free(oldData);
+            fFlatArray.remove(indexToReplace);
+            if (indexToReplace < index) {
+                index--;
+            }
+        }
         *fFlatArray.insert(index) = copy;
-        // call this after the insert, so that count() will have been grown
-        copy->fIndex = fFlatArray.count();
-//        SkDebugf("--- add flattenable[%d] size=%d index=%d\n", paintflat, len, copy->fIndex);
+        fBytesOfFlatData += allocSize;
+        if (!replacedAFlat) {
+            // Call this after the insert, so that count() will have been grown
+            // (unless we replaced one, in which case fIndex has already been
+            // set properly).
+            copy->fIndex = fFlatArray.count();
+//          SkDebugf("--- add flattenable[%d] size=%d index=%d\n", paintflat, len, copy->fIndex);
+        }
 
         if (this->needOpBytes(len)) {
             this->writeOp(kDef_Flattenable_DrawOp, paintflat, copy->fIndex);
             fWriter.write(copy->data(), len);
         }
     }
-    return fFlatArray[index]->fIndex;
+    int retVal = fFlatArray[index]->fIndex;
+    if (replacedAFlat) {
+        retVal = ~retVal;
+    }
+    return retVal;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -361,7 +409,8 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, SkFactorySet* fset, uint32_t flags)
-: fHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag)), fWriter(*writer), fFlags(flags) {
+: fHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag)), fWriter(*writer), fFlags(flags)
+, fBytesOfFlatData(0){
     fFactorySet = fset;
     fController = controller;
     fDone = false;
@@ -1009,8 +1058,12 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
 
     for (int i = 0; i < kCount_PaintFlats; i++) {
         int index = this->flattenToIndex(get_paintflat(paint, i), (PaintFlats)i);
+        bool replaced = index < 0;
+        if (replaced) {
+            index = ~index;
+        }
         SkASSERT(index >= 0 && index <= fFlatArray.count());
-        if (index != fCurrFlatIndex[i]) {
+        if (index != fCurrFlatIndex[i] || replaced) {
             *ptr++ = PaintOp_packOpFlagData(kFlatIndex_PaintOp, i, index);
             fCurrFlatIndex[i] = index;
         }

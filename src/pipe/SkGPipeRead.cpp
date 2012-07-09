@@ -94,9 +94,14 @@ public:
     }
 
     void defFlattenable(PaintFlats pf, int index) {
-        SkASSERT(index == fFlatArray.count() + 1);
+        index--;
         SkFlattenable* obj = fReader->readFlattenable();
-        *fFlatArray.append() = obj;
+        if (fFlatArray.count() == index) {
+            *fFlatArray.append() = obj;
+        } else {
+            SkSafeUnref(fFlatArray[index]);
+            fFlatArray[index] = obj;
+        }
     }
 
     void addBitmap(int index) {
