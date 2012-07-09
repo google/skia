@@ -246,7 +246,7 @@ void State::applyMatrix(SkCanvas* canvas) {
 static State* get_state() {
     static State* gState;
     if (NULL == gState) {
-        gState = new State;
+        gState = SkNEW(State);
     }
     return gState;
 }

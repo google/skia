@@ -163,14 +163,14 @@ public:
     T& push_back() {
         void* item = fAllocator.push_back();
         GrAssert(NULL != item);
-        new (item) T;
+        SkNEW_PLACEMENT(item, T);
         return *(T*)item;
     }
 
     T& push_back(const T& t) {
         void* item = fAllocator.push_back();
         GrAssert(NULL != item);
-        new (item) T(t);
+        SkNEW_PLACEMENT_ARGS(item, T, (t));
         return *(T*)item;
     }
 

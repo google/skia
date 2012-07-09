@@ -38,7 +38,7 @@ public:
     , fStack(sizeof(GrClipStackFrame)) {
         // We need an initial frame to capture the clip state prior to 
         // any pushes
-        new (fStack.push_back()) GrClipStackFrame();
+        SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
     }
 
     ~GrClipMaskCache() {
@@ -87,7 +87,7 @@ public:
      * reduce the mask creation cost?
      */
     void push() {
-        new (fStack.push_back()) GrClipStackFrame();
+        SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
     }
 
     void pop() {

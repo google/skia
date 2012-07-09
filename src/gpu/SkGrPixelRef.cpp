@@ -81,7 +81,7 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture,
     dst->releaseRenderTarget();
 #endif
 
-    SkGrPixelRef* pixelRef = new SkGrPixelRef(dst);
+    SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (dst));
     GrSafeUnref(dst);
     return pixelRef;
 }

@@ -23,6 +23,6 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx,
         if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create(ctx)) {
             chain->addPathRenderer(pr)->unref();
         }
-        chain->addPathRenderer(new GrAAConvexPathRenderer())->unref();
+        chain->addPathRenderer(SkNEW(GrAAConvexPathRenderer))->unref();
     }
 }

@@ -65,9 +65,10 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             // does not work with perspective or mul-by-alpha-mask
             stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
-            return new GrConvolutionEffect(gKernelDirections[direction],
-                                           kernelRadius,
-                                           kernel);
+            return SkNEW_ARGS(GrConvolutionEffect,
+                              (gKernelDirections[direction],
+                               kernelRadius,
+                               kernel));
             }
         case kErode_EffectType: {
             int direction = random_int(random, 2);
@@ -75,9 +76,10 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             // does not work with perspective or mul-by-alpha-mask
             stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
-            return new GrMorphologyEffect(gKernelDirections[direction],
-                                          kernelRadius,
-                                          GrContext::kErode_MorphologyType);
+            return SkNEW_ARGS(GrMorphologyEffect,
+                              (gKernelDirections[direction],
+                               kernelRadius,
+                               GrContext::kErode_MorphologyType));
             }
         case kDilate_EffectType: {
             int direction = random_int(random, 2);
@@ -85,12 +87,13 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             // does not work with perspective or mul-by-alpha-mask
             stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
-            return new GrMorphologyEffect(gKernelDirections[direction],
-                                          kernelRadius,
-                                          GrContext::kDilate_MorphologyType);
+            return SkNEW_ARGS(GrMorphologyEffect,
+                              (gKernelDirections[direction],
+                               kernelRadius,
+                               GrContext::kDilate_MorphologyType));
             }
         case kRadialGradient_EffectType: {
-            return new GrRadialGradient();
+            return SkNEW(GrRadialGradient);
             }
         case kRadial2Gradient_EffectType: {
             float center;
@@ -99,10 +102,10 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             } while (GR_Scalar1 == center);
             float radius = random->nextF();
             bool root = random_bool(random);
-            return new GrRadial2Gradient(center, radius, root);
+            return SkNEW_ARGS(GrRadial2Gradient, (center, radius, root));
             }
         case kSweepGradient_EffectType: {
-            return new GrSweepGradient();
+            return SkNEW(GrSweepGradient);
             }
         default:
             GrCrash("Unexpected custom effect type");

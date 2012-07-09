@@ -131,7 +131,7 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu) {
     fGpu = gpu;
     gpu->ref();
     Gr_bzero(fTexture, sizeof(fTexture));
-    fPlotMgr = new GrPlotMgr(GR_PLOT_WIDTH, GR_PLOT_HEIGHT);
+    fPlotMgr = SkNEW_ARGS(GrPlotMgr, (GR_PLOT_WIDTH, GR_PLOT_HEIGHT));
 }
 
 GrAtlasMgr::~GrAtlasMgr() {
@@ -189,7 +189,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
         }
     }
 
-    GrAtlas* newAtlas = new GrAtlas(this, plot.fX, plot.fY, format);
+    GrAtlas* newAtlas = SkNEW_ARGS(GrAtlas, (this, plot.fX, plot.fY, format));
     if (!newAtlas->addSubImage(width, height, image, loc)) {
         delete newAtlas;
         return NULL;

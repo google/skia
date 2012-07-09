@@ -66,7 +66,7 @@ GrContext* GrContext::Create(GrEngine engine,
     GrContext* ctx = NULL;
     GrGpu* fGpu = GrGpu::Create(engine, context3D);
     if (NULL != fGpu) {
-        ctx = new GrContext(fGpu);
+        ctx = SkNEW_ARGS(GrContext, (fGpu));
         fGpu->unref();
     }
     return ctx;
@@ -74,7 +74,7 @@ GrContext* GrContext::Create(GrEngine engine,
 
 namespace {
 void* CreateThreadInstanceCount() {
-    return new int(0);
+    return SkNEW_ARGS(int, (0));
 }
 void DeleteThreadInstanceCount(void* v) {
     delete reinterpret_cast<int*>(v);
@@ -244,7 +244,7 @@ void apply_morphology(GrGpu* gpu,
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(sampleM);
     SkAutoTUnref<GrCustomStage> morph(
-        new GrMorphologyEffect(direction, radius, morphType));
+        SkNEW_ARGS(GrMorphologyEffect, (direction, radius, morphType)));
     drawState->sampler(0)->setCustomStage(morph);
     drawState->setTexture(0, texture);
     gpu->drawSimpleRect(rect, NULL, 1 << 0);
@@ -263,8 +263,8 @@ void convolve_gaussian(GrGpu* gpu,
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(sampleM);
-    SkAutoTUnref<GrConvolutionEffect> conv(new
-        GrConvolutionEffect(direction, radius));
+    SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
+                                                      (direction, radius)));
     conv->setGaussianKernel(sigma);
     drawState->sampler(0)->setCustomStage(conv);
     drawState->setTexture(0, texture);
@@ -1682,7 +1682,8 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                                            bool allowSW) {
     if (NULL == fPathRendererChain) {
         fPathRendererChain = 
-            new GrPathRendererChain(this, GrPathRendererChain::kNone_UsageFlag);
+            SkNEW_ARGS(GrPathRendererChain,
+                       (this, GrPathRendererChain::kNone_UsageFlag));
     }
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(path, fill,
@@ -1691,7 +1692,7 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
 
     if (NULL == pr && allowSW) {
         if (NULL == fSoftwarePathRenderer) {
-            fSoftwarePathRenderer = new GrSoftwarePathRenderer(this);
+            fSoftwarePathRenderer = SkNEW_ARGS(GrSoftwarePathRenderer, (this));
         }
 
         pr = fSoftwarePathRenderer;
@@ -1751,15 +1752,16 @@ GrContext::GrContext(GrGpu* gpu) {
     fGpu->ref();
     fGpu->setContext(this);
 
-    fDrawState = new GrDrawState();
+    fDrawState = SkNEW(GrDrawState);
     fGpu->setDrawState(fDrawState);
 
     fPathRendererChain = NULL;
     fSoftwarePathRenderer = NULL;
 
-    fTextureCache = new GrResourceCache(MAX_TEXTURE_CACHE_COUNT,
-                                        MAX_TEXTURE_CACHE_BYTES);
-    fFontCache = new GrFontCache(fGpu);
+    fTextureCache = SkNEW_ARGS(GrResourceCache,
+                               (MAX_TEXTURE_CACHE_COUNT,
+                                MAX_TEXTURE_CACHE_BYTES));
+    fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
     fLastDrawCategory = kUnbuffered_DrawCategory;
 
@@ -1767,7 +1769,7 @@ GrContext::GrContext(GrGpu* gpu) {
     fDrawBufferVBAllocPool = NULL;
     fDrawBufferIBAllocPool = NULL;
 
-    fAARectRenderer = new GrAARectRenderer;
+    fAARectRenderer = SkNEW(GrAARectRenderer);
 
     this->setupDrawBuffer();
 }
@@ -1780,17 +1782,17 @@ void GrContext::setupDrawBuffer() {
 
 #if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT || DEFER_PATHS
     fDrawBufferVBAllocPool =
-        new GrVertexBufferAllocPool(fGpu, false,
+        SkNEW_ARGS(GrVertexBufferAllocPool, (fGpu, false,
                                     DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
-                                    DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS);
+                                    DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS));
     fDrawBufferIBAllocPool =
-        new GrIndexBufferAllocPool(fGpu, false,
+        SkNEW_ARGS(GrIndexBufferAllocPool, (fGpu, false,
                                    DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
-                                   DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS);
+                                   DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS));
 
-    fDrawBuffer = new GrInOrderDrawBuffer(fGpu,
+    fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (fGpu,
                                           fDrawBufferVBAllocPool,
-                                          fDrawBufferIBAllocPool);
+                                          fDrawBufferIBAllocPool));
 #endif
 
 #if BATCH_RECT_TO_RECT

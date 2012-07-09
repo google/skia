@@ -388,7 +388,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
     // interface
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
-        GrGLInterface* interface = new GrGLInterface;
+        GrGLInterface* interface = SkNEW(GrGLInterface);
         glInterface.reset(interface);
         interface->fBindingsExported = kDesktop_GrGLBinding;
         interface->fActiveTexture = nullGLActiveTexture;

@@ -68,23 +68,23 @@ public:
         SkAutoTUnref<GrContext> grCtx;
         switch (type) {
             case kNative_GLContextType:
-                glCtx.reset(new SkNativeGLContext());
+                glCtx.reset(SkNEW(SkNativeGLContext));
                 break;
 #ifdef SK_ANGLE
             case kANGLE_GLContextType:
-                glCtx.reset(new SkANGLEGLContext());
+                glCtx.reset(SkNEW(SkANGLEGLContext));
                 break;
 #endif
 #ifdef SK_MESA
             case kMESA_GLContextType:
-                glCtx.reset(new SkMesaGLContext());
+                glCtx.reset(SkNEW(SkMesaGLContext));
                 break;
 #endif
             case kNull_GLContextType:
-                glCtx.reset(new SkNullGLContext());
+                glCtx.reset(SkNEW(SkNullGLContext));
                 break;
             case kDebug_GLContextType:
-                glCtx.reset(new SkDebugGLContext());
+                glCtx.reset(SkNEW(SkDebugGLContext));
                 break;
         }
         static const int kBogusSize = 1;

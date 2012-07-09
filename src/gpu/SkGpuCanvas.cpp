@@ -20,7 +20,7 @@ SkGpuCanvas::SkGpuCanvas(GrContext* context, GrRenderTarget* renderTarget) {
     fContext = context;
     fContext->ref();
 
-    this->setDevice(new SkGpuDevice(context, renderTarget))->unref();
+    this->setDevice(SkNEW_ARGS(SkGpuDevice, (context, renderTarget)))->unref();
 }
 
 SkGpuCanvas::~SkGpuCanvas() {
