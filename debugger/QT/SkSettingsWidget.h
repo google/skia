@@ -17,6 +17,7 @@
 #include <QLabel>
 #include <QRadioButton>
 #include <QCheckBox>
+#include <QLineEdit>
 
 /** \class SkSettingsWidget
 
@@ -34,27 +35,45 @@ public:
     SkSettingsWidget(QWidget *parent = NULL);
     ~SkSettingsWidget();
 
+    void setZoomText(int scaleFactor);
+
+    QCheckBox* getCommandCheckBox();
+
+    QRadioButton* getVisibilityButton();
+
+private slots:
+    void updateCommand(int newCommand);
+
+signals:
+    void scrollingPreferences(bool isStickyActivate);
+    void showStyle(bool isSingleCommand);
+    void visibilityFilter(bool isEnabled);
+
 private:
-    QHBoxLayout* fHorizontalLayout;
+    QVBoxLayout mainFrameLayout;
+    QFrame mainFrame;
+    QVBoxLayout fVerticalLayout;
 
-    QVBoxLayout* mainFrameLayout;
+    QLabel fVisibileText;
+    QFrame fVisibleFrame;
+    QVBoxLayout fVisibleFrameLayout;
+    QRadioButton fVisibleOn;
+    QRadioButton fVisibleOff;
 
-    QVBoxLayout* fVerticalLayout;
-    QVBoxLayout* fVerticalLayout_2;
-    QTextEdit* fText;
-    QFrame* fFrame;
-    QFrame* mainFrame;
+    QLabel fCommandToggle;
+    QFrame fCommandFrame;
+    QVBoxLayout fCommandLayout;
 
-    QLabel* fVisibility;
-    QRadioButton* fVisibleOn;
-    QRadioButton* fVisibleOff;
+    QLineEdit fCurrentCommandBox;
+    QLabel fCurrentCommandLabel;
+    QHBoxLayout fCurrentCommandLayout;
 
-    QLabel* fCommandToggle;
-    QFrame* fCommandFrame;
-    QVBoxLayout* fCommandLayout;
+    QCheckBox fCommandCheckBox;
 
-    QCheckBox* fCommandCheckBox;
-    QCheckBox* fCommandSingleDraw;
+    QLabel fZoomSetting;
+    QFrame fZoomFrame;
+    QLineEdit fZoomBox;
+    QHBoxLayout fZoomLayout;
 };
 
 #endif /* SKSETTINGSWIDGET_H_ */

@@ -49,6 +49,9 @@ public:
 
     ~SkDebuggerGUI();
 
+signals:
+    void commandChanged(int command);
+
 private slots:
     /**
         Toggles breakpoint view in the list widget.
@@ -97,6 +100,11 @@ private slots:
     void actionRewind();
 
     /**
+        Sends the scale factor information to the settings widget.
+     */
+    void actionScale(float scaleFactor);
+
+    /**
         Toggles the settings widget visibility.
      */
     void actionSettings();
@@ -121,6 +129,12 @@ private slots:
         the seleced file.
      */
     void openFile();
+
+    /**
+        Toggles whether drawing to a new command requires a double click
+        or simple focus.
+     */
+    void pauseDrawing(int state);
 
     /**
         Executes draw commands up to the selected command
@@ -184,13 +198,11 @@ private:
     QAction* fActionQuit;
     QAction* fActionTemp;
 
-    QMenu* fMenuView;
-    QAction* fActionToggleCurrentCommand;
-
     QMenu* fMenuNavigate;
     QAction *fActionGoToLine;
 
     bool fBreakpointsActivated;
+    bool fPause;
 
     /**
         Creates the entire UI.

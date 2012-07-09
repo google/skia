@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SkInspectorWidget.h'
 **
-** Created: Thu Jun 28 17:18:47 2012
+** Created: Mon Jul 9 13:45:07 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!

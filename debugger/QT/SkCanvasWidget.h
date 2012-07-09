@@ -129,6 +129,10 @@ public:
 
     void wheelEvent(QWheelEvent* event);
 
+signals:
+    void scaleFactorChanged(float newScaleFactor);
+    void commandChanged(int newCommand);
+
 protected:
     /**
         Draws the current state of the widget.
@@ -146,7 +150,7 @@ private:
     SkIPoint fTransform;
 
     int fIndex;
-    int fScaleFactor;
+    float fScaleFactor;
 };
 
 #endif

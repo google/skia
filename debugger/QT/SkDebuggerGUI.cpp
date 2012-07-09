@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -11,42 +10,57 @@
 #include <QListWidgetItem>
 
 SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
-    QMainWindow(parent) {
+        QMainWindow(parent) {
 
     setupUi(this);
     connect(fListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,
-            QListWidgetItem*)), this, SLOT(registerListClick(QListWidgetItem *)));
+                    QListWidgetItem*)), this,
+            SLOT(registerListClick(QListWidgetItem *)));
     connect(fActionOpen, SIGNAL(triggered()), this, SLOT(openFile()));
-    connect(fActionDirectory, SIGNAL(triggered()), this, SLOT(toggleDirectory()));
+    connect(fActionDirectory, SIGNAL(triggered()), this,
+            SLOT(toggleDirectory()));
     connect(fDirectoryWidget, SIGNAL(currentItemChanged(QListWidgetItem*,
-            QListWidgetItem*)), this, SLOT(loadFile(QListWidgetItem *)));
+                    QListWidgetItem*)), this,
+            SLOT(loadFile(QListWidgetItem *)));
     connect(fActionDelete, SIGNAL(triggered()), this, SLOT(actionDelete()));
     connect(fActionReload, SIGNAL(triggered()), this, SLOT(actionReload()));
-    connect(fListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(toggleBreakpoint()));
+    connect(fListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this,
+            SLOT(toggleBreakpoint()));
     connect(fActionRewind, SIGNAL(triggered()), this, SLOT(actionRewind()));
     connect(fActionPlay, SIGNAL(triggered()), this, SLOT(actionPlay()));
     connect(fActionStepBack, SIGNAL(triggered()), this, SLOT(actionStepBack()));
-    connect(fActionStepForward, SIGNAL(triggered()), this, SLOT(actionStepForward()));
-    connect(fActionBreakpoint, SIGNAL(triggered()), this, SLOT(actionBreakpoints()));
-    connect(fActionInspector, SIGNAL(triggered()), this, SLOT(actionInspector()));
-    connect(fFilter, SIGNAL(activated(QString)), this, SLOT(toggleFilter(QString)));
+    connect(fActionStepForward, SIGNAL(triggered()), this,
+            SLOT(actionStepForward()));
+    connect(fActionBreakpoint, SIGNAL(triggered()), this,
+            SLOT(actionBreakpoints()));
+    connect(fActionInspector, SIGNAL(triggered()), this,
+            SLOT(actionInspector()));
+    connect(fFilter, SIGNAL(activated(QString)), this,
+            SLOT(toggleFilter(QString)));
     connect(fActionCancel, SIGNAL(triggered()), this, SLOT(actionCancel()));
     connect(fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
     connect(fActionSettings, SIGNAL(triggered()), this, SLOT(actionSettings()));
-    connect(fActionToggleCurrentCommand, SIGNAL(triggered()), this, SLOT(actionCommandFilter()));
+    connect(fSettingsWidget->getVisibilityButton(), SIGNAL(toggled(bool)), this,
+            SLOT(actionCommandFilter()));
+    connect(fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this,
+            SLOT(actionScale(float)));
+    connect(fSettingsWidget->getCommandCheckBox(), SIGNAL(stateChanged(int)),
+            this, SLOT(pauseDrawing(int)));
+    connect(fCanvasWidget, SIGNAL(commandChanged(int)), fSettingsWidget,
+            SLOT(updateCommand(int)));
 }
 
 SkDebuggerGUI::~SkDebuggerGUI() {
 }
 
 void SkDebuggerGUI::actionBreakpoints() {
-    if(!fBreakpointsActivated) {
+    if (!fBreakpointsActivated) {
         fBreakpointsActivated = true;
     } else {
         fBreakpointsActivated = false;
     }
 
-    for(int row=0; row<fListWidget->count(); row++) {
+    for (int row = 0; row < fListWidget->count(); row++) {
         QListWidgetItem *item = fListWidget->item(row);
 
         if (item->checkState() == Qt::Unchecked && fBreakpointsActivated) {
@@ -58,22 +72,14 @@ void SkDebuggerGUI::actionBreakpoints() {
 }
 
 void SkDebuggerGUI::actionCancel() {
-    for(int row=0; row<fListWidget->count(); row++) {
+    for (int row = 0; row < fListWidget->count(); row++) {
         fListWidget->item(row)->setHidden(false);
     }
 }
 
 void SkDebuggerGUI::actionCommandFilter() {
-    if (fActionToggleCurrentCommand->text() == "Show Filter") {
-        fCanvasWidget->toggleCurrentCommandFilter(true);
-        fActionToggleCurrentCommand->setText("Hide Filter");
-    } else {
-        fActionToggleCurrentCommand->setText("Show Filter");
-        fCanvasWidget->toggleCurrentCommandFilter(false);
-    }
-
+    fCanvasWidget->toggleCurrentCommandFilter(fSettingsWidget->getVisibilityButton()->isChecked());
     fCanvasWidget->drawTo(fListWidget->currentRow());
-
 }
 
 void SkDebuggerGUI::actionClose() {
@@ -82,26 +88,20 @@ void SkDebuggerGUI::actionClose() {
 
 void SkDebuggerGUI::actionDelete() {
     QListWidgetItem* item = fListWidget->currentItem();
-
-    if(item->data(Qt::UserRole + 2) == true) {
+    if (item->data(Qt::UserRole + 2) == true) {
         item->setData(Qt::UserRole + 2, false);
-        item->setData(Qt::DecorationRole,
-                QPixmap(":/images/Icons/delete.png"));
-
+        item->setData(Qt::DecorationRole, QPixmap(":/images/Icons/delete.png"));
     } else {
         item->setData(Qt::UserRole + 2, true);
-        if(item->checkState() == Qt::Unchecked) {
+        if (item->checkState() == Qt::Unchecked) {
             item->setData(Qt::DecorationRole,
                     QPixmap(":/images/Icons/blank.png"));
         } else {
             item->setData(Qt::DecorationRole,
                     QPixmap(":/images/Icons/breakpoint_16x16.png"));
         }
-
     }
-
     int currentRow = fListWidget->currentRow();
-
     // NOTE(chudy): Forces a redraw up to current selected command.
     if (fCanvasWidget) {
         fCanvasWidget->toggleCommand(currentRow);
@@ -118,26 +118,24 @@ void SkDebuggerGUI::actionInspector() {
 }
 
 void SkDebuggerGUI::actionPlay() {
-    for(int row=fListWidget->currentRow()+1; row<fListWidget->count(); row++) {
+    for (int row = fListWidget->currentRow() + 1; row < fListWidget->count();
+            row++) {
         QListWidgetItem *item = fListWidget->item(row);
         if (item->checkState() == Qt::Checked) {
             fListWidget->setCurrentItem(item);
             return;
         }
     }
-
     fListWidget->setCurrentRow(fListWidget->count() - 1);
 }
 
 void SkDebuggerGUI::actionReload() {
-    for(int row=0; row<fListWidget->count(); row++) {
+    for (int row = 0; row < fListWidget->count(); row++) {
         QListWidgetItem* item = fListWidget->item(row);
         item->setData(Qt::UserRole + 2, true);
-        item->setData(Qt::DecorationRole,
-                QPixmap(":/images/Icons/blank.png"));
+        item->setData(Qt::DecorationRole, QPixmap(":/images/Icons/blank.png"));
         fCanvasWidget->toggleCommand(row, true);
     }
-
     fCanvasWidget->drawTo(fListWidget->currentRow());
 }
 
@@ -145,6 +143,10 @@ void SkDebuggerGUI::actionRewind() {
     /* NOTE(chudy): Hack. All skps opened so far start with save and concat
      * commands that don't clear or reset the canvas. */
     fListWidget->setCurrentRow(2);
+}
+
+void SkDebuggerGUI::actionScale(float scaleFactor) {
+    fSettingsWidget->setZoomText(scaleFactor);
 }
 
 void SkDebuggerGUI::actionSettings() {
@@ -164,11 +166,8 @@ void SkDebuggerGUI::actionStepBack() {
 
 void SkDebuggerGUI::actionStepForward() {
     int currentRow = fListWidget->currentRow();
-
     QString curRow = QString::number(currentRow);
     QString curCount = QString::number(fListWidget->count());
-
-
     if (currentRow < fListWidget->count() - 1) {
         fListWidget->setCurrentRow(currentRow + 1);
     }
@@ -185,9 +184,8 @@ void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
 }
 
 void SkDebuggerGUI::openFile() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                     "",
-                                                     tr("Files (*.*)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
+            tr("Files (*.*)"));
     fDirectoryWidgetActive = false;
     if (!fileName.isNull()) {
         QFileInfo pathInfo(fileName);
@@ -195,39 +193,42 @@ void SkDebuggerGUI::openFile() {
         loadPicture(fileName);
         setupDirectoryWidget();
     }
-    /* TODO(chudy): Need something here that sets the active directory
-     * widget selection to what was opened. OR we can just add a new function
-     * to change the directory (would be much easier).
-     */
     fDirectoryWidgetActive = true;
+}
+
+void SkDebuggerGUI::pauseDrawing(int state) {
+    // Qt uses 0 for unchecked, 1 for partially enabled and 2 for checked.
+    if (state == 2) {
+        fPause = true;
+    } else {
+        fPause = false;
+        fCanvasWidget->drawTo(fListWidget->currentRow());
+    }
 }
 
 void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
     int currentRow = fListWidget->currentRow();
-
-    // NOTE(chudy): Prevents initialization errors.
-    if (fCanvasWidget) {
+    if (!fPause) {
         fCanvasWidget->drawTo(currentRow);
-        std::vector<std::string> *v =
-                fCanvasWidget->getCurrentCommandInfo(currentRow);
+    }
+    std::vector<std::string> *v = fCanvasWidget->getCurrentCommandInfo(
+            currentRow);
 
+    /* TODO(chudy): Add command type before parameters. Rename v
+     * to something more informative. */
+    if (v) {
+        std::vector<std::string>::iterator it;
 
-        /* TODO(chudy): Add command type before parameters. Rename v
-         * to something more informative. */
-        if (v) {
-            std::vector<std::string>::iterator it;
-
-            QString info;
-            info.append("<b>Parameters: </b><br/>");
-            for (it = v->begin(); it != v->end(); ++it) {
-                info.append(QString((*it).c_str()));
-                info.append("<br/>");
-            }
-            fInspectorWidget->setDetailText(info);
-            fInspectorWidget->setDisabled(false);
-            fInspectorWidget->setMatrix(fCanvasWidget->getCurrentMatrix());
-            fInspectorWidget->setClip(fCanvasWidget->getCurrentClip());
+        QString info;
+        info.append("<b>Parameters: </b><br/>");
+        for (it = v->begin(); it != v->end(); ++it) {
+            info.append(QString((*it).c_str()));
+            info.append("<br/>");
         }
+        fInspectorWidget->setDetailText(info);
+        fInspectorWidget->setDisabled(false);
+        fInspectorWidget->setMatrix(fCanvasWidget->getCurrentMatrix());
+        fInspectorWidget->setClip(fCanvasWidget->getCurrentClip());
     }
 }
 
@@ -236,18 +237,16 @@ void SkDebuggerGUI::toggleBreakpoint() {
     if (item->checkState() == Qt::Unchecked) {
         item->setCheckState(Qt::Checked);
 
-
         /* NOTE(chudy): If the command is toggled as hidden that takes
          * precendence over the breakpoint icon.
          */
-        if(item->data(Qt::UserRole + 2) == false) {
+        if (item->data(Qt::UserRole + 2) == false) {
             item->setData(Qt::DecorationRole,
                     QPixmap(":/images/Icons/delete.png"));
         } else {
             item->setData(Qt::DecorationRole,
                     QPixmap(":/images/Icons/breakpoint_16x16.png"));
         }
-
     } else {
 
         /* NOTE(chudy): When untoggling as a breakpoint if the command
@@ -255,14 +254,13 @@ void SkDebuggerGUI::toggleBreakpoint() {
          */
         item->setCheckState(Qt::Unchecked);
 
-        if(item->data(Qt::UserRole + 2) == false) {
+        if (item->data(Qt::UserRole + 2) == false) {
             item->setData(Qt::DecorationRole,
                     QPixmap(":/images/Icons/delete.png"));
         } else {
             item->setData(Qt::DecorationRole,
                     QPixmap(":/images/Icons/blank.png"));
         }
-
     }
 }
 
@@ -275,7 +273,7 @@ void SkDebuggerGUI::toggleDirectory() {
 }
 
 void SkDebuggerGUI::toggleFilter(QString string) {
-    for(int row=0; row<fListWidget->count(); row++) {
+    for (int row = 0; row < fListWidget->count(); row++) {
         QListWidgetItem *item = fListWidget->item(row);
         if (item->text() == string) {
             item->setHidden(false);
@@ -287,89 +285,102 @@ void SkDebuggerGUI::toggleFilter(QString string) {
 
 void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     QIcon windowIcon;
-    windowIcon.addFile(QString::fromUtf8(":/images/Icons/skia.png"), QSize(), QIcon::Normal, QIcon::Off);
+    windowIcon.addFile(QString::fromUtf8(":/images/Icons/skia.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     SkDebuggerGUI->setObjectName(QString::fromUtf8("SkDebuggerGUI"));
     SkDebuggerGUI->resize(1200, 1000);
     SkDebuggerGUI->setWindowIcon(windowIcon);
 
     QIcon open;
-    open.addFile(QString::fromUtf8(":/images/Icons/package-br32.png"), QSize(), QIcon::Normal, QIcon::Off);
+    open.addFile(QString::fromUtf8(":/images/Icons/package-br32.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionOpen = new QAction(SkDebuggerGUI);
     fActionOpen->setObjectName(QString::fromUtf8("actionOpen"));
     fActionOpen->setIcon(open);
 
     QIcon directory;
-    directory.addFile(QString::fromUtf8(":/images/Icons/drawer-open-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+    directory.addFile(QString::fromUtf8(":/images/Icons/drawer-open-icon.png"),
+            QSize(), QIcon::Normal, QIcon::Off);
     fActionDirectory = new QAction(SkDebuggerGUI);
     fActionDirectory->setObjectName(QString::fromUtf8("actionDirectory"));
     fActionDirectory->setIcon(directory);
     fActionDirectory->setText("Toggle Directory");
 
     QIcon rewind;
-    rewind.addFile(QString::fromUtf8(":/images/Icons/rewind.png"), QSize(), QIcon::Normal, QIcon::Off);
+    rewind.addFile(QString::fromUtf8(":/images/Icons/rewind.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionRewind = new QAction(SkDebuggerGUI);
     fActionRewind->setObjectName(QString::fromUtf8("actionRewind"));
     fActionRewind->setIcon(rewind);
     fActionRewind->setText("Rewind");
 
     QIcon stepBack;
-    stepBack.addFile(QString::fromUtf8(":/images/Icons/back.png"), QSize(), QIcon::Normal, QIcon::Off);
+    stepBack.addFile(QString::fromUtf8(":/images/Icons/back.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionStepBack = new QAction(SkDebuggerGUI);
     fActionStepBack->setObjectName(QString::fromUtf8("actionStepBack"));
     fActionStepBack->setIcon(stepBack);
     fActionStepBack->setText("Step Back");
 
     QIcon stepForward;
-    stepForward.addFile(QString::fromUtf8(":/images/Icons/go-next.png"), QSize(), QIcon::Normal, QIcon::Off);
+    stepForward.addFile(QString::fromUtf8(":/images/Icons/go-next.png"),
+            QSize(), QIcon::Normal, QIcon::Off);
     fActionStepForward = new QAction(SkDebuggerGUI);
     fActionStepForward->setObjectName(QString::fromUtf8("actionStepBack"));
     fActionStepForward->setIcon(stepForward);
     fActionStepForward->setText("Step Forward");
 
     QIcon play;
-    play.addFile(QString::fromUtf8(":/images/Icons/play.png"), QSize(), QIcon::Normal, QIcon::Off);
+    play.addFile(QString::fromUtf8(":/images/Icons/play.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionPlay = new QAction(SkDebuggerGUI);
     fActionPlay->setObjectName(QString::fromUtf8("actionPlay"));
     fActionPlay->setIcon(play);
     fActionPlay->setText("Play");
 
     QIcon breakpoint;
-    breakpoint.addFile(QString::fromUtf8(":/images/Icons/breakpoint.png"), QSize(), QIcon::Normal, QIcon::Off);
+    breakpoint.addFile(QString::fromUtf8(":/images/Icons/breakpoint.png"),
+            QSize(), QIcon::Normal, QIcon::Off);
     fActionBreakpoint = new QAction(SkDebuggerGUI);
     fActionBreakpoint->setObjectName(QString::fromUtf8("actionBreakpoint"));
     fActionBreakpoint->setIcon(breakpoint);
     fActionBreakpoint->setText("Show Breakpoints");
 
     QIcon inspector;
-    inspector.addFile(QString::fromUtf8(":/images/Icons/inspector.png"), QSize(), QIcon::Normal, QIcon::Off);
+    inspector.addFile(QString::fromUtf8(":/images/Icons/inspector.png"),
+            QSize(), QIcon::Normal, QIcon::Off);
     fActionInspector = new QAction(SkDebuggerGUI);
     fActionInspector->setObjectName(QString::fromUtf8("actionInspector"));
     fActionInspector->setIcon(inspector);
     fActionInspector->setText("Inspector");
 
     QIcon deleteIcon;
-    deleteIcon.addFile(QString::fromUtf8(":/images/Icons/delete.png"), QSize(), QIcon::Normal, QIcon::Off);
+    deleteIcon.addFile(QString::fromUtf8(":/images/Icons/delete.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionDelete = new QAction(SkDebuggerGUI);
     fActionDelete->setObjectName(QString::fromUtf8("actionDelete"));
     fActionDelete->setIcon(deleteIcon);
     fActionDelete->setText("Delete Command");
 
     QIcon reload;
-    reload.addFile(QString::fromUtf8(":/images/Icons/reload.png"), QSize(), QIcon::Normal, QIcon::Off);
+    reload.addFile(QString::fromUtf8(":/images/Icons/reload.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionReload = new QAction(SkDebuggerGUI);
     fActionReload->setObjectName(QString::fromUtf8("actionReload"));
     fActionReload->setIcon(reload);
     fActionReload->setText("Reset Picture");
 
     QIcon settings;
-    settings.addFile(QString::fromUtf8(":/images/Icons/settings.png"), QSize(), QIcon::Normal, QIcon::Off);
+    settings.addFile(QString::fromUtf8(":/images/Icons/settings.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionSettings = new QAction(SkDebuggerGUI);
     fActionSettings->setObjectName(QString::fromUtf8("actionSettings"));
     fActionSettings->setIcon(settings);
     fActionSettings->setText("Settings");
 
     QIcon cancel;
-    cancel.addFile(QString::fromUtf8(":/images/Icons/reset.png"), QSize(), QIcon::Normal, QIcon::Off);
+    cancel.addFile(QString::fromUtf8(":/images/Icons/reset.png"), QSize(),
+            QIcon::Normal, QIcon::Off);
     fActionCancel = new QAction(SkDebuggerGUI);
     fActionCancel->setObjectName(QString::fromUtf8("actionCancel"));
     fActionCancel->setIcon(cancel);
@@ -398,7 +409,8 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fInspectorWidget = new SkInspectorWidget();
     fInspectorWidget->setObjectName(QString::fromUtf8("inspectorWidget"));
-    fInspectorWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    fInspectorWidget->setSizePolicy(QSizePolicy::Expanding,
+            QSizePolicy::Expanding);
     fInspectorWidget->setMaximumHeight(300);
 
     fFilter = new QComboBox(fCentralWidget);
@@ -414,10 +426,12 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fVerticalLayout_2->addWidget(fDirectoryWidget);
 
     fCanvasWidget = new SkCanvasWidget(fCentralWidget);
-    fCanvasWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    fCanvasWidget->setSizePolicy(QSizePolicy::Expanding,
+            QSizePolicy::Expanding);
 
     fSettingsWidget = new SkSettingsWidget(fCentralWidget);
-    fSettingsWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    fSettingsWidget->setSizePolicy(QSizePolicy::Expanding,
+            QSizePolicy::Expanding);
     fSettingsWidget->setMaximumWidth(250);
     fSettingsWidget->setHidden(true);
 
@@ -468,7 +482,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     // TODO(chudy): Remove static call.
     fDirectoryWidgetActive = false;
-    fPath= "/usr/local/google/home/chudy/trunk-linux/debugger/skp";
+    fPath = "/usr/local/google/home/chudy/trunk-linux/debugger/skp";
     setupDirectoryWidget();
     fDirectoryWidgetActive = true;
 
@@ -484,15 +498,6 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fMenuFile->addAction(fActionOpen);
     fMenuFile->addAction(fActionClose);
 
-    // View
-    fMenuView = new QMenu(SkDebuggerGUI);
-    fMenuView->setTitle("View");
-
-    fActionToggleCurrentCommand = new QAction(SkDebuggerGUI);
-    fActionToggleCurrentCommand->setText("Show Filter");
-
-    fMenuView->addAction(fActionToggleCurrentCommand);
-
     // Navigate
     fMenuNavigate = new QMenu(SkDebuggerGUI);
     fMenuNavigate->setTitle("Navigate");
@@ -505,8 +510,9 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     // Menu Bar
     fMenuBar->addAction(fMenuFile->menuAction());
-    fMenuBar->addAction(fMenuView->menuAction());
     fMenuBar->addAction(fMenuNavigate->menuAction());
+
+    fPause = false;
 
     SkDebuggerGUI->setMenuBar(fMenuBar);
 
@@ -520,20 +526,36 @@ void SkDebuggerGUI::setupDirectoryWidget() {
     fDirectoryWidget->clear();
     const QStringList files = fDir->entryList();
     foreach (QString f, files) {
-        if (f.contains(r)) fDirectoryWidget->addItem(f);
+        if (f.contains(r))
+            fDirectoryWidget->addItem(f);
     }
 }
 
 // TODO(chudy): Is this necessary?
 void SkDebuggerGUI::retranslateUi(QMainWindow *SkDebuggerGUI) {
-    SkDebuggerGUI->setWindowTitle(QApplication::translate("SkDebuggerGUI", "SkDebuggerGUI", 0, QApplication::UnicodeUTF8));
-    fActionOpen->setText(QApplication::translate("SkDebuggerGUI", "Open", 0, QApplication::UnicodeUTF8));
-    fToolBar->setWindowTitle(QApplication::translate("SkDebuggerGUI", "toolBar", 0, QApplication::UnicodeUTF8));
+    SkDebuggerGUI->setWindowTitle(
+            QApplication::translate("SkDebuggerGUI", "SkDebuggerGUI", 0,
+                    QApplication::UnicodeUTF8));
+    fActionOpen->setText(
+            QApplication::translate("SkDebuggerGUI", "Open", 0,
+                    QApplication::UnicodeUTF8));
+    fToolBar->setWindowTitle(
+            QApplication::translate("SkDebuggerGUI", "toolBar", 0,
+                    QApplication::UnicodeUTF8));
 }
 
 void SkDebuggerGUI::loadPicture(QString fileName) {
     fCanvasWidget->loadPicture(fileName);
     std::vector<std::string> *cv = fCanvasWidget->getDrawCommands();
+    /* fDebugCanvas is reinitialized every load picture. Need it to retain value
+     * of the visibility filter. */
+    actionCommandFilter();
+
+    fCanvasWidget->toggleCurrentCommandFilter(fSettingsWidget->getVisibilityButton()->isChecked());
+
+
+
+
     setupListWidget(cv);
     setupComboBox(cv);
 }
@@ -561,12 +583,13 @@ void SkDebuggerGUI::setupComboBox(std::vector<std::string>* cv) {
 
     QString overview;
     int counter;
-    for(std::map<std::string, int>::iterator it = map.begin(); it != map.end(); ++it) {
+    for (std::map<std::string, int>::iterator it = map.begin(); it != map.end();
+            ++it) {
         overview.append((it->first).c_str());
         overview.append(": ");
         overview.append(QString::number(it->second));
         overview.append("<br/>");
-        counter+=it->second;
+        counter += it->second;
         fFilter->addItem((it->first).c_str());
     }
     QString total;
@@ -586,8 +609,8 @@ void SkDebuggerGUI::setupComboBox(std::vector<std::string>* cv) {
     fInspectorWidget->setOverviewText(overview);
 
     // NOTE(chudy): Makes first item unselectable.
-    QStandardItemModel* model =
-            qobject_cast<QStandardItemModel*>(fFilter->model());
+    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(
+            fFilter->model());
     QModelIndex firstIndex = model->index(0, fFilter->modelColumn(),
             fFilter->rootModelIndex());
     QStandardItem* firstItem = model->itemFromIndex(firstIndex);
