@@ -156,16 +156,11 @@ public:
 
     static int Compare(const SkFlatData* a, const SkFlatData* b) {
         size_t bytesToCompare = sizeof(a->fChecksum) + a->fAllocSize;
-#if SK_PREFER_32BIT_CHECKSUM
-        typedef uint32_t CompareType;
         SkASSERT(SkIsAlign4(bytesToCompare));
-#else
-        typedef uint64_t CompareType;
-        SkASSERT(SkIsAlign8(bytesToCompare));
-#endif
-        const CompareType* a_ptr = &(a->fChecksum);
-        const CompareType* b_ptr = &(b->fChecksum);
-        const CompareType* stop = a_ptr + bytesToCompare / sizeof(CompareType);
+
+        const uint32_t* a_ptr = &(a->fChecksum);
+        const uint32_t* b_ptr = &(b->fChecksum);
+        const uint32_t* stop = a_ptr + bytesToCompare / sizeof(uint32_t);
         while(a_ptr < stop) {
             if (*a_ptr != *b_ptr) {
                 return (*a_ptr < *b_ptr) ? -1 : 1;
@@ -178,6 +173,8 @@ public:
     
     int index() const { return fIndex; }
     void* data() const { return (char*)this + sizeof(*this); }
+    // We guarantee that our data is 32bit aligned
+    uint32_t* data32() const { return (uint32_t*)this->data(); }
     
 #ifdef SK_DEBUG_SIZE
     size_t size() const { return sizeof(SkFlatData) + fAllocSize; }
@@ -199,11 +196,7 @@ private:
     int fIndex;
     int32_t fAllocSize;
     // fChecksum must be defined last in order to be contiguous with data()
-#if SK_PREFER_32BIT_CHECKSUM
     uint32_t fChecksum;
-#else
-    uint64_t fChecksum;
-#endif
 };
 
 template <class T>
