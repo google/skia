@@ -109,24 +109,35 @@
  *  On non-intel CPU this should be undefined.
  */
 
+#define SK_CPU_SSE_LEVEL_SSE1     10
 #define SK_CPU_SSE_LEVEL_SSE2     20
 #define SK_CPU_SSE_LEVEL_SSE3     30
 #define SK_CPU_SSE_LEVEL_SSSE3    31
 
 // Are we in GCC?
 #ifndef SK_CPU_SSE_LEVEL
-    #if defined(__SSSE3__)
+    #if defined(__SSE2__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
     #elif defined(__SSE3__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE3
-    #elif defined(__SSE2__)
+    #elif defined(__SSSE3__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSSE3
     #endif
 #endif
 
 // Are we in VisualStudio?
 #ifndef SK_CPU_SSE_LEVEL
-    #if _M_IX86_FP == 2
+    #if _M_IX86_FP == 1
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE1
+    #elif _M_IX86_FP >= 2
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
+    #endif
+#endif
+
+// 64bit intel guarantees at least SSE2
+#if defined(__x86_64__) || defined(_WIN64)
+    #if !defined(SK_CPU_SSE_LEVEL) || (SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE2)
+        #undef SK_CPU_SSE_LEVEL
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
     #endif
 #endif
