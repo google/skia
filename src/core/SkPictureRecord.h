@@ -107,6 +107,10 @@ private:
         } 
     };
 
+    void recordRestoreOffsetPlaceholder(SkRegion::Op);
+    void fillRestoreOffsetPlaceholdersForCurrentStackLevel(
+        uint32_t restoreOffset);
+
     SkTDArray<uint32_t> fRestoreOffsetStack;
     int fFirstSavedLayerIndex;
     enum {
@@ -197,9 +201,6 @@ private:
     SkRefCntSet fTFSet;
 
     uint32_t fRecordFlags;
-
-    // helper function to handle save/restore culling offsets
-    void recordOffsetForRestore(SkRegion::Op op);
 
     friend class SkPicturePlayback;
     friend class SkPictureTester; // for unit testing
