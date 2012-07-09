@@ -31,7 +31,7 @@ SkCanvasWidget::SkCanvasWidget(QWidget *parent) :
     fCanvas = new SkCanvas(fDevice);
     fDebugCanvas = new SkDebugCanvas();
 
-    fScaleFactor = 1;
+    fScaleFactor = 1.0;
     fIndex = 0;
     fPreviousPoint.set(0,0);
     fTransform.set(0,0);
@@ -55,7 +55,7 @@ void SkCanvasWidget::resizeEvent(QResizeEvent* event) {
 
     fDevice = new SkDevice(fBitmap);
     fCanvas = new SkCanvas(fDevice);
-    fDebugCanvas->drawTo(fCanvas, fIndex);
+    drawTo(fIndex);
     this->update();
 }
 
@@ -70,6 +70,7 @@ void SkCanvasWidget::drawTo(int fIndex) {
         fCanvas->scale(fScaleFactor, fScaleFactor);
     }
 
+    emit commandChanged(fIndex);
     fDebugCanvas->drawTo(fCanvas, fIndex+1);
     this->update();
     this->fIndex = fIndex;
@@ -119,7 +120,7 @@ void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
     fPreviousPoint = eventPoint;
 
     // TODO(chudy): Fix and remove +1 from drawTo calls.
-    drawTo(fIndex+1);
+    drawTo(fIndex);
     this->update();
 }
 
@@ -129,8 +130,9 @@ void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
 
 void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {
     fTransform.set(0,0);
-    fScaleFactor = 0;
-    drawTo(fIndex+1);
+    fScaleFactor = 1.0;
+    emit scaleFactorChanged(fScaleFactor);
+    drawTo(fIndex);
     this->update();
 }
 
@@ -160,7 +162,9 @@ void SkCanvasWidget::wheelEvent(QWheelEvent* event) {
         fScaleFactor += (event->delta()/120) * 2;
     }
 
+    emit scaleFactorChanged(fScaleFactor);
+
     // TODO(chudy): Fix and remove +1 from drawTo calls.
-    drawTo(fIndex+1);
+    drawTo(fIndex);
     this->update();
 }
