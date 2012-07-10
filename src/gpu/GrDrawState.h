@@ -225,14 +225,19 @@ public:
         }
         return true;
     }
+
+    void disableStage(int index) {
+        GrSafeSetNull(fTextures[index]);
+        fSamplerStates[index].setCustomStage(NULL);
+    }
+
     /**
      * Release all the textures and custom stages referred to by this
      * draw state.
      */
     void disableStages() {
         for (int i = 0; i < kNumStages; ++i) {
-            GrSafeSetNull(fTextures[i]);
-            fSamplerStates[i].setCustomStage(NULL);
+            this->disableStage(i);
         }
     }
 
