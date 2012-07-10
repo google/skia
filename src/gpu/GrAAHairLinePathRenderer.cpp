@@ -255,7 +255,7 @@ int generate_lines_and_quads(const SkPath& path,
                         totalQuadCount += 1 << subdiv;
                     }
                 }
-            break;
+                break;
             case kCubic_PathCmd:
                 SkPoint::Offset(pts, 4, translate);
                 m.mapPoints(devPts, pts, 4);
@@ -264,15 +264,17 @@ int generate_lines_and_quads(const SkPath& path,
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(clip, ibounds)) {
                     PREALLOC_PTARRAY(32) q;
+                    // we don't need a direction if we aren't constraining the subdivision
+                    static const SkPath::Direction kDummyDir = SkPath::kCCW_Direction;
                     // We convert cubics to quadratics (for now).
                     // In perspective have to do conversion in src space.
                     if (persp) {
                         SkScalar tolScale = 
                             GrPathUtils::scaleToleranceToSrc(SK_Scalar1, m,
                                                              path.getBounds());
-                        GrPathUtils::convertCubicToQuads(pts, tolScale, &q);
+                        GrPathUtils::convertCubicToQuads(pts, tolScale, false, kDummyDir, &q);
                     } else {
-                        GrPathUtils::convertCubicToQuads(devPts, SK_Scalar1, &q);
+                        GrPathUtils::convertCubicToQuads(devPts, SK_Scalar1, false, kDummyDir, &q);
                     }
                     for (int i = 0; i < q.count(); i += 3) {
                         SkPoint* qInDevSpace;
@@ -311,7 +313,7 @@ int generate_lines_and_quads(const SkPath& path,
                         }
                     }
                 }
-            break;
+                break;
             case kClose_PathCmd:
                 break;
             case kEnd_PathCmd:
