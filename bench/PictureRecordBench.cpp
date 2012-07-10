@@ -10,6 +10,7 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPoint.h"
+#include "SkRandom.h"
 #include "SkRect.h"
 #include "SkString.h"
 
@@ -141,10 +142,10 @@ public:
 protected:
     virtual float innerLoopScale() const SK_OVERRIDE { return 0.1f; }
     virtual void recordCanvas(SkCanvas* canvas) {
-
+        SkRandom rand;
         for (int i = 0; i < M; i++) {
             SkPaint paint;
-            paint.setColor(i);
+            paint.setColor(rand.nextU());
             canvas->drawPaint(paint);
         }
     }
