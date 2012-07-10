@@ -16,13 +16,13 @@
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
     SkAutoDataUnref data(stream.copyToData());
-    if (offset + len > data.size()) {
+    if (offset + len > data->size()) {
         return false;
     }
     if (len != strlen(buffer)) {
         return false;
     }
-    return memcmp(data.bytes() + offset, buffer, len) == 0;
+    return memcmp(data->bytes() + offset, buffer, len) == 0;
 }
 
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,

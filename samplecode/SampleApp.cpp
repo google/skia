@@ -1312,7 +1312,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             fPicture->unref();
 
             SkAutoDataUnref data(ostream.copyToData());
-            SkMemoryStream istream(data.data(), data.size());
+            SkMemoryStream istream(data->data(), data->size());
             SkPicture pict(&istream);
             orig->drawPicture(pict);
         } else {

@@ -540,7 +540,7 @@ bool GrDrawTarget::reserveIndexSpace(int indexCount,
 }
 
 bool GrDrawTarget::StageUsesTexCoords(GrVertexLayout layout, int stage) {
-    return layout & gStageTexCoordMasks[stage];
+    return SkToBool(layout & gStageTexCoordMasks[stage]);
 }
 
 bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,

@@ -72,14 +72,16 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
     inputSize = testStream->getLength();
     if (inputSize == 0)
         inputSize = testStream->read(NULL, SkZeroSizeMemStream::kGetSizeKey);
-    REPORTER_ASSERT(reporter, data1.size() == inputSize);
+    REPORTER_ASSERT(reporter, data1->size() == inputSize);
     REPORTER_ASSERT(reporter, memcmp(testStream->getMemoryBase(),
-                                     data1.data(), data1.size()) == 0);
+                                     data1->data(), 
+                                     data1->size()) == 0);
 
     // Check that the uncompressed data matches the source data.
     SkAutoDataUnref data2(uncompressed.copyToData());
     REPORTER_ASSERT(reporter, testData.getLength() == uncompressed.getOffset());
-    REPORTER_ASSERT(reporter, memcmp(testData.getMemoryBase(), data2.data(),
+    REPORTER_ASSERT(reporter, memcmp(testData.getMemoryBase(), 
+                                     data2->data(),
                                      testData.getLength()) == 0);
 }
 

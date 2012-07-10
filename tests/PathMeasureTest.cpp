@@ -152,14 +152,14 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, position.fY == 0);
     REPORTER_ASSERT(reporter, tangent.fX == SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
-    REPORTER_ASSERT(reporter, meas.getPosTan(SK_Scalar1 * 2.5f, &position, &tangent));
+    REPORTER_ASSERT(reporter, meas.getPosTan(SkFloatToScalar(2.5f), &position, &tangent));
     REPORTER_ASSERT(reporter,
         SkScalarNearlyEqual(position.fX, SK_Scalar1, SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fY, SK_Scalar1 * 1.5f));
+        SkScalarNearlyEqual(position.fY, SkFloatToScalar(1.5f)));
     REPORTER_ASSERT(reporter, tangent.fX == 0);
     REPORTER_ASSERT(reporter, tangent.fY == SK_Scalar1);
-    REPORTER_ASSERT(reporter, meas.getPosTan(SK_Scalar1 * 4.5f, &position, &tangent));
+    REPORTER_ASSERT(reporter, meas.getPosTan(SkFloatToScalar(4.5f), &position, &tangent));
     REPORTER_ASSERT(reporter,
         SkScalarNearlyEqual(position.fX, 
                             SkFloatToScalar(2.5f), 
