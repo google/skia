@@ -321,7 +321,7 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info) {
         function.append(" add\n");
 
         // if r(t) < 0, then it's outside the cone
-        function.append("0 lt {clear false} {true} ifelse\n");
+        function.append("0 lt {pop false} {true} ifelse\n");
 
     } else {
 
@@ -368,11 +368,11 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info) {
         function.append(" add\n");
 
         // if r(t) < 0, push false, otherwise the smaller root is our t
-        function.append("0 le {clear false} {true} ifelse\n");
+        function.append("0 le {pop false} {true} ifelse\n");
         function.append("} ifelse\n");
 
         // d < 0, clear the stack and push false
-        function.append("} {clear false} ifelse\n");
+        function.append("} {pop pop pop false} ifelse\n");
     }
 
     // if the pixel is in the cone, proceed to compute a color
