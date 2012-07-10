@@ -79,16 +79,24 @@ SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
 
     flattenProc(buffer, obj);
     uint32_t size = buffer.size();
+    SkASSERT(SkIsAlign4(size));
 
-    // allocate enough memory to hold both SkFlatData and the serialized
-    // contents
-    SkFlatData* result = (SkFlatData*) heap->allocThrow(size + sizeof(SkFlatData));
+    /**
+     *  Allocate enough memory to hold
+     *  1. SkFlatData struct
+     *  2. flattenProc's data (4-byte aligned)
+     *  3. 4-byte sentinel
+     */
+    size_t allocSize = sizeof(SkFlatData) + size + sizeof(uint32_t);
+    SkFlatData* result = (SkFlatData*) heap->allocThrow(allocSize);
+
     result->fIndex = index;
-    result->fAllocSize = size;
+    result->fFlatSize = size;
 
     // put the serialized contents into the data section of the new allocation
     buffer.flatten(result->data());
     result->fChecksum = SkChecksum::Compute(result->data32(), size);
+    result->setSentinelAsCandidate();
     return result;
 }
 
@@ -97,7 +105,7 @@ void SkFlatData::unflatten(void* result,
         SkRefCntPlayback* refCntPlayback,
         SkTypefacePlayback* facePlayback) const {
 
-    SkOrderedReadBuffer buffer(this->data(), fAllocSize);
+    SkOrderedReadBuffer buffer(this->data(), fFlatSize);
     if (refCntPlayback) {
         refCntPlayback->setupBuffer(buffer);
     }
@@ -105,5 +113,5 @@ void SkFlatData::unflatten(void* result,
         facePlayback->setupBuffer(buffer);
     }
     unflattenProc(buffer, result);
-    SkASSERT(fAllocSize == (int32_t)buffer.offset());
+    SkASSERT(fFlatSize == (int32_t)buffer.offset());
 }
