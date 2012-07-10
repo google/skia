@@ -38,10 +38,10 @@ private:
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const void* buffer, size_t len) {
     SkAutoDataUnref data(stream.copyToData());
-    if (offset + len > data.size()) {
+    if (offset + len > data->size()) {
         return false;
     }
-    return memcmp(data.bytes() + offset, buffer, len) == 0;
+    return memcmp(data->bytes() + offset, buffer, len) == 0;
 }
 
 static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
@@ -128,19 +128,19 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         expectedResult1.writeText("\nendstream");
         SkAutoDataUnref expectedResultData1(expectedResult1.copyToData());
         CheckObjectOutput(reporter, stream.get(),
-                          (const char*) expectedResultData1.data(),
-                          expectedResultData1.size(), true, false);
+                          (const char*) expectedResultData1->data(),
+                          expectedResultData1->size(), true, false);
 
         // Then again with compression.
         SkDynamicMemoryWStream expectedResult2;
         expectedResult2.writeText("<</Filter /FlateDecode\n/Length 116\n"
                                  ">> stream\n");
-        expectedResult2.write(compressedData.data(), compressedData.size());
+        expectedResult2.write(compressedData->data(), compressedData->size());
         expectedResult2.writeText("\nendstream");
         SkAutoDataUnref expectedResultData2(expectedResult2.copyToData());
         CheckObjectOutput(reporter, stream.get(),
-                          (const char*) expectedResultData2.data(),
-                          expectedResultData2.size(), true, true);
+                          (const char*) expectedResultData2->data(),
+                          expectedResultData2->size(), true, true);
     }
 }
 

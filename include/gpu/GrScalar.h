@@ -36,7 +36,7 @@
 #define GrScalarMul(a,b)    SkScalarMul(a,b)
 #define GrScalarDiv(a,b)    SkScalarDiv(a, b)
 #define GrScalarToFloat(a)  SkScalarToFloat(a)
-#define GrFloatToScalar(a)  SkScalarToFloat(a)
+#define GrFloatToScalar(a)  SkFloatToScalar(a)
 #define GrIntToScalar(a)    SkIntToScalar(a)
 #define GrScalarAbs(a)      SkScalarAbs(a)
 #define GrScalarIsInt(a)    SkScalarIsInt(a)

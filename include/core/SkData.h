@@ -108,7 +108,14 @@ private:
     size_t      fSize;
 
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
-    ~SkData();
+    virtual ~SkData();
+
+    // This is here because SkAutoTUnref creates an internal helper class
+    // that derives from SkData (i.e., BlockRef) to prevent refs\unrefs.
+    // This helper class generates a compiler warning on Windows since the 
+    // SkData's destructor is private. This friending gives the helper class
+    // access to the destructor.
+    friend class SkAutoTUnref<SkData>::BlockRef<SkData>; 
 
     typedef SkRefCnt INHERITED;
 };
@@ -119,39 +126,25 @@ private:
  */
 class SkAutoDataUnref : SkNoncopyable {
 public:
-    SkAutoDataUnref(SkData* data) : fRef(data) {
-        if (data) {
-            fData = data->data();
-            fSize = data->size();
-        } else {
-            fData = NULL;
-            fSize = 0;
-        }
-    }
+    SkAutoDataUnref(SkData* data) : fRef(data) {}
     ~SkAutoDataUnref() {
         SkSafeUnref(fRef);
     }
 
-    const void* data() const { return fData; }
-    const uint8_t* bytes() const {
-        return reinterpret_cast<const uint8_t*> (fData);
-    }
-    size_t size() const { return fSize; }
     SkData* get() const { return fRef; }
 
     void release() {
         if (fRef) {
             fRef->unref();
             fRef = NULL;
-            fData = NULL;
-            fSize = 0;
         }
     }
 
+    SkData *operator->() const { return fRef; }
+    operator SkData*() { return fRef; }
+
 private:
     SkData*     fRef;
-    const void* fData;
-    size_t      fSize;
 };
 
 #endif

@@ -199,12 +199,16 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
     //                           [0  0   1]
     //                           [1  1   1]
     // We invert the control pt matrix and post concat to both sides to get M.
-    UVpts.setAll(0,   0.5f,  1.f,
-                 0,   0,     1.f,
-                 1.f, 1.f,   1.f);
+    UVpts.setAll(0,   GR_ScalarHalf,  GR_Scalar1,
+                 0,               0,  GR_Scalar1,
+                 SkScalarToPersp(GR_Scalar1), 
+                 SkScalarToPersp(GR_Scalar1), 
+                 SkScalarToPersp(GR_Scalar1));
     m.setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
              qPts[0].fY, qPts[1].fY, qPts[2].fY,
-             1.f,        1.f,        1.f);
+             SkScalarToPersp(GR_Scalar1), 
+             SkScalarToPersp(GR_Scalar1), 
+             SkScalarToPersp(GR_Scalar1));
     if (!m.invert(&m)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
         // farthest apart to compute a line (unless it is really a pt).
@@ -247,7 +251,7 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
         m.postConcat(UVpts);
 
         // The matrix should not have perspective.
-        static const GrScalar gTOL = 1.f / 100.f;
+        static const GrScalar gTOL = GrFloatToScalar(1.f / 100.f);
         GrAssert(GrScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
         GrAssert(GrScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
 

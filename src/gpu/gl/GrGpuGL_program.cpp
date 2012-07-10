@@ -119,7 +119,7 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
             // and perform a y-flip.
             GrMatrix m;
             m.setScale(GrIntToScalar(2) / rt->width(), GrIntToScalar(-2) / rt->height());
-            m.postTranslate(-1.f , 1.f);
+            m.postTranslate(-GR_Scalar1, GR_Scalar1);
             m.preConcat(vm);
 
             // GL wants a column-major 4x4.

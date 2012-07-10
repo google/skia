@@ -750,7 +750,7 @@ scalarCommon:
         decompile(data.bytes(), data.size());
 #endif
         SkScriptRuntime runtime(fCallBackArray);
-        runtime.executeTokens((unsigned char*) data.bytes());
+        runtime.executeTokens((unsigned char*) data->bytes());
         SkScriptValue2 value1;
         runtime.getResult(&value1.fOperand);
         value1.fType = fReturnType;
@@ -1158,7 +1158,7 @@ bool SkScriptEngine2::processOp() {
         decompile(data.bytes(), data.size());
 #endif
         SkScriptRuntime runtime(fCallBackArray);
-        runtime.executeTokens((unsigned char*)data.bytes());
+        runtime.executeTokens((unsigned char*)data->bytes());
         runtime.getResult(&value1.fOperand);
         if (attributes->fResultIsBoolean == kResultIsBoolean)
             value1.fType = SkOperand2::kS32;

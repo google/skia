@@ -85,7 +85,8 @@ struct TileInfo {
 };
 
 static void clip_tile(SkPicture* picture, const TileInfo& tile) {
-    SkRect clip = SkRect::MakeWH(picture->width(), picture->height());
+    SkRect clip = SkRect::MakeWH(SkIntToScalar(picture->width()), 
+                                 SkIntToScalar(picture->height()));
     tile.fCanvas->clipRect(clip);
 }
 
@@ -98,7 +99,8 @@ static void setup_single_tile(SkPicture* picture, const SkBitmap& bitmap,
                                      options.fTileWidth, options.fTileHeight);
     bitmap.extractSubset(tile.fBitmap, rect);
     tile.fCanvas = new SkCanvas(*(tile.fBitmap));
-    tile.fCanvas->translate(-tile_x_start, -tile_y_start);
+    tile.fCanvas->translate(SkIntToScalar(-tile_x_start), 
+                            SkIntToScalar(-tile_y_start));
 
     clip_tile(picture, tile);
 }
