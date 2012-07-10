@@ -511,6 +511,10 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter,
 // the privates members of SkPictureRecord
 class SkPictureTester {
 private:
+    static int EQ(const SkFlatData* a, const SkFlatData* b) {
+        return *a == *b;
+    }
+
     static void AssertFlattenedObjectsEqual(
         SkPictureRecord* referenceRecord,
         SkPictureRecord* testRecord,
@@ -522,16 +526,15 @@ private:
             testRecord->fBitmaps.count(), testStep->assertMessage());
         for (int i = 0; i < referenceRecord->fBitmaps.count(); ++i) {
             REPORTER_ASSERT_MESSAGE(reporter,
-                SkFlatData::Compare(referenceRecord->fBitmaps[i],
-                testRecord->fBitmaps[i]) == 0, testStep->assertMessage());
+                EQ(referenceRecord->fBitmaps[i], testRecord->fBitmaps[i]),
+                                    testStep->assertMessage());
         }
         REPORTER_ASSERT_MESSAGE(reporter,
             referenceRecord->fMatrices.count() ==
             testRecord->fMatrices.count(), testStep->assertMessage());
         for (int i = 0; i < referenceRecord->fMatrices.count(); ++i) {
             REPORTER_ASSERT_MESSAGE(reporter,
-                SkFlatData::Compare(referenceRecord->fMatrices[i],
-                testRecord->fMatrices[i]) == 0,
+                EQ(referenceRecord->fMatrices[i], testRecord->fMatrices[i]),
                 testStep->assertMessage());
         }
         REPORTER_ASSERT_MESSAGE(reporter,
@@ -539,16 +542,16 @@ private:
             testRecord->fPaints.count(), testStep->assertMessage());
         for (int i = 0; i < referenceRecord->fPaints.count(); ++i) {
             REPORTER_ASSERT_MESSAGE(reporter,
-                SkFlatData::Compare(referenceRecord->fPaints[i],
-                testRecord->fPaints[i]) == 0, testStep->assertMessage());
+                EQ(referenceRecord->fPaints[i], testRecord->fPaints[i]),
+                                    testStep->assertMessage());
         }
         REPORTER_ASSERT_MESSAGE(reporter,
             referenceRecord->fRegions.count() ==
             testRecord->fRegions.count(), testStep->assertMessage());
         for (int i = 0; i < referenceRecord->fRegions.count(); ++i) {
             REPORTER_ASSERT_MESSAGE(reporter,
-                SkFlatData::Compare(referenceRecord->fRegions[i],
-                testRecord->fRegions[i]) == 0, testStep->assertMessage());
+                EQ(referenceRecord->fRegions[i], testRecord->fRegions[i]),
+                                    testStep->assertMessage());
         }
         REPORTER_ASSERT_MESSAGE(reporter,
             !referenceRecord->fPathHeap ==

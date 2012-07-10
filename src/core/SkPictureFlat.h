@@ -8,6 +8,8 @@
 #ifndef SkPictureFlat_DEFINED
 #define SkPictureFlat_DEFINED
 
+//#define SK_DEBUG_SIZE
+
 #include "SkChunkAlloc.h"
 #include "SkBitmap.h"
 #include "SkOrderedReadBuffer.h"
@@ -153,22 +155,36 @@ private:
 
 class SkFlatData {
 public:
-
+    /**
+     *  Compare two SkFlatData ptrs, returning -1, 0, 1 to allow them to be
+     *  sorted.
+     *
+     *  Note: this assumes that a and b have different sentinel values, either
+     *  InCache or AsCandidate, otherwise the loop will go beyond the end of
+     *  the buffers.
+     *
+     *  dataToCompare() returns 2 fields before the flattened data:
+     *      - checksum
+     *      - size
+     *  This ensures that if we see two blocks of different length, we will
+     *  notice that right away, and not read any further. It also ensures that
+     *  we see the checksum right away, so that most of the time it is enough
+     *  to short-circuit our comparison.
+     */
     static int Compare(const SkFlatData* a, const SkFlatData* b) {
-        size_t bytes = a->bytesToCompare();
-        SkASSERT(SkIsAlign4(bytes));
+        const uint32_t* stop = a->dataStop();
+        const uint32_t* a_ptr = a->dataToCompare() - 1;
+        const uint32_t* b_ptr = b->dataToCompare() - 1;
+        // We use -1 above, so we can pre-increment our pointers in the loop
+        while (*++a_ptr == *++b_ptr) {}
 
-        const uint32_t* a_ptr = a->dataToCompare();
-        const uint32_t* b_ptr = b->dataToCompare();
-        const uint32_t* stop = a_ptr + bytes / sizeof(uint32_t);
-        while(a_ptr < stop) {
-            if (*a_ptr != *b_ptr) {
-                return (*a_ptr < *b_ptr) ? -1 : 1;
-            }
-            a_ptr++;
-            b_ptr++;
+        if (a_ptr == stop) {    // sentinel
+            SkASSERT(b->dataStop() == b_ptr);
+            return 0;
         }
-        return 0;
+        SkASSERT(a_ptr < a->dataStop());
+        SkASSERT(b_ptr < b->dataStop());
+        return (*a_ptr < *b_ptr) ? -1 : 1;
     }
     
     int index() const { return fIndex; }
@@ -176,9 +192,20 @@ public:
     void* data() { return (char*)this + sizeof(*this); }
     // Our data is always 32bit aligned, so we can offer this accessor
     uint32_t* data32() { return (uint32_t*)this->data(); }
-    
+
+    void setSentinelInCache() {
+        this->setSentinel(kInCache_Sentinel);
+    }
+    void setSentinelAsCandidate() {
+        this->setSentinel(kCandidate_Sentinel);
+    }
+
 #ifdef SK_DEBUG_SIZE
-    size_t size() const { return sizeof(SkFlatData) + fAllocSize; }
+    // returns the logical size of our data. Does not return any sentinel or
+    // padding we might have.
+    size_t size() const {
+        return sizeof(SkFlatData) + fFlatSize;
+    }
 #endif
 
     static SkFlatData* Create(SkChunkAlloc* heap, const void* obj, int index,
@@ -191,20 +218,37 @@ public:
                    SkRefCntPlayback* refCntPlayback = NULL,
                    SkTypefacePlayback* facePlayback = NULL) const;
 
+    // for unittesting
+    friend bool operator==(const SkFlatData& a, const SkFlatData& b) {
+        size_t N = (const char*)a.dataStop() - (const char*)a.dataToCompare();
+        return !memcmp(a.dataToCompare(), b.dataToCompare(), N);
+    }
+
 private:
-    // Data members add-up to 128 bits of storage, so data() is 128-bit
-    // aligned, which helps performance of memcpy in SkWriter32::flatten
     int fIndex;
 
     // From here down is the data we look at in the search/sort. We always begin
     // with the checksum and then length.
     uint32_t fChecksum;
-    int32_t fAllocSize;
-    // uint32_t data[]
+    int32_t  fFlatSize;  // size of flattened data
+    // uint32_t flattenedData[]
+    // uint32_t sentinelValue
 
-    const uint32_t* dataToCompare() const { return &fChecksum; }
-    size_t bytesToCompare() const {
-        return sizeof(fChecksum) + sizeof(fAllocSize) + fAllocSize;
+    const uint32_t* dataToCompare() const {
+        return (const uint32_t*)&fChecksum;
+    }
+    const uint32_t* dataStop() const {
+        SkASSERT(SkIsAlign4(fFlatSize));
+        return (const uint32_t*)((const char*)this->data() + fFlatSize);
+    }
+
+    enum {
+        kInCache_Sentinel = 0,
+        kCandidate_Sentinel = ~0U,
+    };
+    void setSentinel(uint32_t value) {
+        SkASSERT(SkIsAlign4(fFlatSize));
+        this->data32()[fFlatSize >> 2] = value;
     }
 };
 
@@ -235,6 +279,13 @@ public:
     /**
      * Given an element of type T it returns its index in the dictionary. If
      * the element wasn't previously in the dictionary it is automatically added
+     *
+     *  To make the Compare function fast, we write a sentinel value at the end
+     *  of each block. The blocks in our fData[] all have a 0 sentinel. The
+     *  newly created block we're comparing against has a -1 in the sentinel.
+     *
+     *  This trick allows Compare to always loop until failure. If it fails on
+     *  the sentinal value, we know the blocks are equal.
      */
     int find(const T* element, SkRefCntSet* refCntRecorder = NULL,
              SkRefCntSet* faceRecorder = NULL, uint32_t writeBufferflags = 0) {
@@ -242,14 +293,17 @@ public:
             return 0;
         SkFlatData* flat = SkFlatData::Create(fHeap, element, fNextIndex,
                 fFlattenProc, refCntRecorder, faceRecorder, writeBufferflags);
+
         int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
                 fData.count(), flat, sizeof(flat), &SkFlatData::Compare);
         if (index >= 0) {
             (void)fHeap->unalloc(flat);
             return fData[index]->index();
         }
+
         index = ~index;
         *fData.insert(index) = flat;
+        flat->setSentinelInCache();
         SkASSERT(fData.count() == fNextIndex);
         return fNextIndex++;
     }
