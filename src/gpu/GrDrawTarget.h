@@ -192,11 +192,9 @@ public:
     static bool StageUsesTexCoords(GrVertexLayout layout, int stage);
 
 private:
-    static const int TEX_COORD_BIT_CNT = GrDrawState::kNumStages *
-                                         GrDrawState::kMaxTexCoords;
-    static const int STAGE_BIT_CNT = TEX_COORD_BIT_CNT +
-        GrDrawState::kNumStages;
-
+    // non-stage bits start at this index.
+    static const int STAGE_BIT_CNT = GrDrawState::kNumStages *
+                                     GrDrawState::kMaxTexCoords;
 public:
 
     /**
