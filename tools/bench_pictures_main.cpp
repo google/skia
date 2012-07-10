@@ -30,9 +30,12 @@ struct Options {
                         const Options& options);
     int fTileWidth;
     int fTileHeight;
+    double fTileWidthPercentage;
+    double fTileHeightPercentage;
 
     Options() : fRepeats(DEFAULT_REPEATS), fBenchmark(run_simple_benchmark),
-    fTileWidth(DEFAULT_TILE_WIDTH), fTileHeight(DEFAULT_TILE_HEIGHT){}
+    fTileWidth(DEFAULT_TILE_WIDTH), fTileHeight(DEFAULT_TILE_HEIGHT),
+    fTileWidthPercentage(0), fTileHeightPercentage(0){}
 };
 
 static void usage(const char* argv0) {
@@ -55,9 +58,9 @@ static void usage(const char* argv0) {
 "Set the number of times to repeat each test."
 " Default is %i.\n", DEFAULT_REPEATS);
     SkDebugf(
-"     --tile width height: "
-"Set to use the tiling size and specify the dimensions of each tile."
-" Default is to not use tiling\n");
+"     --tile width[%] height[%]: "
+"Set to use the tiling size and specify the dimensions of each tile.\n"
+"                                     Default is to not use tiling\n");
 }
 
 static void run_simple_benchmark(SkPicture* picture,
@@ -174,7 +177,7 @@ static void run_pipe_benchmark(SkPicture* picture, const SkBitmap& bitmap,
 }
 
 static void run_single_benchmark(const SkString& inputPath,
-                                 const Options& options) {
+                                 Options* options) {
     SkFILEStream inputStream;
 
     inputStream.setPath(inputPath.c_str());
@@ -192,7 +195,21 @@ static void run_single_benchmark(const SkString& inputPath,
     printf("running bench [%i %i] %s ", picture.width(), picture.height(),
            filename.c_str());
 
-    options.fBenchmark(&picture, bitmap, options);
+    if (options->fTileWidthPercentage > 0) {
+        options->fTileWidth = sk_float_ceil2int(options->fTileWidthPercentage * picture.width()
+                                                / 100);
+    }
+    if (options->fTileHeightPercentage > 0) {
+        options->fTileHeight = sk_float_ceil2int(options->fTileHeightPercentage * picture.height()
+                                                 / 100);
+    }
+
+    options->fBenchmark(&picture, bitmap, *options);
+}
+
+static bool is_percentage(char* const string) {
+    SkString skString(string);
+    return skString.endsWith("%");
 }
 
 static void parse_commandline(int argc, char* const argv[],
@@ -218,10 +235,18 @@ static void parse_commandline(int argc, char* const argv[],
             options->fBenchmark = run_tile_benchmark;
             ++argv;
             if (argv < stop) {
-                options->fTileWidth = atoi(*argv);
-                if (options->fTileWidth < 1) {
-                    SkDebugf("--tile must be given a width with a value > 0\n");
-                    exit(-1);
+                if (is_percentage(*argv)) {
+                    options->fTileWidthPercentage = atof(*argv);
+                    if (!(options->fTileWidthPercentage > 0)) {
+                        SkDebugf("--tile must be given a width percentage > 0\n");
+                        exit(-1);
+                    }
+                } else {
+                    options->fTileWidth = atoi(*argv);
+                    if (!(options->fTileWidth > 0)) {
+                        SkDebugf("--tile must be given a width > 0\n");
+                        exit(-1);
+                    }
                 }
             } else {
                 SkDebugf("Missing width for --tile\n");
@@ -230,15 +255,23 @@ static void parse_commandline(int argc, char* const argv[],
             }
             ++argv;
             if (argv < stop) {
-                options->fTileHeight = atoi(*argv);
-                if (options->fTileHeight < 1) {
-                    SkDebugf("--tile must be given a height with a value > 0"
-                             "\n");
-                    exit(-1);
+                if (is_percentage(*argv)) {
+                    options->fTileHeightPercentage = atof(*argv);
+                    if (!(options->fTileHeightPercentage > 0)) {
+                        SkDebugf(
+                            "--tile must be given a height percentage > 0\n");
+                        exit(-1);
+                    }
+                } else {
+                    options->fTileHeight = atoi(*argv);
+                    if (!(options->fTileHeight > 0)) {
+                        SkDebugf("--tile must be given a height > 0\n");
+                        exit(-1);
+                    }
                 }
             } else {
                 SkDebugf("Missing height for --tile\n");
-                usage(argv0);\
+                usage(argv0);
                 exit(-1);
             }
         } else if (0 == strcmp(*argv, "--pipe")) {
@@ -257,7 +290,7 @@ static void parse_commandline(int argc, char* const argv[],
     }
 }
 
-static void process_input(const SkString& input, const Options& options) {
+static void process_input(const SkString& input, Options* options) {
     SkOSFile::Iter iter(input.c_str(), "skp");
     SkString inputFilename;
 
@@ -280,6 +313,6 @@ int main(int argc, char* const argv[]) {
     parse_commandline(argc, argv, &inputs, &options);
 
     for (int i = 0; i < inputs.count(); ++i) {
-        process_input(inputs[i], options);
+        process_input(inputs[i], &options);
     }
 }
