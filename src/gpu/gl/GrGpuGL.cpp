@@ -712,20 +712,17 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
+    // paletted textures cannot be partially updated
     bool useTexStorage = isNewTexture &&
+                         desc.fConfig != kIndex_8_GrPixelConfig &&
                          this->glCaps().texStorageSupport();
-    if (useTexStorage) {
-        if (kDesktop_GrGLBinding == this->glBinding()) {
-            // 565 is not a sized internal format on desktop GL. So on desktop
-            // with 565 we always use an unsized internal format to let the
-            // system pick the best sized format to convert the 565 data to.
-            // Since glTexStorage only allows sized internal formats we will
-            // instead fallback to glTexImage2D.
-            useTexStorage = desc.fConfig != kRGB_565_GrPixelConfig;
-        } else {
-            // ES doesn't allow paletted textures to be used with tex storage
-            useTexStorage = desc.fConfig != kIndex_8_GrPixelConfig;
-        }
+    
+    if (useTexStorage && kDesktop_GrGLBinding == this->glBinding()) {
+        // 565 is not a sized internal format on desktop GL. So on desktop with
+        // 565 we always use an unsized internal format to let the system pick
+        // the best sized format to convert the 565 data to. Since TexStorage
+        // only allows sized internal formats we will instead use TexImage2D.
+        useTexStorage = desc.fConfig != kRGB_565_GrPixelConfig;
     }
 
     GrGLenum internalFormat;
