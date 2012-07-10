@@ -747,7 +747,7 @@ scalarCommon:
         addToken(kEnd);
         SkAutoDataUnref data(fStream.copyToData());
 #ifdef SK_DEBUG
-        decompile(data.bytes(), data.size());
+        decompile(data->bytes(), data->size());
 #endif
         SkScriptRuntime runtime(fCallBackArray);
         runtime.executeTokens((unsigned char*) data->bytes());
@@ -1155,7 +1155,7 @@ bool SkScriptEngine2::processOp() {
         addToken(kEnd);
         SkAutoDataUnref data(fStream.copyToData());
 #ifdef SK_DEBUG        
-        decompile(data.bytes(), data.size());
+        decompile(data->bytes(), data->size());
 #endif
         SkScriptRuntime runtime(fCallBackArray);
         runtime.executeTokens((unsigned char*)data->bytes());
