@@ -13,9 +13,9 @@
 #include "GrGLContextInfo.h"
 #include "GrGLSL.h"
 #include "GrGLTexture.h"
-#include "GrStringBuilder.h"
 #include "GrGpu.h"
 
+#include "SkString.h"
 #include "SkXfermode.h"
 
 class GrBinHashKeyBuilder;
@@ -234,7 +234,7 @@ public:
 private:
 
     const ProgramDesc& getDesc() { return fProgramDesc; }
-    const char* adjustInColor(const GrStringBuilder& inColor) const;
+    const char* adjustInColor(const SkString& inColor) const;
 
 public:
     enum {
@@ -354,7 +354,7 @@ private:
     void genEdgeCoverage(const GrGLContextInfo& gl,
                          GrVertexLayout layout,
                          CachedData* programData,
-                         GrStringBuilder* coverageVar,
+                         SkString* coverageVar,
                          GrGLShaderBuilder* segments) const;
 
     static bool CompileShaders(const GrGLContextInfo& gl,
@@ -372,7 +372,7 @@ private:
     // links the program
     bool bindOutputsAttribsAndLinkProgram(
                 const GrGLContextInfo& gl,
-                GrStringBuilder texCoordAttrNames[GrDrawState::kMaxTexCoords],
+                SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
                 bool bindColorOut,
                 bool bindDualSrcOut,
                 CachedData* programData) const;

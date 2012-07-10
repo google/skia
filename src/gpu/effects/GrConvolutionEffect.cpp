@@ -73,7 +73,7 @@ void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* state,
 
 void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* state,
                                    const char* vertexCoords) {
-    GrStringBuilder* code = &state->fVSCode;
+    SkString* code = &state->fVSCode;
     code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n",
                   vertexCoords, fRadius, fRadius,
                   fImageIncrementVar->getName().c_str());
@@ -83,7 +83,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const char* samplerName) {
-    GrStringBuilder* code = &state->fFSCode;
+    SkString* code = &state->fFSCode;
 
     code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
 
@@ -92,8 +92,8 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
     int width = this ->width();
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
-        GrStringBuilder index;
-        GrStringBuilder kernelIndex;
+        SkString index;
+        SkString kernelIndex;
         index.appendS32(i);
         fKernelVar->appendArrayAccess(index.c_str(), &kernelIndex);
         code->appendf("\t\t%s += ", outputColor);

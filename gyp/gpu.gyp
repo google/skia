@@ -266,7 +266,6 @@
         '../src/gpu/GrStencilAndCoverPathRenderer.h',
         '../src/gpu/GrStencilBuffer.cpp',
         '../src/gpu/GrStencilBuffer.h',
-        '../src/gpu/GrStringBuilder.h',
         '../src/gpu/GrTBSearch.h',
         '../src/gpu/GrTDArray.h',
         '../src/gpu/GrSWMaskHelper.cpp',

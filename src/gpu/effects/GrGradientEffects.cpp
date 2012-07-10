@@ -162,9 +162,9 @@ void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* state, int stage) {
 
 void GrGLRadial2Gradient::emitVS(GrGLShaderBuilder* state,
                                  const char* vertexCoords) {
-    GrStringBuilder* code = &state->fVSCode;
-    GrStringBuilder p2;
-    GrStringBuilder p3;
+    SkString* code = &state->fVSCode;
+    SkString p2;
+    SkString p3;
     fVSParamVar->appendArrayAccess(2, &p2);
     fVSParamVar->appendArrayAccess(3, &p3);
 
@@ -182,16 +182,16 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const char* samplerName) {
-    GrStringBuilder* code = &state->fFSCode;
-    GrStringBuilder cName("c");
-    GrStringBuilder ac4Name("ac4");
-    GrStringBuilder rootName("root");
-    GrStringBuilder p0;
-    GrStringBuilder p1;
-    GrStringBuilder p2;
-    GrStringBuilder p3;
-    GrStringBuilder p4;
-    GrStringBuilder p5;
+    SkString* code = &state->fFSCode;
+    SkString cName("c");
+    SkString ac4Name("ac4");
+    SkString rootName("root");
+    SkString p0;
+    SkString p1;
+    SkString p2;
+    SkString p3;
+    SkString p4;
+    SkString p5;
     fFSParamVar->appendArrayAccess(0, &p0);
     fFSParamVar->appendArrayAccess(1, &p1);
     fFSParamVar->appendArrayAccess(2, &p2);
@@ -201,7 +201,7 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
 
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
-    GrStringBuilder bVar;
+    SkString bVar;
     if (state->fCoordDims == state->fVaryingDims) {
         bVar = fFSVaryingName;
         GrAssert(2 == state->fVaryingDims);
@@ -419,10 +419,10 @@ void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* state, int stage) {
 
 void GrGLConical2Gradient::emitVS(GrGLShaderBuilder* state,
                                   const char* vertexCoords) {
-    GrStringBuilder* code = &state->fVSCode;
-    GrStringBuilder p2; // distance between centers
-    GrStringBuilder p3; // start radius
-    GrStringBuilder p5; // difference in radii (r1 - r0)
+    SkString* code = &state->fVSCode;
+    SkString p2; // distance between centers
+    SkString p3; // start radius
+    SkString p5; // difference in radii (r1 - r0)
     fVSParamVar->appendArrayAccess(2, &p2);
     fVSParamVar->appendArrayAccess(3, &p3);
     fVSParamVar->appendArrayAccess(5, &p5);
@@ -441,21 +441,21 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const char* samplerName) {
-    GrStringBuilder* code = &state->fFSCode;
+    SkString* code = &state->fFSCode;
 
-    GrStringBuilder cName("c");
-    GrStringBuilder ac4Name("ac4");
-    GrStringBuilder dName("d");
-    GrStringBuilder qName("q");
-    GrStringBuilder r0Name("r0");
-    GrStringBuilder r1Name("r1");
-    GrStringBuilder tName("t");
-    GrStringBuilder p0; // 4a
-    GrStringBuilder p1; // 1/(2a)
-    GrStringBuilder p2; // distance between centers
-    GrStringBuilder p3; // start radius
-    GrStringBuilder p4; // start radius squared
-    GrStringBuilder p5; // difference in radii (r1 - r0)
+    SkString cName("c");
+    SkString ac4Name("ac4");
+    SkString dName("d");
+    SkString qName("q");
+    SkString r0Name("r0");
+    SkString r1Name("r1");
+    SkString tName("t");
+    SkString p0; // 4a
+    SkString p1; // 1/(2a)
+    SkString p2; // distance between centers
+    SkString p3; // start radius
+    SkString p4; // start radius squared
+    SkString p5; // difference in radii (r1 - r0)
     fFSParamVar->appendArrayAccess(0, &p0);
     fFSParamVar->appendArrayAccess(1, &p1);
     fFSParamVar->appendArrayAccess(2, &p2);
@@ -465,7 +465,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
 
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
-    GrStringBuilder bVar;
+    SkString bVar;
     if (state->fCoordDims == state->fVaryingDims) {
         bVar = fFSVaryingName;
         GrAssert(2 == state->fVaryingDims);
