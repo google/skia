@@ -10,7 +10,7 @@
 
 #include "GrGLContextInfo.h"
 #include "GrGLSL.h"
-#include "GrStringBuilder.h"
+#include "SkString.h"
 
 #define USE_UNIFORM_FLOAT_ARRAYS true
 
@@ -65,7 +65,7 @@ public:
      */
     void set(GrSLType type,
              TypeModifier typeModifier,
-             const GrStringBuilder& name,
+             const SkString& name,
              bool emitPrecision = false,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
@@ -97,7 +97,7 @@ public:
      */
     void set(GrSLType type,
              TypeModifier typeModifier,
-             const GrStringBuilder& name,
+             const SkString& name,
              int count,
              bool specifyPrecision = false,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
@@ -154,16 +154,16 @@ public:
     /**
      * Access the var name as a writable string
      */
-    GrStringBuilder* accessName() { return &fName; }
+    SkString* accessName() { return &fName; }
     /**
      * Set the var name
      */
-    void setName(const GrStringBuilder& n) { fName = n; }
+    void setName(const SkString& n) { fName = n; }
     void setName(const char* n) { fName = n; }
     /**
      * Get the var name.
      */
-    const GrStringBuilder& getName() const { return fName; }
+    const SkString& getName() const { return fName; }
 
     /**
      * Get the type of the var
@@ -189,7 +189,7 @@ public:
     /**
      * Write a declaration of this variable to out.
      */
-    void appendDecl(const GrGLContextInfo& gl, GrStringBuilder* out) const {
+    void appendDecl(const GrGLContextInfo& gl, SkString* out) const {
         if (this->getTypeModifier() != kNone_TypeModifier) {
            out->append(TypeModifierString(this->getTypeModifier(),
                                           gl.glslGeneration()));
@@ -242,14 +242,14 @@ public:
         }
     }
 
-    void appendArrayAccess(int index, GrStringBuilder* out) const {
+    void appendArrayAccess(int index, SkString* out) const {
         out->appendf("%s[%d]%s",
                      this->getName().c_str(),
                      index,
                      fUseUniformFloatArrays ? "" : ".x");
     }
 
-    void appendArrayAccess(const char* indexName, GrStringBuilder* out) const {
+    void appendArrayAccess(const char* indexName, SkString* out) const {
         out->appendf("%s[%s]%s",
                      this->getName().c_str(),
                      indexName,
@@ -278,7 +278,7 @@ private:
 
     GrSLType fType;
     TypeModifier    fTypeModifier;
-    GrStringBuilder fName;
+    SkString        fName;
     int             fCount;
     bool            fEmitPrecision;
     /// Work around driver bugs on some hardware that don't correctly

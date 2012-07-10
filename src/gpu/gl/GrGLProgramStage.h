@@ -14,7 +14,6 @@
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
-#include "GrStringBuilder.h"
 
 struct GrGLInterface;
 class GrGLTexture;
@@ -51,7 +50,7 @@ public:
     /** Create any uniforms or varyings the vertex shader requires. */
     virtual void setupVariables(GrGLShaderBuilder* state, int stage);
 
-    /** Appends vertex code to the appropriate GrStringBuilder
+    /** Appends vertex code to the appropriate SkString
         on the state.
         The code will be inside an otherwise-empty block.
         Vertex shader input is a vec2 of coordinates, which may
@@ -60,7 +59,7 @@ public:
     virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) = 0;
 
-    /** Appends fragment code to the appropriate GrStringBuilder
+    /** Appends fragment code to the appropriate SkString
         on the state.
         The code will be inside an otherwise-empty block.
         Fragment shader inputs are a vec2 of coordinates, one texture,

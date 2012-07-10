@@ -91,23 +91,22 @@ public:
                     int stageNum,
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
-
-
-    GrStringBuilder fHeader; // VS+FS, GLSL version, etc
-    VarArray        fVSUnis;
-    VarArray        fVSAttrs;
-    VarArray        fVSOutputs;
-    VarArray        fGSInputs;
-    VarArray        fGSOutputs;
-    VarArray        fFSInputs;
-    GrStringBuilder fGSHeader; // layout qualifiers specific to GS
-    VarArray        fFSUnis;
-    VarArray        fFSOutputs;
-    GrStringBuilder fFSFunctions;
-    GrStringBuilder fVSCode;
-    GrStringBuilder fGSCode;
-    GrStringBuilder fFSCode;
-    bool            fUsesGS;
+    
+    SkString    fHeader; // VS+FS, GLSL version, etc
+    VarArray    fVSUnis;
+    VarArray    fVSAttrs;
+    VarArray    fVSOutputs;
+    VarArray    fGSInputs;
+    VarArray    fGSOutputs;
+    VarArray    fFSInputs;
+    SkString    fGSHeader; // layout qualifiers specific to GS
+    VarArray    fFSUnis;
+    VarArray    fFSOutputs;
+    SkString    fFSFunctions;
+    SkString    fVSCode;
+    SkString    fGSCode;
+    SkString    fFSCode;
+    bool        fUsesGS;
 
     /// Per-stage settings - only valid while we're inside
     /// GrGLProgram::genStageCode().
@@ -119,12 +118,12 @@ public:
     /// True if fSampleCoords is an expression; false if it's a bare
     /// variable name
     bool             fComplexCoord;
-    GrStringBuilder  fSampleCoords;
+    SkString         fSampleCoords;
 
-    GrStringBuilder  fSwizzle;
-    GrStringBuilder  fModulate;
+    SkString         fSwizzle;
+    SkString         fModulate;
 
-    GrStringBuilder  fTexFunc;
+    SkString         fTexFunc;
 
     //@}
 

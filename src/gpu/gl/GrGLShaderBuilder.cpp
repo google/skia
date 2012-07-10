@@ -73,7 +73,7 @@ void GrGLShaderBuilder::computeModulate(const char* fsInColor) {
 
 void GrGLShaderBuilder::setupTextureAccess(SamplerMode samplerMode,
                                            int stageNum) {
-    GrStringBuilder retval;
+    SkString retval;
 
     fTexFunc = "texture2D";
     switch (samplerMode) {
@@ -161,7 +161,7 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
         *vsOutName = fVSOutputs.back().getName().c_str();
     }
     // input to FS comes either from VS or GS
-    const GrStringBuilder* fsName;
+    const SkString* fsName;
     if (fUsesGS) {
         // if we have a GS take each varying in as an array
         // and output as non-array.
@@ -193,7 +193,7 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
                                    int stageNum,
                                    const char** vsOutName,
                                    const char** fsInName) {
-    GrStringBuilder nameWithStage(name);
+    SkString nameWithStage(name);
     nameWithStage.appendS32(stageNum);
     this->addVarying(type, nameWithStage.c_str(), vsOutName, fsInName);
 }

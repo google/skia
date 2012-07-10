@@ -64,7 +64,7 @@ void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* state, int stage) {
 
 void GrGLMorphologyEffect::emitVS(GrGLShaderBuilder* state,
                                   const char* vertexCoords) {
-    GrStringBuilder* code = &state->fVSCode;
+    SkString* code = &state->fVSCode;
     code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n",
                   vertexCoords, fRadius, fRadius,
                   fImageIncrementVar->getName().c_str());
@@ -81,7 +81,7 @@ void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* state,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const char* samplerName) {
-    GrStringBuilder* code = &state->fFSCode;
+    SkString* code = &state->fFSCode;
     // const char* texFunc = "texture2D";
     // bool complexCoord = false;
 
