@@ -18,10 +18,15 @@
         '../include/views/animated',
       ],
       'sources': [
+        '../include/views/animated/SkBorderView.h',
+        '../include/views/animated/SkImageView.h',
+        '../include/views/animated/SkProgressBarView.h',
+        '../include/views/animated/SkScrollBarView.h',
         '../include/views/animated/SkWidgetViews.h',
 
         '../src/views/animated/SkBorderView.cpp',
         '../src/views/animated/SkImageView.cpp',
+        '../src/views/animated/SkListView.cpp',
         '../src/views/animated/SkListWidget.cpp',
         '../src/views/animated/SkProgressBarView.cpp',
         '../src/views/animated/SkScrollBarView.cpp',
