@@ -13,9 +13,9 @@
 
 SkDebugCanvas::SkDebugCanvas() {
     // TODO(chudy): Free up memory from all draw commands in destructor.
-    int width = 100;
-    int height = 100;
-    fBm.setConfig(SkBitmap::kNo_Config, width, height);
+    fWidth = 100;
+    fHeight = 100;
+    fBm.setConfig(SkBitmap::kNo_Config, fWidth, fHeight);
     this->setBitmapDevice(fBm);
     fFilter = false;
 }
@@ -34,6 +34,7 @@ void SkDebugCanvas::draw(SkCanvas* canvas) {
     }
 }
 
+
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     int counter = 0;
     if(!commandVector.empty()) {
@@ -50,9 +51,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
                      canvas->resetMatrix();
                      SkRect dump;
                      // TODO(chudy): Replace with a call to QtWidget to get dimensions.
-                     dump.set(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(800), SkIntToScalar(800));
+                     dump.set(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(fWidth), SkIntToScalar(fHeight));
                      canvas->clipRect(dump,  SkRegion::kReplace_Op, false );
-                     canvas->drawRectCoords(SkIntToScalar(0),SkIntToScalar(0),SkIntToScalar(800),SkIntToScalar(800), *p);
+                     canvas->drawRectCoords(SkIntToScalar(0),SkIntToScalar(0),SkIntToScalar(fWidth),SkIntToScalar(fHeight), *p);
                      canvas->restore();
                  }
 

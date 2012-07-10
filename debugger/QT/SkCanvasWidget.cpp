@@ -55,7 +55,12 @@ void SkCanvasWidget::resizeEvent(QResizeEvent* event) {
 
     fDevice = new SkDevice(fBitmap);
     fCanvas = new SkCanvas(fDevice);
+<<<<<<< HEAD
+    fDebugCanvas->setBounds(event->size().width(), event->size().height());
+    fDebugCanvas->drawTo(fCanvas, fIndex);
+=======
     drawTo(fIndex);
+>>>>>>> refs/remotes/git-svn
     this->update();
 }
 
@@ -82,6 +87,7 @@ void SkCanvasWidget::loadPicture(QString filename) {
 
     delete fDebugCanvas;
     fDebugCanvas = new SkDebugCanvas();
+    fDebugCanvas->setBounds(this->width(), this->height());
 
     picture->draw(fDebugCanvas);
     fDebugCanvas->draw(fCanvas);

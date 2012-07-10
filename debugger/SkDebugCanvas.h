@@ -87,6 +87,11 @@ public:
      */
     void toggleCommand(int index, bool toggle);
 
+    void setBounds(int width, int height) {
+        fWidth = width;
+        fHeight = height;
+    }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Inherited from SkCanvas
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +173,8 @@ private:
     typedef SkCanvas INHERITED;
     std::vector<SkDrawCommand*> commandVector;
     std::vector<SkDrawCommand*>::const_iterator it;
-
+    int fHeight;
+    int fWidth;
     SkBitmap fBm;
 
     /**
