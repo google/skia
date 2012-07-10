@@ -29,14 +29,12 @@ namespace {
  * 
  */
 void gen_mask_arrays(GrVertexLayout* stageTexCoordMasks,
-                     GrVertexLayout* stageMasks,
                      GrVertexLayout* texCoordMasks) {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         stageTexCoordMasks[s] = 0;
         for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
             stageTexCoordMasks[s] |= GrDrawTarget::StageTexCoordVertexLayoutBit(s, t);
         }
-        stageMasks[s] = stageTexCoordMasks[s];
     }
     for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         texCoordMasks[t] = 0;
@@ -51,9 +49,8 @@ void gen_mask_arrays(GrVertexLayout* stageTexCoordMasks,
  */
 void gen_globals() {
     GrVertexLayout stageTexCoordMasks[GrDrawState::kNumStages];
-    GrVertexLayout stageMasks[GrDrawState::kNumStages];
     GrVertexLayout texCoordMasks[GrDrawState::kMaxTexCoords];
-    gen_mask_arrays(stageTexCoordMasks, stageMasks, texCoordMasks);
+    gen_mask_arrays(stageTexCoordMasks, texCoordMasks);
     
     GrPrintf("const GrVertexLayout gStageTexCoordMasks[] = {\n");
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
@@ -61,12 +58,6 @@ void gen_globals() {
     }
     GrPrintf("};\n");
     GrPrintf("GR_STATIC_ASSERT(GrDrawState::kNumStages == GR_ARRAY_COUNT(gStageTexCoordMasks));\n\n");
-    GrPrintf("const GrVertexLayout gStageMasks[] = {\n");
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        GrPrintf("    0x%x,\n", stageMasks[s]);
-    }
-    GrPrintf("};\n");
-    GrPrintf("GR_STATIC_ASSERT(GrDrawState::kNumStages == GR_ARRAY_COUNT(gStageMasks));\n\n");
     GrPrintf("const GrVertexLayout gTexCoordMasks[] = {\n");
     for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         GrPrintf("    0x%x,\n", texCoordMasks[t]);
@@ -84,14 +75,6 @@ const GrVertexLayout gStageTexCoordMasks[] = {
 };
 GR_STATIC_ASSERT(GrDrawState::kNumStages == GR_ARRAY_COUNT(gStageTexCoordMasks));
 
-const GrVertexLayout gStageMasks[] = {
-    0x1111,
-    0x2222,
-    0x4444,
-    0x8888,
-};
-GR_STATIC_ASSERT(GrDrawState::kNumStages == GR_ARRAY_COUNT(gStageMasks));
-
 const GrVertexLayout gTexCoordMasks[] = {
     0xf,
     0xf0,
@@ -100,12 +83,10 @@ const GrVertexLayout gTexCoordMasks[] = {
 };
 GR_STATIC_ASSERT(GrDrawState::kMaxTexCoords == GR_ARRAY_COUNT(gTexCoordMasks));
 
-
-
 bool check_layout(GrVertexLayout layout) {
     // can only have 1 or 0 bits set for each stage.
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        int stageBits = layout & gStageMasks[s];
+        int stageBits = layout & gStageTexCoordMasks[s];
         if (stageBits && !GrIsPow2(stageBits)) {
             return false;
         }
@@ -349,12 +330,10 @@ int GrDrawTarget::VertexTexCoordsForStage(int stage,
 void GrDrawTarget::VertexLayoutUnitTest() {
     // Ensure that our globals mask arrays are correct
     GrVertexLayout stageTexCoordMasks[GrDrawState::kNumStages];
-    GrVertexLayout stageMasks[GrDrawState::kNumStages];
     GrVertexLayout texCoordMasks[GrDrawState::kMaxTexCoords];
-    gen_mask_arrays(stageTexCoordMasks, stageMasks, texCoordMasks);
+    gen_mask_arrays(stageTexCoordMasks, texCoordMasks);
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         GrAssert(stageTexCoordMasks[s] == gStageTexCoordMasks[s]);
-        GrAssert(stageMasks[s] == gStageMasks[s]);
     }
     for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         GrAssert(texCoordMasks[t] == gTexCoordMasks[t]);
