@@ -446,7 +446,7 @@ void GrClipMaskManager::drawTexture(GrTexture* target,
 
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 
-    drawState->setTexture(0, NULL);
+    drawState->disableStage(0);
 }
 
 // get a texture to act as a temporary buffer for AA clip boolean operations

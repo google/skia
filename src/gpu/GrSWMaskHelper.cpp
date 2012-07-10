@@ -226,6 +226,6 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                             SK_Scalar1 * rect.fRight,
                             SK_Scalar1 * rect.fBottom);
     target->drawRect(dstRect, NULL, stageMask, srcRects, NULL);
-    drawState->setTexture(kPathMaskStage, NULL);
+    drawState->disableStage(kPathMaskStage);
 }
 

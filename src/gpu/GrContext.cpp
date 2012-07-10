@@ -1614,7 +1614,7 @@ void GrContext::setPaint(const GrPaint& paint) {
     
     // disable all stages not accessible via the paint
     for (int s = GrPaint::kTotalStages; s < GrDrawState::kNumStages; ++s) {
-        fDrawState->setTexture(s, NULL);
+        fDrawState->disableStage(s);
     }
 
     fDrawState->setColor(paint.fColor);
