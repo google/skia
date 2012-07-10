@@ -21,13 +21,11 @@ const int DEFAULT_TILE_WIDTH = 256;
 const int DEFAULT_TILE_HEIGHT = 256;
 
 struct Options;
-static void run_simple_benchmark(SkPicture* picture, const SkBitmap&,
-                                 const Options&);
+static void run_simple_benchmark(SkPicture* picture, const Options&);
 
 struct Options {
     int fRepeats;
-    void (*fBenchmark) (SkPicture*, const SkBitmap& bitmap,
-                        const Options& options);
+    void (*fBenchmark) (SkPicture*, const Options& options);
     int fTileWidth;
     int fTileHeight;
     double fTileWidthPercentage;
@@ -63,9 +61,10 @@ static void usage(const char* argv0) {
 "                                     Default is to not use tiling\n");
 }
 
-static void run_simple_benchmark(SkPicture* picture,
-                                 const SkBitmap& bitmap,
-                                 const Options& options) {
+static void run_simple_benchmark(SkPicture* picture, const Options& options) {
+    SkBitmap bitmap;
+    sk_tools::setup_bitmap(&bitmap, picture->width(), picture->height());
+
     SkCanvas canvas(bitmap);
 
     // We throw this away to remove first time effects (such as paging in this
@@ -121,8 +120,10 @@ static void setup_tiles(SkPicture* picture, const SkBitmap& bitmap,
 
 }
 
-static void run_tile_benchmark(SkPicture* picture, const SkBitmap& bitmap,
-                               const Options& options) {
+static void run_tile_benchmark(SkPicture* picture, const Options& options) {
+    SkBitmap bitmap;
+    sk_tools::setup_bitmap(&bitmap, picture->width(), picture->height());
+
     SkTArray<TileInfo> tiles;
     setup_tiles(picture, bitmap, options, &tiles);
 
@@ -158,8 +159,10 @@ static void pipe_run(SkPicture* picture, SkCanvas* canvas) {
     writer.endRecording();
 }
 
-static void run_pipe_benchmark(SkPicture* picture, const SkBitmap& bitmap,
-                                    const Options& options) {
+static void run_pipe_benchmark(SkPicture* picture, const Options& options) {
+    SkBitmap bitmap;
+    sk_tools::setup_bitmap(&bitmap, picture->width(), picture->height());
+
     SkCanvas canvas(bitmap);
 
     // We throw this away to remove first time effects (such as paging in this
@@ -187,8 +190,6 @@ static void run_single_benchmark(const SkString& inputPath,
     }
 
     SkPicture picture(&inputStream);
-    SkBitmap bitmap;
-    sk_tools::setup_bitmap(&bitmap, picture.width(), picture.height());
 
     SkString filename;
     sk_tools::get_basename(&filename, inputPath);
@@ -204,7 +205,7 @@ static void run_single_benchmark(const SkString& inputPath,
                                                  / 100);
     }
 
-    options->fBenchmark(&picture, bitmap, *options);
+    options->fBenchmark(&picture, *options);
 }
 
 static bool is_percentage(char* const string) {
