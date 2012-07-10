@@ -72,7 +72,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this,
             SLOT(actionScale(float)));
     connect(fSettingsWidget.getCommandCheckBox(), SIGNAL(stateChanged(int)),
-            this, SLOT(pauseDrawing(int)));
+            this, SLOT(pauseDrawing(bool)));
     connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget,
             SLOT(updateCommand(int)));
 }
