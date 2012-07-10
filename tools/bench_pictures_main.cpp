@@ -141,7 +141,7 @@ static void run_tile_benchmark(SkPicture* picture, const SkBitmap& bitmap,
         delete tiles[i].fBitmap;
     }
 
-    printf("tile%ix%i: cmsecs = %6.2f\n", options.fTileWidth,
+    printf("%i_tiles_%ix%i: cmsecs = %6.2f\n", tiles.count(), options.fTileWidth,
            options.fTileHeight, timer.fWall / options.fRepeats);
 }
 
