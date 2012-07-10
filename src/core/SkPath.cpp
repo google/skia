@@ -2113,6 +2113,51 @@ static void dumpPath(const SkPath& path) {
 }
 #endif
 
+namespace {
+// for use with convex_dir_test
+double mul(double a, double b) { return a * b; }
+SkScalar mul(SkScalar a, SkScalar b) { return SkScalarMul(a, b); }
+double toDouble(SkScalar a) { return SkScalarToDouble(a); }
+SkScalar toScalar(SkScalar a) { return a; }
+
+// determines the winding direction of a convex polygon with the precision
+// of T. CAST_SCALAR casts an SkScalar to T.
+template <typename T, T (CAST_SCALAR)(SkScalar)>
+bool convex_dir_test(int n, const SkPoint pts[], SkPath::Direction* dir) {
+    // we find the first three points that form a non-degenerate
+    // triangle. If there are no such points then the path is
+    // degenerate. The first is always point 0. Now we find the second
+    // point.
+    int i = 0;
+    enum { kX = 0, kY = 1 };
+    T v0[2];
+    while (1) {
+        v0[kX] = CAST_SCALAR(pts[i].fX) - CAST_SCALAR(pts[0].fX);
+        v0[kY] = CAST_SCALAR(pts[i].fY) - CAST_SCALAR(pts[0].fY);
+        if (v0[kX] || v0[kY]) {
+            break;
+        }
+        if (++i == n - 1) {
+            return false;
+        }
+    }
+    // now find a third point that is not colinear with the first two
+    // points and check the orientation of the triangle (which will be
+    // the same as the orientation of the path).
+    for (++i; i < n; ++i) {
+        T v1[2];
+        v1[kX] = CAST_SCALAR(pts[i].fX) - CAST_SCALAR(pts[0].fX);
+        v1[kY] = CAST_SCALAR(pts[i].fY) - CAST_SCALAR(pts[0].fY);
+        T cross = mul(v0[kX], v1[kY]) - mul(v0[kY], v1[kX]);
+        if (0 != cross) {
+            *dir = cross > 0 ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+            return true;
+        }
+    }
+    return false;
+}
+}
+
 /*
  *  We loop through all contours, and keep the computed cross-product of the
  *  contour that contained the global y-max. If we just look at the first
@@ -2142,15 +2187,16 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
         const SkPoint* pts = iter.pts();
         SkScalar cross = 0;
         if (kConvex_Convexity == conv) {
-            // we loop, skipping over degenerate or flat segments that will
-            // return 0 for the cross-product
-            for (int i = 0; i < n - 2; ++i) {
-                cross = cross_prod(pts[i], pts[i + 1], pts[i + 2]);
-                if (cross) {
-                    // early-exit, as kConvex is assumed to have only 1
-                    // non-degenerate contour
-                    return crossToDir(cross, dir);
-                }
+            // We try first at scalar precision, and then again at double
+            // precision. This is because the vectors computed between distant
+            // points may lose too much precision.
+            if (convex_dir_test<SkScalar, toScalar>(n, pts, dir)) {
+                return true;
+            }
+            if (convex_dir_test<double, toDouble>(n, pts, dir)) {
+                return true;
+            } else {
+                return false;
             }
         } else {
             int index = find_max_y(pts, n);
