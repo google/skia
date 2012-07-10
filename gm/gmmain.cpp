@@ -550,7 +550,7 @@ static ErrorBitfield test_drawing(GM* gm,
         generate_pdf(gm, document);
 #if CAN_IMAGE_PDF
         SkAutoDataUnref data(document.copyToData());
-        SkMemoryStream stream(data.data(), data.size());
+        SkMemoryStream stream(data->data(), data->size());
         SkPDFDocumentToBitmap(&stream, bitmap);
 #endif
     } else if (gRec.fBackend == kXPS_Backend) {
