@@ -155,12 +155,12 @@ class SkFlatData {
 public:
 
     static int Compare(const SkFlatData* a, const SkFlatData* b) {
-        size_t bytesToCompare = sizeof(a->fChecksum) + a->fAllocSize;
-        SkASSERT(SkIsAlign4(bytesToCompare));
+        size_t bytes = a->bytesToCompare();
+        SkASSERT(SkIsAlign4(bytes));
 
-        const uint32_t* a_ptr = &(a->fChecksum);
-        const uint32_t* b_ptr = &(b->fChecksum);
-        const uint32_t* stop = a_ptr + bytesToCompare / sizeof(uint32_t);
+        const uint32_t* a_ptr = a->dataToCompare();
+        const uint32_t* b_ptr = b->dataToCompare();
+        const uint32_t* stop = a_ptr + bytes / sizeof(uint32_t);
         while(a_ptr < stop) {
             if (*a_ptr != *b_ptr) {
                 return (*a_ptr < *b_ptr) ? -1 : 1;
@@ -172,9 +172,10 @@ public:
     }
     
     int index() const { return fIndex; }
-    void* data() const { return (char*)this + sizeof(*this); }
-    // We guarantee that our data is 32bit aligned
-    uint32_t* data32() const { return (uint32_t*)this->data(); }
+    const void* data() const { return (const char*)this + sizeof(*this); }
+    void* data() { return (char*)this + sizeof(*this); }
+    // Our data is always 32bit aligned, so we can offer this accessor
+    uint32_t* data32() { return (uint32_t*)this->data(); }
     
 #ifdef SK_DEBUG_SIZE
     size_t size() const { return sizeof(SkFlatData) + fAllocSize; }
@@ -194,9 +195,17 @@ private:
     // Data members add-up to 128 bits of storage, so data() is 128-bit
     // aligned, which helps performance of memcpy in SkWriter32::flatten
     int fIndex;
-    int32_t fAllocSize;
-    // fChecksum must be defined last in order to be contiguous with data()
+
+    // From here down is the data we look at in the search/sort. We always begin
+    // with the checksum and then length.
     uint32_t fChecksum;
+    int32_t fAllocSize;
+    // uint32_t data[]
+
+    const uint32_t* dataToCompare() const { return &fChecksum; }
+    size_t bytesToCompare() const {
+        return sizeof(fChecksum) + sizeof(fAllocSize) + fAllocSize;
+    }
 };
 
 template <class T>
