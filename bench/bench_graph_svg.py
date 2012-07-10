@@ -563,7 +563,7 @@ def output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_
                 variant_settings.add(key)
 
     for k in variant_settings:
-        create_select(lambda l: l.settings[k], lines)
+        create_select(lambda l: l.settings.get(k, "<missing>"), lines)
 
     print '</td><td width="1"><button type="button"',
     print 'onclick=%s' % qa("mark('url(#circleMark)'); return false;"),
