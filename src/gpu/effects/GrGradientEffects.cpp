@@ -451,7 +451,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
     SkString r1Name("r1");
     SkString tName("t");
     SkString p0; // 4a
-    SkString p1; // 1/(2a)
+    SkString p1; // 1/a
     SkString p2; // distance between centers
     SkString p3; // start radius
     SkString p4; // start radius squared
