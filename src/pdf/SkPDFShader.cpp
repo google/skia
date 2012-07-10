@@ -274,6 +274,118 @@ static SkString twoPointRadialCode(const SkShader::GradientInfo& info) {
     return function;
 }
 
+/* Conical gradient shader, based on the Canvas spec for radial gradients
+   See: http://www.w3.org/TR/2dcontext/#dom-context-2d-createradialgradient 
+ */
+static SkString twoPointConicalCode(const SkShader::GradientInfo& info) {
+    SkScalar dx = info.fPoint[1].fX - info.fPoint[0].fX;
+    SkScalar dy = info.fPoint[1].fY - info.fPoint[0].fY;
+    SkScalar r0 = info.fRadius[0];
+    SkScalar dr = info.fRadius[1] - info.fRadius[0];
+    SkScalar a = SkScalarMul(dx, dx) + SkScalarMul(dy, dy) - 
+                 SkScalarMul(dr, dr);
+
+    // First compute t, if the pixel falls outside the cone, then we'll end
+    // with 'false' on the stack, otherwise we'll push 'true' with t below it
+
+    // We start with a stack of (x y), copy it and then consume one copy in
+    // order to calculate b and the other to calculate c.
+    SkString function("{");
+    function.append("2 copy ");
+
+    // Calculate b and b^2; b = -2 * (y * dy + x * dx + r0 * dr).
+    function.appendScalar(dy);
+    function.append(" mul exch ");
+    function.appendScalar(dx);
+    function.append(" mul add ");
+    function.appendScalar(SkScalarMul(r0, dr));
+    function.append(" add -2 mul dup dup mul\n");
+
+    // c = x^2 + y^2 + radius0^2
+    function.append("4 2 roll dup mul exch dup mul add ");
+    function.appendScalar(SkScalarMul(r0, r0));
+    function.append(" sub dup 4 1 roll\n");
+
+    // Contents of the stack at this point: c, b, b^2, c
+
+    // if a = 0, then we collapse to a simpler linear case
+    if (a == 0) {
+
+        // t = -c/b
+        function.append("pop pop div neg dup ");
+
+        // compute radius(t)
+        function.appendScalar(dr);
+        function.append(" mul ");
+        function.appendScalar(r0);
+        function.append(" add\n");
+
+        // if r(t) < 0, then it's outside the cone
+        function.append("0 lt {clear false} {true} ifelse\n");
+
+    } else {
+
+        // quadratic case: the Canvas spec wants the largest
+        // root t for which radius(t) > 0
+        
+        // compute the discriminant (b^2 - 4ac)
+        function.appendScalar(SkScalarMul(SkIntToScalar(4), a));
+        function.append(" mul sub dup\n");
+
+        // if d >= 0, proceed
+        function.append("0 ge {\n");
+
+        // an intermediate value we'll use to compute the roots:
+        // q = -0.5 * (b +/- sqrt(d))
+        function.append("sqrt exch dup 0 lt {exch -1 mul} if");
+        function.append(" add -0.5 mul dup\n");
+
+        // first root = q / a
+        function.appendScalar(a);
+        function.append(" div\n");
+
+        // second root = c / q
+        function.append("3 1 roll div\n");
+
+        // put the larger root on top of the stack
+        function.append("2 copy gt {exch} if\n");
+
+        // compute radius(t) for larger root
+        function.append("dup ");
+        function.appendScalar(dr);
+        function.append(" mul ");
+        function.appendScalar(r0);
+        function.append(" add\n");
+
+        // if r(t) > 0, we have our t, pop off the smaller root and we're done
+        function.append(" 0 gt {exch pop true}\n");
+
+        // otherwise, throw out the larger one and try the smaller root
+        function.append("{pop dup\n");
+        function.appendScalar(dr);
+        function.append(" mul ");
+        function.appendScalar(r0);
+        function.append(" add\n");
+
+        // if r(t) < 0, push false, otherwise the smaller root is our t
+        function.append("0 le {clear false} {true} ifelse\n");
+        function.append("} ifelse\n");
+
+        // d < 0, clear the stack and push false
+        function.append("} {clear false} ifelse\n");
+    }
+
+    // if the pixel is in the cone, proceed to compute a color
+    function.append("{");
+    tileModeCode(info.fTileMode, &function);
+    gradientFunctionCode(info, &function);
+
+    // otherwise, just write black
+    function.append("} {0 0 0} ifelse }");
+
+    return function;
+}
+
 static SkString sweepCode(const SkShader::GradientInfo& info) {
     SkString function("{exch atan 360 div\n");
     tileModeCode(info.fTileMode, &function);
@@ -467,6 +579,12 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
             codeFunction = &twoPointRadialCode;
             break;
         }
+        case SkShader::kConical_GradientType: {
+            transformPoints[1] = transformPoints[0];
+            transformPoints[1].fX += SK_Scalar1;
+            codeFunction = &twoPointConicalCode;
+            break;
+        }
         case SkShader::kSweep_GradientType:
             transformPoints[1] = transformPoints[0];
             transformPoints[1].fX += SK_Scalar1;
@@ -474,7 +592,6 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
             break;
         case SkShader::kColor_GradientType:
         case SkShader::kNone_GradientType:
-        case SkShader::kConical_GradientType: // similar to twoPointRadialCode? 
         default:
             return;
     }
