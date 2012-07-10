@@ -134,7 +134,7 @@ private slots:
         Toggles whether drawing to a new command requires a double click
         or simple focus.
      */
-    void pauseDrawing(int state);
+    void pauseDrawing(bool isPaused);
 
     /**
         Executes draw commands up to the selected command
@@ -158,48 +158,45 @@ private slots:
     void toggleFilter(QString string);
 
 private:
-    QAction* fActionOpen;
-    QAction* fActionDirectory;
-    QAction* fActionRewind;
-    QAction* fActionStepBack;
-    QAction* fActionStepForward;
-    QAction* fActionPlay;
-    QAction* fActionBreakpoint;
-    QAction* fActionInspector;
-    QAction* fActionDelete;
-    QAction* fActionReload;
-    QAction* fActionClose;
-    QAction* fActionSettings;
+    QAction fActionOpen;
+    QAction fActionBreakpoint;
+    QAction fActionCancel;
+    QAction fActionClose;
+    QAction fActionDelete;
+    QAction fActionDirectory;
+    QAction fActionGoToLine;
+    QAction fActionInspector;
+    QAction fActionPlay;
+    QAction fActionReload;
+    QAction fActionRewind;
+    QAction fActionSettings;
+    QAction fActionStepBack;
+    QAction fActionStepForward;
+    QWidget fCentralWidget;
 
-    QComboBox* fFilter;
-    QAction* fActionCancel;
+    QComboBox fFilter;
 
-    QWidget* fCentralWidget;
-    QHBoxLayout* fHorizontalLayout;
-    QHBoxLayout* fHorizontalLayout_2;
-    QVBoxLayout* fVerticalLayout;
-    QVBoxLayout* fVerticalLayout_2;
-    QListWidget* fListWidget;
-    QListWidget* fDirectoryWidget;
-    QListView* fListView;
-    QStatusBar* fStatusBar;
-    QToolBar* fToolBar;
+    QVBoxLayout fLeftColumnLayout;
+    QVBoxLayout fMainAndRightColumnLayout;
+    QHBoxLayout fContainerLayout;
+    QHBoxLayout fCanvasAndSettingsLayout;
 
-    SkCanvasWidget* fCanvasWidget;
-    SkInspectorWidget* fInspectorWidget;
-    SkSettingsWidget* fSettingsWidget;
+    QListWidget fListWidget;
+    QListWidget fDirectoryWidget;
 
-    QDir* fDir;
+    SkCanvasWidget fCanvasWidget;
+    SkInspectorWidget fInspectorWidget;
+    SkSettingsWidget fSettingsWidget;
+    QStatusBar fStatusBar;
+
     QString fPath;
     bool fDirectoryWidgetActive;
-    QMenuBar* fMenuBar;
 
-    QMenu* fMenuFile;
-    QAction* fActionQuit;
-    QAction* fActionTemp;
-
-    QMenu* fMenuNavigate;
-    QAction *fActionGoToLine;
+    QMenuBar fMenuBar;
+    QMenu fMenuFile;
+    QMenu fMenuNavigate;
+    QMenu fMenuView;
+    QToolBar fToolBar;
 
     bool fBreakpointsActivated;
     bool fPause;
@@ -208,12 +205,6 @@ private:
         Creates the entire UI.
      */
     void setupUi(QMainWindow *SkDebuggerGUI);
-
-    /**
-        Placeholder function for executing new commands on window translate
-        and resize.
-     */
-    void retranslateUi(QMainWindow *SkDebuggerGUI);
 
     /**
         Pipes a QString in with the location of the filename, proceeds to updating
