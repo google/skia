@@ -277,60 +277,156 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
 }
 
 namespace {
+
+// a is the first control point of the cubic.
+// ab is the vector from a to the second control point.
+// dc is the vector from the fourth to the third control point.
+// d is the fourth control point.
+// p is the candidate quadratic control point.
+// this assumes that the cubic doesn't inflect and is simple
+bool is_point_within_cubic_tangents(const SkPoint& a,
+                                    const SkVector& ab,
+                                    const SkVector& dc,
+                                    const SkPoint& d,
+                                    SkPath::Direction dir,
+                                    const SkPoint p) {
+    SkVector ap = p - a;
+    SkScalar apXab = ap.cross(ab);
+    if (SkPath::kCW_Direction == dir) {
+        if (apXab > 0) {
+            return false;
+        }
+    } else {
+        GrAssert(SkPath::kCCW_Direction == dir);
+        if (apXab < 0) {
+            return false;
+        }
+    }
+
+    SkVector dp = p - d;
+    SkScalar dpXdc = dp.cross(dc);
+    if (SkPath::kCW_Direction == dir) {
+        if (dpXdc < 0) {
+            return false;
+        }
+    } else {
+        GrAssert(SkPath::kCCW_Direction == dir);
+        if (dpXdc > 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void convert_noninflect_cubic_to_quads(const SkPoint p[4],
-                                       SkScalar tolScale,
+                                       SkScalar toleranceSqd,
+                                       bool constrainWithinTangents,
+                                       SkPath::Direction dir,
                                        SkTArray<SkPoint, true>* quads,
                                        int sublevel = 0) {
-    SkVector ab = p[1];
-    ab -= p[0];
-    SkVector dc = p[2];
-    dc -= p[3];
+    SkVector ab = p[1] - p[0];
+    SkVector dc = p[2] - p[3];
 
-    static const SkScalar gLengthScale = 3 * SK_Scalar1 / 2;
-    // base tolerance is 2 pixels in dev coords.
-    const SkScalar distanceSqdTol = SkScalarMul(tolScale, 1 * SK_Scalar1);
+    if (ab.isZero()) {
+        if (dc.isZero()) {
+            SkPoint* degQuad = quads->push_back_n(3);
+            degQuad[0] = p[0];
+            degQuad[1] = p[0];
+            degQuad[2] = p[3];
+            return;
+        }
+        ab = p[2] - p[0];
+    }
+    if (dc.isZero()) {
+        dc = p[1] - p[3];
+    }
+
+    static const SkScalar kLengthScale = 3 * SK_Scalar1 / 2;
     static const int kMaxSubdivs = 10;
 
-    ab.scale(gLengthScale);
-    dc.scale(gLengthScale);
+    ab.scale(kLengthScale);
+    dc.scale(kLengthScale);
 
+    // e0 and e1 are extrapolations along vectors ab and dc.
     SkVector c0 = p[0];
     c0 += ab;
     SkVector c1 = p[3];
     c1 += dc;
 
-    SkScalar dSqd = c0.distanceToSqd(c1);
-    if (sublevel > kMaxSubdivs || dSqd <= distanceSqdTol) {
+    SkScalar dSqd = sublevel > kMaxSubdivs ? toleranceSqd : c0.distanceToSqd(c1);
+    if (dSqd < toleranceSqd) {
         SkPoint cAvg = c0;
         cAvg += c1;
         cAvg.scale(SK_ScalarHalf);
 
-        SkPoint* pts = quads->push_back_n(3);
-        pts[0] = p[0];
-        pts[1] = cAvg;
-        pts[2] = p[3];
+        bool subdivide = false;
 
-        return;
-    } else {
-        SkPoint choppedPts[7];
-        SkChopCubicAtHalf(p, choppedPts);
-        convert_noninflect_cubic_to_quads(choppedPts + 0, tolScale, 
-                                          quads, sublevel + 1);
-        convert_noninflect_cubic_to_quads(choppedPts + 3, tolScale,
-                                          quads, sublevel + 1);
+        if (constrainWithinTangents &&
+            !is_point_within_cubic_tangents(p[0], ab, dc, p[3], dir, cAvg)) {
+            // choose a new cAvg that is the intersection of the two tangent
+            // lines.
+            ab.setOrthog(ab);
+            SkScalar z0 = -ab.dot(p[0]);
+            dc.setOrthog(dc);
+            SkScalar z1 = -dc.dot(p[3]);
+            cAvg.fX = SkScalarMul(ab.fY, z1) - SkScalarMul(z0, dc.fY);
+            cAvg.fY = SkScalarMul(z0, dc.fX) - SkScalarMul(ab.fX, z1);
+            SkScalar z = SkScalarMul(ab.fX, dc.fY) - SkScalarMul(ab.fY, dc.fX);
+            z = SkScalarInvert(z);
+            cAvg.fX *= z;
+            cAvg.fY *= z;
+            if (sublevel <= kMaxSubdivs) {
+                SkScalar d0Sqd = c0.distanceToSqd(cAvg);
+                SkScalar d1Sqd = c1.distanceToSqd(cAvg);
+                // We need to subdivide if d0 + d1 > tolerance but we have the
+                // sqd values. We know the distances and tolerance can't be
+                // negative.
+                // (d0 + d1)^2 > toleranceSqd
+                // d0Sqd + 2*d0*d1 + d1Sqd > toleranceSqd
+                SkScalar d0d1 = SkScalarSqrt(SkScalarMul(d0Sqd, d1Sqd));
+                subdivide = 2 * d0d1 + d0Sqd + d1Sqd > toleranceSqd;
+            }
+        }
+        if (!subdivide) {
+            SkPoint* pts = quads->push_back_n(3);
+            pts[0] = p[0];
+            pts[1] = cAvg;
+            pts[2] = p[3];
+            return;
+        }
     }
+    SkPoint choppedPts[7];
+    SkChopCubicAtHalf(p, choppedPts);
+    convert_noninflect_cubic_to_quads(choppedPts + 0,
+                                      toleranceSqd,
+                                      constrainWithinTangents,
+                                      dir,
+                                      quads,
+                                      sublevel + 1);
+    convert_noninflect_cubic_to_quads(choppedPts + 3,
+                                      toleranceSqd,
+                                      constrainWithinTangents,
+                                      dir,
+                                      quads,
+                                      sublevel + 1);
 }
 }
 
 void GrPathUtils::convertCubicToQuads(const GrPoint p[4],
                                       SkScalar tolScale,
+                                      bool constrainWithinTangents,
+                                      SkPath::Direction dir,
                                       SkTArray<SkPoint, true>* quads) {
     SkPoint chopped[10];
     int count = SkChopCubicAtInflections(p, chopped);
 
+    // base tolerance is 1 pixel.
+    static const SkScalar kTolerance = SK_Scalar1;
+    const SkScalar tolSqd = SkScalarSquare(SkScalarMul(tolScale, kTolerance));
+
     for (int i = 0; i < count; ++i) {
         SkPoint* cubic = chopped + 3*i;
-        convert_noninflect_cubic_to_quads(cubic, tolScale, quads);
+        convert_noninflect_cubic_to_quads(cubic, tolSqd, constrainWithinTangents, dir, quads);
     }
 
 }

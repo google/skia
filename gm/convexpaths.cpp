@@ -134,7 +134,6 @@ protected:
                                                   100 * SK_Scalar1),
                                  25 * SK_Scalar1,  130 * SK_Scalar1, false);
         */
-
         // cubics
         fPaths.push_back().cubicTo( 1 * SK_Scalar1,  1 * SK_Scalar1,
                                    10 * SK_Scalar1,  90 * SK_Scalar1,
@@ -142,6 +141,27 @@ protected:
         fPaths.push_back().cubicTo(100 * SK_Scalar1,  50 * SK_Scalar1,
                                     20 * SK_Scalar1, 100 * SK_Scalar1,
                                      0 * SK_Scalar1,   0 * SK_Scalar1);
+
+        // path that has a cubic with a repeated first control point and
+        // a repeated last control point.
+        fPaths.push_back().moveTo(SK_Scalar1 * 10, SK_Scalar1 * 10);
+        fPaths.back().cubicTo(10 * SK_Scalar1, 10 * SK_Scalar1,
+                              10 * SK_Scalar1, 0,
+                              20 * SK_Scalar1, 0);
+        fPaths.back().lineTo(40 * SK_Scalar1, 0);
+        fPaths.back().cubicTo(40 * SK_Scalar1, 0,
+                              50 * SK_Scalar1, 0,
+                              50 * SK_Scalar1, 10 * SK_Scalar1);
+
+        // path that has two cubics with repeated middle control points.
+        fPaths.push_back().moveTo(SK_Scalar1 * 10, SK_Scalar1 * 10);
+        fPaths.back().cubicTo(10 * SK_Scalar1, 0,
+                              10 * SK_Scalar1, 0,
+                              20 * SK_Scalar1, 0);
+        fPaths.back().lineTo(40 * SK_Scalar1, 0);
+        fPaths.back().cubicTo(50 * SK_Scalar1, 0,
+                              50 * SK_Scalar1, 0,
+                              50 * SK_Scalar1, 10 * SK_Scalar1);
 
         // triangle where one edge is a degenerate quad
         fPaths.push_back().moveTo(SkFloatToScalar(8.59375f), 45 * SK_Scalar1);
