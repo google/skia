@@ -29,7 +29,7 @@ GrClip::GrClip(const GrRect& rect) {
 }
 
 GrClip::GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-               const GrRect* bounds) {
+               const GrRect& bounds) {
     this->setFromIterator(iter, tx, ty, bounds);
 }
 
@@ -89,7 +89,7 @@ static void intersectWith(SkRect* dst, const SkRect& src) {
 }
 
 void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-                             const GrRect* conservativeBounds) {
+                             const GrRect& conservativeBounds) {
     fList.reset();
     fRequiresAA = false;
 
@@ -148,8 +148,8 @@ void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
     if (isectRectValid && rectCount) {
         fConservativeBounds = fList[0].fRect;
         fConservativeBoundsValid = true;
-    } else if (NULL != conservativeBounds) {
-        fConservativeBounds = *conservativeBounds;
+    } else {
+        fConservativeBounds = conservativeBounds;
         fConservativeBoundsValid = true;
     }
 }

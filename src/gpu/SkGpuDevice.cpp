@@ -353,7 +353,7 @@ static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                    GrIntToScalar(skBounds.fRight),
                    GrIntToScalar(skBounds.fBottom));
     GrClip grc(&iter, GrIntToScalar(-origin.x()), GrIntToScalar(-origin.y()),
-               &bounds);
+               bounds);
     context->setClip(grc);
 }
 
@@ -814,7 +814,10 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     // an AutoClipRestore.
     GrClip oldClip = context->getClip();
     context->setRenderTarget(pathTexture->asRenderTarget());
-    context->setClip(srcRect);
+
+    GrClip newClip(srcRect);
+    context->setClip(newClip);
+
     context->clear(NULL, 0);
     GrPaint tempPaint;
     tempPaint.reset();

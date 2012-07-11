@@ -493,8 +493,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
 
     GrIRect* rect = NULL;
     GrIRect clipBounds;
-    if (drawState.isClipState() &&
-        fClip.hasConservativeBounds()) {
+    if (drawState.isClipState()) {
         fClip.getConservativeBounds().roundOut(&clipBounds);
         rect = &clipBounds;
     }

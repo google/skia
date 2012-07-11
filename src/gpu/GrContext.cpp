@@ -1836,7 +1836,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     srcRect.roundOut();
     scale_rect(&srcRect, static_cast<float>(scaleFactorX), 
                          static_cast<float>(scaleFactorY));
-    this->setClip(srcRect);
+
+    GrClip newClip(srcRect);
+    this->setClip(newClip);
 
     GrAssert(kBGRA_8888_PM_GrPixelConfig == srcTexture->config() ||
              kRGBA_8888_PM_GrPixelConfig == srcTexture->config() ||
@@ -1949,8 +1951,11 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
     GrAutoMatrix avm(this, GrMatrix::I());
     GrClip oldClip = this->getClip();
-    this->setClip(GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
-                                 SkIntToScalar(srcTexture->height())));
+
+    GrClip newClip(GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
+                                  SkIntToScalar(srcTexture->height())));
+    this->setClip(newClip);
+
     if (radius.fWidth > 0) {
         this->setRenderTarget(temp1->asRenderTarget());
         apply_morphology(fGpu, srcTexture, rect, radius.fWidth, morphType,

@@ -89,7 +89,9 @@ protected:
                 }
                 GrAutoUnref au(texture);
 
-                ctx->setClip(GrRect::MakeWH(2*S, 2*S));
+                GrClip newClip(GrRect::MakeWH(2*S, 2*S));
+                ctx->setClip(newClip);
+
                 ctx->setRenderTarget(target);
 
                 GrPaint paint;

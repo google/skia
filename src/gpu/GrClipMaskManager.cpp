@@ -114,17 +114,13 @@ bool GrClipMaskManager::setupClipping(const GrClip& clipIn) {
     GrIRect bounds;
     GrIRect rtRect;
     rtRect.setLTRB(0, 0, rt->width(), rt->height());
-    if (clipIn.hasConservativeBounds()) {
-        GrRect softBounds = clipIn.getConservativeBounds();
-        softBounds.roundOut(&bounds);
-        if (!bounds.intersect(rtRect)) {
-            bounds.setEmpty();
-        }
-        if (bounds.isEmpty()) {
-            return false;
-        }
-    } else {
-        bounds = rtRect;
+
+    clipIn.getConservativeBounds().roundOut(&bounds);
+    if (!bounds.intersect(rtRect)) {
+        bounds.setEmpty();
+    }
+    if (bounds.isEmpty()) {
+        return false;
     }
 
 #if GR_SW_CLIP
@@ -503,18 +499,11 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClip& clipIn,
 
     // unlike the stencil path the alpha path is not bound to the size of the
     // render target - determine the minimum size required for the mask
-    GrRect bounds;
-
-    if (clipIn.hasConservativeBounds()) {
-        bounds = clipIn.getConservativeBounds();
-        if (!bounds.intersect(rtRect)) {
-            // the mask will be empty in this case
-            GrAssert(false);
-            bounds.setEmpty();
-        }
-    } else {
-        // still locked to the size of the render target
-        bounds = rtRect;
+    GrRect bounds = clipIn.getConservativeBounds();
+    if (!bounds.intersect(rtRect)) {
+        // the mask will be empty in this case
+        GrAssert(false);
+        bounds.setEmpty();
     }
 
     GrIRect intBounds;

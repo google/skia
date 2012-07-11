@@ -22,21 +22,21 @@ public:
     GrClip();
     GrClip(const GrClip& src);
     /**
-     *  If specified, the conservativeBounds parameter already takes (tx,ty)
-     *  into account.
+     *  The conservativeBounds parameter already takes (tx,ty) into account.
      */
     GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-           const GrRect* conservativeBounds = NULL);
-    GrClip(const GrIRect& rect);
-    GrClip(const GrRect& rect);
+           const GrRect& conservativeBounds);
+    explicit GrClip(const GrIRect& rect);
+    explicit GrClip(const GrRect& rect);
 
     ~GrClip();
 
     GrClip& operator=(const GrClip& src);
 
-    bool hasConservativeBounds() const { return fConservativeBoundsValid; }
-
-    const GrRect& getConservativeBounds() const { return fConservativeBounds; }
+    const GrRect& getConservativeBounds() const { 
+        GrAssert(fConservativeBoundsValid);
+        return fConservativeBounds; 
+    }
 
     bool requiresAA() const { return fRequiresAA; }
 
@@ -90,7 +90,7 @@ public:
      *  If specified, the bounds parameter already takes (tx,ty) into account.
      */
     void setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-                         const GrRect* conservativeBounds = NULL);
+                         const GrRect& conservativeBounds);
     void setFromRect(const GrRect& rect);
     void setFromIRect(const GrIRect& rect);
 

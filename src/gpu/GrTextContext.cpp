@@ -90,19 +90,16 @@ GrTextContext::GrTextContext(GrContext* context,
     } else {
         fExtMatrix.reset();
     }
-    if (context->getClip().hasConservativeBounds()) {
-        if (!fExtMatrix.isIdentity()) {
-            GrMatrix inverse;
-            GrRect r = context->getClip().getConservativeBounds();
-            if (fExtMatrix.invert(&inverse)) {
-                inverse.mapRect(&r);
-                r.roundOut(&fClipRect);
-            }
-        } else {
-            context->getClip().getConservativeBounds().roundOut(&fClipRect);
+
+    if (!fExtMatrix.isIdentity()) {
+        GrMatrix inverse;
+        GrRect r = context->getClip().getConservativeBounds();
+        if (fExtMatrix.invert(&inverse)) {
+            inverse.mapRect(&r);
+            r.roundOut(&fClipRect);
         }
     } else {
-        fClipRect.setLargest();
+        context->getClip().getConservativeBounds().roundOut(&fClipRect);
     }
 
     // save the context's original matrix off and restore in destructor
