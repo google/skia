@@ -1438,7 +1438,9 @@ void apply_custom_stage(GrContext* context,
     GrAutoMatrix avm(context, GrMatrix::I());
     GrContext::AutoRenderTarget art(context, dstTexture->asRenderTarget());
     GrClip oldClip = context->getClip();
-    context->setClip(rect);
+
+    GrClip newClip(rect);
+    context->setClip(newClip);
 
     GrMatrix sampleM;
     sampleM.setIDiv(srcTexture->width(), srcTexture->height());
