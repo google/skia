@@ -13,9 +13,22 @@
 
 class SkStream;
 class SkWStream;
+class SkFlattenableReadBuffer;
+class SkFlattenableWriteBuffer;
 
 class SkDataSet : public SkRefCnt {
 public:
+    /**
+     *  Returns a new empty dataset. Note: since SkDataSet is immutable, this
+     *  "new" set may be the same one that was returned before, but each
+     *  returned object must have its reference-count balanced regardles.
+     *
+     *  SkDataSet* empty = SkDataSet::NewEmpty();
+     *  ...
+     *  empty->unref();
+     */
+    static SkDataSet* NewEmpty();
+
     struct Pair {
         const char* fKey;
         SkData*     fValue;
@@ -59,6 +72,9 @@ public:
 
     explicit SkDataSet(SkStream*);
     void writeToStream(SkWStream*) const;
+
+    explicit SkDataSet(SkFlattenableReadBuffer&);
+    void flatten(SkFlattenableWriteBuffer&) const;
 
 private:
     int32_t     fCount;

@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #include "SkData.h"
 
@@ -126,6 +123,7 @@ SkData* SkData::NewWithCString(const char cstr[]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkDataSet.h"
+#include "SkFlattenable.h"
 #include "SkStream.h"
 
 static SkData* dupdata(SkData* data) {
@@ -135,6 +133,26 @@ static SkData* dupdata(SkData* data) {
         data = SkData::NewEmpty();
     }
     return data;
+}
+
+static SkData* read_data(SkFlattenableReadBuffer& buffer) {
+    size_t size = buffer.readU32();
+    if (0 == size) {
+        return SkData::NewEmpty();
+    } else {
+        // buffer.read expects a 4-byte aligned size
+        size_t size4 = SkAlign4(size);
+        void* block = sk_malloc_throw(size4);
+        buffer.read(block, size4);
+        // we pass the "real" size to NewFromMalloc, since its needs to report
+        // the same size that was written.
+        return SkData::NewFromMalloc(block, size);
+    }
+}
+
+static void write_data(SkFlattenableWriteBuffer& buffer, SkData* data) {
+    buffer.write32(data->size());
+    buffer.writePad(data->data(), data->size());
 }
 
 static SkData* findValue(const char key[], const SkDataSet::Pair array[], int n) {
@@ -222,15 +240,27 @@ void SkDataSet::writeToStream(SkWStream* stream) const {
     }
 }
 
+void SkDataSet::flatten(SkFlattenableWriteBuffer& buffer) const {
+    buffer.write32(fCount);
+    if (fCount > 0) {
+        buffer.write32(fKeySize);
+        // our first key points to all the key storage
+        buffer.writePad(fPairs[0].fKey, fKeySize);
+        for (int i = 0; i < fCount; ++i) {
+            write_data(buffer, fPairs[i].fValue);
+        }
+    }
+}
+
 SkDataSet::SkDataSet(SkStream* stream) {
     fCount = stream->readU32();
     if (fCount > 0) {
         fKeySize = stream->readU32();
         fPairs = allocatePairStorage(fCount, fKeySize);
         char* keyStorage = (char*)(fPairs + fCount);
-
+        
         stream->read(keyStorage, fKeySize);
-
+        
         for (int i = 0; i < fCount; ++i) {
             fPairs[i].fKey = keyStorage;
             keyStorage += strlen(keyStorage) + 1;
@@ -240,5 +270,35 @@ SkDataSet::SkDataSet(SkStream* stream) {
         fKeySize = 0;
         fPairs = NULL;
     }
+}
+
+SkDataSet::SkDataSet(SkFlattenableReadBuffer& buffer) {
+    fCount = buffer.readU32();
+    if (fCount > 0) {
+        fKeySize = buffer.readU32();
+        // we align fKeySize, since buffer.read needs to read a mul4 amount
+        fPairs = allocatePairStorage(fCount, SkAlign4(fKeySize));
+        char* keyStorage = (char*)(fPairs + fCount);
+        
+        buffer.read(keyStorage, SkAlign4(fKeySize));
+        
+        for (int i = 0; i < fCount; ++i) {
+            fPairs[i].fKey = keyStorage;
+            keyStorage += strlen(keyStorage) + 1;
+            fPairs[i].fValue = read_data(buffer);
+        }
+    } else {
+        fKeySize = 0;
+        fPairs = NULL;
+    }
+}
+
+SkDataSet* SkDataSet::NewEmpty() {
+    static SkDataSet* gEmptySet;
+    if (NULL == gEmptySet) {
+        gEmptySet = SkNEW_ARGS(SkDataSet, (NULL, 0));
+    }
+    gEmptySet->ref();
+    return gEmptySet;
 }
 
