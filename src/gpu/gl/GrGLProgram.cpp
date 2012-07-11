@@ -546,7 +546,7 @@ bool compile_shaders(const GrGLContextInfo& gl,
         GrPrintf(shader.c_str());
         GrPrintf("\n");
 #endif
-        if (!(programData->fVShaderID = compile_shader(gl, GR_GL_GEOMETRY_SHADER, shader))) {
+        if (!(programData->fGShaderID = compile_shader(gl, GR_GL_GEOMETRY_SHADER, shader))) {
             return false;
         }
     } else {
