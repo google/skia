@@ -40,12 +40,14 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         kDilate_EffectType,
         kRadialGradient_EffectType,
         kRadial2Gradient_EffectType,
+#if 0
         kDiffuseDistant_EffectType,
         kDiffusePoint_EffectType,
         kDiffuseSpot_EffectType,
         kSpecularDistant_EffectType,
         kSpecularPoint_EffectType,
         kSpecularSpot_EffectType,
+#endif
         kSweepGradient_EffectType,
 
         kEffectCount
@@ -118,6 +120,7 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         case kSweepGradient_EffectType: {
             return SkNEW(GrSweepGradient);
             }
+#if 0
         case kDiffuseDistant_EffectType: {
             SkPoint3 direction = random_point3(random);
             direction.normalize();
@@ -198,6 +201,7 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             SkASSERT(filter->asNewCustomStage(&stage));
             return stage;
         }
+#endif
         default:
             GrCrash("Unexpected custom effect type");
     }
