@@ -56,7 +56,7 @@ static void test_dataset(skiatest::Reporter* reporter, const SkDataSet& ds,
     for (; !iter.done(); iter.next()) {
         const char* name = iter.key();
         SkData* data = iter.value();
-        SkDebugf("[%d] %s:%s\n", index, name, (const char*)data->bytes());
+//        SkDebugf("[%d] %s:%s\n", index, name, (const char*)data->bytes());
         index += 1;
     }
     REPORTER_ASSERT(reporter, index == count);
