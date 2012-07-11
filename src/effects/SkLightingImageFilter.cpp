@@ -599,7 +599,7 @@ public:
     SkScalar cosInnerConeAngle() const { return fCosInnerConeAngle; }
     SkScalar cosOuterConeAngle() const { return fCosOuterConeAngle; }
     SkScalar coneScale() const { return fConeScale; }
-    SkPoint3 s() const { return fS; }
+    const SkPoint3& s() const { return fS; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpotLight)
 
@@ -776,15 +776,11 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
 }
 
 bool SkDiffuseLightingImageFilter::asNewCustomStage(GrCustomStage** stage) const {
-#if 0
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *stage = new GrDiffuseLightingEffect(light(), scale, kd());
     }
     return true;
-#else
-    return false;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -843,15 +839,11 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
 }
 
 bool SkSpecularLightingImageFilter::asNewCustomStage(GrCustomStage** stage) const {
-#if 0
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *stage = new GrSpecularLightingEffect(light(), scale, ks(), shininess());
     }
     return true;
-#else
-    return false;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1308,8 +1300,6 @@ void GrGLSpotLight::initUniforms(const GrGLInterface* gl, int programID) {
         GetUniformLocation(programID, fExponentVar->getName().c_str()));
     GR_GL_CALL_RET(gl, fCosInnerConeAngleLocation,
         GetUniformLocation(programID, fCosInnerConeAngleVar->getName().c_str()));
-    GR_GL_CALL_RET(gl, fCosOuterConeAngleLocation,
-        GetUniformLocation(programID, fCosOuterConeAngleVar->getName().c_str()));
     GR_GL_CALL_RET(gl, fCosOuterConeAngleLocation,
         GetUniformLocation(programID, fCosOuterConeAngleVar->getName().c_str()));
     GR_GL_CALL_RET(gl, fConeScaleLocation,
