@@ -122,3 +122,123 @@ SkData* SkData::NewWithCString(const char cstr[]) {
     return NewWithCopy(cstr, size);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkDataSet.h"
+#include "SkStream.h"
+
+static SkData* dupdata(SkData* data) {
+    if (data) {
+        data->ref();
+    } else {
+        data = SkData::NewEmpty();
+    }
+    return data;
+}
+
+static SkData* findValue(const char key[], const SkDataSet::Pair array[], int n) {
+    for (int i = 0; i < n; ++i) {
+        if (!strcmp(key, array[i].fKey)) {
+            return array[i].fValue;
+        }
+    }
+    return NULL;
+}
+
+static SkDataSet::Pair* allocatePairStorage(int count, size_t storage) {
+    size_t size = count * sizeof(SkDataSet::Pair) + storage;
+    return (SkDataSet::Pair*)sk_malloc_throw(size);
+}
+
+SkDataSet::SkDataSet(const char key[], SkData* value) {
+    size_t keyLen = strlen(key);
+
+    fCount = 1;
+    fKeySize = keyLen + 1;
+    fPairs = allocatePairStorage(1, keyLen + 1);
+
+    fPairs[0].fKey = (char*)(fPairs + 1);
+    memcpy(const_cast<char*>(fPairs[0].fKey), key, keyLen + 1);
+
+    fPairs[0].fValue = dupdata(value);
+}
+
+SkDataSet::SkDataSet(const Pair array[], int count) {
+    if (count < 1) {
+        fCount = 0;
+        fKeySize = 0;
+        fPairs = NULL;
+        return;
+    }
+
+    int i;
+    size_t keySize = 0;
+    for (i = 0; i < count; ++i) {
+        keySize += strlen(array[i].fKey) + 1;
+    }
+
+    Pair* pairs = fPairs = allocatePairStorage(count, keySize);
+    char* keyStorage = (char*)(pairs + count);
+
+    keySize = 0;    // reset this, so we can compute the size for unique keys
+    int uniqueCount = 0;
+    for (int i = 0; i < count; ++i) {
+        if (!findValue(array[i].fKey, pairs, uniqueCount)) {
+            size_t len = strlen(array[i].fKey);
+            memcpy(keyStorage, array[i].fKey, len + 1);
+            pairs[uniqueCount].fKey = keyStorage;
+            keyStorage += len + 1;
+            keySize += len + 1;
+            
+            pairs[uniqueCount].fValue = dupdata(array[i].fValue);
+            uniqueCount += 1;
+        }
+    }
+    fCount = uniqueCount;
+    fKeySize = keySize;
+}
+
+SkDataSet::~SkDataSet() {
+    for (int i = 0; i < fCount; ++i) {
+        fPairs[i].fValue->unref();
+    }
+    sk_free(fPairs);    // this also frees the key storage
+}
+
+SkData* SkDataSet::find(const char key[]) const {
+    return findValue(key, fPairs, fCount);
+}
+    
+void SkDataSet::writeToStream(SkWStream* stream) const {
+    stream->write32(fCount);
+    if (fCount > 0) {
+        stream->write32(fKeySize);
+        // our first key points to all the key storage
+        stream->write(fPairs[0].fKey, fKeySize);
+        for (int i = 0; i < fCount; ++i) {
+            stream->writeData(fPairs[i].fValue);
+        }
+    }
+}
+
+SkDataSet::SkDataSet(SkStream* stream) {
+    fCount = stream->readU32();
+    if (fCount > 0) {
+        fKeySize = stream->readU32();
+        fPairs = allocatePairStorage(fCount, fKeySize);
+        char* keyStorage = (char*)(fPairs + fCount);
+
+        stream->read(keyStorage, fKeySize);
+
+        for (int i = 0; i < fCount; ++i) {
+            fPairs[i].fKey = keyStorage;
+            keyStorage += strlen(keyStorage) + 1;
+            fPairs[i].fValue = stream->readData();
+        }
+    } else {
+        fKeySize = 0;
+        fPairs = NULL;
+    }
+}
+
