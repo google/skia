@@ -357,19 +357,7 @@ private:
                          SkString* coverageVar,
                          GrGLShaderBuilder* segments) const;
 
-    static bool CompileShaders(const GrGLContextInfo& gl,
-                               const GrGLShaderBuilder& segments, 
-                               CachedData* programData);
-
-    // Compiles a GL shader, returns shader ID or 0 if failed
-    // params have same meaning as glShaderSource
-    static GrGLuint CompileShader(const GrGLContextInfo& gl,
-                                  GrGLenum type, int stringCnt,
-                                  const char** strings,
-                                  int* stringLengths);
-
-    // Creates a GL program ID, binds shader attributes to GL vertex attrs, and
-    // links the program
+    // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
     bool bindOutputsAttribsAndLinkProgram(
                 const GrGLContextInfo& gl,
                 SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],

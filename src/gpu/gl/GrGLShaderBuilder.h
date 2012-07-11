@@ -12,8 +12,7 @@
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
 
-typedef GrTAllocator<GrGLShaderVar> VarArray;
-
+class GrGLContextInfo;
 /**
   Contains all the incremental state of a shader as it is being built,as well as helpers to
   manipulate that state.
@@ -23,6 +22,7 @@ typedef GrTAllocator<GrGLShaderVar> VarArray;
 class GrGLShaderBuilder {
 
 public:
+    typedef GrTAllocator<GrGLShaderVar> VarArray;
 
     enum ShaderType {
         kVertex_ShaderType   = 0x1,
@@ -30,7 +30,7 @@ public:
         kFragment_ShaderType = 0x4,
     };
 
-    GrGLShaderBuilder();
+    GrGLShaderBuilder(const GrGLContextInfo&);
 
     void computeSwizzle(uint32_t configFlags);
     void computeModulate(const char* fsInColor);
@@ -55,7 +55,6 @@ public:
     /** sets outColor to results of texture lookup, with swizzle, and/or modulate as necessary */
     void emitDefaultFetch(const char* outColor,
                           const char* samplerName);
-
 
     /** Add a uniform variable to the current program, that has visibilty in one or more shaders.
         If stageNum is specified, it is appended to the name to guarantee uniqueness; if count is
@@ -85,6 +84,9 @@ public:
                     int stageNum,
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
+
+    /** Called after building is complete to get the final shader string. */
+    void getShader(ShaderType, SkString*) const;
 
     // TODO: Everything below here private.
 
@@ -122,6 +124,8 @@ public:
 
     //@}
 
+private:
+    const GrGLContextInfo& fContext;
 };
 
 #endif

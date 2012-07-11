@@ -19,7 +19,7 @@ static const int kMaxFSOutputs = 2;
 // varying by stage, if we use 1D textures for gradients!
 //const int GrGLShaderBuilder::fCoordDims = 2;
 
-GrGLShaderBuilder::GrGLShaderBuilder()
+GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx)
     : fVSUnis(kVarsPerBlock)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
@@ -30,7 +30,8 @@ GrGLShaderBuilder::GrGLShaderBuilder()
     , fFSOutputs(kMaxFSOutputs)
     , fUsesGS(false)
     , fVaryingDims(0)
-    , fComplexCoord(false) {
+    , fComplexCoord(false)
+    , fContext(ctx) {
 
 }
 
@@ -196,3 +197,47 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     this->addVarying(type, nameWithStage.c_str(), vsOutName, fsInName);
 }
 
+namespace {
+void append_decls(const GrGLShaderBuilder::VarArray& vars,
+                  const GrGLContextInfo& ctx,
+                  SkString* string) {
+    for (int i = 0; i < vars.count(); ++i) {
+        vars[i].appendDecl(ctx, string);
+    }
+}
+}
+
+void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
+    switch (type) {
+        case kVertex_ShaderType:
+            *shaderStr = fHeader;
+            append_decls(fVSUnis, fContext, shaderStr);
+            append_decls(fVSAttrs, fContext, shaderStr);
+            append_decls(fVSOutputs, fContext, shaderStr);
+            shaderStr->append(fVSCode);
+            break;
+        case kGeometry_ShaderType:
+            if (fUsesGS) {
+                *shaderStr = fHeader;
+                shaderStr->append(fGSHeader);
+                append_decls(fGSInputs, fContext, shaderStr);
+                append_decls(fGSOutputs, fContext, shaderStr);
+                shaderStr->append(fGSCode);
+            } else {
+                shaderStr->reset();
+            }
+            break;
+        case kFragment_ShaderType:
+            *shaderStr = fHeader;
+            shaderStr->append(GrGetGLSLShaderPrecisionDecl(fContext.binding()));
+            append_decls(fFSUnis, fContext, shaderStr);
+            append_decls(fFSInputs, fContext, shaderStr);
+            // We shouldn't have declared outputs on 1.10
+            GrAssert(k110_GrGLSLGeneration != fContext.glslGeneration() || fFSOutputs.empty());
+            append_decls(fFSOutputs, fContext, shaderStr);
+            shaderStr->append(fFSFunctions);
+            shaderStr->append(fFSCode);
+            break;
+    }
+
+ }
