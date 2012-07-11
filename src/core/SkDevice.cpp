@@ -15,6 +15,11 @@ SK_DEFINE_INST_COUNT(SkDevice)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define CHECK_FOR_NODRAW_ANNOTATION(paint) \
+    do { if (paint.isNoDrawAnnotation()) { return; } } while (0)
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkDevice::SkDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
     fOrigin.setZero();
     fMetaData = NULL;
@@ -295,12 +300,14 @@ void SkDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t c
 
 void SkDevice::drawRect(const SkDraw& draw, const SkRect& r,
                             const SkPaint& paint) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     draw.drawRect(r, paint);
 }
 
 void SkDevice::drawPath(const SkDraw& draw, const SkPath& path,
                         const SkPaint& paint, const SkMatrix* prePathMatrix,
                         bool pathIsMutable) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     draw.drawPath(path, paint, prePathMatrix, pathIsMutable);
 }
 
