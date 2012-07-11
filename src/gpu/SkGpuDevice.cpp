@@ -822,7 +822,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     GrPaint tempPaint;
     tempPaint.reset();
 
-    GrAutoMatrix avm(context, GrMatrix::I());
+    GrContext::AutoMatrix avm(context, GrMatrix::I());
     tempPaint.fAntiAlias = grp->fAntiAlias;
     if (tempPaint.fAntiAlias) {
         // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
@@ -929,7 +929,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     // used to compute inverse view, if necessary
     GrMatrix ivm = matrix;
 
-    GrAutoMatrix avm(context, GrMatrix::I());
+    GrContext::AutoMatrix avm(context, GrMatrix::I());
 
     GrTextureDesc desc;
     desc.fWidth = dstM.fBounds.width();
@@ -1435,7 +1435,7 @@ void apply_custom_stage(GrContext* context,
                         const GrRect& rect,
                         GrCustomStage* stage) {
     SkASSERT(srcTexture && srcTexture->getContext() == context);
-    GrAutoMatrix avm(context, GrMatrix::I());
+    GrContext::AutoMatrix avm(context, GrMatrix::I());
     GrContext::AutoRenderTarget art(context, dstTexture->asRenderTarget());
     GrClip oldClip = context->getClip();
 
@@ -1516,7 +1516,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
-    GrAutoMatrix avm(fContext, GrMatrix::I());
+    GrContext::AutoMatrix avm(fContext, GrMatrix::I());
 
     GrSamplerState* sampler = grPaint.textureSampler(kBitmapTextureIdx);
 
@@ -1582,7 +1582,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     int w = bm.width();
     int h = bm.height();
 
-    GrAutoMatrix avm(fContext, GrMatrix::I());
+    GrContext::AutoMatrix avm(fContext, GrMatrix::I());
 
     grPaint.textureSampler(kBitmapTextureIdx)->reset();
 

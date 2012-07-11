@@ -643,7 +643,7 @@ void GrContext::drawPaint(const GrPaint& paint) {
     GrMatrix inverse;
     SkTLazy<GrPaint> tmpPaint;
     const GrPaint* p = &paint;
-    GrAutoMatrix am;
+    AutoMatrix am;
 
     // We attempt to map r by the inverse matrix and draw that. mapRect will
     // map the four corners and bound them with a new rect. This will not
@@ -1824,7 +1824,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
     GrClip oldClip = this->getClip();
     GrTexture* origTexture = srcTexture;
-    GrAutoMatrix avm(this, GrMatrix::I());
+    AutoMatrix avm(this, GrMatrix::I());
     SkIRect clearRect;
     int scaleFactorX, radiusX;
     int scaleFactorY, radiusY;
@@ -1949,7 +1949,7 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
                                       SkISize radius) {
     ASSERT_OWNED_RESOURCE(srcTexture);
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
-    GrAutoMatrix avm(this, GrMatrix::I());
+    AutoMatrix avm(this, GrMatrix::I());
     GrClip oldClip = this->getClip();
 
     GrClip newClip(GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 

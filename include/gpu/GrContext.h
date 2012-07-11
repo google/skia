@@ -662,6 +662,44 @@ public:
         GrRenderTarget* fPrevTarget;
     };
 
+    /**
+     *  Save/restore the view-matrix in the context.
+     */
+    class AutoMatrix : GrNoncopyable {
+    public:
+        AutoMatrix() : fContext(NULL) {}
+        AutoMatrix(GrContext* ctx) : fContext(ctx) {
+            fMatrix = ctx->getMatrix();
+        }
+        AutoMatrix(GrContext* ctx, const GrMatrix& matrix) : fContext(ctx) {
+            fMatrix = ctx->getMatrix();
+            ctx->setMatrix(matrix);
+        }
+        void set(GrContext* ctx) {
+            if (NULL != fContext) {
+                fContext->setMatrix(fMatrix);
+            }
+            fMatrix = ctx->getMatrix();
+            fContext = ctx;
+        }
+        void set(GrContext* ctx, const GrMatrix& matrix) {
+            if (NULL != fContext) {
+                fContext->setMatrix(fMatrix);
+            }
+            fMatrix = ctx->getMatrix();
+            ctx->setMatrix(matrix);
+            fContext = ctx;
+        }
+        ~AutoMatrix() {
+            if (NULL != fContext) {
+                fContext->setMatrix(fMatrix);
+            }
+        }
+
+    private:
+        GrContext*  fContext;
+        GrMatrix    fMatrix;
+    };
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
@@ -779,45 +817,6 @@ private:
     void addExistingTextureToCache(GrTexture* texture);
 
     typedef GrRefCnt INHERITED;
-};
-
-/**
- *  Save/restore the view-matrix in the context.
- */
-class GrAutoMatrix : GrNoncopyable {
-public:
-    GrAutoMatrix() : fContext(NULL) {}
-    GrAutoMatrix(GrContext* ctx) : fContext(ctx) {
-        fMatrix = ctx->getMatrix();
-    }
-    GrAutoMatrix(GrContext* ctx, const GrMatrix& matrix) : fContext(ctx) {
-        fMatrix = ctx->getMatrix();
-        ctx->setMatrix(matrix);
-    }
-    void set(GrContext* ctx) {
-        if (NULL != fContext) {
-            fContext->setMatrix(fMatrix);
-        }
-        fMatrix = ctx->getMatrix();
-        fContext = ctx;
-    }
-    void set(GrContext* ctx, const GrMatrix& matrix) {
-        if (NULL != fContext) {
-            fContext->setMatrix(fMatrix);
-        }
-        fMatrix = ctx->getMatrix();
-        ctx->setMatrix(matrix);
-        fContext = ctx;
-    }
-    ~GrAutoMatrix() {
-        if (NULL != fContext) {
-            fContext->setMatrix(fMatrix);
-        }
-    }
-
-private:
-    GrContext*  fContext;
-    GrMatrix    fMatrix;
 };
 
 /**
