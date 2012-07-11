@@ -8,15 +8,11 @@
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
 
-namespace {
-
 // number of each input/output type in a single allocation block
-static const int sVarsPerBlock = 8;
+static const int kVarsPerBlock = 8;
 
 // except FS outputs where we expect 2 at most.
-static const int sMaxFSOutputs = 2;
-
-}
+static const int kMaxFSOutputs = 2;
 
 // Architectural assumption: always 2-d input coords.
 // Likely to become non-constant and non-static, perhaps even
@@ -24,14 +20,14 @@ static const int sMaxFSOutputs = 2;
 //const int GrGLShaderBuilder::fCoordDims = 2;
 
 GrGLShaderBuilder::GrGLShaderBuilder()
-    : fVSUnis(sVarsPerBlock)
-    , fVSAttrs(sVarsPerBlock)
-    , fVSOutputs(sVarsPerBlock)
-    , fGSInputs(sVarsPerBlock)
-    , fGSOutputs(sVarsPerBlock)
-    , fFSInputs(sVarsPerBlock)
-    , fFSUnis(sVarsPerBlock)
-    , fFSOutputs(sMaxFSOutputs)
+    : fVSUnis(kVarsPerBlock)
+    , fVSAttrs(kVarsPerBlock)
+    , fVSOutputs(kVarsPerBlock)
+    , fGSInputs(kVarsPerBlock)
+    , fGSOutputs(kVarsPerBlock)
+    , fFSInputs(kVarsPerBlock)
+    , fFSUnis(kVarsPerBlock)
+    , fFSOutputs(kMaxFSOutputs)
     , fUsesGS(false)
     , fVaryingDims(0)
     , fComplexCoord(false) {
@@ -116,18 +112,21 @@ void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
     fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
 }
 
-const GrGLShaderVar& GrGLShaderBuilder::addUniform(VariableLifetime lifetime,
-                                             GrSLType type,
-                                             const char* name,
-                                             int stageNum,
-                                             int count) {
+const GrGLShaderVar& GrGLShaderBuilder::addUniform(uint32_t visibility,
+                                                   GrSLType type,
+                                                   const char* name,
+                                                   int stageNum,
+                                                   int count) {
     GrAssert(name && strlen(name));
+    static const uint32_t kVisibilityMask = kVertex_ShaderType | kFragment_ShaderType;
+    GrAssert(0 == (~kVisibilityMask & visibility));
+    GrAssert(0 != visibility);
 
     GrGLShaderVar* var = NULL;
-    if (kVertex_VariableLifetime & lifetime) {
+    if (kVertex_ShaderType & visibility) {
         var = &fVSUnis.push_back();
     } else {
-        GrAssert(kFragment_VariableLifetime & lifetime);
+        GrAssert(kFragment_ShaderType & visibility);
         var = &fFSUnis.push_back();
     }
     var->setType(type);
@@ -138,8 +137,7 @@ const GrGLShaderVar& GrGLShaderBuilder::addUniform(VariableLifetime lifetime,
     }
     var->setArrayCount(count);
 
-    if ((kVertex_VariableLifetime |
-        kFragment_VariableLifetime) == lifetime) {
+    if ((kVertex_ShaderType | kFragment_ShaderType) == visibility) {
         fFSUnis.push_back(*var);
         // If it's shared between VS and FS, VS must override
         // default highp and specify mediump.
