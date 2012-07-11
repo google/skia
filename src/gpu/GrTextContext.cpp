@@ -23,8 +23,11 @@ enum {
 };
 
 void GrTextContext::flushGlyphs() {
+    if (NULL == fDrawTarget) {
+        return;
+    }
+    GrDrawState* drawState = fDrawTarget->drawState();
     if (fCurrVertex > 0) {
-        GrDrawState* drawState = fDrawTarget->drawState();
         // setup our sampler state for our text texture/atlas
         GrSamplerState::Filter filter;
         if (fExtMatrix.isIdentity()) {
@@ -68,8 +71,9 @@ void GrTextContext::flushGlyphs() {
         fMaxVertices = 0;
         fCurrVertex = 0;
         GrSafeSetNull(fCurrTexture);
-        drawState->disableStage(kGlyphMaskStage);
     }
+    drawState->disableStages();
+    fDrawTarget = NULL;
 }
 
 GrTextContext::GrTextContext(GrContext* context,
@@ -134,7 +138,7 @@ GrTextContext::GrTextContext(GrContext* context,
         }
     }
 
-    fDrawTarget = fContext->getTextTarget(fPaint);
+    fDrawTarget = NULL;
 
     fVertices = NULL;
     fMaxVertices = 0;
@@ -246,19 +250,20 @@ HAS_ATLAS:
         // If we need to reserve vertices allow the draw target to suggest
         // a number of verts to reserve and whether to perform a flush.
         fMaxVertices = kMinRequestedVerts;
-        bool flush = fDrawTarget->geometryHints(fVertexLayout,
+        bool flush = (NULL != fDrawTarget) &&
+                     fDrawTarget->geometryHints(fVertexLayout,
                                                 &fMaxVertices,
                                                 NULL);
         if (flush) {
             this->flushGlyphs();
             fContext->flush();
-            fDrawTarget = fContext->getTextTarget(fPaint);
-            fMaxVertices = kDefaultRequestedVerts;
-            // ignore return, no point in flushing again.
-            fDrawTarget->geometryHints(fVertexLayout,
-                                       &fMaxVertices,
-                                       NULL);
         }
+        fDrawTarget = fContext->getTextTarget(fPaint);
+        fMaxVertices = kDefaultRequestedVerts;
+        // ignore return, no point in flushing again.
+        fDrawTarget->geometryHints(fVertexLayout,
+                                   &fMaxVertices,
+                                   NULL);
 
         int maxQuadVertices = 4 * fContext->getQuadIndexBuffer()->maxQuads();
         if (fMaxVertices < kMinRequestedVerts) {

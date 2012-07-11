@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkTypeface.h"
 
 // test shader w/ transparency
 static SkShader* make_grad(SkScalar width) {
@@ -27,8 +28,77 @@ static SkShader* make_grad2(SkScalar width) {
                                           SkShader::kMirror_TileMode);
 }
 
+static SkShader* make_chrome_solid() {
+    SkColor colors[] = { SK_ColorGREEN, SK_ColorGREEN };
+    SkPoint pts[] = { { 0, 0 }, { 1, 0 } };
+    return SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+                                          SkShader::kClamp_TileMode);
+}
+
 namespace skiagm {
     
+// Replicate chrome layout test - clipped pathed gradient-shaded text
+class ChromeGradTextGM1 : public GM {
+public:
+    ChromeGradTextGM1() { }
+protected:
+
+    virtual SkString onShortName() { return SkString("chrome_gradtext1"); }
+    virtual SkISize onISize() { return make_isize(500, 480); }
+    virtual void onDraw(SkCanvas* canvas) {
+        SkPaint paint;
+        const SkISize& size = this->getISize();
+        SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
+
+        canvas->clipRect(r);
+
+        paint.setColor(SK_ColorRED);
+        canvas->drawRect(r, paint);
+
+        // Minimal repro doesn't require AA, LCD, or a nondefault typeface
+        paint.setShader(make_chrome_solid())->unref();
+        paint.setTextSize(SkIntToScalar(500));
+
+        canvas->drawText("I", 1, 0, 100, paint);
+    }
+private:
+    typedef GM INHERITED;
+};
+
+
+// Replicate chrome layout test - switching between solid & gadient text
+class ChromeGradTextGM2 : public GM {
+public:
+    ChromeGradTextGM2() { }
+protected:
+
+    virtual SkString onShortName() { return SkString("chrome_gradtext2"); }
+    virtual SkISize onISize() { return make_isize(500, 480); }
+    virtual void onDraw(SkCanvas* canvas) {
+        SkPaint paint;
+        const SkISize& size = this->getISize();
+        SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
+
+
+        paint.setStyle(SkPaint::kFill_Style);
+        canvas->drawText("Normal Fill Text", 16, 0, 50, paint);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawText("Normal Stroke Text", 18, 0, 100, paint);
+
+        // Minimal repro doesn't require AA, LCD, or a nondefault typeface
+        paint.setShader(make_chrome_solid())->unref();
+
+        paint.setStyle(SkPaint::kFill_Style);
+        canvas->drawText("Gradient Fill Text", 18, 0, 150, paint);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawText("Gradient Stroke Text", 20, 0, 200, paint);
+    }
+private:
+    typedef GM INHERITED;
+};
+
+
+
 class GradTextGM : public GM {
 public:
     GradTextGM () {}
@@ -91,7 +161,11 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 static GM* MyFactory(void*) { return new GradTextGM; }
-static GMRegistry reg(MyFactory);
+static GM* CMyFactory(void*) { return new ChromeGradTextGM1; }
+static GM* CMyFactory2(void*) { return new ChromeGradTextGM2; }
 
+static GMRegistry reg(MyFactory);
+static GMRegistry Creg(CMyFactory);
+static GMRegistry Creg2(CMyFactory2);
 }
 
