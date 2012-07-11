@@ -1445,10 +1445,7 @@ void apply_custom_stage(GrContext* context,
     SkASSERT(srcTexture && srcTexture->getContext() == context);
     GrContext::AutoMatrix avm(context, GrMatrix::I());
     GrContext::AutoRenderTarget art(context, dstTexture->asRenderTarget());
-    GrClip oldClip = context->getClip();
-
-    GrClip newClip(rect);
-    context->setClip(newClip);
+    GrContext::AutoClip acs(context, rect);
 
     GrMatrix sampleM;
     sampleM.setIDiv(srcTexture->width(), srcTexture->height());
@@ -1459,7 +1456,6 @@ void apply_custom_stage(GrContext* context,
     paint.textureSampler(0)->setCustomStage(stage);
     paint.setTexture(0, srcTexture);
     context->drawRect(paint, rect);
-    context->setClip(oldClip);
 }
 
 };
