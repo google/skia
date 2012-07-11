@@ -781,6 +781,12 @@ public:
         SkPoint         fLastPt;
     };
 
+    /**
+     *  Returns true if the point { x, y } is contained by the path, taking into
+     *  account the FillType.
+     */
+    bool contains(SkScalar x, SkScalar y) const;
+
     void dump(bool forceClose, const char title[] = NULL) const;
     void dump() const;
 

@@ -10,7 +10,7 @@
 #include "SkCullPoints.h"
 #include "SkRandom.h"
 
-static void test_hittest(SkCanvas* canvas, const SkPath& path, bool hires) {
+static void test_hittest(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;
     SkRect r = path.getBounds();
     
@@ -22,14 +22,8 @@ static void test_hittest(SkCanvas* canvas, const SkPath& path, bool hires) {
     paint.setColor(0x800000FF);
     for (SkScalar y = r.fTop + SK_ScalarHalf - MARGIN; y < r.fBottom + MARGIN; y += SK_Scalar1) {
         for (SkScalar x = r.fLeft + SK_ScalarHalf - MARGIN; x < r.fRight + MARGIN; x += SK_Scalar1) {
-            if (hires) {
-                if (SkHitTestPathEx(path, x, y)) {
-                    canvas->drawPoint(x, y, paint);
-                }
-            } else {
-                if (SkHitTestPath(path, x, y, false)) {
-                    canvas->drawPoint(x, y, paint);
-                }
+            if (path.contains(x, y)) {
+                canvas->drawPoint(x, y, paint);
             }
         }
     }
@@ -50,25 +44,25 @@ protected:
         SkPath path;
         SkRandom rand;
         
-        for (int i = 0; i < 5; ++i) {
-            path.lineTo(rand.nextUScalar1() * 150, rand.nextUScalar1() * 150);
-            path.quadTo(rand.nextUScalar1() * 150, rand.nextUScalar1() * 150,
-                        rand.nextUScalar1() * 150, rand.nextUScalar1() * 150);
+        int scale = 300;
+        for (int i = 0; i < 4; ++i) {
+            path.lineTo(rand.nextUScalar1() * scale, rand.nextUScalar1() * scale);
+            path.quadTo(rand.nextUScalar1() * scale, rand.nextUScalar1() * scale,
+                        rand.nextUScalar1() * scale, rand.nextUScalar1() * scale);
+            path.cubicTo(rand.nextUScalar1() * scale, rand.nextUScalar1() * scale,
+                         rand.nextUScalar1() * scale, rand.nextUScalar1() * scale,
+                         rand.nextUScalar1() * scale, rand.nextUScalar1() * scale);
         }
         
         path.setFillType(SkPath::kEvenOdd_FillType);
         path.offset(SkIntToScalar(20), SkIntToScalar(20));
         
-        test_hittest(canvas, path, false);
-        canvas->translate(SkIntToScalar(200), 0);
-        test_hittest(canvas, path, true);
-        
-        canvas->translate(-SkIntToScalar(200), SkIntToScalar(200));
+        test_hittest(canvas, path);
+
+        canvas->translate(SkIntToScalar(scale), 0);
         path.setFillType(SkPath::kWinding_FillType);
         
-        test_hittest(canvas, path, false);
-        canvas->translate(SkIntToScalar(200), 0);
-        test_hittest(canvas, path, true);
+        test_hittest(canvas, path);
     }
     
 private:

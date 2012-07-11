@@ -67,6 +67,5 @@ private:
 
 bool SkHitTestPath(const SkPath&, SkRect& target, bool hires);
 bool SkHitTestPath(const SkPath&, SkScalar x, SkScalar y, bool hires);
-bool SkHitTestPathEx(const SkPath&, SkScalar x, SkScalar y);
 
 #endif
