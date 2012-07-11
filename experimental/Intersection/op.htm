@@ -312,7 +312,32 @@ path.close();
     testSimplifyx(path);
 </div>
 
-<!-- don't support addRect yet -->
+<div id="testLine7">
+    SkPath path, simple;
+    path.moveTo(0,0);
+    path.lineTo(4,0);
+    path.lineTo(2,2);
+    path.close();
+    path.moveTo(6,0);
+    path.lineTo(2,0);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+</div>
+
+<div id="testLine9">
+    SkPath path, simple;
+    path.moveTo(0,4);
+    path.lineTo(4,4);
+    path.lineTo(2,2);
+    path.close();
+    path.moveTo(6,4);
+    path.lineTo(2,4);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+</div>
+
 <div id="testLine17">
     SkPath path, simple;
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
@@ -320,12 +345,51 @@ path.close();
     testSimplifyx(path);
 </div>
 
+<div id="testLine28">
+    SkPath path, simple;
+    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine29">
+    SkPath path, simple;
+    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine30">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 4, 13, 13, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine31">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine32">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
-    testLine6,
+    testLine9,
+    testLine7,
+    testLine30,
+    testLine32,
+    testLine31,
+    testLine29,
+    testLine28,
+    testLine17,
     testSimplifyQuadratic21,
     testSimplifyQuadratic20,
     testSimplifyQuadratic19,
@@ -397,9 +461,52 @@ function parse(test) {
         tests.push(contours);
 }
 
+function parseRect(test) {
+    var contours = [];
+    var rectStrs = test.split("path.addRect");
+    var pattern = /-?\d+\.*\d*/g;
+    for (var r in rectStrs) {
+        var rect = rectStrs[r];
+        var sideStrs = rect.match(pattern);
+        var sides = [];
+        for (var wd in sideStrs) {
+            var num = parseFloat(sideStrs[wd]);
+            if (isNaN(num)) continue;
+            sides.push(num);
+        }
+        if (sides.length == 0)
+            continue;
+        var verbs = [];
+        var topLeft = [];
+        topLeft.push(sides[0]); topLeft.push(sides[1]);
+        var topRight = [];
+        topRight.push(sides[2]); topRight.push(sides[1]);
+        var botLeft = [];
+        botLeft.push(sides[0]); botLeft.push(sides[3]);
+        var botRight = [];
+        botRight.push(sides[2]); botRight.push(sides[3]);
+        verbs.push(topLeft);
+        if (sides[4] == 0) {
+            verbs.push(topRight);
+            verbs.push(botRight);
+            verbs.push(botLeft);
+        } else {
+            verbs.push(botLeft);
+            verbs.push(botRight);
+            verbs.push(topRight);
+        }
+        verbs.push(topLeft);
+        contours.push(verbs);
+    }
+    if (contours.length > 0)
+        tests.push(contours);
+}
+
 function init(test) {
     var canvas = document.getElementById('canvas');
     if (!canvas.getContext) return;
+    canvas.width = document.width;
+    canvas.height = document.height;
     ctx = canvas.getContext('2d');
     var xmin = Infinity;
     var xmax = -Infinity;
@@ -599,7 +706,11 @@ function doKeyPress(evt) {
 function start() {
     for (i = 0; i < testDivs.length; ++i) {
         var str = testDivs[i].firstChild.data;
-        parse(str);
+        if (str.split("addRect").length > 1) {
+            parseRect(str);
+        } else {
+            parse(str);
+        }
     }
     drawTop();
     window.addEventListener('keypress', doKeyPress, true);
@@ -609,7 +720,7 @@ function start() {
 </head>
 
 <body onLoad="start();">
-<canvas id="canvas" width="1500" height="1000"
+<canvas id="canvas" width="750" height="500"
     onmousemove="handleMouseOver()"
     onclick="handleMouseClick()"
     ></canvas >

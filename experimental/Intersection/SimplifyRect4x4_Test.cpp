@@ -9,6 +9,7 @@
 #include "ShapeOps.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkStream.h"
 #include <assert.h>
 #include <pthread.h>
 
@@ -165,6 +166,46 @@ static void* testSimplify4x4RectsMain(void* data)
                     __FUNCTION__, state.a, state.b, state.c, state.d,
                     aXAlign, aYAlign, bXAlign, bYAlign,
                     cXAlign, cYAlign, dXAlign, dYAlign);
+            SkFILEStream inFile("../../experimental/Intersection/op.htm");
+            if (!inFile.isValid()) {
+                continue;
+            }
+            SkTDArray<char> inData;
+            inData.setCount(inFile.getLength());
+            size_t inLen = inData.count();
+            inFile.read(inData.begin(), inLen);
+            inFile.setPath(NULL);
+            SkFILEWStream outFile("../../experimental/Intersection/xop.htm");
+            if (!outFile.isValid()) {
+                continue;
+            }
+            const char marker[] =
+                "</div>\n"
+                "\n"
+                "<script type=\"text/javascript\">\n"
+                "\n"
+                "var testDivs = [\n";
+            const char testLineStr[] = "    testLine";
+            char* insert = strstr(inData.begin(), marker);   
+            if (!insert) {
+                continue;
+            }
+            size_t startLen = insert - inData.begin();
+            insert += sizeof(marker);
+            const char* numLoc = insert + sizeof(testLineStr);
+            int testNumber = atoi(numLoc) + 1;
+            outFile.write(inData.begin(), startLen);
+            outFile.writeText("<div id=\"testLine");
+            outFile.writeDecAsText(testNumber);
+            outFile.writeText("\">\n");
+            outFile.writeText(pathStr);
+            outFile.writeText("</div>\n\n");
+            outFile.writeText(marker);
+            outFile.writeText(testLineStr);
+            outFile.writeDecAsText(testNumber);
+            outFile.writeText(",\n");
+            outFile.write(insert, inLen - startLen - sizeof(marker));
+            outFile.flush();
         }               
                                 }
                             }
