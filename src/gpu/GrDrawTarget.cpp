@@ -716,8 +716,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             maxValidVertex = geoSrc.fVertexCount;
             break;
         case kBuffer_GeometrySrcType:
-            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() /
-                             VertexSize(geoSrc.fVertexLayout);
+            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() / VertexSize(geoSrc.fVertexLayout);
             break;
     }
     if (maxVertex > maxValidVertex) {
@@ -761,16 +760,14 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        // We don't support using unpremultiplied textures with filters (other
-        // than nearest). Alpha-premulling is not distributive WRT to filtering.
-        // We'd have to filter each texel before filtering. We could do this for
-        // our custom filters but we would also have to disable bilerp and do
-        // a custom bilerp in the shader. Until Skia itself supports unpremul
-        // configs there is no pressure to implement this.
-        if (this->isStageEnabled(s) &&
+        // We don't support using unpremultiplied textures with filters (other than nearest). Alpha-
+        // premulling is not distributive WRT to filtering. We'd have to filter each texel before
+        // filtering. We could do this for our custom filters but we would also have to disable
+        // bilerp and do a custom bilerp in the shader. Until Skia itself supports unpremul configs
+        // there is no pressure to implement this.
+        if (drawState.getTexture(s) &&
             GrPixelConfigIsUnpremultiplied(drawState.getTexture(s)->config()) &&
-            GrSamplerState::kNearest_Filter !=
-            drawState.getSampler(s).getFilter()) {
+            GrSamplerState::kNearest_Filter != drawState.getSampler(s).getFilter()) {
             return false;
         }
     }
