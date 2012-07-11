@@ -618,12 +618,6 @@ void GrContext::setClip(const GrClip& clip) {
     fDrawState->enableState(GrDrawState::kClip_StateBit);
 }
 
-void GrContext::setClip(const GrIRect& rect) {
-    GrClip clip;
-    clip.setFromIRect(rect);
-    fGpu->setClip(clip);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::clear(const GrIRect* rect, 
@@ -1822,7 +1816,6 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                    float sigmaX, float sigmaY) {
     ASSERT_OWNED_RESOURCE(srcTexture);
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
-    GrClip oldClip = this->getClip();
     GrTexture* origTexture = srcTexture;
     AutoMatrix avm(this, GrMatrix::I());
     SkIRect clearRect;
@@ -1837,8 +1830,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     scale_rect(&srcRect, static_cast<float>(scaleFactorX), 
                          static_cast<float>(scaleFactorY));
 
-    GrClip newClip(srcRect);
-    this->setClip(newClip);
+    AutoClip acs(this, srcRect);
 
     GrAssert(kBGRA_8888_PM_GrPixelConfig == srcTexture->config() ||
              kRGBA_8888_PM_GrPixelConfig == srcTexture->config() ||
@@ -1938,7 +1930,6 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         SkTSwap(srcTexture, dstTexture);
     }
     this->setRenderTarget(oldRenderTarget);
-    this->setClip(oldClip);
     return srcTexture;
 }
 
@@ -1949,12 +1940,11 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
                                       SkISize radius) {
     ASSERT_OWNED_RESOURCE(srcTexture);
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
-    AutoMatrix avm(this, GrMatrix::I());
-    GrClip oldClip = this->getClip();
 
-    GrClip newClip(GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
-                                  SkIntToScalar(srcTexture->height())));
-    this->setClip(newClip);
+    AutoMatrix avm(this, GrMatrix::I());
+
+    AutoClip acs(this, GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
+                                           SkIntToScalar(srcTexture->height())));
 
     if (radius.fWidth > 0) {
         this->setRenderTarget(temp1->asRenderTarget());
@@ -1975,7 +1965,6 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
         srcTexture = temp2;
     }
     this->setRenderTarget(oldRenderTarget);
-    this->setClip(oldClip);
     return srcTexture;
 }
 

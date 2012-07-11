@@ -338,12 +338,6 @@ public:
      */
     void setClip(const GrClip& clip);
 
-    /**
-     * Convenience method for setting the clip to a rect.
-     * @param rect  the rect to set as the new clip.
-     */
-    void setClip(const GrIRect& rect);
-
     ///////////////////////////////////////////////////////////////////////////
     // Draws
 
@@ -699,6 +693,26 @@ public:
     private:
         GrContext*  fContext;
         GrMatrix    fMatrix;
+    };
+
+    class AutoClip : GrNoncopyable {
+    public:
+        AutoClip(GrContext* context, const GrRect& newClipRect) 
+        : fContext(context)
+        , fNewClip(newClipRect) {
+            fOldClip = fContext->getClip();
+            fContext->setClip(fNewClip);
+        }
+
+        ~AutoClip() {
+            if (NULL != fContext) {
+                fContext->setClip(fOldClip);
+            }
+        }
+    private:
+        GrContext*  fContext;
+        GrClip      fOldClip;
+        GrClip      fNewClip;
     };
 
     ///////////////////////////////////////////////////////////////////////////
