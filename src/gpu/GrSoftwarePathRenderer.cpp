@@ -46,15 +46,12 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
     }
     *pathBounds = GrIRect::MakeWH(rt->width(), rt->height());
     const GrClip& clip = target->getClip();
-    if (clip.hasConservativeBounds()) {
-        clip.getConservativeBounds().roundOut(clipBounds);
-        if (!pathBounds->intersect(*clipBounds)) {
-            return false;
-        }
-    } else {
-        // pathBounds is currently the rt extent, set clip bounds to that rect.
-        *clipBounds = *pathBounds;
+
+    clip.getConservativeBounds().roundOut(clipBounds);
+    if (!pathBounds->intersect(*clipBounds)) {
+        return false;
     }
+
     if (!path.getBounds().isEmpty()) {
         GrRect pathSBounds;
         matrix.mapRect(&pathSBounds, path.getBounds());
