@@ -57,9 +57,9 @@ GrGLMorphologyEffect ::GrGLMorphologyEffect(const GrProgramStageFactory& factory
 }
 
 void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* state, int stage) {
-    fImageIncrementVar = &state->addUniform(
-        GrGLShaderBuilder::kBoth_VariableLifetime,
-        kVec2f_GrSLType, "uImageIncrement", stage);
+    fImageIncrementVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
+                                            GrGLShaderBuilder::kVertex_ShaderType,
+                                            kVec2f_GrSLType, "uImageIncrement", stage);
 }
 
 void GrGLMorphologyEffect::emitVS(GrGLShaderBuilder* state,

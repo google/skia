@@ -60,12 +60,11 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factor
 
 void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* state,
                                            int stage) {
-    fImageIncrementVar = &state->addUniform(
-        GrGLShaderBuilder::kBoth_VariableLifetime,
-        kVec2f_GrSLType, "uImageIncrement", stage);
-    fKernelVar = &state->addUniform(
-        GrGLShaderBuilder::kFragment_VariableLifetime,
-        kFloat_GrSLType, "uKernel", stage, this->width());
+    fImageIncrementVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
+                                            GrGLShaderBuilder::kVertex_ShaderType,
+                                            kVec2f_GrSLType, "uImageIncrement", stage);
+    fKernelVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                    kFloat_GrSLType, "uKernel", stage, this->width());
 
     fImageIncrementLocation = kUseUniform;
     fKernelLocation = kUseUniform;

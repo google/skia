@@ -362,7 +362,7 @@ void genInputColor(GrGLProgram::ProgramDesc::ColorInput colorInput,
             *inColor = fsName;
             } break;
         case GrGLProgram::ProgramDesc::kUniform_ColorInput:
-            segments->addUniform(GrGLShaderBuilder::kFragment_VariableLifetime,
+            segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                  kVec4f_GrSLType, COL_UNI_NAME);
             programData->fUniLocations.fColorUni = kUseUniform;
             *inColor = COL_UNI_NAME;
@@ -398,7 +398,7 @@ void genAttributeCoverage(GrGLShaderBuilder* segments,
 void genUniformCoverage(GrGLShaderBuilder* segments,
                         GrGLProgram::CachedData* programData,
                         SkString* inOutCoverage) {
-    segments->addUniform(GrGLShaderBuilder::kFragment_VariableLifetime,
+    segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                          kVec4f_GrSLType, COV_UNI_NAME);
     programData->fUniLocations.fCoverageUni = kUseUniform;
     if (inOutCoverage->size()) {
@@ -529,7 +529,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
         segments.fFSOutputs.push_back(colorOutput);
     }
 
-    segments.addUniform(GrGLShaderBuilder::kVertex_VariableLifetime,
+    segments.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
                         kMat33f_GrSLType, VIEW_MATRIX_NAME);
     programData->fUniLocations.fViewMatrixUni = kUseUniform;
 
@@ -635,7 +635,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
         }
     }
     if (needColorFilterUniform) {
-        segments.addUniform(GrGLShaderBuilder::kFragment_VariableLifetime,
+        segments.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                             kVec4f_GrSLType, COL_FILTER_UNI_NAME);
         programData->fUniLocations.fColorFilterUni = kUseUniform;
     }
@@ -655,9 +655,9 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
         inColor = "filteredColor";
     }
     if (applyColorMatrix) {
-        segments.addUniform(GrGLShaderBuilder::kFragment_VariableLifetime,
+        segments.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                             kMat44f_GrSLType, COL_MATRIX_UNI_NAME);
-        segments.addUniform(GrGLShaderBuilder::kFragment_VariableLifetime,
+        segments.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                             kVec4f_GrSLType, COL_MATRIX_VEC_UNI_NAME);
         programData->fUniLocations.fColorMatrixUni = kUseUniform;
         programData->fUniLocations.fColorMatrixVecUni = kUseUniform;
@@ -1170,9 +1170,8 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
     programData->fColorFilterColor = GrColor_ILLEGAL;
 }
 
-//============================================================================
+///////////////////////////////////////////////////////////////////////////////
 // Stage code generation
-//============================================================================
 
 void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                int stageNum,
@@ -1190,17 +1189,16 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     /// Vertex Shader Stuff
 
-    // decide whether we need a matrix to transform texture coords
-    // and whether the varying needs a perspective coord.
+    // decide whether we need a matrix to transform texture coords and whether the varying needs a
+    // perspective coord.
     const char* matName = NULL;
     if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
         segments->fVaryingDims = segments->fCoordDims;
     } else {
         SkString texMatName;
         tex_matrix_name(stageNum, &texMatName);
-        const GrGLShaderVar* mat = &segments->addUniform(
-            GrGLShaderBuilder::kVertex_VariableLifetime, kMat33f_GrSLType,
-            texMatName.c_str());
+        const GrGLShaderVar* mat = &segments->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                                         kMat33f_GrSLType, texMatName.c_str());
         // Can't use texMatName.c_str() because it's on the stack!
         matName = mat->getName().c_str();
         locations->fTextureMatrixUni = kUseUniform;
@@ -1220,9 +1218,8 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
 
     SkString samplerName;
     sampler_name(stageNum, &samplerName);
-    // const GrGLShaderVar* sampler = &
-        segments->addUniform(GrGLShaderBuilder::kFragment_VariableLifetime,
-        kSampler2D_GrSLType, samplerName.c_str());
+    segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                         kSampler2D_GrSLType, samplerName.c_str());
     locations->fSamplerUni = kUseUniform;
 
     const char *varyingVSName, *varyingFSName;
@@ -1242,8 +1239,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
                                   vector_all_coords(segments->fVaryingDims));
     }
 
-    // GrGLShaderVar* kernel = NULL;
-    // const char* imageIncrementName = NULL;
     if (NULL != customStage) {
         segments->fVSCode.appendf("\t{ // stage %d %s\n",
                                   stageNum, customStage->name());
@@ -1275,10 +1270,8 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     if (desc.fOptFlags & StageDesc::kCustomTextureDomain_OptFlagBit) {
         SkString texDomainName;
         tex_domain_name(stageNum, &texDomainName);
-        // const GrGLShaderVar* texDomain = &
-            segments->addUniform(
-                GrGLShaderBuilder::kFragment_VariableLifetime,
-                kVec4f_GrSLType, texDomainName.c_str());
+        segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                             kVec4f_GrSLType, texDomainName.c_str());
         SkString coordVar("clampCoord");
         segments->fFSCode.appendf("\t%s %s = clamp(%s, %s.xy, %s.zw);\n",
                                   float_vector_type_str(segments->fCoordDims),

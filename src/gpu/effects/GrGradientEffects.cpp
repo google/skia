@@ -142,12 +142,10 @@ void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* state, int stage) {
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
-    fVSParamVar = &state->addUniform(
-        GrGLShaderBuilder::kVertex_VariableLifetime,
-        kFloat_GrSLType, "uRadial2VSParams", stage, 6);
-    fFSParamVar = &state->addUniform(
-        GrGLShaderBuilder::kFragment_VariableLifetime,
-        kFloat_GrSLType, "uRadial2FSParams", stage, 6);
+    fVSParamVar = &state->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                     kFloat_GrSLType, "uRadial2VSParams", stage, 6);
+    fFSParamVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                     kFloat_GrSLType, "uRadial2FSParams", stage, 6);
 
     fVSParamLocation = GrGLProgramStage::kUseUniform;
     fFSParamLocation = GrGLProgramStage::kUseUniform;
@@ -399,12 +397,10 @@ void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* state, int stage) {
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
-    fVSParamVar = &state->addUniform(
-        GrGLShaderBuilder::kVertex_VariableLifetime,
-        kFloat_GrSLType, "uConical2VSParams", stage, 6);
-    fFSParamVar = &state->addUniform(
-        GrGLShaderBuilder::kFragment_VariableLifetime,
-        kFloat_GrSLType, "uConical2FSParams", stage, 6);
+    fVSParamVar = &state->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                     kFloat_GrSLType, "uConical2VSParams", stage, 6);
+    fFSParamVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                     kFloat_GrSLType, "uConical2FSParams", stage, 6);
 
     fVSParamLocation = GrGLProgramStage::kUseUniform;
     fFSParamLocation = GrGLProgramStage::kUseUniform;

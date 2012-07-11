@@ -15,14 +15,20 @@
 typedef GrTAllocator<GrGLShaderVar> VarArray;
 
 /**
-  Containts all the incremental state of a shader as it is being built,
-  as well as helpers to manipulate that state.
+  Contains all the incremental state of a shader as it is being built,as well as helpers to
+  manipulate that state.
   TODO: migrate CompileShaders() here?
 */
 
 class GrGLShaderBuilder {
 
 public:
+
+    enum ShaderType {
+        kVertex_ShaderType   = 0x1,
+        kGeometry_ShaderType = 0x2,
+        kFragment_ShaderType = 0x4,
+    };
 
     GrGLShaderBuilder();
 
@@ -36,62 +42,52 @@ public:
         kExplicitDivide_SamplerMode  // must do an explicit divide
     };
 
-    /** Determines whether we should use texture2D() or texture2Dproj(),
-        and if an explicit divide is required for the sample coordinates,
-        creates the new variable and emits the code to initialize it. */
+    /** Determines whether we should use texture2D() or texture2Dproj(), and if an explicit divide
+        is required for the sample coordinates, creates the new variable and emits the code to
+        initialize it. */
     void setupTextureAccess(SamplerMode samplerMode, int stageNum);
 
-    /** texture2D(samplerName, coordName), with projection
-        if necessary; if coordName is not specified,
-        uses fSampleCoords. */
+    /** texture2D(samplerName, coordName), with projection if necessary; if coordName is not
+        specified, uses fSampleCoords. */
     void emitTextureLookup(const char* samplerName,
                            const char* coordName = NULL);
 
-    /** sets outColor to results of texture lookup, with
-        swizzle, and/or modulate as necessary */
+    /** sets outColor to results of texture lookup, with swizzle, and/or modulate as necessary */
     void emitDefaultFetch(const char* outColor,
                           const char* samplerName);
 
-    /* TODO: can't arbitrarily OR together enum components, so
-       VariableLifetime will need to be reworked if we add
-       Geometry shaders. */
-    enum VariableLifetime {
-        kVertex_VariableLifetime = 1,
-        kFragment_VariableLifetime = 2,
-        kBoth_VariableLifetime = 3
-    };
 
-    /** Add a uniform variable to the current program, accessed
-       in vertex, fragment, or both stages. If stageNum is
-       specified, it is appended to the name to guarantee uniqueness;
-       if count is specified, the uniform is an array.
+    /** Add a uniform variable to the current program, that has visibilty in one or more shaders.
+        If stageNum is specified, it is appended to the name to guarantee uniqueness; if count is
+        specified, the uniform is an array. visibility is a bitfield of ShaderType values indicating
+        from which shaders the uniform should be accessible. At least one bit must be set. Geometry
+        shader uniforms are not supported at this time.
     */
-    const GrGLShaderVar& addUniform(VariableLifetime lifetime,
-        GrSLType type,
-        const char* name,
-        int stageNum = -1,
-        int count = GrGLShaderVar::kNonArray);
+    const GrGLShaderVar& addUniform(uint32_t visibility,
+                                    GrSLType type,
+                                    const char* name,
+                                    int stageNum = -1,
+                                    int count = GrGLShaderVar::kNonArray);
 
-    /** Add a varying variable to the current program to pass
-        values between vertex and fragment shaders.
-        If the last two parameters are non-NULL, they are filled
-        in with the name generated. */
+    /** Add a varying variable to the current program to pass values between vertex and fragment
+        shaders. If the last two parameters are non-NULL, they are filled in with the name
+        generated. */
     void addVarying(GrSLType type,
                     const char* name,
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
 
-    /** Add a varying variable to the current program to pass
-        values between vertex and fragment shaders;
-        stageNum is appended to the name to guarantee uniqueness.
-        If the last two parameters are non-NULL, they are filled
-        in with the name generated. */
+    /** Add a varying variable to the current program to pass values between vertex and fragment
+        shaders; stageNum is appended to the name to guarantee uniqueness. If the last two
+        parameters are non-NULL, they are filled in with the name generated. */
     void addVarying(GrSLType type,
                     const char* name,
                     int stageNum,
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
-    
+
+    // TODO: Everything below here private.
+
     SkString    fHeader; // VS+FS, GLSL version, etc
     VarArray    fVSUnis;
     VarArray    fVSAttrs;
@@ -108,8 +104,7 @@ public:
     SkString    fFSCode;
     bool        fUsesGS;
 
-    /// Per-stage settings - only valid while we're inside
-    /// GrGLProgram::genStageCode().
+    /// Per-stage settings - only valid while we're inside GrGLProgram::genStageCode().
     //@{
 
     int              fVaryingDims;
