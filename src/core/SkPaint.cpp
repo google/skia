@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkPaint.h"
+#include "SkAnnotation.h"
 #include "SkColorFilter.h"
 #include "SkFontHost.h"
 #include "SkImageFilter.h"
@@ -55,6 +55,7 @@ SkPaint::SkPaint() {
     fRasterizer  = NULL;
     fLooper      = NULL;
     fImageFilter = NULL;
+    fAnnotation  = NULL;
     fWidth      = 0;
 #endif
 
@@ -69,6 +70,7 @@ SkPaint::SkPaint() {
     fStyle      = kFill_Style;
     fTextEncoding = kUTF8_TextEncoding;
     fHinting    = SkPaintDefaults_Hinting;
+    fPrivFlags  = 0;
 #ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
 #endif
@@ -86,6 +88,7 @@ SkPaint::SkPaint(const SkPaint& src) {
     SkSafeRef(fRasterizer);
     SkSafeRef(fLooper);
     SkSafeRef(fImageFilter);
+    SkSafeRef(fAnnotation);
 }
 
 SkPaint::~SkPaint() {
@@ -98,6 +101,7 @@ SkPaint::~SkPaint() {
     SkSafeUnref(fRasterizer);
     SkSafeUnref(fLooper);
     SkSafeUnref(fImageFilter);
+    SkSafeUnref(fAnnotation);
 }
 
 SkPaint& SkPaint::operator=(const SkPaint& src) {
@@ -112,6 +116,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     SkSafeRef(src.fRasterizer);
     SkSafeRef(src.fLooper);
     SkSafeRef(src.fImageFilter);
+    SkSafeRef(src.fAnnotation);
 
     SkSafeUnref(fTypeface);
     SkSafeUnref(fPathEffect);
@@ -122,6 +127,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     SkSafeUnref(fRasterizer);
     SkSafeUnref(fLooper);
     SkSafeUnref(fImageFilter);
+    SkSafeUnref(fAnnotation);
 
 #ifdef SK_BUILD_FOR_ANDROID
     uint32_t oldGenerationID = fGenerationID;
@@ -369,6 +375,16 @@ SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
     SkRefCnt_SafeAssign(fImageFilter, imageFilter);
     GEN_ID_INC;
     return imageFilter;
+}
+
+SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
+    SkRefCnt_SafeAssign(fAnnotation, annotation);
+    GEN_ID_INC;
+
+    bool isNoDraw = annotation && annotation->isNoDraw();
+    fPrivFlags = SkSetClearMask(fPrivFlags, isNoDraw, kNoDrawAnnotation_PrivFlag);
+
+    return annotation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1809,7 +1825,7 @@ static uint32_t pack_4(unsigned a, unsigned b, unsigned c, unsigned d) {
 
 enum FlatFlags {
     kHasTypeface_FlatFlag   = 0x01,
-    kHasEffects_FlatFlag    = 0x02
+    kHasEffects_FlatFlag    = 0x02,
 };
 
 // The size of a flat paint's POD fields
@@ -1833,6 +1849,7 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         asint(this->getColorFilter()) |
         asint(this->getRasterizer()) |
         asint(this->getLooper()) |
+        asint(this->getAnnotation()) |
         asint(this->getImageFilter())) {
         flatFlags |= kHasEffects_FlatFlag;
     }
@@ -1870,6 +1887,7 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeFlattenable(this->getRasterizer());
         buffer.writeFlattenable(this->getLooper());
         buffer.writeFlattenable(this->getImageFilter());
+        buffer.writeFlattenable(this->getAnnotation());
     }
 }
 
@@ -1877,6 +1895,8 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
     SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
     const void* podData = buffer.skip(kPODPaintSize);
     const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
+
+    fPrivFlags = 0;
 
     // the order we read must match the order we wrote in flatten()
     this->setTextSize(read_scalar(pod));
@@ -1920,6 +1940,7 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         SkSafeUnref(this->setRasterizer((SkRasterizer*) buffer.readFlattenable()));
         SkSafeUnref(this->setLooper((SkDrawLooper*) buffer.readFlattenable()));
         SkSafeUnref(this->setImageFilter((SkImageFilter*) buffer.readFlattenable()));
+        SkSafeUnref(this->setAnnotation((SkAnnotation*) buffer.readFlattenable()));
     } else {
         this->setPathEffect(NULL);
         this->setShader(NULL);
@@ -2209,7 +2230,7 @@ bool SkImageFilter::asADilate(SkISize* radius) const {
     return false;
 }
 
-//////
+////////////////////
 
 SK_DEFINE_INST_COUNT(SkDrawLooper)
 

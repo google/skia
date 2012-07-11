@@ -15,6 +15,7 @@
 #include "SkDrawLooper.h"
 #include "SkXfermode.h"
 
+class SkAnnotation;
 class SkAutoGlyphCache;
 class SkColorFilter;
 class SkDescriptor;
@@ -581,6 +582,17 @@ public:
 
     SkImageFilter* getImageFilter() const { return fImageFilter; }
     SkImageFilter* setImageFilter(SkImageFilter*);
+    
+    SkAnnotation* getAnnotation() const { return fAnnotation; }
+    SkAnnotation* setAnnotation(SkAnnotation*);
+
+    /**
+     *  Returns true if there is an annotation installed on this paint, and
+     *  the annotation specifics no-drawing.
+     */
+    bool isNoDrawAnnotation() const {
+        return SkToBool(fPrivFlags & kNoDrawAnnotation_PrivFlag);
+    }
 
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
@@ -903,17 +915,24 @@ private:
     SkRasterizer*   fRasterizer;
     SkDrawLooper*   fLooper;
     SkImageFilter*  fImageFilter;
+    SkAnnotation*   fAnnotation;
 
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    unsigned        fFlags : 15;
+    // all of these bitfields should add up to 32
+    unsigned        fFlags : 16;
     unsigned        fTextAlign : 2;
     unsigned        fCapType : 2;
     unsigned        fJoinType : 2;
     unsigned        fStyle : 2;
     unsigned        fTextEncoding : 2;  // 3 values
     unsigned        fHinting : 2;
+    unsigned        fPrivFlags : 4; // these are not flattened/unflattened
+
+    enum PrivFlags {
+        kNoDrawAnnotation_PrivFlag  = 1 << 0,
+    };
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,

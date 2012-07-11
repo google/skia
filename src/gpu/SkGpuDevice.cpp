@@ -71,6 +71,12 @@ enum {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define CHECK_FOR_NODRAW_ANNOTATION(paint) \
+    do { if (paint.isNoDrawAnnotation()) { return; } } while (0)
+
+///////////////////////////////////////////////////////////////////////////////
+
+
 class SkGpuDevice::SkAutoCachedTexture : public ::SkNoncopyable {
 public:
     SkAutoCachedTexture() { }    
@@ -662,6 +668,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
 void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                           const SkPaint& paint) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
 
     bool doStroke = paint.getStyle() != SkPaint::kFill_Style;
@@ -976,6 +983,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
 
     bool             doFill = true;
