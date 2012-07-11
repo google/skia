@@ -1017,7 +1017,7 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* state,
     fLight->emitFuncs(funcs);
     emitLightFunc(funcs);
     funcs->appendf("float sobel(float a, float b, float c, float d, float e, float f, float scale) {\n");
-    funcs->appendf("\treturn (-a + b - 2 * c + 2 * d -e + f) * scale;\n");
+    funcs->appendf("\treturn (-a + b - 2.0 * c + 2.0 * d -e + f) * scale;\n");
     funcs->appendf("}\n");
     funcs->appendf("vec3 pointToNormal(float x, float y, float scale) {\n");
     funcs->appendf("\treturn normalize(vec3(-x * scale, -y * scale, 1));\n");
@@ -1095,7 +1095,7 @@ void GrGLDiffuseLightingEffect::initUniforms(const GrGLInterface* gl,
 void GrGLDiffuseLightingEffect::emitLightFunc(SkString* funcs) {
     funcs->appendf("vec4 light(vec3 normal, vec3 surfaceToLight, vec3 lightColor) {\n");
     funcs->appendf("\tfloat colorScale = %s * dot(normal, surfaceToLight);\n", fKDVar->getName().c_str());
-    funcs->appendf("\treturn vec4(lightColor * clamp(colorScale, 0, 1), 1);\n");
+    funcs->appendf("\treturn vec4(lightColor * clamp(colorScale, 0.0, 1.0), 1.0);\n");
     funcs->appendf("}\n");
 }
 
@@ -1165,7 +1165,7 @@ void GrGLSpecularLightingEffect::emitLightFunc(SkString* funcs) {
 
     funcs->appendf("\tfloat colorScale = %s * pow(dot(normal, halfDir), %s);\n",
         fKSVar->getName().c_str(), fShininessVar->getName().c_str());
-    funcs->appendf("\treturn vec4(lightColor * clamp(colorScale, 0, 1), 1);\n");
+    funcs->appendf("\treturn vec4(lightColor * clamp(colorScale, 0.0, 1.0), 1.0);\n");
     funcs->appendf("}\n");
 }
 
