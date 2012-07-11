@@ -9,11 +9,6 @@
 
 #include "SkUtils.h"
 
-// declared in SkPostConfig.h, see comment there.
-void SkNoReturnHint() {}
-
-///////////////////////////////////////////////////////////////////////////////
-
 #if 0
 #define assign_16_longs(dst, value)             \
     do {                                        \
