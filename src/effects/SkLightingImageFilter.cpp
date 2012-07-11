@@ -514,7 +514,7 @@ public:
     virtual GrGLLight* createGLLight() const SK_OVERRIDE {
         return new GrGLPointLight();
     }
-    bool isEqual(const SkLight& other) SK_OVERRIDE {
+    bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kPoint_LightType) {
             return false;
         }
@@ -611,7 +611,7 @@ protected:
         writePoint3(fS, buffer);
     }
 
-    virtual bool isEqual(const SkLight& other) SK_OVERRIDE {
+    virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kSpot_LightType) {
             return false;
         }
