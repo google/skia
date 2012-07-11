@@ -2501,6 +2501,8 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
         case SkPath::kInverseEvenOdd_FillType:
             w &= 1;
             break;
+        default:
+            break;
     }
     return SkToBool(w);
 }
