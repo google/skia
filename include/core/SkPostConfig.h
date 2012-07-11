@@ -64,10 +64,10 @@
  */
 #if !defined(SkNO_RETURN_HINT)
     #if SK_HAS_COMPILER_FEATURE(attribute_analyzer_noreturn)
-        namespace {
-            inline void SkNO_RETURN_HINT() __attribute__((analyzer_noreturn));
-            void SkNO_RETURN_HINT() {}
-        }
+        // If we make this a static clang will complain that it isn't called in
+        // any file that has no asserts.
+        void SkNoReturnHint() __attribute__((analyzer_noreturn));
+        #define SkNO_RETURN_HINT() SkNoReturnHint()
     #else
         #define SkNO_RETURN_HINT() do {} while (false)
     #endif
