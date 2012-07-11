@@ -342,6 +342,7 @@ private:
 
 class GrGLLight {
 public:
+    virtual ~GrGLLight() {}
     virtual void setupVariables(GrGLShaderBuilder* state, int stage);
     virtual void emitVS(SkString* builder) const {}
     virtual void emitFuncs(SkString* builder) const {}
@@ -362,6 +363,7 @@ protected:
 
 class GrGLDistantLight : public GrGLLight {
 public:
+    virtual ~GrGLDistantLight() {}
     virtual void setupVariables(GrGLShaderBuilder* state, int stage) SK_OVERRIDE;
     virtual void initUniforms(const GrGLInterface* gl, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface* gl, const SkLight* light) const SK_OVERRIDE;
@@ -377,6 +379,7 @@ private:
 
 class GrGLPointLight : public GrGLLight {
 public:
+    virtual ~GrGLPointLight() {}
     virtual void setupVariables(GrGLShaderBuilder* state, int stage);
     virtual void initUniforms(const GrGLInterface* gl, int programID);
     virtual void setData(const GrGLInterface* gl, const SkLight* light) const SK_OVERRIDE;
@@ -395,6 +398,7 @@ private:
 
 class GrGLSpotLight : public GrGLLight {
 public:
+    virtual ~GrGLSpotLight() {}
     virtual void setupVariables(GrGLShaderBuilder* state, int stage);
     virtual void initUniforms(const GrGLInterface* gl, int programID);
     virtual void setData(const GrGLInterface* gl, const SkLight* light) const SK_OVERRIDE;
@@ -477,6 +481,15 @@ public:
     virtual LightType type() const { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
     virtual GrGLLight* createGLLight() const SK_OVERRIDE;
+    virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
+        if (other.type() != kDistant_LightType) {
+            return false;
+        }
+
+        const SkDistantLight& o = static_cast<const SkDistantLight&>(other);
+        return INHERITED::isEqual(other) &&
+               fDirection == o.fDirection;
+    }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDistantLight)
 
@@ -514,7 +527,7 @@ public:
     virtual GrGLLight* createGLLight() const SK_OVERRIDE {
         return new GrGLPointLight();
     }
-    bool isEqual(const SkLight& other) const SK_OVERRIDE {
+    virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kPoint_LightType) {
             return false;
         }
