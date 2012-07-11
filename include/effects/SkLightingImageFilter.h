@@ -39,6 +39,9 @@ public:
     SkPoint3 operator-(const SkPoint3& other) const {
         return SkPoint3(fX - other.fX, fY - other.fY, fZ - other.fZ);
     }
+    bool operator==(const SkPoint3& other) const {
+        return fX == other.fX && fY == other.fY && fZ == other.fZ;
+    }
     SkScalar fX, fY, fZ;
 };
 

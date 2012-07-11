@@ -14,6 +14,7 @@ class SkBitmap;
 class SkDevice;
 class SkMatrix;
 struct SkPoint;
+class GrCustomStage;
 
 /**
  *  Experimental.
@@ -75,6 +76,17 @@ public:
      *  image after the filter has been applied.
      */
     bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst);
+
+    /**
+     *  Returns true if the filter can be expressed a single-pass
+     *  GrCustomStage, used to process this filter on the GPU, or false if
+     *  not.
+     * 
+     *  If stage is non-NULL, a new GrCustomStage instance is stored
+     *  in it.  The caller assumes ownership of the stage, and it is up to the
+     *  caller to unref it.
+     */
+    virtual bool asNewCustomStage(GrCustomStage** stage) const;
 
     /**
      *  Experimental.
