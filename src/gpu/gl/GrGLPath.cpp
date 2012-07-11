@@ -29,7 +29,7 @@ inline GrGLubyte verb_to_gl_path_cmd(const SkPath::Verb verb) {
     GR_STATIC_ASSERT(3 == SkPath::kCubic_Verb);
     GR_STATIC_ASSERT(4 == SkPath::kClose_Verb);
 
-    GrAssert(verb >= 0 && verb < GR_ARRAY_COUNT(gTable));
+    GrAssert(verb >= 0 && (size_t)verb < GR_ARRAY_COUNT(gTable));
     return gTable[verb];
 }
 
@@ -47,7 +47,7 @@ inline int num_pts(const SkPath::Verb verb) {
     GR_STATIC_ASSERT(3 == SkPath::kCubic_Verb);
     GR_STATIC_ASSERT(4 == SkPath::kClose_Verb);
 
-    GrAssert(verb >= 0 && verb < GR_ARRAY_COUNT(gTable));
+    GrAssert(verb >= 0 && (size_t)verb < GR_ARRAY_COUNT(gTable));
     return gTable[verb];
 }
 }
