@@ -163,6 +163,9 @@
       'include_dirs': [
         '../include/core',
         '../include/config',
+        '../include/effects',       # This is only to get Sk effects into
+                                    # GrGpuGL_unittest.cpp, not for general
+                                    # consumption in src/gpu.
         '../include/gpu',
         '../src/core', # SkRasterClip.h
         '../src/gpu'

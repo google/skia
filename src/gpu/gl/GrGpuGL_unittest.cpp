@@ -3,6 +3,7 @@
 #include "effects/GrConvolutionEffect.h"
 #include "effects/GrGradientEffects.h"
 #include "effects/GrMorphologyEffect.h"
+#include "SkLightingImageFilter.h"
 #include "GrProgramStageFactory.h"
 #include "GrRandom.h"
 
@@ -23,6 +24,10 @@ bool random_bool(GrRandom* r) {
     return r->nextF() > .5f;
 }
 
+SkPoint3 random_point3(GrRandom* r) {
+    return SkPoint3(r->nextF(), r->nextF(), r->nextF());
+}
+
 typedef GrGLProgram::StageDesc StageDesc;
 // TODO: Effects should be able to register themselves for inclusion in the
 // randomly generated shaders. They should be able to configure themselves
@@ -35,6 +40,12 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         kDilate_EffectType,
         kRadialGradient_EffectType,
         kRadial2Gradient_EffectType,
+        kDiffuseDistant_EffectType,
+        kDiffusePoint_EffectType,
+        kDiffuseSpot_EffectType,
+        kSpecularDistant_EffectType,
+        kSpecularPoint_EffectType,
+        kSpecularSpot_EffectType,
         kSweepGradient_EffectType,
 
         kEffectCount
@@ -107,6 +118,86 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         case kSweepGradient_EffectType: {
             return SkNEW(GrSweepGradient);
             }
+        case kDiffuseDistant_EffectType: {
+            SkPoint3 direction = random_point3(random);
+            direction.normalize();
+            SkColor lightColor = random->nextU();
+            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
+            SkScalar kd = SkFloatToScalar(random->nextF());
+            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateDistantLitDiffuse(direction, lightColor, surfaceScale, kd));
+            // does not work with perspective or mul-by-alpha-mask
+            GrCustomStage* stage;
+            SkASSERT(filter->asNewCustomStage(&stage));
+            return stage;
+        }
+        case kDiffusePoint_EffectType: {
+            SkPoint3 location = random_point3(random);
+            SkColor lightColor = random->nextU();
+            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
+            SkScalar kd = SkFloatToScalar(random->nextF());
+            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreatePointLitDiffuse(location, lightColor, surfaceScale, kd));
+            // does not work with perspective or mul-by-alpha-mask
+            GrCustomStage* stage;
+            SkASSERT(filter->asNewCustomStage(&stage));
+            return stage;
+        }
+        case kDiffuseSpot_EffectType: {
+            SkPoint3 location = random_point3(random);
+            SkPoint3 target = random_point3(random);
+            SkScalar cutoffAngle = SkFloatToScalar(random->nextF());
+            SkScalar specularExponent = SkFloatToScalar(random->nextF());
+            SkColor lightColor = random->nextU();
+            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
+            SkScalar ks = SkFloatToScalar(random->nextF());
+            SkScalar shininess = SkFloatToScalar(random->nextF());
+            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateSpotLitSpecular(
+                location, target, specularExponent, cutoffAngle, lightColor, surfaceScale, ks, shininess));
+            // does not work with perspective or mul-by-alpha-mask
+            GrCustomStage* stage;
+            SkASSERT(filter->asNewCustomStage(&stage));
+            return stage;
+        }
+        case kSpecularDistant_EffectType: {
+            SkPoint3 direction = random_point3(random);
+            direction.normalize();
+            SkColor lightColor = random->nextU();
+            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
+            SkScalar ks = SkFloatToScalar(random->nextF());
+            SkScalar shininess = SkFloatToScalar(random->nextF());
+            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateDistantLitSpecular(direction, lightColor, surfaceScale, ks, shininess));
+            // does not work with perspective or mul-by-alpha-mask
+            GrCustomStage* stage;
+            SkASSERT(filter->asNewCustomStage(&stage));
+            return stage;
+        }
+        case kSpecularPoint_EffectType: {
+            SkPoint3 location = random_point3(random);
+            SkColor lightColor = random->nextU();
+            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
+            SkScalar ks = SkFloatToScalar(random->nextF());
+            SkScalar shininess = SkFloatToScalar(random->nextF());
+            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreatePointLitSpecular(location, lightColor, surfaceScale, ks, shininess));
+            // does not work with perspective or mul-by-alpha-mask
+            GrCustomStage* stage;
+            SkASSERT(filter->asNewCustomStage(&stage));
+            return stage;
+        }
+        case kSpecularSpot_EffectType: {
+            SkPoint3 location = random_point3(random);
+            SkPoint3 target = random_point3(random);
+            SkScalar cutoffAngle = SkFloatToScalar(random->nextF());
+            SkScalar specularExponent = SkFloatToScalar(random->nextF());
+            SkColor lightColor = random->nextU();
+            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
+            SkScalar ks = SkFloatToScalar(random->nextF());
+            SkScalar shininess = SkFloatToScalar(random->nextF());
+            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateSpotLitSpecular(
+                location, target, specularExponent, cutoffAngle, lightColor, surfaceScale, ks, shininess));
+            // does not work with perspective or mul-by-alpha-mask
+            GrCustomStage* stage;
+            SkASSERT(filter->asNewCustomStage(&stage));
+            return stage;
+        }
         default:
             GrCrash("Unexpected custom effect type");
     }

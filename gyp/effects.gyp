@@ -7,6 +7,8 @@
         '../include/config',
         '../include/core',
         '../include/effects',
+        '../include/gpu',
+        '../src/gpu',
       ],
       'sources': [
         '../include/effects/Sk1DPathEffect.h',

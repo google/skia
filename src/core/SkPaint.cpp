@@ -2193,6 +2193,10 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
+bool SkImageFilter::asNewCustomStage(GrCustomStage**) const {
+    return false;
+}
+
 bool SkImageFilter::asABlur(SkSize* sigma) const {
     return false;
 }

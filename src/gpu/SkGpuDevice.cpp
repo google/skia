@@ -1424,6 +1424,33 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
 }
 
+namespace {
+
+void apply_custom_stage(GrContext* context,
+                        GrTexture* srcTexture,
+                        GrTexture* dstTexture,
+                        const GrRect& rect,
+                        GrCustomStage* stage) {
+    SkASSERT(srcTexture && srcTexture->getContext() == context);
+    GrAutoMatrix avm(context, GrMatrix::I());
+    GrContext::AutoRenderTarget art(context, dstTexture->asRenderTarget());
+    GrClip oldClip = context->getClip();
+    context->setClip(rect);
+
+    GrMatrix sampleM;
+    sampleM.setIDiv(srcTexture->width(), srcTexture->height());
+    GrPaint paint;
+    paint.reset();
+    paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+    paint.textureSampler(0)->reset(sampleM);
+    paint.textureSampler(0)->setCustomStage(stage);
+    paint.setTexture(0, srcTexture);
+    context->drawRect(paint, rect);
+    context->setClip(oldClip);
+}
+
+};
+
 static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
                                  SkImageFilter* filter, const GrRect& rect) {
     GrAssert(filter);
@@ -1436,8 +1463,14 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
     desc.fWidth = SkScalarCeilToInt(rect.width());
     desc.fHeight = SkScalarCeilToInt(rect.height());
     desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
+    GrCustomStage* stage;
 
-    if (filter->asABlur(&blurSize)) {
+    if (filter->asNewCustomStage(&stage)) {
+        GrAutoScratchTexture dst(context, desc);
+        apply_custom_stage(context, texture, dst.texture(), rect, stage);
+        texture = dst.detach();
+        stage->unref();
+    } else if (filter->asABlur(&blurSize)) {
         GrAutoScratchTexture temp1, temp2;
         texture = context->gaussianBlur(texture, &temp1, &temp2, rect,
                                         blurSize.width(),
@@ -1564,7 +1597,11 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 bool SkGpuDevice::canHandleImageFilter(SkImageFilter* filter) {
     SkSize size;
     SkISize radius;
-    if (!filter->asABlur(&size) && !filter->asADilate(&radius) && !filter->asAnErode(&radius)) {
+
+    if (!filter->asNewCustomStage(NULL) &&
+        !filter->asABlur(&size) &&
+        !filter->asADilate(&radius) &&
+        !filter->asAnErode(&radius)) {
         return false;
     }
     return true;

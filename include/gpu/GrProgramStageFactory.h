@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "SkTemplates.h"
+#include "GrNoncopyable.h"
 
 /** Given a GrCustomStage of a particular type, creates the corresponding
     graphics-backend-specific GrProgramStage. Also tracks equivalence
