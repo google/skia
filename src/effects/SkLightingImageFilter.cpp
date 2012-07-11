@@ -776,11 +776,15 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
 }
 
 bool SkDiffuseLightingImageFilter::asNewCustomStage(GrCustomStage** stage) const {
+#if 0
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *stage = new GrDiffuseLightingEffect(light(), scale, kd());
     }
     return true;
+#else
+    return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -839,11 +843,15 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
 }
 
 bool SkSpecularLightingImageFilter::asNewCustomStage(GrCustomStage** stage) const {
+#if 0
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *stage = new GrSpecularLightingEffect(light(), scale, ks(), shininess());
     }
     return true;
+#else
+    return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
