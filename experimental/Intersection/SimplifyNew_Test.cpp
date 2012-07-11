@@ -100,6 +100,27 @@ static void testLine7() {
     testSimplifyx(path);
 }
 
+static void testLine7a() {
+    SkPath path, simple;
+    path.moveTo(0,0);
+    path.lineTo(4,0);
+    path.lineTo(2,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testLine7b() {
+    SkPath path, simple;
+    path.moveTo(0,0);
+    path.lineTo(4,0);
+    path.close();
+    path.moveTo(6,0);
+    path.lineTo(2,0);
+    path.lineTo(4,2);
+    path.close();
+    testSimplifyx(path);
+}
+
 static void testLine8() {
     SkPath path, simple;
     path.moveTo(0,4);
@@ -313,6 +334,44 @@ static void testLine27() {
     testSimplifyx(path);
 }
 
+static void testLine28() {
+    SkPath path, simple;
+    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine29() {
+    SkPath path, simple;
+    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine30() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 4, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine31() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine32() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
 #define TEST(name) { name, #name }
 
 static struct {
@@ -325,6 +384,8 @@ static struct {
     TEST(testLine4),
     TEST(testLine5),
     TEST(testLine6),
+    TEST(testLine7a),
+    TEST(testLine7b),
     TEST(testLine7),
     TEST(testLine8),
     TEST(testLine9),
@@ -348,11 +409,16 @@ static struct {
     TEST(testLine25),
     TEST(testLine26),
     TEST(testLine27),
+    TEST(testLine28),
+    TEST(testLine29),
+    TEST(testLine30),
+    TEST(testLine31),
+    TEST(testLine32),
 };
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
-static void (*firstTest)() = 0;
+static void (*firstTest)() = testLine32;
 static bool skipAll = false;
 
 void SimplifyNew_Test() {
