@@ -175,8 +175,8 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
         return true;
     }
 
-    int otherFormat = GR_GL_RGBA;
-    int otherType = GR_GL_UNSIGNED_BYTE;
+    GrGLint otherFormat = GR_GL_RGBA;
+    GrGLint otherType = GR_GL_UNSIGNED_BYTE;
 
     // The other supported format/type combo supported for ReadPixels
     // can change based on which render target is bound
@@ -188,7 +188,7 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
                       GR_GL_IMPLEMENTATION_COLOR_READ_TYPE,
                       &otherType);
 
-    return otherFormat == format && otherType == type; 
+    return (GrGLenum)otherFormat == format && (GrGLenum)otherType == type;
 }
 
 namespace {

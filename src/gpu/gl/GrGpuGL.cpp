@@ -1810,6 +1810,7 @@ void GrGpuGL::onGpuStencilPath(const GrPath* path, GrPathFill fill) {
         default:
             // Only the above two fill rules are allowed.
             GrCrash("Unexpected path fill.");
+            return; // suppress unused var warning.
     }
     GrGLint writeMask = fStencilSettings.writeMask(GrStencilSettings::kFront_Face);
     GL_CALL(StencilFillPath(id, fillMode, writeMask));
