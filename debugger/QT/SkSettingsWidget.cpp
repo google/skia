@@ -19,6 +19,7 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     , fVisibleOff(&fVisibleFrame)
     , fCommandLayout(&fCommandFrame)
     , fCurrentCommandBox(&fCommandFrame)
+    , fCommandHitBox(&fCommandFrame)
     , fCommandCheckBox(&fCommandFrame)
     , fZoomBox(&fZoomFrame)
     , fZoomLayout(&fZoomFrame)
@@ -65,10 +66,24 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     fCurrentCommandLayout.addWidget(&fCurrentCommandLabel);
     fCurrentCommandLayout.addWidget(&fCurrentCommandBox);
 
+    fCommandHitLabel.setText("Command HitBox: ");
+    fCommandHitLabel.setMinimumWidth(178);
+    fCommandHitLabel.setMaximumWidth(178);
+    fCommandHitBox.setText("0");
+    fCommandHitBox.setMinimumSize(QSize(50,25));
+    fCommandHitBox.setMaximumSize(QSize(50,25));
+    fCommandHitBox.setAlignment(Qt::AlignRight);
+    fCommandHitLayout.setSpacing(0);
+    fCommandHitLayout.setContentsMargins(0,0,0,0);
+    fCommandHitLayout.setAlignment(Qt::AlignLeft);
+    fCommandHitLayout.addWidget(&fCommandHitLabel);
+    fCommandHitLayout.addWidget(&fCommandHitBox);
+
     fCommandCheckBox.setText("Pause");
     fCommandLayout.setSpacing(6);
     fCommandLayout.setContentsMargins(11,11,11,11);
     fCommandLayout.addLayout(&fCurrentCommandLayout);
+    fCommandLayout.addLayout(&fCommandHitLayout);
     fCommandLayout.addWidget(&fCommandCheckBox);
 
     // Zoom Info
@@ -93,7 +108,7 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     fVerticalLayout.addWidget(&fCommandFrame);
     fVerticalLayout.addWidget(&fZoomFrame);
 
-    //this->setDisabled(true);
+    this->setDisabled(true);
 }
 
 SkSettingsWidget::~SkSettingsWidget() {}
@@ -101,6 +116,10 @@ SkSettingsWidget::~SkSettingsWidget() {}
 
 void SkSettingsWidget::updateCommand(int newCommand) {
     fCurrentCommandBox.setText(QString::number(newCommand));
+}
+
+void SkSettingsWidget::updateHit(int newHit) {
+    fCommandHitBox.setText(QString::number(newHit));
 }
 
 QCheckBox* SkSettingsWidget::getCommandCheckBox() {

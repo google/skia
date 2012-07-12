@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SkCanvasWidget.h'
 **
-** Created: Mon Jul 9 13:45:07 2012
+** Created: Wed Jul 11 15:15:07 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,16 +23,17 @@ static const uint qt_meta_data_SkCanvasWidget[] = {
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       2,       // signalCount
+       3,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       31,   16,   15,   15, 0x05,
       68,   57,   15,   15, 0x05,
+      92,   88,   15,   15, 0x05,
 
        0        // eod
 };
@@ -40,7 +41,7 @@ static const uint qt_meta_data_SkCanvasWidget[] = {
 static const char qt_meta_stringdata_SkCanvasWidget[] = {
     "SkCanvasWidget\0\0newScaleFactor\0"
     "scaleFactorChanged(float)\0newCommand\0"
-    "commandChanged(int)\0"
+    "commandChanged(int)\0hit\0hitChanged(int)\0"
 };
 
 const QMetaObject SkCanvasWidget::staticMetaObject = {
@@ -74,9 +75,10 @@ int SkCanvasWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: scaleFactorChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 1: commandChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 2: hitChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 2;
+        _id -= 3;
     }
     return _id;
 }
@@ -93,5 +95,12 @@ void SkCanvasWidget::commandChanged(int _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);
+}
+
+// SIGNAL 2
+void SkCanvasWidget::hitChanged(int _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 2, _a);
 }
 QT_END_MOC_NAMESPACE
