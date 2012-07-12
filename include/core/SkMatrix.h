@@ -584,8 +584,8 @@ private:
     void setTypeMask(int mask) {
         // allow kUnknown or a valid mask
         SkASSERT(kUnknown_Mask == mask || (mask & kAllMasks) == mask ||
-                 ((kUnknown_Mask | kOnlyPerspectiveValid_Mask | kPerspective_Mask) & mask)
-                 == mask);
+                 ((kUnknown_Mask | kOnlyPerspectiveValid_Mask) & mask)
+                 == (kUnknown_Mask | kOnlyPerspectiveValid_Mask));
         fTypeMask = SkToU8(mask);
     }
 
