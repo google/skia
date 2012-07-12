@@ -44,11 +44,12 @@ public:
         kPerspective_Mask   = 0x08   //!< set if the matrix is in perspective
     };
 
-    /** Returns a mask bitfield describing the types of transformations
-        that the matrix will perform. This information is used by routines
-        like mapPoints, to optimize its inner loops to only perform as much
-        arithmetic as is necessary.
-    */
+    /** Returns a bitfield describing the transformations the matrix may 
+        perform. The bitfield is computed conservatively, so it may include
+        false positives. For example, when kPerspective_Mask is true, all 
+        other bits may be set to true even in the case of a pure perspective
+        transform.
+   */
     TypeMask getType() const {
         if (fTypeMask & kUnknown_Mask) {
             fTypeMask = this->computeTypeMask();
