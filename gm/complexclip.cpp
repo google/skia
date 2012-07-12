@@ -19,8 +19,11 @@ static const SkColor gClipBColor = SK_ColorRED;
 
 class ComplexClipGM : public GM {
     bool fDoAAClip;
+    bool fSaveLayer;
 public:
-	ComplexClipGM(bool aaclip) : fDoAAClip(aaclip) {
+    ComplexClipGM(bool aaclip, bool saveLayer) 
+    : fDoAAClip(aaclip)
+    , fSaveLayer(saveLayer) {
         this->setBGColor(0xFFDDDDDD);
 //        this->setBGColor(SkColorSetRGB(0xB0,0xDD,0xB0));
     }
@@ -29,7 +32,9 @@ protected:
 
     SkString onShortName() {
         SkString str;
-        str.printf("complexclip_%s", fDoAAClip ? "aa" : "bw");
+        str.printf("complexclip_%s%s", 
+                   fDoAAClip ? "aa" : "bw",
+                   fSaveLayer ? "_layer" : "");
         return str;
     }
 
@@ -90,6 +95,15 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->scale(3 * SK_Scalar1 / 4, 3 * SK_Scalar1 / 4);
 
+        if (fSaveLayer) {
+            SkRect bounds = SkRect::MakeXYWH(100, 100, 1000, 750);
+            SkPaint boundPaint;
+            boundPaint.setColor(SK_ColorRED);
+            boundPaint.setStyle(SkPaint::kStroke_Style);
+            canvas->drawRect(bounds, boundPaint);
+            canvas->saveLayer(&bounds, NULL);
+        }
+
         for (int invBits = 0; invBits < 4; ++invBits) {
             canvas->save();
             for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
@@ -129,6 +143,10 @@ protected:
             canvas->restore();
             canvas->translate(0, SkIntToScalar(250));
         }
+
+        if (fSaveLayer) {
+            canvas->restore();
+        }
     }
 private:
     void drawHairlines(SkCanvas* canvas, const SkPath& path,
@@ -154,10 +172,17 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* gFact0(void*) { return new ComplexClipGM(false); }
-static GM* gFact1(void*) { return new ComplexClipGM(true); }
+// aliased and anti-aliased w/o a layer
+static GM* gFact0(void*) { return new ComplexClipGM(false, false); }
+static GM* gFact1(void*) { return new ComplexClipGM(true, false); }
+
+// aliased and anti-aliased w/ a layer
+static GM* gFact2(void*) { return new ComplexClipGM(false, true); }
+static GM* gFact3(void*) { return new ComplexClipGM(true, true); }
 
 static GMRegistry gReg0(gFact0);
 static GMRegistry gReg1(gFact1);
+static GMRegistry gReg2(gFact2);
+static GMRegistry gReg3(gFact3);
 
 }
