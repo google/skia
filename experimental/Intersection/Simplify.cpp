@@ -28,6 +28,7 @@
 #define DEBUG_CROSS 0
 #define DEBUG_DUMP 0
 #define DEBUG_PATH_CONSTRUCTION 0
+#define DEBUG_ACTIVE_SPANS 0
 #define DEBUG_WINDING 0
 #define DEBUG_UNUSED 0 // set to expose unused functions
 #define DEBUG_MARK_DONE 0
@@ -41,10 +42,16 @@
 #define DEBUG_CROSS 1
 #define DEBUG_DUMP 1
 #define DEBUG_PATH_CONSTRUCTION 1
+#define DEBUG_ACTIVE_SPANS 01
 #define DEBUG_WINDING 01
 #define DEBUG_UNUSED 0 // set to expose unused functions
 #define DEBUG_MARK_DONE 01
 
+#endif
+
+#if DEBUG_ACTIVE_SPANS && !DEBUG_DUMP
+#undef DEBUG_DUMP
+#define DEBUG_DUMP 1
 #endif
 
 #if DEBUG_DUMP
@@ -1768,6 +1775,33 @@ public:
     }
 #endif
 
+#if DEBUG_ACTIVE_SPANS
+    void debugShowActiveSpans(int contourID, int segmentIndex) {
+        if (done()) {
+            return;
+        }
+        for (int i = 0; i < fTs.count(); ++i) {
+            if (fTs[i].fDone) {
+                continue;
+            }
+            SkDebugf("%s contour=%d segment=%d (%d)", __FUNCTION__, contourID,
+                     segmentIndex, fID);
+            SkDebugf(" (%1.9g,%1.9g", fPts[0].fX, fPts[0].fY);
+            for (int vIndex = 1; vIndex <= fVerb; ++vIndex) {
+                SkDebugf(" %1.9g,%1.9g", fPts[vIndex].fX, fPts[vIndex].fY);
+            }
+            const Span* span = &fTs[i];
+            SkDebugf(") fT=%d (%1.9g) (%1.9g,%1.9g)", i, fTs[i].fT, 
+                     xAtT(span), yAtT(i));
+            const Segment* other = fTs[i].fOther;
+            SkDebugf(" other=%d otherT=%1.9g otherIndex=%d", other->fID,
+                     fTs[i].fOtherT, fTs[i].fOtherIndex);
+            SkDebugf(" windSum=%d windValue=%d\n", fTs[i].fWindSum,
+                     fTs[i].fWindValue);
+        }
+    }
+#endif
+
 private:
     const SkPoint* fPts;
     SkPath::Verb fVerb;
@@ -2068,6 +2102,14 @@ public:
                 className, fContainsIntercepts);
         SkDebugf("%*s.fContainsCurves=%d\n", tab + sizeof(className),
                 className, fContainsCurves);
+    }
+#endif
+
+#if DEBUG_ACTIVE_SPANS
+    void debugShowActiveSpans() {
+        for (int index = 0; index < fSegments.count(); ++index) {
+            fSegments[index].debugShowActiveSpans(fID, index);
+        }
     }
 #endif
 
@@ -2807,6 +2849,14 @@ static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex) {
     return NULL;
 }
 
+#if DEBUG_ACTIVE_SPANS
+static void debugShowActiveSpans(SkTDArray<Contour*>& contourList) {
+    for (int index = 0; index < contourList.count(); ++ index) {
+        contourList[index]->debugShowActiveSpans();
+    }
+}
+#endif
+
 // Each segment may have an inside or an outside. Segments contained within
 // winding may have insides on either side, and form a contour that should be
 // ignored. Segments that are coincident with opposing direction segments may
@@ -2884,6 +2934,9 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
                 simple.close();
             }
             current = findChase(chaseArray, index, endIndex);
+#if DEBUG_ACTIVE_SPANS
+            debugShowActiveSpans(contourList);
+#endif
             if (!current) {
                 break;
             }
