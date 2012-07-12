@@ -59,6 +59,9 @@ static void usage(const char* argv0) {
 "     --tile width[%] height[%]: "
 "Set to use the tiling size and specify the dimensions of each tile.\n"
 "                                     Default is to not use tiling\n");
+    SkDebugf(
+"     --unflatten: "
+"Set to do a picture unflattening benchmark. Default is not to do this.\n");
 }
 
 static void run_simple_benchmark(SkPicture* picture, const Options& options) {
@@ -179,6 +182,29 @@ static void run_pipe_benchmark(SkPicture* picture, const Options& options) {
     printf("pipe: cmsecs = %6.2f\n", timer.fWall / options.fRepeats);
 }
 
+static void run_unflatten_benchmark(SkPicture* commands, const Options& options) {
+    BenchTimer timer = BenchTimer(NULL);
+    double wall_time = 0;
+
+    for (int i = 0; i < options.fRepeats + 1; ++i) {
+        SkPicture replayer;
+        SkCanvas* recorder = replayer.beginRecording(commands->width(), commands->height());
+
+        recorder->drawPicture(*commands);
+
+        timer.start();
+        replayer.endRecording();
+        timer.end();
+
+        // We want to ignore first time effects
+        if (i > 0) {
+            wall_time += timer.fWall;
+        }
+    }
+
+    printf("unflatten: cmsecs = %6.4f\n", wall_time / options.fRepeats);
+}
+
 static void run_single_benchmark(const SkString& inputPath,
                                  Options* options) {
     SkFILEStream inputStream;
@@ -277,6 +303,8 @@ static void parse_commandline(int argc, char* const argv[],
             }
         } else if (0 == strcmp(*argv, "--pipe")) {
             options->fBenchmark = run_pipe_benchmark;
+        } else if (0 == strcmp(*argv, "--unflatten")) {
+            options->fBenchmark = run_unflatten_benchmark;
         } else if (0 == strcmp(*argv, "--help") || 0 == strcmp(*argv, "-h")) {
             usage(argv0);
             exit(0);
