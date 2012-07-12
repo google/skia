@@ -59,13 +59,27 @@ enum {
 uint8_t SkMatrix::computePerspectiveTypeMask() const {
     unsigned mask = kOnlyPerspectiveValid_Mask | kUnknown_Mask;
 
+#ifdef SK_SCALAR_SLOW_COMPARES
     if (SkScalarAs2sCompliment(fMat[kMPersp0]) |
             SkScalarAs2sCompliment(fMat[kMPersp1]) |
             (SkScalarAs2sCompliment(fMat[kMPersp2]) - kPersp1Int)) {
-        mask |= kPerspective_Mask;
+        return SkToU8(kORableMasks);
     }
+#else
+    // Benchmarking suggests that replacing this set of SkScalarAs2sCompliment
+    // is a win, but replacing those below is not. We don't yet understand
+    // that result.
+    if (fMat[kMPersp0] != 0 || fMat[kMPersp1] != 0 ||
+        fMat[kMPersp2] != kMatrix22Elem) {
+        // If this is a perspective transform, we return true for all other 
+        // transform flags - this does not disable any optimizations, respects
+        // the rule that the type mask must be conservative, and speeds up 
+        // type mask computation.
+        return SkToU8(kORableMasks);
+    }
+#endif
 
-    return SkToU8(mask);
+    return SkToU8(kOnlyPerspectiveValid_Mask | kUnknown_Mask);
 }
 
 uint8_t SkMatrix::computeTypeMask() const {
@@ -75,7 +89,7 @@ uint8_t SkMatrix::computeTypeMask() const {
     if (SkScalarAs2sCompliment(fMat[kMPersp0]) |
             SkScalarAs2sCompliment(fMat[kMPersp1]) |
             (SkScalarAs2sCompliment(fMat[kMPersp2]) - kPersp1Int)) {
-        mask |= kPerspective_Mask;
+        return SkToU8(kORableMasks);
     }
 
     if (SkScalarAs2sCompliment(fMat[kMTransX]) |
@@ -83,12 +97,11 @@ uint8_t SkMatrix::computeTypeMask() const {
         mask |= kTranslate_Mask;
     }
 #else
-    // Benchmarking suggests that replacing this set of SkScalarAs2sCompliment
-    // is a win, but replacing those below is not. We don't yet understand
-    // that result.
     if (fMat[kMPersp0] != 0 || fMat[kMPersp1] != 0 ||
         fMat[kMPersp2] != kMatrix22Elem) {
-        mask |= kPerspective_Mask;
+        // Once it is determined that that this is a perspective transform,
+        // all other flags are moot as far as optimizations are concerned.
+        return SkToU8(kORableMasks);
     }
 
     if (fMat[kMTransX] != 0 || fMat[kMTransY] != 0) {
@@ -102,30 +115,43 @@ uint8_t SkMatrix::computeTypeMask() const {
     int m11 = SkScalarAs2sCompliment(fMat[SkMatrix::kMScaleY]);
 
     if (m01 | m10) {
-        mask |= kAffine_Mask;
-    }
+        // The skew components may be scale-inducing, unless we are dealing
+        // with a pure rotation.  Testing for a pure rotation is expensive,
+        // so we opt for being conservative by always setting the scale bit.
+        // along with affine.
+        // By doing this, we are also ensuring that matrices have the same
+        // type masks as their inverses.
+        mask |= kAffine_Mask | kScale_Mask;
 
-    if ((m00 - kScalar1Int) | (m11 - kScalar1Int)) {
-        mask |= kScale_Mask;
-    }
+        // For rectStaysRect, in the affine case, we only need check that
+        // the primary diagonal is all zeros and that the secondary diagonal
+        // is all non-zero.
 
-    if ((mask & kPerspective_Mask) == 0) {
         // map non-zero to 1
-        m00 = m00 != 0;
         m01 = m01 != 0;
         m10 = m10 != 0;
-        m11 = m11 != 0;
 
-        // record if the (p)rimary and (s)econdary diagonals are all 0 or
-        // all non-zero (answer is 0 or 1)
-        int dp0 = (m00 | m11) ^ 1;  // true if both are 0
-        int dp1 = m00 & m11;        // true if both are 1
-        int ds0 = (m01 | m10) ^ 1;  // true if both are 0
+        int dp0 = 0 == (m00 | m11) ;  // true if both are 0
         int ds1 = m01 & m10;        // true if both are 1
 
-        // return 1 if primary is 1 and secondary is 0 or
-        // primary is 0 and secondary is 1
-        mask |= ((dp0 & ds1) | (dp1 & ds0)) << kRectStaysRect_Shift;
+        mask |= (dp0 & ds1) << kRectStaysRect_Shift;
+    } else {
+        // Only test for scale explicitly if not affine, since affine sets the
+        // scale bit.
+        if ((m00 - kScalar1Int) | (m11 - kScalar1Int)) {
+            mask |= kScale_Mask;
+        }
+
+        // Not affine, therefore we already know secondary diagonal is 
+        // all zeros, so we just need to check that primary diagonal is
+        // all non-zero.
+
+        // map non-zero to 1
+        m00 = m00 != 0;
+        m11 = m11 != 0;
+
+        // record if the (p)rimary diagonal is all non-zero
+        mask |= (m00 & m11) << kRectStaysRect_Shift;
     }
 
     return SkToU8(mask);
@@ -831,7 +857,6 @@ bool SkMatrix::invert(SkMatrix* inv) const {
         if (inv == this) {
             inv = &tmp;
         }
-        inv->setTypeMask(kUnknown_Mask);
 
         if (isPersp) {
             shift = 61 - shift;
@@ -862,7 +887,6 @@ bool SkMatrix::invert(SkMatrix* inv) const {
             }
             inv->fMat[kMPersp2] = SkFixedToFract(inv->fMat[kMPersp2]);
 #endif
-            inv->setTypeMask(kUnknown_Mask);
         } else {   // not perspective
 #ifdef SK_SCALAR_IS_FIXED
             Sk64    tx, ty;
@@ -911,8 +935,10 @@ bool SkMatrix::invert(SkMatrix* inv) const {
             inv->fMat[kMPersp0] = 0;
             inv->fMat[kMPersp1] = 0;
             inv->fMat[kMPersp2] = kMatrix22Elem;
-            inv->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+            
         }
+
+        inv->setTypeMask(fTypeMask);
 
         if (inv == &tmp) {
             *(SkMatrix*)this = tmp;
