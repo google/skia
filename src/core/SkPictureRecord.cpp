@@ -170,6 +170,14 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(
     }
 }
 
+void SkPictureRecord::endRecording() {
+    // clear any remaining unhandled restore offset placeholders
+    while (fRestoreOffsetStack.count()) {
+        this->fillRestoreOffsetPlaceholdersForCurrentStackLevel(0);
+        fRestoreOffsetStack.pop();
+    }
+}
+
 void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
     if (regionOpExpands(op)) {
         // Run back through any previous clip ops, and mark their offset to
