@@ -81,7 +81,7 @@ static void run_simple_benchmark(SkPicture* picture, const Options& options) {
     }
     timer.end();
 
-    printf("simple: cmsecs = %6.2f\n", timer.fWall / options.fRepeats);
+    printf("simple: msecs = %6.2f\n", timer.fWall / options.fRepeats);
 }
 
 struct TileInfo {
@@ -150,7 +150,7 @@ static void run_tile_benchmark(SkPicture* picture, const Options& options) {
         delete tiles[i].fBitmap;
     }
 
-    printf("%i_tiles_%ix%i: cmsecs = %6.2f\n", tiles.count(), options.fTileWidth,
+    printf("%i_tiles_%ix%i: msecs = %6.2f\n", tiles.count(), options.fTileWidth,
            options.fTileHeight, timer.fWall / options.fRepeats);
 }
 
@@ -179,7 +179,7 @@ static void run_pipe_benchmark(SkPicture* picture, const Options& options) {
     }
     timer.end();
 
-    printf("pipe: cmsecs = %6.2f\n", timer.fWall / options.fRepeats);
+    printf("pipe: msecs = %6.2f\n", timer.fWall / options.fRepeats);
 }
 
 static void run_unflatten_benchmark(SkPicture* commands, const Options& options) {
@@ -202,7 +202,7 @@ static void run_unflatten_benchmark(SkPicture* commands, const Options& options)
         }
     }
 
-    printf("unflatten: cmsecs = %6.4f\n", wall_time / options.fRepeats);
+    printf("unflatten: msecs = %6.4f\n", wall_time / options.fRepeats);
 }
 
 static void run_single_benchmark(const SkString& inputPath,
