@@ -128,7 +128,7 @@ void SkDebuggerGUI::actionDelete() {
     int currentRow = fListWidget.currentRow();
     // NOTE(chudy): Forces a redraw up to current selected command.
     fCanvasWidget.toggleCommand(currentRow);
-    fCanvasWidget.drawTo(currentRow);
+    fCanvasWidget.drawTo(fPausedRow);
 }
 
 void SkDebuggerGUI::actionInspector() {
@@ -222,6 +222,7 @@ void SkDebuggerGUI::pauseDrawing(bool isPaused) {
     // Qt uses 0 for unchecked, 1 for partially enabled and 2 for checked.
     if (isPaused) {
         fPause = true;
+        fPausedRow = fListWidget.currentRow();
     } else {
         fPause = false;
         fCanvasWidget.drawTo(fListWidget.currentRow());

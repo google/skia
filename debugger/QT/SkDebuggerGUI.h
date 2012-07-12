@@ -200,6 +200,7 @@ private:
 
     bool fBreakpointsActivated;
     bool fPause;
+    int fPausedRow;
 
     /**
         Creates the entire UI.
