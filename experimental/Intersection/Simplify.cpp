@@ -42,10 +42,10 @@
 #define DEBUG_CROSS 1
 #define DEBUG_DUMP 1
 #define DEBUG_PATH_CONSTRUCTION 1
-#define DEBUG_ACTIVE_SPANS 01
-#define DEBUG_WINDING 01
+#define DEBUG_ACTIVE_SPANS 0
+#define DEBUG_WINDING 0
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define DEBUG_MARK_DONE 01
+#define DEBUG_MARK_DONE 0
 
 #endif
 
@@ -653,33 +653,55 @@ public:
 #endif
     }
 
-    bool activeAngles(int index) const {
+    bool activeAngle(int index, int& done, SkTDArray<Angle>& angles) const {
+        if (activeAngleInner(index, done, angles)) {
+            return true;
+        }
         double referenceT = fTs[index].fT;
         int lesser = index;
         while (--lesser >= 0 && referenceT - fTs[lesser].fT < FLT_EPSILON) {
-            if (activeAnglesInner(lesser)) {
+            if (activeAngleOther(lesser, done, angles)) {
                 return true;
             }
         }
         do {
-            if (activeAnglesInner(index)) {
+            if (activeAngleOther(index, done, angles)) {
                 return true;
             }
         } while (++index < fTs.count() && fTs[index].fT - referenceT < FLT_EPSILON);
         return false;
     }
 
-    bool activeAnglesInner(int index) const {
+    bool activeAngleOther(int index, int& done, SkTDArray<Angle>& angles) const {
         Span* span = &fTs[index];
         Segment* other = span->fOther;
         int oIndex = span->fOtherIndex;
-        int next = other->nextSpan(oIndex, 1);
-        if (next > 0 && !other->fTs[oIndex].fDone) {
-            return true;
+        return other->activeAngleInner(oIndex, done, angles);
+    }
+    
+    bool activeAngleInner(int index, int& done, SkTDArray<Angle>& angles) const {
+        int next = nextSpan(index, 1);
+        if (next > 0) {
+            addAngle(angles, index, next);
+            const Span& upSpan = fTs[index];
+            if (upSpan.fDone) {
+                done++;
+            } else if (upSpan.fWindSum != SK_MinS32) {
+                return true;
+            }
         }
-        int prev = other->nextSpan(oIndex, -1);
+        int prev = nextSpan(index, -1);
         // edge leading into junction
-        return prev >= 0 && !other->fTs[prev].fDone;
+        if (prev >= 0) {
+            addAngle(angles, index, prev);
+            const Span& downSpan = fTs[prev];
+            if (downSpan.fDone) {
+                done++;
+             } else if (downSpan.fWindSum != SK_MinS32) {
+                return true;
+            }
+        }
+        return false;
     }
 
     SkScalar activeTop() const {
@@ -1441,8 +1463,9 @@ public:
     // OPTIMIZATION: uses tail recursion. Unwise?
     Span* innerChaseDone(int index, int step, int winding) {
         int end = nextSpan(index, step);
-        if (multipleSpans(index, end)) {
-            return index >= 0 ? &fTs[index] : NULL;
+        SkASSERT(end >= 0);
+        if (multipleSpans(end)) {
+            return &fTs[end];
         }
         const Span& endSpan = fTs[end];
         Segment* other = endSpan.fOther;
@@ -1455,8 +1478,9 @@ public:
     
     Span* innerChaseWinding(int index, int step, int winding) {
         int end = nextSpan(index, step);
-        if (multipleSpans(index, end)) {
-            return index >= 0 ? &fTs[index] : NULL;
+        SkASSERT(end >= 0);
+        if (multipleSpans(end)) {
+            return &fTs[end];
         }
         const Span& endSpan = fTs[end];
         Segment* other = endSpan.fOther;
@@ -1636,17 +1660,13 @@ public:
         } while (++index < fTs.count() && fTs[index].fT - referenceT < FLT_EPSILON);
     }
 
-    bool multipleSpans(int& index, int end) const {
-        if (end > index ? end + 1 >= fTs.count() : end <= 0) {
-            return false;
-        }
-        // return span if when chasing, two or more radiating spans are not done
-        int lesser = SkMin32(index, end);
-        if (!activeAngles(lesser)) {
-            index = -1;
-        }
-        index = lesser;
-        return true;
+    // return span if when chasing, two or more radiating spans are not done
+    // OPTIMIZATION: ? multiple spans is detected when there is only one valid
+    // candidate and the remaining spans have windValue == 0 (canceled by
+    // coincidence). The coincident edges could either be removed altogether,
+    // or this code could be more complicated in detecting this case. Worth it?
+    bool multipleSpans(int end) const {
+        return end > 0 && end < fTs.count() - 1;
     }
 
     // This has callers for two different situations: one establishes the end
@@ -2781,70 +2801,75 @@ static Segment* findTopContour(SkTDArray<Contour*>& contourList,
 
 static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex) {
     while (chase.count()) {
-        Span* span;
-        chase.pop(&span);
+        Span* span = chase[chase.count() - 1];
         const Span& backPtr = span->fOther->span(span->fOtherIndex);
         Segment* segment = backPtr.fOther;
         tIndex = backPtr.fOtherIndex;
-        if (segment->activeAngles(tIndex)) {
-            endIndex = segment->nextSpan(tIndex, 1);
-            if (span->fDone) {
-                SkTDArray<Angle> angles;
-                segment->addTwoAngles(endIndex, tIndex, angles);
-                segment->buildAngles(tIndex, angles);
-                SkTDArray<Angle*> sorted;
-                sortAngles(angles, sorted);
-                // find first angle, initialize winding to computed fWindSum
-                int winding = span->fWindSum;
-                int firstIndex = segment->findStartingEdge(sorted, endIndex, tIndex);
-                int firstSign = sorted[firstIndex]->sign();
-                if (firstSign * winding > 0) {
-                    winding -= firstSign;
-                }
-                SkDebugf("%s firstSign=%d\n", __FUNCTION__, firstSign);
-                // we care about first sign and whether wind sum indicates this
-                // edge is inside or outside. Maybe need to pass span winding
-                // or first winding or something into this function?
-                SkASSERT(firstIndex >= 0);
-                // advance to first undone angle, then return it and winding
-                // (to set whether edges are active or not)
-                int nextIndex = firstIndex + 1;
-                int angleCount = sorted.count();
-                int lastIndex = firstIndex != 0 ? firstIndex : angleCount;
-                do {
-                    SkASSERT(nextIndex != firstIndex);
-                    if (nextIndex == angleCount) {
-                        nextIndex = 0;
-                    }
-                    const Angle* angle = sorted[nextIndex];
-                    segment = angle->segment();
-                    int windValue = segment->windValue(angle);
-                    SkASSERT(windValue > 0);
-                    int maxWinding = winding;
-                    winding -= angle->sign() * windValue;
-                    if (maxWinding * winding < 0) {
-                        SkDebugf("%s flipped sign %d %d\n", __FUNCTION__, maxWinding, winding);
-                    }
-                    tIndex = angle->start();
-                    endIndex = angle->end();
-                    int lesser = SkMin32(tIndex, endIndex);
-                    const Span& nextSpan = segment->span(lesser);
-                    if (!nextSpan.fDone) {
-                    // FIXME: this be wrong. assign startWinding if edge is in
-                    // same direction. If the direction is opposite, winding to
-                    // assign is flipped sign or +/- 1?
-                        if (abs(maxWinding) < abs(winding)) {
-                            maxWinding = winding;
-                        }
-                        segment->markWinding(lesser, maxWinding);
-                        break;
-                    }
-                } while (++nextIndex != lastIndex);
-            } else {
-                SkASSERT(endIndex > tIndex);
-            }
-            return segment;
+        SkTDArray<Angle> angles;
+        int done = 0;
+        if (segment->activeAngle(tIndex, done, angles)) {
+            Angle* last = angles.end() - 1;
+            tIndex = last->start();
+            endIndex = last->end();
+            return last->segment();
         }
+        if (done == angles.count()) {
+            chase.pop(&span);
+            continue;
+        }
+        SkTDArray<Angle*> sorted;
+        sortAngles(angles, sorted);
+        // find first angle, initialize winding to computed fWindSum
+        int firstIndex = -1;
+        const Angle* angle;
+        int winding;
+        do {
+            angle = sorted[++firstIndex];
+            winding = angle->segment()->windSum(angle);
+        } while (winding == SK_MinS32);
+        int firstSign = angle->sign();
+        if (firstSign * winding > 0) {
+            winding -= firstSign;
+        }
+        SkDebugf("%s firstSign=%d\n", __FUNCTION__, firstSign);
+        // we care about first sign and whether wind sum indicates this
+        // edge is inside or outside. Maybe need to pass span winding
+        // or first winding or something into this function?
+        // advance to first undone angle, then return it and winding
+        // (to set whether edges are active or not)
+        int nextIndex = firstIndex + 1;
+        int angleCount = sorted.count();
+        int lastIndex = firstIndex != 0 ? firstIndex : angleCount;
+        do {
+            SkASSERT(nextIndex != firstIndex);
+            if (nextIndex == angleCount) {
+                nextIndex = 0;
+            }
+            const Angle* angle = sorted[nextIndex];
+            segment = angle->segment();
+            int windValue = segment->windValue(angle);
+            SkASSERT(windValue > 0);
+            int maxWinding = winding;
+            winding -= angle->sign() * windValue;
+            if (maxWinding * winding < 0) {
+                SkDebugf("%s flipped sign %d %d\n", __FUNCTION__, maxWinding, winding);
+            }
+            tIndex = angle->start();
+            endIndex = angle->end();
+            int lesser = SkMin32(tIndex, endIndex);
+            const Span& nextSpan = segment->span(lesser);
+            if (!nextSpan.fDone) {
+            // FIXME: this be wrong. assign startWinding if edge is in
+            // same direction. If the direction is opposite, winding to
+            // assign is flipped sign or +/- 1?
+                if (abs(maxWinding) < abs(winding)) {
+                    maxWinding = winding;
+                }
+                segment->markWinding(lesser, maxWinding);
+                break;
+            }
+        } while (++nextIndex != lastIndex);
+        return segment;
     }
     return NULL;
 }
@@ -2953,7 +2978,7 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
         #if DEBUG_WINDING
                 SkDebugf("%s spanWinding * spanSign < 0\n", __FUNCTION__);
         #endif
-                SkTSwap<int>(index, endIndex);
+   //             SkTSwap<int>(index, endIndex);
             }
             if (abs(spanWinding) > spanValue) {
         #if DEBUG_WINDING

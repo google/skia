@@ -418,7 +418,7 @@ static struct {
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
-static void (*firstTest)() = testLine32;
+static void (*firstTest)() = 0;
 static bool skipAll = false;
 
 void SimplifyNew_Test() {
