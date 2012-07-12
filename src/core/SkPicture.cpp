@@ -180,6 +180,7 @@ SkCanvas* SkPicture::getRecordingCanvas() const {
 void SkPicture::endRecording() {
     if (NULL == fPlayback) {
         if (NULL != fRecord) {
+            fRecord->endRecording();
             fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord));
             fRecord->unref();
             fRecord = NULL;

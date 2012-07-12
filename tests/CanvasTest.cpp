@@ -327,6 +327,18 @@ SIMPLE_TEST_STEP(DrawData, drawData(kTestText.c_str(), kTestText.size()));
 ///////////////////////////////////////////////////////////////////////////////
 // Complex test steps
 
+static void TwoClipOpsStep(SkCanvas* canvas, 
+                              skiatest::Reporter* reporter,
+                              CanvasTestStep* testStep) {
+    // This test exercises a functionality in SkPicture that leads to the
+    // recording of restore offset placeholders.  This test will trigger an 
+    // assertion at playback time if the placeholders are not properly
+    // filled when the recording ends.
+    canvas->clipRect(kTestRect);
+    canvas->clipRegion(kTestRegion);
+}
+TEST_STEP(TwoClipOps, TwoClipOpsStep);
+
 // exercise fix for http://code.google.com/p/skia/issues/detail?id=560
 // ('SkPathStroker::lineTo() fails for line with length SK_ScalarNearlyZero')
 static void DrawNearlyZeroLengthPathTestStep(SkCanvas* canvas, 

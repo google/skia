@@ -95,6 +95,8 @@ public:
     }
 
     bool shouldFlattenPixels(const SkBitmap&) const;
+
+    void endRecording();
 private:
     struct PixelRefDictionaryEntry {
         uint32_t fKey; // SkPixelRef GenerationID.
