@@ -13,12 +13,12 @@ SkListWidget::SkListWidget(QObject *parent) {}
 
 SkListWidget::~SkListWidget() {}
 
-void SkListWidget::paint (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    /*
-     * NOTE(chudy): We adjust the initial position of the list item so that
+void SkListWidget::paint (QPainter *painter,
+        const QStyleOptionViewItem &option,
+        const QModelIndex &index) const {
+    /* We adjust the initial position of the list item so that
      * we don't have overlapping top and bottom borders of concurrent
-     * widget items.
-     */
+     * widget items. */
     QRect r = option.rect;
     r.adjust(-1,-1,1,0);
 
@@ -26,7 +26,7 @@ void SkListWidget::paint (QPainter *painter, const QStyleOptionViewItem &option,
     QPen fontPen(QColor::fromRgb(51,51,51), 1, Qt::SolidLine);
     QPen fontMarkedPen(Qt::white, 1, Qt::SolidLine);
 
-    // NOTE(chudy): If selected.
+    // If selected
     if(option.state & QStyle::State_Selected){
         QLinearGradient gradientSelected(r.left(),r.top(),r.left(),r.height()+r.top());
         gradientSelected.setColorAt(0.0, QColor::fromRgb(119,213,247));
@@ -44,8 +44,8 @@ void SkListWidget::paint (QPainter *painter, const QStyleOptionViewItem &option,
         painter->setPen(fontMarkedPen);
 
     } else {
-        // NOTE(chudy): Alternating background.
-        painter->setBrush( (index.row() % 2) ? Qt::white : QColor(252,252,252) );
+        // Alternating background
+        painter->setBrush((index.row() % 2) ? Qt::white : QColor(252,252,252));
         painter->drawRect(r);
 
         painter->setPen(linePen);
@@ -57,24 +57,46 @@ void SkListWidget::paint (QPainter *painter, const QStyleOptionViewItem &option,
         painter->setPen(fontPen);
     }
 
-    QIcon ic = QIcon(qvariant_cast<QPixmap>(index.data(Qt::DecorationRole)));
-    QString title = index.data(Qt::DisplayRole).toString();
-    QString description = index.data(Qt::UserRole + 1).toString();
-    QString hidden = index.data(Qt::UserRole + 2).toString();
+    QIcon breakpointIcon =
+            QIcon(qvariant_cast<QPixmap>(index.data(Qt::DecorationRole)));
+    QIcon deleteIcon =
+            QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 3)));
 
+    QString drawCommandText = index.data(Qt::DisplayRole).toString();
+    QString drawCommandNumber = index.data(Qt::UserRole + 1).toString();
+    QString isDeleted = index.data(Qt::UserRole + 2).toString();
+
+    /* option.rect is a struct that Qt uses as a target to draw into. Following
+     * the format (x1,y1,x2,y2) x1 and y1 represent where the painter can start
+     * drawing. x2 and y2 represent where the drawing area has to terminate
+     * counting from the bottom right corner of each list item styled with this
+     * widget. A (x1,y1,0,0) rect would mean that the item being drawn would
+     * be pushed down into that bottom corner. Negative values in the x2,y2
+     * spot act as a margin for the bottom and right sides. Positive values in
+     * x1,y1 act as a margin for the top and left. The target area will not
+     * affect size of text but will scale icons. */
     int imageSpace = 35;
+
+    // Breakpoint Icon
     r = option.rect.adjusted(5, 10, -10, -10);
-    ic.paint(painter, r, Qt::AlignVCenter|Qt::AlignLeft);
+    breakpointIcon.paint(painter, r, Qt::AlignVCenter|Qt::AlignLeft);
 
-    // NOTE(chudy): Draw command.
-    r = option.rect.adjusted(imageSpace, 0, -10, -7);
-    painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignBottom|Qt::AlignRight, title, &r);
+    // Delete Icon
+    r = option.rect.adjusted(19, 10, -10, -10);
+    deleteIcon.paint(painter, r, Qt::AlignVCenter|Qt::AlignLeft);
 
-    // NOTE(chudy): Number of draw command.
+    // Draw Command
     r = option.rect.adjusted(imageSpace, 0, -10, -7);
-    painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignBottom|Qt::AlignLeft, description, &r);
+    painter->drawText(r.left(), r.top(), r.width(), r.height(),
+            Qt::AlignBottom|Qt::AlignRight, drawCommandText, &r);
+
+    // Draw Command Number
+    r = option.rect.adjusted(imageSpace, 0, -10, -7);
+    painter->drawText(r.left(), r.top(), r.width(), r.height(),
+            Qt::AlignBottom|Qt::AlignLeft, drawCommandNumber, &r);
 }
 
-QSize SkListWidget::sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const{
+QSize SkListWidget::sizeHint ( const QStyleOptionViewItem & option,
+        const QModelIndex & index ) const{
     return QSize(200, 30);
 }

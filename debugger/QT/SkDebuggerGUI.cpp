@@ -118,16 +118,10 @@ void SkDebuggerGUI::actionDelete() {
     QListWidgetItem* item = fListWidget.currentItem();
     if (item->data(Qt::UserRole + 2) == true) {
         item->setData(Qt::UserRole + 2, false);
-        item->setData(Qt::DecorationRole, QPixmap(":/images/Icons/delete.png"));
+        item->setData(Qt::UserRole + 3, QPixmap(":/images/Icons/delete.png"));
     } else {
         item->setData(Qt::UserRole + 2, true);
-        if (item->checkState() == Qt::Unchecked) {
-            item->setData(Qt::DecorationRole,
-                    QPixmap(":/images/Icons/blank.png"));
-        } else {
-            item->setData(Qt::DecorationRole,
-                    QPixmap(":/images/Icons/breakpoint_16x16.png"));
-        }
+        item->setData(Qt::UserRole + 3, QPixmap(":/images/Icons/blank.png"));
     }
     int currentRow = fListWidget.currentRow();
     // NOTE(chudy): Forces a redraw up to current selected command.
@@ -262,31 +256,12 @@ void SkDebuggerGUI::toggleBreakpoint() {
     QListWidgetItem* item = fListWidget.currentItem();
     if (item->checkState() == Qt::Unchecked) {
         item->setCheckState(Qt::Checked);
-
-        /* NOTE(chudy): If the command is toggled as hidden that takes
-         * precendence over the breakpoint icon.
-         */
-        if (item->data(Qt::UserRole + 2) == false) {
-            item->setData(Qt::DecorationRole,
-                    QPixmap(":/images/Icons/delete.png"));
-        } else {
-            item->setData(Qt::DecorationRole,
-                    QPixmap(":/images/Icons/breakpoint_16x16.png"));
-        }
+        item->setData(Qt::DecorationRole,
+                QPixmap(":/images/Icons/breakpoint_16x16.png"));
     } else {
-
-        /* NOTE(chudy): When untoggling as a breakpoint if the command
-         * is hidden then the portraying icon should remain the delete icon.
-         */
         item->setCheckState(Qt::Unchecked);
-
-        if (item->data(Qt::UserRole + 2) == false) {
-            item->setData(Qt::DecorationRole,
-                    QPixmap(":/images/Icons/delete.png"));
-        } else {
-            item->setData(Qt::DecorationRole,
-                    QPixmap(":/images/Icons/blank.png"));
-        }
+        item->setData(Qt::DecorationRole,
+                QPixmap(":/images/Icons/blank.png"));
     }
 }
 
