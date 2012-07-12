@@ -142,6 +142,11 @@ private slots:
     void registerListClick(QListWidgetItem *item);
 
     /**
+        Sets the command to active in the list widget.
+     */
+    void selectCommand(int command);
+
+    /**
         Toggles a breakpoint on the current step in the list widget.
      */
     void toggleBreakpoint();

@@ -75,6 +75,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
             this, SLOT(pauseDrawing(bool)));
     connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget,
             SLOT(updateCommand(int)));
+    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), this, SLOT(selectCommand(int)));
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget,
             SLOT(updateHit(int)));
 }
@@ -252,6 +253,12 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
         fInspectorWidget.setDisabled(false);
         fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
         fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
+    }
+}
+
+void SkDebuggerGUI::selectCommand(int command) {
+    if (fPause) {
+        fListWidget.setCurrentRow(command);
     }
 }
 

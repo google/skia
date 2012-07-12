@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SkDebuggerGUI.h'
 **
-** Created: Tue Jul 10 09:04:38 2012
+** Created: Wed Jul 11 17:21:44 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_SkDebuggerGUI[] = {
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-      21,   14, // methods
+      22,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -51,9 +51,10 @@ static const uint qt_meta_data_SkDebuggerGUI[] = {
      307,   14,   14,   14, 0x08,
      327,  318,   14,   14, 0x08,
      346,  275,   14,   14, 0x08,
-     382,   14,   14,   14, 0x08,
+     382,   15,   14,   14, 0x08,
      401,   14,   14,   14, 0x08,
-     426,  419,   14,   14, 0x08,
+     420,   14,   14,   14, 0x08,
+     445,  438,   14,   14, 0x08,
 
        0        // eod
 };
@@ -70,8 +71,8 @@ static const char qt_meta_stringdata_SkDebuggerGUI[] = {
     "loadFile(QListWidgetItem*)\0openFile()\0"
     "isPaused\0pauseDrawing(bool)\0"
     "registerListClick(QListWidgetItem*)\0"
-    "toggleBreakpoint()\0toggleDirectory()\0"
-    "string\0toggleFilter(QString)\0"
+    "selectCommand(int)\0toggleBreakpoint()\0"
+    "toggleDirectory()\0string\0toggleFilter(QString)\0"
 };
 
 const QMetaObject SkDebuggerGUI::staticMetaObject = {
@@ -121,12 +122,13 @@ int SkDebuggerGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 15: openFile(); break;
         case 16: pauseDrawing((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 17: registerListClick((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 18: toggleBreakpoint(); break;
-        case 19: toggleDirectory(); break;
-        case 20: toggleFilter((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 18: selectCommand((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 19: toggleBreakpoint(); break;
+        case 20: toggleDirectory(); break;
+        case 21: toggleFilter((*reinterpret_cast< QString(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 21;
+        _id -= 22;
     }
     return _id;
 }
