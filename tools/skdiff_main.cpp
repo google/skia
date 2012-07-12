@@ -42,17 +42,41 @@
 // Result of comparison for each pair of files.
 // Listed from "better" to "worse", for sorting of results.
 enum Result {
-    kEqualBits,      // both files in the pair contain exactly the same bits
-    kEqualPixels,    // not bitwise equal, but their pixels are exactly the same
-    kDifferentPixels,// both are images we can parse, but with different pixels
-    kDifferentSizes, // both are images we can parse, but of different sizes
-    kDifferentOther, // files have different bits but are not parsable images
-    kComparisonMissing,// missing from comparisonDir
-    kBaseMissing,      // missing from baseDir
-    kUnknown,        // not compared yet
+    kEqualBits,
+    kEqualPixels,
+    kDifferentPixels,
+    kDifferentSizes,
+    kDifferentOther,
+    kComparisonMissing,
+    kBaseMissing,
+    kUnknown,
     //
     kNumResultTypes  // NOT A VALID VALUE--used to set up arrays. Must be last.
 };
+
+// Returns a text description of the given Result type.
+const char *getResultDescription(Result result) {
+    switch (result) {
+      case kEqualBits:
+        return "contain exactly the same bits";
+      case kEqualPixels:
+        return "contain the same pixel values, but not the same bits";
+      case kDifferentPixels:
+        return "have identical dimensions but some differing pixels";
+      case kDifferentSizes:
+        return "have differing dimensions";
+      case kDifferentOther:
+        return "contain different bits and are not parsable images";
+      case kBaseMissing:
+        return "missing from baseDir";
+      case kComparisonMissing:
+        return "missing from comparisonDir";
+      case kUnknown:
+        return "not compared yet";
+      default:
+        return NULL;
+    }
+}
 
 struct DiffRecord {
     DiffRecord (const SkString filename,
@@ -138,31 +162,32 @@ struct DiffSummary {
 
     FileArray fResultsOfType[kNumResultTypes];
 
-    // Print the contents of this FileArray, if any, to stdout.
-    // (If the FileArray is empty, print nothing.)
-    void printContents(const FileArray& fileArray, const char* headerText) {
+    // Print a line about the contents of this FileArray to stdout; if the FileArray is empty,
+    // print nothing.
+    void printContents(const FileArray& fileArray, const char* headerText, bool listFilenames) {
         int n = fileArray.count();
         if (n > 0) {
-            printf("%s:\n", headerText);
-            for (int i = 0; i < n; ++i) {
-                printf("\t%s\n", fileArray[i]->c_str());
+            printf(" %d file pairs %s", n, headerText);
+            if (listFilenames) {
+                printf(": ");
+                for (int i = 0; i < n; ++i) {
+                    printf("%s ", fileArray[i]->c_str());
+                }
             }
+            printf("\n");
         }
     }
 
-    void print () {
-        printContents(fResultsOfType[kBaseMissing],
-                      "Missing in baseDir");
-        printContents(fResultsOfType[kComparisonMissing],
-                      "Missing in comparisonDir");
-        printf("%d of %d images matched.\n", fNumMatches,
-               fNumMatches + fNumMismatches);
+    void print(bool listFilenames) {
+        printf("compared %d file pairs:\n", fNumMatches + fNumMismatches);
+        for (int resultInt = 0; resultInt < kNumResultTypes; resultInt++) {
+            Result result = static_cast<Result>(resultInt);
+            printContents(fResultsOfType[result], getResultDescription(result), listFilenames);
+        }
         if (fNumMismatches > 0) {
             printf("Maximum pixel intensity mismatch %d\n", fMaxMismatchV);
-            printf("Largest area mismatch was %.2f%% of pixels\n",
-                   fMaxMismatchPercent);
+            printf("Largest area mismatch was %.2f%% of pixels\n",fMaxMismatchPercent);
         }
-
     }
 
     void add (DiffRecord* drp) {
@@ -831,9 +856,9 @@ static void print_table_header (SkFILEWStream* stream,
     stream->writeText("every different pixel shown in white");
     stream->writeText("</th>\n<th>");
     stream->writeText("color difference at each pixel");
-    stream->writeText("</th>\n<th>");
+    stream->writeText("</th>\n<th>baseDir: ");
     stream->writeText(baseDir.c_str());
-    stream->writeText("</th>\n<th>");
+    stream->writeText("</th>\n<th>comparisonDir: ");
     stream->writeText(comparisonDir.c_str());
     stream->writeText("</th>\n");
     stream->writeText("</tr>\n");
@@ -1052,34 +1077,39 @@ static void usage (char * argv0) {
 "Usage: \n"
 "    %s <baseDir> <comparisonDir> [outputDir] \n"
 , argv0, argv0);
-    SkDebugf("\n"
-"Arguments: \n"
-"    --nodiffs: don't write out image diffs or index.html, just generate \n"
-"               report on stdout \n"
-"    --threshold <n>: only report differences > n (per color channel) [default 0]\n"
-"    --match: compare files whose filenames contain this substring; if \n"
-"             unspecified, compare ALL files. \n"
-"             this flag may be repeated to add more matching substrings. \n"
-"    --nomatch: regardless of --match, DO NOT compare files whose filenames \n"
-"               contain this substring. \n"
-"               this flag may be repeated to add more forbidden substrings. \n"
-"    --sortbymismatch: sort by average color channel mismatch\n");
     SkDebugf(
-"    --sortbymaxmismatch: sort by worst color channel mismatch;\n"
-"                         break ties with -sortbymismatch\n"
-"    [default sort is by fraction of pixels mismatching]\n");
-    SkDebugf(
-"    --weighted: sort by # pixels different weighted by color difference\n");
-    SkDebugf(
-"    --noprintdirs: do not print the directories used.");
-    SkDebugf(
-"    baseDir: directory to read baseline images from.\n");
-    SkDebugf(
-"    comparisonDir: directory to read comparison images from\n");
-    SkDebugf(
-"    outputDir: directory to write difference images and index.html to; \n"
-"               defaults to comparisonDir \n");
+"\nArguments:"
+"\n    --help: display this info"
+"\n    --failonmismatches: exit with nonzero return code (number of mismatching"
+"\n                        image pairs) if any pairs differ by more than threshold;"
+"\n                        otherwise, only return nonzero if the tool itself fails"
+"\n    --listfilenames: list all filenames for each result type in stdout"
+"\n    --match: compare files whose filenames contain this substring; if"
+"\n             unspecified, compare ALL files."
+"\n             this flag may be repeated to add more matching substrings."
+"\n    --nodiffs: don't write out image diffs or index.html, just generate"
+"\n               report on stdout"
+"\n    --nomatch: regardless of --match, DO NOT compare files whose filenames"
+"\n               contain this substring."
+"\n               this flag may be repeated to add more forbidden substrings."
+"\n    --noprintdirs: do not print the directories used."
+"\n    --sortbymaxmismatch: sort by worst color channel mismatch;"
+"\n                         break ties with -sortbymismatch"
+"\n    --sortbymismatch: sort by average color channel mismatch"
+"\n    --threshold <n>: only report differences > n (per color channel) [default 0]"
+"\n    --weighted: sort by # pixels different weighted by color difference"
+"\n"
+"\n    baseDir: directory to read baseline images from."
+"\n    comparisonDir: directory to read comparison images from"
+"\n    outputDir: directory to write difference images and index.html to;"
+"\n               defaults to comparisonDir"
+"\n"
+"\nIf no sort is specified, it will sort by fraction of pixels mismatching."
+"\n");
 }
+
+const int NO_ERROR = 0;
+const int GENERIC_ERROR = -1;
 
 int main (int argc, char ** argv) {
     DiffMetricProc diffProc = compute_diff_pmcolor;
@@ -1094,7 +1124,9 @@ int main (int argc, char ** argv) {
     StringArray matchSubstrings;
     StringArray nomatchSubstrings;
 
+    bool failOnMismatches = false;
     bool generateDiffs = true;
+    bool listFilenames = false;
     bool printDirs = true;
 
     RecordArray differences;
@@ -1103,40 +1135,48 @@ int main (int argc, char ** argv) {
     int i;
     int numUnflaggedArguments = 0;
     for (i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "--help")) {
-            usage(argv[0]);
-            return 0;
-        }
-        if (!strcmp(argv[i], "--nodiffs")) {
-            generateDiffs = false;
+        if (!strcmp(argv[i], "--failonmismatches")) {
+            failOnMismatches = true;
             continue;
         }
-        if (!strcmp(argv[i], "--threshold")) {
-            colorThreshold = atoi(argv[++i]);
+        if (!strcmp(argv[i], "--help")) {
+            usage(argv[0]);
+            return NO_ERROR;
+        }
+        if (!strcmp(argv[i], "--listfilenames")) {
+            listFilenames = true;
             continue;
         }
         if (!strcmp(argv[i], "--match")) {
             matchSubstrings.push(new SkString(argv[++i]));
             continue;
         }
+        if (!strcmp(argv[i], "--nodiffs")) {
+            generateDiffs = false;
+            continue;
+        }
         if (!strcmp(argv[i], "--nomatch")) {
             nomatchSubstrings.push(new SkString(argv[++i]));
             continue;
         }
-        if (!strcmp(argv[i], "--sortbymismatch")) {
-            sortProc = compare<CompareDiffMeanMismatches>;
+        if (!strcmp(argv[i], "--noprintdirs")) {
+            printDirs = false;
             continue;
         }
         if (!strcmp(argv[i], "--sortbymaxmismatch")) {
             sortProc = compare<CompareDiffMaxMismatches>;
             continue;
         }
-        if (!strcmp(argv[i], "--weighted")) {
-            sortProc = compare<CompareDiffWeighted>;
+        if (!strcmp(argv[i], "--sortbymismatch")) {
+            sortProc = compare<CompareDiffMeanMismatches>;
             continue;
         }
-        if (!strcmp(argv[i], "--noprintdirs")) {
-            printDirs = false;
+        if (!strcmp(argv[i], "--threshold")) {
+            colorThreshold = atoi(argv[++i]);
+            continue;
+        }
+        if (!strcmp(argv[i], "--weighted")) {
+            sortProc = compare<CompareDiffWeighted>;
             continue;
         }
         if (argv[i][0] != '-') {
@@ -1153,20 +1193,20 @@ int main (int argc, char ** argv) {
                 default:
                     SkDebugf("extra unflagged argument <%s>\n", argv[i]);
                     usage(argv[0]);
-                    return 0;
+                    return GENERIC_ERROR;
             }
         }
 
         SkDebugf("Unrecognized argument <%s>\n", argv[i]);
         usage(argv[0]);
-        return 0;
+        return GENERIC_ERROR;
     }
 
     if (numUnflaggedArguments == 2) {
         outputDir = comparisonDir;
     } else if (numUnflaggedArguments != 3) {
         usage(argv[0]);
-        return 0;
+        return GENERIC_ERROR;
     }
 
     if (!baseDir.endsWith(PATH_DIV_STR)) {
@@ -1206,7 +1246,7 @@ int main (int argc, char ** argv) {
     create_diff_images(diffProc, colorThreshold, &differences,
                        baseDir, comparisonDir, outputDir,
                        matchSubstrings, nomatchSubstrings, &summary);
-    summary.print();
+    summary.print(listFilenames);
 
     if (differences.count()) {
         qsort(differences.begin(), differences.count(),
@@ -1224,5 +1264,9 @@ int main (int argc, char ** argv) {
     matchSubstrings.deleteAll();
     nomatchSubstrings.deleteAll();
 
-    return summary.fNumMismatches;
+    if (failOnMismatches) {
+        return summary.fNumMismatches;
+    } else {
+        return NO_ERROR;
+    }
 }

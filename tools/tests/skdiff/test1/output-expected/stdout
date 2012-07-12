@@ -6,12 +6,13 @@ ERROR: no codec found for <tools/tests/skdiff/comparisonDir/different-bits-unkno
 baseDir is [tools/tests/skdiff/baseDir/]
 comparisonDir is [tools/tests/skdiff/comparisonDir/]
 writing diffs to outputDir is [tools/tests/skdiff/test1/output-actual/]
-Missing in baseDir:
-	missing-from-baseDir.png
-	missing-from-baseDir.xyz
-Missing in comparisonDir:
-	missing-from-comparisonDir.png
-	missing-from-comparisonDir.xyz
-3 of 12 images matched.
+compared 12 file pairs:
+ 2 file pairs contain exactly the same bits
+ 1 file pairs contain the same pixel values, but not the same bits
+ 2 file pairs have identical dimensions but some differing pixels
+ 2 file pairs have differing dimensions
+ 1 file pairs contain different bits and are not parsable images
+ 2 file pairs missing from comparisonDir
+ 2 file pairs missing from baseDir
 Maximum pixel intensity mismatch 239
 Largest area mismatch was 97.99% of pixels
