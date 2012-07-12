@@ -40,14 +40,12 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         kDilate_EffectType,
         kRadialGradient_EffectType,
         kRadial2Gradient_EffectType,
-#if 0
         kDiffuseDistant_EffectType,
         kDiffusePoint_EffectType,
         kDiffuseSpot_EffectType,
         kSpecularDistant_EffectType,
         kSpecularPoint_EffectType,
         kSpecularSpot_EffectType,
-#endif
         kSweepGradient_EffectType,
 
         kEffectCount
@@ -120,7 +118,6 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         case kSweepGradient_EffectType: {
             return SkNEW(GrSweepGradient);
             }
-#if 0
         case kDiffuseDistant_EffectType: {
             SkPoint3 direction = random_point3(random);
             direction.normalize();
@@ -130,7 +127,8 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateDistantLitDiffuse(direction, lightColor, surfaceScale, kd));
             // does not work with perspective or mul-by-alpha-mask
             GrCustomStage* stage;
-            SkASSERT(filter->asNewCustomStage(&stage));
+            bool ok = filter->asNewCustomStage(&stage);
+            SkASSERT(ok);
             return stage;
         }
         case kDiffusePoint_EffectType: {
@@ -141,7 +139,8 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreatePointLitDiffuse(location, lightColor, surfaceScale, kd));
             // does not work with perspective or mul-by-alpha-mask
             GrCustomStage* stage;
-            SkASSERT(filter->asNewCustomStage(&stage));
+            bool ok = filter->asNewCustomStage(&stage);
+            SkASSERT(ok);
             return stage;
         }
         case kDiffuseSpot_EffectType: {
@@ -157,7 +156,8 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
                 location, target, specularExponent, cutoffAngle, lightColor, surfaceScale, ks, shininess));
             // does not work with perspective or mul-by-alpha-mask
             GrCustomStage* stage;
-            SkASSERT(filter->asNewCustomStage(&stage));
+            bool ok = filter->asNewCustomStage(&stage);
+            SkASSERT(ok);
             return stage;
         }
         case kSpecularDistant_EffectType: {
@@ -170,7 +170,8 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateDistantLitSpecular(direction, lightColor, surfaceScale, ks, shininess));
             // does not work with perspective or mul-by-alpha-mask
             GrCustomStage* stage;
-            SkASSERT(filter->asNewCustomStage(&stage));
+            bool ok = filter->asNewCustomStage(&stage);
+            SkASSERT(ok);
             return stage;
         }
         case kSpecularPoint_EffectType: {
@@ -182,7 +183,8 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreatePointLitSpecular(location, lightColor, surfaceScale, ks, shininess));
             // does not work with perspective or mul-by-alpha-mask
             GrCustomStage* stage;
-            SkASSERT(filter->asNewCustomStage(&stage));
+            bool ok = filter->asNewCustomStage(&stage);
+            SkASSERT(ok);
             return stage;
         }
         case kSpecularSpot_EffectType: {
@@ -198,10 +200,10 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
                 location, target, specularExponent, cutoffAngle, lightColor, surfaceScale, ks, shininess));
             // does not work with perspective or mul-by-alpha-mask
             GrCustomStage* stage;
-            SkASSERT(filter->asNewCustomStage(&stage));
+            bool ok = filter->asNewCustomStage(&stage);
+            SkASSERT(ok);
             return stage;
         }
-#endif
         default:
             GrCrash("Unexpected custom effect type");
     }
