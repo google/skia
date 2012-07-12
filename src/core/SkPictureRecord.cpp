@@ -521,7 +521,7 @@ void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
 }
 
 void SkPictureRecord::addMatrixPtr(const SkMatrix* matrix) {
-    addInt(fMatrices.find(matrix));
+    this->addInt(matrix ? fMatrices.find(*matrix) : 0);
 }
 
 void SkPictureRecord::addPaint(const SkPaint& paint) {
@@ -529,7 +529,7 @@ void SkPictureRecord::addPaint(const SkPaint& paint) {
 }
 
 void SkPictureRecord::addPaintPtr(const SkPaint* paint) {
-    addInt(fPaints.find(paint, &fRCSet, &fTFSet));
+    this->addInt(paint ? fPaints.find(*paint, &fRCSet, &fTFSet) : 0);
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {
@@ -597,7 +597,7 @@ void SkPictureRecord::addIRectPtr(const SkIRect* rect) {
 }
 
 void SkPictureRecord::addRegion(const SkRegion& region) {
-    addInt(fRegions.find(&region));
+    addInt(fRegions.find(region));
 }
 
 void SkPictureRecord::addText(const void* text, size_t byteLength) {
@@ -640,7 +640,7 @@ int SkPictureRecord::find(const SkBitmap& bitmap) {
     
     uint32_t writeFlags = flattenPixels ?
         SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag : 0;
-    int index = fBitmaps.find(&bitmap, &fRCSet, NULL, writeFlags);
+    int index = fBitmaps.find(bitmap, &fRCSet, NULL, writeFlags);
 
     if (flattenPixels) {
         entry.fIndex = index;

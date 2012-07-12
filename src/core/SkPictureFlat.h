@@ -200,6 +200,8 @@ public:
         this->setSentinel(kCandidate_Sentinel);
     }
 
+    uint32_t checksum() const { return fChecksum; }
+
 #ifdef SK_DEBUG_SIZE
     // returns the logical size of our data. Does not return any sentinel or
     // padding we might have.
@@ -261,6 +263,7 @@ public:
         fHeap = heap;
         // set to 1 since returning a zero from find() indicates failure
         fNextIndex = 1;
+        sk_bzero(fHash, sizeof(fHash));
     }
 
     int count() const { return fData.count(); }
@@ -274,8 +277,12 @@ public:
      * Clears the dictionary of all entries. However, it does NOT free the
      * memory that was allocated for each entry.
      */
-    void reset() { fData.reset(); fNextIndex = 1; }
-
+    void reset() {
+        fData.reset();
+        fNextIndex = 1;
+        sk_bzero(fHash, sizeof(fHash));
+    }
+    
     /**
      * Given an element of type T it returns its index in the dictionary. If
      * the element wasn't previously in the dictionary it is automatically added
@@ -287,23 +294,31 @@ public:
      *  This trick allows Compare to always loop until failure. If it fails on
      *  the sentinal value, we know the blocks are equal.
      */
-    int find(const T* element, SkRefCntSet* refCntRecorder = NULL,
+    int find(const T& element, SkRefCntSet* refCntRecorder = NULL,
              SkRefCntSet* faceRecorder = NULL, uint32_t writeBufferflags = 0) {
-        if (element == NULL)
-            return 0;
-        SkFlatData* flat = SkFlatData::Create(fHeap, element, fNextIndex,
+
+        SkFlatData* flat = SkFlatData::Create(fHeap, &element, fNextIndex,
                 fFlattenProc, refCntRecorder, faceRecorder, writeBufferflags);
 
+        int hashIndex = ChecksumToHashIndex(flat->checksum());
+        const SkFlatData* candidate = fHash[hashIndex];
+        if (candidate && !SkFlatData::Compare(flat, candidate)) {
+            (void)fHeap->unalloc(flat);
+            return candidate->index();
+        }
+        
         int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
                 fData.count(), flat, sizeof(flat), &SkFlatData::Compare);
         if (index >= 0) {
             (void)fHeap->unalloc(flat);
+            fHash[hashIndex] = fData[index];
             return fData[index]->index();
         }
 
         index = ~index;
         *fData.insert(index) = flat;
         flat->setSentinelInCache();
+        fHash[hashIndex] = flat;
         SkASSERT(fData.count() == fNextIndex);
         return fNextIndex++;
     }
@@ -337,6 +352,31 @@ private:
     SkChunkAlloc* fHeap;
     int fNextIndex;
     SkTDArray<const SkFlatData*> fData;
+
+    enum {
+        // Determined by trying diff values on picture-recording benchmarks
+        // (e.g. PictureRecordBench.cpp), choosing the smallest value that
+        // showed a big improvement. Even better would be to benchmark diff
+        // values on recording representative web-pages or other "real" content.
+        HASH_BITS   = 7,
+        HASH_MASK   = (1 << HASH_BITS) - 1,
+        HASH_COUNT  = 1 << HASH_BITS
+    };
+    const SkFlatData* fHash[HASH_COUNT];
+    
+    static int ChecksumToHashIndex(uint32_t checksum) {
+        int n = checksum;
+        if (HASH_BITS < 32) {
+            n ^= n >> 16;
+        }
+        if (HASH_BITS < 16) {
+            n ^= n >> 8;
+        }
+        if (HASH_BITS < 8) {
+            n ^= n >> 4;
+        }
+        return n & HASH_MASK;
+    }        
 };
 
 ///////////////////////////////////////////////////////////////////////////////
