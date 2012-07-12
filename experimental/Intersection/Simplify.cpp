@@ -42,10 +42,10 @@
 #define DEBUG_CROSS 1
 #define DEBUG_DUMP 1
 #define DEBUG_PATH_CONSTRUCTION 1
-#define DEBUG_ACTIVE_SPANS 0
-#define DEBUG_WINDING 0
+#define DEBUG_ACTIVE_SPANS 01
+#define DEBUG_WINDING 01
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define DEBUG_MARK_DONE 0
+#define DEBUG_MARK_DONE 01
 
 #endif
 
@@ -682,23 +682,27 @@ public:
     bool activeAngleInner(int index, int& done, SkTDArray<Angle>& angles) const {
         int next = nextSpan(index, 1);
         if (next > 0) {
-            addAngle(angles, index, next);
             const Span& upSpan = fTs[index];
-            if (upSpan.fDone) {
-                done++;
-            } else if (upSpan.fWindSum != SK_MinS32) {
-                return true;
+            if (upSpan.fWindValue) {
+                addAngle(angles, index, next);
+                if (upSpan.fDone) {
+                    done++;
+                } else if (upSpan.fWindSum != SK_MinS32) {
+                    return true;
+                }
             }
         }
         int prev = nextSpan(index, -1);
         // edge leading into junction
         if (prev >= 0) {
-            addAngle(angles, index, prev);
             const Span& downSpan = fTs[prev];
-            if (downSpan.fDone) {
-                done++;
-             } else if (downSpan.fWindSum != SK_MinS32) {
-                return true;
+            if (downSpan.fWindValue) {
+                addAngle(angles, index, prev);
+                if (downSpan.fDone) {
+                    done++;
+                 } else if (downSpan.fWindSum != SK_MinS32) {
+                    return true;
+                }
             }
         }
         return false;
@@ -1088,12 +1092,12 @@ public:
     }
 
     int crossedSpan(const SkPoint& basePt, SkScalar& bestY, double& hitT) const {
-        int start = 0;
         int bestT = -1;
         SkScalar top = bounds().fTop;
         SkScalar bottom = bounds().fBottom;
-        int end;
+        int end = 0;
         do {
+            int start = end;
             end = nextSpan(start, 1);
             SkPoint edge[4];
             // OPTIMIZE: wrap this so that if start==0 end==fTCount-1 we can 
@@ -1119,7 +1123,6 @@ public:
                 bestT = foundT < 1 ? start : end;
                 hitT = foundT;
             }
-            start = end;
         } while (fTs[end].fT != 1);
         return bestT;
     }
@@ -1215,6 +1218,10 @@ public:
             firstEdge = false;
             if (!winding) {
                 if (!foundAngle) {
+#if 0
+                    nextAngle->segment()->markWinding(
+                        SkMin32(nextAngle->start(), nextAngle->end()), maxWinding);
+#endif
                     foundAngle = nextAngle;
                 }
                 continue;
@@ -2831,7 +2838,7 @@ static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex) {
         if (firstSign * winding > 0) {
             winding -= firstSign;
         }
-        SkDebugf("%s firstSign=%d\n", __FUNCTION__, firstSign);
+    //    SkDebugf("%s firstSign=%d\n", __FUNCTION__, firstSign);
         // we care about first sign and whether wind sum indicates this
         // edge is inside or outside. Maybe need to pass span winding
         // or first winding or something into this function?
