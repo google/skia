@@ -49,7 +49,8 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* state,
 /////////////////////////////////////////////////////////////////////
 
 
-GrRadialGradient::GrRadialGradient() {
+GrRadialGradient::GrRadialGradient(GrTexture* texture)
+    : GrSingleTextureEffect(texture) {
 
 }
 
@@ -63,7 +64,7 @@ const GrProgramStageFactory& GrRadialGradient::getFactory() const {
 }
 
 bool GrRadialGradient::isEqual(const GrCustomStage& sBase) const {
-    return true;
+    return INHERITED::isEqual(sBase);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -86,7 +87,6 @@ public:
                         const char* samplerName) SK_OVERRIDE;
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*,
-                         const GrGLTexture&,
                          const GrCustomStage&,
                          int stageNum) SK_OVERRIDE;
 
@@ -257,7 +257,6 @@ void GrGLRadial2Gradient::initUniforms(const GrGLInterface* gl, int programID) {
 }
 
 void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
-                                  const GrGLTexture& texture,
                                   const GrCustomStage& baseData,
                                   int stageNum) {
     const GrRadial2Gradient& data =
@@ -296,10 +295,12 @@ void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
 
 /////////////////////////////////////////////////////////////////////
 
-GrRadial2Gradient::GrRadial2Gradient(GrScalar center,
+GrRadial2Gradient::GrRadial2Gradient(GrTexture* texture,
+                                     GrScalar center,
                                      GrScalar radius,
                                      bool posRoot)
-    : fCenterX1 (center)
+    : GrSingleTextureEffect(texture)
+    , fCenterX1 (center)
     , fRadius0 (radius)
     , fPosRoot (posRoot) {
 
@@ -316,7 +317,8 @@ const GrProgramStageFactory& GrRadial2Gradient::getFactory() const {
 
 bool GrRadial2Gradient::isEqual(const GrCustomStage& sBase) const {
     const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
-    return (this->fCenterX1 == s.fCenterX1 &&
+    return (INHERITED::isEqual(sBase) &&
+            this->fCenterX1 == s.fCenterX1 &&
             this->fRadius0 == s.fRadius0 &&
             this->fPosRoot == s.fPosRoot);
 }
@@ -341,7 +343,6 @@ public:
                         const char* samplerName) SK_OVERRIDE;
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*,
-                         const GrGLTexture&,
                          const GrCustomStage&,
                          int stageNum) SK_OVERRIDE;
 
@@ -571,7 +572,6 @@ void GrGLConical2Gradient::initUniforms(const GrGLInterface* gl, int programID) 
 }
 
 void GrGLConical2Gradient::setData(const GrGLInterface* gl,
-                                   const GrGLTexture& texture,
                                    const GrCustomStage& baseData,
                                    int stageNum) {
     const GrConical2Gradient& data =
@@ -612,10 +612,12 @@ void GrGLConical2Gradient::setData(const GrGLInterface* gl,
 
 /////////////////////////////////////////////////////////////////////
 
-GrConical2Gradient::GrConical2Gradient(GrScalar center,
+GrConical2Gradient::GrConical2Gradient(GrTexture* texture,
+                                       GrScalar center,
                                        GrScalar radius,
                                        GrScalar diffRadius)
-    : fCenterX1 (center)
+    : GrSingleTextureEffect (texture)
+    , fCenterX1 (center)
     , fRadius0 (radius)
     , fDiffRadius (diffRadius) {
 
@@ -632,7 +634,8 @@ const GrProgramStageFactory& GrConical2Gradient::getFactory() const {
 
 bool GrConical2Gradient::isEqual(const GrCustomStage& sBase) const {
     const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
-    return (this->fCenterX1 == s.fCenterX1 &&
+    return (INHERITED::isEqual(sBase) &&
+            this->fCenterX1 == s.fCenterX1 &&
             this->fRadius0 == s.fRadius0 &&
             this->fDiffRadius == s.fDiffRadius);
 }
@@ -677,7 +680,8 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* state,
 
 /////////////////////////////////////////////////////////////////////
 
-GrSweepGradient::GrSweepGradient() {
+GrSweepGradient::GrSweepGradient(GrTexture* texture)
+    : GrSingleTextureEffect(texture) {
 
 }
 
@@ -690,6 +694,6 @@ const GrProgramStageFactory& GrSweepGradient::getFactory() const {
 }
 
 bool GrSweepGradient::isEqual(const GrCustomStage& sBase) const {
-    return true;
+    return INHERITED::isEqual(sBase);
 }
 

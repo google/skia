@@ -244,7 +244,7 @@ void apply_morphology(GrGpu* gpu,
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(sampleM);
     SkAutoTUnref<GrCustomStage> morph(
-        SkNEW_ARGS(GrMorphologyEffect, (direction, radius, morphType)));
+        SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)));
     drawState->sampler(0)->setCustomStage(morph);
     drawState->setTexture(0, texture);
     gpu->drawSimpleRect(rect, NULL, 1 << 0);
@@ -264,7 +264,7 @@ void convolve_gaussian(GrGpu* gpu,
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(sampleM);
     SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
-                                                      (direction, radius)));
+                                                      (texture, direction, radius)));
     conv->setGaussianKernel(sigma);
     drawState->sampler(0)->setCustomStage(conv);
     drawState->setTexture(0, texture);

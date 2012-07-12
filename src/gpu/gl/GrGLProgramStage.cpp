@@ -26,7 +26,6 @@ void GrGLProgramStage::initUniforms(const GrGLInterface*, int progID) {
 }
 
 void GrGLProgramStage::setData(const GrGLInterface*,
-                               const GrGLTexture&,
                                const GrCustomStage&,
                                int stageNum) {
 }

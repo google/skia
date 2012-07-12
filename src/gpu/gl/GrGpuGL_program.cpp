@@ -479,7 +479,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
                         static_cast<const GrGLTexture*>(
                             this->getDrawState().getTexture(s));
                     fProgramData->fCustomStage[s]->setData(
-                        this->glInterface(), *texture,
+                        this->glInterface(),
                         *sampler.getCustomStage(), s);
                 }
             }

@@ -25,7 +25,7 @@ public:
 
     typedef GrContext::MorphologyType MorphologyType;
 
-    GrMorphologyEffect(Direction, int radius, MorphologyType);
+    GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
     virtual ~GrMorphologyEffect();
 
     MorphologyType type() const { return fType; }

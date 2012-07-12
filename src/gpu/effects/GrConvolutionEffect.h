@@ -21,7 +21,8 @@ class GrConvolutionEffect : public Gr1DKernelEffect {
 
 public:
 
-    GrConvolutionEffect(Direction, int halfWidth, const float* kernel = NULL);
+    GrConvolutionEffect(GrTexture*, Direction,
+                        int halfWidth, const float* kernel = NULL);
     virtual ~GrConvolutionEffect();
 
     void setKernel(const float* kernel) {

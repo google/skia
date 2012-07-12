@@ -2214,7 +2214,7 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-bool SkImageFilter::asNewCustomStage(GrCustomStage**) const {
+bool SkImageFilter::asNewCustomStage(GrCustomStage**, GrTexture*) const {
     return false;
 }
 

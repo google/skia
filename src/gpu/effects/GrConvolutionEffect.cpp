@@ -28,7 +28,6 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
 
     virtual void setData(const GrGLInterface*,
-                         const GrGLTexture&,
                          const GrCustomStage&,
                          int stageNum) SK_OVERRIDE;
 
@@ -118,11 +117,11 @@ void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
 }
 
 void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
-                                    const GrGLTexture& texture,
                                     const GrCustomStage& data,
                                     int stageNum) {
     const GrConvolutionEffect& conv =
         static_cast<const GrConvolutionEffect&>(data);
+    GrTexture& texture = *data.texture(0);
     // the code we generated was for a specific kernel radius
     GrAssert(conv.radius() == fRadius);
     float imageIncrement[2] = { 0 };
@@ -148,10 +147,11 @@ GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrConvolutionEffect::GrConvolutionEffect(Direction direction,
+GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
+                                         Direction direction,
                                          int radius,
                                          const float* kernel)
-    : Gr1DKernelEffect(direction, radius) {
+    : Gr1DKernelEffect(texture, direction, radius) {
     GrAssert(radius <= kMaxKernelRadius);
     int width = this->width();
     if (NULL != kernel) {
@@ -171,9 +171,10 @@ const GrProgramStageFactory& GrConvolutionEffect::getFactory() const {
 bool GrConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
      const GrConvolutionEffect& s =
         static_cast<const GrConvolutionEffect&>(sBase);
-    return (this->radius() == s.radius() &&
-             this->direction() == s.direction() &&
-             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
+    return (INHERITED::isEqual(sBase) &&
+            this->radius() == s.radius() &&
+            this->direction() == s.direction() &&
+            0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
 }
 
 void GrConvolutionEffect::setGaussianKernel(float sigma) {

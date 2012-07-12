@@ -31,7 +31,6 @@ public:
 
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*, 
-                         const GrGLTexture&,
                          const GrCustomStage&,
                          int stageNum) SK_OVERRIDE;
 
@@ -124,11 +123,12 @@ GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(
 }
 
 void GrGLMorphologyEffect ::setData(const GrGLInterface* gl,
-                                    const GrGLTexture& texture,
                                     const GrCustomStage& data,
                                     int stageNum) {
     const Gr1DKernelEffect& kern =
         static_cast<const Gr1DKernelEffect&>(data);
+    GrGLTexture& texture =
+        *static_cast<GrGLTexture*>(data.texture(0));
     // the code we generated was for a specific kernel radius
     GrAssert(kern.radius() == fRadius);
     float imageIncrement[2] = { 0 };
@@ -147,10 +147,11 @@ void GrGLMorphologyEffect ::setData(const GrGLInterface* gl,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrMorphologyEffect::GrMorphologyEffect(Direction direction,
+GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
+                                       Direction direction,
                                        int radius,
                                        MorphologyType type)
-    : Gr1DKernelEffect(direction, radius)
+    : Gr1DKernelEffect(texture, direction, radius)
     , fType(type) {
 }
 
@@ -164,7 +165,8 @@ const GrProgramStageFactory& GrMorphologyEffect::getFactory() const {
 bool GrMorphologyEffect::isEqual(const GrCustomStage& sBase) const {
     const GrMorphologyEffect& s =
         static_cast<const GrMorphologyEffect&>(sBase);
-    return (this->radius() == s.radius() &&
+    return (INHERITED::isEqual(sBase) &&
+            this->radius() == s.radius() &&
             this->direction() == s.direction() &&
             this->type() == s.type());
 }

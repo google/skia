@@ -2140,6 +2140,21 @@ void GrGpuGL::flushBoundTextureAndParams(int stage) {
     GrGLTexture* nextTexture = 
         static_cast<GrGLTexture*>(drawState->getTexture(stage));
 
+    // HACK - if we're using a new SingleTextureEffect, override
+    // the old texture pointer
+    const GrSamplerState& sampler = drawState->getSampler(stage);
+    GrCustomStage* customStage = sampler.getCustomStage();
+    if (customStage && customStage->numTextures()) {
+        nextTexture = 
+            static_cast<GrGLTexture*>(customStage->texture(0));
+    }
+
+    flushBoundTextureAndParams(stage, nextTexture);
+}
+
+void GrGpuGL::flushBoundTextureAndParams(int stage, GrGLTexture* nextTexture) {
+    GrDrawState* drawState = this->drawState();
+
     // true for now, but maybe not with GrEffect.
     GrAssert(NULL != nextTexture);
     // if we created a rt/tex and rendered to it without using a
