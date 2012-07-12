@@ -1108,8 +1108,8 @@ static void usage (char * argv0) {
 "\n");
 }
 
-const int NO_ERROR = 0;
-const int GENERIC_ERROR = -1;
+const int kNoError = 0;
+const int kGenericError = -1;
 
 int main (int argc, char ** argv) {
     DiffMetricProc diffProc = compute_diff_pmcolor;
@@ -1141,7 +1141,7 @@ int main (int argc, char ** argv) {
         }
         if (!strcmp(argv[i], "--help")) {
             usage(argv[0]);
-            return NO_ERROR;
+            return kNoError;
         }
         if (!strcmp(argv[i], "--listfilenames")) {
             listFilenames = true;
@@ -1193,20 +1193,20 @@ int main (int argc, char ** argv) {
                 default:
                     SkDebugf("extra unflagged argument <%s>\n", argv[i]);
                     usage(argv[0]);
-                    return GENERIC_ERROR;
+                    return kGenericError;
             }
         }
 
         SkDebugf("Unrecognized argument <%s>\n", argv[i]);
         usage(argv[0]);
-        return GENERIC_ERROR;
+        return kGenericError;
     }
 
     if (numUnflaggedArguments == 2) {
         outputDir = comparisonDir;
     } else if (numUnflaggedArguments != 3) {
         usage(argv[0]);
-        return GENERIC_ERROR;
+        return kGenericError;
     }
 
     if (!baseDir.endsWith(PATH_DIV_STR)) {
@@ -1267,6 +1267,6 @@ int main (int argc, char ** argv) {
     if (failOnMismatches) {
         return summary.fNumMismatches;
     } else {
-        return NO_ERROR;
+        return kNoError;
     }
 }
