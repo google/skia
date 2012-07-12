@@ -11,7 +11,6 @@
 #include "SkStream.h"
 #include "SkCanvasWidget.h"
 #include "SkColor.h"
-#include <iostream>
 
 SkCanvasWidget::SkCanvasWidget(QWidget *parent) :
     QWidget(parent) {
@@ -56,7 +55,7 @@ void SkCanvasWidget::resizeEvent(QResizeEvent* event) {
     fDevice = new SkDevice(fBitmap);
     fCanvas = new SkCanvas(fDevice);
     fDebugCanvas->setBounds(event->size().width(), event->size().height());
-    fDebugCanvas->drawTo(fCanvas, fIndex);
+    fDebugCanvas->drawTo(fCanvas, fIndex+1, &fBitmap);
     this->update();
 }
 
@@ -72,7 +71,7 @@ void SkCanvasWidget::drawTo(int fIndex) {
     }
 
     emit commandChanged(fIndex);
-    fDebugCanvas->drawTo(fCanvas, fIndex+1);
+    fDebugCanvas->drawTo(fCanvas, fIndex+1, &fBitmap);
     this->update();
     this->fIndex = fIndex;
 }
@@ -128,6 +127,11 @@ void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
     fPreviousPoint.set(event->globalX(), event->globalY());
+    fDebugCanvas->getBoxClass()->setHitPoint(event->x(), event->y());
+    fDebugCanvas->isCalculatingHits(true);
+    drawTo(fIndex);
+    emit hitChanged(fDebugCanvas->getHitBoxPoint());
+    fDebugCanvas->isCalculatingHits(false);
 }
 
 void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {

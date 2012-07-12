@@ -71,10 +71,12 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
             SLOT(actionCommandFilter()));
     connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this,
             SLOT(actionScale(float)));
-    connect(fSettingsWidget.getCommandCheckBox(), SIGNAL(stateChanged(int)),
+    connect(fSettingsWidget.getCommandCheckBox(), SIGNAL(toggled(bool)),
             this, SLOT(pauseDrawing(bool)));
     connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget,
             SLOT(updateCommand(int)));
+    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget,
+            SLOT(updateHit(int)));
 }
 
 SkDebuggerGUI::~SkDebuggerGUI() {
@@ -478,6 +480,7 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
             fSettingsWidget.getVisibilityButton()->isChecked());
     setupListWidget(cv);
     setupComboBox(cv);
+    fSettingsWidget.setDisabled(false);
 }
 
 void SkDebuggerGUI::setupListWidget(std::vector<std::string>* cv) {

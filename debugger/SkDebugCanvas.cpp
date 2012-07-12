@@ -34,12 +34,11 @@ void SkDebugCanvas::draw(SkCanvas* canvas) {
     }
 }
 
-
-void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
+void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, SkBitmap* bitmap) {
     int counter = 0;
     if(!commandVector.empty()) {
         for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-             if (counter != (index-1)) {
+            if (counter != (index-1)) {
                  if ((*it)->getVisibility()) {
                      (*it)->execute(canvas);
                  }
@@ -56,11 +55,13 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
                      canvas->drawRectCoords(SkIntToScalar(0),SkIntToScalar(0),SkIntToScalar(fWidth),SkIntToScalar(fHeight), *p);
                      canvas->restore();
                  }
-
                  if ((*it)->getVisibility()) {
                      (*it)->execute(canvas);
                  }
              }
+            if (fCalculateHits == true) {
+                fHitBox.updateHitPoint(bitmap, counter);
+            }
 
             /* TODO(chudy): Implement a bitmap wide function that will take
              *  ~50 out of each R,G,B. This will make everything but the last

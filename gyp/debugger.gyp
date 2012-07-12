@@ -30,6 +30,8 @@
         '../debugger/SkObjectParser.cpp',
         '../debugger/QT/SkSettingsWidget.h',
         '../debugger/QT/SkSettingsWidget.cpp',
+        '../debugger/SkHitBox.h',
+        '../debugger/SkHitBox.cpp',
 
         # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
         '../debugger/QT/qrc_SkIcons.cpp',

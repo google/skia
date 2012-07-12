@@ -43,6 +43,7 @@ public:
 
 private slots:
     void updateCommand(int newCommand);
+    void updateHit(int newHit);
 
 signals:
     void scrollingPreferences(bool isStickyActivate);
@@ -64,9 +65,13 @@ private:
     QFrame fCommandFrame;
     QVBoxLayout fCommandLayout;
 
-    QLineEdit fCurrentCommandBox;
     QLabel fCurrentCommandLabel;
+    QLineEdit fCurrentCommandBox;
     QHBoxLayout fCurrentCommandLayout;
+
+    QLabel fCommandHitLabel;
+    QLineEdit fCommandHitBox;
+    QHBoxLayout fCommandHitLayout;
 
     QCheckBox fCommandCheckBox;
 

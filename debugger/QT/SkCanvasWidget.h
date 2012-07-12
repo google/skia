@@ -132,6 +132,7 @@ public:
 signals:
     void scaleFactorChanged(float newScaleFactor);
     void commandChanged(int newCommand);
+    void hitChanged(int hit);
 
 protected:
     /**
