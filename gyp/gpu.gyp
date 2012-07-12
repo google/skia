@@ -44,7 +44,6 @@
       [ 'skia_os == "win"', {
         'defines': [
           'GR_WIN32_BUILD=1',
-          'GR_GL_FUNCTION_TYPE=__stdcall',
         ],
       }],
     ],

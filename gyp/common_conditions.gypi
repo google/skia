@@ -9,6 +9,7 @@
           'SK_BUILD_FOR_WIN32',
           'SK_IGNORE_STDINT_DOT_H',
           '_CRT_SECURE_NO_WARNINGS',
+          'GR_GL_FUNCTION_TYPE=__stdcall',
         ],
         'msvs_cygwin_shell': 0,
         'msvs_settings': {
