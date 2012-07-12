@@ -372,7 +372,7 @@ static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
 static void generate_xps(GM* gm, SkDynamicMemoryWStream& xps) {
 #ifdef SK_SUPPORT_XPS
     SkISize size = gm->getISize();
-    
+
     SkSize trimSize = SkSize::Make(SkIntToScalar(size.width()),
                                    SkIntToScalar(size.height()));
     static const SkScalar inchesPerMeter = SkScalarDiv(10000, 254);
@@ -405,7 +405,7 @@ static ErrorBitfield write_reference_image(const ConfigData& gRec,
     if (gRec.fBackend == kRaster_Backend ||
         gRec.fBackend == kGPU_Backend ||
         (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF)) {
-    
+
         path = make_filename(writePath, renderModeDescriptor, name, "png");
         success = write_bitmap(path, bitmap);
     }
@@ -701,11 +701,11 @@ static void write_picture_serialization(GM* gm, const ConfigData& rec,
         SkBitmap::kARGB_8888_Config == rec.fConfig) {
 
         SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
-        
+
         const char* pictureSuffix = "skp";
         SkString path = make_filename(writePicturePath, "",
                                       SkString(gm->shortName()), pictureSuffix);
-        
+
         SkFILEWStream stream(path.c_str());
         pict->serialize(&stream);
     }
@@ -748,6 +748,7 @@ static const ConfigData gRec[] = {
 static void usage(const char * argv0) {
     SkDebugf("%s\n", argv0);
     SkDebugf("    [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n");
+    SkDebugf("    [-wp writePicturePath]\n");
     SkDebugf("    [--config ");
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         if (i > 0) {
@@ -762,6 +763,7 @@ static void usage(const char * argv0) {
              "    [-h|--help]\n"
              );
     SkDebugf("    writePath: directory to write rendered images in.\n");
+    SkDebugf("    writePicturePath: directory to write images to in .skp format.\n");
     SkDebugf(
              "    readPath: directory to read reference images from;\n"
              "        reports if any pixels mismatch between reference and new images\n");
@@ -971,7 +973,7 @@ int main(int argc, char * const argv[]) {
 
     if (readPath) {
         fprintf(stderr, "reading from %s\n", readPath);
-    } 
+    }
     if (writePath) {
         fprintf(stderr, "writing to %s\n", writePath);
     }
@@ -1095,7 +1097,7 @@ int main(int argc, char * const argv[]) {
                                                          forwardRenderedBitmap,
                                                          readPath, diffPath);
             }
-            
+
             if (!(gmFlags & GM::kSkipPicture_Flag) && writePicturePath) {
                 write_picture_serialization(gm, config, writePicturePath);
             }
