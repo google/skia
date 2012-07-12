@@ -55,22 +55,6 @@ const char* GrGetGLSLVersionDecl(GrGLBinding binding,
     }
 }
 
-const char* GrGetGLSLVarPrecisionDeclType(GrGLBinding binding) {
-    if (kES2_GrGLBinding == binding) {
-        return "mediump";
-    } else {
-        return " ";
-    }
-}
-
-const char* GrGetGLSLShaderPrecisionDecl(GrGLBinding binding) {
-    if (kES2_GrGLBinding == binding) {
-        return "precision mediump float;\n";
-    } else {
-        return "";
-    }
-}
-
 bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen,
                              const char* nameIfDeclared,
                              GrGLShaderVar* var) {

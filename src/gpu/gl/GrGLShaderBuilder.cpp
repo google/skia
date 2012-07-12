@@ -14,6 +14,9 @@ static const int kVarsPerBlock = 8;
 // except FS outputs where we expect 2 at most.
 static const int kMaxFSOutputs = 2;
 
+// ES2 FS only guarantees mediump and lowp support
+static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar::kMedium_Precision;
+
 // Architectural assumption: always 2-d input coords.
 // Likely to become non-constant and non-static, perhaps even
 // varying by stage, if we use 1D textures for gradients!
@@ -139,10 +142,9 @@ const GrGLShaderVar& GrGLShaderBuilder::addUniform(uint32_t visibility,
     var->setArrayCount(count);
 
     if ((kVertex_ShaderType | kFragment_ShaderType) == visibility) {
+        // the fragment and vertex precisions must match
+        var->setPrecision(kDefaultFragmentPrecision);
         fFSUnis.push_back(*var);
-        // If it's shared between VS and FS, VS must override
-        // default highp and specify mediump.
-        var->setEmitPrecision(true);
     }
 
     return *var;
@@ -186,7 +188,6 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     }
 }
 
-
 void GrGLShaderBuilder::addVarying(GrSLType type,
                                    const char* name,
                                    int stageNum,
@@ -198,6 +199,30 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
 }
 
 namespace {
+
+inline void append_default_precision_qualifier(GrGLShaderVar::Precision p,
+                                               GrGLBinding binding,
+                                               SkString* str) {
+    // Desktop GLSL has added precision qualifiers but they don't do anything.
+    if (kES2_GrGLBinding == binding) {
+        switch (p) {
+            case GrGLShaderVar::kHigh_Precision:
+                str->append("precision highp float;\n");
+                break;
+            case GrGLShaderVar::kMedium_Precision:
+                str->append("precision mediump float;\n");
+                break;
+            case GrGLShaderVar::kLow_Precision:
+                str->append("precision lowp float;\n");
+                break;
+            case GrGLShaderVar::kDefault_Precision:
+                GrCrash("Default precision now allowed.");
+            default:
+                GrCrash("Unknown precision value.");
+        }
+    }
+}
+
 void append_decls(const GrGLShaderBuilder::VarArray& vars,
                   const GrGLContextInfo& ctx,
                   SkString* string) {
@@ -229,7 +254,9 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             break;
         case kFragment_ShaderType:
             *shaderStr = fHeader;
-            shaderStr->append(GrGetGLSLShaderPrecisionDecl(fContext.binding()));
+            append_default_precision_qualifier(kDefaultFragmentPrecision,
+                                               fContext.binding(),
+                                               shaderStr);
             append_decls(fFSUnis, fContext, shaderStr);
             append_decls(fFSInputs, fContext, shaderStr);
             // We shouldn't have declared outputs on 1.10
@@ -239,5 +266,5 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             shaderStr->append(fFSCode);
             break;
     }
-
  }
+

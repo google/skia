@@ -33,6 +33,17 @@ public:
         kAttribute_TypeModifier
     };
 
+    enum Precision {
+        kLow_Precision,         // lowp
+        kMedium_Precision,      // mediump
+        kHigh_Precision,        // highp
+        kDefault_Precision,     // Default for the current context. We make
+                                // fragment shaders default to mediump on ES2
+                                // because highp support is not guaranteed (and
+                                // we haven't been motivated to test for it).
+                                // Otherwise, highp.
+    };
+
     /**
      * Defaults to a float with no precision specifier
      */
@@ -40,7 +51,7 @@ public:
         fType = kFloat_GrSLType;
         fTypeModifier = kNone_TypeModifier;
         fCount = kNonArray;
-        fEmitPrecision = false;
+        fPrecision = kDefault_Precision;
         fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
     }
 
@@ -49,7 +60,7 @@ public:
         , fTypeModifier(var.fTypeModifier)
         , fName(var.fName)
         , fCount(var.fCount)
-        , fEmitPrecision(var.fEmitPrecision)
+        , fPrecision(var.fPrecision)
         , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {}
 
     /**
@@ -66,13 +77,13 @@ public:
     void set(GrSLType type,
              TypeModifier typeModifier,
              const SkString& name,
-             bool emitPrecision = false,
+             Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
         fCount = kNonArray;
-        fEmitPrecision = emitPrecision;
+        fPrecision = precision;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -82,13 +93,13 @@ public:
     void set(GrSLType type,
              TypeModifier typeModifier,
              const char* name,
-             bool specifyPrecision = false,
+             Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
         fCount = kNonArray;
-        fEmitPrecision = specifyPrecision;
+        fPrecision = precision;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -99,13 +110,13 @@ public:
              TypeModifier typeModifier,
              const SkString& name,
              int count,
-             bool specifyPrecision = false,
+             Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
         fCount = count;
-        fEmitPrecision = specifyPrecision;
+        fPrecision = precision;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -116,13 +127,13 @@ public:
              TypeModifier typeModifier,
              const char* name,
              int count,
-             bool specifyPrecision = false,
+             Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
         fCount = count;
-        fEmitPrecision = specifyPrecision;
+        fPrecision = precision;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -178,13 +189,14 @@ public:
     void setTypeModifier(TypeModifier type) { fTypeModifier = type; }
 
     /**
-     * Must the variable declaration emit a precision specifier
+     * Get the precision of the var
      */
-    bool emitsPrecision() const { return fEmitPrecision; }
+    Precision getPrecision() const { return fPrecision; }
+
     /**
-     * Specify whether the declaration should specify precision
+     * Set the precision of the var
      */
-    void setEmitPrecision(bool p) { fEmitPrecision = p; }
+    void setPrecision(Precision p) { fPrecision = p; }
 
     /**
      * Write a declaration of this variable to out.
@@ -195,10 +207,7 @@ public:
                                           gl.glslGeneration()));
            out->append(" ");
         }
-        if (this->emitsPrecision()) {
-            out->append(GrGetGLSLVarPrecisionDeclType(gl.binding()));
-            out->append(" ");
-        }
+        out->append(PrecisionString(fPrecision, gl.binding()));
         GrSLType effectiveType = this->getType();
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
@@ -257,8 +266,7 @@ public:
     }
 
 private:
-    static const char* TypeModifierString(TypeModifier t,
-                                          GrGLSLGeneration gen) {
+    static const char* TypeModifierString(TypeModifier t, GrGLSLGeneration gen) {
         switch (t) {
             case kNone_TypeModifier:
                 return "";
@@ -276,11 +284,30 @@ private:
         }
     }
 
-    GrSLType fType;
+    static const char* PrecisionString(Precision p, GrGLBinding binding) {
+        // Desktop GLSL has added precision qualifiers but they don't do anything.
+        if (kES2_GrGLBinding == binding) {
+            switch (p) {
+                case kLow_Precision:
+                    return "lowp ";
+                case kMedium_Precision:
+                    return "mediump ";
+                case kHigh_Precision:
+                    return "highp ";
+                case kDefault_Precision:
+                    return "";
+                default:
+                    GrCrash("Unexpected precision type.");
+            }
+        }
+        return "";
+    }
+
+    GrSLType        fType;
     TypeModifier    fTypeModifier;
     SkString        fName;
     int             fCount;
-    bool            fEmitPrecision;
+    Precision       fPrecision;
     /// Work around driver bugs on some hardware that don't correctly
     /// support uniform float []
     bool            fUseUniformFloatArrays;
