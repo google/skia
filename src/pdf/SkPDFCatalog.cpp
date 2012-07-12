@@ -38,7 +38,7 @@ SkPDFObject* SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
     return obj;
 }
 
-size_t SkPDFCatalog::setFileOffset(SkPDFObject* obj, size_t offset) {
+size_t SkPDFCatalog::setFileOffset(SkPDFObject* obj, off_t offset) {
     int objIndex = assignObjNum(obj) - 1;
     SkASSERT(fCatalog[objIndex].fObjNumAssigned);
     SkASSERT(fCatalog[objIndex].fFileOffset == 0);
@@ -190,7 +190,7 @@ off_t SkPDFCatalog::setSubstituteResourcesOffsets(off_t fileOffset,
     SkTDArray<SkPDFObject*>* targetList = getSubstituteList(firstPage);
     off_t offsetSum = fileOffset;
     for (int i = 0; i < targetList->count(); ++i) {
-        offsetSum += setFileOffset((*targetList)[i], (size_t) offsetSum);
+        offsetSum += setFileOffset((*targetList)[i], offsetSum);
     }
     return offsetSum - fileOffset;
 }

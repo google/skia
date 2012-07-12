@@ -42,7 +42,7 @@ public:
      *  @param obj         The object to add.
      *  @param offset      The byte offset in the output stream of this object.
      */
-    size_t setFileOffset(SkPDFObject* obj, size_t offset);
+    size_t setFileOffset(SkPDFObject* obj, off_t offset);
 
     /** Output the object number for the passed object.
      *  @param obj         The object of interest.
