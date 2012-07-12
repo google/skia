@@ -18,7 +18,6 @@ cd
 DOXYGEN_TEMPDIR=${DOXYGEN_TEMPDIR:-/tmp/skia-doxygen}
 DOXYGEN_COMMIT=${DOXYGEN_COMMIT:-true}
 
-rm -rf $DOXYGEN_TEMPDIR
 mkdir -p $DOXYGEN_TEMPDIR
 cd $DOXYGEN_TEMPDIR
 svn checkout http://skia.googlecode.com/svn/trunk  # read-only
