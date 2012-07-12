@@ -123,14 +123,13 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
 
         // Figure out the size of things and inform the catalog of file offsets.
         off_t fileOffset = headerSize();
-        fileOffset += fCatalog->setFileOffset(fDocCatalog.get(),
-                (size_t) fileOffset);
-        fileOffset += fCatalog->setFileOffset(fPages[0], (size_t) fileOffset);
+        fileOffset += fCatalog->setFileOffset(fDocCatalog.get(), fileOffset);
+        fileOffset += fCatalog->setFileOffset(fPages[0], fileOffset);
         fileOffset += fPages[0]->getPageSize(fCatalog.get(),
                 (size_t) fileOffset);
         for (int i = 0; i < fSecondPageFirstResourceIndex; i++) {
             fileOffset += fCatalog->setFileOffset(fPageResources[i],
-                                                  (size_t) fileOffset);
+                                                  fileOffset);
         }
         // Add the size of resources of substitute objects used on page 1.
         fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset, true);
@@ -140,20 +139,18 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         }
 
         for (int i = 0; i < fPageTree.count(); i++) {
-            fileOffset += fCatalog->setFileOffset(fPageTree[i],
-                    (size_t) fileOffset);
+            fileOffset += fCatalog->setFileOffset(fPageTree[i], fileOffset);
         }
 
         for (int i = 1; i < fPages.count(); i++) {
-            fileOffset += fPages[i]->getPageSize(fCatalog.get(),
-                    (size_t) fileOffset);
+            fileOffset += fPages[i]->getPageSize(fCatalog.get(), fileOffset);
         }
 
         for (int i = fSecondPageFirstResourceIndex;
                  i < fPageResources.count();
                  i++) {
             fileOffset += fCatalog->setFileOffset(fPageResources[i],
-                                                  (size_t) fileOffset);
+                                                  fileOffset);
         }
 
         fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset,
