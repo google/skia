@@ -82,7 +82,6 @@ public:
         a stage and uploads any uniform variables required by the shaders
         created in emit*(). */
     virtual void setData(const GrGLInterface* gl,
-                         const GrGLTexture& texture,
                          const GrCustomStage& stage,
                          int stageNum);
 

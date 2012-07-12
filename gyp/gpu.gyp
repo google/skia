@@ -293,6 +293,8 @@
         '../src/gpu/effects/GrGradientEffects.h',
         '../src/gpu/effects/GrMorphologyEffect.cpp',
         '../src/gpu/effects/GrMorphologyEffect.h',
+        '../src/gpu/effects/GrSingleTextureEffect.cpp',
+        '../src/gpu/effects/GrSingleTextureEffect.h',
 
         '../src/gpu/gl/GrGLCaps.cpp',
         '../src/gpu/gl/GrGLCaps.h',

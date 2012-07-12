@@ -213,6 +213,7 @@ private:
     // call to flushScissor must occur after all textures have been flushed via
     // this function.
     void flushBoundTextureAndParams(int stage);
+    void flushBoundTextureAndParams(int stage, GrGLTexture* nextTexture);
 
     // sets the texture matrix and domain for the currently bound program
     void flushTextureMatrixAndDomain(int stage);

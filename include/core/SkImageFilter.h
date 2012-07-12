@@ -15,6 +15,7 @@ class SkDevice;
 class SkMatrix;
 struct SkPoint;
 class GrCustomStage;
+class GrTexture;
 
 /**
  *  Experimental.
@@ -86,7 +87,7 @@ public:
      *  in it.  The caller assumes ownership of the stage, and it is up to the
      *  caller to unref it.
      */
-    virtual bool asNewCustomStage(GrCustomStage** stage) const;
+    virtual bool asNewCustomStage(GrCustomStage** stage, GrTexture*) const;
 
     /**
      *  Experimental.

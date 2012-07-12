@@ -8,7 +8,7 @@
 #ifndef GrGradientEffects_DEFINED
 #define GrGradientEffects_DEFINED
 
-#include "GrCustomStage.h"
+#include "GrSingleTextureEffect.h"
 #include "GrTypes.h"
 #include "GrScalar.h"
 
@@ -37,11 +37,11 @@
 
 class GrGLRadialGradient;
 
-class GrRadialGradient : public GrCustomStage {
+class GrRadialGradient : public GrSingleTextureEffect {
 
 public:
 
-    GrRadialGradient();
+    GrRadialGradient(GrTexture* texture);
     virtual ~GrRadialGradient();
 
     static const char* Name() { return "Radial Gradient"; }
@@ -52,24 +52,23 @@ public:
 
 private:
 
-    typedef GrCustomStage INHERITED;
+    typedef GrSingleTextureEffect INHERITED;
 };
 
 class GrGLRadial2Gradient;
 
-class GrRadial2Gradient : public GrCustomStage {
+class GrRadial2Gradient : public GrSingleTextureEffect {
 
 public:
 
-    GrRadial2Gradient(GrScalar center, GrScalar radius, bool posRoot);
+    GrRadial2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, bool posRoot);
     virtual ~GrRadial2Gradient();
 
     static const char* Name() { return "Two-Point Radial Gradient"; }
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
 
-    // The radial gradient parameters can collapse to a linear (instead
-    // of quadratic) equation.
+    // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
     bool isDegenerate() const { return GR_Scalar1 == fCenterX1; }
     GrScalar center() const { return fCenterX1; }
     GrScalar radius() const { return fRadius0; }
@@ -89,26 +88,24 @@ private:
 
     // @}
 
-    typedef GrCustomStage INHERITED;
+    typedef GrSingleTextureEffect INHERITED;
 };
 
 class GrGLConical2Gradient;
 
-class GrConical2Gradient : public GrCustomStage {
+class GrConical2Gradient : public GrSingleTextureEffect {
 
 public:
 
-    GrConical2Gradient(GrScalar center, GrScalar radius, GrScalar diffRadius);
+    GrConical2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, GrScalar diffRadius);
     virtual ~GrConical2Gradient();
 
     static const char* Name() { return "Two-Point Conical Gradient"; }
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
 
-    // The radial gradient parameters can collapse to a linear (instead
-    // of quadratic) equation.
-    bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == 
-                                       SkScalarAbs(fCenterX1); }
+    // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
+    bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == SkScalarAbs(fCenterX1); }
     GrScalar center() const { return fCenterX1; }
     GrScalar diffRadius() const { return fDiffRadius; }
     GrScalar radius() const { return fRadius0; }
@@ -127,16 +124,16 @@ private:
 
     // @}
 
-    typedef GrCustomStage INHERITED;
+    typedef GrSingleTextureEffect INHERITED;
 };
 
 class GrGLSweepGradient;
 
-class GrSweepGradient : public GrCustomStage {
+class GrSweepGradient : public GrSingleTextureEffect {
 
 public:
 
-    GrSweepGradient();
+    GrSweepGradient(GrTexture* texture);
     virtual ~GrSweepGradient();
 
     static const char* Name() { return "Sweep Gradient"; }
@@ -147,7 +144,7 @@ public:
 
 protected:
 
-    typedef GrCustomStage INHERITED;
+    typedef GrSingleTextureEffect INHERITED;
 };
 
 #endif

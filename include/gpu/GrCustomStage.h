@@ -13,11 +13,17 @@
 #include "GrProgramStageFactory.h"
 
 class GrContext;
+class GrTexture;
 
 /** Provides custom vertex shader, fragment shader, uniform data for a
     particular stage of the Ganesh shading pipeline. 
     Subclasses must have a function that produces a human-readable name:
         static const char* Name();
+    GrCustomStage objects *must* be immutable: after being constructed,
+    their fields may not change.  (Immutability isn't actually required
+    until they've been used in a draw call, but supporting that would require
+    setters and getters that could fail, copy-on-write, or deep copying of these
+    objects when they're stored by a GrGLProgramStage.)
   */
 class GrCustomStage : public GrRefCnt {
 
@@ -60,15 +66,22 @@ public:
         To test for equivalence (that they will generate the same
         shader code, but may have different uniforms), check equality
         of the stageKey produced by the GrProgramStageFactory:
-        a.getFactory().glStageKey(a) == b.getFactory().glStageKey(b). */
-    virtual bool isEqual(const GrCustomStage&) const = 0;
+        a.getFactory().glStageKey(a) == b.getFactory().glStageKey(b).
+
+        The default implementation of this function returns true iff
+        the two stages have the same return value for numTextures() and
+        for texture() over all valid indicse.
+     */
+    virtual bool isEqual(const GrCustomStage&) const;
 
      /** Human-meaningful string to identify this effect; may be embedded
          in generated shader code. */
     const char* name() const { return this->getFactory().name(); }
 
-private:
+    virtual unsigned int numTextures() const;
+    virtual GrTexture* texture(unsigned int index) const;
 
+private:
     typedef GrRefCnt INHERITED;
 };
 

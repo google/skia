@@ -536,26 +536,36 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         }
         return false;
     }
+
     GrSamplerState* sampler = grPaint->textureSampler(kShaderTextureIdx);
+    GrTexture* texture = act->set(dev, bitmap, sampler);
+    if (NULL == texture) {
+        SkDebugf("Couldn't convert bitmap to texture.\n");
+        return false;
+    }
+    grPaint->setTexture(kShaderTextureIdx, texture);
+
     switch (bmptype) {
         case SkShader::kRadial_BitmapType:
-            sampler->setCustomStage(SkNEW(GrRadialGradient))->unref();
+            sampler->setCustomStage(SkNEW_ARGS(GrRadialGradient, (texture)))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         case SkShader::kSweep_BitmapType:
-            sampler->setCustomStage(SkNEW(GrSweepGradient))->unref();
+            sampler->setCustomStage(SkNEW_ARGS(GrSweepGradient, (texture)))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         case SkShader::kTwoPointRadial_BitmapType:
             sampler->setCustomStage(SkNEW_ARGS(GrRadial2Gradient,
-                         (twoPointParams[0],
+                         (texture,
+                          twoPointParams[0],
                           twoPointParams[1],
                           twoPointParams[2] < 0)))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         case SkShader::kTwoPointConical_BitmapType:
             sampler->setCustomStage(SkNEW_ARGS(GrConical2Gradient,
-                                               (twoPointParams[0],
+                                               (texture,
+                                                twoPointParams[0],
                                                 twoPointParams[1],
                                                 twoPointParams[2])))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
@@ -570,13 +580,6 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
     sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
     sampler->setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
-
-    GrTexture* texture = act->set(dev, bitmap, sampler);
-    if (NULL == texture) {
-        SkDebugf("Couldn't convert bitmap to texture.\n");
-        return false;
-    }
-    grPaint->setTexture(kShaderTextureIdx, texture);
 
     // since our texture coords will be in local space, we wack the texture
     // matrix to map them back into 0...1 before we load it
@@ -1474,7 +1477,7 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
     desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
     GrCustomStage* stage;
 
-    if (filter->asNewCustomStage(&stage)) {
+    if (filter->asNewCustomStage(&stage, texture)) {
         GrAutoScratchTexture dst(context, desc);
         apply_custom_stage(context, texture, dst.texture(), rect, stage);
         texture = dst.detach();
@@ -1607,7 +1610,7 @@ bool SkGpuDevice::canHandleImageFilter(SkImageFilter* filter) {
     SkSize size;
     SkISize radius;
 
-    if (!filter->asNewCustomStage(NULL) &&
+    if (!filter->asNewCustomStage(NULL, NULL) &&
         !filter->asABlur(&size) &&
         !filter->asADilate(&radius) &&
         !filter->asAnErode(&radius)) {

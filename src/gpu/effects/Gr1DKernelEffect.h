@@ -8,7 +8,7 @@
 #ifndef Gr1DKernelEffect_DEFINED
 #define Gr1DKernelEffect_DEFINED
 
-#include "GrCustomStage.h"
+#include "GrSingleTextureEffect.h"
 
 /**
  * Base class for 1D kernel effects. The kernel operates either in X or Y and
@@ -18,7 +18,7 @@
  * read. Since the center pixel is also read, the total width is one larger than
  * two times the radius.
  */
-class Gr1DKernelEffect : public GrCustomStage {
+class Gr1DKernelEffect : public GrSingleTextureEffect {
 
 public:
     enum Direction {
@@ -26,9 +26,11 @@ public:
         kY_Direction,
     };
 
-    Gr1DKernelEffect(Direction direction,
+    Gr1DKernelEffect(GrTexture* texture,
+                     Direction direction,
                      int radius)
-        : fDirection(direction)
+        : GrSingleTextureEffect(texture)
+        , fDirection(direction)
         , fRadius(radius) {}
 
     virtual ~Gr1DKernelEffect() {};
@@ -44,7 +46,7 @@ private:
     Direction       fDirection;
     int             fRadius;
 
-    typedef GrCustomStage INHERITED;
+    typedef GrSingleTextureEffect INHERITED;
 };
 
 #endif
