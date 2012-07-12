@@ -58,18 +58,6 @@ const char* GrGetGLSLVersionDecl(GrGLBinding binding,
                                  GrGLSLGeneration v);
 
 /**
- * Returns a string to include in a variable decleration to set the fp precision
- * or an emptry string if precision is not required.
- */
-const char* GrGetGLSLVarPrecisionDeclType(GrGLBinding binding);
-
-/**
- * Returns a string to set the default fp precision for an entire shader, or
- * an emptry string if precision is not required.
- */
-const char* GrGetGLSLShaderPrecisionDecl(GrGLBinding binding);
-
-/**
  * Depending on the GLSL version being emitted there may be an assumed output
  * variable from the fragment shader for the color. Otherwise, the shader must
  * declare an output variable for the color. If this function returns true:
