@@ -90,45 +90,37 @@ struct TileInfo {
 };
 
 static void clip_tile(SkPicture* picture, const TileInfo& tile) {
-    SkRect clip = SkRect::MakeWH(SkIntToScalar(picture->width()), 
+    SkRect clip = SkRect::MakeWH(SkIntToScalar(picture->width()),
                                  SkIntToScalar(picture->height()));
     tile.fCanvas->clipRect(clip);
 }
 
-static void setup_single_tile(SkPicture* picture, const SkBitmap& bitmap,
-                              const Options& options, SkTArray<TileInfo>* tiles,
-                              int tile_x_start, int tile_y_start) {
+static void setup_single_tile(SkPicture* picture, const Options& options,
+                              SkTArray<TileInfo>* tiles, int tile_x_start, int tile_y_start) {
     TileInfo& tile = tiles->push_back();
-    tile.fBitmap = new SkBitmap();
-    SkIRect rect = SkIRect::MakeXYWH(tile_x_start, tile_y_start,
-                                     options.fTileWidth, options.fTileHeight);
-    bitmap.extractSubset(tile.fBitmap, rect);
-    tile.fCanvas = new SkCanvas(*(tile.fBitmap));
-    tile.fCanvas->translate(SkIntToScalar(-tile_x_start), 
-                            SkIntToScalar(-tile_y_start));
 
+    tile.fBitmap = new SkBitmap();
+    sk_tools::setup_bitmap(tile.fBitmap, options.fTileWidth, options.fTileHeight);
+
+    tile.fCanvas = new SkCanvas(*(tile.fBitmap));
+    tile.fCanvas->translate(SkIntToScalar(-tile_x_start), SkIntToScalar(-tile_y_start));
     clip_tile(picture, tile);
 }
 
-static void setup_tiles(SkPicture* picture, const SkBitmap& bitmap,
-                        const Options& options, SkTArray<TileInfo>* tiles) {
+static void setup_tiles(SkPicture* picture, const Options& options, SkTArray<TileInfo>* tiles) {
     for (int tile_y_start = 0; tile_y_start < picture->height();
          tile_y_start += options.fTileHeight) {
         for (int tile_x_start = 0; tile_x_start < picture->width();
              tile_x_start += options.fTileWidth) {
-            setup_single_tile(picture, bitmap, options, tiles, tile_x_start,
-                              tile_y_start);
+            setup_single_tile(picture, options, tiles, tile_x_start, tile_y_start);
         }
     }
 
 }
 
 static void run_tile_benchmark(SkPicture* picture, const Options& options) {
-    SkBitmap bitmap;
-    sk_tools::setup_bitmap(&bitmap, picture->width(), picture->height());
-
     SkTArray<TileInfo> tiles;
-    setup_tiles(picture, bitmap, options, &tiles);
+    setup_tiles(picture, options, &tiles);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
