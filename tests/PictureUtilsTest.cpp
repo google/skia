@@ -11,7 +11,7 @@
 static void test_filepath_creation(skiatest::Reporter* reporter) {
     SkString result;
     SkString filename("test");
-    const char* dir = "test/path";
+    SkString dir("test/path");
     sk_tools::make_filepath(&result, dir, filename);
     REPORTER_ASSERT(reporter, result.equals("test/path/test"));
 }
