@@ -221,9 +221,6 @@ public:
         virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
                                    const SkClipStack&) SK_OVERRIDE
             {}
-        virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
-                               const SkClipStack&) SK_OVERRIDE
-            {}
 
         // None of the following drawing methods should ever get called on the
         // deferred device

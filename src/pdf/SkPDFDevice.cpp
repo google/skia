@@ -514,7 +514,8 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
       fPageSize(pageSize),
       fContentSize(contentSize),
       fLastContentEntry(NULL),
-      fLastMarginContentEntry(NULL) {
+      fLastMarginContentEntry(NULL),
+      fClipStack(NULL) {
     // Skia generally uses the top left as the origin but PDF natively has the
     // origin at the bottom left. This matrix corrects for that.  But that only
     // needs to be done once, we don't do it when layering.
@@ -538,7 +539,8 @@ SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
       fExistingClipStack(existingClipStack),
       fExistingClipRegion(existingClipRegion),
       fLastContentEntry(NULL),
-      fLastMarginContentEntry(NULL) {
+      fLastMarginContentEntry(NULL),
+      fClipStack(NULL) {
     fInitialTransform.reset();
     this->init();
 }
@@ -943,6 +945,19 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
 
     // Merge glyph sets from the drawn device.
     fFontGlyphUsage->merge(pdfDevice->getFontGlyphUsage());
+}
+
+void SkPDFDevice::onAttachToCanvas(SkCanvas* canvas) {
+    INHERITED::onAttachToCanvas(canvas);
+
+    // Canvas promises that this ptr is valid until onDetachFromCanvas is called
+    fClipStack = canvas->getClipStack();
+}
+
+void SkPDFDevice::onDetachFromCanvas() {
+    INHERITED::onDetachFromCanvas();
+
+    fClipStack = NULL;
 }
 
 ContentEntry* SkPDFDevice::getLastContentEntry() {

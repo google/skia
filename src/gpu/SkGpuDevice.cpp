@@ -165,12 +165,14 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture)
-: SkDevice(make_bitmap(context, texture->asRenderTarget())) {
+: SkDevice(make_bitmap(context, texture->asRenderTarget()))
+, fClipStack(NULL) {
     this->initFromRenderTarget(context, texture->asRenderTarget());
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
-: SkDevice(make_bitmap(context, renderTarget)) {
+: SkDevice(make_bitmap(context, renderTarget))
+, fClipStack(NULL) {
     this->initFromRenderTarget(context, renderTarget);
 }
 
@@ -211,7 +213,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          SkBitmap::Config config,
                          int width,
                          int height)
-    : SkDevice(config, width, height, false /*isOpaque*/) {
+    : SkDevice(config, width, height, false /*isOpaque*/)
+    , fClipStack(NULL) {
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
 
@@ -342,6 +345,19 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
                                config, bitmap.getPixels(), bitmap.rowBytes());
 }
 
+void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
+    INHERITED::onAttachToCanvas(canvas);
+
+    // Canvas promises that this ptr is valid until onDetachFromCanvas is called
+    fClipStack = canvas->getClipStack();
+}
+
+void SkGpuDevice::onDetachFromCanvas() {
+    INHERITED::onDetachFromCanvas();
+
+    fClipStack = NULL;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
@@ -366,13 +382,15 @@ static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
 // call this ever each draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
+    GrAssert(NULL != fClipStack);
+
     if (fNeedPrepareRenderTarget ||
         fContext->getRenderTarget() != fRenderTarget) {
 
         fContext->setRenderTarget(fRenderTarget);
-        SkASSERT(draw.fClipStack);
+        SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
         convert_matrixclip(fContext, *draw.fMatrix,
-                           *draw.fClipStack, *draw.fClip, this->getOrigin());
+                           *fClipStack, *draw.fClip, this->getOrigin());
         fNeedPrepareRenderTarget = false;
     }
 }
@@ -384,14 +402,15 @@ void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
     fNeedPrepareRenderTarget = true;
 }
 
-void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
-                            const SkRegion& clip, const SkClipStack& clipStack) {
+void SkGpuDevice::gainFocus(const SkMatrix& matrix, const SkRegion& clip) {
+
+    GrAssert(NULL != fClipStack);
 
     fContext->setRenderTarget(fRenderTarget);
 
-    this->INHERITED::gainFocus(canvas, matrix, clip, clipStack);
+    this->INHERITED::gainFocus(matrix, clip);
 
-    convert_matrixclip(fContext, matrix, clipStack, clip, this->getOrigin());
+    convert_matrixclip(fContext, matrix, *fClipStack, clip, this->getOrigin());
 
     DO_DEFERRED_CLEAR;
 }
@@ -1964,7 +1983,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          GrTexture* texture,
                          TexCache cacheEntry,
                          bool needClear)
-    : SkDevice(make_bitmap(context, texture->asRenderTarget())) {
+    : SkDevice(make_bitmap(context, texture->asRenderTarget()))
+    , fClipStack(NULL) {
     GrAssert(texture && texture->asRenderTarget());
     GrAssert(NULL == cacheEntry.texture() || texture == cacheEntry.texture());
     this->initFromRenderTarget(context, texture->asRenderTarget());
