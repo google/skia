@@ -396,6 +396,14 @@ static void testLine35() {
     testSimplifyx(path);
 }
 
+static void testLine36() {
+    SkPath path, simple;
+    path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
+    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
 #define TEST(name) { name, #name }
 
 static struct {
@@ -441,6 +449,7 @@ static struct {
     TEST(testLine33),
     TEST(testLine34),
     TEST(testLine35),
+    TEST(testLine36),
 };
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);

@@ -395,11 +395,18 @@ path.close();
     path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
 </div>
 
+<div id="testLine36">
+    path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
+    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testLine36,
     testLine35,
     testLine34,
     testLine33,
@@ -441,11 +448,12 @@ var at_x = 13 + 0.5;
 var at_y = 13 + 0.5;
 
 var tests = [];
+var testTitles = [];
 var testIndex = 0;
 
 var ctx;
 
-function parse(test) {
+function parse(test, title) {
     var contours = [];
     var contourStrs = test.split("path.close();");
     var pattern = /-?\d+\.*\d*/g;
@@ -478,11 +486,13 @@ function parse(test) {
             contours.push(verbs);
         }
     }
-    if (contours.length > 0)
+    if (contours.length > 0) {
         tests.push(contours);
+        testTitles.push(title);
+    }
 }
 
-function parseRect(test) {
+function parseRect(test, title) {
     var contours = [];
     var rectStrs = test.split("path.addRect");
     var pattern = /-?\d+\.*\d*/g;
@@ -519,8 +529,10 @@ function parseRect(test) {
         verbs.push(topLeft);
         contours.push(verbs);
     }
-    if (contours.length > 0)
+    if (contours.length > 0) {
         tests.push(contours);
+        testTitles.push(title);
+    }
 }
 
 function init(test) {
@@ -570,7 +582,12 @@ function drawPoint(px, py, xoffset, yoffset, unit) {
     ctx.fillText(label, _px + 5, _py);
 }
 
-function draw(test, _at_x, _at_y, scale) {
+function draw(test, title, _at_x, _at_y, scale) {
+    ctx.fillStyle = "rgba(0,0,0, 0.1)";
+    ctx.font = "normal 50px Arial";
+    ctx.fillText(title, 50, 50);
+    ctx.font = "normal 10px Arial";
+    
     var unit = scale * ticks;
     ctx.lineWidth = 1;
     var i;
@@ -689,7 +706,7 @@ function redraw() {
     ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle="white";
     ctx.fill();
-    draw(tests[testIndex], at_x, at_y, scale);
+    draw(tests[testIndex], testTitles[testIndex], at_x, at_y, scale);
 //    if (insetScale != scale && mouseX != Infinity)
 //        drawInset();
 }
@@ -726,11 +743,12 @@ function doKeyPress(evt) {
 
 function start() {
     for (i = 0; i < testDivs.length; ++i) {
+        var title = testDivs[i].id.toString();
         var str = testDivs[i].firstChild.data;
         if (str.split("addRect").length > 1) {
-            parseRect(str);
+            parseRect(str, title);
         } else {
-            parse(str);
+            parse(str, title);
         }
     }
     drawTop();
