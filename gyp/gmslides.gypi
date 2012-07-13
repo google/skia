@@ -18,6 +18,7 @@
     '../gm/cubicpaths.cpp',
     '../gm/cmykjpeg.cpp',
     '../gm/degeneratesegments.cpp',
+    '../gm/dashcubics.cpp',
     '../gm/dashing.cpp',
     '../gm/drawbitmaprect.cpp',
     '../gm/extractbitmap.cpp',
