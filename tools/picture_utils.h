@@ -17,7 +17,7 @@ class SkPicture;
 namespace sk_tools {
     // Creates a posix style filepath by concatenating name onto dir with a
     // forward slash into path.
-    void make_filepath(SkString* path, const char* dir, const SkString& name);
+    void make_filepath(SkString* path, const SkString&, const SkString& name);
 
     // Returns the last part of the path (file name or leaf directory name)
     //

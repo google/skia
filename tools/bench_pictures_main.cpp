@@ -318,7 +318,7 @@ static void process_input(const SkString& input, Options* options) {
     if (iter.next(&inputFilename)) {
         do {
             SkString inputPath;
-            sk_tools::make_filepath(&inputPath, input.c_str(),
+            sk_tools::make_filepath(&inputPath, input,
                                     inputFilename);
             run_single_benchmark(inputPath, options);
         } while(iter.next(&inputFilename));

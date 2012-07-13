@@ -16,6 +16,7 @@
 #include "SkString.h"
 #include "picture_utils.h"
 
+typedef void (*RenderFunc) (SkPicture*, SkBitmap*);
 
 static void usage(const char* argv0) {
     SkDebugf("SkPicture rendering tool\n");
@@ -30,17 +31,17 @@ static void usage(const char* argv0) {
 "     outputDir: directory to write the rendered images.\n");
 }
 
-static void make_output_filepath(SkString* path, const char* dir,
+static void make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name) {
     sk_tools::make_filepath(path, dir, name);
     path->remove(path->size() - 3, 3);
     path->append("png");
 }
 
-static void generate_image_from_picture(SkPicture& pict, SkBitmap* bitmap) {
-    sk_tools::setup_bitmap(bitmap, pict.width(), pict.height());
+static void simple_render(SkPicture* pict, SkBitmap* bitmap) {
+    sk_tools::setup_bitmap(bitmap, pict->width(), pict->height());
     SkCanvas canvas(*bitmap);
-    canvas.drawPicture(pict);
+    canvas.drawPicture(*pict);
 }
 
 /* since PNG insists on unpremultiplying our alpha, we take no precision chances
@@ -64,7 +65,7 @@ static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
                                       SkImageEncoder::kPNG_Type, 100);
 }
 
-static void write_output(const char* outputDir, const SkString& inputFilename,
+static void write_output(const SkString& outputDir, const SkString& inputFilename,
                          const SkBitmap& bitmap) {
     SkString outputPath;
     make_output_filepath(&outputPath, outputDir, inputFilename);
@@ -74,7 +75,8 @@ static void write_output(const char* outputDir, const SkString& inputFilename,
     }
 }
 
-static void render_picture(const SkString& inputPath, const char* outputDir) {
+static void render_picture(const SkString& inputPath, const SkString& outputDir,
+                           RenderFunc renderFunc) {
     SkString inputFilename;
     sk_tools::get_basename(&inputFilename, inputPath);
 
@@ -87,36 +89,44 @@ static void render_picture(const SkString& inputPath, const char* outputDir) {
 
     SkPicture picture(&inputStream);
     SkBitmap bitmap;
-    generate_image_from_picture(picture, &bitmap);
+    renderFunc(&picture, &bitmap);
     write_output(outputDir, inputFilename, bitmap);
 }
 
-static void process_input(const char* input, const char* outputDir) {
-    SkOSFile::Iter iter(input, "skp");
+static void process_input(const SkString& input, const SkString& outputDir,
+                          RenderFunc renderFunc) {
+    SkOSFile::Iter iter(input.c_str(), "skp");
     SkString inputFilename;
 
     if (iter.next(&inputFilename)) {
         do {
             SkString inputPath;
             sk_tools::make_filepath(&inputPath, input, inputFilename);
-            render_picture(inputPath, outputDir);
+            render_picture(inputPath, outputDir, renderFunc);
         } while(iter.next(&inputFilename));
     } else {
         SkString inputPath(input);
-        render_picture(inputPath, outputDir);
+        render_picture(inputPath, outputDir, renderFunc);
+    }
+}
+
+static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,
+                              RenderFunc* renderFunc){
+    const char* argv0 = argv[0];
+    char* const* stop = argv + argc;
+
+    for (++argv; argv < stop; ++argv) {
+        inputs->push_back(SkString(*argv));
     }
 }
 
 int main(int argc, char* const argv[]) {
-    const char* outputDir;
-    if (argc < 3) {
-        usage(argv[0]);
-        return -1;
-    }
+    SkTArray<SkString> inputs;
+    RenderFunc renderFunc = simple_render;
+    parse_commandline(argc, argv, &inputs, &renderFunc);
+    SkString outputDir = inputs[inputs.count() - 1];
 
-    outputDir = argv[argc - 1];
-
-    for (int i = 1; i < argc - 1; i ++) {
-        process_input(argv[i], outputDir);
+    for (int i = 0; i < inputs.count() - 1; i ++) {
+        process_input(inputs[i], outputDir, renderFunc);
     }
 }

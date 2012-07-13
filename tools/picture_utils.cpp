@@ -13,8 +13,8 @@
 
 namespace sk_tools {
 
-    void make_filepath(SkString* path, const char* dir, const SkString& name) {
-        size_t len = strlen(dir);
+    void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
+        size_t len = dir.size();
         path->set(dir);
         if (0 < len  && '/' != dir[len - 1]) {
             path->append("/");
