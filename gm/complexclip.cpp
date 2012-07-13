@@ -19,11 +19,11 @@ static const SkColor gClipBColor = SK_ColorRED;
 
 class ComplexClipGM : public GM {
     bool fDoAAClip;
-    bool fSaveLayer;
+    bool fDoSaveLayer;
 public:
     ComplexClipGM(bool aaclip, bool saveLayer) 
     : fDoAAClip(aaclip)
-    , fSaveLayer(saveLayer) {
+    , fDoSaveLayer(saveLayer) {
         this->setBGColor(0xFFDDDDDD);
 //        this->setBGColor(SkColorSetRGB(0xB0,0xDD,0xB0));
     }
@@ -34,7 +34,7 @@ protected:
         SkString str;
         str.printf("complexclip_%s%s", 
                    fDoAAClip ? "aa" : "bw",
-                   fSaveLayer ? "_layer" : "");
+                   fDoSaveLayer ? "_layer" : "");
         return str;
     }
 
@@ -95,8 +95,17 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->scale(3 * SK_Scalar1 / 4, 3 * SK_Scalar1 / 4);
 
-        if (fSaveLayer) {
-            SkRect bounds = SkRect::MakeXYWH(100, 100, 1000, 750);
+        if (fDoSaveLayer) {
+            // We want the layer to appear symmetric relative to actual
+            // device boundaries so we need to "undo" the effect of the
+            // scale and translate
+            SkRect bounds = SkRect::MakeLTRB(
+              SkIntToScalar(4.0f/3.0f * -20),
+              SkIntToScalar(4.0f/3.0f * -20),
+              SkFloatToScalar(4.0f/3.0f * (this->getISize().fWidth - 20)),
+              SkFloatToScalar(4.0f/3.0f * (this->getISize().fHeight - 20)));
+
+            bounds.inset(SkIntToScalar(100), SkIntToScalar(100));
             SkPaint boundPaint;
             boundPaint.setColor(SK_ColorRED);
             boundPaint.setStyle(SkPaint::kStroke_Style);
@@ -144,7 +153,7 @@ protected:
             canvas->translate(0, SkIntToScalar(250));
         }
 
-        if (fSaveLayer) {
+        if (fDoSaveLayer) {
             canvas->restore();
         }
     }
