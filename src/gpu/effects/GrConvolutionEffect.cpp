@@ -29,6 +29,7 @@ public:
 
     virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
+                         const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
     static inline StageKey GenKey(const GrCustomStage&);
@@ -118,6 +119,7 @@ void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
 
 void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
                                     const GrCustomStage& data,
+                                    const GrRenderTarget*,
                                     int stageNum) {
     const GrConvolutionEffect& conv =
         static_cast<const GrConvolutionEffect&>(data);

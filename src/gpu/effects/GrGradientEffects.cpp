@@ -88,6 +88,7 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
+                         const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
     static StageKey GenKey(const GrCustomStage& s) {
@@ -258,6 +259,7 @@ void GrGLRadial2Gradient::initUniforms(const GrGLInterface* gl, int programID) {
 
 void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
                                   const GrCustomStage& baseData,
+                                  const GrRenderTarget*,
                                   int stageNum) {
     const GrRadial2Gradient& data =
         static_cast<const GrRadial2Gradient&>(baseData);
@@ -344,6 +346,7 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
+                         const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
     static StageKey GenKey(const GrCustomStage& s) {
@@ -573,6 +576,7 @@ void GrGLConical2Gradient::initUniforms(const GrGLInterface* gl, int programID) 
 
 void GrGLConical2Gradient::setData(const GrGLInterface* gl,
                                    const GrCustomStage& baseData,
+                                   const GrRenderTarget*,
                                    int stageNum) {
     const GrConical2Gradient& data =
         static_cast<const GrConical2Gradient&>(baseData);

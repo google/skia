@@ -480,7 +480,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
                             this->getDrawState().getTexture(s));
                     fProgramData->fCustomStage[s]->setData(
                         this->glInterface(),
-                        *sampler.getCustomStage(), s);
+                        *sampler.getCustomStage(),
+                        drawState.getRenderTarget(), s);
                 }
             }
         }

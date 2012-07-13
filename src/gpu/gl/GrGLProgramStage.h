@@ -83,6 +83,7 @@ public:
         created in emit*(). */
     virtual void setData(const GrGLInterface* gl,
                          const GrCustomStage& stage,
+                         const GrRenderTarget* renderTarget,
                          int stageNum);
 
     const char* name() const { return fFactory.name(); }
