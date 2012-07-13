@@ -209,10 +209,22 @@ public:
      */
     const GrTexture* getTexture(int stage) const {
         GrAssert((unsigned)stage < kNumStages);
+        GrAssert(!this->getSampler(stage).getCustomStage() ||
+                 !fTextures[stage] ||
+                 fTextures[stage] == this->getSampler(stage).getCustomStage()->texture(0));
+        if (this->getSampler(stage).getCustomStage()) {
+            return this->getSampler(stage).getCustomStage()->texture(0);
+        }
         return fTextures[stage];
     }
     GrTexture* getTexture(int stage) {
         GrAssert((unsigned)stage < kNumStages);
+        GrAssert(!this->getSampler(stage).getCustomStage() ||
+                 !fTextures[stage] ||
+                 fTextures[stage] == this->getSampler(stage).getCustomStage()->texture(0));
+        if (this->getSampler(stage).getCustomStage()) {
+            return this->getSampler(stage).getCustomStage()->texture(0);
+        }
         return fTextures[stage];
     }
 
@@ -811,7 +823,7 @@ public:
 
         for (int i = 0; i < kNumStages; i++) {
             SkSafeRef(fTextures[i]);            // already copied by memcpy
-            if (s.fTextures[i]) {
+            if (s.isStageEnabled(i)) {
                 this->fSamplerStates[i] = s.fSamplerStates[i];
             }
         }

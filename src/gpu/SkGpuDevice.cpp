@@ -562,7 +562,6 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         SkDebugf("Couldn't convert bitmap to texture.\n");
         return false;
     }
-    grPaint->setTexture(kShaderTextureIdx, texture);
 
     switch (bmptype) {
         case SkShader::kRadial_BitmapType:
@@ -595,6 +594,9 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
             } else {
                 sampler->setFilter(GrSamplerState::kNearest_Filter);
             }
+            // TODO - once we have a trivial GrCustomStage for texture drawing,
+            // create that here & get rid of the paint's texture
+            grPaint->setTexture(kShaderTextureIdx, texture);
             break;
     }
     sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
@@ -1476,7 +1478,6 @@ void apply_custom_stage(GrContext* context,
     paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
     paint.textureSampler(0)->reset(sampleM);
     paint.textureSampler(0)->setCustomStage(stage);
-    paint.setTexture(0, srcTexture);
     context->drawRect(paint, rect);
 }
 
