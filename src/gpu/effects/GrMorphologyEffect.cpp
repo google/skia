@@ -32,6 +32,7 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*, 
                          const GrCustomStage&,
+                         const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
 private:
@@ -124,6 +125,7 @@ GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(
 
 void GrGLMorphologyEffect ::setData(const GrGLInterface* gl,
                                     const GrCustomStage& data,
+                                    const GrRenderTarget*,
                                     int stageNum) {
     const Gr1DKernelEffect& kern =
         static_cast<const Gr1DKernelEffect&>(data);

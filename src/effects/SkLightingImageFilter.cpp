@@ -35,6 +35,14 @@ void setUniformPoint3(const GrGLInterface* gl, GrGLint location, const SkPoint3&
     GR_GL_CALL(gl, Uniform3f(location, x, y, z));
 }
 
+void setUniformNormal3(const GrGLInterface* gl, GrGLint location, const SkPoint3& point) {
+    setUniformPoint3(gl, location, SkPoint3(point.fX, -point.fY, point.fZ));
+}
+
+void setUniformPoint3FlipY(const GrGLInterface* gl, GrGLint location, const SkPoint3& point, int height) {
+    setUniformPoint3(gl, location, SkPoint3(point.fX, height-point.fY, point.fZ));
+}
+
 // Shift matrix components to the left, as we advance pixels to the right.
 inline void shiftMatrixLeft(int m[9]) {
     m[0] = m[1];
@@ -357,7 +365,7 @@ public:
     virtual void emitSurfaceToLight(SkString* builder, const char* z) const = 0;
     virtual void emitLightColor(SkString* builder, const char *surfaceToLight) const;
     virtual void initUniforms(const GrGLInterface* gl, int programID);
-    virtual void setData(const GrGLInterface*, const SkLight* light) const;
+    virtual void setData(const GrGLInterface*, const GrRenderTarget* rt, const SkLight* light) const;
 
 private:
     typedef SkRefCnt INHERITED;
@@ -374,7 +382,7 @@ public:
     virtual ~GrGLDistantLight() {}
     virtual void setupVariables(GrGLShaderBuilder* state, int stage) SK_OVERRIDE;
     virtual void initUniforms(const GrGLInterface* gl, int programID) SK_OVERRIDE;
-    virtual void setData(const GrGLInterface* gl, const SkLight* light) const SK_OVERRIDE;
+    virtual void setData(const GrGLInterface* gl, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(SkString* builder, const char* z) const SK_OVERRIDE;
 
 private:
@@ -390,7 +398,7 @@ public:
     virtual ~GrGLPointLight() {}
     virtual void setupVariables(GrGLShaderBuilder* state, int stage);
     virtual void initUniforms(const GrGLInterface* gl, int programID);
-    virtual void setData(const GrGLInterface* gl, const SkLight* light) const SK_OVERRIDE;
+    virtual void setData(const GrGLInterface* gl, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* builder) const;
     virtual void emitSurfaceToLight(SkString* builder, const char* z) const SK_OVERRIDE;
 
@@ -399,7 +407,6 @@ private:
     SkPoint3 fLocation;
     const GrGLShaderVar* fLocationVar;
     int fLocationLocation;
-    const char* fHeightVaryingName;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -409,7 +416,7 @@ public:
     virtual ~GrGLSpotLight() {}
     virtual void setupVariables(GrGLShaderBuilder* state, int stage);
     virtual void initUniforms(const GrGLInterface* gl, int programID);
-    virtual void setData(const GrGLInterface* gl, const SkLight* light) const SK_OVERRIDE;
+    virtual void setData(const GrGLInterface* gl, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* builder) const;
     virtual void emitFuncs(SkString* builder) const;
     virtual void emitSurfaceToLight(SkString* builder, const char* z) const SK_OVERRIDE;
@@ -430,7 +437,6 @@ private:
     int                  fConeScaleLocation;
     const GrGLShaderVar* fSVar;
     int                  fSLocation;
-    const char*          fHeightVaryingName;
 };
 
 };
@@ -880,6 +886,7 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*, 
                          const GrCustomStage&,
+                         const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
 private:
@@ -904,6 +911,7 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*, 
                          const GrCustomStage&,
+                         const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
 private:
@@ -925,6 +933,7 @@ public:
     virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*, 
                          const GrCustomStage&,
+                         const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
 private:
@@ -1066,13 +1075,15 @@ GrGLProgramStage::StageKey GrGLLightingEffect::GenKey(
 
 void GrGLLightingEffect::setData(const GrGLInterface* gl,
                                  const GrCustomStage& data,
+                                 const GrRenderTarget* rt,
                                  int stageNum) {
     const GrLightingEffect& effect =
         static_cast<const GrLightingEffect&>(data);
-    GrTexture& texture = *data.texture(0);
-    GR_GL_CALL(gl, Uniform2f(fImageIncrementLocation, 1.0f / texture.width(), 1.0f / texture.height()));
+    GrGLTexture* texture = static_cast<GrGLTexture*>(data.texture(0));
+    float ySign = texture->orientation() == GrGLTexture::kTopDown_Orientation ? -1.0f : 1.0f;
+    GR_GL_CALL(gl, Uniform2f(fImageIncrementLocation, 1.0f / texture->width(), ySign / texture->height()));
     GR_GL_CALL(gl, Uniform1f(fSurfaceScaleLocation, effect.surfaceScale()));
-    fLight->setData(gl, effect.light());
+    fLight->setData(gl, rt, effect.light());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1110,8 +1121,9 @@ void GrGLDiffuseLightingEffect::emitLightFunc(SkString* funcs) {
 
 void GrGLDiffuseLightingEffect::setData(const GrGLInterface* gl,
                                         const GrCustomStage& data,
+                                        const GrRenderTarget* rt,
                                         int stageNum) {
-    INHERITED::setData(gl, data, stageNum);
+    INHERITED::setData(gl, data, rt, stageNum);
     const GrDiffuseLightingEffect& effect =
         static_cast<const GrDiffuseLightingEffect&>(data);
     GR_GL_CALL(gl, Uniform1f(fKDLocation, effect.kd()));
@@ -1179,8 +1191,9 @@ void GrGLSpecularLightingEffect::emitLightFunc(SkString* funcs) {
 
 void GrGLSpecularLightingEffect::setData(const GrGLInterface* gl,
                                          const GrCustomStage& data,
+                                         const GrRenderTarget* rt,
                                          int stageNum) {
-    INHERITED::setData(gl, data, stageNum);
+    INHERITED::setData(gl, data, rt, stageNum);
     const GrSpecularLightingEffect& effect =
         static_cast<const GrSpecularLightingEffect&>(data);
     GR_GL_CALL(gl, Uniform1f(fKSLocation, effect.ks()));
@@ -1204,7 +1217,7 @@ void GrGLLight::initUniforms(const GrGLInterface* gl, int programID) {
         GetUniformLocation(programID, fColorVar->getName().c_str()));
 }
 
-void GrGLLight::setData(const GrGLInterface* gl, const SkLight* light) const {
+void GrGLLight::setData(const GrGLInterface* gl, const GrRenderTarget* rt, const SkLight* light) const {
     setUniformPoint3(gl, fColorVarLocation, light->color() * SkScalarInvert(SkIntToScalar(255)));
 }
 
@@ -1227,11 +1240,11 @@ void GrGLDistantLight::initUniforms(const GrGLInterface* gl, int programID) {
         GetUniformLocation(programID, fDirectionVar->getName().c_str()));
 }
 
-void GrGLDistantLight::setData(const GrGLInterface* gl, const SkLight* light) const {
-    INHERITED::setData(gl, light);
+void GrGLDistantLight::setData(const GrGLInterface* gl, const GrRenderTarget* rt, const SkLight* light) const {
+    INHERITED::setData(gl, rt, light);
     SkASSERT(light->type() == SkLight::kDistant_LightType);
     const SkDistantLight* distantLight = static_cast<const SkDistantLight*>(light);
-    setUniformPoint3(gl, fDirectionLocation, distantLight->direction());
+    setUniformNormal3(gl, fDirectionLocation, distantLight->direction());
 }
 
 void GrGLDistantLight::emitSurfaceToLight(SkString* builder,
@@ -1246,7 +1259,6 @@ void GrGLPointLight::setupVariables(GrGLShaderBuilder* state, int stage) {
     fLocationVar = &state->addUniform(
         GrGLShaderBuilder::kFragment_ShaderType, kVec3f_GrSLType,
         "uLightLocation", stage);
-    state->addVarying(kFloat_GrSLType, "Height", stage, &fHeightVaryingName);
 }
 
 void GrGLPointLight::initUniforms(const GrGLInterface* gl, int programID) {
@@ -1255,23 +1267,21 @@ void GrGLPointLight::initUniforms(const GrGLInterface* gl, int programID) {
         GetUniformLocation(programID, fLocationVar->getName().c_str()));
 }
 
-void GrGLPointLight::setData(const GrGLInterface* gl, const SkLight* light) const {
-    INHERITED::setData(gl, light);
+void GrGLPointLight::setData(const GrGLInterface* gl, const GrRenderTarget* rt, const SkLight* light) const {
+    INHERITED::setData(gl, rt, light);
     SkASSERT(light->type() == SkLight::kPoint_LightType);
     const SkPointLight* pointLight = static_cast<const SkPointLight*>(light);
-    setUniformPoint3(gl, fLocationLocation, pointLight->location());
+    setUniformPoint3FlipY(gl, fLocationLocation, pointLight->location(), rt->height());
 }
 
 void GrGLPointLight::emitVS(SkString* builder) const {
-    // Compute viewport height from the Y scale of the matrix.
-    builder->appendf("\t\t%s = -2.0 / uViewM[1][1];\n", fHeightVaryingName);
 }
 
 void GrGLPointLight::emitSurfaceToLight(SkString* builder,
-                                      const char* z) const {
+                                        const char* z) const {
+    const char *lName = fLocationVar->getName().c_str();
     builder->appendf(
-        "normalize(%s - vec3(gl_FragCoord.x, %s - gl_FragCoord.y, %s))",
-        fLocationVar->getName().c_str(), fHeightVaryingName, z);
+        "normalize(%s - vec3(gl_FragCoord.xy, %s))", lName, z);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1296,7 +1306,6 @@ void GrGLSpotLight::setupVariables(GrGLShaderBuilder* state, int stage) {
     fSVar = &state->addUniform(
         GrGLShaderBuilder::kFragment_ShaderType,
         kVec3f_GrSLType, "uS", stage);
-    state->addVarying(kFloat_GrSLType, "Height", stage, &fHeightVaryingName);
 }
 
 void GrGLSpotLight::initUniforms(const GrGLInterface* gl, int programID) {
@@ -1315,21 +1324,19 @@ void GrGLSpotLight::initUniforms(const GrGLInterface* gl, int programID) {
         GetUniformLocation(programID, fSVar->getName().c_str()));
 }
 
-void GrGLSpotLight::setData(const GrGLInterface* gl, const SkLight* light) const {
-    INHERITED::setData(gl, light);
+void GrGLSpotLight::setData(const GrGLInterface* gl, const GrRenderTarget* rt, const SkLight* light) const {
+    INHERITED::setData(gl, rt, light);
     SkASSERT(light->type() == SkLight::kSpot_LightType);
     const SkSpotLight* spotLight = static_cast<const SkSpotLight *>(light);
-    setUniformPoint3(gl, fLocationLocation, spotLight->location());
+    setUniformPoint3FlipY(gl, fLocationLocation, spotLight->location(), rt->height());
     GR_GL_CALL(gl, Uniform1f(fExponentLocation, spotLight->specularExponent()));
     GR_GL_CALL(gl, Uniform1f(fCosInnerConeAngleLocation, spotLight->cosInnerConeAngle()));
     GR_GL_CALL(gl, Uniform1f(fCosOuterConeAngleLocation, spotLight->cosOuterConeAngle()));
     GR_GL_CALL(gl, Uniform1f(fConeScaleLocation, spotLight->coneScale()));
-    setUniformPoint3(gl, fSLocation, spotLight->s());
+    setUniformNormal3(gl, fSLocation, spotLight->s());
 }
 
 void GrGLSpotLight::emitVS(SkString* builder) const {
-    // Compute viewport height from the Y scale of the matrix.
-    builder->appendf("\t\t%s = -2.0 / uViewM[1][1];\n", fHeightVaryingName);
 }
 
 void GrGLSpotLight::emitFuncs(SkString* builder) const {
@@ -1347,7 +1354,8 @@ void GrGLSpotLight::emitFuncs(SkString* builder) const {
 }
 
 void GrGLSpotLight::emitSurfaceToLight(SkString* builder, const char* z) const {
-    builder->appendf("normalize(%s - vec3(gl_FragCoord.x, %s - gl_FragCoord.y, %s))", fLocationVar->getName().c_str(), fHeightVaryingName, z);
+    builder->appendf(
+        "normalize(%s - vec3(gl_FragCoord.xy, %s))", fLocationVar->getName().c_str(), z);
 }
 
 void GrGLSpotLight::emitLightColor(SkString* builder, const char *surfaceToLight) const {
