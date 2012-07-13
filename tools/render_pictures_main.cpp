@@ -14,6 +14,7 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "SkTArray.h"
 #include "picture_utils.h"
 
 typedef void (*RenderFunc) (SkPicture*, SkBitmap*);
