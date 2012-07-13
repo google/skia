@@ -462,6 +462,15 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
 
         }
 
+#if 0
+        /*
+         *  Why was this code here? It caused us to draw circles where we didn't
+         *  want them. See http://code.google.com/p/chromium/issues/detail?id=112145
+         *  and gm/dashcubics.cpp
+         *
+         *  Simply removing this code seemed to fix the problem (no more circles).
+         *  Wish I had a repro case earlier when I added this check/hack...
+         */
         // check for too pinchy
         for (i = 1; i < count; i++) {
             SkPoint p;
@@ -476,7 +485,7 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
                 fExtra.addCircle(p.fX, p.fY, fRadius, SkPath::kCW_Direction);
             }
         }
-
+#endif
     }
 
     this->postJoinTo(pt3, normalCD, unitCD);
