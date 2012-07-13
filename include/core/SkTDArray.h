@@ -229,6 +229,13 @@ public:
     }
 
     /**
+     * Returns true iff the array contains this element.
+     */
+    bool contains(const T& elem) const {
+        return (this->find(elem) >= 0);
+    }
+
+    /**
      * Copies up to max elements into dst. The number of items copied is
      * capped by count - index. The actual number copied is returned.
      */
@@ -333,4 +340,3 @@ private:
 };
 
 #endif
-
