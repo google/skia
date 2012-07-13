@@ -1157,9 +1157,10 @@ public:
     // it is guaranteed to have an end which describes a non-zero length (?)
     // winding -1 means ccw, 1 means cw
     // firstFind allows coincident edges to be treated differently
-    Segment* findNext(SkTDArray<Span*>& chase, int winding, const int startIndex,
-            const int endIndex,
-            int& nextStart, int& nextEnd, int& flipped, bool firstFind) {
+    Segment* findNext(SkTDArray<Span*>& chase, int winding,
+            const int startIndex, const int endIndex,
+            int& nextStart, int& nextEnd, int& flipped, bool firstFind
+            ,bool active /* active param is debugging only */ ) {
         SkASSERT(startIndex != endIndex);
         int count = fTs.count();
         SkASSERT(startIndex < endIndex ? startIndex < count - 1
@@ -1217,11 +1218,14 @@ public:
             }
             firstEdge = false;
             if (!winding) {
+                if (!active) {
+                    SkASSERT(nextAngle->segment() == this);
+                    markWinding(SkMin32(nextAngle->start(), nextAngle->end()),
+                                maxWinding);
+                    SkDebugf("%s inactive\n", __FUNCTION__);
+                    return NULL;
+                }
                 if (!foundAngle) {
-#if 0
-                    nextAngle->segment()->markWinding(
-                        SkMin32(nextAngle->start(), nextAngle->end()), maxWinding);
-#endif
                     foundAngle = nextAngle;
                 }
                 continue;
@@ -2941,7 +2945,8 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
                 int nextStart, nextEnd, flipped = 1;
                 Segment* next = current->findNext(chaseArray, 
                         winding + spanWinding, index,
-                        endIndex, nextStart, nextEnd, flipped, firstTime);
+                        endIndex, nextStart, nextEnd, flipped, firstTime
+                        , active /* active is debugging only */ );
                 if (!next) {
                     break;
                 }
