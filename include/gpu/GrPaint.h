@@ -149,19 +149,15 @@ public:
         }
         
         for (int i = 0; i < kMaxTextures; ++i) {
-            GrSafeUnref(fTextures[i]);
-            fTextures[i] = paint.fTextures[i];
-            if (NULL != fTextures[i]) {
+            GrSafeAssign(fTextures[i], paint.fTextures[i]);
+            if (paint.isTextureStageEnabled(i)) {
                 fTextureSamplers[i] = paint.fTextureSamplers[i];
-                fTextures[i]->ref();
             }
         }
         for (int i = 0; i < kMaxMasks; ++i) {
-            GrSafeUnref(fMaskTextures[i]);
-            fMaskTextures[i] = paint.fMaskTextures[i];
-            if (NULL != fMaskTextures[i]) {
+            GrSafeAssign(fMaskTextures[i], paint.fMaskTextures[i]);
+            if (paint.isMaskStageEnabled(i)) {
                 fMaskSamplers[i] = paint.fMaskSamplers[i];
-                fMaskTextures[i]->ref();
             }
         }
         return *this;
@@ -209,7 +205,8 @@ public:
     int getActiveTextureStageMask() const {
         int mask = 0;
         for (int i = 0; i < kMaxTextures; ++i) {
-            if (NULL != fTextures[i]) {
+            if ((NULL != fTextures[i]) ||
+                (NULL != fTextureSamplers[i].getCustomStage())) {
                 mask |= 1 << (i + kFirstTextureStage);
             }
         }
@@ -219,7 +216,8 @@ public:
     int getActiveMaskStageMask() const {
         int mask = 0;
         for (int i = 0; i < kMaxMasks; ++i) {
-            if (NULL != fMaskTextures[i]) {
+            if ((NULL != fMaskTextures[i]) ||
+                (NULL != fMaskSamplers[i].getCustomStage())) {
                 mask |= 1 << (i + kFirstMaskStage);
             }
         }
