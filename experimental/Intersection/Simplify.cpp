@@ -1158,9 +1158,8 @@ public:
     // winding -1 means ccw, 1 means cw
     // firstFind allows coincident edges to be treated differently
     Segment* findNext(SkTDArray<Span*>& chase, int winding,
-            const int startIndex, const int endIndex,
-            int& nextStart, int& nextEnd, int& flipped, bool firstFind
-            ,bool active /* active param is debugging only */ ) {
+            const int startIndex, const int endIndex, int& nextStart,
+            int& nextEnd, int& flipped, bool firstFind, bool active) {
         SkASSERT(startIndex != endIndex);
         int count = fTs.count();
         SkASSERT(startIndex < endIndex ? startIndex < count - 1
@@ -1190,9 +1189,18 @@ public:
         sortAngles(angles, sorted);
         int angleCount = angles.count();
         int firstIndex = findStartingEdge(sorted, startIndex, end);
-        
         SkASSERT(firstIndex >= 0);
+    #if DEBUG_WINDING
+        SkDebugf("%s (first) winding=%d sign=%d\n", __FUNCTION__,
+                winding, sorted[firstIndex]->sign());
+    #endif
+        bool innerSwap = false;
         int startWinding = winding;
+        if (winding * sorted[firstIndex]->sign() > 0 && active) {
+            // FIXME: this means winding was computed wrong by caller ?
+            winding = 0;
+            innerSwap = true;
+        }
         int nextIndex = firstIndex + 1;
         int lastIndex = firstIndex != 0 ? firstIndex : angleCount;
         const Angle* foundAngle = NULL;
@@ -1209,8 +1217,8 @@ public:
             SkASSERT(windValue > 0);
             winding -= nextAngle->sign() * windValue;
     #if DEBUG_WINDING
-            SkDebugf("%s maxWinding=%d winding=%d\n", __FUNCTION__, maxWinding,
-                    winding);
+            SkDebugf("%s maxWinding=%d winding=%d sign=%d\n", __FUNCTION__,
+                    maxWinding, winding, nextAngle->sign());
     #endif
             if (maxWinding * winding < 0) {
                 flipped = -flipped;
@@ -1222,13 +1230,18 @@ public:
                     SkASSERT(nextAngle->segment() == this);
                     markWinding(SkMin32(nextAngle->start(), nextAngle->end()),
                                 maxWinding);
+    #if DEBUG_WINDING
                     SkDebugf("%s inactive\n", __FUNCTION__);
+    #endif
                     return NULL;
                 }
                 if (!foundAngle) {
                     foundAngle = nextAngle;
                 }
                 continue;
+            }
+            if (!maxWinding && innerSwap && !foundAngle) {
+                foundAngle = nextAngle;
             }
             if (nextSegment->done()) {
                 continue;
@@ -1242,7 +1255,7 @@ public:
                     maxWinding = winding;
                 }
                 Span* last;
-                if (foundAngle) {
+                if (foundAngle || innerSwap) {
                     last = nextSegment->markAndChaseWinding(nextAngle, maxWinding);
                 } else {
                     last = nextSegment->markAndChaseDone(nextAngle, maxWinding);
@@ -1499,7 +1512,7 @@ public:
         int otherEnd = other->nextSpan(index, step);
         int min = SkMin32(index, otherEnd);
         if (other->fTs[min].fWindSum != SK_MinS32) {
-            SkASSERT(other->fTs[index].fWindSum == winding);
+            SkASSERT(other->fTs[min].fWindSum == winding);
             return NULL;
         }
         Span* last = other->innerChaseWinding(index, step, winding);
@@ -2939,14 +2952,19 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
         SkTDArray<Span*> chaseArray;
         do {
             bool active = winding * spanWinding <= 0;
+        #if DEBUG_WINDING
+            if (!active) {
+                SkDebugf("%s !active winding=%d spanWinding=%d\n",
+                        __FUNCTION__, winding, spanWinding);
+            }
+        #endif
             const SkPoint* firstPt = NULL;
             do {
                 SkASSERT(!current->done());
                 int nextStart, nextEnd, flipped = 1;
                 Segment* next = current->findNext(chaseArray, 
-                        winding + spanWinding, index,
-                        endIndex, nextStart, nextEnd, flipped, firstTime
-                        , active /* active is debugging only */ );
+                        winding + spanWinding, index, endIndex,
+                        nextStart, nextEnd, flipped, firstTime, active);
                 if (!next) {
                     break;
                 }
@@ -2971,9 +2989,9 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
                 simple.close();
             }
             current = findChase(chaseArray, index, endIndex);
-#if DEBUG_ACTIVE_SPANS
+        #if DEBUG_ACTIVE_SPANS
             debugShowActiveSpans(contourList);
-#endif
+        #endif
             if (!current) {
                 break;
             }
@@ -2993,12 +3011,19 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
    //             SkTSwap<int>(index, endIndex);
             }
             if (abs(spanWinding) > spanValue) {
-        #if DEBUG_WINDING
-                SkDebugf("%s abs(spanWinding) > spanValue\n", __FUNCTION__);
-        #endif
                 winding = spanWinding;
                 spanWinding = spanValue * SkSign32(spanWinding);
                 winding -= spanWinding;
+        #if DEBUG_WINDING
+                SkDebugf("%s spanWinding=%d winding=%d\n", __FUNCTION__,
+                        spanWinding, winding);
+        #endif
+            } else {
+        #if DEBUG_WINDING
+                SkDebugf("%s ->0 contourWinding=%d winding=%d\n", __FUNCTION__,
+                        contourWinding, winding);
+        #endif
+                winding = 0;
             }
         } while (true);
     } while (true);
