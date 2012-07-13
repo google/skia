@@ -14,6 +14,7 @@
 #include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTScopedPtr.h"
@@ -142,6 +143,10 @@ public:
      */
     SK_API SkRefPtr<SkPDFArray> getMediaBox() const;
 
+    /** Get the annotations from this page.
+     */
+    SK_API SkRefPtr<SkPDFArray> getAnnotations() const;
+
     /** Returns a SkStream with the page contents.  The caller is responsible
         for a reference to the returned value.
         DEPRECATED: use copyContentToData()
@@ -180,6 +185,7 @@ private:
     SkMatrix fInitialTransform;
     SkClipStack fExistingClipStack;
     SkRegion fExistingClipRegion;
+    SkRefPtr<SkPDFArray> fAnnotations;
     SkRefPtr<SkPDFDict> fResourceDict;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
@@ -262,6 +268,9 @@ private:
      *  list of content entries |entry| to |data|.
      */
     void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
+
+    bool handleAnnotations(const SkRect& r, const SkMatrix& matrix,
+                           const SkPaint& paint);
 
     typedef SkDevice INHERITED;
 };
