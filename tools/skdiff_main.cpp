@@ -54,6 +54,37 @@ enum Result {
     kNumResultTypes  // NOT A VALID VALUE--used to set up arrays. Must be last.
 };
 
+// Returns the Result with this name.
+// If there is no Result with this name, returns kNumResultTypes.
+// TODO: Is there a better return value for the fall-through case?
+Result getResultByName(const char *name) {
+    if (0 == strcmp("EqualBits", name)) {
+        return kEqualBits;
+    }
+    if (0 == strcmp("EqualPixels", name)) {
+        return kEqualPixels;
+    }
+    if (0 == strcmp("DifferentPixels", name)) {
+        return kDifferentPixels;
+    }
+    if (0 == strcmp("DifferentSizes", name)) {
+        return kDifferentSizes;
+    }
+    if (0 == strcmp("DifferentOther", name)) {
+        return kDifferentOther;
+    }
+    if (0 == strcmp("ComparisonMissing", name)) {
+        return kComparisonMissing;
+    }
+    if (0 == strcmp("BaseMissing", name)) {
+        return kBaseMissing;
+    }
+    if (0 == strcmp("Unknown", name)) {
+        return kUnknown;
+    }
+    return kNumResultTypes;
+}
+
 // Returns a text description of the given Result type.
 const char *getResultDescription(Result result) {
     switch (result) {
@@ -1079,19 +1110,22 @@ static void usage (char * argv0) {
 , argv0, argv0);
     SkDebugf(
 "\nArguments:"
+"\n    --failonresult <result>: After comparing all file pairs, exit with nonzero"
+"\n                             return code (number of file pairs yielding this"
+"\n                             result) if any file pairs yielded this result."
+"\n                             This flag may be repeated, in which case the"
+"\n                             return code will be the number of fail pairs"
+"\n                             yielding ANY of these results."
 "\n    --help: display this info"
-"\n    --failonmismatches: exit with nonzero return code (number of mismatching"
-"\n                        image pairs) if any pairs differ by more than threshold;"
-"\n                        otherwise, only return nonzero if the tool itself fails"
 "\n    --listfilenames: list all filenames for each result type in stdout"
-"\n    --match: compare files whose filenames contain this substring; if"
-"\n             unspecified, compare ALL files."
-"\n             this flag may be repeated to add more matching substrings."
+"\n    --match <substring>: compare files whose filenames contain this substring;"
+"\n                         if unspecified, compare ALL files."
+"\n                         this flag may be repeated."
 "\n    --nodiffs: don't write out image diffs or index.html, just generate"
 "\n               report on stdout"
-"\n    --nomatch: regardless of --match, DO NOT compare files whose filenames"
-"\n               contain this substring."
-"\n               this flag may be repeated to add more forbidden substrings."
+"\n    --nomatch <substring>: regardless of --match, DO NOT compare files whose"
+"\n                           filenames contain this substring."
+"\n                           this flag may be repeated."
 "\n    --noprintdirs: do not print the directories used."
 "\n    --sortbymaxmismatch: sort by worst color channel mismatch;"
 "\n                         break ties with -sortbymismatch"
@@ -1121,10 +1155,11 @@ int main (int argc, char ** argv) {
     SkString baseDir;
     SkString comparisonDir;
     SkString outputDir;
+
     StringArray matchSubstrings;
     StringArray nomatchSubstrings;
+    SkTDArray<Result> failOnTheseResultTypes;
 
-    bool failOnMismatches = false;
     bool generateDiffs = true;
     bool listFilenames = false;
     bool printDirs = true;
@@ -1135,8 +1170,11 @@ int main (int argc, char ** argv) {
     int i;
     int numUnflaggedArguments = 0;
     for (i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "--failonmismatches")) {
-            failOnMismatches = true;
+        if (!strcmp(argv[i], "--failonresult")) {
+            Result type = getResultByName(argv[++i]);
+            if (!failOnTheseResultTypes.contains(type)) {
+                failOnTheseResultTypes.push(type);
+            }
             continue;
         }
         if (!strcmp(argv[i], "--help")) {
@@ -1264,9 +1302,10 @@ int main (int argc, char ** argv) {
     matchSubstrings.deleteAll();
     nomatchSubstrings.deleteAll();
 
-    if (failOnMismatches) {
-        return summary.fNumMismatches;
-    } else {
-        return kNoError;
+    int num_failing_results = 0;
+    for (int i = 0; i < failOnTheseResultTypes.count(); i++) {
+        Result type = failOnTheseResultTypes[i];
+        num_failing_results += summary.fResultsOfType[type].count();
     }
+    return num_failing_results;
 }

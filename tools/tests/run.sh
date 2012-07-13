@@ -40,22 +40,21 @@ function skdiff_test {
 
 SKDIFF_TESTDIR=tools/tests/skdiff
 
-# Run skdiff over a variety of file pair types: identical bits, identical
-# pixels, missing from baseDir, etc.
+# Run skdiff over a variety of file pair types: identical bits, identical pixels, missing from
+# baseDir, etc.
 skdiff_test "$SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test1"
 
-# Same as above, except:
-# - return the number of mismatching file pairs
+# Run skdiff over the same set of files, but with arguments as used by our buildbots:
+# - return the number of mismatching file pairs (but ignore any files missing from either
+#   baseDir or comparisonDir)
 # - list filenames with each result type to stdout
 # - don't generate HTML output files
-skdiff_test "--failonmismatches --listfilenames --nodiffs $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test2"
+skdiff_test "--failonresult DifferentPixels --failonresult DifferentSizes --failonresult DifferentOther --failonresult Unknown --listfilenames --nodiffs $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test2"
 
-# Run skdiff over just the files that have identical bits, to validate any
-# behavior/return value differences in this case.
-skdiff_test "--failonmismatches --nodiffs --match identical-bits $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits"
+# Run skdiff over just the files that have identical bits.
+skdiff_test "--nodiffs --match identical-bits $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits"
 
-# Run skdiff over just the files that have identical bits or identical pixels,
-# to validate any behavior/return value differences in this case.
-skdiff_test "--failonmismatches --nodiffs --match identical-bits --match identical-pixels $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits-or-pixels"
+# Run skdiff over just the files that have identical bits or identical pixels.
+skdiff_test "--nodiffs --match identical-bits --match identical-pixels $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits-or-pixels"
 
 echo "All tests passed."
