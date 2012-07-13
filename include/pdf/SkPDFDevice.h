@@ -100,6 +100,9 @@ public:
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE;
 
+    virtual void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void onDetachFromCanvas() SK_OVERRIDE;
+
     enum DrawingArea {
         kContent_DrawingArea,  // Drawing area for the page content.
         kMargin_DrawingArea,   // Drawing area for the margin content.
@@ -190,6 +193,8 @@ private:
     ContentEntry* fLastMarginContentEntry;
     DrawingArea fDrawingArea;
 
+    const SkClipStack* fClipStack;
+
     // Accessor and setter functions based on the current DrawingArea.
     SkTScopedPtr<ContentEntry>* getContentEntries();
     ContentEntry* getLastContentEntry();
@@ -258,9 +263,7 @@ private:
      */
     void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
 
-    // Disable the default copy and assign implementation.
-    SkPDFDevice(const SkPDFDevice&);
-    void operator=(const SkPDFDevice&);
+    typedef SkDevice INHERITED;
 };
 
 #endif

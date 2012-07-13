@@ -78,11 +78,11 @@ struct DeviceCM {
     const SkMatrix*     fMVMatrix;
     const SkMatrix*     fExtMatrix;
 
-    DeviceCM(SkDevice* device, int x, int y, const SkPaint* paint)
+    DeviceCM(SkDevice* device, int x, int y, const SkPaint* paint, SkCanvas* canvas)
             : fNext(NULL) {
         if (NULL != device) {
             device->ref();
-            device->lockPixels();
+            device->onAttachToCanvas(canvas);
         }
         fDevice = device;
         fPaint = paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL;
@@ -90,7 +90,7 @@ struct DeviceCM {
 
     ~DeviceCM() {
         if (NULL != fDevice) {
-            fDevice->unlockPixels();
+            fDevice->onDetachFromCanvas();
             fDevice->unref();
         }
         SkDELETE(fPaint);
@@ -256,7 +256,7 @@ public:
             }
             // fCurrLayer may be NULL now
 
-            fCanvas->prepareForDeviceDraw(fDevice, *fMatrix, *fClip, *fClipStack);
+            fCanvas->prepareForDeviceDraw(fDevice, *fMatrix, *fClip);
             return true;
         }
         return false;
@@ -460,7 +460,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(NULL, 0);
 
-    fMCRec->fLayer = SkNEW_ARGS(DeviceCM, (NULL, 0, 0, NULL));
+    fMCRec->fLayer = SkNEW_ARGS(DeviceCM, (NULL, 0, 0, NULL, NULL));
     fMCRec->fTopLayer = fMCRec->fLayer;
     fMCRec->fNext = NULL;
 
@@ -558,14 +558,11 @@ SkDevice* SkCanvas::setDevice(SkDevice* device) {
         return device;
     }
 
-    /* Notify the devices that they are going in/out of scope, so they can do
-       things like lock/unlock their pixels, etc.
-    */
     if (device) {
-        device->lockPixels();
+        device->onAttachToCanvas(this);
     }
     if (rootDevice) {
-        rootDevice->unlockPixels();
+        rootDevice->onDetachFromCanvas();
     }
 
     SkRefCnt_SafeAssign(rec->fLayer->fDevice, device);
@@ -682,11 +679,10 @@ void SkCanvas::updateDeviceCMCache() {
 }
 
 void SkCanvas::prepareForDeviceDraw(SkDevice* device, const SkMatrix& matrix,
-                                    const SkRegion& clip,
-                                    const SkClipStack& clipStack) {
+                                    const SkRegion& clip) {
     SkASSERT(device);
     if (fLastDeviceToGainFocus != device) {
-        device->gainFocus(this, matrix, clip, clipStack);
+        device->gainFocus(matrix, clip);
         fLastDeviceToGainFocus = device;
     }
 }
@@ -843,7 +839,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
     }
 
     device->setOrigin(ir.fLeft, ir.fTop);
-    DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, ir.fLeft, ir.fTop, paint));
+    DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, ir.fLeft, ir.fTop, paint, this));
     device->unref();
 
     layer->fNext = fMCRec->fTopLayer;

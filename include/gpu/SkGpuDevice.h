@@ -55,8 +55,7 @@ public:
      *  Override from SkGpuDevice, so we can set our FBO to be the render target
      *  The canvas parameter must be a SkGpuCanvas
      */
-    virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
-                           const SkClipStack& clipStack) SK_OVERRIDE;
+    virtual void gainFocus(const SkMatrix&, const SkRegion&) SK_OVERRIDE;
 
     virtual SkGpuRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
@@ -101,6 +100,9 @@ public:
 
     virtual void flush();
 
+    virtual void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void onDetachFromCanvas() SK_OVERRIDE;
+
     /**
      * Make's this device's rendertarget current in the underlying 3D API.
      * Also implicitly flushes.
@@ -130,6 +132,9 @@ private:
     GrContext*      fContext;
 
     GrSkDrawProcs*  fDrawProcs;
+
+    // the clip stack - on loan to us from SkCanvas so it can be NULL.
+    const SkClipStack*  fClipStack;
 
     // state for our offscreen render-target
     TexCache            fCache;

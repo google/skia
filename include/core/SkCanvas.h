@@ -888,6 +888,15 @@ public:
      */
     const SkRegion& getTotalClip() const;
 
+    /** Return the clip stack. The clip stack stores all the individual
+     *  clips organized by the save/restore frame in which they were
+     *  added.
+     *  @return the current clip stack ("list" of individual clip elements)
+     */
+    const SkClipStack* getClipStack() const {
+        return &fClipStack;
+    }
+
     void setExternalMatrix(const SkMatrix* = NULL);
 
     class ClipVisitor {
@@ -973,8 +982,7 @@ private:
     SkDevice*   fLastDeviceToGainFocus;
     int         fSaveLayerCount;    // number of successful saveLayer calls
 
-    void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&,
-                              const SkClipStack& clipStack);
+    void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&);
 
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();

@@ -138,6 +138,32 @@ public:
      */
     const SkIPoint& getOrigin() const { return fOrigin; }
 
+    /** 
+     * onAttachToCanvas is invoked whenever a device is installed in a canvas
+     * (i.e., setDevice, saveLayer (for the new device created by the save),
+     * and SkCanvas' SkDevice & SkBitmap -taking ctors). It allows the 
+     * devices to prepare for drawing (e.g., locking their pixels, etc.)
+     */
+    virtual void onAttachToCanvas(SkCanvas* canvas) {
+        this->lockPixels();
+#ifdef SK_DEBUG
+        fAttachedToCanvas = true;
+#endif
+    };
+
+    /**
+     * onDetachFromCanvas notifies a device that it will no longer be drawn to.
+     * It gives the device a chance to clean up (e.g., unlock its pixels). It
+     * is invoked from setDevice (for the displaced device), restore and 
+     * possibly from SkCanvas' dtor.
+     */
+    virtual void onDetachFromCanvas() {
+        this->unlockPixels();
+#ifdef SK_DEBUG
+        fAttachedToCanvas = false;
+#endif
+    };
+
 protected:
     enum Usage {
        kGeneral_Usage,
@@ -177,8 +203,9 @@ protected:
     /** Called when this device gains focus (i.e becomes the current device
         for drawing).
     */
-    virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
-                           const SkClipStack&) {}
+    virtual void gainFocus(const SkMatrix&, const SkRegion&) {
+        SkASSERT(fAttachedToCanvas);
+    }
 
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.
@@ -375,6 +402,10 @@ private:
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
+
+#ifdef SK_DEBUG
+    bool        fAttachedToCanvas;
+#endif
 
     typedef SkRefCnt INHERITED;
 };
