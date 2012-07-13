@@ -23,6 +23,10 @@ SkAnnotation::~SkAnnotation() {
     fDataSet->unref();
 }
 
+SkData* SkAnnotation::find(const char name[]) const {
+    return fDataSet->find(name);
+}
+
 SkAnnotation::SkAnnotation(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fFlags = buffer.readU32();
     fDataSet = SkNEW_ARGS(SkDataSet, (buffer));

@@ -14,7 +14,8 @@
 #include "SkStream.h"
 
 static bool skip_compression(SkPDFCatalog* catalog) {
-    return catalog->getDocumentFlags() & SkPDFDocument::kNoCompression_Flag;
+    return SkToBool(catalog->getDocumentFlags() &
+                    SkPDFDocument::kNoCompression_Flags);
 }
 
 SkPDFStream::SkPDFStream(SkStream* stream)

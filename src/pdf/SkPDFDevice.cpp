@@ -9,6 +9,7 @@
 
 #include "SkPDFDevice.h"
 
+#include "SkAnnotation.h"
 #include "SkColor.h"
 #include "SkClipStack.h"
 #include "SkData.h"
@@ -711,6 +712,10 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
         return;
     }
 
+    if (handleAnnotations(r, *d.fMatrix, paint)) {
+        return;
+    }
+
     ScopedContentEntry content(this, d, paint);
     if (!content.entry()) {
         return;
@@ -760,6 +765,10 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
             noEffectPaint.setStrokeWidth(0);
         }
         drawPath(d, *pathPtr, noEffectPaint, NULL, true);
+        return;
+    }
+
+    if (handleAnnotations(pathPtr->getBounds(), *d.fMatrix, paint)) {
         return;
     }
 
@@ -1113,6 +1122,10 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     return mediaBox;
 }
 
+SkRefPtr<SkPDFArray> SkPDFDevice::getAnnotations() const {
+    return SkRefPtr<SkPDFArray>(fAnnotations);
+}
+
 SkStream* SkPDFDevice::content() const {
     SkMemoryStream* result = new SkMemoryStream;
     result->setData(this->copyContentToData())->unref();
@@ -1168,6 +1181,55 @@ SkData* SkPDFDevice::copyContentToData() const {
     // potentially we could cache this SkData, and only rebuild it if we
     // see that our state has changed.
     return data.copyToData();
+}
+
+bool SkPDFDevice::handleAnnotations(const SkRect& r, const SkMatrix& matrix,
+                                    const SkPaint& p) {
+    SkAnnotation* annotationInfo = p.getAnnotation();
+    if (!annotationInfo) {
+        return false;
+    }
+    SkData* urlData = annotationInfo->find(SkAnnotationKeys::URL_Key());
+    if (!urlData) {
+        return false;
+    }
+
+    SkString url(static_cast<const char *>(urlData->data()),
+                 urlData->size() - 1);
+    SkMatrix transform = matrix;
+    transform.postConcat(fInitialTransform);
+    SkRect translatedRect;
+    transform.mapRect(&translatedRect, r);
+
+    if (fAnnotations.get() == NULL) {
+        fAnnotations = new SkPDFArray;
+        fAnnotations->unref();  // Both new and SkRefPtr took a reference.
+    }
+    SkAutoTUnref<SkPDFDict> annotation(new SkPDFDict("Annot"));
+    annotation->insertName("Subtype", "Link");
+    fAnnotations->append(annotation.get());
+
+    SkAutoTUnref<SkPDFArray> border(new SkPDFArray);
+    border->reserve(3);
+    border->appendInt(0);  // Horizontal corner radius.
+    border->appendInt(0);  // Vertical corner radius.
+    border->appendInt(0);  // Width, 0 = no border.
+    annotation->insert("Border", border.get());
+
+    SkAutoTUnref<SkPDFArray> rect(new SkPDFArray);
+    rect->reserve(4);
+    rect->appendScalar(translatedRect.fLeft);
+    rect->appendScalar(translatedRect.fTop);
+    rect->appendScalar(translatedRect.fRight);
+    rect->appendScalar(translatedRect.fBottom);
+    annotation->insert("Rect", rect.get());
+
+    SkAutoTUnref<SkPDFDict> action(new SkPDFDict("Action"));
+    action->insertName("S", "URI");
+    action->insert("URI", new SkPDFString(url))->unref();
+    annotation->insert("A", action.get());
+
+    return p.isNoDrawAnnotation();
 }
 
 void SkPDFDevice::createFormXObjectFromDevice(
