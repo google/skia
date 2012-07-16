@@ -21,18 +21,14 @@ class GrConvolutionEffect : public Gr1DKernelEffect {
 
 public:
 
+    /// Convolve with an arbitrary user-specified kernel
     GrConvolutionEffect(GrTexture*, Direction,
                         int halfWidth, const float* kernel = NULL);
+
+    /// Convolve with a gaussian kernel
+    GrConvolutionEffect(GrTexture*, Direction,
+                        int halfWidth, float gaussianSigma);
     virtual ~GrConvolutionEffect();
-
-    void setKernel(const float* kernel) {
-        memcpy(fKernel, kernel, this->width());
-    }
-
-    /**
-     * Helper to set the kernel to a Gaussian. Replaces the existing kernel.
-     */
-    void setGaussianKernel(float sigma);
 
     const float* kernel() const { return fKernel; }
 

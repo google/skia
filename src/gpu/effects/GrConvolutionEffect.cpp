@@ -163,6 +163,30 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
     }
 }
 
+GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
+                                         Direction direction,
+                                         int radius,
+                                         float gaussianSigma)
+    : Gr1DKernelEffect(texture, direction, radius) {
+    GrAssert(radius <= kMaxKernelRadius);
+    int width = this->width();
+
+    float sum = 0.0f;
+    float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
+    for (int i = 0; i < width; ++i) {
+        float x = static_cast<float>(i - this->radius());
+        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+        // is dropped here, since we renormalize the kernel below.
+        fKernel[i] = sk_float_exp(- x * x * denom);
+        sum += fKernel[i];
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < width; ++i) {
+        fKernel[i] *= scale;
+    }
+}
+
 GrConvolutionEffect::~GrConvolutionEffect() {
 }
 
@@ -179,20 +203,3 @@ bool GrConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
 }
 
-void GrConvolutionEffect::setGaussianKernel(float sigma) {
-    int width = this->width();
-    float sum = 0.0f;
-    float denom = 1.0f / (2.0f * sigma * sigma);
-    for (int i = 0; i < width; ++i) {
-        float x = static_cast<float>(i - this->radius());
-        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
-        // is dropped here, since we renormalize the kernel below.
-        fKernel[i] = sk_float_exp(- x * x * denom);
-        sum += fKernel[i];
-    }
-    // Normalize the kernel
-    float scale = 1.0f / sum;
-    for (int i = 0; i < width; ++i) {
-        fKernel[i] *= scale;
-    }
-}
