@@ -175,7 +175,6 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
 
     this->initCaps();
 
-    fProgramData = NULL;
     fProgramCache = SkNEW_ARGS(ProgramCache, (this->glContextInfo()));
 
     fLastSuccessfulStencilFmtIdx = 0;
@@ -186,16 +185,14 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
 }
 
 GrGpuGL::~GrGpuGL() {
-    if (fProgramData && 0 != fHWProgramID) {
+    if (0 != fHWProgramID) {
         // detach the current program so there is no confusion on OpenGL's part
         // that we want it to be deleted
-        GrAssert(fHWProgramID == fProgramData->fProgramID);
+        GrAssert(fHWProgramID == fCurrentProgram->fProgramID);
         GL_CALL(UseProgram(0));
     }
 
     delete fProgramCache;
-    fProgramCache = NULL;
-    fProgramData = NULL;
 
     // This must be called by before the GrDrawTarget destructor
     this->releaseGeometry();
