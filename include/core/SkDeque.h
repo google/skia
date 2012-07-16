@@ -14,8 +14,12 @@
 
 class SK_API SkDeque : SkNoncopyable {
 public:
-    explicit SkDeque(size_t elemSize);
-    SkDeque(size_t elemSize, void* storage, size_t storageSize);
+    /**
+     * elemSize specifies the size of each individual element in the deque
+     * allocCount specifies how many elements are to be allocated as a block
+     */
+    explicit SkDeque(size_t elemSize, int allocCount = 1);
+    SkDeque(size_t elemSize, void* storage, size_t storageSize, int allocCount = 1);
     ~SkDeque();
 
     bool    empty() const { return 0 == fCount; }
@@ -40,35 +44,77 @@ public:
     void pop_back();
 
 private:
-    struct Head;
+    struct Block;
 
 public:
-    class F2BIter {
+    class Iter {
     public:
+        enum IterStart {
+            kFront_IterStart,
+            kBack_IterStart
+        };
+
         /**
          * Creates an uninitialized iterator. Must be reset()
          */
-        F2BIter();
+        Iter();
 
-        F2BIter(const SkDeque& d);
+        Iter(const SkDeque& d, IterStart startLoc);
         void* next();
+        void* prev();
 
-        void reset(const SkDeque& d);
+        void reset(const SkDeque& d, IterStart startLoc);
 
     private:
-        SkDeque::Head*  fHead;
+        SkDeque::Block*  fCurBlock;
         char*           fPos;
         size_t          fElemSize;
     };
+    
+    // Inherit privately from Iter to prevent access to reverse iteration
+    class F2BIter : private Iter {
+    public:
+        F2BIter() {}
+
+        /**
+         * Wrap Iter's 2 parameter ctor to force initialization to the 
+         * beginning of the deque
+         */
+        F2BIter(const SkDeque& d) : INHERITED(d, kFront_IterStart) {}
+
+        using Iter::next;
+
+        /** 
+         * Wrap Iter::reset to force initialization to the beginning of the 
+         * deque
+         */
+        void reset(const SkDeque& d) {
+            this->INHERITED::reset(d, kFront_IterStart);
+        }
+
+    private:
+        typedef Iter INHERITED;
+    };
 
 private:
-    Head*   fFront;
-    Head*   fBack;
+    // allow unit test to call numBlocksAllocated
+    friend class DequeUnitTestHelper; 
+
+    Block*  fFront;
+    Block*  fBack;
     size_t  fElemSize;
     void*   fInitialStorage;
-    int     fCount;
+    int     fCount;             // number of elements in the deque
+    int     fAllocCount;        // number of elements to allocate per block
 
-    friend class Iter;
+    Block*  allocateBlock(int allocCount);
+    void    freeBlock(Block* block);
+
+    /**
+     * This returns the number of chunk blocks allocated by the deque. It
+     * can be used to gauge the effectiveness of the selected allocCount.
+     */
+    int  numBlocksAllocated() const;
 };
 
 #endif
