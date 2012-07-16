@@ -222,16 +222,15 @@ void GraphicStackState::pop() {
 // and asserts that "prefix" will be a prefix to "stack."
 static void skip_clip_stack_prefix(const SkClipStack& prefix,
                                    const SkClipStack& stack,
-                                   SkClipStack::B2FIter* iter) {
+                                   SkClipStack::Iter* iter) {
     SkClipStack::B2FIter prefixIter(prefix);
-    iter->reset(stack);
+    iter->reset(stack, SkClipStack::Iter::kFront_IterStart);
 
     const SkClipStack::B2FIter::Clip* prefixEntry;
     const SkClipStack::B2FIter::Clip* iterEntry;
 
-    int count = 0;
     for (prefixEntry = prefixIter.next(); prefixEntry;
-            prefixEntry = prefixIter.next(), count++) {
+            prefixEntry = prefixIter.next()) {
         iterEntry = iter->next();
         SkASSERT(iterEntry);
         // Because of SkClipStack does internal intersection, the last clip
@@ -243,12 +242,8 @@ static void skip_clip_stack_prefix(const SkClipStack& prefix,
                     (prefixEntry->fRect == NULL));
             SkASSERT((iterEntry->fPath == NULL) ==
                     (prefixEntry->fPath == NULL));
-            // We need to back up the iterator by one but don't have that
-            // function, so reset and go forward by one less.
-            iter->reset(stack);
-            for (int i = 0; i < count; i++) {
-                iter->next();
-            }
+            // back up the iterator by one
+            iter->prev();
             prefixEntry = prefixIter.next();
             break;
         }
@@ -305,7 +300,7 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     // initial clip on the parent layer.  (This means there's a bug if the user
     // expands the clip and then uses any xfer mode that uses dst:
     // http://code.google.com/p/skia/issues/detail?id=228 )
-    SkClipStack::B2FIter iter;
+    SkClipStack::Iter iter;
     skip_clip_stack_prefix(fEntries[0].fClipStack, clipStack, &iter);
 
     // If the clip stack does anything other than intersect or if it uses

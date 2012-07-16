@@ -534,8 +534,7 @@ SkISize SkCanvas::getDeviceSize() const {
 
 SkDevice* SkCanvas::getDevice() const {
     // return root device
-    SkDeque::F2BIter iter(fMCStack);
-    MCRec*           rec = (MCRec*)iter.next();
+    MCRec* rec = (MCRec*) fMCStack.front();
     SkASSERT(rec && rec->fLayer);
     return rec->fLayer->fDevice;
 }
