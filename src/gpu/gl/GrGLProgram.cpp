@@ -932,7 +932,7 @@ bool GrGLProgram::genProgram(const GrGLContextInfo& gl,
         return false;
     }
 
-    this->getUniformLocationsAndInitCache(gl, programData);
+    this->getUniformLocationsAndInitCache(builder, gl, programData);
 
     return true;
 }
@@ -1003,7 +1003,8 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLContextInfo& gl,
     return true;
 }
 
-void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
+void GrGLProgram::getUniformLocationsAndInitCache(const GrGLShaderBuilder& builder,
+                                                  const GrGLContextInfo& gl,
                                                   CachedData* programData) const {
     const GrGLint& progID = programData->fProgramID;
 
@@ -1066,8 +1067,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
             }
 
             if (NULL != programData->fCustomStage[s]) {
-                programData->fCustomStage[s]->
-                    initUniforms(gl.interface(), progID);
+                programData->fCustomStage[s]->initUniforms(&builder, gl.interface(), progID);
             }
         }
     }
@@ -1118,10 +1118,12 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     } else {
         SkString texMatName;
         tex_matrix_name(stageNum, &texMatName);
-        const GrGLShaderVar* mat = &segments->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                                         kMat33f_GrSLType, texMatName.c_str());
+        GrGLShaderBuilder::UniformHandle m =
+            segments->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                 kMat33f_GrSLType, texMatName.c_str());
+        const GrGLShaderVar& mat = segments->getUniformVariable(m);
         // Can't use texMatName.c_str() because it's on the stack!
-        matName = mat->getName().c_str();
+        matName = mat.getName().c_str();
         locations->fTextureMatrixUni = kUseUniform;
 
         if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {

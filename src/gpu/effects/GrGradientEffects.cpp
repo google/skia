@@ -19,9 +19,9 @@ public:
                        const GrCustomStage&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
-    virtual void emitVS(GrGLShaderBuilder* state,
+    virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* state,
+    virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
@@ -34,15 +34,15 @@ private:
 
 };
 
-void GrGLRadialGradient::emitFS(GrGLShaderBuilder* state,
+void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
                                 const char* outputColor,
                                 const char* inputColor,
                                 const char* samplerName) {
-    state->fSampleCoords.printf("vec2(length(%s.xy), 0.5)",
-                                state->fSampleCoords.c_str());
-    state->fComplexCoord = true;
+    builder->fSampleCoords.printf("vec2(length(%s.xy), 0.5)",
+                                  builder->fSampleCoords.c_str());
+    builder->fComplexCoord = true;
 
-    state->emitDefaultFetch(outputColor, samplerName);
+    builder->emitDefaultFetch(outputColor, samplerName);
 }
 
 
@@ -69,6 +69,10 @@ bool GrRadialGradient::isEqual(const GrCustomStage& sBase) const {
 
 /////////////////////////////////////////////////////////////////////
 
+// For brevity, and these definitions are likely to move to a different class soon.
+typedef GrGLShaderBuilder::UniformHandle UniformHandle;
+static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
+
 class GrGLRadial2Gradient : public GrGLProgramStage {
 
 public:
@@ -77,15 +81,17 @@ public:
                         const GrCustomStage&);
     virtual ~GrGLRadial2Gradient() { }
 
-    virtual void setupVariables(GrGLShaderBuilder* state,
+    virtual void setupVariables(GrGLShaderBuilder* builder,
                                 int stage) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* state,
+    virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE;
-    virtual void emitFS(GrGLShaderBuilder* state,
+    virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
-    virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
+    virtual void initUniforms(const GrGLShaderBuilder* builder,
+                              const GrGLInterface*,
+                              int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
                          const GrRenderTarget*,
@@ -97,10 +103,10 @@ public:
 
 protected:
 
-    const GrGLShaderVar* fVSParamVar;
-    GrGLint fVSParamLocation;
-    const GrGLShaderVar* fFSParamVar;
-    GrGLint fFSParamLocation;
+    UniformHandle   fVSParamUni;
+    GrGLint         fVSParamLocation;
+    UniformHandle   fFSParamUni;
+    GrGLint         fFSParamLocation;
 
     const char* fVSVaryingName;
     const char* fFSVaryingName;
@@ -126,8 +132,8 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
         const GrProgramStageFactory& factory,
         const GrCustomStage& baseData)
     : INHERITED(factory)
-    , fVSParamVar(NULL)
-    , fFSParamVar(NULL)
+    , fVSParamUni(kInvalidUniformHandle)
+    , fFSParamUni(kInvalidUniformHandle)
     , fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
     , fCachedCenter(GR_ScalarMax)
@@ -139,37 +145,37 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
     fIsDegenerate = data.isDegenerate();
 }
 
-void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* state, int stage) {
+void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* builder, int stage) {
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
-    fVSParamVar = &state->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                     kFloat_GrSLType, "uRadial2VSParams", stage, 6);
-    fFSParamVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                     kFloat_GrSLType, "uRadial2FSParams", stage, 6);
+    fVSParamUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                      kFloat_GrSLType, "uRadial2VSParams", stage, 6);
+    fFSParamUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                       kFloat_GrSLType, "uRadial2FSParams", stage, 6);
 
     fVSParamLocation = GrGLProgramStage::kUseUniform;
     fFSParamLocation = GrGLProgramStage::kUseUniform;
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (state->fVaryingDims == state->fCoordDims) {
-        state->addVarying(kFloat_GrSLType, "Radial2BCoeff", stage,
+    if (builder->fVaryingDims == builder->fCoordDims) {
+        builder->addVarying(kFloat_GrSLType, "Radial2BCoeff", stage,
                           &fVSVaryingName, &fFSVaryingName);
     }
 }
 
-void GrGLRadial2Gradient::emitVS(GrGLShaderBuilder* state,
+void GrGLRadial2Gradient::emitVS(GrGLShaderBuilder* builder,
                                  const char* vertexCoords) {
-    SkString* code = &state->fVSCode;
+    SkString* code = &builder->fVSCode;
     SkString p2;
     SkString p3;
-    fVSParamVar->appendArrayAccess(2, &p2);
-    fVSParamVar->appendArrayAccess(3, &p3);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(3, &p3);
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (state->fVaryingDims == state->fCoordDims) {
+    if (builder->fVaryingDims == builder->fCoordDims) {
         // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
         code->appendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
                       fVSVaryingName, p2.c_str(),
@@ -177,11 +183,11 @@ void GrGLRadial2Gradient::emitVS(GrGLShaderBuilder* state,
     }
 }
 
-void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
+void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const char* samplerName) {
-    SkString* code = &state->fFSCode;
+    SkString* code = &builder->fFSCode;
     SkString cName("c");
     SkString ac4Name("ac4");
     SkString rootName("root");
@@ -191,32 +197,32 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
     SkString p3;
     SkString p4;
     SkString p5;
-    fFSParamVar->appendArrayAccess(0, &p0);
-    fFSParamVar->appendArrayAccess(1, &p1);
-    fFSParamVar->appendArrayAccess(2, &p2);
-    fFSParamVar->appendArrayAccess(3, &p3);
-    fFSParamVar->appendArrayAccess(4, &p4);
-    fFSParamVar->appendArrayAccess(5, &p5);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(0, &p0);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(1, &p1);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(2, &p2);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(3, &p3);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(4, &p4);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(5, &p5);
 
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
     SkString bVar;
-    if (state->fCoordDims == state->fVaryingDims) {
+    if (builder->fCoordDims == builder->fVaryingDims) {
         bVar = fFSVaryingName;
-        GrAssert(2 == state->fVaryingDims);
+        GrAssert(2 == builder->fVaryingDims);
     } else {
-        GrAssert(3 == state->fVaryingDims);
+        GrAssert(3 == builder->fVaryingDims);
         bVar = "b";
         //bVar.appendS32(stageNum);
         code->appendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
                       bVar.c_str(), p2.c_str(),
-                      state->fSampleCoords.c_str(), p3.c_str());
+                      builder->fSampleCoords.c_str(), p3.c_str());
     }
 
     // c = (x^2)+(y^2) - params[4]
     code->appendf("\tfloat %s = dot(%s, %s) - %s;\n",
-                  cName.c_str(), state->fSampleCoords.c_str(),
-                  state->fSampleCoords.c_str(),
+                  cName.c_str(), builder->fSampleCoords.c_str(),
+                  builder->fSampleCoords.c_str(),
                   p4.c_str());
 
     // If we aren't degenerate, emit some extra code, and accept a slightly
@@ -236,25 +242,27 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* state,
 
         // x coord is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
         // y coord is 0.5 (texture is effectively 1D)
-        state->fSampleCoords.printf("vec2((-%s + %s * %s) * %s, 0.5)",
-                            bVar.c_str(), p5.c_str(),
-                            rootName.c_str(), p1.c_str());
+        builder->fSampleCoords.printf("vec2((-%s + %s * %s) * %s, 0.5)",
+                                      bVar.c_str(), p5.c_str(),
+                                      rootName.c_str(), p1.c_str());
     } else {
         // x coord is: -c/b
         // y coord is 0.5 (texture is effectively 1D)
-        state->fSampleCoords.printf("vec2((-%s / %s), 0.5)",
-                            cName.c_str(), bVar.c_str());
+        builder->fSampleCoords.printf("vec2((-%s / %s), 0.5)",
+                                      cName.c_str(), bVar.c_str());
     }
-    state->fComplexCoord = true;
+    builder->fComplexCoord = true;
 
-    state->emitDefaultFetch(outputColor, samplerName);
+    builder->emitDefaultFetch(outputColor, samplerName);
 }
 
-void GrGLRadial2Gradient::initUniforms(const GrGLInterface* gl, int programID) {
-    GR_GL_CALL_RET(gl, fVSParamLocation,
-        GetUniformLocation(programID, fVSParamVar->getName().c_str()));
-    GR_GL_CALL_RET(gl, fFSParamLocation,
-        GetUniformLocation(programID, fFSParamVar->getName().c_str()));
+void GrGLRadial2Gradient::initUniforms(const GrGLShaderBuilder* builder,
+                                       const GrGLInterface* gl,
+                                       int programID) {
+    const char* vsParam = builder->getUniformCStr(fVSParamUni);
+    const char* fsParam = builder->getUniformCStr(fFSParamUni);
+    GR_GL_CALL_RET(gl, fVSParamLocation, GetUniformLocation(programID, vsParam));
+    GR_GL_CALL_RET(gl, fFSParamLocation, GetUniformLocation(programID, fsParam));
 }
 
 void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
@@ -335,15 +343,17 @@ public:
                          const GrCustomStage&);
     virtual ~GrGLConical2Gradient() { }
 
-    virtual void setupVariables(GrGLShaderBuilder* state,
+    virtual void setupVariables(GrGLShaderBuilder* builder,
                                 int stage) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* state,
+    virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE;
-    virtual void emitFS(GrGLShaderBuilder* state,
+    virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
-    virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
+    virtual void initUniforms(const GrGLShaderBuilder* builder,
+                              const GrGLInterface*,
+                              int programID) SK_OVERRIDE;
     virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
                          const GrRenderTarget*,
@@ -355,10 +365,10 @@ public:
 
 protected:
 
-    const GrGLShaderVar* fVSParamVar;
-    GrGLint fVSParamLocation;
-    const GrGLShaderVar* fFSParamVar;
-    GrGLint fFSParamLocation;
+    UniformHandle           fVSParamUni;
+    GrGLint                 fVSParamLocation;
+    UniformHandle           fFSParamUni;
+    GrGLint                 fFSParamLocation;
 
     const char* fVSVaryingName;
     const char* fFSVaryingName;
@@ -384,8 +394,8 @@ GrGLConical2Gradient::GrGLConical2Gradient(
         const GrProgramStageFactory& factory,
         const GrCustomStage& baseData)
     : INHERITED(factory)
-    , fVSParamVar(NULL)
-    , fFSParamVar(NULL)
+    , fVSParamUni(kInvalidUniformHandle)
+    , fFSParamUni(kInvalidUniformHandle)
     , fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
     , fCachedCenter(GR_ScalarMax)
@@ -397,39 +407,39 @@ GrGLConical2Gradient::GrGLConical2Gradient(
     fIsDegenerate = data.isDegenerate();
 }
 
-void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* state, int stage) {
+void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder, int stage) {
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
-    fVSParamVar = &state->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                     kFloat_GrSLType, "uConical2VSParams", stage, 6);
-    fFSParamVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                     kFloat_GrSLType, "uConical2FSParams", stage, 6);
+    fVSParamUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                      kFloat_GrSLType, "uConical2VSParams", stage, 6);
+    fFSParamUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                      kFloat_GrSLType, "uConical2FSParams", stage, 6);
 
     fVSParamLocation = GrGLProgramStage::kUseUniform;
     fFSParamLocation = GrGLProgramStage::kUseUniform;
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (state->fVaryingDims == state->fCoordDims) {
-        state->addVarying(kFloat_GrSLType, "Conical2BCoeff", stage,
-                          &fVSVaryingName, &fFSVaryingName);
+    if (builder->fVaryingDims == builder->fCoordDims) {
+        builder->addVarying(kFloat_GrSLType, "Conical2BCoeff", stage,
+                            &fVSVaryingName, &fFSVaryingName);
     }
 }
 
-void GrGLConical2Gradient::emitVS(GrGLShaderBuilder* state,
+void GrGLConical2Gradient::emitVS(GrGLShaderBuilder* builder,
                                   const char* vertexCoords) {
-    SkString* code = &state->fVSCode;
+    SkString* code = &builder->fVSCode;
     SkString p2; // distance between centers
     SkString p3; // start radius
     SkString p5; // difference in radii (r1 - r0)
-    fVSParamVar->appendArrayAccess(2, &p2);
-    fVSParamVar->appendArrayAccess(3, &p3);
-    fVSParamVar->appendArrayAccess(5, &p5);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(3, &p3);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(5, &p5);
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (state->fVaryingDims == state->fCoordDims) {
+    if (builder->fVaryingDims == builder->fCoordDims) {
         // r2Var = -2 * (r2Parm[2] * varCoord.x - r2Param[3] * r2Param[5])
         code->appendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
                       fVSVaryingName, p2.c_str(),
@@ -437,11 +447,11 @@ void GrGLConical2Gradient::emitVS(GrGLShaderBuilder* state,
     }
 }
 
-void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
+void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const char* samplerName) {
-    SkString* code = &state->fFSCode;
+    SkString* code = &builder->fFSCode;
 
     SkString cName("c");
     SkString ac4Name("ac4");
@@ -456,24 +466,25 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
     SkString p3; // start radius
     SkString p4; // start radius squared
     SkString p5; // difference in radii (r1 - r0)
-    fFSParamVar->appendArrayAccess(0, &p0);
-    fFSParamVar->appendArrayAccess(1, &p1);
-    fFSParamVar->appendArrayAccess(2, &p2);
-    fFSParamVar->appendArrayAccess(3, &p3);
-    fFSParamVar->appendArrayAccess(4, &p4);
-    fFSParamVar->appendArrayAccess(5, &p5);
+
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(0, &p0);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(1, &p1);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(3, &p3);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(4, &p4);
+    builder->getUniformVariable(fVSParamUni).appendArrayAccess(5, &p5);
 
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
     SkString bVar;
-    if (state->fCoordDims == state->fVaryingDims) {
+    if (builder->fCoordDims == builder->fVaryingDims) {
         bVar = fFSVaryingName;
-        GrAssert(2 == state->fVaryingDims);
+        GrAssert(2 == builder->fVaryingDims);
     } else {
-        GrAssert(3 == state->fVaryingDims);
+        GrAssert(3 == builder->fVaryingDims);
         bVar = "b";
         code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n", 
-                      bVar.c_str(), p2.c_str(), state->fSampleCoords.c_str(), 
+                      bVar.c_str(), p2.c_str(), builder->fSampleCoords.c_str(), 
                       p3.c_str(), p5.c_str());
     }
 
@@ -483,7 +494,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
 
     // c = (x^2)+(y^2) - params[4]
     code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(), 
-                  state->fSampleCoords.c_str(), state->fSampleCoords.c_str(),
+                  builder->fSampleCoords.c_str(), builder->fSampleCoords.c_str(),
                   p4.c_str());
 
     // Non-degenerate case (quadratic)
@@ -527,8 +538,8 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
 
         // y coord is 0.5 (texture is effectively 1D)
         code->appendf("\t\t");
-        state->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
-        state->emitDefaultFetch(outputColor, samplerName);
+        builder->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
+        builder->emitDefaultFetch(outputColor, samplerName);
 
         // otherwise, if r(t) for the larger root was <= 0, try the other root
         code->appendf("\t\t} else {\n");
@@ -541,8 +552,8 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
 
         // y coord is 0.5 (texture is effectively 1D)
         code->appendf("\t\t\t");
-        state->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
-        state->emitDefaultFetch(outputColor, samplerName);
+        builder->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
+        builder->emitDefaultFetch(outputColor, samplerName);
 
         // end if (r(t) > 0) for smaller root 
         code->appendf("\t\t\t}\n");
@@ -560,18 +571,20 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* state,
         code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                       p5.c_str(), p3.c_str());
         code->appendf("\t");
-        state->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
-        state->emitDefaultFetch(outputColor, samplerName);
+        builder->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
+        builder->emitDefaultFetch(outputColor, samplerName);
         code->appendf("\t}\n");
     }
-    state->fComplexCoord = true;
+    builder->fComplexCoord = true;
 }
 
-void GrGLConical2Gradient::initUniforms(const GrGLInterface* gl, int programID) {
-    GR_GL_CALL_RET(gl, fVSParamLocation,
-        GetUniformLocation(programID, fVSParamVar->getName().c_str()));
-    GR_GL_CALL_RET(gl, fFSParamLocation,
-        GetUniformLocation(programID, fFSParamVar->getName().c_str()));
+void GrGLConical2Gradient::initUniforms(const GrGLShaderBuilder* builder,
+                                        const GrGLInterface* gl,
+                                        int programID) {
+    const char* vsParam = builder->getUniformCStr(fVSParamUni);
+    const char* fsParam = builder->getUniformCStr(fFSParamUni);
+    GR_GL_CALL_RET(gl, fVSParamLocation, GetUniformLocation(programID, vsParam));
+    GR_GL_CALL_RET(gl, fFSParamLocation, GetUniformLocation(programID, fsParam));
 }
 
 void GrGLConical2Gradient::setData(const GrGLInterface* gl,
@@ -655,9 +668,9 @@ public:
                       const GrCustomStage&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
-    virtual void emitVS(GrGLShaderBuilder* state,
+    virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* state,
+    virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
@@ -670,16 +683,16 @@ private:
 
 };
 
-void GrGLSweepGradient::emitFS(GrGLShaderBuilder* state,
+void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
                               const char* outputColor,
                               const char* inputColor,
                               const char* samplerName) {
-    state->fSampleCoords.printf(
+    builder->fSampleCoords.printf(
         "vec2(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5, 0.5)",
-        state->fSampleCoords.c_str(), state->fSampleCoords.c_str());
-    state->fComplexCoord = true;
+        builder->fSampleCoords.c_str(), builder->fSampleCoords.c_str());
+    builder->fComplexCoord = true;
 
-    state->emitDefaultFetch(outputColor, samplerName);
+    builder->emitDefaultFetch(outputColor, samplerName);
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -366,7 +366,8 @@ private:
                 CachedData* programData) const;
 
     // Binds uniforms; initializes cache to invalid values.
-    void getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
+    void getUniformLocationsAndInitCache(const GrGLShaderBuilder& builder,
+                                         const GrGLContextInfo& gl,
                                          CachedData* programData) const;
 
     friend class GrGpuGL;

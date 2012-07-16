@@ -17,11 +17,13 @@ GrGLProgramStage::~GrGLProgramStage() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgramStage::setupVariables(GrGLShaderBuilder* state, int stage) {
+void GrGLProgramStage::setupVariables(GrGLShaderBuilder*, int stage) {
 
 }
 
-void GrGLProgramStage::initUniforms(const GrGLInterface*, int progID) {
+void GrGLProgramStage::initUniforms(const GrGLShaderBuilder*,
+                                    const GrGLInterface*,
+                                    int progID) {
 
 }
 
