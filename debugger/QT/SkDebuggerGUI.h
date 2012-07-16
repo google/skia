@@ -134,7 +134,7 @@ private slots:
         Toggles whether drawing to a new command requires a double click
         or simple focus.
      */
-    void pauseDrawing(bool isPaused);
+    void pauseDrawing(bool isPaused = true);
 
     /**
         Executes draw commands up to the selected command
@@ -166,15 +166,17 @@ private:
     QAction fActionOpen;
     QAction fActionBreakpoint;
     QAction fActionCancel;
+    QAction fActionClearDeletes;
     QAction fActionClose;
+    QAction fActionCreateBreakpoint;
     QAction fActionDelete;
     QAction fActionDirectory;
     QAction fActionGoToLine;
     QAction fActionInspector;
     QAction fActionPlay;
+    QAction fActionPause;
     QAction fActionReload;
     QAction fActionRewind;
-    QAction fActionSettings;
     QAction fActionStepBack;
     QAction fActionStepForward;
     QWidget fCentralWidget;
@@ -199,8 +201,10 @@ private:
 
     QMenuBar fMenuBar;
     QMenu fMenuFile;
+    QMenu fMenuEdit;
     QMenu fMenuNavigate;
     QMenu fMenuView;
+    QMenu fMenuWindows;
     QToolBar fToolBar;
 
     bool fBreakpointsActivated;

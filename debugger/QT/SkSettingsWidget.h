@@ -37,8 +37,6 @@ public:
 
     void setZoomText(int scaleFactor);
 
-    QCheckBox* getCommandCheckBox();
-
     QRadioButton* getVisibilityButton();
 
 private slots:
@@ -72,8 +70,6 @@ private:
     QLabel fCommandHitLabel;
     QLineEdit fCommandHitBox;
     QHBoxLayout fCommandHitLayout;
-
-    QCheckBox fCommandCheckBox;
 
     QLabel fZoomSetting;
     QFrame fZoomFrame;

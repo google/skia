@@ -14,15 +14,17 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fActionOpen(this)
     , fActionBreakpoint(this)
     , fActionCancel(this)
+    , fActionClearDeletes(this)
     , fActionClose(this)
+    , fActionCreateBreakpoint(this)
     , fActionDelete(this)
     , fActionDirectory(this)
     , fActionGoToLine(this)
     , fActionInspector(this)
     , fActionPlay(this)
+    , fActionPause(this)
     , fActionReload(this)
     , fActionRewind(this)
-    , fActionSettings(this)
     , fActionStepBack(this)
     , fActionStepForward(this)
     , fCentralWidget(this)
@@ -62,22 +64,24 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
             SLOT(actionBreakpoints()));
     connect(&fActionInspector, SIGNAL(triggered()), this,
             SLOT(actionInspector()));
+    connect(&fActionInspector, SIGNAL(triggered()), this,
+            SLOT(actionSettings()));
     connect(&fFilter, SIGNAL(activated(QString)), this,
             SLOT(toggleFilter(QString)));
     connect(&fActionCancel, SIGNAL(triggered()), this, SLOT(actionCancel()));
     connect(&fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
-    connect(&fActionSettings, SIGNAL(triggered()), this, SLOT(actionSettings()));
     connect(fSettingsWidget.getVisibilityButton(), SIGNAL(toggled(bool)), this,
             SLOT(actionCommandFilter()));
     connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this,
             SLOT(actionScale(float)));
-    connect(fSettingsWidget.getCommandCheckBox(), SIGNAL(toggled(bool)),
+    connect(&fActionPause, SIGNAL(toggled(bool)),
             this, SLOT(pauseDrawing(bool)));
     connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget,
             SLOT(updateCommand(int)));
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), this, SLOT(selectCommand(int)));
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget,
             SLOT(updateHit(int)));
+    connect(&fActionCreateBreakpoint, SIGNAL(activated()), this, SLOT(toggleBreakpoint()));
 }
 
 SkDebuggerGUI::~SkDebuggerGUI() {
@@ -127,9 +131,12 @@ void SkDebuggerGUI::actionDelete() {
         item->setData(Qt::UserRole + 3, QPixmap(":/images/Icons/blank.png"));
     }
     int currentRow = fListWidget.currentRow();
-    // NOTE(chudy): Forces a redraw up to current selected command.
     fCanvasWidget.toggleCommand(currentRow);
-    fCanvasWidget.drawTo(fPausedRow);
+    if (fPause) {
+        fCanvasWidget.drawTo(fPausedRow);
+    } else {
+        fCanvasWidget.drawTo(currentRow);
+    }
 }
 
 void SkDebuggerGUI::actionInspector() {
@@ -163,9 +170,7 @@ void SkDebuggerGUI::actionReload() {
 }
 
 void SkDebuggerGUI::actionRewind() {
-    /* NOTE(chudy): Hack. All skps opened so far start with save and concat
-     * commands that don't clear or reset the canvas. */
-    fListWidget.setCurrentRow(2);
+    fListWidget.setCurrentRow(0);
 }
 
 void SkDebuggerGUI::actionScale(float scaleFactor) {
@@ -303,77 +308,76 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     SkDebuggerGUI->setWindowIcon(windowIcon);
     SkDebuggerGUI->setWindowTitle("Skia Debugger");
 
-    QIcon open;
-    open.addFile(QString::fromUtf8(":/images/Icons/package-br32.png"), QSize(),
-            QIcon::Normal, QIcon::Off);
-    fActionOpen.setIcon(open);
+    fActionOpen.setShortcuts(QKeySequence::Open);
     fActionOpen.setText("Open");
 
     QIcon breakpoint;
     breakpoint.addFile(QString::fromUtf8(":/images/Icons/breakpoint.png"),
             QSize(), QIcon::Normal, QIcon::Off);
+    fActionBreakpoint.setShortcut(QKeySequence(tr("Ctrl+B")));
     fActionBreakpoint.setIcon(breakpoint);
     fActionBreakpoint.setText("Show Breakpoints");
 
     QIcon cancel;
-    cancel.addFile(QString::fromUtf8(":/images/Icons/reset.png"), QSize(),
+    cancel.addFile(QString::fromUtf8(":/images/Ico/reload.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionCancel.setIcon(cancel);
     fActionCancel.setText("Clear Filter");
 
+    fActionClose.setShortcuts(QKeySequence::Quit);
     fActionClose.setText("Exit");
 
-    QIcon deleteIcon;
-    deleteIcon.addFile(QString::fromUtf8(":/images/Icons/delete.png"), QSize(),
-            QIcon::Normal, QIcon::Off);
-    fActionDelete.setIcon(deleteIcon);
+    fActionCreateBreakpoint.setShortcut(QKeySequence(tr("B")));
+    fActionCreateBreakpoint.setText("Set Breakpoint");
+
+    fActionDelete.setShortcut(QKeySequence(tr("X")));
     fActionDelete.setText("Delete Command");
 
-    QIcon directory;
-    directory.addFile(QString::fromUtf8(":/images/Icons/drawer-open-icon.png"),
-            QSize(), QIcon::Normal, QIcon::Off);
-    fActionDirectory.setIcon(directory);
-    fActionDirectory.setText("Toggle Directory");
+    fActionDirectory.setShortcut(QKeySequence(tr("Ctrl+D")));
+    fActionDirectory.setText("Directory");
 
     QIcon inspector;
-    inspector.addFile(QString::fromUtf8(":/images/Icons/inspector.png"),
+    inspector.addFile(QString::fromUtf8(":/images/Ico/inspector.png"),
             QSize(), QIcon::Normal, QIcon::Off);
+    fActionInspector.setShortcut(QKeySequence(tr("Ctrl+I")));
     fActionInspector.setIcon(inspector);
-    fActionInspector.setText("Toggle Inspector");
+    fActionInspector.setText("Inspector");
 
     QIcon play;
-    play.addFile(QString::fromUtf8(":/images/Icons/play.png"), QSize(),
+    play.addFile(QString::fromUtf8(":/images/Ico/play.png"), QSize(),
             QIcon::Normal, QIcon::Off);
+    fActionPlay.setShortcut(QKeySequence(tr("Ctrl+P")));
     fActionPlay.setIcon(play);
     fActionPlay.setText("Play");
 
-    QIcon reload;
-    reload.addFile(QString::fromUtf8(":/images/Icons/reload.png"), QSize(),
+    QIcon pause;
+    pause.addFile(QString::fromUtf8(":/images/Ico/pause.png"), QSize(),
             QIcon::Normal, QIcon::Off);
-    fActionReload.setIcon(reload);
+    fActionPause.setShortcut(QKeySequence(tr("Space")));
+    fActionPause.setCheckable(true);
+    fActionPause.setIcon(pause);
+    fActionPause.setText("Pause");
+
     fActionReload.setText("Reset Picture");
 
     QIcon rewind;
-    rewind.addFile(QString::fromUtf8(":/images/Icons/rewind.png"), QSize(),
+    rewind.addFile(QString::fromUtf8(":/images/Ico/rewind.png"), QSize(),
             QIcon::Normal, QIcon::Off);
+    fActionRewind.setShortcut(QKeySequence(tr("Ctrl+R")));
     fActionRewind.setIcon(rewind);
     fActionRewind.setText("Rewind");
 
-    QIcon settings;
-    settings.addFile(QString::fromUtf8(":/images/Icons/settings.png"), QSize(),
-            QIcon::Normal, QIcon::Off);
-    fActionSettings.setIcon(settings);
-    fActionSettings.setText("Settings");
-
     QIcon stepBack;
-    stepBack.addFile(QString::fromUtf8(":/images/Icons/back.png"), QSize(),
+    stepBack.addFile(QString::fromUtf8(":/images/Ico/previous.png"), QSize(),
             QIcon::Normal, QIcon::Off);
+    fActionStepBack.setShortcut(QKeySequence(tr("[")));
     fActionStepBack.setIcon(stepBack);
     fActionStepBack.setText("Step Back");
 
     QIcon stepForward;
-    stepForward.addFile(QString::fromUtf8(":/images/Icons/go-next.png"),
+    stepForward.addFile(QString::fromUtf8(":/images/Ico/next.png"),
             QSize(), QIcon::Normal, QIcon::Off);
+    fActionStepForward.setShortcut(QKeySequence(tr("]")));
     fActionStepForward.setIcon(stepForward);
     fActionStepForward.setText("Step Forward");
 
@@ -396,7 +400,6 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fSettingsWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
     fSettingsWidget.setMaximumWidth(250);
-    fSettingsWidget.setHidden(true);
 
     fLeftColumnLayout.setSpacing(6);
     fLeftColumnLayout.addWidget(&fListWidget);
@@ -418,7 +421,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     SkDebuggerGUI->setCentralWidget(&fCentralWidget);
     SkDebuggerGUI->setStatusBar(&fStatusBar);
 
-    fToolBar.setIconSize(QSize(24, 24));
+    fToolBar.setIconSize(QSize(32, 32));
     fToolBar.setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     SkDebuggerGUI->addToolBar(Qt::TopToolBarArea, &fToolBar);
 
@@ -427,15 +430,12 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fToolBar.addAction(&fActionRewind);
     fToolBar.addAction(&fActionStepBack);
+    fToolBar.addAction(&fActionPause);
     fToolBar.addAction(&fActionStepForward);
     fToolBar.addAction(&fActionPlay);
     fToolBar.addSeparator();
-    fToolBar.addAction(&fActionBreakpoint);
+    fToolBar.addAction(&fActionInspector);
     fToolBar.addSeparator();
-    fToolBar.addAction(&fActionDelete);
-    fToolBar.addAction(&fActionReload);
-    fToolBar.addSeparator();
-    fToolBar.addAction(&fActionSettings);
     fToolBar.addWidget(spacer);
     fToolBar.addWidget(&fFilter);
     fToolBar.addAction(&fActionCancel);
@@ -450,17 +450,33 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fMenuFile.setTitle("File");
     fMenuFile.addAction(&fActionOpen);
     fMenuFile.addAction(&fActionClose);
+
+    fMenuEdit.setTitle("Edit");
+    fMenuEdit.addAction(&fActionDelete);
+    fMenuEdit.addAction(&fActionCreateBreakpoint);
+
     fMenuNavigate.setTitle("Navigate");
+    fMenuNavigate.addAction(&fActionRewind);
+    fMenuNavigate.addAction(&fActionStepBack);
+    fMenuNavigate.addAction(&fActionStepForward);
+    fMenuNavigate.addAction(&fActionPlay);
+    fMenuNavigate.addAction(&fActionPause);
     fMenuNavigate.addAction(&fActionGoToLine);
+
     fMenuView.setTitle("View");
-    fMenuView.addAction(&fActionInspector);
-    fMenuView.addAction(&fActionDirectory);
+    fMenuView.addAction(&fActionBreakpoint);
+
+    fMenuWindows.setTitle("Window");
+    fMenuWindows.addAction(&fActionInspector);
+    fMenuWindows.addAction(&fActionDirectory);
 
     fActionGoToLine.setText("Go to Line...");
     fActionGoToLine.setDisabled(true);
     fMenuBar.addAction(fMenuFile.menuAction());
+    fMenuBar.addAction(fMenuEdit.menuAction());
     fMenuBar.addAction(fMenuView.menuAction());
     fMenuBar.addAction(fMenuNavigate.menuAction());
+    fMenuBar.addAction(fMenuWindows.menuAction());
 
     fPause = false;
 
