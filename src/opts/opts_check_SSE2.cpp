@@ -64,8 +64,8 @@ static inline void getcpuid(int info_type, int info[4]) {
 #endif
 #endif
 
-#if defined(__x86_64__) || defined(_WIN64)
-/* All x86_64 machines have SSE2, so don't even bother checking. */
+#if defined(__x86_64__) || defined(_WIN64) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+/* All x86_64 machines have SSE2, or we know it's supported at compile time,  so don't even bother checking. */
 static inline bool hasSSE2() {
     return true;
 }
@@ -78,11 +78,19 @@ static inline bool hasSSE2() {
 }
 #endif
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+/* If we know SSSE3 is supported at compile time, don't even bother checking. */
+static inline bool hasSSSE3() {
+    return true;
+}
+#else
+
 static inline bool hasSSSE3() {
     int cpu_info[4] = { 0 };
     getcpuid(1, cpu_info);
     return (cpu_info[2] & 0x200) != 0;
 }
+#endif
 
 static bool cachedHasSSE2() {
     static bool gHasSSE2 = hasSSE2();
