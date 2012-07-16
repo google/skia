@@ -48,7 +48,7 @@ public:
     virtual ~GrGLProgramStage();
 
     /** Create any uniforms or varyings the vertex shader requires. */
-    virtual void setupVariables(GrGLShaderBuilder* state, int stage);
+    virtual void setupVariables(GrGLShaderBuilder* builder, int stage);
 
     /** Appends vertex code to the appropriate SkString
         on the state.
@@ -56,7 +56,7 @@ public:
         Vertex shader input is a vec2 of coordinates, which may
         be altered.
         The code will be inside an otherwise-empty block. */
-    virtual void emitVS(GrGLShaderBuilder* state,
+    virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) = 0;
 
     /** Appends fragment code to the appropriate SkString
@@ -68,14 +68,16 @@ public:
        a function here for them to call into that'll apply any texture
        domain - but do we force them to be honest about texture domain
        parameters? */
-    virtual void emitFS(GrGLShaderBuilder* state,
+    virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) = 0;
 
     /** Binds uniforms; we must have already bound the program and
         determined its GL program ID. */
-    virtual void initUniforms(const GrGLInterface* gl, int programID);
+    virtual void initUniforms(const GrGLShaderBuilder* builder,
+                              const GrGLInterface* gl,
+                              int programID);
 
     /** A GrGLCustomStage instance can be reused with any GrCustomStage
         that produces the same stage key; this function reads data from

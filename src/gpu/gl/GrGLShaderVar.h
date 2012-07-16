@@ -171,10 +171,16 @@ public:
      */
     void setName(const SkString& n) { fName = n; }
     void setName(const char* n) { fName = n; }
+
     /**
      * Get the var name.
      */
     const SkString& getName() const { return fName; }
+
+    /**
+     * Shortcut for this->getName().c_str();
+     */
+    const char* c_str() const { return this->getName().c_str(); }
 
     /**
      * Get the type of the var

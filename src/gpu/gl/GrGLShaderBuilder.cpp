@@ -23,13 +23,12 @@ static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar:
 //const int GrGLShaderBuilder::fCoordDims = 2;
 
 GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx)
-    : fVSUnis(kVarsPerBlock)
+    : fUniforms(kVarsPerBlock)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
     , fGSInputs(kVarsPerBlock)
     , fGSOutputs(kVarsPerBlock)
     , fFSInputs(kVarsPerBlock)
-    , fFSUnis(kVarsPerBlock)
     , fFSOutputs(kMaxFSOutputs)
     , fUsesGS(false)
     , fVaryingDims(0)
@@ -116,38 +115,45 @@ void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
     fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
 }
 
-const GrGLShaderVar& GrGLShaderBuilder::addUniform(uint32_t visibility,
-                                                   GrSLType type,
-                                                   const char* name,
-                                                   int stageNum,
-                                                   int count) {
+namespace {
+inline int handle_to_index(GrGLShaderBuilder::UniformHandle h) { return ~h; }
+inline GrGLShaderBuilder::UniformHandle index_to_handle(int i) { return ~i; }
+}
+
+GrGLShaderBuilder::UniformHandle GrGLShaderBuilder::addUniform(uint32_t visibility,
+                                                               GrSLType type,
+                                                               const char* name,
+                                                               int stageNum,
+                                                               int count) {
     GrAssert(name && strlen(name));
     static const uint32_t kVisibilityMask = kVertex_ShaderType | kFragment_ShaderType;
     GrAssert(0 == (~kVisibilityMask & visibility));
     GrAssert(0 != visibility);
 
-    GrGLShaderVar* var = NULL;
-    if (kVertex_ShaderType & visibility) {
-        var = &fVSUnis.push_back();
-    } else {
-        GrAssert(kFragment_ShaderType & visibility);
-        var = &fFSUnis.push_back();
-    }
-    var->setType(type);
-    var->setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
-    var->setName(name);
+    Uniform& uni = fUniforms.push_back();
+    UniformHandle h = index_to_handle(fUniforms.count() - 1);
+    uni.fVariable.setType(type);
+    uni.fVariable.setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
+    uni.fVariable.setName(name);
     if (stageNum >= 0) {
-        var->accessName()->appendS32(stageNum);
+        uni.fVariable.accessName()->appendS32(stageNum);
     }
-    var->setArrayCount(count);
+    uni.fVariable.setArrayCount(count);
+    uni.fVisibility = visibility;
 
+    // If it is visible in both the VS and FS, the precision must match.
+    // We declare a default FS precision, but not a default VS. So set the var
+    // to use the default FS precision.
     if ((kVertex_ShaderType | kFragment_ShaderType) == visibility) {
         // the fragment and vertex precisions must match
-        var->setPrecision(kDefaultFragmentPrecision);
-        fFSUnis.push_back(*var);
+        uni.fVariable.setPrecision(kDefaultFragmentPrecision);
     }
 
-    return *var;
+    return h;
+}
+
+const GrGLShaderVar& GrGLShaderBuilder::getUniformVariable(UniformHandle u) const {
+    return fUniforms[handle_to_index(u)].fVariable;
 }
 
 void GrGLShaderBuilder::addVarying(GrSLType type,
@@ -222,31 +228,37 @@ inline void append_default_precision_qualifier(GrGLShaderVar::Precision p,
         }
     }
 }
+}
 
-void append_decls(const GrGLShaderBuilder::VarArray& vars,
-                  const GrGLContextInfo& ctx,
-                  SkString* string) {
+void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
     for (int i = 0; i < vars.count(); ++i) {
-        vars[i].appendDecl(ctx, string);
+        vars[i].appendDecl(fContext, out);
     }
 }
+
+void GrGLShaderBuilder::appendUniformDecls(ShaderType stype, SkString* out) const {
+    for (int i = 0; i < fUniforms.count(); ++i) {
+        if (fUniforms[i].fVisibility & stype) {
+            fUniforms[i].fVariable.appendDecl(fContext, out);
+        }
+    }
 }
 
 void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
     switch (type) {
         case kVertex_ShaderType:
             *shaderStr = fHeader;
-            append_decls(fVSUnis, fContext, shaderStr);
-            append_decls(fVSAttrs, fContext, shaderStr);
-            append_decls(fVSOutputs, fContext, shaderStr);
+            this->appendUniformDecls(kVertex_ShaderType, shaderStr);
+            this->appendDecls(fVSAttrs, shaderStr);
+            this->appendDecls(fVSOutputs, shaderStr);
             shaderStr->append(fVSCode);
             break;
         case kGeometry_ShaderType:
             if (fUsesGS) {
                 *shaderStr = fHeader;
                 shaderStr->append(fGSHeader);
-                append_decls(fGSInputs, fContext, shaderStr);
-                append_decls(fGSOutputs, fContext, shaderStr);
+                this->appendDecls(fGSInputs, shaderStr);
+                this->appendDecls(fGSOutputs, shaderStr);
                 shaderStr->append(fGSCode);
             } else {
                 shaderStr->reset();
@@ -257,11 +269,11 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             append_default_precision_qualifier(kDefaultFragmentPrecision,
                                                fContext.binding(),
                                                shaderStr);
-            append_decls(fFSUnis, fContext, shaderStr);
-            append_decls(fFSInputs, fContext, shaderStr);
+            this->appendUniformDecls(kFragment_ShaderType, shaderStr);
+            this->appendDecls(fFSInputs, shaderStr);
             // We shouldn't have declared outputs on 1.10
             GrAssert(k110_GrGLSLGeneration != fContext.glslGeneration() || fFSOutputs.empty());
-            append_decls(fFSOutputs, fContext, shaderStr);
+            this->appendDecls(fFSOutputs, shaderStr);
             shaderStr->append(fFSFunctions);
             shaderStr->append(fFSCode);
             break;

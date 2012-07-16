@@ -22,7 +22,9 @@ class GrGLContextInfo;
 class GrGLShaderBuilder {
 
 public:
-    typedef GrTAllocator<GrGLShaderVar> VarArray;
+
+    typedef int UniformHandle;
+    static const UniformHandle kInvalidUniformHandle = 0;
 
     enum ShaderType {
         kVertex_ShaderType   = 0x1,
@@ -62,11 +64,20 @@ public:
         from which shaders the uniform should be accessible. At least one bit must be set. Geometry
         shader uniforms are not supported at this time.
     */
-    const GrGLShaderVar& addUniform(uint32_t visibility,
-                                    GrSLType type,
-                                    const char* name,
-                                    int stageNum = -1,
-                                    int count = GrGLShaderVar::kNonArray);
+    UniformHandle addUniform(uint32_t visibility,
+                             GrSLType type,
+                             const char* name,
+                             int stageNum = -1,
+                             int count = GrGLShaderVar::kNonArray);
+
+    const GrGLShaderVar& getUniformVariable(UniformHandle) const;
+
+    /**
+     * Shorcut for getUniformVariable(u).c_str()
+     */
+    const char* getUniformCStr(UniformHandle u) const {
+        return this->getUniformVariable(u).c_str();
+    }
 
     /** Add a varying variable to the current program to pass values between vertex and fragment
         shaders. If the last two parameters are non-NULL, they are filled in with the name
@@ -88,17 +99,30 @@ public:
     /** Called after building is complete to get the final shader string. */
     void getShader(ShaderType, SkString*) const;
 
+private:
+    typedef GrTAllocator<GrGLShaderVar> VarArray;
+
+    struct Uniform {
+        GrGLShaderVar fVariable;
+        uint32_t      fVisibility;
+    };
+
+    typedef GrTAllocator<Uniform> UniformArray;
+    void appendDecls(const VarArray&, SkString*) const;
+    void appendUniformDecls(ShaderType, SkString*) const;
+
+    UniformArray fUniforms;
+
     // TODO: Everything below here private.
+public:
 
     SkString    fHeader; // VS+FS, GLSL version, etc
-    VarArray    fVSUnis;
     VarArray    fVSAttrs;
     VarArray    fVSOutputs;
     VarArray    fGSInputs;
     VarArray    fGSOutputs;
     VarArray    fFSInputs;
     SkString    fGSHeader; // layout qualifiers specific to GS
-    VarArray    fFSUnis;
     VarArray    fFSOutputs;
     SkString    fFSFunctions;
     SkString    fVSCode;

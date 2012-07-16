@@ -11,21 +11,27 @@
 #include "gl/GrGLTexture.h"
 #include "GrProgramStageFactory.h"
 
+// For brevity, and these definitions are likely to move to a different class soon.
+typedef GrGLShaderBuilder::UniformHandle UniformHandle;
+static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
+
 class GrGLConvolutionEffect : public GrGLProgramStage {
 public:
     GrGLConvolutionEffect(const GrProgramStageFactory& factory,
                           const GrCustomStage& stage);
 
-    virtual void setupVariables(GrGLShaderBuilder* state,
+    virtual void setupVariables(GrGLShaderBuilder* builder,
                                 int stage) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* state,
+    virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE;
-    virtual void emitFS(GrGLShaderBuilder* state,
+    virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
 
-    virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
+    virtual void initUniforms(const GrGLShaderBuilder*,
+                              const GrGLInterface*,
+                              int programID) SK_OVERRIDE;
 
     virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
@@ -37,11 +43,11 @@ public:
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
 
-    int                   fRadius;
-    const GrGLShaderVar*  fKernelVar;
-    GrGLint               fKernelLocation;
-    const GrGLShaderVar*  fImageIncrementVar;
-    GrGLint               fImageIncrementLocation;
+    int             fRadius;
+    UniformHandle   fKernelUni;
+    GrGLint         fKernelLocation;
+    UniformHandle   fImageIncrementUni;
+    GrGLint         fImageIncrementLocation;
 
     typedef GrGLProgramStage INHERITED;
 };
@@ -49,72 +55,72 @@ private:
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factory,
                                              const GrCustomStage& stage)
     : GrGLProgramStage(factory)
-    , fKernelVar(NULL)
+    , fKernelUni(kInvalidUniformHandle)
     , fKernelLocation(0)
-    , fImageIncrementVar(NULL)
+    , fImageIncrementUni(kInvalidUniformHandle)
     , fImageIncrementLocation(0) {
     const GrConvolutionEffect& c =
         static_cast<const GrConvolutionEffect&>(stage);
     fRadius = c.radius();
 }
 
-void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* state,
+void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* builder,
                                            int stage) {
-    fImageIncrementVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
-                                            GrGLShaderBuilder::kVertex_ShaderType,
-                                            kVec2f_GrSLType, "uImageIncrement", stage);
-    fKernelVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                    kFloat_GrSLType, "uKernel", stage, this->width());
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
+                                             GrGLShaderBuilder::kVertex_ShaderType,
+                                             kVec2f_GrSLType, "uImageIncrement", stage);
+    fKernelUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                     kFloat_GrSLType, "uKernel", stage, this->width());
 
     fImageIncrementLocation = kUseUniform;
     fKernelLocation = kUseUniform;
 }
 
-void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* state,
+void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* builder,
                                    const char* vertexCoords) {
-    SkString* code = &state->fVSCode;
-    code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n",
-                  vertexCoords, fRadius, fRadius,
-                  fImageIncrementVar->getName().c_str());
+    SkString* code = &builder->fVSCode;
+    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
+    code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n", vertexCoords, fRadius, fRadius, imgInc);
 }
 
-void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* state,
+void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const char* samplerName) {
-    SkString* code = &state->fFSCode;
+    SkString* code = &builder->fFSCode;
 
     code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
 
-    code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
+    code->appendf("\t\tvec2 coord = %s;\n", builder->fSampleCoords.c_str());
     
     int width = this ->width();
+    const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
+    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
         SkString index;
         SkString kernelIndex;
         index.appendS32(i);
-        fKernelVar->appendArrayAccess(index.c_str(), &kernelIndex);
+        kernel.appendArrayAccess(index.c_str(), &kernelIndex);
         code->appendf("\t\t%s += ", outputColor);
-        state->emitTextureLookup(samplerName, "coord");
+        builder->emitTextureLookup(samplerName, "coord");
         code->appendf(" * %s;\n", kernelIndex.c_str());
-        code->appendf("\t\tcoord += %s;\n",
-                      fImageIncrementVar->getName().c_str());
+        code->appendf("\t\tcoord += %s;\n", imgInc);
     }
 
-    if (state->fModulate.size()) {
+    if (builder->fModulate.size()) {
         code->appendf("\t\t%s = %s%s;\n", outputColor, outputColor,
-                      state->fModulate.c_str());
+                      builder->fModulate.c_str());
     }
 }
 
-void GrGLConvolutionEffect::initUniforms(const GrGLInterface* gl,
+void GrGLConvolutionEffect::initUniforms(const GrGLShaderBuilder* builder,
+                                         const GrGLInterface* gl,
                                          int programID) {
-    GR_GL_CALL_RET(gl, fImageIncrementLocation,
-        GetUniformLocation(programID,
-            fImageIncrementVar->getName().c_str()));
-    GR_GL_CALL_RET(gl, fKernelLocation,
-        GetUniformLocation(programID, fKernelVar->getName().c_str()));
+    const char* kernel = builder->getUniformCStr(fKernelUni);
+    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
+    GR_GL_CALL_RET(gl, fImageIncrementLocation, GetUniformLocation(programID, imgInc));
+    GR_GL_CALL_RET(gl, fKernelLocation, GetUniformLocation(programID, kernel));
 }
 
 void GrGLConvolutionEffect::setData(const GrGLInterface* gl,

@@ -18,7 +18,7 @@ public:
     GrGLMorphologyEffect (const GrProgramStageFactory& factory,
                           const GrCustomStage& stage);
 
-    virtual void setupVariables(GrGLShaderBuilder* state,
+    virtual void setupVariables(GrGLShaderBuilder* builder,
                                 int stage) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) SK_OVERRIDE;
@@ -29,8 +29,10 @@ public:
 
     static inline StageKey GenKey(const GrCustomStage& s);
 
-    virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
-    virtual void setData(const GrGLInterface*, 
+    virtual void initUniforms(const GrGLShaderBuilder*,
+                              const GrGLInterface*,
+                              int programID) SK_OVERRIDE;
+    virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
@@ -40,7 +42,7 @@ private:
 
     int                                fRadius;
     GrMorphologyEffect::MorphologyType fType;
-    const GrGLShaderVar*               fImageIncrementVar;
+    GrGLShaderBuilder::UniformHandle   fImageIncrementUni;
     GrGLint                            fImageIncrementLocation;
 
     typedef GrGLProgramStage INHERITED;
@@ -49,50 +51,47 @@ private:
 GrGLMorphologyEffect ::GrGLMorphologyEffect(const GrProgramStageFactory& factory,
                                             const GrCustomStage& stage)
     : GrGLProgramStage(factory)
-    , fImageIncrementVar(NULL)
+    , fImageIncrementUni(GrGLShaderBuilder::kInvalidUniformHandle)
     , fImageIncrementLocation(0) {
     const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(stage);
     fRadius = m.radius();
     fType = m.type();
 }
 
-void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* state, int stage) {
-    fImageIncrementVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
-                                            GrGLShaderBuilder::kVertex_ShaderType,
-                                            kVec2f_GrSLType, "uImageIncrement", stage);
+void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* builder, int stage) {
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
+                                             GrGLShaderBuilder::kVertex_ShaderType,
+                                             kVec2f_GrSLType, "uImageIncrement", stage);
 }
 
-void GrGLMorphologyEffect::emitVS(GrGLShaderBuilder* state,
+void GrGLMorphologyEffect::emitVS(GrGLShaderBuilder* builder,
                                   const char* vertexCoords) {
-    SkString* code = &state->fVSCode;
-    code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n",
-                  vertexCoords, fRadius, fRadius,
-                  fImageIncrementVar->getName().c_str());
+    SkString* code = &builder->fVSCode;
+    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
+    code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n", vertexCoords, fRadius, fRadius, imgInc);
 }
 
-void GrGLMorphologyEffect::initUniforms(const GrGLInterface* gl,
+void GrGLMorphologyEffect::initUniforms(const GrGLShaderBuilder* builder,
+                                        const GrGLInterface* gl,
                                         int programID) {
-    GR_GL_CALL_RET(gl, fImageIncrementLocation,
-        GetUniformLocation(programID,
-            fImageIncrementVar->getName().c_str()));
+    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
+    GR_GL_CALL_RET(gl, fImageIncrementLocation, GetUniformLocation(programID, imgInc));
 }
 
-void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* state,
+void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* builder,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const char* samplerName) {
-    SkString* code = &state->fFSCode;
-    // const char* texFunc = "texture2D";
-    // bool complexCoord = false;
+    SkString* code = &builder->fFSCode;
 
     const char* func;
     switch (fType) {
         case GrContext::kErode_MorphologyType:
-            state->fFSCode.appendf("\t\tvec4 value = vec4(1, 1, 1, 1);\n");
+            code->appendf("\t\tvec4 value = vec4(1, 1, 1, 1);\n");
             func = "min";
             break;
         case GrContext::kDilate_MorphologyType:
-            state->fFSCode.appendf("\t\tvec4 value = vec4(0, 0, 0, 0);\n");
+            code->appendf("\t\tvec4 value = vec4(0, 0, 0, 0);\n");
             func = "max";
             break;
         default:
@@ -100,19 +99,16 @@ void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* state,
             func = ""; // suppress warning
             break;
     }
+    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
-    code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
+    code->appendf("\t\tvec2 coord = %s;\n", builder->fSampleCoords.c_str());
     code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
-    state->fFSCode.appendf("\t\t\tvalue = %s(value, ", func);
-    state->emitTextureLookup(samplerName, "coord");
-    state->fFSCode.appendf(");\n");
-    code->appendf("\t\t\tcoord += %s;\n",
-                  fImageIncrementVar->getName().c_str());
+    code->appendf("\t\t\tvalue = %s(value, ", func);
+    builder->emitTextureLookup(samplerName, "coord");
+    code->appendf(");\n");
+    code->appendf("\t\t\tcoord += %s;\n", imgInc);
     code->appendf("\t\t}\n");
-
-    state->fFSCode.appendf("\t\t%s = value%s;\n",
-                           outputColor,
-                           state->fModulate.c_str());
+    code->appendf("\t\t%s = value%s;\n", outputColor, builder->fModulate.c_str());
 }
 
 GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(
