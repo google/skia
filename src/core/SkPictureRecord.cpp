@@ -12,6 +12,10 @@
 #define MIN_WRITER_SIZE 16384
 #define HEAP_BLOCK_SIZE 4096
 
+enum {
+    kNoInitialSave = -1,
+};
+
 SkPictureRecord::SkPictureRecord(uint32_t flags) :
         fHeap(HEAP_BLOCK_SIZE),
         fBitmaps(&fHeap),
@@ -26,7 +30,7 @@ SkPictureRecord::SkPictureRecord(uint32_t flags) :
 #endif
 
     fRestoreOffsetStack.setReserve(32);
-    fRestoreOffsetStack.push(0);
+    fInitialSaveCount = kNoInitialSave;
 
     fPathHeap = NULL;   // lazy allocate
     fFirstSavedLayerIndex = kNoSavedLayerIndex;
@@ -37,6 +41,16 @@ SkPictureRecord::~SkPictureRecord() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkDevice* SkPictureRecord::setDevice(SkDevice* device) {
+    SkASSERT(kNoInitialSave == fInitialSaveCount);
+    this->INHERITED::setDevice(device);
+
+    // The bracketting save() call needs to be recorded after setting the
+    // device otherwise the clip stack will get messed-up
+    fInitialSaveCount = this->save(SkCanvas::kMatrixClip_SaveFlag);
+    return device;
+}
 
 int SkPictureRecord::save(SaveFlags flags) {
     addDraw(SAVE);
@@ -78,6 +92,13 @@ bool SkPictureRecord::isDrawingToLayer() const {
 }
 
 void SkPictureRecord::restore() {
+    // FIXME: SkDeferredCanvas needs to be refactored to respect
+    // save/restore balancing so that the following test can be
+    // turned on permanently.
+#if 0
+    SkASSERT(fRestoreOffsetStack.count() > 1);
+#endif
+
     // check for underflow
     if (fRestoreOffsetStack.count() == 0) {
         return;
@@ -171,11 +192,8 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(
 }
 
 void SkPictureRecord::endRecording() {
-    // clear any remaining unhandled restore offset placeholders
-    while (fRestoreOffsetStack.count()) {
-        this->fillRestoreOffsetPlaceholdersForCurrentStackLevel(0);
-        fRestoreOffsetStack.pop();
-    }
+    SkASSERT(kNoInitialSave != fInitialSaveCount);
+    this->restoreToCount(fInitialSaveCount);
 }
 
 void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
