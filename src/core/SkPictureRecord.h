@@ -21,6 +21,8 @@ public:
     SkPictureRecord(uint32_t recordFlags);
     virtual ~SkPictureRecord();
 
+    virtual SkDevice* setDevice(SkDevice* device) SK_OVERRIDE;
+
     virtual int save(SaveFlags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void restore() SK_OVERRIDE;
@@ -203,6 +205,7 @@ private:
     SkRefCntSet fTFSet;
 
     uint32_t fRecordFlags;
+    int fInitialSaveCount;
 
     friend class SkPicturePlayback;
     friend class SkPictureTester; // for unit testing

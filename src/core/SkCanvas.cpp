@@ -2021,9 +2021,7 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::drawPicture(SkPicture& picture) {
-    int saveCount = save();
     picture.draw(this);
-    restoreToCount(saveCount);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
