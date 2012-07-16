@@ -1242,7 +1242,6 @@ void GrGLLight::emitLightColor(const GrGLShaderBuilder* builder,
 }
 
 void GrGLLight::setupVariables(GrGLShaderBuilder* builder, int stage) {
-    const GrGLShaderVar& colorVar = builder->getUniformVariable(fColorUni);
     fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                     kVec3f_GrSLType, "uLightColor", stage);
 }
