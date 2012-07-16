@@ -202,11 +202,11 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkClipStack::B2FIter::B2FIter() {
+SkClipStack::Iter::Iter() {
 }
 
-bool operator==(const SkClipStack::B2FIter::Clip& a,
-               const SkClipStack::B2FIter::Clip& b) {
+bool operator==(const SkClipStack::Iter::Clip& a,
+                const SkClipStack::Iter::Clip& b) {
     return a.fOp == b.fOp && a.fDoAA == b.fDoAA &&
            ((a.fRect == NULL && b.fRect == NULL) ||
                (a.fRect != NULL && b.fRect != NULL && *a.fRect == *b.fRect)) &&
@@ -214,21 +214,17 @@ bool operator==(const SkClipStack::B2FIter::Clip& a,
                (a.fPath != NULL && b.fPath != NULL && *a.fPath == *b.fPath));
 }
 
-bool operator!=(const SkClipStack::B2FIter::Clip& a,
-               const SkClipStack::B2FIter::Clip& b) {
+bool operator!=(const SkClipStack::Iter::Clip& a,
+                const SkClipStack::Iter::Clip& b) {
     return !(a == b);
 }
 
-SkClipStack::B2FIter::B2FIter(const SkClipStack& stack) {
-    this->reset(stack);
+SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc) {
+    this->reset(stack, startLoc);
 }
 
-const SkClipStack::B2FIter::Clip* SkClipStack::B2FIter::next() {
-    const SkClipStack::Rec* rec = (const SkClipStack::Rec*)fIter.next();
-    if (NULL == rec) {
-        return NULL;
-    }
-
+const SkClipStack::Iter::Clip* SkClipStack::Iter::updateClip(
+                        const SkClipStack::Rec* rec) {
     switch (rec->fState) {
         case SkClipStack::Rec::kEmpty_State:
             fClip.fRect = NULL;
@@ -248,6 +244,24 @@ const SkClipStack::B2FIter::Clip* SkClipStack::B2FIter::next() {
     return &fClip;
 }
 
-void SkClipStack::B2FIter::reset(const SkClipStack& stack) {
-    fIter.reset(stack.fDeque);
+const SkClipStack::Iter::Clip* SkClipStack::Iter::next() {
+    const SkClipStack::Rec* rec = (const SkClipStack::Rec*)fIter.next();
+    if (NULL == rec) {
+        return NULL;
+    }
+
+    return this->updateClip(rec);
+}
+
+const SkClipStack::Iter::Clip* SkClipStack::Iter::prev() {
+    const SkClipStack::Rec* rec = (const SkClipStack::Rec*)fIter.prev();
+    if (NULL == rec) {
+        return NULL;
+    }
+
+    return this->updateClip(rec);
+}
+
+void SkClipStack::Iter::reset(const SkClipStack& stack, IterStart startLoc) {
+    fIter.reset(stack.fDeque, static_cast<SkDeque::Iter::IterStart>(startLoc));
 }
