@@ -70,6 +70,11 @@
       'type': 'executable',
       'sources': [
         '../tools/render_pictures_main.cpp',
+        '../src/pipe/utils/SamplePipeControllers.h',
+        '../src/pipe/utils/SamplePipeControllers.cpp',
+      ],
+      'include_dirs': [
+        '../src/pipe/utils/',
       ],
       'dependencies': [
         'core.gyp:core',
