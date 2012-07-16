@@ -62,7 +62,7 @@ void SkCanvasWidget::resizeEvent(QResizeEvent* event) {
 void SkCanvasWidget::drawTo(int fIndex) {
     delete fCanvas;
     fCanvas = new SkCanvas(fDevice);
-
+    fBitmap.eraseColor(0);
     fCanvas->translate(fTransform.fX, fTransform.fY);
     if(fScaleFactor < 0) {
         fCanvas->scale((1.0 / -fScaleFactor),(1.0 / -fScaleFactor));

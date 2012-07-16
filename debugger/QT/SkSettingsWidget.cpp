@@ -20,7 +20,6 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     , fCommandLayout(&fCommandFrame)
     , fCurrentCommandBox(&fCommandFrame)
     , fCommandHitBox(&fCommandFrame)
-    , fCommandCheckBox(&fCommandFrame)
     , fZoomBox(&fZoomFrame)
     , fZoomLayout(&fZoomFrame)
 {
@@ -79,12 +78,10 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     fCommandHitLayout.addWidget(&fCommandHitLabel);
     fCommandHitLayout.addWidget(&fCommandHitBox);
 
-    fCommandCheckBox.setText("Pause");
     fCommandLayout.setSpacing(6);
     fCommandLayout.setContentsMargins(11,11,11,11);
     fCommandLayout.addLayout(&fCurrentCommandLayout);
     fCommandLayout.addLayout(&fCommandHitLayout);
-    fCommandLayout.addWidget(&fCommandCheckBox);
 
     // Zoom Info
     fZoomSetting.setText("Zoom Level: ");
@@ -120,10 +117,6 @@ void SkSettingsWidget::updateCommand(int newCommand) {
 
 void SkSettingsWidget::updateHit(int newHit) {
     fCommandHitBox.setText(QString::number(newHit));
-}
-
-QCheckBox* SkSettingsWidget::getCommandCheckBox() {
-    return &fCommandCheckBox;
 }
 
 QRadioButton* SkSettingsWidget::getVisibilityButton() {
