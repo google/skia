@@ -7,8 +7,10 @@
 
 
 #include "SkBitmap.h"
+#include "SamplePipeControllers.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkGPipe.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
@@ -76,6 +78,22 @@ static void write_output(const SkString& outputDir, const SkString& inputFilenam
     }
 }
 
+static void pipe_run(SkPicture* picture, SkCanvas* canvas) {
+    PipeController pipeController(canvas);
+    SkGPipeWriter writer;
+    SkCanvas* pipeCanvas = writer.startRecording(&pipeController);
+    pipeCanvas->drawPicture(*picture);
+    writer.endRecording();
+}
+
+static void pipe_render(SkPicture* picture, SkBitmap* bitmap) {
+    sk_tools::setup_bitmap(bitmap, picture->width(), picture->height());
+
+    SkCanvas canvas(*bitmap);
+
+    pipe_run(picture, &canvas);
+}
+
 static void render_picture(const SkString& inputPath, const SkString& outputDir,
                            RenderFunc renderFunc) {
     SkString inputFilename;
@@ -117,7 +135,11 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     char* const* stop = argv + argc;
 
     for (++argv; argv < stop; ++argv) {
-        inputs->push_back(SkString(*argv));
+        if (0 == strcmp(*argv, "--pipe")) {
+            *renderFunc = pipe_render;
+        } else {
+            inputs->push_back(SkString(*argv));
+        }
     }
 }
 
