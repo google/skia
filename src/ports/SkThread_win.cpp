@@ -16,12 +16,18 @@
 //intrinsic, include intrin.h and put the function in a #pragma intrinsic
 //directive.
 //The pragma appears to be unnecessary, but doesn't hurt.
-#pragma intrinsic(_InterlockedIncrement, _InterlockedDecrement)
+#pragma intrinsic(_InterlockedIncrement, _InterlockedAdd, _InterlockedDecrement)
 #pragma intrinsic(_InterlockedCompareExchange)
 
 int32_t sk_atomic_inc(int32_t* addr) {
     // InterlockedIncrement returns the new value, we want to return the old.
     return _InterlockedIncrement(reinterpret_cast<LONG*>(addr)) - 1;
+}
+
+int32_t sk_atomic_add(int32_t* addr, int32_t inc) {
+    // InterlockedAdd returns the new value, we want to return the old.
+    LONG value = reinterpret_cast<LONG>(inc);
+    return _InterlockedAdd(reinterpret_cast<LONG*>(addr), value) - value;
 }
 
 int32_t sk_atomic_dec(int32_t* addr) {

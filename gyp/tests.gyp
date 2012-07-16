@@ -18,6 +18,7 @@
       'sources': [
         '../tests/AAClipTest.cpp',
         '../tests/AnnotationTest.cpp',
+        '../tests/AtomicTest.cpp',
         '../tests/BitmapCopyTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
         '../tests/BitSetTest.cpp',
