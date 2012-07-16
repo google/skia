@@ -38,14 +38,23 @@ public:
     void clipDevRect(const SkRect&, SkRegion::Op, bool doAA);
     void clipDevPath(const SkPath&, SkRegion::Op, bool doAA);
 
-    class B2FIter {
+private:
+    struct Rec;
+
+public:
+    class Iter {
     public:
+        enum IterStart {
+            kFront_IterStart = SkDeque::Iter::kFront_IterStart,
+            kBack_IterStart = SkDeque::Iter::kBack_IterStart
+        };
+
         /**
          * Creates an uninitialized iterator. Must be reset()
          */
-        B2FIter();
+        Iter();
 
-        B2FIter(const SkClipStack& stack);
+        Iter(const SkClipStack& stack, IterStart startLoc);
 
         struct Clip {
             Clip() : fRect(NULL), fPath(NULL), fOp(SkRegion::kIntersect_Op), 
@@ -68,20 +77,55 @@ public:
          *  fRect==NULL  fPath==NULL    empty clip
          */
         const Clip* next();
+        const Clip* prev();
 
         /**
          * Restarts the iterator on a clip stack.
          */
-        void reset(const SkClipStack& stack);
+        void reset(const SkClipStack& stack, IterStart startLoc);
 
     private:
         Clip             fClip;
-        SkDeque::F2BIter fIter;
+        SkDeque::Iter    fIter;
+
+        /**
+         * updateClip updates fClip to the current state of fIter. It unifies
+         * functionality needed by both next() and prev().
+         */
+        const Clip* updateClip(const SkClipStack::Rec* rec);
+    };
+
+    // Inherit privately from Iter to prevent access to reverse iteration
+    class B2FIter : private Iter {
+    public:
+        B2FIter() {}
+
+        /**
+         * Wrap Iter's 2 parameter ctor to force initialization to the 
+         * beginning of the deque
+         */
+        B2FIter(const SkClipStack& stack) 
+        : INHERITED(stack, kFront_IterStart) {
+        }
+
+        using Iter::Clip;
+        using Iter::next;
+
+        /**
+         * Wrap Iter::reset to force initialization to the 
+         * beginning of the deque
+         */
+        void reset(const SkClipStack& stack) {
+            this->INHERITED::reset(stack, kFront_IterStart);
+        }
+
+    private:
+
+        typedef Iter INHERITED;
     };
 
 private:
-    friend class B2FIter;
-    struct Rec;
+    friend class Iter;
 
     SkDeque fDeque;
     int     fSaveCount;
