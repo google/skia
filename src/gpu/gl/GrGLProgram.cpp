@@ -992,15 +992,15 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
     if (kUseUniform == fUniLocations.fColorMatrixUni) {
         GL_CALL_RET(fUniLocations.fColorMatrixUni,
                     GetUniformLocation(fProgramID, COL_MATRIX_UNI_NAME));
-        GrAssert(kUnusedUniform != fUniLocations.fColorMatrixUni);
     }
 
     if (kUseUniform == fUniLocations.fColorMatrixVecUni) {
         GL_CALL_RET(fUniLocations.fColorMatrixVecUni,
                     GetUniformLocation(fProgramID, COL_MATRIX_VEC_UNI_NAME));
-        GrAssert(kUnusedUniform != fUniLocations.fColorMatrixVecUni);
     }
+
     if (kUseUniform == fUniLocations.fCoverageUni) {
+        GL_CALL_RET(fUniLocations.fCoverageUni,GetUniformLocation(fProgramID, COV_UNI_NAME));
         GrAssert(kUnusedUniform != fUniLocations.fCoverageUni);
     }
 
