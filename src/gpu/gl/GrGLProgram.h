@@ -13,7 +13,7 @@
 #include "GrGLContextInfo.h"
 #include "GrGLSL.h"
 #include "GrGLTexture.h"
-#include "GrGpu.h"
+//#include "GrGpu.h"
 
 #include "SkString.h"
 #include "SkXfermode.h"
@@ -35,27 +35,28 @@ class GrGLShaderBuilder;
  * Uniforms are program-local so we can't rely on fHWState to hold the
  * previous uniform state after a program change.
  */
-class GrGLProgram {
+class GrGLProgram : public GrRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(GrGLProgram)
 
-    class CachedData;
+    struct Desc;
 
     GrGLProgram();
-    ~GrGLProgram();
+    virtual ~GrGLProgram();
 
     /**
      *  This is the heavy initilization routine for building a GLProgram.
-     *  The result of heavy init is not stored in datamembers of GrGLProgam,
-     *  but in a separate cacheable container.
      */
     bool genProgram(const GrGLContextInfo& gl,
-                    GrCustomStage** customStages,
-                    CachedData* programData) const;
+                    const Desc& desc,
+                    GrCustomStage** customStages);
 
      /**
       * The shader may modify the blend coeffecients. Params are in/out
       */
      void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
+
+     const Desc& getDesc() { return fDesc; }
 
     /**
      * Attribute indices. These should not overlap. Matrices consume 3 slots.
@@ -75,16 +76,23 @@ public:
         return 7 + GrDrawState::kMaxTexCoords + 3 * stage;
     }
 
-public:
+    enum {
+        kUnusedUniform = -1,
+    };
 
     // Parameters that affect code generation
     // These structs should be kept compact; they are the input to an
     // expensive hash key generator.
-    struct ProgramDesc {
-        ProgramDesc() {
+    struct Desc {
+        Desc() {
             // since we use this as part of a key we can't have any unitialized
             // padding
-            memset(this, 0, sizeof(ProgramDesc));
+            memset(this, 0, sizeof(Desc));
+        }
+
+        // returns this as a uint32_t array to be used as a key in the program cache
+        const uint32_t* asKey() const {
+            return reinterpret_cast<const uint32_t*>(this);
         }
 
         enum OutputConfig {
@@ -224,22 +232,45 @@ public:
 
         uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
         int8_t fPadding[1];
-
-    } fProgramDesc;
-    GR_STATIC_ASSERT(!(sizeof(ProgramDesc) % 4));
+    };
+    GR_STATIC_ASSERT(!(sizeof(Desc) % 4));
 
     // for code readability
-    typedef ProgramDesc::StageDesc StageDesc;
+    typedef Desc::StageDesc StageDesc;
 
 private:
+    void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
-    const ProgramDesc& getDesc() { return fProgramDesc; }
+    // Determines which uniforms will need to be bound.
+    void genStageCode(const GrGLContextInfo& gl,
+                      int stageNum,
+                      const char* fsInColor, // NULL means no incoming color
+                      const char* fsOutColor,
+                      const char* vsInCoord,
+                      GrGLShaderBuilder* builder);
+
+    void genGeometryShader(const GrGLContextInfo& gl, GrGLShaderBuilder* segments) const;
+
+    void genUniformCoverage(GrGLShaderBuilder* segments, SkString* inOutCoverage);
+
+    // generates code to compute coverage based on edge AA.
+    void genEdgeCoverage(const GrGLContextInfo& gl,
+                         SkString* coverageVar,
+                         GrGLShaderBuilder* builder) const;
+
+    // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
+    bool bindOutputsAttribsAndLinkProgram(const GrGLContextInfo& gl,
+                                          SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
+                                          bool bindColorOut,
+                                          bool bindDualSrcOut);
+
+    // Binds uniforms; initializes cache to invalid values.
+    void getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
+                                         const GrGLShaderBuilder& builder);
+
+    bool compileShaders(const GrGLContextInfo& gl, const GrGLShaderBuilder& builder);
+
     const char* adjustInColor(const SkString& inColor) const;
-
-public:
-    enum {
-        kUnusedUniform = -1,
-    };
 
     struct StageUniLocations {
         GrGLint fTextureMatrixUni;
@@ -273,104 +304,37 @@ public:
         }
     };
 
-    class CachedData : public ::GrNoncopyable {
-    public:
-        CachedData() {
-            for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-                fCustomStage[i] = NULL;
-            }
-        }
+    // IDs
+    GrGLuint    fVShaderID;
+    GrGLuint    fGShaderID;
+    GrGLuint    fFShaderID;
+    GrGLuint    fProgramID;
+    // shader uniform locations (-1 if shader doesn't use them)
+    UniLocations fUniLocations;
 
-        ~CachedData();
+    // The matrix sent to GL is determined by both the client's matrix and
+    // the size of the viewport.
+    GrMatrix  fViewMatrix;
+    SkISize   fViewportSize;
 
-        void copyAndTakeOwnership(CachedData& other) {
-            memcpy(this, &other, sizeof(*this));
-            for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-                other.fCustomStage[i] = NULL;
-            }
-        }
+    // these reflect the current values of uniforms
+    // (GL uniform values travel with program)
+    GrColor                     fColor;
+    GrColor                     fCoverage;
+    GrColor                     fColorFilterColor;
+    GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
+    GrRect                      fTextureDomain[GrDrawState::kNumStages];
+    // The texture domain and texture matrix sent to GL depend upon the
+    // orientation.
+    GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
 
-    public:
+    GrGLProgramStage*           fProgramStage[GrDrawState::kNumStages];
 
-        // IDs
-        GrGLuint    fVShaderID;
-        GrGLuint    fGShaderID;
-        GrGLuint    fFShaderID;
-        GrGLuint    fProgramID;
-        // shader uniform locations (-1 if shader doesn't use them)
-        UniLocations fUniLocations;
+    Desc fDesc;
 
-        // The matrix sent to GL is determined by both the client's matrix and
-        // the size of the viewport.
-        GrMatrix  fViewMatrix;
-        SkISize   fViewportSize;
+    friend class GrGpuGL; // TODO: remove this by adding getters and moving functionality.
 
-        // these reflect the current values of uniforms
-        // (GL uniform values travel with program)
-        GrColor                     fColor;
-        GrColor                     fCoverage;
-        GrColor                     fColorFilterColor;
-        GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
-        GrRect                      fTextureDomain[GrDrawState::kNumStages];
-        // The texture domain and texture matrix sent to GL depend upon the
-        // orientation.
-        GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
-
-        GrGLProgramStage*           fCustomStage[GrDrawState::kNumStages];
-
-    private:
-        enum Constants {
-            kUniLocationPreAllocSize = 8
-        };
-
-    }; // CachedData
-
-    enum Constants {
-        kProgramKeySize = sizeof(ProgramDesc)
-    };
-
-    // Provide an opaque ProgramDesc
-    const uint32_t* keyData() const{
-        return reinterpret_cast<const uint32_t*>(&fProgramDesc);
-    }
-
-private:
-
-    // Determines which uniforms will need to be bound.
-    void genStageCode(const GrGLContextInfo& gl,
-                      int stageNum,
-                      const ProgramDesc::StageDesc& desc,
-                      const char* fsInColor, // NULL means no incoming color
-                      const char* fsOutColor,
-                      const char* vsInCoord,
-                      GrGLShaderBuilder* segments,
-                      StageUniLocations* locations,
-                      GrGLProgramStage* override) const;
-
-    void genGeometryShader(const GrGLContextInfo& gl,
-                           GrGLShaderBuilder* segments) const;
-
-    // generates code to compute coverage based on edge AA.
-    void genEdgeCoverage(const GrGLContextInfo& gl,
-                         GrVertexLayout layout,
-                         CachedData* programData,
-                         SkString* coverageVar,
-                         GrGLShaderBuilder* segments) const;
-
-    // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
-    bool bindOutputsAttribsAndLinkProgram(
-                const GrGLContextInfo& gl,
-                SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
-                bool bindColorOut,
-                bool bindDualSrcOut,
-                CachedData* programData) const;
-
-    // Binds uniforms; initializes cache to invalid values.
-    void getUniformLocationsAndInitCache(const GrGLShaderBuilder& builder,
-                                         const GrGLContextInfo& gl,
-                                         CachedData* programData) const;
-
-    friend class GrGpuGL;
+    typedef GrRefCnt INHERITED;
 };
 
 #endif

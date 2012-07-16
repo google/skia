@@ -231,8 +231,6 @@ bool GrGpuGL::programUnitTest() {
         StageDesc::kSmearAlpha_InConfigFlag,
         StageDesc::kSmearRed_InConfigFlag,
     };
-    GrGLProgram program;
-    ProgramDesc& pdesc = program.fProgramDesc;
 
     static const int NUM_TESTS = 512;
 
@@ -247,6 +245,7 @@ bool GrGpuGL::programUnitTest() {
         }
 #endif
 
+        ProgramDesc pdesc;
         pdesc.fVertexLayout = 0;
         pdesc.fEmitsPointSize = random.nextF() > .5f;
         pdesc.fColorInput = random_int(&random, ProgramDesc::kColorInputCnt);
@@ -317,14 +316,15 @@ bool GrGpuGL::programUnitTest() {
                 }
             }
         }
-        CachedData cachedData;
         GR_STATIC_ASSERT(sizeof(customStages) ==
                          GrDrawState::kNumStages * sizeof(GrCustomStage*));
         GrCustomStage** stages = reinterpret_cast<GrCustomStage**>(&customStages);
-        if (!program.genProgram(this->glContextInfo(), stages, &cachedData)) {
+        SkAutoTUnref<GrGLProgram> program(SkNEW(GrGLProgram));
+
+        if (!program->genProgram(this->glContextInfo(), pdesc, stages)) {
             return false;
         }
-        DeleteProgram(this->glInterface(), &cachedData);
+        DeleteProgram(this->glInterface(), program);
     }
     return true;
 }

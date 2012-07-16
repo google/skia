@@ -162,9 +162,8 @@ private:
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
     // for readability of function impls
-    typedef GrGLProgram::ProgramDesc ProgramDesc;
+    typedef GrGLProgram::Desc        ProgramDesc;
     typedef ProgramDesc::StageDesc   StageDesc;
-    typedef GrGLProgram::CachedData  CachedData;
 
     class ProgramCache : public ::GrNoncopyable {
     public:
@@ -172,31 +171,37 @@ private:
         ~ProgramCache();
 
         void abandon();
-        CachedData* getProgramData(const GrGLProgram& desc,
-                                   GrCustomStage** stages);
+        GrGLProgram* getProgram(const GrGLProgram::Desc& desc, GrCustomStage** stages);
     private:
         enum {
-            kKeySize = GrGLProgram::kProgramKeySize,
-            // We may actually have kMaxEntries+1 shaders in the GL context
-            // because we create a new shader before evicting from the cache.
+            kKeySize = sizeof(ProgramDesc),
+            // We may actually have kMaxEntries+1 shaders in the GL context because we create a new
+            // shader before evicting from the cache.
             kMaxEntries = 32
         };
 
         class Entry;
-        typedef GrBinHashKey<Entry, kKeySize> ProgramHashKey;
+        // The value of the hash key is based on the ProgramDesc.
+        typedef GrTBinHashKey<Entry, kKeySize> ProgramHashKey;
 
         class Entry : public ::GrNoncopyable {
         public:
-            Entry() {}
-            void copyAndTakeOwnership(Entry& entry);
+            Entry() : fProgram(NULL), fLRUStamp(0) {}
+            Entry& operator = (const Entry& entry) {
+                GrSafeRef(entry.fProgram.get());
+                fProgram.reset(entry.fProgram.get());
+                fKey = entry.fKey;
+                fLRUStamp = entry.fLRUStamp;
+                return *this;
+            }
             int compare(const ProgramHashKey& key) const {
                 return fKey.compare(key);
             }
 
         public:
-            CachedData      fProgramData;
-            ProgramHashKey  fKey;
-            unsigned int    fLRUStamp;
+            SkAutoTUnref<GrGLProgram>   fProgram;
+            ProgramHashKey              fKey;
+            unsigned int                fLRUStamp; // Move outside entry?
         };
 
         GrTHashTable<Entry, ProgramHashKey, 8> fHashCache;
@@ -243,13 +248,13 @@ private:
     // flushing the scissor after that function is called.
     void flushScissor();
 
-    static void DeleteProgram(const GrGLInterface* gl,
-                              CachedData* programData);
+    static void DeleteProgram(const GrGLInterface* gl, GrGLProgram* programData);
 
     void buildProgram(bool isPoints,
                       BlendOptFlags blendOpts,
                       GrBlendCoeff dstCoeff,
-                      GrCustomStage** customStages);
+                      GrCustomStage** customStages,
+                      ProgramDesc* desc);
 
     // Inits GrDrawTarget::Caps, sublcass may enable additional caps.
     void initCaps();
@@ -304,8 +309,7 @@ private:
 
     // GL program-related state
     ProgramCache*               fProgramCache;
-    CachedData*                 fProgramData;
-    GrGLProgram                 fCurrentProgram;
+    SkAutoTUnref<GrGLProgram>   fCurrentProgram;
 
     ///////////////////////////////////////////////////////////////////////////
     ///@name Caching of GL State
