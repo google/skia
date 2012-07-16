@@ -52,6 +52,9 @@ static void usage(const char* argv0) {
 "Set to use piping."
 " Default is to not use piping.\n");
     SkDebugf(
+"    --record : "
+"Set to do a picture recording benchmark. Default is not to do this.\n");
+    SkDebugf(
 "     --repeat : "
 "Set the number of times to repeat each test."
 " Default is %i.\n", DEFAULT_REPEATS);
@@ -197,6 +200,27 @@ static void run_unflatten_benchmark(SkPicture* commands, const Options& options)
     printf("unflatten: msecs = %6.4f\n", wall_time / options.fRepeats);
 }
 
+static void run_record_benchmark(SkPicture* commands, const Options& options) {
+    BenchTimer timer = BenchTimer(NULL);
+    double wall_time = 0;
+
+    for (int i = 0; i < options.fRepeats + 1; ++i) {
+        SkPicture replayer;
+        SkCanvas* recorder = replayer.beginRecording(commands->width(), commands->height());
+
+        timer.start();
+        recorder->drawPicture(*commands);
+        timer.end();
+
+        // We want to ignore first time effects
+        if (i > 0) {
+            wall_time += timer.fWall;
+        }
+    }
+
+    printf("record: msecs = %6.5f\n", wall_time / options.fRepeats);
+}
+
 static void run_single_benchmark(const SkString& inputPath,
                                  Options* options) {
     SkFILEStream inputStream;
@@ -295,6 +319,8 @@ static void parse_commandline(int argc, char* const argv[],
             }
         } else if (0 == strcmp(*argv, "--pipe")) {
             options->fBenchmark = run_pipe_benchmark;
+        } else if (0 == strcmp(*argv, "--record")) {
+            options->fBenchmark = run_record_benchmark;
         } else if (0 == strcmp(*argv, "--unflatten")) {
             options->fBenchmark = run_unflatten_benchmark;
         } else if (0 == strcmp(*argv, "--help") || 0 == strcmp(*argv, "-h")) {
