@@ -263,8 +263,8 @@ void convolve_gaussian(GrGpu* gpu,
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(sampleM);
     SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
-                                                      (texture, direction, radius)));
-    conv->setGaussianKernel(sigma);
+                                                      (texture, direction, radius,
+                                                       sigma)));
     drawState->sampler(0)->setCustomStage(conv);
     gpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
