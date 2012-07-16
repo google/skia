@@ -467,12 +467,12 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     SkString p4; // start radius squared
     SkString p5; // difference in radii (r1 - r0)
 
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(0, &p0);
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(1, &p1);
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(3, &p3);
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(4, &p4);
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(5, &p5);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(0, &p0);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(1, &p1);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(2, &p2);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(3, &p3);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(4, &p4);
+    builder->getUniformVariable(fFSParamUni).appendArrayAccess(5, &p5);
 
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
