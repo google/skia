@@ -23,6 +23,10 @@ static inline __attribute__((always_inline)) int32_t sk_atomic_inc(int32_t *addr
     return __sync_fetch_and_add(addr, 1);
 }
 
+static inline __attribute__((always_inline)) int32_t sk_atomic_add(int32_t *addr, int32_t inc) {
+    return __sync_fetch_and_add(addr, inc);
+}
+
 static inline __attribute__((always_inline)) int32_t sk_atomic_dec(int32_t *addr) {
     return __sync_fetch_and_add(addr, -1);
 }
@@ -54,8 +58,9 @@ static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic
  */
 #include <utils/Atomic.h>
 
-#define sk_atomic_inc(addr)     android_atomic_inc(addr)
-#define sk_atomic_dec(addr)     android_atomic_dec(addr)
+#define sk_atomic_inc(addr)         android_atomic_inc(addr)
+#define sk_atomic_add(addr, inc)    android_atomic_add(inc, addr)
+#define sk_atomic_dec(addr)         android_atomic_dec(addr)
 void sk_membar_aquire__after_atomic_dec() {
     //HACK: Android is actually using full memory barriers.
     //      Should this change, uncomment below.
@@ -91,6 +96,14 @@ void sk_membar_aquire__after_atomic_conditional_inc() {
     This must act as a compiler barrier.
 */
 SK_API int32_t sk_atomic_inc(int32_t* addr);
+
+/** Implemented by the porting layer, this function adds inc to the int
+    specified by the address (in a thread-safe manner), and returns the
+    previous value.
+    No additional memory barrier is required.
+    This must act as a compiler barrier.
+ */
+SK_API int32_t sk_atomic_add(int32_t* addr, int32_t inc);
 
 /** Implemented by the porting layer, this function subtracts one from the int
     specified by the address (in a thread-safe manner), and returns the

@@ -16,6 +16,12 @@ int32_t sk_atomic_inc(int32_t* addr) {
     return value;
 }
 
+int32_t sk_atomic_add(int32_t* addr, int32_t inc) {
+    int32_t value = *addr;
+    *addr = value + inc;
+    return value;
+}
+
 int32_t sk_atomic_dec(int32_t* addr) {
     int32_t value = *addr;
     *addr = value - 1;
