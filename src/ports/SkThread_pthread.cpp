@@ -35,11 +35,6 @@ int32_t sk_atomic_inc(int32_t* addr)
     return __sync_fetch_and_add(addr, 1);
 }
 
-int32_t sk_atomic_add(int32_t* addr, int32_t value)
-{
-    return __sync_fetch_and_add(addr, value);
-}
-
 int32_t sk_atomic_dec(int32_t* addr)
 {
     return __sync_fetch_and_add(addr, -1);
@@ -76,15 +71,6 @@ int32_t sk_atomic_inc(int32_t* addr)
 
     int32_t value = *addr;
     *addr = value + 1;
-    return value;
-}
-
-int32_t sk_atomic_add(int32_t* addr, int32_t inc)
-{
-    SkAutoMutexAcquire ac(gAtomicMutex);
-    
-    int32_t value = *addr;
-    *addr = value + inc;
     return value;
 }
 
