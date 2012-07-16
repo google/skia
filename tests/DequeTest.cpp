@@ -29,21 +29,76 @@ static void assert_count(skiatest::Reporter* reporter, const SkDeque& deq, int c
     }
 }
 
-static void assert_f2biter(skiatest::Reporter* reporter, const SkDeque& deq,
-                           int max, int min) {
-    SkDeque::F2BIter iter(deq);
+static void assert_iter(skiatest::Reporter* reporter, const SkDeque& deq,
+                        int max, int min) {
+    // test forward iteration
+    SkDeque::Iter iter(deq, SkDeque::Iter::kFront_IterStart);
     void* ptr;
 
     int value = max;
-    while ((ptr = iter.next()) != NULL) {
+    while (NULL != (ptr = iter.next())) {
         REPORTER_ASSERT(reporter, value == *(int*)ptr);
         value -= 1;
     }
     REPORTER_ASSERT(reporter, value+1 == min);
+
+    // test reverse iteration
+    iter.reset(deq, SkDeque::Iter::kBack_IterStart);
+
+    value = min;
+    while (NULL != (ptr = iter.prev())) {
+        REPORTER_ASSERT(reporter, value == *(int*)ptr);
+        value += 1;
+    }
+    REPORTER_ASSERT(reporter, value-1 == max);
+
+    // test mixed iteration
+    iter.reset(deq, SkDeque::Iter::kFront_IterStart);
+
+    value = max;
+    // forward iteration half-way
+    for (int i = 0; i < deq.count()/2 && NULL != (ptr = iter.next()); i++) {
+        REPORTER_ASSERT(reporter, value == *(int*)ptr);
+        value -= 1;
+    }
+    // then back down w/ reverse iteration
+    while (NULL != (ptr = iter.prev())) {
+        REPORTER_ASSERT(reporter, value == *(int*)ptr);
+        value += 1;
+    }
+    REPORTER_ASSERT(reporter, value-1 == max);
 }
 
-static void TestDeque(skiatest::Reporter* reporter) {
-    SkDeque deq(sizeof(int));
+// This helper is intended to only give the unit test access to SkDeque's
+// private numBlocksAllocated method
+class DequeUnitTestHelper {
+public:
+    int fNumBlocksAllocated;
+
+    DequeUnitTestHelper(const SkDeque& deq) {
+        fNumBlocksAllocated = deq.numBlocksAllocated();
+    }
+};
+
+static void assert_blocks(skiatest::Reporter* reporter, 
+                          const SkDeque& deq,
+                          int allocCount) {
+    DequeUnitTestHelper helper(deq);                                
+
+    if (0 == deq.count()) {
+        REPORTER_ASSERT(reporter, 1 == helper.fNumBlocksAllocated);
+    } else {
+        int expected = (deq.count() + allocCount - 1) / allocCount;
+        // A block isn't freed in the deque when it first becomes empty so
+        // sometimes an extra block lingers around
+        REPORTER_ASSERT(reporter, 
+            expected == helper.fNumBlocksAllocated || 
+            expected+1 == helper.fNumBlocksAllocated);
+    }
+}
+
+static void Test(skiatest::Reporter* reporter, int allocCount) {
+    SkDeque deq(sizeof(int), allocCount);
     int i;
 
     // test pushing on the front
@@ -53,18 +108,21 @@ static void TestDeque(skiatest::Reporter* reporter) {
         *(int*)deq.push_front() = i;
     }
     assert_count(reporter, deq, 10);
-    assert_f2biter(reporter, deq, 10, 1);
+    assert_iter(reporter, deq, 10, 1);
+    assert_blocks(reporter, deq, allocCount);
 
     for (i = 0; i < 5; i++) {
         deq.pop_front();
     }
     assert_count(reporter, deq, 5);
-    assert_f2biter(reporter, deq, 5, 1);
+    assert_iter(reporter, deq, 5, 1);
+    assert_blocks(reporter, deq, allocCount);
 
     for (i = 0; i < 5; i++) {
         deq.pop_front();
     }
     assert_count(reporter, deq, 0);
+    assert_blocks(reporter, deq, allocCount);
 
     // now test pushing on the back
 
@@ -72,20 +130,23 @@ static void TestDeque(skiatest::Reporter* reporter) {
         *(int*)deq.push_back() = i;
     }
     assert_count(reporter, deq, 10);
-    assert_f2biter(reporter, deq, 10, 1);
+    assert_iter(reporter, deq, 10, 1);
+    assert_blocks(reporter, deq, allocCount);
 
     for (i = 0; i < 5; i++) {
         deq.pop_back();
     }
     assert_count(reporter, deq, 5);
-    assert_f2biter(reporter, deq, 10, 6);
+    assert_iter(reporter, deq, 10, 6);
+    assert_blocks(reporter, deq, allocCount);
 
     for (i = 0; i < 5; i++) {
         deq.pop_back();
     }
     assert_count(reporter, deq, 0);
+    assert_blocks(reporter, deq, allocCount);
 
-    // now tests pushing/poping on both ends
+    // now test pushing/popping on both ends
 
     *(int*)deq.push_front() = 5;
     *(int*)deq.push_back() = 4;
@@ -96,8 +157,15 @@ static void TestDeque(skiatest::Reporter* reporter) {
     *(int*)deq.push_front() = 8;
     *(int*)deq.push_back() = 1;
     assert_count(reporter, deq, 8);
-    assert_f2biter(reporter, deq, 8, 1);
+    assert_iter(reporter, deq, 8, 1);
+    assert_blocks(reporter, deq, allocCount);
 }
 
+static void TestDeque(skiatest::Reporter* reporter) {
+    // test it once with the default allocation count
+    Test(reporter, 1);
+    // test it again with a generous allocation count
+    Test(reporter, 10);
+}
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("Deque", TestDequeClass, TestDeque)
