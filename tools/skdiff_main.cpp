@@ -1307,5 +1307,9 @@ int main (int argc, char ** argv) {
         Result type = failOnTheseResultTypes[i];
         num_failing_results += summary.fResultsOfType[type].count();
     }
-    return num_failing_results;
+
+    // On Linux (and maybe other platforms too), any results outside of the
+    // range [0...255] are wrapped (mod 256).  Do the conversion ourselves, to
+    // make sure that we only return 0 when there were no failures.
+    return (num_failing_results > 255) ? 255 : num_failing_results;
 }
