@@ -97,7 +97,7 @@ static void assert_blocks(skiatest::Reporter* reporter,
     }
 }
 
-static void Test(skiatest::Reporter* reporter, int allocCount) {
+static void TestSub(skiatest::Reporter* reporter, int allocCount) {
     SkDeque deq(sizeof(int), allocCount);
     int i;
 
@@ -163,9 +163,9 @@ static void Test(skiatest::Reporter* reporter, int allocCount) {
 
 static void TestDeque(skiatest::Reporter* reporter) {
     // test it once with the default allocation count
-    Test(reporter, 1);
+    TestSub(reporter, 1);
     // test it again with a generous allocation count
-    Test(reporter, 10);
+    TestSub(reporter, 10);
 }
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("Deque", TestDequeClass, TestDeque)
