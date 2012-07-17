@@ -149,14 +149,15 @@ protected:
             { SK_ColorBLACK,    "Difference", SkRegion::kDifference_Op    },
             { SK_ColorRED,      "Intersect",  SkRegion::kIntersect_Op     },
             { 0xFF008800,       "Union",      SkRegion::kUnion_Op         },
-            { SK_ColorBLUE,     "XOR",        SkRegion::kXOR_Op           },
             { SK_ColorGREEN,    "Rev Diff",   SkRegion::kReverseDifference_Op },
-            { SK_ColorYELLOW,   "Replace",    SkRegion::kReplace_Op       }
+            { SK_ColorYELLOW,   "Replace",    SkRegion::kReplace_Op       },
+            { SK_ColorBLUE,     "XOR",        SkRegion::kXOR_Op           },
         };
 
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
         textPaint.setTextSize(SK_Scalar1*24);
+        int xOff = 0;
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
             canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
@@ -169,10 +170,12 @@ protected:
                 this->drawPathsOped(canvas, gOps[op].fOp, gOps[op].fColor);
             }
 
-            if (op && !(op % 3)) {
-                canvas->translate(SkIntToScalar(-600), SkIntToScalar(250));
+            if (xOff >= 400) {
+                canvas->translate(SkIntToScalar(-400), SkIntToScalar(250));
+                xOff = 0;
             } else {
                 canvas->translate(SkIntToScalar(200), 0);
+                xOff += 200;
             }
         }
     }
