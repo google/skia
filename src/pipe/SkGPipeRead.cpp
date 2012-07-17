@@ -105,14 +105,19 @@ public:
     }
 
     void addBitmap(int index) {
-        SkASSERT(fBitmaps.count() == index);
-        SkBitmap* bm = new SkBitmap();
+        index--;
+        SkBitmap* bm;
+        if(fBitmaps.count() == index) {
+            bm = SkNEW(SkBitmap);
+            *fBitmaps.append() = bm;
+        } else {
+            bm = fBitmaps[index];
+        }
         bm->unflatten(*fReader);
-        *fBitmaps.append() = bm;
     }
 
     SkBitmap* getBitmap(unsigned index) {
-        return fBitmaps[index];
+        return fBitmaps[index - 1];
     }
 
     void addTypeface() {

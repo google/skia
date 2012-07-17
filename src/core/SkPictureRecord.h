@@ -187,8 +187,11 @@ public:
 #endif
 
 private:
-    SkChunkAlloc fHeap;
+    SkChunkFlatController fHeap;
 
+    SkRefCntSet fRCSet;
+    SkRefCntSet fTFSet;
+    
     SkTDArray<PixelRefDictionaryEntry> fPixelRefDictionary;
     SkBitmapDictionary fBitmaps;
     SkMatrixDictionary fMatrices;
@@ -200,9 +203,6 @@ private:
 
     // we ref each item in these arrays
     SkTDArray<SkPicture*> fPictureRefs;
-
-    SkRefCntSet fRCSet;
-    SkRefCntSet fTFSet;
 
     uint32_t fRecordFlags;
     int fInitialSaveCount;

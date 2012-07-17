@@ -26,6 +26,7 @@
 #include "SkRasterizer.h"
 #include "SkShader.h"
 #include "SkOrderedWriteBuffer.h"
+#include "SkPictureFlat.h"
 
 static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
     SkASSERT(paintFlat < kCount_PaintFlats);
@@ -58,6 +59,94 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class FlattenableHeap : public SkFlatController {
+public:
+    FlattenableHeap(int numFlatsToKeep) : fNumFlatsToKeep(numFlatsToKeep) {}
+
+    ~FlattenableHeap() {
+        fPointers.freeAll();
+    }
+
+    virtual void* allocThrow(size_t bytes) SK_OVERRIDE;
+
+    virtual void unalloc(void* ptr) SK_OVERRIDE;
+
+    const SkFlatData* flatToReplace() const;
+
+    // Mark an SkFlatData as one that should not be returned by flatToReplace.
+    // Takes the result of SkFlatData::index() as its parameter.
+    void markFlatForKeeping(int index) {
+        *fFlatsThatMustBeKept.append() = index;
+    }
+
+    void markAllFlatsSafeToDelete() {
+        fFlatsThatMustBeKept.reset();
+    }
+
+private:
+    // Keep track of the indices (i.e. the result of SkFlatData::index()) of
+    // flats that must be kept, since they are on the current paint.
+    SkTDArray<int>   fFlatsThatMustBeKept;
+    SkTDArray<void*> fPointers;
+    const int        fNumFlatsToKeep;
+};
+
+void FlattenableHeap::unalloc(void* ptr) {
+    int indexToRemove = fPointers.rfind(ptr);
+    if (indexToRemove >= 0) {
+        sk_free(ptr);
+        fPointers.remove(indexToRemove);
+    }
+}
+
+void* FlattenableHeap::allocThrow(size_t bytes) {
+    void* ptr = sk_malloc_throw(bytes);
+    *fPointers.append() = ptr;
+    return ptr;
+}
+
+const SkFlatData* FlattenableHeap::flatToReplace() const {
+    // First, determine whether we should replace one.
+    if (fPointers.count() > fNumFlatsToKeep) {
+        // Look through the flattenable heap.
+        // TODO: Return the LRU flat.
+        for (int i = 0; i < fPointers.count(); i++) {
+            SkFlatData* potential = (SkFlatData*)fPointers[i];
+            // Make sure that it is not one that must be kept.
+            bool mustKeep = false;
+            for (int j = 0; j < fFlatsThatMustBeKept.count(); j++) {
+                if (potential->index() == fFlatsThatMustBeKept[j]) {
+                    mustKeep = true;
+                    break;
+                }
+            }
+            if (!mustKeep) {
+                return potential;
+            }
+        }
+    }
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class FlatDictionary : public SkFlatDictionary<SkFlattenable> {
+public:
+    FlatDictionary(FlattenableHeap* heap, SkFactorySet* factorySet)
+            : SkFlatDictionary<SkFlattenable>(heap, NULL, NULL, factorySet) {
+        fFlattenProc = &flattenFlattenableProc;
+        // No need to define fUnflattenProc since the writer will never
+        // unflatten the data.
+    }
+    static void flattenFlattenableProc(SkOrderedWriteBuffer& buffer,
+                                       const void* obj) {
+        buffer.writeFlattenable((SkFlattenable*)obj);
+    }
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 /*
  * Shared heap for storing large things that can be shared, for a stream
  * used by multiple readers.
@@ -65,15 +154,15 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
  * TODO: Store paths (others?)
  * TODO: Generalize the LRU caching mechanism
  */
-class Heap {
+class SharedHeap {
 public:
-    Heap(bool shallow, int numOfReaders)
+    SharedHeap(bool shallow, int numOfReaders)
         : fBitmapCount(0)
         , fMostRecentlyUsed(NULL)
         , fLeastRecentlyUsed(NULL)
         , fCanDoShallowCopies(shallow)
         , fNumberOfReaders(numOfReaders) {}
-    ~Heap() {
+    ~SharedHeap() {
         BitmapInfo* iter = fMostRecentlyUsed;
         while (iter != NULL) {
             BitmapInfo* next = iter->fLessRecentlyUsed;
@@ -179,7 +268,7 @@ private:
 };
 
 // We just "used" info. Update our LRU accordingly
-void Heap::setMostRecentlyUsed(BitmapInfo* info) {
+void SharedHeap::setMostRecentlyUsed(BitmapInfo* info) {
     SkASSERT(info != NULL);
     if (info == fMostRecentlyUsed) {
         return;
@@ -214,7 +303,7 @@ void Heap::setMostRecentlyUsed(BitmapInfo* info) {
  * Given a new bitmap to be added to the cache, return an existing one that
  * should be removed to make room, or NULL if there is already room.
  */
-BitmapInfo* Heap::bitmapToReplace(const SkBitmap& bm) const {
+BitmapInfo* SharedHeap::bitmapToReplace(const SkBitmap& bm) const {
     // Arbitrarily set a limit of 5. We should test to find the best tradeoff
     // between time and space. A lower limit means that we use less space, but
     // it also means that we may have to insert the same bitmap into the heap
@@ -312,8 +401,7 @@ public:
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
 private:
-    Heap fHeap;
-    SkFactorySet* fFactorySet;  // optional, only used if cross-process
+    SharedHeap fSharedHeap;
     SkGPipeController* fController;
     SkWriter32& fWriter;
     size_t      fBlockSize; // amount allocated for writer
@@ -345,27 +433,16 @@ private:
         }
     }
 
-    struct FlatData {
-        uint32_t    fIndex; // always > 0
-        PaintFlats  fPaintFlat; // deliberately before fSize so that Compare
-                                // will ignore it.
-        uint32_t    fSize;
-
-        void*       data() { return (char*)this + sizeof(*this); }
-
-        static int Compare(const FlatData* a, const FlatData* b) {
-            return memcmp(&a->fSize, &b->fSize, a->fSize + sizeof(a->fSize));
-        }
-    };
-
-    SkTDArray<FlatData*> fBitmapArray;
+    // These are only used when in cross process, but with no shared address
+    // space, so bitmaps are flattened.
+    FlattenableHeap    fBitmapHeap;
+    SkBitmapDictionary fBitmapDictionary;
     int flattenToIndex(const SkBitmap&);
 
-    SkTDArray<FlatData*> fFlatArray;
-    size_t fBytesOfFlatData;
+    FlattenableHeap fFlattenableHeap;
+    FlatDictionary  fFlatDictionary;
     int fCurrFlatIndex[kCount_PaintFlats];
     int flattenToIndex(SkFlattenable* obj, PaintFlats);
-    int flattenableToReplace(const FlatData& newFlat);
 
     SkPaint fPaint;
     void writePaint(const SkPaint&);
@@ -384,58 +461,18 @@ private:
 
 int SkGPipeCanvas::flattenToIndex(const SkBitmap & bitmap) {
     SkASSERT(shouldFlattenBitmaps(fFlags));
-    SkOrderedWriteBuffer tmpWriter(1024);
-    tmpWriter.setFlags((SkFlattenableWriteBuffer::Flags)
-                       (SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
-                        | SkFlattenableWriteBuffer::kCrossProcess_Flag));
-    tmpWriter.setFactoryRecorder(fFactorySet);
-    bitmap.flatten(tmpWriter);
+    uint32_t flags = SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
+        | SkFlattenableWriteBuffer::kCrossProcess_Flag;
+    bool added, replaced;
+    const SkFlatData* flat = fBitmapDictionary.findAndReplace(
+        bitmap, flags, fBitmapHeap.flatToReplace(), &added, &replaced);
 
-    size_t len = tmpWriter.size();
-    size_t allocSize = len + sizeof(FlatData);
-
-    SkAutoSMalloc<1024> storage(allocSize);
-    FlatData* flat = (FlatData*)storage.get();
-    flat->fSize = len;
-    tmpWriter.flatten(flat->data());
-    
-    int index = SkTSearch<FlatData>((const FlatData**)fBitmapArray.begin(),
-                                     fBitmapArray.count(), flat, sizeof(flat),
-                                     &FlatData::Compare);
-    if (index < 0) {
-        index = ~index;
-        FlatData* copy = (FlatData*)sk_malloc_throw(allocSize);
-        memcpy(copy, flat, allocSize);
-        // For bitmaps, we can use zero based indices, since we will never ask
-        // for a NULL bitmap (unlike with paint flattenables).
-        copy->fIndex = fBitmapArray.count();
-        *fBitmapArray.insert(index) = copy;
-        if (this->needOpBytes(len)) {
-            this->writeOp(kDef_Bitmap_DrawOp, 0, copy->fIndex);
-            fWriter.write(copy->data(), len);
-        }
+    int index = flat->index();
+    if (added && this->needOpBytes(flat->flatSize())) {
+        this->writeOp(kDef_Bitmap_DrawOp, 0, index);
+        fWriter.write(flat->data(), flat->flatSize());
     }
-    return fBitmapArray[index]->fIndex;
-}
-
-// Return -1 if there is no need to replace a flattenable, or there was not an
-// appropriate one to replace. Otherwise return the index of a flattenable to
-// replace.
-int SkGPipeCanvas::flattenableToReplace(const FlatData& newFlat) {
-    // For now, set an arbitrary limit on the size of FlatData we have stored.
-    // Note that this is currently a soft limit. If we have reached the limit,
-    // we replace one, but do not ensure that we return to below the limit.
-    if (fBytesOfFlatData + fFlatArray.bytes() > 1024) {
-        for (int i = 0; i < fFlatArray.count(); i++) {
-            // Only replace the same paint flat. Since a paint can only have
-            // one of each type, replacing one of the same type means that
-            // we will not be purging a flat on the same paint.
-            if (newFlat.fPaintFlat == fFlatArray[i]->fPaintFlat) {
-                return i;
-            }
-        }
-    }
-    return -1;
+    return index;
 }
 
 // return 0 for NULL (or unflattenable obj), or index-base-1
@@ -445,79 +482,41 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
         return 0;
     }
 
-    SkOrderedWriteBuffer tmpWriter(1024);
-    
+    uint32_t writeBufferFlags;
     if (fFlags & SkGPipeWriter::kCrossProcess_Flag) {
-        tmpWriter.setFlags((SkFlattenableWriteBuffer::Flags)
-                           (SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
-                           | SkFlattenableWriteBuffer::kCrossProcess_Flag));
-        tmpWriter.setFactoryRecorder(fFactorySet);
+        writeBufferFlags = (SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
+                            | SkFlattenableWriteBuffer::kCrossProcess_Flag);
     } else {
         // Needed for bitmap shaders.
-        tmpWriter.setFlags(SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag);
+        writeBufferFlags = SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag;
     }
 
-    tmpWriter.writeFlattenable(obj);
-    size_t len = tmpWriter.size();
-    size_t allocSize = len + sizeof(FlatData);
-
-    SkAutoSMalloc<1024> storage(allocSize);
-    FlatData* flat = (FlatData*)storage.get();
-    flat->fSize = len;
-    tmpWriter.flatten(flat->data());
-
-    int index = SkTSearch<FlatData>((const FlatData**)fFlatArray.begin(),
-                                    fFlatArray.count(), flat, sizeof(FlatData*),
-                                    &FlatData::Compare);
-    bool replacedAFlat = false;
-    if (index < 0) {
+    bool added, replaced;
+    const SkFlatData* flat = fFlatDictionary.findAndReplace(
+            *obj, writeBufferFlags, fFlattenableHeap.flatToReplace(), &added, &replaced);
+    int index = flat->index();
+    if (added && this->needOpBytes(flat->flatSize())) {
+        this->writeOp(kDef_Flattenable_DrawOp, paintflat, index);
+        fWriter.write(flat->data(), flat->flatSize());
+    }
+    if (replaced) {
         index = ~index;
-        FlatData* copy = (FlatData*)sk_malloc_throw(allocSize);
-        memcpy(copy, flat, allocSize);
-        copy->fPaintFlat = paintflat;
-        int indexToReplace = this->flattenableToReplace(*copy);
-        if (indexToReplace >= 0) {
-            replacedAFlat = true;
-            FlatData* oldData = fFlatArray[indexToReplace];
-            copy->fIndex = oldData->fIndex;
-            fBytesOfFlatData -= (sizeof(FlatData) + oldData->fSize);
-            sk_free(oldData);
-            fFlatArray.remove(indexToReplace);
-            if (indexToReplace < index) {
-                index--;
-            }
-        }
-        *fFlatArray.insert(index) = copy;
-        fBytesOfFlatData += allocSize;
-        if (!replacedAFlat) {
-            // Call this after the insert, so that count() will have been grown
-            // (unless we replaced one, in which case fIndex has already been
-            // set properly).
-            copy->fIndex = fFlatArray.count();
-//          SkDebugf("--- add flattenable[%d] size=%d index=%d\n", paintflat, len, copy->fIndex);
-        }
-
-        if (this->needOpBytes(len)) {
-            this->writeOp(kDef_Flattenable_DrawOp, paintflat, copy->fIndex);
-            fWriter.write(copy->data(), len);
-        }
     }
-    int retVal = fFlatArray[index]->fIndex;
-    if (replacedAFlat) {
-        retVal = ~retVal;
-    }
-    return retVal;
+    return index;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #define MIN_BLOCK_SIZE  (16 * 1024)
+#define BITMAPS_TO_KEEP 5
+#define FLATTENABLES_TO_KEEP 10
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, SkFactorySet* fset, uint32_t flags)
-: fHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag), controller->numberOfReaders())
-, fWriter(*writer), fFlags(flags), fBytesOfFlatData(0) {
-    fFactorySet = fset;
+: fSharedHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag), controller->numberOfReaders())
+, fWriter(*writer), fFlags(flags)
+, fBitmapHeap(BITMAPS_TO_KEEP), fBitmapDictionary(&fBitmapHeap, NULL, NULL, fset)
+, fFlattenableHeap(FLATTENABLES_TO_KEEP), fFlatDictionary(&fFlattenableHeap, fset) {
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
@@ -539,9 +538,6 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 
 SkGPipeCanvas::~SkGPipeCanvas() {
     this->finish();
-
-    fFlatArray.freeAll();
-    fBitmapArray.freeAll();
 }
 
 bool SkGPipeCanvas::needOpBytes(size_t needed) {
@@ -791,7 +787,7 @@ void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
     if (flatten) {
         bitmapIndex = this->flattenToIndex(bm);
     } else {
-        ptr = fHeap.addBitmap(bm);
+        ptr = fSharedHeap.addBitmap(bm);
         if (NULL == ptr) {
             return;
         }
@@ -825,7 +821,7 @@ void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
     if (flatten) {
         bitmapIndex = this->flattenToIndex(bm);
     } else {
-        ptr = fHeap.addBitmap(bm);
+        ptr = fSharedHeap.addBitmap(bm);
         if (NULL == ptr) {
             return;
         }
@@ -874,7 +870,7 @@ void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
     if (flatten) {
         bitmapIndex = this->flattenToIndex(bm);
     } else {
-        ptr = fHeap.addBitmap(bm);
+        ptr = fSharedHeap.addBitmap(bm);
         if (NULL == ptr) {
             return;
         }
@@ -911,7 +907,7 @@ void SkGPipeCanvas::drawSprite(const SkBitmap& bm, int left, int top,
     if (flatten) {
         bitmapIndex = this->flattenToIndex(bm);
     } else {
-        ptr = fHeap.addBitmap(bm);
+        ptr = fSharedHeap.addBitmap(bm);
         if (NULL == ptr) {
             return;
         }
@@ -1162,13 +1158,19 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
         base.setTypeface(paint.getTypeface());
     }
 
+    // This is a new paint, so all old flats can be safely purged, if necessary.
+    fFlattenableHeap.markAllFlatsSafeToDelete();
     for (int i = 0; i < kCount_PaintFlats; i++) {
         int index = this->flattenToIndex(get_paintflat(paint, i), (PaintFlats)i);
         bool replaced = index < 0;
         if (replaced) {
             index = ~index;
         }
-        SkASSERT(index >= 0 && index <= fFlatArray.count());
+        // Store the index of any flat that needs to be kept. 0 means no flat.
+        if (index > 0) {
+            fFlattenableHeap.markFlatForKeeping(index);
+        }
+        SkASSERT(index >= 0 && index <= fFlatDictionary.count());
         if (index != fCurrFlatIndex[i] || replaced) {
             *ptr++ = PaintOp_packOpFlagData(kFlatIndex_PaintOp, i, index);
             fCurrFlatIndex[i] = index;
