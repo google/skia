@@ -64,6 +64,16 @@ private slots:
     void actionCancel();
 
     /**
+        Clears the breakpoint state off of all commands marked as breakpoints.
+     */
+    void actionClearBreakpoints();
+
+    /**
+        Clears the deleted state off of all commands marked as deleted.
+     */
+    void actionClearDeletes();
+
+    /**
         Applies a visible filter to all drawing commands other than the previous.
      */
     void actionCommandFilter();
@@ -88,11 +98,6 @@ private slots:
         executes all remaining draw commands.
      */
     void actionPlay();
-
-    /**
-        Resets all deleted commands.
-     */
-    void actionReload();
 
     /**
         Rewinds from the current step back to the start of the commands.
@@ -147,6 +152,11 @@ private slots:
     void selectCommand(int command);
 
     /**
+        Toggles the exclusive listing of commands set as deleted.
+     */
+    void showDeletes();
+
+    /**
         Toggles a breakpoint on the current step in the list widget.
      */
     void toggleBreakpoint();
@@ -166,6 +176,7 @@ private:
     QAction fActionOpen;
     QAction fActionBreakpoint;
     QAction fActionCancel;
+    QAction fActionClearBreakpoints;
     QAction fActionClearDeletes;
     QAction fActionClose;
     QAction fActionCreateBreakpoint;
@@ -175,8 +186,8 @@ private:
     QAction fActionInspector;
     QAction fActionPlay;
     QAction fActionPause;
-    QAction fActionReload;
     QAction fActionRewind;
+    QAction fActionShowDeletes;
     QAction fActionStepBack;
     QAction fActionStepForward;
     QWidget fCentralWidget;
@@ -208,6 +219,7 @@ private:
     QToolBar fToolBar;
 
     bool fBreakpointsActivated;
+    bool fDeletesActivated;
     bool fPause;
     int fPausedRow;
 

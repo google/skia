@@ -94,17 +94,18 @@ public:
     void loadPicture(QString filename);
 
     /**
-        Toggles the visibility / execution of the draw command at index i.
+        Returns the visibility of the command at the specified index.
+        @param index  The index of the draw command
      */
-    void toggleCommand(int index) {
-        fDebugCanvas->toggleCommand(index);
+    bool commandIsVisibleAtIndex(int index) {
+        return fDebugCanvas->getDrawCommandVisibilityAt(index);
     }
 
     /**
         Toggles the visibility / execution of the draw command at index i with
         the value of toggle.
      */
-    void toggleCommand(int index, bool toggle) {
+    void setCommandVisibliltyAtIndex(int index, bool toggle) {
         fDebugCanvas->toggleCommand(index, toggle);
     }
 

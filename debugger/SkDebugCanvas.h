@@ -10,7 +10,6 @@
 #ifndef SKDEBUGCANVAS_H_
 #define SKDEBUGCANVAS_H_
 
-#include <iostream>
 #include "SkCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkPicture.h"
@@ -19,8 +18,6 @@
 
 class SkDebugCanvas : public SkCanvas {
 public:
-    bool fFilter;
-
     SkDebugCanvas();
     ~SkDebugCanvas();
 
@@ -61,6 +58,12 @@ public:
     std::vector<std::string>* getCommandInfoAt(int index);
 
     /**
+        Returns the visibility of the command at the given index.
+        @param index  The index of the command
+     */
+    bool getDrawCommandVisibilityAt(int index);
+
+    /**
         Returns the vector of draw commands
      */
     std::vector<SkDrawCommand*> getDrawCommands();
@@ -95,10 +98,6 @@ public:
     void isCalculatingHits(bool isEnabled) {
         fCalculateHits = isEnabled;
     }
-    /**
-        Toggles the execution of the draw command at index i.
-     */
-    void toggleCommand(int index);
 
     /**
         Toggles the visibility / execution of the draw command at index i with
@@ -197,6 +196,7 @@ private:
     SkBitmap fBm;
     SkHitBox fHitBox;
     bool fCalculateHits;
+    bool fFilter;
 
     /**
         Adds the command to the classes vector of commands.

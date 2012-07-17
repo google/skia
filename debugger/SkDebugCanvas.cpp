@@ -73,32 +73,18 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, SkBitmap* bitmap) {
 }
 
 SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
-    int counter = 0;
-    if(!commandVector.empty()) {
-        for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            if (counter==index) {
-                return (*it);
-            }
-            ++counter;
-        }
-    }
-    return NULL;
+    SkASSERT(index < commandVector.size());
+    return commandVector[index];
 }
 
 std::vector<std::string>* SkDebugCanvas::getCommandInfoAt(int index) {
-    std::string info;
+    SkASSERT(index < commandVector.size());
+    return commandVector[index]->Info();
+}
 
-    int counter = 0;
-    if(!commandVector.empty()) {
-        for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            if (counter==index) {
-                return (*it)->Info();
-            }
-            ++counter;
-        }
-    }
-
-    return NULL;
+bool SkDebugCanvas::getDrawCommandVisibilityAt(int index) {
+    SkASSERT(index < commandVector.size());
+    return commandVector[index]->getVisibility();
 }
 
 std::vector<SkDrawCommand*> SkDebugCanvas::getDrawCommands() {
@@ -262,30 +248,7 @@ bool SkDebugCanvas::translate(SkScalar dx, SkScalar dy) {
     return true;
 }
 
-void SkDebugCanvas::toggleCommand(int index) {
-    int counter = 0;
-    if(!commandVector.empty()) {
-        for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            if (counter == index) {
-                if ((*it)->getVisibility()) {
-                    (*it)->setVisibility(false);
-                } else {
-                    (*it)->setVisibility(true);
-                }
-            }
-            counter++;
-        }
-    }
-}
-
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {
-    int counter = 0;
-    if(!commandVector.empty()) {
-        for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            if (counter == index) {
-                (*it)->setVisibility(toggle);
-            }
-            counter++;
-        }
-    }
+    SkASSERT(index < commandVector.size());
+    commandVector[index]->setVisibility(toggle);
 }

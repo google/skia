@@ -60,11 +60,10 @@ void SkListWidget::paint (QPainter *painter,
     QIcon breakpointIcon =
             QIcon(qvariant_cast<QPixmap>(index.data(Qt::DecorationRole)));
     QIcon deleteIcon =
-            QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 3)));
+            QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 2)));
 
     QString drawCommandText = index.data(Qt::DisplayRole).toString();
     QString drawCommandNumber = index.data(Qt::UserRole + 1).toString();
-    QString isDeleted = index.data(Qt::UserRole + 2).toString();
 
     /* option.rect is a struct that Qt uses as a target to draw into. Following
      * the format (x1,y1,x2,y2) x1 and y1 represent where the painter can start
