@@ -20,8 +20,17 @@ DOXYGEN_COMMIT=${DOXYGEN_COMMIT:-true}
 
 mkdir -p $DOXYGEN_TEMPDIR
 cd $DOXYGEN_TEMPDIR
-svn checkout http://skia.googlecode.com/svn/trunk  # read-only
-svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
+
+if [ -d "trunk" ]; then
+  svn update --accept theirs-full trunk
+else
+  svn checkout http://skia.googlecode.com/svn/trunk  # read-only
+fi
+if [ -d "docs" ]; then
+  svn update --accept theirs-full docs
+else
+  svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
+fi
 
 # Run Doxygen.
 cd trunk
