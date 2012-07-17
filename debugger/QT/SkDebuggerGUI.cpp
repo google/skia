@@ -14,6 +14,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fActionOpen(this)
     , fActionBreakpoint(this)
     , fActionCancel(this)
+    , fActionClearBreakpoints(this)
     , fActionClearDeletes(this)
     , fActionClose(this)
     , fActionCreateBreakpoint(this)
@@ -23,8 +24,8 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fActionInspector(this)
     , fActionPlay(this)
     , fActionPause(this)
-    , fActionReload(this)
     , fActionRewind(this)
+    , fActionShowDeletes(this)
     , fActionStepBack(this)
     , fActionStepForward(this)
     , fCentralWidget(this)
@@ -40,6 +41,9 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fMenuNavigate(this)
     , fMenuView(this)
     , fToolBar(this)
+    , fBreakpointsActivated(false)
+    , fDeletesActivated(false)
+    , fPause(false)
 {
     setupUi(this);
     connect(&fListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,
@@ -52,7 +56,6 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
                     QListWidgetItem*)), this,
             SLOT(loadFile(QListWidgetItem *)));
     connect(&fActionDelete, SIGNAL(triggered()), this, SLOT(actionDelete()));
-    connect(&fActionReload, SIGNAL(triggered()), this, SLOT(actionReload()));
     connect(&fListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this,
             SLOT(toggleBreakpoint()));
     connect(&fActionRewind, SIGNAL(triggered()), this, SLOT(actionRewind()));
@@ -69,6 +72,8 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fFilter, SIGNAL(activated(QString)), this,
             SLOT(toggleFilter(QString)));
     connect(&fActionCancel, SIGNAL(triggered()), this, SLOT(actionCancel()));
+    connect(&fActionClearBreakpoints, SIGNAL(triggered()), this, SLOT(actionClearBreakpoints()));
+    connect(&fActionClearDeletes, SIGNAL(triggered()), this, SLOT(actionClearDeletes()));
     connect(&fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
     connect(fSettingsWidget.getVisibilityButton(), SIGNAL(toggled(bool)), this,
             SLOT(actionCommandFilter()));
@@ -82,32 +87,57 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget,
             SLOT(updateHit(int)));
     connect(&fActionCreateBreakpoint, SIGNAL(activated()), this, SLOT(toggleBreakpoint()));
+    connect(&fActionShowDeletes, SIGNAL(triggered()), this, SLOT(showDeletes()));
+
+    fInspectorWidget.setDisabled(true);
+    fMenuBar.setDisabled(true);
 }
 
 SkDebuggerGUI::~SkDebuggerGUI() {
 }
 
 void SkDebuggerGUI::actionBreakpoints() {
-    if (!fBreakpointsActivated) {
-        fBreakpointsActivated = true;
-    } else {
-        fBreakpointsActivated = false;
-    }
-
+    fBreakpointsActivated = !fBreakpointsActivated;
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem *item = fListWidget.item(row);
+        item->setHidden(item->checkState() == Qt::Unchecked && fBreakpointsActivated);
+    }
+}
 
-        if (item->checkState() == Qt::Unchecked && fBreakpointsActivated) {
-            item->setHidden(true);
-        } else {
-            item->setHidden(false);
-        }
+void SkDebuggerGUI::showDeletes() {
+    fDeletesActivated = !fDeletesActivated;
+    for (int row = 0; row < fListWidget.count(); row++) {
+        QListWidgetItem *item = fListWidget.item(row);
+        bool isVisible = fCanvasWidget.commandIsVisibleAtIndex(row);
+        item->setHidden(isVisible && fDeletesActivated);
     }
 }
 
 void SkDebuggerGUI::actionCancel() {
     for (int row = 0; row < fListWidget.count(); row++) {
         fListWidget.item(row)->setHidden(false);
+    }
+}
+
+void SkDebuggerGUI::actionClearBreakpoints() {
+    for (int row = 0; row < fListWidget.count(); row++) {
+        QListWidgetItem* item = fListWidget.item(row);
+        item->setCheckState(Qt::Unchecked);
+        item->setData(Qt::DecorationRole,
+                QPixmap(":/images/Icons/blank.png"));
+    }
+}
+
+void SkDebuggerGUI::actionClearDeletes() {
+    for (int row = 0; row < fListWidget.count(); row++) {
+        QListWidgetItem* item = fListWidget.item(row);
+        item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/blank.png"));
+        fCanvasWidget.setCommandVisibliltyAtIndex(row, true);
+    }
+    if (fPause) {
+        fCanvasWidget.drawTo(fPausedRow);
+    } else {
+        fCanvasWidget.drawTo(fListWidget.currentRow());
     }
 }
 
@@ -122,16 +152,17 @@ void SkDebuggerGUI::actionClose() {
 }
 
 void SkDebuggerGUI::actionDelete() {
-    QListWidgetItem* item = fListWidget.currentItem();
-    if (item->data(Qt::UserRole + 2) == true) {
-        item->setData(Qt::UserRole + 2, false);
-        item->setData(Qt::UserRole + 3, QPixmap(":/images/Icons/delete.png"));
-    } else {
-        item->setData(Qt::UserRole + 2, true);
-        item->setData(Qt::UserRole + 3, QPixmap(":/images/Icons/blank.png"));
-    }
     int currentRow = fListWidget.currentRow();
-    fCanvasWidget.toggleCommand(currentRow);
+    QListWidgetItem* item = fListWidget.currentItem();
+
+    if (fCanvasWidget.commandIsVisibleAtIndex(currentRow)) {
+        item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/delete.png"));
+        fCanvasWidget.setCommandVisibliltyAtIndex(currentRow, false);
+    } else {
+        item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/blank.png"));
+        fCanvasWidget.setCommandVisibliltyAtIndex(currentRow, true);
+    }
+
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
     } else {
@@ -157,16 +188,6 @@ void SkDebuggerGUI::actionPlay() {
         }
     }
     fListWidget.setCurrentRow(fListWidget.count() - 1);
-}
-
-void SkDebuggerGUI::actionReload() {
-    for (int row = 0; row < fListWidget.count(); row++) {
-        QListWidgetItem* item = fListWidget.item(row);
-        item->setData(Qt::UserRole + 2, true);
-        item->setData(Qt::DecorationRole, QPixmap(":/images/Icons/blank.png"));
-        fCanvasWidget.toggleCommand(row, true);
-    }
-    fCanvasWidget.drawTo(fListWidget.currentRow());
 }
 
 void SkDebuggerGUI::actionRewind() {
@@ -316,13 +337,19 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
             QSize(), QIcon::Normal, QIcon::Off);
     fActionBreakpoint.setShortcut(QKeySequence(tr("Ctrl+B")));
     fActionBreakpoint.setIcon(breakpoint);
-    fActionBreakpoint.setText("Show Breakpoints");
+    fActionBreakpoint.setText("Breakpoints");
 
     QIcon cancel;
     cancel.addFile(QString::fromUtf8(":/images/Ico/reload.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionCancel.setIcon(cancel);
     fActionCancel.setText("Clear Filter");
+
+    fActionClearBreakpoints.setShortcut(QKeySequence(tr("Alt+B")));
+    fActionClearBreakpoints.setText("Clear Breakpoints");
+
+    fActionClearDeletes.setShortcut(QKeySequence(tr("Alt+X")));
+    fActionClearDeletes.setText("Clear Deletes");
 
     fActionClose.setShortcuts(QKeySequence::Quit);
     fActionClose.setText("Exit");
@@ -358,14 +385,15 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionPause.setIcon(pause);
     fActionPause.setText("Pause");
 
-    fActionReload.setText("Reset Picture");
-
     QIcon rewind;
     rewind.addFile(QString::fromUtf8(":/images/Ico/rewind.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionRewind.setShortcut(QKeySequence(tr("Ctrl+R")));
     fActionRewind.setIcon(rewind);
     fActionRewind.setText("Rewind");
+
+    fActionShowDeletes.setShortcut(QKeySequence(tr("Ctrl+X")));
+    fActionShowDeletes.setText("Deleted Commands");
 
     QIcon stepBack;
     stepBack.addFile(QString::fromUtf8(":/images/Ico/previous.png"), QSize(),
@@ -453,7 +481,10 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fMenuEdit.setTitle("Edit");
     fMenuEdit.addAction(&fActionDelete);
+    fMenuEdit.addAction(&fActionClearDeletes);
+    fMenuEdit.addSeparator();
     fMenuEdit.addAction(&fActionCreateBreakpoint);
+    fMenuEdit.addAction(&fActionClearBreakpoints);
 
     fMenuNavigate.setTitle("Navigate");
     fMenuNavigate.addAction(&fActionRewind);
@@ -465,6 +496,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fMenuView.setTitle("View");
     fMenuView.addAction(&fActionBreakpoint);
+    fMenuView.addAction(&fActionShowDeletes);
 
     fMenuWindows.setTitle("Window");
     fMenuWindows.addAction(&fActionInspector);
@@ -504,7 +536,9 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
             fSettingsWidget.getVisibilityButton()->isChecked());
     setupListWidget(cv);
     setupComboBox(cv);
+    fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
+    fMenuBar.setDisabled(false);
 }
 
 void SkDebuggerGUI::setupListWidget(std::vector<std::string>* cv) {
@@ -514,7 +548,6 @@ void SkDebuggerGUI::setupListWidget(std::vector<std::string>* cv) {
         QListWidgetItem *item = new QListWidgetItem();
         item->setData(Qt::DisplayRole, (*cv)[i].c_str());
         item->setData(Qt::UserRole + 1, counter++);
-        item->setData(Qt::UserRole + 2, true);
         fListWidget.addItem(item);
     }
 }
