@@ -281,7 +281,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkFILEWStream : public SkWStream {
+class SK_API SkFILEWStream : public SkWStream {
 public:
     SK_DECLARE_INST_COUNT(SkFILEWStream)
 
