@@ -9,21 +9,27 @@
 #include "gl/GrGLProgramStage.h"
 #include "GrProgramStageFactory.h"
 
+// For brevity, and these definitions are likely to move to a different class soon.
+typedef GrGLShaderBuilder::UniformHandle UniformHandle;
+static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
+
 class GrGLTextureDomainEffect : public GrGLProgramStage {
 public:
     GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
                             const GrCustomStage& stage);
 
-    virtual void setupVariables(GrGLShaderBuilder* state,
+    virtual void setupVariables(GrGLShaderBuilder* builder,
                                 int stage) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* state,
+    virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* state,
+    virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
 
-    virtual void initUniforms(const GrGLInterface*, int programID) SK_OVERRIDE;
+    virtual void initUniforms(const GrGLShaderBuilder* builder,
+                              const GrGLInterface*,
+                              int programID) SK_OVERRIDE;
 
     virtual void setData(const GrGLInterface*,
                          const GrCustomStage&,
@@ -33,8 +39,8 @@ public:
     static inline StageKey GenKey(const GrCustomStage&) { return 0; }
 
 private:
-    const GrGLShaderVar* fNameVar;
-    int                  fNameLocation;
+    UniformHandle fNameUni;
+    int           fNameLocation;
 
     typedef GrGLProgramStage INHERITED;
 };
@@ -42,36 +48,37 @@ private:
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
                                                  const GrCustomStage& stage)
     : GrGLProgramStage(factory)
-    , fNameVar(NULL)
+    , fNameUni(kInvalidUniformHandle)
     , fNameLocation(0) {
 }
 
-void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* state,
+void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* builder,
                                              int stage) {
-    fNameVar = &state->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                  kVec4f_GrSLType, "uTexDom", stage);
+    fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                   kVec4f_GrSLType, "uTexDom", stage);
     fNameLocation = kUseUniform;
 };
 
-void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* state,
+void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
                                      const char* outputColor,
                                      const char* inputColor,
                                      const char* samplerName) {
     SkString coordVar("clampCoord");
-    state->fFSCode.appendf("\t%s %s = clamp(%s, %s.xy, %s.zw);\n",
-                           GrGLShaderVar::TypeString(GrSLFloatVectorType(state->fCoordDims)),
+    builder->fFSCode.appendf("\t%s %s = clamp(%s, %s.xy, %s.zw);\n",
+                           GrGLShaderVar::TypeString(GrSLFloatVectorType(builder->fCoordDims)),
                            coordVar.c_str(),
-                           state->fSampleCoords.c_str(),
-                           fNameVar->getName().c_str(),
-                           fNameVar->getName().c_str());
-    state->fSampleCoords = coordVar;
+                           builder->fSampleCoords.c_str(),
+                           builder->getUniformCStr(fNameUni),
+                           builder->getUniformCStr(fNameUni));
+    builder->fSampleCoords = coordVar;
 
-    state->emitDefaultFetch(outputColor, samplerName);
+    builder->emitDefaultFetch(outputColor, samplerName);
 }
 
-void GrGLTextureDomainEffect::initUniforms(const GrGLInterface* gl, int programID) {
+void GrGLTextureDomainEffect::initUniforms(const GrGLShaderBuilder* builder,
+                                           const GrGLInterface* gl, int programID) {
     GR_GL_CALL_RET(gl, fNameLocation,
-                   GetUniformLocation(programID, fNameVar->getName().c_str()));
+                   GetUniformLocation(programID, builder->getUniformCStr(fNameUni)));
     GrAssert(kUnusedUniform != fNameLocation);
 }
 
