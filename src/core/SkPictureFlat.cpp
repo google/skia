@@ -60,11 +60,10 @@ SkRefCnt* SkRefCntPlayback::set(int index, SkRefCnt* obj) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
+SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
         int index, void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
         SkRefCntSet* refCntRecorder, SkRefCntSet* faceRecorder,
-        uint32_t writeBufferflags) {
-
+        uint32_t writeBufferflags, SkFactorySet* fset) {
     // a buffer of 256 bytes should be sufficient for most paints, regions,
     // and matrices.
     intptr_t storage[256];
@@ -76,7 +75,8 @@ SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
         buffer.setTypefaceRecorder(faceRecorder);
     }
     buffer.setFlags(writeBufferflags);
-
+    buffer.setFactoryRecorder(fset);
+    
     flattenProc(buffer, obj);
     uint32_t size = buffer.size();
     SkASSERT(SkIsAlign4(size));
@@ -88,7 +88,7 @@ SkFlatData* SkFlatData::Create(SkChunkAlloc* heap, const void* obj,
      *  3. 4-byte sentinel
      */
     size_t allocSize = sizeof(SkFlatData) + size + sizeof(uint32_t);
-    SkFlatData* result = (SkFlatData*) heap->allocThrow(allocSize);
+    SkFlatData* result = (SkFlatData*) controller->allocThrow(allocSize);
 
     result->fIndex = index;
     result->fFlatSize = size;

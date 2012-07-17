@@ -18,9 +18,9 @@ enum {
 
 SkPictureRecord::SkPictureRecord(uint32_t flags) :
         fHeap(HEAP_BLOCK_SIZE),
-        fBitmaps(&fHeap),
+        fBitmaps(&fHeap, &fRCSet),
         fMatrices(&fHeap),
-        fPaints(&fHeap),
+        fPaints(&fHeap, &fRCSet, &fTFSet),
         fRegions(&fHeap),
         fWriter(MIN_WRITER_SIZE),
         fRecordFlags(flags) {
@@ -555,7 +555,7 @@ void SkPictureRecord::addPaint(const SkPaint& paint) {
 }
 
 void SkPictureRecord::addPaintPtr(const SkPaint* paint) {
-    this->addInt(paint ? fPaints.find(*paint, &fRCSet, &fTFSet) : 0);
+    this->addInt(paint ? fPaints.find(*paint) : 0);
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {
@@ -666,7 +666,7 @@ int SkPictureRecord::find(const SkBitmap& bitmap) {
     
     uint32_t writeFlags = flattenPixels ?
         SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag : 0;
-    int index = fBitmaps.find(bitmap, &fRCSet, NULL, writeFlags);
+    int index = fBitmaps.find(bitmap, writeFlags);
 
     if (flattenPixels) {
         entry.fIndex = index;

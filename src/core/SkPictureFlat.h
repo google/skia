@@ -142,16 +142,39 @@ private:
 //                   which is agnostic to the type of data is is indexing. It is
 //                   also responsible for flattening/unflattening objects but
 //                   details of that operation are hidden in the provided procs
-// SkFlatDictionary: is a abstract templated dictionary that maintains a
+// SkFlatDictionary: is an abstract templated dictionary that maintains a
 //                   searchable set of SkFlataData objects of type T.
+// SkFlatController: is an interface provided to SkFlatDictionary which handles
+//                   allocation and unallocation in some cases
 //
 // NOTE: any class that wishes to be used in conjunction with SkFlatDictionary
 // must subclass the dictionary and provide the necessary flattening procs.
 // The end of this header contains dictionary subclasses for some common classes
-// like SkBitmap, SkMatrix, SkPaint, and SkRegion.
+// like SkBitmap, SkMatrix, SkPaint, and SkRegion. SkFlatController must also
+// be implemented, or SkChunkFlatController can be used to use an
+// SkChunkAllocator and never do replacements.
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+class SkFlatData;
+
+class SkFlatController : public SkRefCnt {
+public:
+    /**
+     * Provide a new block of memory for the SkFlatDictionary to use.
+     */
+    virtual void* allocThrow(size_t bytes) = 0;
+
+    /**
+     * Unallocate a previously allocated block, returned by allocThrow.
+     * Implementation should at least perform an unallocation if passed the last
+     * pointer returned by allocThrow. If findAndReplace() is intended to be
+     * used, unalloc should also be able to unallocate the SkFlatData that is
+     * provided.
+     */
+    virtual void unalloc(void* ptr) = 0;
+};
 
 class SkFlatData {
 public:
@@ -192,6 +215,8 @@ public:
     void* data() { return (char*)this + sizeof(*this); }
     // Our data is always 32bit aligned, so we can offer this accessor
     uint32_t* data32() { return (uint32_t*)this->data(); }
+    // Returns the size of the flattened data.
+    size_t flatSize() const { return fFlatSize; }
 
     void setSentinelInCache() {
         this->setSentinel(kInCache_Sentinel);
@@ -210,15 +235,21 @@ public:
     }
 #endif
 
-    static SkFlatData* Create(SkChunkAlloc* heap, const void* obj, int index,
+    static SkFlatData* Create(SkFlatController* controller, const void* obj, int index,
                               void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
                               SkRefCntSet* refCntRecorder = NULL,
                               SkRefCntSet* faceRecorder = NULL,
-                              uint32_t writeBufferflags = 0);
+                              uint32_t writeBufferflags = 0,
+                              SkFactorySet* fset = NULL);
+
     void unflatten(void* result,
                    void (*unflattenProc)(SkOrderedReadBuffer&, void*),
                    SkRefCntPlayback* refCntPlayback = NULL,
                    SkTypefacePlayback* facePlayback = NULL) const;
+
+    // When we purge an entry, we want to reuse an old index for the new entry,
+    // so we expose this setter.
+    void setIndex(int index) { fIndex = index; }
 
     // for unittesting
     friend bool operator==(const SkFlatData& a, const SkFlatData& b) {
@@ -257,13 +288,28 @@ private:
 template <class T>
 class SkFlatDictionary {
 public:
-    SkFlatDictionary(SkChunkAlloc* heap) {
+    SkFlatDictionary(SkFlatController* controller, SkRefCntSet* refSet = NULL,
+                     SkRefCntSet* typeFaceSet = NULL,
+                     SkFactorySet* factorySet = NULL)
+    : fController(controller), fRefSet(refSet), fTypefaceSet(typeFaceSet)
+    , fFactorySet(factorySet) {
         fFlattenProc = NULL;
         fUnflattenProc = NULL;
-        fHeap = heap;
+        SkASSERT(controller);
+        fController->ref();
+        SkSafeRef(refSet);
+        SkSafeRef(typeFaceSet);
+        SkSafeRef(factorySet);
         // set to 1 since returning a zero from find() indicates failure
         fNextIndex = 1;
         sk_bzero(fHash, sizeof(fHash));
+    }
+
+    virtual ~SkFlatDictionary() {
+        fController->unref();
+        SkSafeUnref(fRefSet);
+        SkSafeUnref(fTypefaceSet);
+        SkSafeUnref(fFactorySet);
     }
 
     int count() const { return fData.count(); }
@@ -282,49 +328,66 @@ public:
         fNextIndex = 1;
         sk_bzero(fHash, sizeof(fHash));
     }
-    
+
     /**
-     * Given an element of type T it returns its index in the dictionary. If
-     * the element wasn't previously in the dictionary it is automatically added
-     *
-     *  To make the Compare function fast, we write a sentinel value at the end
-     *  of each block. The blocks in our fData[] all have a 0 sentinel. The
-     *  newly created block we're comparing against has a -1 in the sentinel.
-     *
-     *  This trick allows Compare to always loop until failure. If it fails on
-     *  the sentinal value, we know the blocks are equal.
+     * Similar to find. Allows the caller to specify an SkFlatData to replace in
+     * the case of an add. Also tells the caller whether a new SkFlatData was
+     * added and whether the old one was replaced. The parameters added and
+     * replaced are required to be non-NULL. Rather than returning the index of
+     * the entry in the dictionary, it returns the actual SkFlatData.
      */
-    int find(const T& element, SkRefCntSet* refCntRecorder = NULL,
-             SkRefCntSet* faceRecorder = NULL, uint32_t writeBufferflags = 0) {
-
-        SkFlatData* flat = SkFlatData::Create(fHeap, &element, fNextIndex,
-                fFlattenProc, refCntRecorder, faceRecorder, writeBufferflags);
-
-        int hashIndex = ChecksumToHashIndex(flat->checksum());
-        const SkFlatData* candidate = fHash[hashIndex];
-        if (candidate && !SkFlatData::Compare(flat, candidate)) {
-            (void)fHeap->unalloc(flat);
-            return candidate->index();
+    const SkFlatData* findAndReplace(const T& element,
+                                     uint32_t writeBufferFlags,
+                                     const SkFlatData* toReplace, bool* added,
+                                     bool* replaced) {
+        SkASSERT(added != NULL && replaced != NULL);
+        int oldCount = fData.count();
+        const SkFlatData* flat = this->findAndReturnFlat(element,
+                                                         writeBufferFlags);
+        *added = fData.count() == oldCount + 1;
+        *replaced = false;
+        if (*added && toReplace != NULL) {
+            // First, find the index of the one to replace
+            int indexToReplace = fData.find(toReplace);
+            if (indexToReplace >= 0) {
+                // findAndReturnFlat set the index to fNextIndex and increased
+                // fNextIndex by one. Reuse the index from the one being
+                // replaced and reset fNextIndex to the proper value.
+                const_cast<SkFlatData*>(flat)->setIndex(toReplace->index());
+                fNextIndex--;
+                // Remove from the array.
+                fData.remove(indexToReplace);
+                // Remove from the hash table.
+                int oldHash = ChecksumToHashIndex(toReplace->checksum());
+                if (fHash[oldHash] == toReplace) {
+                    fHash[oldHash] = NULL;
+                }
+                // Delete the actual object.
+                fController->unalloc((void*)toReplace);
+                *replaced = true;
+            }
         }
-        
-        int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
-                fData.count(), flat, sizeof(flat), &SkFlatData::Compare);
-        if (index >= 0) {
-            (void)fHeap->unalloc(flat);
-            fHash[hashIndex] = fData[index];
-            return fData[index]->index();
-        }
-
-        index = ~index;
-        *fData.insert(index) = flat;
-        flat->setSentinelInCache();
-        fHash[hashIndex] = flat;
-        SkASSERT(fData.count() == fNextIndex);
-        return fNextIndex++;
+        return flat;
     }
 
     /**
-     * Given a pointer to a array of type T we allocate the array and fill it
+     * Given an element of type T return its 1-based index in the dictionary. If
+     * the element wasn't previously in the dictionary it is automatically
+     * added.
+     *
+     * To make the Compare function fast, we write a sentinel value at the end
+     * of each block. The blocks in our fData[] all have a 0 sentinel. The
+     * newly created block we're comparing against has a -1 in the sentinel.
+     *
+     * This trick allows Compare to always loop until failure. If it fails on
+     * the sentinal value, we know the blocks are equal.
+     */
+    int find(const T& element, uint32_t writeBufferflags = 0) {
+        return this->findAndReturnFlat(element, writeBufferflags)->index();
+    }
+
+    /**
+     * Given a pointer to an array of type T we allocate the array and fill it
      * with the unflattened dictionary contents. The return value is the size of
      * the allocated array.
      */
@@ -349,9 +412,45 @@ protected:
     void (*fUnflattenProc)(SkOrderedReadBuffer&, void*);
 
 private:
-    SkChunkAlloc* fHeap;
-    int fNextIndex;
+    SkFlatController * const     fController;
+    int                          fNextIndex;
     SkTDArray<const SkFlatData*> fData;
+    SkRefCntSet*                 fRefSet;
+    SkRefCntSet*                 fTypefaceSet;
+    SkFactorySet*                fFactorySet;
+
+    const SkFlatData* findAndReturnFlat(const T& element,
+                                        uint32_t writeBufferflags) {
+        SkFlatData* flat = SkFlatData::Create(fController, &element, fNextIndex,
+                                              fFlattenProc, fRefSet,
+                                              fTypefaceSet, writeBufferflags,
+                                              fFactorySet);
+        
+        int hashIndex = ChecksumToHashIndex(flat->checksum());
+        const SkFlatData* candidate = fHash[hashIndex];
+        if (candidate && !SkFlatData::Compare(flat, candidate)) {
+            fController->unalloc(flat);
+            return candidate;
+        }
+        
+        int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
+                                          fData.count(), flat, sizeof(flat),
+                                          &SkFlatData::Compare);
+        if (index >= 0) {
+            fController->unalloc(flat);
+            fHash[hashIndex] = fData[index];
+            return fData[index];
+        }
+        
+        index = ~index;
+        *fData.insert(index) = flat;
+        SkASSERT(fData.count() == fNextIndex);
+        fNextIndex++;
+        flat->setSentinelInCache();
+        fHash[hashIndex] = flat;
+        return flat;
+    }
+    
 
     enum {
         // Determined by trying diff values on picture-recording benchmarks
@@ -393,9 +492,29 @@ static void SkUnflattenObjectProc(SkOrderedReadBuffer& buffer, void* obj) {
     ((T*)obj)->unflatten(buffer);
 }
 
+class SkChunkFlatController : public SkFlatController {
+public:
+    SkChunkFlatController(size_t minSize)
+    : fHeap(minSize) {}
+
+    virtual void* allocThrow(size_t bytes) {
+        return fHeap.allocThrow(bytes);
+    }
+
+    virtual void unalloc(void* ptr) {
+        (void) fHeap.unalloc(ptr);
+    }
+    void reset() { fHeap.reset(); }
+private:
+    SkChunkAlloc fHeap;
+};
+
 class SkBitmapDictionary : public SkFlatDictionary<SkBitmap> {
 public:
-    SkBitmapDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkBitmap>(heap) {
+    SkBitmapDictionary(SkFlatController* controller, SkRefCntSet* refSet = NULL,
+                       SkRefCntSet* typefaceSet = NULL,
+                       SkFactorySet* factorySet = NULL)
+    : SkFlatDictionary<SkBitmap>(controller, refSet, typefaceSet, factorySet) {
         fFlattenProc = &SkFlattenObjectProc<SkBitmap>;
         fUnflattenProc = &SkUnflattenObjectProc<SkBitmap>;
     }
@@ -403,7 +522,8 @@ public:
 
 class SkMatrixDictionary : public SkFlatDictionary<SkMatrix> {
  public:
-    SkMatrixDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkMatrix>(heap) {
+    SkMatrixDictionary(SkFlatController* controller)
+    : SkFlatDictionary<SkMatrix>(controller) {
         fFlattenProc = &flattenMatrix;
         fUnflattenProc = &unflattenMatrix;
     }
@@ -419,7 +539,9 @@ class SkMatrixDictionary : public SkFlatDictionary<SkMatrix> {
 
 class SkPaintDictionary : public SkFlatDictionary<SkPaint> {
  public:
-    SkPaintDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkPaint>(heap) {
+    SkPaintDictionary(SkFlatController* controller, SkRefCntSet* refSet,
+                      SkRefCntSet* typefaceSet)
+    : SkFlatDictionary<SkPaint>(controller, refSet, typefaceSet) {
         fFlattenProc = &SkFlattenObjectProc<SkPaint>;
         fUnflattenProc = &SkUnflattenObjectProc<SkPaint>;
     }
@@ -427,7 +549,8 @@ class SkPaintDictionary : public SkFlatDictionary<SkPaint> {
 
 class SkRegionDictionary : public SkFlatDictionary<SkRegion> {
  public:
-    SkRegionDictionary(SkChunkAlloc* heap) : SkFlatDictionary<SkRegion>(heap) {
+    SkRegionDictionary(SkFlatController* controller)
+    : SkFlatDictionary<SkRegion>(controller) {
         fFlattenProc = &flattenRegion;
         fUnflattenProc = &unflattenRegion;
     }
