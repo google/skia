@@ -8,6 +8,7 @@
 #include "SkGpuDevice.h"
 
 #include "effects/GrGradientEffects.h"
+#include "effects/GrTextureDomainEffect.h"
 
 #include "GrContext.h"
 #include "GrTextContext.h"
@@ -1453,8 +1454,10 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
             top = bottom = GrScalarHalf(paintRect.top() + paintRect.bottom());
         }
         textureDomain.setLTRB(left, top, right, bottom);  
+        sampler->setCustomStage(SkNEW_ARGS(GrTextureDomainEffect,
+                     (texture,
+                      textureDomain)))->unref();
     }
-    sampler->setTextureDomain(textureDomain);
 
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
 }

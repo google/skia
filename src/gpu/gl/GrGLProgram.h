@@ -112,7 +112,6 @@ public:
             enum OptFlagBits {
                 kNoPerspective_OptFlagBit       = 1 << 0,
                 kIdentityMatrix_OptFlagBit      = 1 << 1,
-                kCustomTextureDomain_OptFlagBit = 1 << 2,
                 kIsEnabled_OptFlagBit           = 1 << 7
             };
 
@@ -322,10 +321,9 @@ private:
     GrColor                     fColor;
     GrColor                     fCoverage;
     GrColor                     fColorFilterColor;
+    /// When it is sent to GL, the texture matrix will be flipped if the texture orientation
+    /// (below) requires.
     GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
-    GrRect                      fTextureDomain[GrDrawState::kNumStages];
-    // The texture domain and texture matrix sent to GL depend upon the
-    // orientation.
     GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
 
     GrGLProgramStage*           fProgramStage[GrDrawState::kNumStages];

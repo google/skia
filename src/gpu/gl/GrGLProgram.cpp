@@ -86,11 +86,6 @@ inline void sampler_name(int stage, SkString* s) {
     *s = "uSampler";
     s->appendS32(stage);
 }
-
-inline void tex_domain_name(int stage, SkString* s) {
-    *s = "uTexDom";
-    s->appendS32(stage);
-}
 }
 
 GrGLProgram::GrGLProgram() {
@@ -1023,14 +1018,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
                 GrAssert(kUnusedUniform != locations.fSamplerUni);
             }
 
-            if (kUseUniform == locations.fTexDomUni) {
-                SkString texDomName;
-                tex_domain_name(s, &texDomName);
-                GL_CALL_RET(locations.fTexDomUni,
-                            GetUniformLocation(fProgramID, texDomName.c_str()));
-                GrAssert(kUnusedUniform != locations.fTexDomUni);
-            }
-
             if (NULL != fProgramStage[s]) {
                 fProgramStage[s]->initUniforms(&builder, gl.interface(), fProgramID);
             }
@@ -1044,7 +1031,6 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
             GL_CALL(Uniform1i(fUniLocations.fStages[s].fSamplerUni, s));
         }
         fTextureMatrices[s] = GrMatrix::InvalidMatrix();
-        fTextureDomain[s].setEmpty();
         // this is arbitrary, just initialize to something
         fTextureOrientation[s] = GrGLTexture::kBottomUp_Orientation;
         // Must not reset fStageOverride[] here.
@@ -1153,22 +1139,6 @@ void GrGLProgram::genStageCode(const GrGLContextInfo& gl,
     static const uint32_t kMulByAlphaMask =
         (StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
          StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag);
-
-    if (desc.fOptFlags & StageDesc::kCustomTextureDomain_OptFlagBit) {
-        SkString texDomainName;
-        tex_domain_name(stageNum, &texDomainName);
-        segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                             kVec4f_GrSLType, texDomainName.c_str());
-        SkString coordVar("clampCoord");
-        segments->fFSCode.appendf("\t%s %s = clamp(%s, %s.xy, %s.zw);\n",
-                                  float_vector_type_str(segments->fCoordDims),
-                                  coordVar.c_str(),
-                                  segments->fSampleCoords.c_str(),
-                                  texDomainName.c_str(),
-                                  texDomainName.c_str());
-        segments->fSampleCoords = coordVar;
-        locations.fTexDomUni = kUseUniform;
-    }
 
     // NOTE: GrGLProgramStages are now responsible for fetching
     if (NULL == customStage) {

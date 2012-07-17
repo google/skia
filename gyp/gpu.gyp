@@ -295,6 +295,8 @@
         '../src/gpu/effects/GrMorphologyEffect.h',
         '../src/gpu/effects/GrSingleTextureEffect.cpp',
         '../src/gpu/effects/GrSingleTextureEffect.h',
+        '../src/gpu/effects/GrTextureDomainEffect.cpp',
+        '../src/gpu/effects/GrTextureDomainEffect.h',
 
         '../src/gpu/gl/GrGLCaps.cpp',
         '../src/gpu/gl/GrGLCaps.h',

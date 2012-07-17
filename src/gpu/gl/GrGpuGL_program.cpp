@@ -248,30 +248,6 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
             fCurrentProgram->fTextureMatrices[s] = samplerMatrix;
         }
 
-        const GrGLint& domUni =  fCurrentProgram->fUniLocations.fStages[s].fTexDomUni;
-        const GrRect &texDom = drawState.getSampler(s).getTextureDomain();
-        if (GrGLProgram::kUnusedUniform != domUni &&
-            (orientationChange ||fCurrentProgram->fTextureDomain[s] != texDom)) {
-
-            fCurrentProgram->fTextureDomain[s] = texDom;
-
-            float values[4] = {
-                GrScalarToFloat(texDom.left()),
-                GrScalarToFloat(texDom.top()),
-                GrScalarToFloat(texDom.right()),
-                GrScalarToFloat(texDom.bottom())
-            };
-
-            // vertical flip if necessary
-            if (GrGLTexture::kBottomUp_Orientation == texture->orientation()) {
-                values[1] = 1.0f - values[1];
-                values[3] = 1.0f - values[3];
-                // The top and bottom were just flipped, so correct the ordering
-                // of elements so that values = (l, t, r, b).
-                SkTSwap(values[1], values[3]);
-            }
-            GL_CALL(Uniform4fv(domUni, 1, values));
-        }
         fCurrentProgram->fTextureOrientation[s] = texture->orientation();
     }
 }
@@ -766,14 +742,6 @@ void GrGpuGL::buildProgram(bool isPoints,
                 stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
             } else if (!sampler.getMatrix().hasPerspective()) {
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-            }
-
-            if (sampler.hasTextureDomain()) {
-                GrAssert(GrSamplerState::kClamp_WrapMode ==
-                            sampler.getWrapX() &&
-                         GrSamplerState::kClamp_WrapMode ==
-                            sampler.getWrapY());
-                stage.fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
             }
 
             stage.fInConfigFlags = 0;

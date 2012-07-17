@@ -79,7 +79,6 @@ public:
         fFilter = s.fFilter;
         fMatrix = s.fMatrix;
         fSwapRAndB = s.fSwapRAndB;
-        fTextureDomain = s.fTextureDomain;
 
         GrSafeAssign(fCustomStage, s.fCustomStage);
 
@@ -89,8 +88,6 @@ public:
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
     const GrMatrix& getMatrix() const { return fMatrix; }
-    const GrRect& getTextureDomain() const { return fTextureDomain; }
-    bool hasTextureDomain() const {return SkIntToScalar(0) != fTextureDomain.right();}
     Filter getFilter() const { return fFilter; }
     bool swapsRAndB() const { return fSwapRAndB; }
 
@@ -102,13 +99,6 @@ public:
      * relationship between the matrix and sample mode.
      */
     GrMatrix* matrix() { return &fMatrix; }
-
-    /**
-     * Sets the sampler's texture coordinate domain to a 
-     * custom rectangle, rather than the default (0,1).
-     * This option is currently only supported with kClamp_WrapMode
-     */
-    void setTextureDomain(const GrRect& textureDomain) { fTextureDomain = textureDomain; }
 
     /**
      * Swaps the R and B components when reading from the texture. Has no effect
@@ -141,7 +131,6 @@ public:
         fWrapY = wrapXAndY;
         fFilter = filter;
         fMatrix = matrix;
-        fTextureDomain.setEmpty();
         fSwapRAndB = false;
         GrSafeSetNull(fCustomStage);
     }
@@ -167,7 +156,6 @@ private:
     Filter              fFilter : 8;
     bool                fSwapRAndB;
     GrMatrix            fMatrix;
-    GrRect              fTextureDomain;
 
     GrCustomStage*      fCustomStage;
 };
