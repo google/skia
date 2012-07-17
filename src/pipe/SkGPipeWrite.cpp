@@ -63,30 +63,44 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
  * used by multiple readers.
  * TODO: Make the allocations all come from cross process safe address space
  * TODO: Store paths (others?)
- * TODO: Allow reclaiming of memory. Will require us to know when all readers
- *       have used the object.
+ * TODO: Generalize the LRU caching mechanism
  */
 class Heap {
 public:
-    Heap(bool shallow) : fCanDoShallowCopies(shallow) {}
+    Heap(bool shallow, int numOfReaders)
+        : fBitmapCount(0)
+        , fMostRecentlyUsed(NULL)
+        , fLeastRecentlyUsed(NULL)
+        , fCanDoShallowCopies(shallow)
+        , fNumberOfReaders(numOfReaders) {}
     ~Heap() {
-        for (int i = 0; i < fBitmaps.count(); i++) {
-            delete fBitmaps[i].fBitmap;
+        BitmapInfo* iter = fMostRecentlyUsed;
+        while (iter != NULL) {
+            BitmapInfo* next = iter->fLessRecentlyUsed;
+            SkDELETE(iter);
+            fBitmapCount--;
+            iter = next;
         }
+        SkASSERT(0 == fBitmapCount);
     }
 
     /*
      * Add a copy of a bitmap to the heap.
      * @param bm The SkBitmap to be copied and placed in the heap.
-     * @return void* Pointer to the heap's copy of the bitmap. If NULL,
+     * @return void* Pointer to the BitmapInfo stored in the heap, which
+     *               contains a copy of the SkBitmap. If NULL,
      *               the bitmap could not be copied.
      */
-    const SkBitmap* addBitmap(const SkBitmap& orig) {
+    const void* addBitmap(const SkBitmap& orig) {
         const uint32_t genID = orig.getGenerationID();
         SkPixelRef* sharedPixelRef = NULL;
-        for (int i = fBitmaps.count() - 1; i >= 0; i--) {
-            SkBitmap* storedBitmap = fBitmaps[i].fBitmap;
-            if (genID == fBitmaps[i].fGenID) {
+        // When looking to see if we've previously used this bitmap, start at
+        // the end, assuming that the caller is more likely to reuse a recent
+        // one.
+        BitmapInfo* iter = fMostRecentlyUsed;
+        while (iter != NULL) {
+            if (genID == iter->fGenID) {
+                SkBitmap* storedBitmap = iter->fBitmap;
                 if (orig.pixelRefOffset() != storedBitmap->pixelRefOffset()
                     || orig.width() != storedBitmap->width()
                     || orig.height() != storedBitmap->height()) {
@@ -97,46 +111,138 @@ public:
                     sharedPixelRef = storedBitmap->pixelRef();
                     break;
                 }
-                return storedBitmap;
+                iter->addDraws(fNumberOfReaders);
+                this->setMostRecentlyUsed(iter);
+                return iter;
             }
+            iter = iter->fLessRecentlyUsed;
         }
+        SkAutoRef ar((SkRefCnt*)sharedPixelRef);
+        BitmapInfo* replace = this->bitmapToReplace(orig);
         SkBitmap* copy;
         // If the bitmap is mutable, we still need to do a deep copy, since the
         // caller may modify it afterwards. That said, if the bitmap is mutable,
         // but has no pixelRef, the copy constructor actually does a deep copy.
         if (fCanDoShallowCopies && (orig.isImmutable() || !orig.pixelRef())) {
-            copy = new SkBitmap(orig);
+            if (NULL == replace) {
+                copy = SkNEW_ARGS(SkBitmap, (orig));
+            } else {
+                *replace->fBitmap = orig;
+            }
         } else {
             if (sharedPixelRef != NULL) {
-                // Do a shallow copy of the bitmap to get the width, height, etc
-                copy = new SkBitmap(orig);
-                // Replace the pixelRef with the copy that was already made, and
-                // use the appropriate offset.
-                copy->setPixelRef(sharedPixelRef, orig.pixelRefOffset());
+                if (NULL == replace) {
+                    // Do a shallow copy of the bitmap to get the width, height, etc
+                    copy = SkNEW_ARGS(SkBitmap, (orig));
+                    // Replace the pixelRef with the copy that was already made, and
+                    // use the appropriate offset.
+                    copy->setPixelRef(sharedPixelRef, orig.pixelRefOffset());
+                } else {
+                    *replace->fBitmap = orig;
+                    replace->fBitmap->setPixelRef(sharedPixelRef, orig.pixelRefOffset());
+                }
             } else {
-                copy = new SkBitmap();
-                if (!orig.copyTo(copy, orig.getConfig())) {
-                    delete copy;
-                    return NULL;
+                if (NULL == replace) {
+                    copy = SkNEW(SkBitmap);
+                    if (!orig.copyTo(copy, orig.getConfig())) {
+                        delete copy;
+                        return NULL;
+                    }
+                } else {
+                    if (!orig.copyTo(replace->fBitmap, orig.getConfig())) {
+                        return NULL;
+                    }
                 }
             }
         }
-        BitmapInfo* info = fBitmaps.append();
-        info->fBitmap = copy;
-        info->fGenID = genID;
-        return copy;
+        BitmapInfo* info;
+        if (NULL == replace) {
+            info = SkNEW_ARGS(BitmapInfo, (copy, genID, fNumberOfReaders));
+            fBitmapCount++;
+        } else {
+            replace->fGenID = genID;
+            replace->addDraws(fNumberOfReaders);
+            info = replace;
+        }
+        this->setMostRecentlyUsed(info);
+        return info;
     }
 private:
-    struct BitmapInfo {
-        SkBitmap* fBitmap;
-        // Store the generation ID of the original bitmap, since copying does
-        // not copy this field, so fBitmap's generation ID will not be useful
-        // for comparing.
-        uint32_t fGenID;
-    };
-    SkTDArray<BitmapInfo>   fBitmaps;
-    const bool              fCanDoShallowCopies;
+    void setMostRecentlyUsed(BitmapInfo* info);
+    BitmapInfo* bitmapToReplace(const SkBitmap& bm) const;
+
+    int         fBitmapCount;
+    BitmapInfo* fLeastRecentlyUsed;
+    BitmapInfo* fMostRecentlyUsed;
+    const bool  fCanDoShallowCopies;
+    const int   fNumberOfReaders;
 };
+
+// We just "used" info. Update our LRU accordingly
+void Heap::setMostRecentlyUsed(BitmapInfo* info) {
+    SkASSERT(info != NULL);
+    if (info == fMostRecentlyUsed) {
+        return;
+    }
+    // Remove info from its prior place, and make sure to cover the hole.
+    if (fLeastRecentlyUsed == info) {
+        SkASSERT(info->fMoreRecentlyUsed != NULL);
+        fLeastRecentlyUsed = info->fMoreRecentlyUsed;
+    }
+    if (info->fMoreRecentlyUsed != NULL) {
+        SkASSERT(fMostRecentlyUsed != info);
+        info->fMoreRecentlyUsed->fLessRecentlyUsed = info->fLessRecentlyUsed;
+    }
+    if (info->fLessRecentlyUsed != NULL) {
+        SkASSERT(fLeastRecentlyUsed != info);
+        info->fLessRecentlyUsed->fMoreRecentlyUsed = info->fMoreRecentlyUsed;
+    }
+    info->fMoreRecentlyUsed = NULL;
+    // Set up the head and tail pointers properly.
+    if (fMostRecentlyUsed != NULL) {
+        SkASSERT(NULL == fMostRecentlyUsed->fMoreRecentlyUsed);
+        fMostRecentlyUsed->fMoreRecentlyUsed = info;
+        info->fLessRecentlyUsed = fMostRecentlyUsed;
+    }
+    fMostRecentlyUsed = info;
+    if (NULL == fLeastRecentlyUsed) {
+        fLeastRecentlyUsed = info;
+    }
+}
+
+/**
+ * Given a new bitmap to be added to the cache, return an existing one that
+ * should be removed to make room, or NULL if there is already room.
+ */
+BitmapInfo* Heap::bitmapToReplace(const SkBitmap& bm) const {
+    // Arbitrarily set a limit of 5. We should test to find the best tradeoff
+    // between time and space. A lower limit means that we use less space, but
+    // it also means that we may have to insert the same bitmap into the heap
+    // multiple times (depending on the input), potentially taking more time.
+    // On the other hand, a lower limit also means searching through our stored
+    // bitmaps takes less time.
+    if (fBitmapCount > 5) {
+        BitmapInfo* iter = fLeastRecentlyUsed;
+        while (iter != NULL) {
+            if (iter->drawCount() > 0) {
+                // If the least recently used bitmap has not been drawn by some
+                // reader, then a more recently used one will not have been
+                // drawn yet either.
+                return NULL;
+            }
+            if (bm.pixelRef() != NULL
+                    && bm.pixelRef() == iter->fBitmap->pixelRef()) {
+                // Do not replace a bitmap with a new one using the same
+                // pixel ref. Instead look for a different one that will
+                // potentially free up more space.
+                iter = iter->fMoreRecentlyUsed;
+            } else {
+                return iter;
+            }
+        }
+    }
+    return NULL;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -409,8 +515,8 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, SkFactorySet* fset, uint32_t flags)
-: fHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag)), fWriter(*writer), fFlags(flags)
-, fBytesOfFlatData(0){
+: fHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag), controller->numberOfReaders())
+, fWriter(*writer), fFlags(flags), fBytesOfFlatData(0) {
     fFactorySet = fset;
     fController = controller;
     fDone = false;
