@@ -68,6 +68,7 @@ public:
      *  bytes will always be a multiple of 4.
      */
     virtual void notifyWritten(size_t bytes) = 0;
+    virtual int numberOfReaders() const { return 1; }
 };
 
 class SkGPipeWriter {

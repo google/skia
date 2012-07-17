@@ -139,6 +139,52 @@ enum {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class BitmapInfo : SkNoncopyable {
+public:
+    BitmapInfo(SkBitmap* bitmap, uint32_t genID, int toBeDrawnCount)
+        : fBitmap(bitmap)
+        , fGenID(genID)
+        , fMoreRecentlyUsed(NULL)
+        , fLessRecentlyUsed(NULL)
+        , fToBeDrawnCount(toBeDrawnCount)
+    {}
+
+    ~BitmapInfo() {
+        SkASSERT(0 == fToBeDrawnCount);
+        SkDELETE(fBitmap);
+    }
+
+    void addDraws(int drawsToAdd) {
+        if (0 == fToBeDrawnCount) {
+            // The readers will only ever decrement the count, so once the
+            // count is zero, the writer will be the only one modifying it,
+            // so it does not need to be an atomic operation.
+            fToBeDrawnCount = drawsToAdd;
+        } else {
+            sk_atomic_add(&fToBeDrawnCount, drawsToAdd);
+        }
+    }
+
+    void decDraws() {
+        sk_atomic_dec(&fToBeDrawnCount);
+    }
+
+    int drawCount() const {
+        return fToBeDrawnCount;
+    }
+
+    SkBitmap* fBitmap;
+    // Store the generation ID of the original bitmap, since copying does
+    // not copy this field, so fBitmap's generation ID will not be useful
+    // for comparing.
+    uint32_t fGenID;
+    // TODO: Generalize the LRU caching mechanism
+    BitmapInfo* fMoreRecentlyUsed;
+    BitmapInfo* fLessRecentlyUsed;
+private:
+    int      fToBeDrawnCount;
+};
+
 static inline bool shouldFlattenBitmaps(uint32_t flags) {
     return flags & SkGPipeWriter::kCrossProcess_Flag
             && !(flags & SkGPipeWriter::kSharedAddressSpace_SkGPipeFlag);

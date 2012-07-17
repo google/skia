@@ -34,6 +34,7 @@ public:
     TiledPipeController(const SkBitmap&, const SkMatrix* initialMatrix = NULL);
     virtual ~TiledPipeController() {};
     virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
+    virtual int numberOfReaders() const SK_OVERRIDE { return NumberOfTiles; }
 private:
     enum {
         NumberOfTiles = 10
