@@ -350,6 +350,8 @@ public:
         }
     }
 
+    void flushRecording(bool detachCurrentBlock);
+
     // overrides from SkCanvas
     virtual int save(SaveFlags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint*,
@@ -1077,6 +1079,14 @@ void SkGPipeCanvas::drawData(const void* ptr, size_t size) {
     }
 }
 
+void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
+    doNotify();
+    if (detachCurrentBlock) {
+        // force a new block to be requested for the next recorded command
+        fBlockSize = 0; 
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T> uint32_t castToU32(T value) {
@@ -1217,5 +1227,9 @@ void SkGPipeWriter::endRecording() {
         fCanvas->unref();
         fCanvas = NULL;
     }
+}
+
+void SkGPipeWriter::flushRecording(bool detachCurrentBlock){
+    fCanvas->flushRecording(detachCurrentBlock);
 }
 

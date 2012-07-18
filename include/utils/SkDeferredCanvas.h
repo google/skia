@@ -8,16 +8,26 @@
 #ifndef SkDeferredCanvas_DEFINED
 #define SkDeferredCanvas_DEFINED
 
+#ifndef SK_DEFERRED_CANVAS_USES_GPIPE
+#define SK_DEFERRED_CANVAS_USES_GPIPE 0
+#endif
+
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkPicture.h"
 #include "SkPixelRef.h"
 
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+#include "SkGPipe.h"
+#include "SkChunkAlloc.h"
+#else
+#include "SkPicture.h"
+#endif
+
 /** \class SkDeferredCanvas
-    Subclass of SkCanvas that encapsulates an SkPicture for deferred drawing.
-    The main difference between this class and SkPictureRecord (the canvas
-    provided by SkPicture) is that this is a full drop-in replacement for
-    SkCanvas, while SkPictureRecord only supports draw operations.
+    Subclass of SkCanvas that encapsulates an SkPicture or SkGPipe for deferred
+    drawing. The main difference between this class and SkPictureRecord (the
+    canvas provided by SkPicture) is that this is a full drop-in replacement
+    for SkCanvas, while SkPictureRecord only supports draw operations.
     SkDeferredCanvas will transparently trigger the flushing of deferred
     draw operations when an attempt is made to access the pixel data.
 */
@@ -149,6 +159,35 @@ public:
         typedef SkRefCnt INHERITED;
     };
 
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+protected:
+    class DeferredPipeController : public SkGPipeController {
+    public:
+        DeferredPipeController();
+        void setPlaybackCanvas(SkCanvas*);
+        virtual ~DeferredPipeController();
+        virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
+        virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
+        void playback();
+        void reset();
+        bool hasRecorded() {return fAllocator.blockCount() != 0;}
+    private:
+        enum {
+            kMinBlockSize = 4096
+        };
+        struct PipeBlock {
+            PipeBlock(void* block, size_t size) { fBlock = block, fSize = size; }
+            void* fBlock;
+            size_t fSize;
+        };
+        void* fBlock;
+        size_t fBytesWritten;
+        SkChunkAlloc fAllocator;
+        SkTDArray<PipeBlock> fBlockList;
+        SkGPipeReader fReader;
+    };
+#endif
+
 public:
     class DeferredDevice : public SkDevice {
     public:
@@ -277,7 +316,15 @@ public:
     private:
         virtual void flush();
 
+        void endRecording();
+        void beginRecording();
+
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+        SkGPipeWriter  fPipeWriter;
+        DeferredPipeController fPipeController;
+#else
         SkPicture fPicture;
+#endif
         SkDevice* fImmediateDevice;
         SkCanvas* fImmediateCanvas;
         SkCanvas* fRecordingCanvas;

@@ -6,11 +6,12 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
+        '../include/effects',
+        '../include/pipe',
         '../include/utils',
         '../include/utils/mac',
         '../include/utils/unix',
         '../include/utils/win',
-        '../include/effects',
         '../include/xml',
       ],
       'sources': [
