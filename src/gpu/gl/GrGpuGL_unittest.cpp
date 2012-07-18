@@ -1,5 +1,6 @@
 #include "GrGpuGL.h"
 
+#include "effects/GrColorTableEffect.h"
 #include "effects/GrConvolutionEffect.h"
 #include "effects/GrGradientEffects.h"
 #include "effects/GrMorphologyEffect.h"
@@ -47,6 +48,7 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
         kSpecularPoint_EffectType,
         kSpecularSpot_EffectType,
         kSweepGradient_EffectType,
+        kColorTable_EffectType,
 
         kEffectCount
     };
@@ -206,6 +208,9 @@ GrCustomStage* create_random_effect(StageDesc* stageDesc,
             bool ok = filter->asNewCustomStage(&stage, NULL);
             SkASSERT(ok);
             return stage;
+        }
+        case kColorTable_EffectType: {
+            return SkNEW_ARGS(GrColorTableEffect, (NULL));
         }
         default:
             GrCrash("Unexpected custom effect type");

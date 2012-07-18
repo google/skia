@@ -287,6 +287,8 @@
         '../src/gpu/gr_unittests.cpp',
 
         '../src/gpu/effects/Gr1DKernelEffect.h',
+        '../src/gpu/effects/GrColorTableEffect.cpp',
+        '../src/gpu/effects/GrColorTableEffect.h',
         '../src/gpu/effects/GrConvolutionEffect.cpp',
         '../src/gpu/effects/GrConvolutionEffect.h',
         '../src/gpu/effects/GrGradientEffects.cpp',
