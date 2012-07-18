@@ -168,7 +168,6 @@ private:
     class ProgramCache : public ::GrNoncopyable {
     public:
         ProgramCache(const GrGLContextInfo& gl);
-        ~ProgramCache();
 
         void abandon();
         GrGLProgram* getProgram(const GrGLProgram::Desc& desc, GrCustomStage** stages);
@@ -247,8 +246,6 @@ private:
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
     void flushScissor();
-
-    static void DeleteProgram(const GrGLInterface* gl, GrGLProgram* programData);
 
     void buildProgram(bool isPoints,
                       BlendOptFlags blendOpts,

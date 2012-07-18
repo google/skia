@@ -319,12 +319,10 @@ bool GrGpuGL::programUnitTest() {
         GR_STATIC_ASSERT(sizeof(customStages) ==
                          GrDrawState::kNumStages * sizeof(GrCustomStage*));
         GrCustomStage** stages = reinterpret_cast<GrCustomStage**>(&customStages);
-        SkAutoTUnref<GrGLProgram> program(SkNEW(GrGLProgram));
-
-        if (!program->genProgram(this->glContextInfo(), pdesc, stages)) {
+        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContextInfo(), pdesc, stages));
+        if (NULL == program.get()) {
             return false;
         }
-        DeleteProgram(this->glInterface(), program);
     }
     return true;
 }

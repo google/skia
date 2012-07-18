@@ -20,13 +20,12 @@ GrGpuGL::ProgramCache::ProgramCache(const GrGLContextInfo& gl)
     , fGL(gl) {
 }
 
-GrGpuGL::ProgramCache::~ProgramCache() {
-    for (int i = 0; i < fCount; ++i) {
-        GrGpuGL::DeleteProgram(fGL.interface(), fEntries[i].fProgram);
-    }
-}
-
 void GrGpuGL::ProgramCache::abandon() {
+    for (int i = 0; i < fCount; ++i) {
+        GrAssert(NULL != fEntries[i].fProgram.get());
+        fEntries[i].fProgram->abandon();
+        fEntries[i].fProgram.reset(NULL);
+    }
     fCount = 0;
 }
 
@@ -36,8 +35,8 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc, GrCustom
 
     Entry* entry = fHashCache.find(newEntry.fKey);
     if (NULL == entry) {
-        newEntry.fProgram.reset(SkNEW(GrGLProgram));
-        if (!newEntry.fProgram->genProgram(fGL, desc, stages)) {
+        newEntry.fProgram.reset(GrGLProgram::Create(fGL, desc, stages));
+        if (NULL == newEntry.fProgram.get()) {
             return NULL;
         }
         if (fCount < kMaxEntries) {
@@ -52,7 +51,6 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc, GrCustom
                 }
             }
             fHashCache.remove(entry->fKey, entry);
-            GrGpuGL::DeleteProgram(fGL.interface(), entry->fProgram);
         }
         *entry = newEntry;
         fHashCache.insert(entry->fKey, entry);
@@ -67,19 +65,6 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc, GrCustom
     }
     ++fCurrLRUStamp;
     return entry->fProgram;
-}
-
-void GrGpuGL::DeleteProgram(const GrGLInterface* gl, GrGLProgram* program) {
-    GR_GL_CALL(gl, DeleteShader(program->fVShaderID));
-    if (program->fGShaderID) {
-        GR_GL_CALL(gl, DeleteShader(program->fGShaderID));
-    }
-    GR_GL_CALL(gl, DeleteShader(program->fFShaderID));
-    GR_GL_CALL(gl, DeleteProgram(program->fProgramID));
-    GR_DEBUGCODE(program->fVShaderID = 0);
-    GR_DEBUGCODE(program->fGShaderID = 0);
-    GR_DEBUGCODE(program->fFShaderID = 0);
-    GR_DEBUGCODE(program->fProgramID = 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

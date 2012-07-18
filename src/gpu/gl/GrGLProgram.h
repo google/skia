@@ -41,22 +41,21 @@ public:
 
     struct Desc;
 
-    GrGLProgram();
+    static GrGLProgram* Create(const GrGLContextInfo& gl,
+                               const Desc& desc,
+                               GrCustomStage** customStages);
+
     virtual ~GrGLProgram();
 
+    /** Call to abandon GL objects owned by this program */
+    void abandon();
+
     /**
-     *  This is the heavy initilization routine for building a GLProgram.
+     * The shader may modify the blend coeffecients. Params are in/out
      */
-    bool genProgram(const GrGLContextInfo& gl,
-                    const Desc& desc,
-                    GrCustomStage** customStages);
+    void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
 
-     /**
-      * The shader may modify the blend coeffecients. Params are in/out
-      */
-     void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
-
-     const Desc& getDesc() { return fDesc; }
+    const Desc& getDesc() { return fDesc; }
 
     /**
      * Attribute indices. These should not overlap. Matrices consume 3 slots.
@@ -238,36 +237,42 @@ public:
     typedef Desc::StageDesc StageDesc;
 
 private:
+    GrGLProgram(const GrGLContextInfo& gl,
+                const Desc& desc,
+                GrCustomStage** customStages);
+
+    bool succeeded() const { return 0 != fProgramID; }
+
+    /**
+     *  This is the heavy initilization routine for building a GLProgram.
+     */
+    bool genProgram(GrCustomStage** customStages);
+
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
     // Determines which uniforms will need to be bound.
-    void genStageCode(const GrGLContextInfo& gl,
-                      int stageNum,
+    void genStageCode(int stageNum,
                       const char* fsInColor, // NULL means no incoming color
                       const char* fsOutColor,
                       const char* vsInCoord,
                       GrGLShaderBuilder* builder);
 
-    void genGeometryShader(const GrGLContextInfo& gl, GrGLShaderBuilder* segments) const;
+    void genGeometryShader(GrGLShaderBuilder* segments) const;
 
     void genUniformCoverage(GrGLShaderBuilder* segments, SkString* inOutCoverage);
 
     // generates code to compute coverage based on edge AA.
-    void genEdgeCoverage(const GrGLContextInfo& gl,
-                         SkString* coverageVar,
-                         GrGLShaderBuilder* builder) const;
+    void genEdgeCoverage(SkString* coverageVar, GrGLShaderBuilder* builder) const;
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
-    bool bindOutputsAttribsAndLinkProgram(const GrGLContextInfo& gl,
-                                          SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
+    bool bindOutputsAttribsAndLinkProgram(SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
                                           bool bindColorOut,
                                           bool bindDualSrcOut);
 
     // Binds uniforms; initializes cache to invalid values.
-    void getUniformLocationsAndInitCache(const GrGLContextInfo& gl,
-                                         const GrGLShaderBuilder& builder);
+    void getUniformLocationsAndInitCache(const GrGLShaderBuilder& builder);
 
-    bool compileShaders(const GrGLContextInfo& gl, const GrGLShaderBuilder& builder);
+    bool compileShaders(const GrGLShaderBuilder& builder);
 
     const char* adjustInColor(const SkString& inColor) const;
 
@@ -329,6 +334,7 @@ private:
     GrGLProgramStage*           fProgramStage[GrDrawState::kNumStages];
 
     Desc fDesc;
+    const GrGLContextInfo&      fContextInfo;
 
     friend class GrGpuGL; // TODO: remove this by adding getters and moving functionality.
 
