@@ -117,11 +117,8 @@ public:
 
 protected:
     typedef GrContext::TextureCacheEntry TexCache;
-    TexCache lockCachedTexture(const SkBitmap& bitmap,
-                               const GrSamplerState* sampler);
     bool isBitmapInTextureCache(const SkBitmap& bitmap,
                                 const GrSamplerState& sampler) const;
-    void unlockCachedTexture(TexCache);
 
     // overrides from SkDevice
     virtual bool onReadPixels(const SkBitmap& bitmap,

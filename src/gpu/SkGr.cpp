@@ -56,7 +56,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
+static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
                                                 uint64_t key,
                                                 const GrSamplerState* sampler,
                                                 const SkBitmap& origBitmap) {
@@ -74,7 +74,7 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
     GrTextureDesc desc;
     desc.fWidth = bitmap->width();
     desc.fHeight = bitmap->height();
-    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap->config());
+    desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());
     desc.fClientCacheID = key;
 
     if (SkBitmap::kIndex8_Config == bitmap->config()) {
@@ -110,7 +110,7 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
         }
     }
 
-    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap->config());
+    desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());
     if (kUncached_CacheID != key) {
         return ctx->createAndLockTexture(sampler, desc,
                                          bitmap->getPixels(),
@@ -125,6 +125,42 @@ GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
                                      bitmap->rowBytes());
         return entry;
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx, 
+                      const SkBitmap& bitmap, const GrSamplerState* sampler) {
+    GrContext::TextureCacheEntry entry;
+
+    if (!bitmap.isVolatile()) {
+        uint64_t key = bitmap.getGenerationID();
+        key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
+
+        GrTextureDesc desc;
+        desc.fWidth = bitmap.width();
+        desc.fHeight = bitmap.height();
+        desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
+        desc.fClientCacheID = key;
+
+        entry = ctx->findAndLockTexture(desc, sampler);
+        if (NULL == entry.texture()) {
+            entry = sk_gr_create_bitmap_texture(ctx, key, sampler,
+                                                bitmap);
+        }
+    } else {
+        entry = sk_gr_create_bitmap_texture(ctx, kUncached_CacheID,
+                                            sampler, bitmap);
+    }
+    if (NULL == entry.texture()) {
+        GrPrintf("---- failed to create texture for cache [%d %d]\n",
+                    bitmap.width(), bitmap.height());
+    }
+    return entry;
+}
+
+void GrUnlockCachedBitmapTexture(GrContext* ctx, GrContext::TextureCacheEntry cache) {
+    ctx->unlockTexture(cache);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -192,7 +228,7 @@ GrPathFill SkGrClipIterator::getPathFill() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrPixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config) {
+GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config config) {
     switch (config) {
         case SkBitmap::kA8_Config:
             return kAlpha_8_GrPixelConfig;
