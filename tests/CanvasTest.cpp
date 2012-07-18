@@ -123,6 +123,8 @@ static const char* const kPicturePlaybackAssertMessageFormat =
     "test step %s, SkPicture state consistency in playback canvas";
 static const char* const kDeferredPreFlushAssertMessageFormat = 
     "test step %s, SkDeferredCanvas state consistency before flush";
+static const char* const kDeferredPostFlushPlaybackAssertMessageFormat =
+    "test step %s, SkDeferredCanvas playback canvas state consistency after flush";
 static const char* const kDeferredPostFlushAssertMessageFormat = 
     "test step %s, SkDeferredCanvas state consistency after flush";
 static const char* const kPictureResourceReuseMessageFormat =
@@ -711,13 +713,21 @@ static void TestDeferredCanvasStateConsistency(
     AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
         testStep);
 
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    deferredCanvas.flush();
+    testStep->setAssertMessageFormat(
+        kDeferredPostFlushPlaybackAssertMessageFormat);
+    AssertCanvasStatesEqual(reporter, 
+        deferredCanvas.getDeferredDevice()->immediateCanvas(),
+        &referenceCanvas, testStep);
+#endif
+
     // Verified that deferred canvas state is not affected by flushing
     // pending draw operations
 
     // The following test code is commented out because it currently fails.
     // Issue: http://code.google.com/p/skia/issues/detail?id=496
     /*
-    deferredCanvas.flush();
     testStep->setAssertMessageFormat(kDeferredPostFlushAssertMessageFormat);
     AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
         testStep);
