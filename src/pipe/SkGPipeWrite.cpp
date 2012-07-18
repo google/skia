@@ -357,6 +357,7 @@ public:
     virtual int saveLayer(const SkRect* bounds, const SkPaint*,
                           SaveFlags) SK_OVERRIDE;
     virtual void restore() SK_OVERRIDE;
+    virtual bool isDrawingToLayer() const SK_OVERRIDE;
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
@@ -403,7 +404,11 @@ public:
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
 private:
-    SharedHeap fSharedHeap;
+    enum {
+        kNoSaveLayer = -1,
+    };
+    int         fFirstSaveLayerStackLevel;
+    SharedHeap  fSharedHeap;
     SkGPipeController* fController;
     SkWriter32& fWriter;
     size_t      fBlockSize; // amount allocated for writer
@@ -523,6 +528,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     fDone = false;
     fBlockSize = 0; // need first block from controller
     fBytesNotified = 0;
+    fFirstSaveLayerStackLevel = kNoSaveLayer;
     sk_bzero(fCurrFlatIndex, sizeof(fCurrFlatIndex));
 
     // we need a device to limit our clip
@@ -615,6 +621,9 @@ int SkGPipeCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
         }
     }
 
+    if (kNoSaveLayer == fFirstSaveLayerStackLevel){
+        fFirstSaveLayerStackLevel = this->getSaveCount();
+    }
     // we just pass on the save, so we don't create a layer
     return this->INHERITED::save(saveFlags);
 }
@@ -624,7 +633,16 @@ void SkGPipeCanvas::restore() {
     if (this->needOpBytes()) {
         this->writeOp(kRestore_DrawOp);
     }
+
     this->INHERITED::restore();
+
+    if (this->getSaveCount() == fFirstSaveLayerStackLevel){
+        fFirstSaveLayerStackLevel = kNoSaveLayer;
+    }
+}
+
+bool SkGPipeCanvas::isDrawingToLayer() const {
+    return kNoSaveLayer != fFirstSaveLayerStackLevel;
 }
 
 bool SkGPipeCanvas::translate(SkScalar dx, SkScalar dy) {
