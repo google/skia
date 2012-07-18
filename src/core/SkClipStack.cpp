@@ -202,7 +202,7 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkClipStack::Iter::Iter() {
+SkClipStack::Iter::Iter() : fStack(NULL) {
 }
 
 bool operator==(const SkClipStack::Iter::Clip& a,
@@ -219,7 +219,8 @@ bool operator!=(const SkClipStack::Iter::Clip& a,
     return !(a == b);
 }
 
-SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc) {
+SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc)
+    : fStack(&stack) {
     this->reset(stack, startLoc);
 }
 
@@ -260,6 +261,45 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::prev() {
     }
 
     return this->updateClip(rec);
+}
+
+const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToLast(SkRegion::Op op) {
+
+    if (NULL == fStack) {
+        return NULL;
+    }
+
+    fIter.reset(fStack->fDeque, SkDeque::Iter::kBack_IterStart);
+
+    const SkClipStack::Rec* rec = NULL;
+
+    for (rec = (const SkClipStack::Rec*) fIter.prev();
+         NULL != rec;
+         rec = (const SkClipStack::Rec*) fIter.prev()) {
+
+        if (op == rec->fOp) {
+            // The Deque's iterator is actually one pace ahead of the
+            // returned value. So while "rec" is the element we want to 
+            // return, the iterator is actually pointing at (and will
+            // return on the next "next" or "prev" call) the element
+            // in front of it in the deque. Bump the iterator forward a 
+            // step so we get the expected result.
+            if (NULL == fIter.next()) {
+                // The reverse iterator has run off the front of the deque
+                // (i.e., the "op" clip is the first clip) and can't
+                // recover. Reset the iterator to start at the front.
+                fIter.reset(fStack->fDeque, SkDeque::Iter::kFront_IterStart);
+            }
+            break;
+        }
+    }
+
+    if (NULL == rec) {
+        // There were no "op" clips
+        fIter.reset(fStack->fDeque, SkDeque::Iter::kFront_IterStart);
+    }
+
+    return this->next();
 }
 
 void SkClipStack::Iter::reset(const SkClipStack& stack, IterStart startLoc) {

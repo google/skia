@@ -80,13 +80,21 @@ public:
         const Clip* prev();
 
         /**
+         * Moves the iterator to the last clip with the specified RegionOp 
+         * and returns that clip. If no clip with that op is found, 
+         * returns NULL.
+         */
+        const Clip* skipToLast(SkRegion::Op op);
+
+        /**
          * Restarts the iterator on a clip stack.
          */
         void reset(const SkClipStack& stack, IterStart startLoc);
 
     private:
-        Clip             fClip;
-        SkDeque::Iter    fIter;
+        const SkClipStack* fStack;
+        Clip               fClip;
+        SkDeque::Iter      fIter;
 
         /**
          * updateClip updates fClip to the current state of fIter. It unifies
