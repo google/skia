@@ -869,14 +869,11 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     // Draw hard shadow to pathTexture with path topleft at origin 0,0.
     context->drawPath(tempPaint, path, pathFillType, &offset);
 
-    GrAutoScratchTexture temp1, temp2;
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = blurType == SkMaskFilter::kNormal_BlurType;
-    GrTexture* blurTexture = context->gaussianBlur(pathTexture,
-                                                   &temp1,
-                                                   isNormalBlur ? NULL : &temp2,
-                                                   srcRect, sigma, sigma);
+    SkAutoTUnref<GrTexture> blurTexture(context->gaussianBlur(
+        pathTexture, isNormalBlur, srcRect, sigma, sigma));
 
     if (!isNormalBlur) {
         GrPaint paint;
@@ -1506,25 +1503,17 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
         texture = dst.detach();
         stage->unref();
     } else if (filter->asABlur(&blurSize)) {
-        GrAutoScratchTexture temp1, temp2;
-        texture = context->gaussianBlur(texture, &temp1, &temp2, rect,
+        texture = context->gaussianBlur(texture, false, rect,
                                         blurSize.width(),
                                         blurSize.height());
-        texture->ref();
     } else if (filter->asADilate(&radius)) {
-        GrAutoScratchTexture temp1(context, desc), temp2(context, desc);
         texture = context->applyMorphology(texture, rect,
-                                           temp1.texture(), temp2.texture(),
                                            GrContext::kDilate_MorphologyType,
                                            radius);
-        texture->ref();
     } else if (filter->asAnErode(&radius)) {
-        GrAutoScratchTexture temp1(context, desc), temp2(context, desc);
         texture = context->applyMorphology(texture, rect,
-                                           temp1.texture(), temp2.texture(),
                                            GrContext::kErode_MorphologyType,
                                            radius);
-        texture->ref();
     }
     return texture;
 }

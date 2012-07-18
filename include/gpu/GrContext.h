@@ -591,18 +591,16 @@ public:
     /**
      * Applies a 2D Gaussian blur to a given texture.
      * @param srcTexture      The source texture to be blurred.
-     * @param temp1           A scratch texture.  Must not be NULL.
-     * @param temp2           A scratch texture.  May be NULL, in which case
-     *                        srcTexture is overwritten with intermediate
-     *                        results.
+     * @param canClobberSrc   If true, srcTexture may be overwritten, and
+     *                        may be returned as the result.
      * @param rect            The destination rectangle.
      * @param sigmaX          The blur's standard deviation in X.
      * @param sigmaY          The blur's standard deviation in Y.
-     * @return the blurred texture, which may be temp1, temp2 or srcTexture.
+     * @return the blurred texture, which may be srcTexture ref'ed, or a
+     * new texture.  It is the caller's responsibility to unref this texture.
      */
      GrTexture* gaussianBlur(GrTexture* srcTexture,
-                             GrAutoScratchTexture* temp1,
-                             GrAutoScratchTexture* temp2,
+                             bool canClobberSrc,
                              const SkRect& rect,
                              float sigmaX, float sigmaY);
 
@@ -618,18 +616,16 @@ public:
      * Applies a 2D morphology to a given texture.
      * @param srcTexture      The source texture to be blurred.
      * @param rect            The destination rectangle.
-     * @param temp1           A scratch texture.  Must not be NULL.
-     * @param temp2           A scratch texture.  Must not be NULL.
      * @param filter          The morphology filter.  Must be kDilate_Filter or
      *                        kErode_Filter.
      * @param radius          The morphology radius in X and Y.  The filter is
      *                        applied to a fWidth by fHeight rectangle of
      *                        pixels.
-     * @return the morphed texture, which may be temp1, temp2 or srcTexture.
+     * @return the morphed texture, which may be srcTexture ref'ed, or a
+     * new texture.  It is the caller's responsibility to unref this texture.
      */
     GrTexture* applyMorphology(GrTexture* srcTexture,
                                const GrRect& rect,
-                               GrTexture* temp1, GrTexture* temp2,
                                MorphologyType type,
                                SkISize radius);
     
