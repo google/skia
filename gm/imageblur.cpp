@@ -32,16 +32,17 @@ protected:
         SkPaint paint;
         paint.setImageFilter(new SkBlurImageFilter(24.0f, 0.0f))->unref();
         canvas->saveLayer(NULL, &paint);
-        paint.setAntiAlias(true);
         const char* str = "The quick brown fox jumped over the lazy dog.";
         srand(1234);
+        SkPaint textPaint;
+        textPaint.setAntiAlias(true);
         for (int i = 0; i < 25; ++i) {
             int x = rand() % WIDTH;
             int y = rand() % HEIGHT;
-            paint.setColor(rand() % 0x1000000 | 0xFF000000);
-            paint.setTextSize(SkIntToScalar(rand() % 300));
+            textPaint.setColor(rand() % 0x1000000 | 0xFF000000);
+            textPaint.setTextSize(SkIntToScalar(rand() % 300));
             canvas->drawText(str, strlen(str), SkIntToScalar(x),
-                             SkIntToScalar(y), paint);
+                             SkIntToScalar(y), textPaint);
         }
         canvas->restore();
     }

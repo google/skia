@@ -1808,13 +1808,11 @@ const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
 }
 
 GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
-                                   GrAutoScratchTexture* temp1,
-                                   GrAutoScratchTexture* temp2,
+                                   bool canClobberSrc,
                                    const SkRect& rect,
                                    float sigmaX, float sigmaY) {
     ASSERT_OWNED_RESOURCE(srcTexture);
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
-    GrTexture* origTexture = srcTexture;
     AutoMatrix avm(this, GrMatrix::I());
     SkIRect clearRect;
     int scaleFactorX, radiusX;
@@ -1840,12 +1838,10 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     desc.fHeight = SkScalarFloorToInt(srcRect.height());
     desc.fConfig = srcTexture->config();
 
-    temp1->set(this, desc);
-    if (temp2) {
-        temp2->set(this, desc);
-    }
+    GrAutoScratchTexture temp1, temp2;
+    GrTexture* dstTexture = temp1.set(this, desc);
+    GrTexture* tempTexture = canClobberSrc ? srcTexture : temp2.set(this, desc);
 
-    GrTexture* dstTexture = temp1->texture();
     GrPaint paint;
     paint.reset();
     paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
@@ -1860,11 +1856,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         paint.setTexture(0, srcTexture);
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
-        SkTSwap(srcTexture, dstTexture);
-        // If temp2 is non-NULL, don't render back to origTexture
-        if (temp2 && dstTexture == origTexture) {
-            dstTexture = temp2->texture();
-        }
+        srcTexture = dstTexture;
+        SkTSwap(dstTexture, tempTexture);
     }
 
     SkIRect srcIRect;
@@ -1882,10 +1875,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         this->setRenderTarget(dstTexture->asRenderTarget());
         convolve_gaussian(fGpu, srcTexture, srcRect, sigmaX, radiusX,
                           Gr1DKernelEffect::kX_Direction);
-        SkTSwap(srcTexture, dstTexture);
-        if (temp2 && dstTexture == origTexture) {
-            dstTexture = temp2->texture();
-        }
+        srcTexture = dstTexture;
+        SkTSwap(dstTexture, tempTexture);
     }
 
     if (sigmaY > 0.0f) {
@@ -1900,10 +1891,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         this->setRenderTarget(dstTexture->asRenderTarget());
         convolve_gaussian(fGpu, srcTexture, srcRect, sigmaY, radiusY,
                           Gr1DKernelEffect::kY_Direction);
-        SkTSwap(srcTexture, dstTexture);
-        if (temp2 && dstTexture == origTexture) {
-            dstTexture = temp2->texture();
-        }
+        srcTexture = dstTexture;
+        SkTSwap(dstTexture, tempTexture);
     }
 
     if (scaleFactorX > 1 || scaleFactorY > 1) {
@@ -1925,27 +1914,40 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
-        SkTSwap(srcTexture, dstTexture);
+        srcTexture = dstTexture;
+        SkTSwap(dstTexture, tempTexture);
     }
     this->setRenderTarget(oldRenderTarget);
-    return srcTexture;
+    if (srcTexture == temp1.texture()) {
+        return temp1.detach();
+    } else if (srcTexture == temp2.texture()) {
+        return temp2.detach();
+    } else {
+        srcTexture->ref();
+        return srcTexture;
+    }
 }
 
 GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
                                       const GrRect& rect,
-                                      GrTexture* temp1, GrTexture* temp2,
                                       MorphologyType morphType,
                                       SkISize radius) {
     ASSERT_OWNED_RESOURCE(srcTexture);
+    srcTexture->ref();
     GrRenderTarget* oldRenderTarget = this->getRenderTarget();
 
     AutoMatrix avm(this, GrMatrix::I());
 
     AutoClip acs(this, GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
                                            SkIntToScalar(srcTexture->height())));
-
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc.fWidth = SkScalarCeilToInt(rect.width());
+    desc.fHeight = SkScalarCeilToInt(rect.height());
+    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
     if (radius.fWidth > 0) {
-        this->setRenderTarget(temp1->asRenderTarget());
+        GrAutoScratchTexture ast(this, desc);
+        this->setRenderTarget(ast.texture()->asRenderTarget());
         apply_morphology(fGpu, srcTexture, rect, radius.fWidth, morphType,
                          Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(
@@ -1954,13 +1956,16 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
                     SkScalarFloorToInt(rect.width()), 
                     radius.fHeight);
         this->clear(&clearRect, 0x0);
-        srcTexture = temp1;
+        srcTexture->unref();
+        srcTexture = ast.detach();
     }
     if (radius.fHeight > 0) {
-        this->setRenderTarget(temp2->asRenderTarget());
+        GrAutoScratchTexture ast(this, desc);
+        this->setRenderTarget(ast.texture()->asRenderTarget());
         apply_morphology(fGpu, srcTexture, rect, radius.fHeight, morphType,
                          Gr1DKernelEffect::kY_Direction);
-        srcTexture = temp2;
+        srcTexture->unref();
+        srcTexture = ast.detach();
     }
     this->setRenderTarget(oldRenderTarget);
     return srcTexture;
