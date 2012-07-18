@@ -18,7 +18,7 @@
  *  but the actual ptr that is returned (by data() or bytes()) is guaranteed
  *  to always be the same for the life of this instance.
  */
-class SkData : public SkRefCnt {
+class SK_API SkData : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkData)
 
