@@ -23,7 +23,7 @@
         'gyp/debugger.gyp:debugger',
       ],
       'conditions': [
-        ['skia_os == "android"', {
+        ['skia_os == "android" and android_make_apk == 1', {
           'dependencies': [
             'gyp/android_system.gyp:SkiaAndroidApp',
           ],
