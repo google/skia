@@ -113,6 +113,17 @@ static void test_advances(skiatest::Reporter* reporter) {
         { SkPaint::kNormal_Hinting, SkPaint::kSubpixelText_Flag     },
     };
 
+    static const struct {
+        SkScalar    fScaleX;
+        SkScalar    fSkewX;
+    } gScaleRec[] = {
+        { SK_Scalar1, 0 },
+        { SK_Scalar1/2, 0 },
+        // these two exercise obliquing (skew)
+        { SK_Scalar1, -SK_Scalar1/4 },
+        { SK_Scalar1/2, -SK_Scalar1/4 },
+    };
+
     SkPaint paint;
     char txt[] = "long.text.with.lots.of.dots.";
 
@@ -121,23 +132,28 @@ static void test_advances(skiatest::Reporter* reporter) {
         paint.setTypeface(face);
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
-             paint.setHinting(settings[j].hinting);
-             paint.setLinearText((settings[j].flags & SkPaint::kLinearText_Flag) != 0);
-             paint.setSubpixelText((settings[j].flags & SkPaint::kSubpixelText_Flag) != 0);
+            paint.setHinting(settings[j].hinting);
+            paint.setLinearText((settings[j].flags & SkPaint::kLinearText_Flag) != 0);
+            paint.setSubpixelText((settings[j].flags & SkPaint::kSubpixelText_Flag) != 0);
 
-             SkRect bounds;
+            for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {
+                paint.setTextScaleX(gScaleRec[k].fScaleX);
+                paint.setTextSkewX(gScaleRec[k].fSkewX);
 
-             // For no hinting and light hinting this should take the
-             // optimized generateAdvance path.
-             SkScalar width1 = paint.measureText(txt, strlen(txt));
+                SkRect bounds;
 
-             // Requesting the bounds forces a generateMetrics call.
-             SkScalar width2 = paint.measureText(txt, strlen(txt), &bounds);
+                // For no hinting and light hinting this should take the
+                // optimized generateAdvance path.
+                SkScalar width1 = paint.measureText(txt, strlen(txt));
 
-             // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
-             //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));
+                // Requesting the bounds forces a generateMetrics call.
+                SkScalar width2 = paint.measureText(txt, strlen(txt), &bounds);
 
-             REPORTER_ASSERT(reporter, width1 == width2);
+                // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
+                //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));
+
+                REPORTER_ASSERT(reporter, width1 == width2);
+            }
         }
     }
 }
