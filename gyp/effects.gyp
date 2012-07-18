@@ -4,10 +4,7 @@
       'target_name': 'effects',
       'type': 'static_library',
       'include_dirs': [
-        '../include/config',
-        '../include/core',
         '../include/effects',
-        '../include/gpu',
         '../src/gpu',
       ],
       'sources': [
@@ -87,6 +84,10 @@
           '../include/effects',
         ],
       },
+      'dependencies': [
+        'core.gyp:core',
+        'gpu.gyp:gr',
+      ],
     },
   ],
 }
