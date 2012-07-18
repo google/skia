@@ -93,7 +93,7 @@ public:
 
     ~SkAutoCachedTexture() {
         if (fTex.texture()) {
-            fDevice->unlockCachedTexture(fTex);
+            GrUnlockCachedBitmapTexture(fDevice->context(), fTex);
         }
     }
 
@@ -101,7 +101,7 @@ public:
                    const SkBitmap& bitmap,
                    const GrSamplerState* sampler) {
         if (fTex.texture()) {
-            fDevice->unlockCachedTexture(fTex);
+            GrUnlockCachedBitmapTexture(fDevice->context(), fTex);
         }
         fDevice = device;
         GrTexture* texture = (GrTexture*)bitmap.getTexture();
@@ -110,7 +110,7 @@ public:
             fTex.reset();
         } else {
             // look it up in our cache
-            fTex = device->lockCachedTexture(bitmap, sampler);
+            fTex = GrLockCachedBitmapTexture(device->context(), bitmap, sampler);
             texture = fTex.texture();
         }
         return texture;
@@ -238,7 +238,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = width;
     desc.fHeight = height;
-    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bm.config());
+    desc.fConfig = SkBitmapConfig2GrPixelConfig(bm.config());
 
     fTexture = fContext->createUncachedTexture(desc, NULL, 0);
 
@@ -341,7 +341,7 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
     if (SkBitmap::kARGB_8888_Config == bitmap.config()) {
         config = config8888_to_gr_config(config8888);
     } else {
-        config= SkGr::BitmapConfig2PixelConfig(bitmap.config());
+        config= SkBitmapConfig2GrPixelConfig(bitmap.config());
     }
 
     fRenderTarget->writePixels(x, y, bitmap.width(), bitmap.height(),
@@ -484,7 +484,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         // so constantColor should not also be true.
         GrAssert(!constantColor);
     } else {
-        grPaint->fColor = SkGr::SkColor2GrColor(skPaint.getColor());
+        grPaint->fColor = SkColor2GrColor(skPaint.getColor());
         grPaint->setTexture(kShaderTextureIdx, NULL);
     }
     SkColorFilter* colorFilter = skPaint.getColorFilter();
@@ -495,11 +495,11 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
     if (colorFilter != NULL && colorFilter->asColorMode(&color, &filterMode)) {
         grPaint->fColorMatrixEnabled = false;
         if (!constantColor) {
-            grPaint->fColorFilterColor = SkGr::SkColor2GrColor(color);
+            grPaint->fColorFilterColor = SkColor2GrColor(color);
             grPaint->fColorFilterXfermode = filterMode;
         } else {
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
-            grPaint->fColor = SkGr::SkColor2GrColor(filtered);
+            grPaint->fColor = SkColor2GrColor(filtered);
             grPaint->resetColorFilter();
         }
     } else if (colorFilter != NULL && colorFilter->asColorMatrix(matrix)) {
@@ -1738,7 +1738,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         // need to convert byte order and from non-PM to PM
         convertedColors.reset(vertexCount);
         for (int i = 0; i < vertexCount; ++i) {
-            convertedColors[i] = SkGr::SkColor2GrColor(colors[i]);
+            convertedColors[i] = SkColor2GrColor(colors[i]);
         }
         colors = convertedColors.get();
     }
@@ -1902,42 +1902,6 @@ void SkGpuDevice::flush() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(
-                                            const SkBitmap& bitmap,
-                                            const GrSamplerState* sampler) {
-    GrContext::TextureCacheEntry entry;
-    GrContext* ctx = this->context();
-
-    if (!bitmap.isVolatile()) {
-        uint64_t key = bitmap.getGenerationID();
-        key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
-
-        GrTextureDesc desc;
-        desc.fWidth = bitmap.width();
-        desc.fHeight = bitmap.height();
-        desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap.config());
-        desc.fClientCacheID = key;
-
-        entry = ctx->findAndLockTexture(desc, sampler);
-        if (NULL == entry.texture()) {
-            entry = sk_gr_create_bitmap_texture(ctx, key, sampler,
-                                                bitmap);
-        }
-    } else {
-        entry = sk_gr_create_bitmap_texture(ctx, kUncached_CacheID,
-                                            sampler, bitmap);
-    }
-    if (NULL == entry.texture()) {
-        GrPrintf("---- failed to create texture for cache [%d %d]\n",
-                    bitmap.width(), bitmap.height());
-    }
-    return entry;
-}
-
-void SkGpuDevice::unlockCachedTexture(TexCache cache) {
-    this->context()->unlockTexture(cache);
-}
-
 bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
                                          const GrSamplerState& sampler) const {
     uint64_t key = bitmap.getGenerationID();
@@ -1946,7 +1910,7 @@ bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
     GrTextureDesc desc;
     desc.fWidth = bitmap.width();
     desc.fHeight = bitmap.height();
-    desc.fConfig = SkGr::BitmapConfig2PixelConfig(bitmap.config());
+    desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
     desc.fClientCacheID = key;
 
     return this->context()->isTextureInCache(desc, &sampler);

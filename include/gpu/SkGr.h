@@ -68,23 +68,28 @@ GR_STATIC_ASSERT((int)SkPath::kDone_Verb  == (int)kEnd_PathCmd);
 
 #include "SkColorPriv.h"
 
-class SkGr {
-public:
-    /**
-     *  Convert the SkBitmap::Config to the corresponding PixelConfig, or
-     *  kUnknown_PixelConfig if the conversion cannot be done.
-     */
-    static GrPixelConfig BitmapConfig2PixelConfig(SkBitmap::Config);
+/**
+ *  Convert the SkBitmap::Config to the corresponding PixelConfig, or
+ *  kUnknown_PixelConfig if the conversion cannot be done.
+ */
+GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config);
 
-    static GrColor SkColor2GrColor(SkColor c) {
-        SkPMColor pm = SkPreMultiplyColor(c);
-        unsigned r = SkGetPackedR32(pm);
-        unsigned g = SkGetPackedG32(pm);
-        unsigned b = SkGetPackedB32(pm);
-        unsigned a = SkGetPackedA32(pm);
-        return GrColorPackRGBA(r, g, b, a);
-    }
-};
+static inline GrColor SkColor2GrColor(SkColor c) {
+    SkPMColor pm = SkPreMultiplyColor(c);
+    unsigned r = SkGetPackedR32(pm);
+    unsigned g = SkGetPackedG32(pm);
+    unsigned b = SkGetPackedB32(pm);
+    unsigned a = SkGetPackedA32(pm);
+    return GrColorPackRGBA(r, g, b, a);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx, 
+                                               const SkBitmap& bitmap,
+                                               const GrSamplerState* sampler);
+
+void GrUnlockCachedBitmapTexture(GrContext* ctx, GrContext::TextureCacheEntry cache);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Classes
@@ -150,12 +155,5 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Helper functions
-
-GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
-                                                uint64_t key,
-                                                const GrSamplerState* sampler,
-                                                const SkBitmap& bitmap);
-
 
 #endif
