@@ -138,14 +138,12 @@ def Main(options, args):
         # that the user gets all of the platforms that the bots are running,
         # not just whatever subdirectories he happens to have checked out...
         args = [
+            'gm/base-android-nexus-s',
+            'gm/base-android-xoom',
             'gm/base-linux',
-            'gm/base-linux-fixed',
             'gm/base-macmini',
-            'gm/base-macmini-fixed',
-            'gm/base-macmini-lion-fixed',
             'gm/base-macmini-lion-float',
             'gm/base-win',
-            'gm/base-win-fixed',
             ]
 
     # Trim all subdir names.
