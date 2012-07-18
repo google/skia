@@ -24,7 +24,7 @@
 class GrPaint {
 public:
     enum {
-        kMaxTextures = 1,
+        kMaxTextures = 2,
         kMaxMasks    = 1,
     };
 

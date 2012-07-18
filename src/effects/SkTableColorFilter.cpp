@@ -182,7 +182,19 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) {
             fBitmap = new SkBitmap;
             fBitmap->setConfig(SkBitmap::kA8_Config, 256, 4, 256);
             fBitmap->allocPixels();
-            memcpy(fBitmap->getAddr8(0, 0), fStorage, 256 * 4);
+            uint8_t* bitmapPixels = fBitmap->getAddr8(0, 0);
+            int offset = 0;
+            static const unsigned kFlags[] = { kA_Flag, kR_Flag, kG_Flag, kB_Flag };
+
+            for (int x = 0; x < 4; ++x) {
+                if (!(fFlags & kFlags[x])) {
+                    memcpy(bitmapPixels, gIdentityTable, sizeof(gIdentityTable));
+                } else {
+                    memcpy(bitmapPixels, fStorage + offset, 256);
+                    offset += 256;
+                }
+                bitmapPixels += 256;
+            }
         }
         *table = *fBitmap;
     }

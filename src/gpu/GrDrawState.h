@@ -44,7 +44,7 @@ public:
      * GrPathRenderer-derived classes.
      */
     enum {
-        kNumStages = 4,
+        kNumStages = 5,
         kMaxTexCoords = kNumStages
     };
 
