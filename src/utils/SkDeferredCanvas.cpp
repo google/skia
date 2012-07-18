@@ -438,6 +438,66 @@ SkCanvas* SkDeferredCanvas::canvasForDrawIter() {
     return drawingCanvas();
 }
 
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+
+// SkDeferredCanvas::DeferredPipeController
+//-------------------------------------------
+
+SkDeferredCanvas::DeferredPipeController::DeferredPipeController() :
+    fAllocator(kMinBlockSize) {
+    fBlock = NULL;
+    fBytesWritten = 0;
+}
+
+SkDeferredCanvas::DeferredPipeController::~DeferredPipeController() {
+    fAllocator.reset();
+}
+
+void SkDeferredCanvas::DeferredPipeController::setPlaybackCanvas(SkCanvas* canvas) {
+    fReader.setCanvas(canvas);
+}
+
+void* SkDeferredCanvas::DeferredPipeController::requestBlock(size_t minRequest, size_t *actual) {
+    if (fBlock) {
+        // Save the previous block for later
+        PipeBlock previousBloc(fBlock, fBytesWritten);
+        fBlockList.push(previousBloc);
+    }
+    int32_t blockSize = SkMax32(minRequest, kMinBlockSize);
+    fBlock = fAllocator.allocThrow(blockSize);
+    fBytesWritten = 0;
+    *actual = blockSize;
+    return fBlock;
+}
+
+void SkDeferredCanvas::DeferredPipeController::notifyWritten(size_t bytes) {
+    fBytesWritten += bytes;
+}
+
+void SkDeferredCanvas::DeferredPipeController::playback() {
+    
+    for (int currentBlock = 0; currentBlock < fBlockList.count(); currentBlock++ ) {
+        fReader.playback(fBlockList[currentBlock].fBlock, fBlockList[currentBlock].fSize);
+    }
+    fBlockList.reset();
+
+    if (fBlock) {
+        fReader.playback(fBlock,fBytesWritten);
+        fBlock = NULL;
+    }
+
+    // Release all allocated blocks
+    fAllocator.reset();
+}
+
+void SkDeferredCanvas::DeferredPipeController::reset() {
+    fBlockList.reset();
+    fBlock = NULL;
+    fAllocator.reset();
+}
+
+#endif // SK_DEFERRED_CANVAS_USES_GPIPE
+
 // SkDeferredCanvas::DeferredDevice
 //------------------------------------
 
@@ -451,14 +511,36 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     SkSafeRef(fDeviceContext);
     fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
-    fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
-        fImmediateDevice->height(),
-        SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    fPipeController.setPlaybackCanvas(fImmediateCanvas);
+#endif
+    beginRecording();
 }
 
 SkDeferredCanvas::DeferredDevice::~DeferredDevice() {
     SkSafeUnref(fImmediateCanvas);
     SkSafeUnref(fDeviceContext);
+}
+
+
+void SkDeferredCanvas::DeferredDevice::endRecording() {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    fPipeWriter.endRecording();
+    fPipeController.reset();
+#else
+    fPicture.endRecording();
+#endif
+    fRecordingCanvas = NULL;
+}
+
+void SkDeferredCanvas::DeferredDevice::beginRecording() {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0);
+#else
+    fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
+        fImmediateDevice->height(),
+        SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
+#endif
 }
     
 void SkDeferredCanvas::DeferredDevice::setDeviceContext(
@@ -483,10 +565,8 @@ void SkDeferredCanvas::DeferredDevice::contentsCleared() {
 
             // beginRecording creates a new recording canvas and discards the
             // old one, hence purging deferred draw ops.
-            fRecordingCanvas = fPicture.beginRecording(
-                fImmediateDevice->width(),
-                fImmediateDevice->height(),
-                SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
+            this->endRecording();
+            this->beginRecording();
 
             // Restore pre-purge state
             if (!clipRegion.isEmpty()) {
@@ -510,16 +590,26 @@ bool SkDeferredCanvas::DeferredDevice::isFreshFrame() {
 }
 
 void SkDeferredCanvas::DeferredDevice::flushPending() {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    if (!fPipeController.hasRecorded()) {
+        return;
+    }
+#else
     if (!fPicture.hasRecorded()) {
         return;
     }
+#endif
     if (fDeviceContext) {
         fDeviceContext->prepareForDraw();
     }
+
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    fPipeWriter.flushRecording(true);
+    fPipeController.playback();
+#else
     fPicture.draw(fImmediateCanvas);
-    fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(), 
-        fImmediateDevice->height(),
-        SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
+    this->beginRecording();
+#endif
 }
 
 void SkDeferredCanvas::DeferredDevice::flush() {
@@ -528,9 +618,16 @@ void SkDeferredCanvas::DeferredDevice::flush() {
 }
 
 void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap) {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    if (bitmap.isImmutable()) {
+        // FIXME: Make SkGPipe flatten software-backed non-immutable bitmaps 
+        return;
+    }
+#else
     if (bitmap.isImmutable() || fPicture.willFlattenPixelsOnRecord(bitmap)) {
         return; // safe to defer.
     }
+#endif
 
     // For now, drawing a writable bitmap triggers a flush
     // TODO: implement read-only semantics and auto buffer duplication on write

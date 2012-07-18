@@ -98,6 +98,14 @@ public:
     // should be no more drawing calls made into the recording canvas.
     void endRecording();
 
+    /**
+     *  Tells the writer to commit all recorded draw commands to the
+     *  controller immediately.
+     *  @param detachCurrentBlock Set to true to request that the next draw
+     *      command be recorded in a new block.
+     */
+    void flushRecording(bool detachCurrentBlock);
+
 private:
     class SkGPipeCanvas* fCanvas;
     SkGPipeController*   fController;
