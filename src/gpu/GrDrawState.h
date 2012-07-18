@@ -797,8 +797,11 @@ public:
         }
 
         for (int i = 0; i < kNumStages; i++) {
-            if (this->isStageEnabled(i) &&
-                this->fSamplerStates[i] != s.fSamplerStates[i]) {
+            bool enabled = this->isStageEnabled(i);
+            if (enabled != s.isStageEnabled(i)) {
+                return false;
+            }
+            if (enabled && this->fSamplerStates[i] != s.fSamplerStates[i]) {
                 return false;
             }
         }
