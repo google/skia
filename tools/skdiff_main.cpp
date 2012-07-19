@@ -193,28 +193,32 @@ struct DiffSummary {
 
     FileArray fResultsOfType[kNumResultTypes];
 
-    // Print a line about the contents of this FileArray to stdout; if the FileArray is empty,
-    // print nothing.
+    // Print a line about the contents of this FileArray to stdout.
     void printContents(const FileArray& fileArray, const char* headerText, bool listFilenames) {
         int n = fileArray.count();
-        if (n > 0) {
-            printf(" %d file pairs %s", n, headerText);
-            if (listFilenames) {
-                printf(": ");
-                for (int i = 0; i < n; ++i) {
-                    printf("%s ", fileArray[i]->c_str());
-                }
+        printf("%d file pairs %s", n, headerText);
+        if (listFilenames) {
+            printf(": ");
+            for (int i = 0; i < n; ++i) {
+                printf("%s ", fileArray[i]->c_str());
             }
-            printf("\n");
         }
+        printf("\n");
     }
 
-    void print(bool listFilenames) {
-        printf("compared %d file pairs:\n", fNumMatches + fNumMismatches);
+    void print(bool listFilenames, bool failOnResultType[kNumResultTypes]) {
+        printf("\ncompared %d file pairs:\n", fNumMatches + fNumMismatches);
         for (int resultInt = 0; resultInt < kNumResultTypes; resultInt++) {
             Result result = static_cast<Result>(resultInt);
+            if (failOnResultType[result]) {
+                printf("[*] ");
+            } else {
+                printf("[_] ");
+            }
             printContents(fResultsOfType[result], getResultDescription(result), listFilenames);
         }
+        printf("(results marked with [*] will cause nonzero return value)\n");
+        printf("\nnumber of mismatching file pairs: %d\n", fNumMismatches);
         if (fNumMismatches > 0) {
             printf("Maximum pixel intensity mismatch %d\n", fMaxMismatchV);
             printf("Largest area mismatch was %.2f%% of pixels\n",fMaxMismatchPercent);
@@ -1158,7 +1162,6 @@ int main (int argc, char ** argv) {
 
     StringArray matchSubstrings;
     StringArray nomatchSubstrings;
-    SkTDArray<Result> failOnTheseResultTypes;
 
     bool generateDiffs = true;
     bool listFilenames = false;
@@ -1167,14 +1170,17 @@ int main (int argc, char ** argv) {
     RecordArray differences;
     DiffSummary summary;
 
+    bool failOnResultType[kNumResultTypes];
+    for (int i = 0; i < kNumResultTypes; i++) {
+        failOnResultType[i] = false;
+    }
+
     int i;
     int numUnflaggedArguments = 0;
     for (i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--failonresult")) {
             Result type = getResultByName(argv[++i]);
-            if (!failOnTheseResultTypes.contains(type)) {
-                failOnTheseResultTypes.push(type);
-            }
+            failOnResultType[type] = true;
             continue;
         }
         if (!strcmp(argv[i], "--help")) {
@@ -1284,7 +1290,7 @@ int main (int argc, char ** argv) {
     create_diff_images(diffProc, colorThreshold, &differences,
                        baseDir, comparisonDir, outputDir,
                        matchSubstrings, nomatchSubstrings, &summary);
-    summary.print(listFilenames);
+    summary.print(listFilenames, failOnResultType);
 
     if (differences.count()) {
         qsort(differences.begin(), differences.count(),
@@ -1303,9 +1309,10 @@ int main (int argc, char ** argv) {
     nomatchSubstrings.deleteAll();
 
     int num_failing_results = 0;
-    for (int i = 0; i < failOnTheseResultTypes.count(); i++) {
-        Result type = failOnTheseResultTypes[i];
-        num_failing_results += summary.fResultsOfType[type].count();
+    for (int i = 0; i < kNumResultTypes; i++) {
+        if (failOnResultType[i]) {
+            num_failing_results += summary.fResultsOfType[i].count();
+        }
     }
 
     // On Linux (and maybe other platforms too), any results outside of the
