@@ -44,6 +44,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fBreakpointsActivated(false)
     , fDeletesActivated(false)
     , fPause(false)
+    , fLoading(false)
 {
     setupUi(this);
     connect(&fListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,
@@ -90,7 +91,11 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionShowDeletes, SIGNAL(triggered()), this, SLOT(showDeletes()));
 
     fInspectorWidget.setDisabled(true);
-    fMenuBar.setDisabled(true);
+    //fMenuBar.setDisabled(true);
+    fMenuEdit.setDisabled(true);
+    fMenuNavigate.setDisabled(true);
+    fMenuView.setDisabled(true);
+
 }
 
 SkDebuggerGUI::~SkDebuggerGUI() {
@@ -257,28 +262,30 @@ void SkDebuggerGUI::pauseDrawing(bool isPaused) {
 }
 
 void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
-    int currentRow = fListWidget.currentRow();
-    if (!fPause) {
-        fCanvasWidget.drawTo(currentRow);
-    }
-    std::vector<std::string> *v = fCanvasWidget.getCurrentCommandInfo(
-            currentRow);
-
-    /* TODO(chudy): Add command type before parameters. Rename v
-     * to something more informative. */
-    if (v) {
-        std::vector<std::string>::iterator it;
-
-        QString info;
-        info.append("<b>Parameters: </b><br/>");
-        for (it = v->begin(); it != v->end(); ++it) {
-            info.append(QString((*it).c_str()));
-            info.append("<br/>");
+    if(!fLoading) {
+        int currentRow = fListWidget.currentRow();
+        if (!fPause) {
+            fCanvasWidget.drawTo(currentRow);
         }
-        fInspectorWidget.setDetailText(info);
-        fInspectorWidget.setDisabled(false);
-        fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
-        fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
+        std::vector<std::string> *v = fCanvasWidget.getCurrentCommandInfo(
+                currentRow);
+
+        /* TODO(chudy): Add command type before parameters. Rename v
+         * to something more informative. */
+        if (v) {
+            std::vector<std::string>::iterator it;
+
+            QString info;
+            info.append("<b>Parameters: </b><br/>");
+            for (it = v->begin(); it != v->end(); ++it) {
+                info.append(QString((*it).c_str()));
+                info.append("<br/>");
+            }
+            fInspectorWidget.setDetailText(info);
+            fInspectorWidget.setDisabled(false);
+            fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
+            fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
+        }
     }
 }
 
@@ -528,7 +535,9 @@ void SkDebuggerGUI::setupDirectoryWidget() {
 }
 
 void SkDebuggerGUI::loadPicture(QString fileName) {
+    fLoading = true;
     fCanvasWidget.loadPicture(fileName);
+    std::string cocks = fileName.toStdString();
     std::vector<std::string> *cv = fCanvasWidget.getDrawCommands();
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
      * of the visibility filter. */
@@ -538,7 +547,11 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
     setupComboBox(cv);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
-    fMenuBar.setDisabled(false);
+    fMenuEdit.setDisabled(false);
+    fMenuNavigate.setDisabled(false);
+    fMenuView.setDisabled(false);
+    fLoading = false;
+    actionPlay();
 }
 
 void SkDebuggerGUI::setupListWidget(std::vector<std::string>* cv) {

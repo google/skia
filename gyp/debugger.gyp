@@ -51,8 +51,8 @@
           ],
           'link_settings': {
             'libraries' : [
-              '/usr/lib/libQtCore.so',
-              '/usr/lib/libQtGui.so',
+              '-lQtCore',
+              '-lQtGui',
             ],
           },
         }],

@@ -222,6 +222,7 @@ private:
     bool fDeletesActivated;
     bool fPause;
     int fPausedRow;
+    bool fLoading;
 
     /**
         Creates the entire UI.
