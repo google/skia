@@ -10,6 +10,11 @@
 
 #include "GrCustomStage.h"
 
+class GrGLSingleTextureEffect;
+
+/**
+ * An effect that merely blits a single texture; commonly used as a base class.
+ */
 class GrSingleTextureEffect : public GrCustomStage {
 
 public:
@@ -18,6 +23,12 @@ public:
 
     virtual unsigned int numTextures() const SK_OVERRIDE;
     virtual GrTexture* texture(unsigned int index) const SK_OVERRIDE;
+
+    static const char* Name() { return "Single Texture"; }
+
+    typedef GrGLSingleTextureEffect GLProgramStage;
+
+    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrTexture* fTexture;

@@ -11,6 +11,7 @@
 
 #include "effects/GrMorphologyEffect.h"
 #include "effects/GrConvolutionEffect.h"
+#include "effects/GrSingleTextureEffect.h"
 
 #include "GrBufferAllocPool.h"
 #include "GrClipIterator.h"
@@ -385,7 +386,8 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
                                                GrDrawTarget::kReset_ASRInit);
             GrDrawState* drawState = fGpu->drawState();
             drawState->setRenderTarget(texture->asRenderTarget());
-            drawState->setTexture(0, clampEntry.texture());
+            drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
+                                                             (clampEntry.texture())))->unref();
 
             GrSamplerState::Filter filter;
             // if filtering is not desired then we want to ensure all
@@ -1425,7 +1427,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         matrix.postIDiv(src->width(), src->height());
         drawState->sampler(0)->reset(matrix);
         drawState->sampler(0)->setRAndBSwap(swapRAndB);
-        drawState->setTexture(0, src);
+        drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (src)))->unref();
         GrRect rect;
         rect.setXYWH(0, 0, SK_Scalar1 * width, SK_Scalar1 * height);
         fGpu->drawSimpleRect(rect, NULL, 0x1);
@@ -1464,8 +1466,8 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     drawState->setRenderTarget(dst);
     GrMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
-    drawState->setTexture(0, src);
     drawState->sampler(0)->reset(sampleM);
+    drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (src)))->unref();
     SkRect rect = SkRect::MakeXYWH(0, 0,
                                    SK_Scalar1 * src->width(),
                                    SK_Scalar1 * src->height());
@@ -1559,12 +1561,12 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
     drawState->setViewMatrix(matrix);
     drawState->setRenderTarget(target);
-    drawState->setTexture(0, texture);
 
     matrix.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
                                  GrSamplerState::kNearest_Filter,
                                  matrix);
+    drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     drawState->sampler(0)->setRAndBSwap(swapRAndB);
 
     static const GrVertexLayout layout = 0;
@@ -1853,7 +1855,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                             i < scaleFactorY ? 0.5f : 1.0f);
-        paint.setTexture(0, srcTexture);
+        paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
+                                                           (srcTexture)))->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -1909,7 +1912,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
                                                    srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
-        paint.setTexture(0, srcTexture);
+        paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
+                                                           (srcTexture)))->unref();
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);
