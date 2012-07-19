@@ -610,11 +610,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
             break;
         case SkShader::kLinear_BitmapType:
             sampler->setCustomStage(SkNEW_ARGS(GrLinearGradient, (texture)))->unref();
-            if (skPaint.isFilterBitmap()) {
-                sampler->setFilter(GrSamplerState::kBilinear_Filter);
-            } else {
-                sampler->setFilter(GrSamplerState::kNearest_Filter);
-            }
+            sampler->setFilter(GrSamplerState::kBilinear_Filter);
             break;
         default:
             if (skPaint.isFilterBitmap()) {
