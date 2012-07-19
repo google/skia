@@ -35,9 +35,54 @@
  *  determines the gradient value.
  */
 
+// Base class for Gr gradient effects
+class GrGradientEffect : public GrCustomStage {
+public:
+
+    GrGradientEffect(GrTexture* texture);
+    
+    // TODO: Look at a GradientInfo and make the texture only if necessary
+    // GrGradientEffect(GrContext* ctx, GradientInfo* info);
+
+    virtual ~GrGradientEffect();
+
+    unsigned int numTextures() const;
+    GrTexture* texture(unsigned int index) const;
+
+    bool useTexture() const { return fUseTexture; }
+
+private:
+
+    GrTexture* fTexture;
+    bool fUseTexture;
+
+    typedef GrCustomStage INHERITED;
+
+};
+
+class GrGLLinearGradient;
+
+class GrLinearGradient : public GrGradientEffect {
+
+public:
+
+    GrLinearGradient(GrTexture* texture);
+    virtual ~GrLinearGradient();
+
+    static const char* Name() { return "Linear Gradient"; }
+    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
+
+    typedef GrGLLinearGradient GLProgramStage;
+
+private:
+
+    typedef GrGradientEffect INHERITED;
+};
+
 class GrGLRadialGradient;
 
-class GrRadialGradient : public GrSingleTextureEffect {
+class GrRadialGradient : public GrGradientEffect {
 
 public:
 
@@ -52,12 +97,12 @@ public:
 
 private:
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrGradientEffect INHERITED;
 };
 
 class GrGLRadial2Gradient;
 
-class GrRadial2Gradient : public GrSingleTextureEffect {
+class GrRadial2Gradient : public GrGradientEffect {
 
 public:
 
@@ -88,12 +133,12 @@ private:
 
     // @}
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrGradientEffect INHERITED;
 };
 
 class GrGLConical2Gradient;
 
-class GrConical2Gradient : public GrSingleTextureEffect {
+class GrConical2Gradient : public GrGradientEffect {
 
 public:
 
@@ -124,12 +169,12 @@ private:
 
     // @}
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrGradientEffect INHERITED;
 };
 
 class GrGLSweepGradient;
 
-class GrSweepGradient : public GrSingleTextureEffect {
+class GrSweepGradient : public GrGradientEffect {
 
 public:
 
@@ -144,7 +189,7 @@ public:
 
 protected:
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrGradientEffect INHERITED;
 };
 
 #endif

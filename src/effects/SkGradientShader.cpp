@@ -1026,14 +1026,13 @@ SkShader::BitmapType Linear_Gradient::asABitmap(SkBitmap* bitmap,
         this->commonAsABitmap(bitmap);
     }
     if (matrix) {
-        matrix->setScale(SkIntToScalar(kGradient32Length), SK_Scalar1);
         matrix->preConcat(fPtsToUnit);
     }
     if (xy) {
         xy[0] = fTileMode;
         xy[1] = kClamp_TileMode;
     }
-    return kDefault_BitmapType;
+    return kLinear_BitmapType;
 }
 
 SkShader::GradientType Linear_Gradient::asAGradient(GradientInfo* info) const {

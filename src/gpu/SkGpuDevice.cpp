@@ -441,7 +441,8 @@ SK_COMPILE_ASSERT(SkShader::kTwoPointRadial_BitmapType == 4,
                   shader_type_mismatch);
 SK_COMPILE_ASSERT(SkShader::kTwoPointConical_BitmapType == 5,
                   shader_type_mismatch);
-SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 5, shader_type_mismatch);
+SK_COMPILE_ASSERT(SkShader::kLinear_BitmapType == 6, shader_type_mismatch);
+SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 6, shader_type_mismatch);
 
 namespace {
 
@@ -606,6 +607,14 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
                                                 twoPointParams[1],
                                                 twoPointParams[2])))->unref();
             sampler->setFilter(GrSamplerState::kBilinear_Filter);
+            break;
+        case SkShader::kLinear_BitmapType:
+            sampler->setCustomStage(SkNEW_ARGS(GrLinearGradient, (texture)))->unref();
+            if (skPaint.isFilterBitmap()) {
+                sampler->setFilter(GrSamplerState::kBilinear_Filter);
+            } else {
+                sampler->setFilter(GrSamplerState::kNearest_Filter);
+            }
             break;
         default:
             if (skPaint.isFilterBitmap()) {
