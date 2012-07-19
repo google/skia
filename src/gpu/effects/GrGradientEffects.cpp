@@ -9,9 +9,117 @@
 #include "gl/GrGLProgramStage.h"
 #include "GrProgramStageFactory.h"
 
+// Base class for GL gradient custom stages
+class GrGLGradientStage : public GrGLProgramStage {
+public:
+
+    GrGLGradientStage(const GrProgramStageFactory& factory);
+    virtual ~GrGLGradientStage();
+
+    // emit code that gets a fragment's color from an expression for t; for now
+    // this always uses the texture, but for simpler cases we'll be able to lerp
+    void emitColorLookup(GrGLShaderBuilder* builder, const char* t, 
+                         const char* outputColor, const char* samplerName);
+
+private:
+
+    typedef GrGLProgramStage INHERITED;
+};
+
+GrGLGradientStage::GrGLGradientStage(const GrProgramStageFactory& factory)
+                                     : INHERITED(factory) { }
+
+GrGLGradientStage::~GrGLGradientStage() { }
+
+void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder, 
+                                        const char* tName, 
+                                        const char* outputColor,
+                                        const char* samplerName) {
+    // Texture is effectively 1D so the y coordinate is 0.5, if we pack multiple
+    // gradients into a texture, we could instead pick the appropriate row here
+    builder->fSampleCoords.printf("vec2(%s, 0.5)", tName);
+    builder->fComplexCoord = true;
+    builder->emitDefaultFetch(outputColor, samplerName);
+}
+
 /////////////////////////////////////////////////////////////////////
 
-class GrGLRadialGradient : public GrGLProgramStage {
+GrGradientEffect::GrGradientEffect(GrTexture* texture) 
+                                   : fTexture (texture)
+                                   , fUseTexture(true) {
+    SkSafeRef(fTexture);
+}
+
+GrGradientEffect::~GrGradientEffect() {
+    if (fTexture) {
+        SkSafeUnref(fTexture);
+    }
+}
+
+unsigned int GrGradientEffect::numTextures() const {
+    return fUseTexture ? 1 : 0;
+}
+
+GrTexture* GrGradientEffect::texture(unsigned int index) 
+                             const {
+    GrAssert(fUseTexture && 0 == index);
+    return fTexture;
+}
+
+/////////////////////////////////////////////////////////////////////
+
+class GrGLLinearGradient : public GrGLGradientStage {
+public:
+
+    GrGLLinearGradient(const GrProgramStageFactory& factory,
+                       const GrCustomStage&)
+                       : INHERITED (factory) { }
+
+    virtual ~GrGLLinearGradient() { }
+
+    virtual void emitVS(GrGLShaderBuilder* builder,
+                        const char* vertexCoords) SK_OVERRIDE { }
+    virtual void emitFS(GrGLShaderBuilder* builder,
+                        const char* outputColor,
+                        const char* inputColor,
+                        const char* samplerName) SK_OVERRIDE;
+    static StageKey GenKey(const GrCustomStage& s) { return 0; }
+
+private:
+
+    typedef GrGLGradientStage INHERITED;
+};
+
+void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
+                                const char* outputColor,
+                                const char* inputColor,
+                                const char* samplerName) {
+    SkString t;
+    t.printf("%s.x", builder->fSampleCoords.c_str());
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
+}
+
+/////////////////////////////////////////////////////////////////////
+
+GrLinearGradient::GrLinearGradient(GrTexture* texture)
+                  : INHERITED(texture) { 
+}
+
+GrLinearGradient::~GrLinearGradient() {
+
+}
+
+const GrProgramStageFactory& GrLinearGradient::getFactory() const {
+    return GrTProgramStageFactory<GrLinearGradient>::getInstance();
+}
+
+bool GrLinearGradient::isEqual(const GrCustomStage& sBase) const {
+    return INHERITED::isEqual(sBase);
+}
+
+/////////////////////////////////////////////////////////////////////
+
+class GrGLRadialGradient : public GrGLGradientStage {
 
 public:
 
@@ -30,7 +138,7 @@ public:
 
 private:
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLGradientStage INHERITED;
 
 };
 
@@ -38,11 +146,9 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
                                 const char* outputColor,
                                 const char* inputColor,
                                 const char* samplerName) {
-    builder->fSampleCoords.printf("vec2(length(%s.xy), 0.5)",
-                                  builder->fSampleCoords.c_str());
-    builder->fComplexCoord = true;
-
-    builder->emitDefaultFetch(outputColor, samplerName);
+    SkString t;
+    t.printf("length(%s.xy)", builder->fSampleCoords.c_str());
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 
 
@@ -50,7 +156,7 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
 
 
 GrRadialGradient::GrRadialGradient(GrTexture* texture)
-    : GrSingleTextureEffect(texture) {
+    : INHERITED(texture) {
 
 }
 
@@ -73,7 +179,7 @@ bool GrRadialGradient::isEqual(const GrCustomStage& sBase) const {
 typedef GrGLShaderBuilder::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
 
-class GrGLRadial2Gradient : public GrGLProgramStage {
+class GrGLRadial2Gradient : public GrGLGradientStage {
 
 public:
 
@@ -124,7 +230,7 @@ protected:
 
 private:
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLGradientStage INHERITED;
 
 };
 
@@ -191,6 +297,7 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
     SkString cName("c");
     SkString ac4Name("ac4");
     SkString rootName("root");
+    SkString t;
     SkString p0;
     SkString p1;
     SkString p2;
@@ -240,20 +347,15 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
                       rootName.c_str(), bVar.c_str(), bVar.c_str(),
                       ac4Name.c_str());
 
-        // x coord is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
-        // y coord is 0.5 (texture is effectively 1D)
-        builder->fSampleCoords.printf("vec2((-%s + %s * %s) * %s, 0.5)",
-                                      bVar.c_str(), p5.c_str(),
-                                      rootName.c_str(), p1.c_str());
+        // t is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
+        t.printf("(-%s + %s * %s) * %s", bVar.c_str(), p5.c_str(),
+                 rootName.c_str(), p1.c_str());
     } else {
-        // x coord is: -c/b
-        // y coord is 0.5 (texture is effectively 1D)
-        builder->fSampleCoords.printf("vec2((-%s / %s), 0.5)",
-                                      cName.c_str(), bVar.c_str());
+        // t is: -c/b
+        t.printf("-%s / %s", cName.c_str(), bVar.c_str());
     }
-    builder->fComplexCoord = true;
 
-    builder->emitDefaultFetch(outputColor, samplerName);
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 
 void GrGLRadial2Gradient::initUniforms(const GrGLShaderBuilder* builder,
@@ -309,7 +411,7 @@ GrRadial2Gradient::GrRadial2Gradient(GrTexture* texture,
                                      GrScalar center,
                                      GrScalar radius,
                                      bool posRoot)
-    : GrSingleTextureEffect(texture)
+    : INHERITED(texture)
     , fCenterX1 (center)
     , fRadius0 (radius)
     , fPosRoot (posRoot) {
@@ -335,7 +437,7 @@ bool GrRadial2Gradient::isEqual(const GrCustomStage& sBase) const {
 
 /////////////////////////////////////////////////////////////////////
 
-class GrGLConical2Gradient : public GrGLProgramStage {
+class GrGLConical2Gradient : public GrGLGradientStage {
 
 public:
 
@@ -386,7 +488,7 @@ protected:
 
 private:
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLGradientStage INHERITED;
 
 };
 
@@ -536,10 +638,8 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         code->appendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(), 
                       p5.c_str(), p3.c_str());
 
-        // y coord is 0.5 (texture is effectively 1D)
         code->appendf("\t\t");
-        builder->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
-        builder->emitDefaultFetch(outputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, samplerName);
 
         // otherwise, if r(t) for the larger root was <= 0, try the other root
         code->appendf("\t\t} else {\n");
@@ -550,10 +650,8 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         code->appendf("\t\t\tif (%s * %s + %s > 0.0) {\n",
                       tName.c_str(), p5.c_str(), p3.c_str());
 
-        // y coord is 0.5 (texture is effectively 1D)
         code->appendf("\t\t\t");
-        builder->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
-        builder->emitDefaultFetch(outputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, samplerName);
 
         // end if (r(t) > 0) for smaller root 
         code->appendf("\t\t\t}\n");
@@ -571,11 +669,9 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                       p5.c_str(), p3.c_str());
         code->appendf("\t");
-        builder->fSampleCoords.printf("vec2(%s, 0.5)", tName.c_str());
-        builder->emitDefaultFetch(outputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, samplerName);
         code->appendf("\t}\n");
     }
-    builder->fComplexCoord = true;
 }
 
 void GrGLConical2Gradient::initUniforms(const GrGLShaderBuilder* builder,
@@ -633,7 +729,7 @@ GrConical2Gradient::GrConical2Gradient(GrTexture* texture,
                                        GrScalar center,
                                        GrScalar radius,
                                        GrScalar diffRadius)
-    : GrSingleTextureEffect (texture)
+    : INHERITED (texture)
     , fCenterX1 (center)
     , fRadius0 (radius)
     , fDiffRadius (diffRadius) {
@@ -660,7 +756,7 @@ bool GrConical2Gradient::isEqual(const GrCustomStage& sBase) const {
 /////////////////////////////////////////////////////////////////////
 
 
-class GrGLSweepGradient : public GrGLProgramStage {
+class GrGLSweepGradient : public GrGLGradientStage {
 
 public:
 
@@ -679,7 +775,7 @@ public:
 
 private:
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLGradientStage INHERITED;
 
 };
 
@@ -687,18 +783,16 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
                               const char* outputColor,
                               const char* inputColor,
                               const char* samplerName) {
-    builder->fSampleCoords.printf(
-        "vec2(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5, 0.5)",
+    SkString t;
+    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
         builder->fSampleCoords.c_str(), builder->fSampleCoords.c_str());
-    builder->fComplexCoord = true;
-
-    builder->emitDefaultFetch(outputColor, samplerName);
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 
 /////////////////////////////////////////////////////////////////////
 
 GrSweepGradient::GrSweepGradient(GrTexture* texture)
-    : GrSingleTextureEffect(texture) {
+    : INHERITED(texture) {
 
 }
 

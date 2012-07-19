@@ -222,8 +222,10 @@ public:
                             //         to first.
                             //      1: radius of first circle
                             //      2: the second radius minus the first radius
+        kLinear_BitmapType, //<! Access bitmap using local coords transformed
+                            //   by matrix. No extras
 
-       kLast_BitmapType = kTwoPointConical_BitmapType
+       kLast_BitmapType = kLinear_BitmapType
     };
     /** Optional methods for shaders that can pretend to be a bitmap/texture
         to play along with opengl. Default just returns kNone_BitmapType and
