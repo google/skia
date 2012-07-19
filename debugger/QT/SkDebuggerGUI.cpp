@@ -91,7 +91,6 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionShowDeletes, SIGNAL(triggered()), this, SLOT(showDeletes()));
 
     fInspectorWidget.setDisabled(true);
-    //fMenuBar.setDisabled(true);
     fMenuEdit.setDisabled(true);
     fMenuNavigate.setDisabled(true);
     fMenuView.setDisabled(true);
@@ -537,7 +536,6 @@ void SkDebuggerGUI::setupDirectoryWidget() {
 void SkDebuggerGUI::loadPicture(QString fileName) {
     fLoading = true;
     fCanvasWidget.loadPicture(fileName);
-    std::string cocks = fileName.toStdString();
     std::vector<std::string> *cv = fCanvasWidget.getDrawCommands();
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
      * of the visibility filter. */
