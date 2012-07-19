@@ -320,8 +320,8 @@ public:
         void beginRecording();
 
 #if SK_DEFERRED_CANVAS_USES_GPIPE
-        SkGPipeWriter  fPipeWriter;
         DeferredPipeController fPipeController;
+        SkGPipeWriter  fPipeWriter;
 #else
         SkPicture fPicture;
 #endif
