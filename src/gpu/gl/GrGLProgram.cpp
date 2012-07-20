@@ -1032,7 +1032,8 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLShaderBuilder& build
                 tex_matrix_name(s, &texMName);
                 GL_CALL_RET(locations.fTextureMatrixUni,
                             GetUniformLocation(fProgramID, texMName.c_str()));
-                GrAssert(kUnusedUniform != locations.fTextureMatrixUni);
+                //color filter table effect does not consumer coords gen'ed by matrix.
+                //GrAssert(kUnusedUniform != locations.fTextureMatrixUni);
             }
 
             if (kUseUniform == locations.fSamplerUni) {
