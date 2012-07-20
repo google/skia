@@ -19,7 +19,7 @@ public:
         kRGB_Horizontal_LCDConfig,
         kBGR_Horizontal_LCDConfig,
         kRGB_Vertical_LCDConfig,
-        kBGR_Vertical_LCDConfig,
+        kBGR_Vertical_LCDConfig
     };
 
     enum FontHintLevel {
@@ -27,7 +27,7 @@ public:
         kSlight_FontHintLevel,
         kNormal_FontHintLevel,
         kFull_FontHintLevel,
-        kAuto_FontHintLevel,
+        kAuto_FontHintLevel
     };
 
     /**
