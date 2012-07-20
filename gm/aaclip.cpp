@@ -183,6 +183,8 @@ protected:
         draw_rect_tests(canvas);
     }
 
+    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
+
 private:
     typedef GM INHERITED;
 };
