@@ -51,6 +51,9 @@ public:
 
     GrTexture* getTexture(int i) const { 
         GrAssert((unsigned)i < kMaxTextures);
+        //if (this->getTextureSampler(i).getCustomStage()) {
+            //return this->getTextureSampler(i).getCustomStage()->texture(i);
+        //}
         return fTextures[i]; 
     }
 
@@ -81,6 +84,9 @@ public:
 
     GrTexture* getMask(int i) const { 
         GrAssert((unsigned)i < kMaxMasks);
+        //if (this->getMaskSampler(i).getCustomStage()) {
+            //return this->getMaskSampler(i).getCustomStage()->texture(i);
+        //}
         return fMaskTextures[i]; 
     }
 

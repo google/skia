@@ -40,7 +40,7 @@ void GrTextContext::flushGlyphs() {
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
-        drawState->setTexture(kGlyphMaskStage, fCurrTexture);
+        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.fSrcBlendCoeff ||

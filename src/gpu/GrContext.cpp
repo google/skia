@@ -368,8 +368,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
                                                GrDrawTarget::kReset_ASRInit);
             GrDrawState* drawState = fGpu->drawState();
             drawState->setRenderTarget(texture->asRenderTarget());
-            drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
-                                                             (clampEntry.texture())))->unref();
+            drawState->createTextureEffect(0, clampEntry.texture());
 
             GrSamplerState::Filter filter;
             // if filtering is not desired then we want to ensure all
@@ -1405,7 +1404,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         matrix.postIDiv(src->width(), src->height());
         drawState->sampler(0)->reset(matrix);
         drawState->sampler(0)->setRAndBSwap(swapRAndB);
-        drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (src)))->unref();
+        drawState->createTextureEffect(0, src);
         GrRect rect;
         rect.setXYWH(0, 0, SK_Scalar1 * width, SK_Scalar1 * height);
         fGpu->drawSimpleRect(rect, NULL);
@@ -1445,7 +1444,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     GrMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
     drawState->sampler(0)->reset(sampleM);
-    drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (src)))->unref();
+    drawState->createTextureEffect(0, src);
     SkRect rect = SkRect::MakeXYWH(0, 0,
                                    SK_Scalar1 * src->width(),
                                    SK_Scalar1 * src->height());
@@ -1544,7 +1543,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
                                  GrSamplerState::kNearest_Filter,
                                  matrix);
-    drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
+    drawState->createTextureEffect(0, texture);
     drawState->sampler(0)->setRAndBSwap(swapRAndB);
 
     static const GrVertexLayout layout = 0;

@@ -16,6 +16,7 @@
 #include "GrStencil.h"
 #include "GrTexture.h"
 #include "GrRenderTarget.h"
+#include "effects/GrSingleTextureEffect.h"
 
 #include "SkXfermode.h"
 
@@ -187,11 +188,24 @@ public:
      *
      * @param texture The texture to set. Can be NULL though there is no
      * advantage to settings a NULL texture if doing non-textured drawing
+     *
+     * @deprecated
      */
     void setTexture(int stage, GrTexture* texture) {
         GrAssert((unsigned)stage < kNumStages);
 
         GrSafeAssign(fTextures[stage], texture);
+    }
+
+    /**
+     * Creates a GrSingleTextureEffect.
+     *
+     * Replacement for setTexture.
+     */
+    void createTextureEffect(int stage, GrTexture* texture) {
+        GrAssert(!this->getSampler(stage).getCustomStage());
+        this->sampler(stage)->setCustomStage(
+            SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     }
 
     /**
