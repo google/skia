@@ -27,7 +27,6 @@ protected:
                             GrPathFill fill,
                             const GrVec* translate,
                             GrDrawTarget* target,
-                            GrDrawState::StageMask stageMask,
                             bool antiAlias) SK_OVERRIDE;
  
 private:
@@ -39,7 +38,6 @@ private:
     bool createGeom(const SkPath& path,
                     const GrVec* translate,
                     GrDrawTarget* target,
-                    GrDrawState::StageMask stageMask,
                     int* lineCnt,
                     int* quadCnt,
                     GrDrawTarget::AutoReleaseGeometry* arg);

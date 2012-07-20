@@ -91,7 +91,6 @@ public:
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithPathMask(GrTexture* texture,
                                          GrDrawTarget* target,
-                                         GrDrawState::StageMask stageMask,
                                          const GrIRect& rect);
 
 protected:

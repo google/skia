@@ -168,24 +168,6 @@ size_t GrContext::getGpuTextureCacheBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GrContext::PaintStageVertexLayoutBits(
-                            const GrPaint& paint,
-                            const bool hasTexCoords[GrPaint::kTotalStages]) {
-    int stageMask = paint.getActiveStageMask();
-    int layout = 0;
-    for (int i = 0; i < GrPaint::kTotalStages; ++i) {
-        if ((1 << i) & stageMask) {
-            if (NULL != hasTexCoords && hasTexCoords[i]) {
-                layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(i, i);
-            }
-        }
-    }
-    return layout;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-
 GrTexture* GrContext::TextureCacheEntry::texture() const {
     if (NULL == fEntry) {
         return NULL; 
@@ -247,7 +229,7 @@ void apply_morphology(GrGpu* gpu,
     SkAutoTUnref<GrCustomStage> morph(
         SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)));
     drawState->sampler(0)->setCustomStage(morph);
-    gpu->drawSimpleRect(rect, NULL, 1 << 0);
+    gpu->drawSimpleRect(rect, NULL);
 }
 
 void convolve_gaussian(GrGpu* gpu,
@@ -267,7 +249,7 @@ void convolve_gaussian(GrGpu* gpu,
                                                       (texture, direction, radius,
                                                        sigma)));
     drawState->sampler(0)->setCustomStage(conv);
-    gpu->drawSimpleRect(rect, NULL, 1 << 0);
+    gpu->drawSimpleRect(rect, NULL);
 }
 
 }
@@ -644,19 +626,17 @@ void GrContext::drawPaint(const GrPaint& paint) {
     // produce a correct result for some perspective matrices.
     if (!this->getMatrix().hasPerspective()) {
         if (!fDrawState->getViewInverse(&inverse)) {
-            GrPrintf("Could not invert matrix");
+            GrPrintf("Could not invert matrix\n");
             return;
         }
         inverse.mapRect(&r);
     } else {
-        if (paint.getActiveMaskStageMask() || paint.getActiveStageMask()) {
-            if (!fDrawState->getViewInverse(&inverse)) {
-                GrPrintf("Could not invert matrix");
-                return;
-            }
+        if (paint.hasTextureOrMask()) {
             tmpPaint.set(paint);
-            tmpPaint.get()->preConcatActiveSamplerMatrices(inverse);
             p = tmpPaint.get();
+            if (!tmpPaint.get()->preConcatSamplerMatricesWithInverse(fDrawState->getViewMatrix())) {
+                GrPrintf("Could not invert matrix\n");
+            }
         }
         am.set(this, GrMatrix::I());
     }
@@ -780,7 +760,6 @@ void GrContext::drawRect(const GrPaint& paint,
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
     GrDrawState::AutoStageDisable atr(fDrawState);
-    int stageMask = paint.getActiveStageMask();
 
     GrRect devRect = rect;
     GrMatrix combinedMatrix;
@@ -792,7 +771,10 @@ void GrContext::drawRect(const GrPaint& paint,
                                            &useVertexCoverage);
 
     if (doAA) {
-        GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
+        GrDrawTarget::AutoDeviceCoordDraw adcd(target);
+        if (!adcd.succeeded()) {
+            return;
+        }
         if (width >= 0) {
             GrVec strokeSize;;
             if (width > 0) {
@@ -815,10 +797,9 @@ void GrContext::drawRect(const GrPaint& paint,
         // TODO: consider making static vertex buffers for these cases.
         // Hairline could be done by just adding closing vertex to
         // unitSquareVertexBuffer()
-        GrVertexLayout layout =  PaintStageVertexLayoutBits(paint, NULL);
 
         static const int worstCaseVertCount = 10;
-        GrDrawTarget::AutoReleaseGeometry geo(target, layout, worstCaseVertCount, 0);
+        GrDrawTarget::AutoReleaseGeometry geo(target, 0, worstCaseVertCount, 0);
 
         if (!geo.succeeded()) {
             GrPrintf("Failed to get space for vertices!\n");
@@ -849,19 +830,18 @@ void GrContext::drawRect(const GrPaint& paint,
             GrDrawState* drawState = target->drawState();
             avmr.set(drawState);
             drawState->preConcatViewMatrix(*matrix);
-            drawState->preConcatSamplerMatrices(stageMask, *matrix);
+            drawState->preConcatSamplerMatrices(*matrix);
         }
 
         target->drawNonIndexed(primType, 0, vertCount);
     } else {
 #if GR_STATIC_RECT_VB
-            GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL);
             const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
             if (NULL == sqVB) {
                 GrPrintf("Failed to create static rect vb.\n");
                 return;
             }
-            target->setVertexSourceToBuffer(layout, sqVB);
+            target->setVertexSourceToBuffer(0, sqVB);
             GrDrawState* drawState = target->drawState();
             GrDrawState::AutoViewMatrixRestore avmr(drawState);
             GrMatrix m;
@@ -873,11 +853,11 @@ void GrContext::drawRect(const GrPaint& paint,
                 m.postConcat(*matrix);
             }
             drawState->preConcatViewMatrix(m);
-            drawState->preConcatSamplerMatrices(stageMask, m);
+            drawState->preConcatSamplerMatrices(m);
  
             target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
-            target->drawSimpleRect(rect, matrix, stageMask);
+            target->drawSimpleRect(rect, matrix);
 #endif
     }
 }
@@ -901,7 +881,6 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
     GrDrawState::AutoStageDisable atr(fDrawState);
     GrDrawState* drawState = target->drawState();
-    GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL);
     GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     GrMatrix m;
@@ -914,11 +893,12 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     }
     drawState->preConcatViewMatrix(m);
 
-    // srcRect refers to first stage
-    int otherStageMask = paint.getActiveStageMask() & 
-                         (~(1 << GrPaint::kFirstTextureStage));
-    if (otherStageMask) {
-        drawState->preConcatSamplerMatrices(otherStageMask, m);
+    // we explicitly setup the correct coords for the first stage. The others
+    // must know about the view matrix change.
+    for (int s = 1; s < GrPaint::kTotalStages; ++s) {
+        if (drawState->isStageEnabled(s)) {
+            drawState->sampler(s)->preConcatMatrix(m);
+        }
     }
 
     m.setAll(srcRect.width(), 0,                srcRect.fLeft,
@@ -934,7 +914,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         GrPrintf("Failed to create static rect vb.\n");
         return;
     }
-    target->setVertexSourceToBuffer(layout, sqVB);
+    target->setVertexSourceToBuffer(0, sqVB);
     target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
 
@@ -951,7 +931,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     srcRects[0] = &srcRect;
     srcMatrices[0] = srcMatrix;
 
-    target->drawRect(dstRect, dstMatrix, 1, srcRects, srcMatrices);
+    target->drawRect(dstRect, dstMatrix, srcRects, srcMatrices);
 #endif
 }
 
@@ -970,13 +950,10 @@ void GrContext::drawVertices(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    bool hasTexCoords[GrPaint::kTotalStages] = {
-        NULL != texCoords,   // texCoordSrc provides explicit stage 0 coords
-        0                    // remaining stages use positions
-    };
-
-    GrVertexLayout layout = PaintStageVertexLayoutBits(paint, hasTexCoords);
-
+    GrVertexLayout layout = 0;
+    if (NULL != texCoords) {
+        layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(0, 0);
+    }
     if (NULL != colors) {
         layout |= GrDrawTarget::kColor_VertexLayoutBit;
     }
@@ -1093,10 +1070,12 @@ void GrContext::drawOval(const GrPaint& paint,
         return;
     }
 
-    GrDrawTarget::AutoDeviceCoordDraw adcd(target, paint.getActiveStageMask());
+    GrDrawTarget::AutoDeviceCoordDraw adcd(target);
+    if (!adcd.succeeded()) {
+        return;
+    }
 
-    GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL);
-    layout |= GrDrawTarget::kEdge_VertexLayoutBit;
+    GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
     GrAssert(sizeof(CircleVertex) == GrDrawTarget::VertexSize(layout));
 
     GrPoint center = GrPoint::Make(rect.centerX(), rect.centerY());
@@ -1183,7 +1162,6 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
                                             kUnbuffered_DrawCategory;
     GrDrawTarget* target = this->prepareToDraw(paint, category);
     GrDrawState::AutoStageDisable atr(fDrawState);
-    GrDrawState::StageMask stageMask = paint.getActiveStageMask();
 
     bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
 
@@ -1206,7 +1184,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
         return;
     }
 
-    pr->drawPath(path, fill, translate, target, stageMask, prAA);
+    pr->drawPath(path, fill, translate, target, prAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1430,7 +1408,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         drawState->sampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (src)))->unref();
         GrRect rect;
         rect.setXYWH(0, 0, SK_Scalar1 * width, SK_Scalar1 * height);
-        fGpu->drawSimpleRect(rect, NULL, 0x1);
+        fGpu->drawSimpleRect(rect, NULL);
         left = 0;
         top = 0;
     }
@@ -1471,7 +1449,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     SkRect rect = SkRect::MakeXYWH(0, 0,
                                    SK_Scalar1 * src->width(),
                                    SK_Scalar1 * src->height());
-    fGpu->drawSimpleRect(rect, NULL, 1 << 0);
+    fGpu->drawSimpleRect(rect, NULL);
 }
 
 void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target, 
@@ -1632,7 +1610,7 @@ void GrContext::setPaint(const GrPaint& paint) {
     fDrawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
     fDrawState->setCoverage(paint.fCoverage);
 #if GR_DEBUG_PARTIAL_COVERAGE_CHECK
-    if ((paint.getActiveMaskStageMask() || 0xff != paint.fCoverage) &&
+    if ((paint.hasMask() || 0xff != paint.fCoverage) &&
         !fGpu->canApplyCoverage()) {
         GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
     }

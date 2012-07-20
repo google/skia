@@ -505,7 +505,6 @@ bool GrAAHairLinePathRenderer::createGeom(
             const SkPath& path,
             const GrVec* translate,
             GrDrawTarget* target,
-            GrDrawState::StageMask stageMask,
             int* lineCnt,
             int* quadCnt,
             GrDrawTarget::AutoReleaseGeometry* arg) {
@@ -585,7 +584,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                           GrPathFill fill,
                                           const GrVec* translate,
                                           GrDrawTarget* target,
-                                          GrDrawState::StageMask stageMask,
                                           bool antiAlias) {
 
     int lineCnt;
@@ -594,7 +592,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     if (!this->createGeom(path,
                           translate,
                           target,
-                          stageMask,
                           &lineCnt,
                           &quadCnt,
                           &arg)) {
@@ -609,9 +606,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         asr.set(target,
                 GrDrawTarget::kPreserve_ASRInit);
         drawState = target->drawState();
-        GrMatrix ivm;
-        if (drawState->getViewInverse(&ivm)) {
-            drawState->preConcatSamplerMatrices(stageMask, ivm);
+        if (!drawState->preConcatSamplerMatricesWithInverse(drawState->getViewMatrix())) {
+            return false;
         }
         drawState->viewMatrix()->reset();
     }

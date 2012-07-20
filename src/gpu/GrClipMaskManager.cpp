@@ -367,7 +367,7 @@ bool draw_path_in_software(GrContext* context,
     // The ClipMaskManager accumulates the clip mask in the UL corner
     GrIRect rect = GrIRect::MakeWH(resultBounds.width(), resultBounds.height());
 
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, gpu, 0, rect);
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, gpu, rect);
 
     GrAssert(!GrIsFillInverted(fill));
     return true;
@@ -387,7 +387,7 @@ bool draw_path(GrContext* context,
         return draw_path_in_software(context, gpu, path, fill, doAA, resultBounds);
     }
 
-    pr->drawPath(path, fill, NULL, gpu, 0, doAA);
+    pr->drawPath(path, fill, NULL, gpu, doAA);
     return true;
 }
 
@@ -409,7 +409,7 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target,
                                                           clipIn.getRect(index), 
                                                           true);
         } else {
-            fGpu->drawSimpleRect(clipIn.getRect(index), NULL, 0);
+            fGpu->drawSimpleRect(clipIn.getRect(index), NULL);
         }
     } else {
         return draw_path(this->getContext(), fGpu,
@@ -440,7 +440,7 @@ void GrClipMaskManager::drawTexture(GrTexture* target,
     GrRect rect = GrRect::MakeWH(SkIntToScalar(target->width()), 
                                  SkIntToScalar(target->height()));
 
-    fGpu->drawSimpleRect(rect, NULL, 1 << 0);
+    fGpu->drawSimpleRect(rect, NULL);
 
     drawState->disableStage(0);
 }
@@ -789,11 +789,11 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                 SET_RANDOM_COLOR
                 if (kRect_ClipType == clipCopy.getElementType(c)) {
                     *drawState->stencil() = gDrawToStencil;
-                    fGpu->drawSimpleRect(clipCopy.getRect(c), NULL, 0);
+                    fGpu->drawSimpleRect(clipCopy.getRect(c), NULL);
                 } else {
                     if (canRenderDirectToStencil) {
                         *drawState->stencil() = gDrawToStencil;
-                        pr->drawPath(*clipPath, fill, NULL, fGpu, 0, false);
+                        pr->drawPath(*clipPath, fill, NULL, fGpu, false);
                     } else {
                         pr->drawPathToStencil(*clipPath, fill, fGpu);
                     }
@@ -808,10 +808,10 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                 if (canDrawDirectToClip) {
                     if (kRect_ClipType == clipCopy.getElementType(c)) {
                         SET_RANDOM_COLOR
-                        fGpu->drawSimpleRect(clipCopy.getRect(c), NULL, 0);
+                        fGpu->drawSimpleRect(clipCopy.getRect(c), NULL);
                     } else {
                         SET_RANDOM_COLOR
-                        pr->drawPath(*clipPath, fill, NULL, fGpu, 0, false);
+                        pr->drawPath(*clipPath, fill, NULL, fGpu, false);
                     }
                 } else {
                     SET_RANDOM_COLOR
@@ -820,7 +820,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                             SkIntToScalar(bounds.fTop),
                             SkIntToScalar(bounds.fRight),
                             SkIntToScalar(bounds.fBottom));
-                    fGpu->drawSimpleRect(rect, NULL, 0);
+                    fGpu->drawSimpleRect(rect, NULL);
                 }
             }
         }

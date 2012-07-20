@@ -33,7 +33,6 @@ protected:
                             GrPathFill fill,
                             const GrVec* translate,
                             GrDrawTarget* target,
-                            GrDrawState::StageMask stageMask,
                             bool antiAlias) SK_OVERRIDE;
  
 private:

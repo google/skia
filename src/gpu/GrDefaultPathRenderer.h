@@ -40,14 +40,12 @@ private:
                             GrPathFill fill,
                             const GrVec* translate,
                             GrDrawTarget* target,
-                            GrDrawState::StageMask stageMask,
                             bool antiAlias) SK_OVERRIDE;
 
     bool internalDrawPath(const SkPath& path,
                           GrPathFill fill,
                           const GrVec* translate,
                           GrDrawTarget* target,
-                          GrDrawState::StageMask stageMask,
                           bool stencilOnly);
 
     bool createGeom(const SkPath& path,
@@ -55,7 +53,6 @@ private:
                     const GrVec* translate,
                     GrScalar srcSpaceTol,
                     GrDrawTarget* target,
-                    GrDrawState::StageMask stages,
                     GrPrimitiveType* primType,
                     int* vertexCnt,
                     int* indexCnt,
