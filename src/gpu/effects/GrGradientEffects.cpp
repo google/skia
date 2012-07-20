@@ -8,6 +8,7 @@
 #include "GrGradientEffects.h"
 #include "gl/GrGLProgramStage.h"
 #include "GrProgramStageFactory.h"
+#include "SkGr.h"
 
 // Base class for GL gradient custom stages
 class GrGLGradientStage : public GrGLProgramStage {
@@ -50,10 +51,37 @@ GrGradientEffect::GrGradientEffect(GrTexture* texture)
     SkSafeRef(fTexture);
 }
 
+GrGradientEffect::GrGradientEffect(GrContext* ctx, const SkShader& shader)
+                                   : fTexture (NULL)
+                                   , fUseTexture (false) {
+    // TODO: check for simple cases where we don't need a texture:
+    //GradientInfo info;
+    //shader.asAGradient(&info);
+    //if (info.fColorCount == 2) { ...
+
+    SkBitmap bitmap;
+    shader.asABitmap(&bitmap, NULL, NULL, NULL);
+
+    // Note: we just construct a default sampler state here, which isn't great,
+    // however, as long as the bitmap has power-of-two dimensions, which should
+    // be the case for gradient bitmaps, it should be fine
+    GrAssert(SkIsPow2(bitmap.width()) && SkIsPow2(bitmap.height()));
+    GrSamplerState sampler;
+
+    GrContext::TextureCacheEntry entry = GrLockCachedBitmapTexture(ctx, bitmap,
+                                                                   &sampler);
+    fTexture = entry.texture();
+    SkSafeRef(fTexture);
+    fUseTexture = true;
+
+    // Unlock immediately, this is not great, but we don't have a way of
+    // knowing when else to unlock it currently, so it may get purged from
+    // the cache, but it'll still be ref'd until it's no longer being used.
+    GrUnlockCachedBitmapTexture(ctx, entry);
+}
+
 GrGradientEffect::~GrGradientEffect() {
-    if (fTexture) {
-        SkSafeUnref(fTexture);
-    }
+    SkSafeUnref(fTexture);
 }
 
 unsigned int GrGradientEffect::numTextures() const {
@@ -105,16 +133,16 @@ GrLinearGradient::GrLinearGradient(GrTexture* texture)
                   : INHERITED(texture) { 
 }
 
+GrLinearGradient::GrLinearGradient(GrContext* ctx, const SkShader& shader)
+                  : INHERITED(ctx, shader) {
+}
+
 GrLinearGradient::~GrLinearGradient() {
 
 }
 
 const GrProgramStageFactory& GrLinearGradient::getFactory() const {
     return GrTProgramStageFactory<GrLinearGradient>::getInstance();
-}
-
-bool GrLinearGradient::isEqual(const GrCustomStage& sBase) const {
-    return INHERITED::isEqual(sBase);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -160,17 +188,16 @@ GrRadialGradient::GrRadialGradient(GrTexture* texture)
 
 }
 
+GrRadialGradient::GrRadialGradient(GrContext* ctx, const SkShader& shader)
+    : INHERITED(ctx, shader) {
+}
+
 GrRadialGradient::~GrRadialGradient() {
 
 }
 
-
 const GrProgramStageFactory& GrRadialGradient::getFactory() const {
     return GrTProgramStageFactory<GrRadialGradient>::getInstance();
-}
-
-bool GrRadialGradient::isEqual(const GrCustomStage& sBase) const {
-    return INHERITED::isEqual(sBase);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -416,6 +443,19 @@ GrRadial2Gradient::GrRadial2Gradient(GrTexture* texture,
     , fRadius0 (radius)
     , fPosRoot (posRoot) {
 
+}
+
+GrRadial2Gradient::GrRadial2Gradient(GrContext* ctx, const SkShader& shader)
+    : INHERITED(ctx, shader) {
+    SkShader::GradientInfo info;
+    info.fColorCount = 0;
+    shader.asAGradient(&info);
+    fCenterX1 = SkPoint::Distance(info.fPoint[0], info.fPoint[1]);
+    SkScalar diffRadius = info.fRadius[1] - info.fRadius[0];
+    fPosRoot = diffRadius < 0;
+    SkScalar inv = 0 == diffRadius ? 0 : SkScalarInvert(diffRadius);
+    fRadius0 = SkScalarMul(info.fRadius[0], inv);
+    fCenterX1 = SkScalarMul(fCenterX1, inv);
 }
 
 GrRadial2Gradient::~GrRadial2Gradient() {
@@ -736,6 +776,16 @@ GrConical2Gradient::GrConical2Gradient(GrTexture* texture,
 
 }
 
+GrConical2Gradient::GrConical2Gradient(GrContext* ctx, const SkShader& shader)
+    : INHERITED(ctx, shader) {
+    SkShader::GradientInfo info;
+    info.fColorCount = 0;
+    shader.asAGradient(&info);
+    fCenterX1 = SkPoint::Distance(info.fPoint[0], info.fPoint[1]);
+    fRadius0 = info.fRadius[0];
+    fDiffRadius = info.fRadius[1] - info.fRadius[0];
+}
+
 GrConical2Gradient::~GrConical2Gradient() {
 
 }
@@ -796,15 +846,15 @@ GrSweepGradient::GrSweepGradient(GrTexture* texture)
 
 }
 
+GrSweepGradient::GrSweepGradient(GrContext* ctx, const SkShader& shader) 
+    : INHERITED(ctx, shader) {
+}
+
 GrSweepGradient::~GrSweepGradient() {
 
 }
 
 const GrProgramStageFactory& GrSweepGradient::getFactory() const {
     return GrTProgramStageFactory<GrSweepGradient>::getInstance();
-}
-
-bool GrSweepGradient::isEqual(const GrCustomStage& sBase) const {
-    return INHERITED::isEqual(sBase);
 }
 

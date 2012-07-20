@@ -200,6 +200,11 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
+GrCustomStage* SkShader::asNewCustomStage(GrContext* context, 
+                                          GrSamplerState* sampler) const {
+    return NULL;
+}
+
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
                                        TileMode tmx, TileMode tmy) {
     return SkShader::CreateBitmapShader(src, tmx, tmy, NULL, 0);
