@@ -42,6 +42,15 @@ static void log_progress(const SkString& str) { log_progress(str.c_str()); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+enum benchModes {
+    kNormal_benchModes,
+    kDeferred_benchModes,
+    kRecord_benchModes,
+    kPictureRecord_benchModes
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 static void erase(SkBitmap& bm) {
     if (bm.config() == SkBitmap::kA8_Config) {
         bm.eraseColor(0);
@@ -332,7 +341,7 @@ static void help() {
                           "[-timers [wcg]*] [-rotate]\n"
              "    [-scale] [-clip] [-forceAA 1|0] [-forceFilter 1|0]\n"
              "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
-             "    [-forceDeferred 1|0] [-match name]\n"
+             "    [-match name] [-mode normal|deferred|record|picturerecord]\n"
              "    [-config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar]\n"
              "    [-h|--help]");
     SkDebugf("\n\n");
@@ -353,10 +362,14 @@ static void help() {
              "Enable/disable dithering, default is disabled.\n");
     SkDebugf("    -forceBlend 1|0 : "
              "Enable/disable dithering, default is disabled.\n");
-    SkDebugf("    -forceDeferred 1|0 : "
-             "Enable/disable deferred canvas, default is disabled.\n");
     SkDebugf("    -strokeWidth width : The width for path stroke.\n");
     SkDebugf("    -match name : Only run bench whose name is matched.\n");
+    SkDebugf("    -mode normal|deferred|record|picturerecord : Run in the corresponding mode\n"
+             "                 normal, Use a normal canvas to draw to;\n"
+             "                 deferred, Use a deferrred canvas when drawing;\n"
+             "                 record, Benchmark the time to record to an SkPicture;\n"
+             "                 picturerecord, Benchmark the time to do record from a \n"
+             "                                SkPicture to a SkPicture.\n");
     SkDebugf("    -config 8888|565|GPU|ANGLE|NULLGPU : "
              "Run bench in corresponding config mode.\n");
     SkDebugf("    -Dfoo bar : Add extra definition to bench.\n");
@@ -373,7 +386,6 @@ int main (int argc, char * const argv[]) {
     bool forceAA = true;
     bool forceFilter = false;
     SkTriState::State forceDither = SkTriState::kDefault;
-    bool forceDeferred = false;
     bool timerWall = false;
     bool timerCpu = true;
     bool timerGpu = true;
@@ -383,7 +395,10 @@ int main (int argc, char * const argv[]) {
     bool hasStrokeWidth = false;
     float strokeWidth;
     SkTDArray<const char*> fMatches;
-    
+    benchModes benchMode = kNormal_benchModes;
+    SkString perIterTimeformat("%.2f");
+    SkString normalTimeFormat("%6.2f");
+
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
     GLHelper* glHelper = NULL;
@@ -472,9 +487,24 @@ int main (int argc, char * const argv[]) {
                 return -1;
             }
             forceAlpha = wantAlpha ? 0x80 : 0xFF;
-        } else if (strcmp(*argv, "-forceDeferred") == 0) {
-            if (!parse_bool_arg(++argv, stop, &forceDeferred)) {
-                log_error("missing arg for -forceDeferred\n");
+        } else if (strcmp(*argv, "-mode") == 0) {
+            argv++;
+            if (argv < stop) {
+                if (strcmp(*argv, "normal") == 0) {
+                    benchMode = kNormal_benchModes;
+                } else if (strcmp(*argv, "deferred") == 0) {
+                    benchMode = kDeferred_benchModes;
+                } else if (strcmp(*argv, "record") == 0) {
+                    benchMode = kRecord_benchModes;
+                } else if (strcmp(*argv, "picturerecord") == 0) {
+                    benchMode = kPictureRecord_benchModes;
+                } else {
+                    log_error("bad arg for -mode\n");
+                    help();
+                    return -1;
+                }
+            } else {
+                log_error("missing arg for -mode\n");
                 help();
                 return -1;
             }
@@ -541,6 +571,16 @@ int main (int argc, char * const argv[]) {
             return -1;
         }
     }
+    if ((benchMode == kRecord_benchModes || benchMode == kPictureRecord_benchModes)
+            && !outDir.isEmpty()) {
+        log_error("'-mode record' and '-mode picturerecord' are not"
+                  " compatible with -o.\n");
+        return -1;
+    }
+    if ((benchMode == kRecord_benchModes || benchMode == kPictureRecord_benchModes)) {
+        perIterTimeformat.set("%.4f");
+        normalTimeFormat.set("%6.4f");
+    }
     if (!userConfig) {
         // if no config is specified by user, we add them all.
         for (unsigned int i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
@@ -553,10 +593,13 @@ int main (int argc, char * const argv[]) {
         SkString str;
         str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d "
                    "deferred=%d logperiter=%d",
-                   forceAlpha, forceAA, forceFilter, forceDeferred, logPerIter);
+                   forceAlpha, forceAA, forceFilter, benchMode == kDeferred_benchModes,
+                   logPerIter);
         str.appendf(" rotate=%d scale=%d clip=%d",
                    doRotate, doScale, doClip);
-                   
+        str.appendf(" record=%d picturerecord=%d",
+                    benchMode == kRecord_benchModes,
+                    benchMode == kPictureRecord_benchModes);
         const char * ditherName;
         switch (forceDither) {
             case SkTriState::kDefault: ditherName = "default"; break;
@@ -659,11 +702,35 @@ int main (int argc, char * const argv[]) {
             }
             
             SkDevice* device = make_device(outConfig, dim, backend, glHelper);
-            SkCanvas* canvas;
-            if (forceDeferred) {
-                canvas = new SkDeferredCanvas(device);
-            } else {
-                canvas = new SkCanvas(device);
+            SkCanvas* canvas = NULL;
+            SkPicture pictureRecordFrom;
+            SkPicture pictureRecordTo;
+            switch(benchMode) {
+                case kDeferred_benchModes:
+                    canvas = new SkDeferredCanvas(device);
+                    break;
+                case kRecord_benchModes:
+                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY);
+                    canvas->ref();
+                    break;
+                case kPictureRecord_benchModes: {
+                    // This sets up picture-to-picture recording.
+                    // The C++ drawing calls for the benchmark are recorded into
+                    // pictureRecordFrom. As the benchmark, we will time how
+                    // long it takes to playback pictureRecordFrom into
+                    // pictureRecordTo.
+                    SkCanvas* tempCanvas = pictureRecordFrom.beginRecording(dim.fX, dim.fY);
+                    bench->draw(tempCanvas);
+                    pictureRecordFrom.endRecording();
+                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY);
+                    canvas->ref();
+                    break;
+                }
+                case kNormal_benchModes:
+                    canvas = new SkCanvas(device);
+                    break;
+                default:
+                    SkASSERT(0);
             }
             device->unref();
             SkAutoUnref canvasUnref(canvas);
@@ -681,7 +748,11 @@ int main (int argc, char * const argv[]) {
             // warm up caches if needed
             if (repeatDraw > 1) {
                 SkAutoCanvasRestore acr(canvas, true);
-                bench->draw(canvas);
+                if (benchMode == kPictureRecord_benchModes) {
+                    pictureRecordFrom.draw(canvas);
+                } else {
+                    bench->draw(canvas);
+                }
                 canvas->flush();
                 if (glHelper) {
                     glHelper->grContext()->flush();
@@ -697,9 +768,20 @@ int main (int argc, char * const argv[]) {
             double fCpuSum = 0.0;
             double fGpuSum = 0.0;
             for (int i = 0; i < repeatDraw; i++) {
+                if ((benchMode == kRecord_benchModes
+                     || benchMode == kPictureRecord_benchModes)) {
+                    // This will clear the recorded commands so that they do not
+                    // acculmulate.
+                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY);
+                }
+
                 timer.start();
                 SkAutoCanvasRestore acr(canvas, true);
-                bench->draw(canvas);
+                if (benchMode == kPictureRecord_benchModes) {
+                    pictureRecordFrom.draw(canvas);
+                } else {
+                    bench->draw(canvas);
+                }
                 canvas->flush();
                 if (glHelper) {
                     glHelper->grContext()->flush();
@@ -708,13 +790,16 @@ int main (int argc, char * const argv[]) {
 
                 if (i == repeatDraw - 1) {
                     // no comma after the last value
-                    fWallStr.appendf("%.2f", timer.fWall);
-                    fCpuStr.appendf("%.2f", timer.fCpu);
-                    fGpuStr.appendf("%.2f", timer.fGpu);
+                    fWallStr.appendf(perIterTimeformat.c_str(), timer.fWall);
+                    fCpuStr.appendf(perIterTimeformat.c_str(), timer.fCpu);
+                    fGpuStr.appendf(perIterTimeformat.c_str(), timer.fGpu);
                 } else {
-                    fWallStr.appendf("%.2f,", timer.fWall);
-                    fCpuStr.appendf("%.2f,", timer.fCpu);
-                    fGpuStr.appendf("%.2f,", timer.fGpu);
+                    fWallStr.appendf(perIterTimeformat.c_str(), timer.fWall);
+                    fWallStr.appendf(",");
+                    fCpuStr.appendf(perIterTimeformat.c_str(), timer.fCpu);
+                    fCpuStr.appendf(",");
+                    fGpuStr.appendf(perIterTimeformat.c_str(), timer.fGpu);
+                    fGpuStr.appendf(",");
                 }
                 fWallSum += timer.fWall;
                 fCpuSum += timer.fCpu;
@@ -728,9 +813,12 @@ int main (int argc, char * const argv[]) {
                 // output each repeat (no average) if logPerIter is set,
                 // otherwise output only the average
                 if (!logPerIter) {
-                    fWallStr.printf(" msecs = %6.2f", fWallSum / repeatDraw);
-                    fCpuStr.printf(" cmsecs = %6.2f", fCpuSum / repeatDraw);
-                    fGpuStr.printf(" gmsecs = %6.2f", fGpuSum / repeatDraw);
+                    fWallStr.set(" msecs = ");
+                    fWallStr.appendf(normalTimeFormat.c_str(), fWallSum / repeatDraw);
+                    fCpuStr.set(" cmsecs = ");
+                    fCpuStr.appendf(normalTimeFormat.c_str(), fCpuSum / repeatDraw);
+                    fGpuStr.set(" gmsecs = ");
+                    fGpuStr.appendf(normalTimeFormat.c_str(), fGpuSum / repeatDraw);
                 }
                 SkString str;
                 str.printf("  %4s:", configName);
