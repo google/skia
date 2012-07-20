@@ -15,6 +15,9 @@
 #include "SkUtils.h"
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
+#include "../gpu/effects/GrGradientEffects.h"
+#include "../gpu/GrSamplerState.h"
+#include "../gpu/SkGr.h"
 
 #ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
     #define USE_DITHER_32BIT_GRADIENT
@@ -796,6 +799,8 @@ public:
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*,
                              SkScalar* twoPointRadialParams) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
+    virtual GrCustomStage* asNewCustomStage(GrContext* context, 
+                                            GrSamplerState* sampler) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Linear_Gradient)
 
@@ -1042,6 +1047,16 @@ SkShader::GradientType Linear_Gradient::asAGradient(GradientInfo* info) const {
         info->fPoint[1] = fEnd;
     }
     return kLinear_GradientType;
+}
+
+GrCustomStage* Linear_Gradient::asNewCustomStage(GrContext* context,
+                                                 GrSamplerState* sampler) const {
+    SkASSERT(NULL != context && NULL != sampler);
+    sampler->matrix()->preConcat(fPtsToUnit);
+    sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
+    sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
+    sampler->setFilter(GrSamplerState::kBilinear_Filter);
+    return SkNEW_ARGS(GrLinearGradient, (context, *this));
 }
 
 static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
@@ -1444,6 +1459,7 @@ public:
         }
         return kRadial_BitmapType;
     }
+
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE {
         if (info) {
             commonAsAGradient(info);
@@ -1451,6 +1467,16 @@ public:
             info->fRadius[0] = fRadius;
         }
         return kRadial_GradientType;
+    }
+
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
+        GrSamplerState* sampler) const SK_OVERRIDE {
+        SkASSERT(NULL != context && NULL != sampler);
+        sampler->matrix()->preConcat(fPtsToUnit);
+        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
+        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
+        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        return SkNEW_ARGS(GrRadialGradient, (context, *this));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Radial_Gradient)
@@ -1901,6 +1927,24 @@ public:
             info->fRadius[1] = fRadius2;
         }
         return kRadial2_GradientType;
+    }
+
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
+        GrSamplerState* sampler) const SK_OVERRIDE {
+        SkASSERT(NULL != context && NULL != sampler);
+        SkScalar diffLen = fDiff.length();
+        if (0 != diffLen) {
+            SkScalar invDiffLen = SkScalarInvert(diffLen);
+            sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
+                              SkScalarMul(invDiffLen, fDiff.fX));
+        } else {
+            sampler->matrix()->reset();
+        }
+        sampler->matrix()->preConcat(fPtsToUnit);
+        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
+        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
+        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        return SkNEW_ARGS(GrRadial2Gradient, (context, *this));
     }
 
     virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
@@ -2355,6 +2399,25 @@ public:
         return kConical_GradientType;
     }
 
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
+        GrSamplerState* sampler) const SK_OVERRIDE {
+        SkASSERT(NULL != context && NULL != sampler);
+        SkPoint diff = fCenter2 - fCenter1;
+        SkScalar diffLen = diff.length();
+        if (0 != diffLen) {
+            SkScalar invDiffLen = SkScalarInvert(diffLen);
+            sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, diff.fY),
+                              SkScalarMul(invDiffLen, diff.fX));
+        } else {
+            sampler->matrix()->reset();
+        }
+        sampler->matrix()->preTranslate(-fCenter1.fX, -fCenter1.fY);
+        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
+        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
+        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        return SkNEW_ARGS(GrConical2Gradient, (context, *this));
+    }
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Two_Point_Conical_Gradient)
     
 protected:
@@ -2420,6 +2483,15 @@ public:
             info->fPoint[0] = fCenter;
         }
         return kSweep_GradientType;
+    }
+
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
+        GrSamplerState* sampler) const SK_OVERRIDE {
+        sampler->matrix()->preConcat(fPtsToUnit);
+        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
+        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
+        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        return SkNEW_ARGS(GrSweepGradient, (context, *this));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sweep_Gradient)

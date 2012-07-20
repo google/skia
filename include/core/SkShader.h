@@ -17,6 +17,9 @@
 #include "SkPaint.h"
 
 class SkPath;
+class GrContext;
+class GrCustomStage;
+class GrSamplerState;
 
 /** \class SkShader
  *
@@ -298,6 +301,16 @@ public:
     };
 
     virtual GradientType asAGradient(GradientInfo* info) const;
+
+    /**
+     *  If the shader subclass has a GrCustomStage implementation, this returns
+     *  a new custom stage (the caller assumes ownership, and will need to
+     *  unref it). A GrContext pointer is required since custom stages may
+     *  need to create textures. The sampler parameter is necessary to set
+     *  up matrix/tile modes/etc, and will eventually be removed.
+     */
+    virtual GrCustomStage* asNewCustomStage(GrContext* context, 
+                                            GrSamplerState* sampler) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders
