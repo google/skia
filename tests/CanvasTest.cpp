@@ -531,6 +531,49 @@ static void DrawLayerTestStep(SkCanvas* canvas,
 }
 TEST_STEP(DrawLayer, DrawLayerTestStep);
 
+static void NestedSaveRestoreWithSolidPaintTestStep(SkCanvas* canvas,
+                                      skiatest::Reporter* reporter,
+                                      CanvasTestStep* testStep) {
+    // This test step challenges the TestDeferredCanvasStateConsistency
+    // test cases because the opaque paint can trigger an optimization
+    // that discards previously recorded commands. The challenge is to maintain
+    // correct clip and matrix stack state.
+    canvas->resetMatrix();
+    canvas->rotate(SkIntToScalar(30));
+    canvas->save();
+    canvas->translate(SkIntToScalar(2), SkIntToScalar(1));
+    canvas->save();
+    canvas->scale(SkIntToScalar(3), SkIntToScalar(3));
+    SkPaint paint;
+    paint.setColor(0xFFFFFFFF);
+    canvas->drawPaint(paint);
+    canvas->restore();
+    canvas->restore();
+}
+TEST_STEP(NestedSaveRestoreWithSolidPaint, \
+    NestedSaveRestoreWithSolidPaintTestStep);
+
+static void NestedSaveRestoreWithFlushTestStep(SkCanvas* canvas,
+                                      skiatest::Reporter* reporter,
+                                      CanvasTestStep* testStep) {
+    // This test step challenges the TestDeferredCanvasStateConsistency
+    // test case because the canvas flush on a deferred canvas will
+    // reset the recording session. The challenge is to maintain correct
+    // clip and matrix stack state on the playback canvas.
+    canvas->resetMatrix();
+    canvas->rotate(SkIntToScalar(30));
+    canvas->save();
+    canvas->translate(SkIntToScalar(2), SkIntToScalar(1));
+    canvas->save();
+    canvas->scale(SkIntToScalar(3), SkIntToScalar(3));
+    canvas->drawRect(kTestRect,kTestPaint);
+    canvas->flush();
+    canvas->restore();
+    canvas->restore();
+}
+TEST_STEP(NestedSaveRestoreWithFlush, \
+    NestedSaveRestoreWithFlushTestStep);
+
 static void AssertCanvasStatesEqual(skiatest::Reporter* reporter,
                                     const SkCanvas* canvas1, 
                                     const SkCanvas* canvas2,
