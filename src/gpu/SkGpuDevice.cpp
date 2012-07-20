@@ -1610,6 +1610,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     SkASSERT(NULL != devTex);
 
     SkImageFilter* filter = paint.getImageFilter();
+    grPaint.textureSampler(kBitmapTextureIdx)->reset();
     if (NULL != filter) {
         GrRect rect = GrRect::MakeWH(SkIntToScalar(devTex->width()), 
                                      SkIntToScalar(devTex->height()));
@@ -1618,6 +1619,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
         if (filteredTexture) {
             grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
                 (GrSingleTextureEffect, (filteredTexture)))->unref();
+            grPaint.setTexture(kBitmapTextureIdx, NULL);
             devTex = filteredTexture;
             filteredTexture->unref();
         }
@@ -1628,9 +1630,6 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     int h = bm.height();
 
     GrContext::AutoMatrix avm(fContext, GrMatrix::I());
-
-    grPaint.textureSampler(kBitmapTextureIdx)->reset();
-
     GrRect dstRect = GrRect::MakeXYWH(GrIntToScalar(x),
                                       GrIntToScalar(y),
                                       GrIntToScalar(w),
