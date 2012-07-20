@@ -425,7 +425,13 @@ SkGpuRenderTarget* SkGpuDevice::accessRenderTarget() {
 
 bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
     if (NULL != fTexture) {
+        // FIXME: cannot use GrSingleTextureEffect here: fails
+        // assert in line 1617: null != devTex; generalizing GrPaint::getTexture()
+        // to grab textures off of GrCustomStages breaks gms in various ways -
+        // particularly since table color filter requires multiple textures
         paint->setTexture(kBitmapTextureIdx, fTexture);
+        //paint->textureSampler(kBitmapTextureIdx)->setCustomStage(
+            //SkNEW_ARGS(GrSingleTextureEffect, (fTexture)))->unref();
         return true;
     }
     return false;
@@ -486,7 +492,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         GrAssert(!constantColor);
     } else {
         grPaint->fColor = SkColor2GrColor(skPaint.getColor());
-        grPaint->setTexture(kShaderTextureIdx, NULL);
+        GrAssert(NULL == grPaint->getTexture(kShaderTextureIdx));
     }
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     SkColor color;
@@ -616,9 +622,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
             } else {
                 sampler->setFilter(GrSamplerState::kNearest_Filter);
             }
-            // TODO - once we have a trivial GrCustomStage for texture drawing,
-            // create that here & get rid of the paint's texture
-            grPaint->setTexture(kShaderTextureIdx, texture);
+            sampler->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
             break;
     }
     sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
@@ -904,7 +908,8 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
                                                    pathTexture->height());
         // Blend pathTexture over blurTexture.
         context->setRenderTarget(blurTexture->asRenderTarget());
-        paint.setTexture(0, pathTexture);
+        paint.textureSampler(0)->setCustomStage(SkNEW_ARGS
+            (GrSingleTextureEffect, (pathTexture)))->unref();
         if (SkMaskFilter::kInner_BlurType == blurType) {
             // inner:  dst = dst * src
             paint.fSrcBlendCoeff = kDC_GrBlendCoeff;
@@ -1409,7 +1414,8 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
         return;
     }
 
-    grPaint->setTexture(kBitmapTextureIdx, texture);
+    grPaint->textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
+        (GrSingleTextureEffect, (texture)))->unref();
 
     GrRect dstRect = SkRect::MakeWH(GrIntToScalar(srcRect.width()),
                                     GrIntToScalar(srcRect.height()));
@@ -1558,14 +1564,16 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     GrTexture* texture;
     sampler->reset();
     SkAutoCachedTexture act(this, bitmap, sampler, &texture);
-    grPaint.setTexture(kBitmapTextureIdx, texture);
+    grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
+        (GrSingleTextureEffect, (texture)))->unref();
 
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
         GrTexture* filteredTexture = filter_texture(fContext, texture, filter,
                  GrRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)));
         if (filteredTexture) {
-            grPaint.setTexture(kBitmapTextureIdx, filteredTexture);
+            grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
+                (GrSingleTextureEffect, (filteredTexture)))->unref();
             texture = filteredTexture;
             filteredTexture->unref();
         }
@@ -1608,7 +1616,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
         GrTexture* filteredTexture = filter_texture(fContext, devTex, filter,
                                                     rect);
         if (filteredTexture) {
-            grPaint.setTexture(kBitmapTextureIdx, filteredTexture);
+            grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
+                (GrSingleTextureEffect, (filteredTexture)))->unref();
             devTex = filteredTexture;
             filteredTexture->unref();
         }

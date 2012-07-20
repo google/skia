@@ -212,8 +212,8 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
         kPathMaskStage = GrPaint::kTotalStages,
     };
     GrAssert(!drawState->isStageEnabled(kPathMaskStage));
-    drawState->setTexture(kPathMaskStage, texture);
     drawState->sampler(kPathMaskStage)->reset();
+    drawState->createTextureEffect(kPathMaskStage, texture);
     GrScalar w = GrIntToScalar(rect.width());
     GrScalar h = GrIntToScalar(rect.height());
     GrRect maskRect = GrRect::MakeWH(w / texture->width(),
