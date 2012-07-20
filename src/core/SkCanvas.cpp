@@ -1212,8 +1212,8 @@ void SkCanvas::validateClip() const {
     ir.set(0, 0, device->width(), device->height());
     SkRasterClip tmpClip(ir);
 
-    SkClipStack::B2FIter                iter(fClipStack);
-    const SkClipStack::B2FIter::Clip*   clip;
+    SkClipStack::B2TIter                iter(fClipStack);
+    const SkClipStack::B2TIter::Clip*   clip;
     while ((clip = iter.next()) != NULL) {
         if (clip->fPath) {
             clipPathHelper(this, &tmpClip, *clip->fPath, clip->fOp, clip->fDoAA);
@@ -1234,8 +1234,8 @@ void SkCanvas::validateClip() const {
 #endif
 
 void SkCanvas::replayClips(ClipVisitor* visitor) const {
-    SkClipStack::B2FIter                iter(fClipStack);
-    const SkClipStack::B2FIter::Clip*   clip;
+    SkClipStack::B2TIter                iter(fClipStack);
+    const SkClipStack::B2TIter::Clip*   clip;
 
     SkRect empty = { 0, 0, 0, 0 };
     while ((clip = iter.next()) != NULL) {

@@ -217,17 +217,17 @@ void GraphicStackState::pop() {
     fStackDepth--;
 }
 
-// This function initializes iter to be an interator on the "stack" argument
+// This function initializes iter to be an iterator on the "stack" argument
 // and then skips over the leading entries as specified in prefix.  It requires
 // and asserts that "prefix" will be a prefix to "stack."
 static void skip_clip_stack_prefix(const SkClipStack& prefix,
                                    const SkClipStack& stack,
                                    SkClipStack::Iter* iter) {
-    SkClipStack::B2FIter prefixIter(prefix);
-    iter->reset(stack, SkClipStack::Iter::kFront_IterStart);
+    SkClipStack::B2TIter prefixIter(prefix);
+    iter->reset(stack, SkClipStack::Iter::kBottom_IterStart);
 
-    const SkClipStack::B2FIter::Clip* prefixEntry;
-    const SkClipStack::B2FIter::Clip* iterEntry;
+    const SkClipStack::B2TIter::Clip* prefixEntry;
+    const SkClipStack::B2TIter::Clip* iterEntry;
 
     for (prefixEntry = prefixIter.next(); prefixEntry;
             prefixEntry = prefixIter.next()) {
@@ -306,7 +306,7 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     // If the clip stack does anything other than intersect or if it uses
     // an inverse fill type, we have to fall back to the clip region.
     bool needRegion = false;
-    const SkClipStack::B2FIter::Clip* clipEntry;
+    const SkClipStack::B2TIter::Clip* clipEntry;
     for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
         if (clipEntry->fOp != SkRegion::kIntersect_Op ||
                 (clipEntry->fPath && clipEntry->fPath->isInverseFillType())) {
@@ -323,7 +323,7 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
         skip_clip_stack_prefix(fEntries[0].fClipStack, clipStack, &iter);
         SkMatrix transform;
         transform.setTranslate(translation.fX, translation.fY);
-        const SkClipStack::B2FIter::Clip* clipEntry;
+        const SkClipStack::B2TIter::Clip* clipEntry;
         for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
             SkASSERT(clipEntry->fOp == SkRegion::kIntersect_Op);
             if (clipEntry->fRect) {

@@ -127,10 +127,10 @@ public:
 
 private:
     const SkClipStack*                  fClipStack;
-    SkClipStack::B2FIter                fIter;
+    SkClipStack::B2TIter                fIter;
     // SkClipStack's auto advances on each get
     // so we store the current pos here.
-    const SkClipStack::B2FIter::Clip*   fCurr;
+    const SkClipStack::B2TIter::Clip*   fCurr;
 };
 
 class SkGlyphCache;

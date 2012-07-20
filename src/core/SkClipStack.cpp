@@ -263,7 +263,7 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::prev() {
     return this->updateClip(rec);
 }
 
-const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToLast(SkRegion::Op op) {
+const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToTopmost(SkRegion::Op op) {
 
     if (NULL == fStack) {
         return NULL;
