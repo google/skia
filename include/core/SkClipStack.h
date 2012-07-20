@@ -45,8 +45,8 @@ public:
     class Iter {
     public:
         enum IterStart {
-            kFront_IterStart = SkDeque::Iter::kFront_IterStart,
-            kBack_IterStart = SkDeque::Iter::kBack_IterStart
+            kBottom_IterStart = SkDeque::Iter::kFront_IterStart,
+            kTop_IterStart = SkDeque::Iter::kBack_IterStart
         };
 
         /**
@@ -80,11 +80,11 @@ public:
         const Clip* prev();
 
         /**
-         * Moves the iterator to the last clip with the specified RegionOp 
+         * Moves the iterator to the topmost clip with the specified RegionOp 
          * and returns that clip. If no clip with that op is found, 
          * returns NULL.
          */
-        const Clip* skipToLast(SkRegion::Op op);
+        const Clip* skipToTopmost(SkRegion::Op op);
 
         /**
          * Restarts the iterator on a clip stack.
@@ -103,17 +103,20 @@ public:
         const Clip* updateClip(const SkClipStack::Rec* rec);
     };
 
-    // Inherit privately from Iter to prevent access to reverse iteration
-    class B2FIter : private Iter {
+    /** 
+     * The B2TIter iterates from the bottom of the stack to the top.
+     * It inherits privately from Iter to prevent access to reverse iteration.
+     */
+    class B2TIter : private Iter {
     public:
-        B2FIter() {}
+        B2TIter() {}
 
         /**
          * Wrap Iter's 2 parameter ctor to force initialization to the 
-         * beginning of the deque
+         * beginning of the deque/bottom of the stack
          */
-        B2FIter(const SkClipStack& stack) 
-        : INHERITED(stack, kFront_IterStart) {
+        B2TIter(const SkClipStack& stack) 
+        : INHERITED(stack, kBottom_IterStart) {
         }
 
         using Iter::Clip;
@@ -121,10 +124,10 @@ public:
 
         /**
          * Wrap Iter::reset to force initialization to the 
-         * beginning of the deque
+         * beginning of the deque/bottom of the stack
          */
         void reset(const SkClipStack& stack) {
-            this->INHERITED::reset(stack, kFront_IterStart);
+            this->INHERITED::reset(stack, kBottom_IterStart);
         }
 
     private:
