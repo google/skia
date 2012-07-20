@@ -9,7 +9,7 @@
 #define SkDeferredCanvas_DEFINED
 
 #ifndef SK_DEFERRED_CANVAS_USES_GPIPE
-#define SK_DEFERRED_CANVAS_USES_GPIPE 1
+#define SK_DEFERRED_CANVAS_USES_GPIPE 0
 #endif
 
 #include "SkCanvas.h"
