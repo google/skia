@@ -102,14 +102,55 @@ public:
                (NULL != fMaskSamplers[i].getCustomStage());
     }
 
-    // pre-concats sampler matrices for non-NULL textures and masks
-    void preConcatActiveSamplerMatrices(const GrMatrix& matrix) {
+    bool hasMask() const {
+        for (int i = 0; i < kMaxMasks; ++i) {
+            if (this->isMaskStageEnabled(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool hasTexture() const {
         for (int i = 0; i < kMaxTextures; ++i) {
-            fTextureSamplers[i].preConcatMatrix(matrix);
+            if (this->isTextureStageEnabled(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool hasTextureOrMask() const { return this->hasTexture() || this->hasMask(); }
+
+    /**
+     * Preconcats the matrix of all samplers in the mask with the inverse of a
+     * matrix. If the matrix inverse cannot be computed (and there is at least
+     * one enabled stage) then false is returned.
+     */
+    bool preConcatSamplerMatricesWithInverse(const GrMatrix& matrix) {
+        GrMatrix inv;
+        bool computed = false;
+        for (int i = 0; i < kMaxTextures; ++i) {
+            if (this->isTextureStageEnabled(i)) {
+                if (!computed && !matrix.invert(&inv)) {
+                    return false;
+                } else {
+                    computed = true;
+                }
+                fTextureSamplers[i].preConcatMatrix(inv);
+            }
         }
         for (int i = 0; i < kMaxMasks; ++i) {
-            fMaskSamplers[i].preConcatMatrix(matrix);
+            if (this->isMaskStageEnabled(i)) {
+                if (!computed && !matrix.invert(&inv)) {
+                    return false;
+                } else {
+                    computed = true;
+                }
+                fMaskSamplers[i].preConcatMatrix(inv);
+            }
         }
+        return true;
     }
 
     // uninitialized
@@ -187,46 +228,6 @@ public:
         fColorFilterXfermode = SkXfermode::kDst_Mode;
         fColorFilterColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
         fColorMatrixEnabled = false;
-    }
-
-    bool hasTexture() const {
-        return 0 != this->getActiveTextureStageMask();
-    }
-
-    bool hasMask() const {
-        return 0 != this->getActiveMaskStageMask();
-    }
-
-    bool hasTextureOrMask() const {
-        return this->hasTexture() || this->hasMask();
-    }
-
-    // helpers for GrContext, GrTextContext
-    int getActiveTextureStageMask() const {
-        int mask = 0;
-        for (int i = 0; i < kMaxTextures; ++i) {
-            if ((NULL != fTextures[i]) ||
-                (NULL != fTextureSamplers[i].getCustomStage())) {
-                mask |= 1 << (i + kFirstTextureStage);
-            }
-        }
-        return mask;
-    }
-
-    int getActiveMaskStageMask() const {
-        int mask = 0;
-        for (int i = 0; i < kMaxMasks; ++i) {
-            if ((NULL != fMaskTextures[i]) ||
-                (NULL != fMaskSamplers[i].getCustomStage())) {
-                mask |= 1 << (i + kFirstMaskStage);
-            }
-        }
-        return mask;
-    }
-    
-    int getActiveStageMask() const {
-        return this->getActiveTextureStageMask() |
-                this->getActiveMaskStageMask();
     }
 
     // internal use

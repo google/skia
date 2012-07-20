@@ -1040,10 +1040,9 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
 
 void GrDrawTarget::drawRect(const GrRect& rect, 
                             const GrMatrix* matrix,
-                            StageMask stageMask,
                             const GrRect* srcRects[],
                             const GrMatrix* srcMatrices[]) {
-    GrVertexLayout layout = GetRectVertexLayout(stageMask, srcRects);
+    GrVertexLayout layout = GetRectVertexLayout(srcRects);
 
     AutoReleaseGeometry geo(this, layout, 4, 0);
     if (!geo.succeeded()) {
@@ -1057,17 +1056,17 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 }
 
-GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageMask stageMask, 
-                                                 const GrRect* srcRects[]) {
-    GrVertexLayout layout = 0;
+GrVertexLayout GrDrawTarget::GetRectVertexLayout(const GrRect* srcRects[]) {
+    if (NULL == srcRects) {
+        return 0;
+    }
 
+    GrVertexLayout layout = 0;
     for (int i = 0; i < GrDrawState::kNumStages; ++i) {
         int numTC = 0;
-        if (stageMask & (1 << i)) {
-            if (NULL != srcRects && NULL != srcRects[i]) {
-                layout |= StageTexCoordVertexLayoutBit(i, numTC);
-                ++numTC;
-            }
+        if (NULL != srcRects[i]) {
+            layout |= StageTexCoordVertexLayoutBit(i, numTC);
+            ++numTC;
         }
     }
     return layout;
@@ -1153,27 +1152,30 @@ void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target, ASRInit init) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(
-                                            GrDrawTarget* target,
-                                            GrDrawState::StageMask stageMask) {
+GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawTarget* target,
+                                                       uint32_t explicitCoordStageMask) {
     GrAssert(NULL != target);
     GrDrawState* drawState = target->drawState();
 
     fDrawTarget = target;
     fViewMatrix = drawState->getViewMatrix();
-    fStageMask = stageMask;
-    if (fStageMask) {
-        GrMatrix invVM;
-        if (fViewMatrix.invert(&invVM)) {
-            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-                if (fStageMask & (1 << s)) {
-                    fSamplerMatrices[s] = drawState->getSampler(s).getMatrix();
-                }
+    fRestoreMask = 0;
+    GrMatrix invVM;
+    bool inverted = false;
+
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
+            if (!inverted && !fViewMatrix.invert(&invVM)) {
+                // sad trombone sound
+                fDrawTarget = NULL;
+                return;
+            } else {
+                inverted = true;
             }
-            drawState->preConcatSamplerMatrices(fStageMask, invVM);
-        } else {
-            // sad trombone sound
-            fStageMask = 0;
+            fRestoreMask |= (1 << s);
+            GrSamplerState* sampler = drawState->sampler(s);
+            fSamplerMatrices[s] = sampler->getMatrix();
+            sampler->preConcatMatrix(invVM);
         }
     }
     drawState->viewMatrix()->reset();
@@ -1183,7 +1185,7 @@ GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
     GrDrawState* drawState = fDrawTarget->drawState();
     drawState->setViewMatrix(fViewMatrix);
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (fStageMask & (1 << s)) {
+        if (fRestoreMask & (1 << s)) {
             *drawState->sampler(s)->matrix() = fSamplerMatrices[s];
         }
     }

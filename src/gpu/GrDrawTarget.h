@@ -55,9 +55,6 @@ public:
         int fMaxTextureSize;
     };
 
-    // for convenience
-    typedef GrDrawState::StageMask StageMask;
-
     ///////////////////////////////////////////////////////////////////////////
 
     GrDrawTarget();
@@ -103,17 +100,6 @@ public:
      * this doesn't ref.
      */
     GrDrawState* drawState() { return fDrawState; }
-
-    /**
-     * Shortcut for drawState()->preConcatSamplerMatrices() on all enabled
-     * stages
-     *
-     * @param matrix  the matrix to concat
-     */
-    void preConcatEnabledSamplerMatrices(const GrMatrix& matrix) {
-        StageMask stageMask = this->enabledStages();
-        this->drawState()->preConcatSamplerMatrices(stageMask, matrix);
-    }
 
     /**
      * Color alpha and coverage are two inputs to the drawing pipeline. For some
@@ -452,8 +438,6 @@ public:
      * drawNonIndexed.
      * @param rect      the rect to draw
      * @param matrix    optional matrix applied to rect (before viewMatrix)
-     * @param stageMask bitmask indicating which stages are enabled.
-     *                  Bit i indicates whether stage i is enabled.
      * @param srcRects  specifies rects for stages enabled by stageEnableMask.
      *                  if stageEnableMask bit i is 1, srcRects is not NULL,
      *                  and srcRects[i] is not NULL, then srcRects[i] will be
@@ -467,7 +451,6 @@ public:
      */
     virtual void drawRect(const GrRect& rect,
                           const GrMatrix* matrix,
-                          StageMask stageMask,
                           const GrRect* srcRects[],
                           const GrMatrix* srcMatrices[]);
 
@@ -509,9 +492,8 @@ public:
      * matrices.
      */
     void drawSimpleRect(const GrRect& rect,
-                        const GrMatrix* matrix,
-                        StageMask stageEnableBitfield) {
-         drawRect(rect, matrix, stageEnableBitfield, NULL, NULL);
+                        const GrMatrix* matrix) {
+         drawRect(rect, matrix, NULL, NULL);
     }
 
     /**
@@ -597,13 +579,24 @@ public:
      */
     class AutoDeviceCoordDraw : ::GrNoncopyable {
     public:
-        AutoDeviceCoordDraw(GrDrawTarget* target, StageMask stageMask);
+        /**
+         * If a stage's texture matrix is applied to explicit per-vertex coords,
+         * rather than to positions, then we don't want to modify its matrix.
+         * The explicitCoordStageMask is used to specify such stages.
+         *
+         * TODO: Remove this when custom stage's control their own texture
+         * matrix and there is a "view matrix has changed" notification to the
+         * custom stages.
+         */
+        AutoDeviceCoordDraw(GrDrawTarget* target,
+                            uint32_t explicitCoordStageMask = 0);
+        bool succeeded() const { return NULL != fDrawTarget; }
         ~AutoDeviceCoordDraw();
     private:
         GrDrawTarget*       fDrawTarget;
         GrMatrix            fViewMatrix;
         GrMatrix            fSamplerMatrices[GrDrawState::kNumStages];
-        int                 fStageMask;
+        int                 fRestoreMask;
     };
 
     ////////////////////////////////////////////////////////////////////////////
@@ -954,14 +947,6 @@ protected:
         return this->getDrawState().isStageEnabled(stage);
     }
 
-    StageMask enabledStages() const {
-        StageMask mask = 0;
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            mask |= this->isStageEnabled(s) ? 1 : 0;
-        }
-        return mask;
-    }
-
     // A sublcass can optionally overload this function to be notified before
     // vertex and index space is reserved.
     virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
@@ -1006,8 +991,7 @@ protected:
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.
-    static GrVertexLayout GetRectVertexLayout(StageMask stageEnableBitfield,
-                                              const GrRect* srcRects[]);
+    static GrVertexLayout GetRectVertexLayout(const GrRect* srcRects[]);
 
     static void SetRectVertices(const GrRect& rect,
                                 const GrMatrix* matrix,

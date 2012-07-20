@@ -100,22 +100,15 @@ public:
      * @param translate             optional additional translation applied to
      *                              the path (can be NULL)
      * @param target                target that the path will be rendered to
-     * @param stageMask             bitfield that indicates which stages are
-     *                              in use. All enabled stages expect positions
-     *                              as texture coordinates. The path renderer
-     *                              can use the remaining stages for its path
-     *                              filling algorithm.
      * @param antiAlias             true if anti-aliasing is required.
      */
     virtual bool drawPath(const SkPath& path,
                           GrPathFill fill,
                           const GrVec* translate,
                           GrDrawTarget* target,
-                          GrDrawState::StageMask stageMask,
                           bool antiAlias) {
         GrAssert(this->canDrawPath(path, fill, target, antiAlias));
-        return this->onDrawPath(path, fill, translate,
-                                target, stageMask, antiAlias);
+        return this->onDrawPath(path, fill, translate, target, antiAlias);
     }
 
     /**
@@ -145,18 +138,12 @@ protected:
      * @param translate             optional additional translation applied to
      *                              the path
      * @param target                target that the path will be rendered to
-     * @param stageMask             bitfield that indicates which stages are
-     *                              in use. All enabled stages expect positions
-     *                              as texture coordinates. The path renderer
-     *                              use the remaining stages for its path
-     *                              filling algorithm.
      * @param antiAlias             whether antialiasing is enabled or not.
      */
     virtual bool onDrawPath(const SkPath& path,
                             GrPathFill fill,
                             const GrVec* translate,
                             GrDrawTarget* target,
-                            GrDrawState::StageMask stageMask,
                             bool antiAlias) = 0;
 
 private:

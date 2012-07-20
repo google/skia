@@ -927,12 +927,8 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     context->setRenderTarget(oldRenderTarget);
     context->setClip(oldClip);
 
-    if (grp->hasTextureOrMask()) {
-        GrMatrix inverse;
-        if (!matrix.invert(&inverse)) {
-            return false;
-        }
-        grp->preConcatActiveSamplerMatrices(inverse);
+    if (!grp->preConcatSamplerMatricesWithInverse(matrix)) {
+        return false;
     }
 
     static const int MASK_IDX = GrPaint::kMaxMasks - 1;
@@ -978,10 +974,11 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and grpaint settings
 
-    // used to compute inverse view, if necessary
-    GrMatrix ivm = matrix;
-
     GrContext::AutoMatrix avm(context, GrMatrix::I());
+
+    if (!grp->preConcatSamplerMatricesWithInverse(matrix)) {
+        return false;
+    }
 
     GrTextureDesc desc;
     desc.fWidth = dstM.fBounds.width();
@@ -996,10 +993,6 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     }
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                dstM.fImage, dstM.fRowBytes);
-
-    if (grp->hasTextureOrMask() && ivm.invert(&ivm)) {
-        grp->preConcatActiveSamplerMatrices(ivm);
-    }
 
     static const int MASK_IDX = GrPaint::kMaxMasks - 1;
     // we assume the last mask index is available for use

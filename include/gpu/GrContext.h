@@ -809,15 +809,6 @@ private:
     // only have to functions necessary for clients.
     friend class GrAtlas;
 
-    // computes vertex layout bits based on the paint. If paint expresses
-    // a texture for a stage, the stage coords will be bound to postitions
-    // unless hasTexCoords[s]==true in which case stage s's input coords
-    // are bound to tex coord index s. hasTexCoords == NULL is a shortcut
-    // for an array where all the values are false.
-    static int PaintStageVertexLayoutBits(
-                                    const GrPaint& paint,
-                                    const bool hasTexCoords[GrPaint::kTotalStages]);
-
     // Needed so GrTexture's returnToCache helper function can call
     // addExistingTextureToCache
     friend class GrTexture;

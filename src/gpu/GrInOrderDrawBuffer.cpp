@@ -76,7 +76,6 @@ void GrInOrderDrawBuffer::resetDrawTracking() {
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const GrMatrix* matrix,
-                                   StageMask stageMask,
                                    const GrRect* srcRects[],
                                    const GrMatrix* srcMatrices[]) {
 
@@ -91,7 +90,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     if (fMaxQuads) {
 
         bool appendToPreviousDraw = false;
-        GrVertexLayout layout = GetRectVertexLayout(stageMask, srcRects);
+        GrVertexLayout layout = GetRectVertexLayout(srcRects);
         AutoReleaseGeometry geo(this, layout, 4, 0);
         if (!geo.succeeded()) {
             GrPrintf("Failed to get space for vertices!\n");
@@ -103,8 +102,18 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // then we don't want to modify the sampler matrices. Otherwise we do
         // we have to account for the view matrix change in the sampler
         // matrices.
-        StageMask devCoordMask = (NULL == srcRects) ? stageMask : 0;
-        GrDrawTarget::AutoDeviceCoordDraw adcd(this, devCoordMask);
+        uint32_t explicitCoordMask = 0;
+        if (srcRects) {
+            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+                if (srcRects[s]) {
+                    explicitCoordMask |= (1 << s);
+                }
+            }
+        }
+        GrDrawTarget::AutoDeviceCoordDraw adcd(this, explicitCoordMask);
+        if (!adcd.succeeded()) {
+            return;
+        }
         if (NULL != matrix) {
             combinedMatrix.preConcat(*matrix);
         }
@@ -193,7 +202,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         }
         fInstancedDrawTracker.reset();
     } else {
-        INHERITED::drawRect(rect, matrix, stageMask, srcRects, srcMatrices);
+        INHERITED::drawRect(rect, matrix, srcRects, srcMatrices);
     }
 }
 

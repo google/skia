@@ -48,12 +48,6 @@ public:
         kMaxTexCoords = kNumStages
     };
 
-    /**
-     *  Bitfield used to indicate a set of stages.
-     */
-    typedef uint32_t StageMask;
-    GR_STATIC_ASSERT(sizeof(StageMask)*8 >= GrDrawState::kNumStages);
-
     GrDrawState() 
         : fRenderTarget(NULL) {
 
@@ -288,15 +282,35 @@ public:
     }
 
     /**
-     * Preconcats the matrix of all samplers in the mask with the same matrix.
+     * Preconcats the matrix of all samplers of enabled stages with a matrix.
      */
-    void preConcatSamplerMatrices(StageMask stageMask, const GrMatrix& matrix) {
-        GrAssert(!(stageMask & kIllegalStageMaskBits));
+    void preConcatSamplerMatrices(const GrMatrix& matrix) {
         for (int i = 0; i < kNumStages; ++i) {
-            if ((1 << i) & stageMask) {
+            if (this->isStageEnabled(i)) {
                 fSamplerStates[i].preConcatMatrix(matrix);
             }
         }
+    }
+
+    /**
+     * Preconcats the matrix of all samplers in the mask with the inverse of a
+     * matrix. If the matrix inverse cannot be computed (and there is at least
+     * one enabled stage) then false is returned.
+     */
+    bool preConcatSamplerMatricesWithInverse(const GrMatrix& matrix) {
+        GrMatrix inv;
+        bool computed = false;
+        for (int i = 0; i < kNumStages; ++i) {
+            if (this->isStageEnabled(i)) {
+                if (!computed && !matrix.invert(&inv)) {
+                    return false;
+                } else {
+                    computed = true;
+                }
+                fSamplerStates[i].preConcatMatrix(inv);
+            }
+        }
+        return true;
     }
 
     /// @}
@@ -860,7 +874,6 @@ private:
                sizeof(fPodEndMarker);
     }
 
-    static const StageMask kIllegalStageMaskBits = ~((1U << kNumStages)-1);
     // @{ these fields can be initialized with memset to 0
     union {
         GrColor             fBlendConstant;

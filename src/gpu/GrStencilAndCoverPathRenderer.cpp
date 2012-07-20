@@ -59,7 +59,6 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
                                                GrPathFill fill,
                                                const GrVec* translate,
                                                GrDrawTarget* target,
-                                               GrDrawState::StageMask stageMask,
                                                bool antiAlias){
     GrAssert(!antiAlias);
     GrAssert(kHairLine_GrPathFill != fill);
@@ -112,12 +111,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
             // theoretically could set bloat = 0, instead leave it because of matrix inversion
             // precision.
         } else {
-            if (stageMask) {
-                if (!drawState->getViewInverse(&vmi)) {
-                    GrPrintf("Could not invert matrix.");
-                    return false;
-                }
-                drawState->preConcatSamplerMatrices(stageMask, vmi);
+            if (!drawState->preConcatSamplerMatricesWithInverse(drawState->getViewMatrix())) {
+                GrPrintf("Could not invert matrix.\n");
+                return false;
             }
             if (avmr.isSet()) {
                 avmr.set(drawState);
@@ -128,7 +124,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
         *drawState->stencil() = kInvertedStencilPass;
     }
     bounds.outset(bloat, bloat);
-    target->drawSimpleRect(bounds, NULL, stageMask);
+    target->drawSimpleRect(bounds, NULL);
     target->drawState()->stencil()->setDisabled();
     return true;
 }

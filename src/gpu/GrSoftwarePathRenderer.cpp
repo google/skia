@@ -71,30 +71,32 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
 
 ////////////////////////////////////////////////////////////////////////////////
 void draw_around_inv_path(GrDrawTarget* target,
-                          GrDrawState::StageMask stageMask,
                           const GrIRect& clipBounds,
                           const GrIRect& pathBounds) {
-    GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
+    GrDrawTarget::AutoDeviceCoordDraw adcd(target);
+    if (!adcd.succeeded()) {
+        return;
+    }
     GrRect rect;
     if (clipBounds.fTop < pathBounds.fTop) {
         rect.iset(clipBounds.fLeft, clipBounds.fTop, 
                     clipBounds.fRight, pathBounds.fTop);
-        target->drawSimpleRect(rect, NULL, stageMask);
+        target->drawSimpleRect(rect, NULL);
     }
     if (clipBounds.fLeft < pathBounds.fLeft) {
         rect.iset(clipBounds.fLeft, pathBounds.fTop, 
                     pathBounds.fLeft, pathBounds.fBottom);
-        target->drawSimpleRect(rect, NULL, stageMask);
+        target->drawSimpleRect(rect, NULL);
     }
     if (clipBounds.fRight > pathBounds.fRight) {
         rect.iset(pathBounds.fRight, pathBounds.fTop, 
                     clipBounds.fRight, pathBounds.fBottom);
-        target->drawSimpleRect(rect, NULL, stageMask);
+        target->drawSimpleRect(rect, NULL);
     }
     if (clipBounds.fBottom > pathBounds.fBottom) {
         rect.iset(clipBounds.fLeft, pathBounds.fBottom, 
                     clipBounds.fRight, clipBounds.fBottom);
-        target->drawSimpleRect(rect, NULL, stageMask);
+        target->drawSimpleRect(rect, NULL);
     }
 }
 
@@ -106,7 +108,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
                                         GrPathFill fill,
                                         const GrVec* translate,
                                         GrDrawTarget* target,
-                                        GrDrawState::StageMask stageMask,
                                         bool antiAlias) {
 
     if (NULL == fContext) {
@@ -124,8 +125,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
     if (!get_path_and_clip_bounds(target, path, vm,
                                   &pathBounds, &clipBounds)) {
         if (GrIsFillInverted(fill)) {
-            draw_around_inv_path(target, stageMask,
-                                 clipBounds, pathBounds);
+            draw_around_inv_path(target, clipBounds, pathBounds);
         }
         return true;
     }
@@ -138,12 +138,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         return false;
     }
 
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, 
-                                             stageMask, pathBounds);
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, pathBounds);
 
     if (GrIsFillInverted(fill)) {
-        draw_around_inv_path(target, stageMask,
-                                clipBounds, pathBounds);
+        draw_around_inv_path(target, clipBounds, pathBounds);
     }
 
     return true;
