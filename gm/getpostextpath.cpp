@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
+#include "SkTemplates.h"
 
 class GetPosTextPathGM : public skiagm::GM {
 public:
