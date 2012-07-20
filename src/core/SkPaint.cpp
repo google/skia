@@ -1358,6 +1358,33 @@ void SkPaint::getTextPath(const void* textData, size_t length,
     }
 }
 
+void SkPaint::getPosTextPath(const void* textData, size_t length,
+                             const SkPoint pos[], SkPath* path) const {
+    SkASSERT(length == 0 || textData != NULL);
+
+    const char* text = (const char*)textData;
+    if (text == NULL || length == 0 || path == NULL) {
+        return;
+    }
+
+    SkTextToPathIter    iter(text, length, *this, false);
+    SkMatrix            matrix;
+    SkPoint             prevPos;
+    prevPos.set(0, 0);
+
+    matrix.setScale(iter.getPathScale(), iter.getPathScale());
+    path->reset();
+
+    unsigned int    i = 0;
+    const SkPath*   iterPath;
+    while ((iterPath = iter.next(NULL)) != NULL) {
+        matrix.postTranslate(pos[i].fX - prevPos.fX, pos[i].fY - prevPos.fY);
+        path->addPath(*iterPath, matrix);
+        prevPos = pos[i];
+        i++;
+    }
+}
+
 static void add_flattenable(SkDescriptor* desc, uint32_t tag,
                             SkFlattenableWriteBuffer* buffer) {
     buffer->flatten(desc->addEntry(tag, buffer->size(), NULL));
