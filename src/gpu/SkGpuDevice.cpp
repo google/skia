@@ -514,11 +514,11 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         GrSamplerState* colorSampler = grPaint->textureSampler(kColorFilterTextureIdx);
         GrTexture* texture = act->set(dev, colorTransformTable, colorSampler);
 
-        colorSampler->setCustomStage(SkNEW_ARGS(GrColorTableEffect, (texture)))->unref();
         // reset() sets the sampler's matrix to I. The custom stage doesn't require the matrix.
         // The shader generator will omit the matrix if it is I. Once the matrix is moved from the
         // sampler state to the custom stage this will no longer be necessary.
         colorSampler->reset(GrSamplerState::kClamp_WrapMode, GrSamplerState::kNearest_Filter);
+        colorSampler->setCustomStage(SkNEW_ARGS(GrColorTableEffect, (texture)))->unref();
     } else {
         grPaint->resetColorFilter();
     }
