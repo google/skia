@@ -10,6 +10,7 @@
 #define SkTRefArray_DEFINED
 
 #include "SkThread.h"
+#include <new>
 
 /**
  *  Wrapper to manage thread-safe sharing of an array of T objects. The array
@@ -23,12 +24,11 @@ public:
         
         obj->fCount = count;
         obj->fRefCnt = 1;
-        
+
         T* array = const_cast<T*>(obj->begin());
         for (int i = 0; i < count; ++i) {
             new (&array[i]) T;
         }
-        
         return obj;
     }
 
