@@ -12,6 +12,7 @@
 #include "SkReader32.h"
 
 #include "SkBitmap.h"
+#include "SkData.h"
 #include "SkMatrix.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkPaint.h"
@@ -69,17 +70,14 @@ private:
         const char* fText;
     };
 
-    const SkBitmap& getBitmap() {
-        int index = getInt();
+    const SkBitmap& getBitmap(SkReader32& reader) {
+        int index = reader.readInt();
         SkASSERT(index > 0);
         return fBitmaps[index - 1];
     }
 
-    int getIndex() { return fReader.readInt(); }
-    int getInt() { return fReader.readInt(); }
-
-    const SkMatrix* getMatrix() {
-        int index = getInt();
+    const SkMatrix* getMatrix(SkReader32& reader) {
+        int index = reader.readInt();
         if (index == 0) {
             return NULL;
         }
@@ -87,18 +85,18 @@ private:
         return &fMatrices[index - 1];
     }
 
-    const SkPath& getPath() {
-        return (*fPathHeap)[getInt() - 1];
+    const SkPath& getPath(SkReader32& reader) {
+        return (*fPathHeap)[reader.readInt() - 1];
     }
 
-    SkPicture& getPicture() {
-        int index = getInt();
+    SkPicture& getPicture(SkReader32& reader) {
+        int index = reader.readInt();
         SkASSERT(index > 0 && index <= fPictureCount);
         return *fPictureRefs[index - 1];
     }
 
-    const SkPaint* getPaint() {
-        int index = getInt();
+    const SkPaint* getPaint(SkReader32& reader) {
+        int index = reader.readInt();
         if (index == 0) {
             return NULL;
         }
@@ -106,33 +104,31 @@ private:
         return &fPaints[index - 1];
     }
 
-    const SkRect* getRectPtr() {
-        if (fReader.readBool()) {
-            return &fReader.skipT<SkRect>();
+    const SkRect* getRectPtr(SkReader32& reader) {
+        if (reader.readBool()) {
+            return &reader.skipT<SkRect>();
         } else {
             return NULL;
         }
     }
 
-    const SkIRect* getIRectPtr() {
-        if (fReader.readBool()) {
-            return &fReader.skipT<SkIRect>();
+    const SkIRect* getIRectPtr(SkReader32& reader) {
+        if (reader.readBool()) {
+            return &reader.skipT<SkIRect>();
         } else {
             return NULL;
         }
     }
 
-    const SkRegion& getRegion() {
-        int index = getInt();
+    const SkRegion& getRegion(SkReader32& reader) {
+        int index = reader.readInt();
         SkASSERT(index > 0);
         return fRegions[index - 1];
     }
 
-    SkScalar getScalar() { return fReader.readScalar(); }
-
-    void getText(TextContainer* text) {
-        size_t length = text->fByteLength = getInt();
-        text->fText = (const char*)fReader.skip(length);
+    void getText(SkReader32& reader, TextContainer* text) {
+        size_t length = text->fByteLength = reader.readInt();
+        text->fText = (const char*)reader.skip(length);
     }
 
     void init();
@@ -184,7 +180,8 @@ private:
     int fPaintCount;
     SkRegion* fRegions;
     int fRegionCount;
-    mutable SkReader32 fReader;
+    
+    SkData* fOpData;    // opcodes and parameters
 
     SkPicture** fPictureRefs;
     int fPictureCount;
