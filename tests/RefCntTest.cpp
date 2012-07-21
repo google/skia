@@ -11,8 +11,33 @@
 #include "SkRefCnt.h"
 #include "SkThreadUtils.h"
 #include "SkWeakRefCnt.h"
+#include "SkTRefArray.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+
+class InstCounterClass {
+public:
+    InstCounterClass() {  gInstCounter += 1; }
+    ~InstCounterClass() { gInstCounter -= 1; }
+
+    static int gInstCounter;
+};
+
+int InstCounterClass::gInstCounter;
+
+static void test_refarray(skiatest::Reporter* reporter) {
+    REPORTER_ASSERT(reporter, 0 == InstCounterClass::gInstCounter);
+
+    int N = 10;
+    SkTRefArray<InstCounterClass>* array = SkTRefArray<InstCounterClass>::Create(N);
+    REPORTER_ASSERT(reporter, 1 == array->getRefCnt());
+
+    REPORTER_ASSERT(reporter, N == InstCounterClass::gInstCounter);
+    REPORTER_ASSERT(reporter, array->count() == N);
+
+    array->unref();
+    REPORTER_ASSERT(reporter, 0 == InstCounterClass::gInstCounter);
+}
 
 static void bounce_ref(void* data) {
     SkRefCnt* ref = static_cast<SkRefCnt*>(data);
@@ -89,6 +114,7 @@ static void test_weakRefCnt(skiatest::Reporter* reporter) {
 static void test_refCntTests(skiatest::Reporter* reporter) {
     test_refCnt(reporter);
     test_weakRefCnt(reporter);
+    test_refarray(reporter);
 }
 
 #include "TestClassDef.h"
