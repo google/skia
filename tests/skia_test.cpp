@@ -103,7 +103,10 @@ private:
 };
 
 int main (int argc, char * const argv[]) {
-    SkAutoGraphics ag;
+#ifdef SK_ENABLE_INST_COUNT
+    gPrintInstCount = true;
+#endif
+    SkGraphics::Init();
 
     bool androidMode = false;
     const char* matchStr = NULL;
@@ -166,5 +169,8 @@ int main (int argc, char * const argv[]) {
         SkDebugf("Finished %d tests, %d failures, %d skipped.\n",
                  count, failCount, skipCount);
     }
+
+    SkGraphics::Term();
+
     return (failCount == 0) ? 0 : 1;
 }
