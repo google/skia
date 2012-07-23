@@ -12,6 +12,9 @@
 #include "SkStream.h"
 #include <assert.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 // four rects, of four sizes
 // for 3 smaller sizes, tall, wide
@@ -171,6 +174,11 @@ static void* testSimplify4x4RectsMain(void* data)
         if (gRunTestsInOneThread) {
             SkDebugf("%s\n", pathStr);
         } else {
+    #if 0
+            char pwd[1024];
+            getcwd(pwd, sizeof(pwd));
+            SkDebugf("%s\n", pwd);
+    #endif
             SkFILEWStream outFile(state.filename);
             if (!outFile.isValid()) {
                 continue;
@@ -190,7 +198,7 @@ static void* testSimplify4x4RectsMain(void* data)
             outFile.writeDecAsText(testNumber);
             outFile.writeText("() {\n    SkPath path, simple;\n");
             outFile.writeText(pathStr);
-            outFile.writeText("    testSimplifyx(path);\n}\n");
+            outFile.writeText("    testSimplifyx(path);\n}\n\n");
             outFile.writeText("static void (*firstTest)() = testLine");
             outFile.writeDecAsText(testNumber);
             outFile.writeText(";\n\n");
@@ -216,7 +224,7 @@ static void* testSimplify4x4RectsMain(void* data)
     return NULL;
 }
 
-const int maxThreads = gRunTestsInOneThread ? 1 : 8;
+const int maxThreadsAllocated = 32;
 
 void Simplify4x4RectsThreaded_Test()
 {
@@ -224,7 +232,20 @@ void Simplify4x4RectsThreaded_Test()
     gDebugMaxWindSum = 3;
     gDebugMaxWindValue = 3;
 #endif
-    if (maxThreads > 1) {
+    int maxThreads = 1;
+    if (!gRunTestsInOneThread) {
+        size_t size;
+        int threads = -1;
+        sysctlbyname("hw.logicalcpu_max", &threads, &size, NULL, 0);
+        SkDebugf("%s size=%d processors=%d\n", __FUNCTION__, size, threads);
+        if (threads > 0) {
+            maxThreads = threads;
+        } else {
+            maxThreads = 8;
+        }
+        SkDebugf("%s maxThreads=%d\n", __FUNCTION__, maxThreads);
+    }
+    if (!gRunTestsInOneThread) {
         SkFILEStream inFile("../../experimental/Intersection/op.htm");
         if (inFile.isValid()) {
             SkTDArray<char> inData;
@@ -240,7 +261,7 @@ void Simplify4x4RectsThreaded_Test()
             }
         }
     }
-    State4 threadState[maxThreads];
+    State4 threadState[maxThreadsAllocated];
     int threadIndex;
     for (threadIndex = 0; threadIndex < maxThreads; ++threadIndex) {
         State4* statePtr = &threadState[threadIndex];
@@ -260,7 +281,7 @@ void Simplify4x4RectsThreaded_Test()
                     statePtr->b = b;
                     statePtr->c = c;
                     statePtr->d = d;
-                    if (maxThreads > 1) {
+                    if (!gRunTestsInOneThread) {
                         createThread(statePtr, testSimplify4x4RectsMain);
                         if (++threadIndex >= maxThreads) {
                             waitForCompletion(threadState, threadIndex);
@@ -268,13 +289,13 @@ void Simplify4x4RectsThreaded_Test()
                     } else {
                         testSimplify4x4RectsMain(statePtr);
                     }
-                    if (maxThreads > 1) SkDebugf(".");
+                    if (!gRunTestsInOneThread) SkDebugf(".");
                 }
-                if (maxThreads > 1) SkDebugf("%d", c);
+                if (!gRunTestsInOneThread) SkDebugf("%d", c);
             }
-            if (maxThreads > 1) SkDebugf("\n%d", b);
+            if (!gRunTestsInOneThread) SkDebugf("\n%d", b);
         }
-        if (maxThreads > 1) SkDebugf("\n\n%d", a);
+        if (!gRunTestsInOneThread) SkDebugf("\n\n%d", a);
     }
     waitForCompletion(threadState, threadIndex);
 #ifdef SK_DEBUG
