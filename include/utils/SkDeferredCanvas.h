@@ -178,8 +178,8 @@ protected:
         virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
         void playback();
         void reset();
-        bool hasRecorded() {return fAllocator.blockCount() != 0;}
-        size_t storageAllocatedForRecording() {return fAllocator.totalCapacity();}
+        bool hasRecorded() const { return fAllocator.blockCount() != 0; }
+        size_t storageAllocatedForRecording() const { return fAllocator.totalCapacity(); }
     private:
         enum {
             kMinBlockSize = 4096
