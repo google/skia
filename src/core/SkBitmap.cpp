@@ -22,8 +22,6 @@
 
 SK_DEFINE_INST_COUNT(SkBitmap::Allocator)
 
-extern int32_t SkNextPixelRefGenerationID();
-
 static bool isPos32Bits(const Sk64& value) {
     return !value.isNeg() && value.is32();
 }
@@ -139,7 +137,6 @@ void SkBitmap::swap(SkBitmap& other) {
     SkTSwap(fPixelLockCount, other.fPixelLockCount);
     SkTSwap(fMipMap, other.fMipMap);
     SkTSwap(fPixels, other.fPixels);
-    SkTSwap(fRawPixelGenerationID, other.fRawPixelGenerationID);
     SkTSwap(fRowBytes, other.fRowBytes);
     SkTSwap(fWidth, other.fWidth);
     SkTSwap(fHeight, other.fHeight);
@@ -359,18 +356,16 @@ void SkBitmap::unlockPixels() const {
 }
 
 bool SkBitmap::lockPixelsAreWritable() const {
-    if (fPixelRef) {
-        return fPixelRef->lockPixelsAreWritable();
-    } else {
-        return fPixels != NULL;
-    }
+    return (fPixelRef) ? fPixelRef->lockPixelsAreWritable() : false;
 }
 
 void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
-    this->freePixels();
-    fPixels = p;
-    SkRefCnt_SafeAssign(fColorTable, ctable);
+    Sk64 size = this->getSize64();
+    SkASSERT(!size.isNeg() && size.is32());
 
+    this->setPixelRef(new SkMallocPixelRef(p, size.get32(), ctable, false))->unref();
+    // since we're already allocated, we lockPixels right away
+    this->lockPixels();
     SkDEBUGCODE(this->validate();)
 }
 
@@ -412,23 +407,13 @@ void SkBitmap::freeMipMap() {
 }
 
 uint32_t SkBitmap::getGenerationID() const {
-    if (fPixelRef) {
-        return fPixelRef->getGenerationID();
-    } else {
-        SkASSERT(fPixels || !fRawPixelGenerationID);
-        if (fPixels && !fRawPixelGenerationID) {
-            fRawPixelGenerationID = SkNextPixelRefGenerationID();
-        }
-        return fRawPixelGenerationID;
-    }
+    return (fPixelRef) ? fPixelRef->getGenerationID() : 0;
 }
 
 void SkBitmap::notifyPixelsChanged() const {
     SkASSERT(!this->isImmutable());
     if (fPixelRef) {
         fPixelRef->notifyPixelsChanged();
-    } else {
-        fRawPixelGenerationID = 0; // will grab next ID in getGenerationID
     }
 }
 
@@ -791,7 +776,7 @@ static size_t getSubOffset(const SkBitmap& bm, int x, int y) {
 bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkDEBUGCODE(this->validate();)
 
-    if (NULL == result || (NULL == fPixelRef && NULL == fPixels)) {
+    if (NULL == result || NULL == fPixelRef) {
         return false;   // no src pixels
     }
 
@@ -841,9 +826,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     if (fPixelRef) {
         // share the pixelref with a custom offset
         dst.setPixelRef(fPixelRef, fPixelRefOffset + offset);
-    } else {
-        // share the pixels (owned by the caller)
-        dst.setPixels((char*)fPixels + offset, this->getColorTable());
     }
     SkDEBUGCODE(dst.validate();)
 
@@ -1374,8 +1356,6 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
 
 enum {
     SERIALIZE_PIXELTYPE_NONE,
-    SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE,
-    SERIALIZE_PIXELTYPE_RAW_NO_CTABLE,
     SERIALIZE_PIXELTYPE_REF_DATA,
     SERIALIZE_PIXELTYPE_REF_PTR
 };
@@ -1427,21 +1407,6 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
         }
         // if we get here, we can't record the pixels
         buffer.write8(SERIALIZE_PIXELTYPE_NONE);
-    } else if (fPixels) {
-        if (fColorTable) {
-            buffer.write8(SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE);
-            buffer.writeFlattenable(fColorTable);
-        } else {
-            buffer.write8(SERIALIZE_PIXELTYPE_RAW_NO_CTABLE);
-        }
-        buffer.writePad(fPixels, this->getSafeSize());
-        // There is no writeZeroPad() fcn, so write individual bytes.
-        if (this->getSize() > this->getSafeSize()) {
-            size_t deltaSize = this->getSize() - this->getSafeSize();
-            // Need aligned pointer to write into due to internal implementa-
-            // tion of SkWriter32.
-            memset(buffer.reserve(SkAlign4(deltaSize)), 0, deltaSize);
-        }
     } else {
         buffer.write8(SERIALIZE_PIXELTYPE_NONE);
     }
@@ -1470,26 +1435,6 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
             size_t offset = buffer.readU32();
             SkPixelRef* pr = static_cast<SkPixelRef*>(buffer.readFlattenable());
             SkSafeUnref(this->setPixelRef(pr, offset));
-            break;
-        }
-        case SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE:
-        case SERIALIZE_PIXELTYPE_RAW_NO_CTABLE: {
-            SkColorTable* ctable = NULL;
-            if (SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE == reftype) {
-                ctable = static_cast<SkColorTable*>(buffer.readFlattenable());
-            }
-            size_t size = this->getSize();
-            if (this->allocPixels(ctable)) {
-                this->lockPixels();
-                // Just read what we need.
-                buffer.read(this->getPixels(), this->getSafeSize());
-                // Keep aligned for subsequent reads.
-                buffer.skip(size - this->getSafeSize());
-                this->unlockPixels();
-            } else {
-                buffer.skip(size); // Still skip the full-sized buffer though.
-            }
-            SkSafeUnref(ctable);
             break;
         }
         case SERIALIZE_PIXELTYPE_NONE:
