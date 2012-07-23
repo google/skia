@@ -350,8 +350,7 @@ private:
     bool useSWOnlyPath(const GrClip& clipIn);
 
     bool drawClipShape(GrTexture* target,
-                       const GrClip& clipIn,
-                       int index,
+                       const GrClip::Iter::Clip* clip,
                        const GrIRect& resultBounds);
 
     void drawTexture(GrTexture* target,

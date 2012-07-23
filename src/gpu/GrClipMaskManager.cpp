@@ -53,6 +53,22 @@ bool path_needs_SW_renderer(GrContext* context,
     return NULL == context->getPathRenderer(path, fill, gpu, doAA, false);
 }
 
+GrPathFill get_path_fill(const SkPath& path) {
+    switch (path.getFillType()) {
+        case SkPath::kWinding_FillType:
+            return kWinding_GrPathFill;
+        case SkPath::kEvenOdd_FillType:
+            return  kEvenOdd_GrPathFill;
+        case SkPath::kInverseWinding_FillType:
+            return kInverseWinding_GrPathFill;
+        case SkPath::kInverseEvenOdd_FillType:
+            return kInverseEvenOdd_GrPathFill;
+        default:
+            GrCrash("Unsupported path fill in clip.");
+            return kWinding_GrPathFill; // suppress warning
+    }
+}
+
 }
 
 /*
@@ -72,9 +88,14 @@ bool GrClipMaskManager::useSWOnlyPath(const GrClip& clipIn) {
     // of whether it would invoke the GrSoftwarePathRenderer.
     bool useSW = false;
 
-    for (int i = 0; i < clipIn.getElementCount(); ++i) {
+    GrClip::Iter iter(clipIn, GrClip::Iter::kBottom_IterStart);
+    const GrClip::Iter::Clip* clip = NULL;
 
-        if (SkRegion::kReplace_Op == clipIn.getOp(i)) {
+    for (clip = iter.skipToTopmost(SkRegion::kReplace_Op);
+         NULL != clip;
+         clip = iter.next()) {
+
+        if (SkRegion::kReplace_Op == clip->fOp) {
             // Everything before a replace op can be ignored so start
             // afresh w.r.t. determining if any element uses the SW path
             useSW = false;
@@ -82,11 +103,11 @@ bool GrClipMaskManager::useSWOnlyPath(const GrClip& clipIn) {
 
         // rects can always be drawn directly w/o using the software path
         // so only paths need to be checked
-        if (kPath_ClipType == clipIn.getElementType(i) &&
+        if (NULL != clip->fPath &&
             path_needs_SW_renderer(this->getContext(), fGpu, 
-                                    clipIn.getPath(i), 
-                                    clipIn.getPathFill(i), 
-                                    clipIn.getDoAA(i))) {
+                                   *clip->fPath, 
+                                   get_path_fill(*clip->fPath),
+                                   clip->fDoAA)) {
             useSW = true;
         }
     }
@@ -228,41 +249,45 @@ bool contains(const SkRect& container, const SkIRect& containee) {
 // determines how many elements at the head of the clip can be skipped and
 // whether the initial clear should be to the inside- or outside-the-clip value,
 // and what op should be used to draw the first element that isn't skipped.
-int process_initial_clip_elements(const GrClip& clip,
+const GrClip::Iter::Clip* process_initial_clip_elements(
+                                  GrClip::Iter* iter,
                                   const GrIRect& bounds,
                                   bool* clearToInside,
-                                  SkRegion::Op* startOp) {
+                                  SkRegion::Op* firstOp) {
+
+    GrAssert(NULL != iter && NULL != clearToInside && NULL != firstOp);
 
     // logically before the first element of the clip stack is 
     // processed the clip is entirely open. However, depending on the
     // first set op we may prefer to clear to 0 for performance. We may
     // also be able to skip the initial clip paths/rects. We loop until
     // we cannot skip an element.
-    int curr;
     bool done = false;
     *clearToInside = true;
-    int count = clip.getElementCount();
 
-    for (curr = 0; curr < count && !done; ++curr) {
-        switch (clip.getOp(curr)) {
+    const GrClip::Iter::Clip* clip = NULL;
+
+    for (clip = iter->skipToTopmost(SkRegion::kReplace_Op);
+         NULL != clip && !done;
+         clip = iter->next()) {
+        switch (clip->fOp) {
             case SkRegion::kReplace_Op:
                 // replace ignores everything previous
-                *startOp = SkRegion::kReplace_Op;
+                *firstOp = SkRegion::kReplace_Op;
                 *clearToInside = false;
                 done = true;
                 break;
             case SkRegion::kIntersect_Op:
                 // if this element contains the entire bounds then we
                 // can skip it.
-                if (kRect_ClipType == clip.getElementType(curr)
-                    && contains(clip.getRect(curr), bounds)) {
+                if (NULL != clip->fRect && contains(*clip->fRect, bounds)) {
                     break;
                 }
                 // if everything is initially clearToInside then intersect is
                 // same as clear to 0 and treat as a replace. Otherwise,
                 // set stays empty.
                 if (*clearToInside) {
-                    *startOp = SkRegion::kReplace_Op;
+                    *firstOp = SkRegion::kReplace_Op;
                     *clearToInside = false;
                     done = true;
                 }
@@ -273,7 +298,7 @@ int process_initial_clip_elements(const GrClip& clip,
                 // same as replace. Otherwise, every pixel is still 
                 // clearToInside
                 if (!*clearToInside) {
-                    *startOp = SkRegion::kReplace_Op;
+                    *firstOp = SkRegion::kReplace_Op;
                     done = true;
                 }
                 break;
@@ -281,9 +306,9 @@ int process_initial_clip_elements(const GrClip& clip,
                 // xor is same as difference or replace both of which
                 // can be 1-pass instead of 2 for xor.
                 if (*clearToInside) {
-                    *startOp = SkRegion::kDifference_Op;
+                    *firstOp = SkRegion::kDifference_Op;
                 } else {
-                    *startOp = SkRegion::kReplace_Op;
+                    *firstOp = SkRegion::kReplace_Op;
                 }
                 done = true;
                 break;
@@ -292,7 +317,7 @@ int process_initial_clip_elements(const GrClip& clip,
                 // difference, otherwise it has no effect and all pixels
                 // remain outside.
                 if (*clearToInside) {
-                    *startOp = SkRegion::kDifference_Op;
+                    *firstOp = SkRegion::kDifference_Op;
                     done = true;
                 }
                 break;
@@ -302,15 +327,21 @@ int process_initial_clip_elements(const GrClip& clip,
                 if (*clearToInside) {
                     *clearToInside = false;
                 } else {
-                    *startOp = SkRegion::kReplace_Op;
+                    *firstOp = SkRegion::kReplace_Op;
                     done = true;
                 }
                 break;
             default:
                 GrCrash("Unknown set op.");
         }
+
+        if (done) {
+            // we need to break out here (rather than letting the test in
+            // the loop do it) since backing up the iterator is very expensive
+            break;
+        }
     }
-    return done ? curr-1 : count;
+    return clip;
 }
 
 }
@@ -395,27 +426,26 @@ bool draw_path(GrContext* context,
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawClipShape(GrTexture* target,
-                                      const GrClip& clipIn,
-                                      int index,
+                                      const GrClip::Iter::Clip* clip,
                                       const GrIRect& resultBounds) {
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(NULL != drawState);
 
     drawState->setRenderTarget(target->asRenderTarget());
 
-    if (kRect_ClipType == clipIn.getElementType(index)) {
-        if (clipIn.getDoAA(index)) {
+    if (NULL != clip->fRect) {
+        if (clip->fDoAA) {
             getContext()->getAARectRenderer()->fillAARect(fGpu, fGpu,
-                                                          clipIn.getRect(index), 
+                                                          *clip->fRect, 
                                                           true);
         } else {
-            fGpu->drawSimpleRect(clipIn.getRect(index), NULL);
+            fGpu->drawSimpleRect(*clip->fRect, NULL);
         }
-    } else {
+    } else if (NULL != clip->fPath) {
         return draw_path(this->getContext(), fGpu,
-                         clipIn.getPath(index),
-                         clipIn.getPathFill(index),
-                         clipIn.getDoAA(index),
+                         *clip->fPath,
+                         get_path_fill(*clip->fPath),
+                         clip->fDoAA,
                          resultBounds);
     }
     return true;
@@ -553,8 +583,6 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
 
     GrDrawTarget::AutoGeometryPush agp(fGpu);
 
-    int count = clipIn.getElementCount();
-
     if (0 != resultBounds->fTop || 0 != resultBounds->fLeft) {
         // if we were able to trim down the size of the mask we need to 
         // offset the paths & rects that will be used to compute it
@@ -567,22 +595,28 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
     }
 
     bool clearToInside;
-    SkRegion::Op startOp = SkRegion::kReplace_Op; // suppress warning
-    int start = process_initial_clip_elements(clipIn,
-                                              *resultBounds,
-                                              &clearToInside,
-                                              &startOp);
+    SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
+
+    GrClip::Iter iter(clipIn, GrClip::Iter::kBottom_IterStart);
+    const GrClip::Iter::Clip* clip = process_initial_clip_elements(&iter,
+                                                              *resultBounds,
+                                                              &clearToInside,
+                                                              &firstOp);
 
     fGpu->clear(NULL, 
                 clearToInside ? 0xffffffff : 0x00000000, 
                 accum->asRenderTarget());
 
     GrAutoScratchTexture temp;
-
+    bool first = true;
     // walk through each clip element and perform its set op
-    for (int c = start; c < count; ++c) {
+    for ( ; NULL != clip; clip = iter.next()) {
 
-        SkRegion::Op op = (c == start) ? startOp : clipIn.getOp(c);
+        SkRegion::Op op = clip->fOp;
+        if (first) {
+            first = false;
+            op = firstOp;
+        }
 
         if (SkRegion::kReplace_Op == op) {
             // TODO: replace is actually a lot faster then intersection
@@ -593,14 +627,14 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             fGpu->clear(NULL, 0x00000000, accum->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(accum, clipIn, c, *resultBounds);
+            this->drawClipShape(accum, clip, *resultBounds);
 
         } else if (SkRegion::kReverseDifference_Op == op ||
                    SkRegion::kIntersect_Op == op) {
             // there is no point in intersecting a screen filling rectangle.
             if (SkRegion::kIntersect_Op == op &&
-                kRect_ClipType == clipIn.getElementType(c) &&
-                contains(clipIn.getRect(c), *resultBounds)) {
+                NULL != clip->fRect &&
+                contains(*clip->fRect, *resultBounds)) {
                 continue;
             }
 
@@ -614,7 +648,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             fGpu->clear(NULL, 0x00000000, temp.texture()->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
-            this->drawClipShape(temp.texture(), clipIn, c, *resultBounds);
+            this->drawClipShape(temp.texture(), clip, *resultBounds);
 
             // TODO: rather than adding these two translations here
             // compute the bounding box needed to render the texture
@@ -646,7 +680,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClip& clipIn,
             // all the remaining ops can just be directly draw into 
             // the accumulation buffer
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(accum, clipIn, c, *resultBounds);
+            this->drawClipShape(accum, clip, *resultBounds);
         }
     }
 
@@ -694,7 +728,6 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
         drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
 #endif
 
-        int count = clipCopy.getElementCount();
         int clipBit = stencilBuffer->bits();
         SkASSERT((clipBit <= 16) &&
                     "Ganesh only handles 16b or smaller stencil buffers");
@@ -703,24 +736,27 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
         GrIRect rtRect = GrIRect::MakeWH(rt->width(), rt->height());
 
         bool clearToInside;
-        SkRegion::Op startOp = SkRegion::kReplace_Op; // suppress warning
-        int start = process_initial_clip_elements(clipCopy,
+        SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
+
+        GrClip::Iter iter(clipCopy, GrClip::Iter::kBottom_IterStart);
+        const GrClip::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                                   rtRect,
                                                   &clearToInside,
-                                                  &startOp);
+                                                  &firstOp);
 
         fGpu->clearStencilClip(bounds, clearToInside);
+        bool first = true;
 
         // walk through each clip element and perform its set op
         // with the existing clip.
-        for (int c = start; c < count; ++c) {
+        for ( ; NULL != clip; clip = iter.next()) {
             GrPathFill fill;
             bool fillInverted;
             // enabled at bottom of loop
             drawState->disableState(GrGpu::kModifyStencilClip_StateBit);
             // if the target is MSAA then we want MSAA enabled when the clip is soft
             if (rt->isMultisampled()) {
-                if (clipCopy.getDoAA(c)) {
+                if (clip->fDoAA) {
                     drawState->enableState(GrDrawState::kHWAntialias_StateBit);
                 } else {
                     drawState->disableState(GrDrawState::kHWAntialias_StateBit);
@@ -733,25 +769,29 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                                            // without extra passes to
                                            // resolve in/out status.
 
-            SkRegion::Op op = (c == start) ? startOp : clipCopy.getOp(c);
+            SkRegion::Op op = clip->fOp;
+            if (first) {
+                first = false;
+                op = firstOp;
+            }
 
             GrPathRenderer* pr = NULL;
             const SkPath* clipPath = NULL;
-            if (kRect_ClipType == clipCopy.getElementType(c)) {
+            if (NULL != clip->fRect) {
                 canRenderDirectToStencil = true;
                 fill = kEvenOdd_GrPathFill;
                 fillInverted = false;
                 // there is no point in intersecting a screen filling
                 // rectangle.
                 if (SkRegion::kIntersect_Op == op &&
-                    contains(clipCopy.getRect(c), rtRect)) {
+                    contains(*clip->fRect, rtRect)) {
                     continue;
                 }
-            } else {
-                fill = clipCopy.getPathFill(c);
+            } else if (NULL != clip->fPath) {
+                fill = get_path_fill(*clip->fPath);
                 fillInverted = GrIsFillInverted(fill);
                 fill = GrNonInvertedFill(fill);
-                clipPath = &clipCopy.getPath(c);
+                clipPath = clip->fPath;
                 pr = this->getContext()->getPathRenderer(*clipPath,
                                                          fill, fGpu, false,
                                                          true);
@@ -787,9 +827,9 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
                     0x0000,
                     0xffff);
                 SET_RANDOM_COLOR
-                if (kRect_ClipType == clipCopy.getElementType(c)) {
+                if (NULL != clip->fRect) {
                     *drawState->stencil() = gDrawToStencil;
-                    fGpu->drawSimpleRect(clipCopy.getRect(c), NULL);
+                    fGpu->drawSimpleRect(*clip->fRect, NULL);
                 } else {
                     if (canRenderDirectToStencil) {
                         *drawState->stencil() = gDrawToStencil;
@@ -806,9 +846,9 @@ bool GrClipMaskManager::createStencilClipMask(const GrClip& clipIn,
             for (int p = 0; p < passes; ++p) {
                 *drawState->stencil() = stencilSettings[p];
                 if (canDrawDirectToClip) {
-                    if (kRect_ClipType == clipCopy.getElementType(c)) {
+                    if (NULL != clip->fRect) {
                         SET_RANDOM_COLOR
-                        fGpu->drawSimpleRect(clipCopy.getRect(c), NULL);
+                        fGpu->drawSimpleRect(*clip->fRect, NULL);
                     } else {
                         SET_RANDOM_COLOR
                         pr->drawPath(*clipPath, fill, NULL, fGpu, false);
@@ -1060,20 +1100,25 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
 
     helper.init(*resultBounds, NULL);
 
-    int count = clipIn.getElementCount();
-
     bool clearToInside;
-    SkRegion::Op startOp = SkRegion::kReplace_Op; // suppress warning
-    int start = process_initial_clip_elements(clipIn,
+    SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
+
+    GrClip::Iter iter(clipIn, GrClip::Iter::kBottom_IterStart);
+    const GrClip::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                               *resultBounds,
                                               &clearToInside,
-                                              &startOp);
+                                              &firstOp);
 
     helper.clear(clearToInside ? 0xFF : 0x00);
 
-    for (int i = start; i < count; ++i) {
+    bool first = true;
+    for ( ; NULL != clip; clip = iter.next()) {
 
-        SkRegion::Op op = (i == start) ? startOp : clipIn.getOp(i);
+        SkRegion::Op op = clip->fOp;
+        if (first) {
+            first = false;
+            op = firstOp;
+        }
 
         if (SkRegion::kIntersect_Op == op ||
             SkRegion::kReverseDifference_Op == op) {
@@ -1094,22 +1139,20 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
                 helper.draw(temp, SkRegion::kXOR_Op, false, 0xFF);
             }
 
-            if (kRect_ClipType == clipIn.getElementType(i)) {
+            if (NULL != clip->fRect) {
 
                 // convert the rect to a path so we can invert the fill
                 SkPath temp;
-                temp.addRect(clipIn.getRect(i));
+                temp.addRect(*clip->fRect);
 
                 helper.draw(temp, SkRegion::kReplace_Op, 
-                            kInverseEvenOdd_GrPathFill, clipIn.getDoAA(i),
+                            kInverseEvenOdd_GrPathFill, clip->fDoAA,
                             0x00);
-            } else {
-                GrAssert(kPath_ClipType == clipIn.getElementType(i));
-
-                helper.draw(clipIn.getPath(i),
+            } else if (NULL != clip->fPath) {
+                helper.draw(*clip->fPath,
                             SkRegion::kReplace_Op,
-                            invert_fill(clipIn.getPathFill(i)),
-                            clipIn.getDoAA(i),
+                            invert_fill(get_path_fill(*clip->fPath)),
+                            clip->fDoAA,
                             0x00);
             }
 
@@ -1118,19 +1161,17 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClip& clipIn,
 
         // The other ops (union, xor, diff) only affect pixels inside
         // the geometry so they can just be drawn normally
-        if (kRect_ClipType == clipIn.getElementType(i)) {
+        if (NULL != clip->fRect) {
 
-            helper.draw(clipIn.getRect(i),
+            helper.draw(*clip->fRect,
                         op,
-                        clipIn.getDoAA(i), 0xFF);
+                        clip->fDoAA, 0xFF);
 
-        } else {
-            GrAssert(kPath_ClipType == clipIn.getElementType(i));
-
-            helper.draw(clipIn.getPath(i), 
+        } else if (NULL != clip->fPath) {
+            helper.draw(*clip->fPath, 
                         op,
-                        clipIn.getPathFill(i), 
-                        clipIn.getDoAA(i), 0xFF);
+                        get_path_fill(*clip->fPath),
+                        clip->fDoAA, 0xFF);
         }
     }
 
