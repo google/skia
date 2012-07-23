@@ -77,6 +77,11 @@ static void test2(skiatest::Reporter* reporter, SkWriter32* writer) {
         REPORTER_ASSERT(reporter, i == len);
         REPORTER_ASSERT(reporter, strlen(str) == len);
         REPORTER_ASSERT(reporter, !memcmp(str, gStr, len));
+        // Ensure that the align4 of the string is padded with zeroes.
+        size_t alignedSize = SkAlign4(len + 1);
+        for (size_t j = len; j < alignedSize; j++) {
+            REPORTER_ASSERT(reporter, 0 == str[j]);
+        }
     }
     REPORTER_ASSERT(reporter, reader.eof());
 }

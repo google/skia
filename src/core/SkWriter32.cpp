@@ -280,9 +280,12 @@ void SkWriter32::writeString(const char str[], size_t len) {
     size_t alignedLen = SkAlign4(len + 1);
     char* ptr = (char*)this->reserve(alignedLen);
     memcpy(ptr, str, len);
-    ptr[len] = 0;
-    // we may have left 0,1,2,3 bytes uninitialized, since we reserved align4
-    // number of bytes. That's ok, since the reader will know to skip those
+    // Add the terminating 0, and pad the rest with 0s
+    ptr += len;
+    int n = alignedLen - len;
+    while (--n >= 0) {
+        *ptr++ = 0;
+    }
 }
 
 size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
