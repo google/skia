@@ -85,6 +85,14 @@ public:
      */
     void setDeferredDrawing(bool deferred);
 
+    /**
+     *  Specify the maximum number of bytes to be allocated for the purpose
+     *  of recording draw commands to this canvas.  The default limit, is
+     *  64MB.
+     *  @param maxStorage The maximum number of bytes to be allocated.
+     */
+    void setMaxRecordingStorage(size_t maxStorage);
+
     // Overrides of the SkCanvas interface
     virtual int save(SaveFlags flags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
@@ -171,6 +179,7 @@ protected:
         void playback();
         void reset();
         bool hasRecorded() {return fAllocator.blockCount() != 0;}
+        size_t storageAllocatedForRecording() {return fAllocator.totalCapacity();}
     private:
         enum {
             kMinBlockSize = 4096
@@ -212,7 +221,7 @@ public:
         /**
          *  Returns the recording canvas.
          */
-        SkCanvas* recordingCanvas() const {return fRecordingCanvas;}
+        SkCanvas* recordingCanvas();
 
         /**
          *  Returns the immediate (non deferred) canvas.
@@ -233,6 +242,7 @@ public:
         void flushPending();
         void contentsCleared();
         void flushIfNeeded(const SkBitmap& bitmap);
+        void setMaxRecordingStorage(size_t);
 
         virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
         virtual int width() const SK_OVERRIDE;
@@ -330,6 +340,7 @@ public:
         SkCanvas* fRecordingCanvas;
         DeviceContext* fDeviceContext;
         bool fFreshFrame;
+        size_t fMaxRecordingStorageBytes;
     };
 
     DeferredDevice* getDeferredDevice() const;

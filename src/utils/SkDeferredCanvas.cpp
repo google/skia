@@ -15,6 +15,11 @@
 
 SK_DEFINE_INST_COUNT(SkDeferredCanvas::DeviceContext)
 
+enum {
+    // Deferred canvas will auto-flush when recording reaches this limit
+    kDefaultMaxRecordingStorageBytes = 64*1024*1024,
+};
+
 namespace {
 
 bool isPaintOpaque(const SkPaint* paint, 
@@ -98,6 +103,11 @@ SkDeferredCanvas::SkDeferredCanvas(SkDevice* device,
 
 void SkDeferredCanvas::init() {
     fDeferredDrawing = true; // On by default
+}
+
+void SkDeferredCanvas::setMaxRecordingStorage(size_t maxStorage) {
+    validate();
+    this->getDeferredDevice()->setMaxRecordingStorage(maxStorage);
 }
 
 void SkDeferredCanvas::validate() const {
@@ -482,7 +492,7 @@ void SkDeferredCanvas::DeferredPipeController::playback() {
     fBlockList.reset();
 
     if (fBlock) {
-        fReader.playback(fBlock,fBytesWritten);
+        fReader.playback(fBlock, fBytesWritten);
         fBlock = NULL;
     }
 
@@ -507,6 +517,7 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
              immediateDevice->height(), immediateDevice->isOpaque())
     , fFreshFrame(true) {
 
+    fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
     fDeviceContext = deviceContext;
     SkSafeRef(fDeviceContext);
     fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
@@ -522,6 +533,10 @@ SkDeferredCanvas::DeferredDevice::~DeferredDevice() {
     SkSafeUnref(fDeviceContext);
 }
 
+void SkDeferredCanvas::DeferredDevice::setMaxRecordingStorage(size_t maxStorage) {
+    fMaxRecordingStorageBytes = maxStorage;
+    recordingCanvas(); // Accessing the recording canvas applies the new limit.
+}
 
 void SkDeferredCanvas::DeferredDevice::endRecording() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
@@ -613,8 +628,17 @@ void SkDeferredCanvas::DeferredDevice::flushPending() {
 }
 
 void SkDeferredCanvas::DeferredDevice::flush() {
-    flushPending();
+    this->flushPending();
     fImmediateCanvas->flush();
+}
+
+SkCanvas* SkDeferredCanvas::DeferredDevice::recordingCanvas() {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    if (fPipeController.storageAllocatedForRecording() > fMaxRecordingStorageBytes) {
+        this->flushPending();
+    }
+#endif
+    return fRecordingCanvas;
 }
 
 void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap) {
@@ -632,7 +656,7 @@ void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap) {
     // For now, drawing a writable bitmap triggers a flush
     // TODO: implement read-only semantics and auto buffer duplication on write
     // in SkBitmap/SkPixelRef, which will make deferral possible in this case.
-    flushPending();
+    this->flushPending();
 }
 
 uint32_t SkDeferredCanvas::DeferredDevice::getDeviceCapabilities() { 
@@ -648,7 +672,7 @@ int SkDeferredCanvas::DeferredDevice::height() const {
 }
 
 SkGpuRenderTarget* SkDeferredCanvas::DeferredDevice::accessRenderTarget() {
-    flushPending();
+    this->flushPending();
     return fImmediateDevice->accessRenderTarget();
 }
 
@@ -664,7 +688,7 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
         SkCanvas::kNative_Premul_Config8888 != config8888 &&
         kPMColorAlias != config8888) {
         //Special case config: no deferral
-        flushPending();
+        this->flushPending();
         fImmediateDevice->writePixels(bitmap, x, y, config8888);
     }
 
@@ -675,7 +699,7 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
 }
 
 const SkBitmap& SkDeferredCanvas::DeferredDevice::onAccessBitmap(SkBitmap*) {
-    flushPending();
+    this->flushPending();
     return fImmediateDevice->accessBitmap(false);
 }
 
@@ -694,7 +718,7 @@ SkDevice* SkDeferredCanvas::DeferredDevice::onCreateCompatibleDevice(
 
 bool SkDeferredCanvas::DeferredDevice::onReadPixels(
     const SkBitmap& bitmap, int x, int y, SkCanvas::Config8888 config8888) {
-    flushPending();
+    this->flushPending();
     return fImmediateCanvas->readPixels(const_cast<SkBitmap*>(&bitmap),
                                                    x, y, config8888);
 }
