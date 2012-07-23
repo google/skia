@@ -35,7 +35,8 @@ static const SimplifyFindNextTest::Segment* testCommon(
     int nextStart, nextEnd, flipped = 1;
     SkTDArray<SimplifyFindNextTest::Span*> chaseArray;
     SimplifyFindNextTest::Segment* next = segment.findNext(chaseArray, winding,
-            startIndex, endIndex, nextStart, nextEnd, flipped, true, true);
+            winding, 0, startIndex, endIndex, nextStart, nextEnd, flipped,
+            true, true);
     pts[1] = next->xyAtT(&next->span(nextStart));
     SkASSERT(pts[0] == pts[1]);
     return next;

@@ -518,12 +518,48 @@ static void testLine51() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine51;
+static void testLine52() {
+    SkPath path, simple;
+    path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 20, 18, 30, (SkPath::Direction) 0);
+    path.addRect(32, 0, 36, 41, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine53() {
+    SkPath path, simple;
+    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
+    path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine54() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 0, 18, 18, (SkPath::Direction) 0);
+    path.addRect(8, 4, 17, 17, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine55() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 6, 18, 18, (SkPath::Direction) 0);
+    path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = 0;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testLine55),
+    TEST(testLine54),
+    TEST(testLine53),
+    TEST(testLine52),
     TEST(testLine51),
     TEST(testLine50),
     TEST(testLine49),
@@ -592,18 +628,18 @@ void SimplifyNew_Test() {
     gDebugMaxWindSum = 3;
     gDebugMaxWindValue = 3;
 #endif
-    size_t index = 0;
+    size_t index = testCount - 1;
     if (firstTest) {
-        while (index < testCount && tests[index].fun != firstTest) {
-            ++index;
+        while (index > 0 && tests[index].fun != firstTest) {
+            --index;
         }
     }
     bool firstTestComplete = false;
-    for ( ; index < testCount; ++index) {
-        SkDebugf("%s [%s]\n", __FUNCTION__, tests[index].str);
+    do {
+        SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
         (*tests[index].fun)();
         firstTestComplete = true;
-    }
+    } while (index--);
 #ifdef SK_DEBUG
     gDebugMaxWindSum = SK_MaxS32;
     gDebugMaxWindValue = SK_MaxS32;
