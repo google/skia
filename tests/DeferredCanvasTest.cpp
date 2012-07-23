@@ -10,7 +10,6 @@
 #include "SkDeferredCanvas.h"
 #include "SkShader.h"
 
-
 static const int gWidth = 2;
 static const int gHeight = 2;
 
@@ -177,10 +176,54 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     }
 }
 
+class MockDevice : public SkDevice {
+public:
+    MockDevice(const SkBitmap& bm) : SkDevice(bm) {
+        fDrawBitmapCallCount = 0;
+    }
+    virtual void drawBitmap(const SkDraw&, const SkBitmap&,
+                            const SkIRect*,
+                            const SkMatrix&, const SkPaint&) {
+        fDrawBitmapCallCount++;
+    }
+
+    int fDrawBitmapCallCount;
+};
+
+// Verifies that the deferred canvas triggers a flush when its memory
+// limit is exceeded
+static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
+    SkBitmap store;
+    store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    store.allocPixels();
+    MockDevice mockDevice(store);
+    SkDeferredCanvas canvas(&mockDevice);
+    canvas.setMaxRecordingStorage(160000);
+
+    SkBitmap sourceImage;
+    // 100 by 100 image, takes 40,000 bytes in memory
+    sourceImage.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    sourceImage.allocPixels();
+
+    for (int i = 0; i < 6; i++) {
+        sourceImage.notifyPixelsChanged(); // to force re-serialization
+        canvas.drawBitmap(sourceImage, 0, 0, NULL);
+    }
+
+    // FIXME: Test temporarily disabled because the SkPicture path is not 
+    // fixed and the SkGPipe path does not yet serialize images, but it 
+    // will soon.
+#if 0
+    REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 4);
+#endif
+}
+
+
 static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
     TestDeferredCanvasFreshFrame(reporter);
+    TestDeferredCanvasMemoryLimit(reporter);
 }
 
 #include "TestClassDef.h"
