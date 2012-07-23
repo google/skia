@@ -345,6 +345,18 @@ path.close();
     testSimplifyx(path);
 </div>
 
+<div id="testLine19">
+    SkPath path, simple;
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);    
+    testSimplifyx(path);
+</div>
+
+<div id="testLine24">
+    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+</div>
+
 <div id="testLine28">
     SkPath path, simple;
     path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
@@ -401,23 +413,129 @@ path.close();
     path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
 </div>
 
+<div id="testLine37">
+    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
+    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine38">
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
+    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine39">
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 6, 24, 24, (SkPath::Direction) 0);
+    path.addRect(12, 4, 21, 21, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine40">
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 18, 24, 24, (SkPath::Direction) 0);
+    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine41">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine42">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(8, 16, 17, 17, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine43">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 24, 18, 18, (SkPath::Direction) 0);
+    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine44">
+    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 32, 27, 36, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine45">
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine46">
+    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
+    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine47">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine48">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine49">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine50">
+    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine51">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testLine51,
+    testLine50,
+    testLine49,
+    testLine48,
+    testLine47,
+    testLine46,
+    testLine45,
+    testLine44,
+    testLine43,
+    testLine42,
+    testLine41,
+    testLine40,
+    testLine39,
+    testLine38,
+    testLine37,
     testLine36,
     testLine35,
     testLine34,
     testLine33,
-    testLine9,
-    testLine7,
     testLine30,
     testLine32,
     testLine31,
     testLine29,
     testLine28,
+    testLine24,
+    testLine19,
     testLine17,
+    testLine9,
+    testLine7,
     testSimplifyQuadratic21,
     testSimplifyQuadratic20,
     testSimplifyQuadratic19,

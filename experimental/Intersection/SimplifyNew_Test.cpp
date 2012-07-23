@@ -9,6 +9,8 @@
 #include "Intersection_Tests.h"
 #include "ShapeOps.h"
 
+#define TEST(name) { name, #name }
+
 static void testLine1() {
     SkPath path, simple;
     path.moveTo(2,0);
@@ -404,63 +406,192 @@ static void testLine36() {
     testSimplifyx(path);
 }
 
-#define TEST(name) { name, #name }
+static void testLine37() {
+    SkPath path, simple;
+    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
+    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine38() {
+    SkPath path, simple;
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
+    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine40() {
+    SkPath path, simple;
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 18, 24, 24, (SkPath::Direction) 0);
+    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine41() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine42() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(8, 16, 17, 17, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine43() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 24, 18, 18, (SkPath::Direction) 0);
+    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine44() {
+    SkPath path, simple;
+    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 32, 27, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine45() {
+    SkPath path, simple;
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine46() {
+    SkPath path, simple;
+    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
+    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine47() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine48() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine49() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine50() {
+    SkPath path, simple;
+    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+
+static void testLine51() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testLine51;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
-    TEST(testLine1),
-    TEST(testLine2),
-    TEST(testLine3),
-    TEST(testLine4),
-    TEST(testLine5),
-    TEST(testLine6),
-    TEST(testLine7a),
-    TEST(testLine7b),
-    TEST(testLine7),
-    TEST(testLine8),
-    TEST(testLine9),
-    TEST(testLine10),
-    TEST(testLine10a),
-    TEST(testLine11),
-    TEST(testLine12),
-    TEST(testLine13),
-    TEST(testLine14),
-    TEST(testLine15),
-    TEST(testLine16),
-    TEST(testLine17),
-    TEST(testLine18),
-    TEST(testLine19),
-    TEST(testLine20),
-    TEST(testLine21),
-    TEST(testLine22),
-    TEST(testLine23),
+    TEST(testLine51),
+    TEST(testLine50),
+    TEST(testLine49),
+    TEST(testLine48),
+    TEST(testLine47),
+    TEST(testLine46),
+    TEST(testLine45),
+    TEST(testLine44),
+    TEST(testLine43),
+    TEST(testLine42),
+    TEST(testLine41),
+    TEST(testLine40),
+    TEST(testLine38),
+    TEST(testLine37),
+    TEST(testLine36),
+    TEST(testLine35),
+    TEST(testLine34),
+    TEST(testLine33),
+    TEST(testLine32),
+    TEST(testLine31),
+    TEST(testLine30),
+    TEST(testLine29),
+    TEST(testLine28),
+    TEST(testLine27),
+    TEST(testLine26),
+    TEST(testLine25),
     TEST(testLine24a),
     TEST(testLine24),
-    TEST(testLine25),
-    TEST(testLine26),
-    TEST(testLine27),
-    TEST(testLine28),
-    TEST(testLine29),
-    TEST(testLine30),
-    TEST(testLine31),
-    TEST(testLine32),
-    TEST(testLine33),
-    TEST(testLine34),
-    TEST(testLine35),
-    TEST(testLine36),
+    TEST(testLine23),
+    TEST(testLine22),
+    TEST(testLine21),
+    TEST(testLine20),
+    TEST(testLine19),
+    TEST(testLine18),
+    TEST(testLine17),
+    TEST(testLine16),
+    TEST(testLine15),
+    TEST(testLine14),
+    TEST(testLine13),
+    TEST(testLine12),
+    TEST(testLine11),
+    TEST(testLine10a),
+    TEST(testLine10),
+    TEST(testLine9),
+    TEST(testLine8),
+    TEST(testLine7b),
+    TEST(testLine7a),
+    TEST(testLine7),
+    TEST(testLine6),
+    TEST(testLine5),
+    TEST(testLine4),
+    TEST(testLine3),
+    TEST(testLine2),
+    TEST(testLine1),
 };
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
-static void (*firstTest)() = 0;
 static bool skipAll = false;
 
 void SimplifyNew_Test() {
     if (skipAll) {
         return;
     }
+#ifdef SK_DEBUG
+    gDebugMaxWindSum = 3;
+    gDebugMaxWindValue = 3;
+#endif
     size_t index = 0;
     if (firstTest) {
         while (index < testCount && tests[index].fun != firstTest) {
@@ -473,4 +604,8 @@ void SimplifyNew_Test() {
         (*tests[index].fun)();
         firstTestComplete = true;
     }
+#ifdef SK_DEBUG
+    gDebugMaxWindSum = SK_MaxS32;
+    gDebugMaxWindValue = SK_MaxS32;
+#endif
 }
