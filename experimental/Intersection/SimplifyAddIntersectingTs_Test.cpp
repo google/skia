@@ -87,9 +87,9 @@ static void testPath(const SkPath& path, const SkPoint* pts1, SkPath::Verb c1Typ
     SimplifyAddIntersectingTsTest::Contour& c1 = contour[0];
     SimplifyAddIntersectingTsTest::Contour& c2 = contour[1];
     addIntersectTs(&c1, &c2);
+#if DEBUG_DUMP
     bool c1Intersected = c1.segments()[0].intersected();
     // bool c2Intersected = c2.fSegments[0].intersected();
-#if DEBUG_DUMP
     SkDebugf("%s %s (%1.9g,%1.9g %1.9g,%1.9g) %s %s (%1.9g,%1.9g %1.9g,%1.9g)\n",
             __FUNCTION__, SimplifyAddIntersectingTsTest::kLVerbStr[c1Type],
             pts1[0].fX, pts1[0].fY, 

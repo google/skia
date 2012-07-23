@@ -13,7 +13,7 @@
 // FIXME: remove once debugging is complete
 #if 01 // set to 1 for no debugging whatsoever
 
-const bool gRunTestsInOneThread = false;
+//const bool gRunTestsInOneThread = false;
 
 #define DEBUG_ACTIVE_LESS_THAN 0
 #define DEBUG_ADD 0
@@ -33,7 +33,7 @@ const bool gRunTestsInOneThread = false;
 
 #else
 
-const bool gRunTestsInOneThread = true;
+//const bool gRunTestsInOneThread = true;
 
 #define DEBUG_ACTIVE_LESS_THAN 0
 #define DEBUG_ADD 01
