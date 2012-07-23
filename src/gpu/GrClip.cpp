@@ -153,3 +153,95 @@ void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
         fConservativeBoundsValid = true;
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrClip::Iter::Iter() 
+    : fStack(NULL)
+    , fCurIndex(0) {
+}
+
+GrClip::Iter::Iter(const GrClip& stack, IterStart startLoc)
+    : fStack(&stack) {
+    this->reset(stack, startLoc);
+}
+
+const GrClip::Iter::Clip* GrClip::Iter::updateClip(int index) {
+
+    if (NULL == fStack) {
+        return NULL;
+    }
+
+    GrAssert(0 <= index && index < fStack->getElementCount());
+
+
+
+    switch (fStack->getElementType(index)) {
+        case kRect_ClipType:
+            fClip.fRect = &fStack->getRect(index);
+            fClip.fPath = NULL;
+            break;
+        case kPath_ClipType:
+            fClip.fRect = NULL;
+            fClip.fPath = &fStack->getPath(index);
+            break;
+    }
+    fClip.fOp = fStack->getOp(index);
+    fClip.fDoAA = fStack->getDoAA(index);
+    return &fClip;
+}
+
+const GrClip::Iter::Clip* GrClip::Iter::next() {
+
+    if (NULL == fStack) {
+        return NULL;
+    }
+
+    if (0 > fCurIndex || fCurIndex >= fStack->getElementCount()) {
+        return NULL;
+    }
+
+    int oldIndex = fCurIndex;
+    ++fCurIndex;
+
+    return this->updateClip(oldIndex);
+}
+
+const GrClip::Iter::Clip* GrClip::Iter::prev() {
+
+    if (NULL == fStack) {
+        return NULL;
+    }
+
+    if (0 > fCurIndex || fCurIndex >= fStack->getElementCount()) {
+        return NULL;
+    }
+
+    int oldIndex = fCurIndex;
+    --fCurIndex;
+
+    return this->updateClip(oldIndex);
+}
+
+const GrClip::Iter::Clip* GrClip::Iter::skipToTopmost(SkRegion::Op op) {
+
+    GrAssert(SkRegion::kReplace_Op == op);
+
+    if (NULL == fStack) {
+        return NULL;
+    }
+
+    // GrClip removes all clips below the topmost replace
+    this->reset(*fStack, kBottom_IterStart);
+
+    return this->next();
+}
+
+void GrClip::Iter::reset(const GrClip& stack, IterStart startLoc) {
+    fStack = &stack;
+    if (kBottom_IterStart == startLoc) {
+        fCurIndex = 0;
+    } else {
+        fCurIndex = fStack->getElementCount()-1;
+    }
+}

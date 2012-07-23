@@ -303,5 +303,6 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToTopmost(SkRegion::Op op)
 }
 
 void SkClipStack::Iter::reset(const SkClipStack& stack, IterStart startLoc) {
+    fStack = &stack;
     fIter.reset(stack.fDeque, static_cast<SkDeque::Iter::IterStart>(startLoc));
 }

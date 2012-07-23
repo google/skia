@@ -40,6 +40,68 @@ public:
 
     bool requiresAA() const { return fRequiresAA; }
 
+    class Iter {
+    public:
+        enum IterStart {
+            kBottom_IterStart,
+            kTop_IterStart
+        };
+
+        /**
+         * Creates an uninitialized iterator. Must be reset()
+         */
+        Iter();
+
+        Iter(const GrClip& stack, IterStart startLoc);
+
+        struct Clip {
+            Clip() : fRect(NULL), fPath(NULL), fOp(SkRegion::kIntersect_Op), 
+                     fDoAA(false) {}
+
+            const SkRect*   fRect;  // if non-null, this is a rect clip
+            const SkPath*   fPath;  // if non-null, this is a path clip
+            SkRegion::Op    fOp;
+            bool            fDoAA;
+        };
+
+        /**
+         *  Return the clip for this element in the iterator. If next() returns
+         *  NULL, then the iterator is done. The type of clip is determined by
+         *  the pointers fRect and fPath:
+         *
+         *  fRect==NULL  fPath!=NULL    path clip
+         *  fRect!=NULL  fPath==NULL    rect clip
+         *  fRect==NULL  fPath==NULL    empty clip
+         */
+        const Clip* next();
+        const Clip* prev();
+
+        /**
+         * Moves the iterator to the topmost clip with the specified RegionOp 
+         * and returns that clip. If no clip with that op is found, 
+         * returns NULL.
+         */
+        const Clip* skipToTopmost(SkRegion::Op op);
+
+        /**
+         * Restarts the iterator on a clip stack.
+         */
+        void reset(const GrClip& stack, IterStart startLoc);
+
+    private:
+        const GrClip*      fStack;
+        Clip               fClip;
+        int                fCurIndex;
+
+        /**
+         * updateClip updates fClip to represent the clip in the index slot of
+         * GrClip's list. * It unifies functionality needed by both next() and
+         * prev().
+         */
+        const Clip* updateClip(int index);
+    };
+
+private:
     int getElementCount() const { return fList.count(); }
 
     GrClipType getElementType(int i) const { return fList[i].fType; }
@@ -63,6 +125,7 @@ public:
 
     bool getDoAA(int i) const   { return fList[i].fDoAA; }
 
+public:
     bool isRect() const {
         if (1 == fList.count() && kRect_ClipType == fList[0].fType && 
             (SkRegion::kIntersect_Op == fList[0].fOp ||
