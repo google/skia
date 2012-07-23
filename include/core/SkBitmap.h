@@ -94,10 +94,10 @@ public:
     */
     bool empty() const { return 0 == fWidth || 0 == fHeight; }
 
-    /** Return true iff the bitmap has no pixels nor a pixelref. Note: this can
-        return true even if the dimensions of the bitmap are > 0 (see empty()).
+    /** Return true iff the bitmap has no pixelref. Note: this can return true even if the
+        dimensions of the bitmap are > 0 (see empty()).
     */
-    bool isNull() const { return NULL == fPixels && NULL == fPixelRef; }
+    bool isNull() const { return NULL == fPixelRef; }
 
     /** Return the config for the bitmap.
     */
@@ -361,9 +361,9 @@ public:
     SkColorTable* getColorTable() const { return fColorTable; }
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
-        pixelref (or raw pixels set via setPixels). Each time the pixels are
-        changed (and notifyPixelsChanged is called), a different generation ID
-        will be returned.
+        pixelref. Each time the pixels are changed (and notifyPixelsChanged
+        is called), a different generation ID will be returned. Finally, if
+        their is no pixelRef then zero is returned.
     */
     uint32_t getGenerationID() const;
 
@@ -612,10 +612,6 @@ private:
     // or a cache of the returned value from fPixelRef->lockPixels()
     mutable void*       fPixels;
     mutable SkColorTable* fColorTable;    // only meaningful for kIndex8
-    // When there is no pixel ref (setPixels was called) we still need a
-    // gen id for SkDevice implementations that may cache a copy of the
-    // pixels (e.g. as a gpu texture)
-    mutable int         fRawPixelGenerationID;
 
     enum Flags {
         kImageIsOpaque_Flag     = 0x01,
