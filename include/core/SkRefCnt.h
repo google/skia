@@ -70,14 +70,26 @@ public:
         SkASSERT(fRefCnt > 0);
     }
 
-private:
-    /** Called when the ref count goes to 0.
-    */
-    virtual void internal_dispose() const {
+protected:
+    /**
+     *  Allow subclasses to call this if they've overridden internal_dispose
+     *  so they can reset fRefCnt before the destructor is called. Should only
+     *  be called right before calling through to inherited internal_dispose()
+     *  or before calling the destructor.
+     */
+    void internal_dispose_restore_refcnt_to_1() const {
 #ifdef SK_DEBUG
-        // so our destructor won't complain
+        SkASSERT(0 == fRefCnt);
         fRefCnt = 1;
 #endif
+    }
+
+private:
+    /**
+     *  Called when the ref count goes to 0.
+     */
+    virtual void internal_dispose() const {
+        this->internal_dispose_restore_refcnt_to_1();
         SkDELETE(this);
     }
 
