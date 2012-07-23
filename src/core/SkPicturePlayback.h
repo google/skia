@@ -72,8 +72,7 @@ private:
 
     const SkBitmap& getBitmap(SkReader32& reader) {
         int index = reader.readInt();
-        SkASSERT(index > 0);
-        return fBitmaps[index - 1];
+        return (*fBitmaps)[index - 1];
     }
 
     const SkMatrix* getMatrix(SkReader32& reader) {
@@ -81,8 +80,7 @@ private:
         if (index == 0) {
             return NULL;
         }
-        SkASSERT(index > 0 && index <= fMatrixCount);
-        return &fMatrices[index - 1];
+        return &(*fMatrices)[index - 1];
     }
 
     const SkPath& getPath(SkReader32& reader) {
@@ -100,8 +98,7 @@ private:
         if (index == 0) {
             return NULL;
         }
-        SkASSERT(index > 0 && index <= fPaintCount);
-        return &fPaints[index - 1];
+        return &(*fPaints)[index - 1];
     }
 
     const SkRect* getRectPtr(SkReader32& reader) {
@@ -122,8 +119,7 @@ private:
 
     const SkRegion& getRegion(SkReader32& reader) {
         int index = reader.readInt();
-        SkASSERT(index > 0);
-        return fRegions[index - 1];
+        return (*fRegions)[index - 1];
     }
 
     void getText(SkReader32& reader, TextContainer* text) {
@@ -172,14 +168,10 @@ private:    // these help us with reading/writing
         
 private:
     SkPathHeap* fPathHeap;  // reference counted
-    SkBitmap* fBitmaps;
-    int fBitmapCount;
-    SkMatrix* fMatrices;
-    int fMatrixCount;
-    SkPaint* fPaints;
-    int fPaintCount;
-    SkRegion* fRegions;
-    int fRegionCount;
+    SkTRefArray<SkBitmap>* fBitmaps;
+    SkTRefArray<SkMatrix>* fMatrices;
+    SkTRefArray<SkPaint>* fPaints;
+    SkTRefArray<SkRegion>* fRegions;
     
     SkData* fOpData;    // opcodes and parameters
 

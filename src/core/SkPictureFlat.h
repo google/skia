@@ -19,6 +19,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRegion.h"
+#include "SkTRefArray.h"
 #include "SkTSearch.h"
 
 enum DrawType {
@@ -391,20 +392,31 @@ public:
      * with the unflattened dictionary contents. The return value is the size of
      * the allocated array.
      */
-    int unflattenDictionary(T*& array, SkRefCntPlayback* refCntPlayback = NULL,
-            SkTypefacePlayback* facePlayback = NULL) const {
+    int unflattenDictionary(T*& array,
+                            SkRefCntPlayback* refCntPlayback = NULL,
+                            SkTypefacePlayback* facePlayback = NULL) const {
         int elementCount = fData.count();
         if (elementCount > 0) {
             array = SkNEW_ARRAY(T, elementCount);
-            for (const SkFlatData** elementPtr = fData.begin();
-                    elementPtr != fData.end(); elementPtr++) {
-                const SkFlatData* element = *elementPtr;
-                int index = element->index() - 1;
-                element->unflatten(&array[index], fUnflattenProc,
-                                   refCntPlayback, facePlayback);
-            }
+            this->unflattenIntoArray(array, refCntPlayback, facePlayback);
         }
         return elementCount;
+    }
+
+    /**
+     *  Unflatten the objects and return them in SkTRefArray, or return NULL
+     *  if there no objects (instead of an empty array).
+     */
+    SkTRefArray<T>* unflattenToArray(SkRefCntPlayback* refCntPlayback,
+                                     SkTypefacePlayback* facePlayback) const {
+        int count = fData.count();
+        SkTRefArray<T>* array = NULL;
+        if (count > 0) {
+            array = SkTRefArray<T>::Create(count);
+            this->unflattenIntoArray(&array->writableAt(0),
+                                     refCntPlayback, facePlayback);
+        }
+        return array;
     }
 
 protected:
@@ -412,6 +424,21 @@ protected:
     void (*fUnflattenProc)(SkOrderedReadBuffer&, void*);
 
 private:
+    void unflattenIntoArray(T* array,
+                            SkRefCntPlayback* refCntPlayback,
+                            SkTypefacePlayback* facePlayback) const {
+        const int count = fData.count();
+        const SkFlatData** iter = fData.begin();
+        for (int i = 0; i < count; ++i) {
+            const SkFlatData* element = iter[i];
+            int index = element->index() - 1;
+            SkASSERT((unsigned)index < (unsigned)count);
+            element->unflatten(&array[index], fUnflattenProc,
+                               refCntPlayback, facePlayback);
+        }
+    }
+
+    
     SkFlatController * const     fController;
     int                          fNextIndex;
     SkTDArray<const SkFlatData*> fData;
