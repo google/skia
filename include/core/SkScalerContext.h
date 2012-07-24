@@ -12,6 +12,11 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 
+#ifdef SK_BUILD_FOR_ANDROID
+  //For SkFontID
+  #include "SkTypeface.h"
+#endif
+
 //#define SK_USE_COLOR_LUMINANCE
 
 struct SkGlyph;
