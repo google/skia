@@ -8,6 +8,7 @@
 
 
 
+#include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkWriter32.h"
 #include "Test.h"
@@ -86,6 +87,48 @@ static void test2(skiatest::Reporter* reporter, SkWriter32* writer) {
     REPORTER_ASSERT(reporter, reader.eof());
 }
 
+static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
+    // Create some random data to write.
+    const size_t dataSize = 10<<2;
+    SkASSERT(SkIsAlign4(dataSize));
+
+    SkAutoMalloc originalData(dataSize);
+    {
+        SkRandom rand(0);
+        uint32_t* ptr = static_cast<uint32_t*>(originalData.get());
+        uint32_t* stop = ptr + (dataSize>>2);
+        while (ptr < stop) {
+            *ptr++ = rand.nextU();
+        }
+
+        // Write  the random data to the writer at different lengths for
+        // different alignments.
+        for (size_t len = 0; len < dataSize; len++) {
+            writer->writePad(originalData.get(), len);
+        }
+    }
+
+    uint32_t totalBytes = writer->size();
+
+    SkAutoMalloc readStorage(totalBytes);
+    writer->flatten(readStorage.get());
+
+    SkReader32 reader;
+    reader.setMemory(readStorage.get(), totalBytes);
+
+    for (size_t len = 0; len < dataSize; len++) {
+        const char* readPtr = static_cast<const char*>(reader.skip(len));
+        // Ensure that the data read is the same as what was written.
+        REPORTER_ASSERT(reporter, memcmp(readPtr, originalData.get(), len) == 0);
+        // Ensure that the rest is padded with zeroes.
+        const char* stop = readPtr + SkAlign4(len);
+        readPtr += len;
+        while (readPtr < stop) {
+            REPORTER_ASSERT(reporter, *readPtr++ == 0);
+        }
+    }
+}
+
 static void Tests(skiatest::Reporter* reporter) {
     // dynamic allocator
     {
@@ -95,6 +138,9 @@ static void Tests(skiatest::Reporter* reporter) {
         
         writer.reset();
         test2(reporter, &writer);
+
+        writer.reset();
+        testWritePad(reporter, &writer);
     }
     
     // single-block
@@ -108,6 +154,9 @@ static void Tests(skiatest::Reporter* reporter) {
 
         writer.reset(storage, sizeof(storage));
         test2(reporter, &writer);
+        
+        writer.reset(storage, sizeof(storage));
+        testWritePad(reporter, &writer);
     }
     
     // small storage
@@ -116,6 +165,9 @@ static void Tests(skiatest::Reporter* reporter) {
         test1(reporter, &writer);
         writer.reset(); // should just rewind our storage
         test2(reporter, &writer);
+        
+        writer.reset();
+        testWritePad(reporter, &writer);
     }
     
     // large storage
@@ -124,6 +176,9 @@ static void Tests(skiatest::Reporter* reporter) {
         test1(reporter, &writer);
         writer.reset(); // should just rewind our storage
         test2(reporter, &writer);
+        
+        writer.reset();
+        testWritePad(reporter, &writer);
     }
     
     test_ptr(reporter);
