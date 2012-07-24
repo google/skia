@@ -550,7 +550,7 @@ static void testLine55() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = 0;
+static void (*firstTest)() = testLine55;
 
 static struct {
     void (*fun)();
