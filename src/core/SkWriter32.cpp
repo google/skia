@@ -180,13 +180,15 @@ void SkWriter32::flatten(void* dst) const {
 }
 
 void SkWriter32::writePad(const void* src, size_t size) {
-    size_t alignedSize = SkAlign4(size);
-    char* dst = (char*)this->reserve(alignedSize);
-    memcpy(dst, src, size);
-    dst += size;
-    int n = alignedSize - size;
-    while (--n >= 0) {
-        *dst++ = 0;
+    if (size > 0) {
+        size_t alignedSize = SkAlign4(size);
+        char* dst = (char*)this->reserve(alignedSize);
+        // Pad the last four bytes with zeroes in one step. Some (or all) will
+        // be overwritten by the memcpy.
+        uint32_t* padding = (uint32_t*)(dst + (alignedSize - 4));
+        *padding = 0;
+        // Copy the actual data.
+        memcpy(dst, src, size);
     }
 }
 
@@ -279,13 +281,13 @@ void SkWriter32::writeString(const char str[], size_t len) {
     // add 1 since we also write a terminating 0
     size_t alignedLen = SkAlign4(len + 1);
     char* ptr = (char*)this->reserve(alignedLen);
-    memcpy(ptr, str, len);
-    // Add the terminating 0, and pad the rest with 0s
-    ptr += len;
-    int n = alignedLen - len;
-    while (--n >= 0) {
-        *ptr++ = 0;
+    {
+        // Write the terminating 0 and fill in the rest with zeroes
+        uint32_t* padding = (uint32_t*)(ptr + (alignedLen - 4));
+        *padding = 0;
     }
+    // Copy the string itself.
+    memcpy(ptr, str, len);
 }
 
 size_t SkWriter32::WriteStringSize(const char* str, size_t len) {

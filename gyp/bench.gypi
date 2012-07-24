@@ -34,6 +34,7 @@
     '../bench/ShaderMaskBench.cpp',
     '../bench/TextBench.cpp',
     '../bench/VertBench.cpp',
+    '../bench/WriterBench.cpp',
   ],
 }
 
