@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkTextBox.h"
-#include "../core/SkGlyphCache.h"
 #include "SkUtils.h"
-#include "SkAutoKern.h"
 
 static inline int is_ws(int c)
 {
@@ -19,50 +15,7 @@ static inline int is_ws(int c)
 
 static size_t linebreak(const char text[], const char stop[], const SkPaint& paint, SkScalar margin)
 {
-    const char* start = text;
-
-    SkAutoGlyphCache    ac(paint, NULL);
-    SkGlyphCache*       cache = ac.getCache();
-    SkFixed             w = 0;
-    SkFixed             limit = SkScalarToFixed(margin);
-    SkAutoKern          autokern;
-
-    const char* word_start = text;
-    int         prevWS = true;
-
-    while (text < stop)
-    {
-        const char* prevText = text;
-        SkUnichar   uni = SkUTF8_NextUnichar(&text);
-        int         currWS = is_ws(uni);
-        const SkGlyph&  glyph = cache->getUnicharMetrics(uni);
-
-        if (!currWS && prevWS)
-            word_start = prevText;
-        prevWS = currWS;
-
-        w += autokern.adjust(glyph) + glyph.fAdvanceX;
-        if (w > limit)
-        {
-            if (currWS) // eat the rest of the whitespace
-            {
-                while (text < stop && is_ws(SkUTF8_ToUnichar(text)))
-                    text += SkUTF8_CountUTF8Bytes(text);
-            }
-            else    // backup until a whitespace (or 1 char)
-            {
-                if (word_start == start)
-                {
-                    if (prevText > start)
-                        text = prevText;
-                }
-                else
-                    text = word_start;
-            }
-            break;
-        }
-    }
-    return text - start;
+    return paint.breakText(text, stop - text, margin);
 }
 
 int SkTextLineBreaker::CountLines(const char text[], size_t len, const SkPaint& paint, SkScalar width)
