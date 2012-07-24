@@ -179,7 +179,7 @@ SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHE
 bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) {
     if (table) {
         if (NULL == fBitmap) {
-            fBitmap = new SkBitmap;
+            fBitmap = SkNEW(SkBitmap);
             fBitmap->setConfig(SkBitmap::kA8_Config, 256, 4, 256);
             fBitmap->allocPixels();
             uint8_t* bitmapPixels = fBitmap->getAddr8(0, 0);

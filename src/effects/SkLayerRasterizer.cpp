@@ -40,7 +40,7 @@ void SkLayerRasterizer::addLayer(const SkPaint& paint, SkScalar dx,
                                  SkScalar dy) {
     SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)fLayers.push_back();
 
-    new (&rec->fPaint) SkPaint(paint);
+    SkNEW_PLACEMENT_ARGS(&rec->fPaint, SkPaint, (paint));
     rec->fOffset.set(dx, dy);
 }
 
@@ -189,9 +189,9 @@ SkLayerRasterizer::SkLayerRasterizer(SkFlattenableReadBuffer& buffer)
         SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)fLayers.push_back();
 
 #if 0
-        new (&rec->fPaint) SkPaint(buffer);
+        SkNEW_PLACEMENT_ARGS(&rec->fPaint, SkPaint, (buffer));
 #else
-        new (&rec->fPaint) SkPaint;
+        SkNEW_PLACEMENT(&rec->fPaint, SkPaint);
         paint_read(&rec->fPaint, buffer);
 #endif
         rec->fOffset.fX = buffer.readScalar();

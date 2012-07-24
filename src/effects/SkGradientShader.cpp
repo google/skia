@@ -728,7 +728,7 @@ void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) const {
     SkAutoMutexAcquire ama(gMutex);
 
     if (NULL == gCache) {
-        gCache = new SkBitmapCache(MAX_NUM_CACHED_GRADIENT_BITMAPS);
+        gCache = SkNEW_ARGS(SkBitmapCache, (MAX_NUM_CACHED_GRADIENT_BITMAPS));
     }
     size_t size = count * sizeof(int32_t);
 
