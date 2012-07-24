@@ -81,6 +81,9 @@ public:
     virtual unsigned int numTextures() const;
     virtual GrTexture* texture(unsigned int index) const;
 
+    void* operator new(size_t size);
+    void operator delete(void* target);
+
 private:
     typedef GrRefCnt INHERITED;
 };

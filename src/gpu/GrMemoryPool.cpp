@@ -57,6 +57,7 @@ void* GrMemoryPool::allocate(size_t size) {
     // so that we can decrement the live count on delete in constant time.
     *reinterpret_cast<BlockHeader**>(ptr) = fTail;
     ptr += kPerAllocPad;
+    fTail->fPrevPtr = fTail->fCurrPtr;
     fTail->fCurrPtr += size;
     fTail->fFreeSize -= size;
     fTail->fLiveCount += 1;
@@ -91,6 +92,11 @@ void GrMemoryPool::release(void* p) {
         }
     } else {
         --block->fLiveCount;
+        // Trivial reclaim: if we're releasing the most recent allocation, reuse it
+        if (block->fPrevPtr == ptr) {
+            block->fFreeSize += (block->fCurrPtr - block->fPrevPtr);
+            block->fCurrPtr = block->fPrevPtr;
+        }
     }
     GR_DEBUGCODE(--fAllocationCnt);
     VALIDATE;
@@ -104,6 +110,7 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t size) {
     block->fLiveCount = 0;
     block->fFreeSize = size;
     block->fCurrPtr = reinterpret_cast<intptr_t>(block) + kHeaderSize;
+    block->fPrevPtr = NULL;
     return block;
 }
 
