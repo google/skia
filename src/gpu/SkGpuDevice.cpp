@@ -361,22 +361,60 @@ void SkGpuDevice::onDetachFromCanvas() {
     fClipStack = NULL;
 }
 
+#ifdef SK_DEBUG
+static void check_bounds(const SkClipStack& clipStack,
+                         const SkRegion& clipRegion,
+                         const SkIPoint& origin,
+                         int renderTargetWidth,
+                         int renderTargetHeight) {
+
+    SkIRect bound;
+    SkClipStack::BoundsType boundType;
+    SkRect temp;
+
+    bound.setLTRB(0, 0, renderTargetWidth, renderTargetHeight);
+
+    clipStack.getBounds(&temp, &boundType);
+    if (SkClipStack::kNormal_BoundsType == boundType) {
+        SkIRect temp2;
+
+        temp.roundOut(&temp2);
+
+        temp2.offset(-origin.fX, -origin.fY);
+
+        if (!bound.intersect(temp2)) {
+            bound.setEmpty();
+        }
+    }
+
+//    GrAssert(bound.contains(clipRegion.getBounds()));
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                                const SkClipStack& clipStack,
                                const SkRegion& clipRegion,
-                               const SkIPoint& origin) {
+                               const SkIPoint& origin,
+                               int renderTargetWidth, int renderTargetHeight) {
     context->setMatrix(matrix);
 
     SkGrClipIterator iter;
     iter.reset(clipStack);
-    const SkIRect& skBounds = clipRegion.getBounds();
-    GrRect bounds;
-    bounds.setLTRB(GrIntToScalar(skBounds.fLeft),
-                   GrIntToScalar(skBounds.fTop),
-                   GrIntToScalar(skBounds.fRight),
-                   GrIntToScalar(skBounds.fBottom));
+
+#ifdef SK_DEBUG
+    check_bounds(clipStack, clipRegion, origin,
+                 renderTargetWidth, renderTargetHeight);
+#endif
+
+    SkRect bounds;
+    clipStack.getConservativeBounds(-origin.fX,
+                                    -origin.fY,
+                                    renderTargetWidth,
+                                    renderTargetHeight,
+                                    &bounds);
+
     GrClip grc(&iter, GrIntToScalar(-origin.x()), GrIntToScalar(-origin.y()),
                bounds);
     context->setClip(grc);
@@ -392,8 +430,10 @@ void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
 
         fContext->setRenderTarget(fRenderTarget);
         SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
+
         convert_matrixclip(fContext, *draw.fMatrix,
-                           *fClipStack, *draw.fClip, this->getOrigin());
+                           *fClipStack, *draw.fClip, this->getOrigin(),
+                           fRenderTarget->width(), fRenderTarget->height());
         fNeedPrepareRenderTarget = false;
     }
 }
@@ -413,7 +453,8 @@ void SkGpuDevice::gainFocus(const SkMatrix& matrix, const SkRegion& clip) {
 
     this->INHERITED::gainFocus(matrix, clip);
 
-    convert_matrixclip(fContext, matrix, *fClipStack, clip, this->getOrigin());
+    convert_matrixclip(fContext, matrix, *fClipStack, clip, this->getOrigin(),
+                       fRenderTarget->width(), fRenderTarget->height());
 
     DO_DEFERRED_CLEAR;
 }
