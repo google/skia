@@ -69,6 +69,27 @@ GrPathFill get_path_fill(const SkPath& path) {
     }
 }
 
+/**
+ * Does any individual clip in 'clipIn' use anti-aliasing?
+ */
+bool requires_AA(const GrClip& clipIn) {
+
+    GrClip::Iter iter;
+    iter.reset(clipIn, GrClip::Iter::kBottom_IterStart);
+
+    const GrClip::Iter::Clip* clip = NULL;
+    for (clip = iter.skipToTopmost(SkRegion::kReplace_Op);
+         NULL != clip;
+         clip = iter.next()) {
+
+        if (clip->fDoAA) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 }
 
 /*
@@ -77,11 +98,6 @@ GrPathFill get_path_fill(const SkPath& path) {
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
 bool GrClipMaskManager::useSWOnlyPath(const GrClip& clipIn) {
-
-    if (!clipIn.requiresAA()) {
-        // The stencil buffer can handle this case
-        return false;
-    }
 
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
@@ -144,12 +160,15 @@ bool GrClipMaskManager::setupClipping(const GrClip& clipIn) {
         return false;
     }
 
+    bool requiresAA = requires_AA(clipIn);
+    GrAssert(requiresAA == clipIn.requiresAA());
+
 #if GR_SW_CLIP
     // If MSAA is enabled we can do everything in the stencil buffer.
     // Otherwise check if we should just create the entire clip mask 
     // in software (this will only happen if the clip mask is anti-aliased
     // and too complex for the gpu to handle in its entirety)
-    if (0 == rt->numSamples() && this->useSWOnlyPath(clipIn)) {
+    if (0 == rt->numSamples() && requiresAA && this->useSWOnlyPath(clipIn)) {
         // The clip geometry is complex enough that it will be more
         // efficient to create it entirely in software
         GrTexture* result = NULL;
@@ -169,7 +188,7 @@ bool GrClipMaskManager::setupClipping(const GrClip& clipIn) {
 #if GR_AA_CLIP
     // If MSAA is enabled use the (faster) stencil path for AA clipping
     // otherwise the alpha clip mask is our only option
-    if (0 == rt->numSamples() && clipIn.requiresAA()) {
+    if (0 == rt->numSamples() && requiresAA) {
         // Since we are going to create a destination texture of the correct
         // size for the mask (rather than being bound by the size of the
         // render target) we aren't going to use scissoring like the stencil

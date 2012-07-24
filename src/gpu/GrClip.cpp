@@ -63,6 +63,7 @@ void GrClip::setFromRect(const GrRect& r) {
         fList.back().fDoAA = false;
         fConservativeBounds = r;
         fConservativeBoundsValid = true;
+        fRequiresAA = false;
     }
 }
 
@@ -79,6 +80,7 @@ void GrClip::setFromIRect(const GrIRect& r) {
         fList.back().fDoAA = false;
         fConservativeBounds.set(r);
         fConservativeBoundsValid = true;
+        fRequiresAA = false;
     }
 }
 
