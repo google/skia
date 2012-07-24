@@ -10,7 +10,7 @@
 #define SkSfntUtils_DEFINED
 
 #include "Sk64.h"
-#include "SkFontHost.h"
+#include "SkTypeface.h"
 
 struct SkSfntTable_head {
     SkFixed     fVersion;
@@ -52,8 +52,8 @@ struct SkSfntTable_maxp {
 
 class SkSfntUtils {
 public:
-    static bool ReadTable_head(SkFontID, SkSfntTable_head*);
-    static bool ReadTable_maxp(SkFontID, SkSfntTable_maxp*);
+    static bool ReadTable_head(SkTypeface&, SkSfntTable_head*);
+    static bool ReadTable_maxp(SkTypeface&, SkSfntTable_maxp*);
 };
 
 #endif
