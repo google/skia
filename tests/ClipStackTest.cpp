@@ -183,6 +183,87 @@ static void test_iterators(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_bounds(skiatest::Reporter* reporter) {
+
+    static const int gNumCases = 20;
+    static const SkRect gAnswerRectsBW[gNumCases] = {
+        // A op B
+        { 40, 40, 50, 50 },
+        { 10, 10, 50, 50 },
+        { 10, 10, 80, 80 },
+        { 10, 10, 80, 80 },
+        { 40, 40, 80, 80 },
+
+        // invA op B
+        { 40, 40, 80, 80 },
+        { 0, 0, 100, 100 },
+        { 0, 0, 100, 100 },
+        { 0, 0, 100, 100 },
+        { 40, 40, 50, 50 },
+
+        // A op invB
+        { 10, 10, 50, 50 },
+        { 40, 40, 50, 50 },
+        { 0, 0, 100, 100 },
+        { 0, 0, 100, 100 },
+        { 0, 0, 100, 100 },
+
+        // invA op invB
+        { 0, 0, 100, 100 },
+        { 40, 40, 80, 80 },
+        { 0, 0, 100, 100 },
+        { 10, 10, 80, 80 },
+        { 10, 10, 50, 50 },
+    };
+
+    static const SkRegion::Op gOps[] = {
+        SkRegion::kIntersect_Op,
+        SkRegion::kDifference_Op,
+        SkRegion::kUnion_Op,
+        SkRegion::kXOR_Op,
+        SkRegion::kReverseDifference_Op
+    };
+
+    SkRect rectA, rectB;
+
+    rectA.iset(10, 10, 50, 50);
+    rectB.iset(40, 40, 80, 80);
+
+    SkPath clipA, clipB;
+
+    clipA.addRoundRect(rectA, SkIntToScalar(5), SkIntToScalar(5));
+    clipB.addRoundRect(rectB, SkIntToScalar(5), SkIntToScalar(5));
+
+    SkClipStack stack;
+    SkRect bound;
+
+    int testCase = 0;
+    for (int invBits = 0; invBits < 4; ++invBits) {
+        for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
+
+            stack.save();
+            bool doInvA = SkToBool(invBits & 1);
+            bool doInvB = SkToBool(invBits & 2);
+
+            clipA.setFillType(doInvA ? SkPath::kInverseEvenOdd_FillType :
+                                       SkPath::kEvenOdd_FillType);
+            clipB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
+                                       SkPath::kEvenOdd_FillType);
+
+            stack.clipDevPath(clipA, SkRegion::kIntersect_Op, false);
+            stack.clipDevPath(clipB, gOps[op], false);
+
+            stack.getConservativeBounds(0, 0, 100, 100, &bound);
+
+            SkASSERT(testCase < gNumCases);
+            SkASSERT(bound == gAnswerRectsBW[testCase]);
+            ++testCase;
+
+            stack.restore();
+        }
+    }
+}
+
 static void TestClipStack(skiatest::Reporter* reporter) {
     SkClipStack stack;
 
@@ -219,6 +300,7 @@ static void TestClipStack(skiatest::Reporter* reporter) {
 
     test_assign_and_comparison(reporter);
     test_iterators(reporter);
+    test_bounds(reporter);
 }
 
 #include "TestClassDef.h"

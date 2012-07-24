@@ -30,6 +30,27 @@ public:
     void save();
     void restore();
 
+    enum BoundsType {
+        // The bounding box contains all the pixels that can be written to
+        kNormal_BoundsType,
+        // The bounding box contains all the pixels that cannot be written to.
+        // The real bound extends out to infinity and all the pixels outside
+        // of the bound can be written to. Note that some of the pixels inside
+        // the bound may also be writeable but all pixels that cannot be 
+        // written to are guaranteed to be inside.
+        kInsideOut_BoundsType
+    };
+
+    /**
+     * getBounds places the current finite bound in its first parameter. In its
+     * second, it indicates which kind of bound is being returned. If 
+     * 'finiteBound' is a normal bounding box then it encloses are writeable
+     * pixels. If 'finiteBound' is an inside out bounding box then it 
+     * encloses all the un-writeable pixels and the true/normal bound is the
+     * infinite plane.
+     */
+    void getBounds(SkRect* finiteBound, BoundsType* boundType) const;
+
     void clipDevRect(const SkIRect& ir, SkRegion::Op op) {
         SkRect r;
         r.set(ir);
@@ -134,6 +155,22 @@ public:
 
         typedef Iter INHERITED;
     };
+
+    /**
+     * GetConservativeBounds returns a conservative bound of the current clip. 
+     * Since this could be the infinite plane (if inverse fills were involved) the 
+     * maxWidth and maxHeight parameters can be used to limit the returned bound 
+     * to the expected drawing area. Similarly, the offsetX and offsetY parameters
+     * allow the caller to offset the returned bound to account for translated 
+     * drawing areas (i.e., those resulting from a saveLayer). For finite bounds,
+     * the translation (+offsetX, +offsetY) is applied before the clamp to the 
+     * maximum rectangle: [0,maxWidth) x [0,maxHeight).
+     */
+    void getConservativeBounds(int offsetX,
+                               int offsetY,
+                               int maxWidth,
+                               int maxHeight,
+                               SkRect* bounds) const;
 
 private:
     friend class Iter;
