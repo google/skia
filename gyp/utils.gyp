@@ -32,7 +32,6 @@
         '../include/utils/SkParsePaint.h',
         '../include/utils/SkParsePath.h',
         '../include/utils/SkProxyCanvas.h',
-        '../include/utils/SkSfntUtils.h',
         '../include/utils/SkUnitMappers.h',
         '../include/utils/SkWGL.h',
 
@@ -58,7 +57,6 @@
         '../src/utils/SkParseColor.cpp',
         '../src/utils/SkParsePath.cpp',
         '../src/utils/SkProxyCanvas.cpp',
-        '../src/utils/SkSfntUtils.cpp',
         '../src/utils/SkThreadUtils.h',
         '../src/utils/SkThreadUtils_pthread.cpp',
         '../src/utils/SkThreadUtils_pthread.h',
