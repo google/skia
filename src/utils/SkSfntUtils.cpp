@@ -30,12 +30,12 @@ static Sk64 parse_be64(const uint8_t*& p) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkSfntUtils::ReadTable_head(SkFontID fontID, SkSfntTable_head* head) {
+bool SkSfntUtils::ReadTable_head(SkTypeface& typeface, SkSfntTable_head* head) {
     static const uint32_t gTag = SkSetFourByteTag('h', 'e', 'a', 'd');
     static const size_t gSize = 54;
     
     uint8_t storage[gSize];
-    size_t size = SkFontHost::GetTableData(fontID, gTag, 0, gSize, storage);
+    size_t size = typeface.getTableData(gTag, 0, gSize, storage);
     if (size != gSize) {
         return false;
     }
@@ -62,12 +62,12 @@ bool SkSfntUtils::ReadTable_head(SkFontID fontID, SkSfntTable_head* head) {
     return true;
 }
 
-bool SkSfntUtils::ReadTable_maxp(SkFontID fontID, SkSfntTable_maxp* maxp) {
+bool SkSfntUtils::ReadTable_maxp(SkTypeface& typeface, SkSfntTable_maxp* maxp) {
     static const uint32_t gTag = SkSetFourByteTag('m', 'a', 'x', 'p');
     static const size_t gSize = 32;
     
     uint8_t storage[gSize];
-    size_t size = SkFontHost::GetTableData(fontID, gTag, 0, gSize, storage);
+    size_t size = typeface.getTableData(gTag, 0, gSize, storage);
     if (size != gSize) {
         return false;
     }

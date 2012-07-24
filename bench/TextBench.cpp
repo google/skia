@@ -10,7 +10,6 @@
 #include "SkFontHost.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
-#include "SkSfntUtils.h"
 #include "SkString.h"
 #include "SkTemplates.h"
 
