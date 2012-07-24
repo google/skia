@@ -124,6 +124,10 @@ void SkBitmapProcState::platformProcs() {
         } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
             fSampleProc32 = S32_alpha_D32_filter_DX_SSE2;
         }
+
+        if (fSampleProc16 == S32_D16_filter_DX) {
+            fSampleProc16 = S32_D16_filter_DX_SSE2;
+        }
     }
 
     if (cachedHasSSSE3() || cachedHasSSE2()) {

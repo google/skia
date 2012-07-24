@@ -251,7 +251,7 @@ static SkBenchmark* Fact6(void* p) { return new BitmapBench(p, true, SkBitmap::k
 static SkBenchmark* Fact7(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true); }
 static SkBenchmark* Fact8(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false); }
 
-// scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3}
+// scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3} and Fact9 is also for S32_D16_filter_DX_SSE2 
 static SkBenchmark* Fact9(void* p) { return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); }
 static SkBenchmark* Fact10(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); }
 static SkBenchmark* Fact11(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, false, true); }
