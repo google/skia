@@ -368,7 +368,6 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
                                                GrDrawTarget::kReset_ASRInit);
             GrDrawState* drawState = fGpu->drawState();
             drawState->setRenderTarget(texture->asRenderTarget());
-            drawState->createTextureEffect(0, clampEntry.texture());
 
             GrSamplerState::Filter filter;
             // if filtering is not desired then we want to ensure all
@@ -381,6 +380,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
             }
             drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
                                          filter);
+            drawState->createTextureEffect(0, clampEntry.texture());
 
             static const GrVertexLayout layout =
                                 GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
