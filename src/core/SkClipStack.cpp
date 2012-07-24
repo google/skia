@@ -38,13 +38,15 @@ struct SkClipStack::Rec {
     // of the extensions to infinity when two inverse filled clips are
     // Booleaned together.
     SkClipStack::BoundsType fFiniteBoundType;
-    SkRect                 fFiniteBound;
+    SkRect                  fFiniteBound;
+    bool                    fIsIntersectionOfRects;
 
     Rec(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA) : fRect(rect) {
         fSaveCount = saveCount;
         fOp = op;
         fState = kRect_State;
         fDoAA = doAA;
+        // bounding box members are updated in a following updateBound call
     }
 
     Rec(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA) : fPath(path) {
@@ -53,6 +55,7 @@ struct SkClipStack::Rec {
         fOp = op;
         fState = kPath_State;
         fDoAA = doAA;
+        // bounding box members are updated in a following updateBound call
     }
 
     bool operator==(const Rec& b) const {
@@ -273,9 +276,17 @@ struct SkClipStack::Rec {
 
         // First, optimistically update the current Rec's bound information 
         // with the current clip's bound
+        fIsIntersectionOfRects = false;
         if (kRect_State == fState) {
             fFiniteBound = fRect;
             fFiniteBoundType = kNormal_BoundsType;
+
+            if (SkRegion::kReplace_Op == fOp ||
+                (SkRegion::kIntersect_Op == fOp && NULL == prior) || 
+                (SkRegion::kIntersect_Op == fOp && prior->fIsIntersectionOfRects)) {
+                fIsIntersectionOfRects = true;
+            }
+
         } else {
             fFiniteBound = fPath.getBounds();
 
@@ -432,7 +443,9 @@ void SkClipStack::restore() {
     }
 }
 
-void SkClipStack::getBounds(SkRect* finiteBound, BoundsType* boundType) const {
+void SkClipStack::getBounds(SkRect* finiteBound, 
+                            BoundsType* boundType,
+                            bool* isIntersectionOfRects) const {
     SkASSERT(NULL != finiteBound && NULL != boundType);
 
     Rec* rec = (Rec*)fDeque.back();
@@ -441,36 +454,50 @@ void SkClipStack::getBounds(SkRect* finiteBound, BoundsType* boundType) const {
         // the clip is wide open - the infinite plane w/ no pixels un-writeable
         finiteBound->setEmpty();
         *boundType = kInsideOut_BoundsType;
+        if (NULL != isIntersectionOfRects) {
+            *isIntersectionOfRects = false;
+        }
         return;
     }
 
     *finiteBound = rec->fFiniteBound;
     *boundType = rec->fFiniteBoundType;
+    if (NULL != isIntersectionOfRects) {
+        *isIntersectionOfRects = rec->fIsIntersectionOfRects;
+    }
 }
 
 void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
-    Rec* rec = (Rec*)fDeque.back();
+
+    SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
+    Rec* rec = (Rec*) iter.prev();
+
     if (rec && rec->canBeIntersected(fSaveCount, op)) {
         switch (rec->fState) {
             case Rec::kEmpty_State:
                 SkASSERT(rec->fFiniteBound.isEmpty());
                 SkASSERT(kNormal_BoundsType == rec->fFiniteBoundType);
+                SkASSERT(!rec->fIsIntersectionOfRects);
                 return;
-            case Rec::kRect_State:
+            case Rec::kRect_State: {
                 if (!rec->fRect.intersect(rect)) {
                     rec->fState = Rec::kEmpty_State;
                     rec->fFiniteBound.setEmpty();
                     rec->fFiniteBoundType = kNormal_BoundsType;
+                    rec->fIsIntersectionOfRects = false;
                     return;
                 }
 
-                rec->updateBound(NULL);
+                Rec* prev = (Rec*) iter.prev();
+                rec->updateBound(prev);
                 return;
+            }
             case Rec::kPath_State:
                 if (!SkRect::Intersects(rec->fPath.getBounds(), rect)) {
                     rec->fState = Rec::kEmpty_State;
                     rec->fFiniteBound.setEmpty();
                     rec->fFiniteBoundType = kNormal_BoundsType;
+                    rec->fIsIntersectionOfRects = false;
                     return;
                 }
                 break;
@@ -492,12 +519,14 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
             case Rec::kEmpty_State:
                 SkASSERT(rec->fFiniteBound.isEmpty());
                 SkASSERT(kNormal_BoundsType == rec->fFiniteBoundType);
+                SkASSERT(!rec->fIsIntersectionOfRects);
                 return;
             case Rec::kRect_State:
                 if (!SkRect::Intersects(rec->fRect, pathBounds)) {
                     rec->fState = Rec::kEmpty_State;
                     rec->fFiniteBound.setEmpty();
                     rec->fFiniteBoundType = kNormal_BoundsType;
+                    rec->fIsIntersectionOfRects = false;
                     return;
                 }
                 break;
@@ -506,6 +535,7 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
                     rec->fState = Rec::kEmpty_State;
                     rec->fFiniteBound.setEmpty();
                     rec->fFiniteBoundType = kNormal_BoundsType;
+                    rec->fIsIntersectionOfRects = false;
                     return;
                 }
                 break;
@@ -627,7 +657,8 @@ void SkClipStack::getConservativeBounds(int offsetX,
                                         int offsetY,
                                         int maxWidth,
                                         int maxHeight,
-                                        SkRect* bounds) const {
+                                        SkRect* bounds,
+                                        bool* isIntersectionOfRects) const {
     SkASSERT(NULL != bounds);
 
     bounds->setLTRB(0, 0, 
@@ -636,7 +667,7 @@ void SkClipStack::getConservativeBounds(int offsetX,
     SkRect temp;
     SkClipStack::BoundsType boundType;
     
-    this->getBounds(&temp, &boundType);
+    this->getBounds(&temp, &boundType, isIntersectionOfRects);
     if (SkClipStack::kInsideOut_BoundsType == boundType) {
         return;
     }

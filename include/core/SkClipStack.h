@@ -14,6 +14,12 @@
 struct SkRect;
 class SkPath;
 
+// Because a single save/restore state can have multiple clips, this class
+// stores the stack depth (fSaveCount) and clips (fDeque) separately.
+// Each clip in fDeque stores the stack state to which it belongs
+// (i.e., the fSaveCount in force when it was added). Restores are thus
+// implemented by removing clips from fDeque that have an fSaveCount larger
+// then the freshly decremented count.
 class SK_API SkClipStack {
 public:
     SkClipStack();
@@ -44,12 +50,15 @@ public:
     /**
      * getBounds places the current finite bound in its first parameter. In its
      * second, it indicates which kind of bound is being returned. If 
-     * 'finiteBound' is a normal bounding box then it encloses are writeable
+     * 'finiteBound' is a normal bounding box then it encloses all writeable
      * pixels. If 'finiteBound' is an inside out bounding box then it 
      * encloses all the un-writeable pixels and the true/normal bound is the
-     * infinite plane.
+     * infinite plane. isIntersectionOfRects is an optional parameter
+     * that is true if 'finiteBound' resulted from an intersection of rects.
      */
-    void getBounds(SkRect* finiteBound, BoundsType* boundType) const;
+    void getBounds(SkRect* finiteBound, 
+                   BoundsType* boundType,
+                   bool* isIntersectionOfRects = NULL) const;
 
     void clipDevRect(const SkIRect& ir, SkRegion::Op op) {
         SkRect r;
@@ -165,12 +174,15 @@ public:
      * drawing areas (i.e., those resulting from a saveLayer). For finite bounds,
      * the translation (+offsetX, +offsetY) is applied before the clamp to the 
      * maximum rectangle: [0,maxWidth) x [0,maxHeight).
+     * isIntersectionOfRects is an optional parameter that is true when 
+     * 'bounds' is the result of an intersection of rects.
      */
     void getConservativeBounds(int offsetX,
                                int offsetY,
                                int maxWidth,
                                int maxHeight,
-                               SkRect* bounds) const;
+                               SkRect* bounds,
+                               bool* isIntersectionOfRects = NULL) const;
 
 private:
     friend class Iter;

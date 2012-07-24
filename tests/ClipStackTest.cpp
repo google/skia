@@ -183,7 +183,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_bounds(skiatest::Reporter* reporter) {
+static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
 
     static const int gNumCases = 20;
     static const SkRect gAnswerRectsBW[gNumCases] = {
@@ -236,9 +236,11 @@ static void test_bounds(skiatest::Reporter* reporter) {
 
     SkClipStack stack;
     SkRect bound;
+    bool isIntersectionOfRects = false;
 
     int testCase = 0;
-    for (int invBits = 0; invBits < 4; ++invBits) {
+    int numBitTests = useRects ? 1 : 4;
+    for (int invBits = 0; invBits < numBitTests; ++invBits) {
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
 
             stack.save();
@@ -250,13 +252,26 @@ static void test_bounds(skiatest::Reporter* reporter) {
             clipB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
                                        SkPath::kEvenOdd_FillType);
 
-            stack.clipDevPath(clipA, SkRegion::kIntersect_Op, false);
-            stack.clipDevPath(clipB, gOps[op], false);
+            if (useRects) {
+                stack.clipDevRect(rectA, SkRegion::kIntersect_Op, false);
+                stack.clipDevRect(rectB, gOps[op], false);
+            } else {
+                stack.clipDevPath(clipA, SkRegion::kIntersect_Op, false);
+                stack.clipDevPath(clipB, gOps[op], false);
+            }
 
-            stack.getConservativeBounds(0, 0, 100, 100, &bound);
+            stack.getConservativeBounds(0, 0, 100, 100, &bound,
+                                        &isIntersectionOfRects);
+
+            if (useRects) {
+                REPORTER_ASSERT(reporter, isIntersectionOfRects == 
+                        (gOps[op] == SkRegion::kIntersect_Op));
+            } else {
+                REPORTER_ASSERT(reporter, !isIntersectionOfRects);
+            }
 
             SkASSERT(testCase < gNumCases);
-            SkASSERT(bound == gAnswerRectsBW[testCase]);
+            REPORTER_ASSERT(reporter, bound == gAnswerRectsBW[testCase]);
             ++testCase;
 
             stack.restore();
@@ -300,7 +315,8 @@ static void TestClipStack(skiatest::Reporter* reporter) {
 
     test_assign_and_comparison(reporter);
     test_iterators(reporter);
-    test_bounds(reporter);
+    test_bounds(reporter, true);
+    test_bounds(reporter, false);
 }
 
 #include "TestClassDef.h"
