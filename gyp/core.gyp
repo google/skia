@@ -188,6 +188,7 @@
         '../include/core/SkFloatingPoint.h',
         '../include/core/SkFontHost.h',
         '../include/core/SkGeometry.h',
+        '../include/core/SkGlyph.h',
         '../include/core/SkGraphics.h',
         '../include/core/SkInstCnt.h',
         '../include/core/SkMallocPixelRef.h',

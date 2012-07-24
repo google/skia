@@ -23,6 +23,7 @@
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
 #include "SkFloatingPoint.h"
+#include "SkGlyph.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkStream.h"

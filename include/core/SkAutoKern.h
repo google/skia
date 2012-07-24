@@ -10,7 +10,7 @@
 #ifndef SkAutoKern_DEFINED
 #define SkAutoKern_DEFINED
 
-#include "SkScalerContext.h"
+#include "SkGlyph.h"
 
 #define SkAutoKern_AdjustF(prev, next)    (((next) - (prev) + 32) >> 6 << 16)
 #define SkAutoKern_AdjustS(prev, next)    SkIntToScalar(((next) - (prev) + 32) >> 6)

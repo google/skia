@@ -14,6 +14,7 @@
 #include "SkFDot6.h"
 #include "SkFloatingPoint.h"
 #include "SkFontHost.h"
+#include "SkGlyph.h"
 #include "SkMask.h"
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkScalerContext.h"

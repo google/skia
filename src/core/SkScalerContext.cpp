@@ -12,6 +12,7 @@
 #include "SkDescriptor.h"
 #include "SkDraw.h"
 #include "SkFontHost.h"
+#include "SkGlyph.h"
 #include "SkMaskFilter.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkPathEffect.h"
