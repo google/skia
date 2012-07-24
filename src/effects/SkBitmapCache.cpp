@@ -108,7 +108,7 @@ void SkBitmapCache::add(const void* buffer, size_t len, const SkBitmap& bm) {
         fEntryCount -= 1;
     }
 
-    Entry* entry = new Entry(buffer, len, bm);
+    Entry* entry = SkNEW_ARGS(Entry, (buffer, len, bm));
     this->attachToHead(entry);
     fEntryCount += 1;
 }
