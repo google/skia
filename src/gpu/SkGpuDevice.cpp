@@ -409,14 +409,19 @@ static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
 #endif
 
     SkRect bounds;
+    bool isIntersectionOfRects = false;
     clipStack.getConservativeBounds(-origin.fX,
                                     -origin.fY,
                                     renderTargetWidth,
                                     renderTargetHeight,
-                                    &bounds);
+                                    &bounds,
+                                    &isIntersectionOfRects);
 
     GrClip grc(&iter, GrIntToScalar(-origin.x()), GrIntToScalar(-origin.y()),
                bounds);
+
+    GrAssert(grc.isRect() == isIntersectionOfRects);
+
     context->setClip(grc);
 }
 
