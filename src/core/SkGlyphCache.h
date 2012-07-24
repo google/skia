@@ -13,6 +13,7 @@
 #include "SkBitmap.h"
 #include "SkChunkAlloc.h"
 #include "SkDescriptor.h"
+#include "SkGlyph.h"
 #include "SkScalerContext.h"
 #include "SkTemplates.h"
 

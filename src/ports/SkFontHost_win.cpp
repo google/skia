@@ -12,6 +12,7 @@
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
+#include "SkGlyph.h"
 #include "SkOTUtils.h"
 #include "SkStream.h"
 #include "SkString.h"
