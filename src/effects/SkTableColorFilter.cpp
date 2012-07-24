@@ -31,6 +31,10 @@ public:
         }
     }
 
+    virtual ~SkTable_ColorFilter() {
+        SkDELETE(fBitmap);
+    }
+
     virtual bool asComponentTable(SkBitmap* table) SK_OVERRIDE;
 
     virtual void filterSpan(const SkPMColor src[], int count,
