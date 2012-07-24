@@ -53,12 +53,13 @@ private:
     void validate();
 
     struct BlockHeader {
-        BlockHeader* fNext;      // doubly-linked list of blocks.
+        BlockHeader* fNext;      ///< doubly-linked list of blocks.
         BlockHeader* fPrev;
-        int          fLiveCount; // number of outstanding allocations in the
-                                 // block.
-        intptr_t     fCurrPtr;   // ptr to the start of blocks free space.
-        size_t       fFreeSize;  // amount of free space left in the block.
+        int          fLiveCount; ///< number of outstanding allocations in the
+                                 ///< block.
+        intptr_t     fCurrPtr;   ///< ptr to the start of blocks free space.
+        intptr_t     fPrevPtr;   ///< ptr to the last allocation made
+        size_t       fFreeSize;  ///< amount of free space left in the block.
     };
 
     enum {
