@@ -14,15 +14,6 @@ SK_DEFINE_INST_COUNT(GrGLTexID)
 
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
-    static const GrGLenum repeatModes[] = {
-        GR_GL_CLAMP_TO_EDGE,
-        GR_GL_REPEAT,
-        GR_GL_MIRRORED_REPEAT
-    };
-    return repeatModes;
-};
-
 void GrGLTexture::init(GrGpuGL* gpu,
                        const Desc& textureDesc,
                        const GrGLRenderTarget::Desc* rtDesc) {

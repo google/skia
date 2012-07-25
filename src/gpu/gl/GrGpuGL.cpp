@@ -2087,18 +2087,6 @@ void GrGpuGL::flushBlend(bool isLines,
 }
 namespace {
 
-unsigned gr_to_gl_filter(GrSamplerState::Filter filter) {
-    switch (filter) {
-        case GrSamplerState::kBilinear_Filter:
-            return GR_GL_LINEAR;
-        case GrSamplerState::kNearest_Filter:
-            return GR_GL_NEAREST;
-        default:
-            GrAssert(!"Unknown filter type");
-            return GR_GL_LINEAR;
-    }
-}
-
 // get_swizzle is only called from this .cpp so it is OK to inline it here
 inline const GrGLenum* get_swizzle(GrPixelConfig config,
                                    const GrSamplerState& sampler,
@@ -2129,28 +2117,43 @@ void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
                                   GR_GL_TEXTURE_SWIZZLE_RGBA,
                                   reinterpret_cast<const GrGLint*>(swizzle)));
 }
+
+const GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
+    static const GrGLenum gWrapModes[] = {
+        GR_GL_CLAMP_TO_EDGE,
+        GR_GL_REPEAT,
+        GR_GL_MIRRORED_REPEAT
+    };
+    GrAssert((unsigned) tm <= SK_ARRAY_COUNT(gWrapModes));
+    GR_STATIC_ASSERT(0 == SkShader::kClamp_TileMode);
+    GR_STATIC_ASSERT(1 == SkShader::kRepeat_TileMode);
+    GR_STATIC_ASSERT(2 == SkShader::kMirror_TileMode);
+    return gWrapModes[tm];
+}
+
 }
 
 void GrGpuGL::flushBoundTextureAndParams(int stage) {
     GrDrawState* drawState = this->drawState();
 
-    GrGLTexture* nextTexture = 
-        static_cast<GrGLTexture*>(drawState->getTexture(stage));
-
-    flushBoundTextureAndParams(stage, nextTexture);
+    GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(drawState->getTexture(stage));
+    // Currently we always use the texture params from the GrSamplerState. Soon custom stages
+    // will provide their own params.
+    const GrTextureParams& texParams = drawState->getSampler(stage).getTextureParams();
+    this->flushBoundTextureAndParams(stage, texParams, nextTexture);
 }
 
-void GrGpuGL::flushBoundTextureAndParams(int stage, GrGLTexture* nextTexture) {
+void GrGpuGL::flushBoundTextureAndParams(int stage,
+                                         const GrTextureParams& params,
+                                         GrGLTexture* nextTexture) {
     GrDrawState* drawState = this->drawState();
 
     // true for now, but maybe not with GrEffect.
     GrAssert(NULL != nextTexture);
-    // if we created a rt/tex and rendered to it without using a
-    // texture and now we're texturing from the rt it will still be
-    // the last bound texture, but it needs resolving. So keep this
+    // If we created a rt/tex and rendered to it without using a texture and now we're texturing
+    // from the rt it will still be the last bound texture, but it needs resolving. So keep this
     // out of the "last != next" check.
-    GrGLRenderTarget* texRT = 
-        static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
+    GrGLRenderTarget* texRT =  static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
     if (NULL != texRT) {
         this->onResolveRenderTarget(texRT);
     }
@@ -2162,20 +2165,18 @@ void GrGpuGL::flushBoundTextureAndParams(int stage, GrGLTexture* nextTexture) {
         fHWBoundTextures[stage] = nextTexture;
     }
 
-    const GrSamplerState& sampler = drawState->getSampler(stage);
     ResetTimestamp timestamp;
     const GrGLTexture::TexParams& oldTexParams =
                             nextTexture->getCachedTexParams(&timestamp);
     bool setAll = timestamp < this->getResetTimestamp();
     GrGLTexture::TexParams newTexParams;
 
-    newTexParams.fFilter = gr_to_gl_filter(sampler.getFilter());
+    newTexParams.fFilter = params.isBilerp() ? GR_GL_LINEAR : GR_GL_NEAREST;
 
-    const GrGLenum* wraps =  GrGLTexture::WrapMode2GLWrap();
-    newTexParams.fWrapS = wraps[sampler.getWrapX()];
-    newTexParams.fWrapT = wraps[sampler.getWrapY()];
+    newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
+    newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
     memcpy(newTexParams.fSwizzleRGBA,
-           get_swizzle(nextTexture->config(), sampler, this->glCaps()),
+           get_swizzle(nextTexture->config(), drawState->getSampler(stage), this->glCaps()),
            sizeof(newTexParams.fSwizzleRGBA));
     if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
         this->setTextureUnit(stage);

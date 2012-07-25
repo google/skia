@@ -85,10 +85,10 @@ public:
     SkAutoCachedTexture() { }    
     SkAutoCachedTexture(SkGpuDevice* device,
                         const SkBitmap& bitmap,
-                        const GrSamplerState* sampler,
+                        const GrTextureParams* params,
                         GrTexture** texture) {
         GrAssert(texture);
-        *texture = this->set(device, bitmap, sampler);
+        *texture = this->set(device, bitmap, params);
     }
 
     ~SkAutoCachedTexture() {
@@ -99,7 +99,7 @@ public:
 
     GrTexture* set(SkGpuDevice* device,
                    const SkBitmap& bitmap,
-                   const GrSamplerState* sampler) {
+                   const GrTextureParams* params) {
         if (fTex.texture()) {
             GrUnlockCachedBitmapTexture(fDevice->context(), fTex);
         }
@@ -110,7 +110,7 @@ public:
             fTex.reset();
         } else {
             // look it up in our cache
-            fTex = GrLockCachedBitmapTexture(device->context(), bitmap, sampler);
+            fTex = GrLockCachedBitmapTexture(device->context(), bitmap, params);
             texture = fTex.texture();
         }
         return texture;
@@ -564,9 +564,9 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         grPaint->resetColorFilter();
 
         GrSamplerState* colorSampler = grPaint->textureSampler(kColorFilterTextureIdx);
-        GrTexture* texture = act->set(dev, colorTransformTable, colorSampler);
+        GrTexture* texture = act->set(dev, colorTransformTable, colorSampler->textureParams());
 
-        colorSampler->reset(GrSamplerState::kClamp_WrapMode, GrSamplerState::kNearest_Filter);
+        colorSampler->reset();
         colorSampler->setCustomStage(SkNEW_ARGS(GrColorTableEffect, (texture)))->unref();
     } else {
         grPaint->resetColorFilter();
@@ -641,14 +641,8 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
 
     // Must set wrap and filter on the sampler before requesting a texture.
-    sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
-    sampler->setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
-    GrSamplerState::Filter filter = GrSamplerState::kNearest_Filter;
-    if (skPaint.isFilterBitmap()) {
-        filter = GrSamplerState::kBilinear_Filter;
-    }
-    sampler->setFilter(filter);
-    GrTexture* texture = textures[kShaderTextureIdx].set(dev, bitmap, sampler);
+    sampler->textureParams()->reset(tileModes, skPaint.isFilterBitmap());
+    GrTexture* texture = textures[kShaderTextureIdx].set(dev, bitmap, sampler->textureParams());
 
     if (NULL == texture) {
         SkDebugf("Couldn't convert bitmap to texture.\n");
@@ -929,7 +923,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     if (!isNormalBlur) {
         GrPaint paint;
         paint.reset();
-        paint.textureSampler(0)->setFilter(GrSamplerState::kNearest_Filter);
+        paint.textureSampler(0)->textureParams()->setClampNoFilter();
         paint.textureSampler(0)->matrix()->setIDiv(pathTexture->width(),
                                                    pathTexture->height());
         // Blend pathTexture over blurTexture.
@@ -1197,7 +1191,7 @@ inline int determine_tile_size(const SkBitmap& bitmap,
 }
 
 bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
-                                   const GrSamplerState& sampler,
+                                   const GrTextureParams& params,
                                    const SkIRect* srcRectPtr,
                                    int* tileSize) const {
     SkASSERT(NULL != tileSize);
@@ -1219,7 +1213,7 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
         return false;
     }
     // if the entire texture is already in our cache then no reason to tile it
-    if (this->isBitmapInTextureCache(bitmap, sampler)) {
+    if (this->isBitmapInTextureCache(bitmap, params)) {
         return false;
     }
 
@@ -1298,15 +1292,11 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     if (!skPaint2GrPaintNoShader(this, paint, true, false, &colorLutTexture, &grPaint)) {
         return;
     }
-    GrSamplerState* sampler = grPaint.textureSampler(kBitmapTextureIdx);
-    if (paint.isFilterBitmap()) {
-        sampler->setFilter(GrSamplerState::kBilinear_Filter);
-    } else {
-        sampler->setFilter(GrSamplerState::kNearest_Filter);
-    }
+    GrTextureParams* params = grPaint.textureSampler(kBitmapTextureIdx)->textureParams();
+    params->setBilerp(paint.isFilterBitmap());
 
     int tileSize;
-    if (!this->shouldTileBitmap(bitmap, *sampler, srcRectPtr, &tileSize)) {
+    if (!this->shouldTileBitmap(bitmap, *params, srcRectPtr, &tileSize)) {
         // take the simple case
         this->internalDrawBitmap(draw, bitmap, srcRect, m, &grPaint);
         return;
@@ -1430,12 +1420,11 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
 
     GrSamplerState* sampler = grPaint->textureSampler(kBitmapTextureIdx);
 
-    sampler->setWrapX(GrSamplerState::kClamp_WrapMode);
-    sampler->setWrapY(GrSamplerState::kClamp_WrapMode);
+    sampler->textureParams()->setClamp();
     sampler->matrix()->reset();
 
     GrTexture* texture;
-    SkAutoCachedTexture act(this, bitmap, sampler, &texture);
+    SkAutoCachedTexture act(this, bitmap, sampler->textureParams(), &texture);
     if (NULL == texture) {
         return;
     }
@@ -1454,11 +1443,9 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                       SkFloatToScalar(srcRect.fBottom * hInv));
 
     bool needsTextureDomain = false; 
-    if (GrSamplerState::kBilinear_Filter == sampler->getFilter())
-    {
+    if (sampler->textureParams()->isBilerp()) {
         // Need texture domain if drawing a sub rect.
-        needsTextureDomain = srcRect.width() < bitmap.width() ||
-            srcRect.height() < bitmap.height();
+        needsTextureDomain = srcRect.width() < bitmap.width() || srcRect.height() < bitmap.height();
         if (m.rectStaysRect() && draw.fMatrix->rectStaysRect()) {
             // sampling is axis-aligned
             GrRect floatSrcRect, transformedRect;
@@ -1469,7 +1456,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
             
             if (hasAlignedSamples(floatSrcRect, transformedRect)) {
                 // Samples are texel-aligned, so filtering is futile
-                sampler->setFilter(GrSamplerState::kNearest_Filter);
+                sampler->textureParams()->setBilerp(false);
                 needsTextureDomain = false;
             } else {
                 needsTextureDomain = needsTextureDomain &&
@@ -1522,7 +1509,7 @@ void apply_custom_stage(GrContext* context,
     sampleM.setIDiv(srcTexture->width(), srcTexture->height());
     GrPaint paint;
     paint.reset();
-    paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+    paint.textureSampler(0)->textureParams()->setBilerp(true);
     paint.textureSampler(0)->reset(sampleM);
     paint.textureSampler(0)->setCustomStage(stage);
     context->drawRect(paint, rect);
@@ -1589,7 +1576,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrTexture* texture;
     sampler->reset();
-    SkAutoCachedTexture act(this, bitmap, sampler, &texture);
+    SkAutoCachedTexture act(this, bitmap, sampler->textureParams(), &texture);
     grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
         (GrSingleTextureEffect, (texture)))->unref();
 
@@ -1701,7 +1688,7 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     GrSamplerState* sampler = paint.textureSampler(kBitmapTextureIdx);
 
     GrTexture* texture;
-    SkAutoCachedTexture act(this, src, sampler, &texture);
+    SkAutoCachedTexture act(this, src, sampler->textureParams(), &texture);
 
     result->setConfig(src.config(), src.width(), src.height());
     GrRect rect = GrRect::MakeWH(SkIntToScalar(src.width()), 
@@ -1933,7 +1920,7 @@ void SkGpuDevice::flush() {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
-                                         const GrSamplerState& sampler) const {
+                                         const GrTextureParams& params) const {
     uint64_t key = bitmap.getGenerationID();
     key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
 
@@ -1943,7 +1930,7 @@ bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
     desc.fClientCacheID = key;
 
-    return this->context()->isTextureInCache(desc, &sampler);
+    return this->context()->isTextureInCache(desc, &params);
 }
 
 

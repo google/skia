@@ -118,7 +118,7 @@ public:
 protected:
     typedef GrContext::TextureCacheEntry TexCache;
     bool isBitmapInTextureCache(const SkBitmap& bitmap,
-                                const GrSamplerState& sampler) const;
+                                const GrTextureParams& params) const;
 
     // overrides from SkDevice
     virtual bool onReadPixels(const SkBitmap& bitmap,
@@ -157,7 +157,7 @@ private:
 
     void prepareRenderTarget(const SkDraw&);
     bool shouldTileBitmap(const SkBitmap& bitmap,
-                          const GrSamplerState& sampler,
+                          const GrTextureParams& sampler,
                           const SkIRect* srcRectPtr,
                           int* tileSize) const;
     void internalDrawBitmap(const SkDraw&, const SkBitmap&,

@@ -135,7 +135,7 @@ enum TextureBits {
 
 namespace {
 void gen_texture_key_values(const GrGpu* gpu,
-                            const GrSamplerState* sampler,
+                            const GrTextureParams* params,
                             const GrTextureDesc& desc,
                             bool scratch,
                             uint32_t v[4]) {
@@ -163,13 +163,11 @@ void gen_texture_key_values(const GrGpu* gpu,
     if (!gpu->getCaps().fNPOTTextureTileSupport) {
         bool isPow2 = GrIsPow2(desc.fWidth) && GrIsPow2(desc.fHeight);
 
-        bool tiled = NULL != sampler &&
-                   ((sampler->getWrapX() != GrSamplerState::kClamp_WrapMode) ||
-                    (sampler->getWrapY() != GrSamplerState::kClamp_WrapMode));
+        bool tiled = NULL != params && params->isTiled();
 
         if (tiled && !isPow2) {
             v[3] |= kNPOT_TextureBit;
-            if (GrSamplerState::kNearest_Filter != sampler->getFilter()) {
+            if (params->isBilerp()) {
                 v[3] |= kFilter_TextureBit;
             }
         }
@@ -184,11 +182,11 @@ void gen_texture_key_values(const GrGpu* gpu,
 }
 
 GrResourceKey GrTexture::ComputeKey(const GrGpu* gpu,
-                                    const GrSamplerState* sampler,
+                                    const GrTextureParams* params,
                                     const GrTextureDesc& desc,
                                     bool scratch) {
     uint32_t v[4];
-    gen_texture_key_values(gpu, sampler, desc, scratch, v);
+    gen_texture_key_values(gpu, params, desc, scratch, v);
     return GrResourceKey(v);
 }
 
