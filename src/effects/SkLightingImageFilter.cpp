@@ -361,7 +361,7 @@ private:
 class GrGLLight {
 public:
     virtual ~GrGLLight() {}
-    virtual void setupVariables(GrGLShaderBuilder* builder, int stage);
+    virtual void setupVariables(GrGLShaderBuilder* builder);
     virtual void emitVS(SkString* out) const {}
     virtual void emitFuncs(const GrGLShaderBuilder* builder, SkString* out) const {}
     virtual void emitSurfaceToLight(const GrGLShaderBuilder*,
@@ -384,7 +384,7 @@ protected:
 class GrGLDistantLight : public GrGLLight {
 public:
     virtual ~GrGLDistantLight() {}
-    virtual void setupVariables(GrGLShaderBuilder* builder, int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(const GrGLShaderBuilder*,
                                     SkString* out,
@@ -399,7 +399,7 @@ private:
 class GrGLPointLight : public GrGLLight {
 public:
     virtual ~GrGLPointLight() {}
-    virtual void setupVariables(GrGLShaderBuilder* builder, int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* out) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(const GrGLShaderBuilder*,
@@ -416,7 +416,7 @@ private:
 class GrGLSpotLight : public GrGLLight {
 public:
     virtual ~GrGLSpotLight() {}
-    virtual void setupVariables(GrGLShaderBuilder* builder, int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* out) const SK_OVERRIDE;
     virtual void emitFuncs(const GrGLShaderBuilder* builder, SkString* out) const;
@@ -869,8 +869,7 @@ public:
                        const GrCustomStage& stage);
     virtual ~GrGLLightingEffect();
 
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE;
     virtual void emitFS(GrGLShaderBuilder* builder,
@@ -901,8 +900,7 @@ class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLDiffuseLightingEffect(const GrProgramStageFactory& factory,
                               const GrCustomStage& stage);
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(const GrGLShaderBuilder*, SkString* funcs) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
@@ -921,8 +919,7 @@ class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLSpecularLightingEffect(const GrProgramStageFactory& factory,
                                const GrCustomStage& stage);
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(const GrGLShaderBuilder*, SkString* funcs) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
@@ -989,14 +986,14 @@ GrGLLightingEffect::~GrGLLightingEffect() {
     delete fLight;
 }
 
-void GrGLLightingEffect::setupVariables(GrGLShaderBuilder* builder, int stage) {
+void GrGLLightingEffect::setupVariables(GrGLShaderBuilder* builder) {
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                               kVec2f_GrSLType,
-                                             "uImageIncrement", stage);
+                                             "ImageIncrement");
     fSurfaceScaleUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                            kFloat_GrSLType,
-                                           "uSurfaceScale", stage);
-    fLight->setupVariables(builder, stage);
+                                           "SurfaceScale");
+    fLight->setupVariables(builder);
 }
 
 void GrGLLightingEffect::emitVS(GrGLShaderBuilder* builder,
@@ -1078,10 +1075,9 @@ GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrProgramStageFactory
     , fKDUni(kInvalidUniformHandle) {
 }
 
-void GrGLDiffuseLightingEffect::setupVariables(GrGLShaderBuilder* builder, int stage) {
-    INHERITED::setupVariables(builder, stage);
-    fKDUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType, "uKD",
-                                 stage);
+void GrGLDiffuseLightingEffect::setupVariables(GrGLShaderBuilder* builder) {
+    INHERITED::setupVariables(builder);
+    fKDUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType, "KD");
 }
 
 void GrGLDiffuseLightingEffect::emitLightFunc(const GrGLShaderBuilder* builder, SkString* funcs) {
@@ -1131,12 +1127,12 @@ GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrProgramStageFacto
     , fShininessUni(kInvalidUniformHandle) {
 }
 
-void GrGLSpecularLightingEffect::setupVariables(GrGLShaderBuilder* builder, int stage) {
-    INHERITED::setupVariables(builder, stage);
+void GrGLSpecularLightingEffect::setupVariables(GrGLShaderBuilder* builder) {
+    INHERITED::setupVariables(builder);
     fKSUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                 kFloat_GrSLType, "uKS", stage);
+                                 kFloat_GrSLType, "KS");
     fShininessUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                        kFloat_GrSLType, "uShininess", stage);
+                                        kFloat_GrSLType, "Shininess");
 }
 
 void GrGLSpecularLightingEffect::emitLightFunc(const GrGLShaderBuilder* builder, SkString* funcs) {
@@ -1169,9 +1165,9 @@ void GrGLLight::emitLightColor(const GrGLShaderBuilder* builder,
     out->append(color);
 }
 
-void GrGLLight::setupVariables(GrGLShaderBuilder* builder, int stage) {
+void GrGLLight::setupVariables(GrGLShaderBuilder* builder) {
     fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                    kVec3f_GrSLType, "uLightColor", stage);
+                                    kVec3f_GrSLType, "LightColor");
 }
 
 void GrGLLight::setData(const GrGLUniformManager& uman,
@@ -1186,10 +1182,10 @@ GrGLLight* SkDistantLight::createGLLight() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLDistantLight::setupVariables(GrGLShaderBuilder* builder, int stage) {
-    INHERITED::setupVariables(builder, stage);
+void GrGLDistantLight::setupVariables(GrGLShaderBuilder* builder) {
+    INHERITED::setupVariables(builder);
     fDirectionUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType, kVec3f_GrSLType,
-                                        "uLightDirection", stage);
+                                        "LightDirection");
 }
 
 void GrGLDistantLight::setData(const GrGLUniformManager& uman,
@@ -1210,10 +1206,10 @@ void GrGLDistantLight::emitSurfaceToLight(const GrGLShaderBuilder* builder,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLPointLight::setupVariables(GrGLShaderBuilder* builder, int stage) {
-    INHERITED::setupVariables(builder, stage);
+void GrGLPointLight::setupVariables(GrGLShaderBuilder* builder) {
+    INHERITED::setupVariables(builder);
     fLocationUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType, kVec3f_GrSLType,
-                                       "uLightLocation", stage);
+                                       "LightLocation");
 }
 
 void GrGLPointLight::setData(const GrGLUniformManager& uman,
@@ -1237,20 +1233,20 @@ void GrGLPointLight::emitSurfaceToLight(const GrGLShaderBuilder* builder,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLSpotLight::setupVariables(GrGLShaderBuilder* builder, int stage) {
-    INHERITED::setupVariables(builder, stage);
+void GrGLSpotLight::setupVariables(GrGLShaderBuilder* builder) {
+    INHERITED::setupVariables(builder);
     fLocationUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                       kVec3f_GrSLType, "uLightLocation", stage);
+                                       kVec3f_GrSLType, "LightLocation");
     fExponentUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                       kFloat_GrSLType, "uExponent", stage);
+                                       kFloat_GrSLType, "Exponent");
     fCosInnerConeAngleUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                kFloat_GrSLType, "uCosInnerConeAngle", stage);
+                                                kFloat_GrSLType, "CosInnerConeAngle");
     fCosOuterConeAngleUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                kFloat_GrSLType, "uCosOuterConeAngle", stage);
+                                                kFloat_GrSLType, "CosOuterConeAngle");
     fConeScaleUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                        kFloat_GrSLType, "uConeScale", stage);
+                                        kFloat_GrSLType, "ConeScale");
     fSUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                              kVec3f_GrSLType, "uS", stage);
+                              kVec3f_GrSLType, "S");
 }
 
 void GrGLSpotLight::setData(const GrGLUniformManager& uman,

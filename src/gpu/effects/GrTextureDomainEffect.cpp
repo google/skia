@@ -14,8 +14,7 @@ public:
     GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
                             const GrCustomStage& stage);
 
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE { }
     virtual void emitFS(GrGLShaderBuilder* builder,
@@ -42,10 +41,9 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProgramStageFactory& fa
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
 
-void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* builder,
-                                             int stage) {
+void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* builder) {
     fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                   kVec4f_GrSLType, "uTexDom", stage);
+                                   kVec4f_GrSLType, "TexDom");
 };
 
 void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,

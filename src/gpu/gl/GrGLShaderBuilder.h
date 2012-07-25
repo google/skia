@@ -56,16 +56,23 @@ public:
                           const char* samplerName);
 
     /** Add a uniform variable to the current program, that has visibilty in one or more shaders.
-        If stageNum is specified, it is appended to the name to guarantee uniqueness; if count is
-        specified, the uniform is an array. visibility is a bitfield of ShaderType values indicating
-        from which shaders the uniform should be accessible. At least one bit must be set. Geometry
-        shader uniforms are not supported at this time.
+        visibility is a bitfield of ShaderType values indicating from which shaders the uniform
+        should be accessible. At least one bit must be set. Geometry shader uniforms are not
+        supported at this time. The actual uniform name will be mangled. If outName is not NULL then
+        it will refer to the final uniform name after return. Use the addUniformArray variant to add
+        an array of uniforms.
     */
     GrGLUniformManager::UniformHandle addUniform(uint32_t visibility,
                                                  GrSLType type,
                                                  const char* name,
-                                                 int stageNum = -1,
-                                                 int count = GrGLShaderVar::kNonArray);
+                                                 const char** outName = NULL) {
+        return this->addUniformArray(visibility, type, name, GrGLShaderVar::kNonArray, outName);
+    }
+    GrGLUniformManager::UniformHandle addUniformArray(uint32_t visibility,
+                                                      GrSLType type,
+                                                      const char* name,
+                                                      int arrayCount,
+                                                      const char** outName = NULL);
 
     const GrGLShaderVar& getUniformVariable(GrGLUniformManager::UniformHandle) const;
 
@@ -84,22 +91,20 @@ public:
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
 
-    /** Add a varying variable to the current program to pass values between vertex and fragment
-        shaders; stageNum is appended to the name to guarantee uniqueness. If the last two
-        parameters are non-NULL, they are filled in with the name generated. */
-    void addVarying(GrSLType type,
-                    const char* name,
-                    int stageNum,
-                    const char** vsOutName = NULL,
-                    const char** fsInName = NULL);
-
     /** Called after building is complete to get the final shader string. */
     void getShader(ShaderType, SkString*) const;
 
     /**
-     * TODO: Make this do all the compiling, linking, etc. Hide this from the custom stages
+     * TODO: Make this do all the compiling, linking, etc. Hide from the custom stages
      */
     void finished(GrGLuint programID);
+
+    /**
+     * Sets the current stage (used to make variable names unique).
+     * TODO: Hide from the custom stages
+     */
+    void setCurrentStage(int stage) { fCurrentStage = stage; }
+    void setNonStage() { fCurrentStage = kNonStageIdx; }
 
 private:
 
@@ -147,8 +152,13 @@ public:
     //@}
 
 private:
+    enum {
+        kNonStageIdx = -1,
+    };
+
     const GrGLContextInfo&  fContext;
     GrGLUniformManager&     fUniformManager;
+    int                     fCurrentStage;
 };
 
 #endif

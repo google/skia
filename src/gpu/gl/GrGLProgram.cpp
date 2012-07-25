@@ -25,17 +25,10 @@ SK_DEFINE_INST_COUNT(GrGLProgram)
 
 typedef GrGLProgram::Desc::StageDesc StageDesc;
 
-#define VIEW_MATRIX_NAME "uViewM"
-
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
 #define COV_ATTR_NAME "aCoverage"
 #define EDGE_ATTR_NAME "aEdge"
-#define COL_UNI_NAME "uColor"
-#define COV_UNI_NAME "uCoverage"
-#define COL_FILTER_UNI_NAME "uColorFilter"
-#define COL_MATRIX_UNI_NAME "uColorMatrix"
-#define COL_MATRIX_VEC_UNI_NAME "uColorMatrixVec"
 
 namespace {
 inline void tex_attr_name(int coordIdx, SkString* s) {
@@ -70,15 +63,6 @@ inline const char* all_zeros_vec(int count) {
 inline const char* declared_color_output_name() { return "fsColorOut"; }
 inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
-inline void tex_matrix_name(int stage, SkString* s) {
-    *s = "uTexM";
-    s->appendS32(stage);
-}
-
-inline void sampler_name(int stage, SkString* s) {
-    *s = "uSampler";
-    s->appendS32(stage);
-}
 }
 
 GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
@@ -308,23 +292,13 @@ static void blendTermString(SkString* str, SkXfermode::Coeff coeff,
 static void addColorFilter(SkString* fsCode, const char * outputVar,
                            SkXfermode::Coeff uniformCoeff,
                            SkXfermode::Coeff colorCoeff,
+                           const char* filterColor,
                            const char* inColor) {
     SkString colorStr, constStr;
-    blendTermString(&colorStr, colorCoeff, COL_FILTER_UNI_NAME,
-                    inColor, inColor);
-    blendTermString(&constStr, uniformCoeff, COL_FILTER_UNI_NAME,
-                    inColor, COL_FILTER_UNI_NAME);
+    blendTermString(&colorStr, colorCoeff, filterColor, inColor, inColor);
+    blendTermString(&constStr, uniformCoeff, filterColor, inColor, filterColor);
 
     add_helper(outputVar, colorStr.c_str(), constStr.c_str(), fsCode);
-}
-/**
- * Adds code to the fragment shader code which modifies the color by
- * the specified color matrix.
- */
-static void addColorMatrix(SkString* fsCode, const char * outputVar,
-                           const char* inColor) {
-    fsCode->appendf("\t%s = %s * vec4(%s.rgb / %s.a, %s.a) + %s;\n", outputVar, COL_MATRIX_UNI_NAME, inColor, inColor, inColor, COL_MATRIX_VEC_UNI_NAME);
-    fsCode->appendf("\t%s.rgb *= %s.a;\n", outputVar, outputVar);
 }
 
 void GrGLProgram::genEdgeCoverage(SkString* coverageVar,
@@ -400,11 +374,13 @@ void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
             builder->fVSCode.appendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
             *inColor = fsName;
             } break;
-        case GrGLProgram::Desc::kUniform_ColorInput:
+        case GrGLProgram::Desc::kUniform_ColorInput: {
+            const char* name;
             fUniforms.fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                      kVec4f_GrSLType, COL_UNI_NAME);
-            *inColor = COL_UNI_NAME;
+                                                      kVec4f_GrSLType, "Color", &name);
+            *inColor = name;
             break;
+        }
         case GrGLProgram::Desc::kTransBlack_ColorInput:
             GrAssert(!"needComputedColor should be false.");
             break;
@@ -417,14 +393,15 @@ void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
 }
 
 void GrGLProgram::genUniformCoverage(GrGLShaderBuilder* builder, SkString* inOutCoverage) {
+    const char* covUniName;
     fUniforms.fCoverageUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                 kVec4f_GrSLType, COV_UNI_NAME);
+                                                 kVec4f_GrSLType, "Coverage", &covUniName);
     if (inOutCoverage->size()) {
         builder->fFSCode.appendf("\tvec4 uniCoverage = %s * %s;\n",
-                                  COV_UNI_NAME, inOutCoverage->c_str());
+                                  covUniName, inOutCoverage->c_str());
         *inOutCoverage = "uniCoverage";
     } else {
-        *inOutCoverage = COV_UNI_NAME;
+        *inOutCoverage = covUniName;
     }
 }
 
@@ -655,16 +632,18 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
         builder.fFSOutputs.push_back(colorOutput);
     }
 
+    const char* viewMName;
     fUniforms.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                                  kMat33f_GrSLType, VIEW_MATRIX_NAME);
+                                                  kMat33f_GrSLType, "ViewM", &viewMName);
 
     builder.fVSAttrs.push_back().set(kVec2f_GrSLType,
                                      GrGLShaderVar::kAttribute_TypeModifier,
                                      POS_ATTR_NAME);
 
-    builder.fVSCode.append("void main() {\n"
-                              "\tvec3 pos3 = " VIEW_MATRIX_NAME " * vec3("POS_ATTR_NAME", 1);\n"
-                              "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n");
+    builder.fVSCode.appendf("void main() {\n"
+                              "\tvec3 pos3 = %s * vec3("POS_ATTR_NAME", 1);\n"
+                              "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
+                            viewMName);
 
     // incoming color to current stage being processed.
     SkString inColor;
@@ -743,9 +722,11 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
                             &needColorFilterUniform, &bogus);
         }
     }
+    const char* colorFilterColorUniName = NULL;
     if (needColorFilterUniform) {
         fUniforms.fColorFilterUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                       kVec4f_GrSLType, COL_FILTER_UNI_NAME);
+                                                       kVec4f_GrSLType, "FilterColor",
+                                                       &colorFilterColorUniName);
     }
     bool wroteFragColorZero = false;
     if (SkXfermode::kZero_Coeff == uniformCoeff &&
@@ -759,17 +740,23 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
         builder.fFSCode.append("\tvec4 filteredColor;\n");
         const char* color = adjustInColor(inColor);
         addColorFilter(&builder.fFSCode, "filteredColor", uniformCoeff,
-                       colorCoeff, color);
+                       colorCoeff, colorFilterColorUniName, color);
         inColor = "filteredColor";
     }
     if (applyColorMatrix) {
+        const char* colMatrixName;
+        const char* colMatrixVecName;
         fUniforms.fColorMatrixUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                       kMat44f_GrSLType, COL_MATRIX_UNI_NAME);
+                                                       kMat44f_GrSLType, "ColorMatrix",
+                                                       &colMatrixName);
         fUniforms.fColorMatrixVecUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                          kVec4f_GrSLType, COL_MATRIX_VEC_UNI_NAME);
-        builder.fFSCode.append("\tvec4 matrixedColor;\n");
+                                                          kVec4f_GrSLType, "ColorMatrixVec",
+                                                          &colMatrixVecName);
         const char* color = adjustInColor(inColor);
-        addColorMatrix(&builder.fFSCode, "matrixedColor", color);
+        builder.fFSCode.appendf("\tvec4 matrixedColor = %s * vec4(%s.rgb / %s.a, %s.a) + %s;\n",
+                                colMatrixName, color, color, color, colMatrixVecName);
+        builder.fFSCode.append("\tmatrixedColor.rgb *= matrixedColor.a;\n");
+
         inColor = "matrixedColor";
     }
 
@@ -835,6 +822,7 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
                 }
             }
         }
+
         if (Desc::kNone_DualSrcOutput != fDesc.fDualSrcOutput) {
             builder.fFSOutputs.push_back().set(kVec4f_GrSLType,
                                                GrGLShaderVar::kOut_TypeModifier,
@@ -1004,7 +992,7 @@ void GrGLProgram::genStageCode(int stageNum,
                                const char* fsInColor, // NULL means no incoming color
                                const char* fsOutColor,
                                const char* vsInCoord,
-                               GrGLShaderBuilder* segments) {
+                               GrGLShaderBuilder* builder) {
     GrAssert(stageNum >= 0 && stageNum <= GrDrawState::kNumStages);
 
     const GrGLProgram::StageDesc& desc = fDesc.fStages[stageNum];
@@ -1013,67 +1001,63 @@ void GrGLProgram::genStageCode(int stageNum,
 
     GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) == desc.fInConfigFlags);
 
+    builder->setCurrentStage(stageNum);
+
     /// Vertex Shader Stuff
 
     // decide whether we need a matrix to transform texture coords and whether the varying needs a
     // perspective coord.
     const char* matName = NULL;
     if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
-        segments->fVaryingDims = segments->fCoordDims;
+        builder->fVaryingDims = builder->fCoordDims;
     } else {
-        SkString texMatName;
-        tex_matrix_name(stageNum, &texMatName);
-        uniforms.fTextureMatrixUni = segments->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                                          kMat33f_GrSLType, texMatName.c_str());
-        const GrGLShaderVar& mat = segments->getUniformVariable(uniforms.fTextureMatrixUni);
-        // Can't use texMatName.c_str() because it's on the stack!
-        matName = mat.getName().c_str();
+        uniforms.fTextureMatrixUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                                         kMat33f_GrSLType, "TexM", &matName);
+        const GrGLShaderVar& mat = builder->getUniformVariable(uniforms.fTextureMatrixUni);
 
         if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
-            segments->fVaryingDims = segments->fCoordDims;
+            builder->fVaryingDims = builder->fCoordDims;
         } else {
-            segments->fVaryingDims = segments->fCoordDims + 1;
+            builder->fVaryingDims = builder->fCoordDims + 1;
         }
     }
-    GrAssert(segments->fVaryingDims > 0);
+    GrAssert(builder->fVaryingDims > 0);
 
     // Must setup variables after computing segments->fVaryingDims
     if (NULL != customStage) {
-        customStage->setupVariables(segments, stageNum);
+        customStage->setupVariables(builder);
     }
 
-    SkString samplerName;
-    sampler_name(stageNum, &samplerName);
-    uniforms.fSamplerUni = segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                kSampler2D_GrSLType, samplerName.c_str());
+    const char* samplerName;
+    uniforms.fSamplerUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                               kSampler2D_GrSLType, "Sampler", &samplerName);
 
     const char *varyingVSName, *varyingFSName;
-    segments->addVarying(GrSLFloatVectorType(segments->fVaryingDims),
-                         "Stage",
-                         stageNum,
-                         &varyingVSName,
-                         &varyingFSName);
+    builder->addVarying(GrSLFloatVectorType(builder->fVaryingDims),
+                        "Stage",
+                        &varyingVSName,
+                        &varyingFSName);
 
     if (!matName) {
-        GrAssert(segments->fVaryingDims == segments->fCoordDims);
-        segments->fVSCode.appendf("\t%s = %s;\n", varyingVSName, vsInCoord);
+        GrAssert(builder->fVaryingDims == builder->fCoordDims);
+        builder->fVSCode.appendf("\t%s = %s;\n", varyingVSName, vsInCoord);
     } else {
         // varying = texMatrix * texCoord
-        segments->fVSCode.appendf("\t%s = (%s * vec3(%s, 1))%s;\n",
+        builder->fVSCode.appendf("\t%s = (%s * vec3(%s, 1))%s;\n",
                                   varyingVSName, matName, vsInCoord,
-                                  vector_all_coords(segments->fVaryingDims));
+                                  vector_all_coords(builder->fVaryingDims));
     }
 
     if (NULL != customStage) {
-        segments->fVSCode.appendf("\t{ // stage %d %s\n",
-                                  stageNum, customStage->name());
-        customStage->emitVS(segments, varyingVSName);
-        segments->fVSCode.appendf("\t}\n");
+        builder->fVSCode.appendf("\t{ // stage %d %s\n",
+                                 stageNum, customStage->name());
+        customStage->emitVS(builder, varyingVSName);
+        builder->fVSCode.appendf("\t}\n");
     }
 
     /// Fragment Shader Stuff
 
-    segments->fSampleCoords = varyingFSName;
+    builder->fSampleCoords = varyingFSName;
 
     GrGLShaderBuilder::SamplerMode sampleMode =
         GrGLShaderBuilder::kExplicitDivide_SamplerMode;
@@ -1083,10 +1067,10 @@ void GrGLProgram::genStageCode(int stageNum,
     } else if (NULL == customStage) {
         sampleMode = GrGLShaderBuilder::kProj_SamplerMode;
     }
-    segments->setupTextureAccess(sampleMode, stageNum);
+    builder->setupTextureAccess(sampleMode, stageNum);
 
-    segments->computeSwizzle(desc.fInConfigFlags);
-    segments->computeModulate(fsInColor);
+    builder->computeSwizzle(desc.fInConfigFlags);
+    builder->computeModulate(fsInColor);
 
     static const uint32_t kMulByAlphaMask =
         (StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
@@ -1101,33 +1085,34 @@ void GrGLProgram::genStageCode(int stageNum,
                        StageDesc::kSmearAlpha_InConfigFlag));
             GrAssert(!(desc.fInConfigFlags & 
                        StageDesc::kSmearRed_InConfigFlag));
-            segments->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
-                                      fsOutColor,
-                                      segments->fTexFunc.c_str(), 
-                                      samplerName.c_str(),
-                                      segments->fSampleCoords.c_str(),
-                                      segments->fSwizzle.c_str());
+            builder->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
+                                     fsOutColor,
+                                     builder->fTexFunc.c_str(), 
+                                     samplerName,
+                                     builder->fSampleCoords.c_str(),
+                                     builder->fSwizzle.c_str());
             if (desc.fInConfigFlags &
                 StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag) {
-                segments->fFSCode.appendf("\t%s = vec4(ceil(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
-                                          fsOutColor, fsOutColor, fsOutColor,
-                                          fsOutColor, segments->fModulate.c_str());
+                builder->fFSCode.appendf("\t%s = vec4(ceil(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
+                                         fsOutColor, fsOutColor, fsOutColor,
+                                         fsOutColor, builder->fModulate.c_str());
             } else {
-                segments->fFSCode.appendf("\t%s = vec4(floor(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
-                                          fsOutColor, fsOutColor, fsOutColor,
-                                          fsOutColor, segments->fModulate.c_str());
+                builder->fFSCode.appendf("\t%s = vec4(floor(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
+                                         fsOutColor, fsOutColor, fsOutColor,
+                                         fsOutColor, builder->fModulate.c_str());
             }
         } else {
-            segments->emitDefaultFetch(fsOutColor, samplerName.c_str());
+            builder->emitDefaultFetch(fsOutColor, samplerName);
         }
     }
 
     if (NULL != customStage) {
         // Enclose custom code in a block to avoid namespace conflicts
-        segments->fFSCode.appendf("\t{ // stage %d %s \n",
-                                  stageNum, customStage->name());
-        customStage->emitFS(segments, fsOutColor, fsInColor,
-                            samplerName.c_str());
-        segments->fFSCode.appendf("\t}\n");
+        builder->fFSCode.appendf("\t{ // stage %d %s \n",
+                                 stageNum, customStage->name());
+        customStage->emitFS(builder, fsOutColor, fsInColor,
+                            samplerName);
+        builder->fFSCode.appendf("\t}\n");
     }
+    builder->setNonStage();
 }

@@ -17,8 +17,7 @@ public:
     GrGLColorTableEffect(const GrProgramStageFactory& factory,
                          const GrCustomStage& stage);
 
-    virtual void setupVariables(GrGLShaderBuilder* state,
-                                int stage) SK_OVERRIDE {}
+    virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE {}
     virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) SK_OVERRIDE {}
     virtual void emitFS(GrGLShaderBuilder* state,
