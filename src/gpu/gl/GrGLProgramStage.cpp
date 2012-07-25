@@ -17,7 +17,7 @@ GrGLProgramStage::~GrGLProgramStage() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgramStage::setupVariables(GrGLShaderBuilder*, int stage) {
+void GrGLProgramStage::setupVariables(GrGLShaderBuilder*) {
 
 }
 

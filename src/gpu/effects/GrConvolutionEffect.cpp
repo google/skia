@@ -20,8 +20,7 @@ public:
     GrGLConvolutionEffect(const GrProgramStageFactory& factory,
                           const GrCustomStage& stage);
 
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE;
     virtual void emitFS(GrGLShaderBuilder* builder,
@@ -56,13 +55,12 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factor
     fRadius = c.radius();
 }
 
-void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* builder,
-                                           int stage) {
+void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* builder) {
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
                                              GrGLShaderBuilder::kVertex_ShaderType,
-                                             kVec2f_GrSLType, "uImageIncrement", stage);
-    fKernelUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                     kFloat_GrSLType, "uKernel", stage, this->width());
+                                             kVec2f_GrSLType, "ImageIncrement");
+    fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
+                                          kFloat_GrSLType, "Kernel", this->width());
 }
 
 void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* builder,

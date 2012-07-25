@@ -48,7 +48,7 @@ public:
     virtual ~GrGLProgramStage();
 
     /** Create any uniforms or varyings the vertex shader requires. */
-    virtual void setupVariables(GrGLShaderBuilder* builder, int stage);
+    virtual void setupVariables(GrGLShaderBuilder* builder);
 
     /** Appends vertex code to the appropriate SkString
         on the state.

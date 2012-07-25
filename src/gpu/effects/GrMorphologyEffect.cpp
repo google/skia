@@ -18,8 +18,7 @@ public:
     GrGLMorphologyEffect (const GrProgramStageFactory& factory,
                           const GrCustomStage& stage);
 
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) SK_OVERRIDE;
     virtual void emitFS(GrGLShaderBuilder* state,
@@ -53,10 +52,10 @@ GrGLMorphologyEffect ::GrGLMorphologyEffect(const GrProgramStageFactory& factory
     fType = m.type();
 }
 
-void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* builder, int stage) {
+void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* builder) {
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
                                              GrGLShaderBuilder::kVertex_ShaderType,
-                                             kVec2f_GrSLType, "uImageIncrement", stage);
+                                             kVec2f_GrSLType, "ImageIncrement");
 }
 
 void GrGLMorphologyEffect::emitVS(GrGLShaderBuilder* builder,

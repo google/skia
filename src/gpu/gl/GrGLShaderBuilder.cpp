@@ -38,7 +38,8 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fVaryingDims(0)
     , fComplexCoord(false)
     , fContext(ctx)
-    , fUniformManager(uniformManager) {
+    , fUniformManager(uniformManager)
+    , fCurrentStage(kNonStageIdx) {
 }
 
 void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {
@@ -119,11 +120,11 @@ void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
     fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
 }
 
-GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniform(uint32_t visibility,
-                                                                GrSLType type,
-                                                                const char* name,
-                                                                int stageNum,
-                                                                int count) {
+GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t visibility,
+                                                                     GrSLType type,
+                                                                     const char* name,
+                                                                     int count,
+                                                                     const char** outName) {
     GrAssert(name && strlen(name));
     static const uint32_t kVisibilityMask = kVertex_ShaderType | kFragment_ShaderType;
     GrAssert(0 == (~kVisibilityMask & visibility));
@@ -138,9 +139,11 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniform(uint32_t visibil
     GrAssert(h2 == h);
     uni.fVariable.setType(type);
     uni.fVariable.setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
-    uni.fVariable.setName(name);
-    if (stageNum >= 0) {
-        uni.fVariable.accessName()->appendS32(stageNum);
+    SkString* uniName = uni.fVariable.accessName();
+    if (kNonStageIdx == fCurrentStage) {
+        uniName->printf("u%s", name);
+    } else {
+        uniName->printf("u%s%d", name, fCurrentStage);
     }
     uni.fVariable.setArrayCount(count);
     uni.fVisibility = visibility;
@@ -151,6 +154,10 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniform(uint32_t visibil
     if ((kVertex_ShaderType | kFragment_ShaderType) == visibility) {
         // the fragment and vertex precisions must match
         uni.fVariable.setPrecision(kDefaultFragmentPrecision);
+    }
+
+    if (NULL != outName) {
+        *outName = uni.fVariable.c_str();
     }
 
     return h;
@@ -167,7 +174,11 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     fVSOutputs.push_back();
     fVSOutputs.back().setType(type);
     fVSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
-    fVSOutputs.back().accessName()->printf("v%s", name);
+    if (kNonStageIdx == fCurrentStage) {
+        fVSOutputs.back().accessName()->printf("v%s", name);
+    } else {
+        fVSOutputs.back().accessName()->printf("v%s%d", name, fCurrentStage);
+    }
     if (vsOutName) {
         *vsOutName = fVSOutputs.back().getName().c_str();
     }
@@ -198,15 +209,6 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     }
 }
 
-void GrGLShaderBuilder::addVarying(GrSLType type,
-                                   const char* name,
-                                   int stageNum,
-                                   const char** vsOutName,
-                                   const char** fsInName) {
-    SkString nameWithStage(name);
-    nameWithStage.appendS32(stageNum);
-    this->addVarying(type, nameWithStage.c_str(), vsOutName, fsInName);
-}
 
 namespace {
 

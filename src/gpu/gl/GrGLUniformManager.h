@@ -10,6 +10,7 @@
 
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
+#include "GrAllocator.h"
 
 #include "SkTArray.h"
 
@@ -50,7 +51,10 @@ public:
         GrGLShaderVar fVariable;
         uint32_t      fVisibility;
     };
-    typedef SkTArray<BuilderUniform, true> BuilderUniformArray;
+    // This uses an allocator rather than array so that the GrGLShaderVars don't move in memory
+    // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
+    // name strings. Otherwise, we'd have to hand out copies.
+    typedef GrTAllocator<BuilderUniform> BuilderUniformArray;
 
     /**
      * Called by the GrGLShaderBuilder to get GL locations for all uniforms.

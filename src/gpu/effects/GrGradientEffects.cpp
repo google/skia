@@ -214,8 +214,7 @@ public:
                         const GrCustomStage&);
     virtual ~GrGLRadial2Gradient() { }
 
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE;
     virtual void emitFS(GrGLShaderBuilder* builder,
@@ -273,19 +272,19 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
     fIsDegenerate = data.isDegenerate();
 }
 
-void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* builder, int stage) {
+void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* builder) {
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
-    fVSParamUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                      kFloat_GrSLType, "uRadial2VSParams", stage, 6);
-    fFSParamUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                       kFloat_GrSLType, "uRadial2FSParams", stage, 6);
+    fVSParamUni = builder->addUniformArray(GrGLShaderBuilder::kVertex_ShaderType,
+                                           kFloat_GrSLType, "Radial2VSParams", 6);
+    fFSParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
+                                           kFloat_GrSLType, "Radial2FSParams", 6);
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
     if (builder->fVaryingDims == builder->fCoordDims) {
-        builder->addVarying(kFloat_GrSLType, "Radial2BCoeff", stage,
+        builder->addVarying(kFloat_GrSLType, "Radial2BCoeff",
                           &fVSVaryingName, &fFSVaryingName);
     }
 }
@@ -467,8 +466,7 @@ public:
                          const GrCustomStage&);
     virtual ~GrGLConical2Gradient() { }
 
-    virtual void setupVariables(GrGLShaderBuilder* builder,
-                                int stage) SK_OVERRIDE;
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE;
     virtual void emitFS(GrGLShaderBuilder* builder,
@@ -528,14 +526,14 @@ GrGLConical2Gradient::GrGLConical2Gradient(
     fIsDegenerate = data.isDegenerate();
 }
 
-void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder, int stage) {
+void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder) {
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
-    fVSParamUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                      kFloat_GrSLType, "uConical2VSParams", stage, 6);
-    fFSParamUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                      kFloat_GrSLType, "uConical2FSParams", stage, 6);
+    fVSParamUni = builder->addUniformArray(GrGLShaderBuilder::kVertex_ShaderType,
+                                           kFloat_GrSLType, "Conical2VSParams", 6);
+    fFSParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
+                                           kFloat_GrSLType, "Conical2FSParams", 6);
 
     fVSParamLocation = GrGLProgramStage::kUseUniform;
     fFSParamLocation = GrGLProgramStage::kUseUniform;
@@ -543,7 +541,7 @@ void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder, int stage)
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
     if (builder->fVaryingDims == builder->fCoordDims) {
-        builder->addVarying(kFloat_GrSLType, "Conical2BCoeff", stage,
+        builder->addVarying(kFloat_GrSLType, "Conical2BCoeff",
                             &fVSVaryingName, &fFSVaryingName);
     }
 }
