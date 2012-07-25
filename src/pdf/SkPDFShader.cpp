@@ -944,7 +944,7 @@ SkPDFShader::State::State(const SkShader& shader,
     if (fType == SkShader::kNone_GradientType) {
         SkShader::BitmapType bitmapType;
         SkMatrix matrix;
-        bitmapType = shader.asABitmap(&fImage, &matrix, fImageTileModes, NULL);
+        bitmapType = shader.asABitmap(&fImage, &matrix, fImageTileModes);
         if (bitmapType != SkShader::kDefault_BitmapType) {
             fImage.reset();
             return;

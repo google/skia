@@ -112,7 +112,6 @@ static const TileProc gTileProcs[] = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
 
 class Gradient_Shader : public SkShader {
 public:
@@ -796,8 +795,7 @@ public:
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
-    virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*,
-                             SkScalar* twoPointRadialParams) const SK_OVERRIDE;
+    virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
     virtual GrCustomStage* asNewCustomStage(GrContext* context, 
                                             GrSamplerState* sampler) const SK_OVERRIDE;
@@ -1025,8 +1023,7 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
 
 SkShader::BitmapType Linear_Gradient::asABitmap(SkBitmap* bitmap,
                                                 SkMatrix* matrix,
-                                                TileMode xy[],
-                                        SkScalar* twoPointRadialParams) const {
+                                                TileMode xy[]) const {
     if (bitmap) {
         this->commonAsABitmap(bitmap);
     }
@@ -1056,7 +1053,7 @@ GrCustomStage* Linear_Gradient::asNewCustomStage(GrContext* context,
     sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
     sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
     sampler->setFilter(GrSamplerState::kBilinear_Filter);
-    return SkNEW_ARGS(GrLinearGradient, (context, *this));
+    return SkNEW_ARGS(GrLinearGradient, (context, *this, sampler));
 }
 
 static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
@@ -1442,9 +1439,7 @@ public:
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
-                                 TileMode* xy,
-                                 SkScalar* twoPointRadialParams)
-            const SK_OVERRIDE {
+                                 TileMode* xy) const SK_OVERRIDE {
         if (bitmap) {
             this->commonAsABitmap(bitmap);
         }
@@ -1476,7 +1471,7 @@ public:
         sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
         sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
         sampler->setFilter(GrSamplerState::kBilinear_Filter);
-        return SkNEW_ARGS(GrRadialGradient, (context, *this));
+        return SkNEW_ARGS(GrRadialGradient, (context, *this, sampler));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Radial_Gradient)
@@ -1886,13 +1881,12 @@ public:
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
-                                 TileMode* xy,
-                                 SkScalar* twoPointRadialParams) const {
+                                 TileMode* xy) const {
         if (bitmap) {
             this->commonAsABitmap(bitmap);
         }
         SkScalar diffL = 0; // just to avoid gcc warning
-        if (matrix || twoPointRadialParams) {
+        if (matrix) {
             diffL = SkScalarSqrt(SkScalarSquare(fDiff.fX) +
                                  SkScalarSquare(fDiff.fY));
         }
@@ -1909,11 +1903,6 @@ public:
         if (xy) {
             xy[0] = fTileMode;
             xy[1] = kClamp_TileMode;
-        }
-        if (NULL != twoPointRadialParams) {
-            twoPointRadialParams[0] = diffL;
-            twoPointRadialParams[1] = fStartRadius;
-            twoPointRadialParams[2] = fDiffRadius;
         }
         return kTwoPointRadial_BitmapType;
     }
@@ -1936,7 +1925,7 @@ public:
         if (0 != diffLen) {
             SkScalar invDiffLen = SkScalarInvert(diffLen);
             sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
-                              SkScalarMul(invDiffLen, fDiff.fX));
+                                         SkScalarMul(invDiffLen, fDiff.fX));
         } else {
             sampler->matrix()->reset();
         }
@@ -1944,7 +1933,8 @@ public:
         sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
         sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
         sampler->setFilter(GrSamplerState::kBilinear_Filter);
-        return SkNEW_ARGS(GrRadial2Gradient, (context, *this));
+        return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler, 
+            diffLen, fStartRadius, fDiffRadius));
     }
 
     virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
@@ -2349,8 +2339,7 @@ public:
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
-                                 TileMode* xy,
-                                 SkScalar* twoPointRadialParams) const {
+                                 TileMode* xy) const {
 
         SkPoint diff = fCenter2 - fCenter1;
         SkScalar diffRadius = fRadius2 - fRadius1;
@@ -2360,7 +2349,7 @@ public:
         if (bitmap) {
             this->commonAsABitmap(bitmap);
         }
-        if (matrix || twoPointRadialParams) {
+        if (matrix) {
             diffLen = diff.length();
         }
         if (matrix) {
@@ -2378,12 +2367,6 @@ public:
             xy[0] = fTileMode;
             xy[1] = kClamp_TileMode;
         }
-        if (NULL != twoPointRadialParams) {
-            twoPointRadialParams[0] = diffLen;
-            twoPointRadialParams[1] = startRadius;
-            twoPointRadialParams[2] = diffRadius;
-        }
-
         return kTwoPointConical_BitmapType;
     }
 
@@ -2415,7 +2398,8 @@ public:
         sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
         sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
         sampler->setFilter(GrSamplerState::kBilinear_Filter);
-        return SkNEW_ARGS(GrConical2Gradient, (context, *this));
+        return SkNEW_ARGS(GrConical2Gradient, (context, *this, sampler, 
+                          diffLen, fRadius1, fRadius2 - fRadius1));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Two_Point_Conical_Gradient)
@@ -2462,8 +2446,7 @@ public:
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
-                                 TileMode* xy,
-                                 SkScalar* twoPointRadialParams) const SK_OVERRIDE {
+                                 TileMode* xy) const SK_OVERRIDE {
         if (bitmap) {
             this->commonAsABitmap(bitmap);
         }
@@ -2491,7 +2474,7 @@ public:
         sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
         sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
         sampler->setFilter(GrSamplerState::kBilinear_Filter);
-        return SkNEW_ARGS(GrSweepGradient, (context, *this));
+        return SkNEW_ARGS(GrSweepGradient, (context, *this, sampler));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sweep_Gradient)

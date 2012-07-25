@@ -11,7 +11,9 @@
 #include "GrSingleTextureEffect.h"
 #include "GrTypes.h"
 #include "GrScalar.h"
-#include "SkShader.h"
+
+class GrSamplerState;
+class SkShader;
 
 /*
  * The intepretation of the texture matrix depends on the sample mode. The
@@ -41,7 +43,8 @@ class GrGradientEffect : public GrCustomStage {
 public:
 
     GrGradientEffect(GrTexture* texture);
-    GrGradientEffect(GrContext* ctx, const SkShader& shader);
+    GrGradientEffect(GrContext* ctx, const SkShader& shader, 
+                     GrSamplerState* sampler);
 
     virtual ~GrGradientEffect();
 
@@ -66,7 +69,8 @@ class GrLinearGradient : public GrGradientEffect {
 public:
 
     GrLinearGradient(GrTexture* texture);
-    GrLinearGradient(GrContext* ctx, const SkShader& shader);
+    GrLinearGradient(GrContext* ctx, const SkShader& shader,
+                     GrSamplerState* sampler);
     virtual ~GrLinearGradient();
 
     static const char* Name() { return "Linear Gradient"; }
@@ -86,7 +90,8 @@ class GrRadialGradient : public GrGradientEffect {
 public:
 
     GrRadialGradient(GrTexture* texture);
-    GrRadialGradient(GrContext* ctx, const SkShader& shader);
+    GrRadialGradient(GrContext* ctx, const SkShader& shader,
+                     GrSamplerState* sampler);
     virtual ~GrRadialGradient();
 
     static const char* Name() { return "Radial Gradient"; }
@@ -106,7 +111,9 @@ class GrRadial2Gradient : public GrGradientEffect {
 public:
 
     GrRadial2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, bool posRoot);
-    GrRadial2Gradient(GrContext* ctx, const SkShader& shader);
+    GrRadial2Gradient(GrContext* ctx, const SkShader& shader,
+                      GrSamplerState* sampler, SkScalar center, 
+                      SkScalar radius, SkScalar diffRadius);
     virtual ~GrRadial2Gradient();
 
     static const char* Name() { return "Two-Point Radial Gradient"; }
@@ -143,7 +150,9 @@ class GrConical2Gradient : public GrGradientEffect {
 public:
 
     GrConical2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, GrScalar diffRadius);
-    GrConical2Gradient(GrContext* ctx, const SkShader& shader);
+    GrConical2Gradient(GrContext* ctx, const SkShader& shader,
+                       GrSamplerState* sampler, SkScalar center, 
+                       SkScalar radius, SkScalar diffRadius);
     virtual ~GrConical2Gradient();
 
     static const char* Name() { return "Two-Point Conical Gradient"; }
@@ -180,7 +189,8 @@ class GrSweepGradient : public GrGradientEffect {
 public:
 
     GrSweepGradient(GrTexture* texture);
-    GrSweepGradient(GrContext* ctx, const SkShader& shader);
+    GrSweepGradient(GrContext* ctx, const SkShader& shader,
+                     GrSamplerState* sampler);
     virtual ~GrSweepGradient();
 
     static const char* Name() { return "Sweep Gradient"; }

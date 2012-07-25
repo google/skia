@@ -192,7 +192,7 @@ SkShader::MatrixClass SkShader::ComputeMatrixClass(const SkMatrix& mat) {
 //////////////////////////////////////////////////////////////////////////////
 
 SkShader::BitmapType SkShader::asABitmap(SkBitmap*, SkMatrix*,
-                                         TileMode*, SkScalar*) const {
+                                         TileMode*) const {
     return kNone_BitmapType;
 }
 
@@ -316,8 +316,7 @@ void SkColorShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
 
 // if we had a asAColor method, that would be more efficient...
 SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
-                                              TileMode modes[],
-                                      SkScalar* twoPointRadialParams) const {
+                                              TileMode modes[]) const {
     return kNone_BitmapType;
 }
 

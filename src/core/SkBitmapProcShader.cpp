@@ -53,8 +53,7 @@ void SkBitmapProcShader::endSession() {
 
 SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
                                                    SkMatrix* texM,
-                                                   TileMode xy[],
-                                       SkScalar* twoPointRadialParams) const {
+                                                   TileMode xy[]) const {
     if (texture) {
         *texture = fRawBitmap;
     }
