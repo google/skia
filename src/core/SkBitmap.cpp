@@ -1161,11 +1161,13 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
         dstBM.setConfig(config, width, height, rowBytes);
         dstBM.setPixels(addr);
 
+        srcBM.lockPixels();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 proc(&dstBM, x, y, srcBM);
             }
         }
+        srcBM.unlockPixels();
 
         srcBM = dstBM;
         addr += height * rowBytes;
