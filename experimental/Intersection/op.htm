@@ -548,11 +548,25 @@ path.close();
     path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
 </div>
 
+<div id="testLine56">
+    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
+    path.addRect(18, 20, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine57">
+    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
+    path.addRect(20, 0, 30, 40, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testLine57,
+    testLine56,
     testLine55,
     testLine54,
     testLine53,

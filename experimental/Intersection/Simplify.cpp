@@ -50,7 +50,7 @@ const bool gRunTestsInOneThread = true;
 #define DEBUG_ACTIVE_SPANS 1
 #define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_ADD_T_PAIR 0
-#define DEBUG_CONCIDENT 0
+#define DEBUG_CONCIDENT 01
 #define DEBUG_CROSS 1
 #define DEBUG_DUMP 1
 #define DEBUG_MARK_DONE 1
@@ -885,27 +885,27 @@ public:
             ;
         Span* test = &fTs[index];
         Span* oTest = &other.fTs[oIndex];
+        SkTDArray<double> outsideTs;
+        SkTDArray<double> oOutsideTs;
         do {
             bool decrement = test->fWindValue && oTest->fWindValue;
             Span* end = test;
+            double startT = end->fT;
+            double oStartT = oTest->fT;
             do {
                 if (decrement) {
-                    SkASSERT(end->fWindValue > 0);
-                    if (--(end->fWindValue) == 0) {
-                        end->fDone = true;
-                        ++fDoneSpans;
-                    }
+                    decrementSpan(end);
+                } else {
+                    TrackOutside(outsideTs, end->fT, oStartT);
                 }
                 end = &fTs[++index];
             } while (end->fT - test->fT < FLT_EPSILON);
             Span* oTestStart = oTest;
             do {
                 if (decrement) {
-                    SkASSERT(oTestStart->fWindValue > 0);
-                    if (--(oTestStart->fWindValue) == 0) {
-                        oTestStart->fDone = true;
-                        ++other.fDoneSpans;
-                    }
+                    other.decrementSpan(oTestStart);
+                } else {
+                    TrackOutside(oOutsideTs, oTestStart->fT, startT);
                 }
                 if (!oIndex) {
                     break;
@@ -916,6 +916,13 @@ public:
             oTest = oTestStart;
         } while (test->fT < endT - FLT_EPSILON);
         SkASSERT(!oIndex || oTest->fT <= oStartT - FLT_EPSILON);
+        // FIXME: determine if canceled edges need outside ts added
+        if (false && !done() && outsideTs.count()) {
+            addTOutsides(outsideTs, other, oEndT);
+        }
+        if (false && !other.done() && oOutsideTs.count()) {
+            other.addTOutsides(oOutsideTs, *this, endT);
+        }
     }
 
     // set spans from start to end to increment the greater by one and decrement
@@ -947,18 +954,8 @@ public:
                     if (decrementOther) {
                         SkASSERT(abs(end->fWindValue) < gDebugMaxWindValue);
                         ++(end->fWindValue);
-                    } else {
-                        SkASSERT(end->fWindValue > 0);
-                        if (--(end->fWindValue) == 0) {
-                            end->fDone = true;
-                            ++fDoneSpans;
-                            int outCount = outsideTs.count();
-                            if (outCount == 0 || end->fT - outsideTs[outCount - 2]
-                                    >= FLT_EPSILON) {
-                                *outsideTs.append() = end->fT;
-                                *outsideTs.append() = oStartT;
-                            }
-                        }
+                    } else if (decrementSpan(end)) {
+                        TrackOutside(outsideTs, end->fT, oStartT);
                     }
                 }
                 end = &fTs[++index];
@@ -966,21 +963,11 @@ public:
             Span* oEnd = oTest;
             do {
                 if (transfer) {
-                    if (decrementOther) {
-                        SkASSERT(oEnd->fWindValue > 0);
-                        if (--(oEnd->fWindValue) == 0) {
-                            oEnd->fDone = true;
-                            ++other.fDoneSpans;
-                            int oOutCount = oOutsideTs.count();
-                            if (oOutCount == 0 || oEnd->fT
-                                    - oOutsideTs[oOutCount - 2] >= FLT_EPSILON) {
-                                *oOutsideTs.append() = oEnd->fT;
-                                *oOutsideTs.append() = startT;
-                            }
-                        }
-                    } else {
+                    if (!decrementOther) {
                         SkASSERT(abs(oEnd->fWindValue) < gDebugMaxWindValue);
                         ++(oEnd->fWindValue);
+                    } else if (other.decrementSpan(oEnd)) {
+                        TrackOutside(oOutsideTs, oEnd->fT, startT);
                     }
                 }
                 oEnd = &other.fTs[++oIndex];
@@ -1190,7 +1177,17 @@ public:
         } while (fTs[end].fT != 1);
         return bestT;
     }
-        
+
+    bool decrementSpan(Span* span) {
+        SkASSERT(span->fWindValue > 0);
+        if (--(span->fWindValue) == 0) {
+            span->fDone = true;
+            ++fDoneSpans;
+            return true;
+        }
+        return false;
+    }
+
     bool done() const {
         SkASSERT(fDoneSpans <= fTs.count());
         return fDoneSpans == fTs.count();
@@ -1261,7 +1258,11 @@ public:
             markDone(SkMin32(startIndex, endIndex), sumWinding);
             other = endSpan->fOther;
             nextStart = endSpan->fOtherIndex;
-            nextEnd = nextStart + step;
+            double startT = other->fTs[nextStart].fT;
+            nextEnd = nextStart;
+            do {
+                nextEnd += step;
+            } while (fabs(startT - other->fTs[nextEnd].fT) < FLT_EPSILON);
             SkASSERT(step < 0 ? nextEnd >= 0 : nextEnd < other->fTs.count());
             return other;
         }
@@ -1288,9 +1289,7 @@ public:
         int startWinding = sumWinding;
    //     SkASSERT(SkSign32(sumWinding) == SkSign32(winding) || winding == 0);
         if (doBump || insideContour) {
-            int prior = windBump(sorted[firstIndex]);
-            SkDebugf("%s prior=%d\n", __FUNCTION__, prior);
-            sumWinding -= prior;
+            sumWinding -= windBump(sorted[firstIndex]);
         }
         int nextIndex = firstIndex + 1;
         int lastIndex = firstIndex != 0 ? firstIndex : angleCount;
@@ -1851,7 +1850,16 @@ public:
     double t(int tIndex) const {
         return fTs[tIndex].fT;
     }
-    
+
+    static void TrackOutside(SkTDArray<double>& outsideTs, double end,
+            double start) {
+        int outCount = outsideTs.count();
+        if (outCount == 0 || end - outsideTs[outCount - 2] >= FLT_EPSILON) {
+            *outsideTs.append() = end;
+            *outsideTs.append() = start;
+        }
+    }
+
     void updatePts(const SkPoint pts[]) {
         fPts = pts;
     }
