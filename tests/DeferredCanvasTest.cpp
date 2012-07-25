@@ -205,16 +205,14 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
     sourceImage.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     sourceImage.allocPixels();
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 5; i++) {
         sourceImage.notifyPixelsChanged(); // to force re-serialization
         canvas.drawBitmap(sourceImage, 0, 0, NULL);
     }
 
-    // FIXME: Test temporarily disabled because the SkPicture path is not 
-    // fixed and the SkGPipe path does not yet serialize images, but it 
-    // will soon.
-#if 0
-    REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 4);
+    // SkPicture path is not fixed
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 3);
 #endif
 }
 

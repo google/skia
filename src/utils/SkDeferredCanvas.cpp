@@ -21,6 +21,39 @@ enum {
 };
 
 namespace {
+bool shouldDrawImmediately(const SkBitmap& bitmap) {
+    return bitmap.getTexture() && !bitmap.isImmutable();
+}
+}
+
+class AutoImmediateDrawIfNeeded {
+public:
+    AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkBitmap& bitmap) {
+        if (canvas.isDeferredDrawing() && shouldDrawImmediately(bitmap)) {
+            canvas.setDeferredDrawing(false);
+            fCanvas = &canvas;
+        } else {
+            fCanvas = NULL;
+        }
+        // FIXME: Temporary solution for tracking memory usage, pending
+        // resolution of http://code.google.com/p/skia/issues/detail?id=738
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+        if (canvas.isDeferredDrawing()) {
+            canvas.accountForTempBitmapStorage(bitmap);
+        }
+#endif
+    }
+
+    ~AutoImmediateDrawIfNeeded() {
+        if (fCanvas) {
+            fCanvas->setDeferredDrawing(true);
+        }
+    }
+private:
+    SkDeferredCanvas* fCanvas;
+};
+
+namespace {
 
 bool isPaintOpaque(const SkPaint* paint, 
                    const SkBitmap* bmpReplacesShader = NULL) {
@@ -110,6 +143,16 @@ void SkDeferredCanvas::setMaxRecordingStorage(size_t maxStorage) {
     this->getDeferredDevice()->setMaxRecordingStorage(maxStorage);
 }
 
+// FIXME: Temporary solution for tracking memory usage, pending
+// resolution of http://code.google.com/p/skia/issues/detail?id=738
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+void SkDeferredCanvas::accountForTempBitmapStorage(const SkBitmap& bitmap) const {
+    if (fDeferredDrawing) {
+        this->getDeferredDevice()->accountForTempBitmapStorage(bitmap);
+    }
+}
+#endif
+
 void SkDeferredCanvas::validate() const {
     SkASSERT(getDevice());
 }
@@ -120,20 +163,12 @@ SkCanvas* SkDeferredCanvas::drawingCanvas() const {
         getDeferredDevice()->immediateCanvas();
 }
 
-void SkDeferredCanvas::flushIfNeeded(const SkBitmap& bitmap) {
-    validate();
-    if (fDeferredDrawing) {
-        getDeferredDevice()->flushIfNeeded(bitmap);
-    }
-}
-
 SkDeferredCanvas::DeferredDevice* SkDeferredCanvas::getDeferredDevice() const {
     return static_cast<SkDeferredCanvas::DeferredDevice*>(getDevice());
 }
 
 void SkDeferredCanvas::setDeferredDrawing(bool val) {
     validate(); // Must set device before calling this method
-    SkASSERT(drawingCanvas()->getSaveCount() == 1);
     if (val != fDeferredDrawing) {
         if (fDeferredDrawing) {
             // Going live.
@@ -141,6 +176,10 @@ void SkDeferredCanvas::setDeferredDrawing(bool val) {
         }
         fDeferredDrawing = val;
     }
+}
+
+bool SkDeferredCanvas::isDeferredDrawing() {
+    return fDeferredDrawing;
 }
 
 SkDeferredCanvas::~SkDeferredCanvas() {
@@ -335,8 +374,8 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
         getDeferredDevice()->contentsCleared();
     }
 
+    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
     drawingCanvas()->drawBitmap(bitmap, left, top, paint);
-    flushIfNeeded(bitmap);
 }
 
 void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap, 
@@ -349,9 +388,9 @@ void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap,
         getDeferredDevice()->contentsCleared();
     }
 
+    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
     drawingCanvas()->drawBitmapRect(bitmap, src,
                                     dst, paint);
-    flushIfNeeded(bitmap);
 }
 
 
@@ -360,8 +399,8 @@ void SkDeferredCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
                                         const SkPaint* paint) {
     // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
     // covers canvas entirely and transformed bitmap covers canvas entirely
+    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
     drawingCanvas()->drawBitmapMatrix(bitmap, m, paint);
-    flushIfNeeded(bitmap);
 }
 
 void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
@@ -369,9 +408,9 @@ void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
                                       const SkPaint* paint) {
     // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
     // covers canvas entirely and dst covers canvas entirely
+    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
     drawingCanvas()->drawBitmapNine(bitmap, center,
                                     dst, paint);
-    flushIfNeeded(bitmap);
 }
 
 void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
@@ -387,9 +426,9 @@ void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
         getDeferredDevice()->contentsCleared();
     }
 
+    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
     drawingCanvas()->drawSprite(bitmap, left, top,
                                 paint);
-    flushIfNeeded(bitmap);
 }
 
 void SkDeferredCanvas::drawText(const void* text, size_t byteLength,
@@ -524,11 +563,13 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
 #if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeController.setPlaybackCanvas(fImmediateCanvas);
+    fTempBitmapStorage = 0;
 #endif
     beginRecording();
 }
 
 SkDeferredCanvas::DeferredDevice::~DeferredDevice() {
+    flushPending();
     SkSafeUnref(fImmediateCanvas);
     SkSafeUnref(fDeviceContext);
 }
@@ -538,10 +579,26 @@ void SkDeferredCanvas::DeferredDevice::setMaxRecordingStorage(size_t maxStorage)
     recordingCanvas(); // Accessing the recording canvas applies the new limit.
 }
 
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+void SkDeferredCanvas::DeferredDevice::accountForTempBitmapStorage(const SkBitmap& bitmap) {
+    // SkGPipe will store copies of mutable bitmaps.  The memory allocations
+    // and deallocations for these bitmaps are not tracked by the writer or
+    // the controller, so we do as best we can to track consumption here
+    if (!bitmap.isImmutable()) {
+        // FIXME: Temporary solution for tracking memory usage, pending
+        // resolution of http://code.google.com/p/skia/issues/detail?id=738
+        // This does not take into account duplicates of previously
+        // copied bitmaps that will not get copied again.
+        fTempBitmapStorage += bitmap.getSize();
+    }
+}
+#endif
+
 void SkDeferredCanvas::DeferredDevice::endRecording() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeWriter.endRecording();
     fPipeController.reset();
+    fTempBitmapStorage = 0;
 #else
     fPicture.endRecording();
 #endif
@@ -550,6 +607,7 @@ void SkDeferredCanvas::DeferredDevice::endRecording() {
 
 void SkDeferredCanvas::DeferredDevice::beginRecording() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
+    SkASSERT(0 == fTempBitmapStorage);
     fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0);
 #else
     fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
@@ -621,6 +679,7 @@ void SkDeferredCanvas::DeferredDevice::flushPending() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeWriter.flushRecording(true);
     fPipeController.playback();
+    fTempBitmapStorage = 0;
 #else
     fPicture.draw(fImmediateCanvas);
     this->beginRecording();
@@ -634,29 +693,12 @@ void SkDeferredCanvas::DeferredDevice::flush() {
 
 SkCanvas* SkDeferredCanvas::DeferredDevice::recordingCanvas() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
-    if (fPipeController.storageAllocatedForRecording() > fMaxRecordingStorageBytes) {
+    if (fPipeController.storageAllocatedForRecording() + fTempBitmapStorage > 
+        fMaxRecordingStorageBytes) {
         this->flushPending();
     }
 #endif
     return fRecordingCanvas;
-}
-
-void SkDeferredCanvas::DeferredDevice::flushIfNeeded(const SkBitmap& bitmap) {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-    if (bitmap.isImmutable()) {
-        // FIXME: Make SkGPipe flatten software-backed non-immutable bitmaps 
-        return;
-    }
-#else
-    if (bitmap.isImmutable() || fPicture.willFlattenPixelsOnRecord(bitmap)) {
-        return; // safe to defer.
-    }
-#endif
-
-    // For now, drawing a writable bitmap triggers a flush
-    // TODO: implement read-only semantics and auto buffer duplication on write
-    // in SkBitmap/SkPixelRef, which will make deferral possible in this case.
-    this->flushPending();
 }
 
 uint32_t SkDeferredCanvas::DeferredDevice::getDeviceCapabilities() { 
@@ -694,8 +736,17 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
 
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    fRecordingCanvas->drawSprite(bitmap, x, y, &paint);
-    flushIfNeeded(bitmap);
+    if (shouldDrawImmediately(bitmap)) {
+        this->flushPending();
+        fImmediateCanvas->drawSprite(bitmap, x, y, &paint);
+    } else {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+        // FIXME: Temporary solution for tracking memory usage, pending
+        // resolution of http://code.google.com/p/skia/issues/detail?id=738
+        this->accountForTempBitmapStorage(bitmap);
+#endif
+        recordingCanvas()->drawSprite(bitmap, x, y, &paint);
+    }
 }
 
 const SkBitmap& SkDeferredCanvas::DeferredDevice::onAccessBitmap(SkBitmap*) {
