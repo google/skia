@@ -35,7 +35,8 @@
     #elif defined(ANDROID)
         #define SK_BUILD_FOR_ANDROID
     #elif defined(linux) || defined(__FreeBSD__) || defined(__OpenBSD__) || \
-          defined(__sun) || defined(__NetBSD__) || defined(__DragonFly__)
+          defined(__sun) || defined(__NetBSD__) || defined(__DragonFly__) || \
+          defined(__GLIBC__) || defined(__GNU__)
         #define SK_BUILD_FOR_UNIX
     #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
         #define SK_BUILD_FOR_IOS
