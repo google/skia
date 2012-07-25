@@ -11,20 +11,17 @@
 #include "GrAllocator.h"
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
+#include "gl/GrGLUniformManager.h"
 
 class GrGLContextInfo;
+
 /**
   Contains all the incremental state of a shader as it is being built,as well as helpers to
   manipulate that state.
-  TODO: migrate CompileShaders() here?
 */
-
 class GrGLShaderBuilder {
 
 public:
-
-    typedef int UniformHandle;
-    static const UniformHandle kInvalidUniformHandle = 0;
 
     enum ShaderType {
         kVertex_ShaderType   = 0x1,
@@ -32,7 +29,7 @@ public:
         kFragment_ShaderType = 0x4,
     };
 
-    GrGLShaderBuilder(const GrGLContextInfo&);
+    GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&);
 
     void computeSwizzle(uint32_t configFlags);
     void computeModulate(const char* fsInColor);
@@ -64,18 +61,18 @@ public:
         from which shaders the uniform should be accessible. At least one bit must be set. Geometry
         shader uniforms are not supported at this time.
     */
-    UniformHandle addUniform(uint32_t visibility,
-                             GrSLType type,
-                             const char* name,
-                             int stageNum = -1,
-                             int count = GrGLShaderVar::kNonArray);
+    GrGLUniformManager::UniformHandle addUniform(uint32_t visibility,
+                                                 GrSLType type,
+                                                 const char* name,
+                                                 int stageNum = -1,
+                                                 int count = GrGLShaderVar::kNonArray);
 
-    const GrGLShaderVar& getUniformVariable(UniformHandle) const;
+    const GrGLShaderVar& getUniformVariable(GrGLUniformManager::UniformHandle) const;
 
     /**
      * Shorcut for getUniformVariable(u).c_str()
      */
-    const char* getUniformCStr(UniformHandle u) const {
+    const char* getUniformCStr(GrGLUniformManager::UniformHandle u) const {
         return this->getUniformVariable(u).c_str();
     }
 
@@ -99,19 +96,20 @@ public:
     /** Called after building is complete to get the final shader string. */
     void getShader(ShaderType, SkString*) const;
 
+    /**
+     * TODO: Make this do all the compiling, linking, etc. Hide this from the custom stages
+     */
+    void finished(GrGLuint programID);
+
 private:
+
     typedef GrTAllocator<GrGLShaderVar> VarArray;
 
-    struct Uniform {
-        GrGLShaderVar fVariable;
-        uint32_t      fVisibility;
-    };
-
-    typedef GrTAllocator<Uniform> UniformArray;
     void appendDecls(const VarArray&, SkString*) const;
     void appendUniformDecls(ShaderType, SkString*) const;
 
-    UniformArray fUniforms;
+    typedef GrGLUniformManager::BuilderUniform BuilderUniform;
+    GrGLUniformManager::BuilderUniformArray fUniforms;
 
     // TODO: Everything below here private.
 public:
@@ -149,7 +147,8 @@ public:
     //@}
 
 private:
-    const GrGLContextInfo& fContext;
+    const GrGLContextInfo&  fContext;
+    GrGLUniformManager&     fUniformManager;
 };
 
 #endif

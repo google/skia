@@ -202,9 +202,9 @@ const GrProgramStageFactory& GrRadialGradient::getFactory() const {
 
 /////////////////////////////////////////////////////////////////////
 
-// For brevity, and these definitions are likely to move to a different class soon.
-typedef GrGLShaderBuilder::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
+// For brevity
+typedef GrGLUniformManager::UniformHandle UniformHandle;
+static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
 class GrGLRadial2Gradient : public GrGLGradientStage {
 
@@ -222,10 +222,7 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
-    virtual void initUniforms(const GrGLShaderBuilder* builder,
-                              const GrGLInterface*,
-                              int programID) SK_OVERRIDE;
-    virtual void setData(const GrGLInterface*,
+    virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
@@ -237,9 +234,7 @@ public:
 protected:
 
     UniformHandle   fVSParamUni;
-    GrGLint         fVSParamLocation;
     UniformHandle   fFSParamUni;
-    GrGLint         fFSParamLocation;
 
     const char* fVSVaryingName;
     const char* fFSVaryingName;
@@ -286,9 +281,6 @@ void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* builder, int stage) 
                                       kFloat_GrSLType, "uRadial2VSParams", stage, 6);
     fFSParamUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                        kFloat_GrSLType, "uRadial2FSParams", stage, 6);
-
-    fVSParamLocation = GrGLProgramStage::kUseUniform;
-    fFSParamLocation = GrGLProgramStage::kUseUniform;
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
@@ -385,16 +377,7 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
     this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 
-void GrGLRadial2Gradient::initUniforms(const GrGLShaderBuilder* builder,
-                                       const GrGLInterface* gl,
-                                       int programID) {
-    const char* vsParam = builder->getUniformCStr(fVSParamUni);
-    const char* fsParam = builder->getUniformCStr(fFSParamUni);
-    GR_GL_CALL_RET(gl, fVSParamLocation, GetUniformLocation(programID, vsParam));
-    GR_GL_CALL_RET(gl, fFSParamLocation, GetUniformLocation(programID, fsParam));
-}
-
-void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
+void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
                                   const GrCustomStage& baseData,
                                   const GrRenderTarget*,
                                   int stageNum) {
@@ -423,8 +406,8 @@ void GrGLRadial2Gradient::setData(const GrGLInterface* gl,
             data.isPosRoot() ? 1.f : -1.f
         };
 
-        GR_GL_CALL(gl, Uniform1fv(fVSParamLocation, 6, values));
-        GR_GL_CALL(gl, Uniform1fv(fFSParamLocation, 6, values));
+        uman.set1fv(fVSParamUni, 0, 6, values);
+        uman.set1fv(fFSParamUni, 0, 6, values);
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
         fCachedPosRoot = data.isPosRoot();
@@ -492,10 +475,7 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
-    virtual void initUniforms(const GrGLShaderBuilder* builder,
-                              const GrGLInterface*,
-                              int programID) SK_OVERRIDE;
-    virtual void setData(const GrGLInterface*,
+    virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
@@ -713,16 +693,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGLConical2Gradient::initUniforms(const GrGLShaderBuilder* builder,
-                                        const GrGLInterface* gl,
-                                        int programID) {
-    const char* vsParam = builder->getUniformCStr(fVSParamUni);
-    const char* fsParam = builder->getUniformCStr(fFSParamUni);
-    GR_GL_CALL_RET(gl, fVSParamLocation, GetUniformLocation(programID, vsParam));
-    GR_GL_CALL_RET(gl, fFSParamLocation, GetUniformLocation(programID, fsParam));
-}
-
-void GrGLConical2Gradient::setData(const GrGLInterface* gl,
+void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
                                    const GrCustomStage& baseData,
                                    const GrRenderTarget*,
                                    int stageNum) {
@@ -753,8 +724,8 @@ void GrGLConical2Gradient::setData(const GrGLInterface* gl,
             GrScalarToFloat(diffRadius)
         };
 
-        GR_GL_CALL(gl, Uniform1fv(fVSParamLocation, 6, values));
-        GR_GL_CALL(gl, Uniform1fv(fFSParamLocation, 6, values));
+        uman.set1fv(fVSParamUni, 0, 6, values);
+        uman.set1fv(fFSParamUni, 0, 6, values);
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
         fCachedDiffRadius = diffRadius;

@@ -13,7 +13,7 @@
 #include "GrGLContextInfo.h"
 #include "GrGLSL.h"
 #include "GrGLTexture.h"
-//#include "GrGpu.h"
+#include "GrGLUniformManager.h"
 
 #include "SkString.h"
 #include "SkXfermode.h"
@@ -74,10 +74,6 @@ public:
     static int TextureMatrixAttributeIdx(int stage) {
         return 7 + GrDrawState::kMaxTexCoords + 3 * stage;
     }
-
-    enum {
-        kUnusedUniform = -1,
-    };
 
     // Parameters that affect code generation
     // These structs should be kept compact; they are the input to an
@@ -259,6 +255,8 @@ private:
 
     void genGeometryShader(GrGLShaderBuilder* segments) const;
 
+    typedef GrGLUniformManager::UniformHandle UniformHandle;
+
     void genUniformCoverage(GrGLShaderBuilder* segments, SkString* inOutCoverage);
 
     // generates code to compute coverage based on edge AA.
@@ -269,42 +267,37 @@ private:
                                           bool bindColorOut,
                                           bool bindDualSrcOut);
 
-    // Binds uniforms; initializes cache to invalid values.
-    void getUniformLocationsAndInitCache(const GrGLShaderBuilder& builder);
+    // Sets the texture units for samplers
+    void initSamplerUniforms();
 
     bool compileShaders(const GrGLShaderBuilder& builder);
 
     const char* adjustInColor(const SkString& inColor) const;
 
-    struct StageUniLocations {
-        GrGLint fTextureMatrixUni;
-        GrGLint fSamplerUni;
-        GrGLint fTexDomUni;
-        void reset() {
-            fTextureMatrixUni = kUnusedUniform;
-            fSamplerUni = kUnusedUniform;
-            fTexDomUni = kUnusedUniform;
+    struct StageUniforms {
+        UniformHandle fTextureMatrixUni;
+        UniformHandle fSamplerUni;
+        StageUniforms() {
+            fTextureMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
+            fSamplerUni = GrGLUniformManager::kInvalidUniformHandle;
         }
     };
 
-    struct UniLocations {
-        GrGLint fViewMatrixUni;
-        GrGLint fColorUni;
-        GrGLint fCoverageUni;
-        GrGLint fColorFilterUni;
-        GrGLint fColorMatrixUni;
-        GrGLint fColorMatrixVecUni;
-        StageUniLocations fStages[GrDrawState::kNumStages];
-        void reset() {
-            fViewMatrixUni = kUnusedUniform;
-            fColorUni = kUnusedUniform;
-            fCoverageUni = kUnusedUniform;
-            fColorFilterUni = kUnusedUniform;
-            fColorMatrixUni = kUnusedUniform;
-            fColorMatrixVecUni = kUnusedUniform;
-            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-                fStages[s].reset();
-            }
+    struct Uniforms {
+        UniformHandle fViewMatrixUni;
+        UniformHandle fColorUni;
+        UniformHandle fCoverageUni;
+        UniformHandle fColorFilterUni;
+        UniformHandle fColorMatrixUni;
+        UniformHandle fColorMatrixVecUni;
+        StageUniforms fStages[GrDrawState::kNumStages];
+        Uniforms() {
+            fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
+            fColorUni = GrGLUniformManager::kInvalidUniformHandle;
+            fCoverageUni = GrGLUniformManager::kInvalidUniformHandle;
+            fColorFilterUni = GrGLUniformManager::kInvalidUniformHandle;
+            fColorMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
+            fColorMatrixVecUni = GrGLUniformManager::kInvalidUniformHandle;
         }
     };
 
@@ -313,8 +306,6 @@ private:
     GrGLuint    fGShaderID;
     GrGLuint    fFShaderID;
     GrGLuint    fProgramID;
-    // shader uniform locations (-1 if shader doesn't use them)
-    UniLocations fUniLocations;
 
     // The matrix sent to GL is determined by both the client's matrix and
     // the size of the viewport.
@@ -335,6 +326,9 @@ private:
 
     Desc fDesc;
     const GrGLContextInfo&      fContextInfo;
+
+    GrGLUniformManager          fUniformManager;
+    Uniforms                    fUniforms;
 
     friend class GrGpuGL; // TODO: remove this by adding getters and moving functionality.
 

@@ -219,8 +219,8 @@ private:
     void flushBoundTextureAndParams(int stage);
     void flushBoundTextureAndParams(int stage, GrGLTexture* nextTexture);
 
-    // sets the texture matrix and domain for the currently bound program
-    void flushTextureMatrixAndDomain(int stage);
+    // sets the texture matrix for the currently bound program
+    void flushTextureMatrix(int stage);
 
     // sets the color specified by GrDrawState::setColor()
     void flushColor(GrColor color);

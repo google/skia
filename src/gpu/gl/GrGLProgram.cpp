@@ -21,16 +21,6 @@ SK_DEFINE_INST_COUNT(GrGLProgram)
 #define GL_CALL(X) GR_GL_CALL(fContextInfo.interface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fContextInfo.interface(), R, X)
 
-namespace {
-
-enum {
-    /// Used to mark a StageUniLocation field that should be bound
-    /// to a uniform during getUniformLocationsAndInitCache().
-    kUseUniform = 2000
-};
-
-}  // namespace
-
 #define PRINT_SHADERS 0
 
 typedef GrGLProgram::Desc::StageDesc StageDesc;
@@ -104,15 +94,27 @@ GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
 
 GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
                          const Desc& desc,
-                         GrCustomStage** customStages) : fContextInfo(gl) {
+                         GrCustomStage** customStages)
+: fContextInfo(gl)
+, fUniformManager(gl) {
     fDesc = desc;
     fVShaderID = 0;
     fGShaderID = 0;
     fFShaderID = 0;
     fProgramID = 0;
+
+    fViewMatrix = GrMatrix::InvalidMatrix();
+    fViewportSize.set(-1, -1);
+    fColor = GrColor_ILLEGAL;
+    fColorFilterColor = GrColor_ILLEGAL;
+
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         fProgramStage[s] = NULL;
+        fTextureMatrices[s] = GrMatrix::InvalidMatrix();
+        // this is arbitrary, just initialize to something
+        fTextureOrientation[s] = GrGLTexture::kBottomUp_Orientation;
     }
+
     this->genProgram(customStages);
 }
 
@@ -399,9 +401,8 @@ void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
             *inColor = fsName;
             } break;
         case GrGLProgram::Desc::kUniform_ColorInput:
-            builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                 kVec4f_GrSLType, COL_UNI_NAME);
-            fUniLocations.fColorUni = kUseUniform;
+            fUniforms.fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                      kVec4f_GrSLType, COL_UNI_NAME);
             *inColor = COL_UNI_NAME;
             break;
         case GrGLProgram::Desc::kTransBlack_ColorInput:
@@ -416,9 +417,8 @@ void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
 }
 
 void GrGLProgram::genUniformCoverage(GrGLShaderBuilder* builder, SkString* inOutCoverage) {
-    builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                        kVec4f_GrSLType, COV_UNI_NAME);
-    fUniLocations.fCoverageUni = kUseUniform;
+    fUniforms.fCoverageUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                 kVec4f_GrSLType, COV_UNI_NAME);
     if (inOutCoverage->size()) {
         builder->fFSCode.appendf("\tvec4 uniCoverage = %s * %s;\n",
                                   COV_UNI_NAME, inOutCoverage->c_str());
@@ -589,14 +589,11 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     return true;
 }
 
-
 bool GrGLProgram::genProgram(GrCustomStage** customStages) {
     GrAssert(0 == fProgramID);
 
-    GrGLShaderBuilder builder(fContextInfo);
+    GrGLShaderBuilder builder(fContextInfo, fUniformManager);
     const uint32_t& layout = fDesc.fVertexLayout;
-
-    fUniLocations.reset();
 
 #if GR_GL_EXPERIMENTAL_GS
     builder.fUsesGS = fDesc.fExperimentalGS;
@@ -658,9 +655,8 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
         builder.fFSOutputs.push_back(colorOutput);
     }
 
-    builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                       kMat33f_GrSLType, VIEW_MATRIX_NAME);
-    fUniLocations.fViewMatrixUni = kUseUniform;
+    fUniforms.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                                  kMat33f_GrSLType, VIEW_MATRIX_NAME);
 
     builder.fVSAttrs.push_back().set(kVec2f_GrSLType,
                                      GrGLShaderVar::kAttribute_TypeModifier,
@@ -748,9 +744,8 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
         }
     }
     if (needColorFilterUniform) {
-        builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                           kVec4f_GrSLType, COL_FILTER_UNI_NAME);
-        fUniLocations.fColorFilterUni = kUseUniform;
+        fUniforms.fColorFilterUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                       kVec4f_GrSLType, COL_FILTER_UNI_NAME);
     }
     bool wroteFragColorZero = false;
     if (SkXfermode::kZero_Coeff == uniformCoeff &&
@@ -768,12 +763,10 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
         inColor = "filteredColor";
     }
     if (applyColorMatrix) {
-        builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                           kMat44f_GrSLType, COL_MATRIX_UNI_NAME);
-        builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                           kVec4f_GrSLType, COL_MATRIX_VEC_UNI_NAME);
-        fUniLocations.fColorMatrixUni = kUseUniform;
-        fUniLocations.fColorMatrixVecUni = kUseUniform;
+        fUniforms.fColorMatrixUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                       kMat44f_GrSLType, COL_MATRIX_UNI_NAME);
+        fUniforms.fColorMatrixVecUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                          kVec4f_GrSLType, COL_MATRIX_VEC_UNI_NAME);
         builder.fFSCode.append("\tvec4 matrixedColor;\n");
         const char* color = adjustInColor(inColor);
         addColorMatrix(&builder.fFSCode, "matrixedColor", color);
@@ -927,7 +920,8 @@ bool GrGLProgram::genProgram(GrCustomStage** customStages) {
         return false;
     }
 
-    this->getUniformLocationsAndInitCache(builder);
+    builder.finished(fProgramID);
+    this->initSamplerUniforms();
 
     return true;
 }
@@ -993,78 +987,14 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(SkString texCoordAttrNames[],
     return true;
 }
 
-void GrGLProgram::getUniformLocationsAndInitCache(const GrGLShaderBuilder& builder) {
-
-    if (kUseUniform == fUniLocations.fViewMatrixUni) {
-        GL_CALL_RET(fUniLocations.fViewMatrixUni, GetUniformLocation(fProgramID, VIEW_MATRIX_NAME));
-        GrAssert(kUnusedUniform != fUniLocations.fViewMatrixUni);
-    }
-    if (kUseUniform == fUniLocations.fColorUni) {
-        GL_CALL_RET(fUniLocations.fColorUni, GetUniformLocation(fProgramID, COL_UNI_NAME));
-        GrAssert(kUnusedUniform != fUniLocations.fColorUni);
-    }
-    if (kUseUniform == fUniLocations.fColorFilterUni) {
-        GL_CALL_RET(fUniLocations.fColorFilterUni,
-                    GetUniformLocation(fProgramID, COL_FILTER_UNI_NAME));
-        GrAssert(kUnusedUniform != fUniLocations.fColorFilterUni);
-    }
-
-    if (kUseUniform == fUniLocations.fColorMatrixUni) {
-        GL_CALL_RET(fUniLocations.fColorMatrixUni,
-                    GetUniformLocation(fProgramID, COL_MATRIX_UNI_NAME));
-    }
-
-    if (kUseUniform == fUniLocations.fColorMatrixVecUni) {
-        GL_CALL_RET(fUniLocations.fColorMatrixVecUni,
-                    GetUniformLocation(fProgramID, COL_MATRIX_VEC_UNI_NAME));
-    }
-
-    if (kUseUniform == fUniLocations.fCoverageUni) {
-        GL_CALL_RET(fUniLocations.fCoverageUni,GetUniformLocation(fProgramID, COV_UNI_NAME));
-        GrAssert(kUnusedUniform != fUniLocations.fCoverageUni);
-    }
-
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        StageUniLocations& locations = fUniLocations.fStages[s];
-        if (fDesc.fStages[s].isEnabled()) {
-            if (kUseUniform == locations.fTextureMatrixUni) {
-                SkString texMName;
-                tex_matrix_name(s, &texMName);
-                GL_CALL_RET(locations.fTextureMatrixUni,
-                            GetUniformLocation(fProgramID, texMName.c_str()));
-                //color filter table effect does not consumer coords gen'ed by matrix.
-                //GrAssert(kUnusedUniform != locations.fTextureMatrixUni);
-            }
-
-            if (kUseUniform == locations.fSamplerUni) {
-                SkString samplerName;
-                sampler_name(s, &samplerName);
-                GL_CALL_RET(locations.fSamplerUni,
-                            GetUniformLocation(fProgramID,samplerName.c_str()));
-                GrAssert(kUnusedUniform != locations.fSamplerUni);
-            }
-
-            if (NULL != fProgramStage[s]) {
-                fProgramStage[s]->initUniforms(&builder, fContextInfo.interface(), fProgramID);
-            }
-        }
-    }
+void GrGLProgram::initSamplerUniforms() {
     GL_CALL(UseProgram(fProgramID));
-
     // init sampler unis and set bogus values for state tracking
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (kUnusedUniform != fUniLocations.fStages[s].fSamplerUni) {
-            GL_CALL(Uniform1i(fUniLocations.fStages[s].fSamplerUni, s));
+        if (GrGLUniformManager::kInvalidUniformHandle != fUniforms.fStages[s].fSamplerUni) {
+            fUniformManager.setSampler(fUniforms.fStages[s].fSamplerUni, s);
         }
-        fTextureMatrices[s] = GrMatrix::InvalidMatrix();
-        // this is arbitrary, just initialize to something
-        fTextureOrientation[s] = GrGLTexture::kBottomUp_Orientation;
-        // Must not reset fStageOverride[] here.
     }
-    fViewMatrix = GrMatrix::InvalidMatrix();
-    fViewportSize.set(-1, -1);
-    fColor = GrColor_ILLEGAL;
-    fColorFilterColor = GrColor_ILLEGAL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1078,7 +1008,7 @@ void GrGLProgram::genStageCode(int stageNum,
     GrAssert(stageNum >= 0 && stageNum <= GrDrawState::kNumStages);
 
     const GrGLProgram::StageDesc& desc = fDesc.fStages[stageNum];
-    StageUniLocations& locations = fUniLocations.fStages[stageNum];
+    StageUniforms& uniforms = fUniforms.fStages[stageNum];
     GrGLProgramStage* customStage = fProgramStage[stageNum];
 
     GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) == desc.fInConfigFlags);
@@ -1093,13 +1023,11 @@ void GrGLProgram::genStageCode(int stageNum,
     } else {
         SkString texMatName;
         tex_matrix_name(stageNum, &texMatName);
-        GrGLShaderBuilder::UniformHandle m =
-            segments->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                 kMat33f_GrSLType, texMatName.c_str());
-        const GrGLShaderVar& mat = segments->getUniformVariable(m);
+        uniforms.fTextureMatrixUni = segments->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                                          kMat33f_GrSLType, texMatName.c_str());
+        const GrGLShaderVar& mat = segments->getUniformVariable(uniforms.fTextureMatrixUni);
         // Can't use texMatName.c_str() because it's on the stack!
         matName = mat.getName().c_str();
-        locations.fTextureMatrixUni = kUseUniform;
 
         if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
             segments->fVaryingDims = segments->fCoordDims;
@@ -1116,9 +1044,8 @@ void GrGLProgram::genStageCode(int stageNum,
 
     SkString samplerName;
     sampler_name(stageNum, &samplerName);
-    segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                         kSampler2D_GrSLType, samplerName.c_str());
-    locations.fSamplerUni = kUseUniform;
+    uniforms.fSamplerUni = segments->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                kSampler2D_GrSLType, samplerName.c_str());
 
     const char *varyingVSName, *varyingFSName;
     segments->addVarying(GrSLFloatVectorType(segments->fVaryingDims),

@@ -26,11 +26,7 @@ public:
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
 
-    virtual void initUniforms(const GrGLShaderBuilder*,
-                              const GrGLInterface*,
-                              int programID) SK_OVERRIDE {}
-
-    virtual void setData(const GrGLInterface*,
+    virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE {}
