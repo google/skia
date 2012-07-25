@@ -29,10 +29,7 @@ public:
 
     static inline StageKey GenKey(const GrCustomStage& s);
 
-    virtual void initUniforms(const GrGLShaderBuilder*,
-                              const GrGLInterface*,
-                              int programID) SK_OVERRIDE;
-    virtual void setData(const GrGLInterface*,
+    virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
@@ -40,10 +37,9 @@ public:
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
 
-    int                                fRadius;
-    GrMorphologyEffect::MorphologyType fType;
-    GrGLShaderBuilder::UniformHandle   fImageIncrementUni;
-    GrGLint                            fImageIncrementLocation;
+    int                                 fRadius;
+    GrMorphologyEffect::MorphologyType  fType;
+    GrGLUniformManager::UniformHandle   fImageIncrementUni;
 
     typedef GrGLProgramStage INHERITED;
 };
@@ -51,8 +47,7 @@ private:
 GrGLMorphologyEffect ::GrGLMorphologyEffect(const GrProgramStageFactory& factory,
                                             const GrCustomStage& stage)
     : GrGLProgramStage(factory)
-    , fImageIncrementUni(GrGLShaderBuilder::kInvalidUniformHandle)
-    , fImageIncrementLocation(0) {
+    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
     const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(stage);
     fRadius = m.radius();
     fType = m.type();
@@ -69,13 +64,6 @@ void GrGLMorphologyEffect::emitVS(GrGLShaderBuilder* builder,
     SkString* code = &builder->fVSCode;
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
     code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n", vertexCoords, fRadius, fRadius, imgInc);
-}
-
-void GrGLMorphologyEffect::initUniforms(const GrGLShaderBuilder* builder,
-                                        const GrGLInterface* gl,
-                                        int programID) {
-    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
-    GR_GL_CALL_RET(gl, fImageIncrementLocation, GetUniformLocation(programID, imgInc));
 }
 
 void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* builder,
@@ -119,7 +107,7 @@ GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(
     return key;
 }
 
-void GrGLMorphologyEffect ::setData(const GrGLInterface* gl,
+void GrGLMorphologyEffect ::setData(const GrGLUniformManager& uman,
                                     const GrCustomStage& data,
                                     const GrRenderTarget*,
                                     int stageNum) {
@@ -140,7 +128,7 @@ void GrGLMorphologyEffect ::setData(const GrGLInterface* gl,
         default:
             GrCrash("Unknown filter direction.");
     }
-    GR_GL_CALL(gl, Uniform2fv(fImageIncrementLocation, 1, imageIncrement));
+    uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

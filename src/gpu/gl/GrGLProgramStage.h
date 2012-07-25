@@ -73,17 +73,11 @@ public:
                         const char* inputColor,
                         const char* samplerName) = 0;
 
-    /** Binds uniforms; we must have already bound the program and
-        determined its GL program ID. */
-    virtual void initUniforms(const GrGLShaderBuilder* builder,
-                              const GrGLInterface* gl,
-                              int programID);
-
     /** A GrGLCustomStage instance can be reused with any GrCustomStage
         that produces the same stage key; this function reads data from
         a stage and uploads any uniform variables required by the shaders
         created in emit*(). */
-    virtual void setData(const GrGLInterface* gl,
+    virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage& stage,
                          const GrRenderTarget* renderTarget,
                          int stageNum);

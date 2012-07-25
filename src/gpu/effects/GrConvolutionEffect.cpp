@@ -11,9 +11,9 @@
 #include "gl/GrGLTexture.h"
 #include "GrProgramStageFactory.h"
 
-// For brevity, and these definitions are likely to move to a different class soon.
-typedef GrGLShaderBuilder::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
+// For brevity
+typedef GrGLUniformManager::UniformHandle UniformHandle;
+static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
 class GrGLConvolutionEffect : public GrGLProgramStage {
 public:
@@ -29,11 +29,7 @@ public:
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
 
-    virtual void initUniforms(const GrGLShaderBuilder*,
-                              const GrGLInterface*,
-                              int programID) SK_OVERRIDE;
-
-    virtual void setData(const GrGLInterface*,
+    virtual void setData(const GrGLUniformManager& uman,
                          const GrCustomStage&,
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
@@ -45,9 +41,7 @@ private:
 
     int             fRadius;
     UniformHandle   fKernelUni;
-    GrGLint         fKernelLocation;
     UniformHandle   fImageIncrementUni;
-    GrGLint         fImageIncrementLocation;
 
     typedef GrGLProgramStage INHERITED;
 };
@@ -56,9 +50,7 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factor
                                              const GrCustomStage& stage)
     : GrGLProgramStage(factory)
     , fKernelUni(kInvalidUniformHandle)
-    , fKernelLocation(0)
-    , fImageIncrementUni(kInvalidUniformHandle)
-    , fImageIncrementLocation(0) {
+    , fImageIncrementUni(kInvalidUniformHandle) {
     const GrConvolutionEffect& c =
         static_cast<const GrConvolutionEffect&>(stage);
     fRadius = c.radius();
@@ -71,9 +63,6 @@ void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* builder,
                                              kVec2f_GrSLType, "uImageIncrement", stage);
     fKernelUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                      kFloat_GrSLType, "uKernel", stage, this->width());
-
-    fImageIncrementLocation = kUseUniform;
-    fKernelLocation = kUseUniform;
 }
 
 void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* builder,
@@ -114,16 +103,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGLConvolutionEffect::initUniforms(const GrGLShaderBuilder* builder,
-                                         const GrGLInterface* gl,
-                                         int programID) {
-    const char* kernel = builder->getUniformCStr(fKernelUni);
-    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
-    GR_GL_CALL_RET(gl, fImageIncrementLocation, GetUniformLocation(programID, imgInc));
-    GR_GL_CALL_RET(gl, fKernelLocation, GetUniformLocation(programID, kernel));
-}
-
-void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
+void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
                                     const GrCustomStage& data,
                                     const GrRenderTarget*,
                                     int stageNum) {
@@ -143,9 +123,8 @@ void GrGLConvolutionEffect::setData(const GrGLInterface* gl,
         default:
             GrCrash("Unknown filter direction.");
     }
-    GR_GL_CALL(gl, Uniform2fv(fImageIncrementLocation, 1, imageIncrement));
-
-    GR_GL_CALL(gl, Uniform1fv(fKernelLocation, this->width(), conv.kernel()));
+    uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
+    uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
 }
 
 GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(

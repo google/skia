@@ -12,10 +12,6 @@
 #include "GrProgramStageFactory.h"
 #include "GrTexture.h"
 
-// For brevity, and these definitions are likely to move to a different class soon.
-typedef GrGLShaderBuilder::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
-
 class GrGLSingleTextureEffect : public GrGLProgramStage {
 public:
     GrGLSingleTextureEffect(const GrProgramStageFactory& factory,

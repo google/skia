@@ -11,6 +11,9 @@
 #include "GrGLProgramStage.h"
 #include "GrGpuVertex.h"
 
+typedef GrGLUniformManager::UniformHandle UniformHandle;
+static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
+
 #define SKIP_CACHE_CHECK    true
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
 
@@ -147,11 +150,7 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
             GrScalarToFloat(m[GrMatrix::kMTransY]),
             GrScalarToFloat(m[GrMatrix::kMPersp2])
         };
-
-        GrAssert(GrGLProgram::kUnusedUniform != 
-                 fCurrentProgram->fUniLocations.fViewMatrixUni);
-        GL_CALL(UniformMatrix3fv(fCurrentProgram->fUniLocations.fViewMatrixUni,
-                                 1, false, mt));
+        fCurrentProgram->fUniformManager.setMatrix3f(fCurrentProgram->fUniforms.fViewMatrixUni, mt);
         fCurrentProgram->fViewMatrix = vm;
         fCurrentProgram->fViewportSize = viewportSize;
     }
@@ -194,7 +193,7 @@ bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpuGL::flushTextureMatrixAndDomain(int s) {
+void GrGpuGL::flushTextureMatrix(int s) {
     const GrDrawState& drawState = this->getDrawState();
     const GrGLTexture* texture =
         static_cast<const GrGLTexture*>(drawState.getTexture(s));
@@ -203,13 +202,12 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
         bool orientationChange = fCurrentProgram->fTextureOrientation[s] !=
                                  texture->orientation();
 
-        const GrGLint& matrixUni =
-            fCurrentProgram->fUniLocations.fStages[s].fTextureMatrixUni;
+        UniformHandle matrixUni = fCurrentProgram->fUniforms.fStages[s].fTextureMatrixUni;
 
         const GrMatrix& hwMatrix = fCurrentProgram->fTextureMatrices[s];
         const GrMatrix& samplerMatrix = drawState.getSampler(s).getMatrix();
 
-        if (GrGLProgram::kUnusedUniform != matrixUni &&
+        if (kInvalidUniformHandle != matrixUni &&
             (orientationChange || !hwMatrix.cheapEqualTo(samplerMatrix))) {
 
             GrMatrix m = samplerMatrix;
@@ -229,7 +227,7 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
                 GrScalarToFloat(m[GrMatrix::kMPersp2])
             };
 
-            GL_CALL(UniformMatrix3fv(matrixUni, 1, false, mt));
+            fCurrentProgram->fUniformManager.setMatrix3f(matrixUni, mt);
             fCurrentProgram->fTextureMatrices[s] = samplerMatrix;
         }
 
@@ -239,10 +237,9 @@ void GrGpuGL::flushTextureMatrixAndDomain(int s) {
 
 
 void GrGpuGL::flushColorMatrix() {
-    int matrixUni = fCurrentProgram->fUniLocations.fColorMatrixUni;
-    int vecUni = fCurrentProgram->fUniLocations.fColorMatrixVecUni;
-    if (GrGLProgram::kUnusedUniform != matrixUni
-     && GrGLProgram::kUnusedUniform != vecUni) {
+    UniformHandle matrixUni = fCurrentProgram->fUniforms.fColorMatrixUni;
+    UniformHandle vecUni = fCurrentProgram->fUniforms.fColorMatrixVecUni;
+    if (kInvalidUniformHandle != matrixUni && kInvalidUniformHandle != vecUni) {
         const float* m = this->getDrawState().getColorMatrix();
         GrGLfloat mt[]  = {
             m[0], m[5], m[10], m[15],
@@ -254,8 +251,8 @@ void GrGpuGL::flushColorMatrix() {
         GrGLfloat vec[] = {
             m[4] * scale, m[9] * scale, m[14] * scale, m[19] * scale,
         };
-        GL_CALL(UniformMatrix4fv(matrixUni, 1, false, mt));
-        GL_CALL(Uniform4fv(vecUni, 1, vec));
+        fCurrentProgram->fUniformManager.setMatrix4f(matrixUni, mt);
+        fCurrentProgram->fUniformManager.set4fv(vecUni, 0, 1, vec);
     }
 }
 
@@ -293,9 +290,9 @@ void GrGpuGL::flushColor(GrColor color) {
                     // OpenGL ES doesn't support unsigned byte varieties of
                     // glUniform
                     float c[] = GR_COLOR_TO_VEC4(color);
-                    GrAssert(GrGLProgram::kUnusedUniform != 
-                             fCurrentProgram->fUniLocations.fColorUni);
-                    GL_CALL(Uniform4fv(fCurrentProgram->fUniLocations.fColorUni, 1, c));
+                    GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniforms.fColorUni);
+                    fCurrentProgram->fUniformManager.set4fv(fCurrentProgram->fUniforms.fColorUni,
+                                                            0, 1, c);
                     fCurrentProgram->fColor = color;
                 }
                 break;
@@ -306,12 +303,11 @@ void GrGpuGL::flushColor(GrColor color) {
                 GrCrash("Unknown color type.");
         }
     }
-    if (fCurrentProgram->fUniLocations.fColorFilterUni
-                != GrGLProgram::kUnusedUniform
-            && fCurrentProgram->fColorFilterColor
-                != drawState.getColorFilterColor()) {
+    UniformHandle filterColorUni = fCurrentProgram->fUniforms.fColorFilterUni;
+    if (kInvalidUniformHandle != filterColorUni &&
+        fCurrentProgram->fColorFilterColor != drawState.getColorFilterColor()) {
         float c[] = GR_COLOR_TO_VEC4(drawState.getColorFilterColor());
-        GL_CALL(Uniform4fv(fCurrentProgram->fUniLocations.fColorFilterUni, 1, c));
+        fCurrentProgram->fUniformManager.set4fv(filterColorUni, 0, 1, c);
         fCurrentProgram->fColorFilterColor = drawState.getColorFilterColor();
     }
 }
@@ -342,9 +338,9 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
                     // OpenGL ES doesn't support unsigned byte varieties of
                     // glUniform
                     float c[] = GR_COLOR_TO_VEC4(coverage);
-                    GrAssert(GrGLProgram::kUnusedUniform != 
-                             fCurrentProgram->fUniLocations.fCoverageUni);
-                    GL_CALL(Uniform4fv(fCurrentProgram->fUniLocations.fCoverageUni, 1, c));
+                    GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniforms.fCoverageUni);
+                    fCurrentProgram->fUniformManager.set4fv(fCurrentProgram->fUniforms.fCoverageUni,
+                                                            0, 1, c);
                     fCurrentProgram->fCoverage = coverage;
                 }
                 break;
@@ -418,13 +414,13 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
 #endif
                 this->flushBoundTextureAndParams(s);
 
-                this->flushTextureMatrixAndDomain(s);
+                this->flushTextureMatrix(s);
 
                 if (NULL != fCurrentProgram->fProgramStage[s]) {
                     const GrSamplerState& sampler = this->getDrawState().getSampler(s);
                     const GrGLTexture* texture = static_cast<const GrGLTexture*>(
                                                     this->getDrawState().getTexture(s));
-                    fCurrentProgram->fProgramStage[s]->setData(this->glInterface(),
+                    fCurrentProgram->fProgramStage[s]->setData(fCurrentProgram->fUniformManager,
                                                                *sampler.getCustomStage(),
                                                                drawState.getRenderTarget(), s);
                 }

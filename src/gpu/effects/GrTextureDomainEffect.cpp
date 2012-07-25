@@ -9,10 +9,6 @@
 #include "gl/GrGLProgramStage.h"
 #include "GrProgramStageFactory.h"
 
-// For brevity, and these definitions are likely to move to a different class soon.
-typedef GrGLShaderBuilder::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
-
 class GrGLTextureDomainEffect : public GrGLProgramStage {
 public:
     GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
@@ -27,11 +23,7 @@ public:
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
 
-    virtual void initUniforms(const GrGLShaderBuilder* builder,
-                              const GrGLInterface*,
-                              int programID) SK_OVERRIDE;
-
-    virtual void setData(const GrGLInterface*,
+    virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
@@ -39,8 +31,7 @@ public:
     static inline StageKey GenKey(const GrCustomStage&) { return 0; }
 
 private:
-    UniformHandle fNameUni;
-    int           fNameLocation;
+    GrGLUniformManager::UniformHandle fNameUni;
 
     typedef GrGLProgramStage INHERITED;
 };
@@ -48,15 +39,13 @@ private:
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
                                                  const GrCustomStage& stage)
     : GrGLProgramStage(factory)
-    , fNameUni(kInvalidUniformHandle)
-    , fNameLocation(0) {
+    , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
 
 void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* builder,
                                              int stage) {
     fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                    kVec4f_GrSLType, "uTexDom", stage);
-    fNameLocation = kUseUniform;
 };
 
 void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
@@ -75,17 +64,10 @@ void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
     builder->emitDefaultFetch(outputColor, samplerName);
 }
 
-void GrGLTextureDomainEffect::initUniforms(const GrGLShaderBuilder* builder,
-                                           const GrGLInterface* gl, int programID) {
-    GR_GL_CALL_RET(gl, fNameLocation,
-                   GetUniformLocation(programID, builder->getUniformCStr(fNameUni)));
-    GrAssert(kUnusedUniform != fNameLocation);
-}
-
-void GrGLTextureDomainEffect::setData(const GrGLInterface* gl,
-                         const GrCustomStage& data,
-                         const GrRenderTarget*,
-                         int stageNum) {
+void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,
+                                      const GrCustomStage& data,
+                                      const GrRenderTarget*,
+                                      int stageNum) {
     const GrTextureDomainEffect& effect = static_cast<const GrTextureDomainEffect&>(data);
     const GrRect& domain = effect.domain();
 
@@ -104,8 +86,7 @@ void GrGLTextureDomainEffect::setData(const GrGLInterface* gl,
         // of elements so that values = (l, t, r, b).
         SkTSwap(values[1], values[3]);
     }
-
-    GR_GL_CALL(gl, Uniform4fv(fNameLocation, 1, values));
+    uman.set4fv(fNameUni, 0, 1, values);
 }
 
 
@@ -114,7 +95,6 @@ void GrGLTextureDomainEffect::setData(const GrGLInterface* gl,
 GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture, GrRect domain)
     : GrSingleTextureEffect(texture)
     , fTextureDomain(domain) {
-
 }
 
 GrTextureDomainEffect::~GrTextureDomainEffect() {

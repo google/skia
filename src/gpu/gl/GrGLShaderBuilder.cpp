@@ -7,6 +7,7 @@
 
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
+#include "gl/GrGLUniformHandle.h"
 
 // number of each input/output type in a single allocation block
 static const int kVarsPerBlock = 8;
@@ -17,12 +18,15 @@ static const int kMaxFSOutputs = 2;
 // ES2 FS only guarantees mediump and lowp support
 static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar::kMedium_Precision;
 
+typedef GrGLUniformManager::UniformHandle UniformHandle;
+///////////////////////////////////////////////////////////////////////////////
+
 // Architectural assumption: always 2-d input coords.
 // Likely to become non-constant and non-static, perhaps even
 // varying by stage, if we use 1D textures for gradients!
 //const int GrGLShaderBuilder::fCoordDims = 2;
 
-GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx)
+GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformManager& uniformManager)
     : fUniforms(kVarsPerBlock)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
@@ -33,8 +37,8 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx)
     , fUsesGS(false)
     , fVaryingDims(0)
     , fComplexCoord(false)
-    , fContext(ctx) {
-
+    , fContext(ctx)
+    , fUniformManager(uniformManager) {
 }
 
 void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {
@@ -115,23 +119,23 @@ void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
     fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
 }
 
-namespace {
-inline int handle_to_index(GrGLShaderBuilder::UniformHandle h) { return ~h; }
-inline GrGLShaderBuilder::UniformHandle index_to_handle(int i) { return ~i; }
-}
-
-GrGLShaderBuilder::UniformHandle GrGLShaderBuilder::addUniform(uint32_t visibility,
-                                                               GrSLType type,
-                                                               const char* name,
-                                                               int stageNum,
-                                                               int count) {
+GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniform(uint32_t visibility,
+                                                                GrSLType type,
+                                                                const char* name,
+                                                                int stageNum,
+                                                                int count) {
     GrAssert(name && strlen(name));
     static const uint32_t kVisibilityMask = kVertex_ShaderType | kFragment_ShaderType;
     GrAssert(0 == (~kVisibilityMask & visibility));
     GrAssert(0 != visibility);
 
-    Uniform& uni = fUniforms.push_back();
+    BuilderUniform& uni = fUniforms.push_back();
     UniformHandle h = index_to_handle(fUniforms.count() - 1);
+    GR_DEBUGCODE(UniformHandle h2 =)
+    fUniformManager.appendUniform(type, count);
+    // We expect the uniform manager to initially have no uniforms and that all uniforms are added
+    // by this function. Therefore, the handles should match.
+    GrAssert(h2 == h);
     uni.fVariable.setType(type);
     uni.fVariable.setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
     uni.fVariable.setName(name);
@@ -280,3 +284,6 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
     }
  }
 
+void GrGLShaderBuilder::finished(GrGLuint programID) {
+    fUniformManager.getUniformLocations(programID, fUniforms);
+}

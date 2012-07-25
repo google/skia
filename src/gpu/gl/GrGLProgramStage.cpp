@@ -21,13 +21,7 @@ void GrGLProgramStage::setupVariables(GrGLShaderBuilder*, int stage) {
 
 }
 
-void GrGLProgramStage::initUniforms(const GrGLShaderBuilder*,
-                                    const GrGLInterface*,
-                                    int progID) {
-
-}
-
-void GrGLProgramStage::setData(const GrGLInterface*,
+void GrGLProgramStage::setData(const GrGLUniformManager&,
                                const GrCustomStage&,
                                const GrRenderTarget*,
                                int stageNum) {
