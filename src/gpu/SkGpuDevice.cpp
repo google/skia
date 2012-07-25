@@ -596,12 +596,26 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return false;
     }
 
+    GrSamplerState* sampler = grPaint->textureSampler(kShaderTextureIdx);
+    GrCustomStage* stage = shader->asNewCustomStage(dev->context(), sampler);
+
+    if (NULL != stage) {
+        sampler->setCustomStage(stage)->unref();
+        SkMatrix localM;
+        if (shader->getLocalMatrix(&localM)) {
+            SkMatrix inverse;
+            if (localM.invert(&inverse)) {
+                sampler->matrix()->preConcat(inverse);
+            }
+        }
+        return true;
+    }
+
     SkBitmap bitmap;
-    SkMatrix* matrix = grPaint->textureSampler(kShaderTextureIdx)->matrix();
+    SkMatrix* matrix = sampler->matrix();
     SkShader::TileMode tileModes[2];
-    SkScalar twoPointParams[3];
     SkShader::BitmapType bmptype = shader->asABitmap(&bitmap, matrix,
-                                                     tileModes, twoPointParams);
+                                                     tileModes);
 
     if (SkShader::kNone_BitmapType == bmptype) {
         SkShader::GradientInfo info;
@@ -627,13 +641,10 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
 
     // Must set wrap and filter on the sampler before requesting a texture.
-    GrSamplerState* sampler = grPaint->textureSampler(kShaderTextureIdx);
     sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
     sampler->setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
-    GrSamplerState::Filter filter;
-    if (SkShader::kDefault_BitmapType == bmptype && !skPaint.isFilterBitmap()) {
-        filter = GrSamplerState::kNearest_Filter;
-    } else {
+    GrSamplerState::Filter filter = GrSamplerState::kNearest_Filter;
+    if (skPaint.isFilterBitmap()) {
         filter = GrSamplerState::kBilinear_Filter;
     }
     sampler->setFilter(filter);
@@ -644,34 +655,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return false;
     }
 
-    switch (bmptype) {
-        case SkShader::kRadial_BitmapType:
-            sampler->setCustomStage(SkNEW_ARGS(GrRadialGradient, (texture)))->unref();
-            break;
-        case SkShader::kSweep_BitmapType:
-            sampler->setCustomStage(SkNEW_ARGS(GrSweepGradient, (texture)))->unref();
-            break;
-        case SkShader::kTwoPointRadial_BitmapType:
-            sampler->setCustomStage(SkNEW_ARGS(GrRadial2Gradient,
-                         (texture,
-                          twoPointParams[0],
-                          twoPointParams[1],
-                          twoPointParams[2] < 0)))->unref();
-            break;
-        case SkShader::kTwoPointConical_BitmapType:
-            sampler->setCustomStage(SkNEW_ARGS(GrConical2Gradient,
-                                               (texture,
-                                                twoPointParams[0],
-                                                twoPointParams[1],
-                                                twoPointParams[2])))->unref();
-            break;
-        case SkShader::kLinear_BitmapType:
-            sampler->setCustomStage(SkNEW_ARGS(GrLinearGradient, (texture)))->unref();
-            break;
-        default:
-            sampler->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
-            break;
-    }
+    sampler->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
 
     // since our texture coords will be in local space, we wack the texture
     // matrix to map them back into 0...1 before we load it
@@ -686,9 +670,6 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         GrScalar sx = SkFloatToScalar(1.f / bitmap.width());
         GrScalar sy = SkFloatToScalar(1.f / bitmap.height());
         matrix->postScale(sx, sy);
-    } else if (SkShader::kRadial_BitmapType == bmptype) {
-        GrScalar s = SkFloatToScalar(1.f / bitmap.width());
-        matrix->postScale(s, s);
     }
 
     return true;

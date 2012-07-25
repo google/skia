@@ -1014,11 +1014,9 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkBitmap outTexture;
     SkMatrix outMatrix;
     SkShader::TileMode xy[2];
-    SkScalar twoPointRadialParams[3];
     SkShader::BitmapType bitmapType = shader->asABitmap(&outTexture,
                                                         &outMatrix,
-                                                        xy,
-                                                        twoPointRadialParams);
+                                                        xy);
     switch (bitmapType) {
         case SkShader::kNone_BitmapType:
             break;

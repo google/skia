@@ -246,7 +246,7 @@ public:
                                     about the first point.
     */
     virtual BitmapType asABitmap(SkBitmap* outTexture, SkMatrix* outMatrix,
-                         TileMode xy[2], SkScalar* twoPointRadialParams) const;
+                         TileMode xy[2]) const;
 
     /**
      *  If the shader subclass can be represented as a gradient, asAGradient
