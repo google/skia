@@ -211,12 +211,20 @@
         'cflags': [
           '-fno-exceptions',
           '-fno-rtti',
+          '-fuse-ld=gold',
+          '--sysroot=<(android_base)/toolchains/<(android_toolchain)/sysroot',
+        ],
+        'include_dirs' : [
+          '<(android_base)/toolchains/<(android_toolchain)/lib/gcc/arm-linux-androideabi/4.6.x-google/include',
+          '<(android_base)/toolchains/<(android_toolchain)/lib/gcc/arm-linux-androideabi/4.6.x-google/include-fixed',
+          '<(android_base)/toolchains/<(android_toolchain)/arm-linux-androideabi/include/c++/4.6',
+          '<(android_base)/toolchains/<(android_toolchain)/arm-linux-androideabi/include/c++/4.6/arm-linux-androideabi',
+          '<(android_base)/toolchains/<(android_toolchain)/sysroot/usr/include',
         ],
         'conditions': [
           [ 'skia_arch_type == "arm"', {
             'ldflags': [
               '-Wl',
-              '--fix-cortex-a8',
             ],
           }],
           [ 'skia_arch_type == "arm" and arm_thumb == 1', {
