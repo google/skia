@@ -16,10 +16,11 @@
 #include <float.h>
 #include "SkFloatBits.h"
 
-// If math.h had powf(float, float), I could remove this wrapper
+// C++98 cmath std::pow seems to be the earliest portable way to get float pow.
+// However, on Linux including cmath undefines isfinite.
+// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14608
 static inline float sk_float_pow(float base, float exp) {
-    return static_cast<float>(pow(static_cast<double>(base),
-                                  static_cast<double>(exp)));
+    return powf(base, exp);
 }
 
 static inline float sk_float_copysign(float x, float y) {

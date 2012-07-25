@@ -23,9 +23,6 @@ class GrGLSpecularLightingEffect;
 typedef GrGLShaderBuilder::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLShaderBuilder::kInvalidUniformHandle;
 
-// FIXME:  Eventually, this should be implemented properly, and put in
-// SkScalar.h.
-#define SkScalarPow(x, y) SkFloatToScalar(powf(SkScalarToFloat(x), SkScalarToFloat(y)))
 namespace {
 
 const SkScalar gOneThird = SkScalarInvert(SkIntToScalar(3));

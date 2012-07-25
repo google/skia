@@ -182,6 +182,9 @@
     /** Returns the square root of the SkScalar
     */
     #define SkScalarSqrt(x)         sk_float_sqrt(x)
+    /** Returns b to the e
+    */
+    #define SkScalarPow(b, e)       sk_float_pow(b, e)
     /** Returns the average of two SkScalars (a+b)/2
     */
     #define SkScalarAve(a, b)       (((a) + (b)) * 0.5f)
