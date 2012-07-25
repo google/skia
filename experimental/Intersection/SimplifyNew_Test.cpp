@@ -550,12 +550,30 @@ static void testLine55() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine55;
+static void testLine56() {
+    SkPath path, simple;
+    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
+    path.addRect(18, 20, 30, 30, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine57() {
+    SkPath path, simple;
+    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
+    path.addRect(20, 0, 30, 40, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testLine57;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testLine57),
+    TEST(testLine56),
     TEST(testLine55),
     TEST(testLine54),
     TEST(testLine53),
