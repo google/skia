@@ -254,17 +254,16 @@ void convolve_gaussian(GrGpu* gpu,
 
 }
 
-GrContext::TextureCacheEntry GrContext::findAndLockTexture(
-        const GrTextureDesc& desc,
-        const GrSamplerState* sampler) {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, desc, false);
+GrContext::TextureCacheEntry GrContext::findAndLockTexture(const GrTextureDesc& desc,
+                                                           const GrTextureParams* params) {
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, false);
     return TextureCacheEntry(fTextureCache->findAndLock(resourceKey,
                                             GrResourceCache::kNested_LockType));
 }
 
 bool GrContext::isTextureInCache(const GrTextureDesc& desc,
-                                 const GrSamplerState* sampler) const {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler, desc, false);
+                                 const GrTextureParams* params) const {
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, false);
     return fTextureCache->hasKey(resourceKey);
 }
 
@@ -324,7 +323,7 @@ static void stretchImage(void* dst,
 }
 
 GrContext::TextureCacheEntry GrContext::createAndLockTexture(
-        const GrSamplerState* sampler,
+        const GrTextureParams* params,
         const GrTextureDesc& desc,
         void* srcData,
         size_t rowBytes) {
@@ -336,19 +335,16 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
 
     TextureCacheEntry entry;
 
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, sampler,
-                                                      desc, false);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, false);
 
     if (GrTexture::NeedsResizing(resourceKey)) {
         // The desired texture is NPOT and tiled but that isn't supported by 
         // the current hardware. Resize the texture to be a POT
-        GrAssert(NULL != sampler);
-        TextureCacheEntry clampEntry = this->findAndLockTexture(desc,
-                                                                NULL);
+        GrAssert(NULL != params);
+        TextureCacheEntry clampEntry = this->findAndLockTexture(desc, NULL);
 
         if (NULL == clampEntry.texture()) {
-            clampEntry = this->createAndLockTexture(NULL, desc,
-                                                    srcData, rowBytes);
+            clampEntry = this->createAndLockTexture(NULL, desc, srcData, rowBytes);
             GrAssert(NULL != clampEntry.texture());
             if (NULL == clampEntry.texture()) {
                 return entry;
@@ -364,22 +360,15 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
         GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
 
         if (NULL != texture) {
-            GrDrawTarget::AutoStateRestore asr(fGpu,
-                                               GrDrawTarget::kReset_ASRInit);
+            GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
             GrDrawState* drawState = fGpu->drawState();
             drawState->setRenderTarget(texture->asRenderTarget());
 
-            GrSamplerState::Filter filter;
             // if filtering is not desired then we want to ensure all
             // texels in the resampled image are copies of texels from
             // the original.
-            if (GrTexture::NeedsFiltering(resourceKey)) {
-                filter = GrSamplerState::kBilinear_Filter;
-            } else {
-                filter = GrSamplerState::kNearest_Filter;
-            }
-            drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
-                                         filter);
+            drawState->sampler(0)->reset(SkShader::kClamp_TileMode,
+                                         GrTexture::NeedsFiltering(resourceKey));
             drawState->createTextureEffect(0, clampEntry.texture());
 
             static const GrVertexLayout layout =
@@ -570,7 +559,7 @@ GrRenderTarget* GrContext::createPlatformRenderTarget(const GrPlatformRenderTarg
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrContext::supportsIndex8PixelConfig(const GrSamplerState* sampler,
+bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
                                           int width, int height) const {
     const GrDrawTarget::Caps& caps = fGpu->getCaps();
     if (!caps.f8BitPaletteSupport) {
@@ -580,9 +569,7 @@ bool GrContext::supportsIndex8PixelConfig(const GrSamplerState* sampler,
     bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
     if (!isPow2) {
-        bool tiled = NULL != sampler &&
-                     (sampler->getWrapX() != GrSamplerState::kClamp_WrapMode ||
-                      sampler->getWrapY() != GrSamplerState::kClamp_WrapMode);
+        bool tiled = NULL != params && params->isTiled();
         if (tiled && !caps.fNPOTTextureTileSupport) {
             return false;
         }
@@ -1540,9 +1527,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     drawState->setRenderTarget(target);
 
     matrix.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(GrSamplerState::kClamp_WrapMode,
-                                 GrSamplerState::kNearest_Filter,
-                                 matrix);
+    drawState->sampler(0)->reset(matrix);
     drawState->createTextureEffect(0, texture);
     drawState->sampler(0)->setRAndBSwap(swapRAndB);
 
@@ -1823,7 +1808,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
 
     GrPaint paint;
     paint.reset();
-    paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+    paint.textureSampler(0)->textureParams()->setBilerp(true);
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
@@ -1885,7 +1870,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                       1, srcIRect.height());
         this->clear(&clearRect, 0x0);
         // FIXME:  This should be mitchell, not bilinear.
-        paint.textureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+        paint.textureSampler(0)->textureParams()->setBilerp(true);
         paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
                                                    srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());

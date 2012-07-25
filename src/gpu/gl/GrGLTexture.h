@@ -105,8 +105,6 @@ public:
     // and it is up to the GrGpuGL derivative to handle y-mirroing.
     Orientation orientation() const { return fOrientation; }
 
-    static const GrGLenum* WrapMode2GLWrap();
-
 protected:
 
     // overrides of GrTexture

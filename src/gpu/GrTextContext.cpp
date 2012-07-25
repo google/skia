@@ -29,14 +29,8 @@ void GrTextContext::flushGlyphs() {
     GrDrawState* drawState = fDrawTarget->drawState();
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
-        GrSamplerState::Filter filter;
-        if (fExtMatrix.isIdentity()) {
-            filter = GrSamplerState::kNearest_Filter;
-        } else {
-            filter = GrSamplerState::kBilinear_Filter;
-        }
-        drawState->sampler(kGlyphMaskStage)->reset(
-            GrSamplerState::kRepeat_WrapMode,filter);
+        drawState->sampler(kGlyphMaskStage)->reset(SkShader::kRepeat_TileMode,
+                                                   fExtMatrix.isIdentity());
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);

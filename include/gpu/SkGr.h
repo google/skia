@@ -24,7 +24,6 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkRegion.h"
-#include "SkShader.h"
 #include "SkClipStack.h"
 
 #if (GR_DEBUG && defined(SK_RELEASE)) || (GR_RELEASE && defined(SK_DEBUG))
@@ -33,14 +32,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Sk to Gr Type conversions
-
-GR_STATIC_ASSERT((int)GrSamplerState::kClamp_WrapMode == (int)SkShader::kClamp_TileMode);
-GR_STATIC_ASSERT((int)GrSamplerState::kRepeat_WrapMode ==(
-                 int)SkShader::kRepeat_TileMode);
-GR_STATIC_ASSERT((int)GrSamplerState::kMirror_WrapMode ==
-                 (int)SkShader::kMirror_TileMode);
-
-#define sk_tile_mode_to_grwrap(X) ((GrSamplerState::WrapMode)(X))
 
 GR_STATIC_ASSERT((int)kZero_GrBlendCoeff == (int)SkXfermode::kZero_Coeff);
 GR_STATIC_ASSERT((int)kOne_GrBlendCoeff  == (int)SkXfermode::kOne_Coeff);
@@ -85,11 +76,11 @@ static inline GrColor SkColor2GrColor(SkColor c) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx, 
-                                               const SkBitmap& bitmap,
-                                               const GrSamplerState* sampler);
+GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext*,
+                                                       const SkBitmap&,
+                                                       const GrTextureParams*);
 
-void GrUnlockCachedBitmapTexture(GrContext* ctx, GrContext::TextureCacheEntry cache);
+void GrUnlockCachedBitmapTexture(GrContext*, GrContext::TextureCacheEntry);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Classes

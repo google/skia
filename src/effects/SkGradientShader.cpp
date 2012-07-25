@@ -1050,9 +1050,9 @@ GrCustomStage* Linear_Gradient::asNewCustomStage(GrContext* context,
                                                  GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
     sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
-    sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
-    sampler->setFilter(GrSamplerState::kBilinear_Filter);
+    sampler->textureParams()->setTileModeX(fTileMode);
+    sampler->textureParams()->setTileModeY(kClamp_TileMode);
+    sampler->textureParams()->setBilerp(true);
     return SkNEW_ARGS(GrLinearGradient, (context, *this, sampler));
 }
 
@@ -1468,9 +1468,9 @@ public:
         GrSamplerState* sampler) const SK_OVERRIDE {
         SkASSERT(NULL != context && NULL != sampler);
         sampler->matrix()->preConcat(fPtsToUnit);
-        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
-        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
-        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        sampler->textureParams()->setTileModeX(fTileMode);
+        sampler->textureParams()->setTileModeY(kClamp_TileMode);
+        sampler->textureParams()->setBilerp(true);
         return SkNEW_ARGS(GrRadialGradient, (context, *this, sampler));
     }
 
@@ -1930,9 +1930,9 @@ public:
             sampler->matrix()->reset();
         }
         sampler->matrix()->preConcat(fPtsToUnit);
-        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
-        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
-        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        sampler->textureParams()->setTileModeX(fTileMode);
+        sampler->textureParams()->setTileModeY(kClamp_TileMode);
+        sampler->textureParams()->setBilerp(true);
         return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler, 
             diffLen, fStartRadius, fDiffRadius));
     }
@@ -2395,9 +2395,9 @@ public:
             sampler->matrix()->reset();
         }
         sampler->matrix()->preTranslate(-fCenter1.fX, -fCenter1.fY);
-        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
-        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
-        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        sampler->textureParams()->setTileModeX(fTileMode);
+        sampler->textureParams()->setTileModeY(kClamp_TileMode);
+        sampler->textureParams()->setBilerp(true);
         return SkNEW_ARGS(GrConical2Gradient, (context, *this, sampler, 
                           diffLen, fRadius1, fRadius2 - fRadius1));
     }
@@ -2471,9 +2471,9 @@ public:
     virtual GrCustomStage* asNewCustomStage(GrContext* context,
         GrSamplerState* sampler) const SK_OVERRIDE {
         sampler->matrix()->preConcat(fPtsToUnit);
-        sampler->setWrapX(sk_tile_mode_to_grwrap(fTileMode));
-        sampler->setWrapY(sk_tile_mode_to_grwrap(kClamp_TileMode));
-        sampler->setFilter(GrSamplerState::kBilinear_Filter);
+        sampler->textureParams()->setTileModeX(fTileMode);
+        sampler->textureParams()->setTileModeY(kClamp_TileMode);
+        sampler->textureParams()->setBilerp(true);
         return SkNEW_ARGS(GrSweepGradient, (context, *this, sampler));
     }
 

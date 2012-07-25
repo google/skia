@@ -763,14 +763,13 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        // We don't support using unpremultiplied textures with filters (other than nearest). Alpha-
-        // premulling is not distributive WRT to filtering. We'd have to filter each texel before
-        // filtering. We could do this for our custom filters but we would also have to disable
-        // bilerp and do a custom bilerp in the shader. Until Skia itself supports unpremul configs
-        // there is no pressure to implement this.
+        // We don't support using unpremultiplied textures with bilerp. Alpha-multiplication is not
+        // distributive with respect to filtering. We'd have to alpha-mul each texel before
+        // filtering. Until Skia itself supports unpremultiplied configs there is no pressure to
+        // implement this.
         if (drawState.getTexture(s) &&
             GrPixelConfigIsUnpremultiplied(drawState.getTexture(s)->config()) &&
-            GrSamplerState::kNearest_Filter != drawState.getSampler(s).getFilter()) {
+            drawState.getSampler(s).getTextureParams().isBilerp()) {
             return false;
         }
     }

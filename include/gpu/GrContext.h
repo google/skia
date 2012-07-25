@@ -119,18 +119,16 @@ public:
      *  Create a new entry, based on the specified key and texture, and return
      *  its "locked" entry. Must call be balanced with an unlockTexture() call.
      *
-     *  @param sampler  The sampler state used to draw a texture may be used
-     *                  to determine how to store the pixel data in the texture
-     *                  cache. (e.g. different versions may exist for different
-     *                  wrap modes on GPUs with limited or no NPOT texture
-     *                  support). Only the wrap and filter fields are used. NULL
-     *                  implies clamp wrap modes and nearest filtering.
+     * @param params    The tex params used to draw a texture may help determine
+     *                  the cache entry used. (e.g. different versions may exist
+     *                  for different wrap modes on GPUs with limited NPOT
+     *                  texture support). NULL implies clamp wrap modes.
      * @param desc      Description of the texture properties.
      * @param srcData   Pointer to the pixel values.
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows.
      */
-    TextureCacheEntry createAndLockTexture(const GrSamplerState* sampler,
+    TextureCacheEntry createAndLockTexture(const GrTextureParams* params,
                                            const GrTextureDesc& desc,
                                            void* srcData, size_t rowBytes);
 
@@ -139,23 +137,21 @@ public:
      *  return it. The entry's texture() function will return NULL if not found.
      *  Must be balanced with an unlockTexture() call.
      *
-     *  @param desc      Description of the texture properties.
-     *  @param sampler  The sampler state used to draw a texture may be used
-     *                  to determine the cache entry used. (e.g. different
-     *                  versions may exist for different wrap modes on GPUs with
-     *                  limited or no NPOT texture support). Only the wrap and 
-     *                  filter fields are used. NULL implies clamp wrap modes
-     *                  and nearest filtering.
+     *  @param desc     Description of the texture properties.
+     *  @param params   The tex params used to draw a texture may help determine
+     *                  the cache entry used. (e.g. different versions may exist
+     *                  for different wrap modes on GPUs with limited NPOT
+     *                  texture support). NULL implies clamp wrap modes.
      */
     TextureCacheEntry findAndLockTexture(const GrTextureDesc& desc,
-                                         const GrSamplerState* sampler);
+                                         const GrTextureParams* params);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
      * will not be locked or returned. This call does not affect the priority of
      * the texture for deletion.
      */
     bool isTextureInCache(const GrTextureDesc& desc,
-                          const GrSamplerState* sampler) const;
+                          const GrTextureParams* params) const;
 
     /**
      * Enum that determines how closely a returned scratch texture must match
@@ -212,9 +208,12 @@ public:
                                      size_t rowBytes);
 
     /**
-     *  Returns true if the specified use of an indexed texture is supported.
+     * Returns true if the specified use of an indexed texture is supported.
+     * Support may depend upon whether the texture params indicate that the
+     * texture will be tiled. Passing NULL for the texture params indicates
+     * clamp mode.
      */
-    bool supportsIndex8PixelConfig(const GrSamplerState* sampler,
+    bool supportsIndex8PixelConfig(const GrTextureParams*,
                                    int width,
                                    int height) const;
 

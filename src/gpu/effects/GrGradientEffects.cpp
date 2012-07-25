@@ -66,7 +66,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     shader.asABitmap(&bitmap, NULL, NULL);
 
     GrContext::TextureCacheEntry entry = GrLockCachedBitmapTexture(ctx, bitmap,
-                                                                   sampler);
+                                                                   sampler->textureParams());
     fTexture = entry.texture();
     SkSafeRef(fTexture);
     fUseTexture = true;

@@ -13,7 +13,7 @@
 
 class GrRenderTarget;
 class GrResourceKey;
-class GrSamplerState;
+class GrTextureParams;
 
 /*
  * All uncached textures should have this value as their fClientCacheID
@@ -162,7 +162,7 @@ public:
 #endif
 
     static GrResourceKey ComputeKey(const GrGpu* gpu,
-                                    const GrSamplerState* sampler,
+                                    const GrTextureParams* sampler,
                                     const GrTextureDesc& desc,
                                     bool scratch);
 

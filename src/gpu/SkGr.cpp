@@ -58,7 +58,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
 static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
                                                 uint64_t key,
-                                                const GrSamplerState* sampler,
+                                                const GrTextureParams* params,
                                                 const SkBitmap& origBitmap) {
     SkAutoLockPixels alp(origBitmap);
     GrContext::TextureCacheEntry entry;
@@ -80,7 +80,7 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
     if (SkBitmap::kIndex8_Config == bitmap->config()) {
         // build_compressed_data doesn't do npot->pot expansion
         // and paletted textures can't be sub-updated
-        if (ctx->supportsIndex8PixelConfig(sampler,
+        if (ctx->supportsIndex8PixelConfig(params,
                                            bitmap->width(), bitmap->height())) {
             size_t imagesize = bitmap->width() * bitmap->height() +
                                 kGrColorTableSize;
@@ -92,7 +92,7 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
             // "rowBytes", since they are the same now.
             
             if (kUncached_CacheID != key) {
-                return ctx->createAndLockTexture(sampler, desc, storage.get(),
+                return ctx->createAndLockTexture(params, desc, storage.get(),
                                                  bitmap->width());
             } else {
                 entry = ctx->lockScratchTexture(desc,
@@ -112,7 +112,7 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
 
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());
     if (kUncached_CacheID != key) {
-        return ctx->createAndLockTexture(sampler, desc,
+        return ctx->createAndLockTexture(params, desc,
                                          bitmap->getPixels(),
                                          bitmap->rowBytes());
     } else {
@@ -130,7 +130,8 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx, 
-                      const SkBitmap& bitmap, const GrSamplerState* sampler) {
+                                                       const SkBitmap& bitmap,
+                                                       const GrTextureParams* params) {
     GrContext::TextureCacheEntry entry;
 
     if (!bitmap.isVolatile()) {
@@ -143,14 +144,12 @@ GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx,
         desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
         desc.fClientCacheID = key;
 
-        entry = ctx->findAndLockTexture(desc, sampler);
+        entry = ctx->findAndLockTexture(desc, params);
         if (NULL == entry.texture()) {
-            entry = sk_gr_create_bitmap_texture(ctx, key, sampler,
-                                                bitmap);
+            entry = sk_gr_create_bitmap_texture(ctx, key, params, bitmap);
         }
     } else {
-        entry = sk_gr_create_bitmap_texture(ctx, kUncached_CacheID,
-                                            sampler, bitmap);
+        entry = sk_gr_create_bitmap_texture(ctx, kUncached_CacheID, params, bitmap);
     }
     if (NULL == entry.texture()) {
         GrPrintf("---- failed to create texture for cache [%d %d]\n",
