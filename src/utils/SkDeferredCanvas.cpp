@@ -732,6 +732,7 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
         //Special case config: no deferral
         this->flushPending();
         fImmediateDevice->writePixels(bitmap, x, y, config8888);
+        return;
     }
 
     SkPaint paint;
