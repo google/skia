@@ -487,7 +487,7 @@ public:
         return fEnd;
     }
 
-    bool firstBump(int contourWinding, int sumWinding) const {
+    bool firstBump(int sumWinding) const {
         return sign() * sumWinding > 0;
     }
 
@@ -755,6 +755,117 @@ public:
         angle->set(edge, fVerb, this, start, end);
     }
 
+    void addCancelOutsides(const SkTDArray<double>& outsideTs, Segment& other,
+            double oEnd) {
+        int tIndex = -1;
+        int tCount = fTs.count();
+        int oIndex = -1;
+        int oCount = other.fTs.count();
+        double tStart = outsideTs[0];
+        double oStart = outsideTs[1];
+        do {
+            ++tIndex;
+        } while (tStart - fTs[tIndex].fT >= FLT_EPSILON && tIndex < tCount);
+        int tIndexStart = tIndex;
+        do {
+            ++oIndex;
+        } while (oStart - other.fTs[oIndex].fT >= FLT_EPSILON && oIndex < oCount);
+        int oIndexStart = oIndex;
+        double nextT;
+        do {
+            nextT = fTs[++tIndex].fT;
+        } while (nextT < 1 && nextT - tStart < FLT_EPSILON);
+        double oNextT;
+        do {
+            oNextT = other.fTs[++oIndex].fT;
+        } while (oNextT < 1 && oNextT - oStart < FLT_EPSILON);
+        // at this point, spans before and after are at:
+        //  fTs[tIndexStart - 1], fTs[tIndexStart], fTs[tIndex]
+        // if tIndexStart == 0, no prior span
+        // if nextT == 1, no following span
+        
+        // advance the span with zero winding
+        // if the following span exists (not past the end, non-zero winding)
+        // connect the two edges
+        if (!fTs[tIndexStart].fWindValue) {
+            if (tIndexStart > 0 && fTs[tIndexStart - 1].fWindValue) {
+    #if DEBUG_CONCIDENT
+                SkDebugf("%s 1 this=%d other=%d t [%d] %1.9g (%1.9g,%1.9g)\n",
+                        __FUNCTION__, fID, other.fID, tIndexStart - 1,
+                        fTs[tIndexStart - 1].fT, xyAtT(tIndexStart - 1).fX,
+                        xyAtT(tIndexStart - 1).fY);
+    #endif
+                SkASSERT(0); // incomplete
+            }
+            if (nextT < 1 && fTs[tIndex].fWindValue) {
+    #if DEBUG_CONCIDENT
+                SkDebugf("%s 2 this=%d other=%d t [%d] %1.9g (%1.9g,%1.9g)\n",
+                        __FUNCTION__, fID, other.fID, tIndex,
+                        fTs[tIndex].fT, xyAtT(tIndex).fX,
+                        xyAtT(tIndex).fY);
+    #endif
+                addTPair(fTs[tIndex].fT, other, other.fTs[oIndexStart].fT);
+            }
+        } else {
+            SkASSERT(!other.fTs[oIndexStart].fWindValue);
+            if (oIndexStart > 0 && other.fTs[oIndexStart - 1].fWindValue) {
+    #if DEBUG_CONCIDENT
+                SkDebugf("%s 3 this=%d other=%d t [%d] %1.9g (%1.9g,%1.9g)\n",
+                        __FUNCTION__, fID, other.fID, oIndexStart - 1,
+                        other.fTs[oIndexStart - 1].fT, other.xyAtT(oIndexStart - 1).fX,
+                        other.xyAtT(oIndexStart - 1).fY);
+    #endif
+                SkASSERT(0); // incomplete
+            }
+            if (oNextT < 1 && other.fTs[oIndex].fWindValue) {
+    #if DEBUG_CONCIDENT
+                SkDebugf("%s 4 this=%d other=%d t [%d] %1.9g (%1.9g,%1.9g)\n",
+                        __FUNCTION__, fID, other.fID, oIndex,
+                        other.fTs[oIndex].fT, other.xyAtT(oIndex).fX,
+                        other.xyAtT(oIndex).fY);
+                other.debugAddTPair(other.fTs[oIndex].fT, *this, fTs[tIndexStart].fT);
+    #endif
+            }
+        }
+    }
+            
+    void addCoinOutsides(const SkTDArray<double>& outsideTs, Segment& other,
+            double oEnd) {
+        // walk this to outsideTs[0]
+        // walk other to outsideTs[1]
+        // if either is > 0, add a pointer to the other, copying adjacent winding
+        int tIndex = -1;
+        int oIndex = -1;
+        double tStart = outsideTs[0];
+        double oStart = outsideTs[1];
+        do {
+            ++tIndex;
+        } while (tStart - fTs[tIndex].fT >= FLT_EPSILON);
+        do {
+            ++oIndex;
+        } while (oStart - other.fTs[oIndex].fT >= FLT_EPSILON);
+        if (tIndex > 0 || oIndex > 0) {
+            addTPair(tStart, other, oStart);
+        }
+        tStart = fTs[tIndex].fT;
+        oStart = other.fTs[oIndex].fT;
+        do {
+            double nextT;
+            do {
+                nextT = fTs[++tIndex].fT;
+            } while (nextT - tStart < FLT_EPSILON);
+            tStart = nextT;
+            do {
+                nextT = other.fTs[++oIndex].fT;
+            } while (nextT - oStart < FLT_EPSILON);
+            oStart = nextT;
+            if (tStart == 1 && oStart == 1) {
+                break;
+            }
+            addTPair(tStart, other, oStart);
+        } while (tStart < 1 && oStart < 1 && oEnd - oStart >= FLT_EPSILON);
+    }
+    
     void addCubic(const SkPoint pts[4]) {
         init(pts, SkPath::kCubic_Verb);
         fBounds.setCubicBounds(pts);
@@ -889,13 +1000,14 @@ public:
         SkTDArray<double> oOutsideTs;
         do {
             bool decrement = test->fWindValue && oTest->fWindValue;
+            bool track = test->fWindValue || oTest->fWindValue;
             Span* end = test;
             double startT = end->fT;
             double oStartT = oTest->fT;
             do {
                 if (decrement) {
                     decrementSpan(end);
-                } else {
+                } else if (track && end->fT < 1 && oStartT < 1) {
                     TrackOutside(outsideTs, end->fT, oStartT);
                 }
                 end = &fTs[++index];
@@ -904,7 +1016,7 @@ public:
             do {
                 if (decrement) {
                     other.decrementSpan(oTestStart);
-                } else {
+                } else if (track && oTestStart->fT < 1 && startT < 1) {
                     TrackOutside(oOutsideTs, oTestStart->fT, startT);
                 }
                 if (!oIndex) {
@@ -917,11 +1029,11 @@ public:
         } while (test->fT < endT - FLT_EPSILON);
         SkASSERT(!oIndex || oTest->fT <= oStartT - FLT_EPSILON);
         // FIXME: determine if canceled edges need outside ts added
-        if (false && !done() && outsideTs.count()) {
-            addTOutsides(outsideTs, other, oEndT);
+        if (!done() && outsideTs.count()) {
+            addCancelOutsides(outsideTs, other, oEndT);
         }
-        if (false && !other.done() && oOutsideTs.count()) {
-            other.addTOutsides(oOutsideTs, *this, endT);
+        if (!other.done() && oOutsideTs.count()) {
+            other.addCancelOutsides(oOutsideTs, *this, endT);
         }
     }
 
@@ -942,13 +1054,17 @@ public:
         Span* test = &fTs[index];
         Span* oTest = &other.fTs[oIndex];
         SkTDArray<double> outsideTs;
+        SkTDArray<double> xOutsideTs;
         SkTDArray<double> oOutsideTs;
+        SkTDArray<double> oxOutsideTs;
         do {
             bool transfer = test->fWindValue && oTest->fWindValue;
             bool decrementOther = test->fWindValue >= oTest->fWindValue;
             Span* end = test;
             double startT = end->fT;
+            int startIndex = index;
             double oStartT = oTest->fT;
+            int oStartIndex = oIndex;
             do {
                 if (transfer) {
                     if (decrementOther) {
@@ -956,6 +1072,11 @@ public:
                         ++(end->fWindValue);
                     } else if (decrementSpan(end)) {
                         TrackOutside(outsideTs, end->fT, oStartT);
+                    }
+                } else if (oTest->fWindValue) {
+                    SkASSERT(!decrementOther);
+                    if (startIndex > 0 && fTs[startIndex - 1].fWindValue) {
+                        TrackOutside(xOutsideTs, end->fT, oStartT);
                     }
                 }
                 end = &fTs[++index];
@@ -969,6 +1090,11 @@ public:
                     } else if (other.decrementSpan(oEnd)) {
                         TrackOutside(oOutsideTs, oEnd->fT, startT);
                     }
+                } else if (test->fWindValue) {
+                    SkASSERT(!decrementOther);
+                    if (oStartIndex > 0 && other.fTs[oStartIndex - 1].fWindValue) {
+                        SkASSERT(0); // track for later?
+                    }
                 }
                 oEnd = &other.fTs[++oIndex];
             } while (oEnd->fT - oTest->fT < FLT_EPSILON);
@@ -977,67 +1103,36 @@ public:
         } while (test->fT < endT - FLT_EPSILON);
         SkASSERT(oTest->fT < oEndT + FLT_EPSILON);
         SkASSERT(oTest->fT > oEndT - FLT_EPSILON);
-        if (!done() && outsideTs.count()) {
-            addTOutsides(outsideTs, other, oEndT);
+        if (!done()) {
+            if (outsideTs.count()) {
+                addCoinOutsides(outsideTs, other, oEndT);
+            }
+            if (xOutsideTs.count()) {
+                addCoinOutsides(xOutsideTs, other, oEndT);
+            }
         }
         if (!other.done() && oOutsideTs.count()) {
-            other.addTOutsides(oOutsideTs, *this, endT);
+            other.addCoinOutsides(oOutsideTs, *this, endT);
         }
-    }
-            
-    void addTOutsides(const SkTDArray<double>& outsideTs, Segment& other,
-            double oEnd) {
-        // walk this to outsideTs[0]
-        // walk other to outsideTs[1]
-        // if either is > 0, add a pointer to the other, copying adjacent winding
-        int tIndex = -1;
-        int tCount = fTs.count();
-        int oIndex = -1;
-        int oCount = other.fTs.count();
-        double tStart = outsideTs[0];
-        double oStart = outsideTs[1];
-        Span* tSpan;
-        Span* oSpan;
-        do {
-            tSpan = &fTs[++tIndex];
-            if (tStart - tSpan->fT < FLT_EPSILON) {
-                break;
-            }
-        } while (tIndex < tCount);
-        do {
-            oSpan = &other.fTs[++oIndex];
-            if (oStart - oSpan->fT < FLT_EPSILON) {
-                break;
-            }            
-        } while (oIndex < oCount);
-        if (tIndex > 0 || oIndex > 0) {
-            addTPair(tStart, other, oStart);
-            // note: counts for fT, other.fT are one greater
-        } else {
-            --tCount;
-            --oCount;
-        }
-        tStart = fTs[tIndex].fT;
-        oStart = other.fTs[oIndex].fT;
-        do {
-            do {
-                tSpan = &fTs[++tIndex];
-            } while (tSpan->fT - tStart < FLT_EPSILON && tIndex < tCount);
-            tStart = fTs[tIndex].fT;
-            do {
-                oSpan = &other.fTs[++oIndex];
-            } while (oSpan->fT - oStart < FLT_EPSILON && oIndex < oCount);
-            oStart = other.fTs[oIndex].fT;
-            if (tStart == 1 && oStart == 1) {
-                break;
-            }
-            addTPair(tStart, other, oStart);
-            ++tCount;
-            ++oCount;
-        } while (tStart < 1 && oStart < 1 && oEnd - oSpan->fT >= FLT_EPSILON);
     }
     
+    // FIXME: this doesn't prevent the same span from being added twice
+    // fix in caller, assert here?
     void addTPair(double t, Segment& other, double otherT) {
+        int tCount = fTs.count();
+        for (int tIndex = 0; tIndex < tCount; ++tIndex) {
+            const Span& span = fTs[tIndex];
+            if (span.fT > t) {
+                break;
+            }
+            if (span.fT == t && span.fOther == &other && span.fOtherT == otherT) {
+#if DEBUG_ADD_T_PAIR
+                SkDebugf("%s addTPair duplicate this=%d %1.9g other=%d %1.9g\n",
+                        __FUNCTION__, fID, t, other.fID, otherT);
+#endif
+                return;
+            }
+        }
 #if DEBUG_ADD_T_PAIR
         SkDebugf("%s addTPair this=%d %1.9g other=%d %1.9g\n",
                 __FUNCTION__, fID, t, other.fID, otherT);
@@ -1229,13 +1324,18 @@ public:
             int contourWinding, bool firstFind, bool active,
             const int startIndex, const int endIndex, int& nextStart,
             int& nextEnd, int& spanWinding) {
+            
+        start here;
+        // winding is a mess
+        // try to simplify what we got
+        
         int flipped = 1; 
         int sumWinding = winding + spanWinding;
-        if (sumWinding == 0) {
+        if (sumWinding == 0 || (false && contourWinding && !firstFind)) {
             sumWinding = spanWinding;
         }
         bool insideContour = contourWinding && contourWinding * sumWinding < 0;
-        if (insideContour) {
+        if (insideContour && (true || !firstFind)) {
             sumWinding = contourWinding;
         }
 
@@ -1280,7 +1380,7 @@ public:
     #if DEBUG_SORT
         debugShowSort(sorted, firstIndex, contourWinding, sumWinding);
     #endif
-        bool doBump = sorted[firstIndex]->firstBump(contourWinding, sumWinding);
+        bool doBump = sorted[firstIndex]->firstBump(sumWinding);
     #if DEBUG_WINDING
         SkDebugf("%s sumWinding=%d sign=%d (%sbump)\n", __FUNCTION__,
                 sumWinding, sorted[firstIndex]->sign(), doBump ? "" : "no ");
@@ -1343,6 +1443,10 @@ public:
                 continue;
             }
             if (!maxWinding && innerSwap && !foundAngle) {
+                if (sumWinding * startWinding < 0 && flipped > 0) {
+                    SkDebugf("%s flip?\n");
+        //            flipped = -flipped;
+                }
                 foundAngle = nextAngle;
             }
             if (nextSegment->done()) {
@@ -1951,6 +2055,18 @@ public:
 #endif
 
 #if DEBUG_CONCIDENT
+    // assert if pair has not already been added
+     void debugAddTPair(double t, const Segment& other, double otherT) {
+        for (int i = 0; i < fTs.count(); ++i) {
+            if (fTs[i].fT == t && fTs[i].fOther == &other && fTs[i].fOtherT == otherT) {
+                return;
+            }
+        }
+        SkASSERT(0);
+     }
+#endif
+
+#if DEBUG_CONCIDENT
     void debugShowTs() {
         SkDebugf("%s %d", __FUNCTION__, fID);
         for (int i = 0; i < fTs.count(); ++i) {
@@ -1992,7 +2108,7 @@ public:
     void debugShowSort(const SkTDArray<Angle*>& angles, int first,
             int contourWinding, int sumWinding) {
         SkASSERT(angles[first]->segment() == this);
-        bool doBump = angles[first]->firstBump(contourWinding, sumWinding);
+        bool doBump = angles[first]->firstBump(sumWinding);
         bool insideContour = contourWinding && contourWinding * sumWinding < 0;
         int windSum = insideContour ? contourWinding : sumWinding;
         int lastSum = windSum;
@@ -2979,7 +3095,7 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         SkASSERT(winding != SK_MinS32);
         windValue = test->windValue(angle);
     #if 0
-        if (angle->firstBump(0, winding)) {
+        if (angle->firstBump(winding)) {
             winding -= test->windBump(angle);
         }
     #endif
@@ -3083,7 +3199,7 @@ static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex,
         angle->segment()->debugShowSort(sorted, firstIndex, contourWinding,
                 spanWinding);  
     #endif
-        if (angle->firstBump(contourWinding, spanWinding)) {
+        if (angle->firstBump(spanWinding)) {
             spanWinding -= angle->segment()->windBump(angle);
         }
         // we care about first sign and whether wind sum indicates this
@@ -3150,7 +3266,7 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
         Segment* topStart = findTopContour(contourList, topContour);
         if (!topStart) {
             break;
-        }        
+        }
         // Start at the top. Above the top is outside, below is inside.
         // follow edges to intersection by changing the index by direction.
         int index, endIndex;

@@ -325,6 +325,16 @@ path.close();
     testSimplifyx(path);
 </div>
 
+<div id="testLine7b">
+    path.moveTo(0,0);
+    path.lineTo(4,0);
+    path.close();
+    path.moveTo(6,0);
+    path.lineTo(2,0);
+    path.lineTo(4,2);
+    path.close();
+</div>
+
 <div id="testLine9">
     SkPath path, simple;
     path.moveTo(0,4);
@@ -372,6 +382,11 @@ path.close();
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);    
     testSimplifyx(path);
+</div>
+
+<div id="testLine22">
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
 </div>
 
 <div id="testLine24">
@@ -560,11 +575,25 @@ path.close();
     path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
 </div>
 
+<div id="testLine58">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 1);
+    path.addRect(0, 12, 9, 9, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine59">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 6, 18, 18, (SkPath::Direction) 1);
+    path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testLine59,
+    testLine58,
     testLine57,
     testLine56,
     testLine55,
@@ -596,11 +625,13 @@ var testDivs = [
     testLine29,
     testLine28,
     testLine24,
+    testLine22,
     testLine19,
     testLine17,
     testLine13,
     testLine12,
     testLine9,
+    testLine7b,
     testLine7,
     testSimplifyQuadratic21,
     testSimplifyQuadratic20,
