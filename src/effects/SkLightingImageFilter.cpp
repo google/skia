@@ -30,8 +30,7 @@ const SkScalar gOneHalf = SkFloatToScalar(0.5f);
 const SkScalar gOneQuarter = SkFloatToScalar(0.25f);
 
 void setUniformPoint3(const GrGLUniformManager& uman, UniformHandle uni, const SkPoint3& point) {
-    GR_STATIC_ASSERT(offsetof(SkPoint3, fX) + sizeof(float) == offsetof(SkPoint3, fY));
-    GR_STATIC_ASSERT(offsetof(SkPoint3, fY) + sizeof(float) == offsetof(SkPoint3, fZ));
+    GR_STATIC_ASSERT(sizeof(SkPoint3) == 3 * sizeof(GrGLfloat));
     uman.set3fv(uni, 0, 1, &point.fX);
 }
 
