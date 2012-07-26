@@ -174,7 +174,7 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
 #endif
         }
 	/* loop doesn't adjust count */
-	count -= (count>>2);
+	count %= 4;
 #endif
         uint16_t* xx = (uint16_t*)xy;
         for (i = count; i > 0; --i) {
