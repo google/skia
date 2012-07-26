@@ -140,7 +140,7 @@ SkDisplayable* SkDisplayType::CreateInstance(SkAnimateMaker* maker, SkDisplayTyp
         CASE_DEBUG_RETURN_NIL(Join);
         CASE_NEW(Line);
         CASE_NEW(LineTo);
-        CASE_NEW(LinearGradient);
+        CASE_NEW(DrawLinearGradient);
         CASE_DRAW_NEW(MaskFilter);
         CASE_DEBUG_RETURN_NIL(MaskFilterBlurStyle);
         // maskfilterlight
@@ -167,7 +167,7 @@ SkDisplayable* SkDisplayType::CreateInstance(SkAnimateMaker* maker, SkDisplayTyp
         CASE_NEW(RLineTo);
         CASE_NEW(RMoveTo);
         CASE_NEW(RQuadTo);
-        CASE_NEW(RadialGradient);
+        CASE_NEW(DrawRadialGradient);
         CASE_DISPLAY_NEW(Random);
         CASE_DRAW_NEW(Rect);
         CASE_NEW(RectToRect);
@@ -284,7 +284,7 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
         CASE_GET_INFO(FromPath);
         // frompathmode
         // full
-        CASE_GET_INFO(Gradient);
+        CASE_GET_INFO(DrawGradient);
         CASE_GET_INFO(Group);
         CASE_GET_INFO(HitClear);
         CASE_GET_INFO(HitTest);
@@ -295,7 +295,7 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
         // join
         CASE_GET_INFO(Line);
         CASE_GET_INFO(LineTo);
-        CASE_GET_INFO(LinearGradient);
+        CASE_GET_INFO(DrawLinearGradient);
         // maskfilter
         // maskfilterblurstyle
         // maskfilterlight
@@ -322,7 +322,7 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
         CASE_GET_INFO(RLineTo);
         CASE_GET_INFO(RMoveTo);
         CASE_GET_INFO(RQuadTo);
-        CASE_GET_INFO(RadialGradient);
+        CASE_GET_INFO(DrawRadialGradient);
         CASE_GET_DISPLAY_INFO(Random);
         CASE_GET_DRAW_INFO(Rect);
         CASE_GET_INFO(RectToRect);
@@ -462,7 +462,7 @@ const TypeNames gTypeNames[] = {
     // join
     { "line", SkType_Line                       INIT_BOOL_FIELDS },
     { "lineTo", SkType_LineTo                   INIT_BOOL_FIELDS },
-    { "linearGradient", SkType_LinearGradient   INIT_BOOL_FIELDS },
+    { "linearGradient", SkType_DrawLinearGradient   INIT_BOOL_FIELDS },
     { "maskFilter", SkType_MaskFilter           INIT_BOOL_FIELDS },
     // maskfilterblurstyle
     // maskfilterlight
@@ -489,7 +489,7 @@ const TypeNames gTypeNames[] = {
     { "rLineTo", SkType_RLineTo                 INIT_BOOL_FIELDS },
     { "rMoveTo", SkType_RMoveTo                 INIT_BOOL_FIELDS },
     { "rQuadTo", SkType_RQuadTo                 INIT_BOOL_FIELDS },
-    { "radialGradient", SkType_RadialGradient   INIT_BOOL_FIELDS },
+    { "radialGradient", SkType_DrawRadialGradient   INIT_BOOL_FIELDS },
     DISPLAY_NAME("random", SkType_Random),
     { "rect", SkType_Rect                       INIT_BOOL_FIELDS },
     { "rectToRect", SkType_RectToRect           INIT_BOOL_FIELDS },
@@ -640,7 +640,7 @@ bool SkDisplayType::IsDisplayable(SkAnimateMaker* , SkDisplayTypes type) {
         case SkType_Input:
         case SkType_Line:
         case SkType_LineTo:
-        case SkType_LinearGradient:
+        case SkType_DrawLinearGradient:
         case SkType_Matrix:
         case SkType_Move:
         case SkType_MoveTo:
@@ -657,7 +657,7 @@ bool SkDisplayType::IsDisplayable(SkAnimateMaker* , SkDisplayTypes type) {
         case SkType_RLineTo:
         case SkType_RMoveTo:
         case SkType_RQuadTo:
-        case SkType_RadialGradient:
+        case SkType_DrawRadialGradient:
         case SkType_Random:
         case SkType_Rect:
         case SkType_RectToRect:
