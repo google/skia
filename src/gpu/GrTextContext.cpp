@@ -85,16 +85,18 @@ GrTextContext::GrTextContext(GrContext* context,
         fExtMatrix.reset();
     }
 
+    const GrClipData* clipData = context->getClip();
+
+    GrRect conservativeBound = clipData->fClipStack->getConservativeBounds();
+
     if (!fExtMatrix.isIdentity()) {
         GrMatrix inverse;
-        GrRect r = context->getClip().getConservativeBounds();
         if (fExtMatrix.invert(&inverse)) {
-            inverse.mapRect(&r);
-            r.roundOut(&fClipRect);
+            inverse.mapRect(&conservativeBound);
         }
-    } else {
-        context->getClip().getConservativeBounds().roundOut(&fClipRect);
     }
+
+    conservativeBound.roundOut(&fClipRect);
 
     // save the context's original matrix off and restore in destructor
     // this must be done before getTextTarget.

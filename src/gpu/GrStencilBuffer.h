@@ -30,8 +30,12 @@ public:
     int numSamples() const { return fSampleCnt; }
 
     // called to note the last clip drawn to this buffer.
-    void setLastClip(const GrClip& clip, int width, int height) {
-        fLastClip = clip;
+    void setLastClip(const GrClipData& clipData, int width, int height) {
+        // the clip stack needs to be copied separately (and deeply) since
+        // it could change beneath the stencil buffer
+        fLastClipStack = *clipData.fClipStack;
+        fLastClipData.fClipStack = &fLastClipStack;
+        fLastClipData.fOrigin = clipData.fOrigin;
         fLastClipWidth = width;
         fLastClipHeight = height;
         GrAssert(width <= fWidth);
@@ -39,18 +43,18 @@ public:
     }
 
     // called to determine if we have to render the clip into SB.
-    bool mustRenderClip(const GrClip& clip, int width, int height) const {
+    bool mustRenderClip(const GrClipData& clipData, int width, int height) const {
         // The clip is in device space. That is it doesn't scale to fit a
         // smaller RT. It is just truncated on the right / bottom edges.
         // Note that this assumes that the viewport origin never moves within
         // the stencil buffer. This is valid today.
         return width > fLastClipWidth ||
                height > fLastClipHeight ||
-               clip != fLastClip;
+               clipData != fLastClipData;
     }
 
-    const GrClip& getLastClip() const {
-        return fLastClip;
+    const GrClipData& getLastClip() const {
+        return fLastClipData;
     }
 
     // places the sb in the cache and locks it. Caller transfers
@@ -70,7 +74,8 @@ protected:
         , fHeight(height)
         , fBits(bits)
         , fSampleCnt(sampleCnt)
-        , fLastClip()
+        , fLastClipStack()
+        , fLastClipData()
         , fLastClipWidth(-1)
         , fLastClipHeight(-1)
         , fCacheEntry(NULL)
@@ -93,9 +98,10 @@ private:
     int fBits;
     int fSampleCnt;
 
-    GrClip     fLastClip;
-    int        fLastClipWidth;
-    int        fLastClipHeight;
+    GrClip      fLastClipStack;
+    GrClipData  fLastClipData;
+    int         fLastClipWidth;
+    int         fLastClipHeight;
 
     GrResourceEntry* fCacheEntry;
     int              fRTAttachmentCnt;

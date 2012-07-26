@@ -353,12 +353,16 @@ void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
 
     // Canvas promises that this ptr is valid until onDetachFromCanvas is called
     fClipStack = canvas->getClipStack();
+
+    fClipData.fClipStack = NULL;
 }
 
 void SkGpuDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
 
     fClipStack = NULL;
+
+    fClipData.fClipStack = NULL;
 }
 
 #ifdef SK_DEBUG
@@ -395,9 +399,11 @@ static void check_bounds(const SkClipStack& clipStack,
 
 static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                                const SkClipStack& clipStack,
+                               GrClipData& clipData,
                                const SkRegion& clipRegion,
                                const SkIPoint& origin,
-                               int renderTargetWidth, int renderTargetHeight) {
+                               int renderTargetWidth, int renderTargetHeight,
+                               GrClip* result) {
     context->setMatrix(matrix);
 
     SkGrClipIterator iter;
@@ -417,15 +423,19 @@ static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                                     &bounds,
                                     &isIntersectionOfRects);
 
-    GrClip grc(&iter, GrIntToScalar(-origin.x()), GrIntToScalar(-origin.y()),
-               bounds);
+    result->setFromIterator(&iter,
+                            GrIntToScalar(-origin.x()),
+                            GrIntToScalar(-origin.y()),
+                            bounds);
 
-    GrAssert(grc.isRect() == isIntersectionOfRects);
+    GrAssert(result->isRect() == isIntersectionOfRects);
 
-    context->setClip(grc);
+    clipData.fClipStack = result;
+    clipData.fOrigin = origin;
+    context->setClip(&clipData);
 }
 
-// call this ever each draw call, to ensure that the context reflects our state,
+// call this every draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
     GrAssert(NULL != fClipStack);
@@ -436,9 +446,10 @@ void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
         fContext->setRenderTarget(fRenderTarget);
         SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
 
-        convert_matrixclip(fContext, *draw.fMatrix,
-                           *fClipStack, *draw.fClip, this->getOrigin(),
-                           fRenderTarget->width(), fRenderTarget->height());
+        convert_matrixclip(fContext, *draw.fMatrix, 
+                           *fClipStack, fClipData, *draw.fClip, this->getOrigin(),
+                           fRenderTarget->width(), fRenderTarget->height(),
+                           &fGrClip);
         fNeedPrepareRenderTarget = false;
     }
 }
@@ -458,8 +469,8 @@ void SkGpuDevice::gainFocus(const SkMatrix& matrix, const SkRegion& clip) {
 
     this->INHERITED::gainFocus(matrix, clip);
 
-    convert_matrixclip(fContext, matrix, *fClipStack, clip, this->getOrigin(),
-                       fRenderTarget->width(), fRenderTarget->height());
+    convert_matrixclip(fContext, matrix, *fClipStack, fClipData, clip, this->getOrigin(),
+                       fRenderTarget->width(), fRenderTarget->height(), &fGrClip);
 
     DO_DEFERRED_CLEAR;
 }
@@ -889,11 +900,14 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     GrRenderTarget* oldRenderTarget = context->getRenderTarget();
     // Once this code moves into GrContext, this should be changed to use
     // an AutoClipRestore.
-    GrClip oldClip = context->getClip();
+    const GrClipData* oldClipData = context->getClip();
+
     context->setRenderTarget(pathTexture->asRenderTarget());
 
-    GrClip newClip(srcRect);
-    context->setClip(newClip);
+    GrClip newClipStack(srcRect);
+    GrClipData newClipData;
+    newClipData.fClipStack = &newClipStack;
+    context->setClip(&newClipData);
 
     context->clear(NULL, 0);
     GrPaint tempPaint;
@@ -948,7 +962,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         context->drawRect(paint, srcRect);
     }
     context->setRenderTarget(oldRenderTarget);
-    context->setClip(oldClip);
+    context->setClip(oldClipData);
 
     if (!grp->preConcatSamplerMatricesWithInverse(matrix)) {
         return false;

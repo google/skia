@@ -33,7 +33,7 @@ class GrDrawState;
  */
 class GrClipMaskCache : public GrNoncopyable {
 public:
-    GrClipMaskCache() 
+    GrClipMaskCache()
     : fContext(NULL)
     , fStack(sizeof(GrClipStackFrame)) {
         // We need an initial frame to capture the clip state prior to 
@@ -280,7 +280,7 @@ public:
      * and sets the GrGpu's scissor and stencil state. If the return is false
      * then the draw can be skipped.
      */
-    bool setupClipping(const GrClip& clip);
+    bool setupClipping(const GrClipData* clipDataIn);
 
     void releaseResources();
 
@@ -335,15 +335,15 @@ private:
     
     GrClipMaskCache fAACache;       // cache for the AA path
 
-    bool createStencilClipMask(const GrClip& clip,
+    bool createStencilClipMask(const GrClipData& clipDataIn,
                                const GrIRect& bounds);
-    bool createAlphaClipMask(const GrClip& clipIn,
+    bool createAlphaClipMask(const GrClipData& clipDataIn,
                              GrTexture** result,
                              GrIRect *resultBounds);
-    bool createSoftwareClipMask(const GrClip& clipIn,
+    bool createSoftwareClipMask(const GrClipData& clipDataIn,
                                 GrTexture** result,
                                 GrIRect *resultBounds);
-    bool clipMaskPreamble(const GrClip& clipIn,
+    bool clipMaskPreamble(const GrClipData& clipDataIn,
                           GrTexture** result,
                           GrIRect *resultBounds);
 

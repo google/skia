@@ -329,13 +329,13 @@ public:
      * Gets the current clip.
      * @return the current clip.
      */
-    const GrClip& getClip() const;
+    const GrClipData* getClip() const;
 
     /**
      * Sets the clip.
-     * @param clip  the clip to set.
+     * @param clipData  the clip to set.
      */
-    void setClip(const GrClip& clip);
+    void setClip(const GrClipData* clipData);
 
     ///////////////////////////////////////////////////////////////////////////
     // Draws
@@ -694,9 +694,11 @@ public:
     public:
         AutoClip(GrContext* context, const GrRect& newClipRect) 
         : fContext(context)
-        , fNewClip(newClipRect) {
+        , fNewClipStack(newClipRect) {
+            fNewClipData.fClipStack = &fNewClipStack;
+
             fOldClip = fContext->getClip();
-            fContext->setClip(fNewClip);
+            fContext->setClip(&fNewClipData);
         }
 
         ~AutoClip() {
@@ -705,9 +707,11 @@ public:
             }
         }
     private:
-        GrContext*  fContext;
-        GrClip      fOldClip;
-        GrClip      fNewClip;
+        GrContext*        fContext;
+        const GrClipData* fOldClip;
+
+        GrClip            fNewClipStack;
+        GrClipData        fNewClipData;
     };
 
     ///////////////////////////////////////////////////////////////////////////

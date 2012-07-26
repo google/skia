@@ -579,10 +579,12 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const GrClip& GrContext::getClip() const { return fGpu->getClip(); }
+const GrClipData* GrContext::getClip() const {
+    return fGpu->getClip(); 
+}
 
-void GrContext::setClip(const GrClip& clip) {
-    fGpu->setClip(clip);
+void GrContext::setClip(const GrClipData* clipData) {
+    fGpu->setClip(clipData);
     fDrawState->enableState(GrDrawState::kClip_StateBit);
 }
 
@@ -1905,7 +1907,7 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     AutoMatrix avm(this, GrMatrix::I());
 
     AutoClip acs(this, GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
-                                           SkIntToScalar(srcTexture->height())));
+                                      SkIntToScalar(srcTexture->height())));
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
     desc.fWidth = SkScalarCeilToInt(rect.width());
