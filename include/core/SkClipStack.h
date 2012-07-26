@@ -24,6 +24,7 @@ class SK_API SkClipStack {
 public:
     SkClipStack();
     SkClipStack(const SkClipStack& b);
+    explicit SkClipStack(const SkRect& r);
     ~SkClipStack();
 
     SkClipStack& operator=(const SkClipStack& b);
@@ -67,6 +68,12 @@ public:
     }
     void clipDevRect(const SkRect&, SkRegion::Op, bool doAA);
     void clipDevPath(const SkPath&, SkRegion::Op, bool doAA);
+
+    /**
+     * isWideOpen returns true if the clip state corresponds to the infinite 
+     * plane (i.e., draws are not limited at all)
+     */
+    bool isWideOpen() const;
 
 private:
     struct Rec;
