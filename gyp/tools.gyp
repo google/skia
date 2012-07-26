@@ -70,8 +70,6 @@
       'type': 'executable',
       'sources': [
         '../tools/render_pictures_main.cpp',
-        '../src/pipe/utils/SamplePipeControllers.h',
-        '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'include_dirs': [
         '../src/pipe/utils/',
@@ -80,6 +78,7 @@
         'core.gyp:core',
         'images.gyp:images',
         'ports.gyp:ports',
+        'tools.gyp:PictureRenderer',
         'tools.gyp:picture_utils',
       ],
     },
@@ -102,6 +101,22 @@
         'tools.gyp:picture_utils',
         'bench.gyp:bench_timer',
       ],
+    },
+    {
+     'target_name': 'PictureRenderer',
+     'type': 'static_library',
+     'sources': [
+        '../tools/PictureRenderer.cpp',
+        '../src/pipe/utils/SamplePipeControllers.h',
+        '../src/pipe/utils/SamplePipeControllers.cpp',
+     ],
+      'include_dirs': [
+        '../src/pipe/utils/',
+      ],
+     'dependencies': [
+        'core.gyp:core',
+        'tools.gyp:picture_utils',
+     ],
     },
     {
       'target_name': 'picture_utils',
