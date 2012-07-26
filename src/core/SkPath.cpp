@@ -80,9 +80,11 @@ public:
         if (fEmpty) {
             fPath->fBounds = fRect;
             fPath->fBoundsIsDirty = false;
+            fPath->fIsFinite = fPath->fBounds.isFinite();
         } else if (!fDirty) {
             joinNoEmptyChecks(&fPath->fBounds, fRect);
             fPath->fBoundsIsDirty = false;
+            fPath->fIsFinite = fPath->fBounds.isFinite();
         }
     }
 
@@ -104,12 +106,14 @@ private:
     }
 };
 
-static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
-    if (pts.count() <= 1) {  // we ignore just 1 point (moveto)
-        bounds->set(0, 0, 0, 0);
+// Return true if the computed bounds are finite.
+static bool compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
+    int count = pts.count();
+    if (count <= 1) {  // we ignore just 1 point (moveto)
+        bounds->setEmpty();
+        return count ? pts.begin()->isFinite() : true;
     } else {
-        bounds->set(pts.begin(), pts.count());
-//        SkDebugf("------- compute bounds %p %d", &pts, pts.count());
+        return bounds->setBoundsCheck(pts.begin(), pts.count());
     }
 }
 
@@ -139,6 +143,7 @@ SkPath::SkPath()
     fSegmentMask = 0;
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
     fIsOval = false;
+    fIsFinite = false;  // gets computed when we know our bounds
 #ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = 0;
     fSourcePath = NULL;
@@ -169,6 +174,7 @@ SkPath& SkPath::operator=(const SkPath& src) {
         fFillType       = src.fFillType;
         fBoundsIsDirty  = src.fBoundsIsDirty;
         fConvexity      = src.fConvexity;
+        fIsFinite       = src.fIsFinite;
         fSegmentMask    = src.fSegmentMask;
         fLastMoveToIndex = src.fLastMoveToIndex;
         fIsOval         = src.fIsOval;
@@ -204,6 +210,7 @@ void SkPath::swap(SkPath& other) {
         SkTSwap<uint8_t>(fSegmentMask, other.fSegmentMask);
         SkTSwap<int>(fLastMoveToIndex, other.fLastMoveToIndex);
         SkTSwap<SkBool8>(fIsOval, other.fIsOval);
+        SkTSwap<SkBool8>(fIsFinite, other.fIsFinite);
         GEN_ID_INC;
     }
 }
@@ -449,7 +456,7 @@ void SkPath::computeBounds() const {
     SkASSERT(fBoundsIsDirty);
 
     fBoundsIsDirty = false;
-    compute_pt_bounds(&fBounds, fPts);
+    fIsFinite = compute_pt_bounds(&fBounds, fPts);
 }
 
 void SkPath::setConvexity(Convexity c) {
@@ -1340,6 +1347,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             // if we're empty, fastbounds should not be mapped
             matrix.mapRect(&dst->fBounds, fBounds);
             dst->fBoundsIsDirty = false;
+            dst->fIsFinite = dst->fBounds.isFinite();
         } else {
             GEN_ID_PTR_INC(dst);
             dst->fBoundsIsDirty = true;

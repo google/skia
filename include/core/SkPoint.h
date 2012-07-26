@@ -314,6 +314,29 @@ struct SK_API SkPoint {
         fY -= v.fY;
     }
 
+    /**
+     *  Returns true if both X and Y are finite (not infinity or NaN)
+     */
+    bool isFinite() const {
+#ifdef SK_SCALAR_IS_FLOAT
+        SkScalar accum = 0;
+        accum *= fX;
+        accum *= fY;
+        
+        // accum is either NaN or it is finite (zero).
+        SkASSERT(0 == accum || !(accum == accum));
+        
+        // value==value will be true iff value is not NaN
+        // TODO: is it faster to say !accum or accum==accum?
+        return accum == accum;
+#else
+        // use bit-or for speed, since we don't care about short-circuting the
+        // tests, and we expect the common case will be that we need to check all.
+        int isNaN = (SK_FixedNaN == fX) | (SK_FixedNaN == fX));
+        return !isNaN;
+#endif
+    }
+
     /** Returns true if the point's coordinates equal (x,y)
     */
     bool equals(SkScalar x, SkScalar y) const { return fX == x && fY == y; }
