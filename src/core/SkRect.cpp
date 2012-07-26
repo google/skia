@@ -70,8 +70,10 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     #define MINMAX_ELSE else
 #endif
 
-void SkRect::set(const SkPoint pts[], int count) {
+bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
+    
+    bool isFinite = true;
 
     if (count <= 0) {
         sk_bzero(this, sizeof(SkRect));
@@ -118,11 +120,14 @@ void SkRect::set(const SkPoint pts[], int count) {
         SkASSERT(!accum || !SkScalarIsFinite(accum));
         if (accum) {
             l = t = r = b = 0;
+            isFinite = false;
         }
 #endif
         this->set(l, t, r, b);
 #endif
     }
+    
+    return isFinite;
 }
 
 bool SkRect::intersect(SkScalar left, SkScalar top, SkScalar right,

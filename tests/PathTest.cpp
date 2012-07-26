@@ -16,6 +16,67 @@
 #include "SkSize.h"
 #include "SkWriter32.h"
 
+static void test_rect_isfinite(skiatest::Reporter* reporter) {
+    const SkScalar inf = SK_ScalarInfinity;
+    const SkScalar nan = SK_ScalarNaN;
+    
+    SkRect r;
+    r.setEmpty();
+    REPORTER_ASSERT(reporter, r.isFinite());
+    r.set(0, 0, inf, -inf);
+    REPORTER_ASSERT(reporter, !r.isFinite());
+    r.set(0, 0, nan, 0);
+    REPORTER_ASSERT(reporter, !r.isFinite());
+    
+    SkPoint pts[] = {
+        { 0, 0 },
+        { SK_Scalar1, 0 },
+        { 0, SK_Scalar1 },
+    };
+    
+    bool isFine = r.setBoundsCheck(pts, 3);
+    REPORTER_ASSERT(reporter, isFine);
+    REPORTER_ASSERT(reporter, !r.isEmpty());
+    
+    pts[1].set(inf, 0);
+    isFine = r.setBoundsCheck(pts, 3);
+    REPORTER_ASSERT(reporter, !isFine);
+    REPORTER_ASSERT(reporter, r.isEmpty());
+    
+    pts[1].set(nan, 0);
+    isFine = r.setBoundsCheck(pts, 3);
+    REPORTER_ASSERT(reporter, !isFine);
+    REPORTER_ASSERT(reporter, r.isEmpty());
+}
+
+static void test_path_isfinite(skiatest::Reporter* reporter) {
+    const SkScalar inf = SK_ScalarInfinity;
+    const SkScalar nan = SK_ScalarNaN;
+    
+    SkPath path;
+    REPORTER_ASSERT(reporter, path.isFinite());
+
+    path.reset();
+    REPORTER_ASSERT(reporter, path.isFinite());
+
+    path.reset();
+    path.moveTo(SK_Scalar1, 0);
+    REPORTER_ASSERT(reporter, path.isFinite());
+
+    path.reset();
+    path.moveTo(inf, -inf);
+    REPORTER_ASSERT(reporter, !path.isFinite());
+
+    path.reset();
+    path.moveTo(nan, 0);
+    REPORTER_ASSERT(reporter, !path.isFinite());
+}
+
+static void test_isfinite(skiatest::Reporter* reporter) {
+    test_rect_isfinite(reporter);
+    test_path_isfinite(reporter);
+}
+
 // assert that we always
 //  start with a moveTo
 //  only have 1 moveTo
@@ -1466,6 +1527,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_oval(reporter);
     test_strokerec(reporter);
     test_addPoly(reporter);
+    test_isfinite(reporter);
 }
 
 #include "TestClassDef.h"

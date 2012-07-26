@@ -192,6 +192,17 @@ public:
     */
     bool isEmpty() const;
 
+    /**
+     *  Returns true if all of the points in this path are finite, meaning there
+     *  are no infinities and no NaNs.
+     */
+    bool isFinite() const {
+        if (fBoundsIsDirty) {
+            this->computeBounds();
+        }
+        return fIsFinite;
+    }
+
     /** Test a line for zero length
 
         @return true if the line is of zero length; otherwise false.
@@ -818,7 +829,7 @@ private:
     uint8_t             fSegmentMask;
     mutable uint8_t     fBoundsIsDirty;
     mutable uint8_t     fConvexity;
-
+    mutable SkBool8     fIsFinite;    // only meaningful if bounds are valid
     mutable SkBool8     fIsOval;
 #ifdef SK_BUILD_FOR_ANDROID
     uint32_t            fGenerationID;

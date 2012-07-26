@@ -448,13 +448,25 @@ struct SK_API SkRect {
         If the array is empty (count == 0), then set this rectangle
         to the empty rectangle (0,0,0,0)
     */
-    void set(const SkPoint pts[], int count);
+    void set(const SkPoint pts[], int count) {
+        // set() had been checking for non-finite values, so keep that behavior
+        // for now. Now that we have setBoundsCheck(), we may decide to make
+        // set() be simpler/faster, and not check for those.
+        (void)this->setBoundsCheck(pts, count);
+    }
 
     // alias for set(pts, count)
     void setBounds(const SkPoint pts[], int count) {
-        this->set(pts, count);
+        (void)this->setBoundsCheck(pts, count);
     }
-
+    
+    /**
+     *  Compute the bounds of the array of points, and set this rect to that
+     *  bounds and return true... unless a non-finite value is encountered,
+     *  in which case this rect is set to empty and false is returned.
+     */
+    bool setBoundsCheck(const SkPoint pts[], int count);
+    
     void set(const SkPoint& p0, const SkPoint& p1) {
         fLeft =   SkMinScalar(p0.fX, p1.fX);
         fRight =  SkMaxScalar(p0.fX, p1.fX);
