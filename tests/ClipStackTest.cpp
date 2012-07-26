@@ -260,6 +260,8 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
                 stack.clipDevPath(clipB, gOps[op], false);
             }
 
+            REPORTER_ASSERT(reporter, !stack.isWideOpen());
+
             stack.getConservativeBounds(0, 0, 100, 100, &bound,
                                         &isIntersectionOfRects);
 
@@ -278,6 +280,77 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
         }
     }
 }
+
+// Test out 'isWideOpen' entry point
+static void test_isWideOpen(skiatest::Reporter* reporter) {
+
+    SkRect rectA, rectB;
+
+    rectA.iset(10, 10, 40, 40);
+    rectB.iset(50, 50, 80, 80);
+
+    // Stack should initially be wide open
+    {
+        SkClipStack stack;
+
+        REPORTER_ASSERT(reporter, stack.isWideOpen());
+    }
+
+    // Test out case where the user specifies a union that includes everything
+    {
+        SkClipStack stack;
+
+        SkPath clipA, clipB;
+
+        clipA.addRoundRect(rectA, SkIntToScalar(5), SkIntToScalar(5));
+        clipA.setFillType(SkPath::kInverseEvenOdd_FillType);
+
+        clipB.addRoundRect(rectB, SkIntToScalar(5), SkIntToScalar(5));
+        clipB.setFillType(SkPath::kInverseEvenOdd_FillType);
+
+        stack.clipDevPath(clipA, SkRegion::kReplace_Op, false);
+        stack.clipDevPath(clipB, SkRegion::kUnion_Op, false);
+
+        REPORTER_ASSERT(reporter, stack.isWideOpen());
+    }
+
+    // Test out union w/ a wide open clip
+    {
+        SkClipStack stack;
+
+        stack.clipDevRect(rectA, SkRegion::kUnion_Op, false);
+
+        REPORTER_ASSERT(reporter, stack.isWideOpen());
+    }
+
+    // Test out empty difference from a wide open clip
+    {
+        SkClipStack stack;
+
+        SkRect emptyRect;
+        emptyRect.setEmpty();
+
+        stack.clipDevRect(emptyRect, SkRegion::kDifference_Op, false);
+
+        REPORTER_ASSERT(reporter, stack.isWideOpen());
+    }
+
+    // Test out return to wide open
+    {
+        SkClipStack stack;
+
+        stack.save();
+
+        stack.clipDevRect(rectA, SkRegion::kReplace_Op, false);
+
+        REPORTER_ASSERT(reporter, !stack.isWideOpen());
+
+        stack.restore();
+
+        REPORTER_ASSERT(reporter, stack.isWideOpen());
+    }
+}
+
 
 static void TestClipStack(skiatest::Reporter* reporter) {
     SkClipStack stack;
@@ -317,6 +390,7 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     test_iterators(reporter);
     test_bounds(reporter, true);
     test_bounds(reporter, false);
+    test_isWideOpen(reporter);
 }
 
 #include "TestClassDef.h"

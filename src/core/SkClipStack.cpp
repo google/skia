@@ -375,6 +375,12 @@ SkClipStack::SkClipStack(const SkClipStack& b) : fDeque(sizeof(Rec)) {
     *this = b;
 }
 
+SkClipStack::SkClipStack(const SkRect& r) : fDeque(sizeof(Rec)) {
+    if (!r.isEmpty()) {
+        this->clipDevRect(r, SkRegion::kReplace_Op, false);
+    }
+}
+
 SkClipStack::~SkClipStack() {
     reset();
 }
@@ -543,6 +549,16 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     }
     new (fDeque.push_back()) Rec(fSaveCount, path, op, doAA);
     ((Rec*) fDeque.back())->updateBound(rec);
+}
+
+bool SkClipStack::isWideOpen() const { 
+    if (0 == fDeque.count()) {
+        return true;
+    }
+    
+    const Rec* back = (const Rec*) fDeque.back();
+    return kInsideOut_BoundsType == back->fFiniteBoundType &&
+           back->fFiniteBound.isEmpty();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
