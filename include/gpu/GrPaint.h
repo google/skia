@@ -42,21 +42,6 @@ public:
     SkXfermode::Mode            fColorFilterXfermode;
     float                       fColorMatrix[20];
 
-    void setTexture(int i, GrTexture* texture) {
-        GrAssert((unsigned)i < kMaxTextures);
-        GrSafeRef(texture);
-        GrSafeUnref(fTextures[i]);
-        fTextures[i] = texture;
-    }
-
-    GrTexture* getTexture(int i) const { 
-        GrAssert((unsigned)i < kMaxTextures);
-        //if (this->getTextureSampler(i).getCustomStage()) {
-            //return this->getTextureSampler(i).getCustomStage()->texture(i);
-        //}
-        return fTextures[i]; 
-    }
-
     GrSamplerState* textureSampler(int i) {
         GrAssert((unsigned)i < kMaxTextures);
         return fTextureSamplers + i;
@@ -69,26 +54,9 @@ public:
 
     bool isTextureStageEnabled(int i) const {
         GrAssert((unsigned)i < kMaxTextures);
-        return (NULL != fTextures[i]) ||
-               (NULL != fTextureSamplers[i].getCustomStage());
+        return (NULL != fTextureSamplers[i].getCustomStage());
     }
 
-    // The mask can be alpha-only or per channel. It is applied
-    // after the colorfilter
-    void setMask(int i, GrTexture* mask) {
-        GrAssert((unsigned)i < kMaxMasks);
-        GrSafeRef(mask);
-        GrSafeUnref(fMaskTextures[i]);
-        fMaskTextures[i] = mask;
-    }
-
-    GrTexture* getMask(int i) const { 
-        GrAssert((unsigned)i < kMaxMasks);
-        //if (this->getMaskSampler(i).getCustomStage()) {
-            //return this->getMaskSampler(i).getCustomStage()->texture(i);
-        //}
-        return fMaskTextures[i]; 
-    }
 
     // mask's sampler matrix is always applied to the positions
     // (i.e. no explicit texture coordinates)
@@ -104,8 +72,7 @@ public:
 
     bool isMaskStageEnabled(int i) const {
         GrAssert((unsigned)i < kMaxTextures);
-        return (NULL != fMaskTextures[i]) ||
-               (NULL != fMaskSamplers[i].getCustomStage());
+        return (NULL != fMaskSamplers[i].getCustomStage());
     }
 
     bool hasMask() const {
@@ -161,23 +128,13 @@ public:
 
     // uninitialized
     GrPaint() {
-        for (int i = 0; i < kMaxTextures; ++i) {
-            fTextures[i] = NULL;
-        }
-        for (int i = 0; i < kMaxMasks; ++i) {
-            fMaskTextures[i] = NULL;
-        }
     }
 
     GrPaint(const GrPaint& paint) {
-        for (int i = 0; i < kMaxTextures; ++i) {
-            fTextures[i] = NULL;
-        }
-        for (int i = 0; i < kMaxMasks; ++i) {
-            fMaskTextures[i] = NULL;
-        }
         *this = paint;
     }
+
+    ~GrPaint() {}
 
     GrPaint& operator=(const GrPaint& paint) {
         fSrcBlendCoeff = paint.fSrcBlendCoeff;
@@ -196,27 +153,16 @@ public:
         }
         
         for (int i = 0; i < kMaxTextures; ++i) {
-            GrSafeAssign(fTextures[i], paint.fTextures[i]);
             if (paint.isTextureStageEnabled(i)) {
                 fTextureSamplers[i] = paint.fTextureSamplers[i];
             }
         }
         for (int i = 0; i < kMaxMasks; ++i) {
-            GrSafeAssign(fMaskTextures[i], paint.fMaskTextures[i]);
             if (paint.isMaskStageEnabled(i)) {
                 fMaskSamplers[i] = paint.fMaskSamplers[i];
             }
         }
         return *this;
-    }
-
-    ~GrPaint() {
-        for (int i = 0; i < kMaxTextures; ++i) {
-            GrSafeUnref(fTextures[i]);
-        }
-        for (int i = 0; i < kMaxMasks; ++i) {
-            GrSafeUnref(fMaskTextures[i]);
-        }
     }
 
     // sets paint to src-over, solid white, no texture, no mask
@@ -250,9 +196,6 @@ private:
     GrSamplerState              fTextureSamplers[kMaxTextures];
     GrSamplerState              fMaskSamplers[kMaxMasks];
 
-    GrTexture*      fTextures[kMaxTextures];
-    GrTexture*      fMaskTextures[kMaxMasks];
-
     void resetBlend() {
         fSrcBlendCoeff = kOne_GrBlendCoeff;
         fDstBlendCoeff = kZero_GrBlendCoeff;
@@ -273,14 +216,12 @@ private:
 
     void resetTextures() {
         for (int i = 0; i < kMaxTextures; ++i) {
-            this->setTexture(i, NULL);
             fTextureSamplers[i].reset();
         }
     }
 
     void resetMasks() {
         for (int i = 0; i < kMaxMasks; ++i) {
-            this->setMask(i, NULL);
             fMaskSamplers[i].reset();
         }
     }

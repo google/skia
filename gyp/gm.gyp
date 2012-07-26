@@ -10,6 +10,7 @@
       'include_dirs' : [
         '../src/core',
         '../src/pipe/utils/',
+        '../src/gpu',
       ],
       'includes': [
         'gmslides.gypi',

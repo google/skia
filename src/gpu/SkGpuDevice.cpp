@@ -482,13 +482,8 @@ SkGpuRenderTarget* SkGpuDevice::accessRenderTarget() {
 
 bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
     if (NULL != fTexture) {
-        // FIXME: cannot use GrSingleTextureEffect here: fails
-        // assert in line 1617: null != devTex; generalizing GrPaint::getTexture()
-        // to grab textures off of GrCustomStages breaks gms in various ways -
-        // particularly since table color filter requires multiple textures
-        paint->setTexture(kBitmapTextureIdx, fTexture);
-        //paint->textureSampler(kBitmapTextureIdx)->setCustomStage(
-            //SkNEW_ARGS(GrSingleTextureEffect, (fTexture)))->unref();
+        paint->textureSampler(kBitmapTextureIdx)->setCustomStage(
+            SkNEW_ARGS(GrSingleTextureEffect, (fTexture)))->unref();
         return true;
     }
     return false;
@@ -549,7 +544,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         GrAssert(!constantColor);
     } else {
         grPaint->fColor = SkColor2GrColor(skPaint.getColor());
-        GrAssert(NULL == grPaint->getTexture(kShaderTextureIdx));
+        GrAssert(!grPaint->isTextureStageEnabled(kShaderTextureIdx));
     }
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     SkColor color;
@@ -971,9 +966,9 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     static const int MASK_IDX = GrPaint::kMaxMasks - 1;
     // we assume the last mask index is available for use
     GrAssert(!grp->isMaskStageEnabled(MASK_IDX));
-    grp->setMask(MASK_IDX, blurTexture);
     grp->maskSampler(MASK_IDX)->reset();
-
+    grp->maskSampler(MASK_IDX)->setCustomStage(
+        SkNEW_ARGS(GrSingleTextureEffect, (blurTexture)))->unref();
     grp->maskSampler(MASK_IDX)->matrix()->setTranslate(-finalRect.fLeft,
                                                        -finalRect.fTop);
     grp->maskSampler(MASK_IDX)->matrix()->postIDiv(blurTexture->width(),
@@ -1034,9 +1029,9 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     static const int MASK_IDX = GrPaint::kMaxMasks - 1;
     // we assume the last mask index is available for use
     GrAssert(!grp->isMaskStageEnabled(MASK_IDX));
-    grp->setMask(MASK_IDX, texture);
     grp->maskSampler(MASK_IDX)->reset();
-
+    grp->maskSampler(MASK_IDX)->setCustomStage(
+        SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     GrRect d;
     d.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
               GrIntToScalar(dstM.fBounds.fTop),
@@ -1628,25 +1623,23 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 
     GrPaint grPaint;
     SkAutoCachedTexture colorLutTexture;
+    grPaint.textureSampler(kBitmapTextureIdx)->reset();
     if (!dev->bindDeviceAsTexture(&grPaint) ||
         !skPaint2GrPaintNoShader(this, paint, true, false, &colorLutTexture, &grPaint)) {
         return;
     }
 
-    GrTexture* devTex = grPaint.getTexture(0);
+    GrTexture* devTex = grPaint.getTextureSampler(kBitmapTextureIdx).getCustomStage()->texture(0);
     SkASSERT(NULL != devTex);
 
     SkImageFilter* filter = paint.getImageFilter();
-    grPaint.textureSampler(kBitmapTextureIdx)->reset();
     if (NULL != filter) {
-        GrRect rect = GrRect::MakeWH(SkIntToScalar(devTex->width()), 
+        GrRect rect = GrRect::MakeWH(SkIntToScalar(devTex->width()),
                                      SkIntToScalar(devTex->height()));
-        GrTexture* filteredTexture = filter_texture(fContext, devTex, filter,
-                                                    rect);
+        GrTexture* filteredTexture = filter_texture(fContext, devTex, filter, rect);
         if (filteredTexture) {
             grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
                 (GrSingleTextureEffect, (filteredTexture)))->unref();
-            grPaint.setTexture(kBitmapTextureIdx, NULL);
             devTex = filteredTexture;
             filteredTexture->unref();
         }
