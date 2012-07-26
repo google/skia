@@ -10,25 +10,21 @@
 #include "SkFlattenable.h"
 
 SkMallocPixelRef::SkMallocPixelRef(void* storage, size_t size,
-                                   SkColorTable* ctable, bool ownPixels) {
+                                   SkColorTable* ctable) {
     if (NULL == storage) {
-        SkASSERT(ownPixels);
         storage = sk_malloc_throw(size);
     }
     fStorage = storage;
     fSize = size;
     fCTable = ctable;
     SkSafeRef(ctable);
-    fOwnPixels = ownPixels;
     
     this->setPreLocked(fStorage, fCTable);
 }
 
 SkMallocPixelRef::~SkMallocPixelRef() {
     SkSafeUnref(fCTable);
-    if (fOwnPixels) {
-        sk_free(fStorage);
-    }
+    sk_free(fStorage);
 }
 
 void* SkMallocPixelRef::onLockPixels(SkColorTable** ct) {
@@ -63,7 +59,6 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
     } else {
         fCTable = NULL;
     }
-    fOwnPixels = true;
 
     this->setPreLocked(fStorage, fCTable);
 }
