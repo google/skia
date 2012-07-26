@@ -7,122 +7,64 @@
  */
 
 
-#include "SkPicture.h"
-#include "SkStream.h"
 #include "SkCanvasWidget.h"
-#include "SkColor.h"
 
-SkCanvasWidget::SkCanvasWidget(QWidget *parent) :
-    QWidget(parent) {
+SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
+    , fHorizontalLayout(this)
+    , fRasterWidget(this)
+    , fGLWidget(this)
+{
+    fHorizontalLayout.setSpacing(6);
+    fHorizontalLayout.setContentsMargins(0,0,0,0);
+    fRasterWidget.setSizePolicy(QSizePolicy::Expanding,
+            QSizePolicy::Expanding);
+    fGLWidget.setSizePolicy(QSizePolicy::Expanding,
+            QSizePolicy::Expanding);
 
-    /* TODO(chudy): The 800x800 is a default number. Change it to be
-     * set dynamically. Also need to pass size into debugCanvas for current
-     * command filter. */
-    fBitmap.setConfig(SkBitmap::kARGB_8888_Config, 800, 800);
-    fBitmap.allocPixels();
-    fBitmap.eraseColor(0);
-
-    /* TODO(chudy): Add fCanvas, fDevice to the stack. The bitmap being
-     * cleared does get rid of fDevices link to it. See if there's someway around
-     * it so that we don't have to delete both canvas and device to clear out
-     * the bitmap. */
-    fDevice = new SkDevice(fBitmap);
-    fCanvas = new SkCanvas(fDevice);
+    fHorizontalLayout.addWidget(&fRasterWidget);
+    fHorizontalLayout.addWidget(&fGLWidget);
     fDebugCanvas = new SkDebugCanvas();
 
-    fScaleFactor = 1.0;
     fIndex = 0;
     fPreviousPoint.set(0,0);
     fTransform.set(0,0);
+    fScaleFactor = 1.0;
 
-    this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
+    setWidgetVisibility(kGPU_WidgetType, true);
 }
 
-SkCanvasWidget::~SkCanvasWidget() {
-    delete fCanvas;
-    delete fDevice;
-    delete fDebugCanvas;
-}
-
-void SkCanvasWidget::resizeEvent(QResizeEvent* event) {
-    fBitmap.setConfig(SkBitmap::kARGB_8888_Config, event->size().width(), event->size().height());
-    fBitmap.allocPixels();
-    fBitmap.eraseColor(0);
-
-    delete fCanvas;
-    delete fDevice;
-
-    fDevice = new SkDevice(fBitmap);
-    fCanvas = new SkCanvas(fDevice);
-    fDebugCanvas->setBounds(event->size().width(), event->size().height());
-    fDebugCanvas->drawTo(fCanvas, fIndex+1, &fBitmap);
-    this->update();
-}
-
-void SkCanvasWidget::drawTo(int fIndex) {
-    delete fCanvas;
-    fCanvas = new SkCanvas(fDevice);
-    fBitmap.eraseColor(0);
-    fCanvas->translate(fTransform.fX, fTransform.fY);
-    if(fScaleFactor < 0) {
-        fCanvas->scale((1.0 / -fScaleFactor),(1.0 / -fScaleFactor));
-    } else if (fScaleFactor > 0) {
-        fCanvas->scale(fScaleFactor, fScaleFactor);
+void SkCanvasWidget::drawTo(int index) {
+    fIndex = index;
+    if (!fRasterWidget.isHidden()) {
+        fRasterWidget.drawTo(index);
     }
-
+    if (!fGLWidget.isHidden()) {
+        fGLWidget.drawTo(index);
+    }
     emit commandChanged(fIndex);
-    fDebugCanvas->drawTo(fCanvas, fIndex+1, &fBitmap);
-    this->update();
-    this->fIndex = fIndex;
 }
 
 void SkCanvasWidget::loadPicture(QString filename) {
-    SkStream *stream = new SkFILEStream(filename.toAscii());
-    SkPicture *picture = new SkPicture(stream);
+    SkStream* stream = new SkFILEStream(filename.toAscii());
+    SkPicture* picture = new SkPicture(stream);
 
+    /* TODO(chudy): Implement function that doesn't require new
+     * instantiation of debug canvas. */
     delete fDebugCanvas;
     fDebugCanvas = new SkDebugCanvas();
     fDebugCanvas->setBounds(this->width(), this->height());
-
     picture->draw(fDebugCanvas);
-    fDebugCanvas->draw(fCanvas);
-
     fIndex = fDebugCanvas->getSize();
-
-    SkColor color = fBitmap.getColor(fBitmap.width()-1,fBitmap.height()-1);
-
-    int r = SkColorGetR(color);
-    int g = SkColorGetG(color);
-    int b = SkColorGetB(color);
-
-    /* NOTE(chudy): This was a test to determine if the canvas size is accurately
-     * saved in the bounds of the recorded picture. It is not. Everyone of the
-     * sample GM images is 1000x1000. Even the one that claims it is
-     * 2048x2048.
-    std::cout << "Width: " << picture->width();
-    std::cout << " Height: " <<  picture->height() << std::endl; */
-
-    /* Updated style sheet without a background specified. If not removed
-     * QPainter paints the specified background color on top of our canvas. */
-
-    QString style("QWidget {border: 1px solid #cccccc; background-color: #");
-    style.append(QString::number(r, 16));
-    style.append(QString::number(g, 16));
-    style.append(QString::number(b, 16));
-    style.append(";}");
-    this->setStyleSheet(style);
-    this->update();
+    fRasterWidget.setDebugCanvas(fDebugCanvas);
+    fGLWidget.setDebugCanvas(fDebugCanvas);
 }
 
 void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
-
     SkIPoint eventPoint = SkIPoint::Make(event->globalX(), event->globalY());
     fTransform += eventPoint - fPreviousPoint;
     fPreviousPoint = eventPoint;
-
-    // TODO(chudy): Fix and remove +1 from drawTo calls.
+    updateWidgetTransform(kTranslate);
     drawTo(fIndex);
-    this->update();
 }
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
@@ -138,23 +80,34 @@ void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {
     fTransform.set(0,0);
     fScaleFactor = 1.0;
     emit scaleFactorChanged(fScaleFactor);
+    // TODO(chudy): Change to signal / slot mechanism.
+    resetWidgetTransform();
     drawTo(fIndex);
-    this->update();
 }
 
-void SkCanvasWidget::paintEvent(QPaintEvent *event) {
-    QPainter painter(this);
-    QStyleOption opt;
-    opt.init(this);
+void SkCanvasWidget::resetWidgetTransform() {
+    fTransform.set(0,0);
+    fScaleFactor = 1.0;
+    updateWidgetTransform(kTranslate);
+    updateWidgetTransform(kScale);
+}
 
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
+    if (type == kRaster_8888_WidgetType) {
+        fRasterWidget.setHidden(isHidden);
+    } else if (type == kGPU_WidgetType) {
+        fGLWidget.setHidden(isHidden);
+    }
+}
 
-    QPoint origin(0,0);
-    QImage image((uchar *)fBitmap.getPixels(), fBitmap.width(),
-            fBitmap.height(), QImage::Format_ARGB32_Premultiplied);
-
-    painter.drawImage(origin, image);
-    painter.end();
+void SkCanvasWidget::updateWidgetTransform(TransformType type) {
+    if (type == kTranslate) {
+        fRasterWidget.setTranslate(fTransform);
+        fGLWidget.setTranslate(fTransform);
+    } else if (type == kScale) {
+        fRasterWidget.setScale(fScaleFactor);
+        fGLWidget.setScale(fScaleFactor);
+    }
 }
 
 void SkCanvasWidget::wheelEvent(QWheelEvent* event) {
@@ -167,10 +120,7 @@ void SkCanvasWidget::wheelEvent(QWheelEvent* event) {
     if (fScaleFactor == 0) {
         fScaleFactor += (event->delta()/120) * 2;
     }
-
     emit scaleFactorChanged(fScaleFactor);
-
-    // TODO(chudy): Fix and remove +1 from drawTo calls.
+    updateWidgetTransform(kScale);
     drawTo(fIndex);
-    this->update();
 }

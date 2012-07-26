@@ -7,91 +7,27 @@
  */
 
 
-#ifndef SKCANVASWIDGET_H
-#define SKCANVASWIDGET_H
+#ifndef SKCANVASWIDGET_H_
+#define SKCANVASWIDGET_H_
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkDebugCanvas.h"
-#include "SkDevice.h"
-#include "SkPicture.h"
-#include <QApplication>
-#include <QtGui>
 #include <QWidget>
-#include <QWheelEvent>
+#include <QHBoxLayout>
+#include "SkStream.h"
+#include "SkRasterWidget.h"
+#include "SkGLWidget.h"
 
-/** \class SkCanvasWidget
-
-      The QtWidget encompasses all skia screen drawing elements. It initializes
-      an SkBitmap in memory that our SkCanvas draws to directly in memory.
-      Then using QImage and QPainter we draw those pixels on the screen in
-      this widget.
- */
 class SkCanvasWidget : public QWidget {
     Q_OBJECT
 
 public:
-    /**
-         Constructs a widget with the specified parent for layout purposes.
-        @param parent  The parent container of this widget
-     */
-    SkCanvasWidget(QWidget *parent);
+    SkCanvasWidget(QWidget* parent);
 
-    ~SkCanvasWidget();
+    ~SkCanvasWidget() {}
 
-    /**
-        Executes all saved draw commands up to the specified index.
-         @param index  The position of the command we draw up to.
-     */
-    void drawTo(int index);
-
-    /**
-        Returns the height of the bitmap.
-     */
-    int getBitmapHeight() { return fBitmap.height(); }
-
-
-    /*
-        Returns the width of the bitmap.
-     */
-    int getBitmapWidth() { return fBitmap.width(); }
-
-    /**
-        Returns an array of values of the current matrix.
-     */
-    const SkMatrix& getCurrentMatrix() {
-        return fCanvas->getTotalMatrix();
-    }
-
-    /**
-        Returns an array of values of the current bounding clip.
-     */
-    const SkIRect& getCurrentClip() {
-        return fCanvas->getTotalClip().getBounds();
-    }
-
-    /**
-        TODO(chudy): Refactor into a struct of char**
-        Returns parameter information about the ith draw command.
-        @param: i  The index of the draw command we are accessing
-     */
-    std::vector<std::string>* getCurrentCommandInfo(int i) {
-        return fDebugCanvas->getCommandInfoAt(i);
-    }
-
-    /**
-          Returns a vector of strings with all the current canvas draw
-          commands.
-     */
-    std::vector<std::string>* getDrawCommands() {
-        return fDebugCanvas->getDrawCommandsAsStrings();
-    }
-
-    /**
-        Loads a skia picture located at filename.
-        @param filename  The name of the file we are loading.
-     */
-    void loadPicture(QString filename);
+    enum WidgetType {
+        kRaster_8888_WidgetType = 1 << 0,
+        kGPU_WidgetType         = 1 << 1,
+    };
 
     /**
         Returns the visibility of the command at the specified index.
@@ -110,6 +46,22 @@ public:
     }
 
     /**
+          Returns a vector of strings with all the current canvas draw
+          commands.
+     */
+    std::vector<std::string>* getDrawCommands() {
+        return fDebugCanvas->getDrawCommandsAsStrings();
+    }
+
+    SkDebugCanvas* getCurrentDebugCanvas() {
+        return fDebugCanvas;
+    }
+
+    void drawTo(int index);
+
+    void setWidgetVisibility(WidgetType type, bool isHidden);
+
+    /**
         Toggles drawing filter on all drawing commands previous to current.
      */
     void toggleCurrentCommandFilter(bool toggle) {
@@ -117,42 +69,71 @@ public:
     }
 
     /**
-        Captures mouse clicks
-        @param event  The event intercepted by Qt
+        TODO(chudy): Refactor into a struct of char**
+        Returns parameter information about the ith draw command.
+        @param: i  The index of the draw command we are accessing
      */
-    void mouseMoveEvent(QMouseEvent* event);
+    std::vector<std::string>* getCurrentCommandInfo(int i) {
+        return fDebugCanvas->getCommandInfoAt(i);
+    }
 
-    void mousePressEvent(QMouseEvent* event);
+    const SkMatrix& getCurrentMatrix() {
+        return fRasterWidget.getCurrentMatrix();
+    }
 
-    void mouseDoubleClickEvent(QMouseEvent* event);
+    const SkIRect& getCurrentClip() {
+        return fRasterWidget.getCurrentClip();
+    }
 
-    void resizeEvent(QResizeEvent* event);
+    void loadPicture(QString filename);
 
-    void wheelEvent(QWheelEvent* event);
+    // TODO(chudy): Not full proof since fRasterWidget isn't always drawn to.
+    int getBitmapHeight() {
+        return fRasterWidget.getBitmapHeight();
+    }
+
+    int getBitmapWidth() {
+        return fRasterWidget.getBitmapWidth();
+    }
+
+    SkRasterWidget* getRasterWidget() {
+        return &fRasterWidget;
+    }
+
+
 
 signals:
     void scaleFactorChanged(float newScaleFactor);
     void commandChanged(int newCommand);
     void hitChanged(int hit);
 
-protected:
-    /**
-        Draws the current state of the widget.
-        @param event  The event intercepted by Qt
-     */
-    void paintEvent(QPaintEvent *event);
-
 private:
-    SkBitmap fBitmap;
-    SkCanvas* fCanvas;
+    QHBoxLayout fHorizontalLayout;
+    SkRasterWidget fRasterWidget;
+    SkGLWidget fGLWidget;
     SkDebugCanvas* fDebugCanvas;
-    SkDevice* fDevice;
-
     SkIPoint fPreviousPoint;
     SkIPoint fTransform;
-
-    int fIndex;
     float fScaleFactor;
+    int fIndex;
+
+    enum TransformType {
+        kTranslate 	= 1 << 0,
+        kScale 		= 1 << 1,
+    };
+
+    void resetWidgetTransform();
+
+    void updateWidgetTransform(TransformType type);
+
+    void mouseMoveEvent(QMouseEvent* event);
+
+    void mousePressEvent(QMouseEvent* event);
+
+    void mouseDoubleClickEvent(QMouseEvent* event);
+
+    void wheelEvent(QWheelEvent* event);
 };
 
-#endif
+
+#endif /* SKCANVASWIDGET_H_ */

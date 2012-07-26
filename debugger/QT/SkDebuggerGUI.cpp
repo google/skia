@@ -47,48 +47,34 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fLoading(false)
 {
     setupUi(this);
-    connect(&fListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,
-                    QListWidgetItem*)), this,
-            SLOT(registerListClick(QListWidgetItem *)));
+    connect(&fListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(registerListClick(QListWidgetItem *)));
     connect(&fActionOpen, SIGNAL(triggered()), this, SLOT(openFile()));
-    connect(&fActionDirectory, SIGNAL(triggered()), this,
-            SLOT(toggleDirectory()));
-    connect(&fDirectoryWidget, SIGNAL(currentItemChanged(QListWidgetItem*,
-                    QListWidgetItem*)), this,
-            SLOT(loadFile(QListWidgetItem *)));
+    connect(&fActionDirectory, SIGNAL(triggered()), this, SLOT(toggleDirectory()));
+    connect(&fDirectoryWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(loadFile(QListWidgetItem *)));
     connect(&fActionDelete, SIGNAL(triggered()), this, SLOT(actionDelete()));
-    connect(&fListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this,
-            SLOT(toggleBreakpoint()));
+    connect(&fListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(toggleBreakpoint()));
     connect(&fActionRewind, SIGNAL(triggered()), this, SLOT(actionRewind()));
     connect(&fActionPlay, SIGNAL(triggered()), this, SLOT(actionPlay()));
     connect(&fActionStepBack, SIGNAL(triggered()), this, SLOT(actionStepBack()));
-    connect(&fActionStepForward, SIGNAL(triggered()), this,
-            SLOT(actionStepForward()));
-    connect(&fActionBreakpoint, SIGNAL(triggered()), this,
-            SLOT(actionBreakpoints()));
-    connect(&fActionInspector, SIGNAL(triggered()), this,
-            SLOT(actionInspector()));
-    connect(&fActionInspector, SIGNAL(triggered()), this,
-            SLOT(actionSettings()));
-    connect(&fFilter, SIGNAL(activated(QString)), this,
-            SLOT(toggleFilter(QString)));
+    connect(&fActionStepForward, SIGNAL(triggered()), this, SLOT(actionStepForward()));
+    connect(&fActionBreakpoint, SIGNAL(triggered()), this, SLOT(actionBreakpoints()));
+    connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionInspector()));
+    connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionSettings()));
+    connect(&fFilter, SIGNAL(activated(QString)), this, SLOT(toggleFilter(QString)));
     connect(&fActionCancel, SIGNAL(triggered()), this, SLOT(actionCancel()));
     connect(&fActionClearBreakpoints, SIGNAL(triggered()), this, SLOT(actionClearBreakpoints()));
     connect(&fActionClearDeletes, SIGNAL(triggered()), this, SLOT(actionClearDeletes()));
     connect(&fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
-    connect(fSettingsWidget.getVisibilityButton(), SIGNAL(toggled(bool)), this,
-            SLOT(actionCommandFilter()));
-    connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this,
-            SLOT(actionScale(float)));
-    connect(&fActionPause, SIGNAL(toggled(bool)),
-            this, SLOT(pauseDrawing(bool)));
-    connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget,
-            SLOT(updateCommand(int)));
-    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), this, SLOT(selectCommand(int)));
-    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget,
-            SLOT(updateHit(int)));
+    connect(fSettingsWidget.getVisibilityButton(), SIGNAL(toggled(bool)), this, SLOT(actionCommandFilter()));
+    connect(fSettingsWidget.getGLCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionGLWidget(bool)));
+    connect(fSettingsWidget.getRasterCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionRasterWidget(bool)));
+    connect(&fActionPause, SIGNAL(toggled(bool)), this, SLOT(pauseDrawing(bool)));
     connect(&fActionCreateBreakpoint, SIGNAL(activated()), this, SLOT(toggleBreakpoint()));
     connect(&fActionShowDeletes, SIGNAL(triggered()), this, SLOT(showDeletes()));
+    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), this, SLOT(selectCommand(int)));
+    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget, SLOT(updateHit(int)));
+    connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this, SLOT(actionScale(float)));
+    connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget, SLOT(updateCommand(int)));
 
     fInspectorWidget.setDisabled(true);
     fMenuEdit.setDisabled(true);
@@ -174,6 +160,10 @@ void SkDebuggerGUI::actionDelete() {
     }
 }
 
+void SkDebuggerGUI::actionGLWidget(bool isToggled) {
+    fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kGPU_WidgetType, !isToggled);
+}
+
 void SkDebuggerGUI::actionInspector() {
     if (fInspectorWidget.isHidden()) {
         fInspectorWidget.setHidden(false);
@@ -192,6 +182,10 @@ void SkDebuggerGUI::actionPlay() {
         }
     }
     fListWidget.setCurrentRow(fListWidget.count() - 1);
+}
+
+void SkDebuggerGUI::actionRasterWidget(bool isToggled) {
+    fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kRaster_8888_WidgetType, !isToggled);
 }
 
 void SkDebuggerGUI::actionRewind() {
@@ -263,28 +257,32 @@ void SkDebuggerGUI::pauseDrawing(bool isPaused) {
 void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
     if(!fLoading) {
         int currentRow = fListWidget.currentRow();
-        if (!fPause) {
-            fCanvasWidget.drawTo(currentRow);
-        }
-        std::vector<std::string> *v = fCanvasWidget.getCurrentCommandInfo(
-                currentRow);
 
-        /* TODO(chudy): Add command type before parameters. Rename v
-         * to something more informative. */
-        if (v) {
-            std::vector<std::string>::iterator it;
-
-            QString info;
-            info.append("<b>Parameters: </b><br/>");
-            for (it = v->begin(); it != v->end(); ++it) {
-                info.append(QString((*it).c_str()));
-                info.append("<br/>");
+        if (currentRow != -1) {
+            if (!fPause) {
+                fCanvasWidget.drawTo(currentRow);
             }
-            fInspectorWidget.setDetailText(info);
-            fInspectorWidget.setDisabled(false);
-            fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
-            fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
+            std::vector<std::string> *cuffInfo = fCanvasWidget.getCurrentCommandInfo(
+                    currentRow);
+
+            /* TODO(chudy): Add command type before parameters. Rename v
+             * to something more informative. */
+            if (cuffInfo) {
+                std::vector<std::string>::iterator it;
+
+                QString info;
+                info.append("<b>Parameters: </b><br/>");
+                for (it = cuffInfo->begin(); it != cuffInfo->end(); ++it) {
+                    info.append(QString((*it).c_str()));
+                    info.append("<br/>");
+                }
+                fInspectorWidget.setDetailText(info);
+                fInspectorWidget.setDisabled(false);
+                fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
+                fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
+            }
         }
+
     }
 }
 
@@ -476,7 +474,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     // TODO(chudy): Remove static call.
     fDirectoryWidgetActive = false;
-    fPath = "/usr/local/google/home/chudy/trunk-linux/debugger/skp";
+    fPath = "/usr/local/google/home/chudy/trunk-git/trunk/skp";
     setupDirectoryWidget();
     fDirectoryWidgetActive = true;
 

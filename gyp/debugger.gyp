@@ -7,6 +7,8 @@
         '../src/core',
         '../debugger', # To pull SkDebugger.h
         '../debugger/QT', # For all the QT UI Goodies
+        '../include/gpu/',
+        '../src/gpu', # To pull gl/GrGLUtil.h
       ],
       'sources': [
         '../debugger/SkDebugCanvas.h',
@@ -14,8 +16,8 @@
         '../debugger/SkDebugger.cpp',
         '../debugger/SkDrawCommand.h',
         '../debugger/SkDrawCommand.cpp',
-        '../debugger/QT/moc_SkDebuggerGUI.cpp',
         '../debugger/QT/moc_SkCanvasWidget.cpp',
+        '../debugger/QT/moc_SkDebuggerGUI.cpp',
         '../debugger/QT/moc_SkInspectorWidget.cpp',
         '../debugger/QT/moc_SkSettingsWidget.cpp',
         '../debugger/QT/SkDebuggerGUI.cpp',
@@ -32,6 +34,10 @@
         '../debugger/QT/SkSettingsWidget.cpp',
         '../debugger/SkHitBox.h',
         '../debugger/SkHitBox.cpp',
+        '../debugger/QT/SkGLWidget.h',
+        '../debugger/QT/SkGLWidget.cpp',
+        '../debugger/QT/SkRasterWidget.h',
+        '../debugger/QT/SkRasterWidget.cpp',
 
         # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
         '../debugger/QT/qrc_SkIcons.cpp',
@@ -41,6 +47,8 @@
         'images.gyp:images',
         'ports.gyp:ports',
         'effects.gyp:effects',
+        'gpu.gyp:gr',
+        'gpu.gyp:skgr',
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
@@ -48,11 +56,13 @@
             '/usr/include/qt4',
             '/usr/include/qt4/QtCore',
             '/usr/include/qt4/QtGui',
+            '/usr/include/qt4/QtOpenGL',
           ],
           'link_settings': {
             'libraries' : [
               '-lQtCore',
               '-lQtGui',
+              '-lQtOpenGL'
             ],
           },
         }],
@@ -64,11 +74,13 @@
           'include_dirs': [
             '/Library/Frameworks/QtCore.framework/Headers/',
             '/Library/Frameworks/QtGui.framework/Headers/',
+            '/Library/Frameworks/QtOpenGL.framework/Headers/',
           ],
           'link_settings': {
             'libraries': [
               '/Library/Frameworks/QtCore.framework',
               '/Library/Frameworks/QtGui.framework',
+              '/Library/Frameworks/QtOpenGL.framework',
             ],
           },
         }],
@@ -78,11 +90,13 @@
             'C:/Qt/4.6.4/include',
             'C:/Qt/4.6.4/include/QtCore',
             'C:/Qt/4.6.4/include/QtGui',
+            'C:/Qt/4.6.4/include/QtOpenGL',
           ],
           'link_settings': {
             'libraries': [
               'C:/Qt/4.6.4/lib/QtCore4.lib',
               'C:/Qt/4.6.4/lib/QtGui4.lib',
+              'C:/Qt/4.6.4/lib/QtOpenGL.lib',
             ],
           },
         }],

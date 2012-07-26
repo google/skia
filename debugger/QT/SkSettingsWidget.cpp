@@ -11,6 +11,7 @@
 #include <iostream>
 #include <math.h>
 
+// TODO(chudy): See if the layout can't be attached to the frame post construction.
 SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     , mainFrameLayout(this)
     , fVerticalLayout(&mainFrame)
@@ -20,6 +21,7 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     , fCommandLayout(&fCommandFrame)
     , fCurrentCommandBox(&fCommandFrame)
     , fCommandHitBox(&fCommandFrame)
+    , fCanvasLayout(&fCanvasFrame)
     , fZoomBox(&fZoomFrame)
     , fZoomLayout(&fZoomFrame)
 {
@@ -45,6 +47,33 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     fVisibleFrameLayout.setContentsMargins(11,11,11,11);
     fVisibleFrameLayout.addWidget(&fVisibleOn);
     fVisibleFrameLayout.addWidget(&fVisibleOff);
+
+    // Canvas
+    fCanvasToggle.setText("Render Targets");
+    fCanvasFrame.setFrameShape(QFrame::StyledPanel);
+    fCanvasFrame.setFrameShadow(QFrame::Raised);
+
+    fRasterLabel.setText("Raster: ");
+    fRasterLabel.setMinimumWidth(178);
+    fRasterLabel.setMaximumWidth(178);
+
+    fRasterCheckBox.setChecked(true);
+
+    fGLLabel.setText("OpenGL: ");
+    fGLLabel.setMinimumWidth(178);
+    fGLLabel.setMaximumWidth(178);
+
+    fRasterLayout.addWidget(&fRasterLabel);
+    fRasterLayout.addWidget(&fRasterCheckBox);
+
+    fGLLayout.addWidget(&fGLLabel);
+    fGLLayout.addWidget(&fGLCheckBox);
+
+    fCanvasLayout.setSpacing(6);
+    fCanvasLayout.setContentsMargins(11,11,11,11);
+    fCanvasLayout.addWidget(&fCanvasToggle);
+    fCanvasLayout.addLayout(&fRasterLayout);
+    fCanvasLayout.addLayout(&fGLLayout);
 
     // Command Toggle
     fCommandToggle.setText("Command Scrolling Preferences");
@@ -103,6 +132,8 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     fVerticalLayout.addWidget(&fVisibleFrame);
     fVerticalLayout.addWidget(&fCommandToggle);
     fVerticalLayout.addWidget(&fCommandFrame);
+    fVerticalLayout.addWidget(&fCanvasToggle);
+    fVerticalLayout.addWidget(&fCanvasFrame);
     fVerticalLayout.addWidget(&fZoomFrame);
 
     this->setDisabled(true);

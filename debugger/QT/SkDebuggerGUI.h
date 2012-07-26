@@ -11,10 +11,12 @@
 
 
 #include "SkCanvas.h"
+#include "SkCanvasWidget.h"
 #include "SkDebugCanvas.h"
+#include "SkGLWidget.h"
 #include "SkListWidget.h"
 #include "SkInspectorWidget.h"
-#include "SkCanvasWidget.h"
+#include "SkRasterWidget.h"
 #include "SkSettingsWidget.h"
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -89,6 +91,11 @@ private slots:
     void actionDelete();
 
     /**
+        Toggles the visibility of the GL canvas widget.
+     */
+    void actionGLWidget(bool isToggled);
+
+    /**
         Toggles the visibility of the inspector widget.
      */
     void actionInspector();
@@ -98,6 +105,11 @@ private slots:
         executes all remaining draw commands.
      */
     void actionPlay();
+
+    /**
+        Toggles the visibility of the raster canvas widget.
+     */
+    void actionRasterWidget(bool isToggled);
 
     /**
         Rewinds from the current step back to the start of the commands.
