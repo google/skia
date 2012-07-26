@@ -202,6 +202,9 @@ private:
     QAction fActionShowDeletes;
     QAction fActionStepBack;
     QAction fActionStepForward;
+    QAction fActionZoomIn;
+    QAction fActionZoomOut;
+    QSignalMapper fMapper;
     QWidget fCentralWidget;
 
     QComboBox fFilter;

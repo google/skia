@@ -28,6 +28,9 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fActionShowDeletes(this)
     , fActionStepBack(this)
     , fActionStepForward(this)
+    , fActionZoomIn(this)
+    , fActionZoomOut(this)
+    , fMapper(this)
     , fCentralWidget(this)
     , fFilter(&fCentralWidget)
     , fContainerLayout(&fCentralWidget)
@@ -75,6 +78,13 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget, SLOT(updateHit(int)));
     connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this, SLOT(actionScale(float)));
     connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget, SLOT(updateCommand(int)));
+
+    fMapper.setMapping(&fActionZoomIn, 1);
+    fMapper.setMapping(&fActionZoomOut, -1);
+
+    connect(&fActionZoomIn, SIGNAL(triggered()), &fMapper, SLOT(map()));
+    connect(&fActionZoomOut, SIGNAL(triggered()), &fMapper, SLOT(map()));
+    connect(&fMapper, SIGNAL(mapped(int)), &fCanvasWidget, SLOT(keyZoom(int)));
 
     fInspectorWidget.setDisabled(true);
     fMenuEdit.setDisabled(true);
@@ -413,6 +423,11 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionStepForward.setIcon(stepForward);
     fActionStepForward.setText("Step Forward");
 
+    fActionZoomIn.setShortcut(QKeySequence(tr("Ctrl+=")));
+    fActionZoomIn.setText("Zoom In");
+    fActionZoomOut.setShortcut(QKeySequence(tr("Ctrl+-")));
+    fActionZoomOut.setText("Zoom Out");
+
     fListWidget.setItemDelegate(new SkListWidget(&fListWidget));
     fListWidget.setObjectName(QString::fromUtf8("listWidget"));
     fListWidget.setMaximumWidth(250);
@@ -501,6 +516,8 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fMenuView.setTitle("View");
     fMenuView.addAction(&fActionBreakpoint);
     fMenuView.addAction(&fActionShowDeletes);
+    fMenuView.addAction(&fActionZoomIn);
+    fMenuView.addAction(&fActionZoomOut);
 
     fMenuWindows.setTitle("Window");
     fMenuWindows.addAction(&fActionInspector);

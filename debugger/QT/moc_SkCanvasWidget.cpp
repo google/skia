@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SkCanvasWidget.h'
 **
-** Created: Wed Jul 11 15:15:07 2012
+** Created: Thu Jul 26 15:56:26 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_SkCanvasWidget[] = {
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -35,6 +35,9 @@ static const uint qt_meta_data_SkCanvasWidget[] = {
       68,   57,   15,   15, 0x05,
       92,   88,   15,   15, 0x05,
 
+ // slots: signature, parameters, type, tag, flags
+     122,  108,   15,   15, 0x08,
+
        0        // eod
 };
 
@@ -42,6 +45,7 @@ static const char qt_meta_stringdata_SkCanvasWidget[] = {
     "SkCanvasWidget\0\0newScaleFactor\0"
     "scaleFactorChanged(float)\0newCommand\0"
     "commandChanged(int)\0hit\0hitChanged(int)\0"
+    "zoomIncrement\0keyZoom(int)\0"
 };
 
 const QMetaObject SkCanvasWidget::staticMetaObject = {
@@ -76,9 +80,10 @@ int SkCanvasWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 0: scaleFactorChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 1: commandChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 2: hitChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 3: keyZoom((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 3;
+        _id -= 4;
     }
     return _id;
 }

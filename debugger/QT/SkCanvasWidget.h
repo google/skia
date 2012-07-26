@@ -100,12 +100,17 @@ public:
         return &fRasterWidget;
     }
 
-
+    void zoom(float zoomIncrement);
 
 signals:
     void scaleFactorChanged(float newScaleFactor);
     void commandChanged(int newCommand);
     void hitChanged(int hit);
+
+private slots:
+    void keyZoom(int zoomIncrement) {
+        zoom(zoomIncrement);
+    }
 
 private:
     QHBoxLayout fHorizontalLayout;
@@ -132,7 +137,9 @@ private:
 
     void mouseDoubleClickEvent(QMouseEvent* event);
 
-    void wheelEvent(QWheelEvent* event);
+    void wheelEvent(QWheelEvent* event) {
+        zoom(event->delta()/120);
+    }
 };
 
 
