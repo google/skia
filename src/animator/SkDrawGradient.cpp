@@ -30,9 +30,9 @@ static U16CPU SkScalarToUnit(SkScalar x) {
 #endif
 }
 
-class SkGradientUnitMapper : public SkUnitMapper {
+class SkDrawGradientUnitMapper : public SkUnitMapper {
 public:
-    SkGradientUnitMapper(SkAnimateMaker* maker, const char* script) : fMaker(maker), fScript(script) {
+    SkDrawGradientUnitMapper(SkAnimateMaker* maker, const char* script) : fMaker(maker), fScript(script) {
     }
     
     SK_DECLARE_UNFLATTENABLE_OBJECT()
@@ -65,7 +65,7 @@ protected:
 
 #if SK_USE_CONDENSED_INFO == 0
 
-const SkMemberInfo SkGradient::fInfo[] = {
+const SkMemberInfo SkDrawGradient::fInfo[] = {
     SK_MEMBER_INHERITED,
     SK_MEMBER_ARRAY(offsets, Float),
     SK_MEMBER(unitMapper, String)
@@ -73,18 +73,18 @@ const SkMemberInfo SkGradient::fInfo[] = {
 
 #endif
 
-DEFINE_GET_MEMBER(SkGradient);
+DEFINE_GET_MEMBER(SkDrawGradient);
 
-SkGradient::SkGradient() : fUnitMapper(NULL) {
+SkDrawGradient::SkDrawGradient() : fUnitMapper(NULL) {
 }
 
-SkGradient::~SkGradient() {
+SkDrawGradient::~SkDrawGradient() {
     for (int index = 0; index < fDrawColors.count(); index++) 
         delete fDrawColors[index];
     delete fUnitMapper;
 }
 
-bool SkGradient::add(SkAnimateMaker& , SkDisplayable* child) {
+bool SkDrawGradient::add(SkAnimateMaker& , SkDisplayable* child) {
     SkASSERT(child);
     if (child->isColor()) {
         SkDrawColor* color = (SkDrawColor*) child;
@@ -94,7 +94,7 @@ bool SkGradient::add(SkAnimateMaker& , SkDisplayable* child) {
     return false;
 }
 
-int SkGradient::addPrelude() {
+int SkDrawGradient::addPrelude() {
     int count = fDrawColors.count();
     fColors.setCount(count);
     for (int index = 0; index < count; index++) 
@@ -103,7 +103,7 @@ int SkGradient::addPrelude() {
 }
 
 #ifdef SK_DUMP_ENABLED
-void SkGradient::dumpRest(SkAnimateMaker* maker) {
+void SkDrawGradient::dumpRest(SkAnimateMaker* maker) {
     dumpAttrs(maker);
     //can a gradient have no colors?
     bool closedYet = false;
@@ -121,7 +121,7 @@ void SkGradient::dumpRest(SkAnimateMaker* maker) {
 }
 #endif
 
-void SkGradient::onEndElement(SkAnimateMaker& maker) {
+void SkDrawGradient::onEndElement(SkAnimateMaker& maker) {
     if (offsets.count() != 0) {
         if (offsets.count() != fDrawColors.count()) {
             maker.setErrorCode(SkDisplayXMLParserError::kGradientOffsetsDontMatchColors);
@@ -147,25 +147,25 @@ void SkGradient::onEndElement(SkAnimateMaker& maker) {
         }
     }
     if (unitMapper.size() > 0) 
-        fUnitMapper = new SkGradientUnitMapper(&maker, unitMapper.c_str());
+        fUnitMapper = new SkDrawGradientUnitMapper(&maker, unitMapper.c_str());
     INHERITED::onEndElement(maker);
 }
 
 #if SK_USE_CONDENSED_INFO == 0
 
-const SkMemberInfo SkLinearGradient::fInfo[] = {
+const SkMemberInfo SkDrawLinearGradient::fInfo[] = {
     SK_MEMBER_INHERITED,
     SK_MEMBER_ARRAY(points, Float),
 };
 
 #endif
 
-DEFINE_GET_MEMBER(SkLinearGradient);
+DEFINE_GET_MEMBER(SkDrawLinearGradient);
 
-SkLinearGradient::SkLinearGradient() { 
+SkDrawLinearGradient::SkDrawLinearGradient() { 
 }
 
-void SkLinearGradient::onEndElement(SkAnimateMaker& maker)
+void SkDrawLinearGradient::onEndElement(SkAnimateMaker& maker)
 {
     if (points.count() != 4)
         maker.setErrorCode(SkDisplayXMLParserError::kGradientPointsLengthMustBeFour);
@@ -173,13 +173,13 @@ void SkLinearGradient::onEndElement(SkAnimateMaker& maker)
 }
 
 #ifdef SK_DUMP_ENABLED
-void SkLinearGradient::dump(SkAnimateMaker* maker) {
+void SkDrawLinearGradient::dump(SkAnimateMaker* maker) {
     dumpBase(maker);
     dumpRest(maker);
     }
 #endif
 
-SkShader* SkLinearGradient::getShader() {
+SkShader* SkDrawLinearGradient::getShader() {
     if (addPrelude() == 0 || points.count() != 4)
         return NULL;
     SkShader* shader = SkGradientShader::CreateLinear((SkPoint*)points.begin(),
@@ -193,7 +193,7 @@ SkShader* SkLinearGradient::getShader() {
 
 #if SK_USE_CONDENSED_INFO == 0
 
-const SkMemberInfo SkRadialGradient::fInfo[] = {
+const SkMemberInfo SkDrawRadialGradient::fInfo[] = {
     SK_MEMBER_INHERITED,
     SK_MEMBER(center, Point),
     SK_MEMBER(radius, Float)
@@ -201,20 +201,20 @@ const SkMemberInfo SkRadialGradient::fInfo[] = {
 
 #endif
 
-DEFINE_GET_MEMBER(SkRadialGradient);
+DEFINE_GET_MEMBER(SkDrawRadialGradient);
 
-SkRadialGradient::SkRadialGradient() : radius(0) { 
+SkDrawRadialGradient::SkDrawRadialGradient() : radius(0) { 
     center.set(0, 0); 
 }
 
 #ifdef SK_DUMP_ENABLED
-void SkRadialGradient::dump(SkAnimateMaker* maker) {
+void SkDrawRadialGradient::dump(SkAnimateMaker* maker) {
     dumpBase(maker);
     dumpRest(maker);
 }
 #endif
 
-SkShader* SkRadialGradient::getShader() {
+SkShader* SkDrawRadialGradient::getShader() {
     if (addPrelude() == 0)
         return NULL;
     SkShader* shader = SkGradientShader::CreateRadial(center,

@@ -212,7 +212,7 @@ void SkDrawColor::onEndElement(SkAnimateMaker& maker){
 
 bool SkDrawColor::setParent(SkDisplayable* parent) {
     SkASSERT(parent != NULL);
-    if (parent->getType() == SkType_LinearGradient || parent->getType() == SkType_RadialGradient)
+    if (parent->getType() == SkType_DrawLinearGradient || parent->getType() == SkType_DrawRadialGradient)
         return false;
     if (parent->isPaint() == false)
         return true;

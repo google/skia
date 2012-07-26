@@ -35,7 +35,7 @@ protected:
     SkScalar fValue;
     SkBool fDirty;
 private:
-    friend class SkGradient;
+    friend class SkDrawGradient;
     typedef SkPaintPart INHERITED;
 };
 
