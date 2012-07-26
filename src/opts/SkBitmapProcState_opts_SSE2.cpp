@@ -645,7 +645,7 @@ void S32_D16_filter_DX_SSE2(const SkBitmapProcState& s,
     SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
     SkASSERT(s.fBitmap->isOpaque());
 
-    SkPMColor dstColor, tmpColor;
+    SkPMColor dstColor;
     const char* srcAddr = static_cast<const char*>(s.fBitmap->getPixels());
     unsigned rb = s.fBitmap->rowBytes();
     uint32_t XY = *xy++;

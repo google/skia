@@ -200,7 +200,7 @@ public:
         if (fBoundsIsDirty) {
             this->computeBounds();
         }
-        return fIsFinite;
+        return SkToBool(fIsFinite);
     }
 
     /** Test a line for zero length
