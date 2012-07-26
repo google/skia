@@ -212,7 +212,7 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
 
     // SkPicture path is not fixed
 #if SK_DEFERRED_CANVAS_USES_GPIPE
-    REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 3);
+    REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 4);
 #endif
 }
 

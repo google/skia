@@ -245,12 +245,6 @@ public:
         void contentsCleared();
         void setMaxRecordingStorage(size_t);
 
-        // FIXME: Temporary solution for tracking memory usage, pending
-        // resolution of http://code.google.com/p/skia/issues/detail?id=738
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-        void accountForTempBitmapStorage(const SkBitmap& bitmap);
-#endif
-
         virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
         virtual int width() const SK_OVERRIDE;
         virtual int height() const SK_OVERRIDE;
@@ -339,9 +333,6 @@ public:
 #if SK_DEFERRED_CANVAS_USES_GPIPE
         DeferredPipeController fPipeController;
         SkGPipeWriter  fPipeWriter;
-        // FIXME: Temporary solution for tracking memory usage, pending
-        // resolution of http://code.google.com/p/skia/issues/detail?id=738
-        size_t fTempBitmapStorage;
 #else
         SkPicture fPicture;
 #endif
@@ -359,13 +350,6 @@ protected:
     virtual SkCanvas* canvasForDrawIter();
 
 private:
-    // FIXME: Temporary solution for tracking memory usage, pending
-    // resolution of http://code.google.com/p/skia/issues/detail?id=738
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-    friend class AutoImmediateDrawIfNeeded;
-    void accountForTempBitmapStorage(const SkBitmap& bitmap) const;
-#endif
-
     SkCanvas* drawingCanvas() const;
     bool isFullFrame(const SkRect*, const SkPaint*) const;
     void validate() const;

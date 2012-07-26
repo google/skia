@@ -89,7 +89,7 @@ public:
          *  in spite of being cross process, it will have shared address space
          *  with the reader, so the two can share large objects (like SkBitmaps)
          */
-        kSharedAddressSpace_SkGPipeFlag = 1 << 1
+        kSharedAddressSpace_Flag        = 1 << 1
     };
 
     SkCanvas* startRecording(SkGPipeController*, uint32_t flags = 0);
@@ -106,9 +106,17 @@ public:
      */
     void flushRecording(bool detachCurrentBlock);
 
+    /**
+     * Return the amount of bytes being used for recording. Note that this
+     * does not include the amount of storage written to the stream, which is
+     * controlled by the SkGPipeController.
+     * Currently only returns the amount used for SkBitmaps, since they are
+     * potentially unbounded (if the client is not calling playback).
+     */
+    size_t storageAllocatedForRecording();
+
 private:
     class SkGPipeCanvas* fCanvas;
-    SkGPipeController*   fController;
     SkFactorySet         fFactorySet;
     SkWriter32           fWriter;
 };

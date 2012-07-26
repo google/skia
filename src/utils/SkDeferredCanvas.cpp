@@ -35,13 +35,6 @@ public:
         } else {
             fCanvas = NULL;
         }
-        // FIXME: Temporary solution for tracking memory usage, pending
-        // resolution of http://code.google.com/p/skia/issues/detail?id=738
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-        if (canvas.isDeferredDrawing()) {
-            canvas.accountForTempBitmapStorage(bitmap);
-        }
-#endif
     }
 
     ~AutoImmediateDrawIfNeeded() {
@@ -142,16 +135,6 @@ void SkDeferredCanvas::setMaxRecordingStorage(size_t maxStorage) {
     validate();
     this->getDeferredDevice()->setMaxRecordingStorage(maxStorage);
 }
-
-// FIXME: Temporary solution for tracking memory usage, pending
-// resolution of http://code.google.com/p/skia/issues/detail?id=738
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-void SkDeferredCanvas::accountForTempBitmapStorage(const SkBitmap& bitmap) const {
-    if (fDeferredDrawing) {
-        this->getDeferredDevice()->accountForTempBitmapStorage(bitmap);
-    }
-}
-#endif
 
 void SkDeferredCanvas::validate() const {
     SkASSERT(getDevice());
@@ -563,7 +546,6 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
 #if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeController.setPlaybackCanvas(fImmediateCanvas);
-    fTempBitmapStorage = 0;
 #endif
     beginRecording();
 }
@@ -579,26 +561,10 @@ void SkDeferredCanvas::DeferredDevice::setMaxRecordingStorage(size_t maxStorage)
     recordingCanvas(); // Accessing the recording canvas applies the new limit.
 }
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-void SkDeferredCanvas::DeferredDevice::accountForTempBitmapStorage(const SkBitmap& bitmap) {
-    // SkGPipe will store copies of mutable bitmaps.  The memory allocations
-    // and deallocations for these bitmaps are not tracked by the writer or
-    // the controller, so we do as best we can to track consumption here
-    if (!bitmap.isImmutable()) {
-        // FIXME: Temporary solution for tracking memory usage, pending
-        // resolution of http://code.google.com/p/skia/issues/detail?id=738
-        // This does not take into account duplicates of previously
-        // copied bitmaps that will not get copied again.
-        fTempBitmapStorage += bitmap.getSize();
-    }
-}
-#endif
-
 void SkDeferredCanvas::DeferredDevice::endRecording() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeWriter.endRecording();
     fPipeController.reset();
-    fTempBitmapStorage = 0;
 #else
     fPicture.endRecording();
 #endif
@@ -607,7 +573,6 @@ void SkDeferredCanvas::DeferredDevice::endRecording() {
 
 void SkDeferredCanvas::DeferredDevice::beginRecording() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
-    SkASSERT(0 == fTempBitmapStorage);
     fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0);
 #else
     fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
@@ -679,7 +644,6 @@ void SkDeferredCanvas::DeferredDevice::flushPending() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeWriter.flushRecording(true);
     fPipeController.playback();
-    fTempBitmapStorage = 0;
 #else
     fPicture.draw(fImmediateCanvas);
     this->beginRecording();
@@ -693,8 +657,9 @@ void SkDeferredCanvas::DeferredDevice::flush() {
 
 SkCanvas* SkDeferredCanvas::DeferredDevice::recordingCanvas() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
-    if (fPipeController.storageAllocatedForRecording() + fTempBitmapStorage > 
-        fMaxRecordingStorageBytes) {
+    if (fPipeController.storageAllocatedForRecording()
+            + fPipeWriter.storageAllocatedForRecording()
+            > fMaxRecordingStorageBytes) {
         this->flushPending();
     }
 #endif
@@ -741,11 +706,6 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
         this->flushPending();
         fImmediateCanvas->drawSprite(bitmap, x, y, &paint);
     } else {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-        // FIXME: Temporary solution for tracking memory usage, pending
-        // resolution of http://code.google.com/p/skia/issues/detail?id=738
-        this->accountForTempBitmapStorage(bitmap);
-#endif
         recordingCanvas()->drawSprite(bitmap, x, y, &paint);
     }
 }

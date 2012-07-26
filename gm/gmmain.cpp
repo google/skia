@@ -629,7 +629,7 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
     { "", 0 },
     { " cross-process", SkGPipeWriter::kCrossProcess_Flag },
     { " cross-process, shared address", SkGPipeWriter::kCrossProcess_Flag
-        | SkGPipeWriter::kSharedAddressSpace_SkGPipeFlag }
+        | SkGPipeWriter::kSharedAddressSpace_Flag }
 };
 
 static ErrorBitfield test_pipe_playback(GM* gm,

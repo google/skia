@@ -161,17 +161,30 @@ public:
         , fMostRecentlyUsed(NULL)
         , fLeastRecentlyUsed(NULL)
         , fCanDoShallowCopies(shallow)
-        , fNumberOfReaders(numOfReaders) {}
+        , fNumberOfReaders(numOfReaders)
+        , fBytesAllocated(0) {}
     ~SharedHeap() {
         BitmapInfo* iter = fMostRecentlyUsed;
         while (iter != NULL) {
+            SkDEBUGCODE(fBytesAllocated -= (iter->fBytesAllocated + sizeof(BitmapInfo)));
             BitmapInfo* next = iter->fLessRecentlyUsed;
             SkDELETE(iter);
             fBitmapCount--;
             iter = next;
         }
         SkASSERT(0 == fBitmapCount);
+        SkASSERT(0 == fBytesAllocated);
     }
+
+    /*
+     * Get the approximate number of bytes allocated.
+     *
+     * Not exact. Some SkBitmaps may share SkPixelRefs, in which case only one
+     * SkBitmap will take the size of the SkPixelRef into account (the first
+     * one). It is possible that the one which accounts for the SkPixelRef has
+     * been removed, in which case we will no longer be counting those bytes.
+     */
+    size_t bytesAllocated() { return fBytesAllocated; }
 
     /*
      * Add a copy of a bitmap to the heap.
@@ -190,6 +203,10 @@ public:
         while (iter != NULL) {
             if (genID == iter->fGenID) {
                 SkBitmap* storedBitmap = iter->fBitmap;
+                // TODO: Perhaps we can share code with
+                // SkPictureRecord::PixelRefDictionaryEntry/
+                // BitmapIndexCacheEntry so we can do a binary search for a
+                // matching bitmap
                 if (orig.pixelRefOffset() != storedBitmap->pixelRefOffset()
                     || orig.width() != storedBitmap->width()
                     || orig.height() != storedBitmap->height()) {
@@ -246,13 +263,23 @@ public:
         }
         BitmapInfo* info;
         if (NULL == replace) {
+            fBytesAllocated += sizeof(BitmapInfo);
             info = SkNEW_ARGS(BitmapInfo, (copy, genID, fNumberOfReaders));
             fBitmapCount++;
         } else {
+            fBytesAllocated -= replace->fBytesAllocated;
             replace->fGenID = genID;
             replace->addDraws(fNumberOfReaders);
             info = replace;
         }
+        // Always include the size of the SkBitmap struct.
+        info->fBytesAllocated = sizeof(SkBitmap);
+        // If the SkBitmap does not share an SkPixelRef with an SkBitmap already
+        // in the SharedHeap, also include the size of its pixels.
+        if (NULL == sharedPixelRef) {
+            info->fBytesAllocated += orig.getSize();
+        }
+        fBytesAllocated += info->fBytesAllocated;
         this->setMostRecentlyUsed(info);
         return info;
     }
@@ -265,6 +292,7 @@ private:
     BitmapInfo* fMostRecentlyUsed;
     const bool  fCanDoShallowCopies;
     const int   fNumberOfReaders;
+    size_t      fBytesAllocated;
 };
 
 // We just "used" info. Update our LRU accordingly
@@ -351,6 +379,10 @@ public:
     }
 
     void flushRecording(bool detachCurrentBlock);
+
+    size_t storageAllocatedForRecording() {
+        return fSharedHeap.bytesAllocated();
+    }
 
     // overrides from SkCanvas
     virtual int save(SaveFlags) SK_OVERRIDE;
@@ -1249,5 +1281,9 @@ void SkGPipeWriter::endRecording() {
 
 void SkGPipeWriter::flushRecording(bool detachCurrentBlock){
     fCanvas->flushRecording(detachCurrentBlock);
+}
+
+size_t SkGPipeWriter::storageAllocatedForRecording() {
+    return NULL == fCanvas ? 0 : fCanvas->storageAllocatedForRecording();
 }
 
