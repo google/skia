@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "SkClampRange.h"
+#include "gradients/SkClampRange.h"
 #include "SkRandom.h"
 
 static skiatest::Reporter* gReporter;

@@ -1,0 +1,193 @@
+
+/*
+ * Copyright 2012 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkGradientShaderPriv_DEFINED
+#define SkGradientShaderPriv_DEFINED
+
+#include "SkGradientShader.h"
+#include "SkClampRange.h"
+#include "SkColorPriv.h"
+#include "SkMallocPixelRef.h"
+#include "SkUnitMapper.h"
+#include "SkUtils.h"
+#include "SkTemplates.h"
+#include "SkBitmapCache.h"
+#include "SkShader.h"
+#include "effects/GrGradientEffects.h"
+#include "GrSamplerState.h"
+#include "SkGr.h"
+
+#ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
+    #define USE_DITHER_32BIT_GRADIENT
+#endif
+
+static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
+                               int count) {
+    if (count > 0) {
+        if (v0 == v1) {
+            sk_memset32(dst, v0, count);
+        } else {
+            int pairs = count >> 1;
+            for (int i = 0; i < pairs; i++) {
+                *dst++ = v0;
+                *dst++ = v1;
+            }
+            if (count & 1) {
+                *dst = v0;
+            }
+        }
+    }
+}
+
+//  Clamp
+
+static SkFixed clamp_tileproc(SkFixed x) {
+    return SkClampMax(x, 0xFFFF);
+}
+
+// Repeat
+
+static SkFixed repeat_tileproc(SkFixed x) {
+    return x & 0xFFFF;
+}
+
+// Mirror
+
+// Visual Studio 2010 (MSC_VER=1600) optimizes bit-shift code incorrectly.
+// See http://code.google.com/p/skia/issues/detail?id=472
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#pragma optimize("", off)
+#endif
+
+static inline SkFixed mirror_tileproc(SkFixed x) {
+    int s = x << 15 >> 31;
+    return (x ^ s) & 0xFFFF;
+}
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#pragma optimize("", on)
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+typedef SkFixed (*TileProc)(SkFixed);
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const TileProc gTileProcs[] = {
+    clamp_tileproc,
+    repeat_tileproc,
+    mirror_tileproc
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class SkGradientShaderBase : public SkShader {
+public:
+    SkGradientShaderBase(const SkColor colors[], const SkScalar pos[],
+                int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper);
+    virtual ~SkGradientShaderBase();
+
+    // overrides
+    virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
+    virtual uint32_t getFlags() SK_OVERRIDE { return fFlags; }
+    virtual bool isOpaque() const SK_OVERRIDE;
+
+    enum {
+        /// Seems like enough for visual accuracy. TODO: if pos[] deserves
+        /// it, use a larger cache.
+        kCache16Bits    = 8,
+        kGradient16Length = (1 << kCache16Bits),
+        /// Each cache gets 1 extra entry at the end so we don't have to
+        /// test for end-of-cache in lerps. This is also the value used
+        /// to stride *writes* into the dither cache; it must not be zero.
+        /// Total space for a cache is 2x kCache16Count entries: one
+        /// regular cache, one for dithering.
+        kCache16Count   = kGradient16Length + 1,
+        kCache16Shift   = 16 - kCache16Bits,
+        kSqrt16Shift    = 8 - kCache16Bits,
+
+        /// Seems like enough for visual accuracy. TODO: if pos[] deserves
+        /// it, use a larger cache.
+        kCache32Bits    = 8,
+        kGradient32Length = (1 << kCache32Bits),
+        /// Each cache gets 1 extra entry at the end so we don't have to
+        /// test for end-of-cache in lerps. This is also the value used
+        /// to stride *writes* into the dither cache; it must not be zero.
+        /// Total space for a cache is 2x kCache32Count entries: one
+        /// regular cache, one for dithering.
+        kCache32Count   = kGradient32Length + 1,
+        kCache32Shift   = 16 - kCache32Bits,
+        kSqrt32Shift    = 8 - kCache32Bits,
+
+        /// This value is used to *read* the dither cache; it may be 0
+        /// if dithering is disabled.
+#ifdef USE_DITHER_32BIT_GRADIENT
+        kDitherStride32 = kCache32Count,
+#else
+        kDitherStride32 = 0,
+#endif
+        kDitherStride16 = kCache16Count,
+        kLerpRemainderMask32 = (1 << (16 - kCache32Bits)) - 1
+    };
+
+
+protected:
+    SkGradientShaderBase(SkFlattenableReadBuffer& );
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+
+    SkUnitMapper* fMapper;
+    SkMatrix    fPtsToUnit;     // set by subclass
+    SkMatrix    fDstToIndex;
+    SkMatrix::MapXYProc fDstToIndexProc;
+    TileMode    fTileMode;
+    TileProc    fTileProc;
+    int         fColorCount;
+    uint8_t     fDstToIndexClass;
+    uint8_t     fFlags;
+
+    struct Rec {
+        SkFixed     fPos;   // 0...1
+        uint32_t    fScale; // (1 << 24) / range
+    };
+    Rec*        fRecs;
+
+    const uint16_t*     getCache16() const;
+    const SkPMColor*    getCache32() const;
+
+    void commonAsABitmap(SkBitmap*) const;
+    void commonAsAGradient(GradientInfo*) const;
+
+private:
+    enum {
+        kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space
+
+        kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(Rec))
+    };
+    SkColor     fStorage[(kStorageSize + 3) >> 2];
+    SkColor*    fOrigColors; // original colors, before modulation by paint in setContext
+    bool        fColorsAreOpaque;
+
+    mutable uint16_t*   fCache16;   // working ptr. If this is NULL, we need to recompute the cache values
+    mutable SkPMColor*  fCache32;   // working ptr. If this is NULL, we need to recompute the cache values
+
+    mutable uint16_t*   fCache16Storage;    // storage for fCache16, allocated on demand
+    mutable SkMallocPixelRef* fCache32PixelRef;
+    mutable unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
+
+    static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
+    static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
+                                U8CPU alpha);
+    void setCacheAlpha(U8CPU alpha) const;
+    void initCommon();
+
+    typedef SkShader INHERITED;
+};
+
+#endif
+
