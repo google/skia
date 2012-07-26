@@ -92,7 +92,9 @@ void TiledPictureRenderer::copyTilesToCanvas(const SkPicture& pict, SkCanvas* de
              tile_x_start += fTileWidth) {
             SkASSERT(tile_index < fTiles.count());
             SkBitmap source = fTiles[tile_index].fCanvas->getDevice()->accessBitmap(false);
-            destination->drawBitmap(source, tile_x_start, tile_y_start);
+            destination->drawBitmap(source, 
+                                    SkIntToScalar(tile_x_start), 
+                                    SkIntToScalar(tile_y_start));
             ++tile_index;
         }
     }

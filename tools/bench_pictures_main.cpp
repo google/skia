@@ -239,12 +239,12 @@ static void run_single_benchmark(const SkString& inputPath,
            filename.c_str());
 
     if (options->fTileWidthPercentage > 0) {
-        options->fTileWidth = sk_float_ceil2int(options->fTileWidthPercentage * picture.width()
-                                                / 100);
+        options->fTileWidth = sk_float_ceil2int(
+            float(options->fTileWidthPercentage * picture.width() / 100));
     }
     if (options->fTileHeightPercentage > 0) {
-        options->fTileHeight = sk_float_ceil2int(options->fTileHeightPercentage * picture.height()
-                                                 / 100);
+        options->fTileHeight = sk_float_ceil2int(
+            float(options->fTileHeightPercentage * picture.height() / 100));
     }
 
     options->fBenchmark(&picture, *options);
