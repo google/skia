@@ -147,16 +147,9 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
     GrAssert(NULL != rt);
 
     GrIRect bounds;
-    GrIRect rtRect;
-    rtRect.setLTRB(0, 0, rt->width(), rt->height());
+    bool isIntersectionOfRects = false;
 
-
-    GrRect conservativeBounds = clipDataIn->fClipStack->getConservativeBounds();
-
-    conservativeBounds.roundOut(&bounds);
-    if (!bounds.intersect(rtRect)) {
-        bounds.setEmpty();
-    }
+    clipDataIn->getConservativeBounds(rt, &bounds, &isIntersectionOfRects);
     if (bounds.isEmpty()) {
         return false;
     }
@@ -542,22 +535,10 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClipData& clipDataIn,
     GrRenderTarget* rt = origDrawState->getRenderTarget();
     GrAssert(NULL != rt);
 
-    GrRect rtRect;
-    rtRect.setLTRB(0, 0,
-                    GrIntToScalar(rt->width()), GrIntToScalar(rt->height()));
-
     // unlike the stencil path the alpha path is not bound to the size of the
     // render target - determine the minimum size required for the mask
-    GrRect bounds = clipDataIn.fClipStack->getConservativeBounds();
-
-    if (!bounds.intersect(rtRect)) {
-        // the mask will be empty in this case
-        GrAssert(false);
-        bounds.setEmpty();
-    }
-
     GrIRect intBounds;
-    bounds.roundOut(&intBounds);
+    clipDataIn.getConservativeBounds(rt, &intBounds);
 
     // need to outset a pixel since the standard bounding box computation
     // path doesn't leave any room for antialiasing (esp. w.r.t. rects)
