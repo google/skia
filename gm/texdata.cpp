@@ -7,6 +7,7 @@
  */
 #include "gm.h"
 #include "GrContext.h"
+#include "effects/GrSingleTextureEffect.h"
 #include "SkColorPriv.h"
 #include "SkDevice.h"
 
@@ -112,7 +113,9 @@ protected:
                 GrMatrix* sampleMat = paint.textureSampler(0)->matrix();
                 *sampleMat = vm;
                 sampleMat->postIDiv(2*S, 2*S);
-                paint.setTexture(0, texture);
+                paint.textureSampler(0)->setCustomStage(
+                    SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
+
 
                 ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));
 
