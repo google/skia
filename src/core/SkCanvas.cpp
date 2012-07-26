@@ -1497,6 +1497,10 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+    if (!path.isFinite()) {
+        return;
+    }
+
     if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
         SkRect storage;
         const SkRect& bounds = path.getBounds();
