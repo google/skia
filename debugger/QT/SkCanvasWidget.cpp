@@ -110,15 +110,15 @@ void SkCanvasWidget::updateWidgetTransform(TransformType type) {
     }
 }
 
-void SkCanvasWidget::wheelEvent(QWheelEvent* event) {
-    fScaleFactor += event->delta()/120;
+void SkCanvasWidget::zoom(float zoomIncrement) {
+    fScaleFactor += zoomIncrement;
 
     /* The range of the fScaleFactor crosses over the range -1,0,1 frequently.
-     * Based on the code below, -1 and 1 both scale the image to it's original
-     * size we do the following to never have a registered wheel scroll
-     * not effect the fScaleFactor. */
+    * Based on the code below, -1 and 1 both scale the image to it's original
+    * size we do the following to never have a registered wheel scroll
+    * not effect the fScaleFactor. */
     if (fScaleFactor == 0) {
-        fScaleFactor += (event->delta()/120) * 2;
+        fScaleFactor = 2 * zoomIncrement;
     }
     emit scaleFactorChanged(fScaleFactor);
     updateWidgetTransform(kScale);
