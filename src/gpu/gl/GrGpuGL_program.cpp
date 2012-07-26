@@ -436,8 +436,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     GrIRect* rect = NULL;
     GrIRect clipBounds;
     if (drawState.isClipState()) {
-        GrRect conservativeBounds = fClip->fClipStack->getConservativeBounds();
-        conservativeBounds.roundOut(&clipBounds);
+        fClip->getConservativeBounds(drawState.getRenderTarget(), &clipBounds);
         rect = &clipBounds;
     }
     // This must come after textures are flushed because a texture may need

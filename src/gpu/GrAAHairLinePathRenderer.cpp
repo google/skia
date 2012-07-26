@@ -512,10 +512,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     int rtHeight = drawState.getRenderTarget()->height();
 
     GrIRect clip;
-
-    const GrClipData* clipData = target->getClip();
-    GrRect conservativeBounds = clipData->fClipStack->getConservativeBounds();
-    conservativeBounds.roundOut(&clip);
+    target->getClip()->getConservativeBounds(drawState.getRenderTarget(), &clip);
 
     GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
     GrMatrix viewM = drawState.getViewMatrix();

@@ -9,6 +9,8 @@
 
 
 #include "GrClip.h"
+#include "GrSurface.h"
+#include "GrRect.h"
 
 GrClip::GrClip() 
     : fRequiresAA(false) {
@@ -247,3 +249,14 @@ void GrClip::Iter::reset(const GrClip& stack, IterStart startLoc) {
         fCurIndex = fStack->getElementCount()-1;
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrClipData::getConservativeBounds(const GrSurface* surface,
+                                       GrIRect* result,
+                                       bool* isIntersectionOfRects) const {
+
+    const GrRect& conservativeBounds = fClipStack->getConservativeBounds();
+    conservativeBounds.roundOut(result);
+}
+

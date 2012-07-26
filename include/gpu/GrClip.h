@@ -17,6 +17,8 @@
 #include "SkPath.h"
 #include "SkTArray.h"
 
+class GrSurface;
+
 class GrClip {
 public:
     GrClip();
@@ -241,6 +243,10 @@ public:
     bool operator!=(const GrClipData& other) const { 
         return !(*this == other); 
     }
+
+    void getConservativeBounds(const GrSurface* surface, 
+                               GrIRect* result,
+                               bool* isIntersectionOfRects = NULL) const;
 };
 
 #endif
