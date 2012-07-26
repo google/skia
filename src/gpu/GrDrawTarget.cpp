@@ -440,7 +440,7 @@ void GrDrawTarget::VertexLayoutUnitTest() {
 #define DEBUG_INVAL_BUFFER 0xdeadcafe
 #define DEBUG_INVAL_START_IDX -1
 
-GrDrawTarget::GrDrawTarget() {
+GrDrawTarget::GrDrawTarget() : fClip(NULL) {
 #if GR_DEBUG
     VertexLayoutUnitTest();
 #endif
@@ -476,12 +476,12 @@ void GrDrawTarget::releaseGeometry() {
     this->resetIndexSource();
 }
 
-void GrDrawTarget::setClip(const GrClip& clip) {
+void GrDrawTarget::setClip(const GrClipData* clip) {
     clipWillBeSet(clip);
     fClip = clip;
 }
 
-const GrClip& GrDrawTarget::getClip() const {
+const GrClipData* GrDrawTarget::getClip() const {
     return fClip;
 }
 

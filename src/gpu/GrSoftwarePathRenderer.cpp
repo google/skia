@@ -45,9 +45,11 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
         return false;
     }
     *pathBounds = GrIRect::MakeWH(rt->width(), rt->height());
-    const GrClip& clip = target->getClip();
 
-    clip.getConservativeBounds().roundOut(clipBounds);
+    const GrClipData* clipData = target->getClip();
+
+    SkRect conservativeBounds = clipData->fClipStack->getConservativeBounds();
+    conservativeBounds.roundOut(clipBounds);
     if (!pathBounds->intersect(*clipBounds)) {
         return false;
     }

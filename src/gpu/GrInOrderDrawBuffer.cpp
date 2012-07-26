@@ -124,9 +124,10 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // simply because the clip has changed if the clip doesn't affect
         // the rect.
         bool disabledClip = false;
-        if (drawState->isClipState() && fClip.isRect()) {
 
-            GrClip::Iter iter(fClip, GrClip::Iter::kBottom_IterStart);
+        if (drawState->isClipState() && fClip->fClipStack->isRect()) {
+
+            GrClip::Iter iter(*fClip->fClipStack, GrClip::Iter::kBottom_IterStart);
             const GrClip::Iter::Clip* clip = iter.next();
             GrAssert(NULL != clip && NULL != clip->fRect);
 
@@ -493,6 +494,7 @@ void GrInOrderDrawBuffer::reset() {
     fVertexPool.reset();
     fIndexPool.reset();
     fClips.reset();
+    fClipOrigins.reset();
     fClipSet = true;
 
     this->resetDrawTracking();
@@ -526,6 +528,8 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     AutoGeometryPush agp(target);
     GrDrawState* prevDrawState = target->drawState();
     prevDrawState->ref();
+
+    GrClipData clipData;
 
     int currState       = 0;
     int currClip        = 0;
@@ -567,7 +571,9 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
                 ++currState;
                 break;
             case kSetClip_Cmd:
-                target->setClip(fClips[currClip]);
+                clipData.fClipStack = &fClips[currClip];
+                clipData.fOrigin = fClipOrigins[currClip];
+                target->setClip(&clipData);
                 ++currClip;
                 break;
             case kClear_Cmd:
@@ -581,6 +587,7 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     // we should have consumed all the states, clips, etc.
     GrAssert(fStates.count() == currState);
     GrAssert(fClips.count() == currClip);
+    GrAssert(fClipOrigins.count() == currClip);
     GrAssert(fClears.count() == currClear);
     GrAssert(fDraws.count()  == currDraw);
 
@@ -809,7 +816,9 @@ bool GrInOrderDrawBuffer::needsNewState() const {
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
    if (this->getDrawState().isClipState()) {
-       if (fClipSet && fClips.back() != fClip) {
+       if (fClipSet && 
+           (fClips.back() != *fClip->fClipStack ||
+            fClipOrigins.back() != fClip->fOrigin)) {
            return true;
        }
     }
@@ -817,13 +826,15 @@ bool GrInOrderDrawBuffer::needsNewClip() const {
 }
 
 void GrInOrderDrawBuffer::recordClip() {
-    fClips.push_back() = fClip;
+    fClips.push_back() = *fClip->fClipStack;
+    fClipOrigins.push_back() = fClip->fOrigin;
     fClipSet = false;
     fCmds.push_back(kSetClip_Cmd);
 }
 
 void GrInOrderDrawBuffer::recordDefaultClip() {
     fClips.push_back() = GrClip();
+    fClipOrigins.push_back() = SkIPoint::Make(0, 0);
     fCmds.push_back(kSetClip_Cmd);
 }
 
@@ -852,7 +863,7 @@ GrInOrderDrawBuffer::Clear* GrInOrderDrawBuffer::recordClear() {
     return &fClears.push_back();
 }
 
-void GrInOrderDrawBuffer::clipWillBeSet(const GrClip& newClip) {
-    INHERITED::clipWillBeSet(newClip);
+void GrInOrderDrawBuffer::clipWillBeSet(const GrClipData* newClipData) {
+    INHERITED::clipWillBeSet(newClipData);
     fClipSet = true;
 }

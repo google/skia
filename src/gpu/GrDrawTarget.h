@@ -73,14 +73,14 @@ public:
      *
      * @param description of the clipping region
      */
-    void setClip(const GrClip& clip);
+    void setClip(const GrClipData* clip);
 
     /**
      * Gets the current clip.
      *
      * @return the clip.
      */
-    const GrClip& getClip() const;
+    const GrClipData* getClip() const;
 
     /**
      * Sets the draw state object for the draw target. Note that this does not
@@ -641,8 +641,8 @@ public:
             fTarget->setClip(fClip);
         }
     private:
-        GrDrawTarget* fTarget;
-        GrClip        fClip;
+        GrDrawTarget*      fTarget;
+        const GrClipData*  fClip;
     };
     
     ////////////////////////////////////////////////////////////////////////////
@@ -987,7 +987,7 @@ protected:
 
     // subclass overrides to be notified when clip is set. Must call
     // INHERITED::clipwillBeSet
-    virtual void clipWillBeSet(const GrClip& clip) {}
+    virtual void clipWillBeSet(const GrClipData* clipData) {}
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.
@@ -1013,7 +1013,7 @@ protected:
         return this->getGeomSrc().fVertexLayout;
     }
 
-    GrClip fClip;
+    const GrClipData* fClip;
 
     GrDrawState* fDrawState;
     GrDrawState fDefaultDrawState;

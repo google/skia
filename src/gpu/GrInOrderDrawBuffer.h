@@ -196,7 +196,7 @@ private:
     virtual void geometrySourceWillPush() SK_OVERRIDE;
     virtual void geometrySourceWillPop(
         const GeometrySrcState& restoredState) SK_OVERRIDE;
-    virtual void clipWillBeSet(const GrClip& newClip) SK_OVERRIDE;
+    virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
 
     // we lazily record state and clip changes in order to skip clips and states
     // that have no effect.
@@ -231,7 +231,9 @@ private:
     GrSTAllocator<kStatePreallocCnt, StencilPath>       fStencilPaths;
     GrSTAllocator<kStatePreallocCnt, GrDrawState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
+
     GrSTAllocator<kClipPreallocCnt, GrClip>             fClips;
+    GrSTAllocator<kClipPreallocCnt, SkIPoint>           fClipOrigins;
 
     GrDrawTarget*                   fAutoFlushTarget;
 
