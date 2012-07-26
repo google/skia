@@ -30,7 +30,7 @@ void GrTextContext::flushGlyphs() {
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
         drawState->sampler(kGlyphMaskStage)->reset(SkShader::kRepeat_TileMode,
-                                                   fExtMatrix.isIdentity());
+                                                   !fExtMatrix.isIdentity());
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
