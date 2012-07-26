@@ -39,6 +39,14 @@ public:
 
     QRadioButton* getVisibilityButton();
 
+    QCheckBox* getGLCheckBox() {
+        return &fGLCheckBox;
+    }
+
+    QCheckBox* getRasterCheckBox() {
+        return &fRasterCheckBox;
+    }
+
 private slots:
     void updateCommand(int newCommand);
     void updateHit(int newHit);
@@ -70,6 +78,18 @@ private:
     QLabel fCommandHitLabel;
     QLineEdit fCommandHitBox;
     QHBoxLayout fCommandHitLayout;
+
+    QLabel fCanvasToggle;
+    QFrame fCanvasFrame;
+    QVBoxLayout fCanvasLayout;
+
+    QHBoxLayout fRasterLayout;
+    QLabel fRasterLabel;
+    QCheckBox fRasterCheckBox;
+
+    QHBoxLayout fGLLayout;
+    QLabel fGLLabel;
+    QCheckBox fGLCheckBox;
 
     QLabel fZoomSetting;
     QFrame fZoomFrame;

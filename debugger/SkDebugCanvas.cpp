@@ -59,7 +59,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, SkBitmap* bitmap) {
                      (*it)->execute(canvas);
                  }
              }
-            if (fCalculateHits == true) {
+            if (fCalculateHits == true && bitmap != NULL) {
                 fHitBox.updateHitPoint(bitmap, counter);
             }
 
