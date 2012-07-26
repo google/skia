@@ -144,6 +144,7 @@ public:
     BitmapInfo(SkBitmap* bitmap, uint32_t genID, int toBeDrawnCount)
         : fBitmap(bitmap)
         , fGenID(genID)
+        , fBytesAllocated(0)
         , fMoreRecentlyUsed(NULL)
         , fLessRecentlyUsed(NULL)
         , fToBeDrawnCount(toBeDrawnCount)
@@ -177,7 +178,13 @@ public:
     // Store the generation ID of the original bitmap, since copying does
     // not copy this field, so fBitmap's generation ID will not be useful
     // for comparing.
+    // FIXME: Is it reasonable to make copying a bitmap/pixelref copy the
+    // generation ID?
     uint32_t fGenID;
+    // Keep track of the bytes allocated for this bitmap. When replacing the
+    // bitmap or removing this BitmapInfo we know how much memory has been
+    // reclaimed.
+    size_t fBytesAllocated;
     // TODO: Generalize the LRU caching mechanism
     BitmapInfo* fMoreRecentlyUsed;
     BitmapInfo* fLessRecentlyUsed;
@@ -187,7 +194,7 @@ private:
 
 static inline bool shouldFlattenBitmaps(uint32_t flags) {
     return flags & SkGPipeWriter::kCrossProcess_Flag
-            && !(flags & SkGPipeWriter::kSharedAddressSpace_SkGPipeFlag);
+            && !(flags & SkGPipeWriter::kSharedAddressSpace_Flag);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
