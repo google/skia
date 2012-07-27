@@ -667,3 +667,69 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkGradientShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTwoPointRadialGradient)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTwoPointConicalGradient)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrGLGradientStage::GrGLGradientStage(const GrProgramStageFactory& factory)
+                                     : INHERITED(factory) { }
+
+GrGLGradientStage::~GrGLGradientStage() { }
+
+void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder, 
+                                        const char* tName, 
+                                        const char* outputColor,
+                                        const char* samplerName) {
+    // Texture is effectively 1D so the y coordinate is 0.5, if we pack multiple
+    // gradients into a texture, we could instead pick the appropriate row here
+    builder->fSampleCoords.printf("vec2(%s, 0.5)", tName);
+    builder->fComplexCoord = true;
+    builder->emitDefaultFetch(outputColor, samplerName);
+}
+
+/////////////////////////////////////////////////////////////////////
+
+GrGradientEffect::GrGradientEffect(GrTexture* texture) 
+                                   : fTexture (texture)
+                                   , fUseTexture(true) {
+    SkSafeRef(fTexture);
+}
+
+GrGradientEffect::GrGradientEffect(GrContext* ctx, 
+                                   const SkShader& shader,
+                                   GrSamplerState* sampler)
+                                   : fTexture (NULL)
+                                   , fUseTexture (false) {
+    // TODO: check for simple cases where we don't need a texture:
+    //GradientInfo info;
+    //shader.asAGradient(&info);
+    //if (info.fColorCount == 2) { ...
+
+    SkBitmap bitmap;
+    shader.asABitmap(&bitmap, NULL, NULL);
+
+    GrContext::TextureCacheEntry entry = GrLockCachedBitmapTexture(ctx, bitmap,
+                                                                   sampler->textureParams());
+    fTexture = entry.texture();
+    SkSafeRef(fTexture);
+    fUseTexture = true;
+
+    // Unlock immediately, this is not great, but we don't have a way of
+    // knowing when else to unlock it currently, so it may get purged from
+    // the cache, but it'll still be ref'd until it's no longer being used.
+    GrUnlockCachedBitmapTexture(ctx, entry);
+}
+
+GrGradientEffect::~GrGradientEffect() {
+    SkSafeUnref(fTexture);
+}
+
+unsigned int GrGradientEffect::numTextures() const {
+    return fUseTexture ? 1 : 0;
+}
+
+GrTexture* GrGradientEffect::texture(unsigned int index) 
+                             const {
+    GrAssert(fUseTexture && 0 == index);
+    return fTexture;
+}
+

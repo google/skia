@@ -7,7 +7,6 @@
 
 #include "SkGpuDevice.h"
 
-#include "effects/GrGradientEffects.h"
 #include "effects/GrColorTableEffect.h"
 #include "effects/GrTextureDomainEffect.h"
 

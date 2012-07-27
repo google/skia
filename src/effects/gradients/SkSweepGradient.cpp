@@ -387,3 +387,58 @@ void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
     }
 }
 
+/////////////////////////////////////////////////////////////////////
+
+class GrGLSweepGradient : public GrGLGradientStage {
+
+public:
+
+    GrGLSweepGradient(const GrProgramStageFactory& factory,
+                      const GrCustomStage&) : INHERITED (factory) { }
+    virtual ~GrGLSweepGradient() { }
+
+    virtual void emitVS(GrGLShaderBuilder* builder,
+                        const char* vertexCoords) SK_OVERRIDE { }
+    virtual void emitFS(GrGLShaderBuilder* builder,
+                        const char* outputColor,
+                        const char* inputColor,
+                        const char* samplerName) SK_OVERRIDE;
+
+    static StageKey GenKey(const GrCustomStage& s) { return 0; }
+
+private:
+
+    typedef GrGLGradientStage INHERITED;
+
+};
+
+void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const char* samplerName) {
+    SkString t;
+    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
+        builder->fSampleCoords.c_str(), builder->fSampleCoords.c_str());
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
+}
+
+/////////////////////////////////////////////////////////////////////
+
+GrSweepGradient::GrSweepGradient(GrTexture* texture)
+    : INHERITED(texture) {
+
+}
+
+GrSweepGradient::GrSweepGradient(GrContext* ctx, const SkShader& shader,
+                                 GrSamplerState* sampler) 
+                                 : INHERITED(ctx, shader, sampler) {
+}
+
+GrSweepGradient::~GrSweepGradient() {
+
+}
+
+const GrProgramStageFactory& GrSweepGradient::getFactory() const {
+    return GrTProgramStageFactory<GrSweepGradient>::getInstance();
+}
+

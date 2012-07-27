@@ -477,3 +477,59 @@ void SkRadialGradient::shadeSpan(int x, int y,
     }
 }
 
+/////////////////////////////////////////////////////////////////////
+
+class GrGLRadialGradient : public GrGLGradientStage {
+
+public:
+
+    GrGLRadialGradient(const GrProgramStageFactory& factory,
+                       const GrCustomStage&) : INHERITED (factory) { }
+    virtual ~GrGLRadialGradient() { }
+
+    virtual void emitVS(GrGLShaderBuilder* builder,
+                        const char* vertexCoords) SK_OVERRIDE { }
+    virtual void emitFS(GrGLShaderBuilder* builder,
+                        const char* outputColor,
+                        const char* inputColor,
+                        const char* samplerName) SK_OVERRIDE;
+
+    static StageKey GenKey(const GrCustomStage& s) { return 0; }
+
+private:
+
+    typedef GrGLGradientStage INHERITED;
+
+};
+
+void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
+                                const char* outputColor,
+                                const char* inputColor,
+                                const char* samplerName) {
+    SkString t;
+    t.printf("length(%s.xy)", builder->fSampleCoords.c_str());
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
+}
+
+
+/////////////////////////////////////////////////////////////////////
+
+
+GrRadialGradient::GrRadialGradient(GrTexture* texture)
+    : INHERITED(texture) {
+
+}
+
+GrRadialGradient::GrRadialGradient(GrContext* ctx, const SkShader& shader,
+                                   GrSamplerState* sampler)
+                                   : INHERITED(ctx, shader, sampler) {
+}
+
+GrRadialGradient::~GrRadialGradient() {
+
+}
+
+const GrProgramStageFactory& GrRadialGradient::getFactory() const {
+    return GrTProgramStageFactory<GrRadialGradient>::getInstance();
+}
+

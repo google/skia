@@ -482,3 +482,56 @@ void SkLinearGradient::shadeSpan16(int x, int y,
     }
 }
 
+/////////////////////////////////////////////////////////////////////
+
+class GrGLLinearGradient : public GrGLGradientStage {
+public:
+
+    GrGLLinearGradient(const GrProgramStageFactory& factory,
+                       const GrCustomStage&)
+                       : INHERITED (factory) { }
+
+    virtual ~GrGLLinearGradient() { }
+
+    virtual void emitVS(GrGLShaderBuilder* builder,
+                        const char* vertexCoords) SK_OVERRIDE { }
+    virtual void emitFS(GrGLShaderBuilder* builder,
+                        const char* outputColor,
+                        const char* inputColor,
+                        const char* samplerName) SK_OVERRIDE;
+    static StageKey GenKey(const GrCustomStage& s) { return 0; }
+
+private:
+
+    typedef GrGLGradientStage INHERITED;
+};
+
+void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
+                                const char* outputColor,
+                                const char* inputColor,
+                                const char* samplerName) {
+    SkString t;
+    t.printf("%s.x", builder->fSampleCoords.c_str());
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
+}
+
+/////////////////////////////////////////////////////////////////////
+
+GrLinearGradient::GrLinearGradient(GrTexture* texture)
+                  : INHERITED(texture) { 
+}
+
+GrLinearGradient::GrLinearGradient(GrContext* ctx, 
+                                   const SkShader& shader,
+                                   GrSamplerState* sampler)
+                                   : INHERITED(ctx, shader, sampler) {
+}
+
+GrLinearGradient::~GrLinearGradient() {
+
+}
+
+const GrProgramStageFactory& GrLinearGradient::getFactory() const {
+    return GrTProgramStageFactory<GrLinearGradient>::getInstance();
+}
+
