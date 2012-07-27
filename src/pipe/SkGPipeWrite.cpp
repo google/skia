@@ -522,7 +522,7 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     }
 
     uint32_t writeBufferFlags;
-    if (fFlags & SkGPipeWriter::kCrossProcess_Flag) {
+    if (SkToBool(fFlags & SkGPipeWriter::kCrossProcess_Flag)) {
         writeBufferFlags = (SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
                             | SkFlattenableWriteBuffer::kCrossProcess_Flag);
     } else {
@@ -1213,8 +1213,18 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
     }
 
     if (!SkTypeface::Equal(base.getTypeface(), paint.getTypeface())) {
-        uint32_t id = this->getTypefaceID(paint.getTypeface());
-        *ptr++ = PaintOp_packOpData(kTypeface_PaintOp, id);
+        if (SkToBool(fFlags & SkGPipeWriter::kCrossProcess_Flag)) {
+            uint32_t id = this->getTypefaceID(paint.getTypeface());
+            *ptr++ = PaintOp_packOpData(kTypeface_PaintOp, id);
+        } else if (this->needOpBytes(sizeof(void*))) {
+            // Add to the set for ref counting.
+            fTypefaceSet.add(paint.getTypeface());
+            // It is safe to write the typeface to the stream before the rest
+            // of the paint unless we ever send a kReset_PaintOp, which we
+            // currently never do.
+            this->writeOp(kSetTypeface_DrawOp);
+            fWriter.writePtr(paint.getTypeface());
+        }
         base.setTypeface(paint.getTypeface());
     }
 
@@ -1251,23 +1261,36 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
 
 #include "SkGPipe.h"
 
-SkGPipeWriter::SkGPipeWriter() : fWriter(0) {
+SkGPipeController::~SkGPipeController() {
+    SkSafeUnref(fCanvas);
+}
+
+void SkGPipeController::setCanvas(SkGPipeCanvas* canvas) {
+    SkRefCnt_SafeAssign(fCanvas, canvas);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkGPipeWriter::SkGPipeWriter()
+: fFactorySet(SkNEW(SkFactorySet))
+, fWriter(0) {
     fCanvas = NULL;
 }
 
 SkGPipeWriter::~SkGPipeWriter() {
     this->endRecording();
-    SkSafeUnref(fCanvas);
+    fFactorySet->unref();
 }
 
 SkCanvas* SkGPipeWriter::startRecording(SkGPipeController* controller, uint32_t flags) {
     if (NULL == fCanvas) {
         fWriter.reset(NULL, 0);
-        fFactorySet.reset();
+        fFactorySet->reset();
         fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter,
                                              (flags & kCrossProcess_Flag) ?
-                                             &fFactorySet : NULL, flags));
+                                             fFactorySet : NULL, flags));
     }
+    controller->setCanvas(fCanvas);
     return fCanvas;
 }
 

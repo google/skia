@@ -62,6 +62,7 @@
     '../gm/tilemodes.cpp',
     '../gm/tinybitmap.cpp',
     '../gm/twopointradial.cpp',
+    '../gm/typeface.cpp',
     '../gm/verttext.cpp',
     '../gm/verttext2.cpp',
     '../gm/xfermodes.cpp',
