@@ -582,12 +582,78 @@ static void testLine59() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = 0;
+static void testLine60() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(6, 12, 18, 18, (SkPath::Direction) 1);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine61() {
+    SkPath path, simple;
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(12, 0, 24, 24, (SkPath::Direction) 1);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine62() {
+    SkPath path, simple;
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine63() {
+    SkPath path, simple;
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 6, 12, 12, (SkPath::Direction) 1);
+    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine64() {
+    SkPath path, simple;
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 6, 30, 30, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine65() {
+    SkPath path, simple;
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
+    path.addRect(32, 6, 36, 41, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine66() {
+    SkPath path, simple;
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
+    path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testLine66;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testLine66),
+    TEST(testLine65),
+    TEST(testLine64),
+    TEST(testLine63),
+    TEST(testLine62),
+    TEST(testLine61),
+    TEST(testLine60),
     TEST(testLine59),
     TEST(testLine58),
     TEST(testLine57),
@@ -661,8 +727,8 @@ void SimplifyNew_Test() {
         return;
     }
 #ifdef SK_DEBUG
-    gDebugMaxWindSum = 3;
-    gDebugMaxWindValue = 3;
+    gDebugMaxWindSum = 4;
+    gDebugMaxWindValue = 4;
 #endif
     size_t index = testCount - 1;
     if (firstTest) {

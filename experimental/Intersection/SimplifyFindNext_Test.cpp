@@ -18,7 +18,7 @@ namespace SimplifyFindNextTest {
 #include "Intersection_Tests.h"
 
 static const SimplifyFindNextTest::Segment* testCommon(
-        int winding, int startIndex, int endIndex,
+        int contourWinding, int spanWinding, int startIndex, int endIndex,
         SkTArray<SimplifyFindNextTest::Contour>& contours) {
     SkTDArray<SimplifyFindNextTest::Contour*> contourList;
     makeContourList(contours, contourList);
@@ -34,8 +34,9 @@ static const SimplifyFindNextTest::Segment* testCommon(
     pts[0] = segment.xyAtT(&segment.span(endIndex));
     int nextStart, nextEnd;
     SkTDArray<SimplifyFindNextTest::Span*> chaseArray;
-    SimplifyFindNextTest::Segment* next = segment.findNext(chaseArray, winding,
-            0, true, true, startIndex, endIndex, nextStart, nextEnd, winding);
+    SimplifyFindNextTest::Segment* next = segment.findNext(chaseArray,
+            true, true, startIndex, endIndex, nextStart, nextEnd,
+            contourWinding, spanWinding);
     pts[1] = next->xyAtT(&next->span(nextStart));
     SkASSERT(pts[0] == pts[1]);
     return next;
@@ -44,17 +45,19 @@ static const SimplifyFindNextTest::Segment* testCommon(
 static void test(const SkPath& path) {
     SkTArray<SimplifyFindNextTest::Contour> contours;
     SimplifyFindNextTest::EdgeBuilder builder(path, contours);
-    int winding = 0;
+    int contourWinding = 0;
+    int spanWinding = 1;
     int start = 0;
     int end = 1;
-    testCommon(winding, start, end, contours);
+    testCommon(contourWinding, spanWinding, start, end, contours);
 }
 
 static void test(const SkPath& path, int start, int end) {
     SkTArray<SimplifyFindNextTest::Contour> contours;
     SimplifyFindNextTest::EdgeBuilder builder(path, contours);
-    int winding = 0;
-    testCommon(winding, start, end, contours);
+    int contourWinding = 0;
+    int spanWinding = 1;
+    testCommon(contourWinding, spanWinding, start, end, contours);
 }
 
 static void testLine1() {
