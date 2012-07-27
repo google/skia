@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkStream.h"
 #include <assert.h>
+#include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -29,7 +30,11 @@ static const char marker[] =
     "\n"
     "var testDivs = [\n";
 static const char testLineStr[] = "    testLine";
+#if 0
 static const char filename[] = "../../experimental/Intersection/debugXX.txt";
+#else
+static const char filename[] = "/flash/debug/XX.txt";
+#endif
 static int testNumber;
 
 static void* testSimplify4x4RectsMain(void* data)
@@ -38,6 +43,7 @@ static void* testSimplify4x4RectsMain(void* data)
     bzero(pathStr, sizeof(pathStr));
     SkASSERT(data);
     State4& state = *(State4*) data;
+    state.testsRun = 0;
     int aShape = state.a & 0x03;
     int aCW = state.a >> 2;
     int bShape = state.b & 0x03;
@@ -179,6 +185,7 @@ static void* testSimplify4x4RectsMain(void* data)
             getcwd(pwd, sizeof(pwd));
             SkDebugf("%s\n", pwd);
     #endif
+    #if 1
             SkFILEWStream outFile(state.filename);
             if (!outFile.isValid()) {
                 continue;
@@ -211,8 +218,10 @@ static void* testSimplify4x4RectsMain(void* data)
             outFile.writeDecAsText(testNumber);
             outFile.writeText("),\n");
             outFile.flush();
+    #endif
         }
         testSimplifyx(path, out, state.bitmap, state.canvas);
+        state.testsRun++;
                                 }
                             }
                         }
@@ -229,15 +238,16 @@ const int maxThreadsAllocated = 32;
 void Simplify4x4RectsThreaded_Test()
 {
 #ifdef SK_DEBUG
-    gDebugMaxWindSum = 3;
-    gDebugMaxWindValue = 3;
+    gDebugMaxWindSum = 4;
+    gDebugMaxWindValue = 4;
 #endif
     int maxThreads = 1;
     if (!gRunTestsInOneThread) {
-        size_t size;
         int threads = -1;
+        size_t size = sizeof(threads);
         sysctlbyname("hw.logicalcpu_max", &threads, &size, NULL, 0);
-        SkDebugf("%s size=%d processors=%d\n", __FUNCTION__, size, threads);
+        SkDebugf("%s errno=%d size=%d processors=%d\n", __FUNCTION__, 
+                errno, size, threads);
         if (threads > 0) {
             maxThreads = threads;
         } else {
@@ -272,6 +282,7 @@ void Simplify4x4RectsThreaded_Test()
         statePtr->filename[sizeof(filename) - 6] = '0' + threadIndex % 10;
     }
     threadIndex = 0;
+    int testsRun = 0;
     for (int a = 0; a < 8; ++a) { // outermost
         for (int b = a ; b < 8; ++b) {
             for (int c = b ; c < 8; ++c) {
@@ -285,6 +296,9 @@ void Simplify4x4RectsThreaded_Test()
                         createThread(statePtr, testSimplify4x4RectsMain);
                         if (++threadIndex >= maxThreads) {
                             waitForCompletion(threadState, threadIndex);
+                            for (int index = 0; index < maxThreads; ++index) {
+                                testsRun += threadState[index].testsRun;
+                            }
                         }
                     } else {
                         testSimplify4x4RectsMain(statePtr);
@@ -298,6 +312,9 @@ void Simplify4x4RectsThreaded_Test()
         if (!gRunTestsInOneThread) SkDebugf("\n\n%d", a);
     }
     waitForCompletion(threadState, threadIndex);
+    for (int index = 0; index < maxThreads; ++index) {
+        testsRun += threadState[index].testsRun;
+    }
 #ifdef SK_DEBUG
     gDebugMaxWindSum = SK_MaxS32;
     gDebugMaxWindValue = SK_MaxS32;

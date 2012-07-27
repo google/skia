@@ -26,6 +26,7 @@ struct State4 {
     int b;
     int c;
     int d;
+    int testsRun;
     char filename[256];
     pthread_t threadID;
     SkCanvas* canvas;
