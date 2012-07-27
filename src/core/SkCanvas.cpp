@@ -2066,3 +2066,7 @@ const SkPaint& SkCanvas::LayerIter::paint() const {
 const SkRegion& SkCanvas::LayerIter::clip() const { return fImpl->getClip(); }
 int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
 int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkCanvas::ClipVisitor::~ClipVisitor() { }
