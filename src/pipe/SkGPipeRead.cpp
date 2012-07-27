@@ -509,11 +509,21 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
                 break;
             }
 
-            case kTypeface_PaintOp: state->setTypeface(p, data); break;
+            case kTypeface_PaintOp:
+                SkASSERT(SkToBool(state->getFlags() &
+                                  SkGPipeWriter::kCrossProcess_Flag));
+                state->setTypeface(p, data); break;
             default: SkDEBUGFAIL("bad paintop"); return;
         }
         SkASSERT(reader->offset() <= stop);
     } while (reader->offset() < stop);
+}
+
+static void typeface_rp(SkCanvas*, SkReader32* reader, uint32_t,
+                        SkGPipeState* state) {
+    SkASSERT(!SkToBool(state->getFlags() & SkGPipeWriter::kCrossProcess_Flag));
+    SkPaint* p = state->editPaint();
+    p->setTypeface(static_cast<SkTypeface*>(reader->readPtr()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -585,6 +595,7 @@ static const ReadProc gReadTable[] = {
     translate_rp,
 
     paintOp_rp,
+    typeface_rp,
     def_Typeface_rp,
     def_PaintFlat_rp,
     def_Bitmap_rp,

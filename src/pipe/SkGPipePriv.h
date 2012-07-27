@@ -65,6 +65,7 @@ enum DrawOps {
     kTranslate_DrawOp,
 
     kPaintOp_DrawOp,
+    kSetTypeface_DrawOp,
 
     kDef_Typeface_DrawOp,
     kDef_Flattenable_DrawOp,
@@ -193,8 +194,8 @@ private:
 };
 
 static inline bool shouldFlattenBitmaps(uint32_t flags) {
-    return flags & SkGPipeWriter::kCrossProcess_Flag
-            && !(flags & SkGPipeWriter::kSharedAddressSpace_Flag);
+    return SkToBool(flags & SkGPipeWriter::kCrossProcess_Flag
+            && !(flags & SkGPipeWriter::kSharedAddressSpace_Flag));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

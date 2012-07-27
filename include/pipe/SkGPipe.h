@@ -46,8 +46,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class SkGPipeCanvas;
+
 class SkGPipeController {
 public:
+    SkGPipeController() : fCanvas(NULL) {}
+    virtual ~SkGPipeController();
+
     /**
      *  Called periodically by the writer, to get a working buffer of RAM to
      *  write into. The actual size of the block is also returned, and must be
@@ -69,6 +74,12 @@ public:
      */
     virtual void notifyWritten(size_t bytes) = 0;
     virtual int numberOfReaders() const { return 1; }
+
+private:
+    friend class SkGPipeWriter;
+    void setCanvas(SkGPipeCanvas*);
+
+    SkGPipeCanvas* fCanvas;
 };
 
 class SkGPipeWriter {
@@ -116,9 +127,9 @@ public:
     size_t storageAllocatedForRecording();
 
 private:
-    class SkGPipeCanvas* fCanvas;
-    SkFactorySet         fFactorySet;
-    SkWriter32           fWriter;
+    SkGPipeCanvas* fCanvas;
+    SkFactorySet*  fFactorySet;
+    SkWriter32     fWriter;
 };
 
 #endif
