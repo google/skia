@@ -1006,7 +1006,7 @@ void S32A_D565_Opaque_SSE2(uint16_t* SK_RESTRICT dst,
  * portable version is in core/SkBlitRow_D16.cpp
  */
 
-void S32A_D565_Opaque_Dither_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __restrict__ src,int count,
+void S32A_D565_Opaque_Dither_SSE2(uint16_t* SK_RESTRICT dst, const SkPMColor* SK_RESTRICT src,int count,
         U8CPU alpha, int x, int y)
 {
 
@@ -1164,7 +1164,7 @@ void S32A_D565_Opaque_Dither_SSE2(uint16_t* __restrict__ dst, const SkPMColor* _
  * portable version is in core/SkBlitRow_D16.cpp
  */
 
-void S32_D565_Opaque_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __restrict__ src,int count,
+void S32_D565_Opaque_SSE2(uint16_t* SK_RESTRICT dst, const SkPMColor* SK_RESTRICT src,int count,
         U8CPU alpha, int x, int y)
 {
 
@@ -1224,7 +1224,7 @@ void S32_D565_Opaque_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __restric
  * portable version is in core/SkBlitRow_D16.cpp
  */
 
-void S32_D565_Blend_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __restrict__ src,int count,
+void S32_D565_Blend_SSE2(uint16_t* SK_RESTRICT dst, const SkPMColor* SK_RESTRICT src,int count,
         U8CPU alpha, int x, int y)
 {
 
@@ -1314,7 +1314,7 @@ void S32_D565_Blend_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __restrict
  * portable version is in core/SkBlitRow_D16.cpp
  */
 
-void S32_D565_Opaque_Dither_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __restrict__ src,int count,
+void S32_D565_Opaque_Dither_SSE2(uint16_t* SK_RESTRICT dst, const SkPMColor* SK_RESTRICT src,int count,
         U8CPU alpha, int x, int y)
 {
 #ifdef ENABLE_DITHER_MATRIX_4X4
@@ -1418,7 +1418,7 @@ void S32_D565_Opaque_Dither_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __
  * portable version is in core/SkBlitRow_D16.cpp
  */
 
-void S32_D565_Blend_Dither_SSE2(uint16_t* __restrict__ dst, const SkPMColor* __restrict__ src,int count,
+void S32_D565_Blend_Dither_SSE2(uint16_t* SK_RESTRICT dst, const SkPMColor* SK_RESTRICT src,int count,
         U8CPU alpha, int x, int y)
 {
 #ifdef ENABLE_DITHER_MATRIX_4X4
