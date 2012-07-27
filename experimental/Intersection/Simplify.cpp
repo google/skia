@@ -483,6 +483,10 @@ public:
         return fDx;
     }
 
+    double dy() const {
+        return fDy;
+    }
+
     int end() const {
         return fEnd;
     }
@@ -1759,7 +1763,12 @@ public:
     bool intersected() const {
         return fTs.count() > 0;
     }
-    
+
+    bool isConnected(int startIndex, int endIndex) const {
+        return fTs[startIndex].fWindSum != SK_MinS32
+                || fTs[endIndex].fWindSum != SK_MinS32;
+    }
+
     bool isLinear(int start, int end) const {
         if (fVerb == SkPath::kLine_Verb) {
             return true;
@@ -2289,9 +2298,6 @@ public:
     }
     
     bool crosses(const Contour* crosser) const {
-        if (this == crosser) {
-            return true;
-        }
         for (int index = 0; index < fCrosses.count(); ++index) {
             if (fCrosses[index] == crosser) {
                 return true;
@@ -3035,12 +3041,14 @@ static void coincidenceCheck(SkTDArray<Contour*>& contourList, int winding) {
 // two contours touch, so we need only look at contours not touching this one.
 // OPTIMIZATION: sort contourList vertically to avoid linear walk
 static int innerContourCheck(SkTDArray<Contour*>& contourList,
-        Contour* baseContour, const SkPoint& basePt) {
+        Contour* baseContour, const Segment* current, int index, int endIndex) {
+    const SkPoint& basePt = current->xyAtT(endIndex);
     int contourCount = contourList.count();
     SkScalar bestY = SK_ScalarMin;
     const Segment* test = NULL;
     int tIndex;
     double tHit;
+    bool checkCrosses = true;
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         Contour* contour = contourList[cTest];
         if (basePt.fY < contour->bounds().fTop) {
@@ -3049,8 +3057,19 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         if (bestY > contour->bounds().fBottom) {
             continue;
         }
-        if (baseContour->crosses(contour)) {
-           continue;
+        // even though the contours crossed, if spans cancel through concidence,
+        // the contours may be not have any span links to chase, and the current
+        // segment may be isolated. Detect this by seeing if current has
+        // uninitialized wind sums. If so, project a ray instead of relying on
+        // previously found intersections.
+        if (baseContour == contour) {
+            continue;
+        }
+        if (checkCrosses && baseContour->crosses(contour)) {
+            if (current->isConnected(index, endIndex)) {
+                continue;
+            }
+            checkCrosses = false;
         }
         const Segment* next = contour->crossedSegment(basePt, bestY, tIndex, tHit);
         if (next) {
@@ -3087,15 +3106,26 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         // is 12 noon or an earlier hour (the next counterclockwise)
         int count = sorted.count();
         int left = -1;
+        int mid = -1;
         int right = -1;
+        bool baseMatches = test->yAtT(tIndex) == basePt.fY;
         for (int index = 0; index < count; ++index) {
-            double indexDx = sorted[index]->dx();
+            const Angle* angle = sorted[index];
+            if (baseMatches && angle->isHorizontal()) {
+                continue;
+            }
+            double indexDx = angle->dx();
             if (indexDx < 0) {
                 left = index;
             } else if (indexDx > 0) {
                 right = index;
                 break;
+            } else {
+                mid = index;
             }
+        }
+        if (left < 0 && right < 0) {
+            left = mid;
         }
         SkASSERT(left >= 0 || right >= 0);
         if (left < 0) {
@@ -3136,6 +3166,11 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         SkDebugf("%s final winding=%d\n", __FUNCTION__, winding);
 #endif
     }
+    start here;
+    // we're broken because we find a vertical span
+    // also, does it make sense to compute a contour's winding? Won't it 
+    // depend on coincidence and (e.g. a figure eight) self intersection?
+    // (hopefully no one uses this) so remove it
     baseContour->setWinding(winding);
     return winding;
 }
@@ -3293,8 +3328,8 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
             contourWinding = 0;
             firstContour = false;
         } else {
-            const SkPoint& topPoint = current->xyAtT(endIndex);
-            contourWinding = innerContourCheck(contourList, topContour, topPoint);
+            contourWinding = innerContourCheck(contourList, topContour, current,
+                    index, endIndex);
 #if DEBUG_WINDING
             SkDebugf("%s contourWinding=%d\n", __FUNCTION__, contourWinding);
 #endif

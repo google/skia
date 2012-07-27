@@ -641,7 +641,7 @@ static void testLine66() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine66;
+static void (*firstTest)() = 0;
 
 static struct {
     void (*fun)();
