@@ -291,7 +291,7 @@ SkShader::BitmapType SkLinearGradient::asABitmap(SkBitmap* bitmap,
                                                 SkMatrix* matrix,
                                                 TileMode xy[]) const {
     if (bitmap) {
-        this->commonAsABitmap(bitmap);
+        this->getGradientTableBitmap(bitmap);
     }
     if (matrix) {
         matrix->preConcat(fPtsToUnit);
@@ -518,13 +518,13 @@ void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 GrLinearGradient::GrLinearGradient(GrTexture* texture)
-                  : INHERITED(texture) { 
+    : INHERITED(texture) { 
 }
 
 GrLinearGradient::GrLinearGradient(GrContext* ctx, 
-                                   const SkShader& shader,
+                                   const SkLinearGradient& shader,
                                    GrSamplerState* sampler)
-                                   : INHERITED(ctx, shader, sampler) {
+    : INHERITED(ctx, shader, sampler) {
 }
 
 GrLinearGradient::~GrLinearGradient() {

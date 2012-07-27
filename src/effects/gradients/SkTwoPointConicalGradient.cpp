@@ -257,7 +257,7 @@ SkShader::BitmapType SkTwoPointConicalGradient::asABitmap(
     SkScalar diffLen = 0;
 
     if (bitmap) {
-        this->commonAsABitmap(bitmap);
+        this->getGradientTableBitmap(bitmap);
     }
     if (matrix) {
         diffLen = diff.length();
@@ -308,8 +308,7 @@ GrCustomStage* SkTwoPointConicalGradient::asNewCustomStage(
     sampler->textureParams()->setTileModeX(fTileMode);
     sampler->textureParams()->setTileModeY(kClamp_TileMode);
     sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrConical2Gradient, (context, *this, sampler, 
-                      diffLen, fRadius1, fRadius2 - fRadius1));
+    return SkNEW_ARGS(GrConical2Gradient, (context, *this, sampler));
 }
 
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
@@ -611,7 +610,7 @@ GrConical2Gradient::GrConical2Gradient(GrTexture* texture,
                                        GrScalar center,
                                        GrScalar radius,
                                        GrScalar diffRadius)
-    : INHERITED (texture)
+    : INHERITED(texture)
     , fCenterX1 (center)
     , fRadius0 (radius)
     , fDiffRadius (diffRadius) {
@@ -619,15 +618,12 @@ GrConical2Gradient::GrConical2Gradient(GrTexture* texture,
 }
 
 GrConical2Gradient::GrConical2Gradient(GrContext* ctx, 
-                                       const SkShader& shader,
-                                       GrSamplerState* sampler,
-                                       SkScalar center,
-                                       SkScalar startRadius,
-                                       SkScalar diffRadius)
-                                       : INHERITED(ctx, shader, sampler) 
-                                       , fCenterX1(center)
-                                       , fRadius0(startRadius)
-                                       , fDiffRadius(diffRadius) {
+                                       const SkTwoPointConicalGradient& shader,
+                                       GrSamplerState* sampler)
+    : INHERITED(ctx, shader, sampler) 
+    , fCenterX1(shader.getCenterX1())
+    , fRadius0(shader.getStartRadius())
+    , fDiffRadius(shader.getDiffRadius()) {
 }
 
 GrConical2Gradient::~GrConical2Gradient() {

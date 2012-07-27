@@ -98,6 +98,8 @@ public:
     virtual uint32_t getFlags() SK_OVERRIDE { return fFlags; }
     virtual bool isOpaque() const SK_OVERRIDE;
 
+    void getGradientTableBitmap(SkBitmap*) const;
+
     enum {
         /// Seems like enough for visual accuracy. TODO: if pos[] deserves
         /// it, use a larger cache.
@@ -160,7 +162,6 @@ protected:
     const uint16_t*     getCache16() const;
     const SkPMColor*    getCache32() const;
 
-    void commonAsABitmap(SkBitmap*) const;
     void commonAsAGradient(GradientInfo*) const;
 
 private:
@@ -221,8 +222,10 @@ class GrProgramStageFactory;
 class GrGradientEffect : public GrCustomStage {
 public:
 
+    // FIXME: This constructor is only used in GrGpuGL_unittest.cpp, and should
+    // be removed once an alternative testing setup has been devised.
     GrGradientEffect(GrTexture* texture);
-    GrGradientEffect(GrContext* ctx, const SkShader& shader, 
+    GrGradientEffect(GrContext* ctx, const SkGradientShaderBase& shader, 
                      GrSamplerState* sampler);
 
     virtual ~GrGradientEffect();

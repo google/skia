@@ -483,7 +483,7 @@ const SkPMColor* SkGradientShaderBase::getCache32() const {
  *  colors and positions. Note: we don't try to flatten the fMapper, so if one
  *  is present, we skip the cache for now.
  */
-void SkGradientShaderBase::commonAsABitmap(SkBitmap* bitmap) const {
+void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
     // our caller assumes no external alpha, so we ensure that our cache is
     // built with 0xFF
     this->setCacheAlpha(0xFF);
@@ -689,23 +689,23 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 GrGradientEffect::GrGradientEffect(GrTexture* texture) 
-                                   : fTexture (texture)
-                                   , fUseTexture(true) {
+    : fTexture (texture)
+    , fUseTexture(true) {
     SkSafeRef(fTexture);
 }
 
 GrGradientEffect::GrGradientEffect(GrContext* ctx, 
-                                   const SkShader& shader,
+                                   const SkGradientShaderBase& shader,
                                    GrSamplerState* sampler)
-                                   : fTexture (NULL)
-                                   , fUseTexture (false) {
+    : fTexture (NULL)
+    , fUseTexture (false) {
     // TODO: check for simple cases where we don't need a texture:
     //GradientInfo info;
     //shader.asAGradient(&info);
     //if (info.fColorCount == 2) { ...
 
     SkBitmap bitmap;
-    shader.asABitmap(&bitmap, NULL, NULL);
+    shader.getGradientTableBitmap(&bitmap);
 
     GrContext::TextureCacheEntry entry = GrLockCachedBitmapTexture(ctx, bitmap,
                                                                    sampler->textureParams());

@@ -64,6 +64,10 @@ public:
     virtual GrCustomStage* asNewCustomStage(GrContext* context,
         GrSamplerState* sampler) const SK_OVERRIDE;
 
+    SkScalar getCenterX1() const { return SkPoint::Distance(fCenter1, fCenter2); }
+    SkScalar getStartRadius() const { return fRadius1; }
+    SkScalar getDiffRadius() const { return fRadius2 - fRadius1; }
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointConicalGradient)
     
 protected:
@@ -87,9 +91,8 @@ class GrConical2Gradient : public GrGradientEffect {
 public:
 
     GrConical2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, GrScalar diffRadius);
-    GrConical2Gradient(GrContext* ctx, const SkShader& shader,
-                       GrSamplerState* sampler, SkScalar center, 
-                       SkScalar radius, SkScalar diffRadius);
+    GrConical2Gradient(GrContext* ctx, const SkTwoPointConicalGradient& shader,
+                       GrSamplerState* sampler);
     virtual ~GrConical2Gradient();
 
     static const char* Name() { return "Two-Point Conical Gradient"; }

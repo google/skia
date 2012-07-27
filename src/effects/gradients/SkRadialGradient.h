@@ -48,7 +48,7 @@ class GrRadialGradient : public GrGradientEffect {
 public:
 
     GrRadialGradient(GrTexture* texture);
-    GrRadialGradient(GrContext* ctx, const SkShader& shader,
+    GrRadialGradient(GrContext* ctx, const SkRadialGradient& shader,
                      GrSamplerState* sampler);
     virtual ~GrRadialGradient();
 

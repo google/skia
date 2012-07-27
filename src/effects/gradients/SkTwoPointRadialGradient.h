@@ -32,6 +32,10 @@ public:
                             const SkPaint& paint,
                             const SkMatrix& matrix) SK_OVERRIDE;
 
+    SkScalar getCenterX1() const { return fDiff.length(); }
+    SkScalar getStartRadius() const { return fStartRadius; }
+    SkScalar getDiffRadius() const { return fDiffRadius; }
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointRadialGradient)
 
 protected:
@@ -59,9 +63,8 @@ class GrRadial2Gradient : public GrGradientEffect {
 public:
 
     GrRadial2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, bool posRoot);
-    GrRadial2Gradient(GrContext* ctx, const SkShader& shader,
-                      GrSamplerState* sampler, SkScalar center, 
-                      SkScalar radius, SkScalar diffRadius);
+    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader,
+                      GrSamplerState* sampler);
     virtual ~GrRadial2Gradient();
 
     static const char* Name() { return "Two-Point Radial Gradient"; }

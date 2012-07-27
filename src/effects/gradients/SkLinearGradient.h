@@ -46,7 +46,7 @@ class GrLinearGradient : public GrGradientEffect {
 public:
 
     GrLinearGradient(GrTexture* texture);
-    GrLinearGradient(GrContext* ctx, const SkShader& shader,
+    GrLinearGradient(GrContext* ctx, const SkLinearGradient& shader,
                      GrSamplerState* sampler);
     virtual ~GrLinearGradient();
 
