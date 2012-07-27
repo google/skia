@@ -58,16 +58,7 @@ public:
             clip-query calls will reflect the path's bounds, not the actual
             path.
          */
-        kUsePathBoundsForClip_RecordingFlag = 0x01,
-
-        /*  When a draw operation is recorded that has a bitmap parameter, it
-            may be unsafe to defer rendering if source bitmap may be written to
-            between the time of recording and the time of executing the draw 
-            operation. This flag specifies that SkPicture should serialize a
-            snapshot of any source bitmaps that reside in RAM and are not
-            marked as immutable, making the draw operation safe for deferral.
-         */
-        kFlattenMutableNonTexturePixelRefs_RecordingFlag = 0x02
+        kUsePathBoundsForClip_RecordingFlag = 0x01
     };
 
     /** Returns the canvas that records the drawing commands.
@@ -96,11 +87,6 @@ public:
     */
     bool hasRecorded() const;
 
-    /** Returns true if a snapshot of the specified bitmap will be flattened
-        whaen a draw operation using the bitmap is recorded.
-    */
-    bool willFlattenPixelsOnRecord(const SkBitmap&) const;
-    
     /** Replays the drawing commands on the specified canvas. This internally
         calls endRecording() if that has not already been called.
         @param surface the canvas receiving the drawing commands.

@@ -576,8 +576,7 @@ void SkDeferredCanvas::DeferredDevice::beginRecording() {
     fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0);
 #else
     fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
-        fImmediateDevice->height(),
-        SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
+        fImmediateDevice->height());
 #endif
 }
     

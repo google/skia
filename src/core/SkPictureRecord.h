@@ -96,18 +96,30 @@ public:
         return fWriter;
     }
 
-    bool shouldFlattenPixels(const SkBitmap&) const;
-
     void endRecording();
 private:
-    struct PixelRefDictionaryEntry {
-        uint32_t fKey; // SkPixelRef GenerationID.
+    struct BitmapIndexCacheEntry {
+        uint32_t fGenerationId; // SkPixelRef GenerationID.
+        size_t fPixelOffset;
+        uint32_t fWidth;
+        uint32_t fHeight;
         uint32_t fIndex; // Index of corresponding flattened bitmap in fBitmaps.
-        bool operator < (const PixelRefDictionaryEntry& other) const {
-            return this->fKey < other.fKey;
+        bool operator < (const BitmapIndexCacheEntry& other) const {
+            if (this->fGenerationId != other.fGenerationId) {
+                return this->fGenerationId < other.fGenerationId;
+            } else if(this->fPixelOffset != other.fPixelOffset) {
+                return this->fPixelOffset < other.fPixelOffset;
+            } else if(this->fWidth != other.fWidth) {
+                return this->fWidth < other.fWidth;
+            } else {
+                return this->fHeight < other.fHeight;
+            }
         } 
-        bool operator != (const PixelRefDictionaryEntry& other) const {
-            return this->fKey != other.fKey;
+        bool operator != (const BitmapIndexCacheEntry& other) const {
+            return this->fGenerationId != other.fGenerationId
+                || this->fPixelOffset != other.fPixelOffset
+                || this->fWidth != other.fWidth
+                || this->fHeight != other.fHeight;
         } 
     };
 
@@ -192,7 +204,7 @@ private:
     SkRefCntSet fRCSet;
     SkRefCntSet fTFSet;
     
-    SkTDArray<PixelRefDictionaryEntry> fPixelRefDictionary;
+    SkTDArray<BitmapIndexCacheEntry> fBitmapIndexCache;
     SkBitmapDictionary fBitmaps;
     SkMatrixDictionary fMatrices;
     SkPaintDictionary fPaints;
