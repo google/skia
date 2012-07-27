@@ -133,7 +133,7 @@ SkDisplayable* SkDisplayType::CreateInstance(SkAnimateMaker* maker, SkDisplayTyp
         CASE_NEW(Group);
         CASE_NEW(HitClear);
         CASE_NEW(HitTest);
-        CASE_NEW(Image);
+        CASE_NEW(ImageBaseBitmap);
         CASE_NEW(Include);
         CASE_NEW(Input);
         CASE_DISPLAY_NEW(Int);
@@ -288,7 +288,7 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
         CASE_GET_INFO(Group);
         CASE_GET_INFO(HitClear);
         CASE_GET_INFO(HitTest);
-        CASE_GET_INFO(Image);
+        CASE_GET_INFO(ImageBaseBitmap);
         CASE_GET_INFO(Include);
         CASE_GET_INFO(Input);
         CASE_GET_DISPLAY_INFO(Int);
@@ -455,7 +455,7 @@ const TypeNames gTypeNames[] = {
     { "group", SkType_Group                     INIT_BOOL_FIELDS },
     { "hitClear", SkType_HitClear               INIT_BOOL_FIELDS },
     { "hitTest", SkType_HitTest                 INIT_BOOL_FIELDS },
-    { "image", SkType_Image                     INIT_BOOL_FIELDS },
+    { "image", SkType_ImageBaseBitmap           INIT_BOOL_FIELDS },
     { "include", SkType_Include                 INIT_BOOL_FIELDS },
     { "input", SkType_Input                     INIT_BOOL_FIELDS },
     { "int", SkType_Int                         INIT_BOOL_FIELDS },
@@ -636,7 +636,7 @@ bool SkDisplayType::IsDisplayable(SkAnimateMaker* , SkDisplayTypes type) {
         case SkType_FromPath:
         case SkType_Full:
         case SkType_Group:
-        case SkType_Image:
+        case SkType_ImageBaseBitmap:
         case SkType_Input:
         case SkType_Line:
         case SkType_LineTo:

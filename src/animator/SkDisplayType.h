@@ -88,7 +88,7 @@ enum SkDisplayTypes {
     SkType_Group,
     SkType_HitClear,
     SkType_HitTest,
-    SkType_Image,
+    SkType_ImageBaseBitmap,
     SkType_Include,
     SkType_Input,
     SkType_Int,
