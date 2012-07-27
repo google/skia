@@ -137,12 +137,20 @@ def Main(options, args):
         # TODO(epoger): automate the default set of platforms. We want to ensure
         # that the user gets all of the platforms that the bots are running,
         # not just whatever subdirectories he happens to have checked out...
+        # See http://code.google.com/p/skia/issues/detail?id=678
+        #
+        # For now, I generate this list using these Unix commands:
+        # svn ls http://skia.googlecode.com/svn/trunk/gm | grep ^base | sort >/tmp/baselines
+        # svn ls http://skia-autogen.googlecode.com/svn/gm-actual | grep ^base | sort >/tmp/actual
+        # comm -1 -2 /tmp/baselines /tmp/actual
         args = [
             'gm/base-android-nexus-s',
             'gm/base-android-xoom',
             'gm/base-linux',
             'gm/base-macmini',
             'gm/base-macmini-lion-float',
+            'gm/base-shuttle_ubuntu12_ati5770',
+            'gm/base-shuttle-win7-intel-float',
             'gm/base-win',
             ]
 
@@ -174,3 +182,4 @@ if __name__ == '__main__':
                       'not under SVN control yet')
     (options, args) = parser.parse_args()
     Main(options, args)
+
