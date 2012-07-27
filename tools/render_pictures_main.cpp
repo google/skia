@@ -23,7 +23,7 @@ static void usage(const char* argv0) {
     SkDebugf("\n"
 "Usage: \n"
 "     %s <input>... <outputDir> \n"
-"     [--pipe | --tile]"
+"     [--pipe | --tile width[%] height[%]]"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
@@ -34,7 +34,7 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     --pipe : Render using a SkGPipe\n");
     SkDebugf(
-"     --tile : Render using tiles.\n");
+"     --tile width[%] height[%]: Render using tiles with the given dimensions.\n");
 }
 
 static void make_output_filepath(SkString* path, const SkString& dir,
@@ -114,6 +114,11 @@ static void process_input(const SkString& input, const SkString& outputDir,
     }
 }
 
+static bool is_percentage(char* const string) {
+    SkString skString(string);
+    return skString.endsWith("%");
+}
+
 static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,
                               sk_tools::PictureRenderer*& renderer){
     const char* argv0 = argv[0];
@@ -123,7 +128,55 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         if (0 == strcmp(*argv, "--pipe")) {
             renderer = SkNEW(sk_tools::PipePictureRenderer);
         } else if (0 == strcmp(*argv, "--tile")) {
-            renderer = SkNEW(sk_tools::TiledPictureRenderer);
+            sk_tools::TiledPictureRenderer* tileRenderer = SkNEW(sk_tools::TiledPictureRenderer);
+            ++argv;
+            if (argv < stop) {
+                if (is_percentage(*argv)) {
+                    tileRenderer->setTileWidthPercentage(atof(*argv));
+                    if (!(tileRenderer->getTileWidthPercentage() > 0)) {
+                        SkDELETE(tileRenderer);
+                        SkDebugf("--tile must be given a width percentage > 0\n");
+                        exit(-1);
+                    }
+                } else {
+                    tileRenderer->setTileWidth(atoi(*argv));
+                    if (!(tileRenderer->getTileWidth() > 0)) {
+                        SkDELETE(tileRenderer);
+                        SkDebugf("--tile must be given a width > 0\n");
+                        exit(-1);
+                    }
+                }
+            } else {
+                SkDELETE(tileRenderer);
+                SkDebugf("Missing width for --tile\n");
+                usage(argv0);
+                exit(-1);
+            }
+            ++argv;
+            if (argv < stop) {
+                if (is_percentage(*argv)) {
+                    tileRenderer->setTileHeightPercentage(atof(*argv));
+                    if (!(tileRenderer->getTileHeightPercentage() > 0)) {
+                        SkDELETE(tileRenderer);
+                        SkDebugf(
+                            "--tile must be given a height percentage > 0\n");
+                        exit(-1);
+                    }
+                } else {
+                    tileRenderer->setTileHeight(atoi(*argv));
+                    if (!(tileRenderer->getTileHeight() > 0)) {
+                        SkDELETE(tileRenderer);
+                        SkDebugf("--tile must be given a height > 0\n");
+                        exit(-1);
+                    }
+                }
+            } else {
+                SkDELETE(tileRenderer);
+                SkDebugf("Missing height for --tile\n");
+                usage(argv0);
+                exit(-1);
+            }
+            renderer = tileRenderer;
         } else if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
             SkDELETE(renderer);
             usage(argv0);

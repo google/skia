@@ -38,6 +38,38 @@ public:
     virtual void init(const SkPicture& pict);
     virtual void render(SkPicture* pict, SkCanvas* canvas);
 
+    void setTileWidth(int width) {
+        fTileWidth = width;
+    }
+
+    int getTileWidth() const {
+        return fTileWidth;
+    }
+
+    void setTileHeight(int height) {
+        fTileHeight = height;
+    }
+
+    int getTileHeight() const {
+        return fTileHeight;
+    }
+
+    void setTileWidthPercentage(double percentage) {
+        fTileWidthPercentage = percentage;
+    }
+
+    double getTileWidthPercentage() {
+        return fTileWidthPercentage;
+    }
+
+    void setTileHeightPercentage(double percentage) {
+        fTileHeightPercentage = percentage;
+    }
+
+    double getTileHeightPercentage() {
+        return fTileHeightPercentage;
+    }
+
     ~TiledPictureRenderer();
 
 private:
@@ -48,6 +80,8 @@ private:
 
     int fTileWidth;
     int fTileHeight;
+    double fTileWidthPercentage;
+    double fTileHeightPercentage;
 
     SkTDArray<TileInfo> fTiles;
 

@@ -33,6 +33,14 @@ TiledPictureRenderer::TiledPictureRenderer()
 
 void TiledPictureRenderer::init(const SkPicture& pict) {
     deleteTiles();
+
+    if (fTileWidthPercentage > 0) {
+        fTileWidth = sk_float_ceil2int(fTileWidthPercentage * pict.width() / 100);
+    }
+    if (fTileHeightPercentage > 0) {
+        fTileHeight = sk_float_ceil2int(fTileHeightPercentage * pict.height() / 100);
+    }
+
     setupTiles(pict);
 }
 
