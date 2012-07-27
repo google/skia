@@ -184,7 +184,7 @@ SkShader::BitmapType SkTwoPointRadialGradient::asABitmap(
     SkMatrix* matrix,
     SkShader::TileMode* xy) const {
     if (bitmap) {
-        this->commonAsABitmap(bitmap);
+        this->getGradientTableBitmap(bitmap);
     }
     SkScalar diffL = 0; // just to avoid gcc warning
     if (matrix) {
@@ -235,8 +235,7 @@ GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
     sampler->textureParams()->setTileModeX(fTileMode);
     sampler->textureParams()->setTileModeY(kClamp_TileMode);
     sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler, 
-        diffLen, fStartRadius, fDiffRadius));
+    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler));
 }
 
 void SkTwoPointRadialGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
@@ -590,16 +589,14 @@ GrRadial2Gradient::GrRadial2Gradient(GrTexture* texture,
 }
 
 GrRadial2Gradient::GrRadial2Gradient(GrContext* ctx, 
-                                     const SkShader& shader, 
-                                     GrSamplerState* sampler,
-                                     SkScalar center,
-                                     SkScalar startRadius,
-                                     SkScalar diffRadius)
-                                     : INHERITED(ctx, shader, sampler)
-                                     , fCenterX1(center)
-                                     , fRadius0(startRadius) 
-                                     , fPosRoot(diffRadius < 0) {
+                                     const SkTwoPointRadialGradient& shader, 
+                                     GrSamplerState* sampler)
+    : INHERITED(ctx, shader, sampler)
+    , fCenterX1(shader.getCenterX1())
+    , fRadius0(shader.getStartRadius()) 
+    , fPosRoot(shader.getDiffRadius() < 0) {
 }
+
 
 GrRadial2Gradient::~GrRadial2Gradient() {
 

@@ -19,7 +19,7 @@ SkSweepGradient::SkSweepGradient(SkScalar cx, SkScalar cy, const SkColor colors[
 SkShader::BitmapType SkSweepGradient::asABitmap(SkBitmap* bitmap,
     SkMatrix* matrix, SkShader::TileMode* xy) const {
     if (bitmap) {
-        this->commonAsABitmap(bitmap);
+        this->getGradientTableBitmap(bitmap);
     }
     if (matrix) {
         *matrix = fPtsToUnit;
@@ -429,7 +429,8 @@ GrSweepGradient::GrSweepGradient(GrTexture* texture)
 
 }
 
-GrSweepGradient::GrSweepGradient(GrContext* ctx, const SkShader& shader,
+GrSweepGradient::GrSweepGradient(GrContext* ctx, 
+                                 const SkSweepGradient& shader,
                                  GrSamplerState* sampler) 
                                  : INHERITED(ctx, shader, sampler) {
 }

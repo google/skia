@@ -47,7 +47,7 @@ class GrSweepGradient : public GrGradientEffect {
 public:
 
     GrSweepGradient(GrTexture* texture);
-    GrSweepGradient(GrContext* ctx, const SkShader& shader,
+    GrSweepGradient(GrContext* ctx, const SkSweepGradient& shader,
                      GrSamplerState* sampler);
     virtual ~GrSweepGradient();
 
