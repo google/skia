@@ -8,9 +8,20 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+
+class SkData;
+class SkCanvas;
+class SkPaint;
+class SkShader;
+
+// need for TileMode
+#include "SkShader.h"
 
 ////// EXPERIMENTAL
 
+class SkColorSpace;
 
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
@@ -25,18 +36,22 @@
 class SkImage : public SkRefCnt {
 public:
     enum ColorType {
-        kA8_ColorType,
+        kAlpha_8_ColorType,
         kRGB_565_ColorType,
         kRGBA_8888_ColorType,
         kBGRA_8888_ColorType,
         kPMColor_ColorType,
+        
+        kLastEnum_ColorType = kPMColor_ColorType
     };
     
     enum AlphaType {
         kIgnore_AlphaType,
         kOpaque_AlphaType,
         kPremul_AlphaType,
-        kUnpremul_AlphaType
+        kUnpremul_AlphaType,
+        
+        kLastEnum_AlphaType = kUnpremul_AlphaType
     };
 
     struct Info {
@@ -51,14 +66,31 @@ public:
     static SkImage* NewRasterData(const Info&, SkColorSpace*, SkData* pixels, size_t rowBytes);
     static SkImage* NewEncodedData(SkData*);
 
-    int         width() const;
-    int         height() const;
-    uint32_t    uniqueID() const;
-    
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
+    uint32_t uniqueID() const { return fUniqueID; }
+
     SkShader*   newShaderClamp() const;
     SkShader*   newShader(SkShader::TileMode, SkShader::TileMode) const;
-    
-    void SkCanvas::drawImage(...);
+
+    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
+
+protected:
+    SkImage(int width, int height) :
+        fWidth(width),
+        fHeight(height),
+        fUniqueID(NextUniqueID()) {
+
+        SkASSERT(width >= 0);
+        SkASSERT(height >= 0);
+    }
+
+private:
+    const int       fWidth;
+    const int       fHeight;
+    const uint32_t  fUniqueID;
+
+    static uint32_t NextUniqueID();
 };
 
 /**
@@ -71,18 +103,37 @@ public:
  */
 class SkSurface : public SkRefCnt {
 public:
-    static SkSurface*   NewRasterDirect(const Info&, SkColorSpace*,
+    static SkSurface*   NewRasterDirect(const SkImage::Info&, SkColorSpace*,
                                         const void* pixels, size_t rowBytes);
-    static SkSurface*   NewRaster(const Info&, SkColorSpace*);
+    static SkSurface*   NewRaster(const SkImage::Info&, SkColorSpace*);
     static SkSurface*   NewGpu(GrContext*);
     static SkSurface*   NewPDF(...);
     static SkSurface*   NewXPS(...);
     static SkSurface*   NewPicture(int width, int height);
 
     /**
-     *  Return a canvas that will draw into this surface
+     *  Return a canvas that will draw into this surface.
+     *
+     *  LIFECYCLE QUESTIONS
+     *  1. Is this owned by the surface or the caller?
+     *  2. Can the caller get a 2nd canvas, or reset the state of the first?
      */
     SkCanvas* newCanvas();
+
+    /**
+     *  Return a new surface that is "compatible" with this one, in that it will
+     *  efficiently be able to be drawn into this surface. Typical calling
+     *  pattern:
+     *
+     *  SkSurface* A = SkSurface::New...();
+     *  SkCanvas* canvasA = surfaceA->newCanvas();
+     *  ...
+     *  SkSurface* surfaceB = surfaceA->newSurface(...);
+     *  SkCanvas* canvasB = surfaceB->newCanvas();
+     *  ... // draw using canvasB
+     *  canvasA->drawSurface(surfaceB); // <--- this will always be optimal!
+     */
+    SkSurface* newSurface(int width, int height);
 
     /**
      *  Returns an image of the current state of the surface pixels up to this
@@ -98,7 +149,7 @@ public:
      *  we'd know that the "snapshot" need only live until we've handed it off
      *  to the canvas.
      */
-    void SkCanvas::drawSurface(...);
+    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
 };
 
 #endif
