@@ -884,9 +884,6 @@ static void TestCanvas(skiatest::Reporter* reporter) {
         TestOverrideStateConsistency(reporter, testStepArray()[testStep]);
         SkPictureTester::TestPictureFlattenedObjectReuse(reporter,
             testStepArray()[testStep], 0);
-        SkPictureTester::TestPictureFlattenedObjectReuse(reporter,
-            testStepArray()[testStep],
-            SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag);
     }
 }
 

@@ -523,7 +523,7 @@ void SkPictureRecord::reset() {
     fPathHeap = NULL;
 
     fBitmaps.reset();
-    fPixelRefDictionary.reset();
+    fBitmapIndexCache.reset();
     fMatrices.reset();
     fPaints.reset();
     fPictureRefs.unrefAll();
@@ -640,27 +640,23 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPictureRecord::shouldFlattenPixels(const SkBitmap& bitmap) const {
-    return (fRecordFlags &
-        SkPicture::kFlattenMutableNonTexturePixelRefs_RecordingFlag)
-        && !bitmap.isImmutable() && bitmap.pixelRef()
-        && NULL == bitmap.getTexture();
-}
-
 int SkPictureRecord::find(const SkBitmap& bitmap) {
     int dictionaryIndex = 0;
-    PixelRefDictionaryEntry entry;
-    bool flattenPixels = shouldFlattenPixels(bitmap);
+    BitmapIndexCacheEntry entry;
+    const bool flattenPixels = !bitmap.isImmutable();
     if (flattenPixels) {
         // Flattened bitmap may be very large. First attempt a fast lookup
         // based on generation ID to avoid unnecessary flattening in
         // fBitmaps.find()
-        entry.fKey = bitmap.pixelRef()->getGenerationID();
+        entry.fGenerationId = bitmap.getGenerationID();
+        entry.fPixelOffset = bitmap.pixelRefOffset();
+        entry.fWidth = bitmap.width();
+        entry.fHeight = bitmap.height();
         dictionaryIndex = 
-            SkTSearch<const PixelRefDictionaryEntry>(fPixelRefDictionary.begin(),
-            fPixelRefDictionary.count(), entry, sizeof(entry));
+            SkTSearch<const BitmapIndexCacheEntry>(fBitmapIndexCache.begin(),
+                    fBitmapIndexCache.count(), entry, sizeof(entry));
         if (dictionaryIndex >= 0) {
-            return fPixelRefDictionary[dictionaryIndex].fIndex;
+            return fBitmapIndexCache[dictionaryIndex].fIndex;
         }
     }
     
@@ -671,7 +667,7 @@ int SkPictureRecord::find(const SkBitmap& bitmap) {
     if (flattenPixels) {
         entry.fIndex = index;
         dictionaryIndex = ~dictionaryIndex;
-        *fPixelRefDictionary.insert(dictionaryIndex) = entry;
+        *fBitmapIndexCache.insert(dictionaryIndex) = entry;
     }
     return index;
 }
