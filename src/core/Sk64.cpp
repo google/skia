@@ -20,7 +20,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-EPOGER_BREAK_THE_BUILD epoger_break_the_build
 int Sk64::getClzAbs() const
 {
     int32_t     hi = fHi;
