@@ -900,7 +900,7 @@ void S32A_D565_Blend_SSE2(uint16_t* SK_RESTRICT dst,
 void S32A_D565_Opaque_SSE2(uint16_t* SK_RESTRICT dst,
                                const SkPMColor* SK_RESTRICT src, int count,
                                U8CPU alpha, int /*x*/, int /*y*/) {
-    while(((int)src & 0xf) && (count-- > 0)){
+    while(((intptr_t)src & 0xf) && (count-- > 0)){
                 *dst = SkSrcOver32To16(*src, *dst);
         src++;
         dst++;
