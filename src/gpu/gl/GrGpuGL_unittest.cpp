@@ -2,7 +2,11 @@
 
 #include "effects/GrColorTableEffect.h"
 #include "effects/GrConvolutionEffect.h"
-#include "effects/GrGradientEffects.h"
+#include "../effects/gradients/SkLinearGradient.h"
+#include "../effects/gradients/SkRadialGradient.h"
+#include "../effects/gradients/SkTwoPointRadialGradient.h"
+#include "../effects/gradients/SkTwoPointConicalGradient.h"
+#include "../effects/gradients/SkSweepGradient.h"
 #include "effects/GrMorphologyEffect.h"
 #include "SkLightingImageFilter.h"
 #include "GrProgramStageFactory.h"

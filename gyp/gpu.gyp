@@ -291,8 +291,6 @@
         '../src/gpu/effects/GrColorTableEffect.h',
         '../src/gpu/effects/GrConvolutionEffect.cpp',
         '../src/gpu/effects/GrConvolutionEffect.h',
-        '../src/gpu/effects/GrGradientEffects.cpp',
-        '../src/gpu/effects/GrGradientEffects.h',
         '../src/gpu/effects/GrMorphologyEffect.cpp',
         '../src/gpu/effects/GrMorphologyEffect.h',
         '../src/gpu/effects/GrSingleTextureEffect.cpp',
