@@ -1,5 +1,5 @@
 #include "SkImage.h"
-
+#include "SkImagePriv.h"
 #include "SkBitmap.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,70 +20,6 @@ static SkImage_Base* asIB(SkImage* image) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBitmap::Config InfoToConfig(const SkImage::Info& info, bool* isOpaque) {
-    switch (info.fColorType) {
-        case SkImage::kAlpha_8_ColorType:
-            switch (info.fAlphaType) {
-                case SkImage::kIgnore_AlphaType:
-                    // makes no sense
-                    return SkBitmap::kNo_Config;
-
-                case SkImage::kOpaque_AlphaType:
-                    *isOpaque = true;
-                    return SkBitmap::kA8_Config;
-
-                case SkImage::kPremul_AlphaType:
-                case SkImage::kUnpremul_AlphaType:
-                    *isOpaque = false;
-                    return SkBitmap::kA8_Config;
-            }
-            break;
-
-        case SkImage::kRGB_565_ColorType:
-            // we ignore fAlpahType, though some would not make sense
-            *isOpaque = true;
-            return SkBitmap::kRGB_565_Config;
-
-        case SkImage::kRGBA_8888_ColorType:
-        case SkImage::kBGRA_8888_ColorType:
-            // not supported yet
-            return SkBitmap::kNo_Config;
-
-        case SkImage::kPMColor_ColorType:
-            switch (info.fAlphaType) {
-                case SkImage::kIgnore_AlphaType:
-                case SkImage::kUnpremul_AlphaType:
-                    // not supported yet
-                    return SkBitmap::kNo_Config;
-                case SkImage::kOpaque_AlphaType:
-                    *isOpaque = true;
-                    return SkBitmap::kARGB_8888_Config;
-                case SkImage::kPremul_AlphaType:
-                    *isOpaque = false;
-                    return SkBitmap::kARGB_8888_Config;
-            }
-            break;
-    }
-    SkASSERT(!"how did we get here");
-    return SkBitmap::kNo_Config;
-}
-
-static int BytesPerPixel(SkImage::ColorType ct) {
-    static const uint8_t gColorTypeBytesPerPixel[] = {
-        1,  // kAlpha_8_ColorType
-        2,  // kRGB_565_ColorType
-        4,  // kRGBA_8888_ColorType
-        4,  // kBGRA_8888_ColorType
-        4,  // kPMColor_ColorType
-    };
-
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gColorTypeBytesPerPixel));
-    return gColorTypeBytesPerPixel[ct];
-}
-
-static size_t ComputeMinRowBytes(const SkImage::Info& info) {
-    return info.fWidth * BytesPerPixel(info.fColorType);
-}
 
 class SkImage_Raster : public SkImage_Base {
 public:
@@ -105,13 +41,13 @@ public:
         }
 
         bool isOpaque;
-        if (InfoToConfig(info, &isOpaque) == SkBitmap::kNo_Config) {
+        if (SkImageInfoToBitmapConfig(info, &isOpaque) == SkBitmap::kNo_Config) {
             return false;
         }
             
         // TODO: check colorspace
         
-        if (rowBytes < ComputeMinRowBytes(info)) {
+        if (rowBytes < SkImageMinRowBytes(info)) {
             return false;
         }
         
@@ -129,6 +65,9 @@ public:
 
     virtual const SkBitmap* asABitmap() SK_OVERRIDE;
 
+    // exposed for SkSurface_Raster via SkNewImageFromPixelRef
+    SkImage_Raster(const SkImage::Info&, SkPixelRef*, size_t rowBytes);
+
 private:
     SkImage_Raster() : INHERITED(0, 0) {}
 
@@ -136,6 +75,11 @@ private:
 
     typedef SkImage_Base INHERITED;
 };
+
+SkImage* SkNewImageFromPixelRef(const SkImage::Info& info, SkPixelRef* pr,
+                                size_t rowBytes) {
+    return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -154,14 +98,27 @@ SkImage* SkImage_Raster::NewEmpty() {
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkColorSpace* cs,
                                SkData* data, size_t rowBytes)
-        : INHERITED(info.fWidth, info.fHeight) {
+: INHERITED(info.fWidth, info.fHeight) {
     bool isOpaque;
-    SkBitmap::Config config = InfoToConfig(info, &isOpaque);
-
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
     fBitmap.setPixelRef(SkNEW_ARGS(SkDataPixelRef, (data)))->unref();
     fBitmap.setIsOpaque(isOpaque);
-    fBitmap.setImmutable();   // Yea baby!
+    fBitmap.setImmutable();
+}
+
+SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes)
+        : INHERITED(info.fWidth, info.fHeight) {
+    SkASSERT(pr->isImmutable());
+
+    bool isOpaque;
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+
+    fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
+    fBitmap.setPixelRef(pr);
+    fBitmap.setIsOpaque(isOpaque);
+    fBitmap.setImmutable();
 }
 
 SkImage_Raster::~SkImage_Raster() {}
