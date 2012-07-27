@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "Sk64.h"
 #include "SkMath.h"
 
@@ -21,6 +20,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
+EPOGER_BREAK_THE_BUILD epoger_break_the_build
 int Sk64::getClzAbs() const
 {
     int32_t     hi = fHi;
@@ -360,4 +360,3 @@ SkFixed Sk64::getFixedDiv(const Sk64& denom) const
     }
     return SkApplySign(result, sign);
 }
-
