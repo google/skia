@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SkDebuggerGUI.h'
 **
-** Created: Wed Jul 25 15:04:14 2012
+** Created: Thu Jul 26 16:33:10 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_SkDebuggerGUI[] = {
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-      27,   14, // methods
+      29,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -46,20 +46,22 @@ static const uint qt_meta_data_SkDebuggerGUI[] = {
      224,   14,   14,   14, 0x08,
      237,  175,   14,   14, 0x08,
      262,   14,   14,   14, 0x08,
-     289,  277,   14,   14, 0x08,
-     308,   14,   14,   14, 0x08,
-     325,   14,   14,   14, 0x08,
-     342,   14,   14,   14, 0x08,
-     367,  362,   14,   14, 0x08,
-     394,   14,   14,   14, 0x08,
-     414,  405,   14,   14, 0x08,
-     433,   14,   14,   14, 0x28,
-     448,  362,   14,   14, 0x08,
-     484,   15,   14,   14, 0x08,
-     503,   14,   14,   14, 0x08,
-     517,   14,   14,   14, 0x08,
-     536,   14,   14,   14, 0x08,
-     561,  554,   14,   14, 0x08,
+     277,   14,   14,   14, 0x08,
+     290,   14,   14,   14, 0x08,
+     317,  305,   14,   14, 0x08,
+     336,   14,   14,   14, 0x08,
+     353,   14,   14,   14, 0x08,
+     370,   14,   14,   14, 0x08,
+     395,  390,   14,   14, 0x08,
+     422,   14,   14,   14, 0x08,
+     442,  433,   14,   14, 0x08,
+     461,   14,   14,   14, 0x28,
+     476,  390,   14,   14, 0x08,
+     512,   15,   14,   14, 0x08,
+     531,   14,   14,   14, 0x08,
+     545,   14,   14,   14, 0x08,
+     564,   14,   14,   14, 0x08,
+     589,  582,   14,   14, 0x08,
 
        0        // eod
 };
@@ -69,15 +71,15 @@ static const char qt_meta_stringdata_SkDebuggerGUI[] = {
     "actionBreakpoints()\0actionCancel()\0"
     "actionClearBreakpoints()\0actionClearDeletes()\0"
     "actionCommandFilter()\0actionClose()\0"
-    "actionDelete()\0setHidden\0actionGLWidget(bool)\0"
+    "actionDelete()\0isToggled\0actionGLWidget(bool)\0"
     "actionInspector()\0actionPlay()\0"
     "actionRasterWidget(bool)\0actionRewind()\0"
-    "scaleFactor\0actionScale(float)\0"
-    "actionSettings()\0actionStepBack()\0"
-    "actionStepForward()\0item\0"
-    "loadFile(QListWidgetItem*)\0openFile()\0"
-    "isPaused\0pauseDrawing(bool)\0pauseDrawing()\0"
-    "registerListClick(QListWidgetItem*)\0"
+    "actionSave()\0actionSaveAs()\0scaleFactor\0"
+    "actionScale(float)\0actionSettings()\0"
+    "actionStepBack()\0actionStepForward()\0"
+    "item\0loadFile(QListWidgetItem*)\0"
+    "openFile()\0isPaused\0pauseDrawing(bool)\0"
+    "pauseDrawing()\0registerListClick(QListWidgetItem*)\0"
     "selectCommand(int)\0showDeletes()\0"
     "toggleBreakpoint()\0toggleDirectory()\0"
     "string\0toggleFilter(QString)\0"
@@ -125,23 +127,25 @@ int SkDebuggerGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 10: actionPlay(); break;
         case 11: actionRasterWidget((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 12: actionRewind(); break;
-        case 13: actionScale((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 14: actionSettings(); break;
-        case 15: actionStepBack(); break;
-        case 16: actionStepForward(); break;
-        case 17: loadFile((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 18: openFile(); break;
-        case 19: pauseDrawing((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 20: pauseDrawing(); break;
-        case 21: registerListClick((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 22: selectCommand((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 23: showDeletes(); break;
-        case 24: toggleBreakpoint(); break;
-        case 25: toggleDirectory(); break;
-        case 26: toggleFilter((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 13: actionSave(); break;
+        case 14: actionSaveAs(); break;
+        case 15: actionScale((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 16: actionSettings(); break;
+        case 17: actionStepBack(); break;
+        case 18: actionStepForward(); break;
+        case 19: loadFile((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 20: openFile(); break;
+        case 21: pauseDrawing((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 22: pauseDrawing(); break;
+        case 23: registerListClick((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 24: selectCommand((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 25: showDeletes(); break;
+        case 26: toggleBreakpoint(); break;
+        case 27: toggleDirectory(); break;
+        case 28: toggleFilter((*reinterpret_cast< QString(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 27;
+        _id -= 29;
     }
     return _id;
 }

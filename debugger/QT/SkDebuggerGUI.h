@@ -117,6 +117,16 @@ private slots:
     void actionRewind();
 
     /**
+        Saves the current SKP with all modifications.
+     */
+    void actionSave();
+
+    /**
+        Saves the current SKP under a different name and/or location.
+     */
+    void actionSaveAs();
+
+    /**
         Sends the scale factor information to the settings widget.
      */
     void actionScale(float scaleFactor);
@@ -199,6 +209,8 @@ private:
     QAction fActionPlay;
     QAction fActionPause;
     QAction fActionRewind;
+    QAction fActionSave;
+    QAction fActionSaveAs;
     QAction fActionShowDeletes;
     QAction fActionStepBack;
     QAction fActionStepForward;
@@ -206,7 +218,7 @@ private:
     QAction fActionZoomOut;
     QSignalMapper fMapper;
     QWidget fCentralWidget;
-
+    QWidget fSpacer;
     QComboBox fFilter;
 
     QVBoxLayout fLeftColumnLayout;
@@ -249,6 +261,11 @@ private:
         the listwidget, combowidget and inspectorwidget.
      */
     void loadPicture(QString fileName);
+
+    /**
+        Creates a picture of the current canvas.
+     */
+    void saveToFile(QString filename);
 
     /**
         Populates the list widget with the vector of strings passed in.
