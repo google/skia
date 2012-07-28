@@ -25,6 +25,8 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fActionPlay(this)
     , fActionPause(this)
     , fActionRewind(this)
+    , fActionSave(this)
+    , fActionSaveAs(this)
     , fActionShowDeletes(this)
     , fActionStepBack(this)
     , fActionStepForward(this)
@@ -78,6 +80,8 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget, SLOT(updateHit(int)));
     connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this, SLOT(actionScale(float)));
     connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget, SLOT(updateCommand(int)));
+    connect(&fActionSaveAs, SIGNAL(triggered()), this, SLOT(actionSaveAs()));
+    connect(&fActionSave, SIGNAL(triggered()), this, SLOT(actionSave()));
 
     fMapper.setMapping(&fActionZoomIn, 1);
     fMapper.setMapping(&fActionZoomOut, -1);
@@ -202,6 +206,23 @@ void SkDebuggerGUI::actionRewind() {
     fListWidget.setCurrentRow(0);
 }
 
+void SkDebuggerGUI::actionSave() {
+    QString filename;
+    filename.append(fPath);
+    filename.append("/");
+    filename.append(fDirectoryWidget.currentItem()->text());
+    saveToFile(filename);
+}
+
+void SkDebuggerGUI::actionSaveAs() {
+    QString filename = QFileDialog::getSaveFileName(this, "Save File", "",
+            "Skia Picture (*skp)");
+    if (!filename.endsWith(".skp", Qt::CaseInsensitive))
+        filename.append(".skp");
+    }
+    saveToFile(filename);
+}
+
 void SkDebuggerGUI::actionScale(float scaleFactor) {
     fSettingsWidget.setZoomText(scaleFactor);
 }
@@ -228,6 +249,15 @@ void SkDebuggerGUI::actionStepForward() {
     if (currentRow < fListWidget.count() - 1) {
         fListWidget.setCurrentRow(currentRow + 1);
     }
+}
+
+void SkDebuggerGUI::saveToFile(QString filename) {
+    SkFILEWStream file(filename.toAscii());
+    SkPicture picture;
+    SkCanvas* canvas = picture.beginRecording(100,100);
+    fCanvasWidget.getCurrentDebugCanvas()->draw(canvas);
+    picture.endRecording();
+    picture.serialize(&file);
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
@@ -406,6 +436,13 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionRewind.setIcon(rewind);
     fActionRewind.setText("Rewind");
 
+    fActionSave.setShortcut(QKeySequence::Save);
+    fActionSave.setText("Save");
+    fActionSave.setDisabled(true);
+    fActionSaveAs.setShortcut(QKeySequence::SaveAs);
+    fActionSaveAs.setText("Save As");
+    fActionSaveAs.setDisabled(true);
+
     fActionShowDeletes.setShortcut(QKeySequence(tr("Ctrl+X")));
     fActionShowDeletes.setText("Deleted Commands");
 
@@ -472,8 +509,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fToolBar.setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     SkDebuggerGUI->addToolBar(Qt::TopToolBarArea, &fToolBar);
 
-    QWidget *spacer = new QWidget();
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    fSpacer.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     fToolBar.addAction(&fActionRewind);
     fToolBar.addAction(&fActionStepBack);
@@ -483,7 +519,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fToolBar.addSeparator();
     fToolBar.addAction(&fActionInspector);
     fToolBar.addSeparator();
-    fToolBar.addWidget(spacer);
+    fToolBar.addWidget(&fSpacer);
     fToolBar.addWidget(&fFilter);
     fToolBar.addAction(&fActionCancel);
 
@@ -496,6 +532,8 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     // Menu Bar
     fMenuFile.setTitle("File");
     fMenuFile.addAction(&fActionOpen);
+    fMenuFile.addAction(&fActionSave);
+    fMenuFile.addAction(&fActionSaveAs);
     fMenuFile.addAction(&fActionClose);
 
     fMenuEdit.setTitle("Edit");
@@ -563,6 +601,8 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
     fMenuEdit.setDisabled(false);
     fMenuNavigate.setDisabled(false);
     fMenuView.setDisabled(false);
+    fActionSave.setDisabled(false);
+    fActionSaveAs.setDisabled(false);
     fLoading = false;
     actionPlay();
 }

@@ -29,7 +29,9 @@ void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
 void SkDebugCanvas::draw(SkCanvas* canvas) {
     if(!commandVector.empty()) {
         for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            (*it)->execute(canvas);
+            if ((*it)->getVisibility()) {
+                (*it)->execute(canvas);
+            }
         }
     }
 }
