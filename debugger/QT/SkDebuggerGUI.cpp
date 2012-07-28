@@ -217,7 +217,7 @@ void SkDebuggerGUI::actionSave() {
 void SkDebuggerGUI::actionSaveAs() {
     QString filename = QFileDialog::getSaveFileName(this, "Save File", "",
             "Skia Picture (*skp)");
-    if (!filename.endsWith(".skp", Qt::CaseInsensitive))
+    if (!filename.endsWith(".skp", Qt::CaseInsensitive)) {
         filename.append(".skp");
     }
     saveToFile(filename);
