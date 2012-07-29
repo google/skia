@@ -5,6 +5,8 @@
 #include "SkBitmap.h"
 #include "SkImage.h"
 
+class SkPicture;
+
 extern SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info&,
                                                   bool* isOpaque);
 
@@ -20,8 +22,13 @@ extern SkImage* SkNewImageFromPixelRef(const SkImage::Info&, SkPixelRef*,
  */
 extern SkImage* SkNewImageFromBitmap(const SkBitmap&);
 
+extern void SkImagePrivDrawPicture(SkCanvas*, SkPicture*,
+                                   SkScalar x, SkScalar y, const SkPaint*);
+extern SkImage* SkNewImageFromPicture(SkPicture*);
+
 static inline size_t SkImageMinRowBytes(const SkImage::Info& info) {
-    return info.fWidth * SkImageBytesPerPixel(info.fColorType);
+    size_t rb = info.fWidth * SkImageBytesPerPixel(info.fColorType);
+    return SkAlign4(rb);
 }
 
 #endif
