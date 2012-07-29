@@ -1,4 +1,6 @@
 #include "SkImagePriv.h"
+#include "SkCanvas.h"
+#include "SkPicture.h"
 
 SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info,
                                            bool* isOpaque) {
@@ -98,12 +100,37 @@ SkImage* SkNewImageFromBitmap(const SkBitmap& bm) {
         image = SkNewImageFromPixelRef(info, bm.pixelRef(), bm.rowBytes());
     } else {
         bm.lockPixels();
-        if (NULL == bm.getPixels()) {
+        if (bm.getPixels()) {
             image = SkImage::NewRasterCopy(info, NULL, bm.getPixels(),
                                            bm.rowBytes());
         }
         bm.unlockPixels();
     }
     return image;
+}
+
+static bool needs_layer(const SkPaint& paint) {
+    return  0xFF != paint.getAlpha() ||
+    paint.getColorFilter() ||
+    paint.getImageFilter() ||
+    SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode);
+}
+
+void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
+                            SkScalar x, SkScalar y, const SkPaint* paint) {
+    int saveCount = canvas->getSaveCount();
+    
+    if (paint && needs_layer(*paint)) {
+        SkRect bounds;
+        bounds.set(x, y,
+                   x + SkIntToScalar(picture->width()),
+                   y + SkIntToScalar(picture->height()));
+        canvas->saveLayer(&bounds, paint);
+    } else if (x || y) {
+        canvas->save();
+    }
+    
+    canvas->drawPicture(*picture);
+    canvas->restoreToCount(saveCount);
 }
 

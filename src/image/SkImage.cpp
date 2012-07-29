@@ -1,6 +1,7 @@
 #include "SkImage.h"
 #include "SkImagePriv.h"
 #include "SkBitmap.h"
+#include "SkCanvas.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -8,7 +9,7 @@ class SkImage_Base : public SkImage {
 public:
     SkImage_Base(int width, int height) : INHERITED(width, height) {}
 
-    virtual const SkBitmap* asABitmap() { return NULL; }
+    virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) = 0;
 
 private:    
     typedef SkImage INHERITED;
@@ -63,7 +64,7 @@ public:
     SkImage_Raster(const SkImage::Info&, SkColorSpace*, SkData*, size_t rb);
     virtual ~SkImage_Raster();
 
-    virtual const SkBitmap* asABitmap() SK_OVERRIDE;
+    virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
     SkImage_Raster(const SkImage::Info&, SkPixelRef*, size_t rowBytes);
@@ -123,8 +124,44 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes
 
 SkImage_Raster::~SkImage_Raster() {}
 
-const SkBitmap* SkImage_Raster::asABitmap() {
-    return &fBitmap;
+void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+    canvas->drawBitmap(fBitmap, x, y, paint);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkPicture.h"
+
+class SkImage_Picture : public SkImage_Base {
+public:
+    SkImage_Picture(SkPicture*);
+    virtual ~SkImage_Picture();
+
+    virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
+
+private:
+    SkPicture*  fPicture;
+
+    typedef SkImage_Base INHERITED;
+};
+
+SkImage_Picture::SkImage_Picture(SkPicture* pict) : INHERITED(pict->width(), pict->height()) {
+    pict->endRecording();
+    pict->ref();
+    fPicture = pict;
+}
+
+SkImage_Picture::~SkImage_Picture() {
+    fPicture->unref();
+}
+
+void SkImage_Picture::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
+                             const SkPaint* paint) {
+    SkImagePrivDrawPicture(canvas, fPicture, x, y, paint);
+}
+
+SkImage* SkNewImageFromPicture(SkPicture* pict) {
+    return SkNEW_ARGS(SkImage_Picture, (pict));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,9 +225,6 @@ uint32_t SkImage::NextUniqueID() {
 
 void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
                    const SkPaint* paint) {
-    const SkBitmap* bitmap = asIB(this)->asABitmap();
-    if (bitmap) {
-        canvas->drawBitmap(*bitmap, x, y, paint);
-    }
+    asIB(this)->onDraw(canvas, x, y, paint);
 }
 
