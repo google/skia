@@ -360,6 +360,11 @@ bool SkBitmap::lockPixelsAreWritable() const {
 }
 
 void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
+    if (NULL == p) {
+        this->setPixelRef(NULL, 0);
+        return;
+    }
+
     Sk64 size = this->getSize64();
     SkASSERT(!size.isNeg() && size.is32());
 
