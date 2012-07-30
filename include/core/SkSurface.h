@@ -71,13 +71,12 @@ public:
     void notifyContentChanged();
     
     /**
-     *  Return a canvas that will draw into this surface.
-     *
-     *  LIFECYCLE QUESTIONS
-     *  1. Is this owned by the surface or the caller?
-     *  2. Can the caller get a 2nd canvas, or reset the state of the first?
+     *  Return a canvas that will draw into this surface. This will always
+     *  return the same canvas for a given surface, and is manged/owned by the
+     *  surface. It should not be used when its parent surface has gone out of
+     *  scope.
      */
-    SkCanvas* newCanvas();
+    SkCanvas* getCanvas();
 
     /**
      *  Return a new surface that is "compatible" with this one, in that it will

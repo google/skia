@@ -133,8 +133,10 @@ void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
                    x + SkIntToScalar(picture->width()),
                    y + SkIntToScalar(picture->height()));
         canvas->saveLayer(&bounds, paint);
+        canvas->translate(x, y);
     } else if (x || y) {
         canvas->save();
+        canvas->translate(x, y);
     }
     
     canvas->drawPicture(*picture);

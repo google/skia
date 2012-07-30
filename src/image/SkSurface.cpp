@@ -5,34 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkSurface.h"
+#include "SkSurface_Base.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkSurface_Base : public SkSurface {
-public:
-    SkSurface_Base(int width, int height) : INHERITED(width, height) {}
+SkSurface_Base::SkSurface_Base(int width, int height) : INHERITED(width, height) {
+    fCachedCanvas = NULL;
+}
 
-    virtual SkCanvas* onNewCanvas() = 0;
-    virtual SkSurface* onNewSurface(const SkImage::Info&, SkColorSpace*) = 0;
-    virtual SkImage* onNewImageShapshot() = 0;
-    
-    /**
-     *  Default implementation:
-     *
-     *  image = this->newImageSnapshot();
-     *  if (image) {
-     *      image->draw(canvas, ...);
-     *      image->unref();
-     *  }
-     */
-    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
-
-private:
-    typedef SkSurface INHERITED;
-};
+SkSurface_Base::~SkSurface_Base() {
+    SkSafeUnref(fCachedCanvas);
+}
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
                             const SkPaint* paint) {
@@ -55,8 +40,8 @@ SkSurface::SkSurface(int width, int height) : fWidth(width), fHeight(height) {
     fGenerationID = 0;
 }
 
-SkCanvas* SkSurface::newCanvas() {
-    return asSB(this)->onNewCanvas();
+SkCanvas* SkSurface::getCanvas() {
+    return asSB(this)->getCachedCanvas();
 }
 
 SkSurface* SkSurface::newSurface(const SkImage::Info& info, SkColorSpace* cs) {
