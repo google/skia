@@ -18,6 +18,20 @@
 #include "SkColor.h"
 #include "SkMath.h"
 
+///@{
+/** See ITU-R Recommendation BT.709 at http://www.itu.int/rec/R-REC-BT.709/ .*/
+#define SK_ITU_BT709_LUM_COEFF_R (0.2126f)
+#define SK_ITU_BT709_LUM_COEFF_G (0.7152f)
+#define SK_ITU_BT709_LUM_COEFF_B (0.0722f)
+///@}
+
+///@{
+/** A float value which specifies this channel's contribution to luminance. */
+#define SK_LUM_COEFF_R SK_ITU_BT709_LUM_COEFF_R
+#define SK_LUM_COEFF_G SK_ITU_BT709_LUM_COEFF_G
+#define SK_LUM_COEFF_B SK_ITU_BT709_LUM_COEFF_B
+///@}
+
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of
     alpha * value / 255.

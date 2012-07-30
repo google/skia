@@ -16,6 +16,7 @@
 #include "SkFontHost.h"
 #include "SkGlyph.h"
 #include "SkMask.h"
+#include "SkMaskGamma.h"
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkScalerContext.h"
 #include "SkStream.h"
@@ -57,14 +58,6 @@
 //#define DUMP_STRIKE_CREATION
 
 //#define SK_GAMMA_APPLY_TO_A8
-//#define SK_GAMMA_SRGB
-
-#ifndef SK_GAMMA_CONTRAST
-    #define SK_GAMMA_CONTRAST   0x66
-#endif
-#ifndef SK_GAMMA_EXPONENT
-    #define SK_GAMMA_EXPONENT   2.2
-#endif
 
 #ifdef SK_DEBUG
     #define SkASSERT_CONTINUE(pred)                                                         \
@@ -99,8 +92,6 @@ static SkFaceRec*   gFaceRecHead;
 static bool         gLCDSupportValid;  // true iff |gLCDSupport| has been set.
 static bool         gLCDSupport;  // true iff LCD is supported by the runtime.
 static int          gLCDExtra;  // number of extra pixels for filtering.
-
-static const uint8_t* gGammaTables[2];
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -153,7 +144,7 @@ protected:
     virtual uint16_t generateCharToGlyph(SkUnichar uni);
     virtual void generateAdvance(SkGlyph* glyph);
     virtual void generateMetrics(SkGlyph* glyph);
-    virtual void generateImage(const SkGlyph& glyph);
+    virtual void generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend);
     virtual void generatePath(const SkGlyph& glyph, SkPath* path);
     virtual void generateFontMetrics(SkPaint::FontMetrics* mx,
                                      SkPaint::FontMetrics* my);
@@ -670,25 +661,9 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 #endif
     rec->setHinting(h);
 
-#ifndef SK_USE_COLOR_LUMINANCE
-    // for compatibility at the moment, discretize luminance to 3 settings
-    // black, white, gray. This helps with fontcache utilization, since we
-    // won't create multiple entries that in the end map to the same results.
-    {
-        unsigned lum = rec->getLuminanceByte();
-        if (gGammaTables[0] || gGammaTables[1]) {
-            if (lum <= BLACK_LUMINANCE_LIMIT) {
-                lum = 0;
-            } else if (lum >= WHITE_LUMINANCE_LIMIT) {
-                lum = SkScalerContext::kLuminance_Max;
-            } else {
-                lum = SkScalerContext::kLuminance_Max >> 1;
-            }
-        } else {
-            lum = 0;    // no gamma correct, so use 0 since SkPaint uses that
-                        // when measuring text w/o regard for luminance
-        }
-        rec->setLuminanceBits(lum);
+#ifndef SK_GAMMA_APPLY_TO_A8
+    if (!isLCD(*rec)) {
+      rec->ignorePreBlend();
     }
 #endif
 }
@@ -716,7 +691,6 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         if (!InitFreetype()) {
             sk_throw();
         }
-        SkFontHost::GetGammaTables(gGammaTables);
     }
     ++gFTCount;
 
@@ -1169,103 +1143,6 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_USE_COLOR_LUMINANCE
-
-static float apply_contrast(float srca, float contrast) {
-    return srca + ((1.0f - srca) * contrast * srca);
-}
-
-#ifdef SK_GAMMA_SRGB
-static float lin(float per) {
-    if (per <= 0.04045f) {
-        return per / 12.92f;
-    }
-    return powf((per + 0.055f) / 1.055, 2.4f);
-}
-static float per(float lin) {
-    if (lin <= 0.0031308f) {
-        return lin * 12.92f;
-    }
-    return 1.055f * powf(lin, 1.0f / 2.4f) - 0.055f;
-}
-#else //SK_GAMMA_SRGB
-static float lin(float per) {
-    const float g = SK_GAMMA_EXPONENT;
-    return powf(per, g);
-}
-static float per(float lin) {
-    const float g = SK_GAMMA_EXPONENT;
-    return powf(lin, 1.0f / g);
-}
-#endif //SK_GAMMA_SRGB
-
-static void build_gamma_table(uint8_t table[256], int srcI) {
-    const float src = (float)srcI / 255.0f;
-    const float linSrc = lin(src);
-    const float linDst = 1.0f - linSrc;
-    const float dst = per(linDst);
-
-    // have our contrast value taper off to 0 as the src luminance becomes white
-    const float contrast = SK_GAMMA_CONTRAST / 255.0f * linDst;
-    const float step = 1.0f / 256.0f;
-
-    //Remove discontinuity and instability when src is close to dst.
-    if (fabs(src - dst) < 0.01f) {
-        float rawSrca = 0.0f;
-        for (int i = 0; i < 256; ++i, rawSrca += step) {
-            float srca = apply_contrast(rawSrca, contrast);
-            table[i] = sk_float_round2int(255.0f * srca);
-        }
-    } else {
-        float rawSrca = 0.0f;
-        for (int i = 0; i < 256; ++i, rawSrca += step) {
-            float srca = apply_contrast(rawSrca, contrast);
-            SkASSERT(srca <= 1.0f);
-            float dsta = 1 - srca;
-
-            //Calculate the output we want.
-            float linOut = (linSrc * srca + dsta * linDst);
-            SkASSERT(linOut <= 1.0f);
-            float out = per(linOut);
-
-            //Undo what the blit blend will do.
-            float result = (out - dst) / (src - dst);
-            SkASSERT(sk_float_round2int(255.0f * result) <= 255);
-
-            table[i] = sk_float_round2int(255.0f * result);
-        }
-    }
-}
-
-static const uint8_t* getGammaTable(U8CPU luminance) {
-    static uint8_t gGammaTables[4][256];
-    static bool gInited;
-    if (!gInited) {
-        build_gamma_table(gGammaTables[0], 0x00);
-        build_gamma_table(gGammaTables[1], 0x55);
-        build_gamma_table(gGammaTables[2], 0xAA);
-        build_gamma_table(gGammaTables[3], 0xFF);
-
-        gInited = true;
-    }
-    SkASSERT(0 == (luminance >> 8));
-    return gGammaTables[luminance >> 6];
-}
-
-#else //SK_USE_COLOR_LUMINANCE
-static const uint8_t* getIdentityTable() {
-    static bool gOnce;
-    static uint8_t gIdentityTable[256];
-    if (!gOnce) {
-        for (int i = 0; i < 256; ++i) {
-            gIdentityTable[i] = i;
-        }
-        gOnce = true;
-    }
-    return gIdentityTable;
-}
-#endif //SK_USE_COLOR_LUMINANCE
-
 static uint16_t packTriple(unsigned r, unsigned g, unsigned b) {
     return SkPackRGB16(r >> 3, g >> 2, b >> 3);
 }
@@ -1281,6 +1158,7 @@ static int bittst(const uint8_t data[], int bitOffset) {
     return lowBit & 1;
 }
 
+template<bool APPLY_PREBLEND>
 static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
                          int lcdIsBGR, bool lcdIsVert, const uint8_t* tableR,
                          const uint8_t* tableG, const uint8_t* tableB) {
@@ -1325,25 +1203,25 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
                         SkTSwap(srcR, srcB);
                     }
                     for (int x = 0; x < width; x++) {
-                        dst[x] = packTriple(tableR[*srcR++], 
-                                            tableG[*srcG++],
-                                            tableB[*srcB++]);
+                        dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(*srcR++, tableR), 
+                                            sk_apply_lut_if<APPLY_PREBLEND>(*srcG++, tableG),
+                                            sk_apply_lut_if<APPLY_PREBLEND>(*srcB++, tableB));
                     }
                     src += 3 * bitmap.pitch;
                 } else {            // horizontal stripes
                     const uint8_t* triple = src;
                     if (lcdIsBGR) {
                         for (int x = 0; x < width; x++) {
-                            dst[x] = packTriple(tableR[triple[2]], 
-                                                tableG[triple[1]],
-                                                tableB[triple[0]]);
+                            dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(triple[2], tableR), 
+                                                sk_apply_lut_if<APPLY_PREBLEND>(triple[1], tableG),
+                                                sk_apply_lut_if<APPLY_PREBLEND>(triple[0], tableB));
                             triple += 3;
                         }
                     } else {
                         for (int x = 0; x < width; x++) {
-                            dst[x] = packTriple(tableR[triple[0]], 
-                                                tableG[triple[1]],
-                                                tableB[triple[2]]);
+                            dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(triple[0], tableR), 
+                                                sk_apply_lut_if<APPLY_PREBLEND>(triple[1], tableG),
+                                                sk_apply_lut_if<APPLY_PREBLEND>(triple[2], tableB));
                             triple += 3;
                         }
                     }
@@ -1355,7 +1233,7 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
     }
 }
 
-void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
+void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     FT_Error    err;
@@ -1373,25 +1251,15 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         return;
     }
 
-#ifdef SK_USE_COLOR_LUMINANCE
-    SkColor lumColor = fRec.getLuminanceColor();
-    const uint8_t* tableR = getGammaTable(SkColorGetR(lumColor));
-    const uint8_t* tableG = getGammaTable(SkColorGetG(lumColor));
-    const uint8_t* tableB = getGammaTable(SkColorGetB(lumColor));
-#else
-    unsigned lum = fRec.getLuminanceByte();
-    const uint8_t* tableR;
-    const uint8_t* tableG;
-    const uint8_t* tableB;
-
-    bool isWhite = lum >= WHITE_LUMINANCE_LIMIT;
-    bool isBlack = lum <= BLACK_LUMINANCE_LIMIT;
-    if ((gGammaTables[0] || gGammaTables[1]) && (isBlack || isWhite)) {
-        tableR = tableG = tableB = gGammaTables[isBlack ? 0 : 1];
-    } else {
-        tableR = tableG = tableB = getIdentityTable();
+    //Must be careful not to use these if maskPreBlend == NULL
+    const uint8_t* tableR = NULL;
+    const uint8_t* tableG = NULL;
+    const uint8_t* tableB = NULL;
+    if (maskPreBlend) {
+        tableR = maskPreBlend->fR;
+        tableG = maskPreBlend->fG;
+        tableB = maskPreBlend->fB;
     }
-#endif
 
     const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
     const bool doVert = fLCDIsVert;
@@ -1427,8 +1295,13 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
                 FT_Render_Glyph(fFace->glyph, doVert ? FT_RENDER_MODE_LCD_V : FT_RENDER_MODE_LCD);
-                copyFT2LCD16(glyph, fFace->glyph->bitmap, doBGR, doVert,
-                             tableR, tableG, tableB);
+                if (maskPreBlend) {
+                    copyFT2LCD16<true>(glyph, fFace->glyph->bitmap, doBGR, doVert,
+                                       tableR, tableG, tableB);
+                } else {
+                    copyFT2LCD16<false>(glyph, fFace->glyph->bitmap, doBGR, doVert,
+                                        tableR, tableG, tableB);
+                }
             } else {
                 target.width = glyph.fWidth;
                 target.rows = glyph.fHeight;
@@ -1493,8 +1366,13 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                     dst += glyph.rowBytes();
                 }
             } else if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                copyFT2LCD16(glyph, fFace->glyph->bitmap, doBGR, doVert,
-                             tableR, tableG, tableB);
+                if (maskPreBlend) {
+                    copyFT2LCD16<true>(glyph, fFace->glyph->bitmap, doBGR, doVert,
+                                       tableR, tableG, tableB);
+                } else {
+                    copyFT2LCD16<false>(glyph, fFace->glyph->bitmap, doBGR, doVert,
+                                        tableR, tableG, tableB);
+                }
             } else {
                 SkDEBUGFAIL("unknown glyph bitmap transform needed");
             }
@@ -1507,16 +1385,14 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
 // We used to always do this pre-USE_COLOR_LUMINANCE, but with colorlum,
 // it is optional
-#if defined(SK_GAMMA_APPLY_TO_A8) || !defined(SK_USE_COLOR_LUMINANCE)
-    if (SkMask::kA8_Format == glyph.fMaskFormat) {
-        SkASSERT(tableR == tableG && tableR == tableB);
-        const uint8_t* table = tableR;
+#if defined(SK_GAMMA_APPLY_TO_A8)
+    if (SkMask::kA8_Format == glyph.fMaskFormat && maskPreBlend) {
         uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
         unsigned rowBytes = glyph.rowBytes();
         
         for (int y = glyph.fHeight - 1; y >= 0; --y) {
             for (int x = glyph.fWidth - 1; x >= 0; --x) {
-                dst[x] = table[dst[x]];
+                dst[x] = tableG[dst[x]];
             }
             dst += rowBytes;
         }

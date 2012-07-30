@@ -85,6 +85,8 @@
         '../src/core/SkMallocPixelRef.cpp',
         '../src/core/SkMask.cpp',
         '../src/core/SkMaskFilter.cpp',
+        '../src/core/SkMaskGamma.cpp',
+        '../src/core/SkMaskGamma.h',
         '../src/core/SkMath.cpp',
         '../src/core/SkMatrix.cpp',
         '../src/core/SkMetaData.cpp',

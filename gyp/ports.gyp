@@ -33,14 +33,12 @@
         '../src/ports/SkTime_Unix.cpp',
         '../src/ports/SkTime_win.cpp',
         '../src/ports/SkXMLParser_empty.cpp',
-        '../src/ports/sk_predefined_gamma.h',
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources': [
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
-            '../src/ports/SkFontHost_gamma_none.cpp',
             '../src/ports/SkFontHost_linux.cpp',
           ],
         }],
@@ -54,7 +52,6 @@
             '../src/utils/mac/SkStream_mac.cpp',
 #            '../src/ports/SkFontHost_FreeType.cpp',
 #            '../src/ports/SkFontHost_freetype_mac.cpp',
-#            '../src/ports/SkFontHost_gamma_none.cpp',
             '../src/ports/SkThread_pthread.cpp',
           ],
           'sources!': [
@@ -94,7 +91,6 @@
             '../src/ports/SkDebug_android.cpp',
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontHost_android.cpp',
-            '../src/ports/SkFontHost_gamma.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/FontHostConfiguration_android.cpp',
             #TODO: include the ports/SkImageRef_ashmem.cpp for non-NDK builds

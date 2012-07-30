@@ -80,15 +80,13 @@
         'defines': [
           'SK_SAMPLES_FOR_X',
           'SK_BUILD_FOR_UNIX',
-          'SK_USE_COLOR_LUMINANCE',
-          'SK_GAMMA_APPLY_TO_A8',
         ],
         'configurations': {
           'Debug': {
             'cflags': ['-g']
           },
           'Release': {
-            'cflags': ['-O3'],
+            'cflags': ['-O3 -g'],
             'defines': [ 'NDEBUG' ],
           },
         },
