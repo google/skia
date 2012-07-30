@@ -256,7 +256,20 @@ void GrClipData::getConservativeBounds(const GrSurface* surface,
                                        GrIRect* result,
                                        bool* isIntersectionOfRects) const {
 
-    const GrRect& conservativeBounds = fClipStack->getConservativeBounds();
+    // Until we switch to using the SkClipStack directly we need to take
+    // this belt and suspenders approach here. When the clip stack 
+    // reduces to a single clip, GrClip uses that rect as the conservative
+    // bounds rather than SkClipStack's bounds and the reduced rect
+    // was never trimmed to the render target's bounds.
+    SkRect temp = SkRect::MakeLTRB(0, 0, 
+                                   SkIntToScalar(surface->width()), 
+                                   SkIntToScalar(surface->height()));
+
+    GrRect conservativeBounds = fClipStack->getConservativeBounds();
+    if (!conservativeBounds.intersect(temp)) {
+        conservativeBounds.setEmpty();
+    }
+
     conservativeBounds.roundOut(result);
 }
 
