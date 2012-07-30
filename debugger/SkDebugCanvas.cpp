@@ -11,10 +11,10 @@
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
 
-SkDebugCanvas::SkDebugCanvas() {
+SkDebugCanvas::SkDebugCanvas(int width, int height) {
     // TODO(chudy): Free up memory from all draw commands in destructor.
-    fWidth = 100;
-    fHeight = 100;
+    fWidth = width;
+    fHeight = height;
     fBm.setConfig(SkBitmap::kNo_Config, fWidth, fHeight);
     this->setBitmapDevice(fBm);
     fFilter = false;

@@ -23,7 +23,7 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
 
     fHorizontalLayout.addWidget(&fRasterWidget);
     fHorizontalLayout.addWidget(&fGLWidget);
-    fDebugCanvas = new SkDebugCanvas();
+    fDebugCanvas = NULL;
 
     fIndex = 0;
     fPreviousPoint.set(0,0);
@@ -31,6 +31,7 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
     fScaleFactor = 1.0;
 
     setWidgetVisibility(kGPU_WidgetType, true);
+    this->setDisabled(true);
 }
 
 void SkCanvasWidget::drawTo(int index) {
@@ -45,18 +46,22 @@ void SkCanvasWidget::drawTo(int index) {
 }
 
 void SkCanvasWidget::loadPicture(QString filename) {
+    this->setDisabled(false);
     SkStream* stream = new SkFILEStream(filename.toAscii());
     SkPicture* picture = new SkPicture(stream);
 
     /* TODO(chudy): Implement function that doesn't require new
      * instantiation of debug canvas. */
     delete fDebugCanvas;
-    fDebugCanvas = new SkDebugCanvas();
-    fDebugCanvas->setBounds(this->width(), this->height());
+    fDebugCanvas = new SkDebugCanvas(picture->width(), picture->height());
+
     picture->draw(fDebugCanvas);
     fIndex = fDebugCanvas->getSize();
     fRasterWidget.setDebugCanvas(fDebugCanvas);
     fGLWidget.setDebugCanvas(fDebugCanvas);
+
+    // TODO(chudy): Remove bounds from debug canvas storage.
+    fDebugCanvas->setBounds(this->width(), this->height());
 }
 
 void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
@@ -69,11 +74,13 @@ void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
     fPreviousPoint.set(event->globalX(), event->globalY());
-    fDebugCanvas->getBoxClass()->setHitPoint(event->x(), event->y());
-    fDebugCanvas->isCalculatingHits(true);
-    drawTo(fIndex);
-    emit hitChanged(fDebugCanvas->getHitBoxPoint());
-    fDebugCanvas->isCalculatingHits(false);
+    if (fDebugCanvas) {
+        fDebugCanvas->getBoxClass()->setHitPoint(event->x(), event->y());
+        fDebugCanvas->isCalculatingHits(true);
+        drawTo(fIndex);
+        emit hitChanged(fDebugCanvas->getHitBoxPoint());
+        fDebugCanvas->isCalculatingHits(false);
+    }
 }
 
 void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {

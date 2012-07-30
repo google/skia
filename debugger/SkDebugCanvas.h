@@ -18,7 +18,7 @@
 
 class SkDebugCanvas : public SkCanvas {
 public:
-    SkDebugCanvas();
+    SkDebugCanvas(int width, int height);
     ~SkDebugCanvas();
 
     void toggleFilter(bool toggle);
