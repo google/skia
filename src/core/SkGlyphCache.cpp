@@ -717,6 +717,10 @@ size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
     return getSharedGlobals().setFontCacheLimit(bytes);
 }
 
+size_t SkGraphics::GetFontCacheUsed() {
+    return getSharedGlobals().fTotalMemoryUsed;
+}
+
 void SkGraphics::PurgeFontCache() {
     getSharedGlobals().purgeAll();
     SkTypefaceCache::PurgeAll();

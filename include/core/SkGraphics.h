@@ -49,6 +49,11 @@ public:
     static size_t SetFontCacheLimit(size_t bytes);
 
     /**
+     *  Return the number of bytes currently used by the font cache.
+     */
+    static size_t GetFontCacheUsed();
+
+    /**
      *  For debugging purposes, this will attempt to purge the font cache. It
      *  does not change the limit, but will cause subsequent font measures and
      *  draws to be recreated, since they will no longer be in the cache.
