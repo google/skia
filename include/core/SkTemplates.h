@@ -18,6 +18,27 @@
     resource management.
 */
 
+/**
+ *  SkTIsConst<T>::value is true if the type T is const.
+ *  The type T is constrained not to be an array or reference type.
+ */
+template <typename T> struct SkTIsConst {
+    static T* t;
+    static uint16_t test(const volatile void*);
+    static uint32_t test(volatile void *);
+    static const bool value = (sizeof(uint16_t) == sizeof(test(t)));
+};
+
+///@{
+/** SkTConstType<T, CONST>::type will be 'const T' if CONST is true, 'T' otherwise. */
+template <typename T, bool CONST> struct SkTConstType {
+    typedef T type;
+};
+template <typename T> struct SkTConstType<T, true> {
+    typedef const T type;
+};
+///@}
+
 /** \class SkAutoTCallVProc
 
     Call a function when this goes out of scope. The template uses two
