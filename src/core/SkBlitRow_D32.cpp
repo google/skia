@@ -53,8 +53,6 @@ static void S32_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-//#define TEST_SRC_ALPHA
-
 static void S32A_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
                                   const SkPMColor* SK_RESTRICT src,
                                   int count, U8CPU alpha) {
@@ -76,19 +74,7 @@ static void S32A_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
         }
 #else
         do {
-#ifdef TEST_SRC_ALPHA
-            SkPMColor sc = *src;
-            if (sc) {
-                unsigned srcA = SkGetPackedA32(sc);
-                SkPMColor result = sc;
-                if (srcA != 255) {
-                    result = SkPMSrcOver(sc, *dst);
-                }
-                *dst = result;
-            }
-#else
             *dst = SkPMSrcOver(*src, *dst);
-#endif
             src += 1;
             dst += 1;
         } while (--count > 0);
