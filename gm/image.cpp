@@ -47,6 +47,7 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf) {
 
 class ImageGM : public skiagm::GM {
     void*   fBuffer;
+    size_t  fBufferSize;
     SkSize  fSize;
     enum {
         W = 64,
@@ -55,7 +56,8 @@ class ImageGM : public skiagm::GM {
     };
 public:
     ImageGM() {
-        fBuffer = sk_malloc_throw(RB * H);
+        fBufferSize = RB * H;
+        fBuffer = sk_malloc_throw(fBufferSize);
         fSize.set(SkIntToScalar(W), SkIntToScalar(H));
     }
     
@@ -74,6 +76,9 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
+        // since we draw into this directly, we need to start fresh
+        sk_bzero(fBuffer, fBufferSize);
+
         SkImage::Info info;
 
         info.fWidth = W;
