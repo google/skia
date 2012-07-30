@@ -707,6 +707,7 @@ void GrDrawTarget::popGeometrySource() {
 bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
                              int startIndex, int vertexCount,
                              int indexCount) const {
+    const GrDrawState& drawState = this->getDrawState();
 #if GR_DEBUG
     const GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     int maxVertex = startVertex + vertexCount;
@@ -744,15 +745,18 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
         }
     }
 
-    GrAssert(NULL != this->getDrawState().getRenderTarget());
-    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        if (this->getDrawState().getTexture(i)) {
-            GrAssert(this->getDrawState().getTexture(i)->asRenderTarget() != 
-                     this->getDrawState().getRenderTarget());
+    GrAssert(NULL != drawState.getRenderTarget());
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (drawState.isStageEnabled(s)) {
+            const GrCustomStage* stage = drawState.getSampler(s).getCustomStage();
+            int numTextures = stage->numTextures();
+            for (int t = 0; t < numTextures; ++t) {
+                GrTexture* texture = stage->texture(t);
+                GrAssert(texture->asRenderTarget() != drawState.getRenderTarget());
+            }
         }
     }
 #endif
-    const GrDrawState& drawState = this->getDrawState();
     if (NULL == drawState.getRenderTarget()) {
         return false;
     }
@@ -762,15 +766,21 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             return false;
         }
     }
+    // We don't support using unpremultiplied textures with bilerp. Alpha-multiplication is not
+    // distributive with respect to filtering. We'd have to alpha-mul each texel before filtering.
+    // Until Skia itself supports unpremultiplied configs there is no pressure to implement this.
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        // We don't support using unpremultiplied textures with bilerp. Alpha-multiplication is not
-        // distributive with respect to filtering. We'd have to alpha-mul each texel before
-        // filtering. Until Skia itself supports unpremultiplied configs there is no pressure to
-        // implement this.
-        if (drawState.getTexture(s) &&
-            GrPixelConfigIsUnpremultiplied(drawState.getTexture(s)->config()) &&
-            drawState.getSampler(s).getTextureParams().isBilerp()) {
-            return false;
+        if (drawState.isStageEnabled(s)) {
+            const GrCustomStage* stage = drawState.getSampler(s).getCustomStage();
+            int numTextures = stage->numTextures();
+            for (int t = 0; t < numTextures; ++t) {
+                GrTexture* texture = stage->texture(t);
+                GrAssert(NULL != texture);
+                if (GrPixelConfigIsUnpremultiplied(texture->config()) &&
+                    drawState.getSampler(s).getTextureParams().isBilerp()) {
+                    return false;
+                }
+            }
         }
     }
     return true;
@@ -844,9 +854,11 @@ bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     // Check if a color stage could create a partial alpha
     for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
         if (this->isStageEnabled(s)) {
-            GrAssert(NULL != drawState.getTexture(s));
-            GrPixelConfig config = drawState.getTexture(s)->config();
-            if (!GrPixelConfigIsOpaque(config)) {
+            const GrCustomStage* stage = drawState.getSampler(s).getCustomStage();
+            // FIXME: The param indicates whether the texture is opaque or not. However, the stage
+            // already controls its textures. It really needs to know whether the incoming color
+            // (from a uni, per-vertex colors, or previous stage) is opaque or not.
+            if (!stage->isOpaque(true)) {
                 return false;
             }
         }

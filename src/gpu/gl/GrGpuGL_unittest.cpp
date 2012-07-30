@@ -37,8 +37,7 @@ typedef GrGLProgram::StageDesc StageDesc;
 // TODO: Effects should be able to register themselves for inclusion in the
 // randomly generated shaders. They should be able to configure themselves
 // randomly.
-GrCustomStage* create_random_effect(StageDesc* stageDesc,
-                                    GrRandom* random) {
+const GrCustomStage* create_random_effect(StageDesc* stageDesc, GrRandom* random) {
     enum EffectType {
         kConvolution_EffectType,
         kErode_EffectType,
@@ -293,7 +292,7 @@ bool GrGpuGL::programUnitTest() {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
-        SkAutoTUnref<GrCustomStage> customStages[GrDrawState::kNumStages];
+        SkAutoTUnref<const GrCustomStage> customStages[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             StageDesc& stage = pdesc.fStages[s];
@@ -327,8 +326,10 @@ bool GrGpuGL::programUnitTest() {
         }
         GR_STATIC_ASSERT(sizeof(customStages) ==
                          GrDrawState::kNumStages * sizeof(GrCustomStage*));
-        GrCustomStage** stages = reinterpret_cast<GrCustomStage**>(&customStages);
-        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContextInfo(), pdesc, stages));
+        const GrCustomStage** stages = reinterpret_cast<const GrCustomStage**>(&customStages);
+        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContextInfo(),
+                                                              pdesc,
+                                                              stages));
         if (NULL == program.get()) {
             return false;
         }

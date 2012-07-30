@@ -2135,8 +2135,9 @@ const GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
 
 void GrGpuGL::flushBoundTextureAndParams(int stage) {
     GrDrawState* drawState = this->drawState();
-
-    GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(drawState->getTexture(stage));
+    // FIXME: Assuming one texture maximum per custom stage
+    const GrCustomStage* customStage = drawState->sampler(stage)->getCustomStage();
+    GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(customStage->texture(0));
     // Currently we always use the texture params from the GrSamplerState. Soon custom stages
     // will provide their own params.
     const GrTextureParams& texParams = drawState->getSampler(stage).getTextureParams();

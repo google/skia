@@ -1552,7 +1552,6 @@ void GrContext::setPaint(const GrPaint& paint) {
     for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
         int s = i + GrPaint::kFirstTextureStage;
         if (paint.isTextureStageEnabled(i)) {
-            fDrawState->setTexture(s, NULL);
             *fDrawState->sampler(s) = paint.getTextureSampler(i);
         }
     }
@@ -1562,7 +1561,6 @@ void GrContext::setPaint(const GrPaint& paint) {
     for (int i = 0; i < GrPaint::kMaxMasks; ++i) {
         int s = i + GrPaint::kFirstMaskStage;
         if (paint.isMaskStageEnabled(i)) {
-            fDrawState->setTexture(s, NULL);
             *fDrawState->sampler(s) = paint.getMaskSampler(i);
         }
     }
