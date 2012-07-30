@@ -6,6 +6,7 @@
     '../gm/arithmode.cpp',
     '../gm/bigmatrix.cpp',
     '../gm/bitmapcopy.cpp',
+    '../gm/bitmapmatrix.cpp',
     '../gm/bitmapfilters.cpp',
     '../gm/bitmapscroll.cpp',
     '../gm/blurs.cpp',

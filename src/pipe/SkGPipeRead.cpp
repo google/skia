@@ -407,7 +407,7 @@ BitmapHolder::BitmapHolder(SkReader32* reader, uint32_t op32,
 static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = reader->readBool();
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
     SkScalar left = reader->readScalar();
     SkScalar top = reader->readScalar();
     canvas->drawBitmap(*holder.getBitmap(), left, top, hasPaint ? &state->paint() : NULL);
@@ -415,13 +415,18 @@ static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                                 SkGPipeState* state) {
-    UNIMPLEMENTED
+    BitmapHolder holder(reader, op32, state);
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
+    SkMatrix matrix;
+    reader->readMatrix(&matrix);
+    canvas->drawBitmapMatrix(*holder.getBitmap(), matrix,
+                             hasPaint ? &state->paint() : NULL);
 }
 
 static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
                               uint32_t op32, SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = reader->readBool();
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
     const SkIRect* center = skip<SkIRect>(reader);
     const SkRect* dst = skip<SkRect>(reader);
     canvas->drawBitmapNine(*holder.getBitmap(), *center, *dst,
@@ -431,8 +436,9 @@ static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
 static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
                               uint32_t op32, SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = reader->readBool();
-    bool hasSrc = reader->readBool();
+    unsigned flags = DrawOp_unpackFlags(op32);
+    bool hasPaint = SkToBool(flags & kDrawBitmap_HasPaint_DrawOpsFlag);
+    bool hasSrc = SkToBool(flags & kDrawBitmap_HasSrcRect_DrawOpsFlag);
     const SkIRect* src;
     if (hasSrc) {
         src = skip<SkIRect>(reader);
@@ -446,7 +452,7 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
 static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = reader->readBool();
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
     const SkIPoint* point = skip<SkIPoint>(reader);
     canvas->drawSprite(*holder.getBitmap(), point->fX, point->fY, hasPaint ? &state->paint() : NULL);
 }
