@@ -483,6 +483,17 @@ private:
     int fCurrFlatIndex[kCount_PaintFlats];
     int flattenToIndex(SkFlattenable* obj, PaintFlats);
 
+    // Common code used by drawBitmap* when flattening.
+    bool commonDrawBitmapFlatten(const SkBitmap& bm, DrawOps op, unsigned flags,
+                                 size_t opBytesNeeded, const SkPaint* paint);
+    // Common code used by drawBitmap* when storing in the heap.
+    bool commonDrawBitmapHeap(const SkBitmap& bm, DrawOps op, unsigned flags,
+                              size_t opBytesNeeded, const SkPaint* paint);
+    // Convenience type for function pointer
+    typedef bool (SkGPipeCanvas::*BitmapCommonFunction)(const SkBitmap&,
+                                                        DrawOps, unsigned,
+                                                        size_t, const SkPaint*);
+
     SkPaint fPaint;
     void writePaint(const SkPaint&);
 
@@ -831,74 +842,75 @@ void SkGPipeCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
-                                   const SkPaint* paint) {
-    bool flatten = shouldFlattenBitmaps(fFlags);
-    const void* ptr = 0;
-    int bitmapIndex = 0;
-    if (flatten) {
-        bitmapIndex = this->flattenToIndex(bm);
-    } else {
-        ptr = fSharedHeap.addBitmap(bm);
-        if (NULL == ptr) {
-            return;
-        }
-    }
-
-    NOTIFY_SETUP(this);
-    if (paint) {
+bool SkGPipeCanvas::commonDrawBitmapFlatten(const SkBitmap& bm, DrawOps op,
+                                            unsigned flags,
+                                            size_t opBytesNeeded,
+                                            const SkPaint* paint) {
+    if (paint != NULL) {
+        flags |= kDrawBitmap_HasPaint_DrawOpsFlag;
         this->writePaint(*paint);
     }
-
-    size_t opBytesNeeded = sizeof(SkScalar) * 2 + sizeof(bool);
-    if (!flatten) {
-        opBytesNeeded += sizeof(void*);
-    }
+    int bitmapIndex = this->flattenToIndex(bm);
     if (this->needOpBytes(opBytesNeeded)) {
-        this->writeOp(kDrawBitmap_DrawOp, 0, bitmapIndex);
-        if (!flatten) {
-            fWriter.writePtr(const_cast<void*>(ptr));
-        }
-        fWriter.writeBool(paint != NULL);
+        this->writeOp(op, flags, bitmapIndex);
+        return true;
+    }
+    return false;
+}
+
+bool SkGPipeCanvas::commonDrawBitmapHeap(const SkBitmap& bm, DrawOps op,
+                                         unsigned flags,
+                                         size_t opBytesNeeded,
+                                         const SkPaint* paint) {
+    const void* ptr = fSharedHeap.addBitmap(bm);
+    if (NULL == ptr) {
+        return false;
+    }
+    if (paint != NULL) {
+        flags |= kDrawBitmap_HasPaint_DrawOpsFlag;
+        this->writePaint(*paint);
+    }
+    if (this->needOpBytes(opBytesNeeded + sizeof(void*))) {
+        this->writeOp(op, flags, 0);
+        fWriter.writePtr(const_cast<void*>(ptr));
+        return true;
+    }
+    return false;
+}
+
+void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
+                               const SkPaint* paint) {
+    NOTIFY_SETUP(this);
+    size_t opBytesNeeded = sizeof(SkScalar) * 2;
+
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawBitmap_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.writeScalar(left);
         fWriter.writeScalar(top);
     }
 }
 
 void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
-                                       const SkRect& dst, const SkPaint* paint) {
-    bool flatten = shouldFlattenBitmaps(fFlags);
-    const void* ptr = 0;
-    int bitmapIndex = 0;
-    if (flatten) {
-        bitmapIndex = this->flattenToIndex(bm);
-    } else {
-        ptr = fSharedHeap.addBitmap(bm);
-        if (NULL == ptr) {
-            return;
-        }
-    }
-
+                                   const SkRect& dst, const SkPaint* paint) {
     NOTIFY_SETUP(this);
-    if (paint) {
-        this->writePaint(*paint);
+    size_t opBytesNeeded = sizeof(SkRect);
+    bool hasSrc = src != NULL;
+    unsigned flags;
+    if (hasSrc) {
+        flags = kDrawBitmap_HasSrcRect_DrawOpsFlag;
+        opBytesNeeded += sizeof(int32_t) * 4;
+    } else {
+        flags = 0;
     }
 
-    size_t opBytesNeeded = sizeof(SkRect) + sizeof(bool) * 2;
-    bool hasSrc = src != NULL;
-    if (hasSrc) {
-        opBytesNeeded += sizeof(int32_t) * 4;
-    }
-    if (!flatten) {
-        opBytesNeeded += sizeof(void*);
-    }
-    if (this->needOpBytes(opBytesNeeded)) {
-        this->writeOp(kDrawBitmapRect_DrawOp, 0, bitmapIndex);
-        if (!flatten) {
-            fWriter.writePtr(const_cast<void*>(ptr));
-        }
-        fWriter.writeBool(paint != NULL);
-        fWriter.writeBool(hasSrc);
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
+    
+    if ((*this.*bitmapCommon)(bm, kDrawBitmapRect_DrawOp, flags, opBytesNeeded, paint)) {
         if (hasSrc) {
             fWriter.write32(src->fLeft);
             fWriter.write32(src->fTop);
@@ -909,40 +921,30 @@ void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
     }
 }
 
-void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
-                                         const SkPaint*) {
-    UNIMPLEMENTED
+void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap& bm, const SkMatrix& matrix,
+                                     const SkPaint* paint) {
+    NOTIFY_SETUP(this);
+    size_t opBytesNeeded = matrix.writeToMemory(NULL);
+    
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+        &SkGPipeCanvas::commonDrawBitmapFlatten :
+        &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawBitmapMatrix_DrawOp, 0, opBytesNeeded, paint)) {
+        fWriter.writeMatrix(matrix);
+    }
 }
 
 void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
                                    const SkRect& dst, const SkPaint* paint) {
-    bool flatten = shouldFlattenBitmaps(fFlags);
-    const void* ptr = 0;
-    int bitmapIndex = 0;
-    if (flatten) {
-        bitmapIndex = this->flattenToIndex(bm);
-    } else {
-        ptr = fSharedHeap.addBitmap(bm);
-        if (NULL == ptr) {
-            return;
-        }
-    }
-
     NOTIFY_SETUP(this);
-    if (paint) {
-        this->writePaint(*paint);
-    }
+    size_t opBytesNeeded = sizeof(int32_t) * 4 + sizeof(SkRect);
 
-    size_t opBytesNeeded = sizeof(int32_t) * 4 + sizeof(bool) + sizeof(SkRect);
-    if (!flatten) {
-        opBytesNeeded += sizeof(void*);
-    }
-    if (this->needOpBytes(opBytesNeeded)) {
-        this->writeOp(kDrawBitmapNine_DrawOp, 0, bitmapIndex);
-        if (!flatten) {
-            fWriter.writePtr(const_cast<void*>(ptr));
-        }
-        fWriter.writeBool(paint != NULL);
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawBitmapNine_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.write32(center.fLeft);
         fWriter.write32(center.fTop);
         fWriter.write32(center.fRight);
@@ -953,33 +955,14 @@ void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
 
 void SkGPipeCanvas::drawSprite(const SkBitmap& bm, int left, int top,
                                    const SkPaint* paint) {
-    bool flatten = shouldFlattenBitmaps(fFlags);
-    const void* ptr = 0;
-    int bitmapIndex = 0;
-    if (flatten) {
-        bitmapIndex = this->flattenToIndex(bm);
-    } else {
-        ptr = fSharedHeap.addBitmap(bm);
-        if (NULL == ptr) {
-            return;
-        }
-    }
-
     NOTIFY_SETUP(this);
-    if (paint) {
-        this->writePaint(*paint);
-    }
+    size_t opBytesNeeded = sizeof(int32_t) * 2;
 
-    size_t opBytesNeeded = sizeof(int32_t) * 2 + sizeof(bool);
-    if (!flatten) {
-        opBytesNeeded += sizeof(void*);
-    }
-    if (this->needOpBytes(opBytesNeeded)) {
-        this->writeOp(kDrawSprite_DrawOp, 0, bitmapIndex);
-        if (!flatten) {
-            fWriter.writePtr(const_cast<void*>(ptr));
-        }
-        fWriter.writeBool(paint != NULL);
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawSprite_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.write32(left);
         fWriter.write32(top);
     }
