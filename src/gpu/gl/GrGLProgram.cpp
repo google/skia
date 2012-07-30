@@ -67,7 +67,7 @@ inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
 GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
                                  const Desc& desc,
-                                 GrCustomStage** customStages) {
+                                 const GrCustomStage** customStages) {
     GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, customStages));
     if (!program->succeeded()) {
         delete program;
@@ -78,7 +78,7 @@ GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
 
 GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
                          const Desc& desc,
-                         GrCustomStage** customStages)
+                         const GrCustomStage** customStages)
 : fContextInfo(gl)
 , fUniformManager(gl) {
     fDesc = desc;
@@ -566,7 +566,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     return true;
 }
 
-bool GrGLProgram::genProgram(GrCustomStage** customStages) {
+bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
     GrAssert(0 == fProgramID);
 
     GrGLShaderBuilder builder(fContextInfo, fUniformManager);

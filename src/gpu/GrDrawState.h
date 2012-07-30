@@ -52,19 +52,11 @@ public:
     GrDrawState() 
         : fRenderTarget(NULL) {
 
-        for (int i = 0; i < kNumStages; ++i) {
-            fTextures[i] = NULL;
-        }
-
         this->reset();
     }
 
     GrDrawState(const GrDrawState& state) 
         : fRenderTarget(NULL) {
-
-        for (int i = 0; i < kNumStages; ++i) {
-            fTextures[i] = NULL;
-        }
 
         *this = state;
     }
@@ -109,8 +101,8 @@ public:
         // are tightly packed
         GrAssert(this->memsetSize() +  sizeof(fColor) + sizeof(fCoverage) +
                  sizeof(fFirstCoverageStage) + sizeof(fColorFilterMode) +
-                 sizeof(fSrcBlend) + sizeof(fDstBlend) + sizeof(fTextures) +
-                 sizeof(fRenderTarget) == this->podSize());
+                 sizeof(fSrcBlend) + sizeof(fDstBlend) + sizeof(fRenderTarget) ==
+                 this->podSize());
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -182,25 +174,7 @@ public:
     ////
 
     /**
-     * Sets the texture used at the next drawing call
-     *
-     * @param stage The texture stage for which the texture will be set
-     *
-     * @param texture The texture to set. Can be NULL though there is no
-     * advantage to settings a NULL texture if doing non-textured drawing
-     *
-     * @deprecated
-     */
-    void setTexture(int stage, GrTexture* texture) {
-        GrAssert((unsigned)stage < kNumStages);
-
-        GrSafeAssign(fTextures[stage], texture);
-    }
-
-    /**
      * Creates a GrSingleTextureEffect.
-     *
-     * Replacement for setTexture.
      */
     void createTextureEffect(int stage, GrTexture* texture) {
         GrAssert(!this->getSampler(stage).getCustomStage());
@@ -208,38 +182,9 @@ public:
             SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     }
 
-    /**
-     * Retrieves the currently set texture.
-     *
-     * @return    The currently set texture. The return value will be NULL if no
-     *            texture has been set, NULL was most recently passed to
-     *            setTexture, or the last setTexture was destroyed.
-     */
-    const GrTexture* getTexture(int stage) const {
-        GrAssert((unsigned)stage < kNumStages);
-        GrAssert(!this->getSampler(stage).getCustomStage() ||
-                 !fTextures[stage] ||
-                 fTextures[stage] == this->getSampler(stage).getCustomStage()->texture(0));
-        if (this->getSampler(stage).getCustomStage()) {
-            return this->getSampler(stage).getCustomStage()->texture(0);
-        }
-        return fTextures[stage];
-    }
-    GrTexture* getTexture(int stage) {
-        GrAssert((unsigned)stage < kNumStages);
-        GrAssert(!this->getSampler(stage).getCustomStage() ||
-                 !fTextures[stage] ||
-                 fTextures[stage] == this->getSampler(stage).getCustomStage()->texture(0));
-        if (this->getSampler(stage).getCustomStage()) {
-            return this->getSampler(stage).getCustomStage()->texture(0);
-        }
-        return fTextures[stage];
-    }
-
     bool stagesDisabled() {
         for (int i = 0; i < kNumStages; ++i) {
-            if (NULL != fTextures[i] ||
-                NULL != fSamplerStates[i].getCustomStage()) {
+            if (NULL != fSamplerStates[i].getCustomStage()) {
                 return false;
             }
         }
@@ -247,7 +192,6 @@ public:
     }
 
     void disableStage(int index) {
-        GrSafeSetNull(fTextures[index]);
         fSamplerStates[index].setCustomStage(NULL);
     }
 
@@ -809,8 +753,7 @@ public:
 
     bool isStageEnabled(int s) const {
         GrAssert((unsigned)s < kNumStages);
-        return (NULL != fTextures[s]) ||
-               (NULL != fSamplerStates[s].getCustomStage());
+        return (NULL != fSamplerStates[s].getCustomStage());
     }
 
     // Most stages are usually not used, so conditionals here
@@ -853,7 +796,6 @@ public:
         fViewMatrix = s.fViewMatrix;
 
         for (int i = 0; i < kNumStages; i++) {
-            SkSafeRef(fTextures[i]);            // already copied by memcpy
             if (s.isStageEnabled(i)) {
                 this->fSamplerStates[i] = s.fSamplerStates[i];
             }
@@ -905,7 +847,6 @@ private:
 
     // @{ Initialized to values other than zero, but memcmp'ed in operator==
     // and memcpy'ed in operator=.
-    GrTexture*          fTextures[kNumStages];
     GrRenderTarget*     fRenderTarget;
 
     int                 fFirstCoverageStage;

@@ -179,7 +179,7 @@ public:
         GrSafeAssign(fCustomStage, stage);
         return stage;
     }
-    GrCustomStage* getCustomStage() const { return fCustomStage; }
+    const GrCustomStage* getCustomStage() const { return fCustomStage; }
 
 private:
     GrTextureParams     fTextureParams;

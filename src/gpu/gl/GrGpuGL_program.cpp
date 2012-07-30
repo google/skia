@@ -32,7 +32,8 @@ void GrGpuGL::ProgramCache::abandon() {
     fCount = 0;
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc, GrCustomStage** stages) {
+GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc,
+                                               const GrCustomStage** stages) {
     Entry newEntry;
     newEntry.fKey.setKeyData(desc.asKey());
 
@@ -195,8 +196,10 @@ bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
 
 void GrGpuGL::flushTextureMatrix(int s) {
     const GrDrawState& drawState = this->getDrawState();
-    const GrGLTexture* texture =
-        static_cast<const GrGLTexture*>(drawState.getTexture(s));
+
+    // FIXME: Still assuming only a single texture per custom stage
+    const GrCustomStage* stage = drawState.getSampler(s).getCustomStage();
+    const GrGLTexture* texture = static_cast<const GrGLTexture*>(stage->texture(0));
     if (NULL != texture) {
 
         bool orientationChange = fCurrentProgram->fTextureOrientation[s] !=
@@ -370,7 +373,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             return false;
         }
 
-        GrCustomStage* customStages [GrDrawState::kNumStages];
+        const GrCustomStage* customStages [GrDrawState::kNumStages];
         GrGLProgram::Desc desc;
         this->buildProgram(kDrawPoints_DrawType == type, blendOpts, dstCoeff, customStages, &desc);
 
@@ -405,21 +408,12 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             if (this->isStageEnabled(s)) {
-#if GR_DEBUG
-                // check for circular rendering
-                GrAssert(NULL == drawState.getRenderTarget() ||
-                         NULL == drawState.getTexture(s) ||
-                         drawState.getTexture(s)->asRenderTarget() !=
-                            drawState.getRenderTarget());
-#endif
                 this->flushBoundTextureAndParams(s);
 
                 this->flushTextureMatrix(s);
 
                 if (NULL != fCurrentProgram->fProgramStage[s]) {
                     const GrSamplerState& sampler = this->getDrawState().getSampler(s);
-                    const GrGLTexture* texture = static_cast<const GrGLTexture*>(
-                                                    this->getDrawState().getTexture(s));
                     fCurrentProgram->fProgramStage[s]->setData(fCurrentProgram->fUniformManager,
                                                                *sampler.getCustomStage(),
                                                                drawState.getRenderTarget(), s);
@@ -601,9 +595,9 @@ namespace {
 
 void setup_custom_stage(GrGLProgram::Desc::StageDesc* stage,
                         const GrSamplerState& sampler,
-                        GrCustomStage** customStages,
+                        const GrCustomStage** customStages,
                         GrGLProgram* program, int index) {
-    GrCustomStage* customStage = sampler.getCustomStage();
+    const GrCustomStage* customStage = sampler.getCustomStage();
     if (customStage) {
         const GrProgramStageFactory& factory = customStage->getFactory();
         stage->fCustomStageKey = factory.glStageKey(*customStage);
@@ -619,7 +613,7 @@ void setup_custom_stage(GrGLProgram::Desc::StageDesc* stage,
 void GrGpuGL::buildProgram(bool isPoints,
                            BlendOptFlags blendOpts,
                            GrBlendCoeff dstCoeff,
-                           GrCustomStage** customStages,
+                           const GrCustomStage** customStages,
                            ProgramDesc* desc) {
     const GrDrawState& drawState = this->getDrawState();
 
@@ -641,11 +635,10 @@ void GrGpuGL::buildProgram(bool isPoints,
 
     desc->fEmitsPointSize = isPoints;
 
-    bool requiresAttributeColors = 
-        !skipColor && SkToBool(desc->fVertexLayout & kColor_VertexLayoutBit);
-    bool requiresAttributeCoverage = 
-        !skipCoverage && SkToBool(desc->fVertexLayout &
-                                  kCoverage_VertexLayoutBit);
+    bool requiresAttributeColors = !skipColor &&
+                                   SkToBool(desc->fVertexLayout & kColor_VertexLayoutBit);
+    bool requiresAttributeCoverage = !skipCoverage &&
+                                     SkToBool(desc->fVertexLayout & kCoverage_VertexLayoutBit);
 
     // fColorInput/fCoverageInput records how colors are specified for the.
     // program. So we strip the bits from the layout to avoid false negatives
@@ -661,14 +654,12 @@ void GrGpuGL::buildProgram(bool isPoints,
     // no reason to do edge aa or look at per-vertex coverage if coverage is
     // ignored
     if (skipCoverage) {
-        desc->fVertexLayout &= ~(kEdge_VertexLayoutBit |
-                                kCoverage_VertexLayoutBit);
+        desc->fVertexLayout &= ~(kEdge_VertexLayoutBit | kCoverage_VertexLayoutBit);
     }
 
     bool colorIsTransBlack = SkToBool(blendOpts & kEmitTransBlack_BlendOptFlag);
     bool colorIsSolidWhite = (blendOpts & kEmitCoverage_BlendOptFlag) ||
-                             (!requiresAttributeColors &&
-                              0xffffffff == drawState.getColor());
+                             (!requiresAttributeColors && 0xffffffff == drawState.getColor());
     if (GR_AGGRESSIVE_SHADER_OPTS && colorIsTransBlack) {
         desc->fColorInput = ProgramDesc::kTransBlack_ColorInput;
     } else if (GR_AGGRESSIVE_SHADER_OPTS && colorIsSolidWhite) {
@@ -679,8 +670,7 @@ void GrGpuGL::buildProgram(bool isPoints,
         desc->fColorInput = ProgramDesc::kAttribute_ColorInput;
     }
     
-    bool covIsSolidWhite = !requiresAttributeCoverage &&
-                           0xffffffff == drawState.getCoverage();
+    bool covIsSolidWhite = !requiresAttributeCoverage && 0xffffffff == drawState.getCoverage();
     
     if (skipCoverage) {
         desc->fCoverageInput = ProgramDesc::kTransBlack_ColorInput;
@@ -694,8 +684,7 @@ void GrGpuGL::buildProgram(bool isPoints,
 
     int lastEnabledStage = -1;
 
-    if (!skipCoverage && (desc->fVertexLayout &
-                          GrDrawTarget::kEdge_VertexLayoutBit)) {
+    if (!skipCoverage && (desc->fVertexLayout &GrDrawTarget::kEdge_VertexLayoutBit)) {
         desc->fVertexEdgeType = drawState.getVertexEdgeType();
     } else {
         // use canonical value when not set to avoid cache misses
@@ -709,52 +698,50 @@ void GrGpuGL::buildProgram(bool isPoints,
         stage.setEnabled(this->isStageEnabled(s));
 
         bool skip = s < drawState.getFirstCoverageStage() ? skipColor :
-                                                             skipCoverage;
+                                                            skipCoverage;
 
         if (!skip && stage.isEnabled()) {
             lastEnabledStage = s;
-            const GrGLTexture* texture =
-                static_cast<const GrGLTexture*>(drawState.getTexture(s));
-            GrAssert(NULL != texture);
             const GrSamplerState& sampler = drawState.getSampler(s);
-            // we matrix to invert when orientation is TopDown, so make sure
-            // we aren't in that case before flagging as identity.
-            if (TextureMatrixIsIdentity(texture, sampler)) {
-                stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
-            } else if (!sampler.getMatrix().hasPerspective()) {
-                stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-            }
-
+            // FIXME: Still assuming one texture per custom stage
+            const GrCustomStage* customStage = drawState.getSampler(s).getCustomStage();
+            const GrGLTexture* texture = static_cast<const GrGLTexture*>(customStage->texture(0));
             stage.fInConfigFlags = 0;
-            if (!this->glCaps().textureSwizzleSupport()) {
-                if (GrPixelConfigIsAlphaOnly(texture->config())) {
-                    // if we don't have texture swizzle support then
-                    // the shader must smear the single channel after
-                    // reading the texture
-                    if (this->glCaps().textureRedSupport()) {
-                        // we can use R8 textures so use kSmearRed
-                        stage.fInConfigFlags |= 
-                                        StageDesc::kSmearRed_InConfigFlag;
-                    } else {
-                        // we can use A8 textures so use kSmearAlpha
-                        stage.fInConfigFlags |= 
-                                        StageDesc::kSmearAlpha_InConfigFlag;
-                    }
-                } else if (sampler.swapsRAndB()) {
-                    stage.fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
+            if (NULL != texture) {
+                // We call this helper function rather then simply checking the client-specified
+                // texture matrix. This is because we may have to concat a y-inversion to account
+                // for texture orientation.
+                if (TextureMatrixIsIdentity(texture, sampler)) {
+                    stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
+                } else if (!sampler.getMatrix().hasPerspective()) {
+                    stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
                 }
-            }
-            if (GrPixelConfigIsUnpremultiplied(texture->config())) {
-                // The shader generator assumes that color channels are bytes
-                // when rounding.
-                GrAssert(4 == GrBytesPerPixel(texture->config()));
-                if (kUpOnWrite_DownOnRead_UnpremulConversion ==
-                    fUnpremulConversion) {
-                    stage.fInConfigFlags |=
-                        StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
-                } else {
-                    stage.fInConfigFlags |=
-                        StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag;
+                if (!this->glCaps().textureSwizzleSupport()) {
+                    if (GrPixelConfigIsAlphaOnly(texture->config())) {
+                        // If we don't have texture swizzle support then the shader must smear the
+                        // single channel after reading the texture.
+                        if (this->glCaps().textureRedSupport()) {
+                            // We can use R8 textures so use kSmearRed.
+                            stage.fInConfigFlags |= StageDesc::kSmearRed_InConfigFlag;
+                        } else {
+                            // We can use A8 textures so use kSmearAlpha.
+                            stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
+                        }
+                    } else if (sampler.swapsRAndB()) {
+                        stage.fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
+                    }
+                }
+                if (GrPixelConfigIsUnpremultiplied(texture->config())) {
+                    // Assert that if we're doing a premul conversion that the texture is 1 byte
+                    // per color component. The rounding performed by the shader generator (in
+                    // normalized float color space) assumes this.
+                    GrAssert(4 == GrBytesPerPixel(texture->config()));
+                    if (kUpOnWrite_DownOnRead_UnpremulConversion ==
+                        fUnpremulConversion) {
+                        stage.fInConfigFlags |= StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
+                    } else {
+                        stage.fInConfigFlags |= StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag;
+                    }
                 }
             }
 
@@ -773,11 +760,9 @@ void GrGpuGL::buildProgram(bool isPoints,
         // when rounding.
         GrAssert(4 == GrBytesPerPixel(drawState.getRenderTarget()->config()));
         if (kUpOnWrite_DownOnRead_UnpremulConversion == fUnpremulConversion) {
-            desc->fOutputConfig =
-                ProgramDesc::kUnpremultiplied_RoundUp_OutputConfig;
+            desc->fOutputConfig = ProgramDesc::kUnpremultiplied_RoundUp_OutputConfig;
         } else {
-            desc->fOutputConfig =
-                ProgramDesc::kUnpremultiplied_RoundDown_OutputConfig;
+            desc->fOutputConfig = ProgramDesc::kUnpremultiplied_RoundDown_OutputConfig;
         }
     } else {
         desc->fOutputConfig = ProgramDesc::kPremultiplied_OutputConfig;
@@ -785,18 +770,15 @@ void GrGpuGL::buildProgram(bool isPoints,
 
     desc->fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
 
-    // currently the experimental GS will only work with triangle prims
-    // (and it doesn't do anything other than pass through values from
-    // the VS to the FS anyway).
+    // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
+    // other than pass through values fromthe VS to the FS anyway).
 #if 0 && GR_GL_EXPERIMENTAL_GS
     desc->fExperimentalGS = this->getCaps().fGeometryShaderSupport;
 #endif
 
-    // we want to avoid generating programs with different "first cov stage"
-    // values when they would compute the same result.
-    // We set field in the desc to kNumStages when either there are no 
-    // coverage stages or the distinction between coverage and color is
-    // immaterial.
+    // We want to avoid generating programs with different "first cov stage" values when they would
+    // compute the same result. We set field in the desc to kNumStages when either there are no 
+    // coverage stages or the distinction between coverage and color is immaterial.
     int firstCoverageStage = GrDrawState::kNumStages;
     desc->fFirstCoverageStage = GrDrawState::kNumStages;
     bool hasCoverage = drawState.getFirstCoverageStage() <= lastEnabledStage;
@@ -806,9 +788,8 @@ void GrGpuGL::buildProgram(bool isPoints,
 
     // other coverage inputs
     if (!hasCoverage) {
-        hasCoverage =
-               requiresAttributeCoverage ||
-               (desc->fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit);
+        hasCoverage = requiresAttributeCoverage ||
+                      (desc->fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit);
     }
 
     if (hasCoverage) {
@@ -818,20 +799,17 @@ void GrGpuGL::buildProgram(bool isPoints,
         }
 
         if (this->getCaps().fDualSourceBlendingSupport &&
-            !(blendOpts & (kEmitCoverage_BlendOptFlag |
-                           kCoverageAsAlpha_BlendOptFlag))) {
+            !(blendOpts & (kEmitCoverage_BlendOptFlag | kCoverageAsAlpha_BlendOptFlag))) {
             if (kZero_GrBlendCoeff == dstCoeff) {
                 // write the coverage value to second color
                 desc->fDualSrcOutput =  ProgramDesc::kCoverage_DualSrcOutput;
                 desc->fFirstCoverageStage = firstCoverageStage;
             } else if (kSA_GrBlendCoeff == dstCoeff) {
-                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially 
-                // cover
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
                 desc->fDualSrcOutput = ProgramDesc::kCoverageISA_DualSrcOutput;
                 desc->fFirstCoverageStage = firstCoverageStage;
             } else if (kSC_GrBlendCoeff == dstCoeff) {
-                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially
-                // cover
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
                 desc->fDualSrcOutput = ProgramDesc::kCoverageISC_DualSrcOutput;
                 desc->fFirstCoverageStage = firstCoverageStage;
             }
