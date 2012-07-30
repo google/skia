@@ -1047,11 +1047,20 @@ static void print_diff_page (const int matchCount,
 
     // Need to convert paths from relative-to-cwd to relative-to-outputDir
     // FIXME this doesn't work if there are '..' inside the outputDir
-    unsigned int ui;
+
+    bool pathFromRoot;
+#ifdef SK_BUILD_FOR_WIN32
+    pathFromRoot = outputDir.size() > 1 && ':' == outputDir[1];
+#else
+    pathFromRoot = outputDir.size() > 0 && PATH_DIV_CHAR == outputDir[0];
+#endif
     SkString relativePath;
-    for (ui = 0; ui < outputDir.size(); ui++) {
-        if (outputDir[ui] == PATH_DIV_CHAR) {
-            relativePath.append(".." PATH_DIV_STR);
+    if (!pathFromRoot) {
+        unsigned int ui;
+        for (ui = 0; ui < outputDir.size(); ui++) {
+            if (outputDir[ui] == PATH_DIV_CHAR) {
+                relativePath.append(".." PATH_DIV_STR);
+            }
         }
     }
 
