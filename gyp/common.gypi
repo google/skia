@@ -11,6 +11,10 @@
   ],
 
   'target_defaults': {
+    'defines': [
+      'SK_GAMMA_SRGB',
+      'SK_GAMMA_APPLY_TO_A8',
+    ],
 
     # Validate the 'skia_os' setting against 'OS', because only certain
     # combinations work.  You should only override 'skia_os' for certain

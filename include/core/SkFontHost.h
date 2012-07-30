@@ -227,15 +227,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** DEPRECATED -- only called by SkFontHost_FreeType internally
-
-        Return NULL or a pointer to 256 bytes for the black (table[0]) and
-        white (table[1]) gamma tables.
-    */
-    static void GetGammaTables(const uint8_t* tables[2]);
-
-    ///////////////////////////////////////////////////////////////////////////
-
     /** LCDs either have their color elements arranged horizontally or
         vertically. When rendering subpixel glyphs we need to know which way
         round they are.

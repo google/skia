@@ -13,6 +13,7 @@
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkGlyph.h"
+#include "SkMaskGamma.h"
 #include "SkOTUtils.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -397,7 +398,6 @@ public:
         fBits = NULL;
         fWidth = fHeight = 0;
         fIsBW = false;
-        fColor = kInvalid_Color;
     }
 
     ~HDCOffscreen() {
@@ -414,8 +414,7 @@ public:
         fXform = xform;
     }
 
-    const void* draw(const SkGlyph&, bool isBW, SkGdiRGB fgColor,
-                     size_t* srcRBPtr);
+    const void* draw(const SkGlyph&, bool isBW, size_t* srcRBPtr);
 
 private:
     HDC     fDC;
@@ -423,7 +422,6 @@ private:
     HFONT   fFont;
     XFORM   fXform;
     void*   fBits;  // points into fBM
-    COLORREF fColor;
     int     fWidth;
     int     fHeight;
     bool    fIsBW;
@@ -436,7 +434,7 @@ private:
 };
 
 const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
-                               SkGdiRGB fgColor, size_t* srcRBPtr) {
+                               size_t* srcRBPtr) {
     if (0 == fDC) {
         fDC = CreateCompatibleDC(0);
         if (0 == fDC) {
@@ -446,7 +444,10 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
         SetBkMode(fDC, TRANSPARENT);
         SetTextAlign(fDC, TA_LEFT | TA_BASELINE);
         SelectObject(fDC, fFont);
-        fColor = kInvalid_Color;
+
+        COLORREF color = 0x00FFFFFF;
+        COLORREF prev = SetTextColor(fDC, color);
+        SkASSERT(prev != CLR_INVALID);
     }
 
     if (fBM && (fIsBW != isBW || fWidth < glyph.fWidth || fHeight < glyph.fHeight)) {
@@ -454,16 +455,6 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
         fBM = 0;
     }
     fIsBW = isBW;
-
-    COLORREF color = fgColor;
-    if (fIsBW) {
-        color = 0xFFFFFF;
-    }
-    if (fColor != color) {
-        fColor = color;
-        COLORREF prev = SetTextColor(fDC, color);
-        SkASSERT(prev != CLR_INVALID);
-    }
 
     fWidth = SkMax32(fWidth, glyph.fWidth);
     fHeight = SkMax32(fHeight, glyph.fHeight);
@@ -498,8 +489,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     // erase
     size_t srcRB = isBW ? (biWidth >> 3) : (fWidth << 2);
     size_t size = fHeight * srcRB;
-    unsigned bg = (0 == color) ? 0xFF : 0;
-    memset(fBits, bg, size);
+    memset(fBits, 0, size);
 
     XFORM xform = fXform;
     xform.eDx = (float)-glyph.fLeft;
@@ -525,14 +515,13 @@ public:
     virtual ~SkScalerContext_Windows();
 
 protected:
-    virtual unsigned generateGlyphCount();
-    virtual uint16_t generateCharToGlyph(SkUnichar uni);
-    virtual void generateAdvance(SkGlyph* glyph);
-    virtual void generateMetrics(SkGlyph* glyph);
-    virtual void generateImage(const SkGlyph& glyph);
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path);
-    virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
-                                     SkPaint::FontMetrics* mY);
+    virtual unsigned generateGlyphCount() SK_OVERRIDE;
+    virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
+    virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
+    virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
+    virtual void generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) SK_OVERRIDE;
+    virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
+    virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY) SK_OVERRIDE;
 
 private:
     HDCOffscreen fOffscreen;
@@ -914,59 +903,82 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 static void build_power_table(uint8_t table[], float ee) {
     for (int i = 0; i < 256; i++) {
         float x = i / 255.f;
-        x = powf(x, ee);
+        x = sk_float_pow(x, ee);
         int xx = SkScalarRound(SkFloatToScalar(x * 255));
         table[i] = SkToU8(xx);
     }
 }
 
-// This will invert the gamma applied by GDI, so we can sort-of get linear values.
-// Needed when we draw non-black, non-white text, and don't know how to bias it.
-static const uint8_t* getInverseGammaTable() {
+/**
+ *  This will invert the gamma applied by GDI (gray-scale antialiased), so we
+ *  can get linear values.
+ *
+ *  GDI grayscale appears to use a hard-coded gamma of 2.3.
+ *
+ *  GDI grayscale appears to draw using the black and white rasterizer at four
+ *  times the size and then downsamples to compute the coverage mask. As a
+ *  result there are only seventeen total grays. This lack of fidelity means
+ *  that shifting into other color spaces is imprecise.
+ */
+static const uint8_t* getInverseGammaTableGDI() {
     static bool gInited;
-    static uint8_t gTable[256];
+    static uint8_t gTableGdi[256];
+    if (!gInited) {
+        build_power_table(gTableGdi, 2.3f);
+        gInited = true;
+    }
+    return gTableGdi;
+}
+
+/**
+ *  This will invert the gamma applied by GDI ClearType, so we can get linear
+ *  values.
+ *
+ *  GDI ClearType uses SPI_GETFONTSMOOTHINGCONTRAST / 1000 as the gamma value.
+ *  If this value is not specified, the default is a gamma of 1.4.
+ */
+static const uint8_t* getInverseGammaTableClearType() {
+    static bool gInited;
+    static uint8_t gTableClearType[256];
     if (!gInited) {
         UINT level = 0;
         if (!SystemParametersInfo(SPI_GETFONTSMOOTHINGCONTRAST, 0, &level, 0) || !level) {
             // can't get the data, so use a default
             level = 1400;
         }
-        build_power_table(gTable, level / 1000.0f);
+        build_power_table(gTableClearType, level / 1000.0f);
         gInited = true;
     }
-    return gTable;
+    return gTableClearType;
 }
 
 #include "SkColorPriv.h"
 
-// gdi's bitmap is upside-down, so we reverse dst walking in Y
-// whenever we copy it into skia's buffer
-
-static int compute_luminance(int r, int g, int b) {
-//    return (r * 2 + g * 5 + b) >> 3;
-    return (r * 27 + g * 92 + b * 9) >> 7;
+template<bool APPLY_PREBLEND>
+static inline uint8_t rgb_to_a8(SkGdiRGB rgb, const uint8_t* table8) {
+    SkASSERT( ((rgb >> 16) & 0xFF) == ((rgb >> 8) & 0xFF) &&
+              ((rgb >> 16) & 0xFF) == ((rgb >> 0) & 0xFF) );
+    return sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, table8);
 }
 
-static inline uint8_t rgb_to_a8(SkGdiRGB rgb) {
-    int r = (rgb >> 16) & 0xFF;
-    int g = (rgb >>  8) & 0xFF;
-    int b = (rgb >>  0) & 0xFF;
-    return compute_luminance(r, g, b);
+template<bool APPLY_PREBLEND>
+static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
+                                                  const uint8_t* tableG,
+                                                  const uint8_t* tableB) {
+    U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
+    U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
+    U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
+    return SkPack888ToRGB16(r, g, b);
 }
 
-static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb) {
-    int r = (rgb >> 16) & 0xFF;
-    int g = (rgb >>  8) & 0xFF;
-    int b = (rgb >>  0) & 0xFF;
-    return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
-}
-
-static inline SkPMColor rgb_to_lcd32(SkGdiRGB rgb) {
-    int r = (rgb >> 16) & 0xFF;
-    int g = (rgb >>  8) & 0xFF;
-    int b = (rgb >>  0) & 0xFF;
-    int a = SkMax32(r, SkMax32(g, b));
-    return SkPackARGB32(a, r, g, b);
+template<bool APPLY_PREBLEND>
+static inline SkPMColor rgb_to_lcd32(SkGdiRGB rgb, const uint8_t* tableR,
+                                                   const uint8_t* tableG,
+                                                   const uint8_t* tableB) {
+    U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
+    U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
+    U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
+    return SkPackARGB32(0xFF, r, g, b);
 }
 
 // Is this GDI color neither black nor white? If so, we have to keep this
@@ -993,8 +1005,10 @@ static bool is_rgb_really_bw(const SkGdiRGB* src, int width, int height, int src
     return true;
 }
 
+// gdi's bitmap is upside-down, so we reverse dst walking in Y
+// whenever we copy it into skia's buffer
 static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                      const SkGlyph& glyph, int32_t xorMask) {
+                      const SkGlyph& glyph) {
     const int width = glyph.fWidth;
     const size_t dstRB = (width + 7) >> 3;
     uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
@@ -1010,14 +1024,14 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
         if (byteCount > 0) {
             for (int i = 0; i < byteCount; ++i) {
                 unsigned byte = 0;
-                byte |= (src[0] ^ xorMask) & (1 << 7);
-                byte |= (src[1] ^ xorMask) & (1 << 6);
-                byte |= (src[2] ^ xorMask) & (1 << 5);
-                byte |= (src[3] ^ xorMask) & (1 << 4);
-                byte |= (src[4] ^ xorMask) & (1 << 3);
-                byte |= (src[5] ^ xorMask) & (1 << 2);
-                byte |= (src[6] ^ xorMask) & (1 << 1);
-                byte |= (src[7] ^ xorMask) & (1 << 0);
+                byte |= src[0] & (1 << 7);
+                byte |= src[1] & (1 << 6);
+                byte |= src[2] & (1 << 5);
+                byte |= src[3] & (1 << 4);
+                byte |= src[4] & (1 << 3);
+                byte |= src[5] & (1 << 2);
+                byte |= src[6] & (1 << 1);
+                byte |= src[7] & (1 << 0);
                 dst[i] = byte;
                 src += 8;
             }
@@ -1026,7 +1040,7 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
             unsigned byte = 0;
             unsigned mask = 0x80;
             for (int i = 0; i < bitCount; i++) {
-                byte |= (src[i] ^ xorMask) & mask;
+                byte |= src[i] & mask;
                 mask >>= 1;
             }
             dst[byteCount] = byte;
@@ -1036,48 +1050,51 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
     }
 }
 
+template<bool APPLY_PREBLEND>
 static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                      const SkGlyph& glyph, int32_t xorMask) {
+                      const SkGlyph& glyph, const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.fWidth;
     uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_a8(src[i] ^ xorMask);
+            dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
         }
         src = SkTAddByteOffset(src, srcRB);
         dst -= dstRB;
     }
 }
 
-static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                         const SkGlyph& glyph, int32_t xorMask) {
+template<bool APPLY_PREBLEND>
+static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.fWidth;
     uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_lcd16(src[i] ^ xorMask);
+            dst[i] = rgb_to_lcd16<APPLY_PREBLEND>(src[i], tableR, tableG, tableB);
         }
         src = SkTAddByteOffset(src, srcRB);
         dst = (uint16_t*)((char*)dst - dstRB);
     }
 }
 
-static void rgb_to_lcd32(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                         const SkGlyph& glyph, int32_t xorMask) {
+template<bool APPLY_PREBLEND>
+static void rgb_to_lcd32(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.fWidth;
-    SkPMColor* SK_RESTRICT dst = (SkPMColor*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+    uint32_t* SK_RESTRICT dst = (uint32_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_lcd32(src[i] ^ xorMask);
+            dst[i] = rgb_to_lcd32<APPLY_PREBLEND>(src[i], tableR, tableG, tableB);
         }
         src = SkTAddByteOffset(src, srcRB);
-        dst = (SkPMColor*)((char*)dst - dstRB);
+        dst = (uint32_t*)((char*)dst - dstRB);
     }
 }
 
@@ -1086,46 +1103,44 @@ static inline unsigned clamp255(unsigned x) {
     return x - (x >> 8);
 }
 
-#define WHITE_LUMINANCE_LIMIT   0xA0
-#define BLACK_LUMINANCE_LIMIT   0x40
-
-void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
-    SkAutoMutexAcquire  ac(gFTMutex);
-
+void SkScalerContext_Windows::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {
+    SkAutoMutexAcquire ac(gFTMutex);
     SkASSERT(fDDC);
+
+    //Must be careful not to use these if maskPreBlend == NULL
+    const uint8_t* tableR = NULL;
+    const uint8_t* tableG = NULL;
+    const uint8_t* tableB = NULL;
+    if (maskPreBlend) {
+        tableR = maskPreBlend->fR;
+        tableG = maskPreBlend->fG;
+        tableB = maskPreBlend->fB;
+    }
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     const bool isAA = !isLCD(fRec);
-    bool isWhite = fRec.getLuminanceByte() >= WHITE_LUMINANCE_LIMIT;
-    bool isBlack = fRec.getLuminanceByte() <= BLACK_LUMINANCE_LIMIT;
-
-    SkGdiRGB fgColor;
-    uint32_t rgbXOR;
-    const uint8_t* table = NULL;
-    if (isBW || isWhite) {
-        fgColor = 0x00FFFFFF;
-        rgbXOR = 0;
-    } else if (isBlack) {
-        fgColor = 0;
-        rgbXOR = ~0;
-    } else {
-        table = getInverseGammaTable();
-        fgColor = 0x00FFFFFF;
-        rgbXOR = 0;
-    }
 
     size_t srcRB;
-    const void* bits = fOffscreen.draw(glyph, isBW, fgColor, &srcRB);
+    const void* bits = fOffscreen.draw(glyph, isBW, &srcRB);
     if (NULL == bits) {
         ensure_typeface_accessible(fRec.fFontID);
-        bits = fOffscreen.draw(glyph, isBW, fgColor, &srcRB);
+        bits = fOffscreen.draw(glyph, isBW, &srcRB);
         if (NULL == bits) {
             sk_bzero(glyph.fImage, glyph.computeImageSize());
             return;
         }
     }
 
-    if (table) {
+    if (!isBW) {
+        const uint8_t* table = getInverseGammaTableClearType();
+        if (isAA) {
+          table = getInverseGammaTableGDI();
+        }
+        //Note that the following cannot really be integrated into the
+        //pre-blend, since we may not be applying the pre-blend; when we aren't
+        //applying the pre-blend it means that a filter wants linear anyway.
+        //Other code may also be applying the pre-blend, so we'd need another
+        //one with this and one without.
         SkGdiRGB* addr = (SkGdiRGB*)bits;
         for (int y = 0; y < glyph.fHeight; ++y) {
             for (int x = 0; x < glyph.fWidth; ++x) {
@@ -1152,18 +1167,30 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         // since the caller may require A8 for maskfilters, we can't check for BW
         // ... until we have the caller tell us that explicitly
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
-        rgb_to_a8(src, srcRB, glyph, rgbXOR);
+        if (maskPreBlend) {
+            rgb_to_a8<true>(src, srcRB, glyph, tableG);
+        } else {
+            rgb_to_a8<false>(src, srcRB, glyph, tableG);
+        }
     } else {    // LCD16
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
         if (is_rgb_really_bw(src, width, glyph.fHeight, srcRB)) {
-            rgb_to_bw(src, srcRB, glyph, rgbXOR);
+            rgb_to_bw(src, srcRB, glyph);
             ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
         } else {
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                rgb_to_lcd16(src, srcRB, glyph, rgbXOR);
+                if (maskPreBlend) {
+                    rgb_to_lcd16<true>(src, srcRB, glyph, tableR, tableG, tableB);
+                } else {
+                    rgb_to_lcd16<false>(src, srcRB, glyph, tableR, tableG, tableB);
+                }
             } else {
                 SkASSERT(SkMask::kLCD32_Format == glyph.fMaskFormat);
-                rgb_to_lcd32(src, srcRB, glyph, rgbXOR);
+                if (maskPreBlend) {
+                    rgb_to_lcd32<true>(src, srcRB, glyph, tableR, tableG, tableB);
+                } else {
+                    rgb_to_lcd32<false>(src, srcRB, glyph, tableR, tableG, tableB);
+                }
             }
         }
     }
@@ -1664,21 +1691,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     h = SkPaint::kNormal_Hinting;
 #endif
     rec->setHinting(h);
-
-    // for compatibility at the moment, discretize luminance to 3 settings
-    // black, white, gray. This helps with fontcache utilization, since we
-    // won't create multiple entries that in the end map to the same results.
-    {
-        unsigned lum = rec->getLuminanceByte();
-        if (lum <= BLACK_LUMINANCE_LIMIT) {
-            lum = 0;
-        } else if (lum >= WHITE_LUMINANCE_LIMIT) {
-            lum = SkScalerContext::kLuminance_Max;
-        } else {
-            lum = SkScalerContext::kLuminance_Max >> 1;
-        }
-        rec->setLuminanceBits(lum);
-    }
 
 // turn this off since GDI might turn A8 into BW! Need a bigger fix.
 #if 0

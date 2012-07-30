@@ -9,21 +9,26 @@
 #define SkScalerContext_DEFINED
 
 #include "SkMask.h"
+#include "SkMaskGamma.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
-  //For SkFontID
-  #include "SkTypeface.h"
+    //For SkFontID
+    #include "SkTypeface.h"
 #endif
-
-//#define SK_USE_COLOR_LUMINANCE
 
 struct SkGlyph;
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
 class SkRasterizer;
+
+//The following typedef hides from the rest of the implementation the number of
+//most significant bits to consider when creating mask gamma tables. Two bits
+//per channel was chosen as a balance between fidelity (more bits) and cache
+//sizes (fewer bits).
+typedef SkTMaskGamma<2, 2, 2> SkMaskGamma;
 
 class SkScalerContext {
 public:
@@ -49,24 +54,11 @@ public:
         // Generate A8 from LCD source (for GDI), only meaningful if fMaskFormat is kA8
         // Perhaps we can store this (instead) in fMaskFormat, in hight bit?
         kGenA8FromLCD_Flag        = 0x0800,
-
-#ifdef SK_USE_COLOR_LUMINANCE
-        kLuminance_Bits           = 3
-#else
-        // luminance : 0 for black text, kLuminance_Max for white text
-        kLuminance_Shift          = 13, // shift to land in the high 3-bits of Flags
-        kLuminance_Bits           = 3  // ensure Flags doesn't exceed 16bits
-#endif
     };
     
     // computed values
     enum {
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
-#ifdef SK_USE_COLOR_LUMINANCE
-#else
-        kLuminance_Max  = (1 << kLuminance_Bits) - 1,
-        kLuminance_Mask = kLuminance_Max << kLuminance_Shift
-#endif
     };
 
     struct Rec {
@@ -75,9 +67,49 @@ public:
         SkScalar    fTextSize, fPreScaleX, fPreSkewX;
         SkScalar    fPost2x2[2][2];
         SkScalar    fFrameWidth, fMiterLimit;
-#ifdef SK_USE_COLOR_LUMINANCE
+
+        //These describe the parameters to create (uniquely identify) the pre-blend.
         uint32_t    fLumBits;
-#endif
+        uint8_t     fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+        uint8_t     fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+        uint8_t     fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
+        uint8_t     fReservedAlign;
+
+        SkScalar getDeviceGamma() const {
+            return SkIntToScalar(fDeviceGamma) / (1 << 6);
+        }
+        void setDeviceGamma(SkScalar dg) {
+            SkASSERT(0 <= dg && dg < SkIntToScalar(4));
+            fDeviceGamma = SkScalarFloorToInt(dg * (1 << 6));
+        }
+
+        SkScalar getPaintGamma() const {
+            return SkIntToScalar(fPaintGamma) / (1 << 6);
+        }
+        void setPaintGamma(SkScalar pg) {
+            SkASSERT(0 <= pg && pg < SkIntToScalar(4));
+            fPaintGamma = SkScalarFloorToInt(pg * (1 << 6));
+        }
+
+        SkScalar getContrast() const {
+            return SkIntToScalar(fContrast) / ((1 << 8) - 1);
+        }
+        void setContrast(SkScalar c) {
+            SkASSERT(0 <= c && c <= SK_Scalar1);
+            fContrast = SkScalarRoundToInt(c * ((1 << 8) - 1));
+        }
+
+        /**
+         *  Causes the luminance color and contrast to be ignored, and the
+         *  paint and device gamma to be effectively 1.0.
+         */
+        void ignorePreBlend() {
+            setLuminanceColor(0x00000000);
+            setPaintGamma(SK_Scalar1);
+            setDeviceGamma(SK_Scalar1);
+            setContrast(0);
+        }
+
         uint8_t     fMaskFormat;
         uint8_t     fStrokeJoin;
         uint16_t    fFlags;
@@ -102,8 +134,7 @@ public:
         SkMask::Format getFormat() const {
             return static_cast<SkMask::Format>(fMaskFormat);
         }
-        
-#ifdef SK_USE_COLOR_LUMINANCE
+
         SkColor getLuminanceColor() const {
             return fLumBits;
         }
@@ -111,24 +142,6 @@ public:
         void setLuminanceColor(SkColor c) {
             fLumBits = c;
         }
-#else
-        unsigned getLuminanceBits() const {
-            return (fFlags & kLuminance_Mask) >> kLuminance_Shift;
-        }
-        
-        void setLuminanceBits(unsigned lum) {
-            SkASSERT(lum <= kLuminance_Max);
-            fFlags = (fFlags & ~kLuminance_Mask) | (lum << kLuminance_Shift);
-        }
-
-        U8CPU getLuminanceByte() const {
-            SkASSERT(3 == kLuminance_Bits);
-            unsigned lum = this->getLuminanceBits();
-            lum |= (lum << kLuminance_Bits);
-            lum |= (lum << kLuminance_Bits*2);
-            return lum >> (4*kLuminance_Bits - 8);
-        }
-#endif
     };
 
     SkScalerContext(const SkDescriptor* desc);
@@ -185,9 +198,10 @@ public:
 #endif
 
     static inline void MakeRec(const SkPaint&, const SkMatrix*, Rec* rec);
-    static inline void PostMakeRec(Rec*);
+    static inline void PostMakeRec(const SkPaint&, Rec*);
 
     static SkScalerContext* Create(const SkDescriptor*);
+    static SkMaskGamma::PreBlend GetMaskPreBlend(const Rec& rec);
 
 protected:
     Rec         fRec;
@@ -197,7 +211,7 @@ protected:
     virtual uint16_t generateCharToGlyph(SkUnichar) = 0;
     virtual void generateAdvance(SkGlyph*) = 0;
     virtual void generateMetrics(SkGlyph*) = 0;
-    virtual void generateImage(const SkGlyph&) = 0;
+    virtual void generateImage(const SkGlyph&, SkMaskGamma::PreBlend* maskPreBlend) = 0;
     virtual void generatePath(const SkGlyph&, SkPath*) = 0;
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
                                      SkPaint::FontMetrics* mY) = 0;
@@ -227,6 +241,9 @@ private:
 
     // link-list of context, to handle missing chars. null-terminated.
     SkScalerContext* fNextContext;
+
+    // converts linear masks to gamma correcting masks.
+    SkMaskGamma::PreBlend fMaskPreBlend;
 };
 
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')
