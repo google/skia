@@ -12,6 +12,7 @@
 
 #include "SkThread.h"
 #include "SkInstCnt.h"
+#include "SkTemplates.h"
 
 /** \class SkRefCnt
 
@@ -135,14 +136,12 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * SkAutoTUnref is a utility class that simply unref's its argument in the
- * destructor. For implementation detail reasons there is a base class, a
- * derived general class, and a const-specialized derived class.
+ *  Utility class that simply unref's its argument in the destructor.
  */
-
-template <typename T> class SkAutoTUnrefBase : SkNoncopyable {
+template <typename T> class SkAutoTUnref : SkNoncopyable {
 public:
-    ~SkAutoTUnrefBase() { SkSafeUnref(fObj); }
+    explicit SkAutoTUnref(T* obj = NULL) : fObj(obj) {}
+    ~SkAutoTUnref() { SkSafeUnref(fObj); }
 
     T* get() const { return fObj; }
 
@@ -163,11 +162,9 @@ public:
         return obj;
     }
 
-    operator T*() { return fObj; }
-
     /**
-     * BlockRef<B> is a type which inherits from B, cannot be created, and makes
-     * ref and unref private.
+     * BlockRef<B> is a type which inherits from B, cannot be created,
+     * and makes ref and unref private.
      */
     template<typename B> class BlockRef : public B {
     private:
@@ -176,45 +173,22 @@ public:
         void unref() const;
     };
 
-protected:
-    explicit SkAutoTUnrefBase(T* obj) : fObj(obj) {}
-    T*  fObj;
+    /** If T is const, the type returned from operator-> will also be const. */
+    typedef typename SkTConstType<BlockRef<T>, SkTIsConst<T>::value>::type BlockRefType;
+
+    /**
+     *  SkAutoTUnref assumes ownership of the ref. As a result, it is an error
+     *  for the user to ref or unref through SkAutoTUnref. Therefore
+     *  SkAutoTUnref::operator-> returns BlockRef<T>*. This prevents use of
+     *  skAutoTUnrefInstance->ref() and skAutoTUnrefInstance->unref().
+     */
+    BlockRefType *operator->() const {
+        return static_cast<BlockRefType*>(fObj);
+    }
+    operator T*() { return fObj; }
 
 private:
-    SkAutoTUnrefBase();
-};
-
-template <typename T> class SkAutoTUnref : public SkAutoTUnrefBase<T> {
-public:
-    explicit SkAutoTUnref(T* obj = NULL) : SkAutoTUnrefBase<T>(obj) {}
-
-    /**
-     *  SkAutoTUnref assumes ownership of the ref. As a result, it is an error
-     *  for the user to ref or unref through SkAutoTUnref. Therefore
-     *  SkAutoTUnref::operator-> returns BlockRef<T>*. This prevents use of
-     *  skAutoTUnrefInstance->ref() and skAutoTUnrefInstance->unref().
-     */
-    typedef typename SkAutoTUnrefBase<T>::template BlockRef<T> BlockRefT;
-
-    BlockRefT* operator->() const {
-        return static_cast<BlockRefT*>(this->fObj);
-    }
-};
-
-template <typename T> class SkAutoTUnref<const T> : public SkAutoTUnrefBase<const T> {
-public:
-    explicit SkAutoTUnref(const T* obj = NULL) : SkAutoTUnrefBase<const T>(obj) {}
-    /**
-     *  SkAutoTUnref assumes ownership of the ref. As a result, it is an error
-     *  for the user to ref or unref through SkAutoTUnref. Therefore
-     *  SkAutoTUnref::operator-> returns BlockRef<T>*. This prevents use of
-     *  skAutoTUnrefInstance->ref() and skAutoTUnrefInstance->unref().
-     */
-    typedef typename SkAutoTUnrefBase<const T>::template BlockRef<T> BlockRefT;
-
-    const BlockRefT* operator->() const {
-        return static_cast<const BlockRefT*>(this->fObj);
-    }
+    T*  fObj;
 };
 
 class SkAutoUnref : public SkAutoTUnref<SkRefCnt> {
