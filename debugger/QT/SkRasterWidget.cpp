@@ -16,8 +16,7 @@ SkRasterWidget::SkRasterWidget(QWidget* parent) : QWidget(parent) {
     fTransform.set(0,0);
     fScaleFactor = 1.0;
     fIndex = 0;
-
-    fDebugCanvas = new SkDebugCanvas();
+    fDebugCanvas = NULL;
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
 }
 
@@ -31,34 +30,40 @@ void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     fBitmap.allocPixels();
     delete fDevice;
     fDevice = new SkDevice(fBitmap);
-    fDebugCanvas->setBounds(event->size().width(), event->size().height());
-    this->update();
+    //TODO(chudy): Debug Canvas shouldn't store current size. The bitmap
+    //or texture backend should already have it. Refactor.
+    if (fDebugCanvas) {
+        fDebugCanvas->setBounds(event->size().width(), event->size().height());
+        this->update();
+    }
 }
 
 void SkRasterWidget::paintEvent(QPaintEvent* event) {
-    fBitmap.eraseColor(0);
-    SkCanvas canvas(fDevice);
-    canvas.translate(fTransform.fX, fTransform.fY);
-    if (fScaleFactor < 0) {
-        canvas.scale((1.0 / -fScaleFactor), (1.0 / -fScaleFactor));
-    } else if (fScaleFactor > 0) {
-        canvas.scale(fScaleFactor, fScaleFactor);
+    if (fDebugCanvas) {
+        fBitmap.eraseColor(0);
+        SkCanvas canvas(fDevice);
+        canvas.translate(fTransform.fX, fTransform.fY);
+        if (fScaleFactor < 0) {
+            canvas.scale((1.0 / -fScaleFactor), (1.0 / -fScaleFactor));
+        } else if (fScaleFactor > 0) {
+            canvas.scale(fScaleFactor, fScaleFactor);
+        }
+
+        fMatrix = canvas.getTotalMatrix();
+        fClip = canvas.getTotalClip().getBounds();
+        fDebugCanvas->drawTo(&canvas, fIndex+1, &fBitmap);
+
+        QPainter painter(this);
+        QStyleOption opt;
+        opt.init(this);
+
+        style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+
+        QPoint origin(0,0);
+        QImage image((uchar *)fBitmap.getPixels(), fBitmap.width(),
+                fBitmap.height(), QImage::Format_ARGB32_Premultiplied);
+
+        painter.drawImage(origin, image);
+        painter.end();
     }
-
-    fMatrix = canvas.getTotalMatrix();
-    fClip = canvas.getTotalClip().getBounds();
-    fDebugCanvas->drawTo(&canvas, fIndex+1, &fBitmap);
-
-    QPainter painter(this);
-    QStyleOption opt;
-    opt.init(this);
-
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
-
-    QPoint origin(0,0);
-    QImage image((uchar *)fBitmap.getPixels(), fBitmap.width(),
-            fBitmap.height(), QImage::Format_ARGB32_Premultiplied);
-
-    painter.drawImage(origin, image);
-    painter.end();
 }
