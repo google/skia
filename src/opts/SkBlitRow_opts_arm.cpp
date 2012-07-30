@@ -530,19 +530,7 @@ static void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
 
 	/* do any residual iterations */
         while (--count >= 0) {
-#ifdef TEST_SRC_ALPHA
-            SkPMColor sc = *src;
-            if (sc) {
-                unsigned srcA = SkGetPackedA32(sc);
-                SkPMColor result = sc;
-                if (srcA != 255) {
-                    result = SkPMSrcOver(sc, *dst);
-                }
-                *dst = result;
-            }
-#else
             *dst = SkPMSrcOver(*src, *dst);
-#endif
             src += 1;
             dst += 1;
         }
@@ -553,17 +541,12 @@ static void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
 
 #else
 
-#ifdef TEST_SRC_ALPHA
-#error The ARM asm version of S32A_Opaque_BlitRow32 does not support TEST_SRC_ALPHA
-#endif
-
 static void S32A_Opaque_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
                                   const SkPMColor* SK_RESTRICT src,
                                   int count, U8CPU alpha) {
 
     SkASSERT(255 == alpha);
 
-    /* Does not support the TEST_SRC_ALPHA case */
     asm volatile (
                   "cmp    %[count], #0               \n\t" /* comparing count with 0 */
                   "beq    3f                         \n\t" /* if zero exit */
