@@ -167,14 +167,12 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture)
-: SkDevice(make_bitmap(context, texture->asRenderTarget()))
-, fClipStack(NULL) {
+: SkDevice(make_bitmap(context, texture->asRenderTarget())) {
     this->initFromRenderTarget(context, texture->asRenderTarget());
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
-: SkDevice(make_bitmap(context, renderTarget))
-, fClipStack(NULL) {
+: SkDevice(make_bitmap(context, renderTarget)) {
     this->initFromRenderTarget(context, renderTarget);
 }
 
@@ -215,8 +213,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          SkBitmap::Config config,
                          int width,
                          int height)
-    : SkDevice(config, width, height, false /*isOpaque*/)
-    , fClipStack(NULL) {
+    : SkDevice(config, width, height, false /*isOpaque*/) {
+
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
 
@@ -351,23 +349,18 @@ void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
 
     // Canvas promises that this ptr is valid until onDetachFromCanvas is called
-    fClipStack = canvas->getClipStack();
-
-    fClipData.fClipStack = NULL;
+    fClipData.fClipStack = canvas->getClipStack();
 }
 
 void SkGpuDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
 
-    fClipStack = NULL;
-
     fClipData.fClipStack = NULL;
 }
 
 #ifdef SK_DEBUG
-static void check_bounds(const SkClipStack& clipStack,
+static void check_bounds(const GrClipData& clipData,
                          const SkRegion& clipRegion,
-                         const SkIPoint& origin,
                          int renderTargetWidth,
                          int renderTargetHeight) {
 
@@ -378,13 +371,13 @@ static void check_bounds(const SkClipStack& clipStack,
     SkClipStack::BoundsType boundType;
     SkRect canvTemp;
 
-    clipStack.getBounds(&canvTemp, &boundType);
+    clipData.fClipStack->getBounds(&canvTemp, &boundType);
     if (SkClipStack::kNormal_BoundsType == boundType) {
         SkIRect devTemp;
 
         canvTemp.roundOut(&devTemp);
 
-        devTemp.offset(-origin.fX, -origin.fY);
+        devTemp.offset(-clipData.fOrigin.fX, -clipData.fOrigin.fY);
 
         if (!devBound.intersect(devTemp)) {
             devBound.setEmpty();
@@ -397,55 +390,37 @@ static void check_bounds(const SkClipStack& clipStack,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
-                               const SkClipStack& clipStack,
-                               GrClipData& clipData,
-                               const SkRegion& clipRegion,
-                               const SkIPoint& origin,
-                               int renderTargetWidth, int renderTargetHeight,
-                               GrClip* result) {
+static void set_matrix_and_clip(GrContext* context, const SkMatrix& matrix,
+                                GrClipData& clipData,
+                                const SkRegion& clipRegion,
+                                const SkIPoint& origin,
+                                int renderTargetWidth, int renderTargetHeight) {
     context->setMatrix(matrix);
 
-    SkGrClipIterator iter;
-    iter.reset(clipStack);
+    clipData.fOrigin = origin;
 
 #ifdef SK_DEBUG
-    check_bounds(clipStack, clipRegion, origin,
+    check_bounds(clipData, clipRegion,
                  renderTargetWidth, renderTargetHeight);
 #endif
 
-    SkRect devClipBounds;
-    bool isIntersectionOfRects = false;
-    clipStack.getConservativeBounds(0, 0,
-                                    renderTargetWidth,
-                                    renderTargetHeight,
-                                    &devClipBounds,
-                                    &isIntersectionOfRects);
-
-    result->setFromIterator(&iter, devClipBounds);
-
-    GrAssert(result->isRect() == isIntersectionOfRects);
-
-    clipData.fClipStack = result;
-    clipData.fOrigin = origin;
     context->setClip(&clipData);
 }
 
 // call this every draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
-    GrAssert(NULL != fClipStack);
+    GrAssert(NULL != fClipData.fClipStack);
 
     if (fNeedPrepareRenderTarget ||
         fContext->getRenderTarget() != fRenderTarget) {
 
         fContext->setRenderTarget(fRenderTarget);
-        SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
+        SkASSERT(draw.fClipStack && draw.fClipStack == fClipData.fClipStack);
 
-        convert_matrixclip(fContext, *draw.fMatrix, 
-                           *fClipStack, fClipData, *draw.fClip, this->getOrigin(),
-                           fRenderTarget->width(), fRenderTarget->height(),
-                           &fGrClip);
+        set_matrix_and_clip(fContext, *draw.fMatrix,
+                            fClipData, *draw.fClip, this->getOrigin(),
+                            fRenderTarget->width(), fRenderTarget->height());
         fNeedPrepareRenderTarget = false;
     }
 }
@@ -459,14 +434,14 @@ void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
 
 void SkGpuDevice::gainFocus(const SkMatrix& matrix, const SkRegion& clip) {
 
-    GrAssert(NULL != fClipStack);
+    GrAssert(NULL != fClipData.fClipStack);
 
     fContext->setRenderTarget(fRenderTarget);
 
     this->INHERITED::gainFocus(matrix, clip);
 
-    convert_matrixclip(fContext, matrix, *fClipStack, fClipData, clip, this->getOrigin(),
-                       fRenderTarget->width(), fRenderTarget->height(), &fGrClip);
+    set_matrix_and_clip(fContext, matrix, fClipData, clip, this->getOrigin(),
+                        fRenderTarget->width(), fRenderTarget->height());
 
     DO_DEFERRED_CLEAR;
 }
@@ -895,7 +870,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
 
     context->setRenderTarget(pathTexture->asRenderTarget());
 
-    GrClip newClipStack(srcRect);
+    SkClipStack newClipStack(srcRect);
     GrClipData newClipData;
     newClipData.fClipStack = &newClipStack;
     context->setClip(&newClipData);
@@ -1982,8 +1957,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          GrTexture* texture,
                          TexCache cacheEntry,
                          bool needClear)
-    : SkDevice(make_bitmap(context, texture->asRenderTarget()))
-    , fClipStack(NULL) {
+    : SkDevice(make_bitmap(context, texture->asRenderTarget())) {
+
     GrAssert(texture && texture->asRenderTarget());
     GrAssert(NULL == cacheEntry.texture() || texture == cacheEntry.texture());
     this->initFromRenderTarget(context, texture->asRenderTarget());

@@ -125,44 +125,52 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // the rect.
         bool disabledClip = false;
 
-        if (drawState->isClipState() && fClip->fClipStack->isRect()) {
+        if (drawState->isClipState()) {
+            
+            GrRect devClipRect;
+            bool isIntersectionOfRects = false;
 
-            GrClip::Iter iter(*fClip->fClipStack, GrClip::Iter::kBottom_IterStart);
-            const GrClip::Iter::Clip* clip = iter.next();
-            GrAssert(NULL != clip && NULL != clip->fRect);
+            fClip->fClipStack->getConservativeBounds(-fClip->fOrigin.fX,
+                                                     -fClip->fOrigin.fY,
+                                                     drawState->getRenderTarget()->width(),
+                                                     drawState->getRenderTarget()->height(),
+                                                     &devClipRect,
+                                                     &isIntersectionOfRects);
 
-            GrRect clipRect = *clip->fRect;
-            // If the clip rect touches the edge of the viewport, extended it
-            // out (close) to infinity to avoid bogus intersections.
-            // We might consider a more exact clip to viewport if this
-            // conservative test fails.
-            const GrRenderTarget* target = drawState->getRenderTarget();
-            if (0 >= clipRect.fLeft) {
-                clipRect.fLeft = GR_ScalarMin;
-            }
-            if (target->width() <= clipRect.fRight) {
-                clipRect.fRight = GR_ScalarMax;
-            }
-            if (0 >= clipRect.top()) {
-                clipRect.fTop = GR_ScalarMin;
-            }
-            if (target->height() <= clipRect.fBottom) {
-                clipRect.fBottom = GR_ScalarMax;
-            }
-            int stride = VertexSize(layout);
-            bool insideClip = true;
-            for (int v = 0; v < 4; ++v) {
-                const GrPoint& p = *GetVertexPoint(geo.vertices(), v, stride);
-                if (!clipRect.contains(p)) {
-                    insideClip = false;
-                    break;
+            if (isIntersectionOfRects) {
+                // If the clip rect touches the edge of the viewport, extended it
+                // out (close) to infinity to avoid bogus intersections.
+                // We might consider a more exact clip to viewport if this
+                // conservative test fails.
+                const GrRenderTarget* target = drawState->getRenderTarget();
+                if (0 >= devClipRect.fLeft) {
+                    devClipRect.fLeft = GR_ScalarMin;
+                }
+                if (target->width() <= devClipRect.fRight) {
+                    devClipRect.fRight = GR_ScalarMax;
+                }
+                if (0 >= devClipRect.top()) {
+                    devClipRect.fTop = GR_ScalarMin;
+                }
+                if (target->height() <= devClipRect.fBottom) {
+                    devClipRect.fBottom = GR_ScalarMax;
+                }
+                int stride = VertexSize(layout);
+                bool insideClip = true;
+                for (int v = 0; v < 4; ++v) {
+                    const GrPoint& p = *GetVertexPoint(geo.vertices(), v, stride);
+                    if (!devClipRect.contains(p)) {
+                        insideClip = false;
+                        break;
+                    }
+                }
+                if (insideClip) {
+                    drawState->disableState(GrDrawState::kClip_StateBit);
+                    disabledClip = true;
                 }
             }
-            if (insideClip) {
-                drawState->disableState(GrDrawState::kClip_StateBit);
-                disabledClip = true;
-            }
         }
+
         if (!this->needsNewClip() &&
             !this->needsNewState() &&
             fCurrQuad > 0 &&
@@ -833,7 +841,7 @@ void GrInOrderDrawBuffer::recordClip() {
 }
 
 void GrInOrderDrawBuffer::recordDefaultClip() {
-    fClips.push_back() = GrClip();
+    fClips.push_back() = SkClipStack();
     fClipOrigins.push_back() = SkIPoint::Make(0, 0);
     fCmds.push_back(kSetClip_Cmd);
 }

@@ -710,7 +710,7 @@ public:
         GrContext*        fContext;
         const GrClipData* fOldClip;
 
-        GrClip            fNewClipStack;
+        SkClipStack       fNewClipStack;
         GrClipData        fNewClipData;
     };
 

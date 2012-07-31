@@ -78,22 +78,9 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, screen == devStackBounds);
     REPORTER_ASSERT(reporter, isIntersectionOfRects);
 
-    // convert the SkClipStack to a GrClip
-    SkGrClipIterator iter;
-    iter.reset(stack);
-
-    GrClip clip;
-    clip.setFromIterator(&iter, devStackBounds);
-
-    const GrRect& canvGrClipBound = clip.getConservativeBounds();
-
-    // make sure that GrClip is behaving itself
-    REPORTER_ASSERT(reporter, clipRect == canvGrClipBound);
-    REPORTER_ASSERT(reporter, clip.isRect());
-
-    // wrap the GrClip in a GrClipData
+    // wrap the SkClipStack in a GrClipData
     GrClipData clipData;
-    clipData.fClipStack = &clip;
+    clipData.fClipStack = &stack;
 
     SkIRect devGrClipDataBound;
     clipData.getConservativeBounds(texture,
@@ -109,10 +96,10 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
 // verify that the top state of the stack matches the passed in state
 static void check_state(skiatest::Reporter* reporter,
                         const GrClipMaskCache& cache,
-                        const GrClip& clip,
+                        const SkClipStack& clip,
                         GrTexture* mask,
                         const GrIRect& bound) {
-    GrClip cacheClip;
+    SkClipStack cacheClip;
     cache.getLastClip(&cacheClip);
     REPORTER_ASSERT(reporter, clip == cacheClip);
 
@@ -135,8 +122,8 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     cache.setContext(context);
 
-    GrClip emptyClip;
-    emptyClip.setEmpty();
+    SkClipStack emptyClip;
+    emptyClip.reset();
 
     GrIRect emptyBound;
     emptyBound.setEmpty();
@@ -148,8 +135,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     GrIRect bound1;
     bound1.set(0, 0, 100, 100);
 
-    GrClip clip1;
-    clip1.setFromIRect(bound1);
+    SkClipStack clip1(bound1);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
@@ -180,9 +166,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     GrIRect bound2;
     bound2.set(-10, -10, 10, 10);
 
-    GrClip clip2;
-    clip2.setEmpty();
-    clip2.setFromIRect(bound2);
+    SkClipStack clip2(bound2);
 
     cache.acquireMask(clip2, desc, bound2);
 

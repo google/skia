@@ -11,13 +11,15 @@
 #ifndef GrClip_DEFINED
 #define GrClip_DEFINED
 
-#include "GrClipIterator.h"
 #include "GrRect.h"
+#include "SkClipStack.h"
+
+class GrSurface;
+
+#include "GrClipIterator.h"
 
 #include "SkPath.h"
 #include "SkTArray.h"
-
-class GrSurface;
 
 class GrClip {
 public:
@@ -212,7 +214,7 @@ private:
  */
 class GrClipData : public SkNoncopyable {
 public:
-    const GrClip*       fClipStack;
+    const SkClipStack*  fClipStack;
     SkIPoint            fOrigin;
 
     GrClipData() 

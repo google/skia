@@ -98,7 +98,7 @@ private:
     int fBits;
     int fSampleCnt;
 
-    GrClip      fLastClipStack;
+    SkClipStack fLastClipStack;
     GrClipData  fLastClipData;
     int         fLastClipWidth;
     int         fLastClipHeight;

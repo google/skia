@@ -25,6 +25,7 @@ public:
     SkClipStack();
     SkClipStack(const SkClipStack& b);
     explicit SkClipStack(const SkRect& r);
+    explicit SkClipStack(const SkIRect& r);
     ~SkClipStack();
 
     SkClipStack& operator=(const SkClipStack& b);
@@ -182,7 +183,8 @@ public:
      * the translation (+offsetX, +offsetY) is applied before the clamp to the 
      * maximum rectangle: [0,maxWidth) x [0,maxHeight).
      * isIntersectionOfRects is an optional parameter that is true when 
-     * 'bounds' is the result of an intersection of rects.
+     * 'devBounds' is the result of an intersection of rects. In this case
+     * 'devBounds' is the exact answer/clip.
      */
     void getConservativeBounds(int offsetX,
                                int offsetY,
