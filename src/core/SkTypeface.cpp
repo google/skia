@@ -117,3 +117,21 @@ size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length
     return SkFontHost::GetTableData(fUniqueID, tag, offset, length, data);
 }
 
+int SkTypeface::getUnitsPerEm() const {
+    int upem = 0;
+
+#ifdef SK_BUILD_FOR_ANDROID
+    upem = SkFontHost::GetUnitsPerEm(fUniqueID);
+#else
+    SkAdvancedTypefaceMetrics* metrics;
+    metrics = SkFontHost::GetAdvancedTypefaceMetrics(fUniqueID,
+                                 SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo,
+                                 NULL, 0);
+    if (metrics) {
+        upem = metrics->fEmSize;
+        metrics->unref();
+    }
+#endif
+    return upem;
+}
+

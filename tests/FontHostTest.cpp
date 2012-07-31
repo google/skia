@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkPaint.h"
 #include "SkTypeface.h"
+#include "SkEndian.h"
 
 //#define DUMP_TABLES
 
@@ -23,6 +24,21 @@ static const struct TagSize {
     {   kFontTableTag_hhea,         36 },
     {   kFontTableTag_maxp,         32 },
 };
+
+static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
+    int upem = face->getUnitsPerEm();
+    REPORTER_ASSERT(reporter, upem > 0);
+
+    size_t size = face->getTableSize(kFontTableTag_head);
+    if (size) {
+        SkAutoMalloc storage(size);
+        char* ptr = (char*)storage.get();
+        face->getTableData(kFontTableTag_head, 0, size, ptr);
+        // unitsPerEm is at offset 18 into the 'head' table.
+        int upem2 = SkEndian_SwapBE16(*(uint16_t*)&ptr[18]);
+        REPORTER_ASSERT(reporter, upem2 == upem);
+    }
+}
 
 static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
     SkFontID fontID = face->uniqueID();
@@ -82,6 +98,7 @@ static void test_tables(skiatest::Reporter* reporter) {
             SkDebugf("%s\n", gNames[i]);
 #endif
             test_tables(reporter, face);
+            test_unitsPerEm(reporter, face);
             face->unref();
         }
     }
