@@ -8,20 +8,18 @@
 #ifndef SkDataSet_DEFINED
 #define SkDataSet_DEFINED
 
-#include "SkRefCnt.h"
 #include "SkData.h"
+#include "SkFlattenable.h"
 
 class SkStream;
 class SkWStream;
-class SkFlattenableReadBuffer;
-class SkFlattenableWriteBuffer;
 
-class SkDataSet : public SkRefCnt {
+class SkDataSet : public SkFlattenable {
 public:
     /**
      *  Returns a new empty dataset. Note: since SkDataSet is immutable, this
      *  "new" set may be the same one that was returned before, but each
-     *  returned object must have its reference-count balanced regardles.
+     *  returned object must have its reference-count balanced regardless.
      *
      *  SkDataSet* empty = SkDataSet::NewEmpty();
      *  ...
@@ -73,13 +71,18 @@ public:
     explicit SkDataSet(SkStream*);
     void writeToStream(SkWStream*) const;
 
-    explicit SkDataSet(SkFlattenableReadBuffer&);
-    void flatten(SkFlattenableWriteBuffer&) const;
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDataSet)
+
+protected:
+    SkDataSet(SkFlattenableReadBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
     int32_t     fCount;
     uint32_t    fKeySize;
     Pair*       fPairs;
+
+    typedef SkFlattenable INHERITED;
 };
 
 #endif

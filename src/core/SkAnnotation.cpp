@@ -29,12 +29,12 @@ SkData* SkAnnotation::find(const char name[]) const {
 
 SkAnnotation::SkAnnotation(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fFlags = buffer.readU32();
-    fDataSet = SkNEW_ARGS(SkDataSet, (buffer));
+    fDataSet = (SkDataSet*)buffer.readFlattenable();
 }
 
 void SkAnnotation::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.write32(fFlags);
-    fDataSet->flatten(buffer);
+    buffer.writeFlattenable(fDataSet);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkAnnotation)

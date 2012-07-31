@@ -120,6 +120,32 @@ SkData* SkData::NewWithCString(const char cstr[]) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void SkData::flatten(SkFlattenableWriteBuffer& buffer) const {
+    buffer.write32(fSize);
+    buffer.writePad(fPtr, fSize);
+}
+
+SkData::SkData(SkFlattenableReadBuffer& buffer) {
+    fSize = buffer.readU32();
+    fReleaseProcContext = NULL;
+
+    if (0 == fSize) {
+        fPtr = NULL;
+        fReleaseProc = NULL;
+    } else {
+        // buffer.read expects a 4-byte aligned size
+        size_t size4 = SkAlign4(fSize);
+        void* data = sk_malloc_throw(size4);
+        buffer.read(data, size4);
+        fPtr = data;
+        fReleaseProc = sk_free_releaseproc;
+    }
+}
+
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkData)
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkDataSet.h"
@@ -133,26 +159,6 @@ static SkData* dupdata(SkData* data) {
         data = SkData::NewEmpty();
     }
     return data;
-}
-
-static SkData* read_data(SkFlattenableReadBuffer& buffer) {
-    size_t size = buffer.readU32();
-    if (0 == size) {
-        return SkData::NewEmpty();
-    } else {
-        // buffer.read expects a 4-byte aligned size
-        size_t size4 = SkAlign4(size);
-        void* block = sk_malloc_throw(size4);
-        buffer.read(block, size4);
-        // we pass the "real" size to NewFromMalloc, since its needs to report
-        // the same size that was written.
-        return SkData::NewFromMalloc(block, size);
-    }
-}
-
-static void write_data(SkFlattenableWriteBuffer& buffer, SkData* data) {
-    buffer.write32(data->size());
-    buffer.writePad(data->data(), data->size());
 }
 
 static SkData* findValue(const char key[], const SkDataSet::Pair array[], int n) {
@@ -247,7 +253,7 @@ void SkDataSet::flatten(SkFlattenableWriteBuffer& buffer) const {
         // our first key points to all the key storage
         buffer.writePad(fPairs[0].fKey, fKeySize);
         for (int i = 0; i < fCount; ++i) {
-            write_data(buffer, fPairs[i].fValue);
+            buffer.writeFlattenable(fPairs[i].fValue);
         }
     }
 }
@@ -285,7 +291,7 @@ SkDataSet::SkDataSet(SkFlattenableReadBuffer& buffer) {
         for (int i = 0; i < fCount; ++i) {
             fPairs[i].fKey = keyStorage;
             keyStorage += strlen(keyStorage) + 1;
-            fPairs[i].fValue = read_data(buffer);
+            fPairs[i].fValue = (SkData*)buffer.readFlattenable();
         }
     } else {
         fKeySize = 0;
@@ -302,3 +308,4 @@ SkDataSet* SkDataSet::NewEmpty() {
     return gEmptySet;
 }
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkDataSet)
