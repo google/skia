@@ -11,7 +11,7 @@
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(surface->width(), surface->height());
-    SkAutoTUnref<SkCanvas> canvas(surface->newCanvas());
+    SkCanvas* canvas = surface->getCanvas();
 
     SkScalar stroke = size.fWidth / 10;
     SkScalar radius = (size.fWidth - stroke) / 2;
@@ -37,9 +37,13 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf) {
 
     drawContents(surf, SK_ColorBLUE);
 
-    imgR->draw(canvas, 0, 0, NULL);
-    imgG->draw(canvas, 0, 80, NULL);
-    surf->draw(canvas, 0, 160, NULL);
+    SkPaint paint;
+//    paint.setFilterBitmap(true);
+//    paint.setAlpha(0x80);
+
+    imgR->draw(canvas, 0, 0, &paint);
+    imgG->draw(canvas, 0, 80, &paint);
+    surf->draw(canvas, 0, 160, &paint);
 
     imgG->unref();
     imgR->unref();
@@ -76,6 +80,9 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
+        canvas->translate(10, 10);
+        canvas->scale(2, 2);
+
         // since we draw into this directly, we need to start fresh
         sk_bzero(fBuffer, fBufferSize);
 
