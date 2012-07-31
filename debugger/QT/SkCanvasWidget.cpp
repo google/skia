@@ -33,9 +33,7 @@ SkCanvasWidget::SkCanvasWidget() : QWidget()
 }
 
 SkCanvasWidget::~SkCanvasWidget() {
-    if (fDebugCanvas) {
-        delete fDebugCanvas;
-    }
+    delete fDebugCanvas;
 }
 
 void SkCanvasWidget::drawTo(int index) {
@@ -78,13 +76,8 @@ void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
     fPreviousPoint.set(event->globalX(), event->globalY());
-    if (fDebugCanvas) {
-        fDebugCanvas->getBoxClass()->setHitPoint(event->x(), event->y());
-        fDebugCanvas->isCalculatingHits(true);
-        drawTo(fIndex);
-        emit hitChanged(fDebugCanvas->getHitBoxPoint());
-        fDebugCanvas->isCalculatingHits(false);
-    }
+    emit hitChanged(fDebugCanvas->getLayerAtPoint(event->x(), event->y(),
+            fIndex, fTransform, fScaleFactor));
 }
 
 void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {

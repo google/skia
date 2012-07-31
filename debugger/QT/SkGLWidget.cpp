@@ -54,8 +54,7 @@ void SkGLWidget::paintGL() {
     } else if (fScaleFactor > 0) {
         canvas.scale(fScaleFactor, fScaleFactor);
     }
-    // TODO(chudy): Remove bitmap arguement.
-    fDebugCanvas->drawTo(&canvas, fIndex+1, NULL);
+    fDebugCanvas->drawTo(&canvas, fIndex);
     canvas.flush();
 }
 

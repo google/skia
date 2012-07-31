@@ -32,8 +32,6 @@
         '../debugger/SkObjectParser.cpp',
         '../debugger/QT/SkSettingsWidget.h',
         '../debugger/QT/SkSettingsWidget.cpp',
-        '../debugger/SkHitBox.h',
-        '../debugger/SkHitBox.cpp',
         '../debugger/QT/SkGLWidget.h',
         '../debugger/QT/SkGLWidget.cpp',
         '../debugger/QT/SkRasterWidget.h',

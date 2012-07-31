@@ -29,47 +29,62 @@ void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
 void SkDebugCanvas::draw(SkCanvas* canvas) {
     if(!commandVector.empty()) {
         for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            if ((*it)->getVisibility()) {
+            if ((*it)->isVisible()) {
                 (*it)->execute(canvas);
             }
         }
     }
 }
 
-void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, SkBitmap* bitmap) {
-    int counter = 0;
-    if(!commandVector.empty()) {
-        for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            if (counter != (index-1)) {
-                 if ((*it)->getVisibility()) {
-                     (*it)->execute(canvas);
-                 }
-             } else {
-                 if (fFilter) {
-                     SkPaint* p = new SkPaint();
-                     p->setColor(0xAAFFFFFF);
-                     canvas->save();
-                     canvas->resetMatrix();
-                     SkRect dump;
-                     // TODO(chudy): Replace with a call to QtWidget to get dimensions.
-                     dump.set(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(fWidth), SkIntToScalar(fHeight));
-                     canvas->clipRect(dump,  SkRegion::kReplace_Op, false );
-                     canvas->drawRectCoords(SkIntToScalar(0),SkIntToScalar(0),SkIntToScalar(fWidth),SkIntToScalar(fHeight), *p);
-                     canvas->restore();
-                 }
-                 if ((*it)->getVisibility()) {
-                     (*it)->execute(canvas);
-                 }
-             }
-            if (fCalculateHits == true && bitmap != NULL) {
-                fHitBox.updateHitPoint(bitmap, counter);
-            }
+int SkDebugCanvas::getCommandAtPoint(int x, int y, int index,
+        SkIPoint transform, float scale) {
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
+    bitmap.allocPixels();
 
-            /* TODO(chudy): Implement a bitmap wide function that will take
-             *  ~50 out of each R,G,B. This will make everything but the last
-             *  command brighter.
-             */
-            if (++counter == index) return;
+    SkCanvas canvas(bitmap);
+    canvas.translate(transform.fX - x, transform.fY - y);
+    if (scale < 0) {
+        canvas.scale((1.0 / -scale), (1.0 / -scale));
+    } else if (scale > 0) {
+        canvas.scale(scale, scale);
+    }
+
+    int layer = 0;
+    int prev = bitmap.getColor(0,0);
+    for (int i = 0; i < index; i++) {
+        if (commandVector[i]->isVisible()) {
+            commandVector[i]->execute(&canvas);
+        }
+        if (prev != bitmap.getColor(0,0)) {
+            layer = i;
+        }
+        prev = bitmap.getColor(0,0);
+    }
+    return layer;
+}
+
+void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
+    int counter = 0;
+    SkASSERT(!commandVector.empty());
+    SkASSERT(index < commandVector.size());
+    for (int i = 0; i <= index; i++) {
+        if (i == index && fFilter) {
+            SkPaint p;
+            p.setColor(0xAAFFFFFF);
+            canvas->save();
+            canvas->resetMatrix();
+            SkRect mask;
+            mask.set(SkIntToScalar(0), SkIntToScalar(0),
+                    SkIntToScalar(fWidth), SkIntToScalar(fHeight));
+            canvas->clipRect(mask, SkRegion::kReplace_Op, false);
+            canvas->drawRectCoords(SkIntToScalar(0), SkIntToScalar(0),
+                    SkIntToScalar(fWidth), SkIntToScalar(fHeight), p);
+            canvas->restore();
+        }
+
+        if (commandVector[i]->isVisible()) {
+            commandVector[i]->execute(canvas);
         }
     }
 }
@@ -86,7 +101,7 @@ std::vector<std::string>* SkDebugCanvas::getCommandInfoAt(int index) {
 
 bool SkDebugCanvas::getDrawCommandVisibilityAt(int index) {
     SkASSERT(index < commandVector.size());
-    return commandVector[index]->getVisibility();
+    return commandVector[index]->isVisible();
 }
 
 std::vector<SkDrawCommand*> SkDebugCanvas::getDrawCommands() {
@@ -252,5 +267,5 @@ bool SkDebugCanvas::translate(SkScalar dx, SkScalar dy) {
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {
     SkASSERT(index < commandVector.size());
-    commandVector[index]->setVisibility(toggle);
+    commandVector[index]->setVisible(toggle);
 }

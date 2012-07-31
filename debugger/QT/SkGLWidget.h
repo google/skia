@@ -29,7 +29,7 @@ public:
 
     void setDebugCanvas(SkDebugCanvas* debugCanvas) {
         fDebugCanvas = debugCanvas;
-        fIndex = debugCanvas->getSize();
+        fIndex = debugCanvas->getSize() - 1;
         this->updateGL();
     }
 
