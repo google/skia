@@ -36,6 +36,75 @@ static GrTexture* createTexture(GrContext* context) {
     return texture;
 }
 
+// Ensure that the 'getConservativeBounds' calls are returning bounds clamped
+// to the render target
+static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
+
+    static const int kXSize = 100;
+    static const int kYSize = 100;
+
+    GrTextureDesc desc;
+    desc.fFlags     = kRenderTarget_GrTextureFlagBit;
+    desc.fConfig    = kAlpha_8_GrPixelConfig;
+    desc.fWidth     = kXSize;
+    desc.fHeight    = kYSize;
+
+    GrTexture* texture = context->createUncachedTexture(desc, NULL, 0);
+    if (!texture) {
+        return;
+    }
+
+    GrAutoUnref au(texture);
+
+    SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
+    SkRect screen = SkRect::MakeWH(SkIntToScalar(kXSize), 
+                                   SkIntToScalar(kYSize));
+    SkRect clipRect(screen);
+    clipRect.outset(10, 10);
+
+    // create a clip stack that will (trivially) reduce to a single rect that
+    // is larger than the screen
+    SkClipStack stack;
+    stack.clipDevRect(clipRect, SkRegion::kReplace_Op, false);
+
+    bool isIntersectionOfRects = true;
+    SkRect stackBounds;
+
+    stack.getConservativeBounds(0, 0, kXSize, kYSize, 
+                                &stackBounds, 
+                                &isIntersectionOfRects);
+
+    // make sure that the SkClipStack is behaving itself
+    REPORTER_ASSERT(reporter, screen == stackBounds);
+    REPORTER_ASSERT(reporter, isIntersectionOfRects);
+
+    // convert the SkClipStack to a GrClip
+    SkGrClipIterator iter;
+    iter.reset(stack);
+
+    GrClip clip;
+    clip.setFromIterator(&iter, 0, 0, stackBounds);
+
+    const GrRect& grBound = clip.getConservativeBounds();
+
+    // make sure that GrClip is behaving itself
+    REPORTER_ASSERT(reporter, clipRect == grBound);
+    REPORTER_ASSERT(reporter, clip.isRect());
+
+    // wrap the GrClip in a GrClipData
+    GrClipData clipData;
+    clipData.fClipStack = &clip;
+
+    SkIRect intGrBound;
+    clipData.getConservativeBounds(texture,
+                                   &intGrBound,
+                                   &isIntersectionOfRects);
+
+    // make sure that GrClipData is behaving itself
+    REPORTER_ASSERT(reporter, intScreen == intGrBound);
+    REPORTER_ASSERT(reporter, isIntersectionOfRects);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // verify that the top state of the stack matches the passed in state
 static void check_state(skiatest::Reporter* reporter,
@@ -164,6 +233,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 static void TestClipCache(skiatest::Reporter* reporter, GrContext* context) {
 
     test_cache(reporter, context);
+    test_clip_bounds(reporter, context);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
