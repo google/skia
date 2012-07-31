@@ -222,9 +222,6 @@ class GrProgramStageFactory;
 class GrGradientEffect : public GrCustomStage {
 public:
 
-    // FIXME: This constructor is only used in GrGpuGL_unittest.cpp, and should
-    // be removed once an alternative testing setup has been devised.
-    GrGradientEffect(GrTexture* texture);
     GrGradientEffect(GrContext* ctx, const SkGradientShaderBase& shader, 
                      GrSamplerState* sampler);
 

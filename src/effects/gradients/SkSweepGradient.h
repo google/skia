@@ -38,28 +38,5 @@ private:
     const SkPoint fCenter;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GrGLSweepGradient;
-
-class GrSweepGradient : public GrGradientEffect {
-
-public:
-
-    GrSweepGradient(GrTexture* texture);
-    GrSweepGradient(GrContext* ctx, const SkSweepGradient& shader,
-                     GrSamplerState* sampler);
-    virtual ~GrSweepGradient();
-
-    static const char* Name() { return "Sweep Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-
-    typedef GrGLSweepGradient GLProgramStage;
-
-protected:
-
-    typedef GrGradientEffect INHERITED;
-};
-
 #endif
 

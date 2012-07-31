@@ -150,6 +150,8 @@ void shadeSpan16_radial_repeat(SkScalar sfx, SkScalar sdx,
 
 }
 
+/////////////////////////////////////////////////////////////////////
+
 SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius,
                 const SkColor colors[], const SkScalar pos[], int colorCount,
                 SkShader::TileMode mode, SkUnitMapper* mapper)
@@ -243,16 +245,6 @@ SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
         info->fRadius[0] = fRadius;
     }
     return kRadial_GradientType;
-}
-
-GrCustomStage* SkRadialGradient::asNewCustomStage(GrContext* context,
-    GrSamplerState* sampler) const {
-    SkASSERT(NULL != context && NULL != sampler);
-    sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrRadialGradient, (context, *this, sampler));
 }
 
 SkRadialGradient::SkRadialGradient(SkFlattenableReadBuffer& buffer)
@@ -480,7 +472,6 @@ void SkRadialGradient::shadeSpan(int x, int y,
 /////////////////////////////////////////////////////////////////////
 
 class GrGLRadialGradient : public GrGLGradientStage {
-
 public:
 
     GrGLRadialGradient(const GrProgramStageFactory& factory,
@@ -502,6 +493,33 @@ private:
 
 };
 
+/////////////////////////////////////////////////////////////////////
+
+class GrRadialGradient : public GrGradientEffect {
+public:
+
+    GrRadialGradient(GrContext* ctx, 
+                     const SkRadialGradient& shader,
+                     GrSamplerState* sampler)
+        : INHERITED(ctx, shader, sampler) {
+    }
+
+    virtual ~GrRadialGradient() { }
+
+    static const char* Name() { return "Radial Gradient"; }
+    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
+        return GrTProgramStageFactory<GrRadialGradient>::getInstance();
+    }
+
+    typedef GrGLRadialGradient GLProgramStage;
+
+private:
+
+    typedef GrGradientEffect INHERITED;
+};
+
+/////////////////////////////////////////////////////////////////////
+
 void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
                                 const char* outputColor,
                                 const char* inputColor,
@@ -511,26 +529,15 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
     this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 
-
 /////////////////////////////////////////////////////////////////////
 
-
-GrRadialGradient::GrRadialGradient(GrTexture* texture)
-    : INHERITED(texture) {
-
-}
-
-GrRadialGradient::GrRadialGradient(GrContext* ctx, 
-                                   const SkRadialGradient& shader,
-                                   GrSamplerState* sampler)
-    : INHERITED(ctx, shader, sampler) {
-}
-
-GrRadialGradient::~GrRadialGradient() {
-
-}
-
-const GrProgramStageFactory& GrRadialGradient::getFactory() const {
-    return GrTProgramStageFactory<GrRadialGradient>::getInstance();
+GrCustomStage* SkRadialGradient::asNewCustomStage(GrContext* context,
+    GrSamplerState* sampler) const {
+    SkASSERT(NULL != context && NULL != sampler);
+    sampler->matrix()->preConcat(fPtsToUnit);
+    sampler->textureParams()->setTileModeX(fTileMode);
+    sampler->textureParams()->setTileModeY(kClamp_TileMode);
+    sampler->textureParams()->setBilerp(true);
+    return SkNEW_ARGS(GrRadialGradient, (context, *this, sampler));
 }
 

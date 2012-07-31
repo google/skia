@@ -39,28 +39,5 @@ private:
     const SkScalar fRadius;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GrGLRadialGradient;
-
-class GrRadialGradient : public GrGradientEffect {
-
-public:
-
-    GrRadialGradient(GrTexture* texture);
-    GrRadialGradient(GrContext* ctx, const SkRadialGradient& shader,
-                     GrSamplerState* sampler);
-    virtual ~GrRadialGradient();
-
-    static const char* Name() { return "Radial Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-
-    typedef GrGLRadialGradient GLProgramStage;
-
-private:
-
-    typedef GrGradientEffect INHERITED;
-};
-
 #endif
 
