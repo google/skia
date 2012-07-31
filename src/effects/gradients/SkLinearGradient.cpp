@@ -312,16 +312,6 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
     return kLinear_GradientType;
 }
 
-GrCustomStage* SkLinearGradient::asNewCustomStage(GrContext* context,
-                                                 GrSamplerState* sampler) const {
-    SkASSERT(NULL != context && NULL != sampler);
-    sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrLinearGradient, (context, *this, sampler));
-}
-
 static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
                             int count) {
     if (reinterpret_cast<uintptr_t>(dst) & 2) {
@@ -506,6 +496,30 @@ private:
     typedef GrGLGradientStage INHERITED;
 };
 
+/////////////////////////////////////////////////////////////////////
+
+class GrLinearGradient : public GrGradientEffect {
+public:
+
+    GrLinearGradient(GrContext* ctx, const SkLinearGradient& shader,
+                     GrSamplerState* sampler)
+        : INHERITED(ctx, shader, sampler) { }
+    virtual ~GrLinearGradient() { }
+
+    static const char* Name() { return "Linear Gradient"; }
+    const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
+        return GrTProgramStageFactory<GrLinearGradient>::getInstance();
+    }
+
+    typedef GrGLLinearGradient GLProgramStage;
+
+private:
+
+    typedef GrGradientEffect INHERITED;
+};
+
+/////////////////////////////////////////////////////////////////////
+
 void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
                                 const char* outputColor,
                                 const char* inputColor,
@@ -517,21 +531,13 @@ void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrLinearGradient::GrLinearGradient(GrTexture* texture)
-    : INHERITED(texture) { 
-}
-
-GrLinearGradient::GrLinearGradient(GrContext* ctx, 
-                                   const SkLinearGradient& shader,
-                                   GrSamplerState* sampler)
-    : INHERITED(ctx, shader, sampler) {
-}
-
-GrLinearGradient::~GrLinearGradient() {
-
-}
-
-const GrProgramStageFactory& GrLinearGradient::getFactory() const {
-    return GrTProgramStageFactory<GrLinearGradient>::getInstance();
+GrCustomStage* SkLinearGradient::asNewCustomStage(GrContext* context,
+                                                  GrSamplerState* sampler) const {
+    SkASSERT(NULL != context && NULL != sampler);
+    sampler->matrix()->preConcat(fPtsToUnit);
+    sampler->textureParams()->setTileModeX(fTileMode);
+    sampler->textureParams()->setTileModeY(kClamp_TileMode);
+    sampler->textureParams()->setBilerp(true);
+    return SkNEW_ARGS(GrLinearGradient, (context, *this, sampler));
 }
 

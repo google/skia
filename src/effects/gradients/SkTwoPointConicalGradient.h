@@ -82,45 +82,5 @@ private:
     const SkScalar fRadius2;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GrGLConical2Gradient;
-
-class GrConical2Gradient : public GrGradientEffect {
-
-public:
-
-    GrConical2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, GrScalar diffRadius);
-    GrConical2Gradient(GrContext* ctx, const SkTwoPointConicalGradient& shader,
-                       GrSamplerState* sampler);
-    virtual ~GrConical2Gradient();
-
-    static const char* Name() { return "Two-Point Conical Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
-
-    // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
-    bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == SkScalarAbs(fCenterX1); }
-    GrScalar center() const { return fCenterX1; }
-    GrScalar diffRadius() const { return fDiffRadius; }
-    GrScalar radius() const { return fRadius0; }
-
-    typedef GrGLConical2Gradient GLProgramStage;
-
-private:
-
-    // @{
-    // Cache of values - these can change arbitrarily, EXCEPT
-    // we shouldn't change between degenerate and non-degenerate?!
-
-    GrScalar fCenterX1;
-    GrScalar fRadius0;
-    GrScalar fDiffRadius;
-
-    // @}
-
-    typedef GrGradientEffect INHERITED;
-};
-
 #endif
 

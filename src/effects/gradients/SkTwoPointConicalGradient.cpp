@@ -163,6 +163,8 @@ void SkTwoPointConicalGradient::init() {
     fPtsToUnit.reset();
 }
 
+/////////////////////////////////////////////////////////////////////
+
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
     const SkPoint& start, SkScalar startRadius,
     const SkPoint& end, SkScalar endRadius,
@@ -292,25 +294,6 @@ SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
     return kConical_GradientType;
 }
 
-GrCustomStage* SkTwoPointConicalGradient::asNewCustomStage(
-    GrContext* context, GrSamplerState* sampler) const {
-    SkASSERT(NULL != context && NULL != sampler);
-    SkPoint diff = fCenter2 - fCenter1;
-    SkScalar diffLen = diff.length();
-    if (0 != diffLen) {
-        SkScalar invDiffLen = SkScalarInvert(diffLen);
-        sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, diff.fY),
-                          SkScalarMul(invDiffLen, diff.fX));
-    } else {
-        sampler->matrix()->reset();
-    }
-    sampler->matrix()->preTranslate(-fCenter1.fX, -fCenter1.fY);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrConical2Gradient, (context, *this, sampler));
-}
-
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
     SkFlattenableReadBuffer& buffer)
     : INHERITED(buffer),
@@ -337,7 +320,6 @@ typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
 class GrGLConical2Gradient : public GrGLGradientStage {
-
 public:
 
     GrGLConical2Gradient(const GrProgramStageFactory& factory,
@@ -356,9 +338,7 @@ public:
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrCustomStage& s) {
-        return (static_cast<const GrConical2Gradient&>(s).isDegenerate());
-    }
+    static StageKey GenKey(const GrCustomStage& s);
 
 protected:
 
@@ -384,6 +364,57 @@ private:
     typedef GrGLGradientStage INHERITED;
 
 };
+
+/////////////////////////////////////////////////////////////////////
+
+class GrConical2Gradient : public GrGradientEffect {
+public:
+
+    GrConical2Gradient(GrContext* ctx, const SkTwoPointConicalGradient& shader,
+                       GrSamplerState* sampler)
+        : INHERITED(ctx, shader, sampler) 
+        , fCenterX1(shader.getCenterX1())
+        , fRadius0(shader.getStartRadius())
+        , fDiffRadius(shader.getDiffRadius()) { }
+
+    virtual ~GrConical2Gradient() { }
+
+    static const char* Name() { return "Two-Point Conical Gradient"; }
+    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
+        return GrTProgramStageFactory<GrConical2Gradient>::getInstance();
+    }
+    virtual bool isEqual(const GrCustomStage& sBase) const SK_OVERRIDE {
+        const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
+        return (INHERITED::isEqual(sBase) &&
+                this->fCenterX1 == s.fCenterX1 &&
+                this->fRadius0 == s.fRadius0 &&
+                this->fDiffRadius == s.fDiffRadius);
+    }
+
+    // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
+    bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == SkScalarAbs(fCenterX1); }
+    GrScalar center() const { return fCenterX1; }
+    GrScalar diffRadius() const { return fDiffRadius; }
+    GrScalar radius() const { return fRadius0; }
+
+    typedef GrGLConical2Gradient GLProgramStage;
+
+private:
+
+    // @{
+    // Cache of values - these can change arbitrarily, EXCEPT
+    // we shouldn't change between degenerate and non-degenerate?!
+
+    GrScalar fCenterX1;
+    GrScalar fRadius0;
+    GrScalar fDiffRadius;
+
+    // @}
+
+    typedef GrGradientEffect INHERITED;
+};
+
+/////////////////////////////////////////////////////////////////////
 
 GrGLConical2Gradient::GrGLConical2Gradient(
         const GrProgramStageFactory& factory,
@@ -603,44 +634,28 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
     }
 }
 
+GrCustomStage::StageKey GrGLConical2Gradient::GenKey(const GrCustomStage& s) {
+    return (static_cast<const GrConical2Gradient&>(s).isDegenerate());
+}
 
 /////////////////////////////////////////////////////////////////////
 
-GrConical2Gradient::GrConical2Gradient(GrTexture* texture,
-                                       GrScalar center,
-                                       GrScalar radius,
-                                       GrScalar diffRadius)
-    : INHERITED(texture)
-    , fCenterX1 (center)
-    , fRadius0 (radius)
-    , fDiffRadius (diffRadius) {
-
+GrCustomStage* SkTwoPointConicalGradient::asNewCustomStage(
+    GrContext* context, GrSamplerState* sampler) const {
+    SkASSERT(NULL != context && NULL != sampler);
+    SkPoint diff = fCenter2 - fCenter1;
+    SkScalar diffLen = diff.length();
+    if (0 != diffLen) {
+        SkScalar invDiffLen = SkScalarInvert(diffLen);
+        sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, diff.fY),
+                          SkScalarMul(invDiffLen, diff.fX));
+    } else {
+        sampler->matrix()->reset();
+    }
+    sampler->matrix()->preTranslate(-fCenter1.fX, -fCenter1.fY);
+    sampler->textureParams()->setTileModeX(fTileMode);
+    sampler->textureParams()->setTileModeY(kClamp_TileMode);
+    sampler->textureParams()->setBilerp(true);
+    return SkNEW_ARGS(GrConical2Gradient, (context, *this, sampler));
 }
-
-GrConical2Gradient::GrConical2Gradient(GrContext* ctx, 
-                                       const SkTwoPointConicalGradient& shader,
-                                       GrSamplerState* sampler)
-    : INHERITED(ctx, shader, sampler) 
-    , fCenterX1(shader.getCenterX1())
-    , fRadius0(shader.getStartRadius())
-    , fDiffRadius(shader.getDiffRadius()) {
-}
-
-GrConical2Gradient::~GrConical2Gradient() {
-
-}
-
-
-const GrProgramStageFactory& GrConical2Gradient::getFactory() const {
-    return GrTProgramStageFactory<GrConical2Gradient>::getInstance();
-}
-
-bool GrConical2Gradient::isEqual(const GrCustomStage& sBase) const {
-    const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
-    return (INHERITED::isEqual(sBase) &&
-            this->fCenterX1 == s.fCenterX1 &&
-            this->fRadius0 == s.fRadius0 &&
-            this->fDiffRadius == s.fDiffRadius);
-}
-
 

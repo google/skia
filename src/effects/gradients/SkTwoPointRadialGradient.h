@@ -54,45 +54,5 @@ private:
     void init();
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GrGLRadial2Gradient;
-
-class GrRadial2Gradient : public GrGradientEffect {
-
-public:
-
-    GrRadial2Gradient(GrTexture* texture, GrScalar center, GrScalar radius, bool posRoot);
-    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader,
-                      GrSamplerState* sampler);
-    virtual ~GrRadial2Gradient();
-
-    static const char* Name() { return "Two-Point Radial Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
-
-    // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
-    bool isDegenerate() const { return GR_Scalar1 == fCenterX1; }
-    GrScalar center() const { return fCenterX1; }
-    GrScalar radius() const { return fRadius0; }
-    bool isPosRoot() const { return SkToBool(fPosRoot); }
-
-    typedef GrGLRadial2Gradient GLProgramStage;
-
-private:
-
-    // @{
-    // Cache of values - these can change arbitrarily, EXCEPT
-    // we shouldn't change between degenerate and non-degenerate?!
-
-    GrScalar fCenterX1;
-    GrScalar fRadius0;
-    SkBool8  fPosRoot;
-
-    // @}
-
-    typedef GrGradientEffect INHERITED;
-};
-
 #endif
 

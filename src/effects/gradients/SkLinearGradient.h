@@ -37,29 +37,5 @@ private:
     const SkPoint fEnd;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GrGLLinearGradient;
-
-class GrLinearGradient : public GrGradientEffect {
-
-public:
-
-    GrLinearGradient(GrTexture* texture);
-    GrLinearGradient(GrContext* ctx, const SkLinearGradient& shader,
-                     GrSamplerState* sampler);
-    virtual ~GrLinearGradient();
-
-    static const char* Name() { return "Linear Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-
-    typedef GrGLLinearGradient GLProgramStage;
-
-private:
-
-    typedef GrGradientEffect INHERITED;
-};
-
-
 #endif
 

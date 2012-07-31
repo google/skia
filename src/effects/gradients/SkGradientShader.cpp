@@ -689,12 +689,6 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrGradientEffect::GrGradientEffect(GrTexture* texture) 
-    : fTexture (texture)
-    , fUseTexture(true) {
-    SkSafeRef(fTexture);
-}
-
 GrGradientEffect::GrGradientEffect(GrContext* ctx, 
                                    const SkGradientShaderBase& shader,
                                    GrSamplerState* sampler)

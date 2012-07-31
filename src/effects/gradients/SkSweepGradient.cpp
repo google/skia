@@ -39,15 +39,6 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     return kSweep_GradientType;
 }
 
-GrCustomStage* SkSweepGradient::asNewCustomStage(GrContext* context,
-    GrSamplerState* sampler) const {
-    sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrSweepGradient, (context, *this, sampler));
-}
-
 SkSweepGradient::SkSweepGradient(SkFlattenableReadBuffer& buffer)
     : INHERITED(buffer),
       fCenter(buffer.readPoint()) {
@@ -390,7 +381,6 @@ void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
 /////////////////////////////////////////////////////////////////////
 
 class GrGLSweepGradient : public GrGLGradientStage {
-
 public:
 
     GrGLSweepGradient(const GrProgramStageFactory& factory,
@@ -412,6 +402,31 @@ private:
 
 };
 
+/////////////////////////////////////////////////////////////////////
+
+class GrSweepGradient : public GrGradientEffect {
+public:
+
+    GrSweepGradient(GrContext* ctx, 
+                    const SkSweepGradient& shader,
+                    GrSamplerState* sampler) 
+    : INHERITED(ctx, shader, sampler) { }
+    virtual ~GrSweepGradient() { }
+
+    static const char* Name() { return "Sweep Gradient"; }
+    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
+        return GrTProgramStageFactory<GrSweepGradient>::getInstance();
+    }
+
+    typedef GrGLSweepGradient GLProgramStage;
+
+protected:
+
+    typedef GrGradientEffect INHERITED;
+};
+
+/////////////////////////////////////////////////////////////////////
+
 void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
                               const char* outputColor,
                               const char* inputColor,
@@ -424,22 +439,12 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrSweepGradient::GrSweepGradient(GrTexture* texture)
-    : INHERITED(texture) {
-
-}
-
-GrSweepGradient::GrSweepGradient(GrContext* ctx, 
-                                 const SkSweepGradient& shader,
-                                 GrSamplerState* sampler) 
-                                 : INHERITED(ctx, shader, sampler) {
-}
-
-GrSweepGradient::~GrSweepGradient() {
-
-}
-
-const GrProgramStageFactory& GrSweepGradient::getFactory() const {
-    return GrTProgramStageFactory<GrSweepGradient>::getInstance();
+GrCustomStage* SkSweepGradient::asNewCustomStage(GrContext* context,
+    GrSamplerState* sampler) const {
+    sampler->matrix()->preConcat(fPtsToUnit);
+    sampler->textureParams()->setTileModeX(fTileMode);
+    sampler->textureParams()->setTileModeY(kClamp_TileMode);
+    sampler->textureParams()->setBilerp(true);
+    return SkNEW_ARGS(GrSweepGradient, (context, *this, sampler));
 }
 

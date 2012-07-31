@@ -165,6 +165,8 @@ void shadeSpan_twopoint_repeat(SkScalar fx, SkScalar dx,
 }
 }
 
+/////////////////////////////////////////////////////////////////////
+
 SkTwoPointRadialGradient::SkTwoPointRadialGradient(
     const SkPoint& start, SkScalar startRadius,
     const SkPoint& end, SkScalar endRadius,
@@ -218,24 +220,6 @@ SkShader::GradientType SkTwoPointRadialGradient::asAGradient(
         info->fRadius[1] = fRadius2;
     }
     return kRadial2_GradientType;
-}
-
-GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
-    GrContext* context, GrSamplerState* sampler) const {
-    SkASSERT(NULL != context && NULL != sampler);
-    SkScalar diffLen = fDiff.length();
-    if (0 != diffLen) {
-        SkScalar invDiffLen = SkScalarInvert(diffLen);
-        sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
-                                     SkScalarMul(invDiffLen, fDiff.fX));
-    } else {
-        sampler->matrix()->reset();
-    }
-    sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler));
 }
 
 void SkTwoPointRadialGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
@@ -387,9 +371,7 @@ public:
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrCustomStage& s) {
-        return (static_cast<const GrRadial2Gradient&>(s).isDegenerate());
-    }
+    static StageKey GenKey(const GrCustomStage& s);
 
 protected:
 
@@ -415,6 +397,56 @@ private:
     typedef GrGLGradientStage INHERITED;
 
 };
+
+/////////////////////////////////////////////////////////////////////
+
+class GrRadial2Gradient : public GrGradientEffect {
+public:
+
+    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader, 
+                      GrSamplerState* sampler)
+        : INHERITED(ctx, shader, sampler)
+        , fCenterX1(shader.getCenterX1())
+        , fRadius0(shader.getStartRadius()) 
+        , fPosRoot(shader.getDiffRadius() < 0) { }
+    virtual ~GrRadial2Gradient() { }
+
+    static const char* Name() { return "Two-Point Radial Gradient"; }
+    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
+        return GrTProgramStageFactory<GrRadial2Gradient>::getInstance();
+    }
+    virtual bool isEqual(const GrCustomStage& sBase) const SK_OVERRIDE {
+        const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
+        return (INHERITED::isEqual(sBase) &&
+                this->fCenterX1 == s.fCenterX1 &&
+                this->fRadius0 == s.fRadius0 &&
+                this->fPosRoot == s.fPosRoot);
+    }
+
+    // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
+    bool isDegenerate() const { return GR_Scalar1 == fCenterX1; }
+    GrScalar center() const { return fCenterX1; }
+    GrScalar radius() const { return fRadius0; }
+    bool isPosRoot() const { return SkToBool(fPosRoot); }
+
+    typedef GrGLRadial2Gradient GLProgramStage;
+
+private:
+
+    // @{
+    // Cache of values - these can change arbitrarily, EXCEPT
+    // we shouldn't change between degenerate and non-degenerate?!
+
+    GrScalar fCenterX1;
+    GrScalar fRadius0;
+    SkBool8  fPosRoot;
+
+    // @}
+
+    typedef GrGradientEffect INHERITED;
+};
+
+/////////////////////////////////////////////////////////////////////
 
 GrGLRadial2Gradient::GrGLRadial2Gradient(
         const GrProgramStageFactory& factory,
@@ -574,44 +606,27 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
     }
 }
 
+GrCustomStage::StageKey GrGLRadial2Gradient::GenKey(const GrCustomStage& s) {
+    return (static_cast<const GrRadial2Gradient&>(s).isDegenerate());
+}
 
 /////////////////////////////////////////////////////////////////////
 
-GrRadial2Gradient::GrRadial2Gradient(GrTexture* texture,
-                                     GrScalar center,
-                                     GrScalar radius,
-                                     bool posRoot)
-    : INHERITED(texture)
-    , fCenterX1 (center)
-    , fRadius0 (radius)
-    , fPosRoot (posRoot) {
-
-}
-
-GrRadial2Gradient::GrRadial2Gradient(GrContext* ctx, 
-                                     const SkTwoPointRadialGradient& shader, 
-                                     GrSamplerState* sampler)
-    : INHERITED(ctx, shader, sampler)
-    , fCenterX1(shader.getCenterX1())
-    , fRadius0(shader.getStartRadius()) 
-    , fPosRoot(shader.getDiffRadius() < 0) {
-}
-
-
-GrRadial2Gradient::~GrRadial2Gradient() {
-
-}
-
-
-const GrProgramStageFactory& GrRadial2Gradient::getFactory() const {
-    return GrTProgramStageFactory<GrRadial2Gradient>::getInstance();
-}
-
-bool GrRadial2Gradient::isEqual(const GrCustomStage& sBase) const {
-    const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
-    return (INHERITED::isEqual(sBase) &&
-            this->fCenterX1 == s.fCenterX1 &&
-            this->fRadius0 == s.fRadius0 &&
-            this->fPosRoot == s.fPosRoot);
+GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
+    GrContext* context, GrSamplerState* sampler) const {
+    SkASSERT(NULL != context && NULL != sampler);
+    SkScalar diffLen = fDiff.length();
+    if (0 != diffLen) {
+        SkScalar invDiffLen = SkScalarInvert(diffLen);
+        sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
+                                     SkScalarMul(invDiffLen, fDiff.fX));
+    } else {
+        sampler->matrix()->reset();
+    }
+    sampler->matrix()->preConcat(fPtsToUnit);
+    sampler->textureParams()->setTileModeX(fTileMode);
+    sampler->textureParams()->setTileModeY(kClamp_TileMode);
+    sampler->textureParams()->setBilerp(true);
+    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler));
 }
 
