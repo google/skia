@@ -176,7 +176,13 @@ public:
      */
     size_t getTableData(SkFontTableTag tag, size_t offset, size_t length,
                         void* data) const;
-    
+
+    /**
+     *  Return the units-per-em value for this typeface, or zero if there is an
+     *  error.
+     */
+    int getUnitsPerEm() const;
+
 protected:
     /** uniqueID must be unique (please!) and non-zero
     */
