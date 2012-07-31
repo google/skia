@@ -28,8 +28,13 @@ public:
         return GetCommandString(fDrawType);
     }
 
-    bool getVisibility() const { return fVisible; }
-    void setVisibility(bool toggle) {fVisible = toggle; }
+    bool isVisible() const {
+        return fVisible;
+    }
+
+    void setVisible(bool toggle) {
+        fVisible = toggle;
+    }
 
     std::vector<std::string>* Info() {return &fInfo; };
     virtual void execute(SkCanvas* canvas)=0;

@@ -28,12 +28,8 @@ SkRasterWidget::~SkRasterWidget() {
 void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, event->size().width(), event->size().height());
     fBitmap.allocPixels();
-    if (fDevice) {
-        delete fDevice;
-    }
-        fDevice = new SkDevice(fBitmap);
-
-
+    delete fDevice;
+    fDevice = new SkDevice(fBitmap);
     this->update();
 }
 
@@ -50,7 +46,7 @@ void SkRasterWidget::paintEvent(QPaintEvent* event) {
 
         fMatrix = canvas.getTotalMatrix();
         fClip = canvas.getTotalClip().getBounds();
-        fDebugCanvas->drawTo(&canvas, fIndex+1, &fBitmap);
+        fDebugCanvas->drawTo(&canvas, fIndex);
 
         QPainter painter(this);
         QStyleOption opt;

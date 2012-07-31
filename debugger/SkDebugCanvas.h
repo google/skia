@@ -13,7 +13,6 @@
 #include "SkCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkPicture.h"
-#include "SkHitBox.h"
 #include <vector>
 
 class SkDebugCanvas : public SkCanvas {
@@ -43,7 +42,13 @@ public:
         @param canvas  The canvas being drawn to
         @param index  The index of the final command being executed
      */
-    void drawTo(SkCanvas* canvas, int index, SkBitmap* bitmap);
+    void drawTo(SkCanvas* canvas, int index);
+
+    /**
+        Returns the index of the last draw command to write to the pixel at (x,y)
+     */
+    int getCommandAtPoint(int x, int y, int index,
+            SkIPoint transform, float scale);
 
     /**
         Returns the draw command at the given index.
@@ -74,29 +79,10 @@ public:
     std::vector<std::string>* getDrawCommandsAsStrings();
 
     /**
-        Returns the mapping of all pixels to a layer value.
-     */
-    int* getHitBox() {
-        return fHitBox.getHitBox();
-    }
-
-    SkHitBox* getBoxClass() {
-        return &fHitBox;
-    }
-
-    int getHitBoxPoint() {
-        return fHitBox.getPoint();
-    }
-
-    /**
         Returns length of draw command vector.
      */
     int getSize() {
         return commandVector.size();
-    }
-
-    void isCalculatingHits(bool isEnabled) {
-        fCalculateHits = isEnabled;
     }
 
     /**
@@ -194,8 +180,6 @@ private:
     int fHeight;
     int fWidth;
     SkBitmap fBm;
-    SkHitBox fHitBox;
-    bool fCalculateHits;
     bool fFilter;
 
     /**
