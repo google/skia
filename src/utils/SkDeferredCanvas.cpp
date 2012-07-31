@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -21,20 +21,38 @@ enum {
 };
 
 namespace {
-bool shouldDrawImmediately(const SkBitmap& bitmap) {
-    return bitmap.getTexture() && !bitmap.isImmutable();
+bool shouldDrawImmediately(const SkBitmap* bitmap, const SkPaint* paint) {
+    if (bitmap && bitmap->getTexture() && !bitmap->isImmutable()) {
+        return true;
+    }
+    if (paint) {
+        SkShader* shader = paint->getShader();
+        // Here we detect the case where the shader is an SkBitmapProcShader
+        // with a gpu texture attached.  Checking this without RTTI
+        // requires making the assumption that only gradient shaders
+        // and SkBitmapProcShader implement asABitmap().  The following
+        // code may need to be revised if that assumption is ever broken.
+        if (shader && !shader->asAGradient(NULL)) {
+            SkBitmap bm;
+            if (shader->asABitmap(&bm, NULL, NULL) && 
+                NULL != bm.getTexture()) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 }
 
 class AutoImmediateDrawIfNeeded {
 public:
-    AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkBitmap& bitmap) {
-        if (canvas.isDeferredDrawing() && shouldDrawImmediately(bitmap)) {
-            canvas.setDeferredDrawing(false);
-            fCanvas = &canvas;
-        } else {
-            fCanvas = NULL;
-        }
+    AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkBitmap* bitmap, 
+                              const SkPaint* paint) {
+        this->init(canvas, bitmap, paint);
+    }
+
+    AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkPaint* paint) {
+        this->init(canvas, NULL, paint);
     }
 
     ~AutoImmediateDrawIfNeeded() {
@@ -43,6 +61,16 @@ public:
         }
     }
 private:
+    void init(SkDeferredCanvas& canvas, const SkBitmap* bitmap, const SkPaint* paint)
+    {
+        if (canvas.isDeferredDrawing() && shouldDrawImmediately(bitmap, paint)) {
+            canvas.setDeferredDrawing(false);
+            fCanvas = &canvas;
+        } else {
+            fCanvas = NULL;
+        }
+    }
+
     SkDeferredCanvas* fCanvas;
 };
 
@@ -325,12 +353,13 @@ void SkDeferredCanvas::drawPaint(const SkPaint& paint) {
         isPaintOpaque(&paint)) {
         getDeferredDevice()->contentsCleared();
     }
-
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawPaint(paint);
 }
 
 void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
                                   const SkPoint pts[], const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawPoints(mode, count, pts, paint);
 }
 
@@ -340,10 +369,12 @@ void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
         getDeferredDevice()->contentsCleared();
     }
 
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawRect(rect, paint);
 }
 
 void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawPath(path, paint);
 }
 
@@ -357,7 +388,7 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
         getDeferredDevice()->contentsCleared();
     }
 
-    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
+    AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
     drawingCanvas()->drawBitmap(bitmap, left, top, paint);
 }
 
@@ -371,7 +402,7 @@ void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap,
         getDeferredDevice()->contentsCleared();
     }
 
-    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
+    AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
     drawingCanvas()->drawBitmapRect(bitmap, src,
                                     dst, paint);
 }
@@ -382,7 +413,7 @@ void SkDeferredCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
                                         const SkPaint* paint) {
     // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
     // covers canvas entirely and transformed bitmap covers canvas entirely
-    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
+    AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
     drawingCanvas()->drawBitmapMatrix(bitmap, m, paint);
 }
 
@@ -391,7 +422,7 @@ void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
                                       const SkPaint* paint) {
     // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
     // covers canvas entirely and dst covers canvas entirely
-    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
+    AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
     drawingCanvas()->drawBitmapNine(bitmap, center,
                                     dst, paint);
 }
@@ -409,24 +440,27 @@ void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
         getDeferredDevice()->contentsCleared();
     }
 
-    AutoImmediateDrawIfNeeded autoDraw(*this, bitmap);
+    AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
     drawingCanvas()->drawSprite(bitmap, left, top,
                                 paint);
 }
 
 void SkDeferredCanvas::drawText(const void* text, size_t byteLength,
                                 SkScalar x, SkScalar y, const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawText(text, byteLength, x, y, paint);
 }
 
 void SkDeferredCanvas::drawPosText(const void* text, size_t byteLength,
                                    const SkPoint pos[], const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawPosText(text, byteLength, pos, paint);
 }
 
 void SkDeferredCanvas::drawPosTextH(const void* text, size_t byteLength,
                                     const SkScalar xpos[], SkScalar constY,
                                     const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawPosTextH(text, byteLength, xpos, constY, paint);
 }
 
@@ -434,6 +468,7 @@ void SkDeferredCanvas::drawTextOnPath(const void* text, size_t byteLength,
                                       const SkPath& path,
                                       const SkMatrix* matrix,
                                       const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawTextOnPath(text, byteLength,
                                     path, matrix,
                                     paint);
@@ -449,6 +484,7 @@ void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
                                     const SkColor colors[], SkXfermode* xmode,
                                     const uint16_t indices[], int indexCount,
                                     const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     drawingCanvas()->drawVertices(vmode, vertexCount,
                                   vertices, texs,
                                   colors, xmode,
@@ -701,7 +737,7 @@ void SkDeferredCanvas::DeferredDevice::writePixels(const SkBitmap& bitmap,
 
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    if (shouldDrawImmediately(bitmap)) {
+    if (shouldDrawImmediately(&bitmap, NULL)) {
         this->flushPending();
         fImmediateCanvas->drawSprite(bitmap, x, y, &paint);
     } else {
