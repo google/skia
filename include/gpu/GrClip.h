@@ -23,11 +23,7 @@ class GrClip {
 public:
     GrClip();
     GrClip(const GrClip& src);
-    /**
-     *  The conservativeBounds parameter already takes (tx,ty) into account.
-     */
-    GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-           const GrRect& conservativeBounds);
+    GrClip(GrClipIterator* iter, const GrRect& conservativeBounds);
     explicit GrClip(const GrIRect& rect);
     explicit GrClip(const GrRect& rect);
 
@@ -142,20 +138,16 @@ public:
         }
     }
 
-    // FIXME: This word "empty" is confusing. It means that the clip has no
-    // elements (it is the infinite plane) not that it has no area.
-    bool isEmpty() const { return 0 == fList.count(); }
+    // isWideOpen returns true if the clip has no elements (it is the 
+    // infinite plane) not that it has no area.
+    bool isWideOpen() const { return 0 == fList.count(); }
 
     /**
      *  Resets this clip to be empty
      */
     void setEmpty();
 
-    /**
-     *  If specified, the bounds parameter already takes (tx,ty) into account.
-     */
-    void setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-                         const GrRect& conservativeBounds);
+    void setFromIterator(GrClipIterator* iter, const GrRect& conservativeBounds);
     void setFromRect(const GrRect& rect);
     void setFromIRect(const GrIRect& rect);
 

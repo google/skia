@@ -83,7 +83,7 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     iter.reset(stack);
 
     GrClip clip;
-    clip.setFromIterator(&iter, 0, 0, stackBounds);
+    clip.setFromIterator(&iter, stackBounds);
 
     const GrRect& grBound = clip.getConservativeBounds();
 
