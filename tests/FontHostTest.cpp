@@ -27,7 +27,7 @@ static const struct TagSize {
 
 static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
     int upem = face->getUnitsPerEm();
-    REPORTER_ASSERT(reporter, upem > 0);
+    if (0 == upem) return;
 
     size_t size = face->getTableSize(kFontTableTag_head);
     if (size) {
@@ -87,7 +87,7 @@ static void test_tables(skiatest::Reporter* reporter) {
     static const char* const gNames[] = {
         NULL,   // default font
         "Arial", "Times", "Times New Roman", "Helvetica", "Courier",
-        "Courier New",
+        "Courier New", "Terminal", "MS Sans Serif",
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
