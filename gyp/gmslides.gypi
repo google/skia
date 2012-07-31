@@ -35,7 +35,6 @@
     '../gm/gradtext.cpp',
     '../gm/hairmodes.cpp',
     '../gm/hittestpath.cpp',
-    '../gm/image.cpp',
     '../gm/imageblur.cpp',
     '../gm/lighting.cpp',
     '../gm/imagefiltersbase.cpp',
