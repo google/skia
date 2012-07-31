@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "GrClip.h"
 #include "GrSurface.h"
 #include "GrRect.h"
@@ -254,31 +252,15 @@ void GrClip::Iter::reset(const GrClip& stack, IterStart startLoc) {
 void GrClipData::getConservativeBounds(const GrSurface* surface,
                                        GrIRect* devResult,
                                        bool* isIntersectionOfRects) const {
+    GrRect devBounds;
 
-    // Until we switch to using the SkClipStack directly we need to take
-    // this belt and suspenders approach here. When the clip stack 
-    // reduces to a single clip, GrClip uses that rect as the conservative
-    // bounds rather than SkClipStack's bounds and the reduced rect
-    // was never trimmed to the render target's bounds.
-    SkRect temp = SkRect::MakeLTRB(0, 0, 
-                                   SkIntToScalar(surface->width()), 
-                                   SkIntToScalar(surface->height()));
+    fClipStack->getConservativeBounds(-fOrigin.fX, 
+                                      -fOrigin.fY,
+                                      surface->width(),
+                                      surface->height(),
+                                      &devBounds,
+                                      isIntersectionOfRects);
 
-    // convervativeBounds starts off in canvas coordinates here
-    GrRect conservativeBounds = fClipStack->getConservativeBounds();
-
-    // but is translated into device coordinates here
-    conservativeBounds.offset(SkIntToScalar(-fOrigin.fX), 
-                              SkIntToScalar(-fOrigin.fY));
-
-    if (!conservativeBounds.intersect(temp)) {
-        conservativeBounds.setEmpty();
-    }
-
-    conservativeBounds.roundOut(devResult);
-
-    if (NULL != isIntersectionOfRects) {
-        *isIntersectionOfRects = fClipStack->isRect();
-    }
+    devBounds.roundOut(devResult);
 }
 

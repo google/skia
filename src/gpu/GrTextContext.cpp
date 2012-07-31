@@ -70,20 +70,6 @@ void GrTextContext::flushGlyphs() {
     fDrawTarget = NULL;
 }
 
-namespace {
-
-// 'rect' enters in canvas coordinates and leaves in device coordinates
-void canvas_to_device(SkRect* rect, const SkIPoint& origin) {
-    GrAssert(NULL != rect);
-
-    rect->fLeft   -= SkIntToScalar(origin.fX);
-    rect->fTop    -= SkIntToScalar(origin.fY);
-    rect->fRight  -= SkIntToScalar(origin.fX);
-    rect->fBottom -= SkIntToScalar(origin.fY);
-}
-
-};
-
 GrTextContext::GrTextContext(GrContext* context,
                              const GrPaint& paint,
                              const GrMatrix* extMatrix) : fPaint(paint) {
@@ -101,17 +87,22 @@ GrTextContext::GrTextContext(GrContext* context,
 
     const GrClipData* clipData = context->getClip();
 
-    GrRect conservativeBound = clipData->fClipStack->getConservativeBounds();
-    canvas_to_device(&conservativeBound, clipData->fOrigin);
+    GrRect devConservativeBound;
+    clipData->fClipStack->getConservativeBounds(
+                                     -clipData->fOrigin.fX,
+                                     -clipData->fOrigin.fY,
+                                     context->getRenderTarget()->width(),
+                                     context->getRenderTarget()->height(),
+                                     &devConservativeBound);
 
     if (!fExtMatrix.isIdentity()) {
         GrMatrix inverse;
         if (fExtMatrix.invert(&inverse)) {
-            inverse.mapRect(&conservativeBound);
+            inverse.mapRect(&devConservativeBound);
         }
     }
 
-    conservativeBound.roundOut(&fClipRect);
+    devConservativeBound.roundOut(&fClipRect);
 
     // save the context's original matrix off and restore in destructor
     // this must be done before getTextTarget.

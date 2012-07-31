@@ -16,6 +16,7 @@
 #include "GrStencil.h"
 #include "GrTexture.h"
 
+#include "SkClipStack.h"
 #include "SkDeque.h"
 #include "SkPath.h"
 #include "SkRefCnt.h"
@@ -44,7 +45,7 @@ public:
         }
     }
 
-    bool canReuse(const GrClip& clip, int width, int height) {
+    bool canReuse(const SkClipStack& clip, int width, int height) {
 
         if (fStack.empty()) {
             GrAssert(false);
@@ -93,11 +94,11 @@ public:
         }
     }
 
-    void getLastClip(GrClip* clip) const {
+    void getLastClip(SkClipStack* clip) const {
 
         if (fStack.empty()) {
             GrAssert(false);
-            clip->setEmpty();
+            clip->reset();
             return;
         }
 
@@ -130,7 +131,7 @@ public:
         return back->fLastMask.texture();
     }
 
-    void acquireMask(const GrClip& clip,
+    void acquireMask(const SkClipStack& clip,
                      const GrTextureDesc& desc,
                      const GrIRect& bound) {
 
@@ -216,7 +217,7 @@ private:
         }
 
         void acquireMask(GrContext* context,
-                         const GrClip& clip, 
+                         const SkClipStack& clip, 
                          const GrTextureDesc& desc,
                          const GrIRect& bound) {
 
@@ -228,7 +229,7 @@ private:
         }
 
         void reset () {
-            fLastClip.setEmpty();
+            fLastClip.reset();
 
             GrTextureDesc desc;
 
@@ -236,7 +237,7 @@ private:
             fLastBound.setEmpty();
         }
 
-        GrClip                  fLastClip;
+        SkClipStack             fLastClip;
         // The mask's width & height values are used in setupDrawStateAAClip to 
         // correctly scale the uvs for geometry drawn with this mask
         GrAutoScratchTexture    fLastMask;
@@ -339,10 +340,10 @@ private:
                           GrTexture** result,
                           GrIRect *devResultBounds);
 
-    bool useSWOnlyPath(const GrClip& clipIn);
+    bool useSWOnlyPath(const SkClipStack& clipIn);
 
     bool drawClipShape(GrTexture* target,
-                       const GrClip::Iter::Clip* clip,
+                       const SkClipStack::Iter::Clip* clip,
                        const GrIRect& resultBounds);
 
     void drawTexture(GrTexture* target,
@@ -350,7 +351,7 @@ private:
 
     void getTemp(const GrIRect& bounds, GrAutoScratchTexture* temp);
 
-    void setupCache(const GrClip& clip, 
+    void setupCache(const SkClipStack& clip, 
                     const GrIRect& bounds);
 
     /**

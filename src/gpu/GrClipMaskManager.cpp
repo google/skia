@@ -83,12 +83,12 @@ GrPathFill get_path_fill(const SkPath& path) {
 /**
  * Does any individual clip in 'clipIn' use anti-aliasing?
  */
-bool requires_AA(const GrClip& clipIn) {
+bool requires_AA(const SkClipStack& clipIn) {
 
-    GrClip::Iter iter;
-    iter.reset(clipIn, GrClip::Iter::kBottom_IterStart);
+    SkClipStack::Iter iter;
+    iter.reset(clipIn, SkClipStack::Iter::kBottom_IterStart);
 
-    const GrClip::Iter::Clip* clip = NULL;
+    const SkClipStack::Iter::Clip* clip = NULL;
     for (clip = iter.skipToTopmost(SkRegion::kReplace_Op);
          NULL != clip;
          clip = iter.next()) {
@@ -108,15 +108,15 @@ bool requires_AA(const GrClip& clipIn) {
  * will be used on any element. If so, it returns true to indicate that the
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
-bool GrClipMaskManager::useSWOnlyPath(const GrClip& clipIn) {
+bool GrClipMaskManager::useSWOnlyPath(const SkClipStack& clipIn) {
 
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
     bool useSW = false;
 
-    GrClip::Iter iter(clipIn, GrClip::Iter::kBottom_IterStart);
-    const GrClip::Iter::Clip* clip = NULL;
+    SkClipStack::Iter iter(clipIn, SkClipStack::Iter::kBottom_IterStart);
+    const SkClipStack::Iter::Clip* clip = NULL;
 
     for (clip = iter.skipToTopmost(SkRegion::kReplace_Op);
          NULL != clip;
@@ -169,7 +169,6 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
     }
 
     bool requiresAA = requires_AA(*clipDataIn->fClipStack);
-    GrAssert(requiresAA == clipDataIn->fClipStack->requiresAA());
 
 #if GR_SW_CLIP
     // If MSAA is enabled we can do everything in the stencil buffer.
@@ -281,8 +280,8 @@ bool contains(const SkRect& canvContainer,
 // determines how many elements at the head of the clip can be skipped and
 // whether the initial clear should be to the inside- or outside-the-clip value,
 // and what op should be used to draw the first element that isn't skipped.
-const GrClip::Iter::Clip* process_initial_clip_elements(
-                                  GrClip::Iter* iter,
+const SkClipStack::Iter::Clip* process_initial_clip_elements(
+                                  SkClipStack::Iter* iter,
                                   const GrIRect& devBounds,
                                   bool* clearToInside,
                                   SkRegion::Op* firstOp,
@@ -298,7 +297,7 @@ const GrClip::Iter::Clip* process_initial_clip_elements(
     bool done = false;
     *clearToInside = true;
 
-    const GrClip::Iter::Clip* clip = NULL;
+    const SkClipStack::Iter::Clip* clip = NULL;
 
     for (clip = iter->skipToTopmost(SkRegion::kReplace_Op);
          NULL != clip && !done;
@@ -469,7 +468,7 @@ void device_to_canvas(SkRect* rect, const SkIPoint& origin) {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawClipShape(GrTexture* target,
-                                      const GrClip::Iter::Clip* clip,
+                                      const SkClipStack::Iter::Clip* clip,
                                       const GrIRect& resultBounds) {
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(NULL != drawState);
@@ -535,7 +534,7 @@ void GrClipMaskManager::getTemp(const GrIRect& bounds,
 }
 
 
-void GrClipMaskManager::setupCache(const GrClip& clipIn,
+void GrClipMaskManager::setupCache(const SkClipStack& clipIn,
                                    const GrIRect& bounds) {
     // Since we are setting up the cache we know the last lookup was a miss
     // Free up the currently cached mask so it can be reused
@@ -628,9 +627,9 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
     bool clearToInside;
     SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
 
-    GrClip::Iter iter(*clipDataIn.fClipStack, 
-                      GrClip::Iter::kBottom_IterStart);
-    const GrClip::Iter::Clip* clip = process_initial_clip_elements(&iter,
+    SkClipStack::Iter iter(*clipDataIn.fClipStack, 
+                           SkClipStack::Iter::kBottom_IterStart);
+    const SkClipStack::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                                               *devResultBounds,
                                                               &clearToInside,
                                                               &firstOp,
@@ -749,7 +748,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
 
         // The origin of 'newClipData' is (0, 0) so it is okay to place
         // a device-coordinate bound in 'newClipStack'
-        GrClip newClipStack(devClipBounds);
+        SkClipStack newClipStack(devClipBounds);
         GrClipData newClipData;
         newClipData.fClipStack = &newClipStack;
 
@@ -782,9 +781,9 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
         bool clearToInside;
         SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
 
-        GrClip::Iter iter(*oldClipData->fClipStack, 
-                          GrClip::Iter::kBottom_IterStart);
-        const GrClip::Iter::Clip* clip = process_initial_clip_elements(&iter,
+        SkClipStack::Iter iter(*oldClipData->fClipStack, 
+                               SkClipStack::Iter::kBottom_IterStart);
+        const SkClipStack::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                                   devRTRect,
                                                   &clearToInside,
                                                   &firstOp,
@@ -1155,9 +1154,9 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
     bool clearToInside;
     SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
 
-    GrClip::Iter iter(*clipDataIn.fClipStack, 
-                      GrClip::Iter::kBottom_IterStart);
-    const GrClip::Iter::Clip* clip = process_initial_clip_elements(&iter,
+    SkClipStack::Iter iter(*clipDataIn.fClipStack, 
+                           SkClipStack::Iter::kBottom_IterStart);
+    const SkClipStack::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                               *devResultBounds,
                                               &clearToInside,
                                               &firstOp,

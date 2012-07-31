@@ -17,6 +17,7 @@
 #include "GrPath.h"
 #include "GrClip.h"
 
+#include "SkClipStack.h"
 #include "SkTemplates.h"
 
 class GrGpu;
@@ -232,7 +233,7 @@ private:
     GrSTAllocator<kStatePreallocCnt, GrDrawState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
 
-    GrSTAllocator<kClipPreallocCnt, GrClip>             fClips;
+    GrSTAllocator<kClipPreallocCnt, SkClipStack>        fClips;
     GrSTAllocator<kClipPreallocCnt, SkIPoint>           fClipOrigins;
 
     GrDrawTarget*                   fAutoFlushTarget;

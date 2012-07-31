@@ -381,6 +381,14 @@ SkClipStack::SkClipStack(const SkRect& r) : fDeque(sizeof(Rec)) {
     }
 }
 
+SkClipStack::SkClipStack(const SkIRect& r) : fDeque(sizeof(Rec)) {
+    if (!r.isEmpty()) {
+        SkRect temp;
+        temp.set(r);
+        this->clipDevRect(temp, SkRegion::kReplace_Op, false);
+    }
+}
+
 SkClipStack::~SkClipStack() {
     reset();
 }

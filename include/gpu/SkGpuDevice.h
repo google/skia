@@ -130,10 +130,7 @@ private:
 
     GrSkDrawProcs*  fDrawProcs;
 
-    // the clip stack - on loan to us from SkCanvas so it can be NULL.
-    const SkClipStack*  fClipStack;
-    GrClip              fGrClip;
-    GrClipData          fClipData;
+    GrClipData      fClipData;
 
     // state for our offscreen render-target
     TexCache            fCache;
