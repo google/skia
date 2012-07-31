@@ -27,7 +27,7 @@ class DecodeView : public SkView {
 public:
     SkBitmap fBitmap[SK_ARRAY_COUNT(gRec)];
 
-	DecodeView() {
+    DecodeView() {
         SkFILEStream stream("/skimages/index.png");
         SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
         if (codec) {
@@ -37,6 +37,7 @@ public:
                 codec->decode(&stream, &fBitmap[i], gRec[i].fPrefConfig,
                               SkImageDecoder::kDecodePixels_Mode);
             }
+            SkDELETE(codec);
         }
     }
     
