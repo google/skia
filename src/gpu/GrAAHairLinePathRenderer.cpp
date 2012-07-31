@@ -198,7 +198,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
 int generate_lines_and_quads(const SkPath& path,
                              const SkMatrix& m,
                              const SkVector& translate,
-                             GrIRect clip,
+                             const GrIRect& devClipBounds,
                              PtArray* lines,
                              PtArray* quads,
                              IntArray* quadSubdivCnts) {
@@ -223,7 +223,7 @@ int generate_lines_and_quads(const SkPath& path,
                 bounds.setBounds(devPts, 2);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
-                if (SkIRect::Intersects(clip, ibounds)) {
+                if (SkIRect::Intersects(devClipBounds, ibounds)) {
                     SkPoint* pts = lines->push_back_n(2);
                     pts[0] = devPts[0];
                     pts[1] = devPts[1];
@@ -235,7 +235,7 @@ int generate_lines_and_quads(const SkPath& path,
                 bounds.setBounds(devPts, 3);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
-                if (SkIRect::Intersects(clip, ibounds)) {
+                if (SkIRect::Intersects(devClipBounds, ibounds)) {
                     int subdiv = num_quad_subdivs(devPts);
                     GrAssert(subdiv >= -1);
                     if (-1 == subdiv) {
@@ -262,7 +262,7 @@ int generate_lines_and_quads(const SkPath& path,
                 bounds.setBounds(devPts, 4);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
-                if (SkIRect::Intersects(clip, ibounds)) {
+                if (SkIRect::Intersects(devClipBounds, ibounds)) {
                     PREALLOC_PTARRAY(32) q;
                     // we don't need a direction if we aren't constraining the subdivision
                     static const SkPath::Direction kDummyDir = SkPath::kCCW_Direction;
@@ -290,7 +290,7 @@ int generate_lines_and_quads(const SkPath& path,
                         }
                         bounds.outset(SK_Scalar1, SK_Scalar1);
                         bounds.roundOut(&ibounds);
-                        if (SkIRect::Intersects(clip, ibounds)) {
+                        if (SkIRect::Intersects(devClipBounds, ibounds)) {
                             int subdiv = num_quad_subdivs(qInDevSpace);
                             GrAssert(subdiv >= -1);
                             if (-1 == subdiv) {
@@ -511,8 +511,9 @@ bool GrAAHairLinePathRenderer::createGeom(
     const GrDrawState& drawState = target->getDrawState();
     int rtHeight = drawState.getRenderTarget()->height();
 
-    GrIRect clip;
-    target->getClip()->getConservativeBounds(drawState.getRenderTarget(), &clip);
+    GrIRect devClipBounds;
+    target->getClip()->getConservativeBounds(drawState.getRenderTarget(), 
+                                             &devClipBounds);
 
     GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
     GrMatrix viewM = drawState.getViewMatrix();
@@ -524,7 +525,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     if (NULL == translate) {
         translate = &gZeroVec;
     }
-    *quadCnt = generate_lines_and_quads(path, viewM, *translate, clip,
+    *quadCnt = generate_lines_and_quads(path, viewM, *translate, devClipBounds,
                                         &lines, &quads, &qSubdivs);
 
     *lineCnt = lines.count() / 2;

@@ -51,13 +51,13 @@ public:
     /**
      * getBounds places the current finite bound in its first parameter. In its
      * second, it indicates which kind of bound is being returned. If 
-     * 'finiteBound' is a normal bounding box then it encloses all writeable
-     * pixels. If 'finiteBound' is an inside out bounding box then it 
+     * 'canvFiniteBound' is a normal bounding box then it encloses all writeable
+     * pixels. If 'canvFiniteBound' is an inside out bounding box then it 
      * encloses all the un-writeable pixels and the true/normal bound is the
      * infinite plane. isIntersectionOfRects is an optional parameter
-     * that is true if 'finiteBound' resulted from an intersection of rects.
+     * that is true if 'canvFiniteBound' resulted from an intersection of rects.
      */
-    void getBounds(SkRect* finiteBound, 
+    void getBounds(SkRect* canvFiniteBound, 
                    BoundsType* boundType,
                    bool* isIntersectionOfRects = NULL) const;
 
@@ -188,7 +188,7 @@ public:
                                int offsetY,
                                int maxWidth,
                                int maxHeight,
-                               SkRect* bounds,
+                               SkRect* devBounds,
                                bool* isIntersectionOfRects = NULL) const;
 
 private:

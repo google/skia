@@ -252,7 +252,7 @@ void GrClip::Iter::reset(const GrClip& stack, IterStart startLoc) {
  * isIntersectionOfRects will be set to true.
  */
 void GrClipData::getConservativeBounds(const GrSurface* surface,
-                                       GrIRect* result,
+                                       GrIRect* devResult,
                                        bool* isIntersectionOfRects) const {
 
     // Until we switch to using the SkClipStack directly we need to take
@@ -264,8 +264,10 @@ void GrClipData::getConservativeBounds(const GrSurface* surface,
                                    SkIntToScalar(surface->width()), 
                                    SkIntToScalar(surface->height()));
 
+    // convervativeBounds starts off in canvas coordinates here
     GrRect conservativeBounds = fClipStack->getConservativeBounds();
 
+    // but is translated into device coordinates here
     conservativeBounds.offset(SkIntToScalar(-fOrigin.fX), 
                               SkIntToScalar(-fOrigin.fY));
 
@@ -273,7 +275,7 @@ void GrClipData::getConservativeBounds(const GrSurface* surface,
         conservativeBounds.setEmpty();
     }
 
-    conservativeBounds.roundOut(result);
+    conservativeBounds.roundOut(devResult);
 
     if (NULL != isIntersectionOfRects) {
         *isIntersectionOfRects = fClipStack->isRect();

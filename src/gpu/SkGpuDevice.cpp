@@ -371,26 +371,27 @@ static void check_bounds(const SkClipStack& clipStack,
                          int renderTargetWidth,
                          int renderTargetHeight) {
 
-    SkIRect bound;
+    SkIRect devBound;
+
+    devBound.setLTRB(0, 0, renderTargetWidth, renderTargetHeight);
+
     SkClipStack::BoundsType boundType;
-    SkRect temp;
+    SkRect canvTemp;
 
-    bound.setLTRB(0, 0, renderTargetWidth, renderTargetHeight);
-
-    clipStack.getBounds(&temp, &boundType);
+    clipStack.getBounds(&canvTemp, &boundType);
     if (SkClipStack::kNormal_BoundsType == boundType) {
-        SkIRect temp2;
+        SkIRect devTemp;
 
-        temp.roundOut(&temp2);
+        canvTemp.roundOut(&devTemp);
 
-        temp2.offset(-origin.fX, -origin.fY);
+        devTemp.offset(-origin.fX, -origin.fY);
 
-        if (!bound.intersect(temp2)) {
-            bound.setEmpty();
+        if (!devBound.intersect(devTemp)) {
+            devBound.setEmpty();
         }
     }
 
-//    GrAssert(bound.contains(clipRegion.getBounds()));
+//    GrAssert(devBound.contains(clipRegion.getBounds()));
 }
 #endif
 
@@ -413,15 +414,15 @@ static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                  renderTargetWidth, renderTargetHeight);
 #endif
 
-    SkRect bounds;
+    SkRect devClipBounds;
     bool isIntersectionOfRects = false;
     clipStack.getConservativeBounds(0, 0,
                                     renderTargetWidth,
                                     renderTargetHeight,
-                                    &bounds,
+                                    &devClipBounds,
                                     &isIntersectionOfRects);
 
-    result->setFromIterator(&iter, bounds);
+    result->setFromIterator(&iter, devClipBounds);
 
     GrAssert(result->isRect() == isIntersectionOfRects);
 

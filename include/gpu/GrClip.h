@@ -237,7 +237,7 @@ public:
     }
 
     void getConservativeBounds(const GrSurface* surface, 
-                               GrIRect* result,
+                               GrIRect* devResult,
                                bool* isIntersectionOfRects = NULL) const;
 };
 

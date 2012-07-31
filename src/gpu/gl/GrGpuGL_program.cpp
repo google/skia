@@ -427,15 +427,16 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     this->flushScissor();
     this->flushAAState(type);
 
-    GrIRect* rect = NULL;
-    GrIRect clipBounds;
+    GrIRect* devRect = NULL;
+    GrIRect devClipBounds;
     if (drawState.isClipState()) {
-        fClip->getConservativeBounds(drawState.getRenderTarget(), &clipBounds);
-        rect = &clipBounds;
+        fClip->getConservativeBounds(drawState.getRenderTarget(), 
+                                     &devClipBounds);
+        devRect = &devClipBounds;
     }
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(rect);
+    this->flushRenderTarget(devRect);
 
     return true;
 }
