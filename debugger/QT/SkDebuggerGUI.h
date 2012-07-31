@@ -195,6 +195,10 @@ private slots:
     void toggleFilter(QString string);
 
 private:
+    QWidget fCentralWidget;
+    QStatusBar fStatusBar;
+    QToolBar fToolBar;
+
     QAction fActionOpen;
     QAction fActionBreakpoint;
     QAction fActionCancel;
@@ -217,13 +221,13 @@ private:
     QAction fActionZoomIn;
     QAction fActionZoomOut;
     QSignalMapper fMapper;
-    QWidget fCentralWidget;
+
     QWidget fSpacer;
     QComboBox fFilter;
 
+    QHBoxLayout fContainerLayout;
     QVBoxLayout fLeftColumnLayout;
     QVBoxLayout fMainAndRightColumnLayout;
-    QHBoxLayout fContainerLayout;
     QHBoxLayout fCanvasAndSettingsLayout;
 
     QListWidget fListWidget;
@@ -232,7 +236,6 @@ private:
     SkCanvasWidget fCanvasWidget;
     SkInspectorWidget fInspectorWidget;
     SkSettingsWidget fSettingsWidget;
-    QStatusBar fStatusBar;
 
     QString fPath;
     bool fDirectoryWidgetActive;
@@ -243,13 +246,12 @@ private:
     QMenu fMenuNavigate;
     QMenu fMenuView;
     QMenu fMenuWindows;
-    QToolBar fToolBar;
 
     bool fBreakpointsActivated;
     bool fDeletesActivated;
     bool fPause;
-    int fPausedRow;
     bool fLoading;
+    int fPausedRow;
 
     /**
         Creates the entire UI.

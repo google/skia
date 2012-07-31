@@ -10,8 +10,7 @@
 #include "SkInspectorWidget.h"
 #include <iostream>
 
-SkInspectorWidget::SkInspectorWidget(QWidget *parent)
-    : QWidget(parent)
+SkInspectorWidget::SkInspectorWidget() : QWidget()
     , fHorizontalLayout(this)
     , fOverviewTab()
     , fOverviewLayout(&fOverviewTab)
@@ -58,8 +57,6 @@ SkInspectorWidget::SkInspectorWidget(QWidget *parent)
     fVerticalLayout.addLayout(setupClip());
     fHorizontalLayout.addWidget(&fMatrixAndClipWidget);
 }
-
-SkInspectorWidget::~SkInspectorWidget() {}
 
 void SkInspectorWidget::setDetailText(QString text) {
     fDetailText.setHtml(text);

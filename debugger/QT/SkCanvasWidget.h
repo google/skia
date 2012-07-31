@@ -20,9 +20,9 @@ class SkCanvasWidget : public QWidget {
     Q_OBJECT
 
 public:
-    SkCanvasWidget(QWidget* parent);
+    SkCanvasWidget();
 
-    ~SkCanvasWidget() {}
+    ~SkCanvasWidget();
 
     enum WidgetType {
         kRaster_8888_WidgetType = 1 << 0,

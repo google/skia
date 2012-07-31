@@ -16,26 +16,25 @@ SkRasterWidget::SkRasterWidget(QWidget* parent) : QWidget(parent) {
     fTransform.set(0,0);
     fScaleFactor = 1.0;
     fIndex = 0;
+    fDevice = NULL;
     fDebugCanvas = NULL;
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
 }
 
 SkRasterWidget::~SkRasterWidget() {
     delete fDevice;
-    delete fDebugCanvas;
 }
 
 void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, event->size().width(), event->size().height());
     fBitmap.allocPixels();
-    delete fDevice;
-    fDevice = new SkDevice(fBitmap);
-    //TODO(chudy): Debug Canvas shouldn't store current size. The bitmap
-    //or texture backend should already have it. Refactor.
-    if (fDebugCanvas) {
-        fDebugCanvas->setBounds(event->size().width(), event->size().height());
-        this->update();
+    if (fDevice) {
+        delete fDevice;
     }
+        fDevice = new SkDevice(fBitmap);
+
+
+    this->update();
 }
 
 void SkRasterWidget::paintEvent(QPaintEvent* event) {
