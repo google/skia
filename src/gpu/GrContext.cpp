@@ -1035,23 +1035,24 @@ inline bool isSimilarityTransformation(const SkMatrix& matrix,
 void GrContext::drawOval(const GrPaint& paint,
                          const GrRect& rect,
                          SkScalar strokeWidth) {
-    DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
-                                            kUnbuffered_DrawCategory;
-    GrDrawTarget* target = this->prepareToDraw(paint, category);
-    GrDrawState::AutoStageDisable atr(fDrawState);
-    GrDrawState* drawState = target->drawState();
-    GrMatrix vm = drawState->getViewMatrix();
-
-    if (!isSimilarityTransformation(vm) ||
+    GrAssert(strokeWidth <= 0);
+    if (!isSimilarityTransformation(this->getMatrix()) ||
         !paint.fAntiAlias ||
         rect.height() != rect.width()) {
         SkPath path;
         path.addOval(rect);
         GrPathFill fill = (strokeWidth == 0) ?
-                            kHairLine_GrPathFill : kWinding_GrPathFill;
+                           kHairLine_GrPathFill : kWinding_GrPathFill;
         this->internalDrawPath(paint, path, fill, NULL);
         return;
     }
+
+    DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
+                                            kUnbuffered_DrawCategory;
+    GrDrawTarget* target = this->prepareToDraw(paint, category);
+    GrDrawState* drawState = target->drawState();
+    GrDrawState::AutoStageDisable atr(fDrawState);
+    const GrMatrix vm = drawState->getViewMatrix();
 
     const GrRenderTarget* rt = drawState->getRenderTarget();
     if (NULL == rt) {

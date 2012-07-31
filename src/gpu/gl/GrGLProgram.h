@@ -276,10 +276,9 @@ private:
 
     struct StageUniforms {
         UniformHandle fTextureMatrixUni;
-        UniformHandle fSamplerUni;
+        SkTArray<UniformHandle, true> fSamplerUniforms;
         StageUniforms() {
             fTextureMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
-            fSamplerUni = GrGLUniformManager::kInvalidUniformHandle;
         }
     };
 
