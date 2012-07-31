@@ -977,10 +977,17 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(SkString texCoordAttrNames[],
 
 void GrGLProgram::initSamplerUniforms() {
     GL_CALL(UseProgram(fProgramID));
-    // init sampler unis and set bogus values for state tracking
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (GrGLUniformManager::kInvalidUniformHandle != fUniforms.fStages[s].fSamplerUni) {
-            fUniformManager.setSampler(fUniforms.fStages[s].fSamplerUni, s);
+        int count = fUniforms.fStages[s].fSamplerUniforms.count();
+        // FIXME: We're still always reserving one texture per stage. After GrTextureParams are
+        // expressed by the custom stage rather than the GrSamplerState we can move texture binding
+        // into GrGLProgram and it should be easier to fix this.
+        GrAssert(count <= 1);
+        for (int t = 0; t < count; ++t) {
+            UniformHandle uh = fUniforms.fStages[s].fSamplerUniforms[t];
+            if (GrGLUniformManager::kInvalidUniformHandle != uh) {
+                fUniformManager.setSampler(uh, s);
+            }
         }
     }
 }
@@ -1029,8 +1036,10 @@ void GrGLProgram::genStageCode(int stageNum,
     }
 
     const char* samplerName;
-    uniforms.fSamplerUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                               kSampler2D_GrSLType, "Sampler", &samplerName);
+    uniforms.fSamplerUniforms.push_back(builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                            kSampler2D_GrSLType,
+                                                            "Sampler",
+                                                            &samplerName));
 
     const char *varyingVSName, *varyingFSName;
     builder->addVarying(GrSLFloatVectorType(builder->fVaryingDims),

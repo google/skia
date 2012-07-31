@@ -37,12 +37,6 @@ public:
         kProgramStageKeyBits = GrProgramStageFactory::kProgramStageKeyBits,
     };
 
-    // TODO: redundant with GrGLProgram.cpp
-    enum {
-        kUnusedUniform = -1,
-        kUseUniform = 2000
-    };
-
     GrGLProgramStage(const GrProgramStageFactory&);
 
     virtual ~GrGLProgramStage();

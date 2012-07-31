@@ -28,7 +28,10 @@ void GrGLUniformManager::setSampler(UniformHandle u, GrGLint texUnit) const {
     const Uniform& uni = fUniforms[handle_to_index(u)];
     GrAssert(uni.fType == kSampler2D_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
+    // FIXME: We still insert a single sampler uniform for every stage. If the shader does not
+    // reference the sampler then the compiler may have optimized it out. Uncomment this assert
+    // once stages insert their own samplers.
+    // GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fContext.interface(), Uniform1i(uni.fFSLocation, texUnit));
     }
