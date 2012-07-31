@@ -8,6 +8,31 @@
 #include "gm.h"
 #include "SkSurface.h"
 #include "SkCanvas.h"
+#include "SkStream.h"
+#include "SkData.h"
+
+static SkData* fileToData(const char path[]) {
+    SkFILEStream stream(path);
+    if (!stream.isValid()) {
+        return SkData::NewEmpty();
+    }
+    size_t size = stream.getLength();
+    void* mem = sk_malloc_throw(size);
+    stream.read(mem, size);
+    return SkData::NewFromMalloc(mem, size);
+}
+
+static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
+    SkAutoDataUnref data(fileToData("/Users/mike/Downloads/skia.google.jpeg"));
+    SkImage* image = SkImage::NewEncodedData(data);
+    if (image) {
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->scale(size.width() * 1.0f / image->width(),
+                      size.height() * 1.0f / image->height());
+        image->draw(canvas,0, 0, NULL);
+        image->unref();
+    }
+}
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(surface->width(), surface->height());
@@ -80,6 +105,8 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
+        drawJpeg(canvas, this->getISize());
+
         canvas->translate(10, 10);
         canvas->scale(2, 2);
 
