@@ -70,6 +70,20 @@ void GrTextContext::flushGlyphs() {
     fDrawTarget = NULL;
 }
 
+namespace {
+
+// 'rect' enters in canvas coordinates and leaves in device coordinates
+void canvas_to_device(SkRect* rect, const SkIPoint& origin) {
+    GrAssert(NULL != rect);
+
+    rect->fLeft   -= SkIntToScalar(origin.fX);
+    rect->fTop    -= SkIntToScalar(origin.fY);
+    rect->fRight  -= SkIntToScalar(origin.fX);
+    rect->fBottom -= SkIntToScalar(origin.fY);
+}
+
+};
+
 GrTextContext::GrTextContext(GrContext* context,
                              const GrPaint& paint,
                              const GrMatrix* extMatrix) : fPaint(paint) {
@@ -88,8 +102,7 @@ GrTextContext::GrTextContext(GrContext* context,
     const GrClipData* clipData = context->getClip();
 
     GrRect conservativeBound = clipData->fClipStack->getConservativeBounds();
-    conservativeBound.offset(SkIntToScalar(-clipData->fOrigin.fX), 
-                             SkIntToScalar(-clipData->fOrigin.fY));
+    canvas_to_device(&conservativeBound, clipData->fOrigin);
 
     if (!fExtMatrix.isIdentity()) {
         GrMatrix inverse;

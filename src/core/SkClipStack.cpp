@@ -449,16 +449,16 @@ void SkClipStack::restore() {
     }
 }
 
-void SkClipStack::getBounds(SkRect* finiteBound, 
+void SkClipStack::getBounds(SkRect* canvFiniteBound, 
                             BoundsType* boundType,
                             bool* isIntersectionOfRects) const {
-    SkASSERT(NULL != finiteBound && NULL != boundType);
+    SkASSERT(NULL != canvFiniteBound && NULL != boundType);
 
     Rec* rec = (Rec*)fDeque.back();
 
     if (NULL == rec) {
         // the clip is wide open - the infinite plane w/ no pixels un-writeable
-        finiteBound->setEmpty();
+        canvFiniteBound->setEmpty();
         *boundType = kInsideOut_BoundsType;
         if (NULL != isIntersectionOfRects) {
             *isIntersectionOfRects = false;
@@ -466,7 +466,7 @@ void SkClipStack::getBounds(SkRect* finiteBound,
         return;
     }
 
-    *finiteBound = rec->fFiniteBound;
+    *canvFiniteBound = rec->fFiniteBound;
     *boundType = rec->fFiniteBoundType;
     if (NULL != isIntersectionOfRects) {
         *isIntersectionOfRects = rec->fIsIntersectionOfRects;
@@ -673,24 +673,26 @@ void SkClipStack::getConservativeBounds(int offsetX,
                                         int offsetY,
                                         int maxWidth,
                                         int maxHeight,
-                                        SkRect* bounds,
+                                        SkRect* devBounds,
                                         bool* isIntersectionOfRects) const {
-    SkASSERT(NULL != bounds);
+    SkASSERT(NULL != devBounds);
 
-    bounds->setLTRB(0, 0, 
-                    SkIntToScalar(maxWidth), SkIntToScalar(maxHeight));
+    devBounds->setLTRB(0, 0, 
+                       SkIntToScalar(maxWidth), SkIntToScalar(maxHeight));
 
     SkRect temp;
     SkClipStack::BoundsType boundType;
     
+    // temp starts off in canvas space here
     this->getBounds(&temp, &boundType, isIntersectionOfRects);
     if (SkClipStack::kInsideOut_BoundsType == boundType) {
         return;
     }
 
+    // but is converted to device space here
     temp.offset(SkIntToScalar(offsetX), SkIntToScalar(offsetY));
 
-    if (!bounds->intersect(temp)) {
-        bounds->setEmpty();
+    if (!devBounds->intersect(temp)) {
+        devBounds->setEmpty();
     }
 }

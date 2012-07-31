@@ -37,17 +37,20 @@ namespace {
 bool get_path_and_clip_bounds(const GrDrawTarget* target,
                               const SkPath& path,
                               const GrMatrix& matrix,
-                              GrIRect* pathBounds,
-                              GrIRect* clipBounds) {
+                              GrIRect* devPathBounds,
+                              GrIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
     const GrRenderTarget* rt = target->getDrawState().getRenderTarget();
     if (NULL == rt) {
         return false;
     }
-    *pathBounds = GrIRect::MakeWH(rt->width(), rt->height());
+    *devPathBounds = GrIRect::MakeWH(rt->width(), rt->height());
 
-    target->getClip()->getConservativeBounds(rt, clipBounds);
-    if (!pathBounds->intersect(*clipBounds)) {
+    target->getClip()->getConservativeBounds(rt, devClipBounds);
+
+    // TODO: getConservativeBounds already intersects with the 
+    // render target's bounding box. Remove this next line
+    if (!devPathBounds->intersect(*devClipBounds)) {
         return false;
     }
 
@@ -56,13 +59,13 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
         matrix.mapRect(&pathSBounds, path.getBounds());
         GrIRect pathIBounds;
         pathSBounds.roundOut(&pathIBounds);
-        if (!pathBounds->intersect(pathIBounds)) {
+        if (!devPathBounds->intersect(pathIBounds)) {
             // set the correct path bounds, as this would be used later.
-            *pathBounds = pathIBounds;
+            *devPathBounds = pathIBounds;
             return false;
         }
     } else {
-        *pathBounds = GrIRect::EmptyIRect();
+        *devPathBounds = GrIRect::EmptyIRect();
         return false;
     }
     return true;
@@ -70,31 +73,31 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
 
 ////////////////////////////////////////////////////////////////////////////////
 void draw_around_inv_path(GrDrawTarget* target,
-                          const GrIRect& clipBounds,
-                          const GrIRect& pathBounds) {
+                          const GrIRect& devClipBounds,
+                          const GrIRect& devPathBounds) {
     GrDrawTarget::AutoDeviceCoordDraw adcd(target);
     if (!adcd.succeeded()) {
         return;
     }
     GrRect rect;
-    if (clipBounds.fTop < pathBounds.fTop) {
-        rect.iset(clipBounds.fLeft, clipBounds.fTop, 
-                    clipBounds.fRight, pathBounds.fTop);
+    if (devClipBounds.fTop < devPathBounds.fTop) {
+        rect.iset(devClipBounds.fLeft, devClipBounds.fTop, 
+                  devClipBounds.fRight, devPathBounds.fTop);
         target->drawSimpleRect(rect, NULL);
     }
-    if (clipBounds.fLeft < pathBounds.fLeft) {
-        rect.iset(clipBounds.fLeft, pathBounds.fTop, 
-                    pathBounds.fLeft, pathBounds.fBottom);
+    if (devClipBounds.fLeft < devPathBounds.fLeft) {
+        rect.iset(devClipBounds.fLeft, devPathBounds.fTop, 
+                  devPathBounds.fLeft, devPathBounds.fBottom);
         target->drawSimpleRect(rect, NULL);
     }
-    if (clipBounds.fRight > pathBounds.fRight) {
-        rect.iset(pathBounds.fRight, pathBounds.fTop, 
-                    clipBounds.fRight, pathBounds.fBottom);
+    if (devClipBounds.fRight > devPathBounds.fRight) {
+        rect.iset(devPathBounds.fRight, devPathBounds.fTop, 
+                  devClipBounds.fRight, devPathBounds.fBottom);
         target->drawSimpleRect(rect, NULL);
     }
-    if (clipBounds.fBottom > pathBounds.fBottom) {
-        rect.iset(clipBounds.fLeft, pathBounds.fBottom, 
-                    clipBounds.fRight, clipBounds.fBottom);
+    if (devClipBounds.fBottom > devPathBounds.fBottom) {
+        rect.iset(devClipBounds.fLeft, devPathBounds.fBottom, 
+                  devClipBounds.fRight, devClipBounds.fBottom);
         target->drawSimpleRect(rect, NULL);
     }
 }
@@ -120,27 +123,27 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
         vm.postTranslate(translate->fX, translate->fY);
     }
 
-    GrIRect pathBounds, clipBounds;
+    GrIRect devPathBounds, devClipBounds;
     if (!get_path_and_clip_bounds(target, path, vm,
-                                  &pathBounds, &clipBounds)) {
+                                  &devPathBounds, &devClipBounds)) {
         if (GrIsFillInverted(fill)) {
-            draw_around_inv_path(target, clipBounds, pathBounds);
+            draw_around_inv_path(target, devClipBounds, devPathBounds);
         }
         return true;
     }
 
     SkAutoTUnref<GrTexture> texture(
             GrSWMaskHelper::DrawPathMaskToTexture(fContext, path, 
-                                                  pathBounds, fill, 
+                                                  devPathBounds, fill, 
                                                   antiAlias, &vm));
     if (NULL == texture) {
         return false;
     }
 
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, pathBounds);
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, devPathBounds);
 
     if (GrIsFillInverted(fill)) {
-        draw_around_inv_path(target, clipBounds, pathBounds);
+        draw_around_inv_path(target, devClipBounds, devPathBounds);
     }
 
     return true;

@@ -235,7 +235,7 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
     clipB.addRoundRect(rectB, SkIntToScalar(5), SkIntToScalar(5));
 
     SkClipStack stack;
-    SkRect bound;
+    SkRect devClipBound;
     bool isIntersectionOfRects = false;
 
     int testCase = 0;
@@ -262,7 +262,7 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
 
             REPORTER_ASSERT(reporter, !stack.isWideOpen());
 
-            stack.getConservativeBounds(0, 0, 100, 100, &bound,
+            stack.getConservativeBounds(0, 0, 100, 100, &devClipBound,
                                         &isIntersectionOfRects);
 
             if (useRects) {
@@ -273,7 +273,7 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
             }
 
             SkASSERT(testCase < gNumCases);
-            REPORTER_ASSERT(reporter, bound == gAnswerRectsBW[testCase]);
+            REPORTER_ASSERT(reporter, devClipBound == gAnswerRectsBW[testCase]);
             ++testCase;
 
             stack.restore();

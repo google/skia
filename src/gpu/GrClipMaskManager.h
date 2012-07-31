@@ -328,16 +328,16 @@ private:
     GrClipMaskCache fAACache;       // cache for the AA path
 
     bool createStencilClipMask(const GrClipData& clipDataIn,
-                               const GrIRect& bounds);
+                               const GrIRect& devClipBounds);
     bool createAlphaClipMask(const GrClipData& clipDataIn,
                              GrTexture** result,
-                             GrIRect *resultBounds);
+                             GrIRect *devResultBounds);
     bool createSoftwareClipMask(const GrClipData& clipDataIn,
                                 GrTexture** result,
-                                GrIRect *resultBounds);
+                                GrIRect *devResultBounds);
     bool clipMaskPreamble(const GrClipData& clipDataIn,
                           GrTexture** result,
-                          GrIRect *resultBounds);
+                          GrIRect *devResultBounds);
 
     bool useSWOnlyPath(const GrClip& clipIn);
 
