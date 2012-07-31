@@ -33,17 +33,40 @@ SkPoint3 random_point3(GrRandom* r) {
     return SkPoint3(r->nextF(), r->nextF(), r->nextF());
 }
 
+// populate a pair of arrays with colors and stop info, colorCount indicates
+// the max number of colors, and is set to the actual number on return
+void random_gradient(GrRandom* r, int* colorCount, SkColor* colors, 
+                           SkScalar** stops) {
+    int outColors = random_int(r, 1, *colorCount);
+
+    // if one color, omit stops, if two colors, randomly decide whether or not to
+    if (outColors == 1 || (outColors == 2 && random_bool(r))) *stops = NULL;
+
+    GrScalar stop = 0.f;
+    for (int i = 0; i < outColors; ++i) {
+        colors[i] = static_cast<SkColor>(r->nextF() * 0xffffffff);
+        if (*stops) {
+            (*stops)[i] = stop;
+            stop = i < outColors - 1 ? stop + r->nextF() * (1.f - stop) : 1.f;
+        }
+    }
+
+    *colorCount = outColors;
+}
+
 typedef GrGLProgram::StageDesc StageDesc;
 // TODO: Effects should be able to register themselves for inclusion in the
 // randomly generated shaders. They should be able to configure themselves
 // randomly.
-const GrCustomStage* create_random_effect(StageDesc* stageDesc, GrRandom* random) {
+const GrCustomStage* create_random_effect(StageDesc* stageDesc, GrRandom* random,
+                                          GrContext* context) {
     enum EffectType {
         kConvolution_EffectType,
         kErode_EffectType,
         kDilate_EffectType,
         kRadialGradient_EffectType,
         kRadial2Gradient_EffectType,
+        kConical2Gradient_EffectType,
         kDiffuseDistant_EffectType,
         kDiffusePoint_EffectType,
         kDiffuseSpot_EffectType,
@@ -66,6 +89,8 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc, GrRandom* random
         Gr1DKernelEffect::kX_Direction,
         Gr1DKernelEffect::kY_Direction
     };
+
+    static const int kMaxGradientStops = 4;
 
     // TODO: When matrices are property of the custom-stage then remove the
     // no-persp flag code below.
@@ -112,19 +137,87 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc, GrRandom* random
                                GrContext::kDilate_MorphologyType));
             }
         case kRadialGradient_EffectType: {
-            return SkNEW_ARGS(GrRadialGradient, (NULL));
+            SkPoint center = {random->nextF(), random->nextF()};
+            SkScalar radius = random->nextF();
+            int colorCount = kMaxGradientStops;
+            SkColor colors[kMaxGradientStops];
+            SkScalar stops[kMaxGradientStops];
+            SkScalar* stopsPtr = stops;
+            random_gradient(random, &colorCount, colors, &stopsPtr);
+            SkShader::TileMode tileMode = static_cast<SkShader::TileMode>(
+                random_int(random, SkShader::kTileModeCount));
+            SkAutoTUnref<SkGradientShaderBase> gradient(
+                static_cast<SkGradientShaderBase*>(SkGradientShader::CreateRadial(
+                center, radius, colors, stopsPtr, colorCount, tileMode, NULL)));
+            GrSamplerState sampler;
+            GrCustomStage* stage = gradient->asNewCustomStage(context, &sampler);
+            GrAssert(NULL != stage);
+            return stage;
             }
         case kRadial2Gradient_EffectType: {
-            float center;
+            SkPoint center1 = {random->nextF(), random->nextF()};
+            SkPoint center2 = {random->nextF(), random->nextF()};
+            SkScalar radius1 = random->nextF();
+            SkScalar radius2;
             do {
-                center = random->nextF();
-            } while (GR_Scalar1 == center);
-            float radius = random->nextF();
-            bool root = random_bool(random);
-            return SkNEW_ARGS(GrRadial2Gradient, (NULL, center, radius, root));
+                radius2 = random->nextF();
+            } while (radius1 == radius2);
+            int colorCount = kMaxGradientStops;
+            SkColor colors[kMaxGradientStops];
+            SkScalar stops[kMaxGradientStops];
+            SkScalar* stopsPtr = stops;
+            random_gradient(random, &colorCount, colors, &stopsPtr);
+            SkShader::TileMode tileMode = static_cast<SkShader::TileMode>(
+                random_int(random, SkShader::kTileModeCount));
+            SkAutoTUnref<SkGradientShaderBase> gradient(
+                static_cast<SkGradientShaderBase*>(SkGradientShader::
+                CreateTwoPointRadial(center1, radius1, center2, radius2,
+                colors, stopsPtr, colorCount, tileMode, NULL)));
+            GrSamplerState sampler;
+            GrCustomStage* stage = gradient->asNewCustomStage(context, &sampler);
+            GrAssert(NULL != stage);
+            return stage;
+            }
+        case kConical2Gradient_EffectType: {
+            SkPoint center1 = {random->nextF(), random->nextF()};
+            SkScalar radius1 = random->nextF();
+            SkPoint center2;
+            SkScalar radius2;
+            do {
+                center1.set(random->nextF(), random->nextF());
+                radius2 = random->nextF();
+            } while (radius1 == radius2 && center1 == center2);
+            int colorCount = kMaxGradientStops;
+            SkColor colors[kMaxGradientStops];
+            SkScalar stops[kMaxGradientStops];
+            SkScalar* stopsPtr = stops;
+            random_gradient(random, &colorCount, colors, &stopsPtr);
+            SkShader::TileMode tileMode = static_cast<SkShader::TileMode>(
+                random_int(random, SkShader::kTileModeCount));
+            SkAutoTUnref<SkGradientShaderBase> gradient(
+                static_cast<SkGradientShaderBase*>(SkGradientShader::
+                CreateTwoPointConical(center1, radius1, center2, radius2,
+                colors, stopsPtr, colorCount, tileMode, NULL)));
+            GrSamplerState sampler;
+            GrCustomStage* stage = gradient->asNewCustomStage(context, &sampler);
+            GrAssert(NULL != stage);
+            return stage;
             }
         case kSweepGradient_EffectType: {
-            return SkNEW_ARGS(GrSweepGradient, (NULL));
+            SkPoint center = {random->nextF(), random->nextF()};
+            SkScalar radius = random->nextF();
+            int colorCount = kMaxGradientStops;
+            SkColor colors[kMaxGradientStops];
+            SkScalar stops[kMaxGradientStops];
+            SkScalar* stopsPtr = stops;
+            random_gradient(random, &colorCount, colors, &stopsPtr);
+            SkAutoTUnref<SkGradientShaderBase> gradient(
+                static_cast<SkGradientShaderBase*>(SkGradientShader::CreateSweep(
+                center.fX, center.fY, colors, stopsPtr, colorCount, NULL)));
+            GrSamplerState sampler;
+            GrCustomStage* stage = gradient->asNewCustomStage(context, &sampler);
+            GrAssert(NULL != stage);
+            return stage;
             }
         case kDiffuseDistant_EffectType: {
             SkPoint3 direction = random_point3(random);
@@ -317,7 +410,7 @@ bool GrGpuGL::programUnitTest() {
 
             bool useCustomEffect = random_bool(&random);
             if (useCustomEffect) {
-                customStages[s].reset(create_random_effect(&stage, &random));
+                customStages[s].reset(create_random_effect(&stage, &random, getContext()));
                 if (NULL != customStages[s]) {
                     stage.fCustomStageKey =
                         customStages[s]->getFactory().glStageKey(*customStages[s]);

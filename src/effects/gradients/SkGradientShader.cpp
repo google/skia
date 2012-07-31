@@ -642,6 +642,7 @@ SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
     if (start == end && startRadius == endRadius) {
         return SkNEW(SkEmptyShader);
     }
+    EXPAND_1_COLOR(colorCount);
 
     return SkNEW_ARGS(SkTwoPointConicalGradient,
                       (start, startRadius, end, endRadius, colors, pos,
