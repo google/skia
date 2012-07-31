@@ -15,6 +15,8 @@ class SkData;
 class SkCanvas;
 class SkPaint;
 class SkShader;
+class GrContext;
+struct GrPlatformTextureDesc;
 
 // need for TileMode
 #include "SkShader.h"
@@ -65,6 +67,7 @@ public:
     static SkImage* NewRasterCopy(const Info&, SkColorSpace*, const void* pixels, size_t rowBytes);
     static SkImage* NewRasterData(const Info&, SkColorSpace*, SkData* pixels, size_t rowBytes);
     static SkImage* NewEncodedData(SkData*);
+    static SkImage* NewTexture(GrContext*, const GrPlatformTextureDesc&);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
