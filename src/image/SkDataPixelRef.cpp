@@ -28,15 +28,13 @@ void SkDataPixelRef::onUnlockPixels() {
 
 void SkDataPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-
-//    fData->flatten(buffer);
+    buffer.writeFlattenable(fData);
 }
 
 SkDataPixelRef::SkDataPixelRef(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer, NULL) {
-
-//    fData = buffer.readData();
-            this->setPreLocked(const_cast<void*>(fData->data()), NULL);
+    fData = (SkData*)buffer.readFlattenable();
+    this->setPreLocked(const_cast<void*>(fData->data()), NULL);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkDataPixelRef)
