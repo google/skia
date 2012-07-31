@@ -13,6 +13,8 @@
 
 class SkCanvas;
 class SkPaint;
+class GrContext;
+class GrRenderTarget;
 
 /**
  *  SkSurface represents the backend/results of drawing to a canvas. For raster
@@ -49,6 +51,18 @@ public:
      *  "replayed" into that canvas.
      */
     static SkSurface* NewPicture(int width, int height);
+
+    /**
+     *  Return a new surface using the specified render target.
+     */
+    static SkSurface* NewRenderTargetDirect(GrContext*, GrRenderTarget*);
+
+    /**
+     *  Return a new surface whose contents will be drawn to an offscreen
+     *  render target, allocated by the surface.
+     */
+    static SkSurface* NewRenderTarget(GrContext*, const SkImage::Info&,
+                                      SkColorSpace*, int sampleCount = 0);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
