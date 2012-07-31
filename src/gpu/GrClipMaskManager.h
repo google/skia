@@ -33,13 +33,7 @@ class GrDrawState;
  */
 class GrClipMaskCache : public GrNoncopyable {
 public:
-    GrClipMaskCache()
-    : fContext(NULL)
-    , fStack(sizeof(GrClipStackFrame)) {
-        // We need an initial frame to capture the clip state prior to 
-        // any pushes
-        SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
-    }
+    GrClipMaskCache();
 
     ~GrClipMaskCache() {
 
@@ -86,9 +80,7 @@ public:
      * TODO: can we take advantage of the nested nature of the clips to
      * reduce the mask creation cost?
      */
-    void push() {
-        SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
-    }
+    void push();
 
     void pop() {
         //GrAssert(!fStack.empty());

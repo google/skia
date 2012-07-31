@@ -88,6 +88,8 @@ GrTextContext::GrTextContext(GrContext* context,
     const GrClipData* clipData = context->getClip();
 
     GrRect conservativeBound = clipData->fClipStack->getConservativeBounds();
+    conservativeBound.offset(SkIntToScalar(-clipData->fOrigin.fX), 
+                             SkIntToScalar(-clipData->fOrigin.fY));
 
     if (!fExtMatrix.isIdentity()) {
         GrMatrix inverse;
