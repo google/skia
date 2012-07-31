@@ -51,7 +51,7 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index,
     }
 
     int layer = 0;
-    int prev = bitmap.getColor(0,0);
+    SkColor prev = bitmap.getColor(0,0);
     for (int i = 0; i < index; i++) {
         if (commandVector[i]->isVisible()) {
             commandVector[i]->execute(&canvas);
@@ -67,7 +67,7 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index,
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     int counter = 0;
     SkASSERT(!commandVector.empty());
-    SkASSERT(index < commandVector.size());
+    SkASSERT(index < (int)commandVector.size());
     for (int i = 0; i <= index; i++) {
         if (i == index && fFilter) {
             SkPaint p;
@@ -90,17 +90,17 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 }
 
 SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
-    SkASSERT(index < commandVector.size());
+    SkASSERT(index < (int)commandVector.size());
     return commandVector[index];
 }
 
 std::vector<std::string>* SkDebugCanvas::getCommandInfoAt(int index) {
-    SkASSERT(index < commandVector.size());
+    SkASSERT(index < (int)commandVector.size());
     return commandVector[index]->Info();
 }
 
 bool SkDebugCanvas::getDrawCommandVisibilityAt(int index) {
-    SkASSERT(index < commandVector.size());
+    SkASSERT(index < (int)commandVector.size());
     return commandVector[index]->isVisible();
 }
 
@@ -266,6 +266,6 @@ bool SkDebugCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {
-    SkASSERT(index < commandVector.size());
+    SkASSERT(index < (int)commandVector.size());
     commandVector[index]->setVisible(toggle);
 }
