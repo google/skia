@@ -37,6 +37,7 @@ public:
             codec->setDitherImage(dither);
             codec->decode(&stream, &fBitmap, prefConfig,
                           SkImageDecoder::kDecodePixels_Mode);
+            SkDELETE(codec);
         }
     }
 
