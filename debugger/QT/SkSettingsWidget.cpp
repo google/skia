@@ -12,7 +12,7 @@
 #include <math.h>
 
 // TODO(chudy): See if the layout can't be attached to the frame post construction.
-SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
+SkSettingsWidget::SkSettingsWidget() : QWidget()
     , mainFrameLayout(this)
     , fVerticalLayout(&mainFrame)
     , fVisibleFrameLayout(&fVisibleFrame)
@@ -22,8 +22,8 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
     , fCurrentCommandBox(&fCommandFrame)
     , fCommandHitBox(&fCommandFrame)
     , fCanvasLayout(&fCanvasFrame)
-    , fZoomBox(&fZoomFrame)
     , fZoomLayout(&fZoomFrame)
+    , fZoomBox(&fZoomFrame)
 {
     // Sets up the container and it's alignment around the settings widget.
     mainFrame.setFrameShape(QFrame::StyledPanel);
@@ -71,7 +71,6 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
 
     fCanvasLayout.setSpacing(6);
     fCanvasLayout.setContentsMargins(11,11,11,11);
-    fCanvasLayout.addWidget(&fCanvasToggle);
     fCanvasLayout.addLayout(&fRasterLayout);
     fCanvasLayout.addLayout(&fGLLayout);
 
@@ -138,8 +137,6 @@ SkSettingsWidget::SkSettingsWidget(QWidget *parent) : QWidget(parent)
 
     this->setDisabled(true);
 }
-
-SkSettingsWidget::~SkSettingsWidget() {}
 
 
 void SkSettingsWidget::updateCommand(int newCommand) {

@@ -23,7 +23,7 @@
 class SkGLWidget : public QGLWidget {
 
 public:
-    SkGLWidget(QWidget* parent = NULL);
+    SkGLWidget();
 
     ~SkGLWidget();
 
@@ -61,7 +61,6 @@ private:
     int fIndex;
     SkIPoint fTransform;
     float fScaleFactor;
-
     GrPlatformRenderTargetDesc getDesc(int w, int h);
 };
 

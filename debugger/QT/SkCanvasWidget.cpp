@@ -9,10 +9,8 @@
 
 #include "SkCanvasWidget.h"
 
-SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
+SkCanvasWidget::SkCanvasWidget() : QWidget()
     , fHorizontalLayout(this)
-    , fRasterWidget(this)
-    , fGLWidget(this)
 {
     fHorizontalLayout.setSpacing(6);
     fHorizontalLayout.setContentsMargins(0,0,0,0);
@@ -32,6 +30,12 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
 
     setWidgetVisibility(kGPU_WidgetType, true);
     this->setDisabled(true);
+}
+
+SkCanvasWidget::~SkCanvasWidget() {
+    if (fDebugCanvas) {
+        delete fDebugCanvas;
+    }
 }
 
 void SkCanvasWidget::drawTo(int index) {

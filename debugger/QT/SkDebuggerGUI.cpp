@@ -11,6 +11,9 @@
 
 SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
         QMainWindow(parent)
+    , fCentralWidget(this)
+    , fStatusBar(this)
+    , fToolBar(this)
     , fActionOpen(this)
     , fActionBreakpoint(this)
     , fActionCancel(this)
@@ -33,19 +36,12 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fActionZoomIn(this)
     , fActionZoomOut(this)
     , fMapper(this)
-    , fCentralWidget(this)
-    , fFilter(&fCentralWidget)
-    , fContainerLayout(&fCentralWidget)
     , fListWidget(&fCentralWidget)
     , fDirectoryWidget(&fCentralWidget)
-    , fCanvasWidget(&fCentralWidget)
-    , fSettingsWidget(&fCentralWidget)
-    , fStatusBar(this)
     , fMenuBar(this)
     , fMenuFile(this)
     , fMenuNavigate(this)
     , fMenuView(this)
-    , fToolBar(this)
     , fBreakpointsActivated(false)
     , fDeletesActivated(false)
     , fPause(false)
@@ -94,11 +90,9 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     fMenuEdit.setDisabled(true);
     fMenuNavigate.setDisabled(true);
     fMenuView.setDisabled(true);
-
 }
 
-SkDebuggerGUI::~SkDebuggerGUI() {
-}
+SkDebuggerGUI::~SkDebuggerGUI() {}
 
 void SkDebuggerGUI::actionBreakpoints() {
     fBreakpointsActivated = !fBreakpointsActivated;
@@ -497,6 +491,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fMainAndRightColumnLayout.addLayout(&fCanvasAndSettingsLayout);
     fMainAndRightColumnLayout.addWidget(&fInspectorWidget);
 
+    fCentralWidget.setLayout(&fContainerLayout);
     fContainerLayout.setSpacing(6);
     fContainerLayout.setContentsMargins(11, 11, 11, 11);
     fContainerLayout.addLayout(&fLeftColumnLayout);

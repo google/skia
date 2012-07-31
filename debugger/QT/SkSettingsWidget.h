@@ -32,8 +32,7 @@ public:
         Constructs a widget with the specified parent for layout purposes.
         @param parent  The parent container of this widget
      */
-    SkSettingsWidget(QWidget *parent = NULL);
-    ~SkSettingsWidget();
+    SkSettingsWidget();
 
     void setZoomText(int scaleFactor);
 
@@ -71,17 +70,17 @@ private:
     QFrame fCommandFrame;
     QVBoxLayout fCommandLayout;
 
+    QHBoxLayout fCurrentCommandLayout;
     QLabel fCurrentCommandLabel;
     QLineEdit fCurrentCommandBox;
-    QHBoxLayout fCurrentCommandLayout;
 
+    QHBoxLayout fCommandHitLayout;
     QLabel fCommandHitLabel;
     QLineEdit fCommandHitBox;
-    QHBoxLayout fCommandHitLayout;
 
-    QLabel fCanvasToggle;
     QFrame fCanvasFrame;
     QVBoxLayout fCanvasLayout;
+    QLabel fCanvasToggle;
 
     QHBoxLayout fRasterLayout;
     QLabel fRasterLabel;
@@ -91,10 +90,10 @@ private:
     QLabel fGLLabel;
     QCheckBox fGLCheckBox;
 
-    QLabel fZoomSetting;
     QFrame fZoomFrame;
-    QLineEdit fZoomBox;
     QHBoxLayout fZoomLayout;
+    QLabel fZoomSetting;
+    QLineEdit fZoomBox;
 };
 
 #endif /* SKSETTINGSWIDGET_H_ */

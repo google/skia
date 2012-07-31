@@ -32,9 +32,7 @@ public:
         Constructs a widget with the specified parent for layout purposes.
         @param parent  The parent container of this widget
      */
-    SkInspectorWidget(QWidget *parent = NULL);
-
-    ~SkInspectorWidget();
+    SkInspectorWidget();
 
     void setDisabled(bool isDisabled) {
         fMatrixAndClipWidget.setDisabled(isDisabled);

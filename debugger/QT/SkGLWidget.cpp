@@ -9,12 +9,15 @@
 
 #include "SkGLWidget.h"
 
-SkGLWidget::SkGLWidget(QWidget* parent) : QGLWidget(parent) {
+SkGLWidget::SkGLWidget() : QGLWidget() {
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
     fTransform.set(0,0);
     fScaleFactor = 1.0;
     fIndex = 0;
     fDebugCanvas = NULL;
+    fCurIntf = NULL;
+    fCurContext = NULL;
+    fGpuDevice = NULL;
 }
 
 SkGLWidget::~SkGLWidget() {
