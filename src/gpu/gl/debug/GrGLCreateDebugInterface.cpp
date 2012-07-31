@@ -1280,6 +1280,11 @@ public:
 
     GrDebugGLInterface()
         : fWrapped(NULL) {
+        GrDebugGL::staticRef();
+    }
+
+    virtual ~GrDebugGLInterface() {
+        GrDebugGL::staticUnRef();
     }
 
     void setWrapped(GrGLInterface *interface) {

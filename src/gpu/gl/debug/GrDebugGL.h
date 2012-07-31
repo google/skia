@@ -84,12 +84,30 @@ public:
     GrGLint getUnPackRowLength() const { return fUnPackRowLength; }
 
     static GrDebugGL *getInstance() {
-//        static GrDebugGL Obj;
+        // someone should admit to actually using this class
+        GrAssert(0 < gStaticRefCount);
 
-        return &Obj;
+        if (NULL == gObj) {
+            gObj = SkNEW(GrDebugGL);
+        }
+
+        return gObj;
     }
 
     void report() const;
+
+    static void staticRef() {
+        gStaticRefCount++;
+    }
+
+    static void staticUnRef() {
+        GrAssert(gStaticRefCount > 0);
+        gStaticRefCount--;
+        if (0 == gStaticRefCount) {
+            SkDELETE(gObj);
+            gObj = NULL;
+        }
+    }
 
 protected:
 
@@ -113,7 +131,8 @@ private:
 
     static Create gFactoryFunc[kObjTypeCount];
 
-    static GrDebugGL Obj;
+    static GrDebugGL* gObj;
+    static int gStaticRefCount;
 
     // global store of all objects
     SkTArray<GrFakeRefObj *> fObjects;

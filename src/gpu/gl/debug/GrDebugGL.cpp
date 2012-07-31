@@ -16,7 +16,8 @@
 #include "GrTextureUnitObj.h"
 
 
-GrDebugGL GrDebugGL::Obj;
+GrDebugGL* GrDebugGL::gObj = NULL;
+int GrDebugGL::gStaticRefCount = 0;
 GrDebugGL::Create GrDebugGL::gFactoryFunc[kObjTypeCount] = {
     GrTextureObj::createGrTextureObj,
     GrBufferObj::createGrBufferObj,
@@ -40,7 +41,9 @@ GrDebugGL::GrDebugGL()
     , fTexture(NULL) {
 
     for (int i = 0; i < kDefaultMaxTextureUnits; ++i) {
-        fTextureUnits[i] = GR_CREATE(GrTextureUnitObj, GrDebugGL::kTextureUnit_ObjTypes);
+
+        fTextureUnits[i] = reinterpret_cast<GrTextureUnitObj *>(
+                            createObj(GrDebugGL::kTextureUnit_ObjTypes));
         fTextureUnits[i]->ref();
 
         fTextureUnits[i]->setNumber(i);
