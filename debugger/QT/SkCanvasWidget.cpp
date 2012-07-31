@@ -76,7 +76,7 @@ void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
     fPreviousPoint.set(event->globalX(), event->globalY());
-    emit hitChanged(fDebugCanvas->getLayerAtPoint(event->x(), event->y(),
+    emit hitChanged(fDebugCanvas->getCommandAtPoint(event->x(), event->y(),
             fIndex, fTransform, fScaleFactor));
 }
 
