@@ -25,8 +25,8 @@ SkCanvasWidget::SkCanvasWidget() : QWidget()
 
     fIndex = 0;
     fPreviousPoint.set(0,0);
-    fTransform.set(0,0);
-    fScaleFactor = 1.0;
+    fUserOffset.set(0,0);
+    fUserScaleFactor = 1.0;
 
     setWidgetVisibility(kGPU_WidgetType, true);
     this->setDisabled(true);
@@ -58,42 +58,37 @@ void SkCanvasWidget::loadPicture(QString filename) {
     fDebugCanvas = new SkDebugCanvas(picture->width(), picture->height());
 
     picture->draw(fDebugCanvas);
-    fIndex = fDebugCanvas->getSize();
+    fIndex = fDebugCanvas->getSize() - 1;
     fRasterWidget.setDebugCanvas(fDebugCanvas);
     fGLWidget.setDebugCanvas(fDebugCanvas);
-
-    // TODO(chudy): Remove bounds from debug canvas storage.
     fDebugCanvas->setBounds(this->width(), this->height());
 }
 
 void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
     SkIPoint eventPoint = SkIPoint::Make(event->globalX(), event->globalY());
-    fTransform += eventPoint - fPreviousPoint;
+    fUserOffset += eventPoint - fPreviousPoint;
     fPreviousPoint = eventPoint;
-    updateWidgetTransform(kTranslate);
+    fDebugCanvas->setUserOffset(fUserOffset);
     drawTo(fIndex);
 }
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
     fPreviousPoint.set(event->globalX(), event->globalY());
     emit hitChanged(fDebugCanvas->getCommandAtPoint(event->x(), event->y(),
-            fIndex, fTransform, fScaleFactor));
+            fIndex));
 }
 
 void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {
-    fTransform.set(0,0);
-    fScaleFactor = 1.0;
-    emit scaleFactorChanged(fScaleFactor);
-    // TODO(chudy): Change to signal / slot mechanism.
     resetWidgetTransform();
-    drawTo(fIndex);
 }
 
 void SkCanvasWidget::resetWidgetTransform() {
-    fTransform.set(0,0);
-    fScaleFactor = 1.0;
-    updateWidgetTransform(kTranslate);
-    updateWidgetTransform(kScale);
+    fUserOffset.set(0,0);
+    fUserScaleFactor = 1.0;
+    fDebugCanvas->setUserOffset(fUserOffset);
+    fDebugCanvas->setUserScale(fUserScaleFactor);
+    emit scaleFactorChanged(fUserScaleFactor);
+    drawTo(fIndex);
 }
 
 void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
@@ -104,27 +99,17 @@ void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
     }
 }
 
-void SkCanvasWidget::updateWidgetTransform(TransformType type) {
-    if (type == kTranslate) {
-        fRasterWidget.setTranslate(fTransform);
-        fGLWidget.setTranslate(fTransform);
-    } else if (type == kScale) {
-        fRasterWidget.setScale(fScaleFactor);
-        fGLWidget.setScale(fScaleFactor);
-    }
-}
-
 void SkCanvasWidget::zoom(float zoomIncrement) {
-    fScaleFactor += zoomIncrement;
+    fUserScaleFactor += zoomIncrement;
 
-    /* The range of the fScaleFactor crosses over the range -1,0,1 frequently.
+    /* The range of the fUserScaleFactor crosses over the range -1,0,1 frequently.
     * Based on the code below, -1 and 1 both scale the image to it's original
     * size we do the following to never have a registered wheel scroll
-    * not effect the fScaleFactor. */
-    if (fScaleFactor == 0) {
-        fScaleFactor = 2 * zoomIncrement;
+    * not effect the fUserScaleFactor. */
+    if (fUserScaleFactor == 0) {
+        fUserScaleFactor = 2 * zoomIncrement;
     }
-    emit scaleFactorChanged(fScaleFactor);
-    updateWidgetTransform(kScale);
+    emit scaleFactorChanged(fUserScaleFactor);
+    fDebugCanvas->setUserScale(fUserScaleFactor);
     drawTo(fIndex);
 }

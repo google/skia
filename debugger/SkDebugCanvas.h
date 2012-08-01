@@ -47,8 +47,7 @@ public:
     /**
         Returns the index of the last draw command to write to the pixel at (x,y)
      */
-    int getCommandAtPoint(int x, int y, int index,
-            SkIPoint transform, float scale);
+    int getCommandAtPoint(int x, int y, int index);
 
     /**
         Returns the draw command at the given index.
@@ -94,6 +93,14 @@ public:
     void setBounds(int width, int height) {
         fWidth = width;
         fHeight = height;
+    }
+
+    void setUserOffset(SkIPoint offset) {
+        fUserOffset = offset;
+    }
+
+    void setUserScale(float scale) {
+        fUserScale = scale;
     }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,12 +188,21 @@ private:
     int fWidth;
     SkBitmap fBm;
     bool fFilter;
+    int fIndex;
+    SkIPoint fUserOffset;
+    float fUserScale;
 
     /**
         Adds the command to the classes vector of commands.
         @param command  The draw command for execution
      */
     void addDrawCommand(SkDrawCommand* command);
+
+    /**
+        Applies any panning and zooming the user has specified before
+        drawing anything else into the canvas.
+     */
+    void applyUserTransform(SkCanvas* canvas);
 };
 
 #endif

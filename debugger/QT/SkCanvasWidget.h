@@ -118,18 +118,11 @@ private:
     SkGLWidget fGLWidget;
     SkDebugCanvas* fDebugCanvas;
     SkIPoint fPreviousPoint;
-    SkIPoint fTransform;
-    float fScaleFactor;
+    SkIPoint fUserOffset;
+    float fUserScaleFactor;
     int fIndex;
 
-    enum TransformType {
-        kTranslate 	= 1 << 0,
-        kScale 		= 1 << 1,
-    };
-
     void resetWidgetTransform();
-
-    void updateWidgetTransform(TransformType type);
 
     void mouseMoveEvent(QMouseEvent* event);
 

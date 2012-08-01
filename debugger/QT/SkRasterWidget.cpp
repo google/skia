@@ -9,44 +9,40 @@
 
 #include "SkRasterWidget.h"
 
-SkRasterWidget::SkRasterWidget(QWidget* parent) : QWidget(parent) {
+SkRasterWidget::SkRasterWidget() : QWidget() {
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, 800, 800);
     fBitmap.allocPixels();
     fBitmap.eraseColor(0);
     fTransform.set(0,0);
     fScaleFactor = 1.0;
     fIndex = 0;
-    fDevice = NULL;
+    fDevice = new SkDevice(fBitmap);
     fDebugCanvas = NULL;
+    fCanvas = new SkCanvas(fDevice);
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
 }
 
 SkRasterWidget::~SkRasterWidget() {
-    delete fDevice;
+    SkSafeUnref(fCanvas);
+    SkSafeUnref(fDevice);
 }
 
 void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, event->size().width(), event->size().height());
     fBitmap.allocPixels();
-    delete fDevice;
+    SkSafeUnref(fCanvas);
+    SkSafeUnref(fDevice);
     fDevice = new SkDevice(fBitmap);
+    fCanvas = new SkCanvas(fDevice);
     this->update();
 }
 
 void SkRasterWidget::paintEvent(QPaintEvent* event) {
     if (fDebugCanvas) {
-        fBitmap.eraseColor(0);
-        SkCanvas canvas(fDevice);
-        canvas.translate(fTransform.fX, fTransform.fY);
-        if (fScaleFactor < 0) {
-            canvas.scale((1.0 / -fScaleFactor), (1.0 / -fScaleFactor));
-        } else if (fScaleFactor > 0) {
-            canvas.scale(fScaleFactor, fScaleFactor);
-        }
-
-        fMatrix = canvas.getTotalMatrix();
-        fClip = canvas.getTotalClip().getBounds();
-        fDebugCanvas->drawTo(&canvas, fIndex);
+        fDebugCanvas->drawTo(fCanvas, fIndex);
+        // TODO(chudy): Refactor into SkDebugCanvas.
+        fMatrix = fCanvas->getTotalMatrix();
+        fClip = fCanvas->getTotalClip().getBounds();
 
         QPainter painter(this);
         QStyleOption opt;

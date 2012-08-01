@@ -18,12 +18,14 @@ SkGLWidget::SkGLWidget() : QGLWidget() {
     fCurIntf = NULL;
     fCurContext = NULL;
     fGpuDevice = NULL;
+    fCanvas = NULL;
 }
 
 SkGLWidget::~SkGLWidget() {
     SkSafeUnref(fCurIntf);
     SkSafeUnref(fCurContext);
     SkSafeUnref(fGpuDevice);
+    SkSafeUnref(fCanvas);
 }
 
 void SkGLWidget::initializeGL() {
@@ -31,6 +33,7 @@ void SkGLWidget::initializeGL() {
     fCurContext = GrContext::Create(kOpenGL_Shaders_GrEngine, (GrPlatform3DContext) fCurIntf);
     GrRenderTarget* curRenderTarget = fCurContext->createPlatformRenderTarget(getDesc(this->width(), this->height()));
     fGpuDevice = new SkGpuDevice(fCurContext, curRenderTarget);
+    fCanvas = new SkCanvas(fGpuDevice);
     curRenderTarget->unref();
 
     glClearColor(1, 1, 1, 0);
@@ -41,21 +44,17 @@ void SkGLWidget::initializeGL() {
 void SkGLWidget::resizeGL(int w, int h) {
     GrRenderTarget* curRenderTarget = fCurContext->createPlatformRenderTarget(getDesc(w,h));
     SkSafeUnref(fGpuDevice);
+    SkSafeUnref(fCanvas);
     fGpuDevice = new SkGpuDevice(fCurContext, curRenderTarget);
+    fCanvas = new SkCanvas(fGpuDevice);
     drawTo(fIndex);
 }
 
 void SkGLWidget::paintGL() {
     glClearColor(1, 1, 1, 0);
-    SkCanvas canvas(fGpuDevice);
-    canvas.translate(fTransform.fX, fTransform.fY);
-    if(fScaleFactor < 0) {
-        canvas.scale((1.0 / -fScaleFactor),(1.0 / -fScaleFactor));
-    } else if (fScaleFactor > 0) {
-        canvas.scale(fScaleFactor, fScaleFactor);
-    }
-    fDebugCanvas->drawTo(&canvas, fIndex);
-    canvas.flush();
+    fDebugCanvas->drawTo(fCanvas, fIndex);
+    // TODO(chudy): Implement an optional flush button in Gui.
+    fCanvas->flush();
 }
 
 GrPlatformRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
