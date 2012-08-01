@@ -175,6 +175,7 @@ public:
      * provided.
      */
     virtual void unalloc(void* ptr) = 0;
+
 };
 
 class SkFlatData {
@@ -241,7 +242,7 @@ public:
                               SkRefCntSet* refCntRecorder = NULL,
                               SkRefCntSet* faceRecorder = NULL,
                               uint32_t writeBufferflags = 0,
-                              SkFactorySet* fset = NULL);
+                              SkNamedFactorySet* fset = NULL);
 
     void unflatten(void* result,
                    void (*unflattenProc)(SkOrderedReadBuffer&, void*),
@@ -291,7 +292,7 @@ class SkFlatDictionary {
 public:
     SkFlatDictionary(SkFlatController* controller, SkRefCntSet* refSet = NULL,
                      SkRefCntSet* typeFaceSet = NULL,
-                     SkFactorySet* factorySet = NULL)
+                     SkNamedFactorySet* factorySet = NULL)
     : fController(controller), fRefSet(refSet), fTypefaceSet(typeFaceSet)
     , fFactorySet(factorySet) {
         fFlattenProc = NULL;
@@ -444,7 +445,7 @@ private:
     SkTDArray<const SkFlatData*> fData;
     SkRefCntSet*                 fRefSet;
     SkRefCntSet*                 fTypefaceSet;
-    SkFactorySet*                fFactorySet;
+    SkNamedFactorySet*           fFactorySet;
 
     const SkFlatData* findAndReturnFlat(const T& element,
                                         uint32_t writeBufferflags) {
@@ -540,7 +541,7 @@ class SkBitmapDictionary : public SkFlatDictionary<SkBitmap> {
 public:
     SkBitmapDictionary(SkFlatController* controller, SkRefCntSet* refSet = NULL,
                        SkRefCntSet* typefaceSet = NULL,
-                       SkFactorySet* factorySet = NULL)
+                       SkNamedFactorySet* factorySet = NULL)
     : SkFlatDictionary<SkBitmap>(controller, refSet, typefaceSet, factorySet) {
         fFlattenProc = &SkFlattenObjectProc<SkBitmap>;
         fUnflattenProc = &SkUnflattenObjectProc<SkBitmap>;

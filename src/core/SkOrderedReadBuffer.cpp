@@ -45,32 +45,16 @@ SkFlattenable* SkOrderedReadBuffer::readFlattenable() {
         if (0 == index) {
             return NULL; // writer failed to give us the flattenable
         }
-        index = -index; // we stored the negative of the index
         index -= 1;     // we stored the index-base-1
         SkASSERT(index < fFactoryCount);
         factory = fFactoryArray[index];
     } else if (fFactoryTDArray) {
-        const int32_t* peek = (const int32_t*)fReader.peek();
-        if (*peek <= 0) {
-            int32_t index = fReader.readU32();
-            if (0 == index) {
-                return NULL; // writer failed to give us the flattenable
-            }
-            index = -index; // we stored the negative of the index
-            index -= 1;     // we stored the index-base-1
-            factory = (*fFactoryTDArray)[index];
-        } else {
-            const char* name = fReader.readString();
-            factory = SkFlattenable::NameToFactory(name);
-            if (factory) {
-                SkASSERT(fFactoryTDArray->find(factory) < 0);
-                *fFactoryTDArray->append() = factory;
-            } else {
-//                SkDebugf("can't find factory for [%s]\n", name);
-            }
-            // if we didn't find a factory, that's our failure, not the writer's,
-            // so we fall through, so we can skip the sizeRecorded data.
+        int32_t index = fReader.readU32();
+        if (0 == index) {
+            return NULL; // writer failed to give us the flattenable
         }
+        index -= 1;     // we stored the index-base-1
+        factory = (*fFactoryTDArray)[index];
     } else {
         factory = (SkFlattenable::Factory)readFunctionPtr();
         if (NULL == factory) {

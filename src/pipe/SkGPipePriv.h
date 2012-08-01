@@ -70,6 +70,7 @@ enum DrawOps {
     kDef_Typeface_DrawOp,
     kDef_Flattenable_DrawOp,
     kDef_Bitmap_DrawOp,
+    kDef_Factory_DrawOp,
 
     // these are signals to playback, not drawing verbs
     kReportFlags_DrawOp,

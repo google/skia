@@ -23,8 +23,7 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
     /*
      *  If we have a factoryset, then the first 32bits tell us...
      *       0: failure to write the flattenable
-     *      <0: we store the negative of the (1-based) index
-     *      >0: the length of the name
+     *      >0: (1-based) index into the SkFactorySet or SkNamedFactorySet
      *  If we don't have a factoryset, then the first "ptr" is either the
      *  factory, or null for failure.
      *
@@ -37,7 +36,7 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
         factory = flattenable->getFactory();
     }
     if (NULL == factory) {
-        if (fFactorySet) {
+        if (fFactorySet != NULL || fNamedFactorySet != NULL) {
             this->write32(0);
         } else {
             this->writeFunctionPtr(NULL);
@@ -53,31 +52,17 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
      *      resolve the function-ptrs into strings for its reader. SkPicture
      *      does exactly this, by writing a table of names (matching the indices)
      *      up front in its serialized form.
-     *  3.  names : Reuse fFactorySet to store indices, but only after we've
-     *      written the name the first time. SkGPipe uses this technique, as it
-     *      doesn't require the reader to be told to know the table of names
-     *      up front.
+     *  3.  index into fNamedFactorySet. fNamedFactorySet will also store the
+     *      name. SkGPipe uses this technique so it can write the name to its
+     *      stream before writing the flattenable.
      */
     if (fFactorySet) {
-        if (this->inlineFactoryNames()) {
-            int index = fFactorySet->find(factory);
-            if (index) {
-                // we write the negative of the index, to distinguish it from
-                // the length of a string
-                this->write32(-index);
-            } else {
-                const char* name = SkFlattenable::FactoryToName(factory);
-                if (NULL == name) {
-                    this->write32(0);
-                    return;
-                }
-                this->writeString(name);
-                index = fFactorySet->add(factory);
-            }
-        } else {
-            // we write the negative of the index, to distinguish it from
-            // the length of a string
-            this->write32(-(int)fFactorySet->add(factory));
+        this->write32(fFactorySet->add(factory));
+    } else if (fNamedFactorySet) {
+        int32_t index = fNamedFactorySet->find(factory);
+        this->write32(index);
+        if (0 == index) {
+            return;
         }
     } else {
         this->writeFunctionPtr((void*)factory);

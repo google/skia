@@ -191,8 +191,8 @@ public:
 
     /**
      *  Call this with an initially empty array, so the reader can cache each
-     *  factory it sees by name. Used by the pipe code in conjunction with
-     *  the writer's kInlineFactoryNames_Flag.
+     *  factory it sees by name. Used by the pipe code in combination with
+     *  setNamedFactoryRecorder.
      */
     void setFactoryArray(SkTDArray<SkFlattenable::Factory>* array) {
         fFactoryTDArray = array;
@@ -241,6 +241,33 @@ protected:
 
 class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};
 
+/**
+ * Similar to SkFactorySet, but only allows Factorys that have registered names.
+ * Also has a function to return the next added Factory's name.
+ */
+class SkNamedFactorySet : public SkRefCnt {
+public:
+    SkNamedFactorySet();
+
+    /**
+     * Find the specified Factory in the set. If it is not already in the set,
+     * and has registered its name, add it to the set, and return its index.
+     * If the Factory has no registered name, return 0.
+     */
+    uint32_t find(SkFlattenable::Factory);
+
+    /**
+     * If new Factorys have been added to the set, return the name of the first
+     * Factory added after the Factory name returned by the last call to this
+     * function.
+     */
+    const char* getNextAddedFactoryName();
+private:
+    int                    fNextAddedFactory;
+    SkFactorySet           fFactorySet;
+    SkTDArray<const char*> fNames;
+};
+
 class SkFlattenableWriteBuffer {
 public:
     SkFlattenableWriteBuffer();
@@ -285,13 +312,11 @@ public:
     SkFactorySet* getFactoryRecorder() const { return fFactorySet; }
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
 
+    SkNamedFactorySet* getNamedFactoryRecorder() const { return fNamedFactorySet; }
+    SkNamedFactorySet* setNamedFactoryRecorder(SkNamedFactorySet*);
+
     enum Flags {
         kCrossProcess_Flag               = 0x01,
-        /**
-         *  Instructs the writer to inline Factory names as there are seen the
-         *  first time (after that we store an index). The pipe code uses this.
-         */
-        kInlineFactoryNames_Flag         = 0x02,
         /**
          *  Instructs the writer to always serialize bitmap pixel data.
          */
@@ -303,9 +328,6 @@ public:
 
     bool isCrossProcess() const {
         return SkToBool(fFlags & kCrossProcess_Flag);
-    }
-    bool inlineFactoryNames() const {
-        return SkToBool(fFlags & kInlineFactoryNames_Flag);
     }
 
     bool persistBitmapPixels() const {
@@ -322,10 +344,12 @@ protected:
         obj->flatten(buffer);
     }
 
-    uint32_t        fFlags;
-    SkRefCntSet*    fTFSet;
-    SkRefCntSet*    fRCSet;
-    SkFactorySet*   fFactorySet;
+    uint32_t           fFlags;
+    SkRefCntSet*       fTFSet;
+    SkRefCntSet*       fRCSet;
+    SkFactorySet*      fFactorySet;
+    SkNamedFactorySet* fNamedFactorySet;
+
 };
 
 #endif

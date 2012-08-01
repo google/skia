@@ -28,6 +28,10 @@
 #include "SkOrderedWriteBuffer.h"
 #include "SkPictureFlat.h"
 
+static bool isCrossProcess(uint32_t flags) {
+    return SkToBool(flags & SkGPipeWriter::kCrossProcess_Flag);
+}
+
 static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
     SkASSERT(paintFlat < kCount_PaintFlats);
     switch (paintFlat) {
@@ -61,7 +65,9 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
 
 class FlattenableHeap : public SkFlatController {
 public:
-    FlattenableHeap(int numFlatsToKeep) : fNumFlatsToKeep(numFlatsToKeep) {}
+    FlattenableHeap(int numFlatsToKeep)
+        : fNumFlatsToKeep(numFlatsToKeep) {
+    }
 
     ~FlattenableHeap() {
         fPointers.freeAll();
@@ -132,7 +138,7 @@ const SkFlatData* FlattenableHeap::flatToReplace() const {
 
 class FlatDictionary : public SkFlatDictionary<SkFlattenable> {
 public:
-    FlatDictionary(FlattenableHeap* heap, SkFactorySet* factorySet)
+    FlatDictionary(FlattenableHeap* heap, SkNamedFactorySet* factorySet)
             : SkFlatDictionary<SkFlattenable>(heap, NULL, NULL, factorySet) {
         fFlattenProc = &flattenFlattenableProc;
         // No need to define fUnflattenProc since the writer will never
@@ -365,7 +371,7 @@ BitmapInfo* SharedHeap::bitmapToReplace(const SkBitmap& bm) const {
 
 class SkGPipeCanvas : public SkCanvas {
 public:
-    SkGPipeCanvas(SkGPipeController*, SkWriter32*, SkFactorySet*, uint32_t flags);
+    SkGPipeCanvas(SkGPipeController*, SkWriter32*, uint32_t flags);
     virtual ~SkGPipeCanvas();
 
     void finish() {
@@ -439,16 +445,17 @@ private:
     enum {
         kNoSaveLayer = -1,
     };
-    int         fFirstSaveLayerStackLevel;
-    SharedHeap  fSharedHeap;
+    SkNamedFactorySet* fFactorySet;
+    int                fFirstSaveLayerStackLevel;
+    SharedHeap         fSharedHeap;
     SkGPipeController* fController;
-    SkWriter32& fWriter;
-    size_t      fBlockSize; // amount allocated for writer
-    size_t      fBytesNotified;
-    bool        fDone;
-    uint32_t    fFlags;
+    SkWriter32&        fWriter;
+    size_t             fBlockSize; // amount allocated for writer
+    size_t             fBytesNotified;
+    bool               fDone;
+    uint32_t           fFlags;
 
-    SkRefCntSet fTypefaceSet;
+    SkRefCntSet        fTypefaceSet;
 
     uint32_t getTypefaceID(SkTypeface*);
 
@@ -471,6 +478,10 @@ private:
             }
         }
     }
+
+    // Should be called after any calls to an SkFlatDictionary::findAndReplace
+    // if a new SkFlatData was added when in cross process mode
+    void flattenFactoryNames();
 
     // These are only used when in cross process, but with no shared address
     // space, so bitmaps are flattened.
@@ -509,18 +520,32 @@ private:
     typedef SkCanvas INHERITED;
 };
 
+void SkGPipeCanvas::flattenFactoryNames() {
+    const char* name;
+    while ((name = fFactorySet->getNextAddedFactoryName()) != NULL) {
+        size_t len = strlen(name);
+        if (this->needOpBytes(len)) {
+            this->writeOp(kDef_Factory_DrawOp);
+            fWriter.writeString(name, len);
+        }
+    }
+}
+
 int SkGPipeCanvas::flattenToIndex(const SkBitmap & bitmap) {
     SkASSERT(shouldFlattenBitmaps(fFlags));
-    uint32_t flags = SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
-        | SkFlattenableWriteBuffer::kCrossProcess_Flag;
+    uint32_t flags = SkFlattenableWriteBuffer::kCrossProcess_Flag;
     bool added, replaced;
     const SkFlatData* flat = fBitmapDictionary.findAndReplace(
         bitmap, flags, fBitmapHeap.flatToReplace(), &added, &replaced);
 
     int index = flat->index();
-    if (added && this->needOpBytes(flat->flatSize())) {
-        this->writeOp(kDef_Bitmap_DrawOp, 0, index);
-        fWriter.write(flat->data(), flat->flatSize());
+    if (added) {
+        this->flattenFactoryNames();
+        size_t flatSize = flat->flatSize();
+        if (this->needOpBytes(flatSize)) {
+            this->writeOp(kDef_Bitmap_DrawOp, 0, index);
+            fWriter.write(flat->data(), flatSize);
+        }
     }
     return index;
 }
@@ -533,9 +558,8 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     }
 
     uint32_t writeBufferFlags;
-    if (SkToBool(fFlags & SkGPipeWriter::kCrossProcess_Flag)) {
-        writeBufferFlags = (SkFlattenableWriteBuffer::kInlineFactoryNames_Flag
-                            | SkFlattenableWriteBuffer::kCrossProcess_Flag);
+    if (isCrossProcess(fFlags)) {
+        writeBufferFlags =  SkFlattenableWriteBuffer::kCrossProcess_Flag;
     } else {
         // Needed for bitmap shaders.
         writeBufferFlags = SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag;
@@ -545,9 +569,15 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     const SkFlatData* flat = fFlatDictionary.findAndReplace(
             *obj, writeBufferFlags, fFlattenableHeap.flatToReplace(), &added, &replaced);
     int index = flat->index();
-    if (added && this->needOpBytes(flat->flatSize())) {
-        this->writeOp(kDef_Flattenable_DrawOp, paintflat, index);
-        fWriter.write(flat->data(), flat->flatSize());
+    if (added) {
+        if (isCrossProcess(fFlags)) {
+            this->flattenFactoryNames();
+        }
+        size_t flatSize = flat->flatSize();
+        if (this->needOpBytes(flatSize)) {
+            this->writeOp(kDef_Flattenable_DrawOp, paintflat, index);
+            fWriter.write(flat->data(), flatSize);
+        }
     }
     if (replaced) {
         index = ~index;
@@ -562,11 +592,15 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 #define FLATTENABLES_TO_KEEP 10
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
-                             SkWriter32* writer, SkFactorySet* fset, uint32_t flags)
-: fSharedHeap(!(flags & SkGPipeWriter::kCrossProcess_Flag), controller->numberOfReaders())
-, fWriter(*writer), fFlags(flags)
-, fBitmapHeap(BITMAPS_TO_KEEP), fBitmapDictionary(&fBitmapHeap, NULL, NULL, fset)
-, fFlattenableHeap(FLATTENABLES_TO_KEEP), fFlatDictionary(&fFlattenableHeap, fset) {
+                             SkWriter32* writer, uint32_t flags)
+: fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
+, fSharedHeap(!isCrossProcess(flags), controller->numberOfReaders())
+, fWriter(*writer)
+, fFlags(flags)
+, fBitmapHeap(BITMAPS_TO_KEEP)
+, fBitmapDictionary(&fBitmapHeap, NULL, NULL, fFactorySet)
+, fFlattenableHeap(FLATTENABLES_TO_KEEP)
+, fFlatDictionary(&fFlattenableHeap, fFactorySet) {
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
@@ -589,6 +623,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 
 SkGPipeCanvas::~SkGPipeCanvas() {
     this->finish();
+    SkSafeUnref(fFactorySet);
 }
 
 bool SkGPipeCanvas::needOpBytes(size_t needed) {
@@ -1196,7 +1231,7 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
     }
 
     if (!SkTypeface::Equal(base.getTypeface(), paint.getTypeface())) {
-        if (SkToBool(fFlags & SkGPipeWriter::kCrossProcess_Flag)) {
+        if (isCrossProcess(fFlags)) {
             uint32_t id = this->getTypefaceID(paint.getTypeface());
             *ptr++ = PaintOp_packOpData(kTypeface_PaintOp, id);
         } else if (this->needOpBytes(sizeof(void*))) {
@@ -1255,23 +1290,18 @@ void SkGPipeController::setCanvas(SkGPipeCanvas* canvas) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGPipeWriter::SkGPipeWriter()
-: fFactorySet(SkNEW(SkFactorySet))
-, fWriter(0) {
+: fWriter(0) {
     fCanvas = NULL;
 }
 
 SkGPipeWriter::~SkGPipeWriter() {
     this->endRecording();
-    fFactorySet->unref();
 }
 
 SkCanvas* SkGPipeWriter::startRecording(SkGPipeController* controller, uint32_t flags) {
     if (NULL == fCanvas) {
         fWriter.reset(NULL, 0);
-        fFactorySet->reset();
-        fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter,
-                                             (flags & kCrossProcess_Flag) ?
-                                             fFactorySet : NULL, flags));
+        fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter, flags));
     }
     controller->setCanvas(fCanvas);
     return fCanvas;

@@ -46,17 +46,43 @@ SkFlattenableReadBuffer::SkFlattenableReadBuffer() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkNamedFactorySet::SkNamedFactorySet() : fNextAddedFactory(0) {}
+
+uint32_t SkNamedFactorySet::find(SkFlattenable::Factory factory) {
+    uint32_t index = fFactorySet.find(factory);
+    if (index > 0) {
+        return index;
+    }
+    const char* name = SkFlattenable::FactoryToName(factory);
+    if (NULL == name) {
+        return 0;
+    }
+    *fNames.append() = name;
+    return fFactorySet.add(factory);
+}
+
+const char* SkNamedFactorySet::getNextAddedFactoryName() {
+    if (fNextAddedFactory < fNames.count()) {
+        return fNames[fNextAddedFactory++];
+    }
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkFlattenableWriteBuffer::SkFlattenableWriteBuffer() {
     fFlags = (Flags)0;
     fRCSet = NULL;
     fTFSet = NULL;
     fFactorySet = NULL;
+    fNamedFactorySet = NULL;
 }
 
 SkFlattenableWriteBuffer::~SkFlattenableWriteBuffer() {
     SkSafeUnref(fRCSet);
     SkSafeUnref(fTFSet);
     SkSafeUnref(fFactorySet);
+    SkSafeUnref(fNamedFactorySet);
 }
 
 SkRefCntSet* SkFlattenableWriteBuffer::setRefCntRecorder(SkRefCntSet* rec) {
@@ -71,6 +97,20 @@ SkRefCntSet* SkFlattenableWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
 
 SkFactorySet* SkFlattenableWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
     SkRefCnt_SafeAssign(fFactorySet, rec);
+    if (fNamedFactorySet != NULL) {
+        fNamedFactorySet->unref();
+        fNamedFactorySet = NULL;
+    }
+    return rec;
+}
+
+SkNamedFactorySet* SkFlattenableWriteBuffer::setNamedFactoryRecorder(
+        SkNamedFactorySet* rec) {
+    SkRefCnt_SafeAssign(fNamedFactorySet, rec);
+    if (fFactorySet != NULL) {
+        fFactorySet->unref();
+        fFactorySet = NULL;
+    }
     return rec;
 }
 
