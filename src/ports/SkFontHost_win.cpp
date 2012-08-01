@@ -954,11 +954,13 @@ static const uint8_t* getInverseGammaTableClearType() {
 
 #include "SkColorPriv.h"
 
+//Cannot assume that the input rgb is gray due to possible setting of kGenA8FromLCD_Flag.
 template<bool APPLY_PREBLEND>
 static inline uint8_t rgb_to_a8(SkGdiRGB rgb, const uint8_t* table8) {
-    SkASSERT( ((rgb >> 16) & 0xFF) == ((rgb >> 8) & 0xFF) &&
-              ((rgb >> 16) & 0xFF) == ((rgb >> 0) & 0xFF) );
-    return sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, table8);
+    U8CPU r = (rgb >> 16) & 0xFF;
+    U8CPU g = (rgb >>  8) & 0xFF;
+    U8CPU b = (rgb >>  0) & 0xFF;
+    return sk_apply_lut_if<APPLY_PREBLEND>((r + g + b) / 3, table8);
 }
 
 template<bool APPLY_PREBLEND>
