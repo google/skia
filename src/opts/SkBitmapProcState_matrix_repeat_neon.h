@@ -20,10 +20,6 @@
  */
 
 
-#if	!defined(__ARM_HAVE_NEON)
-#error	this file can be used only when the NEON unit is enabled
-#endif
-
 #include <arm_neon.h>
 
 /*
@@ -39,11 +35,11 @@
 
 /* SkClampMax(val,max) -- bound to 0..max */
 
-#define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale_neon)
+#define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
-#define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine_neon)
+#define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
 #define AFFINE_FILTER_NAME      MAKENAME(_filter_affine)
-#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp_neon)
+#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp)
 #define PERSP_FILTER_NAME       MAKENAME(_filter_persp)
 
 #define PACK_FILTER_X_NAME  MAKENAME(_pack_filter_x)
@@ -89,13 +85,12 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
     // test if we don't need to apply the tile proc
     if ((unsigned)(fx >> 16) <= maxX &&
         (unsigned)((fx + dx * (count - 1)) >> 16) <= maxX) {
-        decal_nofilter_scale(xy, fx, dx, count);
+        decal_nofilter_scale_neon(xy, fx, dx, count);
     } else
 #endif
     {
         int i;
 
-#if	defined(__ARM_HAVE_NEON)
 	/* RBE: very much like done in decal_nofilter ,
 	 * but some processing of the 'fx' information 
          * TILEX_PROCF(fx, max)    (((fx) & 0xFFFF) * ((max) + 1) >> 16)
@@ -152,30 +147,6 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
 	    } while (count >= 8);
 	    xy = (uint32_t *) dst16;
 	}
-#else
-	/* simple, portable way of looking at 4 at a crack;
-	 * so gets some loop unrolling, but not full SIMD speed
-	 */
-        for (i = (count >> 2); i > 0; --i) {
-            unsigned a, b;
-            a = TILEX_PROCF(fx, maxX); fx += dx;
-            b = TILEX_PROCF(fx, maxX); fx += dx;
-#ifdef SK_CPU_BENDIAN
-            *xy++ = (a << 16) | b;
-#else
-            *xy++ = (b << 16) | a;
-#endif
-            a = TILEX_PROCF(fx, maxX); fx += dx;
-            b = TILEX_PROCF(fx, maxX); fx += dx;
-#ifdef SK_CPU_BENDIAN
-            *xy++ = (a << 16) | b;
-#else
-            *xy++ = (b << 16) | a;
-#endif
-        }
-	/* loop doesn't adjust count */
-	count %= 4;
-#endif
         uint16_t* xx = (uint16_t*)xy;
         for (i = count; i > 0; --i) {
             *xx++ = TILEX_PROCF(fx, maxX); fx += dx;
@@ -214,7 +185,6 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
     SkFixed bfx = fx, bfy=fy, bdx=dx, bdy=dy;
 #endif
 
-#if	defined(__ARM_HAVE_NEON)
 
 	if (0) { extern void rbe(void); rbe(); }
 
@@ -298,7 +268,6 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
         SkDebugf("maxX %08x maxY %08x\n", maxX, maxY);
     }
 #endif
-#endif
 
     for (int i = count; i > 0; --i) {
 	/* fx, fy, dx, dy are all 32 bit 16.16 fixed point */
@@ -324,7 +293,6 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
     while ((count = iter.next()) != 0) {
         const SkFixed* SK_RESTRICT srcXY = iter.getXY();
 
-#if	defined(__ARM_HAVE_NEON)
 	/* RBE: */
 	/* TILEX_PROCF(fx, max) (((fx) & 0xFFFF) * ((max) + 1) >> 16) */
 	/* it's a little more complicated than what I did for the
@@ -417,7 +385,6 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
 	    srcXY = (const SkFixed *) mysrc;
 	    xy = (uint32_t *) mydst;
 	}
-#endif
         while (--count >= 0) {
             *xy++ = (TILEY_PROCF(srcXY[1], maxY) << 16) |
                      TILEX_PROCF(srcXY[0], maxX);
@@ -472,7 +439,7 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     if (dx > 0 &&
             (unsigned)(fx >> 16) <= maxX &&
             (unsigned)((fx + dx * (count - 1)) >> 16) < maxX) {
-        decal_filter_scale(xy, fx, dx, count);
+        decal_filter_scale_neon(xy, fx, dx, count);
     } else
 #endif
     {
@@ -544,7 +511,7 @@ static void PERSP_FILTER_NAME(const SkBitmapProcState& s,
     }
 }
 
-static SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
+const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
     SCALE_NOFILTER_NAME,
     SCALE_FILTER_NAME,
     AFFINE_NOFILTER_NAME,
