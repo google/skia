@@ -18,6 +18,9 @@ SkDebugCanvas::SkDebugCanvas(int width, int height) {
     fBm.setConfig(SkBitmap::kNo_Config, fWidth, fHeight);
     this->setBitmapDevice(fBm);
     fFilter = false;
+    fIndex = 0;
+    fUserOffset.set(0,0);
+    fUserScale = 1.0;
 }
 
 SkDebugCanvas::~SkDebugCanvas() {}
@@ -34,21 +37,26 @@ void SkDebugCanvas::draw(SkCanvas* canvas) {
             }
         }
     }
+    fIndex = commandVector.size() - 1;
 }
 
-int SkDebugCanvas::getCommandAtPoint(int x, int y, int index,
-        SkIPoint transform, float scale) {
+void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
+    canvas->translate(fUserOffset.fX, fUserOffset.fY);
+    if (fUserScale < 0) {
+        canvas->scale((1.0 / -fUserScale), (1.0 / -fUserScale));
+    } else if (fUserScale > 0) {
+        canvas->scale(fUserScale, fUserScale);
+    }
+}
+
+int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
     bitmap.allocPixels();
 
     SkCanvas canvas(bitmap);
-    canvas.translate(transform.fX - x, transform.fY - y);
-    if (scale < 0) {
-        canvas.scale((1.0 / -scale), (1.0 / -scale));
-    } else if (scale > 0) {
-        canvas.scale(scale, scale);
-    }
+    canvas.translate(-x, -y);
+    applyUserTransform(&canvas);
 
     int layer = 0;
     SkColor prev = bitmap.getColor(0,0);
@@ -68,7 +76,21 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     int counter = 0;
     SkASSERT(!commandVector.empty());
     SkASSERT(index < (int)commandVector.size());
-    for (int i = 0; i <= index; i++) {
+    int i;
+
+    // This only works assuming the canvas and device are the same ones that
+    // were previously drawn into because they need to preserve all saves
+    // and restores.
+    if (fIndex < index) {
+        i = fIndex + 1;
+    } else {
+        i = 0;
+        canvas->clear(0);
+        canvas->resetMatrix();
+        applyUserTransform(canvas);
+    }
+
+    for (; i <= index; i++) {
         if (i == index && fFilter) {
             SkPaint p;
             p.setColor(0xAAFFFFFF);
@@ -87,6 +109,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
             commandVector[i]->execute(canvas);
         }
     }
+
+    fIndex = index;
 }
 
 SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {

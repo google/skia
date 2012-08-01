@@ -20,7 +20,7 @@
 class  SkRasterWidget : public QWidget {
 
 public:
-    SkRasterWidget(QWidget* parent = NULL);
+    SkRasterWidget();
 
     ~SkRasterWidget();
 
@@ -67,6 +67,7 @@ protected:
 private:
     SkBitmap fBitmap;
     SkDebugCanvas* fDebugCanvas;
+    SkCanvas* fCanvas;
     SkDevice* fDevice;
 
     SkMatrix fMatrix;
