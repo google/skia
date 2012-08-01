@@ -124,6 +124,7 @@ protected:
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
 
     void registerPictFileSamples(char** argv, int argc);
+    void registerPictFileSample(char** argv, int argc);
 
 private:
     class DefaultDeviceManager;
@@ -155,14 +156,14 @@ private:
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;
     bool fMagnify;
-    
-    
+
+
     SkOSMenu::TriState fPipeState;  // Mixed uses a tiled pipe
                                     // On uses a normal pipe
                                     // Off uses no pipe
     int  fUsePipeMenuItemID;
     bool fDebugger;
-    
+
     // The following are for the 'fatbits' drawing
     // Latest position of the mouse.
     int fMouseX, fMouseY;
@@ -170,7 +171,7 @@ private:
     // Used by the text showing position and color values.
     SkTypeface* fTypeface;
     bool fShowZoomer;
-    
+
     SkOSMenu::TriState fLCDState;
     SkOSMenu::TriState fAAState;
     SkOSMenu::TriState fFilterState;

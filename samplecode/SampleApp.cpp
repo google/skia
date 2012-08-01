@@ -397,7 +397,7 @@ public:
         }
     }
     SkRefCnt*& push_back() { return *fObjs.append(); }
-    
+
 private:
     SkTDArray<SkRefCnt*> fObjs;
 };
@@ -407,7 +407,7 @@ private:
 // run before GMRegistry has been fully built.
 static void SkGMRegistyToSampleRegistry() {
     static bool gOnce;
-    static AutoUnrefArray fRegisters; 
+    static AutoUnrefArray fRegisters;
 
     if (!gOnce) {
         const skiagm::GMRegistry* gmreg = skiagm::GMRegistry::Head();
@@ -668,17 +668,20 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 }
 
 static void usage(const char * argv0) {
-    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount] [--pictureDir path]\n", argv0);
+    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount] [--pictureDir dirPath] [--picture path]\n", argv0);
     SkDebugf("    sampleName: sample at which to start.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    msaa: request multisampling with the given sample count.\n");
+    SkDebugf("    dirPath: path to directory skia pictures are read from\n");
+    SkDebugf("    path: path to skia picture\n");
 }
 
-SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager) 
+SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
     : INHERITED(hwnd)
     , fDevManager(NULL) {
 
     this->registerPictFileSamples(argv, argc);
+    this->registerPictFileSample(argv, argc);
     SkGMRegistyToSampleRegistry();
     {
         const SkViewRegister* reg = SkViewRegister::Head();
@@ -740,9 +743,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     FILE* f = fopen(FILE_PATH, "wb");
     fclose(f);
 #endif
-     
+
     fPicture = NULL;
-    
+
     fDeviceType = kRaster_DeviceType;
 
 #if DEFAULT_TO_GPU
@@ -773,26 +776,26 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fFatBitsScale = 8;
     fTypeface = SkTypeface::CreateFromTypeface(NULL, SkTypeface::kBold);
     fShowZoomer = false;
-    
+
     fZoomLevel = 0;
     fZoomScale = SK_Scalar1;
-    
+
     fMagnify = false;
     fDebugger = false;
-    
+
     fSaveToPdf = false;
     fPdfCanvas = NULL;
 
     fTransitionNext = 6;
     fTransitionPrev = 2;
-    
+
     int sinkID = this->getSinkID();
     fAppMenu = new SkOSMenu;
     fAppMenu->setTitle("Global Settings");
     int itemID;
-    
-    itemID =fAppMenu->appendList("Device Type", "Device Type", sinkID, 0, 
-                                "Raster", "Picture", "OpenGL", 
+
+    itemID =fAppMenu->appendList("Device Type", "Device Type", sinkID, 0,
+                                "Raster", "Picture", "OpenGL",
 #if SK_ANGLE
                                 "ANGLE",
 #endif
@@ -807,17 +810,17 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     itemID = fAppMenu->appendTriState("Hinting", "Hinting", sinkID, fHintingState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
     fUsePipeMenuItemID = fAppMenu->appendTriState("Pipe", "Pipe" , sinkID,
-                                                  fPipeState);    
+                                                  fPipeState);
     fAppMenu->assignKeyEquivalentToItem(fUsePipeMenuItemID, 'P');
 #ifdef DEBUGGER
     itemID = fAppMenu->appendSwitch("Debugger", "Debugger", sinkID, fDebugger);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'q');
 #endif
-    itemID = fAppMenu->appendSwitch("Slide Show", "Slide Show" , sinkID, false);    
-    fAppMenu->assignKeyEquivalentToItem(itemID, 'a');    
-    itemID = fAppMenu->appendSwitch("Clip", "Clip" , sinkID, fUseClip);    
+    itemID = fAppMenu->appendSwitch("Slide Show", "Slide Show" , sinkID, false);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 'a');
+    itemID = fAppMenu->appendSwitch("Clip", "Clip" , sinkID, fUseClip);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'c');
-    itemID = fAppMenu->appendSwitch("Flip X", "Flip X" , sinkID, false); 
+    itemID = fAppMenu->appendSwitch("Flip X", "Flip X" , sinkID, false);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'x');
     itemID = fAppMenu->appendSwitch("Flip Y", "Flip Y" , sinkID, false);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'y');
@@ -825,23 +828,23 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->assignKeyEquivalentToItem(itemID, 'z');
     itemID = fAppMenu->appendSwitch("Magnify", "Magnify" , sinkID, fMagnify);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'm');
-    itemID =fAppMenu->appendList("Transition-Next", "Transition-Next", sinkID, 
-                                fTransitionNext, "Up", "Up and Right", "Right", 
-                                "Down and Right", "Down", "Down and Left", 
+    itemID =fAppMenu->appendList("Transition-Next", "Transition-Next", sinkID,
+                                fTransitionNext, "Up", "Up and Right", "Right",
+                                "Down and Right", "Down", "Down and Left",
                                 "Left", "Up and Left", NULL);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'j');
-    itemID =fAppMenu->appendList("Transition-Prev", "Transition-Prev", sinkID, 
-                                fTransitionPrev, "Up", "Up and Right", "Right", 
-                                "Down and Right", "Down", "Down and Left", 
+    itemID =fAppMenu->appendList("Transition-Prev", "Transition-Prev", sinkID,
+                                fTransitionPrev, "Up", "Up and Right", "Right",
+                                "Down and Right", "Down", "Down and Left",
                                 "Left", "Up and Left", NULL);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'k');
     itemID = fAppMenu->appendAction("Save to PDF", sinkID);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'e');
-    
+
     this->addMenu(fAppMenu);
     fSlideMenu = new SkOSMenu;
     this->addMenu(fSlideMenu);
-    
+
 //    this->setConfig(SkBitmap::kRGB_565_Config);
     this->setConfig(SkBitmap::kARGB_8888_Config);
     this->setVisibleP(true);
@@ -850,7 +853,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     skiagm::GM::SetResourcePath(resourcePath);
 
     this->loadView((*fSamples[fCurrIndex])());
-    
+
     fPDFData = NULL;
 
     if (NULL == devManager) {
@@ -889,6 +892,24 @@ static void make_filepath(SkString* path, const char* dir, const SkString& name)
         path->append("/");
     }
     path->append(name);
+}
+
+void SampleWindow::registerPictFileSample(char** argv, int argc) {
+    const char* pict = NULL;
+
+    for (int i = 0; i < argc; ++i) {
+        if (!strcmp(argv[i], "--picture")) {
+            i += 1;
+            if (i < argc) {
+                pict = argv[i];
+                break;
+            }
+        }
+    }
+    if (pict) {
+        SkString path(pict);
+        *fSamples.append() = new PictFileFactory(path);
+    }
 }
 
 void SampleWindow::registerPictFileSamples(char** argv, int argc) {
@@ -993,7 +1014,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
         gAnimTimePrev = gAnimTime;
         gAnimTime = SkTime::GetMSecs();
     }
-    
+
     const SkMatrix& localM = fGesture.localM();
     if (localM.getType() & SkMatrix::kScale_Mask) {
         canvas->setExternalMatrix(&localM);
@@ -1001,7 +1022,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (fGesture.isActive()) {
         this->updateMatrix();
     }
-    
+
     if (fNClip) {
         this->INHERITED::draw(canvas);
         SkBitmap orig = capture_bitmap(canvas);
@@ -1041,7 +1062,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (fMagnify && !fSaveToPdf) {
         magnify(canvas);
     }
-    
+
     // do this last
     fDevManager->publishCanvas(fDeviceType, canvas, this);
 }
@@ -1051,7 +1072,7 @@ static float clipH = 200;
 void SampleWindow::magnify(SkCanvas* canvas) {
     SkRect r;
     int count = canvas->save();
-    
+
     SkMatrix m = canvas->getTotalMatrix();
     if (!m.invert(&m)) {
         return;
@@ -1061,10 +1082,10 @@ void SampleWindow::magnify(SkCanvas* canvas) {
     SkScalar mouseY = fMouseY * SK_Scalar1;
     m.mapXY(mouseX - clipW/2, mouseY - clipH/2, &offset);
     m.mapXY(mouseX, mouseY, &center);
-    
+
     r.set(0, 0, clipW * m.getScaleX(), clipH * m.getScaleX());
     r.offset(offset.fX, offset.fY);
-    
+
     SkPaint paint;
     paint.setColor(0xFF66AAEE);
     paint.setStyle(SkPaint::kStroke_Style);
@@ -1073,15 +1094,15 @@ void SampleWindow::magnify(SkCanvas* canvas) {
     //canvas->translate(0, -250);
     canvas->drawRect(r, paint);
     canvas->clipRect(r);
-    
+
     m = canvas->getTotalMatrix();
     m.setTranslate(-center.fX, -center.fY);
     m.postScale(0.5f * fFatBitsScale, 0.5f * fFatBitsScale);
     m.postTranslate(center.fX, center.fY);
     canvas->concat(m);
-    
+
     this->INHERITED::draw(canvas);
-    
+
     canvas->restoreToCount(count);
 }
 
@@ -1263,7 +1284,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 #ifdef SK_BUILD_FOR_ANDROID
         name.prepend("/sdcard/");
 #endif
-        
+
 #ifdef SK_BUILD_FOR_IOS
         SkDynamicMemoryWStream mstream;
         doc.emitPDF(&mstream);
@@ -1275,7 +1296,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             const char* desc = "File saved from Skia SampleApp";
             this->onPDFSaved(this->getTitle(), desc, name.c_str());
         }
-        
+
         delete fPdfCanvas;
         fPdfCanvas = NULL;
 
@@ -1284,7 +1305,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         this->inval(NULL);
         return;
     }
-    
+
     if (fRequestGrabImage) {
         fRequestGrabImage = false;
 
@@ -1351,12 +1372,12 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             fAppMenu->getItemByID(fUsePipeMenuItemID)->setTriState(fPipeState);
             this->onUpdateMenu(fAppMenu);
         }
-        
+
         //Reset any transformations
         fGesture.stop();
         fGesture.reset();
-        
-        this->loadView(create_debugger(gTempDataStore.begin(), 
+
+        this->loadView(create_debugger(gTempDataStore.begin(),
                                        gTempDataStore.count()));
     }
 #endif
@@ -1451,12 +1472,12 @@ void SampleWindow::updateMatrix(){
         m.mapXY(fZoomCenterX, fZoomCenterY, &center);
         SkScalar cx = center.fX;
         SkScalar cy = center.fY;
-        
+
         m.setTranslate(-cx, -cy);
         m.postScale(fZoomScale, fZoomScale);
         m.postTranslate(cx, cy);
     }
-    
+
     if (fFlipAxis) {
         m.preTranslate(fZoomCenterX, fZoomCenterY);
         if (fFlipAxis & kFlipAxis_X) {
@@ -1471,22 +1492,22 @@ void SampleWindow::updateMatrix(){
     // Apply any gesture matrix
     m.preConcat(fGesture.localM());
     m.preConcat(fGesture.globalM());
-    
+
     this->setLocalMatrix(m);
-    
+
     this->updateTitle();
     this->inval(NULL);
 }
 bool SampleWindow::previousSample() {
     fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
-    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(), 
+    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(),
                                      fTransitionPrev));
     return true;
 }
 
 bool SampleWindow::nextSample() {
     fCurrIndex = (fCurrIndex + 1) % fSamples.count();
-    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(), 
+    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(),
                                      fTransitionNext));
     return true;
 }
@@ -1510,8 +1531,8 @@ int SampleWindow::sampleCount() {
 }
 
 void SampleWindow::showOverview() {
-    this->loadView(create_transition(curr_view(this), 
-                                     create_overview(fSamples.count(), fSamples.begin()), 
+    this->loadView(create_transition(curr_view(this),
+                                     create_overview(fSamples.count(), fSamples.begin()),
                                      4));
 }
 
@@ -1553,7 +1574,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     int selected = -1;
     if (SkOSMenu::FindListIndex(evt, "Device Type", &selected)) {
         this->setDeviceType((DeviceType)selected);
-        return true; 
+        return true;
     }
     if (SkOSMenu::FindTriState(evt, "Pipe", &fPipeState)) {
 #ifdef PIPE_NET
@@ -1595,7 +1616,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     if (SkOSMenu::FindAction(evt,"Save to PDF")) {
         this->saveToPdf();
         return true;
-    } 
+    }
 #ifdef DEBUGGER
     if (SkOSMenu::FindSwitchState(evt, "Debugger", &fDebugger)) {
         if (fDebugger) {
@@ -1661,7 +1682,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
         }
     }
-    
+
     int dx = 0xFF;
     int dy = 0xFF;
 
@@ -1693,7 +1714,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
 
     switch (uni) {
         case 'f':
-            // only 
+            // only
             toggleFPS();
             break;
         case 'g':
@@ -1740,7 +1761,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         default:
             break;
     }
-    
+
     if (fAppMenu->handleKeyEquivalent(uni)|| fSlideMenu->handleKeyEquivalent(uni)) {
         this->onUpdateMenu(fAppMenu);
         this->onUpdateMenu(fSlideMenu);
@@ -1851,7 +1872,7 @@ bool SampleWindow::onDispatchClick(int x, int y, Click::State state,
     // check for the resize-box
     if (w - x < 16 && h - y < 16) {
         return false;   // let the OS handle the click
-    } 
+    }
     else if (fMagnify) {
         //it's only necessary to update the drawing if there's a click
         this->inval(NULL);
@@ -1881,7 +1902,7 @@ bool SampleWindow::onClick(Click* click) {
     if (GestureClick::IsGesture(click)) {
         float x = static_cast<float>(click->fICurr.fX);
         float y = static_cast<float>(click->fICurr.fY);
-        
+
         switch (click->fState) {
             case SkView::Click::kDown_State:
                 fGesture.touchBegin(click->fOwner, x, y);
@@ -1908,7 +1929,7 @@ void SampleWindow::loadView(SkView* view) {
     if (prev) {
         prev->detachFromParent();
     }
-    
+
     view->setVisibleP(true);
     view->setClipToBounds(false);
     this->attachChildToFront(view)->unref();
@@ -2011,7 +2032,7 @@ void SampleWindow::updateTitle() {
     if (fZoomLevel) {
         title.prependf("{%.2f} ", SkScalarToFloat(fZoomLevel));
     }
-    
+
     if (fMeasureFPS) {
         title.appendf(" %6.1f ms", fMeasureFPS_Time / (float)FPS_REPEAT_MULTIPLIER);
     }
@@ -2023,7 +2044,7 @@ void SampleWindow::updateTitle() {
             case SkOSMenu::kMixedState:
                 title.prepend("<Tiled Pipe> ");
                 break;
-                
+
             default:
                 break;
         }
@@ -2042,7 +2063,7 @@ void SampleWindow::updateTitle() {
 
 void SampleWindow::onSizeChange() {
     this->INHERITED::onSizeChange();
-    
+
     SkView::F2BIter iter(this);
     SkView* view = iter.next();
     view->setSize(this->width(), this->height());
@@ -2129,7 +2150,7 @@ class SimplePC : public SkGPipeController {
 public:
     SimplePC(SkCanvas* target);
     ~SimplePC();
-    
+
     virtual void* requestBlock(size_t minRequest, size_t* actual);
     virtual void notifyWritten(size_t bytes);
 
@@ -2194,7 +2215,7 @@ void SimplePC::notifyWritten(size_t bytes) {
     SkASSERT(SkGPipeReader::kError_Status != fStatus);
     fBytesWritten += bytes;
     fTotalWritten += bytes;
-    
+
     fAtomsWritten += 1;
 }
 
@@ -2213,7 +2234,7 @@ void SampleView::draw(SkCanvas* canvas) {
             pc = &controller;
         }
         uint32_t flags = SkGPipeWriter::kCrossProcess_Flag;
-        
+
         canvas = writer.startRecording(pc, flags);
         //Must draw before controller goes out of scope and sends data
         this->INHERITED::draw(canvas);
