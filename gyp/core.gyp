@@ -243,7 +243,6 @@
         '../include/core/SkUnPreMultiply.h',
         '../include/core/SkUnitMapper.h',
         '../include/core/SkUtils.h',
-        '../include/core/SkUtilsArm.h',
         '../include/core/SkWeakRefCnt.h',
         '../include/core/SkWriter32.h',
         '../include/core/SkXfermode.h',
@@ -321,6 +320,7 @@
           # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
           'sources': [
             '../src/core/SkUtilsArm.cpp',
+            '../src/core/SkUtilsArm.h',
           ],
         }],
       ],
