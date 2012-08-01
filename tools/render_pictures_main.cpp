@@ -114,11 +114,6 @@ static void process_input(const SkString& input, const SkString& outputDir,
     }
 }
 
-static bool is_percentage(char* const string) {
-    SkString skString(string);
-    return skString.endsWith("%");
-}
-
 static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,
                               sk_tools::PictureRenderer*& renderer){
     const char* argv0 = argv[0];
@@ -131,7 +126,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             sk_tools::TiledPictureRenderer* tileRenderer = SkNEW(sk_tools::TiledPictureRenderer);
             ++argv;
             if (argv < stop) {
-                if (is_percentage(*argv)) {
+                if (sk_tools::is_percentage(*argv)) {
                     tileRenderer->setTileWidthPercentage(atof(*argv));
                     if (!(tileRenderer->getTileWidthPercentage() > 0)) {
                         SkDELETE(tileRenderer);
@@ -154,7 +149,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             }
             ++argv;
             if (argv < stop) {
-                if (is_percentage(*argv)) {
+                if (sk_tools::is_percentage(*argv)) {
                     tileRenderer->setTileHeightPercentage(atof(*argv));
                     if (!(tileRenderer->getTileHeightPercentage() > 0)) {
                         SkDELETE(tileRenderer);

@@ -25,6 +25,9 @@ namespace sk_tools {
     // only)
     void get_basename(SkString* basename, const SkString& path);
 
+    // Returns true if the string ends with %
+    bool is_percentage(char* const string);
+
     // Prepares the bitmap so that it can be written.
     //
     // Specifically, it configures the bitmap, allocates pixels and then

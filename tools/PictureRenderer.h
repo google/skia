@@ -24,10 +24,12 @@ public:
 };
 
 class PipePictureRenderer : public PictureRenderer {
+public:
     virtual void render(SkPicture* pict, SkCanvas* canvas);
 };
 
 class SimplePictureRenderer : public PictureRenderer {
+public:
     virtual void render (SkPicture* pict, SkCanvas* canvas);
 };
 
@@ -37,6 +39,7 @@ public:
 
     virtual void init(const SkPicture& pict);
     virtual void render(SkPicture* pict, SkCanvas* canvas);
+    void drawTiles(SkPicture* pict);
 
     void setTileWidth(int width) {
         fTileWidth = width;
@@ -58,7 +61,7 @@ public:
         fTileWidthPercentage = percentage;
     }
 
-    double getTileWidthPercentage() {
+    double getTileWidthPercentage() const {
         return fTileWidthPercentage;
     }
 
@@ -66,8 +69,12 @@ public:
         fTileHeightPercentage = percentage;
     }
 
-    double getTileHeightPercentage() {
+    double getTileHeightPercentage() const {
         return fTileHeightPercentage;
+    }
+
+    int numTiles() const {
+        return fTiles.count();
     }
 
     ~TiledPictureRenderer();
