@@ -128,7 +128,6 @@ public:
 
 private:
     SkGPipeCanvas* fCanvas;
-    SkFactorySet*  fFactorySet;
     SkWriter32     fWriter;
 };
 

@@ -104,6 +104,14 @@ public:
         }
     }
 
+    void defFactory(const char* name) {
+        SkFlattenable::Factory factory = SkFlattenable::NameToFactory(name);
+        if (factory) {
+            SkASSERT(fFactoryArray.find(factory) < 0);
+            *fFactoryArray.append() = factory;
+        }
+    }
+
     void addBitmap(int index) {
         index--;
         SkBitmap* bm;
@@ -551,6 +559,11 @@ static void def_Bitmap_rp(SkCanvas*, SkReader32*, uint32_t op32,
     state->addBitmap(index);
 }
 
+static void def_Factory_rp(SkCanvas*, SkReader32* reader, uint32_t,
+                           SkGPipeState* state) {
+    state->defFactory(reader->readString());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void skip_rp(SkCanvas*, SkReader32* reader, uint32_t op32, SkGPipeState*) {
@@ -605,6 +618,7 @@ static const ReadProc gReadTable[] = {
     def_Typeface_rp,
     def_PaintFlat_rp,
     def_Bitmap_rp,
+    def_Factory_rp,
 
     reportflags_rp,
     done_rp

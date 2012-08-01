@@ -40,6 +40,7 @@
         '../tests/DrawTextTest.cpp',
         '../tests/EmptyPathTest.cpp',
         '../tests/FillPathTest.cpp',
+        '../tests/FlatDataTest.cpp',
         '../tests/FlateTest.cpp',
         '../tests/FontHostStreamTest.cpp',
         '../tests/FontHostTest.cpp',
