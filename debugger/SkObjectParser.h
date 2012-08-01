@@ -73,6 +73,11 @@ public:
     static std::string PointsToString(const SkPoint pts[], size_t count);
 
     /**
+        Returns a string representation of the SkCanvas PointMode enum.
+     */
+    static std::string PointModeToString(SkCanvas::PointMode mode);
+
+    /**
         Returns a string representation of the SkRects coordinates.
         @param rect  SkRect
      */
