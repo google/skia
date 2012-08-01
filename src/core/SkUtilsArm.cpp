@@ -33,8 +33,7 @@
 
 // A function used to determine at runtime if the target CPU supports
 // the ARM NEON instruction set. This implementation is Linux-specific.
-static bool sk_cpu_arm_check_neon(void)
-{
+static bool sk_cpu_arm_check_neon(void) {
     bool result = false;
 
 #if NEON_DEBUG
@@ -164,13 +163,11 @@ static pthread_once_t  sOnce;
 static bool            sHasArmNeon;
 
 // called through pthread_once()
-void sk_cpu_arm_probe_features(void)
-{
+void sk_cpu_arm_probe_features(void) {
     sHasArmNeon = sk_cpu_arm_check_neon();
 }
 
-bool sk_cpu_arm_has_neon(void)
-{
+bool sk_cpu_arm_has_neon(void) {
     pthread_once(&sOnce, sk_cpu_arm_probe_features);
     return sHasArmNeon;
 }
