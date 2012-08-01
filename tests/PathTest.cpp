@@ -905,18 +905,27 @@ struct SegmentInfo {
 #define kCurveSegmentMask   (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)
 
 static void test_segment_masks(skiatest::Reporter* reporter) {
-    SkPath p;
+    SkPath p, p2;
+
     p.moveTo(0, 0);
     p.quadTo(100, 100, 200, 200);
     REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, !p.isEmpty());
+    p2 = p;
+    REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
     p.cubicTo(100, 100, 200, 200, 300, 300);
     REPORTER_ASSERT(reporter, kCurveSegmentMask == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, !p.isEmpty());
+    p2 = p;
+    REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
+
     p.reset();
     p.moveTo(0, 0);
     p.cubicTo(100, 100, 200, 200, 300, 300);
     REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
+    p2 = p;
+    REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
+    
     REPORTER_ASSERT(reporter, !p.isEmpty());
 }
 
