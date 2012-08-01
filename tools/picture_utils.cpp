@@ -65,6 +65,11 @@ namespace sk_tools {
         basename->set(path.c_str(), end + 1);
     }
 
+    bool is_percentage(char* const string) {
+        SkString skString(string);
+        return skString.endsWith("%");
+    }
+
     void setup_bitmap(SkBitmap* bitmap, int width, int height) {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
         bitmap->allocPixels();

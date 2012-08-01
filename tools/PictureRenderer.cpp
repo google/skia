@@ -45,9 +45,7 @@ void TiledPictureRenderer::init(const SkPicture& pict) {
 }
 
 void TiledPictureRenderer::render(SkPicture* pict, SkCanvas* canvas) {
-    for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].fCanvas->drawPicture(*pict);
-    }
+    drawTiles(pict);
 
     copyTilesToCanvas(*pict, canvas);
 }
@@ -90,6 +88,12 @@ void TiledPictureRenderer::deleteTiles() {
     }
 
     fTiles.reset();
+}
+
+void TiledPictureRenderer::drawTiles(SkPicture* pict) {
+    for (int i = 0; i < fTiles.count(); ++i) {
+        fTiles[i].fCanvas->drawPicture(*pict);
+    }
 }
 
 void TiledPictureRenderer::copyTilesToCanvas(const SkPicture& pict, SkCanvas* destination) {

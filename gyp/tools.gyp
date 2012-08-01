@@ -78,7 +78,7 @@
         'core.gyp:core',
         'images.gyp:images',
         'ports.gyp:ports',
-        'tools.gyp:PictureRenderer',
+        'tools.gyp:picture_renderer',
         'tools.gyp:picture_utils',
       ],
     },
@@ -87,23 +87,37 @@
       'type': 'executable',
       'sources': [
         '../tools/bench_pictures_main.cpp',
-        '../src/pipe/utils/SamplePipeControllers.h',
-        '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'include_dirs': [
         '../bench',
-        '../src/pipe/utils/',
       ],
       'dependencies': [
         'core.gyp:core',
         'ports.gyp:ports',
         'images.gyp:images',
         'tools.gyp:picture_utils',
+        'tools.gyp:picture_benchmark',
         'bench.gyp:bench_timer',
       ],
     },
     {
-     'target_name': 'PictureRenderer',
+     'target_name': 'picture_benchmark',
+     'type': 'static_library',
+     'sources': [
+        '../tools/PictureBenchmark.cpp',
+     ],
+     'include_dirs': [
+        '../bench',
+     ],
+     'dependencies': [
+        'core.gyp:core',
+        'tools.gyp:picture_utils',
+        'tools.gyp:picture_renderer',
+        'bench.gyp:bench_timer',
+     ],
+    },
+    {
+     'target_name': 'picture_renderer',
      'type': 'static_library',
      'sources': [
         '../tools/PictureRenderer.cpp',
