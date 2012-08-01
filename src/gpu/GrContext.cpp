@@ -14,7 +14,6 @@
 #include "effects/GrSingleTextureEffect.h"
 
 #include "GrBufferAllocPool.h"
-#include "GrClipIterator.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"

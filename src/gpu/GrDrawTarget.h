@@ -11,7 +11,6 @@
 #ifndef GrDrawTarget_DEFINED
 #define GrDrawTarget_DEFINED
 
-#include "GrClip.h"
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
 #include "GrMatrix.h"
@@ -20,8 +19,9 @@
 
 #include "SkXfermode.h"
 #include "SkTLazy.h"
+#include "SkTArray.h"
 
-class GrClipIterator;
+class GrClipData;
 class GrPath;
 class GrVertexBuffer;
 

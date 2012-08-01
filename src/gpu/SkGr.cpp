@@ -164,69 +164,6 @@ void GrUnlockCachedBitmapTexture(GrContext* ctx, GrContext::TextureCacheEntry ca
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGrClipIterator::reset(const SkClipStack& clipStack) {
-    fClipStack = &clipStack;
-    fIter.reset(clipStack);
-    // Gr has no notion of replace, skip to the
-    // last replace in the clip stack.
-    int lastReplace = 0;
-    int curr = 0;
-    while (NULL != (fCurr = fIter.next())) {
-        if (SkRegion::kReplace_Op == fCurr->fOp) {
-            lastReplace = curr;
-        }
-        ++curr;
-    }
-    fIter.reset(clipStack);
-    for (int i = 0; i < lastReplace+1; ++i) {
-        fCurr = fIter.next();
-    }
-}
-
-GrClipType SkGrClipIterator::getType() const {
-    GrAssert(!this->isDone());
-    if (NULL == fCurr->fPath) {
-        return kRect_ClipType;
-    } else {
-        return kPath_ClipType;
-    }
-}
-
-SkRegion::Op SkGrClipIterator::getOp() const {
-    // we skipped to the last "replace" op
-    // when this iter was reset.
-    // GrClip doesn't allow replace, so treat it as
-    // intersect.
-    if (SkRegion::kReplace_Op == fCurr->fOp) {
-        return SkRegion::kIntersect_Op;
-    }
-
-    return fCurr->fOp;
-
-}
-
-bool SkGrClipIterator::getDoAA() const {
-    return fCurr->fDoAA;
-}
-
-GrPathFill SkGrClipIterator::getPathFill() const {
-    switch (fCurr->fPath->getFillType()) {
-        case SkPath::kWinding_FillType:
-            return kWinding_GrPathFill;
-        case SkPath::kEvenOdd_FillType:
-            return  kEvenOdd_GrPathFill;
-        case SkPath::kInverseWinding_FillType:
-            return kInverseWinding_GrPathFill;
-        case SkPath::kInverseEvenOdd_FillType:
-            return kInverseEvenOdd_GrPathFill;
-        default:
-            GrCrash("Unsupported path fill in clip.");
-            return kWinding_GrPathFill; // suppress warning
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config config) {
     switch (config) {
         case SkBitmap::kA8_Config:

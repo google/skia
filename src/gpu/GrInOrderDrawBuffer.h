@@ -15,7 +15,6 @@
 #include "GrAllocPool.h"
 #include "GrAllocator.h"
 #include "GrPath.h"
-#include "GrClip.h"
 
 #include "SkClipStack.h"
 #include "SkTemplates.h"

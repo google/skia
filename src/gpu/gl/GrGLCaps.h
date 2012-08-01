@@ -9,6 +9,8 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
+#include "SkTArray.h"
+#include "SkTDArray.h"
 #include "GrGLStencilBuffer.h"
 
 class GrGLContextInfo;

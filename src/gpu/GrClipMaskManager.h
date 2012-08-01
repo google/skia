@@ -9,7 +9,6 @@
 #ifndef GrClipMaskManager_DEFINED
 #define GrClipMaskManager_DEFINED
 
-#include "GrClip.h"
 #include "GrContext.h"
 #include "GrNoncopyable.h"
 #include "GrRect.h"
