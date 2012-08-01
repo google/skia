@@ -87,6 +87,19 @@ std::string SkObjectParser::PointsToString(const SkPoint pts[], size_t count) {
     return ss.str();
 }
 
+std::string SkObjectParser::PointModeToString(SkCanvas::PointMode mode) {
+    std::string mMode("SkCanvas::PointMode: ");
+    if (mode == SkCanvas::kPoints_PointMode) {
+        mMode.append("kPoints_PointMode");
+    } else if (mode == SkCanvas::kLines_PointMode) {
+        mMode.append("kLines_Mode");
+    } else if (mode == SkCanvas::kPolygon_PointMode) {
+        mMode.append("kPolygon_PointMode");
+    }
+
+    return mMode;
+}
+
 std::string SkObjectParser::RectToString(const SkRect& rect) {
     std::string mRect("SkRect: ");
     std::stringstream ss;
