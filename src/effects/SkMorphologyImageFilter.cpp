@@ -8,6 +8,8 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "GrContext.h"
+#include "GrTexture.h"
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
@@ -210,14 +212,16 @@ bool SkDilateImageFilter::onFilterImage(Proxy*,
     return true;
 }
 
-bool SkDilateImageFilter::asADilate(SkISize* radius) const {
-    *radius = this->radius();
-    return true;
+GrTexture* SkDilateImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
+    return src->getContext()->applyMorphology(src, rect,
+                                              GrContext::kDilate_MorphologyType,
+                                              radius());
 }
 
-bool SkErodeImageFilter::asAnErode(SkISize* radius) const {
-    *radius = this->radius();
-    return true;
+GrTexture* SkErodeImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
+    return src->getContext()->applyMorphology(src, rect,
+                                              GrContext::kErode_MorphologyType,
+                                              radius());
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkDilateImageFilter)

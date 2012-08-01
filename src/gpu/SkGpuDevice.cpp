@@ -1501,9 +1501,6 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
                                  SkImageFilter* filter, const GrRect& rect) {
     GrAssert(filter);
 
-    SkSize blurSize;
-    SkISize radius;
-
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit,
     desc.fWidth = SkScalarCeilToInt(rect.width());
@@ -1511,23 +1508,13 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
     desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
     GrCustomStage* stage;
 
-    if (filter->asNewCustomStage(&stage, texture)) {
+    if (filter->canFilterImageGPU()) {
+        texture = filter->onFilterImageGPU(texture, rect);
+    } else if (filter->asNewCustomStage(&stage, texture)) {
         GrAutoScratchTexture dst(context, desc);
         apply_custom_stage(context, texture, dst.texture(), rect, stage);
         texture = dst.detach();
         stage->unref();
-    } else if (filter->asABlur(&blurSize)) {
-        texture = context->gaussianBlur(texture, false, rect,
-                                        blurSize.width(),
-                                        blurSize.height());
-    } else if (filter->asADilate(&radius)) {
-        texture = context->applyMorphology(texture, rect,
-                                           GrContext::kDilate_MorphologyType,
-                                           radius);
-    } else if (filter->asAnErode(&radius)) {
-        texture = context->applyMorphology(texture, rect,
-                                           GrContext::kErode_MorphologyType,
-                                           radius);
     }
     return texture;
 }
@@ -1635,13 +1622,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 }
 
 bool SkGpuDevice::canHandleImageFilter(SkImageFilter* filter) {
-    SkSize size;
-    SkISize radius;
-
     if (!filter->asNewCustomStage(NULL, NULL) &&
-        !filter->asABlur(&size) &&
-        !filter->asADilate(&radius) &&
-        !filter->asAnErode(&radius)) {
+        !filter->canFilterImageGPU()) {
         return false;
     }
     return true;

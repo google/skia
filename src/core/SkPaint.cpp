@@ -2280,6 +2280,14 @@ bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
     return false;
 }
 
+bool SkImageFilter::canFilterImageGPU() const {
+    return false;
+}
+
+GrTexture* SkImageFilter::onFilterImageGPU(GrTexture* texture, const SkRect& rect) {
+    return NULL;
+}
+
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                    SkIRect* dst) {
     *dst = src;
@@ -2287,18 +2295,6 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
 }
 
 bool SkImageFilter::asNewCustomStage(GrCustomStage**, GrTexture*) const {
-    return false;
-}
-
-bool SkImageFilter::asABlur(SkSize* sigma) const {
-    return false;
-}
-
-bool SkImageFilter::asAnErode(SkISize* radius) const {
-    return false;
-}
-
-bool SkImageFilter::asADilate(SkISize* radius) const {
     return false;
 }
 

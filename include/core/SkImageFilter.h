@@ -90,28 +90,21 @@ public:
     virtual bool asNewCustomStage(GrCustomStage** stage, GrTexture*) const;
 
     /**
-     *  Experimental.
-     *
-     *  If the filter can be expressed as a gaussian-blur, return true and
-     *  set the sigma to the values for horizontal and vertical.
+     *  Returns true if the filter can be processed on the GPU.  This is most
+     *  often used for multi-pass effects, where intermediate results must be
+     *  rendered to textures.  For single-pass effects, use asNewCustomStage().
+     *  The default implementation returns false.
      */
-    virtual bool asABlur(SkSize* sigma) const;
+    virtual bool canFilterImageGPU() const;
 
     /**
-     *  Experimental.
-     *
-     *  If the filter can be expressed as an erode, return true and
-     *  set the radius in X and Y.
+     *  Process this image filter on the GPU.  texture is the source texture
+     *  for processing, and rect is the effect region to process.  The
+     *  function must allocate a new texture of at least rect width/height
+     *  size, and return it to the caller.  The default implementation returns
+     *  NULL.
      */
-    virtual bool asAnErode(SkISize* radius) const;
-
-    /**
-     *  Experimental.
-     *
-     *  If the filter can be expressed as a dilation, return true and
-     *  set the radius in X and Y.
-     */
-    virtual bool asADilate(SkISize* radius) const;
+    virtual GrTexture* onFilterImageGPU(GrTexture* texture, const SkRect& rect);
 
 protected:
     SkImageFilter() {}
