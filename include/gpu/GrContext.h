@@ -10,12 +10,13 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "GrClip.h"
 #include "GrPaint.h"
 #include "GrAARectRenderer.h"
+#include "GrClipData.h"
 // not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
 // remove.
 #include "GrRenderTarget.h" 
+#include "SkClipStack.h"
 
 class GrAutoScratchTexture;
 class GrDrawState;

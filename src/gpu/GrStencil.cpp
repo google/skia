@@ -195,7 +195,7 @@ GR_STATIC_CONST_SAME_STENCIL(gInvUserToClipRDiffPass1,
 // only modify the in/out status of samples covered by the clip element.
 
 // this one only works if used right after stencil clip was cleared.
-// Our GrClip doesn't allow midstream replace ops.
+// Our clip mask creation code doesn't allow midstream replace ops.
 GR_STATIC_CONST_SAME_STENCIL(gReplaceClip,
     kReplace_StencilOp,
     kReplace_StencilOp,

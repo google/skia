@@ -19,6 +19,7 @@
 #include "gl/SkNullGLContext.h"
 
 #include "GrContext.h"
+#include "SkTArray.h"
 
 /**
  * This is a simple class that is useful in test apps that use different 

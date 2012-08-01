@@ -10,7 +10,6 @@
 #include "GrGpu.h"
 
 #include "GrBufferAllocPool.h"
-#include "GrClipIterator.h"
 #include "GrContext.h"
 #include "GrIndexBuffer.h"
 #include "GrStencilBuffer.h"

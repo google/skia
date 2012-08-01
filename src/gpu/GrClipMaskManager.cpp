@@ -651,10 +651,6 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
         }
 
         if (SkRegion::kReplace_Op == op) {
-            // TODO: replace is actually a lot faster then intersection
-            // for this path - refactor the stencil path so it can handle
-            // replace ops and alter GrClip to allow them through
-
             // clear the accumulator and draw the new object directly into it
             fGpu->clear(NULL, 0x00000000, accum->asRenderTarget());
 

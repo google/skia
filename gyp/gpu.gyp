@@ -177,8 +177,7 @@
       ],
       'sources': [
         '../include/gpu/GrAARectRenderer.h',
-        '../include/gpu/GrClip.h',
-        '../include/gpu/GrClipIterator.h',
+        '../include/gpu/GrClipData.h',
         '../include/gpu/GrColor.h',
         '../include/gpu/GrConfig.h',
         '../include/gpu/GrContext.h',
@@ -224,7 +223,7 @@
         '../src/gpu/GrBinHashKey.h',
         '../src/gpu/GrBufferAllocPool.cpp',
         '../src/gpu/GrBufferAllocPool.h',
-        '../src/gpu/GrClip.cpp',
+        '../src/gpu/GrClipData.cpp',
         '../src/gpu/GrContext.cpp',
         '../src/gpu/GrCustomStage.cpp',
         '../src/gpu/GrDefaultPathRenderer.cpp',

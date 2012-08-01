@@ -17,7 +17,6 @@
 #include "GrTypes.h"
 #include "GrContext.h"
 #include "GrFontScaler.h"
-#include "GrClipIterator.h"
 
 // skia headers
 #include "SkBitmap.h"
@@ -84,45 +83,6 @@ void GrUnlockCachedBitmapTexture(GrContext*, GrContext::TextureCacheEntry);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Classes
-
-class SkGrClipIterator : public GrClipIterator {
-public:
-    SkGrClipIterator() { fClipStack = NULL;  fCurr = NULL; }
-    SkGrClipIterator(const SkClipStack& clipStack) { this->reset(clipStack); }
-
-    void reset(const SkClipStack& clipStack);
-
-    // overrides
-    virtual bool isDone() const SK_OVERRIDE { return NULL == fCurr; }
-    virtual void next() SK_OVERRIDE { fCurr = fIter.next(); }
-    virtual void rewind() SK_OVERRIDE { this->reset(*fClipStack); }
-    virtual GrClipType getType() const SK_OVERRIDE;
-
-    virtual SkRegion::Op getOp() const SK_OVERRIDE;
-
-    virtual bool getDoAA() const SK_OVERRIDE;
-
-    virtual void getRect(GrRect* rect) const SK_OVERRIDE {
-        if (!fCurr->fRect) {
-            rect->setEmpty();
-        } else {
-            *rect = *fCurr->fRect;
-        }
-    }
-
-    virtual const SkPath* getPath() SK_OVERRIDE {
-        return fCurr->fPath;
-    }
-
-    virtual GrPathFill getPathFill() const SK_OVERRIDE;
-
-private:
-    const SkClipStack*                  fClipStack;
-    SkClipStack::B2TIter                fIter;
-    // SkClipStack's auto advances on each get
-    // so we store the current pos here.
-    const SkClipStack::B2TIter::Clip*   fCurr;
-};
 
 class SkGlyphCache;
 
