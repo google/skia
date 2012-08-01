@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorPriv.h"
+#include "GrContext.h"
 
 SkBlurImageFilter::SkBlurImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
@@ -18,11 +19,6 @@ SkBlurImageFilter::SkBlurImageFilter(SkFlattenableReadBuffer& buffer)
 SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX, SkScalar sigmaY)
     : fSigma(SkSize::Make(sigmaX, sigmaY)) {
     SkASSERT(sigmaX >= 0 && sigmaY >= 0);
-}
-
-bool SkBlurImageFilter::asABlur(SkSize* sigma) const {
-    *sigma = fSigma;
-    return true;
 }
 
 void SkBlurImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -185,6 +181,11 @@ bool SkBlurImageFilter::onFilterImage(Proxy*,
         boxBlurY(temp, dst,   kernelSizeY3, highOffsetY, highOffsetY);
     }
     return true;
+}
+
+GrTexture* SkBlurImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
+    return src->getContext()->gaussianBlur(src, false, rect,
+                                           fSigma.width(), fSigma.height());
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkBlurImageFilter)

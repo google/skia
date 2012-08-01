@@ -15,8 +15,6 @@ class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
     SkBlurImageFilter(SkScalar sigmaX, SkScalar sigmaY);
 
-    virtual bool asABlur(SkSize* sigma) const SK_OVERRIDE;
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
 
 protected:
@@ -25,6 +23,9 @@ protected:
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+
+    bool canFilterImageGPU() const SK_OVERRIDE { return true; }
+    virtual GrTexture* onFilterImageGPU(GrTexture* src, const SkRect& rect) SK_OVERRIDE;
 
 private:
     SkSize   fSigma;
