@@ -47,7 +47,7 @@ static CGContextRef makeCG(const SkBitmap& bm) {
     CGContextRef cg = CGBitmapContextCreate(bm.getPixels(), bm.width(), bm.height(),
                                             8, bm.rowBytes(), space, BITMAP_INFO_RGB);
     CFRelease(space);
-    
+
     CGContextSetAllowsFontSubpixelQuantization(cg, false);
     CGContextSetShouldSubpixelQuantizeFonts(cg, false);
     
@@ -185,6 +185,9 @@ protected:
             }
             x += SkIntToScalar(1024) / SK_ARRAY_COUNT(fg);
         }
+#ifdef SK_BUILD_FOR_MAC
+        CGContextRelease(cg);
+#endif
     }
 
 private:
