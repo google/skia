@@ -31,7 +31,6 @@ static SkString build_sampler_string(GrGLShaderBuilder::SamplerMode samplerMode)
           sampler.append("Proj");
           break;
       case GrGLShaderBuilder::kExplicitDivide_SamplerMode:
-          GrAssert(false);  // Not Implemented
           break;
     }
 
@@ -120,18 +119,22 @@ void GrGLShaderBuilder::computeModulate(const char* fsInColor) {
     }
 }
 
-void GrGLShaderBuilder::setupTextureAccess(SamplerMode samplerMode,
-                                           int stageNum) {
+void GrGLShaderBuilder::setupTextureAccess(int stageNum) {
     SkString retval;
 
-    fTexFunc = "texture2D";
-    switch (samplerMode) {
+    SamplerMode mode = kDefault_SamplerMode;
+    // FIXME: we aren't currently using Proj.
+    if (fVaryingDims != fCoordDims) {
+        mode = kExplicitDivide_SamplerMode;
+    }
+
+    switch (mode) {
         case kDefault_SamplerMode:
             GrAssert(fVaryingDims == fCoordDims);
             // Do nothing
             break;
         case kProj_SamplerMode:
-            fTexFunc.append("Proj");
+            // Do nothing
             break;
         case kExplicitDivide_SamplerMode:
             retval = "inCoord";
@@ -147,6 +150,7 @@ void GrGLShaderBuilder::setupTextureAccess(SamplerMode samplerMode,
             fSampleCoords = retval;
             break;
     }
+    fTexFunc = build_sampler_string(mode);
     fComplexCoord = false;
 }
 
