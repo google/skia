@@ -31,7 +31,7 @@ void SkRefCntPlayback::reset(const SkRefCntSet* rec) {
     }
     SkDELETE_ARRAY(fArray);
     
-    if (rec) {
+    if (rec!= NULL && rec->count() > 0) {
         fCount = rec->count();
         fArray = SkNEW_ARRAY(SkRefCnt*, fCount);
         rec->copyToArray(fArray);
@@ -60,22 +60,54 @@ SkRefCnt* SkRefCntPlayback::set(int index, SkRefCnt* obj) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkFlatController::SkFlatController()
+: fPixelRefSet(NULL)
+, fTypefaceSet(NULL)
+, fPixelRefPlayback(NULL)
+, fTypefacePlayback(NULL)
+, fFactorySet(NULL) {}
+
+SkFlatController::~SkFlatController() {
+    SkSafeUnref(fPixelRefSet);
+    SkSafeUnref(fTypefaceSet);
+    SkSafeUnref(fFactorySet);
+}
+
+void SkFlatController::setPixelRefSet(SkRefCntSet *set) {
+    SkRefCnt_SafeAssign(fPixelRefSet, set);
+}
+
+void SkFlatController::setTypefaceSet(SkRefCntSet *set) {
+    SkRefCnt_SafeAssign(fTypefaceSet, set);
+}
+
+void SkFlatController::setPixelRefPlayback(SkRefCntPlayback* playback) {
+    fPixelRefPlayback = playback;
+}
+
+void SkFlatController::setTypefacePlayback(SkTypefacePlayback* playback) {
+    fTypefacePlayback = playback;
+}
+
+SkNamedFactorySet* SkFlatController::setNamedFactorySet(SkNamedFactorySet* set) {
+    SkRefCnt_SafeAssign(fFactorySet, set);
+    return set;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
         int index, void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
-        SkRefCntSet* refCntRecorder, SkRefCntSet* faceRecorder,
-        uint32_t writeBufferflags, SkNamedFactorySet* fset) {
+        uint32_t writeBufferflags) {
     // a buffer of 256 bytes should be sufficient for most paints, regions,
     // and matrices.
     intptr_t storage[256];
     SkOrderedWriteBuffer buffer(256, storage, sizeof(storage));
-    if (refCntRecorder) {
-        buffer.setRefCntRecorder(refCntRecorder);
-    }
-    if (faceRecorder) {
-        buffer.setTypefaceRecorder(faceRecorder);
-    }
+
+    buffer.setRefCntRecorder(controller->getPixelRefSet());
+    buffer.setTypefaceRecorder(controller->getTypefaceSet());
+    buffer.setNamedFactoryRecorder(controller->getNamedFactorySet());
     buffer.setFlags(writeBufferflags);
-    buffer.setNamedFactoryRecorder(fset);
     
     flattenProc(buffer, obj);
     uint32_t size = buffer.size();

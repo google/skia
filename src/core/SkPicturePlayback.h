@@ -178,7 +178,6 @@ private:
     SkPicture** fPictureRefs;
     int fPictureCount;
 
-    SkRefCntPlayback fRCPlayback;
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback*   fFactoryPlayback;
 #ifdef SK_BUILD_FOR_ANDROID

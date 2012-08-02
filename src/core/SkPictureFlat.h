@@ -146,7 +146,8 @@ private:
 // SkFlatDictionary: is an abstract templated dictionary that maintains a
 //                   searchable set of SkFlataData objects of type T.
 // SkFlatController: is an interface provided to SkFlatDictionary which handles
-//                   allocation and unallocation in some cases
+//                   allocation and unallocation in some cases. It also holds
+//                   ref count recorders and the like.
 //
 // NOTE: any class that wishes to be used in conjunction with SkFlatDictionary
 // must subclass the dictionary and provide the necessary flattening procs.
@@ -162,6 +163,8 @@ class SkFlatData;
 
 class SkFlatController : public SkRefCnt {
 public:
+    SkFlatController();
+    virtual ~SkFlatController();
     /**
      * Provide a new block of memory for the SkFlatDictionary to use.
      */
@@ -176,6 +179,81 @@ public:
      */
     virtual void unalloc(void* ptr) = 0;
 
+    /**
+     * Used during creation of SkFlatData objects. Only used for storing refs to
+     * SkPixelRefs. If the objects being flattened have SkPixelRefs (i.e.
+     * SkBitmaps or SkPaints, which may have SkBitmapShaders), this should be
+     * set by the protected setPixelRefSet.
+     */
+    SkRefCntSet* getPixelRefSet() { return fPixelRefSet; }
+
+    /**
+     * Used during unflattening of the SkFlatData objects in the
+     * SkFlatDictionary. Needs to be set by the protected setPixelRefPlayback
+     * and needs to be reset to the SkRefCntSet passed to setPixelRefSet.
+     */
+    SkRefCntPlayback* getPixelRefPlayback() { return fPixelRefPlayback; }
+
+    /**
+     * Used during creation of SkFlatData objects. If a typeface recorder is
+     * required to flatten the objects being flattened (i.e. for SkPaints), this
+     * should be set by the protected setTypefaceSet.
+     */
+    SkRefCntSet* getTypefaceSet() { return fTypefaceSet; }
+
+    /**
+     * Used during unflattening of the SkFlatData objects in the
+     * SkFlatDictionary. Needs to be set by the protected setTypefacePlayback
+     * and needs to be reset to the SkRefCntSet passed to setTypefaceSet.
+     */
+    SkTypefacePlayback* getTypefacePlayback() { return fTypefacePlayback; }
+
+    /**
+     * Optional factory recorder used during creation of SkFlatData objects. Set
+     * using the protected method setNamedFactorySet.
+     */
+    SkNamedFactorySet* getNamedFactorySet() { return fFactorySet; }
+
+protected:
+    /**
+     * Set an SkRefCntSet to be used to store SkPixelRefs during flattening. Ref
+     * counted.
+     */
+    void setPixelRefSet(SkRefCntSet*);
+
+    /**
+     * Set an SkRefCntSet to be used to store SkTypefaces during flattening. Ref
+     * counted.
+     */
+    void setTypefaceSet(SkRefCntSet*);
+
+    /**
+     * Set an SkRefCntPlayback to be used to find references to SkPixelRefs
+     * during unflattening. Should be reset to the set provided to
+     * setPixelRefSet.
+     */
+    void setPixelRefPlayback(SkRefCntPlayback*);
+
+    /**
+     * Set an SkTypefacePlayback to be used to find references to SkTypefaces
+     * during unflattening. Should be reset to the set provided to
+     * setTypefaceSet.
+     */
+    void setTypefacePlayback(SkTypefacePlayback*);
+
+    /**
+     * Set an SkNamedFactorySet to be used to store Factorys and their
+     * corresponding names during flattening. Ref counted. Returns the same
+     * set as a convenience.
+     */
+    SkNamedFactorySet* setNamedFactorySet(SkNamedFactorySet*);
+
+private:
+    SkRefCntSet*        fPixelRefSet;
+    SkRefCntSet*        fTypefaceSet;
+    SkRefCntPlayback*   fPixelRefPlayback;
+    SkTypefacePlayback* fTypefacePlayback;
+    SkNamedFactorySet*  fFactorySet;
 };
 
 class SkFlatData {
@@ -239,10 +317,7 @@ public:
 
     static SkFlatData* Create(SkFlatController* controller, const void* obj, int index,
                               void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
-                              SkRefCntSet* refCntRecorder = NULL,
-                              SkRefCntSet* faceRecorder = NULL,
-                              uint32_t writeBufferflags = 0,
-                              SkNamedFactorySet* fset = NULL);
+                              uint32_t writeBufferflags);
 
     void unflatten(void* result,
                    void (*unflattenProc)(SkOrderedReadBuffer&, void*),
@@ -290,18 +365,12 @@ private:
 template <class T>
 class SkFlatDictionary {
 public:
-    SkFlatDictionary(SkFlatController* controller, SkRefCntSet* refSet = NULL,
-                     SkRefCntSet* typeFaceSet = NULL,
-                     SkNamedFactorySet* factorySet = NULL)
-    : fController(controller), fRefSet(refSet), fTypefaceSet(typeFaceSet)
-    , fFactorySet(factorySet) {
+    SkFlatDictionary(SkFlatController* controller)
+    : fController(controller) {
         fFlattenProc = NULL;
         fUnflattenProc = NULL;
         SkASSERT(controller);
         fController->ref();
-        SkSafeRef(refSet);
-        SkSafeRef(typeFaceSet);
-        SkSafeRef(factorySet);
         // set to 1 since returning a zero from find() indicates failure
         fNextIndex = 1;
         sk_bzero(fHash, sizeof(fHash));
@@ -309,9 +378,6 @@ public:
 
     virtual ~SkFlatDictionary() {
         fController->unref();
-        SkSafeUnref(fRefSet);
-        SkSafeUnref(fTypefaceSet);
-        SkSafeUnref(fFactorySet);
     }
 
     int count() const { return fData.count(); }
@@ -393,13 +459,11 @@ public:
      * with the unflattened dictionary contents. The return value is the size of
      * the allocated array.
      */
-    int unflattenDictionary(T*& array,
-                            SkRefCntPlayback* refCntPlayback = NULL,
-                            SkTypefacePlayback* facePlayback = NULL) const {
+    int unflattenDictionary(T*& array) const {
         int elementCount = fData.count();
         if (elementCount > 0) {
             array = SkNEW_ARRAY(T, elementCount);
-            this->unflattenIntoArray(array, refCntPlayback, facePlayback);
+            this->unflattenIntoArray(array);
         }
         return elementCount;
     }
@@ -408,14 +472,12 @@ public:
      *  Unflatten the objects and return them in SkTRefArray, or return NULL
      *  if there no objects (instead of an empty array).
      */
-    SkTRefArray<T>* unflattenToArray(SkRefCntPlayback* refCntPlayback,
-                                     SkTypefacePlayback* facePlayback) const {
+    SkTRefArray<T>* unflattenToArray() const {
         int count = fData.count();
         SkTRefArray<T>* array = NULL;
         if (count > 0) {
             array = SkTRefArray<T>::Create(count);
-            this->unflattenIntoArray(&array->writableAt(0),
-                                     refCntPlayback, facePlayback);
+            this->unflattenIntoArray(&array->writableAt(0));
         }
         return array;
     }
@@ -425,9 +487,7 @@ protected:
     void (*fUnflattenProc)(SkOrderedReadBuffer&, void*);
 
 private:
-    void unflattenIntoArray(T* array,
-                            SkRefCntPlayback* refCntPlayback,
-                            SkTypefacePlayback* facePlayback) const {
+    void unflattenIntoArray(T* array) const {
         const int count = fData.count();
         const SkFlatData** iter = fData.begin();
         for (int i = 0; i < count; ++i) {
@@ -435,7 +495,9 @@ private:
             int index = element->index() - 1;
             SkASSERT((unsigned)index < (unsigned)count);
             element->unflatten(&array[index], fUnflattenProc,
-                               refCntPlayback, facePlayback);
+                               fController->getPixelRefPlayback(),
+                               fController->getTypefacePlayback());
+
         }
     }
 
@@ -443,16 +505,11 @@ private:
     SkFlatController * const     fController;
     int                          fNextIndex;
     SkTDArray<const SkFlatData*> fData;
-    SkRefCntSet*                 fRefSet;
-    SkRefCntSet*                 fTypefaceSet;
-    SkNamedFactorySet*           fFactorySet;
 
     const SkFlatData* findAndReturnFlat(const T& element,
                                         uint32_t writeBufferflags) {
         SkFlatData* flat = SkFlatData::Create(fController, &element, fNextIndex,
-                                              fFlattenProc, fRefSet,
-                                              fTypefaceSet, writeBufferflags,
-                                              fFactorySet);
+                                              fFlattenProc, writeBufferflags);
         
         int hashIndex = ChecksumToHashIndex(flat->checksum());
         const SkFlatData* candidate = fHash[hashIndex];
@@ -523,26 +580,53 @@ static void SkUnflattenObjectProc(SkOrderedReadBuffer& buffer, void* obj) {
 class SkChunkFlatController : public SkFlatController {
 public:
     SkChunkFlatController(size_t minSize)
-    : fHeap(minSize) {}
+    : fHeap(minSize)
+    , fRefSet(SkNEW(SkRefCntSet))
+    , fTypefaceSet(SkNEW(SkRefCntSet)) {
+        this->setPixelRefSet(fRefSet);
+        this->setTypefaceSet(fTypefaceSet);
+        this->setPixelRefPlayback(&fRefPlayback);
+        this->setTypefacePlayback(&fTypefacePlayback);
+    }
 
-    virtual void* allocThrow(size_t bytes) {
+    ~SkChunkFlatController() {
+        fRefSet->unref();
+        fTypefaceSet->unref();
+    }
+
+    virtual void* allocThrow(size_t bytes) SK_OVERRIDE {
         return fHeap.allocThrow(bytes);
     }
 
-    virtual void unalloc(void* ptr) {
+    virtual void unalloc(void* ptr) SK_OVERRIDE {
         (void) fHeap.unalloc(ptr);
     }
-    void reset() { fHeap.reset(); }
+
+    void reset() {
+        fHeap.reset();
+        fRefSet->reset();
+        fTypefaceSet->reset();
+        fRefPlayback.reset(NULL);
+        fTypefacePlayback.reset(NULL);
+    }
+
+    void setupPlaybacks() const {
+        fRefPlayback.reset(fRefSet);
+        fTypefacePlayback.reset(fTypefaceSet);
+    }
+
 private:
-    SkChunkAlloc fHeap;
+    SkChunkAlloc               fHeap;
+    SkRefCntSet*               fRefSet;
+    SkRefCntSet*               fTypefaceSet;
+    mutable SkRefCntPlayback   fRefPlayback;
+    mutable SkTypefacePlayback fTypefacePlayback;
 };
 
 class SkBitmapDictionary : public SkFlatDictionary<SkBitmap> {
 public:
-    SkBitmapDictionary(SkFlatController* controller, SkRefCntSet* refSet = NULL,
-                       SkRefCntSet* typefaceSet = NULL,
-                       SkNamedFactorySet* factorySet = NULL)
-    : SkFlatDictionary<SkBitmap>(controller, refSet, typefaceSet, factorySet) {
+    SkBitmapDictionary(SkFlatController* controller)
+    : SkFlatDictionary<SkBitmap>(controller) {
         fFlattenProc = &SkFlattenObjectProc<SkBitmap>;
         fUnflattenProc = &SkUnflattenObjectProc<SkBitmap>;
     }
@@ -567,9 +651,8 @@ class SkMatrixDictionary : public SkFlatDictionary<SkMatrix> {
 
 class SkPaintDictionary : public SkFlatDictionary<SkPaint> {
  public:
-    SkPaintDictionary(SkFlatController* controller, SkRefCntSet* refSet,
-                      SkRefCntSet* typefaceSet)
-    : SkFlatDictionary<SkPaint>(controller, refSet, typefaceSet) {
+    SkPaintDictionary(SkFlatController* controller)
+    : SkFlatDictionary<SkPaint>(controller) {
         fFlattenProc = &SkFlattenObjectProc<SkPaint>;
         fUnflattenProc = &SkUnflattenObjectProc<SkPaint>;
     }

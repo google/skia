@@ -18,9 +18,9 @@ enum {
 
 SkPictureRecord::SkPictureRecord(uint32_t flags) :
         fHeap(HEAP_BLOCK_SIZE),
-        fBitmaps(&fHeap, &fRCSet),
+        fBitmaps(&fHeap),
         fMatrices(&fHeap),
-        fPaints(&fHeap, &fRCSet, &fTFSet),
+        fPaints(&fHeap),
         fRegions(&fHeap),
         fWriter(MIN_WRITER_SIZE),
         fRecordFlags(flags) {
@@ -533,9 +533,6 @@ void SkPictureRecord::reset() {
 
     fRestoreOffsetStack.setCount(1);
     fRestoreOffsetStack.top() = 0;
-
-    fRCSet.reset();
-    fTFSet.reset();
 }
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
