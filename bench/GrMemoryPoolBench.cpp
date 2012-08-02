@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+// This tests a Gr class
+#if SK_SUPPORT_GPU
+
 #include "GrMemoryPool.h"
 #include "SkBenchmark.h"
 #include "SkRandom.h"
@@ -162,3 +165,4 @@ static BenchRegistry gReg01(Fact1);
 static BenchRegistry gReg02(Fact2);
 static BenchRegistry gReg03(Fact3);
 
+#endif

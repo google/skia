@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+// This is a GPU-backend specific test
+#if SK_SUPPORT_GPU
+
 #include "Test.h"
 #include "GrMemoryPool.h"
 #include "SkRandom.h"
@@ -241,3 +244,4 @@ static void test_memory_pool(skiatest::Reporter* reporter) {
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("GrMemoryPool", GrMemoryPoolClass, test_memory_pool)
 
+#endif

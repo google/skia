@@ -18,9 +18,6 @@
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
 #include "SkShader.h"
-#include "GrSamplerState.h"
-#include "SkGr.h"
-#include "gl/GrGLProgramStage.h"
 
 #ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
     #define USE_DITHER_32BIT_GRADIENT
@@ -192,6 +189,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+
+#include "gl/GrGLProgramStage.h"
+
 class GrSamplerState;
 class GrProgramStageFactory;
 
@@ -259,6 +260,8 @@ private:
 
     typedef GrGLProgramStage INHERITED;
 };
+
+#endif
 
 #endif
 

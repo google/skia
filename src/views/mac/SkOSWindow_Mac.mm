@@ -19,7 +19,9 @@
 
 SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd) {
     fInvalEventIsPending = false;
+#if SK_SUPPORT_GPU
     fGLContext = NULL;
+#endif
     fNotifier = [[SkEventNotifier alloc] init];
 }
 SkOSWindow::~SkOSWindow() {
@@ -38,7 +40,9 @@ bool SkOSWindow::onEvent(const SkEvent& evt) {
         fInvalEventIsPending = false;
         const SkIRect& r = this->getDirtyBounds();
         [(SkNSView*)fHWND postInvalWithRect:&r];
+#if SK_SUPPORT_GPU
         [(NSOpenGLContext*)fGLContext update];
+#endif
         return true;
     }
     if ([(SkNSView*)fHWND onHandleEvent:evt]) {

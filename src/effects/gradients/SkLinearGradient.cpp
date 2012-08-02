@@ -472,6 +472,8 @@ void SkLinearGradient::shadeSpan16(int x, int y,
     }
 }
 
+#if SK_SUPPORT_GPU
+
 /////////////////////////////////////////////////////////////////////
 
 class GrGLLinearGradient : public GrGLGradientStage {
@@ -541,3 +543,12 @@ GrCustomStage* SkLinearGradient::asNewCustomStage(GrContext* context,
     return SkNEW_ARGS(GrLinearGradient, (context, *this, sampler));
 }
 
+#else
+
+GrCustomStage* SkLinearGradient::asNewCustomStage(GrContext* context,
+                                                  GrSamplerState* sampler) const {
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return NULL;
+}
+
+#endif

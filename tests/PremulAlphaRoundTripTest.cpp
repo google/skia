@@ -9,7 +9,11 @@
 #include "Test.h"
 #include "SkCanvas.h"
 #include "SkConfig8888.h"
+#include "SkDevice.h"
+
+#if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
+#endif
 
 
 namespace {
@@ -52,14 +56,15 @@ void PremulAlphaRoundTripTest(skiatest::Reporter* reporter,
                                           256,
                                           false))->unref();
         } else {
-#if SK_SCALAR_IS_FIXED
+#if !SK_SUPPORT_GPU || defined(SK_SCALAR_IS_FIXED)
             // GPU device known not to work in the fixed pt build.
             continue;
-#endif
+#else
             canvas.setDevice(new SkGpuDevice(context,
                                              SkBitmap::kARGB_8888_Config,
                                              256,
                                              256))->unref();
+#endif
         }
 
         SkBitmap readBmp1;

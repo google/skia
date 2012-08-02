@@ -7,7 +7,11 @@
 
 #include "gm.h"
 
+#if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
+#else
+class GrContext;
+#endif
 
 static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     SkDevice* dev;
@@ -16,11 +20,14 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     const int kFixed = 28;
     const int kStretchy = 8;
     const int kSize = 2*kFixed + kStretchy;
-    
+
+#if SK_SUPPORT_GPU
     if (ctx) {
         dev = new SkGpuDevice(ctx, SkBitmap::kARGB_8888_Config, kSize, kSize);
         *bitmap = dev->accessBitmap(false);
-    } else {
+    } else
+#endif
+    {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
         bitmap->allocPixels();
         dev = new SkDevice(*bitmap);

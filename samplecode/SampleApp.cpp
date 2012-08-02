@@ -9,7 +9,6 @@
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
@@ -19,12 +18,17 @@
 #include "SkWindow.h"
 
 #include "SampleCode.h"
-#include "GrContext.h"
 #include "SkTypeface.h"
 
+#if SK_SUPPORT_GPU
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
 #include "GrRenderTarget.h"
+#include "GrContext.h"
+#include "SkGpuDevice.h"
+#else
+class GrContext;
+#endif
 
 #include "SkOSFile.h"
 #include "SkPDFDevice.h"
@@ -147,18 +151,22 @@ static void writeTitleToPrefs(const char* title) {
 class SampleWindow::DefaultDeviceManager : public SampleWindow::DeviceManager {
 public:
 
-    DefaultDeviceManager()
-        : fCurContext(NULL)
-        , fCurIntf(NULL)
-        , fCurRenderTarget(NULL)
-        , fBackend(kNone_BackEndType)
-        , fMSAASampleCount(0) {
+    DefaultDeviceManager() {
+#if SK_SUPPORT_GPU
+        fCurContext = NULL;
+        fCurIntf = NULL;
+        fCurRenderTarget = NULL;
+        fMSAASampleCount = 0;
+#endif
+        fBackend = kNone_BackEndType;
     }
 
     virtual ~DefaultDeviceManager() {
+#if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         SkSafeUnref(fCurIntf);
         SkSafeUnref(fCurRenderTarget);
+#endif
     }
 
     virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) {
@@ -166,6 +174,7 @@ public:
 
         fBackend = kNone_BackEndType;
 
+#if SK_SUPPORT_GPU
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:
                 // fallthrough
@@ -182,7 +191,7 @@ public:
                 // ANGLE is really the only odd man out
                 fBackend = kANGLE_BackEndType;
                 break;
-#endif
+#endif // SK_ANGLE
             default:
                 SkASSERT(false);
                 break;
@@ -209,7 +218,7 @@ public:
             case kANGLE_DeviceType:
                 fCurIntf = GrGLCreateANGLEInterface();
                 break;
-#endif
+#endif // SK_ANGLE
             case kNullGPU_DeviceType:
                 fCurIntf = GrGLCreateNullInterface();
                 break;
@@ -230,13 +239,13 @@ public:
 
             win->detach();
         }
-
+#endif // SK_SUPPORT_GPU
         // call windowSizeChanged to create the render target
-        windowSizeChanged(win);
+        this->windowSizeChanged(win);
     }
 
     virtual void tearDownBackend(SampleWindow *win) {
-
+#if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         fCurContext = NULL;
 
@@ -245,7 +254,7 @@ public:
 
         SkSafeUnref(fCurRenderTarget);
         fCurRenderTarget = NULL;
-
+#endif
         win->detach();
         fBackend = kNone_BackEndType;
     }
@@ -262,6 +271,7 @@ public:
             case kANGLE_DeviceType:
 #endif
                 break;
+#if SK_SUPPORT_GPU
             case kGPU_DeviceType:
             case kNullGPU_DeviceType:
                 if (fCurContext) {
@@ -271,6 +281,7 @@ public:
                     return false;
                 }
                 break;
+#endif
             default:
                 SkASSERT(false);
                 return false;
@@ -281,6 +292,7 @@ public:
     virtual void publishCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
                                SampleWindow* win) {
+#if SK_SUPPORT_GPU
         if (fCurContext) {
             // in case we have queued drawing calls
             fCurContext->flush();
@@ -295,12 +307,13 @@ public:
                                              bm.rowBytes());
             }
         }
+#endif
 
         win->present();
     }
 
     virtual void windowSizeChanged(SampleWindow* win) {
-
+#if SK_SUPPORT_GPU
         if (fCurContext) {
             win->attach(fBackend, fMSAASampleCount);
 
@@ -317,23 +330,35 @@ public:
             SkSafeUnref(fCurRenderTarget);
             fCurRenderTarget = fCurContext->createPlatformRenderTarget(desc);
         }
+#endif
     }
 
     virtual GrContext* getGrContext() {
+#if SK_SUPPORT_GPU
         return fCurContext;
+#else
+        return NULL;
+#endif
     }
 
     virtual GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
+#if SK_SUPPORT_GPU
         return fCurRenderTarget;
+#else
+        return NULL;
+#endif
     }
 
 private:
+
+#if SK_SUPPORT_GPU
     GrContext*              fCurContext;
     const GrGLInterface*    fCurIntf;
     GrRenderTarget*         fCurRenderTarget;
+    int fMSAASampleCount;
+#endif
 
     SkOSWindow::SkBackEndTypes fBackend;
-    int fMSAASampleCount;
 
     typedef SampleWindow::DeviceManager INHERITED;
 };
@@ -657,13 +682,16 @@ void SampleWindow::updatePointer(int x, int y)
 static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType ct) {
     static const SampleWindow::DeviceType gCT[] = {
         SampleWindow::kPicture_DeviceType,
+#if SK_SUPPORT_GPU
         SampleWindow::kGPU_DeviceType,
 #if SK_ANGLE
         SampleWindow::kANGLE_DeviceType,
-#endif
+#endif // SK_ANGLE
         SampleWindow::kRaster_DeviceType, // skip the null gpu device in normal cycling
+#endif // SK_SUPPORT_GPU
         SampleWindow::kRaster_DeviceType
     };
+    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gCT) == SampleWindow::kDeviceTypeCnt, array_size_mismatch);
     return gCT[ct];
 }
 
@@ -1233,19 +1261,23 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         switch (fDeviceType) {
             case kRaster_DeviceType:
                 // fallthrough
+#if SK_SUPPORT_GPU
             case kGPU_DeviceType:
                 // fallthrough
 #if SK_ANGLE
             case kANGLE_DeviceType:
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
                 canvas = this->INHERITED::beforeChildren(canvas);
                 break;
             case kPicture_DeviceType:
                 fPicture = new SkPicture;
                 canvas = fPicture->beginRecording(9999, 9999);
                 break;
+#if SK_SUPPORT_GPU
             case kNullGPU_DeviceType:
                 break;
+#endif
             default:
                 SkASSERT(false);
                 break;
@@ -1737,6 +1769,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             this->updateTitle();
             return true;
+#if SK_SUPPORT_GPU
         case '\\':
             this->setDeviceType(kNullGPU_DeviceType);
             this->inval(NULL);
@@ -1753,6 +1786,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
                 }
             }
             return true;
+#endif
         case 's':
             fScale = !fScale;
             this->inval(NULL);
@@ -1967,22 +2001,31 @@ static const char* configToString(SkBitmap::Config c) {
 static const char* gDeviceTypePrefix[] = {
     "raster: ",
     "picture: ",
+#if SK_SUPPORT_GPU
     "opengl: ",
 #if SK_ANGLE
     "angle: ",
-#endif
+#endif // SK_ANGLE
     "null-gl: "
+#endif // SK_SUPPORT_GPU
 };
+SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,
+                  array_size_mismatch);
 
 static const bool gDeviceTypeIsGPU[] = {
     false,
     false,
+#if SK_SUPPORT_GPU
     true,
 #if SK_ANGLE
     true,
-#endif
+#endif // SK_ANGLE
     true
+#endif // SK_SUPPORT_GPU
 };
+SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gDeviceTypeIsGPU) == SampleWindow::kDeviceTypeCnt,
+                  array_size_mismatch);
+
 
 static const char* trystate_str(SkOSMenu::TriState state,
                                 const char trueStr[], const char falseStr[]) {
@@ -2051,12 +2094,14 @@ void SampleWindow::updateTitle() {
         title.prepend("! ");
     }
 
+#if SK_SUPPORT_GPU
     if (gDeviceTypeIsGPU[fDeviceType] &&
         NULL != fDevManager &&
         fDevManager->getGrRenderTarget()->numSamples() > 0) {
         title.appendf(" [MSAA: %d]",
                        fDevManager->getGrRenderTarget()->numSamples());
     }
+#endif
 
     this->setTitle(title.c_str());
 }

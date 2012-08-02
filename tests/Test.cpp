@@ -7,9 +7,14 @@
  */
 #include "Test.h"
 
+#include "SkTLazy.h"
+
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "gl/SkNativeGLContext.h"
-#include "SkTLazy.h"
+#else
+class GrContext;
+#endif
 
 using namespace skiatest;
 
@@ -78,6 +83,7 @@ bool Test::run() {
 
 
 GrContext* GpuTest::GetContext() {
+#if SK_SUPPORT_GPU
     // preserve this order, we want gGrContext destroyed after gEGLContext
     static SkTLazy<SkNativeGLContext> gGLContext;
     static SkAutoTUnref<GrContext> gGrContext;
@@ -93,5 +99,8 @@ GrContext* GpuTest::GetContext() {
         gGLContext.get()->makeCurrent();
     }
     return gGrContext.get();
+#else
+    return NULL;
+#endif
 }
 

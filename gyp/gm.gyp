@@ -10,7 +10,6 @@
       'include_dirs' : [
         '../src/core',
         '../src/pipe/utils/',
-        '../src/gpu',
       ],
       'includes': [
         'gmslides.gypi',
@@ -25,8 +24,6 @@
       'dependencies': [
         'core.gyp:core',
         'effects.gyp:effects',
-        'gpu.gyp:gr',
-        'gpu.gyp:skgr',
         'images.gyp:images',
         'pdf.gyp:pdf',
         'ports.gyp:ports',
@@ -52,7 +49,16 @@
             'xps.gyp:xps',
           ],
         }],
-      ],  
+        ['skia_gpu == 1', {
+          'include_dirs': [
+            '../src/gpu',
+          ],
+          'dependencies': [
+            'gpu.gyp:gr',
+            'gpu.gyp:skgr',
+          ],
+        }],
+      ],
     },
   ],
 }

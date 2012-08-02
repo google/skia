@@ -29,10 +29,12 @@ public:
 
     enum SkBackEndTypes {
         kNone_BackEndType,
+#if SK_SUPPORT_GPU
         kNativeGL_BackEndType,
 #if SK_ANGLE
         kANGLE_BackEndType,
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount);
@@ -62,17 +64,20 @@ private:
     
     void                doPaint(void* ctx);
 
+#if SK_SUPPORT_GPU
     void*               fHGLRC;
 #if SK_ANGLE
     EGLDisplay          fDisplay;
     EGLContext          fContext;
     EGLSurface          fSurface;
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
 
     HMENU               fMBar;
 
     SkBackEndTypes      fAttached;
 
+#if SK_SUPPORT_GPU
     bool attachGL(int msaaSampleCount);
     void detachGL();
     void presentGL();
@@ -81,7 +86,8 @@ private:
     bool attachANGLE(int msaaSampleCount);
     void detachANGLE();
     void presentANGLE();
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
 
     typedef SkWindow INHERITED; 
 };

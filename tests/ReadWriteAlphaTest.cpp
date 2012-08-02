@@ -6,6 +6,9 @@
  * found in the LICENSE file.
  */
 
+// This test is specific to the GPU backend.
+#if SK_SUPPORT_GPU
+
 #include "Test.h"
 #include "SkGpuDevice.h"
 
@@ -105,3 +108,4 @@ static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context)
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("ReadWriteAlpha", ReadWriteAlphaTestClass, ReadWriteAlphaTest)
 
+#endif

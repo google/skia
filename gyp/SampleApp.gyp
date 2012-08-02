@@ -9,7 +9,6 @@
         '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
-        '../src/gpu', # To pull gl/GrGLUtil.h
         '../src/pipe/utils', # For TiledPipeController
       ],
       'includes': [
@@ -151,8 +150,6 @@
         'animator.gyp:animator',
         'xml.gyp:xml',
         'experimental.gyp:experimental',
-        'gpu.gyp:gr',
-        'gpu.gyp:skgr',
         'pdf.gyp:pdf',
         'views_animated.gyp:views_animated',
       ],
@@ -237,7 +234,6 @@
             '../experimental/iOSSampleApp/iPad',
             '../experimental/iOSSampleApp/iPhone',
             '../include/utils/ios',
-            '../../include/gpu',
           ],
           'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
           'mac_bundle_resources' : [
@@ -256,6 +252,15 @@
           ],
           'dependencies': [
             'android_system.gyp:SampleAppAndroid',
+          ],
+        }],
+        [ 'skia_gpu == 1', {
+          'include_dirs': [
+            '../src/gpu', # To pull gl/GrGLUtil.h
+          ],
+          'dependencies': [
+            'gpu.gyp:gr',
+            'gpu.gyp:skgr',
           ],
         }],
       ],

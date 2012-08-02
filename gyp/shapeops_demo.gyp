@@ -61,8 +61,6 @@
         'xml.gyp:xml',
         'svg.gyp:svg',
         'experimental.gyp:experimental',
-        'gpu.gyp:gr',
-        'gpu.gyp:skgr',
         'pdf.gyp:pdf',
       ],
       'conditions' : [
@@ -94,6 +92,12 @@
           },
           'mac_bundle_resources' : [
             '../experimental/Intersection/EdgeDemoApp.xib',
+          ],
+        }],
+        [ 'skia_gpu == 1', {
+          'dependencies': [
+            'gpu.gyp:gr',
+            'gpu.gyp:skgr',
           ],
         }],
       ],

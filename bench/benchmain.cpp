@@ -9,22 +9,24 @@
 
 #include "BenchTimer.h"
 
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTarget.h"
+#if SK_ANGLE
+#include "gl/SkANGLEGLContext.h"
+#endif // SK_ANGLE
+#include "gl/SkNativeGLContext.h"
+#include "gl/SkNullGLContext.h"
+#include "gl/SkDebugGLContext.h"
+#include "SkGpuDevice.h"
+#endif // SK_SUPPORT_GPU
 
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkDeferredCanvas.h"
 #include "SkColorPriv.h"
-#include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
-#if SK_ANGLE
-#include "gl/SkANGLEGLContext.h"
-#endif
-#include "gl/SkNativeGLContext.h"
-#include "gl/SkNullGLContext.h"
-#include "gl/SkDebugGLContext.h"
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkString.h"
@@ -187,6 +189,7 @@ enum Backend {
     kPDF_Backend,
 };
 
+#if SK_SUPPORT_GPU
 class GLHelper {
 public:
     GLHelper() {
@@ -254,8 +257,11 @@ static GLHelper gNullGLHelper;
 static GLHelper gDebugGLHelper;
 #if SK_ANGLE
 static GLHelper gANGLEGLHelper;
-#endif
-
+#endif // SK_ANGLE
+#else  // !SK_SUPPORT_GPU
+class GLHelper;
+class SkGLContext;
+#endif // !SK_SUPPORT_GPU
 static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
                              Backend backend, GLHelper* glHelper) {
     SkDevice* device = NULL;
@@ -268,10 +274,12 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
             erase(bitmap);
             device = new SkDevice(bitmap);
             break;
+#if SK_SUPPORT_GPU
         case kGPU_Backend:
             device = new SkGpuDevice(glHelper->grContext(),
                                      glHelper->renderTarget());
             break;
+#endif
         case kPDF_Backend:
         default:
             SkASSERT(!"unsupported");
@@ -287,14 +295,16 @@ static const struct {
 } gConfigs[] = {
     { SkBitmap::kARGB_8888_Config,  "8888",     kRaster_Backend, NULL },
     { SkBitmap::kRGB_565_Config,    "565",      kRaster_Backend, NULL },
+#if SK_SUPPORT_GPU
     { SkBitmap::kARGB_8888_Config,  "GPU",      kGPU_Backend, &gRealGLHelper },
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config,  "ANGLE",    kGPU_Backend, &gANGLEGLHelper },
-#endif
+#endif // SK_ANGLE
 #ifdef SK_DEBUG
     { SkBitmap::kARGB_8888_Config,  "Debug",    kGPU_Backend, &gDebugGLHelper },
-#endif
+#endif // SK_DEBUG
     { SkBitmap::kARGB_8888_Config,  "NULLGPU",  kGPU_Backend, &gNullGLHelper },
+#endif // SK_SUPPORT_GPU
 };
 
 static int findConfig(const char config[]) {
@@ -370,8 +380,13 @@ static void help() {
              "                 record, Benchmark the time to record to an SkPicture;\n"
              "                 picturerecord, Benchmark the time to do record from a \n"
              "                                SkPicture to a SkPicture.\n");
+#if SK_SUPPORT_GPU
     SkDebugf("    -config 8888|565|GPU|ANGLE|NULLGPU : "
              "Run bench in corresponding config mode.\n");
+#else
+    SkDebugf("    -config 8888|565: "
+             "Run bench in corresponding config mode.\n");
+#endif
     SkDebugf("    -Dfoo bar : Add extra definition to bench.\n");
     SkDebugf("    -h|--help : Show this help message.\n");
 }
@@ -640,26 +655,26 @@ int main (int argc, char * const argv[]) {
         log_progress(str);
     }
 
+    SkGLContext* timerCtx = NULL;
     //Don't do GL when fixed.
-#if !defined(SK_SCALAR_IS_FIXED)
+#if !defined(SK_SCALAR_IS_FIXED) && SK_SUPPORT_GPU
     int contextWidth = 1024;
     int contextHeight = 1024;
     determine_gpu_context_size(defineDict, &contextWidth, &contextHeight);
     SkAutoTUnref<SkGLContext> realGLCtx(new SkNativeGLContext);
     SkAutoTUnref<SkGLContext> nullGLCtx(new SkNullGLContext);
     SkAutoTUnref<SkGLContext> debugGLCtx(new SkDebugGLContext);
-#if SK_ANGLE
-    SkAutoTUnref<SkGLContext> angleGLCtx(new SkANGLEGLContext);
-#endif
     gRealGLHelper.init(realGLCtx.get(), contextWidth, contextHeight);
     gNullGLHelper.init(nullGLCtx.get(), contextWidth, contextHeight);
     gDebugGLHelper.init(debugGLCtx.get(), contextWidth, contextHeight);
 #if SK_ANGLE
+    SkAutoTUnref<SkGLContext> angleGLCtx(new SkANGLEGLContext);
     gANGLEGLHelper.init(angleGLCtx.get(), contextWidth, contextHeight);
-#endif
-#endif
+#endif // SK_ANGLE
+    timerCtx = gRealGLHelper.glContext();
+#endif // !defined(SK_SCALAR_IS_FIXED) && SK_SUPPORT_GPU
 
-    BenchTimer timer = BenchTimer(gRealGLHelper.glContext());
+    BenchTimer timer = BenchTimer(timerCtx);
     Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
@@ -696,11 +711,12 @@ int main (int argc, char * const argv[]) {
             backend = gConfigs[configIndex].fBackend;
             glHelper = gConfigs[configIndex].fGLHelper;
 
+#if SK_SUPPORT_GPU
             if (kGPU_Backend == backend &&
                 (NULL == glHelper || !glHelper->isValid())) {
                 continue;
             }
-            
+#endif
             SkDevice* device = make_device(outConfig, dim, backend, glHelper);
             SkCanvas* canvas = NULL;
             SkPicture pictureRecordFrom;
@@ -754,10 +770,12 @@ int main (int argc, char * const argv[]) {
                     bench->draw(canvas);
                 }
                 canvas->flush();
+#if SK_SUPPORT_GPU
                 if (glHelper) {
                     glHelper->grContext()->flush();
                     SK_GL(*glHelper->glContext(), Finish());
                 }
+#endif
             }
 
             // record timer values for each repeat, and their sum
@@ -783,9 +801,11 @@ int main (int argc, char * const argv[]) {
                     bench->draw(canvas);
                 }
                 canvas->flush();
+#if SK_SUPPORT_GPU
                 if (glHelper) {
                     glHelper->grContext()->flush();
                 }
+#endif
                 timer.end();
 
                 if (i == repeatDraw - 1) {
@@ -805,10 +825,11 @@ int main (int argc, char * const argv[]) {
                 fCpuSum += timer.fCpu;
                 fGpuSum += timer.fGpu;
             }
+#if SK_SUPPORT_GPU
            if (glHelper) {
                 SK_GL(*glHelper->glContext(), Finish());
            }
-
+#endif
             if (repeatDraw > 1) {
                 // output each repeat (no average) if logPerIter is set,
                 // otherwise output only the average
@@ -840,9 +861,9 @@ int main (int argc, char * const argv[]) {
         }
         log_progress("\n");
     }
-
+#if SK_SUPPORT_GPU
     // need to clean up here rather than post-main to allow leak detection to work
     gDebugGLHelper.cleanup();
-
+#endif
     return 0;
 }

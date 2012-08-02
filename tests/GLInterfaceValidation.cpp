@@ -6,6 +6,10 @@
  * found in the LICENSE file.
  */
 
+
+// This is a GPU-backend specific test
+#if SK_SUPPORT_GPU
+
 #include "Test.h"
 #if SK_ANGLE
 #include "gl/SkANGLEGLContext.h"
@@ -77,3 +81,4 @@ DEFINE_TESTCLASS("GLInterfaceValidation",
                  GLInterfaceValidationTestClass,
                  GLInterfaceValidationTest)
 
+#endif

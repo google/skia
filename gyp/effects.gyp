@@ -5,7 +5,6 @@
       'type': 'static_library',
       'include_dirs': [
         '../include/effects',
-        '../src/gpu',
       ],
       'sources': [
         '../include/effects/Sk1DPathEffect.h',
@@ -98,7 +97,16 @@
       },
       'dependencies': [
         'core.gyp:core',
-        'gpu.gyp:gr',
+      ],
+      'conditions': [
+        ['skia_gpu == 1', {
+          'include_dirs': [
+            '../src/gpu',
+          ],
+          'dependencies': [
+            'gpu.gyp:gr',
+          ],
+        }],
       ],
     },
   ],

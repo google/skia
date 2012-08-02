@@ -21,7 +21,9 @@ public:
                                  void* owner);
     enum SkBackEndTypes {
         kNone_BackEndType,
+#if SK_SUPPORT_GPU
         kNativeGL_BackEndType,
+#endif
     };
 
     void    detach();
@@ -42,7 +44,9 @@ private:
     void*   fHWND;
     bool    fInvalEventIsPending;
     void*   fNotifier;
+#if SK_SUPPORT_GPU
     void*   fGLContext;
+#endif
     typedef SkWindow INHERITED;
 };
 

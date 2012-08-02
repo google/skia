@@ -33,7 +33,9 @@ public:
     
 private:
     BenchSysTimer *fSysTimer;
+#if SK_SUPPORT_GPU
     BenchGpuTimer *fGpuTimer;
+#endif
 };
 
 #endif

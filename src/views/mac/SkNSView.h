@@ -24,13 +24,17 @@ class SkEvent;
     
     NSString* fTitle;
     SkOSWindow* fWind;
+#if SK_SUPPORT_GPU
     NSOpenGLContext* fGLContext;
+#endif
     id<SkNSViewOptionsDelegate> fOptionsDelegate;
 }
 
 @property (nonatomic, readonly) SkOSWindow *fWind;
 @property (nonatomic, retain) NSString* fTitle;
+#if SK_SUPPORT_GPU
 @property (nonatomic, retain) NSOpenGLContext* fGLContext;
+#endif
 @property (nonatomic, assign) id<SkNSViewOptionsDelegate> fOptionsDelegate;
 
 - (id)initWithDefaults;

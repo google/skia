@@ -7,7 +7,6 @@
         '../src/core',
         '../debugger', # To pull SkDebugger.h
         '../debugger/QT', # For all the QT UI Goodies
-        '../include/gpu/',
         '../src/gpu', # To pull gl/GrGLUtil.h
       ],
       'sources': [

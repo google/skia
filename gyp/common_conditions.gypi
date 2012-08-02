@@ -2,7 +2,17 @@
 #
 {
   'conditions' : [
-
+    ['skia_gpu == 1',
+      {
+        'defines': [
+          'SK_SUPPORT_GPU=1',
+        ],
+      }, {
+        'defines': [
+          'SK_SUPPORT_GPU=0',
+        ],
+      },
+    ],
     ['skia_os == "win"',
       {
         'defines': [

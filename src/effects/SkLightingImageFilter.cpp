@@ -9,6 +9,8 @@
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkTypes.h"
+
+#if SK_SUPPORT_GPU
 #include "GrProgramStageFactory.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLProgramStage.h"
@@ -21,6 +23,7 @@ class GrGLSpecularLightingEffect;
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
+#endif
 
 namespace {
 
@@ -29,6 +32,7 @@ const SkScalar gTwoThirds = SkScalarDiv(SkIntToScalar(2), SkIntToScalar(3));
 const SkScalar gOneHalf = SkFloatToScalar(0.5f);
 const SkScalar gOneQuarter = SkFloatToScalar(0.25f);
 
+#if SK_SUPPORT_GPU
 void setUniformPoint3(const GrGLUniformManager& uman, UniformHandle uni, const SkPoint3& point) {
     GR_STATIC_ASSERT(sizeof(SkPoint3) == 3 * sizeof(GrGLfloat));
     uman.set3fv(uni, 0, 1, &point.fX);
@@ -44,6 +48,7 @@ void setUniformPoint3FlipY(const GrGLUniformManager& uman,
                            int height) {
     setUniformPoint3(uman, uni, SkPoint3(point.fX, height-point.fY, point.fZ));
 }
+#endif
 
 // Shift matrix components to the left, as we advance pixels to the right.
 inline void shiftMatrixLeft(int m[9]) {
@@ -298,6 +303,7 @@ private:
     SkScalar fShininess;
 };
 
+#if SK_SUPPORT_GPU
 
 class GrLightingEffect : public GrSingleTextureEffect {
 public:
@@ -437,6 +443,11 @@ private:
     UniformHandle   fConeScaleUni;
     UniformHandle   fSUni;
 };
+#else
+
+class GrGLLight;
+
+#endif
 
 };
 
@@ -493,7 +504,14 @@ public:
     SkPoint3 lightColor(const SkPoint3&) const { return color(); }
     virtual LightType type() const { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
-    virtual GrGLLight* createGLLight() const SK_OVERRIDE;
+    virtual GrGLLight* createGLLight() const SK_OVERRIDE {
+#if SK_SUPPORT_GPU
+        return SkNEW(GrGLDistantLight);
+#else
+        SkDEBUGFAIL("Should not call in GPU-less build");
+        return NULL;
+#endif
+    }
     virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kDistant_LightType) {
             return false;
@@ -538,7 +556,12 @@ public:
     virtual LightType type() const { return kPoint_LightType; }
     const SkPoint3& location() const { return fLocation; }
     virtual GrGLLight* createGLLight() const SK_OVERRIDE {
+#if SK_SUPPORT_GPU
         return SkNEW(GrGLPointLight);
+#else
+        SkDEBUGFAIL("Should not call in GPU-less build");
+        return NULL;
+#endif
     }
     virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kPoint_LightType) {
@@ -603,7 +626,12 @@ public:
         return color() * scale;
     }
     virtual GrGLLight* createGLLight() const SK_OVERRIDE {
+#if SK_SUPPORT_GPU
         return SkNEW(GrGLSpotLight);
+#else
+        SkDEBUGFAIL("Should not call in GPU-less build");
+        return NULL;
+#endif
     }
     virtual LightType type() const { return kSpot_LightType; }
     const SkPoint3& location() const { return fLocation; }
@@ -790,11 +818,16 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
 
 bool SkDiffuseLightingImageFilter::asNewCustomStage(GrCustomStage** stage,
                                                     GrTexture* texture) const {
+#if SK_SUPPORT_GPU
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *stage = SkNEW_ARGS(GrDiffuseLightingEffect, (texture, light(), scale, kd()));
     }
     return true;
+#else
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -854,15 +887,21 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
 
 bool SkSpecularLightingImageFilter::asNewCustomStage(GrCustomStage** stage,
                                                      GrTexture* texture) const {
+#if SK_SUPPORT_GPU
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *stage = SkNEW_ARGS(GrSpecularLightingEffect, (texture, light(), scale, ks(), shininess()));
     }
     return true;
+#else
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
 class GrGLLightingEffect  : public GrGLProgramStage {
 public:
     GrGLLightingEffect(const GrProgramStageFactory& factory,
@@ -1176,10 +1215,6 @@ void GrGLLight::setData(const GrGLUniformManager& uman,
     setUniformPoint3(uman, fColorUni, light->color() * SkScalarInvert(SkIntToScalar(255)));
 }
 
-GrGLLight* SkDistantLight::createGLLight() const {
-    return SkNEW(GrGLDistantLight);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLDistantLight::setupVariables(GrGLShaderBuilder* builder) {
@@ -1298,6 +1333,8 @@ void GrGLSpotLight::emitLightColor(const GrGLShaderBuilder* builder,
                                    SkString* out, const char *surfaceToLight) const {
     out->appendf("lightColor(%s)", surfaceToLight);
 }
+
+#endif
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkLightingImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDiffuseLightingImageFilter)

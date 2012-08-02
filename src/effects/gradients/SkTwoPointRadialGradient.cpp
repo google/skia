@@ -347,6 +347,8 @@ void SkTwoPointRadialGradient::init() {
 
 /////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
@@ -630,3 +632,12 @@ GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
     return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler));
 }
 
+#else
+
+GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
+    GrContext* context, GrSamplerState* sampler) const {
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return NULL;
+}
+
+#endif

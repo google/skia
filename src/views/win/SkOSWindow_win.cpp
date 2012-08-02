@@ -38,19 +38,22 @@ void post_skwinevent()
     PostMessage(gEventTarget, WM_EVENT_CALLBACK, 0, 0);
 }
 
-SkOSWindow::SkOSWindow(void* hWnd) 
-    : fHWND(hWnd) 
+SkOSWindow::SkOSWindow(void* hWnd) {
+    fHWND = hWnd;
+#if SK_SUPPORT_GPU
 #if SK_ANGLE
-    , fDisplay(EGL_NO_DISPLAY)
-    , fContext(EGL_NO_CONTEXT)
-    , fSurface(EGL_NO_SURFACE)
+    fDisplay = EGL_NO_DISPLAY;
+    fContext = EGL_NO_CONTEXT;
+    fSurface = EGL_NO_SURFACE;
 #endif
-    , fHGLRC(NULL)
-    , fAttached(kNone_BackEndType) {
+    fHGLRC = NULL;
+#endif
+    fAttached = kNone_BackEndType;
     gEventTarget = (HWND)hWnd;
 }
 
 SkOSWindow::~SkOSWindow() {
+#if SK_SUPPORT_GPU
     if (NULL != fHGLRC) {
         wglDeleteContext((HGLRC)fHGLRC);
     }
@@ -69,7 +72,8 @@ SkOSWindow::~SkOSWindow() {
         eglTerminate(fDisplay);
         fDisplay = EGL_NO_DISPLAY;
     }
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
 }
 
 static SkKey winToskKey(WPARAM vk) {
@@ -305,6 +309,7 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
     }
 }
 
+#if SK_SUPPORT_GPU
 HGLRC create_gl(HWND hwnd, int msaaSampleCount) {
 
     HDC dc = GetDC(hwnd);
@@ -563,7 +568,8 @@ void SkOSWindow::presentANGLE() {
 
     eglSwapBuffers(fDisplay, fSurface);
 }
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
 
 // return true on success
 bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount) {
@@ -578,6 +584,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount) {
     case kNone_BackEndType:
         // nothing to do
         break; 
+#if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
         result = attachGL(msaaSampleCount);
         break;
@@ -585,7 +592,8 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount) {
     case kANGLE_BackEndType:
         result = attachANGLE(msaaSampleCount);
         break;
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
     default:
         SkASSERT(false);
         result = false;
@@ -604,6 +612,7 @@ void SkOSWindow::detach() {
     case kNone_BackEndType:
         // nothing to do
         break; 
+#if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
         detachGL();
         break;
@@ -611,7 +620,8 @@ void SkOSWindow::detach() {
     case kANGLE_BackEndType:
         detachANGLE();
         break;
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
     default:
         SkASSERT(false);
         break;
@@ -624,6 +634,7 @@ void SkOSWindow::present() {
     case kNone_BackEndType:
         // nothing to do
         return; 
+#if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
         presentGL();
         break;
@@ -631,7 +642,8 @@ void SkOSWindow::present() {
     case kANGLE_BackEndType:
         presentANGLE();
         break;
-#endif
+#endif // SK_ANGLE
+#endif // SK_SUPPORT_GPU
     default:
         SkASSERT(false);
         break;
