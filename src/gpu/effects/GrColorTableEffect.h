@@ -29,9 +29,13 @@ public:
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
 
+    virtual const GrTextureAccess* textureAccess(unsigned int index) const SK_OVERRIDE;
+
     typedef GrGLColorTableEffect GLProgramStage;
 
 private:
+
+    GrTextureAccess fTextureAccess;
 
     typedef GrSingleTextureEffect INHERITED;
 };

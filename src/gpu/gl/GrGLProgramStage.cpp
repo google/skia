@@ -27,3 +27,14 @@ void GrGLProgramStage::setData(const GrGLUniformManager&,
                                int stageNum) {
 }
 
+GrGLProgramStage::StageKey GrGLProgramStage::GenTextureKey(const GrCustomStage& stage,
+                                                           const GrGLCaps& caps) {
+    StageKey key = 0;
+    for (unsigned int index = 0; index < stage.numTextures(); ++index) {
+        if (stage.textureAccess(index)) {
+            key = (key << index) |
+                GrGLShaderBuilder::KeyForTextureAccess(*stage.textureAccess(index), caps);
+        }
+    }
+    return key;
+}

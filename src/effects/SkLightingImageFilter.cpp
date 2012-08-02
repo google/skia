@@ -918,7 +918,7 @@ public:
 
     virtual void emitLightFunc(const GrGLShaderBuilder*, SkString* funcs) = 0;
 
-    static inline StageKey GenKey(const GrCustomStage& s);
+    static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
 
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
@@ -1086,8 +1086,8 @@ vec3 interiorNormal(float m[9], float surfaceScale) {\n\
     code->appendf(")%s;\n", builder->fModulate.c_str());
 }
 
-GrGLProgramStage::StageKey GrGLLightingEffect::GenKey(
-  const GrCustomStage& s) {
+GrGLProgramStage::StageKey GrGLLightingEffect::GenKey(const GrCustomStage& s,
+                                                      const GrGLCaps& caps) {
     return static_cast<const GrLightingEffect&>(s).light()->type();
 }
 

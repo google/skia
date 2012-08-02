@@ -78,6 +78,8 @@ public:
 
     const char* name() const { return fFactory.name(); }
 
+    static StageKey GenTextureKey(const GrCustomStage&, const GrGLCaps&);
+
 protected:
 
     const GrProgramStageFactory& fFactory;

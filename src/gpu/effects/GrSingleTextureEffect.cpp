@@ -26,7 +26,7 @@ public:
         builder->emitDefaultFetch(outputColor, samplerName);
     }
 
-    static inline StageKey GenKey(const GrCustomStage&) { return 0; }
+    static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&) { return 0; }
 
 private:
 
@@ -56,5 +56,3 @@ GrTexture* GrSingleTextureEffect::texture(unsigned int index) const {
 const GrProgramStageFactory& GrSingleTextureEffect::getFactory() const {
     return GrTProgramStageFactory<GrSingleTextureEffect>::getInstance();
 }
-
-

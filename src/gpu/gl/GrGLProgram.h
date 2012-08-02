@@ -164,7 +164,7 @@ public:
 
             /** Non-zero if user-supplied code will write the stage's
                 contribution to the fragment shader. */
-            uint16_t fCustomStageKey;
+            GrProgramStageFactory::StageKey fCustomStageKey;
 
             GR_STATIC_ASSERT((InConfigFlags)(uint8_t)kInConfigBitMask ==
                              kInConfigBitMask);

@@ -27,7 +27,7 @@ public:
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrCustomStage&) { return 0; }
+    static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&) { return 0; }
 
 private:
     GrGLUniformManager::UniformHandle fNameUni;
@@ -107,5 +107,3 @@ bool GrTextureDomainEffect::isEqual(const GrCustomStage& sBase) const {
     const GrTextureDomainEffect& s = static_cast<const GrTextureDomainEffect&>(sBase);
     return (INHERITED::isEqual(sBase) && this->fTextureDomain == s.fTextureDomain);
 }
-
-
