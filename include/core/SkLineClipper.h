@@ -14,7 +14,8 @@
 class SkLineClipper {
 public:
     enum {
-        kMaxPoints = 4
+        kMaxPoints = 4,
+        kMaxClippedLineSegments = kMaxPoints - 1
     };
 
     /*  Clip the line pts[0]...pts[1] against clip, ignoring segments that
