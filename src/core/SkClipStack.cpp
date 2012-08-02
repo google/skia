@@ -58,6 +58,13 @@ struct SkClipStack::Rec {
         // bounding box members are updated in a following updateBound call
     }
 
+    void setEmpty() {
+        fState = kEmpty_State;
+        fFiniteBound.setEmpty();
+        fFiniteBoundType = kNormal_BoundsType;
+        fIsIntersectionOfRects = false;
+    }
+
     bool operator==(const Rec& b) const {
         if (fSaveCount != b.fSaveCount || fOp != b.fOp || fState != b.fState ||
                 fDoAA != b.fDoAA) {
@@ -82,16 +89,49 @@ struct SkClipStack::Rec {
     /**
      *  Returns true if this Rec can be intersected in place with a new clip
      */
-    bool canBeIntersected(int saveCount, SkRegion::Op op) const {
+    bool canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const {
         if (kEmpty_State == fState && (
                     SkRegion::kDifference_Op == op ||
                     SkRegion::kIntersect_Op == op)) {
             return true;
         }
-        return  fSaveCount == saveCount &&
-                SkRegion::kIntersect_Op == fOp &&
-                SkRegion::kIntersect_Op == op;
+        return  fSaveCount == saveCount && 
+                SkRegion::kIntersect_Op == op &&
+                (SkRegion::kIntersect_Op == fOp || SkRegion::kReplace_Op == fOp);
     }
+
+    /**
+     * This method checks to see if two rect clips can be safely merged into
+     * one. The issue here is that to be strictly correct all the edges of
+     * the resulting rect must have the same anti-aliasing.
+     */
+    bool rectRectIntersectAllowed(const SkRect& newR, bool newAA) const {
+        SkASSERT(kRect_State == fState);
+
+        if (fDoAA == newAA) {
+            // if the AA setting is the same there is no issue
+            return true;
+        }
+
+        if (!SkRect::Intersects(fRect, newR)) {
+            // The calling code will correctly set the result to the empty clip
+            return true;
+        }
+
+        if (fRect.contains(newR)) {
+            // if the new rect carves out a portion of the old one there is no
+            // issue
+            return true;
+        }
+
+        // So either the two overlap in some complex manner or newR contains oldR.
+        // In the first, case the edges will require different AA. In the second,
+        // the AA setting that would be carried forward is incorrect (e.g., oldR 
+        // is AA while newR is BW but since newR contains oldR, oldR will be 
+        // drawn BW) since the new AA setting will predominate.
+        return false;
+    }
+
 
     /**
      * The different combination of fill & inverse fill when combining
@@ -283,7 +323,8 @@ struct SkClipStack::Rec {
 
             if (SkRegion::kReplace_Op == fOp ||
                 (SkRegion::kIntersect_Op == fOp && NULL == prior) || 
-                (SkRegion::kIntersect_Op == fOp && prior->fIsIntersectionOfRects)) {
+                (SkRegion::kIntersect_Op == fOp && prior->fIsIntersectionOfRects &&
+                 prior->rectRectIntersectAllowed(fRect, fDoAA))) {
                 fIsIntersectionOfRects = true;
             }
 
@@ -486,32 +527,29 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
     Rec* rec = (Rec*) iter.prev();
 
-    if (rec && rec->canBeIntersected(fSaveCount, op)) {
+    if (rec && rec->canBeIntersectedInPlace(fSaveCount, op)) {
         switch (rec->fState) {
             case Rec::kEmpty_State:
                 SkASSERT(rec->fFiniteBound.isEmpty());
                 SkASSERT(kNormal_BoundsType == rec->fFiniteBoundType);
                 SkASSERT(!rec->fIsIntersectionOfRects);
                 return;
-            case Rec::kRect_State: {
-                if (!rec->fRect.intersect(rect)) {
-                    rec->fState = Rec::kEmpty_State;
-                    rec->fFiniteBound.setEmpty();
-                    rec->fFiniteBoundType = kNormal_BoundsType;
-                    rec->fIsIntersectionOfRects = false;
+            case Rec::kRect_State:
+                if (rec->rectRectIntersectAllowed(rect, doAA)) {
+                    if (!rec->fRect.intersect(rect)) {
+                        rec->setEmpty();
+                        return;
+                    }
+
+                    rec->fDoAA = doAA;
+                    Rec* prev = (Rec*) iter.prev();
+                    rec->updateBound(prev);
                     return;
                 }
-
-                Rec* prev = (Rec*) iter.prev();
-                rec->updateBound(prev);
-                return;
-            }
+                break;
             case Rec::kPath_State:
                 if (!SkRect::Intersects(rec->fPath.getBounds(), rect)) {
-                    rec->fState = Rec::kEmpty_State;
-                    rec->fFiniteBound.setEmpty();
-                    rec->fFiniteBoundType = kNormal_BoundsType;
-                    rec->fIsIntersectionOfRects = false;
+                    rec->setEmpty();
                     return;
                 }
                 break;
@@ -527,7 +565,7 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
         return this->clipDevRect(alt, op, doAA);
     }
     Rec* rec = (Rec*)fDeque.back();
-    if (rec && rec->canBeIntersected(fSaveCount, op)) {
+    if (rec && rec->canBeIntersectedInPlace(fSaveCount, op)) {
         const SkRect& pathBounds = path.getBounds();
         switch (rec->fState) {
             case Rec::kEmpty_State:
@@ -537,19 +575,13 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
                 return;
             case Rec::kRect_State:
                 if (!SkRect::Intersects(rec->fRect, pathBounds)) {
-                    rec->fState = Rec::kEmpty_State;
-                    rec->fFiniteBound.setEmpty();
-                    rec->fFiniteBoundType = kNormal_BoundsType;
-                    rec->fIsIntersectionOfRects = false;
+                    rec->setEmpty();
                     return;
                 }
                 break;
             case Rec::kPath_State:
                 if (!SkRect::Intersects(rec->fPath.getBounds(), pathBounds)) {
-                    rec->fState = Rec::kEmpty_State;
-                    rec->fFiniteBound.setEmpty();
-                    rec->fFiniteBoundType = kNormal_BoundsType;
-                    rec->fIsIntersectionOfRects = false;
+                    rec->setEmpty();
                     return;
                 }
                 break;
