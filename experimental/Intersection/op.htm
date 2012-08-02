@@ -632,11 +632,84 @@ path.close();
     path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
 </div>
 
+<div id="testLine67">
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
+    path.addRect(32, 0, 36, 41, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine68a">
+    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
+    path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
+    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine68b">
+    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
+    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
+    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine68c">
+    path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
+    path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
+    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine68d">
+    path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
+    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
+    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine68e">
+    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
+    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
+    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine68f">
+    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
+    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
+    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
+    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine69">
+    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
+    path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
+</div>
+
+<div id="testLine70">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 24, 12, 12, (SkPath::Direction) 0);
+    path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine71">
+    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
+    path.addRect(12, 0, 24, 24, (SkPath::Direction) 0);
+    path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testLine71,
+    testLine70,
+    testLine69,
+    testLine68f,
+    testLine68e,
+    testLine68d,
+    testLine68c,
+    testLine68b,
+    testLine68a,
+    testLine67,
     testLine66,
     testLine65,
     testLine64,
@@ -671,9 +744,9 @@ var testDivs = [
     testLine35,
     testLine34,
     testLine33,
-    testLine30,
     testLine32,
     testLine31,
+    testLine30,
     testLine29,
     testLine28,
     testLine24,
@@ -805,8 +878,8 @@ function parseRect(test, title) {
 function init(test) {
     var canvas = document.getElementById('canvas');
     if (!canvas.getContext) return;
-    canvas.width = document.width;
-    canvas.height = document.height;
+    canvas.width = window.innerWidth - at_x;
+    canvas.height = window.innerHeight - at_y;
     ctx = canvas.getContext('2d');
     var xmin = Infinity;
     var xmax = -Infinity;
@@ -982,6 +1055,7 @@ function doKeyPress(evt) {
     var char = String.fromCharCode(evt.charCode);
     switch (char) {
     case 'N':
+        testIndex += 9;
     case 'n':
         if (++testIndex >= tests.length)
             testIndex = 0;
@@ -989,6 +1063,7 @@ function doKeyPress(evt) {
         drawTop();
         break;
     case 'P':
+        testIndex -= 9;
     case 'p':
         if (--testIndex < 0)
             testIndex = tests.length - 1;
@@ -999,13 +1074,17 @@ function doKeyPress(evt) {
     case 't':
         break;
     case '-':
-            redraw();
+        drawTop();
         break;
     case '=':
     case '+':
-        redraw();
+        drawTop();
         break;
     }
+}
+
+function doResize(evt) {
+    drawTop();
 }
 
 function start() {
@@ -1020,6 +1099,9 @@ function start() {
     }
     drawTop();
     window.addEventListener('keypress', doKeyPress, true);
+    window.onresize = function() {
+        drawTop();
+    }
 }
 
 </script>
