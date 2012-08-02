@@ -24,7 +24,7 @@ SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {
 
 void SkEdgeBuilder::addLine(const SkPoint pts[]) {
     SkEdge* edge = typedAllocThrow<SkEdge>(fAlloc);
-    if (edge->setLine(pts[0], pts[1], NULL, fShiftUp)) {
+    if (edge->setLine(pts[0], pts[1], fShiftUp)) {
         fList.push(edge);
     } else {
         // TODO: unallocate edge from storage...
@@ -118,7 +118,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
                     int lineCount = SkLineClipper::ClipLine(pts, clip, lines);
                     SkASSERT(lineCount <= SkLineClipper::kMaxClippedLineSegments);
                     for (int i = 0; i < lineCount; i++) {
-                        if (edge->setLine(lines[i], lines[i + 1], NULL, shiftUp)) {
+                        if (edge->setLine(lines[i], lines[i + 1], shiftUp)) {
                             *edgePtr++ = edge++;
                         }
                     }
@@ -138,7 +138,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
                     // the corresponding line/quad/cubic verbs
                     break;
                 case SkPath::kLine_Verb:
-                    if (edge->setLine(pts[0], pts[1], NULL, shiftUp)) {
+                    if (edge->setLine(pts[0], pts[1], shiftUp)) {
                         *edgePtr++ = edge++;
                     }
                     break;
