@@ -22,6 +22,15 @@ static void flattenFlattenableProc(SkOrderedWriteBuffer& buffer,
     buffer.writeFlattenable((SkFlattenable*)obj);
 }
 
+class Controller : public SkChunkFlatController {
+public:
+    Controller() : INHERITED(1024) {
+        this->INHERITED::setNamedFactorySet(SkNEW(SkNamedFactorySet))->unref();
+    }
+private:
+    typedef SkChunkFlatController INHERITED;
+};
+
 /**
  * Verify that two SkFlatData objects that created from the same object are
  * identical when using an SkNamedFactorySet.
@@ -31,15 +40,12 @@ static void flattenFlattenableProc(SkOrderedWriteBuffer& buffer,
  */
 static void testCreate(skiatest::Reporter* reporter, const void* obj,
                        void (*flattenProc)(SkOrderedWriteBuffer&, const void*)) {
-    SkChunkFlatController controller(1024);
-    SkNamedFactorySet factorySet;
+    Controller controller;
     // No need to delete data because that will be taken care of by the
     // controller.
-    SkFlatData* data1 = SkFlatData::Create(&controller, obj, 0, flattenProc,
-                                           NULL, NULL, 0, &factorySet);
+    SkFlatData* data1 = SkFlatData::Create(&controller, obj, 0, flattenProc, 0);
     data1->setSentinelInCache();
-    SkFlatData* data2 = SkFlatData::Create(&controller, obj, 0, flattenProc,
-                                           NULL, NULL, 0, &factorySet);
+    SkFlatData* data2 = SkFlatData::Create(&controller, obj, 1, flattenProc, 0);
     data2->setSentinelAsCandidate();
     REPORTER_ASSERT(reporter, SkFlatData::Compare(data1, data2) == 0);
 }

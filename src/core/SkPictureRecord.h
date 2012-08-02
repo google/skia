@@ -201,9 +201,6 @@ public:
 private:
     SkChunkFlatController fHeap;
 
-    SkRefCntSet fRCSet;
-    SkRefCntSet fTFSet;
-    
     SkTDArray<BitmapIndexCacheEntry> fBitmapIndexCache;
     SkBitmapDictionary fBitmaps;
     SkMatrixDictionary fMatrices;

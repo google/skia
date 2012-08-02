@@ -79,13 +79,11 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
 
     // copy over the refcnt dictionary to our reader
     //
-    fRCPlayback.reset(&record.fRCSet);
-    fTFPlayback.reset(&record.fTFSet);
-
-    fBitmaps = record.getBitmaps().unflattenToArray(&fRCPlayback, NULL);
-    fMatrices = record.getMatrices().unflattenToArray(NULL, NULL);
-    fPaints = record.getPaints().unflattenToArray(&fRCPlayback, &fTFPlayback);
-    fRegions = record.getRegions().unflattenToArray(NULL, NULL);
+    record.fHeap.setupPlaybacks();
+    fBitmaps = record.getBitmaps().unflattenToArray();
+    fMatrices = record.getMatrices().unflattenToArray();
+    fPaints = record.getPaints().unflattenToArray();
+    fRegions = record.getRegions().unflattenToArray();
 
     fPathHeap = record.fPathHeap;
     SkSafeRef(fPathHeap);

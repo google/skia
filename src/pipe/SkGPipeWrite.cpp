@@ -65,8 +65,9 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
 
 class FlattenableHeap : public SkFlatController {
 public:
-    FlattenableHeap(int numFlatsToKeep)
-        : fNumFlatsToKeep(numFlatsToKeep) {
+    FlattenableHeap(int numFlatsToKeep, SkNamedFactorySet* fset)
+    : fNumFlatsToKeep(numFlatsToKeep) {
+        this->setNamedFactorySet(fset);
     }
 
     ~FlattenableHeap() {
@@ -138,8 +139,8 @@ const SkFlatData* FlattenableHeap::flatToReplace() const {
 
 class FlatDictionary : public SkFlatDictionary<SkFlattenable> {
 public:
-    FlatDictionary(FlattenableHeap* heap, SkNamedFactorySet* factorySet)
-            : SkFlatDictionary<SkFlattenable>(heap, NULL, NULL, factorySet) {
+    FlatDictionary(FlattenableHeap* heap)
+            : SkFlatDictionary<SkFlattenable>(heap) {
         fFlattenProc = &flattenFlattenableProc;
         // No need to define fUnflattenProc since the writer will never
         // unflatten the data.
@@ -597,10 +598,10 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 , fSharedHeap(!isCrossProcess(flags), controller->numberOfReaders())
 , fWriter(*writer)
 , fFlags(flags)
-, fBitmapHeap(BITMAPS_TO_KEEP)
-, fBitmapDictionary(&fBitmapHeap, NULL, NULL, fFactorySet)
-, fFlattenableHeap(FLATTENABLES_TO_KEEP)
-, fFlatDictionary(&fFlattenableHeap, fFactorySet) {
+, fBitmapHeap(BITMAPS_TO_KEEP, fFactorySet)
+, fBitmapDictionary(&fBitmapHeap)
+, fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet)
+, fFlatDictionary(&fFlattenableHeap) {
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
