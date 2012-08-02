@@ -1013,6 +1013,8 @@ int main(int argc, char * const argv[]) {
     }
 #endif
 
+    SkTArray<SkString> failedTests;
+
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
@@ -1131,12 +1133,17 @@ int main(int argc, char * const argv[]) {
                 testsMissingReferenceImages++;
             } else {
                 testsFailed++;
+
+                failedTests.push_back(make_name(shortName, config.fName));
             }
         }
         SkDELETE(gm);
     }
-    printf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
-           testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
+    SkDebugf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
+             testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
+    for (int i = 0; i < failedTests.count(); ++i) {
+        SkDebugf("\t\t%s\n", failedTests[i].c_str());
+    }
 #if SK_SUPPORT_GPU
     delete grFactory;
 #endif
