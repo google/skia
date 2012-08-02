@@ -21,19 +21,19 @@ public:
         this->setBGColor(SkColorSetRGB(0xDD,0xA0,0xDD));
         
         // offset the rects a bit so we get antialiasing even in the rect case
-        SkScalar xA = SkFloatToScalar(0.5f);
-        SkScalar xB = SkFloatToScalar(10.5f);
-        SkScalar xC = SkFloatToScalar(20.5f);
-        SkScalar xD = SkFloatToScalar(30.5f);
-        SkScalar xE = SkFloatToScalar(40.5f);
-        SkScalar xF = SkFloatToScalar(50.5f);
+        SkScalar xA = SkFloatToScalar(0.65f);
+        SkScalar xB = SkFloatToScalar(10.65f);
+        SkScalar xC = SkFloatToScalar(20.65f);
+        SkScalar xD = SkFloatToScalar(30.65f);
+        SkScalar xE = SkFloatToScalar(40.65f);
+        SkScalar xF = SkFloatToScalar(50.65f);
 
-        SkScalar yA = SkFloatToScalar(0.5f);
-        SkScalar yB = SkFloatToScalar(10.5f);
-        SkScalar yC = SkFloatToScalar(20.5f);
-        SkScalar yD = SkFloatToScalar(30.5f);
-        SkScalar yE = SkFloatToScalar(40.5f);
-        SkScalar yF = SkFloatToScalar(50.5f);
+        SkScalar yA = SkFloatToScalar(0.65f);
+        SkScalar yB = SkFloatToScalar(10.65f);
+        SkScalar yC = SkFloatToScalar(20.65f);
+        SkScalar yD = SkFloatToScalar(30.65f);
+        SkScalar yE = SkFloatToScalar(40.65f);
+        SkScalar yF = SkFloatToScalar(50.65f);
 
         fWidth = xF - xA;
         fHeight = yF - yA;
