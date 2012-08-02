@@ -596,12 +596,13 @@ namespace {
 
 void setup_custom_stage(GrGLProgram::Desc::StageDesc* stage,
                         const GrSamplerState& sampler,
+                        const GrGLCaps& caps,
                         const GrCustomStage** customStages,
                         GrGLProgram* program, int index) {
     const GrCustomStage* customStage = sampler.getCustomStage();
     if (customStage) {
         const GrProgramStageFactory& factory = customStage->getFactory();
-        stage->fCustomStageKey = factory.glStageKey(*customStage);
+        stage->fCustomStageKey = factory.glStageKey(*customStage, caps);
         customStages[index] = customStage;
     } else {
         stage->fCustomStageKey = 0;
@@ -746,7 +747,8 @@ void GrGpuGL::buildProgram(bool isPoints,
                 }
             }
 
-            setup_custom_stage(&stage, sampler, customStages, fCurrentProgram.get(), s);
+            setup_custom_stage(&stage, sampler, this->glCaps(), customStages,
+                               fCurrentProgram.get(), s);
 
         } else {
             stage.fOptFlags         = 0;

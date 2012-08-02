@@ -8,6 +8,7 @@
 #include "GrContext.h"
 #include "GrCustomStage.h"
 #include "GrMemoryPool.h"
+#include "SkString.h"
 #include "SkTLS.h"
 
 SK_DEFINE_INST_COUNT(GrCustomStage)
@@ -30,6 +31,17 @@ private:
 
 int32_t GrProgramStageFactory::fCurrStageClassID =
                                     GrProgramStageFactory::kIllegalStageClassID;
+
+GrTextureAccess::GrTextureAccess(const GrTexture* texture, const SkString& swizzle)
+    : fTexture(texture) {
+    GrAssert(swizzle.size() <= 4);
+    for (unsigned int offset = 0; offset < swizzle.size(); ++offset) {
+        fSwizzle[offset] = swizzle[offset];
+    }
+    if (swizzle.size() < 4) {
+      fSwizzle[swizzle.size()] = 0;
+    }
+}
 
 GrCustomStage::GrCustomStage() {
 
@@ -63,6 +75,10 @@ GrTexture* GrCustomStage::texture(unsigned int index) const {
     return NULL;
 }
 
+const GrTextureAccess* GrCustomStage::textureAccess(unsigned int index) const {
+    return NULL;
+}
+
 void * GrCustomStage::operator new(size_t size) {
     return GrCustomStage_Globals::GetTLS()->allocate(size);
 }
@@ -70,4 +86,3 @@ void * GrCustomStage::operator new(size_t size) {
 void GrCustomStage::operator delete(void* target) {
     GrCustomStage_Globals::GetTLS()->release(target);
 }
-

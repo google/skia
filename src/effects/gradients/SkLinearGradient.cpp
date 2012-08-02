@@ -491,7 +491,7 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
-    static StageKey GenKey(const GrCustomStage& s) { return 0; }
+    static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps) { return 0; }
 
 private:
 

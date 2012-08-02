@@ -340,7 +340,7 @@ public:
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrCustomStage& s);
+    static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
 
 protected:
 
@@ -636,7 +636,7 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrCustomStage::StageKey GrGLConical2Gradient::GenKey(const GrCustomStage& s) {
+GrCustomStage::StageKey GrGLConical2Gradient::GenKey(const GrCustomStage& s, const GrGLCaps& caps) {
     return (static_cast<const GrConical2Gradient&>(s).isDegenerate());
 }
 

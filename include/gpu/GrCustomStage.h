@@ -14,6 +14,27 @@
 
 class GrContext;
 class GrTexture;
+class SkString;
+
+/** A class representing the swizzle access pattern for a texture.
+ */
+class GrTextureAccess {
+public:
+    typedef char Swizzle[4];
+
+    GrTextureAccess(const GrTexture* texture, const SkString& swizzle);
+
+    const GrTexture* getTexture() const { return fTexture; }
+    const Swizzle& getSwizzle() const { return fSwizzle; }
+
+    bool referencesAlpha() const {
+        return fSwizzle[0] == 'a' || fSwizzle[1] == 'a' || fSwizzle[2] == 'a' || fSwizzle[3] == 'a';
+    }
+
+private:
+    const GrTexture* fTexture;
+    Swizzle fSwizzle;
+};
 
 /** Provides custom vertex shader, fragment shader, uniform data for a
     particular stage of the Ganesh shading pipeline. 
@@ -74,12 +95,16 @@ public:
      */
     virtual bool isEqual(const GrCustomStage&) const;
 
-     /** Human-meaningful string to identify this effect; may be embedded
-         in generated shader code. */
+    /** Human-meaningful string to identify this effect; may be embedded
+        in generated shader code. */
     const char* name() const { return this->getFactory().name(); }
 
     virtual unsigned int numTextures() const;
     virtual GrTexture* texture(unsigned int index) const;
+
+    /** Returns the access pattern for the texture at index.  Returns NULL if index is
+        unused. */
+    virtual const GrTextureAccess* textureAccess(unsigned int index) const;
 
     void* operator new(size_t size);
     void operator delete(void* target);

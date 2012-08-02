@@ -19,15 +19,18 @@
 
 class GrCustomStage;
 class GrGLProgramStage;
+class GrGLCaps;
 
 class GrProgramStageFactory : public GrNoncopyable {
 public:
-    typedef uint16_t StageKey;
+    typedef uint32_t StageKey;
     enum {
         kProgramStageKeyBits = 10,
+        kTexturingStageKeyBits = 6
     };
 
-    virtual StageKey glStageKey(const GrCustomStage& stage) const = 0;
+    virtual StageKey glStageKey(const GrCustomStage& stage,
+                                const GrGLCaps& caps ) const = 0;
     virtual GrGLProgramStage* createGLInstance(
         const GrCustomStage& stage) const = 0;
 
@@ -68,7 +71,7 @@ template <typename StageClass>
 class GrTProgramStageFactory : public GrProgramStageFactory {
 
 public:
-    typedef typename StageClass::GLProgramStage GLProgramStage; 
+    typedef typename StageClass::GLProgramStage GLProgramStage;
 
     /** Returns a human-readable name that is accessible via GrCustomStage or
         GrGLProgramStage and is consistent between the two of them.
@@ -80,20 +83,26 @@ public:
         id identifies the GrCustomShader subclass. The remainder is based
         on the aspects of the GrCustomStage object's configuration that affect
         GLSL code generation. */
-    virtual StageKey glStageKey(const GrCustomStage& stage) const SK_OVERRIDE {
+    virtual StageKey glStageKey(const GrCustomStage& stage,
+                                const GrGLCaps& caps) const SK_OVERRIDE {
         GrAssert(kIllegalStageClassID != fStageClassID);
-        StageKey stageID = GLProgramStage::GenKey(stage);
+        StageKey stageID = GLProgramStage::GenKey(stage, caps);
+        StageKey textureKey = GLProgramStage::GenTextureKey(stage, caps);
 #if GR_DEBUG
         static const StageKey kIllegalIDMask =
             (uint16_t) (~((1U << kProgramStageKeyBits) - 1));
         GrAssert(!(kIllegalIDMask & stageID));
+
+        static const StageKey kIllegalTextureKeyMask =
+            (uint16_t) (~((1U << kTexturingStageKeyBits) - 1));
+        GrAssert(!(kIllegalTextureKeyMask & textureKey));
 #endif
-        return fStageClassID | stageID;
+        return fStageClassID | (textureKey << kProgramStageKeyBits) | stageID;
     }
 
     /** Returns a new instance of the appropriate *GL* implementation class
-     for the given GrCustomStage; caller is responsible for deleting
-     the object. */
+        for the given GrCustomStage; caller is responsible for deleting
+        the object. */
     virtual GLProgramStage* createGLInstance(
                         const GrCustomStage& stage) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProgramStage, (*this, stage));
@@ -113,7 +122,7 @@ public:
 
 protected:
     GrTProgramStageFactory() {
-        fStageClassID = GenID() << kProgramStageKeyBits;
+        fStageClassID = GenID() << (kProgramStageKeyBits + kTexturingStageKeyBits) ;
     }
 };
 

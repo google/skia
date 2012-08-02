@@ -8,6 +8,7 @@
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLUniformHandle.h"
+#include "GrTexture.h"
 
 // number of each input/output type in a single allocation block
 static const int kVarsPerBlock = 8;
@@ -19,6 +20,50 @@ static const int kMaxFSOutputs = 2;
 static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar::kMedium_Precision;
 
 typedef GrGLUniformManager::UniformHandle UniformHandle;
+///////////////////////////////////////////////////////////////////////////////
+
+static SkString build_sampler_string(GrGLShaderBuilder::SamplerMode samplerMode) {
+    SkString sampler("texture2D");
+    switch (samplerMode) {
+      case GrGLShaderBuilder::kDefault_SamplerMode:
+          break;
+      case GrGLShaderBuilder::kProj_SamplerMode:
+          sampler.append("Proj");
+          break;
+      case GrGLShaderBuilder::kExplicitDivide_SamplerMode:
+          GrAssert(false);  // Not Implemented
+          break;
+    }
+
+    return sampler;
+}
+
+static bool texture_requires_alpha_to_red_swizzle(const GrGLCaps& caps,
+                                                  const GrTextureAccess& access) {
+    return GrPixelConfigIsAlphaOnly(access.getTexture()->config()) && caps.textureRedSupport() &&
+        access.referencesAlpha();
+}
+
+static SkString build_swizzle_string(const GrTextureAccess& textureAccess,
+                                     const GrGLCaps& caps) {
+    const GrTextureAccess::Swizzle& swizzle = textureAccess.getSwizzle();
+    if (0 == swizzle[0]) {
+        return SkString("");
+    }
+
+    SkString swizzleOut(".");
+    bool alphaIsRed = texture_requires_alpha_to_red_swizzle(caps, textureAccess);
+    for (int offset = 0; offset < 4 && swizzle[offset]; ++offset) {
+        if (alphaIsRed && 'a' == swizzle[offset]) {
+            swizzleOut.appendf("r");
+        } else {
+            swizzleOut.appendf("%c", swizzle[offset]);
+        }
+    }
+
+    return swizzleOut;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // Architectural assumption: always 2-d input coords.
@@ -118,6 +163,34 @@ void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
     fFSCode.appendf("\t%s = ", outColor);
     this->emitTextureLookup(samplerName);
     fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
+}
+
+void GrGLShaderBuilder::emitCustomTextureLookup(SamplerMode samplerMode,
+                                                const GrTextureAccess& textureAccess,
+                                                const char* samplerName,
+                                                const char* coordName) {
+    GrAssert(samplerName && coordName);
+    SkString sampler = build_sampler_string(samplerMode);
+    SkString swizzle = build_swizzle_string(textureAccess, fContext.caps());
+
+    fFSCode.appendf("%s( %s, %s)%s;\n", sampler.c_str(), samplerName,
+                    coordName, swizzle.c_str());
+}
+
+GrCustomStage::StageKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
+                                                               const GrGLCaps& caps) {
+    GrCustomStage::StageKey key = 0;
+    // Assume that swizzle support implies that we never have to modify a shader to adjust
+    // for texture format/swizzle settings.
+    if (caps.textureSwizzleSupport()) {
+        return key;
+    }
+
+    if (texture_requires_alpha_to_red_swizzle(caps, access)) {
+        key = 1;
+    }
+
+    return key;
 }
 
 GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t visibility,

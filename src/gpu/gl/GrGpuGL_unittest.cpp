@@ -413,7 +413,7 @@ bool GrGpuGL::programUnitTest() {
                 customStages[s].reset(create_random_effect(&stage, &random, getContext()));
                 if (NULL != customStages[s]) {
                     stage.fCustomStageKey =
-                        customStages[s]->getFactory().glStageKey(*customStages[s]);
+                        customStages[s]->getFactory().glStageKey(*customStages[s], this->glCaps());
                 }
             }
         }

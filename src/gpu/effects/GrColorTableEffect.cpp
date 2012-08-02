@@ -30,49 +30,72 @@ public:
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE {}
 
-    static inline StageKey GenKey(const GrCustomStage&);
+    static StageKey GenKey(const GrCustomStage&, const GrGLCaps&);
 
 private:
+
+    const GrCustomStage& fCustomStage;
+
     typedef GrGLProgramStage INHERITED;
 };
 
 GrGLColorTableEffect::GrGLColorTableEffect(
     const GrProgramStageFactory& factory, const GrCustomStage& stage)
-    : INHERITED(factory) {
+    : INHERITED(factory)
+    , fCustomStage(stage) {
  }
 
-void GrGLColorTableEffect::emitFS(GrGLShaderBuilder* state,
+void GrGLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const char* samplerName) {
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
-    SkString* code = &state->fFSCode; 
+    SkString* code = &builder->fFSCode;
     code->appendf("\t\tvec4 coord = vec4(%s.rgb / %s.a, %s.a);\n",
                   inputColor, inputColor, inputColor);
     code->appendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
                   kColorScaleFactor,
                   kColorOffsetFactor, kColorOffsetFactor, kColorOffsetFactor, kColorOffsetFactor);
-    code->appendf("\t\t%s.a = texture2D(%s, vec2(coord.a, 0.125)).a;\n",
-                  outputColor, samplerName);
-    code->appendf("\t\t%s.r = texture2D(%s, vec2(coord.r, 0.375)).a;\n",
-                  outputColor, samplerName);
-    code->appendf("\t\t%s.g = texture2D(%s, vec2(coord.g, 0.625)).a;\n",
-                  outputColor, samplerName);
-    code->appendf("\t\t%s.b = texture2D(%s, vec2(coord.b, 0.875)).a;\n",
-                  outputColor, samplerName);
+
+    const GrTextureAccess& access = *fCustomStage.textureAccess(0);
+    code->appendf("\t\t%s.a = ", outputColor);
+    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
+                                     access,
+                                     samplerName,
+                                     "vec2(coord.a, 0.125)");
+
+    code->appendf("\t\t%s.r = ", outputColor);
+    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
+                                     access,
+                                     samplerName,
+                                     "vec2(coord.r, 0.375)");
+
+    code->appendf("\t\t%s.g = ", outputColor);
+    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
+                                     access,
+                                     samplerName,
+                                     "vec2(coord.g, 0.625)");
+
+    code->appendf("\t\t%s.b = ", outputColor);
+    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
+                                     access,
+                                     samplerName,
+                                     "vec2(coord.b, 0.875)");
+
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
-GrGLProgramStage::StageKey GrGLColorTableEffect::GenKey(
-    const GrCustomStage& s) {
+GrGLProgramStage::StageKey GrGLColorTableEffect::GenKey(const GrCustomStage& s,
+                                                        const GrGLCaps& caps) {
     return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColorTableEffect::GrColorTableEffect(GrTexture* texture)
-    : INHERITED(texture) {
+    : INHERITED(texture)
+    , fTextureAccess(texture, SkString("a")) {
 }
 
 GrColorTableEffect::~GrColorTableEffect() {
@@ -84,4 +107,11 @@ const GrProgramStageFactory&  GrColorTableEffect::getFactory() const {
 
 bool GrColorTableEffect::isEqual(const GrCustomStage& sBase) const {
     return INHERITED::isEqual(sBase);
+}
+
+const GrTextureAccess* GrColorTableEffect::textureAccess(unsigned int index) const {
+    if (0 == index)
+        return &fTextureAccess;
+
+    return NULL;
 }

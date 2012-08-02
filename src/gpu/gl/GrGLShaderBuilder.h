@@ -9,6 +9,7 @@
 #define GrGLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
+#include "GrCustomStage.h"
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
@@ -54,6 +55,22 @@ public:
     /** sets outColor to results of texture lookup, with swizzle, and/or modulate as necessary */
     void emitDefaultFetch(const char* outColor,
                           const char* samplerName);
+
+    /** Emits a texture lookup to the shader code with the form:
+          texture2D{Proj}(samplerName, coordName).swizzle
+        The routine selects the type of texturing based on samplerMode.
+        The generated swizzle state is built based on the format of the texture and the requested
+        swizzle access pattern. */
+    void emitCustomTextureLookup(SamplerMode samplerMode,
+                                 const GrTextureAccess& textureAccess,
+                                 const char* samplerName,
+                                 const char* coordName);
+
+    /** Generates a StageKey for the shader code based on the texture access parameters and the
+        capabilities of the GL context.  This is useful for keying the shader programs that may
+        have multiple representations, based on the type/format of textures used. */
+    static GrCustomStage::StageKey KeyForTextureAccess(const GrTextureAccess& access,
+                                                       const GrGLCaps& caps);
 
     /** Add a uniform variable to the current program, that has visibilty in one or more shaders.
         visibility is a bitfield of ShaderType values indicating from which shaders the uniform

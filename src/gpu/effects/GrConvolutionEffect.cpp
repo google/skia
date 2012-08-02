@@ -33,7 +33,7 @@ public:
                          const GrRenderTarget*,
                          int stageNum) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrCustomStage&);
+    static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&);
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -125,8 +125,8 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
     uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
 }
 
-GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(
-                                                    const GrCustomStage& s) {
+GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(const GrCustomStage& s,
+                                                         const GrGLCaps& caps) {
     return static_cast<const GrConvolutionEffect&>(s).radius();
 }
 
@@ -185,4 +185,3 @@ bool GrConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
             this->direction() == s.direction() &&
             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
 }
-

@@ -26,7 +26,7 @@ public:
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrCustomStage& s);
+    static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
 
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
@@ -98,8 +98,8 @@ void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* builder,
     code->appendf("\t\t%s = value%s;\n", outputColor, builder->fModulate.c_str());
 }
 
-GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(
-                                                    const GrCustomStage& s) {
+GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(const GrCustomStage& s,
+                                                        const GrGLCaps& caps) {
     const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(s);
     StageKey key = static_cast<StageKey>(m.radius());
     key |= (m.type() << 8);
