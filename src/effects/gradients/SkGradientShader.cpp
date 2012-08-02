@@ -671,6 +671,10 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+
+#include "SkGr.h"
+
 GrGLGradientStage::GrGLGradientStage(const GrProgramStageFactory& factory)
                                      : INHERITED(factory) { }
 
@@ -728,3 +732,4 @@ GrTexture* GrGradientEffect::texture(unsigned int index)
     return fTexture;
 }
 
+#endif

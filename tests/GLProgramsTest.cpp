@@ -6,6 +6,9 @@
  * found in the LICENSE file.
  */
 
+// This is a GPU-backend specific test
+#if SK_SUPPORT_GPU
+
 #include "Test.h"
 #include "GrContext.h"
 #include "gl/GrGpuGL.h"
@@ -19,3 +22,4 @@ static void GLProgramsTest(skiatest::Reporter* reporter, GrContext* context) {
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
 
+#endif

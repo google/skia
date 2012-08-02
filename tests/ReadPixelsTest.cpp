@@ -8,8 +8,12 @@
 
 #include "Test.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
+#include "SkDevice.h"
 #include "SkRegion.h"
+#if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
+#endif
 
 
 static const int DEV_W = 100, DEV_H = 100;
@@ -305,14 +309,15 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
                                           DEV_H,
                                           false))->unref();
         } else {
-#if SK_SCALAR_IS_FIXED
-            // GPU device known not to work in the fixed pt build.
+// GPU device known not to work in the fixed pt build.
+#if defined(SK_SCALAR_IS_FIXED) || !SK_SUPPORT_GPU
             continue;
-#endif
+#else
             canvas.setDevice(new SkGpuDevice(context,
                                              SkBitmap::kARGB_8888_Config,
                                              DEV_W,
                                              DEV_H))->unref();
+#endif
         }
         fillCanvas(&canvas);
 

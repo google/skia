@@ -35,11 +35,15 @@ public:
     enum DeviceType {
         kRaster_DeviceType,
         kPicture_DeviceType,
+#if SK_SUPPORT_GPU
         kGPU_DeviceType,
 #if SK_ANGLE
         kANGLE_DeviceType,
-#endif
-        kNullGPU_DeviceType
+#endif // SK_ANGLE
+        kNullGPU_DeviceType,
+#endif // SK_SUPPORT_GPU
+
+        kDeviceTypeCnt
     };
     /**
      * SampleApp ports can subclass this manager class if they want to:
@@ -70,10 +74,10 @@ public:
         // at least once before first draw (after init)
         virtual void windowSizeChanged(SampleWindow* win) = 0;
 
-        // return the GrContext backing gpu devices
+        // return the GrContext backing gpu devices (NULL if not built with GPU support)
         virtual GrContext* getGrContext() = 0;
 
-        // return the GrRenderTarget backing gpu devices
+        // return the GrRenderTarget backing gpu devices (NULL if not built with GPU support)
         virtual GrRenderTarget* getGrRenderTarget() = 0;
     };
 

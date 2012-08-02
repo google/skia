@@ -5,6 +5,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+// This test only works with the GPU backend.
+#if SK_SUPPORT_GPU
+
 #include "gm.h"
 #include "GrContext.h"
 #include "effects/GrSingleTextureEffect.h"
@@ -147,3 +151,4 @@ static GMRegistry reg(MyFactory);
 
 }
 
+#endif

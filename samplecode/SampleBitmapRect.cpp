@@ -24,16 +24,24 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 
+#if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
+#else
+class GrContext;
+#endif
+
 
 static void make_bitmap(SkBitmap* bitmap, GrContext* ctx) {
     SkCanvas canvas;
 
+#if SK_SUPPORT_GPU
     if (ctx) {
         SkDevice* dev = new SkGpuDevice(ctx, SkBitmap::kARGB_8888_Config, 64, 64);
         canvas.setDevice(dev)->unref();
         *bitmap = dev->accessBitmap(false);
-    } else {
+    } else 
+#endif
+    {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
         bitmap->allocPixels();
         canvas.setBitmapDevice(*bitmap);

@@ -5,6 +5,11 @@
  * found in the LICENSE file.
  */
 
+
+// This is a GR test
+
+#if SK_SUPPORT_GPU
+
 #include "Test.h"
 #include "SkGpuDevice.h"
 #include "../../src/gpu/GrClipMaskManager.h"
@@ -223,3 +228,5 @@ static void TestClipCache(skiatest::Reporter* reporter, GrContext* context) {
 ////////////////////////////////////////////////////////////////////////////////
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("ClipCache", ClipCacheTestClass, TestClipCache)
+
+#endif

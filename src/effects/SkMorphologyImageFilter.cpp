@@ -8,8 +8,10 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
+#endif
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
@@ -213,15 +215,25 @@ bool SkDilateImageFilter::onFilterImage(Proxy*,
 }
 
 GrTexture* SkDilateImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
+#if SK_SUPPORT_GPU
     return src->getContext()->applyMorphology(src, rect,
                                               GrContext::kDilate_MorphologyType,
                                               radius());
+#else
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return NULL;
+#endif
 }
 
 GrTexture* SkErodeImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
+#if SK_SUPPORT_GPU
     return src->getContext()->applyMorphology(src, rect,
                                               GrContext::kErode_MorphologyType,
                                               radius());
+#else
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return NULL;
+#endif
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkDilateImageFilter)

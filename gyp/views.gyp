@@ -18,7 +18,6 @@
         '../include/images',
         '../include/effects',
         '../include/views/unix',
-        '../include/gpu',
       ],
       'dependencies': [
         'angle.gyp:*',
@@ -110,6 +109,11 @@
           'sources!': [
             '../src/views/win/SkOSWindow_win.cpp',
             '../src/views/win/skia_win.cpp',
+          ],
+        }],
+        [ 'skia_gpu == 1', {
+          'include_dirs': [
+            '../include/gpu',
           ],
         }],
       ],

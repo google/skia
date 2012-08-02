@@ -380,6 +380,8 @@ void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
 
 /////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+
 class GrGLSweepGradient : public GrGLGradientStage {
 public:
 
@@ -448,3 +450,12 @@ GrCustomStage* SkSweepGradient::asNewCustomStage(GrContext* context,
     return SkNEW_ARGS(GrSweepGradient, (context, *this, sampler));
 }
 
+#else
+
+GrCustomStage* SkSweepGradient::asNewCustomStage(GrContext* context,
+    GrSamplerState* sampler) const {
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return NULL;
+}
+
+#endif

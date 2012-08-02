@@ -10,7 +10,6 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
-        '../src/gpu',
       ],
       'includes': [
         'bench.gypi'
@@ -18,12 +17,23 @@
       'dependencies': [
         'core.gyp:core',
         'effects.gyp:effects',
-        'gpu.gyp:gr',
-        'gpu.gyp:skgr',
         'images.gyp:images',
         'ports.gyp:ports',
         'utils.gyp:utils',
         'bench_timer',
+      ],
+      'conditions': [
+        ['skia_gpu == 1',
+          {
+            'include_dirs' : [
+              '../src/gpu',
+            ],
+            'dependencies': [
+              'gpu.gyp:gr',
+              'gpu.gyp:skgr',
+            ],
+          },
+        ],
       ],
     },
     {
@@ -38,8 +48,6 @@
         '../bench/BenchSysTimer_posix.cpp',
         '../bench/BenchSysTimer_windows.h',
         '../bench/BenchSysTimer_windows.cpp',
-        '../bench/BenchGpuTimer_gl.h',
-        '../bench/BenchGpuTimer_gl.cpp',
       ],
         'include_dirs': [
         '../src/core',
@@ -47,7 +55,6 @@
       ],
       'dependencies': [
         'core.gyp:core',
-        'gpu.gyp:gr',
       ],
       'conditions': [
         [ 'skia_os != "mac"', {
@@ -73,6 +80,15 @@
           'sources!': [
             '../bench/BenchSysTimer_windows.h',
             '../bench/BenchSysTimer_windows.cpp',
+          ],
+        }],
+        ['skia_gpu == 1', {
+          'dependencies': [
+            'gpu.gyp:gr',
+          ],
+          'sources': [
+            '../bench/BenchGpuTimer_gl.h',
+            '../bench/BenchGpuTimer_gl.cpp',
           ],
         }],
       ],

@@ -10,7 +10,6 @@
       'include_dirs' : [
         '../src/core',
         '../src/effects',
-        '../src/gpu',
         '../src/pdf',
         '../src/utils',
         '../tools/',
@@ -96,13 +95,22 @@
         'core.gyp:core',
         'effects.gyp:effects',
         'experimental.gyp:experimental',
-        'gpu.gyp:gr',
-        'gpu.gyp:skgr',
         'images.gyp:images',
         'ports.gyp:ports',
         'pdf.gyp:pdf',
         'tools.gyp:picture_utils',
         'utils.gyp:utils',
+      ],
+      'conditions': [
+        [ 'skia_gpu == 1', {
+          'include_dirs': [
+            '../src/gpu',
+          ],
+          'dependencies': [
+            'gpu.gyp:gr',
+            'gpu.gyp:skgr',
+          ],
+        }],
       ],
     },
   ],

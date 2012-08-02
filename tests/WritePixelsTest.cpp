@@ -8,8 +8,14 @@
 
 #include "Test.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
+#include "SkDevice.h"
 #include "SkRegion.h"
+#if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
+#else
+class GrContext;
+#endif
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
@@ -182,7 +188,8 @@ SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
             b = static_cast<U8CPU>(c[2]);
             break;
         default:
-            GrCrash("Unexpected Config8888");
+            SkDEBUGFAIL("Unexpected Config8888");
+            break;
     }
     if (*premul) {
         r = SkMulDiv255Ceiling(r, a);
@@ -276,7 +283,9 @@ bool checkWrite(skiatest::Reporter* reporter,
 
 enum DevType {
     kRaster_DevType,
+#if SK_SUPPORT_GPU
     kGpu_DevType,
+#endif
 };
 
 struct CanvasConfig {
@@ -287,7 +296,7 @@ struct CanvasConfig {
 static const CanvasConfig gCanvasConfigs[] = {
     {kRaster_DevType, true},
     {kRaster_DevType, false},
-#ifdef SK_SCALAR_IS_FLOAT
+#if SK_SUPPORT_GPU && defined(SK_SCALAR_IS_FLOAT)
     {kGpu_DevType, true}, // row bytes has no meaning on gpu devices
 #endif
 };
@@ -307,12 +316,15 @@ bool setupCanvas(SkCanvas* canvas, const CanvasConfig& c, GrContext* grCtx) {
                 memset(bmp.getPixels(), DEV_PAD, bmp.getSafeSize());
             }
             canvas->setDevice(new SkDevice(bmp))->unref();
-            } break;
+            break;
+        }
+#if SK_SUPPORT_GPU
         case kGpu_DevType:
             canvas->setDevice(new SkGpuDevice(grCtx,
                                               SkBitmap::kARGB_8888_Config,
                                               DEV_W, DEV_H))->unref();
             break;
+#endif
     }
     return true;
 }

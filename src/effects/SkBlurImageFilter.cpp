@@ -8,7 +8,9 @@
 #include "SkBitmap.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorPriv.h"
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
+#endif
 
 SkBlurImageFilter::SkBlurImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
@@ -184,8 +186,13 @@ bool SkBlurImageFilter::onFilterImage(Proxy*,
 }
 
 GrTexture* SkBlurImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
+#if SK_SUPPORT_GPU
     return src->getContext()->gaussianBlur(src, false, rect,
                                            fSigma.width(), fSigma.height());
+#else
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return NULL;
+#endif
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkBlurImageFilter)

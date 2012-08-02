@@ -46,6 +46,31 @@
           'GR_WIN32_BUILD=1',
         ],
       }],
+      # nullify the targets in this gyp file if skia_gpu is 0
+      [ 'skia_gpu == 0', {
+        'sources/': [
+          ['exclude', '.*'],
+        ],
+        'defines/': [
+          ['exclude', '.*'],
+        ],
+        'include_dirs/': [
+           ['exclude', '.*'],
+        ],
+        'link_settings': {
+          'libraries/': [
+            ['exclude', '.*'],
+          ],
+        },
+        'direct_dependent_settings': {
+          'defines/': [
+            ['exclude', '.*'],
+          ],
+          'include_dirs/': [
+            ['exclude', '.*'],
+          ],
+        },
+      }],
     ],
     'direct_dependent_settings': {
       'conditions': [
