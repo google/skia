@@ -324,6 +324,10 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
                                        SkPath::Direction dir,
                                        SkTArray<SkPoint, true>* quads,
                                        int sublevel = 0) {
+
+    // Notation: Point a is always p[0]. Point b is p[1] unless p[1] == p[0], in which case it is
+    // p[2]. Point d is always p[3]. Point c is p[2] unless p[2] == p[3], in which case it is p[1].
+
     SkVector ab = p[1] - p[0];
     SkVector dc = p[2] - p[3];
 
@@ -341,6 +345,51 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
         dc = p[1] - p[3];
     }
 
+    // When the ab and cd tangents are nearly parallel with vector from d to a the constraint that
+    // the quad point falls between the tangents becomes hard to enforce and we are likely to hit
+    // the max subdivision count. However, in this case the cubic is approaching a line and the
+    // accuracy of the quad point isn't so important. We check if the two middle cubic control 
+    // points are very close to the baseline vector. If so then we just pick quadratic points on the
+    // control polygon.
+
+    if (constrainWithinTangents) {
+        SkVector da = p[0] - p[3];
+        SkScalar invDALengthSqd = da.lengthSqd();
+        if (invDALengthSqd > SK_ScalarNearlyZero) {
+            invDALengthSqd = SkScalarInvert(invDALengthSqd);
+            // cross(ab, da)^2/length(da)^2 == sqd distance from b to line from d to a.
+            // same goed for point c using vector cd.
+            SkScalar detABSqd = ab.cross(da);
+            detABSqd = SkScalarSquare(detABSqd);
+            SkScalar detDCSqd = dc.cross(da);
+            detDCSqd = SkScalarSquare(detDCSqd);
+            if (SkScalarMul(detABSqd, invDALengthSqd) < toleranceSqd &&
+                SkScalarMul(detDCSqd, invDALengthSqd) < toleranceSqd) {
+                SkPoint b = p[0] + ab;
+                SkPoint c = p[3] + dc;
+                SkPoint mid = b + c;
+                mid.scale(SK_ScalarHalf);
+                // Insert two quadratics to cover the case when ab points away from d and/or dc
+                // points away from a.
+                if (SkVector::DotProduct(da, dc) < 0 || SkVector::DotProduct(ab,da) > 0) {
+                    SkPoint* qpts = quads->push_back_n(6);
+                    qpts[0] = p[0];
+                    qpts[1] = b;
+                    qpts[2] = mid;
+                    qpts[3] = mid;
+                    qpts[4] = c;
+                    qpts[5] = p[3];
+                } else {
+                    SkPoint* qpts = quads->push_back_n(3);
+                    qpts[0] = p[0];
+                    qpts[1] = mid;
+                    qpts[2] = p[3];
+                }
+                return;
+            }
+        }
+    }
+
     static const SkScalar kLengthScale = 3 * SK_Scalar1 / 2;
     static const int kMaxSubdivs = 10;
 
@@ -353,7 +402,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     SkVector c1 = p[3];
     c1 += dc;
 
-    SkScalar dSqd = sublevel > kMaxSubdivs ? toleranceSqd : c0.distanceToSqd(c1);
+    SkScalar dSqd = sublevel > kMaxSubdivs ? 0 : c0.distanceToSqd(c1);
     if (dSqd < toleranceSqd) {
         SkPoint cAvg = c0;
         cAvg += c1;
@@ -363,8 +412,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
 
         if (constrainWithinTangents &&
             !is_point_within_cubic_tangents(p[0], ab, dc, p[3], dir, cAvg)) {
-            // choose a new cAvg that is the intersection of the two tangent
-            // lines.
+            // choose a new cAvg that is the intersection of the two tangent lines.
             ab.setOrthog(ab);
             SkScalar z0 = -ab.dot(p[0]);
             dc.setOrthog(dc);
@@ -378,9 +426,8 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
             if (sublevel <= kMaxSubdivs) {
                 SkScalar d0Sqd = c0.distanceToSqd(cAvg);
                 SkScalar d1Sqd = c1.distanceToSqd(cAvg);
-                // We need to subdivide if d0 + d1 > tolerance but we have the
-                // sqd values. We know the distances and tolerance can't be
-                // negative.
+                // We need to subdivide if d0 + d1 > tolerance but we have the sqd values. We know
+                // the distances and tolerance can't be negative.
                 // (d0 + d1)^2 > toleranceSqd
                 // d0Sqd + 2*d0*d1 + d1Sqd > toleranceSqd
                 SkScalar d0d1 = SkScalarSqrt(SkScalarMul(d0Sqd, d1Sqd));
