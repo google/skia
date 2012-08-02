@@ -221,6 +221,8 @@ void SkAAClip::validate() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Count the number of zeros on the left and right edges of the passed in
+// RLE row. If 'row' is all zeros return 'width' in both variables.
 static void count_left_right_zeros(const uint8_t* row, int width,
                                    int* leftZ, int* riteZ) {
     int zeros = 0;
@@ -236,6 +238,12 @@ static void count_left_right_zeros(const uint8_t* row, int width,
         width -= n;
     } while (width > 0);
     *leftZ = zeros;
+
+    if (0 == width) {
+        // this line is completely empty return 'width' in both variables
+        *riteZ = *leftZ;
+        return;
+    }
 
     zeros = 0;
     while (width > 0) {
@@ -265,7 +273,7 @@ static void test_count_left_right_zeros() {
     const uint8_t data2[] = {  7, 0,     5, 0, 2, 0, 3, 0xFF };
     const uint8_t data3[] = {  0, 5,     5, 0xFF, 2, 0, 3, 0 };
     const uint8_t data4[] = {  2, 3,     2, 0, 5, 0xFF, 3, 0 };
-    const uint8_t data5[] = { 10, 0,     10, 0 };
+    const uint8_t data5[] = { 10, 10,    10, 0 };
     const uint8_t data6[] = {  2, 2,     2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
 
     const uint8_t* array[] = {
@@ -398,11 +406,15 @@ bool SkAAClip::trimLeftRight() {
     YOffset* stop = yoff + head->fRowCount;
     uint8_t* base = head->data();
 
+    // After this loop, 'leftZeros' & 'rightZeros' will contain the minimum
+    // number of zeros on the left and right of the clip. This information
+    // can be used to shrink the bounding box.
     int leftZeros = width;
     int riteZeros = width;
     while (yoff < stop) {
         int L, R;
         count_left_right_zeros(base + yoff->fOffset, width, &L, &R);
+        SkASSERT(L + R < width || (L == width && R == width));
         if (L < leftZeros) {
             leftZeros = L;
         }
@@ -417,7 +429,8 @@ bool SkAAClip::trimLeftRight() {
     }
 
     SkASSERT(leftZeros || riteZeros);
-    if (width == (leftZeros + riteZeros)) {
+    if (width == leftZeros) {
+        SkASSERT(width == riteZeros);
         return this->setEmpty();
     }
 

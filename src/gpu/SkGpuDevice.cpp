@@ -384,7 +384,7 @@ static void check_bounds(const GrClipData& clipData,
         }
     }
 
-//    GrAssert(devBound.contains(clipRegion.getBounds()));
+    GrAssert(devBound.contains(clipRegion.getBounds()));
 }
 #endif
 
