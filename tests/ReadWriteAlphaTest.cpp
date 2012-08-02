@@ -105,7 +105,9 @@ static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context)
     REPORTER_ASSERT(reporter, match);
 }
 
+#ifndef SK_BUILD_FOR_ANDROID
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("ReadWriteAlpha", ReadWriteAlphaTestClass, ReadWriteAlphaTest)
 
+#endif
 #endif
