@@ -1596,6 +1596,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->setPaintGamma(SkFloatToScalar(SK_GAMMA_EXPONENT));
 #endif
     rec->setContrast(SkFloatToScalar(SK_GAMMA_CONTRAST));
+    rec->fReservedAlign = 0;
     
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
