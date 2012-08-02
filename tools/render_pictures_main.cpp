@@ -23,18 +23,24 @@ static void usage(const char* argv0) {
     SkDebugf("\n"
 "Usage: \n"
 "     %s <input>... <outputDir> \n"
-"     [--pipe | --tile width[%] height[%]]"
+"     [--mode pipe | simple | tile width[%] height[%]]"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
-"     input:     A list of directories and files to use as input.\n"
-"                    Files are expected to have the .skp extension.\n");
+"     input:     A list of directories and files to use as input. Files are\n"
+"                expected to have the .skp extension.\n\n");
     SkDebugf(
-"     outputDir: directory to write the rendered images.\n");
+"     outputDir: directory to write the rendered images.\n\n");
     SkDebugf(
-"     --pipe : Render using a SkGPipe\n");
+"     --mode pipe | simple | tile width[%] height[%]: Run in the\n"
+"                corresponding mode. Default is simple.\n");
     SkDebugf(
-"     --tile width[%] height[%]: Render using tiles with the given dimensions.\n");
+"                     pipe, Render using a SkGPipe.\n");
+    SkDebugf(
+"                     simple, Render using the default rendering method.\n");
+    SkDebugf(
+"                     tile width[%] height[%], Do a simple render using tiles\n"
+"                                              with the given dimensions.\n");
 }
 
 static void make_output_filepath(SkString* path, const SkString& dir,
@@ -120,58 +126,78 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     char* const* stop = argv + argc;
 
     for (++argv; argv < stop; ++argv) {
-        if (0 == strcmp(*argv, "--pipe")) {
-            renderer = SkNEW(sk_tools::PipePictureRenderer);
-        } else if (0 == strcmp(*argv, "--tile")) {
-            sk_tools::TiledPictureRenderer* tileRenderer = SkNEW(sk_tools::TiledPictureRenderer);
+        if (0 == strcmp(*argv, "--mode")) {
+            SkDELETE(renderer);
+
             ++argv;
-            if (argv < stop) {
+            if (argv >= stop) {
+                SkDebugf("Missing mode for --mode\n");
+                usage(argv0);
+                exit(-1);
+            }
+
+            if (0 == strcmp(*argv, "pipe")) {
+                renderer = SkNEW(sk_tools::PipePictureRenderer);
+            } else if (0 == strcmp(*argv, "simple")) {
+                renderer = SkNEW(sk_tools::SimplePictureRenderer);
+            } else if (0 == strcmp(*argv, "tile")) {
+                sk_tools::TiledPictureRenderer* tileRenderer =
+                    SkNEW(sk_tools::TiledPictureRenderer);
+                ++argv;
+                if (argv >= stop) {
+                    SkDELETE(tileRenderer);
+                    SkDebugf("Missing width for --mode tile\n");
+                    usage(argv0);
+                    exit(-1);
+                }
+
                 if (sk_tools::is_percentage(*argv)) {
                     tileRenderer->setTileWidthPercentage(atof(*argv));
                     if (!(tileRenderer->getTileWidthPercentage() > 0)) {
                         SkDELETE(tileRenderer);
-                        SkDebugf("--tile must be given a width percentage > 0\n");
+                        SkDebugf("--mode tile must be given a width percentage > 0\n");
                         exit(-1);
                     }
                 } else {
                     tileRenderer->setTileWidth(atoi(*argv));
                     if (!(tileRenderer->getTileWidth() > 0)) {
                         SkDELETE(tileRenderer);
-                        SkDebugf("--tile must be given a width > 0\n");
+                        SkDebugf("--mode tile must be given a width > 0\n");
                         exit(-1);
                     }
                 }
-            } else {
-                SkDELETE(tileRenderer);
-                SkDebugf("Missing width for --tile\n");
-                usage(argv0);
-                exit(-1);
-            }
-            ++argv;
-            if (argv < stop) {
+
+                ++argv;
+                if (argv >= stop) {
+                    SkDELETE(tileRenderer);
+                    SkDebugf("Missing height for --mode tile\n");
+                    usage(argv0);
+                    exit(-1);
+                }
+
                 if (sk_tools::is_percentage(*argv)) {
                     tileRenderer->setTileHeightPercentage(atof(*argv));
                     if (!(tileRenderer->getTileHeightPercentage() > 0)) {
                         SkDELETE(tileRenderer);
                         SkDebugf(
-                            "--tile must be given a height percentage > 0\n");
+                            "--mode tile must be given a height percentage > 0\n");
                         exit(-1);
                     }
                 } else {
                     tileRenderer->setTileHeight(atoi(*argv));
                     if (!(tileRenderer->getTileHeight() > 0)) {
                         SkDELETE(tileRenderer);
-                        SkDebugf("--tile must be given a height > 0\n");
+                        SkDebugf("--mode tile must be given a height > 0\n");
                         exit(-1);
                     }
                 }
+
+                renderer = tileRenderer;
             } else {
-                SkDELETE(tileRenderer);
-                SkDebugf("Missing height for --tile\n");
+                SkDebugf("%s is not a valid mode for --mode\n", *argv);
                 usage(argv0);
                 exit(-1);
             }
-            renderer = tileRenderer;
         } else if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
             SkDELETE(renderer);
             usage(argv0);
