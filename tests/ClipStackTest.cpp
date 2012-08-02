@@ -127,6 +127,8 @@ static void assert_count(skiatest::Reporter* reporter, const SkClipStack& stack,
     REPORTER_ASSERT(reporter, count == counter);
 }
 
+// Exercise the SkClipStack's bottom to top and bidirectional iterators
+// (including the skipToTopmost functionality)
 static void test_iterators(skiatest::Reporter* reporter) {
     SkClipStack stack;
 
@@ -183,6 +185,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
     }
 }
 
+// Exercise the SkClipStack's getConservativeBounds computation
 static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
 
     static const int gNumCases = 20;
@@ -351,6 +354,124 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
     }
 }
 
+int count(const SkClipStack& stack) {
+
+    SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+
+    const SkClipStack::Iter::Clip* clip = NULL;
+    int count = 0;
+
+    for (clip = iter.prev(); clip; clip = iter.prev(), ++count) {
+        ;
+    }
+
+    return count;
+}
+
+// Test out SkClipStack's merging of rect clips. In particular exercise
+// merging of aa vs. bw rects.
+static void test_rect_merging(skiatest::Reporter* reporter) {
+
+    SkRect overlapLeft  = SkRect::MakeLTRB(10, 10, 50, 50);
+    SkRect overlapRight = SkRect::MakeLTRB(40, 40, 80, 80);
+
+    SkRect nestedParent = SkRect::MakeLTRB(10, 10, 90, 90);
+    SkRect nestedChild  = SkRect::MakeLTRB(40, 40, 60, 60);
+
+    SkRect bound;
+    SkClipStack::BoundsType type;
+    bool isIntersectionOfRects;
+
+    // all bw overlapping - should merge
+    {
+        SkClipStack stack;
+
+        stack.clipDevRect(overlapLeft, SkRegion::kReplace_Op, false);
+
+        stack.clipDevRect(overlapRight, SkRegion::kIntersect_Op, false);
+
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+
+        stack.getBounds(&bound, &type, &isIntersectionOfRects);
+
+        REPORTER_ASSERT(reporter, isIntersectionOfRects);
+    }
+
+    // all aa overlapping - should merge
+    {
+        SkClipStack stack;
+
+        stack.clipDevRect(overlapLeft, SkRegion::kReplace_Op, true);
+
+        stack.clipDevRect(overlapRight, SkRegion::kIntersect_Op, true);
+
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+
+        stack.getBounds(&bound, &type, &isIntersectionOfRects);
+
+        REPORTER_ASSERT(reporter, isIntersectionOfRects);
+    }
+
+    // mixed overlapping - should _not_ merge
+    {
+        SkClipStack stack;
+
+        stack.clipDevRect(overlapLeft, SkRegion::kReplace_Op, true);
+
+        stack.clipDevRect(overlapRight, SkRegion::kIntersect_Op, false);
+
+        REPORTER_ASSERT(reporter, 2 == count(stack));
+
+        stack.getBounds(&bound, &type, &isIntersectionOfRects);
+
+        REPORTER_ASSERT(reporter, !isIntersectionOfRects);
+    }
+
+    // mixed nested (bw inside aa) - should merge
+    {
+        SkClipStack stack;
+
+        stack.clipDevRect(nestedParent, SkRegion::kReplace_Op, true);
+
+        stack.clipDevRect(nestedChild, SkRegion::kIntersect_Op, false);
+
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+
+        stack.getBounds(&bound, &type, &isIntersectionOfRects);
+
+        REPORTER_ASSERT(reporter, isIntersectionOfRects);
+    }
+
+    // mixed nested (aa inside bw) - should merge
+    {
+        SkClipStack stack;
+
+        stack.clipDevRect(nestedParent, SkRegion::kReplace_Op, false);
+
+        stack.clipDevRect(nestedChild, SkRegion::kIntersect_Op, true);
+
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+
+        stack.getBounds(&bound, &type, &isIntersectionOfRects);
+
+        REPORTER_ASSERT(reporter, isIntersectionOfRects);
+    }
+
+    // reverse nested (aa inside bw) - should _not_ merge
+    {
+        SkClipStack stack;
+
+        stack.clipDevRect(nestedChild, SkRegion::kReplace_Op, false);
+
+        stack.clipDevRect(nestedParent, SkRegion::kIntersect_Op, true);
+
+        REPORTER_ASSERT(reporter, 2 == count(stack));
+
+        stack.getBounds(&bound, &type, &isIntersectionOfRects);
+
+        REPORTER_ASSERT(reporter, !isIntersectionOfRects);
+    }
+}
 
 static void TestClipStack(skiatest::Reporter* reporter) {
     SkClipStack stack;
@@ -388,9 +509,10 @@ static void TestClipStack(skiatest::Reporter* reporter) {
 
     test_assign_and_comparison(reporter);
     test_iterators(reporter);
-    test_bounds(reporter, true);
-    test_bounds(reporter, false);
+    test_bounds(reporter, true);        // once with rects
+    test_bounds(reporter, false);       // once with paths
     test_isWideOpen(reporter);
+    test_rect_merging(reporter);
 }
 
 #include "TestClassDef.h"
