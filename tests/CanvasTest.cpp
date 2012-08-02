@@ -885,6 +885,9 @@ static void TestCanvas(skiatest::Reporter* reporter) {
         SkPictureTester::TestPictureFlattenedObjectReuse(reporter,
             testStepArray()[testStep], 0);
     }
+
+    // Explicitly call reset(), so we don't leak the pixels (since kTestBitmap is a global)
+    kTestBitmap.reset();
 }
 
 #include "TestClassDef.h"
