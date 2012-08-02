@@ -739,7 +739,10 @@ static const ConfigData gRec[] = {
     { SkBitmap::kRGB_565_Config,   kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "565" },
 #if defined(SK_SCALAR_IS_FLOAT) && SK_SUPPORT_GPU
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu" },
+#ifndef SK_BUILD_FOR_ANDROID
+    // currently we don't want to run MSAA tests on Android
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16" },
+#endif
     /* The debug context does not generate images */
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "debug" },
 #if SK_ANGLE
@@ -749,11 +752,11 @@ static const ConfigData gRec[] = {
 #ifdef SK_MESA
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kMESA_GLContextType,    0, kRW_ConfigFlag,    "mesa" },
 #endif // SK_MESA
-#endif // 
+#endif // defined(SK_SCALAR_IS_FLOAT) && SK_SUPPORT_GPU
 #ifdef SK_SUPPORT_XPS
     /* At present we have no way of comparing XPS files (either natively or by converting to PNG). */
     { SkBitmap::kARGB_8888_Config, kXPS_Backend,    kDontCare_GLContextType,                  0, kWrite_ConfigFlag, "xps" },
-#endif // defined(SK_SCALAR_IS_FLOAT) && SK_SUPPORT_GPU
+#endif // SK_SUPPORT_XPS
 #ifdef SK_SUPPORT_PDF
     { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kPDFConfigFlags,   "pdf" },
 #endif // SK_SUPPORT_PDF
