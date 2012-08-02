@@ -12,13 +12,15 @@
 #include "SkLineClipper.h"
 #include "SkGeometry.h"
 
-SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {}
-
 template <typename T> static T* typedAllocThrow(SkChunkAlloc& alloc) {
     return static_cast<T*>(alloc.allocThrow(sizeof(T)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {
+    fEdgeList = NULL;
+}
 
 void SkEdgeBuilder::addLine(const SkPoint pts[]) {
     SkEdge* edge = typedAllocThrow<SkEdge>(fAlloc);
@@ -77,11 +79,89 @@ static void setShiftedClip(SkRect* dst, const SkIRect& src, int shift) {
              SkIntToScalar(src.fBottom >> shift));
 }
 
+int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
+                             int shiftUp) {
+    SkPath::Iter    iter(path, true);
+    SkPoint         pts[4];
+    SkPath::Verb    verb;
+    
+    int maxEdgeCount = path.countPoints();
+    if (iclip) {
+        // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
+        // we turn portions that are clipped out on the left/right into vertical
+        // segments.
+        maxEdgeCount *= SkLineClipper::kMaxClippedLineSegments;
+    }
+    size_t maxEdgeSize = maxEdgeCount * sizeof(SkEdge);
+    size_t maxEdgePtrSize = maxEdgeCount * sizeof(SkEdge*);
+
+    // lets store the edges and their pointers in the same block
+    char* storage = (char*)fAlloc.allocThrow(maxEdgeSize + maxEdgePtrSize);
+    SkEdge* edge = reinterpret_cast<SkEdge*>(storage);
+    SkEdge** edgePtr = reinterpret_cast<SkEdge**>(storage + maxEdgeSize);
+    // Record the beginning of our pointers, so we can return them to the caller
+    fEdgeList = edgePtr;
+
+    if (iclip) {
+        SkRect clip;
+        setShiftedClip(&clip, *iclip, shiftUp);
+        
+        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kMove_Verb:
+                case SkPath::kClose_Verb:
+                    // we ignore these, and just get the whole segment from
+                    // the corresponding line/quad/cubic verbs
+                    break;
+                case SkPath::kLine_Verb: {
+                    SkPoint lines[SkLineClipper::kMaxPoints];
+                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines);
+                    SkASSERT(lineCount <= SkLineClipper::kMaxClippedLineSegments);
+                    for (int i = 0; i < lineCount; i++) {
+                        if (edge->setLine(lines[i], lines[i + 1], NULL, shiftUp)) {
+                            *edgePtr++ = edge++;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    SkDEBUGFAIL("unexpected verb");
+                    break;
+            }
+        }
+    } else {
+        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kMove_Verb:
+                case SkPath::kClose_Verb:
+                    // we ignore these, and just get the whole segment from
+                    // the corresponding line/quad/cubic verbs
+                    break;
+                case SkPath::kLine_Verb:
+                    if (edge->setLine(pts[0], pts[1], NULL, shiftUp)) {
+                        *edgePtr++ = edge++;
+                    }
+                    break;
+                default:
+                    SkDEBUGFAIL("unexpected verb");
+                    break;
+            }
+        }
+    }
+    SkASSERT((char*)edge <= (char*)fEdgeList);
+    SkASSERT(edgePtr - fEdgeList <= maxEdgeCount);
+    return edgePtr - fEdgeList;
+}
+
 int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                          int shiftUp) {
     fAlloc.reset();
     fList.reset();
     fShiftUp = shiftUp;
+
+    if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
+        return this->buildPoly(path, iclip, shiftUp);
+    }
 
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
@@ -155,7 +235,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
             }
         }
     }
+    fEdgeList = fList.begin();
     return fList.count();
 }
-
 
