@@ -1068,15 +1068,7 @@ void GrGLProgram::genStageCode(int stageNum,
 
     builder->fSampleCoords = varyingFSName;
 
-    GrGLShaderBuilder::SamplerMode sampleMode =
-        GrGLShaderBuilder::kExplicitDivide_SamplerMode;
-    if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
-                          StageDesc::kNoPerspective_OptFlagBit)) {
-        sampleMode = GrGLShaderBuilder::kDefault_SamplerMode;
-    } else if (NULL == customStage) {
-        sampleMode = GrGLShaderBuilder::kProj_SamplerMode;
-    }
-    builder->setupTextureAccess(sampleMode, stageNum);
+    builder->setupTextureAccess(stageNum);
 
     builder->computeSwizzle(desc.fInConfigFlags);
     builder->computeModulate(fsInColor);

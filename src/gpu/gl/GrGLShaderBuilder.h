@@ -45,7 +45,7 @@ public:
     /** Determines whether we should use texture2D() or texture2Dproj(), and if an explicit divide
         is required for the sample coordinates, creates the new variable and emits the code to
         initialize it. */
-    void setupTextureAccess(SamplerMode samplerMode, int stageNum);
+    void setupTextureAccess(int stageNum);
 
     /** texture2D(samplerName, coordName), with projection if necessary; if coordName is not
         specified, uses fSampleCoords. */
