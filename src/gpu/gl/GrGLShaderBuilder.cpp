@@ -180,6 +180,11 @@ void GrGLShaderBuilder::emitCustomTextureLookup(SamplerMode samplerMode,
 GrCustomStage::StageKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
                                                                const GrGLCaps& caps) {
     GrCustomStage::StageKey key = 0;
+    
+    if (!access.getTexture()) {
+        return key;
+    }    
+    
     // Assume that swizzle support implies that we never have to modify a shader to adjust
     // for texture format/swizzle settings.
     if (caps.textureSwizzleSupport()) {
