@@ -40,7 +40,7 @@ protected:
 
 
     virtual SkISize onISize() {
-        return make_isize(1200, 900);
+        return make_isize(1200, 1100);
     }
 
     void makePaths() {
@@ -48,7 +48,6 @@ protected:
             return;
         }
         fOnce.accomplished();
-
         // CW
         fPaths.push_back().moveTo(0, 0);
         fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
@@ -126,14 +125,14 @@ protected:
         fPaths.back().lineTo(98 * SK_Scalar1, 100 * SK_Scalar1);
         fPaths.back().lineTo(3 * SK_Scalar1, 96 * SK_Scalar1);
 
-        /*
-        It turns out arcTos are not automatically marked as convex and they
-        may in fact be ever so slightly concave.
-        fPaths.push_back().arcTo(SkRect::MakeXYWH(0, 0,
-                                                  50 * SK_Scalar1,
-                                                  100 * SK_Scalar1),
-                                 25 * SK_Scalar1,  130 * SK_Scalar1, false);
-        */
+        
+        //It turns out arcTos are not automatically marked as convex and they
+        //may in fact be ever so slightly concave.
+        //fPaths.push_back().arcTo(SkRect::MakeXYWH(0, 0,
+        //                                          50 * SK_Scalar1,
+        //                                          100 * SK_Scalar1),
+        //                         25 * SK_Scalar1,  130 * SK_Scalar1, false);
+        
         // cubics
         fPaths.push_back().cubicTo( 1 * SK_Scalar1,  1 * SK_Scalar1,
                                    10 * SK_Scalar1,  90 * SK_Scalar1,
@@ -141,7 +140,7 @@ protected:
         fPaths.push_back().cubicTo(100 * SK_Scalar1,  50 * SK_Scalar1,
                                     20 * SK_Scalar1, 100 * SK_Scalar1,
                                      0 * SK_Scalar1,   0 * SK_Scalar1);
-
+        
         // path that has a cubic with a repeated first control point and
         // a repeated last control point.
         fPaths.push_back().moveTo(SK_Scalar1 * 10, SK_Scalar1 * 10);
@@ -162,6 +161,30 @@ protected:
         fPaths.back().cubicTo(50 * SK_Scalar1, 0,
                               50 * SK_Scalar1, 0,
                               50 * SK_Scalar1, 10 * SK_Scalar1);
+
+        // cubic where last three points are almost a line
+        fPaths.push_back().moveTo(0, 228 * SK_Scalar1 / 8);
+        fPaths.back().cubicTo(628 * SK_Scalar1 / 8, 82 * SK_Scalar1 / 8,
+                              1255 * SK_Scalar1 / 8, 141 * SK_Scalar1 / 8,
+                              1883 * SK_Scalar1 / 8, 202 * SK_Scalar1 / 8);
+
+        // flat cubic where the at end point tangents both point outward.
+        fPaths.push_back().moveTo(10 * SK_Scalar1, 0);
+        fPaths.back().cubicTo(0, SK_Scalar1,
+                              30 * SK_Scalar1, SK_Scalar1,
+                              20 * SK_Scalar1, 0);
+
+        // flat cubic where initial tangent is in, end tangent out
+        fPaths.push_back().moveTo(0, 0 * SK_Scalar1);
+        fPaths.back().cubicTo(10 * SK_Scalar1, SK_Scalar1,
+                              30 * SK_Scalar1, SK_Scalar1,
+                              20 * SK_Scalar1, 0);
+
+        // flat cubic where initial tangent is out, end tangent in
+        fPaths.push_back().moveTo(10 * SK_Scalar1, 0);
+        fPaths.back().cubicTo(0, SK_Scalar1,
+                              20 * SK_Scalar1, SK_Scalar1,
+                              30 * SK_Scalar1, 0);
 
         // triangle where one edge is a degenerate quad
         fPaths.push_back().moveTo(SkFloatToScalar(8.59375f), 45 * SK_Scalar1);
