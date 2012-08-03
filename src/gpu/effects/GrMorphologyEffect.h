@@ -42,6 +42,7 @@ protected:
     MorphologyType fType;
 
 private:
+    GR_DECLARE_CUSTOM_STAGE_TEST;
 
     typedef Gr1DKernelEffect INHERITED;
 };

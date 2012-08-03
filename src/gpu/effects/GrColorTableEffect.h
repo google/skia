@@ -34,6 +34,7 @@ public:
     typedef GrGLColorTableEffect GLProgramStage;
 
 private:
+    GR_DECLARE_CUSTOM_STAGE_TEST;
 
     GrTextureAccess fTextureAccess;
 

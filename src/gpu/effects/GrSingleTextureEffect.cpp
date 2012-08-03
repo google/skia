@@ -56,3 +56,15 @@ GrTexture* GrSingleTextureEffect::texture(unsigned int index) const {
 const GrProgramStageFactory& GrSingleTextureEffect::getFactory() const {
     return GrTProgramStageFactory<GrSingleTextureEffect>::getInstance();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_CUSTOM_STAGE_TEST(GrSingleTextureEffect);
+
+GrCustomStage* GrSingleTextureEffect::TestCreate(SkRandom* random,
+                                                 GrContext* context,
+                                                 GrTexture* textures[]) {
+    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
+                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    return SkNEW_ARGS(GrSingleTextureEffect, (textures[texIdx]));
+}

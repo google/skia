@@ -81,6 +81,13 @@ public:
     SkScalar nextUScalar1() { return SkFixedToScalar(this->nextUFixed1()); }
 
     /** Return the next pseudo random number expressed as a SkScalar
+        in the range [min..max).
+    */
+    SkScalar nextRangeScalar(SkScalar min, SkScalar max) {
+        return SkScalarMul(this->nextSScalar1(), (max - min)) + min;
+    }
+
+    /** Return the next pseudo random number expressed as a SkScalar
         in the range (-SK_Scalar1..SK_Scalar1).
     */
     SkScalar nextSScalar1() { return SkFixedToScalar(this->nextSFixed1()); }

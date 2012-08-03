@@ -38,6 +38,7 @@ protected:
     GrRect fTextureDomain;
 
 private:
+    GR_DECLARE_CUSTOM_STAGE_TEST;
 
     typedef GrSingleTextureEffect INHERITED;
 };

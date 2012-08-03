@@ -13,9 +13,6 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "gl/GrGpuGL.h"
-#include "effects/GrColorTableEffect.h"
-#include "effects/GrConvolutionEffect.h"
-#include "effects/GrMorphologyEffect.h"
 #include "SkLightingImageFilter.h"
 #include "GrProgramStageFactory.h"
 #include "GrRandom.h"
@@ -51,9 +48,6 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
                                           GrContext* context,
                                           GrTexture* dummyTextures[]) {
     enum EffectType {
-        kConvolution_EffectType,
-        kErode_EffectType,
-        kDilate_EffectType,
         /**
          * Lighting effects don't work in unit test because they assume they insert functions and
          * assume the names are unique. This breaks when there are two light effects in the same
@@ -68,8 +62,6 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
         kSpecularSpot_EffectType,
         */
 
-        kColorTable_EffectType,
-
         kEffectCount
     };
 
@@ -78,11 +70,6 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
     static const uint32_t kMulByAlphaMask =
         StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
         StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
-
-    static const Gr1DKernelEffect::Direction gKernelDirections[] = {
-        Gr1DKernelEffect::kX_Direction,
-        Gr1DKernelEffect::kY_Direction
-    };
 
     // The new code uses SkRandom not GrRandom.
     // TODO: Remove GrRandom.
@@ -102,48 +89,7 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
     // TODO: When matrices are property of the custom-stage then remove the
     // no-persp flag code below.
     int effect = random_int(random, kEffectCount);
-    switch (effect) {
-        case kConvolution_EffectType: {
-            int direction = random_int(random, 2);
-            int kernelRadius = random_int(random, 1, 4);
-            float kernel[GrConvolutionEffect::kMaxKernelWidth];
-            for (int i = 0; i < GrConvolutionEffect::kMaxKernelWidth; i++) {
-                kernel[i] = random->nextF();
-            }
-            // does not work with perspective or mul-by-alpha-mask
-            stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-            stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
-            return SkNEW_ARGS(GrConvolutionEffect,
-                              (NULL,
-                               gKernelDirections[direction],
-                               kernelRadius,
-                               kernel));
-            }
-        case kErode_EffectType: {
-            int direction = random_int(random, 2);
-            int kernelRadius = random_int(random, 1, 4);
-            // does not work with perspective or mul-by-alpha-mask
-            stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-            stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
-            return SkNEW_ARGS(GrMorphologyEffect,
-                              (NULL,
-                               gKernelDirections[direction],
-                               kernelRadius,
-                               GrContext::kErode_MorphologyType));
-            }
-        case kDilate_EffectType: {
-            int direction = random_int(random, 2);
-            int kernelRadius = random_int(random, 1, 4);
-            // does not work with perspective or mul-by-alpha-mask
-            stageDesc->fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-            stageDesc->fInConfigFlags &= ~kMulByAlphaMask;
-            return SkNEW_ARGS(GrMorphologyEffect,
-                              (NULL,
-                               gKernelDirections[direction],
-                               kernelRadius,
-                               GrContext::kDilate_MorphologyType));
-            }
-        /*
+/*    switch (effect) {
         case kDiffuseDistant_EffectType: {
             SkPoint3 direction = random_point3(random);
             direction.normalize();
@@ -230,14 +176,10 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
             SkASSERT(ok);
             return stage;
         }
-        */
-        case kColorTable_EffectType: {
-            GrTexture* alphaTexture = dummyTextures[GrCustomStageTestFactory::kAlphaTextureIdx];
-            return SkNEW_ARGS(GrColorTableEffect, (alphaTexture));
-        }
         default:
             GrCrash("Unexpected custom effect type");
     }
+    */
     return NULL;
 }
 }

@@ -20,7 +20,7 @@ public:
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
-                        const char* vertexCoords) SK_OVERRIDE;
+                        const char* vertexCoords) SK_OVERRIDE {};
     virtual void emitFS(GrGLShaderBuilder* state,
                         const char* outputColor,
                         const char* inputColor,
@@ -53,16 +53,8 @@ GrGLMorphologyEffect ::GrGLMorphologyEffect(const GrProgramStageFactory& factory
 }
 
 void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* builder) {
-    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
-                                             GrGLShaderBuilder::kVertex_ShaderType,
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
-}
-
-void GrGLMorphologyEffect::emitVS(GrGLShaderBuilder* builder,
-                                  const char* vertexCoords) {
-    SkString* code = &builder->fVSCode;
-    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
-    code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n", vertexCoords, fRadius, fRadius, imgInc);
 }
 
 void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* builder,
@@ -88,7 +80,8 @@ void GrGLMorphologyEffect ::emitFS(GrGLShaderBuilder* builder,
     }
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
-    code->appendf("\t\tvec2 coord = %s;\n", builder->fSampleCoords.c_str());
+    code->appendf("\t\tvec2 coord = %s - %d * %s;\n",
+                   builder->fSampleCoords.c_str(), fRadius, imgInc);
     code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
     code->appendf("\t\t\tvalue = %s(value, ", func);
     builder->emitTextureLookup(samplerName, "coord");
@@ -154,4 +147,22 @@ bool GrMorphologyEffect::isEqual(const GrCustomStage& sBase) const {
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&
             this->type() == s.type());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_CUSTOM_STAGE_TEST(GrMorphologyEffect);
+
+GrCustomStage* GrMorphologyEffect::TestCreate(SkRandom* random,
+                                              GrContext* context,
+                                              GrTexture* textures[]) {
+    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
+                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
+    static const int kMaxRadius = 10;
+    int radius = random->nextRangeU(1, kMaxRadius);
+    MorphologyType type = random->nextBool() ? GrContext::kErode_MorphologyType :
+                                               GrContext::kDilate_MorphologyType;
+
+    return SkNEW_ARGS(GrMorphologyEffect, (textures[texIdx], dir, radius, type));
 }

@@ -22,7 +22,7 @@ public:
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE;
+                        const char* vertexCoords) SK_OVERRIDE {};
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
@@ -56,18 +56,10 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factor
 }
 
 void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* builder) {
-    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType |
-                                             GrGLShaderBuilder::kVertex_ShaderType,
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
     fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
                                           kFloat_GrSLType, "Kernel", this->width());
-}
-
-void GrGLConvolutionEffect::emitVS(GrGLShaderBuilder* builder,
-                                   const char* vertexCoords) {
-    SkString* code = &builder->fVSCode;
-    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
-    code->appendf("\t\t%s -= vec2(%d, %d) * %s;\n", vertexCoords, fRadius, fRadius, imgInc);
 }
 
 void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
@@ -77,12 +69,14 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
     SkString* code = &builder->fFSCode;
 
     code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
-
-    code->appendf("\t\tvec2 coord = %s;\n", builder->fSampleCoords.c_str());
     
     int width = this ->width();
     const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
+
+    code->appendf("\t\tvec2 coord = %s - %d * %s;\n",
+                  builder->fSampleCoords.c_str(), fRadius, imgInc);
+
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
         SkString index;
@@ -185,3 +179,23 @@ bool GrConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
             this->direction() == s.direction() &&
             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_CUSTOM_STAGE_TEST(GrConvolutionEffect);
+
+GrCustomStage* GrConvolutionEffect::TestCreate(SkRandom* random,
+                                              GrContext* context,
+                                              GrTexture* textures[]) {
+    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
+                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
+    int radius = random->nextRangeU(1, kMaxKernelRadius);
+    float kernel[kMaxKernelRadius];
+    for (int i = 0; i < kMaxKernelRadius; ++i) {
+        kernel[i] = random->nextSScalar1();
+    }
+
+    return SkNEW_ARGS(GrConvolutionEffect, (textures[texIdx], dir, radius, kernel));
+}
+
