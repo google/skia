@@ -71,7 +71,6 @@
         '../samplecode/SampleMeasure.cpp',
         '../samplecode/SampleMipMap.cpp',
         '../samplecode/SampleMovie.cpp',
-        '../samplecode/SampleNinePatch.cpp',
         '../samplecode/SampleOvalTest.cpp',
         '../samplecode/SampleOverflow.cpp',
         '../samplecode/SamplePageFlip.cpp',

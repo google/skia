@@ -17,11 +17,11 @@
 #import  "SkEventNotifier.h"
 #define  kINVAL_NSVIEW_EventType "inval-nsview"
 
+SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
+
 SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd) {
     fInvalEventIsPending = false;
-#if SK_SUPPORT_GPU
     fGLContext = NULL;
-#endif
     fNotifier = [[SkEventNotifier alloc] init];
 }
 SkOSWindow::~SkOSWindow() {
@@ -40,9 +40,7 @@ bool SkOSWindow::onEvent(const SkEvent& evt) {
         fInvalEventIsPending = false;
         const SkIRect& r = this->getDirtyBounds();
         [(SkNSView*)fHWND postInvalWithRect:&r];
-#if SK_SUPPORT_GPU
         [(NSOpenGLContext*)fGLContext update];
-#endif
         return true;
     }
     if ([(SkNSView*)fHWND onHandleEvent:evt]) {
