@@ -40,10 +40,6 @@ void SkRasterWidget::resizeEvent(QResizeEvent* event) {
 void SkRasterWidget::paintEvent(QPaintEvent* event) {
     if (fDebugCanvas) {
         fDebugCanvas->drawTo(fCanvas, fIndex);
-        // TODO(chudy): Refactor into SkDebugCanvas.
-        fMatrix = fCanvas->getTotalMatrix();
-        fClip = fCanvas->getTotalClip().getBounds();
-
         QPainter painter(this);
         QStyleOption opt;
         opt.init(this);
@@ -56,5 +52,6 @@ void SkRasterWidget::paintEvent(QPaintEvent* event) {
 
         painter.drawImage(origin, image);
         painter.end();
+        emit drawComplete();
     }
 }

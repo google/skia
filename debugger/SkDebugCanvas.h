@@ -45,6 +45,20 @@ public:
     void drawTo(SkCanvas* canvas, int index);
 
     /**
+        Returns the most recently calculated transformation matrix
+     */
+    const SkMatrix& getCurrentMatrix() {
+        return fMatrix;
+    }
+
+    /**
+        Returns the most recently calculated clip
+     */
+    const SkIRect& getCurrentClip() {
+        return fClip;
+    }
+
+    /**
         Returns the index of the last draw command to write to the pixel at (x,y)
      */
     int getCommandAtPoint(int x, int y, int index);
@@ -191,6 +205,8 @@ private:
     int fIndex;
     SkIPoint fUserOffset;
     float fUserScale;
+    SkMatrix fMatrix;
+    SkIRect fClip;
 
     /**
         Adds the command to the classes vector of commands.

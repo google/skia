@@ -9,7 +9,7 @@
 
 #include "SkCanvasWidget.h"
 
-SkCanvasWidget::SkCanvasWidget() : QWidget()
+SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
     , fHorizontalLayout(this)
 {
     fHorizontalLayout.setSpacing(6);
@@ -30,6 +30,8 @@ SkCanvasWidget::SkCanvasWidget() : QWidget()
 
     setWidgetVisibility(kGPU_WidgetType, true);
     this->setDisabled(true);
+    connect(&fRasterWidget, SIGNAL(drawComplete()),
+            this->parentWidget(), SLOT(drawComplete()));
 }
 
 SkCanvasWidget::~SkCanvasWidget() {
