@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
-
-#include "Test.h"
 #include "GrMemoryPool.h"
 #include "SkRandom.h"
 #include "SkTDArray.h"

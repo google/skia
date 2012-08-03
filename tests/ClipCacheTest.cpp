@@ -6,11 +6,9 @@
  */
 
 
-// This is a GR test
-
-#if SK_SUPPORT_GPU
-
 #include "Test.h"
+// This is a GR test
+#if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
 #include "../../src/gpu/GrClipMaskManager.h"
 

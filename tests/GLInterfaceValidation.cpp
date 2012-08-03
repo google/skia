@@ -7,10 +7,11 @@
  */
 
 
+
+#include "Test.h"
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
 
-#include "Test.h"
 #if SK_ANGLE
 #include "gl/SkANGLEGLContext.h"
 #endif
