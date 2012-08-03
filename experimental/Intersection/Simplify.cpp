@@ -27,7 +27,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#if 01 // set to 1 for multiple thread -- no debugging
+#if 0 // set to 1 for multiple thread -- no debugging
 
 const bool gRunTestsInOneThread = false;
 
@@ -49,8 +49,8 @@ const bool gRunTestsInOneThread = true;
 
 #define DEBUG_ACTIVE_SPANS 1
 #define DEBUG_ADD_INTERSECTING_TS 0
-#define DEBUG_ADD_T_PAIR 0
-#define DEBUG_CONCIDENT 0
+#define DEBUG_ADD_T_PAIR 1
+#define DEBUG_CONCIDENT 1
 #define DEBUG_CROSS 0
 #define DEBUG_DUMP 1
 #define DEBUG_MARK_DONE 1
@@ -1006,31 +1006,31 @@ public:
         do {
             bool decrement = test->fWindValue && oTest->fWindValue;
             bool track = test->fWindValue || oTest->fWindValue;
-            Span* end = test;
-            double startT = end->fT;
-            double oStartT = oTest->fT;
+            double testT = test->fT;
+            double oTestT = oTest->fT;
+            Span* span = test;
             do {
                 if (decrement) {
-                    decrementSpan(end);
-                } else if (track && end->fT < 1 && oStartT < 1) {
-                    TrackOutside(outsideTs, end->fT, oStartT);
+                    decrementSpan(span);
+                } else if (track && span->fT < 1 && oTestT < 1) {
+                    TrackOutside(outsideTs, span->fT, oTestT);
                 }
-                end = &fTs[++index];
-            } while (end->fT - test->fT < FLT_EPSILON);
-            Span* oTestStart = oTest;
+                span = &fTs[++index];
+            } while (span->fT - testT < FLT_EPSILON);
+            Span* oSpan = oTest;
             do {
                 if (decrement) {
-                    other.decrementSpan(oTestStart);
-                } else if (track && oTestStart->fT < 1 && startT < 1) {
-                    TrackOutside(oOutsideTs, oTestStart->fT, startT);
+                    other.decrementSpan(oSpan);
+                } else if (track && oSpan->fT < 1 && testT < 1) {
+                    TrackOutside(oOutsideTs, oSpan->fT, testT);
                 }
                 if (!oIndex) {
                     break;
                 }
-                oTestStart = &other.fTs[--oIndex];
-            } while (oTest->fT - oTestStart->fT < FLT_EPSILON); 
-            test = end;
-            oTest = oTestStart;
+                oSpan = &other.fTs[--oIndex];
+            } while (oTestT - oSpan->fT < FLT_EPSILON); 
+            test = span;
+            oTest = oSpan;
         } while (test->fT < endT - FLT_EPSILON);
         SkASSERT(!oIndex || oTest->fT <= oStartT - FLT_EPSILON);
         // FIXME: determine if canceled edges need outside ts added
@@ -1146,29 +1146,47 @@ public:
         int otherInsertedAt = other.addT(otherT, this);
         addOtherT(insertedAt, otherT, otherInsertedAt);
         other.addOtherT(otherInsertedAt, t, insertedAt);
-        Span& newSpan = fTs[insertedAt];
+        int nextDoorWind = SK_MaxS32;
         if (insertedAt > 0) {
-            const Span& lastSpan = fTs[insertedAt - 1];
-            if (t - lastSpan.fT < FLT_EPSILON) {
-                int tWind = lastSpan.fWindValue;
-                newSpan.fWindValue = tWind;
-                if (!tWind) {
-                    newSpan.fDone = true;
-                    ++fDoneSpans;
-                }
+            const Span& below = fTs[insertedAt - 1];
+            if (t - below.fT < FLT_EPSILON) {
+                nextDoorWind = below.fWindValue;
             }
         }
-        int oIndex = newSpan.fOtherIndex;
+        if (nextDoorWind == SK_MaxS32 && insertedAt < tCount) {
+            const Span& above = fTs[insertedAt + 1];
+            if (above.fT - t < FLT_EPSILON) {
+                nextDoorWind = above.fWindValue;
+            }
+        }
+        if (nextDoorWind != SK_MaxS32) {
+            Span& newSpan = fTs[insertedAt];
+            newSpan.fWindValue = nextDoorWind;
+            if (!nextDoorWind) {
+                newSpan.fDone = true;
+                ++fDoneSpans;
+            }
+        }
+        nextDoorWind = SK_MaxS32;
+        int oInsertedAt = newSpan.fOtherIndex;
         if (oIndex > 0) {
-            const Span& lastOther = other.fTs[oIndex - 1];
-            if (otherT - lastOther.fT < FLT_EPSILON) {
-                int oWind = lastOther.fWindValue;
-                Span& otherSpan = other.fTs[oIndex];
-                otherSpan.fWindValue = oWind;
-                if (!oWind) {
-                    otherSpan.fDone = true;
-                    ++(other.fDoneSpans);
-                }
+            const Span& oBelow = other.fTs[oInsertedAt - 1];
+            if (otherT - oBelow.fT < FLT_EPSILON) {
+                nextDoorWind = oBelow.fWindValue;
+            }
+        }
+        if (nextDoorWind == SK_MaxS32 && oInsertedAt + 1 < other.fTs.count()) {
+            const Span& oAbove = other.fTs[oInsertedAt + 1];
+            if (oAbove.fT - otherT < FLT_EPSILON) {
+                nextDoorWind = oAbove.fWindValue;
+            }
+        }
+        if (nextDoorWind != SK_MaxS32) {
+            Span& otherSpan = other.fTs[oInsertedAt];
+            otherSpan.fWindValue = nextDoorWind;
+            if (!oWind) {
+                otherSpan.fDone = true;
+                ++(other.fDoneSpans);
             }
         }
     }
@@ -1280,7 +1298,7 @@ public:
             Segment* segment = angle->segment();
             int maxWinding = winding;
             winding -= segment->windBump(angle);
-            if (segment->windSum(nextIndex) == SK_MinS32) {
+            if (segment->windSum(angle) == SK_MinS32) {
                 if (abs(maxWinding) < abs(winding) || maxWinding * winding < 0) {
                     maxWinding = winding;
                 }
@@ -2195,7 +2213,7 @@ public:
     void debugShowTs() const {
         SkDebugf("%s %d", __FUNCTION__, fID);
         for (int i = 0; i < fTs.count(); ++i) {
-            SkDebugf(" [o=%d %1.9g (%1.9g,%1.9g) w=%d]", fTs[i].fOther->fID,
+            SkDebugf(" [o=%d t=%1.3g %1.9g,%1.9g w=%d]", fTs[i].fOther->fID,
                     fTs[i].fT, xAtT(&fTs[i]), yAtT(&fTs[i]), fTs[i].fWindValue);
         }
         SkDebugf("\n");
@@ -2236,6 +2254,7 @@ public:
     void debugShowSort(const SkTDArray<Angle*>& angles, int first,
             const int contourWinding) const {
         SkASSERT(angles[first]->segment() == this);
+        SkASSERT(angles.count() > 1);
         int lastSum = contourWinding;
         int windSum = lastSum - windBump(angles[first]);
         SkDebugf("%s contourWinding=%d bump=%d\n", __FUNCTION__,
@@ -2488,10 +2507,12 @@ public:
                 }
                 thisOne.addTCancel(startT, endT, other, oStartT, oEndT);
             } else {
-                if (thisOne.isMissing(startT) || other.isMissing(oStartT)) {
+                if (startT > 0 || oStartT > 0
+                        || thisOne.isMissing(startT) || other.isMissing(oStartT)) {
                     thisOne.addTPair(startT, other, oStartT);
                 }
-                if (thisOne.isMissing(endT) || other.isMissing(oEndT)) {
+                if (endT < 1 || oEndT < 1
+                        || thisOne.isMissing(endT) || other.isMissing(oEndT)) {
                     other.addTPair(oEndT, thisOne, endT);
                 }
                 thisOne.addTCoincident(startT, endT, other, oStartT, oEndT);
@@ -3438,13 +3459,19 @@ static void bridge(SkTDArray<Contour*>& contourList, SkPath& simple) {
             contourWinding = 0;
             firstContour = false;
         } else {
-            contourWinding = current->windSum(SkMin32(index, endIndex));
+            int sumWinding = current->windSum(SkMin32(index, endIndex));
             // FIXME: don't I have to adjust windSum to get contourWinding?
-            if (contourWinding == SK_MinS32) {
-                contourWinding = current->computeSum(index, endIndex);
-                if (contourWinding == SK_MinS32) {
-                    contourWinding = innerContourCheck(contourList, current,
-                            index, endIndex);
+            if (sumWinding == SK_MinS32) {
+                sumWinding = current->computeSum(index, endIndex);
+            }
+            if (sumWinding == SK_MinS32) {
+                contourWinding = innerContourCheck(contourList, current,
+                        index, endIndex);
+            } else {
+                contourWinding = sumWinding;
+                int spanWinding = current->spanSign(index, endIndex);
+                if (spanWinding * sumWinding > 0) {
+                    contourWinding -= spanWinding;
                 }
             }
 #if DEBUG_WINDING
