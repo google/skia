@@ -17,8 +17,9 @@
 #include "SkTemplates.h"
 #include "SkTSort.h"
 
-// undefine this to get faster inline sort
-#define SK_USE_STD_SORT_FOR_EDGES
+#ifdef SK_USE_LEGACY_AA_COVERAGE
+    #define SK_USE_STD_SORT_FOR_EDGES
+#endif
 
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
