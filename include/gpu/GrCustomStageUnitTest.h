@@ -9,6 +9,8 @@
 #define GrCustomStageUnitTest_DEFINED
 
 #include "SkRandom.h"
+#include "GrNoncopyable.h"
+#include "SkTArray.h"
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 

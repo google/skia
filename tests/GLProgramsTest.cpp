@@ -8,6 +8,10 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
+#include "SkTypes.h"
+
+#if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+
 #include "gl/GrGpuGL.h"
 #include "effects/GrColorTableEffect.h"
 #include "effects/GrConvolutionEffect.h"
@@ -16,8 +20,6 @@
 #include "GrProgramStageFactory.h"
 #include "GrRandom.h"
 #include "Test.h"
-
-#if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 namespace {
 
