@@ -115,8 +115,8 @@ GR_DEFINE_CUSTOM_STAGE_TEST(GrTextureDomainEffect);
 GrCustomStage* GrTextureDomainEffect::TestCreate(SkRandom* random,
                                                  GrContext* context,
                                                  GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
-                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
+                                      GrCustomStageUnitTest::kAlphaTextureIdx;
     GrRect domain;
     domain.fLeft = random->nextUScalar1();
     domain.fRight = random->nextRangeScalar(domain.fLeft, SK_Scalar1);

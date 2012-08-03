@@ -12,6 +12,14 @@
 #include "GrNoncopyable.h"
 #include "SkTArray.h"
 
+namespace GrCustomStageUnitTest {
+// Used to access the dummy textures in TestCreate procs.
+enum {
+    kSkiaPMTextureIdx = 0,
+    kAlphaTextureIdx = 1,
+};
+}
+
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 class GrCustomStage;
@@ -20,11 +28,6 @@ class GrTexture;
 
 class GrCustomStageTestFactory : GrNoncopyable {
 public:
-    // Used to access the dummy textures in TestCreate procs.
-    enum {
-        kSkiaPMTextureIdx = 0,
-        kAlphaTextureIdx = 1,
-    };
 
     typedef GrCustomStage* (*CreateProc)(SkRandom*, GrContext*, GrTexture* dummyTextures[]);
 

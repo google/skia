@@ -187,8 +187,8 @@ GR_DEFINE_CUSTOM_STAGE_TEST(GrConvolutionEffect);
 GrCustomStage* GrConvolutionEffect::TestCreate(SkRandom* random,
                                               GrContext* context,
                                               GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
-                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
+                                      GrCustomStageUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
     int radius = random->nextRangeU(1, kMaxKernelRadius);
     float kernel[kMaxKernelRadius];
