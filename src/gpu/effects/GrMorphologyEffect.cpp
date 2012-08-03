@@ -156,8 +156,8 @@ GR_DEFINE_CUSTOM_STAGE_TEST(GrMorphologyEffect);
 GrCustomStage* GrMorphologyEffect::TestCreate(SkRandom* random,
                                               GrContext* context,
                                               GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
-                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
+                                      GrCustomStageUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
     static const int kMaxRadius = 10;
     int radius = random->nextRangeU(1, kMaxRadius);

@@ -64,7 +64,7 @@ GR_DEFINE_CUSTOM_STAGE_TEST(GrSingleTextureEffect);
 GrCustomStage* GrSingleTextureEffect::TestCreate(SkRandom* random,
                                                  GrContext* context,
                                                  GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
-                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
+                                      GrCustomStageUnitTest::kAlphaTextureIdx;
     return SkNEW_ARGS(GrSingleTextureEffect, (textures[texIdx]));
 }
