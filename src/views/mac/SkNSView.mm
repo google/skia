@@ -6,18 +6,15 @@
  * found in the LICENSE file.
  */
 
-#import "SkNSView.h"
+#import "SkNSView.h"s
 #include "SkCanvas.h"
 #include "SkCGUtils.h"
 #include "SkEvent.h"
+SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 
 //#define FORCE_REDRAW
 @implementation SkNSView
-@synthesize fWind, fTitle, fOptionsDelegate;
-
-#if SK_SUPPORT_GPU
-@synthesize fGLContext;
-#endif
+@synthesize fWind, fTitle, fOptionsDelegate, fGLContext;
 
 - (id)initWithCoder:(NSCoder*)coder {
     if ((self = [super initWithCoder:coder])) {
@@ -46,7 +43,6 @@
         fWind->setVisibleP(true);
         fWind->resize((int) self.frame.size.width, (int) self.frame.size.height, 
                       SkBitmap::kARGB_8888_Config);
-        [self attach:SkOSWindow::kNone_BackEndType withMSAASampleCount:0];
     }
 }
 
@@ -61,10 +57,8 @@
 - (void)resizeSkView:(NSSize)newSize {
     if (NULL != fWind && (fWind->width() != newSize.width || fWind->height() != newSize.height)) {
         fWind->resize((int) newSize.width, (int) newSize.height);
-#if SK_SUPPORT_GPU
         glClear(GL_STENCIL_BUFFER_BIT);
         [fGLContext update];
-#endif
     }
 }
 
@@ -75,9 +69,7 @@
 
 - (void)dealloc {
     delete fWind;
-#if SK_SUPPORT_GPU
     self.fGLContext = nil;
-#endif
     self.fTitle = nil;
     [super dealloc];
 }
@@ -124,13 +116,13 @@
 
 #include "SkKey.h"
 enum {
-    SK_MacReturnKey        = 36,
-    SK_MacDeleteKey        = 51,
-    SK_MacEndKey        = 119,
-    SK_MacLeftKey        = 123,
-    SK_MacRightKey        = 124,
-    SK_MacDownKey        = 125,
-    SK_MacUpKey            = 126,
+	SK_MacReturnKey		= 36,
+	SK_MacDeleteKey		= 51,
+	SK_MacEndKey		= 119,
+	SK_MacLeftKey		= 123,
+	SK_MacRightKey		= 124,
+	SK_MacDownKey		= 125,
+	SK_MacUpKey			= 126,
     SK_Mac0Key          = 0x52,
     SK_Mac1Key          = 0x53,
     SK_Mac2Key          = 0x54,
@@ -145,17 +137,17 @@ enum {
 
 static SkKey raw2key(UInt32 raw)
 {
-    static const struct {
-        UInt32  fRaw;
-        SkKey   fKey;
-    } gKeys[] = {
-        { SK_MacUpKey,      kUp_SkKey       },
-        { SK_MacDownKey,    kDown_SkKey     },
-        { SK_MacLeftKey,    kLeft_SkKey     },
-        { SK_MacRightKey,   kRight_SkKey    },
-        { SK_MacReturnKey,  kOK_SkKey       },
-        { SK_MacDeleteKey,  kBack_SkKey     },
-        { SK_MacEndKey,     kEnd_SkKey      },
+	static const struct {
+		UInt32  fRaw;
+		SkKey   fKey;
+	} gKeys[] = {
+		{ SK_MacUpKey,		kUp_SkKey		},
+		{ SK_MacDownKey,	kDown_SkKey		},
+		{ SK_MacLeftKey,	kLeft_SkKey		},
+		{ SK_MacRightKey,   kRight_SkKey	},
+		{ SK_MacReturnKey,  kOK_SkKey		},
+		{ SK_MacDeleteKey,  kBack_SkKey		},
+		{ SK_MacEndKey,		kEnd_SkKey		},
         { SK_Mac0Key,       k0_SkKey        },
         { SK_Mac1Key,       k1_SkKey        },
         { SK_Mac2Key,       k2_SkKey        },
@@ -166,12 +158,12 @@ static SkKey raw2key(UInt32 raw)
         { SK_Mac7Key,       k7_SkKey        },
         { SK_Mac8Key,       k8_SkKey        },
         { SK_Mac9Key,       k9_SkKey        }
-    };
+	};
     
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
-        if (gKeys[i].fRaw == raw)
-            return gKeys[i].fKey;
-    return kNONE_SkKey;
+	for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
+		if (gKeys[i].fRaw == raw)
+			return gKeys[i].fKey;
+	return kNONE_SkKey;
 }
 
 - (void)keyDown:(NSEvent *)event {
@@ -231,8 +223,8 @@ static SkKey raw2key(UInt32 raw)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#if SK_SUPPORT_GPU
 #include <OpenGL/OpenGL.h>
+
 namespace { 
 CGLContextObj createGLContext(int msaaSampleCount) {
     GLint major, minor;
@@ -275,75 +267,46 @@ CGLContextObj createGLContext(int msaaSampleCount) {
     return ctx;
 }
 }
-#endif
 
 - (void)viewDidMoveToWindow {
     [super viewDidMoveToWindow];
     
-#if SK_SUPPORT_GPU
     //Attaching view to fGLContext requires that the view to be part of a window,
     //and that the NSWindow instance must have a CoreGraphics counterpart (or 
     //it must NOT be deferred or should have been on screen at least once)
     if ([fGLContext view] != self && nil != self.window) {
         [fGLContext setView:self];
     }
-#endif
 }
-- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType withMSAASampleCount:(int) sampleCount {
-#if SK_SUPPORT_GPU
-    if (SkOSWindow::kNativeGL_BackEndType == attachType) {
-        [self setWantsLayer:NO];
-        self.layer = nil;
-        if (nil == fGLContext) {
-            CGLContextObj ctx = createGLContext(sampleCount);
-            fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
-            CGLReleaseContext(ctx);
-            if (NULL == fGLContext) {
-                return false;
-            }
-            [fGLContext setView:self];
+- (bool)attach:(SkOSWindow::SkBackEndTypes)attachType
+        withMSAASampleCount:(int) sampleCount {
+    if (nil == fGLContext) {
+        CGLContextObj ctx = createGLContext(sampleCount);
+        fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
+        CGLReleaseContext(ctx);
+        if (NULL == fGLContext) {
+            return false;
         }
-        
-        [fGLContext makeCurrentContext];
-        
-        glViewport(0, 0, (int) self.bounds.size.width, (int) self.bounds.size.width);
-        glClearColor(0, 0, 0, 0);
-        glClearStencil(0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        return true;
+        [fGLContext setView:self];
     }
-#endif
-    if (SkOSWindow::kNone_BackEndType == attachType) {
-        [self detach];
-        [self setLayer:[CALayer layer]];
-        [self setWantsLayer:YES];
-        return true;
-    }
-    return false;
+    
+    [fGLContext makeCurrentContext];
+    
+    glViewport(0, 0, (int) self.bounds.size.width, (int) self.bounds.size.width);
+    glClearColor(0, 0, 0, 0);
+    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    return true;
 }
 
 - (void)detach {
-#if SK_SUPPORT_GPU
     [fGLContext release];
     fGLContext = nil;
-#endif
 }
 
-#include "SkCGUtils.h"
-
 - (void)present {
-#if SK_SUPPORT_GPU
     if (nil != fGLContext) {
         [fGLContext flushBuffer];
-        return;
     }
-#endif
-    const SkBitmap& bmp = fWind->getBitmap();
-    SkASSERT(self.layer);
-    // FIXME: This causes the layer to flicker during animation. Making a copy of the CGImage does
-    // not help.
-    CGImageRef img = SkCreateCGImageRef(bmp);
-    self.layer.contents = (id) img;
-    CGImageRelease(img);
 }
 @end
