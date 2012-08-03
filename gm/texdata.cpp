@@ -7,9 +7,10 @@
  */
 
 // This test only works with the GPU backend.
-#if SK_SUPPORT_GPU
 
 #include "gm.h"
+
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "SkColorPriv.h"
