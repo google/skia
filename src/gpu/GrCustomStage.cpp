@@ -13,6 +13,13 @@
 
 SK_DEFINE_INST_COUNT(GrCustomStage)
 
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+SkTArray<GrCustomStageTestFactory*, true>* GrCustomStageTestFactory::GetFactories() {
+    static SkTArray<GrCustomStageTestFactory*, true> gFactories;
+    return &gFactories;
+}
+#endif
+
 class GrCustomStage_Globals {
 public:
     static GrMemoryPool* GetTLS() {

@@ -52,11 +52,20 @@ void GrGLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
     SkString* code = &builder->fFSCode;
-    code->appendf("\t\tvec4 coord = vec4(%s.rgb / %s.a, %s.a);\n",
-                  inputColor, inputColor, inputColor);
-    code->appendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
-                  kColorScaleFactor,
-                  kColorOffsetFactor, kColorOffsetFactor, kColorOffsetFactor, kColorOffsetFactor);
+    if (NULL == inputColor) {
+        // the input color is solid white (all ones).
+        static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;
+        code->appendf("\t\tvec4 coord = vec4(%f, %f, %f, %f);\n",
+                      kMaxValue, kMaxValue, kMaxValue, kMaxValue);
+
+    } else {
+        code->appendf("\t\tvec4 coord = vec4(%s.rgb / %s.a, %s.a);\n",
+                      inputColor, inputColor, inputColor);
+        code->appendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
+                      kColorScaleFactor,
+                      kColorOffsetFactor, kColorOffsetFactor,
+                      kColorOffsetFactor, kColorOffsetFactor);
+    }
 
     const GrTextureAccess& access = *fCustomStage.textureAccess(0);
     code->appendf("\t\t%s.a = ", outputColor);

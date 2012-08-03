@@ -402,6 +402,7 @@ public:
     typedef GrGLConical2Gradient GLProgramStage;
 
 private:
+    GR_DECLARE_CUSTOM_STAGE_TEST;
 
     // @{
     // Cache of values - these can change arbitrarily, EXCEPT
@@ -415,6 +416,37 @@ private:
 
     typedef GrGradientEffect INHERITED;
 };
+
+GR_DEFINE_CUSTOM_STAGE_TEST(GrConical2Gradient);
+
+GrCustomStage* GrConical2Gradient::TestCreate(SkRandom* random,
+                                              GrContext* context,
+                                              GrTexture**) {
+    SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
+    SkScalar radius1 = random->nextUScalar1();
+    SkPoint center2;
+    SkScalar radius2;
+    do {
+        center1.set(random->nextUScalar1(), random->nextUScalar1());
+        radius2 = random->nextUScalar1 ();
+        // If the circles are identical the factory will give us an empty shader.
+    } while (radius1 == radius2 && center1 == center2);
+    
+    SkColor colors[kMaxRandomGradientColors];
+    SkScalar stopsArray[kMaxRandomGradientColors];
+    SkScalar* stops = stopsArray;
+    SkShader::TileMode tm;
+    int colorCount = RandomGradientParams(random, colors, &stops, &tm);
+    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateTwoPointConical(center1, radius1,
+                                                                          center2, radius2,
+                                                                          colors, stops, colorCount,
+                                                                          tm));
+    GrSamplerState sampler;
+    GrCustomStage* stage = shader->asNewCustomStage(context, &sampler);
+    GrAssert(NULL != stage);
+    return stage;
+}
+
 
 /////////////////////////////////////////////////////////////////////
 

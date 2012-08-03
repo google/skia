@@ -57,6 +57,14 @@ public:
         return min + this->nextU() % (max - min + 1);
     }
 
+    /** Return the next pseudo random unsigned number, mapped to lie within
+        [0, count).
+     */
+    uint32_t nextULessThan(uint32_t count) {
+        SkASSERT(count > 0);
+        return this->nextRangeU(0, count - 1);
+    }
+
     /** Return the next pseudo random number expressed as an unsigned SkFixed
         in the range [0..SK_Fixed1).
     */
@@ -76,6 +84,10 @@ public:
         in the range (-SK_Scalar1..SK_Scalar1).
     */
     SkScalar nextSScalar1() { return SkFixedToScalar(this->nextSFixed1()); }
+
+    /** Return the next pseudo random number as a bool.
+    */
+    bool nextBool() { return this->nextU() >= 0x80000000; }
 
     /** Return the next pseudo random number as a signed 64bit value.
     */

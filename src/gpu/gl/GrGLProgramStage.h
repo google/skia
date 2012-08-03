@@ -57,7 +57,12 @@ public:
         on the state.
         The code will be inside an otherwise-empty block.
         Fragment shader inputs are a vec2 of coordinates, one texture,
-        and a color; output is a color. */
+        and a color; output is a color. The input color may be NULL which
+        indicates that the input color is solid white. TODO: Better system
+        for communicating optimization info (e.g. input color is solid white,
+        trans black, known to be opaque, etc.) that allows the custom stage
+        to communicate back similar known info about its output.
+        */
     /* TODO: don't give them the samplerName, just a handle; then give
        a function here for them to call into that'll apply any texture
        domain - but do we force them to be honest about texture domain

@@ -11,6 +11,7 @@
 #include "GrRefCnt.h"
 #include "GrNoncopyable.h"
 #include "GrProgramStageFactory.h"
+#include "GrCustomStageUnitTest.h"
 
 class GrContext;
 class GrTexture;

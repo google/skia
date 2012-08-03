@@ -301,7 +301,7 @@ static void addColorFilter(SkString* fsCode, const char * outputVar,
     add_helper(outputVar, colorStr.c_str(), constStr.c_str(), fsCode);
 }
 
-void GrGLProgram::genEdgeCoverage(SkString* coverageVar,
+bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
                                   GrGLShaderBuilder* segments) const {
     if (fDesc.fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit) {
         const char *vsName, *fsName;
@@ -358,8 +358,10 @@ void GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             break;
         }
         *coverageVar = "edgeAlpha";
+        return true;
     } else {
         coverageVar->reset();
+        return false;
     }
 }
 
@@ -770,7 +772,7 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
     if (!wroteFragColorZero || Desc::kNone_DualSrcOutput != fDesc.fDualSrcOutput) {
 
         if (!coverageIsZero) {
-            this->genEdgeCoverage(&inCoverage, &builder);
+            bool inCoverageIsScalar  = this->genEdgeCoverage(&inCoverage, &builder);
 
             switch (fDesc.fCoverageInput) {
                 case Desc::kSolidWhite_ColorInput:
@@ -778,9 +780,11 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                     break;
                 case Desc::kAttribute_ColorInput:
                     gen_attribute_coverage(&builder, &inCoverage);
+                    inCoverageIsScalar = false;
                     break;
                 case Desc::kUniform_ColorInput:
                     this->genUniformCoverage(&builder, &inCoverage);
+                    inCoverageIsScalar = false;
                     break;
                 default:
                     GrCrash("Unexpected input coverage.");
@@ -793,8 +797,7 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                     // create var to hold stage output
                     outCoverage = "coverage";
                     outCoverage.appendS32(s);
-                    builder.fFSCode.appendf("\tvec4 %s;\n",
-                                            outCoverage.c_str());
+                    builder.fFSCode.appendf("\tvec4 %s;\n", outCoverage.c_str());
 
                     const char* inCoords;
                     // figure out what our input coords are
@@ -812,6 +815,13 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                     if (NULL != customStages[s]) {
                         const GrProgramStageFactory& factory = customStages[s]->getFactory();
                         fProgramStage[s] = factory.createGLInstance(*customStages[s]);
+                    }
+                    // stages don't know how to deal with a scalar input. (Maybe they should. We 
+                    // could pass a GrGLShaderVar)
+                    if (inCoverageIsScalar) {
+                        builder.fFSCode.appendf("\tvec4 %s4 = vec4(%s);\n", 
+                                                inCoverage.c_str(), inCoverage.c_str());
+                        inCoverage.append("4");
                     }
                     this->genStageCode(s,
                                        inCoverage.size() ? inCoverage.c_str() : NULL,

@@ -732,4 +732,28 @@ GrTexture* GrGradientEffect::texture(unsigned int index)
     return fTexture;
 }
 
+int GrGradientEffect::RandomGradientParams(SkRandom* random,
+                                           SkColor colors[],
+                                           SkScalar** stops,
+                                           SkShader::TileMode* tm) {
+    int outColors = random->nextRangeU(1, kMaxRandomGradientColors);
+
+    // if one color, omit stops, otherwise randomly decide whether or not to
+    if (outColors == 1 || (outColors >= 2 && random->nextBool())) {
+        *stops = NULL;
+    }
+
+    GrScalar stop = 0.f;
+    for (int i = 0; i < outColors; ++i) {
+        colors[i] = random->nextU();
+        if (NULL != *stops) {
+            (*stops)[i] = stop;
+            stop = i < outColors - 1 ? stop + random->nextUScalar1() * (1.f - stop) : 1.f;
+        }
+    }
+    *tm = static_cast<SkShader::TileMode>(random->nextULessThan(SkShader::kTileModeCount));
+
+    return outColors;
+}
+
 #endif

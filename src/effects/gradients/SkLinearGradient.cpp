@@ -516,9 +516,34 @@ public:
     typedef GrGLLinearGradient GLProgramStage;
 
 private:
+    GR_DECLARE_CUSTOM_STAGE_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
+
+/////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_CUSTOM_STAGE_TEST(GrLinearGradient);
+
+GrCustomStage* GrLinearGradient::TestCreate(SkRandom* random,
+                                            GrContext* context,
+                                            GrTexture**) {
+    SkPoint points[] = {{random->nextUScalar1(), random->nextUScalar1()},
+                        {random->nextUScalar1(), random->nextUScalar1()}};
+
+    SkColor colors[kMaxRandomGradientColors];
+    SkScalar stopsArray[kMaxRandomGradientColors];
+    SkScalar* stops = stopsArray;
+    SkShader::TileMode tm;
+    int colorCount = RandomGradientParams(random, colors, &stops, &tm);
+    SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(points,
+                                                                 colors, stops, colorCount,
+                                                                 tm));
+    GrSamplerState sampler;
+    GrCustomStage* stage = shader->asNewCustomStage(context, &sampler);
+    GrAssert(NULL != stage);
+    return stage;
+}
 
 /////////////////////////////////////////////////////////////////////
 

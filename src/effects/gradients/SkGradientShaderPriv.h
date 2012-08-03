@@ -233,8 +233,22 @@ public:
 
     bool useTexture() const { return fUseTexture; }
 
-private:
+protected:
 
+    /** Populates a pair of arrays with colors and stop info to construct a random gradient.
+        The function decides whether stop values should be used or not. The return value indicates
+        the number of colors, which will be capped by kMaxRandomGradientColors. colors should be
+        sized to be at least kMaxRandomGradientColors. stops is a pointer to an array of at least
+        size kMaxRandomGradientColors. It may be updated to NULL, indicating that NULL should be
+        passed to the gradient factory rather than the array.
+    */
+    static const int kMaxRandomGradientColors = 4;
+    static int RandomGradientParams(SkRandom* r,
+                                    SkColor colors[kMaxRandomGradientColors],
+                                    SkScalar** stops,
+                                    SkShader::TileMode* tm);
+
+private:
     GrTexture* fTexture;
     bool fUseTexture;
 
