@@ -41,6 +41,17 @@ typedef int32_t             SkFixed;
     }
 #endif
 
+#ifdef SK_DEBUG
+    static inline SkFixed SkFloatToFixed_Check(float x) {
+        int64_t n64 = x * SK_Fixed1;
+        SkFixed n32 = (SkFixed)n64;
+        SkASSERT(n64 == n32);
+        return n32;
+    }
+#else
+    #define SkFloatToFixed_Check(x) SkFloatToFixed(x)
+#endif
+
 #define SkFixedToDouble(x)  ((x) * 1.5258789e-5)
 #define SkDoubleToFixed(x)  ((SkFixed)((x) * SK_Fixed1))
 
