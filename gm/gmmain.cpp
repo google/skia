@@ -18,6 +18,7 @@
 #include "SkPicture.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
+#include "SkTArray.h"
 #include "SamplePipeControllers.h"
 
 #if SK_SUPPORT_GPU
