@@ -74,7 +74,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
     const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
-    code->appendf("\t\tvec2 coord = %s - %d * %s;\n",
+    code->appendf("\t\tvec2 coord = %s - %d.0 * %s;\n",
                   builder->fSampleCoords.c_str(), fRadius, imgInc);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
