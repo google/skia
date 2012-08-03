@@ -205,6 +205,7 @@
         '../include/gpu/GrContext.h',
         '../include/gpu/GrContextFactory.h',
         '../include/gpu/GrCustomStage.h',
+        '../include/gpu/GrCustomStageUnitTest.h',
         '../include/gpu/GrFontScaler.h',
         '../include/gpu/GrGlyph.h',
         '../include/gpu/GrInstanceCounter.h',

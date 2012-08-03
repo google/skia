@@ -259,8 +259,10 @@ private:
 
     void genUniformCoverage(GrGLShaderBuilder* segments, SkString* inOutCoverage);
 
-    // generates code to compute coverage based on edge AA.
-    void genEdgeCoverage(SkString* coverageVar, GrGLShaderBuilder* builder) const;
+    // generates code to compute coverage based on edge AA. Returns true if edge coverage was
+    // inserted in which case coverageVar will be updated to refer to a scalar. Otherwise,
+    // coverageVar is set to an empty string.
+    bool genEdgeCoverage(SkString* coverageVar, GrGLShaderBuilder* builder) const;
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
     bool bindOutputsAttribsAndLinkProgram(SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],

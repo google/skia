@@ -184,11 +184,7 @@ void GrGLShaderBuilder::emitCustomTextureLookup(SamplerMode samplerMode,
 GrCustomStage::StageKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
                                                                const GrGLCaps& caps) {
     GrCustomStage::StageKey key = 0;
-    
-    if (!access.getTexture()) {
-        return key;
-    }    
-    
+
     // Assume that swizzle support implies that we never have to modify a shader to adjust
     // for texture format/swizzle settings.
     if (caps.textureSwizzleSupport()) {
@@ -277,7 +273,11 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
         fGSOutputs.push_back();
         fGSOutputs.back().setType(type);
         fGSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
-        fGSOutputs.back().accessName()->printf("g%s", name);
+        if (kNonStageIdx == fCurrentStage) {
+            fGSOutputs.back().accessName()->printf("g%s", name);
+        } else {
+            fGSOutputs.back().accessName()->printf("g%s%d", name, fCurrentStage);
+        }
         fsName = fGSOutputs.back().accessName();
     } else {
         fsName = fVSOutputs.back().accessName();
