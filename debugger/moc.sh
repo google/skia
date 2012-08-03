@@ -10,3 +10,5 @@ $MOC $SRC_DIR/SkCanvasWidget.h -o $SRC_DIR/moc_SkCanvasWidget.cpp
 $MOC $SRC_DIR/SkDebuggerGUI.h -o $SRC_DIR/moc_SkDebuggerGUI.cpp
 $MOC $SRC_DIR/SkInspectorWidget.h -o $SRC_DIR/moc_SkInspectorWidget.cpp
 $MOC $SRC_DIR/SkSettingsWidget.h -o $SRC_DIR/moc_SkSettingsWidget.cpp
+$MOC $SRC_DIR/SkRasterWidget.h -o $SRC_DIR/moc_SkRasterWidget.cpp
+$MOC $SRC_DIR/SkGLWidget.h -o $SRC_DIR/moc_SkGLWidget.cpp

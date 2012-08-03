@@ -18,6 +18,7 @@
 #include <QWidget>
 
 class  SkRasterWidget : public QWidget {
+    Q_OBJECT
 
 public:
     SkRasterWidget();
@@ -43,14 +44,6 @@ public:
         return fBitmap.width();
     }
 
-    const SkMatrix& getCurrentMatrix() {
-        return fMatrix;
-    }
-
-    const SkIRect& getCurrentClip() {
-        return fClip;
-    }
-
     void setTranslate(SkIPoint transform) {
         fTransform = transform;
     }
@@ -58,6 +51,9 @@ public:
     void setScale(float scale) {
         fScaleFactor = scale;
     }
+
+signals:
+    void drawComplete();
 
 protected:
     void paintEvent(QPaintEvent* event);
@@ -69,9 +65,6 @@ private:
     SkDebugCanvas* fDebugCanvas;
     SkCanvas* fCanvas;
     SkDevice* fDevice;
-
-    SkMatrix fMatrix;
-    SkIRect fClip;
 
     int fIndex;
     SkIPoint fTransform;

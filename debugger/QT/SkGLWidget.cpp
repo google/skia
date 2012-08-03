@@ -55,6 +55,7 @@ void SkGLWidget::paintGL() {
     fDebugCanvas->drawTo(fCanvas, fIndex);
     // TODO(chudy): Implement an optional flush button in Gui.
     fCanvas->flush();
+    emit drawComplete();
 }
 
 GrPlatformRenderTargetDesc SkGLWidget::getDesc(int w, int h) {

@@ -109,7 +109,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
             commandVector[i]->execute(canvas);
         }
     }
-
+    fMatrix = canvas->getTotalMatrix();
+    fClip = canvas->getTotalClip().getBounds();
     fIndex = index;
 }
 

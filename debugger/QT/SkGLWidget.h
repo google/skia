@@ -21,6 +21,7 @@
 #include "GrRenderTarget.h"
 
 class SkGLWidget : public QGLWidget {
+Q_OBJECT
 
 public:
     SkGLWidget();
@@ -45,6 +46,9 @@ public:
     void setScale(float scale) {
         fScaleFactor = scale;
     }
+
+signals:
+    void drawComplete();
 
 protected:
     void initializeGL();

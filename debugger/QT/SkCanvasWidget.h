@@ -20,7 +20,7 @@ class SkCanvasWidget : public QWidget {
     Q_OBJECT
 
 public:
-    SkCanvasWidget();
+    SkCanvasWidget(QWidget* parent);
 
     ~SkCanvasWidget();
 
@@ -78,11 +78,11 @@ public:
     }
 
     const SkMatrix& getCurrentMatrix() {
-        return fRasterWidget.getCurrentMatrix();
+        return fDebugCanvas->getCurrentMatrix();
     }
 
     const SkIRect& getCurrentClip() {
-        return fRasterWidget.getCurrentClip();
+        return fDebugCanvas->getCurrentClip();
     }
 
     void loadPicture(QString filename);

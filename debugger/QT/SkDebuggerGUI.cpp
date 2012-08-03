@@ -38,6 +38,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fMapper(this)
     , fListWidget(&fCentralWidget)
     , fDirectoryWidget(&fCentralWidget)
+    , fCanvasWidget(this)
     , fMenuBar(this)
     , fMenuFile(this)
     , fMenuNavigate(this)
@@ -245,6 +246,11 @@ void SkDebuggerGUI::actionStepForward() {
     }
 }
 
+void SkDebuggerGUI::drawComplete() {
+    fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
+    fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
+}
+
 void SkDebuggerGUI::saveToFile(QString filename) {
     SkFILEWStream file(filename.toAscii());
     SkPicture picture;
@@ -312,8 +318,6 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
                 }
                 fInspectorWidget.setDetailText(info);
                 fInspectorWidget.setDisabled(false);
-                fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
-                fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
             }
         }
 

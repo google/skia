@@ -147,6 +147,11 @@ private slots:
     void actionStepForward();
 
     /**
+        Called when the canvas is done being drawn to by SkCanvasWidget.
+     */
+    void drawComplete();
+
+    /**
         Loads an skpicture selected from the directory.
      */
     void loadFile(QListWidgetItem *item);

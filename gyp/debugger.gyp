@@ -19,6 +19,8 @@
         '../debugger/QT/moc_SkDebuggerGUI.cpp',
         '../debugger/QT/moc_SkInspectorWidget.cpp',
         '../debugger/QT/moc_SkSettingsWidget.cpp',
+        '../debugger/QT/moc_SkRasterWidget.cpp',
+        '../debugger/QT/moc_SkGLWidget.cpp',
         '../debugger/QT/SkDebuggerGUI.cpp',
         '../debugger/QT/SkDebuggerGUI.h',
         '../debugger/QT/SkCanvasWidget.cpp',
