@@ -43,7 +43,7 @@ typedef int32_t             SkFixed;
 
 #ifdef SK_DEBUG
     static inline SkFixed SkFloatToFixed_Check(float x) {
-        int64_t n64 = x * SK_Fixed1;
+        int64_t n64 = (int64_t)(x * SK_Fixed1);
         SkFixed n32 = (SkFixed)n64;
         SkASSERT(n64 == n32);
         return n32;
