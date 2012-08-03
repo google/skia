@@ -107,3 +107,20 @@ bool GrTextureDomainEffect::isEqual(const GrCustomStage& sBase) const {
     const GrTextureDomainEffect& s = static_cast<const GrTextureDomainEffect&>(sBase);
     return (INHERITED::isEqual(sBase) && this->fTextureDomain == s.fTextureDomain);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_CUSTOM_STAGE_TEST(GrTextureDomainEffect);
+
+GrCustomStage* GrTextureDomainEffect::TestCreate(SkRandom* random,
+                                                 GrContext* context,
+                                                 GrTexture* textures[]) {
+    int texIdx = random->nextBool() ? GrCustomStageTestFactory::kSkiaPMTextureIdx :
+                                      GrCustomStageTestFactory::kAlphaTextureIdx;
+    GrRect domain;
+    domain.fLeft = random->nextUScalar1();
+    domain.fRight = random->nextRangeScalar(domain.fLeft, SK_Scalar1);
+    domain.fTop = random->nextUScalar1();
+    domain.fBottom = random->nextRangeScalar(domain.fTop, SK_Scalar1);
+    return SkNEW_ARGS(GrTextureDomainEffect, (textures[texIdx], domain));
+}

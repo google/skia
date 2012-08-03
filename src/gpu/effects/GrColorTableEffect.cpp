@@ -124,3 +124,13 @@ const GrTextureAccess* GrColorTableEffect::textureAccess(unsigned int index) con
 
     return NULL;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_CUSTOM_STAGE_TEST(GrColorTableEffect);
+
+GrCustomStage* GrColorTableEffect::TestCreate(SkRandom* random,
+                                              GrContext* context,
+                                              GrTexture* textures[]) {
+    return SkNEW_ARGS(GrColorTableEffect, (textures[GrCustomStageTestFactory::kAlphaTextureIdx]));
+}

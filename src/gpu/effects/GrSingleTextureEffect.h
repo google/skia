@@ -31,6 +31,8 @@ public:
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
 
 private:
+    GR_DECLARE_CUSTOM_STAGE_TEST;
+
     GrTexture* fTexture;
 
     typedef GrCustomStage INHERITED;
