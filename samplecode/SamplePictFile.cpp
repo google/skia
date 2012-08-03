@@ -31,6 +31,26 @@
 class PictFileView : public SampleView {
     SkString    fFilename;
     SkPicture*  fPicture;
+    
+    static SkPicture* LoadPicture(const char path[]) {
+        SkPicture* pic = NULL;
+
+        SkBitmap bm;
+        if (SkImageDecoder::DecodeFile(path, &bm)) {
+            bm.setImmutable();
+            pic = SkNEW(SkPicture);
+            SkCanvas* can = pic->beginRecording(bm.width(), bm.height());
+            can->drawBitmap(bm, 0, 0, NULL);
+            pic->endRecording();
+        } else {
+            SkFILEStream stream(path);
+            if (stream.isValid()) {
+                pic = SkNEW_ARGS(SkPicture, (&stream));
+            }
+        }
+        return pic;
+    }
+
 public:
     PictFileView(const char name[] = NULL) : fFilename(name) {
         fPicture = NULL;
@@ -53,14 +73,15 @@ protected:
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
-        if (NULL == fPicture) {
-            SkFILEStream stream(fFilename.c_str());
-            fPicture = SkNEW_ARGS(SkPicture, (&stream));
+        if (!fPicture) {
+            fPicture = LoadPicture(fFilename.c_str());
         }
-        canvas->drawPicture(*fPicture);
+        if (fPicture) {
+            canvas->drawPicture(*fPicture);
+        }
     }
     
-private:    
+private:
     typedef SampleView INHERITED;
 };
 
