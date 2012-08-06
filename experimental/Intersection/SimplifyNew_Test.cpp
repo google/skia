@@ -775,12 +775,21 @@ static void testLine73() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine51;
+static void testLine74() {
+    SkPath path, simple;
+    path.addRect(20, 30, 40, 40, (SkPath::Direction) 0);
+    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
+    path.addRect(32, 24, 36, 41, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testLine74;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testLine74),
     TEST(testLine73),
     TEST(testLine72),
     TEST(testLine71),

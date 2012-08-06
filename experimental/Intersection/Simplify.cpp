@@ -1146,51 +1146,10 @@ public:
         int otherInsertedAt = other.addT(otherT, this);
         addOtherT(insertedAt, otherT, otherInsertedAt);
         other.addOtherT(otherInsertedAt, t, insertedAt);
-        int nextDoorWind = SK_MaxS32;
-        if (insertedAt > 0) {
-            const Span& below = fTs[insertedAt - 1];
-            if (t - below.fT < FLT_EPSILON) {
-                nextDoorWind = below.fWindValue;
-            }
-        }
-        if (nextDoorWind == SK_MaxS32 && insertedAt < tCount) {
-            const Span& above = fTs[insertedAt + 1];
-            if (above.fT - t < FLT_EPSILON) {
-                nextDoorWind = above.fWindValue;
-            }
-        }
-        if (nextDoorWind != SK_MaxS32) {
-            Span& newSpan = fTs[insertedAt];
-            newSpan.fWindValue = nextDoorWind;
-            if (!nextDoorWind) {
-                newSpan.fDone = true;
-                ++fDoneSpans;
-            }
-        }
-        nextDoorWind = SK_MaxS32;
-        int oInsertedAt = newSpan.fOtherIndex;
-        if (oIndex > 0) {
-            const Span& oBelow = other.fTs[oInsertedAt - 1];
-            if (otherT - oBelow.fT < FLT_EPSILON) {
-                nextDoorWind = oBelow.fWindValue;
-            }
-        }
-        if (nextDoorWind == SK_MaxS32 && oInsertedAt + 1 < other.fTs.count()) {
-            const Span& oAbove = other.fTs[oInsertedAt + 1];
-            if (oAbove.fT - otherT < FLT_EPSILON) {
-                nextDoorWind = oAbove.fWindValue;
-            }
-        }
-        if (nextDoorWind != SK_MaxS32) {
-            Span& otherSpan = other.fTs[oInsertedAt];
-            otherSpan.fWindValue = nextDoorWind;
-            if (!oWind) {
-                otherSpan.fDone = true;
-                ++(other.fDoneSpans);
-            }
-        }
+        matchWindingValue(insertedAt, t);
+        other.matchWindingValue(otherInsertedAt, otherT);
     }
-
+    
     void addTwoAngles(int start, int end, SkTDArray<Angle>& angles) const {
         // add edge leading into junction
         if (fTs[SkMin32(end, start)].fWindValue > 0) {
@@ -1973,9 +1932,7 @@ public:
                 continue;
             }
         #if DEBUG_MARK_DONE
-            const SkPoint& pt = xyAtT(&span);
-            SkDebugf("%s id=%d index=%d t=%1.9g pt=(%1.9g,%1.9g) wind=%d\n",
-                    __FUNCTION__, fID, lesser, span.fT, pt.fX, pt.fY, winding);
+            debugShowNewWinding(__FUNCTION__, span, winding);
         #endif
             span.fDone = true;
             SkASSERT(span.fWindSum == SK_MinS32 || span.fWindSum == winding);
@@ -1990,9 +1947,7 @@ public:
                 continue;
             }
         #if DEBUG_MARK_DONE
-            const SkPoint& pt = xyAtT(&span);
-            SkDebugf("%s id=%d index=%d t=%1.9g pt=(%1.9g,%1.9g) wind=%d\n",
-                    __FUNCTION__, fID, index, span.fT, pt.fX, pt.fY, winding);
+            debugShowNewWinding(__FUNCTION__, span, winding);
         #endif
             span.fDone = true;
             SkASSERT(span.fWindSum == SK_MinS32 || span.fWindSum == winding);
@@ -2014,9 +1969,7 @@ public:
       //      SkASSERT(span.fWindValue == 1 || winding == 0);
             SkASSERT(span.fWindSum == SK_MinS32 || span.fWindSum == winding);
         #if DEBUG_MARK_DONE
-            const SkPoint& pt = xyAtT(&span);
-            SkDebugf("%s id=%d index=%d t=%1.9g pt=(%1.9g,%1.9g) wind=%d\n",
-                    __FUNCTION__, fID, lesser, span.fT, pt.fX, pt.fY, winding);
+            debugShowNewWinding(__FUNCTION__, span, winding);
         #endif
             SkASSERT(abs(winding) <= gDebugMaxWindSum);
             span.fWindSum = winding;
@@ -2030,13 +1983,35 @@ public:
      //       SkASSERT(span.fWindValue == 1 || winding == 0);
             SkASSERT(span.fWindSum == SK_MinS32 || span.fWindSum == winding);
         #if DEBUG_MARK_DONE
-            const SkPoint& pt = xyAtT(&span);
-            SkDebugf("%s id=%d index=%d t=%1.9g pt=(%1.9g,%1.9g) wind=%d\n",
-                    __FUNCTION__, fID, index, span.fT, pt.fX, pt.fY, winding);
+            debugShowNewWinding(__FUNCTION__, span, winding);
         #endif
             SkASSERT(abs(winding) <= gDebugMaxWindSum);
             span.fWindSum = winding;
         } while (++index < fTs.count() && fTs[index].fT - referenceT < FLT_EPSILON);
+    }
+
+    void matchWindingValue(int tIndex, double t) {
+        int nextDoorWind = SK_MaxS32;
+        if (tIndex > 0) {
+            const Span& below = fTs[tIndex - 1];
+            if (t - below.fT < FLT_EPSILON) {
+                nextDoorWind = below.fWindValue;
+            }
+        }
+        if (nextDoorWind == SK_MaxS32 && tIndex + 1 < fTs.count()) {
+            const Span& above = fTs[tIndex + 1];
+            if (above.fT - t < FLT_EPSILON) {
+                nextDoorWind = above.fWindValue;
+            }
+        }
+        if (nextDoorWind != SK_MaxS32) {
+            Span& newSpan = fTs[tIndex];
+            newSpan.fWindValue = nextDoorWind;
+            if (!nextDoorWind) {
+                newSpan.fDone = true;
+                ++fDoneSpans;
+            }
+        }
     }
 
     // return span if when chasing, two or more radiating spans are not done
@@ -2235,8 +2210,8 @@ public:
                 SkDebugf(" %1.9g,%1.9g", fPts[vIndex].fX, fPts[vIndex].fY);
             }
             const Span* span = &fTs[i];
-            SkDebugf(") fT=%d (%1.9g) (%1.9g,%1.9g)", i, fTs[i].fT, 
-                     xAtT(span), yAtT(i));
+            SkDebugf(") t=%1.9g (%1.9g,%1.9g)", fTs[i].fT, 
+                     xAtT(span), yAtT(span));
             const Segment* other = fTs[i].fOther;
             SkDebugf(" other=%d otherT=%1.9g otherIndex=%d windSum=",
                     other->fID, fTs[i].fOtherT, fTs[i].fOtherIndex);
@@ -2247,6 +2222,25 @@ public:
             }
             SkDebugf(" windValue=%d\n", fTs[i].fWindValue);
         }
+    }
+#endif
+
+#if DEBUG_MARK_DONE
+    void debugShowNewWinding(const char* fun, const Span& span, int winding) {
+        const SkPoint& pt = xyAtT(&span);
+        SkDebugf("%s id=%d", fun, fID);
+        SkDebugf(" (%1.9g,%1.9g", fPts[0].fX, fPts[0].fY);
+        for (int vIndex = 1; vIndex <= fVerb; ++vIndex) {
+            SkDebugf(" %1.9g,%1.9g", fPts[vIndex].fX, fPts[vIndex].fY);
+        }
+        SkDebugf(") t=%1.9g (%1.9g,%1.9g) newWindSum=%d windSum=",
+                span.fT, pt.fX, pt.fY, winding);
+        if (span.fWindSum == SK_MinS32) {
+            SkDebugf("?");
+        } else {
+            SkDebugf("%d", span.fWindSum);
+        }
+        SkDebugf(" windValue=%d\n", span.fWindValue);
     }
 #endif
 
