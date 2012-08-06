@@ -16,14 +16,21 @@ static inline int is_even(int x) {
 }
 
 static SkScalar FindFirstInterval(const SkScalar intervals[], SkScalar phase,
-                                  int32_t* index) {
-    int i;
-
-    for (i = 0; phase > intervals[i]; i++) {
-        phase -= intervals[i];
+                                  int32_t* index, int count) {
+    for (int i = 0; i < count; ++i) {
+        if (phase > intervals[i]) {
+            phase -= intervals[i];
+        } else {
+            *index = i;
+            return intervals[i] - phase;
+        }
     }
-    *index = i;
-    return intervals[i] - phase;
+    // If we get here, phase "appears" to be larger than our length. This
+    // shouldn't happen with perfect precision, but we can accumulate errors
+    // during the initial length computation (rounding can make our sum be too
+    // big or too small. In that event, we just have to eat the error here.
+    *index = 0;
+    return intervals[0];
 }
 
 SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
@@ -67,7 +74,8 @@ SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
         }
         SkASSERT(phase >= 0 && phase < len);
 
-        fInitialDashLength = FindFirstInterval(intervals, phase, &fInitialDashIndex);
+        fInitialDashLength = FindFirstInterval(intervals, phase,
+                                               &fInitialDashIndex, count);
 
         SkASSERT(fInitialDashLength >= 0);
         SkASSERT(fInitialDashIndex >= 0 && fInitialDashIndex < fCount);
