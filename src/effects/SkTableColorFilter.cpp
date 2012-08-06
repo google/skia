@@ -1,3 +1,4 @@
+#include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkTableColorFilter.h"
 #include "SkUnPreMultiply.h"
