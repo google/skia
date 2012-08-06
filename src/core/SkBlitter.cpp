@@ -11,6 +11,7 @@
 #include "SkAntiRun.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkFilterShader.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
 #include "SkTemplatesPriv.h"
