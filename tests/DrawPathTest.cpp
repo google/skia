@@ -137,6 +137,28 @@ static void test_bug533(skiatest::Reporter* reporter) {
 #endif
 }
 
+static void test_crbug_140642(skiatest::Reporter* reporter) {
+    /*
+     *  We used to see this construct, and due to rounding as we accumulated
+     *  our length, the loop where we apply the phase would run off the end of
+     *  the array, since it relied on just -= each interval value, which did not
+     *  behave as "expected". Now the code explicitly checks for walking off the
+     *  end of that array.
+
+     *  A different (better) fix might be to rewrite dashing to do all of its
+     *  length/phase/measure math using double, but this may need to be
+     *  coordinated with SkPathMeasure, to be consistent between the two.
+
+     <path stroke="mintcream" stroke-dasharray="27734 35660 2157846850 247"
+           stroke-dashoffset="-248.135982067">
+     */
+
+#ifdef SK_SCALAR_IS_FLOAT
+    const SkScalar vals[] = { 27734, 35660, 2157846850.0f, 247 };
+    SkDashPathEffect dontAssert(vals, 4, -248.135982067f);
+#endif
+}
+
 static void test_crbug_124652(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     /*
@@ -185,6 +207,7 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_bug533(reporter);
     test_bigcubic(reporter);
     test_crbug_124652(reporter);
+    test_crbug_140642(reporter);
     test_inversepathwithclip(reporter);
 //    test_crbug131181(reporter);
 }
