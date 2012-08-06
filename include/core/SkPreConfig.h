@@ -173,5 +173,21 @@
     #define SK_API
 #endif
 
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Use SK_PURE_FUNC as an attribute to indicate that a function's
+ * return value only depends on the value of its parameters. This
+ * can help the compiler optimize out successive calls.
+ *
+ * Usage:
+ *      void  function(int params)  SK_PURE_FUNC;
+ */
+#if defined(__GNUC__)
+#  define  SK_PURE_FUNC  __attribute__((pure))
+#else
+#  define  SK_PURE_FUNC  /* nothing */
+#endif
+
 #endif
 

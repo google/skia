@@ -496,17 +496,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
         // clamp gets special version of filterOne
         fFilterOneX = SK_Fixed1;
         fFilterOneY = SK_Fixed1;
-#if SK_ARM_NEON_IS_NONE
-        return ClampX_ClampY_Procs[index];
-#elif SK_ARM_NEON_IS_ALWAYS
-        return ClampX_ClampY_Procs_neon[index];
-#else // SK_ARM_NEON_IS_DYNAMIC
-        if (sk_cpu_arm_has_neon()) {
-            return ClampX_ClampY_Procs_neon[index];
-        } else {
-            return ClampX_ClampY_Procs[index];
-        }
-#endif
+        return SK_ARM_NEON_WRAP(ClampX_ClampY_Procs)[index];
     }
     
     // all remaining procs use this form for filterOne
@@ -516,17 +506,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
     if (SkShader::kRepeat_TileMode == fTileModeX &&
         SkShader::kRepeat_TileMode == fTileModeY)
     {
-#if SK_ARM_NEON_IS_NONE
-        return RepeatX_RepeatY_Procs[index];
-#elif SK_ARM_NEON_IS_ALWAYS
-        return RepeatX_RepeatY_Procs_neon[index];
-#else // SK_ARM_NEON_IS_DYNAMIC
-        if (sk_cpu_arm_has_neon()) {
-            return RepeatX_RepeatY_Procs_neon[index];
-        } else {
-            return RepeatX_RepeatY_Procs[index];
-        }
-#endif
+        return SK_ARM_NEON_WRAP(RepeatX_RepeatY_Procs)[index];
     }
 
     fTileProcX = choose_tile_proc(fTileModeX);

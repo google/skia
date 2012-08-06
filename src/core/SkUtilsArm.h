@@ -47,7 +47,41 @@ static bool sk_cpu_arm_has_neon(void) {
     return true;
 }
 #else // SK_ARM_NEON_IS_DYNAMIC
-extern bool sk_cpu_arm_has_neon(void);
+
+extern bool sk_cpu_arm_has_neon(void) SK_PURE_FUNC;
+#endif
+
+// Use SK_ARM_NEON_WRAP(symbol) to map 'symbol' to a NEON-specific symbol
+// when applicable. This will transform 'symbol' differently depending on
+// the current NEON configuration, i.e.:
+//
+//    NONE           -> 'symbol'
+//    ALWAYS         -> 'symbol_neon'
+//    DYNAMIC        -> 'symbol' or 'symbol_neon' depending on runtime check.
+//
+// The goal is to simplify user code, for example:
+//
+//      return SK_ARM_NEON_WRAP(do_something)(params);
+//
+// Replaces the equivalent:
+//
+//     #if SK_ARM_NEON_IS_NONE
+//       return do_something(params);
+//     #elif SK_ARM_NEON_IS_ALWAYS
+//       return do_something_neon(params);
+//     #elif SK_ARM_NEON_IS_DYNAMIC
+//       if (sk_cpu_arm_has_neon())
+//         return do_something_neon(params);
+//       else
+//         return do_something(params);
+//     #endif
+//
+#if SK_ARM_NEON_IS_NONE
+#  define SK_ARM_NEON_WRAP(x)   (x)
+#elif SK_ARM_NEON_IS_ALWAYS
+#  define SK_ARM_NEON_WRAP(x)   (x ## _neon)
+#elif SK_ARM_NEON_IS_DYNAMIC
+#  define SK_ARM_NEON_WRAP(x)   (sk_cpu_arm_has_neon() ? x ## _neon : x)
 #endif
 
 #endif // SkUtilsArm_DEFINED
