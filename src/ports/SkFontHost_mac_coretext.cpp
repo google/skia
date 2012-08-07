@@ -26,6 +26,7 @@
 #include "SkGlyph.h"
 #include "SkMaskGamma.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkString.h"
 #include "SkStream.h"
 #include "SkThread.h"
