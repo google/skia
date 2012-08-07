@@ -29,18 +29,50 @@
 #include "SkImageEncoder.h"
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
+#include "SkStream.h"
 #include "SkString.h"
 
+class SkBenchLogger {
+public:
+    SkBenchLogger() : fFileStream(NULL) {}
+    ~SkBenchLogger() {
+        if (fFileStream)
+            SkDELETE(fFileStream);
+    }
+
+    bool SetLogFile(const char file[]) {
+        fFileStream = SkNEW_ARGS(SkFILEWStream, (file));
+        return fFileStream->isValid();
+    }
+
+    void logError(const char msg[]) { nativeLogError(msg); }
+    void logError(const SkString& str) { nativeLogError(str.c_str()); }
+
+    void logProgress(const char msg[]) {
+        nativeLogProgress(msg);
+        fileWrite(msg, strlen(msg));
+    }
+    void logProgress(const SkString& str) {
+        nativeLogProgress(str.c_str());
+        fileWrite(str.c_str(), str.size());
+    }
+
+private:
 #ifdef SK_BUILD_FOR_ANDROID
-static void log_error(const char msg[]) { SkDebugf("%s", msg); }
-static void log_progress(const char msg[]) { SkDebugf("%s", msg); }
+    void nativeLogError(const char msg[]) { SkDebugf("%s", msg); }
+    void nativeLogProgress(const char msg[]) { SkDebugf("%s", msg); }
 #else
-static void log_error(const char msg[]) { fprintf(stderr, "%s", msg); }
-static void log_progress(const char msg[]) { printf("%s", msg); }
+    void nativeLogError(const char msg[]) { fprintf(stderr, "%s", msg); }
+    void nativeLogProgress(const char msg[]) { printf("%s", msg); }
 #endif
 
-static void log_error(const SkString& str) { log_error(str.c_str()); }
-static void log_progress(const SkString& str) { log_progress(str.c_str()); }
+    void fileWrite(const char msg[], size_t size) {
+        if (fFileStream && fFileStream->isValid())
+            fFileStream->write(msg, size);
+    }
+    SkFILEWStream* fFileStream;
+
+} logger;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -380,6 +412,7 @@ static void help() {
              "                 record, Benchmark the time to record to an SkPicture;\n"
              "                 picturerecord, Benchmark the time to do record from a \n"
              "                                SkPicture to a SkPicture.\n");
+    SkDebugf("    -logFile : destination for writing log output, in addition to stdout.\n");
 #if SK_SUPPORT_GPU
     SkDebugf("    -config 8888|565|GPU|ANGLE|NULLGPU : "
              "Run bench in corresponding config mode.\n");
@@ -440,13 +473,13 @@ int main (int argc, char * const argv[]) {
                     repeatDraw = 1;
                 }
             } else {
-                log_error("missing arg for -repeat\n");
+                logger.logError("missing arg for -repeat\n");
                 help();
                 return -1;
             }
         } else if (strcmp(*argv, "-logPerIter") == 0) {
             if (!parse_bool_arg(++argv, stop, &logPerIter)) {
-                log_error("missing arg for -logPerIter\n");
+                logger.logError("missing arg for -logPerIter\n");
                 help();
                 return -1;
             }
@@ -464,7 +497,7 @@ int main (int argc, char * const argv[]) {
                     }
                 }
             } else {
-                log_error("missing arg for -timers\n");
+                logger.logError("missing arg for -timers\n");
                 help();
                 return -1;
             }
@@ -476,20 +509,20 @@ int main (int argc, char * const argv[]) {
             doClip = true;
         } else if (strcmp(*argv, "-forceAA") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceAA)) {
-                log_error("missing arg for -forceAA\n");
+                logger.logError("missing arg for -forceAA\n");
                 help();
                 return -1;
             }
         } else if (strcmp(*argv, "-forceFilter") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceFilter)) {
-                log_error("missing arg for -forceFilter\n");
+                logger.logError("missing arg for -forceFilter\n");
                 help();
                 return -1;
             }
         } else if (strcmp(*argv, "-forceDither") == 0) {
             bool tmp;
             if (!parse_bool_arg(++argv, stop, &tmp)) {
-                log_error("missing arg for -forceDither\n");
+                logger.logError("missing arg for -forceDither\n");
                 help();
                 return -1;
             }
@@ -497,7 +530,7 @@ int main (int argc, char * const argv[]) {
         } else if (strcmp(*argv, "-forceBlend") == 0) {
             bool wantAlpha = false;
             if (!parse_bool_arg(++argv, stop, &wantAlpha)) {
-                log_error("missing arg for -forceBlend\n");
+                logger.logError("missing arg for -forceBlend\n");
                 help();
                 return -1;
             }
@@ -514,12 +547,12 @@ int main (int argc, char * const argv[]) {
                 } else if (strcmp(*argv, "picturerecord") == 0) {
                     benchMode = kPictureRecord_benchModes;
                 } else {
-                    log_error("bad arg for -mode\n");
+                    logger.logError("bad arg for -mode\n");
                     help();
                     return -1;
                 }
             } else {
-                log_error("missing arg for -mode\n");
+                logger.logError("missing arg for -mode\n");
                 help();
                 return -1;
             }
@@ -528,13 +561,13 @@ int main (int argc, char * const argv[]) {
             if (argv < stop) {
                 const char *strokeWidthStr = *argv;
                 if (sscanf(strokeWidthStr, "%f", &strokeWidth) != 1) {
-                  log_error("bad arg for -strokeWidth\n");
+                  logger.logError("bad arg for -strokeWidth\n");
                   help();
                   return -1;
                 }
                 hasStrokeWidth = true;
             } else {
-                log_error("missing arg for -strokeWidth\n");
+                logger.logError("missing arg for -strokeWidth\n");
                 help();
                 return -1;
             }
@@ -543,7 +576,7 @@ int main (int argc, char * const argv[]) {
             if (argv < stop) {
                 *fMatches.append() = *argv;
             } else {
-                log_error("missing arg for -match\n");
+                logger.logError("missing arg for -match\n");
                 help();
                 return -1;
             }
@@ -557,12 +590,25 @@ int main (int argc, char * const argv[]) {
                 } else {
                     SkString str;
                     str.printf("unrecognized config %s\n", *argv);
-                    log_error(str);
+                    logger.logError(str);
                     help();
                     return -1;
                 }
             } else {
-                log_error("missing arg for -config\n");
+                logger.logError("missing arg for -config\n");
+                help();
+                return -1;
+            }
+        } else if (strcmp(*argv, "-logFile") == 0) {
+            argv++;
+            if (argv < stop) {
+                if (!logger.SetLogFile(*argv)) {
+                    SkString str;
+                    str.printf("Could not open %s for writing.", *argv);
+                    return -1;
+                }
+            } else {
+                logger.logError("missing arg for -logFile\n");
                 help();
                 return -1;
             }
@@ -571,7 +617,7 @@ int main (int argc, char * const argv[]) {
             if (argv < stop) {
                 defineDict.set(argv[-1] + 2, *argv);
             } else {
-                log_error("incomplete '-Dfoo bar' definition\n");
+                logger.logError("incomplete '-Dfoo bar' definition\n");
                 help();
                 return -1;
             }
@@ -581,14 +627,14 @@ int main (int argc, char * const argv[]) {
         } else {
             SkString str;
             str.printf("unrecognized arg %s\n", *argv);
-            log_error(str);
+            logger.logError(str);
             help();
             return -1;
         }
     }
     if ((benchMode == kRecord_benchModes || benchMode == kPictureRecord_benchModes)
             && !outDir.isEmpty()) {
-        log_error("'-mode record' and '-mode picturerecord' are not"
+        logger.logError("'-mode record' and '-mode picturerecord' are not"
                   " compatible with -o.\n");
         return -1;
     }
@@ -602,7 +648,7 @@ int main (int argc, char * const argv[]) {
             *configs.append() = i;
         }
     }
-    
+
     // report our current settings
     {
         SkString str;
@@ -629,7 +675,7 @@ int main (int argc, char * const argv[]) {
         } else {
             str.append(" strokeWidth=none");
         }
-        
+
 #if defined(SK_SCALAR_IS_FLOAT)
         str.append(" scalar=float");
 #elif defined(SK_SCALAR_IS_FIXED)
@@ -652,7 +698,7 @@ int main (int argc, char * const argv[]) {
         str.append(" DEBUG");
 #endif
         str.append("\n");
-        log_progress(str);
+        logger.logProgress(str);
     }
 
     SkGLContext* timerCtx = NULL;
@@ -700,7 +746,7 @@ int main (int argc, char * const argv[]) {
             SkString str;
             str.printf("running bench [%d %d] %28s", dim.fX, dim.fY,
                        bench->getName());
-            log_progress(str);
+            logger.logProgress(str);
         }
         
         for (int x = 0; x < configs.count(); ++x) {
@@ -852,14 +898,14 @@ int main (int argc, char * const argv[]) {
                 if (timerGpu && glHelper && fGpuSum > 0) {
                     str += fGpuStr;
                 }
-                log_progress(str);
+                logger.logProgress(str);
             }
             if (outDir.size() > 0) {
                 saveFile(bench->getName(), configName, outDir.c_str(),
                          device->accessBitmap(false));
             }
         }
-        log_progress("\n");
+        logger.logProgress(SkString("\n"));
     }
 #if SK_SUPPORT_GPU
     // need to clean up here rather than post-main to allow leak detection to work
