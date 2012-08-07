@@ -162,7 +162,6 @@
 
         '../include/core/Sk64.h',
         '../include/core/SkAdvancedTypefaceMetrics.h',
-        '../include/core/SkAutoKern.h',
         '../include/core/SkBitmap.h',
         '../include/core/SkBlitRow.h',
         '../include/core/SkBlitter.h',
@@ -186,7 +185,6 @@
         '../include/core/SkDrawFilter.h',
         '../include/core/SkDrawLooper.h',
         '../include/core/SkEndian.h',
-        '../include/core/SkFDot6.h',
         '../include/core/SkFixed.h',
         '../include/core/SkFlattenable.h',
         '../include/core/SkFloatBits.h',
