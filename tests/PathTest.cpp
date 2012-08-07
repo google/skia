@@ -752,6 +752,31 @@ static void test_isRect(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 }
 
+static void write_and_read_back(skiatest::Reporter* reporter,
+                                const SkPath& p) {
+    SkWriter32 writer(100);
+    writer.writePath(p);
+    size_t size = writer.size();
+    SkAutoMalloc storage(size);
+    writer.flatten(storage.get());
+    SkReader32 reader(storage.get(), size);
+
+    SkPath readBack;
+    REPORTER_ASSERT(reporter, readBack != p);
+    reader.readPath(&readBack);
+    REPORTER_ASSERT(reporter, readBack == p);
+
+    REPORTER_ASSERT(reporter, readBack.getConvexityOrUnknown() == 
+                              p.getConvexityOrUnknown());
+
+    REPORTER_ASSERT(reporter, readBack.isOval(NULL) == p.isOval(NULL));
+
+    const SkRect& origBounds = p.getBounds();
+    const SkRect& readBackBounds = readBack.getBounds();
+
+    REPORTER_ASSERT(reporter, origBounds == readBackBounds);
+}
+
 static void test_flattening(skiatest::Reporter* reporter) {
     SkPath p;
 
@@ -766,17 +791,7 @@ static void test_flattening(skiatest::Reporter* reporter) {
     p.quadTo(pts[2], pts[3]);
     p.cubicTo(pts[4], pts[5], pts[6]);
 
-    SkWriter32 writer(100);
-    writer.writePath(p);
-    size_t size = writer.size();
-    SkAutoMalloc storage(size);
-    writer.flatten(storage.get());
-    SkReader32 reader(storage.get(), size);
-
-    SkPath p1;
-    REPORTER_ASSERT(reporter, p1 != p);
-    reader.readPath(&p1);
-    REPORTER_ASSERT(reporter, p1 == p);
+    write_and_read_back(reporter, p);
 
     // create a buffer that should be much larger than the path so we don't
     // kill our stack if writer goes too far.
@@ -794,6 +809,15 @@ static void test_flattening(skiatest::Reporter* reporter) {
     size3 = p2.writeToMemory(buffer2);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, memcmp(buffer, buffer2, size1) == 0);
+
+    // test persistence of the oval flag & convexity
+    {
+        SkPath oval;
+        SkRect rect = SkRect::MakeWH(10, 10);
+        oval.addOval(rect);
+
+        write_and_read_back(reporter, oval);
+    }
 }
 
 static void test_transform(skiatest::Reporter* reporter) {
