@@ -15,52 +15,103 @@ enum {
     kDefaultTileHeight = 256
 };
 
-void PipePictureRenderer::render(SkPicture* pict, SkCanvas* canvas) {
-    PipeController pipeController(canvas);
+void PictureRenderer::init(SkPicture* pict) {
+    SkASSERT(fPicture == NULL);
+    SkASSERT(fCanvas.get() == NULL);
+    if (fPicture != NULL || fCanvas.get() != NULL) {
+        return;
+    }
+
+    SkASSERT(pict != NULL);
+    if (pict == NULL) {
+        return;
+    }
+
+    fPicture = pict;
+    SkBitmap bitmap;
+    sk_tools::setup_bitmap(&bitmap, fPicture->width(), fPicture->height());
+    fCanvas.reset(SkNEW_ARGS(SkCanvas, (bitmap)));
+}
+
+void PictureRenderer::end() {
+    fPicture = NULL;
+    fCanvas.reset(NULL);
+}
+
+void PipePictureRenderer::render() {
+    SkASSERT(fCanvas.get() != NULL);
+    SkASSERT(fPicture != NULL);
+    if (fCanvas.get() == NULL || fPicture == NULL) {
+        return;
+    }
+
+    PipeController pipeController(fCanvas.get());
     SkGPipeWriter writer;
     SkCanvas* pipeCanvas = writer.startRecording(&pipeController);
-    pipeCanvas->drawPicture(*pict);
+    pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
 }
 
-void SimplePictureRenderer::render(SkPicture* pict, SkCanvas* canvas) {
-    canvas->drawPicture(*pict);
+void SimplePictureRenderer::render() {
+    SkASSERT(fCanvas.get() != NULL);
+    SkASSERT(fPicture != NULL);
+    if (fCanvas.get() == NULL || fPicture == NULL) {
+        return;
+    }
+
+    fCanvas->drawPicture(*fPicture);
 }
 
 TiledPictureRenderer::TiledPictureRenderer()
     : fTileWidth(kDefaultTileWidth)
     , fTileHeight(kDefaultTileHeight) {}
 
-void TiledPictureRenderer::init(const SkPicture& pict) {
-    deleteTiles();
+void TiledPictureRenderer::init(SkPicture* pict) {
+    SkASSERT(pict != NULL);
+    SkASSERT(fTiles.count() == 0);
+    if (pict == NULL || fTiles.count() != 0) {
+        return;
+    }
+
+    this->INHERITED::init(pict);
 
     if (fTileWidthPercentage > 0) {
-        fTileWidth = sk_float_ceil2int(fTileWidthPercentage * pict.width() / 100);
+        fTileWidth = sk_float_ceil2int(fTileWidthPercentage * fPicture->width() / 100);
     }
     if (fTileHeightPercentage > 0) {
-        fTileHeight = sk_float_ceil2int(fTileHeightPercentage * pict.height() / 100);
+        fTileHeight = sk_float_ceil2int(fTileHeightPercentage * fPicture->height() / 100);
     }
 
-    setupTiles(pict);
+    this->setupTiles();
 }
 
-void TiledPictureRenderer::render(SkPicture* pict, SkCanvas* canvas) {
-    drawTiles(pict);
+void TiledPictureRenderer::render() {
+    SkASSERT(fCanvas.get() != NULL);
+    SkASSERT(fPicture != NULL);
+    if (fCanvas.get() == NULL || fPicture == NULL) {
+        return;
+    }
 
-    copyTilesToCanvas(*pict, canvas);
+    this->drawTiles();
+    this->copyTilesToCanvas();
+}
+
+void TiledPictureRenderer::end() {
+    this->deleteTiles();
+    this->INHERITED::end();
 }
 
 TiledPictureRenderer::~TiledPictureRenderer() {
-    deleteTiles();
+    this->deleteTiles();
 }
 
-void TiledPictureRenderer::clipTile(const SkPicture& picture, const TileInfo& tile) {
-    SkRect clip = SkRect::MakeWH(SkIntToScalar(picture.width()),
-                                 SkIntToScalar(picture.height()));
+void TiledPictureRenderer::clipTile(const TileInfo& tile) {
+    SkRect clip = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
+                                 SkIntToScalar(fPicture->height()));
     tile.fCanvas->clipRect(clip);
 }
 
-void TiledPictureRenderer::addTile(const SkPicture& picture, int tile_x_start, int tile_y_start) {
+void TiledPictureRenderer::addTile(int tile_x_start, int tile_y_start) {
     TileInfo* tile = fTiles.push();
 
     tile->fBitmap = SkNEW(SkBitmap);
@@ -68,15 +119,15 @@ void TiledPictureRenderer::addTile(const SkPicture& picture, int tile_x_start, i
 
     tile->fCanvas = SkNEW_ARGS(SkCanvas, (*(tile->fBitmap)));
     tile->fCanvas->translate(SkIntToScalar(-tile_x_start), SkIntToScalar(-tile_y_start));
-    clipTile(picture, *tile);
+    this->clipTile(*tile);
 }
 
-void TiledPictureRenderer::setupTiles(const SkPicture& picture) {
-    for (int tile_y_start = 0; tile_y_start < picture.height();
+void TiledPictureRenderer::setupTiles() {
+    for (int tile_y_start = 0; tile_y_start < fPicture->height();
          tile_y_start += fTileHeight) {
-        for (int tile_x_start = 0; tile_x_start < picture.width();
+        for (int tile_x_start = 0; tile_x_start < fPicture->width();
              tile_x_start += fTileWidth) {
-            addTile(picture, tile_x_start, tile_y_start);
+            this->addTile(tile_x_start, tile_y_start);
         }
     }
 }
@@ -90,23 +141,23 @@ void TiledPictureRenderer::deleteTiles() {
     fTiles.reset();
 }
 
-void TiledPictureRenderer::drawTiles(SkPicture* pict) {
+void TiledPictureRenderer::drawTiles() {
     for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].fCanvas->drawPicture(*pict);
+        fTiles[i].fCanvas->drawPicture(*(fPicture));
     }
 }
 
-void TiledPictureRenderer::copyTilesToCanvas(const SkPicture& pict, SkCanvas* destination) {
+void TiledPictureRenderer::copyTilesToCanvas() {
     int tile_index = 0;
-    for (int tile_y_start = 0; tile_y_start < pict.height();
+    for (int tile_y_start = 0; tile_y_start < fPicture->height();
          tile_y_start += fTileHeight) {
-        for (int tile_x_start = 0; tile_x_start < pict.width();
+        for (int tile_x_start = 0; tile_x_start < fPicture->width();
              tile_x_start += fTileWidth) {
             SkASSERT(tile_index < fTiles.count());
             SkBitmap source = fTiles[tile_index].fCanvas->getDevice()->accessBitmap(false);
-            destination->drawBitmap(source, 
-                                    SkIntToScalar(tile_x_start), 
-                                    SkIntToScalar(tile_y_start));
+            fCanvas->drawBitmap(source,
+                                SkIntToScalar(tile_x_start),
+                                SkIntToScalar(tile_y_start));
             ++tile_index;
         }
     }

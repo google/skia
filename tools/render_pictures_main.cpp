@@ -96,11 +96,15 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
     SkPicture picture(&inputStream);
     SkBitmap bitmap;
     sk_tools::setup_bitmap(&bitmap, picture.width(), picture.height());
-    SkCanvas canvas(bitmap);
 
-    renderer.init(picture);
-    renderer.render(&picture, &canvas);
+    renderer.init(&picture);
+
+    renderer.render();
+
+    renderer.getCanvas()->readPixels(&bitmap, 0, 0);
     write_output(outputDir, inputFilename, bitmap);
+
+    renderer.end();
 }
 
 static void process_input(const SkString& input, const SkString& outputDir,

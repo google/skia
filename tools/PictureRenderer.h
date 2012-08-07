@@ -19,27 +19,47 @@ namespace sk_tools {
 
 class PictureRenderer : public SkRefCnt {
 public:
-    virtual void init(const SkPicture& pict){}
-    virtual void render(SkPicture* pict, SkCanvas* canvas) = 0;
+    virtual void init(SkPicture* pict);
+    virtual void render() = 0;
+    virtual void end();
+
+    SkCanvas* getCanvas() {
+        return fCanvas.get();
+    }
+
+    PictureRenderer() : fPicture(NULL){}
+protected:
+    SkAutoTUnref<SkCanvas> fCanvas;
+    SkPicture* fPicture;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 class PipePictureRenderer : public PictureRenderer {
 public:
-    virtual void render(SkPicture* pict, SkCanvas* canvas);
+    virtual void render() SK_OVERRIDE;
+
+private:
+    typedef PictureRenderer INHERITED;
 };
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
-    virtual void render (SkPicture* pict, SkCanvas* canvas);
+    virtual void render () SK_OVERRIDE;
+
+private:
+    typedef PictureRenderer INHERITED;
 };
 
 class TiledPictureRenderer : public PictureRenderer {
 public:
     TiledPictureRenderer();
 
-    virtual void init(const SkPicture& pict);
-    virtual void render(SkPicture* pict, SkCanvas* canvas);
-    void drawTiles(SkPicture* pict);
+    virtual void init(SkPicture* pict) SK_OVERRIDE;
+    virtual void render() SK_OVERRIDE;
+    virtual void end() SK_OVERRIDE;
+    void drawTiles();
 
     void setTileWidth(int width) {
         fTileWidth = width;
@@ -96,14 +116,16 @@ private:
     // drawn-to area. This is mostly important for tiles on the right and bottom edges
     // as they may go over this area and the picture may have some commands that
     // draw outside of this area and so should not actually be written.
-    static void clipTile(const SkPicture& picture, const TileInfo& tile);
-    void addTile(const SkPicture& picture, int tile_x_start, int tile_y_start);
-    void setupTiles(const SkPicture& picture);
+    void clipTile(const TileInfo& tile);
+    void addTile(int tile_x_start, int tile_y_start);
+    void setupTiles();
     // We manually delete the tiles instead of having a destructor on TileInfo as
     // the destructor on TileInfo will be during a realloc. This would result in
     // the canvases and bitmaps being prematurely deleted.
     void deleteTiles();
-    void copyTilesToCanvas(const SkPicture& pict, SkCanvas* destination);
+    void copyTilesToCanvas();
+
+    typedef PictureRenderer INHERITED;
 };
 
 }
