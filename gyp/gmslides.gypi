@@ -67,6 +67,7 @@
     '../gm/typeface.cpp',
     '../gm/verttext.cpp',
     '../gm/verttext2.cpp',
+    '../gm/verylargebitmap.cpp',
     '../gm/xfermodes.cpp',
   ],
 }
