@@ -22,13 +22,30 @@ protected:
 
     SkISize onISize() { return skiagm::make_isize(480, 780); }
 
+    static void strokePath(SkCanvas* canvas, const SkPath& path) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(SK_ColorRED);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawPath(path, paint);
+    }
+
     virtual void onDraw(SkCanvas* canvas) {
-        const char* text = "Hamburgefons";
+        // explicitly add spaces, to test a prev. bug
+        const char* text = "Ham bur ge fons";
         size_t len = strlen(text);
+        SkPath path;
 
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(48));
+
+        canvas->translate(SkIntToScalar(10), SkIntToScalar(64));
+
+        canvas->drawText(text, len, 0, 0, paint);
+        paint.getTextPath(text, len, 0, 0, &path);
+        strokePath(canvas, path);
+        path.reset();
         
         SkAutoTArray<SkPoint>  pos(len);
         SkAutoTArray<SkScalar> widths(len);
@@ -42,19 +59,16 @@ protected:
             x += widths[i];
         }
         
-        canvas->drawPosText(text, len, &pos[0], paint);
+        canvas->translate(0, SkIntToScalar(64));
         
-        SkPath path;
-        paint.setColor(SK_ColorRED);
-        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawPosText(text, len, &pos[0], paint);
         paint.getPosTextPath(text, len, &pos[0], &path);
-        canvas->drawPath(path, paint);
+        strokePath(canvas, path);
     }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 static skiagm::GM* F(void*) { return new GetPosTextPathGM; }
-
 static skiagm::GMRegistry gR(F);
 

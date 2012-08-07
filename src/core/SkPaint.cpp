@@ -1353,9 +1353,11 @@ void SkPaint::getTextPath(const void* textData, size_t length,
 
     SkScalar        xpos;
     const SkPath*   iterPath;
-    while ((iterPath = iter.next(&xpos)) != NULL) {
+    while (iter.next(&iterPath, &xpos)) {
         matrix.postTranslate(xpos - prevXPos, 0);
-        path->addPath(*iterPath, matrix);
+        if (iterPath) {
+            path->addPath(*iterPath, matrix);
+        }
         prevXPos = xpos;
     }
 }
@@ -1379,9 +1381,11 @@ void SkPaint::getPosTextPath(const void* textData, size_t length,
 
     unsigned int    i = 0;
     const SkPath*   iterPath;
-    while ((iterPath = iter.next(NULL)) != NULL) {
+    while (iter.next(&iterPath, NULL)) {
         matrix.postTranslate(pos[i].fX - prevPos.fX, pos[i].fY - prevPos.fY);
-        path->addPath(*iterPath, matrix);
+        if (iterPath) {
+            path->addPath(*iterPath, matrix);
+        }
         prevPos = pos[i];
         i++;
     }
@@ -2202,7 +2206,7 @@ SkTextToPathIter::SkTextToPathIter( const char text[], size_t length,
 
     fText = text;
     fStop = text + length;
-    
+
     fXYIndex = paint.isVerticalText() ? 1 : 0;
 }
 
@@ -2210,21 +2214,28 @@ SkTextToPathIter::~SkTextToPathIter() {
     SkGlyphCache::AttachCache(fCache);
 }
 
-const SkPath* SkTextToPathIter::next(SkScalar* xpos) {
-    while (fText < fStop) {
+bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
+    if (fText < fStop) {
         const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
 
         fXPos += SkScalarMul(SkFixedToScalar(fPrevAdvance + fAutoKern.adjust(glyph)), fScale);
         fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
 
         if (glyph.fWidth) {
-            if (xpos) {
-                *xpos = fXPos;
+            if (path) {
+                *path = fCache->findPath(glyph);
             }
-            return fCache->findPath(glyph);
+        } else {
+            if (path) {
+                *path = NULL;
+            }
         }
+        if (xpos) {
+            *xpos = fXPos;
+        }
+        return true;
     }
-    return NULL;
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

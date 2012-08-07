@@ -22,7 +22,15 @@ public:
     const SkPaint&  getPaint() const { return fPaint; }
     SkScalar        getPathScale() const { return fScale; }
 
-    const SkPath*   next(SkScalar* xpos);   //!< returns nil when there are no more paths
+    struct Rec {
+        const SkPath*   fPath;  // may be null for "whitespace" glyphs
+        SkScalar        fXPos;
+    };
+
+    /**
+     *  Returns false when all of the text has been consumed
+     */
+    bool next(const SkPath** path, SkScalar* xpos);
 
 private:
     SkGlyphCache*   fCache;
