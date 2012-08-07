@@ -55,13 +55,25 @@ public:
         fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
     }
 
+    GrGLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray) {
+        GrAssert(kVoid_GrSLType != type);
+        fType = type;
+        fTypeModifier = kNone_TypeModifier;
+        fCount = arrayCount;
+        fPrecision = kDefault_Precision;
+        fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
+        fName = name;
+    }
+
     GrGLShaderVar(const GrGLShaderVar& var)
         : fType(var.fType)
         , fTypeModifier(var.fTypeModifier)
         , fName(var.fName)
         , fCount(var.fCount)
         , fPrecision(var.fPrecision)
-        , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {}
+        , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {
+        GrAssert(kVoid_GrSLType != var.fType);
+    }
 
     /**
      * Values for array count that have special meaning. We allow 1-sized arrays.
@@ -79,6 +91,7 @@ public:
              const SkString& name,
              Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
+        GrAssert(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -95,6 +108,7 @@ public:
              const char* name,
              Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
+        GrAssert(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -112,6 +126,7 @@ public:
              int count,
              Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
+        GrAssert(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -129,6 +144,7 @@ public:
              int count,
              Precision precision = kDefault_Precision,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
+        GrAssert(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -232,11 +248,12 @@ public:
                          TypeString(effectiveType),
                          this->getName().c_str());
         }
-        out->append(";\n");
     }
 
     static const char* TypeString(GrSLType t) {
         switch (t) {
+            case kVoid_GrSLType:
+                return "void";
             case kFloat_GrSLType:
                 return "float";
             case kVec2f_GrSLType:
