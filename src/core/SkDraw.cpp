@@ -1284,6 +1284,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
 
 #include "SkScalerContext.h"
 #include "SkGlyphCache.h"
+#include "SkTextToPathIter.h"
 #include "SkUtils.h"
 
 static void measure_text(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
