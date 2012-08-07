@@ -7,6 +7,7 @@
 
 #include "SkDataPixelRef.h"
 #include "SkData.h"
+#include "SkFlattenableBuffers.h"
 
 SkDataPixelRef::SkDataPixelRef(SkData* data) : fData(data) {
     fData->ref();
