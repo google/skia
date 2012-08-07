@@ -8,6 +8,8 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
+#include "SkRect.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"

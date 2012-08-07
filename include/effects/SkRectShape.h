@@ -10,6 +10,7 @@
 
 #include "SkShape.h"
 #include "SkPaint.h"
+#include "SkRect.h"
 #include "SkSize.h"
 
 class SkPaintShape : public SkShape {

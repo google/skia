@@ -10,6 +10,7 @@
 #include "SkLayerRasterizer.h"
 #include "SkBuffer.h"
 #include "SkDraw.h"
+#include "SkFlattenableBuffers.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
@@ -143,78 +144,30 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     return true;
 }
 
-/////////// Routines for flattening /////////////////
-
-static void paint_read(SkPaint* paint, SkFlattenableReadBuffer& buffer) {
-    paint->setAntiAlias(buffer.readBool());
-    paint->setStyle((SkPaint::Style)buffer.readU8());
-    paint->setAlpha(buffer.readU8());
-
-    if (paint->getStyle() != SkPaint::kFill_Style) {
-        paint->setStrokeWidth(buffer.readScalar());
-        paint->setStrokeMiter(buffer.readScalar());
-        paint->setStrokeCap((SkPaint::Cap)buffer.readU8());
-        paint->setStrokeJoin((SkPaint::Join)buffer.readU8());
-    }
-
-    SkSafeUnref(paint->setMaskFilter((SkMaskFilter*)buffer.readFlattenable()));
-    SkSafeUnref(paint->setPathEffect((SkPathEffect*)buffer.readFlattenable()));
-    SkSafeUnref(paint->setRasterizer((SkRasterizer*)buffer.readFlattenable()));
-    SkSafeUnref(paint->setXfermode((SkXfermode*)buffer.readFlattenable()));
-}
-
-static void paint_write(const SkPaint& paint, SkFlattenableWriteBuffer& buffer) {
-    buffer.writeBool(paint.isAntiAlias());
-    buffer.write8(paint.getStyle());
-    buffer.write8(paint.getAlpha());
-
-    if (paint.getStyle() != SkPaint::kFill_Style) {
-        buffer.writeScalar(paint.getStrokeWidth());
-        buffer.writeScalar(paint.getStrokeMiter());
-        buffer.write8(paint.getStrokeCap());
-        buffer.write8(paint.getStrokeJoin());
-    }
-
-    buffer.writeFlattenable(paint.getMaskFilter());
-    buffer.writeFlattenable(paint.getPathEffect());
-    buffer.writeFlattenable(paint.getRasterizer());
-    buffer.writeFlattenable(paint.getXfermode());
-}
-
 SkLayerRasterizer::SkLayerRasterizer(SkFlattenableReadBuffer& buffer)
     : SkRasterizer(buffer), fLayers(sizeof(SkLayerRasterizer_Rec)) {
-    int count = buffer.readS32();
+    int count = buffer.readInt();
 
     for (int i = 0; i < count; i++) {
         SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)fLayers.push_back();
 
-#if 0
-        SkNEW_PLACEMENT_ARGS(&rec->fPaint, SkPaint, (buffer));
-#else
         SkNEW_PLACEMENT(&rec->fPaint, SkPaint);
-        paint_read(&rec->fPaint, buffer);
-#endif
-        rec->fOffset.fX = buffer.readScalar();
-        rec->fOffset.fY = buffer.readScalar();
+        buffer.readPaint(&rec->fPaint);
+        buffer.readPoint(&rec->fOffset);
     }
 }
 
 void SkLayerRasterizer::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
-    buffer.write32(fLayers.count());
+    buffer.writeInt(fLayers.count());
 
     SkDeque::F2BIter                iter(fLayers);
     const SkLayerRasterizer_Rec*    rec;
 
     while ((rec = (const SkLayerRasterizer_Rec*)iter.next()) != NULL) {
-#if 0
-        rec->fPaint.flatten(buffer);
-#else
-        paint_write(rec->fPaint, buffer);
-#endif
-        buffer.writeScalar(rec->fOffset.fX);
-        buffer.writeScalar(rec->fOffset.fY);
+        buffer.writePaint(rec->fPaint);
+        buffer.writePoint(rec->fOffset);
     }
 }
 

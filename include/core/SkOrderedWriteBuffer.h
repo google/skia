@@ -9,55 +9,81 @@
 #ifndef SkOrderedWriteBuffer_DEFINED
 #define SkOrderedWriteBuffer_DEFINED
 
+#include "SkFlattenableBuffers.h"
+
 #include "SkRefCnt.h"
 #include "SkBitmap.h"
-#include "SkFlattenable.h"
-#include "SkWriter32.h"
 #include "SkPath.h"
+#include "SkWriter32.h"
+
+class SkFlattenable;
 
 class SkOrderedWriteBuffer : public SkFlattenableWriteBuffer {
 public:
     SkOrderedWriteBuffer(size_t minSize);
     SkOrderedWriteBuffer(size_t minSize, void* initialStorage,
                          size_t storageSize);
-    virtual ~SkOrderedWriteBuffer() {}
+    virtual ~SkOrderedWriteBuffer();
+
+    virtual bool isOrderedBinaryBuffer() SK_OVERRIDE { return true; }
+    virtual SkOrderedWriteBuffer* getOrderedBinaryBuffer() SK_OVERRIDE { return this; }
 
     SkWriter32* getWriter32() { return &fWriter; }
 
-    // deprecated naming convention that will be removed after callers are updated
-    virtual bool writeBool(bool value) { return fWriter.writeBool(value); }
-    virtual void writeInt(int32_t value) { fWriter.writeInt(value); }
-    virtual void write8(int32_t value) { fWriter.write8(value); }
-    virtual void write16(int32_t value) { fWriter.write16(value); }
-    virtual void write32(int32_t value) { fWriter.write32(value); }
-    virtual void writeScalar(SkScalar value) { fWriter.writeScalar(value); }
-    virtual void writeMul4(const void* values, size_t size) { fWriter.writeMul4(values, size); }
+    void writeToMemory(void* dst) { fWriter.flatten(dst); }
+    uint32_t* reserve(size_t size) { return fWriter.reserve(size); }
+    uint32_t size() { return fWriter.size(); }
 
-    virtual void writePad(const void* src, size_t size) { fWriter.writePad(src, size); }
-    virtual void writeString(const char* str, size_t len = (size_t)-1) { fWriter.writeString(str, len); }
-    virtual bool writeToStream(SkWStream* stream) { return fWriter.writeToStream(stream); }
-    virtual void write(const void* values, size_t size) { fWriter.write(values, size); }
-    virtual void writeRect(const SkRect& rect) { fWriter.writeRect(rect); }
-    virtual size_t readFromStream(SkStream* s, size_t length) { return fWriter.readFromStream(s, length); }
+    virtual void writeByteArray(const void* data, size_t size) SK_OVERRIDE;
+    virtual void writeBool(bool value) SK_OVERRIDE;
+    virtual void writeFixed(SkFixed value) SK_OVERRIDE;
+    virtual void writeScalar(SkScalar value) SK_OVERRIDE;
+    virtual void writeScalarArray(const SkScalar* value, uint32_t count) SK_OVERRIDE;
+    virtual void writeInt(int32_t value) SK_OVERRIDE;
+    virtual void writeIntArray(const int32_t* value, uint32_t count) SK_OVERRIDE;
+    virtual void writeUInt(uint32_t value) SK_OVERRIDE;
+    virtual void write32(int32_t value) SK_OVERRIDE;
+    virtual void writeString(const char* value) SK_OVERRIDE;
+    virtual void writeEncodedString(const void* value, size_t byteLength,
+                                    SkPaint::TextEncoding encoding) SK_OVERRIDE;
 
-    virtual void writeMatrix(const SkMatrix& matrix) { fWriter.writeMatrix(matrix); }
-    virtual void writePath(const SkPath& path) { fWriter.writePath(path); };
-    virtual void writePoint(const SkPoint& point) {
-        fWriter.writeScalar(point.fX);
-        fWriter.writeScalar(point.fY);
-    }
+    virtual void writeFlattenable(SkFlattenable* flattenable) SK_OVERRIDE;
+    virtual void writeColor(const SkColor& color) SK_OVERRIDE;
+    virtual void writeColorArray(const SkColor* color, uint32_t count) SK_OVERRIDE;
+    virtual void writePoint(const SkPoint& point) SK_OVERRIDE;
+    virtual void writePointArray(const SkPoint* point, uint32_t count) SK_OVERRIDE;
+    virtual void writeMatrix(const SkMatrix& matrix) SK_OVERRIDE;
+    virtual void writeIRect(const SkIRect& rect)SK_OVERRIDE;
+    virtual void writeRect(const SkRect& rect) SK_OVERRIDE;
+    virtual void writeRegion(const SkRegion& region) SK_OVERRIDE;
+    virtual void writePath(const SkPath& path) SK_OVERRIDE;
+    virtual size_t writeStream(SkStream* stream, size_t length) SK_OVERRIDE;
 
-    virtual uint32_t* reserve(size_t size) { return fWriter.reserve(size); }
-    virtual void flatten(void* dst) { fWriter.flatten(dst); }
-    virtual uint32_t size() { return fWriter.size(); }
+    virtual void writeRefCntPtr(SkRefCnt* refCnt) SK_OVERRIDE;
 
-    virtual void writeFunctionPtr(void*);
-    virtual void writeFlattenable(SkFlattenable* flattenable);
+    virtual void writeBitmap(const SkBitmap& bitmap) SK_OVERRIDE;
+    virtual void writeTypeface(SkTypeface* typeface) SK_OVERRIDE;
+
+    virtual bool writeToStream(SkWStream*) SK_OVERRIDE;
+
+    SkFactorySet* setFactoryRecorder(SkFactorySet*);
+    SkNamedFactorySet* setNamedFactoryRecorder(SkNamedFactorySet*);
+
+    SkRefCntSet* getTypefaceRecorder() const { return fTFSet; }
+    SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
+
+    SkRefCntSet* getRefCntRecorder() const { return fRCSet; }
+    SkRefCntSet* setRefCntRecorder(SkRefCntSet*);
 
 private:
+    SkFactorySet* fFactorySet;
+    SkNamedFactorySet* fNamedFactorySet;
     SkWriter32 fWriter;
+
+    SkRefCntSet*    fRCSet;
+    SkRefCntSet*    fTFSet;
+
     typedef SkFlattenableWriteBuffer INHERITED;
 };
 
 #endif // SkOrderedWriteBuffer_DEFINED
-

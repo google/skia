@@ -13,6 +13,8 @@
 #include "SkFlattenable.h"
 #include "SkMallocPixelRef.h"
 #include "SkMask.h"
+#include "SkOrderedReadBuffer.h"
+#include "SkOrderedWriteBuffer.h"
 #include "SkPixelRef.h"
 #include "SkThread.h"
 #include "SkUnPreMultiply.h"
@@ -1379,10 +1381,10 @@ enum {
     when to create a new texture.
 */
 void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
-    buffer.write32(fWidth);
-    buffer.write32(fHeight);
-    buffer.write32(fRowBytes);
-    buffer.write8(fConfig);
+    buffer.writeInt(fWidth);
+    buffer.writeInt(fHeight);
+    buffer.writeInt(fRowBytes);
+    buffer.writeInt(fConfig);
     buffer.writeBool(this->isOpaque());
 
     /*  If we are called in this mode, then it is up to the caller to manage
@@ -1390,16 +1392,16 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     */
     if (!buffer.persistBitmapPixels()) {
         if (fPixelRef) {
-            buffer.write8(SERIALIZE_PIXELTYPE_REF_PTR);
-            buffer.write32(fPixelRefOffset);
-            buffer.writeRefCnt(fPixelRef);
+            buffer.writeInt(SERIALIZE_PIXELTYPE_REF_PTR);
+            buffer.writeUInt(fPixelRefOffset);
+            buffer.writeRefCntPtr(fPixelRef);
             return;
         } else {
             // we ignore the non-persist request, since we don't have a ref
             // ... or we could just write an empty bitmap...
             // (true) will write an empty bitmap, (false) will flatten the pix
             if (true) {
-                buffer.write8(SERIALIZE_PIXELTYPE_NONE);
+                buffer.writeInt(SERIALIZE_PIXELTYPE_NONE);
                 return;
             }
         }
@@ -1407,15 +1409,15 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
 
     if (fPixelRef) {
         if (fPixelRef->getFactory()) {
-            buffer.write8(SERIALIZE_PIXELTYPE_REF_DATA);
-            buffer.write32(fPixelRefOffset);
+            buffer.writeInt(SERIALIZE_PIXELTYPE_REF_DATA);
+            buffer.writeUInt(fPixelRefOffset);
             buffer.writeFlattenable(fPixelRef);
             return;
         }
         // if we get here, we can't record the pixels
-        buffer.write8(SERIALIZE_PIXELTYPE_NONE);
+        buffer.writeInt(SERIALIZE_PIXELTYPE_NONE);
     } else {
-        buffer.write8(SERIALIZE_PIXELTYPE_NONE);
+        buffer.writeInt(SERIALIZE_PIXELTYPE_NONE);
     }
 }
 
@@ -1425,22 +1427,22 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
     int width = buffer.readInt();
     int height = buffer.readInt();
     int rowBytes = buffer.readInt();
-    int config = buffer.readU8();
+    int config = buffer.readInt();
 
     this->setConfig((Config)config, width, height, rowBytes);
     this->setIsOpaque(buffer.readBool());
 
-    int reftype = buffer.readU8();
+    int reftype = buffer.readInt();
     switch (reftype) {
         case SERIALIZE_PIXELTYPE_REF_PTR: {
-            size_t offset = buffer.readU32();
-            SkPixelRef* pr = (SkPixelRef*)buffer.readRefCnt();
+            size_t offset = buffer.readUInt();
+            SkPixelRef* pr = (SkPixelRef*)buffer.readRefCntPtr();
             this->setPixelRef(pr, offset);
             break;
         }
         case SERIALIZE_PIXELTYPE_REF_DATA: {
-            size_t offset = buffer.readU32();
-            SkPixelRef* pr = static_cast<SkPixelRef*>(buffer.readFlattenable());
+            size_t offset = buffer.readUInt();
+            SkPixelRef* pr = buffer.readFlattenableT<SkPixelRef>();
             SkSafeUnref(this->setPixelRef(pr, offset));
             break;
         }

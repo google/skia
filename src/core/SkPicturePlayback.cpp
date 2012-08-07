@@ -206,10 +206,10 @@ void SkPicturePlayback::dumpSize() const {
 
 #include "SkStream.h"
 
-static void writeTagSize(SkFlattenableWriteBuffer& buffer, uint32_t tag,
+static void writeTagSize(SkOrderedWriteBuffer& buffer, uint32_t tag,
                          uint32_t size) {
-    buffer.write32(tag);
-    buffer.write32(size);
+    buffer.writeUInt(tag);
+    buffer.writeUInt(size);
 }
 
 static void writeTagSize(SkWStream* stream, uint32_t tag,
@@ -260,19 +260,22 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
     if ((n = SafeCount(fBitmaps)) > 0) {
         writeTagSize(buffer, PICT_BITMAP_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
-            (*fBitmaps)[i].flatten(buffer);
+            buffer.writeBitmap((*fBitmaps)[i]);
         }
     }
     
     if ((n = SafeCount(fMatrices)) > 0) {
         writeTagSize(buffer, PICT_MATRIX_BUFFER_TAG, n);
-        buffer.writeMul4(fMatrices->begin(), n * sizeof(SkMatrix));
+        for (i = 0; i < n; i++) {
+            buffer.writeMatrix((*fMatrices)[i]);
+        }
+
     }
     
     if ((n = SafeCount(fPaints)) > 0) {
         writeTagSize(buffer, PICT_PAINT_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
-            (*fPaints)[i].flatten(buffer);
+            buffer.writePaint((*fPaints)[i]);
         }
     }
     
@@ -284,7 +287,7 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
     if ((n = SafeCount(fRegions)) > 0) {
         writeTagSize(buffer, PICT_REGION_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
-            buffer.getWriter32()->writeRegion((*fRegions)[i]);
+            buffer.writeRegion((*fRegions)[i]);
         }
     }
 }
@@ -408,8 +411,8 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
             fTFPlayback.setupBuffer(buffer);
             
             while (!buffer.eof()) {
-                tag = buffer.readU32();
-                size = buffer.readU32();
+                tag = buffer.readUInt();
+                size = buffer.readUInt();
                 if (!this->parseBufferTag(buffer, tag, size)) {
                     return false;
                 }
@@ -426,17 +429,19 @@ bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
         case PICT_BITMAP_BUFFER_TAG: {
             fBitmaps = SkTRefArray<SkBitmap>::Create(size);
             for (size_t i = 0; i < size; ++i) {
-                fBitmaps->writableAt(i).unflatten(buffer);
+                buffer.readBitmap(&fBitmaps->writableAt(i));
             }
         } break;
         case PICT_MATRIX_BUFFER_TAG:
             fMatrices = SkTRefArray<SkMatrix>::Create(size);
-            buffer.read(&fMatrices->writableAt(0), size * sizeof(SkMatrix));
+            for (size_t i = 0; i < size; ++i) {
+                buffer.readMatrix(&fMatrices->writableAt(i));
+            }
             break;
         case PICT_PAINT_BUFFER_TAG: {
             fPaints = SkTRefArray<SkPaint>::Create(size);
             for (size_t i = 0; i < size; ++i) {
-                fPaints->writableAt(i).unflatten(buffer);
+                buffer.readPaint(&fPaints->writableAt(i));
             }
         } break;
         case PICT_PATH_BUFFER_TAG:
@@ -447,7 +452,7 @@ bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
         case PICT_REGION_BUFFER_TAG: {
             fRegions = SkTRefArray<SkRegion>::Create(size);
             for (size_t i = 0; i < size; ++i) {
-                buffer.getReader32()->readRegion(&fRegions->writableAt(i));
+                buffer.readRegion(&fRegions->writableAt(i));
             }
         } break;
     }

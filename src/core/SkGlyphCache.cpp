@@ -10,6 +10,7 @@
 #include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkTemplates.h"
 #include "SkTLS.h"
 

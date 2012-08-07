@@ -8,6 +8,9 @@
 #include "SkLightingImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
+#include "SkOrderedReadBuffer.h"
+#include "SkOrderedWriteBuffer.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
@@ -754,7 +757,7 @@ SkLightingImageFilter::~SkLightingImageFilter() {
 SkLightingImageFilter::SkLightingImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer)
 {
-    fLight = (SkLight*)buffer.readFlattenable();
+    fLight = buffer.readFlattenableT<SkLight>();
     fSurfaceScale = buffer.readScalar();
 }
 

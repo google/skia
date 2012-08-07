@@ -14,6 +14,8 @@
 #include "SkFlattenable.h"
 #include "SkXfermode.h"
 
+class SkBitmap;
+
 class SK_API SkColorFilter : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkColorFilter)

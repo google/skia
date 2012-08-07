@@ -1,6 +1,8 @@
+
 #include "SkTestImageFilters.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkFlattenableBuffers.h"
 
 // Simple helper canvas that "takes ownership" of the provided device, so that
 // when this canvas goes out of scope, so will its device. Could be replaced
@@ -41,13 +43,11 @@ bool SkOffsetImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm
 
 void SkOffsetImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeScalar(fOffset.x());
-    buffer.writeScalar(fOffset.y());
+    buffer.writePoint(fOffset);
 }
 
 SkOffsetImageFilter::SkOffsetImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fOffset.fX = buffer.readScalar();
-    fOffset.fY = buffer.readScalar();
+    buffer.readPoint(&fOffset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,8 +99,8 @@ void SkComposeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 }
 
 SkComposeImageFilter::SkComposeImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fOuter = (SkImageFilter*)buffer.readFlattenable();
-    fInner = (SkImageFilter*)buffer.readFlattenable();
+    fOuter = buffer.readFlattenableT<SkImageFilter>();
+    fInner = buffer.readFlattenableT<SkImageFilter>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -253,29 +253,30 @@ void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
         // negative count signals we have modes
         storedCount = -storedCount;
     }
-    buffer.write32(storedCount);
+    buffer.writeInt(storedCount);
 
     if (fCount) {
         for (int i = 0; i < fCount; ++i) {
             buffer.writeFlattenable(fFilters[i]);
         }
         if (fModes) {
-            buffer.write(fModes, fCount * sizeof(fModes[0]));
+            buffer.writeByteArray(fModes, fCount * sizeof(fModes[0]));
         }
     }
 }
 
 SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    int storedCount = buffer.readS32();
+    int storedCount = buffer.readInt();
     this->initAlloc(SkAbs32(storedCount), storedCount < 0);
 
     for (int i = 0; i < fCount; ++i) {
-        fFilters[i] = (SkImageFilter*)buffer.readFlattenable();
+        fFilters[i] = buffer.readFlattenableT<SkImageFilter>();
     }
 
     if (fModes) {
         SkASSERT(storedCount < 0);
-        buffer.read(fModes, fCount * sizeof(fModes[0]));
+        SkASSERT(buffer.getArrayCount() == fCount * sizeof(fModes[0]));
+        buffer.readByteArray(fModes);
     } else {
         SkASSERT(storedCount >= 0);
     }
@@ -321,7 +322,7 @@ void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 }
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fColorFilter = (SkColorFilter*)buffer.readFlattenable();
+    fColorFilter = buffer.readFlattenableT<SkColorFilter>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,7 @@
  */
 #include "SkImageRef.h"
 #include "SkBitmap.h"
-#include "SkFlattenable.h"
+#include "SkFlattenableBuffers.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -177,13 +177,13 @@ size_t SkImageRef::ramUsed() const {
 
 SkImageRef::SkImageRef(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer, &gImageRefMutex), fErrorInDecoding(false) {
-    fConfig = (SkBitmap::Config)buffer.readU8();
-    fSampleSize = buffer.readU8();
+    fConfig = (SkBitmap::Config)buffer.readUInt();
+    fSampleSize = buffer.readInt();
     fDoDither = buffer.readBool();
 
-    size_t length = buffer.readU32();
+    size_t length = buffer.getArrayCount();
     fStream = SkNEW_ARGS(SkMemoryStream, (length));
-    buffer.read((void*)fStream->getMemoryBase(), length);
+    buffer.readByteArray((void*)fStream->getMemoryBase());
 
     fPrev = fNext = NULL;
     fFactory = NULL;
@@ -192,12 +192,10 @@ SkImageRef::SkImageRef(SkFlattenableReadBuffer& buffer)
 void SkImageRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
-    buffer.write8(fConfig);
-    buffer.write8(fSampleSize);
+    buffer.writeUInt(fConfig);
+    buffer.writeInt(fSampleSize);
     buffer.writeBool(fDoDither);
-    size_t length = fStream->getLength();
-    buffer.write32(length);
     fStream->rewind();
-    buffer.readFromStream(fStream, length);
+    buffer.writeStream(fStream, fStream->getLength());
 }
 

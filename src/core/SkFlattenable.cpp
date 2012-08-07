@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 #include "SkFlattenable.h"
-#include "SkTypeface.h"
 
 SK_DEFINE_INST_COUNT(SkFlattenable)
 
@@ -18,30 +17,6 @@ void SkFlattenable::flatten(SkFlattenableWriteBuffer&) const
         to not know that, since we want them to always call INHERITED::flatten()
         in their code.
     */
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkFlattenableReadBuffer::SkFlattenableReadBuffer() {
-    fRCArray = NULL;
-    fRCCount = 0;
-
-    fTFArray = NULL;
-    fTFCount = 0;
-
-    fFactoryTDArray = NULL;
-    fFactoryArray = NULL;
-    fFactoryCount = 0;
-    
-    // Set default values. These should be explicitly set by our client
-    // via setFlags() if the buffer came from serialization.
-    fFlags = 0;
-#ifdef SK_SCALAR_IS_FLOAT
-    fFlags |= kScalarIsFloat_Flag;
-#endif
-    if (8 == sizeof(void*)) {
-        fFlags |= kPtrIs64Bit_Flag;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,69 +41,6 @@ const char* SkNamedFactorySet::getNextAddedFactoryName() {
         return fNames[fNextAddedFactory++];
     }
     return NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkFlattenableWriteBuffer::SkFlattenableWriteBuffer() {
-    fFlags = (Flags)0;
-    fRCSet = NULL;
-    fTFSet = NULL;
-    fFactorySet = NULL;
-    fNamedFactorySet = NULL;
-}
-
-SkFlattenableWriteBuffer::~SkFlattenableWriteBuffer() {
-    SkSafeUnref(fRCSet);
-    SkSafeUnref(fTFSet);
-    SkSafeUnref(fFactorySet);
-    SkSafeUnref(fNamedFactorySet);
-}
-
-SkRefCntSet* SkFlattenableWriteBuffer::setRefCntRecorder(SkRefCntSet* rec) {
-    SkRefCnt_SafeAssign(fRCSet, rec);
-    return rec;
-}
-
-SkRefCntSet* SkFlattenableWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
-    SkRefCnt_SafeAssign(fTFSet, rec);
-    return rec;
-}
-
-SkFactorySet* SkFlattenableWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
-    SkRefCnt_SafeAssign(fFactorySet, rec);
-    if (fNamedFactorySet != NULL) {
-        fNamedFactorySet->unref();
-        fNamedFactorySet = NULL;
-    }
-    return rec;
-}
-
-SkNamedFactorySet* SkFlattenableWriteBuffer::setNamedFactoryRecorder(
-        SkNamedFactorySet* rec) {
-    SkRefCnt_SafeAssign(fNamedFactorySet, rec);
-    if (fFactorySet != NULL) {
-        fFactorySet->unref();
-        fFactorySet = NULL;
-    }
-    return rec;
-}
-
-void SkFlattenableWriteBuffer::writeRefCnt(SkRefCnt* obj) {
-    SkASSERT(!isCrossProcess());
-    if (NULL == obj || NULL == fRCSet) {
-        this->write32(0);
-    } else {
-        this->write32(fRCSet->add(obj));
-    }
-}
-
-void SkFlattenableWriteBuffer::writeTypeface(SkTypeface* obj) {
-    if (NULL == obj || NULL == fTFSet) {
-        this->write32(0);
-    } else {
-        this->write32(fTFSet->add(obj));
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

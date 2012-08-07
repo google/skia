@@ -8,6 +8,7 @@
 
 
 #include "Sk1DPathEffect.h"
+#include "SkFlattenableBuffers.h"
 #include "SkPathMeasure.h"
 
 bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) {
@@ -149,7 +150,7 @@ SkPath1DPathEffect::SkPath1DPathEffect(SkFlattenableReadBuffer& buffer) {
     if (fAdvance > 0) {
         buffer.readPath(&fPath);
         fInitialOffset = buffer.readScalar();
-        fStyle = (Style) buffer.readU8();
+        fStyle = (Style) buffer.readUInt();
     } else {
         SkDEBUGF(("SkPath1DPathEffect can't use advance <= 0\n"));
         // Make Coverity happy.
@@ -168,7 +169,7 @@ void SkPath1DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
     if (fAdvance > 0) {
         buffer.writePath(fPath);
         buffer.writeScalar(fInitialOffset);
-        buffer.write8(fStyle);
+        buffer.writeUInt(fStyle);
     }
 }
 

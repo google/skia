@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkFlipPixelRef.h"
-#include "SkFlattenable.h"
+#include "SkFlattenableBuffers.h"
 #include "SkRegion.h"
 
 SkFlipPixelRef::SkFlipPixelRef(SkBitmap::Config config, int width, int height)
@@ -62,19 +62,17 @@ void SkFlipPixelRef::swapPages() {
 
 void SkFlipPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    
-    buffer.write32(fSize);
     // only need to write page0
-    buffer.writePad(fPage0, fSize);
+    buffer.writeByteArray(fPage0, fSize);
 }
 
 SkFlipPixelRef::SkFlipPixelRef(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer, NULL) {
-    fSize = buffer.readU32();
+    fSize = buffer.getArrayCount();
     fStorage = sk_malloc_throw(fSize << 1);
     fPage0 = fStorage;
     fPage1 = (char*)fStorage + fSize;
-    buffer.read(fPage0, fSize);
+    buffer.readByteArray(fPage0);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkFlipPixelRef)

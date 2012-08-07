@@ -9,6 +9,7 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkFlattenableBuffers.h"
 #include "SkPaint.h"
 
 #define BG_COLOR    0xFFDDDDDD

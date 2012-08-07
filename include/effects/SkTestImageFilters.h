@@ -4,6 +4,7 @@
 
 #include "SkImageFilter.h"
 #include "SkColorFilter.h"
+#include "SkPoint.h"
 
 class SkOffsetImageFilter : public SkImageFilter {
 public:

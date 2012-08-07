@@ -72,6 +72,7 @@
         '../src/core/SkFilterProc.cpp',
         '../src/core/SkFilterProc.h',
         '../src/core/SkFlattenable.cpp',
+        '../src/core/SkFlattenableBuffers.cpp',
         '../src/core/SkFloat.cpp',
         '../src/core/SkFloat.h',
         '../src/core/SkFloatBits.cpp',

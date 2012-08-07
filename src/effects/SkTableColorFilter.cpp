@@ -1,6 +1,8 @@
+
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
 #include "SkTableColorFilter.h"
+#include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
 #include "SkUnPreMultiply.h"
 
 class SkTable_ColorFilter : public SkColorFilter {
@@ -161,8 +163,7 @@ void SkTable_ColorFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 //    SkDebugf("raw %d packed %d\n", count * 256, size);
     
     buffer.writeInt(fFlags);
-    buffer.writeInt(size);
-    buffer.write(storage, size);
+    buffer.writeByteArray(storage, size);
 }
 
 SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
@@ -171,8 +172,10 @@ SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHE
     uint8_t storage[5*256];
 
     fFlags = buffer.readInt();
-    size_t size = buffer.readInt();
-    buffer.read(storage, size);
+
+    size_t size = buffer.getArrayCount();
+    SkASSERT(size <= sizeof(storage));
+    buffer.readByteArray(storage);
 
     size_t raw = SkPackBits::Unpack8(storage, size, fStorage);
 

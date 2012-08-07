@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkGroupShape.h"
+#include "SkFlattenableBuffers.h"
 
 SkGroupShape::SkGroupShape() {}
 
@@ -86,8 +87,7 @@ void SkGroupShape::onDraw(SkCanvas* canvas) {
 void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
-    int count = fList.count();
-    buffer.write32(count);
+    buffer.writeInt(fList.count());
     const Rec* rec = fList.begin();
     const Rec* stop = fList.end();
     while (rec < stop) {
@@ -101,9 +101,9 @@ void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) const {
 }
 
 SkGroupShape::SkGroupShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer){
-    int count = buffer.readS32();
+    int count = buffer.readInt();
     for (int i = 0; i < count; i++) {
-        SkShape* shape = reinterpret_cast<SkShape*>(buffer.readFlattenable());
+        SkShape* shape = buffer.readFlattenableT<SkShape>();
         SkMatrixRef* mr = NULL;
         bool hasMatrix = buffer.readBool();
         if (hasMatrix) {

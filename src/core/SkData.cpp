@@ -6,6 +6,7 @@
  */
 
 #include "SkData.h"
+#include "SkFlattenableBuffers.h"
 
 SK_DEFINE_INST_COUNT(SkData)
 
@@ -122,25 +123,22 @@ SkData* SkData::NewWithCString(const char cstr[]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkData::flatten(SkFlattenableWriteBuffer& buffer) const {
-    buffer.write32(fSize);
-    buffer.writePad(fPtr, fSize);
+    buffer.writeByteArray(fPtr, fSize);
 }
 
 SkData::SkData(SkFlattenableReadBuffer& buffer) {
-    fSize = buffer.readU32();
+    fSize = buffer.getArrayCount();
     fReleaseProcContext = NULL;
 
-    if (0 == fSize) {
+    if (fSize > 0) {
+        fPtr = sk_malloc_throw(fSize);
+        fReleaseProc = sk_free_releaseproc;
+    } else {
         fPtr = NULL;
         fReleaseProc = NULL;
-    } else {
-        // buffer.read expects a 4-byte aligned size
-        size_t size4 = SkAlign4(fSize);
-        void* data = sk_malloc_throw(size4);
-        buffer.read(data, size4);
-        fPtr = data;
-        fReleaseProc = sk_free_releaseproc;
     }
+
+    buffer.readByteArray(const_cast<void*>(fPtr));
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkData)
@@ -247,11 +245,9 @@ void SkDataSet::writeToStream(SkWStream* stream) const {
 }
 
 void SkDataSet::flatten(SkFlattenableWriteBuffer& buffer) const {
-    buffer.write32(fCount);
+    buffer.writeInt(fCount);
     if (fCount > 0) {
-        buffer.write32(fKeySize);
-        // our first key points to all the key storage
-        buffer.writePad(fPairs[0].fKey, fKeySize);
+        buffer.writeByteArray(fPairs[0].fKey, fKeySize);
         for (int i = 0; i < fCount; ++i) {
             buffer.writeFlattenable(fPairs[i].fValue);
         }
@@ -279,19 +275,18 @@ SkDataSet::SkDataSet(SkStream* stream) {
 }
 
 SkDataSet::SkDataSet(SkFlattenableReadBuffer& buffer) {
-    fCount = buffer.readU32();
+    fCount = buffer.readInt();
     if (fCount > 0) {
-        fKeySize = buffer.readU32();
-        // we align fKeySize, since buffer.read needs to read a mul4 amount
-        fPairs = allocatePairStorage(fCount, SkAlign4(fKeySize));
+        fKeySize = buffer.getArrayCount();
+        fPairs = allocatePairStorage(fCount, fKeySize);
         char* keyStorage = (char*)(fPairs + fCount);
         
-        buffer.read(keyStorage, SkAlign4(fKeySize));
+        buffer.readByteArray(keyStorage);
         
         for (int i = 0; i < fCount; ++i) {
             fPairs[i].fKey = keyStorage;
             keyStorage += strlen(keyStorage) + 1;
-            fPairs[i].fValue = (SkData*)buffer.readFlattenable();
+            fPairs[i].fValue = buffer.readFlattenableT<SkData>();
         }
     } else {
         fKeySize = 0;

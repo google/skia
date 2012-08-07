@@ -7,6 +7,7 @@
 
 #include "SkColorFilter.h"
 #include "SkFilterShader.h"
+#include "SkFlattenableBuffers.h"
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
 
@@ -48,8 +49,8 @@ SkFilterShader::SkFilterShader(SkShader* shader, SkColorFilter* filter) {
 
 SkFilterShader::SkFilterShader(SkFlattenableReadBuffer& buffer) :
         INHERITED(buffer) {
-    fShader = static_cast<SkShader*>(buffer.readFlattenable());
-    fFilter = static_cast<SkColorFilter*>(buffer.readFlattenable());
+    fShader = buffer.readFlattenableT<SkShader>();
+    fFilter = buffer.readFlattenableT<SkColorFilter>();
 }
 
 SkFilterShader::~SkFilterShader() {

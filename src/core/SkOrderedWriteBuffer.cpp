@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -9,14 +9,176 @@
 #include "SkOrderedWriteBuffer.h"
 #include "SkTypeface.h"
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize) 
-    : fWriter(minSize) {
+SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize)
+    : INHERITED()
+    , fFactorySet(NULL)
+    , fNamedFactorySet(NULL)
+    , fWriter(minSize)
+    , fRCSet(NULL)
+    , fTFSet(NULL) {
 }
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, 
-                                           void* storage, 
-                                           size_t storageSize)
-    : fWriter(minSize, storage, storageSize) {
+SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, void* storage, size_t storageSize)
+    : INHERITED()
+    , fFactorySet(NULL)
+    , fNamedFactorySet(NULL)
+    , fWriter(minSize, storage, storageSize)
+    , fRCSet(NULL)
+    , fTFSet(NULL) {
+}
+
+SkOrderedWriteBuffer::~SkOrderedWriteBuffer() {
+    SkSafeUnref(fFactorySet);
+    SkSafeUnref(fNamedFactorySet);
+    SkSafeUnref(fRCSet);
+    SkSafeUnref(fTFSet);
+}
+
+void SkOrderedWriteBuffer::writeByteArray(const void* data, size_t size) {
+    fWriter.write32(size);
+    fWriter.writePad(data, size);
+}
+
+void SkOrderedWriteBuffer::writeBool(bool value) {
+    fWriter.writeBool(value);
+}
+
+void SkOrderedWriteBuffer::writeFixed(SkFixed value) {
+    fWriter.write32(value);
+}
+
+void SkOrderedWriteBuffer::writeScalar(SkScalar value) {
+    fWriter.writeScalar(value);
+}
+
+void SkOrderedWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
+    fWriter.write32(count);
+    fWriter.write(value, count * sizeof(SkScalar));
+}
+
+void SkOrderedWriteBuffer::writeInt(int32_t value) {
+    fWriter.write32(value);
+}
+
+void SkOrderedWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
+    fWriter.write32(count);
+    fWriter.write(value, count * sizeof(int32_t));
+}
+
+void SkOrderedWriteBuffer::writeUInt(uint32_t value) {
+    fWriter.write32(value);
+}
+
+void SkOrderedWriteBuffer::write32(int32_t value) {
+    fWriter.write32(value);
+}
+
+void SkOrderedWriteBuffer::writeString(const char* value) {
+    fWriter.writeString(value);
+}
+
+void SkOrderedWriteBuffer::writeEncodedString(const void* value, size_t byteLength,
+                                              SkPaint::TextEncoding encoding) {
+    fWriter.writeInt(encoding);
+    fWriter.writeInt(byteLength);
+    fWriter.write(value, byteLength);
+}
+
+
+void SkOrderedWriteBuffer::writeColor(const SkColor& color) {
+    fWriter.write32(color);
+}
+
+void SkOrderedWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
+    fWriter.write32(count);
+    fWriter.write(color, count * sizeof(SkColor));
+}
+
+void SkOrderedWriteBuffer::writePoint(const SkPoint& point) {
+    fWriter.writeScalar(point.fX);
+    fWriter.writeScalar(point.fY);
+}
+
+void SkOrderedWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
+    fWriter.write32(count);
+    fWriter.write(point, count * sizeof(SkPoint));
+}
+
+void SkOrderedWriteBuffer::writeMatrix(const SkMatrix& matrix) {
+    fWriter.writeMatrix(matrix);
+}
+
+void SkOrderedWriteBuffer::writeIRect(const SkIRect& rect) {
+    fWriter.write(&rect, sizeof(SkIRect));
+}
+
+void SkOrderedWriteBuffer::writeRect(const SkRect& rect) {
+    fWriter.writeRect(rect);
+}
+
+void SkOrderedWriteBuffer::writeRegion(const SkRegion& region) {
+    fWriter.writeRegion(region);
+}
+
+void SkOrderedWriteBuffer::writePath(const SkPath& path) {
+    fWriter.writePath(path);
+}
+
+size_t SkOrderedWriteBuffer::writeStream(SkStream* stream, size_t length) {
+    return fWriter.readFromStream(stream, length);
+}
+
+bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
+    return fWriter.writeToStream(stream);
+}
+
+void SkOrderedWriteBuffer::writeRefCntPtr(SkRefCnt* refCnt) {
+    SkASSERT(!isCrossProcess());
+    if (NULL == fRCSet) {
+        INHERITED::writeRefCntPtr(refCnt);
+    } else {
+        this->write32(fRCSet->add(refCnt));
+    }
+}
+
+void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
+    bitmap.flatten(*this);
+}
+
+void SkOrderedWriteBuffer::writeTypeface(SkTypeface* obj) {
+    if (NULL == obj || NULL == fTFSet) {
+        fWriter.write32(0);
+    } else {
+        fWriter.write32(fTFSet->add(obj));
+    }
+}
+
+SkFactorySet* SkOrderedWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
+    SkRefCnt_SafeAssign(fFactorySet, rec);
+    if (fNamedFactorySet != NULL) {
+        fNamedFactorySet->unref();
+        fNamedFactorySet = NULL;
+    }
+    return rec;
+}
+
+SkNamedFactorySet* SkOrderedWriteBuffer::setNamedFactoryRecorder(SkNamedFactorySet* rec) {
+    SkRefCnt_SafeAssign(fNamedFactorySet, rec);
+    if (fFactorySet != NULL) {
+        fFactorySet->unref();
+        fFactorySet = NULL;
+    }
+    return rec;
+}
+
+SkRefCntSet* SkOrderedWriteBuffer::setRefCntRecorder(SkRefCntSet* rec) {
+    SkRefCnt_SafeAssign(fRCSet, rec);
+    return rec;
+}
+
+SkRefCntSet* SkOrderedWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
+    SkRefCnt_SafeAssign(fTFSet, rec);
+    return rec;
 }
 
 void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
@@ -69,18 +231,12 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
     }
 
     // make room for the size of the flatttened object
-    (void)this->reserve(sizeof(uint32_t));
+    (void)fWriter.reserve(sizeof(uint32_t));
     // record the current size, so we can subtract after the object writes.
-    uint32_t offset = this->size();
+    uint32_t offset = fWriter.size();
     // now flatten the object
     flattenObject(flattenable, *this);
-    uint32_t objSize = this->size() - offset;
+    uint32_t objSize = fWriter.size() - offset;
     // record the obj's size
     *fWriter.peek32(offset - sizeof(uint32_t)) = objSize;
-}
-
-void SkOrderedWriteBuffer::writeFunctionPtr(void* proc) {
-    SkASSERT(!this->isCrossProcess());
-
-    *(void**)this->reserve(sizeof(void*)) = proc;
 }

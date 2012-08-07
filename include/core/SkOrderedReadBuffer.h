@@ -11,52 +11,109 @@
 
 #include "SkRefCnt.h"
 #include "SkBitmap.h"
-#include "SkFlattenable.h"
-#include "SkWriter32.h"
+#include "SkFlattenableBuffers.h"
+#include "SkReader32.h"
 #include "SkPath.h"
 
 class SkOrderedReadBuffer : public SkFlattenableReadBuffer {
 public:
     SkOrderedReadBuffer() : INHERITED() {}
     SkOrderedReadBuffer(const void* data, size_t size);
+    SkOrderedReadBuffer(SkStream* stream);
+    virtual ~SkOrderedReadBuffer();
 
-    void setMemory(const void* data, size_t size) { fReader.setMemory(data, size); }
-    uint32_t size() { return fReader.size(); }
-    const void* base() { return fReader.base(); }
-    uint32_t offset() { return fReader.offset(); }
-    bool eof() { return fReader.eof(); }
-    void rewind() { fReader.rewind(); }
-    void setOffset(size_t offset) { fReader.setOffset(offset); }
+    virtual SkOrderedReadBuffer* getOrderedBinaryBuffer() SK_OVERRIDE { return this; }
 
     SkReader32* getReader32() { return &fReader; }
 
-    virtual uint8_t readU8() { return fReader.readU8(); }
-    virtual uint16_t readU16() { return fReader.readU16(); }
-    virtual uint32_t readU32() { return fReader.readU32(); }
-    virtual void read(void* dst, size_t size) { return fReader.read(dst, size); }
-    virtual bool readBool() { return fReader.readBool(); }
-    virtual int32_t readInt() { return fReader.readInt(); }
-    virtual SkScalar readScalar() { return fReader.readScalar(); }
-    virtual const void* skip(size_t size) { return fReader.skip(size); }
+    uint32_t size() { return fReader.size(); }
+    uint32_t offset() { return fReader.offset(); }
+    bool eof() { return fReader.eof(); }
+    const void* skip(size_t size) { return fReader.skip(size); }
 
-    virtual void readMatrix(SkMatrix* m) { fReader.readMatrix(m); }
-    virtual void readPath(SkPath* p) { fReader.readPath(p); }
+    // primitives
+    virtual bool readBool() SK_OVERRIDE;
+    virtual SkColor readColor() SK_OVERRIDE;
+    virtual SkFixed readFixed() SK_OVERRIDE;
+    virtual int32_t readInt() SK_OVERRIDE;
+    virtual SkScalar readScalar() SK_OVERRIDE;
+    virtual uint32_t readUInt() SK_OVERRIDE;
+    virtual int32_t read32() SK_OVERRIDE;
 
-    virtual void readPoint(SkPoint* p) {
-        p->fX = fReader.readScalar();
-        p->fY = fReader.readScalar();
+    // strings -- the caller is responsible for freeing the string contents
+    virtual char* readString() SK_OVERRIDE;
+    virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) SK_OVERRIDE;
+
+    // common data structures
+    virtual SkFlattenable* readFlattenable() SK_OVERRIDE;
+    virtual void readPoint(SkPoint* point) SK_OVERRIDE;
+    virtual void readMatrix(SkMatrix* matrix) SK_OVERRIDE;
+    virtual void readIRect(SkIRect* rect) SK_OVERRIDE;
+    virtual void readRect(SkRect* rect) SK_OVERRIDE;
+    virtual void readRegion(SkRegion* region) SK_OVERRIDE;
+    virtual void readPath(SkPath* path) SK_OVERRIDE;
+
+    // binary data and arrays
+    virtual uint32_t readByteArray(void* value) SK_OVERRIDE;
+    virtual uint32_t readColorArray(SkColor* colors) SK_OVERRIDE;
+    virtual uint32_t readIntArray(int32_t* values) SK_OVERRIDE;
+    virtual uint32_t readPointArray(SkPoint* points) SK_OVERRIDE;
+    virtual uint32_t readScalarArray(SkScalar* values) SK_OVERRIDE;
+
+    // helpers to get info about arrays and binary data
+    virtual uint32_t getArrayCount() SK_OVERRIDE;
+
+    virtual SkRefCnt* readRefCntPtr() SK_OVERRIDE;
+
+    virtual void readBitmap(SkBitmap* bitmap) SK_OVERRIDE;
+    virtual SkTypeface* readTypeface() SK_OVERRIDE;
+
+    void setRefCntArray(SkRefCnt* array[], int count) {
+        fRCArray = array;
+        fRCCount = count;
     }
 
-    virtual SkTypeface* readTypeface();
-    virtual SkRefCnt* readRefCnt();
-    virtual void* readFunctionPtr();
-    virtual SkFlattenable* readFlattenable();
+    void setTypefaceArray(SkTypeface* array[], int count) {
+        fTFArray = array;
+        fTFCount = count;
+    }
+
+    /**
+     *  Call this with a pre-loaded array of Factories, in the same order as
+     *  were created/written by the writer. SkPicture uses this.
+     */
+    void setFactoryPlayback(SkFlattenable::Factory array[], int count) {
+        fFactoryTDArray = NULL;
+        fFactoryArray = array;
+        fFactoryCount = count;
+    }
+
+    /**
+     *  Call this with an initially empty array, so the reader can cache each
+     *  factory it sees by name. Used by the pipe code in conjunction with
+     *  the writer's kInlineFactoryNames_Flag.
+     */
+    void setFactoryArray(SkTDArray<SkFlattenable::Factory>* array) {
+        fFactoryTDArray = array;
+        fFactoryArray = NULL;
+        fFactoryCount = 0;
+    }
 
 private:
     SkReader32 fReader;
+    void* fMemoryPtr;
+
+    SkRefCnt** fRCArray;
+    int        fRCCount;
+
+    SkTypeface** fTFArray;
+    int        fTFCount;
+
+    SkTDArray<SkFlattenable::Factory>* fFactoryTDArray;
+    SkFlattenable::Factory* fFactoryArray;
+    int                     fFactoryCount;
 
     typedef SkFlattenableReadBuffer INHERITED;
 };
 
 #endif // SkOrderedReadBuffer_DEFINED
-

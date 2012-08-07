@@ -26,6 +26,7 @@
 #include "SkAutoKern.h"
 #include "SkGlyphCache.h"
 #include "SkPaintDefaults.h"
+#include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 
 // define this to get a printf for out-of-range parameter in setters
@@ -1392,8 +1393,8 @@ void SkPaint::getPosTextPath(const void* textData, size_t length,
 }
 
 static void add_flattenable(SkDescriptor* desc, uint32_t tag,
-                            SkFlattenableWriteBuffer* buffer) {
-    buffer->flatten(desc->addEntry(tag, buffer->size(), NULL));
+                            SkOrderedWriteBuffer* buffer) {
+    buffer->writeToMemory(desc->addEntry(tag, buffer->size(), NULL));
 }
 
 // SkFontHost can override this choice in FilterRec()
@@ -1932,24 +1933,43 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
-    SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
-    uint32_t* ptr = buffer.reserve(kPODPaintSize);
 
-    ptr = write_scalar(ptr, this->getTextSize());
-    ptr = write_scalar(ptr, this->getTextScaleX());
-    ptr = write_scalar(ptr, this->getTextSkewX());
-    ptr = write_scalar(ptr, this->getStrokeWidth());
-    ptr = write_scalar(ptr, this->getStrokeMiter());
-    *ptr++ = this->getColor();
-    // previously flags:16, textAlign:8, flatFlags:8
-    // now flags:16, hinting:4, textAlign:4, flatFlags:8
-    *ptr++ = (this->getFlags() << 16) |
-             // hinting added later. 0 in this nibble means use the default.
-             ((this->getHinting()+1) << 12) |
-             (this->getTextAlign() << 8) |
-             flatFlags;
-    *ptr++ = pack_4(this->getStrokeCap(), this->getStrokeJoin(),
-                    this->getStyle(), this->getTextEncoding());
+    if (buffer.isOrderedBinaryBuffer()) {
+        SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
+        uint32_t* ptr = buffer.getOrderedBinaryBuffer()->reserve(kPODPaintSize);
+
+        ptr = write_scalar(ptr, this->getTextSize());
+        ptr = write_scalar(ptr, this->getTextScaleX());
+        ptr = write_scalar(ptr, this->getTextSkewX());
+        ptr = write_scalar(ptr, this->getStrokeWidth());
+        ptr = write_scalar(ptr, this->getStrokeMiter());
+        *ptr++ = this->getColor();
+        // previously flags:16, textAlign:8, flatFlags:8
+        // now flags:16, hinting:4, textAlign:4, flatFlags:8
+        *ptr++ = (this->getFlags() << 16) |
+                 // hinting added later. 0 in this nibble means use the default.
+                 ((this->getHinting()+1) << 12) |
+                 (this->getTextAlign() << 8) |
+                 flatFlags;
+        *ptr++ = pack_4(this->getStrokeCap(), this->getStrokeJoin(),
+                        this->getStyle(), this->getTextEncoding());
+    } else {
+        buffer.writeScalar(fTextSize);
+        buffer.writeScalar(fTextScaleX);
+        buffer.writeScalar(fTextSkewX);
+        buffer.writeScalar(fWidth);
+        buffer.writeScalar(fMiterLimit);
+        buffer.writeColor(fColor);
+        buffer.writeUInt(fFlags);
+        buffer.writeUInt(fHinting);
+        buffer.writeUInt(fTextAlign);
+        buffer.writeUInt(flatFlags);
+
+        buffer.writeUInt(fCapType);
+        buffer.writeUInt(fJoinType);
+        buffer.writeUInt(fStyle);
+        buffer.writeUInt(fTextEncoding);
+    }
 
     // now we're done with ptr and the (pre)reserved space. If we need to write
     // additional fields, use the buffer directly
@@ -1970,38 +1990,57 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
 }
 
 void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
-    SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
-    const void* podData = buffer.skip(kPODPaintSize);
-    const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
-
     fPrivFlags = 0;
 
-    // the order we read must match the order we wrote in flatten()
-    this->setTextSize(read_scalar(pod));
-    this->setTextScaleX(read_scalar(pod));
-    this->setTextSkewX(read_scalar(pod));
-    this->setStrokeWidth(read_scalar(pod));
-    this->setStrokeMiter(read_scalar(pod));
-    this->setColor(*pod++);
+    uint8_t flatFlags = 0;
+    if (buffer.isOrderedBinaryBuffer()) {
+        SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
+        const void* podData = buffer.getOrderedBinaryBuffer()->skip(kPODPaintSize);
+        const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
 
-    // previously flags:16, textAlign:8, flatFlags:8
-    // now flags:16, hinting:4, textAlign:4, flatFlags:8
-    uint32_t tmp = *pod++;
-    this->setFlags(tmp >> 16);
+        // the order we read must match the order we wrote in flatten()
+        this->setTextSize(read_scalar(pod));
+        this->setTextScaleX(read_scalar(pod));
+        this->setTextSkewX(read_scalar(pod));
+        this->setStrokeWidth(read_scalar(pod));
+        this->setStrokeMiter(read_scalar(pod));
+        this->setColor(*pod++);
 
-    // hinting added later. 0 in this nibble means use the default.
-    uint32_t hinting = (tmp >> 12) & 0xF;
-    this->setHinting(0 == hinting ? kNormal_Hinting : static_cast<Hinting>(hinting-1));
+        // previously flags:16, textAlign:8, flatFlags:8
+        // now flags:16, hinting:4, textAlign:4, flatFlags:8
+        uint32_t tmp = *pod++;
+        this->setFlags(tmp >> 16);
 
-    this->setTextAlign(static_cast<Align>((tmp >> 8) & 0xF));
+        // hinting added later. 0 in this nibble means use the default.
+        uint32_t hinting = (tmp >> 12) & 0xF;
+        this->setHinting(0 == hinting ? kNormal_Hinting : static_cast<Hinting>(hinting-1));
 
-    uint8_t flatFlags = tmp & 0xFF;
+        this->setTextAlign(static_cast<Align>((tmp >> 8) & 0xF));
 
-    tmp = *pod++;
-    this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
-    this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
-    this->setStyle(static_cast<Style>((tmp >> 8) & 0xFF));
-    this->setTextEncoding(static_cast<TextEncoding>((tmp >> 0) & 0xFF));
+        flatFlags = tmp & 0xFF;
+
+        tmp = *pod++;
+        this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
+        this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
+        this->setStyle(static_cast<Style>((tmp >> 8) & 0xFF));
+        this->setTextEncoding(static_cast<TextEncoding>((tmp >> 0) & 0xFF));
+    } else {
+        this->setTextSize(buffer.readScalar());
+        this->setTextScaleX(buffer.readScalar());
+        this->setTextSkewX(buffer.readScalar());
+        this->setStrokeWidth(buffer.readScalar());
+        this->setStrokeMiter(buffer.readScalar());
+        this->setColor(buffer.readColor());
+        this->setFlags(buffer.readUInt());
+        this->setHinting(static_cast<SkPaint::Hinting>(buffer.readUInt()));
+        this->setTextAlign(static_cast<SkPaint::Align>(buffer.readUInt()));
+        flatFlags = buffer.readUInt();
+
+        this->setStrokeCap(static_cast<SkPaint::Cap>(buffer.readUInt()));
+        this->setStrokeJoin(static_cast<SkPaint::Join>(buffer.readUInt()));
+        this->setStyle(static_cast<SkPaint::Style>(buffer.readUInt()));
+        this->setTextEncoding(static_cast<SkPaint::TextEncoding>(buffer.readUInt()));
+    }
 
     if (flatFlags & kHasTypeface_FlatFlag) {
         this->setTypeface(buffer.readTypeface());
@@ -2010,15 +2049,15 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
     }
 
     if (flatFlags & kHasEffects_FlatFlag) {
-        SkSafeUnref(this->setPathEffect((SkPathEffect*) buffer.readFlattenable()));
-        SkSafeUnref(this->setShader((SkShader*) buffer.readFlattenable()));
-        SkSafeUnref(this->setXfermode((SkXfermode*) buffer.readFlattenable()));
-        SkSafeUnref(this->setMaskFilter((SkMaskFilter*) buffer.readFlattenable()));
-        SkSafeUnref(this->setColorFilter((SkColorFilter*) buffer.readFlattenable()));
-        SkSafeUnref(this->setRasterizer((SkRasterizer*) buffer.readFlattenable()));
-        SkSafeUnref(this->setLooper((SkDrawLooper*) buffer.readFlattenable()));
-        SkSafeUnref(this->setImageFilter((SkImageFilter*) buffer.readFlattenable()));
-        SkSafeUnref(this->setAnnotation((SkAnnotation*) buffer.readFlattenable()));
+        SkSafeUnref(this->setPathEffect(buffer.readFlattenableT<SkPathEffect>()));
+        SkSafeUnref(this->setShader(buffer.readFlattenableT<SkShader>()));
+        SkSafeUnref(this->setXfermode(buffer.readFlattenableT<SkXfermode>()));
+        SkSafeUnref(this->setMaskFilter(buffer.readFlattenableT<SkMaskFilter>()));
+        SkSafeUnref(this->setColorFilter(buffer.readFlattenableT<SkColorFilter>()));
+        SkSafeUnref(this->setRasterizer(buffer.readFlattenableT<SkRasterizer>()));
+        SkSafeUnref(this->setLooper(buffer.readFlattenableT<SkDrawLooper>()));
+        SkSafeUnref(this->setImageFilter(buffer.readFlattenableT<SkImageFilter>()));
+        SkSafeUnref(this->setAnnotation(buffer.readFlattenableT<SkAnnotation>()));
     } else {
         this->setPathEffect(NULL);
         this->setShader(NULL);

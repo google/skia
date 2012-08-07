@@ -9,6 +9,7 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "Sk64.h"
+#include "SkFlattenableBuffers.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -134,11 +135,11 @@ private:
     void init(SkScalar exponent);
     SkPowerMode(SkFlattenableReadBuffer& b) : INHERITED(b) {
         // read the exponent
-        this->init(SkFixedToScalar(b.readS32()));
+        this->init(SkFixedToScalar(b.readFixed()));
     }
     virtual void flatten(SkFlattenableWriteBuffer& b) const SK_OVERRIDE {
         this->INHERITED::flatten(b);
-        b.write32(SkScalarToFixed(fExp));
+        b.writeFixed(SkScalarToFixed(fExp));
     }
 
     typedef SkXfermode INHERITED;

@@ -29,6 +29,7 @@ class SkMaskFilter;
 class SkMatrix;
 class SkPath;
 class SkPathEffect;
+struct SkPoint;
 class SkRasterizer;
 class SkShader;
 class SkTypeface;

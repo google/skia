@@ -21,8 +21,6 @@ struct SkRect;
 class SkPaint;
 class SkPixelRef;
 class SkRegion;
-class SkFlattenableReadBuffer;
-class SkFlattenableWriteBuffer;
 
 // This is an opaque class, not interpreted by skia
 class SkGpuTexture;

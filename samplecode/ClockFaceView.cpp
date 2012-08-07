@@ -8,6 +8,7 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
+#include "SkFlattenableBuffers.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkRegion.h"

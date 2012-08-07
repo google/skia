@@ -12,6 +12,7 @@
 #include "SkGradientShader.h"
 #include "SkClampRange.h"
 #include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
 #include "SkMallocPixelRef.h"
 #include "SkUnitMapper.h"
 #include "SkUtils.h"

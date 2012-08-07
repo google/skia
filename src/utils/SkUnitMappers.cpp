@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkUnitMappers.h"
+#include "SkFlattenableBuffers.h"
 
 SK_DEFINE_INST_COUNT(SkUnitMapper)
 
@@ -31,14 +32,14 @@ uint16_t SkDiscreteMapper::mapUnit16(uint16_t input) {
 
 SkDiscreteMapper::SkDiscreteMapper(SkFlattenableReadBuffer& rb)
         : SkUnitMapper(rb) {
-    fSegments = rb.readU32();
-    fScale = rb.readU32();
+    fSegments = rb.readInt();
+    fScale = rb.read32();
 }
 
 void SkDiscreteMapper::flatten(SkFlattenableWriteBuffer& wb) const {
     this->INHERITED::flatten(wb);
 
-    wb.write32(fSegments);
+    wb.writeInt(fSegments);
     wb.write32(fScale);
 }
 

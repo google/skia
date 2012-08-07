@@ -8,6 +8,7 @@
 
 
 #include "SkColorTable.h"
+#include "SkFlattenableBuffers.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 
@@ -142,20 +143,17 @@ SkColorTable::SkColorTable(SkFlattenableReadBuffer& buffer) {
     SkDEBUGCODE(fColorLockCount = 0;)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 
-    fCount = buffer.readU16();
-    SkASSERT((unsigned)fCount <= 256);
-
-    fFlags = buffer.readU8();
-
+    fFlags = buffer.readUInt();
+    fCount = buffer.getArrayCount();
     fColors = (SkPMColor*)sk_malloc_throw(fCount * sizeof(SkPMColor));
-    buffer.read(fColors, fCount * sizeof(SkPMColor));
+    const uint32_t countRead = buffer.readColorArray(fColors);
+    SkASSERT((unsigned)fCount <= 256);
+    SkASSERT(countRead == fCount);
 }
 
 void SkColorTable::flatten(SkFlattenableWriteBuffer& buffer) const {
-    int count = this->count();
-    buffer.write16(count);
-    buffer.write8(this->getFlags());
-    buffer.writeMul4(fColors, count * sizeof(SkPMColor));
+    buffer.writeUInt(fFlags);
+    buffer.writeColorArray(fColors, fCount);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorTable)

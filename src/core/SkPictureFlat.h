@@ -95,7 +95,7 @@ public:
     void setCount(int count);
     SkRefCnt* set(int index, SkRefCnt*);
 
-    virtual void setupBuffer(SkFlattenableReadBuffer& buffer) const {
+    virtual void setupBuffer(SkOrderedReadBuffer& buffer) const {
         buffer.setRefCntArray(fArray, fCount);
     }
     
@@ -106,7 +106,7 @@ protected:
 
 class SkTypefacePlayback : public SkRefCntPlayback {
 public:
-    virtual void setupBuffer(SkFlattenableReadBuffer& buffer) const {
+    virtual void setupBuffer(SkOrderedReadBuffer& buffer) const {
         buffer.setTypefaceArray((SkTypeface**)fArray, fCount);
     }
 };
@@ -123,7 +123,7 @@ public:
     
     SkFlattenable::Factory* base() const { return fArray; }
 
-    void setupBuffer(SkFlattenableReadBuffer& buffer) const {
+    void setupBuffer(SkOrderedReadBuffer& buffer) const {
         buffer.setFactoryPlayback(fArray, fCount);
     }
     
