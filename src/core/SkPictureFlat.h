@@ -12,6 +12,7 @@
 
 #include "SkChunkAlloc.h"
 #include "SkBitmap.h"
+#include "SkBitmapHeap.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 #include "SkPicture.h"
@@ -83,10 +84,10 @@ static inline bool ClipParams_unpackDoAA(uint32_t packed) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkRefCntPlayback {
+class SkTypefacePlayback {
 public:
-    SkRefCntPlayback();
-    virtual ~SkRefCntPlayback();
+    SkTypefacePlayback();
+    virtual ~SkTypefacePlayback();
     
     int count() const { return fCount; }
     
@@ -95,20 +96,13 @@ public:
     void setCount(int count);
     SkRefCnt* set(int index, SkRefCnt*);
 
-    virtual void setupBuffer(SkOrderedReadBuffer& buffer) const {
-        buffer.setRefCntArray(fArray, fCount);
+    void setupBuffer(SkOrderedReadBuffer& buffer) const {
+        buffer.setTypefaceArray((SkTypeface**)fArray, fCount);
     }
     
 protected:
     int fCount;
     SkRefCnt** fArray;
-};
-
-class SkTypefacePlayback : public SkRefCntPlayback {
-public:
-    virtual void setupBuffer(SkOrderedReadBuffer& buffer) const {
-        buffer.setTypefaceArray((SkTypeface**)fArray, fCount);
-    }
 };
 
 class SkFactoryPlayback {
@@ -180,19 +174,12 @@ public:
     virtual void unalloc(void* ptr) = 0;
 
     /**
-     * Used during creation of SkFlatData objects. Only used for storing refs to
-     * SkPixelRefs. If the objects being flattened have SkPixelRefs (i.e.
-     * SkBitmaps or SkPaints, which may have SkBitmapShaders), this should be
-     * set by the protected setPixelRefSet.
+     * Used during creation and unflattening of SkFlatData objects. If the
+     * objects being flattened contain bitmaps they are stored in this heap
+     * and the flattenable stores the index to the bitmap on the heap.
+     * This should be set by the protected setBitmapHeap.
      */
-    SkRefCntSet* getPixelRefSet() { return fPixelRefSet; }
-
-    /**
-     * Used during unflattening of the SkFlatData objects in the
-     * SkFlatDictionary. Needs to be set by the protected setPixelRefPlayback
-     * and needs to be reset to the SkRefCntSet passed to setPixelRefSet.
-     */
-    SkRefCntPlayback* getPixelRefPlayback() { return fPixelRefPlayback; }
+    SkBitmapHeap* getBitmapHeap() { return fBitmapHeap; }
 
     /**
      * Used during creation of SkFlatData objects. If a typeface recorder is
@@ -216,23 +203,15 @@ public:
 
 protected:
     /**
-     * Set an SkRefCntSet to be used to store SkPixelRefs during flattening. Ref
-     * counted.
+     * Set an SkBitmapHeap to be used to store/read SkBitmaps. Ref counted.
      */
-    void setPixelRefSet(SkRefCntSet*);
+    void setBitmapHeap(SkBitmapHeap*);
 
     /**
      * Set an SkRefCntSet to be used to store SkTypefaces during flattening. Ref
      * counted.
      */
     void setTypefaceSet(SkRefCntSet*);
-
-    /**
-     * Set an SkRefCntPlayback to be used to find references to SkPixelRefs
-     * during unflattening. Should be reset to the set provided to
-     * setPixelRefSet.
-     */
-    void setPixelRefPlayback(SkRefCntPlayback*);
 
     /**
      * Set an SkTypefacePlayback to be used to find references to SkTypefaces
@@ -249,9 +228,8 @@ protected:
     SkNamedFactorySet* setNamedFactorySet(SkNamedFactorySet*);
 
 private:
-    SkRefCntSet*        fPixelRefSet;
+    SkBitmapHeap*       fBitmapHeap;
     SkRefCntSet*        fTypefaceSet;
-    SkRefCntPlayback*   fPixelRefPlayback;
     SkTypefacePlayback* fTypefacePlayback;
     SkNamedFactorySet*  fFactorySet;
 };
@@ -321,7 +299,7 @@ public:
 
     void unflatten(void* result,
                    void (*unflattenProc)(SkOrderedReadBuffer&, void*),
-                   SkRefCntPlayback* refCntPlayback = NULL,
+                   SkBitmapHeap* bitmapHeap = NULL,
                    SkTypefacePlayback* facePlayback = NULL) const;
 
     // When we purge an entry, we want to reuse an old index for the new entry,
@@ -495,9 +473,8 @@ private:
             int index = element->index() - 1;
             SkASSERT((unsigned)index < (unsigned)count);
             element->unflatten(&array[index], fUnflattenProc,
-                               fController->getPixelRefPlayback(),
+                               fController->getBitmapHeap(),
                                fController->getTypefacePlayback());
-
         }
     }
 
@@ -581,16 +558,12 @@ class SkChunkFlatController : public SkFlatController {
 public:
     SkChunkFlatController(size_t minSize)
     : fHeap(minSize)
-    , fRefSet(SkNEW(SkRefCntSet))
     , fTypefaceSet(SkNEW(SkRefCntSet)) {
-        this->setPixelRefSet(fRefSet);
         this->setTypefaceSet(fTypefaceSet);
-        this->setPixelRefPlayback(&fRefPlayback);
         this->setTypefacePlayback(&fTypefacePlayback);
     }
 
     ~SkChunkFlatController() {
-        fRefSet->unref();
         fTypefaceSet->unref();
     }
 
@@ -602,24 +575,17 @@ public:
         (void) fHeap.unalloc(ptr);
     }
 
-    void reset() {
-        fHeap.reset();
-        fRefSet->reset();
-        fTypefaceSet->reset();
-        fRefPlayback.reset(NULL);
-        fTypefacePlayback.reset(NULL);
+    void setupPlaybacks() const {
+        fTypefacePlayback.reset(fTypefaceSet);
     }
 
-    void setupPlaybacks() const {
-        fRefPlayback.reset(fRefSet);
-        fTypefacePlayback.reset(fTypefaceSet);
+    void setBitmapStorage(SkBitmapHeap* heap) {
+        this->setBitmapHeap(heap);
     }
 
 private:
     SkChunkAlloc               fHeap;
-    SkRefCntSet*               fRefSet;
     SkRefCntSet*               fTypefaceSet;
-    mutable SkRefCntPlayback   fRefPlayback;
     mutable SkTypefacePlayback fTypefacePlayback;
 };
 

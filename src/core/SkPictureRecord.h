@@ -71,23 +71,10 @@ public:
 
     void addFontMetricsTopBottom(const SkPaint& paint, SkScalar minY, SkScalar maxY);
 
-    const SkBitmapDictionary& getBitmaps() const {
-        return fBitmaps;
-    }
-    const SkMatrixDictionary& getMatrices() const {
-        return fMatrices;
-    }
-    const SkPaintDictionary& getPaints() const {
-        return fPaints;
-    }
     const SkTDArray<SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
     }
-    const SkRegionDictionary& getRegions() const {
-        return fRegions;
-    }
 
-    void reset();
     void setFlags(uint32_t recordFlags) {
         fRecordFlags = recordFlags;
     }
@@ -98,31 +85,6 @@ public:
 
     void endRecording();
 private:
-    struct BitmapIndexCacheEntry {
-        uint32_t fGenerationId; // SkPixelRef GenerationID.
-        size_t fPixelOffset;
-        uint32_t fWidth;
-        uint32_t fHeight;
-        uint32_t fIndex; // Index of corresponding flattened bitmap in fBitmaps.
-        bool operator < (const BitmapIndexCacheEntry& other) const {
-            if (this->fGenerationId != other.fGenerationId) {
-                return this->fGenerationId < other.fGenerationId;
-            } else if(this->fPixelOffset != other.fPixelOffset) {
-                return this->fPixelOffset < other.fPixelOffset;
-            } else if(this->fWidth != other.fWidth) {
-                return this->fWidth < other.fWidth;
-            } else {
-                return this->fHeight < other.fHeight;
-            }
-        } 
-        bool operator != (const BitmapIndexCacheEntry& other) const {
-            return this->fGenerationId != other.fGenerationId
-                || this->fPixelOffset != other.fPixelOffset
-                || this->fWidth != other.fWidth
-                || this->fHeight != other.fHeight;
-        } 
-    };
-
     void recordRestoreOffsetPlaceholder(SkRegion::Op);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(
         uint32_t restoreOffset);
@@ -199,10 +161,9 @@ public:
 #endif
 
 private:
-    SkChunkFlatController fHeap;
+    SkBitmapHeap fBitmapHeap;
+    SkChunkFlatController fFlattenableHeap;
 
-    SkTDArray<BitmapIndexCacheEntry> fBitmapIndexCache;
-    SkBitmapDictionary fBitmaps;
     SkMatrixDictionary fMatrices;
     SkPaintDictionary fPaints;
     SkRegionDictionary fRegions;

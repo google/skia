@@ -17,11 +17,10 @@ enum {
 };
 
 SkPictureRecord::SkPictureRecord(uint32_t flags) :
-        fHeap(HEAP_BLOCK_SIZE),
-        fBitmaps(&fHeap),
-        fMatrices(&fHeap),
-        fPaints(&fHeap),
-        fRegions(&fHeap),
+        fFlattenableHeap(HEAP_BLOCK_SIZE),
+        fMatrices(&fFlattenableHeap),
+        fPaints(&fFlattenableHeap),
+        fRegions(&fFlattenableHeap),
         fWriter(MIN_WRITER_SIZE),
         fRecordFlags(flags) {
 #ifdef SK_DEBUG_SIZE
@@ -32,12 +31,15 @@ SkPictureRecord::SkPictureRecord(uint32_t flags) :
     fRestoreOffsetStack.setReserve(32);
     fInitialSaveCount = kNoInitialSave;
 
+    fFlattenableHeap.setBitmapStorage(&fBitmapHeap);
     fPathHeap = NULL;   // lazy allocate
     fFirstSavedLayerIndex = kNoSavedLayerIndex;
 }
 
 SkPictureRecord::~SkPictureRecord() {
-    reset();
+    SkSafeUnref(fPathHeap);
+    fFlattenableHeap.setBitmapStorage(NULL);
+    fPictureRefs.unrefAll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -518,25 +520,8 @@ void SkPictureRecord::drawData(const void* data, size_t length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPictureRecord::reset() {
-    SkSafeUnref(fPathHeap);
-    fPathHeap = NULL;
-
-    fBitmaps.reset();
-    fBitmapIndexCache.reset();
-    fMatrices.reset();
-    fPaints.reset();
-    fPictureRefs.unrefAll();
-    fRegions.reset();
-    fWriter.reset();
-    fHeap.reset();
-
-    fRestoreOffsetStack.setCount(1);
-    fRestoreOffsetStack.top() = 0;
-}
-
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
-    addInt(find(bitmap));
+    addInt(fBitmapHeap.insert(bitmap));
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -636,38 +621,6 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-int SkPictureRecord::find(const SkBitmap& bitmap) {
-    int dictionaryIndex = 0;
-    BitmapIndexCacheEntry entry;
-    const bool flattenPixels = !bitmap.isImmutable();
-    if (flattenPixels) {
-        // Flattened bitmap may be very large. First attempt a fast lookup
-        // based on generation ID to avoid unnecessary flattening in
-        // fBitmaps.find()
-        entry.fGenerationId = bitmap.getGenerationID();
-        entry.fPixelOffset = bitmap.pixelRefOffset();
-        entry.fWidth = bitmap.width();
-        entry.fHeight = bitmap.height();
-        dictionaryIndex = 
-            SkTSearch<const BitmapIndexCacheEntry>(fBitmapIndexCache.begin(),
-                    fBitmapIndexCache.count(), entry, sizeof(entry));
-        if (dictionaryIndex >= 0) {
-            return fBitmapIndexCache[dictionaryIndex].fIndex;
-        }
-    }
-    
-    uint32_t writeFlags = flattenPixels ?
-        SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag : 0;
-    int index = fBitmaps.find(bitmap, writeFlags);
-
-    if (flattenPixels) {
-        entry.fIndex = index;
-        dictionaryIndex = ~dictionaryIndex;
-        *fBitmapIndexCache.insert(dictionaryIndex) = entry;
-    }
-    return index;
-}
 
 #ifdef SK_DEBUG_SIZE
 size_t SkPictureRecord::size() const {

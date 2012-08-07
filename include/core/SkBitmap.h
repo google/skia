@@ -548,6 +548,13 @@ public:
     bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
                       SkIPoint* offset) const;
 
+    /** The following two functions provide the means to both flatten and
+        unflatten the bitmap AND its pixels into the provided buffer.
+        It is recommended that you do not call these functions directly,
+        but instead call the write/readBitmap functions on the respective
+        buffers as they can optimize the recording process and avoid recording
+        duplicate bitmaps and pixelRefs.
+     */
     void flatten(SkFlattenableWriteBuffer&) const;
     void unflatten(SkFlattenableReadBuffer&);
 

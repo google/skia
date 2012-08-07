@@ -13,6 +13,7 @@
 
 #include "SkRefCnt.h"
 #include "SkBitmap.h"
+#include "SkBitmapHeap.h"
 #include "SkPath.h"
 #include "SkWriter32.h"
 
@@ -59,8 +60,6 @@ public:
     virtual void writePath(const SkPath& path) SK_OVERRIDE;
     virtual size_t writeStream(SkStream* stream, size_t length) SK_OVERRIDE;
 
-    virtual void writeRefCntPtr(SkRefCnt* refCnt) SK_OVERRIDE;
-
     virtual void writeBitmap(const SkBitmap& bitmap) SK_OVERRIDE;
     virtual void writeTypeface(SkTypeface* typeface) SK_OVERRIDE;
 
@@ -72,16 +71,17 @@ public:
     SkRefCntSet* getTypefaceRecorder() const { return fTFSet; }
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
-    SkRefCntSet* getRefCntRecorder() const { return fRCSet; }
-    SkRefCntSet* setRefCntRecorder(SkRefCntSet*);
+    void setBitmapHeap(SkBitmapHeap* bitmapHeap) {
+        SkRefCnt_SafeAssign(fBitmapHeap, bitmapHeap);
+    }
 
 private:
     SkFactorySet* fFactorySet;
     SkNamedFactorySet* fNamedFactorySet;
     SkWriter32 fWriter;
 
-    SkRefCntSet*    fRCSet;
-    SkRefCntSet*    fTFSet;
+    SkBitmapHeap* fBitmapHeap;
+    SkRefCntSet* fTFSet;
 
     typedef SkFlattenableWriteBuffer INHERITED;
 };

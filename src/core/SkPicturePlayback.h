@@ -72,7 +72,7 @@ private:
 
     const SkBitmap& getBitmap(SkReader32& reader) {
         int index = reader.readInt();
-        return (*fBitmaps)[index - 1];
+        return (*fBitmaps)[index];
     }
 
     const SkMatrix* getMatrix(SkReader32& reader) {
@@ -179,7 +179,7 @@ private:
     int fPictureCount;
 
     SkTypefacePlayback fTFPlayback;
-    SkFactoryPlayback*   fFactoryPlayback;
+    SkFactoryPlayback* fFactoryPlayback;
 #ifdef SK_BUILD_FOR_ANDROID
     SkMutex fDrawMutex;
 #endif

@@ -14,7 +14,7 @@ SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize)
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
     , fWriter(minSize)
-    , fRCSet(NULL)
+    , fBitmapHeap(NULL)
     , fTFSet(NULL) {
 }
 
@@ -23,14 +23,14 @@ SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, void* storage, size_t
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
     , fWriter(minSize, storage, storageSize)
-    , fRCSet(NULL)
+    , fBitmapHeap(NULL)
     , fTFSet(NULL) {
 }
 
 SkOrderedWriteBuffer::~SkOrderedWriteBuffer() {
     SkSafeUnref(fFactorySet);
     SkSafeUnref(fNamedFactorySet);
-    SkSafeUnref(fRCSet);
+    SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fTFSet);
 }
 
@@ -132,17 +132,12 @@ bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
-void SkOrderedWriteBuffer::writeRefCntPtr(SkRefCnt* refCnt) {
-    SkASSERT(!isCrossProcess());
-    if (NULL == fRCSet) {
-        INHERITED::writeRefCntPtr(refCnt);
-    } else {
-        this->write32(fRCSet->add(refCnt));
-    }
-}
-
 void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
-    bitmap.flatten(*this);
+    if (fBitmapHeap) {
+        fWriter.write32(fBitmapHeap->insert(bitmap));
+    } else {
+        bitmap.flatten(*this);
+    }
 }
 
 void SkOrderedWriteBuffer::writeTypeface(SkTypeface* obj) {
@@ -168,11 +163,6 @@ SkNamedFactorySet* SkOrderedWriteBuffer::setNamedFactoryRecorder(SkNamedFactoryS
         fFactorySet->unref();
         fFactorySet = NULL;
     }
-    return rec;
-}
-
-SkRefCntSet* SkOrderedWriteBuffer::setRefCntRecorder(SkRefCntSet* rec) {
-    SkRefCnt_SafeAssign(fRCSet, rec);
     return rec;
 }
 

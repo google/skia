@@ -1365,47 +1365,15 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
 
 enum {
     SERIALIZE_PIXELTYPE_NONE,
-    SERIALIZE_PIXELTYPE_REF_DATA,
-    SERIALIZE_PIXELTYPE_REF_PTR
+    SERIALIZE_PIXELTYPE_REF_DATA
 };
 
-/*
-    It is tricky to know how much to flatten. If we don't have a pixelref (i.e.
-    we just have pixels, then we can only flatten the pixels, or write out an
-    empty bitmap.
-
-    With a pixelref, we still have the question of recognizing when two sitings
-    of the same pixelref are the same, and when they are different. Perhaps we
-    should look at the generationID and keep a record of that in some dictionary
-    associated with the buffer. SkGLTextureCache does this sort of thing to know
-    when to create a new texture.
-*/
 void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeInt(fWidth);
     buffer.writeInt(fHeight);
     buffer.writeInt(fRowBytes);
     buffer.writeInt(fConfig);
     buffer.writeBool(this->isOpaque());
-
-    /*  If we are called in this mode, then it is up to the caller to manage
-        the owner-counts on the pixelref, as we just record the ptr itself.
-    */
-    if (!buffer.persistBitmapPixels()) {
-        if (fPixelRef) {
-            buffer.writeInt(SERIALIZE_PIXELTYPE_REF_PTR);
-            buffer.writeUInt(fPixelRefOffset);
-            buffer.writeRefCntPtr(fPixelRef);
-            return;
-        } else {
-            // we ignore the non-persist request, since we don't have a ref
-            // ... or we could just write an empty bitmap...
-            // (true) will write an empty bitmap, (false) will flatten the pix
-            if (true) {
-                buffer.writeInt(SERIALIZE_PIXELTYPE_NONE);
-                return;
-            }
-        }
-    }
 
     if (fPixelRef) {
         if (fPixelRef->getFactory()) {
@@ -1434,12 +1402,6 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
 
     int reftype = buffer.readInt();
     switch (reftype) {
-        case SERIALIZE_PIXELTYPE_REF_PTR: {
-            size_t offset = buffer.readUInt();
-            SkPixelRef* pr = (SkPixelRef*)buffer.readRefCntPtr();
-            this->setPixelRef(pr, offset);
-            break;
-        }
         case SERIALIZE_PIXELTYPE_REF_DATA: {
             size_t offset = buffer.readUInt();
             SkPixelRef* pr = buffer.readFlattenableT<SkPixelRef>();
@@ -1472,7 +1434,7 @@ SkBitmap::RLEPixels::~RLEPixels() {
 void SkBitmap::validate() const {
     SkASSERT(fConfig < kConfigCount);
     SkASSERT(fRowBytes >= (unsigned)ComputeRowBytes((Config)fConfig, fWidth));
-    SkASSERT(fFlags <= (kImageIsOpaque_Flag | kImageIsVolatile_Flag));
+    SkASSERT(fFlags <= (kImageIsOpaque_Flag | kImageIsVolatile_Flag | kImageIsImmutable_Flag));
     SkASSERT(fPixelLockCount >= 0);
     SkASSERT(NULL == fColorTable || (unsigned)fColorTable->getRefCnt() < 10000);
     SkASSERT((uint8_t)ComputeBytesPerPixel((Config)fConfig) == fBytesPerPixel);

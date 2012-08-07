@@ -14,6 +14,8 @@
         '../src/core/SkAlphaRuns.cpp',
         '../src/core/SkAntiRun.h',
         '../src/core/SkBitmap.cpp',
+        '../src/core/SkBitmapHeap.cpp',
+        '../src/core/SkBitmapHeap.h',
         '../src/core/SkBitmapProcShader.cpp',
         '../src/core/SkBitmapProcShader.h',
         '../src/core/SkBitmapProcState.cpp',
