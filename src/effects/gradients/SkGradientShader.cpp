@@ -134,30 +134,30 @@ SkGradientShaderBase::SkGradientShaderBase(SkFlattenableReadBuffer& buffer) :
     INHERITED(buffer) {
     fCacheAlpha = 256;
 
-    fMapper = static_cast<SkUnitMapper*>(buffer.readFlattenable());
+    fMapper = buffer.readFlattenableT<SkUnitMapper>();
 
     fCache16 = fCache16Storage = NULL;
     fCache32 = NULL;
     fCache32PixelRef = NULL;
 
-    int colorCount = fColorCount = buffer.readU32();
+    int colorCount = fColorCount = buffer.getArrayCount();
     if (colorCount > kColorStorageCount) {
         size_t size = sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec);
         fOrigColors = (SkColor*)sk_malloc_throw(size * colorCount);
     } else {
         fOrigColors = fStorage;
     }
-    buffer.read(fOrigColors, colorCount * sizeof(SkColor));
+    buffer.readColorArray(fOrigColors);
 
-    fTileMode = (TileMode)buffer.readU8();
+    fTileMode = (TileMode)buffer.readUInt();
     fTileProc = gTileProcs[fTileMode];
     fRecs = (Rec*)(fOrigColors + colorCount);
     if (colorCount > 2) {
         Rec* recs = fRecs;
         recs[0].fPos = 0;
         for (int i = 1; i < colorCount; i++) {
-            recs[i].fPos = buffer.readS32();
-            recs[i].fScale = buffer.readU32();
+            recs[i].fPos = buffer.readInt();
+            recs[i].fScale = buffer.readUInt();
         }
     }
     buffer.readMatrix(&fPtsToUnit);
@@ -187,14 +187,13 @@ void SkGradientShaderBase::initCommon() {
 void SkGradientShaderBase::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fMapper);
-    buffer.write32(fColorCount);
-    buffer.writeMul4(fOrigColors, fColorCount * sizeof(SkColor));
-    buffer.write8(fTileMode);
+    buffer.writeColorArray(fOrigColors, fColorCount);
+    buffer.writeUInt(fTileMode);
     if (fColorCount > 2) {
         Rec* recs = fRecs;
         for (int i = 1; i < fColorCount; i++) {
-            buffer.write32(recs[i].fPos);
-            buffer.write32(recs[i].fScale);
+            buffer.writeInt(recs[i].fPos);
+            buffer.writeUInt(recs[i].fScale);
         }
     }
     buffer.writeMatrix(fPtsToUnit);

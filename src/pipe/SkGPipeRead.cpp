@@ -78,7 +78,7 @@ public:
         return fFlags;
     }
 
-    void setReader(SkFlattenableReadBuffer* reader) {
+    void setReader(SkOrderedReadBuffer* reader) {
         fReader = reader;
         this->updateReader();
     }
@@ -129,7 +129,7 @@ public:
     }
 
     void addTypeface() {
-        size_t size = fReader->readU32();
+        size_t size = fReader->read32();
         const void* data = fReader->skip(SkAlign4(size));
         SkMemoryStream stream(data, size, false);
         *fTypefaces.append() = SkTypeface::Deserialize(&stream);
@@ -152,7 +152,7 @@ private:
             fReader->setFactoryArray(NULL);
         }
     }
-    SkFlattenableReadBuffer*  fReader;
+    SkOrderedReadBuffer*      fReader;
     SkPaint                   fPaint;
     SkTDArray<SkFlattenable*> fFlatArray;
     SkTDArray<SkTypeface*>    fTypefaces;
@@ -677,7 +677,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
 
     fState->setReader(&reader);
     while (!reader.eof()) {
-        uint32_t op32 = reader.readU32();
+        uint32_t op32 = reader.readUInt();
         unsigned op = DrawOp_unpackOp(op32);
         // SkDEBUGCODE(DrawOps drawOp = (DrawOps)op;)
         

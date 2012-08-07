@@ -8,6 +8,7 @@
 
 
 #include "SkTableMaskFilter.h"
+#include "SkFlattenableBuffers.h"
 
 SkTableMaskFilter::SkTableMaskFilter() {
     for (int i = 0; i < 256; i++) {
@@ -73,12 +74,13 @@ SkMask::Format SkTableMaskFilter::getFormat() {
 
 void SkTableMaskFilter::flatten(SkFlattenableWriteBuffer& wb) const {
     this->INHERITED::flatten(wb);
-    wb.writePad(fTable, 256);
+    wb.writeByteArray(fTable, 256);
 }
 
 SkTableMaskFilter::SkTableMaskFilter(SkFlattenableReadBuffer& rb)
         : INHERITED(rb) {
-    rb.read(fTable, 256);
+    SkASSERT(256 == rb.getArrayCount());
+    rb.readByteArray(fTable);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

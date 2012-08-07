@@ -126,7 +126,7 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
     result->fFlatSize = size;
 
     // put the serialized contents into the data section of the new allocation
-    buffer.flatten(result->data());
+    buffer.writeToMemory(result->data());
     result->fChecksum = SkChecksum::Compute(result->data32(), size);
     result->setSentinelAsCandidate();
     return result;

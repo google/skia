@@ -1,20 +1,166 @@
 
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
 #include "SkOrderedReadBuffer.h"
+#include "SkStream.h"
 #include "SkTypeface.h"
 
 
 SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) {
     fReader.setMemory(data, size);
+    fMemoryPtr = NULL;
+
+    fRCArray = NULL;
+    fRCCount = 0;
+
+    fTFArray = NULL;
+    fTFCount = 0;
+
+    fFactoryTDArray = NULL;
+    fFactoryArray = NULL;
+    fFactoryCount = 0;
+}
+
+SkOrderedReadBuffer::SkOrderedReadBuffer(SkStream* stream) {
+    const size_t length = stream->getLength();
+    fMemoryPtr = sk_malloc_throw(length);
+    stream->read(fMemoryPtr, length);
+    fReader.setMemory(fMemoryPtr, length);
+}
+
+SkOrderedReadBuffer::~SkOrderedReadBuffer() {
+    sk_free(fMemoryPtr);
+}
+
+bool SkOrderedReadBuffer::readBool() {
+    return fReader.readBool();
+}
+
+SkColor SkOrderedReadBuffer::readColor() {
+    return fReader.readInt();
+}
+
+SkFixed SkOrderedReadBuffer::readFixed() {
+    return fReader.readS32();
+}
+
+int32_t SkOrderedReadBuffer::readInt() {
+    return fReader.readInt();
+}
+
+SkScalar SkOrderedReadBuffer::readScalar() {
+    return fReader.readScalar();
+}
+
+uint32_t SkOrderedReadBuffer::readUInt() {
+    return fReader.readU32();
+}
+
+int32_t SkOrderedReadBuffer::read32() {
+    return fReader.readInt();
+}
+
+char* SkOrderedReadBuffer::readString() {
+    const char* string = fReader.readString();
+    const int32_t length = strlen(string);
+    char* value = (char*)sk_malloc_throw(length + 1);
+    strcpy(value, string);
+    return value;
+}
+
+void* SkOrderedReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {
+    int32_t encodingType = fReader.readInt();
+    SkASSERT(encodingType == encoding);
+    *length =  fReader.readInt();
+    void* data = sk_malloc_throw(*length);
+    memcpy(data, fReader.skip(SkAlign4(*length)), *length);
+    return data;
+}
+
+void SkOrderedReadBuffer::readPoint(SkPoint* point) {
+    point->fX = fReader.readScalar();
+    point->fY = fReader.readScalar();
+}
+
+void SkOrderedReadBuffer::readMatrix(SkMatrix* matrix) {
+    fReader.readMatrix(matrix);
+}
+
+void SkOrderedReadBuffer::readIRect(SkIRect* rect) {
+    memcpy(rect, fReader.skip(sizeof(SkIRect)), sizeof(SkIRect));
+}
+
+void SkOrderedReadBuffer::readRect(SkRect* rect) {
+    memcpy(rect, fReader.skip(sizeof(SkRect)), sizeof(SkRect));
+}
+
+void SkOrderedReadBuffer::readRegion(SkRegion* region) {
+    fReader.readRegion(region);
+}
+
+void SkOrderedReadBuffer::readPath(SkPath* path) {
+    fReader.readPath(path);
+}
+
+uint32_t SkOrderedReadBuffer::readByteArray(void* value) {
+    const uint32_t length = fReader.readU32();
+    memcpy(value, fReader.skip(SkAlign4(length)), length);
+    return length;
+}
+
+uint32_t SkOrderedReadBuffer::readColorArray(SkColor* colors) {
+    const uint32_t count = fReader.readU32();
+    const uint32_t byteLength = count * sizeof(SkColor);
+    memcpy(colors, fReader.skip(SkAlign4(byteLength)), byteLength);
+    return count;
+}
+
+uint32_t SkOrderedReadBuffer::readIntArray(int32_t* values) {
+    const uint32_t count = fReader.readU32();
+    const uint32_t byteLength = count * sizeof(int32_t);
+    memcpy(values, fReader.skip(SkAlign4(byteLength)), byteLength);
+    return count;
+}
+
+uint32_t SkOrderedReadBuffer::readPointArray(SkPoint* points) {
+    const uint32_t count = fReader.readU32();
+    const uint32_t byteLength = count * sizeof(SkPoint);
+    memcpy(points, fReader.skip(SkAlign4(byteLength)), byteLength);
+    return count;
+}
+
+uint32_t SkOrderedReadBuffer::readScalarArray(SkScalar* values) {
+    const uint32_t count = fReader.readU32();
+    const uint32_t byteLength = count * sizeof(SkScalar);
+    memcpy(values, fReader.skip(SkAlign4(byteLength)), byteLength);
+    return count;
+}
+
+uint32_t SkOrderedReadBuffer::getArrayCount() {
+    return *(uint32_t*)fReader.peek();
+}
+
+SkRefCnt* SkOrderedReadBuffer::readRefCntPtr() {
+    if (fRCArray) {
+        const uint32_t index = fReader.readU32();
+        SkASSERT(index <= (unsigned)fRCCount);
+        return fRCArray[index - 1];
+    } else {
+        return INHERITED::readRefCntPtr();
+    }
+}
+
+void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
+    bitmap->unflatten(*this);
 }
 
 SkTypeface* SkOrderedReadBuffer::readTypeface() {
+
     uint32_t index = fReader.readU32();
     if (0 == index || index > (unsigned)fTFCount) {
         if (index) {
@@ -24,16 +170,6 @@ SkTypeface* SkOrderedReadBuffer::readTypeface() {
     } else {
         SkASSERT(fTFArray);
         return fTFArray[index - 1];
-    }
-}
-
-SkRefCnt* SkOrderedReadBuffer::readRefCnt() {
-    uint32_t index = fReader.readU32();
-    if (0 == index || index > (unsigned)fRCCount) {
-        return NULL;
-    } else {
-        SkASSERT(fRCArray);
-        return fRCArray[index - 1];
     }
 }
 
@@ -80,12 +216,4 @@ SkFlattenable* SkOrderedReadBuffer::readFlattenable() {
         fReader.skip(sizeRecorded);
     }
     return obj;
-}
-
-void* SkOrderedReadBuffer::readFunctionPtr() {
-    SkASSERT(!this->isCrossProcess());
-
-    void* proc;
-    fReader.read(&proc, sizeof(proc));
-    return proc;
 }

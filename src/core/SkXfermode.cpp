@@ -9,6 +9,7 @@
 
 #include "SkXfermode.h"
 #include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
 
 SK_DEFINE_INST_COUNT(SkXfermode)
 
@@ -734,7 +735,7 @@ public:
 
 protected:
     SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-        fMode = (SkXfermode::Mode)buffer.readU32();
+        fMode = (SkXfermode::Mode)buffer.read32();
 
         const ProcCoeff& rec = gProcCoeffs[fMode];
         // these may be valid, or may be CANNOT_USE_COEFF

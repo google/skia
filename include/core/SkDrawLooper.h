@@ -14,6 +14,7 @@
 
 class SkCanvas;
 class SkPaint;
+struct SkRect;
 
 /** \class SkDrawLooper
     Subclasses of SkDrawLooper can be attached to a SkPaint. Where they are,

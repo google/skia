@@ -20,7 +20,7 @@ static SkFlattenable* reincarnate_flattenable(SkFlattenable* obj) {
     size_t size = wb.size();
     SkAutoSMalloc<1024> storage(size);
     // make a copy into storage
-    wb.flatten(storage.get());
+    wb.writeToMemory(storage.get());
 
     SkOrderedReadBuffer rb(storage.get(), size);
     return rb.readFlattenable();

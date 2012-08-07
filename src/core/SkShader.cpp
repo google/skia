@@ -9,6 +9,7 @@
 
 #include "SkScalar.h"
 #include "SkShader.h"
+#include "SkFlattenableBuffers.h"
 #include "SkPaint.h"
 #include "SkMallocPixelRef.h"
 
@@ -238,20 +239,20 @@ bool SkColorShader::isOpaque() const {
 SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
     fFlags = 0; // computed in setContext
 
-    fInheritColor = b.readU8();
+    fInheritColor = b.readBool();
     if (fInheritColor) {
         return;
     }
-    fColor = b.readU32();
+    fColor = b.readColor();
 }
 
 void SkColorShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.write8(fInheritColor);
+    buffer.writeBool(fInheritColor);
     if (fInheritColor) {
         return;
     }
-    buffer.write32(fColor);
+    buffer.writeColor(fColor);
 }
 
 uint32_t SkColorShader::getFlags() {

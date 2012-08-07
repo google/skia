@@ -7,7 +7,7 @@
  */
 #include "SkMallocPixelRef.h"
 #include "SkBitmap.h"
-#include "SkFlattenable.h"
+#include "SkFlattenableBuffers.h"
 
 SkMallocPixelRef::SkMallocPixelRef(void* storage, size_t size,
                                    SkColorTable* ctable, bool ownPixels) {
@@ -43,23 +43,20 @@ void SkMallocPixelRef::onUnlockPixels() {
 void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
-    buffer.write32(fSize);
-    buffer.writePad(fStorage, fSize);
+    buffer.writeByteArray(fStorage, fSize);
+    buffer.writeBool(fCTable != NULL);
     if (fCTable) {
-        buffer.writeBool(true);
         buffer.writeFlattenable(fCTable);
-    } else {
-        buffer.writeBool(false);
     }
 }
 
 SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer, NULL) {
-    fSize = buffer.readU32();
+    fSize = buffer.getArrayCount();
     fStorage = sk_malloc_throw(fSize);
-    buffer.read(fStorage, fSize);
+    buffer.readByteArray(fStorage);
     if (buffer.readBool()) {
-        fCTable = static_cast<SkColorTable*>(buffer.readFlattenable());
+        fCTable = buffer.readFlattenableT<SkColorTable>();
     } else {
         fCTable = NULL;
     }

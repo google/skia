@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkPixelRef.h"
-#include "SkFlattenable.h"
+#include "SkFlattenableBuffers.h"
 #include "SkThread.h"
 
 SK_DEFINE_INST_COUNT(SkPixelRef)
@@ -74,7 +74,7 @@ SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
     fColorTable = NULL; // we do not track ownership of this
     fLockCount = 0;
     fIsImmutable = buffer.readBool();
-    fGenerationID = buffer.readU32();
+    fGenerationID = buffer.readUInt();
     fPreLocked = false;
 }
 
@@ -96,9 +96,9 @@ void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     // of genIDs. So for cross-process recording we write a zero which will
     // trigger assignment of a new genID in playback.
     if (buffer.isCrossProcess()) {
-        buffer.write32(0);
+        buffer.writeUInt(0);
     } else {
-        buffer.write32(fGenerationID);
+        buffer.writeUInt(fGenerationID);
     }
 }
 

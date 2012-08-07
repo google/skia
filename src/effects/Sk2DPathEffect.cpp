@@ -9,6 +9,7 @@
 
 #include "Sk2DPathEffect.h"
 #include "SkBlitter.h"
+#include "SkFlattenableBuffers.h"
 #include "SkPath.h"
 #include "SkScan.h"
 

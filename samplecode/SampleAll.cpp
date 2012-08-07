@@ -18,6 +18,7 @@
 #include "SkDashPathEffect.h"
 #include "SkDiscretePathEffect.h"
 #include "SkEmbossMaskFilter.h"
+#include "SkFlattenableBuffers.h"
 #include "SkGradientShader.h"
 #include "SkImageDecoder.h"
 #include "SkLayerRasterizer.h"

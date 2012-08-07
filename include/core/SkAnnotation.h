@@ -12,6 +12,8 @@
 
 class SkData;
 class SkDataSet;
+class SkStream;
+class SkWStream;
 
 /**
  *  Experimental class for annotating draws. Do not use directly yet.

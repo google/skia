@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkColorMatrix.h"
+#include "SkFlattenableBuffers.h"
 
 #define kRScale     0
 #define kGScale     6

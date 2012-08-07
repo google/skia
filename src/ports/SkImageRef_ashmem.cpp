@@ -214,14 +214,7 @@ void SkImageRef_ashmem::onUnlockPixels() {
 
 void SkImageRef_ashmem::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    const char* uri = getURI();
-    if (uri) {
-        size_t len = strlen(uri);
-        buffer.write32(len);
-        buffer.writePad(uri, len);
-    } else {
-        buffer.write32(0);
-    }
+    buffer.writeString(getURI());
 }
 
 SkImageRef_ashmem::SkImageRef_ashmem(SkFlattenableReadBuffer& buffer)
@@ -231,17 +224,12 @@ SkImageRef_ashmem::SkImageRef_ashmem(SkFlattenableReadBuffer& buffer)
     fRec.fSize = 0;
     fRec.fPinned = false;
     fCT = NULL;
-    size_t length = buffer.readU32();
-    if (length) {
-        char* buf = (char*) malloc(length);
-        buffer.read(buf, length);
-        setURI(buf, length);
+    const char* uri = buffer.readString();
+    if (uri) {
+        setURI(uri);
+        sk_free(uri);
     }
     this->useDefaultMutex();   // we don't need/want the shared imageref mutex
-}
-
-SkPixelRef* SkImageRef_ashmem::Create(SkFlattenableReadBuffer& buffer) {
-    return SkNEW_ARGS(SkImageRef_ashmem, (buffer));
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkImageRef_ashmem)

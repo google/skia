@@ -8,6 +8,7 @@
 #include "SkColorMatrixFilter.h"
 #include "SkColorMatrix.h"
 #include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
 #include "SkUnPreMultiply.h"
 
 static int32_t rowmul4(const int32_t array[], unsigned r, unsigned g,
@@ -299,14 +300,14 @@ void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
 
 void SkColorMatrixFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    // TODO: buffer.writeScalars(array, N)?
-    buffer.write(fMatrix.fMat, sizeof(fMatrix.fMat));
+    SkASSERT(sizeof(fMatrix.fMat)/sizeof(SkScalar) == 20);
+    buffer.writeScalarArray(fMatrix.fMat, 20);
 }
 
 SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {
-    // TODO: buffer.readScalars(array, N)?
-    buffer.read(fMatrix.fMat, sizeof(fMatrix.fMat));
+    SkASSERT(buffer.getArrayCount() == 20);
+    buffer.readScalarArray(fMatrix.fMat);
     this->initState(fMatrix.fMat);
 }
 

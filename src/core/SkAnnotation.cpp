@@ -7,6 +7,7 @@
 
 #include "SkAnnotation.h"
 #include "SkDataSet.h"
+#include "SkFlattenableBuffers.h"
 #include "SkStream.h"
 
 SkAnnotation::SkAnnotation(SkDataSet* data, uint32_t flags) {
@@ -28,12 +29,12 @@ SkData* SkAnnotation::find(const char name[]) const {
 }
 
 SkAnnotation::SkAnnotation(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fFlags = buffer.readU32();
-    fDataSet = (SkDataSet*)buffer.readFlattenable();
+    fFlags = buffer.readUInt();
+    fDataSet = buffer.readFlattenableT<SkDataSet>();
 }
 
 void SkAnnotation::flatten(SkFlattenableWriteBuffer& buffer) const {
-    buffer.write32(fFlags);
+    buffer.writeUInt(fFlags);
     buffer.writeFlattenable(fDataSet);
 }
 

@@ -7,6 +7,7 @@
  */
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkFlattenableBuffers.h"
 #include "SkLayerDrawLooper.h"
 #include "SkPaint.h"
 #include "SkUnPreMultiply.h"
@@ -204,10 +205,9 @@ void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeInt(rec->fInfo.fFlagsMask);
         buffer.writeInt(rec->fInfo.fPaintBits);
         buffer.writeInt(rec->fInfo.fColorMode);
-        buffer.writeScalar(rec->fInfo.fOffset.fX);
-        buffer.writeScalar(rec->fInfo.fOffset.fY);
+        buffer.writePoint(rec->fInfo.fOffset);
         buffer.writeBool(rec->fInfo.fPostTranslate);
-        rec->fPaint.flatten(buffer);
+        buffer.writePaint(rec->fPaint);
         rec = rec->fNext;
     }
 }
@@ -224,10 +224,9 @@ SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
         info.fFlagsMask = buffer.readInt();
         info.fPaintBits = buffer.readInt();
         info.fColorMode = (SkXfermode::Mode)buffer.readInt();
-        info.fOffset.fX = buffer.readScalar();
-        info.fOffset.fY = buffer.readScalar();
+        buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
-        this->addLayer(info)->unflatten(buffer);
+        buffer.readPaint(this->addLayer(info));
     }
     SkASSERT(count == fCount);
 

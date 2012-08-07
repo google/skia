@@ -10,6 +10,7 @@
 #include "SkBlitRow.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
 #include "SkUtils.h"
 
 #define ILLEGAL_XFERMODE_MODE   ((SkXfermode::Mode)-1)
@@ -79,13 +80,13 @@ public:
 protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
-        buffer.write32(fColor);
-        buffer.write32(fMode);
+        buffer.writeColor(fColor);
+        buffer.writeUInt(fMode);
     }
 
     SkModeColorFilter(SkFlattenableReadBuffer& buffer) {
-        fColor = buffer.readU32();
-        fMode = (SkXfermode::Mode)buffer.readU32();
+        fColor = buffer.readColor();
+        fMode = (SkXfermode::Mode)buffer.readUInt();
         this->updateCache();
     }
 
@@ -265,13 +266,13 @@ public:
 protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
-        buffer.write32(fMul);
-        buffer.write32(fAdd);
+        buffer.writeColor(fMul);
+        buffer.writeColor(fAdd);
     }
 
     SkLightingColorFilter(SkFlattenableReadBuffer& buffer) {
-        fMul = buffer.readU32();
-        fAdd = buffer.readU32();
+        fMul = buffer.readColor();
+        fAdd = buffer.readColor();
     }
 
     SkColor fMul, fAdd;
