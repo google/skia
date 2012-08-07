@@ -1,12 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkFloatBits.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 
 /******************************************************************************
     SkFloatBits_toInt[Floor, Round, Ceil] are identical except for what they

@@ -10,6 +10,7 @@
 #include "SkXfermode.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
+#include "SkMathPriv.h"
 
 SK_DEFINE_INST_COUNT(SkXfermode)
 

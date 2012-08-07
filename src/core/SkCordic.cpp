@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkCordic.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 #include "Sk64.h"
 
 // 0x20000000 equals pi / 4

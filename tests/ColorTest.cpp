@@ -8,7 +8,7 @@
 #include "Test.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkRandom.h"
 #include "SkUnPreMultiply.h"
 
