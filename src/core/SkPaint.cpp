@@ -20,6 +20,7 @@
 #include "SkScalerContext.h"
 #include "SkStroke.h"
 #include "SkTextFormatParams.h"
+#include "SkTextToPathIter.h"
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 #include "SkAutoKern.h"
