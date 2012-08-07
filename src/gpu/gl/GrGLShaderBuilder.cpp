@@ -291,6 +291,32 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     }
 }
 
+void GrGLShaderBuilder::emitFunction(ShaderType shader,
+                                     GrSLType returnType,
+                                     const char* name,
+                                     int argCnt,
+                                     const GrGLShaderVar* args,
+                                     const char* body,
+                                     SkString* outName) {
+    GrAssert(kFragment_ShaderType == shader);
+    fFSFunctions.append(GrGLShaderVar::TypeString(returnType));
+    if (kNonStageIdx != fCurrentStage) {
+        outName->printf(" %s_%d", name, fCurrentStage);
+    } else {
+        *outName = name;
+    }
+    fFSFunctions.append(*outName);
+    fFSFunctions.append("(");
+    for (int i = 0; i < argCnt; ++i) {
+        args[i].appendDecl(fContext, &fFSFunctions);
+        if (i < argCnt - 1) {
+            fFSFunctions.append(", ");
+        }
+    }
+    fFSFunctions.append(") {\n");
+    fFSFunctions.append(body);
+    fFSFunctions.append("}\n\n");
+}
 
 namespace {
 
@@ -321,6 +347,7 @@ inline void append_default_precision_qualifier(GrGLShaderVar::Precision p,
 void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
     for (int i = 0; i < vars.count(); ++i) {
         vars[i].appendDecl(fContext, out);
+        out->append(";\n");
     }
 }
 
@@ -328,6 +355,7 @@ void GrGLShaderBuilder::appendUniformDecls(ShaderType stype, SkString* out) cons
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & stype) {
             fUniforms[i].fVariable.appendDecl(fContext, out);
+            out->append(";\n");
         }
     }
 }

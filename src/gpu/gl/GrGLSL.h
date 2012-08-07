@@ -35,6 +35,7 @@ enum GrGLSLGeneration {
  * langauges.)
  */
 enum GrSLType {
+    kVoid_GrSLType,
     kFloat_GrSLType,
     kVec2f_GrSLType,
     kVec3f_GrSLType,

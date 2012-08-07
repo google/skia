@@ -66,6 +66,16 @@ public:
                                  const char* samplerName,
                                  const char* coordName);
 
+    /** Emits a helper function outside of main(). Currently ShaderType must be
+        kFragment_ShaderType. */
+    void emitFunction(ShaderType shader,
+                      GrSLType returnType,
+                      const char* name,
+                      int argCnt,
+                      const GrGLShaderVar* args,
+                      const char* body,
+                      SkString* outName);
+
     /** Generates a StageKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
         have multiple representations, based on the type/format of textures used. */
@@ -144,7 +154,6 @@ public:
     VarArray    fFSInputs;
     SkString    fGSHeader; // layout qualifiers specific to GS
     VarArray    fFSOutputs;
-    SkString    fFSFunctions;
     SkString    fVSCode;
     SkString    fGSCode;
     SkString    fFSCode;
@@ -176,6 +185,7 @@ private:
     const GrGLContextInfo&  fContext;
     GrGLUniformManager&     fUniformManager;
     int                     fCurrentStage;
+    SkString                fFSFunctions;
 };
 
 #endif

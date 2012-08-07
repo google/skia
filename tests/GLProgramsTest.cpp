@@ -13,8 +13,8 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "gl/GrGpuGL.h"
-#include "SkLightingImageFilter.h"
 #include "GrProgramStageFactory.h"
+
 #include "GrRandom.h"
 #include "Test.h"
 
@@ -35,10 +35,6 @@ bool random_bool(GrRandom* r) {
     return r->nextF() > .5f;
 }
 
-SkPoint3 random_point3(GrRandom* r) {
-    return SkPoint3(r->nextF(), r->nextF(), r->nextF());
-}
-
 typedef GrGLProgram::StageDesc StageDesc;
 // TODO: Effects should be able to register themselves for inclusion in the
 // randomly generated shaders. They should be able to configure themselves
@@ -47,23 +43,6 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
                                           GrRandom* random,
                                           GrContext* context,
                                           GrTexture* dummyTextures[]) {
-    enum EffectType {
-        /**
-         * Lighting effects don't work in unit test because they assume they insert functions and
-         * assume the names are unique. This breaks when there are two light effects in the same
-         * shader.
-         */
-        /*
-        kDiffuseDistant_EffectType,
-        kDiffusePoint_EffectType,
-        kDiffuseSpot_EffectType,
-        kSpecularDistant_EffectType,
-        kSpecularPoint_EffectType,
-        kSpecularSpot_EffectType,
-        */
-
-        kEffectCount
-    };
 
     // TODO: Remove this when generator doesn't apply this non-custom-stage
     // notion to custom stages automatically.
@@ -75,112 +54,11 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
     // TODO: Remove GrRandom.
     SkRandom sk_random;
     sk_random.setSeed(random->nextU());
-
-    bool useFactory = random_bool(random);
-    if (useFactory) {
-        GrCustomStage* stage = GrCustomStageTestFactory::CreateStage(&sk_random,
-                                                                     context,
-                                                                     dummyTextures);
-        GrAssert(stage);
-        return stage;
-    }
-
-
-    // TODO: When matrices are property of the custom-stage then remove the
-    // no-persp flag code below.
-    int effect = random_int(random, kEffectCount);
-/*    switch (effect) {
-        case kDiffuseDistant_EffectType: {
-            SkPoint3 direction = random_point3(random);
-            direction.normalize();
-            SkColor lightColor = random->nextU();
-            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
-            SkScalar kd = SkFloatToScalar(random->nextF());
-            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateDistantLitDiffuse(direction, lightColor, surfaceScale, kd));
-            // does not work with perspective or mul-by-alpha-mask
-            GrCustomStage* stage;
-            bool ok = filter->asNewCustomStage(&stage, NULL);
-            SkASSERT(ok);
-            return stage;
-        }
-        case kDiffusePoint_EffectType: {
-            SkPoint3 location = random_point3(random);
-            SkColor lightColor = random->nextU();
-            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
-            SkScalar kd = SkFloatToScalar(random->nextF());
-            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreatePointLitDiffuse(location, lightColor, surfaceScale, kd));
-            // does not work with perspective or mul-by-alpha-mask
-            GrCustomStage* stage;
-            bool ok = filter->asNewCustomStage(&stage, NULL);
-            SkASSERT(ok);
-            return stage;
-        }
-        case kDiffuseSpot_EffectType: {
-            SkPoint3 location = random_point3(random);
-            SkPoint3 target = random_point3(random);
-            SkScalar cutoffAngle = SkFloatToScalar(random->nextF());
-            SkScalar specularExponent = SkFloatToScalar(random->nextF());
-            SkColor lightColor = random->nextU();
-            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
-            SkScalar ks = SkFloatToScalar(random->nextF());
-            SkScalar shininess = SkFloatToScalar(random->nextF());
-            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateSpotLitSpecular(
-                location, target, specularExponent, cutoffAngle, lightColor, surfaceScale, ks, shininess));
-            // does not work with perspective or mul-by-alpha-mask
-            GrCustomStage* stage;
-            bool ok = filter->asNewCustomStage(&stage, NULL);
-            SkASSERT(ok);
-            return stage;
-        }
-        case kSpecularDistant_EffectType: {
-            SkPoint3 direction = random_point3(random);
-            direction.normalize();
-            SkColor lightColor = random->nextU();
-            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
-            SkScalar ks = SkFloatToScalar(random->nextF());
-            SkScalar shininess = SkFloatToScalar(random->nextF());
-            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateDistantLitSpecular(direction, lightColor, surfaceScale, ks, shininess));
-            // does not work with perspective or mul-by-alpha-mask
-            GrCustomStage* stage;
-            bool ok = filter->asNewCustomStage(&stage, NULL);
-            SkASSERT(ok);
-            return stage;
-        }
-        case kSpecularPoint_EffectType: {
-            SkPoint3 location = random_point3(random);
-            SkColor lightColor = random->nextU();
-            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
-            SkScalar ks = SkFloatToScalar(random->nextF());
-            SkScalar shininess = SkFloatToScalar(random->nextF());
-            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreatePointLitSpecular(location, lightColor, surfaceScale, ks, shininess));
-            // does not work with perspective or mul-by-alpha-mask
-            GrCustomStage* stage;
-            bool ok = filter->asNewCustomStage(&stage, NULL);
-            SkASSERT(ok);
-            return stage;
-        }
-        case kSpecularSpot_EffectType: {
-            SkPoint3 location = random_point3(random);
-            SkPoint3 target = random_point3(random);
-            SkScalar cutoffAngle = SkFloatToScalar(random->nextF());
-            SkScalar specularExponent = SkFloatToScalar(random->nextF());
-            SkColor lightColor = random->nextU();
-            SkScalar surfaceScale = SkFloatToScalar(random->nextF());
-            SkScalar ks = SkFloatToScalar(random->nextF());
-            SkScalar shininess = SkFloatToScalar(random->nextF());
-            SkAutoTUnref<SkImageFilter> filter(SkLightingImageFilter::CreateSpotLitSpecular(
-                location, target, specularExponent, cutoffAngle, lightColor, surfaceScale, ks, shininess));
-            // does not work with perspective or mul-by-alpha-mask
-            GrCustomStage* stage;
-            bool ok = filter->asNewCustomStage(&stage, NULL);
-            SkASSERT(ok);
-            return stage;
-        }
-        default:
-            GrCrash("Unexpected custom effect type");
-    }
-    */
-    return NULL;
+    GrCustomStage* stage = GrCustomStageTestFactory::CreateStage(&sk_random,
+                                                                    context,
+                                                                    dummyTextures);
+    GrAssert(stage);
+    return stage;
 }
 }
 
@@ -320,5 +198,18 @@ static void GLProgramsTest(skiatest::Reporter* reporter, GrContext* context) {
 
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
+
+// This is evil evil evil. The linker may throw away whole translation units as dead code if it 
+// thinks none of the functions are called. It will do this even if there are static initilializers
+// in the unit that could pass pointers to functions from the unit out to other translation units!
+// We force some of the effects that would otherwise be discarded to link here.
+
+#include "SkLightingImageFilter.h"
+
+void forceLinking();
+
+void forceLinking() {
+    SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
+}
 
 #endif
