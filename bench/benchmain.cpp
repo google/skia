@@ -24,6 +24,7 @@
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkDeferredCanvas.h"
+#include "SkDevice.h"
 #include "SkColorPriv.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
