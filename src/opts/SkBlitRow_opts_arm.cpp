@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
+#include "SkMathPriv.h"
 #include "SkUtils.h"
 
 #include "SkCachePreload_arm.h"
