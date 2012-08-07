@@ -2,6 +2,13 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 
+// Simple helper canvas that "takes ownership" of the provided device, so that
+// when this canvas goes out of scope, so will its device. Could be replaced
+// with the following:
+//
+//  SkCanvas canvas(device);
+//  SkAutoTUnref<SkDevice> aur(device);
+//
 class OwnDeviceCanvas : public SkCanvas {
 public:
     OwnDeviceCanvas(SkDevice* device) : SkCanvas(device) {
