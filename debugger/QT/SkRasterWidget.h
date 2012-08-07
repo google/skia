@@ -11,7 +11,7 @@
 
 #include "SkGpuDevice.h"
 #include "SkDevice.h"
-#include "SkDebugCanvas.h"
+#include "SkDebugger.h"
 
 #include <QApplication>
 #include <QtGui>
@@ -21,35 +21,12 @@ class  SkRasterWidget : public QWidget {
     Q_OBJECT
 
 public:
-    SkRasterWidget();
+    SkRasterWidget(SkDebugger* debugger);
 
     ~SkRasterWidget();
 
-    void drawTo(int index) {
-        fIndex = index;
+    void draw() {
         this->update();
-    }
-
-    void setDebugCanvas(SkDebugCanvas* debugCanvas) {
-        fDebugCanvas = debugCanvas;
-        fIndex = debugCanvas->getSize() - 1;
-        this->update();
-    }
-
-    int getBitmapHeight() {
-        return fBitmap.height();
-    }
-
-    int getBitmapWidth() {
-        return fBitmap.width();
-    }
-
-    void setTranslate(SkIPoint transform) {
-        fTransform = transform;
-    }
-
-    void setScale(float scale) {
-        fScaleFactor = scale;
     }
 
 signals:
@@ -62,13 +39,9 @@ protected:
 
 private:
     SkBitmap fBitmap;
-    SkDebugCanvas* fDebugCanvas;
+    SkDebugger* fDebugger;
     SkCanvas* fCanvas;
     SkDevice* fDevice;
-
-    int fIndex;
-    SkIPoint fTransform;
-    float fScaleFactor;
 };
 
 #endif /* SKRASTERWIDGET_H_ */

@@ -12,7 +12,7 @@
 
 #include "SkCanvas.h"
 #include "SkCanvasWidget.h"
-#include "SkDebugCanvas.h"
+#include "SkDebugger.h"
 #include "SkGLWidget.h"
 #include "SkListWidget.h"
 #include "SkInspectorWidget.h"
@@ -238,6 +238,7 @@ private:
     QListWidget fListWidget;
     QListWidget fDirectoryWidget;
 
+    SkDebugger fDebugger;
     SkCanvasWidget fCanvasWidget;
     SkInspectorWidget fInspectorWidget;
     SkSettingsWidget fSettingsWidget;

@@ -73,7 +73,7 @@ public:
         Returns information about the command at the given index.
         @param index  The index of the command
      */
-    std::vector<std::string>* getCommandInfoAt(int index);
+    std::vector<std::string>* getCommandInfo(int index);
 
     /**
         Returns the visibility of the command at the given index.
