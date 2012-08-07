@@ -98,6 +98,21 @@ public:
      */
     void setMaxRecordingStorage(size_t maxStorage);
 
+    /**
+     *  Returns the number of bytes currently allocated for the purpose of
+     *  recording draw commands.
+     */
+    size_t storageAllocatedForRecording() const;
+
+    /**
+     * Attempt to reduce the storage allocated for recording by evicting
+     * cache resources.
+     * @param bytesToFree minimum number of bytes that should be attempted to
+     *   be freed.
+     * @return number of bytes actually freed.
+     */
+    size_t freeMemoryIfPossible(size_t bytesToFree);
+
     // Overrides of the SkCanvas interface
     virtual int save(SaveFlags flags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
@@ -241,6 +256,8 @@ public:
          */
         bool isFreshFrame();
 
+        size_t storageAllocatedForRecording() const;
+        size_t freeMemoryIfPossible(size_t bytesToFree);
         void flushPending();
         void contentsCleared();
         void setMaxRecordingStorage(size_t);

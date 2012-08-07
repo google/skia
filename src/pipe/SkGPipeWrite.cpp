@@ -290,6 +290,38 @@ public:
         this->setMostRecentlyUsed(info);
         return info;
     }
+
+    size_t freeMemoryIfPossible(size_t bytesToFree) {
+        BitmapInfo* info = fLeastRecentlyUsed;
+        size_t origBytesAllocated = fBytesAllocated;
+        // Purge starting from LRU until a non-evictable bitmap is found
+        // or until everything is evicted.
+        while (info && info->drawCount() == 0) {
+            fBytesAllocated -= (info->fBytesAllocated + sizeof(BitmapInfo));
+            fBitmapCount--;
+            BitmapInfo* nextInfo = info->fMoreRecentlyUsed;
+            SkDELETE(info);
+            info = nextInfo;
+            if ((origBytesAllocated - fBytesAllocated) >= bytesToFree) {
+                break;
+            }
+        }
+
+        if (fLeastRecentlyUsed != info) { // at least one eviction
+            fLeastRecentlyUsed = info;
+            if (NULL != fLeastRecentlyUsed) {
+                fLeastRecentlyUsed->fLessRecentlyUsed = NULL;
+            } else {
+                // everything was evicted
+                fMostRecentlyUsed = NULL;
+                SkASSERT(0 == fBytesAllocated);
+                SkASSERT(0 == fBitmapCount);
+            }
+        }
+
+        return origBytesAllocated - fBytesAllocated;
+    }
+
 private:
     void setMostRecentlyUsed(BitmapInfo* info);
     BitmapInfo* bitmapToReplace(const SkBitmap& bm) const;
@@ -386,6 +418,7 @@ public:
     }
 
     void flushRecording(bool detachCurrentBlock);
+    size_t freeMemoryIfPossible(size_t bytesToFree);
 
     size_t storageAllocatedForRecording() {
         return fSharedHeap.bytesAllocated();
@@ -1156,6 +1189,10 @@ void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
     }
 }
 
+size_t SkGPipeCanvas::freeMemoryIfPossible(size_t bytesToFree) {
+    return fSharedHeap.freeMemoryIfPossible(bytesToFree);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T> uint32_t castToU32(T value) {
@@ -1316,11 +1353,20 @@ void SkGPipeWriter::endRecording() {
     }
 }
 
-void SkGPipeWriter::flushRecording(bool detachCurrentBlock){
-    fCanvas->flushRecording(detachCurrentBlock);
+void SkGPipeWriter::flushRecording(bool detachCurrentBlock) {
+    if (fCanvas) {
+        fCanvas->flushRecording(detachCurrentBlock);
+    }
 }
 
-size_t SkGPipeWriter::storageAllocatedForRecording() {
+size_t SkGPipeWriter::freeMemoryIfPossible(size_t bytesToFree) {
+    if (fCanvas) {
+        return fCanvas->freeMemoryIfPossible(bytesToFree);
+    }
+    return 0;
+}
+
+size_t SkGPipeWriter::storageAllocatedForRecording() const {
     return NULL == fCanvas ? 0 : fCanvas->storageAllocatedForRecording();
 }
 

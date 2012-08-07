@@ -164,6 +164,18 @@ void SkDeferredCanvas::setMaxRecordingStorage(size_t maxStorage) {
     this->getDeferredDevice()->setMaxRecordingStorage(maxStorage);
 }
 
+size_t SkDeferredCanvas::storageAllocatedForRecording() const {
+    return this->getDeferredDevice()->storageAllocatedForRecording();
+}
+
+size_t SkDeferredCanvas::freeMemoryIfPossible(size_t bytesToFree) {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    return this->getDeferredDevice()->freeMemoryIfPossible(bytesToFree);
+#else
+    return 0;
+#endif
+}
+
 void SkDeferredCanvas::validate() const {
     SkASSERT(getDevice());
 }
@@ -690,12 +702,34 @@ void SkDeferredCanvas::DeferredDevice::flush() {
     fImmediateCanvas->flush();
 }
 
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+size_t SkDeferredCanvas::DeferredDevice::freeMemoryIfPossible(size_t bytesToFree) {
+    return fPipeWriter.freeMemoryIfPossible(bytesToFree);
+}
+#endif
+
+size_t SkDeferredCanvas::DeferredDevice::storageAllocatedForRecording() const {
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    return (fPipeController.storageAllocatedForRecording()
+            + fPipeWriter.storageAllocatedForRecording());
+#else
+    return 0;
+#endif
+}
+
 SkCanvas* SkDeferredCanvas::DeferredDevice::recordingCanvas() {
 #if SK_DEFERRED_CANVAS_USES_GPIPE
-    if (fPipeController.storageAllocatedForRecording()
-            + fPipeWriter.storageAllocatedForRecording()
-            > fMaxRecordingStorageBytes) {
-        this->flushPending();
+    size_t storageAllocated = this->storageAllocatedForRecording();
+    if (storageAllocated > fMaxRecordingStorageBytes) {
+        // First, attempt to reduce cache without flushing
+        size_t tryFree = storageAllocated - fMaxRecordingStorageBytes;
+        if (this->freeMemoryIfPossible(tryFree) < tryFree) {
+            // Flush is necessary to free more space.
+            this->flushPending();
+            // Free as much as possible to avoid oscillating around fMaxRecordingStorageBytes
+            // which could cause a high flushing frequency.
+            this->freeMemoryIfPossible(~0);
+        }
     }
 #endif
     return fRecordingCanvas;
