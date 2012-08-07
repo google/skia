@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -6,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkCordic.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"

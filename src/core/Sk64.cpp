@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -7,7 +6,7 @@
  */
 
 #include "Sk64.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 
 #define shift_left(hi, lo)          \
     hi = (hi << 1) | (lo >> 31);    \

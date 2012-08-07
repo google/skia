@@ -7,6 +7,7 @@
  */
 
 #include "SkMath.h"
+#include "SkMathPriv.h"
 
 #define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)

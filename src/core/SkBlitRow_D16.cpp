@@ -8,6 +8,7 @@
 #include "SkBlitRow.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
+#include "SkMathPriv.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

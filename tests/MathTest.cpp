@@ -7,7 +7,7 @@
  */
 #include "Test.h"
 #include "SkFloatingPoint.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
 #include "SkColorPriv.h"

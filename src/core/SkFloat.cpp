@@ -8,7 +8,7 @@
 
 
 #include "SkFloat.h"
-#include "SkMath.h"
+#include "SkMathPriv.h"
 
 #define EXP_BIAS    (127+23)
 
