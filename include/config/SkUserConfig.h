@@ -138,7 +138,7 @@
 /*  Define this to remove dimension checks on bitmaps. Not all blits will be
     correct yet, so this is mostly for debugging the implementation.
  */
-//#define SK_ALLOW_OVER_32K_BITMAPS
+#define SK_ALLOW_OVER_32K_BITMAPS
 
 /*  Define this to set the upper limit for text to support LCD. Values that
     are very large increase the cost in the font cache and draw slower, without
