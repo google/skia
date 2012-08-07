@@ -23,7 +23,12 @@ SkDebugCanvas::SkDebugCanvas(int width, int height) {
     fUserScale = 1.0;
 }
 
-SkDebugCanvas::~SkDebugCanvas() {}
+SkDebugCanvas::~SkDebugCanvas() {
+    for (int i = 0; i < commandVector.size(); i++) {
+        delete(commandVector[i]);
+    }
+    commandVector.clear();
+}
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
     commandVector.push_back(command);
