@@ -10,6 +10,7 @@
 
 #include "SkDeque.h"
 #include "SkRegion.h"
+#include "SkTDArray.h"
 
 struct SkRect;
 class SkPath;
@@ -75,6 +76,29 @@ public:
      * plane (i.e., draws are not limited at all)
      */
     bool isWideOpen() const;
+
+    /**
+     * Add a callback function that will be called whenever a clip state
+     * is no longer viable. This will occur whenever restore
+     * is called or when a clipDevRect or clipDevPath call updates the 
+     * clip within an existing save/restore state. Each clip state is
+     * represented by a unique generation ID.
+     */
+    typedef void (*PFPurgeClipCB)(int genID, void* data);
+    void addPurgeClipCallback(PFPurgeClipCB callback, void* data) const;
+
+    /**
+     * Remove a callback added earlier via addPurgeClipCallback
+     */
+    void removePurgeClipCallback(PFPurgeClipCB callback, void* data) const;
+
+    /**
+     * The generation ID has three reserved values to indicate special
+     * (potentially ignoreable) cases
+     */
+    static const int32_t kInvalidGenID = 0;
+    static const int32_t kEmptyGenID = 1;       // no pixels writeable
+    static const int32_t kWideOpenGenID = 2;    // all pixels writeable
 
 private:
     struct Rec;
@@ -198,6 +222,33 @@ private:
 
     SkDeque fDeque;
     int     fSaveCount;
+
+    // Generation ID for the clip stack. This is incremented for each
+    // clipDevRect and clipDevPath call. 0 is reserved to indicate an
+    // invalid ID.
+    static int32_t     gGenID;
+
+    struct ClipCallbackData {
+        PFPurgeClipCB   fCallback;
+        void*           fData;
+
+        friend bool operator==(const ClipCallbackData& a,
+                               const ClipCallbackData& b) {
+            return a.fCallback == b.fCallback && a.fData == b.fData;
+        }
+    };
+
+    mutable SkTDArray<ClipCallbackData> fCallbackData;
+
+    /**
+     * Invoke all the purge callbacks passing in rec's generation ID.
+     */
+    void purgeClip(Rec* rec);
+
+    /**
+     * Return the next unique generation ID.
+     */
+    static int32_t GetNextGenID();
 };
 
 #endif
