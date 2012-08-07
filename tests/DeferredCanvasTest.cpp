@@ -216,12 +216,82 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
 #endif
 }
 
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
+    SkBitmap store;
+    store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    store.allocPixels();
+    SkDevice device(store);
+    SkDeferredCanvas canvas(&device);
+
+    const int imageCount = 2;
+    SkBitmap sourceImages[imageCount];
+    for (int i = 0; i < imageCount; i++)
+    {
+        sourceImages[i].setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+        sourceImages[i].allocPixels();
+    }
+
+    size_t bitmapSize = sourceImages[0].getSize();
+
+    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    // stored bitmap + drawBitmap command
+    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > bitmapSize);
+    
+    // verify that nothing can be freed at this point
+    REPORTER_ASSERT(reporter, 0 == canvas.freeMemoryIfPossible(~0));
+
+    // verify that flush leaves image in cache
+    canvas.flush();
+    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() >= bitmapSize);
+
+    // verify that after a flush, cached image can be freed
+    REPORTER_ASSERT(reporter, canvas.freeMemoryIfPossible(~0) >= bitmapSize);
+
+    // Verify that caching works for avoiding multiple copies of the same bitmap
+    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() < 2 * bitmapSize);
+
+    // Verify partial eviction based on bytesToFree
+    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
+    canvas.flush();
+    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > 2 * bitmapSize);
+    size_t bytesFreed = canvas.freeMemoryIfPossible(1);
+    REPORTER_ASSERT(reporter,  bytesFreed >= bitmapSize);
+    REPORTER_ASSERT(reporter,  bytesFreed < 2*bitmapSize);
+
+    // Verifiy that partial purge works, image zero is in cache but not reffed by 
+    // a pending draw, while image 1 is locked-in.
+    canvas.freeMemoryIfPossible(~0);
+    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    canvas.flush();
+    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
+    bytesFreed = canvas.freeMemoryIfPossible(~0);
+    // only one bitmap should have been freed.
+    REPORTER_ASSERT(reporter,  bytesFreed >= bitmapSize);
+    REPORTER_ASSERT(reporter,  bytesFreed < 2*bitmapSize);
+    // Clear for next test
+    canvas.flush();
+    canvas.freeMemoryIfPossible(~0);
+    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() < bitmapSize);
+
+    // Verify the image cache is sensitive to genID bumps
+    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
+    sourceImages[1].notifyPixelsChanged();
+    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
+    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > 2*bitmapSize);
+}
+#endif
 
 static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
     TestDeferredCanvasFreshFrame(reporter);
     TestDeferredCanvasMemoryLimit(reporter);
+#if SK_DEFERRED_CANVAS_USES_GPIPE
+    TestDeferredCanvasBitmapCaching(reporter);
+#endif
 }
 
 #include "TestClassDef.h"

@@ -124,7 +124,16 @@ public:
      * Currently only returns the amount used for SkBitmaps, since they are
      * potentially unbounded (if the client is not calling playback).
      */
-    size_t storageAllocatedForRecording();
+    size_t storageAllocatedForRecording() const;
+
+    /**
+     * Attempt to reduce the storage allocated for recording by evicting
+     * cache resources.
+     * @param bytesToFree minimum number of bytes that should be attempted to
+     *   be freed.
+     * @return number of bytes actually freed.
+     */
+    size_t freeMemoryIfPossible(size_t bytesToFree);
 
 private:
     SkGPipeCanvas* fCanvas;
