@@ -86,7 +86,6 @@ struct SkClipStack::Rec {
 
     bool operator==(const Rec& b) const {
         if (fSaveCount != b.fSaveCount || 
-            fGenID != b.fGenID ||
             fOp != b.fOp || 
             fState != b.fState ||
             fDoAA != b.fDoAA) {
