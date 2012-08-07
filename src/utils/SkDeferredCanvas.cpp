@@ -169,11 +169,7 @@ size_t SkDeferredCanvas::storageAllocatedForRecording() const {
 }
 
 size_t SkDeferredCanvas::freeMemoryIfPossible(size_t bytesToFree) {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     return this->getDeferredDevice()->freeMemoryIfPossible(bytesToFree);
-#else
-    return 0;
-#endif
 }
 
 void SkDeferredCanvas::validate() const {
@@ -518,8 +514,6 @@ SkCanvas* SkDeferredCanvas::canvasForDrawIter() {
     return drawingCanvas();
 }
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
-
 // SkDeferredCanvas::DeferredPipeController
 //-------------------------------------------
 
@@ -576,8 +570,6 @@ void SkDeferredCanvas::DeferredPipeController::reset() {
     fAllocator.reset();
 }
 
-#endif // SK_DEFERRED_CANVAS_USES_GPIPE
-
 // SkDeferredCanvas::DeferredDevice
 //------------------------------------
 
@@ -592,9 +584,7 @@ SkDeferredCanvas::DeferredDevice::DeferredDevice(
     SkSafeRef(fDeviceContext);
     fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeController.setPlaybackCanvas(fImmediateCanvas);
-#endif
     beginRecording();
 }
 
@@ -610,22 +600,13 @@ void SkDeferredCanvas::DeferredDevice::setMaxRecordingStorage(size_t maxStorage)
 }
 
 void SkDeferredCanvas::DeferredDevice::endRecording() {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeWriter.endRecording();
     fPipeController.reset();
-#else
-    fPicture.endRecording();
-#endif
     fRecordingCanvas = NULL;
 }
 
 void SkDeferredCanvas::DeferredDevice::beginRecording() {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0);
-#else
-    fRecordingCanvas = fPicture.beginRecording(fImmediateDevice->width(),
-        fImmediateDevice->height());
-#endif
 }
     
 void SkDeferredCanvas::DeferredDevice::setDeviceContext(
@@ -675,26 +656,15 @@ bool SkDeferredCanvas::DeferredDevice::isFreshFrame() {
 }
 
 void SkDeferredCanvas::DeferredDevice::flushPending() {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     if (!fPipeController.hasRecorded()) {
         return;
     }
-#else
-    if (!fPicture.hasRecorded()) {
-        return;
-    }
-#endif
     if (fDeviceContext) {
         fDeviceContext->prepareForDraw();
     }
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     fPipeWriter.flushRecording(true);
     fPipeController.playback();
-#else
-    fPicture.draw(fImmediateCanvas);
-    this->beginRecording();
-#endif
 }
 
 void SkDeferredCanvas::DeferredDevice::flush() {
@@ -702,23 +672,16 @@ void SkDeferredCanvas::DeferredDevice::flush() {
     fImmediateCanvas->flush();
 }
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
 size_t SkDeferredCanvas::DeferredDevice::freeMemoryIfPossible(size_t bytesToFree) {
     return fPipeWriter.freeMemoryIfPossible(bytesToFree);
 }
-#endif
 
 size_t SkDeferredCanvas::DeferredDevice::storageAllocatedForRecording() const {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     return (fPipeController.storageAllocatedForRecording()
             + fPipeWriter.storageAllocatedForRecording());
-#else
-    return 0;
-#endif
 }
 
 SkCanvas* SkDeferredCanvas::DeferredDevice::recordingCanvas() {
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     size_t storageAllocated = this->storageAllocatedForRecording();
     if (storageAllocated > fMaxRecordingStorageBytes) {
         // First, attempt to reduce cache without flushing
@@ -731,7 +694,6 @@ SkCanvas* SkDeferredCanvas::DeferredDevice::recordingCanvas() {
             this->freeMemoryIfPossible(~0);
         }
     }
-#endif
     return fRecordingCanvas;
 }
 

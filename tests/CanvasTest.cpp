@@ -756,14 +756,12 @@ static void TestDeferredCanvasStateConsistency(
     AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
         testStep);
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     deferredCanvas.flush();
     testStep->setAssertMessageFormat(
         kDeferredPostFlushPlaybackAssertMessageFormat);
     AssertCanvasStatesEqual(reporter, 
         deferredCanvas.getDeferredDevice()->immediateCanvas(),
         &referenceCanvas, testStep);
-#endif
 
     // Verified that deferred canvas state is not affected by flushing
     // pending draw operations
