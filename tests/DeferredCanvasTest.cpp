@@ -210,13 +210,9 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
         canvas.drawBitmap(sourceImage, 0, 0, NULL);
     }
 
-    // SkPicture path is not fixed
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 4);
-#endif
 }
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
 static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     SkBitmap store;
     store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
@@ -282,16 +278,13 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > 2*bitmapSize);
 }
-#endif
 
 static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
     TestDeferredCanvasFreshFrame(reporter);
     TestDeferredCanvasMemoryLimit(reporter);
-#if SK_DEFERRED_CANVAS_USES_GPIPE
     TestDeferredCanvasBitmapCaching(reporter);
-#endif
 }
 
 #include "TestClassDef.h"

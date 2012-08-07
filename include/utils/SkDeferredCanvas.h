@@ -8,20 +8,12 @@
 #ifndef SkDeferredCanvas_DEFINED
 #define SkDeferredCanvas_DEFINED
 
-#ifndef SK_DEFERRED_CANVAS_USES_GPIPE
-#define SK_DEFERRED_CANVAS_USES_GPIPE 1
-#endif
-
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkPixelRef.h"
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
 #include "SkGPipe.h"
 #include "SkChunkAlloc.h"
-#else
-#include "SkPicture.h"
-#endif
 
 /** \class SkDeferredCanvas
     Subclass of SkCanvas that encapsulates an SkPicture or SkGPipe for deferred
@@ -184,7 +176,6 @@ public:
         typedef SkRefCnt INHERITED;
     };
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
 protected:
     class DeferredPipeController : public SkGPipeController {
     public:
@@ -212,7 +203,6 @@ protected:
         SkTDArray<PipeBlock> fBlockList;
         SkGPipeReader fReader;
     };
-#endif
 
 public:
     class DeferredDevice : public SkDevice {
@@ -347,12 +337,8 @@ public:
         void endRecording();
         void beginRecording();
 
-#if SK_DEFERRED_CANVAS_USES_GPIPE
         DeferredPipeController fPipeController;
         SkGPipeWriter  fPipeWriter;
-#else
-        SkPicture fPicture;
-#endif
         SkDevice* fImmediateDevice;
         SkCanvas* fImmediateCanvas;
         SkCanvas* fRecordingCanvas;
