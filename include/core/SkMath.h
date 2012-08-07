@@ -31,6 +31,10 @@ int32_t SkDivBits(int32_t numer, int32_t denom, int shift);
  */
 int32_t SkSqrtBits(int32_t value, int bitBias);
 
+/** Return the integer square root of n, treated as a SkFixed (16.16)
+ */
+#define SkSqrt32(n)         SkSqrtBits(n, 15)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Returns the number of leading zero bits (0...32)

@@ -53,10 +53,6 @@ static inline unsigned SkClampUMax(unsigned value, unsigned max) {
  */
 int32_t SkMulShift(int32_t a, int32_t b, unsigned shift);
 
-/** Return the integer square root of n, treated as a SkFixed (16.16)
- */
-#define SkSqrt32(n)         SkSqrtBits(n, 15)
-
 /** Return the integer cube root of value, with a bias of bitBias
  */
 int32_t SkCubeRootBits(int32_t value, int bitBias);
