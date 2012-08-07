@@ -1321,13 +1321,15 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
     const SkPath* iterPath;
     SkScalar xpos, prevXPos = 0;
 
-    while ((iterPath = iter.next(&xpos)) != NULL) {
+    while (iter.next(&iterPath, &xpos)) {
         matrix.postTranslate(xpos - prevXPos, 0);
-        const SkPaint& pnt = iter.getPaint();
-        if (fDevice) {
-            fDevice->drawPath(*this, *iterPath, pnt, &matrix, false);
-        } else {
-            this->drawPath(*iterPath, pnt, &matrix, false);
+        if (iterPath) {
+            const SkPaint& pnt = iter.getPaint();
+            if (fDevice) {
+                fDevice->drawPath(*this, *iterPath, pnt, &matrix, false);
+            } else {
+                this->drawPath(*iterPath, pnt, &matrix, false);
+            }
         }
         prevXPos = xpos;
     }
@@ -1999,19 +2001,21 @@ void SkDraw::drawTextOnPath(const char text[], size_t byteLength,
 
     scaledMatrix.setScale(scale, scale);
 
-    while ((iterPath = iter.next(&xpos)) != NULL) {
-        SkPath      tmp;
-        SkMatrix    m(scaledMatrix);
+    while (iter.next(&iterPath, &xpos)) {
+        if (iterPath) {
+            SkPath      tmp;
+            SkMatrix    m(scaledMatrix);
 
-        m.postTranslate(xpos + hOffset, 0);
-        if (matrix) {
-            m.postConcat(*matrix);
-        }
-        morphpath(&tmp, *iterPath, meas, m);
-        if (fDevice) {
-            fDevice->drawPath(*this, tmp, iter.getPaint(), NULL, true);
-        } else {
-            this->drawPath(tmp, iter.getPaint(), NULL, true);
+            m.postTranslate(xpos + hOffset, 0);
+            if (matrix) {
+                m.postConcat(*matrix);
+            }
+            morphpath(&tmp, *iterPath, meas, m);
+            if (fDevice) {
+                fDevice->drawPath(*this, tmp, iter.getPaint(), NULL, true);
+            } else {
+                this->drawPath(tmp, iter.getPaint(), NULL, true);
+            }
         }
     }
 }
