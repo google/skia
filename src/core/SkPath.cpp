@@ -1709,7 +1709,9 @@ uint32_t SkPath::writeToMemory(void* storage) const {
     SkWBuffer   buffer(storage);
     buffer.write32(fPts.count());
     buffer.write32(fVerbs.count());
-    buffer.write32((fFillType << 8) | fSegmentMask);
+    int32_t packed = (fIsOval << 24) | (fConvexity << 16) | 
+                     (fFillType << 8) | fSegmentMask;
+    buffer.write32(packed);
     buffer.write(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.write(fVerbs.begin(), fVerbs.count());
     buffer.padToAlign4();
@@ -1721,7 +1723,7 @@ uint32_t SkPath::readFromMemory(const void* storage) {
     fPts.setCount(buffer.readS32());
     fVerbs.setCount(buffer.readS32());
     uint32_t packed = buffer.readS32();
-    fFillType = packed >> 8;
+    fFillType = (packed >> 8) & 0xFF;
     fSegmentMask = packed & 0xFF;
     buffer.read(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.read(fVerbs.begin(), fVerbs.count());
@@ -1729,6 +1731,9 @@ uint32_t SkPath::readFromMemory(const void* storage) {
 
     GEN_ID_INC;
     DIRTY_AFTER_EDIT;
+    // DIRTY_AFTER_EDIT resets fIsOval and fConvexity
+    fIsOval =    packed >> 24;
+    fConvexity = (packed >> 16) & 0xFF;
 
     SkDEBUGCODE(this->validate();)
     return buffer.pos();
