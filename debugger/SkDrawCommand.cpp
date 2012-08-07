@@ -7,9 +7,6 @@
  */
 
 
-#include <cstring>
-#include <iostream>
-#include <string>
 #include "SkDrawCommand.h"
 #include "SkObjectParser.h"
 
@@ -20,6 +17,7 @@ SkDrawCommand::SkDrawCommand() {
 }
 
 SkDrawCommand::~SkDrawCommand() {
+    fInfo.deleteAll();
 }
 
 const char* SkDrawCommand::GetCommandString(DrawType type) {
@@ -63,16 +61,14 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
     return NULL;
 }
 
-std::string SkDrawCommand::toString() {
-    std::stringstream ss;
-    ss << GetCommandString(fDrawType);
-    return ss.str();
+SkString SkDrawCommand::toString() {
+    return SkString(GetCommandString(fDrawType));
 }
 
 Clear::Clear(SkColor color) {
     this->fColor = color;
     this->fDrawType = DRAW_CLEAR;
-    this->fInfo.push_back(std::string("No Parameters"));
+    this->fInfo.push(SkObjectParser::CustomTextToString("No Parameters"));
 }
 
 void Clear::execute(SkCanvas* canvas) {
@@ -85,9 +81,9 @@ ClipPath::ClipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     this->fDoAA = doAA;
     this->fDrawType = CLIP_PATH;
 
-    this->fInfo.push_back(SkObjectParser::PathToString(path));
-    this->fInfo.push_back(SkObjectParser::RegionOpToString(op));
-    this->fInfo.push_back(SkObjectParser::BoolToString(doAA));
+    this->fInfo.push(SkObjectParser::PathToString(path));
+    this->fInfo.push(SkObjectParser::RegionOpToString(op));
+    this->fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
 void ClipPath::execute(SkCanvas* canvas) {
@@ -99,8 +95,8 @@ ClipRegion::ClipRegion(const SkRegion& region, SkRegion::Op op) {
     this->fOp = op;
     this->fDrawType = CLIP_REGION;
 
-    this->fInfo.push_back(SkObjectParser::RegionToString(region));
-    this->fInfo.push_back(SkObjectParser::RegionOpToString(op));
+    this->fInfo.push(SkObjectParser::RegionToString(region));
+    this->fInfo.push(SkObjectParser::RegionOpToString(op));
 }
 
 void ClipRegion::execute(SkCanvas* canvas) {
@@ -113,9 +109,9 @@ ClipRect::ClipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     this->fDoAA = doAA;
     this->fDrawType = CLIP_RECT;
 
-    this->fInfo.push_back(SkObjectParser::RectToString(rect));
-    this->fInfo.push_back(SkObjectParser::RegionOpToString(op));
-    this->fInfo.push_back(SkObjectParser::BoolToString(doAA));
+    this->fInfo.push(SkObjectParser::RectToString(rect));
+    this->fInfo.push(SkObjectParser::RegionOpToString(op));
+    this->fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
 void ClipRect::execute(SkCanvas* canvas) {
@@ -126,7 +122,7 @@ Concat::Concat(const SkMatrix& matrix) {
     this->fMatrix = &matrix;
     this->fDrawType = CONCAT;
 
-    this->fInfo.push_back(SkObjectParser::MatrixToString(matrix));
+    this->fInfo.push(SkObjectParser::MatrixToString(matrix));
 }
 
 void Concat::execute(SkCanvas* canvas) {
@@ -141,9 +137,9 @@ DrawBitmap::DrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP;
 
-    this->fInfo.push_back(SkObjectParser::BitmapToString(bitmap));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(left, "SkScalar left: "));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(top, "SkScalar top: "));
+    this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
+    this->fInfo.push(SkObjectParser::ScalarToString(left, "SkScalar left: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(top, "SkScalar top: "));
 }
 
 void DrawBitmap::execute(SkCanvas* canvas) {
@@ -157,9 +153,9 @@ DrawBitmapMatrix::DrawBitmapMatrix(const SkBitmap& bitmap,
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP_MATRIX;
 
-    this->fInfo.push_back(SkObjectParser::BitmapToString(bitmap));
-    this->fInfo.push_back(SkObjectParser::MatrixToString(matrix));
-    if (paint) this->fInfo.push_back(SkObjectParser::PaintToString(*paint));
+    this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
+    this->fInfo.push(SkObjectParser::MatrixToString(matrix));
+    if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
 }
 
 void DrawBitmapMatrix::execute(SkCanvas* canvas) {
@@ -174,10 +170,10 @@ DrawBitmapNine::DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP_NINE;
 
-    this->fInfo.push_back(SkObjectParser::BitmapToString(bitmap));
-    this->fInfo.push_back(SkObjectParser::IRectToString(center));
-    this->fInfo.push_back(SkObjectParser::RectToString(dst));
-    if (paint) this->fInfo.push_back(SkObjectParser::PaintToString(*paint));
+    this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
+    this->fInfo.push(SkObjectParser::IRectToString(center));
+    this->fInfo.push(SkObjectParser::RectToString(dst));
+    if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
 }
 
 void DrawBitmapNine::execute(SkCanvas* canvas) {
@@ -192,10 +188,10 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP_RECT;
 
-    this->fInfo.push_back(SkObjectParser::BitmapToString(bitmap));
-    if (src) this->fInfo.push_back(SkObjectParser::IRectToString(*src));
-    this->fInfo.push_back(SkObjectParser::RectToString(dst));
-    if (paint) this->fInfo.push_back(SkObjectParser::PaintToString(*paint));
+    this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
+    if (src) this->fInfo.push(SkObjectParser::IRectToString(*src));
+    this->fInfo.push(SkObjectParser::RectToString(dst));
+    if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
 }
 
 void DrawBitmapRect::execute(SkCanvas* canvas) {
@@ -217,7 +213,7 @@ DrawPaint::DrawPaint(const SkPaint& paint) {
     this->fPaint = &paint;
     this->fDrawType = DRAW_PAINT;
 
-    this->fInfo.push_back(SkObjectParser::PaintToString(paint));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPaint::execute(SkCanvas* canvas) {
@@ -229,8 +225,8 @@ DrawPath::DrawPath(const SkPath& path, const SkPaint& paint) {
     this->fPaint = &paint;
     this->fDrawType = DRAW_PATH;
 
-    this->fInfo.push_back(SkObjectParser::PathToString(path));
-    this->fInfo.push_back(SkObjectParser::PaintToString(paint));
+    this->fInfo.push(SkObjectParser::PathToString(path));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPath::execute(SkCanvas* canvas) {
@@ -240,7 +236,7 @@ void DrawPath::execute(SkCanvas* canvas) {
 DrawPicture::DrawPicture(SkPicture& picture) {
     this->fPicture = &picture;
     this->fDrawType = DRAW_PICTURE;
-    this->fInfo.push_back(std::string("Data unavailable. To be implemented"));
+    this->fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
 }
 
 void DrawPicture::execute(SkCanvas* canvas) {
@@ -255,9 +251,9 @@ DrawPoints::DrawPoints(SkCanvas::PointMode mode, size_t count,
     this->fPaint = &paint;
     this->fDrawType = DRAW_POINTS;
 
-    this->fInfo.push_back(SkObjectParser::PointsToString(pts, count));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(count, "Points: "));
-    this->fInfo.push_back(SkObjectParser::PointModeToString(mode));
+    this->fInfo.push(SkObjectParser::PointsToString(pts, count));
+    this->fInfo.push(SkObjectParser::ScalarToString(count, "Points: "));
+    this->fInfo.push(SkObjectParser::PointModeToString(mode));
 }
 
 void DrawPoints::execute(SkCanvas* canvas) {
@@ -272,10 +268,10 @@ DrawPosText::DrawPosText(const void* text, size_t byteLength, const SkPoint pos[
     this->fPaint = &paint;
     this->fDrawType = DRAW_POS_TEXT;
 
-    this->fInfo.push_back(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
     // TODO(chudy): Test that this works.
-    this->fInfo.push_back(SkObjectParser::PointsToString(pos, 1));
-    this->fInfo.push_back(SkObjectParser::PaintToString(paint));
+    this->fInfo.push(SkObjectParser::PointsToString(pos, 1));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPosText::execute(SkCanvas* canvas) {
@@ -292,10 +288,10 @@ DrawPosTextH::DrawPosTextH(const void* text, size_t byteLength,
     this->fPaint = &paint;
     this->fDrawType = DRAW_POS_TEXT_H;
 
-    this->fInfo.push_back(SkObjectParser::TextToString(text, byteLength));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(xpos[0], "XPOS: "));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(constY, "SkScalar constY: "));
-    this->fInfo.push_back(SkObjectParser::PaintToString(paint));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::ScalarToString(xpos[0], "XPOS: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(constY, "SkScalar constY: "));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPosTextH::execute(SkCanvas* canvas) {
@@ -308,8 +304,8 @@ DrawRectC::DrawRectC(const SkRect& rect, const SkPaint& paint) {
     this->fPaint = &paint;
     this->fDrawType = DRAW_RECT;
 
-    this->fInfo.push_back(SkObjectParser::RectToString(rect));
-    this->fInfo.push_back(SkObjectParser::PaintToString(paint));
+    this->fInfo.push(SkObjectParser::RectToString(rect));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawRectC::execute(SkCanvas* canvas) {
@@ -324,9 +320,9 @@ DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,
     this->fPaint = paint;
     this->fDrawType = DRAW_SPRITE;
 
-    this->fInfo.push_back(SkObjectParser::BitmapToString(bitmap));
-    this->fInfo.push_back(SkObjectParser::IntToString(left, "Left: "));
-    this->fInfo.push_back(SkObjectParser::IntToString(top, "Top: "));
+    this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
+    this->fInfo.push(SkObjectParser::IntToString(left, "Left: "));
+    this->fInfo.push(SkObjectParser::IntToString(top, "Top: "));
 }
 
 void DrawSprite::execute(SkCanvas* canvas) {
@@ -342,10 +338,10 @@ DrawTextC::DrawTextC(const void* text, size_t byteLength, SkScalar x, SkScalar y
     this->fPaint = &paint;
     this->fDrawType = DRAW_TEXT;
 
-    this->fInfo.push_back(SkObjectParser::TextToString(text, byteLength));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(x, "SkScalar x: "));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(y, "SkScalar y: "));
-    this->fInfo.push_back(SkObjectParser::PaintToString(paint));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::ScalarToString(x, "SkScalar x: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(y, "SkScalar y: "));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawTextC::execute(SkCanvas* canvas) {
@@ -361,10 +357,10 @@ DrawTextOnPath::DrawTextOnPath(const void* text, size_t byteLength,
     this->fPaint = &paint;
     this->fDrawType = DRAW_TEXT_ON_PATH;
 
-    this->fInfo.push_back(SkObjectParser::TextToString(text, byteLength));
-    this->fInfo.push_back(SkObjectParser::PathToString(path));
-    if (matrix) this->fInfo.push_back(SkObjectParser::MatrixToString(*matrix));
-    this->fInfo.push_back(SkObjectParser::PaintToString(paint));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::PathToString(path));
+    if (matrix) this->fInfo.push(SkObjectParser::MatrixToString(*matrix));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawTextOnPath::execute(SkCanvas* canvas) {
@@ -386,7 +382,7 @@ DrawVertices::DrawVertices(SkCanvas::VertexMode vmode, int vertexCount,
     this->fPaint = &paint;
     this->fDrawType = DRAW_VERTICES;
     // TODO(chudy)
-    this->fInfo.push_back(std::string("To be implemented"));
+    this->fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
 }
 
 void DrawVertices::execute(SkCanvas* canvas) {
@@ -397,7 +393,7 @@ void DrawVertices::execute(SkCanvas* canvas) {
 
 Restore::Restore() {
     this->fDrawType = RESTORE;
-    this->fInfo.push_back(std::string("No Parameters"));
+    this->fInfo.push(SkObjectParser::CustomTextToString("No Parameters"));
 }
 
 void Restore::execute(SkCanvas* canvas) {
@@ -408,7 +404,7 @@ Rotate::Rotate(SkScalar degrees) {
     this->fDegrees = degrees;
     this->fDrawType = ROTATE;
 
-    this->fInfo.push_back(SkObjectParser::ScalarToString(degrees, "SkScalar degrees: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(degrees, "SkScalar degrees: "));
 }
 
 void Rotate::execute(SkCanvas* canvas) {
@@ -418,8 +414,7 @@ void Rotate::execute(SkCanvas* canvas) {
 Save::Save(SkCanvas::SaveFlags flags) {
     this->fFlags = flags;
     this->fDrawType = SAVE;
-
-    this->fInfo.push_back(SkObjectParser::SaveFlagsToString(flags));
+    this->fInfo.push(SkObjectParser::SaveFlagsToString(flags));
 }
 
 void Save::execute(SkCanvas* canvas) {
@@ -433,9 +428,9 @@ SaveLayer::SaveLayer(const SkRect* bounds, const SkPaint* paint,
     this->fFlags = flags;
     this->fDrawType = SAVE_LAYER;
 
-    if (bounds) this->fInfo.push_back(SkObjectParser::RectToString(*bounds));
-    if (paint) this->fInfo.push_back(SkObjectParser::PaintToString(*paint));
-    this->fInfo.push_back(SkObjectParser::SaveFlagsToString(flags));
+    if (bounds) this->fInfo.push(SkObjectParser::RectToString(*bounds));
+    if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    this->fInfo.push(SkObjectParser::SaveFlagsToString(flags));
 }
 
 void SaveLayer::execute(SkCanvas* canvas) {
@@ -447,8 +442,8 @@ Scale::Scale(SkScalar sx, SkScalar sy) {
     this->fSy = sy;
     this->fDrawType = SCALE;
 
-    this->fInfo.push_back(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
 }
 
 void Scale::execute(SkCanvas* canvas) {
@@ -459,7 +454,7 @@ SetMatrix::SetMatrix(const SkMatrix& matrix) {
     this->fMatrix = &matrix;
     this->fDrawType = SET_MATRIX;
 
-    this->fInfo.push_back(SkObjectParser::MatrixToString(matrix));
+    this->fInfo.push(SkObjectParser::MatrixToString(matrix));
 }
 
 void SetMatrix::execute(SkCanvas* canvas) {
@@ -471,8 +466,8 @@ Skew::Skew(SkScalar sx, SkScalar sy) {
     this->fSy = sy;
     this->fDrawType = SKEW;
 
-    this->fInfo.push_back(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
 }
 
 void Skew::execute(SkCanvas* canvas) {
@@ -484,8 +479,8 @@ Translate::Translate(SkScalar dx, SkScalar dy) {
     this->fDy = dy;
     this->fDrawType = TRANSLATE;
 
-    this->fInfo.push_back(SkObjectParser::ScalarToString(dx, "SkScalar dx: "));
-    this->fInfo.push_back(SkObjectParser::ScalarToString(dy, "SkScalar dy: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(dx, "SkScalar dx: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(dy, "SkScalar dy: "));
 }
 
 void Translate::execute(SkCanvas* canvas) {

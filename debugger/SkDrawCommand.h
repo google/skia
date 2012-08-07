@@ -9,11 +9,8 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
-#include <iostream>
 #include "SkPictureFlat.h"
 #include "SkCanvas.h"
-#include <sstream>
-#include <vector>
 
 class SkDrawCommand {
 public:
@@ -22,7 +19,7 @@ public:
 
     virtual ~SkDrawCommand();
 
-    virtual std::string toString();
+    virtual SkString toString();
 
     virtual const char* toCString() {
         return GetCommandString(fDrawType);
@@ -36,13 +33,13 @@ public:
         fVisible = toggle;
     }
 
-    std::vector<std::string>* Info() {return &fInfo; };
+    SkTDArray<SkString*>* Info() {return &fInfo; };
     virtual void execute(SkCanvas* canvas)=0;
     DrawType getType() { return fDrawType; };
 
 protected:
     DrawType fDrawType;
-    std::vector<std::string> fInfo;
+    SkTDArray<SkString*> fInfo;
 
 private:
     bool fVisible;

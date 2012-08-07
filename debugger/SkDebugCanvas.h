@@ -13,7 +13,8 @@
 #include "SkCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkPicture.h"
-#include <vector>
+#include "SkTDArray.h"
+#include "SkString.h"
 
 class SkDebugCanvas : public SkCanvas {
 public:
@@ -73,7 +74,7 @@ public:
         Returns information about the command at the given index.
         @param index  The index of the command
      */
-    std::vector<std::string>* getCommandInfo(int index);
+    SkTDArray<SkString*>* getCommandInfo(int index);
 
     /**
         Returns the visibility of the command at the given index.
@@ -84,18 +85,18 @@ public:
     /**
         Returns the vector of draw commands
      */
-    std::vector<SkDrawCommand*> getDrawCommands();
+    SkTDArray<SkDrawCommand*> getDrawCommands();
 
     /**
      * Returns the string vector of draw commands
      */
-    std::vector<std::string>* getDrawCommandsAsStrings();
+    SkTDArray<SkString*>* getDrawCommandsAsStrings();
 
     /**
         Returns length of draw command vector.
      */
     int getSize() {
-        return commandVector.size();
+        return commandVector.count();
     }
 
     /**
@@ -196,8 +197,7 @@ public:
 
 private:
     typedef SkCanvas INHERITED;
-    std::vector<SkDrawCommand*> commandVector;
-    std::vector<SkDrawCommand*>::const_iterator it;
+    SkTDArray<SkDrawCommand*> commandVector;
     int fHeight;
     int fWidth;
     SkBitmap fBm;
