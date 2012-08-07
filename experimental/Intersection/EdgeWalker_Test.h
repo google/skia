@@ -21,14 +21,22 @@ extern bool testSimplifyx(const SkPath& path);
 
 struct State4 {
     State4();
-
+    static pthread_mutex_t addQueue;
+    static pthread_cond_t checkQueue;
+    pthread_cond_t initialized;
+    static State4* queue;
+    State4* next;
+    pthread_t threadID;
+    int index;
+    bool done;
+    bool last;
     int a;
     int b;
     int c;
     int d;
     int testsRun;
     char filename[256];
-    pthread_t threadID;
+    
     SkCanvas* canvas;
     SkBitmap bitmap;
     bool abcIsATriangle;

@@ -37,12 +37,18 @@ static const char filename[] = "/flash/debug/XX.txt";
 #endif
 static int testNumber;
 
+#define BETTER_THREADS 01
+#define DEBUG_BETTER_THREADS 0
+
 static void* testSimplify4x4RectsMain(void* data)
 {
-    char pathStr[1024]; // gdb: set print elements 400
-    bzero(pathStr, sizeof(pathStr));
     SkASSERT(data);
     State4& state = *(State4*) data;
+#if BETTER_THREADS
+    do {
+#endif
+    char pathStr[1024]; // gdb: set print elements 400
+    bzero(pathStr, sizeof(pathStr));
     state.testsRun = 0;
     int aShape = state.a & 0x03;
     int aCW = state.a >> 2;
@@ -230,10 +236,34 @@ static void* testSimplify4x4RectsMain(void* data)
             }
         }
     }
+    if (gRunTestsInOneThread) {
+        return NULL;
+    }
+#if BETTER_THREADS
+    if (DEBUG_BETTER_THREADS) SkDebugf("%s done %d\n", __FUNCTION__, state.index);
+    pthread_mutex_lock(&State4::addQueue);
+    if (DEBUG_BETTER_THREADS) SkDebugf("%s lock %d\n", __FUNCTION__, state.index);
+    state.next = State4::queue ? State4::queue->next : NULL;
+    state.done = true;
+    State4::queue = &state;
+    pthread_cond_signal(&State4::checkQueue);
+    while (state.done && !state.last) {
+        if (DEBUG_BETTER_THREADS) SkDebugf("%s wait %d\n", __FUNCTION__, state.index);
+        pthread_cond_wait(&state.initialized, &State4::addQueue);
+        if (DEBUG_BETTER_THREADS) SkDebugf("%s wait done %d\n", __FUNCTION__, state.index);
+    }
+    pthread_mutex_unlock(&State4::addQueue);
+    if (DEBUG_BETTER_THREADS) SkDebugf("%s unlock %d\n", __FUNCTION__, state.index);
+} while (!state.last);
+#endif
     return NULL;
 }
 
-const int maxThreadsAllocated = 32;
+const int maxThreadsAllocated = 64;
+
+State4* State4::queue = NULL;
+pthread_mutex_t State4::addQueue = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t State4::checkQueue = PTHREAD_COND_INITIALIZER;
 
 void Simplify4x4RectsThreaded_Test()
 {
@@ -287,12 +317,13 @@ void Simplify4x4RectsThreaded_Test()
         for (int b = a ; b < 8; ++b) {
             for (int c = b ; c < 8; ++c) {
                 for (int d = c; d < 8; ++d) {                 
-                    State4* statePtr = &threadState[threadIndex];
-                    statePtr->a = a;
-                    statePtr->b = b;
-                    statePtr->c = c;
-                    statePtr->d = d;
                     if (!gRunTestsInOneThread) {
+                #if BETTER_THREADS == 0
+                        State4* statePtr = &threadState[threadIndex];
+                        statePtr->a = a;
+                        statePtr->b = b;
+                        statePtr->c = c;
+                        statePtr->d = d;
                         createThread(statePtr, testSimplify4x4RectsMain);
                         if (++threadIndex >= maxThreads) {
                             waitForCompletion(threadState, threadIndex);
@@ -300,8 +331,46 @@ void Simplify4x4RectsThreaded_Test()
                                 testsRun += threadState[index].testsRun;
                             }
                         }
+                #else
+                        State4* statePtr;
+                        pthread_mutex_lock(&State4::addQueue);
+                        if (threadIndex < maxThreads) {
+                            statePtr = &threadState[threadIndex];
+                            statePtr->a = a;
+                            statePtr->b = b;
+                            statePtr->c = c;
+                            statePtr->d = d;
+                            statePtr->index = threadIndex;
+                            statePtr->done = false;
+                            statePtr->last = false;
+                            pthread_cond_init(&statePtr->initialized, NULL);
+                            ++threadIndex;
+                            createThread(statePtr, testSimplify4x4RectsMain);
+                        } else {
+                            while (!State4::queue) {
+                                if (DEBUG_BETTER_THREADS) SkDebugf("%s wait\n", __FUNCTION__);
+                                pthread_cond_wait(&State4::checkQueue, &State4::addQueue);
+                            }
+                            statePtr = State4::queue;
+                            testsRun += statePtr->testsRun;
+                            if (DEBUG_BETTER_THREADS) SkDebugf("%s dequeue %d\n", __FUNCTION__, statePtr->index);
+                            statePtr->a = a;
+                            statePtr->b = b;
+                            statePtr->c = c;
+                            statePtr->d = d;
+                            statePtr->done = false;
+                            State4::queue = State4::queue->next;
+                            pthread_cond_signal(&statePtr->initialized);
+                        }
+                        pthread_mutex_unlock(&State4::addQueue);
+                #endif
                     } else {
-                        testSimplify4x4RectsMain(statePtr);
+                        State4 state;
+                        state.a = a;
+                        state.b = b;
+                        state.c = c;
+                        state.d = d;
+                        testSimplify4x4RectsMain(&state);
                     }
                     if (!gRunTestsInOneThread) SkDebugf(".");
                 }
@@ -311,9 +380,27 @@ void Simplify4x4RectsThreaded_Test()
         }
         if (!gRunTestsInOneThread) SkDebugf("\n\n%d", a);
     }
-    waitForCompletion(threadState, threadIndex);
-    for (int index = 0; index < maxThreads; ++index) {
-        testsRun += threadState[index].testsRun;
+    if (!gRunTestsInOneThread) {
+        pthread_mutex_lock(&State4::addQueue);
+        int runningThreads = maxThreads;
+        while (runningThreads > 0) {
+            while (!State4::queue) {
+                if (DEBUG_BETTER_THREADS) SkDebugf("%s wait\n", __FUNCTION__);
+                pthread_cond_wait(&State4::checkQueue, &State4::addQueue);
+            }
+            while (State4::queue) {
+                State4::queue->last = true;
+                pthread_cond_signal(&State4::queue->initialized);
+                State4::queue = State4::queue->next;
+                --runningThreads;
+            }
+        }
+        pthread_mutex_unlock(&State4::addQueue);
+        for (threadIndex = 0; threadIndex < maxThreads; ++threadIndex) {
+            pthread_join(threadState[threadIndex].threadID, NULL);
+            testsRun += threadState[threadIndex].testsRun;
+        }
+        SkDebugf("%s total tests run=%d\n", __FUNCTION__, testsRun);
     }
 #ifdef SK_DEBUG
     gDebugMaxWindSum = SK_MaxS32;
