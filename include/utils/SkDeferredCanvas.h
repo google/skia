@@ -9,11 +9,9 @@
 #define SkDeferredCanvas_DEFINED
 
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkPixelRef.h"
 
-#include "SkGPipe.h"
-#include "SkChunkAlloc.h"
+class DeferredDevice;
 
 /** \class SkDeferredCanvas
     Subclass of SkCanvas that encapsulates an SkPicture or SkGPipe for deferred
@@ -80,7 +78,19 @@ public:
     /**
      *  Returns true if deferred drawing is currenlty enabled.
      */
-    bool isDeferredDrawing();
+    bool isDeferredDrawing() const;
+
+    /**
+     *  Returns true if the canvas contains a fresh frame.  A frame is 
+     *  considered fresh when its content do not depend on the contents
+     *  of the previous frame. For example, if a canvas is cleared before
+     *  drawing each frame, the frames will all be considered fresh.
+     *  A frame is defined as the graphics image produced by as a result
+     *  of all the canvas draws operation executed between two successive
+     *  calls to isFreshFrame.  The result of isFreshFrame is computed
+     *  conservatively, so it may report false negatives.
+     */
+    bool isFreshFrame() const;
 
     /**
      *  Specify the maximum number of bytes to be allocated for the purpose
@@ -177,188 +187,18 @@ public:
     };
 
 protected:
-    class DeferredPipeController : public SkGPipeController {
-    public:
-        DeferredPipeController();
-        void setPlaybackCanvas(SkCanvas*);
-        virtual ~DeferredPipeController();
-        virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
-        virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
-        void playback();
-        void reset();
-        bool hasRecorded() const { return fAllocator.blockCount() != 0; }
-        size_t storageAllocatedForRecording() const { return fAllocator.totalCapacity(); }
-    private:
-        enum {
-            kMinBlockSize = 4096
-        };
-        struct PipeBlock {
-            PipeBlock(void* block, size_t size) { fBlock = block, fSize = size; }
-            void* fBlock;
-            size_t fSize;
-        };
-        void* fBlock;
-        size_t fBytesWritten;
-        SkChunkAlloc fAllocator;
-        SkTDArray<PipeBlock> fBlockList;
-        SkGPipeReader fReader;
-    };
-
-public:
-    class DeferredDevice : public SkDevice {
-    public:
-        /**
-         *  Constructor
-         *  @param immediateDevice device to be drawn to when flushing
-         *      deferred operations
-         *  @param deviceContext callback interface for managing graphics
-         *      context state, can be NULL.
-         */
-        DeferredDevice(SkDevice* immediateDevice,
-            DeviceContext* deviceContext = NULL);
-        ~DeferredDevice();
-
-        /**
-         *  Sets the device context to be use with the device.
-         *  @param deviceContext callback interface for managing graphics
-         *      context state, can be NULL.
-         */
-        void setDeviceContext(DeviceContext* deviceContext);
-
-        /**
-         *  Returns the recording canvas.
-         */
-        SkCanvas* recordingCanvas();
-
-        /**
-         *  Returns the immediate (non deferred) canvas.
-         */
-        SkCanvas* immediateCanvas() const {return fImmediateCanvas;}
-
-        /**
-         *  Returns the immediate (non deferred) device.
-         */
-        SkDevice* immediateDevice() const {return fImmediateDevice;}
-
-        /**
-         *  Returns true if an opaque draw operation covering the entire canvas
-         *  was performed since the last call to isFreshFrame().
-         */
-        bool isFreshFrame();
-
-        size_t storageAllocatedForRecording() const;
-        size_t freeMemoryIfPossible(size_t bytesToFree);
-        void flushPending();
-        void contentsCleared();
-        void setMaxRecordingStorage(size_t);
-
-        virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
-        virtual int width() const SK_OVERRIDE;
-        virtual int height() const SK_OVERRIDE;
-        virtual SkGpuRenderTarget* accessRenderTarget() SK_OVERRIDE;
-
-        virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) SK_OVERRIDE;
-
-        virtual void writePixels(const SkBitmap& bitmap, int x, int y,
-                                 SkCanvas::Config8888 config8888) SK_OVERRIDE;
-
-    protected:
-        virtual const SkBitmap& onAccessBitmap(SkBitmap*) SK_OVERRIDE;
-        virtual bool onReadPixels(const SkBitmap& bitmap,
-                                  int x, int y,
-                                  SkCanvas::Config8888 config8888) SK_OVERRIDE;
-
-        // The following methods are no-ops on a deferred device
-        virtual bool filterTextFlags(const SkPaint& paint, TextFlags*)
-            SK_OVERRIDE
-            {return false;}
-        virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
-                                   const SkClipStack&) SK_OVERRIDE
-            {}
-
-        // None of the following drawing methods should ever get called on the
-        // deferred device
-        virtual void clear(SkColor color)
-            {SkASSERT(0);}
-        virtual void drawPaint(const SkDraw&, const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
-                                size_t count, const SkPoint[],
-                                const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawRect(const SkDraw&, const SkRect& r,
-                              const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawPath(const SkDraw&, const SkPath& path,
-                              const SkPaint& paint,
-                              const SkMatrix* prePathMatrix = NULL,
-                              bool pathIsMutable = false)
-            {SkASSERT(0);}
-        virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                                const SkIRect* srcRectOrNull,
-                                const SkMatrix& matrix, const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
-                                int x, int y, const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawText(const SkDraw&, const void* text, size_t len,
-                              SkScalar x, SkScalar y, const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawPosText(const SkDraw&, const void* text, size_t len,
-                                 const SkScalar pos[], SkScalar constY,
-                                 int scalarsPerPos, const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawTextOnPath(const SkDraw&, const void* text,
-                                    size_t len, const SkPath& path,
-                                    const SkMatrix* matrix,
-                                    const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawPosTextOnPath(const SkDraw& draw, const void* text,
-                                       size_t len, const SkPoint pos[],
-                                       const SkPaint& paint,
-                                       const SkPath& path,
-                                       const SkMatrix* matrix)
-            {SkASSERT(0);}
-        virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode,
-                                  int vertexCount, const SkPoint verts[],
-                                  const SkPoint texs[], const SkColor colors[],
-                                  SkXfermode* xmode, const uint16_t indices[],
-                                  int indexCount, const SkPaint& paint)
-            {SkASSERT(0);}
-        virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
-                                const SkPaint&)
-            {SkASSERT(0);}
-    private:
-        virtual void flush();
-
-        void endRecording();
-        void beginRecording();
-
-        DeferredPipeController fPipeController;
-        SkGPipeWriter  fPipeWriter;
-        SkDevice* fImmediateDevice;
-        SkCanvas* fImmediateCanvas;
-        SkCanvas* fRecordingCanvas;
-        DeviceContext* fDeviceContext;
-        bool fFreshFrame;
-        size_t fMaxRecordingStorageBytes;
-    };
-
-    DeferredDevice* getDeferredDevice() const;
-
-protected:
     virtual SkCanvas* canvasForDrawIter();
+    DeferredDevice* getDeferredDevice() const;
 
 private:
     SkCanvas* drawingCanvas() const;
+    SkCanvas* immediateCanvas() const;
     bool isFullFrame(const SkRect*, const SkPaint*) const;
     void validate() const;
     void init();
     bool            fDeferredDrawing;
 
+    friend class SkDeferredCanvasTester; // for unit testing
     typedef SkCanvas INHERITED;
 };
 

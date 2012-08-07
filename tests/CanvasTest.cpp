@@ -741,39 +741,44 @@ public:
     }
 };
 
-static void TestDeferredCanvasStateConsistency(
-    skiatest::Reporter* reporter,
-    CanvasTestStep* testStep,
-    const SkCanvas& referenceCanvas) {
+// The following class groups static functions that need to access
+// the privates members of SkDeferredCanvas
+class SkDeferredCanvasTester {
+public:
+    static void TestDeferredCanvasStateConsistency(
+        skiatest::Reporter* reporter,
+        CanvasTestStep* testStep,
+        const SkCanvas& referenceCanvas) {
 
-    SkBitmap deferredStore;
-    createBitmap(&deferredStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-    SkDevice deferredDevice(deferredStore);
-    SkDeferredCanvas deferredCanvas(&deferredDevice);
-    testStep->setAssertMessageFormat(kDeferredDrawAssertMessageFormat);
-    testStep->draw(&deferredCanvas, reporter);
-    testStep->setAssertMessageFormat(kDeferredPreFlushAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
-        testStep);
+        SkBitmap deferredStore;
+        createBitmap(&deferredStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
+        SkDevice deferredDevice(deferredStore);
+        SkDeferredCanvas deferredCanvas(&deferredDevice);
+        testStep->setAssertMessageFormat(kDeferredDrawAssertMessageFormat);
+        testStep->draw(&deferredCanvas, reporter);
+        testStep->setAssertMessageFormat(kDeferredPreFlushAssertMessageFormat);
+        AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
+            testStep);
 
-    deferredCanvas.flush();
-    testStep->setAssertMessageFormat(
-        kDeferredPostFlushPlaybackAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, 
-        deferredCanvas.getDeferredDevice()->immediateCanvas(),
-        &referenceCanvas, testStep);
+        deferredCanvas.flush();
+        testStep->setAssertMessageFormat(
+            kDeferredPostFlushPlaybackAssertMessageFormat);
+        AssertCanvasStatesEqual(reporter, 
+            deferredCanvas.immediateCanvas(),
+            &referenceCanvas, testStep);
 
-    // Verified that deferred canvas state is not affected by flushing
-    // pending draw operations
+        // Verified that deferred canvas state is not affected by flushing
+        // pending draw operations
 
-    // The following test code is commented out because it currently fails.
-    // Issue: http://code.google.com/p/skia/issues/detail?id=496
-    /*
-    testStep->setAssertMessageFormat(kDeferredPostFlushAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
-        testStep);
-    */
-}
+        // The following test code is commented out because it currently fails.
+        // Issue: http://code.google.com/p/skia/issues/detail?id=496
+        /*
+        testStep->setAssertMessageFormat(kDeferredPostFlushAssertMessageFormat);
+        AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
+            testStep);
+        */
+    }
+};
 
 // unused
 static void TestProxyCanvasStateConsistency(
@@ -849,7 +854,7 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, reporter);
 
-    TestDeferredCanvasStateConsistency(reporter, testStep, referenceCanvas);
+    SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, testStep, referenceCanvas);
 
     // The following test code is disabled because SkProxyCanvas is
     // missing a lot of virtual overrides on get* methods, which are used
