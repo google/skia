@@ -783,12 +783,61 @@ static void testLine74() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine74;
+static void testLine75() {
+    SkPath path, simple;
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 1);
+    path.addRect(18, 0, 30, 30, (SkPath::Direction) 1);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine76() {
+    SkPath path, simple;
+    path.addRect(36, 0, 66, 60, (SkPath::Direction) 0);
+    path.addRect(10, 20, 40, 30, (SkPath::Direction) 0);
+    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
+    path.addRect(32, 6, 36, 41, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine77() {
+    SkPath path, simple;
+    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
+    path.addRect(24, 6, 36, 36, (SkPath::Direction) 1);
+    path.addRect(24, 32, 33, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine78() {
+    SkPath path, simple;
+    path.addRect(0, 0, 30, 60, (SkPath::Direction) 0);
+    path.addRect(10, 20, 30, 30, (SkPath::Direction) 1);
+    path.addRect(18, 20, 30, 30, (SkPath::Direction) 1);
+    path.addRect(32, 0, 36, 41, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine79() {
+    SkPath path, simple;
+    path.addRect(0, 36, 60, 30, (SkPath::Direction) 0);
+    path.addRect(10, 30, 40, 30, (SkPath::Direction) 0);
+    path.addRect(0, 20, 12, 30, (SkPath::Direction) 1);
+    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = 0;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testLine79),
+    TEST(testLine78),
+    TEST(testLine77),
+    TEST(testLine76),
+    TEST(testLine75),
     TEST(testLine74),
     TEST(testLine73),
     TEST(testLine72),

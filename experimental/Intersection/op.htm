@@ -714,11 +714,50 @@ path.close();
     path.addRect(32, 24, 36, 41, (SkPath::Direction) 1);
 </div>
 
+<div id="testLine75">
+    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, (SkPath::Direction) 1);
+    path.addRect(18, 0, 30, 30, (SkPath::Direction) 1);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine76">
+    path.addRect(36, 0, 66, 60, (SkPath::Direction) 0);
+    path.addRect(10, 20, 40, 30, (SkPath::Direction) 0);
+    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
+    path.addRect(32, 6, 36, 41, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine77">
+    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
+    path.addRect(24, 6, 36, 36, (SkPath::Direction) 1);
+    path.addRect(24, 32, 33, 36, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine78">
+    path.addRect(0, 0, 30, 60, (SkPath::Direction) 0);
+    path.addRect(10, 20, 30, 30, (SkPath::Direction) 1);
+    path.addRect(18, 20, 30, 30, (SkPath::Direction) 1);
+    path.addRect(32, 0, 36, 41, (SkPath::Direction) 1);
+</div>
+
+<div id="testLine79">
+    path.addRect(0, 36, 60, 30, (SkPath::Direction) 0);
+    path.addRect(10, 30, 40, 30, (SkPath::Direction) 0);
+    path.addRect(0, 20, 12, 30, (SkPath::Direction) 1);
+    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testLine79,
+    testLine78,
+    testLine77,
+    testLine76,
+    testLine75,
     testLine74,
     testLine73,
     testLine72,
@@ -808,6 +847,7 @@ var scale, columns, rows, xStart, yStart;
 var ticks = 0.1;
 var at_x = 13 + 0.5;
 var at_y = 13 + 0.5;
+var decimal_places = 0; // make this 3 to show more precision
 
 var tests = [];
 var testTitles = [];
@@ -934,7 +974,7 @@ function init(test) {
 }
 
 function drawPoint(px, py, xoffset, yoffset, unit) {
-    var label = px.toFixed(3) + ", " + py.toFixed(3);
+    var label = px.toFixed(decimal_places) + ", " + py.toFixed(decimal_places);
     var _px = px * unit + xoffset;
     var _py = py * unit + yoffset;
     ctx.beginPath();
