@@ -30,30 +30,37 @@ public:
 
 protected:
     int fRepeats;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 class PipePictureBenchmark : public PictureBenchmark {
 public:
-    virtual void run(SkPicture* pict);
+    virtual void run(SkPicture* pict) SK_OVERRIDE;
 private:
     PipePictureRenderer renderer;
+    typedef PictureBenchmark INHERITED;
 };
 
 class RecordPictureBenchmark : public PictureBenchmark {
 public:
-    virtual void run(SkPicture* pict);
+    virtual void run(SkPicture* pict) SK_OVERRIDE;
+private:
+    typedef PictureBenchmark INHERITED;
 };
 
 class SimplePictureBenchmark : public PictureBenchmark {
 public:
-    virtual void run(SkPicture* pict);
+    virtual void run(SkPicture* pict) SK_OVERRIDE;
 private:
     SimplePictureRenderer renderer;
+    typedef PictureBenchmark INHERITED;
 };
 
 class TiledPictureBenchmark : public PictureBenchmark {
 public:
-    virtual void run(SkPicture* pict);
+    virtual void run(SkPicture* pict) SK_OVERRIDE;
 
     void setTileWidth(int width) {
         renderer.setTileWidth(width);
@@ -89,11 +96,14 @@ public:
 
 private:
     TiledPictureRenderer renderer;
+    typedef PictureBenchmark INHERITED;
 };
 
 class UnflattenPictureBenchmark : public PictureBenchmark {
 public:
-    virtual void run(SkPicture* pict);
+    virtual void run(SkPicture* pict) SK_OVERRIDE;
+private:
+    typedef PictureBenchmark INHERITED;
 };
 
 }

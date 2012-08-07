@@ -16,28 +16,35 @@
 namespace sk_tools {
 
 void PipePictureBenchmark::run(SkPicture* pict) {
-    SkBitmap bitmap;
-    sk_tools::setup_bitmap(&bitmap, pict->width(), pict->height());
+    SkASSERT(pict);
+    if (pict == NULL) {
+        return;
+    }
 
-    SkCanvas canvas(bitmap);
-
-    renderer.init(*pict);
+    renderer.init(pict);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
-    renderer.render(pict, &canvas);
+    renderer.render();
 
     BenchTimer timer = BenchTimer(NULL);
     timer.start();
     for (int i = 0; i < fRepeats; ++i) {
-        renderer.render(pict, &canvas);
+        renderer.render();
     }
     timer.end();
+
+    renderer.end();
 
     SkDebugf("pipe: msecs = %6.2f\n", timer.fWall / fRepeats);
 }
 
 void RecordPictureBenchmark::run(SkPicture* pict) {
+    SkASSERT(pict);
+    if (pict == NULL) {
+        return;
+    }
+
     BenchTimer timer = BenchTimer(NULL);
     double wall_time = 0;
 
@@ -59,46 +66,60 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
 }
 
 void SimplePictureBenchmark::run(SkPicture* pict) {
-    SkBitmap bitmap;
-    sk_tools::setup_bitmap(&bitmap, pict->width(), pict->height());
+    SkASSERT(pict);
+    if (pict == NULL) {
+        return;
+    }
 
-    SkCanvas canvas(bitmap);
-
-    renderer.init(*pict);
+    renderer.init(pict);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
-    renderer.render(pict, &canvas);
+    renderer.render();
 
     BenchTimer timer = BenchTimer(NULL);
     timer.start();
     for (int i = 0; i < fRepeats; ++i) {
-        renderer.render(pict, &canvas);
+        renderer.render();
     }
     timer.end();
+
+    renderer.end();
 
     printf("simple: msecs = %6.2f\n", timer.fWall / fRepeats);
 }
 
 void TiledPictureBenchmark::run(SkPicture* pict) {
-    renderer.init(*pict);
+    SkASSERT(pict);
+    if (pict == NULL) {
+        return;
+    }
+
+    renderer.init(pict);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
-    renderer.drawTiles(pict);
+    renderer.drawTiles();
 
     BenchTimer timer = BenchTimer(NULL);
     timer.start();
     for (int i = 0; i < fRepeats; ++i) {
-        renderer.drawTiles(pict);
+        renderer.drawTiles();
     }
     timer.end();
+
+    renderer.end();
 
     SkDebugf("%i_tiles_%ix%i: msecs = %6.2f\n", renderer.numTiles(), renderer.getTileWidth(),
             renderer.getTileHeight(), timer.fWall / fRepeats);
 }
 
 void UnflattenPictureBenchmark::run(SkPicture* pict) {
+    SkASSERT(pict);
+    if (pict == NULL) {
+        return;
+    }
+
     BenchTimer timer = BenchTimer(NULL);
     double wall_time = 0;
 
