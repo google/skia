@@ -345,15 +345,34 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
                                config, bitmap.getPixels(), bitmap.rowBytes());
 }
 
+namespace {
+void purgeClipCB(int genID, void* data) {
+    GrContext* context = (GrContext*) data;
+
+    if (SkClipStack::kInvalidGenID == genID ||
+        SkClipStack::kEmptyGenID == genID ||
+        SkClipStack::kWideOpenGenID == genID) {
+        // none of these cases will have a cached clip mask
+        return;
+    }
+
+}
+};
+
 void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
 
     // Canvas promises that this ptr is valid until onDetachFromCanvas is called
     fClipData.fClipStack = canvas->getClipStack();
+
+    fClipData.fClipStack->addPurgeClipCallback(purgeClipCB, fContext);
 }
 
 void SkGpuDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
+
+    // TODO: iterate through the clip stack and clean up any cached clip masks
+    fClipData.fClipStack->removePurgeClipCallback(purgeClipCB, fContext);
 
     fClipData.fClipStack = NULL;
 }
