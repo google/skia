@@ -293,18 +293,17 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
             if (!fPause) {
                 fCanvasWidget.drawTo(currentRow);
             }
-            std::vector<std::string> *cuffInfo = fDebugger.getCommandInfo(
+            SkTDArray<SkString*> *currInfo = fDebugger.getCommandInfo(
                     currentRow);
 
             /* TODO(chudy): Add command type before parameters. Rename v
              * to something more informative. */
-            if (cuffInfo) {
-                std::vector<std::string>::iterator it;
-
+            if (currInfo) {
                 QString info;
                 info.append("<b>Parameters: </b><br/>");
-                for (it = cuffInfo->begin(); it != cuffInfo->end(); ++it) {
-                    info.append(QString((*it).c_str()));
+                for (int i = 0; i < currInfo->count(); i++) {
+
+                    info.append(QString((*currInfo)[i]->c_str()));
                     info.append("<br/>");
                 }
                 fInspectorWidget.setDetailText(info);
@@ -576,7 +575,8 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
     SkSafeUnref(stream);
     SkSafeUnref(picture);
 
-    std::vector<std::string> *cv = fDebugger.getDrawCommands();
+    // Will this automatically clear out due to nature of refcnt?
+    SkTDArray<SkString*>* commands = fDebugger.getDrawCommands();
 
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
      * of the visibility filter.
@@ -585,8 +585,8 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
      * */
     fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityButton()->isChecked());
 
-    setupListWidget(cv);
-    setupComboBox(cv);
+    setupListWidget(commands);
+    setupComboBox(commands);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
     fMenuEdit.setDisabled(false);
@@ -598,24 +598,24 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
     actionPlay();
 }
 
-void SkDebuggerGUI::setupListWidget(std::vector<std::string>* cv) {
+void SkDebuggerGUI::setupListWidget(SkTDArray<SkString*>* command) {
     fListWidget.clear();
     int counter = 0;
-    for (unsigned int i = 0; i < cv->size(); i++) {
+    for (int i = 0; i < command->count(); i++) {
         QListWidgetItem *item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, (*cv)[i].c_str());
+        item->setData(Qt::DisplayRole, (*command)[i]->c_str());
         item->setData(Qt::UserRole + 1, counter++);
         fListWidget.addItem(item);
     }
 }
 
-void SkDebuggerGUI::setupComboBox(std::vector<std::string>* cv) {
+void SkDebuggerGUI::setupComboBox(SkTDArray<SkString*>* command) {
     fFilter.clear();
     fFilter.addItem("--Filter By Available Commands--");
 
     std::map<std::string, int> map;
-    for (unsigned int i = 0; i < cv->size(); i++) {
-        map[(*cv)[i]]++;
+    for (int i = 0; i < command->count(); i++) {
+        map[(*command)[i]->c_str()]++;
     }
 
     QString overview;

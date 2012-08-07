@@ -41,8 +41,7 @@ public:
         fDebugCanvas->toggleCommand(index, isVisible);
     }
 
-    // TODO(chudy): Replace with SkTDArray
-    std::vector<std::string>* getDrawCommands() {
+    SkTDArray<SkString*>* getDrawCommands() {
         return fDebugCanvas->getDrawCommandsAsStrings();
     }
 
@@ -75,7 +74,7 @@ public:
         return fDebugCanvas->getCommandAtPoint(x, y, index);
     }
 
-    std::vector<std::string>* getCommandInfo(int index) {
+    SkTDArray<SkString*>* getCommandInfo(int index) {
         return fDebugCanvas->getCommandInfo(index);
     }
 

@@ -278,12 +278,12 @@ private:
     /**
         Populates the list widget with the vector of strings passed in.
      */
-    void setupListWidget(std::vector<std::string>* cv);
+    void setupListWidget(SkTDArray<SkString*>* command);
 
     /**
         Populates the combo box widget with the vector of strings passed in.
      */
-    void setupComboBox(std::vector<std::string>* cv);
+    void setupComboBox(SkTDArray<SkString*>* command);
 
     /**
         Updates the directory widget with the latest directory path stored in

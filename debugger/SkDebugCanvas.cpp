@@ -24,25 +24,22 @@ SkDebugCanvas::SkDebugCanvas(int width, int height) {
 }
 
 SkDebugCanvas::~SkDebugCanvas() {
-    for (int i = 0; i < commandVector.size(); i++) {
-        delete(commandVector[i]);
-    }
-    commandVector.clear();
+    commandVector.deleteAll();
 }
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
-    commandVector.push_back(command);
+    commandVector.push(command);
 }
 
 void SkDebugCanvas::draw(SkCanvas* canvas) {
-    if(!commandVector.empty()) {
-        for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            if ((*it)->isVisible()) {
-                (*it)->execute(canvas);
+    if(!commandVector.isEmpty()) {
+        for (int i = 0; i < commandVector.count(); i++) {
+            if (commandVector[i]->isVisible()) {
+                commandVector[i]->execute(canvas);
             }
         }
     }
-    fIndex = commandVector.size() - 1;
+    fIndex = commandVector.count() - 1;
 }
 
 void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
@@ -79,8 +76,8 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
 
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     int counter = 0;
-    SkASSERT(!commandVector.empty());
-    SkASSERT(index < (int)commandVector.size());
+    SkASSERT(!commandVector.isEmpty());
+    SkASSERT(index < commandVector.count());
     int i;
 
     // This only works assuming the canvas and device are the same ones that
@@ -120,30 +117,30 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 }
 
 SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
-    SkASSERT(index < (int)commandVector.size());
+    SkASSERT(index < commandVector.count());
     return commandVector[index];
 }
 
-std::vector<std::string>* SkDebugCanvas::getCommandInfo(int index) {
-    SkASSERT(index < (int)commandVector.size());
+SkTDArray<SkString*>* SkDebugCanvas::getCommandInfo(int index) {
+    SkASSERT(index < commandVector.count());
     return commandVector[index]->Info();
 }
 
 bool SkDebugCanvas::getDrawCommandVisibilityAt(int index) {
-    SkASSERT(index < (int)commandVector.size());
+    SkASSERT(index < commandVector.count());
     return commandVector[index]->isVisible();
 }
 
-std::vector<SkDrawCommand*> SkDebugCanvas::getDrawCommands() {
+SkTDArray <SkDrawCommand*> SkDebugCanvas::getDrawCommands() {
     return commandVector;
 }
 
 // TODO(chudy): Free command string memory.
-std::vector<std::string>* SkDebugCanvas::getDrawCommandsAsStrings() {
-    std::vector<std::string>* commandString = new std::vector<std::string>();
-    if (!commandVector.empty()) {
-        for(it = commandVector.begin(); it != commandVector.end(); ++it) {
-            commandString->push_back((*it)->toString());
+SkTDArray<SkString*>* SkDebugCanvas::getDrawCommandsAsStrings() {
+    SkTDArray<SkString*>* commandString = new SkTDArray<SkString*>();
+    if (!commandVector.isEmpty()) {
+        for (int i = 0; i < commandVector.count(); i ++) {
+            commandString->push(new SkString(commandVector[i]->toString()));
         }
     }
     return commandString;
@@ -296,6 +293,6 @@ bool SkDebugCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {
-    SkASSERT(index < (int)commandVector.size());
+    SkASSERT(index < commandVector.count());
     commandVector[index]->setVisible(toggle);
 }
