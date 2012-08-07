@@ -11,13 +11,14 @@
 
 #include "SkRefCnt.h"
 #include "SkBitmap.h"
+#include "SkBitmapHeap.h"
 #include "SkFlattenableBuffers.h"
 #include "SkReader32.h"
 #include "SkPath.h"
 
 class SkOrderedReadBuffer : public SkFlattenableReadBuffer {
 public:
-    SkOrderedReadBuffer() : INHERITED() {}
+    SkOrderedReadBuffer();
     SkOrderedReadBuffer(const void* data, size_t size);
     SkOrderedReadBuffer(SkStream* stream);
     virtual ~SkOrderedReadBuffer();
@@ -63,14 +64,11 @@ public:
     // helpers to get info about arrays and binary data
     virtual uint32_t getArrayCount() SK_OVERRIDE;
 
-    virtual SkRefCnt* readRefCntPtr() SK_OVERRIDE;
-
     virtual void readBitmap(SkBitmap* bitmap) SK_OVERRIDE;
     virtual SkTypeface* readTypeface() SK_OVERRIDE;
 
-    void setRefCntArray(SkRefCnt* array[], int count) {
-        fRCArray = array;
-        fRCCount = count;
+    void setBitmapStorage(SkBitmapHeapReader* bitmapStorage) {
+        SkRefCnt_SafeAssign(fBitmapStorage, bitmapStorage);
     }
 
     void setTypefaceArray(SkTypeface* array[], int count) {
@@ -103,9 +101,7 @@ private:
     SkReader32 fReader;
     void* fMemoryPtr;
 
-    SkRefCnt** fRCArray;
-    int        fRCCount;
-
+    SkBitmapHeapReader* fBitmapStorage;
     SkTypeface** fTFArray;
     int        fTFCount;
 

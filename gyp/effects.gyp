@@ -5,6 +5,7 @@
       'type': 'static_library',
       'include_dirs': [
         '../include/effects',
+        '../src/core',
       ],
       'sources': [
         '../include/effects/Sk1DPathEffect.h',

@@ -18,13 +18,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkRefCntPlayback::SkRefCntPlayback() : fCount(0), fArray(NULL) {}
+SkTypefacePlayback::SkTypefacePlayback() : fCount(0), fArray(NULL) {}
 
-SkRefCntPlayback::~SkRefCntPlayback() {
+SkTypefacePlayback::~SkTypefacePlayback() {
     this->reset(NULL);
 }
 
-void SkRefCntPlayback::reset(const SkRefCntSet* rec) {
+void SkTypefacePlayback::reset(const SkRefCntSet* rec) {
     for (int i = 0; i < fCount; i++) {
         SkASSERT(fArray[i]);
         fArray[i]->unref();
@@ -44,7 +44,7 @@ void SkRefCntPlayback::reset(const SkRefCntSet* rec) {
     }
 }
 
-void SkRefCntPlayback::setCount(int count) {
+void SkTypefacePlayback::setCount(int count) {
     this->reset(NULL);
     
     fCount = count;
@@ -52,7 +52,7 @@ void SkRefCntPlayback::setCount(int count) {
     sk_bzero(fArray, count * sizeof(SkRefCnt*));
 }
 
-SkRefCnt* SkRefCntPlayback::set(int index, SkRefCnt* obj) {
+SkRefCnt* SkTypefacePlayback::set(int index, SkRefCnt* obj) {
     SkASSERT((unsigned)index < (unsigned)fCount);
     SkRefCnt_SafeAssign(fArray[index], obj);
     return obj;
@@ -61,28 +61,23 @@ SkRefCnt* SkRefCntPlayback::set(int index, SkRefCnt* obj) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlatController::SkFlatController()
-: fPixelRefSet(NULL)
+: fBitmapHeap(NULL)
 , fTypefaceSet(NULL)
-, fPixelRefPlayback(NULL)
 , fTypefacePlayback(NULL)
 , fFactorySet(NULL) {}
 
 SkFlatController::~SkFlatController() {
-    SkSafeUnref(fPixelRefSet);
+    SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fTypefaceSet);
     SkSafeUnref(fFactorySet);
 }
 
-void SkFlatController::setPixelRefSet(SkRefCntSet *set) {
-    SkRefCnt_SafeAssign(fPixelRefSet, set);
+void SkFlatController::setBitmapHeap(SkBitmapHeap* heap) {
+    SkRefCnt_SafeAssign(fBitmapHeap, heap);
 }
 
 void SkFlatController::setTypefaceSet(SkRefCntSet *set) {
     SkRefCnt_SafeAssign(fTypefaceSet, set);
-}
-
-void SkFlatController::setPixelRefPlayback(SkRefCntPlayback* playback) {
-    fPixelRefPlayback = playback;
 }
 
 void SkFlatController::setTypefacePlayback(SkTypefacePlayback* playback) {
@@ -104,7 +99,7 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
     intptr_t storage[256];
     SkOrderedWriteBuffer buffer(256, storage, sizeof(storage));
 
-    buffer.setRefCntRecorder(controller->getPixelRefSet());
+    buffer.setBitmapHeap(controller->getBitmapHeap());
     buffer.setTypefaceRecorder(controller->getTypefaceSet());
     buffer.setNamedFactoryRecorder(controller->getNamedFactorySet());
     buffer.setFlags(writeBufferflags);
@@ -134,16 +129,18 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
 
 void SkFlatData::unflatten(void* result,
         void (*unflattenProc)(SkOrderedReadBuffer&, void*),
-        SkRefCntPlayback* refCntPlayback,
+        SkBitmapHeap* bitmapHeap,
         SkTypefacePlayback* facePlayback) const {
 
     SkOrderedReadBuffer buffer(this->data(), fFlatSize);
-    if (refCntPlayback) {
-        refCntPlayback->setupBuffer(buffer);
+
+    if (bitmapHeap) {
+        buffer.setBitmapStorage(bitmapHeap);
     }
     if (facePlayback) {
         facePlayback->setupBuffer(buffer);
     }
+
     unflattenProc(buffer, result);
     SkASSERT(fFlatSize == (int32_t)buffer.offset());
 }

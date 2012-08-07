@@ -10,14 +10,23 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
+SkOrderedReadBuffer::SkOrderedReadBuffer() : INHERITED() {
+    fMemoryPtr = NULL;
 
-SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) {
+    fBitmapStorage = NULL;
+    fTFArray = NULL;
+    fTFCount = 0;
+
+    fFactoryTDArray = NULL;
+    fFactoryArray = NULL;
+    fFactoryCount = 0;
+}
+
+SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) : INHERITED()  {
     fReader.setMemory(data, size);
     fMemoryPtr = NULL;
 
-    fRCArray = NULL;
-    fRCCount = 0;
-
+    fBitmapStorage = NULL;
     fTFArray = NULL;
     fTFCount = 0;
 
@@ -31,10 +40,19 @@ SkOrderedReadBuffer::SkOrderedReadBuffer(SkStream* stream) {
     fMemoryPtr = sk_malloc_throw(length);
     stream->read(fMemoryPtr, length);
     fReader.setMemory(fMemoryPtr, length);
+
+    fBitmapStorage = NULL;
+    fTFArray = NULL;
+    fTFCount = 0;
+
+    fFactoryTDArray = NULL;
+    fFactoryArray = NULL;
+    fFactoryCount = 0;
 }
 
 SkOrderedReadBuffer::~SkOrderedReadBuffer() {
     sk_free(fMemoryPtr);
+    SkSafeUnref(fBitmapStorage);
 }
 
 bool SkOrderedReadBuffer::readBool() {
@@ -145,18 +163,14 @@ uint32_t SkOrderedReadBuffer::getArrayCount() {
     return *(uint32_t*)fReader.peek();
 }
 
-SkRefCnt* SkOrderedReadBuffer::readRefCntPtr() {
-    if (fRCArray) {
-        const uint32_t index = fReader.readU32();
-        SkASSERT(index <= (unsigned)fRCCount);
-        return fRCArray[index - 1];
-    } else {
-        return INHERITED::readRefCntPtr();
-    }
-}
-
 void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
-    bitmap->unflatten(*this);
+    if (fBitmapStorage) {
+        const uint32_t index = fReader.readU32();
+        *bitmap = *fBitmapStorage->getBitmap(index);
+        fBitmapStorage->releaseRef(index);
+    } else {
+        bitmap->unflatten(*this);
+    }
 }
 
 SkTypeface* SkOrderedReadBuffer::readTypeface() {

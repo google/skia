@@ -659,13 +659,8 @@ private:
         CanvasTestStep* testStep) {
 
         REPORTER_ASSERT_MESSAGE(reporter,
-            referenceRecord->fBitmaps.count() ==
-            testRecord->fBitmaps.count(), testStep->assertMessage());
-        for (int i = 0; i < referenceRecord->fBitmaps.count(); ++i) {
-            REPORTER_ASSERT_MESSAGE(reporter,
-                EQ(referenceRecord->fBitmaps[i], testRecord->fBitmaps[i]),
-                                    testStep->assertMessage());
-        }
+            referenceRecord->fBitmapHeap.count() ==
+            testRecord->fBitmapHeap.count(), testStep->assertMessage());
         REPORTER_ASSERT_MESSAGE(reporter,
             referenceRecord->fMatrices.count() ==
             testRecord->fMatrices.count(), testStep->assertMessage());

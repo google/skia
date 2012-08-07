@@ -87,7 +87,6 @@ public:
     // helper functions
     virtual void* readFunctionPtr();
     virtual void readPaint(SkPaint* paint);
-    virtual SkRefCnt* readRefCntPtr();
 
     virtual void readBitmap(SkBitmap* bitmap) = 0;
     virtual SkTypeface* readTypeface() = 0;
@@ -147,7 +146,6 @@ public:
     // helper functions
     virtual void writeFunctionPtr(void* ptr);
     virtual void writePaint(const SkPaint& paint);
-    virtual void writeRefCntPtr(SkRefCnt* refCnt);
 
     virtual void writeBitmap(const SkBitmap& bitmap) = 0;
     virtual void writeTypeface(SkTypeface* typeface) = 0;

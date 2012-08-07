@@ -34,13 +34,6 @@ void SkFlattenableReadBuffer::readPaint(SkPaint* paint) {
     paint->unflatten(*this);
 }
 
-SkRefCnt* SkFlattenableReadBuffer::readRefCntPtr() {
-    void* ptrStorage[] = { NULL };
-    SkASSERT(sizeof(void*) == this->getArrayCount());
-    this->readByteArray(*ptrStorage);
-    return (SkRefCnt*)ptrStorage[0];
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlattenableWriteBuffer::SkFlattenableWriteBuffer() {
@@ -56,11 +49,6 @@ void SkFlattenableWriteBuffer::writeFunctionPtr(void* ptr) {
 
 void SkFlattenableWriteBuffer::writePaint(const SkPaint& paint) {
     paint.flatten(*this);
-}
-
-void SkFlattenableWriteBuffer::writeRefCntPtr(SkRefCnt* refCnt) {
-    void* ptrStorage[] = { (void*)refCnt };
-    this->writeByteArray(ptrStorage, sizeof(void*));
 }
 
 void SkFlattenableWriteBuffer::flattenObject(SkFlattenable* obj, SkFlattenableWriteBuffer& buffer) {
