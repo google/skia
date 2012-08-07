@@ -9,12 +9,9 @@
 
 #include "SkGLWidget.h"
 
-SkGLWidget::SkGLWidget() : QGLWidget() {
+SkGLWidget::SkGLWidget(SkDebugger* debugger) : QGLWidget() {
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
-    fTransform.set(0,0);
-    fScaleFactor = 1.0;
-    fIndex = 0;
-    fDebugCanvas = NULL;
+    fDebugger = debugger;
     fCurIntf = NULL;
     fCurContext = NULL;
     fGpuDevice = NULL;
@@ -47,15 +44,18 @@ void SkGLWidget::resizeGL(int w, int h) {
     SkSafeUnref(fCanvas);
     fGpuDevice = new SkGpuDevice(fCurContext, curRenderTarget);
     fCanvas = new SkCanvas(fGpuDevice);
-    drawTo(fIndex);
+    fDebugger->resize(w, h);
+    draw();
 }
 
 void SkGLWidget::paintGL() {
-    glClearColor(1, 1, 1, 0);
-    fDebugCanvas->drawTo(fCanvas, fIndex);
-    // TODO(chudy): Implement an optional flush button in Gui.
-    fCanvas->flush();
-    emit drawComplete();
+    if (!this->isHidden()) {
+        glClearColor(1, 1, 1, 0);
+        fDebugger->draw(fCanvas);
+        // TODO(chudy): Implement an optional flush button in Gui.
+        fCanvas->flush();
+        emit drawComplete();
+    }
 }
 
 GrPlatformRenderTargetDesc SkGLWidget::getDesc(int w, int h) {

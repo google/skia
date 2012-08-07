@@ -9,9 +9,15 @@
 
 #include "SkCanvasWidget.h"
 
-SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
+SkCanvasWidget::SkCanvasWidget(QWidget* parent,
+        SkDebugger* debugger) : QWidget(parent)
     , fHorizontalLayout(this)
+    , fRasterWidget(debugger)
+    , fGLWidget(debugger)
 {
+
+    fDebugger = debugger;
+
     fHorizontalLayout.setSpacing(6);
     fHorizontalLayout.setContentsMargins(0,0,0,0);
     fRasterWidget.setSizePolicy(QSizePolicy::Expanding,
@@ -21,63 +27,37 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent) : QWidget(parent)
 
     fHorizontalLayout.addWidget(&fRasterWidget);
     fHorizontalLayout.addWidget(&fGLWidget);
-    fDebugCanvas = NULL;
 
-    fIndex = 0;
     fPreviousPoint.set(0,0);
     fUserOffset.set(0,0);
     fUserScaleFactor = 1.0;
 
     setWidgetVisibility(kGPU_WidgetType, true);
-    this->setDisabled(true);
     connect(&fRasterWidget, SIGNAL(drawComplete()),
             this->parentWidget(), SLOT(drawComplete()));
 }
 
-SkCanvasWidget::~SkCanvasWidget() {
-    delete fDebugCanvas;
-}
+SkCanvasWidget::~SkCanvasWidget() {}
 
 void SkCanvasWidget::drawTo(int index) {
-    fIndex = index;
-    if (!fRasterWidget.isHidden()) {
-        fRasterWidget.drawTo(index);
-    }
-    if (!fGLWidget.isHidden()) {
-        fGLWidget.drawTo(index);
-    }
-    emit commandChanged(fIndex);
-}
-
-void SkCanvasWidget::loadPicture(QString filename) {
-    this->setDisabled(false);
-    SkStream* stream = new SkFILEStream(filename.toAscii());
-    SkPicture* picture = new SkPicture(stream);
-
-    /* TODO(chudy): Implement function that doesn't require new
-     * instantiation of debug canvas. */
-    delete fDebugCanvas;
-    fDebugCanvas = new SkDebugCanvas(picture->width(), picture->height());
-
-    picture->draw(fDebugCanvas);
-    fIndex = fDebugCanvas->getSize() - 1;
-    fRasterWidget.setDebugCanvas(fDebugCanvas);
-    fGLWidget.setDebugCanvas(fDebugCanvas);
-    fDebugCanvas->setBounds(this->width(), this->height());
+    fDebugger->setIndex(index);
+    fRasterWidget.draw();
+    fGLWidget.draw();
+    emit commandChanged(fDebugger->index());
 }
 
 void SkCanvasWidget::mouseMoveEvent(QMouseEvent* event) {
     SkIPoint eventPoint = SkIPoint::Make(event->globalX(), event->globalY());
     fUserOffset += eventPoint - fPreviousPoint;
     fPreviousPoint = eventPoint;
-    fDebugCanvas->setUserOffset(fUserOffset);
-    drawTo(fIndex);
+    fDebugger->setUserOffset(fUserOffset);
+    drawTo(fDebugger->index());
 }
 
 void SkCanvasWidget::mousePressEvent(QMouseEvent* event) {
     fPreviousPoint.set(event->globalX(), event->globalY());
-    emit hitChanged(fDebugCanvas->getCommandAtPoint(event->x(), event->y(),
-            fIndex));
+    emit hitChanged(fDebugger->getCommandAtPoint(event->x(), event->y(),
+            fDebugger->index()));
 }
 
 void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -87,10 +67,10 @@ void SkCanvasWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 void SkCanvasWidget::resetWidgetTransform() {
     fUserOffset.set(0,0);
     fUserScaleFactor = 1.0;
-    fDebugCanvas->setUserOffset(fUserOffset);
-    fDebugCanvas->setUserScale(fUserScaleFactor);
+    fDebugger->setUserOffset(fUserOffset);
+    fDebugger->setUserScale(fUserScaleFactor);
     emit scaleFactorChanged(fUserScaleFactor);
-    drawTo(fIndex);
+    drawTo(fDebugger->index());
 }
 
 void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
@@ -112,6 +92,6 @@ void SkCanvasWidget::zoom(float zoomIncrement) {
         fUserScaleFactor = 2 * zoomIncrement;
     }
     emit scaleFactorChanged(fUserScaleFactor);
-    fDebugCanvas->setUserScale(fUserScaleFactor);
-    drawTo(fIndex);
+    fDebugger->setUserScale(fUserScaleFactor);
+    drawTo(fDebugger->index());
 }

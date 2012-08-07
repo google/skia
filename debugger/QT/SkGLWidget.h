@@ -12,6 +12,7 @@
 
 #include <QtOpenGL/QGLWidget>
 #include "SkDebugCanvas.h"
+#include "SkDebugger.h"
 #include "SkDevice.h"
 #include "SkGpuDevice.h"
 
@@ -24,27 +25,12 @@ class SkGLWidget : public QGLWidget {
 Q_OBJECT
 
 public:
-    SkGLWidget();
+    SkGLWidget(SkDebugger* debugger);
 
     ~SkGLWidget();
 
-    void setDebugCanvas(SkDebugCanvas* debugCanvas) {
-        fDebugCanvas = debugCanvas;
-        fIndex = debugCanvas->getSize() - 1;
+    void draw() {
         this->updateGL();
-    }
-
-    void drawTo(int index) {
-        fIndex = index;
-        this->updateGL();
-    }
-
-    void setTranslate(SkIPoint translate) {
-        fTransform = translate;
-    }
-
-    void setScale(float scale) {
-        fScaleFactor = scale;
     }
 
 signals:
@@ -61,10 +47,7 @@ private:
     GrContext* fCurContext;
     SkGpuDevice* fGpuDevice;
     SkCanvas* fCanvas;
-    SkDebugCanvas* fDebugCanvas;
-    int fIndex;
-    SkIPoint fTransform;
-    float fScaleFactor;
+    SkDebugger* fDebugger;
     GrPlatformRenderTargetDesc getDesc(int w, int h);
 };
 

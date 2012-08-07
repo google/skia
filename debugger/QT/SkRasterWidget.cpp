@@ -9,15 +9,12 @@
 
 #include "SkRasterWidget.h"
 
-SkRasterWidget::SkRasterWidget() : QWidget() {
+SkRasterWidget::SkRasterWidget(SkDebugger *debugger) : QWidget() {
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, 800, 800);
     fBitmap.allocPixels();
     fBitmap.eraseColor(0);
-    fTransform.set(0,0);
-    fScaleFactor = 1.0;
-    fIndex = 0;
     fDevice = new SkDevice(fBitmap);
-    fDebugCanvas = NULL;
+    fDebugger = debugger;
     fCanvas = new SkCanvas(fDevice);
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
 }
@@ -34,12 +31,13 @@ void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     SkSafeUnref(fDevice);
     fDevice = new SkDevice(fBitmap);
     fCanvas = new SkCanvas(fDevice);
+    fDebugger->resize(event->size().width(), event->size().height());
     this->update();
 }
 
 void SkRasterWidget::paintEvent(QPaintEvent* event) {
-    if (fDebugCanvas) {
-        fDebugCanvas->drawTo(fCanvas, fIndex);
+    if (!this->isHidden()) {
+        fDebugger->draw(fCanvas);
         QPainter painter(this);
         QStyleOption opt;
         opt.init(this);

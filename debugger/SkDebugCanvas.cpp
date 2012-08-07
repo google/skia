@@ -124,7 +124,7 @@ SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
     return commandVector[index];
 }
 
-std::vector<std::string>* SkDebugCanvas::getCommandInfoAt(int index) {
+std::vector<std::string>* SkDebugCanvas::getCommandInfo(int index) {
     SkASSERT(index < (int)commandVector.size());
     return commandVector[index]->Info();
 }

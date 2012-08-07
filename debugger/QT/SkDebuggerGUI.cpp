@@ -38,7 +38,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fMapper(this)
     , fListWidget(&fCentralWidget)
     , fDirectoryWidget(&fCentralWidget)
-    , fCanvasWidget(this)
+    , fCanvasWidget(this, &fDebugger)
     , fMenuBar(this)
     , fMenuFile(this)
     , fMenuNavigate(this)
@@ -107,8 +107,8 @@ void SkDebuggerGUI::showDeletes() {
     fDeletesActivated = !fDeletesActivated;
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem *item = fListWidget.item(row);
-        bool isVisible = fCanvasWidget.commandIsVisibleAtIndex(row);
-        item->setHidden(isVisible && fDeletesActivated);
+        item->setHidden(fDebugger.isCommandVisible(row)
+                && fDeletesActivated);
     }
 }
 
@@ -131,7 +131,7 @@ void SkDebuggerGUI::actionClearDeletes() {
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem* item = fListWidget.item(row);
         item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/blank.png"));
-        fCanvasWidget.setCommandVisibliltyAtIndex(row, true);
+        fDebugger.setCommandVisible(row, true);
     }
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
@@ -141,7 +141,7 @@ void SkDebuggerGUI::actionClearDeletes() {
 }
 
 void SkDebuggerGUI::actionCommandFilter() {
-    fCanvasWidget.toggleCurrentCommandFilter(
+    fDebugger.highlightCurrentCommand(
             fSettingsWidget.getVisibilityButton()->isChecked());
     fCanvasWidget.drawTo(fListWidget.currentRow());
 }
@@ -154,12 +154,12 @@ void SkDebuggerGUI::actionDelete() {
     int currentRow = fListWidget.currentRow();
     QListWidgetItem* item = fListWidget.currentItem();
 
-    if (fCanvasWidget.commandIsVisibleAtIndex(currentRow)) {
+    if (fDebugger.isCommandVisible(currentRow)) {
         item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/delete.png"));
-        fCanvasWidget.setCommandVisibliltyAtIndex(currentRow, false);
+        fDebugger.setCommandVisible(currentRow, false);
     } else {
         item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/blank.png"));
-        fCanvasWidget.setCommandVisibliltyAtIndex(currentRow, true);
+        fDebugger.setCommandVisible(currentRow, true);
     }
 
     if (fPause) {
@@ -247,17 +247,13 @@ void SkDebuggerGUI::actionStepForward() {
 }
 
 void SkDebuggerGUI::drawComplete() {
-    fInspectorWidget.setMatrix(fCanvasWidget.getCurrentMatrix());
-    fInspectorWidget.setClip(fCanvasWidget.getCurrentClip());
+    fInspectorWidget.setMatrix(fDebugger.getCurrentMatrix());
+    fInspectorWidget.setClip(fDebugger.getCurrentClip());
 }
 
 void SkDebuggerGUI::saveToFile(QString filename) {
     SkFILEWStream file(filename.toAscii());
-    SkPicture picture;
-    SkCanvas* canvas = picture.beginRecording(100,100);
-    fCanvasWidget.getCurrentDebugCanvas()->draw(canvas);
-    picture.endRecording();
-    picture.serialize(&file);
+    fDebugger.makePicture()->serialize(&file);
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
@@ -284,14 +280,9 @@ void SkDebuggerGUI::openFile() {
 }
 
 void SkDebuggerGUI::pauseDrawing(bool isPaused) {
-    // Qt uses 0 for unchecked, 1 for partially enabled and 2 for checked.
-    if (isPaused) {
-        fPause = true;
-        fPausedRow = fListWidget.currentRow();
-    } else {
-        fPause = false;
-        fCanvasWidget.drawTo(fListWidget.currentRow());
-    }
+    fPause = isPaused;
+    fPausedRow = fListWidget.currentRow();
+    fCanvasWidget.drawTo(fPausedRow);
 }
 
 void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
@@ -302,7 +293,7 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
             if (!fPause) {
                 fCanvasWidget.drawTo(currentRow);
             }
-            std::vector<std::string> *cuffInfo = fCanvasWidget.getCurrentCommandInfo(
+            std::vector<std::string> *cuffInfo = fDebugger.getCommandInfo(
                     currentRow);
 
             /* TODO(chudy): Add command type before parameters. Rename v
@@ -344,21 +335,13 @@ void SkDebuggerGUI::toggleBreakpoint() {
 }
 
 void SkDebuggerGUI::toggleDirectory() {
-    if (fDirectoryWidget.isHidden()) {
-        fDirectoryWidget.setHidden(false);
-    } else {
-        fDirectoryWidget.setHidden(true);
-    }
+    fDirectoryWidget.setHidden(!fDirectoryWidget.isHidden());
 }
 
 void SkDebuggerGUI::toggleFilter(QString string) {
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem *item = fListWidget.item(row);
-        if (item->text() == string) {
-            item->setHidden(false);
-        } else {
-            item->setHidden(true);
-        }
+        item->setHidden(item->text() != string);
     }
 }
 
@@ -587,12 +570,21 @@ void SkDebuggerGUI::setupDirectoryWidget() {
 
 void SkDebuggerGUI::loadPicture(QString fileName) {
     fLoading = true;
-    fCanvasWidget.loadPicture(fileName);
-    std::vector<std::string> *cv = fCanvasWidget.getDrawCommands();
+    SkStream* stream = new SkFILEStream(fileName.toAscii());
+    SkPicture* picture = new SkPicture(stream);
+    fDebugger.loadPicture(picture);
+    SkSafeUnref(stream);
+    SkSafeUnref(picture);
+
+    std::vector<std::string> *cv = fDebugger.getDrawCommands();
+
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
-     * of the visibility filter. */
-    fCanvasWidget.toggleCurrentCommandFilter(
-            fSettingsWidget.getVisibilityButton()->isChecked());
+     * of the visibility filter.
+     * TODO(chudy): This should be deprecated since fDebugger is not
+     * recreated.
+     * */
+    fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityButton()->isChecked());
+
     setupListWidget(cv);
     setupComboBox(cv);
     fInspectorWidget.setDisabled(false);
@@ -627,7 +619,7 @@ void SkDebuggerGUI::setupComboBox(std::vector<std::string>* cv) {
     }
 
     QString overview;
-    int counter;
+    int counter = 0;
     for (std::map<std::string, int>::iterator it = map.begin(); it != map.end();
             ++it) {
         overview.append((it->first).c_str());
@@ -644,12 +636,12 @@ void SkDebuggerGUI::setupComboBox(std::vector<std::string>* cv) {
     overview.insert(0, total);
 
     overview.append("<br/>");
-    overview.append("SkBitmap Width: ");
+    overview.append("SkPicture Width: ");
     // NOTE(chudy): This is where we can pull out the SkPictures width.
-    overview.append(QString::number(fCanvasWidget.getBitmapWidth()));
+    overview.append(QString::number(fDebugger.pictureWidth()));
     overview.append("px<br/>");
-    overview.append("SkBitmap Height: ");
-    overview.append(QString::number(fCanvasWidget.getBitmapHeight()));
+    overview.append("SkPicture Height: ");
+    overview.append(QString::number(fDebugger.pictureHeight()));
     overview.append("px");
     fInspectorWidget.setOverviewText(overview);
 
