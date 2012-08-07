@@ -82,6 +82,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
+// This GM allocates more memory than Android devices are capable of fulfilling.
+#ifndef SK_BUILD_FOR_ANDROID
 static skiagm::GM* MyFactory(void*) { return new VeryLargeBitmapGM; }
 static skiagm::GMRegistry reg(MyFactory);
-
+#endif
