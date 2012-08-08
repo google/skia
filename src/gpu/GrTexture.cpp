@@ -15,6 +15,7 @@
 #include "GrResourceCache.h"
 
 SK_DEFINE_INST_COUNT(GrTexture)
+GR_DEFINE_RESOURCE_CACHE_TYPE(GrTexture)
 
 /** 
  * This method allows us to interrupt the normal deletion process and place
@@ -111,26 +112,26 @@ void GrTexture::validateDesc() const {
     }
 }
 
+// These flags need to fit in <= 8 bits so they can be folded into the texture
+// key
 enum TextureBits {
-    kFirst_TextureBit = (GrResourceKey::kLastPublic_TypeBit << 1),
-
     /*
      * The kNPOT bit is set when the texture is NPOT and is being repeated
      * but the hardware doesn't support that feature. 
      */
-    kNPOT_TextureBit            = kFirst_TextureBit,
+    kNPOT_TextureBit            = 0x1,
     /*
      * The kFilter bit can only be set when the kNPOT flag is set and indicates
      * whether the resizing of the texture should use filtering. This is
      * to handle cases where the original texture is indexed to disable
      * filtering.
      */
-    kFilter_TextureBit          = kNPOT_TextureBit << 1,
+    kFilter_TextureBit          = 0x2,
     /*
      * The kScratch bit is set if the texture is being used as a scratch
      * texture.
      */
-    kScratch_TextureBit         = kFilter_TextureBit << 1,
+    kScratch_TextureBit         = 0x4,
 };
 
 namespace {
@@ -138,27 +139,28 @@ void gen_texture_key_values(const GrGpu* gpu,
                             const GrTextureParams* params,
                             const GrTextureDesc& desc,
                             bool scratch,
-                            uint32_t v[4]) {
+                            GrCacheID* cacheID) {
 
     uint64_t clientKey = desc.fClientCacheID;
 
     if (scratch) {
         // Instead of a client-provided key of the texture contents
-        // we create a key of from the descriptor.
+        // we create a key from the descriptor.
         GrAssert(kScratch_CacheID == clientKey);
         clientKey = (desc.fFlags << 8) | ((uint64_t) desc.fConfig << 32);
     }
+
+    cacheID->fPublicID = clientKey;
+    cacheID->fDomain = GrCacheID::kUnrestricted_ResourceDomain;
 
     // we assume we only need 16 bits of width and height
     // assert that texture creation will fail anyway if this assumption
     // would cause key collisions.
     GrAssert(gpu->getCaps().fMaxTextureSize <= SK_MaxU16);
-    v[0] = (uint32_t) (clientKey & 0xffffffffUL);
-    v[1] = (uint32_t) ((clientKey >> 32) & 0xffffffffUL);
-    v[2] = desc.fWidth | (desc.fHeight << 16);
+    cacheID->fResourceSpecific32 = desc.fWidth | (desc.fHeight << 16);
 
-    v[3] = (desc.fSampleCnt << 24);
     GrAssert(desc.fSampleCnt >= 0 && desc.fSampleCnt < 256);
+    cacheID->fResourceSpecific16 = desc.fSampleCnt << 8;
 
     if (!gpu->getCaps().fNPOTTextureTileSupport) {
         bool isPow2 = GrIsPow2(desc.fWidth) && GrIsPow2(desc.fHeight);
@@ -166,18 +168,16 @@ void gen_texture_key_values(const GrGpu* gpu,
         bool tiled = NULL != params && params->isTiled();
 
         if (tiled && !isPow2) {
-            v[3] |= kNPOT_TextureBit;
+            cacheID->fResourceSpecific16 |= kNPOT_TextureBit;
             if (params->isBilerp()) {
-                v[3] |= kFilter_TextureBit;
+                cacheID->fResourceSpecific16 |= kFilter_TextureBit;
             }
         }
     }
 
     if (scratch) {
-        v[3] |= kScratch_TextureBit;
+        cacheID->fResourceSpecific16 |= kScratch_TextureBit;
     }
-
-    v[3] |= GrResourceKey::kTexture_TypeBit;
 }
 }
 
@@ -185,8 +185,11 @@ GrResourceKey GrTexture::ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrTextureDesc& desc,
                                     bool scratch) {
+    GrCacheID id(GrTexture::GetResourceType());
+    gen_texture_key_values(gpu, params, desc, scratch, &id);
+
     uint32_t v[4];
-    gen_texture_key_values(gpu, params, desc, scratch, v);
+    id.toRaw(v);
     return GrResourceKey(v);
 }
 

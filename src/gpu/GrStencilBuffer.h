@@ -12,12 +12,16 @@
 
 #include "GrClipData.h"
 #include "GrResource.h"
+#include "GrCacheID.h"
 
 class GrRenderTarget;
 class GrResourceEntry;
+class GrResourceKey;
 
 class GrStencilBuffer : public GrResource {
 public:
+    GR_DECLARE_RESOURCE_CACHE_TYPE()
+
     virtual ~GrStencilBuffer() {
         // currently each rt that has attached this sb keeps a ref
         // TODO: allow SB to be purged and detach itself from rts
@@ -66,6 +70,8 @@ public:
     }
 
     void wasDetachedFromRenderTarget(const GrRenderTarget* rt);
+
+    static GrResourceKey ComputeKey(int width, int height, int sampleCnt);
 
 protected:
     GrStencilBuffer(GrGpu* gpu, int width, int height, int bits, int sampleCnt)

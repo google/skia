@@ -246,6 +246,8 @@
         '../src/gpu/GrBinHashKey.h',
         '../src/gpu/GrBufferAllocPool.cpp',
         '../src/gpu/GrBufferAllocPool.h',
+        '../src/gpu/GrCacheID.h',
+        '../src/gpu/GrCacheID.cpp',
         '../src/gpu/GrClipData.cpp',
         '../src/gpu/GrContext.cpp',
         '../src/gpu/GrCustomStage.cpp',

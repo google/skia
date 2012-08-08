@@ -262,6 +262,8 @@ private:
  */
 class GrClipMaskManager : public GrNoncopyable {
 public:
+    GR_DECLARE_RESOURCE_CACHE_DOMAIN(GetAlphaMaskDomain)
+
     GrClipMaskManager(GrGpu* gpu)
         : fGpu(gpu)
         , fCurrClipMaskType(kNone_ClipMaskType) {
