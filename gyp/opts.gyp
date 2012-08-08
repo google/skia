@@ -64,6 +64,7 @@
             '../src/opts/memset.arm.S',
             '../src/opts/SkBitmapProcState_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.cpp',
+            '../src/opts/SkBlitRow_opts_arm.h',
           ],
           'conditions': [
             [ 'arm_neon == 1 or arm_neon_optional == 1', {
@@ -141,9 +142,11 @@
       'sources': [
         '../src/opts/memset16_neon.S',
         '../src/opts/memset32_neon.S',
+        '../src/opts/SkBitmapProcState_arm_neon.cpp',
         '../src/opts/SkBitmapProcState_matrixProcs_neon.cpp',
         '../src/opts/SkBitmapProcState_matrix_clamp_neon.h',
         '../src/opts/SkBitmapProcState_matrix_repeat_neon.h',
+        '../src/opts/SkBlitRow_opts_arm_neon.cpp',
       ],
     },
   ],
