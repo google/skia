@@ -82,6 +82,11 @@
     'skia_arch_width%': '<(skia_arch_width)',
     'android_make_apk%': '<(android_make_apk)',
     'skia_gpu%': '<(skia_gpu)',
+    
+    # These are referenced by our .gypi files that list files (e.g. core.gypi)
+    #
+    'skia_src_path%': '../src',
+    'skia_include_path%': '../include',
   },
 }
 # Local Variables:
