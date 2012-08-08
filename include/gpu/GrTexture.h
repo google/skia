@@ -10,6 +10,7 @@
 #define GrTexture_DEFINED
 
 #include "GrSurface.h"
+#include "GrCacheID.h"
 
 class GrRenderTarget;
 class GrResourceKey;
@@ -30,6 +31,7 @@ class GrTexture : public GrSurface {
 
 public:
     SK_DECLARE_INST_COUNT(GrTexture)
+    GR_DECLARE_RESOURCE_CACHE_TYPE()
 
     // from GrResource
     /**

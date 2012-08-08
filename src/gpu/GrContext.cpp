@@ -177,22 +177,6 @@ GrTexture* GrContext::TextureCacheEntry::texture() const {
 
 namespace {
 
-// we should never have more than one stencil buffer with same combo of
-// (width,height,samplecount)
-void gen_stencil_key_values(int width, int height,
-                            int sampleCnt, uint32_t v[4]) {
-    v[0] = width;
-    v[1] = height;
-    v[2] = sampleCnt;
-    v[3] = GrResourceKey::kStencilBuffer_TypeBit;
-}
-
-void gen_stencil_key_values(const GrStencilBuffer* sb,
-                            uint32_t v[4]) {
-    gen_stencil_key_values(sb->width(), sb->height(),
-                           sb->numSamples(), v);
-}
-
 void scale_rect(SkRect* rect, float xScale, float yScale) {
     rect->fLeft = SkScalarMul(rect->fLeft, SkFloatToScalar(xScale));
     rect->fTop = SkScalarMul(rect->fTop, SkFloatToScalar(yScale));
@@ -268,17 +252,18 @@ bool GrContext::isTextureInCache(const GrTextureDesc& desc,
 
 GrResourceEntry* GrContext::addAndLockStencilBuffer(GrStencilBuffer* sb) {
     ASSERT_OWNED_RESOURCE(sb);
-    uint32_t v[4];
-    gen_stencil_key_values(sb, v);
-    GrResourceKey resourceKey(v);
+
+    GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(sb->width(),
+                                                            sb->height(),
+                                                            sb->numSamples());
     return fTextureCache->createAndLock(resourceKey, sb);
 }
 
 GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
                                               int sampleCnt) {
-    uint32_t v[4];
-    gen_stencil_key_values(width, height, sampleCnt, v);
-    GrResourceKey resourceKey(v);
+    GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width,
+                                                            height,
+                                                            sampleCnt);
     GrResourceEntry* entry = fTextureCache->findAndLock(resourceKey,
                                             GrResourceCache::kSingle_LockType);
     if (NULL != entry) {
