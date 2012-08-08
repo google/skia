@@ -1048,14 +1048,21 @@ static void print_diff_page (const int matchCount,
     // Need to convert paths from relative-to-cwd to relative-to-outputDir
     // FIXME this doesn't work if there are '..' inside the outputDir
 
-    bool pathFromRoot;
+    bool isPathAbsolute = false;
+    // On Windows or Linux, a path starting with PATH_DIV_CHAR is absolute.
+    if (outputDir.size() > 0 && PATH_DIV_CHAR == outputDir[0]) {
+        isPathAbsolute = true;
+    }
 #ifdef SK_BUILD_FOR_WIN32
-    pathFromRoot = outputDir.size() > 1 && ':' == outputDir[1];
-#else
-    pathFromRoot = outputDir.size() > 0 && PATH_DIV_CHAR == outputDir[0];
+    // On Windows, absolute paths can also start with "x:", where x is any
+    // drive letter.
+    if (outputDir.size() > 1 && ':' == outputDir[1]) {
+        isPathAbsolute = true;
+    }
 #endif
+
     SkString relativePath;
-    if (!pathFromRoot) {
+    if (!isPathAbsolute) {
         unsigned int ui;
         for (ui = 0; ui < outputDir.size(); ui++) {
             if (outputDir[ui] == PATH_DIV_CHAR) {
