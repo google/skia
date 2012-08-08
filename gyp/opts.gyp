@@ -142,7 +142,6 @@
       'sources': [
         '../src/opts/memset16_neon.S',
         '../src/opts/memset32_neon.S',
-        '../src/opts/SkBitmapProcState_arm_neon.cpp',
         '../src/opts/SkBitmapProcState_matrixProcs_neon.cpp',
         '../src/opts/SkBitmapProcState_matrix_clamp_neon.h',
         '../src/opts/SkBitmapProcState_matrix_repeat_neon.h',
