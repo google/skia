@@ -11,6 +11,7 @@
         '../src/core',
         '../src/effects',
         '../src/pdf',
+        '../src/pipe/utils',
         '../src/utils',
         '../tools/',
       ],
@@ -61,6 +62,7 @@
         '../tests/PathMeasureTest.cpp',
         '../tests/PathTest.cpp',
         '../tests/PDFPrimitivesTest.cpp',
+        '../tests/PipeTest.cpp',
         '../tests/PictureUtilsTest.cpp',
         '../tests/PointTest.cpp',
         '../tests/PremulAlphaRoundTripTest.cpp',
@@ -90,6 +92,9 @@
         '../tests/WritePixelsTest.cpp',
         '../tests/Writer32Test.cpp',
         '../tests/XfermodeTest.cpp',
+
+        # Needed for PipeTest.
+        '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'dependencies': [
         'core.gyp:core',

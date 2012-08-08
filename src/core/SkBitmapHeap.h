@@ -39,6 +39,7 @@ private:
 
     int32_t fSlot;
     int32_t fRefCount;
+    uint32_t fGenerationID;
 
     SkBitmap fBitmap;
     // Keep track of the bytes allocated for this bitmap. When replacing the
@@ -186,8 +187,22 @@ public:
         return fBytesAllocated;
     }
 
+    /**
+     * Attempt to reduce the storage allocated.
+     * @param bytesToFree minimum number of bytes that should be attempted to
+     *   be freed.
+     * @return number of bytes actually freed.
+     */
+    size_t freeMemoryIfPossible(size_t bytesToFree);
+
 private:
     struct LookupEntry {
+        LookupEntry(const SkBitmap& bm, uint32_t genId = 0) {
+            fGenerationId = 0 == genId ? bm.getGenerationID() : genId;
+            fPixelOffset = bm.pixelRefOffset();
+            fWidth = bm.width();
+            fHeight = bm.height();
+        }
         uint32_t fGenerationId; // SkPixelRef GenerationID.
         size_t fPixelOffset;
         uint32_t fWidth;
@@ -215,14 +230,20 @@ private:
     };
 
     /**
+     * Remove the entry from the lookup table.
+     * @return The index in the lookup table of the entry before removal.
+     */
+    int removeEntryFromLookupTable(const SkBitmapHeapEntry&);
+
+    /**
      * Searches for the bitmap in the lookup table and returns the bitmaps index within the table.
      * If the bitmap was not already in the table it is added.
      *
-     * @param bitmap  The bitmap we using as a key to search the lookup table
+     * @param key    The key to search the lookup table, created from a bitmap.
      * @param entry  A pointer to a SkBitmapHeapEntry* that if non-null AND the bitmap is found
      *               in the lookup table is populated with the entry from the heap storage.
      */
-    int findInLookupTable(const SkBitmap& bitmap, SkBitmapHeapEntry** entry);
+    int findInLookupTable(const LookupEntry& key, SkBitmapHeapEntry** entry);
 
     SkBitmapHeapEntry* findEntryToReplace(const SkBitmap& replacement);
     bool copyBitmap(const SkBitmap& originalBitmap, SkBitmap& copiedBitmap);
@@ -233,6 +254,9 @@ private:
 
     // heap storage
     SkTDArray<SkBitmapHeapEntry*> fStorage;
+    // Used to mark slots in fStorage as deleted without actually deleting
+    // the slot so as not to mess up the numbering.
+    SkTDArray<int> fUnusedSlots;
     ExternalStorage* fExternalStorage;
 
     SkBitmapHeapEntry* fMostRecentlyUsed;

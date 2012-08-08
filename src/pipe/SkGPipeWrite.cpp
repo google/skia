@@ -6,27 +6,26 @@
  * found in the LICENSE file.
  */
 
-
-
+#include "SkBitmapHeap.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
 #include "SkData.h"
+#include "SkDrawLooper.h"
 #include "SkDevice.h"
-#include "SkPaint.h"
-#include "SkPathEffect.h"
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
 #include "SkImageFilter.h"
+#include "SkMaskFilter.h"
+#include "SkOrderedWriteBuffer.h"
+#include "SkPaint.h"
+#include "SkPathEffect.h"
+#include "SkPictureFlat.h"
+#include "SkRasterizer.h"
+#include "SkShader.h"
 #include "SkStream.h"
 #include "SkTSearch.h"
 #include "SkTypeface.h"
 #include "SkWriter32.h"
-#include "SkColorFilter.h"
-#include "SkDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkRasterizer.h"
-#include "SkShader.h"
-#include "SkOrderedWriteBuffer.h"
-#include "SkPictureFlat.h"
 
 static bool isCrossProcess(uint32_t flags) {
     return SkToBool(flags & SkGPipeWriter::kCrossProcess_Flag);
@@ -154,254 +153,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
- * Shared heap for storing large things that can be shared, for a stream
- * used by multiple readers.
- * TODO: Make the allocations all come from cross process safe address space
- * TODO: Store paths (others?)
- * TODO: Generalize the LRU caching mechanism
- */
-class SharedHeap {
-public:
-    SharedHeap(bool shallow, int numOfReaders)
-        : fBitmapCount(0)
-        , fMostRecentlyUsed(NULL)
-        , fLeastRecentlyUsed(NULL)
-        , fCanDoShallowCopies(shallow)
-        , fNumberOfReaders(numOfReaders)
-        , fBytesAllocated(0) {}
-    ~SharedHeap() {
-        BitmapInfo* iter = fMostRecentlyUsed;
-        while (iter != NULL) {
-            SkDEBUGCODE(fBytesAllocated -= (iter->fBytesAllocated + sizeof(BitmapInfo)));
-            BitmapInfo* next = iter->fLessRecentlyUsed;
-            SkDELETE(iter);
-            fBitmapCount--;
-            iter = next;
-        }
-        SkASSERT(0 == fBitmapCount);
-        SkASSERT(0 == fBytesAllocated);
-    }
-
-    /*
-     * Get the approximate number of bytes allocated.
-     *
-     * Not exact. Some SkBitmaps may share SkPixelRefs, in which case only one
-     * SkBitmap will take the size of the SkPixelRef into account (the first
-     * one). It is possible that the one which accounts for the SkPixelRef has
-     * been removed, in which case we will no longer be counting those bytes.
-     */
-    size_t bytesAllocated() { return fBytesAllocated; }
-
-    /*
-     * Add a copy of a bitmap to the heap.
-     * @param bm The SkBitmap to be copied and placed in the heap.
-     * @return void* Pointer to the BitmapInfo stored in the heap, which
-     *               contains a copy of the SkBitmap. If NULL,
-     *               the bitmap could not be copied.
-     */
-    const void* addBitmap(const SkBitmap& orig) {
-        const uint32_t genID = orig.getGenerationID();
-        SkPixelRef* sharedPixelRef = NULL;
-        // When looking to see if we've previously used this bitmap, start at
-        // the end, assuming that the caller is more likely to reuse a recent
-        // one.
-        BitmapInfo* iter = fMostRecentlyUsed;
-        while (iter != NULL) {
-            if (genID == iter->fGenID) {
-                SkBitmap* storedBitmap = iter->fBitmap;
-                // TODO: Perhaps we can share code with
-                // SkPictureRecord::PixelRefDictionaryEntry/
-                // BitmapIndexCacheEntry so we can do a binary search for a
-                // matching bitmap
-                if (orig.pixelRefOffset() != storedBitmap->pixelRefOffset()
-                    || orig.width() != storedBitmap->width()
-                    || orig.height() != storedBitmap->height()) {
-                    // In this case, the bitmaps share a pixelRef, but have
-                    // different offsets or sizes. Keep track of the other
-                    // bitmap so that instead of making another copy of the
-                    // pixelRef we can use the copy we already made.
-                    sharedPixelRef = storedBitmap->pixelRef();
-                    break;
-                }
-                iter->addDraws(fNumberOfReaders);
-                this->setMostRecentlyUsed(iter);
-                return iter;
-            }
-            iter = iter->fLessRecentlyUsed;
-        }
-        SkAutoRef ar((SkRefCnt*)sharedPixelRef);
-        BitmapInfo* replace = this->bitmapToReplace(orig);
-        SkBitmap* copy;
-        // If the bitmap is mutable, we still need to do a deep copy, since the
-        // caller may modify it afterwards. That said, if the bitmap is mutable,
-        // but has no pixelRef, the copy constructor actually does a deep copy.
-        if (fCanDoShallowCopies && (orig.isImmutable() || !orig.pixelRef())) {
-            if (NULL == replace) {
-                copy = SkNEW_ARGS(SkBitmap, (orig));
-            } else {
-                *replace->fBitmap = orig;
-            }
-        } else {
-            if (sharedPixelRef != NULL) {
-                if (NULL == replace) {
-                    // Do a shallow copy of the bitmap to get the width, height, etc
-                    copy = SkNEW_ARGS(SkBitmap, (orig));
-                    // Replace the pixelRef with the copy that was already made, and
-                    // use the appropriate offset.
-                    copy->setPixelRef(sharedPixelRef, orig.pixelRefOffset());
-                } else {
-                    *replace->fBitmap = orig;
-                    replace->fBitmap->setPixelRef(sharedPixelRef, orig.pixelRefOffset());
-                }
-            } else {
-                if (NULL == replace) {
-                    copy = SkNEW(SkBitmap);
-                    if (!orig.copyTo(copy, orig.getConfig())) {
-                        delete copy;
-                        return NULL;
-                    }
-                } else {
-                    if (!orig.copyTo(replace->fBitmap, orig.getConfig())) {
-                        return NULL;
-                    }
-                }
-            }
-        }
-        BitmapInfo* info;
-        if (NULL == replace) {
-            fBytesAllocated += sizeof(BitmapInfo);
-            info = SkNEW_ARGS(BitmapInfo, (copy, genID, fNumberOfReaders));
-            fBitmapCount++;
-        } else {
-            fBytesAllocated -= replace->fBytesAllocated;
-            replace->fGenID = genID;
-            replace->addDraws(fNumberOfReaders);
-            info = replace;
-        }
-        // Always include the size of the SkBitmap struct.
-        info->fBytesAllocated = sizeof(SkBitmap);
-        // If the SkBitmap does not share an SkPixelRef with an SkBitmap already
-        // in the SharedHeap, also include the size of its pixels.
-        if (NULL == sharedPixelRef) {
-            info->fBytesAllocated += orig.getSize();
-        }
-        fBytesAllocated += info->fBytesAllocated;
-        this->setMostRecentlyUsed(info);
-        return info;
-    }
-
-    size_t freeMemoryIfPossible(size_t bytesToFree) {
-        BitmapInfo* info = fLeastRecentlyUsed;
-        size_t origBytesAllocated = fBytesAllocated;
-        // Purge starting from LRU until a non-evictable bitmap is found
-        // or until everything is evicted.
-        while (info && info->drawCount() == 0) {
-            fBytesAllocated -= (info->fBytesAllocated + sizeof(BitmapInfo));
-            fBitmapCount--;
-            BitmapInfo* nextInfo = info->fMoreRecentlyUsed;
-            SkDELETE(info);
-            info = nextInfo;
-            if ((origBytesAllocated - fBytesAllocated) >= bytesToFree) {
-                break;
-            }
-        }
-
-        if (fLeastRecentlyUsed != info) { // at least one eviction
-            fLeastRecentlyUsed = info;
-            if (NULL != fLeastRecentlyUsed) {
-                fLeastRecentlyUsed->fLessRecentlyUsed = NULL;
-            } else {
-                // everything was evicted
-                fMostRecentlyUsed = NULL;
-                SkASSERT(0 == fBytesAllocated);
-                SkASSERT(0 == fBitmapCount);
-            }
-        }
-
-        return origBytesAllocated - fBytesAllocated;
-    }
-
-private:
-    void setMostRecentlyUsed(BitmapInfo* info);
-    BitmapInfo* bitmapToReplace(const SkBitmap& bm) const;
-
-    int         fBitmapCount;
-    BitmapInfo* fLeastRecentlyUsed;
-    BitmapInfo* fMostRecentlyUsed;
-    const bool  fCanDoShallowCopies;
-    const int   fNumberOfReaders;
-    size_t      fBytesAllocated;
-};
-
-// We just "used" info. Update our LRU accordingly
-void SharedHeap::setMostRecentlyUsed(BitmapInfo* info) {
-    SkASSERT(info != NULL);
-    if (info == fMostRecentlyUsed) {
-        return;
-    }
-    // Remove info from its prior place, and make sure to cover the hole.
-    if (fLeastRecentlyUsed == info) {
-        SkASSERT(info->fMoreRecentlyUsed != NULL);
-        fLeastRecentlyUsed = info->fMoreRecentlyUsed;
-    }
-    if (info->fMoreRecentlyUsed != NULL) {
-        SkASSERT(fMostRecentlyUsed != info);
-        info->fMoreRecentlyUsed->fLessRecentlyUsed = info->fLessRecentlyUsed;
-    }
-    if (info->fLessRecentlyUsed != NULL) {
-        SkASSERT(fLeastRecentlyUsed != info);
-        info->fLessRecentlyUsed->fMoreRecentlyUsed = info->fMoreRecentlyUsed;
-    }
-    info->fMoreRecentlyUsed = NULL;
-    // Set up the head and tail pointers properly.
-    if (fMostRecentlyUsed != NULL) {
-        SkASSERT(NULL == fMostRecentlyUsed->fMoreRecentlyUsed);
-        fMostRecentlyUsed->fMoreRecentlyUsed = info;
-        info->fLessRecentlyUsed = fMostRecentlyUsed;
-    }
-    fMostRecentlyUsed = info;
-    if (NULL == fLeastRecentlyUsed) {
-        fLeastRecentlyUsed = info;
-    }
-}
-
-/**
- * Given a new bitmap to be added to the cache, return an existing one that
- * should be removed to make room, or NULL if there is already room.
- */
-BitmapInfo* SharedHeap::bitmapToReplace(const SkBitmap& bm) const {
-    // Arbitrarily set a limit of 5. We should test to find the best tradeoff
-    // between time and space. A lower limit means that we use less space, but
-    // it also means that we may have to insert the same bitmap into the heap
-    // multiple times (depending on the input), potentially taking more time.
-    // On the other hand, a lower limit also means searching through our stored
-    // bitmaps takes less time.
-    if (fBitmapCount > 5) {
-        BitmapInfo* iter = fLeastRecentlyUsed;
-        while (iter != NULL) {
-            if (iter->drawCount() > 0) {
-                // If the least recently used bitmap has not been drawn by some
-                // reader, then a more recently used one will not have been
-                // drawn yet either.
-                return NULL;
-            }
-            if (bm.pixelRef() != NULL
-                    && bm.pixelRef() == iter->fBitmap->pixelRef()) {
-                // Do not replace a bitmap with a new one using the same
-                // pixel ref. Instead look for a different one that will
-                // potentially free up more space.
-                iter = iter->fMoreRecentlyUsed;
-            } else {
-                return iter;
-            }
-        }
-    }
-    return NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 class SkGPipeCanvas : public SkCanvas {
 public:
     SkGPipeCanvas(SkGPipeController*, SkWriter32*, uint32_t flags);
@@ -421,7 +172,12 @@ public:
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
     size_t storageAllocatedForRecording() {
-        return fSharedHeap.bytesAllocated();
+        // FIXME: This can be removed once fSharedHeap is used by cross process
+        // case.
+        if (NULL == fSharedHeap) {
+            return 0;
+        }
+        return fSharedHeap->bytesAllocated();
     }
 
     // overrides from SkCanvas
@@ -481,7 +237,7 @@ private:
     };
     SkNamedFactorySet* fFactorySet;
     int                fFirstSaveLayerStackLevel;
-    SharedHeap         fSharedHeap;
+    SkBitmapHeap*      fSharedHeap;
     SkGPipeController* fController;
     SkWriter32&        fWriter;
     size_t             fBlockSize; // amount allocated for writer
@@ -628,7 +384,6 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, uint32_t flags)
 : fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
-, fSharedHeap(!isCrossProcess(flags), controller->numberOfReaders())
 , fWriter(*writer)
 , fFlags(flags)
 , fBitmapHeap(BITMAPS_TO_KEEP, fFactorySet)
@@ -649,15 +404,31 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, 32767, 32767);
     SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
     this->setDevice(device)->unref();
+
     // Tell the reader the appropriate flags to use.
     if (this->needOpBytes()) {
         this->writeOp(kReportFlags_DrawOp, fFlags, 0);
     }
+    
+    if (shouldFlattenBitmaps(flags)) {
+        // TODO: Use the shared heap for cross process case as well.
+        fSharedHeap = NULL;
+    } else {
+        fSharedHeap = SkNEW_ARGS(SkBitmapHeap, (5, controller->numberOfReaders()));
+        if (this->needOpBytes(sizeof(void*))) {
+            this->writeOp(kShareHeap_DrawOp);
+            fWriter.writePtr(static_cast<void*>(fSharedHeap));
+        }
+    }
+    this->doNotify();
 }
 
 SkGPipeCanvas::~SkGPipeCanvas() {
     this->finish();
     SkSafeUnref(fFactorySet);
+    // FIXME: This can be changed to unref() once fSharedHeap is used by cross
+    // process case.
+    SkSafeUnref(fSharedHeap);
 }
 
 bool SkGPipeCanvas::needOpBytes(size_t needed) {
@@ -931,17 +702,16 @@ bool SkGPipeCanvas::commonDrawBitmapHeap(const SkBitmap& bm, DrawOps op,
                                          unsigned flags,
                                          size_t opBytesNeeded,
                                          const SkPaint* paint) {
-    const void* ptr = fSharedHeap.addBitmap(bm);
-    if (NULL == ptr) {
+    int32_t bitmapIndex = fSharedHeap->insert(bm);
+    if (SkBitmapHeap::INVALID_SLOT == bitmapIndex) {
         return false;
     }
     if (paint != NULL) {
         flags |= kDrawBitmap_HasPaint_DrawOpsFlag;
         this->writePaint(*paint);
     }
-    if (this->needOpBytes(opBytesNeeded + sizeof(void*))) {
-        this->writeOp(op, flags, 0);
-        fWriter.writePtr(const_cast<void*>(ptr));
+    if (this->needOpBytes(opBytesNeeded)) {
+        this->writeOp(op, flags, bitmapIndex);
         return true;
     }
     return false;
@@ -1190,7 +960,12 @@ void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
 }
 
 size_t SkGPipeCanvas::freeMemoryIfPossible(size_t bytesToFree) {
-    return fSharedHeap.freeMemoryIfPossible(bytesToFree);
+    // FIXME: This can be removed once fSharedHeap is used by cross process
+    // case.
+    if (NULL == fSharedHeap) {
+        return 0;
+    }
+    return fSharedHeap->freeMemoryIfPossible(bytesToFree);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
