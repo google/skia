@@ -89,11 +89,6 @@ public:
     static const uint64_t kDefaultPublicCacheID = 0;
 
     static const uint8_t kInvalid_ResourceType = 0;
-    /**
-     * All scratch resources should be Unrestricted so they can be used 
-     * by any domain.
-     */
-    static const uint8_t kUnrestricted_ResourceDomain = 0;
 
     static uint8_t    GetNextDomain();
     static uint8_t    GetNextResourceType();

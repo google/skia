@@ -474,6 +474,13 @@ enum {
 static const uint64_t kDefault_CacheID = 0;
 
 /**
+  * All scratch resources should be Unrestricted so they can be used 
+  * by any domain.
+  */
+static const uint8_t kUnrestricted_ResourceDomain = 0;
+
+
+/**
  * Describes a texture to be created.
  */
 struct GrTextureDesc {
@@ -483,7 +490,8 @@ struct GrTextureDesc {
     , fHeight(0)
     , fConfig(kUnknown_GrPixelConfig)
     , fSampleCnt(0)
-    , fClientCacheID(kDefault_CacheID) {
+    , fClientCacheID(kDefault_CacheID)
+    , fResourceDomain(kUnrestricted_ResourceDomain) {
     }
 
     GrTextureFlags         fFlags;  //!< bitfield of TextureFlags
@@ -512,6 +520,12 @@ struct GrTextureDesc {
      * is only relevant for textures that will be cached.
      */
     uint64_t               fClientCacheID;
+
+    /**
+     * Allows cache clients to cluster their textures inside domains (e.g.,
+     * alpha clip masks). Only relevant for cached textures.
+     */
+    uint8_t                fResourceDomain;
 };
 
 /**
