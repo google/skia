@@ -3,17 +3,38 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkStream.h"
+
 #include <algorithm>
+#include <assert.h>
+#include <errno.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 #undef SkASSERT
 #define SkASSERT(cond) while (!(cond)) { sk_throw(); }
+
+static const char marker[] =
+    "</div>\n"
+    "\n"
+    "<script type=\"text/javascript\">\n"
+    "\n"
+    "var testDivs = [\n";
+#if 0
+static const char filename[] = "../../experimental/Intersection/debugXX.txt";
+#else
+static const char filename[] = "/flash/debug/XX.txt";
+#endif
 
 static bool gShowPath = false;
 static bool gComparePaths = true;
 //static bool gDrawLastAsciiPaths = true;
 static bool gDrawAllAsciiPaths = false;
 static bool gShowAsciiPaths = false;
-static bool gComparePathsAssert = true;
+static bool gComparePathsAssert = false;
+static bool gPathStrAssert = true;
 
 void showPath(const SkPath& path, const char* str) {
     SkDebugf("%s\n", !str ? "original:" : str);
@@ -196,16 +217,17 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
         SkScalar yScale = std::max(24.0f / larger.height(), 1.0f);
         errors = scaledDrawTheSame(one, two, xScale, yScale, false, bitmap, canvas);
         if (errors > 5) {
+            SkDebugf("\n");
             scaledDrawTheSame(one, two, xScale, yScale, true, bitmap, canvas);
         }
     }
-    if (errors > max) {
-        SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
+    const int MAX_ERRORS = 20;
+    if (errors > max && errors <= MAX_ERRORS) {
+        SkDebugf("%s errors=%d\n", __FUNCTION__, errors); 
         max = errors;
     }
-    const int MAX_ERRORS = 20;
-    if (errors > MAX_ERRORS) SkDebugf("\n%s errors=%d\n", __FUNCTION__, errors); 
     if (errors > MAX_ERRORS && gComparePathsAssert) {
+        SkDebugf("%s errors=%d\n", __FUNCTION__, errors); 
         showPath(one);
         showPath(two, "simplified:");
         SkASSERT(0);
@@ -256,8 +278,8 @@ bool testSimplify(const SkPath& path, bool fill, SkPath& out, SkBitmap& bitmap,
     return comparePaths(path, out, bitmap, canvas) == 0;
 }
 
-bool testSimplifyx(const SkPath& path, SkPath& out, SkBitmap& bitmap,
-        SkCanvas* canvas) {
+bool testSimplifyx(const SkPath& path, SkPath& out, State4& state,
+        const char* pathStr) {
     if (gShowPath) {
         showPath(path);
     }
@@ -265,7 +287,16 @@ bool testSimplifyx(const SkPath& path, SkPath& out, SkBitmap& bitmap,
     if (!gComparePaths) {
         return true;
     }
-    return comparePaths(path, out, bitmap, canvas) == 0;
+    int result = comparePaths(path, out, state.bitmap, state.canvas);
+    if (result && gPathStrAssert) {
+        char temp[8192];
+        bzero(temp, sizeof(temp));
+        SkMemoryWStream stream(temp, sizeof(temp));
+        outputToStream(state, pathStr, stream);
+        SkDebugf(temp);
+        SkASSERT(0);
+    }
+    return result == 0;
 }
 
 bool testSimplifyx(const SkPath& path) {
@@ -281,22 +312,232 @@ bool testSimplifyx(const SkPath& path) {
     return comparePaths(path, out, bitmap, 0) == 0;
 }
 
+const int maxThreadsAllocated = 64;
+static int maxThreads = 1;
+static int threadIndex;
+State4 threadState[maxThreadsAllocated];
+static int testNumber;
+static const char* testName;
+static bool debugThreads = false;
+
+State4* State4::queue = NULL;
+pthread_mutex_t State4::addQueue = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t State4::checkQueue = PTHREAD_COND_INITIALIZER;
+
 State4::State4() {
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, 150 * 2, 100);
     bitmap.allocPixels();
     canvas = new SkCanvas(bitmap);
 }
 
-void createThread(State4* statePtr, void* (*test)(void* )) {
-    int threadError = pthread_create(&statePtr->threadID, NULL, test,
+void createThread(State4* statePtr, void* (*testFun)(void* )) {
+    int threadError = pthread_create(&statePtr->threadID, NULL, testFun,
             (void*) statePtr);
     SkASSERT(!threadError);
 }
 
-void waitForCompletion(State4 threadState[], int& threadIndex) {
-    for (int index = 0; index < threadIndex; ++index) {
-        pthread_join(threadState[index].threadID, NULL);
+int dispatchTest4(void* (*testFun)(void* ), int a, int b, int c, int d) {
+    int testsRun = 0;
+    
+    if (!gRunTestsInOneThread) {
+        State4* statePtr;
+        pthread_mutex_lock(&State4::addQueue);
+        if (threadIndex < maxThreads) {
+            statePtr = &threadState[threadIndex];
+            statePtr->testsRun = 0;
+            statePtr->a = a;
+            statePtr->b = b;
+            statePtr->c = c;
+            statePtr->d = d;
+            statePtr->done = false;
+            statePtr->index = threadIndex;
+            statePtr->last = false;
+            if (debugThreads) SkDebugf("%s %d create done=%d last=%d\n", __FUNCTION__,
+                    statePtr->index, statePtr->done, statePtr->last);
+            pthread_cond_init(&statePtr->initialized, NULL);
+            ++threadIndex;
+            createThread(statePtr, testFun);
+        } else {
+            while (!State4::queue) {
+                if (debugThreads) SkDebugf("%s checkQueue\n", __FUNCTION__);
+                pthread_cond_wait(&State4::checkQueue, &State4::addQueue);
+            }
+            statePtr = State4::queue;
+            testsRun += statePtr->testsRun;
+            statePtr->testsRun = 0;
+            statePtr->a = a;
+            statePtr->b = b;
+            statePtr->c = c;
+            statePtr->d = d;
+            statePtr->done = false;
+            State4::queue = NULL;
+            for (int index = 0; index < maxThreads; ++index) {
+                if (threadState[index].done) {
+                    State4::queue = &threadState[index];
+                }
+            }
+            if (debugThreads) SkDebugf("%s %d init done=%d last=%d queued=%d\n", __FUNCTION__,
+                    statePtr->index, statePtr->done, statePtr->last,
+                    State4::queue ? State4::queue->index : -1);
+            pthread_cond_signal(&statePtr->initialized);
+        }
+        pthread_mutex_unlock(&State4::addQueue);
+    } else {
+        State4 state;
+        state.a = a;
+        state.b = b;
+        state.c = c;
+        state.d = d;
+        (*testFun)(&state);
+        testsRun++;
     }
-    SkDebugf(".");
+    return testsRun;
+}
+
+void initializeTests(const char* test, size_t testNameSize) {
+    testName = test;
+    if (!gRunTestsInOneThread) {
+        int threads = -1;
+        size_t size = sizeof(threads);
+        sysctlbyname("hw.logicalcpu_max", &threads, &size, NULL, 0);
+        if (threads > 0) {
+            maxThreads = threads;
+        } else {
+            maxThreads = 8;
+        }
+    }
+    if (!gRunTestsInOneThread) {
+        SkFILEStream inFile("../../experimental/Intersection/op.htm");
+        if (inFile.isValid()) {
+            SkTDArray<char> inData;
+            inData.setCount(inFile.getLength());
+            size_t inLen = inData.count();
+            inFile.read(inData.begin(), inLen);
+            inFile.setPath(NULL);
+            char* insert = strstr(inData.begin(), marker);   
+            if (insert) {
+                insert += sizeof(marker) - 1;
+                const char* numLoc = insert + 4 /* indent spaces */ + testNameSize - 1;
+                testNumber = atoi(numLoc) + 1;
+            }
+        }
+    }
+    for (int index = 0; index < maxThreads; ++index) {
+        State4* statePtr = &threadState[index];
+        strcpy(statePtr->filename, filename);
+        SkASSERT(statePtr->filename[sizeof(filename) - 7] == 'X');
+        SkASSERT(statePtr->filename[sizeof(filename) - 6] == 'X');
+        statePtr->filename[sizeof(filename) - 7] = '0' + index / 10;
+        statePtr->filename[sizeof(filename) - 6] = '0' + index % 10;
+    }
     threadIndex = 0;
+}
+
+void outputProgress(const State4& state, const char* pathStr) {
+    if (gRunTestsInOneThread) {
+        SkDebugf("%s\n", pathStr);
+    } else {
+        SkFILEWStream outFile(state.filename);
+        if (!outFile.isValid()) {
+            SkASSERT(0);
+            return;
+        }
+        outputToStream(state, pathStr, outFile);
+    }
+}
+
+void outputToStream(const State4& state, const char* pathStr, SkWStream& outFile) {
+    outFile.writeText("<div id=\"");
+    outFile.writeText(testName);
+    outFile.writeDecAsText(testNumber);
+    outFile.writeText("\">\n");
+    outFile.writeText(pathStr);
+    outFile.writeText("</div>\n\n");
+    
+    outFile.writeText(marker);
+    outFile.writeText("    ");
+    outFile.writeText(testName);
+    outFile.writeDecAsText(testNumber);
+    outFile.writeText(",\n\n\n");
+    
+    outFile.writeText("static void ");
+    outFile.writeText(testName);
+    outFile.writeDecAsText(testNumber);
+    outFile.writeText("() {\n    SkPath path;\n");
+    outFile.writeText(pathStr);
+    outFile.writeText("    testSimplifyx(path);\n}\n\n");
+    outFile.writeText("static void (*firstTest)() = ");
+    outFile.writeText(testName);
+    outFile.writeDecAsText(testNumber);
+    outFile.writeText(";\n\n");
+
+    outFile.writeText("static struct {\n");
+    outFile.writeText("    void (*fun)();\n");
+    outFile.writeText("    const char* str;\n");
+    outFile.writeText("} tests[] = {\n");
+    outFile.writeText("    TEST(");
+    outFile.writeText(testName);
+    outFile.writeDecAsText(testNumber);
+    outFile.writeText("),\n");
+    outFile.flush();
+}
+
+bool runNextTestSet(State4& state) {
+    if (gRunTestsInOneThread) {
+        return false;
+    }
+    pthread_mutex_lock(&State4::addQueue);
+    state.done = true;
+    State4::queue = &state;
+    if (debugThreads) SkDebugf("%s %d checkQueue done=%d last=%d\n", __FUNCTION__, state.index,
+        state.done, state.last);
+    pthread_cond_signal(&State4::checkQueue);
+    while (state.done && !state.last) {
+        if (debugThreads) SkDebugf("%s %d done=%d last=%d\n", __FUNCTION__, state.index, state.done, state.last);
+        pthread_cond_wait(&state.initialized, &State4::addQueue);
+    }
+    pthread_mutex_unlock(&State4::addQueue);
+    return !state.last;
+}
+
+int waitForCompletion() {
+    int testsRun = 0;
+    if (!gRunTestsInOneThread) {
+        pthread_mutex_lock(&State4::addQueue);
+        int runningThreads = maxThreads;
+        int index;
+        while (runningThreads > 0) {
+            while (!State4::queue) {
+                if (debugThreads) SkDebugf("%s checkQueue\n", __FUNCTION__);
+                pthread_cond_wait(&State4::checkQueue, &State4::addQueue);
+            }
+            while (State4::queue) {
+                --runningThreads;
+                SkDebugf("•");
+                State4::queue->last = true;
+                State4* next;
+                for (index = 0; index < maxThreads; ++index) {
+                    State4& test = threadState[index];
+                    if (test.done && !test.last) {
+                        next = &test;
+                    }
+                }
+                if (debugThreads) SkDebugf("%s %d next=%d deQueue\n", __FUNCTION__,
+                    State4::queue->index, next ? next->index : -1);
+                pthread_cond_signal(&State4::queue->initialized);
+                State4::queue = next;
+            }
+        }
+        pthread_mutex_unlock(&State4::addQueue);
+        for (index = 0; index < maxThreads; ++index) {
+            pthread_join(threadState[index].threadID, NULL);
+            testsRun += threadState[index].testsRun;
+        }
+        SkDebugf("\n");
+    }
+#ifdef SK_DEBUG
+    gDebugMaxWindSum = SK_MaxS32;
+    gDebugMaxWindValue = SK_MaxS32;
+#endif
+    return testsRun;
 }

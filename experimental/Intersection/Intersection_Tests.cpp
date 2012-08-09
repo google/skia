@@ -7,7 +7,11 @@ void cubecode_test(int test);
 
 void Intersection_Tests() {
     SimplifyNew_Test();
+    Simplify4x4QuadralateralsThreaded_Test();
+    Simplify4x4QuadraticsThreaded_Test();
     Simplify4x4RectsThreaded_Test();
+    SimplifyNondegenerate4x4TrianglesThreaded_Test();
+    SimplifyDegenerate4x4TrianglesThreaded_Test();
     SimplifyFindNext_Test();
     SimplifyFindTop_Test();
     SimplifyAngle_Test();
@@ -35,15 +39,6 @@ void Intersection_Tests() {
     SimplifyQuadralateralPaths_Test();
 
     ActiveEdge_Test();
-#if TEST_QUADS_FIRST
-    Simplify4x4QuadraticsThreaded_Test();
-#endif
-    SimplifyDegenerate4x4TrianglesThreaded_Test();
-    SimplifyNondegenerate4x4TrianglesThreaded_Test();
-    Simplify4x4QuadralateralsThreaded_Test();
-#if !TEST_QUADS_FIRST
-    Simplify4x4QuadraticsThreaded_Test();
-#endif
 
     QuadraticCoincidence_Test();
     QuadraticIntersection_Test();

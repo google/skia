@@ -12,7 +12,7 @@
 #define TEST(name) { name, #name }
 
 static void testLine1() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(2,0);
     path.lineTo(1,1);
     path.lineTo(0,0);
@@ -49,49 +49,49 @@ static void addOuterCCWTriangle(SkPath& path) {
 }
 
 static void testLine2() {
-    SkPath path, simple;
+    SkPath path;
     addInnerCWTriangle(path);
     addOuterCWTriangle(path);
     testSimplifyx(path);
 }
 
 static void testLine3() {
-    SkPath path, simple;
+    SkPath path;
     addInnerCCWTriangle(path);
     addOuterCWTriangle(path);
     testSimplifyx(path);
 }
 
 static void testLine3a() {
-    SkPath path, simple;
+    SkPath path;
     addInnerCWTriangle(path);
     addOuterCCWTriangle(path);
     testSimplifyx(path);
 }
 
 static void testLine3b() {
-    SkPath path, simple;
+    SkPath path;
     addInnerCCWTriangle(path);
     addOuterCCWTriangle(path);
     testSimplifyx(path);
 }
 
 static void testLine4() {
-    SkPath path, simple;
+    SkPath path;
     addOuterCCWTriangle(path);
     addOuterCWTriangle(path);
     testSimplifyx(path);
 }
 
 static void testLine5() {
-    SkPath path, simple;
+    SkPath path;
     addOuterCWTriangle(path);
     addOuterCWTriangle(path);
     testSimplifyx(path);
 }
 
 static void testLine6() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.lineTo(2,2);
@@ -104,7 +104,7 @@ static void testLine6() {
 }
 
 static void testLine7() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.lineTo(2,2);
@@ -117,7 +117,7 @@ static void testLine7() {
 }
 
 static void testLine7a() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.lineTo(2,2);
@@ -126,7 +126,7 @@ static void testLine7a() {
 }
 
 static void testLine7b() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.close();
@@ -138,7 +138,7 @@ static void testLine7b() {
 }
 
 static void testLine8() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,4);
     path.lineTo(4,4);
     path.lineTo(2,2);
@@ -151,7 +151,7 @@ static void testLine8() {
 }
 
 static void testLine9() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,4);
     path.lineTo(4,4);
     path.lineTo(2,2);
@@ -164,7 +164,7 @@ static void testLine9() {
 }
 
 static void testLine10() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,4);
     path.lineTo(4,4);
     path.lineTo(2,2);
@@ -177,7 +177,7 @@ static void testLine10() {
 }
 
 static void testLine10a() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(0,4);
     path.lineTo(8,4);
     path.lineTo(4,0);
@@ -218,90 +218,90 @@ static void addCCWContents(SkPath& path) {
 }
 
 static void testLine11() {
-    SkPath path, simple;
+    SkPath path;
     addCWContainer(path);
     addCWContents(path);
     testSimplifyx(path);
 }
 
 static void testLine12() {
-    SkPath path, simple;
+    SkPath path;
     addCCWContainer(path);
     addCWContents(path);
     testSimplifyx(path);
 }
 
 static void testLine13() {
-    SkPath path, simple;
+    SkPath path;
     addCWContainer(path);
     addCCWContents(path);
     testSimplifyx(path);
 }
 
 static void testLine14() {
-    SkPath path, simple;
+    SkPath path;
     addCCWContainer(path);
     addCCWContents(path);
     testSimplifyx(path);
 }
 
 static void testLine15() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine16() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine17() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine18() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 4, 21, 21, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine19() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);    
     testSimplifyx(path);
 }
 
 static void testLine20() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine21() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 16, 9, 9, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine22() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine23() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
     testSimplifyx(path);
@@ -310,7 +310,7 @@ static void testLine23() {
 
 
 static void testLine24a() {
-    SkPath path, simple;
+    SkPath path;
     path.moveTo(2,0);
     path.lineTo(4,4);
     path.lineTo(0,4);
@@ -323,49 +323,49 @@ static void testLine24a() {
 }
 
 static void testLine24() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine25() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine26() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine27() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 8, 21, 21, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine28() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine29() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 
 static void testLine30() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 4, 13, 13, (SkPath::Direction) 0);
@@ -373,7 +373,7 @@ static void testLine30() {
 }
 
 static void testLine31() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
@@ -381,7 +381,7 @@ static void testLine31() {
 }
 
 static void testLine32() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
@@ -389,7 +389,7 @@ static void testLine32() {
 }
 
 static void testLine33() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
@@ -397,7 +397,7 @@ static void testLine33() {
 }
 
 static void testLine34() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
@@ -405,7 +405,7 @@ static void testLine34() {
 }
 
 static void testLine35() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 0, 18, 18, (SkPath::Direction) 0);
     path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
@@ -413,7 +413,7 @@ static void testLine35() {
 }
 
 static void testLine36() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
     path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
@@ -421,7 +421,7 @@ static void testLine36() {
 }
 
 static void testLine37() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
     path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
     path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
@@ -429,7 +429,7 @@ static void testLine37() {
 }
 
 static void testLine38() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
     path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
     path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
@@ -437,7 +437,7 @@ static void testLine38() {
 }
 
 static void testLine40() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
     path.addRect(12, 18, 24, 24, (SkPath::Direction) 0);
     path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
@@ -445,7 +445,7 @@ static void testLine40() {
 }
 
 static void testLine41() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
     path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
@@ -453,7 +453,7 @@ static void testLine41() {
 }
 
 static void testLine42() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(8, 16, 17, 17, (SkPath::Direction) 0);
@@ -461,7 +461,7 @@ static void testLine42() {
 }
 
 static void testLine43() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 24, 18, 18, (SkPath::Direction) 0);
     path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
@@ -469,7 +469,7 @@ static void testLine43() {
 }
 
 static void testLine44() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
     path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
     path.addRect(18, 32, 27, 36, (SkPath::Direction) 1);
@@ -477,7 +477,7 @@ static void testLine44() {
 }
 
 static void testLine45() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
     path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
     path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
@@ -485,7 +485,7 @@ static void testLine45() {
 }
 
 static void testLine46() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
     path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
     path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
@@ -493,7 +493,7 @@ static void testLine46() {
 }
 
 static void testLine47() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
@@ -501,7 +501,7 @@ static void testLine47() {
 }
 
 static void testLine48() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
@@ -509,7 +509,7 @@ static void testLine48() {
 }
 
 static void testLine49() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
     path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
@@ -517,7 +517,7 @@ static void testLine49() {
 }
 
 static void testLine50() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
     path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
     testSimplifyx(path);
@@ -525,7 +525,7 @@ static void testLine50() {
 
 
 static void testLine51() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
     path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
@@ -533,7 +533,7 @@ static void testLine51() {
 }
 
 static void testLine52() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 20, 18, 30, (SkPath::Direction) 0);
     path.addRect(32, 0, 36, 41, (SkPath::Direction) 0);
@@ -541,7 +541,7 @@ static void testLine52() {
 }
 
 static void testLine53() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
     path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
     path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
@@ -549,7 +549,7 @@ static void testLine53() {
 }
 
 static void testLine54() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 0, 18, 18, (SkPath::Direction) 0);
     path.addRect(8, 4, 17, 17, (SkPath::Direction) 1);
@@ -557,7 +557,7 @@ static void testLine54() {
 }
 
 static void testLine55() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 6, 18, 18, (SkPath::Direction) 0);
     path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
@@ -565,7 +565,7 @@ static void testLine55() {
 }
 
 static void testLine56() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
     path.addRect(18, 20, 30, 30, (SkPath::Direction) 0);
     path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
@@ -573,7 +573,7 @@ static void testLine56() {
 }
 
 static void testLine57() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
     path.addRect(20, 0, 30, 40, (SkPath::Direction) 0);
     path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
@@ -581,7 +581,7 @@ static void testLine57() {
 }
 
 static void testLine58() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 1);
     path.addRect(0, 12, 9, 9, (SkPath::Direction) 1);
@@ -589,7 +589,7 @@ static void testLine58() {
 }
 
 static void testLine59() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 6, 18, 18, (SkPath::Direction) 1);
     path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
@@ -597,7 +597,7 @@ static void testLine59() {
 }
 
 static void testLine60() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(6, 12, 18, 18, (SkPath::Direction) 1);
     path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
@@ -605,7 +605,7 @@ static void testLine60() {
 }
 
 static void testLine61() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(12, 0, 24, 24, (SkPath::Direction) 1);
     path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
@@ -613,7 +613,7 @@ static void testLine61() {
 }
 
 static void testLine62() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
@@ -622,7 +622,7 @@ static void testLine62() {
 }
 
 static void testLine63() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 6, 12, 12, (SkPath::Direction) 1);
@@ -631,7 +631,7 @@ static void testLine63() {
 }
 
 static void testLine64() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
     path.addRect(18, 6, 30, 30, (SkPath::Direction) 0);
@@ -639,7 +639,7 @@ static void testLine64() {
 }
 
 static void testLine65() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
     path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
@@ -648,7 +648,7 @@ static void testLine65() {
 }
 
 static void testLine66() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
     path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
@@ -656,7 +656,7 @@ static void testLine66() {
 }
 
 static void testLine67() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
     path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
@@ -665,7 +665,7 @@ static void testLine67() {
 }
 
 static void testLine68a() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
     path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
@@ -673,7 +673,7 @@ static void testLine68a() {
 }
 
 static void testLine68b() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
     path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
@@ -681,7 +681,7 @@ static void testLine68b() {
 }
 
 static void testLine68c() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
     path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
@@ -689,7 +689,7 @@ static void testLine68c() {
 }
 
 static void testLine68d() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
     path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
@@ -697,7 +697,7 @@ static void testLine68d() {
 }
 
 static void testLine68e() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
@@ -706,7 +706,7 @@ static void testLine68e() {
 }
 
 static void testLine68f() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
@@ -715,7 +715,7 @@ static void testLine68f() {
 }
 
 static void testLine68g() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
@@ -725,7 +725,7 @@ static void testLine68g() {
 }
 
 static void testLine68h() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
     path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
@@ -735,7 +735,7 @@ static void testLine68h() {
 }
 
 static void testLine69() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
     path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
@@ -743,7 +743,7 @@ static void testLine69() {
 }
 
 static void testLine70() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 24, 12, 12, (SkPath::Direction) 0);
     path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
@@ -751,7 +751,7 @@ static void testLine70() {
 }
 
 static void testLine71() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
     path.addRect(12, 0, 24, 24, (SkPath::Direction) 0);
     path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
@@ -759,7 +759,7 @@ static void testLine71() {
 }
 
 static void testLine72() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
     path.addRect(6, 20, 18, 30, (SkPath::Direction) 0);
@@ -767,7 +767,7 @@ static void testLine72() {
 }
 
 static void testLine73() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(0, 40, 20, 20, (SkPath::Direction) 0);
     path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
@@ -776,7 +776,7 @@ static void testLine73() {
 }
 
 static void testLine74() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(20, 30, 40, 40, (SkPath::Direction) 0);
     path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
     path.addRect(32, 24, 36, 41, (SkPath::Direction) 1);
@@ -784,7 +784,7 @@ static void testLine74() {
 }
 
 static void testLine75() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
     path.addRect(10, 0, 30, 30, (SkPath::Direction) 1);
     path.addRect(18, 0, 30, 30, (SkPath::Direction) 1);
@@ -793,7 +793,7 @@ static void testLine75() {
 }
 
 static void testLine76() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(36, 0, 66, 60, (SkPath::Direction) 0);
     path.addRect(10, 20, 40, 30, (SkPath::Direction) 0);
     path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
@@ -802,7 +802,7 @@ static void testLine76() {
 }
 
 static void testLine77() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
     path.addRect(24, 6, 36, 36, (SkPath::Direction) 1);
     path.addRect(24, 32, 33, 36, (SkPath::Direction) 1);
@@ -810,7 +810,7 @@ static void testLine77() {
 }
 
 static void testLine78() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 0, 30, 60, (SkPath::Direction) 0);
     path.addRect(10, 20, 30, 30, (SkPath::Direction) 1);
     path.addRect(18, 20, 30, 30, (SkPath::Direction) 1);
@@ -819,11 +819,145 @@ static void testLine78() {
 }
 
 static void testLine79() {
-    SkPath path, simple;
+    SkPath path;
     path.addRect(0, 36, 60, 30, (SkPath::Direction) 0);
     path.addRect(10, 30, 40, 30, (SkPath::Direction) 0);
     path.addRect(0, 20, 12, 30, (SkPath::Direction) 1);
     path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testDegenerate1() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(2, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(2, 0);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testDegenerate2() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(0, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testDegenerate3() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.lineTo(1, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(3, 0);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testDegenerate4() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 1);
+    path.lineTo(1, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testNondegenerate1() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(3, 0);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 1);
+    path.lineTo(2, 1);
+    path.lineTo(1, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testNondegenerate2() {
+    SkPath path;
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(0, 2);
+    path.lineTo(0, 3);
+    path.lineTo(1, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testNondegenerate3() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(1, 1);
+    path.lineTo(0, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testNondegenerate4() {
+    SkPath path;
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 2);
+    path.lineTo(0, 3);
+    path.lineTo(1, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadralateral5() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 2);
+    path.lineTo(3, 2);
+    path.lineTo(3, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadralateral6() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.lineTo(0, 2);
+    path.lineTo(2, 2);
+    path.close();
     testSimplifyx(path);
 }
 
@@ -833,6 +967,16 @@ static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadralateral6),
+    TEST(testQuadralateral5),
+    TEST(testNondegenerate4),
+    TEST(testNondegenerate3),
+    TEST(testNondegenerate2),
+    TEST(testNondegenerate1),
+    TEST(testDegenerate4),
+    TEST(testDegenerate3),
+    TEST(testDegenerate2),
+    TEST(testDegenerate1),
     TEST(testLine79),
     TEST(testLine78),
     TEST(testLine77),
@@ -968,7 +1112,9 @@ void SimplifyNew_Test() {
         while (index > 0 && tests[index].fun != firstTest) {
             --index;
         }
+        (*tests[index].fun)();
     }
+    index = testCount - 1;
     bool firstTestComplete = false;
     do {
         SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
