@@ -208,7 +208,6 @@
         '<(skia_include_path)/core/SkPath.h',
         '<(skia_include_path)/core/SkPathEffect.h',
         '<(skia_include_path)/core/SkPathMeasure.h',
-        '<(skia_include_path)/core/SkPerspIter.h',
         '<(skia_include_path)/core/SkPicture.h',
         '<(skia_include_path)/core/SkPixelRef.h',
         '<(skia_include_path)/core/SkPoint.h',
