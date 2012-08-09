@@ -690,6 +690,7 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::updateClip(
     }
     fClip.fOp = rec->fOp;
     fClip.fDoAA = rec->fDoAA;
+    fClip.fGenID = rec->fGenID;
     return &fClip;
 }
 
@@ -811,4 +812,14 @@ void SkClipStack::purgeClip(Rec* rec) {
 
 int32_t SkClipStack::GetNextGenID() {
     return sk_atomic_inc(&gGenID);
+}
+
+int32_t SkClipStack::getTopmostGenID() const {
+
+    if (fDeque.empty()) {
+        return kInvalidGenID;
+    }
+
+    Rec* rec = (Rec*)fDeque.back();
+    return rec->fGenID;
 }
