@@ -111,6 +111,24 @@
           '-Wno-unused-parameter',
           '-Wno-c++11-extensions'
         ],
+        'conditions' : [
+          ['skia_arch_width == 64', {
+            'cflags': [
+              '-m64',
+            ],
+            'ldflags': [
+              '-m64',
+            ],
+          }],
+          ['skia_arch_width == 32', {
+            'cflags': [
+              '-m32',
+            ],
+            'ldflags': [
+              '-m32',
+            ],
+          }],
+        ],
         'include_dirs' : [
           '/usr/include/freetype2',
         ],

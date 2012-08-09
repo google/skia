@@ -57,6 +57,11 @@
         }, {
           'os_posix%': 1,
         }],
+        ['skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+          'skia_arch_width%': 64,
+        }, {
+          'skia_arch_width%': 32,
+        }],
       ],
 
       'skia_scalar%': 'float',
@@ -65,7 +70,6 @@
       # Do not turn on 'skia_angle' - it is currently experimental
       'skia_angle%': 0,
       'skia_arch_type%': 'x86',
-      'skia_arch_width%': 32,
       'android_make_apk%': 1,
       'skia_gpu%': 1,
     },
