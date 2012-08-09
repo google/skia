@@ -76,7 +76,7 @@
         }],
         [ 'skia_os == "android"', {
           'dependencies': [
-             'android_system.gyp:ft2',
+             'android_deps.gyp:ft2',
           ],
         }],
         [ 'skia_os == "android" and skia_arch_type == "arm" and armv7 == 1', {
