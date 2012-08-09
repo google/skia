@@ -66,7 +66,6 @@
         '../samplecode/SampleLayerMask.cpp',
         '../samplecode/SampleLayers.cpp',
         '../samplecode/SampleLCD.cpp',
-        '../samplecode/SampleLineClipper.cpp',
         '../samplecode/SampleLines.cpp',
         '../samplecode/SampleMeasure.cpp',
         '../samplecode/SampleMipMap.cpp',
