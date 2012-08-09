@@ -6,9 +6,6 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
-#include "SkPicture.h"
-#include "SkRectShape.h"
-#include "SkGroupShape.h"
 
 typedef SkScalar (*MakePathProc)(SkPath*);
 

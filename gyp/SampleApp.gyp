@@ -85,7 +85,6 @@
         '../samplecode/SampleRepeatTile.cpp',
         '../samplecode/SampleShaders.cpp',
         '../samplecode/SampleShaderText.cpp',
-        '../samplecode/SampleShapes.cpp',
         '../samplecode/SampleSkLayer.cpp',
         '../samplecode/SampleSlides.cpp',
         '../samplecode/SampleStrokePath.cpp',
