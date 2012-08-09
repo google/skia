@@ -748,11 +748,135 @@ path.close();
     path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
 </div>
 
+<div id="testDegenerate1">
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(2, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(2, 0);
+    path.close();
+</div>
+
+<div id="testDegenerate2">
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(0, 1);
+    path.close();
+</div>
+
+<div id="testDegenerate3">
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.lineTo(1, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(3, 0);
+    path.close();
+</div>
+
+<div id="testDegenerate4">
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 1);
+    path.lineTo(1, 2);
+    path.close();
+</div>
+
+<div id="testNondegenerate1">
+    path.moveTo(0, 0);
+    path.lineTo(3, 0);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 1);
+    path.lineTo(2, 1);
+    path.lineTo(1, 2);
+    path.close();
+</div>
+
+<div id="testNondegenerate2">
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(0, 2);
+    path.lineTo(0, 3);
+    path.lineTo(1, 2);
+    path.close();
+</div>
+
+<div id="testNondegenerate3">
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(1, 1);
+    path.lineTo(0, 2);
+    path.close();
+</div>
+
+<div id="testNondegenerate4">
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 2);
+    path.lineTo(0, 3);
+    path.lineTo(1, 3);
+    path.close();
+</div>
+
+<div id="testQuadralateral5">
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 2);
+    path.lineTo(3, 2);
+    path.lineTo(3, 3);
+    path.close();
+</div>
+
+<div id="testQuadralateral6">
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.lineTo(0, 2);
+    path.lineTo(2, 2);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadralateral6,
+    testQuadralateral5,
+    testNondegenerate4,
+    testNondegenerate3,
+    testNondegenerate2,
+    testNondegenerate1,
+    testDegenerate4,
+    testDegenerate3,
+    testDegenerate2,
+    testDegenerate1,
     testLine79,
     testLine78,
     testLine77,
