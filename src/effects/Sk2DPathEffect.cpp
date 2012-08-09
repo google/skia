@@ -8,25 +8,9 @@
 
 
 #include "Sk2DPathEffect.h"
-#include "SkBlitter.h"
 #include "SkFlattenableBuffers.h"
 #include "SkPath.h"
-#include "SkScan.h"
-
-class Sk2DPathEffectBlitter : public SkBlitter {
-public:
-    Sk2DPathEffectBlitter(Sk2DPathEffect* pe, SkPath* dst)
-        : fPE(pe), fDst(dst) {}
-
-    virtual void blitH(int x, int y, int count) {
-        fPE->nextSpan(x, y, count, fDst);
-    }
-private:
-    Sk2DPathEffect* fPE;
-    SkPath*         fDst;
-};
-
-///////////////////////////////////////////////////////////////////////////////
+#include "SkRegion.h"
 
 Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     fMatrixIsInvertible = mat.invert(&fInverse);
@@ -37,15 +21,24 @@ bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) {
         return false;
     }
 
-    Sk2DPathEffectBlitter   blitter(this, dst);
-    SkPath                  tmp;
-    SkIRect                 ir;
+    SkPath  tmp;
+    SkIRect ir;
 
     src.transform(fInverse, &tmp);
     tmp.getBounds().round(&ir);
     if (!ir.isEmpty()) {
         this->begin(ir, dst);
-        SkScan::FillPath(tmp, ir, &blitter);
+
+        SkRegion rgn;
+        rgn.setPath(tmp, SkRegion(ir));
+        SkRegion::Iterator iter(rgn);
+        for (; !iter.done(); iter.next()) {
+            const SkIRect& rect = iter.rect();
+            for (int y = rect.fTop; y < rect.fBottom; ++y) {
+                this->nextSpan(rect.fLeft, y, rect.width(), dst);
+            }
+        }
+
         this->end(dst);
     }
     return true;
