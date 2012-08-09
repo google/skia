@@ -151,7 +151,7 @@ void gen_texture_key_values(const GrGpu* gpu,
     }
 
     cacheID->fPublicID = clientKey;
-    cacheID->fDomain = GrCacheID::kUnrestricted_ResourceDomain;
+    cacheID->fDomain = desc.fResourceDomain;
 
     // we assume we only need 16 bits of width and height
     // assert that texture creation will fail anyway if this assumption

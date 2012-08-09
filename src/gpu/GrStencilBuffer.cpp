@@ -66,7 +66,7 @@ void gen_stencil_key_values(int width,
                             GrCacheID* cacheID) {
     cacheID->fPublicID = GrCacheID::kDefaultPublicCacheID;
     cacheID->fResourceSpecific32 = width | (height << 16);
-    cacheID->fDomain = GrCacheID::kUnrestricted_ResourceDomain;
+    cacheID->fDomain = kUnrestricted_ResourceDomain;
 
     GrAssert(sampleCnt >= 0 && sampleCnt < 256);
     cacheID->fResourceSpecific16 = sampleCnt << 8;
