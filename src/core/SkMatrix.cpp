@@ -57,8 +57,6 @@ enum {
 #endif
 
 uint8_t SkMatrix::computePerspectiveTypeMask() const {
-    unsigned mask = kOnlyPerspectiveValid_Mask | kUnknown_Mask;
-
 #ifdef SK_SCALAR_SLOW_COMPARES
     if (SkScalarAs2sCompliment(fMat[kMPersp0]) |
             SkScalarAs2sCompliment(fMat[kMPersp1]) |
