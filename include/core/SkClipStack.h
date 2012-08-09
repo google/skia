@@ -100,6 +100,8 @@ public:
     static const int32_t kEmptyGenID = 1;       // no pixels writeable
     static const int32_t kWideOpenGenID = 2;    // all pixels writeable
 
+    int32_t getTopmostGenID() const;
+
 private:
     struct Rec;
 
@@ -127,6 +129,7 @@ public:
             const SkPath*   fPath;  // if non-null, this is a path clip
             SkRegion::Op    fOp;
             bool            fDoAA;
+            int32_t         fGenID;
         };
 
         /**
