@@ -53,7 +53,6 @@
     '../gm/shaderbounds.cpp',
     '../gm/shadertext.cpp',
     '../gm/shadows.cpp',
-    '../gm/shapes.cpp',
     '../gm/simpleaaclip.cpp',
     '../gm/strokefill.cpp',
     '../gm/strokerects.cpp',

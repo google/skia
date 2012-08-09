@@ -25,7 +25,6 @@
         '../gm/poly2poly.cpp',
         '../gm/shadertext.cpp',
         '../gm/shadows.cpp',
-        '../gm/shapes.cpp',
         '../gm/tilemodes.cpp',
         '../gm/xfermodes.cpp',
 
@@ -93,7 +92,6 @@
         '../samplecode/SampleRepeatTile.cpp',
         '../samplecode/SampleShaders.cpp',
         '../samplecode/SampleShaderText.cpp',
-        '../samplecode/SampleShapes.cpp',
         '../samplecode/SampleSkLayer.cpp',
         '../samplecode/SampleSlides.cpp',
         '../samplecode/SampleStrokePath.cpp',

@@ -16,7 +16,6 @@
 #include "SkMallocPixelRef.h"
 #include "SkPathEffect.h"
 #include "SkPixelRef.h"
-#include "SkShape.h"
 #include "SkXfermode.h"
 
 #include "Sk1DPathEffect.h"
@@ -37,14 +36,12 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkFlattenable.h"
 #include "SkGradientShader.h"
-#include "SkGroupShape.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkPathEffect.h"
 #include "SkPixelXorXfermode.h"
-#include "SkRectShape.h"
 #include "SkStippleMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
@@ -67,16 +64,13 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkErodeImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkGroupShape)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPixelXorXfermode)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRectShape)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkStippleMaskFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkShape)
 
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOffsetImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeImageFilter)
