@@ -96,8 +96,8 @@
             #TODO: include the ports/SkImageRef_ashmem.cpp for non-NDK builds
           ],
           'dependencies': [
-             'android_system.gyp:ft2',
-             'android_system.gyp:expat',
+             'android_deps.gyp:ft2',
+             'android_deps.gyp:expat',
           ],
         }],        
       ],

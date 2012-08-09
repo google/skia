@@ -109,8 +109,8 @@
           'sources!': [
           ],
           'dependencies': [
-             'android_system.gyp:gif',
-             'android_system.gyp:png',
+             'android_deps.gyp:gif',
+             'android_deps.gyp:png',
           ],
           'defines': [
             'SK_ENABLE_LIBPNG',
