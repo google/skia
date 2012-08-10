@@ -16,6 +16,34 @@
 #include "SkSize.h"
 #include "SkWriter32.h"
 
+// Inspired by http://code.google.com/p/chromium/issues/detail?id=141651
+//
+static void test_isfinite_after_transform(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.quadTo(157, 366, 286, 208);
+    path.arcTo(37, 442, 315, 163, 957494590897113.0f);
+    
+    SkMatrix matrix;
+    matrix.setScale(1000*1000, 1000*1000);
+
+    // Be sure that path::transform correctly updates isFinite and the bounds
+    // if the transformation overflows. The previous bug was that isFinite was
+    // set to true in this case, but the bounds were not set to empty (which
+    // they should be).
+    while (path.isFinite()) {
+        REPORTER_ASSERT(reporter, path.getBounds().isFinite());
+        REPORTER_ASSERT(reporter, !path.getBounds().isEmpty());
+        path.transform(matrix);
+    }
+    REPORTER_ASSERT(reporter, path.getBounds().isEmpty());
+
+    matrix.setTranslate(SK_Scalar1, SK_Scalar1);
+    path.transform(matrix);
+    // we need to still be non-finite
+    REPORTER_ASSERT(reporter, !path.isFinite());
+    REPORTER_ASSERT(reporter, path.getBounds().isEmpty());
+}
+
 static void test_rect_isfinite(skiatest::Reporter* reporter) {
     const SkScalar inf = SK_ScalarInfinity;
     const SkScalar nan = SK_ScalarNaN;
@@ -1561,6 +1589,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_strokerec(reporter);
     test_addPoly(reporter);
     test_isfinite(reporter);
+    test_isfinite_after_transform(reporter);
 }
 
 #include "TestClassDef.h"

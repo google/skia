@@ -1341,13 +1341,30 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         dst->swap(tmp);
         matrix.mapPoints(dst->fPts.begin(), dst->fPts.count());
     } else {
-        // remember that dst might == this, so be sure to check
-        // fBoundsIsDirty before we set it
+        /*
+         *  If we're not in perspective, we can transform all of the points at
+         *  once.
+         *
+         *  Here we also want to optimize bounds, by noting if the bounds are
+         *  already known, and if so, we just transform those as well and mark
+         *  them as "known", rather than force the transformed path to have to
+         *  recompute them.
+         *
+         *  Special gotchas if the path is effectively empty (<= 1 point) or
+         *  if it is non-finite. In those cases bounds need to stay empty,
+         *  regardless of the matrix.
+         */
         if (!fBoundsIsDirty && matrix.rectStaysRect() && fPts.count() > 1) {
-            // if we're empty, fastbounds should not be mapped
-            matrix.mapRect(&dst->fBounds, fBounds);
             dst->fBoundsIsDirty = false;
-            dst->fIsFinite = dst->fBounds.isFinite();
+            if (fIsFinite) {
+                matrix.mapRect(&dst->fBounds, fBounds);
+                if (!(dst->fIsFinite = dst->fBounds.isFinite())) {
+                    dst->fBounds.setEmpty();
+                }
+            } else {
+                dst->fIsFinite = false;
+                dst->fBounds.setEmpty();
+            }
         } else {
             GEN_ID_PTR_INC(dst);
             dst->fBoundsIsDirty = true;
@@ -1795,7 +1812,10 @@ void SkPath::validate() const {
 
     if (!fBoundsIsDirty) {
         SkRect bounds;
-        compute_pt_bounds(&bounds, fPts);
+
+        bool isFinite = compute_pt_bounds(&bounds, fPts);
+        SkASSERT(fIsFinite == isFinite);
+
         if (fPts.count() <= 1) {
             // if we're empty, fBounds may be empty but translated, so we can't
             // necessarily compare to bounds directly
