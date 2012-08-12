@@ -16,6 +16,7 @@
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 #include "SkPicture.h"
+#include "SkPtrRecorder.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"

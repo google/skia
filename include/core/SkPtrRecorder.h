@@ -11,6 +11,7 @@
 #define SkPtrSet_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkFlattenable.h"
 #include "SkTDArray.h"
 
 /**
@@ -97,6 +98,50 @@ public:
 
 private:
     typedef SkPtrSet INHERITED;
+};
+
+/**
+ *  Subclass of SkTPtrSet specialed to call ref() and unref() when the
+ *  base class's incPtr() and decPtr() are called. This makes it a valid owner
+ *  of each ptr, which is released when the set is reset or destroyed.
+ */
+class SkRefCntSet : public SkTPtrSet<SkRefCnt*> {
+public:
+    virtual ~SkRefCntSet();
+    
+protected:
+    // overrides
+    virtual void incPtr(void*);
+    virtual void decPtr(void*);
+};
+
+class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};
+
+/**
+ * Similar to SkFactorySet, but only allows Factorys that have registered names.
+ * Also has a function to return the next added Factory's name.
+ */
+class SkNamedFactorySet : public SkRefCnt {
+public:
+    SkNamedFactorySet();
+    
+    /**
+     * Find the specified Factory in the set. If it is not already in the set,
+     * and has registered its name, add it to the set, and return its index.
+     * If the Factory has no registered name, return 0.
+     */
+    uint32_t find(SkFlattenable::Factory);
+    
+    /**
+     * If new Factorys have been added to the set, return the name of the first
+     * Factory added after the Factory name returned by the last call to this
+     * function.
+     */
+    const char* getNextAddedFactoryName();
+private:
+    int                    fNextAddedFactory;
+    SkFactorySet           fFactorySet;
+    SkTDArray<const char*> fNames;
 };
 
 #endif
