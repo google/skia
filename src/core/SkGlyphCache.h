@@ -16,6 +16,7 @@
 #include "SkGlyph.h"
 #include "SkScalerContext.h"
 #include "SkTemplates.h"
+#include "SkTDArray.h"
 
 class SkPaint;
 

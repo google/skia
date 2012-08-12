@@ -18,6 +18,9 @@
 #include "SkWriter32.h"
 
 class SkFlattenable;
+class SkFactorySet;
+class SkNamedFactorySet;
+class SkRefCntSet;
 
 class SkOrderedWriteBuffer : public SkFlattenableWriteBuffer {
 public:

@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkFlattenable.h"
+#include "SkPtrRecorder.h"
 
 SK_DEFINE_INST_COUNT(SkFlattenable)
 

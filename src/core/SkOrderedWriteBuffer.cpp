@@ -7,6 +7,7 @@
  */
 
 #include "SkOrderedWriteBuffer.h"
+#include "SkPtrRecorder.h"
 #include "SkTypeface.h"
 
 SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize)
