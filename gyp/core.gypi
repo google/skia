@@ -192,7 +192,6 @@
         '<(skia_include_path)/core/SkFloatingPoint.h',
         '<(skia_include_path)/core/SkFontHost.h',
         '<(skia_include_path)/core/SkGeometry.h',
-        '<(skia_include_path)/core/SkGlyph.h',
         '<(skia_include_path)/core/SkGraphics.h',
         '<(skia_include_path)/core/SkInstCnt.h',
         '<(skia_include_path)/core/SkMallocPixelRef.h',
