@@ -215,7 +215,6 @@
         '<(skia_include_path)/core/SkReader32.h',
         '<(skia_include_path)/core/SkRect.h',
         '<(skia_include_path)/core/SkRefCnt.h',
-        '<(skia_include_path)/core/SkRefDict.h',
         '<(skia_include_path)/core/SkRegion.h',
         '<(skia_include_path)/core/SkScalar.h',
         '<(skia_include_path)/core/SkScalarCompare.h',
