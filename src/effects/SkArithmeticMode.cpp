@@ -107,14 +107,7 @@ void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
                 b = blend(b, SkGetPackedB32(sc), scale);
             }
 
-            // turn the result back into premul
-            if (0xFF != a) {
-                int scale = a + (a >> 7);
-                r = SkAlphaMul(r, scale);
-                g = SkAlphaMul(g, scale);
-                b = SkAlphaMul(b, scale);
-            }
-            dst[i] = SkPackARGB32(a, r, g, b);
+            dst[i] = SkPremultiplyARGBInline(a, r, g, b);
         }
     }
 }
