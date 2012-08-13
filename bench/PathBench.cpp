@@ -361,7 +361,7 @@ public:
     }
 
 protected:
-    enum { N = SkBENCHLOOP(50000) };
+    enum { N = SkBENCHLOOP(30000) };
 
     virtual const char* onGetName() SK_OVERRIDE {
         return "path_copy";
