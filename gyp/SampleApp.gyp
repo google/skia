@@ -93,7 +93,6 @@
         '../samplecode/SampleText.cpp',
         '../samplecode/SampleTextAlpha.cpp',
         '../samplecode/SampleTextBox.cpp',
-        '../samplecode/SampleTextEffects.cpp',
         '../samplecode/SampleTextOnPath.cpp',
         '../samplecode/SampleTextureDomain.cpp',
         '../samplecode/SampleTiling.cpp',
