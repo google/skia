@@ -59,7 +59,7 @@ GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::De
 }
 
 GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc) 
-    : fCacheID(kCacheDomain + sk_atomic_inc(&gCacheCount))
+    : fCacheID(sk_atomic_inc(&gCacheCount))
     , fLockedRows(0)
     , fDesc(desc)
     , fNumRows(desc.fHeight / desc.fRowHeight)

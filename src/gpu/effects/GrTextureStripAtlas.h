@@ -129,13 +129,11 @@ private:
     void validate();
 #endif
 
-    // We increment fCacheCount for each atlas, kCacheDomain is just an arbitrary number we add to
-    // it in hopes of preventing collisions (this is only until resource domains get worked out).
+    // We increment gCacheCount for each atlas
     static int32_t gCacheCount;
-    static const uint64_t kCacheDomain = 0xfffffffffffffff0;
 
-    // A unique ID for this texture (formed with: kCacheDomain + gCacheCount++), so we can be sure
-    // that if we get a texture back from the texture cache, that it's the same one we last used.
+    // A unique ID for this texture (formed with: gCacheCount++), so we can be sure that if we
+    // get a texture back from the texture cache, that it's the same one we last used.
     const uint64_t fCacheID;
 
     // Total locks on all rows (when this reaches zero, we can unlock our texture)
