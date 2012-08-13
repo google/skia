@@ -138,20 +138,21 @@ namespace {
 void gen_texture_key_values(const GrGpu* gpu,
                             const GrTextureParams* params,
                             const GrTextureDesc& desc,
+                            const GrCacheData& cacheData,
                             bool scratch,
                             GrCacheID* cacheID) {
 
-    uint64_t clientKey = desc.fClientCacheID;
+    uint64_t clientKey = cacheData.fClientCacheID;
 
     if (scratch) {
         // Instead of a client-provided key of the texture contents
         // we create a key from the descriptor.
-        GrAssert(kScratch_CacheID == clientKey);
+        GrAssert(GrCacheData::kScratch_CacheID == clientKey);
         clientKey = (desc.fFlags << 8) | ((uint64_t) desc.fConfig << 32);
     }
 
     cacheID->fPublicID = clientKey;
-    cacheID->fDomain = desc.fResourceDomain;
+    cacheID->fDomain = cacheData.fResourceDomain;
 
     // we assume we only need 16 bits of width and height
     // assert that texture creation will fail anyway if this assumption
@@ -184,9 +185,10 @@ void gen_texture_key_values(const GrGpu* gpu,
 GrResourceKey GrTexture::ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrTextureDesc& desc,
+                                    const GrCacheData& cacheData,
                                     bool scratch) {
     GrCacheID id(GrTexture::GetResourceType());
-    gen_texture_key_values(gpu, params, desc, scratch, &id);
+    gen_texture_key_values(gpu, params, desc, cacheData, scratch, &id);
 
     uint32_t v[4];
     id.toRaw(v);

@@ -16,17 +16,6 @@ class GrRenderTarget;
 class GrResourceKey;
 class GrTextureParams;
 
-/*
- * All uncached textures should have this value as their fClientCacheID
- */
-static const uint64_t kUncached_CacheID = 0xAAAAAAAA;
-
-/*
- * Scratch textures should all have this value as their fClientCacheID
- */
-static const uint64_t kScratch_CacheID = 0xBBBBBBBB;
-
-
 class GrTexture : public GrSurface {
 
 public:
@@ -166,6 +155,7 @@ public:
     static GrResourceKey ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* sampler,
                                     const GrTextureDesc& desc,
+                                    const GrCacheData& cacheData,
                                     bool scratch);
 
     static bool NeedsResizing(const GrResourceKey& key);

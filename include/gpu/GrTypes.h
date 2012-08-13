@@ -468,17 +468,6 @@ enum {
     kGrColorTableSize = 256 * 4 //sizeof(GrColor)
 };
 
-/*
- * Default value for fClientCacheID
- */
-static const uint64_t kDefault_CacheID = 0;
-
-/**
-  * All scratch resources should be Unrestricted so they can be used 
-  * by any domain.
-  */
-static const uint8_t kUnrestricted_ResourceDomain = 0;
-
 
 /**
  * Describes a texture to be created.
@@ -489,9 +478,7 @@ struct GrTextureDesc {
     , fWidth(0)
     , fHeight(0)
     , fConfig(kUnknown_GrPixelConfig)
-    , fSampleCnt(0)
-    , fClientCacheID(kDefault_CacheID)
-    , fResourceDomain(kUnrestricted_ResourceDomain) {
+    , fSampleCnt(0) {
     }
 
     GrTextureFlags         fFlags;  //!< bitfield of TextureFlags
@@ -512,6 +499,33 @@ struct GrTextureDesc {
      * max supportex count.
      */
     int                    fSampleCnt;
+};
+
+/**
+ * GrCacheData holds user-provided cache-specific data. It is used in 
+ * combination with the GrTextureDesc to construct a cache key for texture
+ * resources.
+ */
+struct GrCacheData {
+    /*
+     * Scratch textures should all have this value as their fClientCacheID
+     */
+    static const uint64_t kScratch_CacheID = 0xBBBBBBBB;
+
+    /**
+      * Resources in the "scratch" domain can be used by any domain. All
+      * scratch textures will have this as their domain.
+      */
+    static const uint8_t kScratch_ResourceDomain = 0;
+
+
+    // No default constructor is provided since, if you are creating one
+    // of these, you should definitely have a key (or be using the scratch
+    // key).
+    GrCacheData(uint64_t key) 
+    : fClientCacheID(key)
+    , fResourceDomain(kScratch_ResourceDomain) {
+    }
 
     /**
      * A user-provided texture ID. It should be unique to the texture data and

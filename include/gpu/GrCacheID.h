@@ -75,7 +75,7 @@ public:
 
     GrCacheID(uint8_t resourceType)
         : fPublicID(kDefaultPublicCacheID)
-        , fDomain(kUnrestricted_ResourceDomain)
+        , fDomain(GrCacheData::kScratch_ResourceDomain)
         , fResourceType(resourceType) {
     }
 
