@@ -1966,4 +1966,3 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fCache = cacheEntry;
     fNeedClear = needClear;
 }
-

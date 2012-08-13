@@ -45,6 +45,7 @@
 #include "SkStippleMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
+#include "SkZoomImageFilter.h"
 
 void SkFlattenable::InitializeFlattenables() {
 
@@ -71,6 +72,7 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPixelXorXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkStippleMaskFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMagnifierImageFilter)
 
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOffsetImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeImageFilter)

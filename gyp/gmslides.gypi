@@ -36,6 +36,7 @@
     '../gm/hairmodes.cpp',
     '../gm/hittestpath.cpp',
     '../gm/imageblur.cpp',
+    '../gm/imagemagnifier.cpp',
     '../gm/lighting.cpp',
     '../gm/imagefiltersbase.cpp',
     '../gm/lcdtext.cpp',

@@ -205,11 +205,13 @@ DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
 // We force some of the effects that would otherwise be discarded to link here.
 
 #include "SkLightingImageFilter.h"
+#include "SkMagnifierImageFilter.h"
 
 void forceLinking();
 
 void forceLinking() {
     SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
+    SkMagnifierImageFilter mag(SkRect::MakeWH(SK_Scalar1, SK_Scalar1), SK_Scalar1);
 }
 
 #endif

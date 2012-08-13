@@ -35,6 +35,7 @@
         '../include/effects/SkTableColorFilter.h',
         '../include/effects/SkTableMaskFilter.h',
         '../include/effects/SkTransparentShader.h',
+        '../include/effects/SkMagnifierImageFilter.h',
 
         '../src/effects/Sk1DPathEffect.cpp',
         '../src/effects/Sk2DPathEffect.cpp',
@@ -68,6 +69,7 @@
         '../src/effects/SkTableMaskFilter.cpp',
         '../src/effects/SkTestImageFilters.cpp',
         '../src/effects/SkTransparentShader.cpp',
+        '../src/effects/SkMagnifierImageFilter.cpp',
 
         '../src/effects/gradients/SkBitmapCache.cpp',
         '../src/effects/gradients/SkBitmapCache.h',
