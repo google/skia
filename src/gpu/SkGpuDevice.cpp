@@ -1907,9 +1907,10 @@ bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
     desc.fWidth = bitmap.width();
     desc.fHeight = bitmap.height();
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
-    desc.fClientCacheID = key;
 
-    return this->context()->isTextureInCache(desc, &params);
+    GrCacheData cacheData(key);
+
+    return this->context()->isTextureInCache(desc, cacheData, &params);
 }
 
 

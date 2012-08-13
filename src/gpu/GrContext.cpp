@@ -238,15 +238,17 @@ void convolve_gaussian(GrGpu* gpu,
 }
 
 GrContext::TextureCacheEntry GrContext::findAndLockTexture(const GrTextureDesc& desc,
+                                                           const GrCacheData& cacheData,
                                                            const GrTextureParams* params) {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, false);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
     return TextureCacheEntry(fTextureCache->findAndLock(resourceKey,
                                             GrResourceCache::kNested_LockType));
 }
 
 bool GrContext::isTextureInCache(const GrTextureDesc& desc,
+                                 const GrCacheData& cacheData,
                                  const GrTextureParams* params) const {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, false);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
     return fTextureCache->hasKey(resourceKey);
 }
 
@@ -309,6 +311,7 @@ static void stretchImage(void* dst,
 GrContext::TextureCacheEntry GrContext::createAndLockTexture(
         const GrTextureParams* params,
         const GrTextureDesc& desc,
+        const GrCacheData& cacheData,
         void* srcData,
         size_t rowBytes) {
     SK_TRACE_EVENT0("GrContext::createAndLockTexture");
@@ -319,16 +322,16 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(
 
     TextureCacheEntry entry;
 
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, false);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
 
     if (GrTexture::NeedsResizing(resourceKey)) {
         // The desired texture is NPOT and tiled but that isn't supported by 
         // the current hardware. Resize the texture to be a POT
         GrAssert(NULL != params);
-        TextureCacheEntry clampEntry = this->findAndLockTexture(desc, NULL);
+        TextureCacheEntry clampEntry = this->findAndLockTexture(desc, cacheData, NULL);
 
         if (NULL == clampEntry.texture()) {
-            clampEntry = this->createAndLockTexture(NULL, desc, srcData, rowBytes);
+            clampEntry = this->createAndLockTexture(NULL, desc, cacheData, srcData, rowBytes);
             GrAssert(NULL != clampEntry.texture());
             if (NULL == clampEntry.texture()) {
                 return entry;
@@ -411,7 +414,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
                                                 const GrTextureDesc& inDesc,
                                                 ScratchTexMatch match) {
     GrTextureDesc desc = inDesc;
-    desc.fClientCacheID = kScratch_CacheID;
+    GrCacheData cacheData(GrCacheData::kScratch_CacheID);
 
     if (kExact_ScratchTexMatch != match) {
         // bin by pow2 with a reasonable min
@@ -427,7 +430,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
     bool doubledH = false;
 
     do {
-        GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, desc, true);
+        GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, desc, cacheData, true);
         entry = fTextureCache->findAndLock(key,
                                            GrResourceCache::kNested_LockType);
         // if we miss, relax the fit of the flags...
@@ -462,6 +465,7 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
         if (NULL != texture) {
             GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL,
                                                       texture->desc(),
+                                                      cacheData,
                                                       true);
             entry = fTextureCache->createAndLock(key, texture);
         }
@@ -482,8 +486,12 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
         return;
     }
 
+    // 'texture' is a scratch texture returning to the fold
+    GrCacheData cacheData(GrCacheData::kScratch_CacheID);
+
     GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL,
                                               texture->desc(),
+                                              cacheData,
                                               true);
     fTextureCache->attach(key, texture);
 }
@@ -510,7 +518,6 @@ GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,
                                             void* srcData,
                                             size_t rowBytes) {
     GrTextureDesc descCopy = descIn;
-    descCopy.fClientCacheID = kUncached_CacheID;
     return fGpu->createTexture(descCopy, srcData, rowBytes);
 }
 

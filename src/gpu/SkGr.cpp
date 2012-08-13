@@ -75,7 +75,8 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
     desc.fWidth = bitmap->width();
     desc.fHeight = bitmap->height();
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());
-    desc.fClientCacheID = key;
+
+    GrCacheData cacheData(key);
 
     if (SkBitmap::kIndex8_Config == bitmap->config()) {
         // build_compressed_data doesn't do npot->pot expansion
@@ -91,8 +92,9 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
             
-            if (kUncached_CacheID != key) {
-                return ctx->createAndLockTexture(params, desc, storage.get(),
+            if (GrCacheData::kScratch_CacheID != key) {
+                return ctx->createAndLockTexture(params, desc, cacheData, 
+                                                 storage.get(),
                                                  bitmap->width());
             } else {
                 entry = ctx->lockScratchTexture(desc,
@@ -111,11 +113,18 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
     }
 
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());
-    if (kUncached_CacheID != key) {
-        return ctx->createAndLockTexture(params, desc,
+    if (GrCacheData::kScratch_CacheID != key) {
+        // This texture is likely to be used again so leave it in the cache
+        // but locked.
+        return ctx->createAndLockTexture(params, desc, cacheData,
                                          bitmap->getPixels(),
                                          bitmap->rowBytes());
     } else {
+        // This texture is unlikely to be used again (in its present form) so 
+        // just use a scratch texture. This will remove the texture from the 
+        // cache so no one else can find it. Additionally, once unlocked, the 
+        // scratch texture will go to the end of the list for purging so will 
+        // likely be available for this volatile bitmap the next time around.
         entry = ctx->lockScratchTexture(desc,
                                         GrContext::kExact_ScratchTexMatch);
         entry.texture()->writePixels(0, 0,
@@ -135,6 +144,7 @@ GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx,
     GrContext::TextureCacheEntry entry;
 
     if (!bitmap.isVolatile()) {
+        // If the bitmap isn't changing try to find a cached copy first
         uint64_t key = bitmap.getGenerationID();
         key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
 
@@ -142,14 +152,15 @@ GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx,
         desc.fWidth = bitmap.width();
         desc.fHeight = bitmap.height();
         desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
-        desc.fClientCacheID = key;
 
-        entry = ctx->findAndLockTexture(desc, params);
+        GrCacheData cacheData(key);
+
+        entry = ctx->findAndLockTexture(desc, cacheData, params);
         if (NULL == entry.texture()) {
             entry = sk_gr_create_bitmap_texture(ctx, key, params, bitmap);
         }
     } else {
-        entry = sk_gr_create_bitmap_texture(ctx, kUncached_CacheID, params, bitmap);
+        entry = sk_gr_create_bitmap_texture(ctx, GrCacheData::kScratch_CacheID, params, bitmap);
     }
     if (NULL == entry.texture()) {
         GrPrintf("---- failed to create texture for cache [%d %d]\n",

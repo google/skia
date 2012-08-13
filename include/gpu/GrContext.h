@@ -125,12 +125,14 @@ public:
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      * @param desc      Description of the texture properties.
+     * @param cacheData Cache-specific properties (e.g., texture gen ID)
      * @param srcData   Pointer to the pixel values.
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows.
      */
     TextureCacheEntry createAndLockTexture(const GrTextureParams* params,
                                            const GrTextureDesc& desc,
+                                           const GrCacheData& cacheData,
                                            void* srcData, size_t rowBytes);
 
     /**
@@ -139,12 +141,14 @@ public:
      *  Must be balanced with an unlockTexture() call.
      *
      *  @param desc     Description of the texture properties.
+     *  @param cacheData Cache-specific properties (e.g., texture gen ID)
      *  @param params   The tex params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      */
     TextureCacheEntry findAndLockTexture(const GrTextureDesc& desc,
+                                         const GrCacheData& cacheData,
                                          const GrTextureParams* params);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
@@ -152,6 +156,7 @@ public:
      * the texture for deletion.
      */
     bool isTextureInCache(const GrTextureDesc& desc,
+                          const GrCacheData& cacheData,
                           const GrTextureParams* params) const;
 
     /**

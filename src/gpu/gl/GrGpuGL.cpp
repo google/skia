@@ -1014,7 +1014,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
     glTexDesc.fSampleCnt = desc.fSampleCnt;
-    glTexDesc.fClientCacheID = desc.fClientCacheID;
 
     glTexDesc.fOwnsID = true;
 
