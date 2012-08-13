@@ -13,6 +13,8 @@
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkString.h"
+#include "SkTArray.h"
+
 
 enum Flags {
     kStroke_Flag = 1 << 0,
@@ -218,6 +220,385 @@ private:
     typedef PathBench INHERITED;
 };
 
+class RandomPathBench : public SkBenchmark {
+public:
+    RandomPathBench(void* param) : INHERITED(param) {
+    }
+
+protected:
+    void createData(int minVerbs,
+                    int maxVerbs,
+                    int pathCnt,
+                    bool allowMoves = true,
+                    SkRect* bounds = NULL) {
+        SkRect tempBounds;
+        if (NULL == bounds) {
+            tempBounds.setXYWH(0, 0, SK_Scalar1, SK_Scalar1);
+            bounds = &tempBounds;
+        }
+        fVerbCnts.setReserve(pathCnt);
+        for (int i = 0; i < pathCnt; ++i) {
+            int vCount = fRandom.nextRangeU(minVerbs, maxVerbs + 1);
+            *fVerbCnts.append() = vCount;
+            for (int v = 0; v < vCount; ++v) {
+                int verb = fRandom.nextULessThan(SkPath::kDone_Verb);
+                if (SkPath::kMove_Verb == verb && !allowMoves) {
+                    --v;
+                    continue;
+                }
+                *fVerbs.append() = static_cast<SkPath::Verb>(verb);
+                static const int gPointCnt[] = {
+                    1, // kMove
+                    1, // kLine
+                    2, // kQuad
+                    3, // kCubic
+                    0, // kClose
+                };
+                int pCnt = gPointCnt[verb];
+                for (int p = 0; p < pCnt; ++p) {
+                    fPoints.append()->set(fRandom.nextRangeScalar(bounds->fLeft, bounds->fRight),
+                                          fRandom.nextRangeScalar(bounds->fTop, bounds->fBottom));
+                }
+            }
+        }
+        this->restartMakingPaths();
+    }
+
+    void restartMakingPaths() {
+        fCurrPath = 0;
+        fCurrVerb = 0;
+        fCurrPoint = 0;
+    }
+
+    void makePath(SkPath* path) {
+        int vCount = fVerbCnts[fCurrPath++];
+        for (int v = 0; v < vCount; ++v) {
+            switch (fVerbs[fCurrVerb++]) {
+                case SkPath::kMove_Verb:
+                    path->moveTo(fPoints[fCurrPoint]);
+                    ++fCurrPoint;
+                    break;
+                case SkPath::kLine_Verb:
+                    path->lineTo(fPoints[fCurrPoint]);
+                    ++fCurrPoint;
+                    break;
+                case SkPath::kQuad_Verb:
+                    path->quadTo(fPoints[fCurrPoint], fPoints[fCurrPoint + 1]);
+                    fCurrPoint += 2;
+                    break;
+                case SkPath::kCubic_Verb:
+                    path->cubicTo(fPoints[fCurrPoint],
+                                  fPoints[fCurrPoint + 1],
+                                  fPoints[fCurrPoint + 2]);
+                    fCurrPoint += 3;
+                    break;
+                case SkPath::kClose_Verb:
+                    path->close();
+                    break;
+                default:
+                    SkDEBUGFAIL("Unexpected path verb");
+                    break;
+            }
+        }
+    }
+
+    void finishedMakingPaths() {
+        fVerbCnts.reset();
+        fVerbs.reset();
+        fPoints.reset();
+    }
+
+private:
+    SkTDArray<int>          fVerbCnts;
+    SkTDArray<SkPath::Verb> fVerbs;
+    SkTDArray<SkPoint>      fPoints;
+    int                     fCurrPath;
+    int                     fCurrVerb;
+    int                     fCurrPoint;
+    SkRandom                fRandom;
+    typedef SkBenchmark INHERITED;
+};
+
+class PathCreateBench : public RandomPathBench {
+public:
+    PathCreateBench(void* param) : INHERITED(param) {
+    }
+
+protected:
+    enum { N = SkBENCHLOOP(5000) };
+
+    virtual const char* onGetName() SK_OVERRIDE {
+        return "path_create";
+    }
+
+    virtual void onPreDraw() SK_OVERRIDE {
+        this->createData(10, 100, N);
+        SkASSERT(0 == fPaths.count());
+        fPaths.resize_back(N);
+    }
+
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < N; ++i) {
+            this->makePath(&fPaths[i]);
+        }
+        this->restartMakingPaths();
+    }
+
+    virtual void onPostDraw() SK_OVERRIDE {
+        this->finishedMakingPaths();
+        fPaths.reset();
+    }
+
+private:
+    SkTArray<SkPath> fPaths;
+
+    typedef RandomPathBench INHERITED;
+};
+
+class PathCopyBench : public RandomPathBench {
+public:
+    PathCopyBench(void* param) : INHERITED(param) {
+    }
+
+protected:
+    enum { N = SkBENCHLOOP(50000) };
+
+    virtual const char* onGetName() SK_OVERRIDE {
+        return "path_copy";
+    }
+    virtual void onPreDraw() SK_OVERRIDE {
+        this->createData(10, 100, N);
+        SkASSERT(0 == fPaths.count());
+        fPaths.resize_back(N);
+        fCopies.resize_back(N);
+        for (int i = 0; i < N; ++i) {
+            this->makePath(&fPaths[i]);
+        }
+        this->finishedMakingPaths();
+    }
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < N; ++i) {
+            fCopies[i] = fPaths[i];
+        }
+    }
+    virtual void onPostDraw() SK_OVERRIDE {
+        fPaths.reset();
+        fCopies.reset();
+    }
+
+private:
+    SkTArray<SkPath> fPaths;
+    SkTArray<SkPath> fCopies;
+
+    typedef RandomPathBench INHERITED;
+};
+
+class PathTransformBench : public RandomPathBench {
+public:
+    PathTransformBench(bool inPlace, void* param)
+        : INHERITED(param)
+        , fInPlace(inPlace) {
+    }
+
+protected:
+    enum { N = SkBENCHLOOP(30000) };
+
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fInPlace ? "path_transform_in_place" : "path_transform_copy";
+    }
+
+    virtual void onPreDraw() SK_OVERRIDE {
+        fMatrix.setScale(5 * SK_Scalar1, 6 * SK_Scalar1);
+        this->createData(10, 100, N);
+        SkASSERT(0 == fPaths.count());
+        SkASSERT(0 == fTransformed.count());
+        fPaths.resize_back(N);
+        for (int i = 0; i < N; ++i) {
+            this->makePath(&fPaths[i]);
+        }
+        if (!fInPlace) {
+            fTransformed.resize_back(N);
+        }
+    }
+
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        if (fInPlace) {
+            for (int i = 0; i < N; ++i) {
+                fPaths[i].transform(fMatrix);
+            }
+        } else {
+            for (int i = 0; i < N; ++i) {
+                fPaths[i].transform(fMatrix, &fTransformed[i]);
+            }
+        }
+    }
+
+    virtual void onPostDraw() SK_OVERRIDE {
+        fPaths.reset();
+        fTransformed.reset();
+    }
+
+private:
+    SkTArray<SkPath> fPaths;
+    SkTArray<SkPath> fTransformed;
+    SkMatrix fMatrix;
+    bool fInPlace;
+    typedef RandomPathBench INHERITED;
+};
+
+class PathEqualityBench : public RandomPathBench {
+public:
+    PathEqualityBench(void* param)
+        : INHERITED(param) {
+    }
+
+protected:
+    enum { N = SkBENCHLOOP(40000) };
+
+    virtual const char* onGetName() SK_OVERRIDE {
+        return "path_equality_50%";
+    }
+
+    virtual void onPreDraw() SK_OVERRIDE {
+        fParity = 0;
+        this->createData(10, 100, N);
+        SkASSERT(0 == fPaths.count());
+        SkASSERT(0 == fCopies.count());
+        fPaths.resize_back(N);
+        fCopies.resize_back(N);
+        for (int i = 0; i < N; ++i) {
+            this->makePath(&fPaths[i]);
+            fCopies[i] = fPaths[i];
+        }
+        this->finishedMakingPaths();
+    }
+
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < N; ++i) {
+            fParity ^= (fPaths[i] == fCopies[i & ~0x1]);
+        }
+    }
+
+    virtual void onPostDraw() SK_OVERRIDE {
+        fPaths.reset();
+    }
+
+private:
+    bool fParity; // attempt to keep compiler from optimizing out the ==
+    SkTArray<SkPath> fPaths;
+    SkTArray<SkPath> fCopies;
+    typedef RandomPathBench INHERITED;
+};
+
+class SkBench_AddPathTest : public RandomPathBench {
+public:
+    enum AddType {
+        kAdd_AddType,
+        kAddTrans_AddType,
+        kAddMatrix_AddType,
+        kPathTo_AddType,
+        kReverseAdd_AddType,
+        kReversePathTo_AddType,
+    };
+
+    SkBench_AddPathTest(AddType type, void* param)
+        : INHERITED(param)
+        , fType(type) {
+        fMatrix.setRotate(60 * SK_Scalar1);
+    }
+
+protected:
+    enum { N = SkBENCHLOOP(15000) };
+
+    virtual const char* onGetName() SK_OVERRIDE {
+        switch (fType) {
+            case kAdd_AddType:
+                return "path_add_path";
+            case kAddTrans_AddType:
+                return "path_add_path_trans";
+            case kAddMatrix_AddType:
+                return "path_add_path_matrix";
+            case kPathTo_AddType:
+                return "path_path_to";
+            case kReverseAdd_AddType:
+                return "path_reverse_add_path";
+            case kReversePathTo_AddType:
+                return "path_reverse_path_to";
+            default:
+                SkDEBUGFAIL("Bad add type");
+                return "";
+        }
+    }
+
+    virtual void onPreDraw() SK_OVERRIDE {
+        // pathTo and reversePathTo assume a single contour path.
+        bool allowMoves = kPathTo_AddType != fType &&
+                          kReversePathTo_AddType != fType;
+        this->createData(10, 100, 2 * N, allowMoves);
+        SkASSERT(0 == fPaths0.count());
+        SkASSERT(0 == fPaths1.count());
+        fPaths0.resize_back(N);
+        fPaths1.resize_back(N);
+        for (int i = 0; i < N; ++i) {
+            this->makePath(&fPaths0[i]);
+            this->makePath(&fPaths1[i]);
+        }
+        this->finishedMakingPaths();
+    }
+
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        switch (fType) {
+            case kAdd_AddType:
+                for (int i = 0; i < N; ++i) {
+                    SkPath result = fPaths0[i];
+                    result.addPath(fPaths1[i]);
+                }
+                break;
+            case kAddTrans_AddType:
+                for (int i = 0; i < N; ++i) {
+                    SkPath result = fPaths0[i];
+                    result.addPath(fPaths1[i], 2 * SK_Scalar1, 5 * SK_Scalar1);
+                }
+                break;
+            case kAddMatrix_AddType:
+                for (int i = 0; i < N; ++i) {
+                    SkPath result = fPaths0[i];
+                    result.addPath(fPaths1[i], fMatrix);
+                }
+                break;
+            case kPathTo_AddType:
+                for (int i = 0; i < N; ++i) {
+                    SkPath result = fPaths0[i];
+                    result.pathTo(fPaths1[i]);
+                }
+                break;
+            case kReverseAdd_AddType:
+                for (int i = 0; i < N; ++i) {
+                    SkPath result = fPaths0[i];
+                    result.reverseAddPath(fPaths1[i]);
+                }
+                break;
+            case kReversePathTo_AddType:
+                for (int i = 0; i < N; ++i) {
+                    SkPath result = fPaths0[i];
+                    result.reversePathTo(fPaths1[i]);
+                }
+                break;
+        }
+    }
+
+    virtual void onPostDraw() SK_OVERRIDE {
+        fPaths0.reset();
+        fPaths1.reset();
+    }
+
+private:
+    AddType fType; // or reverseAddPath
+    SkTArray<SkPath> fPaths0;
+    SkTArray<SkPath> fPaths1;
+    SkMatrix         fMatrix;
+    typedef RandomPathBench INHERITED;
+};
 
 static SkBenchmark* FactT00(void* p) { return new TrianglePathBench(p, FLAGS00); }
 static SkBenchmark* FactT01(void* p) { return new TrianglePathBench(p, FLAGS01); }
@@ -286,3 +667,31 @@ static BenchRegistry gRegLC01(FactLC01);
 static BenchRegistry gRegLL00(FactLL00);
 static BenchRegistry gRegLL01(FactLL01);
 
+static SkBenchmark* FactCreate(void* p) { return new PathCreateBench(p); }
+static BenchRegistry gRegCreate(FactCreate);
+
+static SkBenchmark* FactCopy(void* p) { return new PathCopyBench(p); }
+static BenchRegistry gRegCopy(FactCopy);
+
+static SkBenchmark* FactPathTransformInPlace(void* p) { return new PathTransformBench(true, p); }
+static BenchRegistry gRegPathTransformInPlace(FactPathTransformInPlace);
+
+static SkBenchmark* FactPathTransformCopy(void* p) { return new PathTransformBench(false, p); }
+static BenchRegistry gRegPathTransformCopy(FactPathTransformCopy);
+
+static SkBenchmark* FactEquality(void* p) { return new PathEqualityBench(p); }
+static BenchRegistry gRegEquality(FactEquality);
+
+static SkBenchmark* FactAdd(void* p) { return new SkBench_AddPathTest(SkBench_AddPathTest::kAdd_AddType, p); }
+static SkBenchmark* FactAddTrans(void* p) { return new SkBench_AddPathTest(SkBench_AddPathTest::kAddTrans_AddType, p); }
+static SkBenchmark* FactAddMatrix(void* p) { return new SkBench_AddPathTest(SkBench_AddPathTest::kAddMatrix_AddType, p); }
+static SkBenchmark* FactPathTo(void* p) { return new SkBench_AddPathTest(SkBench_AddPathTest::kPathTo_AddType, p); }
+static SkBenchmark* FactReverseAdd(void* p) { return new SkBench_AddPathTest(SkBench_AddPathTest::kReverseAdd_AddType, p); }
+static SkBenchmark* FactReverseTo(void* p) { return new SkBench_AddPathTest(SkBench_AddPathTest::kReversePathTo_AddType, p); }
+
+static BenchRegistry gRegAdd(FactAdd);
+static BenchRegistry gRegAddTrans(FactAddTrans);
+static BenchRegistry gRegAddMatrix(FactAddMatrix);
+static BenchRegistry gRegPathTo(FactPathTo);
+static BenchRegistry gRegReverseAdd(FactReverseAdd);
+static BenchRegistry gRegReverseTo(FactReverseTo);

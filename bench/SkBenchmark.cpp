@@ -29,8 +29,16 @@ SkIPoint SkBenchmark::getSize() {
     return this->onGetSize();
 }
 
+void SkBenchmark::preDraw() {
+    this->onPreDraw();
+}
+
 void SkBenchmark::draw(SkCanvas* canvas) {
     this->onDraw(canvas);
+}
+
+void SkBenchmark::postDraw() {
+    this->onPostDraw();
 }
 
 void SkBenchmark::setupPaint(SkPaint* paint) {
