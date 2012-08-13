@@ -840,6 +840,7 @@ private:
     // internal class would have only be callable in src/gpu. The facade would
     // only have to functions necessary for clients.
     friend class GrAtlas;
+    friend class GrTextureStripAtlas;
 
     // Needed so GrTexture's returnToCache helper function can call
     // addExistingTextureToCache
