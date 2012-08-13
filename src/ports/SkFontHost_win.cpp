@@ -1135,9 +1135,13 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph, SkMaskGamma::P
     }
 
     if (!isBW) {
-        const uint8_t* table = getInverseGammaTableClearType();
-        if (isAA) {
-          table = getInverseGammaTableGDI();
+        const uint8_t* table;
+        //The offscreen contains a GDI blit if isAA and kGenA8FromLCD_Flag is not set.
+        //Otherwise the offscreen contains a ClearType blit.
+        if (isAA && !(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag)) {
+            table = getInverseGammaTableGDI();
+        } else {
+            table = getInverseGammaTableClearType();
         }
         //Note that the following cannot really be integrated into the
         //pre-blend, since we may not be applying the pre-blend; when we aren't
