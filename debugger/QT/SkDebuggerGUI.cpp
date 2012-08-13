@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include <iostream>
 #include "SkDebuggerGUI.h"
+#include "SkGraphics.h"
 #include <QListWidgetItem>
 
 SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
@@ -91,9 +91,13 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     fMenuEdit.setDisabled(true);
     fMenuNavigate.setDisabled(true);
     fMenuView.setDisabled(true);
+
+    SkGraphics::Init();
 }
 
-SkDebuggerGUI::~SkDebuggerGUI() {}
+SkDebuggerGUI::~SkDebuggerGUI() {
+    SkGraphics::Term();
+}
 
 void SkDebuggerGUI::actionBreakpoints() {
     fBreakpointsActivated = !fBreakpointsActivated;

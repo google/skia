@@ -72,6 +72,7 @@
       'skia_arch_type%': 'x86',
       'android_make_apk%': 1,
       'skia_gpu%': 1,
+      'skia_static_initializers%': 1,
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
@@ -86,7 +87,8 @@
     'skia_arch_width%': '<(skia_arch_width)',
     'android_make_apk%': '<(android_make_apk)',
     'skia_gpu%': '<(skia_gpu)',
-    
+    'skia_static_initializers%': '<(skia_static_initializers)',
+
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #
     'skia_src_path%': '../src',
