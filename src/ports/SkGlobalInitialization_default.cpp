@@ -45,7 +45,7 @@
 #include "SkStippleMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
-#include "SkZoomImageFilter.h"
+#include "SkMagnifierImageFilter.h"
 
 void SkFlattenable::InitializeFlattenables() {
 
