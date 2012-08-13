@@ -11,7 +11,6 @@
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
 #include "SkEmbossMask.h"
-#include "SkBuffer.h"
 #include "SkFlattenableBuffers.h"
 
 static inline int pin2byte(int n) {

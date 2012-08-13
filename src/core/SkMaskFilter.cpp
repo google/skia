@@ -10,7 +10,6 @@
 #include "SkMaskFilter.h"
 #include "SkBlitter.h"
 #include "SkBounder.h"
-#include "SkBuffer.h"
 #include "SkDraw.h"
 #include "SkRasterClip.h"
 

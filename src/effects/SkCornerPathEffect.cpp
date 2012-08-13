@@ -10,7 +10,6 @@
 #include "SkCornerPathEffect.h"
 #include "SkPath.h"
 #include "SkPoint.h"
-#include "SkBuffer.h"
 #include "SkFlattenableBuffers.h"
 
 SkCornerPathEffect::SkCornerPathEffect(SkScalar radius) : fRadius(radius)
