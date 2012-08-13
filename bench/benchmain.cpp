@@ -374,6 +374,7 @@ static void determine_gpu_context_size(SkTDict<const char*>& defineDict,
         if (*contextHeight < dim.fY) {
             *contextHeight = dim.fY;
         }
+        bench->unref();
     }
 }
 
@@ -737,6 +738,8 @@ int main (int argc, char * const argv[]) {
     Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
+        SkAutoTUnref<SkBenchmark> benchUnref(bench);
+
         SkIPoint dim = bench->getSize();
         if (dim.fX <= 0 || dim.fY <= 0) {
             continue;
