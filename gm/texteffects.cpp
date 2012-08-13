@@ -233,14 +233,13 @@ protected:
     }
     
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(460, 680);
     }
     
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->save();
         
         SkPaint     paint;
-        
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(56));
         
