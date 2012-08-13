@@ -133,6 +133,18 @@ private:
     void* fParam;
 };
 
+class AutoPrePostDraw {
+public:
+    AutoPrePostDraw(SkBenchmark* bench) : fBench(bench) {
+        fBench->preDraw();
+    }
+    ~AutoPrePostDraw() {
+        fBench->postDraw();
+    }
+private:
+    SkBenchmark* fBench;
+};
+
 static void make_filename(const char name[], SkString* path) {
     path->set(name);
     for (int i = 0; name[i]; i++) {
@@ -750,6 +762,8 @@ int main (int argc, char * const argv[]) {
             logger.logProgress(str);
         }
         
+        AutoPrePostDraw appd(bench);
+
         for (int x = 0; x < configs.count(); ++x) {
             int configIndex = configs[x];
 

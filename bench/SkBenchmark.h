@@ -39,8 +39,19 @@ public:
 
     const char* getName();
     SkIPoint getSize();
+
+    // Call before draw, allows the benchmark to do setup work outside of the
+    // timer. When a benchmark is repeatedly drawn, this should be called once
+    // before the initial draw.
+    void preDraw();
+
     void draw(SkCanvas*);
-    
+
+    // Call after draw, allows the benchmark to do cleanup work outside of the
+    // timer. When a benchmark is repeatedly drawn, this is only called once
+    // after the last draw.
+    void postDraw();
+
     void setForceAlpha(int alpha) {
         fForceAlpha = alpha;
     }
@@ -78,7 +89,9 @@ protected:
     void setupPaint(SkPaint* paint);
 
     virtual const char* onGetName() = 0;
+    virtual void onPreDraw() {}
     virtual void onDraw(SkCanvas*) = 0;
+    virtual void onPostDraw() {}
 
     virtual SkIPoint onGetSize();
 

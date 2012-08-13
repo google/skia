@@ -866,6 +866,7 @@ private:
 
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
+    friend class SkBench_AddPathTest; // perf test pathTo/reversePathTo
 };
 
 #endif
