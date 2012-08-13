@@ -9,7 +9,6 @@
 
 #include "SkPathEffect.h"
 #include "SkPath.h"
-#include "SkBuffer.h"
 #include "SkFlattenableBuffers.h"
 #include "SkPaintDefaults.h"
 

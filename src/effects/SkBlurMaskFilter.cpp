@@ -9,7 +9,6 @@
 
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
-#include "SkBuffer.h"
 #include "SkFlattenableBuffers.h"
 #include "SkMaskFilter.h"
 

@@ -8,7 +8,6 @@
 
 
 #include "SkDashPathEffect.h"
-#include "SkBuffer.h"
 #include "SkFlattenableBuffers.h"
 #include "SkPathMeasure.h"
 
