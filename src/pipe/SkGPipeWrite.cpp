@@ -163,15 +163,6 @@ public:
             if (this->needOpBytes()) {
                 this->writeOp(kDone_DrawOp);
                 this->doNotify();
-                if (shouldFlattenBitmaps(fFlags)) {
-                    // In this case, a BitmapShuttle is reffed by the SharedHeap
-                    // and refs this canvas. Unref the SharedHeap to end the
-                    // circular reference. When shouldFlattenBitmaps is false,
-                    // there is no circular reference, so the SharedHeap can be
-                    // safely unreffed in the destructor.
-                    fSharedHeap->unref();
-                    fSharedHeap = NULL;
-                }
             }
             fDone = true;
         }
@@ -181,6 +172,11 @@ public:
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
     size_t storageAllocatedForRecording() {
+        // FIXME: This can be removed once fSharedHeap is used by cross process
+        // case.
+        if (NULL == fSharedHeap) {
+            return 0;
+        }
         return fSharedHeap->bytesAllocated();
     }
 
@@ -235,11 +231,6 @@ public:
                               const SkPaint&) SK_OVERRIDE;
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
-    /**
-     * Flatten an SkBitmap to send to the reader, where it will be referenced
-     * according to slot.
-     */
-    bool shuttleBitmap(const SkBitmap&, int32_t slot);
 private:
     enum {
         kNoSaveLayer = -1,
@@ -252,7 +243,7 @@ private:
     size_t             fBlockSize; // amount allocated for writer
     size_t             fBytesNotified;
     bool               fDone;
-    const uint32_t     fFlags;
+    uint32_t           fFlags;
 
     SkRefCntSet        fTypefaceSet;
 
@@ -282,15 +273,27 @@ private:
     // if a new SkFlatData was added when in cross process mode
     void flattenFactoryNames();
 
+    // These are only used when in cross process, but with no shared address
+    // space, so bitmaps are flattened.
+    FlattenableHeap    fBitmapHeap;
+    SkBitmapDictionary fBitmapDictionary;
+    int flattenToIndex(const SkBitmap&);
+
     FlattenableHeap fFlattenableHeap;
     FlatDictionary  fFlatDictionary;
     int fCurrFlatIndex[kCount_PaintFlats];
     int flattenToIndex(SkFlattenable* obj, PaintFlats);
 
-    // Common code used by drawBitmap*. Behaves differently depending on the
-    // type of SkBitmapHeap being used, which is determined by the flags used.
-    bool commonDrawBitmap(const SkBitmap& bm, DrawOps op, unsigned flags,
-                          size_t opBytesNeeded, const SkPaint* paint);
+    // Common code used by drawBitmap* when flattening.
+    bool commonDrawBitmapFlatten(const SkBitmap& bm, DrawOps op, unsigned flags,
+                                 size_t opBytesNeeded, const SkPaint* paint);
+    // Common code used by drawBitmap* when storing in the heap.
+    bool commonDrawBitmapHeap(const SkBitmap& bm, DrawOps op, unsigned flags,
+                              size_t opBytesNeeded, const SkPaint* paint);
+    // Convenience type for function pointer
+    typedef bool (SkGPipeCanvas::*BitmapCommonFunction)(const SkBitmap&,
+                                                        DrawOps, unsigned,
+                                                        size_t, const SkPaint*);
 
     SkPaint fPaint;
     void writePaint(const SkPaint&);
@@ -318,20 +321,23 @@ void SkGPipeCanvas::flattenFactoryNames() {
     }
 }
 
-bool SkGPipeCanvas::shuttleBitmap(const SkBitmap& bm, int32_t slot) {
+int SkGPipeCanvas::flattenToIndex(const SkBitmap & bitmap) {
     SkASSERT(shouldFlattenBitmaps(fFlags));
-    SkOrderedWriteBuffer buffer(1024);
-    buffer.setNamedFactoryRecorder(fFactorySet);
-    bm.flatten(buffer);
-    this->flattenFactoryNames();
-    uint32_t size = buffer.size();
-    if (this->needOpBytes(size)) {
-        this->writeOp(kDef_Bitmap_DrawOp, 0, slot);
-        void* dst = static_cast<void*>(fWriter.reserve(size));
-        buffer.writeToMemory(dst);
-        return true;
+    uint32_t flags = SkFlattenableWriteBuffer::kCrossProcess_Flag;
+    bool added, replaced;
+    const SkFlatData* flat = fBitmapDictionary.findAndReplace(
+        bitmap, flags, fBitmapHeap.flatToReplace(), &added, &replaced);
+
+    int index = flat->index();
+    if (added) {
+        this->flattenFactoryNames();
+        size_t flatSize = flat->flatSize();
+        if (this->needOpBytes(flatSize)) {
+            this->writeOp(kDef_Bitmap_DrawOp, 0, index);
+            fWriter.write(flat->data(), flatSize);
+        }
     }
-    return false;
+    return index;
 }
 
 // return 0 for NULL (or unflattenable obj), or index-base-1
@@ -371,24 +377,6 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * If SkBitmaps are to be flattened to send to the reader, this class is
- * provided to the SkBitmapHeap to tell the SkGPipeCanvas to do so.
- */
-class BitmapShuttle : public SkBitmapHeap::ExternalStorage {
-public:
-    BitmapShuttle(SkGPipeCanvas*);
-    
-    ~BitmapShuttle();
-    
-    virtual bool insert(const SkBitmap& bitmap, int32_t slot) SK_OVERRIDE;
-    
-private:
-    SkGPipeCanvas*    fCanvas;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 #define MIN_BLOCK_SIZE  (16 * 1024)
 #define BITMAPS_TO_KEEP 5
 #define FLATTENABLES_TO_KEEP 10
@@ -398,6 +386,8 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 : fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
 , fWriter(*writer)
 , fFlags(flags)
+, fBitmapHeap(BITMAPS_TO_KEEP, fFactorySet)
+, fBitmapDictionary(&fBitmapHeap)
 , fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet)
 , fFlatDictionary(&fFlattenableHeap) {
     fController = controller;
@@ -421,12 +411,10 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     }
     
     if (shouldFlattenBitmaps(flags)) {
-        BitmapShuttle* shuttle = SkNEW_ARGS(BitmapShuttle, (this));
-        fSharedHeap = SkNEW_ARGS(SkBitmapHeap, (shuttle, BITMAPS_TO_KEEP));
-        shuttle->unref();
+        // TODO: Use the shared heap for cross process case as well.
+        fSharedHeap = NULL;
     } else {
-        fSharedHeap = SkNEW_ARGS(SkBitmapHeap,
-                                 (BITMAPS_TO_KEEP, controller->numberOfReaders()));
+        fSharedHeap = SkNEW_ARGS(SkBitmapHeap, (5, controller->numberOfReaders()));
         if (this->needOpBytes(sizeof(void*))) {
             this->writeOp(kShareHeap_DrawOp);
             fWriter.writePtr(static_cast<void*>(fSharedHeap));
@@ -438,6 +426,8 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 SkGPipeCanvas::~SkGPipeCanvas() {
     this->finish();
     SkSafeUnref(fFactorySet);
+    // FIXME: This can be changed to unref() once fSharedHeap is used by cross
+    // process case.
     SkSafeUnref(fSharedHeap);
 }
 
@@ -692,10 +682,26 @@ void SkGPipeCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-bool SkGPipeCanvas::commonDrawBitmap(const SkBitmap& bm, DrawOps op,
-                                     unsigned flags,
-                                     size_t opBytesNeeded,
-                                     const SkPaint* paint) {
+bool SkGPipeCanvas::commonDrawBitmapFlatten(const SkBitmap& bm, DrawOps op,
+                                            unsigned flags,
+                                            size_t opBytesNeeded,
+                                            const SkPaint* paint) {
+    if (paint != NULL) {
+        flags |= kDrawBitmap_HasPaint_DrawOpsFlag;
+        this->writePaint(*paint);
+    }
+    int bitmapIndex = this->flattenToIndex(bm);
+    if (this->needOpBytes(opBytesNeeded)) {
+        this->writeOp(op, flags, bitmapIndex);
+        return true;
+    }
+    return false;
+}
+
+bool SkGPipeCanvas::commonDrawBitmapHeap(const SkBitmap& bm, DrawOps op,
+                                         unsigned flags,
+                                         size_t opBytesNeeded,
+                                         const SkPaint* paint) {
     int32_t bitmapIndex = fSharedHeap->insert(bm);
     if (SkBitmapHeap::INVALID_SLOT == bitmapIndex) {
         return false;
@@ -716,7 +722,11 @@ void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(SkScalar) * 2;
 
-    if (this->commonDrawBitmap(bm, kDrawBitmap_DrawOp, 0, opBytesNeeded, paint)) {
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawBitmap_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.writeScalar(left);
         fWriter.writeScalar(top);
     }
@@ -734,8 +744,12 @@ void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
     } else {
         flags = 0;
     }
+
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
     
-    if (this->commonDrawBitmap(bm, kDrawBitmapRect_DrawOp, flags, opBytesNeeded, paint)) {
+    if ((*this.*bitmapCommon)(bm, kDrawBitmapRect_DrawOp, flags, opBytesNeeded, paint)) {
         if (hasSrc) {
             fWriter.write32(src->fLeft);
             fWriter.write32(src->fTop);
@@ -751,7 +765,11 @@ void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap& bm, const SkMatrix& matrix,
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = matrix.writeToMemory(NULL);
     
-    if (this->commonDrawBitmap(bm, kDrawBitmapMatrix_DrawOp, 0, opBytesNeeded, paint)) {
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+        &SkGPipeCanvas::commonDrawBitmapFlatten :
+        &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawBitmapMatrix_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.writeMatrix(matrix);
     }
 }
@@ -761,7 +779,11 @@ void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(int32_t) * 4 + sizeof(SkRect);
 
-    if (this->commonDrawBitmap(bm, kDrawBitmapNine_DrawOp, 0, opBytesNeeded, paint)) {
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawBitmapNine_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.write32(center.fLeft);
         fWriter.write32(center.fTop);
         fWriter.write32(center.fRight);
@@ -775,7 +797,11 @@ void SkGPipeCanvas::drawSprite(const SkBitmap& bm, int left, int top,
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(int32_t) * 2;
 
-    if (this->commonDrawBitmap(bm, kDrawSprite_DrawOp, 0, opBytesNeeded, paint)) {
+    BitmapCommonFunction bitmapCommon = shouldFlattenBitmaps(fFlags) ?
+            &SkGPipeCanvas::commonDrawBitmapFlatten :
+            &SkGPipeCanvas::commonDrawBitmapHeap;
+
+    if ((*this.*bitmapCommon)(bm, kDrawSprite_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.write32(left);
         fWriter.write32(top);
     }
@@ -934,6 +960,11 @@ void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
 }
 
 size_t SkGPipeCanvas::freeMemoryIfPossible(size_t bytesToFree) {
+    // FIXME: This can be removed once fSharedHeap is used by cross process
+    // case.
+    if (NULL == fSharedHeap) {
+        return 0;
+    }
     return fSharedHeap->freeMemoryIfPossible(bytesToFree);
 }
 
@@ -1114,18 +1145,3 @@ size_t SkGPipeWriter::storageAllocatedForRecording() const {
     return NULL == fCanvas ? 0 : fCanvas->storageAllocatedForRecording();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-BitmapShuttle::BitmapShuttle(SkGPipeCanvas* canvas) {
-    SkASSERT(canvas != NULL);
-    fCanvas = canvas;
-    fCanvas->ref();
-}
-
-BitmapShuttle::~BitmapShuttle() {
-    fCanvas->unref();
-}
-
-bool BitmapShuttle::insert(const SkBitmap& bitmap, int32_t slot) {
-    return fCanvas->shuttleBitmap(bitmap, slot);
-}

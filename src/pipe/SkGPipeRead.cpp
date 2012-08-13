@@ -113,6 +113,7 @@ public:
     }
 
     void addBitmap(int index) {
+        index--;
         SkBitmap* bm;
         if(fBitmaps.count() == index) {
             bm = SkNEW(SkBitmap);
@@ -124,7 +125,7 @@ public:
     }
 
     SkBitmap* getBitmap(unsigned index) {
-        return fBitmaps[index];
+        return fBitmaps[index - 1];
     }
 
     void setSharedHeap(SkBitmapHeap* heap) {
