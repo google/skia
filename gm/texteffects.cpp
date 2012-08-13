@@ -261,7 +261,12 @@ protected:
         
         canvas->restore();
     }
-    
+
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // want to skip serialization due to custom effects only defined here
+        return kSkipPipe_Flag;
+    }
+
 private:
     typedef skiagm::GM INHERITED;
 };
