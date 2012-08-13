@@ -301,8 +301,8 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
     int width = src.width(), height = src.height();
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            float x_dist = std::min(x, width - x - 1) * inv_inset;
-            float y_dist = std::min(y, height - y - 1) * inv_inset;
+            float x_dist = SkMinScalar(x, width - x - 1) * inv_inset;
+            float y_dist = SkMinScalar(y, height - y - 1) * inv_inset;
             float weight = 0;
 
             // To create a smooth curve at the corners, we need to work on
@@ -312,11 +312,11 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
                 y_dist = 2 - y_dist;
 
                 float dist = sqrt(x_dist * x_dist + y_dist * y_dist);
-                dist = std::max(2 - dist, 0.0f);
-                weight = std::min(dist * dist, 1.0f);
+                dist = SkMaxScalar(2 - dist, 0.0f);
+                weight = SkMinScalar(dist * dist, 1.0f);
             } else {
-                float sq_dist = std::min(x_dist * x_dist, y_dist * y_dist);
-                weight = std::min(sq_dist, 1.0f);
+                float sq_dist = SkMinScalar(x_dist * x_dist, y_dist * y_dist);
+                weight = SkMinScalar(sq_dist, 1.0f);
             }
 
             int x_val = weight * (fSrcRect.x() + x * inv_x_zoom) +
@@ -324,8 +324,8 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
             int y_val = weight * (fSrcRect.y() + y * inv_y_zoom) +
                         (1 - weight) * y;
 
-            x_val = std::min(x_val, width - 1);
-            y_val = std::min(y_val, height - 1);
+            x_val = SkMin32(x_val, width - 1);
+            y_val = SkMin32(y_val, height - 1);
 
             *dptr = sptr[y_val * width + x_val];
             dptr++;
