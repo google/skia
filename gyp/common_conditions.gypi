@@ -1,6 +1,9 @@
 # conditions used in both common.gypi and skia.gyp in chromium
 #
 {
+  'defines': [
+    'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=<(skia_static_initializers)',
+  ],
   'conditions' : [
     ['skia_gpu == 1',
       {
@@ -135,7 +138,7 @@
       },
     ],
 
-    ['skia_os == "mac"', 
+    ['skia_os == "mac"',
       {
         'defines': [
           'SK_BUILD_FOR_MAC',
@@ -195,7 +198,7 @@
       },
     ],
 
-    ['skia_os == "ios"', 
+    ['skia_os == "ios"',
       {
         'defines': [
           'SK_BUILD_FOR_IOS',
@@ -212,8 +215,8 @@
         },
       },
     ],
-    
-    ['skia_os == "android"', 
+
+    ['skia_os == "android"',
       {
         'defines': [
           'SK_BUILD_FOR_ANDROID',
@@ -285,7 +288,7 @@
               }],
             ],
          }],
-        ], 
+        ],
       },
     ],
 

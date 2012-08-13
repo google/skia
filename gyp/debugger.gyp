@@ -10,7 +10,7 @@
         '../src/gpu', # To pull gl/GrGLUtil.h
       ],
       'sources': [
-          '../debugger/debuggermain.cpp',
+        '../debugger/debuggermain.cpp',
         '../debugger/SkDebugCanvas.h',
         '../debugger/SkDebugCanvas.cpp',
         '../debugger/SkDebugger.cpp',
