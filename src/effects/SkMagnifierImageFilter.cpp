@@ -9,11 +9,11 @@
 #include "SkMagnifierImageFilter.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
-#include "gl/GrGLTexture.h"
 
 #include <algorithm>
 
 ////////////////////////////////////////////////////////////////////////////////
+#if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLProgramStage.h"
 #include "gl/GrGLSL.h"
@@ -226,6 +226,8 @@ bool GrMagnifierEffect::isEqual(const GrCustomStage& sBase) const {
             this->fYInset == s.fYInset);
 }
 
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 SkMagnifierImageFilter::SkMagnifierImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
@@ -244,6 +246,7 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
 
 bool SkMagnifierImageFilter::asNewCustomStage(GrCustomStage** stage,
                                               GrTexture* texture) const {
+#if SK_SUPPORT_GPU
     if (stage) {
       *stage =
           SkNEW_ARGS(GrMagnifierEffect, (texture,
@@ -255,6 +258,9 @@ bool SkMagnifierImageFilter::asNewCustomStage(GrCustomStage** stage,
                                          fInset / texture->height()));
     }
     return true;
+#else
+    return false;
+#endif
 }
 
 void SkMagnifierImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
