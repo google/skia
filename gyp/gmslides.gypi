@@ -58,6 +58,7 @@
     '../gm/strokerects.cpp',
     '../gm/strokes.cpp',
     '../gm/tablecolorfilter.cpp',
+    '../gm/texteffects.cpp',
     '../gm/testimagefilters.cpp',
     '../gm/texdata.cpp',
     '../gm/tilemodes.cpp',
