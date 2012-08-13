@@ -311,6 +311,8 @@
         '../src/gpu/gr_unittests.cpp',
 
         '../src/gpu/effects/Gr1DKernelEffect.h',
+        '../src/gpu/effects/GrTextureStripAtlas.h',
+        '../src/gpu/effects/GrTextureStripAtlas.cpp',
         '../src/gpu/effects/GrColorTableEffect.cpp',
         '../src/gpu/effects/GrColorTableEffect.h',
         '../src/gpu/effects/GrConvolutionEffect.cpp',
