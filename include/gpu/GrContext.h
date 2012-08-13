@@ -806,6 +806,12 @@ private:
         kDontFlush_PixelOpsFlag = 0x1,
     };
 
+    GrTexture* createResizedTexture(const GrTextureDesc& desc,
+                                    const GrCacheData& cacheData,
+                                    void* srcData,
+                                    size_t rowBytes,
+                                    bool needsFiltering);
+
     bool internalReadRenderTargetPixels(GrRenderTarget* target,
                                         int left, int top,
                                         int width, int height,
