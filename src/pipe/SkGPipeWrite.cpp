@@ -192,7 +192,7 @@ public:
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
     size_t storageAllocatedForRecording() {
-        return fBitmapHeap->bytesAllocated();
+        return (NULL == fBitmapHeap) ? 0 : fBitmapHeap->bytesAllocated();
     }
 
     // overrides from SkCanvas
@@ -348,10 +348,10 @@ bool SkGPipeCanvas::shuttleBitmap(const SkBitmap& bm, int32_t slot) {
 // return 0 for NULL (or unflattenable obj), or index-base-1
 // return ~(index-base-1) if an old flattenable was replaced
 int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
+    SkASSERT(!fDone && fBitmapHeap != NULL);
     if (NULL == obj) {
         return 0;
     }
-
 
     fBitmapHeap->deferAddingOwners();
     bool added, replaced;
@@ -703,15 +703,16 @@ bool SkGPipeCanvas::commonDrawBitmap(const SkBitmap& bm, DrawOps op,
                                      unsigned flags,
                                      size_t opBytesNeeded,
                                      const SkPaint* paint) {
-    int32_t bitmapIndex = fBitmapHeap->insert(bm);
-    if (SkBitmapHeap::INVALID_SLOT == bitmapIndex) {
-        return false;
-    }
     if (paint != NULL) {
         flags |= kDrawBitmap_HasPaint_DrawOpsFlag;
         this->writePaint(*paint);
     }
     if (this->needOpBytes(opBytesNeeded)) {
+        SkASSERT(fBitmapHeap != NULL);
+        int32_t bitmapIndex = fBitmapHeap->insert(bm);
+        if (SkBitmapHeap::INVALID_SLOT == bitmapIndex) {
+            return false;
+        }
         this->writeOp(op, flags, bitmapIndex);
         return true;
     }
@@ -941,7 +942,7 @@ void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
 }
 
 size_t SkGPipeCanvas::freeMemoryIfPossible(size_t bytesToFree) {
-    return fBitmapHeap->freeMemoryIfPossible(bytesToFree);
+    return (NULL == fBitmapHeap) ? 0 : fBitmapHeap->freeMemoryIfPossible(bytesToFree);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -956,6 +957,9 @@ template <typename T> uint32_t castToU32(T value) {
 }
 
 void SkGPipeCanvas::writePaint(const SkPaint& paint) {
+    if (fDone) {
+        return;
+    }
     SkPaint& base = fPaint;
     uint32_t storage[32];
     uint32_t* ptr = storage;
