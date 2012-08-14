@@ -74,7 +74,7 @@ enum DrawOps {
 
     // these are signals to playback, not drawing verbs
     kReportFlags_DrawOp,
-    kShareHeap_DrawOp,
+    kShareBitmapHeap_DrawOp,
     kDone_DrawOp,
 };
 
