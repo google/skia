@@ -12,7 +12,6 @@
 #include "SkTwoPointRadialGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
-#include "effects/GrTextureStripAtlas.h"
 
 SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScalar pos[],
              int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper) {
@@ -673,6 +672,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #if SK_SUPPORT_GPU
 
+#include "effects/GrTextureStripAtlas.h"
 #include "SkGr.h"
 
 GrGLGradientStage::GrGLGradientStage(const GrProgramStageFactory& factory)
