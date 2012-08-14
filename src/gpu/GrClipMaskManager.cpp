@@ -795,7 +795,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
         // with the existing clip.
         for ( ; NULL != clip; clip = iter.next()) {
             GrPathFill fill;
-            bool fillInverted;
+            bool fillInverted = false;
             // enabled at bottom of loop
             drawState->disableState(GrGpu::kModifyStencilClip_StateBit);
             // if the target is MSAA then we want MSAA enabled when the clip is soft
@@ -807,11 +807,10 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
                 }
             }
 
-            bool canRenderDirectToStencil; // can the clip element be drawn
-                                           // directly to the stencil buffer
-                                           // with a non-inverted fill rule
-                                           // without extra passes to
-                                           // resolve in/out status.
+            // Can the clip element be drawn directly to the stencil buffer
+            // with a non-inverted fill rule without extra passes to
+            // resolve in/out status?
+            bool canRenderDirectToStencil = false;
 
             SkRegion::Op op = clip->fOp;
             if (first) {
@@ -831,16 +830,15 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
                     contains(*clip->fRect, devRTRect, oldClipData->fOrigin)) {
                     continue;
                 }
-            } else if (NULL != clip->fPath) {
+            } else {
+                GrAssert(NULL != clip->fPath);
                 fill = get_path_fill(*clip->fPath);
                 fillInverted = GrIsFillInverted(fill);
                 fill = GrNonInvertedFill(fill);
                 clipPath = clip->fPath;
-                pr = this->getContext()->getPathRenderer(*clipPath,
-                                                         fill, fGpu, false,
-                                                         true);
+                pr = this->getContext()->getPathRenderer(*clipPath, fill, fGpu, false, true);
                 if (NULL == pr) {
-                    fGpu->setClip(oldClipData);     // restore to the original
+                    fGpu->setClip(oldClipData);
                     return false;
                 }
                 canRenderDirectToStencil =
@@ -856,10 +854,11 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
                                         // stencil bit used for clipping.
             canDrawDirectToClip =
                 GrStencilSettings::GetClipPasses(op,
-                                                    canRenderDirectToStencil,
-                                                    clipBit,
-                                                    fillInverted,
-                                                    &passes, stencilSettings);
+                                                 canRenderDirectToStencil,
+                                                 clipBit,
+                                                 fillInverted,
+                                                 &passes,
+                                                 stencilSettings);
 
             // draw the element to the client stencil bits if necessary
             if (!canDrawDirectToClip) {

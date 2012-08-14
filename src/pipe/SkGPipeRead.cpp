@@ -645,7 +645,12 @@ static const ReadProc gReadTable[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGPipeState::SkGPipeState(): fReader(0), fFlags(0), fSharedHeap(NULL) {}
+SkGPipeState::SkGPipeState()
+    : fReader(0)
+    , fSharedHeap(NULL)
+    , fFlags(0) {
+
+}
 
 SkGPipeState::~SkGPipeState() {
     fTypefaces.safeUnrefAll();

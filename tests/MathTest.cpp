@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkMathPriv.h"
 #include "SkPoint.h"
@@ -199,7 +200,8 @@ static void assert_float_equal(skiatest::Reporter* reporter, const char op[],
                                float x, uint32_t ni, uint32_t si) {
     if (!equal_float_native_skia(x, ni, si)) {
         SkString desc;
-        desc.printf("%s float %g bits %x native %x skia %x\n", op, x, ni, si);
+        uint32_t xi = SkFloat2Bits(x);
+        desc.printf("%s float %g bits %x native %x skia %x\n", op, x, xi, ni, si);
         reporter->reportFailed(desc);
     }
 }

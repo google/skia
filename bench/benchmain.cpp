@@ -242,31 +242,29 @@ public:
 
     bool init(SkGLContext* glCtx, int width, int height) {
         GrContext* grCtx;
-        GrRenderTarget* rt;
-        if (glCtx->init(width, height)) {
-            GrPlatform3DContext ctx =
-                reinterpret_cast<GrPlatform3DContext>(glCtx->gl());
-            grCtx = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
-            if (NULL != grCtx) {
-                GrPlatformRenderTargetDesc desc;
-                desc.fConfig = kSkia8888_PM_GrPixelConfig;
-                desc.fWidth = width;
-                desc.fHeight = height;
-                desc.fStencilBits = 8;
-                desc.fRenderTargetHandle = glCtx->getFBOID();
-                rt = grCtx->createPlatformRenderTarget(desc);
-                if (NULL == rt) {
-                    grCtx->unref();
-                    return false;
-                }
-            }
-        } else {
+        if (!glCtx->init(width, height)) {
             return false;
         }
-        glCtx->ref();
-        fGLContext.reset(glCtx);
-        fGrContext.reset(grCtx);
-        fRenderTarget.reset(rt);
+        GrPlatform3DContext ctx =
+            reinterpret_cast<GrPlatform3DContext>(glCtx->gl());
+        grCtx = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
+        if (NULL != grCtx) {
+            GrPlatformRenderTargetDesc desc;
+            desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fWidth = width;
+            desc.fHeight = height;
+            desc.fStencilBits = 8;
+            desc.fRenderTargetHandle = glCtx->getFBOID();
+            GrRenderTarget* rt = grCtx->createPlatformRenderTarget(desc);
+            if (NULL == rt) {
+                grCtx->unref();
+                return false;
+            }
+            glCtx->ref();
+            fGLContext.reset(glCtx);
+            fGrContext.reset(grCtx);
+            fRenderTarget.reset(rt);
+        }
         return true;
     }
 

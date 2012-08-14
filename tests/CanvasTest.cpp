@@ -478,7 +478,7 @@ static void SaveRestoreTestStep(SkCanvas* canvas,
                                 skiatest::Reporter* reporter,
                                 CanvasTestStep* testStep) {
     int baseSaveCount = canvas->getSaveCount();
-    size_t n = canvas->save();
+    int n = canvas->save();
     REPORTER_ASSERT_MESSAGE(reporter, baseSaveCount == n, testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, baseSaveCount + 1 == canvas->getSaveCount(),
         testStep->assertMessage());

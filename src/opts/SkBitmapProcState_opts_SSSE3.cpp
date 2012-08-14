@@ -415,7 +415,7 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
     // (0, 0, 0, 0, 0, 0, 0, 0)
     const __m128i zero = _mm_setzero_si128();
 
-    __m128i alpha;
+    __m128i alpha = _mm_setzero_si128();
     if (has_alpha)
         // 8x(alpha)
         alpha = _mm_set1_epi16(s.fAlphaScale);
