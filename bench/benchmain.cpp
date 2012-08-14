@@ -439,8 +439,11 @@ static void help() {
 }
 
 int main (int argc, char * const argv[]) {
+#ifdef SK_ENABLE_INST_COUNT
+    gPrintInstCount = true;
+#endif
     SkAutoGraphics ag;
-    
+
     SkTDict<const char*> defineDict(1024);
     int repeatDraw = 1;
     bool logPerIter = false;
