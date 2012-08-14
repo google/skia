@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -23,7 +23,7 @@ class DeferredDevice;
 */
 class SK_API SkDeferredCanvas : public SkCanvas {
 public:
-    class DeviceContext;
+    class NotificationClient;
 
     SkDeferredCanvas();
 
@@ -35,17 +35,19 @@ public:
 
     /** Construct a canvas with the specified device to draw into, and
      *  a device context. Equivalent to calling default constructor, then
-     *  setDevice.
+     *  setDevice. The canvas takes reference on the device and notification
+     *  client.
      *  @param device Specifies a device for the canvas to draw into.
-     *  @param deviceContext interface for the device's the graphics context
+     *  @param client Interface for dispatching notifications
      */
-    explicit SkDeferredCanvas(SkDevice* device, DeviceContext* deviceContext);
+    explicit SkDeferredCanvas(SkDevice* device, NotificationClient* client);
 
     virtual ~SkDeferredCanvas();
 
     /**
      *  Specify a device to be used by this canvas. Calling setDevice will
-     *  release the previously set device, if any.
+     *  release the previously set device, if any. Takes a reference on the
+     *  device.
      *
      *  @param device The device that the canvas will raw into
      *  @return The device argument, for convenience.
@@ -53,18 +55,20 @@ public:
     virtual SkDevice* setDevice(SkDevice* device);
 
     /**
-     *  Specify a deviceContext to be used by this canvas. Calling
-     *  setDeviceContext will release the previously set deviceContext, if any.
-     *  A deviceContext must be specified if the device uses a graphics context
-     *  that requires some form of state initialization prior to drawing
-     *  and/or explicit flushing to synchronize the execution of rendering
-     *  operations.
+     *  Specify a NotificationClient to be used by this canvas. Calling
+     *  setNotificationClient will release the previously set 
+     *  NotificationClient, if any. Takes a reference on the notification
+     *  client.
      *  Note: Must be called after the device is set with setDevice.
      *
-     *  @deviceContext interface for the device's the graphics context
-     *  @return The deviceContext argument, for convenience.
+     *  @param notificationClient interface for dispatching notifications
+     *  @return The notificationClient argument, for convenience.
      */
-    DeviceContext* setDeviceContext(DeviceContext* deviceContext);
+    NotificationClient* setNotificationClient(NotificationClient* notificationClient);
+    // Temporarily bootstrapping the deprecated method name
+    NotificationClient* setDeviceContext(NotificationClient* notificationClient) {
+        return setNotificationClient(notificationClient);
+    }
 
     /**
      *  Enable or disable deferred drawing. When deferral is disabled,
@@ -176,21 +180,43 @@ public:
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
 
 public:
-    class DeviceContext : public SkRefCnt {
+    class NotificationClient : public SkRefCnt {
     public:
-        SK_DECLARE_INST_COUNT(DeviceContext)
+        SK_DECLARE_INST_COUNT(NotificationClient)
 
+        /**
+         *  Called before executing one or several draw commands, which means
+         *  once per flush when deferred rendering is enabled.
+         */
         virtual void prepareForDraw() {}
+
+        /**
+         *  Called after a recording a draw command if additional memory
+         *  had to be allocated for recording.
+         *  @param newAllocatedStorage same value as would be returned by 
+         *      storageAllocatedForRecording(), for convenience.
+         */
+        virtual void storageAllocatedForRecordingChanged(
+            size_t newAllocatedStorage) {}
+
+        /**
+         *  Called after pending draw commands have been flushed
+         */
+        virtual void flushedDrawCommands() {}
         
     private:
         typedef SkRefCnt INHERITED;
     };
+
+    // Temporarily bootstrapping the deprecated name for a smooth chromium DEPS roll
+    typedef NotificationClient DeviceContext;
 
 protected:
     virtual SkCanvas* canvasForDrawIter();
     DeferredDevice* getDeferredDevice() const;
 
 private:
+    void recordedDrawCommand();
     SkCanvas* drawingCanvas() const;
     SkCanvas* immediateCanvas() const;
     bool isFullFrame(const SkRect*, const SkPaint*) const;

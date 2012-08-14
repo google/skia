@@ -214,12 +214,34 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 4);
 }
 
+class NotificationCounter : public SkDeferredCanvas::NotificationClient {
+public:
+    NotificationCounter() {
+        fPrepareForDrawCount = fStorageAllocatedChangedCount = fFlushedDrawCommandsCount = 0;
+    }
+
+    virtual void prepareForDraw() SK_OVERRIDE {
+        fPrepareForDrawCount++;
+    }
+    virtual void storageAllocatedForRecordingChanged(size_t size) SK_OVERRIDE {
+        fStorageAllocatedChangedCount++;
+    }
+    virtual void flushedDrawCommands() SK_OVERRIDE {
+        fFlushedDrawCommandsCount++;        
+    }
+
+    int fPrepareForDrawCount;
+    int fStorageAllocatedChangedCount;
+    int fFlushedDrawCommandsCount;
+};
+
 static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     SkBitmap store;
     store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     store.allocPixels();
     SkDevice device(store);
-    SkDeferredCanvas canvas(&device);
+    NotificationCounter notificationCounter;
+    SkDeferredCanvas canvas(&device, &notificationCounter);
 
     const int imageCount = 2;
     SkBitmap sourceImages[imageCount];
@@ -232,6 +254,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     size_t bitmapSize = sourceImages[0].getSize();
 
     canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fStorageAllocatedChangedCount);
     // stored bitmap + drawBitmap command
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > bitmapSize);
     
@@ -239,7 +262,11 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == canvas.freeMemoryIfPossible(~0));
 
     // verify that flush leaves image in cache
+    REPORTER_ASSERT(reporter, 0 == notificationCounter.fFlushedDrawCommandsCount);
+    REPORTER_ASSERT(reporter, 0 == notificationCounter.fPrepareForDrawCount);
     canvas.flush();
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fPrepareForDrawCount);
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() >= bitmapSize);
 
     // verify that after a flush, cached image can be freed
@@ -247,20 +274,27 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
 
     // Verify that caching works for avoiding multiple copies of the same bitmap
     canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    REPORTER_ASSERT(reporter, 2 == notificationCounter.fStorageAllocatedChangedCount);
     canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    REPORTER_ASSERT(reporter, 2 == notificationCounter.fStorageAllocatedChangedCount);
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() < 2 * bitmapSize);
 
     // Verify partial eviction based on bytesToFree
     canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
     canvas.flush();
+    REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > 2 * bitmapSize);
     size_t bytesFreed = canvas.freeMemoryIfPossible(1);
+    REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);
     REPORTER_ASSERT(reporter,  bytesFreed >= bitmapSize);
     REPORTER_ASSERT(reporter,  bytesFreed < 2*bitmapSize);
 
     // Verifiy that partial purge works, image zero is in cache but not reffed by 
     // a pending draw, while image 1 is locked-in.
     canvas.freeMemoryIfPossible(~0);
+    REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);
     canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
     canvas.flush();
     canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
