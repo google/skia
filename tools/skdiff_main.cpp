@@ -773,14 +773,13 @@ static void create_diff_images (DiffMetricProc dmp,
             drp = new DiffRecord(*baseFiles[i], basePath, comparisonPath);
             SkASSERT(kUnknown == drp->fResult);
 
-            SkData* baseFileBits;
-            SkData* comparisonFileBits;
+            SkData* baseFileBits = NULL;
+            SkData* comparisonFileBits = NULL;
             if (NULL == (baseFileBits = read_file(basePath.c_str()))) {
                 SkDebugf("WARNING: couldn't read base file <%s>\n",
                          basePath.c_str());
                 drp->fResult = kBaseMissing;
-            } else if (NULL == (comparisonFileBits = read_file(
-                comparisonPath.c_str()))) {
+            } else if (NULL == (comparisonFileBits = read_file(comparisonPath.c_str()))) {
                 SkDebugf("WARNING: couldn't read comparison file <%s>\n",
                          comparisonPath.c_str());
                 drp->fResult = kComparisonMissing;

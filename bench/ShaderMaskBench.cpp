@@ -51,7 +51,7 @@ public:
 
 protected:
     virtual const char* onGetName() {
-        fName.printf("shadermask", SkScalarToFloat(fPaint.getTextSize()));
+        fName.printf("shadermask");
         fName.appendf("_%s", fontQualityName(fPaint));
         fName.appendf("_%02X", fPaint.getAlpha());
         return fName.c_str();

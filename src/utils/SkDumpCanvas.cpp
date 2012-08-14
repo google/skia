@@ -129,20 +129,21 @@ static void toString(const SkBitmap& bm, SkString* str) {
     }
 }
 
-static void toString(const void* text, size_t len, SkPaint::TextEncoding enc,
+static void toString(const void* text, size_t byteLen, SkPaint::TextEncoding enc,
                      SkString* str) {
+    // FIXME: this code appears to be untested - and probably unused - and probably wrong
     switch (enc) {
         case SkPaint::kUTF8_TextEncoding:
-            str->printf("\"%.*s\"%s", SkMax32(len, 32), (const char*) text,
-                        len > 32 ? "..." : "");
+            str->printf("\"%.*s\"%s", SkMax32(byteLen, 32), (const char*) text,
+                        byteLen > 32 ? "..." : "");
             break;
         case SkPaint::kUTF16_TextEncoding:
-            str->printf("\"%.*S\"%s", SkMax32(len, 32), (const wchar_t*) text,
-                        len > 64 ? "..." : "");
+            str->printf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
+                        byteLen > 64 ? "..." : "");
             break;
         case SkPaint::kUTF32_TextEncoding:
-            str->printf("\"%.*S\"%s", SkMax32(len, 32), (const wchar_t*) text,
-                        len > 128 ? "..." : "");
+            str->printf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
+                        byteLen > 128 ? "..." : "");
             break;
         case SkPaint::kGlyphID_TextEncoding:
             str->set("<glyphs>");
