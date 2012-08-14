@@ -178,7 +178,6 @@
         '<(skia_include_path)/core/SkComposeShader.h',
         '<(skia_include_path)/core/SkData.h',
         '<(skia_include_path)/core/SkDeque.h',
-        '<(skia_include_path)/core/SkDescriptor.h',
         '<(skia_include_path)/core/SkDevice.h',
         '<(skia_include_path)/core/SkDither.h',
         '<(skia_include_path)/core/SkDraw.h',
