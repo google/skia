@@ -14,3 +14,4 @@
 @interface SimpleNSView : SkNSView
 - (id)initWithDefaults;
 @end
+

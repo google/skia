@@ -34,3 +34,4 @@ private:
     SkGPipeReader::Status   fStatus;
 };
 #endif
+

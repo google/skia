@@ -49,3 +49,4 @@ void DebuggerStateView::onDraw(SkCanvas* canvas) {
     r = SkRect::MakeXYWH(0, 0, this->width(), SKDEBUGGER_RESIZEBARSIZE);
     canvas->drawRect(r, p);
 }
+

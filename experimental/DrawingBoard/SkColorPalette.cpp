@@ -193,3 +193,4 @@ SkColor SkColorPalette::selectColorFromGradient(SkPoint& cursorPosition) {
     retval += (int)(b * 255);
     return retval;
 }
+
