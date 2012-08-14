@@ -77,6 +77,10 @@ public:
 
     virtual void unalloc(void* ptr) SK_OVERRIDE;
 
+    void setBitmapStorage(SkBitmapHeap* heap) {
+        this->setBitmapHeap(heap);
+    }
+    
     const SkFlatData* flatToReplace() const;
 
     // Mark an SkFlatData as one that should not be returned by flatToReplace.
@@ -170,6 +174,9 @@ public:
                     // there is no circular reference, so the SharedHeap can be
                     // safely unreffed in the destructor.
                     fSharedHeap->unref();
+                    // This eliminates a similar circular reference (Canvas owns
+                    // the FlattenableHeap which holds a ref to fSharedHeap).
+                    fFlattenableHeap.setBitmapStorage(NULL);
                     fSharedHeap = NULL;
                 }
             }
@@ -345,13 +352,15 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     if (isCrossProcess(fFlags)) {
         writeBufferFlags =  SkFlattenableWriteBuffer::kCrossProcess_Flag;
     } else {
-        // Needed for bitmap shaders.
-        writeBufferFlags = SkFlattenableWriteBuffer::kForceFlattenBitmapPixels_Flag;
+        // TODO: See if we can safely move this into the controller
+        writeBufferFlags = 0;
     }
 
+    fSharedHeap->deferAddingOwners();
     bool added, replaced;
     const SkFlatData* flat = fFlatDictionary.findAndReplace(
             *obj, writeBufferFlags, fFlattenableHeap.flatToReplace(), &added, &replaced);
+    fSharedHeap->endAddingOwnersDeferral(added);
     int index = flat->index();
     if (added) {
         if (isCrossProcess(fFlags)) {
@@ -432,6 +441,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
             fWriter.writePtr(static_cast<void*>(fSharedHeap));
         }
     }
+    fFlattenableHeap.setBitmapStorage(fSharedHeap);
     this->doNotify();
 }
 

@@ -192,6 +192,22 @@ public:
      */
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
+    /**
+     * Defer any increments of owner counts until endAddingOwnersDeferral is called. So if an
+     * existing SkBitmap is inserted into the SkBitmapHeap, its corresponding SkBitmapHeapEntry will
+     * not have addReferences called on it, and the client does not need to make a corresponding
+     * call to releaseRef. Only meaningful if this SkBitmapHeap was created with an owner count not
+     * equal to IGNORE_OWNERS.
+     */
+    void deferAddingOwners();
+    
+    /**
+     * Resume adding references when duplicate SkBitmaps are inserted.
+     * @param add If true, add references to the SkBitmapHeapEntrys whose SkBitmaps were re-inserted
+     *            while deferring.
+     */
+    void endAddingOwnersDeferral(bool add);
+    
 private:
     struct LookupEntry {
         LookupEntry(const SkBitmap& bm)
@@ -273,6 +289,9 @@ private:
     const int32_t fPreferredCount;
     const int32_t fOwnerCount;
     size_t fBytesAllocated;
+
+    bool fDeferAddingOwners;
+    SkTDArray<int> fDeferredEntries;
 
     typedef SkBitmapHeapReader INHERITED;
 };
