@@ -43,9 +43,9 @@ static void testCreate(skiatest::Reporter* reporter, const void* obj,
     Controller controller;
     // No need to delete data because that will be taken care of by the
     // controller.
-    SkFlatData* data1 = SkFlatData::Create(&controller, obj, 0, flattenProc, 0);
+    SkFlatData* data1 = SkFlatData::Create(&controller, obj, 0, flattenProc);
     data1->setSentinelInCache();
-    SkFlatData* data2 = SkFlatData::Create(&controller, obj, 1, flattenProc, 0);
+    SkFlatData* data2 = SkFlatData::Create(&controller, obj, 1, flattenProc);
     data2->setSentinelAsCandidate();
     REPORTER_ASSERT(reporter, SkFlatData::Compare(data1, data2) == 0);
 }
