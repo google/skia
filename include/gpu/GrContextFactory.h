@@ -109,6 +109,19 @@ public:
         ctx.fType = type;
         return ctx.fGrContext;
     }
+
+    // Returns the GLContext of the given type. If it has not been created yet,
+    // NULL is returned instead.
+    SkGLContext* getGLContext(GLContextType type) {
+        for (int i = 0; i < fContexts.count(); ++i) {
+            if (fContexts[i].fType == type) {
+                return fContexts[i].fGLContext;
+            }
+        }
+
+        return NULL;
+    }
+
 private:
     struct GPUContext {
         GLContextType             fType;
