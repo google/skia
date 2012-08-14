@@ -501,7 +501,6 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
 }
 
 void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* builder) {
-    INHERITED::setupVariables(builder);
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
@@ -607,9 +606,8 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
 
 void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
                                   const GrCustomStage& baseData,
-                                  const GrRenderTarget* target,
+                                  const GrRenderTarget*,
                                   int stageNum) {
-    INHERITED::setData(uman, baseData, target, stageNum);
     const GrRadial2Gradient& data =
         static_cast<const GrRadial2Gradient&>(baseData);
     GrAssert(data.isDegenerate() == fIsDegenerate);
