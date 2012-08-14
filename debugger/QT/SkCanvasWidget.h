@@ -36,6 +36,8 @@ public:
 
     void zoom(float zoomIncrement);
 
+    void resetWidgetTransform();
+
 signals:
     void scaleFactorChanged(float newScaleFactor);
     void commandChanged(int newCommand);
@@ -54,8 +56,6 @@ private:
     SkIPoint fPreviousPoint;
     SkIPoint fUserOffset;
     float fUserScaleFactor;
-
-    void resetWidgetTransform();
 
     void mouseMoveEvent(QMouseEvent* event);
 

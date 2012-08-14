@@ -575,7 +575,9 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
     fLoading = true;
     SkStream* stream = new SkFILEStream(fileName.toAscii());
     SkPicture* picture = new SkPicture(stream);
+    fCanvasWidget.resetWidgetTransform();
     fDebugger.loadPicture(picture);
+    fCanvasWidget.drawTo(fDebugger.index());
     SkSafeUnref(stream);
     SkSafeUnref(picture);
 
