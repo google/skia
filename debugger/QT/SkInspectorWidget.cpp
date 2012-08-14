@@ -12,10 +12,6 @@
 
 SkInspectorWidget::SkInspectorWidget() : QWidget()
     , fHorizontalLayout(this)
-    , fOverviewTab()
-    , fOverviewLayout(&fOverviewTab)
-    , fDetailTab()
-    , fDetailLayout(&fDetailTab)
     , fMatrixAndClipWidget(this)
     , fVerticalLayout(&fMatrixAndClipWidget)
     , fMatrixLabel(this)
@@ -24,20 +20,18 @@ SkInspectorWidget::SkInspectorWidget() : QWidget()
     fHorizontalLayout.setSpacing(6);
     fHorizontalLayout.setContentsMargins(11, 11, 11, 11);
 
-    fOverviewLayout.setSpacing(6);
-    fOverviewLayout.setContentsMargins(11, 11, 11, 11);
+    QString tabNames[kTotalTabCount];
+    tabNames[kOverview_TabType] = "Overview";
+    tabNames[kDetail_TabType] = "Details";
 
-    fOverviewText.setReadOnly(true);
-    fOverviewLayout.addWidget(&fOverviewText);
-
-    fDetailLayout.setSpacing(6);
-    fDetailLayout.setContentsMargins(11,11,11,11);
-
-    fDetailText.setReadOnly(true);
-    fDetailLayout.addWidget(&fDetailText);
-
-    fTabWidget.addTab(&fOverviewTab, QString("Overview"));
-    fTabWidget.addTab(&fDetailTab, QString("Details"));
+    for (int i = 0; i < kTotalTabCount; i++) {
+        fTabTexts[i].setReadOnly(true);
+        fTabLayouts[i].setSpacing(6);
+        fTabLayouts[i].setContentsMargins(11, 11, 11, 11);
+        fTabLayouts[i].addWidget(&fTabTexts[i]);
+        fTabs[i].setLayout(&fTabLayouts[i]);
+        fTabWidget.addTab(&fTabs[i], tabNames[i]);
+    }
 
     fHorizontalLayout.setAlignment(Qt::AlignTop);
     fHorizontalLayout.addWidget(&fTabWidget);
@@ -46,9 +40,7 @@ SkInspectorWidget::SkInspectorWidget() : QWidget()
      * by adding them to horizontal layouts.
      *
      * We will have 1 big vertical layout, 3 horizontal layouts and then 3
-     * line edits in each horizontal layout.
-     */
-
+     * line edits in each horizontal layout. */
     fMatrixAndClipWidget.setFixedSize(260,300);
     fMatrixAndClipWidget.setDisabled(true);
 
@@ -58,12 +50,8 @@ SkInspectorWidget::SkInspectorWidget() : QWidget()
     fHorizontalLayout.addWidget(&fMatrixAndClipWidget);
 }
 
-void SkInspectorWidget::setDetailText(QString text) {
-    fDetailText.setHtml(text);
-}
-
-void SkInspectorWidget::setOverviewText(QString text) {
-    fOverviewText.setHtml(text);
+void SkInspectorWidget::setText(QString text, TabType type) {
+    fTabTexts[type].setHtml(text);
 }
 
 void SkInspectorWidget::setMatrix(const SkMatrix& matrix) {

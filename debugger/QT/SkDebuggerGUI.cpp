@@ -310,7 +310,7 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
                     info.append(QString((*currInfo)[i]->c_str()));
                     info.append("<br/>");
                 }
-                fInspectorWidget.setDetailText(info);
+                fInspectorWidget.setText(info, SkInspectorWidget::kDetail_TabType);
                 fInspectorWidget.setDisabled(false);
             }
         }
@@ -649,7 +649,7 @@ void SkDebuggerGUI::setupComboBox(SkTDArray<SkString*>* command) {
     overview.append("SkPicture Height: ");
     overview.append(QString::number(fDebugger.pictureHeight()));
     overview.append("px");
-    fInspectorWidget.setOverviewText(overview);
+    fInspectorWidget.setText(overview, SkInspectorWidget::kOverview_TabType);
 
     // NOTE(chudy): Makes first item unselectable.
     QStandardItemModel* model = qobject_cast<QStandardItemModel*>(
