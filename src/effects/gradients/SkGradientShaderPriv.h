@@ -220,6 +220,8 @@ class GrProgramStageFactory;
  *  determines the gradient value.
  */
 
+ class GrTextureStripAtlas;
+
 // Base class for Gr gradient effects
 class GrGradientEffect : public GrCustomStage {
 public:
@@ -233,6 +235,14 @@ public:
     GrTexture* texture(unsigned int index) const;
 
     bool useTexture() const { return fUseTexture; }
+    bool useAtlas() const { return SkToBool(-1 != fRow); }
+    GrScalar getYCoord() const { GrAssert(fUseTexture); return fYCoord; };
+
+    bool isEqual(const GrCustomStage& stage) const {
+        const GrGradientEffect& s = static_cast<const GrGradientEffect&>(stage);
+        return INHERITED::isEqual(stage) && this->useAtlas() == s.useAtlas() &&
+               fYCoord == s.getYCoord();
+    }
 
 protected:
 
@@ -252,6 +262,9 @@ protected:
 private:
     GrTexture* fTexture;
     bool fUseTexture;
+    GrScalar fYCoord;
+    GrTextureStripAtlas* fAtlas;
+    int fRow;
 
     typedef GrCustomStage INHERITED;
 
@@ -266,12 +279,21 @@ public:
     GrGLGradientStage(const GrProgramStageFactory& factory);
     virtual ~GrGLGradientStage();
 
+    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&,
+                         const GrCustomStage&,
+                         const GrRenderTarget*,
+                         int stageNum) SK_OVERRIDE;
+
     // emit code that gets a fragment's color from an expression for t; for now
     // this always uses the texture, but for simpler cases we'll be able to lerp
     void emitColorLookup(GrGLShaderBuilder* builder, const char* t, 
                          const char* outputColor, const char* samplerName);
 
 private:
+
+    GrScalar fCachedYCoord;
+    GrGLUniformManager::UniformHandle fFSYUni;
 
     typedef GrGLProgramStage INHERITED;
 };

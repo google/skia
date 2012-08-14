@@ -468,6 +468,7 @@ GrGLConical2Gradient::GrGLConical2Gradient(
 }
 
 void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder) {
+    INHERITED::setupVariables(builder);
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
@@ -631,8 +632,9 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
 
 void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
                                    const GrCustomStage& baseData,
-                                   const GrRenderTarget*,
+                                   const GrRenderTarget* target,
                                    int stageNum) {
+    INHERITED::setData(uman, baseData, target, stageNum);
     const GrConical2Gradient& data =
         static_cast<const GrConical2Gradient&>(baseData);
     GrAssert(data.isDegenerate() == fIsDegenerate);
