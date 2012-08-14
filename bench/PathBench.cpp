@@ -228,7 +228,6 @@ public:
 protected:
     void createData(int minVerbs,
                     int maxVerbs,
-                    int pathCnt,
                     bool allowMoves = true,
                     SkRect* bounds = NULL) {
         SkRect tempBounds;
@@ -236,30 +235,20 @@ protected:
             tempBounds.setXYWH(0, 0, SK_Scalar1, SK_Scalar1);
             bounds = &tempBounds;
         }
-        fVerbCnts.setReserve(pathCnt);
-        for (int i = 0; i < pathCnt; ++i) {
-            int vCount = fRandom.nextRangeU(minVerbs, maxVerbs + 1);
-            *fVerbCnts.append() = vCount;
-            for (int v = 0; v < vCount; ++v) {
-                int verb = fRandom.nextULessThan(SkPath::kDone_Verb);
-                if (SkPath::kMove_Verb == verb && !allowMoves) {
-                    --v;
-                    continue;
-                }
-                *fVerbs.append() = static_cast<SkPath::Verb>(verb);
-                static const int gPointCnt[] = {
-                    1, // kMove
-                    1, // kLine
-                    2, // kQuad
-                    3, // kCubic
-                    0, // kClose
-                };
-                int pCnt = gPointCnt[verb];
-                for (int p = 0; p < pCnt; ++p) {
-                    fPoints.append()->set(fRandom.nextRangeScalar(bounds->fLeft, bounds->fRight),
-                                          fRandom.nextRangeScalar(bounds->fTop, bounds->fBottom));
-                }
-            }
+        fVerbCnts.reset(kNumVerbCnts);
+        for (int i = 0; i < kNumVerbCnts; ++i) {
+            fVerbCnts[i] = fRandom.nextRangeU(minVerbs, maxVerbs + 1);
+        }
+        fVerbs.reset(kNumVerbs);
+        for (int i = 0; i < kNumVerbs; ++i) {
+            do {
+                fVerbs[i] = static_cast<SkPath::Verb>(fRandom.nextULessThan(SkPath::kDone_Verb));
+            } while (!allowMoves && SkPath::kMove_Verb == fVerbs[i]);
+        }
+        fPoints.reset(kNumPoints);
+        for (int i = 0; i < kNumPoints; ++i) {
+            fPoints[i].set(fRandom.nextRangeScalar(bounds->fLeft, bounds->fRight),
+                           fRandom.nextRangeScalar(bounds->fTop, bounds->fBottom));
         }
         this->restartMakingPaths();
     }
@@ -271,26 +260,24 @@ protected:
     }
 
     void makePath(SkPath* path) {
-        int vCount = fVerbCnts[fCurrPath++];
+        int vCount = fVerbCnts[(fCurrPath++) & (kNumVerbCnts - 1)];
         for (int v = 0; v < vCount; ++v) {
-            switch (fVerbs[fCurrVerb++]) {
+            int verb = fVerbs[(fCurrVerb++) & (kNumVerbs - 1)];
+            switch (verb) {
                 case SkPath::kMove_Verb:
-                    path->moveTo(fPoints[fCurrPoint]);
-                    ++fCurrPoint;
+                    path->moveTo(fPoints[(fCurrPoint++) & (kNumPoints - 1)]);
                     break;
                 case SkPath::kLine_Verb:
-                    path->lineTo(fPoints[fCurrPoint]);
-                    ++fCurrPoint;
+                    path->lineTo(fPoints[(fCurrPoint++) & (kNumPoints - 1)]);
                     break;
                 case SkPath::kQuad_Verb:
-                    path->quadTo(fPoints[fCurrPoint], fPoints[fCurrPoint + 1]);
-                    fCurrPoint += 2;
+                    path->quadTo(fPoints[(fCurrPoint++) & (kNumPoints - 1)],
+                                 fPoints[(fCurrPoint++) & (kNumPoints - 1)]);
                     break;
                 case SkPath::kCubic_Verb:
-                    path->cubicTo(fPoints[fCurrPoint],
-                                  fPoints[fCurrPoint + 1],
-                                  fPoints[fCurrPoint + 2]);
-                    fCurrPoint += 3;
+                    path->cubicTo(fPoints[(fCurrPoint++) & (kNumPoints - 1)],
+                                  fPoints[(fCurrPoint++) & (kNumPoints - 1)],
+                                  fPoints[(fCurrPoint++) & (kNumPoints - 1)]);
                     break;
                 case SkPath::kClose_Verb:
                     path->close();
@@ -303,19 +290,25 @@ protected:
     }
 
     void finishedMakingPaths() {
-        fVerbCnts.reset();
-        fVerbs.reset();
-        fPoints.reset();
+        fVerbCnts.reset(0);
+        fVerbs.reset(0);
+        fPoints.reset(0);
     }
 
 private:
-    SkTDArray<int>          fVerbCnts;
-    SkTDArray<SkPath::Verb> fVerbs;
-    SkTDArray<SkPoint>      fPoints;
-    int                     fCurrPath;
-    int                     fCurrVerb;
-    int                     fCurrPoint;
-    SkRandom                fRandom;
+    enum {
+        // these should all be pow 2
+        kNumVerbCnts = 32,
+        kNumVerbs    = 32,
+        kNumPoints   = 32,
+    };
+    SkAutoTArray<int>           fVerbCnts;
+    SkAutoTArray<SkPath::Verb>  fVerbs;
+    SkAutoTArray<SkPoint>       fPoints;
+    int                         fCurrPath;
+    int                         fCurrVerb;
+    int                         fCurrPoint;
+    SkRandom                    fRandom;
     typedef SkBenchmark INHERITED;
 };
 
@@ -332,7 +325,7 @@ protected:
     }
 
     virtual void onPreDraw() SK_OVERRIDE {
-        this->createData(10, 100, N);
+        this->createData(10, 100);
         SkASSERT(0 == fPaths.count());
         fPaths.resize_back(N);
     }
@@ -367,7 +360,7 @@ protected:
         return "path_copy";
     }
     virtual void onPreDraw() SK_OVERRIDE {
-        this->createData(10, 100, N);
+        this->createData(10, 100);
         SkASSERT(0 == fPaths.count());
         fPaths.resize_back(N);
         fCopies.resize_back(N);
@@ -409,7 +402,7 @@ protected:
 
     virtual void onPreDraw() SK_OVERRIDE {
         fMatrix.setScale(5 * SK_Scalar1, 6 * SK_Scalar1);
-        this->createData(10, 100, N);
+        this->createData(10, 100);
         SkASSERT(0 == fPaths.count());
         SkASSERT(0 == fTransformed.count());
         fPaths.resize_back(N);
@@ -461,7 +454,7 @@ protected:
 
     virtual void onPreDraw() SK_OVERRIDE {
         fParity = 0;
-        this->createData(10, 100, N);
+        this->createData(10, 100);
         SkASSERT(0 == fPaths.count());
         SkASSERT(0 == fCopies.count());
         fPaths.resize_back(N);
@@ -534,7 +527,7 @@ protected:
         // pathTo and reversePathTo assume a single contour path.
         bool allowMoves = kPathTo_AddType != fType &&
                           kReversePathTo_AddType != fType;
-        this->createData(10, 100, 2 * N, allowMoves);
+        this->createData(10, 100, allowMoves);
         SkASSERT(0 == fPaths0.count());
         SkASSERT(0 == fPaths1.count());
         fPaths0.resize_back(N);

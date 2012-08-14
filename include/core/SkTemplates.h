@@ -107,9 +107,26 @@ private:
  */
 template <typename T> class SkAutoTArray : SkNoncopyable {
 public:
+    SkAutoTArray() {
+        fArray = NULL;
+        SkDEBUGCODE(fCount = 0;)
+    }
     /** Allocate count number of T elements
      */
-    SkAutoTArray(size_t count) {
+    explicit SkAutoTArray(int count) {
+        SkASSERT(count >= 0);
+        fArray = NULL;
+        if (count) {
+            fArray = new T[count];
+        }
+        SkDEBUGCODE(fCount = count;)
+    }
+
+    /** Reallocates given a new count. Reallocation occurs even if new count equals old count.
+     */
+    void reset(int count) {
+        delete[] fArray;
+        SkASSERT(count >= 0);
         fArray = NULL;
         if (count) {
             fArray = new T[count];
@@ -128,13 +145,13 @@ public:
     /** Return the nth element in the array
      */
     T&  operator[](int index) const {
-        SkASSERT((unsigned)index < fCount);
+        SkASSERT((unsigned)index < (unsigned)fCount);
         return fArray[index];
     }
 
 private:
     T*  fArray;
-    SkDEBUGCODE(size_t fCount;)
+    SkDEBUGCODE(int fCount;)
 };
 
 /** Wraps SkAutoTArray, with room for up to N elements preallocated
