@@ -64,9 +64,13 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
 
 class FlattenableHeap : public SkFlatController {
 public:
-    FlattenableHeap(int numFlatsToKeep, SkNamedFactorySet* fset)
+    FlattenableHeap(int numFlatsToKeep, SkNamedFactorySet* fset, bool isCrossProcess)
     : fNumFlatsToKeep(numFlatsToKeep) {
-        this->setNamedFactorySet(fset);
+        SkASSERT((isCrossProcess && fset != NULL) || (!isCrossProcess && NULL == fset));
+        if (isCrossProcess) {
+            this->setNamedFactorySet(fset);
+            this->setWriteBufferFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
+        }
     }
 
     ~FlattenableHeap() {
@@ -348,18 +352,11 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
         return 0;
     }
 
-    uint32_t writeBufferFlags;
-    if (isCrossProcess(fFlags)) {
-        writeBufferFlags =  SkFlattenableWriteBuffer::kCrossProcess_Flag;
-    } else {
-        // TODO: See if we can safely move this into the controller
-        writeBufferFlags = 0;
-    }
 
     fBitmapHeap->deferAddingOwners();
     bool added, replaced;
-    const SkFlatData* flat = fFlatDictionary.findAndReplace(
-            *obj, writeBufferFlags, fFlattenableHeap.flatToReplace(), &added, &replaced);
+    const SkFlatData* flat = fFlatDictionary.findAndReplace(*obj, fFlattenableHeap.flatToReplace(),
+                                                            &added, &replaced);
     fBitmapHeap->endAddingOwnersDeferral(added);
     int index = flat->index();
     if (added) {
@@ -407,7 +404,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 : fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
 , fWriter(*writer)
 , fFlags(flags)
-, fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet)
+, fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet, isCrossProcess(flags))
 , fFlatDictionary(&fFlattenableHeap) {
     fController = controller;
     fDone = false;

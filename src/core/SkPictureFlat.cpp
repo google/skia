@@ -64,7 +64,8 @@ SkFlatController::SkFlatController()
 : fBitmapHeap(NULL)
 , fTypefaceSet(NULL)
 , fTypefacePlayback(NULL)
-, fFactorySet(NULL) {}
+, fFactorySet(NULL)
+, fWriteBufferFlags(0) {}
 
 SkFlatController::~SkFlatController() {
     SkSafeUnref(fBitmapHeap);
@@ -92,8 +93,7 @@ SkNamedFactorySet* SkFlatController::setNamedFactorySet(SkNamedFactorySet* set) 
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
-        int index, void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
-        uint32_t writeBufferflags) {
+        int index, void (*flattenProc)(SkOrderedWriteBuffer&, const void*)) {
     // a buffer of 256 bytes should be sufficient for most paints, regions,
     // and matrices.
     intptr_t storage[256];
@@ -102,7 +102,7 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
     buffer.setBitmapHeap(controller->getBitmapHeap());
     buffer.setTypefaceRecorder(controller->getTypefaceSet());
     buffer.setNamedFactoryRecorder(controller->getNamedFactorySet());
-    buffer.setFlags(writeBufferflags);
+    buffer.setFlags(controller->getWriteBufferFlags());
     
     flattenProc(buffer, obj);
     uint32_t size = buffer.size();

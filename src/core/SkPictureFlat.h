@@ -202,6 +202,11 @@ public:
      */
     SkNamedFactorySet* getNamedFactorySet() { return fFactorySet; }
 
+    /**
+     * Flags to use during creation of SkFlatData objects. Defaults to zero.
+     */
+    uint32_t getWriteBufferFlags() { return fWriteBufferFlags; }
+
 protected:
     /**
      * Set an SkBitmapHeap to be used to store/read SkBitmaps. Ref counted.
@@ -228,11 +233,17 @@ protected:
      */
     SkNamedFactorySet* setNamedFactorySet(SkNamedFactorySet*);
 
+    /**
+     * Set the flags to be used during flattening.
+     */
+    void setWriteBufferFlags(uint32_t flags) { fWriteBufferFlags = flags; }
+
 private:
     SkBitmapHeap*       fBitmapHeap;
     SkRefCntSet*        fTypefaceSet;
     SkTypefacePlayback* fTypefacePlayback;
     SkNamedFactorySet*  fFactorySet;
+    uint32_t            fWriteBufferFlags;
 };
 
 class SkFlatData {
@@ -295,8 +306,7 @@ public:
 #endif
 
     static SkFlatData* Create(SkFlatController* controller, const void* obj, int index,
-                              void (*flattenProc)(SkOrderedWriteBuffer&, const void*),
-                              uint32_t writeBufferflags);
+                              void (*flattenProc)(SkOrderedWriteBuffer&, const void*));
 
     void unflatten(void* result,
                    void (*unflattenProc)(SkOrderedReadBuffer&, void*),
@@ -384,13 +394,11 @@ public:
      * the entry in the dictionary, it returns the actual SkFlatData.
      */
     const SkFlatData* findAndReplace(const T& element,
-                                     uint32_t writeBufferFlags,
                                      const SkFlatData* toReplace, bool* added,
                                      bool* replaced) {
         SkASSERT(added != NULL && replaced != NULL);
         int oldCount = fData.count();
-        const SkFlatData* flat = this->findAndReturnFlat(element,
-                                                         writeBufferFlags);
+        const SkFlatData* flat = this->findAndReturnFlat(element);
         *added = fData.count() == oldCount + 1;
         *replaced = false;
         if (*added && toReplace != NULL) {
@@ -429,8 +437,8 @@ public:
      * This trick allows Compare to always loop until failure. If it fails on
      * the sentinal value, we know the blocks are equal.
      */
-    int find(const T& element, uint32_t writeBufferflags = 0) {
-        return this->findAndReturnFlat(element, writeBufferflags)->index();
+    int find(const T& element) {
+        return this->findAndReturnFlat(element)->index();
     }
 
     /**
@@ -484,10 +492,8 @@ private:
     int                          fNextIndex;
     SkTDArray<const SkFlatData*> fData;
 
-    const SkFlatData* findAndReturnFlat(const T& element,
-                                        uint32_t writeBufferflags) {
-        SkFlatData* flat = SkFlatData::Create(fController, &element, fNextIndex,
-                                              fFlattenProc, writeBufferflags);
+    const SkFlatData* findAndReturnFlat(const T& element) {
+        SkFlatData* flat = SkFlatData::Create(fController, &element, fNextIndex, fFlattenProc);
         
         int hashIndex = ChecksumToHashIndex(flat->checksum());
         const SkFlatData* candidate = fHash[hashIndex];
