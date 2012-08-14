@@ -89,6 +89,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         i = 0;
         canvas->clear(0);
         canvas->resetMatrix();
+        SkRect rect = SkRect::MakeWH(fWidth, fHeight);
+        canvas->clipRect(rect, SkRegion::kReplace_Op );
         applyUserTransform(canvas);
     }
 
