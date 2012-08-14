@@ -50,7 +50,6 @@ void SkGLWidget::resizeGL(int w, int h) {
 
 void SkGLWidget::paintGL() {
     if (!this->isHidden()) {
-        glClearColor(1, 1, 1, 0);
         fDebugger->draw(fCanvas);
         // TODO(chudy): Implement an optional flush button in Gui.
         fCanvas->flush();
