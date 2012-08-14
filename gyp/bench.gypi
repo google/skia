@@ -13,6 +13,7 @@
     '../bench/ChromeBench.cpp',
     '../bench/DashBench.cpp',
     '../bench/DecodeBench.cpp',
+    '../bench/DeferredCanvasBench.cpp',
     '../bench/FontScalerBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
