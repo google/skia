@@ -34,14 +34,8 @@ public:
     GrTextureStripAtlas* fAtlas;
 };
 
-// Ugly way of ensuring that we clean up the atlases on exit
-struct AtlasEntries {
-    ~AtlasEntries() { fEntries.deleteAll(); }
-    SkTDArray<AtlasEntry*> fEntries;
-};
-
 GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::Desc& desc) {
-    static AtlasEntries gAtlasEntries;
+    static SkTDArray<AtlasEntry> gAtlasEntries;
     static GrTHashTable<AtlasEntry, AtlasHashKey, 8> gAtlasCache;
     AtlasHashKey key;
     key.setKeyData(desc.asKey());
@@ -49,8 +43,7 @@ GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::De
     if (NULL != entry) {
         return entry->fAtlas;
     } else {
-        entry = SkNEW(AtlasEntry);
-        gAtlasEntries.fEntries.push(entry);
+        entry = gAtlasEntries.push();
         entry->fAtlas = SkNEW_ARGS(GrTextureStripAtlas, (desc));
         entry->fKey = key;
         gAtlasCache.insert(key, entry);
@@ -115,8 +108,6 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         this->removeFromLRU(row);
 
         uint32_t oldKey = row->fKey;
-        row->fKey = key;
-        row->fLocks = 1;
 
         // If we are writing into a row that already held bitmap data, we need to remove the
         // reference to that genID which is stored in our sorted table of key values.
@@ -125,13 +116,15 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
             // Find the entry in the list; if it's before the index where we plan on adding the new
             // entry, we decrement since it will shift elements ahead of it back by one.
             int oldIndex = this->searchByKey(oldKey);
-            if (oldIndex <= index) {
+            if (oldIndex < index) {
                 --index;
             }
 
             fKeyTable.remove(oldIndex);
         }
 
+        row->fKey = key;
+        row->fLocks = 1;
         fKeyTable.insert(index, 1, &row);
         rowNumber = static_cast<int>(row - fRows); 
 

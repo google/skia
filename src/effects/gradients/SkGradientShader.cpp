@@ -12,6 +12,7 @@
 #include "SkTwoPointRadialGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
+#include "effects/GrTextureStripAtlas.h"
 
 SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScalar pos[],
              int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper) {
@@ -675,17 +676,34 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "SkGr.h"
 
 GrGLGradientStage::GrGLGradientStage(const GrProgramStageFactory& factory)
-                                     : INHERITED(factory) { }
+    : INHERITED(factory)
+    , fCachedYCoord(GR_ScalarMax)
+    , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) { }
 
 GrGLGradientStage::~GrGLGradientStage() { }
+
+void GrGLGradientStage::setupVariables(GrGLShaderBuilder* builder) {
+    fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                  kFloat_GrSLType, "GradientYCoordFS");
+}
+
+void GrGLGradientStage::setData(const GrGLUniformManager& uman,
+                                const GrCustomStage& stage,
+                                const GrRenderTarget*,
+                                int stageNum) {
+    GrScalar yCoord = static_cast<const GrGradientEffect&>(stage).getYCoord();
+    if (yCoord != fCachedYCoord) {
+        uman.set1f(fFSYUni, yCoord);
+        fCachedYCoord = yCoord;
+    }
+}
 
 void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder, 
                                         const char* tName, 
                                         const char* outputColor,
                                         const char* samplerName) {
-    // Texture is effectively 1D so the y coordinate is 0.5, if we pack multiple
-    // gradients into a texture, we could instead pick the appropriate row here
-    builder->fSampleCoords.printf("vec2(%s, 0.5)", tName);
+    builder->fSampleCoords.printf("vec2(%s, %s)", tName,
+        builder->getUniformVariable(fFSYUni).c_str());
     builder->fComplexCoord = true;
     builder->emitDefaultFetch(outputColor, samplerName);
 }
@@ -696,7 +714,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
                                    GrSamplerState* sampler)
     : fTexture (NULL)
-    , fUseTexture (false) {
+    , fUseTexture (true) {
     // TODO: check for simple cases where we don't need a texture:
     //GradientInfo info;
     //shader.asAGradient(&info);
@@ -705,20 +723,40 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     SkBitmap bitmap;
     shader.getGradientTableBitmap(&bitmap);
 
-    GrContext::TextureCacheEntry entry = GrLockCachedBitmapTexture(ctx, bitmap,
-                                                                   sampler->textureParams());
-    fTexture = entry.texture();
-    SkSafeRef(fTexture);
-    fUseTexture = true;
+    GrTextureStripAtlas::Desc desc;
+    desc.fWidth  = bitmap.width();
+    desc.fHeight = 32;
+    desc.fRowHeight = bitmap.height();
+    desc.fContext = ctx;
+    desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
+    fAtlas = GrTextureStripAtlas::GetAtlas(desc);
+    GrAssert(NULL != fAtlas);
 
-    // Unlock immediately, this is not great, but we don't have a way of
-    // knowing when else to unlock it currently, so it may get purged from
-    // the cache, but it'll still be ref'd until it's no longer being used.
-    GrUnlockCachedBitmapTexture(ctx, entry);
+    fRow = fAtlas->lockRow(bitmap);
+    if (-1 != fRow) {
+        fYCoord = fAtlas->getYOffset(fRow) + GR_ScalarHalf *
+                  fAtlas->getVerticalScaleFactor();
+        fTexture = fAtlas->getTexture();
+    } else {
+        GrContext::TextureCacheEntry entry = GrLockCachedBitmapTexture(ctx, bitmap,
+                                                                       sampler->textureParams());
+        fTexture = entry.texture();
+        SkSafeRef(fTexture);
+        fYCoord = GR_ScalarHalf;
+
+        // Unlock immediately, this is not great, but we don't have a way of
+        // knowing when else to unlock it currently, so it may get purged from
+        // the cache, but it'll still be ref'd until it's no longer being used.
+        GrUnlockCachedBitmapTexture(ctx, entry);
+    }
 }
 
 GrGradientEffect::~GrGradientEffect() {
-    SkSafeUnref(fTexture);
+    if (this->useAtlas()) {
+        fAtlas->unlockRow(fRow);
+    } else {
+        SkSafeUnref(fTexture);
+    }
 }
 
 unsigned int GrGradientEffect::numTextures() const {
