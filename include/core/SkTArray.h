@@ -331,13 +331,11 @@ private:
         int newCount = fCount + delta;
         int newAllocCount = fAllocCount;
 
-        if (newCount > fAllocCount) {
-            newAllocCount = SkMax32(newCount + ((newCount + 1) >> 1),
-                                   fReserveCount);
-        } else if (newCount < fAllocCount / 3) {
-            newAllocCount = SkMax32(fAllocCount / 2, fReserveCount);
+        if (newCount > fAllocCount || newCount < (fAllocCount / 3)) {
+            // whether we're growing or shrinking, we leave at least 50% extra space for future
+            // growth (clamped to the reserve count).
+            newAllocCount = SkMax32(newCount + ((newCount + 1) >> 1), fReserveCount);
         }
-
         if (newAllocCount != fAllocCount) {
 
             fAllocCount = newAllocCount;
