@@ -168,16 +168,16 @@ public:
                 this->writeOp(kDone_DrawOp);
                 this->doNotify();
                 if (shouldFlattenBitmaps(fFlags)) {
-                    // In this case, a BitmapShuttle is reffed by the SharedHeap
-                    // and refs this canvas. Unref the SharedHeap to end the
+                    // In this case, a BitmapShuttle is reffed by the SkBitmapHeap
+                    // and refs this canvas. Unref the SkBitmapHeap to end the
                     // circular reference. When shouldFlattenBitmaps is false,
-                    // there is no circular reference, so the SharedHeap can be
+                    // there is no circular reference, so the SkBitmapHeap can be
                     // safely unreffed in the destructor.
-                    fSharedHeap->unref();
+                    fBitmapHeap->unref();
                     // This eliminates a similar circular reference (Canvas owns
-                    // the FlattenableHeap which holds a ref to fSharedHeap).
+                    // the FlattenableHeap which holds a ref to the SkBitmapHeap).
                     fFlattenableHeap.setBitmapStorage(NULL);
-                    fSharedHeap = NULL;
+                    fBitmapHeap = NULL;
                 }
             }
             fDone = true;
@@ -188,7 +188,7 @@ public:
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
     size_t storageAllocatedForRecording() {
-        return fSharedHeap->bytesAllocated();
+        return fBitmapHeap->bytesAllocated();
     }
 
     // overrides from SkCanvas
@@ -253,7 +253,7 @@ private:
     };
     SkNamedFactorySet* fFactorySet;
     int                fFirstSaveLayerStackLevel;
-    SkBitmapHeap*      fSharedHeap;
+    SkBitmapHeap*      fBitmapHeap;
     SkGPipeController* fController;
     SkWriter32&        fWriter;
     size_t             fBlockSize; // amount allocated for writer
@@ -356,11 +356,11 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
         writeBufferFlags = 0;
     }
 
-    fSharedHeap->deferAddingOwners();
+    fBitmapHeap->deferAddingOwners();
     bool added, replaced;
     const SkFlatData* flat = fFlatDictionary.findAndReplace(
             *obj, writeBufferFlags, fFlattenableHeap.flatToReplace(), &added, &replaced);
-    fSharedHeap->endAddingOwnersDeferral(added);
+    fBitmapHeap->endAddingOwnersDeferral(added);
     int index = flat->index();
     if (added) {
         if (isCrossProcess(fFlags)) {
@@ -431,24 +431,24 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     
     if (shouldFlattenBitmaps(flags)) {
         BitmapShuttle* shuttle = SkNEW_ARGS(BitmapShuttle, (this));
-        fSharedHeap = SkNEW_ARGS(SkBitmapHeap, (shuttle, BITMAPS_TO_KEEP));
+        fBitmapHeap = SkNEW_ARGS(SkBitmapHeap, (shuttle, BITMAPS_TO_KEEP));
         shuttle->unref();
     } else {
-        fSharedHeap = SkNEW_ARGS(SkBitmapHeap,
+        fBitmapHeap = SkNEW_ARGS(SkBitmapHeap,
                                  (BITMAPS_TO_KEEP, controller->numberOfReaders()));
         if (this->needOpBytes(sizeof(void*))) {
-            this->writeOp(kShareHeap_DrawOp);
-            fWriter.writePtr(static_cast<void*>(fSharedHeap));
+            this->writeOp(kShareBitmapHeap_DrawOp);
+            fWriter.writePtr(static_cast<void*>(fBitmapHeap));
         }
     }
-    fFlattenableHeap.setBitmapStorage(fSharedHeap);
+    fFlattenableHeap.setBitmapStorage(fBitmapHeap);
     this->doNotify();
 }
 
 SkGPipeCanvas::~SkGPipeCanvas() {
     this->finish();
     SkSafeUnref(fFactorySet);
-    SkSafeUnref(fSharedHeap);
+    SkSafeUnref(fBitmapHeap);
 }
 
 bool SkGPipeCanvas::needOpBytes(size_t needed) {
@@ -706,7 +706,7 @@ bool SkGPipeCanvas::commonDrawBitmap(const SkBitmap& bm, DrawOps op,
                                      unsigned flags,
                                      size_t opBytesNeeded,
                                      const SkPaint* paint) {
-    int32_t bitmapIndex = fSharedHeap->insert(bm);
+    int32_t bitmapIndex = fBitmapHeap->insert(bm);
     if (SkBitmapHeap::INVALID_SLOT == bitmapIndex) {
         return false;
     }
@@ -944,7 +944,7 @@ void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
 }
 
 size_t SkGPipeCanvas::freeMemoryIfPossible(size_t bytesToFree) {
-    return fSharedHeap->freeMemoryIfPossible(bytesToFree);
+    return fBitmapHeap->freeMemoryIfPossible(bytesToFree);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

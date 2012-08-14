@@ -605,7 +605,7 @@ static void reportFlags_rp(SkCanvas*, SkReader32*, uint32_t op32,
     state->setFlags(flags);
 }
 
-static void shareHeap_rp(SkCanvas*, SkReader32* reader, uint32_t,
+static void shareBitmapHeap_rp(SkCanvas*, SkReader32* reader, uint32_t,
                            SkGPipeState* state) {
     state->setSharedHeap(static_cast<SkBitmapHeap*>(reader->readPtr()));
 }
@@ -654,7 +654,7 @@ static const ReadProc gReadTable[] = {
     def_Factory_rp,
 
     reportFlags_rp,
-    shareHeap_rp,
+    shareBitmapHeap_rp,
     done_rp
 };
 
