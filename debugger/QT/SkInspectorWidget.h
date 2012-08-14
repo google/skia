@@ -28,6 +28,12 @@ class SkInspectorWidget : public QWidget {
     Q_OBJECT
 
 public:
+    enum TabType {
+        kOverview_TabType,
+        kDetail_TabType,
+        kTotalTabCount,
+    };
+
     /**
         Constructs a widget with the specified parent for layout purposes.
         @param parent  The parent container of this widget
@@ -37,17 +43,12 @@ public:
     void setDisabled(bool isDisabled) {
         fMatrixAndClipWidget.setDisabled(isDisabled);
     }
-    /**
-        Sets the text in the detail tab.
-        @param text
-     */
-    void setDetailText(QString text);
 
     /**
-        Sets the text in the overview tab.
+        Sets the text in tab at the specified index.
         @param text
      */
-    void setOverviewText(QString text);
+    void setText(QString text, TabType type);
 
     /**
         Sets the text in the current matrix.
@@ -61,17 +62,29 @@ public:
      */
     void setClip(const SkIRect& clip);
 
+    class Tab : public QWidget {
+        QWidget fTab;
+        QHBoxLayout fTabLayout;
+        QTextEdit fTabText;
+        QString fName;
+
+        Tab(const char* name) {
+            fTabText.setReadOnly(true);
+            fTabLayout.setSpacing(6);
+            fTabLayout.setContentsMargins(11, 11, 11, 11);
+            fTabLayout.addWidget(&fTabText);
+            fTab.setLayout(&fTabLayout);
+            fName = QString(name);
+        }
+    };
+
 private:
     QHBoxLayout fHorizontalLayout;
     QTabWidget fTabWidget;
 
-    QWidget fOverviewTab;
-    QHBoxLayout fOverviewLayout;
-    QTextEdit fOverviewText;
-
-    QWidget fDetailTab;
-    QHBoxLayout fDetailLayout;
-    QTextEdit fDetailText;
+    QWidget fTabs[kTotalTabCount];
+    QHBoxLayout fTabLayouts[kTotalTabCount];
+    QTextEdit fTabTexts[kTotalTabCount];
 
     QWidget fMatrixAndClipWidget;
     QVBoxLayout fVerticalLayout;
