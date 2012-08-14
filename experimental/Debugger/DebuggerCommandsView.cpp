@@ -142,3 +142,4 @@ void DebuggerCommandsView::onDraw(SkCanvas* canvas) {
                          SKDEBUGGER_RESIZEBARSIZE, this->height());
     canvas->drawRect(r, p);
 }
+
