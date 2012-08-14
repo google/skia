@@ -691,7 +691,7 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
 }
 
 
-void SkScalerContext::Rec::getMatrixFrom2x2(SkMatrix* dst) const {
+void SkScalerContextRec::getMatrixFrom2x2(SkMatrix* dst) const {
     dst->reset();
     dst->setScaleX(fPost2x2[0][0]);
     dst->setSkewX( fPost2x2[0][1]);
@@ -699,14 +699,14 @@ void SkScalerContext::Rec::getMatrixFrom2x2(SkMatrix* dst) const {
     dst->setScaleY(fPost2x2[1][1]);
 }
 
-void SkScalerContext::Rec::getLocalMatrix(SkMatrix* m) const {
+void SkScalerContextRec::getLocalMatrix(SkMatrix* m) const {
     m->setScale(SkScalarMul(fTextSize, fPreScaleX), fTextSize);
     if (fPreSkewX) {
         m->postSkew(fPreSkewX, 0);
     }
 }
 
-void SkScalerContext::Rec::getSingleMatrix(SkMatrix* m) const {
+void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {
     this->getLocalMatrix(m);
 
     //  now concat the device matrix
