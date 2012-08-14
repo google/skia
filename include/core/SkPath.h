@@ -10,6 +10,7 @@
 #ifndef SkPath_DEFINED
 #define SkPath_DEFINED
 
+#include "SkInstCnt.h"
 #include "SkMatrix.h"
 #include "SkTDArray.h"
 
@@ -33,6 +34,8 @@ class SkString;
 */
 class SK_API SkPath {
 public:
+    SK_DECLARE_INST_COUNT_ROOT(SkPath);
+
     SkPath();
     SkPath(const SkPath&);
     ~SkPath();
