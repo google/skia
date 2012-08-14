@@ -66,7 +66,8 @@ SkBitmapHeap::SkBitmapHeap(int32_t preferredSize, int32_t ownerCount)
     , fLeastRecentlyUsed(NULL)
     , fPreferredCount(preferredSize)
     , fOwnerCount(ownerCount)
-    , fBytesAllocated(0) {
+    , fBytesAllocated(0)
+    , fDeferAddingOwners(false) {
 }
 
 SkBitmapHeap::SkBitmapHeap(ExternalStorage* storage, int32_t preferredSize)
@@ -76,7 +77,8 @@ SkBitmapHeap::SkBitmapHeap(ExternalStorage* storage, int32_t preferredSize)
     , fLeastRecentlyUsed(NULL)
     , fPreferredCount(preferredSize)
     , fOwnerCount(IGNORE_OWNERS)
-    , fBytesAllocated(0) {
+    , fBytesAllocated(0)
+    , fDeferAddingOwners(false) {
     SkSafeRef(storage);
 }
 
@@ -165,7 +167,7 @@ SkBitmapHeap::LookupEntry* SkBitmapHeap::findEntryToReplace(const SkBitmap& repl
         if (heapEntry->fRefCount > 0) {
             // If the least recently used bitmap has not been unreferenced
             // by its owner, then according to our LRU specifications a more
-            // recently used one can not have used all it's references yet either.
+            // recently used one can not have used all its references yet either.
             return NULL;
         }
         if (replacement.getGenerationID() == iter->fGenerationId) {
@@ -281,7 +283,11 @@ int32_t SkBitmapHeap::insert(const SkBitmap& originalBitmap) {
     if (entry) {
         // Already had a copy of the bitmap in the heap.
         if (fOwnerCount != IGNORE_OWNERS) {
-            entry->addReferences(fOwnerCount);
+            if (fDeferAddingOwners) {
+                *fDeferredEntries.append() = entry->fSlot;
+            } else {
+                entry->addReferences(fOwnerCount);
+            }
         }
         if (fPreferredCount != UNLIMITED_SIZE) {
             LookupEntry* lookupEntry = fLookupTable[searchIndex];
@@ -369,4 +375,21 @@ int32_t SkBitmapHeap::insert(const SkBitmap& originalBitmap) {
         this->appendToLRU(fLookupTable[searchIndex]);
     }
     return entry->fSlot;
+}
+
+void SkBitmapHeap::deferAddingOwners() {
+    fDeferAddingOwners = true;
+}
+
+void SkBitmapHeap::endAddingOwnersDeferral(bool add) {
+    if (add) {
+        for (int i = 0; i < fDeferredEntries.count(); i++) {
+            SkASSERT(fOwnerCount != IGNORE_OWNERS);
+            SkBitmapHeapEntry* heapEntry = this->getEntry(fDeferredEntries[i]);
+            SkASSERT(heapEntry != NULL);
+            heapEntry->addReferences(fOwnerCount);
+        }
+    }
+    fDeferAddingOwners = false;
+    fDeferredEntries.reset();
 }

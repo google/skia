@@ -62,7 +62,7 @@ public:
     ~SkRefCntTDArray() { this->unrefAll(); }
 };
 
-class SkGPipeState {
+class SkGPipeState : public SkBitmapHeapReader {
 public:
     SkGPipeState();
     ~SkGPipeState();
@@ -123,13 +123,23 @@ public:
         bm->unflatten(*fReader);
     }
 
-    SkBitmap* getBitmap(unsigned index) {
+    /**
+     * Override of SkBitmapHeapReader, so that SkOrderedReadBuffer can use
+     * these SkBitmaps for bitmap shaders.
+     */
+    virtual SkBitmap* getBitmap(int32_t index) const SK_OVERRIDE {
         return fBitmaps[index];
     }
+
+    /**
+     * Needed to be a non-abstract subclass of SkBitmapHeapReader.
+     */
+    virtual void releaseRef(int32_t) SK_OVERRIDE {}
 
     void setSharedHeap(SkBitmapHeap* heap) {
         SkASSERT(!shouldFlattenBitmaps(fFlags) || NULL == heap);
         SkRefCnt_SafeAssign(fSharedHeap, heap);
+        this->updateReader();
     }
 
     SkBitmapHeap* getSharedHeap() const {
@@ -159,6 +169,12 @@ private:
             fReader->setFactoryArray(&fFactoryArray);
         } else {
             fReader->setFactoryArray(NULL);
+        }
+
+        if (shouldFlattenBitmaps(fFlags)) {
+            fReader->setBitmapStorage(this);
+        } else {
+            fReader->setBitmapStorage(fSharedHeap);
         }
     }
     SkOrderedReadBuffer*      fReader;
