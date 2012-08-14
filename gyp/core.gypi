@@ -216,7 +216,6 @@
         '<(skia_include_path)/core/SkRegion.h',
         '<(skia_include_path)/core/SkScalar.h',
         '<(skia_include_path)/core/SkScalarCompare.h',
-        '<(skia_include_path)/core/SkScalerContext.h',
         '<(skia_include_path)/core/SkShader.h',
         '<(skia_include_path)/core/SkStream.h',
         '<(skia_include_path)/core/SkString.h',
