@@ -741,15 +741,6 @@ int main (int argc, char * const argv[]) {
     while ((bench = iter.next()) != NULL) {
         SkAutoTUnref<SkBenchmark> benchUnref(bench);
 
-#ifdef SK_BUILD_FOR_ANDROID
-        const char* name = bench->getName();
-        if (strstr(name, "path_") != name ||
-            strstr(name, "path_stroke") == name ||
-            strstr(name, "path_fill") == name ) {
-            continue;
-        }
-#endif
-
         SkIPoint dim = bench->getSize();
         if (dim.fX <= 0 || dim.fY <= 0) {
             continue;
