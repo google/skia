@@ -39,16 +39,12 @@ private:
 
     int32_t fSlot;
     int32_t fRefCount;
-    uint32_t fGenerationID;
 
     SkBitmap fBitmap;
     // Keep track of the bytes allocated for this bitmap. When replacing the
     // bitmap or removing this HeapEntry we know how much memory has been
     // reclaimed.
     size_t fBytesAllocated;
-    // TODO: Generalize the LRU caching mechanism
-    SkBitmapHeapEntry* fMoreRecentlyUsed;
-    SkBitmapHeapEntry* fLessRecentlyUsed;
 
     friend class SkBitmapHeap;
 };
@@ -176,7 +172,8 @@ public:
      * Returns a count of the number of items currently in the heap
      */
     int count() const {
-        SkASSERT(fExternalStorage != NULL || fStorage.count() == fLookupTable.count());
+        SkASSERT(fExternalStorage != NULL ||
+                 fStorage.count() - fUnusedSlots.count() == fLookupTable.count());
         return fLookupTable.count();
     }
 
@@ -197,43 +194,39 @@ public:
 
 private:
     struct LookupEntry {
-        LookupEntry(const SkBitmap& bm, uint32_t genId = 0) {
-            fGenerationId = 0 == genId ? bm.getGenerationID() : genId;
-            fPixelOffset = bm.pixelRefOffset();
-            fWidth = bm.width();
-            fHeight = bm.height();
-        }
-        uint32_t fGenerationId; // SkPixelRef GenerationID.
-        size_t fPixelOffset;
-        uint32_t fWidth;
-        uint32_t fHeight;
+        LookupEntry(const SkBitmap& bm)
+        : fGenerationId(bm.getGenerationID())
+        , fPixelOffset(bm.pixelRefOffset())
+        , fWidth(bm.width())
+        , fHeight(bm.height())
+        , fMoreRecentlyUsed(NULL)
+        , fLessRecentlyUsed(NULL){}
+
+        const uint32_t fGenerationId; // SkPixelRef GenerationID.
+        const size_t   fPixelOffset;
+        const uint32_t fWidth;
+        const uint32_t fHeight;
+
+        // TODO: Generalize the LRU caching mechanism
+        LookupEntry* fMoreRecentlyUsed;
+        LookupEntry* fLessRecentlyUsed;
 
         uint32_t fStorageSlot; // slot of corresponding bitmap in fStorage.
 
-        bool operator < (const LookupEntry& other) const {
-            if (this->fGenerationId != other.fGenerationId) {
-                return this->fGenerationId < other.fGenerationId;
-            } else if(this->fPixelOffset != other.fPixelOffset) {
-                return this->fPixelOffset < other.fPixelOffset;
-            } else if(this->fWidth != other.fWidth) {
-                return this->fWidth < other.fWidth;
-            } else {
-                return this->fHeight < other.fHeight;
-            }
-        }
-        bool operator != (const LookupEntry& other) const {
-            return this->fGenerationId != other.fGenerationId
-                || this->fPixelOffset != other.fPixelOffset
-                || this->fWidth != other.fWidth
-                || this->fHeight != other.fHeight;
-        }
+        /**
+         * Compare two LookupEntry pointers, returning -1, 0, 1 for sorting.
+         */
+        static int Compare(const LookupEntry* a, const LookupEntry* b);
     };
 
     /**
-     * Remove the entry from the lookup table.
+     * Remove the entry from the lookup table. Also deletes the entry pointed
+     * to by the table. Therefore, if a pointer to that one was passed in, the
+     * pointer should no longer be used, since the object to which it points has
+     * been deleted.
      * @return The index in the lookup table of the entry before removal.
      */
-    int removeEntryFromLookupTable(const SkBitmapHeapEntry&);
+    int removeEntryFromLookupTable(LookupEntry*);
 
     /**
      * Searches for the bitmap in the lookup table and returns the bitmaps index within the table.
@@ -245,12 +238,27 @@ private:
      */
     int findInLookupTable(const LookupEntry& key, SkBitmapHeapEntry** entry);
 
-    SkBitmapHeapEntry* findEntryToReplace(const SkBitmap& replacement);
+    LookupEntry* findEntryToReplace(const SkBitmap& replacement);
     bool copyBitmap(const SkBitmap& originalBitmap, SkBitmap& copiedBitmap);
-    void setMostRecentlyUsed(SkBitmapHeapEntry* entry);
+
+    /**
+     * Remove a LookupEntry from the LRU, in preparation for either deleting or appending as most
+     * recent. Points the LookupEntry's old neighbors at each other, and sets fLeastRecentlyUsed
+     * (if there is still an entry left). Sets LookupEntry's fMoreRecentlyUsed to NULL and leaves
+     * its fLessRecentlyUsed unmodified.
+     */
+    void removeFromLRU(LookupEntry* entry);
+
+    /**
+     * Append a LookupEntry to the end of the LRU cache, marking it as the most
+     * recently used. Assumes that the LookupEntry is already in fLookupTable,
+     * but is not in the LRU cache. If it is in the cache, removeFromLRU should
+     * be called first.
+     */
+    void appendToLRU(LookupEntry*);
 
     // searchable index that maps to entries in the heap
-    SkTDArray<LookupEntry> fLookupTable;
+    SkTDArray<LookupEntry*> fLookupTable;
 
     // heap storage
     SkTDArray<SkBitmapHeapEntry*> fStorage;
@@ -259,8 +267,8 @@ private:
     SkTDArray<int> fUnusedSlots;
     ExternalStorage* fExternalStorage;
 
-    SkBitmapHeapEntry* fMostRecentlyUsed;
-    SkBitmapHeapEntry* fLeastRecentlyUsed;
+    LookupEntry* fMostRecentlyUsed;
+    LookupEntry* fLeastRecentlyUsed;
 
     const int32_t fPreferredCount;
     const int32_t fOwnerCount;
