@@ -10,10 +10,11 @@
 #ifndef SkFontHost_DEFINED
 #define SkFontHost_DEFINED
 
-#include "SkScalerContext.h"
 #include "SkTypeface.h"
 
 class SkDescriptor;
+class SkScalerContext;
+struct SkScalerContextRec;
 class SkStream;
 class SkWStream;
 
@@ -167,7 +168,7 @@ public:
 
         A lazy (but valid) fonthost can do nothing in its FilterRec routine.
      */
-    static void FilterRec(SkScalerContext::Rec* rec);
+    static void FilterRec(SkScalerContextRec* rec);
 
     ///////////////////////////////////////////////////////////////////////////
 

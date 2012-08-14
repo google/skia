@@ -24,6 +24,87 @@ class SkMaskFilter;
 class SkPathEffect;
 class SkRasterizer;
 
+/*
+ *  To allow this to be forward-declared, it must be its own typename, rather
+ *  than a nested struct inside SkScalerContext (where it started).
+ */
+struct SkScalerContextRec {
+    uint32_t    fOrigFontID;
+    uint32_t    fFontID;
+    SkScalar    fTextSize, fPreScaleX, fPreSkewX;
+    SkScalar    fPost2x2[2][2];
+    SkScalar    fFrameWidth, fMiterLimit;
+    
+    //These describe the parameters to create (uniquely identify) the pre-blend.
+    uint32_t    fLumBits;
+    uint8_t     fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+    uint8_t     fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+    uint8_t     fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
+    uint8_t     fReservedAlign;
+    
+    SkScalar getDeviceGamma() const {
+        return SkIntToScalar(fDeviceGamma) / (1 << 6);
+    }
+    void setDeviceGamma(SkScalar dg) {
+        SkASSERT(0 <= dg && dg < SkIntToScalar(4));
+        fDeviceGamma = SkScalarFloorToInt(dg * (1 << 6));
+    }
+    
+    SkScalar getPaintGamma() const {
+        return SkIntToScalar(fPaintGamma) / (1 << 6);
+    }
+    void setPaintGamma(SkScalar pg) {
+        SkASSERT(0 <= pg && pg < SkIntToScalar(4));
+        fPaintGamma = SkScalarFloorToInt(pg * (1 << 6));
+    }
+    
+    SkScalar getContrast() const {
+        return SkIntToScalar(fContrast) / ((1 << 8) - 1);
+    }
+    void setContrast(SkScalar c) {
+        SkASSERT(0 <= c && c <= SK_Scalar1);
+        fContrast = SkScalarRoundToInt(c * ((1 << 8) - 1));
+    }
+    
+    /**
+     *  Causes the luminance color and contrast to be ignored, and the
+     *  paint and device gamma to be effectively 1.0.
+     */
+    void ignorePreBlend() {
+        setLuminanceColor(0x00000000);
+        setPaintGamma(SK_Scalar1);
+        setDeviceGamma(SK_Scalar1);
+        setContrast(0);
+    }
+    
+    uint8_t     fMaskFormat;
+    uint8_t     fStrokeJoin;
+    uint16_t    fFlags;
+    // Warning: when adding members note that the size of this structure
+    // must be a multiple of 4. SkDescriptor requires that its arguments be
+    // multiples of four and this structure is put in an SkDescriptor in
+    // SkPaint::MakeRec.
+    
+    void    getMatrixFrom2x2(SkMatrix*) const;
+    void    getLocalMatrix(SkMatrix*) const;
+    void    getSingleMatrix(SkMatrix*) const;
+    
+    inline SkPaint::Hinting getHinting() const;
+    inline void setHinting(SkPaint::Hinting);
+    
+    SkMask::Format getFormat() const {
+        return static_cast<SkMask::Format>(fMaskFormat);
+    }
+    
+    SkColor getLuminanceColor() const {
+        return fLumBits;
+    }
+    
+    void setLuminanceColor(SkColor c) {
+        fLumBits = c;
+    }
+};
+
 //The following typedef hides from the rest of the implementation the number of
 //most significant bits to consider when creating mask gamma tables. Two bits
 //per channel was chosen as a balance between fidelity (more bits) and cache
@@ -32,6 +113,8 @@ typedef SkTMaskGamma<2, 2, 2> SkMaskGamma;
 
 class SkScalerContext {
 public:
+    typedef SkScalerContextRec Rec;
+
     enum Flags {
         kFrameAndFill_Flag        = 0x0001,
         kDevKernText_Flag         = 0x0002,
@@ -61,88 +144,6 @@ public:
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
     };
 
-    struct Rec {
-        uint32_t    fOrigFontID;
-        uint32_t    fFontID;
-        SkScalar    fTextSize, fPreScaleX, fPreSkewX;
-        SkScalar    fPost2x2[2][2];
-        SkScalar    fFrameWidth, fMiterLimit;
-
-        //These describe the parameters to create (uniquely identify) the pre-blend.
-        uint32_t    fLumBits;
-        uint8_t     fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
-        uint8_t     fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
-        uint8_t     fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
-        uint8_t     fReservedAlign;
-
-        SkScalar getDeviceGamma() const {
-            return SkIntToScalar(fDeviceGamma) / (1 << 6);
-        }
-        void setDeviceGamma(SkScalar dg) {
-            SkASSERT(0 <= dg && dg < SkIntToScalar(4));
-            fDeviceGamma = SkScalarFloorToInt(dg * (1 << 6));
-        }
-
-        SkScalar getPaintGamma() const {
-            return SkIntToScalar(fPaintGamma) / (1 << 6);
-        }
-        void setPaintGamma(SkScalar pg) {
-            SkASSERT(0 <= pg && pg < SkIntToScalar(4));
-            fPaintGamma = SkScalarFloorToInt(pg * (1 << 6));
-        }
-
-        SkScalar getContrast() const {
-            return SkIntToScalar(fContrast) / ((1 << 8) - 1);
-        }
-        void setContrast(SkScalar c) {
-            SkASSERT(0 <= c && c <= SK_Scalar1);
-            fContrast = SkScalarRoundToInt(c * ((1 << 8) - 1));
-        }
-
-        /**
-         *  Causes the luminance color and contrast to be ignored, and the
-         *  paint and device gamma to be effectively 1.0.
-         */
-        void ignorePreBlend() {
-            setLuminanceColor(0x00000000);
-            setPaintGamma(SK_Scalar1);
-            setDeviceGamma(SK_Scalar1);
-            setContrast(0);
-        }
-
-        uint8_t     fMaskFormat;
-        uint8_t     fStrokeJoin;
-        uint16_t    fFlags;
-        // Warning: when adding members note that the size of this structure
-        // must be a multiple of 4. SkDescriptor requires that its arguments be
-        // multiples of four and this structure is put in an SkDescriptor in
-        // SkPaint::MakeRec.
-
-        void    getMatrixFrom2x2(SkMatrix*) const;
-        void    getLocalMatrix(SkMatrix*) const;
-        void    getSingleMatrix(SkMatrix*) const;
-
-        SkPaint::Hinting getHinting() const {
-            unsigned hint = (fFlags & kHinting_Mask) >> kHinting_Shift;
-            return static_cast<SkPaint::Hinting>(hint);
-        }
-
-        void setHinting(SkPaint::Hinting hinting) {
-            fFlags = (fFlags & ~kHinting_Mask) | (hinting << kHinting_Shift);
-        }
-        
-        SkMask::Format getFormat() const {
-            return static_cast<SkMask::Format>(fMaskFormat);
-        }
-
-        SkColor getLuminanceColor() const {
-            return fLumBits;
-        }
-        
-        void setLuminanceColor(SkColor c) {
-            fLumBits = c;
-        }
-    };
 
     SkScalerContext(const SkDescriptor* desc);
     virtual ~SkScalerContext();
@@ -266,6 +267,20 @@ enum SkAxisAlignment {
  *  As an example, the identity matrix will return kX_SkAxisAlignment
  */
 SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix);
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkPaint::Hinting SkScalerContextRec::getHinting() const {
+    unsigned hint = (fFlags & SkScalerContext::kHinting_Mask) >>
+                                            SkScalerContext::kHinting_Shift;
+    return static_cast<SkPaint::Hinting>(hint);
+}
+
+void SkScalerContextRec::setHinting(SkPaint::Hinting hinting) {
+    fFlags = (fFlags & ~SkScalerContext::kHinting_Mask) |
+                                (hinting << SkScalerContext::kHinting_Shift);
+}
+
 
 #endif
 
