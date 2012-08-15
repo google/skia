@@ -1628,8 +1628,8 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         int nx = 1, ny = 1;
         switch (fTilingState) {
             case SkOSMenu::kOffState:   nx = 1; ny = 1; break;
-            case SkOSMenu::kMixedState: nx = 1; ny = 4; break;
-            case SkOSMenu::kOnState:    nx = 2; ny = 2; break;
+            case SkOSMenu::kMixedState: nx = 1; ny = 16; break;
+            case SkOSMenu::kOnState:    nx = 4; ny = 4; break;
         }
         (void)SampleView::SetTileCount(curr_view(this), nx, ny);
         this->updateTitle();
