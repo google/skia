@@ -356,6 +356,8 @@ def main():
         usage()
         sys.exit(2)
 
+    title += ' [representation: %s]' % rep
+
     latest_revision = get_latest_revision(directory)
     oldest_revision, newest_revision = parse_range(revision_range)
     oldest_regression, newest_regression = parse_range(regression_range)
