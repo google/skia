@@ -163,7 +163,8 @@ public:
 
 class SkGPipeCanvas : public SkCanvas {
 public:
-    SkGPipeCanvas(SkGPipeController*, SkWriter32*, uint32_t flags);
+    SkGPipeCanvas(SkGPipeController*, SkWriter32*, uint32_t flags,
+                  uint32_t width, uint32_t height);
     virtual ~SkGPipeCanvas();
 
     void finish() {
@@ -400,7 +401,8 @@ private:
 #define FLATTENABLES_TO_KEEP 10
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
-                             SkWriter32* writer, uint32_t flags)
+                             SkWriter32* writer, uint32_t flags, 
+                             uint32_t width, uint32_t height)
 : fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
 , fWriter(*writer)
 , fFlags(flags)
@@ -414,10 +416,9 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     sk_bzero(fCurrFlatIndex, sizeof(fCurrFlatIndex));
 
     // we need a device to limit our clip
-    // should the caller give us the bounds?
     // We don't allocate pixels for the bitmap
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 32767, 32767);
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
     SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
     this->setDevice(device)->unref();
 
@@ -1091,10 +1092,11 @@ SkGPipeWriter::~SkGPipeWriter() {
     this->endRecording();
 }
 
-SkCanvas* SkGPipeWriter::startRecording(SkGPipeController* controller, uint32_t flags) {
+SkCanvas* SkGPipeWriter::startRecording(SkGPipeController* controller, uint32_t flags,
+                                        uint32_t width, uint32_t height) {
     if (NULL == fCanvas) {
         fWriter.reset(NULL, 0);
-        fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter, flags));
+        fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter, flags, width, height));
     }
     controller->setCanvas(fCanvas);
     return fCanvas;

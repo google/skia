@@ -103,7 +103,9 @@ public:
         kSharedAddressSpace_Flag        = 1 << 1
     };
 
-    SkCanvas* startRecording(SkGPipeController*, uint32_t flags = 0);
+    SkCanvas* startRecording(SkGPipeController*, uint32_t flags = 0,
+        uint32_t width = kDefaultRecordingCanvasSize,
+        uint32_t height = kDefaultRecordingCanvasSize);
 
     // called in destructor, but can be called sooner once you know there
     // should be no more drawing calls made into the recording canvas.
@@ -136,6 +138,10 @@ public:
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
 private:
+    enum {
+        kDefaultRecordingCanvasSize = 32767,
+    };
+
     SkGPipeCanvas* fCanvas;
     SkWriter32     fWriter;
 };
