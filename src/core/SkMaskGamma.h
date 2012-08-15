@@ -22,6 +22,8 @@
  */
 class SkColorSpaceLuminance : SkNoncopyable {
 public:
+    virtual ~SkColorSpaceLuminance() {};
+
     /** Converts a color component luminance in the color space to a linear luma. */
     virtual SkScalar toLuma(SkScalar luminance) const = 0;
     /** Converts a linear luma to a color component luminance in the color space. */
