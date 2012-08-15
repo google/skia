@@ -792,6 +792,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fScale = false;
     fRequestGrabImage = false;
     fPipeState = SkOSMenu::kOffState;
+    fTilingState = SkOSMenu::kOffState;
     fMeasureFPS = false;
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
@@ -837,9 +838,14 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->assignKeyEquivalentToItem(itemID, 'n');
     itemID = fAppMenu->appendTriState("Hinting", "Hinting", sinkID, fHintingState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
+
     fUsePipeMenuItemID = fAppMenu->appendTriState("Pipe", "Pipe" , sinkID,
                                                   fPipeState);
     fAppMenu->assignKeyEquivalentToItem(fUsePipeMenuItemID, 'P');
+
+    itemID = fAppMenu->appendTriState("Tiling", "Tiling", sinkID, fTilingState);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 't');
+
 #ifdef DEBUGGER
     itemID = fAppMenu->appendSwitch("Debugger", "Debugger", sinkID, fDebugger);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'q');
@@ -1618,6 +1624,18 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->inval(NULL);
         return true;
     }
+    if (SkOSMenu::FindTriState(evt, "Tiling", &fTilingState)) {
+        int nx = 1, ny = 1;
+        switch (fTilingState) {
+            case SkOSMenu::kOffState:   nx = 1; ny = 1; break;
+            case SkOSMenu::kMixedState: nx = 1; ny = 4; break;
+            case SkOSMenu::kOnState:    nx = 2; ny = 2; break;
+        }
+        (void)SampleView::SetTileCount(curr_view(this), nx, ny);
+        this->updateTitle();
+        this->inval(NULL);
+        return true;
+    }
     if (SkOSMenu::FindSwitchState(evt, "Slide Show", NULL)) {
         this->toggleSlideshow();
         return true;
@@ -2152,6 +2170,7 @@ void SampleWindow::onSizeChange() {
 static const char is_sample_view_tag[] = "sample-is-sample-view";
 static const char repeat_count_tag[] = "sample-set-repeat-count";
 static const char set_use_pipe_tag[] = "sample-set-use-pipe";
+static const char set_tile_count_tag[] = "sample-set-tile-count";
 
 bool SampleView::IsSampleView(SkView* view) {
     SkEvent evt(is_sample_view_tag);
@@ -2170,9 +2189,20 @@ bool SampleView::SetUsePipe(SkView* view, SkOSMenu::TriState state) {
     return view->doEvent(evt);
 }
 
+bool SampleView::SetTileCount(SkView* view, int nx, int ny) {
+    SkEvent evt(set_tile_count_tag);
+    evt.setFast32((ny << 16) | nx);
+    return view->doEvent(evt);
+}
+
 bool SampleView::onEvent(const SkEvent& evt) {
     if (evt.isType(repeat_count_tag)) {
         fRepeatCount = evt.getFast32();
+        return true;
+    }
+    if (evt.isType(set_tile_count_tag)) {
+        unsigned packed = evt.getFast32();
+        fTileCount.set(packed & 0xFFFF, packed >> 16);
         return true;
     }
     int32_t pipeHolder;
@@ -2291,9 +2321,28 @@ void SampleView::draw(SkCanvas* canvas) {
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
 
+    const SkScalar cw = this->width() / fTileCount.width();
+    const SkScalar ch = this->height() / fTileCount.height();
+
     for (int i = 0; i < fRepeatCount; i++) {
-        SkAutoCanvasRestore acr(canvas, true);
-        this->onDrawContent(canvas);
+        for (int y = 0; y < fTileCount.height(); ++y) {
+            for (int x = 0; x < fTileCount.width(); ++x) {
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->clipRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch));
+                this->onDrawContent(canvas);
+            }
+        }
+    }
+
+    if (!fTileCount.equals(1, 1)) {
+        SkPaint paint;
+        paint.setColor(0x60FF00FF);
+        paint.setStyle(SkPaint::kStroke_Style);
+        for (int y = 0; y < fTileCount.height(); ++y) {
+            for (int x = 0; x < fTileCount.width(); ++x) {
+                canvas->drawRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch), paint);
+            }
+        }
     }
 }
 
