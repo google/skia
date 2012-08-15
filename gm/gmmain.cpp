@@ -1108,7 +1108,7 @@ int main(int argc, char * const argv[]) {
             }
 
             if ((ERROR_NONE == testErrors) && doTiledPipe &&
-                !(gmFlags & GM::kSkipPipe_Flag)) {
+                !SkToBool(gmFlags & (GM::kSkipPipe_Flag | GM::kSkipTiled_Flag))) {
                 testErrors |= test_tiled_pipe_playback(gm, config,
                                                  forwardRenderedBitmap,
                                                  readPath, diffPath);

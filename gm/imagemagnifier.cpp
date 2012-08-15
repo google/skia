@@ -20,15 +20,20 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // Skip tiled drawing until https://code.google.com/p/skia/issues/detail?id=781 is fixed.
+        return this->INHERITED::onGetFlags() | GM::kSkipTiled_Flag;
+    }
+
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("imagemagnifier");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return make_isize(WIDTH, HEIGHT);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setImageFilter(
             new SkMagnifierImageFilter(
