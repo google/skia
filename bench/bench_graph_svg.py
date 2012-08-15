@@ -28,6 +28,8 @@ def usage():
     print '-r <revision>[:<revision>] the revisions to show.'
     print '   Negative <revision> is taken as offset from most recent revision.'
     print '-s <setting>[=<value>] a setting to show (alpha, scalar, etc).'
+    print '-m <representative> use "avg", "min", or "med" for bench value.'
+    print '   They correspond to average, minimum and median of bench iters.'
     print '-t <time> the time to show (w, c, g, etc).'
     print '-x <int> the desired width of the svg.'
     print '-y <int> the desired height of the svg.'
@@ -88,7 +90,8 @@ def get_latest_revision(directory):
     else:
         return latest_revision_found
 
-def parse_dir(directory, default_settings, oldest_revision, newest_revision):
+def parse_dir(directory, default_settings, oldest_revision, newest_revision,
+              rep):
     """Parses bench data from files like bench_r<revision>_<scalar>.
     
     (str, {str, str}, Number, Number) -> {int:[BenchDataPoints]}"""
@@ -110,7 +113,7 @@ def parse_dir(directory, default_settings, oldest_revision, newest_revision):
             revision_data_points[revision] = []
         default_settings['scalar'] = scalar_type
         revision_data_points[revision].extend(
-                        bench_util.parse(default_settings, file_handle))
+                        bench_util.parse(default_settings, file_handle, rep))
         file_handle.close()
     return revision_data_points
 
@@ -267,7 +270,7 @@ def main():
     
     try:
         opts, _ = getopt.getopt(sys.argv[1:]
-                                 , "b:c:d:f:l:o:r:s:t:x:y:"
+                                 , "b:c:d:f:l:m:o:r:s:t:x:y:"
                                  , "default-setting=")
     except getopt.GetoptError, err:
         print str(err) 
@@ -278,6 +281,7 @@ def main():
     config_of_interest = None
     bench_of_interest = None
     time_of_interest = None
+    rep = "avg"  # bench representative calculation algorithm
     revision_range = '0:'
     regression_range = '0:'
     latest_revision = None
@@ -323,6 +327,10 @@ def main():
                 regression_range = value
             elif option == "-l":
                 title = value
+            elif option == "-m":
+                rep = value
+                if rep not in ["avg", "min", "med"]:
+                    raise Exception("Invalid -m representative: %s" % rep)
             elif option == "-o":
                 redirect_stdout(value)
             elif option == "-r":
@@ -355,7 +363,8 @@ def main():
     unfiltered_revision_data_points = parse_dir(directory
                                    , default_settings
                                    , oldest_revision
-                                   , newest_revision)
+                                   , newest_revision
+                                   , rep)
 
     # Filter out any data points that are utterly bogus... make sure to report
     # that we did so later!
