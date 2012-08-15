@@ -1874,7 +1874,9 @@ bool SampleWindow::onHandleKey(SkKey key) {
             }
             break;
         case kLeft_SkKey:
-            toggleRendering();
+            if (this->previousSample()) {
+                return true;
+            }
             return true;
         case kUp_SkKey:
             if (USE_ARROWS_FOR_ZOOM) {
