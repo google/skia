@@ -29,8 +29,7 @@ extern void gr_run_unittests();
 #define DEBUG_INVAL_START_IDX -1
 
 GrGpu::GrGpu()
-    : fClipMaskManager(this)
-    , fContext(NULL)
+    : fContext(NULL)
     , fResetTimestamp(kExpiredTimestamp+1)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
@@ -41,10 +40,12 @@ GrGpu::GrGpu()
     , fContextIsDirty(true)
     , fResourceHead(NULL) {
 
+    fClipMaskManager.setGpu(this);
+
 #if GR_DEBUG
     //gr_run_unittests();
 #endif
-        
+
     fGeomPoolStateStack.push_back();
 #if GR_DEBUG
     GeometryPoolState& poolState = fGeomPoolStateStack.back();

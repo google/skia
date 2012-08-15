@@ -76,10 +76,10 @@ void TiledPictureRenderer::init(SkPicture* pict) {
     this->INHERITED::init(pict);
 
     if (fTileWidthPercentage > 0) {
-        fTileWidth = sk_float_ceil2int(fTileWidthPercentage * fPicture->width() / 100);
+        fTileWidth = sk_float_ceil2int(float(fTileWidthPercentage * fPicture->width() / 100));
     }
     if (fTileHeightPercentage > 0) {
-        fTileHeight = sk_float_ceil2int(fTileHeightPercentage * fPicture->height() / 100);
+        fTileHeight = sk_float_ceil2int(float(fTileHeightPercentage * fPicture->height() / 100));
     }
 
     this->setupTiles();

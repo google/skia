@@ -1816,7 +1816,7 @@ void SkPath::validate() const {
         SkRect bounds;
 
         bool isFinite = compute_pt_bounds(&bounds, fPts);
-        SkASSERT(fIsFinite == isFinite);
+        SkASSERT(SkToBool(fIsFinite) == isFinite);
 
         if (fPts.count() <= 1) {
             // if we're empty, fBounds may be empty but translated, so we can't
