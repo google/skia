@@ -348,6 +348,7 @@ DeferredDevice::DeferredDevice(
     SkDevice* immediateDevice, SkDeferredCanvas::NotificationClient* notificationClient) :
     SkDevice(SkBitmap::kNo_Config, immediateDevice->width(),
              immediateDevice->height(), immediateDevice->isOpaque())
+    , fRecordingCanvas(NULL)
     , fFreshFrame(true)
     , fPreviousStorageAllocated(0){
 
@@ -378,7 +379,9 @@ void DeferredDevice::endRecording() {
 }
 
 void DeferredDevice::beginRecording() {
-    fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0);
+    SkASSERT(NULL == fRecordingCanvas);
+    fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0, 
+        fImmediateDevice->width(), fImmediateDevice->height());
 }
     
 void DeferredDevice::setNotificationClient(
@@ -392,8 +395,9 @@ void DeferredDevice::contentsCleared() {
 
         // TODO: find a way to transfer the state stack and layers
         // to the new recording canvas.  For now, purging only works
-        // with an empty stack.
-        if (fRecordingCanvas->getSaveCount() == 0) {
+        // with an empty stack.  A save count of 1 means an empty stack.
+        SkASSERT(fRecordingCanvas->getSaveCount() >= 1);
+        if (fRecordingCanvas->getSaveCount() == 1) {
 
             // Save state that is trashed by the purge
             SkDrawFilter* drawFilter = fRecordingCanvas->getDrawFilter();
