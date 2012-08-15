@@ -32,7 +32,8 @@ namespace skiagm {
         enum Flags {
             kSkipPDF_Flag       = 1 << 0,
             kSkipPicture_Flag   = 1 << 1,
-            kSkipPipe_Flag      = 1 << 2
+            kSkipPipe_Flag      = 1 << 2,
+            kSkipTiled_Flag     = 1 << 3,
         };
 
         void draw(SkCanvas*);
