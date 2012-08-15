@@ -180,6 +180,7 @@ private:
     SkOSMenu::TriState fAAState;
     SkOSMenu::TriState fFilterState;
     SkOSMenu::TriState fHintingState;
+    SkOSMenu::TriState fTilingState;
     unsigned   fFlipAxis;
 
     int fMSAASampleCount;
