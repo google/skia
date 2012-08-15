@@ -45,10 +45,11 @@ class _ExtremeType(object):
 Max = _ExtremeType(1, "Max")
 Min = _ExtremeType(-1, "Min")
 
-def parse(settings, lines):
+def parse(settings, lines, representative='avg'):
     """Parses bench output into a useful data structure.
     
-    ({str:str}, __iter__ -> str) -> [BenchDataPoint]"""
+    ({str:str}, __iter__ -> str) -> [BenchDataPoint]
+    representative is one of 'avg', 'min', 'med' (average, mean, median)."""
     
     benches = []
     current_bench = None
@@ -84,12 +85,26 @@ def parse(settings, lines):
                     current_time_type = new_time.group(1)
                     iters = [float(i) for i in
                              new_time.group(2).strip().split(',')]
-                    current_time = sum(iters) / len(iters)
+                    iters.sort()
+                    iter_len = len(iters)
+                    if representative == 'avg':
+                        rep = sum(iters) / iter_len
+                    if representative == 'min':
+                        rep = iters[0]
+                    elif representative == 'med':
+                        if iter_len % 2:
+                            rep = (iters[iter_len / 2] +
+                                   iters[iter_len / 2 - 1]) / 2
+                        else:
+                            rep = iters[iter_len / 2]
+                    else:
+                        raise Exception("invalid representative algorithm %s!" %
+                                        representative)
                     benches.append(BenchDataPoint(
                             current_bench
                             , current_config
                             , current_time_type
-                            , current_time
+                            , rep
                             , settings))
     
     return benches
