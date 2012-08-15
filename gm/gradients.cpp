@@ -204,7 +204,7 @@ protected:
         perspective.setIdentity();
         perspective.setPerspY(SkScalarDiv(SK_Scalar1, SkIntToScalar(1000)));
         perspective.setSkewX(SkScalarDiv(SkIntToScalar(8), SkIntToScalar(25)));
-        canvas->setMatrix(perspective);
+        canvas->concat(perspective);
         INHERITED::onDraw(canvas);
     }
     
