@@ -192,15 +192,16 @@ GrCustomStage* GrMagnifierEffect::TestCreate(SkRandom* random,
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const int kMaxInset = 20;
-    SkScalar width = random->nextULessThan(kMaxWidth);
-    SkScalar height = random->nextULessThan(kMaxHeight);
-    SkScalar x = random->nextULessThan(kMaxWidth - width);
-    SkScalar y = random->nextULessThan(kMaxHeight - height);
-    SkScalar inset = random->nextULessThan(kMaxInset);
+    uint32_t width = random->nextULessThan(kMaxWidth);
+    uint32_t height = random->nextULessThan(kMaxHeight);
+    uint32_t x = random->nextULessThan(kMaxWidth - width);
+    uint32_t y = random->nextULessThan(kMaxHeight - height);
+    SkScalar inset = SkIntToScalar(random->nextULessThan(kMaxInset));
 
     SkAutoTUnref<SkImageFilter> filter(
             new SkMagnifierImageFilter(
-                SkRect::MakeXYWH(x, y, width, height),
+                SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
+                                 SkIntToScalar(width), SkIntToScalar(height)),
                 inset));
     GrSamplerState sampler;
     GrCustomStage* stage;
@@ -289,10 +290,10 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
       return false;
     }
 
-    float inv_inset = fInset > 0 ? 1.0f / SkScalarToFloat(fInset) : 1.0f;
+    SkScalar inv_inset = fInset > 0 ? SkScalarInvert(fInset) : SK_Scalar1;
 
-    float inv_x_zoom = fSrcRect.width() / src.width();
-    float inv_y_zoom = fSrcRect.height() / src.height();
+    SkScalar inv_x_zoom = fSrcRect.width() / src.width();
+    SkScalar inv_y_zoom = fSrcRect.height() / src.height();
 
     dst->setConfig(src.config(), src.width(), src.height());
     dst->allocPixels();
@@ -301,31 +302,35 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
     int width = src.width(), height = src.height();
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            float x_dist = SkMinScalar(x, width - x - 1) * inv_inset;
-            float y_dist = SkMinScalar(y, height - y - 1) * inv_inset;
-            float weight = 0;
+            SkScalar x_dist = SkMin32(x, width - x - 1) * inv_inset;
+            SkScalar y_dist = SkMin32(y, height - y - 1) * inv_inset;
+            SkScalar weight = 0;
+
+            static const SkScalar kScalar2 = SkScalar(2);
 
             // To create a smooth curve at the corners, we need to work on
             // a square twice the size of the inset.
-            if (x_dist < 2 && y_dist < 2) {
-                x_dist = 2 - x_dist;
-                y_dist = 2 - y_dist;
+            if (x_dist < kScalar2 && y_dist < kScalar2) {
+                x_dist = kScalar2 - x_dist;
+                y_dist = kScalar2 - y_dist;
 
-                float dist = sqrt(x_dist * x_dist + y_dist * y_dist);
-                dist = SkMaxScalar(2 - dist, 0.0f);
-                weight = SkMinScalar(dist * dist, 1.0f);
+                SkScalar dist = SkScalarSqrt(SkScalarSquare(x_dist) +
+                                             SkScalarSquare(y_dist));
+                dist = SkMaxScalar(kScalar2 - dist, 0);
+                weight = SkMinScalar(SkScalarSquare(dist), SK_Scalar1);
             } else {
-                float sq_dist = SkMinScalar(x_dist * x_dist, y_dist * y_dist);
-                weight = SkMinScalar(sq_dist, 1.0f);
+                SkScalar sqDist = SkMinScalar(SkScalarSquare(x_dist),
+                                              SkScalarSquare(y_dist));
+                weight = SkMinScalar(sqDist, SK_Scalar1);
             }
 
-            int x_val = weight * (fSrcRect.x() + x * inv_x_zoom) +
-                        (1 - weight) * x;
-            int y_val = weight * (fSrcRect.y() + y * inv_y_zoom) +
-                        (1 - weight) * y;
+            SkScalar x_interp = SkScalarMul(weight, (fSrcRect.x() + x * inv_x_zoom)) +
+                           (SK_Scalar1 - weight) * x;
+            SkScalar y_interp = SkScalarMul(weight, (fSrcRect.y() + y * inv_y_zoom)) +
+                           (SK_Scalar1 - weight) * y;
 
-            x_val = SkMin32(x_val, width - 1);
-            y_val = SkMin32(y_val, height - 1);
+            int x_val = SkMin32(SkScalarFloorToInt(x_interp), width - 1);
+            int y_val = SkMin32(SkScalarFloorToInt(y_interp), height - 1);
 
             *dptr = sptr[y_val * width + x_val];
             dptr++;

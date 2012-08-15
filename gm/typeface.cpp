@@ -35,7 +35,7 @@ public:
         for (size_t i = 0; i < SK_ARRAY_COUNT(gFaces); i++) {
             fFaces[i]->unref();
         }
-        delete fFaces;
+        delete [] fFaces;
     }
 
 protected:
