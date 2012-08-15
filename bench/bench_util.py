@@ -89,7 +89,7 @@ def parse(settings, lines, representative='avg'):
                     iter_len = len(iters)
                     if representative == 'avg':
                         rep = sum(iters) / iter_len
-                    if representative == 'min':
+                    elif representative == 'min':
                         rep = iters[0]
                     elif representative == 'med':
                         if iter_len % 2:
