@@ -465,6 +465,7 @@ bool SkGPipeCanvas::needOpBytes(size_t needed) {
             fDone = true;
             return false;
         }
+        SkASSERT(SkIsAlign4(fBlockSize));
         fWriter.reset(block, fBlockSize);
         fBytesNotified = 0;
     }
@@ -616,10 +617,10 @@ void SkGPipeCanvas::setMatrix(const SkMatrix& matrix) {
 bool SkGPipeCanvas::clipRect(const SkRect& rect, SkRegion::Op rgnOp,
                              bool doAntiAlias) {
     NOTIFY_SETUP(this);
-    if (this->needOpBytes(sizeof(SkRect)) + sizeof(bool)) {
-        this->writeOp(kClipRect_DrawOp, 0, rgnOp);
+    if (this->needOpBytes(sizeof(SkRect))) {
+        unsigned flags = doAntiAlias & kClip_HasAntiAlias_DrawOpFlag;
+        this->writeOp(kClipRect_DrawOp, flags, rgnOp);
         fWriter.writeRect(rect);
-        fWriter.writeBool(doAntiAlias);
     }
     return this->INHERITED::clipRect(rect, rgnOp, doAntiAlias);
 }
@@ -627,10 +628,10 @@ bool SkGPipeCanvas::clipRect(const SkRect& rect, SkRegion::Op rgnOp,
 bool SkGPipeCanvas::clipPath(const SkPath& path, SkRegion::Op rgnOp,
                              bool doAntiAlias) {
     NOTIFY_SETUP(this);
-    if (this->needOpBytes(path.writeToMemory(NULL)) + sizeof(bool)) {
-        this->writeOp(kClipPath_DrawOp, 0, rgnOp);
+    if (this->needOpBytes(path.writeToMemory(NULL))) {
+        unsigned flags = doAntiAlias & kClip_HasAntiAlias_DrawOpFlag;
+        this->writeOp(kClipPath_DrawOp, flags, rgnOp);
         fWriter.writePath(path);
-        fWriter.writeBool(doAntiAlias);
     }
     // we just pass on the bounds of the path
     return this->INHERITED::clipRect(path.getBounds(), rgnOp, doAntiAlias);
@@ -705,7 +706,7 @@ bool SkGPipeCanvas::commonDrawBitmap(const SkBitmap& bm, DrawOps op,
                                      size_t opBytesNeeded,
                                      const SkPaint* paint) {
     if (paint != NULL) {
-        flags |= kDrawBitmap_HasPaint_DrawOpsFlag;
+        flags |= kDrawBitmap_HasPaint_DrawOpFlag;
         this->writePaint(*paint);
     }
     if (this->needOpBytes(opBytesNeeded)) {
@@ -738,7 +739,7 @@ void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
     bool hasSrc = src != NULL;
     unsigned flags;
     if (hasSrc) {
-        flags = kDrawBitmap_HasSrcRect_DrawOpsFlag;
+        flags = kDrawBitmap_HasSrcRect_DrawOpFlag;
         opBytesNeeded += sizeof(int32_t) * 4;
     } else {
         flags = 0;
