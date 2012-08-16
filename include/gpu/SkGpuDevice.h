@@ -116,7 +116,6 @@ public:
     class SkAutoCachedTexture; // used internally
 
 protected:
-    typedef GrContext::TextureCacheEntry TexCache;
     bool isBitmapInTextureCache(const SkBitmap& bitmap,
                                 const GrTextureParams& params) const;
 
@@ -133,7 +132,8 @@ private:
     GrClipData      fClipData;
 
     // state for our offscreen render-target
-    TexCache            fCache;
+    // TODO: remove 'fCached' and let fTexture automatically return to the cache
+    bool                fCached;        // is fTexture in the cache
     GrTexture*          fTexture;
     GrRenderTarget*     fRenderTarget;
     bool                fNeedClear;
@@ -143,7 +143,7 @@ private:
     void initFromRenderTarget(GrContext*, GrRenderTarget*);
 
     // used by createCompatibleDevice
-    SkGpuDevice(GrContext*, GrTexture* texture, TexCache, bool needClear);
+    SkGpuDevice(GrContext*, GrTexture* texture, bool needClear);
 
     // override from SkDevice
     virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,

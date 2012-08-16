@@ -84,7 +84,7 @@ protected:
         , fLastClipData()
         , fLastClipWidth(-1)
         , fLastClipHeight(-1)
-        , fCacheEntry(NULL)
+        , fHoldingLock(false)
         , fRTAttachmentCnt(0) {
     }
 
@@ -109,7 +109,7 @@ private:
     int         fLastClipWidth;
     int         fLastClipHeight;
 
-    GrResourceEntry* fCacheEntry;
+    bool             fHoldingLock;
     int              fRTAttachmentCnt;
 
     typedef GrResource INHERITED;

@@ -95,30 +95,8 @@ public:
     // Textures
 
     /**
-     * Token that refers to an entry in the texture cache. Returned by
-     * functions that lock textures. Passed to unlockTexture.
-     */
-    class SK_API TextureCacheEntry {
-    public:
-        TextureCacheEntry() : fEntry(NULL) {}
-        TextureCacheEntry(const TextureCacheEntry& e) : fEntry(e.fEntry) {}
-        TextureCacheEntry& operator= (const TextureCacheEntry& e) {
-            fEntry = e.fEntry;
-            return *this;
-        }
-        GrTexture* texture() const;
-        void reset() { fEntry = NULL; }
-        GrResourceEntry* cacheEntry() { return fEntry; }
-    private:
-        explicit TextureCacheEntry(GrResourceEntry* entry) { fEntry = entry; }
-        void set(GrResourceEntry* entry) { fEntry = entry; }
-        GrResourceEntry* fEntry;
-        friend class GrContext;
-    };
-
-    /**
      *  Create a new entry, based on the specified key and texture, and return
-     *  its "locked" entry. Must call be balanced with an unlockTexture() call.
+     *  a "locked" texture. Must call be balanced with an unlockTexture() call.
      *
      * @param params    The tex params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
@@ -130,14 +108,14 @@ public:
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows.
      */
-    TextureCacheEntry createAndLockTexture(const GrTextureParams* params,
-                                           const GrTextureDesc& desc,
-                                           const GrCacheData& cacheData,
-                                           void* srcData, size_t rowBytes);
+    GrTexture* createAndLockTexture(const GrTextureParams* params,
+                                    const GrTextureDesc& desc,
+                                    const GrCacheData& cacheData,
+                                    void* srcData, size_t rowBytes);
 
     /**
      *  Search for an entry based on key and dimensions. If found, "lock" it and
-     *  return it. The entry's texture() function will return NULL if not found.
+     *  return it. The return value will be NULL if not found.
      *  Must be balanced with an unlockTexture() call.
      *
      *  @param desc     Description of the texture properties.
@@ -147,9 +125,9 @@ public:
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      */
-    TextureCacheEntry findAndLockTexture(const GrTextureDesc& desc,
-                                         const GrCacheData& cacheData,
-                                         const GrTextureParams* params);
+    GrTexture* findAndLockTexture(const GrTextureDesc& desc,
+                                  const GrCacheData& cacheData,
+                                  const GrTextureParams* params);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
      * will not be locked or returned. This call does not affect the priority of
@@ -191,19 +169,25 @@ public:
      * such an API will create gaps in the tiling pattern. This includes clamp
      * mode. (This may be addressed in a future update.)
      */
-    TextureCacheEntry lockScratchTexture(const GrTextureDesc& desc, 
-                                         ScratchTexMatch match);
+    GrTexture* lockScratchTexture(const GrTextureDesc& desc, 
+                                  ScratchTexMatch match);
 
     /**
      *  When done with an entry, call unlockTexture(entry) on it, which returns
      *  it to the cache, where it may be purged.
      */
-    void unlockTexture(TextureCacheEntry entry);
+    void unlockTexture(GrTexture* texture);
 
     /**
-     * Free any data associated with the provided entry in the texture cache
+     * Free any data associated with the provided entry in the texture cache.
+     * Currently this entry point is only used when a scratch texture is 
+     * detached from the cache. In this case the GrResourceEntry* associated
+     * with the texture needs to be freed since it will be re-allocated when
+     * the texture is re-added. This entry point will be removed soon since the
+     * texture can now carry around a pointer to its GrResourceEntry* (and
+     * will eventually take over its functionality).
      */
-    void freeEntry(TextureCacheEntry entry);
+    void freeEntry(GrTexture* texture);
 
     /**
      * Creates a texture that is outside the cache. Does not count against
@@ -753,8 +737,8 @@ public:
      * a SB that matching an RT's criteria. If a match is found that has been
      * unlocked (its attachment count has reached 0) then it will be relocked.
      */
-    GrResourceEntry* addAndLockStencilBuffer(GrStencilBuffer* sb);
-    void unlockStencilBuffer(GrResourceEntry* sbEntry);
+    void addAndLockStencilBuffer(GrStencilBuffer* sb);
+    void unlockStencilBuffer(GrStencilBuffer* sb);
     GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
 
     GrPathRenderer* getPathRenderer(const SkPath& path,
@@ -861,14 +845,16 @@ private:
 class GrAutoScratchTexture : ::GrNoncopyable {
 public:
     GrAutoScratchTexture()
-        : fContext(NULL) {
+        : fContext(NULL)
+        , fTexture(NULL) {
     }
 
     GrAutoScratchTexture(GrContext* context,
                          const GrTextureDesc& desc,
                          GrContext::ScratchTexMatch match =
                             GrContext::kApprox_ScratchTexMatch)
-      : fContext(NULL) {
+      : fContext(NULL)
+      , fTexture(NULL) {
       this->set(context, desc, match);
     }
     
@@ -877,9 +863,9 @@ public:
     }
 
     void reset() {
-        if (NULL != fContext && NULL != fEntry.cacheEntry()) {
-            fContext->unlockTexture(fEntry);
-            fEntry.reset();
+        if (NULL != fContext && NULL != fTexture) {
+            fContext->unlockTexture(fTexture);
+            fTexture = NULL;
         }
     }
 
@@ -896,14 +882,14 @@ public:
      * returned texture.
      */
     GrTexture* detach() {
-        GrTexture* temp = this->texture();
+        GrTexture* temp = fTexture;
 
         GrAssert(1 == temp->getRefCnt());
 
         // freeEntry will remove the texture cache's ref
         temp->ref();
-        fContext->freeEntry(fEntry);
-        fEntry.reset();
+        fContext->freeEntry(fTexture);
+        fTexture = NULL;
 
         temp->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
         GrAssert(1 == temp->getRefCnt());
@@ -918,21 +904,21 @@ public:
 
         fContext = context;
         if (NULL != fContext) {
-            fEntry = fContext->lockScratchTexture(desc, match);
-            GrTexture* ret = fEntry.texture();
-            if (NULL == ret) {
+            fTexture = fContext->lockScratchTexture(desc, match);
+            if (NULL == fTexture) {
                 fContext = NULL;
             }
-            return ret;
+            return fTexture;
         } else {
             return NULL;
         }
     }
 
-    GrTexture* texture() { return fEntry.texture(); }
+    GrTexture* texture() { return fTexture; }
+
 private:
     GrContext*                    fContext;
-    GrContext::TextureCacheEntry  fEntry;
+    GrTexture*                    fTexture;
 };
 
 #endif

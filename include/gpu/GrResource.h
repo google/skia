@@ -14,6 +14,7 @@
 
 class GrGpu;
 class GrContext;
+class GrResourceEntry;
 
 /**
  * Base class for the GPU resources created by a GrContext.
@@ -52,7 +53,7 @@ public:
      *
      * @return the size of the buffer in bytes
      */
-     virtual size_t sizeInBytes() const = 0;
+    virtual size_t sizeInBytes() const = 0;
 
      /**
       * Retrieves the context that owns the resource. Note that it is possible
@@ -60,8 +61,11 @@ public:
       * abandon()ed they no longer have an owning context. Destroying a
       * GrContext automatically releases all its resources.
       */
-     const GrContext* getContext() const;
-     GrContext* getContext();
+    const GrContext* getContext() const;
+    GrContext* getContext();
+
+    void setCacheEntry(GrResourceEntry* cacheEntry) { fCacheEntry = cacheEntry; }
+    GrResourceEntry* getCacheEntry() { return fCacheEntry; }
 
 protected:
     explicit GrResource(GrGpu* gpu);
@@ -82,6 +86,8 @@ private:
                             // destructor.
     GrResource* fNext;      // dl-list of resources per-GrGpu
     GrResource* fPrevious;
+
+    GrResourceEntry* fCacheEntry;  // NULL if not in cache
 
     typedef GrRefCnt INHERITED;
 };

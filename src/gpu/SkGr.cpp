@@ -56,15 +56,14 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
-                                                uint64_t key,
-                                                const GrTextureParams* params,
-                                                const SkBitmap& origBitmap) {
+static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
+                                              uint64_t key,
+                                              const GrTextureParams* params,
+                                              const SkBitmap& origBitmap) {
     SkAutoLockPixels alp(origBitmap);
-    GrContext::TextureCacheEntry entry;
 
     if (!origBitmap.readyToDraw()) {
-        return entry;
+        return NULL;
     }
 
     SkBitmap tmpBitmap;
@@ -97,12 +96,12 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
                                                  storage.get(),
                                                  bitmap->width());
             } else {
-                entry = ctx->lockScratchTexture(desc,
-                                        GrContext::kExact_ScratchTexMatch);
-                entry.texture()->writePixels(0, 0, bitmap->width(), 
-                                             bitmap->height(), desc.fConfig,
-                                             storage.get(), 0);
-                return entry;
+                GrTexture* result = ctx->lockScratchTexture(desc,
+                                          GrContext::kExact_ScratchTexMatch);
+                result->writePixels(0, 0, bitmap->width(), 
+                                    bitmap->height(), desc.fConfig,
+                                    storage.get(), 0);
+                return result;
             }
 
         } else {
@@ -125,23 +124,23 @@ static GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
         // cache so no one else can find it. Additionally, once unlocked, the 
         // scratch texture will go to the end of the list for purging so will 
         // likely be available for this volatile bitmap the next time around.
-        entry = ctx->lockScratchTexture(desc,
-                                        GrContext::kExact_ScratchTexMatch);
-        entry.texture()->writePixels(0, 0,
-                                     bitmap->width(), bitmap->height(),
-                                     desc.fConfig,
-                                     bitmap->getPixels(),
-                                     bitmap->rowBytes());
-        return entry;
+        GrTexture* result = ctx->lockScratchTexture(desc,
+                                         GrContext::kExact_ScratchTexMatch);
+        result->writePixels(0, 0,
+                            bitmap->width(), bitmap->height(),
+                            desc.fConfig,
+                            bitmap->getPixels(),
+                            bitmap->rowBytes());
+        return result;
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx, 
-                                                       const SkBitmap& bitmap,
-                                                       const GrTextureParams* params) {
-    GrContext::TextureCacheEntry entry;
+GrTexture* GrLockCachedBitmapTexture(GrContext* ctx, 
+                                     const SkBitmap& bitmap,
+                                     const GrTextureParams* params) {
+    GrTexture* result = NULL;
 
     if (!bitmap.isVolatile()) {
         // If the bitmap isn't changing try to find a cached copy first
@@ -155,22 +154,24 @@ GrContext::TextureCacheEntry GrLockCachedBitmapTexture(GrContext* ctx,
 
         GrCacheData cacheData(key);
 
-        entry = ctx->findAndLockTexture(desc, cacheData, params);
-        if (NULL == entry.texture()) {
-            entry = sk_gr_create_bitmap_texture(ctx, key, params, bitmap);
+        result = ctx->findAndLockTexture(desc, cacheData, params);
+        if (NULL == result) {
+            result = sk_gr_create_bitmap_texture(ctx, key, params, bitmap);
         }
     } else {
-        entry = sk_gr_create_bitmap_texture(ctx, GrCacheData::kScratch_CacheID, params, bitmap);
+        result = sk_gr_create_bitmap_texture(ctx, GrCacheData::kScratch_CacheID, params, bitmap);
     }
-    if (NULL == entry.texture()) {
+    if (NULL == result) {
         GrPrintf("---- failed to create texture for cache [%d %d]\n",
                     bitmap.width(), bitmap.height());
     }
-    return entry;
+    return result;
 }
 
-void GrUnlockCachedBitmapTexture(GrContext* ctx, GrContext::TextureCacheEntry cache) {
-    ctx->unlockTexture(cache);
+void GrUnlockCachedBitmapTexture(GrTexture* texture) {
+    GrAssert(NULL != texture->getContext());
+
+    texture->getContext()->unlockTexture(texture);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

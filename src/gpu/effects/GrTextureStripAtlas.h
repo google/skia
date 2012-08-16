@@ -69,7 +69,7 @@ public:
     GrScalar getVerticalScaleFactor() const { return SkIntToScalar(fDesc.fRowHeight) / fDesc.fHeight; }
 
     GrContext* getContext() const { return fDesc.fContext; }
-    GrTexture* getTexture() const { return fEntry.texture(); }
+    GrTexture* getTexture() const { return fTexture; }
 
 private:
 
@@ -141,7 +141,7 @@ private:
 
     const Desc fDesc;
     const uint16_t fNumRows;
-    GrContext::TextureCacheEntry fEntry;
+    GrTexture* fTexture;
 
     // Array of AtlasRows which store the state of all our rows. Stored in a contiguous array, in
     // order that they appear in our texture, this means we can subtract this pointer from a row 

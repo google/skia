@@ -63,6 +63,7 @@ GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
     , fLockedRows(0)
     , fDesc(desc)
     , fNumRows(desc.fHeight / desc.fRowHeight)
+    , fTexture(NULL)
     , fRows(SkNEW_ARRAY(AtlasRow, fNumRows))
     , fLRUFront(NULL)
     , fLRUBack(NULL) {
@@ -139,7 +140,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
 
         // Pass in the kDontFlush flag, since we know we're writing to a part of this texture
         // that is not currently in use
-        fDesc.fContext->internalWriteTexturePixels(fEntry.texture(), 0, 
+        fDesc.fContext->internalWriteTexturePixels(fTexture, 0, 
                                                    rowNumber * fDesc.fRowHeight, 
                                                    fDesc.fWidth,
                                                    fDesc.fRowHeight, 
@@ -182,20 +183,20 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fConfig = fDesc.fConfig;
     GrCacheData cacheData(fCacheID);
     cacheData.fResourceDomain = GetTextureStripAtlasDomain();
-    fEntry = fDesc.fContext->findAndLockTexture(texDesc, cacheData, &params);
-    if (NULL == fEntry.texture()) {
-        fEntry = fDesc.fContext->createAndLockTexture(&params, texDesc, cacheData, NULL, 0);
+    fTexture = fDesc.fContext->findAndLockTexture(texDesc, cacheData, &params);
+    if (NULL == fTexture) {
+        fTexture = fDesc.fContext->createAndLockTexture(&params, texDesc, cacheData, NULL, 0);
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();
     }
-    GrAssert(NULL != fEntry.texture());
+    GrAssert(NULL != fTexture);
 }
 
 void GrTextureStripAtlas::unlockTexture() {
-    GrAssert(NULL != fEntry.texture() && 0 == fLockedRows);
-    fDesc.fContext->unlockTexture(fEntry);
-    fEntry.reset();
+    GrAssert(NULL != fTexture && 0 == fLockedRows);
+    fDesc.fContext->unlockTexture(fTexture);
+    fTexture = NULL;
 }
 
 void GrTextureStripAtlas::initLRU() {
@@ -311,9 +312,9 @@ void GrTextureStripAtlas::validate() {
     // If we have locked rows, we should have a locked texture, otherwise
     // it should be unlocked
     if (fLockedRows == 0) {
-        GrAssert(NULL == fEntry.texture());
+        GrAssert(NULL == fTexture);
     } else {
-        GrAssert(NULL != fEntry.texture());
+        GrAssert(NULL != fTexture);
     }
 }
 #endif
