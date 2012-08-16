@@ -2,10 +2,11 @@
   'targets': [
     {
       'target_name': 'utils',
+      'dependencies': [
+        'core.gyp:core',
+      ],
       'type': 'static_library',
       'include_dirs': [
-        '../include/config',
-        '../include/core',
         '../include/effects',
         '../include/pipe',
         '../include/utils',
@@ -13,6 +14,7 @@
         '../include/utils/unix',
         '../include/utils/win',
         '../include/xml',
+        '../src/utils',
       ],
       'sources': [
         '../include/utils/SkBoundaryPatch.h',
@@ -45,6 +47,7 @@
         '../src/utils/SkCullPoints.cpp',
         '../src/utils/SkDeferredCanvas.cpp',
         '../src/utils/SkDumpCanvas.cpp',
+        '../src/utils/SkFloatUtils.h',
         '../src/utils/SkInterpolator.cpp',
         '../src/utils/SkLayer.cpp',
         '../src/utils/SkMatrix44.cpp',
@@ -77,6 +80,10 @@
         '../include/utils/win/SkIStream.h',
         '../include/utils/win/SkTScopedComPtr.h',
         '../src/utils/win/SkAutoCoInitialize.cpp',
+        '../src/utils/win/SkDWriteFontFileStream.cpp',
+        '../src/utils/win/SkDWriteFontFileStream.h',
+        '../src/utils/win/SkDWriteGeometrySink.cpp',
+        '../src/utils/win/SkDWriteGeometrySink.h',
         '../src/utils/win/SkHRESULT.cpp',
         '../src/utils/win/SkIStream.cpp',
         '../src/utils/win/SkWGL_win.cpp',
@@ -149,6 +156,10 @@
             '../include/utils/win/SkIStream.h',
             '../include/utils/win/SkTScopedComPtr.h',
             '../src/utils/win/SkAutoCoInitialize.cpp',
+            '../src/utils/win/SkDWriteFontFileStream.cpp',
+            '../src/utils/win/SkDWriteFontFileStream.h',
+            '../src/utils/win/SkDWriteGeometrySink.cpp',
+            '../src/utils/win/SkDWriteGeometrySink.h',
             '../src/utils/win/SkHRESULT.cpp',
             '../src/utils/win/SkIStream.cpp',
           ],

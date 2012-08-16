@@ -70,6 +70,7 @@
       # Do not turn on 'skia_angle' - it is currently experimental
       'skia_angle%': 0,
       'skia_arch_type%': 'x86',
+      'skia_directwrite%': 0,
       'android_make_apk%': 1,
       'skia_gpu%': 1,
       'skia_static_initializers%': 1,
@@ -85,6 +86,7 @@
     'skia_angle%': '<(skia_angle)',
     'skia_arch_type%': '<(skia_arch_type)',
     'skia_arch_width%': '<(skia_arch_width)',
+    'skia_directwrite%': '<(skia_directwrite)',
     'android_make_apk%': '<(android_make_apk)',
     'skia_gpu%': '<(skia_gpu)',
     'skia_static_initializers%': '<(skia_static_initializers)',
