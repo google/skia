@@ -48,6 +48,12 @@ struct SkClipStack::Rec {
 
     int                     fGenID;
 
+    Rec(int saveCount) 
+    : fGenID(kInvalidGenID) {
+        fSaveCount = saveCount;
+        this->setEmpty();
+    }
+    
     Rec(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA) 
         : fRect(rect)
         , fGenID(kInvalidGenID) {
@@ -352,6 +358,8 @@ struct SkClipStack::Rec {
             }
 
         } else {
+            SkASSERT(kPath_State == fState);
+            
             fFiniteBound = fPath.getBounds();
 
             if (fPath.isInverseFillType()) {
@@ -633,6 +641,30 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     ((Rec*) fDeque.back())->updateBound(rec);
     ((Rec*) fDeque.back())->fGenID = genID;
 
+    if (rec && rec->fSaveCount == fSaveCount) {
+        this->purgeClip(rec);
+    }
+}
+
+void SkClipStack::clipEmpty() {
+    
+    SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
+    Rec* rec = (Rec*) iter.prev();
+    
+    if (rec && rec->canBeIntersectedInPlace(fSaveCount, SkRegion::kIntersect_Op)) {
+        switch (rec->fState) {
+            case Rec::kEmpty_State:
+                rec->checkEmpty();
+                return;
+            case Rec::kRect_State:
+            case Rec::kPath_State:
+                this->purgeClip(rec);
+                rec->setEmpty();
+                return;
+        }
+    }
+    new (fDeque.push_back()) Rec(fSaveCount);
+    
     if (rec && rec->fSaveCount == fSaveCount) {
         this->purgeClip(rec);
     }
