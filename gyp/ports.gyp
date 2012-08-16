@@ -92,6 +92,7 @@
           'sources!': [
             '../src/ports/SkDebug_win.cpp',
             '../src/ports/SkFontHost_win.cpp',
+            '../src/ports/SkFontHost_win_dw.cpp',
             '../src/ports/SkThread_win.cpp',
             '../src/ports/SkTime_win.cpp',
           ],
