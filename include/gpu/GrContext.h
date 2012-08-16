@@ -748,12 +748,12 @@ public:
                                     bool allowSW);
 
 private:
-    // used to keep track of when we need to flush the draw buffer
-    enum DrawCategory {
-        kBuffered_DrawCategory,      // last draw was inserted in draw buffer
-        kUnbuffered_DrawCategory,    // last draw was not inserted in the draw buffer
+    // Used to indicate whether a draw should be performed immediately or queued in fDrawBuffer.
+    enum BufferedDraw {
+        kYes_BufferedDraw,
+        kNo_BufferedDraw,
     };
-    DrawCategory fLastDrawCategory;
+    BufferedDraw fLastDrawWasBuffered;
 
     GrGpu*              fGpu;
     GrDrawState*        fDrawState;
@@ -778,7 +778,7 @@ private:
 
     void setPaint(const GrPaint& paint);
 
-    GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
+    GrDrawTarget* prepareToDraw(const GrPaint&, BufferedDraw);
 
     void internalDrawPath(const GrPaint& paint, const SkPath& path,
                           GrPathFill fill, const GrPoint* translate);
