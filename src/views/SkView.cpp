@@ -109,7 +109,7 @@ void SkView::draw(SkCanvas* canvas)
         SkRect	r;
         r.set(fLoc.fX, fLoc.fY, fLoc.fX + fWidth, fLoc.fY + fHeight);
         if (this->isClipToBounds() &&
-            canvas->quickReject(r, SkCanvas::kBW_EdgeType)) {
+            canvas->quickReject(r)) {
                 return;
         }
 
