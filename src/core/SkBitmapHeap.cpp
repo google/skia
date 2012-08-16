@@ -104,6 +104,7 @@ SkBitmapHeap::~SkBitmapHeap() {
     SkASSERT(0 == fBytesAllocated);
     fStorage.deleteAll();
     SkSafeUnref(fExternalStorage);
+    fLookupTable.deleteAll();
 }
 
 SkTRefArray<SkBitmap>* SkBitmapHeap::extractBitmaps() const {
