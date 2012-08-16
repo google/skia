@@ -15,6 +15,8 @@
     static int gLayerAllocCount;
 #endif
 
+SK_DEFINE_INST_COUNT(SkLayer)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkLayer::SkLayer() {

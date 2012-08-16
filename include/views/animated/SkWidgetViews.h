@@ -289,6 +289,8 @@ private:
 
 class SkListSource : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkListSource)
+
     virtual int countFields();
     virtual void getFieldName(int index, SkString* field);
     /** Return the index of the named field, or -1 if not found */
@@ -300,6 +302,8 @@ public:
     virtual bool prepareWidgetEvent(SkEvent*, int rowIndex);
     
     static SkListSource* Factory(const char name[]);
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

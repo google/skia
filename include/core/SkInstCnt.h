@@ -27,14 +27,20 @@ extern bool gPrintInstCount;
 // The non-root classes just register themselves with their parent
 #define SK_DECLARE_INST_COUNT(className)                                    \
     SK_DECLARE_INST_COUNT_INTERNAL(className,                               \
-                                INHERITED::AddInstChild(CheckInstanceCount);)
+                               INHERITED::AddInstChild(CheckInstanceCount);,\
+                               /**/)
+
+#define SK_DECLARE_INST_COUNT_TEMPLATE(className)                           \
+    SK_DECLARE_INST_COUNT_INTERNAL(className,                               \
+                              INHERITED::AddInstChild(CheckInstanceCount);, \
+                              typename)
 
 // The root classes registers a function to print out the memory stats when
 // the app ends
 #define SK_DECLARE_INST_COUNT_ROOT(className)                               \
-    SK_DECLARE_INST_COUNT_INTERNAL(className, atexit(exitPrint);)
+    SK_DECLARE_INST_COUNT_INTERNAL(className, atexit(exitPrint);, /**/)
 
-#define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
+#define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep, templateType)   \
     class SkInstanceCountHelper {                                           \
     public:                                                                 \
         typedef int (*PFCheckInstCnt)(int level, bool cleanUp);             \
@@ -93,7 +99,7 @@ extern bool gPrintInstCount;
         return SkInstanceCountHelper::gInstanceCount;                       \
     }                                                                       \
                                                                             \
-    static void AddInstChild(SkInstanceCountHelper::PFCheckInstCnt          \
+    static void AddInstChild(templateType SkInstanceCountHelper::PFCheckInstCnt \
                                                        childCheckInstCnt) { \
         if (CheckInstanceCount != childCheckInstCnt &&                      \
             NULL != SkInstanceCountHelper::gChildren) {                     \
@@ -109,6 +115,7 @@ extern bool gPrintInstCount;
 
 #else
 #define SK_DECLARE_INST_COUNT(className)
+#define SK_DECLARE_INST_COUNT_TEMPLATE(className)
 #define SK_DECLARE_INST_COUNT_ROOT(className)
 #define SK_DEFINE_INST_COUNT(className)
 #endif

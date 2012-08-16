@@ -37,6 +37,8 @@ class SkColorSpace;
  */
 class SkImage : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkImage)
+
     enum ColorType {
         kAlpha_8_ColorType,
         kRGB_565_ColorType,

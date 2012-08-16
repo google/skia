@@ -10,6 +10,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 
+SK_DEFINE_INST_COUNT(SkImage)
+
 static SkImage_Base* asIB(SkImage* image) {
     return static_cast<SkImage_Base*>(image);
 }

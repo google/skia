@@ -9,7 +9,13 @@
 #include "SkRefDict.h"
 
 class TestRC : public SkRefCnt {
+public:
+    SK_DECLARE_INST_COUNT(TestRC)
+private:
+    typedef SkRefCnt INHERITED;
 };
+
+SK_DEFINE_INST_COUNT(TestRC)
 
 static void TestRefDict(skiatest::Reporter* reporter) {
     TestRC    data0, data1;

@@ -14,12 +14,18 @@
 
 class RefClass : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(RefClass)
+
     RefClass(int n) : fN(n) {}
     int get() const { return fN; }
 
 private:
     int fN;
+
+    typedef SkRefCnt INHERITED;
 };
+
+SK_DEFINE_INST_COUNT(RefClass)
 
 static void test_refptr(skiatest::Reporter* reporter) {
     RefClass* r0 = new RefClass(0);

@@ -337,6 +337,9 @@ static bool operator==(const SkRasterClip& a, const SkRasterClip& b) {
     SkMask ma, mb;
     copyToMask(a, &ma);
     copyToMask(b, &mb);
+    SkAutoMaskFreeImage aCleanUp(ma.fImage);
+    SkAutoMaskFreeImage bCleanUp(mb.fImage);
+
     return ma == mb;
 }
 

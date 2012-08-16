@@ -22,6 +22,8 @@
 #include "SkStroke.h"
 #include "SkThread.h"
 
+SK_DEFINE_INST_COUNT(SkMaskGamma)
+
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 
 void SkGlyph::toMask(SkMask* mask) const {
@@ -301,9 +303,9 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         }
     }
 
-	if (SkMask::kARGB32_Format != glyph->fMaskFormat) {
-		glyph->fMaskFormat = fRec.fMaskFormat;
-	}
+    if (SkMask::kARGB32_Format != glyph->fMaskFormat) {
+        glyph->fMaskFormat = fRec.fMaskFormat;
+    }
 
     if (fMaskFilter) {
         SkMask      src, dst;
@@ -764,10 +766,10 @@ protected:
 extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
 
 SkScalerContext* SkScalerContext::Create(const SkDescriptor* desc) {
-	SkScalerContext* c = NULL;  //SkCreateColorScalerContext(desc);
-	if (NULL == c) {
-		c = SkFontHost::CreateScalerContext(desc);
-	}
+    SkScalerContext* c = NULL;  //SkCreateColorScalerContext(desc);
+    if (NULL == c) {
+        c = SkFontHost::CreateScalerContext(desc);
+    }
     if (NULL == c) {
         c = SkNEW_ARGS(SkScalerContext_Empty, (desc));
     }

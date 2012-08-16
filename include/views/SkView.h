@@ -254,11 +254,15 @@ public:
     */
     class Artist : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(Artist)
+
         void draw(SkView*, SkCanvas*);
         void inflate(const SkDOM&, const SkDOM::Node*);
     protected:
         virtual void onDraw(SkView*, SkCanvas*) = 0;
         virtual void onInflate(const SkDOM&, const SkDOM::Node*);
+    private:
+        typedef SkRefCnt INHERITED;
     };
     /** Return the artist attached to this view (or null). The artist's reference
         count is not affected.
@@ -278,11 +282,15 @@ public:
     */
     class Layout : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(Layout)
+
         void layoutChildren(SkView* parent);
         void inflate(const SkDOM&, const SkDOM::Node*);
     protected:
         virtual void onLayoutChildren(SkView* parent) = 0;
         virtual void onInflate(const SkDOM&, const SkDOM::Node*);
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
     /** Return the layout attached to this view (or null). The layout's reference

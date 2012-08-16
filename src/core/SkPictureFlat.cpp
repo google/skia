@@ -16,6 +16,8 @@
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 
+SK_DEFINE_INST_COUNT(SkFlatController)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypefacePlayback::SkTypefacePlayback() : fCount(0), fArray(NULL) {}
