@@ -337,6 +337,14 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 #endif
 
 /**
+ *  GR_DISABLE_DRAW_BUFFERING prevents GrContext from queueing draws in a
+ *  GrInOrderDrawBuffer.
+ */
+#if !defined(GR_DISABLE_DRAW_BUFFERING)
+    #define GR_DISABLE_DRAW_BUFFERING 0
+#endif
+
+/**
  *  GR_AGGRESSIVE_SHADER_OPTS controls how aggressively shaders are optimized
  *  for special cases. On systems where program changes are expensive this
  *  may not be advantageous. Consecutive draws may no longer use the same

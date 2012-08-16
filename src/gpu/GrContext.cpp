@@ -30,11 +30,10 @@
 SK_DEFINE_INST_COUNT(GrContext)
 SK_DEFINE_INST_COUNT(GrDrawState)
 
-#define DEFER_TEXT_RENDERING 1
-
-#define DEFER_PATHS 1
-
-#define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
+// It can be useful to set this to kNo_BufferedDraw to test whether a bug is caused by using the
+// InOrderDrawBuffer, to compare performance of using/not using InOrderDrawBuffer, or to make
+// debugging easier.
+#define DEFAULT_BUFFERING (GR_DISABLE_DRAW_BUFFERING ? kNo_BufferedDraw : kYes_BufferedDraw)
 
 #define MAX_BLUR_SIGMA 4.0f
 
@@ -55,9 +54,8 @@ static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
 static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
 
-// path rendering is the only thing we defer today that uses non-static indices
-static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = DEFER_PATHS ? 1 << 11 : 0;
-static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = DEFER_PATHS ? 4 : 0;
+static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 1 << 11;
+static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
 #define ASSERT_OWNED_RESOURCE(R) GrAssert(!(R) || (R)->getContext() == this)
 
@@ -740,7 +738,7 @@ void GrContext::drawRect(const GrPaint& paint,
                          const GrMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
 
-    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     GrRect devRect = rect;
@@ -857,10 +855,9 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         return;
     }
 
-    GR_STATIC_ASSERT(!BATCH_RECT_TO_RECT || !GR_STATIC_RECT_VB);
+    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
 
 #if GR_STATIC_RECT_VB
-    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
     GrDrawState::AutoStageDisable atr(fDrawState);
     GrDrawState* drawState = target->drawState();
     GrDrawState::AutoViewMatrixRestore avmr(drawState);
@@ -899,13 +896,6 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     target->setVertexSourceToBuffer(0, sqVB);
     target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
-
-    GrDrawTarget* target;
-#if BATCH_RECT_TO_RECT
-    target = this->prepareToDraw(paint, kBuffered_DrawCategory);
-#else
-    target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
-#endif
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
@@ -929,7 +919,7 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
-    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     GrVertexLayout layout = 0;
@@ -1041,9 +1031,7 @@ void GrContext::drawOval(const GrPaint& paint,
         return;
     }
 
-    DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
-                                            kUnbuffered_DrawCategory;
-    GrDrawTarget* target = this->prepareToDraw(paint, category);
+    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
     GrDrawState* drawState = target->drawState();
     GrDrawState::AutoStageDisable atr(fDrawState);
     const GrMatrix vm = drawState->getViewMatrix();
@@ -1141,9 +1129,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
     // cache. This presents a potential hazard for buffered drawing. However,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
-    DrawCategory category = (DEFER_PATHS) ? kBuffered_DrawCategory :
-                                            kUnbuffered_DrawCategory;
-    GrDrawTarget* target = this->prepareToDraw(paint, category);
+    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
@@ -1594,27 +1580,20 @@ void GrContext::setPaint(const GrPaint& paint) {
 #endif
 }
 
-GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
-                                       DrawCategory category) {
-    if (category != fLastDrawCategory) {
+GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint, BufferedDraw buffered) {
+    if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
         this->flushDrawBuffer();
-        fLastDrawCategory = category;
+        fLastDrawWasBuffered = kNo_BufferedDraw;
     }
     this->setPaint(paint);
-    GrDrawTarget* target = fGpu;
-    switch (category) {
-        case kUnbuffered_DrawCategory:
-            target = fGpu;
-            break;
-        case kBuffered_DrawCategory:
-            target = fDrawBuffer;
-            fDrawBuffer->setClip(fGpu->getClip());
-            break;
-        default:
-            GrCrash("Unexpected DrawCategory.");
-            break;
+    if (kYes_BufferedDraw == buffered) {
+        fDrawBuffer->setClip(fGpu->getClip());
+        fLastDrawWasBuffered = kYes_BufferedDraw;
+        return fDrawBuffer;
+    } else {
+        GrAssert(kNo_BufferedDraw == buffered);
+        return fGpu;
     }
-    return target;
 }
 
 /*
@@ -1711,7 +1690,7 @@ GrContext::GrContext(GrGpu* gpu) {
                                 MAX_TEXTURE_CACHE_BYTES));
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
-    fLastDrawCategory = kUnbuffered_DrawCategory;
+    fLastDrawWasBuffered = kNo_BufferedDraw;
 
     fDrawBuffer = NULL;
     fDrawBufferVBAllocPool = NULL;
@@ -1728,7 +1707,6 @@ void GrContext::setupDrawBuffer() {
     GrAssert(NULL == fDrawBufferVBAllocPool);
     GrAssert(NULL == fDrawBufferIBAllocPool);
 
-#if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT || DEFER_PATHS
     fDrawBufferVBAllocPool =
         SkNEW_ARGS(GrVertexBufferAllocPool, (fGpu, false,
                                     DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
@@ -1741,11 +1719,8 @@ void GrContext::setupDrawBuffer() {
     fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (fGpu,
                                           fDrawBufferVBAllocPool,
                                           fDrawBufferIBAllocPool));
-#endif
 
-#if BATCH_RECT_TO_RECT
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
-#endif
     if (fDrawBuffer) {
         fDrawBuffer->setAutoFlushTarget(fGpu);
         fDrawBuffer->setDrawState(fDrawState);
@@ -1753,11 +1728,7 @@ void GrContext::setupDrawBuffer() {
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
-#if DEFER_TEXT_RENDERING
-    return prepareToDraw(paint, kBuffered_DrawCategory);
-#else
-    return prepareToDraw(paint, kUnbuffered_DrawCategory);
-#endif
+    return prepareToDraw(paint, DEFAULT_BUFFERING);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
