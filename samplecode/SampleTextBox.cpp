@@ -30,7 +30,7 @@
 
 extern void skia_set_text_gamma(float blackGamma, float whiteGamma);
 
-#if defined(SK_BUILD_FOR_WIN) && !defined(SK_FONTHOST_WIN_DW)
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_GDI)
 extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
 #endif
 
@@ -45,7 +45,7 @@ static const char gText[] =
 class TextBoxView : public SampleView {
 public:
 	TextBoxView() {
-#if defined(SK_BUILD_FOR_WIN) && !defined(SK_FONTHOST_WIN_DW)
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_GDI)
 		LOGFONT lf;
 		sk_bzero(&lf, sizeof(lf));
 		lf.lfHeight = 9;

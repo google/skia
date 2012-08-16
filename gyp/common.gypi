@@ -50,11 +50,6 @@
           ],
         }
       ],
-      [ 'skia_directwrite', {
-          'defines': [
-            'SK_FONTHOST_WIN_DW',
-          ],
-      }],
       [ 'skia_mesa', {
         'defines': [
           'SK_MESA',
