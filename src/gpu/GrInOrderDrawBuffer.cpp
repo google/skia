@@ -708,8 +708,11 @@ bool GrInOrderDrawBuffer::onReserveIndexSpace(int indexCount, void** indices) {
 void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     const GeometrySrcState& geoSrc = this->getGeomSrc(); 
-    
-    GrAssert(kReserved_GeometrySrcType == geoSrc.fVertexSrc);
+
+    // If we get a release vertex space call then our current source should either be reserved
+    // or array (which we copied into reserved space).
+    GrAssert(kReserved_GeometrySrcType == geoSrc.fVertexSrc ||
+             kArray_GeometrySrcType == geoSrc.fVertexSrc);
 
     // When the caller reserved vertex buffer space we gave it back a pointer
     // provided by the vertex buffer pool. At each draw we tracked the largest
@@ -728,7 +731,10 @@ void GrInOrderDrawBuffer::releaseReservedIndexSpace() {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     const GeometrySrcState& geoSrc = this->getGeomSrc(); 
 
-    GrAssert(kReserved_GeometrySrcType == geoSrc.fIndexSrc);
+    // If we get a release index space call then our current source should either be reserved
+    // or array (which we copied into reserved space).
+    GrAssert(kReserved_GeometrySrcType == geoSrc.fIndexSrc ||
+             kArray_GeometrySrcType == geoSrc.fIndexSrc);
 
     // Similar to releaseReservedVertexSpace we return any unused portion at
     // the tail
