@@ -153,10 +153,10 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
 }
 
 void GrAARectRenderer::strokeAARect(GrGpu* gpu,
-                                  GrDrawTarget* target,
-                                  const GrRect& devRect,
-                                  const GrVec& devStrokeSize,
-                                  bool useVertexCoverage) {
+                                    GrDrawTarget* target,
+                                    const GrRect& devRect,
+                                    const GrVec& devStrokeSize,
+                                    bool useVertexCoverage) {
     const GrScalar& dx = devStrokeSize.fX;
     const GrScalar& dy = devStrokeSize.fY;
     const GrScalar rx = GrMul(dx, GR_ScalarHalf);
@@ -191,6 +191,9 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
 
+    // We create vertices for four nested rectangles. There are two ramps from 0 to full
+    // coverage, one on the exterior of the stroke and the other on the interior.
+    // The following pointers refer to the four rects, from outermost to innermost.
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
     GrPoint* fan2Pos = reinterpret_cast<GrPoint*>(verts + 8 * vsize);
@@ -205,11 +208,13 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     setInsetFan(fan3Pos, vsize, devRect,
                 rx + GR_ScalarHalf,  ry + GR_ScalarHalf);
 
+    // The outermost rect has 0 coverage
     verts += sizeof(GrPoint);
     for (int i = 0; i < 4; ++i) {
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }
 
+    // The inner two rects have full coverage
     GrColor innerColor;
     if (useVertexCoverage) {
         innerColor = 0xffffffff;
@@ -221,8 +226,9 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
     }
 
+    // The innermost rect has full coverage
     verts += 8 * vsize;
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 4; ++i) {
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }
 
