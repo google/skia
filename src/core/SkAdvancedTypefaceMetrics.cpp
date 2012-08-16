@@ -12,7 +12,7 @@
 
 SK_DEFINE_INST_COUNT(SkAdvancedTypefaceMetrics)
 
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_DW)
+#if defined(SK_BUILD_FOR_WIN)
 #include <DWrite.h>
 #endif
 
@@ -257,14 +257,13 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
 
 // Make AdvanceMetric template functions available for linking with typename
 // WidthRange and VerticalAdvanceRange.
-#if defined(SK_BUILD_FOR_WIN) && !defined(SK_FONTHOST_WIN_DW)
+#if defined(SK_BUILD_FOR_WIN)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         HDC hdc,
         int num_glyphs,
         const uint32_t* subsetGlyphIDs,
         uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(HDC hdc, int gId, int16_t* data));
-#elif defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_DW)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         IDWriteFontFace* fontFace,
         int num_glyphs,
