@@ -12,6 +12,10 @@
 
 SK_DEFINE_INST_COUNT(SkAdvancedTypefaceMetrics)
 
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_DW)
+#include <DWrite.h>
+#endif
+
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -253,13 +257,20 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
 
 // Make AdvanceMetric template functions available for linking with typename
 // WidthRange and VerticalAdvanceRange.
-#if defined(SK_BUILD_FOR_WIN)
+#if defined(SK_BUILD_FOR_WIN) && !defined(SK_FONTHOST_WIN_DW)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         HDC hdc,
         int num_glyphs,
         const uint32_t* subsetGlyphIDs,
         uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(HDC hdc, int gId, int16_t* data));
+#elif defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_DW)
+template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
+        IDWriteFontFace* fontFace,
+        int num_glyphs,
+        const uint32_t* subsetGlyphIDs,
+        uint32_t subsetGlyphIDsLength,
+        bool (*getAdvance)(IDWriteFontFace* fontFace, int gId, int16_t* data));
 #elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         FT_Face face,

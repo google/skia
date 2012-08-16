@@ -24,6 +24,7 @@
         '../src/ports/SkFontDescriptor.cpp',
         '../src/ports/SkFontHost_sandbox_none.cpp',
         '../src/ports/SkFontHost_win.cpp',
+        '../src/ports/SkFontHost_win_dw.cpp',
         '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkThread_win.cpp',
 
@@ -70,6 +71,18 @@
         [ 'skia_os == "win"', {
           'include_dirs': [
             'config/win',
+            '../src/utils/win',
+          ],
+          'conditions': [
+            [ 'skia_directwrite', {
+                'sources!': [
+                  '../src/ports/SkFontHost_win.cpp',
+                ],
+              }, { # else !skia_directwrite
+                'sources!': [
+                  '../src/ports/SkFontHost_win_dw.cpp',
+                ],
+              }],
           ],
           'sources!': [ # these are used everywhere but windows
             '../src/ports/SkDebug_stdio.cpp',

@@ -29,7 +29,7 @@ public:
     ~SkTScopedComPtr() {
         this->reset();
     }
-    T &operator*() const { return *fPtr; }
+    T &operator*() const { SkASSERT(fPtr != NULL); return *fPtr; }
     SkBlockComRef<T> *operator->() const {
         return static_cast<SkBlockComRef<T>*>(fPtr);
     }

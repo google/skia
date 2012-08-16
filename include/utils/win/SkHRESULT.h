@@ -36,6 +36,7 @@ If the HRESULT FAILED then the macro will return from the current function.
 In variants ending with 'M' the given message will be traced when FAILED.
 The HR variants will return the HRESULT when FAILED.
 The HRB variants will return false when FAILED.
+The HRN variants will return NULL when FAILED.
 The HRV variants will simply return when FAILED.
 */
 #define HR(ex) HR_GENERAL(ex, NULL, _hr)
@@ -43,6 +44,9 @@ The HRV variants will simply return when FAILED.
 
 #define HRB(ex) HR_GENERAL(ex, NULL, false)
 #define HRBM(ex, msg) HR_GENERAL(ex, msg, false)
+
+#define HRN(ex) HR_GENERAL(ex, NULL, NULL)
+#define HRNM(ex, msg) HR_GENERAL(ex, msg, NULL)
 
 #define HRV(ex) HR_GENERAL(ex, NULL, )
 #define HRVM(ex, msg) HR_GENERAL(ex, msg, )
