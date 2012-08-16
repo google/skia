@@ -70,6 +70,8 @@ public:
     }
     void clipDevRect(const SkRect&, SkRegion::Op, bool doAA);
     void clipDevPath(const SkPath&, SkRegion::Op, bool doAA);
+    // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
+    void clipEmpty();
 
     /**
      * isWideOpen returns true if the clip state corresponds to the infinite 
