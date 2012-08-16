@@ -210,8 +210,8 @@ static void clipPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     SkPath path;
     reader->readPath(&path);
-    canvas->clipPath(path, (SkRegion::Op)DrawOp_unpackData(op32),
-                     reader->readBool());
+    bool doAA = SkToBool(DrawOp_unpackFlags(op32) & kClip_HasAntiAlias_DrawOpFlag);
+    canvas->clipPath(path, (SkRegion::Op)DrawOp_unpackData(op32), doAA);
 }
 
 static void clipRegion_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -224,7 +224,7 @@ static void clipRegion_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 static void clipRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     const SkRect* rect = skip<SkRect>(reader);
-    bool doAA = reader->readBool();
+    bool doAA = SkToBool(DrawOp_unpackFlags(op32) & kClip_HasAntiAlias_DrawOpFlag);
     canvas->clipRect(*rect, (SkRegion::Op)DrawOp_unpackData(op32), doAA);
 }
 
@@ -443,7 +443,7 @@ BitmapHolder::BitmapHolder(SkReader32* reader, uint32_t op32,
 static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     SkScalar left = reader->readScalar();
     SkScalar top = reader->readScalar();
     canvas->drawBitmap(*holder.getBitmap(), left, top, hasPaint ? &state->paint() : NULL);
@@ -452,7 +452,7 @@ static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                                 SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     SkMatrix matrix;
     reader->readMatrix(&matrix);
     canvas->drawBitmapMatrix(*holder.getBitmap(), matrix,
@@ -462,7 +462,7 @@ static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t o
 static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
                               uint32_t op32, SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     const SkIRect* center = skip<SkIRect>(reader);
     const SkRect* dst = skip<SkRect>(reader);
     canvas->drawBitmapNine(*holder.getBitmap(), *center, *dst,
@@ -473,8 +473,8 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
                               uint32_t op32, SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
     unsigned flags = DrawOp_unpackFlags(op32);
-    bool hasPaint = SkToBool(flags & kDrawBitmap_HasPaint_DrawOpsFlag);
-    bool hasSrc = SkToBool(flags & kDrawBitmap_HasSrcRect_DrawOpsFlag);
+    bool hasPaint = SkToBool(flags & kDrawBitmap_HasPaint_DrawOpFlag);
+    bool hasSrc = SkToBool(flags & kDrawBitmap_HasSrcRect_DrawOpFlag);
     const SkIRect* src;
     if (hasSrc) {
         src = skip<SkIRect>(reader);
@@ -488,7 +488,7 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
 static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
-    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpsFlag);
+    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     const SkIPoint* point = skip<SkIPoint>(reader);
     canvas->drawSprite(*holder.getBitmap(), point->fX, point->fY, hasPaint ? &state->paint() : NULL);
 }

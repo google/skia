@@ -140,12 +140,14 @@ enum {
     kDrawVertices_HasIndices_DrawOpFlag  = 1 << 2,
 };
 enum {
-    kDrawBitmap_HasPaint_DrawOpsFlag   = 1 << 0,
+    kDrawBitmap_HasPaint_DrawOpFlag   = 1 << 0,
     // Specific to drawBitmapRect, but needs to be different from HasPaint,
     // which is used for all drawBitmap calls, so include it here.
-    kDrawBitmap_HasSrcRect_DrawOpsFlag = 1 << 1,
+    kDrawBitmap_HasSrcRect_DrawOpFlag = 1 << 1,
 };
-
+enum {
+    kClip_HasAntiAlias_DrawOpFlag = 1 << 0,
+};
 ///////////////////////////////////////////////////////////////////////////////
 
 class BitmapInfo : SkNoncopyable {
