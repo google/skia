@@ -158,6 +158,8 @@ class SkFlatData;
 
 class SkFlatController : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkFlatController)
+
     SkFlatController();
     virtual ~SkFlatController();
     /**
@@ -244,6 +246,8 @@ private:
     SkTypefacePlayback* fTypefacePlayback;
     SkNamedFactorySet*  fFactorySet;
     uint32_t            fWriteBufferFlags;
+
+    typedef SkRefCnt INHERITED;
 };
 
 class SkFlatData {

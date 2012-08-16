@@ -52,6 +52,8 @@ private:
 
 class SkBitmapHeapReader : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkBitmapHeapReader)
+
     SkBitmapHeapReader() : INHERITED() {}
     virtual SkBitmap* getBitmap(int32_t slot) const = 0;
     virtual void releaseRef(int32_t slot) = 0;
@@ -67,7 +69,12 @@ class SkBitmapHeap : public SkBitmapHeapReader {
 public:
     class ExternalStorage : public SkRefCnt {
      public:
+        SK_DECLARE_INST_COUNT(ExternalStorage)
+
         virtual bool insert(const SkBitmap& bitmap, int32_t slot) = 0;
+
+     private:
+        typedef SkRefCnt INHERITED;
     };
 
     static const int32_t UNLIMITED_SIZE = -1;

@@ -54,6 +54,8 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
+        SK_DECLARE_INST_COUNT(DeviceManager)
+
         virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) = 0;
 
         virtual void tearDownBackend(SampleWindow* win) = 0;
@@ -79,6 +81,8 @@ public:
 
         // return the GrRenderTarget backing gpu devices (NULL if not built with GPU support)
         virtual GrRenderTarget* getGrRenderTarget() = 0;
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);

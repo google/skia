@@ -38,6 +38,8 @@ class GrContext;
 #include "SkGPipe.h"
 #include "SamplePipeControllers.h"
 
+SK_DEFINE_INST_COUNT(SampleWindow::DeviceManager)
+
 extern SampleView* CreateSamplePictFileView(const char filename[]);
 
 class PictFileFactory : public SkViewFactory {

@@ -105,6 +105,8 @@ void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar 
  */
 template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS> class SkTMaskGamma : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT_TEMPLATE(SkTMaskGamma)
+
     /**
      * Creates tables to convert linear alpha values to gamma correcting alpha
      * values.
@@ -151,6 +153,8 @@ private:
                            : (R_LUM_BITS > G_LUM_BITS ? R_LUM_BITS : G_LUM_BITS)
     };
     uint8_t fGammaTables[1 << kLuminanceBits_Max][256];
+
+    typedef SkRefCnt INHERITED;
 };
 
 /**
