@@ -546,6 +546,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
     SkXfermode::Mode filterMode;
     SkScalar matrix[20];
     SkBitmap colorTransformTable;
+    grPaint->resetColorFilter();
     if (colorFilter != NULL && colorFilter->asColorMode(&color, &filterMode)) {
         grPaint->fColorMatrixEnabled = false;
         if (!constantColor) {
@@ -554,7 +555,6 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         } else {
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->fColor = SkColor2GrColor(filtered);
-            grPaint->resetColorFilter();
         }
     } else if (colorFilter != NULL && colorFilter->asColorMatrix(matrix)) {
         grPaint->fColorMatrixEnabled = true;
@@ -569,8 +569,6 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
 
         colorSampler->reset();
         colorSampler->setCustomStage(SkNEW_ARGS(GrColorTableEffect, (texture)))->unref();
-    } else {
-        grPaint->resetColorFilter();
     }
     return true;
 }
