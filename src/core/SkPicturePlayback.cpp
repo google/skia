@@ -627,7 +627,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPoint* pos = (const SkPoint*)reader.skip(points * sizeof(SkPoint));
                 const SkScalar top = reader.readScalar();
                 const SkScalar bottom = reader.readScalar();
-                if (!canvas.quickRejectY(top, bottom, SkCanvas::kAA_EdgeType)) {
+                if (!canvas.quickRejectY(top, bottom)) {
                     canvas.drawPosText(text.text(), text.length(), pos, paint);
                 }
             } break;
@@ -648,7 +648,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkScalar top = *xpos++;
                 const SkScalar bottom = *xpos++;
                 const SkScalar constY = *xpos++;
-                if (!canvas.quickRejectY(top, bottom, SkCanvas::kAA_EdgeType)) {
+                if (!canvas.quickRejectY(top, bottom)) {
                     canvas.drawPosTextH(text.text(), text.length(), xpos,
                                         constY, paint);
                 }
@@ -679,8 +679,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 // ptr[1] == y
                 // ptr[2] == top
                 // ptr[3] == bottom
-                if (!canvas.quickRejectY(ptr[2], ptr[3],
-                                         SkCanvas::kAA_EdgeType)) {
+                if (!canvas.quickRejectY(ptr[2], ptr[3])) {
                     canvas.drawText(text.text(), text.length(), ptr[0], ptr[1],
                                     paint);
                 }

@@ -584,19 +584,14 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter,
         canvas2->getSaveCount(), testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, canvas1->isDrawingToLayer() ==
         canvas2->isDrawingToLayer(), testStep->assertMessage());
+
     SkRect bounds1, bounds2;
     REPORTER_ASSERT_MESSAGE(reporter,
-        canvas1->getClipBounds(&bounds1, SkCanvas::kAA_EdgeType) ==
-        canvas2->getClipBounds(&bounds2, SkCanvas::kAA_EdgeType),
+        canvas1->getClipBounds(&bounds1) == canvas2->getClipBounds(&bounds2),
         testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, bounds1 == bounds2,
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter,
-        canvas1->getClipBounds(&bounds1, SkCanvas::kBW_EdgeType) ==
-        canvas2->getClipBounds(&bounds2, SkCanvas::kBW_EdgeType),
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, bounds1 == bounds2,
-        testStep->assertMessage());
+                            testStep->assertMessage());
+
     REPORTER_ASSERT_MESSAGE(reporter, canvas1->getDrawFilter() ==
         canvas2->getDrawFilter(), testStep->assertMessage());
     SkIRect deviceBounds1, deviceBounds2;

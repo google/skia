@@ -54,14 +54,6 @@ SK_DEFINE_INST_COUNT(SkDrawFilter)
 typedef SkTLazy<SkPaint> SkLazyPaint;
 
 ///////////////////////////////////////////////////////////////////////////////
-// Helpers for computing fast bounds for quickReject tests
-
-static SkCanvas::EdgeType paint2EdgeType(const SkPaint* paint) {
-    return paint != NULL && paint->isAntiAlias() ?
-            SkCanvas::kAA_EdgeType : SkCanvas::kBW_EdgeType;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 /*  This is the record we keep for each SkDevice that the user installs.
     The clip/matrix/proc are fields that reflect the top of the save/restore
@@ -453,8 +445,6 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fBounder = NULL;
     fLocalBoundsCompareType.setEmpty();
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeBW.setEmpty();
-    fLocalBoundsCompareTypeDirtyBW = true;
     fLastDeviceToGainFocus = NULL;
     fDeviceCMDirty = false;
     fSaveLayerCount = 0;
@@ -874,7 +864,6 @@ void SkCanvas::internalRestore() {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
 
     fClipStack.restore();
     // reserve our layer (if any)
@@ -1046,42 +1035,36 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
 bool SkCanvas::translate(SkScalar dx, SkScalar dy) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preTranslate(dx, dy);
 }
 
 bool SkCanvas::scale(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preScale(sx, sy);
 }
 
 bool SkCanvas::rotate(SkScalar degrees) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preRotate(degrees);
 }
 
 bool SkCanvas::skew(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preSkew(sx, sy);
 }
 
 bool SkCanvas::concat(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preConcat(matrix);
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
     *fMCRec->fMatrix = matrix;
 }
 
@@ -1103,10 +1086,9 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
             return false;
         }
 
-        if (this->quickReject(rect, kAA_EdgeType)) {
+        if (this->quickReject(rect)) {
             fDeviceCMDirty = true;
             fLocalBoundsCompareTypeDirty = true;
-            fLocalBoundsCompareTypeDirtyBW = true;
 
             fClipStack.clipEmpty();
             return fMCRec->fRasterClip->setEmpty();
@@ -1118,7 +1100,6 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
 
     if (fMCRec->fMatrix->rectStaysRect()) {
         // for these simpler matrices, we can stay a rect ever after applying
@@ -1185,10 +1166,9 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
             return false;
         }
         
-        if (this->quickReject(path.getBounds(), kAA_EdgeType)) {
+        if (this->quickReject(path.getBounds())) {
             fDeviceCMDirty = true;
             fLocalBoundsCompareTypeDirty = true;
-            fLocalBoundsCompareTypeDirtyBW = true;
             
             fClipStack.clipEmpty();
             return fMCRec->fRasterClip->setEmpty();
@@ -1200,7 +1180,6 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
 
     SkPath devPath;
     path.transform(*fMCRec->fMatrix, &devPath);
@@ -1226,7 +1205,6 @@ bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
-    fLocalBoundsCompareTypeDirtyBW = true;
 
     // todo: signal fClipStack that we have a region, and therefore (I guess)
     // we have to ignore it, and use the region directly?
@@ -1287,26 +1265,20 @@ void SkCanvas::replayClips(ClipVisitor* visitor) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::computeLocalClipBoundsCompareType(EdgeType et) const {
+void SkCanvas::computeLocalClipBoundsCompareType() const {
     SkRect r;
-    SkRectCompareType& rCompare = et == kAA_EdgeType ? fLocalBoundsCompareType :
-            fLocalBoundsCompareTypeBW;
 
-    if (!this->getClipBounds(&r, et)) {
-        rCompare.setEmpty();
+    if (!this->getClipBounds(&r)) {
+        fLocalBoundsCompareType.setEmpty();
     } else {
-        rCompare.set(SkScalarToCompareType(r.fLeft),
-                     SkScalarToCompareType(r.fTop),
-                     SkScalarToCompareType(r.fRight),
-                     SkScalarToCompareType(r.fBottom));
+        fLocalBoundsCompareType.set(SkScalarToCompareType(r.fLeft),
+                                    SkScalarToCompareType(r.fTop),
+                                    SkScalarToCompareType(r.fRight),
+                                    SkScalarToCompareType(r.fBottom));
     }
 }
 
-/*  current impl ignores edgetype, and relies on
-    getLocalClipBoundsCompareType(), which always returns a value assuming
-    antialiasing (worst case)
- */
-bool SkCanvas::quickReject(const SkRect& rect, EdgeType et) const {
+bool SkCanvas::quickReject(const SkRect& rect) const {
 
     if (!rect.isFinite())
         return true;
@@ -1322,7 +1294,7 @@ bool SkCanvas::quickReject(const SkRect& rect, EdgeType et) const {
         dst.roundOut(&idst);
         return !SkIRect::Intersects(idst, fMCRec->fRasterClip->getBounds());
     } else {
-        const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType(et);
+        const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
 
         // for speed, do the most likely reject compares first
         SkScalarCompareType userT = SkScalarToCompareType(rect.fTop);
@@ -1339,8 +1311,8 @@ bool SkCanvas::quickReject(const SkRect& rect, EdgeType et) const {
     }
 }
 
-bool SkCanvas::quickReject(const SkPath& path, EdgeType et) const {
-    return path.isEmpty() || this->quickReject(path.getBounds(), et);
+bool SkCanvas::quickReject(const SkPath& path) const {
+    return path.isEmpty() || this->quickReject(path.getBounds());
 }
 
 static inline int pinIntForScalar(int x) {
@@ -1354,7 +1326,7 @@ static inline int pinIntForScalar(int x) {
     return x;
 }
 
-bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
+bool SkCanvas::getClipBounds(SkRect* bounds) const {
     SkIRect ibounds;
     if (!getClipDeviceBounds(&ibounds)) {
         return false;
@@ -1371,8 +1343,8 @@ bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
 
     if (NULL != bounds) {
         SkRect r;
-        // adjust it outwards if we are antialiasing
-        int inset = (kAA_EdgeType == et);
+        // adjust it outwards in case we are antialiasing
+        const int inset = 1;
 
         // SkRect::iset() will correctly assert if we pass a value out of range
         // (when SkScalar==fixed), so we pin to legal values. This does not
@@ -1497,8 +1469,7 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
             r.set(pts, count);
         }
         SkRect storage;
-        if (this->quickReject(paint.computeFastStrokeBounds(r, &storage),
-                              paint2EdgeType(&paint))) {
+        if (this->quickReject(paint.computeFastStrokeBounds(r, &storage))) {
             return;
         }
     }    
@@ -1517,8 +1488,7 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
 void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     if (paint.canComputeFastBounds()) {
         SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(r, &storage),
-                              paint2EdgeType(&paint))) {
+        if (this->quickReject(paint.computeFastBounds(r, &storage))) {
             return;
         }
     }
@@ -1540,8 +1510,7 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
         SkRect storage;
         const SkRect& bounds = path.getBounds();
-        if (this->quickReject(paint.computeFastBounds(bounds, &storage),
-                              paint2EdgeType(&paint))) {
+        if (this->quickReject(paint.computeFastBounds(bounds, &storage))) {
             return;
         }
     }
@@ -1574,7 +1543,7 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
         if (paint) {
             (void)paint->computeFastBounds(bounds, &bounds);
         }
-        if (this->quickReject(bounds, paint2EdgeType(paint))) {
+        if (this->quickReject(bounds)) {
             return;
         }
     }
@@ -1598,7 +1567,7 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src
         if (paint) {
             bounds = &paint->computeFastBounds(dst, &storage);
         }
-        if (this->quickReject(*bounds, paint2EdgeType(paint))) {
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
@@ -1672,7 +1641,7 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
         if (paint) {
             bounds = &paint->computeFastBounds(dst, &storage);
         }
-        if (this->quickReject(*bounds, paint2EdgeType(paint))) {
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
@@ -1986,8 +1955,7 @@ void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
 
     if (paint.canComputeFastBounds()) {
         SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(r, &storage),
-                              paint2EdgeType(&paint))) {
+        if (this->quickReject(paint.computeFastBounds(r, &storage))) {
             return;
         }
     }
@@ -2002,8 +1970,7 @@ void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
     if (rx > 0 && ry > 0) {
         if (paint.canComputeFastBounds()) {
             SkRect storage;
-            if (this->quickReject(paint.computeFastBounds(r, &storage),
-                                  paint2EdgeType(&paint))) {
+            if (this->quickReject(paint.computeFastBounds(r, &storage))) {
                 return;
             }
         }
@@ -2019,8 +1986,7 @@ void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
 void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
     if (paint.canComputeFastBounds()) {
         SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(oval, &storage),
-                              paint2EdgeType(&paint))) {
+        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
             return;
         }
     }
