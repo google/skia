@@ -26,7 +26,7 @@
  * third directory for each pair.
  * Creates an index.html in the current third directory to compare each
  * pair that does not match exactly.
- * Does *not* recursively descend directories.
+ * Recursively descends directories, unless run with --norecurse.
  *
  * Returns zero exit code if all images match across baseDir and comparisonDir.
  */
@@ -612,6 +612,27 @@ static void compute_diff(DiffRecord* dr,
     dr->fAverageMismatchB = ((float) totalMismatchB) / pixelCount;
 }
 
+/// Return a copy of the "input" string, within which we have replaced all instances
+/// of oldSubstring with newSubstring.
+///
+/// TODO: If we like this, we should move it into the core SkString implementation,
+/// adding more checks and ample test cases, and paying more attention to efficiency.
+static SkString replace_all(const SkString &input,
+                            const char oldSubstring[], const char newSubstring[]) {
+    SkString output;
+    const char *input_cstr = input.c_str();
+    const char *first_char = input_cstr;
+    const char *match_char;
+    int oldSubstringLen = strlen(oldSubstring);
+    while (NULL != (match_char = strstr(first_char, oldSubstring))) {
+        output.append(first_char, (match_char - first_char));
+        output.append(newSubstring);
+        first_char = match_char + oldSubstringLen;
+    }
+    output.append(first_char);
+    return output;
+}
+
 static SkString filename_to_derived_filename (const SkString& filename,
                                               const char *suffix) {
     SkString diffName (filename);
@@ -619,6 +640,10 @@ static SkString filename_to_derived_filename (const SkString& filename,
     int dotOffset = strrchr(cstring, '.') - cstring;
     diffName.remove(dotOffset, diffName.size() - dotOffset);
     diffName.append(suffix);
+
+    // In case we recursed into subdirectories, replace slashes with something else
+    // so the diffs will all be written into a single flat directory.
+    diffName = replace_all(diffName, PATH_DIV_STR, "_");
     return diffName;
 }
 
@@ -686,22 +711,70 @@ static bool string_contains_any_of(const SkString& string,
     return false;
 }
 
-/// Iterate over dir and get all files that:
-///  - match any of the substrings in matchSubstrings, but...
-///  - DO NOT match any of the substrings in nomatchSubstrings
-/// Returns the list of files in *files.
+/// Internal (potentially recursive) implementation of get_file_list.
+static void get_file_list_subdir(const SkString& rootDir, const SkString& subDir,
+                                 const StringArray& matchSubstrings,
+                                 const StringArray& nomatchSubstrings,
+                                 bool recurseIntoSubdirs, FileArray *files) {
+    bool isSubDirEmpty = subDir.isEmpty();
+    SkString dir(rootDir);
+    if (!isSubDirEmpty) {
+        dir.append(PATH_DIV_STR);
+        dir.append(subDir);
+    }
+
+    // Iterate over files (not directories) within dir.
+    SkOSFile::Iter fileIterator(dir.c_str());
+    SkString fileName;
+    while (fileIterator.next(&fileName, false)) {
+        if (fileName.startsWith(".")) {
+            continue;
+        }
+        SkString pathRelativeToRootDir(subDir);
+        if (!isSubDirEmpty) {
+            pathRelativeToRootDir.append(PATH_DIV_STR);
+        }
+        pathRelativeToRootDir.append(fileName);
+        if (string_contains_any_of(pathRelativeToRootDir, matchSubstrings) &&
+            !string_contains_any_of(pathRelativeToRootDir, nomatchSubstrings)) {
+            files->push(new SkString(pathRelativeToRootDir));
+        }
+    }
+
+    // Recurse into any non-ignored subdirectories.
+    if (recurseIntoSubdirs) {
+        SkOSFile::Iter dirIterator(dir.c_str());
+        SkString dirName;
+        while (dirIterator.next(&dirName, true)) {
+            if (dirName.startsWith(".")) {
+                continue;
+            }
+            SkString pathRelativeToRootDir(subDir);
+            if (!isSubDirEmpty) {
+                pathRelativeToRootDir.append(PATH_DIV_STR);
+            }
+            pathRelativeToRootDir.append(dirName);
+            if (!string_contains_any_of(pathRelativeToRootDir, nomatchSubstrings)) {
+                get_file_list_subdir(rootDir, pathRelativeToRootDir,
+                                     matchSubstrings, nomatchSubstrings, recurseIntoSubdirs,
+                                     files);
+            }
+        }
+    }
+}
+
+/// Iterate over dir and get all files whose filename:
+///  - matches any of the substrings in matchSubstrings, but...
+///  - DOES NOT match any of the substrings in nomatchSubstrings
+///  - DOES NOT start with a dot (.)
+/// Adds the matching files to the list in *files.
 static void get_file_list(const SkString& dir,
                           const StringArray& matchSubstrings,
                           const StringArray& nomatchSubstrings,
-                          FileArray *files) {
-    SkOSFile::Iter it(dir.c_str());
-    SkString filename;
-    while (it.next(&filename)) {
-        if (string_contains_any_of(filename, matchSubstrings) &&
-            !string_contains_any_of(filename, nomatchSubstrings)) {
-            files->push(new SkString(filename));
-        }
-    }
+                          bool recurseIntoSubdirs, FileArray *files) {
+    get_file_list_subdir(dir, SkString(""),
+                         matchSubstrings, nomatchSubstrings, recurseIntoSubdirs,
+                         files);
 }
 
 static void release_file_list(FileArray *files) {
@@ -723,6 +796,7 @@ static void create_diff_images (DiffMetricProc dmp,
                                 const SkString& outputDir,
                                 const StringArray& matchSubstrings,
                                 const StringArray& nomatchSubstrings,
+                                bool recurseIntoSubdirs,
                                 DiffSummary* summary) {
     SkASSERT(!baseDir.isEmpty());
     SkASSERT(!comparisonDir.isEmpty());
@@ -730,8 +804,8 @@ static void create_diff_images (DiffMetricProc dmp,
     FileArray baseFiles;
     FileArray comparisonFiles;
 
-    get_file_list(baseDir, matchSubstrings, nomatchSubstrings, &baseFiles);
-    get_file_list(comparisonDir, matchSubstrings, nomatchSubstrings,
+    get_file_list(baseDir, matchSubstrings, nomatchSubstrings, recurseIntoSubdirs, &baseFiles);
+    get_file_list(comparisonDir, matchSubstrings, nomatchSubstrings, recurseIntoSubdirs,
                   &comparisonFiles);
 
     if (!baseFiles.isEmpty()) {
@@ -1146,6 +1220,7 @@ static void usage (char * argv0) {
 "\n                           filenames contain this substring."
 "\n                           this flag may be repeated."
 "\n    --noprintdirs: do not print the directories used."
+"\n    --norecurse: do not recurse into subdirectories."
 "\n    --sortbymaxmismatch: sort by worst color channel mismatch;"
 "\n                         break ties with -sortbymismatch"
 "\n    --sortbymismatch: sort by average color channel mismatch"
@@ -1180,7 +1255,8 @@ int main (int argc, char ** argv) {
 
     bool generateDiffs = true;
     bool listFilenames = false;
-    bool printDirs = true;
+    bool printDirNames = true;
+    bool recurseIntoSubdirs = true;
 
     RecordArray differences;
     DiffSummary summary;
@@ -1219,7 +1295,11 @@ int main (int argc, char ** argv) {
             continue;
         }
         if (!strcmp(argv[i], "--noprintdirs")) {
-            printDirs = false;
+            printDirNames = false;
+            continue;
+        }
+        if (!strcmp(argv[i], "--norecurse")) {
+            recurseIntoSubdirs = false;
             continue;
         }
         if (!strcmp(argv[i], "--sortbymaxmismatch")) {
@@ -1271,14 +1351,14 @@ int main (int argc, char ** argv) {
     if (!baseDir.endsWith(PATH_DIV_STR)) {
         baseDir.append(PATH_DIV_STR);
     }
-    if (printDirs) {
+    if (printDirNames) {
         printf("baseDir is [%s]\n", baseDir.c_str());
     }
 
     if (!comparisonDir.endsWith(PATH_DIV_STR)) {
         comparisonDir.append(PATH_DIV_STR);
     }
-    if (printDirs) {
+    if (printDirNames) {
         printf("comparisonDir is [%s]\n", comparisonDir.c_str());
     }
 
@@ -1286,11 +1366,11 @@ int main (int argc, char ** argv) {
         outputDir.append(PATH_DIV_STR);
     }
     if (generateDiffs) {
-        if (printDirs) {
+        if (printDirNames) {
             printf("writing diffs to outputDir is [%s]\n", outputDir.c_str());
         }
     } else {
-        if (printDirs) {
+        if (printDirNames) {
             printf("not writing any diffs to outputDir [%s]\n", outputDir.c_str());
         }
         outputDir.set("");
@@ -1304,7 +1384,7 @@ int main (int argc, char ** argv) {
 
     create_diff_images(diffProc, colorThreshold, &differences,
                        baseDir, comparisonDir, outputDir,
-                       matchSubstrings, nomatchSubstrings, &summary);
+                       matchSubstrings, nomatchSubstrings, recurseIntoSubdirs, &summary);
     summary.print(listFilenames, failOnResultType);
 
     if (differences.count()) {
