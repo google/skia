@@ -25,6 +25,8 @@ SK_DEFINE_INST_COUNT(SkBounder)
 SK_DEFINE_INST_COUNT(SkCanvas)
 SK_DEFINE_INST_COUNT(SkDrawFilter)
 
+// experimental for faster tiled drawing...
+//#define SK_ENABLE_CLIP_QUICKREJECT
 
 //#define SK_TRACE_SAVERESTORE
 
@@ -1095,6 +1097,23 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+#ifdef SK_ENABLE_CLIP_QUICKREJECT
+    if (SkRegion::kIntersect_Op == op) {
+        if (fMCRec->fRasterClip->isEmpty()) {
+            return false;
+        }
+
+        if (this->quickReject(rect, kAA_EdgeType)) {
+            fDeviceCMDirty = true;
+            fLocalBoundsCompareTypeDirty = true;
+            fLocalBoundsCompareTypeDirtyBW = true;
+
+            fClipStack.clipEmpty();
+            return fMCRec->fRasterClip->setEmpty();
+        }
+    }
+#endif
+
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -1160,6 +1179,23 @@ static bool clipPathHelper(const SkCanvas* canvas, SkRasterClip* currClip,
 }
 
 bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+#ifdef SK_ENABLE_CLIP_QUICKREJECT
+    if (SkRegion::kIntersect_Op == op && !path.isInverseFillType()) {
+        if (fMCRec->fRasterClip->isEmpty()) {
+            return false;
+        }
+        
+        if (this->quickReject(path.getBounds(), kAA_EdgeType)) {
+            fDeviceCMDirty = true;
+            fLocalBoundsCompareTypeDirty = true;
+            fLocalBoundsCompareTypeDirtyBW = true;
+            
+            fClipStack.clipEmpty();
+            return fMCRec->fRasterClip->setEmpty();
+        }
+    }
+#endif
+
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
