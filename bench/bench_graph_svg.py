@@ -28,8 +28,8 @@ def usage():
     print '-r <revision>[:<revision>] the revisions to show.'
     print '   Negative <revision> is taken as offset from most recent revision.'
     print '-s <setting>[=<value>] a setting to show (alpha, scalar, etc).'
-    print '-m <representative> use "avg", "min", or "med" for bench value.'
-    print '   They correspond to average, minimum and median of bench iters.'
+    print '-m <representation> representation of bench value.'
+    print '   See _ListAlgorithm class in bench_util.py.'
     print '-t <time> the time to show (w, c, g, etc).'
     print '-x <int> the desired width of the svg.'
     print '-y <int> the desired height of the svg.'
@@ -281,7 +281,7 @@ def main():
     config_of_interest = None
     bench_of_interest = None
     time_of_interest = None
-    rep = "avg"  # bench representative calculation algorithm
+    rep = None  # bench representation algorithm
     revision_range = '0:'
     regression_range = '0:'
     latest_revision = None
@@ -329,8 +329,6 @@ def main():
                 title = value
             elif option == "-m":
                 rep = value
-                if rep not in ["avg", "min", "med"]:
-                    raise Exception("Invalid -m representative: %s" % rep)
             elif option == "-o":
                 redirect_stdout(value)
             elif option == "-r":
