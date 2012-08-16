@@ -705,16 +705,15 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     SkBitmap bitmap;
     shader.getGradientTableBitmap(&bitmap);
 
-    GrContext::TextureCacheEntry entry = GrLockCachedBitmapTexture(ctx, bitmap,
-                                                                   sampler->textureParams());
-    fTexture = entry.texture();
+    fTexture = GrLockCachedBitmapTexture(ctx, bitmap,
+                                         sampler->textureParams());
     SkSafeRef(fTexture);
     fUseTexture = true;
 
     // Unlock immediately, this is not great, but we don't have a way of
     // knowing when else to unlock it currently, so it may get purged from
     // the cache, but it'll still be ref'd until it's no longer being used.
-    GrUnlockCachedBitmapTexture(ctx, entry);
+    GrUnlockCachedBitmapTexture(fTexture);
 }
 
 GrGradientEffect::~GrGradientEffect() {

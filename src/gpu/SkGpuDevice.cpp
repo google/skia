@@ -81,43 +81,47 @@ enum {
 
 class SkGpuDevice::SkAutoCachedTexture : public ::SkNoncopyable {
 public:
-    SkAutoCachedTexture() { }    
+    SkAutoCachedTexture()
+        : fDevice(NULL)
+        , fTexture(NULL) {
+    }    
+
     SkAutoCachedTexture(SkGpuDevice* device,
                         const SkBitmap& bitmap,
                         const GrTextureParams* params,
-                        GrTexture** texture) {
-        GrAssert(texture);
+                        GrTexture** texture)
+        : fDevice(NULL)
+        , fTexture(NULL) {
+        GrAssert(NULL != texture);
         *texture = this->set(device, bitmap, params);
     }
 
     ~SkAutoCachedTexture() {
-        if (fTex.texture()) {
-            GrUnlockCachedBitmapTexture(fDevice->context(), fTex);
+        if (NULL != fTexture) {
+            GrUnlockCachedBitmapTexture(fTexture);
         }
     }
 
     GrTexture* set(SkGpuDevice* device,
                    const SkBitmap& bitmap,
                    const GrTextureParams* params) {
-        if (fTex.texture()) {
-            GrUnlockCachedBitmapTexture(fDevice->context(), fTex);
+        if (NULL != fTexture) {
+            GrUnlockCachedBitmapTexture(fTexture);
+            fTexture = NULL;
         }
         fDevice = device;
-        GrTexture* texture = (GrTexture*)bitmap.getTexture();
-        if (texture) {
-            // return the native texture
-            fTex.reset();
-        } else {
-            // look it up in our cache
-            fTex = GrLockCachedBitmapTexture(device->context(), bitmap, params);
-            texture = fTex.texture();
+        GrTexture* result = (GrTexture*)bitmap.getTexture();
+        if (NULL == result) {
+            // Cannot return the native texture so look it up in our cache
+            fTexture = GrLockCachedBitmapTexture(device->context(), bitmap, params);
+            result = fTexture;
         }
-        return texture;
+        return result;
     }
     
 private:
     SkGpuDevice* fDevice;
-    GrContext::TextureCacheEntry fTex;
+    GrTexture*   fTexture;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -184,6 +188,7 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fContext = context;
     fContext->ref();
 
+    fCached = false;
     fTexture = NULL;
     fRenderTarget = NULL;
     fNeedClear = false;
@@ -221,6 +226,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fContext = context;
     fContext->ref();
 
+    fCached = false;
     fTexture = NULL;
     fRenderTarget = NULL;
     fNeedClear = false;
@@ -266,10 +272,9 @@ SkGpuDevice::~SkGpuDevice() {
 
     SkSafeUnref(fTexture);
     SkSafeUnref(fRenderTarget);
-    if (fCache.texture()) {
-        GrAssert(NULL != fTexture);
+    if (NULL != fTexture && fCached) {
         GrAssert(fRenderTarget == fTexture->asRenderTarget());
-        fContext->unlockTexture(fCache);
+        fContext->unlockTexture(fTexture);
     }
     fContext->unref();
 }
@@ -1925,7 +1930,6 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
     desc.fHeight = height;
     desc.fSampleCnt = fRenderTarget->numSamples();
 
-    GrContext::TextureCacheEntry cacheEntry;
     GrTexture* texture;
     SkAutoTUnref<GrTexture> tunref;
     // Skia's convention is to only clear a device if it is non-opaque.
@@ -1937,8 +1941,7 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
     GrContext::ScratchTexMatch matchType = (kSaveLayer_Usage == usage) ?
                                     GrContext::kApprox_ScratchTexMatch :
                                     GrContext::kExact_ScratchTexMatch;
-    cacheEntry = fContext->lockScratchTexture(desc, matchType);
-    texture = cacheEntry.texture();
+    texture = fContext->lockScratchTexture(desc, matchType);
 #else
     tunref.reset(fContext->createUncachedTexture(desc, NULL, 0));
     texture = tunref.get();
@@ -1946,7 +1949,6 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
     if (texture) {
         return SkNEW_ARGS(SkGpuDevice,(fContext,
                                        texture,
-                                       cacheEntry,
                                        needClear));
     } else {
         GrPrintf("---- failed to create compatible device texture [%d %d]\n",
@@ -1957,13 +1959,11 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
 
 SkGpuDevice::SkGpuDevice(GrContext* context,
                          GrTexture* texture,
-                         TexCache cacheEntry,
                          bool needClear)
     : SkDevice(make_bitmap(context, texture->asRenderTarget())) {
 
     GrAssert(texture && texture->asRenderTarget());
-    GrAssert(NULL == cacheEntry.texture() || texture == cacheEntry.texture());
     this->initFromRenderTarget(context, texture->asRenderTarget());
-    fCache = cacheEntry;
+    fCached = true;
     fNeedClear = needClear;
 }

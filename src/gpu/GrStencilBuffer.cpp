@@ -23,9 +23,11 @@ void GrStencilBuffer::wasDetachedFromRenderTarget(const GrRenderTarget* rt) {
 }
 
 void GrStencilBuffer::transferToCacheAndLock() {
-    GrAssert(NULL == fCacheEntry);
-    fCacheEntry = 
-        this->getGpu()->getContext()->addAndLockStencilBuffer(this);
+    GrAssert(NULL == this->getCacheEntry());
+    GrAssert(!fHoldingLock);
+
+    this->getGpu()->getContext()->addAndLockStencilBuffer(this);
+    fHoldingLock = true;
 }
 
 void GrStencilBuffer::onRelease() {
@@ -39,7 +41,7 @@ void GrStencilBuffer::onRelease() {
         this->unlockInCache();
         // we shouldn't be deleted here because some RT still has a ref on us.
     }
-    fCacheEntry = NULL;
+    fHoldingLock = false;
 }
 
 void GrStencilBuffer::onAbandon() {
@@ -48,11 +50,11 @@ void GrStencilBuffer::onAbandon() {
 }
 
 void GrStencilBuffer::unlockInCache() {
-    if (NULL != fCacheEntry) {
+    if (fHoldingLock) {
         GrGpu* gpu = this->getGpu();
         if (NULL != gpu) {
             GrAssert(NULL != gpu->getContext());
-            gpu->getContext()->unlockStencilBuffer(fCacheEntry);
+            gpu->getContext()->unlockStencilBuffer(this);
         }
     }
 }

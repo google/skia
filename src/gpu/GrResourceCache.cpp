@@ -28,6 +28,7 @@ GrResourceEntry::~GrResourceEntry() {
 void GrResourceEntry::validate() const {
     GrAssert(fLockCount >= 0);
     GrAssert(fResource);
+    GrAssert(fResource->getCacheEntry() == this);
     fResource->validate();
 }
 #endif
@@ -158,21 +159,24 @@ public:
 #endif
 };
 
-GrResourceEntry* GrResourceCache::findAndLock(const GrResourceKey& key,
-                                              LockType type) {
+GrResource* GrResourceCache::findAndLock(const GrResourceKey& key,
+                                         LockType type) {
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceEntry* entry = fCache.find(key);
-    if (entry) {
-        this->internalDetach(entry, false);
-        // mark the entry as "busy" so it doesn't get purged
-        // do this between detach and attach for locked count tracking
-        if (kNested_LockType == type || !entry->isLocked()) {
-            entry->lock();
-        }
-        this->attachToHead(entry, false);
+    if (NULL == entry) {
+        return NULL;
     }
-    return entry;
+
+    this->internalDetach(entry, false);
+    // mark the entry as "busy" so it doesn't get purged
+    // do this between detach and attach for locked count tracking
+    if (kNested_LockType == type || !entry->isLocked()) {
+        entry->lock();
+    }
+    this->attachToHead(entry, false);
+
+    return entry->fResource;
 }
 
 bool GrResourceCache::hasKey(const GrResourceKey& key) const {
@@ -192,6 +196,8 @@ GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
 
     GrResourceEntry* entry = SkNEW_ARGS(GrResourceEntry, (key, resource));
 
+    resource->setCacheEntry(entry);
+
     if (lock) {
         // mark the entry as "busy" so it doesn't get purged
         // do this before attach for locked count tracking
@@ -210,13 +216,15 @@ GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
     return entry;
 }
 
-GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
-                                                GrResource* resource) {
-    return this->create(key, resource, true, false);
+void GrResourceCache::createAndLock(const GrResourceKey& key,
+                                    GrResource* resource) {
+    GrAssert(NULL == resource->getCacheEntry());
+    this->create(key, resource, true, false);
 }
 
 void GrResourceCache::attach(const GrResourceKey& key,
                              GrResource* resource) {
+    GrAssert(NULL == resource->getCacheEntry());
     this->create(key, resource, false, true);
 }
 

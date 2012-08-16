@@ -1143,7 +1143,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
                                                  int width, int height) {
 
     // All internally created RTs are also textures. We don't create
-    // SBs for a client's standalone RT (that is RT that isnt also a texture).
+    // SBs for a client's standalone RT (that is a RT that isn't also a texture).
     GrAssert(rt->asTexture());
     GrAssert(width >= rt->width());
     GrAssert(height >= rt->height());

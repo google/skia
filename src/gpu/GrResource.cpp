@@ -16,6 +16,7 @@ GrResource::GrResource(GrGpu* gpu) {
     fGpu        = gpu;
     fNext       = NULL;
     fPrevious   = NULL;
+    fCacheEntry = NULL;
     fGpu->insertResource(this);
 }
 

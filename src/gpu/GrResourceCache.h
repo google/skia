@@ -225,7 +225,7 @@ public:
      *  Search for an entry with the same Key. If found, "lock" it and return it.
      *  If not found, return null.
      */
-    GrResourceEntry* findAndLock(const GrResourceKey&, LockType style);
+    GrResource* findAndLock(const GrResourceKey&, LockType style);
 
     /**
      *  Create a new cache entry, based on the provided key and resource, and 
@@ -234,7 +234,7 @@ public:
      *  Ownership of the resource is transferred to the resource cache, 
      *  which will unref() it when it is purged or deleted.
      */
-    GrResourceEntry* createAndLock(const GrResourceKey&, GrResource*);
+    void createAndLock(const GrResourceKey&, GrResource*);
 
     /**
      *  Create a new cache entry, based on the provided key and resource.
