@@ -45,11 +45,41 @@ class _ExtremeType(object):
 Max = _ExtremeType(1, "Max")
 Min = _ExtremeType(-1, "Min")
 
-def parse(settings, lines, representative='avg'):
+class _ListAlgorithm(object):
+    """Algorithm for selecting the representation value from a given list.
+    representation is one of 'avg', 'min', 'med', '25th' (average, minimum,
+    median, 25th percentile)"""
+    def __init__(self, data, representation=None):
+        if not representation:
+            representation = 'avg'  # default algorithm is average
+        self._data = data
+        self._len = len(data)
+        if representation == 'avg':
+            self._rep = sum(self._data) / self._len
+        else:
+            self._data.sort()
+            if representation == 'min':
+                self._rep = self._data[0]
+            else:
+                # for percentiles, we use the value below which x% of values are
+                # found, which allows for better detection of quantum behaviors.
+                if representation == 'med':
+                    x = int(round(0.5 * self._len + 0.5))
+                elif representation == '25th':
+                    x = int(round(0.25 * self._len + 0.5))
+                else:
+                    raise Exception("invalid representation algorithm %s!" %
+                                    representation)
+                self._rep = self._data[x - 1]
+
+    def compute(self):
+        return self._rep
+
+def parse(settings, lines, representation='avg'):
     """Parses bench output into a useful data structure.
     
     ({str:str}, __iter__ -> str) -> [BenchDataPoint]
-    representative is one of 'avg', 'min', 'med' (average, mean, median)."""
+    representation should match one of those defined in class _ListAlgorithm."""
     
     benches = []
     current_bench = None
@@ -85,26 +115,11 @@ def parse(settings, lines, representative='avg'):
                     current_time_type = new_time.group(1)
                     iters = [float(i) for i in
                              new_time.group(2).strip().split(',')]
-                    iters.sort()
-                    iter_len = len(iters)
-                    if representative == 'avg':
-                        rep = sum(iters) / iter_len
-                    elif representative == 'min':
-                        rep = iters[0]
-                    elif representative == 'med':
-                        if iter_len % 2:
-                            rep = (iters[iter_len / 2] +
-                                   iters[iter_len / 2 - 1]) / 2
-                        else:
-                            rep = iters[iter_len / 2]
-                    else:
-                        raise Exception("invalid representative algorithm %s!" %
-                                        representative)
                     benches.append(BenchDataPoint(
                             current_bench
                             , current_config
                             , current_time_type
-                            , rep
+                            , _ListAlgorithm(iters, representation).compute()
                             , settings))
     
     return benches
