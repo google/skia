@@ -74,7 +74,7 @@ public:
     uint8_t     readU8() { uint8_t x; read(&x, 1); return x; }
     bool        readBool() { return this->readU8() != 0; }
 
-protected:
+private:
     void    readNoSizeCheck(void* buffer, size_t size);
 
     const char* fData;
@@ -127,7 +127,7 @@ public:
     void    write8(int8_t x) { this->writeNoSizeCheck(&x, 1); }
     void    writeBool(bool x) { this->write8(x); }
 
-protected:
+private:
     void    writeNoSizeCheck(const void* buffer, size_t size);
 
     char* fData;
