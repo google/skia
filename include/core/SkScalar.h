@@ -79,16 +79,10 @@
      * int, size_t, U8CPU, etc., even though what we really mean is "anything
      * but a float".
      */
-    static inline float SkIntToScalar(int param) {
+    static inline float SkIntToScalar(signed int param) {
         return (float)param;
     }
     static inline float SkIntToScalar(unsigned int param) {
-        return (float)param;
-    }
-    static inline float SkIntToScalar(long param) {
-        return (float)param;
-    }
-    static inline float SkIntToScalar(unsigned long param) {
         return (float)param;
     }
     static inline float SkIntToScalar(int64_t param) {
