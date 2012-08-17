@@ -109,7 +109,6 @@ class SampleView : public SkView {
 public:
     SampleView() : fPipeState(SkOSMenu::kOffState), 
             fBGColor(SK_ColorWHITE), fRepeatCount(1) {
-        fTileCount.set(1, 1);
     }
 
     void setBGColor(SkColor color) { fBGColor = color; }
@@ -117,7 +116,6 @@ public:
     static bool IsSampleView(SkView*);
     static bool SetRepeatDraw(SkView*, int count);
     static bool SetUsePipe(SkView*, SkOSMenu::TriState);
-    static bool SetTileCount(SkView*, int nx, int ny);
     
     /**
      *  Call this to request menu items from a SampleView.
@@ -143,7 +141,6 @@ protected:
     
 private:
     int fRepeatCount;
-    SkISize fTileCount;
 
     typedef SkView INHERITED;
 };
