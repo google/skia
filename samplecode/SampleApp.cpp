@@ -795,6 +795,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fRequestGrabImage = false;
     fPipeState = SkOSMenu::kOffState;
     fTilingState = SkOSMenu::kOffState;
+    fTileCount.set(1, 1);
     fMeasureFPS = false;
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
@@ -1090,7 +1091,27 @@ void SampleWindow::draw(SkCanvas* canvas) {
         if (bitmap_diff(canvas, orig, &diff)) {
         }
     } else {
-        this->INHERITED::draw(canvas);
+        const SkScalar cw = SkScalarDiv(this->width(), SkIntToScalar(fTileCount.width()));
+        const SkScalar ch = SkScalarDiv(this->height(), SkIntToScalar(fTileCount.height()));
+        
+        for (int y = 0; y < fTileCount.height(); ++y) {
+            for (int x = 0; x < fTileCount.width(); ++x) {
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->clipRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch));
+                this->INHERITED::draw(canvas);
+            }
+        }
+        
+        if (!fTileCount.equals(1, 1)) {
+            SkPaint paint;
+            paint.setColor(0x60FF00FF);
+            paint.setStyle(SkPaint::kStroke_Style);
+            for (int y = 0; y < fTileCount.height(); ++y) {
+                for (int x = 0; x < fTileCount.width(); ++x) {
+                    canvas->drawRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch), paint);
+                }
+            }
+        }
     }
     if (fShowZoomer && !fSaveToPdf) {
         showZoomer(canvas);
@@ -1633,8 +1654,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
             case SkOSMenu::kMixedState: nx = 1; ny = 16; break;
             case SkOSMenu::kOnState:    nx = 4; ny = 4; break;
         }
-        (void)SampleView::SetTileCount(curr_view(this), nx, ny);
-        this->updateTitle();
+        fTileCount.set(nx, ny);
         this->inval(NULL);
         return true;
     }
@@ -2174,7 +2194,6 @@ void SampleWindow::onSizeChange() {
 static const char is_sample_view_tag[] = "sample-is-sample-view";
 static const char repeat_count_tag[] = "sample-set-repeat-count";
 static const char set_use_pipe_tag[] = "sample-set-use-pipe";
-static const char set_tile_count_tag[] = "sample-set-tile-count";
 
 bool SampleView::IsSampleView(SkView* view) {
     SkEvent evt(is_sample_view_tag);
@@ -2193,20 +2212,9 @@ bool SampleView::SetUsePipe(SkView* view, SkOSMenu::TriState state) {
     return view->doEvent(evt);
 }
 
-bool SampleView::SetTileCount(SkView* view, int nx, int ny) {
-    SkEvent evt(set_tile_count_tag);
-    evt.setFast32((ny << 16) | nx);
-    return view->doEvent(evt);
-}
-
 bool SampleView::onEvent(const SkEvent& evt) {
     if (evt.isType(repeat_count_tag)) {
         fRepeatCount = evt.getFast32();
-        return true;
-    }
-    if (evt.isType(set_tile_count_tag)) {
-        unsigned packed = evt.getFast32();
-        fTileCount.set(packed & 0xFFFF, packed >> 16);
         return true;
     }
     int32_t pipeHolder;
@@ -2325,28 +2333,9 @@ void SampleView::draw(SkCanvas* canvas) {
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
 
-    const SkScalar cw = this->width() / fTileCount.width();
-    const SkScalar ch = this->height() / fTileCount.height();
-
     for (int i = 0; i < fRepeatCount; i++) {
-        for (int y = 0; y < fTileCount.height(); ++y) {
-            for (int x = 0; x < fTileCount.width(); ++x) {
-                SkAutoCanvasRestore acr(canvas, true);
-                canvas->clipRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch));
-                this->onDrawContent(canvas);
-            }
-        }
-    }
-
-    if (!fTileCount.equals(1, 1)) {
-        SkPaint paint;
-        paint.setColor(0x60FF00FF);
-        paint.setStyle(SkPaint::kStroke_Style);
-        for (int y = 0; y < fTileCount.height(); ++y) {
-            for (int x = 0; x < fTileCount.width(); ++x) {
-                canvas->drawRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch), paint);
-            }
-        }
+        SkAutoCanvasRestore acr(canvas, true);
+        this->onDrawContent(canvas);
     }
 }
 

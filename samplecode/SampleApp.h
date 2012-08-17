@@ -164,6 +164,7 @@ private:
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;
     bool fMagnify;
+    SkISize fTileCount;
 
 
     SkOSMenu::TriState fPipeState;  // Mixed uses a tiled pipe
