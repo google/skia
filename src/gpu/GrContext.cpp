@@ -185,36 +185,36 @@ float adjust_sigma(float sigma, int *scaleFactor, int *radius) {
     return sigma;
 }
 
-void apply_morphology(GrGpu* gpu,
+void apply_morphology(GrDrawTarget* target,
                       GrTexture* texture,
                       const SkRect& rect,
                       int radius,
                       GrContext::MorphologyType morphType,
                       Gr1DKernelEffect::Direction direction) {
 
-    GrRenderTarget* target = gpu->drawState()->getRenderTarget();
-    GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
-    GrDrawState* drawState = gpu->drawState();
-    drawState->setRenderTarget(target);
+    GrRenderTarget* rt = target->drawState()->getRenderTarget();
+    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
+    GrDrawState* drawState = target->drawState();
+    drawState->setRenderTarget(rt);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(sampleM);
     SkAutoTUnref<GrCustomStage> morph(
         SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)));
     drawState->sampler(0)->setCustomStage(morph);
-    gpu->drawSimpleRect(rect, NULL);
+    target->drawSimpleRect(rect, NULL);
 }
 
-void convolve_gaussian(GrGpu* gpu,
+void convolve_gaussian(GrDrawTarget* target,
                        GrTexture* texture,
                        const SkRect& rect,
                        float sigma,
                        int radius,
                        Gr1DKernelEffect::Direction direction) {
-    GrRenderTarget* target = gpu->drawState()->getRenderTarget();
-    GrDrawTarget::AutoStateRestore asr(gpu, GrDrawTarget::kReset_ASRInit);
-    GrDrawState* drawState = gpu->drawState();
-    drawState->setRenderTarget(target);
+    GrRenderTarget* rt = target->drawState()->getRenderTarget();
+    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
+    GrDrawState* drawState = target->drawState();
+    drawState->setRenderTarget(rt);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     drawState->sampler(0)->reset(sampleM);
@@ -222,7 +222,7 @@ void convolve_gaussian(GrGpu* gpu,
                                                       (texture, direction, radius,
                                                        sigma)));
     drawState->sampler(0)->setCustomStage(conv);
-    gpu->drawSimpleRect(rect, NULL);
+    target->drawSimpleRect(rect, NULL);
 }
 
 }
@@ -582,11 +582,10 @@ void GrContext::setClip(const GrClipData* clipData) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::clear(const GrIRect* rect, 
-                      const GrColor color, 
+void GrContext::clear(const GrIRect* rect,
+                      const GrColor color,
                       GrRenderTarget* target) {
-    this->flush();
-    fGpu->clear(rect, color, target);
+    this->prepareToDraw(NULL, DEFAULT_BUFFERING)->clear(rect, color, target);
 }
 
 void GrContext::drawPaint(const GrPaint& paint) {
@@ -738,7 +737,7 @@ void GrContext::drawRect(const GrPaint& paint,
                          const GrMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
 
-    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     GrRect devRect = rect;
@@ -855,7 +854,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         return;
     }
 
-    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
 
 #if GR_STATIC_RECT_VB
     GrDrawState::AutoStageDisable atr(fDrawState);
@@ -919,7 +918,7 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
-    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     GrVertexLayout layout = 0;
@@ -1031,7 +1030,8 @@ void GrContext::drawOval(const GrPaint& paint,
         return;
     }
 
-    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
+
     GrDrawState* drawState = target->drawState();
     GrDrawState::AutoStageDisable atr(fDrawState);
     const GrMatrix vm = drawState->getViewMatrix();
@@ -1129,7 +1129,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
     // cache. This presents a potential hazard for buffered drawing. However,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
-    GrDrawTarget* target = this->prepareToDraw(paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
@@ -1580,12 +1580,14 @@ void GrContext::setPaint(const GrPaint& paint) {
 #endif
 }
 
-GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint, BufferedDraw buffered) {
+GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffered) {
     if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
         this->flushDrawBuffer();
         fLastDrawWasBuffered = kNo_BufferedDraw;
     }
-    this->setPaint(paint);
+    if (NULL != paint) {
+        this->setPaint(*paint);
+    }
     if (kYes_BufferedDraw == buffered) {
         fDrawBuffer->setClip(fGpu->getClip());
         fLastDrawWasBuffered = kYes_BufferedDraw;
@@ -1632,10 +1634,7 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
     ASSERT_OWNED_RESOURCE(target);
-    if (fDrawState->getRenderTarget() != target) {
-        this->flush(false);
-        fDrawState->setRenderTarget(target);
-    }
+    fDrawState->setRenderTarget(target);
 }
 
 GrRenderTarget* GrContext::getRenderTarget() {
@@ -1728,7 +1727,7 @@ void GrContext::setupDrawBuffer() {
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
-    return prepareToDraw(paint, DEFAULT_BUFFERING);
+    return prepareToDraw(&paint, DEFAULT_BUFFERING);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
@@ -1802,7 +1801,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        convolve_gaussian(fGpu, srcTexture, srcRect, sigmaX, radiusX,
+        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
+        convolve_gaussian(target, srcTexture, srcRect, sigmaX, radiusX,
                           Gr1DKernelEffect::kX_Direction);
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);
@@ -1818,7 +1818,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        convolve_gaussian(fGpu, srcTexture, srcRect, sigmaY, radiusY,
+        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
+        convolve_gaussian(target, srcTexture, srcRect, sigmaY, radiusY,
                           Gr1DKernelEffect::kY_Direction);
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);
@@ -1878,7 +1879,8 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     if (radius.fWidth > 0) {
         GrAutoScratchTexture ast(this, desc);
         this->setRenderTarget(ast.texture()->asRenderTarget());
-        apply_morphology(fGpu, srcTexture, rect, radius.fWidth, morphType,
+        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
+        apply_morphology(target, srcTexture, rect, radius.fWidth, morphType,
                          Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(
                     SkScalarFloorToInt(rect.fLeft), 
@@ -1892,7 +1894,8 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     if (radius.fHeight > 0) {
         GrAutoScratchTexture ast(this, desc);
         this->setRenderTarget(ast.texture()->asRenderTarget());
-        apply_morphology(fGpu, srcTexture, rect, radius.fHeight, morphType,
+        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
+        apply_morphology(target, srcTexture, rect, radius.fHeight, morphType,
                          Gr1DKernelEffect::kY_Direction);
         srcTexture->unref();
         srcTexture = ast.detach();
