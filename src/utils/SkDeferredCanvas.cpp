@@ -571,13 +571,6 @@ SkDeferredCanvas::SkDeferredCanvas(SkDevice* device) {
     this->setDevice(device);
 }
 
-SkDeferredCanvas::SkDeferredCanvas(SkDevice* device, 
-                                   NotificationClient* notificationClient) {
-    this->init();
-    this->setDevice(device);
-    this->setNotificationClient(notificationClient);
-}
-
 void SkDeferredCanvas::init() {
     fDeferredDrawing = true; // On by default
 }
