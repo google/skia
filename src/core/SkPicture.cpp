@@ -200,7 +200,8 @@ void SkPicture::draw(SkCanvas* surface) {
 // V3 : PictInfo tag at beginning, and EOF tag at the end
 // V4 : move SkPictInfo to be the header
 // V5 : don't read/write FunctionPtr on cross-process (we can detect that)
-#define PICTURE_VERSION     5
+// V6 : added serialization of SkPath's bounds (and packed its flags tighter)
+#define PICTURE_VERSION     6
 
 SkPicture::SkPicture(SkStream* stream) : SkRefCnt() {
     fRecord = NULL;

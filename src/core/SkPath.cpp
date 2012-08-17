@@ -1721,18 +1721,33 @@ uint32_t SkPath::writeToMemory(void* storage) const {
     if (NULL == storage) {
         const int byteCount = 3 * sizeof(int32_t)
                       + sizeof(SkPoint) * fPts.count()
-                      + sizeof(uint8_t) * fVerbs.count();
+                      + sizeof(uint8_t) * fVerbs.count()
+                      + sizeof(SkRect);
         return SkAlign4(byteCount);
     }
 
     SkWBuffer   buffer(storage);
     buffer.write32(fPts.count());
     buffer.write32(fVerbs.count());
-    int32_t packed = (fIsOval << 24) | (fConvexity << 16) | 
-                     (fFillType << 8) | fSegmentMask;
+
+    // Call getBounds() to ensure (as a side-effect) that fBounds
+    // and fIsFinite are computed.
+    const SkRect& bounds = this->getBounds();
+    SkASSERT(!fBoundsIsDirty);
+
+    int32_t packed = ((fIsFinite & 1) << kIsFinite_SerializationShift) |
+                     ((fIsOval & 1) << kIsOval_SerializationShift) |
+                     (fConvexity << kConvexity_SerializationShift) |
+                     (fFillType << kFillType_SerializationShift) |
+                     (fSegmentMask << kSegmentMask_SerializationShift);
+
     buffer.write32(packed);
+
     buffer.write(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.write(fVerbs.begin(), fVerbs.count());
+
+    buffer.write(&bounds, sizeof(bounds));
+
     buffer.padToAlign4();
     return buffer.pos();
 }
@@ -1741,18 +1756,23 @@ uint32_t SkPath::readFromMemory(const void* storage) {
     SkRBuffer   buffer(storage);
     fPts.setCount(buffer.readS32());
     fVerbs.setCount(buffer.readS32());
+
     uint32_t packed = buffer.readS32();
-    fFillType = (packed >> 8) & 0xFF;
-    fSegmentMask = packed & 0xFF;
+    fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
+    fIsOval = (packed >> kIsOval_SerializationShift) & 1;
+    fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
+    fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
+    fSegmentMask = (packed >> kSegmentMask_SerializationShift) & 0xFF;
+
     buffer.read(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.read(fVerbs.begin(), fVerbs.count());
+
+    buffer.read(&fBounds, sizeof(fBounds));
+    fBoundsIsDirty = false;
+
     buffer.skipToAlign4();
 
     GEN_ID_INC;
-    DIRTY_AFTER_EDIT;
-    // DIRTY_AFTER_EDIT resets fIsOval and fConvexity
-    fIsOval =    packed >> 24;
-    fConvexity = (packed >> 16) & 0xFF;
 
     SkDEBUGCODE(this->validate();)
     return buffer.pos();
