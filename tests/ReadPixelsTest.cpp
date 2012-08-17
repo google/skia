@@ -181,7 +181,6 @@ bool checkRead(skiatest::Reporter* reporter,
     if (!clippedSrcRect.intersect(srcRect)) {
         clippedSrcRect.setEmpty();
     }
-    bool failed = false;
     SkAutoLockPixels alp(bitmap);
     intptr_t pixels = reinterpret_cast<intptr_t>(bitmap.getPixels());
     for (int by = 0; by < bh; ++by) {
@@ -199,18 +198,18 @@ bool checkRead(skiatest::Reporter* reporter,
                     bool check;
                     REPORTER_ASSERT(reporter, check = checkPixel(pmPixel, canvasPixel, didPremul));
                     if (!check) {
-                        failed = true;
+                        return false;
                     }
                 }
             } else if (checkBitmapPixels) {
                 REPORTER_ASSERT(reporter, getBitmapColor(bx, by, bw, bh) == pixel);
                 if (getBitmapColor(bx, by, bw, bh) != pixel) {
-                    failed = true;
+                    return false;
                 }
             }
         }
     }
-    return !failed;
+    return true;
 }
 
 enum BitmapInit {
