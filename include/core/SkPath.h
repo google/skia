@@ -824,6 +824,14 @@ public:
     SkDEBUGCODE(void validate() const;)
 
 private:
+    enum SerializationOffsets {
+        kIsFinite_SerializationShift = 25,
+        kIsOval_SerializationShift = 24,
+        kConvexity_SerializationShift = 16,
+        kFillType_SerializationShift = 8,
+        kSegmentMask_SerializationShift = 0
+    };
+
     SkTDArray<SkPoint>  fPts;
     SkTDArray<uint8_t>  fVerbs;
     mutable SkRect      fBounds;
