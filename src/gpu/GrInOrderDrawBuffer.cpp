@@ -467,20 +467,22 @@ void GrInOrderDrawBuffer::clear(const GrIRect* rect,
                                 GrColor color,
                                 GrRenderTarget* renderTarget) {
     GrIRect r;
+    if (NULL == renderTarget) {
+        renderTarget = this->drawState()->getRenderTarget();
+        GrAssert(NULL != renderTarget);
+    }
     if (NULL == rect) {
         // We could do something smart and remove previous draws and clears to
         // the current render target. If we get that smart we have to make sure
         // those draws aren't read before this clear (render-to-texture).
-        r.setLTRB(0, 0, 
-                  this->getDrawState().getRenderTarget()->width(), 
-                  this->getDrawState().getRenderTarget()->height());
+        r.setLTRB(0, 0, renderTarget->width(), renderTarget->height());
         rect = &r;
     }
     Clear* clr = this->recordClear();
     clr->fColor = color;
     clr->fRect = *rect;
     clr->fRenderTarget = renderTarget;
-    GrSafeRef(clr->fRenderTarget);
+    renderTarget->ref();
 }
 
 void GrInOrderDrawBuffer::reset() {
