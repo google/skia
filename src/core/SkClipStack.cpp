@@ -439,18 +439,24 @@ struct SkClipStack::Rec {
     }
 };
 
+// This constant determines how many Rec's are allocated together as a block in 
+// the deque. As such it needs to balance allocating too much memory vs.
+// incurring allocation/deallocation thrashing. It should roughly correspond to
+// the deepest save/restore stack we expect to see.
+static const int kDefaultRecordAllocCnt = 8;
 
 SkClipStack::SkClipStack() 
-    : fDeque(sizeof(Rec))
+    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt)
     , fSaveCount(0) {
 }
 
-SkClipStack::SkClipStack(const SkClipStack& b) : fDeque(sizeof(Rec)) {
+SkClipStack::SkClipStack(const SkClipStack& b) 
+    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt) {
     *this = b;
 }
 
 SkClipStack::SkClipStack(const SkRect& r) 
-    : fDeque(sizeof(Rec))
+    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt)
     , fSaveCount(0) {
     if (!r.isEmpty()) {
         this->clipDevRect(r, SkRegion::kReplace_Op, false);
@@ -458,7 +464,7 @@ SkClipStack::SkClipStack(const SkRect& r)
 }
 
 SkClipStack::SkClipStack(const SkIRect& r) 
-    : fDeque(sizeof(Rec))
+    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt)
     , fSaveCount(0) {
     if (!r.isEmpty()) {
         SkRect temp;
