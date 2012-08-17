@@ -85,10 +85,10 @@
     static inline float SkIntToScalar(unsigned int param) {
         return (float)param;
     }
-    static inline float SkIntToScalar(int64_t param) {
+    static inline float SkIntToScalar(signed long param) {
         return (float)param;
     }
-    static inline float SkIntToScalar(uint64_t param) {
+    static inline float SkIntToScalar(unsigned long param) {
         return (float)param;
     }
     static inline float SkIntToScalar(float /* param */) {
