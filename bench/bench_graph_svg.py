@@ -23,13 +23,16 @@ def usage():
     print '-d <dir> a directory containing bench_r<revision>_<scalar> files.'
     print '-f <revision>[:<revision>] the revisions to use for fitting.'
     print '   Negative <revision> is taken as offset from most recent revision.'
+    print '-i <time> the time to ignore (w, c, g, etc).'
+    print '   The flag is ignored when -t is set; otherwise we plot all the'
+    print '   times except the one specified here.'
     print '-l <title> title to use for the output graph'
+    print '-m <representation> representation of bench value.'
+    print '   See _ListAlgorithm class in bench_util.py.'
     print '-o <path> path to which to write output; writes to stdout if not specified'
     print '-r <revision>[:<revision>] the revisions to show.'
     print '   Negative <revision> is taken as offset from most recent revision.'
     print '-s <setting>[=<value>] a setting to show (alpha, scalar, etc).'
-    print '-m <representation> representation of bench value.'
-    print '   See _ListAlgorithm class in bench_util.py.'
     print '-t <time> the time to show (w, c, g, etc).'
     print '-x <int> the desired width of the svg.'
     print '-y <int> the desired height of the svg.'
@@ -175,7 +178,8 @@ def redirect_stdout(output_path):
     sys.stdout = open(abs_path, 'w')
 
 def create_lines(revision_data_points, settings
-               , bench_of_interest, config_of_interest, time_of_interest):
+               , bench_of_interest, config_of_interest, time_of_interest
+               , time_to_ignore):
     """Convert revision data into sorted line data.
     
     ({int:[BenchDataPoints]}, {str:str}, str?, str?, str?)
@@ -195,6 +199,9 @@ def create_lines(revision_data_points, settings
             
             if (time_of_interest is not None and
                 not time_of_interest == point.time_type):
+                continue
+            elif (time_to_ignore is not None and
+                  time_to_ignore == point.time_type):
                 continue
             
             skip = False
@@ -270,7 +277,7 @@ def main():
     
     try:
         opts, _ = getopt.getopt(sys.argv[1:]
-                                 , "b:c:d:f:l:m:o:r:s:t:x:y:"
+                                 , "b:c:d:f:i:l:m:o:r:s:t:x:y:"
                                  , "default-setting=")
     except getopt.GetoptError, err:
         print str(err) 
@@ -281,6 +288,7 @@ def main():
     config_of_interest = None
     bench_of_interest = None
     time_of_interest = None
+    time_to_ignore = None
     rep = None  # bench representation algorithm
     revision_range = '0:'
     regression_range = '0:'
@@ -325,6 +333,8 @@ def main():
                 directory = value
             elif option == "-f":
                 regression_range = value
+            elif option == "-i":
+                time_to_ignore = value
             elif option == "-l":
                 title = value
             elif option == "-m":
@@ -354,6 +364,9 @@ def main():
         usage()
         sys.exit(2)
 
+    if time_of_interest:
+        time_to_ignore = None
+
     title += ' [representation: %s]' % rep
 
     latest_revision = get_latest_revision(directory)
@@ -380,7 +393,8 @@ def main():
                    , settings
                    , bench_of_interest
                    , config_of_interest
-                   , time_of_interest)
+                   , time_of_interest
+                   , time_to_ignore)
 
     regressions = create_regressions(lines
                                    , oldest_regression
