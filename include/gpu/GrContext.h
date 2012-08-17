@@ -778,7 +778,9 @@ private:
 
     void setPaint(const GrPaint& paint);
 
-    GrDrawTarget* prepareToDraw(const GrPaint&, BufferedDraw);
+    /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the
+    /// draw state is left unmodified.
+    GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw);
 
     void internalDrawPath(const GrPaint& paint, const SkPath& path,
                           GrPathFill fill, const GrPoint* translate);
@@ -884,15 +886,12 @@ public:
     GrTexture* detach() {
         GrTexture* temp = fTexture;
 
-        GrAssert(1 == temp->getRefCnt());
-
         // freeEntry will remove the texture cache's ref
         temp->ref();
         fContext->freeEntry(fTexture);
         fTexture = NULL;
 
         temp->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
-        GrAssert(1 == temp->getRefCnt());
         return temp;
     }
 
