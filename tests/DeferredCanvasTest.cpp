@@ -241,7 +241,8 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     store.allocPixels();
     SkDevice device(store);
     NotificationCounter notificationCounter;
-    SkDeferredCanvas canvas(&device, &notificationCounter);
+    SkDeferredCanvas canvas(&device);
+    canvas.setNotificationClient(&notificationCounter);
 
     const int imageCount = 2;
     SkBitmap sourceImages[imageCount];

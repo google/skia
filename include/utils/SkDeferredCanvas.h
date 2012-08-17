@@ -33,15 +33,6 @@ public:
     */
     explicit SkDeferredCanvas(SkDevice* device);
 
-    /** Construct a canvas with the specified device to draw into, and
-     *  a device context. Equivalent to calling default constructor, then
-     *  setDevice. The canvas takes reference on the device and notification
-     *  client.
-     *  @param device Specifies a device for the canvas to draw into.
-     *  @param client Interface for dispatching notifications
-     */
-    explicit SkDeferredCanvas(SkDevice* device, NotificationClient* client);
-
     virtual ~SkDeferredCanvas();
 
     /**
@@ -65,10 +56,6 @@ public:
      *  @return The notificationClient argument, for convenience.
      */
     NotificationClient* setNotificationClient(NotificationClient* notificationClient);
-    // Temporarily bootstrapping the deprecated method name
-    NotificationClient* setDeviceContext(NotificationClient* notificationClient) {
-        return setNotificationClient(notificationClient);
-    }
 
     /**
      *  Enable or disable deferred drawing. When deferral is disabled,
@@ -207,9 +194,6 @@ public:
     private:
         typedef SkRefCnt INHERITED;
     };
-
-    // Temporarily bootstrapping the deprecated name for a smooth chromium DEPS roll
-    typedef NotificationClient DeviceContext;
 
 protected:
     virtual SkCanvas* canvasForDrawIter();
