@@ -12,6 +12,17 @@
 
 #include "SkTypes.h"
 
+/*
+ * The deque class works by blindly creating memory space of a specified element
+ * size. It manages the memory as a doubly linked list of blocks each of which 
+ * can contain multiple elements. Pushes and pops add/remove blocks from the 
+ * beginning/end of the list as necessary while each block tracks the used
+ * portion of its memory.
+ * One behavior to be aware of is that the pops do not immediately remove an
+ * empty block from the beginning/end of the list (Presumably so push/pop pairs
+ * on the block boundaries don't cause thrashing). This can result in the first/
+ * last element not residing in the first/last block.
+ */
 class SK_API SkDeque : SkNoncopyable {
 public:
     /**
@@ -26,8 +37,8 @@ public:
     int     count() const { return fCount; }
     size_t  elemSize() const { return fElemSize; }
 
-    const void* front() const;
-    const void* back() const;
+    const void* front() const { return fFront; }
+    const void* back() const  { return fBack; }
 
     void* front() {
         return (void*)((const SkDeque*)this)->front();
@@ -37,6 +48,10 @@ public:
         return (void*)((const SkDeque*)this)->back();
     }
 
+    /**
+     * push_front and push_back return a pointer to the memory space
+     * for the new element
+     */
     void* push_front();
     void* push_back();
 
@@ -100,8 +115,11 @@ private:
     // allow unit test to call numBlocksAllocated
     friend class DequeUnitTestHelper; 
 
-    Block*  fFront;
-    Block*  fBack;
+    void*   fFront;
+    void*   fBack;
+
+    Block*  fFrontBlock;
+    Block*  fBackBlock;
     size_t  fElemSize;
     void*   fInitialStorage;
     int     fCount;             // number of elements in the deque
