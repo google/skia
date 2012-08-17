@@ -565,6 +565,7 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
     int32_t genID = GetNextGenID();
 
+    // Use reverse iterator instead of back because Rect path may need previous
     SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
     Rec* rec = (Rec*) iter.prev();
 
@@ -647,10 +648,9 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 }
 
 void SkClipStack::clipEmpty() {
-    
-    SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
-    Rec* rec = (Rec*) iter.prev();
-    
+
+    Rec* rec = (Rec*) fDeque.back();
+
     if (rec && rec->canBeIntersectedInPlace(fSaveCount, SkRegion::kIntersect_Op)) {
         switch (rec->fState) {
             case Rec::kEmpty_State:
