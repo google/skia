@@ -54,8 +54,20 @@ void PictureRenderer::init(SkPicture* pict) {
 }
 
 void PictureRenderer::end() {
+    this->resetState();
     fPicture = NULL;
     fCanvas.reset(NULL);
+}
+
+void PictureRenderer::resetState() {
+    fCanvas->flush();
+
+    if (this->isUsingGpuDevice()) {
+        SkGLContext* glContext = fGrContextFactory.getGLContext(
+            GrContextFactory::kNative_GLContextType);
+        SK_GL(*glContext, Finish());
+        fGrContext->freeGpuResources();
+    }
 }
 
 void PipePictureRenderer::render() {

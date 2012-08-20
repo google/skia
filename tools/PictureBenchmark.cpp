@@ -15,6 +15,20 @@
 
 namespace sk_tools {
 
+BenchTimer* PictureBenchmark::setupTimer() {
+#if SK_SUPPORT_GPU
+    PictureRenderer* renderer = getRenderer();
+
+    if (renderer != NULL && renderer->isUsingGpuDevice()) {
+        return new BenchTimer(renderer->getGLContext());
+    } else {
+        return new BenchTimer(NULL);
+    }
+#else
+    return new BenchTimer(NULL);
+#endif
+}
+
 void PipePictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
     if (NULL == pict) {
@@ -27,20 +41,23 @@ void PipePictureBenchmark::run(SkPicture* pict) {
     // program)
     fRenderer.render();
 
-    BenchTimer timer = BenchTimer(NULL);
-    timer.start();
+    BenchTimer* timer = this->setupTimer();
+
+    timer->start();
     for (int i = 0; i < fRepeats; ++i) {
         fRenderer.render();
     }
-    timer.end();
+    timer->end();
 
     fRenderer.end();
 
-    SkDebugf("pipe: msecs = %6.2f", timer.fWall / fRepeats);
+    SkDebugf("pipe: msecs = %6.2f", timer->fWall / fRepeats);
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", timer.fGpu / fRepeats);
+        SkDebugf(" gmsecs = %6.2f", timer->fGpu / fRepeats);
     }
     SkDebugf("\n");
+
+    delete timer;
 }
 
 void RecordPictureBenchmark::run(SkPicture* pict) {
@@ -49,20 +66,20 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
         return;
     }
 
-    BenchTimer timer = BenchTimer(NULL);
+    BenchTimer* timer = setupTimer();
     double wall_time = 0;
 
     for (int i = 0; i < fRepeats + 1; ++i) {
         SkPicture replayer;
         SkCanvas* recorder = replayer.beginRecording(pict->width(), pict->height());
 
-        timer.start();
+        timer->start();
         recorder->drawPicture(*pict);
-        timer.end();
+        timer->end();
 
         // We want to ignore first time effects
         if (i > 0) {
-            wall_time += timer.fWall;
+            wall_time += timer->fWall;
         }
     }
 
@@ -81,20 +98,23 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
     // program)
     fRenderer.render();
 
-    BenchTimer timer = BenchTimer(NULL);
-    timer.start();
+    BenchTimer* timer = this->setupTimer();
+
+    timer->start();
     for (int i = 0; i < fRepeats; ++i) {
         fRenderer.render();
     }
-    timer.end();
+    timer->end();
 
     fRenderer.end();
 
-    SkDebugf("simple: msecs = %6.2f", timer.fWall / fRepeats);
+    SkDebugf("simple: msecs = %6.2f", timer->fWall / fRepeats);
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", timer.fGpu / fRepeats);
+        SkDebugf(" gmsecs = %6.2f", timer->fGpu / fRepeats);
     }
     SkDebugf("\n");
+
+    delete timer;
 }
 
 void TiledPictureBenchmark::run(SkPicture* pict) {
@@ -109,19 +129,19 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
     // program)
     fRenderer.drawTiles();
 
-    BenchTimer timer = BenchTimer(NULL);
-    timer.start();
+    BenchTimer* timer = setupTimer();
+    timer->start();
     for (int i = 0; i < fRepeats; ++i) {
         fRenderer.drawTiles();
     }
-    timer.end();
+    timer->end();
 
     fRenderer.end();
 
     SkDebugf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(), fRenderer.getTileWidth(),
-            fRenderer.getTileHeight(), timer.fWall / fRepeats);
+            fRenderer.getTileHeight(), timer->fWall / fRepeats);
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", timer.fGpu / fRepeats);
+        SkDebugf(" gmsecs = %6.2f", timer->fGpu / fRepeats);
     }
     SkDebugf("\n");
 }
@@ -132,7 +152,7 @@ void UnflattenPictureBenchmark::run(SkPicture* pict) {
         return;
     }
 
-    BenchTimer timer = BenchTimer(NULL);
+    BenchTimer* timer = setupTimer();
     double wall_time = 0;
 
     for (int i = 0; i < fRepeats + 1; ++i) {
@@ -141,13 +161,13 @@ void UnflattenPictureBenchmark::run(SkPicture* pict) {
 
         recorder->drawPicture(*pict);
 
-        timer.start();
+        timer->start();
         replayer.endRecording();
-        timer.end();
+        timer->end();
 
         // We want to ignore first time effects
         if (i > 0) {
-            wall_time += timer.fWall;
+            wall_time += timer->fWall;
         }
     }
 
