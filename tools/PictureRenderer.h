@@ -156,28 +156,20 @@ protected:
     virtual void finishDraw();
 
 private:
-    struct TileInfo {
-        SkBitmap* fBitmap;
-        SkCanvas* fCanvas;
-    };
-
     int fTileWidth;
     int fTileHeight;
     double fTileWidthPercentage;
     double fTileHeightPercentage;
 
-    SkTDArray<TileInfo> fTiles;
+    SkTDArray<SkCanvas*> fTiles;
 
     // Clips the tile to an area that is completely in what the SkPicture says is the
     // drawn-to area. This is mostly important for tiles on the right and bottom edges
     // as they may go over this area and the picture may have some commands that
     // draw outside of this area and so should not actually be written.
-    void clipTile(const TileInfo& tile);
+    void clipTile(SkCanvas* tile);
     void addTile(int tile_x_start, int tile_y_start);
     void setupTiles();
-    // We manually delete the tiles instead of having a destructor on TileInfo as
-    // the destructor on TileInfo will be during a realloc. This would result in
-    // the canvases and bitmaps being prematurely deleted.
     void deleteTiles();
     void copyTilesToCanvas();
 
