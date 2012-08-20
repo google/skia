@@ -25,6 +25,7 @@
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
+#include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorShader.h"
 #include "SkColorTable.h"
