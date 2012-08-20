@@ -11,6 +11,11 @@
 #include "SkTDArray.h"
 #include "SkRefCnt.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContextFactory.h"
+#include "GrContext.h"
+#endif
+
 class SkBitmap;
 class SkCanvas;
 class SkGLContext;
@@ -38,7 +43,14 @@ public:
     }
 #endif
 
-    PictureRenderer() : fPicture(NULL), fDeviceType(kBitmap_DeviceType){}
+    PictureRenderer() 
+        : fPicture(NULL)
+        , fDeviceType(kBitmap_DeviceType)
+#if SK_SUPPORT_GPU
+        , fGrContext(fGrContextFactory.get(GrContextFactory::kNative_GLContextType))
+#endif
+        {}
+
 protected:
     enum SkDeviceTypes {
         kBitmap_DeviceType,
@@ -50,7 +62,11 @@ protected:
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture* fPicture;
     SkDeviceTypes fDeviceType;
-    SkGLContext* fGLContext;
+
+#if SK_SUPPORT_GPU
+    GrContextFactory fGrContextFactory;
+    GrContext* fGrContext;
+#endif
 
 private:
     typedef SkRefCnt INHERITED;
