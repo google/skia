@@ -291,20 +291,26 @@ void SkGpuDevice::makeRenderTargetCurrent() {
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
-GrPixelConfig config8888_to_gr_config(SkCanvas::Config8888 config8888) {
+GrPixelConfig config8888_to_grconfig_and_flags(SkCanvas::Config8888 config8888, uint32_t* flags) {
     switch (config8888) {
         case SkCanvas::kNative_Premul_Config8888:
-            return kSkia8888_PM_GrPixelConfig;
+            *flags = 0;
+            return kSkia8888_GrPixelConfig;
         case SkCanvas::kNative_Unpremul_Config8888:
-            return kSkia8888_UPM_GrPixelConfig;
+            *flags = GrContext::kUnpremul_PixelOpsFlag;
+            return kSkia8888_PM_GrPixelConfig;
         case SkCanvas::kBGRA_Premul_Config8888:
-            return kBGRA_8888_PM_GrPixelConfig;
+            *flags = 0;
+            return kBGRA_8888_GrPixelConfig;
         case SkCanvas::kBGRA_Unpremul_Config8888:
-            return kBGRA_8888_UPM_GrPixelConfig;
+            *flags = GrContext::kUnpremul_PixelOpsFlag;
+            return kBGRA_8888_GrPixelConfig;
         case SkCanvas::kRGBA_Premul_Config8888:
-            return kRGBA_8888_PM_GrPixelConfig;
+            *flags = 0;
+            return kRGBA_8888_GrPixelConfig;
         case SkCanvas::kRGBA_Unpremul_Config8888:
-            return kRGBA_8888_UPM_GrPixelConfig;
+            *flags = GrContext::kUnpremul_PixelOpsFlag;
+            return kRGBA_8888_GrPixelConfig;
         default:
             GrCrash("Unexpected Config8888.");
             return kSkia8888_PM_GrPixelConfig;
@@ -322,14 +328,16 @@ bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
 
     SkAutoLockPixels alp(bitmap);
     GrPixelConfig config;
-    config = config8888_to_gr_config(config8888);
+    uint32_t flags;
+    config = config8888_to_grconfig_and_flags(config8888, &flags);
     return fContext->readRenderTargetPixels(fRenderTarget,
                                             x, y,
                                             bitmap.width(),
                                             bitmap.height(),
                                             config,
                                             bitmap.getPixels(),
-                                            bitmap.rowBytes());
+                                            bitmap.rowBytes(),
+                                            flags);
 }
 
 void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
@@ -340,14 +348,16 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
     }
 
     GrPixelConfig config;
+    uint32_t flags;
     if (SkBitmap::kARGB_8888_Config == bitmap.config()) {
-        config = config8888_to_gr_config(config8888);
+        config = config8888_to_grconfig_and_flags(config8888, &flags);
     } else {
+        flags = 0;
         config= SkBitmapConfig2GrPixelConfig(bitmap.config());
     }
 
     fRenderTarget->writePixels(x, y, bitmap.width(), bitmap.height(),
-                               config, bitmap.getPixels(), bitmap.rowBytes());
+                               config, bitmap.getPixels(), bitmap.rowBytes(), flags);
 }
 
 namespace {
@@ -874,7 +884,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     desc.fHeight = SkScalarCeilToInt(srcRect.height());
     // We actually only need A8, but it often isn't supported as a
     // render target so default to RGBA_8888
-    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     if (context->isConfigRenderable(kAlpha_8_GrPixelConfig)) {
         desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -1527,7 +1537,7 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
     desc.fFlags = kRenderTarget_GrTextureFlagBit,
     desc.fWidth = SkScalarCeilToInt(rect.width());
     desc.fHeight = SkScalarCeilToInt(rect.height());
-    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     GrCustomStage* stage;
 
     if (filter->canFilterImageGPU()) {

@@ -130,6 +130,7 @@ public:
 
     const GrMatrix& getMatrix() const { return fMatrix; }
     bool swapsRAndB() const { return fSwapRAndB; }
+    bool premultiply() const { return fPremultiply; }
 
     GrTextureParams* textureParams() { return &fTextureParams; }
     const GrTextureParams& getTextureParams() const { return fTextureParams; }
@@ -144,6 +145,12 @@ public:
      * if the texture is alpha only.
      */
     void setRAndBSwap(bool swap) { fSwapRAndB = swap; }
+
+    /**
+     * If the texture is RGBA/BGRA 8888 config then its rgb components will be
+     * multiplied by its a component after the texture read.
+     **/
+    void setPremultiply(bool premul) { fPremultiply = premul; }
 
     /**
      *  Multiplies the current sampler matrix  a matrix
@@ -163,6 +170,7 @@ public:
         fTextureParams.reset(tileXAndY, filter);
         fMatrix = matrix;
         fSwapRAndB = false;
+        fPremultiply = false;
         GrSafeSetNull(fCustomStage);
     }
     void reset(SkShader::TileMode wrapXAndY, bool filter) {
@@ -184,6 +192,7 @@ public:
 private:
     GrTextureParams     fTextureParams;
     bool                fSwapRAndB;
+    bool                fPremultiply; // temporary, will be replaced soon by a custom stage.
     GrMatrix            fMatrix;
 
     GrCustomStage*      fCustomStage;

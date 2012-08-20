@@ -263,8 +263,6 @@ bool GrGpu::readPixels(GrRenderTarget* target,
                        int left, int top, int width, int height,
                        GrPixelConfig config, void* buffer,
                        size_t rowBytes, bool invertY) {
-    GrAssert(GrPixelConfigIsUnpremultiplied(config) ==
-             GrPixelConfigIsUnpremultiplied(target->config()));
     this->handleDirtyContext();
     return this->onReadPixels(target, left, top, width, height,
                               config, buffer, rowBytes, invertY);
@@ -274,8 +272,6 @@ void GrGpu::writeTexturePixels(GrTexture* texture,
                                int left, int top, int width, int height,
                                GrPixelConfig config, const void* buffer,
                                size_t rowBytes) {
-    GrAssert(GrPixelConfigIsUnpremultiplied(config) ==
-             GrPixelConfigIsUnpremultiplied(texture->config()));
     this->handleDirtyContext();
     this->onWriteTexturePixels(texture, left, top, width, height,
                                config, buffer, rowBytes);

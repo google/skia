@@ -760,29 +760,6 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     if (NULL == drawState.getRenderTarget()) {
         return false;
     }
-    if (GrPixelConfigIsUnpremultiplied(drawState.getRenderTarget()->config())) {
-        if (kOne_GrBlendCoeff != drawState.getSrcBlendCoeff() ||
-            kZero_GrBlendCoeff != drawState.getDstBlendCoeff()) {
-            return false;
-        }
-    }
-    // We don't support using unpremultiplied textures with bilerp. Alpha-multiplication is not
-    // distributive with respect to filtering. We'd have to alpha-mul each texel before filtering.
-    // Until Skia itself supports unpremultiplied configs there is no pressure to implement this.
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (drawState.isStageEnabled(s)) {
-            const GrCustomStage* stage = drawState.getSampler(s).getCustomStage();
-            int numTextures = stage->numTextures();
-            for (int t = 0; t < numTextures; ++t) {
-                GrTexture* texture = stage->texture(t);
-                GrAssert(NULL != texture);
-                if (GrPixelConfigIsUnpremultiplied(texture->config()) &&
-                    drawState.getSampler(s).getTextureParams().isBilerp()) {
-                    return false;
-                }
-            }
-        }
-    }
     return true;
 }
 

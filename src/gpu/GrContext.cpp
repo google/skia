@@ -1185,46 +1185,39 @@ void GrContext::flushDrawBuffer() {
     }
 }
 
-void GrContext::internalWriteTexturePixels(GrTexture* texture,
-                                           int left, int top,
-                                           int width, int height,
-                                           GrPixelConfig config,
-                                           const void* buffer,
-                                           size_t rowBytes,
-                                           uint32_t flags) {
+void GrContext::writeTexturePixels(GrTexture* texture,
+                                   int left, int top, int width, int height,
+                                   GrPixelConfig config, const void* buffer, size_t rowBytes,
+                                   uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::writeTexturePixels");
     ASSERT_OWNED_RESOURCE(texture);
 
+    // TODO: use scratch texture to perform conversion
+    if (kUnpremul_PixelOpsFlag & flags) {
+        return;
+    }
     if (!(kDontFlush_PixelOpsFlag & flags)) {
         this->flush();
-    }
-    // TODO: use scratch texture to perform conversion
-    if (GrPixelConfigIsUnpremultiplied(texture->config()) !=
-        GrPixelConfigIsUnpremultiplied(config)) {
-        return;
     }
 
     fGpu->writeTexturePixels(texture, left, top, width, height, 
                              config, buffer, rowBytes);
 }
 
-bool GrContext::internalReadTexturePixels(GrTexture* texture,
-                                          int left, int top,
-                                          int width, int height,
-                                          GrPixelConfig config,
-                                          void* buffer,
-                                          size_t rowBytes,
-                                          uint32_t flags) {
+bool GrContext::readTexturePixels(GrTexture* texture,
+                                  int left, int top, int width, int height,
+                                  GrPixelConfig config, void* buffer, size_t rowBytes,
+                                  uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::readTexturePixels");
     ASSERT_OWNED_RESOURCE(texture);
 
     // TODO: code read pixels for textures that aren't also rendertargets
     GrRenderTarget* target = texture->asRenderTarget();
     if (NULL != target) {
-        return this->internalReadRenderTargetPixels(target,
-                                                    left, top, width, height,
-                                                    config, buffer, rowBytes,
-                                                    flags);
+        return this->readRenderTargetPixels(target,
+                                            left, top, width, height,
+                                            config, buffer, rowBytes,
+                                            flags);
     } else {
         return false;
     }
@@ -1239,19 +1232,22 @@ namespace {
  * if the GrPixelConfig has no equivalent Config8888.
  */
 bool grconfig_to_config8888(GrPixelConfig config,
+                            bool unpremul,
                             SkCanvas::Config8888* config8888) {
     switch (config) {
-        case kRGBA_8888_PM_GrPixelConfig:
-            *config8888 = SkCanvas::kRGBA_Premul_Config8888;
+        case kRGBA_8888_GrPixelConfig:
+            if (unpremul) {
+                *config8888 = SkCanvas::kRGBA_Unpremul_Config8888;
+            } else {
+                *config8888 = SkCanvas::kRGBA_Premul_Config8888;
+            }
             return true;
-        case kRGBA_8888_UPM_GrPixelConfig:
-            *config8888 = SkCanvas::kRGBA_Unpremul_Config8888;
-            return true;
-        case kBGRA_8888_PM_GrPixelConfig:
-            *config8888 = SkCanvas::kBGRA_Premul_Config8888;
-            return true;
-        case kBGRA_8888_UPM_GrPixelConfig:
-            *config8888 = SkCanvas::kBGRA_Unpremul_Config8888;
+        case kBGRA_8888_GrPixelConfig:
+            if (unpremul) {
+                *config8888 = SkCanvas::kBGRA_Unpremul_Config8888;
+            } else {
+                *config8888 = SkCanvas::kBGRA_Premul_Config8888;
+            }
             return true;
         default:
             return false;
@@ -1259,13 +1255,10 @@ bool grconfig_to_config8888(GrPixelConfig config,
 }
 }
 
-bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
-                                               int left, int top,
-                                               int width, int height,
-                                               GrPixelConfig config,
-                                               void* buffer,
-                                               size_t rowBytes,
-                                               uint32_t flags) {
+bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
+                                       int left, int top, int width, int height,
+                                       GrPixelConfig config, void* buffer, size_t rowBytes,
+                                       uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
     ASSERT_OWNED_RESOURCE(target);
 
@@ -1280,21 +1273,21 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
         this->flush();
     }
 
-    if (!GrPixelConfigIsUnpremultiplied(target->config()) &&
-        GrPixelConfigIsUnpremultiplied(config) &&
+    if ((kUnpremul_PixelOpsFlag & flags) &&
         !fGpu->canPreserveReadWriteUnpremulPixels()) {
+
         SkCanvas::Config8888 srcConfig8888, dstConfig8888;
-        if (!grconfig_to_config8888(target->config(), &srcConfig8888) ||
-            !grconfig_to_config8888(config, &dstConfig8888)) {
+        if (!grconfig_to_config8888(target->config(), false, &srcConfig8888) ||
+            !grconfig_to_config8888(config, true, &dstConfig8888)) {
             return false;
         }
         // do read back using target's own config
-        this->internalReadRenderTargetPixels(target,
-                                             left, top,
-                                             width, height,
-                                             target->config(),
-                                             buffer, rowBytes,
-                                             kDontFlush_PixelOpsFlag);
+        this->readRenderTargetPixels(target,
+                                     left, top,
+                                     width, height,
+                                     target->config(),
+                                     buffer, rowBytes,
+                                     kDontFlush_PixelOpsFlag); // we already flushed
         // sw convert the pixels to unpremul config
         uint32_t* pixels = reinterpret_cast<uint32_t*>(buffer);
         SkConvertConfig8888Pixels(pixels, rowBytes, dstConfig8888,
@@ -1312,10 +1305,9 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
                  fGpu->readPixelsWillPayForYFlip(target, left, top,
                                                  width, height, config,
                                                  rowBytes);
-    bool alphaConversion = (!GrPixelConfigIsUnpremultiplied(target->config()) &&
-                             GrPixelConfigIsUnpremultiplied(config));
+    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
 
-    if (NULL == src && alphaConversion) {
+    if (NULL == src && unpremul) {
         // we should fallback to cpu conversion here. This could happen when
         // we were given an external render target by the client that is not
         // also a texture (e.g. FBO 0 in GL)
@@ -1323,7 +1315,7 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
     }
     // we draw to a scratch texture if any of these conversion are applied
     GrAutoScratchTexture ast;
-    if (flipY || swapRAndB || alphaConversion) {
+    if (flipY || swapRAndB || unpremul) {
         GrAssert(NULL != src);
         if (swapRAndB) {
             config = GrPixelConfigSwapRAndB(config);
@@ -1362,6 +1354,10 @@ bool GrContext::internalReadRenderTargetPixels(GrRenderTarget* target,
                                            GrDrawTarget::kReset_ASRInit);
         GrDrawState* drawState = fGpu->drawState();
         drawState->setRenderTarget(target);
+
+        if (unpremul) {
+            drawState->enableState(GrDrawState::kUnpremultiply_StageBit);
+        }
 
         GrMatrix matrix;
         if (flipY) {
@@ -1421,13 +1417,12 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     fGpu->drawSimpleRect(rect, NULL);
 }
 
-void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target, 
-                                                int left, int top,
-                                                int width, int height,
-                                                GrPixelConfig config,
-                                                const void* buffer,
-                                                size_t rowBytes,
-                                                uint32_t flags) {
+void GrContext::writeRenderTargetPixels(GrRenderTarget* target, 
+                                        int left, int top, int width, int height,
+                                        GrPixelConfig config,
+                                        const void* buffer,
+                                        size_t rowBytes,
+                                        uint32_t flags) {
     SK_TRACE_EVENT0("GrContext::writeRenderTargetPixels");
     ASSERT_OWNED_RESOURCE(target);
 
@@ -1441,30 +1436,26 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).
 
-    // If the RT is also a texture and we don't have to do PM/UPM conversion
-    // then take the texture path, which we expect to be at least as fast or
-    // faster since it doesn't use an intermediate texture as we do below.
+    // If the RT is also a texture and we don't have to premultiply then take the texture path.
+    // We expect to be at least as fast or faster since it doesn't use an intermediate texture as
+    // we do below.
     
 #if !GR_MAC_BUILD
     // At least some drivers on the Mac get confused when glTexImage2D is called
     // on a texture attached to an FBO. The FBO still sees the old image. TODO:
     // determine what OS versions and/or HW is affected.
-    if (NULL != target->asTexture() &&
-        GrPixelConfigIsUnpremultiplied(target->config()) ==
-        GrPixelConfigIsUnpremultiplied(config)) {
-
-        this->internalWriteTexturePixels(target->asTexture(),
-                                         left, top, width, height,
-                                         config, buffer, rowBytes, flags);
+    if (NULL != target->asTexture() && !(kUnpremul_PixelOpsFlag & flags)) {
+        this->writeTexturePixels(target->asTexture(),
+                                 left, top, width, height,
+                                 config, buffer, rowBytes, flags);
         return;
     }
 #endif
-    if (!GrPixelConfigIsUnpremultiplied(target->config()) &&
-        GrPixelConfigIsUnpremultiplied(config) &&
+    if ((kUnpremul_PixelOpsFlag & flags) &&
         !fGpu->canPreserveReadWriteUnpremulPixels()) {
         SkCanvas::Config8888 srcConfig8888, dstConfig8888;
-        if (!grconfig_to_config8888(config, &srcConfig8888) ||
-            !grconfig_to_config8888(target->config(), &dstConfig8888)) {
+        if (!grconfig_to_config8888(config, true, &srcConfig8888) ||
+            !grconfig_to_config8888(target->config(), false, &dstConfig8888)) {
             return;
         }
         // allocate a tmp buffer and sw convert the pixels to premul
@@ -1474,11 +1465,13 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
                                   src, rowBytes, srcConfig8888,
                                   width, height);
         // upload the already premul pixels
-        this->internalWriteRenderTargetPixels(target,
-                                             left, top,
-                                             width, height,
-                                             target->config(),
-                                             tmpPixels, 4 * width, flags);
+        flags &= ~kUnpremul_PixelOpsFlag;
+        this->writeRenderTargetPixels(target,
+                                      left, top,
+                                      width, height,
+                                      target->config(),
+                                      tmpPixels, 4 * width,
+                                      flags);
         return;
     }
 
@@ -1498,8 +1491,8 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     if (NULL == texture) {
         return;
     }
-    this->internalWriteTexturePixels(texture, 0, 0, width, height,
-                                     config, buffer, rowBytes, flags);
+    this->writeTexturePixels(texture, 0, 0, width, height,
+                             config, buffer, rowBytes, flags & ~kUnpremul_PixelOpsFlag);
 
     GrDrawTarget::AutoStateRestore  asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
@@ -1513,6 +1506,7 @@ void GrContext::internalWriteRenderTargetPixels(GrRenderTarget* target,
     drawState->sampler(0)->reset(matrix);
     drawState->createTextureEffect(0, texture);
     drawState->sampler(0)->setRAndBSwap(swapRAndB);
+    drawState->sampler(0)->setPremultiply(SkToBool(kUnpremul_PixelOpsFlag & flags));
 
     static const GrVertexLayout layout = 0;
     static const int VCOUNT = 4;
@@ -1755,8 +1749,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
 
     AutoClip acs(this, srcRect);
 
-    GrAssert(kBGRA_8888_PM_GrPixelConfig == srcTexture->config() ||
-             kRGBA_8888_PM_GrPixelConfig == srcTexture->config() ||
+    GrAssert(kBGRA_8888_GrPixelConfig == srcTexture->config() ||
+             kRGBA_8888_GrPixelConfig == srcTexture->config() ||
              kAlpha_8_GrPixelConfig == srcTexture->config());
 
     GrTextureDesc desc;
@@ -1875,7 +1869,7 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
     desc.fWidth = SkScalarCeilToInt(rect.width());
     desc.fHeight = SkScalarCeilToInt(rect.height());
-    desc.fConfig = kRGBA_8888_PM_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     if (radius.fWidth > 0) {
         GrAutoScratchTexture ast(this, desc);
         this->setRenderTarget(ast.texture()->asRenderTarget());

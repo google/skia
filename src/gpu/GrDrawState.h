@@ -668,7 +668,14 @@ public:
          * Draws will apply the color matrix, otherwise the color matrix is
          * ignored.
          */
-        kColorMatrix_StateBit   = 0x20,
+        kColorMatrix_StateBit   = 0x10,
+
+        /**
+         * The pixels written to the render target should be unpremultiplied.
+         * This flag is temporary and will be removed when this functionality is
+         * captured in a custom stage.
+         */
+         kUnpremultiply_StageBit = 0x20,
 
         // Users of the class may add additional bits to the vector
         kDummyStateBit,

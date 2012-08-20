@@ -95,10 +95,11 @@ void PremulAlphaRoundTripTest(skiatest::Reporter* reporter,
                 reinterpret_cast<uint32_t*>(readBmp1.getPixels());
             uint32_t* pixels2 =
                 reinterpret_cast<uint32_t*>(readBmp2.getPixels());
-            for (int y = 0; y < 256; ++y) {
-                for (int x = 0; x < 256; ++x) {
+            bool success = true;
+            for (int y = 0; y < 256 && success; ++y) {
+                for (int x = 0; x < 256 && success; ++x) {
                     int i = y * 256 + x;
-                    REPORTER_ASSERT(reporter, pixels1[i] == pixels2[i]);
+                    REPORTER_ASSERT(reporter, success = pixels1[i] == pixels2[i]);
                 }
             }
         }

@@ -276,13 +276,6 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 
 /**
  * Pixel configurations.
- *
- * Unpremultiplied configs are intended for converting pixel data in and out
- * from skia. Surfaces with these configs have limited support. As an input
- * (GrPaint texture) the corresponding GrSamplerState must have its filter set
- * to kNearest_Filter. Otherwise, the draw will fail. When the render target
- * has an unpremultiplied config draws must use blend coeffs 1,0 (AKA src-mode).
- * Other coeffs will cause the draw to fail.
  */
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,
@@ -294,47 +287,39 @@ enum GrPixelConfig {
      */
     kRGBA_4444_GrPixelConfig,
     /**
-     * Premultiplied. Byte order is r,g,b,a
+     * Premultiplied. Byte order is r,g,b,a.
      */
-    kRGBA_8888_PM_GrPixelConfig,
+    kRGBA_8888_GrPixelConfig,
     /**
-     * Unpremultiplied. Byte order is r,g,b,a
+     * Premultiplied. Byte order is b,g,r,a.
      */
-    kRGBA_8888_UPM_GrPixelConfig,
-    /**
-     * Premultiplied. Byte order is b,g,r,a
-     */
-    kBGRA_8888_PM_GrPixelConfig,
-    /**
-     * Unpremultiplied. Byte order is b,g,r,a
-     */
-    kBGRA_8888_UPM_GrPixelConfig,
+    kBGRA_8888_GrPixelConfig,
 
     kGrPixelConfigCount
 };
 
-// Aliases for pixel configs that match skia's byte order
+// Aliases for pixel configs that match skia's byte order. 
 #ifndef SK_CPU_LENDIAN
     #error "Skia gpu currently assumes little endian"
 #endif
 #if 24 == SK_A32_SHIFT && 16 == SK_R32_SHIFT && \
      8 == SK_G32_SHIFT &&  0 == SK_B32_SHIFT
-    static const GrPixelConfig kSkia8888_PM_GrPixelConfig = kBGRA_8888_PM_GrPixelConfig;
-    static const GrPixelConfig kSkia8888_UPM_GrPixelConfig = kBGRA_8888_UPM_GrPixelConfig;
+    static const GrPixelConfig kSkia8888_GrPixelConfig = kBGRA_8888_GrPixelConfig;
 #elif 24 == SK_A32_SHIFT && 16 == SK_B32_SHIFT && \
        8 == SK_G32_SHIFT &&  0 == SK_R32_SHIFT
-    static const GrPixelConfig kSkia8888_PM_GrPixelConfig = kRGBA_8888_PM_GrPixelConfig;
-    static const GrPixelConfig kSkia8888_UPM_GrPixelConfig = kRGBA_8888_UPM_GrPixelConfig;
+    static const GrPixelConfig kSkia8888_GrPixelConfig = kRGBA_8888_GrPixelConfig;
 #else
     #error "SK_*32_SHIFT values must correspond to GL_BGRA or GL_RGBA format."
 #endif
+
+// This alias is deprecated and will be removed.
+static const GrPixelConfig kSkia8888_PM_GrPixelConfig = kSkia8888_GrPixelConfig;
 
 // Returns true if the pixel config has 8bit r,g,b,a components in that byte
 // order
 static inline bool GrPixelConfigIsRGBA8888(GrPixelConfig config) {
     switch (config) {
-        case kRGBA_8888_PM_GrPixelConfig:
-        case kRGBA_8888_UPM_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
             return true;
         default:
             return false;
@@ -345,8 +330,7 @@ static inline bool GrPixelConfigIsRGBA8888(GrPixelConfig config) {
 // order
 static inline bool GrPixelConfigIsBGRA8888(GrPixelConfig config) {
     switch (config) {
-        case kBGRA_8888_PM_GrPixelConfig:
-        case kBGRA_8888_UPM_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
             return true;
         default:
             return false;
@@ -356,10 +340,8 @@ static inline bool GrPixelConfigIsBGRA8888(GrPixelConfig config) {
 // Returns true if the pixel config is 32 bits per pixel
 static inline bool GrPixelConfigIs32Bit(GrPixelConfig config) {
     switch (config) {
-        case kRGBA_8888_PM_GrPixelConfig:
-        case kRGBA_8888_UPM_GrPixelConfig:
-        case kBGRA_8888_PM_GrPixelConfig:
-        case kBGRA_8888_UPM_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
             return true;
         default:
             return false;
@@ -370,14 +352,10 @@ static inline bool GrPixelConfigIs32Bit(GrPixelConfig config) {
 // swapped if such a config exists. Otherwise, kUnknown_GrPixelConfig
 static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
     switch (config) {
-        case kBGRA_8888_PM_GrPixelConfig:
-            return kRGBA_8888_PM_GrPixelConfig;
-        case kBGRA_8888_UPM_GrPixelConfig:
-            return kRGBA_8888_UPM_GrPixelConfig;
-        case kRGBA_8888_PM_GrPixelConfig:
-            return kBGRA_8888_PM_GrPixelConfig;
-        case kRGBA_8888_UPM_GrPixelConfig:
-            return kBGRA_8888_UPM_GrPixelConfig;
+        case kBGRA_8888_GrPixelConfig:
+            return kRGBA_8888_GrPixelConfig;
+        case kRGBA_8888_GrPixelConfig:
+            return kBGRA_8888_GrPixelConfig;
         default:
             return kUnknown_GrPixelConfig;
     }
@@ -391,10 +369,8 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
             return 2;
-        case kRGBA_8888_PM_GrPixelConfig:
-        case kRGBA_8888_UPM_GrPixelConfig:
-        case kBGRA_8888_PM_GrPixelConfig:
-        case kBGRA_8888_UPM_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
             return 4;
         default:
             return 0;
@@ -404,20 +380,6 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
 static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kRGB_565_GrPixelConfig:
-            return true;
-        default:
-            return false;
-    }
-}
-
-/**
- * Premultiplied alpha is the usual for skia. Therefore, configs that are
- * ambiguous (alpha-only or color-only) are considered premultiplied.
- */
-static inline bool GrPixelConfigIsUnpremultiplied(GrPixelConfig config) {
-    switch (config) {
-        case kRGBA_8888_UPM_GrPixelConfig:
-        case kBGRA_8888_UPM_GrPixelConfig:
             return true;
         default:
             return false;
