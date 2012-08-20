@@ -55,8 +55,8 @@ static void usage(const char* argv0) {
 ": Use the corresponding device. Default is bitmap.\n");
     SkDebugf(
 "                     bitmap, Render to a bitmap.\n");
-    SkDebugf(
 #if SK_SUPPORT_GPU
+    SkDebugf(
 "                     gpu, Render to the GPU.\n");
 #endif
 }
