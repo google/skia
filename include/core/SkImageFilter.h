@@ -9,14 +9,12 @@
 #define SkImageFilter_DEFINED
 
 #include "SkFlattenable.h"
-#include "SkSize.h"
 
 class SkBitmap;
 class SkDevice;
 class SkMatrix;
 struct SkIPoint;
 struct SkIRect;
-struct SkPoint;
 struct SkRect;
 class GrCustomStage;
 class GrTexture;
