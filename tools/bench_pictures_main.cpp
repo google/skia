@@ -182,7 +182,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         exit(-1);
     }
 
-    if (benchmark == NULL) {
+    if (NULL == benchmark) {
         benchmark = SkNEW(sk_tools::SimplePictureBenchmark);
     }
 

@@ -20,14 +20,14 @@ enum {
 };
 
 void PictureRenderer::init(SkPicture* pict) {
-    SkASSERT(fPicture == NULL);
-    SkASSERT(fCanvas.get() == NULL);
-    if (fPicture != NULL || fCanvas.get() != NULL) {
+    SkASSERT(NULL == fPicture);
+    SkASSERT(NULL == fCanvas.get());
+    if (fPicture != NULL || NULL != fCanvas.get()) {
         return;
     }
 
     SkASSERT(pict != NULL);
-    if (pict == NULL) {
+    if (NULL == pict) {
         return;
     }
 
@@ -61,7 +61,7 @@ void PictureRenderer::end() {
 void PipePictureRenderer::render() {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
-    if (fCanvas.get() == NULL || fPicture == NULL) {
+    if (NULL == fCanvas.get() || NULL == fPicture) {
         return;
     }
 
@@ -75,7 +75,7 @@ void PipePictureRenderer::render() {
 void SimplePictureRenderer::render() {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
-    if (fCanvas.get() == NULL || fPicture == NULL) {
+    if (NULL == fCanvas.get() || NULL == fPicture) {
         return;
     }
 
@@ -88,8 +88,8 @@ TiledPictureRenderer::TiledPictureRenderer()
 
 void TiledPictureRenderer::init(SkPicture* pict) {
     SkASSERT(pict != NULL);
-    SkASSERT(fTiles.count() == 0);
-    if (pict == NULL || fTiles.count() != 0) {
+    SkASSERT(0 == fTiles.count());
+    if (NULL == pict || fTiles.count() != 0) {
         return;
     }
 
@@ -108,7 +108,7 @@ void TiledPictureRenderer::init(SkPicture* pict) {
 void TiledPictureRenderer::render() {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
-    if (fCanvas.get() == NULL || fPicture == NULL) {
+    if (NULL == fCanvas.get() || NULL == fPicture) {
         return;
     }
 

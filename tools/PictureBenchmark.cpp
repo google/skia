@@ -17,7 +17,7 @@ namespace sk_tools {
 
 void PipePictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
-    if (pict == NULL) {
+    if (NULL == pict) {
         return;
     }
 
@@ -45,7 +45,7 @@ void PipePictureBenchmark::run(SkPicture* pict) {
 
 void RecordPictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
-    if (pict == NULL) {
+    if (NULL == pict) {
         return;
     }
 
@@ -71,7 +71,7 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
 
 void SimplePictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
-    if (pict == NULL) {
+    if (NULL == pict) {
         return;
     }
 
@@ -99,7 +99,7 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
 
 void TiledPictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
-    if (pict == NULL) {
+    if (NULL == pict) {
         return;
     }
 
@@ -128,7 +128,7 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
 
 void UnflattenPictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
-    if (pict == NULL) {
+    if (NULL == pict) {
         return;
     }
 

@@ -38,7 +38,7 @@ public:
     }
 
     bool isUsingBitmapDevice() {
-        return fDeviceType == kBitmap_DeviceType;
+        return kBitmap_DeviceType == fDeviceType;
     }
 
 #if SK_SUPPORT_GPU
@@ -47,7 +47,7 @@ public:
     }
 
     bool isUsingGpuDevice() {
-        return fDeviceType == kGPU_DeviceType;
+        return kGPU_DeviceType == fDeviceType;
     }
 #endif
 
