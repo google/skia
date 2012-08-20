@@ -9,10 +9,7 @@
 #include "picture_utils.h"
 
 #if SK_SUPPORT_GPU
-#include "gl/GrGLInterface.h"
-#include "GrContext.h"
 #include "SkGpuDevice.h"
-#include "GrContextFactory.h"
 #endif
 
 namespace sk_tools {
@@ -44,15 +41,8 @@ void PictureRenderer::init(SkPicture* pict) {
         }
 #if SK_SUPPORT_GPU
         case kGPU_DeviceType: {
-//            const GrGLInterface* interface = GrGLCreateNativeInterface();
-//            GrContext* context = GrContext::Create(kOpenGL_Shaders_GrEngine,
-//                                                   (GrPlatform3DContext) interface);
-            fGLContext = new SkNativeGLContext();
-            SkASSERT(fGLContext->init(pict->width(), pict->height()));
-            GrContextFactory factory;
-            GrContext* context = factory.get(GrContextFactory::kNative_GLContextType);
             SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice,
-                                                    (context, SkBitmap::kARGB_8888_Config,
+                                                    (fGrContext, SkBitmap::kARGB_8888_Config,
                                                     pict->width(), pict->height())));
             fCanvas.reset(SkNEW_ARGS(SkCanvas, (device.get())));
             break;

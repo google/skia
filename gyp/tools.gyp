@@ -115,6 +115,9 @@
         'tools.gyp:picture_renderer',
         'bench.gyp:bench_timer',
      ],
+     'export_dependent_settings': [
+       'tools.gyp:picture_renderer',
+     ]
     },
     {
      'target_name': 'picture_renderer',
@@ -133,6 +136,11 @@
         'gpu.gyp:skgr',
         'tools.gyp:picture_utils',
      ],
+     'direct_dependent_settings': {
+        'include_dirs': [
+            '../include/gpu',
+        ],
+     },
     },
     {
       'target_name': 'picture_utils',
