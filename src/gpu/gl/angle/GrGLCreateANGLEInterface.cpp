@@ -96,6 +96,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         GR_GET_PROC(GrGLStencilOpSeparateProc,  StencilOpSeparate);
         GR_GET_PROC(GrGLTexImage2DProc,         TexImage2D);
         GR_GET_PROC(GrGLTexParameteriProc,      TexParameteri);
+        GR_GET_PROC(GrGLTexParameterivProc,     TexParameteriv);
         GR_GET_PROC(GrGLTexSubImage2DProc,      TexSubImage2D);
 #if GL_ARB_texture_storage
         GR_GET_PROC(GrGLTexStorage2DProc,       TexStorage2D);
