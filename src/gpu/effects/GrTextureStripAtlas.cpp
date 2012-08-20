@@ -34,14 +34,8 @@ public:
     GrTextureStripAtlas* fAtlas;
 };
 
-// Ugly way of ensuring that we clean up the atlases on exit
-struct AtlasEntries {
-    ~AtlasEntries() { fEntries.deleteAll(); }
-    SkTDArray<AtlasEntry*> fEntries;
-};
-
 GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::Desc& desc) {
-    static AtlasEntries gAtlasEntries;
+    static SkTDArray<AtlasEntry> gAtlasEntries;
     static GrTHashTable<AtlasEntry, AtlasHashKey, 8> gAtlasCache;
     AtlasHashKey key;
     key.setKeyData(desc.asKey());
@@ -49,8 +43,7 @@ GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::De
     if (NULL != entry) {
         return entry->fAtlas;
     } else {
-        entry = SkNEW(AtlasEntry);
-        gAtlasEntries.fEntries.push(entry);
+        entry = gAtlasEntries.push();
         entry->fAtlas = SkNEW_ARGS(GrTextureStripAtlas, (desc));
         entry->fKey = key;
         gAtlasCache.insert(key, entry);
@@ -93,6 +86,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
             this->removeFromLRU(row);
         }
         ++row->fLocks;
+        ++fLockedRows;
 
         // Since all the rows are always stored in a contiguous array, we can save the memory 
         // required for storing row numbers and just compute it with some pointer arithmetic
@@ -104,11 +98,14 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         // We don't have this data cached, so pick the least recently used row to copy into
         AtlasRow* row = this->getLRU();
 
+        ++fLockedRows;
+
         if (NULL == row) {
             // force a flush, which should unlock all the rows; then try again
             fDesc.fContext->flush();
             row = this->getLRU();
             if (NULL == row) {
+                --fLockedRows;
                 return -1;
             }
         }
@@ -116,8 +113,6 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         this->removeFromLRU(row);
 
         uint32_t oldKey = row->fKey;
-        row->fKey = key;
-        row->fLocks = 1;
 
         // If we are writing into a row that already held bitmap data, we need to remove the
         // reference to that genID which is stored in our sorted table of key values.
@@ -126,13 +121,15 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
             // Find the entry in the list; if it's before the index where we plan on adding the new
             // entry, we decrement since it will shift elements ahead of it back by one.
             int oldIndex = this->searchByKey(oldKey);
-            if (oldIndex <= index) {
+            if (oldIndex < index) {
                 --index;
             }
 
             fKeyTable.remove(oldIndex);
         }
 
+        row->fKey = key;
+        row->fLocks = 1;
         fKeyTable.insert(index, 1, &row);
         rowNumber = static_cast<int>(row - fRows); 
 
@@ -149,7 +146,6 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
                                                    GrContext::kDontFlush_PixelOpsFlag);
     }
 
-    ++fLockedRows;
     GrAssert(rowNumber >= 0);
     VALIDATE;
     return rowNumber;
@@ -233,12 +229,16 @@ void GrTextureStripAtlas::removeFromLRU(AtlasRow* row) {
         if (NULL == row->fNext) {
             GrAssert(row == fLRUBack);
             fLRUBack = row->fPrev;
-            fLRUBack->fNext = NULL;
+            if (fLRUBack) {
+                fLRUBack->fNext = NULL;
+            }
         }
         if (NULL == row->fPrev) {
             GrAssert(row == fLRUFront);
             fLRUFront = row->fNext;
-            fLRUFront->fPrev = NULL;
+            if (fLRUFront) {
+                fLRUFront->fPrev = NULL;
+            }
         } 
     }
     row->fNext = NULL;
@@ -303,8 +303,10 @@ void GrTextureStripAtlas::validate() {
         GrAssert(fRows[i].fKey == kEmptyAtlasRowKey || this->searchByKey(fRows[i].fKey) >= 0);
     }
 
-    // Our count of locks should equal the sum of row locks
-    GrAssert(rowLocks == fLockedRows);
+    // Our count of locks should equal the sum of row locks, unless we ran out of rows and flushed,
+    // in which case we'll have one more lock than recorded in the rows (to represent the pending
+    // lock of a row; which ensures we don't unlock the texture prematurely).
+    GrAssert(rowLocks == fLockedRows || rowLocks + 1 == fLockedRows);
 
     // We should have one lru entry for each free row
     GrAssert(freeRows == lruCount);
