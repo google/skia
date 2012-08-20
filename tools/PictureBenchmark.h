@@ -29,25 +29,15 @@ public:
         return fRepeats;
     }
 
-    void setUseBitmapDevice() {
-      sk_tools::PictureRenderer* renderer = getRenderer();
+    void setDeviceType(PictureRenderer::SkDeviceTypes deviceType) {
+        sk_tools::PictureRenderer* renderer = getRenderer();
 
         if (renderer != NULL) {
-            renderer->setUseBitmapDevice();
+            renderer->setDeviceType(deviceType);
         }
     }
 
     BenchTimer* setupTimer();
-
-#if SK_SUPPORT_GPU
-    void setUseGpuDevice() {
-      sk_tools::PictureRenderer* renderer = getRenderer();
-
-        if (renderer != NULL) {
-            renderer->setUseGpuDevice();
-        }
-    }
-#endif
 
 protected:
     int fRepeats;

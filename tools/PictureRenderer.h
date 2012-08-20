@@ -25,6 +25,13 @@ namespace sk_tools {
 
 class PictureRenderer : public SkRefCnt {
 public:
+    enum SkDeviceTypes {
+        kBitmap_DeviceType,
+#if SK_SUPPORT_GPU
+        kGPU_DeviceType
+#endif
+    };
+
     virtual void init(SkPicture* pict);
     virtual void render() = 0;
     virtual void end();
@@ -34,8 +41,8 @@ public:
         return fCanvas.get();
     }
 
-    void setUseBitmapDevice() {
-        fDeviceType = kBitmap_DeviceType;
+    void setDeviceType(SkDeviceTypes deviceType) {
+        fDeviceType = deviceType;
     }
 
     bool isUsingBitmapDevice() {
@@ -43,10 +50,6 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    void setUseGpuDevice() {
-        fDeviceType = kGPU_DeviceType;
-    }
-
     bool isUsingGpuDevice() {
         return kGPU_DeviceType == fDeviceType;
     }
@@ -71,13 +74,6 @@ public:
 protected:
     SkCanvas* setupCanvas();
     SkCanvas* setupCanvas(int width, int height);
-
-    enum SkDeviceTypes {
-        kBitmap_DeviceType,
-#if SK_SUPPORT_GPU
-        kGPU_DeviceType
-#endif
-    };
 
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture* fPicture;
