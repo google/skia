@@ -100,7 +100,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                                           GrContext::kExact_ScratchTexMatch);
                 result->writePixels(0, 0, bitmap->width(), 
                                     bitmap->height(), desc.fConfig,
-                                    storage.get(), 0);
+                                    storage.get());
                 return result;
             }
 

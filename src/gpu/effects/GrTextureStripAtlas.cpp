@@ -137,13 +137,13 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
 
         // Pass in the kDontFlush flag, since we know we're writing to a part of this texture
         // that is not currently in use
-        fDesc.fContext->internalWriteTexturePixels(fTexture, 0, 
-                                                   rowNumber * fDesc.fRowHeight, 
-                                                   fDesc.fWidth,
-                                                   fDesc.fRowHeight, 
-                                                   SkBitmapConfig2GrPixelConfig(data.config()),
-                                                   data.getPixels(), data.rowBytes(),
-                                                   GrContext::kDontFlush_PixelOpsFlag);
+        fDesc.fContext->writeTexturePixels(fTexture,
+                                           0,  rowNumber * fDesc.fRowHeight,
+                                           fDesc.fWidth, fDesc.fRowHeight, 
+                                           SkBitmapConfig2GrPixelConfig(data.config()),
+                                           data.getPixels(),
+                                           data.rowBytes(),
+                                           GrContext::kDontFlush_PixelOpsFlag);
     }
 
     GrAssert(rowNumber >= 0);

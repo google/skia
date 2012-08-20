@@ -66,34 +66,40 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     *                      packed.
+     * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
      *
-     * @return true if the read succeeded, false if not. The read can fail
-     *              because of an unsupported pixel config.
+     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
+     *              pixel config.
      */
     virtual bool readPixels(int left, int top, int width, int height,
-                            GrPixelConfig config, void* buffer, 
-                            size_t rowBytes) = 0;
+                            GrPixelConfig config,
+                            void* buffer,
+                            size_t rowBytes = 0,
+                            uint32_t pixelOpsFlags = 0) = 0;
 
     /**
-     * Copy the src pixels [buffer, rowbytes, pixelconfig] into the surface
-     * at the specified rectangle.
+     * Copy the src pixels [buffer, rowbytes, pixelconfig] into the surface at the specified
+     * rectangle.
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
      * @param buffer        memory to read the rectangle from.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     *                      packed.
+     * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
      */
     virtual void writePixels(int left, int top, int width, int height,
-                             GrPixelConfig config, const void* buffer, 
-                             size_t rowBytes) = 0;
+                             GrPixelConfig config,
+                             const void* buffer,
+                             size_t rowBytes = 0,
+                             uint32_t pixelOpsFlags = 0) = 0;
 
 protected:
-    GrTextureDesc     fDesc;
+    GrTextureDesc fDesc;
 
     GrSurface(GrGpu* gpu, const GrTextureDesc& desc)
     : INHERITED(gpu)

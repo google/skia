@@ -335,18 +335,12 @@ void GrGpuGL::fillInConfigRenderableTable() {
     fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = true;
 
     if (this->glCaps().rgba8RenderbufferSupport()) {
-        fConfigRenderSupport[kRGBA_8888_PM_GrPixelConfig] = true;
+        fConfigRenderSupport[kRGBA_8888_GrPixelConfig] = true;
     }
 
     if (this->glCaps().bgraFormatSupport()) {
-        fConfigRenderSupport[kBGRA_8888_PM_GrPixelConfig] = true;
+        fConfigRenderSupport[kBGRA_8888_GrPixelConfig] = true;
     }
-
-    // the un-premultiplied formats just inherit the premultiplied setting
-    fConfigRenderSupport[kRGBA_8888_UPM_GrPixelConfig] = 
-                fConfigRenderSupport[kRGBA_8888_PM_GrPixelConfig];
-    fConfigRenderSupport[kBGRA_8888_UPM_GrPixelConfig] = 
-                fConfigRenderSupport[kBGRA_8888_PM_GrPixelConfig];
 }
 
 bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {
@@ -375,7 +369,7 @@ bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {
                          kNoStencil_GrTextureFlagBit;
         dstDesc.fWidth = 256;
         dstDesc.fHeight = 256;
-        dstDesc.fConfig = kRGBA_8888_PM_GrPixelConfig;
+        dstDesc.fConfig = kRGBA_8888_GrPixelConfig;
 
         SkAutoTUnref<GrTexture> dstTex(this->createTexture(dstDesc, NULL, 0));
         if (!dstTex.get()) {
@@ -397,16 +391,20 @@ bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {
             fUnpremulConversion = gMethods[i];
             rt->writePixels(0, 0,
                             256, 256,
-                            kRGBA_8888_UPM_GrPixelConfig, srcData, 0);
+                            kRGBA_8888_GrPixelConfig, srcData, 0,
+                            GrContext::kUnpremul_PixelOpsFlag);
             rt->readPixels(0, 0,
                            256, 256,
-                           kRGBA_8888_UPM_GrPixelConfig, firstRead, 0);
+                           kRGBA_8888_GrPixelConfig, firstRead, 0,
+                           GrContext::kUnpremul_PixelOpsFlag);
             rt->writePixels(0, 0,
                             256, 256,
-                            kRGBA_8888_UPM_GrPixelConfig, firstRead, 0);
+                            kRGBA_8888_GrPixelConfig, firstRead, 0,
+                            GrContext::kUnpremul_PixelOpsFlag);
             rt->readPixels(0, 0,
                            256, 256,
-                           kRGBA_8888_UPM_GrPixelConfig, secondRead, 0);
+                           kRGBA_8888_GrPixelConfig, secondRead, 0,
+                           GrContext::kUnpremul_PixelOpsFlag);
             failed = false;
             for (int j = 0; j < 256 * 256; ++j) {
                 if (firstRead[j] != secondRead[j]) {
@@ -1397,9 +1395,6 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     static const GrGLfloat scale255 = 1.f / 255.f;
     a = GrColorUnpackA(color) * scale255;
     GrGLfloat scaleRGB = scale255;
-    if (GrPixelConfigIsUnpremultiplied(rt->config())) {
-        scaleRGB *= a;
-    }
     r = GrColorUnpackR(color) * scaleRGB;
     g = GrColorUnpackG(color) * scaleRGB;
     b = GrColorUnpackB(color) * scaleRGB;
@@ -2321,8 +2316,7 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
     }
 
     switch (config) {
-        case kRGBA_8888_PM_GrPixelConfig:
-        case kRGBA_8888_UPM_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
             *internalFormat = GR_GL_RGBA;
             *externalFormat = GR_GL_RGBA;
             if (getSizedInternalFormat) {
@@ -2332,8 +2326,7 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             }
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
-        case kBGRA_8888_PM_GrPixelConfig:
-        case kBGRA_8888_UPM_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
             if (!this->glCaps().bgraFormatSupport()) {
                 return false;
             }

@@ -109,7 +109,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
             fBGRAIsInternalFormat = true;
         }
         GrAssert(fBGRAFormatSupport ||
-                 kSkia8888_PM_GrPixelConfig != kBGRA_8888_PM_GrPixelConfig);
+                 kSkia8888_GrPixelConfig != kBGRA_8888_GrPixelConfig);
     }
 
     if (kDesktop_GrGLBinding == binding) {

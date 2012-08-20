@@ -111,13 +111,13 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
     }
     adjustForPlot(loc, fPlot);
     GrContext* context = fTexture->getContext();
-    // We call the internal version so that we don't force a flush. We assume
-    // our caller is smart and hasn't referenced the part of the texture we're
-    // about to update since the last flush.
-    context->internalWriteTexturePixels(fTexture, loc->fX, loc->fY,
-                                        dstW, dstH, fTexture->config(),
-                                        image, 0,
-                                        GrContext::kDontFlush_PixelOpsFlag);
+    // We pass the flag that does not force a flush. We assume our caller is
+    // smart and hasn't referenced the part of the texture we're about to update
+    // since the last flush.
+    context->writeTexturePixels(fTexture,
+                                loc->fX, loc->fY, dstW, dstH,
+                                fTexture->config(), image, 0,
+                                GrContext::kDontFlush_PixelOpsFlag);
 
     // now tell the caller to skip the top/left BORDER
     loc->fX += BORDER;

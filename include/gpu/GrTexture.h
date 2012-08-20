@@ -55,39 +55,18 @@ public:
                         GrBytesPerPixel(fDesc.fConfig);
     }
 
-    // from GrSurface
-    /**
-     * Read a rectangle of pixels from the texture.
-     * @param left          left edge of the rectangle to read (inclusive)
-     * @param top           top edge of the rectangle to read (inclusive)
-     * @param width         width of rectangle to read in pixels.
-     * @param height        height of rectangle to read in pixels.
-     * @param config        the pixel config of the destination buffer
-     * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
-     *
-     * @return true if the read succeeded, false if not. The read can fail
-     *              because of a unsupported pixel config.
-     */
+    // GrSurface overrides
     virtual bool readPixels(int left, int top, int width, int height,
-                            GrPixelConfig config, void* buffer,
-                            size_t rowBytes) SK_OVERRIDE;
+                            GrPixelConfig config,
+                            void* buffer,
+                            size_t rowBytes = 0,
+                            uint32_t pixelOpsFlags = 0) SK_OVERRIDE;
 
-    /**
-     * Writes a rectangle of pixels to the texture.
-     * @param left          left edge of the rectangle to write (inclusive)
-     * @param top           top edge of the rectangle to write (inclusive)
-     * @param width         width of rectangle to write in pixels.
-     * @param height        height of rectangle to write in pixels.
-     * @param config        the pixel config of the source buffer
-     * @param buffer        memory to read pixels from
-     * @param rowBytes      number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
-     */
     virtual void writePixels(int left, int top, int width, int height,
-                             GrPixelConfig config, const void* buffer,
-                             size_t rowBytes) SK_OVERRIDE;
+                             GrPixelConfig config,
+                             const void* buffer,
+                             size_t rowBytes = 0,
+                             uint32_t pixelOpsFlags = 0) SK_OVERRIDE;
 
     /**
      * @return this texture

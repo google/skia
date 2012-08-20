@@ -465,54 +465,60 @@ public:
      */
     void flush(int flagsBitfield = 0);
 
+   /**
+    * These flags can be used with the read/write pixels functions below.
+    */
+    enum PixelOpsFlags {
+        /** The GrContext will not be flushed. This means that the read or write may occur before
+            previous draws have executed. */
+        kDontFlush_PixelOpsFlag = 0x1,
+        /** The src for write or dst read is unpremultiplied. This is only respected if both the
+            config src and dst configs are an RGBA/BGRA 8888 format. */
+        kUnpremul_PixelOpsFlag  = 0x2,
+    };
+
     /**
      * Reads a rectangle of pixels from a render target.
-     * @param target        the render target to read from. NULL means the
-     *                      current render target.
+     * @param target        the render target to read from. NULL means the current render target.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     *                      packed.
+     * @param pixelOpsFlags see PixelOpsFlags enum above.
      *
-     * @return true if the read succeeded, false if not. The read can fail
-     *              because of an unsupported pixel config or because no render
-     *              target is currently set.
+     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
+     *         pixel config or because no render target is currently set and NULL was passed for
+     *         target.
      */
     bool readRenderTargetPixels(GrRenderTarget* target,
                                 int left, int top, int width, int height,
-                                GrPixelConfig config, void* buffer, 
-                                size_t rowBytes) {
-        return this->internalReadRenderTargetPixels(target, left, top,
-                                                    width, height,
-                                                    config, buffer,
-                                                    rowBytes, 0);
-    }
+                                GrPixelConfig config, void* buffer,
+                                size_t rowBytes = 0,
+                                uint32_t pixelOpsFlags = 0);
 
     /**
-     * Copy the src pixels [buffer, rowbytes, pixelconfig] into a render target
-     * at the specified rectangle.
-     * @param target        the render target to write into. NULL means the
-     *                      current render target.
+     * Copy the src pixels [buffer, rowbytes, pixelconfig] into a render target at the specified
+     * rectangle.
+     * @param target        the render target to write into. NULL means the current render target.
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
      * @param buffer        memory to read the rectangle from.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     *                      packed.
+     * @param pixelOpsFlags see PixelOpsFlags enum above.
      */
     void writeRenderTargetPixels(GrRenderTarget* target,
                                  int left, int top, int width, int height,
                                  GrPixelConfig config, const void* buffer,
-                                 size_t rowBytes) {
-        this->internalWriteRenderTargetPixels(target, left, top, width, height,
-                                              config, buffer, rowBytes, 0);
-    }
+                                 size_t rowBytes = 0,
+                                 uint32_t pixelOpsFlags = 0);
 
     /**
      * Reads a rectangle of pixels from a texture.
@@ -523,20 +529,18 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
-     *                      means rows are tightly packed.
+     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     *                      packed.
+     * @param pixelOpsFlags see PixelOpsFlags enum above.
      *
-     * @return true if the read succeeded, false if not. The read can fail
-     *              because of an unsupported pixel config.
+     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
+     *         pixel config.
      */
     bool readTexturePixels(GrTexture* texture,
                            int left, int top, int width, int height,
                            GrPixelConfig config, void* buffer,
-                           size_t rowBytes) {
-        return this->internalReadTexturePixels(texture, left, top,
-                                               width, height,
-                                               config, buffer, rowBytes, 0);
-    }
+                           size_t rowBytes = 0,
+                           uint32_t pixelOpsFlags = 0);
 
     /**
      * Writes a rectangle of pixels to a texture.
@@ -549,14 +553,15 @@ public:
      * @param buffer        memory to read pixels from
      * @param rowBytes      number of bytes bewtween consecutive rows. Zero
      *                      means rows are tightly packed.
+     * @param pixelOpsFlags see PixelOpsFlags enum above.
      */
     void writeTexturePixels(GrTexture* texture,
                             int left, int top, int width, int height,
                             GrPixelConfig config, const void* buffer,
-                            size_t rowBytes) {
-        this->internalWriteTexturePixels(texture, left, top, width, height, 
-                                         config, buffer, rowBytes, 0);
-    }
+                            size_t rowBytes,
+                            uint32_t pixelOpsFlags = 0);
+
+
     /**
      * Copies all texels from one texture to another.
      * @param src           the texture to copy from.
@@ -785,48 +790,11 @@ private:
     void internalDrawPath(const GrPaint& paint, const SkPath& path,
                           GrPathFill fill, const GrPoint* translate);
 
-    /**
-     * Flags to the internal read/write pixels funcs
-     */
-    enum PixelOpsFlags {
-        kDontFlush_PixelOpsFlag = 0x1,
-    };
-
     GrTexture* createResizedTexture(const GrTextureDesc& desc,
                                     const GrCacheData& cacheData,
                                     void* srcData,
                                     size_t rowBytes,
                                     bool needsFiltering);
-
-    bool internalReadRenderTargetPixels(GrRenderTarget* target,
-                                        int left, int top,
-                                        int width, int height,
-                                        GrPixelConfig config, void* buffer, 
-                                        size_t rowBytes, uint32_t flags);
-
-    void internalWriteRenderTargetPixels(GrRenderTarget* target,
-                                        int left, int top,
-                                        int width, int height,
-                                        GrPixelConfig, const void* buffer,
-                                        size_t rowBytes, uint32_t flags);
-
-    bool internalReadTexturePixels(GrTexture* texture,
-                                   int left, int top,
-                                   int width, int height,
-                                   GrPixelConfig config, void* buffer,
-                                   size_t rowBytes, uint32_t flags);
-
-    void internalWriteTexturePixels(GrTexture* texture,
-                                    int left, int top,
-                                    int width, int height,
-                                    GrPixelConfig config, const void* buffer,
-                                    size_t rowBytes, uint32_t flags);
-    // needed for access to internalWriteTexturePixels. TODO: make GrContext
-    // be a facade for an internal class. Then functions that are public on the 
-    // internal class would have only be callable in src/gpu. The facade would
-    // only have to functions necessary for clients.
-    friend class GrAtlas;
-    friend class GrTextureStripAtlas;
 
     // Needed so GrTexture's returnToCache helper function can call
     // addExistingTextureToCache

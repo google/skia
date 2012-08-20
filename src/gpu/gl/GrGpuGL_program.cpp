@@ -733,7 +733,7 @@ void GrGpuGL::buildProgram(bool isPoints,
                         stage.fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
                     }
                 }
-                if (GrPixelConfigIsUnpremultiplied(texture->config())) {
+                if (sampler.premultiply()) {
                     // Assert that if we're doing a premul conversion that the texture is 1 byte
                     // per color component. The rounding performed by the shader generator (in
                     // normalized float color space) assumes this.
@@ -758,7 +758,7 @@ void GrGpuGL::buildProgram(bool isPoints,
         }
     }
 
-    if (GrPixelConfigIsUnpremultiplied(drawState.getRenderTarget()->config())) {
+    if (drawState.isStateFlagEnabled(GrDrawState::kUnpremultiply_StageBit)) {
         // The shader generator assumes that color channels are bytes
         // when rounding.
         GrAssert(4 == GrBytesPerPixel(drawState.getRenderTarget()->config()));
