@@ -2309,14 +2309,13 @@ SK_DEFINE_INST_COUNT(SkImageFilter)
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const SkMatrix& ctm,
                                 SkBitmap* result, SkIPoint* loc) {
-    SkASSERT(proxy);
     SkASSERT(result);
     SkASSERT(loc);
     /*
      *  Give the proxy first shot at the filter. If it returns false, ask
      *  the filter to do it.
      */
-    return proxy->filterImage(this, src, ctm, result, loc) ||
+    return (proxy && proxy->filterImage(this, src, ctm, result, loc)) ||
            this->onFilterImage(proxy, src, ctm, result, loc);
 }
 

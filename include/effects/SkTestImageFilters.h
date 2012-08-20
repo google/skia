@@ -3,6 +3,7 @@
 #define _SkTestImageFilters_h
 
 #include "SkImageFilter.h"
+#include "SkSingleInputImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkPoint.h"
 
@@ -90,9 +91,9 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
-class SkColorFilterImageFilter : public SkImageFilter {
+class SkColorFilterImageFilter : public SkSingleInputImageFilter {
 public:
-    SkColorFilterImageFilter(SkColorFilter* cf) : fColorFilter(cf) {
+    SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input = NULL) : INHERITED(input), fColorFilter(cf) {
         SkSafeRef(cf);
     }
     virtual ~SkColorFilterImageFilter();
@@ -109,7 +110,7 @@ protected:
 private:
     SkColorFilter*  fColorFilter;
     
-    typedef SkImageFilter INHERITED;
+    typedef SkSingleInputImageFilter INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

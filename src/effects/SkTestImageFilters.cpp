@@ -290,10 +290,11 @@ SkColorFilterImageFilter::~SkColorFilterImageFilter() {
     SkSafeUnref(fColorFilter);
 }
 
-bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
+bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                              const SkMatrix& matrix,
                                              SkBitmap* result,
                                              SkIPoint* loc) {
+    SkBitmap src = this->getInputResult(proxy, source, matrix, loc);
     SkColorFilter* cf = fColorFilter;
     if (NULL == cf) {
         *result = src;

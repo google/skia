@@ -39,6 +39,7 @@
     '../gm/imagemagnifier.cpp',
     '../gm/lighting.cpp',
     '../gm/imagefiltersbase.cpp',
+    '../gm/imagefiltersgraph.cpp',
     '../gm/lcdtext.cpp',
     '../gm/linepaths.cpp',
     '../gm/morphology.cpp',
