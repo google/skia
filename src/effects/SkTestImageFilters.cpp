@@ -284,50 +284,6 @@ SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkColorFilter.h"
-
-SkColorFilterImageFilter::~SkColorFilterImageFilter() {
-    SkSafeUnref(fColorFilter);
-}
-
-bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
-                                             const SkMatrix& matrix,
-                                             SkBitmap* result,
-                                             SkIPoint* loc) {
-    SkBitmap src = this->getInputResult(proxy, source, matrix, loc);
-    SkColorFilter* cf = fColorFilter;
-    if (NULL == cf) {
-        *result = src;
-        return true;
-    }
-
-    SkDevice* dev = proxy->createDevice(src.width(), src.height());
-    if (NULL == dev) {
-        return false;
-    }
-    OwnDeviceCanvas canvas(dev);
-    SkPaint paint;
-
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    paint.setColorFilter(fColorFilter);
-    canvas.drawSprite(src, 0, 0, &paint);
-
-    *result = dev->accessBitmap(false);
-    return true;
-}
-
-void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    
-    buffer.writeFlattenable(fColorFilter);
-}
-
-SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fColorFilter = buffer.readFlattenableT<SkColorFilter>();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                             const SkMatrix& matrix,
                                             SkBitmap* result, SkIPoint*) {
@@ -391,5 +347,4 @@ SkDownSampleImageFilter::SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkOffsetImageFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkComposeImageFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkMergeImageFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorFilterImageFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR(SkDownSampleImageFilter)
