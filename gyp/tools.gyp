@@ -129,6 +129,8 @@
       ],
      'dependencies': [
         'core.gyp:core',
+        'gpu.gyp:gr',
+        'gpu.gyp:skgr',
         'tools.gyp:picture_utils',
      ],
     },

@@ -8,6 +8,13 @@
 #include "SkTypes.h"
 #include "picture_utils.h"
 
+#if SK_SUPPORT_GPU
+#include "gl/GrGLInterface.h"
+#include "GrContext.h"
+#include "SkGpuDevice.h"
+#include "GrContextFactory.h"
+#endif
+
 namespace sk_tools {
 
 enum {
@@ -28,9 +35,32 @@ void PictureRenderer::init(SkPicture* pict) {
     }
 
     fPicture = pict;
-    SkBitmap bitmap;
-    sk_tools::setup_bitmap(&bitmap, fPicture->width(), fPicture->height());
-    fCanvas.reset(SkNEW_ARGS(SkCanvas, (bitmap)));
+    switch(fDeviceType) {
+        case kBitmap_DeviceType: {
+            SkBitmap bitmap;
+            sk_tools::setup_bitmap(&bitmap, fPicture->width(), fPicture->height());
+            fCanvas.reset(SkNEW_ARGS(SkCanvas, (bitmap)));
+            break;
+        }
+#if SK_SUPPORT_GPU
+        case kGPU_DeviceType: {
+//            const GrGLInterface* interface = GrGLCreateNativeInterface();
+//            GrContext* context = GrContext::Create(kOpenGL_Shaders_GrEngine,
+//                                                   (GrPlatform3DContext) interface);
+            fGLContext = new SkNativeGLContext();
+            SkASSERT(fGLContext->init(pict->width(), pict->height()));
+            GrContextFactory factory;
+            GrContext* context = factory.get(GrContextFactory::kNative_GLContextType);
+            SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice,
+                                                    (context, SkBitmap::kARGB_8888_Config,
+                                                    pict->width(), pict->height())));
+            fCanvas.reset(SkNEW_ARGS(SkCanvas, (device.get())));
+            break;
+        }
+#endif
+        default:
+            SkASSERT(0);
+    }
 }
 
 void PictureRenderer::end() {

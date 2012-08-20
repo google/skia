@@ -220,6 +220,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     if (NULL == renderer) {
         renderer = SkNEW(sk_tools::SimplePictureRenderer);
     }
+
+    renderer->setUseGpuDevice();
 }
 
 int main(int argc, char* const argv[]) {
