@@ -136,11 +136,9 @@
         'gpu.gyp:skgr',
         'tools.gyp:picture_utils',
      ],
-     'direct_dependent_settings': {
-        'include_dirs': [
-            '../include/gpu',
-        ],
-     },
+     'export_dependent_settings': [
+        'gpu.gyp:gr',
+     ]
     },
     {
       'target_name': 'picture_utils',
