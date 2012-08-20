@@ -115,6 +115,7 @@ public:
     virtual void init(SkPicture* pict) SK_OVERRIDE;
     virtual void render() SK_OVERRIDE;
     virtual void end() SK_OVERRIDE;
+    virtual void resetState() SK_OVERRIDE;
     void drawTiles();
 
     void setTileWidth(int width) {

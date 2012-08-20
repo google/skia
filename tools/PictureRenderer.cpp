@@ -186,6 +186,14 @@ void TiledPictureRenderer::drawTiles() {
     }
 }
 
+void TiledPictureRenderer::resetState() {
+    for (int i = 0; i < fTiles.count(); ++i) {
+        fTiles[i].fCanvas->flush();
+    }
+
+    this->INHERITED::resetState();
+}
+
 void TiledPictureRenderer::copyTilesToCanvas() {
     int tile_index = 0;
     for (int tile_y_start = 0; tile_y_start < fPicture->height();
