@@ -11,6 +11,7 @@
 #include "SkRefCnt.h"
 #include "PictureRenderer.h"
 
+class BenchTimer;
 class SkPicture;
 class SkString;
 
@@ -35,6 +36,8 @@ public:
             renderer->setUseBitmapDevice();
         }
     }
+
+    BenchTimer* setupTimer();
 
 #if SK_SUPPORT_GPU
     void setUseGpuDevice() {

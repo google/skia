@@ -28,6 +28,7 @@ public:
     virtual void init(SkPicture* pict);
     virtual void render() = 0;
     virtual void end();
+    virtual void resetState();
 
     SkCanvas* getCanvas() {
         return fCanvas.get();
@@ -48,6 +49,14 @@ public:
 
     bool isUsingGpuDevice() {
         return kGPU_DeviceType == fDeviceType;
+    }
+
+    SkGLContext* getGLContext() {
+        if (this->isUsingGpuDevice()) {
+            return fGrContextFactory.getGLContext(GrContextFactory::kNative_GLContextType);
+        } else {
+            return NULL;
+        }
     }
 #endif
 
