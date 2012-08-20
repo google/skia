@@ -99,6 +99,8 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
     }
 
     SkDebugf("record: msecs = %6.5f\n", wall_time / fRepeats);
+
+    SkDELETE(timer);
 }
 
 void SimplePictureBenchmark::run(SkPicture* pict) {
@@ -221,6 +223,8 @@ void UnflattenPictureBenchmark::run(SkPicture* pict) {
     }
 
     SkDebugf("unflatten: msecs = %6.4f\n", wall_time / fRepeats);
+
+    SkDELETE(timer);
 }
 
 }
