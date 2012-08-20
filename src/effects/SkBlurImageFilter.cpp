@@ -19,8 +19,8 @@ SkBlurImageFilter::SkBlurImageFilter(SkFlattenableReadBuffer& buffer)
     fSigma.fHeight = buffer.readScalar();
 }
 
-SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX, SkScalar sigmaY)
-    : fSigma(SkSize::Make(sigmaX, sigmaY)) {
+SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input)
+    : INHERITED(input), fSigma(SkSize::Make(sigmaX, sigmaY)) {
     SkASSERT(sigmaX >= 0 && sigmaY >= 0);
 }
 
@@ -133,9 +133,10 @@ static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lo
     }
 }
 
-bool SkBlurImageFilter::onFilterImage(Proxy*,
-                                      const SkBitmap& src, const SkMatrix&,
-                                      SkBitmap* dst, SkIPoint*) {
+bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
+                                      const SkBitmap& source, const SkMatrix& ctm,
+                                      SkBitmap* dst, SkIPoint* offset) {
+    SkBitmap src = this->getInputResult(proxy, source, ctm, offset);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
@@ -188,7 +189,8 @@ bool SkBlurImageFilter::onFilterImage(Proxy*,
 
 GrTexture* SkBlurImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
 #if SK_SUPPORT_GPU
-    return src->getContext()->gaussianBlur(src, false, rect,
+    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(src, rect));
+    return src->getContext()->gaussianBlur(input.get(), false, rect,
                                            fSigma.width(), fSigma.height());
 #else
     SkDEBUGFAIL("Should not call in GPU-less build");

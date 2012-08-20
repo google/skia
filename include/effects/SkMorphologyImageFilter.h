@@ -9,11 +9,11 @@
 #ifndef SkMorphologyImageFilter_DEFINED
 #define SkMorphologyImageFilter_DEFINED
 
-#include "SkImageFilter.h"
+#include "SkSingleInputImageFilter.h"
 
-class SK_API SkMorphologyImageFilter : public SkImageFilter {
+class SK_API SkMorphologyImageFilter : public SkSingleInputImageFilter {
 public:
-    SkMorphologyImageFilter(int radiusX, int radiusY);
+    SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input);
 
 protected:
     SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer);
@@ -24,12 +24,13 @@ protected:
 
 private:
     SkISize    fRadius;
-    typedef SkImageFilter INHERITED;
+    typedef SkSingleInputImageFilter INHERITED;
 };
 
 class SK_API SkDilateImageFilter : public SkMorphologyImageFilter {
 public:
-    SkDilateImageFilter(int radiusX, int radiusY) : INHERITED(radiusX, radiusY) {}
+    SkDilateImageFilter(int radiusX, int radiusY, SkImageFilter* input = NULL)
+    : INHERITED(radiusX, radiusY, input) {}
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
@@ -46,7 +47,8 @@ private:
 
 class SK_API SkErodeImageFilter : public SkMorphologyImageFilter {
 public:
-    SkErodeImageFilter(int radiusX, int radiusY) : INHERITED(radiusX, radiusY) {}
+    SkErodeImageFilter(int radiusX, int radiusY, SkImageFilter* input = NULL)
+    : INHERITED(radiusX, radiusY, input) {}
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;

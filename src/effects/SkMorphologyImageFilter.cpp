@@ -21,8 +21,8 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer
     fRadius.fHeight = buffer.readInt();
 }
 
-SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX, int radiusY)
-    : fRadius(SkISize::Make(radiusX, radiusY)) {
+SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input)
+    : INHERITED(input), fRadius(SkISize::Make(radiusX, radiusY)) {
 }
 
 
@@ -128,9 +128,10 @@ static void dilateY(const SkBitmap& src, SkBitmap* dst, int radiusY)
            src.rowBytesAsPixels(), 1, dst->rowBytesAsPixels(), 1);
 }
 
-bool SkErodeImageFilter::onFilterImage(Proxy*,
-                                       const SkBitmap& src, const SkMatrix&,
-                                       SkBitmap* dst, SkIPoint*) {
+bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
+                                       const SkBitmap& source, const SkMatrix& ctm,
+                                       SkBitmap* dst, SkIPoint* offset) {
+    SkBitmap src = this->getInputResult(proxy, source, ctm, offset);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
@@ -172,9 +173,10 @@ bool SkErodeImageFilter::onFilterImage(Proxy*,
     return true;
 }
 
-bool SkDilateImageFilter::onFilterImage(Proxy*,
-                                        const SkBitmap& src, const SkMatrix&,
-                                        SkBitmap* dst, SkIPoint*) {
+bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
+                                        const SkBitmap& source, const SkMatrix& ctm,
+                                        SkBitmap* dst, SkIPoint* offset) {
+    SkBitmap src = this->getInputResult(proxy, source, ctm, offset);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
@@ -218,7 +220,8 @@ bool SkDilateImageFilter::onFilterImage(Proxy*,
 
 GrTexture* SkDilateImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
 #if SK_SUPPORT_GPU
-    return src->getContext()->applyMorphology(src, rect,
+    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(src, rect));
+    return src->getContext()->applyMorphology(input.get(), rect,
                                               GrContext::kDilate_MorphologyType,
                                               radius());
 #else
@@ -229,7 +232,8 @@ GrTexture* SkDilateImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& r
 
 GrTexture* SkErodeImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
 #if SK_SUPPORT_GPU
-    return src->getContext()->applyMorphology(src, rect,
+    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(src, rect));
+    return src->getContext()->applyMorphology(input.get(), rect,
                                               GrContext::kErode_MorphologyType,
                                               radius());
 #else
