@@ -10,6 +10,7 @@
 #define SkBlurImageFilter_DEFINED
 
 #include "SkSingleInputImageFilter.h"
+#include "SkSize.h"
 
 class SK_API SkBlurImageFilter : public SkSingleInputImageFilter {
 public:

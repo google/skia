@@ -10,6 +10,7 @@
 #define SkMorphologyImageFilter_DEFINED
 
 #include "SkSingleInputImageFilter.h"
+#include "SkSize.h"
 
 class SK_API SkMorphologyImageFilter : public SkSingleInputImageFilter {
 public:
