@@ -20,12 +20,12 @@ BenchTimer* PictureBenchmark::setupTimer() {
     PictureRenderer* renderer = getRenderer();
 
     if (renderer != NULL && renderer->isUsingGpuDevice()) {
-        return new BenchTimer(renderer->getGLContext());
+        return SkNEW_ARGS(BenchTimer, (renderer->getGLContext()));
     } else {
-        return new BenchTimer(NULL);
+        return SkNEW_ARGS(BenchTimer, (NULL));
     }
 #else
-    return new BenchTimer(NULL);
+    return SkNEW_ARGS(BenchTimer, (NULL));
 #endif
 }
 
@@ -72,7 +72,7 @@ void PipePictureBenchmark::run(SkPicture* pict) {
 #endif
     SkDebugf("\n");
 
-    delete timer;
+    SkDELETE(timer);
 }
 
 void RecordPictureBenchmark::run(SkPicture* pict) {
@@ -145,7 +145,7 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
 #endif
     SkDebugf("\n");
 
-    delete timer;
+    SkDELETE(timer);
 }
 
 void TiledPictureBenchmark::run(SkPicture* pict) {
@@ -191,6 +191,8 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
     }
 #endif
     SkDebugf("\n");
+
+    SkDELETE(timer);
 }
 
 void UnflattenPictureBenchmark::run(SkPicture* pict) {
