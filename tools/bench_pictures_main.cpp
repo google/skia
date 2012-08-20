@@ -22,7 +22,12 @@ static void usage(const char* argv0) {
 "Usage: \n"
 "     %s <inputDir>...\n"
 "     [--repeat] \n"
-"     [--mode pipe | record | simple | tile width[%] height[%] | unflatten]"
+"     [--mode pipe | record | simple | tile width[%] height[%] | unflatten]\n"
+"     [--device bitmap"
+#if SK_SUPPORT_GPU
+" | gpu"
+#endif
+"]"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
@@ -42,6 +47,19 @@ static void usage(const char* argv0) {
 "                                              tiles with the given dimensions.\n");
     SkDebugf(
 "                     unflatten, Benchmark picture unflattening.\n");
+    SkDebugf("\n");
+    SkDebugf(
+"     --device bitmap"
+#if SK_SUPPORT_GPU
+" | gpu"
+#endif
+": Use the corresponding device. Default is bitmap.\n");
+    SkDebugf(
+"                     bitmap, Render to a bitmap.\n");
+    SkDebugf(
+#if SK_SUPPORT_GPU
+"                     gpu, Render to the GPU.\n");
+#endif
     SkDebugf("\n");
     SkDebugf(
 "     --repeat:  "
@@ -75,6 +93,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     char* const* stop = argv + argc;
 
     int repeats = DEFAULT_REPEATS;
+    sk_tools::PictureRenderer::SkDeviceTypes deviceType =
+        sk_tools::PictureRenderer::kBitmap_DeviceType;
 
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--repeat")) {
@@ -167,6 +187,28 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 usage(argv0);
                 exit(-1);
             }
+        }  else if (0 == strcmp(*argv, "--device")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing mode for --deivce\n");
+                usage(argv0);
+                exit(-1);
+            }
+
+            if (0 == strcmp(*argv, "bitmap")) {
+                deviceType = sk_tools::PictureRenderer::kBitmap_DeviceType;
+            }
+#if SK_SUPPORT_GPU
+            else if (0 == strcmp(*argv, "gpu")) {
+                deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
+            }
+#endif
+            else {
+                SkDebugf("%s is not a valid mode for --device\n", *argv);
+                usage(argv0);
+                exit(-1);
+            }
+
         } else if (0 == strcmp(*argv, "--help") || 0 == strcmp(*argv, "-h")) {
             SkDELETE(benchmark);
             usage(argv0);
@@ -187,7 +229,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     }
 
     benchmark->setRepeats(repeats);
-    benchmark->setUseGpuDevice();
+    benchmark->setDeviceType(deviceType);
 }
 
 static void process_input(const SkString& input, sk_tools::PictureBenchmark& benchmark) {

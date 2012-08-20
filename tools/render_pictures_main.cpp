@@ -23,7 +23,12 @@ static void usage(const char* argv0) {
     SkDebugf("\n"
 "Usage: \n"
 "     %s <input>... <outputDir> \n"
-"     [--mode pipe | simple | tile width[%] height[%]]"
+"     [--mode pipe | simple | tile width[%] height[%]]\n"
+"     [--device bitmap"
+#if SK_SUPPORT_GPU
+" | gpu"
+#endif
+"]"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
@@ -41,6 +46,19 @@ static void usage(const char* argv0) {
     SkDebugf(
 "                     tile width[%] height[%], Do a simple render using tiles\n"
 "                                              with the given dimensions.\n");
+    SkDebugf("\n");
+    SkDebugf(
+"     --device bitmap"
+#if SK_SUPPORT_GPU
+" | gpu"
+#endif
+": Use the corresponding device. Default is bitmap.\n");
+    SkDebugf(
+"                     bitmap, Render to a bitmap.\n");
+    SkDebugf(
+#if SK_SUPPORT_GPU
+"                     gpu, Render to the GPU.\n");
+#endif
 }
 
 static void make_output_filepath(SkString* path, const SkString& dir,
@@ -129,6 +147,9 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     const char* argv0 = argv[0];
     char* const* stop = argv + argc;
 
+    sk_tools::PictureRenderer::SkDeviceTypes deviceType =
+        sk_tools::PictureRenderer::kBitmap_DeviceType;
+
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--mode")) {
             SkDELETE(renderer);
@@ -202,6 +223,28 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 usage(argv0);
                 exit(-1);
             }
+        } else if (0 == strcmp(*argv, "--device")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing mode for --deivce\n");
+                usage(argv0);
+                exit(-1);
+            }
+
+            if (0 == strcmp(*argv, "bitmap")) {
+                deviceType = sk_tools::PictureRenderer::kBitmap_DeviceType;
+            }
+#if SK_SUPPORT_GPU
+            else if (0 == strcmp(*argv, "gpu")) {
+                deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
+            }
+#endif
+            else {
+                SkDebugf("%s is not a valid mode for --device\n", *argv);
+                usage(argv0);
+                exit(-1);
+            }
+
         } else if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
             SkDELETE(renderer);
             usage(argv0);
@@ -221,7 +264,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         renderer = SkNEW(sk_tools::SimplePictureRenderer);
     }
 
-    renderer->setUseGpuDevice();
+    renderer->setDeviceType(deviceType);
 }
 
 int main(int argc, char* const argv[]) {
