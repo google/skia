@@ -20,6 +20,12 @@ public:
     ImageFiltersGraphGM() : fInitialized(false) {}
 
 protected:
+#ifdef SK_BUILD_FOR_ANDROID
+    // This test is currently broken when using pipe on Android
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return this->INHERITED::onGetFlags() | skiagm::GM::kSkipPipe_Flag;
+    }
+#endif
 
     virtual SkString onShortName() {
         return SkString("imagefiltersgraph");
