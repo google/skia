@@ -13,6 +13,7 @@
 
 class SkBitmap;
 class SkCanvas;
+class SkGLContext;
 class SkPicture;
 
 namespace sk_tools {
@@ -27,10 +28,29 @@ public:
         return fCanvas.get();
     }
 
-    PictureRenderer() : fPicture(NULL){}
+    void setUseBitmapDevice() {
+        fDeviceType=kBitmap_DeviceType;
+    }
+
+#if SK_SUPPORT_GPU
+    void setUseGpuDevice() {
+        fDeviceType = kGPU_DeviceType;
+    }
+#endif
+
+    PictureRenderer() : fPicture(NULL), fDeviceType(kBitmap_DeviceType){}
 protected:
+    enum SkDeviceTypes {
+        kBitmap_DeviceType,
+#if SK_SUPPORT_GPU
+        kGPU_DeviceType
+#endif
+    };
+
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture* fPicture;
+    SkDeviceTypes fDeviceType;
+    SkGLContext* fGLContext;
 
 private:
     typedef SkRefCnt INHERITED;
