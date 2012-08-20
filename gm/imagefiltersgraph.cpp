@@ -9,6 +9,8 @@
 
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
+#include "SkColorFilter.h"
+#include "SkColorFilterImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 
 #include "SkTestImageFilters.h"

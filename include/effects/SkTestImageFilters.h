@@ -3,8 +3,6 @@
 #define _SkTestImageFilters_h
 
 #include "SkImageFilter.h"
-#include "SkSingleInputImageFilter.h"
-#include "SkColorFilter.h"
 #include "SkPoint.h"
 
 class SkOffsetImageFilter : public SkImageFilter {
@@ -89,28 +87,6 @@ private:
     void init(SkImageFilter* const [], int count, const SkXfermode::Mode []);
     
     typedef SkImageFilter INHERITED;
-};
-
-class SkColorFilterImageFilter : public SkSingleInputImageFilter {
-public:
-    SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input = NULL) : INHERITED(input), fColorFilter(cf) {
-        SkSafeRef(cf);
-    }
-    virtual ~SkColorFilterImageFilter();
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorFilterImageFilter)
-    
-protected:
-    SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
-    
-private:
-    SkColorFilter*  fColorFilter;
-    
-    typedef SkSingleInputImageFilter INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

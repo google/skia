@@ -12,6 +12,7 @@
 #include "SkShader.h"
 
 #include "SkBlurImageFilter.h"
+#include "SkColorFilterImageFilter.h"
 #include "SkTestImageFilters.h"
 
 class FailImageFilter : public SkImageFilter {
