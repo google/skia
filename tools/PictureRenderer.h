@@ -43,7 +43,7 @@ public:
     }
 #endif
 
-    PictureRenderer() 
+    PictureRenderer()
         : fPicture(NULL)
         , fDeviceType(kBitmap_DeviceType)
 #if SK_SUPPORT_GPU
