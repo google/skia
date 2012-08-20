@@ -21,22 +21,26 @@ void PipePictureBenchmark::run(SkPicture* pict) {
         return;
     }
 
-    renderer.init(pict);
+    fRenderer.init(pict);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
-    renderer.render();
+    fRenderer.render();
 
     BenchTimer timer = BenchTimer(NULL);
     timer.start();
     for (int i = 0; i < fRepeats; ++i) {
-        renderer.render();
+        fRenderer.render();
     }
     timer.end();
 
-    renderer.end();
+    fRenderer.end();
 
-    SkDebugf("pipe: msecs = %6.2f\n", timer.fWall / fRepeats);
+    SkDebugf("pipe: msecs = %6.2f", timer.fWall / fRepeats);
+    if (fRenderer.isUsingGpuDevice()) {
+        SkDebugf(" gmsecs = %6.2f", timer.fGpu / fRepeats);
+    }
+    SkDebugf("\n");
 }
 
 void RecordPictureBenchmark::run(SkPicture* pict) {
@@ -71,22 +75,26 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
         return;
     }
 
-    renderer.init(pict);
+    fRenderer.init(pict);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
-    renderer.render();
+    fRenderer.render();
 
     BenchTimer timer = BenchTimer(NULL);
     timer.start();
     for (int i = 0; i < fRepeats; ++i) {
-        renderer.render();
+        fRenderer.render();
     }
     timer.end();
 
-    renderer.end();
+    fRenderer.end();
 
-    printf("simple: msecs = %6.2f\n", timer.fWall / fRepeats);
+    SkDebugf("simple: msecs = %6.2f", timer.fWall / fRepeats);
+    if (fRenderer.isUsingGpuDevice()) {
+        SkDebugf(" gmsecs = %6.2f", timer.fGpu / fRepeats);
+    }
+    SkDebugf("\n");
 }
 
 void TiledPictureBenchmark::run(SkPicture* pict) {
@@ -95,23 +103,27 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
         return;
     }
 
-    renderer.init(pict);
+    fRenderer.init(pict);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
-    renderer.drawTiles();
+    fRenderer.drawTiles();
 
     BenchTimer timer = BenchTimer(NULL);
     timer.start();
     for (int i = 0; i < fRepeats; ++i) {
-        renderer.drawTiles();
+        fRenderer.drawTiles();
     }
     timer.end();
 
-    renderer.end();
+    fRenderer.end();
 
-    SkDebugf("%i_tiles_%ix%i: msecs = %6.2f\n", renderer.numTiles(), renderer.getTileWidth(),
-            renderer.getTileHeight(), timer.fWall / fRepeats);
+    SkDebugf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(), fRenderer.getTileWidth(),
+            fRenderer.getTileHeight(), timer.fWall / fRepeats);
+    if (fRenderer.isUsingGpuDevice()) {
+        SkDebugf(" gmsecs = %6.2f", timer.fGpu / fRepeats);
+    }
+    SkDebugf("\n");
 }
 
 void UnflattenPictureBenchmark::run(SkPicture* pict) {

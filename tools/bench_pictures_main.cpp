@@ -187,6 +187,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     }
 
     benchmark->setRepeats(repeats);
+    benchmark->setUseGpuDevice();
 }
 
 static void process_input(const SkString& input, sk_tools::PictureBenchmark& benchmark) {
