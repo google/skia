@@ -78,12 +78,14 @@ void PictureRenderer::resetState() {
 
     fCanvas->flush();
 
+#if SK_SUPPORT_GPU
     if (this->isUsingGpuDevice()) {
         SkGLContext* glContext = fGrContextFactory.getGLContext(
             GrContextFactory::kNative_GLContextType);
         SK_GL(*glContext, Finish());
         fGrContext->freeGpuResources();
     }
+#endif
 }
 
 void PipePictureRenderer::render() {
