@@ -32,11 +32,11 @@ static const SimplifyFindNextTest::Segment* testCommon(
     SimplifyFindNextTest::Segment& segment = contours[0].debugSegments()[0];
     SkPoint pts[2];
     pts[0] = segment.xyAtT(&segment.span(endIndex));
-    int nextStart, nextEnd;
+    int nextStart = startIndex;
+    int nextEnd = endIndex;
     SkTDArray<SimplifyFindNextTest::Span*> chaseArray;
-    SimplifyFindNextTest::Segment* next = segment.findNext(chaseArray,
-            true, true, startIndex, endIndex, nextStart, nextEnd,
-            contourWinding, spanWinding);
+    SimplifyFindNextTest::Segment* next = segment.findNextWinding(chaseArray,
+            true, nextStart, nextEnd, contourWinding, spanWinding);
     pts[1] = next->xyAtT(&next->span(nextStart));
     SkASSERT(pts[0] == pts[1]);
     return next;

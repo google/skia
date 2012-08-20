@@ -178,7 +178,7 @@ int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
             }
             continue;
         }
-        intersections.fT[0][index] = (x - left) / (right - left);
+        intersections.fT[1][index] = (x - left) / (right - left);
         ++index;
     }
     if (flipped) {
@@ -199,7 +199,7 @@ int verticalIntersect(const Cubic& cubic, double top, double bottom, double x,
         xy_at_t(cubic, intersections.fT[0][index], x, y);
         if (y < top || y > bottom) {
             if (--result > index) {
-                intersections.fT[0][index] = intersections.fT[0][result];
+                intersections.fT[1][index] = intersections.fT[0][result];
             }
             continue;
         }

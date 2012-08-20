@@ -155,8 +155,11 @@ static void* testSimplify4x4RectsMain(void* data)
                 dYAlign = 5;
             }
             path.close();
-            outputProgress(state, pathStr);
-            testSimplifyx(path, out, state, pathStr);
+            outputProgress(state, pathStr, SkPath::kWinding_FillType);
+            testSimplifyx(path, false, out, state, pathStr);
+            state.testsRun++;
+            outputProgress(state, pathStr, SkPath::kEvenOdd_FillType);
+            testSimplifyx(path, true, out, state, pathStr);
             state.testsRun++;
                                     }
                                 }
@@ -170,7 +173,7 @@ static void* testSimplify4x4RectsMain(void* data)
     return NULL;
 }
 
-void Simplify4x4RectsThreaded_Test()
+void Simplify4x4RectsThreaded_Test(int& testsRun)
 {
     SkDebugf("%s\n", __FUNCTION__);
 #ifdef SK_DEBUG
@@ -179,7 +182,7 @@ void Simplify4x4RectsThreaded_Test()
 #endif
     const char testLineStr[] = "testLine";
     initializeTests(testLineStr, sizeof(testLineStr));
-    int testsRun = 0;
+    int testsStart = testsRun;
     for (int a = 0; a < 8; ++a) { // outermost
         for (int b = a ; b < 8; ++b) {
             for (int c = b ; c < 8; ++c) {
@@ -193,6 +196,6 @@ void Simplify4x4RectsThreaded_Test()
         if (!gRunTestsInOneThread) SkDebugf("\n%d", a);
     }
     testsRun += waitForCompletion();
-    SkDebugf("%s total tests run=%d\n", __FUNCTION__, testsRun);
+    SkDebugf("%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }
 

@@ -961,13 +961,234 @@ static void testQuadralateral6() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = 0;
+static void testFauxQuadralateral6() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.lineTo(1 + 1.0f/3, 2.0f/3);
+    path.close();
+    path.moveTo(1 + 1.0f/3, 2.0f/3);
+    path.lineTo(0, 2);
+    path.lineTo(2, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testFauxQuadralateral6a() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(3, 0);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(3, 0);
+    path.lineTo(6, 0);
+    path.lineTo(4, 2);
+    path.close();
+    path.moveTo(4, 2);
+    path.lineTo(0, 6);
+    path.lineTo(6, 6);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testFauxQuadralateral6b() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(3, 0);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(3, 0);
+    path.lineTo(6, 0);
+    path.lineTo(4, 2);
+    path.close();
+    path.moveTo(4, 2);
+    path.lineTo(6, 6);
+    path.lineTo(0, 6);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testFauxQuadralateral6c() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(3, 3);
+    path.lineTo(3, 0);
+    path.close();
+    path.moveTo(3, 0);
+    path.lineTo(6, 0);
+    path.lineTo(4, 2);
+    path.close();
+    path.moveTo(4, 2);
+    path.lineTo(0, 6);
+    path.lineTo(6, 6);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testFauxQuadralateral6d() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(3, 3);
+    path.lineTo(3, 0);
+    path.close();
+    path.moveTo(3, 0);
+    path.lineTo(6, 0);
+    path.lineTo(4, 2);
+    path.close();
+    path.moveTo(4, 2);
+    path.lineTo(6, 6);
+    path.lineTo(0, 6);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadralateral6a() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(3, 0);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(3, 0);
+    path.lineTo(6, 0);
+    path.lineTo(0, 6);
+    path.lineTo(6, 6);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadralateral7() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 1);
+    path.lineTo(2, 2);
+    path.lineTo(1, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadralateral8() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(3, 1);
+    path.lineTo(1, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(2, 1);
+    path.lineTo(0, 2);
+    path.lineTo(3, 2);
+    path.lineTo(2, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadralateral9() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(1, 2);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(1, 1);
+    path.lineTo(2, 1);
+    path.lineTo(1, 3);
+    path.lineTo(2, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testLine1x() {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
+    path.addRect(4, 0, 13, 13, (SkPath::Direction) 0);
+    testSimplifyx(path);
+}
+
+static void testLine2x() {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
+    path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
+    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine3x() {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
+    path.addRect(18, 20, 30, 30, (SkPath::Direction) 1);
+    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testLine4x() {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
+    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
+    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    testSimplifyx(path);
+}
+
+static void testQuadratic1() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(1, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic2() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(3, 0);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic2;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic2),
+    TEST(testQuadratic1),
+    TEST(testLine4x),
+    TEST(testLine3x),
+    TEST(testLine2x),
+    TEST(testLine1x),
+    TEST(testQuadralateral9),
+    TEST(testQuadralateral8),
+    TEST(testQuadralateral7),
     TEST(testQuadralateral6),
+    TEST(testQuadralateral6a),
+    TEST(testFauxQuadralateral6d),
+    TEST(testFauxQuadralateral6c),
+    TEST(testFauxQuadralateral6b),
+    TEST(testFauxQuadralateral6a),
+    TEST(testFauxQuadralateral6),
     TEST(testQuadralateral5),
     TEST(testNondegenerate4),
     TEST(testNondegenerate3),
@@ -1076,14 +1297,13 @@ static struct {
     void (*fun)();
     const char* str;
 } subTests[] = {
-    TEST(testLine68h),
-    TEST(testLine68g),
-    TEST(testLine68f),
-    TEST(testLine68e),
-    TEST(testLine68d),
-    TEST(testLine68c),
-    TEST(testLine68b),
-    TEST(testLine68a),
+    TEST(testQuadralateral6),
+    TEST(testQuadralateral6a),
+    TEST(testFauxQuadralateral6d),
+    TEST(testFauxQuadralateral6c),
+    TEST(testFauxQuadralateral6b),
+    TEST(testFauxQuadralateral6a),
+    TEST(testFauxQuadralateral6),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
@@ -1112,6 +1332,7 @@ void SimplifyNew_Test() {
         while (index > 0 && tests[index].fun != firstTest) {
             --index;
         }
+        SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
         (*tests[index].fun)();
     }
     index = testCount - 1;

@@ -1,5 +1,6 @@
 #include "CurveIntersection.h"
 #include "CurveUtilities.h"
+#include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
 #include "Intersections.h"
 #include "TestUtilities.h"
@@ -54,4 +55,121 @@ void LineQuadraticIntersection_Test() {
             }
         }
     }
+}
+
+static void testLineIntersect(State4& state, const Quadratic& quad, const _Line& line, 
+        const double x, const double y) {
+    char pathStr[1024];
+    bzero(pathStr, sizeof(pathStr));
+    char* str = pathStr;
+    str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", quad[0].x, quad[0].y);
+    str += sprintf(str, "    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].x, quad[1].y, quad[2].x, quad[2].y);
+    str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", line[0].x, line[0].y);
+    str += sprintf(str, "    path.lineTo(%1.9g, %1.9g);\n", line[1].x, line[1].y);
+    
+    Intersections intersections;
+    int result;
+    bool flipped = false;
+    if (line[0].x == line[1].x) {
+        double top = line[0].y;
+        double bottom = line[1].y;
+        bool flipped = top > bottom;
+        if (flipped) {
+            SkTSwap<double>(top, bottom);
+        }
+        result = verticalIntersect(quad, top, bottom, line[0].x, flipped, intersections);
+    } else if (line[0].y == line[1].y) {
+        double left = line[0].x;
+        double right = line[1].x;
+        bool flipped = left > right;
+        if (flipped) {
+            SkTSwap<double>(left, right);
+        }
+        result = horizontalIntersect(quad, left, right, line[0].y, flipped, intersections);
+    } else {
+        intersect(quad, line, intersections);
+        result = intersections.fUsed;
+    }
+    bool found = false;
+    for (int index = 0; index < result; ++index) {
+        double quadT = intersections.fT[0][index];
+        double quadX, quadY;
+        xy_at_t(quad, quadT, quadX, quadY);
+        double lineT = intersections.fT[1][index];
+        if (flipped) {
+            lineT = 1 - lineT;
+        }
+        double lineX, lineY;
+        xy_at_t(line, lineT, lineX, lineY);
+        if (fabs(quadX - lineX) < FLT_EPSILON && fabs(quadY - lineY) < FLT_EPSILON
+                && fabs(x - lineX) < FLT_EPSILON && fabs(y - lineY) < FLT_EPSILON) {
+            found = true;
+        }
+    }
+    SkASSERT(found);
+    state.testsRun++;
+}
+
+
+// find a point on a quad by choosing a t from 0 to 1
+// create a vertical span above and below the point
+// verify that intersecting the vertical span and the quad returns t
+// verify that a vertical span starting at quad[0] intersects at t=0
+// verify that a vertical span starting at quad[2] intersects at t=1
+static void* testQuadLineIntersectMain(void* data)
+{
+    SkASSERT(data);
+    State4& state = *(State4*) data;
+    do {
+        int ax = state.a & 0x03;
+        int ay = state.a >> 2;
+        int bx = state.b & 0x03;
+        int by = state.b >> 2;
+        int cx = state.c & 0x03;
+        int cy = state.c >> 2;
+        Quadratic quad = {{ax, ay}, {bx, by}, {cx, cy}};
+        Quadratic reduced;
+        int order = reduceOrder(quad, reduced);
+        if (order < 3) {
+            continue; // skip degenerates
+        }
+        for (int tIndex = 0; tIndex <= 4; ++tIndex) {
+            double x, y;
+            xy_at_t(quad, tIndex / 4.0, x, y);
+            for (int h = -2; h <= 2; ++h) {
+                for (int v = -2; v <= 2; ++v) {
+                    if (h == v && abs(h) != 1) {
+                        continue;
+                    }
+                    _Line line = {{x - h, y - v}, {x, y}};
+                    testLineIntersect(state, quad, line, x, y);
+                    _Line line2 = {{x, y}, {x + h, y + v}};
+                    testLineIntersect(state, quad, line2, x, y);
+                    _Line line3 = {{x - h, y - v}, {x + h, y + v}};
+                    testLineIntersect(state, quad, line3, x, y);
+                }
+            }
+        }
+    } while (runNextTestSet(state));
+    return NULL;
+}
+
+void QuadLineIntersectThreaded_Test(int& testsRun)
+{
+    SkDebugf("%s\n", __FUNCTION__);
+    const char testStr[] = "testQuadLineIntersect";
+    initializeTests(testStr, sizeof(testStr));
+    int testsStart = testsRun;
+    for (int a = 0; a < 16; ++a) {
+        for (int b = 0 ; b < 16; ++b) {
+            for (int c = 0 ; c < 16; ++c) {
+                testsRun += dispatchTest4(testQuadLineIntersectMain,
+                        a, b, c, 0);
+            }
+            if (!gRunTestsInOneThread) SkDebugf(".");
+        }
+        if (!gRunTestsInOneThread) SkDebugf("%d", a);
+    }
+    testsRun += waitForCompletion();
+    SkDebugf("\n%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }
