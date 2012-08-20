@@ -174,7 +174,6 @@ void TiledPictureRenderer::setupTiles() {
 void TiledPictureRenderer::deleteTiles() {
     for (int i = 0; i < fTiles.count(); ++i) {
         SkDELETE(fTiles[i].fCanvas);
-        SkDELETE(fTiles[i].fBitmap);
     }
 
     fTiles.reset();
