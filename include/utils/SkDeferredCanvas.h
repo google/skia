@@ -48,8 +48,11 @@ public:
     /**
      *  Specify a NotificationClient to be used by this canvas. Calling
      *  setNotificationClient will release the previously set 
-     *  NotificationClient, if any. Takes a reference on the notification
-     *  client.
+     *  NotificationClient, if any. SkDeferredCanvas does not take ownership
+     *  of the notification client.  Therefore user code is resposible
+     *  for its destruction.  The notification client must be unregistered
+     *  by calling setNotificationClient(NULL) if it is destroyed before
+     *  this canvas.
      *  Note: Must be called after the device is set with setDevice.
      *
      *  @param notificationClient interface for dispatching notifications
@@ -167,10 +170,8 @@ public:
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
 
 public:
-    class NotificationClient : public SkRefCnt {
+    class NotificationClient {
     public:
-        SK_DECLARE_INST_COUNT(NotificationClient)
-
         /**
          *  Called before executing one or several draw commands, which means
          *  once per flush when deferred rendering is enabled.
