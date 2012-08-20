@@ -169,9 +169,9 @@ protected:
                 // apply an increasing y perspective as we move to the right
                 SkMatrix perspective;
                 perspective.setIdentity();
-                perspective.setPerspY(SkScalarDiv(SkIntToScalar(i+1),
+                perspective.setPerspY(SkScalarDiv(SkIntToScalar((unsigned) i+1),
                                       SkIntToScalar(500)));
-                perspective.setSkewX(SkScalarDiv(SkIntToScalar(i+1),
+                perspective.setSkewX(SkScalarDiv(SkIntToScalar((unsigned) i+1),
                                      SkIntToScalar(10)));
                 shader->setLocalMatrix(perspective);
 
