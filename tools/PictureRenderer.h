@@ -34,12 +34,20 @@ public:
     }
 
     void setUseBitmapDevice() {
-        fDeviceType=kBitmap_DeviceType;
+        fDeviceType = kBitmap_DeviceType;
+    }
+
+    bool isUsingBitmapDevice() {
+        return fDeviceType == kBitmap_DeviceType;
     }
 
 #if SK_SUPPORT_GPU
     void setUseGpuDevice() {
         fDeviceType = kGPU_DeviceType;
+    }
+
+    bool isUsingGpuDevice() {
+        return fDeviceType == kGPU_DeviceType;
     }
 #endif
 

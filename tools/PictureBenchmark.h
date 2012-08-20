@@ -28,19 +28,45 @@ public:
         return fRepeats;
     }
 
+    void setUseBitmapDevice() {
+      sk_tools::PictureRenderer* renderer = getRenderer();
+
+        if (renderer != NULL) {
+            renderer->setUseBitmapDevice();
+        }
+    }
+
+#if SK_SUPPORT_GPU
+    void setUseGpuDevice() {
+      sk_tools::PictureRenderer* renderer = getRenderer();
+
+        if (renderer != NULL) {
+            renderer->setUseGpuDevice();
+        }
+    }
+#endif
+
 protected:
     int fRepeats;
 
 private:
     typedef SkRefCnt INHERITED;
+
+    virtual sk_tools::PictureRenderer* getRenderer() {
+        return NULL;
+    }
 };
 
 class PipePictureBenchmark : public PictureBenchmark {
 public:
     virtual void run(SkPicture* pict) SK_OVERRIDE;
 private:
-    PipePictureRenderer renderer;
+    PipePictureRenderer fRenderer;
     typedef PictureBenchmark INHERITED;
+
+    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
+        return &fRenderer;
+    }
 };
 
 class RecordPictureBenchmark : public PictureBenchmark {
@@ -54,8 +80,12 @@ class SimplePictureBenchmark : public PictureBenchmark {
 public:
     virtual void run(SkPicture* pict) SK_OVERRIDE;
 private:
-    SimplePictureRenderer renderer;
+    SimplePictureRenderer fRenderer;
     typedef PictureBenchmark INHERITED;
+
+    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
+        return &fRenderer;
+    }
 };
 
 class TiledPictureBenchmark : public PictureBenchmark {
@@ -63,40 +93,44 @@ public:
     virtual void run(SkPicture* pict) SK_OVERRIDE;
 
     void setTileWidth(int width) {
-        renderer.setTileWidth(width);
+        fRenderer.setTileWidth(width);
     }
 
     int getTileWidth() const {
-        return renderer.getTileWidth();
+        return fRenderer.getTileWidth();
     }
 
     void setTileHeight(int height) {
-        renderer.setTileHeight(height);
+        fRenderer.setTileHeight(height);
     }
 
     int getTileHeight() const {
-        return renderer.getTileHeight();
+        return fRenderer.getTileHeight();
     }
 
     void setTileWidthPercentage(double percentage) {
-        renderer.setTileWidthPercentage(percentage);
+        fRenderer.setTileWidthPercentage(percentage);
     }
 
     double getTileWidthPercentage() const {
-        return renderer.getTileWidthPercentage();
+        return fRenderer.getTileWidthPercentage();
     }
 
     void setTileHeightPercentage(double percentage) {
-        renderer.setTileHeightPercentage(percentage);
+        fRenderer.setTileHeightPercentage(percentage);
     }
 
     double getTileHeightPercentage() const {
-        return renderer.getTileHeightPercentage();
+        return fRenderer.getTileHeightPercentage();
     }
 
 private:
-    TiledPictureRenderer renderer;
+    TiledPictureRenderer fRenderer;
     typedef PictureBenchmark INHERITED;
+
+    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE{
+        return &fRenderer;
+    }
 };
 
 class UnflattenPictureBenchmark : public PictureBenchmark {
