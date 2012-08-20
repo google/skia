@@ -617,6 +617,57 @@ private:
     typedef RandomPathBench INHERITED;
 };
 
+
+class CirclesBench : public SkBenchmark {
+protected:
+    SkString            fName;
+
+    enum {
+        N = SkBENCHLOOP(100)
+    };
+public:
+    CirclesBench(void* param) : INHERITED(param) {
+        fName.printf("circles");
+    }
+
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fName.c_str();
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+
+        paint.setColor(SK_ColorBLACK);
+        paint.setAntiAlias(true);
+
+        SkRandom rand;
+
+        SkRect r;
+
+        for (int i = 0; i < 5000; ++i) {
+            SkScalar radius = rand.nextUScalar1() * 3;
+            r.fLeft = rand.nextUScalar1() * 300;
+            r.fTop =  rand.nextUScalar1() * 300;
+            r.fRight =  r.fLeft + 2 * radius;
+            r.fBottom = r.fTop + 2 * radius;
+
+            SkPath temp;
+
+            // mimic how Chrome does circles
+            temp.arcTo(r, 0, 0, false);
+            temp.addOval(r, SkPath::kCCW_Direction);
+            temp.arcTo(r, 360, 0, true);
+            temp.close();
+        
+            canvas->drawPath(temp, paint);
+        }
+    }
+
+private:
+    typedef SkBenchmark INHERITED;
+};
+
 static SkBenchmark* FactT00(void* p) { return new TrianglePathBench(p, FLAGS00); }
 static SkBenchmark* FactT01(void* p) { return new TrianglePathBench(p, FLAGS01); }
 static SkBenchmark* FactT10(void* p) { return new TrianglePathBench(p, FLAGS10); }
@@ -712,3 +763,7 @@ static BenchRegistry gRegAddMatrix(FactAddMatrix);
 static BenchRegistry gRegPathTo(FactPathTo);
 static BenchRegistry gRegReverseAdd(FactReverseAdd);
 static BenchRegistry gRegReverseTo(FactReverseTo);
+
+static SkBenchmark* CirclesTest(void* p) { return new CirclesBench(p); }
+static BenchRegistry gRegCirclesTest(CirclesTest);
+

@@ -933,6 +933,16 @@ void SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {
 static int build_arc_points(const SkRect& oval, SkScalar startAngle,
                             SkScalar sweepAngle,
                             SkPoint pts[kSkBuildQuadArcStorage]) {
+
+    if (0 == sweepAngle && 
+        (0 == startAngle || SkIntToScalar(360) == startAngle)) {
+        // Chrome uses this path to move into and out of ovals. If not
+        // treated as a special case the moves can distort the oval's
+        // bounding box (and break the circle special case).
+        pts[0].set(oval.fRight, oval.centerY());
+        return 1;
+    }
+
     SkVector start, stop;
 
     start.fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &start.fX);
