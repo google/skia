@@ -127,18 +127,24 @@
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
      ],
-      'include_dirs': [
-        '../src/pipe/utils/',
-      ],
+     'include_dirs': [
+       '../src/pipe/utils',
+     ],
      'dependencies': [
         'core.gyp:core',
-        'gpu.gyp:gr',
-        'gpu.gyp:skgr',
         'tools.gyp:picture_utils',
      ],
-     'export_dependent_settings': [
-        'gpu.gyp:gr',
-     ]
+     'conditions': [
+       ['skia_gpu == 1', {
+         'dependencies': [
+           'gpu.gyp:gr',
+           'gpu.gyp:skgr',
+         ],
+         'export_dependent_settings': [
+            'gpu.gyp:gr',
+         ],
+       }],
+    ],
     },
     {
       'target_name': 'picture_utils',
