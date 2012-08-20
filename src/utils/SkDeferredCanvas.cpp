@@ -16,8 +16,6 @@
 #include "SkPaint.h"
 #include "SkShader.h"
 
-SK_DEFINE_INST_COUNT(SkDeferredCanvas::NotificationClient)
-
 enum {
     // Deferred canvas will auto-flush when recording reaches this limit
     kDefaultMaxRecordingStorageBytes = 64*1024*1024,
@@ -354,7 +352,6 @@ DeferredDevice::DeferredDevice(
 
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
     fNotificationClient = notificationClient;
-    SkSafeRef(fNotificationClient);
     fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
     fPipeController.setPlaybackCanvas(fImmediateCanvas);
@@ -364,7 +361,6 @@ DeferredDevice::DeferredDevice(
 DeferredDevice::~DeferredDevice() {
     this->flushPending();
     SkSafeUnref(fImmediateCanvas);
-    SkSafeUnref(fNotificationClient);
 }
 
 void DeferredDevice::setMaxRecordingStorage(size_t maxStorage) {
@@ -386,7 +382,7 @@ void DeferredDevice::beginRecording() {
     
 void DeferredDevice::setNotificationClient(
     SkDeferredCanvas::NotificationClient* notificationClient) {
-    SkRefCnt_SafeAssign(fNotificationClient, notificationClient);
+    fNotificationClient = notificationClient;
 }
 
 void DeferredDevice::contentsCleared() {

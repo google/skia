@@ -76,7 +76,7 @@ public:
 protected:
 
     virtual void initDeferredCanvas(SkDeferredCanvas& canvas) SK_OVERRIDE {
-        canvas.setNotificationClient(SkNEW(SimpleNotificationClient))->unref();
+        canvas.setNotificationClient(&fNotificationClient);
     }
 
     virtual void drawInDeferredCanvas(SkDeferredCanvas& canvas) SK_OVERRIDE {
@@ -93,10 +93,12 @@ protected:
 
     virtual void finalizeDeferredCanvas(SkDeferredCanvas& canvas) SK_OVERRIDE {
         canvas.clear(0x0);
+        canvas.setNotificationClient(NULL);
     }
    
 private:
     typedef DeferredCanvasBench INHERITED;
+    SimpleNotificationClient fNotificationClient;
 };
 
 
