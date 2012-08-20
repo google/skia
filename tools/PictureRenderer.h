@@ -35,7 +35,7 @@ public:
     virtual void init(SkPicture* pict);
     virtual void render() = 0;
     virtual void end();
-    virtual void resetState();
+    void resetState();
 
     SkCanvas* getCanvas() {
         return fCanvas.get();
@@ -72,6 +72,7 @@ public:
         {}
 
 protected:
+    virtual void finishDraw();
     SkCanvas* setupCanvas();
     SkCanvas* setupCanvas(int width, int height);
 
@@ -111,7 +112,6 @@ public:
     virtual void init(SkPicture* pict) SK_OVERRIDE;
     virtual void render() SK_OVERRIDE;
     virtual void end() SK_OVERRIDE;
-    virtual void resetState() SK_OVERRIDE;
     void drawTiles();
 
     void setTileWidth(int width) {
@@ -151,6 +151,9 @@ public:
     }
 
     ~TiledPictureRenderer();
+
+protected:
+    virtual void finishDraw();
 
 private:
     struct TileInfo {

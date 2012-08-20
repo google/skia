@@ -70,9 +70,18 @@ void PictureRenderer::end() {
 }
 
 void PictureRenderer::resetState() {
+#if SK_SUPPORT_GPU
+    if (this->isUsingGpuDevice()) {
+        SkGLContext* glContext = fGrContextFactory.getGLContext(
+            GrContextFactory::kNative_GLContextType);
+        SK_GL(*glContext, Finish());
+    }
+#endif
+}
+
+void PictureRenderer::finishDraw() {
     SkASSERT(fCanvas.get() != NULL);
-    SkASSERT(fPicture != NULL);
-    if (NULL == fCanvas.get() || NULL == fPicture) {
+    if (NULL == fCanvas.get()) {
         return;
     }
 
@@ -82,8 +91,13 @@ void PictureRenderer::resetState() {
     if (this->isUsingGpuDevice()) {
         SkGLContext* glContext = fGrContextFactory.getGLContext(
             GrContextFactory::kNative_GLContextType);
+
+        SkASSERT(glContext != NULL);
+        if (NULL == glContext) {
+            return;
+        }
+
         SK_GL(*glContext, Finish());
-        fGrContext->freeGpuResources();
     }
 #endif
 }
@@ -100,6 +114,7 @@ void PipePictureRenderer::render() {
     SkCanvas* pipeCanvas = writer.startRecording(&pipeController);
     pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
+    this->finishDraw();
 }
 
 void SimplePictureRenderer::render() {
@@ -110,6 +125,7 @@ void SimplePictureRenderer::render() {
     }
 
     fCanvas->drawPicture(*fPicture);
+    this->finishDraw();
 }
 
 TiledPictureRenderer::TiledPictureRenderer()
@@ -144,6 +160,7 @@ void TiledPictureRenderer::render() {
 
     this->drawTiles();
     this->copyTilesToCanvas();
+    this->finishDraw();
 }
 
 void TiledPictureRenderer::end() {
@@ -193,18 +210,24 @@ void TiledPictureRenderer::drawTiles() {
     }
 }
 
-void TiledPictureRenderer::resetState() {
-    SkASSERT(fCanvas.get() != NULL);
-    SkASSERT(fPicture != NULL);
-    if (NULL == fCanvas.get() || NULL == fPicture) {
-        return;
-    }
-
+void TiledPictureRenderer::finishDraw() {
     for (int i = 0; i < fTiles.count(); ++i) {
         fTiles[i].fCanvas->flush();
     }
 
-    this->INHERITED::resetState();
+#if SK_SUPPORT_GPU
+    if (this->isUsingGpuDevice()) {
+        SkGLContext* glContext = fGrContextFactory.getGLContext(
+            GrContextFactory::kNative_GLContextType);
+
+        SkASSERT(glContext != NULL);
+        if (NULL == glContext) {
+            return;
+        }
+
+        SK_GL(*glContext, Finish());
+    }
+#endif
 }
 
 void TiledPictureRenderer::copyTilesToCanvas() {
