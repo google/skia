@@ -53,15 +53,13 @@ static void* testSimplify4x4QuadraticsMain(void* data)
                             str += sprintf(str, "    path.quadTo(%d, %d, %d, %d);\n", gx, gy, hx, hy);
                             str += sprintf(str, "    path.close();\n");
                         }
-                        outputProgress(state, pathStr);
-                        testSimplifyx(path, out, state, pathStr);
+                        outputProgress(state, pathStr, SkPath::kWinding_FillType);
+                        testSimplifyx(path, false, out, state, pathStr);
                         state.testsRun++;
-                #if 0 // FIXME: enable once we have support for even/odd
                         path.setFillType(SkPath::kEvenOdd_FillType);
                         outputProgress(state, pathStr, SkPath::kEvenOdd_FillType);
                         testSimplifyx(path, true, out, state, pathStr);
                         state.testsRun++;
-                #endif
                     }
                 }
             }
@@ -70,7 +68,7 @@ static void* testSimplify4x4QuadraticsMain(void* data)
     return NULL;
 }
 
-void Simplify4x4QuadraticsThreaded_Test()
+void Simplify4x4QuadraticsThreaded_Test(int& testsRun)
 {
     SkDebugf("%s\n", __FUNCTION__);
 #ifdef SK_DEBUG
@@ -79,7 +77,7 @@ void Simplify4x4QuadraticsThreaded_Test()
 #endif
     const char testStr[] = "testQuadratic";
     initializeTests(testStr, sizeof(testStr));
-    int testsRun = 0;
+    int testsStart = testsRun;
     for (int a = 0; a < 16; ++a) {
         for (int b = a ; b < 16; ++b) {
             for (int c = b ; c < 16; ++c) {
@@ -94,5 +92,5 @@ void Simplify4x4QuadraticsThreaded_Test()
         if (!gRunTestsInOneThread) SkDebugf("\n%d", a);
     }
     testsRun += waitForCompletion();
-    SkDebugf("%s total tests run=%d\n", __FUNCTION__, testsRun);
+    SkDebugf("%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }

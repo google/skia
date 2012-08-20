@@ -53,15 +53,13 @@ static void* testSimplify4x4QuadralateralsMain(void* data)
                             str += sprintf(str, "    path.lineTo(%d, %d);\n", hx, hy);
                             str += sprintf(str, "    path.close();\n");
                         }
-                        outputProgress(state, pathStr);
-                        testSimplifyx(path, out, state, pathStr);
+                        outputProgress(state, pathStr, SkPath::kWinding_FillType);
+                        testSimplifyx(path, false, out, state, pathStr);
                         state.testsRun++;
-                #if 0 // FIXME: enable once we have support for even/odd
                         path.setFillType(SkPath::kEvenOdd_FillType);
                         outputProgress(state, pathStr, SkPath::kEvenOdd_FillType);
                         testSimplifyx(path, true, out, state, pathStr);
                         state.testsRun++;
-                #endif
                     }
                 }
             }
@@ -70,7 +68,7 @@ static void* testSimplify4x4QuadralateralsMain(void* data)
     return NULL;
 }
 
-void Simplify4x4QuadralateralsThreaded_Test()
+void Simplify4x4QuadralateralsThreaded_Test(int& testsRun)
 {
     SkDebugf("%s\n", __FUNCTION__);
 #ifdef SK_DEBUG
@@ -79,7 +77,7 @@ void Simplify4x4QuadralateralsThreaded_Test()
 #endif
     const char testStr[] = "testQuadralateral";
     initializeTests(testStr, sizeof(testStr));
-    int testsRun = 0;
+    int testsStart = testsRun;
     for (int a = 0; a < 16; ++a) {
         for (int b = a ; b < 16; ++b) {
             for (int c = b ; c < 16; ++c) {
@@ -94,7 +92,7 @@ void Simplify4x4QuadralateralsThreaded_Test()
         if (!gRunTestsInOneThread) SkDebugf("\n%d", a);
     }
     testsRun += waitForCompletion();
-    SkDebugf("%s total tests run=%d\n", __FUNCTION__, testsRun);
+    SkDebugf("%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }
 
 
@@ -146,15 +144,13 @@ static void* testSimplify4x4NondegeneratesMain(void* data) {
                         str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
                         str += sprintf(str, "    path.close();\n");
                     }
-                    outputProgress(state, pathStr);
-                    testSimplifyx(path, out, state, pathStr);
+                    outputProgress(state, pathStr, SkPath::kWinding_FillType);
+                    testSimplifyx(path, false, out, state, pathStr);
                     state.testsRun++;
-            #if 0 // FIXME: enable once we have support for even/odd
                     path.setFillType(SkPath::kEvenOdd_FillType);
                     outputProgress(state, pathStr, SkPath::kEvenOdd_FillType);
                     testSimplifyx(path, true, out, state, pathStr);
                     state.testsRun++;
-            #endif
                 }
             }
         }
@@ -162,7 +158,7 @@ static void* testSimplify4x4NondegeneratesMain(void* data) {
     return NULL;
 }
 
-void SimplifyNondegenerate4x4TrianglesThreaded_Test() {
+void SimplifyNondegenerate4x4TrianglesThreaded_Test(int& testsRun) {
     SkDebugf("%s\n", __FUNCTION__);
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 2;
@@ -170,7 +166,7 @@ void SimplifyNondegenerate4x4TrianglesThreaded_Test() {
 #endif
     const char testStr[] = "testNondegenerate";
     initializeTests(testStr, sizeof(testStr));
-    int testsRun = 0;
+    int testsStart = testsRun;
     for (int a = 0; a < 15; ++a) {
         int ax = a & 0x03;
         int ay = a >> 2;
@@ -194,7 +190,7 @@ void SimplifyNondegenerate4x4TrianglesThreaded_Test() {
         if (!gRunTestsInOneThread) SkDebugf("\n%d", a);
     }
     testsRun += waitForCompletion();
-    SkDebugf("%s total tests run=%d\n", __FUNCTION__, testsRun);
+    SkDebugf("%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }
 
 static void* testSimplify4x4DegeneratesMain(void* data) {
@@ -243,15 +239,13 @@ static void* testSimplify4x4DegeneratesMain(void* data) {
                         str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
                         str += sprintf(str, "    path.close();\n");
                     }
-                    outputProgress(state, pathStr);
-                    testSimplifyx(path, out, state, pathStr);
+                    outputProgress(state, pathStr, SkPath::kWinding_FillType);
+                    testSimplifyx(path, false, out, state, pathStr);
                     state.testsRun++;
-            #if 0 // FIXME: enable once we have support for even/odd
                     path.setFillType(SkPath::kEvenOdd_FillType);
                     outputProgress(state, pathStr, SkPath::kEvenOdd_FillType);
                     testSimplifyx(path, true, out, state, pathStr);
                     state.testsRun++;
-            #endif
                 }
             }
         }
@@ -259,7 +253,7 @@ static void* testSimplify4x4DegeneratesMain(void* data) {
     return NULL;
 }
 
-void SimplifyDegenerate4x4TrianglesThreaded_Test() {
+void SimplifyDegenerate4x4TrianglesThreaded_Test(int& testsRun) {
     SkDebugf("%s\n", __FUNCTION__);
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 2;
@@ -267,7 +261,7 @@ void SimplifyDegenerate4x4TrianglesThreaded_Test() {
 #endif
     const char testStr[] = "testDegenerate";
     initializeTests(testStr, sizeof(testStr));
-    int testsRun = 0;
+    int testsStart = testsRun;
     for (int a = 0; a < 16; ++a) {
         int ax = a & 0x03;
         int ay = a >> 2;
@@ -286,6 +280,6 @@ void SimplifyDegenerate4x4TrianglesThreaded_Test() {
         if (!gRunTestsInOneThread) SkDebugf("\n%d", a);
     }
     testsRun += waitForCompletion();
-    SkDebugf("%s total tests run=%d\n", __FUNCTION__, testsRun);
+    SkDebugf("%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }
 

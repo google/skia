@@ -22,11 +22,9 @@ static const char marker[] =
     "<script type=\"text/javascript\">\n"
     "\n"
     "var testDivs = [\n";
-#if 0
-static const char filename[] = "../../experimental/Intersection/debugXX.txt";
-#else
-static const char filename[] = "/flash/debug/XX.txt";
-#endif
+
+static const char preferredFilename[] = "/flash/debug/XX.txt";
+static const char backupFilename[] = "../../experimental/Intersection/debugXX.txt";
 
 static bool gShowPath = false;
 static bool gComparePaths = true;
@@ -278,8 +276,10 @@ bool testSimplify(const SkPath& path, bool fill, SkPath& out, SkBitmap& bitmap,
     return comparePaths(path, out, bitmap, canvas) == 0;
 }
 
-bool testSimplifyx(const SkPath& path, SkPath& out, State4& state,
+bool testSimplifyx(SkPath& path, bool useXor, SkPath& out, State4& state,
         const char* pathStr) {
+    SkPath::FillType fillType = useXor ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
+    path.setFillType(fillType);
     if (gShowPath) {
         showPath(path);
     }
@@ -292,7 +292,7 @@ bool testSimplifyx(const SkPath& path, SkPath& out, State4& state,
         char temp[8192];
         bzero(temp, sizeof(temp));
         SkMemoryWStream stream(temp, sizeof(temp));
-        outputToStream(state, pathStr, stream);
+        outputToStream(state, pathStr, fillType, stream);
         SkDebugf(temp);
         SkASSERT(0);
     }
@@ -300,16 +300,14 @@ bool testSimplifyx(const SkPath& path, SkPath& out, State4& state,
 }
 
 bool testSimplifyx(const SkPath& path) {
-    if (false) {
-        showPath(path);
-    }
     SkPath out;
     simplifyx(path, out);
-    if (false) {
-        return true;
-    }
     SkBitmap bitmap;
-    return comparePaths(path, out, bitmap, 0) == 0;
+    int result = comparePaths(path, out, bitmap, 0);
+    if (result && gPathStrAssert) {
+        SkASSERT(0);
+    }
+    return result == 0;
 }
 
 const int maxThreadsAllocated = 64;
@@ -422,18 +420,26 @@ void initializeTests(const char* test, size_t testNameSize) {
             }
         }
     }
+    const char* filename = preferredFilename;
+    SkFILEWStream preferredTest(filename);
+    if (!preferredTest.isValid()) {
+        filename = backupFilename;
+        SkFILEWStream backupTest(filename);
+        SkASSERT(backupTest.isValid());
+    }
     for (int index = 0; index < maxThreads; ++index) {
         State4* statePtr = &threadState[index];
         strcpy(statePtr->filename, filename);
-        SkASSERT(statePtr->filename[sizeof(filename) - 7] == 'X');
-        SkASSERT(statePtr->filename[sizeof(filename) - 6] == 'X');
-        statePtr->filename[sizeof(filename) - 7] = '0' + index / 10;
-        statePtr->filename[sizeof(filename) - 6] = '0' + index % 10;
+        size_t len = strlen(filename);
+        SkASSERT(statePtr->filename[len - 6] == 'X');
+        SkASSERT(statePtr->filename[len - 5] == 'X');
+        statePtr->filename[len - 6] = '0' + index / 10;
+        statePtr->filename[len - 5] = '0' + index % 10;
     }
     threadIndex = 0;
 }
 
-void outputProgress(const State4& state, const char* pathStr) {
+void outputProgress(const State4& state, const char* pathStr, SkPath::FillType pathFillType) {
     if (gRunTestsInOneThread) {
         SkDebugf("%s\n", pathStr);
     } else {
@@ -442,33 +448,43 @@ void outputProgress(const State4& state, const char* pathStr) {
             SkASSERT(0);
             return;
         }
-        outputToStream(state, pathStr, outFile);
+        outputToStream(state, pathStr, pathFillType, outFile);
     }
 }
 
-void outputToStream(const State4& state, const char* pathStr, SkWStream& outFile) {
-    outFile.writeText("<div id=\"");
+static void writeTestName(SkPath::FillType pathFillType, SkWStream& outFile) {
     outFile.writeText(testName);
     outFile.writeDecAsText(testNumber);
+    if (pathFillType == SkPath::kEvenOdd_FillType) {
+        outFile.writeText("x");
+    }
+}
+
+void outputToStream(const State4& state, const char* pathStr, SkPath::FillType pathFillType, SkWStream& outFile) {
+    outFile.writeText("<div id=\"");
+    writeTestName(pathFillType, outFile);
     outFile.writeText("\">\n");
+    if (pathFillType == SkPath::kEvenOdd_FillType) {
+        outFile.writeText("    path.setFillType(SkPath::kEvenOdd_FillType);\n");
+    }
     outFile.writeText(pathStr);
     outFile.writeText("</div>\n\n");
     
     outFile.writeText(marker);
     outFile.writeText("    ");
-    outFile.writeText(testName);
-    outFile.writeDecAsText(testNumber);
+    writeTestName(pathFillType, outFile);
     outFile.writeText(",\n\n\n");
     
     outFile.writeText("static void ");
-    outFile.writeText(testName);
-    outFile.writeDecAsText(testNumber);
+    writeTestName(pathFillType, outFile);
     outFile.writeText("() {\n    SkPath path;\n");
+    if (pathFillType == SkPath::kEvenOdd_FillType) {
+        outFile.writeText("    path.setFillType(SkPath::kEvenOdd_FillType);\n");
+    }
     outFile.writeText(pathStr);
     outFile.writeText("    testSimplifyx(path);\n}\n\n");
     outFile.writeText("static void (*firstTest)() = ");
-    outFile.writeText(testName);
-    outFile.writeDecAsText(testNumber);
+    writeTestName(pathFillType, outFile);
     outFile.writeText(";\n\n");
 
     outFile.writeText("static struct {\n");
@@ -476,8 +492,7 @@ void outputToStream(const State4& state, const char* pathStr, SkWStream& outFile
     outFile.writeText("    const char* str;\n");
     outFile.writeText("} tests[] = {\n");
     outFile.writeText("    TEST(");
-    outFile.writeText(testName);
-    outFile.writeDecAsText(testNumber);
+    writeTestName(pathFillType, outFile);
     outFile.writeText("),\n");
     outFile.flush();
 }
@@ -515,7 +530,7 @@ int waitForCompletion() {
                 --runningThreads;
                 SkDebugf("•");
                 State4::queue->last = true;
-                State4* next;
+                State4* next = NULL;
                 for (index = 0; index < maxThreads; ++index) {
                     State4& test = threadState[index];
                     if (test.done && !test.last) {

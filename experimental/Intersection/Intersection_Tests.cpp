@@ -1,17 +1,21 @@
 #include "CubicIntersection_TestData.h"
 #include "Intersection_Tests.h"
+#include "SkTypes.h"
 
 void cubecode_test(int test);
 
 #define TEST_QUADS_FIRST 0
 
 void Intersection_Tests() {
+    int testsRun = 0;
+    QuadLineIntersectThreaded_Test(testsRun);
     SimplifyNew_Test();
-    Simplify4x4QuadralateralsThreaded_Test();
-    Simplify4x4QuadraticsThreaded_Test();
-    Simplify4x4RectsThreaded_Test();
-    SimplifyNondegenerate4x4TrianglesThreaded_Test();
-    SimplifyDegenerate4x4TrianglesThreaded_Test();
+    Simplify4x4QuadraticsThreaded_Test(testsRun);
+    Simplify4x4RectsThreaded_Test(testsRun);
+    SimplifyNondegenerate4x4TrianglesThreaded_Test(testsRun);
+    SimplifyDegenerate4x4TrianglesThreaded_Test(testsRun);
+    Simplify4x4QuadralateralsThreaded_Test(testsRun);
+    SkDebugf("%s total testsRun=%d\n", __FUNCTION__, testsRun);
     SimplifyFindNext_Test();
     SimplifyFindTop_Test();
     SimplifyAngle_Test();

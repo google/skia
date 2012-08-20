@@ -128,6 +128,29 @@ bool intersect() {
     for (int x = 0; x < roots; ++x) {
         intersections.add(t[x], findLineT(t[x]));
     }
+    // FIXME: quadratic root doesn't find t=0 or t=1, necessitating the hack below
+    if (roots == 0 || (roots == 1 && intersections.fT[0][0] >= FLT_EPSILON)) {
+        if (quad[0] == line[0]) {
+            intersections.fT[0][roots] = 0;
+            intersections.fT[1][roots++] = 0;
+            intersections.fUsed++;
+        } else if (quad[0] == line[1]) {
+            intersections.fT[0][roots] = 0;
+            intersections.fT[1][roots++] = 1;
+            intersections.fUsed++;
+        }
+    }
+    if (roots == 0 || (roots == 1 && intersections.fT[0][0] <= 1 - FLT_EPSILON)) {
+        if (quad[2] == line[1]) {
+            intersections.fT[0][roots] = 1;
+            intersections.fT[1][roots++] = 1;
+            intersections.fUsed++;
+        } else if (quad[2] == line[0]) {
+            intersections.fT[0][roots] = 1;
+            intersections.fT[1][roots++] = 0;
+            intersections.fUsed++;
+        }
+    }
     return roots > 0;
 }
 
@@ -138,7 +161,17 @@ int horizontalIntersect(double axisIntercept) {
     D += F - 2 * E; // D = d - 2*e + f
     E -= F; // E = -(d - e)
     F -= axisIntercept;
-    return quadraticRoots(D, E, F, intersections.fT[0]);
+    int roots = quadraticRoots(D, E, F, intersections.fT[0]);
+    // FIXME: ? quadraticRoots doesn't pick up intersections at 0, 1
+    if (roots < 2 && fabs(F) < FLT_EPSILON
+            && (roots == 0 || intersections.fT[0][0] >= FLT_EPSILON)) {
+        intersections.fT[0][roots++] = 0;
+    }
+    if (roots < 2 && fabs(quad[2].y - axisIntercept) < FLT_EPSILON
+            && (roots == 0 || intersections.fT[0][0] <= 1 - FLT_EPSILON)) {
+        intersections.fT[0][roots++] = 1;
+    }
+    return roots;
 }
 
 int verticalIntersect(double axisIntercept) {
@@ -148,7 +181,17 @@ int verticalIntersect(double axisIntercept) {
     D += F - 2 * E; // D = d - 2*e + f
     E -= F; // E = -(d - e)
     F -= axisIntercept;
-    return quadraticRoots(D, E, F, intersections.fT[0]);
+    int roots = quadraticRoots(D, E, F, intersections.fT[0]);
+    // FIXME: ? quadraticRoots doesn't pick up intersections at 0, 1
+    if (roots < 2 && fabs(F) < FLT_EPSILON
+            && (roots == 0 || intersections.fT[0][0] >= FLT_EPSILON)) {
+        intersections.fT[0][roots++] = 0;
+    }
+    if (roots < 2 && fabs(quad[2].x - axisIntercept) < FLT_EPSILON
+            && (roots == 0 || intersections.fT[0][0] <= 1 - FLT_EPSILON)) {
+        intersections.fT[0][roots++] = 1;
+    }
+    return roots;
 }
 
 protected:
@@ -247,7 +290,7 @@ int horizontalIntersect(const Quadratic& quad, double left, double right, double
             }
             continue;
         }
-        intersections.fT[0][index] = (x - left) / (right - left);
+        intersections.fT[1][index] = (x - left) / (right - left);
         ++index;
     }
     if (flipped) {
@@ -272,7 +315,7 @@ int verticalIntersect(const Quadratic& quad, double top, double bottom, double x
             }
             continue;
         }
-        intersections.fT[0][index] = (y - top) / (bottom - top);
+        intersections.fT[1][index] = (y - top) / (bottom - top);
         ++index;
     }
     if (flipped) {
