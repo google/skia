@@ -42,7 +42,11 @@ def FindPathToProgram(program):
     trunk_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                               os.pardir))
     possible_paths = [os.path.join(trunk_path, 'out', 'Release', program),
-                      os.path.join(trunk_path, 'out', 'Debug', program)]
+                      os.path.join(trunk_path, 'out', 'Debug', program),
+                      os.path.join(trunk_path, 'out', 'Release',
+                                   program + ".exe"),
+                      os.path.join(trunk_path, 'out', 'Debug',
+                                   program + ".exe")]
     for try_path in possible_paths:
         if os.path.isfile(try_path):
             return try_path
