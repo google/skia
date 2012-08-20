@@ -85,6 +85,14 @@
             },
           },
         },
+        'conditions' : [
+          ['skia_arch_width == 64', {
+            'msvs_configuration_platform': 'x64'
+          }],
+          ['skia_arch_width == 32', {
+            'msvs_configuration_platform': 'Win32',
+          }],
+        ],
       },
     ],
 

@@ -119,7 +119,7 @@ protected:
                     if (fDrawPosH)
                         pos[i].set(x + advX, y);
                     else
-                        pos[i].set(x + advX, y + SkIntToScalar(i));
+                        pos[i].set(x + advX, y + i);
                     advX += adv[i];
                 }
 
