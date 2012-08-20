@@ -32,25 +32,35 @@ void PictureRenderer::init(SkPicture* pict) {
     }
 
     fPicture = pict;
+    fCanvas.reset(this->setupCanvas());
+}
+
+SkCanvas* PictureRenderer::setupCanvas() {
+    return this->setupCanvas(fPicture->width(), fPicture->height());
+}
+
+SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
     switch(fDeviceType) {
         case kBitmap_DeviceType: {
             SkBitmap bitmap;
-            sk_tools::setup_bitmap(&bitmap, fPicture->width(), fPicture->height());
-            fCanvas.reset(SkNEW_ARGS(SkCanvas, (bitmap)));
+            sk_tools::setup_bitmap(&bitmap, width, height);
+            return SkNEW_ARGS(SkCanvas, (bitmap));
             break;
         }
 #if SK_SUPPORT_GPU
         case kGPU_DeviceType: {
             SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice,
                                                     (fGrContext, SkBitmap::kARGB_8888_Config,
-                                                    pict->width(), pict->height())));
-            fCanvas.reset(SkNEW_ARGS(SkCanvas, (device.get())));
+                                                    width, height)));
+            return SkNEW_ARGS(SkCanvas, (device.get()));
             break;
         }
 #endif
         default:
             SkASSERT(0);
     }
+
+    return NULL;
 }
 
 void PictureRenderer::end() {
@@ -146,10 +156,7 @@ void TiledPictureRenderer::clipTile(const TileInfo& tile) {
 void TiledPictureRenderer::addTile(int tile_x_start, int tile_y_start) {
     TileInfo* tile = fTiles.push();
 
-    tile->fBitmap = SkNEW(SkBitmap);
-    sk_tools::setup_bitmap(tile->fBitmap, fTileWidth, fTileHeight);
-
-    tile->fCanvas = SkNEW_ARGS(SkCanvas, (*(tile->fBitmap)));
+    tile->fCanvas = this->setupCanvas(fTileWidth, fTileHeight);
     tile->fCanvas->translate(SkIntToScalar(-tile_x_start), SkIntToScalar(-tile_y_start));
     this->clipTile(*tile);
 }

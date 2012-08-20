@@ -69,6 +69,9 @@ public:
         {}
 
 protected:
+    SkCanvas* setupCanvas();
+    SkCanvas* setupCanvas(int width, int height);
+
     enum SkDeviceTypes {
         kBitmap_DeviceType,
 #if SK_SUPPORT_GPU
