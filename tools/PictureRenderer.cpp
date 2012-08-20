@@ -70,6 +70,12 @@ void PictureRenderer::end() {
 }
 
 void PictureRenderer::resetState() {
+    SkASSERT(fCanvas.get() != NULL);
+    SkASSERT(fPicture != NULL);
+    if (NULL == fCanvas.get() || NULL == fPicture) {
+        return;
+    }
+
     fCanvas->flush();
 
     if (this->isUsingGpuDevice()) {
@@ -186,6 +192,12 @@ void TiledPictureRenderer::drawTiles() {
 }
 
 void TiledPictureRenderer::resetState() {
+    SkASSERT(fCanvas.get() != NULL);
+    SkASSERT(fPicture != NULL);
+    if (NULL == fCanvas.get() || NULL == fPicture) {
+        return;
+    }
+
     for (int i = 0; i < fTiles.count(); ++i) {
         fTiles[i].fCanvas->flush();
     }
