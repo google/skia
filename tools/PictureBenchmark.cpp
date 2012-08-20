@@ -40,21 +40,36 @@ void PipePictureBenchmark::run(SkPicture* pict) {
     // We throw this away to remove first time effects (such as paging in this
     // program)
     fRenderer.render();
+    fRenderer.resetState();
 
     BenchTimer* timer = this->setupTimer();
+    double wall_time = 0;
+#if SK_SUPPORT_GPU
+    double gpu_time = 0;
+#endif
 
-    timer->start();
     for (int i = 0; i < fRepeats; ++i) {
+        timer->start();
         fRenderer.render();
+        timer->end();
+        fRenderer.resetState();
+
+        wall_time += timer->fWall;
+#if SK_SUPPORT_GPU
+        if (fRenderer.isUsingGpuDevice()) {
+            gpu_time += timer->fGpu;
+        }
+#endif
     }
-    timer->end();
 
     fRenderer.end();
 
-    SkDebugf("pipe: msecs = %6.2f", timer->fWall / fRepeats);
+    SkDebugf("pipe: msecs = %6.2f", wall_time / fRepeats);
+#if SK_SUPPORT_GPU
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", timer->fGpu / fRepeats);
+        SkDebugf(" gmsecs = %6.2f", gpu_time / fRepeats);
     }
+#endif
     SkDebugf("\n");
 
     delete timer;
@@ -97,21 +112,37 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
     // We throw this away to remove first time effects (such as paging in this
     // program)
     fRenderer.render();
+    fRenderer.resetState();
+
 
     BenchTimer* timer = this->setupTimer();
+    double wall_time = 0;
+#if SK_SUPPORT_GPU
+    double gpu_time = 0;
+#endif
 
-    timer->start();
     for (int i = 0; i < fRepeats; ++i) {
+        timer->start();
         fRenderer.render();
+        timer->end();
+        fRenderer.resetState();
+
+        wall_time += timer->fWall;
+#if SK_SUPPORT_GPU
+        if (fRenderer.isUsingGpuDevice()) {
+            gpu_time += timer->fGpu;
+        }
+#endif
     }
-    timer->end();
 
     fRenderer.end();
 
-    SkDebugf("simple: msecs = %6.2f", timer->fWall / fRepeats);
+    SkDebugf("simple: msecs = %6.2f", wall_time / fRepeats);
+#if SK_SUPPORT_GPU
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", timer->fGpu / fRepeats);
+        SkDebugf(" gmsecs = %6.2f", gpu_time / fRepeats);
     }
+#endif
     SkDebugf("\n");
 
     delete timer;
@@ -128,21 +159,37 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
     // We throw this away to remove first time effects (such as paging in this
     // program)
     fRenderer.drawTiles();
+    fRenderer.resetState();
 
     BenchTimer* timer = setupTimer();
-    timer->start();
+    double wall_time = 0;
+#if SK_SUPPORT_GPU
+    double gpu_time = 0;
+#endif
+
     for (int i = 0; i < fRepeats; ++i) {
+        timer->start();
         fRenderer.drawTiles();
+        timer->end();
+        fRenderer.resetState();
+
+        wall_time += timer->fWall;
+#if SK_SUPPORT_GPU
+        if (fRenderer.isUsingGpuDevice()) {
+            gpu_time += timer->fGpu;
+        }
+#endif
     }
-    timer->end();
 
     fRenderer.end();
 
     SkDebugf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(), fRenderer.getTileWidth(),
-            fRenderer.getTileHeight(), timer->fWall / fRepeats);
+            fRenderer.getTileHeight(), wall_time / fRepeats);
+#if SK_SUPPORT_GPU
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", timer->fGpu / fRepeats);
+        SkDebugf(" gmsecs = %6.2f", gpu_time / fRepeats);
     }
+#endif
     SkDebugf("\n");
 }
 
