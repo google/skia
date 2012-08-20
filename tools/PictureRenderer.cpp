@@ -179,18 +179,19 @@ TiledPictureRenderer::~TiledPictureRenderer() {
     this->deleteTiles();
 }
 
-void TiledPictureRenderer::clipTile(const TileInfo& tile) {
+void TiledPictureRenderer::clipTile(SkCanvas* tile) {
     SkRect clip = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
                                  SkIntToScalar(fPicture->height()));
-    tile.fCanvas->clipRect(clip);
+    tile->clipRect(clip);
 }
 
 void TiledPictureRenderer::addTile(int tile_x_start, int tile_y_start) {
-    TileInfo* tile = fTiles.push();
+    SkCanvas* tile = this->setupCanvas(fTileWidth, fTileHeight);
 
-    tile->fCanvas = this->setupCanvas(fTileWidth, fTileHeight);
-    tile->fCanvas->translate(SkIntToScalar(-tile_x_start), SkIntToScalar(-tile_y_start));
-    this->clipTile(*tile);
+    tile->translate(SkIntToScalar(-tile_x_start), SkIntToScalar(-tile_y_start));
+    this->clipTile(tile);
+
+    fTiles.push(tile);
 }
 
 void TiledPictureRenderer::setupTiles() {
@@ -205,7 +206,7 @@ void TiledPictureRenderer::setupTiles() {
 
 void TiledPictureRenderer::deleteTiles() {
     for (int i = 0; i < fTiles.count(); ++i) {
-        SkDELETE(fTiles[i].fCanvas);
+        SkDELETE(fTiles[i]);
     }
 
     fTiles.reset();
@@ -213,13 +214,13 @@ void TiledPictureRenderer::deleteTiles() {
 
 void TiledPictureRenderer::drawTiles() {
     for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].fCanvas->drawPicture(*(fPicture));
+        fTiles[i]->drawPicture(*(fPicture));
     }
 }
 
 void TiledPictureRenderer::finishDraw() {
     for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].fCanvas->flush();
+        fTiles[i]->flush();
     }
 
 #if SK_SUPPORT_GPU
@@ -244,7 +245,7 @@ void TiledPictureRenderer::copyTilesToCanvas() {
         for (int tile_x_start = 0; tile_x_start < fPicture->width();
              tile_x_start += fTileWidth) {
             SkASSERT(tile_index < fTiles.count());
-            SkBitmap source = fTiles[tile_index].fCanvas->getDevice()->accessBitmap(false);
+            SkBitmap source = fTiles[tile_index]->getDevice()->accessBitmap(false);
             fCanvas->drawBitmap(source,
                                 SkIntToScalar(tile_x_start),
                                 SkIntToScalar(tile_y_start));
