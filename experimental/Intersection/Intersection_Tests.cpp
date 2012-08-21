@@ -8,9 +8,10 @@ void cubecode_test(int test);
 
 void Intersection_Tests() {
     int testsRun = 0;
-    QuadLineIntersectThreaded_Test(testsRun);
     SimplifyNew_Test();
     Simplify4x4QuadraticsThreaded_Test(testsRun);
+    QuadLineIntersectThreaded_Test(testsRun);
+    LineQuadraticIntersection_Test();
     Simplify4x4RectsThreaded_Test(testsRun);
     SimplifyNondegenerate4x4TrianglesThreaded_Test(testsRun);
     SimplifyDegenerate4x4TrianglesThreaded_Test(testsRun);
@@ -33,7 +34,6 @@ void Intersection_Tests() {
 
     LineParameter_Test();
     LineIntersection_Test();
-    LineQuadraticIntersection_Test();
     LineCubicIntersection_Test();
 
     SimplifyQuadraticPaths_Test();

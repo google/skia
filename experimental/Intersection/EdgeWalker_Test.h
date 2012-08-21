@@ -2,6 +2,7 @@
 
 #include "ShapeOps.h"
 #include "SkBitmap.h"
+#include "SkStream.h"
 #include <pthread.h>
 
 class SkCanvas;

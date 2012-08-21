@@ -8,15 +8,46 @@
 struct lineQuad {
     Quadratic quad;
     _Line line;
+    int result;
+    _Point expected[2];
 } lineQuadTests[] = {
-    {{{2, 0}, {1, 1}, {2, 2}}, {{0, 0}, {0, 2}}},
-    {{{4, 0}, {0, 1}, {4, 2}}, {{3, 1}, {4, 1}}},
-    {{{0, 0}, {0, 1}, {1, 1}}, {{0, 1}, {1, 0}}},
+    //        quad                    line                  results
+    {{{1, 1}, {2, 1}, {0, 2}},  {{0, 0}, {1, 1}},  1,  {{1, 1}        }},
+    {{{0, 0}, {1, 1}, {3, 1}},  {{0, 0}, {3, 1}},  2,  {{0, 0}, {3, 1}}},
+    {{{2, 0}, {1, 1}, {2, 2}},  {{0, 0}, {0, 2}},  0                   },
+    {{{4, 0}, {0, 1}, {4, 2}},  {{3, 1}, {4, 1}},  0,                  },  
+    {{{0, 0}, {0, 1}, {1, 1}},  {{0, 1}, {1, 0}},  1,  {{.25, .75}    }},
 };
 
 size_t lineQuadTests_count = sizeof(lineQuadTests) / sizeof(lineQuadTests[0]);
 
 const int firstLineQuadIntersectionTest = 0;
+
+static int doIntersect(Intersections& intersections, const Quadratic& quad, const _Line& line, bool& flipped) {
+    int result;
+    flipped = false;
+    if (line[0].x == line[1].x) {
+        double top = line[0].y;
+        double bottom = line[1].y;
+        flipped = top > bottom;
+        if (flipped) {
+            SkTSwap<double>(top, bottom);
+        }
+        result = verticalIntersect(quad, top, bottom, line[0].x, flipped, intersections);
+    } else if (line[0].y == line[1].y) {
+        double left = line[0].x;
+        double right = line[1].x;
+        flipped = left > right;
+        if (flipped) {
+            SkTSwap<double>(left, right);
+        }
+        result = horizontalIntersect(quad, left, right, line[0].y, flipped, intersections);
+    } else {
+        intersect(quad, line, intersections);
+        result = intersections.fUsed;
+    }
+    return result;
+}
 
 void LineQuadraticIntersection_Test() {
     for (size_t index = firstLineQuadIntersectionTest; index < lineQuadTests_count; ++index) {
@@ -27,31 +58,43 @@ void LineQuadraticIntersection_Test() {
         int order1 = reduceOrder(quad, reduce1);
         int order2 = reduceOrder(line, reduce2);
         if (order1 < 3) {
-            printf("[%d] quad order=%d\n", (int) index, order1);
+            SkDebugf("%s [%d] quad order=%d\n", __FUNCTION__, (int) index, order1);
+            SkASSERT(0);
         }
         if (order2 < 2) {
-            printf("[%d] line order=%d\n", (int) index, order2);
+            SkDebugf("%s [%d] line order=%d\n", __FUNCTION__, (int) index, order2);
+            SkASSERT(0);
         }
-        if (order1 == 3 && order2 == 2) {
-            Intersections intersections;
-            intersect(reduce1, reduce2, intersections);
-            if (intersections.intersected()) {
-                for (int pt = 0; pt < intersections.used(); ++pt) {
-                    double tt1 = intersections.fT[0][pt];
-                    double tx1, ty1;
-                    xy_at_t(quad, tt1, tx1, ty1);
-                    double tt2 = intersections.fT[1][pt];
-                    double tx2, ty2;
-                    xy_at_t(line, tt2, tx2, ty2);
-                    if (!approximately_equal(tx1, tx2)) {
-                        printf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
-                            __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
-                    }
-                    if (!approximately_equal(ty1, ty2)) {
-                        printf("%s [%d,%d] y!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
-                            __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
-                    }
-                }
+        Intersections intersections;
+        bool flipped = false;
+        int result = doIntersect(intersections, quad, line, flipped);
+        SkASSERT(result == lineQuadTests[index].result);
+        if (!intersections.intersected()) {
+            continue;
+        }
+        for (int pt = 0; pt < result; ++pt) {
+            double tt1 = intersections.fT[0][pt];
+            SkASSERT(tt1 >= 0 && tt1 <= 1);
+            _Point t1, t2;
+            xy_at_t(quad, tt1, t1.x, t1.y);
+            double tt2 = intersections.fT[1][pt];
+            SkASSERT(tt2 >= 0 && tt2 <= 1);
+            xy_at_t(line, tt2, t2.x, t2.y);
+            if (!approximately_equal(t1.x, t2.x)) {
+                SkDebugf("%s [%d,%d] x!= t1=%1.9g (%1.9g,%1.9g) t2=%1.9g (%1.9g,%1.9g)\n",
+                    __FUNCTION__, (int)index, pt, tt1, t1.x, t1.y, tt2, t2.x, t2.y);
+                SkASSERT(0);
+            }
+            if (!approximately_equal(t1.y, t2.y)) {
+                SkDebugf("%s [%d,%d] y!= t1=%1.9g (%1.9g,%1.9g) t2=%1.9g (%1.9g,%1.9g)\n",
+                    __FUNCTION__, (int)index, pt, tt1, t1.x, t1.y, tt2, t2.x, t2.y);
+                SkASSERT(0);
+            }
+            if (!t1.approximatelyEqual(lineQuadTests[index].expected[0])
+                    && (lineQuadTests[index].result == 1
+                    || !t1.approximatelyEqual(lineQuadTests[index].expected[1]))) {
+                SkDebugf("%s t1=(%1.9g,%1.9g)\n", __FUNCTION__, t1.x, t1.y);
+                SkASSERT(0);
             }
         }
     }
@@ -68,37 +111,14 @@ static void testLineIntersect(State4& state, const Quadratic& quad, const _Line&
     str += sprintf(str, "    path.lineTo(%1.9g, %1.9g);\n", line[1].x, line[1].y);
     
     Intersections intersections;
-    int result;
     bool flipped = false;
-    if (line[0].x == line[1].x) {
-        double top = line[0].y;
-        double bottom = line[1].y;
-        bool flipped = top > bottom;
-        if (flipped) {
-            SkTSwap<double>(top, bottom);
-        }
-        result = verticalIntersect(quad, top, bottom, line[0].x, flipped, intersections);
-    } else if (line[0].y == line[1].y) {
-        double left = line[0].x;
-        double right = line[1].x;
-        bool flipped = left > right;
-        if (flipped) {
-            SkTSwap<double>(left, right);
-        }
-        result = horizontalIntersect(quad, left, right, line[0].y, flipped, intersections);
-    } else {
-        intersect(quad, line, intersections);
-        result = intersections.fUsed;
-    }
+    int result = doIntersect(intersections, quad, line, flipped);
     bool found = false;
     for (int index = 0; index < result; ++index) {
         double quadT = intersections.fT[0][index];
         double quadX, quadY;
         xy_at_t(quad, quadT, quadX, quadY);
         double lineT = intersections.fT[1][index];
-        if (flipped) {
-            lineT = 1 - lineT;
-        }
         double lineX, lineY;
         xy_at_t(line, lineT, lineX, lineY);
         if (fabs(quadX - lineX) < FLT_EPSILON && fabs(quadY - lineY) < FLT_EPSILON

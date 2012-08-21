@@ -4,6 +4,9 @@
 #include "SkGraphics.h"
 #include "SkCGUtils.h"
 
+#include <time.h>
+#include <sys/time.h>
+
 class SkSampleView : public SkView {
 public:
     SkSampleView() {
@@ -12,10 +15,27 @@ public:
     };
 protected:
     virtual void onDraw(SkCanvas* canvas) {
-        static int step = 0;
+        static int step = -1;
+        static double seconds;
+        static bool useOld = true;
+        if (step == -1) {
+            timeval t;
+            gettimeofday(&t, NULL);
+            seconds = t.tv_sec+t.tv_usec/1000000.0;
+            step = 0;
+        }
         canvas->drawColor(SK_ColorWHITE);
-        if (DrawEdgeDemo(canvas, step)) {
+        if (DrawEdgeDemo(canvas, step, useOld)) {
             ++step;
+            if (step == 3200) {
+                timeval t;
+                gettimeofday(&t, NULL);
+                double last = seconds;
+                seconds = t.tv_sec+t.tv_usec/1000000.0;
+                SkDebugf("old=%d seconds=%g\n", useOld, seconds - last);
+                useOld ^= true;
+                step = 0;
+            }
             inval(NULL);
         }
     }

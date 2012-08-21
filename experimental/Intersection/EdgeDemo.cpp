@@ -8,7 +8,7 @@
 // or five points which in turn describe a polygon. The polygon points
 // bounce inside the circles. The circles rotate and scale over time. The
 // polygons are combined into a single path, simplified, and stroked.
-static bool drawCircles(SkCanvas* canvas, int step)
+static bool drawCircles(SkCanvas* canvas, int step, bool useOld)
 {
     const int circles = 3;
     int scales[circles];
@@ -34,8 +34,8 @@ static bool drawCircles(SkCanvas* canvas, int step)
             x *= 3 + scales[c] / 10.0f;
             y *= 3 + scales[c] / 10.0f;
             SkScalar angle = angles[c] * 3.1415f * 2 / 600;
-            SkScalar temp = x * cos(angle) - y * sin(angle);
-            y = x * sin(angle) + y * cos(angle);
+            SkScalar temp = (SkScalar) (x * cos(angle) - y * sin(angle));
+            y = (SkScalar) (x * sin(angle) + y * cos(angle));
             x = temp;
             x += locs[c * 2] * 200 / 130.0f;
             y += locs[c * 2 + 1] * 200 / 170.0f;
@@ -50,7 +50,11 @@ static bool drawCircles(SkCanvas* canvas, int step)
         path.close();
     }
     showPath(path, "original:");
-    simplify(path, true, out);
+    if (useOld) {
+        simplify(path, true, out);
+    } else {
+        simplifyx(path, out);
+    }
     showPath(out, "simplified:");
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -69,8 +73,8 @@ static void createStar(SkPath& path, SkScalar innerRadius, SkScalar outerRadius,
     SkScalar angle = startAngle;
     for (int index = 0; index < points * 2; ++index) {
         SkScalar radius = index & 1 ? outerRadius : innerRadius;
-        SkScalar x = radius * cos(angle);
-        SkScalar y = radius * sin(angle);
+        SkScalar x = (SkScalar) (radius * cos(angle));
+        SkScalar y = (SkScalar) (radius * sin(angle));
         x += center.fX;
         y += center.fY;
         if (index == 0) {
@@ -83,12 +87,12 @@ static void createStar(SkPath& path, SkScalar innerRadius, SkScalar outerRadius,
     path.close();
 }
 
-static bool drawStars(SkCanvas* canvas, int step)
+static bool drawStars(SkCanvas* canvas, int step, bool useOld)
 {
     SkPath path, out;
     const int stars = 25;
     int pts[stars];
-    static bool initialize = true;
+ //   static bool initialize = true;
     int s;
     for (s = 0; s < stars; ++s) {
         pts[s] = 4 + (s % 7);
@@ -104,13 +108,13 @@ static bool drawStars(SkCanvas* canvas, int step)
     const int maxInner = 800;
     const int maxOuter = 1153;
     for (s = 0; s < stars; ++s) {
-        int starW = width - margin * 2 + (SkScalar) s * (stars - s) / stars;
+        int starW = (int) (width - margin * 2 + (SkScalar) s * (stars - s) / stars);
         locs[s].fX = (int) (step * (1.3f * (s + 1) / stars) + s * 121) % (starW * 2);
         if (locs[s].fX > starW) {
             locs[s].fX = starW * 2 - locs[s].fX;
         }
         locs[s].fX += margin;
-        int starH = height - margin * 2 + (SkScalar) s * s / stars;
+        int starH = (int) (height - margin * 2 + (SkScalar) s * s / stars);
         locs[s].fY = (int) (step * (1.7f * (s + 1) / stars) + s * 183) % (starH * 2);
         if (locs[s].fY > starH) {
             locs[s].fY = starH * 2 - locs[s].fY;
@@ -136,10 +140,14 @@ static bool drawStars(SkCanvas* canvas, int step)
 #endif
 #define TEST_SIMPLIFY 01
 #if TEST_SIMPLIFY
-    simplify(path, true, out);
+    if (useOld) {
+        simplify(path, true, out);
+    } else {
+        simplifyx(path, out);
+    }
+#endif
 #if SHOW_PATH
     showPath(out, "simplified:");
-#endif
 #endif
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -155,22 +163,22 @@ static bool drawStars(SkCanvas* canvas, int step)
     return true;
 }
 
-static bool (*drawDemos[])(SkCanvas* , int) = {
+static bool (*drawDemos[])(SkCanvas* , int , bool ) = {
     drawStars,
     drawCircles
 };
 
 static size_t drawDemosCount = sizeof(drawDemos) / sizeof(drawDemos[0]);
 
-static bool (*firstTest)(SkCanvas* , int) = 0;
+static bool (*firstTest)(SkCanvas* , int , bool) = 0;
 
 
-bool DrawEdgeDemo(SkCanvas* canvas, int step) {
+bool DrawEdgeDemo(SkCanvas* canvas, int step, bool useOld) {
     size_t index = 0;
     if (firstTest) {
         while (index < drawDemosCount && drawDemos[index] != firstTest) {
             ++index;
         }
     }
-    return (*drawDemos[index])(canvas, step);
+    return (*drawDemos[index])(canvas, step, useOld);
 }
