@@ -630,8 +630,9 @@ static __m128i SkBlendLCD16Opaque_SSE2(__m128i &srci, __m128i &dst,
     __m128i resultLo = _mm_add_epi16(dstLo, maskLo);
     __m128i resultHi = _mm_add_epi16(dstHi, maskHi);
 
-    // Pack into 4 32bit dst pixels
-    return _mm_packus_epi16(resultLo, resultHi);
+    // Pack into 4 32bit dst pixels and force opaque.
+    return _mm_or_si128(_mm_packus_epi16(resultLo, resultHi),
+                        _mm_set1_epi32(SK_A32_MASK << SK_A32_SHIFT));
 }
 
 void SkBlitLCD16Row_SSE2(SkPMColor dst[], const uint16_t src[],
