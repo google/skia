@@ -70,10 +70,16 @@ namespace sk_tools {
         return skString.endsWith("%");
     }
 
+    // This copies how bench does printing of test results.
+#ifdef SK_BUILD_FOR_ANDROID
+    void print_msg(const char msg[]) { SkDebugf("%s", msg); }
+#else
+    void print_msg(const char msg[]) { printf("%s", msg); }
+#endif
+
     void setup_bitmap(SkBitmap* bitmap, int width, int height) {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
         bitmap->allocPixels();
         bitmap->eraseColor(0);
     }
-
 }

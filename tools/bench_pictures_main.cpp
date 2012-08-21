@@ -81,8 +81,11 @@ static void run_single_benchmark(const SkString& inputPath,
 
     SkString filename;
     sk_tools::get_basename(&filename, inputPath);
-    SkDebugf("running bench [%i %i] %s ", picture.width(), picture.height(),
-           filename.c_str());
+
+    SkString result;
+    result.printf("running bench [%i %i] %s ", picture.width(), picture.height(),
+                  filename.c_str());
+    sk_tools::print_msg(result.c_str());
 
     benchmark.run(&picture);
 }
