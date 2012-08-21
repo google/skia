@@ -336,9 +336,8 @@ void createThread(State4* statePtr, void* (*testFun)(void* )) {
 
 int dispatchTest4(void* (*testFun)(void* ), int a, int b, int c, int d) {
     int testsRun = 0;
-    
+    State4* statePtr;
     if (!gRunTestsInOneThread) {
-        State4* statePtr;
         pthread_mutex_lock(&State4::addQueue);
         if (threadIndex < maxThreads) {
             statePtr = &threadState[threadIndex];
@@ -381,12 +380,16 @@ int dispatchTest4(void* (*testFun)(void* ), int a, int b, int c, int d) {
         }
         pthread_mutex_unlock(&State4::addQueue);
     } else {
-        State4 state;
-        state.a = a;
-        state.b = b;
-        state.c = c;
-        state.d = d;
-        (*testFun)(&state);
+        statePtr = &threadState[0];
+        statePtr->testsRun = 0;
+        statePtr->a = a;
+        statePtr->b = b;
+        statePtr->c = c;
+        statePtr->d = d;
+        statePtr->done = false;
+        statePtr->index = threadIndex;
+        statePtr->last = false;
+        (*testFun)(statePtr);
         testsRun++;
     }
     return testsRun;
@@ -404,20 +407,18 @@ void initializeTests(const char* test, size_t testNameSize) {
             maxThreads = 8;
         }
     }
-    if (!gRunTestsInOneThread) {
-        SkFILEStream inFile("../../experimental/Intersection/op.htm");
-        if (inFile.isValid()) {
-            SkTDArray<char> inData;
-            inData.setCount(inFile.getLength());
-            size_t inLen = inData.count();
-            inFile.read(inData.begin(), inLen);
-            inFile.setPath(NULL);
-            char* insert = strstr(inData.begin(), marker);   
-            if (insert) {
-                insert += sizeof(marker) - 1;
-                const char* numLoc = insert + 4 /* indent spaces */ + testNameSize - 1;
-                testNumber = atoi(numLoc) + 1;
-            }
+    SkFILEStream inFile("../../experimental/Intersection/op.htm");
+    if (inFile.isValid()) {
+        SkTDArray<char> inData;
+        inData.setCount(inFile.getLength());
+        size_t inLen = inData.count();
+        inFile.read(inData.begin(), inLen);
+        inFile.setPath(NULL);
+        char* insert = strstr(inData.begin(), marker);   
+        if (insert) {
+            insert += sizeof(marker) - 1;
+            const char* numLoc = insert + 4 /* indent spaces */ + testNameSize - 1;
+            testNumber = atoi(numLoc) + 1;
         }
     }
     const char* filename = preferredFilename;
@@ -441,15 +442,17 @@ void initializeTests(const char* test, size_t testNameSize) {
 
 void outputProgress(const State4& state, const char* pathStr, SkPath::FillType pathFillType) {
     if (gRunTestsInOneThread) {
-        SkDebugf("%s\n", pathStr);
-    } else {
-        SkFILEWStream outFile(state.filename);
-        if (!outFile.isValid()) {
-            SkASSERT(0);
-            return;
+        if (pathFillType == SkPath::kEvenOdd_FillType) {
+            SkDebugf("    path.setFillType(SkPath::kEvenOdd_FillType);\n", pathStr);
         }
-        outputToStream(state, pathStr, pathFillType, outFile);
+        SkDebugf("%s\n", pathStr);
     }
+    SkFILEWStream outFile(state.filename);
+    if (!outFile.isValid()) {
+        SkASSERT(0);
+        return;
+    }
+    outputToStream(state, pathStr, pathFillType, outFile);
 }
 
 static void writeTestName(SkPath::FillType pathFillType, SkWStream& outFile) {

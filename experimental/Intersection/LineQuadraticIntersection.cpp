@@ -47,15 +47,6 @@ line:
          }
         }
         
-Numeric Solutions (5.6) suggests to solve the quadratic by computing
-
-       Q = -1/2(B + sgn(B)Sqrt(B^2 - 4 A C))
-
-and using the roots
-
-      t1 = Q / A
-      t2 = C / Q
-      
 Using the results above (when the line tends towards horizontal)
        A =   (-(d - 2*e + f) + g*(a - 2*b + c)     )
        B = 2*( (d -   e    ) - g*(a -   b    )     )
@@ -125,31 +116,21 @@ bool intersect() {
     }
     double t[2];
     int roots = quadraticRoots(A, B, C, t);
-    for (int x = 0; x < roots; ++x) {
-        intersections.add(t[x], findLineT(t[x]));
-    }
-    // FIXME: quadratic root doesn't find t=0 or t=1, necessitating the hack below
-    if (roots == 0 || (roots == 1 && intersections.fT[0][0] >= FLT_EPSILON)) {
-        if (quad[0] == line[0]) {
-            intersections.fT[0][roots] = 0;
-            intersections.fT[1][roots++] = 0;
-            intersections.fUsed++;
-        } else if (quad[0] == line[1]) {
-            intersections.fT[0][roots] = 0;
-            intersections.fT[1][roots++] = 1;
-            intersections.fUsed++;
+    for (int x = 0; x < roots; ) {
+        double lineT = findLineT(t[x]);
+        if (lineT <= -FLT_EPSILON || lineT >= 1 + FLT_EPSILON) {
+            if (x < --roots) {
+                t[x] = t[roots];
+            }
+            continue;
         }
-    }
-    if (roots == 0 || (roots == 1 && intersections.fT[0][0] <= 1 - FLT_EPSILON)) {
-        if (quad[2] == line[1]) {
-            intersections.fT[0][roots] = 1;
-            intersections.fT[1][roots++] = 1;
-            intersections.fUsed++;
-        } else if (quad[2] == line[0]) {
-            intersections.fT[0][roots] = 1;
-            intersections.fT[1][roots++] = 0;
-            intersections.fUsed++;
+        if (lineT < FLT_EPSILON) {
+            lineT = 0;
+        } else if (lineT > 1 - FLT_EPSILON) {
+            lineT = 1;
         }
+        intersections.add(t[x], lineT);
+        ++x;
     }
     return roots > 0;
 }
@@ -161,17 +142,7 @@ int horizontalIntersect(double axisIntercept) {
     D += F - 2 * E; // D = d - 2*e + f
     E -= F; // E = -(d - e)
     F -= axisIntercept;
-    int roots = quadraticRoots(D, E, F, intersections.fT[0]);
-    // FIXME: ? quadraticRoots doesn't pick up intersections at 0, 1
-    if (roots < 2 && fabs(F) < FLT_EPSILON
-            && (roots == 0 || intersections.fT[0][0] >= FLT_EPSILON)) {
-        intersections.fT[0][roots++] = 0;
-    }
-    if (roots < 2 && fabs(quad[2].y - axisIntercept) < FLT_EPSILON
-            && (roots == 0 || intersections.fT[0][0] <= 1 - FLT_EPSILON)) {
-        intersections.fT[0][roots++] = 1;
-    }
-    return roots;
+    return quadraticRoots(D, E, F, intersections.fT[0]);
 }
 
 int verticalIntersect(double axisIntercept) {
@@ -181,17 +152,7 @@ int verticalIntersect(double axisIntercept) {
     D += F - 2 * E; // D = d - 2*e + f
     E -= F; // E = -(d - e)
     F -= axisIntercept;
-    int roots = quadraticRoots(D, E, F, intersections.fT[0]);
-    // FIXME: ? quadraticRoots doesn't pick up intersections at 0, 1
-    if (roots < 2 && fabs(F) < FLT_EPSILON
-            && (roots == 0 || intersections.fT[0][0] >= FLT_EPSILON)) {
-        intersections.fT[0][roots++] = 0;
-    }
-    if (roots < 2 && fabs(quad[2].x - axisIntercept) < FLT_EPSILON
-            && (roots == 0 || intersections.fT[0][0] <= 1 - FLT_EPSILON)) {
-        intersections.fT[0][roots++] = 1;
-    }
-    return roots;
+    return quadraticRoots(D, E, F, intersections.fT[0]);
 }
 
 protected:
@@ -284,13 +245,19 @@ int horizontalIntersect(const Quadratic& quad, double left, double right, double
     for (int index = 0; index < result; ) {
         double x, y;
         xy_at_t(quad, intersections.fT[0][index], x, y);
-        if (x < left || x > right) {
+        double lineT = (x - left) / (right - left);
+        if (lineT <= -FLT_EPSILON || lineT >= 1 + FLT_EPSILON) {
             if (--result > index) {
                 intersections.fT[0][index] = intersections.fT[0][result];
             }
             continue;
         }
-        intersections.fT[1][index] = (x - left) / (right - left);
+        if (lineT < FLT_EPSILON) {
+            lineT = 0;
+        } else if (lineT > 1 - FLT_EPSILON) {
+            lineT = 1;
+        }
+        intersections.fT[1][index] = lineT;
         ++index;
     }
     if (flipped) {
@@ -309,13 +276,19 @@ int verticalIntersect(const Quadratic& quad, double top, double bottom, double x
     for (int index = 0; index < result; ) {
         double x, y;
         xy_at_t(quad, intersections.fT[0][index], x, y);
-        if (y < top || y > bottom) {
+        double lineT = (y - top) / (bottom - top);
+        if (lineT <= -FLT_EPSILON || lineT >= 1 + FLT_EPSILON) {
             if (--result > index) {
                 intersections.fT[0][index] = intersections.fT[0][result];
             }
             continue;
         }
-        intersections.fT[1][index] = (y - top) / (bottom - top);
+        if (lineT < FLT_EPSILON) {
+            lineT = 0;
+        } else if (lineT > 1 - FLT_EPSILON) {
+            lineT = 1;
+        }
+        intersections.fT[1][index] = lineT;
         ++index;
     }
     if (flipped) {
