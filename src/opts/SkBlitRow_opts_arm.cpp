@@ -17,6 +17,73 @@
 #include "SkCachePreload_arm.h"
 
 #if USE_ARM_CODE
+
+static void S32A_D565_Opaque(uint16_t* SK_RESTRICT dst,
+                             const SkPMColor* SK_RESTRICT src, int count,
+                             U8CPU alpha, int /*x*/, int /*y*/) {
+    SkASSERT(255 == alpha);
+
+    asm volatile (
+                  "1:                                   \n\t"
+                  "ldr     r3, [%[src]], #4             \n\t"
+                  "cmp     r3, #0xff000000              \n\t"
+                  "blo     2f                           \n\t"
+                  "and     r4, r3, #0x0000f8            \n\t"
+                  "and     r5, r3, #0x00fc00            \n\t"
+                  "and     r6, r3, #0xf80000            \n\t"
+                  "pld     [r1, #32]                    \n\t"
+                  "lsl     r3, r4, #8                   \n\t"
+                  "orr     r3, r3, r5, lsr #5           \n\t"
+                  "orr     r3, r3, r6, lsr #19          \n\t"
+                  "subs    %[count], %[count], #1       \n\t"
+                  "strh    r3, [%[dst]], #2             \n\t"
+                  "bne     1b                           \n\t"
+                  "b       4f                           \n\t"
+                  "2:                                   \n\t"
+                  "lsrs    r7, r3, #24                  \n\t"
+                  "beq     3f                           \n\t"
+                  "ldrh    r4, [%[dst]]                 \n\t"
+                  "rsb     r7, r7, #255                 \n\t"
+                  "and     r6, r4, #0x001f              \n\t"
+                  "ubfx    r5, r4, #5, #6               \n\t"
+                  "pld     [r0, #16]                    \n\t"
+                  "lsr     r4, r4, #11                  \n\t"
+                  "smulbb  r6, r6, r7                   \n\t"
+                  "smulbb  r5, r5, r7                   \n\t"
+                  "smulbb  r4, r4, r7                   \n\t"
+                  "ubfx    r7, r3, #16, #8              \n\t"
+                  "ubfx    ip, r3, #8, #8               \n\t"
+                  "and     r3, r3, #0xff                \n\t"
+                  "add     r6, r6, #16                  \n\t"
+                  "add     r5, r5, #32                  \n\t"
+                  "add     r4, r4, #16                  \n\t"
+                  "add     r6, r6, r6, lsr #5           \n\t"
+                  "add     r5, r5, r5, lsr #6           \n\t"
+                  "add     r4, r4, r4, lsr #5           \n\t"
+                  "add     r6, r7, r6, lsr #5           \n\t"
+                  "add     r5, ip, r5, lsr #6           \n\t"
+                  "add     r4, r3, r4, lsr #5           \n\t"
+                  "lsr     r6, r6, #3                   \n\t"
+                  "and     r5, r5, #0xfc                \n\t"
+                  "and     r4, r4, #0xf8                \n\t"
+                  "orr     r6, r6, r5, lsl #3           \n\t"
+                  "orr     r4, r6, r4, lsl #8           \n\t"
+                  "strh    r4, [%[dst]], #2             \n\t"
+                  "pld     [r1, #32]                    \n\t"
+                  "subs    %[count], %[count], #1       \n\t"
+                  "bne     1b                           \n\t"
+                  "b       4f                           \n\t"
+                  "3:                                   \n\t"
+                  "subs    %[count], %[count], #1       \n\t"
+                  "add     %[dst], %[dst], #2           \n\t"
+                  "bne     1b                           \n\t"
+                  "4:                                   \n\t"
+                  : [dst] "+r" (dst), [src] "+r" (src), [count] "+r" (count)
+                  :
+                  : "memory", "cc", "r3", "r4", "r5", "r6", "r7", "ip"
+                  );
+}
+
 static void S32A_Opaque_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
                                   const SkPMColor* SK_RESTRICT src,
                                   int count, U8CPU alpha) {
@@ -256,10 +323,13 @@ void S32A_Blend_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
 #if USE_ARM_CODE
 const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm[] = {
     // no dither
-    NULL,   // S32_D565_Opaque
-    NULL,   // S32_D565_Blend
-    NULL,   // S32A_D565_Opaque
-    NULL,   // S32A_D565_Blend
+    // NOTE: For the functions below, we don't have a special version
+    //       that assumes that each source pixel is opaque. But our S32A is
+    //       still faster than the default, so use it.
+    S32A_D565_Opaque,   // S32_D565_Opaque
+    NULL,               // S32_D565_Blend
+    S32A_D565_Opaque,   // S32A_D565_Opaque
+    NULL,               // S32A_D565_Blend
 
     // dither
     NULL,   // S32_D565_Opaque_Dither
