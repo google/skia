@@ -20,6 +20,7 @@ class SkBitmap;
 class SkCanvas;
 class SkGLContext;
 class SkPicture;
+class SkString;
 
 namespace sk_tools {
 
@@ -36,10 +37,6 @@ public:
     virtual void render() = 0;
     virtual void end();
     void resetState();
-
-    SkCanvas* getCanvas() {
-        return fCanvas.get();
-    }
 
     void setDeviceType(SkDeviceTypes deviceType) {
         fDeviceType = deviceType;
@@ -70,6 +67,8 @@ public:
         , fGrContext(fGrContextFactory.get(GrContextFactory::kNative_GLContextType))
 #endif
         {}
+
+    bool write(const SkString& path) const;
 
 protected:
     virtual void finishDraw();

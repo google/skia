@@ -76,7 +76,6 @@
       ],
       'dependencies': [
         'core.gyp:core',
-        'images.gyp:images',
         'ports.gyp:ports',
         'tools.gyp:picture_renderer',
         'tools.gyp:picture_utils',
@@ -94,10 +93,8 @@
       'dependencies': [
         'core.gyp:core',
         'ports.gyp:ports',
-        'images.gyp:images',
         'tools.gyp:picture_utils',
         'tools.gyp:picture_benchmark',
-        'bench.gyp:bench_timer',
       ],
     },
     {
@@ -132,7 +129,11 @@
      ],
      'dependencies': [
         'core.gyp:core',
+        'images.gyp:images',
         'tools.gyp:picture_utils',
+     ],
+     'export_dependent_settings': [
+       'images.gyp:images',
      ],
      'conditions': [
        ['skia_gpu == 1', {
