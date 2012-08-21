@@ -13,6 +13,12 @@ def usage():
     print '-o <file> the old bench output file.'
     print '-n <file> the new bench output file.'
     print '-h causes headers to be output.'
+    print '-s <stat> the type of statistical analysis used'
+    print '   Not specifying is the same as -s "avg".'
+    print '  avg: average of all data points'
+    print '  min: minimum of all data points'
+    print '  med: median of all data points'
+    print '  25th: twenty-fifth percentile for all data points'
     print '-f <fieldSpec> which fields to output and in what order.'
     print '   Not specifying is the same as -f "bctondp".'
     print '  b: bench'
@@ -46,7 +52,7 @@ def main():
     """Parses command line and writes output."""
     
     try:
-        opts, _ = getopt.getopt(sys.argv[1:], "f:o:n:h")
+        opts, _ = getopt.getopt(sys.argv[1:], "f:o:n:s:h")
     except getopt.GetoptError, err:
         print str(err) 
         usage()
@@ -77,6 +83,7 @@ def main():
     header_format = ""
     columns = 'bctondp'
     header = False
+    stat_type = "avg"
     
     for option, value in opts:
         if option == "-o":
@@ -87,6 +94,8 @@ def main():
             header = True
         elif option == "-f":
             columns = value
+        elif option == "-s":
+            stat_type = value
         else:
             usage()
             assert False, "unhandled option"
@@ -114,8 +123,8 @@ def main():
             , diffp='diffP'
         )
     
-    old_benches = bench_util.parse({}, open(old, 'r'))
-    new_benches = bench_util.parse({}, open(new, 'r'))
+    old_benches = bench_util.parse({}, open(old, 'r'), stat_type)
+    new_benches = bench_util.parse({}, open(new, 'r'), stat_type)
     
     bench_diffs = []
     for old_bench in old_benches:
