@@ -233,7 +233,7 @@ static void test_memory_pool(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
                 delete rec.fInstance;
             }
-#ifdef SK_DEBUG
+#ifdef SK_ENABLE_INST_COUNT
             REPORTER_ASSERT(reporter, !A::GetInstanceCount());
 #endif
         }
