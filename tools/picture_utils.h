@@ -28,6 +28,11 @@ namespace sk_tools {
     // Returns true if the string ends with %
     bool is_percentage(char* const string);
 
+    // Prints to STDOUT so that test results can be easily seperated from the
+    // error stream. Note, that this still prints to the same stream as SkDebugf
+    // on Andoid.
+    void print_msg(const char msg[]);
+
     // Prepares the bitmap so that it can be written.
     //
     // Specifically, it configures the bitmap, allocates pixels and then

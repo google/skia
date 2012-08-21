@@ -62,16 +62,17 @@ void PipePictureBenchmark::run(SkPicture* pict) {
 #endif
     }
 
-    fRenderer.end();
-
-    SkDebugf("pipe: msecs = %6.2f", wall_time / fRepeats);
+    SkString result;
+    result.printf("pipe: msecs = %6.2f", wall_time / fRepeats);
 #if SK_SUPPORT_GPU
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", gpu_time / fRepeats);
+        result.appendf(" gmsecs = %6.2f", gpu_time / fRepeats);
     }
 #endif
-    SkDebugf("\n");
+    result.appendf("\n");
+    sk_tools::print_msg(result.c_str());
 
+    fRenderer.end();
     SkDELETE(timer);
 }
 
@@ -98,7 +99,9 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
         }
     }
 
-    SkDebugf("record: msecs = %6.5f\n", wall_time / fRepeats);
+    SkString result;
+    result.printf("record: msecs = %6.5f\n", wall_time / fRepeats);
+    sk_tools::print_msg(result.c_str());
 
     SkDELETE(timer);
 }
@@ -137,16 +140,18 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
 #endif
     }
 
-    fRenderer.end();
 
-    SkDebugf("simple: msecs = %6.2f", wall_time / fRepeats);
+    SkString result;
+    result.printf("simple: msecs = %6.2f", wall_time / fRepeats);
 #if SK_SUPPORT_GPU
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", gpu_time / fRepeats);
+        result.appendf(" gmsecs = %6.2f", gpu_time / fRepeats);
     }
 #endif
-    SkDebugf("\n");
+    result.appendf("\n");
+    sk_tools::print_msg(result.c_str());
 
+    fRenderer.end();
     SkDELETE(timer);
 }
 
@@ -183,17 +188,18 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
 #endif
     }
 
-    fRenderer.end();
-
-    SkDebugf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(), fRenderer.getTileWidth(),
-            fRenderer.getTileHeight(), wall_time / fRepeats);
+    SkString result;
+    result.printf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(), fRenderer.getTileWidth(),
+                  fRenderer.getTileHeight(), wall_time / fRepeats);
 #if SK_SUPPORT_GPU
     if (fRenderer.isUsingGpuDevice()) {
-        SkDebugf(" gmsecs = %6.2f", gpu_time / fRepeats);
+        result.appendf(" gmsecs = %6.2f", gpu_time / fRepeats);
     }
 #endif
-    SkDebugf("\n");
+    result.appendf("\n");
+    sk_tools::print_msg(result.c_str());
 
+    fRenderer.end();
     SkDELETE(timer);
 }
 
@@ -222,7 +228,9 @@ void UnflattenPictureBenchmark::run(SkPicture* pict) {
         }
     }
 
-    SkDebugf("unflatten: msecs = %6.4f\n", wall_time / fRepeats);
+    SkString result;
+    result.printf("unflatten: msecs = %6.4f\n", wall_time / fRepeats);
+    sk_tools::print_msg(result.c_str());
 
     SkDELETE(timer);
 }
