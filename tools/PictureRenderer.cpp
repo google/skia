@@ -9,8 +9,10 @@
 #include "SamplePipeControllers.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkImageEncoder.h"
 #include "SkGPipe.h"
 #include "SkPicture.h"
+#include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
 #include "picture_utils.h"
@@ -107,6 +109,22 @@ void PictureRenderer::finishDraw() {
         SK_GL(*glContext, Finish());
     }
 #endif
+}
+
+bool PictureRenderer::write(const SkString& path) const {
+    SkASSERT(fCanvas.get() != NULL);
+    SkASSERT(fPicture != NULL);
+    if (NULL == fCanvas.get() || NULL == fPicture) {
+        return false;
+    }
+
+    SkBitmap bitmap;
+    sk_tools::setup_bitmap(&bitmap, fPicture->width(), fPicture->height());
+
+    fCanvas->readPixels(&bitmap, 0, 0);
+    sk_tools::force_all_opaque(bitmap);
+
+    return SkImageEncoder::EncodeFile(path.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 }
 
 void PipePictureRenderer::render() {

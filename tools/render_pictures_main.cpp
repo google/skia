@@ -7,9 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
 #include "SkDevice.h"
-#include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -68,32 +66,11 @@ static void make_output_filepath(SkString* path, const SkString& dir,
     path->append("png");
 }
 
-/* since PNG insists on unpremultiplying our alpha, we take no precision chances
-    and force all pixels to be 100% opaque, otherwise on compare we may not get
-    a perfect match.
- */
-static void force_all_opaque(const SkBitmap& bitmap) {
-    SkAutoLockPixels lock(bitmap);
-    for (int y = 0; y < bitmap.height(); y++) {
-        for (int x = 0; x < bitmap.width(); x++) {
-            *bitmap.getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
-        }
-    }
-}
-
-static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
-    SkBitmap copy;
-    bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
-    force_all_opaque(copy);
-    return SkImageEncoder::EncodeFile(path.c_str(), copy,
-                                      SkImageEncoder::kPNG_Type, 100);
-}
-
 static void write_output(const SkString& outputDir, const SkString& inputFilename,
-                         const SkBitmap& bitmap) {
+                         const sk_tools::PictureRenderer& renderer) {
     SkString outputPath;
     make_output_filepath(&outputPath, outputDir, inputFilename);
-    bool isWritten = write_bitmap(outputPath, bitmap);
+    bool isWritten = renderer.write(outputPath);
     if (!isWritten) {
         SkDebugf("Could not write to file %s\n", outputPath.c_str());
     }
@@ -112,15 +89,12 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
     }
 
     SkPicture picture(&inputStream);
-    SkBitmap bitmap;
-    sk_tools::setup_bitmap(&bitmap, picture.width(), picture.height());
 
     renderer.init(&picture);
 
     renderer.render();
 
-    renderer.getCanvas()->readPixels(&bitmap, 0, 0);
-    write_output(outputDir, inputFilename, bitmap);
+    write_output(outputDir, inputFilename, renderer);
 
     renderer.end();
 }

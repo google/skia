@@ -6,12 +6,27 @@
  */
 
 #include "picture_utils.h"
+#include "SkColorPriv.h"
 #include "SkBitmap.h"
 #include "SkPicture.h"
 #include "SkString.h"
 #include "SkStream.h"
 
 namespace sk_tools {
+    void force_all_opaque(const SkBitmap& bitmap) {
+        SkASSERT(NULL == bitmap.getTexture());
+        SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
+        if (NULL != bitmap.getTexture() || SkBitmap::kARGB_8888_Config == bitmap.config()) {
+            return;
+        }
+
+        SkAutoLockPixels lock(bitmap);
+        for (int y = 0; y < bitmap.height(); y++) {
+            for (int x = 0; x < bitmap.width(); x++) {
+                *bitmap.getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
+            }
+        }
+    }
 
     void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
         size_t len = dir.size();
