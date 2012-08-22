@@ -1899,3 +1899,8 @@ GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#if GR_DEBUG
+void GrContext::printCacheStats() const {
+    fTextureCache->printStats();
+}
+#endif
