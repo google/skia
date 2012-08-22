@@ -1148,7 +1148,22 @@ int main(int argc, char * const argv[]) {
     for (int i = 0; i < failedTests.count(); ++i) {
         SkDebugf("\t\t%s\n", failedTests[i].c_str());
     }
+
 #if SK_SUPPORT_GPU
+
+#if SK_DEBUG
+    for (int i = 0; i < configs.count(); i++) {
+        ConfigData config = gRec[configs[i]];
+
+        if (kGPU_Backend == config.fBackend) {
+            GrContext* gr = grFactory->get(config.fGLContextType);
+
+            SkDebugf("config: %s %x\n", config.fName, gr);
+            gr->printCacheStats();
+        }
+    }
+#endif
+
     delete grFactory;
 #endif
     SkGraphics::Term();

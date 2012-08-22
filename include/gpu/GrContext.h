@@ -752,6 +752,10 @@ public:
                                     bool antiAlias,
                                     bool allowSW);
 
+#ifdef GR_DEBUG
+    void printCacheStats() const;
+#endif
+
 private:
     // Used to indicate whether a draw should be performed immediately or queued in fDrawBuffer.
     enum BufferedDraw {

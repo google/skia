@@ -280,6 +280,7 @@ public:
 
 #if GR_DEBUG
     void validate() const;
+    void printStats() const;
 #else
     void validate() const {}
 #endif
@@ -301,6 +302,14 @@ private:
     size_t fMaxBytes;
 
     // our current stats, related to our budget
+#if GR_DEBUG
+    int fHighWaterEntryCount;
+    int fHighWaterUnlockedEntryCount;
+    size_t fHighWaterEntryBytes;
+    int fHighWaterClientDetachedCount;
+    size_t fHighWaterClientDetachedBytes;
+#endif
+
     int fEntryCount;
     int fUnlockedEntryCount;
     size_t fEntryBytes;
