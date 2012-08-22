@@ -9,6 +9,7 @@
     '../gm/bitmapmatrix.cpp',
     '../gm/bitmapfilters.cpp',
     '../gm/bitmapscroll.cpp',
+    '../gm/blend.cpp',
     '../gm/blurs.cpp',
     '../gm/circles.cpp',
     '../gm/colormatrix.cpp',
