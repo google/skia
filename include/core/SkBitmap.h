@@ -395,7 +395,8 @@ public:
 
     /** Scroll (a subset of) the contents of this bitmap by dx/dy. If there are
         no pixels allocated (i.e. getPixels() returns null) the method will
-        still update the inval region (if present).
+        still update the inval region (if present). If the bitmap is immutable,
+        do nothing and return false.
 
         @param subset The subset of the bitmap to scroll/move. To scroll the
                       entire contents, specify [0, 0, width, height] or just

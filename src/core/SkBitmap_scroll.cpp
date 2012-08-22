@@ -11,6 +11,10 @@
 bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
                           SkRegion* inval) const
 {
+    if (this->isImmutable()) {
+        return false;
+    }
+
     if (NULL != subset) {
         SkBitmap tmp;
 
@@ -113,5 +117,7 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
         dst += rowBytes;
         src += rowBytes;
     }
+
+    this->notifyPixelsChanged();
     return true;
 }
