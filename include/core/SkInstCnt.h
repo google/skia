@@ -113,11 +113,19 @@ extern bool gPrintInstCount;
     SkTArray<className::SkInstanceCountHelper::PFCheckInstCnt>*             \
                         className::SkInstanceCountHelper::gChildren = NULL;
 
+#define SK_DEFINE_INST_COUNT_TEMPLATE(templateInfo, className)              \
+    templateInfo int32_t className::SkInstanceCountHelper::gInstanceCount = 0;\
+    templateInfo bool className::SkInstanceCountHelper::gInited = false;    \
+    templateInfo                                                            \
+        SkTArray<typename className::SkInstanceCountHelper::PFCheckInstCnt>*\
+                      className::SkInstanceCountHelper::gChildren = NULL;
+
 #else
 #define SK_DECLARE_INST_COUNT(className)
 #define SK_DECLARE_INST_COUNT_TEMPLATE(className)
 #define SK_DECLARE_INST_COUNT_ROOT(className)
 #define SK_DEFINE_INST_COUNT(className)
+#define SK_DEFINE_INST_COUNT_TEMPLATE(templateInfo, className)
 #endif
 
 #endif // SkInstCnt_DEFINED
