@@ -470,10 +470,11 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
 
     // If the caller gives us the same desc/sampler twice we don't want
     // to return the same texture the second time (unless it was previously
-    // released). So we detach the entry from the cache and reattach at release.
+    // released). So make it exclusive to hide it from future searches.
     if (NULL != resource) {
-        fTextureCache->detach(resource->getCacheEntry());
+        fTextureCache->makeExclusive(resource->getCacheEntry());
     }
+
     return static_cast<GrTexture*>(resource);
 }
 
@@ -483,14 +484,20 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
         return;
     }
 
-    // 'texture' is a scratch texture returning to the fold
-    GrCacheData cacheData(GrCacheData::kScratch_CacheID);
+    // This texture should already have a cache entry since it was once
+    // attached
+    GrAssert(NULL != texture->getCacheEntry());
 
-    GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL,
-                                              texture->desc(),
-                                              cacheData,
-                                              true);
-    fTextureCache->attach(key, texture);
+    // Conceptually, the cache entry is going to assume responsibility
+    // for the creation ref.
+    GrAssert(1 == texture->getRefCnt());
+
+    // Since this texture came from an AutoScratchTexture it should
+    // still be in the exclusive pile
+    fTextureCache->makeNonExclusive(texture->getCacheEntry());
+
+    // and it should still be locked
+    fTextureCache->unlock(texture->getCacheEntry());
 }
 
 void GrContext::unlockTexture(GrTexture* texture) {
@@ -501,18 +508,10 @@ void GrContext::unlockTexture(GrTexture* texture) {
     // while it was locked (to avoid two callers simultaneously getting
     // the same texture).
     if (GrTexture::IsScratchTexture(texture->getCacheEntry()->key())) {
-        fTextureCache->reattachAndUnlock(texture->getCacheEntry());
-    } else {
-        fTextureCache->unlock(texture->getCacheEntry());
+        fTextureCache->makeNonExclusive(texture->getCacheEntry());
     }
-}
 
-void GrContext::freeEntry(GrTexture* texture) {
-    ASSERT_OWNED_RESOURCE(texture);
-    GrAssert(NULL != texture->getCacheEntry());
-
-    fTextureCache->freeEntry(texture->getCacheEntry());
-    texture->setCacheEntry(NULL);
+    fTextureCache->unlock(texture->getCacheEntry());
 }
 
 GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,

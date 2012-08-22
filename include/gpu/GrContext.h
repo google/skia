@@ -179,17 +179,6 @@ public:
     void unlockTexture(GrTexture* texture);
 
     /**
-     * Free any data associated with the provided entry in the texture cache.
-     * Currently this entry point is only used when a scratch texture is 
-     * detached from the cache. In this case the GrResourceEntry* associated
-     * with the texture needs to be freed since it will be re-allocated when
-     * the texture is re-added. This entry point will be removed soon since the
-     * texture can now carry around a pointer to its GrResourceEntry* (and
-     * will eventually take over its functionality).
-     */
-    void freeEntry(GrTexture* texture);
-
-    /**
      * Creates a texture that is outside the cache. Does not count against
      * cache's budget.
      */
@@ -858,9 +847,10 @@ public:
     GrTexture* detach() {
         GrTexture* temp = fTexture;
 
-        // freeEntry will remove the texture cache's ref
-        temp->ref();
-        fContext->freeEntry(fTexture);
+        // Conceptually the texture's cache entry loses its ref to the
+        // texture while the caller of this method gets a ref.
+        GrAssert(NULL != temp->getCacheEntry());
+
         fTexture = NULL;
 
         temp->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);

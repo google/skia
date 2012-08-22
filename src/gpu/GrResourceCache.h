@@ -157,11 +157,33 @@ private:
     GrResourceEntry* fNext;
 
     friend class GrResourceCache;
+    friend class GrDLinkedList;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "GrTHashCache.h"
+
+class GrDLinkedList {
+public:
+    GrDLinkedList()
+        : fHead(NULL)
+        , fTail(NULL) {
+    }
+
+    void remove(GrResourceEntry* entry);
+    void addToHead(GrResourceEntry* entry);
+
+#ifdef GR_DEBUG
+    bool isInList(const GrResourceEntry* entry) const;
+    bool isEmpty() const { return NULL == fHead && NULL == fTail; }
+    int countEntries() const;
+    size_t countBytes() const;
+#endif
+
+    GrResourceEntry* fHead;
+    GrResourceEntry* fTail;
+};
 
 /**
  *  Cache of GrResource objects.
@@ -254,21 +276,18 @@ public:
     bool hasKey(const GrResourceKey& key) const;
 
     /**
-     * Detach removes an entry from the cache. This prevents the entry from
-     * being found by a subsequent findAndLock() until it is reattached. The
-     * entry still counts against the cache's budget and should be reattached
-     * when exclusive access is no longer needed.
+     * Hide 'entry' so that future searches will not find it. Such
+     * hidden entries will not be purged. The entry still counts against
+     * the cache's budget and should be made non-exclusive when exclusive access
+     * is no longer needed.
      */
-    void detach(GrResourceEntry*);
-
-    void freeEntry(GrResourceEntry* entry);
+    void makeExclusive(GrResourceEntry* entry);
 
     /**
-     * Reattaches a resource to the cache and unlocks it. Allows it to be found
-     * by a subsequent findAndLock or be purged (provided its lock count is
-     * now 0.)
+     * Restore 'entry' so that it can be found by future searches. 'entry'
+     * will also be purgeable (provided its lock count is now 0.)
      */
-    void reattachAndUnlock(GrResourceEntry*);
+    void makeNonExclusive(GrResourceEntry* entry);
 
     /**
      *  When done with an entry, call unlock(entry) on it, which returns it to
@@ -290,12 +309,18 @@ private:
     void attachToHead(GrResourceEntry*, bool);
     void purgeAsNeeded();
 
+    void removeInvalidResource(GrResourceEntry* entry);
+
     class Key;
     GrTHashTable<GrResourceEntry, Key, 8> fCache;
 
     // manage the dlink list
-    GrResourceEntry* fHead;
-    GrResourceEntry* fTail;
+    GrDLinkedList    fList;
+
+#if GR_DEBUG
+    // These objects cannot be returned by a search
+    GrDLinkedList    fExclusiveList;
+#endif
 
     // our budget, used in purgeAsNeeded()
     int fMaxCount;
