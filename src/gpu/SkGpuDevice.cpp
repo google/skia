@@ -284,7 +284,6 @@ SkGpuDevice::~SkGpuDevice() {
 void SkGpuDevice::makeRenderTargetCurrent() {
     DO_DEFERRED_CLEAR;
     fContext->setRenderTarget(fRenderTarget);
-    fContext->flush(true);
     fNeedPrepareRenderTarget = true;
 }
 
