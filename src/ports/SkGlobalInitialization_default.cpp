@@ -21,6 +21,7 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAvoidXfermode.h"
+#include "SkBlendImageFilter.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
@@ -40,13 +41,13 @@
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
+#include "SkMagnifierImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkPathEffect.h"
 #include "SkPixelXorXfermode.h"
 #include "SkStippleMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
-#include "SkMagnifierImageFilter.h"
 
 void SkFlattenable::InitializeFlattenables() {
 
