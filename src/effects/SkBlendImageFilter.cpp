@@ -7,6 +7,7 @@
 
 #include "SkBlendImageFilter.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #if SK_SUPPORT_GPU
 #include "SkGr.h"
