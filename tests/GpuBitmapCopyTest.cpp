@@ -6,6 +6,8 @@
  * found in the LICENSE file.
  */
 
+#if SK_SUPPORT_GPU
+
 #include "GrContext.h"
 #include "SkBitmap.h"
 #include "SkGpuDevice.h"
@@ -106,3 +108,5 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContext* grContext
 
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("GpuBitmapCopy", TestGpuBitmapCopyClass, TestGpuBitmapCopy)
+
+#endif
