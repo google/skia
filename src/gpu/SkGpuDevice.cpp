@@ -262,9 +262,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
 }
 
 SkGpuDevice::~SkGpuDevice() {
-    // FIXME: This flush should be removed after CSS filters in WebKit flush their SkCanvas
-    fContext->flush();
-
     if (fDrawProcs) {
         delete fDrawProcs;
     }
