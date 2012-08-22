@@ -22,7 +22,6 @@
 #include "SkStroke.h"
 #include "SkThread.h"
 
-//SK_DEFINE_INST_COUNT(SkMaskGamma)
 
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 
