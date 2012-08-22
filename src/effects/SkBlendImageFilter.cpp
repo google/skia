@@ -292,4 +292,4 @@ GrGLProgramStage::StageKey GrGLBlendEffect::GenKey(const GrCustomStage& s, const
 }
 #endif
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlendImageFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkBlendImageFilter)
