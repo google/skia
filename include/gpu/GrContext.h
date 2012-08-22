@@ -603,32 +603,6 @@ public:
      GrTexture* zoom(GrTexture* srcTexture,
                      const SkRect& dstRect, const SkRect& srcRect, float inset);
 
-
-    /**
-     * This enum is used with the function below, applyMorphology.
-     */
-    enum MorphologyType {
-        kErode_MorphologyType,
-        kDilate_MorphologyType,
-    };
-
-    /**
-     * Applies a 2D morphology to a given texture.
-     * @param srcTexture      The source texture to be blurred.
-     * @param rect            The destination rectangle.
-     * @param filter          The morphology filter.  Must be kDilate_Filter or
-     *                        kErode_Filter.
-     * @param radius          The morphology radius in X and Y.  The filter is
-     *                        applied to a fWidth by fHeight rectangle of
-     *                        pixels.
-     * @return the morphed texture, which may be srcTexture ref'ed, or a
-     * new texture.  It is the caller's responsibility to unref this texture.
-     */
-    GrTexture* applyMorphology(GrTexture* srcTexture,
-                               const GrRect& rect,
-                               MorphologyType type,
-                               SkISize radius);
-    
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 

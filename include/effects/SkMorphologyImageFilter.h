@@ -19,7 +19,9 @@ public:
 protected:
     SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+#if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
+#endif
 
     SkISize    radius() const { return fRadius; }
 
@@ -35,7 +37,9 @@ public:
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+#if SK_SUPPORT_GPU
     virtual GrTexture* onFilterImageGPU(GrTexture* src, const SkRect& rect) SK_OVERRIDE;
+#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
 
@@ -53,7 +57,9 @@ public:
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+#if SK_SUPPORT_GPU
     virtual GrTexture* onFilterImageGPU(GrTexture* src, const SkRect& rect) SK_OVERRIDE;
+#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
 
