@@ -9,7 +9,6 @@
 
 #include "GrContext.h"
 
-#include "effects/GrMorphologyEffect.h"
 #include "effects/GrConvolutionEffect.h"
 #include "effects/GrSingleTextureEffect.h"
 
@@ -183,26 +182,6 @@ float adjust_sigma(float sigma, int *scaleFactor, int *radius) {
     *radius = static_cast<int>(ceilf(sigma * 3.0f));
     GrAssert(*radius <= GrConvolutionEffect::kMaxKernelRadius);
     return sigma;
-}
-
-void apply_morphology(GrDrawTarget* target,
-                      GrTexture* texture,
-                      const SkRect& rect,
-                      int radius,
-                      GrContext::MorphologyType morphType,
-                      Gr1DKernelEffect::Direction direction) {
-
-    GrRenderTarget* rt = target->drawState()->getRenderTarget();
-    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
-    GrDrawState* drawState = target->drawState();
-    drawState->setRenderTarget(rt);
-    GrMatrix sampleM;
-    sampleM.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(sampleM);
-    SkAutoTUnref<GrCustomStage> morph(
-        SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)));
-    drawState->sampler(0)->setCustomStage(morph);
-    target->drawSimpleRect(rect, NULL);
 }
 
 void convolve_gaussian(GrDrawTarget* target,
@@ -1850,51 +1829,6 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         srcTexture->ref();
         return srcTexture;
     }
-}
-
-GrTexture* GrContext::applyMorphology(GrTexture* srcTexture,
-                                      const GrRect& rect,
-                                      MorphologyType morphType,
-                                      SkISize radius) {
-    ASSERT_OWNED_RESOURCE(srcTexture);
-    srcTexture->ref();
-    GrRenderTarget* oldRenderTarget = this->getRenderTarget();
-
-    AutoMatrix avm(this, GrMatrix::I());
-
-    AutoClip acs(this, GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
-                                      SkIntToScalar(srcTexture->height())));
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fWidth = SkScalarCeilToInt(rect.width());
-    desc.fHeight = SkScalarCeilToInt(rect.height());
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    if (radius.fWidth > 0) {
-        GrAutoScratchTexture ast(this, desc);
-        this->setRenderTarget(ast.texture()->asRenderTarget());
-        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
-        apply_morphology(target, srcTexture, rect, radius.fWidth, morphType,
-                         Gr1DKernelEffect::kX_Direction);
-        SkIRect clearRect = SkIRect::MakeXYWH(
-                    SkScalarFloorToInt(rect.fLeft), 
-                    SkScalarFloorToInt(rect.fBottom),
-                    SkScalarFloorToInt(rect.width()), 
-                    radius.fHeight);
-        this->clear(&clearRect, 0x0);
-        srcTexture->unref();
-        srcTexture = ast.detach();
-    }
-    if (radius.fHeight > 0) {
-        GrAutoScratchTexture ast(this, desc);
-        this->setRenderTarget(ast.texture()->asRenderTarget());
-        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
-        apply_morphology(target, srcTexture, rect, radius.fHeight, morphType,
-                         Gr1DKernelEffect::kY_Direction);
-        srcTexture->unref();
-        srcTexture = ast.detach();
-    }
-    this->setRenderTarget(oldRenderTarget);
-    return srcTexture;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
