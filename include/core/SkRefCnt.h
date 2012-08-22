@@ -117,12 +117,21 @@ private:
     } while (0)
 
 
-/** Check if the argument is non-null, and if so, call obj->ref()
+/** Call obj->ref() and return obj. The obj must not be NULL.
  */
-template <typename T> static inline void SkSafeRef(T* obj) {
+template <typename T> static inline T* SkRef(T* obj) {
+    SkASSERT(obj);
+    obj->ref();
+    return obj;
+}
+
+/** Check if the argument is non-null, and if so, call obj->ref() and return obj.
+ */
+template <typename T> static inline T* SkSafeRef(T* obj) {
     if (obj) {
         obj->ref();
     }
+    return obj;
 }
 
 /** Check if the argument is non-null, and if so, call obj->unref()
