@@ -218,10 +218,11 @@ static void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
     bool success = true;
 
     // Confirm all pixels in the list match.
-    for (int i = 0; i < coords.length; ++i)
+    for (int i = 0; i < coords.length; ++i) {
         success = success &&
                   (getPixel(coords[i]->fX, coords[i]->fY, bm1) ==
                    getPixel(coords[i]->fX, coords[i]->fY, bm2));
+    }
 
     if (!success) {
         SkString str;
@@ -305,6 +306,9 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                     REPORTER_ASSERT(reporter, srcP != dstP);
                     REPORTER_ASSERT(reporter, !memcmp(srcP, dstP,
                                                       src.getSize()));
+                    REPORTER_ASSERT(reporter, src.getGenerationID() == dst.getGenerationID());
+                } else {
+                    REPORTER_ASSERT(reporter, src.getGenerationID() != dst.getGenerationID());
                 }
                 // test extractSubset
                 {

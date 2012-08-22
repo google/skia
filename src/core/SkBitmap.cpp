@@ -892,6 +892,9 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         // did we get lucky and we can just return tmpSrc?
         if (tmpSrc.config() == dstConfig && NULL == alloc) {
             dst->swap(tmpSrc);
+            if (dst->pixelRef()) {
+                dst->pixelRef()->fGenerationID = fPixelRef->getGenerationID();
+            }
             return true;
         }
 
@@ -926,6 +929,10 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     if (src->config() == dstConfig) {
         if (tmpDst.getSize() == src->getSize()) {
             memcpy(tmpDst.getPixels(), src->getPixels(), src->getSafeSize());
+            SkPixelRef* pixelRef = tmpDst.pixelRef();
+            if (pixelRef != NULL) {
+                pixelRef->fGenerationID = this->getGenerationID();
+            }
         } else {
             const char* srcP = reinterpret_cast<const char*>(src->getPixels());
             char* dstP = reinterpret_cast<char*>(tmpDst.getPixels());
@@ -966,6 +973,9 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
     if (fPixelRef) {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(dstConfig);
         if (pixelRef) {
+            if (dstConfig == fConfig) {
+                pixelRef->fGenerationID = fPixelRef->getGenerationID();
+            }
             dst->setConfig(dstConfig, fWidth, fHeight);
             dst->setPixelRef(pixelRef)->unref();
             return true;
