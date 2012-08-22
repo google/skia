@@ -193,6 +193,10 @@ private:
 
     mutable uint32_t fGenerationID;
 
+    // SkBitmap is only a friend so that when copying, it can modify the new SkPixelRef to have the
+    // same fGenerationID as the original.
+    friend class SkBitmap;
+
     SkString    fURI;
 
     // can go from false to true, but never from true to false
