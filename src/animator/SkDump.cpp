@@ -144,7 +144,7 @@ bool SkDump::hasEnable() const {
 }
 
 bool SkDump::setProperty(int index, SkScriptValue& ) {
-    return index <= SK_PROPERTY(posts); 
+    return index <= SK_PROPERTY(posts);
 }
 
 #endif

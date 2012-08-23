@@ -59,9 +59,9 @@ static size_t makeCharArray(char* buffer, size_t compact)
     return strlen(buffer);
 }
 
-void SkEvent::getType(SkString* str) const 
-{ 
-    if (str) 
+void SkEvent::getType(SkString* str) const
+{
+    if (str)
     {
         if ((size_t) fType & 1) // not a pointer
         {
@@ -74,13 +74,13 @@ void SkEvent::getType(SkString* str) const
     }
 }
 
-bool SkEvent::isType(const SkString& str) const 
+bool SkEvent::isType(const SkString& str) const
 {
-    return this->isType(str.c_str(), str.size()); 
+    return this->isType(str.c_str(), str.size());
 }
 
-bool SkEvent::isType(const char type[], size_t typeLen) const 
-{ 
+bool SkEvent::isType(const char type[], size_t typeLen) const
+{
     if (typeLen == 0)
         typeLen = strlen(type);
     if ((size_t) fType & 1) {   // not a pointer
@@ -88,7 +88,7 @@ bool SkEvent::isType(const char type[], size_t typeLen) const
         size_t len = makeCharArray(chars, (size_t) fType);
         return len == typeLen && strncmp(chars, type, typeLen) == 0;
     }
-    return strncmp(fType, type, typeLen) == 0 && fType[typeLen] == 0; 
+    return strncmp(fType, type, typeLen) == 0 && fType[typeLen] == 0;
 }
 
 void SkEvent::setType(const char type[], size_t typeLen)
@@ -183,7 +183,7 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
     {
         if (title)
             SkDebugf("%s ", title);
-            
+
         SkString    etype;
         this->getType(&etype);
         SkDebugf("event<%s> fast32=%d", etype.c_str(), this->getFast32());
@@ -193,7 +193,7 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
         SkMetaData::Type    mtype;
         int                 count;
         const char*         name;
-        
+
         while ((name = iter.next(&mtype, &count)) != NULL)
         {
             SkASSERT(count > 0);
@@ -296,7 +296,7 @@ void SkEvent::postDelay(SkMSec delay) {
         delete this;
         return;
     }
-    
+
     if (delay) {
         this->postTime(SkTime::GetMSecs() + delay);
         return;
@@ -307,7 +307,7 @@ void SkEvent::postDelay(SkMSec delay) {
     globals.fEventMutex.acquire();
     bool wasEmpty = SkEvent::Enqueue(this);
     globals.fEventMutex.release();
-    
+
     // call outside of us holding the mutex
     if (wasEmpty) {
         SkEvent::SignalNonEmptyQueue();
@@ -321,11 +321,11 @@ void SkEvent::postTime(SkMSec time) {
     }
 
     SkEvent_Globals& globals = getGlobals();
-    
+
     globals.fEventMutex.acquire();
     SkMSec queueDelay = SkEvent::EnqueueTime(this, time);
     globals.fEventMutex.release();
-    
+
     // call outside of us holding the mutex
     if ((int32_t)queueDelay != ~0) {
         SkEvent::SignalQueueTimer(queueDelay);
@@ -473,7 +473,7 @@ void SkEvent::ServiceQueueTimer()
 int SkEvent::CountEventsOnQueue() {
     SkEvent_Globals& globals = getGlobals();
     globals.fEventMutex.acquire();
-    
+
     int count = 0;
     const SkEvent* evt = globals.fEventQHead;
     while (evt) {

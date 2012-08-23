@@ -147,7 +147,7 @@ static bool return_false(const jpeg_decompress_struct& cinfo,
 // method moves the "scanline" pointer in its processing
 static void convert_CMYK_to_RGB(uint8_t* scanline, unsigned int width) {
     // At this point we've received CMYK pixels from libjpeg. We
-    // perform a crude conversion to RGB (based on the formulae 
+    // perform a crude conversion to RGB (based on the formulae
     // from easyrgb.com):
     //  CMYK -> CMY
     //    C = ( C * (1 - K) + K )      // for each CMY component
@@ -294,9 +294,9 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
        a significant performance boost.
     */
     if (sampleSize == 1 &&
-        ((config == SkBitmap::kARGB_8888_Config && 
+        ((config == SkBitmap::kARGB_8888_Config &&
                 cinfo.out_color_space == JCS_RGBA_8888) ||
-        (config == SkBitmap::kRGB_565_Config && 
+        (config == SkBitmap::kRGB_565_Config &&
                 cinfo.out_color_space == JCS_RGB_565)))
     {
         bm->setConfig(config, cinfo.output_width, cinfo.output_height);
@@ -310,7 +310,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         SkAutoLockPixels alp(*bm);
         JSAMPLE* rowptr = (JSAMPLE*)bm->getPixels();
         INT32 const bpr =  bm->rowBytes();
-        
+
         while (cinfo.output_scanline < cinfo.output_height) {
             int row_count = jpeg_read_scanlines(&cinfo, &rowptr, 1);
             // if row_count == 0, then we didn't get a scanline, so abort.

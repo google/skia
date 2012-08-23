@@ -32,14 +32,14 @@ public:
         kIncomplete_state,
         kDone_state
     };
-    
+
     enum DataType {
         kPipeAppend_type,
         kPipeReplace_type,
         kString_type,
         kInt_type
     };
-    
+
     bool isConnected() { return fConnected; }
     /**
      * Write data to the socket. Data is a pointer to the beginning of the data
@@ -51,12 +51,12 @@ public:
      * was an error during the transfer, in which case the method returns -1.
      * For blocking sockets, write will block indefinitely if the socket at the
      * other end of the connection doesn't receive any data.
-     * NOTE: This method guarantees that all of the data will be sent unless 
-     * there was an error, so it may block temporarily when the write buffer is 
+     * NOTE: This method guarantees that all of the data will be sent unless
+     * there was an error, so it may block temporarily when the write buffer is
      * full
      */
     int writePacket(void* data, size_t size, DataType type = kPipeAppend_type);
-    
+
     /**
      * Read a logical packet from socket. The data read will be stored
      * sequentially in the dataArray. This method will keep running until all
@@ -66,16 +66,16 @@ public:
      * nonblocking sockets, read will return 0 if there's nothing to read. For
      * blocking sockets, read will block indefinitely if the socket doesn't
      * receive any data.
-     * NOTE: This method guarantees that all the data in a logical packet will 
+     * NOTE: This method guarantees that all the data in a logical packet will
      * be read so it may block temporarily if it's waiting for parts of a
      * packet
      */
-    int readPacket(void (*onRead)(int cid, const void* data, size_t size, 
+    int readPacket(void (*onRead)(int cid, const void* data, size_t size,
                                   DataType type, void*), void* context);
 
     /**
      * Suspend network transfers until resume() is called. Leaves all
-     * connections in tact. 
+     * connections in tact.
      */
     void suspendAll() { fReadSuspended = fWriteSuspended = true; }
     /**
@@ -101,7 +101,7 @@ protected:
      * Create a socket and return its file descriptor. Returns -1 on failure
      */
     int createSocket();
-    
+
     /**
      * Close the socket specified by the socket file descriptor argument. Will
      * update fMaxfd and working set properly
@@ -119,7 +119,7 @@ protected:
      * Set the socket specified by the socket file descriptor as nonblocking
      */
     void setNonBlocking(int sockfd);
-    
+
     /**
      * Add the socket specified by the socket file descriptor to the master
      * file descriptor set, which is used to in the select() to detect new data
@@ -134,10 +134,10 @@ protected:
     int     fMaxfd;
     int     fPort;
     int     fSockfd;
-    
-    /** 
+
+    /**
      * fMasterSet contains all the file descriptors to be used for read/write.
-     * For clients, this only contains the client socket. For servers, this  
+     * For clients, this only contains the client socket. For servers, this
      * contains all the file descriptors associated with established connections
      * to clients
      */
@@ -156,7 +156,7 @@ public:
 
     /**
      * Accept any incoming connections to the server, will accept 1 connection
-     * at a time. Returns -1 on error. For blocking sockets, this method will 
+     * at a time. Returns -1 on error. For blocking sockets, this method will
      * block until a client calls connectToServer()
      */
     int acceptConnections();
@@ -179,15 +179,15 @@ public:
     SkTCPClient(const char* hostname, int port = DEFAULT_PORT);
 
     /**
-     * Connect to server. Returns -1 on error or failure. Call this to connect 
-     * or reconnect to the server. For blocking sockets, this method will block 
+     * Connect to server. Returns -1 on error or failure. Call this to connect
+     * or reconnect to the server. For blocking sockets, this method will block
      * until the connection is accepted by the server.
      */
     int connectToServer();
 protected:
     /**
-     * Client needs to recreate the socket when a connection is broken because 
-     * connect can only be called successfully once. 
+     * Client needs to recreate the socket when a connection is broken because
+     * connect can only be called successfully once.
      */
     virtual void onFailedConnection(int sockfd);
 private:

@@ -59,7 +59,7 @@ SkScalar SkEvalCubicInterval(SkScalar x1, SkScalar y1,
 
     // now search for t given unitX
     SkScalar t = find_cubic_t(x1, x2 - 2*x1, x1 - x2 + SK_Scalar1, unitX);
-    
+
     // now evaluate the cubic in Y
     y1 *= 3;
     y2 *= 3;

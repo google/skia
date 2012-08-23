@@ -77,9 +77,9 @@ static SkShader* Make2Conical(const SkPoint pts[2], const GradData& data,
     SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
-    return SkGradientShader::CreateTwoPointConical(center1, radius1, 
-                                                   center0, radius0, 
-                                                   data.fColors, data.fPos, 
+    return SkGradientShader::CreateTwoPointConical(center1, radius1,
+                                                   center0, radius0,
+                                                   data.fColors, data.fPos,
                                                    data.fCount, tm, mapper);
 }
 
@@ -93,19 +93,19 @@ static const GradMaker gGradMakers[] = {
 
 class GradientsGM : public GM {
 public:
-	GradientsGM() {
+    GradientsGM() {
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     SkString onShortName() {
         return SkString("gradients");
     }
-    
+
     virtual SkISize onISize() { return make_isize(640, 615); }
-        
+
     virtual void onDraw(SkCanvas* canvas) {
-        
+
         SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(100), SkIntToScalar(100) }
@@ -114,7 +114,7 @@ protected:
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
             canvas->save();
@@ -129,7 +129,7 @@ protected:
             canvas->translate(SkIntToScalar(120), 0);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };
@@ -138,19 +138,19 @@ private:
 // gradient shaders' local matrices
 class GradientsLocalPerspectiveGM : public GM {
 public:
-	GradientsLocalPerspectiveGM() {
+    GradientsLocalPerspectiveGM() {
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     SkString onShortName() {
         return SkString("gradients_local_perspective");
     }
-    
+
     virtual SkISize onISize() { return make_isize(640, 615); }
-        
+
     virtual void onDraw(SkCanvas* canvas) {
-        
+
         SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(100), SkIntToScalar(100) }
@@ -159,13 +159,13 @@ protected:
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
                 SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, NULL);
-                
+
                 // apply an increasing y perspective as we move to the right
                 SkMatrix perspective;
                 perspective.setIdentity();
@@ -184,7 +184,7 @@ protected:
             canvas->translate(SkIntToScalar(120), 0);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };
@@ -196,9 +196,9 @@ protected:
     SkString onShortName() {
         return SkString("gradients_view_perspective");
     }
-    
+
     virtual SkISize onISize() { return make_isize(640, 400); }
-        
+
     virtual void onDraw(SkCanvas* canvas) {
         SkMatrix perspective;
         perspective.setIdentity();
@@ -207,7 +207,7 @@ protected:
         canvas->concat(perspective);
         INHERITED::onDraw(canvas);
     }
-    
+
 private:
     typedef GradientsGM INHERITED;
 };
@@ -219,7 +219,7 @@ private:
 
  ctx.fillStyle = '#f00';
  ctx.fillRect(0, 0, 100, 50);
- 
+
  var g = ctx.createRadialGradient(-80, 25, 70, 0, 25, 150);
  g.addColorStop(0, '#f00');
  g.addColorStop(0.01, '#0f0');
@@ -231,21 +231,21 @@ private:
 class GradientsDegenrate2PointGM : public GM {
 public:
     GradientsDegenrate2PointGM() {}
-    
+
 protected:
     SkString onShortName() {
         return SkString("gradients_degenerate_2pt");
     }
-    
-	virtual SkISize onISize() { return make_isize(320, 320); }
-    
+
+    virtual SkISize onISize() { return make_isize(320, 320); }
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorBLUE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorRED };
         SkScalar pos[] = { 0, SkFloatToScalar(0.01f), SkFloatToScalar(0.99f), SK_Scalar1 };
         SkPoint c0;
@@ -261,7 +261,7 @@ protected:
         paint.setShader(s)->unref();
         canvas->drawPaint(paint);
     }
-    
+
 private:
     typedef GM INHERITED;
 };
@@ -321,7 +321,7 @@ protected:
         const SkISize dim = this->getISize();
 
         this->drawBG(canvas);
- 
+
         SkPaint paint;
         paint.setDither(true);
         SkPoint center;

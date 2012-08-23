@@ -24,7 +24,7 @@ void Intersection_Tests() {
     QuadraticBezierClip_Test();
     QuadraticIntersection_Test();
     SimplifyAddIntersectingTs_Test();
-    
+
     cubecode_test(1);
     convert_testx();
     // tests are in dependency / complexity order

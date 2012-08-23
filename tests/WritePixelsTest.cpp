@@ -20,7 +20,7 @@ class GrContext;
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
-static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1, 
+static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1,
                                                 DEV_H * SK_Scalar1);
 static const U8CPU DEV_PAD = 0xee;
 
@@ -351,7 +351,7 @@ bool setupBitmap(SkBitmap* bitmap,
 
 void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
     SkCanvas canvas;
-    
+
     const SkIRect testRects[] = {
         // entire thing
         DEV_RECT,

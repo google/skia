@@ -165,7 +165,7 @@ static const SkScalar gIdentityBlend[4] = {
 bool SkInterpolator::setKeyFrame(int index, SkMSec time,
                             const SkScalar values[], const SkScalar blend[4]) {
     SkASSERT(values != NULL);
-    
+
     if (blend == NULL) {
         blend = gIdentityBlend;
     }
@@ -237,13 +237,13 @@ SkScalar SkUnitCubicInterp(SkScalar value, SkScalar bx, SkScalar by,
                            SkScalar cx, SkScalar cy) {
     // pin to the unit-square, and convert to 2.14
     Dot14 x = pin_and_convert(value);
-    
+
     if (x == 0) return 0;
     if (x == Dot14_ONE) return SK_Scalar1;
-    
+
     Dot14 b = pin_and_convert(bx);
     Dot14 c = pin_and_convert(cx);
-    
+
     // Now compute our coefficients from the control points
     //  t   -> 3b
     //  t^2 -> 3c - 6b
@@ -264,7 +264,7 @@ SkScalar SkUnitCubicInterp(SkScalar value, SkScalar bx, SkScalar by,
             t += dt;
         }
     }
-    
+
     // Now we have t, so compute the coeff for Y and evaluate
     b = pin_and_convert(by);
     c = pin_and_convert(cy);

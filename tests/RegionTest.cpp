@@ -161,7 +161,7 @@ static void TestRegion(skiatest::Reporter* reporter) {
         { 2, 2, 3, 3 },
     };
     REPORTER_ASSERT(reporter, test_rects(r2, SK_ARRAY_COUNT(r2)));
-    
+
     const SkIRect rects[] = {
         { 0, 0, 1, 2 },
         { 2, 1, 3, 3 },
@@ -181,7 +181,7 @@ static void TestRegion(skiatest::Reporter* reporter) {
         }
         REPORTER_ASSERT(reporter, test_rects(rect, N));
     }
-    
+
     test_proc(reporter, contains_proc);
     test_proc(reporter, intersects_proc);
     test_empties(reporter);

@@ -20,7 +20,7 @@ class GrAutoScratchTexture;
  */
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
-    GrSoftwarePathRenderer(GrContext* context) 
+    GrSoftwarePathRenderer(GrContext* context)
         : fContext(context) {
     }
 
@@ -34,7 +34,7 @@ protected:
                             const GrVec* translate,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
- 
+
 private:
     GrContext*     fContext;
 

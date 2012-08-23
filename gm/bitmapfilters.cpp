@@ -92,7 +92,7 @@ class FilterGM : public GM {
 public:
     SkBitmap    fBM8, fBM4444, fBM16, fBM32;
 
-	FilterGM() : fOnce(false) {
+    FilterGM() : fOnce(false) {
         this->setBGColor(0xFFDDDDDD);
     }
 
@@ -101,7 +101,7 @@ protected:
         return SkString("bitmapfilters");
     }
 
-	virtual SkISize onISize() {
+    virtual SkISize onISize() {
         return make_isize(540, 330);
     }
 

@@ -19,7 +19,7 @@ enum SkinEnum {
     kProgress_SkinEnum,
     kScroll_SkinEnum,
     kStaticText_SkinEnum,
-    
+
     kSkinEnumCount
 };
 */
@@ -45,7 +45,7 @@ void init_skin_anim(const char path[], SkAnimator* anim)
 {
     SkASSERT(path && anim);
 
-    SkFILEStream	stream(path);
+    SkFILEStream    stream(path);
 
     if (!stream.isValid())
     {
@@ -69,9 +69,9 @@ void init_skin_paint(SkinEnum se, SkPaint* paint)
 {
     SkASSERT(paint);
 
-    SkAnimator	anim;
-    SkCanvas	canvas;
-    
+    SkAnimator    anim;
+    SkCanvas    canvas;
+
     init_skin_anim(se, &anim);
     anim.draw(&canvas, paint, 0);
 }
@@ -80,15 +80,15 @@ void inflate_paint(const SkDOM& dom, const SkDOM::Node* node, SkPaint* paint)
 {
     SkASSERT(paint);
 
-    SkAnimator	anim;
-    SkCanvas	canvas;
-    
+    SkAnimator    anim;
+    SkCanvas    canvas;
+
     if (!anim.decodeDOM(dom, node))
     {
         SkDEBUGF(("inflate_paint: decoding dom failed\n"));
         SkDEBUGCODE(dom.dump(node);)
         sk_throw();
-    }	
+    }
     anim.draw(&canvas, paint, 0);
 }
 
@@ -102,7 +102,7 @@ const char* SkWidgetView::getLabel() const
 {
     return fLabel.c_str();
 }
-    
+
 void SkWidgetView::getLabel(SkString* label) const
 {
     if (label)
@@ -118,7 +118,7 @@ void SkWidgetView::setLabel(const char label[], size_t len)
 {
     if ((label == NULL && fLabel.size() != 0) || !fLabel.equals(label, len))
     {
-        SkString	tmp(label, len);
+        SkString    tmp(label, len);
 
         this->onLabelChange(fLabel.c_str(), tmp.c_str());
         fLabel.swap(tmp);
@@ -138,13 +138,13 @@ bool SkWidgetView::postWidgetEvent()
 {
     if (!fEvent.isType(""))
     {
-        SkEvent	evt(fEvent);	// make a copy since onPrepareWidgetEvent may edit the event
+        SkEvent    evt(fEvent);    // make a copy since onPrepareWidgetEvent may edit the event
 
         if (this->onPrepareWidgetEvent(&evt))
         {
             SkDEBUGCODE(evt.dump("SkWidgetView::postWidgetEvent");)
 
-            this->postToListeners(evt);	// wonder if this should return true if there are > 0 listeners...
+            this->postToListeners(evt);    // wonder if this should return true if there are > 0 listeners...
             return true;
         }
     }
@@ -158,7 +158,7 @@ bool SkWidgetView::postWidgetEvent()
     const char* label = dom.findAttr(node, "label");
     if (label)
         this->setLabel(label);
-        
+
     if ((node = dom.getFirstChild(node, "event")) != NULL)
         fEvent.inflate(dom, node);
 }
@@ -178,8 +178,8 @@ static const char gWidgetEventSinkIDSlotName[] = "sk-widget-sinkid-slot";
 
 SkEventSinkID SkWidgetView::GetWidgetEventSinkID(const SkEvent& evt)
 {
-    int32_t	sinkID;
-    
+    int32_t    sinkID;
+
     return evt.findS32(gWidgetEventSinkIDSlotName, &sinkID) ? (SkEventSinkID)sinkID : 0;
 }
 
@@ -204,14 +204,14 @@ SkCheckButtonView::SkCheckButtonView() : fCheckState(kOff_CheckState)
 void SkCheckButtonView::setCheckState(CheckState state)
 {
     SkASSERT((unsigned)state <= kUnknown_CheckState);
-    
+
     if (fCheckState != state)
     {
         this->onCheckStateChange(this->getCheckState(), state);
         fCheckState = SkToU8(state);
     }
 }
-    
+
 /*virtual*/ void SkCheckButtonView::onCheckStateChange(CheckState oldState, CheckState newState)
 {
     this->inval(NULL);
@@ -220,7 +220,7 @@ void SkCheckButtonView::setCheckState(CheckState state)
 /*virtual*/ void SkCheckButtonView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 {
     this->INHERITED::onInflate(dom, node);
-    
+
     int index = dom.findList(node, "check-state", "off,on,unknown");
     if (index >= 0)
         this->setCheckState((CheckState)index);
@@ -238,8 +238,8 @@ static const char gCheckStateSlotName[] = "sk-checkbutton-check-slot";
 
 bool SkCheckButtonView::GetWidgetEventCheckState(const SkEvent& evt, CheckState* state)
 {
-    int32_t	state32;
-    
+    int32_t    state32;
+
     if (evt.findS32(gCheckStateSlotName, &state32))
     {
         if (state)
@@ -274,7 +274,7 @@ protected:
         evt.setString("LABEL", newLabel);
         fAnim.doUserEvent(evt);
     }
-    
+
     virtual void onFocusChange(bool gainFocus)
     {
         this->INHERITED::onFocusChange(gainFocus);
@@ -298,19 +298,19 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas)
     {
-        SkPaint						paint;		
-        SkAnimator::DifferenceType	diff = fAnim.draw(canvas, &paint, SkTime::GetMSecs());
-        
+        SkPaint                        paint;
+        SkAnimator::DifferenceType    diff = fAnim.draw(canvas, &paint, SkTime::GetMSecs());
+
         if (diff == SkAnimator::kDifferent)
             this->inval(NULL);
         else if (diff == SkAnimator::kPartiallyDifferent)
         {
-            SkRect	bounds;
+            SkRect    bounds;
             fAnim.getInvalBounds(&bounds);
             this->inval(&bounds);
         }
     }
-    
+
     virtual bool onEvent(const SkEvent& evt)
     {
         if (evt.isType(SK_EventType_Inval))
@@ -320,20 +320,20 @@ protected:
         }
         if (evt.isType("recommendDim"))
         {
-            SkScalar	height;
-            
+            SkScalar    height;
+
             if (evt.findScalar("y", &height))
                 this->setHeight(height);
             return true;
         }
         return this->INHERITED::onEvent(evt);
     }
-    
+
     virtual bool onPrepareWidgetEvent(SkEvent* evt)
     {
         if (this->INHERITED::onPrepareWidgetEvent(evt))
         {
-            SkEvent	e("user");
+            SkEvent    e("user");
             e.setString("id", "handlePress");
             (void)fAnim.doUserEvent(e);
             return true;
@@ -342,8 +342,8 @@ protected:
     }
 
 private:
-    SkAnimator	fAnim;
-    
+    SkAnimator    fAnim;
+
     typedef SkButtonView INHERITED;
 };
 
@@ -354,7 +354,7 @@ SkView* SkWidgetFactory(const char name[])
 {
     if (name == NULL)
         return NULL;
-    
+
     // must be in the same order as the SkSkinWidgetEnum is declared
     static const char* gNames[] = {
         "sk-border",
@@ -364,7 +364,7 @@ SkView* SkWidgetFactory(const char name[])
         "sk-progress",
         "sk-scroll",
         "sk-text"
-        
+
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); i++)

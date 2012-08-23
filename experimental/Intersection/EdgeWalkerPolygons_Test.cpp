@@ -16,7 +16,7 @@ static void testSimplifyTriangle() {
     path.lineTo(20,30);
     path.close();
     testSimplify(path, true, out, bitmap); // expect |\/|
-                                   //        |__|         
+                                   //        |__|
 }
 
 static void testSimplifyTriangle3() {
@@ -232,7 +232,7 @@ static void testSimplifyTriangle17() {
     path.close();
     testSimplify(path, true, out, bitmap);
 }
-    
+
 static void testSimplifyTriangle18() {
     SkPath path, out;
     path.moveTo(0, 0);
@@ -315,7 +315,7 @@ static void testSimplifyDegenerateTriangle2() {
 static void testSimplifyWindingParallelogram() {
     SkPath path, out;
     path.setFillType(SkPath::kWinding_FillType);
-    path.moveTo(20,10); // parallelogram  _ 
+    path.moveTo(20,10); // parallelogram  _
     path.lineTo(30,30); //               \ \      .
     path.lineTo(40,30); //                \_\     .
     path.lineTo(30,10);
@@ -326,13 +326,13 @@ static void testSimplifyWindingParallelogram() {
     path.lineTo(30,10);
     path.close();
     testSimplify(path, true, out, bitmap); // expect   _
-                                   //         / \     .       
+                                   //         / \     .
 }                                  //        /___\    .
 
 static void testSimplifyXorParallelogram() {
     SkPath path, out;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.moveTo(20,10); // parallelogram  _ 
+    path.moveTo(20,10); // parallelogram  _
     path.lineTo(30,30); //               \ \      .
     path.lineTo(40,30); //                \_\     .
     path.lineTo(30,10);
@@ -352,7 +352,7 @@ static void testSimplifyTriangle2() {
     path.lineTo(10,30); //               |_\     .
     path.lineTo(20,30);
     path.close();
-    path.moveTo(10,10); // triangle       _ 
+    path.moveTo(10,10); // triangle       _
     path.lineTo(20,10); //               \ |
     path.lineTo(20,30); //                \|
     path.close();                  //         _

@@ -13,7 +13,7 @@
 SkSVGBase::~SkSVGBase() {
 }
 
-void SkSVGBase::addAttribute(SkSVGParser& parser, int attrIndex, 
+void SkSVGBase::addAttribute(SkSVGParser& parser, int attrIndex,
         const char* attrValue, size_t attrLength) {
     SkString* first = (SkString*) ((char*) this + sizeof(SkSVGElement));
     first += attrIndex;
@@ -82,7 +82,7 @@ void SkSVGElement::setIsDef() {
 //}
 
 void SkSVGElement::write(SkSVGParser& , SkString& ) {
-    SkASSERT(0); 
+    SkASSERT(0);
 }
 
 

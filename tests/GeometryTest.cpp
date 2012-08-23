@@ -15,7 +15,7 @@ static bool nearly_equal(const SkPoint& a, const SkPoint& b) {
 static void testChopCubic(skiatest::Reporter* reporter) {
     /*
         Inspired by this test, which used to assert that the tValues had dups
-     
+
         <path stroke="#202020" d="M0,0 C0,0 1,1 2190,5130 C2190,5070 2220,5010 2205,4980" />
      */
     const SkPoint src[] = {
@@ -57,7 +57,7 @@ static void TestGeometry(skiatest::Reporter* reporter) {
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, nearly_equal(cubic[i], dst[i]));
     }
-    
+
     testChopCubic(reporter);
 }
 

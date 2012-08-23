@@ -123,7 +123,7 @@ static bool one_d_pe(const int* array, const unsigned int count,
             quadraticPointCount_CC(path, SkIntToScalar(1));
         uint32_t estimatedCount =
             quadraticPointCount_EE(path, SkIntToScalar(1));
-        
+
         if (false) { // avoid bit rot, suppress warning
             computedCount =
                     quadraticPointCount_EC(path, SkIntToScalar(1));

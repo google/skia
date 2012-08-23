@@ -39,8 +39,8 @@ const SkMemberInfo SkAnimateBase::fInfo[] = {
 DEFINE_GET_MEMBER(SkAnimateBase);
 
 SkAnimateBase::SkAnimateBase() : begin(0), dur(1), repeat(SK_Scalar1),
-        fApply(NULL), fFieldInfo(NULL), fFieldOffset(0), fStart((SkMSec) -1), fTarget(NULL), 
-        fChanged(0), fDelayed(0), fDynamic(0), fHasEndEvent(0), fHasValues(0), 
+        fApply(NULL), fFieldInfo(NULL), fFieldOffset(0), fStart((SkMSec) -1), fTarget(NULL),
+        fChanged(0), fDelayed(0), fDynamic(0), fHasEndEvent(0), fHasValues(0),
         fMirror(0), fReset(0), fResetPending(0), fTargetIsScope(0) {
     blend.setCount(1);
     blend[0] = SK_Scalar1;
@@ -54,8 +54,8 @@ SkAnimateBase::~SkAnimateBase() {
     }
 }
 
-int SkAnimateBase::components() { 
-    return 1; 
+int SkAnimateBase::components() {
+    return 1;
 }
 
 SkDisplayable* SkAnimateBase::deepCopy(SkAnimateMaker* maker) {
@@ -131,9 +131,9 @@ returnBool:
     return true;
 }
 
-bool SkAnimateBase::hasExecute() const 
+bool SkAnimateBase::hasExecute() const
 {
-    return false; 
+    return false;
 }
 
 void SkAnimateBase::onEndElement(SkAnimateMaker& maker) {
@@ -159,11 +159,11 @@ void SkAnimateBase::onEndElement(SkAnimateMaker& maker) {
     }
 }
 
-void SkAnimateBase::packARGB(SkScalar array[], int count, SkTDOperandArray* converted) 
-{ 
+void SkAnimateBase::packARGB(SkScalar array[], int count, SkTDOperandArray* converted)
+{
     SkASSERT(count == 4);
     converted->setCount(1);
-    SkColor color = SkColorSetARGB(SkScalarRound(array[0]), SkScalarRound(array[1]), 
+    SkColor color = SkColorSetARGB(SkScalarRound(array[0]), SkScalarRound(array[1]),
         SkScalarRound(array[2]), SkScalarRound(array[3]));
     (*converted)[0].fS32 = color;
 }
@@ -228,8 +228,8 @@ void SkAnimateBase::setTarget(SkAnimateMaker& maker) {
     }
 }
 
-bool SkAnimateBase::targetNeedsInitialization() const { 
-    return false; 
+bool SkAnimateBase::targetNeedsInitialization() const {
+    return false;
 }
 
 

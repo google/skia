@@ -16,7 +16,7 @@
 
 class SkDisplayMath : public SkDisplayable {
     DECLARE_DISPLAY_MEMBER_INFO(Math);
-    virtual void executeFunction(SkDisplayable* , int index, 
+    virtual void executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* );
     virtual const SkFunctionParamType* getFunctionsParameters();
@@ -27,6 +27,6 @@ private:
     static const SkFunctionParamType fFunctionParameters[];
 
 };
-    
+
 #endif // SkDisplayMath_DEFINED
 

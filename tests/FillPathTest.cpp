@@ -28,7 +28,7 @@ struct FakeBlitter : public SkBlitter {
 }
 
 // http://code.google.com/p/skia/issues/detail?id=87
-// Lines which is not clipped by boundary based clipping, 
+// Lines which is not clipped by boundary based clipping,
 // but skipped after tessellation, should be cleared by the blitter.
 static void TestFillPathInverse(skiatest::Reporter* reporter) {
   FakeBlitter blitter;

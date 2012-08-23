@@ -17,7 +17,7 @@
 
 class DrawLooperGM : public skiagm::GM {
 public:
-	DrawLooperGM() : fLooper(NULL) {
+    DrawLooperGM() : fLooper(NULL) {
         this->setBGColor(0xFFDDDDDD);
     }
 
@@ -29,7 +29,7 @@ protected:
     virtual SkISize onISize() {
         return SkISize::Make(520, 160);
     }
-    
+
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("drawlooper");
     }
@@ -69,14 +69,14 @@ private:
             { SK_ColorBLUE, SkPaint::kFill_Style, 0, 0, 0 },
             { 0x88000000, SkPaint::kFill_Style, 0, SkIntToScalar(10), 3 }
         };
-        
+
         fLooper = new SkLayerDrawLooper;
-        
+
         SkLayerDrawLooper::LayerInfo info;
         info.fFlagsMask = SkPaint::kAntiAlias_Flag;
         info.fPaintBits = SkLayerDrawLooper::kStyle_Bit | SkLayerDrawLooper::kMaskFilter_Bit;
         info.fColorMode = SkXfermode::kSrc_Mode;
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
             info.fOffset.set(gParams[i].fOffset, gParams[i].fOffset);
             SkPaint* paint = fLooper->addLayer(info);

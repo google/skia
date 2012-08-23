@@ -123,18 +123,18 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
         interface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
         interface->fBindRenderbuffer = glBindRenderbuffer;
-       
+
     #if GL_OES_mapbuffer
         interface->fMapBuffer = glMapBufferOES;
         interface->fUnmapBuffer = glUnmapBufferOES;
     #endif
-        
+
     #if GL_APPLE_framebuffer_multisample
         interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleAPPLE;
         interface->fResolveMultisampleFramebuffer = glResolveMultisampleFramebufferAPPLE;
     #endif
         interface->fBindFragDataLocationIndexed = NULL;
-        
+
         interface->fBindingsExported = kES2_GrGLBinding;
     }
     glInterface.get()->ref();

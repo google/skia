@@ -14,7 +14,7 @@ template <typename T> class SkTUnref {
 public:
     SkTUnref(T* ref) : fRef(ref) {}
     ~SkTUnref() { fRef->unref(); }
-    
+
     operator T*() { return fRef; }
     operator const T*() { return fRef; }
 
@@ -42,7 +42,7 @@ static void test_dataset_subset(skiatest::Reporter* reporter,
 static void test_datasets_equal(skiatest::Reporter* reporter,
                                 const SkDataSet& ds0, const SkDataSet& ds1) {
     REPORTER_ASSERT(reporter, ds0.count() == ds1.count());
-    
+
     test_dataset_subset(reporter, ds0, ds1);
     test_dataset_subset(reporter, ds1, ds0);
 }
@@ -50,7 +50,7 @@ static void test_datasets_equal(skiatest::Reporter* reporter,
 static void test_dataset(skiatest::Reporter* reporter, const SkDataSet& ds,
                          int count) {
     REPORTER_ASSERT(reporter, ds.count() == count);
-    
+
     SkDataSet::Iter iter(ds);
     int index = 0;
     for (; !iter.done(); iter.next()) {
@@ -66,14 +66,14 @@ static void test_dataset(skiatest::Reporter* reporter, const SkDataSet& ds,
     SkMemoryStream istream;
     istream.setData(ostream.copyToData())->unref();
     SkDataSet copy(&istream);
-    
+
     test_datasets_equal(reporter, ds, copy);
 }
 
 static void test_dataset(skiatest::Reporter* reporter) {
     SkDataSet set0(NULL, 0);
     SkDataSet set1("hello", SkTUnref<SkData>(SkData::NewWithCString("world")));
-    
+
     const SkDataSet::Pair pairs[] = {
         { "one", SkData::NewWithCString("1") },
         { "two", SkData::NewWithCString("2") },
@@ -133,7 +133,7 @@ static void TestData(skiatest::Reporter* reporter) {
     assert_len(reporter, r1, strlen(str));
     assert_len(reporter, r2, N * sizeof(int));
     assert_len(reporter, r3, 6);
-    
+
     assert_data(reporter, r1, str, strlen(str));
     assert_data(reporter, r3, "people", 6);
 
@@ -143,7 +143,7 @@ static void TestData(skiatest::Reporter* reporter) {
     tmp = SkData::NewSubset(r1, 0, 0);
     assert_len(reporter, tmp, 0);
     tmp->unref();
-    
+
     test_cstring(reporter);
     test_dataset(reporter);
 }

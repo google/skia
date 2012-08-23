@@ -73,7 +73,7 @@ static SkColor HSV_to_RGB(SkColor color, HSV_Choice choice, SkScalar hsv) {
         SkScalar fraction = hue / 60 - SkIntToScalar(sextant);
         SkScalar p = SkScalarMul(value , SK_Scalar1 - saturation);
         SkScalar q = SkScalarMul(value, SK_Scalar1 - SkScalarMul(saturation, fraction));
-        SkScalar t = SkScalarMul(value, SK_Scalar1 - 
+        SkScalar t = SkScalarMul(value, SK_Scalar1 -
             SkScalarMul(saturation, SK_Scalar1 - fraction));
         switch (sextant % 6) {
             case 0: red = value; green = t; blue = p; break;
@@ -85,11 +85,11 @@ static SkColor HSV_to_RGB(SkColor color, HSV_Choice choice, SkScalar hsv) {
         }
     }
     //used to say SkToU8((U8CPU) red) etc
-    return SkColorSetARGB(SkColorGetA(color), SkScalarRound(red), 
+    return SkColorSetARGB(SkColorGetA(color), SkScalarRound(red),
         SkScalarRound(green), SkScalarRound(blue));
 }
 
-#if defined _WIN32 && _MSC_VER >= 1300  
+#if defined _WIN32 && _MSC_VER >= 1300
 #pragma warning ( pop )
 #endif
 
@@ -120,8 +120,8 @@ const SkMemberInfo SkDrawColor::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawColor);
 
-SkDrawColor::SkDrawColor() : fDirty(false) { 
-    color = SK_ColorBLACK; 
+SkDrawColor::SkDrawColor() : fDirty(false) {
+    color = SK_ColorBLACK;
     fHue = fSaturation = fValue = SK_ScalarNaN;
 }
 
@@ -150,13 +150,13 @@ void SkDrawColor::dirty(){
 #ifdef SK_DUMP_ENABLED
 void SkDrawColor::dump(SkAnimateMaker* maker) {
     dumpBase(maker);
-    SkDebugf("alpha=\"%d\" red=\"%d\" green=\"%d\" blue=\"%d\" />\n",  
+    SkDebugf("alpha=\"%d\" red=\"%d\" green=\"%d\" blue=\"%d\" />\n",
         SkColorGetA(color)/255, SkColorGetR(color),
         SkColorGetG(color), SkColorGetB(color));
 }
 #endif
 
-SkColor SkDrawColor::getColor() { 
+SkColor SkDrawColor::getColor() {
     if (fDirty) {
         if (SkScalarIsNaN(fValue) == false)
             color = HSV_to_RGB(color, kGetValue, fValue);
@@ -166,7 +166,7 @@ SkColor SkDrawColor::getColor() {
             color = HSV_to_RGB(color, kGetHue, fHue);
         fDirty = false;
     }
-    return color; 
+    return color;
 }
 
 SkDisplayable* SkDrawColor::getParent() const {
@@ -231,17 +231,17 @@ bool SkDrawColor::setProperty(int index, SkScriptValue& value) {
         #else
             alpha = SkToU8((scalar - (scalar >= SK_ScalarHalf)) >> 8);
         #endif
-            color = SkColorSetARGB(alpha, SkColorGetR(color), 
+            color = SkColorSetARGB(alpha, SkColorGetR(color),
                 SkColorGetG(color), SkColorGetB(color));
             break;
         case SK_PROPERTY(blue):
             scalar = SkScalarClampMax(scalar, 255 * SK_Scalar1);
-            color = SkColorSetARGB(SkColorGetA(color), SkColorGetR(color), 
+            color = SkColorSetARGB(SkColorGetA(color), SkColorGetR(color),
                 SkColorGetG(color), SkToU8((U8CPU) scalar));
             break;
         case SK_PROPERTY(green):
             scalar = SkScalarClampMax(scalar, 255 * SK_Scalar1);
-            color = SkColorSetARGB(SkColorGetA(color), SkColorGetR(color), 
+            color = SkColorSetARGB(SkColorGetA(color), SkColorGetR(color),
                 SkToU8((U8CPU) scalar), SkColorGetB(color));
             break;
         case SK_PROPERTY(hue):
@@ -250,7 +250,7 @@ bool SkDrawColor::setProperty(int index, SkScriptValue& value) {
             break;
         case SK_PROPERTY(red):
             scalar = SkScalarClampMax(scalar, 255 * SK_Scalar1);
-            color = SkColorSetARGB(SkColorGetA(color), SkToU8((U8CPU) scalar), 
+            color = SkColorSetARGB(SkColorGetA(color), SkToU8((U8CPU) scalar),
                 SkColorGetG(color), SkColorGetB(color));
         break;
         case SK_PROPERTY(saturation):

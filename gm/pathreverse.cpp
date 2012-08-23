@@ -14,7 +14,7 @@ static void test_path(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;
     paint.setAntiAlias(true);
     canvas->drawPath(path, paint);
-    
+
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setColor(SK_ColorRED);
     canvas->drawPath(path, paint);
@@ -80,15 +80,15 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         if (false) test_rev(canvas); // avoid bit rot, suppress warning
         SkRect r = { 10, 10, 100, 60 };
-        
+
         SkPath path;
-        
+
         path.addRect(r); test_rev(canvas, path);
-        
+
         canvas->translate(0, 100);
         path.offset(20, 20);
         path.addRect(r); test_rev(canvas, path);
-        
+
         canvas->translate(0, 100);
         path.reset();
         path.moveTo(10, 10); path.lineTo(30, 30);
@@ -96,7 +96,7 @@ protected:
         r.offset(50, 20);
         path.addOval(r);
         test_rev(canvas, path);
-        
+
         SkPaint paint;
         paint.setTextSize(SkIntToScalar(100));
         SkTypeface* hira = SkTypeface::CreateFromName("Hiragino Maru Gothic Pro", SkTypeface::kNormal);

@@ -46,17 +46,17 @@ const Cubic triangle[] = {
     {{1, 0}, {2, 0}, {0, 1}, {0, 0}},
     {{2, 0}, {0, 1}, {0, 0}, {1, 0}},
     {{0, 1}, {0, 0}, {1, 0}, {2, 0}},
-    
+
     {{0, 0}, {0, 1}, {0, 2}, {1, 1}}, // extra point on vert
     {{0, 1}, {0, 2}, {1, 1}, {0, 0}},
     {{0, 2}, {1, 1}, {0, 0}, {0, 1}},
     {{1, 1}, {0, 0}, {0, 1}, {0, 2}},
-    
+
     {{0, 0}, {1, 1}, {2, 2}, {2, 0}}, // extra point on diag
     {{1, 1}, {2, 2}, {2, 0}, {0, 0}},
     {{2, 2}, {2, 0}, {0, 0}, {1, 1}},
     {{2, 0}, {0, 0}, {1, 1}, {2, 2}},
-    
+
     {{0, 0}, {2, 0}, {2, 2}, {1, 1}}, // extra point on diag
     {{2, 0}, {2, 2}, {1, 1}, {0, 0}},
     {{2, 2}, {1, 1}, {0, 0}, {2, 0}},
@@ -99,9 +99,9 @@ static bool rotateToAxis(const _Point& a, const _Point& b, Matrix3x2& matrix) {
 
 static void transform(const Cubic& cubic, const Matrix3x2& matrix, Cubic& rotPath) {
     for (int index = 0; index < 4; ++index) {
-        rotPath[index].x = cubic[index].x * matrix[0][0] 
+        rotPath[index].x = cubic[index].x * matrix[0][0]
                 + cubic[index].y * matrix[1][0] + matrix[2][0];
-        rotPath[index].y = cubic[index].x * matrix[0][1] 
+        rotPath[index].y = cubic[index].x * matrix[0][1]
                 + cubic[index].y * matrix[1][1] + matrix[2][1];
     }
 }
@@ -146,7 +146,7 @@ static int rotate_to_hull(const Cubic& cubic, char order[4], size_t idx, size_t 
             for (int index = 0; index < 4; ++index) {
                 if (debug_rotate_to_hull) printf("(%g,%g) ", rotPath[index].x, rotPath[index].y);
                 sides[side(rotPath[index].y - rotPath[inner].y)]++;
-                if (index != outer && index != inner 
+                if (index != outer && index != inner
                         && side(rotPath[index].y - rotPath[inner].y) == 1)
                     zeroes = index;
             }
@@ -169,13 +169,13 @@ static int rotate_to_hull(const Cubic& cubic, char order[4], size_t idx, size_t 
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
                     continue;
                 }
-                if (rotPath[zeroes].x < rotPath[inner].x 
+                if (rotPath[zeroes].x < rotPath[inner].x
                         && rotPath[zeroes].x < rotPath[outer].x) {
                     if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] zeroes < inner && outer\n",
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
                     continue;
                 }
-                if (rotPath[zeroes].x > rotPath[inner].x 
+                if (rotPath[zeroes].x > rotPath[inner].x
                         && rotPath[zeroes].x > rotPath[outer].x) {
                     if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] zeroes > inner && outer\n",
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
@@ -242,7 +242,7 @@ void ConvexHull_Test() {
             for (pt = 0; pt < cmp; ++pt) {
                 if (pts & 1 << order[pt]) {
                     printf("%s [%d,%d] duplicate index in order: %d,%d,%d",
-                            __FUNCTION__, (int)index, (int)inner, 
+                            __FUNCTION__, (int)index, (int)inner,
                             order[0], order[1], order[2]);
                     if (cmp == 4) {
                         printf(",%d", order[3]);
@@ -252,7 +252,7 @@ void ConvexHull_Test() {
                 }
                 if (cmpPts & 1 << cmpOrder[pt]) {
                     printf("%s [%d,%d] duplicate index in order: %d,%d,%d",
-                            __FUNCTION__, (int)index, (int)inner, 
+                            __FUNCTION__, (int)index, (int)inner,
                             cmpOrder[0], cmpOrder[1], cmpOrder[2]);
                     if (cmp == 4) {
                         printf(",%d", cmpOrder[3]);
@@ -291,7 +291,7 @@ void ConvexHull_Test() {
             }
             if (pts != cmpPts) {
                 printf("%s [%d,%d] mismatch indices: order=%d,%d,%d",
-                        __FUNCTION__, (int)index, (int)inner, 
+                        __FUNCTION__, (int)index, (int)inner,
                         order[0], order[1], order[2]);
                 if (cmp == 4) {
                     printf(",%d", order[3]);
@@ -311,7 +311,7 @@ void ConvexHull_Test() {
                 if (cmpOrder[match ^ 2] != order[2]) {
                     printf("%s [%d,%d] bowtie mismatch: order=%d,%d,%d,%d"
                             " cmpOrder=%d,%d,%d,%d\n",
-                            __FUNCTION__, (int)index, (int)inner, 
+                            __FUNCTION__, (int)index, (int)inner,
                             order[0], order[1], order[2], order[3],
                             cmpOrder[0], cmpOrder[1], cmpOrder[2], cmpOrder[3]);
                 }
@@ -383,10 +383,10 @@ void ConvexHull_X_Test() {
         }
         for (idx = 0; idx < cmp; ++idx) {
             if (cmpOrder[idx] == 0) {
-                rOrder[0] = cmpOrder[(idx + 1) % cmp]; 
+                rOrder[0] = cmpOrder[(idx + 1) % cmp];
                 rOrder[1] = cmpOrder[(idx + cmp - 1) % cmp];
             } else if (cmpOrder[idx] == 3) {
-                rOrder[2] = cmpOrder[(idx + 1) % cmp]; 
+                rOrder[2] = cmpOrder[(idx + 1) % cmp];
                 rOrder[3] = cmpOrder[(idx + cmp - 1) % cmp];
             }
         }

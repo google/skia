@@ -6,11 +6,11 @@
 class QuadraticIntersections : public Intersections {
 public:
 
-QuadraticIntersections(const Quadratic& q1, const Quadratic& q2, Intersections& i) 
+QuadraticIntersections(const Quadratic& q1, const Quadratic& q2, Intersections& i)
     : quad1(q1)
     , quad2(q2)
     , intersections(i)
-    , depth(0) 
+    , depth(0)
     , splits(0) {
 }
 
@@ -37,10 +37,10 @@ bool intersect() {
 }
 
 protected:
-        
+
 bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
     Quadratic smaller, larger;
-    // FIXME: carry last subdivide and reduceOrder result with quad 
+    // FIXME: carry last subdivide and reduceOrder result with quad
     sub_divide(quad1, minT1, maxT1, intersections.swapped() ? larger : smaller);
     sub_divide(quad2, minT2, maxT2, intersections.swapped() ? smaller : larger);
     Quadratic smallResult;
@@ -55,11 +55,11 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
                 return false;
             }
             if (intersections.swapped()) {
-                smallT[0] = interp(minT2, maxT2, smallT[0]); 
-                largeT[0] = interp(minT1, maxT1, largeT[0]); 
+                smallT[0] = interp(minT2, maxT2, smallT[0]);
+                largeT[0] = interp(minT1, maxT1, largeT[0]);
             } else {
-                smallT[0] = interp(minT1, maxT1, smallT[0]); 
-                largeT[0] = interp(minT2, maxT2, largeT[0]); 
+                smallT[0] = interp(minT1, maxT1, smallT[0]);
+                largeT[0] = interp(minT2, maxT2, largeT[0]);
             }
             intersections.add(smallT[0], largeT[0]);
             return true;
@@ -80,7 +80,7 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
         }
         return false;
     }
-    
+
     int split;
     if (intersections.swapped()) {
         double newMinT1 = interp(minT1, maxT1, minT);
@@ -210,11 +210,11 @@ sqrt(x + iy) = sqrt((r + x) / 2) +/- i*sqrt((r - x) / 2)
 
 where the sign of the imaginary part of the root is taken to be same as the sign
  of the imaginary part of the original number, and
- 
+
 r = abs(x + iy) = sqrt(x^2 + y^2)
 
-is the absolute value or modulus of the original number. The real part of the 
+is the absolute value or modulus of the original number. The real part of the
 principal value is always non-negative.
-The other square root is simply –1 times the principal square root; in other 
+The other square root is simply –1 times the principal square root; in other
 words, the two square roots of a number sum to 0.
  */

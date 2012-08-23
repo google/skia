@@ -14,14 +14,14 @@
 #include <stdio.h>
 
 /* define this if we can use mmap() to access fonts from the filesystem */
-#define SK_CAN_USE_MMAP 
+#define SK_CAN_USE_MMAP
 
 #ifndef SK_FONTPATH
     #define SK_FONTPATH "the complete path for a font file"
 #endif
 
 struct FontFaceRec {
-    const char* fFileName;    
+    const char* fFileName;
     uint8_t     fFamilyIndex;
     SkBool8     fBold;
     SkBool8     fItalic;
@@ -39,7 +39,7 @@ const FontFaceRec& FontFaceRec::FindFace(const FontFaceRec rec[], int count,
                                          int isBold, int isItalic)
 {
     SkASSERT(count > 0);
-    
+
     int i;
 
     // look for an exact match
@@ -63,7 +63,7 @@ const FontFaceRec& FontFaceRec::FindFace(const FontFaceRec rec[], int count,
 
 enum {
     DEFAULT_FAMILY_INDEX,
-    
+
     FAMILY_INDEX_COUNT
 };
 
@@ -236,7 +236,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        SkTypeface::Style style)
 {
     const FontFamilyRec* family;
-    
+
     if (familyFace)
         family = &gFamilies[
                     ((FontFaceRec_Typeface*)familyFace)->fFace.fFamilyIndex];

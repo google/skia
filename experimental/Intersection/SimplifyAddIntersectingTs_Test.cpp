@@ -92,17 +92,17 @@ static void testPath(const SkPath& path, const SkPoint* pts1, SkPath::Verb c1Typ
     // bool c2Intersected = c2.fSegments[0].intersected();
     SkDebugf("%s %s (%1.9g,%1.9g %1.9g,%1.9g) %s %s (%1.9g,%1.9g %1.9g,%1.9g)\n",
             __FUNCTION__, SimplifyAddIntersectingTsTest::kLVerbStr[c1Type],
-            pts1[0].fX, pts1[0].fY, 
+            pts1[0].fX, pts1[0].fY,
             pts1[c1Type].fX, pts1[c1Type].fY,
             c1Intersected ? "intersects" : "does not intersect",
             SimplifyAddIntersectingTsTest::kLVerbStr[c2Type],
-            pts2[0].fX, pts2[0].fY, 
+            pts2[0].fX, pts2[0].fY,
             pts2[c2Type].fX, pts2[c2Type].fY);
     if (c1Intersected) {
         c1.dump();
         c2.dump();
     }
-#endif            
+#endif
 }
 
 static const size_t firstO = 6;

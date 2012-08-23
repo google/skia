@@ -81,7 +81,7 @@ void Simplify4x4QuadralateralsThreaded_Test(int& testsRun)
     for (int a = 0; a < 16; ++a) {
         for (int b = a ; b < 16; ++b) {
             for (int c = b ; c < 16; ++c) {
-                for (int d = c; d < 16; ++d) {                 
+                for (int d = c; d < 16; ++d) {
                     testsRun += dispatchTest4(testSimplify4x4QuadralateralsMain,
                             a, b, c, d);
                 }

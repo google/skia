@@ -275,14 +275,14 @@ static SkString twoPointRadialCode(const SkShader::GradientInfo& info) {
 }
 
 /* Conical gradient shader, based on the Canvas spec for radial gradients
-   See: http://www.w3.org/TR/2dcontext/#dom-context-2d-createradialgradient 
+   See: http://www.w3.org/TR/2dcontext/#dom-context-2d-createradialgradient
  */
 static SkString twoPointConicalCode(const SkShader::GradientInfo& info) {
     SkScalar dx = info.fPoint[1].fX - info.fPoint[0].fX;
     SkScalar dy = info.fPoint[1].fY - info.fPoint[0].fY;
     SkScalar r0 = info.fRadius[0];
     SkScalar dr = info.fRadius[1] - info.fRadius[0];
-    SkScalar a = SkScalarMul(dx, dx) + SkScalarMul(dy, dy) - 
+    SkScalar a = SkScalarMul(dx, dx) + SkScalarMul(dy, dy) -
                  SkScalarMul(dr, dr);
 
     // First compute t, if the pixel falls outside the cone, then we'll end
@@ -327,7 +327,7 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info) {
 
         // quadratic case: the Canvas spec wants the largest
         // root t for which radius(t) > 0
-        
+
         // compute the discriminant (b^2 - 4ac)
         function.appendScalar(SkScalarMul(SkIntToScalar(4), a));
         function.append(" mul sub dup\n");

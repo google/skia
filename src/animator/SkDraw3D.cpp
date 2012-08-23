@@ -25,7 +25,7 @@ const SkMemberInfo Sk3D_Point::fInfo[] = {
 DEFINE_NO_VIRTUALS_GET_MEMBER(Sk3D_Point);
 
 Sk3D_Point::Sk3D_Point() {
-    fPoint.set(0, 0, 0);    
+    fPoint.set(0, 0, 0);
 }
 
 #if SK_USE_CONDENSED_INFO == 0
@@ -85,7 +85,7 @@ const SkMemberInfo Sk3D_Patch::fInfo[] = {
 
 DEFINE_GET_MEMBER(Sk3D_Patch);
 
-void Sk3D_Patch::executeFunction(SkDisplayable* target, int index, 
+void Sk3D_Patch::executeFunction(SkDisplayable* target, int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* ) {
     SkASSERT(target == this);
@@ -93,7 +93,7 @@ void Sk3D_Patch::executeFunction(SkDisplayable* target, int index,
         case SK_FUNCTION(rotateDegrees):
             SkASSERT(parameters.count() == 3);
             SkASSERT(type == SkType_Float);
-            fPatch.rotateDegrees(parameters[0].fOperand.fScalar, 
+            fPatch.rotateDegrees(parameters[0].fOperand.fScalar,
                 parameters[1].fOperand.fScalar, parameters[2].fOperand.fScalar);
             break;
         default:

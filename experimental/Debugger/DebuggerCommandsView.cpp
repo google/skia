@@ -12,7 +12,7 @@ DebuggerCommandsView::DebuggerCommandsView() {
     fTopIndex = 0;
     fHighlight = 0;
     fResizing = false;
-    
+
     SkPaint p;
     p.setTextSize(SkIntToScalar(SKDEBUGGER_TEXTSIZE));
     fSpacing = p.getFontSpacing();
@@ -42,7 +42,7 @@ void DebuggerCommandsView::alignCenter() {
     if (!fCentered || fHighlight < fRange/2 || fHighlight > (fList.count() - fRange/2)) {
         return;
     } else {
-        if (fHighlight > (fTopIndex + fRange/2)) 
+        if (fHighlight > (fTopIndex + fRange/2))
             fTopIndex += fHighlight - (fTopIndex + fRange/2);
         if (fHighlight < (fTopIndex + fRange/2))
             fTopIndex -= (fTopIndex + fRange/2) - fHighlight;
@@ -115,30 +115,30 @@ void DebuggerCommandsView::toggleCentered() {
 
 void DebuggerCommandsView::onDraw(SkCanvas* canvas) {
     canvas->drawColor(fBGColor);
-    
+
     SkPaint p;
     p.setTextSize(SkIntToScalar(SKDEBUGGER_TEXTSIZE));
     p.setAntiAlias(true);
-    
+
     //draw highlight
     int selected = fHighlight - fTopIndex;
     SkRect r = {0, fSpacing * selected, this->width(), fSpacing * (selected+1)};
     p.setColor(SKDEBUGGER_HIGHLIGHTCOLOR);
     canvas->drawRect(r, p);
-    
-    int endIndex = fTopIndex + fRange; 
+
+    int endIndex = fTopIndex + fRange;
     if (endIndex > fList.count())
         endIndex = fList.count();
-    
+
     p.setColor(SKDEBUGGER_TEXTCOLOR);
     int pos;
     for (int i = fTopIndex; i < endIndex; ++i) {
         pos = i - fTopIndex;
-        canvas->drawText(fList[i]->c_str(), fList[i]->size(), 
+        canvas->drawText(fList[i]->c_str(), fList[i]->size(),
                          0, fSpacing - 2 + fSpacing * pos, p);
     }
     p.setColor(SKDEBUGGER_RESIZEBARCOLOR);
-    r = SkRect::MakeXYWH(this->width() - SKDEBUGGER_RESIZEBARSIZE, 0, 
+    r = SkRect::MakeXYWH(this->width() - SKDEBUGGER_RESIZEBARSIZE, 0,
                          SKDEBUGGER_RESIZEBARSIZE, this->height());
     canvas->drawRect(r, p);
 }

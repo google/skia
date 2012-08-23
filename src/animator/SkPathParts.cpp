@@ -16,8 +16,8 @@
 SkPathPart::SkPathPart() : fPath(NULL) {
 }
 
-void SkPathPart::dirty() { 
-    fPath->dirty(); 
+void SkPathPart::dirty() {
+    fPath->dirty();
 }
 
 SkDisplayable* SkPathPart::getParent() const {
@@ -86,7 +86,7 @@ SkLineTo::SkLineTo() : x(0), y(0) {
 }
 
 bool SkLineTo::add() {
-    fPath->fPath.lineTo(x, y);  
+    fPath->fPath.lineTo(x, y);
     return false;
 }
 
@@ -103,7 +103,7 @@ const SkMemberInfo SkRLineTo::fInfo[] = {
 DEFINE_GET_MEMBER(SkRLineTo);
 
 bool SkRLineTo::add() {
-    fPath->fPath.rLineTo(x, y); 
+    fPath->fPath.rLineTo(x, y);
     return false;
 }
 
@@ -225,8 +225,8 @@ const SkMemberInfo SkAddRect::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkAddRect);
 
-SkAddRect::SkAddRect() { 
-    fRect.setEmpty(); 
+SkAddRect::SkAddRect() {
+    fRect.setEmpty();
 }
 
 bool SkAddRect::add() {
@@ -309,7 +309,7 @@ SkAddPath::SkAddPath() : matrix(NULL), path(NULL) {
 }
 
 bool SkAddPath::add() {
-    SkASSERT (path != NULL); 
+    SkASSERT (path != NULL);
     if (matrix)
         fPath->fPath.addPath(path->fPath, matrix->getMatrix());
     else

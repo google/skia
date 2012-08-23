@@ -28,7 +28,7 @@ inline size_t sk_wcslen(const short* char16) {
 inline const char* ConvertUnicodeToChar(const short* ch16, size_t len, SkAutoMalloc& ch8Malloc) {
     char* ch8 = (char*) ch8Malloc.get();
     int index;
-    for (index = 0; index < len; index++) 
+    for (index = 0; index < len; index++)
         ch8[index] = (char) ch16[index];
     ch8[index] = '\0';
     return ch8;

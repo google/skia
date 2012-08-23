@@ -18,7 +18,7 @@ public:
     ImageBlurGM() {
         this->setBGColor(0xFF000000);
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("imageblur");
@@ -46,7 +46,7 @@ protected:
         }
         canvas->restore();
     }
-    
+
 private:
     typedef GM INHERITED;
 };

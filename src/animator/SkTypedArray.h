@@ -20,7 +20,7 @@ public:
     bool getIndex(int index, SkOperand* operand);
     SkDisplayTypes getType() { return fType; }
     SkScriptEngine::SkOpType getOpType() { return SkScriptEngine::ToOpType(fType); }
-    void setType(SkDisplayTypes type) { 
+    void setType(SkDisplayTypes type) {
     //  SkASSERT(count() == 0);
         fType = type;
     }

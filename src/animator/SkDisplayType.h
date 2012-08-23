@@ -187,7 +187,7 @@ public:
     static SkDisplayTypes RegisterNewType();
     static SkDisplayTypes Resolve(const char[] , const SkMemberInfo** );
 #ifdef SK_DEBUG
-    static bool IsAnimate(SkDisplayTypes type ) { return type == SkType_Animate || 
+    static bool IsAnimate(SkDisplayTypes type ) { return type == SkType_Animate ||
         type == SkType_Set; }
     static const char* GetName(SkAnimateMaker* , SkDisplayTypes );
 #endif

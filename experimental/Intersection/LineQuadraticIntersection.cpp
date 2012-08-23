@@ -3,13 +3,13 @@
 #include "LineUtilities.h"
 #include "QuadraticUtilities.h"
 
-/* 
+/*
 Find the interection of a line and quadratic by solving for valid t values.
 
 From http://stackoverflow.com/questions/1853637/how-to-find-the-mathematical-function-defining-a-bezier-curve
 
-"A Bezier curve is a parametric function. A quadratic Bezier curve (i.e. three 
-control points) can be expressed as: F(t) = A(1 - t)^2 + B(1 - t)t + Ct^2 where 
+"A Bezier curve is a parametric function. A quadratic Bezier curve (i.e. three
+control points) can be expressed as: F(t) = A(1 - t)^2 + B(1 - t)t + Ct^2 where
 A, B and C are points and t goes from zero to one.
 
 This will give you two equations:
@@ -17,7 +17,7 @@ This will give you two equations:
   x = a(1 - t)^2 + b(1 - t)t + ct^2
   y = d(1 - t)^2 + e(1 - t)t + ft^2
 
-If you add for instance the line equation (y = kx + m) to that, you'll end up 
+If you add for instance the line equation (y = kx + m) to that, you'll end up
 with three equations and three unknowns (x, y and t)."
 
 Similar to above, the quadratic is represented as
@@ -29,24 +29,24 @@ and the line as
 Using Mathematica, solve for the values of t where the quadratic intersects the
 line:
 
-  (in)  t1 = Resultant[a*(1 - t)^2 + 2*b*(1 - t)*t + c*t^2 - x, 
+  (in)  t1 = Resultant[a*(1 - t)^2 + 2*b*(1 - t)*t + c*t^2 - x,
                        d*(1 - t)^2 + 2*e*(1 - t)*t  + f*t^2 - g*x - h, x]
-  (out) -d + h + 2 d t - 2 e t - d t^2 + 2 e t^2 - f t^2 + 
+  (out) -d + h + 2 d t - 2 e t - d t^2 + 2 e t^2 - f t^2 +
          g  (a - 2 a t + 2 b t + a t^2 - 2 b t^2 + c t^2)
   (in)  Solve[t1 == 0, t]
   (out) {
     {t -> (-2 d + 2 e +   2 a g - 2 b g    -
-      Sqrt[(2 d - 2 e -   2 a g + 2 b g)^2 - 
+      Sqrt[(2 d - 2 e -   2 a g + 2 b g)^2 -
           4 (-d + 2 e - f + a g - 2 b g    + c g) (-d + a g + h)]) /
          (2 (-d + 2 e - f + a g - 2 b g    + c g))
          },
     {t -> (-2 d + 2 e +   2 a g - 2 b g    +
-      Sqrt[(2 d - 2 e -   2 a g + 2 b g)^2 - 
+      Sqrt[(2 d - 2 e -   2 a g + 2 b g)^2 -
           4 (-d + 2 e - f + a g - 2 b g    + c g) (-d + a g + h)]) /
          (2 (-d + 2 e - f + a g - 2 b g    + c g))
          }
         }
-        
+
 Using the results above (when the line tends towards horizontal)
        A =   (-(d - 2*e + f) + g*(a - 2*b + c)     )
        B = 2*( (d -   e    ) - g*(a -   b    )     )
@@ -57,19 +57,19 @@ If g goes to infinity, we can rewrite the line in terms of x.
 
 And solve accordingly in Mathematica:
 
-  (in)  t2 = Resultant[a*(1 - t)^2 + 2*b*(1 - t)*t + c*t^2 - g'*y - h', 
+  (in)  t2 = Resultant[a*(1 - t)^2 + 2*b*(1 - t)*t + c*t^2 - g'*y - h',
                        d*(1 - t)^2 + 2*e*(1 - t)*t  + f*t^2 - y, y]
-  (out)  a - h' - 2 a t + 2 b t + a t^2 - 2 b t^2 + c t^2 - 
+  (out)  a - h' - 2 a t + 2 b t + a t^2 - 2 b t^2 + c t^2 -
          g'  (d - 2 d t + 2 e t + d t^2 - 2 e t^2 + f t^2)
   (in)  Solve[t2 == 0, t]
   (out) {
     {t -> (2 a - 2 b -   2 d g' + 2 e g'    -
-    Sqrt[(-2 a + 2 b +   2 d g' - 2 e g')^2 - 
+    Sqrt[(-2 a + 2 b +   2 d g' - 2 e g')^2 -
           4 (a - 2 b + c - d g' + 2 e g' - f g') (a - d g' - h')]) /
          (2 (a - 2 b + c - d g' + 2 e g' - f g'))
          },
     {t -> (2 a - 2 b -   2 d g' + 2 e g'    +
-    Sqrt[(-2 a + 2 b +   2 d g' - 2 e g')^2 - 
+    Sqrt[(-2 a + 2 b +   2 d g' - 2 e g')^2 -
           4 (a - 2 b + c - d g' + 2 e g' - f g') (a - d g' - h')])/
          (2 (a - 2 b + c - d g' + 2 e g' - f g'))
          }
@@ -80,7 +80,7 @@ Thus, if the slope of the line tends towards vertical, we use:
        B = 2*(-(a -   b    ) + g'*(d  -   e    )      )
        C =   ( (a          ) - g'*(d           ) - h' )
  */
- 
+
 
 class LineQuadraticIntersections : public Intersections {
 public:
@@ -156,7 +156,7 @@ int verticalIntersect(double axisIntercept) {
 }
 
 protected:
-    
+
 double findLineT(double t) {
     const double* qPtr;
     const double* lPtr;

@@ -369,7 +369,7 @@ void Sk3DView::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
     fCamera.fLocation.set(x * SkFloatToScalar(72.0f), y * SkFloatToScalar(72.0f), lz);
     fCamera.fObserver.set(0, 0, lz);
     fCamera.update();
-    
+
 }
 
 SkScalar Sk3DView::getCameraLocationX() {
@@ -419,7 +419,7 @@ void Sk3DView::getMatrix(SkMatrix* matrix) const {
 
 void Sk3DView::applyToCanvas(SkCanvas* canvas) const {
     SkMatrix    matrix;
-    
+
     this->getMatrix(&matrix);
     canvas->concat(matrix);
 }

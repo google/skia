@@ -16,16 +16,16 @@ public:
     Key(GrFontScaler* scaler) {
         fFontScalerKey = scaler->getKey();
     }
-    
+
     uint32_t getHash() const { return fFontScalerKey->getHash(); }
-    
+
     static bool LT(const GrTextStrike& strike, const Key& key) {
         return *strike.getFontScalerKey() < *key.fFontScalerKey;
     }
     static bool EQ(const GrTextStrike& strike, const Key& key) {
         return *strike.getFontScalerKey() == *key.fFontScalerKey;
     }
-    
+
 private:
     const GrKey* fFontScalerKey;
 };
@@ -50,7 +50,7 @@ void GrFontCache::detachStrikeFromList(GrTextStrike* strike) {
 
 GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler) {
     this->validate();
-    
+
     Key key(scaler);
     GrTextStrike* strike = fCache.find(key);
     if (NULL == strike) {
@@ -79,16 +79,16 @@ GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler) {
 class GrTextStrike::Key {
 public:
     Key(GrGlyph::PackedID id) : fPackedID(id) {}
-    
+
     uint32_t getHash() const { return fPackedID; }
-    
+
     static bool LT(const GrGlyph& glyph, const Key& key) {
         return glyph.fPackedID < key.fPackedID;
     }
     static bool EQ(const GrGlyph& glyph, const Key& key) {
         return glyph.fPackedID == key.fPackedID;
     }
-    
+
 private:
     GrGlyph::PackedID fPackedID;
 };

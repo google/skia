@@ -101,7 +101,7 @@ static const char* find_points(const char str[], SkPoint value[], int count,
     return str;
 }
 
-static const char* find_scalar(const char str[], SkScalar* value, 
+static const char* find_scalar(const char str[], SkScalar* value,
     bool isRelative, SkScalar relative)
 {
     str = SkParse::FindScalar(str, value);
@@ -146,7 +146,7 @@ void SkDrawPath::parseSVG() {
                 op = 'L';
                 c = points[0];
                 break;
-            case 'L': 
+            case 'L':
                 data = find_points(data, points, 1, relative, &c);
                 fPath.lineTo(points[0]);
                 c = points[0];
@@ -165,10 +165,10 @@ void SkDrawPath::parseSVG() {
                 c.fY = y;
             }
                 break;
-            case 'C': 
+            case 'C':
                 data = find_points(data, points, 3, relative, &c);
                 goto cubicCommon;
-            case 'S': 
+            case 'S':
                 data = find_points(data, &points[1], 2, relative, &c);
                 points[0] = c;
                 if (previousOp == 'C' || previousOp == 'S') {

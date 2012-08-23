@@ -33,7 +33,7 @@ int SkSocket::createSocket() {
         return -1;
     }
     int reuse = 1;
-    
+
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) < 0) {
         SkDebugf("error: %s\n", strerror(errno));
         return -1;
@@ -49,10 +49,10 @@ int SkSocket::createSocket() {
 void SkSocket::closeSocket(int sockfd) {
     if (!fReady)
         return;
-    
+
     close(sockfd);
     //SkDebugf("Closed fd:%d\n", sockfd);
-    
+
     if (FD_ISSET(sockfd, &fMasterSet)) {
         FD_CLR(sockfd, &fMasterSet);
         if (sockfd >= fMaxfd) {
@@ -60,7 +60,7 @@ void SkSocket::closeSocket(int sockfd) {
                 fMaxfd -= 1;
         }
     }
-    if (0 == fMaxfd) 
+    if (0 == fMaxfd)
         fConnected = false;
 }
 
@@ -70,7 +70,7 @@ void SkSocket::onFailedConnection(int sockfd) {
 
 void SkSocket::setNonBlocking(int sockfd) {
     int flags = fcntl(sockfd, F_GETFL);
-	fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
 }
 
 void SkSocket::addToMasterSet(int sockfd) {
@@ -79,9 +79,9 @@ void SkSocket::addToMasterSet(int sockfd) {
         fMaxfd = sockfd;
 }
 
-int SkSocket::readPacket(void (*onRead)(int, const void*, size_t, DataType, 
+int SkSocket::readPacket(void (*onRead)(int, const void*, size_t, DataType,
                                         void*), void* context) {
-    if (!fConnected || !fReady || NULL == onRead || NULL == context 
+    if (!fConnected || !fReady || NULL == onRead || NULL == context
         || fReadSuspended)
         return -1;
 
@@ -91,7 +91,7 @@ int SkSocket::readPacket(void (*onRead)(int, const void*, size_t, DataType,
     for (int i = 0; i <= fMaxfd; ++i) {
         if (!FD_ISSET (i, &fMasterSet))
             continue;
-        
+
         memset(packet, 0, PACKET_SIZE);
         SkDynamicMemoryWStream stream;
         int attempts = 0;
@@ -155,13 +155,13 @@ int SkSocket::readPacket(void (*onRead)(int, const void*, size_t, DataType,
             this->onFailedConnection(i);
             continue;
         }
-        
+
         if (bytesReadInTransfer > 0) {
             SkData* data = stream.copyToData();
             SkASSERT(data->size() == bytesReadInTransfer);
             onRead(i, data->data(), data->size(), h.type, context);
             data->unref();
-            
+
             totalBytesRead += bytesReadInTransfer;
         }
     }
@@ -312,7 +312,7 @@ int SkTCPServer::disconnectAll() {
 SkTCPClient::SkTCPClient(const char* hostname, int port) {
     //Add fSockfd since the client will be using it to read/write
     this->addToMasterSet(fSockfd);
-    
+
     hostent* server = gethostbyname(hostname);
     if (server) {
         fServerAddr.sin_family = AF_INET;

@@ -21,7 +21,7 @@ class SkText : public SkBoundable {
 #ifdef SK_DUMP_ENABLED
     virtual void dump(SkAnimateMaker* );
 #endif
-    virtual bool getProperty(int index, SkScriptValue* value) const ; 
+    virtual bool getProperty(int index, SkScriptValue* value) const ;
     const char* getText() { return text.c_str(); }
     size_t getSize() { return text.size(); }
 protected:

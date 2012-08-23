@@ -272,7 +272,7 @@ static void test_irect(skiatest::Reporter* reporter) {
             }
             REPORTER_ASSERT(reporter, nonEmptyAA == nonEmptyBW);
             REPORTER_ASSERT(reporter, clip2.getBounds() == rgn2.getBounds());
-            
+
             SkMask maskBW, maskAA;
             copyToMask(rgn2, &maskBW);
             clip2.copyToMask(&maskAA);
@@ -307,7 +307,7 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
     for (int i = 0; i < 2; ++i) {
         SkAAClip clip;
         clip.setPath(path, NULL, 1 == i);
-        
+
         SkMask mask;
         clip.copyToMask(&mask);
         SkAutoMaskFreeImage freeM(mask.fImage);
@@ -350,7 +350,7 @@ static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
     for (size_t i = 0; i < count; ++i) {
         SkRect r;
         r.set(ir);
-        
+
         SkRasterClip rc0(ir);
         SkRasterClip rc1(ir);
         SkRasterClip rc2(ir);
@@ -360,7 +360,7 @@ static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
         rc1.op(r, SkRegion::kIntersect_Op, true);
         r.offset(-2*dx[i], 0);
         rc2.op(r, SkRegion::kIntersect_Op, true);
-    
+
         REPORTER_ASSERT(reporter, changed != (rc0 == rc1));
         REPORTER_ASSERT(reporter, changed != (rc0 == rc2));
     }
@@ -368,7 +368,7 @@ static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
 
 static void test_nearly_integral(skiatest::Reporter* reporter) {
     // All of these should generate equivalent rasterclips
-    
+
     static const SkScalar gSafeX[] = {
         0, SK_Scalar1/1000, SK_Scalar1/100, SK_Scalar1/10,
     };
@@ -388,7 +388,7 @@ static void test_regressions(skiatest::Reporter* reporter) {
         SkRect r;
         r.fLeft = SkFloatToScalar(129.892181f);
         r.fTop = SkFloatToScalar(10.3999996f);
-        r.fRight = SkFloatToScalar(130.892181f); 
+        r.fRight = SkFloatToScalar(130.892181f);
         r.fBottom = SkFloatToScalar(20.3999996f);
         clip.setRect(r, true);
     }

@@ -30,7 +30,7 @@ public:
 
     T*  head() const { return fHead; }
     T*  tail() const { return fTail; }
-    
+
     void addToHead(T*);
     void addToTail(T*);
     void removeFromList(T*);

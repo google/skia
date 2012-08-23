@@ -26,7 +26,7 @@ SkXMLPullParser::SkXMLPullParser(SkStream* stream) : fStream(NULL)
 {
     fCurr.fEventType = ERROR;
     fDepth = 0;
-    
+
     this->setStream(stream);
 }
 
@@ -65,12 +65,12 @@ SkXMLPullParser::EventType SkXMLPullParser::nextToken()
     case END_TAG:
         fDepth -= 1;
         // fall through
-    default:        
+    default:
         reset(&fCurr);
         fCurr.fEventType = this->onNextToken();
         break;
     }
-    
+
     switch (fCurr.fEventType) {
     case START_TAG:
         fDepth += 1;
@@ -125,11 +125,11 @@ int SkXMLPullParser::getAttributeCount()
 void SkXMLPullParser::getAttributeInfo(int index, AttrInfo* info)
 {
     SkASSERT((unsigned)index < (unsigned)fCurr.fAttrInfoCount);
-    
+
     if (info)
         *info = fCurr.fAttrInfos[index];
 }
-    
+
 bool SkXMLPullParser::onEntityReplacement(const char name[],
                                           SkString* replacement)
 {

@@ -87,7 +87,7 @@ protected:
                 desc.fConfig    = kSkia8888_PM_GrPixelConfig;
                 desc.fWidth     = 2 * S;
                 desc.fHeight    = 2 * S;
-                GrTexture* texture = 
+                GrTexture* texture =
                     ctx->createUncachedTexture(desc, gTextureData, 0);
 
                 if (!texture) {
@@ -129,7 +129,7 @@ protected:
                 offset = 0;
                 for (int y = 0; y < S; ++y) {
                     for (int x = 0; x < S; ++x) {
-                        gTextureData[offset + y * stride + x] = 
+                        gTextureData[offset + y * stride + x] =
                             ((x + y) % 2) ? (i ? green : red) : blue;
                     }
                 }

@@ -49,7 +49,7 @@ static void TestParsePath(skiatest::Reporter* reporter) {
 
         test_to_from(reporter, path);
     }
-    
+
     SkRect r;
     r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5f));
     SkPath p;

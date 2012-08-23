@@ -32,7 +32,7 @@ SkPageFlipper::SkPageFlipper(int width, int height) {
 void SkPageFlipper::resize(int width, int height) {
     fWidth = width;
     fHeight = height;
-    
+
     // this is the opposite of the constructors
     fDirty1->setRect(0, 0, width, height);
     fDirty0->setEmpty();

@@ -49,7 +49,7 @@ bool SkInput::getProperty(int index, SkScriptValue* value) const {
     }
     return true;
 }
- 
+
 bool SkInput::hasEnable() const {
     return true;
 }

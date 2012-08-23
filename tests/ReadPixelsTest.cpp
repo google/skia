@@ -19,7 +19,7 @@
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
-static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1, 
+static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1,
                                                 DEV_H * SK_Scalar1);
 
 namespace {
@@ -51,7 +51,7 @@ SkPMColor getCanvasColor(int x, int y) {
     }
     return SkPremultiplyARGBInline(a, r, g, b);
 }
-    
+
 SkPMColor getBitmapColor(int x, int y, int w, int h) {
     int n = y * w + x;
 
@@ -125,7 +125,7 @@ void fillCanvas(SkCanvas* canvas) {
     canvas->drawBitmap(bmp, 0, 0, &paint);
     canvas->restore();
 }
-    
+
 void fillBitmap(SkBitmap* bitmap) {
     SkASSERT(bitmap->lockPixelsAreWritable());
     SkAutoLockPixels alp(*bitmap);
@@ -172,7 +172,7 @@ bool checkRead(skiatest::Reporter* reporter,
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
     SkASSERT(checkCanvasPixels || checkBitmapPixels);
-    
+
     int bw = bitmap.width();
     int bh = bitmap.height();
 
@@ -187,7 +187,7 @@ bool checkRead(skiatest::Reporter* reporter,
         for (int bx = 0; bx < bw; ++bx) {
             int devx = bx + srcRect.fLeft;
             int devy = by + srcRect.fTop;
-            
+
             uint32_t pixel = *reinterpret_cast<SkPMColor*>(pixels + by * bitmap.rowBytes() + bx * bitmap.bytesPerPixel());
 
             if (clippedSrcRect.contains(devx, devy)) {
@@ -214,11 +214,11 @@ bool checkRead(skiatest::Reporter* reporter,
 
 enum BitmapInit {
     kFirstBitmapInit = 0,
-    
+
     kNoPixels_BitmapInit = kFirstBitmapInit,
     kTight_BitmapInit,
     kRowBytes_BitmapInit,
-    
+
     kBitmapInitCnt
 };
 
@@ -253,7 +253,7 @@ void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) {
 
 void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
     SkCanvas canvas;
-    
+
     const SkIRect testRects[] = {
         // entire thing
         DEV_RECT,

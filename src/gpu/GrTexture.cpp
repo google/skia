@@ -17,7 +17,7 @@
 SK_DEFINE_INST_COUNT(GrTexture)
 GR_DEFINE_RESOURCE_CACHE_TYPE(GrTexture)
 
-/** 
+/**
  * This method allows us to interrupt the normal deletion process and place
  * textures back in the texture cache when their ref count goes to zero.
  */
@@ -31,7 +31,7 @@ void GrTexture::internal_dispose() const {
         nonConstThis->resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
         nonConstThis->INHERITED::getContext()->addExistingTextureToCache(nonConstThis);
 
-        // Note: "this" texture might be freed inside addExistingTextureToCache 
+        // Note: "this" texture might be freed inside addExistingTextureToCache
         // if it is purged.
         return;
     }
@@ -117,7 +117,7 @@ void GrTexture::validateDesc() const {
 enum TextureBits {
     /*
      * The kNPOT bit is set when the texture is NPOT and is being repeated
-     * but the hardware doesn't support that feature. 
+     * but the hardware doesn't support that feature.
      */
     kNPOT_TextureBit            = 0x1,
     /*

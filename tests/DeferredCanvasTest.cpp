@@ -90,7 +90,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     canvas.clipRect(partialRect, SkRegion::kIntersect_Op, false);
     canvas.clear(0x00000000);
     canvas.restore();
-    REPORTER_ASSERT(reporter, canvas.isFreshFrame());    
+    REPORTER_ASSERT(reporter, canvas.isFreshFrame());
 
     // Verify that full frame rects with different forms of opaque paint
     // trigger frames to be marked as fresh
@@ -107,11 +107,11 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkBitmap bmp;
         create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
         bmp.setIsOpaque(true);
-        SkShader* shader = SkShader::CreateBitmapShader(bmp, 
+        SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();
         canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, canvas.isFreshFrame());        
+        REPORTER_ASSERT(reporter, canvas.isFreshFrame());
     }
 
     // Verify that full frame rects with different forms of non-opaque paint
@@ -129,11 +129,11 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkBitmap bmp;
         create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
         bmp.setIsOpaque(false);
-        SkShader* shader = SkShader::CreateBitmapShader(bmp, 
+        SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();
         canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());        
+        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
     }
 
     // Verify that incomplete coverage does not trigger a fresh frame
@@ -165,7 +165,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         canvas.drawRect(fullRect, paint);
         REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
     }
-    
+
     // Verify kSrcMode triggers a fresh frame even with transparent color
     {
         SkPaint paint;
@@ -227,7 +227,7 @@ public:
         fStorageAllocatedChangedCount++;
     }
     virtual void flushedDrawCommands() SK_OVERRIDE {
-        fFlushedDrawCommandsCount++;        
+        fFlushedDrawCommandsCount++;
     }
 
     int fPrepareForDrawCount;
@@ -258,7 +258,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fStorageAllocatedChangedCount);
     // stored bitmap + drawBitmap command
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > bitmapSize);
-    
+
     // verify that nothing can be freed at this point
     REPORTER_ASSERT(reporter, 0 == canvas.freeMemoryIfPossible(~0));
 
@@ -292,7 +292,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter,  bytesFreed >= bitmapSize);
     REPORTER_ASSERT(reporter,  bytesFreed < 2*bitmapSize);
 
-    // Verifiy that partial purge works, image zero is in cache but not reffed by 
+    // Verifiy that partial purge works, image zero is in cache but not reffed by
     // a pending draw, while image 1 is locked-in.
     canvas.freeMemoryIfPossible(~0);
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);

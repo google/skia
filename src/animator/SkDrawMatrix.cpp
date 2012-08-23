@@ -51,9 +51,9 @@ const SkMemberInfo SkDrawMatrix::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawMatrix);
 
-SkDrawMatrix::SkDrawMatrix() : fChildHasID(false), fDirty(false) { 
+SkDrawMatrix::SkDrawMatrix() : fChildHasID(false), fDirty(false) {
     fConcat.reset();
-    fMatrix.reset(); 
+    fMatrix.reset();
 }
 
 SkDrawMatrix::~SkDrawMatrix() {
@@ -66,11 +66,11 @@ bool SkDrawMatrix::add(SkAnimateMaker& maker, SkDisplayable* child) {
     SkMatrixPart* part = (SkMatrixPart*) child;
     *fParts.append() = part;
     if (part->add())
-        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToMatrix); 
+        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToMatrix);
     return true;
 }
 
-bool SkDrawMatrix::childrenNeedDisposing() const { 
+bool SkDrawMatrix::childrenNeedDisposing() const {
     return false;
 }
 
@@ -83,8 +83,8 @@ SkDisplayable* SkDrawMatrix::deepCopy(SkAnimateMaker* maker) {
     return copy;
 }
 
-void SkDrawMatrix::dirty() { 
-    fDirty = true; 
+void SkDrawMatrix::dirty() {
+    fDirty = true;
 }
 
 bool SkDrawMatrix::draw(SkAnimateMaker& maker) {
@@ -207,8 +207,8 @@ setConcat:
     }
 }
 
-void SkDrawMatrix::setChildHasID() { 
-    fChildHasID = true; 
+void SkDrawMatrix::setChildHasID() {
+    fChildHasID = true;
 }
 
 bool SkDrawMatrix::setProperty(int index, SkScriptValue& scriptValue) {

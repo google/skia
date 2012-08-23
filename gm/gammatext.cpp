@@ -50,7 +50,7 @@ static CGContextRef makeCG(const SkBitmap& bm) {
 
     CGContextSetAllowsFontSubpixelQuantization(cg, false);
     CGContextSetShouldSubpixelQuantizeFonts(cg, false);
-    
+
     return cg;
 }
 
@@ -81,7 +81,7 @@ static void cgSetPaintForText(CGContextRef cg, const SkPaint& paint) {
 
     CGContextSetAllowsFontSubpixelPositioning(cg, paint.isSubpixelText());
     CGContextSetShouldSubpixelPositionFonts(cg, paint.isSubpixelText());
-    
+
     CGContextSetShouldAntialias(cg, paint.isAntiAlias());
     CGContextSetShouldSmoothFonts(cg, paint.isLCDRenderText());
 }
@@ -107,7 +107,7 @@ namespace skiagm {
    Each region should show as a blue center surrounded by a 2px green
    border, with no red.
 */
-    
+
 #define HEIGHT 480
 
 class GammaTextGM : public GM {
@@ -133,7 +133,7 @@ protected:
 #else
         SkShader* s = make_heatGradient(pts);
 #endif
-        
+
         canvas->clear(SK_ColorRED);
         SkPaint paint;
         paint.setShader(s)->unref();
@@ -145,7 +145,7 @@ protected:
 #ifdef SK_BUILD_FOR_MAC
         CGContextRef cg = makeCG(canvas->getDevice()->accessBitmap(false));
 #endif
-        
+
         drawGrad(canvas);
 
         const SkColor fg[] = {
@@ -154,7 +154,7 @@ protected:
             0xFFFF0000, 0xFF00FF00, 0xFF0000FF,
             0xFF000000,
         };
-        
+
         const char* text = "Hamburgefons";
         size_t len = strlen(text);
 
@@ -167,13 +167,13 @@ protected:
         SkScalar x = SkIntToScalar(10);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
-            
+
             SkScalar y = SkIntToScalar(40);
             SkScalar stopy = SkIntToScalar(HEIGHT);
             while (y < stopy) {
                 if (true) {
                     canvas->drawText(text, len, x, y, paint);
-                } 
+                }
 #ifdef SK_BUILD_FOR_MAC
                 else {
                     cgDrawText(cg, text, len, SkScalarToFloat(x),

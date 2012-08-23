@@ -12,22 +12,22 @@
 /**
  * Drawing Client
  *
- * A drawing client that allows a user to perform simple brush stokes with 
- * a selected color and brush size. The drawing client communicates with a 
+ * A drawing client that allows a user to perform simple brush stokes with
+ * a selected color and brush size. The drawing client communicates with a
  * drawing server to send/receive data to/from other clients connected to the
  * same server. The drawing client stores data in fData and fBuffer depending on
  * the data type. Append type means that the drawing data is a completed stroke
- * and Replace type means that the drawing data is in progress and will be 
- * replaced by subsequent data. fData and fBuffer are read by a pipe reader and 
+ * and Replace type means that the drawing data is in progress and will be
+ * replaced by subsequent data. fData and fBuffer are read by a pipe reader and
  * reproduce the drawing. When the client is in a normal state, the data stored
  * on the client and the server should be identical.
  * The drawing client is also able to switch between vector and bitmap drawing.
  * The drawing client also renders the latest drawing stroke locally in order to
- * produce better reponses. This can be disabled by calling 
- * controller.disablePlayBack(), which will introduce a lag between the input 
+ * produce better reponses. This can be disabled by calling
+ * controller.disablePlayBack(), which will introduce a lag between the input
  * and the drawing.
  * Note: in order to keep up with the drawing data, the client will try to read
- * a few times each frame in case more than one frame worth of data has been 
+ * a few times each frame in case more than one frame worth of data has been
  * received and render them together. This behavior can be adjusted by tweaking
  * MAX_READ_PER_FRAME or disabled by turning fSync to false
  */
@@ -36,7 +36,7 @@
 
 class DrawingClientView : public SampleView {
 public:
-	DrawingClientView() {
+    DrawingClientView() {
         fSocket = NULL;
         fTotalBytesRead = 0;
         fPalette = new SkColorPalette;
@@ -57,29 +57,29 @@ public:
         fData.reset();
         fBuffer.reset();
     }
-    
+
     virtual void requestMenu(SkOSMenu* menu) {
         menu->setTitle("Drawing Client");
-        menu->appendTextField("Server IP", "Server IP", this->getSinkID(), 
+        menu->appendTextField("Server IP", "Server IP", this->getSinkID(),
                               "IP address or hostname");
         menu->appendSwitch("Vector", "Vector", this->getSinkID(), fVector);
-        menu->appendSlider("Brush Size", "Brush Size", this->getSinkID(), 1.0, 
+        menu->appendSlider("Brush Size", "Brush Size", this->getSinkID(), 1.0,
                            100.0, fBrushSize);
         menu->appendSwitch("Anti-Aliasing", "AA", this->getSinkID(), fAA);
-        menu->appendSwitch("Show Color Palette", "Palette", this->getSinkID(), 
+        menu->appendSwitch("Show Color Palette", "Palette", this->getSinkID(),
                            fPaletteVisible);
         menu->appendSwitch("Sync", "Sync", this->getSinkID(), fSync);
         menu->appendAction("Clear", this->getSinkID());
     }
-    
+
 protected:
-    
+
     static void readData(int cid, const void* data, size_t size,
                          SkSocket::DataType type, void* context) {
         DrawingClientView* view = (DrawingClientView*)context;
         view->onRead(cid, data, size, type);
     }
-    
+
     void onRead(int cid, const void* data, size_t size, SkSocket::DataType type) {
         if (size > 0) {
             fBuffer.reset();
@@ -92,20 +92,20 @@ protected:
             }
         }
     }
-    
+
     bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Drawing Client");
             return true;
         }
-        
+
         return this->INHERITED::onQuery(evt);
     }
-    
+
     bool onEvent(const SkEvent& evt) {;
         if (SkOSMenu::FindSliderValue(evt, "Brush Size", &fBrushSize))
             return true;
-        
+
         SkString s;
         if (SkOSMenu::FindText(evt, "Server IP", &s)) {
             if (NULL != fSocket) {
@@ -137,11 +137,11 @@ protected:
         }
         return this->INHERITED::onEvent(evt);
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         return new Click(this);
     }
-    
+
     virtual bool onClick(SkView::Click* click) {
         switch (click->fState) {
             case SkView::Click::kDown_State:
@@ -161,20 +161,20 @@ protected:
         }
         return true;
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         if (fSocket) {
             if (fSocket->isConnected()) {
                 if (fSync) {
                     int count = 0;
                     while (fSocket->readPacket(readData, this) > 0 &&
-                           count < MAX_READ_PER_FRAME) 
+                           count < MAX_READ_PER_FRAME)
                         ++count;
                 }
-                else 
+                else
                     fSocket->readPacket(readData, this);
             }
-            else 
+            else
                 fSocket->connectToServer();
         }
         size_t bytesRead = 0;
@@ -186,7 +186,7 @@ protected:
                 tempCanvas = canvas;
             else
                 tempCanvas = &bufferCanvas;
-            SkGPipeReader reader(tempCanvas); 
+            SkGPipeReader reader(tempCanvas);
             status = reader.playback(fData.begin() + fTotalBytesRead,
                                      fData.count() - fTotalBytesRead,
                                      &bytesRead);
@@ -197,22 +197,22 @@ protected:
             fTotalBytesRead = 0;
         else
             canvas->drawBitmap(fBase, 0, 0, NULL);
-        
+
         size_t totalBytesRead = 0;
         while (totalBytesRead < fBuffer.count()) {
             SkGPipeReader reader(canvas);
-            status = reader.playback(fBuffer.begin() + totalBytesRead, 
-                                     fBuffer.count() - totalBytesRead, 
+            status = reader.playback(fBuffer.begin() + totalBytesRead,
+                                     fBuffer.count() - totalBytesRead,
                                      &bytesRead);
             SkASSERT(SkGPipeReader::kError_Status != status);
             totalBytesRead += bytesRead;
         }
-        
+
         SkNetPipeController controller(canvas);
         SkGPipeWriter writer;
-        SkCanvas* writerCanvas = writer.startRecording(&controller, 
+        SkCanvas* writerCanvas = writer.startRecording(&controller,
                                                        SkGPipeWriter::kCrossProcess_Flag);
-        
+
         //controller.disablePlayback();
         SkPaint p;
         p.setColor(fPalette->getColor());
@@ -224,16 +224,16 @@ protected:
         p.setPathEffect(new SkCornerPathEffect(55))->unref();
         writerCanvas->drawPath(fCurrLine, p);
         writer.endRecording();
-        
+
         controller.writeToSocket(fSocket, fType);
         if (fType == SkSocket::kPipeAppend_type && fSocket) {
             fSocket->suspendWrite();
             fCurrLine.reset();
         }
-        
+
         this->inval(NULL);
     }
-    
+
     virtual void onSizeChange() {
         this->INHERITED::onSizeChange();
         fPalette->setLoc(this->width()-100, 0);
@@ -241,7 +241,7 @@ protected:
         fBase.allocPixels(NULL);
         this->clearBitmap();
     }
-    
+
 private:
     void clear() {
         fData.reset();
@@ -267,7 +267,7 @@ private:
     bool                fAA;
     bool                fSync;
     bool                fVector;
-    
+
     typedef SampleView INHERITED;
 };
 

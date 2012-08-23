@@ -68,7 +68,7 @@ static void TestString(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter,  a.contains("hello"));
     REPORTER_ASSERT(reporter, !a.contains("hellohello"));
     REPORTER_ASSERT(reporter,  a.contains(""));
-    
+
     SkString    e(a);
     SkString    f("hello");
     SkString    g("helloz", 5);
@@ -148,7 +148,7 @@ static void TestString(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, buffer[18] == ' ');
     REPORTER_ASSERT(reporter, buffer[19] == 0);
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
-    
+
 }
 
 #include "TestClassDef.h"

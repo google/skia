@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-void	*memcpy(void *, const void *, size_t);
+void    *memcpy(void *, const void *, size_t);
 
 #ifdef __cplusplus
 }
@@ -29,7 +29,7 @@ union Float_t
     bool Negative() const { return (i >> 31) != 0; }
     int32_t RawMantissa() const { return i & ((1 << 23) - 1); }
     int32_t RawExponent() const { return (i >> 23) & 0xFF; }
- 
+
     int32_t i;
     float f;
 #ifdef _DEBUG
@@ -41,25 +41,25 @@ union Float_t
     } parts;
 #endif
 };
- 
+
 bool AlmostEqualUlps(float A, float B, int maxUlpsDiff)
 {
     Float_t uA(A);
     Float_t uB(B);
- 
+
     // Different signs means they do not match.
     if (uA.Negative() != uB.Negative())
     {
         // Check for equality to make sure +0==-0
         return A == B;
     }
- 
+
     // Find the difference in ULPs.
     int ulpsDiff = abs(uA.i - uB.i);
     return ulpsDiff <= maxUlpsDiff;
 }
 
-int UlpsDiff(float A, float B) 
+int UlpsDiff(float A, float B)
 {
     Float_t uA(A);
     Float_t uB(B);

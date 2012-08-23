@@ -35,9 +35,9 @@
 
 static int gGeneratedMatrixID = 0;
 
-SkSVGParser::SkSVGParser(SkXMLParserError* errHandler) : 
-	SkXMLParser(errHandler),
-	fHead(&fEmptyPaint), fIDs(256),
+SkSVGParser::SkSVGParser(SkXMLParserError* errHandler) :
+    SkXMLParser(errHandler),
+    fHead(&fEmptyPaint), fIDs(256),
         fXMLWriter(&fStream), fCurrElement(NULL), fInSVG(false), fSuppressPaint(false) {
     fLastTransform.reset();
     fEmptyPaint.f_fill.set("black");
@@ -72,7 +72,7 @@ int SkSVGParser::findAttribute(SkSVGBase* element, const char* attrValue,
     size_t result = 0;
     while (result < count) {
         if (strncmp(attributes->fName, attrValue, len) == 0 && strlen(attributes->fName) == len) {
-            SkASSERT(result == (attributes->fOffset - 
+            SkASSERT(result == (attributes->fOffset -
                 (isPaint ? sizeof(SkString) : sizeof(SkSVGElement))) / sizeof(SkString));
             return result;
         }
@@ -199,9 +199,9 @@ bool SkSVGParser::onStartElementLen(const char name[], size_t len) {
     SkSVGTypes type = GetType(name, len);
 //    SkASSERT(type >= 0);
     if (type < 0) {
-		type = SkSVGType_G;
+        type = SkSVGType_G;
 //        return true;
-	}
+    }
     SkSVGElement* parent = fParents.count() > 0 ? fParents.top() : NULL;
     SkSVGElement* element = CreateElement(type, parent);
     bool result = false;
@@ -219,7 +219,7 @@ bool SkSVGParser::onStartElementLen(const char name[], size_t len) {
 bool SkSVGParser::onText(const char text[], int len) {
     if (fInSVG == false)
         return false;
-    SkSVGTypes type = fCurrElement->getType(); 
+    SkSVGTypes type = fCurrElement->getType();
     if (type != SkSVGType_Text && type != SkSVGType_Tspan)
         return false;
     SkSVGText* textElement = (SkSVGText*) fCurrElement;
@@ -310,7 +310,7 @@ void SkSVGParser::translateMatrix(SkString& string, SkString* stringID) {
         string.append(elems[index], end - elems[index] + 1);
     }
     string.remove(string.size() - 1, 1);
-    string.append(",0,0,1]");    
+    string.append(",0,0,1]");
     _addAttribute("matrix", string);
     _endElement();  // matrix
 }
@@ -434,8 +434,8 @@ const SkSVGTypeName gSVGTypeNames[] = {
 const int kSVGTypeNamesSize = SK_ARRAY_COUNT(gSVGTypeNames);
 
 SkSVGTypes SkSVGParser::GetType(const char match[], size_t len ) {
-    int index = SkStrSearch(&gSVGTypeNames[0].fName, kSVGTypeNamesSize, match, 
+    int index = SkStrSearch(&gSVGTypeNames[0].fName, kSVGTypeNamesSize, match,
         len, sizeof(gSVGTypeNames[0]));
-    return index >= 0 && index < kSVGTypeNamesSize ? gSVGTypeNames[index].fType : 
+    return index >= 0 && index < kSVGTypeNamesSize ? gSVGTypeNames[index].fType :
         (SkSVGTypes) -1;
 }

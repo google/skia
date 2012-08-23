@@ -38,7 +38,7 @@ static void test_measuretext(skiatest::Reporter* reporter) {
     for (i = 0; i < N; ++i) {
         threads[i] = new SkThread(thread_main);
     }
-    
+
     for (i = 0; i < N; ++i) {
         threads[i]->start();
     }

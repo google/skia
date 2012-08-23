@@ -65,7 +65,7 @@ private:
 protected:
     SkBase64 base64;
     SkString src;
-    SkString fLast; // cache of src so that stream isn't unnecessarily decoded 
+    SkString fLast; // cache of src so that stream isn't unnecessarily decoded
     SkBool fDirty;
     const char* fUriBase;
     typedef SkBaseBitmap INHERITED;

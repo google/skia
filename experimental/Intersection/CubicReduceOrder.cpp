@@ -30,7 +30,7 @@ static int vertical_line(const Cubic& cubic, Cubic& reduction) {
         if (reduction[smaller].y > yExtrema) {
             reduction[smaller].y = yExtrema;
             continue;
-        } 
+        }
         if (reduction[larger].y < yExtrema) {
             reduction[larger].y = yExtrema;
         }
@@ -50,7 +50,7 @@ static int horizontal_line(const Cubic& cubic, Cubic& reduction) {
         if (reduction[smaller].x > xExtrema) {
             reduction[smaller].x = xExtrema;
             continue;
-        } 
+        }
         if (reduction[larger].x < xExtrema) {
             reduction[larger].x = xExtrema;
         }
@@ -183,7 +183,7 @@ http://kaba.hilvi.org
 
 // reduce to a quadratic or smaller
 // look for identical points
-// look for all four points in a line 
+// look for all four points in a line
     // note that three points in a line doesn't simplify a cubic
 // look for approximation with single quadratic
     // save approximation with multiple quadratics for later

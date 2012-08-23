@@ -163,7 +163,7 @@ void SkEventSink::addListenerID(SkEventSinkID id)
     this->addTagList(next);
 }
 
-void SkEventSink::copyListeners(const SkEventSink& sink) 
+void SkEventSink::copyListeners(const SkEventSink& sink)
 {
     SkListenersTagList* sinkList = (SkListenersTagList*)sink.findTagList(kListeners_SkTagList);
     if (sinkList == NULL)
@@ -226,7 +226,7 @@ SkEventSink::EventResult SkEventSink::DoEvent(const SkEvent& evt) {
     if (proc) {
         return proc(evt) ? kHandled_EventResult : kNotHandled_EventResult;
     }
-        
+
     SkEventSink* sink = SkEventSink::FindSink(evt.getTargetID());
     if (sink) {
         return sink->doEvent(evt) ? kHandled_EventResult : kNotHandled_EventResult;

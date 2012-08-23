@@ -12,7 +12,7 @@
 class SkOnce : SkNoncopyable {
 public:
     SkOnce() { fDidOnce = false; }
-    
+
     bool needToDo() const { return !fDidOnce; }
     bool alreadyDone() const { return fDidOnce; }
     void accomplished() {
@@ -125,14 +125,14 @@ protected:
         fPaths.back().lineTo(98 * SK_Scalar1, 100 * SK_Scalar1);
         fPaths.back().lineTo(3 * SK_Scalar1, 96 * SK_Scalar1);
 
-        
+
         //It turns out arcTos are not automatically marked as convex and they
         //may in fact be ever so slightly concave.
         //fPaths.push_back().arcTo(SkRect::MakeXYWH(0, 0,
         //                                          50 * SK_Scalar1,
         //                                          100 * SK_Scalar1),
         //                         25 * SK_Scalar1,  130 * SK_Scalar1, false);
-        
+
         // cubics
         fPaths.push_back().cubicTo( 1 * SK_Scalar1,  1 * SK_Scalar1,
                                    10 * SK_Scalar1,  90 * SK_Scalar1,
@@ -140,7 +140,7 @@ protected:
         fPaths.push_back().cubicTo(100 * SK_Scalar1,  50 * SK_Scalar1,
                                     20 * SK_Scalar1, 100 * SK_Scalar1,
                                      0 * SK_Scalar1,   0 * SK_Scalar1);
-        
+
         // path that has a cubic with a repeated first control point and
         // a repeated last control point.
         fPaths.push_back().moveTo(SK_Scalar1 * 10, SK_Scalar1 * 10);
@@ -196,7 +196,7 @@ protected:
         // point degenerate
         fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
         fPaths.back().lineTo(50 * SK_Scalar1, 50 * SK_Scalar1);
-        
+
         fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
         fPaths.back().quadTo(50 * SK_Scalar1, 50 * SK_Scalar1,
                              50 * SK_Scalar1, 50 * SK_Scalar1);
@@ -251,7 +251,7 @@ protected:
         canvas->restore();
     }
     }
-    
+
 private:
     typedef GM INHERITED;
     SkTArray<SkPath> fPaths;

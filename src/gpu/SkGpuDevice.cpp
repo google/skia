@@ -59,7 +59,7 @@ enum {
 // all the blur tests.
 #define BLUR_SIGMA_SCALE 0.6f
 // This constant represents the screen alignment criterion in texels for
-// requiring texture domain clamping to prevent color bleeding when drawing 
+// requiring texture domain clamping to prevent color bleeding when drawing
 // a sub region of a larger source image.
 #define COLOR_BLEED_TOLERANCE SkFloatToScalar(0.001f)
 
@@ -84,7 +84,7 @@ public:
     SkAutoCachedTexture()
         : fDevice(NULL)
         , fTexture(NULL) {
-    }    
+    }
 
     SkAutoCachedTexture(SkGpuDevice* device,
                         const SkBitmap& bitmap,
@@ -118,7 +118,7 @@ public:
         }
         return result;
     }
-    
+
 private:
     SkGpuDevice* fDevice;
     GrTexture*   fTexture;
@@ -199,7 +199,7 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     // if this RT is also a texture, hold a ref on it
     fTexture = fRenderTarget->asTexture();
     SkSafeRef(fTexture);
-    
+
     // Create a pixel ref for the underlying SkBitmap. We prefer a texture pixel
     // ref to a render target pixel reft. The pixel ref may get ref'ed outside
     // the device via accessBitmap. This external ref may outlive the device.
@@ -267,7 +267,7 @@ SkGpuDevice::~SkGpuDevice() {
     }
 
     // The SkGpuDevice gives the context the render target (e.g., in gainFocus)
-    // This call gives the context a chance to relinquish it 
+    // This call gives the context a chance to relinquish it
     fContext->setRenderTarget(NULL);
 
     SkSafeUnref(fTexture);
@@ -599,7 +599,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
                                        constantColor,
                                        &textures[kColorFilterTextureIdx],
                                        grPaint);
-    } else if (!skPaint2GrPaintNoShader(dev, skPaint, true, false, 
+    } else if (!skPaint2GrPaintNoShader(dev, skPaint, true, false,
                                         &textures[kColorFilterTextureIdx], grPaint)) {
         return false;
     }
@@ -1120,7 +1120,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                    *draw.fMatrix, *draw.fClip, draw.fBounder,
                                    &grPaint, pathFillType)) {
-            SkPaint::Style style = doFill ? SkPaint::kFill_Style : 
+            SkPaint::Style style = doFill ? SkPaint::kFill_Style :
                 SkPaint::kStroke_Style;
             drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                *draw.fMatrix, *draw.fClip, draw.fBounder,
@@ -1371,7 +1371,7 @@ bool hasAlignedSamples(const SkRect& srcRect, const SkRect& transformedRect) {
     // detect pixel disalignment
     if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) -
             transformedRect.left()) < COLOR_BLEED_TOLERANCE &&
-        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top()) - 
+        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top()) -
             transformedRect.top()) < COLOR_BLEED_TOLERANCE &&
         SkScalarAbs(transformedRect.width() - srcRect.width()) <
             COLOR_BLEED_TOLERANCE &&
@@ -1387,7 +1387,7 @@ bool mayColorBleed(const SkRect& srcRect, const SkRect& transformedRect,
     // Only gets called if hasAlignedSamples returned false.
     // So we can assume that sampling is axis aligned but not texel aligned.
     GrAssert(!hasAlignedSamples(srcRect, transformedRect));
-    SkRect innerSrcRect(srcRect), innerTransformedRect, 
+    SkRect innerSrcRect(srcRect), innerTransformedRect,
         outerTransformedRect(transformedRect);
     innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
     m.mapRect(&innerTransformedRect, innerSrcRect);
@@ -1453,7 +1453,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                       SkFloatToScalar(srcRect.fRight * wInv),
                       SkFloatToScalar(srcRect.fBottom * hInv));
 
-    bool needsTextureDomain = false; 
+    bool needsTextureDomain = false;
     if (sampler->textureParams()->isBilerp()) {
         // Need texture domain if drawing a sub rect.
         needsTextureDomain = srcRect.width() < bitmap.width() || srcRect.height() < bitmap.height();
@@ -1464,7 +1464,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
             SkMatrix srcToDeviceMatrix(m);
             srcToDeviceMatrix.postConcat(*draw.fMatrix);
             srcToDeviceMatrix.mapRect(&transformedRect, floatSrcRect);
-            
+
             if (hasAlignedSamples(floatSrcRect, transformedRect)) {
                 // Samples are texel-aligned, so filtering is futile
                 sampler->textureParams()->setBilerp(false);
@@ -1474,7 +1474,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                     mayColorBleed(floatSrcRect, transformedRect, m);
             }
         }
-    } 
+    }
 
     GrRect textureDomain = GrRect::MakeEmpty();
 
@@ -1495,7 +1495,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
         } else {
             top = bottom = GrScalarHalf(paintRect.top() + paintRect.bottom());
         }
-        textureDomain.setLTRB(left, top, right, bottom);  
+        textureDomain.setLTRB(left, top, right, bottom);
         sampler->setCustomStage(SkNEW_ARGS(GrTextureDomainEffect,
                      (texture,
                       textureDomain)))->unref();
@@ -1589,7 +1589,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
             filteredTexture->unref();
         }
     }
-    
+
     fContext->drawRectToRect(grPaint,
                             GrRect::MakeXYWH(GrIntToScalar(left),
                                             GrIntToScalar(top),
@@ -1633,7 +1633,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
             filteredTexture->unref();
         }
     }
-    
+
     const SkBitmap& bm = dev->accessBitmap(false);
     int w = bm.width();
     int h = bm.height();
@@ -1682,7 +1682,7 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     SkAutoCachedTexture act(this, src, sampler->textureParams(), &texture);
 
     result->setConfig(src.config(), src.width(), src.height());
-    GrRect rect = GrRect::MakeWH(SkIntToScalar(src.width()), 
+    GrRect rect = GrRect::MakeWH(SkIntToScalar(src.width()),
                                  SkIntToScalar(src.height()));
     GrTexture* resultTexture = filter_texture(fContext, texture, filter, rect);
     if (resultTexture) {

@@ -96,7 +96,7 @@ void TestClampRange(skiatest::Reporter* reporter) {
     test_range(0xFFFF, 0, 20);
     test_range(-ff(2), 0, 20);
     test_range( ff(2), 0, 20);
-    
+
     test_range(-10, 1, 20);
     test_range(10, -1, 20);
     test_range(-10, 3, 20);
@@ -108,7 +108,7 @@ void TestClampRange(skiatest::Reporter* reporter) {
     test_range(ff(1)/2, ff(-16384), 100);
 
     SkRandom rand;
-    
+
     // test non-overflow cases
     for (int i = 0; i < 1000000; i++) {
         SkFixed fx = rand.nextS() >> 1;
@@ -117,7 +117,7 @@ void TestClampRange(skiatest::Reporter* reporter) {
         SkFixed dx = (sx - fx) / count;
         test_range(fx, dx, count);
     }
-    
+
     // test overflow cases
     for (int i = 0; i < 100000; i++) {
         SkFixed fx = rand.nextS();

@@ -14,7 +14,7 @@ inline int sideBit(double x) {
 
 /* Given the set [0, 1, 2, 3], and two of the four members, compute an XOR mask
    that computes the other two. Note that:
-   
+
    one ^ two == 3 for (0, 3), (1, 2)
    one ^ two <  3 for (0, 1), (0, 2), (1, 3), (2, 3)
    3 - (one ^ two) is either 0, 1, or 2

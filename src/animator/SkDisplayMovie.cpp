@@ -78,7 +78,7 @@ bool SkDisplayMovie::draw(SkAnimateMaker& maker) {
         enable(maker);
     maker.fCanvas->save();
     SkPaint local = SkPaint(*maker.fPaint);
-    bool result = fMovie.draw(maker.fCanvas, &local, 
+    bool result = fMovie.draw(maker.fCanvas, &local,
         maker.fDisplayList.getTime()) != SkAnimator::kNotDifferent;
     maker.fDisplayList.fInvalBounds.join(fMovie.fMaker->fDisplayList.fInvalBounds);
     maker.fCanvas->restore();

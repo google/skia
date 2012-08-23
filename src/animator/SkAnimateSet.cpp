@@ -32,7 +32,7 @@ const SkMemberInfo SkSet::fInfo[] = {
 DEFINE_GET_MEMBER(SkSet);
 
 SkSet::SkSet() {
-    dur = 1; 
+    dur = 1;
 }
 
 #ifdef SK_DUMP_ENABLED
@@ -48,7 +48,7 @@ void SkSet::dump(SkAnimateMaker* maker) {
 #endif
 
 void SkSet::refresh(SkAnimateMaker& maker) {
-    fFieldInfo->setValue(maker, &fValues, 0, fFieldInfo->fCount, NULL, 
+    fFieldInfo->setValue(maker, &fValues, 0, fFieldInfo->fCount, NULL,
         fFieldInfo->getType(), to);
 }
 

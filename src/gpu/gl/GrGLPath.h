@@ -26,7 +26,7 @@ public:
     GrGLPath(GrGpuGL* gpu, const SkPath& path);
     virtual ~GrGLPath();
     GrGLuint pathID() const { return fPathID; }
-    // TODO: Figure out how to get an approximate size of the path in Gpu 
+    // TODO: Figure out how to get an approximate size of the path in Gpu
     // memory.
     virtual size_t sizeInBytes() const SK_OVERRIDE { return 100; }
 

@@ -32,7 +32,7 @@ public:
             delete[] fBusy;
         }
     }
-    
+
     void reset() {
         Gr_bzero(fBusy, fDim.fX * fDim.fY);
     }

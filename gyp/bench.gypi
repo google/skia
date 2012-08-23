@@ -9,7 +9,7 @@
     '../bench/AAClipBench.cpp',
     '../bench/BitmapBench.cpp',
     '../bench/BlurBench.cpp',
-    '../bench/ChecksumBench.cpp',    
+    '../bench/ChecksumBench.cpp',
     '../bench/ChromeBench.cpp',
     '../bench/DashBench.cpp',
     '../bench/DecodeBench.cpp',

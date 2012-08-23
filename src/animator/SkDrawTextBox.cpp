@@ -47,7 +47,7 @@ void SkDrawTextBox::dump(SkAnimateMaker* maker)
 {
     dumpBase(maker);
     dumpAttrs(maker);
-    if (mode == 0) 
+    if (mode == 0)
         SkDebugf("mode=\"oneLine\" ");
     if (spacingAlign == 1)
         SkDebugf("spacingAlign=\"center\" ");

@@ -118,7 +118,7 @@ bool isLinear(const Quadratic& quad, int startIndex, int endIndex) {
 
 // reduce to a quadratic or smaller
 // look for identical points
-// look for all four points in a line 
+// look for all four points in a line
     // note that three points in a line doesn't simplify a cubic
 // look for approximation with single quadratic
     // save approximation with multiple quadratics for later

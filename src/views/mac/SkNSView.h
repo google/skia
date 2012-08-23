@@ -21,7 +21,7 @@ class SkEvent;
 
 @interface SkNSView : NSView {
     BOOL fRedrawRequestPending;
-    
+
     NSString* fTitle;
     SkOSWindow* fWind;
 #if SK_SUPPORT_GPU

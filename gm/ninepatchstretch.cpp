@@ -16,7 +16,7 @@ class GrContext;
 static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     SkDevice* dev;
     SkCanvas canvas;
-    
+
     const int kFixed = 28;
     const int kStretchy = 8;
     const int kSize = 2*kFixed + kStretchy;
@@ -32,19 +32,19 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
         bitmap->allocPixels();
         dev = new SkDevice(*bitmap);
     }
-    
+
     canvas.setDevice(dev)->unref();
     canvas.clear(0);
-    
+
     SkRect r = SkRect::MakeWH(SkIntToScalar(kSize), SkIntToScalar(kSize));
     const SkScalar strokeWidth = SkIntToScalar(6);
     const SkScalar radius = SkIntToScalar(kFixed) - strokeWidth/2;
-    
+
     center->setXYWH(kFixed, kFixed, kStretchy, kStretchy);
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     paint.setColor(0xFFFF0000);
     canvas.drawRoundRect(r, radius, radius, paint);
     r.setXYWH(SkIntToScalar(kFixed), 0, SkIntToScalar(kStretchy), SkIntToScalar(kSize));
@@ -56,19 +56,19 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
 }
 
 namespace skiagm {
-    
+
 class NinePatchStretchGM : public GM {
 public:
     SkBitmap fBM;
 
-	NinePatchStretchGM() {}
+    NinePatchStretchGM() {}
 
 protected:
     virtual SkString onShortName() {
         return SkString("ninepatch-stretch");
     }
 
-	virtual SkISize onISize() {
+    virtual SkISize onISize() {
         return make_isize(400, 400);
     }
 
@@ -76,25 +76,25 @@ protected:
         SkBitmap bm;
         SkIRect center;
         make_bitmap(&bm, NULL /*SampleCode::GetGr()*/, &center);
-        
+
         // amount of bm that should not be stretched (unless we have to)
         const SkScalar fixed = SkIntToScalar(bm.width() - center.width());
-        
+
         const SkTSize<SkScalar> size[] = {
             { fixed * 4 / 5, fixed * 4 / 5 },   // shrink in both axes
             { fixed * 4 / 5, fixed * 4 },       // shrink in X
             { fixed * 4,     fixed * 4 / 5 },   // shrink in Y
             { fixed * 4,     fixed * 4 }
         };
-        
+
         canvas->drawBitmap(bm, SkIntToScalar(10), SkIntToScalar(10), NULL);
-        
+
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(100);
-        
+
         SkPaint paint;
         paint.setFilterBitmap(true);
-        
+
         for (int iy = 0; iy < 2; ++iy) {
             for (int ix = 0; ix < 2; ++ix) {
                 int i = ix * 2 + iy;
@@ -104,7 +104,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

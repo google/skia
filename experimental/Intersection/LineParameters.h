@@ -20,19 +20,19 @@ public:
         b = pts[3].x - pts[0].x;
         c = pts[0].x * pts[3].y - pts[3].x * pts[0].y;
     }
-    
+
     void cubicEndPoints(const Cubic& pts, int s, int e) {
         a = pts[s].y - pts[e].y;
         b = pts[e].x - pts[s].x;
         c = pts[s].x * pts[e].y - pts[e].x * pts[s].y;
     }
-    
+
     void lineEndPoints(const _Line& pts) {
         a = pts[0].y - pts[1].y;
         b = pts[1].x - pts[0].x;
         c = pts[0].x * pts[1].y - pts[1].x * pts[0].y;
     }
-    
+
     void quadEndPoints(const Quadratic& pts) {
         a = pts[0].y - pts[2].y;
         b = pts[2].x - pts[0].x;
@@ -61,7 +61,7 @@ public:
         c *= reciprocal;
         return true;
     }
-    
+
     void cubicDistanceY(const Cubic& pts, Cubic& distance) {
         double oneThird = 1 / 3.0;
         for (int index = 0; index < 4; ++index) {
@@ -83,16 +83,16 @@ public:
             distance[index] = a * pts[index + 1].x + b * pts[index + 1].y + c;
         }
     }
-    
+
     void controlPtDistance(const Cubic& pts, int i, int j, double distance[2]) {
         distance[0] = a * pts[i].x + b * pts[i].y + c;
         distance[1] = a * pts[j].x + b * pts[j].y + c;
     }
-    
+
     double controlPtDistance(const Quadratic& pts) {
         return a * pts[1].x + b * pts[1].y + c;
     }
-    
+
     double pointDistance(const _Point& pt) {
         return a * pt.x + b * pt.y + c;
     }

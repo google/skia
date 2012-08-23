@@ -18,7 +18,7 @@ const SkSVGAttribute SkSVGPolygon::gAttributes[] = {
 
 DEFINE_SVG_INFO(Polygon)
 
-void SkSVGPolygon::addAttribute(SkSVGParser& parser, int attrIndex, 
+void SkSVGPolygon::addAttribute(SkSVGParser& parser, int attrIndex,
         const char* attrValue, size_t attrLength) {
     INHERITED::addAttribute(parser, attrIndex, attrValue, attrLength);
 }
@@ -27,7 +27,7 @@ void SkSVGPolygon::translate(SkSVGParser& parser, bool defState) {
     parser._startElement("polygon");
     SkSVGElement::translate(parser, defState);
     SVG_ADD_ATTRIBUTE(points);
-    if (f_fillRule.size() > 0) 
+    if (f_fillRule.size() > 0)
         parser._addAttribute("fillType", f_fillRule.equals("evenodd") ? "evenOdd" : "winding");
     parser._endElement();
 }

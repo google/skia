@@ -68,7 +68,7 @@ static bool drawCircles(SkCanvas* canvas, int step, bool useOld)
     return true;
 }
 
-static void createStar(SkPath& path, SkScalar innerRadius, SkScalar outerRadius, 
+static void createStar(SkPath& path, SkScalar innerRadius, SkScalar outerRadius,
         SkScalar startAngle, int points, SkPoint center) {
     SkScalar angle = startAngle;
     for (int index = 0; index < points * 2; ++index) {

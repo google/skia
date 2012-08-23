@@ -31,7 +31,7 @@ protected:
     SkISize onISize() { return make_isize(640, 480); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        
+
         y = textHeight;
         drawText(canvas, SkString("TEXT: SubpixelTrue LCDRenderTrue"),
                  true,  true);

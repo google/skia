@@ -201,13 +201,13 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
     // We invert the control pt matrix and post concat to both sides to get M.
     UVpts.setAll(0,   GR_ScalarHalf,  GR_Scalar1,
                  0,               0,  GR_Scalar1,
-                 SkScalarToPersp(GR_Scalar1), 
-                 SkScalarToPersp(GR_Scalar1), 
+                 SkScalarToPersp(GR_Scalar1),
+                 SkScalarToPersp(GR_Scalar1),
                  SkScalarToPersp(GR_Scalar1));
     m.setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
              qPts[0].fY, qPts[1].fY, qPts[2].fY,
-             SkScalarToPersp(GR_Scalar1), 
-             SkScalarToPersp(GR_Scalar1), 
+             SkScalarToPersp(GR_Scalar1),
+             SkScalarToPersp(GR_Scalar1),
              SkScalarToPersp(GR_Scalar1));
     if (!m.invert(&m)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
@@ -348,7 +348,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     // When the ab and cd tangents are nearly parallel with vector from d to a the constraint that
     // the quad point falls between the tangents becomes hard to enforce and we are likely to hit
     // the max subdivision count. However, in this case the cubic is approaching a line and the
-    // accuracy of the quad point isn't so important. We check if the two middle cubic control 
+    // accuracy of the quad point isn't so important. We check if the two middle cubic control
     // points are very close to the baseline vector. If so then we just pick quadratic points on the
     // control polygon.
 

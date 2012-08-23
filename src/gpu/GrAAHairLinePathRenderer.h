@@ -28,7 +28,7 @@ protected:
                             const GrVec* translate,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
- 
+
 private:
 
     GrAAHairLinePathRenderer(const GrContext* context,

@@ -10,7 +10,7 @@ bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double&
     maxT = 0;
     // determine normalized implicit line equation for pt[0] to pt[3]
     //   of the form ax + by + c = 0, where a*a + b*b == 1
-    
+
     // find the implicit line equation parameters
     LineParameters endLine;
     endLine.cubicEndPoints(cubic1);
@@ -21,7 +21,7 @@ bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double&
 
     double distance[2];
     endLine.controlPtDistance(cubic1, distance);
-    
+
     // find fat line
     double top = distance[0];
     double bottom = distance[1];
@@ -42,11 +42,11 @@ bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double&
         top *= scale;
         bottom *= scale;
     }
-    
+
     // compute intersecting candidate distance
     Cubic distance2y; // points with X of (0, 1/3, 2/3, 1)
     endLine.cubicDistanceY(cubic2, distance2y);
-    
+
     int flags = 0;
     if (approximately_lesser(distance2y[0].y, top)) {
         flags |= kFindTopMin;
@@ -78,7 +78,7 @@ bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double&
     if (do_1_2_edge) {
         x_at(distance2y[1], distance2y[2], top, bottom, flags, minT, maxT);
     }
-    
+
     return minT < maxT; // returns false if distance shows no intersection
 }
 

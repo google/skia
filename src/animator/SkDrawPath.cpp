@@ -50,17 +50,17 @@ bool SkDrawPath::add(SkAnimateMaker& maker, SkDisplayable* child) {
     SkPathPart* part = (SkPathPart*) child;
     *fParts.append() = part;
     if (part->add())
-        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToPath); 
+        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToPath);
     fDirty = false;
     return true;
 }
 
-bool SkDrawPath::childrenNeedDisposing() const { 
-    return false; 
+bool SkDrawPath::childrenNeedDisposing() const {
+    return false;
 }
 
-void SkDrawPath::dirty() { 
-    fDirty = true; 
+void SkDrawPath::dirty() {
+    fDirty = true;
     fLength = SK_ScalarNaN;
     if (fParent)
         fParent->dirty();
@@ -115,7 +115,7 @@ SkPath& SkDrawPath::getPath() {
     fDirty = false;
     return fPath;
 }
-    
+
 void SkDrawPath::onEndElement(SkAnimateMaker& ) {
     if (d.size() > 0) {
         parseSVG();
@@ -153,8 +153,8 @@ bool SkDrawPath::getProperty(int index, SkScriptValue* value) const {
     return true;
 }
 
-void SkDrawPath::setChildHasID() { 
-    fChildHasID = true; 
+void SkDrawPath::setChildHasID() {
+    fChildHasID = true;
 }
 
 bool SkDrawPath::setParent(SkDisplayable* parent) {
@@ -189,7 +189,7 @@ const SkMemberInfo SkPolyline::fInfo[] = {
 DEFINE_GET_MEMBER(SkPolyline);
 
 bool SkPolyline::add(SkAnimateMaker& , SkDisplayable*) const {
-    return false; 
+    return false;
 }
 
 void SkPolyline::onEndElement(SkAnimateMaker& maker) {

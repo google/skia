@@ -67,7 +67,7 @@
 #else
     #define CASE_DEBUG_RETURN_NIL(_class)
 #endif
-    
+
 
 SkDisplayTypes SkDisplayType::gNewTypes = kNumberOfTypes;
 
@@ -224,7 +224,7 @@ SkDisplayable* SkDisplayType::CreateInstance(SkAnimateMaker* maker, SkDisplayTyp
     info = SkDisplay##_class::fInfo; infoCount = SkDisplay##_class::fInfoCount; \
     break
 
-const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker, 
+const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
         SkDisplayTypes type, int* infoCountPtr) {
     const SkMemberInfo* info = NULL;
     int infoCount = 0;
@@ -355,7 +355,7 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
         CASE_GET_DRAW_INFO(Typeface);
         // xfermode
         // knumberoftypes
-        default: 
+        default:
             if (maker) {
                 SkExtras** end = maker->fExtras.end();
                 for (SkExtras** extraPtr = maker->fExtras.begin(); extraPtr < end; extraPtr++) {
@@ -370,7 +370,7 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
     return info;
 }
 
-const SkMemberInfo* SkDisplayType::GetMember(SkAnimateMaker* maker, 
+const SkMemberInfo* SkDisplayType::GetMember(SkAnimateMaker* maker,
         SkDisplayTypes type, const char** matchPtr ) {
     int infoCount;
     const SkMemberInfo* info = GetMembers(maker, type, &infoCount);
@@ -546,7 +546,7 @@ SkDisplayTypes SkDisplayType::GetParent(SkAnimateMaker* maker, SkDisplayTypes ba
     SkASSERT(info);
     if (info->fType != SkType_BaseClassInfo)
         return SkType_Unknown; // if no base, done
-    // !!! could change SK_MEMBER_INHERITED macro to take type, stuff in offset, so that 
+    // !!! could change SK_MEMBER_INHERITED macro to take type, stuff in offset, so that
     // this (and table builder) could know type without the following steps:
     const SkMemberInfo* inherited = info->getInherited();
     SkDisplayTypes result = (SkDisplayTypes) (SkType_Unknown + 1);
@@ -560,7 +560,7 @@ SkDisplayTypes SkDisplayType::GetParent(SkAnimateMaker* maker, SkDisplayTypes ba
 }
 
 SkDisplayTypes SkDisplayType::GetType(SkAnimateMaker* maker, const char match[], size_t len ) {
-    int index = SkStrSearch(&gTypeNames[0].fName, kTypeNamesSize, match, 
+    int index = SkStrSearch(&gTypeNames[0].fName, kTypeNamesSize, match,
         len, sizeof(gTypeNames[0]));
     if (index >= 0 && index < kTypeNamesSize)
         return gTypeNames[index].fType;

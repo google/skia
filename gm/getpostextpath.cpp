@@ -46,11 +46,11 @@ protected:
         paint.getTextPath(text, len, 0, 0, &path);
         strokePath(canvas, path);
         path.reset();
-        
+
         SkAutoTArray<SkPoint>  pos(len);
         SkAutoTArray<SkScalar> widths(len);
         paint.getTextWidths(text, len, &widths[0]);
-        
+
         SkRandom rand;
         SkScalar x = SkIntToScalar(20);
         SkScalar y = SkIntToScalar(100);
@@ -58,9 +58,9 @@ protected:
             pos[i].set(x, y + rand.nextSScalar1() * 24);
             x += widths[i];
         }
-        
+
         canvas->translate(0, SkIntToScalar(64));
-        
+
         canvas->drawPosText(text, len, &pos[0], paint);
         paint.getPosTextPath(text, len, &pos[0], &path);
         strokePath(canvas, path);

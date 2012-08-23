@@ -25,7 +25,7 @@
 const GrGLInterface* GrGLCreateNativeInterface() {
     // wglGetProcAddress requires a context.
     // GL Function pointers retrieved in one context may not be valid in another
-    // context. For that reason we create a new GrGLInterface each time we're 
+    // context. For that reason we create a new GrGLInterface each time we're
     // called.
     if (NULL != wglGetCurrentContext()) {
         const char* versionString = (const char*) glGetString(GL_VERSION);
@@ -118,7 +118,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(GetQueryiv);
         GR_GL_GET_PROC(GetQueryObjectiv);
         GR_GL_GET_PROC(GetQueryObjectuiv);
-        if (glVer > GR_GL_VER(3,3) || 
+        if (glVer > GR_GL_VER(3,3) ||
             GrGLHasExtensionFromString("GL_ARB_timer_query", extString)) {
             GR_GL_GET_PROC(GetQueryObjecti64v);
             GR_GL_GET_PROC(GetQueryObjectui64v);
@@ -166,7 +166,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
         // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-        if (glVer > GR_GL_VER(3,0) || 
+        if (glVer > GR_GL_VER(3,0) ||
             GrGLHasExtensionFromString("GL_ARB_framebuffer_object", extString)) {
             GR_GL_GET_PROC(GenFramebuffers);
             GR_GL_GET_PROC(GetFramebufferAttachmentParameteriv);

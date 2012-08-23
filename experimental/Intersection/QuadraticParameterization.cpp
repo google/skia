@@ -3,7 +3,7 @@
 
 /* from http://tom.cs.byu.edu/~tom/papers/cvgip84.pdf 4.1
  *
- * This paper proves that Syvester's method can compute the implicit form of 
+ * This paper proves that Syvester's method can compute the implicit form of
  * the quadratic from the parameterized form.
  *
  * Given x = a*t*t + b*t + c  (the parameterized form)

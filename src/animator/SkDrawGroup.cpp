@@ -50,7 +50,7 @@ SkGroup::~SkGroup() {
 }
 
 bool SkGroup::add(SkAnimateMaker& , SkDisplayable* child) {
-    SkASSERT(child); 
+    SkASSERT(child);
 //  SkASSERT(child->isDrawable());
     *fChildren.append() = (SkDrawable*) child;
     if (child->isGroup()) {

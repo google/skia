@@ -12,7 +12,7 @@ const Cubic pointDegenerates[] = {
 };
 
 const size_t pointDegenerates_count = sizeof(pointDegenerates) / sizeof(pointDegenerates[0]);
-    
+
 const Cubic notPointDegenerates[] = {
     {{1 + PointEpsilon + std::numeric_limits<double>::epsilon(), 1}, {1, 1 + PointEpsilon}, {1, 1}, {1, 1}},
     {{1 + PointEpsilon/2 + std::numeric_limits<double>::epsilon(), 1}, {1 - PointEpsilon/2, 1}, {1, 1}, {1, 1}}
@@ -69,7 +69,7 @@ const Cubic tests[][2] = {
         {{317.122, 309.05}, {316.112, 315.102}, {310.385, 319.19},  {304.332, 318.179}}
     },
     {
-        {{1046.604051, 172.937967},  {1046.604051, 178.9763059}, {1041.76745,  183.9279165}, {1035.703842, 184.0432409}},        
+        {{1046.604051, 172.937967},  {1046.604051, 178.9763059}, {1041.76745,  183.9279165}, {1035.703842, 184.0432409}},
         {{1046.452235, 174.7640504}, {1045.544872, 180.1973817}, {1040.837966, 184.0469882}, {1035.505925, 184.0469882}}
     },
     {
@@ -81,7 +81,7 @@ const Cubic tests[][2] = {
 const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
 
 Cubic hexTests[][2] = {
-    {   
+    {
         {{0}} // placeholder for hex converted below
     }
 };
@@ -95,7 +95,7 @@ static const uint64_t testx[2][8] = {
     },
     {
         0x92c56ed7b6145d40LLU, 0xede4f1255edb7740LLU, 0x1138c1101af75940LLU, 0x42e4f1255edb7740LLU,
-        0x408e51603ad95640LLU, 0x1e2e8fe9dd927740LLU, 0x1cb4777cd3a75440LLU, 0x212e1390de017740LLU 
+        0x408e51603ad95640LLU, 0x1e2e8fe9dd927740LLU, 0x1cb4777cd3a75440LLU, 0x212e1390de017740LLU
     }
 };
 

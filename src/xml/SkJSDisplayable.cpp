@@ -83,7 +83,7 @@ JSBool SkJSDisplayable::Draw(JSContext *cx, JSObject *obj, uintN argc,
 }
 
 
-JSFunctionSpec SkJSDisplayable_methods[] = 
+JSFunctionSpec SkJSDisplayable_methods[] =
 {
     { "draw", SkJSDisplayable::Draw, 1, 0, 0 },
     { 0 }
@@ -219,7 +219,7 @@ JSBool SkJSDisplayable::GetProperty(JSContext *cx, JSObject *obj, jsval id,
                                  jsval *vp)
 {
     if (JSVAL_IS_INT(id) == 0)
-        return JS_TRUE; 
+        return JS_TRUE;
     SkJSDisplayable *p = (SkJSDisplayable *) JS_GetPrivate(cx, obj);
     SkDisplayable* displayable = p->fDisplayable;
     SkDisplayTypes displayableType = displayable->getType();
@@ -295,7 +295,7 @@ JSBool SkJSDisplayable::GetProperty(JSContext *cx, JSObject *obj, jsval id,
 
 JSBool SkJSDisplayable::SetProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp) {
     if (JSVAL_IS_INT(id) == 0)
-        return JS_TRUE; 
+        return JS_TRUE;
     SkJSDisplayable *p = (SkJSDisplayable *) JS_GetPrivate(cx, obj);
     SkDisplayable* displayable = p->fDisplayable;
     SkDisplayTypes displayableType = displayable->getType();

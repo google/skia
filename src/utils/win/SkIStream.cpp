@@ -34,7 +34,7 @@ HRESULT STDMETHODCALLTYPE SkBaseIStream::QueryInterface(REFIID iid
         return S_OK;
     } else {
         *ppvObject = NULL;
-        return E_NOINTERFACE; 
+        return E_NOINTERFACE;
     }
 }
 
@@ -62,7 +62,7 @@ HRESULT STDMETHODCALLTYPE SkBaseIStream::Write(void const* pv
 { return E_NOTIMPL; }
 
 // IStream Interface
-HRESULT STDMETHODCALLTYPE SkBaseIStream::SetSize(ULARGE_INTEGER) 
+HRESULT STDMETHODCALLTYPE SkBaseIStream::SetSize(ULARGE_INTEGER)
 { return E_NOTIMPL; }
 
 HRESULT STDMETHODCALLTYPE SkBaseIStream::CopyTo(IStream*
@@ -190,7 +190,7 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         hr = STG_E_INVALIDFUNCTION;
         break;
     }
-    
+
     if (NULL != lpNewFilePointer) {
         lpNewFilePointer->QuadPart = this->fLocation.QuadPart;
     }

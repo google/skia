@@ -62,7 +62,7 @@ static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
                                                             rec.fPos,
                                                             rec.fColorCount,
                                                             rec.fTileMode));
-    
+
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kLinear_GradientType);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, rec.fPoint, 2 * sizeof(SkPoint)));
@@ -75,7 +75,7 @@ static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
                                                             rec.fPos,
                                                             rec.fColorCount,
                                                             rec.fTileMode));
-    
+
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kRadial_GradientType);
     REPORTER_ASSERT(reporter, info.fPoint[0] == rec.fPoint[0]);
@@ -91,7 +91,7 @@ static void radial2_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
                                                             rec.fPos,
                                                             rec.fColorCount,
                                                             rec.fTileMode));
-    
+
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kRadial2_GradientType);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, rec.fPoint, 2 * sizeof(SkPoint)));
@@ -104,7 +104,7 @@ static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
                                                            rec.fColors,
                                                            rec.fPos,
                                                            rec.fColorCount));
-    
+
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kSweep_GradientType);
     REPORTER_ASSERT(reporter, info.fPoint[0] == rec.fPoint[0]);
@@ -119,7 +119,7 @@ static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
                                                              rec.fPos,
                                                              rec.fColorCount,
                                                              rec.fTileMode));
-    
+
     SkShader::GradientInfo info;
     rec.gradCheck(reporter, s, &info, SkShader::kConical_GradientType);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, rec.fPoint, 2 * sizeof(SkPoint)));
@@ -154,7 +154,7 @@ static void TestGradients(skiatest::Reporter* reporter) {
         sweep_gradproc,
         conical_gradproc,
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gProcs); ++i) {
         gProcs[i](reporter, rec);
     }

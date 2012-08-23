@@ -25,7 +25,7 @@ protected:
     virtual bool onGetInfo(Info*);
     virtual bool onSetTime(SkMSec);
     virtual bool onGetBitmap(SkBitmap*);
-    
+
 private:
     GifFileType* fGIF;
     int fCurrIndex;

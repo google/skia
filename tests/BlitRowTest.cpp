@@ -136,7 +136,7 @@ static void test_00_FF(skiatest::Reporter* reporter) {
         SkBitmap dstBM;
         dstBM.setConfig(gDstConfig[i], W, 1);
         dstBM.allocPixels();
-        
+
         SkCanvas canvas(dstBM);
         for (size_t j = 0; j < SK_ARRAY_COUNT(gSrcRec); j++) {
             srcBM.eraseColor(gSrcRec[j].fSrc);
@@ -178,7 +178,7 @@ struct Mesh {
         SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
                                                    SkShader::kClamp_TileMode);
         paint->setShader(s)->unref();
-        
+
     }
 
     void draw(SkCanvas* canvas, SkPaint* paint) {
@@ -199,7 +199,7 @@ static bool gOnce;
 static void test_diagonal(skiatest::Reporter* reporter) {
     static const int W = 64;
     static const int H = W;
-    
+
     static const SkBitmap::Config gDstConfig[] = {
         SkBitmap::kARGB_8888_Config,
         SkBitmap::kRGB_565_Config,
@@ -210,7 +210,7 @@ static void test_diagonal(skiatest::Reporter* reporter) {
     static const SkColor gDstBG[] = { 0, 0xFFFFFFFF };
 
     SkPaint paint;
-    
+
     SkBitmap srcBM;
     srcBM.setConfig(SkBitmap::kARGB_8888_Config, W, H);
     srcBM.allocPixels();
@@ -226,7 +226,7 @@ static void test_diagonal(skiatest::Reporter* reporter) {
         dstBM1.setConfig(gDstConfig[i], W, H);
         dstBM0.allocPixels();
         dstBM1.allocPixels();
-        
+
         SkCanvas canvas0(dstBM0);
         SkCanvas canvas1(dstBM1);
         SkColor bgColor;
@@ -236,7 +236,7 @@ static void test_diagonal(skiatest::Reporter* reporter) {
 
             for (int c = 0; c <= 0xFF; c++) {
                 srcBM.eraseARGB(0xFF, c, c, c);
-                
+
                 for (int k = 0; k < 4; k++) {
                     bool dither = (k & 1) != 0;
                     uint8_t alpha = (k & 2) ? 0x80 : 0xFF;

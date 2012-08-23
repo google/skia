@@ -60,7 +60,7 @@ static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context)
     memset(readback, 0x1, X_SIZE * Y_SIZE);
 
     // read the texture back
-    texture->readPixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig, 
+    texture->readPixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                         readback, 0);
 
     // make sure the original & read back versions match
@@ -89,11 +89,11 @@ static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContext* context)
 
     canvas.drawRect(rect, paint);
 
-    texture->readPixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig, 
+    texture->readPixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                         readback, 0);
 
     match = true;
-    
+
     for (int y = 0; y < Y_SIZE; ++y) {
         for (int x = 0; x < X_SIZE; ++x) {
             if (0xFF != readback[x][y]) {

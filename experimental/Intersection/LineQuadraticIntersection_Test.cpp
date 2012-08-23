@@ -15,7 +15,7 @@ struct lineQuad {
     {{{1, 1}, {2, 1}, {0, 2}},  {{0, 0}, {1, 1}},  1,  {{1, 1}        }},
     {{{0, 0}, {1, 1}, {3, 1}},  {{0, 0}, {3, 1}},  2,  {{0, 0}, {3, 1}}},
     {{{2, 0}, {1, 1}, {2, 2}},  {{0, 0}, {0, 2}},  0                   },
-    {{{4, 0}, {0, 1}, {4, 2}},  {{3, 1}, {4, 1}},  0,                  },  
+    {{{4, 0}, {0, 1}, {4, 2}},  {{3, 1}, {4, 1}},  0,                  },
     {{{0, 0}, {0, 1}, {1, 1}},  {{0, 1}, {1, 0}},  1,  {{.25, .75}    }},
 };
 
@@ -100,7 +100,7 @@ void LineQuadraticIntersection_Test() {
     }
 }
 
-static void testLineIntersect(State4& state, const Quadratic& quad, const _Line& line, 
+static void testLineIntersect(State4& state, const Quadratic& quad, const _Line& line,
         const double x, const double y) {
     char pathStr[1024];
     bzero(pathStr, sizeof(pathStr));
@@ -109,7 +109,7 @@ static void testLineIntersect(State4& state, const Quadratic& quad, const _Line&
     str += sprintf(str, "    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].x, quad[1].y, quad[2].x, quad[2].y);
     str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", line[0].x, line[0].y);
     str += sprintf(str, "    path.lineTo(%1.9g, %1.9g);\n", line[1].x, line[1].y);
-    
+
     Intersections intersections;
     bool flipped = false;
     int result = doIntersect(intersections, quad, line, flipped);

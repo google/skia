@@ -34,8 +34,8 @@ const SkMemberInfo SkDrawPoint::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawPoint);
 
-SkDrawPoint::SkDrawPoint() { 
-    fPoint.set(0, 0);   
+SkDrawPoint::SkDrawPoint() {
+    fPoint.set(0, 0);
 }
 
 void SkDrawPoint::getBounds(SkRect* rect ) {

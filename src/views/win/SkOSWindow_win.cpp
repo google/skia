@@ -115,7 +115,7 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         } break;
         case WM_UNICHAR:
             this->handleChar(wParam);
-            return true; 
+            return true;
         case WM_CHAR: {
             this->handleChar(SkUTF8_ToUnichar((char*)&wParam));
             return true;
@@ -138,11 +138,11 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             delete rect;
             return true;
         } break;
-    
-        case WM_LBUTTONDOWN: 
+
+        case WM_LBUTTONDOWN:
             this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), Click::kDown_State);
             return true;
-                    
+
         case WM_MOUSEMOVE:
             this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), Click::kMoved_State);
             return true;
@@ -172,15 +172,15 @@ void SkOSWindow::doPaint(void* ctx) {
         memset(&bmi, 0, sizeof(bmi));
         bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
         bmi.bmiHeader.biWidth       = bitmap.width();
-        bmi.bmiHeader.biHeight      = -bitmap.height(); // top-down image 
+        bmi.bmiHeader.biHeight      = -bitmap.height(); // top-down image
         bmi.bmiHeader.biPlanes      = 1;
         bmi.bmiHeader.biBitCount    = 32;
         bmi.bmiHeader.biCompression = BI_RGB;
         bmi.bmiHeader.biSizeImage   = 0;
 
-        // 
-        // Do the SetDIBitsToDevice. 
-        // 
+        //
+        // Do the SetDIBitsToDevice.
+        //
         // TODO(wjmaclean):
         //       Fix this call to handle SkBitmaps that have rowBytes != width,
         //       i.e. may have padding at the end of lines. The SkASSERT below
@@ -235,7 +235,7 @@ enum {
     SK_MacRightKey      = 124,
     SK_MacDownKey       = 125,
     SK_MacUpKey         = 126,
-    
+
     SK_Mac0Key          = 0x52,
     SK_Mac1Key          = 0x53,
     SK_Mac2Key          = 0x54,
@@ -247,7 +247,7 @@ enum {
     SK_Mac8Key          = 0x5b,
     SK_Mac9Key          = 0x5c
 };
-    
+
 static SkKey raw2key(uint32_t raw)
 {
     static const struct {
@@ -272,7 +272,7 @@ static SkKey raw2key(uint32_t raw)
         { SK_Mac8Key,       k8_SkKey        },
         { SK_Mac9Key,       k9_SkKey        }
     };
-    
+
     for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
         if (gKeys[i].fRaw == raw)
             return gKeys[i].fKey;
@@ -303,7 +303,7 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
         gTimer = NULL;
     }
     if (delay)
-    {     
+    {
         gTimer = SetTimer(NULL, 0, delay, sk_timer_proc);
         //SkDebugf("SetTimer of %d returned %d\n", delay, gTimer);
     }
@@ -382,7 +382,7 @@ HGLRC create_gl(HWND hwnd, int msaaSampleCount) {
         BOOL set = SetPixelFormat(dc, format, &pfd);
         SkASSERT(TRUE == set);
     }
-    
+
     HGLRC glrc = wglCreateContext(dc);
     SkASSERT(glrc);
 
@@ -428,7 +428,7 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
                   EGLSurface* eglSurface) {
     static const EGLint contextAttribs[] = {
         EGL_CONTEXT_CLIENT_VERSION, 2,
-        EGL_NONE, EGL_NONE 
+        EGL_NONE, EGL_NONE
     };
     static const EGLint configAttribList[] = {
         EGL_RED_SIZE,       8,
@@ -482,33 +482,33 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
         }
     }
     if (!foundConfig) {
-        if (!eglChooseConfig(display, configAttribList, 
+        if (!eglChooseConfig(display, configAttribList,
                                     &config, 1, &numConfigs)) {
            return false;
         }
     }
 
     // Create a surface
-    EGLSurface surface = eglCreateWindowSurface(display, config, 
-                                                (EGLNativeWindowType)hWnd, 
+    EGLSurface surface = eglCreateWindowSurface(display, config,
+                                                (EGLNativeWindowType)hWnd,
                                                 surfaceAttribList);
     if (surface == EGL_NO_SURFACE) {
        return false;
     }
 
     // Create a GL context
-    EGLContext context = eglCreateContext(display, config, 
+    EGLContext context = eglCreateContext(display, config,
                                           EGL_NO_CONTEXT,
                                           contextAttribs );
     if (context == EGL_NO_CONTEXT ) {
        return false;
-    }   
-    
+    }
+
     // Make the context current
     if (!eglMakeCurrent(display, surface, surface, context)) {
        return false;
     }
-    
+
     *eglDisplay = display;
     *eglContext = context;
     *eglSurface = surface;
@@ -583,7 +583,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount) {
     switch (attachType) {
     case kNone_BackEndType:
         // nothing to do
-        break; 
+        break;
 #if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
         result = attachGL(msaaSampleCount);
@@ -611,7 +611,7 @@ void SkOSWindow::detach() {
     switch (fAttached) {
     case kNone_BackEndType:
         // nothing to do
-        break; 
+        break;
 #if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
         detachGL();
@@ -633,7 +633,7 @@ void SkOSWindow::present() {
     switch (fAttached) {
     case kNone_BackEndType:
         // nothing to do
-        return; 
+        return;
 #if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
         presentGL();

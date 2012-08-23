@@ -31,7 +31,7 @@ void sub_divide(const _Line& line, double t1, double t2, _Line& dst) {
     dst[1].y = line[0].y - t2 * delta.y;
 }
 
-// may have this below somewhere else already: 
+// may have this below somewhere else already:
 // copying here because I thought it was clever
 
 // Copyright 2001, softSurfer (www.softsurfer.com)
@@ -86,15 +86,15 @@ void x_at(const _Point& p1, const _Point& p2, double top, double bottom,
         int flags, double& minX, double& maxX) {
     if (approximately_equal(p1.y, p2.y)) {
         // It should be OK to bail early in this case. There's another edge
-        // which shares this end point which can intersect without failing to 
+        // which shares this end point which can intersect without failing to
         // have a slope ... maybe
         return;
     }
-    
+
     // p2.x is always greater than p1.x -- the part of points (p1, p2) are
     // moving from the start of the cubic towards its end.
     // if p1.y < p2.y, minX can be affected
-    // if p1.y > p2.y, maxX can be affected 
+    // if p1.y > p2.y, maxX can be affected
     double slope = (p2.x - p1.x) / (p2.y - p1.y);
     int topFlags = flags & (kFindTopMin | kFindTopMax);
     if (topFlags && (top <= p1.y && top >= p2.y

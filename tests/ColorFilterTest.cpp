@@ -72,13 +72,13 @@ static void test_asColorMode(skiatest::Reporter* reporter) {
             if (m != expectedMode) {
                 expectedMode = SkXfermode::kSrc_Mode;
             }
-        } 
+        }
 
 //        SkDebugf("--- got [%d %x] expected [%d %x]\n", m, c, expectedMode, expectedColor);
 
         REPORTER_ASSERT(reporter, c == expectedColor);
         REPORTER_ASSERT(reporter, m == expectedMode);
-        
+
         {
             SkColorFilter* cf2 = reincarnate(cf);
             SkAutoUnref aur2(cf2);

@@ -83,7 +83,7 @@ int main (int argc, char * const argv[]) {
             i += 1; // skip this and the next entry
             continue;
         }
-        
+
         SkBitmap bitmap;
         if (decodeFile(&bitmap, argv[i])) {
             if (outDirIndex) {

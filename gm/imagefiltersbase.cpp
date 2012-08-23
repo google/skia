@@ -25,7 +25,7 @@ protected:
                                SkBitmap* result, SkIPoint* offset) {
         return false;
     }
-    
+
     FailImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
@@ -109,27 +109,27 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
 static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     SkPaint paint;
     paint.setImageFilter(imf);
-    
+
     SkIRect bounds;
     r.roundOut(&bounds);
-    
+
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
     bm.allocPixels();
     bm.eraseColor(0);
     SkCanvas c(bm);
     draw_path(&c, r, NULL);
-    
+
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
 static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     SkPaint paint;
     paint.setImageFilter(imf);
-    
+
     SkIRect bounds;
     r.roundOut(&bounds);
-    
+
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
     bm.allocPixels();
@@ -172,7 +172,7 @@ protected:
             draw_bitmap,
             draw_sprite
         };
-        
+
         SkColorFilter* cf = SkColorFilter::CreateModeFilter(SK_ColorRED,
                                                      SkXfermode::kSrcIn_Mode);
         SkImageFilter* filters[] = {
@@ -196,14 +196,14 @@ protected:
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
                 drawProc[i](canvas, r, filters[j]);
-                
+
                 draw_frame(canvas, r);
                 canvas->translate(0, DY);
             }
             canvas->restore();
             canvas->translate(DX, 0);
         }
-        
+
         for(size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
             SkSafeUnref(filters[j]);
         }

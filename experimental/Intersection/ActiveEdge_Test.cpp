@@ -52,7 +52,7 @@ static bool operator_less_than(const UnitTest::ActiveEdge& lh,
         return (check.fY - lh.fAbove.fY) * (lh.fBelow.fX - lh.fAbove.fX)
                 < (lh.fBelow.fY - lh.fAbove.fY) * (check.fX - lh.fAbove.fX);
     }
-    const SkPoint& check = lh.fBelow.fY <= rh.fBelow.fY 
+    const SkPoint& check = lh.fBelow.fY <= rh.fBelow.fY
             && lh.fBelow != rh.fBelow ? lh.fBelow : lh.fAbove;
     return (rh.fBelow.fY - rh.fAbove.fY) * (check.fX - rh.fAbove.fX)
             < (check.fY - rh.fAbove.fY) * (rh.fBelow.fX - rh.fAbove.fX);
@@ -66,7 +66,7 @@ void ActiveEdge_Test() {
     right.fWorkEdge.fEdge = &rightIn;
     for (size_t x = 0; x < leftRightCount; ++x) {
         left.fAbove = leftRight[x][0];
-        left.fTangent = left.fBelow = leftRight[x][1]; 
+        left.fTangent = left.fBelow = leftRight[x][1];
         right.fAbove = leftRight[x][2];
         right.fTangent = right.fBelow = leftRight[x][3];
         SkASSERT(left < right);

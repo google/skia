@@ -62,7 +62,7 @@ void GrStencilBuffer::unlockInCache() {
 namespace {
 // we should never have more than one stencil buffer with same combo of
 // (width,height,samplecount)
-void gen_stencil_key_values(int width, 
+void gen_stencil_key_values(int width,
                             int height,
                             int sampleCnt,
                             GrCacheID* cacheID) {
@@ -77,8 +77,8 @@ void gen_stencil_key_values(int width,
 }
 }
 
-GrResourceKey GrStencilBuffer::ComputeKey(int width, 
-                                          int height, 
+GrResourceKey GrStencilBuffer::ComputeKey(int width,
+                                          int height,
                                           int sampleCnt) {
     GrCacheID id(GrStencilBuffer::GetResourceType());
     gen_stencil_key_values(width, height, sampleCnt, &id);

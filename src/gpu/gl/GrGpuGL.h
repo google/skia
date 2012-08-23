@@ -27,7 +27,7 @@ public:
     GrGpuGL(const GrGLContextInfo& ctxInfo);
     virtual ~GrGpuGL();
 
-    const GrGLInterface* glInterface() const { 
+    const GrGLInterface* glInterface() const {
         return fGLContextInfo.interface();
     }
     GrGLBinding glBinding() const { return fGLContextInfo.binding(); }
@@ -84,9 +84,9 @@ protected:
     virtual void onForceRenderTargetFlush() SK_OVERRIDE;
 
     virtual bool onReadPixels(GrRenderTarget* target,
-                              int left, int top, 
+                              int left, int top,
                               int width, int height,
-                              GrPixelConfig, 
+                              GrPixelConfig,
                               void* buffer,
                               size_t rowBytes,
                               bool invertY) SK_OVERRIDE;

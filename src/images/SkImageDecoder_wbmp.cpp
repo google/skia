@@ -20,7 +20,7 @@ public:
     virtual Format getFormat() const {
         return kWBMP_Format;
     }
-    
+
 protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
@@ -40,7 +40,7 @@ static bool read_mbf(SkStream* stream, int* value)
         }
         n = (n << 7) | (data & 0x7F);
     } while (data & 0x80);
-    
+
     *value = n;
     return true;
 }
@@ -48,11 +48,11 @@ static bool read_mbf(SkStream* stream, int* value)
 struct wbmp_head {
     int fWidth;
     int fHeight;
-    
+
     bool init(SkStream* stream)
     {
         uint8_t data;
-        
+
         if (!read_byte(stream, &data) || data != 0) { // unknown type
             return false;
         }
@@ -68,11 +68,11 @@ struct wbmp_head {
         return fWidth != 0 && fHeight != 0;
     }
 };
-    
+
 static void expand_bits_to_bytes(uint8_t dst[], const uint8_t src[], int bits)
 {
     int bytes = bits >> 3;
-    
+
     for (int i = 0; i < bytes; i++) {
         unsigned mask = *src++;
         dst[0] = (mask >> 7) & 1;
@@ -85,14 +85,14 @@ static void expand_bits_to_bytes(uint8_t dst[], const uint8_t src[], int bits)
         dst[7] = (mask >> 0) & 1;
         dst += 8;
     }
-    
+
     bits &= 7;
     if (bits > 0) {
         unsigned mask = *src;
         do {
             *dst++ = (mask >> 7) & 1;;
             mask <<= 1;
-        } while (--bits != 0);    
+        } while (--bits != 0);
     }
 }
 
@@ -100,21 +100,21 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
                                   Mode mode)
 {
     wbmp_head   head;
-    
+
     if (!head.init(stream)) {
         return false;
     }
-        
+
     int width = head.fWidth;
     int height = head.fHeight;
-    
+
     // assign these directly, in case we return kDimensions_Result
     decodedBitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
     decodedBitmap->setIsOpaque(true);
-    
+
     if (SkImageDecoder::kDecodeBounds_Mode == mode)
         return true;
-    
+
     const SkPMColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
     SkColorTable* ct = SkNEW_ARGS(SkColorTable, (colors, 2));
     SkAutoUnref   aur(ct);

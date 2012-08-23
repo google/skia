@@ -84,7 +84,7 @@ public:
     void setBitmapStorage(SkBitmapHeap* heap) {
         this->setBitmapHeap(heap);
     }
-    
+
     const SkFlatData* flatToReplace() const;
 
     // Mark an SkFlatData as one that should not be returned by flatToReplace.
@@ -385,11 +385,11 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 class BitmapShuttle : public SkBitmapHeap::ExternalStorage {
 public:
     BitmapShuttle(SkGPipeCanvas*);
-    
+
     ~BitmapShuttle();
-    
+
     virtual bool insert(const SkBitmap& bitmap, int32_t slot) SK_OVERRIDE;
-    
+
 private:
     SkGPipeCanvas*    fCanvas;
 };
@@ -401,7 +401,7 @@ private:
 #define FLATTENABLES_TO_KEEP 10
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
-                             SkWriter32* writer, uint32_t flags, 
+                             SkWriter32* writer, uint32_t flags,
                              uint32_t width, uint32_t height)
 : fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
 , fWriter(*writer)
@@ -426,7 +426,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     if (this->needOpBytes()) {
         this->writeOp(kReportFlags_DrawOp, fFlags, 0);
     }
-    
+
     if (shouldFlattenBitmaps(flags)) {
         BitmapShuttle* shuttle = SkNEW_ARGS(BitmapShuttle, (this));
         fBitmapHeap = SkNEW_ARGS(SkBitmapHeap, (shuttle, BITMAPS_TO_KEEP));
@@ -744,7 +744,7 @@ void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
     } else {
         flags = 0;
     }
-    
+
     if (this->commonDrawBitmap(bm, kDrawBitmapRect_DrawOp, flags, opBytesNeeded, paint)) {
         if (hasSrc) {
             fWriter.write32(src->fLeft);
@@ -760,7 +760,7 @@ void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap& bm, const SkMatrix& matrix,
                                      const SkPaint* paint) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = matrix.writeToMemory(NULL);
-    
+
     if (this->commonDrawBitmap(bm, kDrawBitmapMatrix_DrawOp, 0, opBytesNeeded, paint)) {
         fWriter.writeMatrix(matrix);
     }
@@ -939,7 +939,7 @@ void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
     doNotify();
     if (detachCurrentBlock) {
         // force a new block to be requested for the next recorded command
-        fBlockSize = 0; 
+        fBlockSize = 0;
     }
 }
 

@@ -116,7 +116,7 @@
              'android_deps.gyp:ft2',
              'android_deps.gyp:expat',
           ],
-        }],        
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [

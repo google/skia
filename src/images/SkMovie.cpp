@@ -57,7 +57,7 @@ bool SkMovie::setTime(SkMSec time)
     SkMSec dur = this->duration();
     if (time > dur)
         time = dur;
-        
+
     bool changed = false;
     if (time != fCurrTime)
     {

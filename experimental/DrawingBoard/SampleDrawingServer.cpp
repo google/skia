@@ -11,14 +11,14 @@
 /**
  * Drawing Server
  *
- * This simple drawing server can accept connections from multiple drawing 
- * clients simultaneously. It accumulates drawing data from each client each 
+ * This simple drawing server can accept connections from multiple drawing
+ * clients simultaneously. It accumulates drawing data from each client each
  * frame, stores it in the appropriate place, and then broadcasts incremental
  * changes back to all the clients. Each logical packet, meaning one brush
  * stoke in this case can be of two types, append and replace. Append types are
  * completed strokes ready to be stored in the fData queue and will no longer be
- * modified. Replace types are drawing operations that are still in progress on 
- * the client side, so they are appended to fBuffer. The location and size of 
+ * modified. Replace types are drawing operations that are still in progress on
+ * the client side, so they are appended to fBuffer. The location and size of
  * the buffered data for each client is stored in a map and updated properly.
  * Each time a new replace drawing call is received from a client, its previous
  * buffered data is discarded.
@@ -28,7 +28,7 @@
 
 class DrawingServerView : public SampleView {
 public:
-	DrawingServerView(){
+    DrawingServerView(){
         fServer = new SkTCPServer(40000);
         fServer->suspendWrite();
         fTotalBytesRead = fTotalBytesWritten = 0;
@@ -40,24 +40,24 @@ public:
         fBuffer.reset();
         fClientMap.clear();
     }
-    
+
     virtual void requestMenu(SkOSMenu* menu) {
         menu->setTitle("Drawing Server");
         menu->appendAction("Clear", this->getSinkID());
         menu->appendSwitch("Vector", "Vector", this->getSinkID(), fVector);
     }
-    
+
 protected:
-    static void readData(int cid, const void* data, size_t size, 
+    static void readData(int cid, const void* data, size_t size,
                          SkSocket::DataType type, void* context) {
         DrawingServerView* view = (DrawingServerView*)context;
         view->onRead(cid, data, size, type);
     }
-    
+
     void onRead(int cid, const void* data, size_t size, SkSocket::DataType type) {
         if (NULL == data && size <= 0)
             return;
-        
+
         ClientState* cs;
         std::map<int, ClientState*>::iterator it = fClientMap.find(cid);
         if (it == fClientMap.end()) { //New client
@@ -69,10 +69,10 @@ protected:
         else {
             cs = it->second;
         }
-        
+
         if (type == SkSocket::kPipeReplace_type) {
             fBuffer.remove(cs->bufferBase, cs->bufferSize);
-            
+
             for (it = fClientMap.begin(); it != fClientMap.end(); ++it) {
                 if (cid == it->first)
                     continue;
@@ -83,7 +83,7 @@ protected:
                     }
                 }
             }
-            
+
             cs->bufferBase = fBuffer.count();
             cs->bufferSize = size;
             fBuffer.append(size, (const char*)data);
@@ -101,7 +101,7 @@ protected:
             //other types of data
         }
     }
-    
+
     bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Drawing Server");
@@ -109,7 +109,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     bool onEvent(const SkEvent& evt) {
         if (SkOSMenu::FindAction(evt, "Clear")) {
             this->clear();
@@ -121,8 +121,8 @@ protected:
         }
         return this->INHERITED::onEvent(evt);
     }
-    
-    
+
+
     virtual void onDrawContent(SkCanvas* canvas) {
         if (fCurrMatrix != canvas->getTotalMatrix()) {
             fTotalBytesRead = 0;
@@ -136,7 +136,7 @@ protected:
         else {
             fServer->suspendWrite();
         }
-        
+
         size_t bytesRead;
         SkGPipeReader::Status stat;
         SkCanvas bufferCanvas(fBase);
@@ -159,7 +159,7 @@ protected:
         } else {
             canvas->drawBitmap(fBase, 0, 0, NULL);
         }
-        
+
         size_t totalBytesRead = 0;
         while (totalBytesRead < fBuffer.count()) {
             SkGPipeReader reader(canvas);
@@ -169,22 +169,22 @@ protected:
             SkASSERT(SkGPipeReader::kError_Status != stat);
             totalBytesRead += bytesRead;
         }
-        
-        fServer->writePacket(fBuffer.begin(), fBuffer.count(), 
+
+        fServer->writePacket(fBuffer.begin(), fBuffer.count(),
                              SkSocket::kPipeReplace_type);
 
         this->inval(NULL);
     }
-    
+
     virtual void onSizeChange() {
         this->INHERITED::onSizeChange();
-        fBase.setConfig(SkBitmap::kARGB_8888_Config, 
-                        this->width(), 
+        fBase.setConfig(SkBitmap::kARGB_8888_Config,
+                        this->width(),
                         this->height());
         fBase.allocPixels(NULL);
         this->clearBitmap();
     }
-    
+
 private:
     void clear() {
         fData.reset();
@@ -197,12 +197,12 @@ private:
         fTotalBytesRead = 0;
         fBase.eraseColor(fBGColor);
     }
-    
+
     struct ClientState {
         int bufferBase;
         int bufferSize;
     };
-    
+
     std::map<int, ClientState*> fClientMap;
     SkTDArray<char>             fData;
     SkTDArray<char>             fBuffer;

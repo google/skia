@@ -52,14 +52,14 @@ static void* testSimplify4x4RectsMain(void* data)
                         break;
                     case 2:
                         l =  aXAlign * 12;
-                        r =  l + 30; 
+                        r =  l + 30;
                         t =  0; b = 60;
                         aYAlign = 5;
                         break;
                     case 3:
                         l =  0; r = 60;
                         t =  aYAlign * 12;
-                        b =  l + 30; 
+                        b =  l + 30;
                         aXAlign = 5;
                         break;
                 }
@@ -74,20 +74,20 @@ static void* testSimplify4x4RectsMain(void* data)
                 switch (bShape) {
                     case 1: // square
                         l =  bXAlign * 10;
-                        r =  l + 20; 
+                        r =  l + 20;
                         t =  bYAlign * 10;
-                        b =  l + 20; 
+                        b =  l + 20;
                         break;
                     case 2:
                         l =  bXAlign * 10;
-                        r =  l + 20; 
+                        r =  l + 20;
                         t =  10; b = 40;
                         bYAlign = 5;
                         break;
                     case 3:
                         l =  10; r = 40;
                         t =  bYAlign * 10;
-                        b =  l + 20; 
+                        b =  l + 20;
                         bXAlign = 5;
                         break;
                 }
@@ -102,20 +102,20 @@ static void* testSimplify4x4RectsMain(void* data)
                 switch (cShape) {
                     case 1: // square
                         l =  cXAlign * 6;
-                        r =  l + 12; 
+                        r =  l + 12;
                         t =  cYAlign * 6;
-                        b =  l + 12; 
+                        b =  l + 12;
                         break;
                     case 2:
                         l =  cXAlign * 6;
-                        r =  l + 12; 
+                        r =  l + 12;
                         t =  20; b = 30;
                         cYAlign = 5;
                         break;
                     case 3:
                         l =  20; r = 30;
                         t =  cYAlign * 6;
-                        b =  l + 20; 
+                        b =  l + 20;
                         cXAlign = 5;
                         break;
                 }
@@ -130,20 +130,20 @@ static void* testSimplify4x4RectsMain(void* data)
                 switch (dShape) {
                     case 1: // square
                         l =  dXAlign * 4;
-                        r =  l + 9; 
+                        r =  l + 9;
                         t =  dYAlign * 4;
-                        b =  l + 9; 
+                        b =  l + 9;
                         break;
                     case 2:
                         l =  dXAlign * 6;
-                        r =  l + 9; 
+                        r =  l + 9;
                         t =  32; b = 36;
                         dYAlign = 5;
                         break;
                     case 3:
                         l =  32; r = 36;
                         t =  dYAlign * 6;
-                        b =  l + 9; 
+                        b =  l + 9;
                         dXAlign = 5;
                         break;
                 }
@@ -186,7 +186,7 @@ void Simplify4x4RectsThreaded_Test(int& testsRun)
     for (int a = 0; a < 8; ++a) { // outermost
         for (int b = a ; b < 8; ++b) {
             for (int c = b ; c < 8; ++c) {
-                for (int d = c; d < 8; ++d) {                 
+                for (int d = c; d < 8; ++d) {
                     testsRun += dispatchTest4(testSimplify4x4RectsMain, a, b, c, d);
                 }
                 if (!gRunTestsInOneThread) SkDebugf(".");

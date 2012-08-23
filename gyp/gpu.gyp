@@ -176,7 +176,7 @@
       'sources': [
         '<@(gr_sources)',
         '<@(gr_native_gl_sources)',
-        '<@(gr_angle_gl_sources)',  
+        '<@(gr_angle_gl_sources)',
         '<@(gr_mesa_gl_sources)',
         '<@(gr_debug_gl_sources)',
         '<@(gr_null_gl_sources)',

@@ -14,14 +14,14 @@ class SkNetPipeController : public SkGPipeController {
 public:
     SkNetPipeController(SkCanvas* target);
     ~SkNetPipeController();
-    
+
     virtual void* requestBlock(size_t minRequest, size_t* actual);
     virtual void notifyWritten(size_t bytes);
-    
+
     int writeToSocket(SkSocket* sockfd, SkSocket::DataType type);
     void enablePlayback() { fPlayback = true; }
     void disablePlayback() { fPlayback = false; }
-    
+
 private:
     SkGPipeReader   fReader;
     bool            fPlayback;
@@ -30,7 +30,7 @@ private:
     size_t          fBytesWritten;
     int             fAtomsWritten;
     size_t          fTotalWritten;
-    
+
     SkGPipeReader::Status   fStatus;
 };
 #endif

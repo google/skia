@@ -3,21 +3,21 @@
 
 /*
  Given a cubic c, t1, and t2, find a small cubic segment.
- 
+
  The new cubic is defined as points A, B, C, and D, where
  s1 = 1 - t1
  s2 = 1 - t2
  A = c[0]*s1*s1*s1 + 3*c[1]*s1*s1*t1 + 3*c[2]*s1*t1*t1 + c[3]*t1*t1*t1
  D = c[0]*s2*s2*s2 + 3*c[1]*s2*s2*t2 + 3*c[2]*s2*t2*t2 + c[3]*t2*t2*t2
- 
+
  We don't have B or C. So We define two equations to isolate them.
  First, compute two reference T values 1/3 and 2/3 from t1 to t2:
- 
+
  c(at (2*t1 + t2)/3) == E
  c(at (t1 + 2*t2)/3) == F
- 
+
  Next, compute where those values must be if we know the values of B and C:
- 
+
  _12   =  A*2/3 + B*1/3
  12_   =  A*1/3 + B*2/3
  _23   =  B*2/3 + C*1/3
@@ -36,9 +36,9 @@
        =  F
  E*27  =  A*8    + B*12   + C*6     + D
  F*27  =  A      + B*6    + C*12    + D*8
- 
+
 Group the known values on one side:
-       
+
  M       = E*27 - A*8 - D     = B*12 + C* 6
  N       = F*27 - A   - D*8   = B* 6 + C*12
  M*2 - N = B*18
@@ -46,7 +46,7 @@ Group the known values on one side:
  B       = (M*2 - N)/18
  C       = (N*2 - M)/18
  */
- 
+
 static double interp_cubic_coords(const double* src, double t)
 {
     double ab = interp(src[0], src[2], t);
@@ -57,7 +57,7 @@ static double interp_cubic_coords(const double* src, double t)
     double abcd = interp(abc, bcd, t);
     return abcd;
 }
- 
+
 void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst) {
     double ax = dst[0].x = interp_cubic_coords(&src[0].x, t1);
     double ay = dst[0].y = interp_cubic_coords(&src[0].y, t1);

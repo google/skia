@@ -1514,7 +1514,7 @@ SK_COMPILE_ASSERT(BASE64_GUID_ID_LEN < LF_FACESIZE, GUID_longer_than_facesize);
    The following need not be any standard base64 encoding.
    The encoded value is never decoded.
 */
-static const char postscript_safe_base64_encode[] = 
+static const char postscript_safe_base64_encode[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789-_=";
@@ -1576,7 +1576,7 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     if (FAILED(create_unique_font_name(familyName, familyNameSize))) {
         return NULL;
     }
-    
+
     // Change the name of the font.
     SkAutoTUnref<SkData> rewrittenFontData(SkOTUtils::RenameFont(stream, familyName, familyNameSize-1));
     if (NULL == rewrittenFontData.get()) {

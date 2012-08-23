@@ -34,14 +34,14 @@ SkImageRef_ashmem::SkImageRef_ashmem(SkStream* stream,
                                              SkBitmap::Config config,
                                              int sampleSize)
         : SkImageRef(stream, config, sampleSize) {
-            
+
     fRec.fFD = -1;
     fRec.fAddr = NULL;
     fRec.fSize = 0;
     fRec.fPinned = false;
-            
+
     fCT = NULL;
-            
+
     this->useDefaultMutex();   // we don't need/want the shared imageref mutex
 }
 
@@ -80,7 +80,7 @@ public:
         if (-1 == fd) {
             SkASSERT(NULL == addr);
             SkASSERT(0 == fRec->fSize);
-            
+
             fd = ashmem_create_region(fName, size);
 #ifdef DUMP_ASHMEM_LIFECYCLE
             SkDebugf("=== ashmem_create_region %s size=%d fd=%d\n", fName, size, fd);
@@ -90,7 +90,7 @@ public:
                          fName, size);
                 return false;
             }
-            
+
             int err = ashmem_set_prot_region(fd, PROT_READ | PROT_WRITE);
             if (err) {
                 SkDebugf("------ ashmem_set_prot_region(%d) failed %d\n",
@@ -98,7 +98,7 @@ public:
                 close(fd);
                 return false;
             }
-            
+
             addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
             if (-1 == (long)addr) {
                 SkDebugf("---------- mmap failed for imageref_ashmem size=%d\n",
@@ -106,7 +106,7 @@ public:
                 close(fd);
                 return false;
             }
-            
+
             fRec->fFD = fd;
             fRec->fAddr = addr;
             fRec->fSize = size;
@@ -120,7 +120,7 @@ public:
         fRec->fPinned = true;
         return true;
     }
-    
+
 private:
     // we just point to our caller's memory, these are not copies
     SkAshmemRec* fRec;
@@ -130,13 +130,13 @@ private:
 bool SkImageRef_ashmem::onDecode(SkImageDecoder* codec, SkStream* stream,
                                  SkBitmap* bitmap, SkBitmap::Config config,
                                  SkImageDecoder::Mode mode) {
-    
+
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return this->INHERITED::onDecode(codec, stream, bitmap, config, mode);
     }
 
     AshmemAllocator alloc(&fRec, this->getURI());
-    
+
     codec->setAllocator(&alloc);
     bool success = this->INHERITED::onDecode(codec, stream, bitmap, config,
                                              mode);
@@ -192,21 +192,21 @@ void* SkImageRef_ashmem::onLockPixels(SkColorTable** ct) {
     } else {
         // no FD, will create an ashmem region in allocator
     }
-    
+
     return this->INHERITED::onLockPixels(ct);
 }
 
 void SkImageRef_ashmem::onUnlockPixels() {
     this->INHERITED::onUnlockPixels();
-    
+
     if (-1 != fRec.fFD) {
         SkASSERT(fRec.fAddr);
         SkASSERT(fRec.fPinned);
-        
+
         ashmem_unpin_region(fRec.fFD, 0, 0);
         fRec.fPinned = false;
     }
-    
+
     // we clear this with or without an error, since we've either closed or
     // unpinned the region
     fBitmap.setPixels(NULL, NULL);

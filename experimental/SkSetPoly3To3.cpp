@@ -33,9 +33,9 @@ static SkScalar dot(SkScalar ax, SkScalar ay, SkScalar bx, SkScalar by) {
 bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]) {
     const SkPoint& srcAve = src[0];
     const SkPoint& dstAve = dst[0];
-    
+
     SkScalar srcOP[4], dstOP[4];
-    
+
     computeOuterProduct(srcOP, src, srcAve, src, srcAve);
     computeOuterProduct(dstOP, src, srcAve, dst, dstAve);
 
@@ -45,11 +45,11 @@ bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3])
     if (SkScalarNearlyZero(det)) {
         return false;
     }
-    
+
     SkScalar invDet = SkScalarInvert(det);
-    
+
     // now compute invDet * [srcOP]T * [dstOP]
-    
+
     // scale and transpose
     const SkScalar srcOP0 = SkScalarMul( srcOP[3], invDet);
     const SkScalar srcOP1 = SkScalarMul(-srcOP[1], invDet);

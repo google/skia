@@ -22,7 +22,7 @@ struct GrPoint;
 /**
  *  Base class for drawing paths into a GrDrawTarget.
  *
- *  Derived classes can use stages GrPaint::kTotalStages through 
+ *  Derived classes can use stages GrPaint::kTotalStages through
  *  GrDrawState::kNumStages-1. The stages before GrPaint::kTotalStages
  *  are reserved for setting up the draw (i.e., textures and filter masks).
  */
@@ -75,7 +75,7 @@ public:
 
     /**
      * Returns true if this path renderer is able to render the path.
-     * Returning false allows the caller to fallback to another path renderer 
+     * Returning false allows the caller to fallback to another path renderer
      * This function is called when searching for a path renderer capable of
      * rendering a path.
      *
@@ -92,7 +92,7 @@ public:
                              bool antiAlias) const = 0;
     /**
      * Draws the path into the draw target. If requiresStencilBuffer returned
-     * false then the target may be setup for stencil rendering (since the 
+     * false then the target may be setup for stencil rendering (since the
      * path renderer didn't claim that it needs to use the stencil internally).
      *
      * @param path                  the path to draw.

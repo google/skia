@@ -16,12 +16,12 @@ static void test_small_segment3(skiatest::Reporter* reporter) {
         { 100000000000.0f, 100000000000.0f }, { 0, 0 }, { 10, 10 },
         { 10, 10 }, { 0, 0 }, { 10, 10 }
     };
-    
+
     path.moveTo(pts[0]);
     for (size_t i = 1; i < SK_ARRAY_COUNT(pts); i += 2) {
         path.cubicTo(pts[i], pts[i + 1], pts[i + 2]);
     }
-    
+
     SkPathMeasure meas(path, false);
     meas.getLength();
 #endif
@@ -32,10 +32,10 @@ static void test_small_segment2(skiatest::Reporter* reporter) {
     SkPath path;
     const SkPoint pts[] = {
         { 0, 0 },
-        { 100000000000.0f, 100000000000.0f }, { 0, 0 }, 
-        { 10, 10 }, { 0, 0 }, 
+        { 100000000000.0f, 100000000000.0f }, { 0, 0 },
+        { 10, 10 }, { 0, 0 },
     };
-    
+
     path.moveTo(pts[0]);
     for (size_t i = 1; i < SK_ARRAY_COUNT(pts); i += 2) {
         path.quadTo(pts[i], pts[i + 1]);
@@ -55,7 +55,7 @@ static void test_small_segment(skiatest::Reporter* reporter) {
         // tiny (non-zero) jump between these points
         { SK_Scalar1, SK_Scalar1 },
     };
-    
+
     path.moveTo(pts[0]);
     for (size_t i = 1; i < SK_ARRAY_COUNT(pts); ++i) {
         path.lineTo(pts[i]);
@@ -161,11 +161,11 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, tangent.fY == SK_Scalar1);
     REPORTER_ASSERT(reporter, meas.getPosTan(SkFloatToScalar(4.5f), &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, 
-                            SkFloatToScalar(2.5f), 
+        SkScalarNearlyEqual(position.fX,
+                            SkFloatToScalar(2.5f),
                             SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fY, 
+        SkScalarNearlyEqual(position.fY,
                             SkFloatToScalar(2.0f),
                             SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter, tangent.fX == SK_Scalar1);
@@ -193,7 +193,7 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, length == SK_Scalar1);
     REPORTER_ASSERT(reporter, meas.getPosTan(SK_ScalarHalf, &position, &tangent));
     REPORTER_ASSERT(reporter,
-        SkScalarNearlyEqual(position.fX, 
+        SkScalarNearlyEqual(position.fX,
                             SkFloatToScalar(1.5f),
                             SkFloatToScalar(0.0001f)));
     REPORTER_ASSERT(reporter,

@@ -41,7 +41,7 @@ bool SkAntiEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     fLastY = SkScalarToFixed(p1.fY);
     if (fFirstY == fLastY) {
         return false;
-    }   
+    }
     fFirstX = SkScalarToFixed(p0.fX);
     fLastX = SkScalarToFixed(p1.fX);
     if (fFirstY > fLastY) {
@@ -190,7 +190,7 @@ uint16_t SkAntiEdge::advanceX(SkFixed left) {
             SkFixed yDiff = wy - fY;
             SkAssertResult(yDiff >= 0);
             SkAssertResult(yDiff <= SK_Fixed1);
-            int xCoverage = xDiff >> 1; // throw away 1 bit so multiply 
+            int xCoverage = xDiff >> 1; // throw away 1 bit so multiply
             int yCoverage = yDiff >> 1; //  stays in range
             int triangle = xCoverage * yCoverage >> 15;
             coverage = partial - 1 - triangle;
@@ -271,7 +271,7 @@ uint16_t SkAntiEdge::advanceFlippedX(SkFixed left) {
             SkFixed yDiff = fY - wy;
             SkAssertResult(yDiff >= 0);
             SkAssertResult(yDiff <= SK_Fixed1);
-            int xCoverage = xDiff >> 1; // throw away 1 bit so multiply 
+            int xCoverage = xDiff >> 1; // throw away 1 bit so multiply
             int yCoverage = yDiff >> 1; //  stays in range
             int triangle = xCoverage * yCoverage >> 15;
             coverage = partial - 1 - triangle;
@@ -384,7 +384,7 @@ extern "C" {
             valuea = edgea->fFirstX;
             valueb = edgeb->fFirstX;
         }
-        
+
         if (valuea == valueb) {
             valuea = edgea->fDX;
             valueb = edgeb->fDX;
@@ -666,7 +666,7 @@ void SkAntiEdgeBuilder::walk(uint8_t* result, int rowBytes, int height) {
                 }
                 uint8_t old = *resultPtr;
                 uint8_t pix = coverage_to_8(coverage);
-                uint8_t blend = old > pix ? old : pix; 
+                uint8_t blend = old > pix ? old : pix;
                 *resultPtr++ = blend;
                 ++x;
             } while (!finished);

@@ -5,12 +5,12 @@
 /* Given a cubic, find the convex hull described by the end and control points.
    The hull may have 3 or 4 points. Cubics that degenerate into a point or line
    are not considered.
-  
+
    The hull is computed by assuming that three points, if unique and non-linear,
    form a triangle. The fourth point may replace one of the first three, may be
    discarded if in the triangle or on an edge, or may be inserted between any of
    the three to form a convex quadralateral.
-   
+
    The indices returned in order describe the convex hull.
 */
 int convex_hull(const Cubic& cubic, char order[4]) {
@@ -71,7 +71,7 @@ int convex_hull(const Cubic& cubic, char order[4]) {
     int most = midX ^ mask;
     order[0] = yMin;
     order[1] = least;
-    
+
     // see if mid value is on same side of line (least, most) as yMin
     Cubic midPath;
     if (!rotate(cubic, least, most, midPath)) { // ! if cbc[least]==cbc[most]
@@ -80,7 +80,7 @@ int convex_hull(const Cubic& cubic, char order[4]) {
     }
     int midSides = side(midPath[yMin].y - midPath[least].y);
     midSides ^= side(midPath[midX].y - midPath[least].y);
-    if (midSides != 2) {  // if mid point is not between 
+    if (midSides != 2) {  // if mid point is not between
         order[2] = most;
         return 3; // result is a triangle
     }
@@ -91,10 +91,10 @@ int convex_hull(const Cubic& cubic, char order[4]) {
 
 /* Find the convex hull for cubics with the x-axis interval regularly spaced.
    Cubics computed as distance functions are formed this way.
-   
+
    connectTo0[0], connectTo0[1] are the point indices that cubic[0] connects to.
    connectTo3[0], connectTo3[1] are the point indices that cubic[3] connects to.
-   
+
    Returns true if cubic[1] to cubic[2] also forms part of the hull.
 */
 bool convex_x_hull(const Cubic& cubic, char connectTo0[2], char connectTo3[2]) {

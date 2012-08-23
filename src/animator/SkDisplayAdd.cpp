@@ -33,7 +33,7 @@ const SkMemberInfo SkAdd::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkAdd);
 
-SkAdd::SkAdd() : mode(kMode_indirect), 
+SkAdd::SkAdd() : mode(kMode_indirect),
     offset(SK_MaxS32), use(NULL), where(NULL) {
 }
 
@@ -119,7 +119,7 @@ bool SkAdd::enable(SkAnimateMaker& maker ) {
                                 parentGroup->markCopySet(index);
                                 useParentList->begin()[index] = use;
                                 break;
-                            }                               
+                            }
                         }
                         *parentList->append() = use;
                     }

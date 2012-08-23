@@ -90,7 +90,7 @@ static HRESULT get_dwrite_factory(IDWriteFactory** factory) {
             GetProcAddress(LoadLibraryW(L"dwrite.dll"), "DWriteCreateFactory")
         )
     ;
-    
+
     if (!dWriteCreateFactoryProc) {
         return E_UNEXPECTED;
     }
@@ -99,7 +99,7 @@ static HRESULT get_dwrite_factory(IDWriteFactory** factory) {
                                 __uuidof(IDWriteFactory),
                                 reinterpret_cast<IUnknown**>(&gDWriteFactory)),
         "Could not create DirectWrite factory.");
-    
+
     *factory = gDWriteFactory;
     return S_OK;
 }
@@ -162,7 +162,7 @@ const void* DWriteOffscreen::draw(const SkGlyph& glyph, bool isBW) {
                                          0.0f, // baselineOriginY,
                                          &glyphRunAnalysis),
          "Could not create glyph run analysis.");
-    
+
     //NOTE: this assumes that the glyph has already been measured
     //with an exact same glyph run analysis.
     RECT bbox;
@@ -296,7 +296,7 @@ static HRESULT get_default_font(IDWriteFont** font) {
         SkDEBUGF(("The hard coded font family does not exist."));
         return E_UNEXPECTED;
     }
-    
+
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
     HRM(sysFonts->GetFontFamily(index, &fontFamily),
         "Could not load the requested font family.");
@@ -518,7 +518,7 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
     //DirectWrite does not provide this information.
     glyph->fRsbDelta = 0;
     glyph->fLsbDelta = 0;
-    
+
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;
 
@@ -533,7 +533,7 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
     SkScalar advanceX = SkScalarMulDiv(fRec.fTextSize,
                                        SkIntToScalar(gm.advanceWidth),
                                        SkIntToScalar(dwfm.designUnitsPerEm));
-    
+
     if (!(fRec.fFlags & kSubpixelPositioning_Flag)) {
         advanceX = SkScalarRoundToScalar(advanceX);
     }
@@ -600,7 +600,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
                                          0.0f, // baselineOriginY,
                                          &glyphRunAnalysis),
          "Could not create glyph run analysis.");
-    
+
     RECT bbox;
     HRVM(glyphRunAnalysis->GetAlphaTextureBounds(textureType, &bbox),
          "Could not get texture bounds.");
@@ -1236,7 +1236,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
             float gamma = defaultRenderingParams->GetGamma();
             rec->setDeviceGamma(SkFloatToScalar(gamma));
             rec->setPaintGamma(SkFloatToScalar(gamma));
-            
+
             rec->setContrast(SkFloatToScalar(defaultRenderingParams->GetEnhancedContrast()));
         }
     }
@@ -1491,7 +1491,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         }
     }
     */
-    
+
     // If Restricted, the font may not be embedded in a document.
     // If not Restricted, the font can be embedded.
     // If PreviewPrint, the embedding is read-only.

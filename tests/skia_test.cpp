@@ -115,7 +115,7 @@ int main (int argc, char * const argv[]) {
     for (++argv; argv < stop; ++argv) {
         if (strcmp(*argv, "-android") == 0) {
             androidMode = true;
-        
+
         } else if (strcmp(*argv, "--match") == 0) {
             ++argv;
             if (argv < stop && **argv) {

@@ -26,15 +26,15 @@
 static void (*gPrevNewHandler)();
 
 extern "C" {
-	static void sk_new_handler()
-	{
-		if (SkGraphics::SetFontCacheUsed(0))
-			return;
-		if (gPrevNewHandler)
-			gPrevNewHandler();
-		else
-			sk_throw();
-	}
+    static void sk_new_handler()
+    {
+        if (SkGraphics::SetFontCacheUsed(0))
+            return;
+        if (gPrevNewHandler)
+            gPrevNewHandler();
+        else
+            sk_throw();
+    }
 }
 
 static SkOSWindow* gCurrOSWin;
@@ -43,36 +43,36 @@ static EventQueueRef gCurrEventQ;
 
 static OSStatus MyDrawEventHandler(EventHandlerCallRef myHandler,
                                    EventRef event, void *userData) {
-	// NOTE: GState is save/restored by the HIView system doing the callback,
+    // NOTE: GState is save/restored by the HIView system doing the callback,
     // so the draw handler doesn't need to do it
 
-	OSStatus status = noErr;
-	CGContextRef context;
-	HIRect		bounds;
+    OSStatus status = noErr;
+    CGContextRef context;
+    HIRect        bounds;
 
-	// Get the CGContextRef
-	status = GetEventParameter (event, kEventParamCGContextRef,
+    // Get the CGContextRef
+    status = GetEventParameter (event, kEventParamCGContextRef,
                                 typeCGContextRef, NULL,
                                 sizeof (CGContextRef),
                                 NULL,
                                 &context);
 
-	if (status != noErr) {
-		SkDebugf("Got error %d getting the context!\n", status);
-		return status;
-	}
+    if (status != noErr) {
+        SkDebugf("Got error %d getting the context!\n", status);
+        return status;
+    }
 
-	// Get the bounding rectangle
-	HIViewGetBounds ((HIViewRef) userData, &bounds);
+    // Get the bounding rectangle
+    HIViewGetBounds ((HIViewRef) userData, &bounds);
 
     gCurrOSWin->doPaint(context);
-	return status;
+    return status;
 }
 
-#define SK_MacEventClass			FOUR_CHAR_CODE('SKec')
-#define SK_MacEventKind				FOUR_CHAR_CODE('SKek')
-#define SK_MacEventParamName		FOUR_CHAR_CODE('SKev')
-#define SK_MacEventSinkIDParamName	FOUR_CHAR_CODE('SKes')
+#define SK_MacEventClass            FOUR_CHAR_CODE('SKec')
+#define SK_MacEventKind                FOUR_CHAR_CODE('SKek')
+#define SK_MacEventParamName        FOUR_CHAR_CODE('SKev')
+#define SK_MacEventSinkIDParamName    FOUR_CHAR_CODE('SKes')
 
 static void set_bindingside(HISideBinding* side, HIViewRef parent, HIBindingKind kind) {
     side->toView = parent;
@@ -94,17 +94,17 @@ static void set_axisposition(HIAxisPosition* pos, HIViewRef parent, HIPositionKi
 
 SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd), fAGLCtx(NULL)
 {
-	OSStatus    result;
+    OSStatus    result;
     WindowRef   wr = (WindowRef)hWnd;
 
     HIViewRef imageView, parent;
     HIViewRef rootView = HIViewGetRoot(wr);
     HIViewFindByID(rootView, kHIViewWindowContentID, &parent);
     result = HIImageViewCreate(NULL, &imageView);
-	SkASSERT(result == noErr);
+    SkASSERT(result == noErr);
 
     result = HIViewAddSubview(parent, imageView);
-	SkASSERT(result == noErr);
+    SkASSERT(result == noErr);
 
     fHVIEW = imageView;
 
@@ -128,41 +128,41 @@ SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd), fAGLCtx(NULL)
     HIImageViewSetOpaque(imageView, true);
     HIImageViewSetScaleToFit(imageView, false);
 
-	static const EventTypeSpec  gTypes[] = {
-		{ kEventClassKeyboard,  kEventRawKeyDown			},
+    static const EventTypeSpec  gTypes[] = {
+        { kEventClassKeyboard,  kEventRawKeyDown            },
         { kEventClassKeyboard,  kEventRawKeyUp              },
-		{ kEventClassMouse,		kEventMouseDown				},
-		{ kEventClassMouse,		kEventMouseDragged			},
-		{ kEventClassMouse,		kEventMouseMoved			},
-		{ kEventClassMouse,		kEventMouseUp				},
-		{ kEventClassTextInput, kEventTextInputUnicodeForKeyEvent   },
-		{ kEventClassWindow,	kEventWindowBoundsChanged	},
-//		{ kEventClassWindow,	kEventWindowDrawContent		},
-		{ SK_MacEventClass,		SK_MacEventKind				}
-	};
+        { kEventClassMouse,        kEventMouseDown                },
+        { kEventClassMouse,        kEventMouseDragged            },
+        { kEventClassMouse,        kEventMouseMoved            },
+        { kEventClassMouse,        kEventMouseUp                },
+        { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent   },
+        { kEventClassWindow,    kEventWindowBoundsChanged    },
+//        { kEventClassWindow,    kEventWindowDrawContent        },
+        { SK_MacEventClass,        SK_MacEventKind                }
+    };
 
-	EventHandlerUPP handlerUPP = NewEventHandlerUPP(SkOSWindow::EventHandler);
-	int				count = SK_ARRAY_COUNT(gTypes);
+    EventHandlerUPP handlerUPP = NewEventHandlerUPP(SkOSWindow::EventHandler);
+    int                count = SK_ARRAY_COUNT(gTypes);
 
-	result = InstallEventHandler(GetWindowEventTarget(wr), handlerUPP,
-						count, gTypes, this, nil);
-	SkASSERT(result == noErr);
+    result = InstallEventHandler(GetWindowEventTarget(wr), handlerUPP,
+                        count, gTypes, this, nil);
+    SkASSERT(result == noErr);
 
-	gCurrOSWin = this;
-	gCurrEventQ = GetCurrentEventQueue();
-	gEventTarget = GetWindowEventTarget(wr);
+    gCurrOSWin = this;
+    gCurrEventQ = GetCurrentEventQueue();
+    gEventTarget = GetWindowEventTarget(wr);
 
-	static bool gOnce = true;
-	if (gOnce) {
-		gOnce = false;
-		gPrevNewHandler = set_new_handler(sk_new_handler);
-	}
+    static bool gOnce = true;
+    if (gOnce) {
+        gOnce = false;
+        gPrevNewHandler = set_new_handler(sk_new_handler);
+    }
 }
 
 void SkOSWindow::doPaint(void* ctx)
 {
 #if 0
-	this->update(NULL);
+    this->update(NULL);
 
     const SkBitmap& bm = this->getBitmap();
     CGImageRef img = SkCreateCGImageRef(bm);
@@ -187,10 +187,10 @@ void SkOSWindow::doPaint(void* ctx)
 
 void SkOSWindow::updateSize()
 {
-	Rect	r;
+    Rect    r;
 
-	GetWindowBounds((WindowRef)fHWND, kWindowContentRgn, &r);
-	this->resize(r.right - r.left, r.bottom - r.top);
+    GetWindowBounds((WindowRef)fHWND, kWindowContentRgn, &r);
+    this->resize(r.right - r.left, r.bottom - r.top);
 
 #if 0
     HIRect    frame;
@@ -238,24 +238,24 @@ void SkOSWindow::onAddMenu(const SkOSMenu* sk_menu)
 
 static void getparam(EventRef inEvent, OSType name, OSType type, UInt32 size, void* data)
 {
-	EventParamType  actualType;
-	UInt32			actualSize;
-	OSStatus		status;
+    EventParamType  actualType;
+    UInt32            actualSize;
+    OSStatus        status;
 
-	status = GetEventParameter(inEvent, name, type, &actualType, size, &actualSize, data);
-	SkASSERT(status == noErr);
-	SkASSERT(actualType == type);
-	SkASSERT(actualSize == size);
+    status = GetEventParameter(inEvent, name, type, &actualType, size, &actualSize, data);
+    SkASSERT(status == noErr);
+    SkASSERT(actualType == type);
+    SkASSERT(actualSize == size);
 }
 
 enum {
-	SK_MacReturnKey		= 36,
-	SK_MacDeleteKey		= 51,
-	SK_MacEndKey		= 119,
-	SK_MacLeftKey		= 123,
-	SK_MacRightKey		= 124,
-	SK_MacDownKey		= 125,
-	SK_MacUpKey			= 126,
+    SK_MacReturnKey        = 36,
+    SK_MacDeleteKey        = 51,
+    SK_MacEndKey        = 119,
+    SK_MacLeftKey        = 123,
+    SK_MacRightKey        = 124,
+    SK_MacDownKey        = 125,
+    SK_MacUpKey            = 126,
 
     SK_Mac0Key          = 0x52,
     SK_Mac1Key          = 0x53,
@@ -271,17 +271,17 @@ enum {
 
 static SkKey raw2key(UInt32 raw)
 {
-	static const struct {
-		UInt32  fRaw;
-		SkKey   fKey;
-	} gKeys[] = {
-		{ SK_MacUpKey,		kUp_SkKey		},
-		{ SK_MacDownKey,	kDown_SkKey		},
-		{ SK_MacLeftKey,	kLeft_SkKey		},
-		{ SK_MacRightKey,   kRight_SkKey	},
-		{ SK_MacReturnKey,  kOK_SkKey		},
-		{ SK_MacDeleteKey,  kBack_SkKey		},
-		{ SK_MacEndKey,		kEnd_SkKey		},
+    static const struct {
+        UInt32  fRaw;
+        SkKey   fKey;
+    } gKeys[] = {
+        { SK_MacUpKey,        kUp_SkKey        },
+        { SK_MacDownKey,    kDown_SkKey        },
+        { SK_MacLeftKey,    kLeft_SkKey        },
+        { SK_MacRightKey,   kRight_SkKey    },
+        { SK_MacReturnKey,  kOK_SkKey        },
+        { SK_MacDeleteKey,  kBack_SkKey        },
+        { SK_MacEndKey,        kEnd_SkKey        },
         { SK_Mac0Key,       k0_SkKey        },
         { SK_Mac1Key,       k1_SkKey        },
         { SK_Mac2Key,       k2_SkKey        },
@@ -292,54 +292,54 @@ static SkKey raw2key(UInt32 raw)
         { SK_Mac7Key,       k7_SkKey        },
         { SK_Mac8Key,       k8_SkKey        },
         { SK_Mac9Key,       k9_SkKey        }
-	};
+    };
 
-	for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
-		if (gKeys[i].fRaw == raw)
-			return gKeys[i].fKey;
-	return kNONE_SkKey;
+    for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
+        if (gKeys[i].fRaw == raw)
+            return gKeys[i].fKey;
+    return kNONE_SkKey;
 }
 
 static void post_skmacevent()
 {
-	EventRef	ref;
-	OSStatus	status = CreateEvent(nil, SK_MacEventClass, SK_MacEventKind, 0, 0, &ref);
-	SkASSERT(status == noErr);
+    EventRef    ref;
+    OSStatus    status = CreateEvent(nil, SK_MacEventClass, SK_MacEventKind, 0, 0, &ref);
+    SkASSERT(status == noErr);
 
 #if 0
-	status = SetEventParameter(ref, SK_MacEventParamName, SK_MacEventParamName, sizeof(evt), &evt);
-	SkASSERT(status == noErr);
-	status = SetEventParameter(ref, SK_MacEventSinkIDParamName, SK_MacEventSinkIDParamName, sizeof(sinkID), &sinkID);
-	SkASSERT(status == noErr);
+    status = SetEventParameter(ref, SK_MacEventParamName, SK_MacEventParamName, sizeof(evt), &evt);
+    SkASSERT(status == noErr);
+    status = SetEventParameter(ref, SK_MacEventSinkIDParamName, SK_MacEventSinkIDParamName, sizeof(sinkID), &sinkID);
+    SkASSERT(status == noErr);
 #endif
 
-	EventTargetRef target = gEventTarget;
-	SetEventParameter(ref, kEventParamPostTarget, typeEventTargetRef, sizeof(target), &target);
-	SkASSERT(status == noErr);
+    EventTargetRef target = gEventTarget;
+    SetEventParameter(ref, kEventParamPostTarget, typeEventTargetRef, sizeof(target), &target);
+    SkASSERT(status == noErr);
 
-	status = PostEventToQueue(gCurrEventQ, ref, kEventPriorityStandard);
-	SkASSERT(status == noErr);
+    status = PostEventToQueue(gCurrEventQ, ref, kEventPriorityStandard);
+    SkASSERT(status == noErr);
 
-	ReleaseEvent(ref);
+    ReleaseEvent(ref);
 }
 
 pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRef inEvent, void* userData )
 {
-	SkOSWindow* win = (SkOSWindow*)userData;
-	OSStatus	result = eventNotHandledErr;
-	UInt32		wClass = GetEventClass(inEvent);
-	UInt32		wKind = GetEventKind(inEvent);
+    SkOSWindow* win = (SkOSWindow*)userData;
+    OSStatus    result = eventNotHandledErr;
+    UInt32        wClass = GetEventClass(inEvent);
+    UInt32        wKind = GetEventKind(inEvent);
 
-	gCurrOSWin = win;	// will need to be in TLS. Set this so PostEvent will work
+    gCurrOSWin = win;    // will need to be in TLS. Set this so PostEvent will work
 
-	switch (wClass) {
+    switch (wClass) {
         case kEventClassMouse: {
-			Point   pt;
-			getparam(inEvent, kEventParamMouseLocation, typeQDPoint, sizeof(pt), &pt);
-			SetPortWindowPort((WindowRef)win->getHWND());
-			GlobalToLocal(&pt);
+            Point   pt;
+            getparam(inEvent, kEventParamMouseLocation, typeQDPoint, sizeof(pt), &pt);
+            SetPortWindowPort((WindowRef)win->getHWND());
+            GlobalToLocal(&pt);
 
-			switch (wKind) {
+            switch (wKind) {
                 case kEventMouseDown:
                     if (win->handleClick(pt.h, pt.v, Click::kDown_State)) {
                         result = noErr;
@@ -357,9 +357,9 @@ pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRe
                     break;
                 default:
                     break;
-			}
+            }
             break;
-		}
+        }
         case kEventClassKeyboard:
             if (wKind == kEventRawKeyDown) {
                 UInt32  raw;
@@ -412,8 +412,8 @@ pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRe
                     post_skmacevent();
             }
     #if 0
-            SkEvent*		evt;
-            SkEventSinkID	sinkID;
+            SkEvent*        evt;
+            SkEventSinkID    sinkID;
             getparam(inEvent, SK_MacEventParamName, SK_MacEventParamName, sizeof(evt), &evt);
             getparam(inEvent, SK_MacEventSinkIDParamName, SK_MacEventSinkIDParamName, sizeof(sinkID), &sinkID);
     #endif
@@ -422,47 +422,47 @@ pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRe
         }
         default:
             break;
-	}
-	if (result == eventNotHandledErr) {
-		result = CallNextEventHandler(inHandler, inEvent);
     }
-	return result;
+    if (result == eventNotHandledErr) {
+        result = CallNextEventHandler(inHandler, inEvent);
+    }
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void SkEvent::SignalNonEmptyQueue()
 {
-	post_skmacevent();
-//	SkDebugf("signal nonempty\n");
+    post_skmacevent();
+//    SkDebugf("signal nonempty\n");
 }
 
-static TMTask	gTMTaskRec;
-static TMTask*	gTMTaskPtr;
+static TMTask    gTMTaskRec;
+static TMTask*    gTMTaskPtr;
 
 static void sk_timer_proc(TMTask* rec)
 {
-	SkEvent::ServiceQueueTimer();
-//	SkDebugf("timer task fired\n");
+    SkEvent::ServiceQueueTimer();
+//    SkDebugf("timer task fired\n");
 }
 
 void SkEvent::SignalQueueTimer(SkMSec delay)
 {
-	if (gTMTaskPtr)
-	{
-		RemoveTimeTask((QElem*)gTMTaskPtr);
-		DisposeTimerUPP(gTMTaskPtr->tmAddr);
-		gTMTaskPtr = nil;
-	}
-	if (delay)
-	{
-		gTMTaskPtr = &gTMTaskRec;
-		memset(gTMTaskPtr, 0, sizeof(gTMTaskRec));
-		gTMTaskPtr->tmAddr = NewTimerUPP(sk_timer_proc);
-		OSErr err = InstallTimeTask((QElem*)gTMTaskPtr);
-//		SkDebugf("installtimetask of %d returned %d\n", delay, err);
-		PrimeTimeTask((QElem*)gTMTaskPtr, delay);
-	}
+    if (gTMTaskPtr)
+    {
+        RemoveTimeTask((QElem*)gTMTaskPtr);
+        DisposeTimerUPP(gTMTaskPtr->tmAddr);
+        gTMTaskPtr = nil;
+    }
+    if (delay)
+    {
+        gTMTaskPtr = &gTMTaskRec;
+        memset(gTMTaskPtr, 0, sizeof(gTMTaskRec));
+        gTMTaskPtr->tmAddr = NewTimerUPP(sk_timer_proc);
+        OSErr err = InstallTimeTask((QElem*)gTMTaskPtr);
+//        SkDebugf("installtimetask of %d returned %d\n", delay, err);
+        PrimeTimeTask((QElem*)gTMTaskPtr, delay);
+    }
 }
 
 #define USE_MSAA 0

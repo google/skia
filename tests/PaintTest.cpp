@@ -77,7 +77,7 @@ static void regression_cubic(skiatest::Reporter* reporter) {
                  SkFloatToScalar(304.720354932878f),
                  SkFloatToScalar(453.15255460013304f),
                  SkFloatToScalar(305.788586869862f));
-    
+
     SkRect fillR, strokeR;
     fillR = path.getBounds();
 

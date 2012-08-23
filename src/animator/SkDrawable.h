@@ -19,7 +19,7 @@ struct SkEventState;
 class SkDrawable :  public SkDisplayable {
 public:
     virtual bool doEvent(SkDisplayEvent::Kind , SkEventState* state );
-    virtual bool draw(SkAnimateMaker& ) = 0; 
+    virtual bool draw(SkAnimateMaker& ) = 0;
     virtual void initialize();
     virtual bool isDrawable() const;
     virtual void setSteps(int steps);

@@ -16,18 +16,18 @@ static void test4(SkCanvas* canvas) {
     SkPoint pts[] = {
         {10, 160}, {610, 160},
         {610, 160}, {10, 160},
-        
+
         {610, 160}, {610, 160},
         {610, 199}, {610, 199},
-        
+
         {10, 198}, {610, 198},
         {610, 199}, {10, 199},
-        
+
         {10, 160}, {10, 160},
         {10, 199}, {10, 199}
     };
     char verbs[] = {
-        0, 1, 1, 1, 4, 
+        0, 1, 1, 1, 4,
         0, 1, 1, 1, 4,
         0, 1, 1, 1, 4,
         0, 1, 1, 1, 4
@@ -102,7 +102,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
                                    H / 4 + offset,
                                    W / 2, H / 2);
     canvas->drawRect(rect, paint);
-    
+
     return H;
 }
 
@@ -117,7 +117,7 @@ static SkShader* make_bg_shader() {
     SkShader* s = SkShader::CreateBitmapShader(bm,
                                                SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    
+
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
     s->setLocalMatrix(m);
@@ -125,7 +125,7 @@ static SkShader* make_bg_shader() {
 }
 
 namespace skiagm {
-    
+
     class AARectModesGM : public GM {
         SkPaint fBGPaint;
     public:
@@ -160,7 +160,7 @@ namespace skiagm {
                         canvas->save();
                     }
                     SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-                
+
                     canvas->drawRect(bounds, fBGPaint);
                     canvas->saveLayer(&bounds, NULL);
                     SkScalar dy = drawCell(canvas, mode,

@@ -74,7 +74,7 @@ bool SkXMLParser::endElement(const char elem[])
     return this->onEndElement(elem);
 }
 
-bool SkXMLParser::text(const char text[], int len) 
+bool SkXMLParser::text(const char text[], int len)
 {
     return this->onText(text, len);
 }

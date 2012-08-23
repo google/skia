@@ -37,7 +37,7 @@ void SkDisplayRandom::dump(SkAnimateMaker* maker) {
     dumpBase(maker);
     SkDebugf("min=\"%g\" ", SkScalarToFloat(min));
     SkDebugf("max=\"%g\" ", SkScalarToFloat(max));
-    SkDebugf("blend=\"%g\" ", SkScalarToFloat(blend));    
+    SkDebugf("blend=\"%g\" ", SkScalarToFloat(blend));
     SkDebugf("/>\n");
 }
 #endif

@@ -20,7 +20,7 @@
 static void convertGL32_to_Mac32(uint32_t dst[], const SkBitmap& bm) {
     memcpy(dst, bm.getPixels(), bm.getSize());
     return;
-    
+
     uint32_t* stop = dst + (bm.getSize() >> 2);
     const uint8_t* src = (const uint8_t*)bm.getPixels();
     while (dst < stop) {
@@ -38,7 +38,7 @@ static void convert565_to_32(uint32_t dst[], const SkBitmap& bm) {
             unsigned r = SkPacked16ToR32(c);
             unsigned g = SkPacked16ToG32(c);
             unsigned b = SkPacked16ToB32(c);
-        
+
             *dst++ = (b << 24) | (g << 16) | (r << 8) | 0xFF;
         }
     }
@@ -47,11 +47,11 @@ static void convert565_to_32(uint32_t dst[], const SkBitmap& bm) {
 static void convert4444_to_555(uint16_t dst[], const uint16_t src[], int count)
 {
     const uint16_t* stop = src + count;
-    
+
     while (src < stop)
     {
         unsigned c = *src++;
-        
+
         unsigned r = SkGetPackedR4444(c);
         unsigned g = SkGetPackedG4444(c);
         unsigned b = SkGetPackedB4444(c);
@@ -61,7 +61,7 @@ static void convert4444_to_555(uint16_t dst[], const uint16_t src[], int count)
         b = (b << 1) | (b >> 3);
         // build the 555
         c = (r << 10) | (g << 5) | b;
-        
+
 #ifdef SWAP_16BIT
         c = (c >> 8) | (c << 8);
 #endif
@@ -111,10 +111,10 @@ static CGImageRef bitmap2imageref(const SkBitmap& bm) {
 }
 
 void SkBitmap::drawToPort(WindowRef wind, CGContextRef cg) const {
-	if (fPixels == NULL || fWidth == 0 || fHeight == 0) {
-		return;
+    if (fPixels == NULL || fWidth == 0 || fHeight == 0) {
+        return;
     }
-    
+
     bool useQD = false;
     if (NULL == cg) {
         SetPortWindowPort(wind);
@@ -136,7 +136,7 @@ void SkBitmap::drawToPort(WindowRef wind, CGContextRef cg) const {
         rect.origin.x = rect.origin.y = 0;
         rect.size.width = bm.width();
         rect.size.height = bm.height();
-        
+
         CGContextDrawImage(cg, rect, image);
         CGImageRelease(image);
     }

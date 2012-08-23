@@ -50,30 +50,30 @@ public:
 #endif
     virtual bool enable( SkAnimateMaker& );
     virtual void enableBounder();
-    virtual void executeFunction(SkDisplayable* , int functionIndex, 
-        SkTDArray<SkScriptValue>& , SkDisplayTypes , SkScriptValue* ); 
-    void executeFunction(SkDisplayable* , const SkMemberInfo* , 
-        SkTypedArray* , SkScriptValue* ); 
-    virtual void executeFunction2(SkDisplayable* , int functionIndex, 
+    virtual void executeFunction(SkDisplayable* , int functionIndex,
+        SkTDArray<SkScriptValue>& , SkDisplayTypes , SkScriptValue* );
+    void executeFunction(SkDisplayable* , const SkMemberInfo* ,
+        SkTypedArray* , SkScriptValue* );
+    virtual void executeFunction2(SkDisplayable* , int functionIndex,
         SkOpArray* params , SkDisplayTypes , SkOperand2* ); // compiled scripting experiment
     virtual void getBounds(SkRect* );
     virtual const SkFunctionParamType* getFunctionsParameters();
     virtual const SkMemberInfo* getMember(int index);
     virtual const SkMemberInfo* getMember(const char name[]);
-    const SkFunctionParamType* getParameters(const SkMemberInfo* info, 
+    const SkFunctionParamType* getParameters(const SkMemberInfo* info,
         int* paramCount);
     virtual SkDisplayable* getParent() const;
     virtual bool getProperty(int index, SkScriptValue* value) const;
     virtual bool getProperty2(int index, SkOperand2* value) const;    // compiled scripting experiment
     virtual SkDisplayTypes getType() const;
     virtual bool hasEnable() const;
-    bool isAnimate() const { 
-        SkDisplayTypes type = getType(); 
+    bool isAnimate() const {
+        SkDisplayTypes type = getType();
         return type == SkType_Animate || type == SkType_Set; }
     bool isApply() const { return getType() == SkType_Apply; }
     bool isColor() const { return getType() == SkType_Color; }
     virtual bool isDrawable() const;
-    bool isGroup() const { return getType() == SkType_Group || 
+    bool isGroup() const { return getType() == SkType_Group ||
         getType() == SkType_Save || getType() == SkType_DrawTo ||
         getType() == SkType_SaveLayer; }
     bool isMatrix() const { return getType() == SkType_Matrix; }

@@ -28,7 +28,7 @@ static void computeOuterProduct(SkMatrix* matrix,
                                 const SkPoint pts1[3], const SkPoint& ave1) {
     SkDScalar tmp[4];
     sk_bzero(tmp, sizeof(tmp));
-    
+
     for (int i = 0; i < 3; i++) {
         SkScalar x0 = pts0[i].fX - ave0.fX;
         SkScalar y0 = pts0[i].fY - ave0.fY;
@@ -54,9 +54,9 @@ static SkScalar dot(SkScalar ax, SkScalar ay, SkScalar bx, SkScalar by) {
 bool SkSetPoly3To3_D(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]) {
     const SkPoint& srcAve = src[0];
     const SkPoint& dstAve = dst[0];
-    
+
     SkMatrix srcOP, dstOP;
-    
+
     computeOuterProduct(&srcOP, src, srcAve, src, srcAve);
 
     if (!srcOP.invert(&srcOP)) {

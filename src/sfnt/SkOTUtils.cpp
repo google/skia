@@ -73,7 +73,7 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData,
     //originalDataSize is the size of the original data without the name table.
     size_t originalDataSize = fontData->getLength() - oldNameTablePhysicalSize;
     size_t newDataSize = originalDataSize + nameTablePhysicalSize;
-    
+
     SK_OT_BYTE* data = static_cast<SK_OT_BYTE*>(sk_malloc_throw(newDataSize));
     SkAutoTUnref<SkData> rewrittenFontData(SkData::NewFromMalloc(data, newDataSize));
 

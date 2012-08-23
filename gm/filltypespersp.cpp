@@ -14,7 +14,7 @@ class FillTypePerspGM : public GM {
     SkPath fPath;
 public:
     FillTypePerspGM() {}
-    
+
     void makePath() {
         if (fPath.isEmpty()) {
             const SkScalar radius = SkIntToScalar(45);
@@ -22,7 +22,7 @@ public:
             fPath.addCircle(SkIntToScalar(100), SkIntToScalar(100), radius);
         }
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("filltypespersp");
@@ -120,7 +120,7 @@ protected:
         canvas->translate(SkIntToScalar(450), 0);
         showFour(canvas, scale, true);
     }
-    
+
 private:
     typedef GM INHERITED;
 };

@@ -11,7 +11,7 @@
 static int gOSMenuCmd = 7000;
 
 SkOSMenu::SkOSMenu(const char title[]) {
-	fTitle.set(title);
+    fTitle.set(title);
 }
 
 SkOSMenu::~SkOSMenu() {
@@ -46,7 +46,7 @@ void SkOSMenu::assignKeyEquivalentToItem(int itemID, SkUnichar key) {
     }
 }
 
-bool SkOSMenu::handleKeyEquivalent(SkUnichar key) {    
+bool SkOSMenu::handleKeyEquivalent(SkUnichar key) {
     int value = 0, size = 0;
     bool state;
     SkOSMenu::TriState tristate;
@@ -89,7 +89,7 @@ bool SkOSMenu::handleKeyEquivalent(SkUnichar key) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkOSMenu::Item::Item(const char label[], SkOSMenu::Type type, 
+SkOSMenu::Item::Item(const char label[], SkOSMenu::Type type,
                      const char slotName[], SkEvent* evt) {
     fLabel.set(label);
     fSlotName.set(slotName);
@@ -133,7 +133,7 @@ static const char* gDelimiter = "|";
 static const char* gList_Items_Str = "SkOSMenuList_Items";
 static const char* gList_ItemCount_S32 = "SkOSMenuList_ItemCount";
 
-int SkOSMenu::appendItem(const char label[], Type type, const char slotName[], 
+int SkOSMenu::appendItem(const char label[], Type type, const char slotName[],
                          SkEvent* evt) {
     SkOSMenu::Item* item = new Item(label, type, slotName, evt);
     fItems.append(1, &item);
@@ -147,7 +147,7 @@ int SkOSMenu::appendAction(const char label[], SkEventSinkID target) {
     return appendItem(label, SkOSMenu::kAction_Type, "", evt);
 }
 
-int SkOSMenu::appendList(const char label[], const char slotName[], 
+int SkOSMenu::appendList(const char label[], const char slotName[],
                          SkEventSinkID target, int index, const char option[], ...) {
     SkEvent* evt = new SkEvent(gMenuEventType, target);
     va_list args;
@@ -168,8 +168,8 @@ int SkOSMenu::appendList(const char label[], const char slotName[],
     return appendItem(label, SkOSMenu::kList_Type, slotName, evt);
 }
 
-int SkOSMenu::appendSlider(const char label[], const char slotName[], 
-                           SkEventSinkID target, SkScalar min, SkScalar max, 
+int SkOSMenu::appendSlider(const char label[], const char slotName[],
+                           SkEventSinkID target, SkScalar min, SkScalar max,
                            SkScalar defaultValue) {
     SkEvent* evt = new SkEvent(gMenuEventType, target);
     evt->setScalar(gSlider_Min_Scalar, min);
@@ -178,7 +178,7 @@ int SkOSMenu::appendSlider(const char label[], const char slotName[],
     return appendItem(label, SkOSMenu::kSlider_Type, slotName, evt);
 }
 
-int SkOSMenu::appendSwitch(const char label[], const char slotName[], 
+int SkOSMenu::appendSwitch(const char label[], const char slotName[],
                            SkEventSinkID target, bool defaultState) {
     SkEvent* evt = new SkEvent(gMenuEventType, target);
     evt->setBool(slotName, defaultState);
@@ -192,7 +192,7 @@ int SkOSMenu::appendTriState(const char label[], const char slotName[],
     return appendItem(label, SkOSMenu::kTriState_Type, slotName, evt);
 }
 
-int SkOSMenu::appendTextField(const char label[], const char slotName[], 
+int SkOSMenu::appendTextField(const char label[], const char slotName[],
                               SkEventSinkID target, const char placeholder[]) {
     SkEvent* evt = new SkEvent(gMenuEventType, target);
     evt->setString(slotName, placeholder);
@@ -234,7 +234,7 @@ bool SkOSMenu::FindAction(const SkEvent& evt, const char label[]) {
 }
 
 bool SkOSMenu::FindListIndex(const SkEvent& evt, const char slotName[], int* value) {
-    return evt.isType(gMenuEventType) && evt.findS32(slotName, value); 
+    return evt.isType(gMenuEventType) && evt.findS32(slotName, value);
 }
 
 bool SkOSMenu::FindSliderValue(const SkEvent& evt, const char slotName[], SkScalar* value) {

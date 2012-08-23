@@ -71,7 +71,7 @@ static void test_fontHostStream(skiatest::Reporter* reporter) {
         SkPaint paint;
         paint.setColor(SK_ColorGRAY);
         paint.setTextSize(SkIntToScalar(30));
-    
+
         paint.setTypeface(SkTypeface::CreateFromName("Georgia", SkTypeface::kNormal))->unref();
 
         SkIRect origRect = SkIRect::MakeWH(64, 64);

@@ -88,7 +88,7 @@ int GrAARectRenderer::aaStrokeRectIndexCount() {
 
 GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu) {
     if (NULL == fAAStrokeRectIndexBuffer) {
-        fAAStrokeRectIndexBuffer = 
+        fAAStrokeRectIndexBuffer =
                   gpu->createIndexBuffer(sizeof(gStrokeAARectIdx), false);
         if (NULL != fAAStrokeRectIndexBuffer) {
 #if GR_DEBUG

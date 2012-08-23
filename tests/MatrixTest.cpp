@@ -88,12 +88,12 @@ static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
     uint32_t size2 = m.writeToMemory(buffer);
     REPORTER_ASSERT(reporter, size1 == size2);
     REPORTER_ASSERT(reporter, size1 <= SkMatrix::kMaxFlattenSize);
-    
+
     SkMatrix m2;
     uint32_t size3 = m2.readFromMemory(buffer);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, are_equal(reporter, m, m2));
-    
+
     char buffer2[SkMatrix::kMaxFlattenSize + 100];
     size3 = m2.writeToMemory(buffer2);
     REPORTER_ASSERT(reporter, size1 == size3);
@@ -149,7 +149,7 @@ static void test_matrix_max_stretch(skiatest::Reporter* reporter) {
             mat.postConcat(mats[x]);
         }
         SkScalar stretch = mat.getMaxStretch();
-        
+
         if ((stretch < 0) != mat.hasPerspective()) {
             stretch = mat.getMaxStretch();
         }

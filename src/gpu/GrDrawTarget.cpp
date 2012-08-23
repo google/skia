@@ -26,7 +26,7 @@ namespace {
  * generate the new masks. (We attempted to force the compiler to generate the
  * masks using recursive templates but always wound up with static initializers
  * under gcc, even if they were just a series of immediate->memory moves.)
- * 
+ *
  */
 void gen_mask_arrays(GrVertexLayout* stageTexCoordMasks,
                      GrVertexLayout* texCoordMasks) {
@@ -44,14 +44,14 @@ void gen_mask_arrays(GrVertexLayout* stageTexCoordMasks,
     }
 }
 
-/** 
+/**
  * Run this function to generate the code that declares the global masks.
  */
 void gen_globals() {
     GrVertexLayout stageTexCoordMasks[GrDrawState::kNumStages];
     GrVertexLayout texCoordMasks[GrDrawState::kMaxTexCoords];
     gen_mask_arrays(stageTexCoordMasks, texCoordMasks);
-    
+
     GrPrintf("const GrVertexLayout gStageTexCoordMasks[] = {\n");
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         GrPrintf("    0x%x,\n", stageTexCoordMasks[s]);
@@ -136,7 +136,7 @@ size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
 /**
  * Functions for computing offsets of various components from the layout
  * bitfield.
- * 
+ *
  * Order of vertex components:
  * Position
  * Tex Coord 0
@@ -529,7 +529,7 @@ bool GrDrawTarget::reserveIndexSpace(int indexCount,
         GrAssert(NULL != indices);
         this->releasePreviousIndexSource();
         geoSrc.fIndexSrc = kNone_GeometrySrcType;
-        
+
         acquired = this->onReserveIndexSpace(indexCount, indices);
     }
     if (acquired) {
@@ -539,7 +539,7 @@ bool GrDrawTarget::reserveIndexSpace(int indexCount,
         *indices = NULL;
     }
     return acquired;
-    
+
 }
 
 bool GrDrawTarget::StageUsesTexCoords(GrVertexLayout layout, int stage) {
@@ -695,7 +695,7 @@ void GrDrawTarget::pushGeometrySource() {
 void GrDrawTarget::popGeometrySource() {
     // if popping last element then pops are unbalanced with pushes
     GrAssert(fGeoSrcStateStack.count() > 1);
-    
+
     this->geometrySourceWillPop(fGeoSrcStateStack.fromBack(1));
     this->releasePreviousVertexSource();
     this->releasePreviousIndexSource();
@@ -902,7 +902,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     // stenciling is enabled. Having color writes disabled is effectively
     // (0,1). The same applies when coverage is known to be 0.
     if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne) ||
-        (!(layout & kCoverage_VertexLayoutBit) && 
+        (!(layout & kCoverage_VertexLayoutBit) &&
          0 == drawState.getCoverage())) {
         if (drawState.getStencil().doesWrite()) {
             return kDisableBlend_BlendOptFlag |
@@ -915,7 +915,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     // check for coverage due to constant coverage, per-vertex coverage,
     // edge aa or coverage texture stage
     bool hasCoverage = forceCoverage ||
-                       0xffffffff != drawState.getCoverage() || 
+                       0xffffffff != drawState.getCoverage() ||
                        (layout & kCoverage_VertexLayoutBit) ||
                        (layout & kEdge_VertexLayoutBit);
     for (int s = drawState.getFirstCoverageStage();
@@ -959,7 +959,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
             } else if (srcAIsOne) {
                 // the dst coeff is effectively zero so blend works out to:
                 // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
-                // If Sa is 1 then we can replace Sa with c 
+                // If Sa is 1 then we can replace Sa with c
                 // and set dst coeff to 1-Sa.
                 *dstCoeff = kISA_GrBlendCoeff;
                 return  kCoverageAsAlpha_BlendOptFlag;
@@ -1026,7 +1026,7 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::drawRect(const GrRect& rect, 
+void GrDrawTarget::drawRect(const GrRect& rect,
                             const GrMatrix* matrix,
                             const GrRect* srcRects[],
                             const GrMatrix* srcMatrices[]) {
@@ -1038,7 +1038,7 @@ void GrDrawTarget::drawRect(const GrRect& rect,
         return;
     }
 
-    SetRectVertices(rect, matrix, srcRects, 
+    SetRectVertices(rect, matrix, srcRects,
                     srcMatrices, layout, geo.vertices());
 
     drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
@@ -1061,10 +1061,10 @@ GrVertexLayout GrDrawTarget::GetRectVertexLayout(const GrRect* srcRects[]) {
 }
 
 void GrDrawTarget::SetRectVertices(const GrRect& rect,
-                                   const GrMatrix* matrix, 
-                                   const GrRect* srcRects[], 
+                                   const GrMatrix* matrix,
+                                   const GrRect* srcRects[],
                                    const GrMatrix* srcMatrices[],
-                                   GrVertexLayout layout, 
+                                   GrVertexLayout layout,
                                    void* vertices) {
 #if GR_DEBUG
     // check that the layout and srcRects agree
@@ -1189,7 +1189,7 @@ GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry(
     fTarget = NULL;
     this->set(target, vertexLayout, vertexCount, indexCount);
 }
-    
+
 GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry() {
     fTarget = NULL;
 }

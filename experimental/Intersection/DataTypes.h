@@ -59,7 +59,7 @@ const double SquaredEpsilon = PointEpsilon * PointEpsilon;
 #endif
 
 inline bool approximately_zero(double x) {
-    
+
     return fabs(x) < FLT_EPSILON;
 }
 
@@ -121,7 +121,7 @@ struct _Point {
     friend bool operator!=(const _Point& a, const _Point& b) {
         return a.x!= b.x || a.y != b.y;
     }
-    
+
     bool approximatelyEqual(const _Point& a) const {
         return approximately_equal(a.y, y) && approximately_equal(a.x, x);
     }
@@ -137,7 +137,7 @@ struct _Rect {
     double top;
     double right;
     double bottom;
-    
+
     void add(const _Point& pt) {
         if (left > pt.x) {
             left = pt.x;
@@ -152,17 +152,17 @@ struct _Rect {
             bottom = pt.y;
         }
     }
-    
+
     void set(const _Point& pt) {
         left = right = pt.x;
         top = bottom = pt.y;
     }
-    
+
     void setBounds(const _Line& line) {
         set(line[0]);
         add(line[1]);
     }
-    
+
     void setBounds(const Cubic& );
     void setBounds(const Quadratic& );
     void setRawBounds(const Cubic& );

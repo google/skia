@@ -56,7 +56,7 @@ const SkMemberInfo SkDrawBitmap::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawBitmap);
 
-SkDrawBitmap::SkDrawBitmap() : format((SkBitmap::Config) -1), height(-1), 
+SkDrawBitmap::SkDrawBitmap() : format((SkBitmap::Config) -1), height(-1),
     rowBytes(0),    width(-1), fColor(0), fColorSet(false) {
 }
 
@@ -137,7 +137,7 @@ SkImageBaseBitmap::SkImageBaseBitmap() : fDirty(true), fUriBase(NULL) {
 }
 
 SkImageBaseBitmap::~SkImageBaseBitmap() {
-    delete[] base64.fData; 
+    delete[] base64.fData;
 }
 
 SkDisplayable* SkImageBaseBitmap::deepCopy(SkAnimateMaker* maker) {
@@ -151,13 +151,13 @@ void SkImageBaseBitmap::dirty() {
 }
 
 bool SkImageBaseBitmap::draw(SkAnimateMaker& maker) {
-    if (fDirty) 
+    if (fDirty)
         resolve();
     return INHERITED::draw(maker);
 }
 
 bool SkImageBaseBitmap::getProperty(int index, SkScriptValue* value) const {
-    if (fDirty) 
+    if (fDirty)
         resolve();
     switch (index) {
         case SK_PROPERTY(height):
@@ -188,11 +188,11 @@ void SkImageBaseBitmap::resolve() {
             return;
         fLast.set(src);
         fBitmap.reset();
-        
+
         //SkStream* stream = SkStream::GetURIStream(fUriBase, src.c_str());
         SkStream* stream = new SkFILEStream(src.c_str());
 
         SkAutoTDelete<SkStream> autoDel(stream);
         SkImageDecoder::DecodeStream(stream, &fBitmap);
-    }   
+    }
 }

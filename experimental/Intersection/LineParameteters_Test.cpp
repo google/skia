@@ -13,7 +13,7 @@ const Cubic tests[] = {
     {{0, .002}, {1, 0}, {2, 0}, {3, 0}},
     {{0, .0002}, {1, 0}, {2, 0}, {3, 0}},
     {{0, .00002}, {1, 0}, {2, 0}, {3, 0}},
-    {{0, PointEpsilon * 2}, {1, 0}, {2, 0}, {3, 0}}, 
+    {{0, PointEpsilon * 2}, {1, 0}, {2, 0}, {3, 0}},
 };
 
 const double answers[][2] = {
@@ -60,7 +60,7 @@ void LineParameter_Test() {
         double normalizedDistance[2];
         lineParameters.controlPtDistance(cubic, normalizedDistance);
         for (inner = 0; inner < 2; ++inner) {
-            if (approximately_equal(fabs(normalizedDistance[inner]), 
+            if (approximately_equal(fabs(normalizedDistance[inner]),
                     answers[index][inner])) {
                 continue;
             }

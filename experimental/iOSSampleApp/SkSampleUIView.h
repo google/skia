@@ -15,7 +15,7 @@ struct FPSState;
 
 @interface SkSampleUIView : SkUIView  {
     BOOL fRedrawRequestPending;
-    
+
     struct {
         EAGLContext*    fContext;
         GLuint          fRenderbuffer;
@@ -24,11 +24,11 @@ struct FPSState;
         GLint           fWidth;
         GLint           fHeight;
     } fGL;
-    
+
     NSString* fTitle;
     CALayer* fRasterLayer;
     CAEAGLLayer* fGLLayer;
-    
+
     FPSState* fFPSState;
     SkiOSDeviceManager* fDevManager;
 }

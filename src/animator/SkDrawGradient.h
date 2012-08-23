@@ -23,7 +23,7 @@ class SkDrawGradient : public SkDrawShader {
     virtual bool add(SkAnimateMaker& , SkDisplayable* child);
 #ifdef SK_DUMP_ENABLED
     virtual void dumpRest(SkAnimateMaker*);
-#endif    
+#endif
     virtual void onEndElement(SkAnimateMaker& );
 protected:
     SkTDScalarArray offsets;
@@ -55,7 +55,7 @@ class SkDrawRadialGradient : public SkDrawGradient {
     SkDrawRadialGradient();
 #ifdef SK_DUMP_ENABLED
     virtual void dump(SkAnimateMaker*);
-#endif    
+#endif
     virtual SkShader* getShader();
 protected:
     SkPoint center;

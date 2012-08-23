@@ -15,7 +15,7 @@
 #include "GrPoint.h"
 
 #if GR_TEXT_SCALAR_IS_USHORT
-    typedef uint16_t                GrTextScalar;  
+    typedef uint16_t                GrTextScalar;
     #define GrIntToTextScalar(x)    ((uint16_t)x)
     #define GrFixedToTextScalar(x)  (x)
 #elif GR_TEXT_SCALAR_IS_FIXED
@@ -23,7 +23,7 @@
     #define GrIntToTextScalar(x)    GrIntToFixed(x)
     #define GrFixedToTextScalar(x)  (x)
 #elif GR_TEXT_SCALAR_IS_FLOAT
-    typedef float                   GrTextScalar;    
+    typedef float                   GrTextScalar;
     #define GrIntToTextScalar(x)    ((GrTextScalar)x)
     #define GrFixedToTextScalar(x)  GrFixedToFloat(x)
 #else
@@ -45,12 +45,12 @@ struct GrGpuTextVertex {
         fX = GrIntToTextScalar(x);
         fY = GrIntToTextScalar(y);
     }
-    
+
     void setX(GrFixed x, GrFixed y) {
         fX = GrFixedToTextScalar(x);
         fY = GrFixedToTextScalar(y);
     }
-    
+
     // rect fan is counter-clockwise
 
     void setRectFan(GrTextScalar l, GrTextScalar t, GrTextScalar r,
