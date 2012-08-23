@@ -54,7 +54,7 @@ def FindPathToProgram(program):
                     'build %s?' % (program, possible_paths, program))
 
 
-def RenderImages(inputs, render_dir):
+def RenderImages(inputs, render_dir, options):
     """Renders the serialized SkPictures.
 
     Uses the render_pictures program to do the rendering.
@@ -64,7 +64,15 @@ def RenderImages(inputs, render_dir):
     """
     renderer_path = FindPathToProgram('render_pictures')
     inputs_as_string = " ".join(inputs)
-    RunCommand('%s %s %s' % (renderer_path, inputs_as_string, render_dir))
+    command = '%s %s %s' % (renderer_path, inputs_as_string, render_dir)
+
+    if (options.mode is not None):
+        command += ' --mode %s' % ' '.join(options.mode)
+
+    if (options.device is not None):
+        command += ' --device %s' % options.device
+
+    RunCommand(command)
 
 
 def DiffImages(expected_dir, comparison_dir, diff_dir):
@@ -99,6 +107,29 @@ def Cleanup(options, render_dir, diff_dir):
             shutil.rmtree(diff_dir)
 
 
+def ModeParse(option, opt_str, value, parser):
+    """Parses the --mode option of the commandline.
+
+    The --mode option will either take in three parameters (if tile or
+    pow2tile) or a single parameter (otherwise).
+    """
+    result = [value]
+    if value == "tile":
+          if (len(parser.rargs) < 2):
+              raise optparse.OptionValueError(("--mode tile mising width"
+                                               " and/or height parameters"))
+          result.extend(parser.rargs[:2])
+          del parser.rargs[:2]
+    elif value == "pow2tile":
+          if (len(parser.rargs) < 2):
+              raise optparse.OptionValueError(("--mode pow2tile mising minWidth"
+                                               " and/or height parameters"))
+          result.extend(parser.rargs[:2])
+          del parser.rargs[:2]
+
+    setattr(parser.values, option.dest, result)
+
+
 def Main(args):
     """Allow other scripts to call this script with fake command-line args.
 
@@ -111,6 +142,11 @@ def Main(args):
     parser.add_option('--diff_dir', dest='diff_dir',
                     help = ("specify the location to output the diff files."
                               " Default is a temp directory."))
+    parser.add_option('--mode', dest='mode', type='string',
+                      action="callback", callback=ModeParse,
+                      help = ("specify how rendering is to be done."))
+    parser.add_option('--device', dest='device',
+                      help = ("specify the device to render to."))
 
     options, arguments = parser.parse_args(args)
 
@@ -133,7 +169,7 @@ def Main(args):
         diff_dir = tempfile.mkdtemp()
 
     try:
-        RenderImages(inputs, render_dir)
+        RenderImages(inputs, render_dir, options)
         DiffImages(expected_dir, render_dir, diff_dir)
     finally:
         Cleanup(options, render_dir, diff_dir)
