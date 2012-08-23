@@ -135,9 +135,9 @@ public:
     SkScalar    fSaturation;
     SkScalar    fAngle;
 
-	ImageDirView() {
+    ImageDirView() {
         SkImageRef_GlobalPool::SetRAMBudget(320 * 1024);
-        
+
 #ifdef SPECIFIC_IMAGE
         fBitmaps = new SkBitmap[3];
         fStrings = new SkString[3];
@@ -171,7 +171,7 @@ public:
             SkString path(IMAGE_DIR);
             path.append(name);
             SkStream* stream = new SkFILEStream(path.c_str());
-            
+
             SetImageRef(&fBitmaps[i], stream, SkBitmap::kNo_Config,
                         name.c_str());
             stream->unref();
@@ -181,20 +181,20 @@ public:
 #endif
         fCurrIndex = 0;
         fDX = fDY = 0;
-        
+
         fSaturation = SK_Scalar1;
         fAngle = 0;
-        
+
         fScale = SK_Scalar1;
     }
-    
+
     virtual ~ImageDirView() {
         delete[] fBitmaps;
         delete[] fStrings;
 
         SkImageRef_GlobalPool::DumpPool();
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -210,23 +210,23 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
 //        canvas->drawColor(0xFFDDDDDD);
         canvas->drawColor(SK_ColorGRAY);
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     SkScalar fScale;
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         if (true) {
             canvas->scale(SkIntToScalar(2), SkIntToScalar(2));
             drawmarshmallow(canvas);
             return;
         }
-        
+
         if (false) {
             SkPaint p;
             p.setStyle(SkPaint::kStroke_Style);
@@ -244,16 +244,16 @@ protected:
             DrawRoundRect(*canvas);
             return;
         }
-    
+
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
-        
+
         SkScalar x = SkIntToScalar(32), y = SkIntToScalar(32);
         SkPaint paint;
 
 #if 0
         for (int i = 0; i < fBitmapCount; i++) {
             SkPaint p;
-            
+
 #if 1
             const SkScalar cm[] = {
                 SkIntToScalar(2), 0, 0, 0, SkIntToScalar(-255),
@@ -264,7 +264,7 @@ protected:
             SkColorFilter* cf = new SkColorMatrixFilter(cm);
             p.setColorFilter(cf)->unref();
 #endif
-            
+
             canvas->drawBitmap(fBitmaps[i], x, y, &p);
             x += SkIntToScalar(fBitmaps[i].width() + 10);
         }
@@ -282,7 +282,7 @@ protected:
         }
 #endif
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         if (true) {
             fCurrIndex += 1;
@@ -292,7 +292,7 @@ protected:
         }
         return new Click(this);
     }
-    
+
     virtual bool onClick(Click* click)  {
         SkScalar center = this->width()/2;
         fSaturation = SkScalarDiv(click->fCurr.fX - center, center/2);
@@ -301,14 +301,14 @@ protected:
 
         fDX += click->fCurr.fX - click->fPrev.fX;
         fDY += click->fCurr.fY - click->fPrev.fY;
-        
+
         fScale = SkScalarDiv(click->fCurr.fX, this->width());
 
         this->inval(NULL);
         return true;
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     SkScalar fDX, fDY;
     typedef SkView INHERITED;

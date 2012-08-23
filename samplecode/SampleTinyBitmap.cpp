@@ -40,11 +40,11 @@ static SkBitmap make_bitmap() {
 class TinyBitmapView : public SampleView {
     SkBitmap    fBM;
 public:
-	TinyBitmapView() {
+    TinyBitmapView() {
         fBM = make_bitmap();
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -54,7 +54,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setIsOpaque(isOpaque);
@@ -63,7 +63,7 @@ protected:
             ctable->setIsOpaque(isOpaque);
         }
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkShader* s = SkShader::CreateBitmapShader(fBM, SkShader::kRepeat_TileMode,
                                                    SkShader::kMirror_TileMode);
@@ -71,7 +71,7 @@ protected:
         paint.setShader(s)->unref();
         canvas->drawPaint(paint);
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

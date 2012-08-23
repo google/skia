@@ -109,7 +109,7 @@ static const GradMaker gGradMakers[] = {
 
 class ShaderTextGM : public GM {
 public:
-	ShaderTextGM() {
+    ShaderTextGM() {
         this->setBGColor(0xFFDDDDDD);
     }
 
@@ -119,7 +119,7 @@ protected:
         return SkString("shadertext");
     }
 
-	SkISize onISize() { return make_isize(1450, 500); }
+    SkISize onISize() { return make_isize(1450, 500); }
 
     virtual void onDraw(SkCanvas* canvas) {
         const char text[] = "Shaded Text";
@@ -174,8 +174,8 @@ protected:
 
         SkPath path;
         path.arcTo(SkRect::MakeXYWH(SkIntToScalar(-40), SkIntToScalar(15),
-                                    SkIntToScalar(300), SkIntToScalar(90)), 
-                                    SkIntToScalar(225), SkIntToScalar(90), 
+                                    SkIntToScalar(300), SkIntToScalar(90)),
+                                    SkIntToScalar(225), SkIntToScalar(90),
                                     false);
         path.close();
 

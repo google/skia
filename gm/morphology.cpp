@@ -19,7 +19,7 @@ public:
         this->setBGColor(0xFF000000);
         fOnce = false;
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("morphology");
@@ -83,7 +83,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef GM INHERITED;
     SkBitmap fBitmap;

@@ -68,7 +68,7 @@ static void one_d_pe(SkPaint* paint) {
     path.close();
     path.offset(SkIntToScalar(-6), 0);
     scale(&path, 1.5f);
-    
+
     paint->setPathEffect(new SkPath1DPathEffect(path, SkIntToScalar(21), 0,
                                 SkPath1DPathEffect::kRotate_Style))->unref();
     compose_pe(paint);
@@ -92,7 +92,7 @@ static SkPathEffect* MakeTileEffect() {
 
     SkPath path;
     path.addCircle(0, 0, SkIntToScalar(5));
-    
+
     return new SkPath2DPathEffect(m, path);
 }
 

@@ -23,7 +23,7 @@ class CameraView : public SampleView {
     int     fShaderIndex;
     bool    fFrontFace;
 public:
-	CameraView() {
+    CameraView() {
         fRX = fRY = fRZ = 0;
         fShaderIndex = 0;
         fFrontFace = false;
@@ -36,7 +36,7 @@ public:
                 SkShader* s = SkShader::CreateBitmapShader(bm,
                                                            SkShader::kClamp_TileMode,
                                                            SkShader::kClamp_TileMode);
-                
+
                 SkRect src = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
                 SkRect dst = { -150, -150, 150, 150 };
                 SkMatrix matrix;
@@ -49,7 +49,7 @@ public:
         }
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
     virtual ~CameraView() {
         fShaders.unrefAll();
     }
@@ -72,7 +72,7 @@ protected:
         view.rotateX(fRX);
         view.rotateY(fRY);
         view.applyToCanvas(canvas);
-        
+
         SkPaint paint;
         if (fShaders.count() > 0) {
             bool frontFace = view.dotWithNormal(0, 0, SK_Scalar1) < 0;
@@ -80,13 +80,13 @@ protected:
                 fFrontFace = frontFace;
                 fShaderIndex = (fShaderIndex + 1) % fShaders.count();
             }
-        
+
             paint.setAntiAlias(true);
             paint.setShader(fShaders[fShaderIndex]);
             SkRect r = { -150, -150, 150, 150 };
             canvas->drawRoundRect(r, 30, 30, paint);
         }
-        
+
         fRY += SampleCode::GetAnimSecondsDelta() * 90;
         if (fRY >= SkIntToScalar(360)) {
             fRY = 0;

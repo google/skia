@@ -22,7 +22,7 @@ static void show_text(SkCanvas* canvas, bool doAA) {
     paint.setAntiAlias(doAA);
     paint.setLCDRenderText(true);
     paint.setTextSize(SkIntToScalar(20));
-    
+
     for (int i = 0; i < 200; ++i) {
         paint.setColor((SK_A32_MASK << SK_A32_SHIFT) | rand.nextU());
         canvas->drawText("Hamburgefons", 12,
@@ -35,16 +35,16 @@ static void show_fill(SkCanvas* canvas, bool doAA) {
     SkRandom rand;
     SkPaint paint;
     paint.setAntiAlias(doAA);
-    
+
     for (int i = 0; i < 50; ++i) {
         SkRect r;
         SkPath p;
-        
+
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
         paint.setColor(rand.nextU());
         canvas->drawRect(r, paint);
-        
+
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
         paint.setColor(rand.nextU());
@@ -64,16 +64,16 @@ static void show_stroke(SkCanvas* canvas, bool doAA, SkScalar strokeWidth, int n
     paint.setAntiAlias(doAA);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(strokeWidth);
-    
+
     for (int i = 0; i < n; ++i) {
         SkRect r;
         SkPath p;
-        
+
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
         paint.setColor(rand.nextU());
         canvas->drawRect(r, paint);
-        
+
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
         paint.setColor(rand.nextU());
@@ -131,7 +131,7 @@ protected:
         static const CanvasProc gProc[] = {
             show_text, show_thick, show_hair, show_fill
         };
-        
+
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
         SkPath clipPath;
         r.inset(SK_Scalar1 / 4, SK_Scalar1 / 4);
@@ -153,7 +153,7 @@ protected:
             canvas->translate(0, H * SK_Scalar1 * 8 / 7);
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

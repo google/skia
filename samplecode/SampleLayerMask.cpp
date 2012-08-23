@@ -14,10 +14,10 @@
 
 class LayerMaskView : public SampleView {
 public:
-	LayerMaskView() {
+    LayerMaskView() {
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -27,7 +27,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawMask(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -43,7 +43,7 @@ protected:
             SkRect bounds = r;
             bounds.offset(-bounds.fLeft, -bounds.fTop);
             c.drawOval(bounds, paint);
-            
+
             paint.setXfermodeMode(SkXfermode::kDstIn_Mode);
             canvas->drawBitmap(mask, r.fLeft, r.fTop, &paint);
         } else {
@@ -63,7 +63,7 @@ protected:
         drawMask(canvas, r);
         canvas->restore();
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

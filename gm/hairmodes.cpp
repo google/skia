@@ -54,7 +54,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode, SkAlpha a0, SkAlpha
         paint.setStrokeWidth(SK_Scalar1 * angle * 2 / 24);
         canvas->drawLine(W/2, H/2, W/2 + x, H/2 + y, paint);
     }
-    
+
     return H;
 }
 
@@ -68,7 +68,7 @@ static SkShader* make_bg_shader() {
     SkShader* s = SkShader::CreateBitmapShader(bm,
                                                SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    
+
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
     s->setLocalMatrix(m);
@@ -76,28 +76,28 @@ static SkShader* make_bg_shader() {
 }
 
 namespace skiagm {
-    
+
     class HairModesGM : public GM {
         SkPaint fBGPaint;
     public:
         HairModesGM() {
             fBGPaint.setShader(make_bg_shader())->unref();
         }
-        
+
     protected:
-        
+
         virtual SkString onShortName() {
             return SkString("hairmodes");
         }
-        
+
         virtual SkISize onISize() { return make_isize(640, 480); }
-        
+
         virtual void onDraw(SkCanvas* canvas) {
             const SkRect bounds = SkRect::MakeWH(W, H);
             static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
-            
+
             canvas->translate(SkIntToScalar(4), SkIntToScalar(4));
-            
+
             for (int alpha = 0; alpha < 4; ++alpha) {
                 canvas->save();
                 canvas->save();
@@ -108,14 +108,14 @@ namespace skiagm {
                         canvas->save();
                     }
                     SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-                    
+
                     canvas->drawRect(bounds, fBGPaint);
                     canvas->saveLayer(&bounds, NULL);
                     SkScalar dy = drawCell(canvas, mode,
                                            gAlphaValue[alpha & 1],
                                            gAlphaValue[alpha & 2]);
                     canvas->restore();
-                    
+
                     canvas->translate(0, dy * 5 / 4);
                     SkSafeUnref(mode);
                 }
@@ -131,10 +131,10 @@ namespace skiagm {
     private:
         typedef GM INHERITED;
     };
-    
+
     //////////////////////////////////////////////////////////////////////////////
-    
+
     static GM* MyFactory(void*) { return new HairModesGM; }
     static GMRegistry reg(MyFactory);
-    
+
 }

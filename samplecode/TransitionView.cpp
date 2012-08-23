@@ -24,15 +24,15 @@ class TransitionView : public SampleView {
 public:
     TransitionView(SkView* prev, SkView* next, int direction) : fInterp(4, 2){
         fAnimationDirection = (Direction)(1 << (direction % 8));
-        
+
         fPrev = prev;
         fPrev->setClipToBounds(false);
         fPrev->setVisibleP(true);
         (void)SampleView::SetUsePipe(fPrev, SkOSMenu::kOffState);
-        //Not calling unref because fPrev is assumed to have been created, so 
+        //Not calling unref because fPrev is assumed to have been created, so
         //this will result in a transfer of ownership
         this->attachChildToBack(fPrev);
-        
+
         fNext = next;
         fNext->setClipToBounds(true);
         fNext->setVisibleP(true);
@@ -40,20 +40,20 @@ public:
         //Calling unref because next is a newly created view and TransitionView
         //is now the sole owner of fNext
         this->attachChildToFront(fNext)->unref();
-        
+
         fDone = false;
         //SkDebugf("--created transition\n");
     }
-    
+
     ~TransitionView(){
         //SkDebugf("--deleted transition\n");
     }
-    
+
     virtual void requestMenu(SkOSMenu* menu) {
         if (SampleView::IsSampleView(fNext))
             ((SampleView*)fNext)->requestMenu(menu);
     }
-    
+
 protected:
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
@@ -82,7 +82,7 @@ protected:
         if (evt.isType("transition-done")) {
             fNext->setLoc(0, 0);
             fNext->setClipToBounds(false);
-            SkEvent* evt = new SkEvent(gReplaceTransitionEvt, 
+            SkEvent* evt = new SkEvent(gReplaceTransitionEvt,
                                        this->getParent()->getSinkID());
             evt->setFast32(fNext->getSinkID());
             //increate ref count of fNext so it survives detachAllChildren
@@ -101,7 +101,7 @@ protected:
         if (is_overview(fNext) || is_overview(fPrev)) {
             fPipeState = SkOSMenu::kOffState;
         }
-        
+
         SkScalar values[4];
         SkInterpolator::Result result = fInterp.timeToValues(SkTime::GetMSecs(), values);
         //SkDebugf("transition %x %d pipe:%d\n", this, result, fUsePipe);
@@ -118,13 +118,13 @@ protected:
             fDone = true;
         }
     }
-    
+
     virtual void onSizeChange() {
         this->INHERITED::onSizeChange();
-        
+
         fNext->setSize(this->width(), this->height());
         fPrev->setSize(this->width(), this->height());
-        
+
         SkScalar lr = 0, ud = 0;
         if (fAnimationDirection & (kLeftDirection|kULDirection|kDLDirection))
             lr = this->width();
@@ -134,13 +134,13 @@ protected:
             ud = this->height();
         if (fAnimationDirection & (kDownDirection|kDLDirection|kDRDirection))
             ud = -this->height();
-        
+
         fBegin[kPrevX] = fBegin[kPrevY] = 0;
         fBegin[kNextX] = lr;
         fBegin[kNextY] = ud;
         fNext->setLocX(lr);
         fNext->setLocY(ud);
-        
+
         if (is_transition(fPrev))
             lr = ud = 0;
         fEnd[kPrevX] = -lr;
@@ -151,7 +151,7 @@ protected:
         fInterp.setKeyFrame(0, SkTime::GetMSecs(), fBegin, blend);
         fInterp.setKeyFrame(1, SkTime::GetMSecs()+500, fEnd, blend);
     }
-    
+
 private:
     enum {
         kPrevX = 0,
@@ -163,7 +163,7 @@ private:
     SkView* fNext;
     bool    fDone;
     SkInterpolator fInterp;
-    
+
     enum Direction{
         kUpDirection    = 1,
         kURDirection    = 1 << 1,
@@ -174,11 +174,11 @@ private:
         kLeftDirection  = 1 << 6,
         kULDirection    = 1 << 7
     };
-    
+
     Direction fAnimationDirection;
     SkScalar fBegin[4];
     SkScalar fEnd[4];
-    
+
     typedef SampleView INHERITED;
 };
 

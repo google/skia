@@ -58,7 +58,7 @@ static SkScalar make_sawtooth(SkPath* path) {
     const SkScalar x0 = x;
     const SkScalar dx = SK_Scalar1 * 5;
     const SkScalar dy = SK_Scalar1 * 10;
-    
+
     path->moveTo(x, y);
     for (int i = 0; i < 32; i++) {
         x += dx;

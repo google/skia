@@ -49,31 +49,31 @@ static void* draw_proc(void* context) {
     SkScalar    y = 0;
 
     SkPaint paint;
-    
+
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
-    
+
     SkRect oval;
     oval.setEmpty();
 
     SkRect clipR = SkRect::MakeWH(SkIntToScalar(bm->width()), SkIntToScalar(bm->height()));
     clipR.inset(SK_Scalar1/4, SK_Scalar1/4);
-                                  
+
     while (!gDone) {
         ref->inval(oval, true);
         oval.set(x, y, x + SkIntToScalar(OVALW), y + SkIntToScalar(OVALH));
         ref->inval(oval, true);
 
         SkAutoFlipUpdate    update(ref);
-        
+
         if (!update.dirty().isEmpty()) {
             // this must be local to the loop, since it needs to forget the pixels
             // its writing to after each iteration, since we do the swap
             SkCanvas    canvas(update.bitmap());
             canvas.clipRegion(update.dirty());
-            canvas.drawColor(0, SkXfermode::kClear_Mode);            
+            canvas.drawColor(0, SkXfermode::kClear_Mode);
             canvas.clipRect(clipR, SkRegion::kIntersect_Op, true);
-            
+
             canvas.drawOval(oval, paint);
         }
         bounce(&x, &dx, WIDTH-OVALW);
@@ -92,18 +92,18 @@ static const SkBitmap::Config gConfigs[] = {
 class PageFlipView : public SampleView {
     bool fOnce;
 public:
-    
+
     enum { N = SK_ARRAY_COUNT(gConfigs) };
-    
+
     pthread_t   fThreads[N];
     SkBitmap    fBitmaps[N];
 
-	PageFlipView() {
+    PageFlipView() {
         gDone = false;
         fOnce = false;
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
     void init() {
         if (fOnce) {
             return;
@@ -113,20 +113,20 @@ public:
         for (int i = 0; i < N; i++) {
             int             status;
             pthread_attr_t  attr;
-            
+
             status = pthread_attr_init(&attr);
             SkASSERT(0 == status);
-            
+
             fBitmaps[i].setConfig(gConfigs[i], WIDTH, HEIGHT);
             SkFlipPixelRef* pr = new SkFlipPixelRef(gConfigs[i], WIDTH, HEIGHT);
             fBitmaps[i].setPixelRef(pr)->unref();
             fBitmaps[i].eraseColor(0);
-            
+
             status = pthread_create(&fThreads[i], &attr,  draw_proc, &fBitmaps[i]);
             SkASSERT(0 == status);
         }
     }
-    
+
     virtual ~PageFlipView() {
         if (!fOnce) {
             return;
@@ -138,7 +138,7 @@ public:
             SkASSERT(0 == status);
         }
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -159,16 +159,16 @@ protected:
         }
         this->inval(NULL);
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

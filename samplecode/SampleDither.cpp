@@ -24,20 +24,20 @@
 static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
     SkRect  r;
     SkPaint p;
-    
+
     p.setAntiAlias(true);
 //    p.setDither(true);
     p.setStrokeWidth(SkIntToScalar(width/10));
     p.setStyle(SkPaint::kStroke_Style);
 
     r.set(0, 0, SkIntToScalar(width), SkIntToScalar(height));
-    
+
     //    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN, SK_ColorCYAN };
     SkColor colors[] = { 0x4c737373, 0x4c737373, 0xffffd300 };
     SkShader* s = SkGradientShader::CreateSweep(r.centerX(), r.centerY(),
                                                 colors, NULL, SK_ARRAY_COUNT(colors));
     p.setShader(s)->unref();
-    
+
     SkAutoCanvasRestore acr(c, true);
 
     c->translate(r.centerX(), r.centerY());
@@ -57,7 +57,7 @@ static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
         SkScalar thickness = p.getStrokeWidth();
         SkScalar sweep = SkFloatToScalar(360.0f);
         SkPath path;
-        
+
         path.moveTo(x + radius, y);
         // outer top
         path.lineTo(x + radius + thickness, y);
@@ -78,38 +78,38 @@ static void make_bm(SkBitmap* bm) {
 #else
     bm->eraseColor(0);
 #endif
-    
-    SkCanvas c(*bm);    
+
+    SkCanvas c(*bm);
     draw_sweep(&c, bm->width(), bm->height(), 0);
 }
 
 static void pre_dither(const SkBitmap& bm) {
     SkAutoLockPixels alp(bm);
-    
+
     for (int y = 0; y < bm.height(); y++) {
         DITHER_4444_SCAN(y);
-        
+
         SkPMColor* p = bm.getAddr32(0, y);
         for (int x = 0; x < bm.width(); x++) {
             SkPMColor c = *p;
-            
+
             unsigned a = SkGetPackedA32(c);
             unsigned r = SkGetPackedR32(c);
             unsigned g = SkGetPackedG32(c);
             unsigned b = SkGetPackedB32(c);
-            
+
             unsigned d = DITHER_VALUE(x);
 
             a = SkDITHER_A32To4444(a, d);
             r = SkDITHER_R32To4444(r, d);
             g = SkDITHER_G32To4444(g, d);
             b = SkDITHER_B32To4444(b, d);
-            
+
             a = SkA4444ToA32(a);
             r = SkR4444ToR32(r);
             g = SkG4444ToG32(g);
             b = SkB4444ToB32(b);
-            
+
             *p++ = SkPackARGB32(a, r, g, b);
         }
     }
@@ -120,14 +120,14 @@ public:
     SkBitmap    fBM, fBMPreDither, fBM16;
     SkScalar fAngle;
 
-	DitherView() {
+    DitherView() {
         make_bm(&fBM);
         make_bm(&fBMPreDither);
         pre_dither(fBMPreDither);
         fBM.copyTo(&fBM16, SkBitmap::kARGB_4444_Config);
-        
+
         fAngle = 0;
-        
+
         this->setBGColor(0xFF181818);
     }
 
@@ -140,29 +140,29 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
         const SkScalar DX = SkIntToScalar(fBM.width() + 10);
-        
+
         paint.setAntiAlias(true);
-        
+
         if (true) {
             canvas->drawBitmap(fBM, x, y, &paint);
             x += DX;
             paint.setDither(true);
             canvas->drawBitmap(fBM, x, y, &paint);
-            
+
             x += DX;
             paint.setDither(false);
             canvas->drawBitmap(fBMPreDither, x, y, &paint);
-            
+
             x += DX;
             canvas->drawBitmap(fBM16, x, y, &paint);
         }
-        
+
         canvas->translate(DX, DX*2);
         draw_sweep(canvas, fBM.width(), fBM.height(), fAngle);
         canvas->translate(DX, 0);

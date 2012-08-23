@@ -25,14 +25,14 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
     bm->setConfig(config, w, h);
     bm->allocPixels();
     bm->eraseColor(0);
-    
+
     SkCanvas    canvas(*bm);
     SkPoint     pts[] = { { 0, 0 }, { SkIntToScalar(w), SkIntToScalar(h)} };
     SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     SkPaint     paint;
-    
-    SkUnitMapper*   um = NULL;    
+
+    SkUnitMapper*   um = NULL;
 
     um = new SkCosineMapper;
 //    um = new SkDiscreteMapper(12);
@@ -63,7 +63,7 @@ static const int gHeight = 32;
 class TilingGM : public GM {
     SkBlurDrawLooper    fLooper;
 public:
-	TilingGM()
+    TilingGM()
             : fLooper(SkIntToScalar(1), SkIntToScalar(2), SkIntToScalar(2),
                       0x88000000) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
@@ -72,23 +72,23 @@ public:
     }
 
     SkBitmap    fTexture[SK_ARRAY_COUNT(gConfigs)];
-	
+
 protected:
     SkString onShortName() {
         return SkString("tilemodes");
     }
-    
-	SkISize onISize() { return make_isize(880, 560); }
-    
+
+    SkISize onISize() { return make_isize(880, 560); }
+
     virtual void onDraw(SkCanvas* canvas) {
-        
+
         SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };
 
         static const char* gConfigNames[] = { "8888", "565", "4444" };
-    
+
         static const bool           gFilters[] = { false, true };
         static const char*          gFilterNames[] = {     "point",                     "bilinear" };
-    
+
         static const SkShader::TileMode gModes[] = { SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
         static const char*          gModeNames[] = {    "C",                    "R",                   "M" };
 
@@ -106,11 +106,11 @@ protected:
 
                 p.setTextAlign(SkPaint::kCenter_Align);
                 canvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
-                
+
                 x += r.width() * 4 / 3;
             }
         }
-        
+
         y += SkIntToScalar(16);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
@@ -121,12 +121,12 @@ protected:
                         SkPaint paint;
                         setup(&paint, fTexture[i], gFilters[j], gModes[kx], gModes[ky]);
                         paint.setDither(true);
-                        
+
                         canvas->save();
                         canvas->translate(x, y);
                         canvas->drawRect(r, paint);
                         canvas->restore();
-                        
+
                         x += r.width() * 4 / 3;
                     }
                 }
@@ -143,7 +143,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

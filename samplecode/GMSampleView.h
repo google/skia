@@ -20,11 +20,11 @@ private:
 public:
     GMSampleView(GM* gm)
     : fGM(gm) {}
-    
+
     virtual ~GMSampleView() {
         delete fGM;
     }
-    
+
 protected:
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
@@ -35,7 +35,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         fGM->drawContent(canvas);
     }

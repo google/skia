@@ -39,7 +39,7 @@ static SkPathEffect* make_pe(int flags) {
     path.offset(SkIntToScalar(-6), 0);
 
     SkPathEffect* outer = new SkPath1DPathEffect(path, SkIntToScalar(12), gPhase, SkPath1DPathEffect::kRotate_Style);
-    
+
     if (flags == 2)
         return outer;
 
@@ -79,18 +79,18 @@ public:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-#if 0        
+#if 0
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SK_Scalar1*4);
         this->addLayer(paint);
-    
+
         paint.setStrokeWidth(SK_Scalar1*1);
         paint.setXfermode(SkXfermode::kClear_Mode);
         this->addLayer(paint);
 #else
         paint.setAlpha(0x66);
         this->addLayer(paint, SkIntToScalar(4), SkIntToScalar(4));
-    
+
         paint.setAlpha(0xFF);
         this->addLayer(paint);
 #endif
@@ -101,13 +101,13 @@ class PathEffectView : public SampleView {
     SkPath  fPath;
     SkPoint fClickPt;
 public:
-	PathEffectView() {
+    PathEffectView() {
         SkRandom    rand;
         int         steps = 20;
         SkScalar    dist = SkIntToScalar(400);
         SkScalar    x = SkIntToScalar(20);
         SkScalar    y = SkIntToScalar(50);
-        
+
         fPath.moveTo(x, y);
         for (int i = 0; i < steps; i++) {
             x += dist/steps;
@@ -126,12 +126,12 @@ public:
             oval.offset(x, 0);
             fPath.addRoundRect(oval, SkIntToScalar(8), SkIntToScalar(8));
         }
-        
+
         fClickPt.set(SkIntToScalar(200), SkIntToScalar(200));
-        
+
         this->setBGColor(0xFFDDDDDD);
     }
-	
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -141,37 +141,37 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         gPhase -= SampleCode::GetAnimSecondsDelta() * 40;
         this->inval(NULL);
-        
+
         SkPaint paint;
-        
+
 #if 0
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(5));
         canvas->drawPath(fPath, paint);
         paint.setStrokeWidth(0);
-        
+
         paint.setColor(SK_ColorWHITE);
         paint.setPathEffect(make_pe(1))->unref();
         canvas->drawPath(fPath, paint);
 #endif
-        
+
         canvas->translate(0, SkIntToScalar(50));
-        
+
         paint.setColor(SK_ColorBLUE);
         paint.setPathEffect(make_pe(2))->unref();
         canvas->drawPath(fPath, paint);
-        
+
         canvas->translate(0, SkIntToScalar(50));
-        
+
         paint.setARGB(0xFF, 0, 0xBB, 0);
         paint.setPathEffect(make_pe(3))->unref();
         canvas->drawPath(fPath, paint);
-        
+
         canvas->translate(0, SkIntToScalar(50));
 
         paint.setARGB(0xFF, 0, 0, 0);
@@ -179,7 +179,7 @@ protected:
         paint.setRasterizer(new testrast)->unref();
         canvas->drawPath(fPath, paint);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

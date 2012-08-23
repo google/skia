@@ -51,7 +51,7 @@ static SkBitmap make_bitmap() {
 class BlurView : public SampleView {
     SkBitmap    fBM;
 public:
-	BlurView() {
+    BlurView() {
         if (false) { // avoid bit rot, suppress warning
             fBM = make_bitmap();
         }

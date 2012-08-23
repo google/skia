@@ -12,7 +12,7 @@ utils#include "SampleCode.h"
 #include "test.h"
 
 namespace skiatest {
-    
+
 class MyReporter : public Reporter {
 protected:
     virtual void onStart(Test* test) {}
@@ -28,11 +28,11 @@ public:
         r->ref();
         fReg = TestRegistry::Head();
     }
-    
+
     ~Iter() {
         fReporter->unref();
     }
-    
+
     Test* next() {
         if (fReg) {
             TestRegistry::Factory fact = fReg->factory();
@@ -43,7 +43,7 @@ public:
         }
         return NULL;
     }
-    
+
     static int Count() {
         const TestRegistry* reg = TestRegistry::Head();
         int count = 0;
@@ -53,7 +53,7 @@ public:
         }
         return count;
     }
-    
+
 private:
     Reporter* fReporter;
     const TestRegistry* fReg;
@@ -62,7 +62,7 @@ private:
 
 class TestsView : public SkView {
 public:
-	TestsView() {}
+    TestsView() {}
 
 protected:
     // overrides from SkEventSink
@@ -73,36 +73,36 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
         skiatest::MyReporter reporter;
         skiatest::Iter iter(&reporter);
         skiatest::Test* test;
-        
+
         while ((test = iter.next()) != NULL) {
             test->run();
             SkDELETE(test);
         }
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
-        
+
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         this->inval(NULL);
         return this->INHERITED::onClick(click);
     }
 
-	virtual bool handleKey(SkKey key) {
+    virtual bool handleKey(SkKey key) {
         this->inval(NULL);
         return true;
     }

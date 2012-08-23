@@ -40,7 +40,7 @@ public:
             SkDELETE(codec);
         }
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -50,17 +50,17 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
 //        canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(fBitmap); i++) {
             canvas->drawBitmap(fBitmap[i], 0, 0);
             canvas->translate(SkIntToScalar(fBitmap[i].width()), 0);

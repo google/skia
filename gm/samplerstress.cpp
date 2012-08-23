@@ -12,13 +12,13 @@
 
 namespace skiagm {
 
-/** 
+/**
  * Stress test the samplers by rendering a textured glyph with a mask and
  * an AA clip
  */
 class SamplerStressGM : public GM {
 public:
-    SamplerStressGM() 
+    SamplerStressGM()
     : fTextureCreated(false)
     , fShader(NULL)
     , fMaskFilter(NULL) {
@@ -47,7 +47,7 @@ protected:
         static const int xSize = 16;
         static const int ySize = 16;
 
-        fTexture.setConfig(SkBitmap::kARGB_8888_Config, 
+        fTexture.setConfig(SkBitmap::kARGB_8888_Config,
                            xSize,
                            ySize,
                            xSize*sizeof(SkColor));

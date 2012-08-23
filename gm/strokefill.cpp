@@ -43,7 +43,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(100));
         paint.setStrokeWidth(SkIntToScalar(5));
-        
+
         SkTypeface* face = SkTypeface::CreateFromName("Papyrus", SkTypeface::kNormal);
         SkSafeUnref(paint.setTypeface(face));
         show_bold(canvas, "Hello", 5, x, y, paint);
@@ -60,18 +60,18 @@ protected:
         path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCW_Direction);
         path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(40), SkPath::kCCW_Direction);
         canvas->drawPath(path, paint);
-        
+
         SkPath path2;
         path2.setFillType(SkPath::kWinding_FillType);
         path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCCW_Direction);
         path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(40), SkPath::kCW_Direction);
         canvas->drawPath(path2, paint);
-        
+
         path2.reset();
         path2.addCircle(x + SkIntToScalar(240), y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCCW_Direction);
         canvas->drawPath(path2, paint);
         SkASSERT(path2.cheapIsDirection(SkPath::kCCW_Direction));
-        
+
         path2.reset();
         SkASSERT(!path2.cheapComputeDirection(NULL));
         path2.addCircle(x + SkIntToScalar(360), y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCW_Direction);

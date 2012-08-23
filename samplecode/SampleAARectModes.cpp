@@ -57,7 +57,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode,
                                    H / 4 + offset,
                                    W / 2, H / 2);
     canvas->drawRect(rect, paint);
-    
+
     return H;
 }
 
@@ -72,7 +72,7 @@ static SkShader* make_bg_shader() {
     SkShader* s = SkShader::CreateBitmapShader(bm,
                                                SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    
+
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
     s->setLocalMatrix(m);
@@ -112,7 +112,7 @@ protected:
                     canvas->save();
                 }
                 SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-                
+
                 canvas->drawRect(bounds, fBGPaint);
                 canvas->saveLayer(&bounds, NULL);
                 SkScalar dy = drawCell(canvas, mode,
@@ -128,7 +128,7 @@ protected:
             canvas->translate(W * 5 / 4, 0);
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

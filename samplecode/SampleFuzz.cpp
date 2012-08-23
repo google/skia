@@ -65,7 +65,7 @@ static float make_number() {
   if (R(2) == 1) v = (float)R(100); else
 
   switch (sel) {
-    case 0: break; 
+    case 0: break;
     case 1: v = 0; break;
     case 2: v = 0.000001f; break;
     case 3: v = 10000; break;
@@ -89,7 +89,7 @@ static SkColor make_fill() {
   if (quick == true) sel = 0; else sel = R(6);
 
   switch (sel) {
- 
+
     case 0:
     case 1:
     case 2:
@@ -121,13 +121,13 @@ static SkColor make_fill() {
     return make_color();
 #endif
 }
-    
+
 
 static void do_fuzz(SkCanvas* canvas) {
     SkPath path;
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
   for (int i=0;i<100;i++) {
   switch (R(33)) {
 
@@ -156,35 +156,35 @@ static void do_fuzz(SkCanvas* canvas) {
       switch (R(2)) {
           case 0: paint.setStrokeCap(SkPaint::kRound_Cap); break;
         case 1: paint.setStrokeCap(SkPaint::kButt_Cap); break;
-      }      
+      }
       break;
 
     case 4:
       switch (R(2)) {
           case 0: paint.setStrokeJoin(SkPaint::kRound_Join); break;
         case 1: paint.setStrokeJoin(SkPaint::kMiter_Join); break;
-      }      
+      }
       break;
 
-    case 5: 
-      paint.setStrokeWidth(make_number()); 
+    case 5:
+      paint.setStrokeWidth(make_number());
       break;
 
-    case 6: 
+    case 6:
       paint.setStrokeMiter(make_number());
       break;
 
-    case 7: 
+    case 7:
       if (quick == true) break;
           SkSafeUnref(paint.setMaskFilter(SkBlurMaskFilter::Create(make_number(), SkBlurMaskFilter::kNormal_BlurStyle)));
       break;
 
-    case 8: 
+    case 8:
       if (quick == true) break;
-      //ctx.shadowColor = make_fill(); 
+      //ctx.shadowColor = make_fill();
       break;
 
-    case 9: 
+    case 9:
       if (quick == true) break;
       //ctx.shadowOffsetX = make_number();
       //ctx.shadowOffsetY = make_number();
@@ -269,7 +269,7 @@ static void do_fuzz(SkCanvas* canvas) {
               canvas->drawPath(path, paint);
               paint.setStyle(s);
           } break;
-          
+
           case 23: {
               SkRect r;
               r.set(make_number(),make_number(),make_number(),make_number());
@@ -278,7 +278,7 @@ static void do_fuzz(SkCanvas* canvas) {
               canvas->drawRect(r, paint);
               paint.setStyle(s);
           } break;
-          
+
     case 24:
       if (quick == true) break;
       //ctx.arc(make_number(),make_number(),make_number(),make_number(),make_number(),true);
@@ -326,7 +326,7 @@ static void do_fuzz(SkCanvas* canvas) {
       if (scale_large == true) {
 
         switch (scval) {
-          case 0: canvas->scale(-1000000000,1); 
+          case 0: canvas->scale(-1000000000,1);
                   canvas->scale(-1000000000,1);
                   scval = 1; break;
           case 1: canvas->scale(-.000000001f,1); scval = 2; break;
@@ -348,10 +348,10 @@ static void do_fuzz(SkCanvas* canvas) {
 
 class FuzzView : public SampleView {
 public:
-	FuzzView() {
+    FuzzView() {
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -361,16 +361,16 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         do_fuzz(canvas);
         this->inval(NULL);
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

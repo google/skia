@@ -30,7 +30,7 @@ static void make_bm(SkBitmap* bm) {
     bm->setConfig(SkBitmap::kIndex8_Config, 2, 2);
     bm->allocPixels(ctable);
     ctable->unref();
-    
+
     *bm->getAddr8(0, 0) = 0;
     *bm->getAddr8(1, 0) = 1;
     *bm->getAddr8(0, 1) = 2;
@@ -89,7 +89,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     canvas->translate(SkIntToScalar(48), 0);
 
     canvas->scale(SkIntToScalar(scale), SkIntToScalar(scale));
-    
+
     x += draw_set(canvas, bm, 0, &paint);
     paint.reset();
     paint.setAlpha(0x80);
@@ -101,12 +101,12 @@ class FilterView : public SampleView {
 public:
     SkBitmap    fBM8, fBM4444, fBM16, fBM32;
 
-	FilterView() {
+    FilterView() {
         make_bm(&fBM8);
         fBM8.copyTo(&fBM4444, SkBitmap::kARGB_4444_Config);
         fBM8.copyTo(&fBM16, SkBitmap::kRGB_565_Config);
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
-        
+
         this->setBGColor(0xFFDDDDDD);
     }
 
@@ -119,11 +119,11 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
-        
+
         canvas->translate(x, y);
         y = draw_row(canvas, fBM8);
         canvas->translate(0, y);
@@ -133,7 +133,7 @@ protected:
         canvas->translate(0, y);
         draw_row(canvas, fBM32);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

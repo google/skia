@@ -35,7 +35,7 @@
 static SkBitmap load_bitmap() {
     SkStream* stream = new SkFILEStream("/skimages/sesame_street_ensemble-hp.jpg");
     SkAutoUnref aur(stream);
-    
+
     SkBitmap bm;
     if (SkImageDecoder::DecodeStream(stream, &bm, SkBitmap::kNo_Config,
                                      SkImageDecoder::kDecodeBounds_Mode)) {
@@ -66,7 +66,7 @@ public:
         SkCanvas* canvas = fPicture->beginRecording(100, 100);
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         canvas->drawBitmap(fBitmap, 0, 0, NULL);
 
         drawCircle(canvas, 50, SK_ColorBLACK);
@@ -83,11 +83,11 @@ public:
         // the other references to fSubPicture
         fSubPicture->unref();
     }
-    
+
     virtual ~PictureView() {
         fPicture->unref();
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -110,7 +110,7 @@ protected:
         const char afterStr[] = "after circle";
 
         paint.setAntiAlias(true);
-    
+
         paint.setColor(SK_ColorRED);
         canvas->drawData(beforeStr, sizeof(beforeStr));
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
@@ -120,7 +120,7 @@ protected:
         paint.setTextSize(SkIntToScalar(40));
         canvas->drawText("Picture", 7, SkIntToScalar(50), SkIntToScalar(62),
                          paint);
-        
+
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
@@ -131,7 +131,7 @@ protected:
 
         drawSomething(pict->beginRecording(100, 100));
         pict->endRecording();
-    
+
         canvas->save();
         canvas->translate(SkIntToScalar(300), SkIntToScalar(50));
         canvas->scale(-SK_Scalar1, -SK_Scalar1);
@@ -145,7 +145,7 @@ protected:
         canvas->translate(0, -SkIntToScalar(50));
         canvas->drawPicture(*pict);
         canvas->restore();
-        
+
         canvas->save();
         canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
         canvas->scale(-SK_Scalar1, SK_Scalar1);
@@ -158,9 +158,9 @@ protected:
             SkDumpCanvas dumpCanvas(&dumper);
             dumpCanvas.drawPicture(*pict);
         }
-        
+
         // test that we can re-record a subpicture, and see the results
-        
+
         SkRandom rand(SampleCode::GetAnimTime());
         canvas->translate(SkIntToScalar(10), SkIntToScalar(250));
         drawCircle(fSubPicture->beginRecording(50, 50), 25,
@@ -168,14 +168,14 @@ protected:
         canvas->drawPicture(*fPicture);
         delayInval(500);
     }
-    
+
 private:
     #define INVAL_ALL_TYPE  "inval-all"
-    
+
     void delayInval(SkMSec delay) {
         (new SkEvent(INVAL_ALL_TYPE, this->getSinkID()))->postDelay(delay);
     }
-    
+
     virtual bool onEvent(const SkEvent& evt) {
         if (evt.isType(INVAL_ALL_TYPE)) {
             this->inval(NULL);

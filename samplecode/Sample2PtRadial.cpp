@@ -36,7 +36,7 @@ protected:
         SkShader* s = SkGradientShader::CreateTwoPointRadial(c0, r0, c1, r1, colors,
                                                              NULL, 2,
                                                              SkShader::kClamp_TileMode);
-        
+
         SkPaint paint;
         paint.setShader(s)->unref();
         canvas->drawPaint(paint);

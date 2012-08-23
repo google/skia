@@ -37,7 +37,7 @@ static void testparse() {
 
 class ArcsView : public SampleView {
 public:
-	ArcsView() {
+    ArcsView() {
         testparse();
         fSweep = SkIntToScalar(100);
         this->setBGColor(0xFFDDDDDD);
@@ -52,7 +52,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     static void drawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
         canvas->drawRect(r, p);
         canvas->drawLine(r.fLeft, r.fTop, r.fRight, r.fBottom, p);
@@ -60,23 +60,23 @@ protected:
         canvas->drawLine(r.fLeft, r.centerY(), r.fRight, r.centerY(), p);
         canvas->drawLine(r.centerX(), r.fTop, r.centerX(), r.fBottom, p);
     }
-    
+
     static void draw_label(SkCanvas* canvas, const SkRect& rect,
                             int start, int sweep) {
         SkPaint paint;
-        
+
         paint.setAntiAlias(true);
         paint.setTextAlign(SkPaint::kCenter_Align);
-        
+
         SkString    str;
-        
+
         str.appendS32(start);
         str.append(", ");
         str.appendS32(sweep);
         canvas->drawText(str.c_str(), str.size(), rect.centerX(),
                          rect.fBottom + paint.getTextSize() * 5/4, paint);
     }
-    
+
     static void drawArcs(SkCanvas* canvas) {
         SkPaint paint;
         SkRect  r;
@@ -86,12 +86,12 @@ protected:
         r.set(0, 0, w, h);
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
-        
+
         canvas->save();
         canvas->translate(SkIntToScalar(10), SkIntToScalar(300));
-        
+
         paint.setStrokeWidth(SkIntToScalar(1));
-        
+
         static const int gAngles[] = {
             0, 360,
             0, 45,
@@ -103,7 +103,7 @@ protected:
             -180, -270,
             225, 90
         };
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(gAngles); i += 2) {
             paint.setColor(SK_ColorBLACK);
             drawRectWithLines(canvas, r, paint);
@@ -111,15 +111,15 @@ protected:
             paint.setColor(SK_ColorRED);
             canvas->drawArc(r, SkIntToScalar(gAngles[i]),
                             SkIntToScalar(gAngles[i+1]), false, paint);
-            
+
             draw_label(canvas, r, gAngles[i], gAngles[i+1]);
 
             canvas->translate(w * 8 / 7, 0);
         }
-        
+
         canvas->restore();
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         fSweep = SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
                                            SkIntToScalar(360));
@@ -127,14 +127,14 @@ protected:
 
         SkRect  r;
         SkPaint paint;
-        
+
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(2));
         paint.setStyle(SkPaint::kStroke_Style);
-        
+
         r.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
         r.offset(SkIntToScalar(20), SkIntToScalar(20));
-        
+
         if (false) {
             const SkScalar d = SkIntToScalar(3);
             const SkScalar rad[] = { d, d, d, d, d, d, d, d };
@@ -145,10 +145,10 @@ protected:
         }
 
         drawRectWithLines(canvas, r, paint);
-        
+
    //     printf("----- sweep %g %X\n", SkScalarToFloat(fSweep), SkDegreesToRadians(fSweep));
-        
-        
+
+
         paint.setStyle(SkPaint::kFill_Style);
         paint.setColor(0x800000FF);
         canvas->drawArc(r, 0, fSweep, true, paint);
@@ -159,25 +159,25 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorRED);
         canvas->drawArc(r, 0, fSweep, true, paint);
-        
+
         paint.setStrokeWidth(0);
         paint.setColor(SK_ColorBLUE);
         canvas->drawArc(r, 0, fSweep, false, paint);
-        
+
         drawArcs(canvas);
         this->inval(NULL);
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
      //   fSweep += SK_Scalar1;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     SkScalar fSweep;
 

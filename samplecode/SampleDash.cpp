@@ -40,7 +40,7 @@ public:
     DashView() {
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -71,7 +71,7 @@ protected:
             for (size_t j = 0; j < len; j++) {
                 interval[j] = SkIntToScalar(gStr[i][j] - '0');
             }
-            
+
             SkDashPathEffect dash(interval, len, 0);
             paint.setPathEffect(&dash);
             canvas->drawLine(x0, y0, x1, y0, paint);

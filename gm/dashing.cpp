@@ -51,7 +51,7 @@ protected:
             { 1, 1 },
             { 4, 1 },
         };
-        
+
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
 
@@ -64,7 +64,7 @@ protected:
                     int w = width * width * width;
                     paint.setAntiAlias(SkToBool(aa));
                     paint.setStrokeWidth(SkIntToScalar(w));
-                    
+
                     int scale = w ? w : 1;
 
                     drawline(canvas, gData[data].fOnInterval * scale,
@@ -74,7 +74,7 @@ protected:
                 }
             }
         }
-        
+
         show_giant_dash(canvas);
     }
 };
@@ -84,7 +84,7 @@ protected:
 static void make_unit_star(SkPath* path, int n) {
     SkScalar rad = -SK_ScalarPI / 2;
     const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
-    
+
     path->moveTo(0, -SK_Scalar1);
     for (int i = 1; i < n; i++) {
         rad += drad;
@@ -117,14 +117,14 @@ static void make_path_star(SkPath* path, const SkRect& bounds) {
 class Dashing2GM : public skiagm::GM {
 public:
     Dashing2GM() {}
-    
+
 protected:
     SkString onShortName() {
         return SkString("dashing2");
     }
-    
+
     SkISize onISize() { return skiagm::make_isize(640, 480); }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         static const int gIntervals[] = {
             3,  // 3 dashes: each count [0] followed by intervals [1..count]
@@ -136,12 +136,12 @@ protected:
         void (*gProc[])(SkPath*, const SkRect&) = {
             make_path_line, make_path_rect, make_path_oval, make_path_star,
         };
-    
+
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(6));
-        
+
         SkRect bounds = SkRect::MakeWH(SkIntToScalar(120), SkIntToScalar(120));
         bounds.offset(SkIntToScalar(20), SkIntToScalar(20));
         SkScalar dx = bounds.width() * 4 / 3;
@@ -156,13 +156,13 @@ protected:
             }
             SkScalar phase = vals[0] / 2;
             paint.setPathEffect(new SkDashPathEffect(vals, count, phase))->unref();
-            
+
             for (size_t x = 0; x < SK_ARRAY_COUNT(gProc); ++x) {
                 SkPath path;
                 SkRect r = bounds;
                 r.offset(x * dx, y * dy);
                 gProc[x](&path, r);
-                
+
                 canvas->drawPath(path, paint);
             }
         }

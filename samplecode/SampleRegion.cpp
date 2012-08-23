@@ -26,13 +26,13 @@ static void test_strokerect(SkCanvas* canvas) {
 
     SkScalar dx = 20;
     SkScalar dy = 20;
-    
+
     SkPath path;
-    path.addRect(0.0f, 0.0f, 
-                 SkIntToScalar(width), SkIntToScalar(height), 
+    path.addRect(0.0f, 0.0f,
+                 SkIntToScalar(width), SkIntToScalar(height),
                  SkPath::kCW_Direction);
     SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-    
+
     SkCanvas c(bitmap);
     c.translate(dx, dy);
 
@@ -57,7 +57,7 @@ static void drawFadingText(SkCanvas* canvas,
     // Need a bounds for the text
     SkRect bounds;
     SkPaint::FontMetrics fm;
-    
+
     paint.getFontMetrics(&fm);
     bounds.set(x, y + fm.fTop, x + paint.measureText(text, len), y + fm.fBottom);
 
@@ -92,7 +92,7 @@ static void test_text(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(20);
-    
+
     const char* str = "Hamburgefons";
     size_t len = strlen(str);
     SkScalar x = 20;
@@ -126,7 +126,7 @@ static void make_rgn(SkRegion* rgn, int left, int top, int right, int bottom,
                      size_t count, int32_t runs[]) {
     SkIRect r;
     r.set(left, top, right, bottom);
-    
+
     rgn->debugSetRuns(runs, count);
     SkASSERT(rgn->getBounds() == r);
 }
@@ -156,7 +156,7 @@ static void test_union_bug_1505668(SkRegion* ra, SkRegion* rb, SkRegion* rc) {
         0x7fffffff
     };
     make_rgn(rb, 112, 182, 240, 260, SK_ARRAY_COUNT(dataB), dataB);
-    
+
     rc->op(*ra, *rb, SkRegion::kUnion_Op);
 }
 #endif
@@ -184,7 +184,7 @@ static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
                       const SkPaint& paint) {
     SkRegion scaled;
     scale_rgn(&scaled, rgn, 0.5f);
-    
+
     SkRegion::Iterator  iter(rgn);
 
     for (; !iter.done(); iter.next())
@@ -197,7 +197,7 @@ static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
 
 class RegionView : public SampleView {
 public:
-	RegionView() {
+    RegionView() {
         fBase.set(100, 100, 150, 150);
         fRect = fBase;
         fRect.inset(5, 5);
@@ -227,7 +227,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     static void drawstr(SkCanvas* canvas, const char text[], const SkPoint& loc,
                         bool hilite) {
         SkPaint paint;
@@ -240,7 +240,7 @@ protected:
     void drawPredicates(SkCanvas* canvas, const SkPoint pts[]) {
         SkRegion rgn;
         build_base_rgn(&rgn);
-        
+
         drawstr(canvas, "Intersects", pts[0], rgn.intersects(fRect));
         drawstr(canvas, "Contains", pts[1], rgn.contains(fRect));
     }
@@ -248,11 +248,11 @@ protected:
     void drawOrig(SkCanvas* canvas, bool bg) {
         SkRect      r;
         SkPaint     paint;
-        
+
         paint.setStyle(SkPaint::kStroke_Style);
         if (bg)
             paint.setColor(0xFFBBBBBB);
-        
+
         SkRegion rgn;
         build_base_rgn(&rgn);
         paint_rgn(canvas, rgn, paint);
@@ -260,29 +260,29 @@ protected:
         r.set(fRect);
         canvas->drawRect(r, paint);
     }
-    
+
     void drawRgnOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
         SkRegion    rgn;
 
         this->build_rgn(&rgn, op);
-        
+
         {
             SkRegion tmp, tmp2(rgn);
-            
+
             tmp = tmp2;
             tmp.translate(5, -3);
-            
+
             {
                 char    buffer[1000];
                 size_t  size = tmp.writeToMemory(NULL);
                 SkASSERT(size <= sizeof(buffer));
                 size_t  size2 = tmp.writeToMemory(buffer);
                 SkASSERT(size == size2);
-                
+
                 SkRegion    tmp3;
                 size2 = tmp3.readFromMemory(buffer);
                 SkASSERT(size == size2);
-                
+
                 SkASSERT(tmp3 == tmp);
             }
 
@@ -302,7 +302,7 @@ protected:
         paint.setColor(color);
         paint_rgn(canvas, rgn, paint);
     }
-    
+
     void drawPathOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
         SkRegion    rgn;
         SkPath      path;
@@ -321,7 +321,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawPath(path, paint);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         if (false) { // avoid bit rot, suppress warning
             test_strokerect(canvas);
@@ -335,10 +335,10 @@ protected:
         if (true) {
             SkRegion a, b, c;
             test_union_bug_1505668(&a, &b, &c);
-            
+
             if (false) {    // draw the result of the test
                 SkPaint paint;
-                
+
                 canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
                 paint.setColor(SK_ColorRED);
                 paint_rgn(canvas, a, paint);
@@ -377,7 +377,7 @@ protected:
             canvas->translate(SkIntToScalar(200), 0);
             this->drawRgnOped(canvas, SkRegion::kUnion_Op, SK_ColorBLACK);
         canvas->restore();
-        
+
         canvas->translate(0, SkIntToScalar(200));
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
@@ -389,25 +389,25 @@ protected:
             canvas->translate(0, SkIntToScalar(200));
             this->drawPathOped(canvas, gOps[op].fOp, gOps[op].fColor);
             canvas->restore();
-            
+
             canvas->translate(SkIntToScalar(200), 0);
         }
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         return fRect.contains(SkScalarRound(x), SkScalarRound(y)) ? new Click(this) : NULL;
     }
-    
+
     virtual bool onClick(Click* click) {
         fRect.offset(click->fICurr.fX - click->fIPrev.fX,
                      click->fICurr.fY - click->fIPrev.fY);
         this->inval(NULL);
         return true;
     }
-    
+
 private:
     SkIRect    fBase, fRect;
-    
+
     typedef SampleView INHERITED;
 };
 

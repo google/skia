@@ -56,7 +56,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkXfermode* mode, SkAlpha a0, SkAlpha
         paint.setStrokeWidth(SK_Scalar1 * angle * 2 / 24);
         canvas->drawLine(W/2, H/2, W/2 + x, H/2 + y, paint);
     }
-    
+
     return H;
 }
 
@@ -70,7 +70,7 @@ static SkShader* make_bg_shader() {
     SkShader* s = SkShader::CreateBitmapShader(bm,
                                                SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    
+
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
     s->setLocalMatrix(m);
@@ -80,7 +80,7 @@ static SkShader* make_bg_shader() {
 class HairModesView : public SampleView {
     SkPaint fBGPaint;
 public:
-	HairModesView() {
+    HairModesView() {
         fBGPaint.setShader(make_bg_shader())->unref();
     }
 
@@ -110,7 +110,7 @@ protected:
                     canvas->save();
                 }
                 SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-                
+
                 canvas->drawRect(bounds, fBGPaint);
                 canvas->saveLayer(&bounds, NULL);
                 SkScalar dy = drawCell(canvas, mode,
@@ -126,7 +126,7 @@ protected:
             canvas->translate(W * 5 / 4, 0);
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

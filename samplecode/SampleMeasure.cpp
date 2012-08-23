@@ -56,10 +56,10 @@ static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
         p.setLinearText(gSettings[i].fLinearText);
         p.setDevKernText(gSettings[i].fDevKernText);
         SkScalar scale = gSettings[i].fScale;
-        
+
         int n = p.getTextWidths(text, len, widths, rects);
         SkScalar w = p.measureText(text, len, &bounds, scale);
-        
+
         p.setStyle(SkPaint::kFill_Style);
         p.setColor(0x8888FF88);
         canvas->drawRect(bounds, p);
@@ -81,7 +81,7 @@ static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
         canvas->drawLine(0, 0, w, 0, p);
         p.setStrokeWidth(SkIntToScalar(4));
         canvas->drawPoint(x, 0, p);
-        
+
         canvas->translate(0, dy);
     }
 }
@@ -90,7 +90,7 @@ class MeasureView : public SampleView {
 public:
     SkPaint fPaint;
 
-	MeasureView() {
+    MeasureView() {
         fPaint.setAntiAlias(true);
         fPaint.setTextSize(SkIntToScalar(64));
         this->setBGColor(0xFFDDDDDD);
@@ -105,12 +105,12 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(fPaint.getTextSize(), fPaint.getTextSize());
         doMeasure(canvas, fPaint, "Hamburgefons");
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

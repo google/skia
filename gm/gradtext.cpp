@@ -36,7 +36,7 @@ static SkShader* make_chrome_solid() {
 }
 
 namespace skiagm {
-    
+
 // Replicate chrome layout test - clipped pathed gradient-shaded text
 class ChromeGradTextGM1 : public GM {
 public:
@@ -149,7 +149,7 @@ protected:
 
             paint.setShader(make_grad2(SkIntToScalar(80)))->unref();
             draw_text3(canvas, paint);
-            
+
             canvas->translate(0, paint.getTextSize() * 2);
         }
     }

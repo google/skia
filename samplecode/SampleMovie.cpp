@@ -15,7 +15,7 @@
 class AnimGifView : public SkView {
     SkMovie*    fMovie;
 public:
-	AnimGifView() {
+    AnimGifView() {
         fMovie = SkMovie::DecodeFile("/skimages/dollarblk.gif");
     }
 

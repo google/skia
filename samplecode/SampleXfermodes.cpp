@@ -136,10 +136,10 @@ public:
     const static int H = 64;
     bool fOnce;
 
-	XfermodesView() {
+    XfermodesView() {
         fOnce = false;
     }
-    
+
     void init() {
         if (fOnce) {
             return;

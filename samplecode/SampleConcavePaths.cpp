@@ -27,8 +27,8 @@
 
 class ConcavePathView : public SampleView {
 public:
-	ConcavePathView() {}
-    
+    ConcavePathView() {}
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -38,10 +38,10 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
-    virtual void onDrawContent(SkCanvas* canvas) {        
+
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
-        
+
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kFill_Style);
 
@@ -136,12 +136,12 @@ protected:
             canvas->restore();
         }
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

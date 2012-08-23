@@ -11,10 +11,10 @@
 
 class SpiralView : public SampleView {
 public:
-	SpiralView() {
+    SpiralView() {
         this->setBGColor(0xFFDDDDDD);
-	}
-	
+    }
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt)  {
@@ -24,21 +24,21 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-	
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkScalarHalf(SkIntToScalar(3)));
         paint.setStyle(SkPaint::kFill_Style);
-        
+
         SkRect r;
         SkScalar l,t,x,y;
         l = SampleCode::GetAnimScalar(SkIntToScalar(10),
                                       SkIntToScalar(400));
         t = SampleCode::GetAnimScalar(SkIntToScalar(5),
                                       SkIntToScalar(200));
-        
+
         canvas->translate(320,240);
         for (int i = 0; i < 35; i++) {
             paint.setColor(0xFFF00FF0 - i * 0x04000000);
@@ -52,7 +52,7 @@ protected:
 
         this->inval(NULL);
     }
-	
+
 private:
     typedef SampleView INHERITED;
 };

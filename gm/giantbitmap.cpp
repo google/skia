@@ -23,7 +23,7 @@ class GiantBitmapGM : public skiagm::GM {
     SkShader::TileMode fMode;
     bool fDoFilter;
     bool fDoRotate;
-    
+
     const SkBitmap& getBitmap() {
         if (NULL == fBM) {
             fBM = new SkBitmap;
@@ -39,7 +39,7 @@ class GiantBitmapGM : public skiagm::GM {
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setStrokeWidth(SkIntToScalar(20));
-            
+
 #if 0
             for (int y = -H*2; y < H; y += 50) {
                 SkScalar yy = SkIntToScalar(y);
@@ -108,12 +108,12 @@ protected:
             m.setScale(scale, scale);
         }
         s->setLocalMatrix(m);
-        
+
         paint.setShader(s)->unref();
         paint.setFilterBitmap(fDoFilter);
 
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
-        
+
         SkRect r = SkRect::MakeXYWH(-50, -50, 32, 16);
 //        canvas->drawRect(r, paint); return;
         canvas->drawPaint(paint);

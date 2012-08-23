@@ -17,7 +17,7 @@ static void testop(const SkIRect& r0, const SkIRect& r1, SkRegion::Op op,
     c0.setRect(r0);
     c1.setRect(r1);
     c2.op(c0, c1, op);
-    
+
     SkIRect r2 = c2.getBounds();
     SkASSERT(r2 == expectedR);
 }
@@ -42,7 +42,7 @@ static void testop() {
 static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
     SkMask mask;
     SkBitmap bm;
-    
+
     clip.copyToMask(&mask);
     SkAutoMaskFreeImage amfi(mask.fImage);
 
@@ -78,7 +78,7 @@ protected:
         SkAAClip aaclip;
         SkPath path;
         SkRect bounds;
-        
+
         bounds.set(0, 0, 20, 20);
         bounds.inset(SK_ScalarHalf, SK_ScalarHalf);
 
@@ -99,15 +99,15 @@ protected:
         aaclip3.op(aaclip, aaclip2, SkRegion::kIntersect_Op);
         canvas->translate(30, 0);
         drawClip(canvas, aaclip3);
-        
+
 #endif
-        
+
 #if 0
         SkRect r;
         r.set(0, 0, this->width(), this->height());
         r.inset(20, 20);
         canvas->clipRect(r);
-        
+
         SkPath path;
         path.addRect(r);
         SkPaint paint;

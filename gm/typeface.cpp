@@ -71,7 +71,7 @@ private:
     }
 
     SkTypeface** fFaces;
-    
+
     typedef GM INHERITED;
 };
 

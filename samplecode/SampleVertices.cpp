@@ -56,7 +56,7 @@ class VerticesView : public SampleView {
     SkShader*   fShader1;
 
 public:
-	VerticesView() {
+    VerticesView() {
         SkIPoint    size;
 
         fShader0 = make_shader0(&size);

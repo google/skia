@@ -131,7 +131,7 @@ protected:
         if (false) {
             SkPaint paint;
             paint.setAntiAlias(true);
-            
+
             SkRect r0 = { 0, 0, 10.5f, 20 };
             SkRect r1 = { 10.5f, 10, 20, 30 };
             paint.setColor(SK_ColorRED);

@@ -28,13 +28,13 @@ static void make_image(SkBitmap* bm, SkBitmap::Config config, int configIndex) {
     const int   width = 98;
     const int   height = 100;
     SkBitmap    device;
-    
+
     device.setConfig(SkBitmap::kARGB_8888_Config, width, height);
     device.allocPixels();
 
     SkCanvas    canvas(device);
     SkPaint     paint;
-    
+
     paint.setAntiAlias(true);
     canvas.drawColor(SK_ColorRED);
     paint.setColor(SK_ColorBLUE);
@@ -67,7 +67,7 @@ static void make_image(SkBitmap* bm, SkBitmap::Config config, int configIndex) {
             SkColorTable* ctable = new SkColorTable(colors, 256);
             bm->allocPixels(ctable);
             ctable->unref();
-            
+
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     *bm->getAddr8(x, y) = SkGetPackedR32(*device.getAddr32(x, y));
@@ -118,22 +118,22 @@ public:
     SkBitmap*   fBitmaps;
     size_t      fBitmapCount;
 
-	EncodeView() {
+    EncodeView() {
     #if 1
         (void)mkdir(gPath, S_IRWXU | S_IRWXG | S_IRWXO);
-        
+
         fBitmapCount = SK_ARRAY_COUNT(gConfigs);
         fBitmaps = new SkBitmap[fBitmapCount];
         for (size_t i = 0; i < fBitmapCount; i++) {
             make_image(&fBitmaps[i], gConfigs[i], i);
-            
+
             for (size_t j = 0; j < SK_ARRAY_COUNT(gExt); j++) {
                 SkString path;
                 make_name(&path, i, j);
-                
+
                 // remove any previous run of this file
                 remove(path.c_str());
-                
+
                 SkImageEncoder* codec = SkImageEncoder::Create(gTypes[j]);
                 if (NULL == codec ||
                         !codec->encodeFile(path.c_str(), fBitmaps[i], 100)) {
@@ -149,11 +149,11 @@ public:
     #endif
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
     virtual ~EncodeView() {
         delete[] fBitmaps;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -163,21 +163,21 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         if (fBitmapCount == 0) {
             return;
         }
-        
+
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextAlign(SkPaint::kCenter_Align);
-        
+
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
-        
+
         SkScalar x = 0, y = 0, maxX = 0;
         const int SPACER = 10;
-        
+
         for (size_t i = 0; i < fBitmapCount; i++) {
             canvas->drawText(gConfigLabels[i], strlen(gConfigLabels[i]),
                              x + SkIntToScalar(fBitmaps[i].width()) / 2, 0,
@@ -185,20 +185,20 @@ protected:
             y = paint.getTextSize();
 
             canvas->drawBitmap(fBitmaps[i], x, y);
-            
+
             SkScalar yy = y;
             for (size_t j = 0; j < SK_ARRAY_COUNT(gExt); j++) {
                 yy += SkIntToScalar(fBitmaps[i].height() + 10);
 
                 SkBitmap bm;
                 SkString name;
-                
+
                 make_name(&name, i, j);
-                
+
                 SkImageDecoder::DecodeFile(name.c_str(), &bm);
                 canvas->drawBitmap(bm, x, yy);
             }
-            
+
             x += SkIntToScalar(fBitmaps[i].width() + SPACER);
             if (x > maxX) {
                 maxX = x;
@@ -214,12 +214,12 @@ protected:
             y += SkIntToScalar(fBitmaps[0].height() + SPACER);
         }
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

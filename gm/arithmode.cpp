@@ -94,7 +94,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap src = make_src();
         SkBitmap dst = make_dst();
-        
+
         const SkScalar one = SK_Scalar1;
         static const SkScalar K[] = {
             0, 0, 0, 0,
@@ -109,7 +109,7 @@ protected:
             one/4, one/2, one/2, 0,
             -one/4, one/2, one/2, 0,
         };
-        
+
         const SkScalar* k = K;
         const SkScalar* stop = k + SK_ARRAY_COUNT(K);
         SkScalar y = 0;

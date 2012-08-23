@@ -79,7 +79,7 @@ static void test44() {
     m0.setScale(2,3,4);
     m0.preTranslate(5, 6, 7);
     test_inv("preTranslate", m0);
-    
+
     m0.setScale(2, 4, 6);
     m0.postScale(SkDoubleToMScalar(0.5));
     test_inv("scale/postscale to 1,2,3", m0);
@@ -108,7 +108,7 @@ static void test44() {
     m0.setTranslate(3, 4, 5);
     test_33(m0, 1, 0, 3, 0, 1, 4);
 }
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void dump_layers(const SkLayer* layer, int tab = 0) {
@@ -154,7 +154,7 @@ private:
     SkLayer* fRootLayer;
     SkLayer* fLastChild;
 public:
-	SkLayerView() {
+    SkLayerView() {
         test44();
         static const int W = 600;
         static const int H = 440;
@@ -179,7 +179,7 @@ public:
             child->setPosition(gData[i].fPosX, gData[i].fPosY);
             fRootLayer->addChild(child)->unref();
         }
-        
+
         SkLayer* child = new TestLayer(0xFFDD8844);
         child->setSize(120, 80);
         child->setPosition(fRootLayer->getWidth()/2 - child->getWidth()/2,
@@ -192,7 +192,7 @@ public:
         }
         fLastChild = child;
         fRootLayer->addChild(child)->unref();
-        
+
         if (false) {
             SkMatrix matrix;
             matrix.setScale(0.5, 0.5);
@@ -201,11 +201,11 @@ public:
 
 //        dump_layers(fRootLayer);
     }
-    
+
     virtual ~SkLayerView() {
         SkSafeUnref(fRootLayer);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -215,13 +215,13 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
-        
+
         canvas->translate(20, 20);
         fRootLayer->draw(canvas);
-        
+
         // visual test of getLocalTransform
         if (true) {
             SkMatrix matrix;
@@ -234,7 +234,7 @@ protected:
             canvas->drawRect(SkRect::MakeSize(fLastChild->getSize()), paint);
         }
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

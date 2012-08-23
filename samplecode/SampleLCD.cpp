@@ -15,7 +15,7 @@
 class LCDView : public SkView {
 public:
     LCDView() {}
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -25,17 +25,17 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         SkScalar textSize = SkIntToScalar(6);
         SkScalar delta = SK_Scalar1;
         const char* text = "HHHamburgefonts iii";
@@ -47,16 +47,16 @@ protected:
         for (int i = 0; i < 20; i++) {
             paint.setTextSize(textSize);
             textSize += delta;
-            
+
             paint.setLCDRenderText(false);
             canvas->drawText(text, len, x0, y, paint);
             paint.setLCDRenderText(true);
             canvas->drawText(text, len, x1, y, paint);
-            
+
             y += paint.getFontSpacing();
         }
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

@@ -108,7 +108,7 @@ static const GradMaker gGradMakers[] = {
 
 class ShaderTextView : public SampleView {
 public:
-	ShaderTextView() {
+    ShaderTextView() {
         this->setBGColor(0xFFDDDDDD);
     }
 
@@ -175,8 +175,8 @@ protected:
 
         SkPath path;
         path.arcTo(SkRect::MakeXYWH(SkIntToScalar(-40), SkIntToScalar(15),
-                                    SkIntToScalar(300), SkIntToScalar(90)), 
-                                    SkIntToScalar(225), SkIntToScalar(90), 
+                                    SkIntToScalar(300), SkIntToScalar(90)),
+                                    SkIntToScalar(225), SkIntToScalar(90),
                                     false);
         path.close();
 

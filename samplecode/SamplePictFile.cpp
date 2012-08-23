@@ -31,7 +31,7 @@
 class PictFileView : public SampleView {
     SkString    fFilename;
     SkPicture*  fPicture;
-    
+
     static SkPicture* LoadPicture(const char path[]) {
         SkPicture* pic = NULL;
 
@@ -55,11 +55,11 @@ public:
     PictFileView(const char name[] = NULL) : fFilename(name) {
         fPicture = NULL;
     }
-    
+
     virtual ~PictFileView() {
         SkSafeUnref(fPicture);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -71,7 +71,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         if (!fPicture) {
             fPicture = LoadPicture(fFilename.c_str());
@@ -80,7 +80,7 @@ protected:
             canvas->drawPicture(*fPicture);
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

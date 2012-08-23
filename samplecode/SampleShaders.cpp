@@ -52,7 +52,7 @@ public:
     SkShader*   fShader;
     SkBitmap    fBitmap;
 
-	ShaderView() {
+    ShaderView() {
         SkImageDecoder::DecodeFile("/skimages/logo.gif", &fBitmap);
 
         SkPoint pts[2];

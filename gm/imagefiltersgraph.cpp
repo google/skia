@@ -55,7 +55,7 @@ protected:
             fInitialized = true;
         }
         canvas->clear(0x00000000);
-        
+
         SkAutoTUnref<SkImageFilter> bitmapSource(new SkBitmapSource(fBitmap));
 
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED,

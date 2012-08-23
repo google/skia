@@ -17,13 +17,13 @@ static SkBitmap createBitmap(int n) {
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, n, n);
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorGREEN);
-    
+
     SkCanvas canvas(bitmap);
     SkRect r;
     r.set(0, 0, SkIntToScalar(n), SkIntToScalar(n));
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     paint.setColor(SK_ColorRED);
     canvas.drawOval(r, paint);
     paint.setColor(SK_ColorBLUE);
@@ -31,7 +31,7 @@ static SkBitmap createBitmap(int n) {
     paint.setStyle(SkPaint::kStroke_Style);
     canvas.drawLine(0, 0, r.fRight, r.fBottom, paint);
     canvas.drawLine(0, r.fBottom, r.fRight, 0, paint);
-    
+
     return bitmap;
 }
 
@@ -43,10 +43,10 @@ class AARectView : public SampleView {
 public:
     AARectView() {
         fBitmap = createBitmap(N);
-        
+
         fWidth = N;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -184,7 +184,7 @@ protected:
             }
         }
     }
-    
+
 private:
     int fWidth;
 

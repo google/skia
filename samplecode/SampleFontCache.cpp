@@ -17,15 +17,15 @@ static void call_measure() {
     SkPaint paint;
     uint16_t text[32];
     SkRandom rand;
-    
+
     paint.setAntiAlias(true);
     paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
     for (int j = 0; j < SK_ARRAY_COUNT(text); j++)
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
-    
+
     for (int i = 9; i < 36; i++) {
         SkPaint::FontMetrics m;
-        
+
         paint.setTextSize(SkIntToScalar(i));
         paint.getFontMetrics(&m);
         paint.measureText(text, sizeof(text));
@@ -36,20 +36,20 @@ static void call_draw(SkCanvas* canvas) {
     SkPaint paint;
     uint16_t text[32];
     SkRandom rand;
-    
+
     paint.setAntiAlias(true);
     paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
     for (int j = 0; j < SK_ARRAY_COUNT(text); j++)
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
-    
+
     SkScalar x = SkIntToScalar(10);
     SkScalar y = SkIntToScalar(20);
-    
+
     canvas->drawColor(SK_ColorWHITE);
     for (int i = 9; i < 36; i++)
     {
         SkPaint::FontMetrics m;
-        
+
         paint.setTextSize(SkIntToScalar(i));
         paint.getFontMetrics(&m);
         canvas->drawText(text, sizeof(text), x, y, paint);
@@ -79,16 +79,16 @@ static void* draw_proc(void* context) {
 class FontCacheView : public SampleView {
 public:
     enum { N = 4 };
-    
+
     pthread_t   fMThreads[N];
     pthread_t   fDThreads[N];
     SkBitmap    fBitmaps[N];
 
-	FontCacheView() {
+    FontCacheView() {
         gDone = false;
         for (int i = 0; i < N; i++) {
             int status;
-            
+
             status = pthread_create(&fMThreads[i], NULL,  measure_proc, NULL);
             SkASSERT(0 == status);
 
@@ -99,7 +99,7 @@ public:
         }
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
     virtual ~FontCacheView() {
         gDone = true;
         for (int i = 0; i < N; i++) {
@@ -110,7 +110,7 @@ public:
             SkASSERT(0 == status);
         }
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -120,7 +120,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar x = 0;
         SkScalar y = 0;
@@ -130,7 +130,7 @@ protected:
         }
         this->inval(NULL);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

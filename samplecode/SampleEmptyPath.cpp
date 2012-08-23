@@ -24,7 +24,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawEmpty(SkCanvas* canvas,
                    SkColor color,
                    const SkRect& clip,
@@ -40,7 +40,7 @@ protected:
         canvas->drawPath(path, paint);
         canvas->restore();
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
@@ -110,7 +110,7 @@ protected:
                 labelPaint.setColor(color);
                 labelPaint.setAntiAlias(true);
                 labelPaint.setLCDRenderText(true);
-                canvas->drawText(label, strlen(label), 
+                canvas->drawText(label, strlen(label),
                                  0, rect.height() + 15 * SK_Scalar1,
                                  labelPaint);
             }
@@ -118,7 +118,7 @@ protected:
         canvas->restore();
         canvas->restore();
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };
