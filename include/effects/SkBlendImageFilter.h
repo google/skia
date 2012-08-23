@@ -42,9 +42,9 @@ protected:
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
-    SkImageFilter* fForeground;
-    SkImageFilter* fBackground;
     Mode fMode;
+    SkImageFilter* fBackground;
+    SkImageFilter* fForeground;
     typedef SkImageFilter INHERITED;
 };
 
