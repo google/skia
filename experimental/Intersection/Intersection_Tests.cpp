@@ -8,6 +8,7 @@ void cubecode_test(int test);
 
 void Intersection_Tests() {
     int testsRun = 0;
+//    SimplifyAngle_Test();
     SimplifyNew_Test();
     Simplify4x4QuadraticsThreaded_Test(testsRun);
     QuadLineIntersectThreaded_Test(testsRun);
@@ -19,7 +20,6 @@ void Intersection_Tests() {
     SkDebugf("%s total testsRun=%d\n", __FUNCTION__, testsRun);
     SimplifyFindNext_Test();
     SimplifyFindTop_Test();
-    SimplifyAngle_Test();
     QuadraticReduceOrder_Test();
     QuadraticBezierClip_Test();
     QuadraticIntersection_Test();

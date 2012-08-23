@@ -15,9 +15,10 @@ public:
     };
 protected:
     virtual void onDraw(SkCanvas* canvas) {
-        static int step = -1;
+        static int step = 0; // useNew triggers error at 23275
+                             // error is not easy to debug in its current state
         static double seconds;
-        static bool useOld = true;
+        static bool useOld = false;
         if (step == -1) {
             timeval t;
             gettimeofday(&t, NULL);
@@ -27,7 +28,7 @@ protected:
         canvas->drawColor(SK_ColorWHITE);
         if (DrawEdgeDemo(canvas, step, useOld)) {
             ++step;
-            if (step == 3200) {
+            if (step == 23270) {
                 timeval t;
                 gettimeofday(&t, NULL);
                 double last = seconds;
@@ -42,6 +43,9 @@ protected:
 private:
     typedef SkView INHERITED; 
 };
+
+void application_init();
+void application_term();
 
 void application_init() {
     SkGraphics::Init();
@@ -66,7 +70,7 @@ protected:
 @implementation SimpleNSView
 
 - (id)initWithDefaults {
-    if (self = [super initWithDefaults]) {
+    if ((self = [super initWithDefaults])) {
         fWind = new SkOSWindow(self); 
         fWind->setLayout(new FillLayout, false);
         fWind->attachChildToFront(new SkSampleView)->unref();

@@ -52,6 +52,52 @@ static const SkPoint cubics[][4] = {
 
 static const size_t cubicCount = sizeof(cubics) / sizeof(cubics[0]);
 
+struct segment {
+    SkPath::Verb verb;
+    SkPoint pts[4];
+};
+
+static const segment segmentTest1[] = {
+    {SkPath::kLine_Verb, {{2, 1}, {1, 0}        }},
+    {SkPath::kQuad_Verb, {{2, 1}, {1, 0}, {0, 0}}},
+    {SkPath::kQuad_Verb, {{2, 1}, {3, 2}, {2, 3}}},
+    {SkPath::kLine_Verb, {{2, 1}, {3, 2}        }},
+    {SkPath::kMove_Verb                          }
+};
+
+static const segment* segmentTests[] = {
+    segmentTest1
+};
+
+static const size_t segmentTestCount = sizeof(segmentTests) / sizeof(segmentTests[0]);
+
+static void testSegments(bool testFlat) {
+    for (size_t testIndex = 0; testIndex < segmentTestCount; ++testIndex) {
+        const segment* segPtr = segmentTests[testIndex];
+        SimplifyAngleTest::Angle lesser, greater;
+        int index = 0;
+        do {
+            int next = index + 1;
+            if (testFlat) {
+                lesser.setFlat(segPtr[index].pts, segPtr[index].verb, 0, index, next);
+            } else {
+                lesser.set(segPtr[index].pts, segPtr[index].verb, 0, index, next);
+            }
+            if (segPtr[next].verb == SkPath::kMove_Verb) {
+                break;
+            }
+            if (testFlat) {
+                greater.setFlat(segPtr[next].pts, segPtr[next].verb, 0, index, next);
+            } else {
+                greater.set(segPtr[next].pts, segPtr[next].verb, 0, index, next);
+            }
+            bool result = lesser < greater;
+            SkASSERT(result);
+            index = next;
+        } while (true);
+    }
+}
+
 static void testLines(bool testFlat) {
     // create angles in a circle
     SkTDArray<SimplifyAngleTest::Angle> angles;
@@ -155,6 +201,7 @@ static void testCubics(bool testFlat) {
 }
 
 static void (*tests[])(bool) = {
+    testSegments,
     testLines,
     testQuads,
     testCubics
@@ -177,7 +224,7 @@ void SimplifyAngle_Test() {
     }
     bool firstTestComplete = false;
     for ( ; index < testCount; ++index) {
-        (*tests[index])(true);
+        (*tests[index])(false); // set to true to exercise setFlat
         firstTestComplete = true;
     }
 }
