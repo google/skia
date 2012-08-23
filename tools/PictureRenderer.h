@@ -7,6 +7,7 @@
 
 #ifndef PictureRenderer_DEFINED
 #define PictureRenderer_DEFINED
+#include "SkMath.h"
 #include "SkTypes.h"
 #include "SkTDArray.h"
 #include "SkRefCnt.h"
@@ -145,6 +146,19 @@ public:
         return fTileHeightPercentage;
     }
 
+    void setTileMinPowerOf2Width(int width) {
+        SkASSERT(SkIsPow2(width) && width > 0);
+        if (!SkIsPow2(width) || width <= 0) {
+            return;
+        }
+
+        fTileMinPowerOf2Width = width;
+    }
+
+    int getTileMinPowerOf2Width() const {
+        return fTileMinPowerOf2Width;
+    }
+
     int numTiles() const {
         return fTiles.count();
     }
@@ -159,6 +173,7 @@ private:
     int fTileHeight;
     double fTileWidthPercentage;
     double fTileHeightPercentage;
+    int fTileMinPowerOf2Width;
 
     SkTDArray<SkCanvas*> fTiles;
 
@@ -167,8 +182,9 @@ private:
     // as they may go over this area and the picture may have some commands that
     // draw outside of this area and so should not actually be written.
     void clipTile(SkCanvas* tile);
-    void addTile(int tile_x_start, int tile_y_start);
+    void addTile(int tile_x_start, int tile_y_start, int width, int height);
     void setupTiles();
+    void setupPowerOf2Tiles();
     void deleteTiles();
     void copyTilesToCanvas();
 

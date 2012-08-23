@@ -175,7 +175,11 @@ void TiledPictureRenderer::init(SkPicture* pict) {
         fTileHeight = sk_float_ceil2int(float(fTileHeightPercentage * fPicture->height() / 100));
     }
 
-    this->setupTiles();
+    if (fTileMinPowerOf2Width > 0) {
+        this->setupPowerOf2Tiles();
+    } else {
+        this->setupTiles();
+    }
 }
 
 void TiledPictureRenderer::render() {
@@ -205,8 +209,8 @@ void TiledPictureRenderer::clipTile(SkCanvas* tile) {
     tile->clipRect(clip);
 }
 
-void TiledPictureRenderer::addTile(int tile_x_start, int tile_y_start) {
-    SkCanvas* tile = this->setupCanvas(fTileWidth, fTileHeight);
+void TiledPictureRenderer::addTile(int tile_x_start, int tile_y_start, int width, int height) {
+    SkCanvas* tile = this->setupCanvas(width, height);
 
     tile->translate(SkIntToScalar(-tile_x_start), SkIntToScalar(-tile_y_start));
     this->clipTile(tile);
@@ -219,7 +223,43 @@ void TiledPictureRenderer::setupTiles() {
          tile_y_start += fTileHeight) {
         for (int tile_x_start = 0; tile_x_start < fPicture->width();
              tile_x_start += fTileWidth) {
-            this->addTile(tile_x_start, tile_y_start);
+            this->addTile(tile_x_start, tile_y_start, fTileWidth, fTileHeight);
+        }
+    }
+}
+
+// The goal of the powers of two tiles is to minimize the amount of wasted tile
+// space in the width-wise direction and then minimize the number of tiles. The
+// constraints are that every tile must have a pixel width that is a power of
+// two and also be of some minimal width (that is also a power of two).
+//
+// This is sovled by first taking our picture size and rounding it up to the
+// multiple of the minimal width. The binary representation of this rounded
+// value gives us the tiles we need: a bit of value one means we need a tile of
+// that size.
+void TiledPictureRenderer::setupPowerOf2Tiles() {
+    int rounded_value = fPicture->width();
+    if (fPicture->width() % fTileMinPowerOf2Width != 0) {
+        rounded_value = fPicture->width() - (fPicture->width() % fTileMinPowerOf2Width)
+            + fTileMinPowerOf2Width;
+    }
+
+    int num_bits = SkScalarCeilToInt(SkScalarLog2(fPicture->width()));
+    int largest_possible_tile_size = 1 << num_bits;
+
+    // The tile height is constant for a particular picture.
+    for (int tile_y_start = 0; tile_y_start < fPicture->height(); tile_y_start += fTileHeight) {
+        int tile_x_start = 0;
+        int current_width = largest_possible_tile_size;
+
+        while (current_width >= fTileMinPowerOf2Width) {
+            // It is very important this is a bitwise AND.
+            if (current_width & rounded_value) {
+                this->addTile(tile_x_start, tile_y_start, current_width, fTileHeight);
+                tile_x_start += current_width;
+            }
+
+            current_width >>= 1;
         }
     }
 }

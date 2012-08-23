@@ -117,6 +117,14 @@ public:
         return fRenderer.getTileHeightPercentage();
     }
 
+    void setTileMinPowerOf2Width(int width) {
+        fRenderer.setTileMinPowerOf2Width(width);
+    }
+
+    int getTileMinPowerOf2Width() {
+        return fRenderer.getTileMinPowerOf2Width();
+    }
+
 private:
     TiledPictureRenderer fRenderer;
     typedef PictureBenchmark INHERITED;
