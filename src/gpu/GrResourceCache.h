@@ -324,8 +324,7 @@ private:
                             bool clientReattach);
 
 #if GR_DEBUG
-    static size_t GrResourceCache::countBytes(
-                        const SkTDLinkedList<GrResourceEntry>& list);
+    static size_t countBytes(const SkTDLinkedList<GrResourceEntry>& list);
 #endif
 };
 
