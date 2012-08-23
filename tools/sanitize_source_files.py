@@ -116,7 +116,7 @@ def CopywriteChecker(file_content, unused_file_path):
 
 def EOFNewlineAdder(file_content, file_path):
   """Adds a LF at the end of the file if it does not have one."""
-  if file_content and file_content[-1] == '\n':
+  if file_content and file_content[-1] != '\n':
     file_content += '\n'
     print 'Added newline to %s' % file_path
   return file_content
