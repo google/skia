@@ -57,7 +57,7 @@ public:
     bool quickContains(int left, int top, int right, int bottom) const {
         return quickContains(SkIRect::MakeLTRB(left, top, right, bottom));
     }
-    
+
     /**
      *  Return true if this region is empty, or if the specified rectangle does
      *  not intersect the region. Returning false is not a guarantee that they
@@ -67,7 +67,7 @@ public:
         return this->isEmpty() || rect.isEmpty() ||
                !SkIRect::Intersects(this->getBounds(), rect);
     }
-    
+
     // hack for SkCanvas::getTotalClip
     const SkRegion& forceGetBW();
 
@@ -92,7 +92,7 @@ private:
     bool computeIsRect() const {
         return fIsBW ? fBW.isRect() : false;
     }
-    
+
     bool updateCacheAndReturnNonEmpty() {
         fIsEmpty = this->computeIsEmpty();
         fIsRect = this->computeIsRect();
@@ -136,7 +136,7 @@ public:
     SkAAClipBlitterWrapper();
     SkAAClipBlitterWrapper(const SkRasterClip&, SkBlitter*);
     SkAAClipBlitterWrapper(const SkAAClip*, SkBlitter*);
-    
+
     void init(const SkRasterClip&, SkBlitter*);
 
     const SkIRect& getBounds() const {
@@ -151,7 +151,7 @@ public:
         SkASSERT(fBlitter);
         return fBlitter;
     }
-    
+
 private:
     const SkAAClip* fAAClip;
     SkRegion        fBWRgn;

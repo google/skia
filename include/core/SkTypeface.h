@@ -64,7 +64,7 @@ public:
         data. Will never return 0.
      */
     SkFontID uniqueID() const { return fUniqueID; }
-    
+
     /** Return the uniqueID for the specified typeface. If the face is null,
         resolve it to the default font and return its uniqueID. Will never
         return 0.
@@ -142,25 +142,25 @@ public:
 
     /** Return the number of tables in the font. */
     int countTables() const;
-    
+
     /** Copy into tags[] (allocated by the caller) the list of table tags in
      *  the font, and return the number. This will be the same as CountTables()
      *  or 0 if an error occured. If tags == NULL, this only returns the count
      *  (the same as calling countTables()).
      */
     int getTableTags(SkFontTableTag tags[]) const;
-    
+
     /** Given a table tag, return the size of its contents, or 0 if not present
      */
     size_t getTableSize(SkFontTableTag) const;
-    
+
     /** Copy the contents of a table into data (allocated by the caller). Note
      *  that the contents of the table will be in their native endian order
      *  (which for most truetype tables is big endian). If the table tag is
      *  not found, or there is an error copying the data, then 0 is returned.
      *  If this happens, it is possible that some or all of the memory pointed
      *  to by data may have been written to, even though an error has occured.
-     *  
+     *
      *  @param fontID the font to copy the table from
      *  @param tag  The table tag whose contents are to be copied
      *  @param offset The offset in bytes into the table's contents where the

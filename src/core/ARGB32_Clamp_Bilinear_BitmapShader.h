@@ -48,16 +48,16 @@ static inline SkPMColor sample_bilerpx(SkFixed fx, unsigned srcMaxX, const SkPMC
                                        int srcRB, const SkFilterPtrProc* proc_table)
 {
     int ix = fx >> 16;
-    
+
     const SkPMColor *p00, *p01, *p10, *p11;
-    
+
     p00 = p01 = srcPixels + SkClampMax(ix, srcMaxX);
     if ((unsigned)ix < srcMaxX)
         p01 += 1;
 
     p10 = (const SkPMColor*)((const char*)p00 + srcRB);
     p11 = (const SkPMColor*)((const char*)p01 + srcRB);
-    
+
     SkFilterPtrProc proc = SkGetBilinearFilterPtrXProc(proc_table, fx);
     return proc(p00, p01, p10, p11);
 }
@@ -65,7 +65,7 @@ static inline SkPMColor sample_bilerpx(SkFixed fx, unsigned srcMaxX, const SkPMC
 void ARGB32_Clamp_Bilinear_BitmapShader::shadeSpan(int x, int y, SkPMColor dstC[], int count)
 {
     SkASSERT(count > 0);
-    
+
     unsigned srcScale = SkAlpha255To256(this->getPaintAlpha());
 
     const SkMatrix& inv = this->getTotalInverse();

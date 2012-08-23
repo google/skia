@@ -52,7 +52,7 @@ int SkPathHeap::append(const SkPath& path) {
 
 void SkPathHeap::flatten(SkFlattenableWriteBuffer& buffer) const {
     int count = fPaths.count();
-    
+
     buffer.writeInt(count);
     SkPath** iter = fPaths.begin();
     SkPath** stop = fPaths.end();

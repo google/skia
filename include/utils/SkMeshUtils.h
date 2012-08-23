@@ -19,7 +19,7 @@ class SkMeshIndices {
 public:
     SkMeshIndices();
     ~SkMeshIndices();
-    
+
     bool init(int texW, int texH, int rows, int cols) {
         return this->init(NULL, NULL, texW, texH, rows, cols);
     }

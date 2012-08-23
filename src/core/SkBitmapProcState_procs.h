@@ -19,12 +19,12 @@ static inline uint32_t Filter_565_Expanded(unsigned x, unsigned y,
                                            uint32_t a10, uint32_t a11) {
     SkASSERT((unsigned)x <= 0xF);
     SkASSERT((unsigned)y <= 0xF);
-    
+
     a00 = SkExpand_rgb_16(a00);
     a01 = SkExpand_rgb_16(a01);
     a10 = SkExpand_rgb_16(a10);
     a11 = SkExpand_rgb_16(a11);
-    
+
     int xy = x * y >> 3;
     return  a00 * (32 - 2*y - 2*x + xy) +
             a01 * (2*x - xy) +
@@ -47,7 +47,7 @@ static inline SkPMColor Filter_4444_D32(unsigned x, unsigned y,
                                         uint32_t a10, uint32_t a11) {
     SkASSERT((unsigned)x <= 0xF);
     SkASSERT((unsigned)y <= 0xF);
-    
+
     a00 = SkExpand_4444(a00);
     a01 = SkExpand_4444(a01);
     a10 = SkExpand_4444(a10);
@@ -67,13 +67,13 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
                              U8CPU a10, U8CPU a11) {
     SkASSERT((unsigned)x <= 0xF);
     SkASSERT((unsigned)y <= 0xF);
-    
+
     int xy = x * y;
     unsigned result =   a00 * (256 - 16*y - 16*x + xy) +
                         a01 * (16*x - xy) +
                         a10 * (16*y - xy) +
                         a11 * xy;
-    
+
     return result >> 8;
 }
 

@@ -42,10 +42,10 @@ public:
     };
 
     SkSVGPaint();
-    virtual void addAttribute(SkSVGParser& parser, int attrIndex, 
+    virtual void addAttribute(SkSVGParser& parser, int attrIndex,
         const char* attrValue, size_t attrLength);
     bool flush(SkSVGParser& , bool isFlushable, bool isDef);
-    virtual int getAttributes(const SkSVGAttribute** attrPtr); 
+    virtual int getAttributes(const SkSVGAttribute** attrPtr);
     static void Push(SkSVGPaint** head, SkSVGPaint* add);
     static void Pop(SkSVGPaint** head);
     SkString* operator[](int index);

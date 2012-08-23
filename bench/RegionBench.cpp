@@ -75,7 +75,7 @@ public:
     Proc     fProc;
     SkString fName;
     int      fLoopMul;
-    
+
     enum {
         W = 1024,
         H = 768,

@@ -112,7 +112,7 @@ public:
         are ignored.
     */
     static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
-    
+
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 protected:
     SkColorFilter() {}

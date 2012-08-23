@@ -405,11 +405,11 @@ private:
 class GrRadial2Gradient : public GrGradientEffect {
 public:
 
-    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader, 
+    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader,
                       GrSamplerState* sampler)
         : INHERITED(ctx, shader, sampler)
         , fCenterX1(shader.getCenterX1())
-        , fRadius0(shader.getStartRadius()) 
+        , fRadius0(shader.getStartRadius())
         , fPosRoot(shader.getDiffRadius() < 0) { }
     virtual ~GrRadial2Gradient() { }
 

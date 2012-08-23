@@ -29,7 +29,7 @@ bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance, 
+SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance,
     SkScalar phase, Style style) : fPath(path)
 {
     if (advance <= 0 || path.isEmpty()) {
@@ -59,7 +59,7 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance,
 
         fAdvance = advance;
         fInitialOffset = phase;
-        
+
         if ((unsigned)style >= kStyleCount) {
             SkDEBUGF(("SkPath1DPathEffect style enum out of range %d\n", style));
         }
@@ -81,17 +81,17 @@ static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
     for (int i = 0; i < count; i++) {
         SkPoint pos;
         SkVector tangent;
-        
+
         SkScalar sx = src[i].fX;
         SkScalar sy = src[i].fY;
-        
+
         if (!meas.getPosTan(dist + sx, &pos, &tangent)) {
             return false;
         }
-        
+
         SkMatrix    matrix;
         SkPoint     pt;
-        
+
         pt.set(sx, sy);
         matrix.setSinCos(tangent.fY, tangent.fX, 0, 0);
         matrix.preTranslate(-sx, 0);

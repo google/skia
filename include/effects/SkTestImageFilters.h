@@ -38,19 +38,19 @@ public:
     virtual ~SkComposeImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
-    
+
 protected:
     SkComposeImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
-    
+
 private:
     SkImageFilter*  fOuter;
     SkImageFilter*  fInner;
-    
+
     typedef SkImageFilter INHERITED;
 };
 
@@ -63,17 +63,17 @@ public:
     SkMergeImageFilter(SkImageFilter* const filters[], int count,
                        const SkXfermode::Mode modes[] = NULL);
     virtual ~SkMergeImageFilter();
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
-    
+
 protected:
     SkMergeImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
-    
+
 private:
     SkImageFilter**     fFilters;
     uint8_t*            fModes; // SkXfermode::Mode
@@ -85,7 +85,7 @@ private:
 
     void initAlloc(int count, bool hasModes);
     void init(SkImageFilter* const [], int count, const SkXfermode::Mode []);
-    
+
     typedef SkImageFilter INHERITED;
 };
 
@@ -95,19 +95,19 @@ private:
 class SkDownSampleImageFilter : public SkImageFilter {
 public:
     SkDownSampleImageFilter(SkScalar scale) : fScale(scale) {}
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDownSampleImageFilter)
-    
+
 protected:
     SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
-    
+
 private:
     SkScalar fScale;
-    
+
     typedef SkImageFilter INHERITED;
 };
 

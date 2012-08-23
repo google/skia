@@ -21,7 +21,7 @@ public:
         @param count The number of points (x,y) (x+1,y) (x+2,y) ... we will eventually map
     */
     SkPerspIter(const SkMatrix& m, SkScalar x, SkScalar y, int count);
-    
+
     /** Return the buffer of [x,y] fixed point values we will be filling.
         This always returns the same value, so it can be saved across calls to
         next().
@@ -32,7 +32,7 @@ public:
         When this returns 0, the iterator is finished.
     */
     int next();
-    
+
 private:
     enum {
         kShift  = 4,

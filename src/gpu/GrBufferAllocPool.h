@@ -164,7 +164,7 @@ private:
 #if GR_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif
-    
+
     size_t                          fBytesInUse;
 
     GrGpu*                          fGpu;

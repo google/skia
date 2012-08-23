@@ -552,14 +552,14 @@ static __m128i SkBlendLCD16_SSE2(__m128i &srci, __m128i &dst,
 
     __m128i g = _mm_and_si128(SkPackedG16x5ToUnmaskedG32x5_SSE2(mask),
                               _mm_set1_epi32(0x1F << SK_G32_SHIFT));
-    
+
     __m128i b = _mm_and_si128(SkPackedB16x5ToUnmaskedB32x5_SSE2(mask),
                               _mm_set1_epi32(0x1F << SK_B32_SHIFT));
-            
+
     // Pack the 4 16bit mask pixels into 4 32bit pixels, (p0, p1, p2, p3)
     mask = _mm_or_si128(_mm_or_si128(r, g), b);
 
-    // Interleave R,G,B into the lower byte of word. 
+    // Interleave R,G,B into the lower byte of word.
     __m128i maskLo, maskHi;
     maskLo = _mm_unpacklo_epi8(mask, _mm_setzero_si128());
     maskHi = _mm_unpackhi_epi8(mask, _mm_setzero_si128());
@@ -600,14 +600,14 @@ static __m128i SkBlendLCD16Opaque_SSE2(__m128i &srci, __m128i &dst,
 
     __m128i g = _mm_and_si128(SkPackedG16x5ToUnmaskedG32x5_SSE2(mask),
                               _mm_set1_epi32(0x1F << SK_G32_SHIFT));
-    
+
     __m128i b = _mm_and_si128(SkPackedB16x5ToUnmaskedB32x5_SSE2(mask),
                               _mm_set1_epi32(0x1F << SK_B32_SHIFT));
 
     // Pack the 4 16bit mask pixels into 4 32bit pixels, (p0, p1, p2, p3)
     mask = _mm_or_si128(_mm_or_si128(r, g), b);
 
-    // Interleave R,G,B into the lower byte of word. 
+    // Interleave R,G,B into the lower byte of word.
     __m128i maskLo, maskHi;
     maskLo = _mm_unpacklo_epi8(mask, _mm_setzero_si128());
     maskHi = _mm_unpackhi_epi8(mask, _mm_setzero_si128());
@@ -645,7 +645,7 @@ void SkBlitLCD16Row_SSE2(SkPMColor dst[], const uint16_t src[],
     int srcR = SkColorGetR(color);
     int srcG = SkColorGetG(color);
     int srcB = SkColorGetB(color);
-    
+
     srcA = SkAlpha255To256(srcA);
 
     if (width >= 4) {
@@ -674,14 +674,14 @@ void SkBlitLCD16Row_SSE2(SkPMColor dst[], const uint16_t src[],
 
             // if mask pixels are not all zero, we will blend the dst pixels
             if (pack_cmp != 0xFFFF) {
-                // Unpack 4 16bit mask pixels to 
+                // Unpack 4 16bit mask pixels to
                 // (p0, 0, p1, 0, p2, 0, p3, 0)
                 mask_pixel = _mm_unpacklo_epi16(mask_pixel,
                                                 _mm_setzero_si128());
 
                 // Process 4 32bit dst pixels
                 __m128i result = SkBlendLCD16_SSE2(srci, dst_pixel,
-                                                   mask_pixel, scale); 
+                                                   mask_pixel, scale);
                 _mm_store_si128(d, result);
             }
 
@@ -697,7 +697,7 @@ void SkBlitLCD16Row_SSE2(SkPMColor dst[], const uint16_t src[],
         *dst = SkBlendLCD16(srcA, srcR, srcG, srcB, *dst, *src);
         src++;
         dst++;
-        width--;        
+        width--;
     }
 }
 
@@ -736,14 +736,14 @@ void SkBlitLCD16OpaqueRow_SSE2(SkPMColor dst[], const uint16_t src[],
 
             // if mask pixels are not all zero, we will blend the dst pixels
             if (pack_cmp != 0xFFFF) {
-                // Unpack 4 16bit mask pixels to 
+                // Unpack 4 16bit mask pixels to
                 // (p0, 0, p1, 0, p2, 0, p3, 0)
                 mask_pixel = _mm_unpacklo_epi16(mask_pixel,
                                                 _mm_setzero_si128());
 
                 // Process 4 32bit dst pixels
                 __m128i result = SkBlendLCD16Opaque_SSE2(srci, dst_pixel,
-                                                         mask_pixel); 
+                                                         mask_pixel);
                 _mm_store_si128(d, result);
             }
 
@@ -759,6 +759,6 @@ void SkBlitLCD16OpaqueRow_SSE2(SkPMColor dst[], const uint16_t src[],
         *dst = SkBlendLCD16Opaque(srcR, srcG, srcB, *dst, *src, opaqueDst);
         src++;
         dst++;
-        width--;        
+        width--;
     }
 }

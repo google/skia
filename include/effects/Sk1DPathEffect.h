@@ -42,10 +42,10 @@ public:
         kTranslate_Style,   // translate the shape to each position
         kRotate_Style,      // rotate the shape about its center
         kMorph_Style,       // transform each point, and turn lines into curves
-        
+
         kStyleCount
     };
-    
+
     /** Dash by replicating the specified path.
         @param path The path to replicate (dash)
         @param advance The space between instances of path
@@ -66,7 +66,7 @@ protected:
     // overrides from Sk1DPathEffect
     virtual SkScalar begin(SkScalar contourLength) SK_OVERRIDE;
     virtual SkScalar next(SkPath*, SkScalar distance, SkPathMeasure&) SK_OVERRIDE;
-    
+
 private:
     SkPath      fPath;          // copied from constructor
     SkScalar    fAdvance;       // copied from constructor

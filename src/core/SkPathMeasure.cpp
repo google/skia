@@ -201,7 +201,7 @@ void SkPathMeasure::buildSegments() {
             case SkPath::kClose_Verb:
                 isClosed = true;
                 break;
-                
+
             case SkPath::kDone_Verb:
                 done = true;
                 break;
@@ -436,7 +436,7 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
     } else if (distance > length) {
         distance = length;
     }
-    
+
     SkScalar        t;
     const Segment*  seg = this->distanceToSegment(distance, &t);
 

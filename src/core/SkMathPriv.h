@@ -42,7 +42,7 @@ static inline unsigned SkClampUMax(unsigned value, unsigned max) {
     int diff = max - value;
     // clear diff if diff is positive
     diff &= diff >> 31;
-    
+
     return value + diff;
 #endif
 }

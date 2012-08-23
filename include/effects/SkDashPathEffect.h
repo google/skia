@@ -21,7 +21,7 @@ public:
     /** intervals: array containing an even number of entries (>=2), with
          the even indices specifying the length of "on" intervals, and the odd
          indices specifying the length of "off" intervals.
-        count: number of elements in the intervals array 
+        count: number of elements in the intervals array
         phase: offset into the intervals array (mod the sum of all of the
          intervals).
 
@@ -51,7 +51,7 @@ public:
 protected:
     SkDashPathEffect(SkFlattenableReadBuffer&);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
 private:
     SkScalar*   fIntervals;
     int32_t     fCount;

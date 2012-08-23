@@ -61,12 +61,12 @@ public:
      *  of scope, allowing for custom allocation/freeing of the data.
      */
     typedef void (*ReleaseProc)(const void* ptr, size_t length, void* context);
-    
+
     /**
      *  Create a new dataref by copying the specified data
      */
     static SkData* NewWithCopy(const void* data, size_t length);
-    
+
     /**
      *  Create a new dataref by copying the specified c-string
      *  (a null-terminated array of bytes). The returned SkData will have size()
@@ -74,7 +74,7 @@ public:
      *  as "".
      */
     static SkData* NewWithCString(const char cstr[]);
-    
+
     /**
      *  Create a new dataref, taking the data ptr as is, and using the
      *  releaseproc to free it. The proc may be NULL.
@@ -118,10 +118,10 @@ private:
 
     // This is here because SkAutoTUnref creates an internal helper class
     // that derives from SkData (i.e., BlockRef) to prevent refs\unrefs.
-    // This helper class generates a compiler warning on Windows since the 
+    // This helper class generates a compiler warning on Windows since the
     // SkData's destructor is private. This friending gives the helper class
     // access to the destructor.
-    friend class SkAutoTUnref<SkData>::BlockRef<SkData>; 
+    friend class SkAutoTUnref<SkData>::BlockRef<SkData>;
 
     typedef SkFlattenable INHERITED;
 };

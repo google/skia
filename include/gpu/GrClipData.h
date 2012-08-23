@@ -19,7 +19,7 @@ class GrSurface;
 /**
  * GrClipData encapsulates the information required to construct the clip
  * masks. 'fOrigin' is only non-zero when saveLayer has been called
- * with an offset bounding box. The clips in 'fClipStack' are in 
+ * with an offset bounding box. The clips in 'fClipStack' are in
  * device coordinates (i.e., they have been translated by -fOrigin w.r.t.
  * the canvas' device coordinates).
  */
@@ -28,7 +28,7 @@ public:
     const SkClipStack*  fClipStack;
     SkIPoint            fOrigin;
 
-    GrClipData() 
+    GrClipData()
         : fClipStack(NULL) {
         fOrigin.setZero();
     }
@@ -45,11 +45,11 @@ public:
         return fClipStack == other.fClipStack;
     }
 
-    bool operator!=(const GrClipData& other) const { 
-        return !(*this == other); 
+    bool operator!=(const GrClipData& other) const {
+        return !(*this == other);
     }
 
-    void getConservativeBounds(const GrSurface* surface, 
+    void getConservativeBounds(const GrSurface* surface,
                                GrIRect* devResult,
                                bool* isIntersectionOfRects = NULL) const;
 };

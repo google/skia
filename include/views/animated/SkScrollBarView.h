@@ -22,10 +22,10 @@ public:
     unsigned getShown() const { return fShownLength; }
     unsigned getTotal() const { return fTotalLength; }
 
-    void setStart(unsigned start);  
+    void setStart(unsigned start);
     void setShown(unsigned shown);
     void setTotal(unsigned total);
-    
+
 protected:
     //overrides
     virtual void onInflate(const SkDOM& dom, const SkDOM::Node* node);
@@ -36,9 +36,9 @@ protected:
 private:
     SkAnimator  fAnim;
     unsigned    fTotalLength, fStartPoint, fShownLength;
-    
+
     void adjust();
-    
+
     typedef SkWidgetView INHERITED;
 };
 #endif

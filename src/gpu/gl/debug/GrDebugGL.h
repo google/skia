@@ -73,8 +73,8 @@ public:
 
     void useProgram(GrProgramObj *program);
 
-    void setPackRowLength(GrGLint packRowLength) { 
-        fPackRowLength = packRowLength; 
+    void setPackRowLength(GrGLint packRowLength) {
+        fPackRowLength = packRowLength;
     }
     GrGLint getPackRowLength() const { return fPackRowLength; }
 

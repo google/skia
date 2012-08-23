@@ -50,7 +50,7 @@ struct SkBlockHeader {
     // data goes here. The offset to this point must be a multiple of 8
     char fTrailer[sizeof(kBlockTrailerTag)];
 
-    void* add(size_t realSize) 
+    void* add(size_t realSize)
     {
         SkAutoMutexAcquire  ac(get_block_mutex());
         InMutexValidate();
@@ -69,7 +69,7 @@ struct SkBlockHeader {
         memcpy(trailer, kBlockTrailerTag, sizeof(kBlockTrailerTag));
         return result;
     }
-    
+
     static void Dump()
     {
         SkAutoMutexAcquire  ac(get_block_mutex());
@@ -128,7 +128,7 @@ struct SkBlockHeader {
         const char* trailer = fTrailer + fSize;
         SkASSERT(memcmp(trailer, kBlockTrailerTag, sizeof(kBlockTrailerTag)) == 0);
     }
-    
+
     static void Validate()
     {
         SkAutoMutexAcquire  ac(get_block_mutex());
@@ -188,7 +188,7 @@ void* sk_realloc_throw(void* addr, size_t size)
         addr = header;
     }
     size_t realSize = size;
-    if (size) 
+    if (size)
         size += sizeof(SkBlockHeader);
 #endif
 
@@ -221,7 +221,7 @@ void sk_free(void* p)
     {
         ValidateHeap();
 #ifdef SK_TAG_BLOCKS
-        SkBlockHeader* header = (SkBlockHeader*) 
+        SkBlockHeader* header = (SkBlockHeader*)
             ((char*)p - SK_OFFSETOF(SkBlockHeader, fTrailer));
         header->remove();
 #ifdef SK_TRACK_ALLOC
@@ -244,7 +244,7 @@ void* sk_malloc_flags(size_t size, unsigned flags)
     size_t realSize = size;
     size += sizeof(SkBlockHeader);
 #endif
-    
+
     void* p = malloc(size);
     if (p == NULL)
     {

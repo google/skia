@@ -29,15 +29,15 @@ public:
         this newly added (copied) path.
      */
     int append(const SkPath&);
-    
+
     // called during picture-playback
     int count() const { return fPaths.count(); }
     const SkPath& operator[](int index) const {
         return *fPaths[index];
     }
-    
+
     void flatten(SkFlattenableWriteBuffer&) const;
-        
+
 private:
     // we store the paths in the heap (placement new)
     SkChunkAlloc        fHeap;

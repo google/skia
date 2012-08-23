@@ -36,16 +36,16 @@ bool SkTableMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     dst->fRowBytes = SkAlign4(dst->fBounds.width());
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
-    
+
     if (src.fImage) {
         dst->fImage = SkMask::AllocImage(dst->computeImageSize());
-        
+
         const uint8_t* srcP = src.fImage;
         uint8_t* dstP = dst->fImage;
         const uint8_t* table = fTable;
         int dstWidth = dst->fBounds.width();
         int extraZeros = dst->fRowBytes - dstWidth;
-        
+
         for (int y = dst->fBounds.height() - 1; y >= 0; --y) {
             for (int x = dstWidth - 1; x >= 0; --x) {
                 dstP[x] = table[srcP[x]];

@@ -20,16 +20,16 @@ class SkLayerRasterizer : public SkRasterizer {
 public:
             SkLayerRasterizer();
     virtual ~SkLayerRasterizer();
-    
+
     void addLayer(const SkPaint& paint) {
         this->addLayer(paint, 0, 0);
     }
 
-	/**	Add a new layer (above any previous layers) to the rasterizer.
-		The layer will extract those fields that affect the mask from
-		the specified paint, but will not retain a reference to the paint
-		object itself, so it may be reused without danger of side-effects.
-	*/
+    /**    Add a new layer (above any previous layers) to the rasterizer.
+        The layer will extract those fields that affect the mask from
+        the specified paint, but will not retain a reference to the paint
+        object itself, so it may be reused without danger of side-effects.
+    */
     void addLayer(const SkPaint& paint, SkScalar dx, SkScalar dy);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLayerRasterizer)

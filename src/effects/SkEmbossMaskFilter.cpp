@@ -36,11 +36,11 @@ SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
     int sp = pin2byte(SkScalarToFixed(specular) >> 12);
 
     SkEmbossMaskFilter::Light   light;
-    
+
     memcpy(light.fDirection, direction, sizeof(light.fDirection));
     light.fAmbient = SkToU8(am);
     light.fSpecular = SkToU8(sp);
-    
+
     return SkNEW_ARGS(SkEmbossMaskFilter, (light, blurRadius));
 }
 

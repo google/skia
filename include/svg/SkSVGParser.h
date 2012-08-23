@@ -55,7 +55,7 @@ private:
     static void Delete(SkTDArray<SkSVGElement*>& fChildren);
     static SkSVGTypes GetType(const char name[], size_t len);
     SkSVGPaint* fHead;
-    SkSVGPaint fEmptyPaint; 
+    SkSVGPaint fEmptyPaint;
     SkSVGPaint fLastFlush;
     SkString fLastColor;
     SkMatrix fLastTransform;

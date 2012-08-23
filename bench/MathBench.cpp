@@ -32,8 +32,8 @@ public:
         }
     }
 
-    virtual void performTest(float* SK_RESTRICT dst, 
-                              const float* SK_RESTRICT src, 
+    virtual void performTest(float* SK_RESTRICT dst,
+                              const float* SK_RESTRICT src,
                               int count) = 0;
 
 protected:
@@ -59,11 +59,11 @@ public:
     MathBenchU32(void* param, const char name[]) : INHERITED(param, name) {}
 
 protected:
-    virtual void performITest(uint32_t* SK_RESTRICT dst, 
-                              const uint32_t* SK_RESTRICT src, 
+    virtual void performITest(uint32_t* SK_RESTRICT dst,
+                              const uint32_t* SK_RESTRICT src,
                               int count) = 0;
-    
-    virtual void performTest(float* SK_RESTRICT dst, 
+
+    virtual void performTest(float* SK_RESTRICT dst,
                               const float* SK_RESTRICT src,
                               int count) SK_OVERRIDE {
         uint32_t* d = SkTCast<uint32_t*>(dst);
@@ -80,8 +80,8 @@ class NoOpMathBench : public MathBench {
 public:
     NoOpMathBench(void* param) : INHERITED(param, "noOp") {}
 protected:
-    virtual void performTest(float* SK_RESTRICT dst, 
-                              const float* SK_RESTRICT src, 
+    virtual void performTest(float* SK_RESTRICT dst,
+                              const float* SK_RESTRICT src,
                               int count) {
         for (int i = 0; i < count; ++i) {
             dst[i] = src[i] + 1;
@@ -95,8 +95,8 @@ class SlowISqrtMathBench : public MathBench {
 public:
     SlowISqrtMathBench(void* param) : INHERITED(param, "slowIsqrt") {}
 protected:
-    virtual void performTest(float* SK_RESTRICT dst, 
-                              const float* SK_RESTRICT src, 
+    virtual void performTest(float* SK_RESTRICT dst,
+                              const float* SK_RESTRICT src,
                               int count) {
         for (int i = 0; i < count; ++i) {
             dst[i] = 1.0f / sk_float_sqrt(src[i]);
@@ -120,8 +120,8 @@ class FastISqrtMathBench : public MathBench {
 public:
     FastISqrtMathBench(void* param) : INHERITED(param, "fastIsqrt") {}
 protected:
-    virtual void performTest(float* SK_RESTRICT dst, 
-                              const float* SK_RESTRICT src, 
+    virtual void performTest(float* SK_RESTRICT dst,
+                              const float* SK_RESTRICT src,
                               int count) {
         for (int i = 0; i < count; ++i) {
             dst[i] = SkFastInvSqrt(src[i]);
@@ -237,7 +237,7 @@ static bool isFinite(const SkRect& r) {
     // x * 0 will be NaN iff x is infinity or NaN.
     // a + b will be NaN iff either a or b is NaN.
     float value = r.fLeft * 0 + r.fTop * 0 + r.fRight * 0 + r.fBottom * 0;
-    
+
     // value is either NaN or it is finite (zero).
     // value==value will be true iff value is not NaN
     return value == value;
@@ -291,7 +291,7 @@ protected:
                 }
             }
         }
-        
+
         SkPaint paint;
         if (paint.getAlpha() == 0) {
             SkDebugf("%d\n", counter);
@@ -301,7 +301,7 @@ protected:
     virtual const char* onGetName() {
         return fName;
     }
-        
+
 private:
     IsFiniteProc    fProc;
     const char*     fName;
@@ -317,21 +317,21 @@ class FloorBench : public SkBenchmark {
     float fData[ARRAY];
     bool fFast;
 public:
-    
+
     FloorBench(void* param, bool fast) : INHERITED(param), fFast(fast) {
         SkRandom rand;
-        
+
         for (int i = 0; i < ARRAY; ++i) {
             fData[i] = rand.nextSScalar1();
         }
-        
+
         if (fast) {
             fName = "floor_fast";
         } else {
             fName = "floor_std";
         }
     }
-    
+
     virtual void process(float) {}
 
 protected:
@@ -339,7 +339,7 @@ protected:
         SkRandom rand;
         float accum = 0;
         const float* data = fData;
-    
+
         if (fFast) {
             for (int j = 0; j < LOOP; ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
@@ -356,14 +356,14 @@ protected:
             }
         }
     }
-    
+
     virtual const char* onGetName() {
         return fName;
     }
-    
+
 private:
     const char*     fName;
-    
+
     typedef SkBenchmark INHERITED;
 };
 

@@ -42,16 +42,16 @@ public:
     void resetFlag(GrTextureFlags flags) {
         fDesc.fFlags = fDesc.fFlags & ~flags;
     }
-    bool isSetFlag(GrTextureFlags flags) const { 
-        return 0 != (fDesc.fFlags & flags); 
+    bool isSetFlag(GrTextureFlags flags) const {
+        return 0 != (fDesc.fFlags & flags);
     }
 
     /**
      *  Approximate number of bytes used by the texture
      */
     virtual size_t sizeInBytes() const SK_OVERRIDE {
-        return (size_t) fDesc.fWidth * 
-                        fDesc.fHeight * 
+        return (size_t) fDesc.fWidth *
+                        fDesc.fHeight *
                         GrBytesPerPixel(fDesc.fConfig);
     }
 
@@ -81,11 +81,11 @@ public:
      * @return    handle to render target or NULL if the texture is not a
      *            render target
      */
-    virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE { 
-        return fRenderTarget; 
+    virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE {
+        return fRenderTarget;
     }
-    virtual const GrRenderTarget* asRenderTarget() const SK_OVERRIDE { 
-        return fRenderTarget; 
+    virtual const GrRenderTarget* asRenderTarget() const SK_OVERRIDE {
+        return fRenderTarget;
     }
 
     // GrTexture
@@ -93,13 +93,13 @@ public:
      * Convert from texels to normalized texture coords for POT textures
      * only.
      */
-    GrFixed normalizeFixedX(GrFixed x) const { 
+    GrFixed normalizeFixedX(GrFixed x) const {
         GrAssert(GrIsPow2(fDesc.fWidth));
-        return x >> fShiftFixedX; 
+        return x >> fShiftFixedX;
     }
-    GrFixed normalizeFixedY(GrFixed y) const { 
+    GrFixed normalizeFixedY(GrFixed y) const {
         GrAssert(GrIsPow2(fDesc.fHeight));
-        return y >> fShiftFixedY; 
+        return y >> fShiftFixedY;
     }
 
     /**
@@ -117,7 +117,7 @@ public:
 
     /**
      *  Call this when the state of the native API texture object is
-     *  altered directly, without being tracked by skia. 
+     *  altered directly, without being tracked by skia.
      */
     virtual void invalidateCachedState() = 0;
 

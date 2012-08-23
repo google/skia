@@ -45,18 +45,18 @@
  *      the resource-specific portion - which is filled in by each GrResource-
  *              derived class.
  *
- * For the public portion each client of the cache makes up its own 
- * unique-per-resource identifier (e.g., bitmap genID). A public ID of 
- * 'kScratch_CacheID' indicates that the resource is a "scratch" resource. 
- * When used to acquire a resource it indicates the cache user is 
- * looking for a resource that matches a resource-subclass-specific set of 
- * “dimensions” such as width, height, buffer size, or pixel config, but not 
- * for particular resource contents (e.g., texel or vertex values). The public 
- * IDs are unique within a private ID value but not necessarily across 
+ * For the public portion each client of the cache makes up its own
+ * unique-per-resource identifier (e.g., bitmap genID). A public ID of
+ * 'kScratch_CacheID' indicates that the resource is a "scratch" resource.
+ * When used to acquire a resource it indicates the cache user is
+ * looking for a resource that matches a resource-subclass-specific set of
+ * “dimensions” such as width, height, buffer size, or pixel config, but not
+ * for particular resource contents (e.g., texel or vertex values). The public
+ * IDs are unique within a private ID value but not necessarily across
  * private IDs.
  *
  * The domain portion identifies the cache client while the type field
- * indicates the resource type. When the public portion indicates that the 
+ * indicates the resource type. When the public portion indicates that the
  * resource is a scratch resource, the domain field should be kUnrestricted
  * so that scratch resources can be recycled across domains.
  */

@@ -37,7 +37,7 @@ protected:
 
 private:
     SkScalar    fRadius;
-    
+
     typedef SkPathEffect INHERITED;
 };
 

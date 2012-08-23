@@ -31,7 +31,7 @@ private:
     uint8_t         fAlpha;
 
     SkTransparentShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
-    
+
     typedef SkShader INHERITED;
 };
 

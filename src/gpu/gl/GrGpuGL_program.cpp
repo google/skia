@@ -283,7 +283,7 @@ void GrGpuGL::flushColor(GrColor color) {
                     // OpenGL ES only supports the float varieties of
                     // glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(color);
-                    GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(), 
+                    GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(),
                                             c));
                     fHWConstAttribColor = color;
                 }
@@ -331,7 +331,7 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
                     // OpenGL ES only supports the float varieties of
                     // glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(coverage);
-                    GL_CALL(VertexAttrib4fv(GrGLProgram::CoverageAttributeIdx(), 
+                    GL_CALL(VertexAttrib4fv(GrGLProgram::CoverageAttributeIdx(),
                                             c));
                     fHWConstAttribCoverage = coverage;
                 }
@@ -430,7 +430,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     GrIRect* devRect = NULL;
     GrIRect devClipBounds;
     if (drawState.isClipState()) {
-        fClip->getConservativeBounds(drawState.getRenderTarget(), 
+        fClip->getConservativeBounds(drawState.getRenderTarget(),
                                      &devClipBounds);
         devRect = &devClipBounds;
     }
@@ -520,7 +520,7 @@ void GrGpuGL::setupGeometry(int* startVertex,
 
     if (posAndTexChange) {
         int idx = GrGLProgram::PositionAttributeIdx();
-        GL_CALL(VertexAttribPointer(idx, 2, scalarType, false, newStride, 
+        GL_CALL(VertexAttribPointer(idx, 2, scalarType, false, newStride,
                                   (GrGLvoid*)vertexOffset));
         fHWGeometryState.fVertexOffset = vertexOffset;
     }
@@ -531,11 +531,11 @@ void GrGpuGL::setupGeometry(int* startVertex,
             int idx = GrGLProgram::TexCoordAttributeIdx(t);
             if (oldTexCoordOffsets[t] <= 0) {
                 GL_CALL(EnableVertexAttribArray(idx));
-                GL_CALL(VertexAttribPointer(idx, 2, scalarType, texCoordNorm, 
+                GL_CALL(VertexAttribPointer(idx, 2, scalarType, texCoordNorm,
                                           newStride, texCoordOffset));
             } else if (posAndTexChange ||
                        newTexCoordOffsets[t] != oldTexCoordOffsets[t]) {
-                GL_CALL(VertexAttribPointer(idx, 2, scalarType, texCoordNorm, 
+                GL_CALL(VertexAttribPointer(idx, 2, scalarType, texCoordNorm,
                                           newStride, texCoordOffset));
             }
         } else if (oldTexCoordOffsets[t] > 0) {
@@ -671,9 +671,9 @@ void GrGpuGL::buildProgram(bool isPoints,
     } else {
         desc->fColorInput = ProgramDesc::kAttribute_ColorInput;
     }
-    
+
     bool covIsSolidWhite = !requiresAttributeCoverage && 0xffffffff == drawState.getCoverage();
-    
+
     if (skipCoverage) {
         desc->fCoverageInput = ProgramDesc::kTransBlack_ColorInput;
     } else if (covIsSolidWhite) {
@@ -780,7 +780,7 @@ void GrGpuGL::buildProgram(bool isPoints,
 #endif
 
     // We want to avoid generating programs with different "first cov stage" values when they would
-    // compute the same result. We set field in the desc to kNumStages when either there are no 
+    // compute the same result. We set field in the desc to kNumStages when either there are no
     // coverage stages or the distinction between coverage and color is immaterial.
     int firstCoverageStage = GrDrawState::kNumStages;
     desc->fFirstCoverageStage = GrDrawState::kNumStages;

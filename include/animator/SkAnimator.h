@@ -42,15 +42,15 @@ enum SkFieldType {
 /** \class SkAnimator
 
     The SkAnimator class decodes an XML stream into a display list. The
-    display list can be drawn statically as a picture, or can drawn 
+    display list can be drawn statically as a picture, or can drawn
     different elements at different times to form a moving animation.
 
     SkAnimator does not read the system time on its own; it relies on the
     caller to pass the current time. The caller can pause, speed up, or
     reverse the animation by varying the time passed in.
 
-    The XML describing the display list must conform to the schema 
-    described by SkAnimateSchema.xsd. 
+    The XML describing the display list must conform to the schema
+    described by SkAnimateSchema.xsd.
 
     The XML must contain an <event> element to draw. Usually, it contains
     an <event kind="onload" /> block to add some drawing elements to the
@@ -84,7 +84,7 @@ public:
     SkAnimator();
     virtual ~SkAnimator();
 
-    /** Add a drawable extension to the graphics engine. Experimental. 
+    /** Add a drawable extension to the graphics engine. Experimental.
         @param extras A derived class that implements methods that identify and instantiate the class
     */
     void addExtras(SkExtras* extras);
@@ -97,7 +97,7 @@ public:
     */
     bool appendStream(SkStream* stream);
 
-    /** Read in XML from memory. Returns true if the file can be 
+    /** Read in XML from memory. Returns true if the file can be
         read without error. Returns false if an error was encountered.
         Error diagnostics are stored in fErrorCode and fLineNumber.
         @param buffer  The XML text as UTF-8 characters.
@@ -106,7 +106,7 @@ public:
     */
     bool decodeMemory(const void* buffer, size_t size);
 
-    /** Read in XML from a stream. Returns true if the file can be 
+    /** Read in XML from a stream. Returns true if the file can be
         read without error. Returns false if an error was encountered.
         Error diagnostics are stored in fErrorCode and fLineNumber.
         @param stream  The stream containg the XML text as UTF-8 characters.
@@ -114,14 +114,14 @@ public:
     */
     virtual bool decodeStream(SkStream* stream);
 
-    /** Parse the DOM tree starting at the specified node. Returns true if it can be 
+    /** Parse the DOM tree starting at the specified node. Returns true if it can be
         parsed without error. Returns false if an error was encountered.
         Error diagnostics are stored in fErrorCode and fLineNumber.
         @return true if the DOM was parsed successfully.
     */
     virtual bool decodeDOM(const SkDOM&, const SkDOMNode*);
 
-    /** Read in XML from a URI. Returns true if the file can be 
+    /** Read in XML from a URI. Returns true if the file can be
         read without error. Returns false if an error was encountered.
         Error diagnostics are stored in fErrorCode and fLineNumber.
         @param uri The complete url path to be read (either ftp, http or https).
@@ -131,14 +131,14 @@ public:
 
     /** Pass a char event, usually a keyboard symbol, to the animator.
         This triggers events of the form <event kind="keyChar" key="... />
-        @param ch  The character to match against <event> element "key" 
+        @param ch  The character to match against <event> element "key"
             attributes.
         @return true if the event was dispatched successfully.
     */
     bool doCharEvent(SkUnichar ch);
 
     /** Experimental:
-        Pass a mouse click event along with the mouse coordinates to 
+        Pass a mouse click event along with the mouse coordinates to
         the animator. This triggers events of the form <event kind="mouseDown" ... />
         and other mouse events.
         @param state The mouse state, described by SkView::Click::State : values are
@@ -151,48 +151,48 @@ public:
 
     /** Pass a meta-key event, such as an arrow , to the animator.
         This triggers events of the form <event kind="keyPress" code="... />
-        @param code  The key to match against <event> element "code" 
+        @param code  The key to match against <event> element "code"
             attributes.
         @return true if the event was dispatched successfully.
     */
     bool doKeyEvent(SkKey code);
     bool doKeyUpEvent(SkKey code);
-    
-    /** Send an event to the animator. The animator's clock is set 
+
+    /** Send an event to the animator. The animator's clock is set
         relative to the current time.
         @return true if the event was dispatched successfully.
     */
     bool doUserEvent(const SkEvent& evt);
 
-    /** The possible results from the draw function. 
+    /** The possible results from the draw function.
     */
     enum DifferenceType {
         kNotDifferent,
         kDifferent,
         kPartiallyDifferent
     };
-    /** Draws one frame of the animation. The first call to draw always 
-        draws the initial frame of the animation. Subsequent calls draw 
-        the offset into the animation by 
+    /** Draws one frame of the animation. The first call to draw always
+        draws the initial frame of the animation. Subsequent calls draw
+        the offset into the animation by
         subtracting the initial time from the current time.
         @param canvas  The canvas to draw into.
         @param paint     The paint to draw with.
         @param time  The offset into the current animation.
         @return kNotDifferent if there are no active animations; kDifferent if there are active animations; and
-        kPartiallyDifferent if the document contains an active <bounds> element that specifies a minimal 
+        kPartiallyDifferent if the document contains an active <bounds> element that specifies a minimal
         redraw area.
     */
     DifferenceType draw(SkCanvas* canvas, SkPaint* paint, SkMSec time);
 
     /** Draws one frame of the animation, using a new Paint each time.
-        The first call to draw always 
-        draws the initial frame of the animation. Subsequent calls draw 
-        the offset into the animation by 
+        The first call to draw always
+        draws the initial frame of the animation. Subsequent calls draw
+        the offset into the animation by
         subtracting the initial time from the current time.
         @param canvas  The canvas to draw into.
         @param time  The offset into the current animation.
         @return kNotDifferent if there are no active animations; kDifferent if there are active animations; and
-        kPartiallyDifferent if the document contains an active <bounds> element that specifies a minimal 
+        kPartiallyDifferent if the document contains an active <bounds> element that specifies a minimal
         redraw area.
     */
     DifferenceType draw(SkCanvas* canvas, SkMSec time);
@@ -203,7 +203,7 @@ public:
         @param y ignored
         @return true if a mouseDown event handler is enabled.
     */
-    bool findClickEvent(SkScalar x, SkScalar y); 
+    bool findClickEvent(SkScalar x, SkScalar y);
 
 
     /** Get the nested animator associated with this element, if any.
@@ -223,7 +223,7 @@ public:
 
     /** Returns the scalar value of the specified element's attribute[index]
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param index the array entry
         @return the integer value to retrieve, or SK_NaN32 if unsuccessful
     */
@@ -239,7 +239,7 @@ public:
 
     /** Returns the scalar value of the specified element's attribute[index]
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param index the array entry
         @return the scalar value to retrieve, or SK_ScalarNaN if unsuccessful
     */
@@ -247,7 +247,7 @@ public:
 
     /** Returns the string value of the specified element's attribute[index]
         @param element is a value returned by getElement
-        @param field is a value returned by getField  
+        @param field is a value returned by getField
         @param index the array entry
         @return the string value to retrieve, or null if unsuccessful
     */
@@ -255,55 +255,55 @@ public:
 
     /** Returns the string value of the specified element's attribute[index]
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param index the array entry
         @return the string value to retrieve, or null if unsuccessful
     */
     const char* getArrayString(const char* elementID, const char* fieldName, int index);
 
     /** Returns the XML element corresponding to the given ID.
-        @param elementID is the value of the id attribute in the XML of this element 
+        @param elementID is the value of the id attribute in the XML of this element
         @return the element matching the ID, or null if the element can't be found
     */
     const SkDisplayable* getElement(const char* elementID);
 
     /** Returns the element type corresponding to the XML element.
         The element type matches the element name; for instance, <line> returns kElement_LineType
-        @param element is a value returned by getElement  
+        @param element is a value returned by getElement
         @return element type, or 0 if the element can't be found
     */
     SkElementType getElementType(const SkDisplayable* element);
 
     /** Returns the element type corresponding to the given ID.
-        @param elementID is the value of the id attribute in the XML of this element 
+        @param elementID is the value of the id attribute in the XML of this element
         @return element type, or 0 if the element can't be found
     */
     SkElementType getElementType(const char* elementID);
 
     /** Returns the XML field of the named attribute in the XML element.
         @param element is a value returned by getElement
-        @param fieldName is the attribute to return  
+        @param fieldName is the attribute to return
         @return the attribute matching the fieldName, or null if the element can't be found
     */
     const SkMemberInfo* getField(const SkDisplayable* element, const char* fieldName);
 
     /** Returns the XML field of the named attribute in the XML element matching the elementID.
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName is the attribute to return  
+        @param fieldName is the attribute to return
         @return the attribute matching the fieldName, or null if the element can't be found
     */
     const SkMemberInfo* getField(const char* elementID, const char* fieldName);
 
     /** Returns the value type coresponding to the element's attribute.
         The value type matches the XML schema: and may be kField_BooleanType, kField_ScalarType, etc.
-        @param field is a value returned by getField  
+        @param field is a value returned by getField
         @return the attribute type, or 0 if the element can't be found
     */
     SkFieldType getFieldType(const SkMemberInfo* field);
 
     /** Returns the value type coresponding to the element's attribute.
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @return the attribute type, or 0 if the element can't be found
     */
     SkFieldType getFieldType(const char* elementID, const char* fieldName);
@@ -315,54 +315,54 @@ public:
 
     /** Returns the partial rectangle to invalidate after drawing. Call after draw() returns
     kIsPartiallyDifferent to do a mimimal inval(). */
-    void getInvalBounds(SkRect* inval); 
+    void getInvalBounds(SkRect* inval);
 
-    /** Returns the details of any error encountered while parsing the XML. 
+    /** Returns the details of any error encountered while parsing the XML.
     */
     const SkXMLParserError* getParserError();
-    
-    /** Returns the details of any error encountered while parsing the XML as string. 
+
+    /** Returns the details of any error encountered while parsing the XML as string.
     */
     const char* getParserErrorString();
-    
+
     /** Returns the scalar value of the specified element's attribute
         @param element is a value returned by getElement
-        @param field is a value returned by getField  
+        @param field is a value returned by getField
         @return the integer value to retrieve, or SK_NaN32 if not found
     */
     int32_t getInt(const SkDisplayable* element, const SkMemberInfo* field);
 
     /** Returns the scalar value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @return the integer value to retrieve, or SK_NaN32 if not found
     */
     int32_t getInt(const char* elementID, const char* fieldName);
 
     /** Returns the scalar value of the specified element's attribute
         @param element is a value returned by getElement
-        @param field is a value returned by getField  
+        @param field is a value returned by getField
         @return the scalar value to retrieve, or SK_ScalarNaN if not found
     */
     SkScalar getScalar(const SkDisplayable* element, const SkMemberInfo* field);
 
     /** Returns the scalar value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @return the scalar value to retrieve, or SK_ScalarNaN if not found
     */
     SkScalar getScalar(const char* elementID, const char* fieldName);
 
     /** Returns the string value of the specified element's attribute
         @param element is a value returned by getElement
-        @param field is a value returned by getField  
+        @param field is a value returned by getField
         @return the string value to retrieve, or null if not found
     */
     const char* getString(const SkDisplayable* element, const SkMemberInfo* field);
 
     /** Returns the string value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @return the string value to retrieve, or null if not found
     */
     const char* getString(const char* elementID, const char* fieldName);
@@ -373,31 +373,31 @@ public:
     /** Resets the animator to a newly created state with no animation data. */
     void initialize();
 
-    /** Experimental. Resets any active animations so that the next time passed is treated as 
+    /** Experimental. Resets any active animations so that the next time passed is treated as
         time zero. */
     void reset();
-    
+
     /** Sets the scalar value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param array is the c-style array of integers
         @param count is the length of the array
         @return true if the value was set successfully
     */
     bool setArrayInt(const char* elementID, const char* fieldName, const int* array, int count);
-    
+
     /** Sets the scalar value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param array is the c-style array of strings
         @param count is the length of the array
         @return true if the value was set successfully
     */
     bool setArrayString(const char* elementID, const char* fieldName, const char** array, int count);
-    
+
     /** Sets the scalar value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param data the integer value to set
         @return true if the value was set successfully
     */
@@ -405,7 +405,7 @@ public:
 
     /** Sets the scalar value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param data the scalar value to set
         @return true if the value was set successfully
     */
@@ -413,14 +413,14 @@ public:
 
     /** Sets the string value of the specified element's attribute
         @param elementID is the value of the id attribute in the XML of this element
-        @param fieldName specifies the name of the attribute  
+        @param fieldName specifies the name of the attribute
         @param data the string value to set
         @return true if the value was set successfully
     */
     bool setString(const char* elementID, const char* fieldName, const char* data);
 
-    /** Sets the file default directory of the URL base path 
-        @param path the directory path 
+    /** Sets the file default directory of the URL base path
+        @param path the directory path
     */
     void setURIBase(const char* path);
 
@@ -442,7 +442,7 @@ public:
         virtual SkMSec getMSecs() const = 0;
     };
 
-    /** Sets a user class to return the current time to the animator. 
+    /** Sets a user class to return the current time to the animator.
         Optional; if not called, the system clock will be used by calling SkTime::GetMSecs instead.
         @param callBack the time function
     */
@@ -450,28 +450,28 @@ public:
 
     static void Init(bool runUnitTests);
     static void Term();
-    
-    /** The event sink events generated by the animation are posted to. 
+
+    /** The event sink events generated by the animation are posted to.
         Screenplay also posts an inval event to this event sink after processing an
         event to force a redraw.
         @param target the event sink id
     */
     void setHostEventSinkID(SkEventSinkID hostID);
     SkEventSinkID getHostEventSinkID() const;
-    
+
     // helper
     void setHostEventSink(SkEventSink* sink) {
         this->setHostEventSinkID(sink ? sink->getSinkID() : 0);
     }
-    
+
     virtual void setJavaOwner(Handler owner);
-    
+
 #ifdef SK_DEBUG
     virtual void eventDone(const SkEvent& evt);
     virtual bool isTrackingEvents();
     static bool NoLeaks();
-#endif  
-    
+#endif
+
 protected:
     virtual void onSetHostHandler(Handler handler);
     virtual void onEventPost(SkEvent*, SkEventSinkID);
@@ -484,7 +484,7 @@ private:
     bool setInt(SkDisplayable* element, const SkMemberInfo* field, int32_t data);
     bool setScalar(SkDisplayable* element, const SkMemberInfo* field, SkScalar data);
     bool setString(SkDisplayable* element, const SkMemberInfo* field, const char* data);
-    
+
     virtual bool onEvent(const SkEvent&);
     SkAnimateMaker* fMaker;
     friend class SkAnimateMaker;

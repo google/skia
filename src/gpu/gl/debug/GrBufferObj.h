@@ -17,7 +17,7 @@ class GrBufferObj : public GrFakeRefObj {
     GR_DEFINE_CREATOR(GrBufferObj);
 
 public:
-    GrBufferObj() 
+    GrBufferObj()
         : GrFakeRefObj()
         , fDataPtr(NULL)
         , fMapped(false)
@@ -58,8 +58,8 @@ private:
     bool        fMapped;       // is the buffer object mapped via "glMapBuffer"?
     bool        fBound;        // is the buffer object bound via "glBindBuffer"?
     GrGLint     fSize;         // size in bytes
-    GrGLint     fUsage;        // one of: GL_STREAM_DRAW, 
-                               //         GL_STATIC_DRAW, 
+    GrGLint     fUsage;        // one of: GL_STREAM_DRAW,
+                               //         GL_STATIC_DRAW,
                                //         GL_DYNAMIC_DRAW
 
     typedef GrFakeRefObj INHERITED;

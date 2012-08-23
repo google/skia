@@ -12,18 +12,18 @@
 #include "../images/SkImageDecoder.h"
 
 class SkImage_Codec : public SkImage_Base {
-public:    
+public:
     static SkImage* NewEmpty();
-    
+
     SkImage_Codec(SkData* encodedData, int width, int height);
     virtual ~SkImage_Codec();
-    
+
     virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
-    
+
 private:
     SkData*     fEncodedData;
     SkBitmap    fBitmap;
-    
+
     typedef SkImage_Base INHERITED;
 };
 
@@ -61,7 +61,7 @@ SkImage* SkImage::NewEncodedData(SkData* data) {
                                       SkImageDecoder::kDecodeBounds_Mode)) {
         return NULL;
     }
-    
+
     return SkNEW_ARGS(SkImage_Codec, (data, bitmap.width(), bitmap.height()));
 }
 

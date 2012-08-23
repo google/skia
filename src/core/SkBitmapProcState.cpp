@@ -61,7 +61,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         int shift = fOrigBitmap.extractMipLevel(&fMipBitmap,
                                                 SkScalarToFixed(m->getScaleX()),
                                                 SkScalarToFixed(m->getSkewY()));
-        
+
         if (shift > 0) {
             if (m != &fUnitInvMatrix) {
                 fUnitInvMatrix = *m;
@@ -70,7 +70,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
             SkScalar scale = SkFixedToScalar(SK_Fixed1 >> shift);
             fUnitInvMatrix.postScale(scale, scale);
-            
+
             // now point here instead of fOrigBitmap
             fBitmap = &fMipBitmap;
         }
@@ -106,7 +106,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     }
 
     ///////////////////////////////////////////////////////////////////////
-    
+
     int index = 0;
     if (fAlphaScale < 256) {  // note: this distinction is not used for D16
         index |= 1;
@@ -149,7 +149,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         S32_alpha_D32_filter_DXDY,
         S32_opaque_D32_filter_DX,
         S32_alpha_D32_filter_DX,
-        
+
         S16_opaque_D32_nofilter_DXDY,
         S16_alpha_D32_nofilter_DXDY,
         S16_opaque_D32_nofilter_DX,
@@ -158,7 +158,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         S16_alpha_D32_filter_DXDY,
         S16_opaque_D32_filter_DX,
         S16_alpha_D32_filter_DX,
-        
+
         SI8_opaque_D32_nofilter_DXDY,
         SI8_alpha_D32_nofilter_DXDY,
         SI8_opaque_D32_nofilter_DX,
@@ -167,7 +167,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         SI8_alpha_D32_filter_DXDY,
         SI8_opaque_D32_filter_DX,
         SI8_alpha_D32_filter_DX,
-        
+
         S4444_opaque_D32_nofilter_DXDY,
         S4444_alpha_D32_nofilter_DXDY,
         S4444_opaque_D32_nofilter_DX,
@@ -176,7 +176,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         S4444_alpha_D32_filter_DXDY,
         S4444_opaque_D32_filter_DX,
         S4444_alpha_D32_filter_DX,
-        
+
         // A8 treats alpha/opauqe the same (equally efficient)
         SA8_alpha_D32_nofilter_DXDY,
         SA8_alpha_D32_nofilter_DXDY,
@@ -187,23 +187,23 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         SA8_alpha_D32_filter_DX,
         SA8_alpha_D32_filter_DX
     };
-    
+
     static const SampleProc16 gSkBitmapProcStateSample16[] = {
         S32_D16_nofilter_DXDY,
         S32_D16_nofilter_DX,
         S32_D16_filter_DXDY,
         S32_D16_filter_DX,
-        
+
         S16_D16_nofilter_DXDY,
         S16_D16_nofilter_DX,
         S16_D16_filter_DXDY,
         S16_D16_filter_DX,
-        
+
         SI8_D16_nofilter_DXDY,
         SI8_D16_nofilter_DX,
         SI8_D16_filter_DXDY,
         SI8_D16_filter_DX,
-        
+
         // Don't support 4444 -> 565
         NULL, NULL, NULL, NULL,
         // Don't support A8 -> 565
@@ -240,7 +240,7 @@ static void check_scale_nofilter(uint32_t bitmapXY[], int count,
                                  unsigned mx, unsigned my) {
     unsigned y = *bitmapXY++;
     SkASSERT(y < my);
-    
+
     const uint16_t* xptr = reinterpret_cast<const uint16_t*>(bitmapXY);
     for (int i = 0; i < count; ++i) {
         SkASSERT(xptr[i] < mx);
@@ -251,10 +251,10 @@ static void check_scale_filter(uint32_t bitmapXY[], int count,
                                  unsigned mx, unsigned my) {
     uint32_t YY = *bitmapXY++;
     unsigned y0 = YY >> 18;
-    unsigned y1 = YY & 0x3FFF;    
+    unsigned y1 = YY & 0x3FFF;
     SkASSERT(y0 < my);
     SkASSERT(y1 < my);
-    
+
     for (int i = 0; i < count; ++i) {
         uint32_t XX = bitmapXY[i];
         unsigned x0 = XX >> 18;
@@ -323,7 +323,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::getMatrixProc() const {
 /*
     The storage requirements for the different matrix procs are as follows,
     where each X or Y is 2 bytes, and N is the number of pixels/elements:
- 
+
     scale/translate     nofilter      Y(4bytes) + N * X
     affine/perspective  nofilter      N * (X Y)
     scale/translate     filter        Y Y + N * (X X)

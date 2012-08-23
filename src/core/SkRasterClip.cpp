@@ -17,7 +17,7 @@ SkRasterClip::SkRasterClip() {
 
 SkRasterClip::SkRasterClip(const SkRasterClip& src) {
     AUTO_RASTERCLIP_VALIDATE(src);
-    
+
     fIsBW = src.fIsBW;
     if (fIsBW) {
         fBW = src.fBW;
@@ -62,7 +62,7 @@ bool SkRasterClip::setEmpty() {
 
 bool SkRasterClip::setRect(const SkIRect& rect) {
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     fIsBW = true;
     fAA.setEmpty();
     fIsRect = fBW.setRect(rect);
@@ -108,14 +108,14 @@ bool SkRasterClip::setPath(const SkPath& path, const SkRasterClip& clip,
 
 bool SkRasterClip::op(const SkIRect& rect, SkRegion::Op op) {
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     fIsBW ? fBW.op(rect, op) : fAA.op(rect, op);
     return this->updateCacheAndReturnNonEmpty();
 }
 
 bool SkRasterClip::op(const SkRegion& rgn, SkRegion::Op op) {
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     if (fIsBW) {
         (void)fBW.op(rgn, op);
     } else {
@@ -165,7 +165,7 @@ static bool nearly_integral(SkScalar x) {
 
 bool SkRasterClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     if (fIsBW && doAA) {
         // check that the rect really needs aa, or is it close enought to
         // integer boundaries that we can just treat it as a BW rect?
@@ -194,7 +194,7 @@ void SkRasterClip::translate(int dx, int dy, SkRasterClip* dst) const {
     }
 
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     if (this->isEmpty()) {
         dst->setEmpty();
         return;
@@ -223,7 +223,7 @@ bool SkRasterClip::quickContains(const SkIRect& ir) const {
 
 const SkRegion& SkRasterClip::forceGetBW() {
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     if (!fIsBW) {
         fBW.setRect(fAA.getBounds());
     }
@@ -232,7 +232,7 @@ const SkRegion& SkRasterClip::forceGetBW() {
 
 void SkRasterClip::convertToAA() {
     AUTO_RASTERCLIP_VALIDATE(*this);
-    
+
     SkASSERT(fIsBW);
     fAA.setRegion(fBW);
     fIsBW = false;

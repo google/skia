@@ -125,7 +125,7 @@ private:
         size_t len = desc->fLength - sizeof(uint32_t);
         return SkChecksum::Compute(ptr, len);
     }
-    
+
     // private so no one can create one except our factories
     SkDescriptor() {}
 };

@@ -49,8 +49,8 @@ public:
      * @return this render target.
      */
     virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE { return this; }
-    virtual const GrRenderTarget* asRenderTarget() const  SK_OVERRIDE { 
-        return this; 
+    virtual const GrRenderTarget* asRenderTarget() const  SK_OVERRIDE {
+        return this;
     }
 
     virtual bool readPixels(int left, int top, int width, int height,
@@ -132,7 +132,7 @@ public:
     void resolve();
 
     // a MSAA RT may require explicit resolving , it may auto-resolve (e.g. FBO
-    // 0 in GL), or be unresolvable because the client didn't give us the 
+    // 0 in GL), or be unresolvable because the client didn't give us the
     // resolve destination.
     enum ResolveType {
         kCanResolve_ResolveType,
@@ -159,7 +159,7 @@ protected:
 
     friend class GrTexture;
     // When a texture unrefs an owned rendertarget this func
-    // removes the back pointer. This could be called from 
+    // removes the back pointer. This could be called from
     // texture's destructor but would have to be done in derived
     // classes. By the time of texture base destructor it has already
     // lost its pointer to the rt.

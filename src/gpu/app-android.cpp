@@ -60,7 +60,7 @@ struct State {
     void setViewport(int w, int h);
     int getWidth() const { return fViewport.fX; }
     int getHeight() const { return fViewport.fY; }
-    
+
     void handleTouch(void*, TouchState, float x, float y);
     void applyMatrix(SkCanvas*);
 
@@ -69,7 +69,7 @@ struct State {
 private:
     SkView*     fView;
     SkIPoint    fViewport;
-    
+
     SkTouchGesture fGesture;
 
     SkTDArray<SkViewFactory> fFactory;
@@ -96,7 +96,7 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
         gHead = NULL;
         gOnce = true;
     }
-    
+
     fChain = gHead;
     gHead = this;
 }
@@ -309,7 +309,7 @@ static void doDraw() {
         int fps = (FRAME_COUNT * 1000) / gDuration;
         SkString str;
         str.printf("FPS=%3d MS=%3d", fps, gDuration / FRAME_COUNT);
-        
+
         SkGpuCanvas c(gContext);
         c.setBitmapDevice(viewport);
 

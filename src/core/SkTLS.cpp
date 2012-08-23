@@ -65,7 +65,7 @@ void* SkTLS::Get(CreateProc createProc, DeleteProc deleteProc) {
         } while ((rec = rec->fNext) != NULL);
         // not found, so create a new one
     }
-    
+
     // add a new head of our change
     SkTLSRec* rec = new SkTLSRec;
     rec->fNext = (SkTLSRec*)ptr;
@@ -82,7 +82,7 @@ void* SkTLS::Find(CreateProc createProc) {
     if (NULL == createProc) {
         return NULL;
     }
-    
+
     void* ptr = SkTLS::PlatformGetSpecific(false);
 
     if (ptr) {
@@ -100,9 +100,9 @@ void SkTLS::Delete(CreateProc createProc) {
     if (NULL == createProc) {
         return;
     }
-    
+
     void* ptr = SkTLS::PlatformGetSpecific(false);
-    
+
     SkTLSRec* curr = (SkTLSRec*)ptr;
     SkTLSRec* prev = NULL;
     while (curr) {

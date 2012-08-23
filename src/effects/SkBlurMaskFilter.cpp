@@ -33,7 +33,7 @@ private:
 
     SkBlurMaskFilterImpl(SkFlattenableReadBuffer&);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
     typedef SkMaskFilter INHERITED;
 };
 
@@ -41,7 +41,7 @@ SkMaskFilter* SkBlurMaskFilter::Create(SkScalar radius,
                                        SkBlurMaskFilter::BlurStyle style,
                                        uint32_t flags) {
     // use !(radius > 0) instead of radius <= 0 to reject NaN values
-    if (!(radius > 0) || (unsigned)style >= SkBlurMaskFilter::kBlurStyleCount 
+    if (!(radius > 0) || (unsigned)style >= SkBlurMaskFilter::kBlurStyleCount
         || flags > SkBlurMaskFilter::kAll_BlurFlag) {
         return NULL;
     }
@@ -89,7 +89,7 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
     static const SkScalar MAX_RADIUS = SkIntToScalar(128);
     radius = SkMinScalar(radius, MAX_RADIUS);
     SkBlurMask::Quality blurQuality =
-        (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ? 
+        (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
             SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
 
     return SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle,

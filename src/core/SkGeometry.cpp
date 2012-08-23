@@ -204,7 +204,7 @@ static SkScalar eval_quad(const SkScalar src[], SkScalar t)
     return SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
 #else
     SkScalar    ab = SkScalarInterp(src[0], src[2], t);
-    SkScalar    bc = SkScalarInterp(src[2], src[4], t); 
+    SkScalar    bc = SkScalarInterp(src[2], src[4], t);
     return SkScalarInterp(ab, bc, t);
 #endif
 }
@@ -316,7 +316,7 @@ int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5])
 {
     SkASSERT(src);
     SkASSERT(dst);
-    
+
 #if 0
     static bool once = true;
     if (once)
@@ -324,16 +324,16 @@ int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5])
         once = false;
         SkPoint s[3] = { 0, 26398, 0, 26331, 0, 20621428 };
         SkPoint d[6];
-        
+
         int n = SkChopQuadAtYExtrema(s, d);
         SkDebugf("chop=%d, Y=[%x %x %x %x %x %x]\n", n, d[0].fY, d[1].fY, d[2].fY, d[3].fY, d[4].fY, d[5].fY);
     }
 #endif
-    
+
     SkScalar a = src[0].fY;
     SkScalar b = src[1].fY;
     SkScalar c = src[2].fY;
-    
+
     if (is_not_monotonic(a, b, c))
     {
         SkScalar    tValue;
@@ -360,11 +360,11 @@ int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5])
 {
     SkASSERT(src);
     SkASSERT(dst);
-    
+
     SkScalar a = src[0].fX;
     SkScalar b = src[1].fX;
     SkScalar c = src[2].fX;
-    
+
     if (is_not_monotonic(a, b, c)) {
         SkScalar tValue;
         if (valid_unit_divide(a - b, a - b - b + c, &tValue)) {
@@ -592,7 +592,7 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t)
 }
 
 /*  http://code.google.com/p/skia/issues/detail?id=32
- 
+
     This test code would fail when we didn't check the return result of
     valid_unit_divide in SkChopCubicAt(... tValues[], int roots). The reason is
     that after the first chop, the parameters to valid_unit_divide are equal
@@ -699,7 +699,7 @@ int SkChopCubicAtYExtrema(const SkPoint src[4], SkPoint dst[10]) {
     SkScalar    tValues[2];
     int         roots = SkFindCubicExtrema(src[0].fY, src[1].fY, src[2].fY,
                                            src[3].fY, tValues);
-    
+
     SkChopCubicAt(src, dst, tValues, roots);
     if (dst && roots > 0) {
         // we do some cleanup to ensure our Y extrema are flat
@@ -715,7 +715,7 @@ int SkChopCubicAtXExtrema(const SkPoint src[4], SkPoint dst[10]) {
     SkScalar    tValues[2];
     int         roots = SkFindCubicExtrema(src[0].fX, src[1].fX, src[2].fX,
                                            src[3].fX, tValues);
-    
+
     SkChopCubicAt(src, dst, tValues, roots);
     if (dst && roots > 0) {
         // we do some cleanup to ensure our Y extrema are flat
@@ -899,7 +899,7 @@ static void test_collaps_duplicates() {
 /*  Solve coeff(t) == 0, returning the number of roots that
     lie withing 0 < t < 1.
     coeff[0]t^3 + coeff[1]t^2 + coeff[2]t + coeff[3]
- 
+
     Eliminates repeated roots (so that all tValues are distinct, and are always
     in increasing order.
 */
@@ -984,7 +984,7 @@ static int solve_cubic_polynomial(const SkFP coeff[4], SkScalar tValues[3])
 }
 
 /*  Looking for F' dot F'' == 0
-    
+
     A = b - a
     B = c - 2b + a
     C = d - 3c + 3b - a
@@ -1016,7 +1016,7 @@ static void formulate_F1DotF2(const SkScalar src[], SkFP coeff[4])
 #define kMinTValueForChopping   0
 
 /*  Looking for F' dot F'' == 0
-    
+
     A = b - a
     B = c - 2b + a
     C = d - 3c + 3b - a
@@ -1238,7 +1238,7 @@ static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPo
             catch the >= 1 roots (which given our caller, will basically mean
             a root of 1, give-or-take numerical instability). If we are in the
             >= 1 case, return the existing offCurve point.
-        
+
             The test below checks to see if we are close to the "end" of the
             curve (near base[4]). Rather than specifying a tolerance, I just
             check to see if value is on to the right/left of the middle point
@@ -1297,7 +1297,7 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
     if (absY <= SK_ScalarNearlyZero && x > 0 &&
         ((y >= 0 && kCW_SkRotationDirection == dir) ||
          (y <= 0 && kCCW_SkRotationDirection == dir))) {
-            
+
         // just return the start-point
         quadPoints[0].set(SK_Scalar1, 0);
         pointCount = 1;

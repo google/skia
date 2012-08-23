@@ -21,10 +21,10 @@ public:
     BML_WXMLParser(SkWStream& writer);
     virtual ~BML_WXMLParser();
     static void Write(SkStream& s, const char filename[]);
-  
+
   /** @cond UNIT_TEST */
   SkDEBUGCODE(static void UnitTest();)
-  /** @endcond */  
+  /** @endcond */
 private:
     virtual bool onAddAttribute(const char name[], const char value[]);
     virtual bool onEndElement(const char name[]);

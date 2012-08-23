@@ -31,7 +31,7 @@ public:
 
     /// Reinitialize for a new scanline.
     void    reset(int width);
-    
+
     /**
      *  Insert into the buffer a run starting at (x-offsetX):
      *      if startAlpha > 0

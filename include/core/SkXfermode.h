@@ -101,11 +101,11 @@ public:
         // all remaining modes are defined in the SVG Compositing standard
         // http://www.w3.org/TR/2009/WD-SVGCompositing-20090430/
         kPlus_Mode,
-        kMultiply_Mode, 
-        
+        kMultiply_Mode,
+
         // all above modes can be expressed as pair of src/dst Coeffs
-        kCoeffModesCnt, 
-        
+        kCoeffModesCnt,
+
         kScreen_Mode = kCoeffModesCnt,
         kOverlay_Mode,
         kDarken_Mode,

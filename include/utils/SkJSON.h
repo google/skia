@@ -23,9 +23,9 @@ public:
         kFloat,
         kBool,
     };
-    
+
     class Array;
-    
+
     class Object {
     private:
         struct Slot;
@@ -42,7 +42,7 @@ public:
          *  not be null.
          */
         void addObject(const char name[], Object* value);
-        
+
         /**
          *  Create a new slot with the specified name and value. The name
          *  parameter is copied, but ownership of the Array parameter is
@@ -50,26 +50,26 @@ public:
          *  not be null.
          */
         void addArray(const char name[], Array* value);
-        
+
         /**
          *  Create a new slot with the specified name and value. Both parameters
          *  are copied. The value parameter may be null, but the name must
          *  not be null.
          */
         void addString(const char name[], const char value[]);
-        
+
         /**
          *  Create a new slot with the specified name and value. The name
          *  parameter is copied, and must not be null.
          */
         void addInt(const char name[], int32_t value);
-        
+
         /**
          *  Create a new slot with the specified name and value. The name
          *  parameter is copied, and must not be null.
          */
         void addFloat(const char name[], float value);
-        
+
         /**
          *  Create a new slot with the specified name and value. The name
          *  parameter is copied, and must not be null.
@@ -108,7 +108,7 @@ public:
         class Iter {
         public:
             Iter(const Object&);
-            
+
             /**
              *  Returns true when there are no more entries in the iterator.
              *  In this case, no other methods should be called.
@@ -126,43 +126,43 @@ public:
              *  if done() returns false.
              */
             Type type() const;
-            
+
             /**
              *  Returns the name of the current element. Should only be called
              *  if done() returns false.
              */
             const char* name() const;
-            
+
             /**
              *  Returns the type of the current element. Should only be called
              *  if done() returns false and type() returns kObject.
              */
             Object* objectValue() const;
-            
+
             /**
              *  Returns the type of the current element. Should only be called
              *  if done() returns false and type() returns kArray.
              */
             Array* arrayValue() const;
-            
+
             /**
              *  Returns the type of the current element. Should only be called
              *  if done() returns false and type() returns kString.
              */
             const char* stringValue() const;
-            
+
             /**
              *  Returns the type of the current element. Should only be called
              *  if done() returns false and type() returns kInt.
              */
             int32_t intValue() const;
-            
+
             /**
              *  Returns the type of the current element. Should only be called
              *  if done() returns false and type() returns kFloat.
              */
             float floatValue() const;
-            
+
             /**
              *  Returns the type of the current element. Should only be called
              *  if done() returns false and type() returns kBool.
@@ -176,14 +176,14 @@ public:
     private:
         Slot* fHead;
         Slot* fTail;
-        
+
         const Slot* findSlot(const char name[], Type) const;
         Slot* addSlot(Slot*);
         void dumpLevel(int level) const;
-        
+
         friend class Array;
     };
-    
+
     class Array {
     public:
         /**
@@ -197,22 +197,22 @@ public:
          *  values.
          */
         Array(const int32_t values[], int count);
-        
+
         /**
          *  Creates an array of floats, initialized by copying the specified
          *  values.
          */
         Array(const float values[], int count);
-        
+
         /**
          *  Creates an array of bools, initialized by copying the specified
          *  values.
          */
         Array(const bool values[], int count);
-        
+
         Array(const Array&);
         ~Array();
-        
+
         int count() const { return fCount; }
         Type type() const { return fType; }
 
@@ -222,7 +222,7 @@ public:
          *  Should only be called if the Array's type is kObject.
          */
         void setObject(int index, Object*);
-        
+
         /**
          *  Replace the element at the specified index with the specified
          *  Array (which may be null). Ownership of the Array is transferred.
@@ -274,10 +274,10 @@ public:
             float*   fFloats;
             bool*    fBools;
         } fArray;
-        
+
         void init(Type, int count, const void* src);
         void dumpLevel(int level) const;
-        
+
         friend class Object;
     };
 };

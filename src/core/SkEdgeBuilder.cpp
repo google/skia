@@ -84,7 +84,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
     SkPath::Verb    verb;
-    
+
     int maxEdgeCount = path.countPoints();
     if (iclip) {
         // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
@@ -105,7 +105,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
     if (iclip) {
         SkRect clip;
         setShiftedClip(&clip, *iclip, shiftUp);
-        
+
         while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:

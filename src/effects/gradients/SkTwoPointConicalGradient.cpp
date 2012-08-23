@@ -21,11 +21,11 @@ static int valid_divide(float numer, float denom, float* ratio) {
 // ascending order
 static int find_quad_roots(float A, float B, float C, float roots[2]) {
     SkASSERT(roots);
-    
+
     if (A == 0) {
         return valid_divide(-C, B, roots);
     }
-    
+
     float R = B*B - 4*A*C;
     if (R < 0) {
         return 0;
@@ -87,7 +87,7 @@ void TwoPtRadial::setup(SkScalar fx, SkScalar fy, SkScalar dfx, SkScalar dfy) {
 
 SkFixed TwoPtRadial::nextT() {
     float roots[2];
-    
+
     float C = sqr(fRelX) + sqr(fRelY) - fRadius2;
     int countRoots = find_quad_roots(fA, fB, C, roots);
 
@@ -184,9 +184,9 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
 void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
                                           int count) {
     SkASSERT(count > 0);
-    
+
     SkPMColor* SK_RESTRICT dstC = dstCParam;
-    
+
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
     const SkPMColor* SK_RESTRICT cache = this->getCache32();
@@ -199,14 +199,14 @@ void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
     } else {
         SkASSERT(SkShader::kRepeat_TileMode == fTileMode);
     }
-    
+
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         SkPoint srcPt;
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
         SkScalar dx, fx = srcPt.fX;
         SkScalar dy, fy = srcPt.fY;
-        
+
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed fixedX, fixedY;
             (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &fixedX, &fixedY);
@@ -227,7 +227,7 @@ void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
             SkPoint srcPt;
             dstProc(fDstToIndex, dstX, dstY, &srcPt);
             dstX += SK_Scalar1;
-            
+
             fRec.setup(srcPt.fX, srcPt.fY, 0, 0);
             (*shadeProc)(&fRec, dstC, cache, 1);
         }
@@ -240,10 +240,10 @@ bool SkTwoPointConicalGradient::setContext(const SkBitmap& device,
     if (!this->INHERITED::setContext(device, paint, matrix)) {
         return false;
     }
-    
+
     // we don't have a span16 proc
     fFlags &= ~kHasSpan16_Flag;
-    
+
     // in general, we might discard based on computed-radius, so clear
     // this flag (todo: sometimes we can detect that we never discard...)
     fFlags &= ~kOpaqueAlpha_Flag;
@@ -374,7 +374,7 @@ public:
 
     GrConical2Gradient(GrContext* ctx, const SkTwoPointConicalGradient& shader,
                        GrSamplerState* sampler)
-        : INHERITED(ctx, shader, sampler) 
+        : INHERITED(ctx, shader, sampler)
         , fCenterX1(shader.getCenterX1())
         , fRadius0(shader.getStartRadius())
         , fDiffRadius(shader.getDiffRadius()) { }
@@ -431,7 +431,7 @@ GrCustomStage* GrConical2Gradient::TestCreate(SkRandom* random,
         radius2 = random->nextUScalar1 ();
         // If the circles are identical the factory will give us an empty shader.
     } while (radius1 == radius2 && center1 == center2);
-    
+
     SkColor colors[kMaxRandomGradientColors];
     SkScalar stopsArray[kMaxRandomGradientColors];
     SkScalar* stops = stopsArray;
@@ -541,8 +541,8 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     } else {
         GrAssert(3 == builder->fVaryingDims);
         bVar = "b";
-        code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n", 
-                      bVar.c_str(), p2.c_str(), builder->fSampleCoords.c_str(), 
+        code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
+                      bVar.c_str(), p2.c_str(), builder->fSampleCoords.c_str(),
                       p3.c_str(), p5.c_str());
     }
 
@@ -551,7 +551,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     code->appendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
 
     // c = (x^2)+(y^2) - params[4]
-    code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(), 
+    code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
                   builder->fSampleCoords.c_str(), builder->fSampleCoords.c_str(),
                   p4.c_str());
 
@@ -561,9 +561,9 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         // ac4 = params[0] * c
         code->appendf("\tfloat %s = %s * %s;\n", ac4Name.c_str(), p0.c_str(),
                       cName.c_str());
-        
+
         // d = b^2 - ac4
-        code->appendf("\tfloat %s = %s * %s - %s;\n", dName.c_str(), 
+        code->appendf("\tfloat %s = %s * %s - %s;\n", dName.c_str(),
                       bVar.c_str(), bVar.c_str(), ac4Name.c_str());
 
         // only proceed if discriminant is >= 0
@@ -572,26 +572,26 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         // intermediate value we'll use to compute the roots
         // q = -0.5 * (b +/- sqrt(d))
         code->appendf("\t\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
-                      " * sqrt(%s));\n", qName.c_str(), bVar.c_str(), 
+                      " * sqrt(%s));\n", qName.c_str(), bVar.c_str(),
                       bVar.c_str(), dName.c_str());
 
         // compute both roots
         // r0 = q * params[1]
-        code->appendf("\t\tfloat %s = %s * %s;\n", r0Name.c_str(), 
+        code->appendf("\t\tfloat %s = %s * %s;\n", r0Name.c_str(),
                       qName.c_str(), p1.c_str());
         // r1 = c / q
-        code->appendf("\t\tfloat %s = %s / %s;\n", r1Name.c_str(), 
+        code->appendf("\t\tfloat %s = %s / %s;\n", r1Name.c_str(),
                       cName.c_str(), qName.c_str());
 
-        // Note: If there are two roots that both generate radius(t) > 0, the 
+        // Note: If there are two roots that both generate radius(t) > 0, the
         // Canvas spec says to choose the larger t.
 
         // so we'll look at the larger one first:
-        code->appendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(), 
+        code->appendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(),
                       r0Name.c_str(), r1Name.c_str());
 
         // if r(t) > 0, then we're done; t will be our x coordinate
-        code->appendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(), 
+        code->appendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                       p5.c_str(), p3.c_str());
 
         code->appendf("\t\t");
@@ -599,7 +599,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
 
         // otherwise, if r(t) for the larger root was <= 0, try the other root
         code->appendf("\t\t} else {\n");
-        code->appendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(), 
+        code->appendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(),
                       r0Name.c_str(), r1Name.c_str());
 
         // if r(t) > 0 for the smaller root, then t will be our x coordinate
@@ -609,7 +609,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         code->appendf("\t\t\t");
         this->emitColorLookup(builder, tName.c_str(), outputColor, samplerName);
 
-        // end if (r(t) > 0) for smaller root 
+        // end if (r(t) > 0) for smaller root
         code->appendf("\t\t\t}\n");
         // end if (r(t) > 0), else, for larger root
         code->appendf("\t\t}\n");
@@ -618,7 +618,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     } else {
 
         // linear case: t = -c/b
-        code->appendf("\tfloat %s = -(%s / %s);\n", tName.c_str(), 
+        code->appendf("\tfloat %s = -(%s / %s);\n", tName.c_str(),
                       cName.c_str(), bVar.c_str());
 
         // if r(t) > 0, then t will be the x coordinate

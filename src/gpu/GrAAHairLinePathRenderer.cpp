@@ -139,7 +139,7 @@ int get_float_exp(float x) {
 // if it returns -1 then should be drawn as lines
 int num_quad_subdivs(const SkPoint p[3]) {
     static const SkScalar gDegenerateToLineTol = SK_Scalar1;
-    static const SkScalar gDegenerateToLineTolSqd = 
+    static const SkScalar gDegenerateToLineTolSqd =
         SkScalarMul(gDegenerateToLineTol, gDegenerateToLineTol);
 
     if (p[0].distanceToSqd(p[1]) < gDegenerateToLineTolSqd ||
@@ -177,7 +177,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
         return log;
 #else
         SkScalar log = SkScalarLog(
-                          SkScalarDiv(dsqd, 
+                          SkScalarDiv(dsqd,
                                       SkScalarMul(gSubdivTol, gSubdivTol)));
         static const SkScalar conv = SkScalarInvert(SkScalarLog(2));
         log = SkScalarMul(log, conv);
@@ -269,7 +269,7 @@ int generate_lines_and_quads(const SkPath& path,
                     // We convert cubics to quadratics (for now).
                     // In perspective have to do conversion in src space.
                     if (persp) {
-                        SkScalar tolScale = 
+                        SkScalar tolScale =
                             GrPathUtils::scaleToleranceToSrc(SK_Scalar1, m,
                                                              path.getBounds());
                         GrPathUtils::convertCubicToQuads(pts, tolScale, false, kDummyDir, &q);
@@ -351,7 +351,7 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
 
     result->fX = SkScalarMul(normA.fY, lineBW) - SkScalarMul(lineAW, normB.fY);
     result->fX = SkScalarMul(result->fX, wInv);
-    
+
     result->fY = SkScalarMul(lineAW, normB.fX) - SkScalarMul(normA.fX, lineBW);
     result->fY = SkScalarMul(result->fY, wInv);
 }
@@ -512,7 +512,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     int rtHeight = drawState.getRenderTarget()->height();
 
     GrIRect devClipBounds;
-    target->getClip()->getConservativeBounds(drawState.getRenderTarget(), 
+    target->getClip()->getConservativeBounds(drawState.getRenderTarget(),
                                              &devClipBounds);
 
     GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
@@ -611,7 +611,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         }
         drawState->viewMatrix()->reset();
     }
-    
+
 
     // TODO: See whether rendering lines as degenerate quads improves perf
     // when we have a mix

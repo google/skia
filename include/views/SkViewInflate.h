@@ -17,7 +17,7 @@
 class SkView;
 
 class SkViewInflate {
-public: 
+public:
             SkViewInflate();
     virtual ~SkViewInflate();
 
@@ -33,7 +33,7 @@ public:
         if no match is found.
     */
     SkView* findViewByID(const char id[]) const;
-    
+
     SkDEBUGCODE(void dump() const;)
 
 protected:

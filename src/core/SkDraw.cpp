@@ -46,7 +46,7 @@ public:
         fBlitter = SkBlitter::Choose(device, matrix, paint,
                                      fStorage, sizeof(fStorage));
     }
-    
+
     ~SkAutoBlitterChoose();
 
     SkBlitter*  operator->() { return fBlitter; }
@@ -556,7 +556,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
         if (!bounder_points(fBounder, mode, count, pts, paint, *fMatrix)) {
             return;
         }
-        
+
         // clear the bounder and call this again, so we don't invoke the bounder
         // later if we happen to call ourselves for drawRect, drawPath, etc.
         SkDraw noBounder(*this);
@@ -564,7 +564,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
         noBounder.drawPoints(mode, count, pts, paint, forceUseDevice);
         return;
     }
-    
+
     PtProcRec rec;
     if (!forceUseDevice && rec.init(mode, paint, fMatrix, fRC)) {
         SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, paint);
@@ -671,7 +671,7 @@ static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
         paint.getStrokeMiter() < SK_ScalarSqrt2) {
         return false;
     }
-    
+
     SkASSERT(matrix.rectStaysRect());
     SkPoint pt = { paint.getStrokeWidth(), paint.getStrokeWidth() };
     matrix.mapVectors(strokeSize, &pt, 1);
@@ -687,11 +687,11 @@ SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
     const SkScalar width = paint.getStrokeWidth();
     const bool zeroWidth = (0 == width);
     SkPaint::Style style = paint.getStyle();
-    
+
     if ((SkPaint::kStrokeAndFill_Style == style) && zeroWidth) {
         style = SkPaint::kFill_Style;
     }
-    
+
     if (paint.getPathEffect() || paint.getMaskFilter() ||
         paint.getRasterizer() || !matrix.rectStaysRect() ||
         SkPaint::kStrokeAndFill_Style == style) {
@@ -848,7 +848,7 @@ static bool xfermodeSupportsCoverageAsAlpha(SkXfermode* xfer) {
     if (!SkXfermode::AsCoeff(xfer, NULL, &dc)) {
         return false;
     }
-    
+
     switch (dc) {
         case SkXfermode::kOne_Coeff:
         case SkXfermode::kISA_Coeff:
@@ -986,7 +986,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, *paint);
 
     if (paint->getMaskFilter()) {
-        SkPaint::Style style = doFill ? SkPaint::kFill_Style : 
+        SkPaint::Style style = doFill ? SkPaint::kFill_Style :
             SkPaint::kStroke_Style;
         if (paint->getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fRC,
                                                fBounder, blitter.get(),
@@ -1359,9 +1359,9 @@ static void D1G_NoBounder_RectClip(const SkDraw1Glyph& state,
     int right   = left + glyph.fWidth;
     int bottom  = top + glyph.fHeight;
 
-    SkMask		mask;
-    SkIRect		storage;
-    SkIRect*	bounds = &mask.fBounds;
+    SkMask        mask;
+    SkIRect        storage;
+    SkIRect*    bounds = &mask.fBounds;
 
     mask.fBounds.set(left, top, right, bottom);
 
@@ -1410,7 +1410,7 @@ static void D1G_NoBounder_RgnClip(const SkDraw1Glyph& state,
         if (NULL == aa) {
             aa = (uint8_t*)state.fCache->findImage(glyph);
             if (NULL == aa) {
-            	return;
+                return;
             }
         }
 
@@ -1430,15 +1430,15 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
     int left = SkFixedFloor(fx);
     int top = SkFixedFloor(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
-    
+
     SkMask  mask;
-    
+
     left += glyph.fLeft;
     top  += glyph.fTop;
-    
+
     mask.fBounds.set(left, top, left + glyph.fWidth, top + glyph.fHeight);
     SkRegion::Cliperator clipper(*state.fClip, mask.fBounds);
-    
+
     if (!clipper.done()) {
         const SkIRect&  cr = clipper.rect();
         const uint8_t*  aa = (const uint8_t*)glyph.fImage;
@@ -1447,8 +1447,8 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
             if (NULL == aa) {
                 return;
             }
-    	}
-        
+        }
+
         // we need to pass the origin, which we approximate with our
         // (unadjusted) left,top coordinates (the caller called fixedfloor)
         if (state.fBounder->doIRectGlyph(cr,
@@ -1596,7 +1596,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
         }
-    
+
     // apply bias here to avoid adding 1/2 the sampling frequency in the loop
         fx += SK_FixedHalf >> SkGlyph::kSubBits;
         fy += SK_FixedHalf >> SkGlyph::kSubBits;
@@ -1770,7 +1770,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
             blitter = wrapper.getBlitter();
         }
     }
-    
+
     const char*        stop = text + byteLength;
     AlignProc          alignProc = pick_align_proc(paint.getTextAlign());
     SkDraw1Glyph       d1g;
@@ -1855,7 +1855,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
             while (text < stop) {
                 // the last 2 parameters are ignored
                 const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
-                
+
                 if (glyph.fWidth) {
                     tmsProc(tms, pos);
 

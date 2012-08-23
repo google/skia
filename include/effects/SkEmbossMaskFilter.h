@@ -43,7 +43,7 @@ protected:
 private:
     Light       fLight;
     SkScalar    fBlurRadius;
-    
+
     typedef SkMaskFilter INHERITED;
 };
 

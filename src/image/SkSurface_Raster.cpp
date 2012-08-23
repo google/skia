@@ -76,7 +76,7 @@ bool SkSurface_Raster::Valid(const SkImage::Info& info, SkColorSpace* cs,
     if (size > kMaxTotalSize) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -85,7 +85,7 @@ SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, SkColorSpace* cs,
         : INHERITED(info.fWidth, info.fHeight) {
     bool isOpaque;
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
-    
+
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rb);
     fBitmap.setPixels(pixels);
     fBitmap.setIsOpaque(isOpaque);
@@ -140,7 +140,7 @@ SkSurface* SkSurface::NewRasterDirect(const SkImage::Info& info,
     if (NULL == pixels) {
         return NULL;
     }
-    
+
     return SkNEW_ARGS(SkSurface_Raster, (info, cs, pixels, rowBytes));
 }
 
@@ -148,20 +148,20 @@ SkSurface* SkSurface::NewRaster(const SkImage::Info& info, SkColorSpace* cs) {
     if (!SkSurface_Raster::Valid(info, cs)) {
         return NULL;
     }
-    
+
     static const size_t kMaxTotalSize = SK_MaxS32;
     size_t rowBytes = SkImageMinRowBytes(info);
     uint64_t size64 = (uint64_t)info.fHeight * rowBytes;
     if (size64 > kMaxTotalSize) {
         return NULL;
     }
-    
+
     size_t size = (size_t)size64;
     void* pixels = sk_malloc_throw(size);
     if (NULL == pixels) {
         return NULL;
     }
-    
+
     SkAutoTUnref<SkPixelRef> pr(SkNEW_ARGS(SkMallocPixelRef, (pixels, size, NULL, true)));
     return SkNEW_ARGS(SkSurface_Raster, (info, cs, pr, rowBytes));
 }

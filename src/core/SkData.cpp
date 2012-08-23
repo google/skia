@@ -212,7 +212,7 @@ SkDataSet::SkDataSet(const Pair array[], int count) {
             pairs[uniqueCount].fKey = keyStorage;
             keyStorage += len + 1;
             keySize += len + 1;
-            
+
             pairs[uniqueCount].fValue = dupdata(array[i].fValue);
             uniqueCount += 1;
         }
@@ -231,7 +231,7 @@ SkDataSet::~SkDataSet() {
 SkData* SkDataSet::find(const char key[]) const {
     return findValue(key, fPairs, fCount);
 }
-    
+
 void SkDataSet::writeToStream(SkWStream* stream) const {
     stream->write32(fCount);
     if (fCount > 0) {
@@ -260,9 +260,9 @@ SkDataSet::SkDataSet(SkStream* stream) {
         fKeySize = stream->readU32();
         fPairs = allocatePairStorage(fCount, fKeySize);
         char* keyStorage = (char*)(fPairs + fCount);
-        
+
         stream->read(keyStorage, fKeySize);
-        
+
         for (int i = 0; i < fCount; ++i) {
             fPairs[i].fKey = keyStorage;
             keyStorage += strlen(keyStorage) + 1;
@@ -280,9 +280,9 @@ SkDataSet::SkDataSet(SkFlattenableReadBuffer& buffer) {
         fKeySize = buffer.getArrayCount();
         fPairs = allocatePairStorage(fCount, fKeySize);
         char* keyStorage = (char*)(fPairs + fCount);
-        
+
         buffer.readByteArray(keyStorage);
-        
+
         for (int i = 0; i < fCount; ++i) {
             fPairs[i].fKey = keyStorage;
             keyStorage += strlen(keyStorage) + 1;

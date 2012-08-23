@@ -141,7 +141,7 @@ public:
     /** Return the array of T elements. Will be NULL if count == 0
      */
     T* get() const { return fArray; }
-    
+
     /** Return the nth element in the array
      */
     T&  operator[](int index) const {
@@ -170,7 +170,7 @@ public:
         }
         fCount = count;
     }
-    
+
     ~SkAutoSTArray() {
         if (fCount > N) {
             delete[] fArray;
@@ -182,22 +182,22 @@ public:
             }
         }
     }
-    
+
     /** Return the number of T elements in the array
      */
     size_t count() const { return fCount; }
-    
+
     /** Return the array of T elements. Will be NULL if count == 0
      */
     T* get() const { return fArray; }
-    
+
     /** Return the nth element in the array
      */
     T&  operator[](int index) const {
         SkASSERT((unsigned)index < fCount);
         return fArray[index];
     }
-    
+
 private:
     size_t  fCount;
     T*      fArray;

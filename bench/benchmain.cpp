@@ -105,7 +105,7 @@ static bool equal(const SkBitmap& bm1, const SkBitmap& bm2) {
         bm1.config() != bm2.config()) {
         return false;
     }
-    
+
     size_t pixelBytes = bm1.width() * bm1.bytesPerPixel();
     for (int y = 0; y < bm1.height(); y++) {
         if (memcmp(bm1.getAddr(0, y), bm2.getAddr(0, y), pixelBytes)) {
@@ -122,7 +122,7 @@ public:
         fBench = BenchRegistry::Head();
         fParam = param;
     }
-    
+
     SkBenchmark* next() {
         if (fBench) {
             BenchRegistry::Factory f = fBench->factory();
@@ -171,7 +171,7 @@ static void saveFile(const char name[], const char config[], const char dir[],
     if (!bm.copyTo(&copy, SkBitmap::kARGB_8888_Config)) {
         return;
     }
-    
+
     if (bm.config() == SkBitmap::kA8_Config) {
         // turn alpha into gray-scale
         size_t size = copy.getSize() >> 2;
@@ -183,7 +183,7 @@ static void saveFile(const char name[], const char config[], const char dir[],
             *p++ = c | (SK_A32_MASK << SK_A32_SHIFT);
         }
     }
-    
+
     SkString str;
     make_filename(name, &str);
     str.appendf("_%s.png", config);
@@ -195,11 +195,11 @@ static void saveFile(const char name[], const char config[], const char dir[],
 
 static void performClip(SkCanvas* canvas, int w, int h) {
     SkRect r;
-    
+
     r.set(SkIntToScalar(10), SkIntToScalar(10),
           SkIntToScalar(w*2/3), SkIntToScalar(h*2/3));
     canvas->clipRect(r, SkRegion::kIntersect_Op);
-    
+
     r.set(SkIntToScalar(w/3), SkIntToScalar(h/3),
           SkIntToScalar(w-10), SkIntToScalar(h-10));
     canvas->clipRect(r, SkRegion::kXOR_Op);
@@ -208,7 +208,7 @@ static void performClip(SkCanvas* canvas, int w, int h) {
 static void performRotate(SkCanvas* canvas, int w, int h) {
     const SkScalar x = SkIntToScalar(w) / 2;
     const SkScalar y = SkIntToScalar(h) / 2;
-    
+
     canvas->translate(x, y);
     canvas->rotate(SkIntToScalar(35));
     canvas->translate(-x, -y);
@@ -217,7 +217,7 @@ static void performRotate(SkCanvas* canvas, int w, int h) {
 static void performScale(SkCanvas* canvas, int w, int h) {
     const SkScalar x = SkIntToScalar(w) / 2;
     const SkScalar y = SkIntToScalar(h) / 2;
-    
+
     canvas->translate(x, y);
     // just enough so we can't take the sprite case
     canvas->scale(SK_Scalar1 * 99/100, SK_Scalar1 * 99/100);
@@ -314,7 +314,7 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
     SkDevice* device = NULL;
     SkBitmap bitmap;
     bitmap.setConfig(config, size.fX, size.fY);
-    
+
     switch (backend) {
         case kRaster_Backend:
             bitmap.allocPixels();
@@ -475,7 +475,7 @@ int main (int argc, char * const argv[]) {
     Backend backend = kRaster_Backend;  // for warning
     SkTDArray<int> configs;
     bool userConfig = false;
-    
+
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
         if (strcmp(*argv, "-o") == 0) {
@@ -692,7 +692,7 @@ int main (int argc, char * const argv[]) {
             default: ditherName = "<invalid>"; break;
         }
         str.appendf(" dither=%s", ditherName);
-        
+
         if (hasStrokeWidth) {
             str.appendf(" strokeWidth=%f", strokeWidth);
         } else {
@@ -753,7 +753,7 @@ int main (int argc, char * const argv[]) {
         if (dim.fX <= 0 || dim.fY <= 0) {
             continue;
         }
-        
+
         bench->setForceAlpha(forceAlpha);
         bench->setForceAA(forceAA);
         bench->setForceFilter(forceFilter);
@@ -761,19 +761,19 @@ int main (int argc, char * const argv[]) {
         if (hasStrokeWidth) {
             bench->setStrokeWidth(strokeWidth);
         }
-        
+
         // only run benchmarks if their name contains matchStr
         if (skip_name(fMatches, bench->getName())) {
             continue;
         }
-        
+
         {
             SkString str;
             str.printf("running bench [%d %d] %28s", dim.fX, dim.fY,
                        bench->getName());
             logger.logProgress(str);
         }
-        
+
         AutoPrePostDraw appd(bench);
 
         for (int x = 0; x < configs.count(); ++x) {

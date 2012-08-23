@@ -63,10 +63,10 @@ static void pts_to_unit_matrix(const SkPoint pts[2], SkMatrix* matrix) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkLinearGradient::SkLinearGradient(const SkPoint pts[2],
-                                   const SkColor colors[], 
-                                   const SkScalar pos[], 
+                                   const SkColor colors[],
+                                   const SkScalar pos[],
                                    int colorCount,
-                                   SkShader::TileMode mode, 
+                                   SkShader::TileMode mode,
                                    SkUnitMapper* mapper)
     : SkGradientShaderBase(colors, pos, colorCount, mode, mapper)
     , fStart(pts[0])
@@ -120,7 +120,7 @@ typedef void (*LinearShadeProc)(TileProc proc, SkFixed dx, SkFixed fx,
                                 SkPMColor* dstC, const SkPMColor* cache,
                                 int toggle, int count);
 
-// This function is deprecated, and will be replaced by 
+// This function is deprecated, and will be replaced by
 // shadeSpan_linear_vertical_lerp() once Chrome has been weaned off of it.
 void shadeSpan_linear_vertical(TileProc proc, SkFixed dx, SkFixed fx,
                                SkPMColor* SK_RESTRICT dstC,

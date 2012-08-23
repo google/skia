@@ -26,7 +26,7 @@ template <typename T> class SkTRefArray : public SkRefCnt {
         // space for us, and our [count] elements
         size_t size = sizeof(SkTRefArray<T>) + count * sizeof(T);
         SkTRefArray<T>* obj = (SkTRefArray<T>*)sk_malloc_throw(size);
-        
+
         SkNEW_PLACEMENT(obj, SkTRefArray<T>);
         obj->fCount = count;
         return obj;
@@ -46,7 +46,7 @@ public:
         }
         return obj;
     }
-    
+
     /**
      *  Return a new array with 'count' elements, initialized from the provided
      *  src array. To change them to some other value, use writableBegin/End or
@@ -60,7 +60,7 @@ public:
         }
         return obj;
     }
-    
+
     int count() const { return fCount; }
     const T* begin() const { return (const T*)(this + 1); }
     const T* end() const { return this->begin() + fCount; }
@@ -89,12 +89,12 @@ protected:
     virtual void internal_dispose() const SK_OVERRIDE {
         T* array = const_cast<T*>(this->begin());
         int n = fCount;
-        
+
         for (int i = 0; i < n; ++i) {
             array->~T();
             array += 1;
         }
-        
+
         this->internal_dispose_restore_refcnt_to_1();
         this->~SkTRefArray<T>();
         sk_free((void*)this);

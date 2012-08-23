@@ -90,15 +90,15 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
-            
+
             if (GrCacheData::kScratch_CacheID != key) {
-                return ctx->createAndLockTexture(params, desc, cacheData, 
+                return ctx->createAndLockTexture(params, desc, cacheData,
                                                  storage.get(),
                                                  bitmap->width());
             } else {
                 GrTexture* result = ctx->lockScratchTexture(desc,
                                           GrContext::kExact_ScratchTexMatch);
-                result->writePixels(0, 0, bitmap->width(), 
+                result->writePixels(0, 0, bitmap->width(),
                                     bitmap->height(), desc.fConfig,
                                     storage.get());
                 return result;
@@ -119,10 +119,10 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                                          bitmap->getPixels(),
                                          bitmap->rowBytes());
     } else {
-        // This texture is unlikely to be used again (in its present form) so 
-        // just use a scratch texture. This will remove the texture from the 
-        // cache so no one else can find it. Additionally, once unlocked, the 
-        // scratch texture will go to the end of the list for purging so will 
+        // This texture is unlikely to be used again (in its present form) so
+        // just use a scratch texture. This will remove the texture from the
+        // cache so no one else can find it. Additionally, once unlocked, the
+        // scratch texture will go to the end of the list for purging so will
         // likely be available for this volatile bitmap the next time around.
         GrTexture* result = ctx->lockScratchTexture(desc,
                                          GrContext::kExact_ScratchTexMatch);
@@ -137,7 +137,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrLockCachedBitmapTexture(GrContext* ctx, 
+GrTexture* GrLockCachedBitmapTexture(GrContext* ctx,
                                      const SkBitmap& bitmap,
                                      const GrTextureParams* params) {
     GrTexture* result = NULL;

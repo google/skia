@@ -7,7 +7,7 @@
  */
 
 
-// 
+//
 #ifndef SkOSFile_DEFINED
 #define SkOSFile_DEFINED
 

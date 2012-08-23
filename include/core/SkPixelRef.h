@@ -121,7 +121,7 @@ public:
 
     /** Makes a deep copy of this PixelRef, respecting the requested config.
         Returns NULL if either there is an error (e.g. the destination could
-        not be created with the given config), or this PixelRef does not 
+        not be created with the given config), or this PixelRef does not
         support deep copies.  */
     virtual SkPixelRef* deepCopy(SkBitmap::Config config) { return NULL; }
 

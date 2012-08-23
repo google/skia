@@ -29,7 +29,7 @@ GrDebugGL::Create GrDebugGL::gFactoryFunc[kObjTypeCount] = {
 };
 
 
-GrDebugGL::GrDebugGL() 
+GrDebugGL::GrDebugGL()
     : fPackRowLength(0)
     , fUnPackRowLength(0)
     , fCurTextureUnit(0)
@@ -76,7 +76,7 @@ GrFakeRefObj *GrDebugGL::findObject(GrGLuint ID, GrObjTypes type) {
     for (int i = 0; i < fObjects.count(); ++i) {
         if (fObjects[i]->getID() == ID) { // && fObjects[i]->getType() == type) {
             // The application shouldn't be accessing objects
-            // that (as far as OpenGL knows) were already deleted 
+            // that (as far as OpenGL knows) were already deleted
             GrAlwaysAssert(!fObjects[i]->getDeleted());
             GrAlwaysAssert(!fObjects[i]->getMarkedForDeletion());
             return fObjects[i];
@@ -86,7 +86,7 @@ GrFakeRefObj *GrDebugGL::findObject(GrGLuint ID, GrObjTypes type) {
     return NULL;
 }
 
-void GrDebugGL::setArrayBuffer(GrBufferObj *arrayBuffer) { 
+void GrDebugGL::setArrayBuffer(GrBufferObj *arrayBuffer) {
     if (fArrayBuffer) {
         // automatically break the binding of the old buffer
         GrAlwaysAssert(fArrayBuffer->getBound());
@@ -96,7 +96,7 @@ void GrDebugGL::setArrayBuffer(GrBufferObj *arrayBuffer) {
         fArrayBuffer->unref();
     }
 
-    fArrayBuffer = arrayBuffer; 
+    fArrayBuffer = arrayBuffer;
 
     if (fArrayBuffer) {
         GrAlwaysAssert(!fArrayBuffer->getDeleted());
@@ -107,7 +107,7 @@ void GrDebugGL::setArrayBuffer(GrBufferObj *arrayBuffer) {
     }
 }
 
-void GrDebugGL::setElementArrayBuffer(GrBufferObj *elementArrayBuffer) { 
+void GrDebugGL::setElementArrayBuffer(GrBufferObj *elementArrayBuffer) {
     if (fElementArrayBuffer) {
         // automatically break the binding of the old buffer
         GrAlwaysAssert(fElementArrayBuffer->getBound());
@@ -117,7 +117,7 @@ void GrDebugGL::setElementArrayBuffer(GrBufferObj *elementArrayBuffer) {
         fElementArrayBuffer->unref();
     }
 
-    fElementArrayBuffer = elementArrayBuffer; 
+    fElementArrayBuffer = elementArrayBuffer;
 
     if (fElementArrayBuffer) {
         GrAlwaysAssert(!fElementArrayBuffer->getDeleted());
@@ -128,11 +128,11 @@ void GrDebugGL::setElementArrayBuffer(GrBufferObj *elementArrayBuffer) {
     }
 }
 
-void GrDebugGL::setTexture(GrTextureObj *texture)  { 
+void GrDebugGL::setTexture(GrTextureObj *texture)  {
     fTextureUnits[fCurTextureUnit]->setTexture(texture);
 }
 
-void GrDebugGL::setFrameBuffer(GrFrameBufferObj *frameBuffer)  { 
+void GrDebugGL::setFrameBuffer(GrFrameBufferObj *frameBuffer)  {
     if (fFrameBuffer) {
         GrAlwaysAssert(fFrameBuffer->getBound());
         fFrameBuffer->resetBound();
@@ -141,7 +141,7 @@ void GrDebugGL::setFrameBuffer(GrFrameBufferObj *frameBuffer)  {
         fFrameBuffer->unref();
     }
 
-    fFrameBuffer = frameBuffer; 
+    fFrameBuffer = frameBuffer;
 
     if (fFrameBuffer) {
         GrAlwaysAssert(!fFrameBuffer->getDeleted());
@@ -152,7 +152,7 @@ void GrDebugGL::setFrameBuffer(GrFrameBufferObj *frameBuffer)  {
     }
 }
 
-void GrDebugGL::setRenderBuffer(GrRenderBufferObj *renderBuffer)  { 
+void GrDebugGL::setRenderBuffer(GrRenderBufferObj *renderBuffer)  {
     if (fRenderBuffer) {
         GrAlwaysAssert(fRenderBuffer->getBound());
         fRenderBuffer->resetBound();
@@ -161,7 +161,7 @@ void GrDebugGL::setRenderBuffer(GrRenderBufferObj *renderBuffer)  {
         fRenderBuffer->unref();
     }
 
-    fRenderBuffer = renderBuffer; 
+    fRenderBuffer = renderBuffer;
 
     if (fRenderBuffer) {
         GrAlwaysAssert(!fRenderBuffer->getDeleted());

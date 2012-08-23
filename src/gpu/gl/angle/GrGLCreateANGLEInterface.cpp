@@ -24,7 +24,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
 
     static SkAutoTUnref<GrGLInterface> glInterface;
     static HMODULE ghANGLELib = NULL;
-    
+
     if (NULL == ghANGLELib) {
         // We load the ANGLE library and never let it go
         ghANGLELib = LoadLibrary("libGLESv2.dll");
@@ -101,8 +101,8 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
 #if GL_ARB_texture_storage
         GR_GET_PROC(GrGLTexStorage2DProc,       TexStorage2D);
 #elif GL_EXT_texture_storage
-        interface->fTexStorage2D = (GrGLTexStorage2DProc) 
-                                            GetProcAddress(ghANGLELib, 
+        interface->fTexStorage2D = (GrGLTexStorage2DProc)
+                                            GetProcAddress(ghANGLELib,
                                             "glTexStorage2DEXT");
 #endif
         GR_GET_PROC(GrGLUniform1fProc,          Uniform1f);
@@ -141,9 +141,9 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         GR_GET_PROC(GrGLFramebufferTexture2DProc, FramebufferTexture2D);
         GR_GET_PROC(GrGLGenFramebuffersProc,    GenFramebuffers);
         GR_GET_PROC(GrGLGenRenderbuffersProc,   GenRenderbuffers);
-        GR_GET_PROC(GrGLGetFramebufferAttachmentParameterivProc, 
+        GR_GET_PROC(GrGLGetFramebufferAttachmentParameterivProc,
                                 GetFramebufferAttachmentParameteriv);
-        GR_GET_PROC(GrGLGetRenderbufferParameterivProc, 
+        GR_GET_PROC(GrGLGetRenderbufferParameterivProc,
                                 GetRenderbufferParameteriv);
         GR_GET_PROC(GrGLRenderbufferStorageProc, RenderbufferStorage);
 

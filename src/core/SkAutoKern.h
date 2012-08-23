@@ -24,7 +24,7 @@ class SkAutoKern {
 public:
     SkAutoKern() : fPrevRsbDelta(0) {}
 
-    SkFixed  adjust(const SkGlyph&  glyph) 
+    SkFixed  adjust(const SkGlyph&  glyph)
     {
 //        if (SkAbs32(glyph.fLsbDelta) > 47 || SkAbs32(glyph.fRsbDelta) > 47)
 //            printf("------- %d> L %d R %d\n", glyph.f_GlyphID, glyph.fLsbDelta, glyph.fRsbDelta);

@@ -60,23 +60,23 @@ public:
         this->writeInt(value);
         return value;
     }
-    
+
     void writeInt(int32_t value) {
         *(int32_t*)this->reserve(sizeof(value)) = value;
     }
-    
+
     void write8(int32_t value) {
         *(int32_t*)this->reserve(sizeof(value)) = value & 0xFF;
     }
-    
+
     void write16(int32_t value) {
         *(int32_t*)this->reserve(sizeof(value)) = value & 0xFFFF;
     }
-    
+
     void write32(int32_t value) {
         *(int32_t*)this->reserve(sizeof(value)) = value;
     }
-    
+
     void writePtr(void* ptr) {
         // Since we "know" that we're always 4-byte aligned, we can tell the
         // compiler that here, by assigning to an int32 ptr.
@@ -91,11 +91,11 @@ public:
     void writeScalar(SkScalar value) {
         *(SkScalar*)this->reserve(sizeof(value)) = value;
     }
-    
+
     void writePoint(const SkPoint& pt) {
         *(SkPoint*)this->reserve(sizeof(pt)) = pt;
     }
-    
+
     void writeRect(const SkRect& rect) {
         *(SkRect*)this->reserve(sizeof(rect)) = rect;
     }
@@ -111,7 +111,7 @@ public:
         SkASSERT(SkAlign4(size) == size);
         matrix.writeToMemory(this->reserve(size));
     }
-    
+
     void writeRegion(const SkRegion& rgn) {
         size_t size = rgn.writeToMemory(NULL);
         SkASSERT(SkAlign4(size) == size);
@@ -134,7 +134,7 @@ public:
         // in the current block
         memcpy(this->reserve(size), values, size);
     }
-    
+
     void writePad(const void* src, size_t size);
 
     /**
@@ -161,14 +161,14 @@ public:
     // be a multiple of 4. This does not allocate any new space, so the returned
     // address is only valid for 1 int.
     uint32_t* peek32(size_t offset);
-    
+
     // copy into a single buffer (allocated by caller). Must be at least size()
     void flatten(void* dst) const;
-    
+
     // read from the stream, and write up to length bytes. Return the actual
     // number of bytes written.
     size_t readFromStream(SkStream*, size_t length);
-    
+
     bool writeToStream(SkWStream*);
 
 private:
@@ -196,7 +196,7 @@ private:
 template <size_t SIZE> class SkSWriter32 : public SkWriter32 {
 public:
     SkSWriter32(size_t minSize) : SkWriter32(minSize, fData.fStorage, SIZE) {}
-    
+
 private:
     union {
         void*   fPtrAlignment;

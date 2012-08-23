@@ -18,7 +18,7 @@
 class SK_API SkUnPreMultiply {
 public:
     typedef uint32_t Scale;
-    
+
     // index this table with alpha [0..255]
     static const Scale* GetScaleTable() {
         return gTable;
@@ -28,15 +28,15 @@ public:
         SkASSERT(alpha <= 255);
         return gTable[alpha];
     }
-    
+
     /** Usage:
-     
+
         const Scale* table = SkUnPreMultiply::GetScaleTable();
-     
+
         for (...) {
             unsigned a = ...
             SkUnPreMultiply::Scale scale = table[a];
-     
+
             red = SkUnPreMultiply::ApplyScale(scale, red);
             ...
             // now red is unpremultiplied
@@ -46,9 +46,9 @@ public:
         SkASSERT(component <= 255);
         return (scale * component + (1 << 23)) >> 24;
     }
-    
+
     static SkColor PMColorToColor(SkPMColor c);
-    
+
 private:
     static const uint32_t gTable[256];
 };

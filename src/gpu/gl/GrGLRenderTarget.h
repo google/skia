@@ -50,7 +50,7 @@ public:
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
     const GrGLIRect& getViewport() const { return fViewport; }
 
-    // The following two functions return the same ID when a 
+    // The following two functions return the same ID when a
     // texture-rendertarget is multisampled, and different IDs when
     // it is.
     // FBO ID used to render into
@@ -58,9 +58,9 @@ public:
     // FBO ID that has texture ID attached.
     GrGLuint textureFBOID() const { return fTexFBOID; }
 
-    // override of GrRenderTarget 
+    // override of GrRenderTarget
     virtual intptr_t getRenderTargetHandle() const {
-        return this->renderFBOID(); 
+        return this->renderFBOID();
     }
     virtual intptr_t getRenderTargetResolvedHandle() const {
         return this->textureFBOID();

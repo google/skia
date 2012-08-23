@@ -29,7 +29,7 @@ static const int SPARE_TEX_UNIT = GrDrawState::kNumStages;
     #define CLEAR_ERROR_BEFORE_ALLOC(iface)   GrGLClearErr(iface)
     #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL_NOERRCHECK(iface, call)
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_GET_ERROR(iface)
-#else 
+#else
     #define CLEAR_ERROR_BEFORE_ALLOC(iface)
     #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL(iface, call)
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
@@ -245,7 +245,7 @@ void GrGpuGL::initCaps() {
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        if (this->glVersion() >= GR_GL_VER(2,0) || 
+        if (this->glVersion() >= GR_GL_VER(2,0) ||
             this->hasExtension("GL_ARB_texture_non_power_of_two")) {
             fCaps.fNPOTTextureTileSupport = true;
         } else {
@@ -275,7 +275,7 @@ void GrGpuGL::initCaps() {
                             this->hasExtension("GL_ARB_blend_func_extended");
         fCaps.fShaderDerivativeSupport = true;
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
-        fCaps.fGeometryShaderSupport = 
+        fCaps.fGeometryShaderSupport =
                                 this->glVersion() >= GR_GL_VER(3,2) &&
                                 this->glslGeneration() >= k150_GrGLSLGeneration;
     } else {
@@ -287,9 +287,9 @@ void GrGpuGL::initCaps() {
 void GrGpuGL::fillInConfigRenderableTable() {
 
     // OpenGL < 3.0
-    //  no support for render targets unless the GL_ARB_framebuffer_object 
-    //  extension is supported (in which case we get ALPHA, RED, RG, RGB, 
-    //  RGBA (ALPHA8, RGBA4, RGBA8) for OpenGL > 1.1). Note that we 
+    //  no support for render targets unless the GL_ARB_framebuffer_object
+    //  extension is supported (in which case we get ALPHA, RED, RG, RGB,
+    //  RGBA (ALPHA8, RGBA4, RGBA8) for OpenGL > 1.1). Note that we
     //  probably don't get R8 in this case.
 
     // OpenGL 3.0
@@ -320,7 +320,7 @@ void GrGpuGL::fillInConfigRenderableTable() {
         }
     } else {
         // On ES we can only hope for R8
-        fConfigRenderSupport[kAlpha_8_GrPixelConfig] = 
+        fConfigRenderSupport[kAlpha_8_GrPixelConfig] =
                                 this->glCaps().textureRedSupport();
     }
 
@@ -329,7 +329,7 @@ void GrGpuGL::fillInConfigRenderableTable() {
         fConfigRenderSupport[kRGB_565_GrPixelConfig] = true;
     }
 
-    // Pre 3.0, Ganesh relies on either GL_ARB_framebuffer_object or 
+    // Pre 3.0, Ganesh relies on either GL_ARB_framebuffer_object or
     // GL_EXT_framebuffer_object for FBO support. Both of these
     // allow RGBA4 render targets so this is always supported.
     fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = true;
@@ -413,7 +413,7 @@ bool GrGpuGL::canPreserveReadWriteUnpremulPixels() {
                 }
             }
         }
-        fCanPreserveUnpremulRoundtrip = failed ? 
+        fCanPreserveUnpremulRoundtrip = failed ?
                         kNo_CanPreserveUnpremulRoundtrip :
                         kYes_CanPreserveUnpremulRoundtrip;
     }
@@ -476,7 +476,7 @@ void GrGpuGL::onResetContext() {
         GL_CALL(Enable(GR_GL_VERTEX_PROGRAM_POINT_SIZE));
 
         // We should set glPolygonMode(FRONT_AND_BACK,FILL) here, too. It isn't
-        // currently part of our gl interface. There are probably others as 
+        // currently part of our gl interface. There are probably others as
         // well.
     }
     fHWAAState.invalidate();
@@ -594,7 +594,7 @@ GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
     if (NULL == texture) {
         return NULL;
     }
-    
+
     this->setSpareTextureUnit();
     return texture;
 }
@@ -612,7 +612,7 @@ GrRenderTarget* GrGpuGL::onCreatePlatformRenderTarget(const GrPlatformRenderTarg
     viewport.fBottom = 0;
     viewport.fWidth  = desc.fWidth;
     viewport.fHeight = desc.fHeight;
-    
+
     GrRenderTarget* tgt = SkNEW_ARGS(GrGLRenderTarget,
                                      (this, glDesc, viewport));
     if (desc.fStencilBits) {
@@ -657,7 +657,7 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     desc.fOrientation = glTex->orientation();
 
     this->uploadTexData(desc, false,
-                        left, top, width, height, 
+                        left, top, width, height,
                         config, buffer, rowBytes);
 }
 
@@ -711,7 +711,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     bool useTexStorage = isNewTexture &&
                          desc.fConfig != kIndex_8_GrPixelConfig &&
                          this->glCaps().texStorageSupport();
-    
+
     if (useTexStorage && kDesktop_GrGLBinding == this->glBinding()) {
         // 565 is not a sized internal format on desktop GL. So on desktop with
         // 565 we always use an unsized internal format to let the system pick
@@ -787,7 +787,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, static_cast<GrGLint>(bpp)));
     }
     bool succeeded = true;
-    if (isNewTexture && 
+    if (isNewTexture &&
         0 == left && 0 == top &&
         desc.fWidth == width && desc.fHeight == height) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
@@ -908,7 +908,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     if (!desc->fTexFBOID) {
         goto FAILED;
     }
-    
+
 
     // If we are using multisampling we will create two FBOS. We render
     // to one and then resolve to the texture bound to the other.
@@ -919,7 +919,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         GL_CALL(GenFramebuffers(1, &desc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &desc->fMSColorRenderbufferID));
         if (!desc->fRTFBOID ||
-            !desc->fMSColorRenderbufferID || 
+            !desc->fMSColorRenderbufferID ||
             !this->configToGLFormats(desc->fConfig,
                                      // GLES requires sized internal formats
                                      kES2_GrGLBinding == this->glBinding(),
@@ -943,7 +943,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
             goto FAILED;
         }
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, desc->fRTFBOID));
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, 
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                       GR_GL_COLOR_ATTACHMENT0,
                                       GR_GL_RENDERBUFFER,
                                       desc->fMSColorRenderbufferID));
@@ -1116,7 +1116,7 @@ namespace {
 const GrGLuint kUnknownBitCount = GrGLStencilBuffer::kUnknownBitCount;
 
 void inline get_stencil_rb_sizes(const GrGLInterface* gl,
-                                 GrGLuint rb, 
+                                 GrGLuint rb,
                                  GrGLStencilBuffer::Format* format) {
     // we shouldn't ever know one size and not the other
     GrAssert((kUnknownBitCount == format->fStencilBits) ==
@@ -1187,7 +1187,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), sbID, &format);
             sb = SkNEW_ARGS(GrGLStencilBuffer,
-                            (this, sbID, width, height, 
+                            (this, sbID, width, height,
                              samples, format));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
@@ -1409,7 +1409,7 @@ void GrGpuGL::clearStencil() {
     if (NULL == this->getDrawState().getRenderTarget()) {
         return;
     }
-    
+
     this->flushRenderTarget(&GrIRect::EmptyIRect());
 
     GrAutoTRestore<ScissorState> asr(&fScissorState);
@@ -1536,14 +1536,14 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     // the read rect is viewport-relative
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height);
-    
+
     size_t tightRowBytes = bpp * width;
     if (0 == rowBytes) {
         rowBytes = tightRowBytes;
     }
     size_t readDstRowBytes = tightRowBytes;
     void* readDst = buffer;
-    
+
     // determine if GL can read using the passed rowBytes or if we need
     // a scratch buffer.
     SkAutoSMalloc<32 * sizeof(GrColor)> scratch;

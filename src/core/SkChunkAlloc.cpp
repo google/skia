@@ -22,7 +22,7 @@ struct SkChunkAlloc::Block {
     size_t  fFreeSize;
     char*   fFreePtr;
     // data[] follows
-    
+
     char* startOfData() {
         return reinterpret_cast<char*>(this + 1);
     }
@@ -34,7 +34,7 @@ struct SkChunkAlloc::Block {
             block = next;
         }
     };
-    
+
     bool contains(const void* addr) const {
         const char* ptr = reinterpret_cast<const char*>(addr);
         return ptr >= (const char*)(this + 1) && ptr < fFreePtr;
@@ -80,10 +80,10 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
         //    block->fNext = fBlock;
         block->fFreeSize = size;
         block->fFreePtr = block->startOfData();
-        
+
         fTotalCapacity += size;
         fBlockCount += 1;
-        
+
         fChunkSize = increase_next_size(fChunkSize);
     }
     return block;

@@ -57,7 +57,7 @@ void S32_opaque_D32_filter_DX_SSE2(const SkBitmapProcState& s,
 
         // (0, 0, 0, 0, 0, 0, 0, x)
         __m128i allX = _mm_cvtsi32_si128((XX >> 14) & 0x0F);
-        
+
         // (0, 0, 0, 0, x, x, x, x)
         allX = _mm_shufflelo_epi16(allX, 0);
 
@@ -167,7 +167,7 @@ void S32_alpha_D32_filter_DX_SSE2(const SkBitmapProcState& s,
 
         // (0, 0, 0, 0, 0, 0, 0, x)
         __m128i allX = _mm_cvtsi32_si128((XX >> 14) & 0x0F);
-        
+
         // (0, 0, 0, 0, x, x, x, x)
         allX = _mm_shufflelo_epi16(allX, 0);
 
@@ -248,7 +248,7 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
-    
+
     const unsigned maxX = s.fBitmap->width() - 1;
     const SkFixed one = s.fFilterOneX;
     const SkFixed dx = s.fInvSx;
@@ -282,14 +282,14 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
                                               fx + dx, fx);
 
             while (count >= 4) {
-                __m128i wide_out; 
-    
+                __m128i wide_out;
+
                 wide_out = _mm_slli_epi32(_mm_srai_epi32(wide_fx, 12), 14);
                 wide_out = _mm_or_si128(wide_out, _mm_add_epi32(
-                                        _mm_srai_epi32(wide_fx, 16), wide_1)); 
-                
+                                        _mm_srai_epi32(wide_fx, 16), wide_1));
+
                 _mm_store_si128(reinterpret_cast<__m128i*>(xy), wide_out);
-      
+
                 xy += 4;
                 fx += dx * 4;
                 wide_fx  = _mm_add_epi32(wide_fx, wide_dx4);
@@ -305,7 +305,7 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
     } else {
         // SSE2 only support 16bit interger max & min, so only process the case
         // maxX less than the max 16bit interger. Actually maxX is the bitmap's
-        // height, there should be rare bitmap whose height will be greater 
+        // height, there should be rare bitmap whose height will be greater
         // than max 16bit interger in the real world.
         if ((count >= 4) && (maxX <= 0xFFFF)) {
             while (((size_t)xy & 0x0F) != 0) {
@@ -313,12 +313,12 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
                 fx += dx;
                 count--;
             }
-    
+
             __m128i wide_fx   = _mm_set_epi32(fx + dx * 3, fx + dx * 2,
                                               fx + dx, fx);
             __m128i wide_dx4  = _mm_set1_epi32(dx * 4);
             __m128i wide_one  = _mm_set1_epi32(one);
-            __m128i wide_maxX = _mm_set1_epi32(maxX); 
+            __m128i wide_maxX = _mm_set1_epi32(maxX);
             __m128i wide_mask = _mm_set1_epi32(0xF);
 
              while (count >= 4) {
@@ -327,31 +327,31 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
                 __m128i wide_fx1;
 
                 // i = SkClampMax(f>>16,maxX)
-                wide_i = _mm_max_epi16(_mm_srli_epi32(wide_fx, 16), 
+                wide_i = _mm_max_epi16(_mm_srli_epi32(wide_fx, 16),
                                        _mm_setzero_si128());
                 wide_i = _mm_min_epi16(wide_i, wide_maxX);
-    
+
                 // i<<4 | TILEX_LOW_BITS(fx)
                 wide_lo = _mm_srli_epi32(wide_fx, 12);
                 wide_lo = _mm_and_si128(wide_lo, wide_mask);
-                wide_i  = _mm_slli_epi32(wide_i, 4);         
-                wide_i  = _mm_or_si128(wide_i, wide_lo);     
-    
+                wide_i  = _mm_slli_epi32(wide_i, 4);
+                wide_i  = _mm_or_si128(wide_i, wide_lo);
+
                 // i<<14
                 wide_i = _mm_slli_epi32(wide_i, 14);
-    
+
                 // SkClampMax(((f+one))>>16,max)
                 wide_fx1 = _mm_add_epi32(wide_fx, wide_one);
-                wide_fx1 = _mm_max_epi16(_mm_srli_epi32(wide_fx1, 16), 
+                wide_fx1 = _mm_max_epi16(_mm_srli_epi32(wide_fx1, 16),
                                                         _mm_setzero_si128());
                 wide_fx1 = _mm_min_epi16(wide_fx1, wide_maxX);
-                    
+
                 // final combination
                 wide_i = _mm_or_si128(wide_i, wide_fx1);
-                _mm_store_si128(reinterpret_cast<__m128i*>(xy), wide_i); 
-    
+                _mm_store_si128(reinterpret_cast<__m128i*>(xy), wide_i);
+
                 wide_fx = _mm_add_epi32(wide_fx, wide_dx4);
-                fx += dx * 4;   
+                fx += dx * 4;
                 xy += 4;
                 count -= 4;
             } // while count >= 4
@@ -382,7 +382,7 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
     const unsigned maxY = s.fBitmap->height() - 1;
     *xy++ = SkClampMax(fx >> 16, maxY);
     fx = SkScalarToFixed(pt.fX);
-    
+
     if (0 == maxX) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
@@ -416,7 +416,7 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
                 __m128i wide_result = _mm_packs_epi32(wide_out_low,
                                                       wide_out_high);
                 _mm_store_si128(reinterpret_cast<__m128i*>(xy), wide_result);
-            
+
                 wide_low = _mm_add_epi32(wide_low, wide_dx8);
                 wide_high = _mm_add_epi32(wide_high, wide_dx8);
 
@@ -434,7 +434,7 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
     } else {
         // SSE2 only support 16bit interger max & min, so only process the case
         // maxX less than the max 16bit interger. Actually maxX is the bitmap's
-        // height, there should be rare bitmap whose height will be greater 
+        // height, there should be rare bitmap whose height will be greater
         // than max 16bit interger in the real world.
         if ((count >= 8) && (maxX <= 0xFFFF)) {
             while (((size_t)xy & 0x0F) != 0) {
@@ -456,7 +456,7 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
                 __m128i wide_out_low = _mm_srli_epi32(wide_low, 16);
                 __m128i wide_out_high = _mm_srli_epi32(wide_high, 16);
 
-                wide_out_low  = _mm_max_epi16(wide_out_low, 
+                wide_out_low  = _mm_max_epi16(wide_out_low,
                                               _mm_setzero_si128());
                 wide_out_low  = _mm_min_epi16(wide_out_low, wide_maxX);
                 wide_out_high = _mm_max_epi16(wide_out_high,
@@ -493,7 +493,7 @@ void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
     s.fInvProc(*s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-    
+
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
     SkFixed fx = SkScalarToFixed(srcPt.fX) - (oneX >> 1);
@@ -510,37 +510,37 @@ void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
         __m128i wide_f = _mm_set_epi32(fx + dx, fy + dy, fx, fy);
         __m128i wide_d2  = _mm_set_epi32(dx2, dy2, dx2, dy2);
         __m128i wide_one  = _mm_set_epi32(oneX, oneY, oneX, oneY);
-        __m128i wide_max = _mm_set_epi32(maxX, maxY, maxX, maxY); 
+        __m128i wide_max = _mm_set_epi32(maxX, maxY, maxX, maxY);
         __m128i wide_mask = _mm_set1_epi32(0xF);
 
         while (count >= 2) {
             // i = SkClampMax(f>>16,maxX)
-            __m128i wide_i = _mm_max_epi16(_mm_srli_epi32(wide_f, 16), 
+            __m128i wide_i = _mm_max_epi16(_mm_srli_epi32(wide_f, 16),
                                            _mm_setzero_si128());
             wide_i = _mm_min_epi16(wide_i, wide_max);
-    
+
             // i<<4 | TILEX_LOW_BITS(f)
             __m128i wide_lo = _mm_srli_epi32(wide_f, 12);
             wide_lo = _mm_and_si128(wide_lo, wide_mask);
-            wide_i  = _mm_slli_epi32(wide_i, 4);         
-            wide_i  = _mm_or_si128(wide_i, wide_lo);     
-    
+            wide_i  = _mm_slli_epi32(wide_i, 4);
+            wide_i  = _mm_or_si128(wide_i, wide_lo);
+
             // i<<14
             wide_i = _mm_slli_epi32(wide_i, 14);
-    
+
             // SkClampMax(((f+one))>>16,max)
             __m128i wide_f1 = _mm_add_epi32(wide_f, wide_one);
-            wide_f1 = _mm_max_epi16(_mm_srli_epi32(wide_f1, 16), 
+            wide_f1 = _mm_max_epi16(_mm_srli_epi32(wide_f1, 16),
                                                    _mm_setzero_si128());
             wide_f1 = _mm_min_epi16(wide_f1, wide_max);
-                    
+
             // final combination
             wide_i = _mm_or_si128(wide_i, wide_f1);
-            _mm_storeu_si128(reinterpret_cast<__m128i*>(xy), wide_i); 
-    
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(xy), wide_i);
+
             wide_f = _mm_add_epi32(wide_f, wide_d2);
 
-            fx += dx2; 
+            fx += dx2;
             fy += dy2;
             xy += 4;
             count -= 2;
@@ -551,7 +551,7 @@ void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
         *xy++ = ClampX_ClampY_pack_filter(fy, maxY, oneY);
         fy += dy;
         *xy++ = ClampX_ClampY_pack_filter(fx, maxX, oneX);
-        fx += dx;          
+        fx += dx;
     }
 }
 
@@ -569,7 +569,7 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
     s.fInvProc(*s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-    
+
     SkFixed fx = SkScalarToFixed(srcPt.fX);
     SkFixed fy = SkScalarToFixed(srcPt.fY);
     SkFixed dx = s.fInvSx;
@@ -579,7 +579,7 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
 
     if (count >= 4 && (maxX <= 0xFFFF)) {
         while (((size_t)xy & 0x0F) != 0) {
-            *xy++ = (SkClampMax(fy >> 16, maxY) << 16) | 
+            *xy++ = (SkClampMax(fy >> 16, maxY) << 16) |
                                   SkClampMax(fx >> 16, maxX);
             fx += dx;
             fy += dy;
@@ -596,29 +596,29 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
         __m128i wide_dx4  = _mm_set1_epi32(dx4);
         __m128i wide_dy4  = _mm_set1_epi32(dy4);
 
-        __m128i wide_maxX = _mm_set1_epi32(maxX); 
-        __m128i wide_maxY = _mm_set1_epi32(maxY); 
+        __m128i wide_maxX = _mm_set1_epi32(maxX);
+        __m128i wide_maxY = _mm_set1_epi32(maxY);
 
         while (count >= 4) {
             // SkClampMax(fx>>16,maxX)
-            __m128i wide_lo = _mm_max_epi16(_mm_srli_epi32(wide_fx, 16), 
+            __m128i wide_lo = _mm_max_epi16(_mm_srli_epi32(wide_fx, 16),
                                             _mm_setzero_si128());
             wide_lo = _mm_min_epi16(wide_lo, wide_maxX);
-    
+
             // SkClampMax(fy>>16,maxY)
-            __m128i wide_hi = _mm_max_epi16(_mm_srli_epi32(wide_fy, 16), 
+            __m128i wide_hi = _mm_max_epi16(_mm_srli_epi32(wide_fy, 16),
                                             _mm_setzero_si128());
             wide_hi = _mm_min_epi16(wide_hi, wide_maxY);
-                    
+
             // final combination
             __m128i wide_i = _mm_or_si128(_mm_slli_epi32(wide_hi, 16),
                                           wide_lo);
-            _mm_store_si128(reinterpret_cast<__m128i*>(xy), wide_i); 
- 
+            _mm_store_si128(reinterpret_cast<__m128i*>(xy), wide_i);
+
             wide_fx = _mm_add_epi32(wide_fx, wide_dx4);
             wide_fy = _mm_add_epi32(wide_fy, wide_dy4);
 
-            fx += dx4; 
+            fx += dx4;
             fy += dy4;
             xy += 4;
             count -= 4;
@@ -629,7 +629,7 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
         *xy++ = (SkClampMax(fy >> 16, maxY) << 16) |
                               SkClampMax(fx >> 16, maxX);
         fx += dx;
-        fy += dy;           
+        fy += dy;
     }
 }
 

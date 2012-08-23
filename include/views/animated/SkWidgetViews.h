@@ -21,7 +21,7 @@ enum SkWidgetEnum {
     kProgress_WidgetEnum,       //!< <sk-progress>
     kScroll_WidgetEnum,         //!< <sk-scroll>
     kText_WidgetEnum,           //!< <sk-text>
-    
+
     kWidgetEnumCount
 };
 
@@ -32,7 +32,7 @@ enum SkinEnum {
     kProgress_SkinEnum,
     kScroll_SkinEnum,
     kStaticText_SkinEnum,
-    
+
     kSkinEnumCount
 };
 
@@ -73,7 +73,7 @@ public:
     /** Returns true if the widget can post its event to its listeners.
     */
     bool    postWidgetEvent();
-    
+
     /** Returns the sinkID of the widgetview that posted the event, or 0
     */
     static SkEventSinkID GetWidgetEventSinkID(const SkEvent&);
@@ -93,11 +93,11 @@ protected:
 
     // overrides
     virtual void onInflate(const SkDOM& dom, const SkDOM::Node*);
-    
+
 private:
     SkString    fLabel;
     SkEvent     fEvent;
-    
+
     typedef SkView INHERITED;
 };
 
@@ -106,7 +106,7 @@ private:
 class SkButtonView : public SkWidgetView {
 public:
     // inflate: "sk-button"
-    
+
 protected:
     // overrides
     virtual bool onEvent(const SkEvent&);
@@ -121,7 +121,7 @@ public:
     SkCheckButtonView();
 
     // inflate: "sk-checkbutton"
-    
+
     enum CheckState {
         kOff_CheckState,        //!< inflate: check-state="off"
         kOn_CheckState,         //!< inflate: check-state="on"
@@ -144,10 +144,10 @@ protected:
     // overrides
     virtual void onInflate(const SkDOM& dom, const SkDOM::Node*);
     virtual bool onPrepareWidgetEvent(SkEvent* evt);
-    
+
 private:
     uint8_t  fCheckState;
-    
+
     typedef SkWidgetView INHERITED;
 };
 
@@ -214,7 +214,7 @@ public:
 
     bool    hasScrollBar() const { return fScrollBar != NULL; }
     void    setHasScrollBar(bool);
-    
+
     /** Return the number of visible rows
     */
     int     getVisibleRowCount() const { return fVisibleRowCount; }
@@ -300,7 +300,7 @@ public:
     virtual void getRecord(int rowIndex, int fieldIndex, SkString* data);
 
     virtual bool prepareWidgetEvent(SkEvent*, int rowIndex);
-    
+
     static SkListSource* Factory(const char name[]);
 private:
     typedef SkRefCnt INHERITED;

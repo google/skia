@@ -207,7 +207,7 @@ SkUnichar SkUTF8_NextUnichar(const char** ptr) {
     const uint8_t*  p = (const uint8_t*)*ptr;
     int             c = *p;
     int             hic = c << 24;
-    
+
     assert_utf8_leadingbyte(c);
 
     if (hic < 0) {
@@ -227,7 +227,7 @@ SkUnichar SkUTF8_PrevUnichar(const char** ptr) {
     SkASSERT(NULL != ptr && NULL != *ptr);
 
     const char* p = *ptr;
-    
+
     if (*--p & 0x80) {
         while (*--p & 0x40) {
             ;
@@ -314,15 +314,15 @@ int SkUTF16_CountUnichars(const uint16_t src[], int numberOf16BitValues) {
 
 SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr) {
     SkASSERT(srcPtr && *srcPtr);
-    
+
     const uint16_t* src = *srcPtr;
     SkUnichar       c = *src++;
-    
+
     SkASSERT(!SkUTF16_IsLowSurrogate(c));
     if (SkUTF16_IsHighSurrogate(c)) {
         unsigned c2 = *src++;
         SkASSERT(SkUTF16_IsLowSurrogate(c2));
-        
+
         // c = ((c & 0x3FF) << 10) + (c2 & 0x3FF) + 0x10000
         // c = (((c & 0x3FF) + 64) << 10) + (c2 & 0x3FF)
         c = (c << 10) + c2 + (0x10000 - (0xD800 << 10) - 0xDC00);
@@ -333,10 +333,10 @@ SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr) {
 
 SkUnichar SkUTF16_PrevUnichar(const uint16_t** srcPtr) {
     SkASSERT(srcPtr && *srcPtr);
-    
+
     const uint16_t* src = *srcPtr;
     SkUnichar       c = *--src;
-    
+
     SkASSERT(!SkUTF16_IsHighSurrogate(c));
     if (SkUTF16_IsLowSurrogate(c)) {
         unsigned c2 = *--src;
@@ -358,7 +358,7 @@ size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t dst[]) {
             // dst[0] = SkToU16(0xD800 | ((uni >> 10) - 64));
             dst[0] = SkToU16((0xD800 - 64) + (uni >> 10));
             dst[1] = SkToU16(0xDC00 | (uni & 0x3FF));
-            
+
             SkASSERT(SkUTF16_IsHighSurrogate(dst[0]));
             SkASSERT(SkUTF16_IsLowSurrogate(dst[1]));
         } else {
@@ -378,10 +378,10 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
     }
 
     SkASSERT(utf16 != NULL);
-    
+
     const uint16_t* stop = utf16 + numberOf16BitValues;
     size_t          size = 0;
-    
+
     if (utf8 == NULL) {    // just count
         while (utf16 < stop) {
             size += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&utf16), NULL);

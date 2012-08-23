@@ -69,7 +69,7 @@ public:
             float   fFloat;
             int32_t fPacked;
         } tmp;
-        
+
         tmp.fFloat = f;
         int d = tmp.fPacked - fPacked;
         SkASSERT(SkAbs32(d) <= tolerance);
@@ -80,7 +80,7 @@ public:
             float   fFloat;
             int32_t fPacked;
         } tmp;
-        
+
         tmp.fPacked = fPacked;
         return tmp.fFloat;
     }

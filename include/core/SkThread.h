@@ -37,7 +37,7 @@ public:
         SkASSERT(fMutex != NULL);
         mutex.acquire();
     }
-    
+
     SkAutoMutexAcquire(SkBaseMutex* mutex) : fMutex(mutex) {
         if (mutex) {
             mutex->acquire();
@@ -60,7 +60,7 @@ public:
             fMutex = NULL;
         }
     }
-        
+
 private:
     SkBaseMutex* fMutex;
 };

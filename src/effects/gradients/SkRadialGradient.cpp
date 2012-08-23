@@ -221,7 +221,7 @@ void SkRadialGradient::shadeSpan16(int x, int y, uint16_t* dstCParam,
     }
 }
 
-SkShader::BitmapType SkRadialGradient::asABitmap(SkBitmap* bitmap, 
+SkShader::BitmapType SkRadialGradient::asABitmap(SkBitmap* bitmap,
     SkMatrix* matrix, SkShader::TileMode* xy) const {
     if (bitmap) {
         this->getGradientTableBitmap(bitmap);
@@ -500,7 +500,7 @@ private:
 class GrRadialGradient : public GrGradientEffect {
 public:
 
-    GrRadialGradient(GrContext* ctx, 
+    GrRadialGradient(GrContext* ctx,
                      const SkRadialGradient& shader,
                      GrSamplerState* sampler)
         : INHERITED(ctx, shader, sampler) {

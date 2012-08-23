@@ -80,15 +80,15 @@ bool SkBitmapToImageInfo(const SkBitmap& bm, SkImage::Info* info) {
         case SkBitmap::kRGB_565_Config:
             info->fColorType = SkImage::kRGB_565_ColorType;
             break;
-            
+
         case SkBitmap::kARGB_8888_Config:
             info->fColorType = SkImage::kPMColor_ColorType;
             break;
-        
+
         default:
             return false;
     }
-    
+
     info->fWidth = bm.width();
     info->fHeight = bm.height();
     info->fAlphaType = bm.isOpaque() ? SkImage::kOpaque_AlphaType :
@@ -126,7 +126,7 @@ static bool needs_layer(const SkPaint& paint) {
 void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
                             SkScalar x, SkScalar y, const SkPaint* paint) {
     int saveCount = canvas->getSaveCount();
-    
+
     if (paint && needs_layer(*paint)) {
         SkRect bounds;
         bounds.set(x, y,
@@ -138,7 +138,7 @@ void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
         canvas->save();
         canvas->translate(x, y);
     }
-    
+
     canvas->drawPicture(*picture);
     canvas->restoreToCount(saveCount);
 }

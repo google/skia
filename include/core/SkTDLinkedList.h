@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 
-/** 
+/**
  * Helper class to automatically initialize the doubly linked list
  * created pointers.
  */
@@ -91,8 +91,8 @@ public:
 #endif
     }
 
-    bool isEmpty() const { 
-        return NULL == fHead && NULL == fTail; 
+    bool isEmpty() const {
+        return NULL == fHead && NULL == fTail;
     }
 
     class Iter {

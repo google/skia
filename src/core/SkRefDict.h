@@ -26,7 +26,7 @@ public:
      *  is found. The reference-count of the entry is not affected.
      */
     SkRefCnt* find(const char name[]) const;
-    
+
     /**
      *  If data is NULL, remove (if present) the entry matching name and call
      *  prev_data->unref() on the data for the matching entry.

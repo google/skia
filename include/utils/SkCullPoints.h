@@ -16,13 +16,13 @@ class SkCullPoints {
 public:
     SkCullPoints();
     SkCullPoints(const SkIRect& r);
-    
+
     void    reset(const SkIRect& r);
-    
+
     /** Start a contour at (x,y). Follow this with call(s) to lineTo(...)
     */
     void    moveTo(int x, int y);
-    
+
     enum LineToResult {
         kNo_Result,             //!< line segment was completely clipped out
         kLineTo_Result,         //!< path.lineTo(pts[1]);
@@ -37,7 +37,7 @@ private:
     SkIPoint     fAsQuad[4];     // cache of fR as 4 points
     SkIPoint     fPrevPt;        // private state
     LineToResult fPrevResult;   // private state
-    
+
     bool sect_test(int x0, int y0, int x1, int y1) const;
 };
 
@@ -56,7 +56,7 @@ public:
     SkCullPointsPath(const SkIRect& r, SkPath* dst);
 
     void reset(const SkIRect& r, SkPath* dst);
-    
+
     void    moveTo(int x, int y);
     void    lineTo(int x, int y);
 

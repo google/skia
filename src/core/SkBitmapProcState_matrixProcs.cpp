@@ -1,4 +1,4 @@
-/* NEON optimized code (C) COPYRIGHT 2009 Motorola 
+/* NEON optimized code (C) COPYRIGHT 2009 Motorola
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -18,9 +18,9 @@ static unsigned SK_USHIFT16(unsigned x) {
 }
 
 /*  returns 0...(n-1) given any x (positive or negative).
-    
+
     As an example, if n (which is always positive) is 5...
- 
+
           x: -8 -7 -6 -5 -4 -3 -2 -1  0  1  2  3  4  5  6  7  8
     returns:  2  3  4  0  1  2  3  4  0  1  2  3  4  0  1  2  3
  */
@@ -50,7 +50,7 @@ static inline bool can_truncate_to_fixed_for_decal(SkFractionalInt frX,
                                                    SkFractionalInt frDx,
                                                    int count, unsigned max) {
     SkFixed dx = SkFractionalIntToFixed(frDx);
-    
+
     // if decal_ kept SkFractionalInt precision, this would just be dx <= 0
     // I just made up the 1/256. Just don't want to perceive accumulated error
     // if we truncate frDx and lose its low bits.
@@ -321,13 +321,13 @@ static void clampx_nofilter_trans(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
 
     int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fBitmap->width();    
+    const int width = s.fBitmap->width();
     if (1 == width) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
         return;
     }
-    
+
     uint16_t* xptr = reinterpret_cast<uint16_t*>(xy);
     int n;
 
@@ -369,7 +369,7 @@ static void repeatx_nofilter_trans(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
 
     int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fBitmap->width();    
+    const int width = s.fBitmap->width();
     if (1 == width) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
@@ -409,7 +409,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
 
     int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fBitmap->width();    
+    const int width = s.fBitmap->width();
     if (1 == width) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
@@ -440,7 +440,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
     forward = !forward;
     xptr += n;
     count -= n;
-    
+
     while (count >= width) {
         if (forward) {
             fill_sequential(xptr, 0, width);
@@ -451,7 +451,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
         xptr += width;
         count -= width;
     }
-    
+
     if (count > 0) {
         if (forward) {
             fill_sequential(xptr, 0, count);
@@ -479,7 +479,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
                 return mirrorx_nofilter_trans;
         }
     }
-    
+
     int index = 0;
     if (fDoFilter) {
         index = 1;
@@ -489,7 +489,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
     } else if (fInvType & SkMatrix::kAffine_Mask) {
         index += 2;
     }
-    
+
     if (SkShader::kClamp_TileMode == fTileModeX &&
         SkShader::kClamp_TileMode == fTileModeY)
     {
@@ -498,11 +498,11 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
         fFilterOneY = SK_Fixed1;
         return SK_ARM_NEON_WRAP(ClampX_ClampY_Procs)[index];
     }
-    
+
     // all remaining procs use this form for filterOne
     fFilterOneX = SK_Fixed1 / fBitmap->width();
     fFilterOneY = SK_Fixed1 / fBitmap->height();
-    
+
     if (SkShader::kRepeat_TileMode == fTileModeX &&
         SkShader::kRepeat_TileMode == fTileModeY)
     {

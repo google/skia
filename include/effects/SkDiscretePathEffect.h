@@ -34,7 +34,7 @@ protected:
 
 private:
     SkScalar fSegLength, fPerterb;
-    
+
     typedef SkPathEffect INHERITED;
 };
 

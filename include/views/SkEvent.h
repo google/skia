@@ -105,7 +105,7 @@ public:
         fTargetProc = proc;
         return this;
     }
-    
+
     /**
      *  Return the event's unnamed 32bit field. Default value is 0
      */
@@ -195,7 +195,7 @@ public:
     void post() {
         return this->postDelay(0);
     }
-    
+
     /**
      *  Post to the event queue using the event's targetID or target-proc and
      *  the specifed millisecond delay.
@@ -204,7 +204,7 @@ public:
      *  the event queue. It cannot be allocated on the stack or in a global.
      */
     void postDelay(SkMSec delay);
-    
+
     /**
      *  Post to the event queue using the event's targetID or target-proc.
      *  The event will be delivered no sooner than the specified millisecond

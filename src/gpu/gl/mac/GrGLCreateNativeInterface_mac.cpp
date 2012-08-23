@@ -23,7 +23,7 @@ static void* GetProcAddress(const char* name) {
 #define GET_PROC_SUFFIX(name, suffix) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("gl" #name #suffix)))
 
 const GrGLInterface* GrGLCreateNativeInterface() {
-    // The gl functions are not context-specific so we create one global 
+    // The gl functions are not context-specific so we create one global
     // interface
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
@@ -32,7 +32,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         const char* verStr = (const char*) glGetString(GL_VERSION);
         GrGLVersion ver = GrGLGetVersionFromString(verStr);
         const char* extStr = (const char*) glGetString(GL_EXTENSIONS);
-        
+
         interface->fBindingsExported = kDesktop_GrGLBinding;
         interface->fActiveTexture = glActiveTexture;
         interface->fAttachShader = glAttachShader;
@@ -178,9 +178,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             #else
                 interface->fGetQueryObjecti64v = GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
                 interface->fGetQueryObjectui64v = GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
-            #endif            
+            #endif
         }
-            
+
         if (ver >= GR_GL_VER(3,0) || GrGLHasExtensionFromString("GL_ARB_framebuffer_object", extStr)) {
             // ARB extension doesn't use the ARB suffix on the function names
             #if GL_VERSION_3_0 || GL_ARB_framebuffer_object

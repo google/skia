@@ -21,11 +21,11 @@ public:
     bool clipCubic(const SkPoint pts[4], const SkRect& clip);
 
     SkPath::Verb next(SkPoint pts[]);
-    
+
 private:
     SkPoint*        fCurrPoint;
     SkPath::Verb*   fCurrVerb;
-    
+
     enum {
         kMaxVerbs = 13,
         kMaxPoints = 32

@@ -11,11 +11,11 @@ struct SkWriter32::Block {
     Block*  fNext;
     size_t  fSize;      // total space allocated (after this)
     size_t  fAllocated; // space used so far
-    
+
     size_t  available() const { return fSize - fAllocated; }
     char*   base() { return (char*)(this + 1); }
     const char* base() const { return (const char*)(this + 1); }
-    
+
     uint32_t* alloc(size_t size) {
         SkASSERT(SkAlign4(size) == size);
         SkASSERT(this->available() >= size);
@@ -24,7 +24,7 @@ struct SkWriter32::Block {
         SkASSERT(fAllocated <= fSize);
         return (uint32_t*)ptr;
     }
-    
+
     uint32_t* peek32(size_t offset) {
         SkASSERT(offset <= fAllocated + 4);
         void* ptr = this->base() + offset;
@@ -45,7 +45,7 @@ struct SkWriter32::Block {
         block->fAllocated = 0;
         return block;
     }
-    
+
     static Block* CreateFromStorage(void* storage, size_t size) {
         SkASSERT(SkIsAlign4((intptr_t)storage));
         Block* block = (Block*)storage;
@@ -54,7 +54,7 @@ struct SkWriter32::Block {
         block->fAllocated = 0;
         return block;
     }
-    
+
 };
 
 #define MIN_BLOCKSIZE   (sizeof(SkWriter32::Block) + sizeof(intptr_t))
@@ -83,7 +83,7 @@ SkWriter32::~SkWriter32() {
 
 void SkWriter32::reset() {
     Block* block = fHead;
-    
+
     if (fHeadIsExternalStorage) {
         SkASSERT(block);
         // don't 'free' the first block, since it is owned by the caller
@@ -133,7 +133,7 @@ uint32_t* SkWriter32::reserve(size_t size) {
         block->fNext = fTail;
         block = fTail;
     }
-    
+
     fSize += size;
 
     return block->alloc(size);
@@ -149,7 +149,7 @@ uint32_t* SkWriter32::peek32(size_t offset) {
 
     Block* block = fHead;
     SkASSERT(NULL != block);
-    
+
     while (offset >= block->fAllocated) {
         offset -= block->fAllocated;
         block = block->fNext;
@@ -209,7 +209,7 @@ size_t SkWriter32::readFromStream(SkStream* stream, size_t length) {
     char scratch[1024];
     const size_t MAX = sizeof(scratch);
     size_t remaining = length;
-    
+
     while (remaining != 0) {
         size_t n = remaining;
         if (n > MAX) {
@@ -230,7 +230,7 @@ bool SkWriter32::writeToStream(SkWStream* stream) {
         return stream->write(fSingleBlock, fSize);
     }
 
-    const Block* block = fHead;    
+    const Block* block = fHead;
     while (block) {
         if (!stream->write(block->base(), block->fAllocated)) {
             return false;

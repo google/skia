@@ -76,7 +76,7 @@ public:
     virtual bool startElement(const char elem[]);
     virtual bool addAttribute(const char name[], const char value[]);
     virtual bool endElement(const char elem[]);
-    virtual bool text(const char text[], int len); 
+    virtual bool text(const char text[], int len);
     void* fParser;
 protected:
     SkXMLParserError* fError;
@@ -116,14 +116,14 @@ public:
         const char* fName;
         const char* fValue;
     };
-    
+
     int         getDepth() const { return fDepth; }
     const char* getName();
     int         getAttributeCount();
     void        getAttributeInfo(int, AttrInfo*);
     const char* getText();
     bool        isWhitespace();
-    
+
 protected:
     virtual bool onEntityReplacement(const char name[],
                                      SkString* replacement);
@@ -142,11 +142,11 @@ private:
     bool        onInit();   // return false on failure
     EventType   onNextToken();
     void        onExit();
-    
+
     SkStream*   fStream;
     Curr        fCurr;
     int         fDepth;
-    
+
     struct Impl;
     Impl*   fImpl;
 };

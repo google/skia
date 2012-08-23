@@ -183,7 +183,7 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
     if (SkMask::kA8_Format != maskFormat) {
         return NULL;
     }
-    
+
     ColorProc proc = NULL;
     if (cachedHasSSE2()) {
         switch (dstConfig) {

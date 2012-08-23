@@ -14,7 +14,7 @@ class SkSurface_Base : public SkSurface {
 public:
     SkSurface_Base(int width, int height);
     virtual ~SkSurface_Base();
-    
+
     /**
      *  Allocate a canvas that will draw into this surface. We will cache this
      *  canvas, to return the same object to the caller multiple times. We
@@ -22,9 +22,9 @@ public:
      *  scope.
      */
     virtual SkCanvas* onNewCanvas() = 0;
-    
+
     virtual SkSurface* onNewSurface(const SkImage::Info&, SkColorSpace*) = 0;
-    
+
     /**
      *  Allocate an SkImage that represents the current contents of the surface.
      *  This needs to be able to outlive the surface itself (if need be), and
@@ -32,7 +32,7 @@ public:
      *  is chaged after this calle (e.g. it is drawn to via its canvas).
      */
     virtual SkImage* onNewImageShapshot() = 0;
-    
+
     /**
      *  Default implementation:
      *
@@ -54,10 +54,10 @@ public:
         }
         return fCachedCanvas;
     }
-    
+
 private:
     SkCanvas*   fCachedCanvas;
-    
+
     typedef SkSurface INHERITED;
 };
 

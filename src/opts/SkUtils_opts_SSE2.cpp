@@ -9,7 +9,7 @@
 
 #include <emmintrin.h>
 #include "SkUtils_opts_SSE2.h"
- 
+
 void sk_memset16_SSE2(uint16_t *dst, uint16_t value, int count)
 {
     SkASSERT(dst != NULL && count >= 0);
@@ -38,7 +38,7 @@ void sk_memset16_SSE2(uint16_t *dst, uint16_t value, int count)
         --count;
     }
 }
- 
+
 void sk_memset32_SSE2(uint32_t *dst, uint32_t value, int count)
 {
     SkASSERT(dst != NULL && count >= 0);

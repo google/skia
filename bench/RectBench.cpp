@@ -143,7 +143,7 @@ public:
     SkCanvas::PointMode fMode;
     const char* fName;
 
-    BlitMaskBench(void* param, SkCanvas::PointMode mode, 
+    BlitMaskBench(void* param, SkCanvas::PointMode mode,
                   BlitMaskBench::kMaskType type, const char* name) :
                   RectBench(param, 2), fMode(mode), _type(type) {
         fName = name;
@@ -177,17 +177,17 @@ protected:
             paint.setShader(s)->unref();
         }
         for (size_t i = 0; i < sizes; i++) {
-            switch (_type) {	
-                case kMaskOpaque: 
-                    color = fColors[i]; 
-                    alpha = 0xFF; 
+            switch (_type) {
+                case kMaskOpaque:
+                    color = fColors[i];
+                    alpha = 0xFF;
                     break;
-                case kMaskBlack: 
+                case kMaskBlack:
                     alpha = 0xFF;
                     color = 0xFF000000;
                     break;
                 case kMaskColor:
-                    color = fColors[i]; 
+                    color = fColors[i];
                     alpha = rand.nextU() & 255;
                     break;
                 case KMaskShader:
@@ -202,8 +202,8 @@ protected:
     }
     virtual const char* onGetName() { return fName; }
 private:
-	typedef RectBench INHERITED;
-	kMaskType _type;
+    typedef RectBench INHERITED;
+    kMaskType _type;
 };
 
 

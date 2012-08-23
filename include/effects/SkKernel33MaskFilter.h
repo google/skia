@@ -18,7 +18,7 @@ public:
         : fPercent256(percent256) {}
 
     virtual uint8_t computeValue(uint8_t* const* srcRows) = 0;
-    
+
     // overrides from SkMaskFilter
     virtual SkMask::Format getFormat();
     virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*);
@@ -29,7 +29,7 @@ protected:
 
 private:
     int fPercent256;
-    
+
     typedef SkMaskFilter INHERITED;
 };
 
@@ -42,19 +42,19 @@ public:
         memcpy(fKernel, coeff, 9 * sizeof(int));
         fShift = shift;
     }
-    
+
     // override from SkKernel33ProcMaskFilter
     virtual uint8_t computeValue(uint8_t* const* srcRows);
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkKernel33MaskFilter)
-    
+
 private:
     int fKernel[3][3];
     int fShift;
 
     SkKernel33MaskFilter(SkFlattenableReadBuffer& rb);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
     typedef SkKernel33ProcMaskFilter INHERITED;
 };
 

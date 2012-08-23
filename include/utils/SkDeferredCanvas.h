@@ -47,7 +47,7 @@ public:
 
     /**
      *  Specify a NotificationClient to be used by this canvas. Calling
-     *  setNotificationClient will release the previously set 
+     *  setNotificationClient will release the previously set
      *  NotificationClient, if any. SkDeferredCanvas does not take ownership
      *  of the notification client.  Therefore user code is resposible
      *  for its destruction.  The notification client must be unregistered
@@ -75,7 +75,7 @@ public:
     bool isDeferredDrawing() const;
 
     /**
-     *  Returns true if the canvas contains a fresh frame.  A frame is 
+     *  Returns true if the canvas contains a fresh frame.  A frame is
      *  considered fresh when its content do not depend on the contents
      *  of the previous frame. For example, if a canvas is cleared before
      *  drawing each frame, the frames will all be considered fresh.
@@ -181,7 +181,7 @@ public:
         /**
          *  Called after a recording a draw command if additional memory
          *  had to be allocated for recording.
-         *  @param newAllocatedStorage same value as would be returned by 
+         *  @param newAllocatedStorage same value as would be returned by
          *      storageAllocatedForRecording(), for convenience.
          */
         virtual void storageAllocatedForRecordingChanged(
@@ -191,7 +191,7 @@ public:
          *  Called after pending draw commands have been flushed
          */
         virtual void flushedDrawCommands() {}
-        
+
     private:
         typedef SkRefCnt INHERITED;
     };

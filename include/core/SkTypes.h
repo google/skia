@@ -432,7 +432,7 @@ public:
          *  malloc a new block of the smaller size.
          */
         kAlloc_OnShrink,
-        
+
         /**
          *  If the requested size is smaller than the current size, and the
          *  current block is dynamically allocated, just return the old

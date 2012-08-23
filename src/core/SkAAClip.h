@@ -55,7 +55,7 @@ public:
     void copyToMask(SkMask*) const;
 
     // called internally
-    
+
     bool quickContains(int left, int top, int right, int bottom) const;
     bool quickContains(const SkIRect& r) const {
         return this->quickContains(r.fLeft, r.fTop, r.fRight, r.fBottom);
@@ -102,7 +102,7 @@ public:
         fAAClip = aaclip;
         fAAClipBounds = aaclip->getBounds();
     }
-    
+
     virtual void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha[],
                            const int16_t runs[]) SK_OVERRIDE;
@@ -110,7 +110,7 @@ public:
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
-    
+
 private:
     SkBlitter*      fBlitter;
     const SkAAClip* fAAClip;

@@ -14,7 +14,7 @@
 #include "SkScalar.h"
 
 /** \class SkTableMaskFilter
- 
+
     Applies a table lookup on each of the alpha values in the mask.
     Helper methods create some common tables (e.g. gamma, clipping)
  */
@@ -50,7 +50,7 @@ public:
     // overrides from SkMaskFilter
     virtual SkMask::Format getFormat();
     virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*);
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
 
 protected:
@@ -59,7 +59,7 @@ protected:
 
 private:
     uint8_t fTable[256];
-    
+
     typedef SkMaskFilter INHERITED;
 };
 

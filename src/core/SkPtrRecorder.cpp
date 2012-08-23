@@ -29,11 +29,11 @@ uint32_t SkPtrSet::find(void* ptr) const {
     if (NULL == ptr) {
         return 0;
     }
-    
+
     int count = fList.count();
     Pair pair;
     pair.fPtr = ptr;
-    
+
     int index = SkTSearch<Pair, Cmp>(fList.begin(), count, pair, sizeof(pair));
     if (index < 0) {
         return 0;

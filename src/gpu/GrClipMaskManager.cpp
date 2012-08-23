@@ -26,7 +26,7 @@ GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 GrClipMaskCache::GrClipMaskCache()
     : fContext(NULL)
     , fStack(sizeof(GrClipStackFrame)) {
-    // We need an initial frame to capture the clip state prior to 
+    // We need an initial frame to capture the clip state prior to
     // any pushes
     SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
 }
@@ -37,10 +37,10 @@ void GrClipMaskCache::push() {
 
 ////////////////////////////////////////////////////////////////////////////////
 namespace {
-// set up the draw state to enable the aa clipping mask. Besides setting up the 
+// set up the draw state to enable the aa clipping mask. Besides setting up the
 // sampler matrix this also alters the vertex layout
-void setup_drawstate_aaclip(GrGpu* gpu, 
-                            GrTexture* result, 
+void setup_drawstate_aaclip(GrGpu* gpu,
+                            GrTexture* result,
                             const GrIRect &devBound) {
     GrDrawState* drawState = gpu->drawState();
     GrAssert(drawState);
@@ -49,7 +49,7 @@ void setup_drawstate_aaclip(GrGpu* gpu,
 
     GrMatrix mat;
     mat.setIDiv(result->width(), result->height());
-    mat.preTranslate(SkIntToScalar(-devBound.fLeft), 
+    mat.preTranslate(SkIntToScalar(-devBound.fLeft),
                      SkIntToScalar(-devBound.fTop));
     mat.preConcat(drawState->getViewMatrix());
 
@@ -134,8 +134,8 @@ bool GrClipMaskManager::useSWOnlyPath(const SkClipStack& clipIn) {
         // rects can always be drawn directly w/o using the software path
         // so only paths need to be checked
         if (NULL != clip->fPath &&
-            path_needs_SW_renderer(this->getContext(), fGpu, 
-                                   *clip->fPath, 
+            path_needs_SW_renderer(this->getContext(), fGpu,
+                                   *clip->fPath,
                                    get_path_fill(*clip->fPath),
                                    clip->fDoAA)) {
             useSW = true;
@@ -165,7 +165,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
     GrIRect devClipBounds;
     bool isIntersectionOfRects = false;
 
-    clipDataIn->getConservativeBounds(rt, &devClipBounds, 
+    clipDataIn->getConservativeBounds(rt, &devClipBounds,
                                       &isIntersectionOfRects);
     if (devClipBounds.isEmpty()) {
         return false;
@@ -175,11 +175,11 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
 
 #if GR_SW_CLIP
     // If MSAA is enabled we can do everything in the stencil buffer.
-    // Otherwise check if we should just create the entire clip mask 
+    // Otherwise check if we should just create the entire clip mask
     // in software (this will only happen if the clip mask is anti-aliased
     // and too complex for the gpu to handle in its entirety)
     if (0 == rt->numSamples() &&
-        requiresAA && 
+        requiresAA &&
         this->useSWOnlyPath(*clipDataIn->fClipStack)) {
         // The clip geometry is complex enough that it will be more
         // efficient to create it entirely in software
@@ -219,12 +219,12 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
     }
 #endif // GR_AA_CLIP
 
-    // Either a hard (stencil buffer) clip was explicitly requested or 
+    // Either a hard (stencil buffer) clip was explicitly requested or
     // an antialiased clip couldn't be created. In either case, free up
     // the texture in the antialiased mask cache.
     // TODO: this may require more investigation. Ganesh performs a lot of
     // utility draws (e.g., clears, InOrderDrawBuffer playbacks) that hit
-    // the stencil buffer path. These may be "incorrectly" clearing the 
+    // the stencil buffer path. These may be "incorrectly" clearing the
     // AA cache.
     fAACache.reset();
 
@@ -237,7 +237,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
     }
 
     // use the stencil clip if we can't represent the clip as a rectangle.
-    bool useStencil = !clipDataIn->fClipStack->isWideOpen() && 
+    bool useStencil = !clipDataIn->fClipStack->isWideOpen() &&
                       !devClipBounds.isEmpty();
 
     if (useStencil) {
@@ -269,13 +269,13 @@ namespace {
  * "devContainee" is in device coordiates. "origin" provides the mapping between
  * the two.
  */
-bool contains(const SkRect& canvContainer, 
+bool contains(const SkRect& canvContainer,
               const SkIRect& devContainee,
               const SkIPoint& origin) {
     return  !devContainee.isEmpty() && !canvContainer.isEmpty() &&
-            canvContainer.fLeft <= SkIntToScalar(devContainee.fLeft+origin.fX) && 
+            canvContainer.fLeft <= SkIntToScalar(devContainee.fLeft+origin.fX) &&
             canvContainer.fTop <= SkIntToScalar(devContainee.fTop+origin.fY) &&
-            canvContainer.fRight >= SkIntToScalar(devContainee.fRight+origin.fX) && 
+            canvContainer.fRight >= SkIntToScalar(devContainee.fRight+origin.fX) &&
             canvContainer.fBottom >= SkIntToScalar(devContainee.fBottom+origin.fY);
 }
 
@@ -292,7 +292,7 @@ const SkClipStack::Iter::Clip* process_initial_clip_elements(
 
     GrAssert(NULL != iter && NULL != clearToInside && NULL != firstOp);
 
-    // logically before the first element of the clip stack is 
+    // logically before the first element of the clip stack is
     // processed the clip is entirely open. However, depending on the
     // first set op we may prefer to clear to 0 for performance. We may
     // also be able to skip the initial clip paths/rects. We loop until
@@ -331,7 +331,7 @@ const SkClipStack::Iter::Clip* process_initial_clip_elements(
                 // we can skip a leading union.
             case SkRegion::kUnion_Op:
                 // if everything is initially outside then union is
-                // same as replace. Otherwise, every pixel is still 
+                // same as replace. Otherwise, every pixel is still
                 // clearToInside
                 if (!*clearToInside) {
                     *firstOp = SkRegion::kReplace_Op;
@@ -385,8 +385,8 @@ const SkClipStack::Iter::Clip* process_initial_clip_elements(
 namespace {
 
 ////////////////////////////////////////////////////////////////////////////////
-// set up the OpenGL blend function to perform the specified 
-// boolean operation for alpha clip mask creation 
+// set up the OpenGL blend function to perform the specified
+// boolean operation for alpha clip mask creation
 void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
 
     switch (op) {
@@ -423,8 +423,8 @@ bool draw_path_in_software(GrContext* context,
                            const GrIRect& resultBounds) {
 
     SkAutoTUnref<GrTexture> texture(
-                GrSWMaskHelper::DrawPathMaskToTexture(context, path, 
-                                                      resultBounds, fill, 
+                GrSWMaskHelper::DrawPathMaskToTexture(context, path,
+                                                      resultBounds, fill,
                                                       doAA, NULL));
     if (NULL == texture) {
         return false;
@@ -510,7 +510,7 @@ void GrClipMaskManager::drawTexture(GrTexture* target,
     drawState->sampler(0)->reset(sampleM);
     drawState->createTextureEffect(0, texture);
 
-    GrRect rect = GrRect::MakeWH(SkIntToScalar(target->width()), 
+    GrRect rect = GrRect::MakeWH(SkIntToScalar(target->width()),
                                  SkIntToScalar(target->height()));
 
     fGpu->drawSimpleRect(rect, NULL);
@@ -520,7 +520,7 @@ void GrClipMaskManager::drawTexture(GrTexture* target,
 
 // get a texture to act as a temporary buffer for AA clip boolean operations
 // TODO: given the expense of createTexture we may want to just cache this too
-void GrClipMaskManager::getTemp(const GrIRect& bounds, 
+void GrClipMaskManager::getTemp(const GrIRect& bounds,
                                 GrAutoScratchTexture* temp) {
     if (NULL != temp->texture()) {
         // we've already allocated the temp texture
@@ -578,7 +578,7 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClipData& clipDataIn,
 
     // TODO: make sure we don't outset if bounds are still 0,0 @ min
 
-    if (fAACache.canReuse(*clipDataIn.fClipStack, 
+    if (fAACache.canReuse(*clipDataIn.fClipStack,
                           devClipBounds.width(),
                           devClipBounds.height())) {
         *result = fAACache.getLastMask();
@@ -620,17 +620,17 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
 
     if (0 != devResultBounds->fTop || 0 != devResultBounds->fLeft ||
         0 != clipDataIn.fOrigin.fX || 0 != clipDataIn.fOrigin.fY) {
-        // if we were able to trim down the size of the mask we need to 
+        // if we were able to trim down the size of the mask we need to
         // offset the paths & rects that will be used to compute it
         drawState->viewMatrix()->setTranslate(
-                SkIntToScalar(-devResultBounds->fLeft-clipDataIn.fOrigin.fX), 
+                SkIntToScalar(-devResultBounds->fLeft-clipDataIn.fOrigin.fX),
                 SkIntToScalar(-devResultBounds->fTop-clipDataIn.fOrigin.fY));
     }
 
     bool clearToInside;
     SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
 
-    SkClipStack::Iter iter(*clipDataIn.fClipStack, 
+    SkClipStack::Iter iter(*clipDataIn.fClipStack,
                            SkClipStack::Iter::kBottom_IterStart);
     const SkClipStack::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                                               *devResultBounds,
@@ -638,8 +638,8 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
                                                               &firstOp,
                                                               clipDataIn);
 
-    fGpu->clear(NULL, 
-                clearToInside ? 0xffffffff : 0x00000000, 
+    fGpu->clear(NULL,
+                clearToInside ? 0xffffffff : 0x00000000,
                 accum->asRenderTarget());
 
     GrAutoScratchTexture temp;
@@ -698,12 +698,12 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
             if (0 != devResultBounds->fTop || 0 != devResultBounds->fLeft ||
                 0 != clipDataIn.fOrigin.fX || 0 != clipDataIn.fOrigin.fY) {
                 drawState->viewMatrix()->setTranslate(
-                  SkIntToScalar(-devResultBounds->fLeft-clipDataIn.fOrigin.fX), 
+                  SkIntToScalar(-devResultBounds->fLeft-clipDataIn.fOrigin.fX),
                   SkIntToScalar(-devResultBounds->fTop-clipDataIn.fOrigin.fY));
             }
 
         } else {
-            // all the remaining ops can just be directly draw into 
+            // all the remaining ops can just be directly draw into
             // the accumulation buffer
             setup_boolean_blendcoeffs(drawState, op);
             this->drawClipShape(accum, clip, *devResultBounds);
@@ -716,7 +716,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Create a 1-bit clip mask in the stencil buffer. 'devClipBounds' are in device 
+// Create a 1-bit clip mask in the stencil buffer. 'devClipBounds' are in device
 // (as opposed to canvas) coordinates
 bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
                                               const GrIRect& devClipBounds) {
@@ -759,10 +759,10 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
         GrDrawTarget::AutoGeometryPush agp(fGpu);
 
         if (0 != clipDataIn.fOrigin.fX || 0 != clipDataIn.fOrigin.fY) {
-            // Add the saveLayer's offset to the view matrix rather than 
+            // Add the saveLayer's offset to the view matrix rather than
             // offset each individual draw
             drawState->viewMatrix()->setTranslate(
-                           SkIntToScalar(-clipDataIn.fOrigin.fX), 
+                           SkIntToScalar(-clipDataIn.fOrigin.fX),
                            SkIntToScalar(-clipDataIn.fOrigin.fY));
         }
 
@@ -780,7 +780,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
         bool clearToInside;
         SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
 
-        SkClipStack::Iter iter(*oldClipData->fClipStack, 
+        SkClipStack::Iter iter(*oldClipData->fClipStack,
                                SkClipStack::Iter::kBottom_IterStart);
         const SkClipStack::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                                   devRTRect,
@@ -898,8 +898,8 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
                     }
                 } else {
                     SET_RANDOM_COLOR
-                    // 'devClipBounds' is already in device coordinates so the 
-                    // translation in the view matrix is inappropriate. 
+                    // 'devClipBounds' is already in device coordinates so the
+                    // translation in the view matrix is inappropriate.
                     // Convert it to canvas space so the drawn rect will
                     // be in the correct location
                     GrRect canvClipBounds;
@@ -921,7 +921,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
 
 // mapping of clip-respecting stencil funcs to normal stencil funcs
 // mapping depends on whether stencil-clipping is in effect.
-static const GrStencilFunc 
+static const GrStencilFunc
     gSpecialToBasicStencilFunc[2][kClipStencilFuncCount] = {
     {// Stencil-Clipping is DISABLED,  we are effectively always inside the clip
         // In the Clip Funcs
@@ -966,7 +966,7 @@ const GrStencilSettings& basic_apply_stencil_clip_settings() {
         kAlwaysIfInClip_StencilFunc,
         0x0000,
         0x0000,
-        0x0000);    
+        0x0000);
     return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
 }
 }
@@ -1010,7 +1010,7 @@ void GrClipMaskManager::setGpuStencil() {
 
     // TODO: dynamically attach a stencil buffer
     int stencilBits = 0;
-    GrStencilBuffer* stencilBuffer = 
+    GrStencilBuffer* stencilBuffer =
         drawState.getRenderTarget()->getStencilBuffer();
     if (NULL != stencilBuffer) {
         stencilBits = stencilBuffer->bits();
@@ -1078,7 +1078,7 @@ void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
                 funcMask &= userBits;
                 funcRef &= userBits;
             }
-            const GrStencilFunc* table = 
+            const GrStencilFunc* table =
                 gSpecialToBasicStencilFunc[respectClip];
             func = table[func - kBasicStencilFuncCount];
             GrAssert(func >= 0 && func < kBasicStencilFuncCount);
@@ -1145,14 +1145,14 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
     GrSWMaskHelper helper(this->getContext());
 
     GrMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(-clipDataIn.fOrigin.fX), 
+    matrix.setTranslate(SkIntToScalar(-clipDataIn.fOrigin.fX),
                         SkIntToScalar(-clipDataIn.fOrigin.fY));
     helper.init(*devResultBounds, &matrix);
 
     bool clearToInside;
     SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
 
-    SkClipStack::Iter iter(*clipDataIn.fClipStack, 
+    SkClipStack::Iter iter(*clipDataIn.fClipStack,
                            SkClipStack::Iter::kBottom_IterStart);
     const SkClipStack::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                               *devResultBounds,
@@ -1193,7 +1193,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
                 SkPath temp;
                 temp.addRect(*clip->fRect);
 
-                helper.draw(temp, SkRegion::kReplace_Op, 
+                helper.draw(temp, SkRegion::kReplace_Op,
                             kInverseEvenOdd_GrPathFill, clip->fDoAA,
                             0x00);
             } else if (NULL != clip->fPath) {
@@ -1216,7 +1216,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
                         clip->fDoAA, 0xFF);
 
         } else if (NULL != clip->fPath) {
-            helper.draw(*clip->fPath, 
+            helper.draw(*clip->fPath,
                         op,
                         get_path_fill(*clip->fPath),
                         clip->fDoAA, 0xFF);

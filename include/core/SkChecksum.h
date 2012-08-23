@@ -21,11 +21,11 @@ private:
         ROTL = sizeof(uintptr_t) * 8 - ROTR,
         HALFBITS = sizeof(uintptr_t) * 4
     };
-    
+
     static inline uintptr_t Mash(uintptr_t total, uintptr_t value) {
         return ((total >> ROTR) | (total << ROTL)) ^ value;
     }
-    
+
 public:
     /**
      *  Compute a 32-bit checksum for a given data block
@@ -37,7 +37,7 @@ public:
      */
     static uint32_t Compute(const uint32_t* data, size_t size) {
         SkASSERT(SkIsAlign4(size));
-        
+
         /*
          *  We want to let the compiler use 32bit or 64bit addressing and math
          *  so we use uintptr_t as our magic type. This makes the code a little
@@ -46,7 +46,7 @@ public:
          */
         uintptr_t result = 0;
         const uintptr_t* ptr = reinterpret_cast<const uintptr_t*>(data);
-        
+
         /*
          *  count the number of quad element chunks. This takes into account
          *  if we're on a 32bit or 64bit arch, since we use sizeof(uintptr_t)
@@ -60,13 +60,13 @@ public:
             result = Mash(result, *ptr++);
         }
         size &= ((sizeof(uintptr_t) << 2) - 1);
-        
+
         data = reinterpret_cast<const uint32_t*>(ptr);
         const uint32_t* stop = data + (size >> 2);
         while (data < stop) {
             result = Mash(result, *data++);
         }
-        
+
         /*
          *  smash us down to 32bits if we were 64. Note that when uintptr_t is
          *  32bits, this code-path should go away, but I still got a warning

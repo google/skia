@@ -28,7 +28,7 @@ class AAClipBench : public SkBenchmark {
     };
 
 public:
-    AAClipBench(void* param, bool doPath, bool doAA) 
+    AAClipBench(void* param, bool doPath, bool doAA)
         : INHERITED(param)
         , fDoPath(doPath)
         , fDoAA(doAA) {
@@ -37,7 +37,7 @@ public:
                      doPath ? "path" : "rect",
                      doAA ? "AA" : "BW");
 
-        fClipRect.set(SkFloatToScalar(10.5f), SkFloatToScalar(10.5f), 
+        fClipRect.set(SkFloatToScalar(10.5f), SkFloatToScalar(10.5f),
                       SkFloatToScalar(50.5f), SkFloatToScalar(50.5f));
         fClipPath.addRoundRect(fClipRect, SkIntToScalar(10), SkIntToScalar(10));
         fDrawRect.set(SkIntToScalar(0), SkIntToScalar(0),
@@ -57,7 +57,7 @@ protected:
             // jostle the clip regions each time to prevent caching
             fClipRect.offset((i % 2) == 0 ? SkIntToScalar(10) : SkIntToScalar(-10), 0);
             fClipPath.reset();
-            fClipPath.addRoundRect(fClipRect, 
+            fClipPath.addRoundRect(fClipRect,
                                    SkIntToScalar(5), SkIntToScalar(5));
             SkASSERT(fClipPath.isConvex());
 
@@ -103,14 +103,14 @@ class NestedAAClipBench : public SkBenchmark {
     SkPoint fSizes[kNestingDepth+1];
 
 public:
-    NestedAAClipBench(void* param, bool doAA) 
+    NestedAAClipBench(void* param, bool doAA)
         : INHERITED(param)
         , fDoAA(doAA) {
 
         fName.printf("nested_aaclip_%s", doAA ? "AA" : "BW");
 
-        fDrawRect = SkRect::MakeLTRB(0, 0, 
-                                     SkIntToScalar(kImageSize), 
+        fDrawRect = SkRect::MakeLTRB(0, 0,
+                                     SkIntToScalar(kImageSize),
                                      SkIntToScalar(kImageSize));
 
         fSizes[0].set(SkIntToScalar(kImageSize), SkIntToScalar(kImageSize));
@@ -124,13 +124,13 @@ protected:
     virtual const char* onGetName() { return fName.c_str(); }
 
 
-    void recurse(SkCanvas* canvas, 
+    void recurse(SkCanvas* canvas,
                  int depth,
                  const SkPoint& offset) {
 
             canvas->save();
 
-            SkRect temp = SkRect::MakeLTRB(0, 0, 
+            SkRect temp = SkRect::MakeLTRB(0, 0,
                                            fSizes[depth].fX, fSizes[depth].fY);
             temp.offset(offset);
 
@@ -138,8 +138,8 @@ protected:
             path.addRoundRect(temp, SkIntToScalar(3), SkIntToScalar(3));
             SkASSERT(path.isConvex());
 
-            canvas->clipPath(path, 
-                             0 == depth ? SkRegion::kReplace_Op : 
+            canvas->clipPath(path,
+                             0 == depth ? SkRegion::kReplace_Op :
                                           SkRegion::kIntersect_Op,
                              fDoAA);
 

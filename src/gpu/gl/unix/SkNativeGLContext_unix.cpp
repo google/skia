@@ -31,7 +31,7 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
     return 0;
 }
 
-SkNativeGLContext::SkNativeGLContext() 
+SkNativeGLContext::SkNativeGLContext()
     : fContext(NULL)
     , fDisplay(NULL)
     , fPixmap(0)
@@ -112,7 +112,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
             if (best_fbc < 0 || (samp_buf && samples > best_num_samp))
                 best_fbc = i, best_num_samp = samples;
-        } 
+        }
         XFree(vi);
     }
 
@@ -201,12 +201,12 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         fContext = glXCreateContext(fDisplay, vi, 0, True);
 #endif
 
-    } 
+    }
 #ifdef GLX_1_3
     else {
         //SkDebugf("Creating context.\n");
 
-        PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = 
+        PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB =
             (PFNGLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddressARB((GrGLubyte*)"glXCreateContextAttribsARB");
         int context_attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 3,

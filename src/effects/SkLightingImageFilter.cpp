@@ -730,7 +730,7 @@ SkImageFilter* SkLightingImageFilter::CreateSpotLitDiffuse(
 SkImageFilter* SkLightingImageFilter::CreateDistantLitSpecular(
     const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale,
     SkScalar ks, SkScalar shininess) {
-    return SkNEW_ARGS(SkSpecularLightingImageFilter, 
+    return SkNEW_ARGS(SkSpecularLightingImageFilter,
         (SkNEW_ARGS(SkDistantLight, (direction, lightColor)), surfaceScale, ks, shininess));
 }
 
@@ -927,7 +927,7 @@ SkLight* create_random_light(SkRandom* random) {
             return SkNEW_ARGS(SkSpotLight, (random_point3(random),
                                             random_point3(random),
                                             random->nextUScalar1(),
-                                            random->nextUScalar1(), 
+                                            random->nextUScalar1(),
                                             random->nextU()));
         }
         default:

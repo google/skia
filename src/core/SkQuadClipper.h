@@ -14,16 +14,16 @@
 
 /** This class is initialized with a clip rectangle, and then can be fed quads,
     which must already be monotonic in Y.
- 
+
     In the future, it might return a series of segments, allowing it to clip
     also in X, to ensure that all segments fit in a finite coordinate system.
  */
 class SkQuadClipper {
 public:
     SkQuadClipper();
-    
+
     void setClip(const SkIRect& clip);
-    
+
     bool clipQuad(const SkPoint src[3], SkPoint dst[3]);
 
 private:
@@ -40,11 +40,11 @@ public:
     bool clipCubic(const SkPoint pts[4], const SkRect& clip);
 
     SkPath::Verb next(SkPoint pts[]);
-    
+
 private:
     SkPoint*        fCurrPoint;
     SkPath::Verb*   fCurrVerb;
-    
+
     enum {
         kMaxVerbs = 13,
         kMaxPoints = 32

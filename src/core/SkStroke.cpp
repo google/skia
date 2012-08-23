@@ -319,7 +319,7 @@ DRAW_LINE:
         this->cubic_to(&tmp[3], norm, unit, &dummy, &unitDummy, subDivide);
     } else {
         SkVector    normalB, normalC;
-        
+
         // need normals to inset/outset the off-curve pts B and C
 
         if (0) {    // this is normal to the line between our adjacent pts
@@ -585,13 +585,13 @@ public:
             fSwapWithSrc = false;
         }
     }
-    
+
     ~AutoTmpPath() {
         if (fSwapWithSrc) {
             fTmpDst.swap(*const_cast<SkPath*>(&fSrc));
         }
     }
-    
+
 private:
     SkPath          fTmpDst;
     const SkPath&   fSrc;
@@ -608,7 +608,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     if (radius <= 0) {
         return;
     }
-    
+
 #ifdef SK_SCALAR_IS_FIXED
     void (*proc)(SkPoint pts[], int count) = identity_proc;
     if (needs_to_shrink(src)) {
@@ -686,7 +686,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
             paint.setStrokeWidth(7);
             paint.setStrokeCap(SkPaint::kRound_Cap);
             canvas->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
-        }        
+        }
 #endif
 #if 0
         if (2 == src.countPoints()) {

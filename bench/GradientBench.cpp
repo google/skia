@@ -180,7 +180,7 @@ public:
             { 0, 0 },
             { SkIntToScalar(W), SkIntToScalar(H) }
         };
-        
+
         fCount = SkBENCHLOOP(N * gGrads[gradType].fRepeat);
         fShader = gGrads[gradType].fMaker(pts, gGradData[0], tm, NULL, scale);
         fGeomType = geomType;
@@ -223,16 +223,16 @@ private:
 class Gradient2Bench : public SkBenchmark {
 public:
     Gradient2Bench(void* param) : INHERITED(param) {}
-    
+
 protected:
     virtual const char* onGetName() {
         return "gradient_create";
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
-        
+
         const SkRect r = { 0, 0, SkIntToScalar(4), SkIntToScalar(4) };
         const SkPoint pts[] = {
             { 0, 0 },
@@ -252,7 +252,7 @@ protected:
             canvas->drawRect(r, paint);
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

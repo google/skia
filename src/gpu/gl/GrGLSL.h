@@ -64,7 +64,7 @@ const char* GrGetGLSLVersionDecl(GrGLBinding binding,
  * declare an output variable for the color. If this function returns true:
  *    * Parameter var's name will be set to nameIfDeclared
  *    * The variable must be declared in the fragment shader
- *    * The variable has to be bound as the color output 
+ *    * The variable has to be bound as the color output
  *      (using glBindFragDataLocation)
  *    If the function returns false:
  *    * Parameter var's name will be set to the GLSL built-in color output name.

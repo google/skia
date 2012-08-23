@@ -49,7 +49,7 @@ public:
         /**
          * no support for MSAA FBOs
          */
-        kNone_MSFBOType = 0,  
+        kNone_MSFBOType = 0,
         /**
          * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
          */
@@ -141,7 +141,7 @@ public:
      * Reports the maximum number of samples supported.
      */
     int maxSampleCount() const { return fMaxSampleCount; }
-    
+
     /**
      * Reports the type of coverage sample AA support.
      */
@@ -218,7 +218,7 @@ public:
 
     // Does ReadPixels support the provided format/type combo?
     bool readPixelsSupported(const GrGLInterface* intf,
-                             GrGLenum format, 
+                             GrGLenum format,
                              GrGLenum type) const;
 
 private:

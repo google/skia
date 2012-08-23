@@ -22,7 +22,7 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buff
 
 void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    
+
     buffer.writeFlattenable(fColorFilter);
 }
 

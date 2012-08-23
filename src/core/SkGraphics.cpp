@@ -127,7 +127,7 @@ void SkGraphics::Term() {
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char kFontCacheLimitStr[] = "font-cache-limit";
-static const size_t kFontCacheLimitLen = sizeof(kFontCacheLimitStr) - 1; 
+static const size_t kFontCacheLimitLen = sizeof(kFontCacheLimitStr) - 1;
 
 static const struct {
     const char* fStr;

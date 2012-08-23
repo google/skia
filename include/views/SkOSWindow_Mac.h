@@ -17,7 +17,7 @@ public:
     ~SkOSWindow();
     void*   getHWND() const { return fHWND; }
 
-    virtual bool onDispatchClick(int x, int y, Click::State state, 
+    virtual bool onDispatchClick(int x, int y, Click::State state,
                                  void* owner);
     enum SkBackEndTypes {
         kNone_BackEndType,
@@ -39,7 +39,7 @@ protected:
     virtual void onAddMenu(const SkOSMenu*);
     virtual void onUpdateMenu(const SkOSMenu*);
     virtual void onSetTitle(const char[]);
-    
+
 private:
     void*   fHWND;
     bool    fInvalEventIsPending;

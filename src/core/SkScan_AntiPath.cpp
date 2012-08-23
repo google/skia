@@ -85,7 +85,7 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
      */
     const int left = clip.getBounds().fLeft;
     const int right = clip.getBounds().fRight;
-    
+
     fLeft = left;
     fSuperLeft = left << SHIFT;
     fWidth = right - left;
@@ -197,7 +197,7 @@ void SuperBlitter::blitH(int x, int y, int width) {
         fOffsetX = 0;
         fCurrY = y;
     }
-    
+
     if (iy != fCurrIY) {  // new scanline
         this->flush();
         fCurrIY = iy;
@@ -422,7 +422,7 @@ MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     fMask.fBounds   = ir;
     fMask.fRowBytes = ir.width();
     fMask.fFormat   = SkMask::kA8_Format;
-            
+
     fClipRect = ir;
     fClipRect.intersect(clip.getBounds());
 
@@ -714,13 +714,13 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
     if (clip.isEmpty()) {
         return;
     }
-    
+
     if (clip.isBW()) {
         FillPath(path, clip.bwRgn(), blitter);
     } else {
         SkRegion        tmp;
         SkAAClipBlitter aaBlitter;
-        
+
         tmp.setRect(clip.getBounds());
         aaBlitter.init(blitter, &clip.aaRgn());
         SkScan::FillPath(path, tmp, &aaBlitter);

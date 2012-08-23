@@ -27,7 +27,7 @@ static void drawIntoBitmap(const SkBitmap& bm) {
     p.setColor(SK_ColorRED);
     canvas.drawCircle(SkIntToScalar(w)/2, SkIntToScalar(h)/2,
                       SkIntToScalar(SkMin32(w, h))*3/8, p);
-    
+
     SkRect r;
     r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
     p.setStyle(SkPaint::kStroke_Style);
@@ -48,7 +48,7 @@ static uint8_t compute666Index(SkPMColor c) {
     int r = SkGetPackedR32(c);
     int g = SkGetPackedG32(c);
     int b = SkGetPackedB32(c);
-    
+
     return convByteTo6(r) * 36 + convByteTo6(g) * 6 + convByteTo6(b);
 }
 
@@ -70,7 +70,7 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst) {
     dst->setConfig(SkBitmap::kIndex8_Config, src.width(), src.height());
     dst->allocPixels(ctable);
     ctable->unref();
-    
+
     SkAutoLockPixels alps(src);
     SkAutoLockPixels alpd(*dst);
 
@@ -100,7 +100,7 @@ public:
         }
         bm.allocPixels();
         bm.eraseColor(0);
-        
+
         drawIntoBitmap(bm);
 
         if (SkBitmap::kIndex8_Config == c) {

@@ -15,10 +15,10 @@
 class SkPaintFlagsDrawFilter : public SkDrawFilter {
 public:
     SkPaintFlagsDrawFilter(uint32_t clearFlags, uint32_t setFlags);
-    
+
     // overrides
     virtual void filter(SkPaint*, Type);
-    
+
 private:
     uint16_t    fClearFlags;    // user specified
     uint16_t    fSetFlags;      // user specified

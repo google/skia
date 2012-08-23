@@ -444,7 +444,7 @@ GrTexture* apply_morphology(GrTexture* srcTexture,
     GrContext* context = srcTexture->getContext();
     srcTexture->ref();
     GrContext::AutoMatrix avm(context, GrMatrix::I());
-    GrContext::AutoClip acs(context, GrRect::MakeWH(SkIntToScalar(srcTexture->width()), 
+    GrContext::AutoClip acs(context, GrRect::MakeWH(SkIntToScalar(srcTexture->width()),
                                                     SkIntToScalar(srcTexture->height())));
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
@@ -457,9 +457,9 @@ GrTexture* apply_morphology(GrTexture* srcTexture,
         apply_morphology_pass(context, srcTexture, rect, radius.fWidth,
                               morphType, Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(
-                    SkScalarFloorToInt(rect.fLeft), 
+                    SkScalarFloorToInt(rect.fLeft),
                     SkScalarFloorToInt(rect.fBottom),
-                    SkScalarFloorToInt(rect.width()), 
+                    SkScalarFloorToInt(rect.width()),
                     radius.fHeight);
         context->clear(&clearRect, 0x0);
         srcTexture->unref();

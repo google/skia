@@ -37,7 +37,7 @@ public:
      *  If the ptr is NULL, it is not added, and 0 is returned.
      */
     uint32_t add(void*);
-    
+
     /**
      *  Return the number of (non-null) ptrs in the set.
      */
@@ -73,9 +73,9 @@ private:
     // ptr and its ID/fIndex explicitly, since the ptr's position in the array
     // is not related to its "index".
     SkTDArray<Pair>  fList;
-    
+
     static int Cmp(const Pair* a, const Pair* b);
-    
+
     typedef SkRefCnt INHERITED;
 };
 
@@ -91,7 +91,7 @@ public:
     uint32_t add(T ptr) {
         return this->INHERITED::add((void*)ptr);
     }
-    
+
     void copyToArray(T* array) const {
         this->INHERITED::copyToArray((void**)array);
     }
@@ -108,7 +108,7 @@ private:
 class SkRefCntSet : public SkTPtrSet<SkRefCnt*> {
 public:
     virtual ~SkRefCntSet();
-    
+
 protected:
     // overrides
     virtual void incPtr(void*);
@@ -126,14 +126,14 @@ public:
     SK_DECLARE_INST_COUNT(SkNamedFactorySet)
 
     SkNamedFactorySet();
-    
+
     /**
      * Find the specified Factory in the set. If it is not already in the set,
      * and has registered its name, add it to the set, and return its index.
      * If the Factory has no registered name, return 0.
      */
     uint32_t find(SkFlattenable::Factory);
-    
+
     /**
      * If new Factorys have been added to the set, return the name of the first
      * Factory added after the Factory name returned by the last call to this

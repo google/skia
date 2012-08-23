@@ -24,7 +24,7 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                         SkIPoint* loc) {
     SkVector vec;
     matrix.mapVectors(&vec, &fOffset, 1);
-    
+
     loc->fX += SkScalarRoundToInt(vec.fX);
     loc->fY += SkScalarRoundToInt(vec.fY);
     *result = src;
@@ -65,11 +65,11 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
     if (!fOuter && !fInner) {
         return false;
     }
-    
+
     if (!fOuter || !fInner) {
         return (fOuter ? fOuter : fInner)->filterImage(proxy, src, ctm, result, loc);
     }
-    
+
     SkBitmap tmp;
     return fInner->filterImage(proxy, src, ctm, &tmp, loc) &&
            fOuter->filterImage(proxy, tmp, ctm, result, loc);
@@ -81,11 +81,11 @@ bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
     if (!fOuter && !fInner) {
         return false;
     }
-    
+
     if (!fOuter || !fInner) {
         return (fOuter ? fOuter : fInner)->filterBounds(src, ctm, dst);
     }
-    
+
     SkIRect tmp;
     return fInner->filterBounds(src, ctm, &tmp) &&
            fOuter->filterBounds(tmp, ctm, dst);
@@ -170,7 +170,7 @@ bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     }
 
     SkIRect totalBounds;
-    
+
     for (int i = 0; i < fCount; ++i) {
         SkImageFilter* filter = fFilters[i];
         SkIRect r;
@@ -231,7 +231,7 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
         } else {
             srcPtr = &src;
         }
-        
+
         if (fModes) {
             paint.setXfermodeMode((SkXfermode::Mode)fModes[i]);
         } else {
@@ -291,7 +291,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     if (scale > SK_Scalar1 || scale <= 0) {
         return false;
     }
-    
+
     int dstW = SkScalarRoundToInt(src.width() * scale);
     int dstH = SkScalarRoundToInt(src.height() * scale);
     if (dstW < 1) {
@@ -336,7 +336,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
 
 void SkDownSampleImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    
+
     buffer.writeScalar(fScale);
 }
 

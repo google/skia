@@ -50,7 +50,7 @@ public:
         fWidth = width;
         fName.printf("dash_%d_%s", width, doClip ? "clipped" : "noclip");
         fDoClip = doClip;
-        
+
         fPts[0].set(SkIntToScalar(10), SkIntToScalar(10));
         fPts[1].set(SkIntToScalar(600), SkIntToScalar(10));
     }
@@ -106,7 +106,7 @@ public:
     : INHERITED(param, intervals, count, width) {
         fName.append("_rect");
     }
-    
+
 protected:
     virtual void handlePath(SkCanvas* canvas, const SkPath& path,
                             const SkPaint& paint, int N) SK_OVERRIDE {
@@ -119,14 +119,14 @@ protected:
             rect.fTop = pts[0].fY - paint.getStrokeWidth() / 2;
             rect.fRight = rect.fLeft + SkIntToScalar(fWidth);
             rect.fBottom = rect.fTop + paint.getStrokeWidth();
-            
+
             SkPaint p(paint);
             p.setStyle(SkPaint::kFill_Style);
             p.setPathEffect(NULL);
-            
+
             int count = SkScalarRoundToInt((pts[1].fX - pts[0].fX) / (2*fWidth));
             SkScalar dx = SkIntToScalar(2 * fWidth);
-            
+
             for (int i = 0; i < N*10; ++i) {
                 SkRect r = rect;
                 for (int j = 0; j < count; ++j) {
@@ -136,7 +136,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef DashBench INHERITED;
 };
@@ -144,7 +144,7 @@ private:
 static void make_unit_star(SkPath* path, int n) {
     SkScalar rad = -SK_ScalarPI / 2;
     const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
-    
+
     path->moveTo(0, -SK_Scalar1);
     for (int i = 1; i < n; i++) {
         rad += drad;
@@ -191,7 +191,7 @@ public:
     MakeDashBench(void* param, void (*proc)(SkPath*), const char name[]) : INHERITED(param) {
         fName.printf("makedash_%s", name);
         proc(&fPath);
-        
+
         SkScalar vals[] = { SkIntToScalar(4), SkIntToScalar(4) };
         fPE.reset(new SkDashPathEffect(vals, 2, 0));
     }
@@ -200,17 +200,17 @@ protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPath dst;
         for (int i = 0; i < N; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-            
+
             fPE->filterPath(&dst, fPath, &rec);
             dst.rewind();
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

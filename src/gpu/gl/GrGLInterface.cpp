@@ -327,7 +327,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // On ES buffer mapping is an extension. On Desktop
     // buffer mapping was part of original VBO extension
     // which we require.
-    if (kDesktop_GrGLBinding == binding || 
+    if (kDesktop_GrGLBinding == binding ||
         GrGLHasExtensionFromString("GL_OES_mapbuffer", ext)) {
         if (NULL == fMapBuffer ||
             NULL == fUnmapBuffer) {
@@ -337,7 +337,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
 
     // Dual source blending
     if (kDesktop_GrGLBinding == binding &&
-        (glVer >= GR_GL_VER(3,3) || 
+        (glVer >= GR_GL_VER(3,3) ||
          GrGLHasExtensionFromString("GL_ARB_blend_func_extended", ext))) {
         if (NULL == fBindFragDataLocationIndexed) {
             return false;

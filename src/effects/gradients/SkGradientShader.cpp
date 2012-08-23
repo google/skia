@@ -620,7 +620,7 @@ SkShader* SkGradientShader::CreateTwoPointRadial(const SkPoint& start,
         return NULL;
     }
     EXPAND_1_COLOR(colorCount);
-    
+
     return SkNEW_ARGS(SkTwoPointRadialGradient,
                       (start, startRadius, end, endRadius, colors, pos,
                        colorCount, mode, mapper));
@@ -698,8 +698,8 @@ void GrGLGradientStage::setData(const GrGLUniformManager& uman,
     }
 }
 
-void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder, 
-                                        const char* tName, 
+void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
+                                        const char* tName,
                                         const char* outputColor,
                                         const char* samplerName) {
     builder->fSampleCoords.printf("vec2(%s, %s)", tName,
@@ -710,7 +710,7 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrGradientEffect::GrGradientEffect(GrContext* ctx, 
+GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
                                    GrSamplerState* sampler)
     : fTexture (NULL)
@@ -731,7 +731,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
     fAtlas = GrTextureStripAtlas::GetAtlas(desc);
     GrAssert(NULL != fAtlas);
- 
+
     fRow = fAtlas->lockRow(bitmap);
     if (-1 != fRow) {
         fYCoord = fAtlas->getYOffset(fRow) + GR_ScalarHalf *
@@ -741,7 +741,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         fTexture = GrLockCachedBitmapTexture(ctx, bitmap, sampler->textureParams());
         SkSafeRef(fTexture);
         fYCoord = GR_ScalarHalf;
- 
+
         // Unlock immediately, this is not great, but we don't have a way of
         // knowing when else to unlock it currently, so it may get purged from
         // the cache, but it'll still be ref'd until it's no longer being used.
@@ -761,7 +761,7 @@ unsigned int GrGradientEffect::numTextures() const {
     return fUseTexture ? 1 : 0;
 }
 
-GrTexture* GrGradientEffect::texture(unsigned int index) 
+GrTexture* GrGradientEffect::texture(unsigned int index)
                              const {
     GrAssert(fUseTexture && 0 == index);
     return fTexture;

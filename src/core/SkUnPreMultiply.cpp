@@ -56,18 +56,18 @@ const uint32_t SkUnPreMultiply::gTable[] = {
 void SkUnPreMultiply_BuildTable() {
     for (unsigned i = 0; i <= 255; i++) {
         uint32_t scale;
-        
+
         if (0 == i) {
             scale = 0;
         } else {
             scale = ((255 << 24) + (i >> 1)) / i;
         }
-        
+
         SkDebugf(" 0x%08X,", scale);
         if ((i & 7) == 7) {
             SkDebugf("\n");
         }
-        
+
         // test the result
         for (int j = 1; j <= i; j++) {
             uint32_t test = (j * scale + (1 << 23)) >> 24;

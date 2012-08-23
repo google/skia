@@ -67,7 +67,7 @@ protected:
                 s = 0;
             }
             SkFixed del = r.nextSFixed1();
-            if (count && 
+            if (count &&
                 (kMaxObjects == count || del < delThresh)) {
                 delete objects[count-1];
                 --count;

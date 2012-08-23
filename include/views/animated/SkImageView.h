@@ -25,7 +25,7 @@ public:
     void    getUri(SkString*) const;
     void    setUri(const char []);
     void    setUri(const SkString&);
-    
+
 
     enum ScaleType {
         kMatrix_ScaleType,
@@ -36,7 +36,7 @@ public:
     };
     ScaleType   getScaleType() const { return (ScaleType)fScaleType; }
     void        setScaleType(ScaleType);
-    
+
     bool    getImageMatrix(SkMatrix*) const;
     void    setImageMatrix(const SkMatrix*);
 
@@ -45,7 +45,7 @@ protected:
     virtual bool    onEvent(const SkEvent&);
     virtual void    onDraw(SkCanvas*);
     virtual void    onInflate(const SkDOM&, const SkDOMNode*);
-    
+
 private:
     SkString    fUri;
     SkMatrix*   fMatrix;    // null or copy of caller's matrix ,,,,,
@@ -56,7 +56,7 @@ private:
     uint8_t     fScaleType;
     SkBool8     fDataIsAnim;    // as opposed to bitmap
     SkBool8     fUriIsValid;
-    
+
     void    onUriChange();
     bool    getDataBounds(SkRect* bounds);
     bool    freeData();

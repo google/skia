@@ -54,7 +54,7 @@ class SkFlattenableWriteBuffer;
     }
 
 /** \class SkFlattenable
- 
+
  SkFlattenable is the base class for objects that need to be flattened
  into a data stream for either transport or as part of the key to the
  font cache.
@@ -64,15 +64,15 @@ public:
     SK_DECLARE_INST_COUNT(SkFlattenable)
 
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
-    
+
     SkFlattenable() {}
-    
+
     /** Implement this to return a factory function pointer that can be called
      to recreate your class given a buffer (previously written to by your
      override of flatten().
      */
     virtual Factory getFactory() = 0;
-    
+
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
     static void Register(const char name[], Factory);

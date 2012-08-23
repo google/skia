@@ -82,7 +82,7 @@ private:
 class TrianglePathBench : public PathBench {
 public:
     TrianglePathBench(void* param, Flags flags) : INHERITED(param, flags) {}
-    
+
     virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("triangle");
     }
@@ -102,7 +102,7 @@ private:
 class RectPathBench : public PathBench {
 public:
     RectPathBench(void* param, Flags flags) : INHERITED(param, flags) {}
-    
+
     virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("rect");
     }
@@ -117,7 +117,7 @@ private:
 class OvalPathBench : public PathBench {
 public:
     OvalPathBench(void* param, Flags flags) : INHERITED(param, flags) {}
-    
+
     virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("oval");
     }
@@ -147,7 +147,7 @@ private:
 class SawToothPathBench : public PathBench {
 public:
     SawToothPathBench(void* param, Flags flags) : INHERITED(param, flags) {}
-    
+
     virtual void appendName(SkString* name) SK_OVERRIDE {
         name->append("sawtooth");
     }
@@ -659,7 +659,7 @@ protected:
             temp.addOval(r, SkPath::kCCW_Direction);
             temp.arcTo(r, 360, 0, true);
             temp.close();
-        
+
             canvas->drawPath(temp, paint);
         }
     }

@@ -35,13 +35,13 @@ public:
         if (SkImageInfoToBitmapConfig(info, &isOpaque) == SkBitmap::kNo_Config) {
             return false;
         }
-            
+
         // TODO: check colorspace
-        
+
         if (rowBytes < SkImageMinRowBytes(info)) {
             return false;
         }
-        
+
         int64_t size = (int64_t)info.fHeight * rowBytes;
         if (size > kMaxPixelByteSize) {
             return false;
@@ -84,7 +84,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkColorSpace* cs,
 : INHERITED(info.fWidth, info.fHeight) {
     bool isOpaque;
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
-    
+
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
     fBitmap.setPixelRef(SkNEW_ARGS(SkDataPixelRef, (data)))->unref();
     fBitmap.setIsOpaque(isOpaque);
@@ -94,10 +94,10 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkColorSpace* cs,
 SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes)
 : INHERITED(info.fWidth, info.fHeight) {
     SkASSERT(pr->isImmutable());
-    
+
     bool isOpaque;
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
-    
+
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
     fBitmap.setPixelRef(pr);
     fBitmap.setIsOpaque(isOpaque);
@@ -124,7 +124,7 @@ SkImage* SkImage::NewRasterCopy(const SkImage::Info& info, SkColorSpace* cs,
     if (NULL == pixels) {
         return NULL;
     }
-    
+
     // Here we actually make a copy of the caller's pixel data
     SkAutoDataUnref data(SkData::NewWithCopy(pixels, info.fHeight * rowBytes));
     return SkNEW_ARGS(SkImage_Raster, (info, cs, data, rowBytes));
@@ -143,13 +143,13 @@ SkImage* SkImage::NewRasterData(const SkImage::Info& info, SkColorSpace* cs,
     if (NULL == pixelData) {
         return NULL;
     }
-    
+
     // did they give us enough data?
     size_t size = info.fHeight * rowBytes;
     if (pixelData->size() < size) {
         return NULL;
     }
-    
+
     SkAutoDataUnref data(pixelData);
     return SkNEW_ARGS(SkImage_Raster, (info, cs, data, rowBytes));
 }

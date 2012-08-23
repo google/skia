@@ -296,7 +296,7 @@ void GrResourceCache::unlock(GrResourceEntry* entry) {
 }
 
 /**
- * Destroying a resource may potentially trigger the unlock of additional 
+ * Destroying a resource may potentially trigger the unlock of additional
  * resources which in turn will trigger a nested purge. We block the nested
  * purge using the fPurging variable. However, the initial purge will keep
  * looping until either all resources in the cache are unlocked or we've met
@@ -311,8 +311,8 @@ void GrResourceCache::purgeAsNeeded() {
         bool withinBudget = false;
         do {
             SkTDLinkedList<GrResourceEntry>::Iter iter;
-            
-            // Note: the following code relies on the fact that the 
+
+            // Note: the following code relies on the fact that the
             // doubly linked list doesn't invalidate its data/pointers
             // outside of the specific area where a deletion occurs (e.g.,
             // in internalDetach)
@@ -388,7 +388,7 @@ size_t GrResourceCache::countBytes(const SkTDLinkedList<GrResourceEntry>& list) 
     size_t bytes = 0;
 
     SkTDLinkedList<GrResourceEntry>::Iter iter;
-    
+
     const GrResourceEntry* entry = iter.init(
                   const_cast<SkTDLinkedList<GrResourceEntry>&>(list),
                   SkTDLinkedList<GrResourceEntry>::Iter::kTail_IterStart);
@@ -418,7 +418,7 @@ void GrResourceCache::validate() const {
     int unlockCount = 0;
 
     SkTDLinkedList<GrResourceEntry>::Iter iter;
-    
+
     const GrResourceEntry* entry = iter.init(
                   const_cast<SkTDLinkedList<GrResourceEntry>&>(fList),
                   SkTDLinkedList<GrResourceEntry>::Iter::kHead_IterStart);

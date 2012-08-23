@@ -10,7 +10,7 @@
 
 uint8_t GrCacheID::GetNextDomain() {
     // 0 reserved for kUnrestricted_ResourceDomain
-    static int32_t gNextDomain = 1;     
+    static int32_t gNextDomain = 1;
 
     int32_t domain = sk_atomic_inc(&gNextDomain);
     if (domain >= 256) {
@@ -22,7 +22,7 @@ uint8_t GrCacheID::GetNextDomain() {
 
 uint8_t GrCacheID::GetNextResourceType() {
     // 0 reserved for kInvalid_ResourceType
-    static int32_t gNextResourceType = 1;       
+    static int32_t gNextResourceType = 1;
 
     int32_t type = sk_atomic_inc(&gNextResourceType);
     if (type >= 256) {

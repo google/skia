@@ -22,7 +22,7 @@ public:
 
     const SkPaint& paint() const { return fPaint; }
     SkPaint& paint() { return fPaint; }
-    
+
     // todo: bidi-override, language
 
 private:

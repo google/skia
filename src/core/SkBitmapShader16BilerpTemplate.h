@@ -21,7 +21,7 @@ public:
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count)
     {
         SkASSERT(count > 0);
-        
+
         U8CPU alpha = this->getPaintAlpha();
 
         const SkMatrix& inv = this->getTotalInverse();
@@ -157,7 +157,7 @@ public:
                     SkFixed fy = *srcXY++ - SK_FixedHalf;
                     int ix = fx >> 16;
                     int iy = fy >> 16;
-                    
+
                     const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
 
                     p00 = p01 = ((const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels +
@@ -207,7 +207,7 @@ public:
             do {
                 int ix = fx >> 16;
                 int iy = fy >> 16;
-                
+
                 const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
 
                 p00 = p01 = ((const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels +

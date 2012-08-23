@@ -30,10 +30,10 @@ class SkRegion;
 class SkBounder : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkBounder)
-    
+
     SkBounder();
 
-    /* Call to perform a clip test before calling onIRect. 
+    /* Call to perform a clip test before calling onIRect.
        Returns the result from onIRect.
     */
     bool doIRect(const SkIRect&);

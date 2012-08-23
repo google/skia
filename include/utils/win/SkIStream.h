@@ -46,24 +46,24 @@ public:
     // IStream Interface
 public:
     virtual HRESULT STDMETHODCALLTYPE SetSize(ULARGE_INTEGER);
-    
+
     virtual HRESULT STDMETHODCALLTYPE CopyTo(IStream*
                                            , ULARGE_INTEGER
                                            , ULARGE_INTEGER*
                                            , ULARGE_INTEGER*);
-    
+
     virtual HRESULT STDMETHODCALLTYPE Commit(DWORD);
-    
+
     virtual HRESULT STDMETHODCALLTYPE Revert(void);
-    
+
     virtual HRESULT STDMETHODCALLTYPE LockRegion(ULARGE_INTEGER
                                                , ULARGE_INTEGER
                                                , DWORD);
-    
+
     virtual HRESULT STDMETHODCALLTYPE UnlockRegion(ULARGE_INTEGER
                                                  , ULARGE_INTEGER
                                                  , DWORD);
-    
+
     virtual HRESULT STDMETHODCALLTYPE Clone(IStream **);
 
     virtual HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER liDistanceToMove

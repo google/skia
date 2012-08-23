@@ -221,9 +221,9 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
                               PrePostProc proc) {
     static int gCalls;
     gCalls++;
-    
+
     validate_sort(prevHead->fNext);
-    
+
     SkEdge* leftE = prevHead->fNext;
     SkEdge* riteE = leftE->fNext;
     SkEdge* currE = riteE->fNext;
@@ -237,7 +237,7 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
     int local_top = SkMax32(leftE->fFirstY, riteE->fFirstY);
 #endif
     SkASSERT(local_top >= start_y);
-    
+
     int gLoops = 0;
     for (;;) {
         gLoops++;
@@ -249,11 +249,11 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
                                       leftE->fDX > riteE->fDX)) {
             SkTSwap(leftE, riteE);
         }
-        
+
         int local_bot = SkMin32(leftE->fLastY, riteE->fLastY);
         local_bot = SkMin32(local_bot, stop_y - 1);
         SkASSERT(local_top <= local_bot);
-        
+
         SkFixed left = leftE->fX;
         SkFixed dLeft = leftE->fDX;
         SkFixed rite = riteE->fX;
@@ -300,7 +300,7 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
             riteE = currE;
             currE = currE->fNext;
         }
-        
+
         SkASSERT(leftE);
         SkASSERT(riteE);
 
@@ -403,12 +403,12 @@ extern "C" {
 static bool operator<(const SkEdge& a, const SkEdge& b) {
     int valuea = a.fFirstY;
     int valueb = b.fFirstY;
-    
+
     if (valuea == valueb) {
         valuea = a.fX;
         valueb = b.fX;
     }
-    
+
     return valuea < valueb;
 }
 #endif

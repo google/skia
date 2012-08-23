@@ -32,7 +32,7 @@ SkBitmapSampler::SkBitmapSampler(const SkBitmap& bm, bool filter,
 
     fMaxX = SkToU16(bm.width() - 1);
     fMaxY = SkToU16(bm.height() - 1);
-    
+
     fTileProcX = get_tilemode_proc(tmx);
     fTileProcY = get_tilemode_proc(tmy);
 }
@@ -88,13 +88,13 @@ public:
         // turn pixel centers into the top-left of our filter-box
         x -= SK_FixedHalf;
         y -= SK_FixedHalf;
-    
+
         // compute our pointers
         {
             const SkBitmap* bitmap = &fBitmap;
             int ix = x >> 16;
             int iy = y >> 16;
-            
+
             int             maxX = fMaxX;
             SkTileModeProc  procX = fTileProcX;
             int             maxY = fMaxY;
@@ -116,7 +116,7 @@ public:
         SkFilterPtrProc proc = SkGetBilinearFilterPtrProc(fPtrProcTable, x, y);
         return proc(p00, p01, p10, p11);
     }
-    
+
 private:
     const SkFilterPtrProc* fPtrProcTable;
 };
@@ -136,13 +136,13 @@ public:
         // turn pixel centers into the top-left of our filter-box
         x -= SK_FixedHalf;
         y -= SK_FixedHalf;
-    
+
         // compute our pointers
         {
             const SkBitmap* bitmap = &fBitmap;
             int ix = x >> 16;
             int iy = y >> 16;
-            
+
             int             maxX = fMaxX;
             SkTileModeProc  procX = fTileProcX;
             int             maxY = fMaxY;
@@ -167,7 +167,7 @@ public:
 
         return SkPixel16ToPixel32((uint16_t)SkCompact_rgb_16(c));
     }
-    
+
 private:
     const SkFilterProc* fProcTable;
 };
@@ -192,12 +192,12 @@ public:
          // turn pixel centers into the top-left of our filter-box
         x -= SK_FixedHalf;
         y -= SK_FixedHalf;
-    
+
        // compute our pointers
         {
             int ix = x >> 16;
             int iy = y >> 16;
-            
+
             int             maxX = fMaxX;
             SkTileModeProc  procX = fTileProcX;
             int             maxY = fMaxY;
@@ -225,7 +225,7 @@ public:
 
         return c;
     }
-    
+
 private:
     const SkFilterPtrProc* fPtrProcTable;
 };
@@ -251,13 +251,13 @@ public:
         // turn pixel centers into the top-left of our filter-box
         x -= SK_FixedHalf;
         y -= SK_FixedHalf;
-    
+
         // compute our pointers
         {
             const SkBitmap* bitmap = &fBitmap;
             int ix = x >> 16;
             int iy = y >> 16;
-            
+
             int             maxX = fMaxX;
             SkTileModeProc  procX = fTileProcX;
             int             maxY = fMaxY;
@@ -280,7 +280,7 @@ public:
         int alpha = proc(*p00, *p01, *p10, *p11);
         return SkAlphaMulQ(fColor, SkAlpha255To256(alpha));
     }
-    
+
 private:
     const SkFilterProc* fProcTable;
     SkPMColor           fColor;
@@ -303,11 +303,11 @@ public:
     {
         int ix = SkFixedFloor(x);
         int iy = SkFixedFloor(y);
-        
+
         int alpha = *fBitmap.getAddr8(fTileProcX(ix, fMaxX), fTileProcY(iy, fMaxY));
         return SkAlphaMulQ(fColor, SkAlpha255To256(alpha));
     }
-    
+
 private:
     const SkFilterProc* fProcTable;
     SkPMColor           fColor;

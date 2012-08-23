@@ -23,7 +23,7 @@ public:
     DecodeBench(void* param, SkBitmap::Config c) : SkBenchmark(param) {
         fFilename = this->findDefine("decode-filename");
         fPrefConfig = c;
-        
+
         const char* fname = NULL;
         if (fFilename) {
             fname = strrchr(fFilename, '/');

@@ -20,7 +20,7 @@
 
 struct GrIPoint16 {
     int16_t fX, fY;
-    
+
     void set(intptr_t x, intptr_t y) {
         fX = GrToS16(x);
         fY = GrToS16(y);

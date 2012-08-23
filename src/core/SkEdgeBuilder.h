@@ -19,17 +19,17 @@ class SkPath;
 class SkEdgeBuilder {
 public:
     SkEdgeBuilder();
-    
+
     // returns the number of built edges. The array of those edge pointers
     // is returned from edgeList().
     int build(const SkPath& path, const SkIRect* clip, int shiftUp);
-    
+
     SkEdge** edgeList() { return fEdgeList; }
-    
+
 private:
     SkChunkAlloc        fAlloc;
     SkTDArray<SkEdge*>  fList;
-    
+
     /*
      *  If we're in general mode, we allcoate the pointers in fList, and this
      *  will point at fList.begin(). If we're in polygon mode, fList will be
@@ -39,7 +39,7 @@ private:
     SkEdge**            fEdgeList;
 
     int                 fShiftUp;
-    
+
     void addLine(const SkPoint pts[]);
     void addQuad(const SkPoint pts[]);
     void addCubic(const SkPoint pts[]);

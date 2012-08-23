@@ -69,7 +69,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
     SkString* code = &builder->fFSCode;
 
     code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
-    
+
     int width = this ->width();
     const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);

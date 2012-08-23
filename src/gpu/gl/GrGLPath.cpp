@@ -70,7 +70,7 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {
     // TODO: Direct access to path points since we could pass them on directly.
     path.getPoints(&pathPoints[0], pointCnt);
     path.getVerbs(&pathCommands[0], verbCnt);
-    
+
     GR_DEBUGCODE(int numPts = 0);
     for (int i = 0; i < verbCnt; ++i) {
         SkPath::Verb v = static_cast<SkPath::Verb>(pathCommands[i]);
@@ -78,7 +78,7 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {
         GR_DEBUGCODE(numPts += num_pts(v));
     }
     GrAssert(pathPoints.count() == numPts);
-    
+
     GL_CALL(PathCommands(fPathID,
                          verbCnt, &pathCommands[0],
                          2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]));

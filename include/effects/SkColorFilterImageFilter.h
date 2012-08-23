@@ -18,17 +18,17 @@ public:
     virtual ~SkColorFilterImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorFilterImageFilter)
-    
+
 protected:
     SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
-    
+
 private:
     SkColorFilter*  fColorFilter;
-    
+
     typedef SkSingleInputImageFilter INHERITED;
 };
 

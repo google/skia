@@ -41,7 +41,7 @@ public:
         @param flags    Flags to use - defaults to none
         @return The new blur maskfilter
     */
-    static SkMaskFilter* Create(SkScalar radius, BlurStyle style, 
+    static SkMaskFilter* Create(SkScalar radius, BlurStyle style,
                                 uint32_t flags = kNone_BlurFlag);
 
     /** Create an emboss maskfilter

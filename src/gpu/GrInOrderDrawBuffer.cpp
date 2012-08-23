@@ -126,7 +126,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         bool disabledClip = false;
 
         if (drawState->isClipState()) {
-            
+
             GrRect devClipRect;
             bool isIntersectionOfRects = false;
 
@@ -189,7 +189,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
             GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
-            appendToPreviousDraw = 
+            appendToPreviousDraw =
                 kDraw_Cmd != fCmds.back() &&
                 lastDraw.fVertexBuffer == poolState.fPoolVertexBuffer &&
                 (fCurrQuad * 4 + lastDraw.fStartVertex) == poolState.fPoolStartVertex;
@@ -373,7 +373,7 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
     case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
                              VertexSize(draw->fVertexLayout);
-        poolState.fUsedPoolVertexBytes = 
+        poolState.fUsedPoolVertexBytes =
                             GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
         draw->fVertexBuffer = poolState.fPoolVertexBuffer;
         draw->fStartVertex += poolState.fPoolStartVertex;
@@ -388,10 +388,10 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
     case kBuffer_GeometrySrcType:
         draw->fIndexBuffer = this->getGeomSrc().fIndexBuffer;
         break;
-    case kReserved_GeometrySrcType: // fallthrough 
+    case kReserved_GeometrySrcType: // fallthrough
     case kArray_GeometrySrcType: {
         size_t indexBytes = (indexCount + startIndex) * sizeof(uint16_t);
-        poolState.fUsedPoolIndexBytes = 
+        poolState.fUsedPoolIndexBytes =
                             GrMax(poolState.fUsedPoolIndexBytes, indexBytes);
         draw->fIndexBuffer = poolState.fPoolIndexBuffer;
         draw->fStartIndex += poolState.fPoolStartIndex;
@@ -436,7 +436,7 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
     case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
                              VertexSize(draw->fVertexLayout);
-        poolState.fUsedPoolVertexBytes = 
+        poolState.fUsedPoolVertexBytes =
                             GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
         draw->fVertexBuffer = poolState.fPoolVertexBuffer;
         draw->fStartVertex += poolState.fPoolStartVertex;
@@ -463,7 +463,7 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, GrPathFill fill) {
     sp->fFill = fill;
 }
 
-void GrInOrderDrawBuffer::clear(const GrIRect* rect, 
+void GrInOrderDrawBuffer::clear(const GrIRect* rect,
                                 GrColor color,
                                 GrRenderTarget* renderTarget) {
     GrIRect r;
@@ -587,7 +587,7 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
                 ++currClip;
                 break;
             case kClear_Cmd:
-                target->clear(&fClears[currClear].fRect, 
+                target->clear(&fClears[currClear].fRect,
                               fClears[currClear].fColor,
                               fClears[currClear].fRenderTarget);
                 ++currClear;
@@ -635,10 +635,10 @@ void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
         // we don't know that the client has finished writing to it.
         bool targetHasReservedGeom =
             fAutoFlushTarget->hasReservedVerticesOrIndices();
-        
+
         int vcount = vertexCount;
         int icount = indexCount;
-        
+
         if (!insideGeoPush &&
             !unreleasedVertexSpace &&
             !unreleasedIndexSpace &&
@@ -687,14 +687,14 @@ bool GrInOrderDrawBuffer::onReserveVertexSpace(GrVertexLayout vertexLayout,
     GrAssert(vertexCount > 0);
     GrAssert(NULL != vertices);
     GrAssert(0 == poolState.fUsedPoolVertexBytes);
-    
+
     *vertices = fVertexPool.makeSpace(vertexLayout,
                                       vertexCount,
                                       &poolState.fPoolVertexBuffer,
                                       &poolState.fPoolStartVertex);
     return NULL != *vertices;
 }
-    
+
 bool GrInOrderDrawBuffer::onReserveIndexSpace(int indexCount, void** indices) {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     GrAssert(indexCount > 0);
@@ -709,7 +709,7 @@ bool GrInOrderDrawBuffer::onReserveIndexSpace(int indexCount, void** indices) {
 
 void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
-    const GeometrySrcState& geoSrc = this->getGeomSrc(); 
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
 
     // If we get a release vertex space call then our current source should either be reserved
     // or array (which we copied into reserved space).
@@ -722,7 +722,7 @@ void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
     // pool any portion at the tail of the allocation that no draw referenced.
     size_t reservedVertexBytes = VertexSize(geoSrc.fVertexLayout) *
                                  geoSrc.fVertexCount;
-    fVertexPool.putBack(reservedVertexBytes - 
+    fVertexPool.putBack(reservedVertexBytes -
                         poolState.fUsedPoolVertexBytes);
     poolState.fUsedPoolVertexBytes = 0;
     poolState.fPoolVertexBuffer = NULL;
@@ -731,7 +731,7 @@ void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
 
 void GrInOrderDrawBuffer::releaseReservedIndexSpace() {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
-    const GeometrySrcState& geoSrc = this->getGeomSrc(); 
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
 
     // If we get a release index space call then our current source should either be reserved
     // or array (which we copied into reserved space).
@@ -746,7 +746,7 @@ void GrInOrderDrawBuffer::releaseReservedIndexSpace() {
     poolState.fPoolIndexBuffer = NULL;
     poolState.fPoolStartIndex = 0;
 }
-    
+
 void GrInOrderDrawBuffer::onSetVertexSourceToArray(const void* vertexArray,
                                                    int vertexCount) {
 
@@ -812,13 +812,13 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
     // pool.
     if (kReserved_GeometrySrcType == restoredState.fVertexSrc ||
         kArray_GeometrySrcType == restoredState.fVertexSrc) {
-        poolState.fUsedPoolVertexBytes = 
-            VertexSize(restoredState.fVertexLayout) * 
+        poolState.fUsedPoolVertexBytes =
+            VertexSize(restoredState.fVertexLayout) *
             restoredState.fVertexCount;
     }
     if (kReserved_GeometrySrcType == restoredState.fIndexSrc ||
         kArray_GeometrySrcType == restoredState.fIndexSrc) {
-        poolState.fUsedPoolIndexBytes = sizeof(uint16_t) * 
+        poolState.fUsedPoolIndexBytes = sizeof(uint16_t) *
                                          restoredState.fIndexCount;
     }
     this->resetDrawTracking();
@@ -832,7 +832,7 @@ bool GrInOrderDrawBuffer::needsNewState() const {
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
    if (this->getDrawState().isClipState()) {
-       if (fClipSet && 
+       if (fClipSet &&
            (fClips.back() != *fClip->fClipStack ||
             fClipOrigins.back() != fClip->fOrigin)) {
            return true;

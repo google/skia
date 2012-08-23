@@ -17,7 +17,7 @@ static time_value_t macCpuTime() {
         time_value_t none = {0, 0};
         return none;
     }
-    
+
     task_thread_times_info thread_info_data;
     mach_msg_type_number_t thread_info_count = TASK_THREAD_TIMES_INFO_COUNT;
     if (KERN_SUCCESS != task_info(task,
@@ -28,7 +28,7 @@ static time_value_t macCpuTime() {
         time_value_t none = {0, 0};
         return none;
     }
-    
+
     time_value_add(&thread_info_data.user_time, &thread_info_data.system_time)
     return thread_info_data.user_time;
 }
@@ -63,7 +63,7 @@ double BenchSysTimer::endCpu() {
 }
 double BenchSysTimer::endWall() {
     uint64_t end_wall = mach_absolute_time();
-    
+
     uint64_t elapsed = end_wall - this->fStartWall;
     mach_timebase_info_data_t sTimebaseInfo;
     if (KERN_SUCCESS != mach_timebase_info(&sTimebaseInfo)) {

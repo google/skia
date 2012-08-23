@@ -17,7 +17,7 @@
     Light weight class for reading data from a memory block.
     The RBuffer is given the buffer to read from, with either a specified size
     or no size (in which case no range checking is performed). It is iillegal
-    to attempt to read a value from an empty RBuffer (data == null). 
+    to attempt to read a value from an empty RBuffer (data == null).
 */
 class SkRBuffer : SkNoncopyable {
 public:
@@ -38,7 +38,7 @@ public:
         fPos = (const char*)data;
         fStop = (const char*)data + size;
     }
-    
+
     /** Return the number of bytes that have been read from the beginning
         of the data pointer.
     */
@@ -108,7 +108,7 @@ public:
         fPos = (char*)data;
         fStop = (char*)data + size;
     }
-    
+
     size_t  pos() const { return fPos - fData; }
     void*   skip(size_t size); // return start of skipped data
 

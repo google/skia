@@ -16,7 +16,7 @@ public:
     void reportFailure(const char expression[], const char file[], int line);
     void reportFailure(const char msg[]);
 };
-    
+
 typedef void (*ForthWordTestProc)(ForthWord*, ForthEngine*, Reporter*);
 
 #define FORTH_ASSERT(reporter, expression)      \
@@ -385,7 +385,7 @@ void Forth_test_stdwords(bool verbose) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
         ForthEngine engine(NULL);
-        
+
         ForthWord* word = env.findWord(gRecs[i].fName);
         if (NULL == word) {
             SkString str;
@@ -398,7 +398,7 @@ void Forth_test_stdwords(bool verbose) {
             gRecs[i].fProc(word, &engine, &reporter);
         }
     }
-    
+
     if (0 == reporter.fFailureCount) {
         SkDebugf("--- success!\n");
     } else {

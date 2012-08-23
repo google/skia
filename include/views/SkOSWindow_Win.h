@@ -61,7 +61,7 @@ protected:
 
 private:
     void*               fHWND;
-    
+
     void                doPaint(void* ctx);
 
 #if SK_SUPPORT_GPU
@@ -89,7 +89,7 @@ private:
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
 
-    typedef SkWindow INHERITED; 
+    typedef SkWindow INHERITED;
 };
 
 #endif

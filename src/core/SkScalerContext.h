@@ -34,14 +34,14 @@ struct SkScalerContextRec {
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
     SkScalar    fPost2x2[2][2];
     SkScalar    fFrameWidth, fMiterLimit;
-    
+
     //These describe the parameters to create (uniquely identify) the pre-blend.
     uint32_t    fLumBits;
     uint8_t     fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
     uint8_t     fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
     uint8_t     fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
     uint8_t     fReservedAlign;
-    
+
     SkScalar getDeviceGamma() const {
         return SkIntToScalar(fDeviceGamma) / (1 << 6);
     }
@@ -49,7 +49,7 @@ struct SkScalerContextRec {
         SkASSERT(0 <= dg && dg < SkIntToScalar(4));
         fDeviceGamma = SkScalarFloorToInt(dg * (1 << 6));
     }
-    
+
     SkScalar getPaintGamma() const {
         return SkIntToScalar(fPaintGamma) / (1 << 6);
     }
@@ -57,7 +57,7 @@ struct SkScalerContextRec {
         SkASSERT(0 <= pg && pg < SkIntToScalar(4));
         fPaintGamma = SkScalarFloorToInt(pg * (1 << 6));
     }
-    
+
     SkScalar getContrast() const {
         return SkIntToScalar(fContrast) / ((1 << 8) - 1);
     }
@@ -65,7 +65,7 @@ struct SkScalerContextRec {
         SkASSERT(0 <= c && c <= SK_Scalar1);
         fContrast = SkScalarRoundToInt(c * ((1 << 8) - 1));
     }
-    
+
     /**
      *  Causes the luminance color and contrast to be ignored, and the
      *  paint and device gamma to be effectively 1.0.
@@ -76,7 +76,7 @@ struct SkScalerContextRec {
         setDeviceGamma(SK_Scalar1);
         setContrast(0);
     }
-    
+
     uint8_t     fMaskFormat;
     uint8_t     fStrokeJoin;
     uint16_t    fFlags;
@@ -84,22 +84,22 @@ struct SkScalerContextRec {
     // must be a multiple of 4. SkDescriptor requires that its arguments be
     // multiples of four and this structure is put in an SkDescriptor in
     // SkPaint::MakeRec.
-    
+
     void    getMatrixFrom2x2(SkMatrix*) const;
     void    getLocalMatrix(SkMatrix*) const;
     void    getSingleMatrix(SkMatrix*) const;
-    
+
     inline SkPaint::Hinting getHinting() const;
     inline void setHinting(SkPaint::Hinting);
-    
+
     SkMask::Format getFormat() const {
         return static_cast<SkMask::Format>(fMaskFormat);
     }
-    
+
     SkColor getLuminanceColor() const {
         return fLumBits;
     }
-    
+
     void setLuminanceColor(SkColor c) {
         fLumBits = c;
     }
@@ -138,7 +138,7 @@ public:
         // Perhaps we can store this (instead) in fMaskFormat, in hight bit?
         kGenA8FromLCD_Flag        = 0x0800,
     };
-    
+
     // computed values
     enum {
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
@@ -155,7 +155,7 @@ public:
     bool isSubpixel() const {
         return SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
     }
-    
+
     // remember our glyph offset/base
     void setBaseGlyphCount(unsigned baseGlyphCount) {
         fBaseGlyphCount = baseGlyphCount;

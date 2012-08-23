@@ -25,25 +25,25 @@ struct SK_API SkIRect {
         r.setEmpty();
         return r;
     }
-    
+
     static SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h) {
         SkIRect r;
         r.set(0, 0, w, h);
         return r;
     }
-    
+
     static SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size) {
         SkIRect r;
         r.set(0, 0, size.width(), size.height());
         return r;
     }
-    
+
     static SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b) {
         SkIRect rect;
         rect.set(l, t, r, b);
         return rect;
     }
-    
+
     static SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h) {
         SkIRect r;
         r.set(x, y, x + w, y + h);
@@ -54,7 +54,7 @@ struct SK_API SkIRect {
     int top() const { return fTop; }
     int right() const { return fRight; }
     int bottom() const { return fBottom; }
-    
+
     /** return the left edge of the rect */
     int x() const { return fLeft; }
     /** return the top edge of the rect */
@@ -64,18 +64,18 @@ struct SK_API SkIRect {
      *  (i.e. left <= right) so the result may be negative.
      */
     int width() const { return fRight - fLeft; }
-    
+
     /**
      *  Returns the rectangle's height. This does not check for a valid rect
      *  (i.e. top <= bottom) so the result may be negative.
      */
     int height() const { return fBottom - fTop; }
-    
+
     /**
      *  Return true if the rectangle's width or height are <= 0
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-    
+
     friend bool operator==(const SkIRect& a, const SkIRect& b) {
         return !memcmp(&a, &b, sizeof(a));
     }
@@ -118,7 +118,7 @@ struct SK_API SkIRect {
         fLeft = fTop = SK_MinS32;
         fRight = fBottom = SK_MaxS32;
     }
-    
+
     /**
      *  Make the largest representable rectangle, but inverted (e.g. fLeft will
      *  be max 32bit and right will be min 32bit).
@@ -127,7 +127,7 @@ struct SK_API SkIRect {
         fLeft = fTop = SK_MaxS32;
         fRight = fBottom = SK_MinS32;
     }
-    
+
     /** Offset set the rectangle by adding dx to its left and right,
         and adding dy to its top and bottom.
     */
@@ -163,7 +163,7 @@ struct SK_API SkIRect {
     bool quickReject(int l, int t, int r, int b) const {
         return l >= fRight || fLeft >= r || t >= fBottom || fTop >= b;
     }
-    
+
     /** Returns true if (x,y) is inside the rectangle and the rectangle is not
         empty. The left and top are considered to be inside, while the right
         and bottom are not. Thus for the rectangle (0, 0, 5, 10), the
@@ -205,11 +205,11 @@ struct SK_API SkIRect {
         return fLeft <= left && fTop <= top &&
                fRight >= right && fBottom >= bottom;
     }
-    
+
     bool containsNoEmptyCheck(const SkIRect& r) const {
         return containsNoEmptyCheck(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
-    
+
     /** If r intersects this rectangle, return true and set this rectangle to that
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
@@ -225,7 +225,7 @@ struct SK_API SkIRect {
     */
     bool intersect(const SkIRect& a, const SkIRect& b) {
         SkASSERT(&a && &b);
-        
+
         if (!a.isEmpty() && !b.isEmpty() &&
                 a.fLeft < b.fRight && b.fLeft < a.fRight &&
                 a.fTop < b.fBottom && b.fTop < a.fBottom) {
@@ -237,7 +237,7 @@ struct SK_API SkIRect {
         }
         return false;
     }
-    
+
     /** If rectangles a and b intersect, return true and set this rectangle to
         that intersection, otherwise return false and do not change this
         rectangle. For speed, no check to see if a or b are empty is performed.
@@ -247,7 +247,7 @@ struct SK_API SkIRect {
     bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
         SkASSERT(&a && &b);
         SkASSERT(!a.isEmpty() && !b.isEmpty());
-        
+
         if (a.fLeft < b.fRight && b.fLeft < a.fRight &&
                 a.fTop < b.fBottom && b.fTop < a.fBottom) {
             fLeft   = SkMax32(a.fLeft,   b.fLeft);
@@ -275,7 +275,7 @@ struct SK_API SkIRect {
         }
         return false;
     }
-    
+
     /** Returns true if a and b are not empty, and they intersect
      */
     static bool Intersects(const SkIRect& a, const SkIRect& b) {
@@ -283,7 +283,7 @@ struct SK_API SkIRect {
         a.fLeft < b.fRight && b.fLeft < a.fRight &&
         a.fTop < b.fBottom && b.fTop < a.fBottom;
     }
-    
+
     /**
      *  Returns true if a and b intersect. debug-asserts that neither are empty.
      */
@@ -293,7 +293,7 @@ struct SK_API SkIRect {
         return  a.fLeft < b.fRight && b.fLeft < a.fRight &&
                 a.fTop < b.fBottom && b.fTop < a.fBottom;
     }
-    
+
     /** Update this rectangle to enclose itself and the specified rectangle.
         If this rectangle is empty, just set it to the specified rectangle. If the specified
         rectangle is empty, do nothing.
@@ -360,7 +360,7 @@ struct SK_API SkRect {
      *  Return true if the rectangle's width or height are <= 0
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-    
+
     /**
      *  Returns true iff all values in the rect are finite. If any are
      *  infinite or NaN (or SK_FixedNaN when SkScalar is fixed) then this
@@ -373,7 +373,7 @@ struct SK_API SkRect {
         accum *= fTop;
         accum *= fRight;
         accum *= fBottom;
-        
+
         // accum is either NaN or it is finite (zero).
         SkASSERT(0 == accum || !(accum == accum));
 
@@ -459,14 +459,14 @@ struct SK_API SkRect {
     void setBounds(const SkPoint pts[], int count) {
         (void)this->setBoundsCheck(pts, count);
     }
-    
+
     /**
      *  Compute the bounds of the array of points, and set this rect to that
      *  bounds and return true... unless a non-finite value is encountered,
      *  in which case this rect is set to empty and false is returned.
      */
     bool setBoundsCheck(const SkPoint pts[], int count);
-    
+
     void set(const SkPoint& p0, const SkPoint& p1) {
         fLeft =   SkMinScalar(p0.fX, p1.fX);
         fRight =  SkMaxScalar(p0.fX, p1.fX);
@@ -488,7 +488,7 @@ struct SK_API SkRect {
         fLeft = fTop = SK_ScalarMin;
         fRight = fBottom = SK_ScalarMax;
     }
-    
+
     /**
      *  Make the largest representable rectangle, but inverted (e.g. fLeft will
      *  be max and right will be min).
@@ -506,7 +506,7 @@ struct SK_API SkRect {
         fTop    += dy;
         fRight  += dx;
         fBottom += dy;
-    }   
+    }
 
     void offset(const SkPoint& delta) {
         this->offset(delta.fX, delta.fY);
@@ -562,7 +562,7 @@ struct SK_API SkRect {
      *  rectangle. If either rectangle is empty, do nothing and return false.
      */
     bool intersect(const SkRect& a, const SkRect& b);
-    
+
     /**
      *  Return true if rectangles a and b are not empty and intersect.
      */
@@ -571,7 +571,7 @@ struct SK_API SkRect {
                 a.fLeft < b.fRight && b.fLeft < a.fRight &&
                 a.fTop < b.fBottom && b.fTop < a.fBottom;
     }
-    
+
     /**
      *  Update this rectangle to enclose itself and the specified rectangle.
      *  If this rectangle is empty, just set it to the specified rectangle.
@@ -604,7 +604,7 @@ struct SK_API SkRect {
         fTop    = SkMinScalar(y, fTop);
         fBottom = SkMaxScalar(y, fBottom);
     }
-    
+
     /**
      *  Returns true if (p.fX,p.fY) is inside the rectangle, and the rectangle
      *  is not empty.

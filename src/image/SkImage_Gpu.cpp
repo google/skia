@@ -43,7 +43,7 @@ SkImage_Gpu::SkImage_Gpu(GrContext* context, const GrPlatformTextureDesc& desc)
 #if 0
     bool isOpaque;
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
-    
+
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
     fBitmap.setPixelRef(SkNEW_ARGS(SkDataPixelRef, (data)))->unref();
     fBitmap.setIsOpaque(isOpaque);
@@ -67,7 +67,7 @@ SkImage* SkImage::NewRasterCopy(NewTexture(GrContext* context,
     if (!SkImage_Gpu::ValidArgs(context, desc)) {
         return NULL;
     }
-    
+
     return SkNEW_ARGS(SkImage_Gpu, (context, desc));
 }
 

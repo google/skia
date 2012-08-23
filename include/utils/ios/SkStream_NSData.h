@@ -30,7 +30,7 @@ class SkStream_NSData : public SkMemoryStream {
 public:
             SkStream_NSData(NSData* data);
     virtual ~SkStream_NSData();
-    
+
     static SkStream_NSData* CreateFromResource(const char name[],
                                                const char suffix[]);
 

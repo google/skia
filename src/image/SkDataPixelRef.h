@@ -16,19 +16,19 @@ class SkDataPixelRef : public SkPixelRef {
 public:
             SkDataPixelRef(SkData* data);
     virtual ~SkDataPixelRef();
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDataPixelRef)
-    
+
 protected:
     virtual void* onLockPixels(SkColorTable**) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
-    
+
     SkDataPixelRef(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
 private:
     SkData* fData;
-    
+
     typedef SkPixelRef INHERITED;
 };
 
