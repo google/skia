@@ -14,7 +14,6 @@
 GrResourceEntry::GrResourceEntry(const GrResourceKey& key, GrResource* resource)
         : fKey(key), fResource(resource) {
     fLockCount = 0;
-    fPrev = fNext = NULL;
 
     // we assume ownership of the resource, and will unref it when we die
     GrAssert(resource);
@@ -311,7 +310,15 @@ void GrResourceCache::purgeAsNeeded() {
         fPurging = true;
         bool withinBudget = false;
         do {
-            GrResourceEntry* entry = fList.fTail;
+            SkTDLinkedList<GrResourceEntry>::Iter iter;
+            
+            // Note: the following code relies on the fact that the 
+            // doubly linked list doesn't invalidate its data/pointers
+            // outside of the specific area where a deletion occurs (e.g.,
+            // in internalDetach)
+            GrResourceEntry* entry = iter.init(fList,
+                    SkTDLinkedList<GrResourceEntry>::Iter::kTail_IterStart);
+
             while (entry && fUnlockedEntryCount) {
                 GrAutoResourceCacheValidate atcv(this);
                 if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
@@ -319,7 +326,7 @@ void GrResourceCache::purgeAsNeeded() {
                     break;
                 }
 
-                GrResourceEntry* prev = entry->fPrev;
+                GrResourceEntry* prev = iter.prev();
                 if (!entry->isLocked()) {
                     // remove from our cache
                     fCache.remove(entry->fKey, entry);
@@ -358,7 +365,7 @@ void GrResourceCache::removeAll() {
 
 #if GR_DEBUG
     GrAssert(fExclusiveList.countEntries() == fClientDetachedCount);
-    GrAssert(fExclusiveList.countBytes() == fClientDetachedBytes);
+    GrAssert(countBytes(fExclusiveList) == fClientDetachedBytes);
     GrAssert(!fUnlockedEntryCount);
     if (!fCache.count()) {
         // Items may have been detached from the cache (such as the backing
@@ -377,16 +384,19 @@ void GrResourceCache::removeAll() {
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_DEBUG
-static int countMatches(const GrResourceEntry* head, const GrResourceEntry* target) {
-    const GrResourceEntry* entry = head;
-    int count = 0;
-    while (entry) {
-        if (target == entry) {
-            count += 1;
-        }
-        entry = entry->next();
+size_t GrResourceCache::countBytes(const SkTDLinkedList<GrResourceEntry>& list) {
+    size_t bytes = 0;
+
+    SkTDLinkedList<GrResourceEntry>::Iter iter;
+    
+    const GrResourceEntry* entry = iter.init(
+                  const_cast<SkTDLinkedList<GrResourceEntry>&>(list),
+                  SkTDLinkedList<GrResourceEntry>::Iter::kTail_IterStart);
+
+    for ( ; NULL != entry; entry = iter.prev()) {
+        bytes += entry->resource()->sizeInBytes();
     }
-    return count;
+    return bytes;
 }
 
 static bool both_zero_or_nonzero(int count, size_t bytes) {
@@ -394,7 +404,8 @@ static bool both_zero_or_nonzero(int count, size_t bytes) {
 }
 
 void GrResourceCache::validate() const {
-    GrAssert(!fList.fHead == !fList.fTail);
+    fList.validate();
+    fExclusiveList.validate();
     GrAssert(both_zero_or_nonzero(fEntryCount, fEntryBytes));
     GrAssert(both_zero_or_nonzero(fClientDetachedCount, fClientDetachedBytes));
     GrAssert(fClientDetachedBytes <= fEntryBytes);
@@ -403,24 +414,29 @@ void GrResourceCache::validate() const {
 
     fCache.validate();
 
-    GrResourceEntry* entry = fList.fHead;
     int count = 0;
     int unlockCount = 0;
-    while (entry) {
+
+    SkTDLinkedList<GrResourceEntry>::Iter iter;
+    
+    const GrResourceEntry* entry = iter.init(
+                  const_cast<SkTDLinkedList<GrResourceEntry>&>(fList),
+                  SkTDLinkedList<GrResourceEntry>::Iter::kHead_IterStart);
+
+    for ( ; NULL != entry; entry = iter.next()) {
         entry->validate();
         GrAssert(fCache.find(entry->key()));
         count += 1;
         if (!entry->isLocked()) {
             unlockCount += 1;
         }
-        entry = entry->fNext;
     }
     GrAssert(count == fEntryCount - fClientDetachedCount);
 
-    size_t bytes = fList.countBytes();
+    size_t bytes = countBytes(fList);
     GrAssert(bytes == fEntryBytes  - fClientDetachedBytes);
 
-    bytes = fExclusiveList.countBytes();
+    bytes = countBytes(fExclusiveList);
     GrAssert(bytes == fClientDetachedBytes);
 
     GrAssert(unlockCount == fUnlockedEntryCount);
@@ -428,11 +444,6 @@ void GrResourceCache::validate() const {
     GrAssert(fList.countEntries() == fEntryCount - fClientDetachedCount);
 
     GrAssert(fExclusiveList.countEntries() == fClientDetachedCount);
-
-    for (int i = 0; i < count; i++) {
-        int matches = countMatches(fList.fHead, fCache.getArray()[i]);
-        GrAssert(1 == matches);
-    }
 }
 
 void GrResourceCache::printStats() const {
@@ -452,68 +463,3 @@ void GrResourceCache::printStats() const {
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-void GrDLinkedList::remove(GrResourceEntry* entry) {
-    GrAssert(this->isInList(entry));
-
-    GrResourceEntry* prev = entry->fPrev;
-    GrResourceEntry* next = entry->fNext;
-
-    if (prev) {
-        prev->fNext = next;
-    } else {
-        fHead = next;
-    }
-    if (next) {
-        next->fPrev = prev;
-    } else {
-        fTail = prev;
-    }
-
-    entry->fPrev = NULL;
-    entry->fNext = NULL;
-}
-
-void GrDLinkedList::addToHead(GrResourceEntry* entry) {
-    GrAssert(NULL == entry->fPrev && NULL == entry->fNext);
-
-    entry->fPrev = NULL;
-    entry->fNext = fHead;
-    if (fHead) {
-        fHead->fPrev = entry;
-    }
-    fHead = entry;
-    if (NULL == fTail) {
-        fTail = entry;
-    }
-}
-
-#if GR_DEBUG
-
-bool GrDLinkedList::isInList(const GrResourceEntry* entry) const {
-
-    for (GrResourceEntry* cur = fHead; NULL != cur; cur = cur->fNext) {
-        if (entry == cur) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-int GrDLinkedList::countEntries() const {
-    int count = 0;
-    for (GrResourceEntry* entry = fTail; NULL != entry; entry = entry->fPrev) {
-        ++count;
-    }
-    return count;
-}
-
-size_t GrDLinkedList::countBytes() const {
-    size_t bytes = 0;
-    for (GrResourceEntry* entry = fTail; NULL != entry; entry = entry->fPrev) {
-        bytes += entry->resource()->sizeInBytes();
-    }
-    return bytes;
-}
-
-#endif // GR_DEBUG
