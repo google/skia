@@ -52,12 +52,10 @@ SkPMColor multiply_proc(SkPMColor src, SkPMColor dst) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlendImageFilter::SkBlendImageFilter(SkBlendImageFilter::Mode mode, SkImageFilter* background, SkImageFilter* foreground)
-  : fMode(mode)
+  : fMode(mode), fBackground(background), fForeground(foreground)
 {
-    fBackground = background;
-    SkASSERT(background != NULL);
+    SkASSERT(NULL != background);
     SkSafeRef(fBackground);
-    fForeground = foreground;
     SkSafeRef(fForeground);
 }
 
@@ -94,7 +92,7 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
                                        SkBitmap* dst,
                                        SkIPoint* offset) {
     SkBitmap background, foreground = src;
-    SkASSERT(fBackground);
+    SkASSERT(NULL != fBackground);
     if (!fBackground->filterImage(proxy, src, ctm, &background, offset)) {
         return false;
     }
