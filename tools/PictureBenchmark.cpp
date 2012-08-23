@@ -189,8 +189,14 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
     }
 
     SkString result;
-    result.printf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(), fRenderer.getTileWidth(),
-                  fRenderer.getTileHeight(), wall_time / fRepeats);
+    if (fRenderer.getTileMinPowerOf2Width() > 0) {
+        result.printf("%i_pow2tiles_%iminx%i: msecs = %6.2f", fRenderer.numTiles(),
+                      fRenderer.getTileMinPowerOf2Width(), fRenderer.getTileHeight(),
+                      wall_time / fRepeats);
+    } else {
+        result.printf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(),
+                      fRenderer.getTileWidth(), fRenderer.getTileHeight(), wall_time / fRepeats);
+    }
 #if SK_SUPPORT_GPU
     if (fRenderer.isUsingGpuDevice()) {
         result.appendf(" gmsecs = %6.2f", gpu_time / fRepeats);

@@ -8,6 +8,7 @@
 #include "BenchTimer.h"
 #include "PictureBenchmark.h"
 #include "SkCanvas.h"
+#include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -22,7 +23,8 @@ static void usage(const char* argv0) {
 "Usage: \n"
 "     %s <inputDir>...\n"
 "     [--repeat] \n"
-"     [--mode pipe | record | simple | tile width[%] height[%] | unflatten]\n"
+"     [--mode pipe | pow2tile minWidth height[%] | record | simple\n"
+"         | tile width[%] height[%] | unflatten]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
@@ -34,10 +36,21 @@ static void usage(const char* argv0) {
 "     inputDir:  A list of directories and files to use as input. Files are\n"
 "                expected to have the .skp extension.\n\n");
     SkDebugf(
-"     --mode pipe | record | simple | tile width[%] height[%] | unflatten: Run\n"
-"                in the corresponding mode. Default is simple.\n");
+"     --mode pipe | pow2tile minWidht height[%] | record | simple\n"
+"        | tile width[%] height[%] | unflatten: Run in the corresponding mode.\n"
+"                                               Default is simple.\n");
     SkDebugf(
 "                     pipe, Benchmark SkGPipe rendering.\n");
+    SkDebugf(
+"                     pow2tile minWidth height[%], Creates tiles with widths\n"
+"                                                  that are all a power of two\n"
+"                                                  such that they minimize the\n"
+"                                                  amount of wasted tile space.\n"
+"                                                  minWidth is the minimum width\n"
+"                                                  of these tiles and must be a\n"
+"                                                  power of two. Simple\n"
+"                                                  rendering using these tiles\n"
+"                                                  is benchmarked.\n");
     SkDebugf(
 "                     record, Benchmark picture to picture recording.\n");
     SkDebugf(
@@ -131,29 +144,47 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 benchmark = SkNEW(sk_tools::RecordPictureBenchmark);
             } else if (0 == strcmp(*argv, "simple")) {
                 benchmark = SkNEW(sk_tools::SimplePictureBenchmark);
-            } else if (0 == strcmp(*argv, "tile")) {
+            } else if ((0 == strcmp(*argv, "tile")) || (0 == strcmp(*argv, "pow2tile"))) {
+                char* mode = *argv;
+                bool isPowerOf2Mode = false;
+
+                if (0 == strcmp(*argv, "pow2tile")) {
+                    isPowerOf2Mode = true;
+                }
+
                 sk_tools::TiledPictureBenchmark* tileBenchmark =
                     SkNEW(sk_tools::TiledPictureBenchmark);
                 ++argv;
                 if (argv >= stop) {
                     SkDELETE(tileBenchmark);
-                    SkDebugf("Missing width for --mode tile\n");
+                    SkDebugf("Missing width for --mode %s\n", mode);
                     usage(argv0);
                     exit(-1);
                 }
 
-                if (sk_tools::is_percentage(*argv)) {
+                if (isPowerOf2Mode) {
+                    int minWidth = atoi(*argv);
+
+                    if (!SkIsPow2(minWidth) || minWidth <= 0) {
+                        SkDELETE(tileBenchmark);
+                        SkDebugf("--mode %s must be given a width"
+                                 " value that is a power of two\n", mode);
+                        exit(-1);
+                    }
+
+                    tileBenchmark->setTileMinPowerOf2Width(minWidth);
+                } else if (sk_tools::is_percentage(*argv)) {
                     tileBenchmark->setTileWidthPercentage(atof(*argv));
                     if (!(tileBenchmark->getTileWidthPercentage() > 0)) {
                         SkDELETE(tileBenchmark);
-                        SkDebugf("--mode tile must be given a width percentage > 0\n");
+                        SkDebugf("--mode %s must be given a width percentage > 0\n", mode);
                         exit(-1);
                     }
                 } else {
                     tileBenchmark->setTileWidth(atoi(*argv));
                     if (!(tileBenchmark->getTileWidth() > 0)) {
                         SkDELETE(tileBenchmark);
-                        SkDebugf("--mode tile must be given a width > 0\n");
+                        SkDebugf("--mode %s must be given a width > 0\n", mode);
                         exit(-1);
                     }
                 }
@@ -161,7 +192,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 ++argv;
                 if (argv >= stop) {
                     SkDELETE(tileBenchmark);
-                    SkDebugf("Missing height for --mode tile\n");
+                    SkDebugf("Missing height for --mode %s\n", mode);
                     usage(argv0);
                     exit(-1);
                 }
@@ -170,14 +201,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                     tileBenchmark->setTileHeightPercentage(atof(*argv));
                     if (!(tileBenchmark->getTileHeightPercentage() > 0)) {
                         SkDELETE(tileBenchmark);
-                        SkDebugf("--mode tile must be given a height percentage > 0\n");
+                        SkDebugf("--mode %s must be given a height percentage > 0\n", mode);
                         exit(-1);
                     }
                 } else {
                     tileBenchmark->setTileHeight(atoi(*argv));
                     if (!(tileBenchmark->getTileHeight() > 0)) {
                         SkDELETE(tileBenchmark);
-                        SkDebugf("--mode tile must be given a height > 0\n");
+                        SkDebugf("--mode %s must be given a height > 0\n", mode);
                         exit(-1);
                     }
                 }

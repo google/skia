@@ -336,6 +336,12 @@ static inline SkScalar SkScalarInterp(SkScalar A, SkScalar B, SkScalar t) {
     return A + SkScalarMul(B - A, t);
 }
 
+static inline SkScalar SkScalarLog2(SkScalar x) {
+    static const SkScalar log2_conversion_factor = SkScalarDiv(1, SkScalarLog(2));
+
+    return SkScalarMul(SkScalarLog(x), log2_conversion_factor);
+}
+
 /** Interpolate along the function described by (keys[length], values[length])
     for the passed searchKey.  SearchKeys outside the range keys[0]-keys[Length]
     clamp to the min or max value.  This function was inspired by a desire
