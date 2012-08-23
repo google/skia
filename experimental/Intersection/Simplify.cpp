@@ -27,13 +27,14 @@ int gDebugMaxWindValue = SK_MaxS32;
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#if 1 // set to 1 for multiple thread -- no debugging
+#if 0 // set to 1 for multiple thread -- no debugging
 
 const bool gRunTestsInOneThread = false;
 
 #define DEBUG_ACTIVE_SPANS 0
 #define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_ADD_T_PAIR 0
+#define DEBUG_ANGLE 0
 #define DEBUG_CONCIDENT 0
 #define DEBUG_CROSS 0
 #define DEBUG_DUMP 0
@@ -48,12 +49,13 @@ const bool gRunTestsInOneThread = false;
 const bool gRunTestsInOneThread = true;
 
 #define DEBUG_ACTIVE_SPANS 1
-#define DEBUG_ADD_INTERSECTING_TS 1
+#define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_ADD_T_PAIR 0
-#define DEBUG_CONCIDENT 1
+#define DEBUG_ANGLE 0
+#define DEBUG_CONCIDENT 0
 #define DEBUG_CROSS 0
 #define DEBUG_DUMP 1
-#define DEBUG_MARK_DONE 1
+#define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 1
 #define DEBUG_SORT 1
 #define DEBUG_WIND_BUMP 0
@@ -451,35 +453,35 @@ public:
         if ((fDy < 0) ^ (rh.fDy < 0)) {
             return fDy < 0;
         }
-        if (fDy == 0 && rh.fDy == 0 && fDx != rh.fDx) {
+        if (fDy == 0 && rh.fDy == 0 && fDx * rh.fDx < 0) {
             return fDx < rh.fDx;
         }
         SkScalar cmp = fDx * rh.fDy - rh.fDx * fDy;
-        if (cmp) {
+        if (!approximately_zero(cmp)) {
             return cmp < 0;
         }
-        SkScalar dy = fDy + fDDy;
-        SkScalar rdy = rh.fDy + rh.fDDy;
-        if ((dy < 0) ^ (rdy < 0)) {
+        SkScalar dy = approximately_pin(fDy + fDDy);
+        SkScalar rdy = approximately_pin(rh.fDy + rh.fDDy);
+        if (dy * rdy < 0) {
             return dy < 0;
         }
-        SkScalar dx = fDx + fDDx;
-        SkScalar rdx = rh.fDx + rh.fDDx;
-        if (dy == 0 && rdy == 0 && dx != rdx) {
+        SkScalar dx = approximately_pin(fDx + fDDx);
+        SkScalar rdx = approximately_pin(rh.fDx + rh.fDDx);
+        if (dy == 0 && rdy == 0 && dx * rdx < 0) {
             return dx < rdx;
         }
         cmp = dx * rdy - rdx * dy;
-        if (cmp) {
+        if (!approximately_zero(cmp)) {
             return cmp < 0;
         }
-        dy += fDDDy;
-        rdy += rh.fDDDy;
-        if ((dy < 0) ^ (rdy < 0)) {
+        dy = approximately_pin(dy + fDDDy);
+        rdy = approximately_pin(rdy + rh.fDDDy);
+        if (dy * rdy < 0) {
             return dy < 0;
         }
-        dx += fDDDx;
-        rdx += rh.fDDDx;
-        if (dy == 0 && rdy == 0 && dx != rdx) {
+        dx = approximately_pin(dx + fDDDx);
+        rdx = approximately_pin(rdx + rh.fDDDx);
+        if (dy == 0 && rdy == 0 && dx * rdx < 0) {
             return dx < rdx;
         }
         return dx * rdy < rdx * dy;
@@ -510,20 +512,20 @@ public:
         fSegment = segment;
         fStart = start;
         fEnd = end;
-        fDx = pts[1].fX - pts[0].fX; // b - a
-        fDy = pts[1].fY - pts[0].fY;
+        fDx = approximately_pin(pts[1].fX - pts[0].fX); // b - a
+        fDy = approximately_pin(pts[1].fY - pts[0].fY);
         if (verb == SkPath::kLine_Verb) {
             fDDx = fDDy = fDDDx = fDDDy = 0;
             return;
         }
-        fDDx = pts[2].fX - pts[1].fX - fDx; // a - 2b + c
-        fDDy = pts[2].fY - pts[1].fY - fDy;
+        fDDx = approximately_pin(pts[2].fX - pts[1].fX - fDx); // a - 2b + c
+        fDDy = approximately_pin(pts[2].fY - pts[1].fY - fDy);
         if (verb == SkPath::kQuad_Verb) {
             fDDDx = fDDDy = 0;
             return;
         }
-        fDDDx = pts[3].fX + 3 * (pts[1].fX - pts[2].fX) - pts[0].fX;
-        fDDDy = pts[3].fY + 3 * (pts[1].fY - pts[2].fY) - pts[0].fY;
+        fDDDx = approximately_pin(pts[3].fX + 3 * (pts[1].fX - pts[2].fX) - pts[0].fX);
+        fDDDy = approximately_pin(pts[3].fY + 3 * (pts[1].fY - pts[2].fY) - pts[0].fY);
     }
 
     // noncoincident quads/cubics may have the same initial angle
@@ -585,6 +587,31 @@ public:
     int start() const {
         return fStart;
     }
+
+#if DEBUG_ANGLE
+    void debugShow(const SkPoint& a) const {
+        SkDebugf("    d=(%1.9g,%1.9g) dd=(%1.9g,%1.9g) ddd=(%1.9g,%1.9g)",
+                fDx, fDy, fDDx, fDDy, fDDDx, fDDDy);
+        SkPoint b, c, d;
+        b.fX = a.fX + fDx; // add b - a
+        b.fY = a.fY + fDy;
+        c.fX = a.fX + 2 * fDx + fDDx; // add a + 2(b - a) to a - 2b + c
+        c.fY = a.fY + 2 * fDy + fDDy;
+        if (fDDDx == 0 && fDDDy == 0) {
+            if (fDDx == 0 && fDDy == 0) {
+                SkDebugf(" line=(%1.9g,%1.9g %1.9g,%1.9g)\n", a.fX, a.fY, b.fX, b.fY);
+            } else {
+                SkDebugf(" quad=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
+                        a.fX, a.fY, b.fX, b.fY, c.fX, c.fY);
+            }
+        } else {
+            d.fX = fDDDx - a.fX - 3 * (c.fX - b.fX);
+            d.fY = fDDDy - a.fY - 3 * (c.fY - b.fY);
+            SkDebugf(" cubic=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
+                    a.fX, a.fY, b.fX, b.fY, c.fX, c.fY, d.fX, d.fY);
+        }
+    }
+#endif
 
 private:
     SkScalar fDx;
@@ -962,6 +989,13 @@ public:
         //  binary search?
         int insertedAt = -1;
         size_t tCount = fTs.count();
+        // FIXME: only do this pinning here (e.g. this is done also in quad/line intersect)
+        if (newT < FLT_EPSILON) {
+            newT = 0;
+        }
+        if (newT > 1 - FLT_EPSILON) {
+            newT = 1;
+        }
         for (size_t index = 0; index < tCount; ++index) {
             // OPTIMIZATION: if there are three or more identical Ts, then
             // the fourth and following could be further insertion-sorted so
@@ -1712,7 +1746,7 @@ public:
     }
 
     // FIXME: this is tricky code; needs its own unit test
-    void findTooCloseToCall(int /* winding */ ) { // FIXME: winding should be considered
+    void findTooCloseToCall(int xorMask) {
         int count = fTs.count();
         if (count < 3) { // require t=0, x, 1 at minimum
             return;
@@ -1724,9 +1758,12 @@ public:
         do {
             match = &fTs[matchIndex];
             mOther = match->fOther;
-            moCount = mOther->fTs.count();
-            if (moCount >= 3) {
-                break;
+            // FIXME: allow quads, cubics to be near coincident?
+            if (mOther->fVerb == SkPath::kLine_Verb) {
+                moCount = mOther->fTs.count();
+                if (moCount >= 3) {
+                    break;
+                }
             }
             if (++matchIndex >= count) {
                 return;
@@ -1743,6 +1780,9 @@ public:
                 continue;
             }
             Segment* tOther = test->fOther;
+            if (tOther->fVerb != SkPath::kLine_Verb) {
+                continue; // FIXME: allow quads, cubics to be near coincident?
+            }
             int toCount = tOther->fTs.count();
             if (toCount < 3) { // require t=0, x, 1 at minimum
                 continue;
@@ -1772,6 +1812,10 @@ public:
                     continue;
                 }
                 if (moSpan.fOther == tOther) {
+                    if (tOther->fTs[moSpan.fOtherIndex].fWindValue == 0) {
+                        moStart = -1;
+                        break;
+                    }
                     SkASSERT(moEnd == -1);
                     moEnd = moIndex;
                     moEndT = moSpan.fT;
@@ -1789,6 +1833,9 @@ public:
             double toStartT, toEndT;
             for (int toIndex = 0; toIndex < toCount; ++toIndex) {
                 Span& toSpan = tOther->fTs[toIndex];
+                if (toSpan.fDone) {
+                    continue;
+                }
                 if (toSpan.fOther == this) {
                     if (toSpan.fOtherT == test->fT) {
                         toStart = toIndex;
@@ -1797,6 +1844,10 @@ public:
                     continue;
                 }
                 if (toSpan.fOther == mOther && toSpan.fOtherT == moEndT) {
+                    if (mOther->fTs[toSpan.fOtherIndex].fWindValue == 0) {
+                        moStart = -1;
+                        break;
+                    }
                     SkASSERT(toEnd == -1);
                     toEnd = toIndex;
                     toEndT = toSpan.fT;
@@ -1814,16 +1865,16 @@ public:
                     || !tOther->isLinear(toStart, toEnd)) {
                 continue;
             }
-            // FIXME: defer implementation until the rest works
-            // this may share code with regular coincident detection
-            SkASSERT(0);
-        #if 0
+            bool flipped = (moStart - moEnd) * (toStart - toEnd) < 1;
+            double tStart = tOther->fTs[toStart].fT;
+            double tEnd = tOther->fTs[toEnd].fT;
+            double mStart = mOther->fTs[moStart].fT;
+            double mEnd = mOther->fTs[moEnd].fT;
             if (flipped) {
-                mOther->addTCancel(moStart, moEnd, tOther, tStart, tEnd);
+                mOther->addTCancel(mStart, mEnd, *tOther, tEnd, tStart);
             } else {
-                mOther->addTCoincident(moStart, moEnd, tOther, tStart, tEnd);
+                mOther->addTCoincident(xorMask, mStart, mEnd, *tOther, tStart, tEnd);
             }
-        #endif
         }
     }
 
@@ -2409,13 +2460,16 @@ public:
                 windSum -= segment.spanSign(&angle);
             }
             SkDebugf("%s [%d] id=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)"
-                     " sign=%d windValue=%d winding: %d->%d (max=%d) done=%d\n",
-                     __FUNCTION__, index, segment.fID, kLVerbStr[segment.fVerb],
-                     start, segment.xAtT(&sSpan),
-                     segment.yAtT(&sSpan), end, segment.xAtT(&eSpan),
-                     segment.yAtT(&eSpan), angle.sign(), mSpan.fWindValue,
-                     lastSum, windSum, useInnerWinding(lastSum, windSum)
-                     ? windSum : lastSum, mSpan.fDone);
+                    " sign=%d windValue=%d winding: %d->%d (max=%d) done=%d\n",
+                    __FUNCTION__, index, segment.fID, kLVerbStr[segment.fVerb],
+                    start, segment.xAtT(&sSpan),
+                    segment.yAtT(&sSpan), end, segment.xAtT(&eSpan),
+                    segment.yAtT(&eSpan), angle.sign(), mSpan.fWindValue,
+                    lastSum, windSum, useInnerWinding(lastSum, windSum)
+                    ? windSum : lastSum, mSpan.fDone);
+#if DEBUG_ANGLE
+            angle.debugShow(segment.xyAtT(&sSpan));
+#endif
             ++index;
             if (index == angles.count()) {
                 index = 0;
@@ -2587,10 +2641,10 @@ public:
         return false;
     }
 
-    void findTooCloseToCall(int winding) {
+    void findTooCloseToCall(int xorMask) {
         int segmentCount = fSegments.count();
         for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
-            fSegments[sIndex].findTooCloseToCall(winding);
+            fSegments[sIndex].findTooCloseToCall(xorMask);
         }
     }
 
@@ -3303,11 +3357,11 @@ static void coincidenceCheck(SkTDArray<Contour*>& contourList, int xorMask) {
     int contourCount = contourList.count();
     for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
         Contour* contour = contourList[cIndex];
-        contour->findTooCloseToCall(xorMask);
+        contour->resolveCoincidence(xorMask);
     }
     for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
         Contour* contour = contourList[cIndex];
-        contour->resolveCoincidence(xorMask);
+        contour->findTooCloseToCall(xorMask);
     }
 }
 
@@ -3693,6 +3747,10 @@ static void bridgeWinding(SkTDArray<Contour*>& contourList, SkPath& simple) {
                 Segment* next = current->findNextWinding(chaseArray, active,
                         nextStart, nextEnd, winding, spanWinding);
                 if (!next) {
+                    if (active && firstPt && current->verb() != SkPath::kLine_Verb && *firstPt != lastPt) {
+                        lastPt = current->addCurveTo(index, endIndex, simple, true);
+                        SkASSERT(*firstPt == lastPt);
+                    }
                     break;
                 }
                 if (!firstPt) {
@@ -3748,6 +3806,10 @@ static void bridgeXor(SkTDArray<Contour*>& contourList, SkPath& simple) {
             int nextEnd = end;
             Segment* next = current->findNextXor(nextStart, nextEnd);
             if (!next) {
+                if (firstPt && current->verb() != SkPath::kLine_Verb && *firstPt != lastPt) {
+                    lastPt = current->addCurveTo(start, end, simple, true);
+                    SkASSERT(*firstPt == lastPt);
+                }
                 break;
             }
             if (!firstPt) {

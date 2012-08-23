@@ -39,7 +39,9 @@ int quadraticRoots(double A, double B, double C, double t[2]) {
         } else if (ratio > 1 - FLT_EPSILON) {
             ratio = 1;
         }
-        t[foundRoots++] = ratio;
+        if (foundRoots == 0 || fabs(t[0] - ratio) >= FLT_EPSILON) {
+            t[foundRoots++] = ratio;
+        }
     }
     return foundRoots;
 }

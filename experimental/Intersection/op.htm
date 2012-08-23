@@ -1047,11 +1047,206 @@ path.close();
     path.close();
 </div>
 
+<div id="testQuadratic4x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(0, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic5">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 0, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic6">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(2, 0, 0, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic7">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(3, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(3, 0, 1, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic8">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(0, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic9">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(3, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(1, 2, 3, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic9a">
+    path.moveTo(1.08000004, 0.720000029);
+    path.lineTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(3, 1);
+    path.lineTo(1.01568651, 0.338562161);
+    path.quadTo(1.03542483, 0.541699469, 1.08000004, 0.720000029);
+    path.close();
+    path.moveTo(1.08000004, 0.720000029);
+    path.lineTo(3, 2);
+    path.quadTo(1.39999998, 2, 1.08000004, 0.720000029);
+    path.close();
+
+</div>
+
+<div id="testQuadratic10a">
+path.moveTo(15.5, 15.5);
+path.lineTo(46.5, 15.5);
+path.quadTo(0, 31, 0, 46.5);
+path.lineTo(15.5, 15.5);
+path.close();
+</div>
+
+<div id="testQuadratic10b">
+path.moveTo(5.16666698, 36.1666641);
+path.lineTo(15.5, 15.5);
+path.lineTo(46.5, 15.5);
+path.quadTo(15.5, 25.8333321, 5.16666698, 36.1666641);
+path.close();
+path.moveTo(5.16666698, 36.1666641);
+path.lineTo(0, 46.5);
+path.quadTo(0, 41.3333359, 5.16666698, 36.1666641);
+path.close();
+</div>
+
+<div id="testQuadratic11a">
+path.moveTo(0, 0);
+path.lineTo(15.5, 31);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(0, 15.5);
+path.lineTo(15.5, 15.5);
+path.quadTo(15.5, 15.5, 46.5, 31);
+path.lineTo(0, 15.5);
+path.close();
+</div>
+
+<div id="testQuadratic11b">
+path.moveTo(9.30000019, 18.6000004);
+path.lineTo(0, 15.5);
+path.lineTo(7.75, 15.5);
+path.lineTo(15.5, 15.5);
+path.lineTo(46.5, 31);
+path.lineTo(9.30000019, 18.6000004);
+path.close();
+</div>
+
+<div id="testQuadratic12">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.quadTo(1, 1, 0, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic13a">
+path.moveTo(0, 0);
+path.quadTo(0, 0, 15.5, 0);
+path.lineTo(15.5, 31);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(0, 0);
+path.quadTo(15.5, 46.5, 46.5, 46.5);
+path.lineTo(0, 0);
+path.close();
+</div>
+
+<div id="testQuadratic13b">
+path.moveTo(14.8800001, 29.7600002);
+path.quadTo(6.20000029, 18.6000004, 0, 0);
+path.lineTo(14.8800001, 29.7600002);
+path.close();
+path.moveTo(15.5, 30.5437222);
+path.lineTo(15.5, 31);
+path.lineTo(14.8800001, 29.7600002);
+path.quadTo(15.1884346, 30.156559, 15.5, 30.5437222);
+path.close();
+path.moveTo(15.5, 15.5);
+path.lineTo(0, 0);
+path.lineTo(15.5, 0);
+path.lineTo(15.5, 15.5);
+path.close();
+path.moveTo(15.5, 30.5437222);
+path.lineTo(15.5, 15.5);
+path.lineTo(46.5, 46.5);
+path.quadTo(28.34062, 46.5, 15.5, 30.5437222);
+path.close();
+</div>
+
+<div id="testQuadratic14">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(3, 2, 3, 3);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic14,
+    testQuadratic13b,
+    testQuadratic13a,
+    testQuadratic12,
+    testQuadratic11b,
+    testQuadratic11a,
+    testQuadratic10b,
+    testQuadratic10a,
+    testQuadratic9a,
+    testQuadratic9,
+    testQuadratic8,
+    testQuadratic7,
+    testQuadratic6,
+    testQuadratic5,
+    testQuadratic4x,
     testQuadratic3,
     testQuadratic2,
     testQuadratic1,
