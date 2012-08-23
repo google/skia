@@ -225,6 +225,7 @@
         '<(skia_include_path)/core/SkTDArray.h',
         '<(skia_include_path)/core/SkTDStack.h',
         '<(skia_include_path)/core/SkTDict.h',
+        '<(skia_include_path)/core/SkTDLinkedList.h',
         '<(skia_include_path)/core/SkTRegistry.h',
         '<(skia_include_path)/core/SkTScopedPtr.h',
         '<(skia_include_path)/core/SkTSearch.h',

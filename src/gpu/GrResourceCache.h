@@ -13,6 +13,7 @@
 
 #include "GrTypes.h"
 #include "GrTHashCache.h"
+#include "SkTDLinkedList.h"
 
 class GrResource;
 
@@ -124,11 +125,6 @@ public:
     const GrResourceKey& key() const { return fKey; }
 
 #if GR_DEBUG
-    GrResourceEntry* next() const { return fNext; }
-    GrResourceEntry* prev() const { return fPrev; }
-#endif
-
-#if GR_DEBUG
     void validate() const;
 #else
     void validate() const {}
@@ -153,8 +149,7 @@ private:
     int fLockCount;
 
     // we're a dlinklist
-    GrResourceEntry* fPrev;
-    GrResourceEntry* fNext;
+    SK_DEFINE_DLINKEDLIST_INTERFACE(GrResourceEntry);
 
     friend class GrResourceCache;
     friend class GrDLinkedList;
@@ -163,27 +158,6 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "GrTHashCache.h"
-
-class GrDLinkedList {
-public:
-    GrDLinkedList()
-        : fHead(NULL)
-        , fTail(NULL) {
-    }
-
-    void remove(GrResourceEntry* entry);
-    void addToHead(GrResourceEntry* entry);
-
-#ifdef GR_DEBUG
-    bool isInList(const GrResourceEntry* entry) const;
-    bool isEmpty() const { return NULL == fHead && NULL == fTail; }
-    int countEntries() const;
-    size_t countBytes() const;
-#endif
-
-    GrResourceEntry* fHead;
-    GrResourceEntry* fTail;
-};
 
 /**
  *  Cache of GrResource objects.
@@ -315,11 +289,11 @@ private:
     GrTHashTable<GrResourceEntry, Key, 8> fCache;
 
     // manage the dlink list
-    GrDLinkedList    fList;
+    SkTDLinkedList<GrResourceEntry>    fList;
 
 #if GR_DEBUG
     // These objects cannot be returned by a search
-    GrDLinkedList    fExclusiveList;
+    SkTDLinkedList<GrResourceEntry>    fExclusiveList;
 #endif
 
     // our budget, used in purgeAsNeeded()
@@ -349,6 +323,10 @@ private:
                             bool lock,
                             bool clientReattach);
 
+#if GR_DEBUG
+    static size_t GrResourceCache::countBytes(
+                        const SkTDLinkedList<GrResourceEntry>& list);
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
