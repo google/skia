@@ -33,6 +33,10 @@
 #include "SkStream.h"
 #include "SkString.h"
 
+template <typename T> const T& Min(const T& a, const T& b) {
+    return (a < b) ? a : b;
+}
+
 class SkBenchLogger {
 public:
     SkBenchLogger() : fFileStream(NULL) {}
@@ -393,7 +397,7 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
 static void help() {
     SkDebugf("Usage: bench [-o outDir] [-repeat nr] [-logPerIter 1|0] "
                           "[-timers [wcg]*] [-rotate]\n"
-             "    [-scale] [-clip] [-forceAA 1|0] [-forceFilter 1|0]\n"
+             "    [-scale] [-clip] [-min] [-forceAA 1|0] [-forceFilter 1|0]\n"
              "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
              "    [-match name] [-mode normal|deferred|record|picturerecord]\n"
              "    [-config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar]\n"
@@ -408,6 +412,7 @@ static void help() {
     SkDebugf("    -rotate : Rotate before each bench runs.\n");
     SkDebugf("    -scale : Scale before each bench runs.\n");
     SkDebugf("    -clip : Clip before each bench runs.\n");
+    SkDebugf("    -min : Print the minimum times (instead of average).\n");
     SkDebugf("    -forceAA 1|0 : "
              "Enable/disable anti-aliased, default is enabled.\n");
     SkDebugf("    -forceFilter 1|0 : "
@@ -455,6 +460,7 @@ int main (int argc, char * const argv[]) {
     bool doScale = false;
     bool doRotate = false;
     bool doClip = false;
+    bool printMin = false;
     bool hasStrokeWidth = false;
     float strokeWidth;
     SkTDArray<const char*> fMatches;
@@ -522,6 +528,8 @@ int main (int argc, char * const argv[]) {
             doScale = true;
         } else if (!strcmp(*argv, "-clip")) {
             doClip = true;
+        } else if (!strcmp(*argv, "-min")) {
+            printMin = true;
         } else if (strcmp(*argv, "-forceAA") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceAA)) {
                 logger.logError("missing arg for -forceAA\n");
@@ -671,8 +679,8 @@ int main (int argc, char * const argv[]) {
                    "deferred=%d logperiter=%d",
                    forceAlpha, forceAA, forceFilter, benchMode == kDeferred_benchModes,
                    logPerIter);
-        str.appendf(" rotate=%d scale=%d clip=%d",
-                   doRotate, doScale, doClip);
+        str.appendf(" rotate=%d scale=%d clip=%d min=%d",
+                   doRotate, doScale, doClip, printMin);
         str.appendf(" record=%d picturerecord=%d",
                     benchMode == kRecord_benchModes,
                     benchMode == kPictureRecord_benchModes);
@@ -847,9 +855,9 @@ int main (int argc, char * const argv[]) {
             SkString fWallStr(" msecs = ");
             SkString fCpuStr(" cmsecs = ");
             SkString fGpuStr(" gmsecs = ");
-            double fWallSum = 0.0;
-            double fCpuSum = 0.0;
-            double fGpuSum = 0.0;
+            double fWallSum = 0.0, fWallMin;
+            double fCpuSum = 0.0, fCpuMin;
+            double fGpuSum = 0.0, fGpuMin;
             for (int i = 0; i < repeatDraw; i++) {
                 if ((benchMode == kRecord_benchModes
                      || benchMode == kPictureRecord_benchModes)) {
@@ -886,6 +894,17 @@ int main (int argc, char * const argv[]) {
                     fGpuStr.appendf(perIterTimeformat.c_str(), timer.fGpu);
                     fGpuStr.appendf(",");
                 }
+
+                if (0 == i) {
+                    fWallMin = timer.fWall;
+                    fCpuMin  = timer.fCpu;
+                    fGpuMin  = timer.fGpu;
+                } else {
+                    fWallMin = Min(fWallMin, timer.fWall);
+                    fCpuMin  = Min(fCpuMin,  timer.fCpu);
+                    fGpuMin  = Min(fGpuMin,  timer.fGpu);
+                }
+
                 fWallSum += timer.fWall;
                 fCpuSum += timer.fCpu;
                 fGpuSum += timer.fGpu;
@@ -900,11 +919,14 @@ int main (int argc, char * const argv[]) {
                 // otherwise output only the average
                 if (!logPerIter) {
                     fWallStr.set(" msecs = ");
-                    fWallStr.appendf(normalTimeFormat.c_str(), fWallSum / repeatDraw);
+                    fWallStr.appendf(normalTimeFormat.c_str(), 
+                        printMin ? fWallMin : fWallSum / repeatDraw);
                     fCpuStr.set(" cmsecs = ");
-                    fCpuStr.appendf(normalTimeFormat.c_str(), fCpuSum / repeatDraw);
+                    fCpuStr.appendf(normalTimeFormat.c_str(), 
+                        printMin ? fCpuMin : fCpuSum / repeatDraw);
                     fGpuStr.set(" gmsecs = ");
-                    fGpuStr.appendf(normalTimeFormat.c_str(), fGpuSum / repeatDraw);
+                    fGpuStr.appendf(normalTimeFormat.c_str(), 
+                        printMin ? fGpuMin : fGpuSum / repeatDraw);
                 }
                 SkString str;
                 str.printf("  %4s:", configName);
